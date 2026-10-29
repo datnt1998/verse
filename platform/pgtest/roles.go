@@ -40,16 +40,29 @@ func ProvisionRoles(t *testing.T, spec RoleSpec) (appDSN, maintenanceDSN string)
 		CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public`); err != nil {
 		t.Fatalf("provision production extensions: %v", err)
 	}
-	_, err = admin.Exec(ctx, `DO $$ BEGIN
-		PERFORM pg_advisory_xact_lock($1, $2);
-		IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname=$3) THEN
-			EXECUTE format('CREATE ROLE %I LOGIN', $3);
-		END IF;
-		IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname=$4) THEN
-			EXECUTE format('CREATE ROLE %I LOGIN', $4);
-		END IF;
-	END $$;`, spec.LockKey1, spec.LockKey2, spec.MigrateRole, spec.AppRole)
+	// DO blocks take no bind parameters, so the lock and the existence checks
+	// run in one explicit transaction: pg_advisory_xact_lock holds until commit,
+	// which keeps parallel tests from racing CREATE ROLE.
+	tx, err := admin.Begin(ctx)
 	if err != nil {
+		t.Fatalf("provision production roles: %v", err)
+	}
+	defer tx.Rollback(ctx)
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1, $2)`, spec.LockKey1, spec.LockKey2); err != nil {
+		t.Fatalf("provision production roles: %v", err)
+	}
+	for _, role := range []string{spec.MigrateRole, spec.AppRole} {
+		var exists bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT FROM pg_roles WHERE rolname = $1)`, role).Scan(&exists); err != nil {
+			t.Fatalf("provision production roles: %v", err)
+		}
+		if !exists {
+			if _, err := tx.Exec(ctx, "CREATE ROLE "+pgx.Identifier{role}.Sanitize()+" LOGIN"); err != nil {
+				t.Fatalf("provision production roles: %v", err)
+			}
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
 		t.Fatalf("provision production roles: %v", err)
 	}
 	schema := pgx.Identifier{SchemaOf(dsn)}.Sanitize()
