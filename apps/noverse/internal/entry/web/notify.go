@@ -69,7 +69,7 @@ func (g *Gateway) notifyAllowed(username, story string) bool {
 	}
 	for _, v := range users {
 		if v.Username == username {
-			u := identity.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
+			u := g.accounts.UserFromView(v.UserView)
 			return !u.Disabled && (story == "" || u.CanRead(story))
 		}
 	}
@@ -193,7 +193,7 @@ func (g *Gateway) consumeNotifyEvent(ev Event) {
 		return
 	}
 	for _, v := range users {
-		u := identity.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
+		u := g.accounts.UserFromView(v.UserView)
 		if ev.visibleTo(u) {
 			if e := n.store.Record(v.Username, notifyForRecipient(item, u)); e != nil {
 				slog.Error("Không lưu được thông báo", "module", "web", "err", e)

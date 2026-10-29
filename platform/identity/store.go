@@ -125,6 +125,31 @@ func (u User) View() UserView {
 	return UserView{Username: u.Username, Name: u.Name, Role: u.Role, Projects: projects, Disabled: u.Disabled, OnboardedAt: u.OnboardedAt, MustChangePassword: u.MustChangePassword, CreatedAt: u.CreatedAt, UpdatedAt: u.UpdatedAt, DisabledAt: u.DisabledAt, DisabledBy: u.DisabledBy, DisabledReason: u.DisabledReason, PasswordChangedAt: u.PasswordChangedAt}
 }
 
+// UserFromView xây User quyền-hạn từ một UserView và gắn legacyProject của
+// store này. Dùng mọi nơi cần CanRead/CanWrite trên một view (danh sách
+// Users(), dữ liệu sự kiện…): dựng User{...} thủ công sẽ làm mất fallback
+// legacy cho ID không tên miền, khiến quyền lặng lẽ bị từ chối.
+// Chỉ mang theo trường có trong view — credential (PasswordHash, TempPassword,
+// Recovery) không bao giờ rời store qua đường này.
+func (s *Store) UserFromView(v UserView) User {
+	return User{
+		Username:           v.Username,
+		Name:               v.Name,
+		Role:               v.Role,
+		Projects:           v.Projects,
+		Disabled:           v.Disabled,
+		OnboardedAt:        v.OnboardedAt,
+		MustChangePassword: v.MustChangePassword,
+		DisabledAt:         v.DisabledAt,
+		DisabledBy:         v.DisabledBy,
+		DisabledReason:     v.DisabledReason,
+		PasswordChangedAt:  v.PasswordChangedAt,
+		CreatedAt:          v.CreatedAt,
+		UpdatedAt:          v.UpdatedAt,
+		legacyProject:      s.opts.LegacyProjectID,
+	}
+}
+
 type ProjectRole string
 
 const (

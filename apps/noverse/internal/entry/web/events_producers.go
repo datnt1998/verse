@@ -66,7 +66,7 @@ func (g *Gateway) accountChanged(username string) {
 	}
 	for _, view := range users {
 		if view.Username == username {
-			g.events().RefreshUser(identity.User{Username: view.Username, Name: view.Name, Role: view.Role, Projects: view.Projects, Disabled: view.Disabled})
+			g.events().RefreshUser(g.accounts.UserFromView(view.UserView))
 			return
 		}
 	}
