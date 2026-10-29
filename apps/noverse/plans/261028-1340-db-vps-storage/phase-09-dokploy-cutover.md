@@ -23,7 +23,7 @@ VPS host Tailscale IP publishes private worker listener :8081 only; public mux n
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify `R/Dockerfile:1-30`, `R/docker-compose.yml:1-10` (offline example vs hosted recipe), `R/.dockerignore:1-16`, `R/cmd/ainovel-cli/serve.go:24-65,122-149`, `R/internal/bootstrap/storage.go` (02), `R/internal/entry/web/{gateway,auth,authorization}.go` (`gateway.go:478-506`, `auth.go:54-72`), `R/web/package.json:5-13`, `R/web/package-lock.json`, `R/README.md`, `R/docs/architecture.md`.
 - Create `R/internal/entry/web/proxy.go`, `health.go`, `proxy_test.go`, `health_test.go`; `R/deploy/dokploy.compose.yml`, `R/deploy/.env.example`, `R/docs/dokploy.md`; `R/web/playwright.config.ts`, `R/web/e2e/storage.spec.ts`, `accounts.spec.ts`, `audio-worker.spec.ts`; extend `R/deploy/compose.test.yml` from03 for E2E real app/service tests.
@@ -65,16 +65,17 @@ VPS host Tailscale IP publishes private worker listener :8081 only; public mux n
 ## Verification commands — main verifier executes once, not planning agent
 
 ```sh
-go test ./internal/entry/web -run 'TestTrustedProxy|TestHealth|TestSecureCookies|TestHostedCSRF' -count=1
+# Chạy ở gốc repo verse (build context của image là gốc repo).
+go test ./apps/noverse/internal/entry/web -run 'TestHealth|TestStateChangingRequestsRequireSameOrigin' -count=1
+go test ./platform/webguard -count=1
 go test ./... -count=1
-npm --prefix web ci
-npm --prefix web run test
-npm --prefix web run build
-docker build -t noverse:db-vps .
-docker compose -f deploy/compose.test.yml up -d
-docker compose -f deploy/compose.test.yml exec app ffmpeg -version
-docker compose -f deploy/compose.test.yml exec app ffprobe -version
-npm --prefix web run test:e2e
+npm --prefix apps/noverse/web ci
+npm --prefix apps/noverse/web run test
+npm --prefix apps/noverse/web run build
+docker build -f apps/noverse/Dockerfile -t noverse:db-vps .
+docker run --rm --entrypoint ffmpeg noverse:db-vps -version
+docker run --rm --entrypoint ffprobe noverse:db-vps -version
+npm --prefix apps/noverse/web run test:e2e  # chưa có script: Playwright E2E là mục 7 của "Còn lại"
 curl --fail --silent --show-error "$PUBLIC_URL/healthz"
 curl --fail --silent --show-error --cookie "$SMOKE_COOKIE_JAR" "$PUBLIC_URL/api/me"
 ```
@@ -105,7 +106,7 @@ thể chạy vì không có VPS/credentials; danh sách còn lại ở cuối m�
   BusyBox `wget /healthz`. Không node/npm/curl/testdata trong runtime.
 - `.dockerignore`: loại `.git`, `.env*`, log, `ainovel-cli`, `dist`,
   `**/node_modules`, `**/testdata`, workspace/refer.
-- `internal/entry/web/proxy.go` + `proxy_test.go`: `TRUSTED_PROXIES`
+- `platform/webguard/webguard.go` + `webguard_test.go` (trước ở `internal/entry/web/proxy.go`): `TRUSTED_PROXIES`
   (alias `TRUSTED_PROXY_CIDRS`), từ chối `0.0.0.0/0`/`::/0`; XFF đi ngược
   phải→trái qua hop tin cậy; proto nhiều/không hợp lệ bị bỏ; `PUBLIC_URL` +
   `SECURE_COOKIES` (fail startup nếu không https); origin/`Sec-Fetch-Site`
@@ -195,3 +196,9 @@ thể chạy vì không có VPS/credentials; danh sách còn lại ở cuối m�
    triển khai hoặc bỏ khỏi contract trước production.
 7. Playwright E2E (step 8 của phase) chưa thêm; acceptance của lượt này dùng
    `deploy/smoke.sh` + curl.
+
+Thay đổi sau khi chuyển sang `verse` (2026-10-29), cần nhớ khi lên VPS:
+
+- Code proxy tin cậy và kiểm Origin nay ở `platform/webguard` (Viderse dùng chung).
+- Khi đặt `PUBLIC_URL` (hosted), mọi POST/PUT/PATCH/DELETE chỉ chấp nhận Origin trùng **đúng** `PUBLIC_URL`, kể cả scheme. Truy cập bằng domain khác hoặc IP của VPS sẽ bị 403, nên `PUBLIC_URL` phải là domain công khai duy nhất.
+- Lệnh kiểm ở mục "Verification commands" đã đổi sang chạy từ gốc repo.

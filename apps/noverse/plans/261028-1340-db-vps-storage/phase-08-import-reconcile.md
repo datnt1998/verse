@@ -1,7 +1,7 @@
 ---
 phase: 8
 title: "Importer idempotent, đối soát và phục hồi dữ liệu"
-status: done — 2026-10-29 (see reports/phase-08-evidence in /tmp/lm-reports-bug2710.md ## DbPhase08)
+status: done — 2026-10-29 (bằng chứng: reports/handover-evidence.md, mục DbPhase08)
 priority: P1
 effort: 20h
 dependencies: [4, 5, 6, 7]
@@ -25,7 +25,7 @@ Credentials: preserve encoded Argon2id (including recovery codes/mask), map user
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify `R/cmd/ainovel-cli/storage.go` (created02/extended03), `R/internal/webauth/repository.go` and decoder adapters04, `R/internal/store/file_backend.go` (02), `R/README.md`, `R/docs/architecture.md`; no direct mutation of users' source library.
 - Create `R/internal/storageimport/{manifest,decode,importer,reconcile,export,report}.go`, corresponding `manifest_test.go`, `importer_test.go`, `reconcile_test.go`, `export_test.go`; `R/internal/persistence/migrations/00005_import_ledger.sql`; `R/docs/storage-migration.md` (runbook), `R/docs/storage-backup.md` (backup/restore/reverse-export).

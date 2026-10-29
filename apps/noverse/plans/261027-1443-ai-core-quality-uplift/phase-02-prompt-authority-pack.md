@@ -1,6 +1,6 @@
 ---
 title: "Phase 2: Prompt authority pack"
-status: todo
+status: done
 priority: P1
 effort: "2 ngày"
 depends_on: [1]

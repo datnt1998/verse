@@ -13,7 +13,7 @@ dependencies: []
 
 Đọc [plan](./plan.md), [source inventory](./reports/codebase-evidence.md), [DDL/contracts](./reports/schema-and-contracts.md), `AGENTS.md:1-150`, `docs/architecture.md:20-58,103-120`. Repo yêu cầu preserve deterministic Engine/Flow, tools là cửa ghi dữ kiện và không biến observer thành writer. Không đổi quyết định văn học/routing khi đổi storage.
 
-Nguồn đã xác minh: `Store` có 19 concrete substore (`internal/store/store.go:16-39,53-79`); compound outline/progress hiện dùng mutex + file IO chứ không transaction (`:270-321`). File IO atomic một file (`internal/store/io.go:100-145`), comments JSON và pending event JSON (`internal/comments/comments.go:121-140,895-951`), account hiện role admin/member và grants theo project (`internal/webauth/store.go:39-41,63-95,113-146`), password Argon2id (`internal/webauth/password.go:14-23,35-74`).
+Nguồn đã xác minh: `Store` có 19 concrete substore (`internal/store/store.go:16-39,53-79`); compound outline/progress hiện dùng mutex + file IO chứ không transaction (`:270-321`). File IO atomic một file (`internal/store/io.go:100-145`), comments JSON và pending event JSON (`internal/comments/comments.go:121-140,895-951`), account hiện role admin/member và grants theo project (`platform/identity/store.go:39-41,63-95,113-146`), password Argon2id (`platform/identity/password.go:14-23,35-74`).
 
 Yêu cầu: inventory tất cả persistent input/output; fixture sạch và anonymous/custom-directory variants; SQL model/authority/transaction boundaries được khóa; file mode không bị bỏ. Không sao chép dữ liệu thật/secret trong testdata. Schema report là starting design bắt buộc cho implementer, không viết schema mới ở mỗi domain.
 
@@ -25,7 +25,7 @@ Actor matrix: global admin/member × project none/view/collab/owner × active/di
 
 ## Files / quyền sở hữu
 
-Root viết tắt `R=/Users/dat/Projects/ainovel-cli`; mọi đường dẫn dưới là đầy đủ khi ghép `R/`.
+Root viết tắt `R=/Users/dat/Projects/verse/apps/noverse`; mọi đường dẫn dưới là đầy đủ khi ghép `R/`.
 
 - Modify `R/docs/architecture.md` (facts store/backend boundary) và `R/README.md` (migration scope/assumptions); chỉ phase 01 sở hữu đến handoff.
 - Create `R/internal/store/contract_test.go`, `R/internal/store/testdata/storage-contract/` (sanitized fixtures), `R/internal/webauth/contract_test.go`, `R/internal/library/contract_test.go`; đây là file mới.
@@ -54,7 +54,7 @@ Root viết tắt `R=/Users/dat/Projects/ainovel-cli`; mọi đường dẫn dư
 
 ```sh
 go test ./internal/store -run 'TestStorageContractFile|TestStorageAuthority' -count=1
-go test ./internal/webauth -run 'TestAccountContractFile|TestMustChangePasswordLifecycle' -count=1
+go test ./platform/identity -run 'TestAccountContractFile|TestMustChangePasswordLifecycle' -count=1
 go test ./internal/library -run TestLibraryLayoutContract -count=1
 go test ./internal/entry/web -run 'TestAD|TestMustChangePasswordViaAPI' -count=1
 ```
@@ -73,13 +73,13 @@ Rollback chỉ docs/tests fixture mới; chưa đổi production data. Gate obse
 
 - **Manifest**: `internal/store/testdata/storage-contract/manifest.json` classifies 60+ persistent paths into facts/blob/derived/scratch/local-only/excluded with reasons; no `unknown` class exists (enforced by `manifest_classifies_every_path`).
 - **Fixtures**: sanitized synthetic trees under the same directory — `library/` (project + legacy `_` story + adoptable `cu-dir` candidate), `library-custom/` (dirs.stories=`truyen` override), `library-renamed/` (slug≠name, titleRenamed), `accounts/` (v3, v2-legacy books[]/writer/reader, corrupt). Source symlinks are created at test time (confined + escape). No real data or secrets; Argon2id hashes are of documented fixture passwords only.
-- **Contract tests** (all assert current file behavior, green): `TestStorageContractFile`, `TestStorageAuthority` (`internal/store/contract_test.go`), `TestAccountContractFile` (`internal/webauth/contract_test.go`), `TestLibraryLayoutContract` (`internal/library/contract_test.go`).
+- **Contract tests** (all assert current file behavior, green): `TestStorageContractFile`, `TestStorageAuthority` (`internal/store/contract_test.go`), `TestAccountContractFile` (`platform/identity/contract_test.go`), `TestLibraryLayoutContract` (`internal/library/contract_test.go`).
 - **Mutation proof** (temporarily mutated → observed failure → reverted):
   1. `io.go` corrupt-JSON→`os.ErrNotExist` → `absent_vs_corrupt` FAIL: `corrupt book.json must error, got <nil> <nil>` (reverted).
   2. `book.go` Load reads `book.md` → `book_json_is_facts_book_md_is_derived`, `save_regenerates_projection`, `absent_vs_corrupt` FAIL (reverted).
   3. `scan.go` Stories hardcodes `kich_ban` → `dirs_overrides_honored` FAIL: `Stories must list under dirs.stories: <nil> []` (reverted). A weaker mutation in `Scan`/`isLegacyStoryDir` did not fail — proof targets the `Stories` parent join.
   4. `webauth/store.go` validRole accepts `collaborator` → `envelope_and_roles` FAIL: `global role 'collaborator' must be rejected: <nil>` (reverted).
   5. `webauth/members.go` writer→view → `v2_legacy_migrates_grants` FAIL: `Projects:map[du-an:view truyen-cu:view]` (reverted).
-- **Verification** (`-v` counts confirm tests ran): `go test ./internal/store -run 'TestStorageContractFile|TestStorageAuthority' -count=1` → 2 tests / 14 subtests PASS; `go test ./internal/webauth -run 'TestAccountContractFile|TestMustChangePasswordLifecycle'` → 2 tests / 7 subtests PASS; `go test ./internal/library -run TestLibraryLayoutContract` → 1 test / 6 subtests PASS; `go test ./internal/entry/web -run 'TestAD|TestMustChangePasswordViaAPI'` → 6 baseline tests PASS. `gofmt -l` clean, `go vet` clean on touched packages; full `go test` on touched packages green after reverts.
+- **Verification** (`-v` counts confirm tests ran): `go test ./internal/store -run 'TestStorageContractFile|TestStorageAuthority' -count=1` → 2 tests / 14 subtests PASS; `go test ./platform/identity -run 'TestAccountContractFile|TestMustChangePasswordLifecycle'` → 2 tests / 7 subtests PASS; `go test ./internal/library -run TestLibraryLayoutContract` → 1 test / 6 subtests PASS; `go test ./internal/entry/web -run 'TestAD|TestMustChangePasswordViaAPI'` → 6 baseline tests PASS. `gofmt -l` clean, `go vet` clean on touched packages; full `go test` on touched packages green after reverts.
 - **Docs**: `docs/architecture.md` §4.5 records authority/absent-vs-corrupt/append-log/library-layout contract; `README.md` §9 records the locked layout and the 2026-10-28 decisions (PG primary, file mode kept, TTS home worker).
 - **Schema/authority/fail-before chốt**: schema report §9 ghi 4 quyết định ma trận; phase 02 có sqlc/queries/gen + `go tool sqlc vet|diff`; phase 04 có steps 10–11 + matrix cases cho 2 behavior changes (owner-scoped members API, collab DELETE keep). No PG code, no fake PG passes.

@@ -13,7 +13,7 @@ dependencies: [2, 3]
 
 Foundation 01–03 không phải cắt dữ liệu domain trước accounts: **accounts là domain đầu tiên chuyển**. Sau gate 02/03, chưa production until 08/09. Theo [schema §2/4](./reports/schema-and-contracts.md), tạo đầy đủ user/auth/project membership/audit model, không chỉ thay `web-accounts.json` bằng một JSON column.
 
-Facts cập nhật: global `admin|member`, Projects map `owner|collab|view` (`internal/webauth/store.go:39-41,63-119`); Argon2id/hash-slot cap (`internal/webauth/password.go:14-23,35-74`); create/update/delete/first-admin (`store.go:477-551,584-700`); sessions (`:738-880`); password change keep-current (`:897-931`); migration old books grants (`internal/webauth/members.go:97-195`); admin-only HTTP user management (`internal/entry/web/authorization.go:21-22`). Không dùng tên global collaborator hay handler `serveMembers` không tồn tại.
+Facts cập nhật: global `admin|member`, Projects map `owner|collab|view` (`platform/identity/store.go:39-41,63-119`); Argon2id/hash-slot cap (`platform/identity/password.go:14-23,35-74`); create/update/delete/first-admin (`store.go:477-551,584-700`); sessions (`:738-880`); password change keep-current (`:897-931`); migration old books grants (`platform/identity/members.go:97-195`); admin-only HTTP user management (`internal/entry/web/authorization.go:21-22`). Không dùng tên global collaborator hay handler `serveMembers` không tồn tại.
 
 Bảo toàn user management: admin tạo member, sửa display name/global role/Projects, khóa/mở/xóa, cấp/reset mật khẩu tạm trả một lần, buộc đổi mật khẩu, liệt kê/revoke từng phiên/device/revoke-all, pairing, recovery/onboarding, audit filter/pagination. Bổ sung TTL/one-time temp và race-safe DB invariants theo yêu cầu; không làm OAuth hoặc email workflow mới.
 
@@ -27,7 +27,7 @@ Project rows được tạo ở phase này làm anchor cho memberships, blobs FK
 
 ## Files / owners
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify `R/internal/webauth/store.go:63-203,477-551,584-700,738-931`, `members.go:53-78,97-195,239-310`, `password.go:14-74`, `recovery.go:91-216`, `setup.go:51-81`; giữ security helpers, không viết algorithm thứ hai.
 - Modify `R/internal/entry/web/auth.go:54-133,245-371,390-549`, `authorization.go:14-155`, `gateway.go:73-152,478-581`; `R/cmd/ainovel-cli/serve.go:130-149`; `R/README.md` account and migration notes.
@@ -64,7 +64,7 @@ Project rows được tạo ở phase này làm anchor cho memberships, blobs FK
 ## Verification commands (future implementation)
 
 ```sh
-go test ./internal/webauth -run 'TestAccountContract|TestMustChangePassword|TestTemporaryPassword|TestRecovery' -count=1
+go test ./platform/identity -run 'TestAccountContract|TestMustChangePassword|TestTemporaryPassword|TestRecovery' -count=1
 go test ./internal/persistence/postgres -run 'TestAccounts|TestIdentityInvariants|TestConcurrentOwner|TestConcurrentLastAdmin|TestAuthLimiter' -count=1
 go test ./internal/entry/web -run 'TestAD|TestPath|TestMustChangePasswordViaAPI|TestAccountsBackend|TestSetup' -count=1
 go test ./cmd/ainovel-cli -run TestServe -count=1

@@ -1,6 +1,6 @@
 ---
 title: "Phase 5: Finding recheck loop (targeted re-review)"
-status: todo
+status: done
 priority: P1
 effort: "2.5 ngày"
 depends_on: [3, 4]

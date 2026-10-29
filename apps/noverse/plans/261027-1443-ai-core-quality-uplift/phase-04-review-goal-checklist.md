@@ -1,6 +1,6 @@
 ---
 title: "Phase 4: Review goal checklist"
-status: todo
+status: done
 priority: P1
 effort: "2.5 ngày"
 depends_on: [2]

@@ -137,7 +137,7 @@ Scratch is explicit, private, bounded per operation, removed on exit; **not** co
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`. Phase06 owns these files exclusively after05:
+`R=/Users/dat/Projects/verse/apps/noverse`. Phase06 owns these files exclusively after05:
 
 - Modify `R/internal/host/{host,options,read_host,storyread,books,resume,usage_replay,web_revision,web_simulate,web_live,autoexport}.go`; verified current symbols above; `R/internal/entry/web/{gateway,run_worker,worker,worker_live,worker_results,worker_cocreate,storyread,projects,quality_api,nao_api,ledger_api,retention_api,comments,watch,config,lessons_api,universe_api,notify,activity_history,search_api,story_delete,cocreate_project,reveal,fs}.go` (filesystem owners/calls in evidence report).
 - Modify `R/internal/tools/{edit_chapter,comments_hook,commit_chapter,draft_chapter,ledger_gate,retention,retention_context,save_foundation}.go`; `R/internal/revision/{service,scan,migration,projector}.go`; `R/internal/host/imp/{workspace,source,preview,runner,analyze,state,publish}.go`; `R/internal/host/sim/{scanner,import,runner}.go`; `R/internal/host/exp/{exporter,inspect,pattern}.go`; `R/internal/rules/openings.go`; `R/internal/ledger/{project,ledger}.go`.

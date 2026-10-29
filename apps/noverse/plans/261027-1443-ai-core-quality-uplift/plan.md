@@ -10,6 +10,25 @@ created: 2026-10-27
 
 # Nâng chất lượng AI core từ bài học Pagekin
 
+## Trạng thái (2026-10-29)
+
+| Phase | Trạng thái |
+|---|---|
+| 01–07 | Xong. Checklist của từng phase đã tick đủ; cơ chế có trong code |
+| 08 | Đã đo xong, **chưa đạt**. Held-out editor trượt `critical_hit` (8/9 → 7/9) và `false_positive` (16 → 21); smoke `architect_*` không kết luận được. Xem [final-ab](./reports/final-ab.md#đối-chiếu-tiêu-chí-thành-công) |
+
+Việc còn lại ở [final-ab § Việc còn lại](./reports/final-ab.md#việc-còn-lại): tune báo nhầm của editor trên dev rồi mới đo lại held-out, và chạy lại smoke `architect_*`.
+
+Số đo sau đó: `architect_long` ×3 trên `verse` (commit `51708aa`, đã gồm toàn bộ plan này) ra PASS/WARN/PASS. Lượt đo này phục vụ plan khác, chỉ có một arm nên không thay A/B smoke. Xem `plans/261029-1138-verse-monorepo/reports/baseline-core-metrics.md` ở gốc repo.
+
+**Quy ước đường dẫn sau khi chuyển sang monorepo `verse` (2026-10-29):**
+
+- Plan này nằm ở `apps/noverse/plans/`. Đường dẫn tính từ `apps/noverse/`, tức gốc repo cũ.
+- Code đã dời ra ngoài app ghi theo gốc repo `verse`: `core/llm`, `core/llmcontract`, `core/agentcore`, `core/models`.
+- Lệnh `go run ./cmd/ainovel-cli …`, `go test ./internal/…` và `npm` trong `web/` chạy từ `apps/noverse/`. Riêng `go test ./...` phải chạy ở gốc repo mới phủ cả `core/`.
+- `reports/` giữ nguyên lúc viết, kể cả import path cũ `github.com/datnt1998/noverse/…`; nay là `github.com/datnt1998/verse/apps/noverse/…`.
+- Commit được nhắc trong plan là của repo cũ, tra ở tag `pre-verse` (`5f7a25e`).
+
 ## Overview
 
 Đầu vào đã chấp nhận: [báo cáo so sánh](../reports/xia-pagekin-ai-core-compare.md) và 6 phụ lục trong [`../reports/xia-pagekin/`](../reports/xia-pagekin/). Nguồn là Pagekin (`EthanYoQ/AI-Novel-Writer` @ `b049b516`, GPL-3.0). **Chỉ học cơ chế.** Mọi prompt và code đều phải tự viết; không chép nguyên văn.
@@ -26,14 +45,14 @@ Nguyên tắc xuyên suốt:
 
 | # | Phase | Phụ thuộc | Mục báo cáo | Status |
 |---|-------|-----------|-------------|--------|
-| 1 | [Eval calibration harness](./phase-01-eval-calibration-harness.md) | — | P0 0.1, 0.2 | Pending |
-| 2 | [Prompt authority pack](./phase-02-prompt-authority-pack.md) | 1 | P1 1.1–1.8 | Pending |
-| 3 | [Runtime text guards](./phase-03-runtime-text-guards.md) | 1 | P1 1.9, P2 2.2–2.5 | Pending |
-| 4 | [Review goal checklist](./phase-04-review-goal-checklist.md) | 2 | P2 2.1, quote grounding, P1 1.5 (thứ tự schema) | Pending |
-| 5 | [Finding recheck loop](./phase-05-finding-recheck-loop.md) | 3, 4 | P2 2.8 | Pending |
-| 6 | [Continuity evidence memory](./phase-06-continuity-evidence-memory.md) | 2, 3, 4 | P2 2.6, 2.7, 2.10 | Pending |
-| 7 | [Thread ledger lifecycle](./phase-07-thread-ledger-lifecycle.md) | 6 | P2 2.12 | Pending |
-| 8 | [Regression, A/B cuối, docs](./phase-08-regression-and-docs.md) | 1–7 | — | Pending |
+| 1 | [Eval calibration harness](./phase-01-eval-calibration-harness.md) | — | P0 0.1, 0.2 | Done |
+| 2 | [Prompt authority pack](./phase-02-prompt-authority-pack.md) | 1 | P1 1.1–1.8 | Done |
+| 3 | [Runtime text guards](./phase-03-runtime-text-guards.md) | 1 | P1 1.9, P2 2.2–2.5 | Done |
+| 4 | [Review goal checklist](./phase-04-review-goal-checklist.md) | 2 | P2 2.1, quote grounding, P1 1.5 (thứ tự schema) | Done |
+| 5 | [Finding recheck loop](./phase-05-finding-recheck-loop.md) | 3, 4 | P2 2.8 | Done |
+| 6 | [Continuity evidence memory](./phase-06-continuity-evidence-memory.md) | 2, 3, 4 | P2 2.6, 2.7, 2.10 | Done |
+| 7 | [Thread ledger lifecycle](./phase-07-thread-ledger-lifecycle.md) | 6 | P2 2.12 | Done |
+| 8 | [Regression, A/B cuối, docs](./phase-08-regression-and-docs.md) | 1–7 | — | Chưa đạt (xem trạng thái ở trên) |
 
 ```mermaid
 graph LR
@@ -82,8 +101,8 @@ Phase 02 và 03 chạy song song được: chúng sở hữu các file khác nha
 
 ## Success Criteria
 
-- [ ] Harness assert được verdict, issue (`severity`/`rule_ref`), trạng thái mục tiêu chương, kết quả recheck, prose và fact của writer. Có 12 case editor và 5 case writer (dev và held-out) cùng `baseline.md` (repeat 3). Mỗi case fixture chạy đúng một worker.
-- [ ] Ở A/B cuối (phase 08), cùng model và cùng quần thể case, so với baseline, trên **cả dev lẫn held-out**:
+- [x] Harness assert được verdict, issue (`severity`/`rule_ref`), trạng thái mục tiêu chương, kết quả recheck, prose và fact của writer. Có 12 case editor và 5 case writer (dev và held-out) cùng `baseline.md` (repeat 3). Mỗi case fixture chạy đúng một worker. Kết quả: có [baseline.md](./reports/baseline.md); `evals/cases/calibration` có 16 case editor và 6 case writer, gồm 12 và 5 case so được với baseline.
+- [ ] **Trượt ở held-out:** `critical_hit` (8/9 → 7/9) và `false_positive` (16 → 21). Dev đạt; xem [final-ab](./reports/final-ab.md#đối-chiếu-tiêu-chí-thành-công). Tiêu chí: ở A/B cuối (phase 08), cùng model và cùng quần thể case, so với baseline, trên **cả dev lẫn held-out**:
   - `critical_hit` **tăng**;
   - `false_positive` trên các case đối chứng **không tăng**;
   - `writer_violations` **không tăng**;
@@ -92,9 +111,14 @@ Phase 02 và 03 chạy song song được: chúng sở hữu các file khác nha
   - không case nào trước đây PASS bị chuyển sang FAIL.
 
   Chênh lệch tỉ lệ pass dưới 2/3 ghi là "không phân biệt được", không tính là cải thiện.
-- [ ] `go vet ./...` và `go test -count=1 ./...` xanh. Chạy `-race` xanh cho `internal/host internal/store internal/tools internal/flow`. Web: `npm run typecheck && npm test && npm run build` xanh. `go generate ./internal/entry/web` không tạo diff.
-- [ ] Docs khớp hành vi: `docs/evaluation-system.md`, `docs/context-management.md`, `docs/architecture.md`, `docs/design/v1/06-data-contract.md`, `docs/design/v1/11-api-contract.md`, `docs/chapter-advance-gate.md`.
-- [ ] Prompt viết độc lập từ mô tả cơ chế, có ghi nguồn ý tưởng. Phase 08 có quét chuỗi và ghi kết quả.
+- [x] `go vet ./...` và `go test -count=1 ./...` xanh. Chạy `-race` xanh cho `internal/host internal/store internal/tools internal/flow`. Web: `npm run typecheck && npm test && npm run build` xanh. `go generate ./internal/entry/web` không tạo diff. Kết quả kiểm lại trên `main` của `verse` ngày 2026-10-29:
+  - `go vet ./...` sạch;
+  - `go test ./...` 4152 pass, 0 fail ở `61424cc`; từ đó đến nay không có commit đổi file Go;
+  - `-race` xanh cho 4 package;
+  - web: typecheck xanh, 1639/1639 test, build xanh;
+  - `go generate` và `dist` không tạo diff.
+- [x] Docs khớp hành vi: `docs/evaluation-system.md`, `docs/context-management.md`, `docs/architecture.md`, `docs/design/v1/06-data-contract.md`, `docs/design/v1/11-api-contract.md`, `docs/chapter-advance-gate.md`. Cả 6 file được sửa ở `8943461` (repo cũ), sau đó docs được sửa kèm trong từng commit fix.
+- [x] Prompt viết độc lập từ mô tả cơ chế, có ghi nguồn ý tưởng. Phase 08 có quét chuỗi và ghi kết quả. Nguồn ý tưởng ở `docs/architecture.md`; kết quả quét ở [final-ab](./reports/final-ab.md#quét-provenance).
 
 ## Rủi ro chính
 

@@ -1,6 +1,6 @@
 ---
 title: "Phase 1: Eval calibration harness"
-status: todo
+status: done
 priority: P0
 effort: "3.5 ngày"
 depends_on: []
@@ -25,7 +25,7 @@ Hiện trạng đã kiểm chứng:
 - `CaseResult.finalize` lấy kết quả **tệ nhất** trong các lượt chạy (`internal/eval/report.go:100-109`).
 - `engine.start` xóa cờ pause rồi khởi động goroutine (`internal/host/engine.go:95-123`). Cờ pause được kiểm **trước khi dispatch lần đầu** (`:191-196`) và sau mỗi worker (`:290-292`). Vì vậy kiểu "start rồi mới `PauseAfterStep()`" có race: engine có thể dừng trước khi chạy worker nào. Kết luận này đã được red-team kiểm chứng.
 - Hai case `editor-goi-a` có `expect: {}` (`evals/cases/editor-goi-a/dialogue-warning.json`).
-- Lỗi runtime đi thẳng vào report (`internal/eval/collect.go:96-99`, `grade.go:74-78`, `report.go:311-323`). Lỗi provider có thể chứa response body (`internal/llm/provider/compat/provider.go:165-168`). `/workspace/` đã nằm trong `.gitignore:47`.
+- Lỗi runtime đi thẳng vào report (`internal/eval/collect.go:96-99`, `grade.go:74-78`, `report.go:311-323`). Lỗi provider có thể chứa response body (`core/llm/provider/compat/provider.go:165-168`). `/workspace/` đã nằm trong `.gitignore:47`.
 - Detector văn bản dùng chung nằm ở `internal/rules` (`lint.go:19-25`, chạy lúc commit ở `internal/tools/commit_chapter.go:551-566`).
 
 ## File ownership

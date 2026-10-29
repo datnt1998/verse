@@ -4,12 +4,34 @@ description: "Đưa dữ liệu nghiệp vụ vào Postgres, giữ CLI offline v
 status: in-progress
 priority: P1
 effort: 280h
-branch: "[UNVERIFIED — không chạy git theo yêu cầu]"
+branch: main (repo verse)
 tags: [database, backend, infra, auth, refactor]
 blockedBy: []
 blocks: []
 created: 2026-10-28
 ---
+
+## Trạng thái (2026-10-29)
+
+| Phase | Trạng thái |
+|---|---|
+| 01–06, 08 | Xong. Bằng chứng nằm trong từng phase; riêng 03, 07c, 08 ở [reports/handover-evidence.md](./reports/handover-evidence.md) |
+| 07 | Còn mở: chưa nghiệm thu VieNeu thật, chưa có runner `text_export`, export hosted chưa có bìa/nhạc. Xem [phase 07](./phase-07-audio-jobs.md#trạng-thái-hiện-tại-đối-chiếu-code-verse-2026-10-29) |
+| 09 | Gate cục bộ qua; gate production còn 7 mục cần VPS, domain, S3 và credentials thật. Xem [phase 09](./phase-09-dokploy-cutover.md#còn-lại-trước-khi-ký-release-gate-production) |
+
+Production chưa chuyển. Live 8790 vẫn chạy file mode.
+
+**Quy ước đường dẫn sau khi chuyển sang monorepo `verse` (2026-10-29):**
+
+- Plan này nằm ở `apps/noverse/plans/`. Đường dẫn trong plan tính từ `apps/noverse/`, tức gốc repo cũ `ainovel-cli`, nên `internal/…`, `cmd/…`, `web/…`, `deploy/…` vẫn đúng.
+- Code đã dời ra ngoài app ghi theo gốc repo `verse`:
+  - `core/…`: `agentcore`, `llm`, `models`, `llmretry`, `llmcontract`, `auth`;
+  - `platform/identity`: trước là `internal/webauth`;
+  - `platform/pgtest`;
+  - `platform/webguard`: proxy và Origin, trước ở `internal/entry/web/proxy.go`.
+- Số dòng `file.go:N` là lúc viết, có thể đã lệch.
+- Thư mục `reports/` và `research/` giữ nguyên đường dẫn lúc viết.
+- Lệnh `go test ./internal/…` chạy được từ `apps/noverse/`. `go test ./...` phải chạy ở gốc repo mới phủ cả `core/` và `platform/`.
 
 # Kết quả cần đạt
 
@@ -48,7 +70,7 @@ Xem [ERD Auth](./reports/schema-and-contracts.md#7-erd--auth), [ERD dự án/n�
 
 ## Tương thích, test và điều kiện hoàn thành
 
-Giữ URL slug, JSON response, global role `admin|member`, project role `owner|collab|view` và flow mật khẩu tạm hiện tại (`internal/webauth/store.go:39-41,113-146`). `devices` là tài khoản thiết bị liên kết phiên, không tự phát minh khóa máy. User file hiện dùng username làm identity, không có UUID (`internal/webauth/store.go:63-79`): importer cấp UUID ổn định theo source+username, giữ hash Argon2id nguyên byte; session cũ chủ động hết hiệu lực một lần khi cutover. Username 2–32 ký tự lowercase được giữ; unique case-insensitive không cho biến thể chiếm tài khoản. Mật khẩu tạm được thêm TTL/one-time theo yêu cầu, không bỏ bước bắt buộc đổi mật khẩu.
+Giữ URL slug, JSON response, global role `admin|member`, project role `owner|collab|view` và flow mật khẩu tạm hiện tại (`platform/identity/store.go:39-41,113-146`). `devices` là tài khoản thiết bị liên kết phiên, không tự phát minh khóa máy. User file hiện dùng username làm identity, không có UUID (`platform/identity/store.go:63-79`): importer cấp UUID ổn định theo source+username, giữ hash Argon2id nguyên byte; session cũ chủ động hết hiệu lực một lần khi cutover. Username 2–32 ký tự lowercase được giữ; unique case-insensitive không cho biến thể chiếm tài khoản. Mật khẩu tạm được thêm TTL/one-time theo yêu cầu, không bỏ bước bắt buộc đổi mật khẩu.
 
 Done đo được: toàn bộ fixture/import manifest được phân loại; lần import thứ hai không thêm row/blob; reconciliation counts + SHA-256 không sai; FK/invariant/concurrent-owner tests đạt; cùng repository/blob conformance qua file+postgres/local+MinIO; worker tắt/mất mạng không mất việc và stale worker không publish; rebuild container không mất dữ liệu; browser login/đổi mật khẩu/quyền/viết-sửa chương/comment/TTS/export hoạt động qua HTTPS. Ma trận và lệnh cụ thể ở từng phase là lệnh **cho implementer**, chưa chạy trong lượt lập kế hoạch.
 
@@ -69,4 +91,4 @@ Gate kỹ thuật của **plan**: PASS với các giả định được ghi cô
 - Ba giả định và DB stack đã chốt 2026-10-28 (mục trên). Mở lại bất kỳ quyết định nào (worker location, storage endpoint, bỏ offline mode, đổi stack) cần quyết định riêng và cập nhật lại estimate.
 - Credentials/hostname, quota bucket và Tailscale ACL là input vận hành, không có trong repo. Không cần chúng để lập kế hoạch; cần trước rehearsal/deploy thật. Mặc định đề xuất: Postgres 17, một web replica, bucket private, presign 60 giây, lease 120 giây/heartbeat 30 giây, password tạm 24 giờ; tất cả qua env, không đóng cứng trong nghiệp vụ.
 - RLS được cân nhắc và không dùng trong cutover này: mọi query bắt buộc scope qua repository, composite FK và test IDOR; pool không giữ actor session-level. Đây là trade-off có chủ đích, không tuyên bố FK là authorization. Đổi sang RLS cần gate riêng để không làm hỏng worker/import/admin paths.
-- Đây là kế hoạch, không phải implementation; không sửa mã nguồn, không chạy git, không build/test/lint. Tiếp nhận bằng đường dẫn tuyệt đối `/Users/dat/Projects/ainovel-cli/plans/261028-1340-db-vps-storage/plan.md`.
+- Khi lập plan (2026-10-28), đây là kế hoạch, không phải implementation: không sửa mã nguồn, không chạy git, không build/test/lint. Plan khi đó nằm ở repo cũ `ainovel-cli`, nay ở `apps/noverse/plans/261028-1340-db-vps-storage/plan.md` trong repo `verse`.

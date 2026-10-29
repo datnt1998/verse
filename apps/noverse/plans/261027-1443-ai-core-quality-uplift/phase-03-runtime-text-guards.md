@@ -1,6 +1,6 @@
 ---
 title: "Phase 3: Runtime text guards"
-status: todo
+status: done
 priority: P1
 effort: "2.5 ngày"
 depends_on: [1]
@@ -32,7 +32,7 @@ Hiện trạng đã kiểm chứng:
 - `draft_chapter` chỉ kiểm content rỗng (`internal/tools/draft_chapter.go:61-63`). Append nối cứng bằng `"\n\n"` (`internal/store/drafts.go:41-56`). Có test append ngắn hợp lệ (`internal/tools/read_draft_test.go:239-247`); hành vi này phải được giữ.
 - Thứ tự xử lý trong commit: nạp payload pending nếu có (`commit_chapter.go:108-120`) → `validateCommitArgs` chạy cho cả bản nộp mới lẫn pending ở stage `started` (`:136-150`) → nhánh viết lại mới gọi `validateRewriteDraft` **trước khi** `SavePendingCommit` (`:158-180`) → pending viết lại thì đi thẳng vào phục hồi (`:152-157`) và dùng `pending.DraftContent` đã đóng băng.
 - Vì vậy gate đặt trong `validateCommitArgs` sẽ làm kẹt các pending commit cũ. Gate phải chỉ chạy **khi nhận bản nộp mới**, tức nhánh `existingPending == nil`.
-- `llmcontract.Execute` lặp không giới hạn (`internal/llmcontract/execute.go:107`). Test `internal/arbiter/arbiter_test.go:145` đang pin hành vi này.
+- `llmcontract.Execute` lặp không giới hạn (`core/llmcontract/execute.go:107`). Test `internal/arbiter/arbiter_test.go:145` đang pin hành vi này.
 - Nguyên nhân viết lại được ghi trong `meta/rewrites.jsonl` với cause là `review` hoặc `user` (`internal/store/rewrites.go:17-57`).
 
 ## File ownership
@@ -44,9 +44,9 @@ Hiện trạng đã kiểm chứng:
 | | `internal/tools/commit_chapter.go` (nhánh nhận bản nộp mới và `validateRewriteDraft`), `commit_chapter_test.go` |
 | | `internal/host/import_preview.go:27` (instance commit của import bật option bỏ admission gate) |
 | | `internal/tools/edit_chapter.go`, `edit_chapter_test.go` |
-| | `internal/llmcontract/execute.go`, `contract_test.go`; `internal/arbiter/arbiter_test.go:145` |
+| | `core/llmcontract/execute.go`, `contract_test.go`; `internal/arbiter/arbiter_test.go:145` |
 | | `assets/prompts/writer.md` (dòng nói về append: hợp đồng chống chồng lấn), `assets/testdata/writer-golden.md` |
-| | `internal/llm/provider/compat/stream.go`: chỉ khi bước 8 có bằng chứng |
+| | `core/llm/provider/compat/stream.go`: chỉ khi bước 8 có bằng chứng |
 | | `docs/import-pipeline.md:652` (nếu mô tả vòng sửa của llmcontract) |
 
 ## Requirements
@@ -120,7 +120,7 @@ Hiện trạng đã kiểm chứng:
 |-----|------|
 | Rules | `go test ./internal/rules/...` |
 | Tools | `go test ./internal/tools -run 'Draft\|Commit\|EditChapter\|Rewrite'` |
-| Contract | `go test ./internal/llmcontract/... ./internal/arbiter/...` |
+| Contract | `go test ./core/llmcontract/... ./apps/noverse/internal/arbiter/...` (ở gốc repo) |
 | Caller | `go test ./internal/host/imp/... ./internal/host/sim/... ./internal/ledger/... ./internal/revision/... ./internal/userrules/...` |
 | Golden | `go test ./assets/...` |
 | Race | `go test -race ./internal/tools ./internal/store ./internal/host` |

@@ -5,7 +5,7 @@ status: done
 priority: P1
 effort: 32h
 dependencies: [2]
-implemented: 2026-10-28 — evidence in /tmp/lm-reports-bug2710.md ##DbPhase03
+implemented: 2026-10-28 — evidence in reports/handover-evidence.md (## DbPhase03)
 ---
 
 # Phase 03 — Một BlobStore với local và S3-compatible
@@ -26,7 +26,7 @@ Upload streaming → temp/SDK multipart → compute canonical SHA-256 bytes → 
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify `R/go.mod`, `R/go.sum` (SDK v2 config/credentials/s3/manager cùng version family), `R/internal/bootstrap/storage.go` (new 02), `R/cmd/ainovel-cli/storage.go` (new 02), `R/README.md`.
 - Create `R/internal/blobstore/blobstore.go`, `local.go`, `s3.go`, `copy.go`, `conformance_test.go`, `local_test.go`, `s3_test.go`, `copy_test.go`; `R/internal/entry/web/blob.go`, `blob_test.go`; `R/deploy/compose.test.yml` (Postgres+MinIO test-only, không proxy thay Dokploy). Blob metadata DDL nằm trong migration04 sau projects, không tạo standalone migration ở03.

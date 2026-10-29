@@ -1,6 +1,6 @@
 ---
 title: "Phase 6: Continuity evidence memory"
-status: todo
+status: done
 priority: P1
 effort: "3 ngày"
 depends_on: [2, 3, 4]

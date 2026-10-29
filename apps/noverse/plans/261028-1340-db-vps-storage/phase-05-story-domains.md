@@ -25,7 +25,7 @@ Read authority: book title/synopsis state follows `meta/book.json` (`internal/st
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify `R/internal/library/{library,files,scan,ops,drafts}.go` (source inventory §2 gives IO lines); `R/internal/store/{store,chapter_records,outline,drafts,book,characters,world,cast,progress,run_meta,signals,runtime,checkpoints,session,usage,simulation,decisions,revisions,summaries,user_rules,review_decisions,comment_review,nao_vault,nao_address,nao_relationships}.go`; `R/internal/comments/comments.go:121-140,426-548,895-951`; `R/internal/entry/web/{projects,storyread,comments,quality_api,nao_api,ledger_api,retention_api}.go`; `R/docs/architecture.md`, `R/README.md`.
 - Create `R/internal/persistence/postgres/{library,stories,chapters,outlines,characters,comments,reviews,story_state,story_events,checkpoints,agent_sessions}.go`; `R/internal/persistence/migrations/00003_narrative.sql`; `R/internal/library/repository.go`; `R/internal/comments/repository.go`; `R/internal/persistence/postgres/narrative_test.go`; `R/internal/entry/web/narrative_backend_test.go`.

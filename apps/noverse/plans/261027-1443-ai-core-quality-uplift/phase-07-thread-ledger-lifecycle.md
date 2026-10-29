@@ -1,6 +1,6 @@
 ---
 title: "Phase 7: Thread ledger lifecycle"
-status: todo
+status: done
 priority: P2
 effort: "2 ngày"
 depends_on: [6]

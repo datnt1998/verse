@@ -1,6 +1,6 @@
 ---
 title: "Phase 8: Regression, A/B cuối, docs"
-status: todo
+status: chưa đạt (đã đo xong; held-out editor trượt, xem reports/final-ab.md)
 priority: P1
 effort: "1.5 ngày"
 depends_on: [1, 2, 3, 4, 5, 6, 7]
@@ -57,7 +57,7 @@ Phase này chứng minh toàn bộ gói thay đổi nâng chất lượng mà kh
    - span lưu dạng quote, không lưu offset;
    - recheck dùng `save_review`.
 6. **Kiểm tra provenance và giấy phép.**
-   - **Quét chuỗi:** lấy các cụm đặc trưng trong prompt mà Pagekin trích ở `plans/reports/xia-pagekin/01-prompt-pipeline.md` và `04-planning-import.md`, dịch sang tiếng Việt theo cách sát nghĩa nhất, rồi `rg -n` trên `assets/` và `internal/`. Ghi lại số kết quả.
+   - **Quét chuỗi:** lấy các cụm đặc trưng trong prompt mà Pagekin trích ở `plans/reports/xia-pagekin/01-prompt-pipeline.md` và `04-planning-import.md` (hai file dẫn xuất GPL này không mang sang `verse`; bản gốc ở tag `pre-verse` của repo cũ), dịch sang tiếng Việt theo cách sát nghĩa nhất, rồi `rg -n` trên `assets/` và `internal/`. Ghi lại số kết quả.
 
      Lưu ý: quét chuỗi không chứng minh được việc không phái sinh. Bằng chứng chính là quy trình viết độc lập từ mô tả cơ chế (phase 02) và ghi chú nguồn gốc trong commit message.
    - **Ghi nguồn ý tưởng** trong `docs/` hoặc `NOTICE`: "Một số cơ chế kiểm chứng chất lượng được tham khảo ở mức ý tưởng từ Pagekin (EthanYoQ/AI-Novel-Writer, GPL-3.0); không sao chép mã hay văn bản." Cook hỏi user trước khi ghi vào `NOTICE`.
@@ -73,10 +73,12 @@ Phase này chứng minh toàn bộ gói thay đổi nâng chất lượng mà kh
 
 ## Success Criteria
 
-- [ ] Mọi lệnh ở bước 1 xanh, smoke cũ PASS.
-- [ ] `final-ab.md` chứng minh đạt các tiêu chí thành công của `plan.md` **trên cả held-out**, hoặc nêu rõ tiêu chí nào trượt.
-- [ ] Đã ghi nguồn ý tưởng và kết quả quét chuỗi.
-- [ ] Docs khớp với code; báo cáo xia đã được đính chính.
+- [ ] Mọi lệnh ở bước 1 xanh, smoke cũ PASS. Bước 1 xanh trên `main` của `verse` ngày 2026-10-29 (chi tiết ở `plan.md`). Smoke chưa đạt: `writer_first_chapter` PASS, còn `architect_*` không kết luận được vì cả hai arm cùng chạm guard 30 phút ([final-ab](./reports/final-ab.md#smoke-pipeline)).
+- [x] `final-ab.md` chứng minh đạt các tiêu chí thành công của `plan.md` **trên cả held-out**, hoặc nêu rõ tiêu chí nào trượt. Held-out trượt `critical_hit` (8/9 → 7/9) và `false_positive` (16 → 21).
+- [x] Đã ghi nguồn ý tưởng và kết quả quét chuỗi. Nguồn ý tưởng ở `docs/architecture.md:76`; kết quả quét ở [final-ab](./reports/final-ab.md#quét-provenance).
+- [x] Docs khớp với code; báo cáo xia đã được đính chính.
+  - Commit `8943461` của repo cũ (tag `pre-verse`) sửa cả 6 file docs của bước 7 và thêm mục "Đính chính sau khi lập plan" vào báo cáo xia.
+  - Các fix sau đó (`ec7baab`, `c6b133e`, `6a6d3c5`) sửa docs trong cùng commit.
 
 ## Risk Assessment
 

@@ -9,6 +9,16 @@ dependencies: [3, 6]
 
 # Phase 07 — Audio/jobs bền vững, TTS kéo việc từ Mac
 
+## Trạng thái hiện tại (đối chiếu code `verse`, 2026-10-29)
+
+Còn mở. Danh sách "Remaining" của DbPhase07c ngay dưới đây vẫn đúng với code hiện tại: từ lúc import vào `verse`, code audio chỉ đổi đường dẫn import (dời `agent`/`llm` sang `core`, `webauth` sang `platform/identity`), không đổi hành vi.
+
+- `text_export` chỉ có hằng `JobTextExport` (`internal/persistence/postgres/jobs.go:41`), chưa có runner.
+- `internal/audio/pg_export.go` chưa xử lý bìa và nhạc.
+- Chưa chạy nghiệm thu với VieNeu thật trên Mac.
+
+Danh sách "Remaining" ở mục DbPhase07 phía dưới đã cũ: listener riêng, CLI token worker, `PGService` và `PGExportRunner` cho `audio_export` đều đã có.
+
 ## Progress evidence (2026-10-29, DbPhase07c)
 
 Hosted audio is wired end to end on Postgres; the tree builds and the suite is
@@ -68,8 +78,8 @@ Fail-before evidence (mutations reverted):
   content-addressed object key violated the `blobs` unique key — fixed by
   reusing the ready registry row).
 
-Verification runs (this pass): see the DbPhase07c report block in
-`/tmp/lm-reports-bug2710.md` (gofmt/vet clean, PG + MinIO suite).
+Verification runs (this pass): see the DbPhase07c block in
+[reports/handover-evidence.md](./reports/handover-evidence.md) (gofmt/vet clean, PG + MinIO suite).
 
 Remaining (precise):
 
@@ -187,7 +197,7 @@ Verification runs (this phase):
 - `go test ./... -count=1 -timeout 1800s` with `REQUIRE_POSTGRES_TEST=1` →
   see the run recorded in the handover report.
 
-Remaining (precise):
+Remaining (precise) — đã cũ, xem mục DbPhase07c ở trên; mục 1, 2 và phần `audio_export` của mục 4 đã xong:
 
 1. `serve` does not yet start the private listener: no `:8081` bind on the
    Tailscale IP, no token-minting/rotation CLI, no gateway wiring of
@@ -224,7 +234,7 @@ Public port8080 không register worker handlers. Private listener8081 container 
 
 ## Files / ownership
 
-`R=/Users/dat/Projects/ainovel-cli`.
+`R=/Users/dat/Projects/verse/apps/noverse`.
 
 - Modify production audio source files enumerated in evidence report: `R/internal/audio/{queue,service,cache,cast,chapter,cover,export,export_cache,export_files,export_pending,export_prefs,export_result_cache,export_selection,ffmpeg,flags,meta,paths,render,script,settings,voice_sample,voices}.go`; keep pure composer/matching behavior.
 - Modify `R/internal/entry/web/{audio,audio_jobs,audio_resume,audio_voice_mobile,jobs,jobs_export,worker_jobs,worker_job_registry,worker_results,cover,project_assets,exports_download}.go`; `R/cmd/ainovel-cli/main.go` (command dispatch discovered cmd tree); `R/docs/architecture.md`, `R/README.md`.
