@@ -14,7 +14,9 @@ import (
 // fileTestOptions là định danh project mà suite này cần: project ID dạng
 // "du-an"/"p" hợp lệ, project legacy "_" gom các grant không tên miền.
 var fileTestOptions = identity.Options{
-	ValidProjectID:  func(id string) bool { return id != "" && id != "." && id != ".." && !strings.HasPrefix(id, ".") && !strings.ContainsAny(id, `/\\`) },
+	ValidProjectID: func(id string) bool {
+		return id != "" && id != "." && id != ".." && !strings.HasPrefix(id, ".") && !strings.ContainsAny(id, `/\\`)
+	},
 	LegacyProjectID: "_",
 }
 

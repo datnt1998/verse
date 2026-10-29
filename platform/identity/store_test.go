@@ -20,7 +20,9 @@ func (c *clock) now() time.Time { return c.t }
 // legacy "_" cho grant của ID không tên miền.
 func testOptions() Options {
 	return Options{
-		ValidProjectID:  func(id string) bool { return id != "" && id != "." && id != ".." && !strings.HasPrefix(id, ".") && !strings.ContainsAny(id, `/\\`) },
+		ValidProjectID: func(id string) bool {
+			return id != "" && id != "." && id != ".." && !strings.HasPrefix(id, ".") && !strings.ContainsAny(id, `/\\`)
+		},
 		LegacyProjectID: "_",
 	}
 }
