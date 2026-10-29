@@ -18,7 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Bộ golden của web/mock: các endpoint mà mock từng tự tính (sổ cái, bài học,
@@ -623,7 +623,7 @@ func TestMockGoldenUniverse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	brains, err := tg.g.projectBrains(context.Background(), library.FileRepository(lib), webauth.User{Username: "admin", Role: webauth.RoleAdmin}, "kenh")
+	brains, err := tg.g.projectBrains(context.Background(), library.FileRepository(lib), identity.User{Username: "admin", Role: identity.RoleAdmin}, "kenh")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -14,8 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // 8 ký tự bỏ 0 O 1 I L, hiển thị XXXX-XXXX.
@@ -42,8 +43,8 @@ func (c *setupClock) advance(d time.Duration) {
 type setupHarness struct {
 	t        *testing.T
 	g        *Gateway
-	accounts *webauth.Store
-	state    *webauth.SetupState
+	accounts *identity.Store
+	state    *identity.SetupState
 	code     string
 	clock    *setupClock
 }
@@ -52,11 +53,11 @@ type setupHarness struct {
 func newSetupHarness(t *testing.T) *setupHarness {
 	t.Helper()
 	t.Setenv("HOME", t.TempDir())
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
 	g := NewGateway(t.TempDir(), accounts, version.Info{})
 	t.Cleanup(g.Close)
 	clock := &setupClock{t: time.Now()}
-	state, code, err := webauth.NewSetupState(clock.now)
+	state, code, err := identity.NewSetupState(clock.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,8 +127,8 @@ func TestSetupStatusWrongAttemptsAndLock(t *testing.T) {
 	if body["needed"] != true {
 		t.Fatalf("chưa có tài khoản mà needed=%v", body["needed"])
 	}
-	if body["attemptsLeft"] != float64(webauth.SetupMaxAttempts) {
-		t.Fatalf("attemptsLeft=%v, muốn %d", body["attemptsLeft"], webauth.SetupMaxAttempts)
+	if body["attemptsLeft"] != float64(identity.SetupMaxAttempts) {
+		t.Fatalf("attemptsLeft=%v, muốn %d", body["attemptsLeft"], identity.SetupMaxAttempts)
 	}
 	if _, ok := body["lockedUntil"]; ok {
 		t.Fatalf("chưa sai lần nào mà đã khoá: %v", body["lockedUntil"])
@@ -145,14 +146,14 @@ func TestSetupStatusWrongAttemptsAndLock(t *testing.T) {
 	}
 	// Đúng sau một lần sai: thành công và đếm về 5.
 	h.token()
-	if body := decodeJSONBody(t, h.do("GET", "/api/setup", "", "")); body["attemptsLeft"] != float64(webauth.SetupMaxAttempts) {
-		t.Fatalf("thành công rồi mà attemptsLeft=%v, muốn %d", body["attemptsLeft"], webauth.SetupMaxAttempts)
+	if body := decodeJSONBody(t, h.do("GET", "/api/setup", "", "")); body["attemptsLeft"] != float64(identity.SetupMaxAttempts) {
+		t.Fatalf("thành công rồi mà attemptsLeft=%v, muốn %d", body["attemptsLeft"], identity.SetupMaxAttempts)
 	}
 
 	// Sai tới lần thứ 5 → 423 kèm lockedUntil (+10 phút).
-	for i := range webauth.SetupMaxAttempts {
+	for i := range identity.SetupMaxAttempts {
 		w := h.verify("BBBBBBBB")
-		if i < webauth.SetupMaxAttempts-1 {
+		if i < identity.SetupMaxAttempts-1 {
 			if w.Code != http.StatusBadRequest {
 				t.Fatalf("lần sai %d: %d %s", i+1, w.Code, w.Body.String())
 			}
@@ -166,8 +167,8 @@ func TestSetupStatusWrongAttemptsAndLock(t *testing.T) {
 		if err != nil {
 			t.Fatalf("lockedUntil không phải RFC3339: %q", locked)
 		}
-		if d := until.Sub(h.clock.now()); d < webauth.SetupLockDuration-time.Minute || d > webauth.SetupLockDuration {
-			t.Fatalf("lockedUntil cách hiện tại %v, muốn %v", d, webauth.SetupLockDuration)
+		if d := until.Sub(h.clock.now()); d < identity.SetupLockDuration-time.Minute || d > identity.SetupLockDuration {
+			t.Fatalf("lockedUntil cách hiện tại %v, muốn %v", d, identity.SetupLockDuration)
 		}
 	}
 	// Đang khoá: mã đúng cũng bị từ chối.
@@ -183,7 +184,7 @@ func TestSetupStatusWrongAttemptsAndLock(t *testing.T) {
 	}
 
 	// Khoá hết hạn → đếm về 0 và mã đúng lại dùng được.
-	h.clock.advance(webauth.SetupLockDuration + time.Second)
+	h.clock.advance(identity.SetupLockDuration + time.Second)
 	if w := h.verify(h.code); w.Code != http.StatusOK {
 		t.Fatalf("hết khoá mà mã đúng trả %d %s", w.Code, w.Body.String())
 	}
@@ -192,7 +193,7 @@ func TestSetupStatusWrongAttemptsAndLock(t *testing.T) {
 func TestSetupCodeExpired(t *testing.T) {
 	h := newSetupHarness(t)
 	token := h.token()
-	h.clock.advance(webauth.SetupCodeTTL + time.Minute)
+	h.clock.advance(identity.SetupCodeTTL + time.Minute)
 
 	if w := h.verify(h.code); w.Code != http.StatusGone {
 		t.Fatalf("mã hết hạn: %d %s, muốn 410", w.Code, w.Body.String())
@@ -272,7 +273,7 @@ func TestSetupAdminCreatesFirstAdmin(t *testing.T) {
 	}
 
 	// Token đã bị tiêu (chỉ tiêu khi tạo thành công).
-	if err := h.state.CheckToken(token); !errors.Is(err, webauth.ErrSetupToken) {
+	if err := h.state.CheckToken(token); !errors.Is(err, identity.ErrSetupToken) {
 		t.Fatalf("token sau khi tạo thành công: %v, muốn ErrSetupToken", err)
 	}
 }
@@ -285,7 +286,7 @@ func TestSetupAdminValidation(t *testing.T) {
 	}{
 		{"Chủ máy", "chu.may", "ngan", "password"},
 		{"Chủ máy", "Chủ Máy", "mat-khau-123", "username"},
-		{strings.Repeat("a", webauth.MaxNameLen+1), "chu.may", "mat-khau-123", "name"},
+		{strings.Repeat("a", identity.MaxNameLen+1), "chu.may", "mat-khau-123", "name"},
 	}
 	for _, c := range cases {
 		w := h.admin(token, c.name, c.username, c.password)
@@ -354,7 +355,7 @@ func TestSetupVerifyAcceptsDashesAndLowercase(t *testing.T) {
 
 func TestNewGatewayIssuesSetupCodeOnlyWhenNoAccounts(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
-	empty := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
+	empty := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
 	g := NewGateway(t.TempDir(), empty, version.Info{})
 	t.Cleanup(g.Close)
 	code := g.SetupCodeOnce()
@@ -375,8 +376,8 @@ func TestNewGatewayIssuesSetupCodeOnlyWhenNoAccounts(t *testing.T) {
 		t.Fatalf("GET /api/setup trả cả mã: %s", w.Body.String())
 	}
 
-	withUser := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	if _, err := withUser.CreateUser(webauth.NewUser{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"}); err != nil {
+	withUser := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	if _, err := withUser.CreateUser(identity.NewUser{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"}); err != nil {
 		t.Fatal(err)
 	}
 	g2 := NewGateway(t.TempDir(), withUser, version.Info{})
@@ -396,7 +397,7 @@ func TestSetupStatusVersionOnlyWhileNeeded(t *testing.T) {
 	defer func() { checkLatestRelease = old }()
 
 	t.Setenv("HOME", t.TempDir())
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
 	g := NewGateway(t.TempDir(), accounts, version.Info{Version: "v9.9.9", Commit: "abc1234", Date: "2026-10-25"})
 	t.Cleanup(g.Close)
 	_ = g.SetupCodeOnce()
@@ -413,7 +414,7 @@ func TestSetupStatusVersionOnlyWhileNeeded(t *testing.T) {
 	if body := get(); body["version"] != "v9.9.9" {
 		t.Fatalf("chưa có quản trị mà version=%v, muốn v9.9.9 (khớp /api/system)", body["version"])
 	}
-	if _, err := accounts.CreateUser(webauth.NewUser{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"}); err != nil {
+	if _, err := accounts.CreateUser(identity.NewUser{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"}); err != nil {
 		t.Fatal(err)
 	}
 	body := get()
@@ -444,11 +445,11 @@ func TestSetupMalformedCodeDoesNotCount(t *testing.T) {
 	}
 	// Vẫn còn đủ 5 lượt sau 5 lần sai định dạng.
 	body := decodeJSONBody(t, h.do("GET", "/api/setup", "", ""))
-	if body["attemptsLeft"] != float64(webauth.SetupMaxAttempts) {
+	if body["attemptsLeft"] != float64(identity.SetupMaxAttempts) {
 		t.Fatalf("sai định dạng làm trừ lượt: attemptsLeft=%v", body["attemptsLeft"])
 	}
 	// Bốn lần sai đúng định dạng vẫn chưa khoá (lượt chỉ bị trừ bởi mã sai).
-	for i := range webauth.SetupMaxAttempts - 1 {
+	for i := range identity.SetupMaxAttempts - 1 {
 		if w := h.verify("BBBBBBBB"); w.Code != http.StatusBadRequest {
 			t.Fatalf("lần sai %d = %d %s", i+1, w.Code, w.Body.String())
 		}
@@ -463,13 +464,13 @@ func TestSetupMalformedCodeDoesNotCount(t *testing.T) {
 func TestSetupExpiredBeatsLocked(t *testing.T) {
 	h := newSetupHarness(t)
 	// Khoá muộn trong đời mã (còn 5 phút) để lúc mã hết hạn khoá vẫn còn hiệu lực.
-	h.clock.advance(webauth.SetupCodeTTL - 5*time.Minute)
-	for range webauth.SetupMaxAttempts {
+	h.clock.advance(identity.SetupCodeTTL - 5*time.Minute)
+	for range identity.SetupMaxAttempts {
 		h.verify("BBBBBBBB")
 	}
 	body := decodeJSONBody(t, h.do("GET", "/api/setup", "", ""))
 	if _, ok := body["lockedUntil"]; !ok {
-		t.Fatalf("chưa khoá sau %d lần sai: %v", webauth.SetupMaxAttempts, body)
+		t.Fatalf("chưa khoá sau %d lần sai: %v", identity.SetupMaxAttempts, body)
 	}
 	if body["expired"] == true {
 		t.Fatalf("mã chưa hết hạn mà expired:true: %v", body)

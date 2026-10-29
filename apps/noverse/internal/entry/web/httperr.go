@@ -33,7 +33,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // errInternalMessage là body duy nhất của một 500 từ boundary này.
@@ -76,18 +76,18 @@ var httpErrorRules = []httpErrorRule{
 
 	// Accounts/sessions (file and postgres repositories share these sentinels;
 	// their texts are curated Vietnamese, never a driver error).
-	{webauth.ErrInvalidInput, http.StatusBadRequest, "", true},
-	{webauth.ErrInvalidCredentials, http.StatusUnauthorized, "", true},
-	{webauth.ErrInvalidPairing, http.StatusUnauthorized, "", true},
-	{webauth.ErrUnauthenticated, http.StatusUnauthorized, "", true},
-	{webauth.ErrInvalidRecovery, http.StatusBadRequest, "", true},
-	{webauth.ErrForbidden, http.StatusForbidden, "", true},
-	{webauth.ErrNotFound, http.StatusNotFound, "", true},
-	{webauth.ErrExists, http.StatusConflict, "", true},
-	{webauth.ErrLastAdmin, http.StatusConflict, "", true},
-	{webauth.ErrLastOwner, http.StatusConflict, "", true},
-	{webauth.ErrOwnerTaken, http.StatusConflict, "", true},
-	{webauth.ErrRecoveryExists, http.StatusConflict, "", true},
+	{identity.ErrInvalidInput, http.StatusBadRequest, "", true},
+	{identity.ErrInvalidCredentials, http.StatusUnauthorized, "", true},
+	{identity.ErrInvalidPairing, http.StatusUnauthorized, "", true},
+	{identity.ErrUnauthenticated, http.StatusUnauthorized, "", true},
+	{identity.ErrInvalidRecovery, http.StatusBadRequest, "", true},
+	{identity.ErrForbidden, http.StatusForbidden, "", true},
+	{identity.ErrNotFound, http.StatusNotFound, "", true},
+	{identity.ErrExists, http.StatusConflict, "", true},
+	{identity.ErrLastAdmin, http.StatusConflict, "", true},
+	{identity.ErrLastOwner, http.StatusConflict, "", true},
+	{identity.ErrOwnerTaken, http.StatusConflict, "", true},
+	{identity.ErrRecoveryExists, http.StatusConflict, "", true},
 
 	// Library / project selection.
 	{library.ErrInvalidName, http.StatusBadRequest, "", true},

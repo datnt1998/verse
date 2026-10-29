@@ -51,7 +51,7 @@ type ExportReport struct {
 }
 
 // PathAccountsExport is the account file inside an exported library. It is the
-// same layout the file backend reads (webauth opens one web-accounts.json), so
+// same layout the file backend reads (identity opens one web-accounts.json), so
 // a rollback only has to point the CLI/serve at this tree.
 const PathAccountsExport = ".ainovel/web-accounts.json"
 

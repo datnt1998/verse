@@ -22,7 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // fakeSynth 是测试用的读音引擎：任何文本都返回 0.3 秒 440 Hz，并记录请求。
@@ -934,7 +934,7 @@ func TestAudioEventsStream(t *testing.T) {
 	w := &sseRecorder{}
 	done := make(chan struct{})
 	go func() {
-		f.tg.g.serveStoryAudio(w, r, webauth.User{Username: "admin", Role: webauth.RoleAdmin}, f.st, "/audio/events")
+		f.tg.g.serveStoryAudio(w, r, identity.User{Username: "admin", Role: identity.RoleAdmin}, f.st, "/audio/events")
 		close(done)
 	}()
 	deadline := time.Now().Add(5 * time.Second)
@@ -962,7 +962,7 @@ func TestAudioEventsStream(t *testing.T) {
 
 func TestAudioCastVersionConflictAndChangeEvent(t *testing.T) {
 	f := newAudioFixture(t)
-	sub, _, _ := f.tg.g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := f.tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer f.tg.g.events().unsubscribe(sub)
 
 	w := f.do("GET", "/audio/cast", "")

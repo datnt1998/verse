@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestRulesMutationCarriesScopeAndSection(t *testing.T) {
 	tg := newConfigTestGateway(t)
-	sub, _, _ := tg.g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
 	for _, scope := range []string{"global", "project", "story"} {
 		t.Run(scope, func(t *testing.T) {
@@ -29,7 +29,7 @@ func TestRulesMutationCarriesScopeAndSection(t *testing.T) {
 			for _, path := range []string{"file", "file/delete", "mkdir"} {
 				r := httptest.NewRequest(http.MethodPost, "/api/rules/"+path, nil)
 				r = r.WithContext(context.WithValue(r.Context(), mutationScopeKey{}, mutationScope{scope: scope, project: p, story: s}))
-				tg.g.publishMutation(r, webauth.User{}, webauth.Session{}, nil)
+				tg.g.publishMutation(r, identity.User{}, identity.Session{}, nil)
 				ev := <-sub.ch
 				data := ev.Data.(map[string]any)
 				if ev.Type != "config.changed" || data["section"] != "rules" || data["scope"] != scope || ev.Project != p || ev.Story != s {
@@ -46,7 +46,7 @@ func TestRulesMutationCarriesScopeAndSection(t *testing.T) {
 func TestGatewayMutationPublishesImmediately(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	cookie := tg.login("admin", "admin-pass")
-	sub, _, _ := tg.g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
 	w := tg.do("PUT", "/api/config?scope=story&project=proj&story=01-story", cookie, `{"model":"test"}`)
 	if w.Code != 200 {
@@ -73,7 +73,7 @@ func TestGatewayMutationPublishesImmediately(t *testing.T) {
 
 func TestWorkerChangeMapping(t *testing.T) {
 	g := &Gateway{}
-	sub, _, _ := g.events().subscribe(webauth.User{Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := g.events().subscribe(identity.User{Role: identity.RoleAdmin}, 0, nil)
 	defer g.events().unsubscribe(sub)
 	for _, tc := range []struct{ summary, part string }{
 		{"commit_chapter(chương 1)", "chapters"},
@@ -116,7 +116,7 @@ func TestRevokingSessionPublishesOnlyRevokedSession(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	cookie := tg.login("writer", "writer-pass")
 	second := tg.login("writer", "writer-pass")
-	user := webauth.User{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectCollab}}
+	user := identity.User{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectCollab}}
 	sub, _, _ := tg.g.events().subscribe(user, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
 	_, session, err := tg.g.accounts.Authenticate(second)

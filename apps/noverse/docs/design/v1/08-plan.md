@@ -10,7 +10,7 @@ Mỗi pha merge được độc lập. Pha 0–3 chỉ dùng API hiện có; pha
 - `web/src/i18n/vi.ts`, `web/src/i18n/hostStrings.ts` (bảng dịch `06`).
 - **Nghiệm thu**: build/typecheck sạch; header + nav đúng artboard; focus ring; reduced-motion tắt animation.
 
-## PA · Tài khoản & đăng nhập (API có sẵn trong `internal/webauth`)
+## PA · Tài khoản & đăng nhập (API có sẵn trong `platform/identity`)
 Làm ngay sau P0 vì mọi màn đều cần phiên. Chi tiết `09-auth-onboard.md`.
 - `AuthShell`, `OrbHero`, `AccountPicker` (localStorage `ainovel.accounts`), `PasswordField`, `#/login` 4 trạng thái (chọn · mật khẩu · khác · hết hạn) + lỗi 401/429.
 - `AccountMenu`, `PairingDialog` (QR từ `svg` server, tabs `links[]`, đếm ngược 5 phút, dò `sessions` 3s), `SessionList`, Thiết bị & bảo mật, đổi mật khẩu.

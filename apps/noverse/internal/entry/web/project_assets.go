@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // maxAssetUpload 是单个 Tư liệu 文件上限（与 giọng mẫu 上传一致）。
@@ -25,7 +25,7 @@ var assetKinds = map[string][]string{
 
 // uploadAsset 处理 POST /api/projects/:p/assets（multipart: kind=cover|music, file）。
 // 文件落在 audio.Layout 的 CoverDir / MusicDir，重名自动加后缀，不覆盖已有文件。
-func (g *Gateway) uploadAsset(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) uploadAsset(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	if !g.requireProject(w, lib, r.Context(), actorOf(user), user, p) {
 		return
 	}

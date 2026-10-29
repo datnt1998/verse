@@ -1,7 +1,7 @@
-// Package webauth 管理 Web 界面（ainovel-cli serve）的多用户账号、登录会话与扫码配对。
-// 数据存放在 ~/.ainovel/web-accounts.json（0600），跨进程用 flock 串行写入、原子替换；
+// Package identity 管理 Web 界面（serve）的多用户账号、登录会话与扫码配对。
+// 数据存放在 web-accounts.json（0600），跨进程用 flock 串行写入、原子替换；
 // serve 进程按文件身份与修改时间缓存读取，CLI 修改账号后无需重启 serve 即生效。
-package webauth
+package identity
 
 import (
 	"crypto/rand"
@@ -21,8 +21,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/gofrs/flock"
-
-	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 const (
@@ -83,6 +81,17 @@ type User struct {
 	Recovery  *RecoveryCode `json:"recovery,omitempty"`
 	CreatedAt time.Time     `json:"createdAt"`
 	UpdatedAt time.Time     `json:"updatedAt"`
+	// legacyProject 是 Store 认证的 Options.LegacyProjectID 副本：CanRead/CanWrite
+	// 对不带 "<project>/" 前缀的 ID 用它兜底。不序列化，仅由 Store 在交还 User 时填。
+	legacyProject string
+}
+
+// storyProject 取资源 ID 的项目段；无 "<project>/" 前缀时落 legacyProject。
+func (u User) storyProject(id string) string {
+	if p, _, ok := strings.Cut(id, "/"); ok {
+		return p
+	}
+	return u.legacyProject
 }
 
 type UserView struct {
@@ -133,14 +142,8 @@ func (u User) ProjectRole(project string) ProjectRole {
 	}
 	return u.Projects[project]
 }
-func storyProject(id string) string {
-	if p, _, ok := strings.Cut(id, "/"); ok {
-		return p
-	}
-	return library.LegacyProjectID
-}
-func (u User) CanRead(id string) bool  { return u.CanReadProject(storyProject(id)) }
-func (u User) CanWrite(id string) bool { return u.CanCollaborateProject(storyProject(id)) }
+func (u User) CanRead(id string) bool  { return u.CanReadProject(u.storyProject(id)) }
+func (u User) CanWrite(id string) bool { return u.CanCollaborateProject(u.storyProject(id)) }
 func (u User) CanReadProject(p string) bool {
 	level := u.ProjectRole(p)
 	return level == ProjectView || level == ProjectCollab || level == ProjectOwner
@@ -266,6 +269,7 @@ type Store struct {
 	cache      *data
 	stat       os.FileInfo
 	projectIDs func() ([]string, error)
+	opts       Options
 	// repo 非空时 Store 是门面，一切方法委派给外部 backend（postgres）。
 	repo Repository
 	// loginLimiter/recoveryLimiter được LoginLimiter()/RecoveryLimiter() khởi
@@ -274,14 +278,18 @@ type Store struct {
 	recoveryLimiter RecoveryLimiter
 }
 
-func NewStore(path string) *Store { return &Store{path: path, now: time.Now} }
+// NewStore tạo kho tài khoản file tại path; opts cung cấp định danh project
+// của app (validator + legacy ID, xem Options).
+func NewStore(path string, opts Options) *Store { return &Store{path: path, now: time.Now, opts: opts} }
 
-func DefaultPath() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", fmt.Errorf("không xác định được thư mục home: %w", err)
+// DefaultPath trả đường mặc định của kho tài khoản: dir/web-accounts.json,
+// với dir là thư mục dữ liệu app đã giải ở phía caller. dir rỗng (không xác
+// định được home) → lỗi thay vì ghi nhầm chỗ.
+func DefaultPath(dir string) (string, error) {
+	if dir == "" {
+		return "", errors.New("không xác định được thư mục home")
 	}
-	return filepath.Join(home, ".ainovel", "web-accounts.json"), nil
+	return filepath.Join(dir, "web-accounts.json"), nil
 }
 
 func (s *Store) Path() string {
@@ -431,10 +439,10 @@ func digest(secret string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func normalizeProjects(projects map[string]ProjectRole) (map[string]ProjectRole, error) {
+func (s *Store) normalizeProjects(projects map[string]ProjectRole) (map[string]ProjectRole, error) {
 	out := make(map[string]ProjectRole, len(projects))
 	for id, level := range projects {
-		if !library.ValidProjectID(id) || (level != ProjectOwner && level != ProjectCollab && level != ProjectView) {
+		if !s.opts.validProjectID(id) || (level != ProjectOwner && level != ProjectCollab && level != ProjectView) {
 			return nil, fmt.Errorf("%w: quyền dự án không hợp lệ", ErrInvalidInput)
 		}
 		out[id] = level
@@ -544,7 +552,7 @@ func (s *Store) CreateUser(in NewUser) (UserView, error) {
 	if !validRole(in.Role) {
 		return UserView{}, fmt.Errorf("%w: vai trò %q", ErrInvalidInput, in.Role)
 	}
-	projects, err := normalizeProjects(in.Projects)
+	projects, err := s.normalizeProjects(in.Projects)
 	if err != nil {
 		return UserView{}, err
 	}
@@ -664,7 +672,7 @@ func (s *Store) UpdateUser(username string, patch UserPatch) (UserView, error) {
 	var projects map[string]ProjectRole
 	if patch.Projects != nil {
 		var err error
-		if projects, err = normalizeProjects(*patch.Projects); err != nil {
+		if projects, err = s.normalizeProjects(*patch.Projects); err != nil {
 			return UserView{}, err
 		}
 	}
@@ -1012,9 +1020,12 @@ func (s *Store) NewPairing(username, createdBy string) (string, time.Time, error
 }
 
 // Authenticate 校验 Cookie 并返回当前用户与会话；距上次记录超过 touchInterval 才回写 LastSeen。
+// User 交还前盖 legacyProject，让 CanRead/CanWrite 对裸 ID 走本 store 的 legacy 项目。
 func (s *Store) Authenticate(cookie string) (User, Session, error) {
 	if s.repo != nil {
-		return s.repo.Authenticate(cookie)
+		u, sess, err := s.repo.Authenticate(cookie)
+		u.legacyProject = s.opts.LegacyProjectID
+		return u, sess, err
 	}
 	id, secret, ok := strings.Cut(cookie, ".")
 	if !ok || id == "" || secret == "" {
@@ -1038,6 +1049,7 @@ func (s *Store) Authenticate(cookie string) (User, Session, error) {
 		return User{}, Session{}, ErrUnauthenticated
 	}
 	user := *u
+	user.legacyProject = s.opts.LegacyProjectID
 	if now.Sub(x.LastSeen) > touchInterval {
 		_ = s.update(func(d *data) error {
 			for j := range d.Sessions {

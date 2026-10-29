@@ -11,13 +11,13 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 func TestGCApplicationRoleCannotDelete(t *testing.T) {
-	appDSN, maintenanceDSN := pgtest.ProvisionRoles(t)
+	appDSN, maintenanceDSN := pgtest.ProvisionRoles(t, pgtest.RoleSpec{MigrateRole: "noverse_migrate", AppRole: "noverse_app", LockKey1: 2710, LockKey2: 11, InitScriptRef: "deploy/postgres-init/01-roles.sh"})
 	ctx := context.Background()
 	db, err := migrate.OpenDB(maintenanceDSN)
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // G8：đồng sáng tác ở cấp dự án, trước khi truyện tồn tại.
@@ -31,7 +31,7 @@ func newDraftID() string {
 }
 
 // serveProjectCoCreate 处理 /api/projects/:p/cocreate[/message|/commit|/cancel]。
-func (g *Gateway) serveProjectCoCreate(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveProjectCoCreate(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	if !g.requireProject(w, lib, r.Context(), actorOf(user), user, p) {
 		return
 	}
@@ -88,7 +88,7 @@ func (g *Gateway) draftDirOf(w http.ResponseWriter, ctx context.Context, lib lib
 }
 
 // getProjectCoCreate 返回草稿的共创状态；没有 draft 参数时返回空状态。
-func (g *Gateway) getProjectCoCreate(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) getProjectCoCreate(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	id := draftIDFrom(r, "")
 	if id == "" {
 		writeJSON(w, http.StatusOK, emptyCoCreateState(""))
@@ -131,7 +131,7 @@ func emptyCoCreateState(id string) map[string]any {
 }
 
 // postProjectCoCreateMessage 追加用户消息并同步跑一轮；首条消息没有 draft 时新建草稿。
-func (g *Gateway) postProjectCoCreateMessage(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) postProjectCoCreateMessage(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	var req struct {
 		Message string `json:"message"`
 		Draft   string `json:"draft"`
@@ -184,7 +184,7 @@ func (g *Gateway) postProjectCoCreateMessage(w http.ResponseWriter, r *http.Requ
 }
 
 // postProjectCoCreateCommit 把草稿变成正式 truyện rồi bắt đầu viết.
-func (g *Gateway) postProjectCoCreateCommit(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) postProjectCoCreateCommit(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	var req struct {
 		Name  string `json:"name"`
 		Draft string `json:"draft"`
@@ -314,7 +314,7 @@ func (g *Gateway) postProjectCoCreateCommit(w http.ResponseWriter, r *http.Reque
 }
 
 // postProjectCoCreateCancel 取消 phiên và xoá thư mục nháp.
-func (g *Gateway) postProjectCoCreateCancel(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) postProjectCoCreateCancel(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	var req struct {
 		Draft string `json:"draft"`
 	}

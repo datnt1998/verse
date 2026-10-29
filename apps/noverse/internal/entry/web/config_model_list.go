@@ -20,10 +20,10 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/core/roles"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // providerModel / providerModelList 是该接口的响应形状（11-api-contract）。
@@ -144,8 +144,8 @@ func (e *listError) message(label string) string {
 	}
 }
 
-func (g *Gateway) listProviderModels(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) listProviderModels(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}

@@ -27,7 +27,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // TestPGAudioQueuePlaybackHTTP exercises the hosted audio backend over the
@@ -89,11 +89,11 @@ func TestPGAudioQueuePlaybackHTTP(t *testing.T) {
 	// Gateway with the hosted seam; the story has no directory anywhere.
 	tg := newTestGateway(t)
 	st := library.Story{Project: "story-proj", Story: "novel-b", ID: "story-proj/novel-b"}
-	tg.g.SetFactStore(func(_ library.Story, _ *webauth.User) (*store.Store, error) {
+	tg.g.SetFactStore(func(_ library.Story, _ *identity.User) (*store.Store, error) {
 		return bootstrap.OpenStoryStoreInternal(ctx, pool, st.Project, st.Story)
 	})
 	tg.g.SetAudioStore(&PGAudioDeps{Jobs: jobs, Audio: audioRepo, Cache: cache, Nar: nar, Blobs: blobs})
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 
 	call := func(method, path, query string, body any) *httptest.ResponseRecorder {
 		t.Helper()
@@ -411,11 +411,11 @@ func TestPGAudioExportCacheHTTP(t *testing.T) {
 
 	tg := newTestGateway(t)
 	st := library.Story{Project: "exp-proj", Story: "exp-story", ID: "exp-proj/exp-story"}
-	tg.g.SetFactStore(func(_ library.Story, _ *webauth.User) (*store.Store, error) {
+	tg.g.SetFactStore(func(_ library.Story, _ *identity.User) (*store.Store, error) {
 		return bootstrap.OpenStoryStoreInternal(ctx, pool, st.Project, st.Story)
 	})
 	tg.g.SetAudioStore(&PGAudioDeps{Jobs: jobs, Audio: audioRepo, Cache: cache, Nar: nar, Blobs: blobs})
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 	call := func(method, path, query string, body any) *httptest.ResponseRecorder {
 		t.Helper()
 		var r *http.Request

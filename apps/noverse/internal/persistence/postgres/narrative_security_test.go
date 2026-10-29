@@ -12,9 +12,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // memberFixture tạo project với owner/collab/view + một truyện, trả repo và
@@ -31,7 +32,7 @@ func provisionMembers(t *testing.T) memberFixture {
 	t.Helper()
 	f := provisionNarrative(t, "project-a", "truyen-a")
 	ctx := context.Background()
-	accounts := webauth.NewFromRepository(postgres.NewAccounts(f.pool))
+	accounts := identity.NewFromRepository(postgres.NewAccounts(f.pool), library.IdentityOptions())
 	q := gen.New(f.pool.Pool())
 
 	project, err := q.GetProjectBySlug(ctx, "project-a")
@@ -44,8 +45,8 @@ func provisionMembers(t *testing.T) memberFixture {
 	}{
 		{"owner", "owner"}, {"collab", "collab"}, {"viewer", "view"}, {"stray", ""},
 	} {
-		if _, err := accounts.CreateUser(webauth.NewUser{
-			Username: u.name, Name: u.name, Role: webauth.RoleMember, Password: "mat-khau-12345"}); err != nil {
+		if _, err := accounts.CreateUser(identity.NewUser{
+			Username: u.name, Name: u.name, Role: identity.RoleMember, Password: "mat-khau-12345"}); err != nil {
 			t.Fatalf("create %s: %v", u.name, err)
 		}
 		if u.role == "" {

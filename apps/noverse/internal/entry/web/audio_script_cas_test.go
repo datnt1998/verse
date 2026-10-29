@@ -19,7 +19,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // TestPGAudioScriptPutIsCAS proves the ETag is a write contract, not only a
@@ -68,11 +68,11 @@ func TestPGAudioScriptPutIsCAS(t *testing.T) {
 
 	tg := newTestGateway(t)
 	st := library.Story{Project: "cas-proj", Story: "cas-story", ID: "cas-proj/cas-story"}
-	tg.g.SetFactStore(func(_ library.Story, _ *webauth.User) (*store.Store, error) {
+	tg.g.SetFactStore(func(_ library.Story, _ *identity.User) (*store.Store, error) {
 		return bootstrap.OpenStoryStoreInternal(ctx, pool, "cas-proj", "cas-story")
 	})
 	tg.g.SetAudioStore(&PGAudioDeps{Jobs: postgres.NewJobs(pool), Audio: audioRepo, Cache: cache, Nar: nar, Blobs: blobs})
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 
 	get := httptest.NewRequest(http.MethodGet, "http://x/audio/volumes/1/scripts/1", nil)
 	getW := httptest.NewRecorder()

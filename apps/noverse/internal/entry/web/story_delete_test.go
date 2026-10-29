@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 	"github.com/gofrs/flock"
 )
 
@@ -19,19 +19,19 @@ const deleteStoryBody = `{"confirm":"01-story"}`
 func TestDeleteStoryPermissionMatrix(t *testing.T) {
 	for _, tc := range []struct {
 		name, username, password string
-		projects                 map[string]webauth.ProjectRole
+		projects                 map[string]identity.ProjectRole
 		status                   int
 	}{
 		{"admin", "admin", "admin-pass", nil, 200},
-		{"owner", "writer", "writer-pass", map[string]webauth.ProjectRole{"proj": webauth.ProjectOwner}, 200},
-		{"collab", "reader", "reader-pass", map[string]webauth.ProjectRole{"proj": webauth.ProjectCollab}, 403},
+		{"owner", "writer", "writer-pass", map[string]identity.ProjectRole{"proj": identity.ProjectOwner}, 200},
+		{"collab", "reader", "reader-pass", map[string]identity.ProjectRole{"proj": identity.ProjectCollab}, 403},
 		{"reader", "reader", "reader-pass", nil, 403},
-		{"unassigned member", "reader", "reader-pass", map[string]webauth.ProjectRole{"other": webauth.ProjectCollab}, 403},
+		{"unassigned member", "reader", "reader-pass", map[string]identity.ProjectRole{"other": identity.ProjectCollab}, 403},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			tg := newConfigTestGateway(t)
 			if tc.projects != nil {
-				if _, err := tg.g.accounts.UpdateUser(tc.username, webauth.UserPatch{Projects: &tc.projects}); err != nil {
+				if _, err := tg.g.accounts.UpdateUser(tc.username, identity.UserPatch{Projects: &tc.projects}); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -122,11 +122,11 @@ func TestDeleteStoryClosesIdleWorkerAndCleansState(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	projects := map[string]webauth.ProjectRole{"proj": webauth.ProjectOwner}
-	if _, err := tg.g.accounts.UpdateUser("writer", webauth.UserPatch{Projects: &projects}); err != nil {
+	projects := map[string]identity.ProjectRole{"proj": identity.ProjectOwner}
+	if _, err := tg.g.accounts.UpdateUser("writer", identity.UserPatch{Projects: &projects}); err != nil {
 		t.Fatal(err)
 	}
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 	sub, _, _ := tg.g.events().subscribe(admin, 0, []string{"proj/01-story", "proj"})
 	defer tg.g.events().unsubscribe(sub)
 	hub := tg.g.jobsHub()
@@ -168,7 +168,7 @@ func TestDeleteStoryClosesIdleWorkerAndCleansState(t *testing.T) {
 	}
 	for _, account := range accounts {
 		if account.Username == "writer" {
-			if account.Projects["proj"] != webauth.ProjectOwner {
+			if account.Projects["proj"] != identity.ProjectOwner {
 				t.Fatal("deleting a story must preserve project access")
 			}
 		}

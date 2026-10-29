@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func authReq(g *Gateway, method, path, body, cookie string) *httptest.ResponseRecorder {
@@ -87,7 +87,7 @@ func TestADLegacyLiveShapeMigration(t *testing.T) {
 	if err := os.WriteFile(path, []byte(fixture), 0600); err != nil {
 		t.Fatal(err)
 	}
-	store := webauth.NewStore(path)
+	store := identity.NewStore(path, library.IdentityOptions())
 	users, err := store.Users()
 	if err != nil {
 		t.Fatal(err)
@@ -101,7 +101,7 @@ func TestADLegacyLiveShapeMigration(t *testing.T) {
 		t.Fatalf("original backup must be byte-identical: %v", err)
 	}
 	before, _ := os.ReadFile(path)
-	if _, err := webauth.NewStore(path).Users(); err != nil {
+	if _, err := identity.NewStore(path, library.IdentityOptions()).Users(); err != nil {
 		t.Fatal(err)
 	}
 	after, _ := os.ReadFile(path)
@@ -117,66 +117,66 @@ func TestADRouteAuthorizationMatrix(t *testing.T) {
 	// worker is reached. Include write-via-POST and delete-via-POST endpoints.
 	cases := []struct {
 		method, path string
-		level        webauth.ProjectRole
+		level        identity.ProjectRole
 		admin        bool
 	}{}
 	for _, path := range []string{p, p + "/stories", p + "/ideas", p + "/assets", p + "/voices", p + "/pronunciations", p + "/ledger", p + "/universe", p + "/search", p + "/validate", p + "/cocreate",
 		s + "/meta", s + "/snapshot", s + "/events/live", s + "/chapters", s + "/chapters/1", s + "/chapters/1/plan", s + "/chapters/1/facts", s + "/chapters/1/revisions", s + "/outline", s + "/characters", s + "/foreshadow", s + "/quality", s + "/reviews/latest", s + "/exports", s + "/exports/file", s + "/exports/download", s + "/export", s + "/rules", s + "/style-samples", s + "/frame", s + "/retention", s + "/metrics", s + "/brain", s + "/address-terms", s + "/comments", s + "/audio/export-prefs", s + "/audio/events", s + "/audio/volumes", s + "/audio/speakers"} {
 		cases = append(cases, struct {
 			method, path string
-			level        webauth.ProjectRole
+			level        identity.ProjectRole
 			admin        bool
-		}{"GET", path, webauth.ProjectView, false})
+		}{"GET", path, identity.ProjectView, false})
 	}
 	for _, path := range []string{"/api/jobs/p/story/audio/1/cancel", p + "/stories", p + "/ideas", p + "/assets", p + "/voices", p + "/cocreate/message", p + "/cocreate/commit", p + "/cocreate/cancel", s + "/input", s + "/next", s + "/steer", s + "/pause", s + "/resume", s + "/stop", s + "/close", s + "/rename", s + "/exports", s + "/sync", s + "/import", s + "/import/preview", s + "/import/commit", s + "/rewrite", s + "/simulate", s + "/style-samples", s + "/comments", s + "/relations", s + "/audio/volumes/1/render", s + "/audio/volumes/1/exports", s + "/audio/volumes/1/cancel"} {
 		cases = append(cases, struct {
 			method, path string
-			level        webauth.ProjectRole
+			level        identity.ProjectRole
 			admin        bool
-		}{"POST", path, webauth.ProjectCollab, false})
+		}{"POST", path, identity.ProjectCollab, false})
 	}
 	for _, path := range []string{p + "/pronunciations", s + "/meta", s + "/characters", s + "/address-terms", s + "/frame", s + "/rules", s + "/audio/export-prefs", s + "/audio/speakers"} {
 		cases = append(cases, struct {
 			method, path string
-			level        webauth.ProjectRole
+			level        identity.ProjectRole
 			admin        bool
-		}{"PUT", path, webauth.ProjectCollab, false})
+		}{"PUT", path, identity.ProjectCollab, false})
 	}
 	for _, tc := range []struct{ method, path string }{{"DELETE", s}, {"DELETE", s + "/style-samples/sample"}, {"POST", s + "/share"}, {"POST", s + "/delete"}, {"PUT", p}, {"PUT", "/api/config?scope=project&project=p"}, {"PUT", "/api/rules/file?scope=project&project=p"}, {"POST", "/api/rules/file/delete?scope=story&project=p&story=story"}, {"PUT", p + "/ledger"}} {
 		cases = append(cases, struct {
 			method, path string
-			level        webauth.ProjectRole
+			level        identity.ProjectRole
 			admin        bool
-		}{tc.method, tc.path, webauth.ProjectOwner, false})
+		}{tc.method, tc.path, identity.ProjectOwner, false})
 	}
 	for _, tc := range []struct{ method, path string }{{"POST", "/api/jobs/" + voiceInstallJobID + "/retry"}, {"GET", "/api/users"}, {"POST", "/api/users"}, {"POST", "/api/users/u"}, {"POST", "/api/users/u/delete"}, {"GET", "/api/users/u/sessions"}, {"POST", "/api/users/u/sessions/revoke-all"}, {"POST", "/api/users/u/pairings"}, {"GET", "/api/admin/audit"}, {"PUT", "/api/config"}, {"PUT", "/api/library"}, {"POST", "/api/projects"}, {"POST", "/api/projects/adopt"}, {"GET", "/api/fs/places"}, {"PUT", "/api/system/network"}, {"POST", "/api/tts/install"}} {
 		cases = append(cases, struct {
 			method, path string
-			level        webauth.ProjectRole
+			level        identity.ProjectRole
 			admin        bool
 		}{tc.method, tc.path, "", true})
 	}
-	rank := map[webauth.ProjectRole]int{"": 0, webauth.ProjectView: 1, webauth.ProjectCollab: 2, webauth.ProjectOwner: 3}
+	rank := map[identity.ProjectRole]int{"": 0, identity.ProjectView: 1, identity.ProjectCollab: 2, identity.ProjectOwner: 3}
 	for _, tc := range cases {
 		t.Run(tc.method+" "+tc.path, func(t *testing.T) {
 			r := httptest.NewRequest(tc.method, tc.path, nil)
-			for _, level := range []webauth.ProjectRole{"", webauth.ProjectView, webauth.ProjectCollab, webauth.ProjectOwner} {
-				user := webauth.User{Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": level}}
+			for _, level := range []identity.ProjectRole{"", identity.ProjectView, identity.ProjectCollab, identity.ProjectOwner} {
+				user := identity.User{Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": level}}
 				want := !tc.admin && rank[level] >= rank[tc.level]
 				if got := requestAllowed(user, r); got != want {
 					t.Errorf("%s: allowed=%v want %v", level, got, want)
 				}
 			}
-			if !requestAllowed(webauth.User{Role: webauth.RoleAdmin}, r) {
+			if !requestAllowed(identity.User{Role: identity.RoleAdmin}, r) {
 				t.Error("admin denied")
 			}
-			if requestAllowed(webauth.User{Role: webauth.RoleAdmin, Disabled: true}, r) {
+			if requestAllowed(identity.User{Role: identity.RoleAdmin, Disabled: true}, r) {
 				t.Error("disabled admin allowed")
 			}
 		})
 	}
 	for _, path := range []string{"/api/projects/share/stories/delete/input", "/api/projects/delete/stories/share/input"} {
-		user := webauth.User{Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"share": webauth.ProjectCollab, "delete": webauth.ProjectCollab}}
+		user := identity.User{Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"share": identity.ProjectCollab, "delete": identity.ProjectCollab}}
 		if !requestAllowed(user, httptest.NewRequest("POST", path, nil)) {
 			t.Errorf("resource IDs must not become operation names: %s", path)
 		}
@@ -185,7 +185,7 @@ func TestADRouteAuthorizationMatrix(t *testing.T) {
 
 func TestADImmediateStoredAuthorization(t *testing.T) {
 	tg := newConfigTestGateway(t)
-	if _, err := tg.g.accounts.CreateUser(webauth.NewUser{Username: "member", Role: webauth.RoleAdmin, Password: "member-pass"}); err != nil {
+	if _, err := tg.g.accounts.CreateUser(identity.NewUser{Username: "member", Role: identity.RoleAdmin, Password: "member-pass"}); err != nil {
 		t.Fatal(err)
 	}
 	cookie := tg.login("member", "member-pass")
@@ -234,7 +234,7 @@ func TestADDeviceSignOutAndOptionalReasons(t *testing.T) {
 	two := authLogin(t, g, "writer", "writer-pass")
 	list := authReq(g, "GET", "/api/users/writer/sessions", "", admin)
 	var sessions struct {
-		Sessions []webauth.Session `json:"sessions"`
+		Sessions []identity.Session `json:"sessions"`
 	}
 	if err := json.Unmarshal(list.Body.Bytes(), &sessions); err != nil {
 		t.Fatal(err)
@@ -303,10 +303,10 @@ func memberFixture(t *testing.T) (g *Gateway, owner, collab, viewer, outsider, a
 	tg := newTestGateway(t)
 	t.Cleanup(tg.g.Close)
 	g = tg.g
-	for _, u := range []webauth.NewUser{
-		{Username: "collab", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectCollab}, Password: "collab-pass"},
-		{Username: "viewer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectView}, Password: "viewer-pass"},
-		{Username: "outsider", Role: webauth.RoleMember, Password: "outsider-pass"},
+	for _, u := range []identity.NewUser{
+		{Username: "collab", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectCollab}, Password: "collab-pass"},
+		{Username: "viewer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectView}, Password: "viewer-pass"},
+		{Username: "outsider", Role: identity.RoleMember, Password: "outsider-pass"},
 	} {
 		if _, err := g.accounts.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -326,16 +326,16 @@ func TestADMemberListByRoles(t *testing.T) {
 			t.Fatalf("member list = %d: %s", rec.Code, rec.Body)
 		}
 		var body struct {
-			Members []webauth.ProjectMember `json:"members"`
+			Members []identity.ProjectMember `json:"members"`
 		}
 		if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 			t.Fatal(err)
 		}
-		roles := map[string]webauth.ProjectRole{}
+		roles := map[string]identity.ProjectRole{}
 		for _, m := range body.Members {
 			roles[m.Username] = m.Role
 		}
-		if roles["writer"] != webauth.ProjectOwner || roles["collab"] != webauth.ProjectCollab || roles["viewer"] != webauth.ProjectView {
+		if roles["writer"] != identity.ProjectOwner || roles["collab"] != identity.ProjectCollab || roles["viewer"] != identity.ProjectView {
 			t.Fatalf("members = %+v", body.Members)
 		}
 	}
@@ -351,13 +351,13 @@ func TestADMemberListByRoles(t *testing.T) {
 // mời collab/view, đổi vai, gỡ member — kèm audit và invariant owner cuối.
 func TestADOwnerInvitePatchRemove(t *testing.T) {
 	g, owner, _, _, _, _ := memberFixture(t)
-	memberByUsername := func(cookie, username string) (webauth.ProjectRole, int) {
+	memberByUsername := func(cookie, username string) (identity.ProjectRole, int) {
 		rec := authReq(g, "GET", "/api/projects/proj/members", "", cookie)
 		if rec.Code != 200 {
 			return "", rec.Code
 		}
 		var body struct {
-			Members []webauth.ProjectMember `json:"members"`
+			Members []identity.ProjectMember `json:"members"`
 		}
 		if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 			t.Fatal(err)
@@ -375,7 +375,7 @@ func TestADOwnerInvitePatchRemove(t *testing.T) {
 	if rec.Code != 201 {
 		t.Fatalf("invite = %d: %s", rec.Code, rec.Body)
 	}
-	if role, _ := memberByUsername(owner, "outsider"); role != webauth.ProjectCollab {
+	if role, _ := memberByUsername(owner, "outsider"); role != identity.ProjectCollab {
 		t.Fatalf("invited role = %q", role)
 	}
 
@@ -384,7 +384,7 @@ func TestADOwnerInvitePatchRemove(t *testing.T) {
 	if rec.Code != 200 {
 		t.Fatalf("patch = %d: %s", rec.Code, rec.Body)
 	}
-	if role, _ := memberByUsername(owner, "outsider"); role != webauth.ProjectView {
+	if role, _ := memberByUsername(owner, "outsider"); role != identity.ProjectView {
 		t.Fatalf("patched role = %q", role)
 	}
 
@@ -429,19 +429,19 @@ func TestADTransferOwnership(t *testing.T) {
 		t.Fatalf("transfer = %d: %s", rec.Code, rec.Body)
 	}
 	var body struct {
-		Members []webauth.ProjectMember `json:"members"`
+		Members []identity.ProjectMember `json:"members"`
 	}
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatal(err)
 	}
-	owners, roles := 0, map[string]webauth.ProjectRole{}
+	owners, roles := 0, map[string]identity.ProjectRole{}
 	for _, m := range body.Members {
 		roles[m.Username] = m.Role
-		if m.Role == webauth.ProjectOwner {
+		if m.Role == identity.ProjectOwner {
 			owners++
 		}
 	}
-	if owners != 1 || roles["collab"] != webauth.ProjectOwner || roles["writer"] != webauth.ProjectCollab {
+	if owners != 1 || roles["collab"] != identity.ProjectOwner || roles["writer"] != identity.ProjectCollab {
 		t.Fatalf("after transfer = %+v", body.Members)
 	}
 
@@ -460,7 +460,7 @@ func TestADTransferOwnership(t *testing.T) {
 		t.Fatalf("transfer missing user = %d: %s", rec.Code, rec.Body)
 	}
 	// Chuyển cho tài khoản bị khoá → 400.
-	if _, err := g.accounts.UpdateUser("viewer", webauth.UserPatch{Disabled: &[]bool{true}[0]}); err != nil {
+	if _, err := g.accounts.UpdateUser("viewer", identity.UserPatch{Disabled: &[]bool{true}[0]}); err != nil {
 		t.Fatal(err)
 	}
 	if rec := authReq(g, "POST", "/api/projects/proj/owner", `{"username":"viewer"}`, collab); rec.Code != 400 {

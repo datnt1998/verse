@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // G1：POST /api/reveal mở thư mục bằng trình quản lý tệp trên máy chủ;
@@ -49,7 +49,7 @@ type revealRequest struct {
 
 // revealPath 解析 target 对应的绝对路径；status 非 0 表示应直接返回该错误。
 // 叶子目录（rules/exports/activity）不存在时会创建，保证“Mở thư mục”总能打开。
-func (g *Gateway) revealPath(user webauth.User, req revealRequest) (path string, status int, msg string) {
+func (g *Gateway) revealPath(user identity.User, req revealRequest) (path string, status int, msg string) {
 	// Reveal/open-folder is a desktop file capability: a hosted library has
 	// no directory tree to open, so every target answers 501 rather than
 	// resolving a path inside the server cwd.
@@ -182,7 +182,7 @@ func (g *Gateway) responsePath(path string, admin bool) string {
 }
 
 // serveReveal 处理 /api/reveal；返回 false 表示路径不归它管。
-func (g *Gateway) serveReveal(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveReveal(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	if r.URL.Path != "/api/reveal" {
 		return false
 	}
@@ -240,7 +240,7 @@ func (g *Gateway) serveReveal(w http.ResponseWriter, r *http.Request, user webau
 // revealConfigFile 解析 target=config：返回该层 config.json 的绝对路径（文件未必存在）。
 // 权限与 rules 一致：global 仅 admin；project/story 需能读该对象。上级目录不存在时创建，
 // 保证文件缺失时 POST 仍能打开其所在目录。
-func (g *Gateway) revealConfigFile(user webauth.User, req revealRequest) (path string, status int, msg string) {
+func (g *Gateway) revealConfigFile(user identity.User, req revealRequest) (path string, status int, msg string) {
 	project, story := strings.TrimSpace(req.Project), strings.TrimSpace(req.Story)
 	scope := strings.TrimSpace(req.Scope)
 	if scope == "" {
@@ -285,7 +285,7 @@ func naoVaultTarget(target string) bool {
 // revealNaoVault phân giải thư mục kho ghi chú để mở bằng Obsidian (D12, nhóm Nâng cao).
 // Chỉ quản trị. Kho là bản sinh một chiều từ dữ kiện gốc (ADR 0001) nên ở đây không
 // tự tạo: chưa có kho thì trả 404 để UI báo "chưa có", không mở một thư mục rỗng.
-func (g *Gateway) revealNaoVault(user webauth.User, lib library.Repository, req revealRequest) (path string, status int, msg string) {
+func (g *Gateway) revealNaoVault(user identity.User, lib library.Repository, req revealRequest) (path string, status int, msg string) {
 	if !isAdmin(user) {
 		return "", http.StatusForbidden, "Không có quyền"
 	}
@@ -496,7 +496,7 @@ func pickWithKdialog(start string) (string, bool, error) {
 var errPickerCancelled = errors.New("đã huỷ chọn thư mục")
 
 // servePickFolder 处理 POST /api/system/pick-folder.
-func (g *Gateway) servePickFolder(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) servePickFolder(w http.ResponseWriter, r *http.Request, user identity.User) {
 	if !isAdmin(user) {
 		jsonError(w, http.StatusForbidden, "Không có quyền")
 		return

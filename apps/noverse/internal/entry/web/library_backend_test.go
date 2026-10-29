@@ -16,12 +16,12 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // hostedFixture is a fully hosted gateway: PG accounts (so User.Projects comes
@@ -31,14 +31,14 @@ type hostedFixture struct {
 	g        *Gateway
 	pool     *postgres.Pool
 	repo     *postgres.LibraryRepository
-	accounts *webauth.Store
+	accounts *identity.Store
 	project  string
 	story    string
 
-	owner    webauth.User
-	viewer   webauth.User
-	outsider webauth.User
-	admin    webauth.User
+	owner    identity.User
+	viewer   identity.User
+	outsider identity.User
+	admin    identity.User
 }
 
 func provisionHostedGateway(t *testing.T, projectSlug, storySlug string) *hostedFixture {
@@ -63,17 +63,17 @@ func provisionHostedGateway(t *testing.T, projectSlug, storySlug string) *hosted
 
 	ctx := context.Background()
 	repo := postgres.NewLibraryRepository(pool)
-	accounts := webauth.NewFromRepository(postgres.NewAccounts(pool))
+	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
 	for _, u := range []struct {
 		name string
-		role webauth.Role
+		role identity.Role
 	}{
-		{"hosted-admin", webauth.RoleAdmin},
-		{"hosted-owner", webauth.RoleMember},
-		{"hosted-viewer", webauth.RoleMember},
-		{"hosted-outsider", webauth.RoleMember},
+		{"hosted-admin", identity.RoleAdmin},
+		{"hosted-owner", identity.RoleMember},
+		{"hosted-viewer", identity.RoleMember},
+		{"hosted-outsider", identity.RoleMember},
 	} {
-		if _, err := accounts.CreateUser(webauth.NewUser{
+		if _, err := accounts.CreateUser(identity.NewUser{
 			Username: u.name, Name: u.name, Role: u.role, Password: "mat-khau-12345",
 		}); err != nil {
 			t.Fatalf("create %s: %v", u.name, err)
@@ -113,7 +113,7 @@ func provisionHostedGateway(t *testing.T, projectSlug, storySlug string) *hosted
 	g := NewGateway("", accounts, version.Info{})
 	t.Cleanup(g.Close)
 	g.SetLibraryRepository(repo)
-	g.SetFactStore(func(st library.Story, user *webauth.User) (*store.Store, error) {
+	g.SetFactStore(func(st library.Story, user *identity.User) (*store.Store, error) {
 		if user == nil {
 			return bootstrap.OpenStoryStoreInternal(ctx, pool, st.Project, st.Story)
 		}
@@ -145,13 +145,13 @@ func deterministicLibraryUUID(seed string) pgtype.UUID {
 // loginUser returns the authenticated User for a PG-backed account: Projects
 // is populated from project_members, i.e. the same authorization data the
 // request pipeline carries.
-func loginUser(t *testing.T, accounts *webauth.Store, username string) webauth.User {
+func loginUser(t *testing.T, accounts *identity.Store, username string) identity.User {
 	t.Helper()
 	sess, err := accounts.Login(username, "mat-khau-12345", "test", "127.0.0.1")
 	if err != nil {
 		t.Fatalf("login %s: %v", username, err)
 	}
-	return webauth.User{
+	return identity.User{
 		Username: sess.User.Username,
 		Name:     sess.User.Name,
 		Role:     sess.User.Role,
@@ -161,7 +161,7 @@ func loginUser(t *testing.T, accounts *webauth.Store, username string) webauth.U
 
 // callLibrary invokes the library list hook (GET /api/library is the project
 // list on both backends; GET /api/projects only accepts POST).
-func callLibrary(g *Gateway, user webauth.User) *httptest.ResponseRecorder {
+func callLibrary(g *Gateway, user identity.User) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(http.MethodGet, "/api/library", nil)
 	r.RemoteAddr = "192.0.2.1:1234"
 	r.Host = "127.0.0.1:8686"
@@ -173,7 +173,7 @@ func callLibrary(g *Gateway, user webauth.User) *httptest.ResponseRecorder {
 // callProjects invokes the project route hook with an explicit user — the
 // session layer is bypassed on purpose so a stale/forged Projects map can be
 // tested against the repository's own membership check.
-func callProjects(g *Gateway, user webauth.User, method, path, body string) *httptest.ResponseRecorder {
+func callProjects(g *Gateway, user identity.User, method, path, body string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, path, strings.NewReader(body))
 	r.RemoteAddr = "192.0.2.1:1234"
 	r.Host = "127.0.0.1:8686"
@@ -250,7 +250,7 @@ func TestLibraryBackendIDOROverHTTP(t *testing.T) {
 		// repository's in-transaction check stands between this actor and the
 		// rows, so it must answer 404 — and never leak data.
 		stale := f.outsider
-		stale.Projects = map[string]webauth.ProjectRole{f.project: webauth.ProjectView}
+		stale.Projects = map[string]identity.ProjectRole{f.project: identity.ProjectView}
 		w := callProjects(f.g, stale, http.MethodGet, "/api/projects/"+f.project, "")
 		if w.Code != http.StatusNotFound {
 			t.Fatalf("stale read grant must be 404: %d %s", w.Code, w.Body.String())
@@ -262,7 +262,7 @@ func TestLibraryBackendIDOROverHTTP(t *testing.T) {
 		// Same for a write: viewer-with-owner-grant passes the handler's
 		// CanManageProject and must still be refused by the repository.
 		overGranted := f.viewer
-		overGranted.Projects = map[string]webauth.ProjectRole{f.project: webauth.ProjectOwner}
+		overGranted.Projects = map[string]identity.ProjectRole{f.project: identity.ProjectOwner}
 		w = callProjects(f.g, overGranted, http.MethodPut, "/api/projects/"+f.project, `{"name":"Đổi trộm"}`)
 		if w.Code != http.StatusForbidden {
 			t.Fatalf("stale write grant must be 403: %d %s", w.Code, w.Body.String())

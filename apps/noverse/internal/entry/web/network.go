@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-33: mở/đóng listener cho mạng nội bộ lúc đang chạy.
@@ -153,7 +153,7 @@ func (g *Gateway) lanEnabled() bool {
 }
 
 // serveNetwork xử lý PUT /api/system/network {lan}; false nghĩa là đường dẫn không thuộc nó.
-func (g *Gateway) serveNetwork(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveNetwork(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	if r.URL.Path != "/api/system/network" {
 		return false
 	}

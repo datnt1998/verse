@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func inboxOf(t *testing.T, g *Gateway, cookie string) []map[string]any {
@@ -66,7 +66,7 @@ func routeResolves(t *testing.T, link, kind, story string, chapter string) {
 
 func TestNotificationPayloadContractPerType(t *testing.T) {
 	g, accounts := newAuthGateway(t)
-	if _, e := accounts.CreateUser(webauth.NewUser{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectView}, Password: "reader-pass"}); e != nil {
+	if _, e := accounts.CreateUser(identity.NewUser{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}, Password: "reader-pass"}); e != nil {
 		t.Fatal(e)
 	}
 	cookie := authLogin(t, g, "writer", "writer-pass")

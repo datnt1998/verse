@@ -13,7 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestAudioProviderLiveWatch(t *testing.T) {
@@ -22,7 +22,7 @@ func TestAudioProviderLiveWatch(t *testing.T) {
 	}
 	f := newAudioFixture(t)
 	defer f.tg.g.Close()
-	sub, _, _ := f.tg.g.events().subscribe(webauth.User{Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := f.tg.g.events().subscribe(identity.User{Role: identity.RoleAdmin}, 0, nil)
 	defer f.tg.g.events().unsubscribe(sub)
 	f.seedScript(t, 1, audio.StatusLocked)
 	if _, err := f.svc.Enqueue(1, 1); err != nil {

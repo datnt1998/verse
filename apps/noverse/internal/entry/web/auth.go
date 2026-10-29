@@ -11,17 +11,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 const sessionCookie = "ainovel_session"
 
 type accountUserView struct {
-	webauth.UserView
+	identity.UserView
 	LastSeenAt *time.Time `json:"lastSeenAt"`
 }
 
-func (g *Gateway) userWithLastSeen(user webauth.UserView) (accountUserView, error) {
+func (g *Gateway) userWithLastSeen(user identity.UserView) (accountUserView, error) {
 	view := accountUserView{UserView: user}
 	sessions, err := g.accounts.Sessions(user.Username, "")
 	if err != nil {
@@ -37,7 +37,7 @@ func (g *Gateway) userWithLastSeen(user webauth.UserView) (accountUserView, erro
 }
 
 // A nil envelope returns a bare user; otherwise fill its user field.
-func (g *Gateway) writeAccountUser(w http.ResponseWriter, status int, user webauth.UserView, envelope map[string]any) {
+func (g *Gateway) writeAccountUser(w http.ResponseWriter, status int, user identity.UserView, envelope map[string]any) {
 	view, err := g.userWithLastSeen(user)
 	if err != nil {
 		accountError(w, err)
@@ -83,7 +83,7 @@ func secureRequest(r *http.Request) bool {
 	return ip != nil && ip.IsLoopback()
 }
 
-func setSession(w http.ResponseWriter, r *http.Request, s webauth.NewSession) {
+func setSession(w http.ResponseWriter, r *http.Request, s identity.NewSession) {
 	http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: s.Cookie, Path: "/", Expires: s.ExpiresAt, MaxAge: int(time.Until(s.ExpiresAt).Seconds()), HttpOnly: true, Secure: secureRequest(r), SameSite: http.SameSiteStrictMode})
 }
 
@@ -117,16 +117,16 @@ func (g *Gateway) login(w http.ResponseWriter, r *http.Request) {
 	// letter case must not open a fresh bucket for the same account.
 	username := strings.ToLower(strings.TrimSpace(req.Username))
 	keys := []string{"ip:" + clientIP(r)}
-	if webauth.ValidUsername(username) {
+	if identity.ValidUsername(username) {
 		keys = append(keys, "user:"+username)
 	}
 	if wait := g.limiter.Wait(keys...); wait > 0 {
 		tooMany(w, wait)
 		return
 	}
-	s, err := g.accounts.Login(req.Username, req.Password, webauth.DeviceLabel(r.UserAgent()), clientIP(r))
+	s, err := g.accounts.Login(req.Username, req.Password, identity.DeviceLabel(r.UserAgent()), clientIP(r))
 	if err != nil {
-		if errors.Is(err, webauth.ErrInvalidCredentials) {
+		if errors.Is(err, identity.ErrInvalidCredentials) {
 			g.limiter.Fail(keys...)
 			if len(keys) > 1 && g.limiter.Wait(keys[1]) > 0 {
 				if auditErr := g.accounts.RecordSecurityFailure(username); auditErr != nil {
@@ -157,9 +157,9 @@ func (g *Gateway) pair(w http.ResponseWriter, r *http.Request) {
 		tooMany(w, wait)
 		return
 	}
-	s, err := g.accounts.Pair(req.Code, webauth.DeviceLabel(r.UserAgent()), clientIP(r))
+	s, err := g.accounts.Pair(req.Code, identity.DeviceLabel(r.UserAgent()), clientIP(r))
 	if err != nil {
-		if errors.Is(err, webauth.ErrInvalidPairing) {
+		if errors.Is(err, identity.ErrInvalidPairing) {
 			g.limiter.Fail(key)
 		}
 		accountError(w, err)
@@ -213,7 +213,7 @@ func (g *Gateway) pairingLinks(r *http.Request, username, createdBy string) (str
 	links := []pairingLink{}
 	for _, base := range g.pairingBases(r) {
 		link := strings.TrimRight(base, "/") + pairShortPath + code
-		svg, err := webauth.QRSVG(link)
+		svg, err := identity.QRSVG(link)
 		if err != nil {
 			return "", time.Time{}, nil, err
 		}
@@ -253,11 +253,11 @@ func (g *Gateway) createPairing(w http.ResponseWriter, r *http.Request, username
 }
 
 // serveAccount 处理账号相关接口；返回 false 表示路径不归它管。
-func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user webauth.User, current webauth.Session) bool {
+func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) bool {
 	path, get, post := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost
 	switch {
 	case path == "/api/logout" && post:
-		if err := g.accounts.RevokeSession(current.ID, func(string) bool { return true }, webauth.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, webauth.ErrNotFound) {
+		if err := g.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
 			accountError(w, err)
 			return true
 		}
@@ -281,7 +281,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 		if !decodeJSON(w, r, &req) {
 			return true
 		}
-		updated, err := g.accounts.UpdateUser(user.Username, webauth.UserPatch{Name: &req.Name, Actor: accountActor(user)})
+		updated, err := g.accounts.UpdateUser(user.Username, identity.UserPatch{Name: &req.Name, Actor: accountActor(user)})
 		if err != nil {
 			accountError(w, err)
 			return true
@@ -311,7 +311,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 			return true
 		}
 		if err := g.accounts.ChangePassword(user.Username, req.Current, req.New, current.ID); err != nil {
-			if errors.Is(err, webauth.ErrForbidden) {
+			if errors.Is(err, identity.ErrForbidden) {
 				g.limiter.Fail(key)
 				jsonError(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
 				return true
@@ -327,7 +327,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 		if !g.emptyBody(w, r) {
 			return true
 		}
-		if err := g.accounts.RevokeAll(user.Username, current.ID, webauth.AuditContext{Actor: accountActor(user)}); err != nil {
+		if err := g.accounts.RevokeAll(user.Username, current.ID, identity.AuditContext{Actor: accountActor(user)}); err != nil {
 			accountError(w, err)
 			return true
 		}
@@ -342,7 +342,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 			return true
 		}
 		id := strings.TrimSuffix(strings.TrimPrefix(path, "/api/sessions/"), "/revoke")
-		err := g.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username || user.Role == webauth.RoleAdmin }, webauth.AuditContext{Actor: accountActor(user)})
+		err := g.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username || user.Role == identity.RoleAdmin }, identity.AuditContext{Actor: accountActor(user)})
 		if err != nil {
 			accountError(w, err)
 			return true
@@ -365,7 +365,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 			jsonError(w, 400, "Số dòng nhật ký không hợp lệ.")
 			return true
 		}
-		page, err := g.accounts.Audit(webauth.AuditQuery{Type: r.URL.Query().Get("type"), Actor: r.URL.Query().Get("actor"), Before: r.URL.Query().Get("before"), Limit: limit})
+		page, err := g.accounts.Audit(identity.AuditQuery{Type: r.URL.Query().Get("type"), Actor: r.URL.Query().Get("actor"), Before: r.URL.Query().Get("before"), Limit: limit})
 		if err != nil {
 			accountError(w, err)
 			return true
@@ -376,7 +376,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user weba
 			jsonError(w, http.StatusNotFound, "không tìm thấy")
 		}
 	case path == "/api/users" || strings.HasPrefix(path, "/api/users/"):
-		if user.Role != webauth.RoleAdmin {
+		if user.Role != identity.RoleAdmin {
 			jsonError(w, http.StatusForbidden, "Không có quyền")
 			return true
 		}
@@ -402,7 +402,7 @@ func (g *Gateway) listSessions(w http.ResponseWriter, username, currentID string
 	writeJSON(w, http.StatusOK, map[string]any{"sessions": sessions})
 }
 
-func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webauth.User, current webauth.Session) {
+func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin identity.User, current identity.Session) {
 	rest := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/users"), "/")
 	name, action, _ := strings.Cut(rest, "/")
 	get, post := r.Method == http.MethodGet, r.Method == http.MethodPost
@@ -415,7 +415,7 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"users": users})
 	case name == "" && post:
-		var req webauth.NewUser
+		var req identity.NewUser
 		if !decodeJSON(w, r, &req) {
 			return
 		}
@@ -424,7 +424,7 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 		req.Actor = accountActor(admin)
 		created, err := g.accounts.CreateUser(req)
 		if err != nil {
-			if errors.Is(err, webauth.ErrExists) {
+			if errors.Is(err, identity.ErrExists) {
 				g.duplicateUsername(w, req.Username)
 				return
 			}
@@ -432,11 +432,11 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 			return
 		}
 		writeJSON(w, http.StatusCreated, struct {
-			webauth.UserListView
+			identity.UserListView
 			Password string `json:"password"`
-		}{webauth.UserListView{UserView: created}, req.Password})
+		}{identity.UserListView{UserView: created}, req.Password})
 	case name != "" && action == "" && (post || r.Method == http.MethodPut):
-		var patch webauth.UserPatch
+		var patch identity.UserPatch
 		if !decodeJSON(w, r, &patch) {
 			return
 		}
@@ -449,12 +449,12 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 			}
 			admins := 0
 			for _, u := range users {
-				if u.Role == webauth.RoleAdmin && !u.Disabled {
+				if u.Role == identity.RoleAdmin && !u.Disabled {
 					admins++
 				}
 			}
 			if patch.Disabled != nil && *patch.Disabled && admins == 1 {
-				accountError(w, webauth.ErrLastAdmin)
+				accountError(w, identity.ErrLastAdmin)
 			} else {
 				jsonError(w, 409, "Bạn không thể khoá hoặc đặt lại mật khẩu của chính mình tại đây.")
 			}
@@ -472,9 +472,9 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 		}
 		if patch.Password != nil {
 			writeJSON(w, 200, struct {
-				webauth.UserListView
+				identity.UserListView
 				Password string `json:"password"`
-			}{webauth.UserListView{UserView: updated}, *patch.Password})
+			}{identity.UserListView{UserView: updated}, *patch.Password})
 		} else {
 			g.writeAccountUser(w, http.StatusOK, updated, nil)
 		}
@@ -493,18 +493,18 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 			}
 			admins := 0
 			for _, u := range users {
-				if u.Role == webauth.RoleAdmin && !u.Disabled {
+				if u.Role == identity.RoleAdmin && !u.Disabled {
 					admins++
 				}
 			}
 			if admins == 1 {
-				accountError(w, webauth.ErrLastAdmin)
+				accountError(w, identity.ErrLastAdmin)
 			} else {
 				jsonError(w, 409, "Bạn không thể xoá tài khoản của chính mình.")
 			}
 			return
 		}
-		if err := g.accounts.DeleteUser(name, webauth.AuditContext{Actor: accountActor(admin), Reason: req.Reason}); err != nil {
+		if err := g.accounts.DeleteUser(name, identity.AuditContext{Actor: accountActor(admin), Reason: req.Reason}); err != nil {
 			accountError(w, err)
 			return
 		}
@@ -519,7 +519,7 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 		if name == admin.Username {
 			keep = current.ID
 		}
-		if err := g.accounts.RevokeAll(name, keep, webauth.AuditContext{Actor: accountActor(admin)}); err != nil {
+		if err := g.accounts.RevokeAll(name, keep, identity.AuditContext{Actor: accountActor(admin)}); err != nil {
 			accountError(w, err)
 			return
 		}
@@ -534,8 +534,8 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin webau
 	}
 }
 
-func accountActor(user webauth.User) *webauth.AuditActor {
-	return &webauth.AuditActor{Username: user.Username, Name: user.Name}
+func accountActor(user identity.User) *identity.AuditActor {
+	return &identity.AuditActor{Username: user.Username, Name: user.Name}
 }
 func (g *Gateway) duplicateUsername(w http.ResponseWriter, username string) {
 	users, err := g.accounts.Users()
@@ -589,7 +589,7 @@ func memberRoute(path string) string {
 
 // serveProjectMembers xử lý các route memberRoute; trả false khi method không
 // hợp lệ (caller trả 404 theo convention).
-func (g *Gateway) serveProjectMembers(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveProjectMembers(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	seg := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	project, kind := seg[2], seg[3]
 	lib, err := g.lib(r.Context(), actorOf(user))
@@ -617,13 +617,13 @@ func (g *Gateway) serveProjectMembers(w http.ResponseWriter, r *http.Request, us
 		if !decodeJSON(w, r, &req) {
 			return true
 		}
-		updated, err := g.accounts.SetProjectMember(project, req.Username, webauth.ProjectRole(req.Role), actor)
+		updated, err := g.accounts.SetProjectMember(project, req.Username, identity.ProjectRole(req.Role), actor)
 		if err != nil {
 			accountError(w, err)
 			return true
 		}
 		g.accountChanged(updated.Username)
-		writeJSON(w, http.StatusCreated, webauth.ProjectMember{
+		writeJSON(w, http.StatusCreated, identity.ProjectMember{
 			Username: updated.Username, Name: updated.Name,
 			Role: updated.Projects[project], Disabled: updated.Disabled,
 		})
@@ -634,13 +634,13 @@ func (g *Gateway) serveProjectMembers(w http.ResponseWriter, r *http.Request, us
 		if !decodeJSON(w, r, &req) {
 			return true
 		}
-		updated, err := g.accounts.SetProjectMember(project, seg[4], webauth.ProjectRole(req.Role), actor)
+		updated, err := g.accounts.SetProjectMember(project, seg[4], identity.ProjectRole(req.Role), actor)
 		if err != nil {
 			accountError(w, err)
 			return true
 		}
 		g.accountChanged(updated.Username)
-		writeJSON(w, http.StatusOK, webauth.ProjectMember{
+		writeJSON(w, http.StatusOK, identity.ProjectMember{
 			Username: updated.Username, Name: updated.Name,
 			Role: updated.Projects[project], Disabled: updated.Disabled,
 		})

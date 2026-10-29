@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestReviewInitialBacklogFiltersUnauthorizedWatch(t *testing.T) {
@@ -20,7 +20,7 @@ func TestReviewInitialBacklogFiltersUnauthorizedWatch(t *testing.T) {
 	hub.SetLiveStream("_/oldbook", "PUBLIC_BODY")
 	hub.SetLiveStream("proj/hidden", "PRIVATE_BODY")
 	hub.AppendLiveEvent("proj/hidden", json.RawMessage(`{"id":"PRIVATE_EVENT"}`))
-	user := webauth.User{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectView}}
+	user := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	r := httptest.NewRequest("GET", "/api/events?watch=proj/hidden&watch=_/oldbook", nil).WithContext(ctx)
@@ -70,13 +70,13 @@ func TestReviewStoryStreamsCloseAfterStoredRevocation(t *testing.T) {
 				}
 				switch change {
 				case "projects":
-					projects := map[string]webauth.ProjectRole{}
-					if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Projects: &projects}); err != nil {
+					projects := map[string]identity.ProjectRole{}
+					if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &projects}); err != nil {
 						t.Fatal(err)
 					}
 				case "lock":
 					disabled := true
-					if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Disabled: &disabled}); err != nil {
+					if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Disabled: &disabled}); err != nil {
 						t.Fatal(err)
 					}
 				case "session":
@@ -104,7 +104,7 @@ func TestReviewSelfRenameAuditActor(t *testing.T) {
 	if w := authReq(g, "POST", "/api/me", `{"name":"Tên mới"}`, cookie); w.Code != 200 {
 		t.Fatal(w.Body)
 	}
-	page, err := g.accounts.Audit(webauth.AuditQuery{})
+	page, err := g.accounts.Audit(identity.AuditQuery{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestReviewSelfRenameAuditActor(t *testing.T) {
 func TestReviewLoginAuditDoesNotBlameIPLockOnUsername(t *testing.T) {
 	g, s := newAuthGateway(t)
 	for _, name := range []string{"u1", "u2", "u3", "u4"} {
-		if _, err := s.CreateUser(webauth.NewUser{Username: name, Password: "valid-pass"}); err != nil {
+		if _, err := s.CreateUser(identity.NewUser{Username: name, Password: "valid-pass"}); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -125,7 +125,7 @@ func TestReviewLoginAuditDoesNotBlameIPLockOnUsername(t *testing.T) {
 		r.Header.Set("Content-Type", "application/json")
 		g.ServeHTTP(httptest.NewRecorder(), r)
 	}
-	page, err := s.Audit(webauth.AuditQuery{Type: "sec"})
+	page, err := s.Audit(identity.AuditQuery{Type: "sec"})
 	if err != nil {
 		t.Fatal(err)
 	}

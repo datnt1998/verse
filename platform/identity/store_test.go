@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"encoding/json"
@@ -15,10 +15,19 @@ type clock struct{ t time.Time }
 
 func (c *clock) now() time.Time { return c.t }
 
+// testOptions trả định danh project mà các test của package này dùng: project
+// ID một đoạn không rỗng/không chứa "/" (khớp hình dạng slug thư mục), project
+// legacy "_" cho grant của ID không tên miền.
+func testOptions() Options {
+	return Options{
+		ValidProjectID:  func(id string) bool { return id != "" && id != "." && id != ".." && !strings.HasPrefix(id, ".") && !strings.ContainsAny(id, `/\\`) },
+		LegacyProjectID: "_",
+	}
+}
 func newTestStore(t *testing.T) (*Store, *clock) {
 	t.Helper()
 	c := &clock{t: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)}
-	s := NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
+	s := NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), testOptions())
 	s.now = c.now
 	if _, err := s.CreateUser(NewUser{Username: "admin", Role: RoleAdmin, Password: "admin-pass"}); err != nil {
 		t.Fatal(err)
@@ -232,7 +241,7 @@ func TestLegacyBooksMigrateOnRead(t *testing.T) {
 	if err := os.WriteFile(path, []byte(old), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	s := NewStore(path)
+	s := NewStore(path, testOptions())
 	users, err := s.Users()
 	if err != nil {
 		t.Fatal(err)

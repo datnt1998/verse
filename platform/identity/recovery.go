@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"crypto/rand"

@@ -95,7 +95,7 @@ type AccountToken struct {
 	ExpiresAt time.Time `json:"expiresAt"`
 }
 
-// AccountAudit mirrors webauth.AuditEntry.
+// AccountAudit mirrors identity.AuditEntry.
 type AccountAudit struct {
 	ID      string          `json:"id"`
 	At      time.Time       `json:"at"`

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-41：首次运行在网页上创建管理员（A0 · Setup.dc.html）。
@@ -129,14 +129,14 @@ func (g *Gateway) setupVerify(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		writeJSON(w, http.StatusOK, map[string]any{"setupToken": res.Token, "expiresAt": res.ExpiresAt})
-	case errors.Is(err, webauth.ErrSetupExpired):
+	case errors.Is(err, identity.ErrSetupExpired):
 		jsonError(w, http.StatusGone, err.Error())
-	case errors.Is(err, webauth.ErrSetupLocked):
+	case errors.Is(err, identity.ErrSetupLocked):
 		writeJSON(w, http.StatusLocked, map[string]any{"error": err.Error(), "lockedUntil": res.LockedUntil})
-	case errors.Is(err, webauth.ErrSetupFormat):
+	case errors.Is(err, identity.ErrSetupFormat):
 		// Câu 1: mã sai định dạng trả 400 {format:true} và không tính vào 5 lần thử.
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "format": true})
-	case errors.Is(err, webauth.ErrSetupWrong):
+	case errors.Is(err, identity.ErrSetupWrong):
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "attemptsLeft": res.AttemptsLeft})
 	default:
 		jsonError(w, http.StatusInternalServerError, "Không kiểm được mã thiết lập")
@@ -166,16 +166,16 @@ func (g *Gateway) setupAdmin(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, http.StatusGone, err.Error())
 		return
 	}
-	if field, msg := webauth.ValidateSetupAdmin(req.Name, req.Username, req.Password); field != "" {
+	if field, msg := identity.ValidateSetupAdmin(req.Name, req.Username, req.Password); field != "" {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": msg, "field": field})
 		return
 	}
 	s, err := g.accounts.CreateFirstAdmin(
-		webauth.NewUser{Username: req.Username, Name: req.Name, Password: req.Password},
-		webauth.DeviceLabel(r.UserAgent()), clientIP(r),
+		identity.NewUser{Username: req.Username, Name: req.Name, Password: req.Password},
+		identity.DeviceLabel(r.UserAgent()), clientIP(r),
 	)
 	if err != nil {
-		if errors.Is(err, webauth.ErrExists) {
+		if errors.Is(err, identity.ErrExists) {
 			// 并发创建：另一个人先成功 → 这里 409 {at}。
 			if !g.setupTaken(w) {
 				jsonError(w, http.StatusConflict, setupTakenMessage)

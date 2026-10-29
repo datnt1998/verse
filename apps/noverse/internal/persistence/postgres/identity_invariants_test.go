@@ -5,9 +5,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // TestConcurrentFirstAdmin races N first-admin requests on an empty schema:
@@ -19,9 +20,9 @@ func TestConcurrentFirstAdmin(t *testing.T) {
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
 	const n = 4
-	stores := make([]*webauth.Store, n)
+	stores := make([]*identity.Store, n)
 	for i := range stores {
-		stores[i] = webauth.NewFromRepository(postgres.NewAccounts(pool))
+		stores[i] = identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
 	}
 	var wg sync.WaitGroup
 	errs := make([]error, n)
@@ -29,7 +30,7 @@ func TestConcurrentFirstAdmin(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, errs[i] = stores[i].CreateFirstAdmin(webauth.NewUser{
+			_, errs[i] = stores[i].CreateFirstAdmin(identity.NewUser{
 				Username: "admin-race", Password: "mat-khau-12345"}, "Mac", "")
 		}()
 	}
@@ -39,7 +40,7 @@ func TestConcurrentFirstAdmin(t *testing.T) {
 		switch {
 		case err == nil:
 			wins++
-		case errors.Is(err, webauth.ErrExists):
+		case errors.Is(err, identity.ErrExists):
 		default:
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -55,12 +56,12 @@ func TestConcurrentLastAdmin(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	member := webauth.RoleMember
-	s1 := webauth.NewFromRepository(postgres.NewAccounts(pool))
-	s2 := webauth.NewFromRepository(postgres.NewAccounts(pool))
-	for _, u := range []webauth.NewUser{
-		{Username: "a1", Role: webauth.RoleAdmin, Password: "mat-khau-12345"},
-		{Username: "a2", Role: webauth.RoleAdmin, Password: "mat-khau-12345"},
+	member := identity.RoleMember
+	s1 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	s2 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "a1", Role: identity.RoleAdmin, Password: "mat-khau-12345"},
+		{Username: "a2", Role: identity.RoleAdmin, Password: "mat-khau-12345"},
 	} {
 		if _, err := s1.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -69,14 +70,14 @@ func TestConcurrentLastAdmin(t *testing.T) {
 	var wg sync.WaitGroup
 	errs := make([]error, 2)
 	wg.Add(2)
-	go func() { defer wg.Done(); _, errs[0] = s1.UpdateUser("a1", webauth.UserPatch{Role: &member}) }()
-	go func() { defer wg.Done(); _, errs[1] = s2.UpdateUser("a2", webauth.UserPatch{Role: &member}) }()
+	go func() { defer wg.Done(); _, errs[0] = s1.UpdateUser("a1", identity.UserPatch{Role: &member}) }()
+	go func() { defer wg.Done(); _, errs[1] = s2.UpdateUser("a2", identity.UserPatch{Role: &member}) }()
 	wg.Wait()
 	succeeded := 0
 	for _, err := range errs {
 		if err == nil {
 			succeeded++
-		} else if !errors.Is(err, webauth.ErrLastAdmin) {
+		} else if !errors.Is(err, identity.ErrLastAdmin) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	}
@@ -89,7 +90,7 @@ func TestConcurrentLastAdmin(t *testing.T) {
 	}
 	admins := 0
 	for _, u := range users {
-		if u.Role == webauth.RoleAdmin && !u.Disabled {
+		if u.Role == identity.RoleAdmin && !u.Disabled {
 			admins++
 		}
 	}
@@ -104,12 +105,12 @@ func TestConcurrentOwner(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	s1 := webauth.NewFromRepository(postgres.NewAccounts(pool))
-	s2 := webauth.NewFromRepository(postgres.NewAccounts(pool))
-	for _, u := range []webauth.NewUser{
-		{Username: "old", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"da": webauth.ProjectOwner}, Password: "mat-khau-12345"},
-		{Username: "new1", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"da": webauth.ProjectCollab}, Password: "mat-khau-12345"},
-		{Username: "new2", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"da": webauth.ProjectCollab}, Password: "mat-khau-12345"},
+	s1 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	s2 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "old", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"da": identity.ProjectOwner}, Password: "mat-khau-12345"},
+		{Username: "new1", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"da": identity.ProjectCollab}, Password: "mat-khau-12345"},
+		{Username: "new2", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"da": identity.ProjectCollab}, Password: "mat-khau-12345"},
 	} {
 		if _, err := s1.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -117,7 +118,7 @@ func TestConcurrentOwner(t *testing.T) {
 	}
 	var wg sync.WaitGroup
 	errs := make([]error, 2)
-	actor := &webauth.AuditActor{Username: "old"}
+	actor := &identity.AuditActor{Username: "old"}
 	wg.Add(2)
 	go func() { defer wg.Done(); errs[0] = s1.TransferProjectOwner("da", "new1", actor) }()
 	go func() { defer wg.Done(); errs[1] = s2.TransferProjectOwner("da", "new2", actor) }()
@@ -133,7 +134,7 @@ func TestConcurrentOwner(t *testing.T) {
 	}
 	owners := []string{}
 	for _, m := range members {
-		if m.Role == webauth.ProjectOwner {
+		if m.Role == identity.ProjectOwner {
 			owners = append(owners, m.Username)
 		}
 	}
@@ -154,7 +155,7 @@ func TestConcurrentOwner(t *testing.T) {
 	wg.Wait()
 	// Một trong hai có thể thua (ErrLastOwner) — nhưng invariant không vỡ.
 	for _, err := range errs {
-		if err != nil && !errors.Is(err, webauth.ErrLastOwner) && !errors.Is(err, webauth.ErrNotFound) {
+		if err != nil && !errors.Is(err, identity.ErrLastOwner) && !errors.Is(err, identity.ErrNotFound) {
 			t.Fatalf("unexpected race error: %v", err)
 		}
 	}
@@ -164,7 +165,7 @@ func TestConcurrentOwner(t *testing.T) {
 	}
 	owners = owners[:0]
 	for _, m := range members {
-		if m.Role == webauth.ProjectOwner {
+		if m.Role == identity.ProjectOwner {
 			owners = append(owners, m.Username)
 		}
 	}

@@ -3,7 +3,7 @@ package web
 import (
 	"encoding/json"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 	"os"
 	"path/filepath"
 	"strings"
@@ -194,7 +194,7 @@ func TestReviewItemUnkeepByCollab(t *testing.T) {
 	writer, _, warningID, _ := keepFixture(t, tg)
 
 	// Dựng collab riêng: reader chỉ có view → nâng lên collab trực tiếp qua store.
-	if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Projects: &map[string]webauth.ProjectRole{"_": webauth.ProjectCollab}}); err != nil {
+	if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &map[string]identity.ProjectRole{"_": identity.ProjectCollab}}); err != nil {
 		t.Fatal(err)
 	}
 	collab := tg.login("reader", "reader-pass")
@@ -207,7 +207,7 @@ func TestReviewItemUnkeepByCollab(t *testing.T) {
 		t.Fatalf("collab bỏ giữ = %d: %s", w.Code, w.Body)
 	}
 	// Người chỉ đọc vẫn bị chặn.
-	if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Projects: &map[string]webauth.ProjectRole{"_": webauth.ProjectView}}); err != nil {
+	if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &map[string]identity.ProjectRole{"_": identity.ProjectView}}); err != nil {
 		t.Fatal(err)
 	}
 	if w := tg.do("POST", keepPath(warningID), writer, `{"reason":"giữ lại"}`); w.Code != 200 {
@@ -217,7 +217,7 @@ func TestReviewItemUnkeepByCollab(t *testing.T) {
 		t.Fatalf("viewer bỏ giữ = %d: %s", w.Code, w.Body)
 	}
 	// Các DELETE khác vẫn owner-only: collab xoá story/comment → 403.
-	if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Projects: &map[string]webauth.ProjectRole{"_": webauth.ProjectCollab}}); err != nil {
+	if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &map[string]identity.ProjectRole{"_": identity.ProjectCollab}}); err != nil {
 		t.Fatal(err)
 	}
 	if w := tg.do("DELETE", "/api/projects/_/stories/oldbook", collab, ""); w.Code != 403 {

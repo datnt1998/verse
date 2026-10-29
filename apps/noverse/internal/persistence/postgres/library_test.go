@@ -9,10 +9,10 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // libraryFixture is a migrated schema with a PG-backed accounts store and a
@@ -37,26 +37,26 @@ func provisionLibrary(t *testing.T, projectSlug string) libraryFixture {
 	pool := openPool(t, dsn)
 	ctx := context.Background()
 	repo := postgres.NewLibraryRepository(pool)
-	accounts := webauth.NewFromRepository(postgres.NewAccounts(pool))
+	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
 
 	for _, u := range []struct {
 		name string
-		role webauth.Role
+		role identity.Role
 	}{
-		{"lib-admin", webauth.RoleAdmin},
-		{"lib-owner", webauth.RoleMember},
-		{"lib-collab", webauth.RoleMember},
-		{"lib-viewer", webauth.RoleMember},
-		{"lib-outsider", webauth.RoleMember},
+		{"lib-admin", identity.RoleAdmin},
+		{"lib-owner", identity.RoleMember},
+		{"lib-collab", identity.RoleMember},
+		{"lib-viewer", identity.RoleMember},
+		{"lib-outsider", identity.RoleMember},
 	} {
-		if _, err := accounts.CreateUser(webauth.NewUser{
+		if _, err := accounts.CreateUser(identity.NewUser{
 			Username: u.name, Name: u.name, Role: u.role, Password: libTestPassword,
 		}); err != nil {
 			t.Fatalf("create %s: %v", u.name, err)
 		}
 	}
 
-	admin := &library.Actor{Username: "lib-admin", GlobalRole: string(webauth.RoleAdmin)}
+	admin := &library.Actor{Username: "lib-admin", GlobalRole: string(identity.RoleAdmin)}
 	// The fixture inserts the project row directly so the owner row can belong
 	// to lib-owner; CreateProject's own owner upsert is asserted separately.
 	q := gen.New(pool.Pool())

@@ -6,7 +6,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-33：mã khôi phục quản trị (một lần, lưu dạng băm) và POST /api/recover.
@@ -36,15 +36,15 @@ func (g *Gateway) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Mật khẩu quá ngắn không liên quan tới việc đoán mã: không tính vào giới hạn, không chạm tới mã.
-	if utf8.RuneCountInString(req.NewPassword) < webauth.MinPasswordLen {
+	if utf8.RuneCountInString(req.NewPassword) < identity.MinPasswordLen {
 		jsonError(w, http.StatusBadRequest, recoverPasswordShort)
 		return
 	}
-	s, revoked, err := g.accounts.Recover(req.Username, req.Code, req.NewPassword, webauth.DeviceLabel(r.UserAgent()), clientIP(r))
+	s, revoked, err := g.accounts.Recover(req.Username, req.Code, req.NewPassword, identity.DeviceLabel(r.UserAgent()), clientIP(r))
 	if err != nil {
-		if errors.Is(err, webauth.ErrInvalidRecovery) {
+		if errors.Is(err, identity.ErrInvalidRecovery) {
 			g.recoverLimiter.Fail(key)
-			jsonError(w, http.StatusUnauthorized, webauth.ErrInvalidRecovery.Error())
+			jsonError(w, http.StatusUnauthorized, identity.ErrInvalidRecovery.Error())
 			return
 		}
 		accountError(w, err)
@@ -61,7 +61,7 @@ func (g *Gateway) recoverPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 // serveRecovery xử lý /api/me/recovery[/rotate]; false nghĩa là đường dẫn không thuộc nó.
-func (g *Gateway) serveRecovery(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveRecovery(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path := r.URL.Path
 	if path != "/api/me/recovery" && path != "/api/me/recovery/rotate" {
 		return false
@@ -84,7 +84,7 @@ func (g *Gateway) serveRecovery(w http.ResponseWriter, r *http.Request, user web
 		}
 		code, created, err := g.accounts.IssueRecovery(user.Username, path == "/api/me/recovery/rotate")
 		if err != nil {
-			if errors.Is(err, webauth.ErrRecoveryExists) {
+			if errors.Is(err, identity.ErrRecoveryExists) {
 				jsonError(w, http.StatusConflict, err.Error())
 				return true
 			}

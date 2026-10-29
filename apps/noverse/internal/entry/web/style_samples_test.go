@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-35：văn mẫu sống trong cùng thư mục /simulate đọc, tối đa 20 mẫu,
@@ -184,12 +184,12 @@ func TestStyleSamplesLimitsAndPermissions(t *testing.T) {
 		t.Fatalf("rejected sample was written: %d files", len(entries))
 	}
 
-	reader := webauth.User{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 	if !reader.CanRead(st.ID) {
 		t.Fatal("fixture reader cannot read the story")
 	}
 	// Người có quyền viết (không phải admin) vẫn dùng được: đây là “admin hoặc người viết”.
-	writer := webauth.User{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectCollab}}
+	writer := identity.User{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectCollab}}
 	if rec := storyReq(t, g, "GET", "/x/style-samples", writer, st, "/style-samples", ""); rec.Code != 200 {
 		t.Fatalf("writer list: want 200, got %d %s", rec.Code, rec.Body)
 	}

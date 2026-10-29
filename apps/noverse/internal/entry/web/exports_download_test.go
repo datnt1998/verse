@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestFriendlyExportName(t *testing.T) {
@@ -111,15 +111,15 @@ func TestServeStoryRead_ExportsDownloadReadPermission(t *testing.T) {
 	}
 	target := "/x/exports/download?file=" + url.QueryEscape(res.Path)
 
-	stranger := webauth.User{Username: "khach", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"khac": webauth.ProjectView}}
+	stranger := identity.User{Username: "khach", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"khac": identity.ProjectView}}
 	if rec := storyReq(t, g, "GET", target, stranger, st, "/exports/download", ""); rec.Code != 404 {
 		t.Fatalf("reader without access → %d, want 404", rec.Code)
 	}
-	disabled := webauth.User{Username: "tat", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}, Disabled: true}
+	disabled := identity.User{Username: "tat", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}, Disabled: true}
 	if rec := storyReq(t, g, "GET", target, disabled, st, "/exports/download", ""); rec.Code != 404 {
 		t.Fatalf("disabled user → %d, want 404", rec.Code)
 	}
-	reader := webauth.User{Username: "doc-gia", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "doc-gia", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 	if rec := storyReq(t, g, "GET", target, reader, st, "/exports/download", ""); rec.Code != 200 {
 		t.Fatalf("reader with access → %d %s", rec.Code, rec.Body)
 	}

@@ -14,7 +14,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // storyWithPack ghi cấu hình truyện chọn gói thể loại (khoá style).
@@ -170,7 +170,7 @@ func TestFramePermissions(t *testing.T) {
 	g := &Gateway{}
 	st, _ := storyFixture(t, nil)
 	storyWithPack(t, st, "nu-tan-bao-thu")
-	reader := webauth.User{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 
 	if rec := storyReq(t, g, http.MethodGet, "/x/frame", reader, st, "/frame", ""); rec.Code != http.StatusOK {
 		t.Errorf("reader GET frame: %d %s", rec.Code, rec.Body)

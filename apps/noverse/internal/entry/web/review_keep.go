@@ -10,7 +10,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-47 / D4 · câu 14: "Giữ nguyên" một mục Cảnh báo kèm lý do, và bỏ giữ.
@@ -32,7 +32,7 @@ var reviewItemChapterPattern = regexp.MustCompile(reviewItemIDChapterRegex)
 
 // serveReviewKeep xử lý hai method của /review/items/{itemId}/keep. Trả false khi
 // đường dẫn không phải của nó (để caller chuyển tiếp worker).
-func (g *Gateway) serveReviewKeep(w http.ResponseWriter, r *http.Request, user webauth.User, st library.Story, sr *host.StoryReader, tail string) bool {
+func (g *Gateway) serveReviewKeep(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, sr *host.StoryReader, tail string) bool {
 	itemID, ok := strings.CutSuffix(tail, "/keep")
 	if !ok || !strings.HasPrefix(itemID, "items/") {
 		return false
@@ -143,7 +143,7 @@ func findReviewItem(sr *host.StoryReader, st library.Story, chapter int, itemID 
 }
 
 // reviewActorName là tên hiển thị ghi vào quyết định; thiếu thì dùng tên đăng nhập.
-func reviewActorName(user webauth.User) string {
+func reviewActorName(user identity.User) string {
 	return firstNonEmpty(strings.TrimSpace(user.Name), user.Username)
 }
 

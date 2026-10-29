@@ -145,7 +145,7 @@ Chạy cuối 25/10 21:25: `go build ./...` · `go vet ./...` · `go test -p 4 -
 | 38 · Xưng hô & quan hệ | Đóng | `entry/web/nao_api.go` — `GET/PUT …/address-terms`, `POST …/relations`; 423/409/403/400; `forward` đóng dòng cũ ở chương đã viết cuối; `type` quan hệ thêm vào `domain` + `chapterfacts` + import (cũ/thiếu → `rel`). |
 | 39 · Não truyện | Một phần | `entry/web/nao_api.go` `GET …/brain`: `char/fs/ev/rule` có; `place/obj` không có nguồn dữ liệu nào trong kho (câu hỏi 22). |
 | 40 · Xuất bản đọc TTS | Đóng | `entry/web/storyread.go` (`format: narration`, `readNumbers`, `onExists`; bỏ `overwrite` → 400), tệp `-narration.txt`, `matrix[].narration`; FE `reader/ExportPanel.tsx`, `cmdresults/cards.tsx`. |
-| 41 · Lần chạy đầu trên web | Đóng | `internal/webauth/setup.go`, `entry/web/setup.go`, `cmd/ainovel-cli/serve.go` (in mã, bỏ `ensureFirstAdmin`); `GET /api/setup` (+`version` khi `needed`), `/verify`, `/admin`; FE `screens/auth/setup/**`. |
+| 41 · Lần chạy đầu trên web | Đóng | `platform/identity/setup.go`, `entry/web/setup.go`, `cmd/ainovel-cli/serve.go` (in mã, bỏ `ensureFirstAdmin`); `GET /api/setup` (+`version` khi `needed`), `/verify`, `/admin`; FE `screens/auth/setup/**`. |
 | 42 · Ma trận chất lượng (D13) | Chưa · đợt 3 | — |
 | 43 · Sổ cái dự án (D14) | Chưa · đợt 3 | — |
 | 44 · Vũ trụ chung (D14) | Chưa · đợt 3 | — |

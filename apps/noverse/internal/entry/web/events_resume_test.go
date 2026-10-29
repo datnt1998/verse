@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // 续传回归：手机/代理掐断 SSE 后带 Last-Event-ID 重连，必须做到不丢不重。
@@ -50,7 +50,7 @@ func readFrame(t *testing.T, ch chan Event) Event {
 func TestGlobalEventsResumeAfterDisconnectNoLossNoDuplicate(t *testing.T) {
 	tg := newTestGateway(t)
 	hub := tg.g.events()
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 
 	open := func(last uint64) (*streamWriter, context.CancelFunc, chan struct{}) {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -157,8 +157,8 @@ func TestStoryLiveResumeAfterDisconnectNoLossNoDuplicate(t *testing.T) {
 // 全局事件挤掉）。
 func TestLiveFramesRespectVisibilityAndStayOutOfResumeRing(t *testing.T) {
 	hub := newEventHub()
-	reader := webauth.User{Username: "r", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectView}}
-	other := webauth.User{Username: "o", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"x": webauth.ProjectView}}
+	reader := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
+	other := identity.User{Username: "o", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"x": identity.ProjectView}}
 	mine, _, _ := hub.subscribe(reader, 0, []string{"p/s"})
 	defer hub.unsubscribe(mine)
 	theirs, _, _ := hub.subscribe(other, 0, nil)
@@ -201,7 +201,7 @@ func TestLiveFramesRespectVisibilityAndStayOutOfResumeRing(t *testing.T) {
 // 新增关注范围时立刻补发实况尾部（切到故事页不必等下一次重连）。
 func TestSetWatchBackfillsLiveTail(t *testing.T) {
 	hub := newEventHub()
-	user := webauth.User{Username: "r", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectView}}
+	user := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
 	hub.AppendLiveEvent("p/s", json.RawMessage(`{"id":"e1"}`))
 	hub.SetLiveStream("p/s", "đang viết")
 	sub, _, _ := hub.subscribe(user, 0, nil)

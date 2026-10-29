@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // ── 全局事件流 GET /api/events（16-feedback-refresh §2/§4）──
@@ -88,12 +88,12 @@ type Event struct {
 	Data      any
 }
 
-func (e Event) visibleTo(u webauth.User) bool {
+func (e Event) visibleTo(u identity.User) bool {
 	switch {
 	case u.Disabled:
 		return false
 	case e.User != "":
-		return u.Username == e.User || (e.AdminsToo && u.Role == webauth.RoleAdmin)
+		return u.Username == e.User || (e.AdminsToo && u.Role == identity.RoleAdmin)
 	case e.Story != "":
 		return u.CanRead(e.Project + "/" + e.Story)
 	case e.Project != "":
@@ -107,7 +107,7 @@ func (e Event) visibleTo(u webauth.User) bool {
 // （"p/s" 或 "p"，?watch= 与 SetWatch 更新），供文件监视只扫有人看的故事。
 type EventSub struct {
 	ID    string
-	user  webauth.User
+	user  identity.User
 	watch map[string]bool
 	ch    chan Event
 }
@@ -354,7 +354,7 @@ func frameText(data []byte) string {
 	return v.Text
 }
 
-func (h *EventHub) subscribe(user webauth.User, lastID uint64, watch []string) (sub *EventSub, replay []Event, stale bool) {
+func (h *EventHub) subscribe(user identity.User, lastID uint64, watch []string) (sub *EventSub, replay []Event, stale bool) {
 	sub = &EventSub{ID: rand.Text(), user: user, watch: watchSet(watch), ch: make(chan Event, 256)}
 	h.mu.Lock()
 	if lastID > 0 {
@@ -446,7 +446,7 @@ func (h *EventHub) OnWatchChange(fn func()) {
 }
 
 // RefreshUser 在账户变更后替换订阅者持有的用户快照；禁用的账户直接断开。
-func (h *EventHub) RefreshUser(u webauth.User) {
+func (h *EventHub) RefreshUser(u identity.User) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	for id, sub := range h.subs {
@@ -515,7 +515,7 @@ func watchSetKeys(keys []string) []string {
 	return out
 }
 
-func watchVisible(user webauth.User, key string) bool {
+func watchVisible(user identity.User, key string) bool {
 	if user.Disabled {
 		return false
 	}
@@ -540,7 +540,7 @@ func eventResumeID(r *http.Request) uint64 {
 }
 
 // serveEvents 处理 GET /api/events。
-func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user identity.User) {
 	g.startWatcher()
 	f, ok := w.(http.Flusher)
 	if !ok {

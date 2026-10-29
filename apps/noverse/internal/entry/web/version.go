@@ -17,7 +17,7 @@ import (
 	"sync"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // File versions include metadata as well as content: saving an identical document
@@ -113,7 +113,7 @@ func checkIfMatchV(w http.ResponseWriter, r *http.Request, token string, resourc
 	return true
 }
 
-func (g *Gateway) resourceFor(r *http.Request, user webauth.User, body map[string]json.RawMessage) *versionResource {
+func (g *Gateway) resourceFor(r *http.Request, user identity.User, body map[string]json.RawMessage) *versionResource {
 	path := strings.TrimSuffix(r.URL.Path, "/")
 	q := r.URL.Query()
 	if strings.HasPrefix(path, "/api/rules/file") {
@@ -188,7 +188,7 @@ func (g *Gateway) resourceVersion(res *versionResource) string {
 	if err != nil {
 		return valueVersion(nil)
 	}
-	views := make([]webauth.UserView, 0, len(users))
+	views := make([]identity.UserView, 0, len(users))
 	for _, u := range users {
 		if res.username != "" && u.Username == res.username {
 			return valueVersion(u.UserView)
@@ -223,7 +223,7 @@ func (b *resourceBuffer) Write(p []byte) (int, error) {
 
 // currentResource goes through the same permission-aware readers as GET. It is
 // never called until resourceFor has established the caller's write permission.
-func (g *Gateway) currentResource(r *http.Request, user webauth.User, current webauth.Session, res *versionResource) any {
+func (g *Gateway) currentResource(r *http.Request, user identity.User, current identity.Session, res *versionResource) any {
 	if res.username != "" {
 		users, _ := g.accounts.Users()
 		for _, u := range users {
@@ -272,7 +272,7 @@ func (g *Gateway) versionLock(res *versionResource) *sync.Mutex {
 
 // beginFeedback keeps version compare/write atomic for the same resource only.
 // Network response writes and event publication happen after releasing its lock.
-func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user webauth.User, current webauth.Session) (http.ResponseWriter, func(), bool) {
+func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) (http.ResponseWriter, func(), bool) {
 	mutating := r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete || r.Method == http.MethodPatch
 	var body map[string]json.RawMessage
 	// Only versioned JSON resources need their body inspected; uploads and worker

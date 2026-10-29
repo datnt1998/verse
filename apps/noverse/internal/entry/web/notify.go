@@ -17,7 +17,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 type gatewayNotifications struct {
@@ -69,15 +69,15 @@ func (g *Gateway) notifyAllowed(username, story string) bool {
 	}
 	for _, v := range users {
 		if v.Username == username {
-			u := webauth.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
+			u := identity.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
 			return !u.Disabled && (story == "" || u.CanRead(story))
 		}
 	}
 	return false
 }
-func (g *Gateway) notifyLogin(r *http.Request, s webauth.NewSession) {
+func (g *Gateway) notifyLogin(r *http.Request, s identity.NewSession) {
 	id, _, _ := strings.Cut(s.Cookie, ".")
-	g.events().Publish(Event{Type: "security.login", User: s.User.Username, Data: map[string]any{"session": id, "device": webauth.DeviceLabel(r.UserAgent()), "ip": clientIP(r)}})
+	g.events().Publish(Event{Type: "security.login", User: s.User.Username, Data: map[string]any{"session": id, "device": identity.DeviceLabel(r.UserAgent()), "ip": clientIP(r)}})
 }
 func (g *Gateway) consumeNotifyEvent(ev Event) {
 	n := g.notifications
@@ -193,7 +193,7 @@ func (g *Gateway) consumeNotifyEvent(ev Event) {
 		return
 	}
 	for _, v := range users {
-		u := webauth.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
+		u := identity.User{Username: v.Username, Role: v.Role, Projects: v.Projects, Disabled: v.Disabled}
 		if ev.visibleTo(u) {
 			if e := n.store.Record(v.Username, notifyForRecipient(item, u)); e != nil {
 				slog.Error("Không lưu được thông báo", "module", "web", "err", e)
@@ -255,7 +255,7 @@ func notifyRewriteURL(story string, chapter int) string {
 }
 
 // notifyForRecipient bỏ thao tác ghi (duyệt/viết lại) khỏi bản gửi cho người chỉ được đọc truyện.
-func notifyForRecipient(item notify.PushNotification, u webauth.User) notify.PushNotification {
+func notifyForRecipient(item notify.PushNotification, u identity.User) notify.PushNotification {
 	if item.Type != "gate" || u.CanWrite(item.Story) {
 		return item
 	}
@@ -355,7 +355,7 @@ func (g *Gateway) notifyWorkerEvent(key, kind string, data []byte) {
 		}
 	}
 }
-func (g *Gateway) serveNotify(w http.ResponseWriter, r *http.Request, user webauth.User, current webauth.Session) bool {
+func (g *Gateway) serveNotify(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) bool {
 	path := r.URL.Path
 	if !strings.HasPrefix(path, "/api/notify/") && !strings.HasPrefix(path, "/api/push/") && path != "/api/notifications" && !strings.HasPrefix(path, "/api/notifications/") {
 		return false
@@ -388,7 +388,7 @@ func (g *Gateway) serveNotify(w http.ResponseWriter, r *http.Request, user webau
 		if r.Method == "POST" {
 			sub.Device = strings.TrimSpace(sub.Device)
 			if sub.Device == "" {
-				sub.Device = webauth.DeviceLabel(r.UserAgent())
+				sub.Device = identity.DeviceLabel(r.UserAgent())
 			}
 			e = store.Subscribe(user.Username, current.ID, sub)
 		} else {
@@ -477,7 +477,7 @@ func (g *Gateway) serveNotify(w http.ResponseWriter, r *http.Request, user webau
 				return true
 			}
 			e := g.accounts.RevokeSession(item.Session, func(owner string) bool { return owner == user.Username })
-			if e != nil && !errors.Is(e, webauth.ErrNotFound) {
+			if e != nil && !errors.Is(e, identity.ErrNotFound) {
 				accountError(w, e)
 				return true
 			}

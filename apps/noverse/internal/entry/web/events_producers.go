@@ -8,7 +8,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 type mutationResponse struct {
@@ -66,14 +66,14 @@ func (g *Gateway) accountChanged(username string) {
 	}
 	for _, view := range users {
 		if view.Username == username {
-			g.events().RefreshUser(webauth.User{Username: view.Username, Name: view.Name, Role: view.Role, Projects: view.Projects, Disabled: view.Disabled})
+			g.events().RefreshUser(identity.User{Username: view.Username, Name: view.Name, Role: view.Role, Projects: view.Projects, Disabled: view.Disabled})
 			return
 		}
 	}
 	g.events().DropUser(username)
 }
 
-func (g *Gateway) publishMutation(r *http.Request, user webauth.User, current webauth.Session, data []byte) {
+func (g *Gateway) publishMutation(r *http.Request, user identity.User, current identity.Session, data []byte) {
 	path := strings.Trim(r.URL.Path, "/")
 	segs := strings.Split(path, "/")
 	var result map[string]any
@@ -158,7 +158,7 @@ func (g *Gateway) publishMutation(r *http.Request, user webauth.User, current we
 		g.projectChanged(p)
 		g.events().Publish(Event{Type: "library.changed", Data: map[string]any{}})
 	}
-	if previous, ok := r.Context().Value(previousSessionsKey{}).([]webauth.Session); ok {
+	if previous, ok := r.Context().Value(previousSessionsKey{}).([]identity.Session); ok {
 		remaining, _ := g.accounts.Sessions("", current.ID)
 		active := make(map[string]bool, len(remaining))
 		for _, session := range remaining {

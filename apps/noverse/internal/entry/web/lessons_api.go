@@ -13,7 +13,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/assets"
 	"github.com/datnt1998/verse/apps/noverse/internal/lessons"
 	"github.com/datnt1998/verse/apps/noverse/internal/naolint"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 type lessonPackAPI struct {
@@ -36,7 +36,7 @@ type lessonData struct {
 // Lesson text uses only rule headings from the loaded pack. Legacy unreferenced
 // prose and runtime user rules have no structured reusable pattern and are not
 // promoted into a system rule.
-func (g *Gateway) lessonData(user webauth.User) (lessonData, error) {
+func (g *Gateway) lessonData(user identity.User) (lessonData, error) {
 	data := lessonData{packs: []lessonPackAPI{}}
 	packIndex := map[string]int{}
 	for _, p := range assets.ListPacks(assets.DefaultLoadOptions("")) {
@@ -152,7 +152,7 @@ func (g *Gateway) lessonData(user webauth.User) (lessonData, error) {
 	return data, nil
 }
 
-func (g *Gateway) systemLessons(user webauth.User) ([]lessons.Lesson, lessonData, error) {
+func (g *Gateway) systemLessons(user identity.User) ([]lessons.Lesson, lessonData, error) {
 	data, err := g.lessonData(user)
 	if err != nil {
 		return nil, data, err
@@ -176,7 +176,7 @@ func (g *Gateway) systemLessons(user webauth.User) ([]lessons.Lesson, lessonData
 	return list, data, err
 }
 
-func (g *Gateway) pendingLessons(user webauth.User) (int, error) {
+func (g *Gateway) pendingLessons(user identity.User) (int, error) {
 	list, _, err := g.systemLessons(user)
 	if err != nil {
 		return 0, err
@@ -190,7 +190,7 @@ func (g *Gateway) pendingLessons(user webauth.User) (int, error) {
 	return n, nil
 }
 
-func (g *Gateway) serveLessons(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveLessons(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path := r.URL.Path
 	if path != "/api/system/lessons" && !strings.HasPrefix(path, "/api/system/lessons/") && path != "/api/system/violations" {
 		return false

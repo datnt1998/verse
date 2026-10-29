@@ -11,7 +11,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // --- change password --------------------------------------------------------
@@ -28,13 +28,13 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 	if u.MustChangePassword && u.TempPassword != nil {
 		currentHash = u.TempPassword.CodeHash
 	}
-	if currentHash == "" || !webauth.VerifyPasswordForBackend(current, currentHash) {
-		return webauth.ErrForbidden
+	if currentHash == "" || !identity.VerifyPasswordForBackend(current, currentHash) {
+		return identity.ErrForbidden
 	}
 	if err := validatePasswordInput(next); err != nil {
 		return err
 	}
-	hash, err := webauth.HashPasswordForBackend(next)
+	hash, err := identity.HashPasswordForBackend(next)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -54,7 +54,7 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 		cred, err := q.GetCredential(ctx, row.ID)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -86,7 +86,7 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, keepID); err != nil {
 			return err
 		}
-		return a.addAudit(ctx, q, &webauth.AuditActor{Username: u.Username, Name: u.Name}, "", "sec", "Đổi mật khẩu", username, "", "", "")
+		return a.addAudit(ctx, q, &identity.AuditActor{Username: u.Username, Name: u.Name}, "", "sec", "Đổi mật khẩu", username, "", "", "")
 	})
 }
 
@@ -95,15 +95,15 @@ func errConflict() error { return errs.ErrStorageConflict }
 // --- recovery codes -----------------------------------------------------------
 
 func (a *Accounts) IssueRecovery(username string, rotate bool) (string, time.Time, error) {
-	raw, err := webauth.NewRecoveryCodeForBackend()
+	raw, err := identity.NewRecoveryCodeForBackend()
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	hash, err := webauth.HashPasswordForBackend(raw)
+	hash, err := identity.HashPasswordForBackend(raw)
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	mask := webauth.MaskRecoveryCodeForBackend(raw)
+	mask := identity.MaskRecoveryCodeForBackend(raw)
 	var createdAt time.Time
 	err = RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
@@ -111,14 +111,14 @@ func (a *Accounts) IssueRecovery(username string, rotate bool) (string, time.Tim
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
 		// Recovery codes are admin-only (file parity: ErrForbidden for
 		// members) — check role before any code bookkeeping.
-		if row.GlobalRole != string(webauth.RoleAdmin) {
-			return webauth.ErrForbidden
+		if row.GlobalRole != string(identity.RoleAdmin) {
+			return identity.ErrForbidden
 		}
 		rec, recErr := q.GetLatestRecoveryCodeForUpdate(ctx, row.ID)
 		if recErr != nil && !noRows(recErr) {
@@ -126,7 +126,7 @@ func (a *Accounts) IssueRecovery(username string, rotate bool) (string, time.Tim
 		}
 		open := recErr == nil && !rec.UsedAt.Valid && !rec.RevokedAt.Valid
 		if open && !rotate {
-			return webauth.ErrRecoveryExists
+			return identity.ErrRecoveryExists
 		}
 		if open {
 			if err := q.RevokeRecoveryCode(ctx, gen.RevokeRecoveryCodeParams{ID: rec.ID, RevokedAt: ts(a.now())}); err != nil {
@@ -145,56 +145,56 @@ func (a *Accounts) IssueRecovery(username string, rotate bool) (string, time.Tim
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	return webauth.FormatRecoveryCodeForBackend(raw), createdAt, nil
+	return identity.FormatRecoveryCodeForBackend(raw), createdAt, nil
 }
 
-func (a *Accounts) RecoveryStatus(username string) (webauth.RecoveryStatus, error) {
+func (a *Accounts) RecoveryStatus(username string) (identity.RecoveryStatus, error) {
 	u, _, err := a.userByUsername(context.Background(), a.qp(), username)
 	if err != nil {
-		return webauth.RecoveryStatus{}, err
+		return identity.RecoveryStatus{}, err
 	}
-	var st webauth.RecoveryStatus
+	var st identity.RecoveryStatus
 	if u.Recovery != nil {
-		st = webauth.RecoveryStatus{CreatedAt: &u.Recovery.CreatedAt, Used: u.Recovery.UsedAt != nil, Mask: maskIfOpen(u.Recovery)}
+		st = identity.RecoveryStatus{CreatedAt: &u.Recovery.CreatedAt, Used: u.Recovery.UsedAt != nil, Mask: maskIfOpen(u.Recovery)}
 	}
 	return st, nil
 }
 
 // maskIfOpen keeps the mask only while an unused code exists (file parity).
-func maskIfOpen(r *webauth.RecoveryCode) string {
+func maskIfOpen(r *identity.RecoveryCode) string {
 	if r.UsedAt == nil {
 		return r.Mask
 	}
 	return ""
 }
 
-func (a *Accounts) Recover(username, code, newPassword, device, ip string) (webauth.NewSession, []string, error) {
+func (a *Accounts) Recover(username, code, newPassword, device, ip string) (identity.NewSession, []string, error) {
 	if err := validatePasswordInput(newPassword); err != nil {
-		return webauth.NewSession{}, nil, err
+		return identity.NewSession{}, nil, err
 	}
 	ctx := context.Background()
 	row, err := a.qp().GetUserByUsername(ctx, username)
-	var u webauth.User
+	var u identity.User
 	if err == nil {
 		u, err = a.userFromRow(ctx, a.qp(), row)
 	}
 	if err != nil && !noRows(err) {
-		return webauth.NewSession{}, nil, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
+		return identity.NewSession{}, nil, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
 	}
 	found := err == nil
-	normalized, validShape := webauth.NormalizeRecoveryCodeForBackend(code)
-	hash := webauth.DummyHashForBackend()
+	normalized, validShape := identity.NormalizeRecoveryCodeForBackend(code)
+	hash := identity.DummyHashForBackend()
 	if found && u.Recovery != nil && u.Recovery.UsedAt == nil {
 		hash = u.Recovery.CodeHash
 	}
-	if !validShape || !webauth.VerifyPasswordForBackend(normalized, hash) || !found || u.Disabled || u.Recovery == nil || u.Recovery.UsedAt != nil {
-		return webauth.NewSession{}, nil, webauth.ErrInvalidRecovery
+	if !validShape || !identity.VerifyPasswordForBackend(normalized, hash) || !found || u.Disabled || u.Recovery == nil || u.Recovery.UsedAt != nil {
+		return identity.NewSession{}, nil, identity.ErrInvalidRecovery
 	}
-	newHash, err := webauth.HashPasswordForBackend(newPassword)
+	newHash, err := identity.HashPasswordForBackend(newPassword)
 	if err != nil {
-		return webauth.NewSession{}, nil, err
+		return identity.NewSession{}, nil, err
 	}
-	var out webauth.NewSession
+	var out identity.NewSession
 	var revoked []string
 	err = RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
@@ -202,22 +202,22 @@ func (a *Accounts) Recover(username, code, newPassword, device, ip string) (weba
 		cur, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrInvalidRecovery
+				return identity.ErrInvalidRecovery
 			}
 			return sanitizeErr(err)
 		}
 		if cur.Status == "locked" {
-			return webauth.ErrInvalidRecovery
+			return identity.ErrInvalidRecovery
 		}
 		rec, err := q.GetLatestRecoveryCodeForUpdate(ctx, cur.ID)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrInvalidRecovery
+				return identity.ErrInvalidRecovery
 			}
 			return sanitizeErr(err)
 		}
 		if rec.UsedAt.Valid || rec.RevokedAt.Valid || rec.CodeHash != hash {
-			return webauth.ErrInvalidRecovery
+			return identity.ErrInvalidRecovery
 		}
 		now := a.now()
 		if err := q.ConsumeRecoveryCode(ctx, gen.ConsumeRecoveryCodeParams{ID: rec.ID, UsedAt: ts(now)}); err != nil {
@@ -247,7 +247,7 @@ func (a *Accounts) Recover(username, code, newPassword, device, ip string) (weba
 		return err
 	})
 	if err != nil {
-		return webauth.NewSession{}, nil, err
+		return identity.NewSession{}, nil, err
 	}
 	return out, revoked, nil
 }

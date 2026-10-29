@@ -12,7 +12,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestChapterFactsArrayShape(t *testing.T) {
@@ -77,13 +77,13 @@ func storyFixture(t *testing.T, completed []int) (library.Story, *store.Store) {
 	return st, s
 }
 
-func adminUser() webauth.User {
-	return webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+func adminUser() identity.User {
+	return identity.User{Username: "admin", Role: identity.RoleAdmin}
 }
 
 // storyReq 复刻 serveStories 的路由级门禁再调 serveStoryRead：未授权一律 404，
 // 与 HTTP 层行为一致（授权不在各 handler 里）。
-func storyReq(t *testing.T, g *Gateway, method, path string, user webauth.User, st library.Story, rest string, body string) *httptest.ResponseRecorder {
+func storyReq(t *testing.T, g *Gateway, method, path string, user identity.User, st library.Story, rest string, body string) *httptest.ResponseRecorder {
 	t.Helper()
 	var req *http.Request
 	if body != "" {
@@ -329,7 +329,7 @@ func TestServeStoryRead_PostExportsAndFileDownload(t *testing.T) {
 func TestServeStoryRead_PostExportsHiddenForReader(t *testing.T) {
 	g := &Gateway{}
 	st, _ := storyFixture(t, []int{1})
-	reader := webauth.User{Username: "doc-gia", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "doc-gia", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 	rec := storyReq(t, g, "POST", "/x/exports", reader, st, "/exports", `{"format":"txt"}`)
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("reader POST should be 404, got %d", rec.Code)

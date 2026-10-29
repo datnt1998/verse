@@ -14,12 +14,13 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/xai"
 	"github.com/datnt1998/verse/core/llm/wire"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // configTestGateway 建带项目/故事目录结构与三个账号的网关。
@@ -45,11 +46,11 @@ func newConfigTestGateway(t *testing.T) *configTestGateway {
 	if err := os.WriteFile(filepath.Join(project, "project.json"), []byte(`{"name":"P"}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectOwner}, Password: "writer-pass"},
-		{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectView}, Password: "reader-pass"},
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectOwner}, Password: "writer-pass"},
+		{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectView}, Password: "reader-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)

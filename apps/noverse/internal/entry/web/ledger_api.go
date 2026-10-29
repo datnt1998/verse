@@ -15,7 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 type ledgerCandidate struct {
@@ -27,7 +27,7 @@ type ledgerCandidate struct {
 	Cells  []ledger.Cell  `json:"cells"`
 }
 
-func (g *Gateway) ledgerStories(ctx context.Context, lib library.Repository, user webauth.User, p, exclude string) ([]ledger.Story, *ledgerCandidate, error) {
+func (g *Gateway) ledgerStories(ctx context.Context, lib library.Repository, user identity.User, p, exclude string) ([]ledger.Story, *ledgerCandidate, error) {
 	stories, err := viewableProjectStories(ctx, lib, user, p)
 	if err != nil {
 		return nil, nil, err
@@ -82,7 +82,7 @@ func ledgerArchitectModel(dir string) (llmtypes.ChatModel, error) {
 	}
 	return models.ForRole("architect"), nil
 }
-func (g *Gateway) analyzeLedger(ctx context.Context, lib library.Repository, user webauth.User, p, brief, exclude string, suggest bool) (ledger.Proposal, ledger.Result, error) {
+func (g *Gateway) analyzeLedger(ctx context.Context, lib library.Repository, user identity.User, p, brief, exclude string, suggest bool) (ledger.Proposal, ledger.Result, error) {
 	prior, _, err := g.ledgerStories(ctx, lib, user, p, exclude)
 	if err != nil {
 		return ledger.Proposal{}, ledger.Result{}, err
@@ -101,7 +101,7 @@ func (g *Gateway) analyzeLedger(ctx context.Context, lib library.Repository, use
 	}
 	return proposal, ledger.CheckValues(proposal.Values, prior), nil
 }
-func (g *Gateway) serveLedger(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveLedger(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	if !g.requireProject(w, lib, r.Context(), actorOf(user), user, p) {
 		return
 	}
@@ -167,7 +167,7 @@ func ledgerHTTPError(w http.ResponseWriter, err error) {
 	}
 	jsonError(w, http.StatusBadGateway, "Không đọc được mười trục từ yêu cầu truyện")
 }
-func (g *Gateway) ledgerStartGate(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p, brief, exclude string) bool {
+func (g *Gateway) ledgerStartGate(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p, brief, exclude string) bool {
 	prior, _, err := g.ledgerStories(r.Context(), lib, user, p, exclude)
 	if err != nil {
 		jsonError(w, 500, "Không đọc được sổ cái truyện")
@@ -195,7 +195,7 @@ func (g *Gateway) ledgerStartGate(w http.ResponseWriter, r *http.Request, lib li
 	return true
 }
 
-func (g *Gateway) checkInitialLedgerInput(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, st library.Story) bool {
+func (g *Gateway) checkInitialLedgerInput(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, st library.Story) bool {
 	engine, err := g.openFactStore(st, &user)
 	if err != nil {
 		jsonError(w, 500, "Không mở được kho dữ kiện truyện")

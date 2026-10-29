@@ -35,7 +35,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 //go:embed all:dist
@@ -83,8 +83,8 @@ type Gateway struct {
 	Root string
 	// PublicURLs 是手机可访问的基础地址（局域网 / Tailscale），用于生成扫码登录链接。
 	PublicURLs  []string
-	accounts    *webauth.Store
-	limiter     webauth.LoginLimiter
+	accounts    *identity.Store
+	limiter     identity.LoginLimiter
 	workerToken string
 	rootMu      sync.RWMutex
 	mu          sync.Mutex
@@ -108,7 +108,7 @@ type Gateway struct {
 	closeOnce     sync.Once
 	// recoverLimiter 限制 POST /api/recover（每 IP 每小时 5 次，recovery.go）；
 	// network 控制运行时的局域网监听（network.go），未启用时为 nil。
-	recoverLimiter webauth.RecoveryLimiter
+	recoverLimiter identity.RecoveryLimiter
 	network        *Network
 	// build 是 ldflags 构建身份（/api/system 的 version/commit/built）；
 	// latest 是被动检查新版本的结果，由后台 goroutine 写入。
@@ -117,7 +117,7 @@ type Gateway struct {
 	latest   version.CheckResult
 	// setup 是 GAP-41 的首次设置状态，只在启动时还没有任何账号时创建；
 	// setupCode 是码的明文，serve 打印一次后清空（之后内存里只剩哈希）。
-	setup     *webauth.SetupState
+	setup     *identity.SetupState
 	setupCode string
 	setupMu   sync.Mutex
 	// factStore 是故事事实存储的工厂接缝：nil = file backend 根在
@@ -125,7 +125,7 @@ type Gateway struct {
 	// factory（scoped backend + capability gate）。没有任何静默回退：
 	// 工厂报错时调用方返回错误，不读目录。user 是当前请求账号 —— nil =
 	// 内部后台路径；postgres factory 必须拒绝无 actor 的请求面调用。
-	factStore func(st library.Story, user *webauth.User) (*store.Store, error)
+	factStore func(st library.Story, user *identity.User) (*store.Store, error)
 	// libRepo 是 hosted 的 thư viện repository（projects/stories/ideas 在
 	// Postgres）；nil = file backend theo --root。
 	libRepo library.Repository
@@ -170,14 +170,14 @@ func (g *Gateway) SetAudioStore(deps *PGAudioDeps) {
 }
 
 // SetFactStore 注入故事事实存储的工厂（启动期一次，postgres 模式）。
-func (g *Gateway) SetFactStore(fn func(st library.Story, user *webauth.User) (*store.Store, error)) {
+func (g *Gateway) SetFactStore(fn func(st library.Story, user *identity.User) (*store.Store, error)) {
 	g.factStore = fn
 }
 
 // openFactStore 打开一个故事的事实存储：postgres 工厂优先，否则 file
 // backend。PG 模式下绝不回退到 storyOutputDir。user 必须非 nil —— 请求面
 // 一律带真实账号，内部调用走 openFactStoreInternal。
-func (g *Gateway) openFactStore(st library.Story, user *webauth.User) (*store.Store, error) {
+func (g *Gateway) openFactStore(st library.Story, user *identity.User) (*store.Store, error) {
 	if g.factStore != nil {
 		return g.factStore(st, user)
 	}
@@ -222,14 +222,14 @@ var checkLatestRelease = version.CheckLatest
 // NewGateway 创建网关；workerToken 每次启动随机生成，只在网关与本机 worker 之间使用。
 // build 为 ldflags 构建身份（serve 传入 versionInfo()）；正式版本会在后台跑一次
 // 被动检查新版本，结果经 /api/system 的 latestVersion/hasUpdate 暴露。
-func NewGateway(root string, accounts *webauth.Store, build version.Info) *Gateway {
+func NewGateway(root string, accounts *identity.Store, build version.Info) *Gateway {
 	// Backend-aware limiters: postgres → shared DB buckets (login_rate_limits),
 	// file → in-memory (unchanged CLI behavior).
 	g := &Gateway{Root: root, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build)}
 	g.launchHosted = g.launchHostedWorker
 	accounts.SetProjectSource(func() ([]string, error) {
 		if g.libRepo == nil && g.RootPath() == "" {
-			return nil, webauth.ErrProjectRootUnknown
+			return nil, identity.ErrProjectRootUnknown
 		}
 		lib, err := g.lib(context.Background(), nil)
 		if err != nil {
@@ -247,7 +247,7 @@ func NewGateway(root string, accounts *webauth.Store, build version.Info) *Gatew
 	})
 	// GAP-41：启动时还没有任何账号 → 生成设置码（只留哈希）；serve 打印一次明文。
 	if has, err := accounts.HasUsers(); err == nil && !has {
-		if state, code, err := webauth.NewSetupState(time.Now); err == nil {
+		if state, code, err := identity.NewSetupState(time.Now); err == nil {
 			g.setup, g.setupCode = state, code
 		}
 	}
@@ -645,12 +645,12 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie, err := r.Cookie(sessionCookie)
 	if err != nil {
-		jsonError(w, 401, webauth.ErrUnauthenticated.Error())
+		jsonError(w, 401, identity.ErrUnauthenticated.Error())
 		return
 	}
 	user, current, err := g.accounts.Authenticate(cookie.Value)
 	if err != nil {
-		if errors.Is(err, webauth.ErrUnauthenticated) {
+		if errors.Is(err, identity.ErrUnauthenticated) {
 			clearSession(w, r)
 		}
 		accountError(w, err)

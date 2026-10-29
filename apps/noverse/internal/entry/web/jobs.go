@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // ── GAP-26 việc chạy nền ──
@@ -308,7 +308,7 @@ func (h *jobsHub) broadcastLocked(j Job, event string, data any) {
 }
 
 // list 返回用户可读的任务（开始时间倒序，ID 兜底排序保证稳定）。
-func (h *jobsHub) list(user webauth.User) []Job {
+func (h *jobsHub) list(user identity.User) []Job {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.pruneLocked()
@@ -339,8 +339,8 @@ func jobOfMachine(j Job) bool { return j.Project == "" && j.Story == "" }
 
 // canControlMachineJobs: việc của máy chạm vào máy chủ nên chỉ quản trị viên thấy
 // và điều khiển, cùng quyền với POST /api/tts/install.
-func canControlMachineJobs(user webauth.User) bool {
-	return user.Role == webauth.RoleAdmin && !user.Disabled
+func canControlMachineJobs(user identity.User) bool {
+	return user.Role == identity.RoleAdmin && !user.Disabled
 }
 
 func (h *jobsHub) get(id string) (Job, bool) {
@@ -568,7 +568,7 @@ func readJobStream(r io.Reader, handle func(event string, data []byte)) {
 // ── HTTP ──
 
 // serveJobs 处理 /api/jobs*；返回 false 表示路径不归它管。
-func (g *Gateway) serveJobs(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveJobs(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path := r.URL.Path
 	if path != "/api/jobs" && !strings.HasPrefix(path, "/api/jobs/") {
 		return false
@@ -590,7 +590,7 @@ func (g *Gateway) serveJobs(w http.ResponseWriter, r *http.Request, user webauth
 }
 
 // controlJob 处理 POST /api/jobs/<id>/<op>：路由到来源（story worker / gateway provider）。
-func (g *Gateway) controlJob(w http.ResponseWriter, r *http.Request, user webauth.User, rest string) {
+func (g *Gateway) controlJob(w http.ResponseWriter, r *http.Request, user identity.User, rest string) {
 	segs := strings.Split(rest, "/")
 	if len(segs) < 3 {
 		jsonError(w, http.StatusNotFound, "không tìm thấy")

@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 //
 // Live proof: chạy lại test này trên bản sao của file thật bằng
 //
-//	ACCOUNTS_V3_SRC=/tmp/acc-proof/web-accounts.json go test ./internal/webauth -run TestAccountsV3ToV4Migration
+//	ACCOUNTS_V3_SRC=/tmp/acc-proof/web-accounts.json go test ./platform/identity -run TestAccountsV3ToV4Migration
 func TestAccountsV3ToV4Migration(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "web-accounts-src.json")
@@ -129,7 +129,7 @@ func proveMigration(t *testing.T, src, dirA, dirB string) {
 	}
 
 	// --- Copy A: migrate + byte parity + backup + session preservation ---
-	sa := NewStore(pathA)
+	sa := NewStore(pathA, testOptions())
 	if _, err := sa.Users(); err != nil {
 		t.Fatalf("read after migration: %v", err)
 	}
@@ -173,7 +173,7 @@ func proveMigration(t *testing.T, src, dirA, dirB string) {
 
 	// Idempotent: mở lại store trên file v4 → snapshot không ghi thêm,
 	// backup không bị đụng; mọi ghi sau vẫn giữ v4.
-	sa2 := NewStore(pathA)
+	sa2 := NewStore(pathA, testOptions())
 	if _, err := sa2.Users(); err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +189,7 @@ func proveMigration(t *testing.T, src, dirA, dirB string) {
 	}
 
 	// --- Copy B: login bằng mật khẩu đã biết trên file đã migrate ---
-	sb := NewStore(pathB)
+	sb := NewStore(pathB, testOptions())
 	victim := firstUser(&orig).Username
 	pass := "prove-migration-pass"
 	if _, err := sb.UpdateUser(victim, UserPatch{Password: &pass}); err != nil {

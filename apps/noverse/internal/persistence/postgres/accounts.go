@@ -17,10 +17,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
-// Accounts là webauth.Repository trên Postgres: cùng ngữ nghĩa quan sát được
+// Accounts là identity.Repository trên Postgres: cùng ngữ nghĩa quan sát được
 // với file backend — generic credential errors, mật khẩu tạm một lần + TTL,
 // đúng một owner active mỗi project, tối thiểu một admin active, audit ghi
 // trong cùng transaction với mutation. Định danh public vẫn là username;
@@ -40,20 +40,20 @@ func NewAccounts(pool *Pool) *Accounts {
 // SetClock overrides the time source (integration tests only).
 func (a *Accounts) SetClock(now func() time.Time) { a.now = now }
 
-var _ webauth.Repository = (*Accounts)(nil)
+var _ identity.Repository = (*Accounts)(nil)
 
 // LoginLimiter trả limiter login/pairing dùng bảng login_rate_limits — chia
 // sẻ giữa các process và sống sót restart (khác limiter RAM của file mode).
-func (a *Accounts) LoginLimiter() webauth.LoginLimiter {
+func (a *Accounts) LoginLimiter() identity.LoginLimiter {
 	return NewAuthLimiter(a.pgpool)
 }
 
 // RecoveryLimiter trả limiter cửa sổ trên cùng bảng cho recovery codes.
-func (a *Accounts) RecoveryLimiter(maxFails int, window time.Duration) webauth.RecoveryLimiter {
+func (a *Accounts) RecoveryLimiter(maxFails int, window time.Duration) identity.RecoveryLimiter {
 	return NewWindowLimiter(a.pgpool, "recover", maxFails, window)
 }
 
-var _ webauth.LoginLimiterProvider = (*Accounts)(nil)
+var _ identity.LoginLimiterProvider = (*Accounts)(nil)
 
 const (
 	pgSessionTTL = 30 * 24 * time.Hour
@@ -121,9 +121,9 @@ func constraintErr(err error) error {
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		switch {
 		case strings.Contains(pgErr.ConstraintName, "project_one_owner"):
-			return webauth.ErrOwnerTaken
+			return identity.ErrOwnerTaken
 		case strings.Contains(pgErr.ConstraintName, "username") || strings.Contains(pgErr.ConstraintName, "users"):
-			return webauth.ErrExists
+			return identity.ErrExists
 		default:
 			return fmt.Errorf("ràng buộc duy nhất %s: %w", pgErr.ConstraintName, errs.ErrStorageConflict)
 		}
@@ -157,14 +157,14 @@ func (a *Accounts) qp() *gen.Queries { return gen.New(a.pool) }
 
 // --- row → domain mapping ------------------------------------------------
 
-// userFromRow assembles webauth.User: base row + credential + temp password
+// userFromRow assembles identity.User: base row + credential + temp password
 // (open or last consumed-for-restricted-session) + memberships + latest
 // recovery code.
-func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User) (webauth.User, error) {
-	u := webauth.User{
+func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User) (identity.User, error) {
+	u := identity.User{
 		Username:           row.Username,
 		Name:               row.DisplayName,
-		Role:               webauth.Role(row.GlobalRole),
+		Role:               identity.Role(row.GlobalRole),
 		Disabled:           row.Status == "locked",
 		OnboardedAt:        tsPtr(row.OnboardedAt),
 		MustChangePassword: row.MustChangePassword,
@@ -173,7 +173,7 @@ func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User
 		DeletedAt:          tsPtr(row.DeletedAt),
 		CreatedAt:          row.CreatedAt.Time,
 		UpdatedAt:          row.UpdatedAt.Time,
-		Projects:           map[string]webauth.ProjectRole{},
+		Projects:           map[string]identity.ProjectRole{},
 	}
 	if row.DisabledBy.Valid {
 		if by, err := q.GetUserByID(ctx, row.DisabledBy); err == nil {
@@ -187,12 +187,12 @@ func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User
 		return u, fmt.Errorf("đọc credential: %w", sanitizeErr(err))
 	}
 	if temp, err := q.GetLatestTempPassword(ctx, row.ID); err == nil && !temp.RevokedAt.Valid {
-		u.TempPassword = &webauth.TempPassword{CodeHash: temp.PasswordHash, ExpiresAt: temp.ExpiresAt.Time, UsedAt: tsPtr(temp.UsedAt), CreatedAt: temp.CreatedAt.Time}
+		u.TempPassword = &identity.TempPassword{CodeHash: temp.PasswordHash, ExpiresAt: temp.ExpiresAt.Time, UsedAt: tsPtr(temp.UsedAt), CreatedAt: temp.CreatedAt.Time}
 	} else if err != nil && !noRows(err) {
 		return u, fmt.Errorf("đọc mật khẩu tạm: %w", sanitizeErr(err))
 	}
 	if rec, err := q.GetLatestRecoveryCode(ctx, row.ID); err == nil {
-		u.Recovery = &webauth.RecoveryCode{CodeHash: rec.CodeHash, Mask: rec.Mask.String, CreatedAt: rec.CreatedAt.Time, UsedAt: tsPtr(rec.UsedAt)}
+		u.Recovery = &identity.RecoveryCode{CodeHash: rec.CodeHash, Mask: rec.Mask.String, CreatedAt: rec.CreatedAt.Time, UsedAt: tsPtr(rec.UsedAt)}
 	} else if !noRows(err) {
 		return u, fmt.Errorf("đọc mã khôi phục: %w", sanitizeErr(err))
 	}
@@ -201,18 +201,18 @@ func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User
 		return u, fmt.Errorf("đọc quyền dự án: %w", sanitizeErr(err))
 	}
 	for _, m := range members {
-		u.Projects[m.Slug] = webauth.ProjectRole(m.Role)
+		u.Projects[m.Slug] = identity.ProjectRole(m.Role)
 	}
 	return u, nil
 }
 
-func (a *Accounts) userByUsername(ctx context.Context, q *gen.Queries, username string) (webauth.User, gen.User, error) {
+func (a *Accounts) userByUsername(ctx context.Context, q *gen.Queries, username string) (identity.User, gen.User, error) {
 	row, err := q.GetUserByUsername(ctx, username)
 	if err != nil {
 		if noRows(err) {
-			return webauth.User{}, gen.User{}, webauth.ErrNotFound
+			return identity.User{}, gen.User{}, identity.ErrNotFound
 		}
-		return webauth.User{}, gen.User{}, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
+		return identity.User{}, gen.User{}, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
 	}
 	u, err := a.userFromRow(ctx, q, row)
 	return u, row, err
@@ -228,7 +228,7 @@ func (a *Accounts) HasUsers() (bool, error) {
 	return n > 0, nil
 }
 
-func (a *Accounts) Users() ([]webauth.UserListView, error) {
+func (a *Accounts) Users() ([]identity.UserListView, error) {
 	ctx := context.Background()
 	q := a.qp()
 	rows, err := q.ListActiveUsers(ctx)
@@ -243,13 +243,13 @@ func (a *Accounts) Users() ([]webauth.UserListView, error) {
 	for _, s := range stats {
 		byUser[s.UserID.Bytes] = s
 	}
-	out := make([]webauth.UserListView, 0, len(rows))
+	out := make([]identity.UserListView, 0, len(rows))
 	for _, row := range rows {
 		u, err := a.userFromRow(ctx, q, row)
 		if err != nil {
 			return nil, err
 		}
-		v := webauth.UserListView{UserView: u.View()}
+		v := identity.UserListView{UserView: u.View()}
 		if st, ok := byUser[row.ID.Bytes]; ok {
 			v.SessionCount = int(st.SessionCount)
 			if t, ok := st.LastSeenAt.(time.Time); ok {
@@ -261,25 +261,25 @@ func (a *Accounts) Users() ([]webauth.UserListView, error) {
 	return out, nil
 }
 
-func validateNewUser(in *webauth.NewUser) (map[string]webauth.ProjectRole, error) {
+func validateNewUser(in *identity.NewUser) (map[string]identity.ProjectRole, error) {
 	in.Username = strings.TrimSpace(in.Username)
-	if !webauth.ValidUsername(in.Username) {
-		return nil, fmt.Errorf("%w: tên đăng nhập chỉ gồm a-z, 0-9, . _ - (2–32 ký tự)", webauth.ErrInvalidInput)
+	if !identity.ValidUsername(in.Username) {
+		return nil, fmt.Errorf("%w: tên đăng nhập chỉ gồm a-z, 0-9, . _ - (2–32 ký tự)", identity.ErrInvalidInput)
 	}
 	in.Name = strings.TrimSpace(in.Name)
-	if len([]rune(in.Name)) > webauth.MaxNameLen {
-		return nil, fmt.Errorf("%w: tên hiển thị tối đa %d ký tự", webauth.ErrInvalidInput, webauth.MaxNameLen)
+	if len([]rune(in.Name)) > identity.MaxNameLen {
+		return nil, fmt.Errorf("%w: tên hiển thị tối đa %d ký tự", identity.ErrInvalidInput, identity.MaxNameLen)
 	}
 	if in.Role == "" {
-		in.Role = webauth.RoleMember
+		in.Role = identity.RoleMember
 	}
-	if in.Role != webauth.RoleAdmin && in.Role != webauth.RoleMember {
-		return nil, fmt.Errorf("%w: vai trò %q", webauth.ErrInvalidInput, in.Role)
+	if in.Role != identity.RoleAdmin && in.Role != identity.RoleMember {
+		return nil, fmt.Errorf("%w: vai trò %q", identity.ErrInvalidInput, in.Role)
 	}
-	projects := map[string]webauth.ProjectRole{}
+	projects := map[string]identity.ProjectRole{}
 	for id, level := range in.Projects {
-		if !library.ValidProjectID(id) || (level != webauth.ProjectOwner && level != webauth.ProjectCollab && level != webauth.ProjectView) {
-			return nil, fmt.Errorf("%w: quyền dự án không hợp lệ", webauth.ErrInvalidInput)
+		if !library.ValidProjectID(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
+			return nil, fmt.Errorf("%w: quyền dự án không hợp lệ", identity.ErrInvalidInput)
 		}
 		projects[id] = level
 	}
@@ -287,31 +287,31 @@ func validateNewUser(in *webauth.NewUser) (map[string]webauth.ProjectRole, error
 }
 
 func validatePasswordInput(p string) error {
-	if len([]rune(p)) < webauth.MinPasswordLen {
-		return fmt.Errorf("%w: mật khẩu cần ít nhất %d ký tự", webauth.ErrInvalidInput, webauth.MinPasswordLen)
+	if len([]rune(p)) < identity.MinPasswordLen {
+		return fmt.Errorf("%w: mật khẩu cần ít nhất %d ký tự", identity.ErrInvalidInput, identity.MinPasswordLen)
 	}
 	return nil
 }
 
-func (a *Accounts) CreateUser(in webauth.NewUser) (webauth.UserView, error) {
+func (a *Accounts) CreateUser(in identity.NewUser) (identity.UserView, error) {
 	projects, err := validateNewUser(&in)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	if err := validatePasswordInput(in.Password); err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	// Argon2 ở ngoài transaction: hash chậm không giữ lock/connection.
-	hash, err := webauth.HashPasswordForBackend(in.Password)
+	hash, err := identity.HashPasswordForBackend(in.Password)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	var created gen.User
 	err = RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		if _, err := q.GetUserByUsernameAny(ctx, in.Username); err == nil {
-			return webauth.ErrExists
+			return identity.ErrExists
 		} else if !noRows(err) {
 			return sanitizeErr(err)
 		}
@@ -344,7 +344,7 @@ func (a *Accounts) CreateUser(in webauth.NewUser) (webauth.UserView, error) {
 			}
 			if err := q.InsertTempPassword(ctx, gen.InsertTempPasswordParams{
 				ID: tempID, UserID: userID, PasswordHash: hash,
-				ExpiresAt: ts(now.Add(webauth.TempPasswordTTL)), CreatedBy: createdBy,
+				ExpiresAt: ts(now.Add(identity.TempPasswordTTL)), CreatedBy: createdBy,
 			}); err != nil {
 				return sanitizeErr(err)
 			}
@@ -356,7 +356,7 @@ func (a *Accounts) CreateUser(in webauth.NewUser) (webauth.UserView, error) {
 		}); err != nil {
 			return sanitizeErr(err)
 		}
-		if err := a.replaceMemberships(ctx, q, created, map[string]webauth.ProjectRole{}, projects, in.Actor, ""); err != nil {
+		if err := a.replaceMemberships(ctx, q, created, map[string]identity.ProjectRole{}, projects, in.Actor, ""); err != nil {
 			return err
 		}
 		if err := a.addAudit(ctx, q, in.Actor, "", "acct", "Tạo tài khoản", in.Username, "", "", ""); err != nil {
@@ -368,27 +368,27 @@ func (a *Accounts) CreateUser(in webauth.NewUser) (webauth.UserView, error) {
 		return a.addAudit(ctx, q, in.Actor, "", "perm", "Đổi quyền dự án", in.Username, "", projectSummary(projects), "")
 	})
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	u, _, err := a.userByUsername(context.Background(), a.qp(), in.Username)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	return u.View(), nil
 }
 
-func (a *Accounts) CreateFirstAdmin(in webauth.NewUser, device, ip string) (webauth.NewSession, error) {
+func (a *Accounts) CreateFirstAdmin(in identity.NewUser, device, ip string) (identity.NewSession, error) {
 	if _, err := validateNewUser(&in); err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
 	if err := validatePasswordInput(in.Password); err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
-	hash, err := webauth.HashPasswordForBackend(in.Password)
+	hash, err := identity.HashPasswordForBackend(in.Password)
 	if err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
-	var out webauth.NewSession
+	var out identity.NewSession
 	err = RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
@@ -401,7 +401,7 @@ func (a *Accounts) CreateFirstAdmin(in webauth.NewUser, device, ip string) (weba
 			return sanitizeErr(err)
 		}
 		if n > 0 {
-			return webauth.ErrExists
+			return identity.ErrExists
 		}
 		userID, err := randomUUID()
 		if err != nil {
@@ -410,7 +410,7 @@ func (a *Accounts) CreateFirstAdmin(in webauth.NewUser, device, ip string) (weba
 		now := a.now()
 		row, err := q.InsertUser(ctx, gen.InsertUserParams{
 			ID: userID, Username: in.Username, DisplayName: in.Name,
-			GlobalRole: string(webauth.RoleAdmin), CreatedAt: ts(now),
+			GlobalRole: string(identity.RoleAdmin), CreatedAt: ts(now),
 		})
 		if err != nil {
 			return sanitizeErr(err)
@@ -423,7 +423,7 @@ func (a *Accounts) CreateFirstAdmin(in webauth.NewUser, device, ip string) (weba
 		if err := a.addAudit(ctx, q, nil, "", "acct", "Tạo tài khoản quản trị đầu tiên", in.Username, "", "", ""); err != nil {
 			return err
 		}
-		if err := a.addAudit(ctx, q, nil, "", "perm", "Đổi quyền hệ thống", in.Username, "", string(webauth.RoleAdmin), ""); err != nil {
+		if err := a.addAudit(ctx, q, nil, "", "perm", "Đổi quyền hệ thống", in.Username, "", string(identity.RoleAdmin), ""); err != nil {
 			return err
 		}
 		if err := a.addAudit(ctx, q, nil, "", "perm", "Đổi quyền dự án", in.Username, "", "{}", ""); err != nil {
@@ -444,32 +444,32 @@ func (a *Accounts) FirstUserCreatedAt() (time.Time, bool, error) {
 	return t, ok, nil
 }
 
-func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth.UserView, error) {
-	var projects map[string]webauth.ProjectRole
+func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identity.UserView, error) {
+	var projects map[string]identity.ProjectRole
 	if patch.Projects != nil {
-		projects = map[string]webauth.ProjectRole{}
+		projects = map[string]identity.ProjectRole{}
 		for id, level := range *patch.Projects {
-			if !library.ValidProjectID(id) || (level != webauth.ProjectOwner && level != webauth.ProjectCollab && level != webauth.ProjectView) {
-				return webauth.UserView{}, fmt.Errorf("%w: quyền dự án không hợp lệ", webauth.ErrInvalidInput)
+			if !library.ValidProjectID(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
+				return identity.UserView{}, fmt.Errorf("%w: quyền dự án không hợp lệ", identity.ErrInvalidInput)
 			}
 			projects[id] = level
 		}
 	}
-	if patch.Role != nil && *patch.Role != webauth.RoleAdmin && *patch.Role != webauth.RoleMember {
-		return webauth.UserView{}, fmt.Errorf("%w: vai trò %q", webauth.ErrInvalidInput, *patch.Role)
+	if patch.Role != nil && *patch.Role != identity.RoleAdmin && *patch.Role != identity.RoleMember {
+		return identity.UserView{}, fmt.Errorf("%w: vai trò %q", identity.ErrInvalidInput, *patch.Role)
 	}
-	if patch.Name != nil && len([]rune(strings.TrimSpace(*patch.Name))) > webauth.MaxNameLen {
-		return webauth.UserView{}, fmt.Errorf("%w: tên hiển thị tối đa %d ký tự", webauth.ErrInvalidInput, webauth.MaxNameLen)
+	if patch.Name != nil && len([]rune(strings.TrimSpace(*patch.Name))) > identity.MaxNameLen {
+		return identity.UserView{}, fmt.Errorf("%w: tên hiển thị tối đa %d ký tự", identity.ErrInvalidInput, identity.MaxNameLen)
 	}
 	hash := ""
 	if patch.Password != nil {
 		if err := validatePasswordInput(*patch.Password); err != nil {
-			return webauth.UserView{}, err
+			return identity.UserView{}, err
 		}
 		var err error
 		// Argon2 ngoài transaction.
-		if hash, err = webauth.HashPasswordForBackend(*patch.Password); err != nil {
-			return webauth.UserView{}, err
+		if hash, err = identity.HashPasswordForBackend(*patch.Password); err != nil {
+			return identity.UserView{}, err
 		}
 	}
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
@@ -483,7 +483,7 @@ func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -547,7 +547,7 @@ func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth
 		})
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -574,7 +574,7 @@ func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth
 				}
 				if err := q.InsertTempPassword(ctx, gen.InsertTempPasswordParams{
 					ID: tempID, UserID: row.ID, PasswordHash: hash,
-					ExpiresAt: ts(now.Add(webauth.TempPasswordTTL)), CreatedBy: createdBy,
+					ExpiresAt: ts(now.Add(identity.TempPasswordTTL)), CreatedBy: createdBy,
 				}); err != nil {
 					return sanitizeErr(err)
 				}
@@ -597,17 +597,17 @@ func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth
 		}
 		// Last-admin guard only when this patch itself removes an active
 		// admin — a member update in a zero-admin store must not trip it.
-		if before.Role == webauth.RoleAdmin && !before.Disabled &&
-			(role != string(webauth.RoleAdmin) || status == "locked") {
+		if before.Role == identity.RoleAdmin && !before.Disabled &&
+			(role != string(identity.RoleAdmin) || status == "locked") {
 			n, err := q.CountActiveAdmins(ctx)
 			if err != nil {
 				return sanitizeErr(err)
 			}
 			if n == 0 {
-				return webauth.ErrLastAdmin
+				return identity.ErrLastAdmin
 			}
 		}
-		if patch.Role != nil && before.Role != webauth.Role(role) {
+		if patch.Role != nil && before.Role != identity.Role(role) {
 			if err := a.addAudit(ctx, q, patch.Actor, "", "perm", "Đổi quyền hệ thống", username, string(before.Role), role, patch.Reason); err != nil {
 				return err
 			}
@@ -639,16 +639,16 @@ func (a *Accounts) UpdateUser(username string, patch webauth.UserPatch) (webauth
 		return nil
 	})
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	u, _, err := a.userByUsername(context.Background(), a.qp(), username)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	return u.View(), nil
 }
 
-func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext) error {
+func (a *Accounts) DeleteUser(username string, auditCtxs ...identity.AuditContext) error {
 	ctx_ := auditContextOf(auditCtxs)
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
@@ -659,7 +659,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -669,7 +669,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext
 		}
 		// Không xoá owner cuối: phải transfer/delete project trong cùng tx.
 		for p, role := range u.Projects {
-			if role == webauth.ProjectOwner && !u.Disabled {
+			if role == identity.ProjectOwner && !u.Disabled {
 				pid, err := projectID(ctx, q, p)
 				if err != nil {
 					return err
@@ -679,7 +679,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext
 					return sanitizeErr(err)
 				}
 				if n == 1 {
-					return webauth.ErrLastOwner
+					return identity.ErrLastOwner
 				}
 			}
 		}
@@ -690,13 +690,13 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext
 		if err := q.SoftDeleteUser(ctx, gen.SoftDeleteUserParams{ID: row.ID, DeletedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
-		if u.Role == webauth.RoleAdmin && !u.Disabled {
+		if u.Role == identity.RoleAdmin && !u.Disabled {
 			n, err := q.CountActiveAdmins(ctx)
 			if err != nil {
 				return sanitizeErr(err)
 			}
 			if n == 0 {
-				return webauth.ErrLastAdmin
+				return identity.ErrLastAdmin
 			}
 		}
 		_, err = a.revokeUserAuth(ctx, q, tx, row.ID, pgtype.UUID{})
@@ -704,11 +704,11 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...webauth.AuditContext
 	})
 }
 
-func auditContextOf(context []webauth.AuditContext) webauth.AuditContext {
+func auditContextOf(context []identity.AuditContext) identity.AuditContext {
 	if len(context) > 0 {
 		return context[0]
 	}
-	return webauth.AuditContext{}
+	return identity.AuditContext{}
 }
 
 // revokeUserAuth revokes every session except keep plus all pairings; the
@@ -724,25 +724,25 @@ func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx
 	return revoked, nil
 }
 
-func (a *Accounts) MarkOnboarded(username string) (webauth.UserView, error) {
+func (a *Accounts) MarkOnboarded(username string) (identity.UserView, error) {
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
 		return q.MarkOnboarded(ctx, gen.MarkOnboardedParams{ID: row.ID, OnboardedAt: ts(a.now())})
 	})
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	u, _, err := a.userByUsername(context.Background(), a.qp(), username)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	return u.View(), nil
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Não dự án (D14) › Vũ trụ chung (GAP-44). Dữ liệu là Não truyện (GAP-39/49) của
@@ -102,7 +102,7 @@ type projectStoryBrain struct {
 // viewableProjectStories liệt kê các truyện của dự án mà người gọi được xem, theo
 // thứ tự thư mục (tiền tố NN- = thứ tự tạo, cũ trước). Cùng điều kiện với danh sách
 // truyện của dự án (user.CanRead).
-func viewableProjectStories(ctx context.Context, lib library.Repository, user webauth.User, p string) ([]library.Story, error) {
+func viewableProjectStories(ctx context.Context, lib library.Repository, user identity.User, p string) ([]library.Story, error) {
 	actor := actorOf(user)
 	dirs, err := lib.Stories(ctx, actor, p)
 	if err != nil {
@@ -123,7 +123,7 @@ func viewableProjectStories(ctx context.Context, lib library.Repository, user we
 // storyDisplayTitle là tên truyện hiển thị: tên sách của engine (meta/book.json
 // là nguồn sự thật duy nhất cho thông tin ra ngoài), rồi story.json, rồi tên
 // thư mục. Truyện tạo từ brief có story.json.title = tên tạm (dòng đầu brief);
-func (g *Gateway) storyDisplayTitle(ctx context.Context, lib library.Repository, user webauth.User, st library.Story) string {
+func (g *Gateway) storyDisplayTitle(ctx context.Context, lib library.Repository, user identity.User, st library.Story) string {
 	if sr, err := g.openStoryReader(user, st); err == nil {
 		if title := strings.TrimSpace(sr.BookTitle()); title != "" {
 			return title
@@ -136,7 +136,7 @@ func (g *Gateway) storyDisplayTitle(ctx context.Context, lib library.Repository,
 }
 
 // projectBrains đọc Não truyện của mọi truyện người gọi được xem trong dự án.
-func (g *Gateway) projectBrains(ctx context.Context, lib library.Repository, user webauth.User, p string) ([]projectStoryBrain, error) {
+func (g *Gateway) projectBrains(ctx context.Context, lib library.Repository, user identity.User, p string) ([]projectStoryBrain, error) {
 	stories, err := viewableProjectStories(ctx, lib, user, p)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func (g *Gateway) projectBrains(ctx context.Context, lib library.Repository, use
 	return out, nil
 }
 
-func (g *Gateway) serveProjectUniverse(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveProjectUniverse(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	if len(segs) != 0 || r.Method != http.MethodGet {
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
 		return

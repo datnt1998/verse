@@ -12,11 +12,11 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // provisionWebStory migrates an isolated schema and anchors one project+story
@@ -29,7 +29,7 @@ func provisionWebStory(t *testing.T, projectSlug, storySlug string) (*postgres.P
 
 func provisionWebStoryRoles(t *testing.T, projectSlug, storySlug string) (*postgres.Pool, *postgres.Narrative, postgres.ScopeRef) {
 	t.Helper()
-	appDSN, maintenanceDSN := pgtest.ProvisionRoles(t)
+	appDSN, maintenanceDSN := pgtest.ProvisionRoles(t, pgtest.RoleSpec{MigrateRole: "noverse_migrate", AppRole: "noverse_app", LockKey1: 2710, LockKey2: 11, InitScriptRef: "deploy/postgres-init/01-roles.sh"})
 	return provisionWebStoryDSNs(t, projectSlug, storySlug, appDSN, maintenanceDSN)
 }
 
@@ -110,7 +110,7 @@ func TestNarrativeBackendBothModes(t *testing.T) {
 			t.Fatal(err)
 		}
 		calls := 0
-		tg.g.SetFactStore(func(library.Story, *webauth.User) (*store.Store, error) {
+		tg.g.SetFactStore(func(library.Story, *identity.User) (*store.Store, error) {
 			calls++
 			return scoped, nil
 		})
@@ -121,7 +121,7 @@ func TestNarrativeBackendBothModes(t *testing.T) {
 			t.Fatalf("factory must be the only source: %d", calls)
 		}
 
-		tg.g.SetFactStore(func(library.Story, *webauth.User) (*store.Store, error) {
+		tg.g.SetFactStore(func(library.Story, *identity.User) (*store.Store, error) {
 			return nil, fmt.Errorf("pool down")
 		})
 		if got := tg.g.engineBookTitle(st, nil); got != "" {
@@ -132,7 +132,7 @@ func TestNarrativeBackendBothModes(t *testing.T) {
 	t.Run("no_engine_directory_on_pg", func(t *testing.T) {
 		// The PG backend must never claim a directory: engine code paths that
 		// still assume one have to fail loudly instead of reading a tree.
-		tg.g.SetFactStore(func(library.Story, *webauth.User) (*store.Store, error) {
+		tg.g.SetFactStore(func(library.Story, *identity.User) (*store.Store, error) {
 			return nil, fmt.Errorf("not configured")
 		})
 		if _, err := tg.g.openFactStore(st, nil); err == nil {

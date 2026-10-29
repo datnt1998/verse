@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-27：POST S/exports nhận onExists = replace | keep | fail (mặc định fail).
@@ -46,7 +46,7 @@ func TestPostExportsOnExistsStrategies(t *testing.T) {
 	if err := os.WriteFile(origFull, []byte("bản cũ"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	jobsBefore := len(g.jobsHub().list(webauth.User{Role: webauth.RoleAdmin}))
+	jobsBefore := len(g.jobsHub().list(identity.User{Role: identity.RoleAdmin}))
 
 	// Mặc định (không có onExists) và onExists=fail: 409, không ghi, không tạo việc thất bại.
 	for _, body := range []string{`{"format":"txt","from":1,"to":2}`, `{"format":"txt","from":1,"to":2,"onExists":"fail"}`} {
@@ -76,7 +76,7 @@ func TestPostExportsOnExistsStrategies(t *testing.T) {
 			t.Fatalf("fail strategy modified the existing file: %q", raw)
 		}
 	}
-	if got := len(g.jobsHub().list(webauth.User{Role: webauth.RoleAdmin})); got != jobsBefore {
+	if got := len(g.jobsHub().list(identity.User{Role: identity.RoleAdmin})); got != jobsBefore {
 		t.Fatalf("409 conflict registered a job: before %d after %d", jobsBefore, got)
 	}
 

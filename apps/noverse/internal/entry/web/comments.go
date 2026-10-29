@@ -13,14 +13,14 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // commentStoreFor binds the comment lifecycle for a story: file mode uses the
 // story directory, hosted mode uses the scoped comment rows opened with the
 // request actor. A hosted backend without a comment surface is a capability
 // error, never a directory fallback.
-func (g *Gateway) commentStoreFor(user webauth.User, st library.Story) (*comments.Store, error) {
+func (g *Gateway) commentStoreFor(user identity.User, st library.Story) (*comments.Store, error) {
 	if g.factStore == nil {
 		return comments.New(st.Dir), nil
 	}
@@ -36,7 +36,7 @@ func (g *Gateway) commentStoreFor(user webauth.User, st library.Story) (*comment
 }
 
 // serveComments runs at the gateway, without acquiring the engine story lease.
-func (g *Gateway) serveComments(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveComments(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	seg := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(seg) < 6 || seg[0] != "api" || seg[1] != "projects" || seg[3] != "stories" {
 		return false
