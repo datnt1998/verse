@@ -1,32 +1,47 @@
-// AppShell — khung desktop: header (brand · nav · menu tài khoản) + nội dung cuộn.
-// <760px App chuyển sang MobileShell (cùng ranh giới của Noverse, 03-tokens.md breakpoint).
-import { useEffect, useState, type ReactNode } from 'react'
-import { useRoute } from '../router'
+// AppShell — khung ứng dụng cho người đã đăng nhập: AppHeader (+ dải offline
+// ngay dưới đầu), vùng cuộn của màn hình, và MobileShell ở bề ngang <768px.
+// Nội dung mờ 42% khi mất kết nối (System artboard · state=offline).
+import type { ReactNode } from 'react'
+import type { Route } from '../router'
+import { useMediaQuery } from '../lib/useMediaQuery'
+import { useStatus, useOnline } from '../data/status'
+import { useEventsStatus } from '../data/events'
 import { AppHeader } from './AppHeader'
+import { MobileShell } from './MobileShell'
+import { OfflineStrip } from './OfflineStrip'
+import type { SwitcherChannel } from './ChannelSwitcher'
+import type { User } from '../api/types'
 
-export function useMediaQuery(query: string): boolean {
-  const [match, setMatch] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(query).matches)
-  useEffect(() => {
-    const list = matchMedia(query)
-    const change = () => setMatch(list.matches)
-    change()
-    list.addEventListener('change', change)
-    return () => list.removeEventListener('change', change)
-  }, [query])
-  return match
-}
+export function AppShell({ route, user, children }: {
+  route: Route
+  user: User
+  children: ReactNode
+}) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  const status = useStatus()
+  const online = useOnline()
+  const connecting = useEventsStatus().state === 'connecting'
 
-export function AppShell({ children }: { children: ReactNode }) {
-  const { route } = useRoute()
+  const offline = !online && !connecting
+  const strip = offline ? <OfflineStrip /> : undefined
+
+  if (mobile) {
+    return (
+      <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username}>
+        {strip}
+        <div inert={offline || undefined} style={{ flex: '1 1 auto', minWidth: 0, paddingBottom: 'var(--vv-tabbar-pad)', ...(offline ? { opacity: 0.42 } : {}) }}>
+          {children}
+        </div>
+      </MobileShell>
+    )
+  }
   return (
-    <div style={{
-      height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      background: 'var(--color-bg)', color: 'var(--color-fg)',
-    }}>
-      <AppHeader route={route} />
-      <main className="scroll" style={{ flex: 1, minHeight: 0 }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+      <AppHeader route={route} status={status.data} online={online} userName={user.name || user.username} />
+      {strip}
+      <div inert={offline || undefined} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', ...(offline ? { opacity: 0.42 } : {}) }}>
         {children}
-      </main>
+      </div>
     </div>
   )
 }

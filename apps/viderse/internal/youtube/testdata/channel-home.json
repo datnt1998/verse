@@ -1,0 +1,1034 @@
+{
+ "contents": {
+  "twoColumnBrowseResultsRenderer": {
+   "tabs": [
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/featured",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EghmZWF0dXJlZPIGBAoCMgA%3D",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Home",
+      "selected": true
+     }
+    },
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/videos",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EgZ2aWRlb3PyBgQKAjoA",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Videos"
+     }
+    },
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/shorts",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EgZzaG9ydHPyBgUKA5oBAA%3D%3D",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Shorts"
+     }
+    },
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/playlists",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EglwbGF5bGlzdHPyBgoKCEIGCgIQaCIA",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Playlists"
+     }
+    },
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/posts",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EgVwb3N0c_IGBAoCSgA%3D",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Posts"
+     }
+    },
+    {
+     "tabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/store",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EgVzdG9yZfIGBAoCGgA%3D",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Store"
+     }
+    },
+    {
+     "expandableTabRenderer": {
+      "endpoint": {
+       "commandMetadata": {
+        "webCommandMetadata": {
+         "url": "/@veritasium/search",
+         "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+         "rootVe": 3611,
+         "apiUrl": "/youtubei/v1/browse"
+        }
+       },
+       "browseEndpoint": {
+        "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "params": "EgZzZWFyY2jyBgQKAloA",
+        "canonicalBaseUrl": "/@veritasium"
+       }
+      },
+      "title": "Search",
+      "selected": false
+     }
+    }
+   ]
+  }
+ },
+ "header": {
+  "pageHeaderRenderer": {
+   "pageTitle": "Veritasium",
+   "content": {
+    "pageHeaderViewModel": {
+     "title": {
+      "dynamicTextViewModel": {
+       "text": {
+        "content": "Veritasium",
+        "styleRuns": [
+         {
+          "startIndex": 10,
+          "styleRunExtensions": {
+           "styleRunColorMapExtension": {
+            "colorMap": [
+             {
+              "key": "USER_INTERFACE_THEME_DARK",
+              "value": 4294967295
+             },
+             {
+              "key": "USER_INTERFACE_THEME_LIGHT",
+              "value": 4279440147
+             }
+            ]
+           }
+          }
+         }
+        ],
+        "attachmentRuns": [
+         {
+          "startIndex": 10,
+          "length": 0,
+          "element": {
+           "type": {
+            "imageType": {
+             "image": {
+              "sources": [
+               {
+                "clientResource": {
+                 "imageName": "CHECK_CIRCLE_FILLED"
+                },
+                "width": 24,
+                "height": 24
+               }
+              ]
+             }
+            }
+           },
+           "properties": {
+            "layoutProperties": {
+             "height": {
+              "value": 24,
+              "unit": "DIMENSION_UNIT_POINT"
+             },
+             "width": {
+              "value": 24,
+              "unit": "DIMENSION_UNIT_POINT"
+             },
+             "margin": {
+              "left": {
+               "value": 8,
+               "unit": "DIMENSION_UNIT_POINT"
+              }
+             }
+            }
+           }
+          },
+          "alignment": "ALIGNMENT_VERTICAL_CENTER"
+         }
+        ]
+       },
+       "maxLines": 2,
+       "rendererContext": {
+        "accessibilityContext": {
+         "label": "Veritasium, Verified"
+        }
+       }
+      }
+     },
+     "image": {
+      "decoratedAvatarViewModel": {
+       "avatar": {
+        "avatarViewModel": {
+         "image": {
+          "sources": [
+           {
+            "url": "https://yt3.googleusercontent.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s72-c-k-c0x00ffffff-no-rj",
+            "width": 72,
+            "height": 72
+           },
+           {
+            "url": "https://yt3.googleusercontent.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s120-c-k-c0x00ffffff-no-rj",
+            "width": 120,
+            "height": 120
+           },
+           {
+            "url": "https://yt3.googleusercontent.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s160-c-k-c0x00ffffff-no-rj",
+            "width": 160,
+            "height": 160
+           }
+          ],
+          "processor": {
+           "borderImageProcessor": {
+            "circular": true
+           }
+          }
+         },
+         "avatarImageSize": "AVATAR_SIZE_XL"
+        }
+       }
+      }
+     },
+     "metadata": {
+      "contentMetadataViewModel": {
+       "metadataRows": [
+        {
+         "metadataParts": [
+          {
+           "text": {
+            "content": "@veritasium",
+            "styleRuns": [
+             {
+              "weightLabel": "FONT_WEIGHT_MEDIUM",
+              "styleRunExtensions": {
+               "styleRunColorMapExtension": {
+                "colorMap": [
+                 {
+                  "key": "USER_INTERFACE_THEME_DARK",
+                  "value": 4294967295
+                 },
+                 {
+                  "key": "USER_INTERFACE_THEME_LIGHT",
+                  "value": 4279440147
+                 }
+                ]
+               }
+              }
+             }
+            ]
+           },
+           "enableTruncation": true
+          }
+         ]
+        },
+        {
+         "metadataParts": [
+          {
+           "text": {
+            "content": "21.4M subscribers"
+           },
+           "accessibilityLabel": "21.4 million subscribers"
+          },
+          {
+           "text": {
+            "content": "540 videos",
+            "styleRuns": [
+             {
+              "startIndex": 0,
+              "length": 10
+             }
+            ]
+           }
+          }
+         ]
+        }
+       ],
+       "delimiter": "•",
+       "rendererContext": {}
+      }
+     },
+     "actions": {
+      "flexibleActionsViewModel": {
+       "actionsRows": [
+        {
+         "actions": [
+          {
+           "buttonViewModel": {
+            "title": "Subscribe",
+            "onTap": {
+             "innertubeCommand": {
+              "commandMetadata": {
+               "webCommandMetadata": {
+                "ignoreNavigation": true
+               }
+              },
+              "modalEndpoint": {
+               "modal": {
+                "modalWithTitleAndButtonRenderer": {
+                 "title": {
+                  "simpleText": "Want to subscribe to this channel?"
+                 },
+                 "content": {
+                  "simpleText": "Sign in to subscribe to this channel."
+                 },
+                 "button": {
+                  "buttonRenderer": {
+                   "style": "STYLE_MONO_FILLED",
+                   "size": "SIZE_DEFAULT",
+                   "isDisabled": false,
+                   "text": {
+                    "simpleText": "Sign in"
+                   },
+                   "navigationEndpoint": {
+                    "commandMetadata": {
+                     "webCommandMetadata": {
+                      "url": "https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3D%252F%2540veritasium%26continue_action%3DQUZZTVljR0o5VjczUzdwTHQwM0pyVnptaXh6Z3xBSTVJdTVzRFRZOC1UMG9BS01xWFZFRmJGQ3VYdFREc2p4YnJ3b0lsdGR6Mk1NZWNYS2hCNVdCV25hOFpXNlVacndFVUFfUkxHQVNyUjFBdU9ETUlMSUJKNV9ZM3pFOExna0RUQWNDMmxGUTcwM1d6SDNMMjZzT0ZheUJLVkVKZnFzelNjTnNTeFhvcjV4RUdrWTgxQlgtb2ZtRk9uclpkLUdRTjNUblZLMG1LZ1hhWDNVeGhPYkJaZlZF&hl=en&ec=66429",
+                      "webPageType": "WEB_PAGE_TYPE_UNKNOWN",
+                      "rootVe": 83769
+                     }
+                    },
+                    "signInEndpoint": {
+                     "nextEndpoint": {
+                      "commandMetadata": {
+                       "webCommandMetadata": {
+                        "url": "/@veritasium",
+                        "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+                        "rootVe": 3611,
+                        "apiUrl": "/youtubei/v1/browse"
+                       }
+                      },
+                      "browseEndpoint": {
+                       "browseId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+                       "params": "EgA%3D",
+                       "canonicalBaseUrl": "/@veritasium"
+                      }
+                     },
+                     "continueAction": "FIXTURE_OPAQUE_1",
+                     "idamTag": "66429"
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            },
+            "accessibilityText": "Subscribe",
+            "style": "BUTTON_VIEW_MODEL_STYLE_MONO",
+            "isFullWidth": false,
+            "type": "BUTTON_VIEW_MODEL_TYPE_FILLED",
+            "buttonSize": "BUTTON_VIEW_MODEL_SIZE_DEFAULT",
+            "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+           }
+          }
+         ]
+        }
+       ],
+       "justifyContent": "FLEXIBLE_ACTIONS_JUSTIFY_CONTENT_START",
+       "minimumRowHeight": 44,
+       "rendererContext": {}
+      }
+     },
+     "description": {
+      "descriptionPreviewViewModel": {
+       "description": {
+        "content": "An element of truth - videos about science, education, and anything else we find interesting. "
+       },
+       "maxLines": 2,
+       "truncationText": {
+        "content": "...more",
+        "styleRuns": [
+         {
+          "startIndex": 0,
+          "length": 7,
+          "weight": 500
+         }
+        ]
+       },
+       "alwaysShowTruncationText": true,
+       "rendererContext": {
+        "accessibilityContext": {
+         "label": "Description. An element of truth - videos about science, education, and a...tap for more."
+        },
+        "commandContext": {
+         "onTap": {
+          "innertubeCommand": {
+           "showEngagementPanelEndpoint": {
+            "engagementPanel": {
+             "engagementPanelSectionListRenderer": {
+              "header": {
+               "engagementPanelTitleHeaderRenderer": {
+                "title": {
+                 "simpleText": "Veritasium"
+                },
+                "visibilityButton": {
+                 "buttonRenderer": {
+                  "style": "STYLE_DEFAULT",
+                  "size": "SIZE_DEFAULT",
+                  "isDisabled": false,
+                  "icon": {
+                   "iconType": "CLOSE"
+                  },
+                  "accessibility": {
+                   "label": "Close"
+                  },
+                  "accessibilityData": {
+                   "accessibilityData": {
+                    "label": "Close"
+                   }
+                  },
+                  "command": {
+                   "changeEngagementPanelVisibilityAction": {
+                    "targetId": "6b607a8e-0000-2649-ab80-582429aaceb4",
+                    "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+                   }
+                  }
+                 }
+                }
+               }
+              },
+              "content": {
+               "sectionListRenderer": {
+                "contents": [
+                 {
+                  "itemSectionRenderer": {
+                   "contents": [
+                    {
+                     "continuationItemRenderer": {
+                      "trigger": "CONTINUATION_TRIGGER_ON_ITEM_SHOWN",
+                      "continuationEndpoint": {
+                       "commandMetadata": {
+                        "webCommandMetadata": {
+                         "sendPost": true,
+                         "apiUrl": "/youtubei/v1/browse"
+                        }
+                       },
+                       "continuationCommand": {
+                        "token": "FIXTURE_OPAQUE_2",
+                        "request": "CONTINUATION_REQUEST_TYPE_BROWSE"
+                       }
+                      }
+                     }
+                    }
+                   ],
+                   "sectionIdentifier": "6b607a8f-0000-2649-ab80-582429aaceb4",
+                   "targetId": "6b607a8f-0000-2649-ab80-582429aaceb4"
+                  }
+                 }
+                ],
+                "scrollPaneStyle": {
+                 "scrollable": true
+                }
+               }
+              },
+              "targetId": "6b607a8e-0000-2649-ab80-582429aaceb4",
+              "identifier": {
+               "surface": "ENGAGEMENT_PANEL_SURFACE_BROWSE",
+               "tag": "6b607a8e-0000-2649-ab80-582429aaceb4"
+              }
+             }
+            },
+            "identifier": {
+             "surface": "ENGAGEMENT_PANEL_SURFACE_BROWSE",
+             "tag": "6b607a8e-0000-2649-ab80-582429aaceb4"
+            },
+            "engagementPanelPresentationConfigs": {
+             "engagementPanelPopupPresentationConfig": {
+              "popupType": "PANEL_POPUP_TYPE_DIALOG"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "attribution": {
+      "attributionViewModel": {
+       "text": {
+        "content": " ve42.co/YTBio",
+        "commandRuns": [
+         {
+          "startIndex": 0,
+          "length": 14,
+          "onTap": {
+           "innertubeCommand": {
+            "commandMetadata": {
+             "webCommandMetadata": {
+              "url": "https://www.youtube.com/redirect?event=channel_header&redir_token=QUZZTVljRWp5NXpqOG14Y2J0Nl91cDVfeTVRNXxBSTVJdTV0LTF0S29ZUFZKUGxQMEpxbmJrbjRLbXRrbzFJSmtOclpDNy1XbV9PMmM4NVR0M203UWJzNzNnTGhfMmVsMVNnOTA0S05pTENINE5Yd2FvckwtbF9KbFlWQk45TU9p&q=https%3A%2F%2Fve42.co%2FYTBio",
+              "webPageType": "WEB_PAGE_TYPE_UNKNOWN",
+              "rootVe": 83769
+             }
+            },
+            "urlEndpoint": {
+             "url": "https://www.youtube.com/redirect?event=channel_header&redir_token=QUZZTVljRWp5NXpqOG14Y2J0Nl91cDVfeTVRNXxBSTVJdTV0LTF0S29ZUFZKUGxQMEpxbmJrbjRLbXRrbzFJSmtOclpDNy1XbV9PMmM4NVR0M203UWJzNzNnTGhfMmVsMVNnOTA0S05pTENINE5Yd2FvckwtbF9KbFlWQk45TU9p&q=https%3A%2F%2Fve42.co%2FYTBio",
+             "target": "TARGET_NEW_WINDOW"
+            }
+           }
+          }
+         }
+        ],
+        "styleRuns": [
+         {
+          "weightLabel": "FONT_WEIGHT_NORMAL",
+          "styleRunExtensions": {
+           "styleRunColorMapExtension": {
+            "colorMap": [
+             {
+              "key": "USER_INTERFACE_THEME_DARK",
+              "value": 4282296063
+             },
+             {
+              "key": "USER_INTERFACE_THEME_LIGHT",
+              "value": 4278607828
+             }
+            ]
+           }
+          }
+         }
+        ],
+        "attachmentRuns": [
+         {
+          "startIndex": 0,
+          "length": 0,
+          "element": {
+           "type": {
+            "imageType": {
+             "image": {
+              "sources": [
+               {
+                "customImageSource": {
+                 "youtubeIconSource": {
+                  "clientResource": {
+                   "icon": "YTICON_OUTLINE_LINK_S24"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            }
+           },
+           "properties": {
+            "layoutProperties": {
+             "height": {
+              "value": 14,
+              "unit": "DIMENSION_UNIT_POINT"
+             },
+             "width": {
+              "value": 14,
+              "unit": "DIMENSION_UNIT_POINT"
+             }
+            }
+           }
+          },
+          "alignment": "ALIGNMENT_VERTICAL_CENTER"
+         }
+        ]
+       },
+       "suffix": {
+        "content": "and 6 more links",
+        "commandRuns": [
+         {
+          "startIndex": 0,
+          "length": 16,
+          "onTap": {
+           "innertubeCommand": {
+            "showEngagementPanelEndpoint": {
+             "engagementPanel": {
+              "engagementPanelSectionListRenderer": {
+               "header": {
+                "engagementPanelTitleHeaderRenderer": {
+                 "title": {
+                  "simpleText": "Veritasium"
+                 },
+                 "visibilityButton": {
+                  "buttonRenderer": {
+                   "style": "STYLE_DEFAULT",
+                   "size": "SIZE_DEFAULT",
+                   "isDisabled": false,
+                   "icon": {
+                    "iconType": "CLOSE"
+                   },
+                   "accessibility": {
+                    "label": "Close"
+                   },
+                   "accessibilityData": {
+                    "accessibilityData": {
+                     "label": "Close"
+                    }
+                   },
+                   "command": {
+                    "changeEngagementPanelVisibilityAction": {
+                     "targetId": "6b607a90-0000-2649-ab80-582429aaceb4",
+                     "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+                    }
+                   }
+                  }
+                 }
+                }
+               },
+               "content": {
+                "sectionListRenderer": {
+                 "contents": [
+                  {
+                   "itemSectionRenderer": {
+                    "contents": [
+                     {
+                      "continuationItemRenderer": {
+                       "trigger": "CONTINUATION_TRIGGER_ON_ITEM_SHOWN",
+                       "continuationEndpoint": {
+                        "commandMetadata": {
+                         "webCommandMetadata": {
+                          "sendPost": true,
+                          "apiUrl": "/youtubei/v1/browse"
+                         }
+                        },
+                        "continuationCommand": {
+                         "token": "FIXTURE_OPAQUE_3",
+                         "request": "CONTINUATION_REQUEST_TYPE_BROWSE"
+                        }
+                       }
+                      }
+                     }
+                    ],
+                    "sectionIdentifier": "6b607a91-0000-2649-ab80-582429aaceb4",
+                    "targetId": "6b607a91-0000-2649-ab80-582429aaceb4"
+                   }
+                  }
+                 ],
+                 "scrollPaneStyle": {
+                  "scrollable": true
+                 }
+                }
+               },
+               "targetId": "6b607a90-0000-2649-ab80-582429aaceb4",
+               "identifier": {
+                "surface": "ENGAGEMENT_PANEL_SURFACE_BROWSE",
+                "tag": "6b607a90-0000-2649-ab80-582429aaceb4"
+               }
+              }
+             },
+             "identifier": {
+              "surface": "ENGAGEMENT_PANEL_SURFACE_BROWSE",
+              "tag": "6b607a90-0000-2649-ab80-582429aaceb4"
+             },
+             "engagementPanelPresentationConfigs": {
+              "engagementPanelPopupPresentationConfig": {
+               "popupType": "PANEL_POPUP_TYPE_DIALOG"
+              }
+             }
+            }
+           }
+          }
+         }
+        ],
+        "styleRuns": [
+         {
+          "fontName": "",
+          "fontSize": 0,
+          "weightLabel": "FONT_WEIGHT_MEDIUM"
+         }
+        ]
+       },
+       "rendererContext": {}
+      }
+     },
+     "banner": {
+      "imageBannerViewModel": {
+       "image": {
+        "sources": [
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 1060,
+          "height": 175
+         },
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 1138,
+          "height": 188
+         },
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 1707,
+          "height": 283
+         },
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 2120,
+          "height": 351
+         },
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w2276-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 2276,
+          "height": 377
+         },
+         {
+          "url": "https://yt3.googleusercontent.com/sDCGwJYqtOxT-odxPiErdlwfq3jlzXh0TsYFXtSSD6rld0Be51ZUNcoE17di2u1OiCjQunbcqA=w2560-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          "width": 2560,
+          "height": 424
+         }
+        ]
+       },
+       "style": "IMAGE_BANNER_STYLE_INSET",
+       "rendererContext": {}
+      }
+     },
+     "rendererContext": {}
+    }
+   }
+  }
+ },
+ "metadata": {
+  "channelMetadataRenderer": {
+   "title": "Veritasium",
+   "description": "An element of truth - videos about science, education, and anything else we find interesting.",
+   "rssUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA",
+   "channelConversionUrl": "https://www.youtube.com/pagead/viewthroughconversion/962985656/?backend=innertube&cname=1&cver=2_20261012_01_00&data=backend%3Dinnertube%3Bcname%3D1%3Bcver%3D2_20261012_01_00%3Bptype%3Dcview%3Btype%3Dcview%3Butuid%3DHnyfMqiRRG1u-2MsSQLbXA&foc_id=HnyfMqiRRG1u-2MsSQLbXA&label=followon_cvisit&ptype=cview&utuid=HnyfMqiRRG1u-2MsSQLbXA",
+   "externalId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+   "keywords": "\"science videos\" science \"science education\" \"science literacy\" veritasium misconceptions physics education astronomy chemistry biology teaching learning math",
+   "ownerUrls": [
+    "http://www.youtube.com/@veritasium"
+   ],
+   "avatar": {
+    "thumbnails": [
+     {
+      "url": "https://yt3.googleusercontent.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s900-c-k-c0x00ffffff-no-rj",
+      "width": 900,
+      "height": 900
+     }
+    ]
+   },
+   "channelUrl": "https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+   "isFamilySafe": true,
+   "facebookProfileId": "veritasium",
+   "availableCountryCodes": [
+    "LU",
+    "MT",
+    "AZ",
+    "SA",
+    "MY",
+    "AU",
+    "BJ",
+    "AD",
+    "AF",
+    "BZ",
+    "NO",
+    "CC",
+    "MS",
+    "SZ",
+    "VN",
+    "TG",
+    "GL",
+    "NE",
+    "AG",
+    "BY",
+    "TC",
+    "TO",
+    "KE",
+    "CX",
+    "DJ",
+    "NA",
+    "TM",
+    "BB",
+    "AE",
+    "SI",
+    "ZW",
+    "CG",
+    "CF",
+    "PF",
+    "SX",
+    "TW",
+    "MD",
+    "MW",
+    "BO",
+    "FJ",
+    "FI",
+    "ER",
+    "GW",
+    "NP",
+    "BF",
+    "VC",
+    "ST",
+    "AS",
+    "MO",
+    "HT",
+    "CZ",
+    "KG",
+    "TR",
+    "HN",
+    "IS",
+    "TL",
+    "NG",
+    "CR",
+    "EH",
+    "BT",
+    "TD",
+    "KH",
+    "US",
+    "CI",
+    "PH",
+    "BN",
+    "LR",
+    "LA",
+    "MR",
+    "PY",
+    "SS",
+    "FK",
+    "GG",
+    "OM",
+    "WF",
+    "AR",
+    "PT",
+    "BS",
+    "MP",
+    "LT",
+    "AI",
+    "ML",
+    "PA",
+    "TV",
+    "YE",
+    "FO",
+    "CN",
+    "KZ",
+    "KY",
+    "RS",
+    "MH",
+    "NF",
+    "TT",
+    "FM",
+    "BQ",
+    "MK",
+    "MA",
+    "DM",
+    "CU",
+    "CH",
+    "TF",
+    "IO",
+    "LV",
+    "NZ",
+    "BV",
+    "EC",
+    "JO",
+    "GB",
+    "IN",
+    "SE",
+    "AO",
+    "ID",
+    "GH",
+    "SC",
+    "LI",
+    "LY",
+    "MZ",
+    "PW",
+    "GF",
+    "BI",
+    "GP",
+    "GR",
+    "CK",
+    "GT",
+    "ZM",
+    "KN",
+    "LB",
+    "CV",
+    "KP",
+    "NR",
+    "QA",
+    "LS",
+    "RO",
+    "ET",
+    "BR",
+    "SH",
+    "VG",
+    "PR",
+    "FR",
+    "ME",
+    "CO",
+    "HU",
+    "BA",
+    "LK",
+    "GM",
+    "IM",
+    "RU",
+    "MQ",
+    "MV",
+    "AX",
+    "CD",
+    "PL",
+    "HM",
+    "BW",
+    "BM",
+    "GY",
+    "SJ",
+    "DZ",
+    "AT",
+    "DK",
+    "AW",
+    "UG",
+    "TK",
+    "PK",
+    "SB",
+    "MC",
+    "CL",
+    "EG",
+    "UY",
+    "SL",
+    "HK",
+    "KR",
+    "GA",
+    "UM",
+    "PN",
+    "DE",
+    "AQ",
+    "MM",
+    "CM",
+    "NU",
+    "PG",
+    "TN",
+    "GQ",
+    "GU",
+    "AM",
+    "ES",
+    "MN",
+    "NL",
+    "KI",
+    "TH",
+    "TJ",
+    "UZ",
+    "CW",
+    "KW",
+    "UA",
+    "MX",
+    "DO",
+    "NI",
+    "SY",
+    "BL",
+    "PS",
+    "GN",
+    "VA",
+    "YT",
+    "GS",
+    "JE",
+    "BE",
+    "JP",
+    "PE",
+    "SG",
+    "MF",
+    "IT",
+    "SR",
+    "VI",
+    "IE",
+    "PM",
+    "CY",
+    "TZ",
+    "BG",
+    "GD",
+    "MG",
+    "LC",
+    "HR",
+    "GI",
+    "CA",
+    "AL",
+    "RW",
+    "GE",
+    "VE",
+    "RE",
+    "SO",
+    "ZA",
+    "NC",
+    "IL",
+    "JM",
+    "SD",
+    "KM",
+    "BH",
+    "SN",
+    "EE",
+    "SM",
+    "VU",
+    "WS",
+    "IR",
+    "MU",
+    "SV",
+    "SK",
+    "BD",
+    "IQ"
+   ],
+   "androidDeepLink": "android-app://com.google.android.youtube/http/www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+   "androidAppindexingLink": "android-app://com.google.android.youtube/http/www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+   "iosAppindexingLink": "ios-app://544007664/vnd.youtube/www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+   "vanityChannelUrl": "http://www.youtube.com/@veritasium"
+  }
+ }
+}

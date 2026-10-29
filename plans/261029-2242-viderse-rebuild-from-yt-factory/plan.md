@@ -1,7 +1,7 @@
 ---
 title: "Dựng lại Viderse từ yt-factory theo design v1"
 description: "Port logic yt-factory sang Go + Postgres + React trong apps/viderse. Giao diện, luồng và trạng thái làm đúng bộ design v1; lõi chạy một process, đẩy sự kiện qua SSE, phục hồi được khi sập."
-status: pending
+status: in-progress
 priority: P1
 effort: 460h
 branch: "main của datnt1998/verse (Actions đang tắt)"
@@ -34,6 +34,8 @@ Chuỗi này giữ đúng logic, cổng chất lượng (≥ 90) và cách phụ
 | Writer hiện có trong verse | **Gỡ bỏ** code, bảng `agent_runs`/`scripts`, `/api/runs`, `/api/scripts` và prompt. Mục "Writer vượt độ dài" đóng theo. |
 | D1, D2, D5–D8 | **Theo đúng đề xuất của design.** D1: nghe trên LAN, ghép thiết bị bằng QR. D2: 10 intent, luôn hỏi xác nhận. D5: khoá YouTube Data API tuỳ chọn, không có thì đọc trang công khai. D6: ngưỡng 85; Tự duyệt hết chỉ qua Tuỳ chỉnh và có xác nhận. D7: 50 ảnh trả phí mỗi ngày cho mỗi nhà cung cấp. D8: lưu trên máy, gửi kèm khi Báo lỗi. |
 | Cách chạy | **Web + launchd như Noverse**, bỏ Electron. Thông báo hệ thống dùng Notification API cùng Badging API của trình duyệt (cài dạng PWA). |
+| Lượt chạy thật tốn tiền ảnh | **Mỗi lượt chỉ vẽ 1 ảnh trả phí.** Smoke đặt giới hạn D7 = 1 và chọn video chỉ cần 1 cảnh; phần còn lại kiểm bằng nhánh chờ hạn mức. |
+| Cấu trúc mã | **Ưu tiên dễ sửa, dễ thay về sau** theo mục "Cấu trúc mã" bên dưới. |
 
 # Dữ kiện đã kiểm (2026-10-29)
 
@@ -111,18 +113,18 @@ flowchart LR
 
 # Các phase
 
-| Phase | Gói design | Phụ thuộc | Ước lượng |
-|---|---|---|---|
-| [01 · Nền móng, dọn Writer, shell](phase-01-foundation.md) | V0, V12, hỏi đáp #1–#4 | — | 32h |
-| [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h |
-| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h |
-| [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h |
-| [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h |
-| [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h |
-| [07 · Bàn dựng, Duyệt, Việc nền](phase-07-workbench-review.md) | V1, V3, V14, V16, V18 | 05, 06 | 60h |
-| [08 · Trợ lý chủ động](phase-08-assistant-autonomy.md) | V11, V19, V20, V21 | 07 | 40h |
-| [09 · Điện thoại qua LAN](phase-09-mobile-lan.md) | V10, D1 | 07 | 20h |
-| [10 · Nghiệm thu, chạy live, thôi dùng yt-factory](phase-10-acceptance-cutover.md) | toàn bộ | 01–09 | 16h |
+| Phase | Gói design | Phụ thuộc | Ước lượng | Trạng thái |
+|---|---|---|---|---|
+| [01 · Nền móng, dọn Writer, shell](phase-01-foundation.md) | V0, V12, hỏi đáp #1–#4 | — | 32h | xong |
+| [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h | đang làm: đã có `internal/tools`, `internal/imagegen` |
+| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | đang làm: đã có `internal/youtube` |
+| [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h | chưa |
+| [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h | chưa |
+| [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h | chưa |
+| [07 · Bàn dựng, Duyệt, Việc nền](phase-07-workbench-review.md) | V1, V3, V14, V16, V18 | 05, 06 | 60h | chưa |
+| [08 · Trợ lý chủ động](phase-08-assistant-autonomy.md) | V11, V19, V20, V21 | 07 | 40h | chưa |
+| [09 · Điện thoại qua LAN](phase-09-mobile-lan.md) | V10, D1 | 07 | 20h | chưa |
+| [10 · Nghiệm thu, chạy live, thôi dùng yt-factory](phase-10-acceptance-cutover.md) | toàn bộ | 01–09 | 16h | chưa |
 
 Mỗi phase là một lát cắt dọc gồm backend, web và test. Phase chỉ xong khi đủ cả 4 việc:
 
@@ -131,23 +133,21 @@ Mỗi phase là một lát cắt dọc gồm backend, web và test. Phase chỉ 
 - commit;
 - kiểm Actions vẫn tắt, push, và xác nhận số run CI là 0.
 
-# Mục sẽ ghi vào `11-hoi-dap.md` (phase 01)
+# Hỏi đáp với design (`11-hoi-dap.md`)
 
-- **#1–#4:** dev trả lời.
-  - #1: đổi `defineBrand` theo 02 §2.
-  - #2: thêm `variant="quiet"` vào `Button` của kit.
-  - #3: thêm `tone="agent"` cho `Banner`, nhận màu từ `AgentOrb`.
-  - #4: `toast()` nhận thêm nội dung dạng thẻ 300px.
-  - Cả bốn đều chỉ thêm, không đổi gì của Noverse.
-- **#5 (D8):** đã chốt theo đề xuất.
-- **#8 Truyền sự kiện:** SSE thay poll 3 giây. Hình dữ liệu §5 và §11 giữ nguyên (A3).
-- **#9 Không nhập dữ liệu yt-factory:** bỏ nhóm "Bản cũ" và danh sách job cũ ở Lưu trữ (09 §3).
-- **#10 Không còn Electron:**
-  - V14: `Notification` và `dock.setBadge` đổi thành Notification API và `navigator.setAppBadge` (PWA).
-  - V22: chọn thư mục bằng hộp duyệt thư mục phía server, vì trình duyệt không trả được đường dẫn thật.
-- **#11 D1 đã chốt:** §10 chọn cách (a).
+Đã ghi ngày 29/10/2026:
 
-#6 và #7 (Bilibili trên điện thoại, `loginUrl`) làm ở phase 02: API trả `loginUrl` (§24.1); thử trên điện thoại ở phase 09.
+- **Đã chốt:** #1–#4 (dev trả lời: brand, `quiet`, `tone="agent"`, toast dạng thẻ; đều chỉ thêm, Noverse không đổi), #5 (D8), #7 (API trả `loginUrl`).
+- **Chờ design:**
+  - #8 SSE thay poll 3 giây (A3);
+  - #9 không nhập dữ liệu yt-factory;
+  - #10 không còn Electron (V14 thông báo, V22 chọn thư mục phía server);
+  - #11 D1 chọn cách (a);
+  - #12 giữ cả `/api/status` lẫn `/api/activity`;
+  - #14 lớp `.vv-badge` chưa có định nghĩa;
+  - #15 màu orb trợ lý;
+  - #16 mốc đổi sang bản điện thoại (700px hay 768px).
+- **Design hỏi dev:** #6 (Bilibili trên điện thoại, thử ở phase 09), #13 (Khớp theo giọng trong Editor, trả lời ở phase 06).
 
 # Rủi ro chính
 
@@ -156,9 +156,29 @@ Mỗi phase là một lát cắt dọc gồm backend, web và test. Phase chỉ 
 | Port state machine của clone (`service.ts` 78 KB, `runner.ts`, `repository.ts`) lệch hành vi | A1: chuyển ca test trước rồi mới viết code. Có test phục hồi `kill -9` cho từng bước. |
 | InnerTube đổi định dạng | Fixtures, kèm lỗi `unexpected_page` báo to như bản cũ. Khi lỗi thì ghi vào Cần xử lý, không âm thầm bỏ qua. |
 | Engine editor 159k dòng gắn chặt với Next | Chỉ 9 tệp trong `src/editor` import `next/`. Thay bằng router hash và API client; engine giữ nguyên, ghi rõ commit gốc trong `UPSTREAM.md`. |
-| Tốn tiền vẽ ảnh khi nghiệm thu | D7 giới hạn 50 ảnh/ngày. Lượt chạy thật ở phase 05 và phase 10 phải hỏi anh trước, kèm số ảnh dự kiến. |
+| Tốn tiền vẽ ảnh khi nghiệm thu | D7 giới hạn 50 ảnh/ngày. Mỗi lượt chạy thật chỉ vẽ 1 ảnh trả phí (giới hạn D7 = 1 khi smoke). |
 | Mở LAN (D1) làm lộ app | Mọi `/api/*` và tệp media đều cần phiên. Thiết bị mới phải ghép bằng QR. webguard chặn yêu cầu khác origin. Có giới hạn số lần đăng nhập (`platform/identity`). |
 | Tách `platform/events` làm hỏng Noverse | Chuyển trong cùng commit, chạy đủ test Noverse. Live Noverse chỉ cập nhật khi chủ động chạy `run-live.sh update`. |
+
+# Cấu trúc mã
+
+Mục tiêu: đổi một nhà cung cấp, một bước pipeline hay một màn mà không phải sửa lan sang chỗ khác.
+
+**Go (`apps/viderse/internal`)**
+
+- Mỗi gói là một mảng nghiệp vụ (`tools`, `youtube`, `scan`, `pipeline`…). `domain` chỉ chứa kiểu giá trị và mã lỗi dùng chung, không I/O.
+- Chiều phụ thuộc: `cmd`, `web` → gói nghiệp vụ → `domain`. Gói nghiệp vụ không import `web`, không import gói nghiệp vụ ngang hàng nếu một interface nhỏ đủ dùng.
+- Interface đặt ở phía dùng và nhỏ nhất có thể (ví dụ `pipeline` khai `type Drawer interface{ Draw(...) }`). Hệ ngoài (binary, HTTP, LLM, YouTube) luôn nằm sau interface để thay bản khác hoặc test bằng bản giả trong `_test.go`.
+- `cmd/viderse` là nơi duy nhất ráp các phần; `bootstrap` chỉ giữ danh tính app (thư mục dữ liệu, cấu hình OAuth, DSN). Constructor nhận phụ thuộc, không biến toàn cục, không `init()` có tác dụng phụ.
+- Postgres: mỗi mảng một tệp `persistence/postgres/queries/<mảng>.sql`, sinh bằng sqlc; mỗi phase một migration. Gói nghiệp vụ dùng store qua interface, không cầm `*pgx.Pool`.
+- HTTP mỏng: đọc yêu cầu → gọi service → ghi JSON. Kiểu wire tách khỏi kiểu domain. Mã lỗi domain đổi sang HTTP ở đúng một chỗ.
+- Test: logic thuần dùng test dạng bảng; chạm Postgres dùng `platform/pgtest`; ca test chuyển từ yt-factory ghi nguồn ở tên test hoặc comment đầu tệp.
+
+**Web (`apps/viderse/web/src`)**
+
+- `api/`: client có kiểu theo từng tài nguyên. `data/`: hook đọc dữ liệu và bảng sự kiện → khoá cache. `screens/<route>/`: mỗi route một chunk lazy. `components/`: phần ghép riêng của Viderse. `shell/`, `i18n/vi.ts` (mọi câu chữ), `styles/`.
+- Thành phần chung (nút, banner, toast, dialog, danh sách ảo hoá…) nằm trong kit `@noverse/ui`. App không tự viết lại thứ kit đã có; thứ chung còn thiếu thì thêm vào kit.
+- Không mã màu hex, bo góc hay khoảng cách viết cứng ngoài token.
 
 # Quy ước khi làm
 

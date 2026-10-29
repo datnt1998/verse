@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "Trinh sát: theo dõi đối thủ, quét kênh, Khám phá"
-status: pending
+status: in-progress
 priority: P1
 effort: 44h
 dependsOn: [2]

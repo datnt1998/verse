@@ -94,7 +94,7 @@ Gói design:
 - Test khi hai process `viderse serve` cùng chạy: process thứ hai không lấy job.
 - Benchmark `GET /api/clone?channel=all` với 1.000 job: p95 ≤ 100 ms.
 - Web: test kế hoạch (debounce, link trùng, nhiều link), test lý do ở Hàng chờ, test kéo đổi thứ tự.
-- Smoke thật: hỏi anh trước, kèm số ảnh dự kiến. Chạy 1 video ngắn của đối thủ thật qua 7 bước, rồi tạm dừng khi đang vẽ, chạy tiếp, và `kill -9` ở bước `transcript`.
+- Smoke thật, đúng 1 ảnh trả phí (giới hạn D7 = 1): chạy 1 video ngắn của đối thủ thật qua các bước; ảnh thứ hai phải dừng ở trạng thái chờ hạn mức. Tạm dừng rồi chạy tiếp, và `kill -9` ở bước `transcript`.
 
 ## Nghiệm thu
 

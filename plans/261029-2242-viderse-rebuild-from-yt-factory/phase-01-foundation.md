@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Nền móng, dọn Writer, shell theo design"
-status: pending
+status: completed
 priority: P1
 effort: 32h
 dependsOn: []
@@ -134,7 +134,7 @@ apps/viderse/web/src/
 ## Nghiệm thu
 
 - Đạt phần FE trong mục Nghiệm thu của **V0** và **V12** (08-dev-prompt). Các dòng cần backend pipeline (JobsPill theo job thật, tạm dừng job) chuyển sang phase 05 và phase 07.
-- `git grep -n -i -E "writer|agent_runs|/api/runs|/api/scripts" apps/viderse` không còn kết quả nào.
+- `git grep -n -i -E "agent_runs|/api/runs|/api/scripts|WriterRole|writer_system" apps/viderse ':!apps/viderse/docs'` không còn kết quả nào. (`writer` vẫn là khoá `AgentOrb` của Đạo diễn theo 02 §3, nên không grep chữ này.)
 - Chunk JS đầu ≤ 250 kB gzip.
 - Noverse: test xanh, dist chỉ đổi đúng chỗ import.
 

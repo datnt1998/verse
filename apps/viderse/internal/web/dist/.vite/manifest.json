@@ -1,0 +1,1251 @@
+{
+  "../../../node_modules/@fontsource-variable/literata/files/literata-latin-standard-normal.woff2": {
+    "file": "assets/literata-latin-standard-normal-BHZsWIlc.woff2",
+    "src": "../../../node_modules/@fontsource-variable/literata/files/literata-latin-standard-normal.woff2"
+  },
+  "../../../node_modules/@fontsource-variable/literata/files/literata-vietnamese-standard-normal.woff2": {
+    "file": "assets/literata-vietnamese-standard-normal-Gqw5JQlq.woff2",
+    "src": "../../../node_modules/@fontsource-variable/literata/files/literata-vietnamese-standard-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-400-normal-bXgqVju9.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-400-normal-PpnXBOrz.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-500-normal-BJkVuMHw.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-500-normal-B6LVzGNe.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-600-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-600-normal-5IO4e7bK.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-600-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-600-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-600-normal-BZDkUTrt.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-600-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-400-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-ext-400-normal-DYBYyMQr.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-400-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-ext-400-normal-CiZNW1ec.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-500-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-ext-500-normal-CK0UkkKf.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-500-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-ext-500-normal-h0Fp6aX0.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-600-normal.woff": {
+    "file": "assets/be-vietnam-pro-latin-ext-600-normal-BeUwKxhG.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-600-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-600-normal.woff2": {
+    "file": "assets/be-vietnam-pro-latin-ext-600-normal-BNd8euf0.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-ext-600-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-400-normal.woff": {
+    "file": "assets/be-vietnam-pro-vietnamese-400-normal-BuGn0gnm.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-400-normal.woff2": {
+    "file": "assets/be-vietnam-pro-vietnamese-400-normal-CRcqvyg1.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-500-normal.woff": {
+    "file": "assets/be-vietnam-pro-vietnamese-500-normal-CfdwVo8-.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-500-normal.woff2": {
+    "file": "assets/be-vietnam-pro-vietnamese-500-normal-DREgrEoJ.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-600-normal.woff": {
+    "file": "assets/be-vietnam-pro-vietnamese-600-normal-DkpCIyan.woff",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-600-normal.woff"
+  },
+  "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-600-normal.woff2": {
+    "file": "assets/be-vietnam-pro-vietnamese-600-normal-nyU-ZL2p.woff2",
+    "src": "../../../node_modules/@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-600-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-400-normal.woff": {
+    "file": "assets/jetbrains-mono-cyrillic-400-normal-ugxPyKxw.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-400-normal.woff2": {
+    "file": "assets/jetbrains-mono-cyrillic-400-normal-BEIGL1Tu.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-500-normal.woff": {
+    "file": "assets/jetbrains-mono-cyrillic-500-normal-DJqRU3vO.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-500-normal.woff2": {
+    "file": "assets/jetbrains-mono-cyrillic-500-normal-DmUKJPL_.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-cyrillic-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-400-normal.woff": {
+    "file": "assets/jetbrains-mono-greek-400-normal-B9oWc5Lo.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-400-normal.woff2": {
+    "file": "assets/jetbrains-mono-greek-400-normal-C190GLew.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-500-normal.woff": {
+    "file": "assets/jetbrains-mono-greek-500-normal-D7SFKleX.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-500-normal.woff2": {
+    "file": "assets/jetbrains-mono-greek-500-normal-JpySY46c.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-greek-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff": {
+    "file": "assets/jetbrains-mono-latin-400-normal-6-qcROiO.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2": {
+    "file": "assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff": {
+    "file": "assets/jetbrains-mono-latin-500-normal-CJOVTJB7.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2": {
+    "file": "assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-400-normal.woff": {
+    "file": "assets/jetbrains-mono-latin-ext-400-normal-fXTG6kC5.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-400-normal.woff2": {
+    "file": "assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-400-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-500-normal.woff": {
+    "file": "assets/jetbrains-mono-latin-ext-500-normal-ckzbgY84.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-500-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-500-normal.woff2": {
+    "file": "assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-ext-500-normal.woff2"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-vietnamese-400-normal.woff": {
+    "file": "assets/jetbrains-mono-vietnamese-400-normal-CqNFfHCs.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-vietnamese-400-normal.woff"
+  },
+  "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-vietnamese-500-normal.woff": {
+    "file": "assets/jetbrains-mono-vietnamese-500-normal-DNRqzVM1.woff",
+    "src": "../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-vietnamese-500-normal.woff"
+  },
+  "../../../platform/ui/src/icons/activity-bulk.svg": {
+    "file": "assets/activity-bulk-4ea_oL8w.svg",
+    "src": "../../../platform/ui/src/icons/activity-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/activity.svg": {
+    "file": "assets/activity-DbWrKL6f.svg",
+    "src": "../../../platform/ui/src/icons/activity.svg"
+  },
+  "../../../platform/ui/src/icons/add-square-bulk.svg": {
+    "file": "assets/add-square-bulk-CZRTb2Zh.svg",
+    "src": "../../../platform/ui/src/icons/add-square-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/add-square.svg": {
+    "file": "assets/add-square-DmF-wDQG.svg",
+    "src": "../../../platform/ui/src/icons/add-square.svg"
+  },
+  "../../../platform/ui/src/icons/add.svg": {
+    "file": "assets/add-BQAa4OXQ.svg",
+    "src": "../../../platform/ui/src/icons/add.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-d.svg": {
+    "file": "assets/arrow-d-DNBIaVs_.svg",
+    "src": "../../../platform/ui/src/icons/arrow-d.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-down-2.svg": {
+    "file": "assets/arrow-down-2-D50BrLmk.svg",
+    "src": "../../../platform/ui/src/icons/arrow-down-2.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-down.svg": {
+    "file": "assets/arrow-down-BjIqlJGo.svg",
+    "src": "../../../platform/ui/src/icons/arrow-down.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-left-2.svg": {
+    "file": "assets/arrow-left-2-wJuMag3Q.svg",
+    "src": "../../../platform/ui/src/icons/arrow-left-2.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-r.svg": {
+    "file": "assets/arrow-r-Bs_MQZ0i.svg",
+    "src": "../../../platform/ui/src/icons/arrow-r.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-right-2.svg": {
+    "file": "assets/arrow-right-2-EV7_tAE7.svg",
+    "src": "../../../platform/ui/src/icons/arrow-right-2.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-swap-horizontal.svg": {
+    "file": "assets/arrow-swap-horizontal-CApQLl8i.svg",
+    "src": "../../../platform/ui/src/icons/arrow-swap-horizontal.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-up-2.svg": {
+    "file": "assets/arrow-up-2-wBjtCImi.svg",
+    "src": "../../../platform/ui/src/icons/arrow-up-2.svg"
+  },
+  "../../../platform/ui/src/icons/arrow-up.svg": {
+    "file": "assets/arrow-up-DI3S8Tyk.svg",
+    "src": "../../../platform/ui/src/icons/arrow-up.svg"
+  },
+  "../../../platform/ui/src/icons/audio-square-bulk.svg": {
+    "file": "assets/audio-square-bulk-CSQZEPjK.svg",
+    "src": "../../../platform/ui/src/icons/audio-square-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/audio-square.svg": {
+    "file": "assets/audio-square-DcrqyxKW.svg",
+    "src": "../../../platform/ui/src/icons/audio-square.svg"
+  },
+  "../../../platform/ui/src/icons/backward-10seconds.svg": {
+    "file": "assets/backward-10seconds-B4dS81KJ.svg",
+    "src": "../../../platform/ui/src/icons/backward-10seconds.svg"
+  },
+  "../../../platform/ui/src/icons/book-1-bulk.svg": {
+    "file": "assets/book-1-bulk-D6kSRiLJ.svg",
+    "src": "../../../platform/ui/src/icons/book-1-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/book-1.svg": {
+    "file": "assets/book-1-BoTLx4vl.svg",
+    "src": "../../../platform/ui/src/icons/book-1.svg"
+  },
+  "../../../platform/ui/src/icons/box-bulk.svg": {
+    "file": "assets/box-bulk-BTf-CFDU.svg",
+    "src": "../../../platform/ui/src/icons/box-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/box.svg": {
+    "file": "assets/box-Dyp9Qjg5.svg",
+    "src": "../../../platform/ui/src/icons/box.svg"
+  },
+  "../../../platform/ui/src/icons/brush-2-bulk.svg": {
+    "file": "assets/brush-2-bulk-CcB2J_rS.svg",
+    "src": "../../../platform/ui/src/icons/brush-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/brush-2.svg": {
+    "file": "assets/brush-2-g8r-R7qJ.svg",
+    "src": "../../../platform/ui/src/icons/brush-2.svg"
+  },
+  "../../../platform/ui/src/icons/calendar.svg": {
+    "file": "assets/calendar-DmL8ajeC.svg",
+    "src": "../../../platform/ui/src/icons/calendar.svg"
+  },
+  "../../../platform/ui/src/icons/camera-bulk.svg": {
+    "file": "assets/camera-bulk-r1ggwE4T.svg",
+    "src": "../../../platform/ui/src/icons/camera-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/camera-slash.svg": {
+    "file": "assets/camera-slash-CLeY0Gvq.svg",
+    "src": "../../../platform/ui/src/icons/camera-slash.svg"
+  },
+  "../../../platform/ui/src/icons/camera.svg": {
+    "file": "assets/camera-B_uf5ODl.svg",
+    "src": "../../../platform/ui/src/icons/camera.svg"
+  },
+  "../../../platform/ui/src/icons/category-bulk.svg": {
+    "file": "assets/category-bulk-BHm2dk3j.svg",
+    "src": "../../../platform/ui/src/icons/category-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/category.svg": {
+    "file": "assets/category-D_UsQ5WH.svg",
+    "src": "../../../platform/ui/src/icons/category.svg"
+  },
+  "../../../platform/ui/src/icons/channel-b.svg": {
+    "file": "assets/channel-b-RgSYqI3b.svg",
+    "src": "../../../platform/ui/src/icons/channel-b.svg"
+  },
+  "../../../platform/ui/src/icons/channel.svg": {
+    "file": "assets/channel-DacjZ6-B.svg",
+    "src": "../../../platform/ui/src/icons/channel.svg"
+  },
+  "../../../platform/ui/src/icons/chart-2-bulk.svg": {
+    "file": "assets/chart-2-bulk-Dzd9ZDhK.svg",
+    "src": "../../../platform/ui/src/icons/chart-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/chart-2.svg": {
+    "file": "assets/chart-2-DJmL_BHv.svg",
+    "src": "../../../platform/ui/src/icons/chart-2.svg"
+  },
+  "../../../platform/ui/src/icons/chart.svg": {
+    "file": "assets/chart-DV1PpyQ5.svg",
+    "src": "../../../platform/ui/src/icons/chart.svg"
+  },
+  "../../../platform/ui/src/icons/clock.svg": {
+    "file": "assets/clock-D_hdi6nR.svg",
+    "src": "../../../platform/ui/src/icons/clock.svg"
+  },
+  "../../../platform/ui/src/icons/close-circle-bulk.svg": {
+    "file": "assets/close-circle-bulk-ot6ifWfB.svg",
+    "src": "../../../platform/ui/src/icons/close-circle-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/close-circle.svg": {
+    "file": "assets/close-circle-C2gQ24F4.svg",
+    "src": "../../../platform/ui/src/icons/close-circle.svg"
+  },
+  "../../../platform/ui/src/icons/close.svg": {
+    "file": "assets/close-C9kAW9KH.svg",
+    "src": "../../../platform/ui/src/icons/close.svg"
+  },
+  "../../../platform/ui/src/icons/cloud-connection-bulk.svg": {
+    "file": "assets/cloud-connection-bulk-Dh3Beo3S.svg",
+    "src": "../../../platform/ui/src/icons/cloud-connection-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/cloud-connection.svg": {
+    "file": "assets/cloud-connection-DBU2oNcP.svg",
+    "src": "../../../platform/ui/src/icons/cloud-connection.svg"
+  },
+  "../../../platform/ui/src/icons/code.svg": {
+    "file": "assets/code-iIjlwkBr.svg",
+    "src": "../../../platform/ui/src/icons/code.svg"
+  },
+  "../../../platform/ui/src/icons/coin-1-bulk.svg": {
+    "file": "assets/coin-1-bulk-B2q2tuc8.svg",
+    "src": "../../../platform/ui/src/icons/coin-1-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/coin-1.svg": {
+    "file": "assets/coin-1-B88SVNGI.svg",
+    "src": "../../../platform/ui/src/icons/coin-1.svg"
+  },
+  "../../../platform/ui/src/icons/command.svg": {
+    "file": "assets/command-DFsBdkmx.svg",
+    "src": "../../../platform/ui/src/icons/command.svg"
+  },
+  "../../../platform/ui/src/icons/copy.svg": {
+    "file": "assets/copy-DzyElKQH.svg",
+    "src": "../../../platform/ui/src/icons/copy.svg"
+  },
+  "../../../platform/ui/src/icons/cpu-bulk.svg": {
+    "file": "assets/cpu-bulk-CyILsrBl.svg",
+    "src": "../../../platform/ui/src/icons/cpu-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/cpu.svg": {
+    "file": "assets/cpu-Bokn8h1p.svg",
+    "src": "../../../platform/ui/src/icons/cpu.svg"
+  },
+  "../../../platform/ui/src/icons/crown.svg": {
+    "file": "assets/crown-C0yNRNEB.svg",
+    "src": "../../../platform/ui/src/icons/crown.svg"
+  },
+  "../../../platform/ui/src/icons/danger.svg": {
+    "file": "assets/danger-B0Wn1yVs.svg",
+    "src": "../../../platform/ui/src/icons/danger.svg"
+  },
+  "../../../platform/ui/src/icons/data.svg": {
+    "file": "assets/data-D1P-j_Tj.svg",
+    "src": "../../../platform/ui/src/icons/data.svg"
+  },
+  "../../../platform/ui/src/icons/devices-bulk.svg": {
+    "file": "assets/devices-bulk-DL0zsdcp.svg",
+    "src": "../../../platform/ui/src/icons/devices-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/devices.svg": {
+    "file": "assets/devices-BzG1V2t6.svg",
+    "src": "../../../platform/ui/src/icons/devices.svg"
+  },
+  "../../../platform/ui/src/icons/doc.svg": {
+    "file": "assets/doc-dCZcr-Xn.svg",
+    "src": "../../../platform/ui/src/icons/doc.svg"
+  },
+  "../../../platform/ui/src/icons/document-download.svg": {
+    "file": "assets/document-download-hE_zonqP.svg",
+    "src": "../../../platform/ui/src/icons/document-download.svg"
+  },
+  "../../../platform/ui/src/icons/document-text-bulk.svg": {
+    "file": "assets/document-text-bulk-CAfgvqZ8.svg",
+    "src": "../../../platform/ui/src/icons/document-text-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/document-text.svg": {
+    "file": "assets/document-text-6i9zzc1H.svg",
+    "src": "../../../platform/ui/src/icons/document-text.svg"
+  },
+  "../../../platform/ui/src/icons/dollar-circle.svg": {
+    "file": "assets/dollar-circle-BUJ_bUfS.svg",
+    "src": "../../../platform/ui/src/icons/dollar-circle.svg"
+  },
+  "../../../platform/ui/src/icons/download.svg": {
+    "file": "assets/download-DRktVyhu.svg",
+    "src": "../../../platform/ui/src/icons/download.svg"
+  },
+  "../../../platform/ui/src/icons/edit-2.svg": {
+    "file": "assets/edit-2-8ea6rRFL.svg",
+    "src": "../../../platform/ui/src/icons/edit-2.svg"
+  },
+  "../../../platform/ui/src/icons/edit.svg": {
+    "file": "assets/edit-C0UloT39.svg",
+    "src": "../../../platform/ui/src/icons/edit.svg"
+  },
+  "../../../platform/ui/src/icons/export-curve.svg": {
+    "file": "assets/export-curve-CXUUG1Bc.svg",
+    "src": "../../../platform/ui/src/icons/export-curve.svg"
+  },
+  "../../../platform/ui/src/icons/export-square-bulk.svg": {
+    "file": "assets/export-square-bulk-e7-XS8Op.svg",
+    "src": "../../../platform/ui/src/icons/export-square-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/export-square.svg": {
+    "file": "assets/export-square-71h625fY.svg",
+    "src": "../../../platform/ui/src/icons/export-square.svg"
+  },
+  "../../../platform/ui/src/icons/export.svg": {
+    "file": "assets/export-HhVhfY5r.svg",
+    "src": "../../../platform/ui/src/icons/export.svg"
+  },
+  "../../../platform/ui/src/icons/eye-slash.svg": {
+    "file": "assets/eye-slash-CKVrFYVP.svg",
+    "src": "../../../platform/ui/src/icons/eye-slash.svg"
+  },
+  "../../../platform/ui/src/icons/eye.svg": {
+    "file": "assets/eye-AC1AoKBS.svg",
+    "src": "../../../platform/ui/src/icons/eye.svg"
+  },
+  "../../../platform/ui/src/icons/filter.svg": {
+    "file": "assets/filter-B2l61fUj.svg",
+    "src": "../../../platform/ui/src/icons/filter.svg"
+  },
+  "../../../platform/ui/src/icons/flag-bulk.svg": {
+    "file": "assets/flag-bulk-4UNXGzxG.svg",
+    "src": "../../../platform/ui/src/icons/flag-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/flag.svg": {
+    "file": "assets/flag-BggdRYsj.svg",
+    "src": "../../../platform/ui/src/icons/flag.svg"
+  },
+  "../../../platform/ui/src/icons/flash.svg": {
+    "file": "assets/flash-Dt2Lyhg8.svg",
+    "src": "../../../platform/ui/src/icons/flash.svg"
+  },
+  "../../../platform/ui/src/icons/folder-open.svg": {
+    "file": "assets/folder-open-BwR2zUYG.svg",
+    "src": "../../../platform/ui/src/icons/folder-open.svg"
+  },
+  "../../../platform/ui/src/icons/folder.svg": {
+    "file": "assets/folder-CHIoXNO-.svg",
+    "src": "../../../platform/ui/src/icons/folder.svg"
+  },
+  "../../../platform/ui/src/icons/forward-10seconds.svg": {
+    "file": "assets/forward-10seconds-HpomowJy.svg",
+    "src": "../../../platform/ui/src/icons/forward-10seconds.svg"
+  },
+  "../../../platform/ui/src/icons/gallery-b.svg": {
+    "file": "assets/gallery-b-Pr9ykIBz.svg",
+    "src": "../../../platform/ui/src/icons/gallery-b.svg"
+  },
+  "../../../platform/ui/src/icons/gallery-edit.svg": {
+    "file": "assets/gallery-edit-CWpqFfuP.svg",
+    "src": "../../../platform/ui/src/icons/gallery-edit.svg"
+  },
+  "../../../platform/ui/src/icons/gallery.svg": {
+    "file": "assets/gallery-Co6RSffa.svg",
+    "src": "../../../platform/ui/src/icons/gallery.svg"
+  },
+  "../../../platform/ui/src/icons/global.svg": {
+    "file": "assets/global-TA_-oTcI.svg",
+    "src": "../../../platform/ui/src/icons/global.svg"
+  },
+  "../../../platform/ui/src/icons/headphone-bulk.svg": {
+    "file": "assets/headphone-bulk-CD2k5sFR.svg",
+    "src": "../../../platform/ui/src/icons/headphone-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/headphone.svg": {
+    "file": "assets/headphone-DbP0uJFH.svg",
+    "src": "../../../platform/ui/src/icons/headphone.svg"
+  },
+  "../../../platform/ui/src/icons/help.svg": {
+    "file": "assets/help-skqV9BsJ.svg",
+    "src": "../../../platform/ui/src/icons/help.svg"
+  },
+  "../../../platform/ui/src/icons/info-circle.svg": {
+    "file": "assets/info-circle-C-u6M7fM.svg",
+    "src": "../../../platform/ui/src/icons/info-circle.svg"
+  },
+  "../../../platform/ui/src/icons/info.svg": {
+    "file": "assets/info-74GrEIPw.svg",
+    "src": "../../../platform/ui/src/icons/info.svg"
+  },
+  "../../../platform/ui/src/icons/key.svg": {
+    "file": "assets/key-CgUnPpHe.svg",
+    "src": "../../../platform/ui/src/icons/key.svg"
+  },
+  "../../../platform/ui/src/icons/keyboard.svg": {
+    "file": "assets/keyboard-DBXpTOke.svg",
+    "src": "../../../platform/ui/src/icons/keyboard.svg"
+  },
+  "../../../platform/ui/src/icons/lamp-on.svg": {
+    "file": "assets/lamp-on-CgRxJK94.svg",
+    "src": "../../../platform/ui/src/icons/lamp-on.svg"
+  },
+  "../../../platform/ui/src/icons/lamp.svg": {
+    "file": "assets/lamp-BYhZRKbz.svg",
+    "src": "../../../platform/ui/src/icons/lamp.svg"
+  },
+  "../../../platform/ui/src/icons/language-square-bulk.svg": {
+    "file": "assets/language-square-bulk-xCa3ypjz.svg",
+    "src": "../../../platform/ui/src/icons/language-square-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/language-square.svg": {
+    "file": "assets/language-square-xpCmnW6_.svg",
+    "src": "../../../platform/ui/src/icons/language-square.svg"
+  },
+  "../../../platform/ui/src/icons/layer-bulk.svg": {
+    "file": "assets/layer-bulk-DtKFttVc.svg",
+    "src": "../../../platform/ui/src/icons/layer-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/layer.svg": {
+    "file": "assets/layer-dTAypynZ.svg",
+    "src": "../../../platform/ui/src/icons/layer.svg"
+  },
+  "../../../platform/ui/src/icons/link-2.svg": {
+    "file": "assets/link-2-CCOPZMTe.svg",
+    "src": "../../../platform/ui/src/icons/link-2.svg"
+  },
+  "../../../platform/ui/src/icons/link.svg": {
+    "file": "assets/link-BE6Gc9Rv.svg",
+    "src": "../../../platform/ui/src/icons/link.svg"
+  },
+  "../../../platform/ui/src/icons/lock.svg": {
+    "file": "assets/lock-AzGdg0hk.svg",
+    "src": "../../../platform/ui/src/icons/lock.svg"
+  },
+  "../../../platform/ui/src/icons/login.svg": {
+    "file": "assets/login-DVnzWnA_.svg",
+    "src": "../../../platform/ui/src/icons/login.svg"
+  },
+  "../../../platform/ui/src/icons/logout.svg": {
+    "file": "assets/logout-yses0yWg.svg",
+    "src": "../../../platform/ui/src/icons/logout.svg"
+  },
+  "../../../platform/ui/src/icons/magic-star-bulk.svg": {
+    "file": "assets/magic-star-bulk-BowhYJhw.svg",
+    "src": "../../../platform/ui/src/icons/magic-star-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/magic-star.svg": {
+    "file": "assets/magic-star-WyswsaNE.svg",
+    "src": "../../../platform/ui/src/icons/magic-star.svg"
+  },
+  "../../../platform/ui/src/icons/magic.svg": {
+    "file": "assets/magic-B84lK2wZ.svg",
+    "src": "../../../platform/ui/src/icons/magic.svg"
+  },
+  "../../../platform/ui/src/icons/magicpen.svg": {
+    "file": "assets/magicpen-DsGxQLli.svg",
+    "src": "../../../platform/ui/src/icons/magicpen.svg"
+  },
+  "../../../platform/ui/src/icons/message-question-bulk.svg": {
+    "file": "assets/message-question-bulk-Bl5d3cBG.svg",
+    "src": "../../../platform/ui/src/icons/message-question-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/message-question.svg": {
+    "file": "assets/message-question-pmIlg3Wu.svg",
+    "src": "../../../platform/ui/src/icons/message-question.svg"
+  },
+  "../../../platform/ui/src/icons/messages-2-bulk.svg": {
+    "file": "assets/messages-2-bulk-sAtKxd6q.svg",
+    "src": "../../../platform/ui/src/icons/messages-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/messages-2.svg": {
+    "file": "assets/messages-2-B6Wdilt-.svg",
+    "src": "../../../platform/ui/src/icons/messages-2.svg"
+  },
+  "../../../platform/ui/src/icons/mic.svg": {
+    "file": "assets/mic-BZ21zYWy.svg",
+    "src": "../../../platform/ui/src/icons/mic.svg"
+  },
+  "../../../platform/ui/src/icons/microphone-2-bulk.svg": {
+    "file": "assets/microphone-2-bulk-C4_G5c5H.svg",
+    "src": "../../../platform/ui/src/icons/microphone-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/microphone-2.svg": {
+    "file": "assets/microphone-2-CtSxqIXZ.svg",
+    "src": "../../../platform/ui/src/icons/microphone-2.svg"
+  },
+  "../../../platform/ui/src/icons/minus.svg": {
+    "file": "assets/minus-bp5TUF_I.svg",
+    "src": "../../../platform/ui/src/icons/minus.svg"
+  },
+  "../../../platform/ui/src/icons/mobile-bulk.svg": {
+    "file": "assets/mobile-bulk-MZKOh2u2.svg",
+    "src": "../../../platform/ui/src/icons/mobile-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/mobile.svg": {
+    "file": "assets/mobile-06-l0L4M.svg",
+    "src": "../../../platform/ui/src/icons/mobile.svg"
+  },
+  "../../../platform/ui/src/icons/monitor.svg": {
+    "file": "assets/monitor-C3tVlXfK.svg",
+    "src": "../../../platform/ui/src/icons/monitor.svg"
+  },
+  "../../../platform/ui/src/icons/moon.svg": {
+    "file": "assets/moon-B9hI_6Jr.svg",
+    "src": "../../../platform/ui/src/icons/moon.svg"
+  },
+  "../../../platform/ui/src/icons/msg.svg": {
+    "file": "assets/msg-DCJP7pMr.svg",
+    "src": "../../../platform/ui/src/icons/msg.svg"
+  },
+  "../../../platform/ui/src/icons/music.svg": {
+    "file": "assets/music-DwyKeICt.svg",
+    "src": "../../../platform/ui/src/icons/music.svg"
+  },
+  "../../../platform/ui/src/icons/next.svg": {
+    "file": "assets/next-Cqgw5pai.svg",
+    "src": "../../../platform/ui/src/icons/next.svg"
+  },
+  "../../../platform/ui/src/icons/note-text-bulk.svg": {
+    "file": "assets/note-text-bulk-DYfM5hUK.svg",
+    "src": "../../../platform/ui/src/icons/note-text-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/note-text.svg": {
+    "file": "assets/note-text-BhULLBnS.svg",
+    "src": "../../../platform/ui/src/icons/note-text.svg"
+  },
+  "../../../platform/ui/src/icons/notification-bulk.svg": {
+    "file": "assets/notification-bulk-CzZLHiOt.svg",
+    "src": "../../../platform/ui/src/icons/notification-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/notification.svg": {
+    "file": "assets/notification-CkepdTpR.svg",
+    "src": "../../../platform/ui/src/icons/notification.svg"
+  },
+  "../../../platform/ui/src/icons/notify.svg": {
+    "file": "assets/notify-BhgzpiG6.svg",
+    "src": "../../../platform/ui/src/icons/notify.svg"
+  },
+  "../../../platform/ui/src/icons/password-check.svg": {
+    "file": "assets/password-check-CjM8Nci4.svg",
+    "src": "../../../platform/ui/src/icons/password-check.svg"
+  },
+  "../../../platform/ui/src/icons/pause.svg": {
+    "file": "assets/pause-Se7TcnMK.svg",
+    "src": "../../../platform/ui/src/icons/pause.svg"
+  },
+  "../../../platform/ui/src/icons/play.svg": {
+    "file": "assets/play-B4QtGWWj.svg",
+    "src": "../../../platform/ui/src/icons/play.svg"
+  },
+  "../../../platform/ui/src/icons/previous.svg": {
+    "file": "assets/previous-CCefe7b_.svg",
+    "src": "../../../platform/ui/src/icons/previous.svg"
+  },
+  "../../../platform/ui/src/icons/profile-2user-bulk.svg": {
+    "file": "assets/profile-2user-bulk-D16axdNf.svg",
+    "src": "../../../platform/ui/src/icons/profile-2user-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/profile-2user.svg": {
+    "file": "assets/profile-2user-CKk0bsfw.svg",
+    "src": "../../../platform/ui/src/icons/profile-2user.svg"
+  },
+  "../../../platform/ui/src/icons/radar-b.svg": {
+    "file": "assets/radar-b-DwVPvNVu.svg",
+    "src": "../../../platform/ui/src/icons/radar-b.svg"
+  },
+  "../../../platform/ui/src/icons/radar.svg": {
+    "file": "assets/radar-Cjr2Z3QY.svg",
+    "src": "../../../platform/ui/src/icons/radar.svg"
+  },
+  "../../../platform/ui/src/icons/redo.svg": {
+    "file": "assets/redo-yxp8up3r.svg",
+    "src": "../../../platform/ui/src/icons/redo.svg"
+  },
+  "../../../platform/ui/src/icons/refresh-2.svg": {
+    "file": "assets/refresh-2-CgZpARUf.svg",
+    "src": "../../../platform/ui/src/icons/refresh-2.svg"
+  },
+  "../../../platform/ui/src/icons/refresh.svg": {
+    "file": "assets/refresh-8urF4N3U.svg",
+    "src": "../../../platform/ui/src/icons/refresh.svg"
+  },
+  "../../../platform/ui/src/icons/routing-2-bulk.svg": {
+    "file": "assets/routing-2-bulk-Bl1QhHSg.svg",
+    "src": "../../../platform/ui/src/icons/routing-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/routing-2.svg": {
+    "file": "assets/routing-2-DPS8x2aA.svg",
+    "src": "../../../platform/ui/src/icons/routing-2.svg"
+  },
+  "../../../platform/ui/src/icons/routing.svg": {
+    "file": "assets/routing-rr8szoCo.svg",
+    "src": "../../../platform/ui/src/icons/routing.svg"
+  },
+  "../../../platform/ui/src/icons/sb-left.svg": {
+    "file": "assets/sb-left-6PcnIMTG.svg",
+    "src": "../../../platform/ui/src/icons/sb-left.svg"
+  },
+  "../../../platform/ui/src/icons/sb-right.svg": {
+    "file": "assets/sb-right-FCPaKtlv.svg",
+    "src": "../../../platform/ui/src/icons/sb-right.svg"
+  },
+  "../../../platform/ui/src/icons/scan-barcode.svg": {
+    "file": "assets/scan-barcode-Bi02uC4u.svg",
+    "src": "../../../platform/ui/src/icons/scan-barcode.svg"
+  },
+  "../../../platform/ui/src/icons/scan.svg": {
+    "file": "assets/scan-BEQ-KSAM.svg",
+    "src": "../../../platform/ui/src/icons/scan.svg"
+  },
+  "../../../platform/ui/src/icons/scanner.svg": {
+    "file": "assets/scanner-CpuZk_n1.svg",
+    "src": "../../../platform/ui/src/icons/scanner.svg"
+  },
+  "../../../platform/ui/src/icons/scissor.svg": {
+    "file": "assets/scissor-CW9RFQvs.svg",
+    "src": "../../../platform/ui/src/icons/scissor.svg"
+  },
+  "../../../platform/ui/src/icons/search.svg": {
+    "file": "assets/search-BjWF0B5m.svg",
+    "src": "../../../platform/ui/src/icons/search.svg"
+  },
+  "../../../platform/ui/src/icons/send.svg": {
+    "file": "assets/send-DGAuGWwn.svg",
+    "src": "../../../platform/ui/src/icons/send.svg"
+  },
+  "../../../platform/ui/src/icons/setting-2-bulk.svg": {
+    "file": "assets/setting-2-bulk-CQnqPJjt.svg",
+    "src": "../../../platform/ui/src/icons/setting-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/setting-2.svg": {
+    "file": "assets/setting-2-Cyb1x_B-.svg",
+    "src": "../../../platform/ui/src/icons/setting-2.svg"
+  },
+  "../../../platform/ui/src/icons/setting.svg": {
+    "file": "assets/setting-8SswWu69.svg",
+    "src": "../../../platform/ui/src/icons/setting.svg"
+  },
+  "../../../platform/ui/src/icons/shield-security-bulk.svg": {
+    "file": "assets/shield-security-bulk-CRrKFPWy.svg",
+    "src": "../../../platform/ui/src/icons/shield-security-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/shield-security.svg": {
+    "file": "assets/shield-security-hAtvm23W.svg",
+    "src": "../../../platform/ui/src/icons/shield-security.svg"
+  },
+  "../../../platform/ui/src/icons/shield-tick-bulk.svg": {
+    "file": "assets/shield-tick-bulk-BMg8E4SZ.svg",
+    "src": "../../../platform/ui/src/icons/shield-tick-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/shield-tick.svg": {
+    "file": "assets/shield-tick-BG6DMwT-.svg",
+    "src": "../../../platform/ui/src/icons/shield-tick.svg"
+  },
+  "../../../platform/ui/src/icons/sidebar-left.svg": {
+    "file": "assets/sidebar-left-B2UOHJLA.svg",
+    "src": "../../../platform/ui/src/icons/sidebar-left.svg"
+  },
+  "../../../platform/ui/src/icons/sidebar-right.svg": {
+    "file": "assets/sidebar-right-B0ILdQmF.svg",
+    "src": "../../../platform/ui/src/icons/sidebar-right.svg"
+  },
+  "../../../platform/ui/src/icons/sms.svg": {
+    "file": "assets/sms-Cj_rxbTz.svg",
+    "src": "../../../platform/ui/src/icons/sms.svg"
+  },
+  "../../../platform/ui/src/icons/sound.svg": {
+    "file": "assets/sound-DCm4dzPv.svg",
+    "src": "../../../platform/ui/src/icons/sound.svg"
+  },
+  "../../../platform/ui/src/icons/speedometer.svg": {
+    "file": "assets/speedometer-CFMypGMO.svg",
+    "src": "../../../platform/ui/src/icons/speedometer.svg"
+  },
+  "../../../platform/ui/src/icons/status.svg": {
+    "file": "assets/status-B1dmj8Ay.svg",
+    "src": "../../../platform/ui/src/icons/status.svg"
+  },
+  "../../../platform/ui/src/icons/stop.svg": {
+    "file": "assets/stop-DBanppUI.svg",
+    "src": "../../../platform/ui/src/icons/stop.svg"
+  },
+  "../../../platform/ui/src/icons/subtitle.svg": {
+    "file": "assets/subtitle-tY52fFvd.svg",
+    "src": "../../../platform/ui/src/icons/subtitle.svg"
+  },
+  "../../../platform/ui/src/icons/sun-1.svg": {
+    "file": "assets/sun-1-ChBQeLYI.svg",
+    "src": "../../../platform/ui/src/icons/sun-1.svg"
+  },
+  "../../../platform/ui/src/icons/tag.svg": {
+    "file": "assets/tag-w_Ec72nI.svg",
+    "src": "../../../platform/ui/src/icons/tag.svg"
+  },
+  "../../../platform/ui/src/icons/text.svg": {
+    "file": "assets/text-BYu6GgV2.svg",
+    "src": "../../../platform/ui/src/icons/text.svg"
+  },
+  "../../../platform/ui/src/icons/tick-b.svg": {
+    "file": "assets/tick-b-BqDcZpy_.svg",
+    "src": "../../../platform/ui/src/icons/tick-b.svg"
+  },
+  "../../../platform/ui/src/icons/tick-circle-bulk.svg": {
+    "file": "assets/tick-circle-bulk-B-txAuWL.svg",
+    "src": "../../../platform/ui/src/icons/tick-circle-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/tick-circle.svg": {
+    "file": "assets/tick-circle-ieJMGgVn.svg",
+    "src": "../../../platform/ui/src/icons/tick-circle.svg"
+  },
+  "../../../platform/ui/src/icons/tick.svg": {
+    "file": "assets/tick-T6zt9zcI.svg",
+    "src": "../../../platform/ui/src/icons/tick.svg"
+  },
+  "../../../platform/ui/src/icons/timer-1.svg": {
+    "file": "assets/timer-1-ByM4gGZr.svg",
+    "src": "../../../platform/ui/src/icons/timer-1.svg"
+  },
+  "../../../platform/ui/src/icons/timer.svg": {
+    "file": "assets/timer-DrzctmDL.svg",
+    "src": "../../../platform/ui/src/icons/timer.svg"
+  },
+  "../../../platform/ui/src/icons/translate.svg": {
+    "file": "assets/translate-opINJniH.svg",
+    "src": "../../../platform/ui/src/icons/translate.svg"
+  },
+  "../../../platform/ui/src/icons/trend.svg": {
+    "file": "assets/trend-BB59aSa4.svg",
+    "src": "../../../platform/ui/src/icons/trend.svg"
+  },
+  "../../../platform/ui/src/icons/undo.svg": {
+    "file": "assets/undo-Ct7cyWpO.svg",
+    "src": "../../../platform/ui/src/icons/undo.svg"
+  },
+  "../../../platform/ui/src/icons/unlock.svg": {
+    "file": "assets/unlock-DLyICkae.svg",
+    "src": "../../../platform/ui/src/icons/unlock.svg"
+  },
+  "../../../platform/ui/src/icons/user-add.svg": {
+    "file": "assets/user-add-DQFrKTbX.svg",
+    "src": "../../../platform/ui/src/icons/user-add.svg"
+  },
+  "../../../platform/ui/src/icons/user.svg": {
+    "file": "assets/user-Bx4egnWC.svg",
+    "src": "../../../platform/ui/src/icons/user.svg"
+  },
+  "../../../platform/ui/src/icons/video-add.svg": {
+    "file": "assets/video-add-fpEAdCmk.svg",
+    "src": "../../../platform/ui/src/icons/video-add.svg"
+  },
+  "../../../platform/ui/src/icons/video-play.svg": {
+    "file": "assets/video-play-BpR_XYuP.svg",
+    "src": "../../../platform/ui/src/icons/video-play.svg"
+  },
+  "../../../platform/ui/src/icons/voice-square-bulk.svg": {
+    "file": "assets/voice-square-bulk-cW5blnmA.svg",
+    "src": "../../../platform/ui/src/icons/voice-square-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/voice-square.svg": {
+    "file": "assets/voice-square-BPZl9UCN.svg",
+    "src": "../../../platform/ui/src/icons/voice-square.svg"
+  },
+  "../../../platform/ui/src/icons/volume-high.svg": {
+    "file": "assets/volume-high-BxQh1RBG.svg",
+    "src": "../../../platform/ui/src/icons/volume-high.svg"
+  },
+  "../../../platform/ui/src/icons/volume.svg": {
+    "file": "assets/volume-DF4y204N.svg",
+    "src": "../../../platform/ui/src/icons/volume.svg"
+  },
+  "../../../platform/ui/src/icons/warning-2-bulk.svg": {
+    "file": "assets/warning-2-bulk-B7j2MQXQ.svg",
+    "src": "../../../platform/ui/src/icons/warning-2-bulk.svg"
+  },
+  "../../../platform/ui/src/icons/warning-2.svg": {
+    "file": "assets/warning-2-C_tHPlew.svg",
+    "src": "../../../platform/ui/src/icons/warning-2.svg"
+  },
+  "../../../platform/ui/src/icons/warning.svg": {
+    "file": "assets/warning-DWfzSmrF.svg",
+    "src": "../../../platform/ui/src/icons/warning.svg"
+  },
+  "../../../platform/ui/src/icons/wifi.svg": {
+    "file": "assets/wifi-07r6Uy0Z.svg",
+    "src": "../../../platform/ui/src/icons/wifi.svg"
+  },
+  "../../../platform/ui/src/icons/workbench-b.svg": {
+    "file": "assets/workbench-b-q8DNYaZg.svg",
+    "src": "../../../platform/ui/src/icons/workbench-b.svg"
+  },
+  "../../../platform/ui/src/icons/workbench.svg": {
+    "file": "assets/workbench-C8dvxkhe.svg",
+    "src": "../../../platform/ui/src/icons/workbench.svg"
+  },
+  "_ScreenEmpty-DKBa5ddl.js": {
+    "file": "assets/ScreenEmpty-DKBa5ddl.js",
+    "name": "ScreenEmpty",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_index-pr-MtNdp.css": {
+    "file": "assets/index-pr-MtNdp.css",
+    "src": "_index-pr-MtNdp.css"
+  },
+  "index.html": {
+    "file": "assets/index-BlsFzjgM.js",
+    "name": "index",
+    "src": "index.html",
+    "isEntry": true,
+    "dynamicImports": [
+      "src/screens/review/ReviewScreen.tsx",
+      "src/screens/queue/QueueScreen.tsx",
+      "src/screens/channel/ChannelScreen.tsx",
+      "src/screens/channel/ChannelNewScreen.tsx",
+      "src/screens/explore/ExploreScreen.tsx",
+      "src/screens/new/NewScreen.tsx",
+      "src/screens/library/LibraryScreen.tsx",
+      "src/screens/library/TemplateScreen.tsx",
+      "src/screens/editor/EditorScreen.tsx",
+      "src/screens/settings/SettingsScreen.tsx",
+      "src/screens/account/AccountScreen.tsx"
+    ],
+    "css": [
+      "assets/index-pr-MtNdp.css"
+    ],
+    "assets": [
+      "assets/activity-bulk-4ea_oL8w.svg",
+      "assets/activity-DbWrKL6f.svg",
+      "assets/add-square-bulk-CZRTb2Zh.svg",
+      "assets/add-square-DmF-wDQG.svg",
+      "assets/add-BQAa4OXQ.svg",
+      "assets/arrow-d-DNBIaVs_.svg",
+      "assets/arrow-down-2-D50BrLmk.svg",
+      "assets/arrow-down-BjIqlJGo.svg",
+      "assets/arrow-left-2-wJuMag3Q.svg",
+      "assets/arrow-r-Bs_MQZ0i.svg",
+      "assets/arrow-right-2-EV7_tAE7.svg",
+      "assets/arrow-swap-horizontal-CApQLl8i.svg",
+      "assets/arrow-up-2-wBjtCImi.svg",
+      "assets/arrow-up-DI3S8Tyk.svg",
+      "assets/audio-square-bulk-CSQZEPjK.svg",
+      "assets/audio-square-DcrqyxKW.svg",
+      "assets/backward-10seconds-B4dS81KJ.svg",
+      "assets/book-1-bulk-D6kSRiLJ.svg",
+      "assets/book-1-BoTLx4vl.svg",
+      "assets/box-bulk-BTf-CFDU.svg",
+      "assets/box-Dyp9Qjg5.svg",
+      "assets/brush-2-bulk-CcB2J_rS.svg",
+      "assets/brush-2-g8r-R7qJ.svg",
+      "assets/calendar-DmL8ajeC.svg",
+      "assets/camera-bulk-r1ggwE4T.svg",
+      "assets/camera-slash-CLeY0Gvq.svg",
+      "assets/camera-B_uf5ODl.svg",
+      "assets/category-bulk-BHm2dk3j.svg",
+      "assets/category-D_UsQ5WH.svg",
+      "assets/channel-b-RgSYqI3b.svg",
+      "assets/channel-DacjZ6-B.svg",
+      "assets/chart-2-bulk-Dzd9ZDhK.svg",
+      "assets/chart-2-DJmL_BHv.svg",
+      "assets/chart-DV1PpyQ5.svg",
+      "assets/clock-D_hdi6nR.svg",
+      "assets/close-circle-bulk-ot6ifWfB.svg",
+      "assets/close-circle-C2gQ24F4.svg",
+      "assets/close-C9kAW9KH.svg",
+      "assets/cloud-connection-bulk-Dh3Beo3S.svg",
+      "assets/cloud-connection-DBU2oNcP.svg",
+      "assets/code-iIjlwkBr.svg",
+      "assets/coin-1-bulk-B2q2tuc8.svg",
+      "assets/coin-1-B88SVNGI.svg",
+      "assets/command-DFsBdkmx.svg",
+      "assets/copy-DzyElKQH.svg",
+      "assets/cpu-bulk-CyILsrBl.svg",
+      "assets/cpu-Bokn8h1p.svg",
+      "assets/crown-C0yNRNEB.svg",
+      "assets/danger-B0Wn1yVs.svg",
+      "assets/data-D1P-j_Tj.svg",
+      "assets/devices-bulk-DL0zsdcp.svg",
+      "assets/devices-BzG1V2t6.svg",
+      "assets/doc-dCZcr-Xn.svg",
+      "assets/document-download-hE_zonqP.svg",
+      "assets/document-text-bulk-CAfgvqZ8.svg",
+      "assets/document-text-6i9zzc1H.svg",
+      "assets/dollar-circle-BUJ_bUfS.svg",
+      "assets/download-DRktVyhu.svg",
+      "assets/edit-2-8ea6rRFL.svg",
+      "assets/edit-C0UloT39.svg",
+      "assets/export-curve-CXUUG1Bc.svg",
+      "assets/export-square-bulk-e7-XS8Op.svg",
+      "assets/export-square-71h625fY.svg",
+      "assets/export-HhVhfY5r.svg",
+      "assets/eye-slash-CKVrFYVP.svg",
+      "assets/eye-AC1AoKBS.svg",
+      "assets/filter-B2l61fUj.svg",
+      "assets/flag-bulk-4UNXGzxG.svg",
+      "assets/flag-BggdRYsj.svg",
+      "assets/flash-Dt2Lyhg8.svg",
+      "assets/folder-open-BwR2zUYG.svg",
+      "assets/folder-CHIoXNO-.svg",
+      "assets/forward-10seconds-HpomowJy.svg",
+      "assets/gallery-b-Pr9ykIBz.svg",
+      "assets/gallery-edit-CWpqFfuP.svg",
+      "assets/gallery-Co6RSffa.svg",
+      "assets/global-TA_-oTcI.svg",
+      "assets/headphone-bulk-CD2k5sFR.svg",
+      "assets/headphone-DbP0uJFH.svg",
+      "assets/help-skqV9BsJ.svg",
+      "assets/info-circle-C-u6M7fM.svg",
+      "assets/info-74GrEIPw.svg",
+      "assets/key-CgUnPpHe.svg",
+      "assets/keyboard-DBXpTOke.svg",
+      "assets/lamp-on-CgRxJK94.svg",
+      "assets/lamp-BYhZRKbz.svg",
+      "assets/language-square-bulk-xCa3ypjz.svg",
+      "assets/language-square-xpCmnW6_.svg",
+      "assets/layer-bulk-DtKFttVc.svg",
+      "assets/layer-dTAypynZ.svg",
+      "assets/link-2-CCOPZMTe.svg",
+      "assets/link-BE6Gc9Rv.svg",
+      "assets/lock-AzGdg0hk.svg",
+      "assets/login-DVnzWnA_.svg",
+      "assets/logout-yses0yWg.svg",
+      "assets/magic-star-bulk-BowhYJhw.svg",
+      "assets/magic-star-WyswsaNE.svg",
+      "assets/magic-B84lK2wZ.svg",
+      "assets/magicpen-DsGxQLli.svg",
+      "assets/message-question-bulk-Bl5d3cBG.svg",
+      "assets/message-question-pmIlg3Wu.svg",
+      "assets/messages-2-bulk-sAtKxd6q.svg",
+      "assets/messages-2-B6Wdilt-.svg",
+      "assets/mic-BZ21zYWy.svg",
+      "assets/microphone-2-bulk-C4_G5c5H.svg",
+      "assets/microphone-2-CtSxqIXZ.svg",
+      "assets/minus-bp5TUF_I.svg",
+      "assets/mobile-bulk-MZKOh2u2.svg",
+      "assets/mobile-06-l0L4M.svg",
+      "assets/monitor-C3tVlXfK.svg",
+      "assets/moon-B9hI_6Jr.svg",
+      "assets/msg-DCJP7pMr.svg",
+      "assets/music-DwyKeICt.svg",
+      "assets/next-Cqgw5pai.svg",
+      "assets/note-text-bulk-DYfM5hUK.svg",
+      "assets/note-text-BhULLBnS.svg",
+      "assets/notification-bulk-CzZLHiOt.svg",
+      "assets/notification-CkepdTpR.svg",
+      "assets/notify-BhgzpiG6.svg",
+      "assets/password-check-CjM8Nci4.svg",
+      "assets/pause-Se7TcnMK.svg",
+      "assets/play-B4QtGWWj.svg",
+      "assets/previous-CCefe7b_.svg",
+      "assets/profile-2user-bulk-D16axdNf.svg",
+      "assets/profile-2user-CKk0bsfw.svg",
+      "assets/radar-b-DwVPvNVu.svg",
+      "assets/radar-Cjr2Z3QY.svg",
+      "assets/redo-yxp8up3r.svg",
+      "assets/refresh-2-CgZpARUf.svg",
+      "assets/refresh-8urF4N3U.svg",
+      "assets/routing-2-bulk-Bl1QhHSg.svg",
+      "assets/routing-2-DPS8x2aA.svg",
+      "assets/routing-rr8szoCo.svg",
+      "assets/sb-left-6PcnIMTG.svg",
+      "assets/sb-right-FCPaKtlv.svg",
+      "assets/scan-barcode-Bi02uC4u.svg",
+      "assets/scan-BEQ-KSAM.svg",
+      "assets/scanner-CpuZk_n1.svg",
+      "assets/scissor-CW9RFQvs.svg",
+      "assets/search-BjWF0B5m.svg",
+      "assets/send-DGAuGWwn.svg",
+      "assets/setting-2-bulk-CQnqPJjt.svg",
+      "assets/setting-2-Cyb1x_B-.svg",
+      "assets/setting-8SswWu69.svg",
+      "assets/shield-security-bulk-CRrKFPWy.svg",
+      "assets/shield-security-hAtvm23W.svg",
+      "assets/shield-tick-bulk-BMg8E4SZ.svg",
+      "assets/shield-tick-BG6DMwT-.svg",
+      "assets/sidebar-left-B2UOHJLA.svg",
+      "assets/sidebar-right-B0ILdQmF.svg",
+      "assets/sms-Cj_rxbTz.svg",
+      "assets/sound-DCm4dzPv.svg",
+      "assets/speedometer-CFMypGMO.svg",
+      "assets/status-B1dmj8Ay.svg",
+      "assets/stop-DBanppUI.svg",
+      "assets/subtitle-tY52fFvd.svg",
+      "assets/sun-1-ChBQeLYI.svg",
+      "assets/tag-w_Ec72nI.svg",
+      "assets/text-BYu6GgV2.svg",
+      "assets/tick-b-BqDcZpy_.svg",
+      "assets/tick-circle-bulk-B-txAuWL.svg",
+      "assets/tick-circle-ieJMGgVn.svg",
+      "assets/tick-T6zt9zcI.svg",
+      "assets/timer-1-ByM4gGZr.svg",
+      "assets/timer-DrzctmDL.svg",
+      "assets/translate-opINJniH.svg",
+      "assets/trend-BB59aSa4.svg",
+      "assets/undo-Ct7cyWpO.svg",
+      "assets/unlock-DLyICkae.svg",
+      "assets/user-add-DQFrKTbX.svg",
+      "assets/user-Bx4egnWC.svg",
+      "assets/video-add-fpEAdCmk.svg",
+      "assets/video-play-BpR_XYuP.svg",
+      "assets/voice-square-bulk-cW5blnmA.svg",
+      "assets/voice-square-BPZl9UCN.svg",
+      "assets/volume-high-BxQh1RBG.svg",
+      "assets/volume-DF4y204N.svg",
+      "assets/warning-2-bulk-B7j2MQXQ.svg",
+      "assets/warning-2-C_tHPlew.svg",
+      "assets/warning-DWfzSmrF.svg",
+      "assets/wifi-07r6Uy0Z.svg",
+      "assets/workbench-b-q8DNYaZg.svg",
+      "assets/workbench-C8dvxkhe.svg",
+      "assets/be-vietnam-pro-vietnamese-400-normal-CRcqvyg1.woff2",
+      "assets/be-vietnam-pro-vietnamese-400-normal-BuGn0gnm.woff",
+      "assets/be-vietnam-pro-latin-ext-400-normal-CiZNW1ec.woff2",
+      "assets/be-vietnam-pro-latin-ext-400-normal-DYBYyMQr.woff",
+      "assets/be-vietnam-pro-latin-400-normal-PpnXBOrz.woff2",
+      "assets/be-vietnam-pro-latin-400-normal-bXgqVju9.woff",
+      "assets/be-vietnam-pro-vietnamese-500-normal-DREgrEoJ.woff2",
+      "assets/be-vietnam-pro-vietnamese-500-normal-CfdwVo8-.woff",
+      "assets/be-vietnam-pro-latin-ext-500-normal-h0Fp6aX0.woff2",
+      "assets/be-vietnam-pro-latin-ext-500-normal-CK0UkkKf.woff",
+      "assets/be-vietnam-pro-latin-500-normal-B6LVzGNe.woff2",
+      "assets/be-vietnam-pro-latin-500-normal-BJkVuMHw.woff",
+      "assets/be-vietnam-pro-vietnamese-600-normal-nyU-ZL2p.woff2",
+      "assets/be-vietnam-pro-vietnamese-600-normal-DkpCIyan.woff",
+      "assets/be-vietnam-pro-latin-ext-600-normal-BNd8euf0.woff2",
+      "assets/be-vietnam-pro-latin-ext-600-normal-BeUwKxhG.woff",
+      "assets/be-vietnam-pro-latin-600-normal-BZDkUTrt.woff2",
+      "assets/be-vietnam-pro-latin-600-normal-5IO4e7bK.woff",
+      "assets/jetbrains-mono-cyrillic-400-normal-BEIGL1Tu.woff2",
+      "assets/jetbrains-mono-cyrillic-400-normal-ugxPyKxw.woff",
+      "assets/jetbrains-mono-greek-400-normal-C190GLew.woff2",
+      "assets/jetbrains-mono-greek-400-normal-B9oWc5Lo.woff",
+      "assets/jetbrains-mono-vietnamese-400-normal-CqNFfHCs.woff",
+      "assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2",
+      "assets/jetbrains-mono-latin-ext-400-normal-fXTG6kC5.woff",
+      "assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "assets/jetbrains-mono-latin-400-normal-6-qcROiO.woff",
+      "assets/jetbrains-mono-cyrillic-500-normal-DmUKJPL_.woff2",
+      "assets/jetbrains-mono-cyrillic-500-normal-DJqRU3vO.woff",
+      "assets/jetbrains-mono-greek-500-normal-JpySY46c.woff2",
+      "assets/jetbrains-mono-greek-500-normal-D7SFKleX.woff",
+      "assets/jetbrains-mono-vietnamese-500-normal-DNRqzVM1.woff",
+      "assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2",
+      "assets/jetbrains-mono-latin-ext-500-normal-ckzbgY84.woff",
+      "assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2",
+      "assets/jetbrains-mono-latin-500-normal-CJOVTJB7.woff",
+      "assets/literata-vietnamese-standard-normal-Gqw5JQlq.woff2",
+      "assets/literata-latin-standard-normal-BHZsWIlc.woff2"
+    ]
+  },
+  "src/screens/account/AccountScreen.tsx": {
+    "file": "assets/AccountScreen-kXMF5CV0.js",
+    "name": "AccountScreen",
+    "src": "src/screens/account/AccountScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ]
+  },
+  "src/screens/channel/ChannelNewScreen.tsx": {
+    "file": "assets/ChannelNewScreen-GXqUez8z.js",
+    "name": "ChannelNewScreen",
+    "src": "src/screens/channel/ChannelNewScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/channel/ChannelScreen.tsx": {
+    "file": "assets/ChannelScreen-4y9fj9Qf.js",
+    "name": "ChannelScreen",
+    "src": "src/screens/channel/ChannelScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/editor/EditorScreen.tsx": {
+    "file": "assets/EditorScreen-DEEtAXVX.js",
+    "name": "EditorScreen",
+    "src": "src/screens/editor/EditorScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/explore/ExploreScreen.tsx": {
+    "file": "assets/ExploreScreen-D7Dtzg5g.js",
+    "name": "ExploreScreen",
+    "src": "src/screens/explore/ExploreScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/library/LibraryScreen.tsx": {
+    "file": "assets/LibraryScreen-CN9Gf0wB.js",
+    "name": "LibraryScreen",
+    "src": "src/screens/library/LibraryScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/library/TemplateScreen.tsx": {
+    "file": "assets/TemplateScreen-HFVYBXfw.js",
+    "name": "TemplateScreen",
+    "src": "src/screens/library/TemplateScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/new/NewScreen.tsx": {
+    "file": "assets/NewScreen-BBB5aKbq.js",
+    "name": "NewScreen",
+    "src": "src/screens/new/NewScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/queue/QueueScreen.tsx": {
+    "file": "assets/QueueScreen-CJnveTS1.js",
+    "name": "QueueScreen",
+    "src": "src/screens/queue/QueueScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/review/ReviewScreen.tsx": {
+    "file": "assets/ReviewScreen-Db0bvI-B.js",
+    "name": "ReviewScreen",
+    "src": "src/screens/review/ReviewScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  },
+  "src/screens/settings/SettingsScreen.tsx": {
+    "file": "assets/SettingsScreen-DsGased1.js",
+    "name": "SettingsScreen",
+    "src": "src/screens/settings/SettingsScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_ScreenEmpty-DKBa5ddl.js"
+    ]
+  }
+}

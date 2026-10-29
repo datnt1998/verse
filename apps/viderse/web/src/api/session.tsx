@@ -3,6 +3,7 @@
 // nào thì `setupNeeded` để App mở màn thiết lập thay cho Đăng nhập.
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { ApiError, getSetup, me } from './client'
+import { onSessionExpired } from './sessionSignal'
 import type { User } from './types'
 
 export type SessionState = {
@@ -57,6 +58,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void (async () => { await refresh(); setChecked(true) })()
+    // 401 ở bất kỳ request nào (kể cả luồng SSE) → hết phiên: xoá user, App
+    // trả về màn đăng nhập; việc tháo SSE/poll/cache nằm ở unmount của Root.
+    return onSessionExpired(() => setUser(null))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

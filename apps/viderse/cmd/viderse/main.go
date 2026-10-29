@@ -1,5 +1,5 @@
-// viderse là CLI của Viderse bản Go: serve giao diện web + writer agent,
-// migrate áp schema Postgres, login đăng nhập gói thuê bao model.
+// viderse là CLI của Viderse bản Go: serve giao diện web, migrate áp schema
+// Postgres, login đăng nhập gói thuê bao model (chữ/ảnh đi qua OAuth Codex).
 package main
 
 import (
@@ -10,7 +10,7 @@ import (
 )
 
 const usage = `Cách dùng:
-  viderse serve [-addr HOST:PORT]     Chạy web UI + writer agent (mặc định 127.0.0.1:8789)
+  viderse serve [-addr HOST:PORT]     Chạy web UI (mặc định 127.0.0.1:8789)
   viderse migrate up|status|version   Quản lý schema Postgres (VIDERSE_DATABASE_URL)
   viderse login [provider] [--device] Đăng nhập gói thuê bao (mặc định: openai-codex)
   viderse logout [provider]           Xoá phiên đăng nhập
@@ -29,6 +29,10 @@ Biến môi trường:
 `
 
 func main() {
+	// Cài danh tính app cho core/auth trước khi bất kỳ lệnh nào mở kho
+	// credential hay render lỗi — tường minh thay vì init() ngầm.
+	bootstrap.ConfigureIdentity()
+
 	args := os.Args[1:]
 	if len(args) == 0 {
 		fmt.Fprint(os.Stderr, usage)
@@ -60,10 +64,4 @@ func main() {
 		os.Exit(1)
 	}
 	os.Exit(code)
-}
-
-// loadConfig đọc cấu hình model; file thiếu → cấu hình rỗng (mặc định
-// writer=openai-codex/gpt-6-luna áp lúc resolve).
-func loadConfig() (bootstrap.Config, error) {
-	return bootstrap.LoadConfig()
 }

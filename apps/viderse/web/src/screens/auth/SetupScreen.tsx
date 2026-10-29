@@ -8,6 +8,7 @@ import { ApiError, createSetupAdmin, verifySetup } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { Button, FieldError, FieldLabel, Icon, PasswordField, TextField } from '@noverse/ui'
+import { LensLogo } from '../../components/LensLogo'
 import { AuthShell, HintLine } from './parts'
 
 const USERNAME_RE = /^[a-z0-9._-]{2,32}$/
@@ -23,9 +24,9 @@ const attemptsLeft = (payload: unknown): number | null =>
 
 function StepBar({ index }: { index: number }) {
   return (
-    <ol aria-label={t.setup.stepsAria} style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+    <ol aria-label={t.setup.stepsAria} style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--vv-s-10)' }}>
       {t.setup.steps.map((label, i) => (
-        <li key={label} aria-current={i === index ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: i === index ? 'var(--color-fg)' : 'var(--color-fg-4)', fontWeight: i === index ? 600 : 400 }}>
+        <li key={label} aria-current={i === index ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-6)', fontSize: 12, color: i === index ? 'var(--color-fg)' : 'var(--color-fg-4)', fontWeight: i === index ? 600 : 400 }}>
           <span aria-hidden="true" style={{
             width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 11, background: i <= index ? 'var(--color-accent)' : 'var(--color-surface-2)',
@@ -100,14 +101,15 @@ export function SetupScreen() {
 
   return (
     <AuthShell>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, textAlign: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--vv-s-14)', textAlign: 'center' }}>
+        <LensLogo size={64} halo />
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{t.setup.title}</h1>
         <StepBar index={step === 'code' ? 0 : step === 'account' ? 1 : 2} />
       </div>
 
       {step === 'code' && (
-        <form onSubmit={(event) => void verify(event)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <form onSubmit={(event) => void verify(event)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
             <FieldLabel htmlFor="setup-code">{t.setup.codeLabel}</FieldLabel>
             <TextField id="setup-code" autoComplete="off" autoCapitalize="characters" spellCheck={false}
               placeholder={t.setup.codePlaceholder} hint={t.setup.codeHint}
@@ -122,19 +124,19 @@ export function SetupScreen() {
       )}
 
       {step === 'account' && (
-        <form onSubmit={(event) => void create(event)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <form onSubmit={(event) => void create(event)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
             <FieldLabel htmlFor="setup-name">{t.setup.nameLabel}</FieldLabel>
             <TextField id="setup-name" autoComplete="name" value={name} onChange={setName} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
             <FieldLabel htmlFor="setup-user">{t.setup.usernameLabel}</FieldLabel>
             <TextField id="setup-user" autoComplete="username" autoCapitalize="none" spellCheck={false}
               placeholder={t.auth.usernamePlaceholder} hint={t.auth.usernameHint}
               value={username} onChange={(value) => setUsername(value.trim().toLowerCase())}
               style={{ fontFamily: 'var(--font-mono)' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
             <FieldLabel htmlFor="setup-pass">{t.setup.passwordLabel}</FieldLabel>
             <PasswordField id="setup-pass" autoComplete="new-password" placeholder={t.setup.passwordHint}
               value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
@@ -149,18 +151,18 @@ export function SetupScreen() {
       )}
 
       {step === 'recovery' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
           <div className="card" role="alert" style={{
-            borderRadius: 14, padding: '14px', display: 'flex', flexDirection: 'column', gap: 10,
+            borderRadius: 'var(--radius-tile)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-10)',
             borderColor: 'rgba(246,203,140,0.3)',
           }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 600 }}>
               <Icon name="key" size={16} style={{ color: 'var(--color-warn)' }} />{t.setup.recoveryTitle}
             </span>
             <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryWarning}</span>
             <div>
               <span className="lbl">{t.setup.recoveryLabel}</span>
-              <p className="mono num" style={{ margin: '6px 0 0', fontSize: 18, letterSpacing: '0.06em', color: 'var(--color-fg)' }}>{recovery}</p>
+              <p className="mono num" style={{ margin: 'var(--vv-s-6) 0 0', fontSize: 18, letterSpacing: '0.06em', color: 'var(--color-fg)' }}>{recovery}</p>
             </div>
           </div>
           <Button type="button" variant="primary" onClick={() => setSetupNeeded(false)}

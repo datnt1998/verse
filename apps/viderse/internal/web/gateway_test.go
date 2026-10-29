@@ -3,111 +3,48 @@ package web
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/viderse/internal/agent"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/viderse/internal/script"
+	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/platform/identity"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const testCookie = "viderse_session"
 
-type fakeQueries struct {
-	run     gen.AgentRun
-	script  gen.Script
-	runErr  error
-	scripts []gen.Script
-	runs    []gen.AgentRun
+// fakeSettings là SettingsStore giả của status.Service cho test web.
+type fakeSettings struct {
+	paused bool
+	err    error
 }
 
-func (f *fakeQueries) GetRun(_ context.Context, id pgtype.UUID) (gen.AgentRun, error) {
-	if f.runErr != nil || id != f.run.ID {
-		return gen.AgentRun{}, errors.New("not found")
-	}
-	return f.run, nil
-}
-
-func (f *fakeQueries) ListRuns(_ context.Context, _ int32) ([]gen.AgentRun, error) {
-	return f.runs, nil
-}
-
-func (f *fakeQueries) GetScript(_ context.Context, id pgtype.UUID) (gen.Script, error) {
-	if id != f.script.ID {
-		return gen.Script{}, errors.New("not found")
-	}
-	return f.script, nil
-}
-
-func (f *fakeQueries) ListScripts(_ context.Context, _ int32) ([]gen.Script, error) {
-	return f.scripts, nil
-}
-
-type fakeRunner struct {
-	submitted script.Brief
-	runID     pgtype.UUID
-}
-
-func (f *fakeRunner) Submit(_ context.Context, brief script.Brief) (pgtype.UUID, error) {
-	f.submitted = brief
-	return f.runID, nil
-}
+func (f *fakeSettings) QueuePaused(context.Context) (bool, error) { return f.paused, f.err }
 
 type testGateway struct {
-	t       *testing.T
-	g       *Gateway
-	runner  *fakeRunner
-	queries *fakeQueries
-}
-
-func mustUUID(t *testing.T, s string) pgtype.UUID {
-	t.Helper()
-	id, err := agent.ParseUUID(s)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return id
+	t   *testing.T
+	g   *Gateway
+	svc *status.Service
+	set *fakeSettings
 }
 
 func newTestGateway(t *testing.T) *testGateway {
 	t.Helper()
-	runID := mustUUID(t, "11111111-2222-3333-4444-555555555555")
-	scriptID := mustUUID(t, "66666666-7777-8888-9999-000000000000")
-	run := gen.AgentRun{
-		ID:       runID,
-		Status:   "done",
-		Provider: "openrouter",
-		Model:    "model-x",
-		Brief:    []byte(`{"topic":"chủ đề","target_seconds":60}`),
-		CreatedAt: pgtype.Timestamptz{
-			Time: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC), Valid: true},
-	}
-	scr := gen.Script{
-		ID:             scriptID,
-		RunID:          runID,
-		Title:          "Kịch bản A",
-		Sections:       []byte(`[{"kind":"intro","title":"Mở đầu","narration":"xin chào","rehook":false,"cta":false,"scenes":[]}]`),
-		FullText:       "xin chào",
-		WordCount:      2,
-		EstDurationSec: 3,
-	}
-	queries := &fakeQueries{run: run, script: scr, runs: []gen.AgentRun{run}, scripts: []gen.Script{scr}}
-	runner := &fakeRunner{runID: runID}
-
 	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), identity.Options{})
 	if _, err := accounts.CreateUser(identity.NewUser{
 		Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass",
 	}); err != nil {
 		t.Fatal(err)
 	}
-	return &testGateway{t: t, g: NewGateway(accounts, queries, runner), runner: runner, queries: queries}
+	hub := NewEventHub()
+	set := &fakeSettings{}
+	svc := status.New(set, PublishStatus(hub))
+	t.Cleanup(hub.Close)
+	return &testGateway{t: t, g: NewGateway(accounts, hub, svc), svc: svc, set: set}
 }
 
 func (tg *testGateway) do(method, path, cookie, body string) *httptest.ResponseRecorder {
@@ -118,7 +55,7 @@ func (tg *testGateway) do(method, path, cookie, body string) *httptest.ResponseR
 	if cookie != "" {
 		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
 	}
-	if method == http.MethodPost || method == http.MethodPut || body != "" {
+	if body != "" {
 		r.Header.Set("Content-Type", "application/json")
 	}
 	w := httptest.NewRecorder()
@@ -150,103 +87,192 @@ func decode(t *testing.T, w *httptest.ResponseRecorder) map[string]any {
 	return m
 }
 
-func TestRunRoutesRequireSession(t *testing.T) {
-	tg := newTestGateway(t)
-	for _, tc := range []struct{ method, path string }{
-		{http.MethodGet, "/api/runs"},
-		{http.MethodPost, "/api/runs"},
-		{http.MethodGet, "/api/runs/11111111-2222-3333-4444-555555555555"},
-		{http.MethodGet, "/api/scripts"},
-		{http.MethodGet, "/api/scripts/66666666-7777-8888-9999-000000000000"},
-	} {
-		w := tg.do(tc.method, tc.path, "", "")
-		if w.Code != http.StatusUnauthorized {
-			t.Fatalf("%s %s status %d", tc.method, tc.path, w.Code)
+// streamWriter là ResponseWriter+Flusher giả giữ toàn bộ body của luồng SSE.
+type streamWriter struct {
+	mu     sync.Mutex
+	body   strings.Builder
+	signal chan struct{}
+	header http.Header
+}
+
+func newStreamWriter() *streamWriter {
+	return &streamWriter{signal: make(chan struct{}, 1), header: make(http.Header)}
+}
+
+func (w *streamWriter) Header() http.Header { return w.header }
+func (w *streamWriter) WriteHeader(int)     {}
+func (w *streamWriter) Flush()              {}
+
+func (w *streamWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	n, _ := w.body.Write(p)
+	select {
+	case w.signal <- struct{}{}:
+	default:
+	}
+	return n, nil
+}
+
+func (w *streamWriter) until(t *testing.T, phrase string) string {
+	t.Helper()
+	timeout := time.NewTimer(2 * time.Second)
+	defer timeout.Stop()
+	for {
+		w.mu.Lock()
+		body := w.body.String()
+		w.mu.Unlock()
+		if strings.Contains(body, phrase) {
+			return body
+		}
+		select {
+		case <-w.signal:
+		case <-timeout.C:
+			t.Fatalf("hết giờ chờ %q; body: %q", phrase, body)
 		}
 	}
 }
 
-func TestListRuns(t *testing.T) {
+func TestAPIRoutesRequireSession(t *testing.T) {
 	tg := newTestGateway(t)
-	w := tg.do(http.MethodGet, "/api/runs", tg.sessionCookie(), "")
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d: %s", w.Code, w.Body.String())
-	}
-	runs, _ := decode(t, w)["runs"].([]any)
-	if len(runs) != 1 {
-		t.Fatalf("runs %v", runs)
-	}
-	row := runs[0].(map[string]any)
-	if row["id"] != "11111111-2222-3333-4444-555555555555" || row["status"] != "done" {
-		t.Fatalf("run wire %v", row)
-	}
-	if row["brief"].(map[string]any)["topic"] != "chủ đề" {
-		t.Fatalf("brief wire %v", row["brief"])
+	for _, path := range []string{"/api/status", "/api/events"} {
+		w := tg.do(http.MethodGet, path, "", "")
+		if w.Code != http.StatusUnauthorized {
+			t.Fatalf("GET %s status %d, muốn 401", path, w.Code)
+		}
 	}
 }
 
-func TestGetRun(t *testing.T) {
+func TestGetStatusShapeAndETag(t *testing.T) {
 	tg := newTestGateway(t)
 	cookie := tg.sessionCookie()
 
-	w := tg.do(http.MethodGet, "/api/runs/11111111-2222-3333-4444-555555555555", cookie, "")
+	w := tg.do(http.MethodGet, "/api/status", cookie, "")
 	if w.Code != http.StatusOK {
-		t.Fatalf("status %d", w.Code)
-	}
-	if decode(t, w)["run"].(map[string]any)["model"] != "model-x" {
-		t.Fatalf("run wire %v", decode(t, w))
-	}
-
-	w = tg.do(http.MethodGet, "/api/runs/khong-phai-uuid", cookie, "")
-	if w.Code != http.StatusNotFound {
-		t.Fatalf("bad uuid status %d", w.Code)
-	}
-
-	w = tg.do(http.MethodGet, "/api/runs/99999999-9999-9999-9999-999999999999", cookie, "")
-	if w.Code != http.StatusNotFound {
-		t.Fatalf("missing run status %d", w.Code)
-	}
-}
-
-func TestCreateRun(t *testing.T) {
-	tg := newTestGateway(t)
-	w := tg.do(http.MethodPost, "/api/runs", tg.sessionCookie(), `{"topic":"về nước","target_seconds":30}`)
-	if w.Code != http.StatusAccepted {
 		t.Fatalf("status %d: %s", w.Code, w.Body.String())
 	}
-	if tg.runner.submitted.Topic != "về nước" {
-		t.Fatalf("brief không vào runner: %+v", tg.runner.submitted)
+	if etag := w.Header().Get("ETag"); len(etag) < 4 || etag[0] != '"' {
+		t.Fatalf("ETag phải là chuỗi trích dẫn băm nội dung, được %q", etag)
 	}
-	if decode(t, w)["run"].(map[string]any)["id"] != "11111111-2222-3333-4444-555555555555" {
-		t.Fatalf("run wire %v", decode(t, w))
+	m := decode(t, w)
+	if m["running"] != float64(0) || m["queued"] != float64(0) || m["paused"] != false || m["reviewCount"] != float64(0) {
+		t.Fatalf("hình trạng thái sai: %v", m)
+	}
+	att, ok := m["attention"].([]any)
+	if !ok || len(att) != 0 {
+		t.Fatalf("attention phải là mảng rỗng: %v", m["attention"])
 	}
 }
 
-func TestListAndGetScript(t *testing.T) {
+// ETag suy từ nội dung: hai body khác nhau → hai ETag; nội dung y hệt sau khi
+// tiến trình khởi động lại (revision đếm lại từ 0) vẫn cùng ETag.
+func TestGetStatusETagFollowsContent(t *testing.T) {
 	tg := newTestGateway(t)
 	cookie := tg.sessionCookie()
 
-	w := tg.do(http.MethodGet, "/api/scripts", cookie, "")
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d", w.Code)
-	}
-	scripts, _ := decode(t, w)["scripts"].([]any)
-	if len(scripts) != 1 || scripts[0].(map[string]any)["title"] != "Kịch bản A" {
-		t.Fatalf("scripts %v", scripts)
+	first := tg.do(http.MethodGet, "/api/status", cookie, "")
+	etagIdle := first.Header().Get("ETag")
+	same := tg.do(http.MethodGet, "/api/status", cookie, "")
+	if got := same.Header().Get("ETag"); got != etagIdle {
+		t.Fatalf("cùng nội dung phải cùng ETag: %q vs %q", etagIdle, got)
 	}
 
-	w = tg.do(http.MethodGet, "/api/scripts/66666666-7777-8888-9999-000000000000", cookie, "")
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d", w.Code)
-	}
-	scr := decode(t, w)["script"].(map[string]any)
-	sections, _ := scr["sections"].([]any)
-	if len(sections) != 1 || sections[0].(map[string]any)["title"] != "Mở đầu" {
-		t.Fatalf("sections %v", scr["sections"])
+	// Khởi động lại: gateway + service mới (revision về 0) cùng nội dung.
+	restarted := newTestGateway(t)
+	after := restarted.do(http.MethodGet, "/api/status", restarted.sessionCookie(), "")
+	if got := after.Header().Get("ETag"); got != etagIdle {
+		t.Fatalf("sau restart cùng nội dung phải cùng ETag: %q vs %q", etagIdle, got)
 	}
 
-	w = tg.do(http.MethodGet, "/api/scripts/khong-phai-uuid", cookie, "")
-	if w.Code != http.StatusNotFound {
-		t.Fatalf("bad uuid status %d", w.Code)
+	// Đổi nội dung mà KHÔNG Bump (cờ tạm dừng đọc từ store) → ETag phải đổi và
+	// trả 200, không được 304 theo nội dung cũ.
+	tg.set.paused = true
+	r := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+	r.Header.Set("If-None-Match", etagIdle)
+	changed := httptest.NewRecorder()
+	tg.g.ServeHTTP(changed, r)
+	if changed.Code != http.StatusOK {
+		t.Fatalf("nội dung đổi phải trả 200, được %d", changed.Code)
 	}
+	etagBusy := changed.Header().Get("ETag")
+	if etagBusy == etagIdle {
+		t.Fatalf("nội dung đổi nhưng ETag giữ nguyên %q", etagBusy)
+	}
+	if m := decode(t, changed); m["paused"] != true {
+		t.Fatalf("body mới phải có paused=true: %v", m)
+	}
+}
+
+func TestGetStatusIfNoneMatchReturns304(t *testing.T) {
+	tg := newTestGateway(t)
+	cookie := tg.sessionCookie()
+
+	w := tg.do(http.MethodGet, "/api/status", cookie, "")
+	etag := w.Header().Get("ETag")
+	if etag == "" {
+		t.Fatal("thiếu ETag")
+	}
+
+	do := func(inm string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		r.Header.Set("If-None-Match", inm)
+		rec := httptest.NewRecorder()
+		tg.g.ServeHTTP(rec, r)
+		return rec
+	}
+
+	for _, inm := range []string{etag, "W/" + etag, `"khác", ` + etag, "*"} {
+		w2 := do(inm)
+		if w2.Code != http.StatusNotModified {
+			t.Fatalf("If-None-Match %q → %d, muốn 304", inm, w2.Code)
+		}
+		if w2.Body.Len() != 0 {
+			t.Fatalf("304 phải rỗng body, có %q", w2.Body.String())
+		}
+		if w2.Header().Get("ETag") != etag {
+			t.Fatalf("304 ETag = %q", w2.Header().Get("ETag"))
+		}
+	}
+	if w3 := do(`"không-khớp"`); w3.Code != http.StatusOK {
+		t.Fatalf("ETag không khớp phải 200, được %d", w3.Code)
+	}
+}
+
+func TestGetStatusReadsPausedSetting(t *testing.T) {
+	tg := newTestGateway(t)
+	tg.set.paused = true
+	cookie := tg.sessionCookie()
+	w := tg.do(http.MethodGet, "/api/status", cookie, "")
+	if decode(t, w)["paused"] != true {
+		t.Fatalf("paused = %v", decode(t, w)["paused"])
+	}
+}
+
+// Thay đổi trạng thái (Bump) phải chạm tới subscriber SSE dưới dạng frame
+// "status" mang rev mới.
+func TestStatusChangeReachesSSESubscriber(t *testing.T) {
+	tg := newTestGateway(t)
+	cookie := tg.sessionCookie()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	r := httptest.NewRequest(http.MethodGet, "/api/events", nil).WithContext(ctx)
+	r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+	w := newStreamWriter()
+	done := make(chan struct{})
+	go func() { tg.g.ServeHTTP(w, r); close(done) }()
+
+	body := w.until(t, "event: hello")
+	if !strings.Contains(body, `"subscriber"`) {
+		t.Fatalf("hello thiếu subscriber: %q", body)
+	}
+	tg.svc.Bump()
+	body = w.until(t, "event: status")
+	if !strings.Contains(body, `"rev":1`) {
+		t.Fatalf("frame status thiếu rev mới: %q", body)
+	}
+	cancel()
+	<-done
 }

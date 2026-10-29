@@ -1,0 +1,205 @@
+/* Kiểu của bộ phận Viderse — chỉ token (base.css, viderse.css), không hex cứng.
+   Bám kit.css/artboard của design: vv-header 48px, vv-jobs, vv-switcher… */
+
+/* ─── AppHeader ─── */
+.vv-header {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: var(--vv-s-16);
+  min-height: var(--vv-h-header); padding: var(--vv-s-8) var(--vv-s-18);
+  background: var(--color-bg); border-bottom: var(--vv-s-1) solid var(--line-1);
+}
+.vv-nav {
+  display: flex; gap: var(--vv-s-2); overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+}
+.vv-nav::-webkit-scrollbar { display: none }
+.vv-nav__item {
+  position: relative; display: inline-flex; align-items: center; gap: var(--vv-s-7);
+  height: 32px; padding: 0 var(--vv-s-12); border-radius: var(--radius-button); font-size: 13.5px;
+  font-weight: 500; color: var(--color-fg-3); text-decoration: none;
+}
+.vv-nav__item:hover { color: var(--color-fg) }
+.vv-nav__item--active { font-weight: 600; color: var(--color-fg); background: var(--color-surface-2) }
+.vv-nav__badge {
+  min-width: 18px; height: 18px; padding: 0 var(--vv-s-5); border-radius: var(--radius-button);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; background: var(--color-warn); color: var(--vv-badge-ink);
+}
+.vv-gear {
+  position: relative; width: 30px; height: 30px; border-radius: var(--radius-control); flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--color-fg-3); border: 1px solid transparent;
+}
+.vv-gear:hover { color: var(--color-fg); background: var(--color-surface-1) }
+.vv-gear__dot {
+  position: absolute; top: var(--vv-s-4); right: var(--vv-s-4); width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-err); box-shadow: 0 0 0 1.5px var(--color-bg);
+}
+
+/* ─── JobsPill ─── */
+.vv-jobs {
+  position: relative; height: 30px; padding: 0 var(--vv-s-10);
+  display: flex; align-items: center; gap: var(--vv-s-8); border-radius: var(--radius-control);
+  border: 1px solid transparent; background: transparent;
+  color: var(--color-fg-3); font-size: 12.5px; white-space: nowrap; text-decoration: none;
+}
+.vv-jobs:hover { background: var(--color-surface-1); border-color: var(--line-1) }
+.vv-jobs__dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 3px var(--vv-jobs-halo, transparent) }
+.vv-jobs__unread {
+  position: absolute; top: var(--vv-s-3); right: var(--vv-s-3); width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-warn); box-shadow: 0 0 0 2px var(--color-bg);
+}
+.vv-jobs--run { --vv-jobs-dot: var(--vv-red); --vv-jobs-halo: var(--vv-red-18) }
+.vv-jobs--idle { --vv-jobs-dot: var(--vv-st-neutral); --vv-jobs-halo: var(--vv-st-neutral-15) }
+.vv-jobs--paused { --vv-jobs-dot: var(--vv-st-neutral); --vv-jobs-halo: var(--vv-st-neutral-15) }
+.vv-jobs--offline { --vv-jobs-dot: var(--color-err); --vv-jobs-halo: var(--vv-err-18) }
+.vv-jobs__dot { background: var(--vv-jobs-dot) }
+
+/* ─── ChannelSwitcher ─── */
+.vv-switcher {
+  height: 30px; padding: 0 var(--vv-s-8) 0 var(--vv-s-5); display: flex; align-items: center; gap: var(--vv-s-7);
+  border-radius: var(--radius-control); border: 1px solid var(--line-1); background: var(--color-surface-1);
+  color: var(--color-fg); font-size: 13px; font-weight: 500; white-space: nowrap;
+}
+.vv-switcher:hover { background: var(--color-surface-2) }
+.vv-switcher__menu {
+  position: absolute; left: 0; top: var(--vv-s-38); z-index: 40; width: 312px;
+  border-radius: var(--vv-r-14); background: var(--color-surface-2); border: 1px solid var(--line-2);
+  box-shadow: var(--vv-shadow-pop); padding: var(--vv-s-6);
+  display: flex; flex-direction: column; gap: var(--vv-s-2);
+}
+.vv-switcher__item {
+  display: flex; align-items: center; gap: var(--vv-s-10); padding: var(--vv-s-8) var(--vv-s-10); border-radius: var(--radius-button);
+  border: none; background: transparent; color: var(--color-fg); text-align: left;
+  width: 100%; font: inherit; cursor: pointer;
+}
+.vv-switcher__item:hover { background: var(--color-surface-1) }
+.vv-switcher__main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column }
+.vv-switcher__name { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.vv-switcher__sub { font-size: 11.5px; color: var(--color-fg-4) }
+.vv-switcher__sep { height: 1px; margin: var(--vv-s-4) var(--vv-s-6); background: var(--line-1) }
+.vv-switcher__waitdot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-warn); flex: 0 0 auto }
+.vv-switcher__new {
+  display: flex; align-items: center; gap: var(--vv-s-10); padding: var(--vv-s-8) var(--vv-s-10); border-radius: var(--radius-button);
+  color: var(--color-fg-2); font-size: 13.5px; text-decoration: none;
+}
+.vv-switcher__new:hover { background: var(--color-surface-1); color: var(--color-fg) }
+.vv-stack { display: flex; flex: 0 0 auto }
+.vv-stack > * + * { margin-left: calc(-1 * var(--vv-s-6)) }
+
+/* ─── OfflineStrip ─── */
+.vv-offline {
+  display: flex; align-items: center; gap: var(--vv-s-10); padding: var(--vv-s-8) var(--vv-s-18); flex-wrap: wrap;
+  background: var(--vv-err-11); border-bottom: var(--vv-s-1) solid var(--vv-err-28); font-size: 13px;
+}
+.vv-offline__dot {
+  width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto;
+  background: var(--color-err); box-shadow: 0 0 0 3px var(--vv-err-18);
+}
+.vv-offline__btn { font-size: 12.5px; color: var(--color-fg-3); background: none; border: none; padding: 0 }
+.vv-offline__btn:hover { color: var(--color-fg) }
+.vv-offline__more { flex-basis: 100%; font-size: 12px; color: var(--color-fg-4) }
+
+/* ─── StatusLabel ─── */
+.vv-status { display: inline-flex; flex-direction: column; gap: var(--vv-s-2); min-width: 0 }
+.vv-status__row { display: inline-flex; align-items: center; gap: var(--vv-s-6); font-size: 12px; white-space: nowrap }
+.vv-status__dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 auto }
+.vv-status__hint { font-size: 12px; color: var(--color-fg-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+@keyframes vv-spin { to { transform: rotate(360deg) } }
+.vv-status__spin {
+  width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto;
+  border: 1.5px solid var(--vv-spinner-line); border-top-color: currentColor;
+  animation: vv-spin .9s linear infinite;
+}
+
+/* ─── MobileShell / MobileTabBar ─── */
+.vv-mbar {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: var(--vv-s-10);
+  height: var(--vv-m-bar); padding: 0 var(--vv-s-12); background: var(--color-bg); border-bottom: var(--vv-s-1) solid var(--line-1);
+}
+.vv-mavatar {
+  width: 30px; height: 30px; border-radius: 50%; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-2); color: var(--color-fg-2);
+}
+.vv-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: var(--vv-m-tabbar);
+  display: flex; align-items: stretch; justify-content: space-around;
+  background: var(--vv-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: var(--vv-s-1) solid var(--line-1); padding-bottom: env(safe-area-inset-bottom);
+}
+.vv-tabbar__item {
+  flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--vv-s-3); text-decoration: none; min-width: 0;
+}
+.vv-tabbar__pill {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 30px; border-radius: var(--radius-row);
+  color: var(--color-fg-4); border: 1px solid transparent;
+}
+.vv-tabbar__item--active .vv-tabbar__pill { background: var(--vv-tabbar-ind-bg); border-color: var(--vv-tabbar-ind-bd); color: var(--vv-tabbar-on) }
+.vv-tabbar__label { font-size: 10px; font-weight: 500; color: var(--color-fg-4) }
+.vv-tabbar__item--active .vv-tabbar__label { font-weight: 600; color: var(--vv-tabbar-on) }
+.vv-tabbar__badge {
+  position: absolute; top: calc(-1 * var(--vv-s-4)); right: calc(-1 * var(--vv-s-6)); min-width: 16px; height: 16px; padding: 0 var(--vv-s-4);
+  border-radius: var(--radius-control); display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; background: var(--color-warn); color: var(--vv-badge-ink);
+  box-shadow: 0 0 0 2px var(--color-bg);
+}
+.vv-tabbar__new {
+  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--vv-red-button); color: var(--vv-red-ink);
+  box-shadow: var(--vv-shadow-fab);
+}
+.vv-tabbar__new:active { transform: scale(.94) }
+
+/* ─── Trạng thái hệ thống ─── */
+.vv-page-empty { display: flex; align-items: center; justify-content: center; min-height: 50vh; padding: var(--vv-s-26) }
+.vv-loading { display: flex; flex-direction: column; gap: var(--vv-s-16); padding: var(--vv-s-24) var(--vv-s-26) }
+.vv-loading__grid { display: flex; gap: var(--vv-s-18) }
+.vv-loading__card { flex: 1 1 0; min-width: 0; border-radius: var(--vv-r-14); border: 1px solid var(--line-1); background: var(--color-surface-1); overflow: hidden }
+.vv-loading__thumb { aspect-ratio: 16 / 9; background: var(--color-surface-2) }
+.vv-loading__body { padding: var(--vv-s-12); display: flex; flex-direction: column; gap: var(--vv-s-7) }
+.vv-skel { border-radius: var(--radius-chip); background: var(--color-surface-2) }
+.vv-skel--dim { background: var(--color-surface-1); border-radius: var(--vv-r-5) }
+.vv-loading__foot { display: flex; align-items: center; gap: var(--vv-s-8); justify-content: center; color: var(--color-fg-4); font-size: 13px }
+
+.vv-emptystage {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60vh; padding: var(--vv-s-44) var(--vv-s-26); gap: var(--vv-s-14); text-align: center;
+}
+.vv-emptystage__orbs {
+  position: relative; width: 200px; height: 128px;
+  display: flex; align-items: center; justify-content: center; gap: var(--vv-s-12); border-radius: var(--vv-r-22);
+  background: var(--vv-orbs-bg);
+}
+.vv-emptystage__title { margin: 0; font-size: 17px; font-weight: 600 }
+.vv-emptystage__body { margin: 0; font-size: 13px; color: var(--color-fg-3); max-width: 420px }
+.vv-emptystage__row { display: flex; gap: var(--vv-s-8); margin-top: var(--vv-s-2) }
+
+/* ─── Dev kit page ─── */
+.vv-dev { padding: var(--vv-s-18) var(--vv-s-22) var(--vv-s-60); display: flex; flex-direction: column; gap: var(--vv-s-18); max-width: 1360px; margin: 0 auto }
+.vv-dev__head { display: flex; align-items: center; gap: var(--vv-s-14); flex-wrap: wrap }
+.vv-dev__title { font-size: 17px; font-weight: 700; margin: 0 }
+.vv-dev__grid { display: grid; gap: var(--vv-s-14); grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) }
+.vv-dev__cell {
+  display: flex; flex-direction: column; gap: var(--vv-s-10); padding: var(--vv-s-14);
+  border-radius: var(--vv-r-14); border: 1px solid var(--line-1); background: var(--color-surface-1);
+}
+.vv-dev__cell--wide { grid-column: 1 / -1 }
+.vv-dev__cell-head { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-fg-4) }
+.vv-dev__row { display: flex; align-items: center; gap: var(--vv-s-10); flex-wrap: wrap }
+.vv-dev__mobile {
+  display: flex; flex-direction: column; border-radius: var(--vv-r-26); border: 1px solid var(--line-2);
+  background: var(--color-bg); overflow: hidden; box-shadow: var(--vv-shadow-device);
+  width: 390px; min-height: 760px; margin: 0 auto; position: relative;
+}
+.vv-dev__mobile .vv-tabbar { position: absolute }
+.vv-dev__mobile-body { flex: 1 1 auto; padding-bottom: var(--vv-s-80); overflow-y: auto }
+
+/* Avatar tài khoản ở cuối AppHeader — vòng chữ cái đầu như artboard Main */
+.vv-avatar {
+  width: var(--vv-hit); height: var(--vv-hit); border-radius: 50%; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--color-fg-2);
+  background: var(--color-surface-2); border: 1px solid var(--line-1); text-decoration: none;
+}

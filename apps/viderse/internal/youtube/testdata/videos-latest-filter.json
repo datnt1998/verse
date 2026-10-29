@@ -1,0 +1,1199 @@
+{
+ "onResponseReceivedActions": [
+  {
+   "reloadContinuationItemsCommand": {
+    "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc",
+    "continuationItems": [
+     {
+      "chipBarViewModel": {
+       "chips": [
+        {
+         "chipViewModel": {
+          "text": "Latest",
+          "selected": true,
+          "displayType": "CHIP_VIEW_MODEL_DISPLAY_TYPE_UNSPECIFIED",
+          "tapCommand": {
+           "innertubeCommand": {
+            "commandMetadata": {
+             "webCommandMetadata": {
+              "sendPost": true,
+              "apiUrl": "/youtubei/v1/browse"
+             }
+            },
+            "continuationCommand": {
+             "token": "FIXTURE_CHIP_LATEST",
+             "request": "CONTINUATION_REQUEST_TYPE_BROWSE",
+             "command": {
+              "showReloadUiCommand": {
+               "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc"
+              }
+             }
+            }
+           }
+          },
+          "accessibilityLabel": "Latest"
+         }
+        },
+        {
+         "chipViewModel": {
+          "text": "Popular",
+          "selected": false,
+          "displayType": "CHIP_VIEW_MODEL_DISPLAY_TYPE_UNSPECIFIED",
+          "tapCommand": {
+           "innertubeCommand": {
+            "commandMetadata": {
+             "webCommandMetadata": {
+              "sendPost": true,
+              "apiUrl": "/youtubei/v1/browse"
+             }
+            },
+            "continuationCommand": {
+             "token": "FIXTURE_CHIP_POPULAR",
+             "request": "CONTINUATION_REQUEST_TYPE_BROWSE",
+             "command": {
+              "showReloadUiCommand": {
+               "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc"
+              }
+             }
+            }
+           }
+          },
+          "accessibilityLabel": "Popular"
+         }
+        },
+        {
+         "chipViewModel": {
+          "text": "Oldest",
+          "selected": false,
+          "displayType": "CHIP_VIEW_MODEL_DISPLAY_TYPE_UNSPECIFIED",
+          "tapCommand": {
+           "innertubeCommand": {
+            "commandMetadata": {
+             "webCommandMetadata": {
+              "sendPost": true,
+              "apiUrl": "/youtubei/v1/browse"
+             }
+            },
+            "continuationCommand": {
+             "token": "FIXTURE_CHIP_OLDEST",
+             "request": "CONTINUATION_REQUEST_TYPE_BROWSE",
+             "command": {
+              "showReloadUiCommand": {
+               "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc"
+              }
+             }
+            }
+           }
+          },
+          "accessibilityLabel": "Oldest"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "slot": "RELOAD_CONTINUATION_SLOT_HEADER"
+   }
+  },
+  {
+   "reloadContinuationItemsCommand": {
+    "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc",
+    "continuationItems": [
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/NiCgcUTL9_Q/hq720_custom_3.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/NiCgcUTL9_Q/hq720_custom_3.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "34:32",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "NiCgcUTL9_Q",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "34 minutes, 32 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/NiCgcUTL9_Q/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "NiCgcUTL9_Q",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "NiCgcUTL9_Q"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "NiCgcUTL9_Q",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "NiCgcUTL9_Q"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "NiCgcUTL9_Q"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=NiCgcUTL9_Q",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "NiCgcUTL9_Q"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "The Technology that Made the Internet Possible"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "2M"
+                 },
+                 "accessibilityLabel": "2 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "14h ago"
+                 },
+                 "accessibilityLabel": "14 hours ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "NiCgcUTL9_Q",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "The Technology that Made the Internet Possible 34 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=NiCgcUTL9_Q",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "NiCgcUTL9_Q"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/ONAuUyml0yI/hqdefault.jpg",
+              "width": 480,
+              "height": 270
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "5:08",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "ONAuUyml0yI",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "5 minutes, 8 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/ONAuUyml0yI/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "ONAuUyml0yI",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "ONAuUyml0yI"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "ONAuUyml0yI",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "ONAuUyml0yI"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "ONAuUyml0yI"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=ONAuUyml0yI",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "ONAuUyml0yI"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "We're trying something new..."
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "1.3M"
+                 },
+                 "accessibilityLabel": "1.3 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "12d ago"
+                 },
+                 "accessibilityLabel": "12 days ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "ONAuUyml0yI",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "We're trying something new... 5 minutes, 8 seconds"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=ONAuUyml0yI",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "ONAuUyml0yI"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/JsBZOcqZerk/hq720_custom_3.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/JsBZOcqZerk/hq720_custom_3.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "47:42",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "JsBZOcqZerk",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "47 minutes, 42 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/JsBZOcqZerk/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "JsBZOcqZerk",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "JsBZOcqZerk"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "JsBZOcqZerk",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "JsBZOcqZerk"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "JsBZOcqZerk"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=JsBZOcqZerk",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "JsBZOcqZerk"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "The Insane Real Engineering of the Nazi Enigma Machine"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "18M"
+                 },
+                 "accessibilityLabel": "18 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "3w ago"
+                 },
+                 "accessibilityLabel": "3 weeks ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "JsBZOcqZerk",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "The Insane Real Engineering of the Nazi Enigma Machine 47 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=JsBZOcqZerk&pp=0gcJCTcMAYcqIYzv",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "JsBZOcqZerk"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/J1WoNuemKOg/hq720.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/J1WoNuemKOg/hq720.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "22:45",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "J1WoNuemKOg",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "22 minutes, 45 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/J1WoNuemKOg/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "J1WoNuemKOg",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "J1WoNuemKOg"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "J1WoNuemKOg",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "J1WoNuemKOg"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "J1WoNuemKOg"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=J1WoNuemKOg",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "J1WoNuemKOg"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "We sent a camera to space to film the solar eclipse"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "2.7M"
+                 },
+                 "accessibilityLabel": "2.7 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "1mo ago"
+                 },
+                 "accessibilityLabel": "1 month ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "J1WoNuemKOg",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "We sent a camera to space to film the solar eclipse 22 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=J1WoNuemKOg",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "J1WoNuemKOg"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "continuationItemRenderer": {
+       "trigger": "CONTINUATION_TRIGGER_ON_ITEM_SHOWN",
+       "continuationEndpoint": {
+        "commandMetadata": {
+         "webCommandMetadata": {
+          "sendPost": true,
+          "apiUrl": "/youtubei/v1/browse"
+         }
+        },
+        "continuationCommand": {
+         "token": "FIXTURE_PAGE_2",
+         "request": "CONTINUATION_REQUEST_TYPE_BROWSE"
+        }
+       }
+      }
+     }
+    ],
+    "slot": "RELOAD_CONTINUATION_SLOT_BODY"
+   }
+  }
+ ]
+}

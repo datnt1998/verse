@@ -1,0 +1,838 @@
+{
+ "onResponseReceivedActions": [
+  {
+   "appendContinuationItemsAction": {
+    "continuationItems": [
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/XX7PdJIGiCw/hq720.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/XX7PdJIGiCw/hq720.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "28:50",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "XX7PdJIGiCw",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "28 minutes, 50 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/XX7PdJIGiCw/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "XX7PdJIGiCw",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "XX7PdJIGiCw"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "XX7PdJIGiCw",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "XX7PdJIGiCw"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "XX7PdJIGiCw"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=XX7PdJIGiCw",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "XX7PdJIGiCw"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "The Most Controversial Idea In Biology"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "9M"
+                 },
+                 "accessibilityLabel": "9 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "11mo ago"
+                 },
+                 "accessibilityLabel": "11 months ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "XX7PdJIGiCw",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "The Most Controversial Idea In Biology 28 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=XX7PdJIGiCw",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "XX7PdJIGiCw"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/CYlon2tvywA/hq720.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/CYlon2tvywA/hq720.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "33:17",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "CYlon2tvywA",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "33 minutes, 17 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/CYlon2tvywA/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "CYlon2tvywA",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "CYlon2tvywA"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "CYlon2tvywA",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "CYlon2tvywA"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "CYlon2tvywA"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=CYlon2tvywA",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "CYlon2tvywA"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "Can you really reach anyone in 6 steps?"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "11M"
+                 },
+                 "accessibilityLabel": "11 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "1y ago"
+                 },
+                 "accessibilityLabel": "1 year ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "CYlon2tvywA",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "Can you really reach anyone in 6 steps? 33 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=CYlon2tvywA",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "CYlon2tvywA"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "richItemRenderer": {
+       "content": {
+        "lockupViewModel": {
+         "contentImage": {
+          "thumbnailViewModel": {
+           "image": {
+            "sources": [
+             {
+              "url": "https://i.ytimg.com/vi/onr80iOoEXs/hq720_custom_1.jpg",
+              "width": 360,
+              "height": 202
+             },
+             {
+              "url": "https://i.ytimg.com/vi/onr80iOoEXs/hq720_custom_1.jpg",
+              "width": 720,
+              "height": 404
+             }
+            ]
+           },
+           "overlays": [
+            {
+             "thumbnailBottomOverlayViewModel": {
+              "badges": [
+               {
+                "thumbnailBadgeViewModel": {
+                 "text": "46:09",
+                 "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                 "animationActivationTargetId": "onr80iOoEXs",
+                 "lottieData": {
+                  "url": "https://www.gstatic.com/youtube/img/lottie/audio_indicator/audio_indicator_v2.json",
+                  "settings": {
+                   "loop": true,
+                   "autoplay": true
+                  }
+                 },
+                 "animatedText": "Now playing",
+                 "animationActivationEntitySelectorType": "THUMBNAIL_BADGE_ANIMATION_ENTITY_SELECTOR_TYPE_PLAYER_STATE",
+                 "rendererContext": {
+                  "accessibilityContext": {
+                   "label": "46 minutes, 9 seconds"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            },
+            {
+             "animatedThumbnailOverlayViewModel": {
+              "thumbnail": {
+               "sources": [
+                {
+                 "url": "https://i.ytimg.com/an_webp/onr80iOoEXs/mqdefault_6s.webp",
+                 "width": 320,
+                 "height": 180
+                }
+               ]
+              }
+             }
+            },
+            {
+             "thumbnailHoverOverlayToggleActionsViewModel": {
+              "buttons": [
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "WATCH_LATER",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "addedVideoId": "onr80iOoEXs",
+                        "action": "ACTION_ADD_VIDEO"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Watch later",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true,
+                       "apiUrl": "/youtubei/v1/browse/edit_playlist"
+                      }
+                     },
+                     "playlistEditEndpoint": {
+                      "playlistId": "WL",
+                      "actions": [
+                       {
+                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                        "removedVideoId": "onr80iOoEXs"
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               },
+               {
+                "toggleButtonViewModel": {
+                 "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "ADD_TO_QUEUE_TAIL",
+                   "onTap": {
+                    "innertubeCommand": {
+                     "commandMetadata": {
+                      "webCommandMetadata": {
+                       "sendPost": true
+                      }
+                     },
+                     "signalServiceEndpoint": {
+                      "signal": "CLIENT_SIGNAL",
+                      "actions": [
+                       {
+                        "addToPlaylistCommand": {
+                         "openMiniplayer": true,
+                         "videoId": "onr80iOoEXs",
+                         "listType": "PLAYLIST_EDIT_LIST_TYPE_QUEUE",
+                         "onCreateListCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "/youtubei/v1/playlist/create"
+                           }
+                          },
+                          "createPlaylistServiceEndpoint": {
+                           "videoIds": [
+                            "onr80iOoEXs"
+                           ],
+                           "params": "CAQ%3D"
+                          }
+                         },
+                         "videoIds": [
+                          "onr80iOoEXs"
+                         ],
+                         "videoCommand": {
+                          "commandMetadata": {
+                           "webCommandMetadata": {
+                            "url": "/watch?v=onr80iOoEXs",
+                            "webPageType": "WEB_PAGE_TYPE_WATCH",
+                            "rootVe": 3832
+                           }
+                          },
+                          "watchEndpoint": {
+                           "videoId": "onr80iOoEXs"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   },
+                   "accessibilityText": "Add to queue",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                   "iconName": "CHECK",
+                   "accessibilityText": "Added",
+                   "style": "BUTTON_VIEW_MODEL_STYLE_OVERLAY_DARK",
+                   "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                   "buttonSize": "BUTTON_VIEW_MODEL_SIZE_COMPACT",
+                   "state": "BUTTON_VIEW_MODEL_STATE_ACTIVE"
+                  }
+                 },
+                 "isToggled": false
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         },
+         "metadata": {
+          "lockupMetadataViewModel": {
+           "title": {
+            "content": "Alfred Nobel: The Man Who Fooled The World"
+           },
+           "metadata": {
+            "contentMetadataViewModel": {
+             "metadataRows": [
+              {
+               "metadataParts": [
+                {
+                 "text": {
+                  "content": "10M"
+                 },
+                 "accessibilityLabel": "10 million views",
+                 "leadingIcon": {
+                  "name": "PLAY_ARROW_OUTLINED",
+                  "height": 12,
+                  "width": 12
+                 }
+                },
+                {
+                 "text": {
+                  "content": "1y ago"
+                 },
+                 "accessibilityLabel": "1 year ago"
+                }
+               ]
+              }
+             ],
+             "delimiter": " "
+            }
+           }
+          }
+         },
+         "contentId": "onr80iOoEXs",
+         "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+         "rendererContext": {
+          "accessibilityContext": {
+           "label": "Alfred Nobel: The Man Who Fooled The World 46 minutes"
+          },
+          "commandContext": {
+           "onTap": {
+            "innertubeCommand": {
+             "commandMetadata": {
+              "webCommandMetadata": {
+               "url": "/watch?v=onr80iOoEXs",
+               "webPageType": "WEB_PAGE_TYPE_WATCH",
+               "rootVe": 3832
+              }
+             },
+             "watchEndpoint": {
+              "videoId": "onr80iOoEXs"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "continuationItemRenderer": {
+       "trigger": "CONTINUATION_TRIGGER_ON_ITEM_SHOWN",
+       "continuationEndpoint": {
+        "commandMetadata": {
+         "webCommandMetadata": {
+          "sendPost": true,
+          "apiUrl": "/youtubei/v1/browse"
+         }
+        },
+        "continuationCommand": {
+         "token": "FIXTURE_PAGE_3",
+         "request": "CONTINUATION_REQUEST_TYPE_BROWSE"
+        }
+       }
+      }
+     }
+    ],
+    "targetId": "6b3929a2-0000-2ada-8a8a-582429b619dc"
+   }
+  }
+ ]
+}

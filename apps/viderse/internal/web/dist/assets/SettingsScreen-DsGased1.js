@@ -1,0 +1,1 @@
+import{j as e,t}from"./index-BlsFzjgM.js";import{S as s}from"./ScreenEmpty-DKBa5ddl.js";function m({route:n}){return e.jsx(s,{title:t.screens.settings.emptyTitle,hint:t.screens.settings.emptyHint})}export{m as SettingsScreen};

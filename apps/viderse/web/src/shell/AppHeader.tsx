@@ -1,23 +1,55 @@
-// AppHeader — thanh trên cùng desktop: BrandLockup · MainNav (trái) · AccountMenu (phải).
-import { BrandLockup } from '@noverse/ui'
-import type { Route } from '../router'
-import { AccountMenu } from './AccountMenu'
+// AppHeader — thanh 48px dán đỉnh: [logo] [Bộ đổi kênh] | [nav giữa] | [JobsPill] [bánh răng].
+// Logo bấm về Bàn dựng; bánh răng dẫn Cài đặt và có chấm đỏ khi có mục attention.
+// Kiểu: styles/components.css .vv-header/.vv-gear.
+import type { MouseEvent } from 'react'
+import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
+import { t } from '../i18n/vi'
+import { LensLogo } from '../components/LensLogo'
+import { Icon } from '@noverse/ui'
+import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
+import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
+import type { Status } from '../api/status'
 
-export function AppHeader({ route }: { route: Route }) {
+export function AppHeader({ route, status, online, userName, channels }: {
+  route: Route
+  status: Status | undefined
+  online: boolean
+  userName?: string
+  /** kênh của tôi để hiện trong bộ đổi kênh (chưa có dữ liệu → []) */
+  channels?: SwitcherChannel[]
+}) {
+  const running = status?.running ?? 0
+  const attention = status?.attention ?? []
+  const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
+
+  const home = (e: MouseEvent) => { e.preventDefault(); navigate(paths.workbench()) }
+  const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
+  const settings = (e: MouseEvent) => { e.preventDefault(); navigate(paths.settings()) }
+
   return (
-    <header style={{
-      flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 16,
-      height: 52, padding: '0 16px',
-      borderBottom: '1px solid var(--line-1)', background: 'var(--color-bg)',
-    }}>
-      <a href="#/" aria-label="Viderse" style={{ display: 'flex', alignItems: 'center', color: 'var(--color-fg)' }}>
-        <BrandLockup size={22} studio />
+    <header role="banner" className="vv-header">
+      <a href={`#${paths.workbench()}`} aria-label={t.brand.name} onClick={home} style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
+        <LensLogo size={26} spinning={online && running > 0} />
       </a>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-        <MainNav route={route} />
-      </div>
-      <AccountMenu />
+      {showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
+      <span style={{ flex: '1 1 auto', minWidth: 12, display: 'flex', justifyContent: 'center' }}>
+        <MainNav route={route} reviewCount={status?.reviewCount ?? 0} />
+      </span>
+      <JobsPill status={status} online={online} unread={attention.length > 0} style={{ flex: '0 0 auto' }} />
+      <a
+        href={`#${paths.settings()}`}
+        aria-label={attention.length ? t.shell.settingsAttention(attention.length) : t.shell.settings}
+        title={t.shell.settings}
+        onClick={settings}
+        className="vv-gear"
+      >
+        <Icon name="setting" size={17} />
+        {attention.length > 0 && <span role="img" aria-label={`${attention.length}`} className="vv-gear__dot" />}
+      </a>
+      <a href={`#${paths.account()}`} aria-label={userName ?? t.shell.account} title={t.shell.account} className="vv-avatar">
+        {(userName?.trim()[0] ?? '?').toLocaleUpperCase('vi')}
+      </a>
     </header>
   )
 }

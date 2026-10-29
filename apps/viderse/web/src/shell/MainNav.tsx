@@ -1,34 +1,46 @@
-// MainNav — nhóm link segmented ở header: Trang chủ · Tài khoản.
-// Bề rộng cố định theo nhãn (đậm 500 ở mọi trạng thái) nên mục đang chọn chỉ đổi
-// màu, không đẩy các mục bên cạnh.
-import type { CSSProperties } from 'react'
+// MainNav — 5 mục giữa thanh đầu: Bàn dựng · Duyệt (badge vàng đếm chờ duyệt) ·
+// Kênh · Khám phá · Video mới. Cuộn ngang khi chỗ nhìn hẹp (04-components §32;
+// (04-components › AppHeader): scrollbar ẩn, mục co lại icon + chữ.
+// Kiểu: styles/components.css .vv-nav*.
+import type { MouseEvent } from 'react'
+import { navSection, paths, type Route } from '../router'
 import { t } from '../i18n/vi'
-import { paths, type Route } from '../router'
-import { Icon } from '@noverse/ui'
+import { Icon, type IconName } from '@noverse/ui'
 
-export type NavKey = 'home' | 'account'
-
-const ITEMS: { key: NavKey; route: Route['name']; label: string; icon: string; href: string }[] = [
-  { key: 'home', route: 'home', label: t.nav.home, icon: 'category', href: `#${paths.home()}` },
-  { key: 'account', route: 'account', label: t.nav.account, icon: 'user', href: `#${paths.account()}` },
+const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; path: string; badge?: 'review' }[] = [
+  { key: 'workbench', label: t.nav.workbench, icon: 'workbench', path: paths.workbench() },
+  { key: 'review', label: t.nav.review, icon: 'flag', path: paths.review(), badge: 'review' },
+  { key: 'channels', label: t.nav.channels, icon: 'channel', path: paths.channelNew() },
+  { key: 'explore', label: t.nav.explore, icon: 'radar', path: paths.explore() },
+  { key: 'new', label: t.nav.new, icon: 'video-add', path: paths.new() },
 ]
 
-const itemStyle = (on: boolean): CSSProperties => ({
-  height: 30, padding: '0 12px 0 10px', display: 'flex', alignItems: 'center', gap: 8,
-  borderRadius: 7, color: on ? 'var(--color-fg)' : 'var(--color-fg-3)',
-  background: on ? 'var(--color-surface-2)' : 'transparent',
-  fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', transition: 'color 160ms ease',
-})
-
-export function MainNav({ route }: { route: Route }) {
+export function MainNav({ route, reviewCount, onNavigate }: {
+  route: Route
+  /** số video chờ duyệt → badge vàng trên Duyệt */
+  reviewCount: number
+  onNavigate?: (path: string, e: MouseEvent) => void
+}) {
+  const section = navSection(route)
   return (
-    <nav aria-label={t.nav.main} style={{ display: 'flex', alignItems: 'center', gap: 2, padding: 3, borderRadius: 9, background: 'var(--color-surface-1)', border: '1px solid var(--line-1)' }}>
+    <nav role="navigation" aria-label={t.nav.main} className="vv-nav">
       {ITEMS.map((item) => {
-        const on = route.name === item.route
+        const active = item.key === section
         return (
-          <a key={item.key} href={item.href} aria-current={on ? 'page' : undefined} style={itemStyle(on)}>
-            <Icon name={item.icon} size={15} style={on ? { color: 'var(--color-accent)' } : undefined} />
+          <a
+            key={item.key}
+            href={`#${item.path}`}
+            aria-current={active ? 'page' : undefined}
+            onClick={onNavigate ? (e) => onNavigate(item.path, e) : undefined}
+            className={active ? 'vv-nav__item vv-nav__item--active' : 'vv-nav__item'}
+          >
+            <Icon name={item.icon} size={17} />
             {item.label}
+            {item.badge === 'review' && reviewCount > 0 && (
+              <span className="vv-nav__badge num" aria-label={`${reviewCount}`}>
+                {reviewCount > 99 ? '99+' : reviewCount}
+              </span>
+            )}
           </a>
         )
       })}

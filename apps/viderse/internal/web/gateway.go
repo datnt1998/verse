@@ -1,50 +1,39 @@
-// Package web là HTTP gateway của viderse serve: SPA nhúng và các route
-// /api nghiệp vụ (runs, scripts) gắn trên platform/webapp.
+// Package web là HTTP gateway của viderse serve: SPA nhúng, luồng sự kiện SSE
+// /api/events và trạng thái đầu trang /api/status gắn trên platform/webapp.
+// Handler chỉ đọc request → gọi service → ghi JSON.
 package web
 
 import (
-	"context"
+	"crypto/sha256"
 	"embed"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/viderse/internal/agent"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/viderse/internal/script"
+	"github.com/datnt1998/verse/apps/viderse/internal/status"
+	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 //go:embed all:dist
 var ui embed.FS
 
-// StoreView là phần API phía runs/scripts mà gateway cần (gen.Queries thoả).
-type StoreView interface {
-	GetRun(ctx context.Context, id pgtype.UUID) (gen.AgentRun, error)
-	ListRuns(ctx context.Context, limit int32) ([]gen.AgentRun, error)
-	GetScript(ctx context.Context, id pgtype.UUID) (gen.Script, error)
-	ListScripts(ctx context.Context, limit int32) ([]gen.Script, error)
-}
-
-// Submitter là cổng đưa brief vào hàng chạy (agent.Runner thoả).
-type Submitter interface {
-	Submit(ctx context.Context, brief script.Brief) (pgtype.UUID, error)
-}
-
 // Gateway phục vụ toàn bộ HTTP của app.
 type Gateway struct {
 	*webapp.Server
-	queries StoreView
-	runner  Submitter
+	accounts *identity.Store
+	hub      *events.Hub
+	status   *status.Service
 }
 
 // NewGateway dựng handler: accounts là kho identity file-backend; khi chưa có
 // tài khoản nào, server tạo một setup state (chỉ giữ hash) — serve in mã
-// plaintext một lần qua SetupCodeOnce.
-func NewGateway(accounts *identity.Store, queries StoreView, runner Submitter) *Gateway {
+// plaintext một lần qua SetupCodeOnce. svc phải được dựng với publishStatus
+// của cùng hub (xem serve.go).
+func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) *Gateway {
 	dist, err := fs.Sub(ui, "dist")
 	if err != nil {
 		// embed đảm bảo dist tồn tại khi build; lỗi ở đây là binary hỏng.
@@ -56,135 +45,116 @@ func NewGateway(accounts *identity.Store, queries StoreView, runner Submitter) *
 			CookieName: "viderse_session",
 			UI:         dist,
 		}),
-		queries: queries,
-		runner:  runner,
+		accounts: accounts,
+		hub:      hub,
+		status:   svc,
 	}
-	g.Handle(http.MethodGet, "/api/runs", g.listRuns)
-	g.Handle(http.MethodPost, "/api/runs", g.createRun)
-	g.Handle(http.MethodGet, "/api/runs/", g.getRun)
-	g.Handle(http.MethodGet, "/api/scripts", g.listScripts)
-	g.Handle(http.MethodGet, "/api/scripts/", g.getScript)
+	g.Handle(http.MethodGet, "/api/events", g.serveEvents)
+	g.Handle(http.MethodGet, "/api/status", g.getStatus)
 	return g
 }
 
-// ── runs / scripts ──────────────────────────────────────────────────────────
+// statusWire và attentionWire là wire DTO của GET /api/status theo hợp đồng —
+// giữ ở tầng web để status.Service tiến hoá không ngầm đổi hợp đồng bên ngoài.
+type statusWire struct {
+	Running     int             `json:"running"`
+	Queued      int             `json:"queued"`
+	Paused      bool            `json:"paused"`
+	ReviewCount int             `json:"reviewCount"`
+	Attention   []attentionWire `json:"attention"`
+}
 
-func (g *Gateway) createRun(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	var brief script.Brief
-	if !webapp.DecodeJSON(w, r, &brief) {
-		return
+type attentionWire struct {
+	Kind string `json:"kind"`
+	Text string `json:"text"`
+	Href string `json:"href"`
+}
+
+func statusToWire(s status.Snapshot) statusWire {
+	att := make([]attentionWire, 0, len(s.Attention))
+	for _, a := range s.Attention {
+		att = append(att, attentionWire{Kind: a.Kind, Text: a.Text, Href: a.Href})
 	}
-	id, err := g.runner.Submit(r.Context(), brief)
-	if err != nil {
-		webapp.Error(w, http.StatusBadRequest, err.Error())
-		return
+	return statusWire{
+		Running:     s.Running,
+		Queued:      s.Queued,
+		Paused:      s.Paused,
+		ReviewCount: s.ReviewCount,
+		Attention:   att,
 	}
-	run, err := g.queries.GetRun(r.Context(), id)
+}
+
+// getStatus trả trạng thái đầu trang. ETag suy từ chính bytes của body đã mã
+// hoá, không từ revision trong bộ nhớ: revision đếm lại từ 0 sau mỗi lần khởi
+// động, nên hai tiến trình khác nhau có thể cùng "0" nhưng nội dung khác nhau —
+// dùng revision làm ETag sẽ trả 304 với body cũ trong cache trình duyệt. Băm
+// nội dung cũng tự đúng khi một trường (vd cờ tạm dừng) đổi mà không Bump.
+// Revision vẫn cần cho sự kiện SSE.
+func (g *Gateway) getStatus(w http.ResponseWriter, r *http.Request, _ identity.User) {
+	snap, err := g.status.Snapshot(r.Context())
 	if err != nil {
 		webapp.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	webapp.WriteJSON(w, http.StatusAccepted, map[string]any{"run": runWire(run)})
-}
-
-func (g *Gateway) listRuns(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	rows, err := g.queries.ListRuns(r.Context(), 100)
+	body, err := json.Marshal(statusToWire(snap))
 	if err != nil {
 		webapp.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	out := make([]map[string]any, 0, len(rows))
-	for _, row := range rows {
-		out = append(out, runWire(row))
+	etag := statusETag(body)
+	w.Header().Set("ETag", etag)
+	if etagMatches(r.Header.Get("If-None-Match"), etag) {
+		w.WriteHeader(http.StatusNotModified)
+		return
 	}
-	webapp.WriteJSON(w, http.StatusOK, map[string]any{"runs": out})
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(body)
 }
 
-func (g *Gateway) getRun(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	id, err := agent.ParseUUID(strings.TrimPrefix(r.URL.Path, "/api/runs/"))
-	if err != nil {
-		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
-		return
-	}
-	row, err := g.queries.GetRun(r.Context(), id)
-	if err != nil {
-		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
-		return
-	}
-	webapp.WriteJSON(w, http.StatusOK, map[string]any{"run": runWire(row)})
+// statusETag băm nội dung body thành ETag mạnh (16 hex đầu của SHA-256).
+func statusETag(body []byte) string {
+	sum := sha256.Sum256(body)
+	return fmt.Sprintf(`"%x"`, sum[:8])
 }
 
-func (g *Gateway) listScripts(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	rows, err := g.queries.ListScripts(r.Context(), 100)
-	if err != nil {
-		webapp.Error(w, http.StatusInternalServerError, err.Error())
-		return
+// etagMatches so khớp If-None-Match theo RFC 9110: "*" khớp mọi thứ, còn lại là
+// danh sách ETag phân tách bằng dấu phẩy, so khớp yếu (bỏ tiền tố W/).
+func etagMatches(header, etag string) bool {
+	if header == "" {
+		return false
 	}
-	out := make([]map[string]any, 0, len(rows))
-	for _, row := range rows {
-		out = append(out, scriptSummaryWire(row))
+	for _, candidate := range strings.Split(header, ",") {
+		candidate = strings.TrimSpace(candidate)
+		if candidate == "*" {
+			return true
+		}
+		if strings.TrimPrefix(candidate, "W/") == strings.TrimPrefix(etag, "W/") {
+			return true
+		}
 	}
-	webapp.WriteJSON(w, http.StatusOK, map[string]any{"scripts": out})
+	return false
 }
 
-func (g *Gateway) getScript(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	id, err := agent.ParseUUID(strings.TrimPrefix(r.URL.Path, "/api/scripts/"))
-	if err != nil {
-		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
-		return
+// serveEvents phục vụ luồng SSE /api/events: Subscribe của hub quyết phần
+// replay/reset, platform/events.Serve giữ khung frame chung; phiên hết hiệu
+// lực thì đóng kết nối ở nhịp tiếp theo.
+func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user identity.User) {
+	sub, replay, stale := g.hub.Subscribe(user, events.ResumeID(r))
+	defer g.hub.Unsubscribe(sub)
+	hooks := events.Hooks{
+		OnTick: func() bool { return g.eventSessionValid(r) },
 	}
-	row, err := g.queries.GetScript(r.Context(), id)
-	if err != nil {
-		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
-		return
+	if err := g.hub.Serve(w, r, sub, replay, stale, hooks); err != nil {
+		webapp.Error(w, http.StatusInternalServerError, "không hỗ trợ luồng sự kiện")
 	}
-	var sections []script.Section
-	if err := json.Unmarshal(row.Sections, &sections); err != nil {
-		webapp.Error(w, http.StatusInternalServerError, "sections hỏng")
-		return
-	}
-	wire := scriptSummaryWire(row)
-	wire["sections"] = sections
-	webapp.WriteJSON(w, http.StatusOK, map[string]any{"script": wire})
 }
 
-func runWire(row gen.AgentRun) map[string]any {
-	out := map[string]any{
-		"id":            agent.UUIDString(row.ID),
-		"status":        row.Status,
-		"provider":      row.Provider,
-		"model":         row.Model,
-		"input_tokens":  row.InputTokens,
-		"output_tokens": row.OutputTokens,
-		"created_at":    row.CreatedAt.Time,
+func (g *Gateway) eventSessionValid(r *http.Request) bool {
+	cookie, err := r.Cookie("viderse_session")
+	if err != nil {
+		return false
 	}
-	var brief script.Brief
-	if err := json.Unmarshal(row.Brief, &brief); err == nil {
-		out["brief"] = brief
-	}
-	if row.CostUsd.Valid {
-		out["cost_usd"] = row.CostUsd.Float64
-	}
-	if row.Error.Valid {
-		out["error"] = row.Error.String
-	}
-	if row.StartedAt.Valid {
-		out["started_at"] = row.StartedAt.Time
-	}
-	if row.FinishedAt.Valid {
-		out["finished_at"] = row.FinishedAt.Time
-	}
-	return out
-}
-
-func scriptSummaryWire(row gen.Script) map[string]any {
-	return map[string]any{
-		"id":               agent.UUIDString(row.ID),
-		"run_id":           agent.UUIDString(row.RunID),
-		"title":            row.Title,
-		"full_text":        row.FullText,
-		"word_count":       row.WordCount,
-		"est_duration_sec": row.EstDurationSec,
-		"created_at":       row.CreatedAt.Time,
-	}
+	_, _, err = g.accounts.Authenticate(cookie.Value)
+	return err == nil
 }

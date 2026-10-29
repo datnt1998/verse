@@ -36,9 +36,9 @@ dependsOn: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 ### 3. Ổn định
 
-Hỏi anh trước khi chạy, kèm số ảnh dự kiến.
+Mỗi lượt chỉ vẽ 1 ảnh trả phí (giới hạn D7 = 1); các video còn lại kiểm tới nhánh chờ hạn mức. Video đi hết chuỗi tới `export` là video chỉ cần 1 cảnh.
 
-- **Chạy liền:** 10 video của 3 kênh chạy hết chuỗi, có tạm dừng hàng chờ và chạy tiếp ở giữa.
+- **Chạy liền:** 10 video của 3 kênh chạy tới bước `images` (một video đi hết chuỗi), có tạm dừng hàng chờ và chạy tiếp ở giữa.
 - **Tập sập:** `kill -9` ở từng bước (9 bước); tắt Postgres 30 s; rút ổ thư mục dự án rồi cắm lại; ngắt mạng khi đang vẽ ảnh.
 - **Kết quả cần đạt:**
   - không hỏng video;

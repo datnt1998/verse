@@ -12,14 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/datnt1998/verse/apps/viderse/assets"
-	"github.com/datnt1998/verse/apps/viderse/internal/agent"
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/apps/viderse/internal/web"
-	"github.com/datnt1998/verse/core/auth"
-	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/webguard"
@@ -59,29 +56,17 @@ func runServe(args []string) error {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}
 
-	pool, err := agent.OpenPool(context.Background(), appDSN)
+	pool, err := postgres.OpenPool(context.Background(), appDSN)
 	if err != nil {
 		return err
 	}
 	defer pool.Close()
-	queries := gen.New(pool)
 
-	cfg, err := bootstrap.LoadConfig()
-	if err != nil {
-		return err
-	}
-	// Giá theo token lấy từ OpenRouter (cache 24h trong ~/.viderse) như Noverse;
-	// thiếu bảng giá thì agent_runs.cost_usd để trống.
-	if dir, err := bootstrap.DefaultConfigDir(); err == nil {
-		models.StartPricingRefresh(models.DefaultRegistry(), dir)
-	}
-	printWriterLoginHint(cfg)
-	runner := agent.NewRunner(queries,
-		agent.ModelFactory(cfg.ModelForRole),
-		assets.WriterSystemPrompt,
-		cfg.ResolveReasoningEffort)
+	hub := web.NewEventHub()
+	settings := postgres.NewSettingsStore(pool)
+	statusSvc := status.New(settings, web.PublishStatus(hub))
 
-	gateway := web.NewGateway(accounts, queries, runner)
+	gateway := web.NewGateway(accounts, hub, statusSvc)
 	gateway.SetProxyConfig(proxyCfg)
 
 	listener, err := net.Listen("tcp", *addr)
@@ -105,7 +90,6 @@ func runServe(args []string) error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	runner.Start(ctx)
 
 	server := &http.Server{Handler: gateway}
 	done := make(chan error, 1)
@@ -119,10 +103,8 @@ func runServe(args []string) error {
 	}
 	shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	shutdownResult := make(chan error, 1)
-	go func() { shutdownResult <- server.Shutdown(shutdown) }()
-	runner.Wait()
-	return <-shutdownResult
+	hub.Close()
+	return server.Shutdown(shutdown)
 }
 
 // openAccounts mở kho identity file-backend ở ~/.viderse/web-accounts.json.
@@ -137,25 +119,6 @@ func openAccounts() (*identity.Store, error) {
 	}
 	// Viderse không chia project: mọi project ID đều chấp nhận, không có legacy.
 	return identity.NewStore(path, identity.Options{}), nil
-}
-
-// printWriterLoginHint báo ngay lúc khởi động khi writer dùng provider OAuth
-// chưa đăng nhập: run nào cũng sẽ fail ở lượt gọi model đầu tiên.
-func printWriterLoginHint(cfg bootstrap.Config) {
-	provider, model, _ := cfg.ResolveRole(bootstrap.WriterRole)
-	if _, oauth := auth.Lookup(provider); !oauth {
-		return
-	}
-	store, err := auth.DefaultStore()
-	if err != nil {
-		fmt.Printf("Không mở được kho đăng nhập: %v\n", err)
-		return
-	}
-	if _, ok, err := store.Get(provider); err != nil {
-		fmt.Printf("Không đọc được kho đăng nhập: %v\n", err)
-	} else if !ok {
-		fmt.Printf("Writer dùng %s/%s nhưng chưa đăng nhập: chạy `viderse login %s`.\n", provider, model, provider)
-	}
 }
 
 func runMigrate(args []string) error {

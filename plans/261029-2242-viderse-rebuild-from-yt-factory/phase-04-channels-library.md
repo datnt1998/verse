@@ -94,7 +94,7 @@ Design:
 - Web: test tự lưu (rời ô thì lưu, lỗi thì giữ nguyên chữ đang gõ), test bắt buộc có đối thủ, test trạng thái xem thử.
 - Smoke thật:
   - tạo 1 kênh có 2 đối thủ, nhận diện chạy xong;
-  - tạo template từ prompt dựng sẵn, xem thử 1 ảnh bìa (hỏi anh trước vì tốn 1 ảnh);
+  - tạo template từ prompt dựng sẵn, xem thử 1 ảnh bìa (đúng 1 ảnh trả phí);
   - thêm 1 kênh video nền Twitch.
 
 ## Nghiệm thu

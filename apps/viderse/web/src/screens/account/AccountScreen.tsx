@@ -34,13 +34,13 @@ export function AccountScreen() {
   }
 
   return (
-    <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 480 }}>
+    <div style={{ padding: 'var(--vv-s-24) var(--vv-s-20)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-20)', maxWidth: 480 }}>
       <h1 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{t.account.title}</h1>
-      <div className="card" style={{ borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div className="card" style={{ borderRadius: 'var(--radius-tile)', padding: 'var(--vv-s-16)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-14)' }}>
         <Avatar name={name} size={44} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-3)', minWidth: 0 }}>
           <span style={{ fontSize: 15, fontWeight: 500 }}>{name}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-fg-3)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-6)', fontSize: 13, color: 'var(--color-fg-3)' }}>
             <span className="mono">@{user.username}</span>
             <span aria-hidden="true" style={{ color: 'var(--color-fg-4)' }}>·</span>
             <Icon name={user.role === 'admin' ? 'crown' : 'profile-2user'} size={14} style={{ color: user.role === 'admin' ? 'var(--color-accent)' : 'var(--color-fg-4)' }} />

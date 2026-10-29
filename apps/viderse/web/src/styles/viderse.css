@@ -1,0 +1,102 @@
+/* Viderse — token riêng của app (giá trị theo design tokens.css / artboard).
+   Màu ngữ nghĩa (accent, danger, trạng thái) đi qua defineBrand ở brand.ts;
+   những biến dưới đây là giá trị brand không có vai trò trong kit. */
+
+:root {
+  /* Đỏ YouTube: logo và chấm “đang chạy” (--vv-red), nút + tròn điện thoại */
+  --vv-red: #FF0033;
+  --vv-red-button: #E6002E;
+  --vv-red-ink: #FFFFFF;
+  --vv-red-button-hover: #FF1F4B;
+
+  /* Chữ của bốn trợ lý (03-tokens.md › Trợ lý) */
+  --vv-scout-ink: #B7CEFF;
+  --vv-director-ink: #CDB5FF;
+  --vv-artist-ink: #FFD08A;
+  --vv-qa-ink: #9DECC9;
+
+  /* Chấm trạng thái trung lập: Chờ lượt · Tạm dừng · Đã đăng (--vv-st-queued/posted) */
+  --vv-st-neutral: #8E8E99;
+
+  /* Thanh dưới điện thoại (04-components › MobileTabBar) */
+  --vv-glass: rgba(26, 26, 29, .74);
+  --vv-tabbar-ind-bg: rgba(255, 51, 82, .13);
+
+  /* Badge đếm trên mục Duyệt: mực nâu trên vàng nhạt (artboard System) */
+
+  /* Cam lỗi (#FF9A5C = --color-err) với độ trong suốt — halo, nền dải offline.
+     Kit chỉ có thang đỏ nên phải định nghĩa riêng ở đây. */
+  --vv-err-11: rgba(255, 154, 92, .11);
+  --vv-err-18: rgba(255, 154, 92, .18);
+  --vv-err-28: rgba(255, 154, 92, .28);
+  /* Halo chấm đỏ "đang chạy" (#FF0033 = --vv-red) */
+  --vv-red-18: rgba(255, 0, 51, .18);
+  --vv-badge-ink: #3D2A08;
+  --vv-tabbar-ind-bd: rgba(255, 77, 99, .3);
+  --vv-tabbar-on: #FFE3E8;
+
+  /* Kích thước khung: thanh đầu 48, thanh điện thoại 52, thanh dưới 60, vùng chạm 30 */
+  --vv-h-header: 48px;
+  --vv-m-bar: 52px;
+  --vv-m-tabbar: 60px;
+  --vv-hit: 30px;
+
+  /* Khoảng cách bước nhỏ của layout Viderse (padding/gap/vị trí) — mọi giá trị
+     khoảng cách trong components.css/JSX đi qua thang này, không số cứng. */
+  --vv-s-1: 1px;
+  --vv-s-2: 2px;
+  --vv-s-3: 3px;
+  --vv-s-4: 4px;
+  --vv-s-5: 5px;
+  --vv-s-6: 6px;
+  --vv-s-7: 7px;
+  --vv-s-8: 8px;
+  --vv-s-10: 10px;
+  --vv-s-12: 12px;
+  --vv-s-14: 14px;
+  --vv-s-16: 16px;
+  --vv-s-18: 18px;
+  --vv-s-20: 20px;
+  --vv-s-22: 22px;
+  --vv-s-24: 24px;
+  --vv-s-26: 26px;
+  --vv-s-38: 38px;
+  --vv-s-44: 44px;
+  --vv-s-60: 60px;
+  --vv-s-80: 80px;
+
+  /* Bo góc app ngoài thang của kit (kit có chip 6 → dock 18): skeleton mờ,
+     menu bộ đổi kênh, sân khấu trống, khung điện thoại ở dev kit. */
+  --vv-r-5: 5px;
+  --vv-r-14: 14px;
+  --vv-r-22: 22px;
+  --vv-r-26: 26px;
+  /* Viên thuốc đầy đủ (pill) — kit không có bước này. */
+  --vv-r-pill: 999px;
+  /* Bóng đổ: menu popover, khung điện thoại dev, nút + đỏ, nền lưới orb. */
+  --vv-shadow-pop: 0 20px 50px rgba(0, 0, 0, .6);
+  --vv-shadow-device: 0 18px 40px rgba(0, 0, 0, .45);
+  --vv-shadow-fab: 0 6px 18px rgba(230, 0, 46, .4);
+  --vv-orbs-bg: radial-gradient(closest-side, rgba(255, 255, 255, .05), rgba(255, 255, 255, .012) 66%, transparent);
+  /* Halo chấm jobs nhàn rỗi (trung lập mờ) + viền sáng spinner nhãn trạng thái. */
+  --vv-st-neutral-15: rgba(142, 142, 153, .15);
+  --vv-spinner-line: rgba(255, 255, 255, .15);
+
+  /* Khoảng thở dưới nội dung điện thoại phía trên tab bar (60 + 50). */
+  --vv-tabbar-pad: 110px;
+
+  /* Viền tách cho avatar chồng nhau trên nền header/nav */
+  --vv-hairline: rgba(255, 255, 255, .06);
+}
+
+/* Logo ống kính xoay 9s chỉ khi có job chạy (.vv-lens-run như tokens.css của design) */
+@keyframes vv-lensrot { to { transform: rotate(360deg) } }
+.vv-lens-run {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vv-lensrot 9s linear infinite;
+}
+
+/* Chấm đỏ “đang chạy” nhấp 1,6s */
+@keyframes vv-rec { 50% { opacity: .35 } }
+.vv-rec { animation: vv-rec 1.6s ease-in-out infinite; }

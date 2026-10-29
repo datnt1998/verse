@@ -3,7 +3,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { setKitLabels } from '@noverse/ui'
+import { applyViderseLabels } from './kitLabels'
 import App from './App'
 import { t } from './i18n/vi'
 
@@ -30,7 +30,7 @@ beforeEach(() => {
     addListener: () => {}, removeListener: () => {},
   })))
   location.hash = '#/'
-  setKitLabels({ brand: { name: 'Viderse', studio: 'Studio' } })
+  applyViderseLabels()
 })
 
 afterEach(async () => {
@@ -64,6 +64,25 @@ describe('cổng phiên', () => {
     expect(container.textContent).toContain(t.auth.loginTitle)
   })
 
+  it('brand của màn auth là Viderse (logo ống kính + wordmark), không có Noverse', async () => {
+    // Đi qua applyViderseLabels() của production (kitLabels.ts) — nhãn kit
+    // trả "Viderse"; auth dùng LensLogo, không BrandLockup của kit.
+    vi.stubGlobal('fetch', vi.fn((path: string) => {
+      if (path === '/api/me') return respond({ error: 'chưa đăng nhập' }, 401)
+      if (path === '/api/setup') return respond({ needed: false, attemptsLeft: 5 })
+      throw new Error(`fetch lạ: ${path}`)
+    }))
+    const container = await render()
+    const text = container.textContent ?? ''
+    expect(text).toContain('Viderse')
+    expect(text).not.toContain('Noverse')
+    // Đây là lockup của auth (không phải chữ trong banner/trạng thái khác):
+    // wordmark nằm cạnh SVG logo ngay trong header của AuthShell.
+    const header = container.querySelector('header')
+    expect(header?.querySelector('svg')).toBeTruthy()
+    expect(header?.textContent).toContain('Viderse')
+  })
+
   it('không tới được máy chủ → màn Đăng nhập báo mất kết nối, không báo "đang hoạt động"', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('Failed to fetch'))))
     const container = await render()
@@ -85,10 +104,14 @@ describe('cổng phiên', () => {
   it('có phiên → shell hiện tên người dùng ở màn Tài khoản', async () => {
     vi.stubGlobal('fetch', vi.fn((path: string) => {
       if (path === '/api/me') return respond({ user: USER })
+      if (String(path).startsWith('/api/events')) return new Promise<Response>(() => {})
+      if (path === '/api/status') return respond({ running: 0, queued: 0, paused: false, reviewCount: 0, attention: [] })
       throw new Error(`fetch lạ: ${path}`)
     }))
     location.hash = '#/account'
     const container = await render()
+    // AccountScreen là chunk lazy — import() qua vite-node cần macrotask thật.
+    await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
     expect(container.textContent).toContain('Linh')
     expect(container.textContent).toContain('@linh')
     expect(container.textContent).toContain(t.role.admin)
@@ -100,6 +123,8 @@ describe('cổng phiên', () => {
       if (path === '/api/me') return authed ? respond({ user: USER }) : respond({ error: 'chưa đăng nhập' }, 401)
       if (path === '/api/setup') return respond({ needed: false, attemptsLeft: 5 })
       if (path === '/api/login') { authed = true; return respond({ user: USER }) }
+      if (String(path).startsWith('/api/events')) return new Promise<Response>(() => {})
+      if (path === '/api/status') return respond({ running: 0, queued: 0, paused: false, reviewCount: 0, attention: [] })
       throw new Error(`fetch lạ: ${path}`)
     }))
     const container = await render()
@@ -115,6 +140,6 @@ describe('cổng phiên', () => {
       }
       form.requestSubmit()
     })
-    expect(container.textContent).toContain(t.nav.home)
+    expect(container.textContent).toContain(t.nav.workbench)
   })
 })

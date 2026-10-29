@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Công cụ máy, kết nối AI, tài khoản nền tảng, Cài đặt"
-status: pending
+status: in-progress
 priority: P1
 effort: 48h
 dependsOn: [1]

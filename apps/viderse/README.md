@@ -1,10 +1,21 @@
 # Viderse (Go)
 
-Khung agent bằng Go trong monorepo `verse` — một Writer agent viết kịch bản
-video từ brief. Giao diện web nhúng vào binary, dựng theo kiến trúc của Noverse
-(React + Vite, StyleX + Tailwind, kit `@noverse/ui` ở `platform/ui`, hash router,
-`SessionProvider`, shell desktop/mobile). Tách biệt hoàn toàn khỏi Noverse: dữ
-liệu ở `~/.viderse`, database `viderse_go`, không chia sẻ credential hay lịch sử.
+Viderse vận hành nhiều kênh YouTube: theo dõi kênh đối thủ, chọn video, rồi
+làm lại video qua chuỗi 9 bước máy do 4 trợ lý đảm nhận (Trinh sát, Đạo diễn,
+Hoạ sĩ, Kiểm định). App đang được dựng lại từ yt-factory theo
+[plan dựng lại](../../plans/261029-2242-viderse-rebuild-from-yt-factory/plan.md);
+bảng phase trong plan cho biết phần nào đã chạy.
+
+Một binary `viderse` gồm máy chủ web (Go + Postgres) và giao diện React nhúng
+sẵn, dựng trên kit `@noverse/ui` ở `platform/ui`. Tách biệt hoàn toàn khỏi
+Noverse: dữ liệu ở `~/.viderse`, database `viderse_go`, cookie
+`viderse_session`, không chia sẻ credential hay lịch sử.
+
+## Thiết kế
+
+Toàn bộ thiết kế UI/UX (logic sản phẩm, tokens, kit, copy, hợp đồng dữ liệu, gói việc, brand, artboard) nằm ở
+[`docs/design/v1/`](docs/design/v1/README.md). Đó là nguồn sự thật cho hành vi và giao diện; mọi cập nhật thiết kế
+và hỏi đáp với design ghi ở [`docs/design/v1/11-hoi-dap.md`](docs/design/v1/11-hoi-dap.md).
 
 ## Yêu cầu
 
@@ -32,7 +43,7 @@ liệu ở `~/.viderse`, database `viderse_go`, không chia sẻ credential hay 
 ## Lệnh
 
 ```bash
-go run ./apps/viderse/cmd/viderse serve            # web UI + writer agent
+go run ./apps/viderse/cmd/viderse serve            # máy chủ web + giao diện nhúng
 go run ./apps/viderse/cmd/viderse migrate up       # áp schema (goose nhúng)
 go run ./apps/viderse/cmd/viderse migrate status
 go run ./apps/viderse/cmd/viderse login            # đăng nhập gói thuê bao (mặc định openai-codex)
@@ -42,18 +53,13 @@ go run ./apps/viderse/cmd/viderse logout
 
 - Lần `serve` đầu (chưa có tài khoản): terminal in một **mã thiết lập** dùng một
   lần; mở `http://127.0.0.1:8789`, nhập mã, tạo quản trị viên, nhận mã khôi phục.
-- Giao diện web hiện mới là **khung**: thiết lập, đăng nhập/đăng xuất, shell
-  (trang chủ, tài khoản). Chưa có màn gửi brief hay xem kịch bản; API vẫn đủ:
-  `GET/POST /api/runs`, `GET /api/runs/{id}`, `GET /api/scripts`,
-  `GET /api/scripts/{id}`. Run chạy nền, kịch bản lưu vào bảng `scripts`, số đo
-  run ở `agent_runs` (status/provider/model/token/cost/thời điểm/lỗi).
-- Hàng đợi run nằm trong `agent_runs` (database là hàng đợi): `serve` claim
-  run queued cũ nhất; deployment giả định **một tiến trình serve mỗi
-  database** — lúc khởi động nó đánh `failed` mọi run còn `running` của tiến
-  trình đã dừng.
-- Model mặc định: `gpt-6-luna` qua provider `openai-codex` (đăng nhập bằng
-  `viderse login`). Đổi qua `~/.viderse/config.json` (`provider`/`model`/
-  `providers`/`roles`).
+- Mọi `/api/*` cần phiên đăng nhập. Hai đường dùng chung cho mọi màn:
+  - `GET /api/status`: số video đang chạy, chờ lượt, chờ duyệt, cờ tạm dừng
+    hàng chờ và các mục Cần xử lý (hợp đồng dữ liệu §5). Có `ETag`; gửi lại
+    `If-None-Match` khớp thì nhận 304.
+  - `GET /api/events`: luồng sự kiện SSE (`hello`, `reset`, rồi các sự kiện có
+    `id`), nối lại bằng `Last-Event-ID`. Giao diện làm mới dữ liệu theo sự kiện
+    và chỉ poll `/api/status` mỗi 3 giây khi mất luồng này.
 
 ## Dữ liệu
 
@@ -61,9 +67,29 @@ go run ./apps/viderse/cmd/viderse logout
 | --- | --- |
 | `~/.viderse/auth.json` | credential OAuth (do `viderse login` ghi) |
 | `~/.viderse/web-accounts.json` | tài khoản web + phiên (cookie `viderse_session`) |
-| `~/.viderse/config.json` | cấu hình provider/model/roles |
-| `~/.viderse/models-cache.json` | bảng giá + cửa sổ ngữ cảnh model (OpenRouter, cache 24h) để tính `agent_runs.cost_usd` |
-| database `viderse_go` | bảng `agent_runs`, `scripts` |
+| database `viderse_go` | `settings`, `background_tasks`, `notifications`; các bảng nghiệp vụ thêm theo từng phần |
+
+## Cấu trúc mã
+
+Mục tiêu: đổi một nhà cung cấp, một bước pipeline hay một màn mà không phải sửa
+lan sang chỗ khác.
+
+- `cmd/viderse`: lệnh CLI và nơi ráp mọi phần (constructor nhận phụ thuộc,
+  không biến toàn cục).
+- `internal/<mảng>`: mỗi gói là một mảng nghiệp vụ (`status`, `tools`,
+  `youtube`, …). `internal/domain` chỉ chứa kiểu giá trị và mã lỗi dùng chung.
+  Chiều phụ thuộc: `cmd`, `web` → gói nghiệp vụ → `domain`.
+- Interface đặt ở phía dùng và nhỏ nhất có thể; hệ ngoài (binary, HTTP, model,
+  YouTube) luôn nằm sau interface để thay bản khác hoặc test bằng bản giả.
+- `internal/persistence`: migration goose (`migrations/`) và store Postgres
+  (`postgres/`, truy vấn mỗi mảng một tệp trong `queries/`, sinh bằng sqlc).
+  Gói nghiệp vụ dùng store qua interface.
+- `internal/web`: route `/api/*` mỏng (đọc yêu cầu → gọi service → ghi JSON),
+  kiểu wire tách khỏi kiểu domain.
+- `web/src`: `api/` (client có kiểu), `data/` (hook dữ liệu, bảng sự kiện →
+  khoá cache), `screens/<route>/` (mỗi route một chunk lazy), `components/`,
+  `shell/`, `i18n/vi.ts` (mọi câu chữ), `styles/`. Thành phần dùng chung nằm
+  trong kit `@noverse/ui`; app không viết lại thứ kit đã có.
 
 ## Phát triển web
 
@@ -76,8 +102,10 @@ npm run dev -w apps/viderse/web          # vite dev server, proxy /api → 127.0
 npm run typecheck -w apps/viderse/web
 npm test -w apps/viderse/web
 npm run build -w apps/viderse/web        # build ra internal/web/dist (được //go:embed vào binary)
+npm run size -w apps/viderse/web         # kích thước gzip JS tải lần đầu, lỗi khi vượt 250 kB
 ```
 
-Brand Viderse (màu chính `#F43F5E`) và nhãn tiếng Việt nạp ở `web/src/main.tsx`.
-Bản build `internal/web/dist` được commit vì `go build` nhúng nó; sửa web xong
-phải build lại.
+Brand Viderse (màu chính `#FF4D63`, bộ màu ở `docs/design/v1/02-stack-verse.md`
+§2) nạp ở `web/src/brand.ts`. Bản dev có trang `#/dev/kit` dựng lại board `Kit`
+và `MKit` bằng component thật để so với artboard. Bản build `internal/web/dist`
+được commit vì `go build` nhúng nó; sửa web xong phải build lại.

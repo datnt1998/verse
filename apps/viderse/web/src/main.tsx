@@ -1,15 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './styles/base.css'
 import '@noverse/ui/tokens.stylex'
-import '@noverse/ui/kit.css'
-import { KIT_LABELS_VI, applyBrand, defineBrand, setKitLabels } from '@noverse/ui'
+import { applyViderseLabels } from './kitLabels'
+import { applyViderseBrand } from './brand'
+import './styles/tokens.css'
+import './styles/base.css'
+import './styles/viderse.css'
+import './styles/components.css'
 import App from './App'
 
-// Brand Viderse: một màu chính, kit tự triển thang tông → vai trò ngữ nghĩa.
-// Nhãn kit tiếng Việt, tên thương hiệu riêng (BrandLockup đọc getKitLabels().brand).
-setKitLabels({ ...KIT_LABELS_VI, brand: { name: 'Viderse', studio: 'Studio' } })
-applyBrand(defineBrand({ name: 'viderse', primary: '#F43F5E' }))
+// Nhãn tiếng Việt của kit phải gắn trước lần render đầu (ConfirmDialog mở ngay).
+// Brand Viderse ghi đè token nền sáng lên nền tối của kit (design 02 §2).
+applyViderseLabels()
+applyViderseBrand()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

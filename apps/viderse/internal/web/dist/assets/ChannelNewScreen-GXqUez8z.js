@@ -1,0 +1,1 @@
+import{j as t,t as e}from"./index-BlsFzjgM.js";import{S as n}from"./ScreenEmpty-DKBa5ddl.js";function m({route:r}){return t.jsx(n,{title:e.screens.channelNew.emptyTitle,hint:e.screens.channelNew.emptyHint})}export{m as ChannelNewScreen};
