@@ -128,9 +128,9 @@ Review bắt hai lỗi vòng đời run và đã sửa: hàng đợi trong bộ 
 | sqlc | `(cd apps/viderse && go tool sqlc diff)` sạch |
 | Chạy không cần model | DB trống `viderse_go_smoke`: `migrate up` → `serve` 8789 (HOME tạm) → `/healthz` 200 → mã thiết lập → tạo admin → đăng nhập → gửi brief → run `queued → running → failed` với lỗi "chưa đăng nhập openai-codex — chạy viderse login openai-codex…". DB thử đã xoá |
 | Chạy thật | **Chờ anh chạy `viderse login openai-codex`** (OAuth trên tài khoản ChatGPT của anh). Không chép `~/.ainovel/auth.json`: refresh token của OpenAI xoay vòng, hai app dùng chung một token thì live Noverse sẽ bị đăng xuất |
-| Không giẫm Noverse | Xem dòng ghi sau khi chạy kiểm trên trình duyệt |
+| Không giẫm Noverse | Qua, trên Chromium riêng (không đụng phiên của anh), Noverse thử ở 8791 (binary live `ce3f221`, HOME tạm) và Viderse 8789 (DB `viderse_go`, HOME tạm): đăng nhập Noverse → `/api/me` 200; đăng nhập Viderse trong cùng trình duyệt → hai cookie `ainovel_session` và `viderse_session` cùng tồn tại trên host `127.0.0.1` (khác tên nên không đè nhau), `/api/me` của Noverse vẫn 200. Từ trang Viderse gửi POST `no-cors` sang `127.0.0.1:8791/api/me` và live `127.0.0.1:8790/api/me`: cả hai 403, tên hiển thị không đổi. Cùng lần kiểm phát hiện các ô form Viderse không có nhãn truy cập được; đã sửa ở `1b10ec5` và kiểm lại cả ba màn (thiết lập, đăng nhập, brief) |
 | Ranh giới | `./archtest` qua; thêm tạm import `apps/noverse/...` vào Viderse thì test fail (đã gỡ) |
-| Dọn | DB thử `viderse_go_smoke` đã xoá. Giữ lại DB `viderse_go` và role `viderse_app`/`viderse_migrate` cho lần chạy thật |
+| Dọn | DB thử `viderse_go_smoke` đã xoá; các server thử đã dừng, HOME tạm đã xoá. DB `viderse_go` đã `migrate up` (00001), `agent_runs`/`scripts` trống, giữ lại cùng role `viderse_app`/`viderse_migrate` cho lần chạy thật |
 
 # 4d. SSO — không làm trong MVP (Q6), giữ lại để làm sau
 
