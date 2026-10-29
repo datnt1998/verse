@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // recheckModeFixture 搭好"打磨返工完毕、等待复查"的链路：source 裁定 polish →

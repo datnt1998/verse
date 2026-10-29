@@ -1,15 +1,15 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"strings"
 	"sync/atomic"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Gói P · 27/10 — ask_user tắt: can thiệp trả `ask` bị máy chủ từ chối (không phải

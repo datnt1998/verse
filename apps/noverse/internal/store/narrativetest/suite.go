@@ -16,9 +16,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // BookPort — meta/book.json authority.

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 // promptCacheParamsSupport reports whether this endpoint is trusted to accept

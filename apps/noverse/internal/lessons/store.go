@@ -9,8 +9,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/gofrs/flock"
 	"golang.org/x/text/unicode/norm"
 )

@@ -1,7 +1,7 @@
 package llm
 
 import (
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 // Support describes whether a model/provider supports a capability.

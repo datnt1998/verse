@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 func TestImportProfileValidatesSchemaAndMergesByFingerprint(t *testing.T) {

@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 )
 
 // pgComments là comments.Repository trên bảng comments/comment_replies trong

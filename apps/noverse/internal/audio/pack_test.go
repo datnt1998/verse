@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 func TestPackAudioDefaultsAndPronunciations(t *testing.T) {

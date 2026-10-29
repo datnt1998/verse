@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 func TestCheckConsistencyReturnsPartialFactsWithWarnings(t *testing.T) {

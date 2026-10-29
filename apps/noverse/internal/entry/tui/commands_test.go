@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
 )
 
 func TestEveryCommandHasHandler(t *testing.T) {

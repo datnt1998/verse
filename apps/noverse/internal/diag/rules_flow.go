@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // InvalidPendingRewrites 检测返工队列里混入未完成章节。

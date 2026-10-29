@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // 故事状态闭集（RFC §10.4）。

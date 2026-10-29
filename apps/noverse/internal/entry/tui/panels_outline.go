@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 const outlineGridThreshold = 20

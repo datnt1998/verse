@@ -3,8 +3,8 @@ package store
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Store 是状态管理的组合根与业务外观（facade），持有后端提供的领域契约。

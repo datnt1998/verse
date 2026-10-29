@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // Worker 启动失败时 stderr 尾部带着 host.ErrBookInUse 的文案 → 必须归为 errBookLocked（409），

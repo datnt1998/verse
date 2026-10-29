@@ -1,4 +1,4 @@
-module github.com/datnt1998/noverse
+module github.com/datnt1998/verse
 
 go 1.26.0
 

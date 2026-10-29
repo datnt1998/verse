@@ -11,12 +11,12 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/datnt1998/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/codex"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/utils"
-	"github.com/datnt1998/noverse/internal/xai"
+	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/codex"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/xai"
 )
 
 // exampleConfig là mẫu cấu hình có chú thích ghi vào ~/.ainovel/config.example.jsonc.

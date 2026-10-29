@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/assets"
 )
 
 func packByName(t *testing.T, name string) *assets.Pack {

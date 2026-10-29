@@ -1,7 +1,7 @@
 package web
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"bytes"
 	"context"
@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/ledger"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 type ledgerCandidate struct {

@@ -1,7 +1,7 @@
 package diag
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"encoding/json"
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // SkelEvent 是一条会话消息脱敏后的行为骨架：保留结构信号（角色 / 工具 / 错误 /

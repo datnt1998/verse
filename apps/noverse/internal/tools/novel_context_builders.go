@@ -3,8 +3,8 @@ package tools
 import (
 	"slices"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 type contextBuildState struct {

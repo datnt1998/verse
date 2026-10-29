@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 func renderStateContent(snap host.UISnapshot, contentW int) string {

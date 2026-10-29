@@ -18,13 +18,13 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/blobstore"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 )
 
 // TestWorkerAPIPostgresPublish is the phase-07 worker gate over real Postgres:

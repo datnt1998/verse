@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/blobstore"
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // audioBackend is the per-story audio surface the HTTP handlers need. The file

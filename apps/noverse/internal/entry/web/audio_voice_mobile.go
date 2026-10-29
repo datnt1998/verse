@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 func projectVoiceSamples(voices []audio.ProjectVoice, base string) {

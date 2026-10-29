@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/host/exp"
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // newTestWatcher 直接装配 watcher（绕过 EnableAutoExport 的配置加载与

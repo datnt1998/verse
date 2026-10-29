@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // TestHostReopen 守护 /reopen 的用户级重开出口：完本是重决策，重开只能由用户显式

@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/entry/web"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/web"
 )
 
 var timeType = reflect.TypeOf(time.Time{})
@@ -55,20 +55,21 @@ func fail(err error) {
 	os.Exit(1)
 }
 
-// outputPath resolves web/src/api/types.gen.ts from the module root, so the
-// generator works from `go generate` (cwd = package dir) and from `go test`.
+// outputPath resolves web/src/api/types.gen.ts from the app root (the nearest
+// ancestor holding web/package.json; go.mod sits above it in the monorepo), so
+// the generator works from `go generate` (cwd = package dir) and from `go test`.
 func outputPath() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+		if _, err := os.Stat(filepath.Join(dir, "web", "package.json")); err == nil {
 			return filepath.Join(dir, "web", "src", "api", "types.gen.ts"), nil
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf("go.mod not found above %s", dir)
+			return "", fmt.Errorf("web/package.json not found above %s", dir)
 		}
 		dir = parent
 	}

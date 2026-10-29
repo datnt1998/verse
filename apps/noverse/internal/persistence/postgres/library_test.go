@@ -7,12 +7,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // libraryFixture is a migrated schema with a PG-backed accounts store and a

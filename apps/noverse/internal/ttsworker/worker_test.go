@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // fakeEngine returns deterministic WAV bytes per request and can block to

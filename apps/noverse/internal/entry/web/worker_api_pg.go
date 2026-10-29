@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )

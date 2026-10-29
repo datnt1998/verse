@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 var generatedToolCallSeq atomic.Uint64

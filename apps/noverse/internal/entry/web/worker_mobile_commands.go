@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 func (s *workerServer) getReopenChecks(w http.ResponseWriter) {

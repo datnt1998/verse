@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // characterSlug chỉ dùng khi cấp mã lần đầu; đổi tên không đổi mã đã cấp.

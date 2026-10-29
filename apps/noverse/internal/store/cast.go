@@ -5,7 +5,7 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // CastStore 管理配角名册（meta/cast_ledger.json）。

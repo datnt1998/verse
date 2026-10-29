@@ -1,7 +1,7 @@
 package agents
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"crypto/sha256"
 	"encoding/hex"
@@ -10,17 +10,17 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/agent"
-	corecontext "github.com/datnt1998/noverse/internal/agent/context"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
-	"github.com/datnt1998/noverse/internal/agents/ctxpack"
-	"github.com/datnt1998/noverse/internal/agents/guard"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/tools"
-	"github.com/datnt1998/noverse/internal/userrules"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents/ctxpack"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/userrules"
 )
 
 // agentToRole 把 subagent name 归一为 ModelSet 认得的 role 名。

@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/exp"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 func TestExportConflictIsPreflightWithoutJobAndPathsAreRelative(t *testing.T) {

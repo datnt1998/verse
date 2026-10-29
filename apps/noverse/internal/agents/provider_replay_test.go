@@ -1,7 +1,7 @@
 package agents
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -11,10 +11,10 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	corecontext "github.com/datnt1998/noverse/internal/agent/context"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
-	litellm "github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	litellm "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 // Constructed provider transcripts cross the real provider collector, model

@@ -1,6 +1,6 @@
 package gemini
 
-import "github.com/datnt1998/noverse/internal/llm/wire"
+import "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 
 func (p *Provider) Capabilities(model string) litellm.Capabilities {
 	thinking := litellm.ThinkingCapabilities{

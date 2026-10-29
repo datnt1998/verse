@@ -3,7 +3,7 @@ package store
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 func TestRecentRuleViolations_LastNLatestPerChapter(t *testing.T) {

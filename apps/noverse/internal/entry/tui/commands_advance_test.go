@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/commands"
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 func TestAdvanceCommandsAreRegistered(t *testing.T) {

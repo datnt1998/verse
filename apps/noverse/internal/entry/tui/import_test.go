@@ -10,7 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/datnt1998/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 )
 
 // TestImportHistoryCoalescesRetryLines 守护重试行原地更新：同 Key 连续事件只占一行

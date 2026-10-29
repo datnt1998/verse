@@ -10,8 +10,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/sim"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 )
 
 type simulationState struct {

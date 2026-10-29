@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Use the same story rules and fingerprints as the diagnostic panel. §N in a

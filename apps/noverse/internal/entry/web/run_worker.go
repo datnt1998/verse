@@ -13,15 +13,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
-	buildversion "github.com/datnt1998/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	buildversion "github.com/datnt1998/verse/apps/noverse/internal/version"
 )
 
 // RunWorker serves one book until the gateway closes stdin. File mode serves

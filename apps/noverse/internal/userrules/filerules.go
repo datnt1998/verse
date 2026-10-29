@@ -1,7 +1,7 @@
 package userrules
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/lessons"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/lessons"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // FileRules đọc quy tắc của cấp toàn cục / dự án — không gắn với truyện nào, nên không có

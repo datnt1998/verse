@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/stylestat"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/stylestat"
 )
 
 // writerSmokeCase 是一个典型的 writer 第一章 smoke case，用于门禁测试。

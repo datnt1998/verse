@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 )
 
 const configDirName = ".ainovel"

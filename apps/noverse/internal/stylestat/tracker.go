@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Tracker 按章节维护全书风格统计。首次载入每章一次；新增或重写时只分析变化章节。

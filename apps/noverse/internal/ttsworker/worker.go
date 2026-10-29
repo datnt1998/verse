@@ -28,8 +28,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // Errors surfaced to the CLI.

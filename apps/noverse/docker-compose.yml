@@ -8,9 +8,11 @@
 # deploy/docker-compose.dokploy.yml with the guide in deploy/README.md.
 services:
   ainovel:
-    image: ghcr.io/datnt1998/noverse:latest
+    image: ghcr.io/datnt1998/verse/noverse:latest
     build:
-      context: .
+      # Build context is the verse repository root (the Go module root).
+      context: ../..
+      dockerfile: apps/noverse/Dockerfile
     volumes:
       - ./config:/home/noverse/.ainovel
       - ./workspace:/workspace

@@ -43,9 +43,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
-	"github.com/datnt1998/noverse/internal/blobstore"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // Defaults. The grace window covers "object written, registry row not yet

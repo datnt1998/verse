@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/lessons"
-	"github.com/datnt1998/noverse/internal/naolint"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/lessons"
+	"github.com/datnt1998/verse/apps/noverse/internal/naolint"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 type lessonPackAPI struct {

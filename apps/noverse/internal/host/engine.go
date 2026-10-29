@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -13,17 +13,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
 
-	"github.com/datnt1998/noverse/internal/agents/guard"
-	"github.com/datnt1998/noverse/internal/arbiter"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/flow"
-	"github.com/datnt1998/noverse/internal/notify"
-	storepkg "github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
+	"github.com/datnt1998/verse/apps/noverse/internal/arbiter"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 // engine 是确定性执行引擎:读事实 → Route → 前置校验 → 直接运行 Worker →

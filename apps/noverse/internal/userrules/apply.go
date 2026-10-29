@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // ErrRuntimeRuleNotFound: id không có trong danh sách luật học từ góp ý.

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/notify"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 )
 
 func TestConfigResolveReasoningEffort(t *testing.T) {

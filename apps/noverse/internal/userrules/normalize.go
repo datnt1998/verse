@@ -9,16 +9,16 @@
 package userrules
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"fmt"
 	"log/slog"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // normalizeMaxTokens 单次归一化的输出上限（思考 token 与 JSON 输出共享这一预算）。

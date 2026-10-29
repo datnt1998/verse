@@ -4,6 +4,10 @@ Tài liệu vận hành cho phase 09. Áp dụng cho VPS chạy **Dokploy** (Tra
 hợp, Postgres tạo trong Dokploy) + **worker TTS tại nhà** qua Tailscale. Không
 dùng Caddy, SQLite, Redis hay GPU trên VPS.
 
+Mã nguồn nằm trong monorepo `datnt1998/verse`, ở thư mục `apps/noverse/`. Mọi
+đường dẫn trong tài liệu này (`deploy/…`, `Dockerfile`) đều tính từ
+`apps/noverse/`. Riêng build context của image là **gốc repo** (nơi có `go.mod`).
+
 ## 1. Kiến trúc và ranh giới
 
 ```
@@ -100,7 +104,8 @@ chỉ chấp nhận trong mạng nội bộ đã kiểm soát (bản compose loc
 
 ### 3.2. Application
 
-1. **Create Application** → repo này, build bằng Dockerfile (context = repo root).
+1. **Create Application** → repo `datnt1998/verse`, build bằng Dockerfile:
+   Dockerfile path `apps/noverse/Dockerfile`, build context `.` (gốc repo).
 2. Port/service `8080`, domain HTTPS (Let's Encrypt của Traefik), **1 replica**.
 3. Health check: path `/healthz` (liveness). Nếu muốn chặn traffic khi DB chưa
    sẵn sàng, đặt health check của Traefik/Dokploy vào `/readyz`.

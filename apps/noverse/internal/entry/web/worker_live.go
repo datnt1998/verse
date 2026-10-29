@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/commands"
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/entry/startup"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/startup"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 )
 
 // handleLive 处理契约 §5 新增的 worker 端点（共创、长任务、模型/推理、诊断）。

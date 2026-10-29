@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-47 / D4 · câu 14: "Giữ nguyên" một mục Cảnh báo kèm lý do, và bỏ giữ.

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 func TestAudioNamingUsesCanonicalBookTitle(t *testing.T) {

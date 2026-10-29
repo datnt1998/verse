@@ -11,8 +11,8 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // Não dự án (D14) › Tìm trong dự án (GAP-45): một ô tìm cho mọi truyện người gọi

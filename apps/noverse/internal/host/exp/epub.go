@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // renderEPUB 把章节集合打包成 EPUB 3 字节流。

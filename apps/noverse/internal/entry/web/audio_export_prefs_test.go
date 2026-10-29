@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 func TestAudioExportPrefsRoundTripAB(t *testing.T) {

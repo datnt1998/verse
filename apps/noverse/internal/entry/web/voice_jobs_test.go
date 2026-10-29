@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // testTtsEngine là bộ đọc giả: cài theo kịch bản của test, không chạm đĩa/mạng.

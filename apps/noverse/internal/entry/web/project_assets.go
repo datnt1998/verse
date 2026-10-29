@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // maxAssetUpload 是单个 Tư liệu 文件上限（与 giọng mẫu 上传一致）。

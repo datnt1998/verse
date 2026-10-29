@@ -9,14 +9,14 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // provisionWebStory migrates an isolated schema and anchors one project+story

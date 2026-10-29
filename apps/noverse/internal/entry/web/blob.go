@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 )
 
 // BlobAuthorizer decides whether the request's actor may read one blob. The

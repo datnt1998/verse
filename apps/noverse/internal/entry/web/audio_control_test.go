@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 func waitAudioExportState(t *testing.T, svc *audio.Service, state string) audio.ExportRequest {

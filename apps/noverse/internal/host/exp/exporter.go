@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Run 执行一次导出。同步返回，IO 量小（本地文件读写）。

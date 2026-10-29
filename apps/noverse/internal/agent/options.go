@@ -1,6 +1,6 @@
 package agentcore
 
-import llmtypes "github.com/datnt1998/noverse/internal/llm"
+import llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 // AgentOption configures an Agent.
 type AgentOption func(*Agent)

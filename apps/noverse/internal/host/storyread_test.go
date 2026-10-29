@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/host/exp"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // newFlatStory 构造一个扁平故事目录：<story>/output/novel 下 1..n 章终稿、

@@ -4,10 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // cfgForNewBook 构造能通过 ValidateBase 的最小配置（本地假 provider 不发请求）。

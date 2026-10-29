@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // ExportRelPath 是脱敏诊断文件相对 output 目录的固定位置（覆盖式一份）。

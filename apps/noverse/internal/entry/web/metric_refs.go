@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/assets"
 )
 
 // metricRefs gắn mỗi số đo với dòng luật đã sinh ra nó: số hiệu § và mức nặng

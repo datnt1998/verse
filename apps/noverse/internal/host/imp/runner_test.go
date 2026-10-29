@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 // testDeps 构造三个语义函数同用一个 mock 档位的最小 Deps。

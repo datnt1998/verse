@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // writeTestFixture 在 root/<name> 下铺一个 fixture 目录。chapters 以章号→正文给出。

@@ -3,7 +3,7 @@ package flow
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // StartsForwardChapter 判断一条指令是否会开始尚未完成的正向新章。

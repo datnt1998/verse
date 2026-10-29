@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // refreshJobs reads only already-running, readable workers. It never launches a

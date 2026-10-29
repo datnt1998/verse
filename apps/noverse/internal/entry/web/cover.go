@@ -22,9 +22,9 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // coverMinSize/coverMaxSize 与 §AF 的 "96–512 px" 一致；1400 是内嵌封面母版。

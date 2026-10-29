@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // BookStore 管理作品对外信息，meta/book.json 是唯一事实源，book.md 是可读投影。

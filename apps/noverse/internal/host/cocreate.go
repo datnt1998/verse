@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/xml"
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // 冷启动共创：从零澄清需求，产出整本书的创作指令。

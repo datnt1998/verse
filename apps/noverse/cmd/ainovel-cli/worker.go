@@ -15,10 +15,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/ttsworker"
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/ttsworker"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // runWorkerCommand handles `ainovel-cli worker tts --api <tailnet-url>`: the

@@ -1,7 +1,7 @@
 package diag
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"encoding/json"
 	"os"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // sentinel 是一段绝不该出现在导出里的"小说正文"。

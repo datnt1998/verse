@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/imp"
-	"github.com/datnt1998/noverse/internal/host/sim"
-	"github.com/datnt1998/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
+	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 )
 
 // liveFakeHost 在 fakeHost 之上补齐新端点行为：可配置共创回复、任务事件通道、

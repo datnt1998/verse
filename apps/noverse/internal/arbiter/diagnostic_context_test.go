@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 func TestInterventionReceivesDiagnosticContext(t *testing.T) {

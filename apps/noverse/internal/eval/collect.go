@@ -1,7 +1,7 @@
 package eval
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"bufio"
 	"encoding/json"
@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/stylestat"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/stylestat"
 )
 
 // Collected 是一次运行产出的只读采集结果。全部来自已有评测器与事实层，eval 不自己重算。

@@ -1,8 +1,8 @@
 package store
 
 import (
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"os"
 	"path/filepath"
 	"strconv"

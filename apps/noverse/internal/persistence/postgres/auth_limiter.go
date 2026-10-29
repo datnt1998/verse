@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/datnt1998/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 )
 
 // AuthLimiter là backoff limiter login/pairing trên login_rate_limits:

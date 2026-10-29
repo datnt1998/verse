@@ -9,8 +9,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 )
 
 // RevisionChange 描述一次外部章节修订检查结果（web 端 POST /sync {check:true}，GAP-29）。

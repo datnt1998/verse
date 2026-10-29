@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // StaleForeshadow 检测拖着不动的伏笔：已过 due_by（quá hạn）或太久没被

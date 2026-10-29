@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/domain"
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 func TestEditorRecheckStopsThroughBuiltWorkers(t *testing.T) {

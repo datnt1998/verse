@@ -1,13 +1,13 @@
 package sim
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 )
 
 func TestSimulationContractsAreStrictReady(t *testing.T) {

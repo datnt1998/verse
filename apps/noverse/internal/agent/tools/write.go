@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 )
 
 // WriteTool writes content to a file, creating directories as needed.

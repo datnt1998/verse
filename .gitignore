@@ -1,0 +1,8 @@
+# Repository-level ignores. Each app keeps its own .gitignore (apps/<app>/.gitignore).
+.DS_Store
+.env
+go.work
+go.work.sum
+/bin/
+/dist/
+release-notes.md

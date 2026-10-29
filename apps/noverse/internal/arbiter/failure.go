@@ -1,14 +1,14 @@
 package arbiter
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 )
 
 // FailureFacts 是 worker_failure / deadlock 两个场景共用的事实包:

@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // metricRow là một dòng "Đo bằng máy" (D6): tên · số · đơn vị · chuẩn · đạt/lệch.

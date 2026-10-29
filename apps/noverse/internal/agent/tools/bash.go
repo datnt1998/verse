@@ -1,7 +1,7 @@
 package tools
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"bytes"
 	"context"
@@ -13,9 +13,9 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/agent/task"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/task"
 )
 
 // BashTool executes shell commands.

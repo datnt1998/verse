@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agents"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/models"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/models"
 )
 
 // CatalogModel 是 /model 面板中一个可选模型：上下文窗口与该模型支持的推理强度。

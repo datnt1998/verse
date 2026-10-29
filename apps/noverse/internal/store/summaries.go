@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // fileSummaryStore 管理章节、弧、卷摘要（file backend）。

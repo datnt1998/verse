@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // StoryBuildRange 是 D1 “Viết bằng phiên bản” 的一行：一段连续章节由同一构建写出。

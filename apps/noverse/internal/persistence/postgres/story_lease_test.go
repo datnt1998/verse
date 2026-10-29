@@ -9,9 +9,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 func storeFromBackend(t *testing.T, b *postgres.Backend) *storepkg.Store {

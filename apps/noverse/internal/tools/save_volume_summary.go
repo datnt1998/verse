@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/flow"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // SaveVolumeSummaryTool 保存卷级摘要，Editor 在卷结束时调用。

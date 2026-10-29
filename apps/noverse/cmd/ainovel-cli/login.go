@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/codex"
-	"github.com/datnt1998/noverse/internal/xai"
+	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/codex"
+	"github.com/datnt1998/verse/apps/noverse/internal/xai"
 )
 
 const loginUsage = `Cách dùng:

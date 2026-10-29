@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 )
 
 var jobTitles = map[string]string{"write": "Sáng tác", "import": "Nhập truyện", "importsim": "Nhập hồ sơ văn phong", "simulate": "Học văn phong", "sync": "Đồng bộ tu chỉnh", "export": "Xuất truyện", "diag": "Chẩn đoán"}

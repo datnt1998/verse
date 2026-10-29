@@ -6,7 +6,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // maxSluglineRunes 是"整行大写、以句号收尾"的行仍可能被当成剧本外景标记的

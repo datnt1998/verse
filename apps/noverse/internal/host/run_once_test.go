@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/flow"
-	storepkg "github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 // onceTestWriterStore 预置一本处于写作期、共 3 章的新书(与 eval fixture

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // legacyLesson builds an entry shaped like the file written before levels stopped

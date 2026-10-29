@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // RunInTx executes fn inside a real Postgres transaction on the shared pool:

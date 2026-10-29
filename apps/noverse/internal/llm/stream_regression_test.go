@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	litellm "github.com/datnt1998/noverse/internal/llm/wire"
+	litellm "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 type closeTrackedStream struct {

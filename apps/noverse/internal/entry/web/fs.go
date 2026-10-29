@@ -8,8 +8,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-34 · 09 §10.3: bộ duyệt thư mục trong app, dùng khi không có hộp chọn của máy

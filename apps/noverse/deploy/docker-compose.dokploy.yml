@@ -4,10 +4,10 @@
 #
 # This file is the LOCAL/DEV recipe (self-signed certificate, test passwords,
 # published 8443). In Dokploy you do NOT run this file: Dokploy manages
-# Traefik, the Postgres service and the domain. See deploy/README.md.
+# Traefik, the Postgres service and the domain. See apps/noverse/deploy/README.md.
 #
-#   cd deploy && docker compose -f docker-compose.dokploy.yml up -d --build
-#   cd deploy && docker compose -f docker-compose.dokploy.yml down -v
+#   cd apps/noverse/deploy && docker compose -f docker-compose.dokploy.yml up -d --build
+#   cd apps/noverse/deploy && docker compose -f docker-compose.dokploy.yml down -v
 #
 # Production differences are marked [DOKPLOY] next to each default.
 
@@ -16,8 +16,9 @@ name: noverse
 x-app-image: &app-image
   image: noverse:phase09
   build:
-    context: ..
-    dockerfile: Dockerfile
+    # Build context is the verse repository root (the Go module root).
+    context: ../../..
+    dockerfile: apps/noverse/Dockerfile
     args:
       VERSION: ${VERSION:-dev}
       COMMIT: ${COMMIT:-}

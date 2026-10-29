@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Snapshot 是对 output 目录全部工件的只读快照。

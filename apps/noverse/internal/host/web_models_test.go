@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 )
 
 func TestModelThinkingLevelsProbeConfiguredModel(t *testing.T) {

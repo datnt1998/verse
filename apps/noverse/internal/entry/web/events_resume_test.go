@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // 续传回归：手机/代理掐断 SSE 后带 Last-Event-ID 重连，必须做到不丢不重。

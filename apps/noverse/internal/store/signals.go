@@ -3,7 +3,7 @@ package store
 import (
 	"os"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // SignalStore 管理一次性信号文件（commit/review 结果、待恢复状态）。

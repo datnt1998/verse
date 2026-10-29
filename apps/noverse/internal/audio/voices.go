@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // 项目的"giọng của dự án"：<assets>/giong/*.wav + giong.json（10-audio §3）。

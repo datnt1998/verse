@@ -5,7 +5,7 @@ package web
 // api_key 永不离开服务器（只回 api_key_set / api_key_hint）。
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"crypto/rand"
@@ -26,19 +26,19 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/codex"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/host/imp"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/llm/wire"
-	"github.com/datnt1998/noverse/internal/models"
-	"github.com/datnt1998/noverse/internal/version"
-	"github.com/datnt1998/noverse/internal/webauth"
-	"github.com/datnt1998/noverse/internal/xai"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/codex"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/models"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/xai"
 )
 
 // serveConfig 处理配置与规则接口；返回 false 表示路径不归它管。

@@ -7,15 +7,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/entry/headless"
-	"github.com/datnt1998/noverse/internal/entry/startup"
-	"github.com/datnt1998/noverse/internal/entry/tui"
-	"github.com/datnt1998/noverse/internal/entry/web"
-	"github.com/datnt1998/noverse/internal/eval"
-	"github.com/datnt1998/noverse/internal/rules"
-	buildversion "github.com/datnt1998/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/headless"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/startup"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/tui"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/web"
+	"github.com/datnt1998/verse/apps/noverse/internal/eval"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	buildversion "github.com/datnt1998/verse/apps/noverse/internal/version"
 )
 
 var (

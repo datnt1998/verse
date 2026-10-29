@@ -9,20 +9,23 @@
 # ~/.env or host library. Only /var/lib/noverse/blobs, /var/cache/noverse and
 # the config dir are writable by the non-root user.
 
+# Build context is the verse repository root (the Go module root):
+#   docker build -f apps/noverse/Dockerfile .
+
 # ── 1. web ────────────────────────────────────────────────────────────────────
 FROM --platform=$BUILDPLATFORM node:22-alpine AS web
 
-WORKDIR /src/web
+WORKDIR /src/apps/noverse/web
 
 # Workspace manifests first so the dependency layer caches independently of
 # source edits. `@noverse/ui` is a file workspace under web/packages/ui.
-COPY web/package.json web/package-lock.json ./
-COPY web/packages/ui/package.json packages/ui/package.json
+COPY apps/noverse/web/package.json apps/noverse/web/package-lock.json ./
+COPY apps/noverse/web/packages/ui/package.json packages/ui/package.json
 RUN npm ci --no-audit --no-fund
 
-COPY web/ ./
+COPY apps/noverse/web/ ./
 # vite.config.ts sets build.outDir = ../internal/entry/web/dist, i.e.
-# /src/internal/entry/web/dist — the directory `//go:embed all:dist` expects.
+# /src/apps/noverse/internal/entry/web/dist — the directory `//go:embed all:dist` expects.
 RUN npm run build
 
 # ── 2. go ─────────────────────────────────────────────────────────────────────
@@ -45,12 +48,12 @@ COPY . .
 
 # Web build output must exist before `go build`: the embed refuses a missing
 # dist, which is exactly the packaging failure this stage would otherwise hide.
-COPY --from=web /src/internal/entry/web/dist ./internal/entry/web/dist
+COPY --from=web /src/apps/noverse/internal/entry/web/dist ./apps/noverse/internal/entry/web/dist
 
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath \
     -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.date=${DATE}" \
     -o /out/ainovel-cli \
-    ./cmd/ainovel-cli
+    ./apps/noverse/cmd/ainovel-cli
 
 # ── 3. runtime ────────────────────────────────────────────────────────────────
 FROM alpine:3.22

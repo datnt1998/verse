@@ -10,10 +10,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // commentStoreFor binds the comment lifecycle for a story: file mode uses the

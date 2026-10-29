@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
 )
 
 func TestUserRevisionDropsOrphanRechecks(t *testing.T) {

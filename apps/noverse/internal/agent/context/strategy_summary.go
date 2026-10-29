@@ -1,13 +1,13 @@
 package context
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"sync/atomic"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 )
 
 // FullSummaryConfig controls ContextSummary checkpoint generation.

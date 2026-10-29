@@ -14,9 +14,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // fileBackend is the filesystem storage backend: it owns the concrete

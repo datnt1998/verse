@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host/imp"
-	"github.com/datnt1998/noverse/internal/host/sim"
-	"github.com/datnt1998/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
+	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 )
 
 // jobEvent 对应契约 §5 JobEvent：长任务（import/simulate/importsim/sync/export）经 SSE `job` 下发的进度。

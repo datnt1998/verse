@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-33: mở/đóng listener cho mạng nội bộ lúc đang chạy.

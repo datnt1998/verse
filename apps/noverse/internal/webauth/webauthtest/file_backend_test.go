@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/webauth"
-	"github.com/datnt1998/noverse/internal/webauth/webauthtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth/webauthtest"
 )
 
 // TestAccountContractFileBackend chạy contract suite trên file backend —

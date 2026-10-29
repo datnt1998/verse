@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // CoCreateSession 承载共创模式的非 UI 状态。

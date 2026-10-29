@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	// Đăng ký engine có sẵn + nguồn cấu hình tts từ config.json.
-	_ "github.com/datnt1998/noverse/internal/voice/bootcfg"
-	_ "github.com/datnt1998/noverse/internal/voice/openaispeech"
-	_ "github.com/datnt1998/noverse/internal/voice/vieneu"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/bootcfg"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/openaispeech"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/vieneu"
 )
 
 // runVoiceCommand xử lý `ainovel-cli voice …`: cài bộ đọc trên máy, xem trạng thái,

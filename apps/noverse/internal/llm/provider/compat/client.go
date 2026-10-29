@@ -1,6 +1,6 @@
 package compat
 
-import "github.com/datnt1998/noverse/internal/llm/wire"
+import "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 
 // NewClient builds the provider from cfg and spec and wraps it in a ready
 // *litellm.Client. It is a convenience for custom OpenAI-compatible endpoints.

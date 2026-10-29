@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host/imp"
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 // ImportPreviewTimeout bounds the synchronous HTTP preview and its model calls.

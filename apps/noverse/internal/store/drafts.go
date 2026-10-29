@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // DraftStore 管理章节构思、草稿和终稿。

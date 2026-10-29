@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // chapterTitleIndex 给定章号查标题，缺失返回空串。

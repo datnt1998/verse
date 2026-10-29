@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // SimulationProfileRelPath 是仿写画像相对书目录的位置（store.SimulationStore 同一文件）。

@@ -1,14 +1,14 @@
 package guard
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
 	"fmt"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 )
 
 // repeatFailureLimit là số lần một lời gọi y nguyên (cùng tool, cùng đúng

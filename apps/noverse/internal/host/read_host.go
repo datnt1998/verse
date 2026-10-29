@@ -1,8 +1,8 @@
 package host
 
 import (
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // ModelReady distinguishes a live engine from a disk-backed reading host. A

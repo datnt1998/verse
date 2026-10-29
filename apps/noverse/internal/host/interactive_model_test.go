@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/arbiter"
+	"github.com/datnt1998/verse/apps/noverse/internal/arbiter"
 )
 
 // interactiveHangLimit turns an unbounded retry loop into a failure; it is not a latency budget.

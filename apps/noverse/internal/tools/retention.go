@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 const hookTypeDescription = "Kiểu móc theo Master §7: lat_thong_tin (lật thông tin), de_doa_moi (đe dọa mới), quyet_dinh_treo (quyết định treo), cau_thoai_no (câu thoại nổ); chỉ chương cuối mới dùng seed (hạt giống phần hai). Không ghi các kiểu móc cũ."

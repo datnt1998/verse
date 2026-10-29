@@ -1,7 +1,7 @@
 package llmcontract
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llmretry"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
 )
 
 // FailureKind 区分不可由同一次结构化反馈修复的失败边界。

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/llm/retry"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/retry"
 )
 
 func TestSignRequestSetsSigV4Headers(t *testing.T) {

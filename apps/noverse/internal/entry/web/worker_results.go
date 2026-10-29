@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/commands"
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/exp"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 )
 
 type exportConflictError struct{ payload map[string]any }

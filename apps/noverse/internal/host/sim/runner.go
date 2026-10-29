@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 )
 
 const maxSourceRunes = 60000

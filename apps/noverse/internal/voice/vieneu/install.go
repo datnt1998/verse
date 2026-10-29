@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // modelBytes là dung lượng mô hình ước tính để quy ra phần trăm tải (đo thật: ~581 MB).

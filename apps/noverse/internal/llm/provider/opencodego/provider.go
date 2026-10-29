@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llm/provider/compat"
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/provider/compat"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 const (

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/llm/provider/compat"
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/provider/compat"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 type roundTripFunc func(*http.Request) (*http.Response, error)

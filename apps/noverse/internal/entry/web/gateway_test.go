@@ -14,8 +14,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/version"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/gofrs/flock"
 )
 

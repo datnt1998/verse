@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // reviewArgs là chỗ duy nhất dựng tham số save_review cho test: fixture là giá

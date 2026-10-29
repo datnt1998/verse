@@ -3,8 +3,8 @@ package host
 import (
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 )
 
 // handleSubagentDelta 分流 subagent 的文本与工具调用参数：

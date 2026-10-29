@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // 整章播放文件：把已生成的段按顺序 + 段间停顿拼成一个 mp3。

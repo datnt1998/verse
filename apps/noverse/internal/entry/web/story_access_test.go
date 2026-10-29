@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/notify"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 )
 
 // Mọi truyện trong dự án dùng chung quyền: view cho đọc, collab cho ghi,

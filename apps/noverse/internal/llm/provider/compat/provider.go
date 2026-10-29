@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llm/retry"
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/retry"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 const defaultUserAgent = "litellm-go/0.1"

@@ -17,8 +17,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"golang.org/x/text/unicode/norm"
 )
 

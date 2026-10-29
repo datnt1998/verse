@@ -3,7 +3,7 @@ package tools
 import (
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // premiseHeadingAliases 把 premise 的二级标题归一到越南语规范名。

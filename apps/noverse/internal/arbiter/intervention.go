@@ -1,17 +1,17 @@
 package arbiter
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // InterventionFacts 干预分诊的事实包(Collect 时刻快照)。

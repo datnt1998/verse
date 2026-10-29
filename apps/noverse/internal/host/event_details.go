@@ -1,14 +1,14 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"encoding/json"
 	"time"
 	"unicode/utf8"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
 )
 
 // EventText caps presentation text by Unicode characters, never splitting UTF-8.

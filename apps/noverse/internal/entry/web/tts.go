@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
-	_ "github.com/datnt1998/noverse/internal/voice/bootcfg"
-	_ "github.com/datnt1998/noverse/internal/voice/openaispeech"
-	_ "github.com/datnt1998/noverse/internal/voice/vieneu"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/bootcfg"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/openaispeech"
+	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/vieneu"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // Nhóm endpoint GAP-21: bộ đọc trên máy. Đây là thiết lập của máy (không thuộc

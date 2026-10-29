@@ -3,7 +3,7 @@ package web
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // The "Sáng tác" job row in the jobs dock shows Step directly: it must be Vietnamese, never an engine code like RUNNING.

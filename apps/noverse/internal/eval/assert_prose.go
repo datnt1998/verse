@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // 开篇复读检查的取窗倍率。规整会去掉标点，原文窗口必须显著宽于目标 rune 数，

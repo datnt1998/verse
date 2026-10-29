@@ -1,12 +1,12 @@
 package bootstrap
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // ProbeModel 按配置构造一个模型客户端但不挂到任何角色上，只供查询能力

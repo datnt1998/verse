@@ -14,7 +14,7 @@ import (
 	"github.com/pressly/goose/v3"
 	"github.com/pressly/goose/v3/lock"
 
-	"github.com/datnt1998/noverse/internal/persistence/migrations"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrations"
 )
 
 // OpenDB opens a dedicated migration connection using the pgx stdlib adapter.

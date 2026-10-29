@@ -19,10 +19,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/models"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/models"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // providerModel / providerModelList 是该接口的响应形状（11-api-contract）。

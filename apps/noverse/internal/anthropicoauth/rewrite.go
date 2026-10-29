@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode/utf16"
 
-	"github.com/datnt1998/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 )
 
 // Gói Claude Pro/Max chỉ nhận request mang dấu vân tay của Claude Code CLI. Toàn bộ phần

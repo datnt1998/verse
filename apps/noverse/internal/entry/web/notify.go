@@ -15,9 +15,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/notify"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 type gatewayNotifications struct {

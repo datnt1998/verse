@@ -3,8 +3,8 @@ package tools
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/chapterfacts"
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/chapterfacts"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // validateCommitArgs 在创建 PendingCommit 前校验模型提交的完整语义载荷。

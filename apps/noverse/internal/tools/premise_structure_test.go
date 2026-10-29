@@ -3,7 +3,7 @@ package tools
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // premise 的旧数据是中文标题，解析必须照旧成功，但归一名改成越南语。

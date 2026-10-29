@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // RunMetaStore 管理运行元信息（模型、干预历史、规划级别等）。

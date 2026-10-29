@@ -7,12 +7,12 @@ import (
 	"log/slog"
 	"slices"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	agentcoretools "github.com/datnt1998/noverse/internal/agent/tools"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	agentcoretools "github.com/datnt1998/verse/apps/noverse/internal/agent/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // EditChapterTool 对章节草稿做定点字符串替换，适用于打磨场景。

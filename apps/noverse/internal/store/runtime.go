@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 const runtimeQueuePath = "meta/runtime/queue.jsonl"

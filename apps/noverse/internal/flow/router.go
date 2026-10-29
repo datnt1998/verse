@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // plannerForTier 从已落盘的规划级别推导规划师身份:short 归短篇规划师,

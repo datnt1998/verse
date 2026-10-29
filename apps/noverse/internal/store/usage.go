@@ -3,7 +3,7 @@ package store
 import (
 	"os"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // UsageStore 持久化 token / cost 累计用量到 meta/usage.json。

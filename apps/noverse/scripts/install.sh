@@ -1,14 +1,14 @@
 #!/bin/sh
 # ainovel-cli 一键安装脚本
 #
-#   curl -fsSL https://raw.githubusercontent.com/datnt1998/noverse/main/scripts/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/datnt1998/noverse/v1.2.3/scripts/install.sh | sh -s -- v1.2.3
+#   curl -fsSL https://raw.githubusercontent.com/datnt1998/verse/main/apps/noverse/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/datnt1998/verse/v1.2.3/apps/noverse/scripts/install.sh | sh -s -- v1.2.3
 #
 # 自定义安装目录： AINOVEL_INSTALL_DIR=~/.local/bin curl -fsSL ... | sh
 # 指定版本：AINOVEL_VERSION=v1.2.3 curl -fsSL ... | sh
 set -e
 
-REPO="datnt1998/noverse"
+REPO="datnt1998/verse"
 BIN="ainovel-cli"
 DEST="${AINOVEL_INSTALL_DIR:-/usr/local/bin}"
 VERSION="${AINOVEL_VERSION:-${1:-latest}}"

@@ -11,10 +11,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // acceptTestChapter writes chapter 1 with an accepted revision so audio rows

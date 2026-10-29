@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // minChapters 少于此章数不出统计——样本太小，频率没有意义。

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/flow"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // ChapterAdvanceGate 是 Host 唯一的创作前进政策组件：

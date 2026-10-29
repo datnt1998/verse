@@ -3,7 +3,7 @@ package tui
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/host/exp"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 )
 
 // TestParseExportArgs 表驱动：格式 token、doc-so、from/to 与路径的绑定。

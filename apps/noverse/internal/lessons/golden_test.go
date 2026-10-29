@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/lessons"
+	"github.com/datnt1998/verse/apps/noverse/internal/lessons"
 )
 
 // Golden violations-*.json của web/mock: bảng mục luật hay vấp theo gói. Mock

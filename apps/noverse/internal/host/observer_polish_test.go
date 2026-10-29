@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	agentcore "github.com/datnt1998/noverse/internal/agent"
+	agentcore "github.com/datnt1998/verse/apps/noverse/internal/agent"
 )
 
 func TestObserverPolishFailureIsFinalOnly(t *testing.T) {

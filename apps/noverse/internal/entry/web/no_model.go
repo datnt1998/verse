@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
 )
 
 const needsModelMessage = "Chưa có cấu hình mô hình — thiết lập ở Cài đặt › Nhà cung cấp"

@@ -3,7 +3,7 @@ package tui
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
 )
 
 func TestRevisionCommandIsRegisteredAndNeedsIdle(t *testing.T) {

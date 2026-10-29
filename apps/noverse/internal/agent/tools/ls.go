@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 )
 
 // LsTool lists directory contents with optional depth control.

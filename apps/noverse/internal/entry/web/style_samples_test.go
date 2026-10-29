@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-35：văn mẫu sống trong cùng thư mục /simulate đọc, tối đa 20 mẫu,

@@ -12,18 +12,18 @@ package agents
 // 不再多跑一轮 LLM 收尾。
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
 	"sync/atomic"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/subagent"
-	"github.com/datnt1998/noverse/internal/agents/guard"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // editorStopAfterToolResult 与 build.go 中 editor 的配置保持同一判据。

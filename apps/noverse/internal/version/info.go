@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-// ReleaseRepo is the repository releases are published to (Noverse, a separate
-// project: no longer synced with datnt1998/noverse or kentjuno/ainovel-cli). All Go code
-// pointing to releases (the update command, background new-version checks) uses this
-// constant; the Go module path and import paths are unchanged.
-const ReleaseRepo = "datnt1998/noverse"
+// ReleaseRepo is the repository Noverse releases are published to. The code
+// moved from datnt1998/noverse (frozen) into the datnt1998/verse monorepo;
+// all Go code pointing to releases (the update command, background
+// new-version checks) uses this constant.
+const ReleaseRepo = "datnt1998/verse"
 
 type Info struct {
 	Version string

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 // staleScript 造一个"đã đọc xong nhưng bản đọc đã sửa"的 chapter（kind=update）。

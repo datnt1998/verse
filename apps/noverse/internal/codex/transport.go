@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 )
 
 // defaultInstructions: backend Codex yêu cầu trường instructions; request không

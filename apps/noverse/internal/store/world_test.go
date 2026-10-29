@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 func newTestStore(t *testing.T) *Store {

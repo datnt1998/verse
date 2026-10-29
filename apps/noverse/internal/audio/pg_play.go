@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 var pgSynthKeyRe = regexp.MustCompile(`^[0-9a-f]{64}$`)

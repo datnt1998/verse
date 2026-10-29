@@ -6,7 +6,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 // toolStream normalizes Responses function calls by stable item identity.

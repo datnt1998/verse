@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/tools"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 //go:embed prompts

@@ -9,11 +9,11 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/datnt1998/noverse/internal/commands"
-	"github.com/datnt1998/noverse/internal/entry/startup"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/host/imp"
-	"github.com/datnt1998/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/startup"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 )
 
 const maxPromptEventCols = 160

@@ -3,8 +3,8 @@ package flow
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // LoadState 从 Store 读取 Route 所需的全部事实。

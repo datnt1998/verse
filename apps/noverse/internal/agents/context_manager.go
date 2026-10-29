@@ -1,11 +1,11 @@
 package agents
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"log/slog"
 
-	corecontext "github.com/datnt1998/noverse/internal/agent/context"
+	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
 )
 
 // contextManagerConfig 聚合 ContextManager 的全部配置参数。

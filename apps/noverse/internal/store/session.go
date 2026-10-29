@@ -1,7 +1,7 @@
 package store
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"encoding/json"
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // fileSessionStore 追加式记录 LLM 对话历史到 JSONL 文件（file backend）。

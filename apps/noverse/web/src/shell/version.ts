@@ -53,7 +53,7 @@ export function versionNote(info: Pick<SystemInfo, 'version' | 'latestVersion' |
 }
 
 /** Trang tải bản mới (cùng kho phát hành với lệnh tự cập nhật của CLI). */
-export const RELEASES_URL = 'https://github.com/datnt1998/noverse/releases'
+export const RELEASES_URL = 'https://github.com/datnt1998/verse/releases'
 
 /**
  * “Viết bằng phiên bản” (Thông tin truyện): mỗi khoảng chương một dòng, đúng thứ tự máy chủ trả.

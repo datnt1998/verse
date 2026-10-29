@@ -2,7 +2,7 @@ package store
 
 import (
 	"fmt"
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // GrantCommentReview atomically persists the Writer request and next permit.

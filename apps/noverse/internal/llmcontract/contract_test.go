@@ -1,14 +1,14 @@
 package llmcontract
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"errors"
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 )
 
 type baseModel struct{}

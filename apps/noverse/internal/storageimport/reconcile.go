@@ -15,9 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
-	"github.com/datnt1998/noverse/internal/blobstore"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // querier is the read/write surface shared by *pgxpool.Pool and pgx.Tx.

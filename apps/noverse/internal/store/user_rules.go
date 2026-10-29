@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 const (

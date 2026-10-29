@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
-	"github.com/datnt1998/noverse/internal/voice/openaispeech"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice/openaispeech"
 )
 
 // proc là một tiến trình máy chủ VieNeu đang chạy.

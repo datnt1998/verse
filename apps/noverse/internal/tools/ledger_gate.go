@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/ledger"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
 )
 
 func (t *SaveFoundationTool) checkLedger(ctx context.Context, kind, content string, axes []string) (map[string]any, error) {

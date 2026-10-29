@@ -9,7 +9,7 @@
 package context
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 	"sync/atomic"
 	"unicode/utf8"
 
-	"github.com/datnt1998/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 )
 
 const (

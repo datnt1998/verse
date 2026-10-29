@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 // narration 导出（Master v3 §15.5）：只保留"要朗读的文本"。

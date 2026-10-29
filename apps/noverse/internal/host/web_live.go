@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/datnt1998/noverse/internal/host/sim"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 )
 
 // SimulateSource 与 Simulate 同一条链路，但允许指定语料目录（默认 ./simulate）。

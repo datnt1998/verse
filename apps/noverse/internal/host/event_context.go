@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // These are the task sentences emitted by flow/router.go, not arbitrary prose.

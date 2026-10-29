@@ -12,8 +12,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // G1：POST /api/reveal mở thư mục bằng trình quản lý tệp trên máy chủ;

@@ -19,10 +19,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/llm"
-	"github.com/datnt1998/noverse/internal/llm/provider/openai"
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/provider/openai"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 const (

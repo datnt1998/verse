@@ -3,7 +3,7 @@ package eval
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 func proseCase(prose *ProseExpect, facts *FactsExpect) Case {

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // 事实引文是可选证据：不带 quote 照常通过；带了就必须能定位到修订后的正文，

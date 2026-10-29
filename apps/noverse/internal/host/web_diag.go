@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
 )
 
 // DiagView 是 web 端 /diag 面板所需的一次完整诊断（GAP-28）：诊断报告、

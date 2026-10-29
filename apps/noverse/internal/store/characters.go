@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // fileCharacterStore 管理角色档案和状态快照（file backend）。

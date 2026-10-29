@@ -3,9 +3,9 @@ package tools
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/flow"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // requireAggregateTarget 将 Editor 的新聚合写入绑定到 Router 当前唯一待补的工件。

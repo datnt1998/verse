@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"errors"
@@ -11,14 +11,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/noverse/internal/auth"
-	"github.com/datnt1998/noverse/internal/codex"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/llmcontract"
-	"github.com/datnt1998/noverse/internal/llmretry"
-	"github.com/datnt1998/noverse/internal/xai"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/codex"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
+	"github.com/datnt1998/verse/apps/noverse/internal/xai"
 )
 
 // FailoverEvent 表示一次显式 provider 切换。

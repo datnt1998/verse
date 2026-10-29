@@ -11,7 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // Cast storage on Postgres: one audio_cast row per speaker (role_key = speaker

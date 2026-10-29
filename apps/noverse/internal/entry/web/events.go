@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // ── 全局事件流 GET /api/events（16-feedback-refresh §2/§4）──

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // 分派：整本 truyện 的"谁说谁"（audio/vai.json）。

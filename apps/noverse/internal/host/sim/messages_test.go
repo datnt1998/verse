@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // GAP-35 / Invariant #7: thông điệp của /simulate hiện lên UI (job, Activity,

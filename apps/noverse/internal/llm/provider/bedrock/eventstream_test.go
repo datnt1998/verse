@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/llm/internal/testgolden"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/internal/testgolden"
 )
 
 func TestReadEventStreamMessageReadsPayload(t *testing.T) {

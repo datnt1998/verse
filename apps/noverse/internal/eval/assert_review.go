@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // 期望严重度的顺序是 warning < error < critical。它是「作者判定这是不是一个

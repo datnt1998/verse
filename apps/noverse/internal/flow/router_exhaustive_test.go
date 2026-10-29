@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // expectKind 是规格层面的裁定结果：路由到谁、做什么类别的事。

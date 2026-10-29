@@ -1,8 +1,8 @@
 package context
 
 import (
-	"github.com/datnt1998/noverse/internal/agent"
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"errors"

@@ -1,8 +1,8 @@
 package sim
 
 import (
-	"github.com/datnt1998/noverse/internal/agent/schema"
-	"github.com/datnt1998/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 )
 
 func textList(description string) map[string]any {

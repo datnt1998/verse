@@ -9,10 +9,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 func migrateSchema(t *testing.T, dsn string) {

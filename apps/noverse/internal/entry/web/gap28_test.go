@@ -3,7 +3,7 @@ package web
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
 )
 
 // GAP-28：GET S/diag trả generatedAt, stats, findings (có fingerprint), actions (kèm sent) và sections.

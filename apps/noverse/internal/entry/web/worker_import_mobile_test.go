@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/host/imp"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 )
 
 // fakeHost embeds a nil *host.Host. Explicit test adapters keep the new Host

@@ -3,7 +3,7 @@ package domain
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // 状态迁移规则（最小版）

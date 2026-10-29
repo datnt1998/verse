@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // sceneHeadingPrefixes 是剧本场景标题的行首标记（场号、内/外景）。大纲由剧本

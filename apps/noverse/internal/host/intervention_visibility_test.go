@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 func TestInterventionJudgmentIsInternal(t *testing.T) {

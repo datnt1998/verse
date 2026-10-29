@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Câu 9 §H: log chương thực sự bước vào viết lại, meta/rewrites.jsonl, chỉ thêm.

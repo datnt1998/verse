@@ -3,7 +3,7 @@ package host
 import (
 	"context"
 
-	"github.com/datnt1998/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 )
 
 // OAuthAccount trả về nhãn tài khoản đã đăng nhập cho provider OAuth id

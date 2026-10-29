@@ -1,7 +1,7 @@
 package userrules
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"crypto/sha256"
@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Service 编排用户规则快照的生成与更新：归一化各来源 → 确定性合并 → 落盘。

@@ -39,7 +39,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 )
 
 // ImporterVersion stamps import_runs so a schema/decoder change is visible in

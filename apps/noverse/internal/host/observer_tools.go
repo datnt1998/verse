@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // handleToolUpdate 处理 Worker 的进度中继(ProgressPayload):TOOL 行、流式正文、

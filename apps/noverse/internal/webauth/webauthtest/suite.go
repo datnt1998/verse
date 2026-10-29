@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // Factory trả một backend mới, rỗng cho mỗi case. Thêm user phải qua các API

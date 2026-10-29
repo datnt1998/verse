@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 type AuditActor struct {

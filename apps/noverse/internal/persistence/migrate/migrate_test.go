@@ -10,8 +10,8 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/datnt1998/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 )
 
 // TestMigrateFoundationUpIsIdempotent runs the migration twice in one schema;

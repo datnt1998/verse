@@ -5,8 +5,8 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/stylestat"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/stylestat"
 )
 
 // StyleStatsIndex 把 Store 中的已完成章节同步到增量统计器。

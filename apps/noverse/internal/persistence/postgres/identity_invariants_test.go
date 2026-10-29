@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // TestConcurrentFirstAdmin races N first-admin requests on an empty schema:

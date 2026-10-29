@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // metricsResponse là phần thân của GET /metrics dùng trong test.

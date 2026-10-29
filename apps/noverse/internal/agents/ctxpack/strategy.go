@@ -1,13 +1,13 @@
 package ctxpack
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"time"
 
-	corecontext "github.com/datnt1998/noverse/internal/agent/context"
-	"github.com/datnt1998/noverse/internal/store"
+	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 const storeSummaryStrategyName = "store_summary"

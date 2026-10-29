@@ -1,6 +1,11 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 version: 2
 
+# Releases (v* tags) in this monorepo are Noverse releases. The archive name is
+# pinned: apps/noverse/scripts/install.sh downloads ainovel-cli_<ver>_<os>_<arch>,
+# and an inferred name would follow the repository (verse).
+project_name: ainovel-cli
+
 before:
   hooks:
     - go mod tidy
@@ -9,7 +14,7 @@ before:
 
 builds:
   - id: ainovel-cli
-    main: ./cmd/ainovel-cli
+    main: ./apps/noverse/cmd/ainovel-cli
     binary: ainovel-cli
     env:
       - CGO_ENABLED=0
@@ -37,7 +42,8 @@ archives:
         formats:
           - zip
     files:
-      - README.md
+      - src: apps/noverse/README.md
+        strip_parent: true
       - LICENSE
       - third_party/NOTICE
     name_template: >-
@@ -74,4 +80,4 @@ changelog:
 release:
   github:
     owner: datnt1998
-    name: noverse
+    name: verse

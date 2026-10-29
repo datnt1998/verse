@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // Client nói chuyện với một máy chủ TTS tương thích OpenAI Speech API.

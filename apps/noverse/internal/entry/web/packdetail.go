@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // packDetail là phần mở rộng của một gói trong GET /api/config/presets (D2):

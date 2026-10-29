@@ -1,7 +1,7 @@
 package tools
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"bufio"
 	"bytes"
@@ -21,7 +21,7 @@ import (
 
 	_ "image/gif"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 )

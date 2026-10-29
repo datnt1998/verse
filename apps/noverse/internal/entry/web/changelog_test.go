@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
 )
 
 // D1 “Có gì mới”: /api/system › releases[] = bản mới (kèm notes markdown) + bản

@@ -3,7 +3,7 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // TestDocumentPathIsInverseOfResolve pins that every concrete file path the

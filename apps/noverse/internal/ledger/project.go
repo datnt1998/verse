@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // ProjectHistory reloads sibling ledger facts for the Architect's save gate.

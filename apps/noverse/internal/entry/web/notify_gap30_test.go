@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 func inboxOf(t *testing.T, g *Gateway, cookie string) []map[string]any {

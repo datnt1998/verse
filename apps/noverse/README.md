@@ -71,8 +71,8 @@
 
 ### Bước 1: Clone Repo & Chuẩn Bị Thư Mục
 ```bash
-git clone https://github.com/datnt1998/noverse.git
-cd noverse
+git clone https://github.com/datnt1998/verse.git
+cd verse/apps/noverse
 
 # Tạo thư mục chứa cấu hình và thư mục chứa truyện
 mkdir -p config workspace novels
@@ -82,7 +82,12 @@ mkdir -p config workspace novels
 ```bash
 docker compose build
 ```
-*(Nếu build từ source Go: `go build -o ainovel-cli ./cmd/ainovel-cli`)*
+*(Nếu build từ source Go: `go build -o ainovel-cli ./cmd/ainovel-cli`, chạy trong `apps/noverse`)*
+
+> Từ 2026-10-29, Noverse nằm trong monorepo `datnt1998/verse`. Repo cũ
+> `datnt1998/noverse` được đóng băng; bản phát hành mới và lệnh tự cập nhật
+> lấy từ `datnt1998/verse`. Binary đã cài từ repo cũ sẽ không thấy bản mới:
+> cài lại một lần bằng `scripts/install.sh` của repo mới.
 
 ### Bước 3: Khởi Chạy TUI
 ```bash

@@ -5,10 +5,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/chapterfacts"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/rules"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/chapterfacts"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Projector 从章节记录重建所有章节级派生状态。

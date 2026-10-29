@@ -13,7 +13,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 )
 
 // GrepTool searches file contents by pattern.

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-34 · 09 §10.4: GET /api/library/inspect?path= → library.Inspection.

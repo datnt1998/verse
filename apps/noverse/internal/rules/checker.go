@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Check 对章节正文按结构化规则进行机械检查，返回违规事实列表。

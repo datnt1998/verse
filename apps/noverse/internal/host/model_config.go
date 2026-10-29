@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 )
 
 type APIKeyAction string

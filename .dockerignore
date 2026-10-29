@@ -1,4 +1,4 @@
-# Build context hygiene for the hosted image.
+# Build context hygiene for the hosted images (context = repository root).
 # The web stage builds dist from source; the Go stage embeds it.
 
 # VCS / editors / agents
@@ -8,25 +8,27 @@
 .idea
 .agentkit
 .omp
-.DS_Store
+**/.DS_Store
 
 # Local config, keys, credentials, run logs
-.env
-.env.*
-.ainovel
-config
+**/.env
+**/.env.*
+**/.ainovel
 *.log
-*.pem
-*.key
+**/*.pem
+**/*.key
 
-# Host-only artifacts and homes
-ainovel-cli
-workspace
+# GoReleaser output at the repository root
 dist
-tasks
-refer
-output*
-serve*.log
+
+# Noverse host-only artifacts and homes
+apps/noverse/config
+apps/noverse/ainovel-cli
+apps/noverse/workspace
+apps/noverse/dist
+apps/noverse/tasks
+apps/noverse/refer
+apps/noverse/output*
 
 # Node deps and CI caches: the web stage runs `npm ci` from the lockfile
 **/node_modules
@@ -36,7 +38,7 @@ serve*.log
 **/test-results
 
 # Generated SPA output: rebuilt inside the image, never taken from the host
-internal/entry/web/dist
+apps/noverse/internal/entry/web/dist
 
 # Python/Go local caches (Go modules come from the proxy, not the context)
 **/__pycache__

@@ -3,7 +3,7 @@ package diag
 import (
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // TestBuildRetentionMap: vị trí lời hứa/cú lật, chuỗi móc thứ ba, câu hỏi treo

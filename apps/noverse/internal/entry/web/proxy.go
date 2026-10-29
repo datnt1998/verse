@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // The hosted deployment terminates TLS at Traefik and forwards plain HTTP to

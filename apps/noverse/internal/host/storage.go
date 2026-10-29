@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datnt1998/noverse/internal/errs"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // StoryLease is the exclusive write right for one story run: an OS file lock in

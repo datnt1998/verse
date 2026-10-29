@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/blobkey"
-	"github.com/datnt1998/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 )
 
 // stubQueue is a scriptable WorkerQueue: each call is a field so a test can

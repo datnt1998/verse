@@ -17,10 +17,10 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Não truyện (GAP-38 xưng hô & quan hệ, GAP-39 brain). Các endpoint đọc/ghi thẳng tệp

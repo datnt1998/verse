@@ -8,7 +8,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 var ErrChapterNotFound = errors.New("không tìm thấy chương")

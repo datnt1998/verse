@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/assets"
-	"github.com/datnt1998/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/assets"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 )
 
 // Command 是 `ainovel-cli eval` 子命令入口，返回进程退出码：

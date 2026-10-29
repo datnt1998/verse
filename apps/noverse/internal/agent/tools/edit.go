@@ -8,8 +8,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/schema"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 )
 
 // EditTool performs exact string replacement in a file.

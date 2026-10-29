@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // 14-jobs-dock §1.7 — việc của máy: cài bộ đọc trên máy (POST /api/tts/install).

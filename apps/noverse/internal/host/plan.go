@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // ─── “Kế hoạch truyện”面板（Gói P · 21-dev-prompt.md P1）────────────────────

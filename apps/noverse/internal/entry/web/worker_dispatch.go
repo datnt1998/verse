@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // actionAckWindow lets deterministic precondition errors (already running,

@@ -1,6 +1,6 @@
 package minimax
 
-import "github.com/datnt1998/noverse/internal/llm/wire"
+import "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 
 // NewClient builds the provider from cfg and wraps it in a ready *litellm.Client.
 // It is a convenience for the common single-provider case. It calls New(cfg)

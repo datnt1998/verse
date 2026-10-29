@@ -15,7 +15,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/datnt1998/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 // 目录约定（10-audio §3）。audio 子目录名来自书库配置 dirs.audio（默认 "audio"）。

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
 // Understanding là câu trả lời "Noverse hiểu quy tắc này là gì" cho một dòng nhập — chưa lưu gì.

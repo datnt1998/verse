@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/auth"
+	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 )
 
 // Model là một model mà tài khoản ChatGPT hiện tại được dùng qua Codex.

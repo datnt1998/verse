@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 )
 
 // Actor là danh tính của request đi vào repository — immutable, request-scoped.

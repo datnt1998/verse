@@ -208,7 +208,7 @@ func isKeyLiteral(v string) bool {
 // and API routes are ignored, and it fails on both string concatenation
 // ("projects/" + …) and fmt.Sprintf formats that embed key segments.
 func TestNoKeyLiteralsOutsideBlobkey(t *testing.T) {
-	root := repoRoot(t)
+	root := appRoot(t)
 	skip := map[string]bool{
 		"internal/blobkey": true, ".git": true, "node_modules": true, "workspace": true,
 		"third_party": true, "web": true,
@@ -287,16 +287,18 @@ func TestNoKeyLiteralsOutsideBlobkey(t *testing.T) {
 	}
 }
 
-// repoRoot finds the module root from this file's location (internal/blobkey).
-func repoRoot(t *testing.T) string {
+// appRoot finds the Noverse app root (apps/noverse in the monorepo) from this
+// file's location (internal/blobkey); the go.mod lives further up, so the
+// command directory is the marker.
+func appRoot(t *testing.T) string {
 	t.Helper()
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("getwd: %v", err)
 	}
 	root := filepath.Dir(filepath.Dir(wd))
-	if _, err := os.Stat(filepath.Join(root, "go.mod")); err != nil {
-		t.Fatalf("repo root %s: %v", root, err)
+	if _, err := os.Stat(filepath.Join(root, "cmd", "ainovel-cli")); err != nil {
+		t.Fatalf("app root %s: %v", root, err)
 	}
 	return root
 }

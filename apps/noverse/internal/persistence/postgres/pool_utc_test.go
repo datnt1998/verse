@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/persistence/pgtest"
-	"github.com/datnt1998/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // TestPoolPinsTimestampsToUTC pins the one serialization boundary for

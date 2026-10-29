@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/gofrs/flock"
 )
 

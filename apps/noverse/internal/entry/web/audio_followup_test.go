@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
-	"github.com/datnt1998/noverse/internal/version"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 func TestAudioProviderLiveWatch(t *testing.T) {

@@ -44,7 +44,7 @@ jobs:
 
       - name: Installer syntax check
         if: runner.os == 'Linux'
-        run: sh -n scripts/install.sh
+        run: sh -n apps/noverse/scripts/install.sh
 
       - name: Vet
         env:
@@ -53,15 +53,16 @@ jobs:
 
       - name: Generated SQL code is current
         if: runner.os == 'Linux'
+        working-directory: apps/noverse
         env:
           GOWORK: "off"
         run: go tool sqlc diff
 
       - name: Start Postgres and MinIO
         if: runner.os == 'Linux'
-        run: docker compose -f deploy/compose.test.yml up -d --wait postgres minio
+        run: docker compose -f apps/noverse/deploy/compose.test.yml up -d --wait postgres minio
 
-      # Linux runs the Postgres and MinIO suites against deploy/compose.test.yml
+      # Linux runs the Postgres and MinIO suites against apps/noverse/deploy/compose.test.yml
       # and fails instead of skipping them; Windows has no service containers.
       - name: Test
         env:
@@ -76,13 +77,13 @@ jobs:
         if: runner.os == 'Linux'
         env:
           GOWORK: "off"
-        run: go test -race -buildvcs=false -count=1 ./internal/host ./internal/store ./internal/tools
+        run: go test -race -buildvcs=false -count=1 ./apps/noverse/internal/host ./apps/noverse/internal/store ./apps/noverse/internal/tools
 
   web:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web
+        working-directory: apps/noverse/web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,7 +93,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: web/package-lock.json
+          cache-dependency-path: apps/noverse/web/package-lock.json
 
       - name: Install
         run: npm ci --no-audit --no-fund

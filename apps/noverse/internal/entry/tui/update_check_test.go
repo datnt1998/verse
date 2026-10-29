@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 // TestStatusBarShowsUpdateHint 锁死 P0-2 的 TUI 侧契约：后台检查发现有新版本时，

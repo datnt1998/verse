@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/datnt1998/noverse/internal/commands"
+	"github.com/datnt1998/verse/apps/noverse/internal/commands"
 )
 
 // serveCommands 处理 GET /api/commands（14 §A G11）：斜杠命令注册表，

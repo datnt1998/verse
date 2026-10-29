@@ -1,7 +1,7 @@
 package tools
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/agent"
-	"github.com/datnt1998/noverse/internal/agent/permission"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent/permission"
 )
 
 // ToolSearchTool provides LLM-driven discovery of deferred tools.

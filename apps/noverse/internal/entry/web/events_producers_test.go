@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 func TestRulesMutationCarriesScopeAndSection(t *testing.T) {

@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/comments"
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/host/exp"
-	storepkg "github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
+	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // engineSubdir 是故事目录下引擎输出目录的固定相对路径（bootstrap 默认 output/novel）。

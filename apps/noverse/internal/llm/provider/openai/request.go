@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 func (p *Provider) buildRequest(req *litellm.Request, stream bool) (*chatRequest, error) {

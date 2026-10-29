@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
 )
 
 type coCreateProposalResponse struct {

@@ -14,8 +14,8 @@ Create a provider with its package-specific config, then bind a Client:
 	    "fmt"
 	    "os"
 
-	    "github.com/datnt1998/noverse/internal/llm"
-	    "github.com/datnt1998/noverse/internal/llm/provider/anthropic"
+	    "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	    "github.com/datnt1998/verse/apps/noverse/internal/llm/provider/anthropic"
 	)
 
 	provider, err := anthropic.New(anthropic.Config{

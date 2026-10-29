@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/noverse/internal/codex"
-	"github.com/datnt1998/noverse/internal/errs"
-	"github.com/datnt1998/noverse/internal/llm"
-	"github.com/datnt1998/noverse/internal/models"
-	"github.com/datnt1998/noverse/internal/notify"
-	"github.com/datnt1998/noverse/internal/utils"
-	"github.com/datnt1998/noverse/internal/xai"
+	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/codex"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm"
+	"github.com/datnt1998/verse/apps/noverse/internal/models"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/xai"
 )
 
 // DefaultContextWindow 模型未在 registry 登记时的兜底窗口大小。

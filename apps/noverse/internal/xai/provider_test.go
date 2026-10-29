@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 type fakeTokens struct {

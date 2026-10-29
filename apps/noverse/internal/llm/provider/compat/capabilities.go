@@ -1,6 +1,6 @@
 package compat
 
-import "github.com/datnt1998/noverse/internal/llm/wire"
+import "github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 
 func (s Spec) defaultCapabilities(provider, model string) litellm.Capabilities {
 	caps := litellm.Capabilities{

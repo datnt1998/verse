@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/audio"
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
 // audioJobsProvider 把各故事的音频生成队列汇总进任务中心（14-jobs-dock）：

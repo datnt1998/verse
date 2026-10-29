@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // Action 是 NextAction 从工作区事实推导出的下一步确定性动作。

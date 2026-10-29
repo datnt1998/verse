@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/gofrs/flock"
 )
 

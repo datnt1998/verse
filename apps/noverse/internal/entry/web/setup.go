@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // GAP-41：首次运行在网页上创建管理员（A0 · Setup.dc.html）。

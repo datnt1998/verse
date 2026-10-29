@@ -3,8 +3,8 @@ package eval
 import (
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/diag"
-	"github.com/datnt1998/noverse/internal/stylestat"
+	"github.com/datnt1998/verse/apps/noverse/internal/diag"
+	"github.com/datnt1998/verse/apps/noverse/internal/stylestat"
 )
 
 // Outcome 是单个 case 的门禁结论。

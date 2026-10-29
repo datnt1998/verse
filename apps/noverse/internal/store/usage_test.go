@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // TestUsageStore_LoadMissing 验证文件不存在时返回 (nil, nil)，由调用方走 replay。

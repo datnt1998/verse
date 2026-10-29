@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/store"
-	"github.com/datnt1998/noverse/internal/stylestat"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/stylestat"
 )
 
 func TestStyleStatsIndexAppendRewriteAndRemove(t *testing.T) {

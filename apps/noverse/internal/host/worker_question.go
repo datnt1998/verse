@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/datnt1998/noverse/internal/agents/guard"
-	"github.com/datnt1998/noverse/internal/flow"
-	"github.com/datnt1998/noverse/internal/notify"
+	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
+	"github.com/datnt1998/verse/apps/noverse/internal/flow"
+	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 )
 
 const workerQuestionPrefix = "Báo cáo phân vân từ "

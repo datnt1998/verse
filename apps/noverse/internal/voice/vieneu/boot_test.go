@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/voice"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // fakeVoiceServer giả lập máy đọc VieNeu: sau 0,4 giây mới mở cổng, rồi trả

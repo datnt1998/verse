@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/version"
-	"github.com/datnt1998/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 )
 
 // newAuthGateway 建立只带账号路由的网关；helper 与 gateway_test.go 相互独立，避免共享命名。

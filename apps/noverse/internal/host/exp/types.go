@@ -6,7 +6,7 @@
 // 当前支持 TXT、EPUB 与 narration（TTS 干净文本，Master v3 §15.5）。
 package exp
 
-import "github.com/datnt1998/noverse/internal/store"
+import "github.com/datnt1998/verse/apps/noverse/internal/store"
 
 // Format 标识导出格式。
 type Format string

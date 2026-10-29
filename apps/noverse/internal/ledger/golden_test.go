@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/noverse/internal/ledger"
+	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
 )
 
 // Golden ledger-check*.json của web/mock: mock từng tự cài đặt lại bốn check

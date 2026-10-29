@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/datnt1998/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 )
 
 // jsonBodyMessage 是请求体 JSON 解码失败时回给用户的越南语 400 文案（合约：错误一律越南语）。

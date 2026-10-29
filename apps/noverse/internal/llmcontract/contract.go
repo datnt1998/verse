@@ -5,7 +5,7 @@
 package llmcontract
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"crypto/sha256"
 	"encoding/hex"

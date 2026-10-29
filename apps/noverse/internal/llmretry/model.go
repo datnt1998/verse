@@ -1,14 +1,14 @@
 package llmretry
 
 import (
-	llmtypes "github.com/datnt1998/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 
 	"context"
 	"encoding/json"
 	"errors"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/agent"
+	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 )
 
 // DefaultMaxRetries 是模型包装器的开流前重试上限，与 agents.subagentMaxRetries

@@ -12,9 +12,9 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/datnt1998/noverse/internal/domain"
-	"github.com/datnt1998/noverse/internal/library"
-	"github.com/datnt1998/noverse/internal/utils"
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 )
 
 // styleSamplesDir 是 /simulate 读取语料的目录（Host.Simulate 的默认源目录）。

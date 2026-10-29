@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/noverse/internal/version"
+	"github.com/datnt1998/verse/apps/noverse/internal/version"
 )
 
 // TestServeSystemReportsBuildInfo 锁死 P0-2：/api/system 必须回传经 ldflags

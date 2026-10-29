@@ -9,9 +9,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/datnt1998/noverse/internal/entry/startup"
-	"github.com/datnt1998/noverse/internal/host"
-	"github.com/datnt1998/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/entry/startup"
+	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 // coCreateManager 持有 web 共创会话：冷启动（故事尚未开始，对话先于开写）与

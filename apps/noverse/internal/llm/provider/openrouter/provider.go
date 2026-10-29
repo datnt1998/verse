@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/datnt1998/noverse/internal/llm/provider/compat"
-	"github.com/datnt1998/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/provider/compat"
+	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 )
 
 const defaultBaseURL = "https://openrouter.ai/api/v1"
@@ -30,7 +30,7 @@ func New(cfg Config) (*compat.Provider, error) {
 		Auth: compat.AuthSpec{APIKeyRequired: true},
 		Headers: compat.HeaderSpec{
 			Extra: map[string]string{
-				"HTTP-Referer": "https://github.com/datnt1998/noverse/internal/llm",
+				"HTTP-Referer": "https://github.com/datnt1998/verse/apps/noverse/internal/llm",
 				"X-Title":      "litellm",
 			},
 			Request: mapHeaders,
