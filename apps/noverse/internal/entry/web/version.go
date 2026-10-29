@@ -18,6 +18,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 // File versions include metadata as well as content: saving an identical document
@@ -278,7 +279,7 @@ func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user ide
 	// Only versioned JSON resources need their body inspected; uploads and worker
 	// streams retain their original reader and flushing semantics.
 	candidate := r.URL.Path == "/api/library" || r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, "/api/rules/file") || r.URL.Path == "/api/me" || strings.HasPrefix(r.URL.Path, "/api/me/") || strings.HasPrefix(r.URL.Path, "/api/users") || r.Method == http.MethodPut
-	if mutating && candidate && jsonContent(r) {
+	if mutating && candidate && webguard.JSONContent(r) {
 		data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
 		if err != nil {
 			jsonError(w, 400, "JSON không hợp lệ")

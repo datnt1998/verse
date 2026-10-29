@@ -8,11 +8,17 @@
 // agentcore.IsStreamIdleMessage directly.
 package errs
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/datnt1998/verse/core/llmconfig"
+)
 
 var (
-	ErrConfig           = errors.New("lỗi cấu hình")
-	ErrProvider         = errors.New("lỗi khởi tạo nhà cung cấp") // provider initialization / wiring
+	// ErrConfig/ErrProvider 是 core/llmconfig 哨兵的别名：校验与构造错误由共享
+	// 包发出，errors.Is 检查保持兼容。
+	ErrConfig           = llmconfig.ErrConfig
+	ErrProvider         = llmconfig.ErrProvider // provider initialization / wiring
 	ErrStoreRead        = errors.New("store read error")
 	ErrStoreWrite       = errors.New("store write error")
 	ErrToolArgs         = errors.New("tool args invalid")

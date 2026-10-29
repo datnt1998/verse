@@ -58,6 +58,13 @@ jobs:
           GOWORK: "off"
         run: go tool sqlc diff
 
+      - name: Generated SQL code is current (viderse)
+        if: runner.os == 'Linux'
+        working-directory: apps/viderse
+        env:
+          GOWORK: "off"
+        run: go tool sqlc diff
+
       - name: Start Postgres and MinIO
         if: runner.os == 'Linux'
         run: docker compose -f apps/noverse/deploy/compose.test.yml up -d --wait postgres minio
@@ -94,6 +101,31 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: apps/noverse/web/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+  viderse-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/viderse/web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/viderse/web/package-lock.json
 
       - name: Install
         run: npm ci --no-audit --no-fund

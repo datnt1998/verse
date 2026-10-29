@@ -7,6 +7,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/roles"
 )
 
@@ -52,7 +53,7 @@ func TestValidateBaseRejectsNonConfigurableRoles(t *testing.T) {
 			cfg := Config{
 				Provider:  "openrouter",
 				ModelName: "test-model",
-				Providers: map[string]ProviderConfig{
+				Providers: map[string]llmconfig.ProviderConfig{
 					"openrouter": {APIKey: "sk-test-123456"},
 				},
 				Roles: map[string]roles.RoleConfig{
@@ -76,7 +77,7 @@ func TestValidateBaseNotifyEventsMatchRuntimeContract(t *testing.T) {
 		return Config{
 			Provider:  "openrouter",
 			ModelName: "test-model",
-			Providers: map[string]ProviderConfig{
+			Providers: map[string]llmconfig.ProviderConfig{
 				"openrouter": {APIKey: "sk-test-123456"},
 			},
 			Notify: NotifyConfig{Events: events},
@@ -98,7 +99,7 @@ func TestValidateBaseAcceptsCodexSubscriptionWithoutAPIKey(t *testing.T) {
 	cfg := Config{
 		Provider:  "openai-codex",
 		ModelName: "gpt-5.6-terra",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openai-codex": {},
 			"chatgpt":      {Type: "openai-codex", BaseURL: "https://proxy.example/codex"},
 		},
@@ -116,7 +117,7 @@ func TestValidateBaseAcceptsCodexSubscriptionWithoutAPIKey(t *testing.T) {
 		t.Fatal("type=openai-codex 的自定义名 provider 也应走 OAuth")
 	}
 
-	cfg.Providers["openai-codex"] = ProviderConfig{API: "chat"}
+	cfg.Providers["openai-codex"] = llmconfig.ProviderConfig{API: "chat"}
 	if err := cfg.ValidateBase(); !errors.Is(err, errs.ErrConfig) {
 		t.Fatalf("openai-codex 固定 Responses 协议，api 配置应被拒绝，得到: %v", err)
 	}
@@ -128,7 +129,7 @@ func TestProviderStreamIdleTimeoutValue(t *testing.T) {
 		want    time.Duration
 		wantErr bool
 	}{
-		{"", defaultStreamIdleTimeout, false},
+		{"", 5 * time.Minute, false},
 		{"900s", 15 * time.Minute, false},
 		{"15m", 15 * time.Minute, false},
 		{"abc", 0, true},
@@ -136,7 +137,7 @@ func TestProviderStreamIdleTimeoutValue(t *testing.T) {
 		{"0", 0, true}, // 不提供"关闭看门狗"——真死流需要有限界
 	}
 	for _, c := range cases {
-		got, err := ProviderConfig{StreamIdleTimeout: c.in}.StreamIdleTimeoutValue()
+		got, err := llmconfig.ProviderConfig{StreamIdleTimeout: c.in}.StreamIdleTimeoutValue()
 		if c.wantErr {
 			if err == nil {
 				t.Errorf("%q 应报错", c.in)
@@ -153,7 +154,7 @@ func TestValidateBaseRejectsBadStreamIdleTimeout(t *testing.T) {
 	cfg := Config{
 		Provider:  "openrouter",
 		ModelName: "test-model",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openrouter": {APIKey: "sk-test-123456", StreamIdleTimeout: "fast"},
 		},
 	}
@@ -166,7 +167,7 @@ func TestXAIOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 	cfg := Config{
 		Provider:  "xai-oauth",
 		ModelName: "grok-4.6",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"xai-oauth": {},
 			"supergrok": {Type: "xai-oauth"},
 			"grok":      {APIKey: "xai-key"},
@@ -192,9 +193,9 @@ func TestXAIOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 	}
 
 	// Bearer OAuth không được gửi tới máy chủ ngoài x.ai; api (chat/responses) không cấu hình được.
-	for _, pc := range []ProviderConfig{{BaseURL: "https://api.openai.com/v1"}, {BaseURL: "http://api.x.ai/v1"}, {API: "chat"}} {
+	for _, pc := range []llmconfig.ProviderConfig{{BaseURL: "https://api.openai.com/v1"}, {BaseURL: "http://api.x.ai/v1"}, {API: "chat"}} {
 		bad := cfg
-		bad.Providers = map[string]ProviderConfig{"xai-oauth": pc}
+		bad.Providers = map[string]llmconfig.ProviderConfig{"xai-oauth": pc}
 		bad.Roles = nil
 		if _, err := NewModelSet(bad); err == nil {
 			t.Errorf("xai-oauth %+v phải bị từ chối", pc)
@@ -206,7 +207,7 @@ func TestAnthropicOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 	cfg := Config{
 		Provider:  "anthropic-oauth",
 		ModelName: "claude-sonnet-4-6",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"anthropic-oauth": {},
 			"claude-max":      {Type: "anthropic-oauth"},
 			"anthropic":       {APIKey: "sk-ant-key"},
@@ -233,9 +234,9 @@ func TestAnthropicOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 	}
 
 	// Bearer OAuth không được gửi tới máy chủ ngoài anthropic.com; api không cấu hình được.
-	for _, pc := range []ProviderConfig{{BaseURL: "https://api.openai.com/v1"}, {BaseURL: "http://api.anthropic.com"}, {API: "chat"}} {
+	for _, pc := range []llmconfig.ProviderConfig{{BaseURL: "https://api.openai.com/v1"}, {BaseURL: "http://api.anthropic.com"}, {API: "chat"}} {
 		bad := cfg
-		bad.Providers = map[string]ProviderConfig{"anthropic-oauth": pc}
+		bad.Providers = map[string]llmconfig.ProviderConfig{"anthropic-oauth": pc}
 		bad.Roles = nil
 		if _, err := NewModelSet(bad); err == nil {
 			t.Errorf("anthropic-oauth %+v phải bị từ chối", pc)

@@ -2,6 +2,7 @@ package agents
 
 import (
 	llmtypes "github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmconfig"
 
 	"os"
 	"path/filepath"
@@ -21,9 +22,9 @@ func newPackTestWorkers(t *testing.T, cfg bootstrap.Config, bundle assets.Bundle
 	t.Helper()
 	cfg.Provider, cfg.ModelName = "proxy", "m"
 	if cfg.Providers == nil {
-		cfg.Providers = map[string]bootstrap.ProviderConfig{"proxy": {
+		cfg.Providers = map[string]llmconfig.ProviderConfig{"proxy": {
 			Type: "openai", APIKey: "k", BaseURL: "https://example.com/v1",
-			Models: []bootstrap.ModelConfig{{Name: "m", ContextWindow: 200000}},
+			Models: []llmconfig.ModelConfig{{Name: "m", ContextWindow: 200000}},
 		}}
 	}
 	models, err := bootstrap.NewModelSet(cfg)

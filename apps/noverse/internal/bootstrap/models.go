@@ -9,14 +9,10 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/core/agentcore"
-	"github.com/datnt1998/verse/core/auth"
-	"github.com/datnt1998/verse/core/auth/anthropicoauth"
-	"github.com/datnt1998/verse/core/auth/codex"
-	"github.com/datnt1998/verse/core/auth/xai"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/llmcontract"
 	"github.com/datnt1998/verse/core/llmretry"
 	"github.com/datnt1998/verse/core/roles"
@@ -230,7 +226,7 @@ func (ms *ModelSet) Swap(role, provider, model string) error {
 	if !ok {
 		return fmt.Errorf("provider %q chưa được cấu hình: %w", provider, errs.ErrConfig)
 	}
-	next, err := createModelFromConfig(provider, model, pc, make(map[string]llmtypes.ChatModel))
+	next, err := llmconfig.NewModel(provider, model, pc, make(map[string]llmtypes.ChatModel))
 	if err != nil {
 		return fmt.Errorf("đổi model thất bại: %w", err)
 	}
@@ -330,7 +326,7 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 
 	// 创建默认模型
 	defaultPC := cfg.DefaultProviderConfig()
-	defaultModel, err := createModelFromConfig(cfg.Provider, cfg.ModelName, defaultPC, cache)
+	defaultModel, err := llmconfig.NewModel(cfg.Provider, cfg.ModelName, defaultPC, cache)
 	if err != nil {
 		return nil, fmt.Errorf("model mặc định: %w", err)
 	}
@@ -348,7 +344,7 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 		if !ok {
 			return nil, fmt.Errorf("vai %s trỏ tới provider %q chưa được cấu hình: %w", role, rc.Provider, errs.ErrConfig)
 		}
-		m, err := createModelFromConfig(rc.Provider, rc.Model, pc, cache)
+		m, err := llmconfig.NewModel(rc.Provider, rc.Model, pc, cache)
 		if err != nil {
 			return nil, fmt.Errorf("model của vai %s: %w", role, err)
 		}
@@ -364,7 +360,7 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 			if !ok {
 				return nil, fmt.Errorf("fallback của vai %s trỏ tới provider %q chưa được cấu hình: %w", role, fallback.Provider, errs.ErrConfig)
 			}
-			fm, err := createModelFromConfig(fallback.Provider, fallback.Model, fpc, cache)
+			fm, err := llmconfig.NewModel(fallback.Provider, fallback.Model, fpc, cache)
 			if err != nil {
 				return nil, fmt.Errorf("fallback %s/%s của vai %s: %w", fallback.Provider, fallback.Model, role, err)
 			}
@@ -381,148 +377,9 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 	return ms, nil
 }
 
-// createModelFromConfig 创建或复用 ChatModel 实例。
-func createModelFromConfig(providerKey, model string, pc ProviderConfig, cache map[string]llmtypes.ChatModel) (llmtypes.ChatModel, error) {
-	cacheKey := providerKey + "|" + model
-	if m, ok := cache[cacheKey]; ok {
-		return m, nil
-	}
-
-	providerType, err := pc.ProviderType(providerKey)
-	if err != nil {
-		return nil, fmt.Errorf("phân tích loại provider thất bại: %w", err)
-	}
-	providerExtra := cloneMap(pc.Extra)
-	if pc.API != "" {
-		if providerExtra == nil {
-			providerExtra = make(map[string]any, 1)
-		}
-		providerExtra["api"] = pc.API
-	}
-
-	streamIdle, err := pc.StreamIdleTimeoutValue()
-	if err != nil {
-		return nil, fmt.Errorf("provider %s: stream_idle_timeout: %w: %w", providerKey, errs.ErrConfig, err)
-	}
-
-	var m llmtypes.ChatModel
-	switch providerType {
-	case codex.ProviderName:
-		m, err = newCodexModel(model, pc, providerExtra, streamIdle)
-	case xai.ProviderName:
-		m, err = newXAIModel(model, pc, providerExtra, streamIdle)
-	case anthropicoauth.ProviderName:
-		m, err = newAnthropicOAuthModel(model, pc, providerExtra, streamIdle)
-	default:
-		m, err = llmtypes.NewModel(providerType, model,
-			llmtypes.WithAPIKey(pc.APIKey),
-			llmtypes.WithBaseURL(pc.BaseURL),
-			llmtypes.WithStreamIdleTimeout(streamIdle),
-			llmtypes.WithProviderExtra(providerExtra),
-			llmtypes.WithExtra(pc.ExtraBody),
-		)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("provider %s (%s): %w: %w", providerKey, providerType, errs.ErrProvider, err)
-	}
-	cache[cacheKey] = m
-	return m, nil
-}
-
-// newCodexModel 创建 ChatGPT 订阅（Codex 后端）模型：凭证取自 ~/.ainovel/auth.json，
-// 由 `ainovel-cli login openai-codex` 写入，请求时按需刷新。
-func newCodexModel(model string, pc ProviderConfig, extra map[string]any, streamIdle time.Duration) (llmtypes.ChatModel, error) {
-	if pc.API != "" {
-		return nil, fmt.Errorf("openai-codex luôn dùng giao thức Responses, không hỗ trợ cấu hình api")
-	}
-	manager, err := auth.DefaultManager()
-	if err != nil {
-		return nil, err
-	}
-	headers, err := stringMapFromExtra(extra, "headers")
-	if err != nil {
-		return nil, err
-	}
-	return codex.NewChatModel(model, codex.Config{
-		BaseURL:           pc.BaseURL,
-		Tokens:            codex.ManagerTokens(manager),
-		Headers:           headers,
-		ExtraBody:         pc.ExtraBody,
-		StreamIdleTimeout: streamIdle,
-	})
-}
-
-// newXAIModel 创建 SuperGrok / X Premium+ 订阅模型：凭证取自 ~/.ainovel/auth.json，
-// 由 `ainovel-cli login xai-oauth` 写入，请求时按需刷新。
-func newXAIModel(model string, pc ProviderConfig, extra map[string]any, streamIdle time.Duration) (llmtypes.ChatModel, error) {
-	if pc.API != "" {
-		return nil, fmt.Errorf("xai-oauth chỉ dùng giao thức Chat Completions, không hỗ trợ cấu hình api")
-	}
-	if err := xai.ValidateBaseURL(pc.BaseURL); err != nil {
-		return nil, err
-	}
-	manager, err := auth.DefaultManager()
-	if err != nil {
-		return nil, err
-	}
-	headers, err := stringMapFromExtra(extra, "headers")
-	if err != nil {
-		return nil, err
-	}
-	return xai.NewChatModel(model, xai.Config{
-		BaseURL:           pc.BaseURL,
-		Tokens:            xai.ManagerTokens(manager),
-		Headers:           headers,
-		ExtraBody:         pc.ExtraBody,
-		StreamIdleTimeout: streamIdle,
-	})
-}
-
-// newAnthropicOAuthModel 创建 Claude Pro/Max 订阅模型：凭证取自 ~/.ainovel/auth.json，
-// 由 `ainovel-cli login anthropic-oauth` 写入，请求时按需刷新。
-func newAnthropicOAuthModel(model string, pc ProviderConfig, extra map[string]any, streamIdle time.Duration) (llmtypes.ChatModel, error) {
-	if pc.API != "" {
-		return nil, fmt.Errorf("anthropic-oauth chỉ dùng giao thức Messages, không hỗ trợ cấu hình api")
-	}
-	if err := anthropicoauth.ValidateBaseURL(pc.BaseURL); err != nil {
-		return nil, err
-	}
-	manager, err := auth.DefaultManager()
-	if err != nil {
-		return nil, err
-	}
-	headers, err := stringMapFromExtra(extra, "headers")
-	if err != nil {
-		return nil, err
-	}
-	return anthropicoauth.NewChatModel(model, anthropicoauth.Config{
-		BaseURL:           pc.BaseURL,
-		Tokens:            anthropicoauth.ManagerTokens(manager),
-		Headers:           headers,
-		ExtraBody:         pc.ExtraBody,
-		StreamIdleTimeout: streamIdle,
-	})
-}
-
-func stringMapFromExtra(extra map[string]any, key string) (map[string]string, error) {
-	raw, ok := extra[key].(map[string]any)
-	if !ok {
-		if extra[key] == nil {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("extra.%s phải là đối tượng khóa-giá trị chuỗi", key)
-	}
-	out := make(map[string]string, len(raw))
-	for name, value := range raw {
-		s, ok := value.(string)
-		if !ok {
-			return nil, fmt.Errorf("extra.%s.%s phải là chuỗi", key, name)
-		}
-		out[name] = s
-	}
-	return out, nil
-}
-
+// createModelFromConfig 已由 core/llmconfig.NewModel 承担（跨应用共享的
+// provider → ChatModel 构造）；本文件只保留 ModelSet/SwappableModel/failover
+// 这些 Noverse 装配层逻辑。
 type failoverModel struct {
 	role    string
 	primary *SwappableModel

@@ -6,6 +6,7 @@ package web
 
 import (
 	llmtypes "github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmconfig"
 
 	"context"
 	"crypto/rand"
@@ -36,7 +37,7 @@ import (
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/codex"
 	"github.com/datnt1998/verse/core/auth/xai"
-	"github.com/datnt1998/verse/core/llm/wire"
+	litellm "github.com/datnt1998/verse/core/llm/wire"
 	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/platform/identity"
 )
@@ -845,7 +846,7 @@ func providerLabel(provider string) string {
 }
 
 // providerEndpoint 返回用户能认出的服务地址（scheme://host）：先取配置的 base_url，再取预设默认值。
-func providerEndpoint(provider string, pc bootstrap.ProviderConfig) string {
+func providerEndpoint(provider string, pc llmconfig.ProviderConfig) string {
 	base := strings.TrimSpace(pc.BaseURL)
 	if base == "" {
 		for _, p := range bootstrap.ProviderPresets() {
@@ -862,7 +863,7 @@ func providerEndpoint(provider string, pc bootstrap.ProviderConfig) string {
 
 // connectionFailure 把建模/调用失败拆成越南语 message 与原文 detail：适配器/net/http 的英文
 // （"request failed: Post …"、"[validation, …]"）只进 detail；分类用 imp.ModelErrDetail。
-func connectionFailure(provider string, pc bootstrap.ProviderConfig, err error) (message, detail string) {
+func connectionFailure(provider string, pc llmconfig.ProviderConfig, err error) (message, detail string) {
 	raw := err.Error()
 	if strings.Contains(raw, "api key is required") {
 		return missingAPIKeyMessage(provider), ""

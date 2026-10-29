@@ -8,6 +8,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 // cfgForNewBook 构造能通过 ValidateBase 的最小配置（本地假 provider 不发请求）。
@@ -17,7 +18,7 @@ func cfgForNewBook(dir string, advanceMode string) bootstrap.Config {
 		Provider:    "testprovider",
 		ModelName:   "test-model",
 		AdvanceMode: advanceMode,
-		Providers: map[string]bootstrap.ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"testprovider": {Type: "openai", APIKey: "sk-test", BaseURL: "http://127.0.0.1:1"},
 		},
 	}

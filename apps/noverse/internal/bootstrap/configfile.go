@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/roles"
 )
 
@@ -283,7 +284,7 @@ func MergeConfig(base, overlay Config) Config {
 	// Providers: overlay 的 key 覆盖 base 同名 key
 	if len(overlay.Providers) > 0 {
 		if base.Providers == nil {
-			base.Providers = make(map[string]ProviderConfig)
+			base.Providers = make(map[string]llmconfig.ProviderConfig)
 		}
 		for k, v := range overlay.Providers {
 			existing := base.Providers[k]
@@ -300,7 +301,7 @@ func MergeConfig(base, overlay Config) Config {
 				existing.BaseURL = v.BaseURL
 			}
 			if len(v.Models) > 0 {
-				existing.Models = append([]ModelConfig(nil), v.Models...)
+				existing.Models = append([]llmconfig.ModelConfig(nil), v.Models...)
 			}
 			if len(v.ExtraBody) > 0 {
 				existing.ExtraBody = cloneMap(v.ExtraBody)
@@ -383,9 +384,9 @@ func cloneMap(m map[string]any) map[string]any {
 // CloneConfig 深拷贝配置中会在运行时修改的 map/slice，避免候选配置污染当前配置。
 func CloneConfig(cfg Config) Config {
 	clone := cfg
-	clone.Providers = make(map[string]ProviderConfig, len(cfg.Providers))
+	clone.Providers = make(map[string]llmconfig.ProviderConfig, len(cfg.Providers))
 	for name, pc := range cfg.Providers {
-		pc.Models = append([]ModelConfig(nil), pc.Models...)
+		pc.Models = append([]llmconfig.ModelConfig(nil), pc.Models...)
 		pc.Extra = cloneMap(pc.Extra)
 		pc.ExtraBody = cloneMap(pc.ExtraBody)
 		clone.Providers[name] = pc
@@ -402,7 +403,7 @@ func CloneConfig(cfg Config) Config {
 // SaveProviderConfig 补丁式更新目标配置层里单个 provider 的凭证与模型库。
 // 只动 providers 段，绝不触碰顶层 provider/model 选择——“当前用哪个”归 /model。
 // 目标不存在时创建最小配置；目标损坏时拒绝覆盖。
-func SaveProviderConfig(path string, provider string, pc ProviderConfig) error {
+func SaveProviderConfig(path string, provider string, pc llmconfig.ProviderConfig) error {
 	target, found, err := loadOptionalJSON(path)
 	if err != nil {
 		return err
@@ -411,7 +412,7 @@ func SaveProviderConfig(path string, provider string, pc ProviderConfig) error {
 		target = Config{}
 	}
 	if target.Providers == nil {
-		target.Providers = make(map[string]ProviderConfig)
+		target.Providers = make(map[string]llmconfig.ProviderConfig)
 	}
 	target.Providers[provider] = pc
 	return SaveConfig(path, target)

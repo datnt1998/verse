@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 func TestModelConfigAcceptsLegacyAndObjectEntries(t *testing.T) {
@@ -53,7 +55,7 @@ func TestModelConfigJSONSchemaTriState(t *testing.T) {
 	if err := json.Unmarshal([]byte(input), &cfg); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
-	assertTriState := func(models []ModelConfig, stage string) {
+	assertTriState := func(models []llmconfig.ModelConfig, stage string) {
 		t.Helper()
 		if models[0].JSONSchema == nil || !*models[0].JSONSchema {
 			t.Fatalf("%s: a 应为 true, got %v", stage, models[0].JSONSchema)
@@ -94,9 +96,9 @@ func TestSwappableModelJSONSchemaOverrideFollowsSwap(t *testing.T) {
 	tr, fa := true, false
 	cfg := Config{
 		Provider: "proxy", ModelName: "a",
-		Providers: map[string]ProviderConfig{"proxy": {
+		Providers: map[string]llmconfig.ProviderConfig{"proxy": {
 			Type: "openai", APIKey: "k", BaseURL: "https://example.com/v1",
-			Models: []ModelConfig{{Name: "a", JSONSchema: &tr}, {Name: "b", JSONSchema: &fa}, {Name: "c"}},
+			Models: []llmconfig.ModelConfig{{Name: "a", JSONSchema: &tr}, {Name: "b", JSONSchema: &fa}, {Name: "c"}},
 		}},
 	}
 	ms, err := NewModelSet(cfg)
@@ -131,9 +133,9 @@ func TestSwappableModelJSONSchemaOverrideFollowsSwap(t *testing.T) {
 func TestResolveContextWindowIsProviderAware(t *testing.T) {
 	cfg := Config{
 		ContextWindow: 300000,
-		Providers: map[string]ProviderConfig{
-			"one": {Models: []ModelConfig{{Name: "same", ContextWindow: 128000}}},
-			"two": {Models: []ModelConfig{{Name: "same", ContextWindow: 900000}}},
+		Providers: map[string]llmconfig.ProviderConfig{
+			"one": {Models: []llmconfig.ModelConfig{{Name: "same", ContextWindow: 128000}}},
+			"two": {Models: []llmconfig.ModelConfig{{Name: "same", ContextWindow: 900000}}},
 		},
 	}
 	if got, source := cfg.ResolveContextWindow("one", "same"); got != 128000 || source != CtxWindowModelConfig {
@@ -151,13 +153,13 @@ func TestSaveProviderConfigPreservesSelectionAndUsesPrivateMode(t *testing.T) {
 	path := filepath.Join(t.TempDir(), ".ainovel", "config.json")
 	original := Config{
 		Provider: "old", ModelName: "old-model", Style: "fantasy",
-		Providers: map[string]ProviderConfig{"old": {Type: "openai", Models: []ModelConfig{{Name: "old-model"}}}},
+		Providers: map[string]llmconfig.ProviderConfig{"old": {Type: "openai", Models: []llmconfig.ModelConfig{{Name: "old-model"}}}},
 		Budget:    BudgetConfig{BookUSD: 20, WarnRatio: 0.8},
 	}
 	if err := SaveConfig(path, original); err != nil {
 		t.Fatalf("seed: %v", err)
 	}
-	pc := ProviderConfig{Type: "openai", Models: []ModelConfig{{Name: "new-model", ContextWindow: 500000}}}
+	pc := llmconfig.ProviderConfig{Type: "openai", Models: []llmconfig.ModelConfig{{Name: "new-model", ContextWindow: 500000}}}
 	if err := SaveProviderConfig(path, "new", pc); err != nil {
 		t.Fatalf("save provider config: %v", err)
 	}

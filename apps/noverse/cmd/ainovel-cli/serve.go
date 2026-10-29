@@ -28,6 +28,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 func runServe(args []string) error {
@@ -84,7 +85,7 @@ func runServe(args []string) error {
 	}
 	// trusted-proxy 配置必须最先解析：坏的 CIDR 或 Secure cookie 无 HTTPS
 	// PUBLIC_URL 都是启动错误，不是运行期静默降级。
-	proxyCfg, err := web.ProxyConfigFromEnv()
+	proxyCfg, err := webguard.ConfigFromEnv()
 	if err != nil {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}

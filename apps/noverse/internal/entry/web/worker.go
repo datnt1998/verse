@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime"
 	"net/http"
 	"os"
 	"strconv"
@@ -23,6 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 type workerHost interface {
@@ -301,7 +301,7 @@ func (s *workerServer) handle(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, 401, "Mã truy cập worker không hợp lệ")
 		return
 	}
-	if r.Method == http.MethodPost && !jsonContent(r) {
+	if r.Method == http.MethodPost && !webguard.JSONContent(r) {
 		jsonError(w, 400, "Content-Type phải là application/json")
 		return
 	}
@@ -581,10 +581,6 @@ func commandResult(w http.ResponseWriter, err error, v any) {
 		return
 	}
 	writeJSON(w, 200, v)
-}
-func jsonContent(r *http.Request) bool {
-	typ, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	return err == nil && typ == "application/json"
 }
 func decodeJSON(w http.ResponseWriter, r *http.Request, v any) bool {
 	d := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))

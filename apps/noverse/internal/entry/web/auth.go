@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 const sessionCookie = "ainovel_session"
@@ -51,36 +52,18 @@ func (g *Gateway) writeAccountUser(w http.ResponseWriter, status int, user ident
 	writeJSON(w, status, envelope)
 }
 
+// clientIP 返回可信的客户端地址：经 ServeHTTP 归一化的请求带 platform/webguard
+// 边界算出的地址；直接调用 handler（测试/内部）时退回对端地址。
 func clientIP(r *http.Request) string {
-	// 经 ServeHTTP 归一化的请求带着 trusted-proxy 边界算出的地址；
-	// 直接调用 handler（测试/内部）时退回对端地址。
-	if facts, ok := normalized(r); ok && facts.clientIP != "" {
-		return facts.clientIP
-	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-	return host
+	return webguard.ClientIP(r)
 }
 
 // secureRequest 判断浏览器看到的是否 HTTPS：直连 TLS，或 TRUSTED_PROXIES 内的对端
 // 转发的 X-Forwarded-Proto（未配置 TRUSTED_PROXIES 时不信任任何对端，loopback 也不例外）。
-// 远端地址的自报头一律忽略，否则伪造头可以把 Secure cookie 降级；归一化在 ServeHTTP
-// 里完成（proxy.go），这里只读结果。下面的 loopback 旧规则只用于未经归一化的请求。
+// 远端地址的自报头一律忽略，否则伪造头可以把 Secure cookie 降级；规则实现在
+// platform/webguard。
 func secureRequest(r *http.Request) bool {
-	if facts, ok := normalized(r); ok {
-		return facts.secure
-	}
-	if r.TLS != nil {
-		return true
-	}
-	if !strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
-		return false
-	}
-	host := clientIP(r)
-	ip := net.ParseIP(host)
-	return ip != nil && ip.IsLoopback()
+	return webguard.SecureRequest(r)
 }
 
 func setSession(w http.ResponseWriter, r *http.Request, s identity.NewSession) {

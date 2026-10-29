@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 const validGlobal = `{
@@ -318,7 +319,7 @@ func TestMergeConfig_ProviderExtraFields(t *testing.T) {
 	base := Config{
 		Provider:  "openrouter",
 		ModelName: "google/gemini-2.5-flash",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openrouter": {
 				API:    "chat",
 				APIKey: "sk-test-123456",
@@ -332,7 +333,7 @@ func TestMergeConfig_ProviderExtraFields(t *testing.T) {
 		},
 	}
 	overlay := Config{
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openrouter": {
 				API:     "responses",
 				BaseURL: "https://proxy.example.com/v1",
@@ -384,7 +385,7 @@ func TestValidateBase_ProviderOverrideWithoutCredentials(t *testing.T) {
 	cfg := Config{
 		Provider:  "mimo",
 		ModelName: "mimo-v2.5-pro",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openrouter": {APIKey: "sk-test-123456"},
 		},
 	}
@@ -402,7 +403,7 @@ func TestValidateBaseRejectsInvalidProviderAPI(t *testing.T) {
 	cfg := Config{
 		Provider:  "openai",
 		ModelName: "gpt-5.1",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"openai": {APIKey: "sk-test-123456", API: "legacy"},
 		},
 	}
@@ -420,7 +421,7 @@ func TestValidateBaseRejectsProviderAPIOnNonOpenAIProvider(t *testing.T) {
 	cfg := Config{
 		Provider:  "anthropic",
 		ModelName: "claude-sonnet-4",
-		Providers: map[string]ProviderConfig{
+		Providers: map[string]llmconfig.ProviderConfig{
 			"anthropic": {APIKey: "sk-test-123456", API: "responses"},
 		},
 	}

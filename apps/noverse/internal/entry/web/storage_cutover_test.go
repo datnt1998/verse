@@ -24,6 +24,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 // This file is the phase-06 gate: a hosted story must be creatable, writable,
@@ -303,7 +304,7 @@ func installCutoverLauncher(t *testing.T, g *Gateway, pool *postgres.Pool, model
 		cfg := bootstrap.Config{
 			Provider: "cutover", ModelName: "scripted", Style: "default",
 			AdvanceMode: "review",
-			Providers: map[string]bootstrap.ProviderConfig{
+			Providers: map[string]llmconfig.ProviderConfig{
 				"cutover": {Type: "openai", BaseURL: modelURL, APIKey: "test-only"},
 			},
 		}
