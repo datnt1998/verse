@@ -296,6 +296,39 @@ func TestStateChangingRequestsRequireSameOrigin(t *testing.T) {
 	}
 }
 
+// Which same-host origins count as "this deployment". Local mode serves only
+// on IP literals and localhost, so a domain name whose Host matches is a
+// DNS-rebinding page. Hosted mode trusts PUBLIC_URL alone, not whatever Host
+// the proxy forwarded.
+func TestAllowedOriginHosts(t *testing.T) {
+	local := &ProxyConfig{}
+	hosted := mustConfig(t, "10.0.0.0/8", "https://noverse.example", true)
+	for _, tc := range []struct {
+		name   string
+		cfg    *ProxyConfig
+		host   string
+		origin string
+		want   bool
+	}{
+		{"local loopback", local, "127.0.0.1:8790", "http://127.0.0.1:8790", true},
+		{"local localhost", local, "localhost:8790", "http://localhost:8790", true},
+		{"local ipv6 loopback", local, "[::1]:8790", "http://[::1]:8790", true},
+		{"phone on LAN address", local, "192.168.1.20:8790", "http://192.168.1.20:8790", true},
+		{"localhost page posting to 127.0.0.1", local, "127.0.0.1:8790", "http://localhost:8790", false},
+		{"sibling app port", local, "127.0.0.1:8790", "http://127.0.0.1:8789", false},
+		{"dns rebinding name", local, "evil.example:8790", "http://evil.example:8790", false},
+		{"hosted public url", hosted, "noverse.example", "https://noverse.example", true},
+		{"hosted plain http", hosted, "noverse.example", "http://noverse.example", false},
+		{"hosted forwarded host only", hosted, "internal.lan:8080", "http://internal.lan:8080", false},
+	} {
+		r := httptest.NewRequest(http.MethodPost, "/api/projects", nil)
+		r.Host = tc.host
+		if got := tc.cfg.allowedOrigin(r, tc.origin); got != tc.want {
+			t.Errorf("%s: allowedOrigin(Host=%s, Origin=%s) = %v, want %v", tc.name, tc.host, tc.origin, got, tc.want)
+		}
+	}
+}
+
 // PATCH and DELETE bodies get the JSON contract POST and PUT already had; a
 // bodiless DELETE (the normal form) still reaches the session check.
 func TestPatchAndDeleteBodiesMustBeJSON(t *testing.T) {

@@ -32,8 +32,8 @@ type ProxyConfig struct {
 	// Trusted is the peer CIDR list. Empty trusts no peer: X-Forwarded-* is
 	// ignored, loopback included.
 	Trusted []*net.IPNet
-	// PublicURL is the canonical public base URL. Browser state-changing
-	// requests are accepted from this origin or from the request's own Host;
+	// PublicURL is the canonical public base URL. When set, browser
+	// state-changing requests are accepted only from this origin;
 	// SECURE_COOKIES requires it to be https.
 	PublicURL *url.URL
 	// SecureCookies forces every session cookie to carry Secure. Hosted
@@ -215,8 +215,11 @@ func (c *ProxyConfig) forwardedClient(peer net.IP, headers []string) net.IP {
 }
 
 // allowedOrigin reports whether an Origin value is one this deployment serves.
-// PUBLIC_URL is authoritative; the request's own Host is accepted so same-origin
-// requests keep working when the proxy rewrites Host.
+// Hosted (PUBLIC_URL set): only PUBLIC_URL. Local: the origin must be the
+// request's own host:port and that host must be an IP literal (127.0.0.1, ::1,
+// the LAN/Tailscale address a phone connected to) or localhost. A different
+// port is a sibling app on the same machine; a domain name equal to Host is a
+// DNS-rebinding page, since nothing in local mode is served under a name.
 func (c *ProxyConfig) allowedOrigin(r *http.Request, origin string) bool {
 	origin = strings.TrimSpace(origin)
 	if origin == "" || origin == "null" {
@@ -226,10 +229,14 @@ func (c *ProxyConfig) allowedOrigin(r *http.Request, origin string) bool {
 	if err != nil || u.Host == "" {
 		return false
 	}
-	if c != nil && c.PublicURL != nil && strings.EqualFold(u.Host, c.PublicURL.Host) {
-		return true
+	if c != nil && c.PublicURL != nil {
+		return strings.EqualFold(u.Scheme, c.PublicURL.Scheme) && strings.EqualFold(u.Host, c.PublicURL.Host)
 	}
-	return strings.EqualFold(u.Host, r.Host)
+	if !strings.EqualFold(u.Host, r.Host) {
+		return false
+	}
+	host := u.Hostname()
+	return strings.EqualFold(host, "localhost") || net.ParseIP(host) != nil
 }
 
 // crossSiteRequest rejects browser-issued state changes from another origin, in

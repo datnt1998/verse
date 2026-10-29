@@ -201,11 +201,14 @@ yêu cầu, nhưng giá trị cuối cùng do máy chủ quyết định.
 - `SECURE_COOKIES=true` → cookie phiên luôn `Secure` (HttpOnly, SameSite=Strict,
   path `/`), không phụ thuộc header do client gửi.
 - Request ghi dữ liệu (POST/PUT/PATCH/DELETE) bị `403` ở **mọi chế độ** khi có
-  `Sec-Fetch-Site: cross-site`, hoặc khi có `Origin` khác cả `PUBLIC_URL` lẫn
-  Host của chính request. So theo host:port, nên trang của app khác trên cùng
-  máy (ví dụ `127.0.0.1:8789` gửi sang `127.0.0.1:8790`) bị chặn dù cookie
-  `SameSite=Strict` không phân biệt cổng. Request không có `Origin` (CLI,
-  worker, curl) vẫn qua.
+  `Sec-Fetch-Site: cross-site`, hoặc khi có `Origin` không hợp lệ. Có
+  `PUBLIC_URL`: chỉ đúng origin đó (cả scheme). Không có `PUBLIC_URL`: origin
+  phải trùng host:port của chính request, và host phải là IP (127.0.0.1, ::1,
+  địa chỉ LAN/Tailscale mà điện thoại mở) hoặc `localhost`; tên miền khác bị
+  chặn để tránh DNS rebinding, nên ở local hãy mở bằng IP. So theo host:port,
+  nên trang của app khác trên cùng máy (ví dụ `127.0.0.1:8789` gửi sang
+  `127.0.0.1:8790`) bị chặn dù cookie `SameSite=Strict` không phân biệt cổng.
+  Request không có `Origin` (CLI, worker, curl) vẫn qua.
 - Body của POST/PUT phải là `application/json` (trừ multipart upload hiện có);
   PATCH/DELETE có body cũng vậy, sai thì `400`. DELETE không body vẫn qua.
 - Muốn cookie `Secure` khi đứng sau một proxy loopback (ví dụ `tailscale serve`
@@ -517,3 +520,33 @@ Còn lại (cần môi trường thật, không thể giả lập ở local):
 - Mã hoá at-rest cho file cấu hình model (`CONFIG_ENCRYPTION_KEY` mà plan nhắc
   hiện **chưa** được code đọc; đừng đặt env này và tưởng nó có tác dụng).
 - Multi-replica (chưa thiết kế; giữ 1 replica).
+
+## 11. Live trên Mac (launchd)
+
+Bản live cá nhân chạy file mode trên Mac, tách khỏi repo đang phát triển:
+
+| Mục | Giá trị |
+|---|---|
+| Worktree | `/Users/dat/Projects/verse-live`, nhánh `live` của `datnt1998/verse` |
+| Binary | `verse-live/bin/noverse`, build bằng `apps/noverse/scripts/run-live.sh update` |
+| Dữ liệu | Sách ở `~/NoverseLive`; tài khoản, cấu hình model, OAuth ở `~/.ainovel` |
+| Địa chỉ | `127.0.0.1:8790` (`NOVERSE_LIVE_ADDR`, `NOVERSE_LIVE_ROOT` để đổi) |
+| launchd | `~/Library/LaunchAgents/dev.verse.noverse-live.plist`: chạy `run-live.sh`, `RunAtLoad`, `KeepAlive`, PATH gồm `~/.local/bin` (uv) và `/opt/homebrew/bin` (ffmpeg, rg) |
+| Log | `~/Library/Logs/noverse-live.log` |
+
+```sh
+# Cập nhật lên main mới nhất rồi khởi động lại
+/Users/dat/Projects/verse-live/apps/noverse/scripts/run-live.sh update
+launchctl kickstart -k gui/$(id -u)/dev.verse.noverse-live
+
+# Dừng hẳn (chỉ kill process thì KeepAlive bật lại ngay)
+launchctl bootout gui/$(id -u)/dev.verse.noverse-live
+
+# Bật lại
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.verse.noverse-live.plist
+```
+
+Không chạy song song một bản khác trên cùng `~/.ainovel` (ví dụ service omp
+`noverse-live*` cũ): hai process cùng ghi file tài khoản. Trước khi cập nhật lớn,
+sao lưu `~/NoverseLive` và `~/.ainovel` bằng `umask 077` rồi `tar` vào
+`~/Backups/`; file chứa secret, không đưa vào repo.
