@@ -242,10 +242,18 @@ func BuildWorkers(
 		return guard.NewArchitectStopGuard(store, onGuardBlock)
 	}
 	architectThinking, _ := ResolveThinkingForModel(architectModel, roleThinking(cfg, "architect"))
-	// Chặn vòng "gọi lại y nguyên lời gọi vừa lỗi" (xem guard.NewRepeatFailureMiddleware).
-	architectMiddleware := guard.NewRepeatFailureMiddleware()
-	writerMiddleware := guard.NewRepeatFailureMiddleware()
-	editorMiddleware := guard.NewRepeatFailureMiddleware()
+	// Chặn vòng "gọi lại y nguyên lời gọi vừa lỗi" (guard chung của core,
+	// Noverse giữ câu chặn riêng với gợi ý đổi tham số đọc chương).
+	repeatFailure := func() agentcore.ToolMiddleware {
+		return agentcore.NewRepeatFailureMiddleware(&agentcore.RepeatFailureOptions{
+			Refusal: func(call llmtypes.ToolCall, failed int) error {
+				return fmt.Errorf("lời gọi %s với đúng tham số này đã lỗi %d lần liền và lặp lại sẽ không thành công. Hãy đổi tham số (ví dụ bỏ chapter, chọn chương khác, đổi source) hoặc dùng thông tin đã có để làm bước tiếp theo", call.Name, failed)
+			},
+		})
+	}
+	architectMiddleware := repeatFailure()
+	writerMiddleware := repeatFailure()
+	editorMiddleware := repeatFailure()
 
 	architectShort := subagent.Config{
 		Name:             "architect_short",
