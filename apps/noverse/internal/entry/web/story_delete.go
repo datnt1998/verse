@@ -10,16 +10,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/flock"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/platform/identity"
-	"github.com/gofrs/flock"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 var errStoryDeleteRunning = errors.New("Truyện đang chạy — dừng trước khi xoá")
 
 // deleteStory 处理 DELETE S；授权已在 serveStories 的 storyAccessAllowed 完成（非 GET 需可写）。
 func (g *Gateway) deleteStory(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, st library.Story) {
-	if !jsonContent(r) {
+	if !webguard.JSONContent(r) {
 		jsonError(w, 400, "Content-Type phải là application/json")
 		return
 	}

@@ -19,10 +19,11 @@ import (
 
 const configDirName = ".viderse"
 
-// core/auth 是跨应用共享包：credential 存储路径、OAuth 回调页品牌、错误里的
-// 登录命令、Claude Code wire version 的环境变量都来自 auth.Options。本二进制
-// 的身份必须在任何包打开 credential 库之前装好，因此放在 init()：main 运行
-// 前 Go 保证本 init 已执行。
+// core/auth là gói dùng chung cho mọi app: đường dẫn kho credential, thương
+// hiệu trang OAuth, lệnh login trong lỗi, và env wire version của Claude Code
+// đều đến từ auth.Options. Danh tính của binary này phải được cài trước khi
+// bất kỳ gói nào mở kho credential, nên đặt trong init() — Go bảo đảm chạy
+// trước main.
 func init() {
 	auth.Configure(auth.Options{
 		AppName:              "Viderse",

@@ -16,6 +16,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime"
 	"net"
 	"net/http"
 	"net/url"
@@ -309,4 +310,24 @@ func SecureRequest(r *http.Request) bool {
 	}
 	ip := net.ParseIP(ClientIP(r))
 	return ip != nil && ip.IsLoopback()
+}
+
+// JSONBodyRequired reports whether the request carries a body that must be
+// JSON. POST and PUT always carry one; PATCH and DELETE are checked only when
+// a body is present (a bodiless DELETE is the normal form). ContentLength -1
+// (chunked) counts as a body.
+func JSONBodyRequired(r *http.Request) bool {
+	switch r.Method {
+	case http.MethodPost, http.MethodPut:
+		return true
+	case http.MethodPatch, http.MethodDelete:
+		return r.ContentLength != 0
+	}
+	return false
+}
+
+// JSONContent reports whether Content-Type parses as application/json.
+func JSONContent(r *http.Request) bool {
+	typ, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	return err == nil && typ == "application/json"
 }

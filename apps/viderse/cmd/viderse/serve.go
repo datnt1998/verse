@@ -53,8 +53,8 @@ func runServe(args []string) error {
 		return err
 	}
 
-	// trusted-proxy 配置最先解析：坏的 CIDR 或 Secure cookie 无 HTTPS
-	// PUBLIC_URL 都是启动错误，不是运行期静默降级。
+	// Cấu hình trusted-proxy phân tích trước nhất: CIDR xấu hoặc Secure cookie
+	// không có PUBLIC_URL https đều là lỗi khởi động, không lặng lẽ hạ cấp.
 	proxyCfg, err := webguard.ConfigFromEnv()
 	if err != nil {
 		return fmt.Errorf("cấu hình proxy: %w", err)
@@ -92,7 +92,7 @@ func runServe(args []string) error {
 	} else {
 		fmt.Printf("Địa chỉ: %s\n", base(bound))
 	}
-	// 还没有账号 → 打印打开地址与设置码。码只在这一处出现（SetupCodeOnce 之后清空）。
+	// Chưa có tài khoản → in địa chỉ mở và mã thiết lập. Mã chỉ xuất hiện một lần này (SetupCodeOnce xoá ngay sau).
 	if code := gateway.SetupCodeOnce(); code != "" {
 		fmt.Printf("Mở trình duyệt để thiết lập: %s\n", base("127.0.0.1"))
 		fmt.Printf("Mã thiết lập: %s (hết hạn sau %d phút)\n", code, int(identity.SetupCodeTTL.Minutes()))

@@ -40,7 +40,7 @@ type StoreView interface {
 
 // Submitter là cổng đưa brief vào hàng chạy (agent.Runner thoả).
 type Submitter interface {
-	Submit(ctx context.Context, brief agent.Brief) (pgtype.UUID, error)
+	Submit(ctx context.Context, brief script.Brief) (pgtype.UUID, error)
 }
 
 // Gateway phục vụ toàn bộ HTTP của app.
@@ -87,26 +87,8 @@ func (g *Gateway) SetupCodeOnce() string {
 	return code
 }
 
-// jsonBodyRequired: POST/PUT luôn mang body JSON; PATCH/DELETE chỉ kiểm khi có
-// body (DELETE không body là dạng thường). ContentLength -1 (chunked) tính có
-// body.
-func jsonBodyRequired(r *http.Request) bool {
-	switch r.Method {
-	case http.MethodPost, http.MethodPut:
-		return true
-	case http.MethodPatch, http.MethodDelete:
-		return r.ContentLength != 0
-	}
-	return false
-}
-
-func jsonContent(r *http.Request) bool {
-	typ, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	return err == nil && typ == "application/json"
-}
-
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// 归一化必须在所有安全判断之前（限流键、Secure cookie、CSRF origin）。
+	// Chuẩn hoá trusted-proxy phải đi trước mọi phán đoán bảo mật (khoá giới hạn, Secure cookie, origin CSRF).
 	r = g.proxy.Normalize(r)
 	switch r.URL.Path {
 	case "/healthz":
@@ -128,7 +110,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		g.serveStatic(w, r)
 		return
 	}
-	if jsonBodyRequired(r) && !jsonContent(r) {
+	if webguard.JSONBodyRequired(r) && !webguard.JSONContent(r) {
 		jsonError(w, http.StatusBadRequest, "Content-Type phải là application/json")
 		return
 	}
@@ -137,7 +119,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		g.login(w, r)
 		return
 	case g.serveSetup(w, r):
-		// /api/setup* 与 /api/login 同层：还没有账号时也要能进。
+		// /api/setup* ngang hàng /api/login: chưa có tài khoản cũng phải vào được.
 		return
 	}
 	cookie, err := r.Cookie(sessionCookie)
@@ -293,7 +275,7 @@ type setupStatusResponse struct {
 	LockedUntil  *time.Time `json:"lockedUntil,omitempty"`
 }
 
-// serveSetup xử /api/setup、/api/setup/verify、/api/setup/admin；false = 不归它管。
+// serveSetup xử /api/setup, /api/setup/verify, /api/setup/admin; false = không thuộc nó quản.
 func (g *Gateway) serveSetup(w http.ResponseWriter, r *http.Request) bool {
 	switch r.URL.Path {
 	case "/api/setup":
@@ -346,7 +328,7 @@ func (g *Gateway) setupStatus(w http.ResponseWriter) {
 	writeJSON(w, http.StatusOK, resp)
 }
 
-// setupTaken 已存在账号时写 409 {at}；false = 还没有账号。
+// setupTaken ghi 409 {at} khi đã có tài khoản; false = chưa có tài khoản.
 func (g *Gateway) setupTaken(w http.ResponseWriter) bool {
 	at, has, err := g.accounts.FirstUserCreatedAt()
 	if err != nil {
@@ -410,7 +392,7 @@ func (g *Gateway) setupAdmin(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, http.StatusInternalServerError, setupNoCode)
 		return
 	}
-	// token 只校验不消费：创建失败时表单还能重试。
+	// token chỉ kiểm không tiêu: tạo thất bại thì form còn thử lại được.
 	if err := state.CheckToken(req.SetupToken); err != nil {
 		jsonError(w, http.StatusGone, err.Error())
 		return
@@ -433,7 +415,7 @@ func (g *Gateway) setupAdmin(w http.ResponseWriter, r *http.Request) {
 		accountError(w, err)
 		return
 	}
-	// 创建成功才作废码与 token（两者都是一次性）。
+	// Tạo thành công mới vô hiệu mã và token (cả hai dùng một lần).
 	state.Invalidate()
 	code, _, err := g.accounts.IssueRecovery(s.User.Username, false)
 	if err != nil {
