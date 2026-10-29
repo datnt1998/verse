@@ -110,8 +110,8 @@ function SetupScreen({ onDone }: { onDone: (u: User) => void }) {
           </>
         ) : !token ? (
           <>
-            <label>Mã thiết lập</label>
-            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="XXXX-XXXX" className="mono" />
+            <label htmlFor="setup-code">Mã thiết lập</label>
+            <input id="setup-code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="XXXX-XXXX" className="mono" />
             {error && <div className="error">{error}</div>}
             <button onClick={verify} disabled={busy || !code.trim()}>
               Tiếp tục
@@ -119,12 +119,12 @@ function SetupScreen({ onDone }: { onDone: (u: User) => void }) {
           </>
         ) : (
           <>
-            <label>Tên hiển thị</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-            <label>Tên đăng nhập</label>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} className="mono" />
-            <label>Mật khẩu</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <label htmlFor="setup-name">Tên hiển thị</label>
+            <input id="setup-name" value={name} onChange={(e) => setName(e.target.value)} />
+            <label htmlFor="setup-username">Tên đăng nhập</label>
+            <input id="setup-username" value={username} onChange={(e) => setUsername(e.target.value)} className="mono" />
+            <label htmlFor="setup-password">Mật khẩu</label>
+            <input id="setup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             {error && <div className="error">{error}</div>}
             <button onClick={create} disabled={busy || !name.trim() || !username.trim() || !password}>
               Tạo quản trị viên
@@ -159,9 +159,10 @@ function LoginScreen({ onDone }: { onDone: (u: User) => void }) {
     <div className="page center-card">
       <div className="card">
         <h2>Đăng nhập Viderse</h2>
-        <label>Tên đăng nhập</label>
-        <input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus className="mono" />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} />
+        <label htmlFor="login-username">Tên đăng nhập</label>
+        <input id="login-username" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus className="mono" />
+        <label htmlFor="login-password">Mật khẩu</label>
+        <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} />
         {error && <div className="error">{error}</div>}
         <button onClick={submit} disabled={busy || !username.trim() || !password}>
           Đăng nhập
@@ -281,25 +282,25 @@ function BriefForm({ onSubmitted, onError }: { onSubmitted: () => void; onError:
     <div className="card">
       <h2>Brief mới</h2>
       <p className="hint">Writer agent viết kịch bản video từ brief — kết quả lưu vào bảng scripts.</p>
-      <label>Chủ đề</label>
-      <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Vd: Vì sao đế chế La Mã sụp đổ" />
-      <label>Khán giả</label>
-      <input value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="Vd: người thích lịch sử, xem khi nấu ăn" />
+      <label htmlFor="brief-topic">Chủ đề</label>
+      <textarea id="brief-topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Vd: Vì sao đế chế La Mã sụp đổ" />
+      <label htmlFor="brief-audience">Khán giả</label>
+      <input id="brief-audience" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="Vd: người thích lịch sử, xem khi nấu ăn" />
       <div className="row">
         <div>
-          <label>Độ dài mục tiêu</label>
-          <input value={lengthValue} onChange={(e) => setLengthValue(e.target.value)} inputMode="numeric" />
+          <label htmlFor="brief-length">Độ dài mục tiêu</label>
+          <input id="brief-length" value={lengthValue} onChange={(e) => setLengthValue(e.target.value)} inputMode="numeric" />
         </div>
         <div>
-          <label>Đơn vị</label>
-          <select value={lengthKind} onChange={(e) => setLengthKind(e.target.value as 'seconds' | 'words')}>
+          <label htmlFor="brief-unit">Đơn vị</label>
+          <select id="brief-unit" value={lengthKind} onChange={(e) => setLengthKind(e.target.value as 'seconds' | 'words')}>
             <option value="seconds">giây</option>
             <option value="words">từ</option>
           </select>
         </div>
         <div>
-          <label>Tốc độ đọc (từ/phút, trống = 150)</label>
-          <input value={wpm} onChange={(e) => setWpm(e.target.value)} inputMode="numeric" />
+          <label htmlFor="brief-wpm">Tốc độ đọc (từ/phút, trống = 150)</label>
+          <input id="brief-wpm" value={wpm} onChange={(e) => setWpm(e.target.value)} inputMode="numeric" />
         </div>
       </div>
       {error && <div className="error">{error}</div>}
