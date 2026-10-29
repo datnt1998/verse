@@ -6,7 +6,8 @@ import { mockApiPlugin } from './mock/server'
 import type { Plugin } from 'vite'
 import { fileURLToPath } from 'node:url'
 
-const uiPkg = (rel: string) => fileURLToPath(new URL(`./packages/ui/src/${rel}`, import.meta.url))
+// Kit dùng chung nằm ở platform/ui (npm workspace ở gốc repo).
+const uiPkg = (rel: string) => fileURLToPath(new URL(`../../../platform/ui/src/${rel}`, import.meta.url))
 
 // StyleX biên dịch `stylex.create`/`defineVars` lúc build (cả vitest), gộp CSS vào tệp CSS chính.
 // useCSSLayers: StyleX nằm trong @layer (trên preflight Tailwind) nên CSS cũ không layer vẫn đè được

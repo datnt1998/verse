@@ -1,0 +1,63 @@
+@import "tailwindcss";
+/* Kit dùng chung nằm ngoài thư mục app (platform/ui) — Tailwind phải quét cả nó. */
+@source "../../../../../platform/ui/src";
+@import "./tokens.css";
+/* Vidverse — base styles. Tailwind v4 (chỉ preflight) + biến design token của kit
+   (@noverse/ui/tokens.stylex sinh :root); giá trị tra platform/ui. */
+
+/* Thứ tự lớp: StyleX (priority*) nằm TRÊN preflight/utilities của Tailwind nhưng dưới CSS không layer —
+   không khai báo rõ thì priority* lọt xuống dưới preflight và reset * { padding:0; border:0 } đè stylex. */
+@layer theme, base, components, utilities, properties, priority, priority1, priority2, priority3, priority4, priority5, priority6, priority7, priority8;
+
+/* Tailwind v4 preflight đã reset margin/box-sizing; bổ sung base riêng của app */
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-fg); }
+/* Reset form-controls — nằm trong base để StyleX (priority*) ghi đè được, vẫn trên preflight. */
+@layer base {
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; opacity: .55; }
+}
+::selection { background: var(--color-sel); }
+
+/* Lớp tiện ích dùng chung */
+.mono { font-family: var(--font-mono); }
+.num { font-variant-numeric: tabular-nums; }
+.lbl {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  color: var(--color-fg-4); text-transform: uppercase;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Card “liquid dark” */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--card-shadow);
+}
+
+/* Hover tông artboard */
+.hov-ghost:hover { background: rgba(255, 255, 255, .07) !important; }
+.hov-row:hover { background: rgba(255, 255, 255, .04) !important; }
+
+/* Thanh cuộn mảnh */
+.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #2A2A2E transparent; }
+.scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll::-webkit-scrollbar-thumb { background: #2A2A2E; border-radius: 8px; }
+
+/* Placeholder màu nhạt */
+input::placeholder, textarea::placeholder { color: var(--color-fg-4); }

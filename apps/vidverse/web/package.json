@@ -1,0 +1,34 @@
+{
+  "name": "vidverse-web",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noverse/ui": "*",
+    "@fontsource-variable/literata": "^5.3.0",
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@stylexjs/stylex": "0.19.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@stylexjs/unplugin": "0.19.1",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "happy-dom": "^20.0.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.0",
+    "unplugin": "^2.3.11",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.7"
+  }
+}

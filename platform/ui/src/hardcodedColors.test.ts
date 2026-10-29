@@ -1,6 +1,6 @@
 // Chặn mã màu viết cứng trong gói @noverse/ui: màu mới phải vào src/tokens.stylex.ts.
 // Bảng chốt chỉ đi xuống (token hoá dần). Thêm màu cứng → đỏ; bớt được → đỏ cho tới khi
-// chốt lại bằng: UPDATE_COLOR_BASELINE=1 npx vitest run packages/ui/src/hardcodedColors.test.ts
+// chốt lại bằng (trong platform/ui): UPDATE_COLOR_BASELINE=1 npx vitest run src/hardcodedColors.test.ts
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,6 +35,6 @@ describe('design token: không thêm mã màu viết cứng (gói)', () => {
     const added = Object.entries(actual).filter(([f, n]) => n > (baseline[f] ?? 0)).map(([f, n]) => `${f}: ${baseline[f] ?? 0} → ${n}`)
     const removed = Object.entries(baseline).filter(([f, n]) => (actual[f] ?? 0) < n).map(([f, n]) => `${f}: ${n} → ${actual[f] ?? 0}`)
     expect(added, 'Mã màu mới viết cứng — dùng biến trong tokens.stylex.ts').toEqual([])
-    expect(removed, 'Đã bớt mã màu — chốt lại bảng: UPDATE_COLOR_BASELINE=1 npx vitest run packages/ui/src/hardcodedColors.test.ts').toEqual([])
+    expect(removed, 'Đã bớt mã màu — chốt lại bảng (trong platform/ui): UPDATE_COLOR_BASELINE=1 npx vitest run src/hardcodedColors.test.ts').toEqual([])
   })
 })

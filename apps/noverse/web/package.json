@@ -2,9 +2,6 @@
   "name": "ainovel-web",
   "private": true,
   "version": "1.0.0",
-  "workspaces": [
-    "packages/ui"
-  ],
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "dev:mock": "vite --host 0.0.0.0 --mode mock",

@@ -11,4 +11,3 @@ export {
 } from './confirmPresets'
 export { useUnsavedGuard } from './useUnsavedGuard'
 export { AGENT_PALETTE, agentAura, agentAuraBg, agentBar, agentChipBg, agentKindOf, agentOrbGlow } from './agentPalette'
-export { KIT_LABELS_VI } from './kitLabels.vi'

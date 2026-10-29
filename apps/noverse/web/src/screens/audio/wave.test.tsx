@@ -9,7 +9,7 @@ import { generationTone, NEWEST_BARS } from './logic'
 import { Waveform } from './ui'
 import { MobileWave } from './mobile/Wave'
 
-const TOKENS = readFileSync(fileURLToPath(new URL('../../../packages/ui/src/tokens.stylex.ts', import.meta.url)), 'utf8')
+const TOKENS = readFileSync(fileURLToPath(new URL('../../../../../../platform/ui/src/tokens.stylex.ts', import.meta.url)), 'utf8')
 const tokenValue = (name: string) => TOKENS.match(new RegExp(`'${name}':\\s*'([^']+)'`))?.[1]
 
 describe('design chốt bảng màu sóng (Câu 18)', () => {

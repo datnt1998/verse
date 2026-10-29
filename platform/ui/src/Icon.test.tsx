@@ -1,5 +1,8 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { consumers, PKG_SRC, sourceFiles } from '../test/consumers'
 import { Icon } from './Icon'
 
 describe('đường dẫn CSS mask của biểu tượng', () => {
@@ -21,8 +24,13 @@ describe('tên biểu tượng không có file', () => {
   })
 })
 
-const sources = { ...import.meta.glob('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true }) as Record<string, string>, ...import.meta.glob('/packages/ui/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true }) as Record<string, string> }
-const files = new Set(Object.keys(import.meta.glob('/packages/ui/src/icons/*.svg')).map((path) => path.slice(path.lastIndexOf('/') + 1, -4)))
+// Mã của kit và của mọi app dùng kit, khoá theo `kit/<đường dẫn>` hoặc `<app>/<đường dẫn trong src>`.
+const roots = [{ label: 'kit', src: PKG_SRC }, ...consumers().map(({ app, src }) => ({ label: app, src }))]
+const sources: Record<string, string> = {}
+for (const { label, src } of roots) {
+  for (const file of sourceFiles(src)) sources[`${label}/${file.slice(src.length + 1)}`] = readFileSync(file, 'utf8')
+}
+const files = new Set(readdirSync(join(PKG_SRC, 'icons')).filter((f) => f.endsWith('.svg')).map((f) => f.slice(0, -4)))
 const kebab = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/
 
 /** Mọi tên biểu tượng viết thẳng trong mã: `<Icon name="x">`, `name={a ? 'x' : 'y'}`, `icon: 'x'`, `icon="x"`. */
@@ -39,7 +47,7 @@ function literalIconNames(source: string): string[] {
   return found
 }
 
-describe('mọi tên biểu tượng trong web/src đều có file SVG', () => {
+describe('mọi tên biểu tượng trong mã của kit và các app đều có file SVG', () => {
   it('quét được mã nguồn và danh sách file', () => {
     expect(Object.keys(sources).length).toBeGreaterThan(100)
     expect(files.has('trash')).toBe(true)
@@ -47,8 +55,8 @@ describe('mọi tên biểu tượng trong web/src đều có file SVG', () => {
   it('không còn tên nào rơi về vòng tròn gạch đứt', () => {
     const missing: string[] = []
     for (const [path, source] of Object.entries(sources)) {
-      // commands/model.ts dùng bí danh ngắn (timer, swap…) do SlashPopover/Detail đổi sang tên file, không phải tên file.
-      if (/\.test\.tsx?$/.test(path) || path.startsWith('/src/assets/') || path === '/src/commands/model.ts') continue
+      // noverse/commands/model.ts dùng bí danh ngắn (timer, swap…) do SlashPopover/Detail đổi sang tên file, không phải tên file.
+      if (/\.test\.tsx?$/.test(path) || /^[^/]+\/assets\//.test(path) || path === 'noverse/commands/model.ts') continue
       for (const name of literalIconNames(source)) if (!files.has(name)) missing.push(`${path}: ${name}`)
     }
     expect(missing).toEqual([])

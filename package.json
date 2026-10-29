@@ -1,0 +1,9 @@
+{
+  "name": "verse",
+  "private": true,
+  "workspaces": [
+    "platform/ui",
+    "apps/noverse/web",
+    "apps/vidverse/web"
+  ]
+}

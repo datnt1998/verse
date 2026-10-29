@@ -1,6 +1,7 @@
-// Nhãn tiếng Việt của kit — nạp một lần bằng setKitLabels() ở main.tsx.
-// Giá trị chuyển nguyên văn từ các literal cũ trong src/ui trước khi tách gói.
-import type { KitLabels } from '@noverse/ui'
+// Nhãn tiếng Việt của kit — app nạp một lần bằng setKitLabels(KIT_LABELS_VI) ở main.tsx,
+// ghi đè `brand` nếu không phải Noverse. Giá trị chuyển nguyên văn từ các literal cũ của
+// Noverse trước khi tách gói.
+import type { KitLabels } from './labels'
 
 export const KIT_LABELS_VI: KitLabels = {
   cancel: 'Huỷ',

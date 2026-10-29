@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const SRC = fileURLToPath(new URL('..', import.meta.url))
-const PKG_SRC = fileURLToPath(new URL('../../packages/ui/src', import.meta.url))
+const PKG_SRC = fileURLToPath(new URL('../../../../../platform/ui/src', import.meta.url))
 const CSS = /\.css$/
 const CODE = /\.(?:ts|tsx)$/
 const TEST_FILE = /\.test\.tsx?$/
@@ -147,7 +147,7 @@ describe('chuyển động: góc chạy của viền ô chat', () => {
   // `var()` trong một design token được thay MỘT LẦN tại :root (nơi StyleX phát biến), nên
   // `conic-gradient(from var(--run-angle), …)` nằm trong token sẽ đứng hình dù animation chạy.
   // Góc phải khai báo trên chính phần tử có animation — đúng như RunRing đang làm.
-  const tokenFile = codeSources.find(({ file }) => file === '../packages/ui/src/tokens.stylex.ts')
+  const tokenFile = codeSources.find(({ file }) => file === '../../../../platform/ui/src/tokens.stylex.ts')
 
   it('không token nào ở :root tham chiếu --run-angle', () => {
     expect(tokenFile, 'không đọc được styles/tokens.stylex.ts').toBeTruthy()

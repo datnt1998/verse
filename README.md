@@ -6,13 +6,17 @@ Monorepo for the AI writing apps that share one agent core.
 |---|---|
 | `apps/noverse` | Noverse: novel/story writing CLI, TUI and web app (binary `ainovel-cli`). See [apps/noverse/README.md](apps/noverse/README.md). |
 | `apps/viderse` | Viderse (Go): video-script writing agent app (binary `viderse`), one Writer agent on the shared core. See [apps/viderse/README.md](apps/viderse/README.md). |
+| `apps/vidverse` | Vidverse: new app, initial scaffold (binary `vidverse`); web UI on the Noverse architecture and the shared kit. See [apps/vidverse/README.md](apps/vidverse/README.md). |
 | `core/` | Shared AI core: `agentcore` (agent runtime), `llm` (model interface and providers), `models`, `llmretry`, `llmcontract`, `llmconfig` (shared provider/model config schema), `auth` (OAuth and credentials), `roles` (role→model config). |
-| `platform/` | App-agnostic infrastructure: `identity` (web accounts, sessions, pairing), `webguard` (trusted proxies, same-origin guard, client IP, secure-cookie decision), `pgmigrate` (embedded goose migrations), `pgtest` (isolated Postgres schemas for tests). |
+| `platform/` | App-agnostic infrastructure: `identity` (web accounts, sessions, pairing), `webguard` (trusted proxies, same-origin guard, client IP, secure-cookie decision), `webapp` (embedded SPA, first-run setup, login/logout/me, session cookie, authenticated `/api` routes), `pgmigrate` (embedded goose migrations), `pgtest` (isolated Postgres schemas for tests), `ui` (`@noverse/ui` web kit: tokens, components, icons, brand, Vietnamese labels). |
 | `archtest/` | Import boundary test: `core/**` imports only the standard library, third-party modules and `core/**`; `platform/**` adds `platform/**`; an app never imports another app. |
 | `plans/` | Monorepo-level plans, starting with [the move into this repository](plans/261029-1138-verse-monorepo/plan.md). |
 
-One Go module, `github.com/datnt1998/verse`, rooted here. Each app keeps its own
-web package, Dockerfile, migrations and docs inside its directory.
+One Go module, `github.com/datnt1998/verse`, rooted here. One npm workspace,
+also rooted here: `platform/ui`, `apps/noverse/web`, `apps/vidverse/web` share a
+single `package-lock.json` and `node_modules`. `apps/viderse/web` stays a
+standalone npm project. Each app keeps its own Dockerfile, migrations and docs
+inside its directory.
 
 ## Build and test
 
@@ -20,7 +24,8 @@ web package, Dockerfile, migrations and docs inside its directory.
 go build ./...
 go test ./...                                   # Postgres/MinIO suites skip unless configured
 (cd apps/noverse && go tool sqlc diff)          # generated SQL code is current
-(cd apps/noverse/web && npm ci && npm test)     # web app
+npm ci && npm run typecheck --workspaces && npm test --workspaces   # web kit + web apps
+npm run build -w apps/noverse/web               # rebuild an app's embedded dist
 docker build -f apps/noverse/Dockerfile .       # hosted image; context is the repository root
 ```
 
@@ -29,27 +34,33 @@ Postgres and MinIO for the full suite: `apps/noverse/deploy/compose.test.yml`
 
 ## Adding an app
 
-`apps/viderse` is the smallest complete example; copy its layout and wiring.
+`apps/viderse` is the smallest complete example with Postgres and an agent; `apps/vidverse` is the smallest web app on the shared kit. Copy their layout and wiring.
 
 1. **Layout.** Put the code in `apps/<name>/` with `cmd/<binary>/`, `internal/` and a `README.md`. Add `apps/<name>/.gitignore` only if the app writes local artifacts. Everything stays in this Go module; there is no `go.work`.
 2. **Imports.** An app may import the standard library, third-party modules, `core/**`, `platform/**` and itself. `archtest` classifies every `apps/<name>` automatically, so `go test ./archtest` covers a new app with no registration.
 3. **Isolated runtime state.** Nothing is shared with other apps:
-   - config dir: `~/.ainovel`, `~/.viderse`;
+   - config dir: `~/.ainovel`, `~/.viderse`, `~/.vidverse`;
    - credentials: `core/auth` configured per app, see `apps/viderse/internal/bootstrap`;
-   - session cookie name: `ainovel_session`, `viderse_session`;
+   - session cookie name: `ainovel_session`, `viderse_session`, `vidverse_session`;
    - Postgres database and roles: `noverse_*`; `viderse_go` with `viderse_app`/`viderse_migrate`;
-   - fixed default port: Noverse live 8790, Viderse 8789.
+   - fixed default port: Noverse live 8790, Viderse 8789, Vidverse 8788.
 
    Browsers share cookies across ports of the same host, so cookie names must differ.
-4. **Web.** Accounts and sessions come from `platform/identity` (`identity.NewStore`). The gateway goes through a `webguard.Config` from `webguard.ConfigFromEnv()`:
-   - `Normalize` and `CrossSiteRequest` reject cross-origin state-changing requests;
-   - `SecureRequest` sets the cookie `Secure` flag;
-   - `ClientIP` keys the login limiter.
+4. **Web server.** Build the HTTP side on `platform/webapp`: `webapp.New(accounts, webapp.Options{AppName, CookieName, UI})`. Accounts come from `platform/identity` (`identity.NewStore`), and proxy rules from `webguard.ConfigFromEnv()` through `SetProxyConfig`. The package provides:
+   - the SPA, health probes and the same-origin guard;
+   - first-run setup with a one-time code and login/logout/me.
 
-   Reference: `apps/viderse/internal/web/gateway.go`.
-5. **Postgres.** Embed the goose migrations and apply them with `platform/pgmigrate`. Integration tests use `platform/pgtest`. sqlc config lives in `apps/<name>/sqlc.yaml`.
-6. **CI.** Add the app's `go tool sqlc diff` step and its web job to `.github/workflows/ci.yml`, copying the Viderse entries.
-7. **Sharing.** Move code into `core/` or `platform/` only once a second app needs it.
+   App routes register with `Handle`. References: `apps/vidverse/internal/web/web.go` (no app routes), `apps/viderse/internal/web/gateway.go` (with routes).
+5. **Web UI.** Put the SPA in `apps/<name>/web/`, add it to the root `package.json` workspaces, and depend on `@noverse/ui`. Copy from `apps/vidverse/web`:
+   - `vite.config.ts`: kit aliases and the StyleX plugin; `build.outDir` is the directory the Go side embeds;
+   - `tsconfig.json` paths;
+   - the `@source` line for the kit in `src/styles/base.css`;
+   - `setKitLabels({ ...KIT_LABELS_VI, brand })` and the app brand in `src/main.tsx`.
+
+   The kit's `boundary.test.ts` and `Icon.test.tsx` cover every app that depends on `@noverse/ui` automatically. Commit the built dist, because `go build` embeds it.
+6. **Postgres.** Embed the goose migrations and apply them with `platform/pgmigrate`. Integration tests use `platform/pgtest`. sqlc config lives in `apps/<name>/sqlc.yaml`.
+7. **CI.** Add the app's `go tool sqlc diff` step to `.github/workflows/ci.yml`. A workspace web app needs nothing more, because the `web` job runs every workspace.
+8. **Sharing.** Move code into `core/` or `platform/` only once a second app needs it.
 
 To bring in an existing repository:
 

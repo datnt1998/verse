@@ -1,5 +1,5 @@
 // Chuỗi giao diện của kit — gói mặc định tiếng Anh; app nạp tiếng Việt một lần
-// qua setKitLabels() (web/src/ui/kitLabels.vi.ts) trước khi render. Đọc tại render
+// qua setKitLabels(KIT_LABELS_VI) (labels.vi.ts) trước khi render. Đọc tại render
 // nên mọi component tự nhận chuỗi mới, không cần context/provider.
 
 export type KitLabels = {

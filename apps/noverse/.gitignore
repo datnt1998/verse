@@ -59,7 +59,9 @@ scratch/
 config-laptop/
 workspace-laptop/
 
-# Web dependencies; keep embedded production assets tracked.
+# Web dependencies (npm workspace: node_modules lives at the repo root, a
+# workspace may still get its own when versions conflict); keep embedded
+# production assets tracked.
 /web/node_modules/
 !/internal/entry/web/dist/
 !/internal/entry/web/dist/**
@@ -72,5 +74,3 @@ workspace-laptop/
 !internal/store/testdata/storage-contract/**/output
 !internal/store/testdata/storage-contract/**/output/**
 
-# npm pack output
-web/packages/ui/*.tgz

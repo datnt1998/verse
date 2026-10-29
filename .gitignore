@@ -6,3 +6,8 @@ go.work.sum
 /bin/
 /dist/
 release-notes.md
+# npm workspace (platform/ui + apps/*/web): dependencies install at the root, but
+# npm may nest a workspace-local node_modules (version conflicts, vitest cache).
+node_modules/
+platform/ui/dist/
+platform/ui/*.tgz

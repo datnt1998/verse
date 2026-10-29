@@ -86,11 +86,10 @@ jobs:
           GOWORK: "off"
         run: go test -race -buildvcs=false -count=1 ./apps/noverse/internal/host ./apps/noverse/internal/store ./apps/noverse/internal/tools
 
+  # npm workspace ở gốc repo: platform/ui (kit dùng chung), apps/noverse/web,
+  # apps/vidverse/web — một lockfile, chạy typecheck/test của từng workspace.
   web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/noverse/web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,16 +99,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: apps/noverse/web/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install
         run: npm ci --no-audit --no-fund
 
       - name: Typecheck
-        run: npm run typecheck
+        run: npm run typecheck --workspaces
 
       - name: Test
-        run: npm test
+        run: npm test --workspaces
 
   viderse-web:
     runs-on: ubuntu-latest

@@ -10,7 +10,7 @@ semantic roles), never by switching to a light theme.
 ```sh
 npm install @noverse/ui
 # or from a packed tarball / workspace:
-npm install file:../web/packages/ui
+npm install file:../../platform/ui
 ```
 
 Peer dependencies: `react >= 18`, `react-dom >= 18`, `@stylexjs/stylex >= 0.10`.
@@ -250,7 +250,7 @@ Minimal Vite consumer:
 
 ```jsonc
 // package.json
-{ "dependencies": { "@noverse/ui": "file:../web/packages/ui/noverse-ui-0.1.0.tgz" } }
+{ "dependencies": { "@noverse/ui": "file:../../platform/ui/noverse-ui-0.1.0.tgz" } }
 ```
 
 ```jsx
@@ -284,9 +284,12 @@ app, renders Button/Sheet/Icon under happy-dom and asserts the token CSS).
 - `npm run test:smoke` — consumer smoke described above; it also defines a
   custom brand, applies it and asserts the rendered button's computed colour
   equals the generated `--color-accent`.
-- Guard tests (run from the repo root vitest): `boundary.test.ts` (package
-  never imports the app; the app only reaches the kit through `@noverse/ui`),
-  `tokenParity.test.ts` (stylex ↔ css ↔ json), `brand.test.ts` (Noverse 1:1,
-  WCAG AA pairs across sample brands, `defineBrand` completeness, components
-  never read core/`--scale-*`), `hardcodedColors.test.ts` (colour ratchet may
-  only go down).
+- `npm test` / `npm run typecheck` — the kit's own vitest and tsc. From the
+  repo root: `npm test -w platform/ui`.
+- Guard tests: `boundary.test.ts` (package never imports an app; every app
+  under `apps/*/web` that depends on `@noverse/ui` reaches it only through the
+  package name), `Icon.test.tsx` (every icon name used by the kit or those apps
+  has an SVG), `tokenParity.test.ts` (stylex ↔ css ↔ json), `brand.test.ts`
+  (Noverse 1:1, WCAG AA pairs across sample brands, `defineBrand`
+  completeness, components never read core/`--scale-*`),
+  `hardcodedColors.test.ts` (colour ratchet may only go down).

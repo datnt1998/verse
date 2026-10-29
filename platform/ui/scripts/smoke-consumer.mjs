@@ -1,6 +1,6 @@
 // Consumer smoke: đóng gói @noverse/ui → app rỗng trong /tmp cài tarball → render
 // Button, Sheet (BottomSheet), Icon + kiểm tra tokens.css/style.css tồn tại.
-// Chạy: node scripts/smoke-consumer.mjs   (từ packages/ui)
+// Chạy: node scripts/smoke-consumer.mjs   (từ platform/ui)
 import { execFileSync, execSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PKG = fileURLToPath(new URL('..', import.meta.url))
-const NM = join(PKG, '..', '..', 'node_modules') // web/node_modules — nguồn dependency offline
+const NM = join(PKG, '..', '..', 'node_modules') // node_modules ở gốc repo (npm workspace) — nguồn dependency offline
 
 const log = (msg) => console.log(`[smoke] ${msg}`)
 const fail = (msg) => { console.error(`[smoke] FAIL ${msg}`); process.exit(1) }

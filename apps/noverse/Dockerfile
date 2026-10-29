@@ -15,18 +15,22 @@
 # ── 1. web ────────────────────────────────────────────────────────────────────
 FROM --platform=$BUILDPLATFORM node:22-alpine AS web
 
-WORKDIR /src/apps/noverse/web
+WORKDIR /src
 
-# Workspace manifests first so the dependency layer caches independently of
-# source edits. `@noverse/ui` is a file workspace under web/packages/ui.
-COPY apps/noverse/web/package.json apps/noverse/web/package-lock.json ./
-COPY apps/noverse/web/packages/ui/package.json packages/ui/package.json
+# npm workspace at the repository root. Manifests first so the dependency layer
+# caches independently of source edits; `npm ci` needs every workspace manifest
+# listed in the lockfile.
+COPY package.json package-lock.json ./
+COPY platform/ui/package.json platform/ui/package.json
+COPY apps/noverse/web/package.json apps/noverse/web/package.json
+COPY apps/vidverse/web/package.json apps/vidverse/web/package.json
 RUN npm ci --no-audit --no-fund
 
-COPY apps/noverse/web/ ./
+COPY platform/ui/ platform/ui/
+COPY apps/noverse/web/ apps/noverse/web/
 # vite.config.ts sets build.outDir = ../internal/entry/web/dist, i.e.
 # /src/apps/noverse/internal/entry/web/dist — the directory `//go:embed all:dist` expects.
-RUN npm run build
+RUN npm run build -w apps/noverse/web
 
 # ── 2. go ─────────────────────────────────────────────────────────────────────
 FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
