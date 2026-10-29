@@ -18,20 +18,23 @@ import (
 // origin for state-changing requests) must therefore come from the trusted
 // proxy boundary — never from self-declared headers on an untrusted peer.
 //
-// TRUSTED_PROXIES is the explicit boundary: when set, only peers inside those
-// CIDRs may supply X-Forwarded-*; the loopback-only rule used by local
-// `tailscale serve` is replaced. An unset value keeps the legacy loopback rule
-// so CLI/offline behaviour is unchanged. There is exactly one name: a second
-// alias would let an operator change a setting that is silently ignored.
+// TRUSTED_PROXIES is the explicit boundary: only peers inside those CIDRs may
+// supply X-Forwarded-*. Unset trusts no peer, loopback included, so a loopback
+// proxy such as `tailscale serve` cannot mark a request HTTPS through
+// X-Forwarded-Proto until TRUSTED_PROXIES=127.0.0.1/32 is set. `serve` always
+// installs a ProxyConfig; the legacy loopback rule in secureRequest only runs
+// for requests that never went through normalize (handlers called directly).
+// There is exactly one name: a second alias would let an operator change a
+// setting that is silently ignored.
 
 // ProxyConfig is the parsed trusted-proxy contract.
 type ProxyConfig struct {
-	// Trusted is the peer CIDR list. Empty means "no configured proxy": the
-	// legacy loopback-only rule in secureRequest applies.
+	// Trusted is the peer CIDR list. Empty trusts no peer: X-Forwarded-* is
+	// ignored, loopback included.
 	Trusted []*net.IPNet
-	// PublicURL is the canonical public base URL; when set it is the only
-	// origin accepted for browser state-changing requests and the source of
-	// secure-cookie policy.
+	// PublicURL is the canonical public base URL. Browser state-changing
+	// requests are accepted from this origin or from the request's own Host;
+	// SECURE_COOKIES requires it to be https.
 	PublicURL *url.URL
 	// SecureCookies forces every session cookie to carry Secure. Hosted
 	// deployments must set it; startup fails when PUBLIC_URL is not HTTPS.
@@ -229,13 +232,12 @@ func (c *ProxyConfig) allowedOrigin(r *http.Request, origin string) bool {
 	return strings.EqualFold(u.Host, r.Host)
 }
 
-// crossSiteRequest rejects browser-issued cross-site state changes when a
-// public origin is configured (hosted mode). Cookie auth is SameSite=Strict;
-// this is the second, explicit check for the host where the cookie exists.
+// crossSiteRequest rejects browser-issued state changes from another origin, in
+// every mode. SameSite=Strict does not separate ports on one host:
+// 127.0.0.1:8789 and 127.0.0.1:8790 are the same site, so only the Origin check
+// keeps a sibling app's page from writing here. A request without Origin (CLI,
+// worker, curl) passes unless the browser marks it cross-site.
 func (c *ProxyConfig) crossSiteRequest(r *http.Request) bool {
-	if c == nil || c.PublicURL == nil {
-		return false
-	}
 	switch r.Method {
 	case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete:
 	default:

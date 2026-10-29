@@ -580,6 +580,20 @@ func projectUpload(r *http.Request) bool {
 	return len(segs) == 4 && segs[0] == "api" && segs[1] == "projects" && segs[2] != "" && (segs[3] == "voices" || segs[3] == "assets")
 }
 
+// jsonBodyRequired: POST and PUT always carry a body here, so it must be JSON
+// (projectUpload aside). PATCH and DELETE are checked only when they send a
+// body; a bodiless DELETE is the normal form. ContentLength -1 (chunked) counts
+// as a body.
+func jsonBodyRequired(r *http.Request) bool {
+	switch r.Method {
+	case http.MethodPost, http.MethodPut:
+		return true
+	case http.MethodPatch, http.MethodDelete:
+		return r.ContentLength != 0
+	}
+	return false
+}
+
 // SetProxyConfig installs the trusted-proxy boundary parsed at startup. A nil
 // config keeps the legacy loopback rule (CLI/offline unchanged).
 func (g *Gateway) SetProxyConfig(cfg *ProxyConfig) { g.proxy = cfg }
@@ -611,7 +625,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		g.static(w, r)
 		return
 	}
-	if (r.Method == "POST" || r.Method == "PUT") && !jsonContent(r) && !projectUpload(r) {
+	if jsonBodyRequired(r) && !jsonContent(r) && !projectUpload(r) {
 		jsonError(w, 400, "Content-Type phải là application/json")
 		return
 	}

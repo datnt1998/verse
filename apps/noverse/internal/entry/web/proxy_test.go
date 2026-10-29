@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -236,43 +237,87 @@ func TestProxyConfigFromEnv(t *testing.T) {
 	}
 }
 
-// TestHostedCSRF covers the second anti-CSRF check: a configured public origin
-// rejects cross-site state changes while keeping same-origin browser and
-// non-browser clients working.
-func TestHostedCSRF(t *testing.T) {
-	cfg := mustConfig(t, "10.0.0.0/8", "https://noverse.example", true)
-	cases := []struct {
-		name    string
-		method  string
-		origin  string
-		fetch   string
-		blocked bool
+// TestStateChangingRequestsRequireSameOrigin runs method × mode × Origin ×
+// Sec-Fetch-Site through ServeHTTP. Only a same-origin request, or one without
+// Origin that the browser does not mark cross-site, reaches the session check
+// (401 without a cookie); every other combination is 403 before any handler.
+// "other port" is the sibling-app case SameSite=Strict cannot stop.
+func TestStateChangingRequestsRequireSameOrigin(t *testing.T) {
+	tg := newTestGateway(t)
+	modes := []struct {
+		name, host                 string
+		cfg                        *ProxyConfig
+		same, otherPort, otherHost string
 	}{
-		{"same origin post", http.MethodPost, "https://noverse.example", "", false},
-		{"cross origin post", http.MethodPost, "https://evil.example", "", true},
-		{"null origin post", http.MethodPost, "null", "", true},
-		{"cross-site fetch metadata", http.MethodPost, "", "cross-site", true},
-		{"same-origin fetch metadata", http.MethodPost, "", "same-origin", false},
-		{"no origin non-browser", http.MethodPost, "", "", false},
-		{"cross origin get", http.MethodGet, "https://evil.example", "", false},
+		{"local", "127.0.0.1:8790", &ProxyConfig{}, "http://127.0.0.1:8790", "http://127.0.0.1:8789", "http://evil.example"},
+		{"hosted", "noverse.example", mustConfig(t, "10.0.0.0/8", "https://noverse.example", true), "https://noverse.example", "https://noverse.example:8443", "https://evil.example"},
 	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			r := httptest.NewRequest(tc.method, "/api/login", nil)
-			r.Host = "noverse.example"
-			if tc.origin != "" {
-				r.Header.Set("Origin", tc.origin)
+	for _, mode := range modes {
+		tg.g.SetProxyConfig(mode.cfg)
+		origins := []struct{ name, value string }{{"same origin", mode.same}, {"other port", mode.otherPort}, {"other host", mode.otherHost}, {"no origin", ""}}
+		for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete} {
+			for _, origin := range origins {
+				for _, fetch := range []string{"same-origin", "same-site", "cross-site", ""} {
+					r := httptest.NewRequest(method, "/api/projects", strings.NewReader(`{}`))
+					r.Host = mode.host
+					r.Header.Set("Content-Type", "application/json")
+					if origin.value != "" {
+						r.Header.Set("Origin", origin.value)
+					}
+					if fetch != "" {
+						r.Header.Set("Sec-Fetch-Site", fetch)
+					}
+					w := httptest.NewRecorder()
+					tg.g.ServeHTTP(w, r)
+					want := http.StatusForbidden
+					if fetch != "cross-site" && (origin.value == "" || origin.value == mode.same) {
+						want = http.StatusUnauthorized
+					}
+					if w.Code != want {
+						t.Errorf("%s %s origin=%s sec-fetch-site=%q: status %d, want %d", mode.name, method, origin.name, fetch, w.Code, want)
+					}
+				}
 			}
-			if tc.fetch != "" {
-				r.Header.Set("Sec-Fetch-Site", tc.fetch)
-			}
-			if got := cfg.crossSiteRequest(r); got != tc.blocked {
-				t.Fatalf("crossSiteRequest = %v, want %v", got, tc.blocked)
-			}
-		})
+		}
 	}
-	// Without a public URL (CLI/offline) the legacy contract is untouched.
-	if (&ProxyConfig{}).crossSiteRequest(httptest.NewRequest(http.MethodPost, "/api/login", nil)) {
-		t.Fatal("unconfigured proxy must not enforce origin checks")
+
+	cfg := &ProxyConfig{}
+	null := httptest.NewRequest(http.MethodPost, "/api/projects", nil)
+	null.Host = "127.0.0.1:8790"
+	null.Header.Set("Origin", "null")
+	if !cfg.crossSiteRequest(null) {
+		t.Error("Origin: null must be rejected")
+	}
+	get := httptest.NewRequest(http.MethodGet, "/api/projects", nil)
+	get.Host = "127.0.0.1:8790"
+	get.Header.Set("Origin", "http://127.0.0.1:8789")
+	if cfg.crossSiteRequest(get) {
+		t.Error("GET is not a state change and must not be origin-checked")
+	}
+}
+
+// PATCH and DELETE bodies get the JSON contract POST and PUT already had; a
+// bodiless DELETE (the normal form) still reaches the session check.
+func TestPatchAndDeleteBodiesMustBeJSON(t *testing.T) {
+	tg := newTestGateway(t)
+	for _, tc := range []struct {
+		method, contentType, body string
+		want                      int
+	}{
+		{http.MethodPatch, "text/plain", "x", http.StatusBadRequest},
+		{http.MethodDelete, "text/plain", "x", http.StatusBadRequest},
+		{http.MethodPatch, "application/json", `{}`, http.StatusUnauthorized},
+		{http.MethodDelete, "application/json", `{}`, http.StatusUnauthorized},
+		{http.MethodDelete, "", "", http.StatusUnauthorized},
+	} {
+		r := httptest.NewRequest(tc.method, "/api/projects/proj", strings.NewReader(tc.body))
+		if tc.contentType != "" {
+			r.Header.Set("Content-Type", tc.contentType)
+		}
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		if w.Code != tc.want {
+			t.Errorf("%s %q body=%q: status %d, want %d", tc.method, tc.contentType, tc.body, w.Code, tc.want)
+		}
 	}
 }

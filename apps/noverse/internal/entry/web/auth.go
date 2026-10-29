@@ -64,10 +64,10 @@ func clientIP(r *http.Request) string {
 	return host
 }
 
-// secureRequest 判断浏览器看到的是否 HTTPS：直连 TLS，或可信反代（TRUSTED_PROXIES
-// 内的对端，未配置时仅 loopback —— 例如 tailscale serve）转发的
-// X-Forwarded-Proto。远端地址的自报头一律忽略，否则伪造头可以把 Secure cookie
-// 降级；归一化在 ServeHTTP 里完成（proxy.go），这里只读结果。
+// secureRequest 判断浏览器看到的是否 HTTPS：直连 TLS，或 TRUSTED_PROXIES 内的对端
+// 转发的 X-Forwarded-Proto（未配置 TRUSTED_PROXIES 时不信任任何对端，loopback 也不例外）。
+// 远端地址的自报头一律忽略，否则伪造头可以把 Secure cookie 降级；归一化在 ServeHTTP
+// 里完成（proxy.go），这里只读结果。下面的 loopback 旧规则只用于未经归一化的请求。
 func secureRequest(r *http.Request) bool {
 	if facts, ok := normalized(r); ok {
 		return facts.secure

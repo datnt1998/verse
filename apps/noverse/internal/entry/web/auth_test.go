@@ -39,7 +39,7 @@ func authDo(t *testing.T, g *Gateway, method, path, cookie, body string) *httpte
 	if cookie != "" {
 		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
 	}
-	if method == "POST" {
+	if method == "POST" || body != "" {
 		r.Header.Set("Content-Type", "application/json")
 	}
 	w := httptest.NewRecorder()

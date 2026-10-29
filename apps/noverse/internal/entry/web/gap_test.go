@@ -31,7 +31,7 @@ func doFrom(t *testing.T, g *Gateway, method, path, cookie, body, remote string,
 	if cookie != "" {
 		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
 	}
-	if method == "POST" || method == "PUT" {
+	if method == "POST" || method == "PUT" || body != "" {
 		r.Header.Set("Content-Type", "application/json")
 	}
 	for k, v := range headers {

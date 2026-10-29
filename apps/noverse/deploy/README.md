@@ -197,11 +197,22 @@ yêu cầu, nhưng giá trị cuối cùng do máy chủ quyết định.
 - Chỉ peer nằm trong `TRUSTED_PROXIES` mới được tin `X-Forwarded-For` /
   `X-Forwarded-Proto`; client IP đi ngược XFF qua các hop tin cậy, dừng ở hop
   đầu tiên không tin cậy. Giá trị proto không hợp lệ/nhiều giá trị bị bỏ qua.
+  Để trống `TRUSTED_PROXIES` thì không tin peer nào, kể cả loopback.
 - `SECURE_COOKIES=true` → cookie phiên luôn `Secure` (HttpOnly, SameSite=Strict,
   path `/`), không phụ thuộc header do client gửi.
-- Khi có `PUBLIC_URL`, request ghi dữ liệu có `Origin` khác origin công khai
-  (hoặc `Sec-Fetch-Site: cross-site`) bị `403`. Multipart upload hiện có vẫn đi
-  qua JSON/multipart contract cũ.
+- Request ghi dữ liệu (POST/PUT/PATCH/DELETE) bị `403` ở **mọi chế độ** khi có
+  `Sec-Fetch-Site: cross-site`, hoặc khi có `Origin` khác cả `PUBLIC_URL` lẫn
+  Host của chính request. So theo host:port, nên trang của app khác trên cùng
+  máy (ví dụ `127.0.0.1:8789` gửi sang `127.0.0.1:8790`) bị chặn dù cookie
+  `SameSite=Strict` không phân biệt cổng. Request không có `Origin` (CLI,
+  worker, curl) vẫn qua.
+- Body của POST/PUT phải là `application/json` (trừ multipart upload hiện có);
+  PATCH/DELETE có body cũng vậy, sai thì `400`. DELETE không body vẫn qua.
+- Muốn cookie `Secure` khi đứng sau một proxy loopback (ví dụ `tailscale serve`
+  terminate HTTPS rồi chuyển về `127.0.0.1`): đặt `SECURE_COOKIES=true` cùng
+  `PUBLIC_URL=https://<tên máy>…`, vì thiếu `PUBLIC_URL` https thì binary từ
+  chối khởi động. Thêm `TRUSTED_PROXIES=127.0.0.1/32` nếu cần tin
+  `X-Forwarded-*` (IP client cho limiter) từ proxy đó.
 - `/healthz` và `/readyz` được xử lý **trước** static SPA (nếu không sẽ trả
   index.html 200 giả).
 

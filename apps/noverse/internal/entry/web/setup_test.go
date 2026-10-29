@@ -72,7 +72,7 @@ func (h *setupHarness) do(method, path, cookie, body string) *httptest.ResponseR
 	if cookie != "" {
 		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
 	}
-	if method == "POST" || method == "PUT" {
+	if method == "POST" || method == "PUT" || body != "" {
 		r.Header.Set("Content-Type", "application/json")
 	}
 	w := httptest.NewRecorder()
