@@ -26,26 +26,36 @@ type Issue struct {
 
 // Metrics 是从 diag.Stats 直接借来的概览指标——eval 不重算。
 type Metrics struct {
-	CompletedChapters int              `json:"completed_chapters"`
-	TotalChapters     int              `json:"total_chapters"`
-	TotalWords        int              `json:"total_words"`
-	AvgWordsPerChap   int              `json:"avg_words_per_chapter"`
-	Phase             string           `json:"phase"`
-	Flow              string           `json:"flow"`
-	ReviewCount       int              `json:"review_count"`
-	RewriteCount      int              `json:"rewrite_count"`
-	AvgReviewScore    float64          `json:"avg_review_score"`
-	CriticalFindings  int              `json:"critical_findings"`
-	WarningFindings   int              `json:"warning_findings"`
-	ToolCalls         int              `json:"tool_calls"`
-	ToolErrors        int              `json:"tool_errors"`
-	ContextTrims      int              `json:"context_trims"`
-	ContextMissing    int              `json:"context_missing,omitempty"`
-	QuoteCoverage     RateMetric       `json:"quote_coverage"`
-	WorkerRuns        map[string]int   `json:"worker_runs,omitempty"`
-	Usage             UsageMetrics     `json:"usage"`
-	StylestatStatus   string           `json:"stylestat_status,omitempty"`
-	Stylestat         *stylestat.Stats `json:"stylestat,omitempty"`
+	CompletedChapters int     `json:"completed_chapters"`
+	TotalChapters     int     `json:"total_chapters"`
+	TotalWords        int     `json:"total_words"`
+	AvgWordsPerChap   int     `json:"avg_words_per_chapter"`
+	Phase             string  `json:"phase"`
+	Flow              string  `json:"flow"`
+	ReviewCount       int     `json:"review_count"`
+	RewriteCount      int     `json:"rewrite_count"`
+	AvgReviewScore    float64 `json:"avg_review_score"`
+	CriticalFindings  int     `json:"critical_findings"`
+	WarningFindings   int     `json:"warning_findings"`
+	ToolCalls         int     `json:"tool_calls"`
+	ToolErrors        int     `json:"tool_errors"`
+	// ToolErrorsByKind 按 metadata.error_kind 分桶；各桶之和恒等于 ToolErrors。
+	ToolErrorsByKind  map[string]int        `json:"tool_errors_by_kind"`
+	Retries           int                   `json:"retries"`
+	StreamIdle        int                   `json:"stream_idle"`
+	ToolBlocked       int                   `json:"tool_blocked_events"`
+	CircuitOpen       int                   `json:"circuit_open_events"`
+	CompactionsByTool map[string]int        `json:"compactions_by_tool"`
+	SubagentExit      map[string]int        `json:"subagent_exit_by_trigger"`
+	DurationS         float64               `json:"duration_s"`
+	UsageByAgent      map[string]AgentUsage `json:"usage_by_agent"`
+	ContextTrims      int                   `json:"context_trims"`
+	ContextMissing    int                   `json:"context_missing,omitempty"`
+	QuoteCoverage     RateMetric            `json:"quote_coverage"`
+	WorkerRuns        map[string]int        `json:"worker_runs,omitempty"`
+	Usage             UsageMetrics          `json:"usage"`
+	StylestatStatus   string                `json:"stylestat_status,omitempty"`
+	Stylestat         *stylestat.Stats      `json:"stylestat,omitempty"`
 }
 
 // Result 是单个 case 的完整评测结果。对齐设计稿三层模型：
@@ -423,6 +433,15 @@ func metricsFrom(col Collected) Metrics {
 		QuoteCoverage:     col.QuoteCoverage,
 		WorkerRuns:        col.WorkerRuns,
 		Usage:             col.Usage,
+		ToolErrorsByKind:  col.ToolErrorsByKind,
+		Retries:           col.Retries,
+		ToolBlocked:       col.ToolBlocked,
+		CircuitOpen:       col.CircuitOpen,
+		StreamIdle:        col.StreamIdle,
+		CompactionsByTool: col.CompactionsByTool,
+		SubagentExit:      col.SubagentExitByTrigger,
+		DurationS:         col.DurationS,
+		UsageByAgent:      col.UsageByAgent,
 		StylestatStatus:   col.Style.Status,
 		Stylestat:         col.Style.Stats,
 	}

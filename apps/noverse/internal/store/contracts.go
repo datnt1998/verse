@@ -269,6 +269,9 @@ type SessionStore interface {
 	LogCoCreate(entry any) error
 	KeepToolResults(names ...string)
 	SubAgentLogger(lookup ModelLookup) func(agentName, task string, msg llmtypes.AgentMessage)
+	// SubAgentEventLogger 返回与 SubAgentLogger 同文件路由的事件写入器：
+	// (agent, task) 决定文件，kind 是固定事件名，fields 只放少量短字段。
+	SubAgentEventLogger() func(agentName, task, kind string, fields map[string]any)
 }
 
 // UsageStore persists token/cost usage state.

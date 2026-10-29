@@ -75,7 +75,11 @@ type Config struct {
 	// OnMessage, if non-nil, is called after each message is appended to
 	// context. The agentName and task are provided for session routing.
 	OnMessage func(agentName, task string, msg llmtypes.AgentMessage)
-
+	// OnEvent, if non-nil, receives the run's raw agentcore event stream,
+	// tagged with the same agentName/task identity as OnMessage so a session
+	// log can file events next to their messages. Observation only —
+	// the callback must not drive behavior.
+	OnEvent func(agentName, task string, ev agentcore.Event)
 	// Optional context lifecycle hooks for long-running sub-agents.
 	ContextManager        agentcore.ContextManager
 	ContextManagerFactory func(model llmtypes.ChatModel) agentcore.ContextManager
@@ -960,11 +964,27 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 		observe = func(ev agentcore.Event) { r.eventObserver(meta, ev) }
 	}
 
+	// fanEvent is the single publish point for loop events plus the
+	// runner-emitted subagent_exit: external observer first, then per-run
+	// onEvent, then the config's session-facing OnEvent.
+	fanEvent := func(ev agentcore.Event) {
+		if observe != nil {
+			observe(ev)
+		}
+		if opts.onEvent != nil {
+			opts.onEvent(ev)
+		}
+		if cfg.OnEvent != nil {
+			cfg.OnEvent(agentName, taskStr, ev)
+		}
+	}
+
 	events := agentcore.AgentLoop(ctx, []llmtypes.AgentMessage{llmtypes.UserMsg(taskStr)}, agentCtx, loopCfg)
 
 	var lastAssistantContent string
 	var terminalToolResult json.RawMessage // result from StopAfterTool trigger
 	var lastErr error
+	var endReason agentcore.EndReason
 	su := &Usage{}
 
 	for ev := range events {
@@ -975,12 +995,7 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 		// guaranteed on every termination path — normal/abort/max-turns/error
 		// and, via the loop's panic recovery, panic too — so an observer can
 		// rely on it as the run's stop signal.
-		if observe != nil {
-			observe(ev)
-		}
-		if opts.onEvent != nil {
-			opts.onEvent(ev)
-		}
+		fanEvent(ev)
 		switch ev.Type {
 		case agentcore.EventToolExecStart:
 			su.Tools++
@@ -1099,8 +1114,21 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 			if ev.Err != nil {
 				lastErr = ev.Err
 			}
+		case agentcore.EventAgentEnd:
+			if ev.Summary != nil {
+				endReason = ev.Summary.EndReason
+			}
 		}
 	}
+
+	// Emit the subagent_exit signal after the channel drained: the trigger is
+	// derived from the end reason and which path actually stopped the run —
+	// terminal tool, guard escalation, error, or a plain/budget/abort stop.
+	fanEvent(agentcore.Event{
+		Type:   agentcore.EventSubagentExit,
+		Reason: subagentExitTrigger(lastErr, terminalToolResult, endReason),
+		Err:    lastErr,
+	})
 
 	if lastErr != nil {
 		return RunResult{Agent: agentName, Usage: *su}, lastErr
@@ -1111,6 +1139,26 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 		TerminalResult: terminalToolResult,
 		Usage:          *su,
 	}, nil
+}
+
+// subagentExitTrigger maps the recorded end facts onto the subagent_exit
+// signal's trigger label. A stop that followed a captured terminal tool
+// result reports "tool"; a guard escalation reports "guard"; everything else
+// reports the loop's own EndReason ("stop" defaulting when the summary was
+// missing).
+func subagentExitTrigger(err error, terminal json.RawMessage, reason agentcore.EndReason) string {
+	switch {
+	case errors.Is(err, agentcore.ErrStopGuard):
+		return "guard"
+	case reason == agentcore.EndReasonStop && len(terminal) > 0:
+		return "tool"
+	case reason != "":
+		return string(reason)
+	case err != nil:
+		return string(agentcore.EndReasonError)
+	default:
+		return string(agentcore.EndReasonStop)
+	}
 }
 
 func toolErrorMessage(result json.RawMessage) string {

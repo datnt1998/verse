@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/diag"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
@@ -44,6 +45,29 @@ type Collected struct {
 	// ToolErrors 是 session 日志里标了 is_error 的 tool result 条数。
 	WorkerRuns map[string]int
 	ToolErrors int
+	// ToolErrorsByKind 把每个 is_error 的 tool result 按 metadata.error_kind
+	// 归类（validation/business/blocked/circuit）；缺 kind 的旧结果归
+	// business。各桶之和恒等于 ToolErrors。
+	ToolErrorsByKind map[string]int
+	// Retries / StreamIdle 是 _event 行的计数：LLM 重试次数与流式空闲中断次数。
+	Retries    int
+	StreamIdle int
+	// ToolBlocked / CircuitOpen 统计 tool_blocked / circuit_open 信号事件，
+	// 与 tool_errors_by_kind 同因但独立计数（事件视角，非结果视角）。
+	ToolBlocked int
+	CircuitOpen int
+	// CompactionsByTool 是 compaction 事件按 compacted tool 分桶；非工具级
+	// 压缩（summary/overflow）归入 "context"。
+	CompactionsByTool map[string]int
+	// SubagentExitByTrigger 是 subagent_exit 事件按 trigger 分桶
+	// （stop/tool/guard/error/max_turns/aborted）。
+	SubagentExitByTrigger map[string]int
+	// DurationS 是运行时长（秒）：从 run.json started_at 到最后的 session
+	// 时间戳（或 usage.json updated_at，取更晚者）。
+	DurationS float64
+	// UsageByAgent 按 session 文件归属的 agent 汇总 assistant 消息里的
+	// token 与 cost（provider 上报值）。
+	UsageByAgent map[string]AgentUsage
 	// ContextTrims 是 novel_context 结果里 _trimmed 命中 previous_tail 的次数：
 	// 上下文被预算裁剪到丢掉上文尾部的次数，A/B previous_tail 需要它。
 	// 只统计读到原文的结果；被压缩/出错的次数另记在 ContextMissing——
@@ -62,6 +86,15 @@ type Collected struct {
 	// 被压缩成 [session_compact: ...] 占位符与出错的结果不入列：
 	// context_contains 断言只读这些字节，不重新构造上下文。
 	ContextResults []string
+}
+
+// AgentUsage 是单个 agent 文件里 assistant 消息 usage 的累计。
+type AgentUsage struct {
+	Input      int     `json:"input"`
+	Output     int     `json:"output"`
+	CacheRead  int     `json:"cache_read"`
+	CacheWrite int     `json:"cache_write"`
+	CostUSD    float64 `json:"cost_usd"`
 }
 
 // StyleCollection 是从章节终稿中采集的全书文体事实。
@@ -121,10 +154,11 @@ func Collect(dir string, runtimeErr error) Collected {
 		pending["pending_steer"] = true
 	}
 	style := collectStyle(s, prog, check)
-	usage := collectUsage(s, check)
+	usage, usageUpdatedAt := collectUsage(s, check)
 	texts, facts := collectChapters(s, check)
 	reviews, rounds := collectReviews(s, check)
 	scan := scanSessionLogs(dir, check)
+	durationS := runDurationSeconds(rm, scan.lastTimestamp, usageUpdatedAt)
 	// quote_coverage 只统计本次 run 内 writer 真正提交的章节——按 session 里
 	// commit_chapter 成功结果识别，seed 的历史章节与 editor-only run 不计入。
 	committedFacts := map[int]domain.ChapterFacts{}
@@ -159,6 +193,16 @@ func Collect(dir string, runtimeErr error) Collected {
 		ContextMissing: scan.contextMissing,
 		ContextResults: scan.contextResults,
 		QuoteCoverage:  collectQuoteCoverage(committedFacts),
+
+		ToolErrorsByKind:      scan.toolErrorsByKind,
+		Retries:               scan.retries,
+		StreamIdle:            scan.streamIdle,
+		ToolBlocked:           scan.toolBlocked,
+		CircuitOpen:           scan.circuitOpen,
+		CompactionsByTool:     scan.compactionsByTool,
+		SubagentExitByTrigger: scan.subagentExit,
+		DurationS:             durationS,
+		UsageByAgent:          scan.usageByAgent,
 	}
 }
 
@@ -232,11 +276,11 @@ func firstMarkdownTitle(text string) string {
 	return ""
 }
 
-func collectUsage(s *store.Store, check func(string, error)) UsageMetrics {
+func collectUsage(s *store.Store, check func(string, error)) (UsageMetrics, time.Time) {
 	state, err := s.Usage.Load()
 	check("usage", err)
 	if state == nil {
-		return UsageMetrics{}
+		return UsageMetrics{}, time.Time{}
 	}
 	return UsageMetrics{
 		Input:         state.Overall.Input,
@@ -246,11 +290,34 @@ func collectUsage(s *store.Store, check func(string, error)) UsageMetrics {
 		CostUSD:       state.Overall.Cost,
 		MissingUsage:  state.MissingUsage,
 		UsageRecorded: true,
-	}
+	}, state.UpdatedAt
 }
 
+// runDurationSeconds 估算运行时长：终点取 session 最后一条消息时间戳与
+// usage.json updated_at 中更晚者；起点的 run.json 缺失或时间不可解析时归 0。
+func runDurationSeconds(rm *domain.RunMeta, lastSession, usageUpdated time.Time) float64 {
+	if rm == nil || rm.StartedAt == "" {
+		return 0
+	}
+	start, err := time.Parse(time.RFC3339, rm.StartedAt)
+	if err != nil {
+		return 0
+	}
+	end := lastSession
+	if usageUpdated.After(end) {
+		end = usageUpdated
+	}
+	if !end.After(start) {
+		return 0
+	}
+	return end.Sub(start).Seconds()
+}
+
+// sessionLine 既能解 message 行（role/content/metadata），也能解事件行
+// （{"_event": {...}}）；两类行在同一文件里交错。
 type sessionLine struct {
 	llmtypes.Message
+	Event map[string]any `json:"_event,omitempty"`
 }
 
 type sessionScan struct {
@@ -262,12 +329,34 @@ type sessionScan struct {
 	workerRuns        map[string]int
 	commitPending     map[string]int // tool_call_id → 调参里的 chapter，等结果对账
 	committedChapters map[int]bool   // 本次 run commit_chapter 成功提交的章节
+
+	// 核心信号：tool_errors_by_kind 从 tool result 的 error_kind 元数据读
+	// （旧结果无 kind 归 business，保证各桶之和恒等于 toolErrors）；其余来自
+	// _event 行。lastTimestamp 记全 session 最大时间戳，供 duration_s 用。
+	toolErrorsByKind map[string]int
+	retries          int
+	streamIdle       int
+	toolBlocked      int
+	circuitOpen      int
+
+	compactionsByTool map[string]int
+	subagentExit      map[string]int
+	usageByAgent      map[string]AgentUsage
+	lastTimestamp     time.Time
 }
 
 // scanSessionLogs 一次遍历 meta/sessions：工具调用数、工具错误数、novel_context
 // 结果原文、每个 agent 的运行文件数。session 是运行时自己写的追加日志，这里只读不动。
 func scanSessionLogs(dir string, check func(string, error)) sessionScan {
-	scan := sessionScan{workerRuns: map[string]int{}, commitPending: map[string]int{}, committedChapters: map[int]bool{}}
+	scan := sessionScan{
+		workerRuns:        map[string]int{},
+		commitPending:     map[string]int{},
+		committedChapters: map[int]bool{},
+		toolErrorsByKind:  map[string]int{},
+		compactionsByTool: map[string]int{},
+		subagentExit:      map[string]int{},
+		usageByAgent:      map[string]AgentUsage{},
+	}
 	sessionDir := filepath.Join(dir, "meta", "sessions")
 	err := filepath.WalkDir(sessionDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -276,10 +365,13 @@ func scanSessionLogs(dir string, check func(string, error)) sessionScan {
 		if d.IsDir() || !strings.HasSuffix(d.Name(), ".jsonl") {
 			return nil
 		}
-		if agent, ok := agentFromSessionPath(sessionDir, path); ok {
+		agent, isAgent := agentFromSessionPath(sessionDir, path)
+		if isAgent {
 			scan.workerRuns[agent]++
+		} else {
+			agent = strings.TrimSuffix(d.Name(), ".jsonl")
 		}
-		return scanSessionFile(path, &scan)
+		return scanSessionFile(path, agent, &scan)
 	})
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		check("sessions", err)
@@ -304,7 +396,10 @@ func agentFromSessionPath(sessionDir, path string) (string, bool) {
 	return name, true
 }
 
-func scanSessionFile(path string, scan *sessionScan) error {
+// scanSessionFile 解析一个 session JSONL：事件行进 noteSessionEvent，
+// message 行走既有计数（tool_calls / tool_errors / commit 对账 /
+// novel_context 原文）；assistant usage 按文件归属 agent 累计。
+func scanSessionFile(path, agent string, scan *sessionScan) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -318,6 +413,13 @@ func scanSessionFile(path string, scan *sessionScan) error {
 		if err := json.Unmarshal(sc.Bytes(), &sl); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
+		if sl.Event != nil {
+			scan.noteSessionEvent(sl.Event)
+			continue
+		}
+		if ts := sl.Message.Timestamp; ts.After(scan.lastTimestamp) {
+			scan.lastTimestamp = ts
+		}
 		scan.toolCalls += len(sl.Message.ToolCalls())
 		// commit_chapter 调用先记 tool_call_id → chapter，等工具结果对账：
 		// 只有非错误返回才算本次 run 里 writer 真正提交的章节。
@@ -326,11 +428,23 @@ func scanSessionFile(path string, scan *sessionScan) error {
 				scan.commitPending[call.ID] = commitChapterFromArgs(call.Args)
 			}
 		}
+		if sl.Message.Role == llmtypes.RoleAssistant && sl.Message.Usage != nil {
+			u := scan.usageByAgent[agent]
+			u.Input += sl.Message.Usage.Input
+			u.Output += sl.Message.Usage.Output
+			u.CacheRead += sl.Message.Usage.CacheRead
+			u.CacheWrite += sl.Message.Usage.CacheWrite
+			if sl.Message.Usage.Cost != nil {
+				u.CostUSD += sl.Message.Usage.Cost.Total
+			}
+			scan.usageByAgent[agent] = u
+		}
 		if sl.Message.Role != llmtypes.RoleTool {
 			continue
 		}
 		if isErrorResult(sl.Message) {
 			scan.toolErrors++
+			scan.toolErrorsByKind[toolErrorKind(sl.Message)]++
 		}
 		if name, _ := sl.Message.Metadata["tool_name"].(string); name == "commit_chapter" {
 			callID, _ := sl.Message.Metadata["tool_call_id"].(string)
@@ -345,6 +459,44 @@ func scanSessionFile(path string, scan *sessionScan) error {
 		}
 	}
 	return sc.Err()
+}
+
+// toolErrorKind 读 tool result 的错误分类。缺失或未知标签归 business：
+// 每个 is_error 结果必落一个桶，tool_errors_by_kind 之和才恒等于 tool_errors。
+func toolErrorKind(msg llmtypes.Message) string {
+	kind, _ := msg.Metadata["error_kind"].(string)
+	switch kind {
+	case "validation", "blocked", "circuit":
+		return kind
+	}
+	return "business"
+}
+
+// noteSessionEvent 按 kind 分派 _event 行到各计数桶；未知 kind 忽略（前向兼容）。
+func (s *sessionScan) noteSessionEvent(ev map[string]any) {
+	kind, _ := ev["kind"].(string)
+	switch kind {
+	case "retry":
+		s.retries++
+	case "stream_idle":
+		s.streamIdle++
+	case "tool_blocked":
+		s.toolBlocked++
+	case "circuit_open":
+		s.circuitOpen++
+	case "compaction":
+		tool, _ := ev["tool"].(string)
+		if tool == "" {
+			tool = "context"
+		}
+		s.compactionsByTool[tool]++
+	case "subagent_exit":
+		trigger, _ := ev["trigger"].(string)
+		if trigger == "" {
+			trigger = "unknown"
+		}
+		s.subagentExit[trigger]++
+	}
 }
 
 // commitChapterFromArgs 从 commit_chapter 调参里取章节号；取不到返回 0。

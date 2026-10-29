@@ -85,7 +85,11 @@ type ToolResult struct {
 	Content       json.RawMessage         `json:"content,omitempty"`
 	ContentBlocks []llmtypes.ContentBlock `json:"-"` // rich content (images); not serialized
 	IsError       bool                    `json:"is_error,omitempty"`
-	Details       any                     `json:"details,omitempty"` // optional metadata for UI display/logging
+	// ErrorKind classifies an error result for tool_errors_by_kind counters:
+	// one of ToolErrorValidation/Blocked/Circuit/Business. Empty defaults to
+	// business at message conversion.
+	ErrorKind string `json:"-"`                 // internal: written to message metadata as "error_kind"
+	Details   any    `json:"details,omitempty"` // optional metadata for UI display/logging
 }
 
 // ---------------------------------------------------------------------------

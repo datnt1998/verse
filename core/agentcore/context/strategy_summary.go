@@ -142,6 +142,13 @@ func (s *FullSummaryStrategy) apply(ctx context.Context, view []llmtypes.AgentMe
 		info.Duration = time.Millisecond
 	}
 
+	// Observation only: whole-context summary compaction counts under the
+	// empty tool key. No-op when ctx carries no run reporter.
+	agentcore.ReportEvent(ctx, agentcore.Event{
+		Type:   agentcore.EventCompaction,
+		Reason: s.Name(),
+	})
+
 	return next, StrategyResult{
 		Applied:     true,
 		TokensSaved: max(0, EstimateTotal(view)-EstimateTotal(next)),

@@ -52,7 +52,10 @@ func NewRepeatFailureMiddleware() agentcore.ToolMiddleware {
 		mu.Unlock()
 
 		if failed >= repeatFailureLimit {
-			return nil, fmt.Errorf("lời gọi %s với đúng tham số này đã lỗi %d lần liền và lặp lại sẽ không thành công. Hãy đổi tham số (ví dụ bỏ chapter, chọn chương khác, đổi source) hoặc dùng thông tin đã có để làm bước tiếp theo", call.Name, failed)
+			return nil, &agentcore.ToolBlockedError{
+				Reason: "repeat_failure",
+				Err:    fmt.Errorf("lời gọi %s với đúng tham số này đã lỗi %d lần liền và lặp lại sẽ không thành công. Hãy đổi tham số (ví dụ bỏ chapter, chọn chương khác, đổi source) hoặc dùng thông tin đã có để làm bước tiếp theo", call.Name, failed),
+			}
 		}
 
 		out, err := next(ctx, call.Args)

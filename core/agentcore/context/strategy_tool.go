@@ -5,6 +5,8 @@ import (
 
 	"context"
 	"fmt"
+
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 // DefaultClearedToolResult replaces a tool result that microcompact dropped.
@@ -47,7 +49,7 @@ func NewToolResultMicrocompact(cfg ToolResultMicrocompactConfig) *ToolResultMicr
 
 func (s *ToolResultMicrocompactStrategy) Name() string { return "tool_result_microcompact" }
 
-func (s *ToolResultMicrocompactStrategy) Apply(_ context.Context, _ []llmtypes.AgentMessage, view []llmtypes.AgentMessage, _ Budget) ([]llmtypes.AgentMessage, StrategyResult, error) {
+func (s *ToolResultMicrocompactStrategy) Apply(ctx context.Context, _ []llmtypes.AgentMessage, view []llmtypes.AgentMessage, _ Budget) ([]llmtypes.AgentMessage, StrategyResult, error) {
 	if len(view) == 0 {
 		return view, StrategyResult{Name: s.Name()}, nil
 	}
@@ -86,6 +88,7 @@ func (s *ToolResultMicrocompactStrategy) Apply(_ context.Context, _ []llmtypes.A
 		if !ok {
 			continue
 		}
+		already, _ := msg.Metadata["compacted_tool_result"].(bool)
 		next := msg
 		next.Content = []llmtypes.ContentBlock{llmtypes.TextBlock(s.clearedText(candidate.ToolName, msg))}
 		next.Metadata = cloneMetadata(msg.Metadata)
@@ -97,6 +100,17 @@ func (s *ToolResultMicrocompactStrategy) Apply(_ context.Context, _ []llmtypes.A
 		out[candidate.Index] = next
 		saved += max(0, EstimateTokens(msg)-EstimateTokens(next))
 		applied = true
+		// Observation only: one compaction event per tool result the first time
+		// it is cleared, so eval can count compactions by tool. A placeholder that
+		// a later pass rewrites again is not counted twice. No-op when ctx carries
+		// no run reporter.
+		if !already {
+			agentcore.ReportEvent(ctx, agentcore.Event{
+				Type:   agentcore.EventCompaction,
+				Tool:   candidate.ToolName,
+				Reason: s.Name(),
+			})
+		}
 	}
 
 	return out, StrategyResult{
