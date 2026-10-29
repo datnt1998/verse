@@ -51,4 +51,11 @@ năng sinh lặp lỗi hơn các case đã chọn.
 
 ## 4. Kết quả
 
-_(để trống — controller điền sau khi chạy eval hai nhánh)_
+**Chưa chạy A/B.** Ngày 2026-10-29, anh quyết định cắt toàn bộ eval (cả loạt ước 14–20 giờ) và merge mà không đo. Baseline phase 05 chỉ có `architect_long` ×3, `tool_errors_by_kind.blocked` = 0 ở cả 3 lượt, nên ngưỡng "kênh đo còn sống" ở mục 2 không kiểm được bằng eval.
+
+Merge vào `main` ở `61424cc` dựa trên test, thay cho eval:
+- 7 test `TestRepeatFailureMiddleware*` ở `core/agentcore`: ngưỡng, reset khi thành công, trần khoá, thông báo mặc định và tuỳ biến, phân loại `blocked`, phạm vi sống.
+- `TestRepeatFailureGuardPersistsAcrossRuns` ở `core/agentcore/subagent`: bộ đếm sống qua hai lần spawn của cùng runner.
+- Suite đầy đủ 4152 test pass; `-race` sạch trên `core/agentcore/...`, `core/llmretry` và các package agents/tools/host của Noverse.
+
+Bản sao trong app đã xoá. Option `WithRepeatFailure` không ai gọi nên đã bỏ; Noverse vẫn gắn middleware qua `NewRepeatFailureMiddleware`.

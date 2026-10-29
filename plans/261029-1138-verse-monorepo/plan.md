@@ -97,9 +97,9 @@ CI đang tắt để giữ quota, nên mọi gate chạy trên máy anh (10 nhâ
 | 01 [Dời Noverse vào `apps/noverse`](./phase-01-move-noverse.md) | Repo `verse` qua toàn bộ gate cũ; số test không đổi | 00 | xong (CI hoãn, Actions tắt) |
 | 02 [Tách `core/` và test ranh giới](./phase-02-carve-core.md) | 32 package nằm ở `core/`; test ranh giới có kiểm chứng đối chứng; smoke eval 3/3 | 01 | xong |
 | 03 [Live chạy từ `verse`](./phase-03-live-from-verse.md) | Cổng 8790 chạy binary build từ `verse` dưới launchd; phiên đăng nhập cũ còn hiệu lực; rollback dưới 1 phút | 02 | xong; chờ anh xác nhận phiên/dữ liệu trên thiết bị và mốc 7 ngày (2026-11-05) |
-| 04 [An toàn request, identity, khung Viderse](./phase-04-security-identity-viderse.md) | 4a an toàn request; 4b identity dùng chung code; 4c Viderse + Writer chạy thật. Không làm 4d (SSO) | 03 | 4a, 4c xong (Writer chạy thật với `gpt-6-luna`); 4b chờ smoke baseline |
-| 05 [Metric core trong eval](./phase-05-core-metrics.md) | Report có các trường metric mới; baseline có số đo độ dao động | 02 | code xong; baseline đang chạy |
-| 06 [Nâng cấp core có A/B](./phase-06-core-upgrades.md) | Mỗi nâng cấp có giả thuyết, ngưỡng đặt trước và kết quả A/B | 05 | code 2 nâng cấp "luôn làm" xong trên nhánh `core-upgrades` (chưa merge); A/B xếp hàng sau baseline |
+| 04 [An toàn request, identity, khung Viderse](./phase-04-security-identity-viderse.md) | 4a an toàn request; 4b identity dùng chung code; 4c Viderse + Writer chạy thật. Không làm 4d (SSO) | 03 | xong. Smoke của 4b chỉ có `architect_long` ×3 (anh cắt eval) |
+| 05 [Metric core trong eval](./phase-05-core-metrics.md) | Report có các trường metric mới; baseline có số đo độ dao động | 02 | xong; baseline rút gọn còn `architect_long` ×3 theo quyết định của anh. Baseline lộ một lỗi đo retry trước stream, đã sửa |
+| 06 [Nâng cấp core có A/B](./phase-06-core-upgrades.md) | Mỗi nâng cấp có giả thuyết, ngưỡng đặt trước và kết quả A/B | 05 | 2 nâng cấp đã merge **không qua A/B**, theo quyết định của anh; có test thay thế, ghi trong file A/B |
 
 Phase 05 làm song song được với 03 và 04. Phạm vi của 05: `core/agentcore` (phát sự kiện) và `apps/noverse/internal/{eval,store,agents,host}` (cầu nối và collector). Bước 4b cũng sửa `agents` (dời `ParseThinkingLevel`) và `bootstrap`. Với mỗi file mà hai phase cùng sửa, chỉ một người được giữ file đó tại mỗi thời điểm.
 

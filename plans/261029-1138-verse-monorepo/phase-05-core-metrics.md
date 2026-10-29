@@ -1,6 +1,6 @@
 ---
 title: "Phase 05 — Metric core trong eval"
-status: chờ phase 02
+status: xong (baseline rút gọn theo quyết định của anh)
 ---
 
 # Bối cảnh
@@ -50,6 +50,26 @@ Về độ nhiễu: mọi A/B trước đây đều chạy N=3, nên chênh dư�
 | Trường có mặt | `report.json` của một lần smoke có đủ các trường mới và không trường nào null |
 | Không đổi hành vi | Smoke vẫn PASS 3/3. Chi phí mỗi lần smoke không vượt 1,25 lần số đã ghi ở phase 02 |
 | Baseline | `reports/baseline-core-metrics.md` có số đo và lệnh tái tạo (commit, model, cờ) |
+
+## Kết quả (2026-10-29)
+
+Code merge vào `main` từ nhánh `core-metrics` (`6f20113`), cộng ba bản sửa:
+- compaction và overflow giữ nguyên hành vi khi phát sự kiện;
+- diag bỏ qua dòng `_event`;
+- `b1da1b8` đếm retry trước stream (xem dòng "Cầu nối thật").
+
+Audit nguồn dữ liệu nằm ở [reports/core-signal-audit.md](./reports/core-signal-audit.md); số đo ở [reports/baseline-core-metrics.md](./reports/baseline-core-metrics.md).
+
+| Kiểm tra | Kết quả |
+|---|---|
+| Đếm đúng | Qua: `TestCollectCoreSignals` (fixture đủ 4 loại lỗi tool), `TestCollectSignalsEmptyRun` (log cũ: trường mới bằng 0, không null) |
+| Cầu nối thật | Qua: `TestSessionBridgeEndToEnd`, cộng `TestRetryingModelReportsPreStreamRetriesToTheRun`. Test thứ hai thêm sau khi baseline lộ một lỗ hổng: retry trước sự kiện đầu của stream (`core/llmretry`) không vào session log, nên một run có 4 lần stream idle vẫn báo `retries=0` |
+| Bất biến | Qua trên cả 3 lượt baseline |
+| Trường có mặt | Qua: `report.json` của baseline có đủ trường mới, không trường nào null |
+| Không đổi hành vi | Một phần. `architect_long` 3/3 không FAIL (PASS, WARN, PASS; WARN do provider ngắt stream). Chi phí trung bình $0.616, tối đa $0.718; ngưỡng 1,25 × $0.731 (lượt `architect_long` ở phase 02) = $0.914. Hai case smoke còn lại chưa chạy trên binary này |
+| Baseline | Rút gọn. Chỉ có `architect_long` ×3 (lệnh tái tạo trong report). Anh quyết định cắt bộ dev ×3 và held-out vì ước 14–20 giờ |
+
+Suite đầy đủ trên `main` sau mọi merge (`61424cc`): 4152 test pass, 0 fail.
 
 # Rollback
 

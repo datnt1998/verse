@@ -56,4 +56,10 @@ tin về schema nên không chọn.
 
 ## 4. Kết quả
 
-_(để trống — controller điền sau khi chạy eval hai nhánh)_
+**Chưa chạy A/B.** Ngày 2026-10-29, anh quyết định cắt toàn bộ eval (cả loạt ước 14–20 giờ) và merge mà không đo. Baseline phase 05 chỉ có `architect_long` ×3, `tool_errors_by_kind.validation` trung bình 0,33/run (0–1), nên ngưỡng ở mục 2 chưa đánh giá được.
+
+Merge vào `main` ở `61424cc` dựa trên:
+- Lint chạy trong suite với tool thật của mọi worker và qua; suite đầy đủ 4152 test pass.
+- Thay đổi duy nhất lên tool là kiểu Go của `enum`. JSON gửi cho model vẫn là `[0,1,2,3,4]`, nên prompt và schema mà model thấy không đổi.
+
+Rủi ro còn lại: validator giờ ép enum `nguoi_nghe.items` thật. Model gửi giá trị ngoài 0–4 sẽ nhận lỗi validation và phải gọi lại, thay vì giá trị sai lọt vào dữ liệu. Nếu muốn xác nhận, chạy lại mục 3 trên `main` và so với baseline.

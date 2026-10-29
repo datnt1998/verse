@@ -1,6 +1,6 @@
 ---
 title: "Phase 06 — Nâng cấp core có A/B"
-status: chờ phase 05
+status: merge không qua A/B (quyết định của anh, 2026-10-29)
 ---
 
 # Nguyên tắc
@@ -37,6 +37,17 @@ Bộ held-out chỉ chạy một lần ở cuối phase, so với mốc của ph
 - Nâng cấp không đạt ngưỡng thì không merge. Ghi kết quả âm tính vào file A/B.
 - Chạy held-out cuối phase. So với mốc phase 05, `critical_hit` và `false_positive` không xấu đi quá mức nhiễu.
 - Test ranh giới vẫn qua. Mọi thứ thêm vào `core/` không có từ vựng tiểu thuyết trong code runtime.
+
+## Kết quả (2026-10-29)
+
+Gate của phase **không đạt theo nghĩa gốc**: chưa có A/B. Anh quyết định cắt eval (cả loạt ước 14–20 giờ) và merge cả hai nâng cấp "Luôn làm" (#1, #2) mà không đo. Nhánh `core-upgrades` merge ở `61424cc`. Bằng chứng thay cho eval và rủi ro còn lại nằm ở mục 4 của [ab-tool-schema-lint.md](./reports/ab-tool-schema-lint.md) và [ab-repeat-failure-guard.md](./reports/ab-repeat-failure-guard.md).
+
+#3–#5 chưa làm vì điều kiện kích hoạt chưa xảy ra trên baseline đã có (`architect_long` ×3, xem [baseline-core-metrics.md](./reports/baseline-core-metrics.md)):
+- **#3:** mọi lần thoát subagent đều là `tool`, tức có kết quả kết thúc. Writer của Viderse đã trả kịch bản có kiểu qua `save_script`, nên chưa cần thêm.
+- **#4:** `compactions_by_tool` bằng 0.
+- **#5:** chưa app nào cần.
+
+Baseline này nhỏ, nên kết luận chỉ đúng với case đó.
 
 # Rollback
 

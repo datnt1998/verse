@@ -88,7 +88,7 @@ Nhánh `identity-core`, merge vào `main` ở `346512b`, cộng các commit sử
 | Gate phase 01 với luật phase 02 | Suite đầy đủ có Postgres/MinIO ở `e8d1bb3` (sau cả 4c): 4117 pass, 0 fail. Mọi test của `tests-before.txt` còn và pass, trừ hai nhóm đổi chỗ có chủ ý: `TestHostedCSRF` thay bằng test bảng của 4a; 21 test proxy dời nguyên sang `platform/webguard` (`TestProxyConfigFromEnv` thành `TestConfigFromEnv`, các subtest giữ tên) |
 | Ranh giới | `./archtest` qua |
 | `core/auth` ghi đúng chỗ | `TestDefaultStoreFollowsStoreDir` (HOME tạm, `StoreDir=.viderse`: file nằm ở `.viderse/auth.json`, không có `.ainovel`), `TestDefaultStorePathRequiresConfigure`, `TestCallbackPageUsesConfiguredApp`, `TestNotLoggedInErrorFollowsLoginCommand` (không lọt chữ Noverse/ainovel), `TestAuthIdentityIsNoverse` (Noverse vẫn `~/.ainovel/auth.json` và câu lỗi cũ) |
-| Smoke 3/3 | Đang chạy: baseline phase 05 dùng binary `51708aa`, đã gồm 4b, smoke ×3. Ghi kết quả khi xong |
+| Smoke 3/3 | Một phần. Binary `51708aa` (đã gồm 4b): `architect_long` ×3 = PASS, WARN, PASS; WARN do provider ngắt stream 4 lần, không phải lỗi luồng. Chi phí trong ngưỡng. `architect_short` và `writer_first_chapter` chưa chạy vì anh cắt eval. Đường đăng nhập OAuth của `core/auth` đã chạy thật ở gate 4c (`viderse login`), và live 8790 đang chạy bản có 4b |
 
 # 4c. Khung Viderse bằng Go + một Writer agent
 
