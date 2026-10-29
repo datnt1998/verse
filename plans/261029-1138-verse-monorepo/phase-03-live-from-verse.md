@@ -66,6 +66,8 @@ Tên cookie, `~/.ainovel` và thư mục sách đều giữ nguyên, nên phase 
 
 Worktree cũ `/Users/dat/Projects/noverse-live` và binary cũ giữ tới 2026-11-05 để rollback.
 
+Cập nhật 2026-10-29 lên `ce3f221` (sau khi merge 4b, phase 05 và Viderse Go) bằng `run-live.sh update` + `launchctl kickstart -k`: pid mới có ppid 1, `/healthz` 200, `/api/projects` không cookie 401, POST từ origin cổng khác hoặc host lạ (DNS rebinding) đều 403, danh sách sách và `web-accounts.json` (v4, 1 user, 4 phiên) giữ nguyên, log không có dòng lỗi.
+
 # Rollback
 
 1. Dừng bản mới theo đúng cách đang giữ nó:
