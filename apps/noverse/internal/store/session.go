@@ -11,8 +11,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 // fileSessionStore 追加式记录 LLM 对话历史到 JSONL 文件（file backend）。
@@ -68,6 +70,85 @@ func (s *fileSessionStore) SubAgentLogger(lookup ModelLookup) func(agentName, ta
 			meta = lookupMeta(lookup, agentName)
 		}
 		if err := s.logEntry(rel, msg, meta); err != nil {
+			slog.Warn("session log failed", "agent", agentName, "err", err)
+		}
+	}
+}
+
+// SessionEventFields 把 agentcore 观察事件映射成 session 日志的 _event 负载：
+// (kind, 短字段)。不在信号集合里的事件返回 ("", nil) 不落盘——会话文件只留
+// 采集器要的信号，不镜像整个事件流。字段一律短值，绝不带 prompt/正文。
+func SessionEventFields(ev agentcore.Event) (string, map[string]any) {
+	switch ev.Type {
+	case agentcore.EventRetry:
+		f := map[string]any{
+			"attempt":    0,
+			"max":        0,
+			"delay_ms":   int64(0),
+			"error_kind": agentcore.ErrorKind(ev.Err),
+		}
+		if ev.RetryInfo != nil {
+			f["attempt"] = ev.RetryInfo.Attempt
+			f["max"] = ev.RetryInfo.MaxRetries
+			f["delay_ms"] = ev.RetryInfo.Delay.Milliseconds()
+		}
+		return "retry", f
+	case agentcore.EventStreamIdle:
+		return "stream_idle", map[string]any{"error_kind": agentcore.ErrorKind(ev.Err)}
+	case agentcore.EventToolBlocked:
+		return "tool_blocked", map[string]any{"tool": ev.Tool, "reason": ev.Reason}
+	case agentcore.EventCircuitOpen:
+		return "circuit_open", map[string]any{"tool": ev.Tool}
+	case agentcore.EventCompaction:
+		f := map[string]any{"reason": ev.Reason}
+		if ev.Tool != "" {
+			f["tool"] = ev.Tool
+		}
+		return "compaction", f
+	case agentcore.EventSubagentExit:
+		return "subagent_exit", map[string]any{"trigger": ev.Reason}
+	}
+	return "", nil
+}
+
+// sessionEventLine 是 session 日志里的观察事件行：{"_event": {...}}。
+// 与消息行区分靠 _event 键——collector 解析时见到 _event 即按事件计数，
+// 不当成 llm.Message。
+type sessionEventLine struct {
+	Event map[string]any `json:"_event"`
+}
+
+// SubAgentEventLogger 返回子代理事件 → 同一 session 文件的可调写入器。
+// 调用方负责把运行时事件映射成 (kind, 短字段 map)：字段必须少而短，
+// 绝不写 prompt/正文；kind/agent/at 为保留键，fields 里的同名键被忽略。
+func (s *fileSessionStore) SubAgentEventLogger() func(agentName, task, kind string, fields map[string]any) {
+	return func(agentName, task, kind string, fields map[string]any) {
+		if kind == "" {
+			return
+		}
+		rel, err := s.subAgentPath(agentName, task)
+		if err != nil {
+			slog.Warn("session log failed", "agent", agentName, "err", err)
+			return
+		}
+		ev := map[string]any{
+			"kind":  kind,
+			"agent": agentName,
+			"at":    time.Now().Format(time.RFC3339Nano),
+		}
+		for k, v := range fields {
+			if k == "kind" || k == "agent" || k == "at" {
+				continue
+			}
+			ev[k] = v
+		}
+		data, err := json.Marshal(sessionEventLine{Event: ev})
+		if err != nil {
+			slog.Warn("session event marshal failed", "agent", agentName, "err", err)
+			return
+		}
+		data = append(data, '\n')
+		if err := s.io.AppendLine(rel, data); err != nil {
 			slog.Warn("session log failed", "agent", agentName, "err", err)
 		}
 	}

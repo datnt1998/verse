@@ -38,6 +38,7 @@ var (
 	ErrToolValidation   = errors.New("tool argument validation failed")
 	ErrInjectNilMessage = errors.New("inject message is nil")
 	ErrRunsHeld         = errors.New("agent runs are held")
+	ErrToolBlocked      = errors.New("tool execution blocked")
 )
 
 // RetryableError when implemented by an error in the chain, tells the loop
@@ -104,6 +105,73 @@ type ToolValidationError struct {
 
 func (e *ToolValidationError) Error() string        { return formatValidationIssues(e.ToolName, e.Issues) }
 func (e *ToolValidationError) Is(target error) bool { return target == ErrToolValidation }
+
+// Tool-blocked classification.
+//
+// ToolBlockedError marks an execution refusal: a gate or guard declined to run
+// the tool and returned an error instead. It wraps the refusal text so the
+// tool result the model reads stays identical; only classification changes.
+// errors.Is matches ErrToolBlocked.
+type ToolBlockedError struct {
+	Reason string // short machine-friendly code for observers (e.g. "repeat_failure")
+	Err    error  // the refusal text surfaced to the model
+}
+
+func (e *ToolBlockedError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return e.Reason
+}
+
+func (e *ToolBlockedError) Unwrap() error        { return e.Err }
+func (e *ToolBlockedError) Is(target error) bool { return target == ErrToolBlocked }
+
+// Tool error kinds. Every tool_result with is_error=true is classified into
+// exactly one of these labels so counters can sum back to the error total:
+//   - ToolErrorValidation: argument schema validation (ToolValidationError /
+//     ErrToolValidation), retryable by the model on its next turn;
+//   - ToolErrorBlocked: refused before execution by a gate or guard
+//     (ToolBlockedError / ErrToolBlocked);
+//   - ToolErrorCircuit: skipped by the consecutive-error circuit breaker;
+//   - ToolErrorBusiness: everything else — tool bugs, denials inside the tool,
+//     skips and cancellations.
+//
+// The labels travel on tool_result metadata ("error_kind") and are part of
+// the observability contract: classifiers match error types, never message
+// text.
+const (
+	ToolErrorValidation = "validation"
+	ToolErrorBlocked    = "blocked"
+	ToolErrorCircuit    = "circuit"
+	ToolErrorBusiness   = "business"
+)
+
+// ToolErrorKindOf classifies an execution error into a tool error kind.
+// Classification is by error type: ToolValidationError/ErrToolValidation →
+// validation, ToolBlockedError/ErrToolBlocked → blocked, everything else →
+// business. Circuit skips carry no error value (the call never ran) and are
+// tagged ToolErrorCircuit directly at the skip site.
+func ToolErrorKindOf(err error) string {
+	if err == nil {
+		return ""
+	}
+	var tbe *ToolBlockedError
+	if errors.As(err, &tbe) || errors.Is(err, ErrToolBlocked) {
+		return ToolErrorBlocked
+	}
+	if errors.Is(err, ErrToolValidation) {
+		return ToolErrorValidation
+	}
+	return ToolErrorBusiness
+}
+
+// isStreamIdleError reports whether err marks a stream idle-timeout abort,
+// matched by sentinel or by the rendered message (sub-agent JSON results
+// flatten the error chain).
+func isStreamIdleError(err error) bool {
+	return errors.Is(err, llmtypes.ErrProviderStreamIdle) || IsStreamIdleMessage(err.Error())
+}
 
 // ValidationIssue describes a single schema mismatch from tool arg validation.
 type ValidationIssue struct {

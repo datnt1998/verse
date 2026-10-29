@@ -5,6 +5,8 @@ import (
 
 	"context"
 	"fmt"
+
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 // DefaultClearedToolResult replaces a tool result that microcompact dropped.
@@ -47,7 +49,7 @@ func NewToolResultMicrocompact(cfg ToolResultMicrocompactConfig) *ToolResultMicr
 
 func (s *ToolResultMicrocompactStrategy) Name() string { return "tool_result_microcompact" }
 
-func (s *ToolResultMicrocompactStrategy) Apply(_ context.Context, _ []llmtypes.AgentMessage, view []llmtypes.AgentMessage, _ Budget) ([]llmtypes.AgentMessage, StrategyResult, error) {
+func (s *ToolResultMicrocompactStrategy) Apply(ctx context.Context, _ []llmtypes.AgentMessage, view []llmtypes.AgentMessage, _ Budget) ([]llmtypes.AgentMessage, StrategyResult, error) {
 	if len(view) == 0 {
 		return view, StrategyResult{Name: s.Name()}, nil
 	}
@@ -97,6 +99,14 @@ func (s *ToolResultMicrocompactStrategy) Apply(_ context.Context, _ []llmtypes.A
 		out[candidate.Index] = next
 		saved += max(0, EstimateTokens(msg)-EstimateTokens(next))
 		applied = true
+		// Observation only: one compaction event per compacted tool result so
+		// eval can count compactions by tool. No-op when ctx carries no
+		// run reporter.
+		agentcore.ReportEvent(ctx, agentcore.Event{
+			Type:   agentcore.EventCompaction,
+			Tool:   candidate.ToolName,
+			Reason: s.Name(),
+		})
 	}
 
 	return out, StrategyResult{
@@ -152,6 +162,11 @@ func findCompactableToolResults(msgs []llmtypes.AgentMessage, classifier ToolCla
 			continue
 		}
 
+		// Already compacted once: skip so repeated projection passes neither
+		// rewrite the placeholder nor double-count the compaction event.
+		if compacted, _ := msg.Metadata["compacted_tool_result"].(bool); compacted {
+			continue
+		}
 		callID, _ := msg.Metadata["tool_call_id"].(string)
 		call := pending[callID]
 		if call.name == "" {

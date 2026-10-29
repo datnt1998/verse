@@ -40,6 +40,7 @@ const (
 func AgentLoop(ctx context.Context, prompts []llmtypes.AgentMessage, agentCtx AgentContext, config LoopConfig) <-chan Event {
 	ch := make(chan Event, 128)
 	sink := eventSink{ctx: ctx, ch: ch}
+	ctx = WithEventReporter(ctx, sink.emit)
 
 	go func() {
 		defer close(ch)
@@ -91,6 +92,7 @@ func recoverToEnd(sink eventSink) {
 func AgentLoopContinue(ctx context.Context, agentCtx AgentContext, config LoopConfig) <-chan Event {
 	ch := make(chan Event, 128)
 	sink := eventSink{ctx: ctx, ch: ch}
+	ctx = WithEventReporter(ctx, sink.emit)
 
 	if len(agentCtx.Messages) == 0 {
 		go func() {
@@ -490,8 +492,13 @@ func callLLMWithRetry(ctx context.Context, agentCtx *AgentContext, config LoopCo
 	maxRetries := config.MaxRetries
 	if maxRetries <= 0 {
 		msg, info, err := callLLM(ctx, agentCtx, config, sink)
-		if err != nil && llmtypes.IsContextOverflow(err) {
-			return recoverOverflow(ctx, agentCtx, config, sink, err)
+		if err != nil {
+			if isStreamIdleError(err) {
+				sink.emit(Event{Type: EventStreamIdle, Err: err})
+			}
+			if llmtypes.IsContextOverflow(err) {
+				return recoverOverflow(ctx, agentCtx, config, sink, err)
+			}
 		}
 		return msg, info, err
 	}
@@ -505,6 +512,12 @@ func callLLMWithRetry(ctx context.Context, agentCtx *AgentContext, config LoopCo
 		}
 		lastErr = err
 		lastInfo = info
+
+		// Stream idle watchdog aborts are worth counting per attempt —
+		// whether the attempt is retried below or returned as terminal.
+		if isStreamIdleError(err) {
+			sink.emit(Event{Type: EventStreamIdle, Err: err})
+		}
 
 		// Context overflow: compact and retry once (not a normal retry)
 		if llmtypes.IsContextOverflow(err) {
@@ -576,12 +589,13 @@ func recoverOverflow(ctx context.Context, agentCtx *AgentContext, config LoopCon
 	if len(recovery.View) == 0 {
 		return llmtypes.Message{}, llmCallInfo{}, &llmtypes.ContextOverflowError{Cause: errors.New("compaction returned empty prompt view")}
 	}
-	agentCtx.Messages = recovery.View
 	if recovery.ShouldCommit && len(recovery.CommitMessages) > 0 && config.CommitContext != nil {
 		if err := config.CommitContext(recovery.CommitMessages, recovery.Usage); err != nil {
 			return llmtypes.Message{}, llmCallInfo{}, &llmtypes.ContextOverflowError{Cause: fmt.Errorf("commit failed: %w", err)}
 		}
 	}
+	agentCtx.Messages = recovery.View
+	sink.emit(Event{Type: EventCompaction, Reason: "overflow"})
 	return callLLM(ctx, agentCtx, config, sink)
 }
 
@@ -868,7 +882,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 			ToolLabel: label,
 			Args:      call.Args,
 		})
-		return failToolCall(sink, call, label, "Tool execution cancelled.", false)
+		return failToolCall(sink, call, label, "Tool execution cancelled.", false, ToolErrorBusiness)
 	}
 
 	// Circuit breaker: skip if tool has exceeded consecutive failure threshold
@@ -880,8 +894,9 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 			ToolLabel: label,
 			Args:      call.Args,
 		})
+		sink.emit(Event{Type: EventCircuitOpen, ToolID: call.ID, Tool: call.Name, ToolLabel: label})
 		return failToolCall(sink, call, label,
-			fmt.Sprintf("tool %q disabled after %d consecutive errors", call.Name, config.MaxToolErrors), false)
+			fmt.Sprintf("tool %q disabled after %d consecutive errors", call.Name, config.MaxToolErrors), false, ToolErrorCircuit)
 	}
 
 	sink.emit(Event{
@@ -900,6 +915,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 			ToolCallID: call.ID,
 			Content:    errContent,
 			IsError:    true,
+			ErrorKind:  ToolErrorBusiness,
 		}
 	} else if err := validateToolArgs(tool, call); err != nil {
 		errContent, _ := json.Marshal(err.Error())
@@ -908,6 +924,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 			ToolName:   call.Name,
 			Content:    errContent,
 			IsError:    true,
+			ErrorKind:  ToolErrorKindOf(err),
 		}
 	} else {
 		// Stage 1: business-level input validation. Distinct from schema
@@ -923,7 +940,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 				if msg == "" {
 					msg = "tool input validation failed"
 				}
-				return failToolCall(sink, call, label, msg, true)
+				return failToolCall(sink, call, label, msg, true, ToolErrorBusiness)
 			}
 		}
 
@@ -934,7 +951,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 		if p, ok := tool.(Previewer); ok {
 			data, err := p.Preview(ctx, call.Args)
 			if err != nil {
-				return failToolCall(sink, call, label, fmt.Sprintf("preview tool %q: %v", call.Name, err), true)
+				return failToolCall(sink, call, label, fmt.Sprintf("preview tool %q: %v", call.Name, err), true, ToolErrorKindOf(err))
 			}
 			preview = data
 			sink.emit(Event{
@@ -964,7 +981,8 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 				if reason == "" {
 					reason = "tool execution denied"
 				}
-				return failToolCall(sink, call, label, reason, false)
+				sink.emit(Event{Type: EventToolBlocked, ToolID: call.ID, Tool: call.Name, ToolLabel: label, Reason: "gate"})
+				return failToolCall(sink, call, label, reason, false, ToolErrorBlocked)
 			}
 			// Adopt the gate's rewrite before execution so the tool, progress
 			// events, and middleware all see the approved arguments. The
@@ -1000,6 +1018,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 					ToolCallID: call.ID,
 					Content:    errContent,
 					IsError:    true,
+					ErrorKind:  toolExecErrorKind(sink, call, label, execErr),
 				}
 			} else {
 				// When tool_reference blocks are present, keep them alongside
@@ -1042,6 +1061,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 					ToolCallID: call.ID,
 					Content:    errContent,
 					IsError:    true,
+					ErrorKind:  toolExecErrorKind(sink, call, label, execErr),
 				}
 			} else {
 				result = ToolResult{
@@ -1069,10 +1089,11 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 // failToolCall emits the terminal tool_exec_end event and returns the error
 // result for a call that failed before the tool ran. countErr sets ToolName
 // on the result so the caller counts the failure toward toolErrors; denials,
-// skips, and cancellations pass false (see executeSingleToolCall).
-func failToolCall(sink eventSink, call llmtypes.ToolCall, label, msg string, countErr bool) ToolResult {
+// skips, and cancellations pass false (see executeSingleToolCall). kind tags
+// the result for tool_errors_by_kind classification.
+func failToolCall(sink eventSink, call llmtypes.ToolCall, label, msg string, countErr bool, kind string) ToolResult {
 	content, _ := json.Marshal(msg)
-	result := ToolResult{ToolCallID: call.ID, Content: content, IsError: true}
+	result := ToolResult{ToolCallID: call.ID, Content: content, IsError: true, ErrorKind: kind}
 	if countErr {
 		result.ToolName = call.Name
 	}
@@ -1085,6 +1106,22 @@ func failToolCall(sink eventSink, call llmtypes.ToolCall, label, msg string, cou
 		IsError:   true,
 	})
 	return result
+}
+
+// toolExecErrorKind classifies an execution error for tool_errors_by_kind.
+// A refusal (ToolBlockedError / ErrToolBlocked) also raises the tool_blocked
+// signal event carrying the blocker's short reason.
+func toolExecErrorKind(sink eventSink, call llmtypes.ToolCall, label string, err error) string {
+	kind := ToolErrorKindOf(err)
+	if kind == ToolErrorBlocked {
+		reason := "blocked"
+		var tbe *ToolBlockedError
+		if errors.As(err, &tbe) && tbe.Reason != "" {
+			reason = tbe.Reason
+		}
+		sink.emit(Event{Type: EventToolBlocked, ToolID: call.ID, Tool: call.Name, ToolLabel: label, Reason: reason})
+	}
+	return kind
 }
 
 // skipToolCall creates a skipped result for an interrupted tool call.
@@ -1103,13 +1140,15 @@ func skipToolCallWithMessage(call llmtypes.ToolCall, tools []Tool, sink eventSin
 		Args:      call.Args,
 	})
 
-	return failToolCall(sink, call, label, message, false)
+	return failToolCall(sink, call, label, message, false, ToolErrorBusiness)
 }
 
 // toolResultToMessage converts a ToolResult into a Message for the context.
+// Error results carry "error_kind" in metadata (one of the ToolError* labels)
+// so session logs and collectors can classify without reading error text.
 func toolResultToMessage(tr ToolResult) llmtypes.Message {
 	if len(tr.ContentBlocks) > 0 {
-		return llmtypes.Message{
+		m := llmtypes.Message{
 			Role:    llmtypes.RoleTool,
 			Content: tr.ContentBlocks,
 			Metadata: map[string]any{
@@ -1119,6 +1158,10 @@ func toolResultToMessage(tr ToolResult) llmtypes.Message {
 			},
 			Timestamp: time.Now(),
 		}
+		if tr.IsError {
+			m.Metadata["error_kind"] = toolErrorKindOr(tr.ErrorKind)
+		}
+		return m
 	}
 	msg := llmtypes.ToolResultMsg(tr.ToolCallID, tr.Content, tr.IsError)
 	if tr.ToolName != "" {
@@ -1127,7 +1170,22 @@ func toolResultToMessage(tr ToolResult) llmtypes.Message {
 		}
 		msg.Metadata["tool_name"] = tr.ToolName
 	}
+	if tr.IsError {
+		if msg.Metadata == nil {
+			msg.Metadata = make(map[string]any)
+		}
+		msg.Metadata["error_kind"] = toolErrorKindOr(tr.ErrorKind)
+	}
 	return msg
+}
+
+// toolErrorKindOr defaults an untagged error kind to business: any tool result
+// produced outside executeSingleToolCall's classification is a genuine failure.
+func toolErrorKindOr(kind string) string {
+	if kind == "" {
+		return ToolErrorBusiness
+	}
+	return kind
 }
 
 // stripToolCallBlocks removes ContentToolCall blocks from a content slice.

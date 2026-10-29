@@ -32,6 +32,27 @@ const (
 	EventToolExecEnd    EventType = "tool_exec_end"
 	EventRetry          EventType = "retry"
 	EventError          EventType = "error"
+
+	// Signal events below exist purely for observation: emitting them never
+	// changes loop behavior. Names are stable so harnesses can key counters
+	// and session-log bridges on them.
+	// EventStreamIdle marks one model call aborted by the stream idle watchdog.
+	EventStreamIdle EventType = "stream_idle"
+	// EventToolBlocked marks a tool call refused before execution by a gate
+	// or guard. Reason carries a short refusal code (e.g. the blocker's own
+	// reason string), never argument or prompt text.
+	EventToolBlocked EventType = "tool_blocked"
+	// EventCircuitOpen marks a tool call skipped by the consecutive-error
+	// circuit breaker (MaxToolErrors).
+	EventCircuitOpen EventType = "circuit_open"
+	// EventCompaction marks one context compaction. Tool carries the compacted
+	// tool-result name (empty for whole-context compactions such as summary);
+	// Reason carries the trigger ("overflow", "microcompact", "summary").
+	EventCompaction EventType = "compaction"
+	// EventSubagentExit marks one sub-agent run end. Reason carries the
+	// trigger: "stop", "tool" (StopAfterTool* exit), "guard" (stop-guard
+	// escalation), "error", "max_turns" or "aborted".
+	EventSubagentExit EventType = "subagent_exit"
 )
 
 // ToolExecUpdateKind distinguishes update payload semantics for tool_exec_update events.
@@ -98,6 +119,7 @@ type Event struct {
 	Preview     json.RawMessage
 	ToolResults []ToolResult            // for turn_end: all tool results from this turn
 	Err         error                   // for error events
+	Reason      string                  // short code: tool_blocked reason, compaction trigger, subagent_exit trigger
 	NewMessages []llmtypes.AgentMessage // for agent_end: messages added during this loop
 	RetryInfo   *RetryInfo              // for retry events
 	Summary     *RunSummary             // for agent_end: factual run summary
@@ -109,6 +131,30 @@ type RetryInfo struct {
 	MaxRetries int
 	Delay      time.Duration
 	Err        error
+}
+
+// ---------------------------------------------------------------------------
+// In-context event reporting
+// ---------------------------------------------------------------------------
+
+// eventReporterKey is the context key holding the run's event reporter.
+type eventReporterKey struct{}
+
+// WithEventReporter binds the run's event sink to ctx so components that only
+// receive a context (context strategies, tools, middleware) can emit
+// observation events. AgentLoop installs it internally; callers never need to.
+func WithEventReporter(ctx context.Context, emit func(Event)) context.Context {
+	return context.WithValue(ctx, eventReporterKey{}, emit)
+}
+
+// ReportEvent emits an observation event onto the enclosing run's event
+// channel when ctx carries a reporter installed by the loop; it is a no-op
+// otherwise (unit tests, detached calls). It must only be used for events
+// that observe behavior, never to drive it.
+func ReportEvent(ctx context.Context, ev Event) {
+	if fn, ok := ctx.Value(eventReporterKey{}).(func(Event)); ok {
+		fn(ev)
+	}
 }
 
 // ---------------------------------------------------------------------------

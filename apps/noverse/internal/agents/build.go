@@ -242,6 +242,9 @@ func BuildWorkers(
 			recordUsage(agentName, task, msg)
 		}
 	}
+	// onEvent 把 core 信号事件（retry/stream_idle/tool_blocked/circuit_open/
+	// compaction/subagent_exit）写进同一份 session 文件，供 eval 采集。
+	onEvent := SubAgentEventLogger(store)
 
 	// 提示词缓存：一书一基、一角色一名、一会话一键（subagent spawn 追加 #seq）。
 	// OpenAI 系用 prompt_cache_key 做路由亲和；Claude 系用 cache_control 滚动断点
@@ -268,6 +271,7 @@ func BuildWorkers(
 		MaxRetries:       subagentMaxRetries,
 		ThinkingLevel:    architectThinking,
 		OnMessage:        onMsg,
+		OnEvent:          onEvent,
 		CacheLastMessage: "ephemeral",
 		PromptCacheKey:   cacheBase + "-architect_short",
 		StopAfterToolResult: func(toolName string, result json.RawMessage) bool {
@@ -286,6 +290,7 @@ func BuildWorkers(
 		MaxRetries:          subagentMaxRetries,
 		ThinkingLevel:       architectThinking,
 		OnMessage:           onMsg,
+		OnEvent:             onEvent,
 		CacheLastMessage:    "ephemeral",
 		PromptCacheKey:      cacheBase + "-architect_long",
 		StopAfterToolResult: architectLongShouldStopAfterToolResult,
@@ -307,6 +312,7 @@ func BuildWorkers(
 		ThinkingLevel:    resolvedRoleThinking(writerModel, cfg, "writer"),
 		StopAfterTools:   []string{"commit_chapter"},
 		OnMessage:        onMsg,
+		OnEvent:          onEvent,
 		CacheLastMessage: "ephemeral",
 		PromptCacheKey:   cacheBase + "-writer",
 		StopGuardFactory: func(_, _ string) agentcore.StopGuard {
@@ -353,6 +359,7 @@ func BuildWorkers(
 		MaxRetries:       subagentMaxRetries,
 		ThinkingLevel:    resolvedRoleThinking(editorModel, cfg, "editor"),
 		OnMessage:        onMsg,
+		OnEvent:          onEvent,
 		CacheLastMessage: "ephemeral",
 		PromptCacheKey:   cacheBase + "-editor",
 		// 终态产物命中即停。终态退出仍会咨询 StopGuard（契约测试 TestContract_

@@ -84,7 +84,9 @@ func WithAPIKey(key string) ModelOption  { return func(c *modelConfig) { c.apiKe
 func WithBaseURL(url string) ModelOption { return func(c *modelConfig) { c.baseURL = url } }
 
 // WithStreamIdleTimeout aborts a streaming response if no chunk arrives within
-// the window (default 120s). Pass 0 to disable the watchdog explicitly.
+// the window. Pass 0 to disable the watchdog explicitly. When the option is
+// never set no watchdog is installed — the harness supplies its own default
+// (Noverse bootstrap defaults to 5 minutes).
 func WithStreamIdleTimeout(d time.Duration) ModelOption {
 	return func(c *modelConfig) {
 		c.streamIdle = d
