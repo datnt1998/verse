@@ -1,20 +1,15 @@
 package bootstrap
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
-	"github.com/datnt1998/verse/core/auth/anthropicoauth"
-	"github.com/datnt1998/verse/core/auth/codex"
-	"github.com/datnt1998/verse/core/auth/xai"
-	"github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/core/roles"
 )
@@ -51,67 +46,11 @@ func CompactReserveTokens(window int) int {
 	return reserve
 }
 
-// ProviderConfig 定义单个 LLM 提供商的凭证。
-type ProviderConfig struct {
-	Type    string        `json:"type,omitempty"`     // API 协议类型（openai/anthropic/gemini），自定义代理时指定
-	API     string        `json:"api,omitempty"`      // OpenAI 协议 endpoint：chat（默认）/ responses
-	APIKey  string        `json:"api_key,omitempty"`  // API Key
-	BaseURL string        `json:"base_url,omitempty"` // API Base URL
-	Models  []ModelConfig `json:"models,omitempty"`   // 可选模型列表，供 TUI 切换时展示
-	// ExtraBody 透传给该 provider 每次请求的额外参数（如 temperature/top_p/min_p/
-	// presence_penalty，或厂商特有键如 nvidia 开 think 的 chat_template_kwargs）。
-	// OpenAI 兼容端逐字并入请求体（即 extra_body 约定）；值由用户自负其责。
-	ExtraBody map[string]any `json:"extra_body,omitempty"`
-	// Extra 透传给 provider 级配置（litellm.ProviderConfig.Extra），用于 HTTP
-	// headers、user_agent、anthropic_beta 等客户端/传输层选项。
-	Extra map[string]any `json:"extra,omitempty"`
-	// StreamIdleTimeout 流式空闲看门狗：超过该时长收不到任何 chunk 即断流
-	// （Go duration 字符串，如 "900s" / "15m"）。留空默认 5m——云端服务的合理上界；
-	// LocalAI/ollama 等自建慢推理首块可远超 5 分钟，按 provider 放宽即可，
-	// 不拖累其它通道的挂死检测（#79）。
-	StreamIdleTimeout string `json:"stream_idle_timeout,omitempty"`
-}
+// ProviderConfig/ModelConfig 及各派生方法已移到 core/llmconfig（跨应用共享：
+// Viderse 用同一份 schema 与构造逻辑）。这里保留别名，既有调用点不用改。
+type ProviderConfig = llmconfig.ProviderConfig
 
-// ModelConfig 描述某个 provider 下可切换的模型及其可选上下文窗口。
-// 为兼容旧配置，既可从 JSON 字符串（"model-name"）读取，也可从对象读取；
-// 写回时始终规范化为对象形式。
-type ModelConfig struct {
-	Name          string `json:"name"`
-	ContextWindow int    `json:"context_window,omitempty"`
-	// JSONSchema 是原生结构化输出（response_format json_schema）的三态声明：
-	// 未配置=按 provider adapter 的模型级能力判断；true=用户声明该 endpoint/模型
-	// 支持（请求被拒绝时原样暴露，不静默降级）；false=强制走 prompt contract。
-	// 自定义代理与聚合网关的能力以用户声明为准，程序不探测。
-	JSONSchema *bool `json:"json_schema,omitempty"`
-}
-
-func (m *ModelConfig) UnmarshalJSON(data []byte) error {
-	var legacy string
-	if err := json.Unmarshal(data, &legacy); err == nil {
-		m.Name = legacy
-		m.ContextWindow = 0
-		m.JSONSchema = nil
-		return nil
-	}
-	type modelConfigAlias ModelConfig
-	var decoded modelConfigAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
-		return fmt.Errorf("model phải là chuỗi hoặc đối tượng {name, context_window}: %w", err)
-	}
-	*m = ModelConfig(decoded)
-	return nil
-}
-
-// ModelConfig 返回指定模型的显式配置。
-func (pc ProviderConfig) ModelConfig(name string) (ModelConfig, bool) {
-	name = strings.TrimSpace(name)
-	for _, model := range pc.Models {
-		if strings.TrimSpace(model.Name) == name {
-			return model, true
-		}
-	}
-	return ModelConfig{}, false
-}
+type ModelConfig = llmconfig.ModelConfig
 
 // ModelJSONSchema 返回模型的 json_schema 三态声明；未列入 models 或未配置时
 // 返回 nil（按 adapter 能力判断）。
@@ -122,73 +61,6 @@ func (c Config) ModelJSONSchema(provider, model string) *bool {
 		}
 	}
 	return nil
-}
-
-// defaultStreamIdleTimeout：长输出 + 长 ctx 场景下，reasoning-aware provider
-// （mimo / deepseek-r1 等）思考阶段如果 server 端不流式发 reasoning delta，
-// SSE 整段会保持沉默。litellm 默认 watchdog 是 2 分钟，对 8000 字写作章节经常
-// 触发误杀；5 分钟覆盖绝大多数实测案例（参见 tasks/todo.md plan→draft 思考时长统计）。
-const defaultStreamIdleTimeout = 5 * time.Minute
-
-// StreamIdleTimeoutValue 解析该 provider 的流式空闲超时；留空回落默认值。
-func (pc ProviderConfig) StreamIdleTimeoutValue() (time.Duration, error) {
-	s := strings.TrimSpace(pc.StreamIdleTimeout)
-	if s == "" {
-		return defaultStreamIdleTimeout, nil
-	}
-	d, err := time.ParseDuration(s)
-	if err != nil {
-		return 0, fmt.Errorf("thời lượng %q không hợp lệ (dùng dạng Go như \"900s\" / \"15m\")", s)
-	}
-	if d <= 0 {
-		return 0, fmt.Errorf("phải lớn hơn 0, nhận %q", s)
-	}
-	return d, nil
-}
-
-// RequiresAPIKey 返回该 provider 是否必须显式配置 api_key。
-// 约定：
-// 1. ollama / bedrock 允许无 key；openai-codex / xai-oauth / anthropic-oauth 走 OAuth 登录（auth.json），不用 key；
-// 2. 显式指定 Type 的配置视为自定义代理，允许无 key；
-// 3. 其他 provider 默认要求 key，保持对官方托管接口的保守校验。
-func (pc ProviderConfig) RequiresAPIKey(name string) bool {
-	switch name {
-	case "ollama", "bedrock", codex.ProviderName, xai.ProviderName, anthropicoauth.ProviderName:
-		return false
-	}
-	return pc.Type == ""
-}
-
-// UsesOAuth 返回该 provider 是否以订阅登录（OAuth）而非 api_key 鉴权。
-func (pc ProviderConfig) UsesOAuth(name string) bool {
-	return pc.OAuthID(name) != ""
-}
-
-// OAuthID 返回订阅 provider 在 auth.json 里的凭证 ID（即 provider 类型）；
-// 非订阅 provider 返回 ""。自定义名只要 type 是订阅类型就共用同一份凭证。
-func (pc ProviderConfig) OAuthID(name string) string {
-	providerType, err := pc.ProviderType(name)
-	if err != nil {
-		return ""
-	}
-	switch providerType {
-	case codex.ProviderName, xai.ProviderName, anthropicoauth.ProviderName:
-		return providerType
-	}
-	return ""
-}
-
-// ProviderType 返回有效的 API 协议类型。
-// 优先使用显式 Type；否则要求 provider 名本身已在 litellm 注册表中，
-// 或是内置的订阅 provider（openai-codex、xai-oauth、anthropic-oauth）。
-func (pc ProviderConfig) ProviderType(name string) (string, error) {
-	if pc.Type != "" {
-		return pc.Type, nil
-	}
-	if name == codex.ProviderName || name == xai.ProviderName || name == anthropicoauth.ProviderName || llm.IsProviderRegistered(name) {
-		return name, nil
-	}
-	return "", fmt.Errorf("provider %q thiếu type và không nằm trong danh sách provider đã biết của litellm: %w", name, errs.ErrConfig)
 }
 
 // roles.RoleConfig/roles.ModelRef 与按角色解析的规则已提取到 core/roles（跨应用共享）；

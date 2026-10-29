@@ -36,6 +36,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/webguard"
 )
 
 //go:embed all:dist
@@ -140,8 +141,8 @@ type Gateway struct {
 	// 的池）拿同一个 slug 绝不能共用服务。
 	pgAudioMu   sync.Mutex
 	pgAudioSvcs map[string]*audio.PGService
-	// proxy 是 trusted-proxy 边界（proxy.go）；nil = 未配置，沿用 loopback 规则。
-	proxy *ProxyConfig
+	// proxy 是 trusted-proxy 边界（platform/webguard）；nil = 未配置，沿用 loopback 规则。
+	proxy *webguard.Config
 	// health 是 /readyz 的依赖探针（health.go）；nil = 无外部依赖（file 模式）。
 	// blobProbedAt/blobOK 缓存 BlobStore 探测，避免每次探活都打网络。
 	healthMu     sync.Mutex
@@ -596,11 +597,11 @@ func jsonBodyRequired(r *http.Request) bool {
 
 // SetProxyConfig installs the trusted-proxy boundary parsed at startup. A nil
 // config keeps the legacy loopback rule (CLI/offline unchanged).
-func (g *Gateway) SetProxyConfig(cfg *ProxyConfig) { g.proxy = cfg }
+func (g *Gateway) SetProxyConfig(cfg *webguard.Config) { g.proxy = cfg }
 
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 归一化必须在所有安全判断之前（限流键、Secure cookie、CSRF origin）。
-	r = g.proxy.normalize(r)
+	r = g.proxy.Normalize(r)
 	// 健康探针先于静态路由：/healthz 绝不能落到 SPA 的 index.html。
 	switch r.URL.Path {
 	case "/healthz":
@@ -613,7 +614,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if pairRedirect(w, r) {
 		return
 	}
-	if g.proxy.crossSiteRequest(r) {
+	if g.proxy.CrossSiteRequest(r) {
 		jsonError(w, http.StatusForbidden, "yêu cầu khác origin bị từ chối")
 		return
 	}
