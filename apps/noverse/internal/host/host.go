@@ -36,6 +36,7 @@ import (
 	"github.com/datnt1998/verse/core/agentcore"
 	"github.com/datnt1998/verse/core/llmretry"
 	modelreg "github.com/datnt1998/verse/core/models"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 // Host 是运行时外壳:生命周期/干预入口/事件投影/模型管理。
@@ -1793,7 +1794,7 @@ func (h *Host) SwitchModel(role, provider, model string) error {
 		h.cfg.ModelName = model
 	} else {
 		if h.cfg.Roles == nil {
-			h.cfg.Roles = make(map[string]bootstrap.RoleConfig)
+			h.cfg.Roles = make(map[string]roles.RoleConfig)
 		}
 		rc := h.cfg.Roles[role]
 		rc.Provider = provider
@@ -1853,7 +1854,7 @@ func (h *Host) AvailableThinking(role string) []llmtypes.ThinkingLevel {
 // （ResolveReasoningEffort：角色级 → 顶层默认），再按该角色当前模型的能力钳制。
 // 钳制只发生在这条“生效路径”上，不回写配置——存储始终保留用户的原始意图。
 func (h *Host) resolveThinkingForRoleLocked(role string) llmtypes.ThinkingLevel {
-	parsed, _ := agents.ParseThinkingLevel(h.cfg.ResolveReasoningEffort(role))
+	parsed, _ := llmtypes.ParseThinkingLevel(h.cfg.ResolveReasoningEffort(role))
 	resolved, _ := agents.ResolveThinkingForModel(h.models.ForRole(role), parsed)
 	return resolved
 }
@@ -1879,7 +1880,7 @@ func (h *Host) SetRoleThinking(role, level string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	parsed, err := agents.ParseThinkingLevel(level)
+	parsed, err := llmtypes.ParseThinkingLevel(level)
 	if err != nil {
 		return err
 	}
@@ -1889,7 +1890,7 @@ func (h *Host) SetRoleThinking(role, level string) error {
 		h.cfg.ReasoningEffort = string(parsed)
 	} else {
 		if h.cfg.Roles == nil {
-			h.cfg.Roles = make(map[string]bootstrap.RoleConfig)
+			h.cfg.Roles = make(map[string]roles.RoleConfig)
 		}
 		rc := h.cfg.Roles[role]
 		rc.ReasoningEffort = string(parsed)
@@ -2169,7 +2170,7 @@ func (h *Host) importModelRuntime(role string, model llmtypes.ChatModel) imp.Mod
 		rt.MaxOutputTokens = entry.MaxTokens
 	}
 	// thinking：按角色 reasoning effort 与模型能力 resolve；不支持则不发（与 arbiter 同策略）。
-	if level, err := agents.ParseThinkingLevel(h.cfg.ResolveReasoningEffort(role)); err == nil {
+	if level, err := llmtypes.ParseThinkingLevel(h.cfg.ResolveReasoningEffort(role)); err == nil {
 		if resolved, ok := agents.ResolveThinkingForModel(model, level); ok {
 			rt.Thinking = resolved
 		}

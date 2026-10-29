@@ -58,20 +58,6 @@ type UsageRecorder func(agentName, task string, msg llmtypes.AgentMessage)
 // 空 level = 沿用模型/provider 默认。其它 role 名忽略。
 type ApplyThinking func(role string, level llmtypes.ThinkingLevel)
 
-// ParseThinkingLevel 把配置字符串转 agentcore.ThinkingLevel。
-// "" 合法（= 不覆盖/继承）；其余须是 off/low/medium/high/xhigh/max 之一，
-// 否则返回 error（启动时降级当空并 warn，运行时把 error 回显给用户）。
-func ParseThinkingLevel(s string) (llmtypes.ThinkingLevel, error) {
-	lv := llmtypes.NormalizeThinkingLevel(llmtypes.ThinkingLevel(s))
-	switch lv {
-	case "", llmtypes.ThinkingOff, llmtypes.ThinkingLow, llmtypes.ThinkingMedium,
-		llmtypes.ThinkingHigh, llmtypes.ThinkingXHigh, llmtypes.ThinkingMax:
-		return lv, nil
-	default:
-		return "", fmt.Errorf("mức suy luận không hợp lệ %q (tùy chọn: off/low/medium/high/xhigh/max)", s)
-	}
-}
-
 func ResolveThinkingForModel(model llmtypes.ChatModel, level llmtypes.ThinkingLevel) (llmtypes.ThinkingLevel, bool) {
 	level = llmtypes.NormalizeThinkingLevel(level)
 	// 对不支持 thinking 的普通 chat 模型，显式 off 不是 no-op，而是非法参数。
@@ -90,7 +76,7 @@ func AvailableThinkingForModel(model llmtypes.ChatModel) []llmtypes.ThinkingLeve
 
 // roleThinking 解析某角色生效的推理强度；非法值降级为空（不覆盖）并 warn。
 func roleThinking(cfg bootstrap.Config, role string) llmtypes.ThinkingLevel {
-	lv, err := ParseThinkingLevel(cfg.ResolveReasoningEffort(role))
+	lv, err := llmtypes.ParseThinkingLevel(cfg.ResolveReasoningEffort(role))
 	if err != nil {
 		slog.Warn("bỏ qua cấu hình mức suy luận không hợp lệ", "module", "agent", "role", role, "err", err)
 		return ""

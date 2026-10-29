@@ -1,5 +1,7 @@
 package llm
 
+import "fmt"
+
 var ThinkingLevelOrder = []ThinkingLevel{
 	ThinkingOff,
 	ThinkingMinimal,
@@ -83,4 +85,19 @@ func uniqueThinkingLevels(levels []ThinkingLevel) []ThinkingLevel {
 		out = append(out, level)
 	}
 	return out
+}
+
+// ParseThinkingLevel chuyển chuỗi cấu hình thành ThinkingLevel.
+// "" hợp lệ (= không ghi đè/kế thừa); các giá trị còn lại phải là
+// off/low/medium/high/xhigh/max, sai thì trả lỗi (lúc khởi động hạ về rỗng kèm
+// warn, lúc chạy lỗi được trả lại cho người dùng).
+func ParseThinkingLevel(s string) (ThinkingLevel, error) {
+	lv := NormalizeThinkingLevel(ThinkingLevel(s))
+	switch lv {
+	case ThinkingAuto, ThinkingOff, ThinkingLow, ThinkingMedium,
+		ThinkingHigh, ThinkingXHigh, ThinkingMax:
+		return lv, nil
+	default:
+		return "", fmt.Errorf("mức suy luận không hợp lệ %q (tùy chọn: off/low/medium/high/xhigh/max)", s)
+	}
 }
