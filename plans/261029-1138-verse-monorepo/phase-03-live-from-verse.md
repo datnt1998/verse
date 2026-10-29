@@ -1,6 +1,6 @@
 ---
 title: "Phase 03 — Live chạy từ repo verse"
-status: done (chờ anh xác nhận 2 dòng gate và mốc 7 ngày)
+status: done (chờ mốc 7 ngày 2026-11-05 để gỡ worktree cũ)
 ---
 
 # Hiện trạng (2026-10-29)
@@ -60,7 +60,7 @@ Tên cookie, `~/.ainovel` và thư mục sách đều giữ nguyên, nên phase 
 |---|---|
 | Đúng binary | Cổng 8790 do `/Users/dat/Projects/verse-live/bin/noverse serve -root /Users/dat/NoverseLive -addr 127.0.0.1:8790` giữ, process cha là launchd (ppid 1) |
 | Sống | `/healthz` 200 ngay sau khi khởi động, cả lúc chuyển lẫn sau lần update |
-| Phiên cũ còn hiệu lực | Cookie, file tài khoản và 4 phiên giữ nguyên; `/api/projects` không cookie trả 401 như cũ. **Cần anh mở live trên thiết bị đang đăng nhập để xác nhận** |
+| Phiên cũ còn hiệu lực | Cookie, file tài khoản và 4 phiên giữ nguyên; `/api/projects` không cookie trả 401 như cũ. Ngày 2026-10-29 anh đã mở live trên thiết bị đang đăng nhập và xác nhận mọi thứ vẫn ổn; lúc đó `/healthz` trả 200 và log không có dòng error/panic |
 | Dữ liệu | Qua. Danh sách thư mục sách sau khi chuyển trùng `/tmp/live-books.txt`. Kiểm đọc trên bản sao APFS của `NoverseLive` và `.ainovel` (bỏ `auth.json`, `web-token` và tài khoản; dùng một admin tạm). Binary cũ `917e65a` và binary live `ccfa802` lần lượt đọc qua API thật và cho kết quả **giống hệt nhau**: dự án `tron-audio` có 2 truyện; truyện 1 xong 64/64 chương (94.296 từ), audio tập 1 có 519 đoạn, 1872 giây; truyện 2 xong 28/36 chương (32.330 từ), audio 2559 đoạn, 8406 giây. Mở được chương cuối của mỗi truyện. Bản sao đã xoá; `NoverseLive` không có file nào đổi sau bản sao lưu lúc chuyển |
 | Ổn định | Log `~/Library/Logs/noverse-live.log` không có dòng ERROR/panic sau khi chuyển và sau lần update. Mốc 7 ngày: tới 2026-11-05 |
 
