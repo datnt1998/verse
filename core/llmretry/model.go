@@ -141,14 +141,17 @@ func (e *exhaustedError) Error() string   { return e.err.Error() }
 func (e *exhaustedError) Unwrap() error   { return e.err }
 func (e *exhaustedError) Retryable() bool { return false }
 
-// report 产生与 agentcore EventRetry 相同的活动行，并标记 canRetryNow=true。
+// report 产生与 agentcore EventRetry 相同的活动行，并标记 canRetryNow=true；
+// 同时把 retry（及 stream_idle）信号经 ReportEvent 交回所在 loop，让 session
+// 日志能计数——开流前的失败只经过这一层，loop 自己看不到。
 func (m *RetryingModel) report(ctx context.Context, attempt int, err error) {
 	agent := m.Agent
 	if agent == "" {
 		agent = "model"
 	}
+	delay := retryDelay(err, attempt-1)
 	meta, _ := json.Marshal(map[string]any{
-		"retry_delay_ms": retryDelay(err, attempt-1).Milliseconds(),
+		"retry_delay_ms": delay.Milliseconds(),
 		"can_retry_now":  true,
 	})
 	agentcore.ReportToolProgress(ctx, agentcore.ProgressPayload{
@@ -159,6 +162,15 @@ func (m *RetryingModel) report(ctx context.Context, attempt int, err error) {
 		Message:    err.Error(),
 		Meta:       meta,
 	})
+	agentcore.ReportEvent(ctx, agentcore.Event{
+		Type:      agentcore.EventRetry,
+		Err:       err,
+		Reason:    agentcore.RetrySourceModel,
+		RetryInfo: &agentcore.RetryInfo{Attempt: attempt, MaxRetries: m.MaxRetries, Delay: delay, Err: err},
+	})
+	if agentcore.ErrorKind(err) == "stream_idle" {
+		agentcore.ReportEvent(ctx, agentcore.Event{Type: agentcore.EventStreamIdle, Err: err})
+	}
 }
 
 // wait 经共享 Gate 等待退避；Gate 为空时退化为独立计时器。

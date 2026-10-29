@@ -6,12 +6,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
 )
 
 type retryableErr struct{ after time.Duration }
@@ -44,6 +46,71 @@ func okStream(text string) <-chan llmtypes.StreamEvent {
 	ch <- llmtypes.StreamEvent{Type: llmtypes.StreamEventDone}
 	close(ch)
 	return ch
+}
+
+// streamIdleErr mirrors the watchdog abort that reaches the wrapper as the
+// stream's first event (no byte arrived before the idle window).
+type streamIdleErr struct{}
+
+func (streamIdleErr) Error() string             { return "stream idle timeout: no event received for 5m0s" }
+func (streamIdleErr) Retryable() bool           { return true }
+func (streamIdleErr) RetryAfter() time.Duration { return time.Millisecond }
+
+func failedFirstEvent(err error) <-chan llmtypes.StreamEvent {
+	ch := make(chan llmtypes.StreamEvent, 1)
+	ch <- llmtypes.StreamEvent{Type: llmtypes.StreamEventError, Err: err}
+	close(ch)
+	return ch
+}
+
+// Pre-stream failures never reach the loop's own retry path, so the session
+// log only counts them if the wrapper hands the signals back to the run: one
+// retry per swallowed attempt, plus stream_idle when that was the cause. The
+// user-facing retry line must still appear once per attempt, not twice.
+func TestRetryingModelReportsPreStreamRetriesToTheRun(t *testing.T) {
+	inner := &fakeModel{stream: func(call int32) (<-chan llmtypes.StreamEvent, error) {
+		switch call {
+		case 1:
+			return failedFirstEvent(streamIdleErr{}), nil
+		case 2:
+			return failedFirstEvent(retryableErr{after: time.Millisecond}), nil
+		}
+		msg := llmtypes.Message{Role: llmtypes.RoleAssistant, Content: []llmtypes.ContentBlock{llmtypes.TextBlock("done")}, StopReason: llmtypes.StopReasonStop}
+		ch := make(chan llmtypes.StreamEvent, 1)
+		ch <- llmtypes.StreamEvent{Type: llmtypes.StreamEventDone, Message: msg, StopReason: msg.StopReason}
+		close(ch)
+		return ch, nil
+	}}
+	var progress []agentcore.ProgressPayload
+	ctx := agentcore.WithToolProgress(context.Background(), func(p agentcore.ProgressPayload) {
+		if p.Kind == agentcore.ProgressRetry {
+			progress = append(progress, p)
+		}
+	})
+	var signals []string
+	runner := subagent.NewRunner(subagent.Config{
+		Name:     "architect_long",
+		Model:    NewRetryingModel(inner, NewGate(), "architect", 3),
+		MaxTurns: 2,
+		OnEvent: func(agent, _ string, ev agentcore.Event) {
+			switch ev.Type {
+			case agentcore.EventRetry:
+				signals = append(signals, fmt.Sprintf("%s retry %d/%d %s", agent, ev.RetryInfo.Attempt, ev.RetryInfo.MaxRetries, agentcore.ErrorKind(ev.Err)))
+			case agentcore.EventStreamIdle:
+				signals = append(signals, agent+" stream_idle")
+			}
+		},
+	})
+	if _, err := runner.Run(ctx, "architect_long", "plan"); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"architect_long retry 1/3 stream_idle", "architect_long stream_idle", "architect_long retry 2/3 rate_limit"}
+	if strings.Join(signals, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("signals:\n%s\nwant:\n%s", strings.Join(signals, "\n"), strings.Join(want, "\n"))
+	}
+	if len(progress) != 2 || progress[0].Agent != "architect" || progress[1].Attempt != 2 {
+		t.Fatalf("retry progress lines = %+v, want the wrapper's two lines only", progress)
+	}
 }
 
 func TestRetryingModelRetriesOpenTimeError(t *testing.T) {

@@ -1096,7 +1096,8 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 				}
 			}
 		case agentcore.EventRetry:
-			if opts.reportProgress && ev.RetryInfo != nil {
+			// Model-wrapper retries already rendered their own progress line.
+			if opts.reportProgress && ev.RetryInfo != nil && ev.Reason != agentcore.RetrySourceModel {
 				var meta json.RawMessage
 				if ev.RetryInfo.Delay > 0 {
 					meta = json.RawMessage(fmt.Sprintf(`{"retry_delay_ms":%d}`, ev.RetryInfo.Delay.Milliseconds()))

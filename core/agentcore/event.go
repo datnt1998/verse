@@ -119,7 +119,7 @@ type Event struct {
 	Preview     json.RawMessage
 	ToolResults []ToolResult            // for turn_end: all tool results from this turn
 	Err         error                   // for error events
-	Reason      string                  // short code: tool_blocked reason, compaction trigger, subagent_exit trigger
+	Reason      string                  // short code: tool_blocked reason, compaction trigger, subagent_exit trigger, retry source
 	NewMessages []llmtypes.AgentMessage // for agent_end: messages added during this loop
 	RetryInfo   *RetryInfo              // for retry events
 	Summary     *RunSummary             // for agent_end: factual run summary
@@ -132,6 +132,12 @@ type RetryInfo struct {
 	Delay      time.Duration
 	Err        error
 }
+
+// RetrySourceModel is the Reason of an EventRetry reported through
+// ReportEvent by a model wrapper that retries below the loop (before the
+// stream's first event). The wrapper renders its own progress line, so
+// runners count such events but must not render them again.
+const RetrySourceModel = "model"
 
 // ---------------------------------------------------------------------------
 // In-context event reporting
