@@ -1,0 +1,1483 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Thư viện</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.checker{background-color:#2A2A2E;background-image:linear-gradient(45deg,#1E1E22 25%,transparent 25%),linear-gradient(-45deg,#1E1E22 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1E1E22 75%),linear-gradient(-45deg,transparent 75%,#1E1E22 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-tick{-webkit-mask-image:url(../icons/tick.svg);mask-image:url(../icons/tick.svg)}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-calendar{-webkit-mask-image:url(../icons/calendar.svg);mask-image:url(../icons/calendar.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-chart{-webkit-mask-image:url(../icons/chart.svg);mask-image:url(../icons/chart.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-close{-webkit-mask-image:url(../icons/close.svg);mask-image:url(../icons/close.svg)}
+.i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-doc{-webkit-mask-image:url(../icons/doc.svg);mask-image:url(../icons/doc.svg)}
+.i-download{-webkit-mask-image:url(../icons/download.svg);mask-image:url(../icons/download.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit.svg);mask-image:url(../icons/edit.svg)}
+.i-export{-webkit-mask-image:url(../icons/export.svg);mask-image:url(../icons/export.svg)}
+.i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
+.i-filter{-webkit-mask-image:url(../icons/filter.svg);mask-image:url(../icons/filter.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder.svg);mask-image:url(../icons/folder.svg)}
+.i-gallery-edit{-webkit-mask-image:url(../icons/gallery-edit.svg);mask-image:url(../icons/gallery-edit.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp.svg);mask-image:url(../icons/lamp.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
+.i-link{-webkit-mask-image:url(../icons/link.svg);mask-image:url(../icons/link.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic.svg);mask-image:url(../icons/magic.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-mic{-webkit-mask-image:url(../icons/mic.svg);mask-image:url(../icons/mic.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-msg{-webkit-mask-image:url(../icons/msg.svg);mask-image:url(../icons/msg.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notify.svg);mask-image:url(../icons/notify.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh.svg);mask-image:url(../icons/refresh.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing.svg);mask-image:url(../icons/routing.svg)}
+.i-sb-left{-webkit-mask-image:url(../icons/sb-left.svg);mask-image:url(../icons/sb-left.svg)}
+.i-sb-right{-webkit-mask-image:url(../icons/sb-right.svg);mask-image:url(../icons/sb-right.svg)}
+.i-scissor{-webkit-mask-image:url(../icons/scissor.svg);mask-image:url(../icons/scissor.svg)}
+.i-search{-webkit-mask-image:url(../icons/search.svg);mask-image:url(../icons/search.svg)}
+.i-send{-webkit-mask-image:url(../icons/send.svg);mask-image:url(../icons/send.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting.svg);mask-image:url(../icons/setting.svg)}
+.i-subtitle{-webkit-mask-image:url(../icons/subtitle.svg);mask-image:url(../icons/subtitle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer.svg);mask-image:url(../icons/timer.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-trend{-webkit-mask-image:url(../icons/trend.svg);mask-image:url(../icons/trend.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+.i-video-play{-webkit-mask-image:url(../icons/video-play.svg);mask-image:url(../icons/video-play.svg)}
+.i-volume{-webkit-mask-image:url(../icons/volume.svg);mask-image:url(../icons/volume.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning.svg);mask-image:url(../icons/warning.svg)}
+.i-workbench{-webkit-mask-image:url(../icons/workbench.svg);mask-image:url(../icons/workbench.svg)}
+
+.sw{position:relative;width:34px;height:20px;border-radius:999px;flex:0 0 auto;display:inline-block;transition:background-color .2s ease}
+.sw i{position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#EDEDEF;transition:left .3s cubic-bezier(.34,1.45,.5,1)}
+.spinner{display:inline-block;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.opt:hover{border-color:rgba(255,255,255,.22) !important}
+.tile:hover .tile-play{opacity:1 !important}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+input[type=range].rng{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;background:linear-gradient(90deg,#FF4D63 var(--p,50%),#2A2A2E var(--p,50%));outline-offset:4px;margin:0}
+input[type=range].rng::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#EDEDEF;border:none;box-shadow:0 0 0 4px rgba(255,77,99,.25),0 2px 6px rgba(0,0,0,.5)}
+input[type=range].rng::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#EDEDEF;border:none}
+
+.fx{position:absolute;inset:0}
+.fx-snow{background:radial-gradient(1.6px 1.6px at 12% 18%,#fff 98%,transparent),radial-gradient(1.2px 1.2px at 38% 62%,#fff 98%,transparent),radial-gradient(2px 2px at 66% 30%,#fff 98%,transparent),radial-gradient(1.4px 1.4px at 84% 74%,#fff 98%,transparent),radial-gradient(1px 1px at 52% 88%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 24% 46%,rgba(255,255,255,.8) 98%,transparent);background-size:90px 70px;animation:fall 6s linear infinite}
+.fx-rain{background:repeating-linear-gradient(104deg,rgba(190,215,255,.28) 0 1px,transparent 1px 11px);background-size:60px 60px;animation:rain .7s linear infinite}
+.fx-dust{background:radial-gradient(1.4px 1.4px at 20% 30%,rgba(255,230,190,.8) 98%,transparent),radial-gradient(1px 1px at 70% 60%,rgba(255,230,190,.7) 98%,transparent),radial-gradient(1.2px 1.2px at 45% 80%,rgba(255,230,190,.6) 98%,transparent),radial-gradient(1px 1px at 85% 20%,rgba(255,230,190,.7) 98%,transparent);background-size:110px 80px;animation:drift 14s linear infinite}
+.fx-film{background:linear-gradient(90deg,transparent 0 31%,rgba(255,240,210,.18) 31% 31.4%,transparent 31.4% 72%,rgba(255,240,210,.12) 72% 72.3%,transparent 72.3%),radial-gradient(120% 90% at 50% 50%,transparent 50%,rgba(0,0,0,.55) 100%);animation:flick .18s steps(2) infinite}
+.fx-flare{background:radial-gradient(28% 40% at 30% 40%,rgba(255,220,170,.55),transparent 70%),linear-gradient(115deg,transparent 40%,rgba(255,200,140,.18) 50%,transparent 60%);background-size:200% 100%;animation:sweep 5s ease-in-out infinite alternate}
+.fx-bokeh{background:radial-gradient(14% 24% at 22% 35%,rgba(255,180,120,.6),transparent 72%),radial-gradient(10% 18% at 70% 30%,rgba(140,190,255,.6),transparent 72%),radial-gradient(12% 22% at 55% 72%,rgba(255,140,190,.5),transparent 72%),radial-gradient(9% 16% at 86% 70%,rgba(255,230,160,.55),transparent 72%),radial-gradient(7% 12% at 38% 80%,rgba(200,170,255,.45),transparent 72%);animation:pulse 4s ease-in-out infinite}
+.fx-ember{background:radial-gradient(1.8px 1.8px at 20% 70%,#FFB066 98%,transparent),radial-gradient(1.4px 1.4px at 55% 40%,#FF8A3D 98%,transparent),radial-gradient(2px 2px at 80% 80%,#FFC27A 98%,transparent),radial-gradient(1.2px 1.2px at 35% 20%,#FF9A4D 98%,transparent);background-size:80px 90px;animation:rise 5s linear infinite}
+.fx-fog{background:radial-gradient(60% 30% at 30% 60%,rgba(220,225,235,.22),transparent 70%),radial-gradient(50% 26% at 75% 45%,rgba(220,225,235,.18),transparent 70%);background-size:200% 100%;animation:sweep 9s ease-in-out infinite alternate}
+.fx-firefly{background:radial-gradient(3px 3px at 22% 40%,rgba(220,255,140,.95),transparent 70%),radial-gradient(2.5px 2.5px at 64% 66%,rgba(220,255,140,.85),transparent 70%),radial-gradient(3px 3px at 80% 28%,rgba(220,255,140,.9),transparent 70%),radial-gradient(2px 2px at 42% 82%,rgba(220,255,140,.8),transparent 70%);background-size:120px 90px;animation:pulse 2.4s ease-in-out infinite}
+.fx-leaf{background:radial-gradient(4px 2px at 20% 30%,#D98A3D 98%,transparent),radial-gradient(3px 2px at 60% 60%,#B8642B 98%,transparent),radial-gradient(4px 2.4px at 82% 20%,#E0A050 98%,transparent),radial-gradient(3px 1.8px at 40% 85%,#C77434 98%,transparent);background-size:100px 90px;animation:fall 8s linear infinite}
+.fx-sakura{background:radial-gradient(3px 2.4px at 18% 26%,#FFC4D6 98%,transparent),radial-gradient(2.6px 2px at 58% 58%,#FFB0C8 98%,transparent),radial-gradient(3px 2.4px at 80% 18%,#FFD3E0 98%,transparent),radial-gradient(2.2px 1.8px at 38% 84%,#FFA8C0 98%,transparent);background-size:100px 80px;animation:fall 7s linear infinite}
+.fx-stars{background:radial-gradient(1.2px 1.2px at 14% 22%,#fff 98%,transparent),radial-gradient(1px 1px at 46% 64%,#fff 98%,transparent),radial-gradient(1.6px 1.6px at 72% 30%,#fff 98%,transparent),radial-gradient(1px 1px at 88% 78%,#fff 98%,transparent),radial-gradient(1.3px 1.3px at 30% 86%,#fff 98%,transparent);background-size:70px 60px;animation:pulse 3s ease-in-out infinite}
+@keyframes fall{to{background-position:0 140px}}
+@keyframes rain{to{background-position:-12px 60px}}
+@keyframes drift{to{background-position:110px -40px}}
+@keyframes rise{to{background-position:0 -180px}}
+@keyframes flick{50%{opacity:.75}}
+@keyframes sweep{to{background-position:100% 0}}
+@keyframes pulse{50%{opacity:.45}}
+.pg .c-size{}
+@media (max-width:1380px){.pg{grid-template-columns:minmax(0,1fr) 160px 96px 64px 132px !important}.pg .c-size{display:none !important}}
+
+@media (max-width:1100px){
+.shell{height:auto !important;overflow:visible !important}
+.body{flex-wrap:wrap !important}
+.side{max-width:none !important;flex:1 1 100% !important;border:none !important;overflow:visible !important}
+.center{overflow:visible !important;flex:1 1 100% !important;order:-1}
+}
+@media (max-width:700px){
+nav[aria-label="Điều hướng chính"]{max-width:100%;overflow-x:auto;scrollbar-width:none}
+nav[aria-label="Điều hướng chính"] a{white-space:nowrap;flex:0 0 auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+
+/* r16-agent: tokens + kit (đợt 22) */
+/* Viderse tokens — bộ của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cỡ, bo góc, bóng, chuyển động lấy y nguyên từ UI Kit của Noverse; chỉ màu nhấn và màu phá huỷ đổi:
+   tím Noverse → đỏ Viderse, đỏ phá huỷ Noverse → cam Viderse. Chỉ dark.
+   Dùng biến, không viết cứng mã màu đã có ở đây. */
+:root {
+  /* Nền và bề mặt (giống Noverse) */
+  --vv-bg: #0B0B0D;
+  --vv-stage: #0D0D0F;                /* nền khung minh hoạ, vùng làm việc phụ */
+  --vv-surface-1: #131315;            /* thanh điều hướng, segmented, chip */
+  --vv-surface-2: #161618;            /* ô nhập lớn */
+  --vv-surface-3: #18181A;            /* composer, hộp thoại */
+  --vv-card: linear-gradient(180deg, #171719 0%, #131315 100%);
+  --vv-card-border: rgba(255,255,255,.07);
+  --vv-card-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.5);
+  --vv-hairline: rgba(255,255,255,.06);
+  --vv-selected: #222225;             /* tab/segment đang chọn trên thanh */
+  --vv-selected-2: #2A2A2E;           /* nút đang chọn trong nhóm chọn, tooltip */
+
+  /* Chữ */
+  --vv-text: #EDEDEF;
+  --vv-text-2: #C9C9D1;
+  --vv-text-soft: #B4B4BE;            /* thân hộp thoại, luật */
+  --vv-text-3: #A0A0AB;
+  --vv-text-hint: #8E8E99;            /* mô tả dưới lựa chọn */
+  --vv-muted: #8B8B97;                /* tối thiểu cho chữ phụ: 5.8:1 trên --vv-bg, 5.4:1 trên card */
+  --vv-faint: #6E6E78;                /* 3.9:1 — chỉ cho chấm, icon, viền; KHÔNG dùng cho chữ */
+  --vv-disabled: #5E5E68;             /* chữ của thứ đang khoá (không cần đạt tương phản) */
+
+  /* Màu nhấn — Noverse dùng tím, Viderse dùng đỏ */
+  --vv-accent: #FF4D63;               /* hộp kiểm, radio, thanh trượt, dấu tick, link, icon tab đang chọn — 6:1 trên nền */
+  --vv-accent-strong: #E6002E;        /* công tắc bật (núm sáng 4:1) */
+  --vv-accent-soft: #FFD3DA;          /* chữ trên nền nhấn nhạt (thẻ chọn nhiều, huy hiệu) */
+  --vv-accent-bg: rgba(255,77,99,.12);
+  --vv-accent-tint: rgba(255,77,99,.06);   /* nền lựa chọn đang chọn */
+  --vv-accent-border: rgba(255,77,99,.40); /* viền lựa chọn đang chọn */
+  --vv-accent-focus: rgba(255,77,99,.55);  /* viền ô đang mở / focus */
+  --vv-accent-ring: rgba(255,77,99,.14);   /* vòng 3px quanh ô đang focus */
+  --vv-accent-mark: rgba(255,77,99,.22);   /* tô phần khớp khi tìm */
+
+  /* Thương hiệu — đỏ YouTube (logo, chấm đang chạy) */
+  --vv-red: #FF0033;
+  --vv-red-ink: #FF4D63;              /* = --vv-accent */
+  --vv-red-deep: #A3001C;
+  --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
+  --vv-red-button-hover: #FF1F4B;
+
+  /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */
+  --vv-danger: #FF9A5C;               /* nút xoá vĩnh viễn (nền), icon lỗi */
+  --vv-danger-hover: #FFAD78;
+  --vv-danger-fg: #1A0E06;            /* chữ trên nút cam đặc */
+  --vv-danger-text: #FFC09A;          /* chữ lỗi, mục menu nguy hiểm */
+  --vv-danger-text-2: #FFD2B5;        /* chữ trên nền lỗi nhạt */
+  --vv-danger-soft: rgba(255,154,92,.12);  /* nút nguy hiểm làm lại được */
+  --vv-danger-soft-hover: rgba(255,154,92,.20);
+  --vv-danger-tint: rgba(255,154,92,.06);  /* nền danh sách hệ quả, banner lỗi */
+  --vv-danger-border: rgba(255,154,92,.30);
+  --vv-danger-focus: rgba(255,154,92,.55); /* viền ô lỗi */
+  --vv-danger-ring: rgba(255,154,92,.12);
+
+  /* Trạng thái video (ia-flows §3.1) */
+  --vv-st-queued: #8E8E99;            /* Chờ lượt, Tạm dừng */
+  --vv-st-working: #B9D0F7;           /* Đang làm */
+  --vv-st-review: #F6CB8C;            /* Chờ duyệt, chờ bạn */
+  --vv-st-issue: #FF9A5C;             /* Cần xử lý — cùng màu với --vv-danger */
+  --vv-st-issue-text: #FFC09A;
+  --vv-st-ready: #A6EDC1;             /* Sẵn sàng, Ổn, Xong */
+  --vv-st-posted: #8B8B97;
+  --vv-info: #9DB0F7;                 /* banner thông tin */
+  --vv-info-bg: rgba(124,147,243,.07);
+  --vv-info-border: rgba(124,147,243,.20);
+  --vv-st-review-bg: rgba(246,203,140,.12);
+  --vv-st-review-tint: rgba(246,203,140,.06);
+  --vv-st-review-border: rgba(246,203,140,.20);
+  --vv-st-issue-bg: var(--vv-danger-tint);
+  --vv-st-issue-border: var(--vv-danger-border);
+  --vv-st-ready-bg: rgba(166,237,193,.12);
+  --vv-st-ready-tint: rgba(166,237,193,.06);
+  --vv-st-ready-border: rgba(166,237,193,.20);
+  --vv-st-working-bg: rgba(185,208,247,.12);
+  --vv-director-bg: rgba(184,156,255,.07);
+  --vv-ref-bg: rgba(255,208,138,.10);
+
+  /* Bốn trợ lý: chữ, vòng logo, orb */
+  --vv-scout-ink: #B7CEFF;    --vv-scout-arc: #7FA3FF;
+  --vv-director-ink: #CDB5FF; --vv-director-arc: #B08AF7;
+  --vv-artist-ink: #FFD08A;   --vv-artist-arc: #FFBE66;
+  --vv-qa-ink: #9DECC9;       --vv-qa-arc: #5DDDB0;
+  --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
+  --vv-orb-director: radial-gradient(circle at 32% 26%, #F5EAFF 0%, #D2AEFF 28%, #9566F0 62%, #5B2FB8 100%);
+  --vv-orb-artist: radial-gradient(circle at 32% 26%, #FFF3DC 0%, #FFD08A 28%, #F5A13F 62%, #C2611D 100%);
+  --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
+  --vv-orb-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4);
+
+  /* Chỉ số nổi trội (chỉ trong thumbnail) */
+  --vv-outlier-bg: #F6CB8C;
+  --vv-outlier-fg: #0B0B0D;
+
+  /* Chữ */
+  --vv-font: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;  /* 400/500/600/700, subset vietnamese */
+  --vv-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --vv-fs-page: 17px;
+  --vv-fs-hero: 30px;
+  --vv-fs-dialog: 16px;    /* tiêu đề hộp thoại */
+  --vv-fs-body: 14px;
+  --vv-fs-card: 14px;      /* tiêu đề thẻ (600) */
+  --vv-fs-ui: 13px;        /* nút, ô nhập, mục menu */
+  --vv-fs-meta: 12px;
+  --vv-fs-small: 11.5px;   /* mô tả dưới lựa chọn, toast nhỏ */
+  --vv-fs-group: 11px;     /* nhãn nhóm VIẾT HOA, 600, letter-spacing .08em */
+
+  /* Bo góc (Noverse) */
+  --vv-r-kbd: 4px;
+  --vv-r-tag: 6px;         /* huy hiệu, nhãn */
+  --vv-r-tip: 7px;         /* tooltip, thẻ trong ô chọn nhiều, nút trong nhóm chọn */
+  --vv-r-chip: 8px;        /* chip, nút nhỏ */
+  --vv-r-opt: 9px;         /* mục menu / lựa chọn */
+  --vv-r-btn: 10px;        /* nút, ô nhập, ô chọn */
+  --vv-r-field: 10px;
+  --vv-r-choice: 11px;     /* thẻ lựa chọn có mô tả */
+  --vv-r-tile: 12px;       /* banner, khối trống, thẻ nhỏ trong danh sách */
+  --vv-r-pop: 14px;        /* menu, popover, select mở */
+  --vv-r-card: 16px;       /* thẻ nhóm */
+  --vv-r-dialog: 18px;     /* hộp thoại, khung minh hoạ */
+  --vv-r-thumb: 7px;
+  --vv-r-composer: 18px;
+  --vv-r-sheet: 22px;
+  --vv-r-field-m: 12px;
+  --vv-r-pill: 999px;
+
+  /* Kích thước */
+  --vv-h-btn: 36px;  --vv-h-btn-sm: 30px;  --vv-h-field: 36px;  --vv-h-opt: 34px;
+  --vv-hit-desktop: 30px;
+  --vv-hit-touch: 44px;
+  --vv-m-btn: 44px; --vv-m-btn-lg: 48px; --vv-m-row: 56px; --vv-m-bar: 52px; --vv-m-tabbar: 64px;
+
+  /* Nút sáng = nút chính */
+  --vv-primary: #EDEDEF;
+  --vv-primary-hover: #FFFFFF;
+  --vv-primary-fg: #0B0B0D;
+  --vv-white-button: var(--vv-primary);     /* tên cũ, giữ để màn chưa chuyển vẫn đọc được */
+  --vv-white-button-fg: var(--vv-primary-fg);
+  --vv-ghost-border: rgba(255,255,255,.12);
+
+  /* Ô nhập & lớp nổi */
+  --vv-field: #0F0F11;
+  --vv-field-hover: #121214;
+  --vv-field-border: rgba(255,255,255,.10);
+  --vv-field-border-hover: rgba(255,255,255,.18);
+  --vv-field-border-focus: var(--vv-accent-focus);
+  --vv-popover: #1A1A1D;
+  --vv-popover-border: rgba(255,255,255,.10);
+  --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-dialog: #18181A;
+  --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-toast: #1C1C1F;
+  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
+  --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
+  --vv-hover: rgba(255,255,255,.07);
+  --vv-hover-row: rgba(255,255,255,.04);
+  --vv-opt-hover: rgba(255,255,255,.06);
+  --vv-opt-active: rgba(255,255,255,.075);  /* mục đang trỏ bằng phím */
+  --vv-skel-a: #17171A; --vv-skel-b: #222226;
+  --vv-focus: 0 0 0 3px var(--vv-accent-ring);
+  --vv-focus-outline: 2px solid var(--vv-accent);
+
+  /* Chuyển động (Noverse) */
+  --vv-ease: cubic-bezier(.2,.9,.3,1);          /* menu, popover mở */
+  --vv-ease-spring: cubic-bezier(.34,1.45,.5,1); /* công tắc, nhóm chọn */
+  --vv-dur: 150ms;
+  --vv-dur-pop: 170ms;
+  --vv-dur-dialog: 300ms;
+}
+
+/* Lớp tiện ích dùng lại từ artboard */
+.vv-orb { border-radius: 50%; flex: 0 0 auto; box-shadow: var(--vv-orb-shadow); }
+.vv-live { animation: vv-breathe 2.8s ease-in-out infinite; }      /* orb trợ lý đang chạy */
+.vv-rec { animation: vv-rec 1.6s ease-in-out infinite; }            /* chấm đỏ “đang chạy” */
+.vv-lens-run { transform-box: fill-box; transform-origin: center; animation: vv-lensrot 9s linear infinite; }
+@keyframes vv-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }
+@keyframes vv-rec { 50% { opacity: .35 } }
+@keyframes vv-lensrot { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Viderse UI Kit — bộ thành phần của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cần tokens.css nạp trước. Board tham chiếu: artboards/Kit.dc.html (máy tính) và MKit.dc.html (điện thoại);
+   hai board dựng bằng chính các lớp dưới đây, nên giá trị ở đây là giá trị thật.
+   Cỡ, bo góc, bóng, chuyển động giống hệt Kit Noverse; khác duy nhất: tím → đỏ (--vv-accent*), đỏ phá huỷ → cam (--vv-danger*).
+   Quy ước tên: .vv-<thành phần>, biến thể --<tên>, phần con __<tên>, trạng thái .is-<tên> hoặc thuộc tính ARIA. */
+
+/* ---------- Nền ---------- */
+.vv-root { background: var(--vv-bg); color: var(--vv-text); font-family: var(--vv-font); font-size: var(--vv-fs-body); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.vv-root *, .vv-root *::before, .vv-root *::after { box-sizing: border-box; }
+.vv-root :focus-visible { outline: var(--vv-focus-outline); outline-offset: 2px; }
+.vv-num { font-variant-numeric: tabular-nums; }
+.vv-mono { font-family: var(--vv-font-mono); }
+.vv-ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-spacer { flex: 1 1 auto; }
+.vv-group { font-size: var(--vv-fs-group); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-kbd { font-family: var(--vv-font-mono); font-size: 11px; color: var(--vv-text-3); padding: 1px 5px; border-radius: var(--vv-r-kbd); border: 1px solid var(--vv-field-border); background: #151517; white-space: nowrap; }
+.vv-ic { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; background-color: currentColor; -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+.vv-mark { background: var(--vv-accent-mark); color: var(--vv-accent-soft); border-radius: 3px; padding: 0 1px; }
+.vv-link { color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---------- Nút ---------- */
+/* Một màn một nút chính (sáng). Cam đặc chỉ cho xoá vĩnh viễn; cam nhạt cho việc nguy hiểm làm lại được. */
+.vv-btn { --h: var(--vv-h-btn); height: var(--h); padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--vv-r-btn); border: 1px solid var(--vv-ghost-border); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); font-weight: 500; white-space: nowrap; cursor: pointer; text-decoration: none; transition: background-color var(--vv-dur), box-shadow .2s, transform 80ms, border-color var(--vv-dur); }
+.vv-btn:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn.is-hover { background: var(--vv-hover); }
+.vv-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.98); }
+.vv-btn--primary, .vv-btn--white { background: var(--vv-primary); border-color: transparent; color: var(--vv-primary-fg); font-weight: 600; }
+.vv-btn--primary:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--white:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--primary.is-hover, .vv-btn--white.is-hover { background: var(--vv-primary-hover); }
+.vv-btn--danger { background: var(--vv-danger); border-color: transparent; color: var(--vv-danger-fg); font-weight: 600; }
+.vv-btn--danger:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger.is-hover { background: var(--vv-danger-hover); box-shadow: 0 0 0 4px var(--vv-danger-ring); }
+.vv-btn--danger-soft { background: var(--vv-danger-soft); border-color: var(--vv-danger-border); color: var(--vv-danger-text-2); }
+.vv-btn--danger-soft:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger-soft.is-hover { background: var(--vv-danger-soft-hover); }
+.vv-btn--quiet { border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--quiet:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn--sm { --h: var(--vv-h-btn-sm); padding: 0 10px; font-size: 12px; border-radius: var(--vv-r-chip); }
+.vv-btn--icon { width: var(--h); padding: 0; border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--icon:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn[aria-disabled="true"], .vv-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.vv-btn .vv-ic, .vv-btn .ic { width: 15px; height: 15px; }
+.vv-btn--sm .vv-ic, .vv-btn--sm .ic { width: 13px; height: 13px; }
+.vv-btn--primary .vv-spinner, .vv-btn--white .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-primary-fg); }
+.vv-btn--danger .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-danger-fg); }
+.vv-btn--hold { position: relative; overflow: hidden; }
+.vv-btn--hold > i { position: absolute; left: 0; top: 0; bottom: 0; width: var(--hold, 0%); background: rgba(255,255,255,.16); pointer-events: none; }
+.vv-btn--hold > :not(i) { position: relative; }
+/* điện thoại */
+.vv-btn--m { --h: var(--vv-m-btn); padding: 0 16px; border-radius: 12px; font-size: 14px; }
+.vv-btn--m-lg { --h: var(--vv-m-btn-lg); padding: 0 16px; border-radius: 13px; font-size: 15px; font-weight: 600; width: 100%; }
+
+/* ---------- Ô nhập ---------- */
+.vv-field { height: var(--vv-h-field); width: 100%; min-width: 0; padding: 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); outline: none; text-overflow: ellipsis; transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-field::placeholder { color: var(--vv-muted); }
+.vv-field:hover, .vv-field.is-hover { border-color: var(--vv-field-border-hover); }
+.vv-field:focus, .vv-field.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-field.is-error, .vv-field[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-field:disabled, .vv-field.is-disabled { opacity: .45; cursor: not-allowed; }
+textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize: none; }
+.vv-field--m { height: var(--vv-m-btn); border-radius: var(--vv-r-field-m); font-size: 15px; }
+.vv-fieldbox { display: flex; align-items: center; gap: 8px; min-height: var(--vv-h-field); padding: 4px 8px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-fieldbox:focus-within, .vv-fieldbox.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-fieldbox.is-error { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-fieldbox--wrap { flex-wrap: wrap; padding: 5px 8px; }
+.vv-fieldbox > input { flex: 1 1 60px; min-width: 60px; height: 26px; border: none; background: transparent; outline: none; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); padding: 0; }
+.vv-fieldbox > input::placeholder { color: var(--vv-muted); }
+.vv-fieldbox > .vv-ic, .vv-fieldbox > .ic { width: 15px; height: 15px; color: var(--vv-muted); }
+.vv-fieldbox__affix { font-family: var(--vv-font-mono); font-size: 12.5px; color: var(--vv-muted); white-space: nowrap; }
+.vv-fieldbox__suffix { font-family: var(--vv-font-mono); font-size: 12px; color: var(--vv-st-ready); padding: 2px 6px; border-radius: 5px; background: rgba(166,237,193,.1); white-space: nowrap; }
+.vv-label { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-label small { font-size: inherit; color: var(--vv-muted); }
+.vv-label--group { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-help, .vv-err { display: flex; gap: 6px; align-items: flex-start; font-size: var(--vv-fs-small); line-height: 1.5; color: var(--vv-muted); }
+.vv-err { color: var(--vv-danger-text); }
+.vv-help > .vv-ic, .vv-help > .ic, .vv-err > .vv-ic, .vv-err > .ic { width: 13px; height: 13px; margin-top: 2px; }
+.vv-counter { font-size: 11px; color: var(--vv-muted); font-variant-numeric: tabular-nums; }
+.vv-counter.is-near { color: var(--vv-st-review); }
+
+/* ---------- Ô chọn (select) ---------- */
+.vv-select { display: flex; align-items: center; gap: 8px; width: 100%; height: var(--vv-h-field); padding: 0 10px 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; transition: border-color var(--vv-dur), box-shadow var(--vv-dur), background-color var(--vv-dur); }
+.vv-select:hover, .vv-select.is-hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-select[aria-expanded="true"], .vv-select:focus-visible, .vv-select.is-open { outline: none; border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-select.is-error, .vv-select[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-select:disabled { opacity: .45; cursor: not-allowed; }
+.vv-select__value { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-select__value.is-placeholder { color: var(--vv-muted); }
+.vv-select__chev { width: 15px; height: 15px; color: var(--vv-muted); transition: transform .18s; }
+.vv-select[aria-expanded="true"] .vv-select__chev, .vv-select.is-open .vv-select__chev { transform: rotate(180deg); }
+.vv-select--rich { height: 48px; }
+
+/* ---------- Menu, danh sách chọn, popover ---------- */
+.vv-pop, .vv-menu { padding: 6px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); }
+.vv-menu { min-width: 240px; display: flex; flex-direction: column; }
+.vv-pop--float { position: absolute; z-index: 40; }
+.vv-pop--note { padding: 14px; display: flex; flex-direction: column; gap: 8px; width: 280px; }
+.vv-pop-in { animation: vv-popIn var(--vv-dur-pop) var(--vv-ease) both; }
+.vv-pop-side { animation: vv-flyL .16s var(--vv-ease) both; }
+@keyframes vv-popIn { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes vv-flyL { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.vv-opt, .vv-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--vv-h-opt); padding: 6px 10px; border: none; border-radius: var(--vv-r-opt); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; text-decoration: none; cursor: pointer; }
+.vv-opt:hover, .vv-menu__item:hover { background: var(--vv-opt-hover); }
+.vv-opt.is-active, .vv-menu__item.is-active, .vv-menu__item.is-hover { background: var(--vv-opt-active); }
+.vv-opt > .vv-ic, .vv-opt > .ic, .vv-menu__item > .vv-ic, .vv-menu__item > .ic { width: 16px; height: 16px; color: var(--vv-text-3); }
+.vv-opt--danger, .vv-menu__item--danger, .vv-opt--danger > .ic, .vv-menu__item--danger > .ic, .vv-opt--danger > .vv-ic, .vv-menu__item--danger > .vv-ic { color: var(--vv-danger-text); }
+.vv-opt--danger:hover, .vv-opt--danger.is-active, .vv-menu__item--danger:hover { background: var(--vv-danger-soft); }
+.vv-opt:disabled, .vv-opt[aria-disabled="true"], .vv-menu__item[aria-disabled="true"] { color: var(--vv-disabled); background: transparent; cursor: not-allowed; }
+.vv-opt--rich { min-height: 48px; }
+.vv-opt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-opt__text > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-opt__desc, .vv-menu__hint { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); line-height: 1.4; }
+.vv-opt__meta { font-size: 11px; color: var(--vv-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-opt__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); font-size: 11px; color: var(--vv-text-3); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.vv-opt__tick, .vv-option__tick { width: 16px; height: 16px; flex: 0 0 auto; color: var(--vv-accent); }
+.vv-opt__chev { width: 14px; height: 14px; color: var(--vv-muted); }
+.vv-opt__add, .vv-opt > .ic.is-accent { color: var(--vv-accent); }
+.vv-menu__sep { height: 1px; margin: 6px 4px; background: rgba(255,255,255,.07); flex: 0 0 auto; }
+.vv-menu__group { display: flex; justify-content: space-between; padding: 6px 10px 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+
+/* ---------- Chọn & bật tắt ---------- */
+.vv-check, .vv-radio { width: 18px; height: 18px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,.28); background: transparent; transition: background-color .16s, border-color .16s; }
+.vv-check { border-radius: 5px; }
+.vv-radio { border-radius: 50%; }
+.vv-check[aria-checked="true"], .vv-check.is-on, .vv-check[aria-checked="mixed"], .vv-check.is-mixed { background: var(--vv-accent); border-color: var(--vv-accent); }
+.vv-check[aria-checked="true"]::after, .vv-check.is-on::after { content: ""; width: 5px; height: 9px; border: solid var(--vv-primary-fg); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+.vv-check[aria-checked="mixed"]::after, .vv-check.is-mixed::after { content: ""; width: 8px; height: 2px; border-radius: 1px; background: var(--vv-primary-fg); }
+.vv-radio[aria-checked="true"], .vv-radio.is-on { border-color: var(--vv-accent); }
+.vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vv-accent); }
+.vv-check--m, .vv-radio--m { width: 22px; height: 22px; }
+.vv-checkrow { display: flex; align-items: center; gap: 10px; padding: 0; border: none; background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; }
+.vv-checkrow:disabled, .vv-checkrow[aria-disabled="true"] { color: var(--vv-disabled); cursor: not-allowed; }
+.vv-checkrow:disabled .vv-check { opacity: .6; }
+.vv-choice { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .14s; }
+.vv-choice > .vv-radio, .vv-choice > .vv-check { margin-top: 1px; }
+.vv-choice[aria-checked="true"] { border-color: var(--vv-accent-border); background: var(--vv-accent-tint); }
+.vv-choice[aria-disabled="true"] { color: var(--vv-text-3); cursor: default; }
+.vv-choice:active:not([aria-disabled="true"]) { transform: scale(.985); }
+.vv-choice--lg { gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-choice); border-color: rgba(255,255,255,.08); }
+.vv-choice__text { display: flex; flex-direction: column; min-width: 0; }
+.vv-choice__label { font-size: var(--vv-fs-ui); }
+.vv-choice--lg .vv-choice__label { font-weight: 500; }
+.vv-choice__note { font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-switch { position: relative; width: 36px; height: 22px; flex: 0 0 auto; border: none; padding: 0; border-radius: var(--vv-r-pill); background: var(--vv-selected-2); cursor: pointer; transition: background-color .2s; }
+.vv-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: left .3s var(--vv-ease-spring), transform .3s var(--vv-ease-spring); transform-origin: left center; }
+.vv-switch[aria-checked="true"] { background: var(--vv-accent-strong); }
+.vv-switch[aria-checked="true"]::after { left: 17px; transform-origin: right center; }
+.vv-switch:active:not(:disabled):not([aria-disabled="true"])::after { transform: scaleX(1.22); }
+.vv-switch:disabled, .vv-switch[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+.vv-switch--m { width: 50px; height: 30px; }
+.vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
+.vv-switch--m[aria-checked="true"]::after { left: 23px; }
+.vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
+.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+.vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
+.vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
+.vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
+.vv-seg--thumb > button[aria-checked="true"] { background: transparent; }
+.vv-seg--bar { gap: 2px; border-radius: 11px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--bar > button { height: 32px; border-radius: 8px; font-size: var(--vv-fs-ui); }
+.vv-seg--bar > button[aria-checked="true"], .vv-seg--bar > button[aria-selected="true"] { background: var(--vv-selected); font-weight: 500; }
+.vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
+.vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+.vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
+.vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.vv-tab:hover { color: var(--vv-text); }
+.vv-tab[aria-selected="true"] { color: var(--vv-text); font-weight: 600; border-bottom-color: var(--vv-accent); }
+.vv-tab__n { font-size: 12px; color: var(--vv-muted); font-weight: 400; }
+.vv-stepper { display: inline-flex; align-items: stretch; width: 148px; height: var(--vv-h-field); border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); overflow: hidden; }
+.vv-stepper > button { width: 36px; flex: 0 0 auto; border: none; background: transparent; color: var(--vv-text-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.vv-stepper > button:hover:not(:disabled) { background: var(--vv-hover); }
+.vv-stepper > button:disabled, .vv-stepper > button[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.vv-stepper > input, .vv-stepper > output { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: none; border-left: 1px solid rgba(255,255,255,.08); border-right: 1px solid rgba(255,255,255,.08); background: transparent; color: var(--vv-text); font-family: var(--vv-font-mono); font-size: var(--vv-fs-ui); font-variant-numeric: tabular-nums; text-align: center; outline: none; }
+.vv-stepper--m { height: var(--vv-m-btn); width: 160px; }
+.vv-stepper--m > button { width: 44px; }
+.vv-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.vv-range::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range__bubble { position: absolute; top: 0; transform: translateX(-50%); height: 18px; padding: 0 6px; border-radius: 5px; background: var(--vv-selected-2); font-family: var(--vv-font-mono); font-size: 10.5px; display: flex; align-items: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Chip, huy hiệu, đếm ---------- */
+.vv-chip { height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-chip); background: var(--vv-surface-1); border: 1px solid var(--vv-field-border); font: inherit; font-size: 12px; color: var(--vv-text-2); white-space: nowrap; cursor: pointer; }
+.vv-chip > .ic, .vv-chip > .vv-ic { width: 13px; height: 13px; color: var(--vv-text-hint); }
+.vv-chip b { font-weight: 500; color: var(--vv-text); }
+.vv-chip[aria-expanded="true"] { border-color: var(--vv-field-border-hover); background: #1C1C1F; }
+.vv-chip.is-custom { border-color: rgba(246,203,140,.3); }
+.vv-pill { height: 30px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-pill); border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.vv-pill[aria-checked="true"], .vv-pill[aria-pressed="true"] { background: var(--vv-selected); border-color: rgba(255,255,255,.14); color: var(--vv-text); }
+.vv-pill__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.vv-tag { height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); color: var(--vv-text-3); font-size: var(--vv-fs-small); white-space: nowrap; }
+.vv-tag__dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--dot, currentColor); }
+.vv-tag--accent { background: var(--vv-accent-bg); color: var(--vv-accent-soft); --dot: var(--vv-accent); }
+.vv-tag--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-tag--review { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-tag--issue { background: var(--vv-danger-soft); color: var(--vv-danger-text); --dot: var(--vv-danger); }
+.vv-tag--working { background: var(--vv-st-working-bg); color: var(--vv-st-working); }
+.vv-tag--muted { --dot: var(--vv-disabled); }
+.vv-tag--ref { background: var(--vv-ref-bg); color: var(--vv-artist-ink); }
+.vv-tag--next { background: var(--vv-accent-bg); color: var(--vv-accent-soft); }
+.vv-tag--auto { color: var(--vv-qa-ink); background: rgba(157,236,201,.08); }
+.vv-token { height: 26px; padding: 0 4px 0 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: var(--vv-r-tip); background: var(--vv-accent-bg); border: 1px solid rgba(255,77,99,.25); color: var(--vv-accent-soft); font-size: 12px; white-space: nowrap; }
+.vv-token > button { width: 18px; height: 18px; border: none; border-radius: 5px; background: transparent; color: var(--vv-accent); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.vv-count { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--vv-r-pill); background: rgba(246,203,140,.16); color: var(--vv-st-review); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-count--solid { background: var(--vv-st-review); color: var(--vv-bg); font-weight: 700; }
+.vv-count--info { background: rgba(185,208,247,.14); color: var(--vv-st-working); }
+.vv-score { height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: var(--vv-r-tag); background: var(--vv-outlier-bg); color: var(--vv-outlier-fg); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-score--low { background: rgba(0,0,0,.75); color: #F3D9AE; }
+
+/* ---------- Trạng thái video ---------- */
+.vv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; color: var(--c, var(--vv-text-3)); }
+.vv-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.vv-status--queued { --c: var(--vv-st-queued); }
+.vv-status--working { --c: var(--vv-st-working); }
+.vv-status--working::before { width: 9px; height: 9px; background: none; border: 1.5px solid rgba(255,255,255,.15); border-top-color: currentColor; animation: vv-spin .9s linear infinite; }
+.vv-status--review { --c: var(--vv-st-review); }
+.vv-status--issue { --c: var(--vv-st-issue); }
+.vv-status--ready { --c: var(--vv-st-ready); }
+.vv-status--posted { --c: var(--vv-st-posted); }
+.vv-status--paused { --c: var(--vv-st-queued); }
+
+/* ---------- Thông báo trong trang, toast, tooltip ---------- */
+.vv-banner { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-tile); border: 1px solid var(--vv-card-border); background: var(--vv-surface-1); --c: var(--vv-text-3); }
+.vv-banner > .ic, .vv-banner > .vv-ic, .vv-banner__icon { width: 17px; height: 17px; flex: 0 0 auto; color: var(--c); }
+.vv-banner__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.vv-banner__title { font-size: var(--vv-fs-ui); font-weight: 500; color: var(--vv-text); }
+.vv-banner__text { font-size: 12px; color: var(--vv-text-3); }
+.vv-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.vv-banner--info { --c: var(--vv-info); background: var(--vv-info-bg); border-color: var(--vv-info-border); }
+.vv-banner--ready { --c: var(--vv-st-ready); background: var(--vv-st-ready-tint); border-color: var(--vv-st-ready-border); }
+.vv-banner--review { --c: var(--vv-st-review); background: var(--vv-st-review-tint); border-color: var(--vv-st-review-border); }
+.vv-banner--issue { --c: var(--vv-danger); background: rgba(255,154,92,.07); border-color: rgba(255,154,92,.22); }
+.vv-banner--director { --c: var(--vv-director-ink); background: var(--vv-director-bg); border-color: rgba(184,156,255,.22); }
+.vv-toast { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); white-space: nowrap; }
+.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; }
+.vv-toast .vv-btn { --h: 28px; }
+.vv-toast--ok { border-color: rgba(166,237,193,.28); }
+.vv-toast--ok > .ic, .vv-toast--ok > .vv-ic { color: var(--vv-st-ready); }
+.vv-toast--issue { border-color: var(--vv-danger-border); }
+.vv-toast--issue > .ic, .vv-toast--issue > .vv-ic { color: var(--vv-danger); }
+.vv-toast--sm { height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+.vv-toast-in { animation: vv-tIn .4s cubic-bezier(.2,.9,.25,1.12) both; }
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+.vv-tip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); border: 1px solid rgba(255,255,255,.08); font-size: var(--vv-fs-small); line-height: 1.45; color: var(--vv-text); white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.7); }
+.vv-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--vv-selected-2); }
+.vv-tip .vv-kbd { font-size: 10px; }
+.vv-tip--wrap { white-space: normal; max-width: 260px; }
+.vv-tipwrap { position: relative; display: inline-flex; }
+.vv-tipwrap > .vv-tip { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 4px); opacity: 0; pointer-events: none; z-index: 30; transition: opacity .12s, transform .12s; }
+.vv-tipwrap > .vv-tip--below { bottom: auto; top: calc(100% + 8px); transform: translate(-50%, -4px); }
+.vv-tipwrap > .vv-tip--below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--vv-selected-2); }
+.vv-tipwrap:hover > .vv-tip, .vv-tipwrap:focus-within > .vv-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: .4s; }
+
+/* ---------- Tiến độ, đang tải, trống ---------- */
+.vv-progress { height: 4px; border-radius: var(--vv-r-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.vv-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vv-accent); }
+.vv-progress--working > span { background: var(--vv-st-working); }
+.vv-progress--artist > span { background: var(--vv-artist-ink); }
+.vv-progress--ready > span { background: var(--vv-st-ready); }
+.vv-progress--issue > span { background: var(--vv-st-issue); }
+.vv-spinner { width: 14px; height: 14px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,.16); border-top-color: var(--vv-text); animation: vv-spin .9s linear infinite; }
+.vv-skel { border-radius: 6px; background: linear-gradient(90deg, var(--vv-skel-a) 0%, var(--vv-skel-b) 40%, var(--vv-skel-a) 80%); background-size: 200% 100%; animation: vv-skel 1.4s linear infinite; }
+.vv-shimmer { background: linear-gradient(90deg, var(--vv-text-3) 0%, var(--vv-text-3) 35%, #FFE3E8 50%, var(--vv-text-3) 65%, var(--vv-text-3) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: vv-shim 2.4s linear infinite; }
+.vv-wait { background: repeating-linear-gradient(135deg, #121214 0 8px, #16161A 8px 16px); }
+.vv-empty { padding: 18px; border-radius: var(--vv-r-tile); border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.vv-empty__icon { width: 40px; height: 40px; border-radius: var(--vv-r-tile); background: var(--vv-accent-bg); color: var(--vv-accent); display: flex; align-items: center; justify-content: center; }
+.vv-empty__icon > .ic, .vv-empty__icon > .vv-ic { width: 19px; height: 19px; }
+.vv-empty__title { font-size: 13.5px; font-weight: 500; }
+.vv-empty__text { font-size: 12px; color: var(--vv-text-hint); }
+@keyframes vv-spin { to { transform: rotate(360deg); } }
+@keyframes vv-skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes vv-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ---------- Bề mặt ---------- */
+.vv-card { background: var(--vv-card); border: 1px solid var(--vv-card-border); box-shadow: var(--vv-card-shadow); border-radius: var(--vv-r-card); }
+.vv-card__title { font-size: var(--vv-fs-card); font-weight: 600; }
+.vv-stage { position: relative; border-radius: var(--vv-r-dialog); border: 1px solid var(--vv-card-border); background: var(--vv-stage); }
+.vv-row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px 0 12px; border-radius: 10px; color: var(--vv-text); text-decoration: none; }
+.vv-row:hover { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on, .vv-row.is-open { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.vv-row__more { opacity: 0; transition: opacity .12s; }
+.vv-row:hover .vv-row__more, .vv-row.is-open .vv-row__more, .vv-row__more[aria-expanded="true"] { opacity: 1; }
+.vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
+@media (hover: none) { .vv-row__more { opacity: 1; } }
+.vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+.vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
+.vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
+.vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
+.vv-thumb__bl { left: 6px; } .vv-thumb__br { right: 6px; }
+.vv-thumb__dur { height: 20px; padding: 0 5px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,.75); font-family: var(--vv-font-mono); font-size: 10.5px; color: var(--vv-text); }
+.vv-orb--scout { background: var(--vv-orb-scout); } .vv-orb--director { background: var(--vv-orb-director); }
+.vv-orb--artist { background: var(--vv-orb-artist); } .vv-orb--qa { background: var(--vv-orb-qa); }
+
+/* ---------- Hộp thoại & sheet ---------- */
+.vv-scrim { position: absolute; inset: 0; background: var(--vv-scrim); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.vv-scrim--center { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.vv-dialog { width: 460px; max-width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-radius: var(--vv-r-dialog); background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); font-size: var(--vv-fs-ui); }
+.vv-dialog__head { display: flex; gap: 14px; align-items: flex-start; }
+.vv-dialog__icon { width: 42px; height: 42px; flex: 0 0 auto; border-radius: var(--vv-r-tile); display: flex; align-items: center; justify-content: center; background: var(--vv-accent-bg); color: var(--vv-accent); }
+.vv-dialog__icon > .ic, .vv-dialog__icon > .vv-ic { width: 20px; height: 20px; }
+.vv-dialog__icon--warn { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-dialog__icon--danger { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-dialog__icon--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-dialog__icon--agent { border-radius: 50%; }
+.vv-dialog__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.vv-dialog__title { margin: 0; font-size: var(--vv-fs-dialog); font-weight: 600; line-height: 1.4; }
+.vv-dialog__sub { margin: 0; font-size: 13.5px; color: var(--vv-text-soft); line-height: 1.55; }
+.vv-dialog__list { margin: 0; padding: 10px 12px; border-radius: var(--vv-r-choice); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--vv-text-2); line-height: 1.55; }
+ul.vv-dialog__list { padding-left: 30px; }
+.vv-dialog__list--danger { background: rgba(255,154,92,.05); border-color: rgba(255,154,92,.16); }
+.vv-dialog__compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vv-dialog__ver { padding: 10px 12px; border-radius: 10px; background: var(--vv-field); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.vv-dialog__ver--new { border-color: var(--vv-st-ready-border); }
+.vv-dialog__err { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,154,92,.08); border: 1px solid rgba(255,154,92,.25); font-size: 12.5px; color: var(--vv-danger-text-2); }
+.vv-dialog__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vv-scrim-in { animation: vv-fade .2s ease-out both; } .vv-scrim-out { animation: vv-fade .2s ease-in reverse both; }
+.vv-dlg-in { animation: vv-dlgIn var(--vv-dur-dialog) cubic-bezier(.2,.9,.25,1.08) both; }
+.vv-dlg-out { animation: vv-dlgOut .18s cubic-bezier(.5,0,.75,0) both; }
+.vv-shake { animation: vv-shake .38s cubic-bezier(.36,.07,.19,.97); }
+.vv-tick-in { animation: vv-tick .3s cubic-bezier(.2,.9,.3,1.5) both; }
+@keyframes vv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vv-dlgIn { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes vv-dlgOut { to { opacity: 0; transform: translateY(6px) scale(.97); } }
+@keyframes vv-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes vv-tick { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.vv-sheet { display: flex; flex-direction: column; max-height: 86%; border-radius: var(--vv-r-sheet) var(--vv-r-sheet) 0 0; background: var(--vv-dialog); border-top: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); }
+.vv-sheet__grab { display: flex; justify-content: center; padding: 8px 0 2px; }
+.vv-sheet__grab::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.vv-sheet__title { padding: 6px 16px 10px; font-size: var(--vv-fs-sheet); font-weight: 600; line-height: 1.35; }
+
+/* ---------- Điện thoại: đầu trang & thanh dưới ---------- */
+.vv-appbar { height: var(--vv-m-bar); padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+.vv-navbar { height: var(--vv-m-bar); padding: 0 6px; display: flex; align-items: center; gap: 2px; }
+.vv-navbar__title { flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-navbar__title > b { font-size: var(--vv-fs-nav-m); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-navbar__title > span { font-size: 12px; color: var(--vv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-ib { width: 44px; height: 44px; flex: 0 0 auto; border: none; border-radius: 12px; background: transparent; color: var(--vv-text-2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.vv-title-m { margin: 0; font-size: var(--vv-fs-title-m); font-weight: 600; letter-spacing: -.02em; }
+.vv-tabbar { position: absolute; left: 14px; right: 14px; bottom: 30px; height: var(--vv-m-tabbar); transition: transform .42s cubic-bezier(.2,.9,.25,1), opacity .3s; }
+.vv-tabbar.is-mini { transform: translateY(8px) scale(.92); }
+.vv-tabbar.is-mini .vv-tabbar__label { opacity: 0; max-height: 0; margin-top: -2px; }
+.vv-tabbar__cap { position: relative; height: 100%; display: flex; padding: 5px; border-radius: 32px; background: var(--vv-glass); -webkit-backdrop-filter: blur(26px) saturate(180%); backdrop-filter: blur(26px) saturate(180%); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 22px 44px -14px rgba(0,0,0,.85), 0 2px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09); }
+.vv-tabbar__ind { position: absolute; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5); left: calc(5px + var(--i, 0) * (100% - 10px) / 5); border-radius: 27px; background: rgba(255,51,82,.13); border: 1px solid rgba(255,77,99,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px -4px rgba(255,0,51,.45); transition: left .45s cubic-bezier(.2,.9,.25,1.15); }
+.vv-tabbar__item { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; font-size: 10.5px; font-weight: 500; color: var(--vv-text-hint); text-decoration: none; }
+.vv-tabbar__item[aria-current="page"] { color: #FFE3E8; font-weight: 600; }
+.vv-tabbar__item[aria-current="page"] .vv-ic, .vv-tabbar__item[aria-current="page"] .ic { color: var(--vv-accent); transform: translateY(-1px) scale(1.06); }
+.vv-tabbar__item .vv-ic, .vv-tabbar__item .ic { width: 24px; height: 24px; transition: transform .35s cubic-bezier(.2,.9,.3,1.4); }
+.vv-tabbar__label { max-height: 16px; line-height: 16px; white-space: nowrap; transition: opacity .2s, max-height .3s, margin .3s; }
+.vv-tabbar__new { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); box-shadow: 0 8px 20px -6px rgba(255,0,51,.7), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
+.vv-tabbar__badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--vv-st-review); color: var(--vv-bg); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A1A1D; }
+
+/* ---------- Trợ lý chủ động (đợt 16, đổi theme đợt 19) ---------- */
+/* Màu trợ lý truyền qua --ag (chữ) trên phần tử gốc: style="--ag: var(--vv-scout-ink)". */
+.vv-why { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 2px; border: none; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12px; white-space: nowrap; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; cursor: pointer; }
+.vv-why:hover, .vv-why[aria-expanded="true"] { color: var(--vv-text); }
+.vv-reason { width: 320px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); font-size: var(--vv-fs-ui); line-height: 1.5; color: var(--vv-text-soft); }
+.vv-reason__head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ag, var(--vv-text-3)); font-weight: 600; }
+.vv-reason__text { color: var(--vv-text); font-size: 13.5px; }
+.vv-reason__facts { display: flex; flex-direction: column; border-top: 1px solid var(--vv-hairline); }
+.vv-reason__fact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--vv-hairline); }
+.vv-reason__fact b { max-width: 190px; font-weight: 600; color: var(--vv-text); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.45; }
+.vv-reason__src { grid-column: 1 / -1; font-size: var(--vv-fs-small); color: var(--vv-muted); }
+.vv-reason__fix { font-size: 12.5px; color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+.vv-suggest { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 12px; border-radius: var(--vv-r-tile); background: var(--vv-surface-1); border: 1px solid var(--vv-card-border); }
+.vv-suggest > .vv-orb { grid-row: span 3; margin-top: 2px; }
+.vv-suggest__who { font-size: var(--vv-fs-small); font-weight: 600; color: var(--ag, var(--vv-text-3)); }
+.vv-suggest__title { font-size: 13.5px; line-height: 1.45; color: var(--vv-text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vv-suggest__ev { font-size: 12px; line-height: 1.45; color: var(--vv-muted); display: flex; flex-wrap: wrap; gap: 0 8px; align-items: center; }
+.vv-suggest__actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.vv-suggest__actions > .vv-btn:first-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vv-suggest--compact { padding: 10px; gap: 2px 8px; }
+.vv-suggest--compact .vv-suggest__title { font-size: var(--vv-fs-ui); }
+.vv-suggest--m { width: 288px; flex: 0 0 auto; padding: 14px; border-radius: var(--vv-r-card); scroll-snap-align: start; }
+
+.vv-recap { display: flex; flex-direction: column; gap: 18px; }
+.vv-recap__when { font-size: 12px; color: var(--vv-muted); }
+.vv-recap__lead { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--vv-text); text-wrap: balance; }
+.vv-recap__lead em { font-style: normal; }
+.vv-recap__sec { display: flex; flex-direction: column; gap: 8px; }
+.vv-recap__line { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: 10px; background: var(--vv-surface-1); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-recap__line > .vv-ic, .vv-recap__line > .ic { color: var(--vv-text-3); }
+.vv-recap__text { flex: 1; min-width: 0; }
+.vv-recap__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.vv-recap__tile { padding: 10px 12px; border-radius: 10px; background: var(--vv-surface-1); display: flex; flex-direction: column; gap: 2px; }
+.vv-recap__tile b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-recap__tile span { font-size: 12px; color: var(--vv-muted); }
+
+.vv-autonomy { display: flex; flex-direction: column; gap: 12px; }
+.vv-arow { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 4px 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-arow__label { font-size: 13.5px; color: var(--vv-text); }
+.vv-arow__hint { font-size: 12px; color: var(--vv-muted); line-height: 1.45; }
+.vv-arow--stack { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.vv-arow--m { grid-template-columns: minmax(0, 1fr); min-height: var(--vv-m-row); }
+.vv-guard { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); font-size: 12.5px; color: var(--vv-text-3); line-height: 1.5; }
+
+.vv-rule { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-rule > .vv-switch { grid-row: span 2; margin-top: 1px; }
+.vv-rule__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-rule__src { font-size: 12px; color: var(--vv-muted); }
+.vv-rule__actions { grid-row: span 2; display: flex; gap: 4px; }
+
+.vv-learn { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; align-items: start; padding: 10px 12px; border-radius: var(--vv-r-tile); background: var(--vv-director-bg); border: 1px solid rgba(184,156,255,.22); font-size: 12.5px; line-height: 1.5; color: #D6C9FF; }
+.vv-learn > .vv-orb { margin-top: 2px; }
+.vv-learn__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.vv-learn__text { min-width: 0; }
+.vv-learn--artist { background: rgba(255,208,138,.07); border-color: rgba(255,208,138,.22); color: #FFE2B5; }
+
+.vv-plan { display: flex; flex-direction: column; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); overflow: hidden; }
+.vv-plan__head { padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 2px; }
+.vv-plan__head b { font-size: 14px; font-weight: 600; }
+.vv-plan__head span { font-size: 12px; color: var(--vv-muted); }
+.vv-plan__step { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--vv-hairline); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-plan__step b { display: block; font-weight: 500; color: var(--vv-text); line-height: 1.4; }
+.vv-plan__step small { display: block; font-size: 12px; color: var(--vv-muted); line-height: 1.4; }
+.vv-plan__step[aria-checked="false"] b, .vv-plan__step[aria-checked="false"] small { opacity: .5; text-decoration: line-through; }
+.vv-plan__cost { font-size: 12px; color: var(--vv-text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-plan__foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--vv-hairline); background: rgba(255,255,255,.02); }
+.vv-plan__foot > span { flex: 1; font-size: 12.5px; color: var(--vv-text-3); }
+.vv-plan__ask { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+
+.vv-insight { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-insight__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-insight__bars { grid-column: 1; display: flex; flex-direction: column; gap: 4px; }
+.vv-insight__bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 8px; align-items: center; font-size: 12px; color: var(--vv-text-3); }
+.vv-insight__bar > i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.vv-insight__bar > i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w, 50%); border-radius: 3px; background: var(--c, var(--vv-scout-ink)); }
+.vv-insight__bar > b { font-weight: 500; color: var(--vv-text-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+.vv-imgscore { height: 20px; padding: 0 6px; display: inline-flex; align-items: center; gap: 3px; border-radius: var(--vv-r-tag); background: rgba(0,0,0,.72); color: var(--vv-qa-ink); font-size: var(--vv-fs-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-imgscore--low { background: var(--vv-st-issue); color: var(--vv-danger-fg); }
+.vv-why--m { height: 44px; padding: 0 6px; }
+.vv-reason__fix--m { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- Chuyển động của điều khiển (Noverse motion:controls v1) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vv-check[aria-checked="true"], .vv-check.is-on { animation: vv-pop .34s cubic-bezier(.34,1.56,.64,1); }
+  .vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { animation: vv-dot .32s cubic-bezier(.34,1.56,.64,1); }
+}
+@keyframes vv-pop { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* /r16-agent */
+</style>
+</helmet>
+<div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 260px">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 64 64" style="flex: 0 0 auto; margin: 0 1px"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient><radialGradient id="lnHalo" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#FF0033" stop-opacity=".22"></stop><stop offset="1" stop-color="#FF0033" stop-opacity="0"></stop></radialGradient><linearGradient id="lnGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"></stop><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".18"></stop></linearGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">{{crumb}}</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-workbench" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn dựng</a>
+<a class="navl" href="Review.dc.html" style="height: 30px; padding: 0 10px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-gallery" aria-hidden="true" style="width: 16px; height: 16px"></span>Duyệt<span class="num" style="min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: rgba(246,203,140,0.16); color: #F6CB8C; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">3</span></a>
+<a href="Channel.dc.html" aria-current="page" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-channel" aria-hidden="true" style="width: 16px; height: 16px; color: #FF4D63"></span>Kênh</a>
+<a class="navl" href="Explore.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Khám phá</a>
+<a class="navl" href="NewVideo.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Activity.dc.html" title="Máy đang chạy 2/2 luồng · 12 video chờ lượt" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="rec" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 đang chạy · 12 chờ lượt</span></a>
+<a class="ghost" href="Settings.dc.html" aria-label="Cài đặt · 1 việc cần xem" title="Cài đặt · tài khoản ChatGPT sắp hết hạn mức ảnh" style="position: relative; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span><span aria-hidden="true" style="position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: #FF4D63; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
+<div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
+</div>
+</header>
+<div class="body" style="flex: 1; min-height: 0; display: flex">
+
+<aside class="side scroll" aria-label="Kênh và thư viện" style="flex: 0 0 252px; max-width: 252px; min-height: 0; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid rgba(255,255,255,0.06)">
+<div class="grp" style="padding-top: 4px"><span>Kênh của tôi</span><span class="num" style="font-weight: 500">3</span></div>
+<sc-for list="{{channels}}" as="c" hint-placeholder-count="3">
+<a class="row" href="Channel.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid transparent">
+<span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: {{c.tint}}; border: 1.5px solid {{c.ring}}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; flex: 0 0 auto">{{c.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.name}}</span>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.sub}}</span>
+</span>
+<span aria-label="Có video chờ bạn" role="img" style="width: 8px; height: 8px; border-radius: 50%; background: #F6CB8C; flex: 0 0 auto"></span>
+</a>
+</sc-for>
+<a class="ghost" href="Channel.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Tạo kênh</a>
+
+<div class="grp"><span>Thư viện dùng chung</span></div>
+<sc-for list="{{library}}" as="l" hint-placeholder-count="4">
+<button class="row" type="button" onClick="{{l.pick}}" aria-current="{{l.current}}" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; border: 1px solid {{l.bd}}; background: {{l.bg}}; color: {{l.fg}}; font-size: 13px; text-align: left">
+<span class="ic {{l.icon}}" aria-hidden="true" style="width: 16px; height: 16px; color: {{l.ic}}"></span>
+<span style="flex: 1">{{l.label}}</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">{{l.count}}</span>
+</button>
+</sc-for>
+
+<div style="margin-top: auto; padding: 12px 10px 0">
+<div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(166,237,193,0.25); color: #A6EDC1; font-size: 12.5px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Máy sẵn sàng · 2/2 luồng</div>
+</div>
+</aside>
+
+<main class="center scroll" style="flex: 1 1 600px; min-width: 0; min-height: 0; overflow-y: auto; padding: 22px 28px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px">
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em">Thư viện dùng chung</h1>
+<span style="font-size: 13.5px; color: #A0A0AB">Dùng chung cho cả 3 kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.</span>
+</div>
+<sc-if value="{{tabTemplates}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 8px">
+<button class="ghost" type="button" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Nhập template</button>
+<a class="primary" href="Template.dc.html" style="height: 36px; padding: 0 14px 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Template mới</a>
+</div>
+</sc-if>
+<sc-if value="{{pListTab}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 8px">
+<button class="ghost" type="button" title="Nhập tệp prompt (.json) xuất từ Viderse khác" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Nhập prompt</button>
+<button class="primary" type="button" onClick="{{newPrompt}}" style="height: 36px; padding: 0 14px 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Prompt mới</button>
+</div>
+</sc-if>
+</div>
+
+<div role="tablist" aria-label="Thư viện" style="display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="4">
+<button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="height: 38px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border: none; border-bottom: 2px solid {{tb.line}}; margin-bottom: -1px; background: transparent; color: {{tb.fg}}; font-size: 13.5px; font-weight: {{tb.weight}}">{{tb.label}}<span class="num" style="font-size: 12px; color: #8B8B97">{{tb.count}}</span></button>
+</sc-for>
+</div>
+
+<!-- ============ TEMPLATES ============ -->
+<sc-if value="{{tabTemplates}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Template" style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 12.5px; color: #8B8B97">
+<span>Mỗi kênh lấy lần lượt các template trong danh sách luân phiên của kênh. Template cần sửa được bỏ qua tới khi sửa xong.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px">
+<sc-for list="{{templates}}" as="t" hint-placeholder-count="5">
+<article class="card" style="position: relative; border-radius: 14px; display: flex; flex-direction: column">
+<a href="Template.dc.html" aria-label="Mở {{t.name}}" style="position: relative; display: block; aspect-ratio: 16 / 6.4; border-radius: 13px 13px 0 0; overflow: hidden; background: {{t.bg}}">
+<span aria-hidden="true" style="position: absolute; left: 50%; bottom: 16%; transform: translateX(-50%); display: flex; gap: 4px"><span style="width: 34px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.55)"></span><span style="width: 22px; height: 5px; border-radius: 3px; background: #FFD08A"></span><span style="width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.55)"></span></span>
+<span style="position: absolute; left: 10px; top: 10px; height: 24px; padding: 0 9px; display: flex; align-items: center; gap: 6px; border-radius: 7px; background: rgba(11,11,13,0.8); font-size: 12px; color: {{t.hc}}"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: {{t.hc}}"></span>{{t.health}}</span>
+<span style="position: absolute; right: 10px; bottom: 10px; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(11,11,13,0.72); font-size: 11.5px; color: #C9C9D1">{{t.style}}</span>
+</a>
+<div style="padding: 12px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1">
+<div style="display: flex; align-items: baseline; gap: 10px">
+<a href="Template.dc.html" style="flex: 1; min-width: 0; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.name}}</a>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap">{{t.edited}}</span>
+</div>
+<span class="clamp2" style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5; min-height: 37px">{{t.recipe}}</span>
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+<span style="display: flex; flex: 0 0 auto">
+<sc-for list="{{t.chans}}" as="c" hint-placeholder-count="2">
+<span title="{{c.name}}" style="width: 22px; height: 22px; margin-right: -5px; border-radius: 50%; background: {{c.tint}}; border: 1.5px solid {{c.ring}}; box-shadow: 0 0 0 2px #151517; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 700">{{c.ini}}</span>
+</sc-for>
+</span>
+<span style="flex: 1; min-width: 0; margin-left: 6px; font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.usedText}}</span>
+</div>
+<div style="margin-top: auto; padding-top: 4px; display: flex; align-items: center; gap: 6px">
+<a class="ghost" href="Template.dc.html" style="height: 30px; padding: 0 12px; display: flex; align-items: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px">{{t.openLabel}}</a>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Nhân bản</button>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" aria-label="Xuất tệp {{t.name}}" title="Xuất tệp template · gồm mọi media nó dùng" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-export" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+<button class="ghost" type="button" onClick="{{t.toggleMenu}}" aria-expanded="{{t.menuOn}}" aria-label="Thêm thao tác cho {{t.name}}" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: {{t.menuBg}}; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</div>
+</div>
+<sc-if value="{{t.menuOpen}}" hint-placeholder-val="{{ false }}">
+<div role="menu" class="card" style="position: absolute; right: 10px; bottom: 50px; z-index: 5; width: 250px; padding: 6px; border-radius: 14px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 2px">
+<button class="ghost" role="menuitem" type="button" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 9px; border-radius: 7px; border: none; background: transparent; color: #EDEDEF; font-size: 13px; text-align: left"><span class="ic i-edit" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Đổi tên</button>
+<button class="ghost" role="menuitem" type="button" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 9px; border-radius: 7px; border: none; background: transparent; color: #EDEDEF; font-size: 13px; text-align: left"><span class="ic i-channel" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Thêm vào kênh…</button>
+<div style="height: 1px; margin: 4px 6px; background: rgba(255,255,255,0.07)"></div>
+<sc-if value="{{t.canDelete}}" hint-placeholder-val="{{ false }}">
+<button class="ghost" role="menuitem" type="button" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 9px; border-radius: 7px; border: none; background: transparent; color: #FF9A5C; font-size: 13px; text-align: left"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>Xoá template</button>
+</sc-if>
+<sc-if value="{{t.cannotDelete}}" hint-placeholder-val="{{ true }}">
+<div role="menuitem" aria-disabled="true" style="padding: 6px 10px; display: flex; gap: 9px; color: #8B8B97; font-size: 13px"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px"></span><span style="display: flex; flex-direction: column; gap: 1px; white-space: normal"><span>Xoá template</span><span style="font-size: 11.5px; line-height: 1.45">{{t.deleteReason}}</span></span></div>
+</sc-if>
+</div>
+</sc-if>
+</article>
+</sc-for>
+<div style="border-radius: 14px; border: 1.5px dashed rgba(255,255,255,0.12); padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; min-height: 240px">
+<span class="ic i-download" aria-hidden="true" style="width: 22px; height: 22px; color: #8B8B97"></span>
+<span style="font-size: 13.5px; font-weight: 500">Kéo tệp template vào đây</span>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55; max-width: 250px">Tệp xuất từ Viderse trên máy khác. Kênh nền và video lẻ còn thiếu được thêm lại vào Video nền.</span>
+</div>
+</div>
+</section>
+</sc-if>
+
+<!-- ============ PROMPTS ============ -->
+<sc-if value="{{tabPrompts}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{pList}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Prompt ảnh" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px">
+<div role="radiogroup" aria-label="Lọc prompt" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{pkinds}}" as="o" hint-placeholder-count="3"><button class="ghost" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 30px; padding: 0 12px; display: flex; align-items: center; gap: 6px; border: none; border-radius: 7px; font-size: 13px; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}<span class="num" style="font-size: 12px; color: #8B8B97">{{o.n}}</span></button></sc-for>
+</div>
+<label style="flex: 1 1 220px; max-width: 320px; height: 36px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11"><span class="ic i-search" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97"></span><span class="sr-only">Tìm prompt</span><input type="text" placeholder="Tìm theo tên hoặc nội dung prompt" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: #EDEDEF; font: inherit; font-size: 13px"></label>
+<span style="flex: 1 1 260px; font-size: 12.5px; color: #8B8B97; line-height: 1.5">Template chọn prompt từ kho này. Sửa một prompt thì mọi template đang dùng đổi theo, cho video bắt đầu sau khi lưu.</span>
+</div>
+<sc-if value="{{showscenes}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: baseline; gap: 10px; padding-top: 4px"><span class="h3" style="color: #EDEDEF">Ảnh cảnh <span class="num" style="color: #8B8B97; font-weight: 400">{{scenesN}}</span></span><span style="font-size: 12px; color: #8B8B97">{{scenesHelp}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px">
+<sc-for list="{{scenes}}" as="p" hint-placeholder-count="6">
+<article class="card" style="position: relative; border-radius: 14px; display: flex; flex-direction: column; min-width: 0">
+<button type="button" onClick="{{p.open}}" aria-label="Mở prompt {{p.name}}" style="position: relative; display: block; aspect-ratio: 16 / 9; border: none; padding: 0; border-radius: 13px 13px 0 0; overflow: hidden; background: {{p.img}}">
+<span style="position: absolute; left: 7%; top: 14%; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF; text-shadow: 0 2px 0 #A3001C; display: {{p.hookD}}">NO CHECK-IN</span><span style="position: absolute; right: 16%; top: 26%; width: 28%; height: 46%; border-radius: 50%; border: 2.5px solid #FF3B5C; display: {{p.circleD}}"></span><span style="position: absolute; right: 44%; bottom: 18%; width: 18%; height: 3px; background: #FF3B5C; transform: rotate(-24deg); transform-origin: right center; display: {{p.arrowD}}"></span><span style="position: absolute; left: 8%; bottom: 10%; font-size: 9px; font-weight: 700; color: #FFFFFF; display: {{p.splitD}}">TRƯỚC</span><span style="position: absolute; right: 8%; bottom: 10%; font-size: 9px; font-weight: 700; color: #FFFFFF; display: {{p.splitD}}">SAU</span>
+<sc-if value="{{p.isBuilt}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(11,11,13,0.78); font-size: 11.5px; color: #C9C9D1">Có sẵn</span></sc-if>
+<span style="position: absolute; right: 10px; bottom: 10px; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(11,11,13,0.78); font-size: 11.5px; color: #C9C9D1">{{p.tag}}</span>
+</button>
+<div style="padding: 11px 14px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0">
+<div style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+<button type="button" onClick="{{p.open}}" style="flex: 1; min-width: 0; padding: 0; border: none; background: transparent; color: #EDEDEF; text-align: left; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</button>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap">{{p.edited}}</span>
+</div>
+<span class="clamp2" style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5; min-height: 37px">{{p.prompt}}</span>
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 12px; color: #8B8B97">
+<span class="ic i-layer" aria-hidden="true" style="width: 14px; height: 14px; flex: 0 0 auto"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.usedText}}</span>
+</div>
+<div style="margin-top: auto; padding-top: 2px; display: flex; align-items: center; gap: 6px">
+<button class="ghost" type="button" onClick="{{p.open}}" style="height: 30px; padding: 0 12px; display: flex; align-items: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px">Mở</button>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Nhân bản</button>
+</div>
+</div>
+</article>
+</sc-for>
+<button class="ghost" type="button" onClick="{{newPrompt}}" style="border-radius: 14px; border: 1.5px dashed rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; min-height: 250px">
+<span class="ic i-add" aria-hidden="true" style="width: 20px; height: 20px; color: #8B8B97"></span>
+<span style="font-size: 13.5px; font-weight: 500">{{addTitle}}</span>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55; max-width: 240px; white-space: normal">Viết prompt mới, hoặc nhân bản một prompt có sẵn rồi sửa.</span>
+</button>
+</div>
+</sc-if>
+<sc-if value="{{showcovers}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: baseline; gap: 10px; padding-top: 4px"><span class="h3" style="color: #EDEDEF">Ảnh bìa <span class="num" style="color: #8B8B97; font-weight: 400">{{coversN}}</span></span><span style="font-size: 12px; color: #8B8B97">{{coversHelp}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px">
+<sc-for list="{{covers}}" as="p" hint-placeholder-count="6">
+<article class="card" style="position: relative; border-radius: 14px; display: flex; flex-direction: column; min-width: 0">
+<button type="button" onClick="{{p.open}}" aria-label="Mở prompt {{p.name}}" style="position: relative; display: block; aspect-ratio: 16 / 9; border: none; padding: 0; border-radius: 13px 13px 0 0; overflow: hidden; background: {{p.img}}">
+<span style="position: absolute; left: 7%; top: 14%; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF; text-shadow: 0 2px 0 #A3001C; display: {{p.hookD}}">NO CHECK-IN</span><span style="position: absolute; right: 16%; top: 26%; width: 28%; height: 46%; border-radius: 50%; border: 2.5px solid #FF3B5C; display: {{p.circleD}}"></span><span style="position: absolute; right: 44%; bottom: 18%; width: 18%; height: 3px; background: #FF3B5C; transform: rotate(-24deg); transform-origin: right center; display: {{p.arrowD}}"></span><span style="position: absolute; left: 8%; bottom: 10%; font-size: 9px; font-weight: 700; color: #FFFFFF; display: {{p.splitD}}">TRƯỚC</span><span style="position: absolute; right: 8%; bottom: 10%; font-size: 9px; font-weight: 700; color: #FFFFFF; display: {{p.splitD}}">SAU</span>
+<sc-if value="{{p.isBuilt}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(11,11,13,0.78); font-size: 11.5px; color: #C9C9D1">Có sẵn</span></sc-if>
+<span style="position: absolute; right: 10px; bottom: 10px; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(11,11,13,0.78); font-size: 11.5px; color: #C9C9D1">{{p.tag}}</span>
+</button>
+<div style="padding: 11px 14px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0">
+<div style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+<button type="button" onClick="{{p.open}}" style="flex: 1; min-width: 0; padding: 0; border: none; background: transparent; color: #EDEDEF; text-align: left; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</button>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap">{{p.edited}}</span>
+</div>
+<span class="clamp2" style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5; min-height: 37px">{{p.prompt}}</span>
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 12px; color: #8B8B97">
+<span class="ic i-layer" aria-hidden="true" style="width: 14px; height: 14px; flex: 0 0 auto"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.usedText}}</span>
+</div>
+<div style="margin-top: auto; padding-top: 2px; display: flex; align-items: center; gap: 6px">
+<button class="ghost" type="button" onClick="{{p.open}}" style="height: 30px; padding: 0 12px; display: flex; align-items: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px">Mở</button>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Nhân bản</button>
+</div>
+</div>
+</article>
+</sc-for>
+<button class="ghost" type="button" onClick="{{newPrompt}}" style="border-radius: 14px; border: 1.5px dashed rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; min-height: 250px">
+<span class="ic i-add" aria-hidden="true" style="width: 20px; height: 20px; color: #8B8B97"></span>
+<span style="font-size: 13.5px; font-weight: 500">{{addTitle}}</span>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55; max-width: 240px; white-space: normal">Viết prompt mới, hoặc nhân bản một prompt có sẵn rồi sửa.</span>
+</button>
+</div>
+</sc-if>
+</section>
+</sc-if>
+<sc-if value="{{pEdit}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Sửa prompt ảnh" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<button class="ghost" type="button" onClick="{{backToList}}" style="height: 30px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 4px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 13px"><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; transform: rotate(180deg)"></span>Prompt ảnh</button>
+<span style="color: #3A3A40">/</span>
+<h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em">{{ed.title}}</h2>
+<span style="height: 24px; padding: 0 9px; display: flex; align-items: center; border-radius: 7px; background: #151517; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #A0A0AB">{{ed.badge}}</span>
+</div>
+<sc-if value="{{ed.isBuilt}}" hint-placeholder-val="{{ false }}">
+<div role="note" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: #131315; font-size: 13px; color: #C9C9D1"><span class="ic i-info" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB"></span><span style="flex: 1">Prompt có sẵn của Viderse, không sửa và không xoá được. Nhân bản để có bản của bạn rồi sửa.</span></div>
+</sc-if>
+<div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap">
+<div style="flex: 1 1 460px; min-width: 0; max-width: 640px; display: flex; flex-direction: column">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); padding-top: 0">
+<label for="pname" style="font-size: 13.5px; font-weight: 600">Tên</label>
+<input id="pname" type="text" value="{{ed.name}}" placeholder="Ví dụ: Sương mù đồi thông" aria-readonly="{{ed.roA}}" style="height: 38px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: {{ed.inBg}}; color: #EDEDEF; font: inherit; font-size: 14px; outline: none">
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap"><span style="font-size: 13.5px; font-weight: 600">Dùng cho</span>
+<div role="radiogroup" aria-label="Dùng cho" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{ed.kinds}}" as="o" hint-placeholder-count="2"><button class="ghost" type="button" role="radio" aria-checked="{{o.on}}" aria-disabled="{{o.dis}}" onClick="{{o.pick}}" style="height: 30px; padding: 0 12px; border: none; border-radius: 7px; font-size: 13px; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}</button></sc-for>
+</div></div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.5">{{ed.kindHelp}}</span>
+</div>
+<sc-if value="{{ed.isCover}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<span style="font-size: 13.5px; font-weight: 600">{{ed.placeTitle}}</span>
+<div role="radiogroup" aria-label="{{ed.placeTitle}}" style="display: grid; grid-template-columns: repeat({{ed.placeCols}}, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ed.places}}" as="o" hint-placeholder-count="3">
+<button class="opt" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="padding: 5px 5px 8px; border-radius: 11px; border: 1.5px solid {{o.bd}}; background: {{o.bg}}; color: #EDEDEF; text-align: left; display: flex; flex-direction: column; gap: 6px; opacity: {{o.op}}">
+<span aria-hidden="true" style="position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 7px; overflow: hidden; background: {{o.img}}"><span style="position: absolute; left: 7%; top: 14%; font-size: 11px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF; text-shadow: 0 2px 0 #A3001C; display: {{o.hookD}}">NO CHECK-IN</span><span style="position: absolute; right: 16%; top: 26%; width: 28%; height: 46%; border-radius: 50%; border: 2.5px solid #FF3B5C; display: {{o.circleD}}"></span><span style="position: absolute; right: 44%; bottom: 18%; width: 18%; height: 3px; background: #FF3B5C; transform: rotate(-24deg); transform-origin: right center; display: {{o.arrowD}}"></span><span style="position: absolute; left: 8%; bottom: 10%; font-size: 8px; font-weight: 700; color: #FFFFFF; display: {{o.splitD}}">TRƯỚC</span><span style="position: absolute; right: 8%; bottom: 10%; font-size: 8px; font-weight: 700; color: #FFFFFF; display: {{o.splitD}}">SAU</span></span>
+<span style="padding: 0 3px; display: flex; align-items: center; gap: 5px"><span style="flex: 1; min-width: 0; font-size: 12.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.label}}</span><sc-if value="{{o.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 14px; height: 14px; color: #FF4D63"></span></sc-if></span>
+</button>
+</sc-for>
+</div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.5">{{ed.placeHelp}}</span>
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap"><span id="ptext-l" style="font-size: 13.5px; font-weight: 600">Prompt</span>
+</div>
+<div style="position: relative">
+<div id="ptext" role="textbox" aria-multiline="true" aria-labelledby="ptext-l" aria-readonly="{{ed.roA}}" tabindex="0" style="min-height: 132px; padding: 12px 14px 28px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: {{ed.inBg}}; color: #EDEDEF; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap"><sc-if value="{{ed.hasPrompt}}" hint-placeholder-val="{{ true }}">{{ed.prompt}}</sc-if><sc-if value="{{ed.noPrompt}}" hint-placeholder-val="{{ false }}"><span style="color: #6E6E78">Tả cách vẽ: chất liệu, màu, ánh sáng, góc máy. Không cần tả nội dung cảnh.</span></sc-if></div>
+<span class="num" style="position: absolute; right: 12px; bottom: 10px; font-size: 11.5px; color: #8B8B97">{{ed.count}} / 2.000</span>
+</div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55">{{ed.modeHelp}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); border-bottom: none">
+<span style="font-size: 13.5px; font-weight: 600">Luôn giữ, mọi prompt</span>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{ed.rules}}" as="r" hint-placeholder-count="3"><span style="display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-tick-b" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 3px; color: #8B8B97"></span>{{r}}</span></sc-for>
+</div>
+</div>
+</div>
+<aside aria-label="Ảnh mẫu và nơi dùng" style="flex: 1 1 300px; max-width: 380px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="flex: 1; font-size: 13.5px; font-weight: 600">Ảnh mẫu</span><span style="font-size: 12px; color: #8B8B97">{{ed.sampleNote}}</span></div>
+<sc-if value="{{ed.hasSamples}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{ed.samples}}" as="m" hint-placeholder-count="4"><span aria-hidden="true" style="position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 7px; overflow: hidden; background: {{m.img}}"><span style="position: absolute; left: 7%; top: 14%; font-size: 9px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF; text-shadow: 0 2px 0 #A3001C; display: {{m.hookD}}">NO CHECK-IN</span><span style="position: absolute; right: 16%; top: 26%; width: 28%; height: 46%; border-radius: 50%; border: 2.5px solid #FF3B5C; display: {{m.circleD}}"></span><span style="position: absolute; right: 44%; bottom: 18%; width: 18%; height: 3px; background: #FF3B5C; transform: rotate(-24deg); transform-origin: right center; display: {{m.arrowD}}"></span><span style="position: absolute; left: 8%; bottom: 10%; font-size: 8px; font-weight: 700; color: #FFFFFF; display: {{m.splitD}}">TRƯỚC</span><span style="position: absolute; right: 8%; bottom: 10%; font-size: 8px; font-weight: 700; color: #FFFFFF; display: {{m.splitD}}">SAU</span></span></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ed.noSamples}}" hint-placeholder-val="{{ false }}">
+<div style="aspect-ratio: 16 / 7; border-radius: 9px; border: 1.5px dashed rgba(255,255,255,0.12); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 10px"><span class="ic i-gallery" aria-hidden="true" style="width: 20px; height: 20px; color: #8B8B97"></span><span style="font-size: 12.5px; color: #A0A0AB">Chưa có ảnh mẫu</span><span style="font-size: 11.5px; color: #8B8B97">Viết prompt rồi vẽ thử một cảnh</span></div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #8B8B97">Vẽ thử với</span>
+<button class="ghost" type="button" style="height: 36px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 9px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13px; text-align: left"><span aria-hidden="true" style="width: 42px; height: 24px; border-radius: 5px; flex: 0 0 auto; background: {{ed.tryImg}}"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ed.tryWith}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span></button>
+<button class="ghost" type="button" aria-disabled="{{ed.tryDis}}" title="{{ed.tryTip}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: #1A1A1D; color: {{ed.tryFg}}; font-size: 13px; font-weight: 500"><span class="ic i-magicpen" aria-hidden="true" style="width: 15px; height: 15px"></span>Vẽ thử · 1 ảnh</button>
+<span style="font-size: 11.5px; color: #8B8B97; line-height: 1.5">Dùng 1 ảnh trong hạn mức ChatGPT, khoảng 1–2 phút, chạy nền. Ảnh vẽ thử được giữ làm ảnh mẫu.</span>
+</div>
+</div>
+<div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13.5px; font-weight: 600">Template đang dùng</span>
+<sc-for list="{{ed.usedBy}}" as="u" hint-placeholder-count="1"><a class="row" href="Template.dc.html" style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin: 0 -8px; border-radius: 8px; font-size: 13px"><span class="ic i-layer" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{u}}</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></a></sc-for>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55">{{ed.usedNote}}</span>
+</div>
+</aside>
+</div>
+<div style="position: sticky; bottom: -28px; margin: 0 -28px -28px; padding: 12px 28px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(11,11,13,0.94); border-top: 1px solid rgba(255,255,255,0.06)">
+<span style="flex: 1; min-width: 180px; font-size: 12.5px; color: {{ed.statusFg}}">{{ed.status}}</span>
+<sc-if value="{{ed.showDelete}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" aria-disabled="{{ed.delDis}}" title="{{ed.delTip}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: transparent; color: {{ed.delFg}}; font-size: 13px"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>Xoá</button></sc-if>
+<sc-if value="{{ed.showDup}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Nhân bản</button></sc-if>
+<button class="{{ed.btnCls}}" type="button" aria-disabled="{{ed.btnDis}}" onClick="{{ed.act}}" title="{{ed.btnTip}}" style="height: 36px; padding: 0 16px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: {{ed.btnBg}}; color: {{ed.btnFg}}; font-size: 13px; font-weight: 600"><span class="ic {{ed.btnIc}}" aria-hidden="true" style="width: 15px; height: 15px"></span>{{ed.btnLabel}}</button>
+</div>
+</section>
+</sc-if>
+</sc-if>
+
+<!-- ============ BACKDROPS ============ -->
+<sc-if value="{{tabBackdrops}}" hint-placeholder-val="{{ false }}">
+<!-- r25-backdrops: nguồn bên trái, video của nguồn đang chọn bên phải -->
+<section aria-label="Video nền" style="display: flex; flex-direction: column; gap: 14px">
+<div class="card" style="border-radius: 14px; padding: 6px 6px 6px 14px; display: flex; align-items: center; gap: 10px; background: #18181A; border-color: {{addBd}}">
+<span class="ic i-link" aria-hidden="true" style="color: #8B8B97"></span>
+<label for="bdlink" class="sr-only">Link kênh hoặc video</label>
+<input id="bdlink" type="text" value="{{addValue}}" placeholder="Dán link kênh hoặc video · Twitch, Bilibili" aria-invalid="{{addInvalid}}" aria-describedby="bdhint" style="flex: 1; min-width: 0; height: 36px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 13.5px">
+<button class="vv-btn {{addCls}}" type="button" onClick="{{startAdd}}" aria-disabled="{{addBusy}}">
+<sc-if value="{{adding}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 12px; height: 12px; border-top-color: #EDEDEF"></span></sc-if>{{addLabel}}</button>
+</div>
+<sc-if value="{{addOk}}" hint-placeholder-val="{{ true }}"><span id="bdhint" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8B8B97; padding: 0 4px"><span class="ic {{addHintIc}}" aria-hidden="true" style="width: 13px; height: 13px; color: {{addHintFg}}"></span>{{addHint}}</span></sc-if>
+<sc-if value="{{addErr}}" hint-placeholder-val="{{ false }}">
+<div id="bdhint" role="alert" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 0 4px; font-size: 12.5px; color: #FFC09A"><span class="ic i-danger" aria-hidden="true" style="width: 14px; height: 14px; color: #FF9A5C"></span><span style="flex: 1 1 320px; min-width: 0">Chưa hỗ trợ Douyin. App lấy nguồn nền từ Twitch và Bilibili.</span>
+<button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" onClick="{{askPlat}}" aria-disabled="{{askedAttr}}">{{askLabel}}</button></div>
+</sc-if>
+<div style="display: flex; gap: 16px; align-items: flex-start">
+<nav class="card" aria-label="Nguồn video nền" style="flex: 0 0 272px; min-width: 0; border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{bdRail}}" as="r" hint-placeholder-count="7">
+<sc-if value="{{r.isHead}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 6px; padding: {{r.pad}}; font-size: {{r.fs}}; font-weight: {{r.fw}}; color: {{r.fg}}; letter-spacing: {{r.ls}}; text-transform: {{r.tt}}"><sc-if value="{{r.hasDot}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 2px; background: {{r.pc}}"></span></sc-if>{{r.label}}<span class="num" style="color: #6E6E78; font-weight: 400">{{r.n}}</span></span></sc-if>
+<sc-if value="{{r.isLine}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="height: 1px; margin: 6px 4px; background: rgba(255,255,255,0.06)"></span></sc-if>
+<sc-if value="{{r.isItem}}" hint-placeholder-val="{{ true }}"><button type="button" class="row" aria-current="{{r.cur}}" onClick="{{r.pick}}" style="width: 100%; min-height: 48px; padding: 6px 8px; display: flex; align-items: center; gap: 10px; border: none; border-radius: 10px; background: {{r.bg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%; background: {{r.av}}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #FFFFFF"><sc-if value="{{r.hasIcon}}" hint-placeholder-val="{{ false }}"><span class="ic {{r.icon}}" style="width: 16px; height: 16px; color: #C9C9D1"></span></sc-if>{{r.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span><span class="num" style="font-size: 11.5px; color: {{r.subFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.sub}}</span></span>
+<sc-if value="{{r.spin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 12px; height: 12px; border-top-color: #B9D0F7"></span></sc-if>
+<sc-if value="{{r.warn}}" hint-placeholder-val="{{ false }}"><span class="ic i-clock" role="img" aria-label="Tạm chặn" style="width: 14px; height: 14px; color: #FF9A5C; flex: 0 0 auto"></span></sc-if>
+</button></sc-if>
+</sc-for>
+</nav>
+<div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{bdIsCh}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<span aria-hidden="true" style="width: 44px; height: 44px; flex: 0 0 auto; border-radius: 50%; background: {{bc.av}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #FFFFFF">{{bc.ini}}</span>
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{bc.name}}</h2>
+<span class="num" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: #8B8B97"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 2px; background: {{bc.pc}}"></span>{{bc.platform}} · <a href="#" style="color: #A0A0AB; text-decoration: underline; text-underline-offset: 2px">{{bc.url}}</a> · <span style="color: {{bc.stFg}}">{{bc.st}}</span></span>
+</div>
+<button class="vv-btn vv-btn--sm" type="button" aria-disabled="{{bc.refreshOff}}" title="{{bc.refreshTip}}"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Làm mới</button>
+<button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Thêm thao tác cho {{bc.name}}"><span class="ic i-more" aria-hidden="true"></span></button>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="font-size: 12.5px; color: #8B8B97">Dùng ở</span>
+<sc-for list="{{bc.use}}" as="u" hint-placeholder-count="2"><a class="vv-chip" href="Template.dc.html" style="height: 30px"><span class="ic i-layer" aria-hidden="true"></span><b>{{u.name}}</b><span style="color: #8B8B97">· {{u.note}}</span></a></sc-for>
+<sc-if value="{{bc.noUse}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #A0A0AB">Chưa gắn template nào. Gắn ở Template › Nền &amp; hiệu ứng › <b style="font-weight: 500; color: #EDEDEF">Gắn kênh hoặc video</b>.</span></sc-if>
+</div>
+<sc-if value="{{bc.limited}}" hint-placeholder-val="{{ false }}">
+<div class="vv-banner vv-banner--issue" role="status"><span class="ic i-clock" aria-hidden="true"></span><div class="vv-banner__body"><span class="vv-banner__title">Bilibili tạm chặn tới 02:10 · đã đọc 300/1.240 video</span><span class="vv-banner__text">App tự đọc tiếp lúc 02:10, không cần làm gì; 300 video đã đọc vẫn dùng được. Đăng nhập tài khoản phụ giúp ít bị chặn hơn.</span></div><div class="vv-banner__actions"><a class="vv-btn vv-btn--sm" href="Settings.dc.html">Tài khoản nền tảng</a></div></div>
+</sc-if>
+<sc-if value="{{bc.reading}}" hint-placeholder-val="{{ false }}">
+<div class="vv-banner vv-banner--info" role="status"><span class="spinner" aria-hidden="true" style="width: 14px; height: 14px; border-top-color: #B9D0F7"></span><div class="vv-banner__body"><span class="vv-banner__title">Đang đọc danh sách video · 64 video</span><span class="vv-banner__text">Thường dưới 1 phút. Gắn vào template được ngay; video mới đọc được dùng dần.</span></div></div>
+</sc-if>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<div class="vv-seg vv-seg--sm" role="tablist" aria-label="Loại video">
+<sc-for list="{{bc.kinds}}" as="k" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{k.on}}" aria-disabled="{{k.dis}}" onClick="{{k.pick}}" style="opacity: {{k.op}}">{{k.label}} <span class="num" style="color: #8B8B97">{{k.n}}</span></button></sc-for>
+</div>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12px; color: #8B8B97">{{bc.showing}}</span>
+<button class="vv-chip" type="button" aria-haspopup="listbox" aria-label="Sắp xếp: Mới nhất">Mới nhất<span class="ic i-arrow-d" aria-hidden="true"></span></button>
+</div>
+<div role="list" aria-label="Video của {{bc.name}}" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 12px">
+<sc-for list="{{bc.items}}" as="v" hint-placeholder-count="8"><article role="listitem" style="min-width: 0; display: flex; flex-direction: column; gap: 6px; opacity: {{v.op}}"><div class="vv-thumb" style="background: {{v.bg}}; border-radius: 10px"><span style="position: absolute; left: 6px; top: 6px; height: 18px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,0.62); font-size: 10.5px; color: #E4E4E8">{{v.kind}}</span><sc-if value="{{v.pinned}}" hint-placeholder-val="{{ false }}"><span title="{{v.pinTip}}" style="position: absolute; right: 6px; top: 6px; height: 18px; padding: 0 6px; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; background: rgba(0,0,0,0.72); font-size: 10.5px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 11px; height: 11px"></span>{{v.pin}}</span></sc-if><span class="vv-thumb__br"><span class="vv-thumb__dur">{{v.dur}}</span></span><sc-if value="{{v.off}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(11,11,13,0.66); font-size: 11.5px; color: #C9C9D1">Không còn xem được</span></sc-if></div>
+<span style="font-size: 13px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden">{{v.title}}</span>
+<span class="num" style="margin-top: -3px; font-size: 11.5px; color: #8B8B97">{{v.sub}}</span>
+</article></sc-for>
+<sc-for list="{{bc.skel}}" as="k" hint-placeholder-count="0"><div aria-hidden="true" style="display: flex; flex-direction: column; gap: 8px"><span class="vv-skel" style="display: block; aspect-ratio: 16 / 9; border-radius: 10px"></span><span class="vv-skel" style="display: block; height: 12px; width: 80%"></span><span class="vv-skel" style="display: block; height: 10px; width: 45%"></span></div></sc-for>
+</div>
+<sc-if value="{{bc.hasMore}}" hint-placeholder-val="{{ true }}"><div style="display: flex; justify-content: center; padding: 4px 0 8px"><button class="vv-btn" type="button">Hiện thêm 24 video</button></div></sc-if>
+<span style="display: flex; gap: 8px; font-size: 12px; color: #8B8B97; line-height: 1.55"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: 0 0 auto"></span>Template gắn kênh này bốc clip ngẫu nhiên từ các video trên (hoặc chỉ từ video được chọn, có dấu tick). Video không còn xem được thì app tự bỏ qua.</span>
+</sc-if>
+<sc-if value="{{bdIsVid}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 600">Video lẻ</h2>
+<span style="font-size: 13px; color: #A0A0AB; line-height: 1.55">Một video lấy đúng một đoạn (tối đa 10 phút). Gắn vào template thì đoạn đó <b style="font-weight: 500; color: #EDEDEF">luôn có</b> trong nền của mọi video dùng template ấy (clip cố định). Đổi đoạn ở đây thì mọi template đang gắn đổi theo.</span>
+</div>
+<div role="list" aria-label="Video lẻ" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{bdVids}}" as="v" hint-placeholder-count="2"><article role="listitem" class="card" style="min-width: 0; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 10px"><div class="vv-thumb" style="background: {{v.bg}}; border-radius: 10px"><span style="position: absolute; left: 6px; top: 6px; height: 18px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,0.62); font-size: 10.5px; color: #E4E4E8">{{v.kind}}</span><sc-if value="{{v.pinned}}" hint-placeholder-val="{{ false }}"><span title="{{v.pinTip}}" style="position: absolute; right: 6px; top: 6px; height: 18px; padding: 0 6px; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; background: rgba(0,0,0,0.72); font-size: 10.5px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 11px; height: 11px"></span>{{v.pin}}</span></sc-if><span class="vv-thumb__br"><span class="vv-thumb__dur">{{v.dur}}</span></span><sc-if value="{{v.off}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(11,11,13,0.66); font-size: 11.5px; color: #C9C9D1">Không còn xem được</span></sc-if></div>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.title}}</span><span class="num" style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8B8B97"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 2px; background: {{v.pc}}"></span>{{v.sub}}</span></div>
+<sc-if value="{{v.spin}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px"><div class="vv-progress vv-progress--working" role="progressbar" aria-label="Đang tải {{v.title}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="45"><span style="width: 45%"></span></div><span class="num" style="font-size: 12px; color: #B9D0F7">Đang tải 45% · còn khoảng 1 phút</span></div></sc-if>
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.03)"><span class="num" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 11.5px; color: #8B8B97">Đoạn dùng · dài {{v.segLen}}</span><span style="font-size: 13px">{{v.seg}}</span></span><button class="vv-btn vv-btn--sm" type="button"><span class="ic i-scissor" aria-hidden="true" style="width: 14px; height: 14px"></span>Chọn đoạn khác</button></div>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: {{v.usedFg}}; min-width: 0"><span class="ic i-layer" aria-hidden="true" style="width: 13px; height: 13px; flex: 0 0 auto"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.used}}</span></span>
+</article></sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</section>
+</sc-if>
+
+<!-- ============ OVERLAYS ============ -->
+<sc-if value="{{tabOverlays}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Lớp phủ" style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px"><span class="h3" style="color: #EDEDEF">Có sẵn <span class="num" style="color: #8B8B97; font-weight: 400">12</span></span><span style="font-size: 12.5px; color: #8B8B97">Phủ lên toàn video. Gắn vào template ở mục Nền &amp; hiệu ứng.</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 12px">
+<sc-for list="{{overlays}}" as="o" hint-placeholder-count="12">
+<div class="tile" style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: {{o.base}}; border: 1px solid rgba(255,255,255,0.07)">
+<div class="fx {{o.fx}}" aria-hidden="true"></div>
+<span class="tile-play" aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s"><span style="width: 34px; height: 34px; border-radius: 50%; background: rgba(11,11,13,0.6); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center"><span class="ic i-play" style="width: 14px; height: 14px"></span></span></span>
+</div>
+<div style="display: flex; align-items: baseline; gap: 8px; padding: 0 2px">
+<span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.name}}</span>
+<span style="font-size: 11.5px; color: {{o.useFg}}; white-space: nowrap">{{o.use}}</span>
+</div>
+</div>
+</sc-for>
+<div style="border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.12); padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; aspect-ratio: 16 / 9">
+<span class="ic i-add" aria-hidden="true" style="width: 18px; height: 18px; color: #8B8B97"></span>
+<span style="font-size: 13px; font-weight: 500">Thêm hiệu ứng</span>
+<span style="font-size: 11.5px; color: #8B8B97; line-height: 1.45">Kéo video, ảnh vào đây hoặc dán link Twitch, Bilibili</span>
+</div>
+</div>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8B8B97"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px"></span>Hiệu ứng có sẵn không xoá được. Bỏ một hiệu ứng tự thêm thì template đang dùng vẫn giữ nó.</span>
+</section>
+</sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tab": {"editor": "enum", "options": ["templates", "prompts", "backdrops", "overlays"], "default": "templates", "section": "Tab đang mở"}, "prompt": {"editor": "enum", "options": ["list", "mine", "builtin", "new"], "default": "list", "section": "Prompt ảnh"}, "menu": {"editor": "boolean", "default": false, "section": "Menu ⋯ của template (xoá bị chặn)"}, "$preview": {"width": 1440, "height": 900}, "nguon": {"editor": "enum", "options": ["channels", "videos", "adding", "addvideo", "unsupported"], "default": "channels", "section": "Video nền"}, "kenh": {"editor": "enum", "options": ["slowroads", "nightdrivefm", "bilibili", "lofilanes"], "default": "slowroads", "section": "Video nền · kênh đang xem"}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pview: null, pid: null, pkind: 'all', ekind: null, eplace: null, emode: null, tab: null, menu: null, sel: 'slow', adding: null, pf: null, pmenu: null, src: null, bk: 'all', asked: false };
+  }
+  componentDidUpdate(prev) {
+    if (prev.tab !== this.props.tab) this.setState({ tab: null });
+    if (prev.prompt !== this.props.prompt) this.setState({ pview: null, pid: null, ekind: null, eplace: null, emode: null });
+    if (prev.nguon !== this.props.nguon || prev.kenh !== this.props.kenh) this.setState({ adding: null, src: null, bk: 'all', asked: false });
+    if (prev.menu !== this.props.menu) this.setState({ menu: null, pmenu: null });
+  }
+  renderVals() {
+    const tab = this.state.tab || this.props.tab || 'templates';
+    const ng = this.props.nguon || 'channels';
+    const adding = this.state.adding !== null ? this.state.adding : ng === 'adding';
+    const addVid = ng === 'addvideo';
+    const unsup = ng === 'unsupported';
+    const MT = { ini: 'MT', name: 'Midnight Tales', tint: '#2E2236', ring: '#D79BFF' };
+    const CL = { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', tint: '#302418', ring: '#F6CB8C' };
+    const QH = { ini: 'QH', name: 'Quiet Hours', tint: '#1F2C27', ring: '#A6EDC1' };
+    const channels = [
+      Object.assign({ sub: 'Hôm nay 3/5 · 2 chờ bạn' }, MT),
+      Object.assign({ sub: 'Hôm nay 2/5 · 1 chờ bạn' }, CL),
+      Object.assign({ sub: 'Hôm nay 1/3 · 1 chờ bạn' }, QH)
+    ];
+    const libDefs = [
+      { id: 'templates', icon: 'i-layer', label: 'Template', count: '5' },
+      { id: 'prompts', icon: 'i-magicpen', label: 'Prompt ảnh', count: '15' },
+      { id: 'backdrops', icon: 'i-video-play', label: 'Video nền', count: '7' },
+      { id: 'overlays', icon: 'i-magic', label: 'Lớp phủ', count: '12' }
+    ];
+    const library = libDefs.map((l) => { const on = l.id === tab; return Object.assign({}, l, { current: on ? 'page' : 'false', bg: on ? '#1A1A1D' : 'transparent', bd: on ? 'rgba(255,255,255,0.08)' : 'transparent', fg: on ? '#EDEDEF' : '#C9C9D1', ic: on ? '#FF4D63' : '#8B8B97', pick: () => this.setState({ tab: l.id }) }); });
+    const tabs = libDefs.map((t) => { const on = t.id === tab; return Object.assign({}, t, { on: on ? 'true' : 'false', fg: on ? '#EDEDEF' : '#A0A0AB', weight: on ? '500' : '400', line: on ? '#FF4D63' : 'transparent', pick: () => this.setState({ tab: t.id }) }); });
+
+    const TH = [
+      'url(../img/st_cutout.jpg) center / cover no-repeat',
+      'url(../img/pr_doc35.jpg) center / cover no-repeat',
+      'url(../img/pr_face_teal.jpg) center / cover no-repeat',
+      'url(../img/bg_rainglass.jpg) center / cover no-repeat',
+      'url(../img/st_cutout_cl.jpg) center / cover no-repeat'
+    ];
+    const T = [
+      { id: 'std', name: 'Mẫu chuẩn · Tách nền', style: 'Tách nền', recipe: 'Prompt Đêm xanh rêu · 6 ảnh · trôi + co giãn · bìa Hook đỏ Midnight · 2 kênh nền Twitch · tuyết', health: 'Ổn', hc: '#A6EDC1', chans: [MT, CL], edited: 'sửa 23:52', bg: TH[0] },
+      { id: 'doc', name: 'Phim tài liệu', style: 'Toàn khung', recipe: 'Prompt Phim tài liệu 35mm · mỗi 7 phút 1 ảnh · zoom chậm · bìa Ảnh sạch · bụi', health: 'Ổn', hc: '#A6EDC1', chans: [MT], edited: 'sửa 25/10', bg: TH[1] },
+      { id: 'close', name: 'Cận cảnh', style: 'Cận cảnh', recipe: 'Prompt Cận mặt kịch tính · 5 ảnh · trôi + co giãn · bìa Cận mặt cảm xúc', health: 'Cần sửa · thiếu clip nền', hc: '#F6CB8C', chans: [MT], edited: 'sửa 22/10', bg: TH[2], fix: true },
+      { id: 'sleep', name: 'Ru ngủ · Không ảnh', style: 'Không ảnh', recipe: 'Không vẽ ảnh cảnh · bìa Ảnh sạch · 1 kênh nền Bilibili · mưa', health: 'Ổn', hc: '#A6EDC1', chans: [QH], edited: 'sửa 20/10', bg: TH[3] },
+      { id: 'night', name: 'Truyện kể đêm', style: 'Tách nền', recipe: 'Prompt Đèn lồng phố cổ · mỗi 5 phút 1 ảnh · zoom chậm · bìa Hook vàng phố đêm · 1 kênh nền Twitch', health: 'Ổn', hc: '#A6EDC1', chans: [CL], edited: 'sửa 18/10', bg: TH[4] }
+    ];
+const PR = [{"id": "def", "kind": "scene", "name": "Theo nhận diện kênh", "built": true, "tag": "Mỗi kênh một vẻ", "img": "url(../img/ferryman.jpg) center / cover no-repeat", "prompt": "Vẽ theo phong cách nhận diện của kênh đang làm video (app tự rút từ đối thủ tham chiếu khi tạo kênh, xem ở Hồ sơ kênh): cùng chất liệu, màu và ánh sáng với avatar và ảnh bìa kênh. Mỗi kênh ra một vẻ riêng. Mẫu chuẩn của kênh mới dùng prompt này.", "used": ["Mẫu chuẩn của kênh mới"], "edited": "Viderse", "samples": ["url(../img/ferryman.jpg) center / cover no-repeat", "url(../img/pv_cutout.jpg) center / cover no-repeat", "url(../img/st_close.jpg) center / cover no-repeat"], "ov": ""}, {"id": "moss", "kind": "scene", "name": "Đêm xanh rêu", "built": false, "tag": "Đêm lạnh, đèn vàng", "img": "url(../img/st_cutout.jpg) center / cover no-repeat", "prompt": "Minh hoạ điện ảnh ban đêm. Ánh sáng lạnh xanh rêu, đèn trực vàng hắt từ một phía, hạt phim nhẹ. Nhân vật là khối tối có viền sáng ấm. Không chữ.", "used": ["Mẫu chuẩn · Tách nền"], "edited": "sửa 23:40", "samples": ["url(../img/st_cutout.jpg) center / cover no-repeat", "url(../img/ed_frame.jpg) center / cover no-repeat", "url(../img/nurse_s3.jpg) center / cover no-repeat", "url(../img/nurse_s1.jpg) center / cover no-repeat"], "ov": ""}, {"id": "doc35", "kind": "scene", "name": "Phim tài liệu 35mm", "built": false, "tag": "Phim 35mm, màu ấm", "img": "url(../img/pr_doc35.jpg) center / cover no-repeat", "prompt": "Khung hình phim 35mm, màu ấm ngả vàng, hạt phim rõ, viền đen điện ảnh. Góc máy rộng, nhân vật nhỏ trong không gian lớn.", "used": ["Phim tài liệu"], "edited": "sửa 25/10", "samples": ["url(../img/pr_doc35.jpg) center / cover no-repeat"], "ov": ""}, {"id": "drama", "kind": "scene", "name": "Cận mặt kịch tính", "built": false, "tag": "Tương phản mạnh", "img": "url(../img/pr_face_teal.jpg) center / cover no-repeat", "prompt": "Cận mặt, ánh sáng gắt một phía, nền tối loang màu lạnh. Cảm xúc rõ: sợ hãi, sững sờ.", "used": ["Cận cảnh"], "edited": "sửa 22/10", "samples": ["url(../img/pr_face_teal.jpg) center / cover no-repeat"], "ov": ""}, {"id": "lantern", "kind": "scene", "name": "Đèn lồng phố cổ", "built": false, "tag": "Đỏ cam đèn lồng", "img": "url(../img/st_cutout_cl.jpg) center / cover no-repeat", "prompt": "Tranh minh hoạ phố cổ Hà Nội ban đêm, đèn lồng đỏ cam, dây điện chằng chịt. Nhân vật áo trắng sáng nổi trên nền đỏ sẫm.", "used": ["Truyện kể đêm"], "edited": "sửa 18/10", "samples": ["url(../img/st_cutout_cl.jpg) center / cover no-repeat"], "ov": ""}, {"id": "water", "kind": "scene", "name": "Màu nước dịu", "built": false, "tag": "Màu nước", "img": "url(../img/pr_watercolor.jpg) center / cover no-repeat", "prompt": "Tranh màu nước loang trên giấy thô, xanh chàm và tím nhạt, cảnh tĩnh, không người. Hợp truyện ru ngủ.", "used": [], "edited": "tạo 21/10", "samples": ["url(../img/pr_watercolor.jpg) center / cover no-repeat"], "ov": ""}, {"id": "ink", "kind": "scene", "name": "Mực in đen trắng", "built": false, "tag": "Đen trắng", "img": "url(../img/pr_woodcut.jpg) center / cover no-repeat", "prompt": "Tranh in hai màu đen và kem, nét gạch chéo đổ bóng, tương phản rất mạnh, như truyện tranh in khắc gỗ.", "used": [], "edited": "tạo 20/10", "samples": ["url(../img/pr_woodcut.jpg) center / cover no-repeat"], "ov": ""}, {"id": "c-clean", "kind": "cover", "name": "Ảnh sạch", "built": true, "tag": "Không chữ", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "", "prompt": "Ảnh đẹp không chữ, để tiêu đề video tự nói.", "used": ["Phim tài liệu"], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-hook", "kind": "cover", "name": "Chữ hook", "built": true, "tag": "Chữ hook", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "hook", "prompt": "1–4 chữ to gợi tò mò, Đạo diễn lấy từ chi tiết lạ nhất của câu chuyện. Nhân vật ở một bên, bên kia để trống cho chữ.", "used": ["Mẫu chuẩn của kênh mới"], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-circle", "kind": "cover", "name": "Khoanh tròn + mũi tên", "built": true, "tag": "Khoanh tròn", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "circle", "prompt": "Khoanh tròn một chi tiết đáng ngờ có thật trong truyện, kèm mũi tên đỏ chỉ vào. Không chữ.", "used": [], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-hookarrow", "kind": "cover", "name": "Chữ hook + mũi tên", "built": true, "tag": "Hook + mũi tên", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "hookarrow", "prompt": "Chữ hook ở phần trống, mũi tên đỏ chỉ vào chi tiết chính của câu chuyện.", "used": [], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-split", "kind": "cover", "name": "Trước / sau", "built": true, "tag": "Trước / sau", "img": "url(../img/cover_split.jpg) center / cover no-repeat", "ov": "split", "prompt": "Chia đôi khung: bên trái lúc đầu, bên phải lúc sau, cùng nhân vật nhưng số phận khác hẳn. Không chữ.", "used": [], "edited": "Viderse", "samples": ["url(../img/cover_split.jpg) center / cover no-repeat"]}, {"id": "c-face", "kind": "cover", "name": "Cận mặt cảm xúc", "built": true, "tag": "Cận mặt", "img": "url(../img/face_fear.jpg) center / cover no-repeat", "ov": "", "prompt": "Mặt nhân vật chiếm hai phần ba khung, cảm xúc cực rõ, nền mờ là nơi chốn của câu chuyện.", "used": ["Cận cảnh"], "edited": "Viderse", "samples": ["url(../img/face_fear.jpg) center / cover no-repeat"]}, {"id": "c-red", "kind": "cover", "name": "Hook đỏ Midnight", "built": false, "tag": "Chữ hook", "img": "url(../img/c_nurse.jpg) center / cover no-repeat", "ov": "", "prompt": "Chữ hook trắng viền đen dày, dòng cuối màu đỏ. Nhân vật quay lưng giữa khung, hành lang tối có đèn trực.", "used": ["Mẫu chuẩn · Tách nền"], "edited": "sửa 23:12", "samples": ["url(../img/c_nurse.jpg) center / cover no-repeat"]}, {"id": "c-yellow", "kind": "cover", "name": "Hook vàng phố đêm", "built": false, "tag": "Hook + mũi tên", "img": "url(../img/c_hem.jpg) center / cover no-repeat", "ov": "", "prompt": "Chữ hook vàng nghiêng, viền đen dày, dòng cuối đỏ. Tông đỏ cam đèn lồng, dây điện, hẻm sâu.", "used": ["Truyện kể đêm"], "edited": "sửa 18/10", "samples": ["url(../img/c_hem.jpg) center / cover no-repeat"]}];
+    const OVF = (ov) => ({ hookD: ov === 'hook' || ov === 'hookarrow' ? 'block' : 'none', circleD: ov === 'circle' || ov === 'hookarrow' ? 'block' : 'none', arrowD: ov === 'circle' || ov === 'hookarrow' ? 'block' : 'none', splitD: ov === 'split' ? 'block' : 'none' });
+    const usedText = (p) => p.used.length ? 'Dùng ở ' + p.used.join(', ') : 'Chưa template nào dùng';
+    const PRX = PR.map((p) => Object.assign({}, p, OVF(p.ov), { usedText: usedText(p), isBuilt: p.built, isMine: !p.built, kindLabel: p.kind === 'scene' ? 'Ảnh cảnh' : 'Ảnh bìa', usedN: p.used.length }));
+
+    const pview = this.state.pview || this.props.prompt || 'list';
+    const openP = (p) => () => this.setState({ pview: p.built ? 'builtin' : 'mine', pid: p.id, ekind: null, eplace: null, emode: null });
+    const pkind = this.state.pkind;
+    const withOpen = (l) => l.map((p) => Object.assign({}, p, { open: openP(p) }));
+    const scenes = withOpen(PRX.filter((p) => p.kind === 'scene'));
+    const coversP = withOpen(PRX.filter((p) => p.kind === 'cover'));
+    const pkinds = [['all', 'Tất cả', '15'], ['scene', 'Ảnh cảnh', '7'], ['cover', 'Ảnh bìa', '8']].map((k) => {
+      const on = k[0] === pkind;
+      return { label: k[1], n: k[2], on: on ? 'true' : 'false', bg: on ? '#2A2A2E' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ pkind: k[0] }) };
+    });
+    const defId = pview === 'builtin' ? 'def' : 'moss';
+    const PRM = PRX.find((p) => p.id === 'moss');
+    const cur = pview === 'new' ? null : (PRX.find((p) => p.id === (this.state.pid || defId)) || PRM);
+    const isNew = pview === 'new';
+    const ekind = this.state.ekind || (cur ? cur.kind : 'scene');
+    const ro = cur && cur.built;
+    const PLACES = {
+      cover: PRX.filter((p) => p.kind === 'cover' && p.built).map((p) => ({ id: p.tag, label: p.tag, img: p.img, ov: p.ov, help: p.prompt })) };
+    const eplace = this.state.eplace || (cur && cur.kind === 'cover' ? cur.tag : 'Chữ hook');
+    const placeList = (PLACES[ekind] || []).map((o) => { const on = o.id === eplace; return Object.assign({}, o, OVF(o.ov || ''), { on: on ? 'true' : 'false', sel: on, bd: on ? '#FF4D63' : 'rgba(255,255,255,0.07)', bg: on ? 'rgba(255,77,99,0.06)' : '#131315', op: ro && !on ? '0.55' : '1', pick: ro ? () => {} : () => this.setState({ eplace: o.id }) }); });
+    const placeCur = ekind === 'cover' ? (PLACES.cover.find((o) => o.id === eplace) || PLACES.cover[0]) : { help: '' };
+    const lockKind = !!(cur && cur.usedN);
+    const kinds = [['scene', 'Ảnh cảnh'], ['cover', 'Ảnh bìa']].map((k) => { const on = k[0] === ekind; const dis = (ro || lockKind) && !on; return { label: k[1], on: on ? 'true' : 'false', dis: dis ? 'true' : 'false', bg: on ? '#2A2A2E' : 'transparent', fg: on ? '#EDEDEF' : (dis ? '#5A5A64' : '#A0A0AB'), pick: dis ? () => {} : () => this.setState({ ekind: k[0], eplace: null }) }; });
+    const rules = ekind === 'scene'
+      ? ['Ảnh cảnh không có chữ, logo, khung viền hay mũi tên.', 'Trang phục kín đáo; nhân vật giữ đúng ngoại hình đã chốt cho cả video.', 'Nhân vật luôn đủ sáng, rõ mặt.']
+      : ['Chữ hook do Đạo diễn viết từ câu chuyện: 1–4 chữ, đúng ngôn ngữ của video, không hứa điều truyện không có.', 'Đọc rõ ở cỡ 320×180: một chủ thể, tương phản mạnh.', 'Không logo, watermark, khung viền.'];
+    const usedBy = cur ? cur.used : [];
+    const ed = isNew ? {
+        title: 'Prompt mới', badge: 'Chưa lưu', isBuilt: false, name: '', ro: '', roA: 'false', inBg: '#0F0F11', prompt: '', count: '0',
+        hasSamples: false, noSamples: true, sampleNote: 'Chưa vẽ', tryWith: 'The Night Nurse… · cảnh 3', tryImg: PRM.samples[2], tryDis: 'true', tryTip: 'Viết prompt trước rồi vẽ thử', tryFg: '#8B8B97',
+        usedBy: [], usedNote: 'Chưa template nào dùng. Lưu xong, chọn prompt này trong trang template.',
+        status: 'Đặt tên và viết prompt để lưu', statusFg: '#8B8B97', showDelete: false, showDup: false,
+        btnLabel: 'Lưu prompt', btnIc: 'i-tick-b', btnCls: 'ghost', btnBg: '#2A2A2E', btnFg: '#8B8B97', btnDis: 'true', btnTip: 'Cần tên và nội dung prompt', act: () => {} }
+      : ro ? {
+        title: cur.name, badge: 'Có sẵn · ' + cur.kindLabel, isBuilt: true, name: cur.name, ro: 'readonly', roA: 'true', inBg: '#131315', prompt: cur.prompt, count: String(cur.prompt.length),
+        hasSamples: true, noSamples: false, sampleNote: 'Viderse vẽ sẵn', samples: cur.samples.map((m) => Object.assign({ img: m }, OVF(cur.ov))), tryWith: 'The Night Nurse… · cảnh 3', tryImg: PRM.samples[2], tryDis: 'false', tryTip: 'Vẽ 1 ảnh với prompt này', tryFg: '#EDEDEF',
+        usedBy, usedNote: usedBy.length ? 'Prompt có sẵn không đổi, nên các template này luôn giữ nguyên cách vẽ.' : 'Chưa template nào dùng.',
+        status: 'Nhân bản để sửa · bản sao mang tên “' + cur.name + ' (bản sao)”', statusFg: '#8B8B97', showDelete: false, showDup: false,
+        btnLabel: 'Nhân bản để sửa', btnIc: 'i-copy', btnCls: 'primary', btnBg: '#EDEDEF', btnFg: '#0B0B0D', btnDis: 'false', btnTip: '', act: () => this.setState({ pview: 'mine', pid: 'moss' }) }
+      : {
+        title: cur.name, badge: 'Của bạn · ' + cur.kindLabel, isBuilt: false, name: cur.name, ro: '', roA: 'false', inBg: '#0F0F11', prompt: cur.prompt, count: String(cur.prompt.length),
+        hasSamples: true, noSamples: false, sampleNote: cur.samples.length + ' ảnh · vẽ 23:41', samples: cur.samples.map((m) => Object.assign({ img: m }, OVF(cur.ov))), tryWith: 'The Night Nurse… · cảnh 3', tryImg: PRM.samples[2], tryDis: 'false', tryTip: 'Vẽ 1 ảnh với prompt này', tryFg: '#EDEDEF',
+        usedBy, usedNote: usedBy.length ? 'Lưu thì ' + usedBy.length + ' template đổi theo. Video đang làm giữ prompt cũ; video bắt đầu sau khi lưu dùng prompt mới.' : 'Chưa template nào dùng, nên xoá được.',
+        status: 'Đã lưu · ' + cur.edited.replace('sửa ', ''), statusFg: '#A6EDC1', showDelete: true, showDup: true,
+        delDis: usedBy.length ? 'true' : 'false', delFg: usedBy.length ? '#5A5A64' : '#FF9A5C', delTip: usedBy.length ? 'Đang dùng ở ' + usedBy.join(', ') + '. Đổi prompt ở template đó trước rồi xoá.' : 'Xoá prompt này',
+        btnLabel: 'Lưu', btnIc: 'i-tick-b', btnCls: 'primary', btnBg: '#EDEDEF', btnFg: '#0B0B0D', btnDis: 'false', btnTip: '', act: () => {} };
+    Object.assign(ed, {
+      kinds, kindHelp: lockKind ? 'Đang dùng ở template nên không đổi loại được.' : (ekind === 'scene' ? 'Ảnh cảnh vẽ cho từng đoạn lời kể, không có chữ. Cách ghép vào video (Toàn khung, Tách nền, Cận cảnh) chọn ở template, nên một prompt dùng được cho mọi cách ghép.' : 'Ảnh bìa 1280×720, một ảnh mỗi video.'), isCover: ekind === 'cover',
+      placeTitle: 'Bố cục bìa', placeCols: '3', places: placeList, placeHelp: placeCur.help,
+      modeHelp: ekind === 'scene' ? 'Tả cách vẽ: chất liệu, màu, ánh sáng, góc máy. Nội dung từng cảnh do Đạo diễn viết từ lời kể.' : 'Tả cách vẽ và bố trí bìa. Chữ hook do Đạo diễn viết từ câu chuyện.',
+      rules, samples: ed.samples || [], hasPrompt: !!ed.prompt, noPrompt: !ed.prompt
+    });
+
+    const templates = T.map((t) => {
+      const open = this.state.menu === t.id || (this.state.menu === null && this.props.menu && t.id === 'std');
+      const names = t.chans.map((c) => c.name);
+      return Object.assign({}, t, {
+        usedText: t.chans.length ? 'Dùng ở ' + names.join(', ') : 'Chưa kênh nào dùng',
+        openLabel: t.fix ? 'Mở để sửa' : 'Mở',
+        menuOpen: open, menuOn: open ? 'true' : 'false', menuBg: open ? 'rgba(255,255,255,0.08)' : 'transparent',
+        toggleMenu: () => this.setState({ menu: open ? 'none' : t.id }),
+        canDelete: t.chans.length === 0, cannotDelete: t.chans.length > 0,
+        deleteReason: 'Đang dùng ở ' + (t.chans.length === 1 ? names[0] : t.chans.length + ' kênh') + '. Bỏ khỏi kênh trước rồi xoá.'
+      });
+    });
+
+    // r25-backdrops: Video nền = danh sách nguồn (kênh theo nền tảng · video lẻ) + lưới video của nguồn đang chọn
+    const IMG = { city: '9922ca1eb842ef0ddabb596870ee4081', pass: '8069d1281ab18b3bd62887ee044223ea', forest: '9a3cc53070c2950765fbc994c39a9fc8', hw: '303397d12b3fed28478736e25a6593fa', glass: 'aecc6e35cc24d45d4a9d751175d82fd6', snow: '39d64801a577c93dd8b27313e743f6fc', ferry: 'd2c469333402250c6735edcc1590300a', lake: 'ae9be36f28c6fccd230351068eb3e655' };
+    const THB = (k, pos) => 'url(/_blob/' + IMG[k] + ') ' + (pos || 'center') + ' / ' + (pos ? '210%' : 'cover') + ' no-repeat';
+    const PCOL = { Twitch: '#B9A3FF', Bilibili: '#7FC8F8' };
+    const BK = (id) => 'url(/_blob/' + id + ') center / cover no-repeat';
+    // [tiêu đề, loại, thời lượng, đăng, ảnh, vị trí cắt, cờ]  cờ: p = được chọn ở template, x = không còn xem được
+    const V = (rows) => rows.map((r) => ({ title: r[0], kind: r[1], dur: r[2], age: r[3], bg: THB(r[4], r[5]), pinned: (r[6] || '').indexOf('p') >= 0, off: (r[6] || '').indexOf('x') >= 0 }));
+    const B = [
+      { id: 'slow', key: 'slowroads', name: 'slowroads', ini: 'SR', av: 'linear-gradient(140deg, #5B4A8A, #2A2140)', platform: 'Twitch', url: 'twitch.tv/slowroads', count: 312, st: 'Cập nhật hôm nay 23:10',
+        kinds: [['all', 'Tất cả', '312'], ['Clip', 'Clip', '248'], ['Highlight', 'Highlight', '64'], ['VOD', 'Phát lại', '0']],
+        use: [{ name: 'Mẫu chuẩn · Tách nền', note: 'ngẫu nhiên mọi video' }, { name: 'Truyện kể đêm', note: 'chỉ Clip' }],
+        items: V([['Đường đèo trong mưa đêm', 'Clip', '0:58', '2 giờ trước', 'hw'], ['Cao tốc vắng lúc 3 giờ', 'Clip', '1:00', 'hôm qua', 'city'], ['Đèn hầm chạy dài', 'Highlight', '8:42', '2 ngày trước', 'forest'], ['Mưa trên kính lái', 'Clip', '2:31', '3 ngày trước', 'glass'],
+          ['Cầu vượt sương mù', 'Clip', '1:00', '4 ngày trước', 'pass', '30% 60%'], ['Trạm xăng ven đường', 'Highlight', '6:37', '5 ngày trước', 'city', '72% 40%'], ['Đường tuyết không người', 'Clip', '0:55', '6 ngày trước', 'snow'], ['Phà đêm qua hồ', 'Highlight', '12:10', '1 tuần trước', 'ferry'],
+          ['Rừng thông lúc nửa đêm', 'Clip', '1:00', '1 tuần trước', 'forest', '20% 70%'], ['Đèn đường nhoè mưa', 'Clip', '0:48', '2 tuần trước', 'glass', '80% 30%'], ['Ngã ba trong sương', 'Clip', '1:00', '2 tuần trước', 'pass', '75% 55%'], ['Nhà ven hồ tắt đèn', 'Clip', '0:40', '3 tuần trước', 'lake', '', 'x']]) },
+      { id: 'drive', key: 'nightdrivefm', name: 'nightdrivefm', ini: 'ND', av: 'linear-gradient(140deg, #3D5A8A, #1A2440)', platform: 'Twitch', url: 'twitch.tv/nightdrivefm', count: 217, st: 'Cập nhật hôm nay 23:10',
+        kinds: [['all', 'Tất cả', '217'], ['Clip', 'Clip', '186'], ['Highlight', 'Highlight', '22'], ['VOD', 'Phát lại', '9']],
+        use: [{ name: 'Mẫu chuẩn · Tách nền', note: 'chỉ 4 video đã chọn' }], pinName: 'Mẫu chuẩn',
+        items: V([['Phố đêm qua kính xe', 'Clip', '1:00', '1 giờ trước', 'city', '35% 50%', 'p'], ['Đèn neon ngã tư', 'Clip', '0:52', 'hôm qua', 'city', '78% 70%', 'p'], ['Đường ven biển', 'Clip', '1:00', '2 ngày trước', 'ferry', '40% 60%', 'p'], ['Mưa phùn trên phố', 'Clip', '0:44', '2 ngày trước', 'glass', '30% 70%', 'p'],
+          ['Đèn hậu xe tải', 'Clip', '0:58', '3 ngày trước', 'hw', '60% 55%'], ['Hầm chui thành phố', 'Highlight', '7:15', '4 ngày trước', 'forest', '50% 30%'], ['Cao tốc ra biển', 'Clip', '1:00', '5 ngày trước', 'hw', '30% 40%'], ['Cầu sông lúc 2 giờ', 'Clip', '0:50', '1 tuần trước', 'lake', '50% 45%'],
+          ['Phát lại · chạy đêm 3 tiếng', 'Phát lại', '3:02:11', '1 tuần trước', 'snow', '60% 70%'], ['Đèn giao thông nhấp nháy', 'Clip', '0:36', '1 tuần trước', 'city', '15% 30%'], ['Mưa đá trên kính', 'Clip', '1:00', '2 tuần trước', 'glass', '55% 50%'], ['Đường vành đai vắng', 'Clip', '0:57', '2 tuần trước', 'hw', '80% 70%']]) },
+      { id: 'rain', key: 'bilibili', name: '雨夜电台', ini: '雨', av: 'linear-gradient(140deg, #2F6A86, #133042)', platform: 'Bilibili', url: 'space.bilibili.com/3493118', count: 300, st: 'Đọc tiếp lúc 02:10', stFg: '#F6CB8C', limited: true, refreshOff: true,
+        kinds: [['all', 'Video', '300']], use: [{ name: 'Ru ngủ · Không ảnh', note: 'ngẫu nhiên mọi video' }],
+        items: V([['雨夜窗边 · 3小时白噪音', 'Video', '3:00:12', '3 ngày trước', 'glass', '45% 40%'], ['书房听雨', 'Video', '1:12:40', '1 tuần trước', 'lake', '40% 60%'], ['深夜车站下雨', 'Video', '58:20', '1 tuần trước', 'snow', '30% 50%'], ['屋檐雨声', 'Video', '2:05:00', '2 tuần trước', 'forest', '70% 40%'],
+          ['小店深夜', 'Video', '45:10', '2 tuần trước', 'city', '50% 60%'], ['铁皮屋顶雨', 'Video', '1:30:00', '3 tuần trước', 'glass', '20% 30%'], ['湖边雾夜', 'Video', '1:00:00', '1 tháng trước', 'pass', '50% 50%'], ['雪夜公路', 'Video', '2:00:00', '1 tháng trước', 'snow', '75% 60%']]) },
+      { id: 'lofi', key: 'lofilanes', name: 'lofilanes', ini: 'LL', av: 'linear-gradient(140deg, #6A4E7A, #2C2034)', platform: 'Twitch', url: 'twitch.tv/lofilanes', count: 48, st: 'Cập nhật 26/10 21:40',
+        kinds: [['all', 'Tất cả', '48'], ['Clip', 'Clip', '41'], ['Highlight', 'Highlight', '7'], ['VOD', 'Phát lại', '0']], use: [],
+        items: V([['Phòng học đèn vàng', 'Clip', '1:00', '2 ngày trước', 'lake', '55% 45%'], ['Thành phố nhìn từ ban công', 'Clip', '0:59', '3 ngày trước', 'city', '50% 20%'], ['Bàn làm việc đêm', 'Highlight', '5:20', '5 ngày trước', 'forest', '40% 50%'], ['Trạm xe buýt', 'Clip', '0:46', '1 tuần trước', 'hw', '45% 75%'],
+          ['Đường ray chiều', 'Clip', '1:00', '1 tuần trước', 'pass', '20% 40%'], ['Mưa ngoài cửa sổ', 'Clip', '0:51', '2 tuần trước', 'glass', '65% 65%'], ['Hồ đêm yên', 'Highlight', '4:02', '2 tuần trước', 'ferry', '70% 50%'], ['Tuyết rơi ngoài phố', 'Clip', '1:00', '3 tuần trước', 'snow', '30% 40%']]) }
+    ];
+    if (adding) B.unshift({ id: 'new', key: 'new', name: 'rainyarchive', ini: 'RA', av: 'linear-gradient(140deg, #4A4A55, #22222A)', platform: 'Twitch', url: 'twitch.tv/rainyarchive', count: 0, st: 'Đang đọc danh sách video', stFg: '#B9D0F7', reading: true, refreshOff: true,
+      kinds: [['all', 'Tất cả', '…']], use: [], items: V([['Mưa trên mái hiên', 'Clip', '0:58', 'hôm qua', 'glass', '40% 35%'], ['Phố cũ sau mưa', 'Clip', '1:00', '2 ngày trước', 'city', '60% 50%']]) });
+    const VB = [
+      { id: 'pass', title: 'Đường đèo sương mù', platform: 'Bilibili', kind: 'Video', dur: '12:40', seg: '0:00–1:30', segLen: '1:30', bg: BK(IMG.pass), size: '1080p · 214 MB', use: ['Mẫu chuẩn · Tách nền'] },
+      { id: 'rainglass', title: 'Mưa trên kính xe', platform: 'Twitch', kind: 'Clip', dur: '1:20', seg: '0:00–1:20', segLen: '1:20', bg: BK(IMG.glass), size: '480p · 38 MB', use: ['Mẫu chuẩn · Tách nền'] },
+      { id: 'ferry', title: 'Phà đêm trong sương', platform: 'Bilibili', kind: 'Video', dur: '24:10', seg: '0:00–2:00', segLen: '2:00', bg: BK(IMG.ferry), size: '1080p · 402 MB', use: [] }
+    ];
+    if (addVid) VB.unshift({ id: 'snow', title: '雪夜公路 · 4K 环境音', platform: 'Bilibili', kind: 'Video', dur: '58:12', seg: '0:00–1:00', segLen: '1:00', bg: BK(IMG.snow), size: '', spin: true, use: [] });
+    const KEYS = { slowroads: 'slow', nightdrivefm: 'drive', bilibili: 'rain', lofilanes: 'lofi' };
+    const srcId = this.state.src || (adding ? 'new' : ((ng === 'videos' || ng === 'addvideo') ? 'videos' : (KEYS[this.props.kenh] || 'slow')));
+    const pickSrc = (id) => () => this.setState({ src: id, bk: 'all' });
+    const H = (label, n, first) => ({ isHead: true, isLine: false, isItem: false, label, n, hasDot: false, pc: '', pad: first ? '6px 8px 4px' : '8px 8px 2px', fs: '11px', fw: '600', fg: '#6E6E78', ls: '0.06em', tt: 'uppercase' });
+    const P = (p, n) => ({ isHead: true, isLine: false, isItem: false, label: p, n, hasDot: true, pc: PCOL[p], pad: '8px 8px 2px', fs: '12px', fw: '500', fg: '#A0A0AB', ls: '0', tt: 'none' });
+    const I = (o) => Object.assign({ isHead: false, isLine: false, isItem: true, hasIcon: false, icon: '', ini: '', spin: false, warn: false, subFg: '#8B8B97' }, o, { cur: o.id === srcId ? 'true' : 'false', bg: o.id === srcId ? 'rgba(255,255,255,0.08)' : 'transparent', mark: o.id === srcId ? '#EDEDEF' : 'transparent', pick: pickSrc(o.id) });
+    const bdRail = [H('Kênh nền', String(B.length), true)];
+    ['Twitch', 'Bilibili'].forEach((p) => {
+      const list = B.filter((b) => b.platform === p);
+      if (!list.length) return;
+      bdRail.push(P(p, String(list.length)));
+      list.forEach((b) => bdRail.push(I({ id: b.id, name: b.name, ini: b.ini, av: b.av, sub: b.reading ? 'Đang đọc video…' : (b.count + ' video · ' + (b.use.length ? b.use.length + ' template' : 'chưa gắn')), subFg: b.limited ? '#FFC09A' : (b.reading ? '#B9D0F7' : '#8B8B97'), spin: !!b.reading, warn: !!b.limited })));
+    });
+    bdRail.push({ isHead: false, isLine: true, isItem: false });
+    bdRail.push(H('Video lẻ', String(VB.length), false));
+    bdRail.push(I({ id: 'videos', name: 'Tất cả video lẻ', hasIcon: true, icon: 'i-video-play', av: '#1B1B1E', sub: VB.length + ' video · gắn thành clip cố định', spin: !!addVid }));
+    const b0 = B.find((b) => b.id === srcId) || B[0];
+    const bk = this.state.bk || 'all';
+    const shown = b0.items.filter((v) => bk === 'all' || v.kind === bk || (bk === 'VOD' && v.kind === 'Phát lại'));
+    const bc = Object.assign({}, b0, {
+      pc: PCOL[b0.platform], stFg: b0.stFg || '#8B8B97', limited: !!b0.limited, reading: !!b0.reading, noUse: b0.use.length === 0,
+      refreshOff: b0.refreshOff ? 'true' : 'false', refreshTip: b0.limited ? 'Bilibili đang chặn tạm · làm mới được từ 02:10' : 'Đọc thêm video mới của kênh',
+      kinds: b0.kinds.map((k) => { const dis = k[2] === '0'; return { label: k[1], n: k[2], on: k[0] === bk ? 'true' : 'false', dis: dis ? 'true' : 'false', op: dis ? '0.45' : '1', pick: dis ? () => {} : () => this.setState({ bk: k[0] }) }; }),
+      items: shown.map((v) => Object.assign({}, v, { sub: v.off ? v.kind + ' · bỏ qua khi bốc clip' : v.kind + ' · ' + v.age, op: v.off ? '0.55' : '1', pin: b0.pinName || '', pinTip: 'Template ' + (b0.pinName || '') + ' chỉ lấy từ video được chọn' })),
+      skel: b0.reading ? [1, 2, 3, 4, 5, 6] : [],
+      hasMore: !b0.reading && b0.count > shown.length && bk === 'all',
+      showing: b0.reading ? 'Đang đọc…' : (bk === 'all' ? 'Đang hiện ' + shown.length + ' / ' + b0.count : shown.length + ' video trong trang này')
+    });
+    const bdVids = VB.map((v) => Object.assign({}, v, { pc: PCOL[v.platform], pinned: false, off: false, spin: !!v.spin, sub: v.platform + ' · ' + v.kind.toLowerCase() + ' · dài ' + v.dur + (v.size ? ' · ' + v.size : ''),
+      used: v.use.length ? 'Clip cố định ở ' + v.use.join(', ') : 'Chưa gắn template nào', usedFg: v.use.length ? '#C9C9D1' : '#8B8B97' }));
+    const bdIsVid = srcId === 'videos';
+    const asked = this.state.asked;
+    const AV = {
+      addValue: adding ? 'twitch.tv/rainyarchive' : (addVid ? 'b23.tv/9xQeL2a' : (unsup ? 'douyin.com/user/MS4wLjABAAAA…' : '')),
+      addLabel: adding ? 'Đang đọc…' : (addVid ? 'Đang tải…' : 'Thêm'), addBusy: adding || addVid ? 'true' : 'false', addCls: adding || addVid ? '' : 'vv-btn--primary',
+      addBd: unsup ? 'rgba(255,154,92,0.5)' : 'rgba(255,255,255,0.07)', addInvalid: unsup ? 'true' : 'false', addOk: !unsup, addErr: unsup,
+      addHint: adding ? 'Link kênh Twitch · đã thêm vào Kênh nền, đang đọc danh sách video' : (addVid ? 'Link video Bilibili · đã thêm vào Video lẻ, đang tải' : 'Link kênh: app theo dõi kênh và đọc video mới. Link một video: lưu thành video lẻ.'),
+      addHintIc: adding || addVid ? 'i-tick-b' : 'i-info', addHintFg: adding || addVid ? '#A6EDC1' : '#8B8B97',
+      askPlat: () => this.setState({ asked: true }), askedAttr: asked ? 'true' : 'false', askLabel: asked ? 'Đã gửi yêu cầu' : 'Gửi yêu cầu hỗ trợ Douyin',
+      startAdd: () => this.setState({ adding: true, src: 'new' })
+    };
+
+    const OV = [
+      { name: 'Tuyết', fx: 'fx-snow', base: 'url(../img/bg_snowroad.jpg) center / cover no-repeat', use: '1 template' },
+      { name: 'Mưa', fx: 'fx-rain', base: 'url(../img/lastbus.jpg) center / cover no-repeat', use: '1 template' },
+      { name: 'Bụi', fx: 'fx-dust', base: 'url(../img/radio_dead.jpg) center / cover no-repeat', use: '1 template' },
+      { name: 'Phim cũ', fx: 'fx-film', base: 'url(../img/nurse_s1.jpg) center / cover no-repeat' },
+      { name: 'Loé sáng', fx: 'fx-flare', base: 'url(../img/mall_s6.jpg) center / cover no-repeat' },
+      { name: 'Bokeh', fx: 'fx-bokeh', base: 'url(../img/bg_city.jpg) center / cover no-repeat' },
+      { name: 'Tàn lửa', fx: 'fx-ember', base: 'url(../img/hem_house.jpg) center / cover no-repeat' },
+      { name: 'Sương mù', fx: 'fx-fog', base: 'url(../img/bg_fogpass.jpg) center / cover no-repeat' },
+      { name: 'Đom đóm', fx: 'fx-firefly', base: 'url(../img/bg_forest.jpg) center / cover no-repeat' },
+      { name: 'Lá rơi', fx: 'fx-leaf', base: 'url(../img/dalat_nhahoang.jpg) center / cover no-repeat' },
+      { name: 'Hoa anh đào', fx: 'fx-sakura', base: 'url(../img/ferry_lake.jpg) center / cover no-repeat' },
+      { name: 'Sao', fx: 'fx-stars', base: 'url(../img/lakehouse.jpg) center / cover no-repeat' }
+    ];
+    const overlays = OV.map((o) => Object.assign({}, o, { use: o.use || 'Chưa dùng', useFg: o.use ? '#A0A0AB' : '#8B8B97' }));
+
+    const pf = this.state.pf || 'all';
+    const PB = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/c_hotel.jpg) center / cover no-repeat',
+      'url(../img/c_lawn.jpg) center / cover no-repeat',
+      'url(../img/c_hem.jpg) center / cover no-repeat',
+      'url(../img/c_lighthouse.jpg) center / cover no-repeat',
+      'url(../img/c_rainlh.jpg) center / cover no-repeat'
+    ];
+    const PV = (id, name, sub, subFg, ch, edited, dur, size, bg) => ({ id, kind: 'video', name, sub, subFg: subFg || '#8B8B97', chans: [ch], owner: ch.name, edited, dur, size, bg });
+    const PT = (t, edited, size) => ({ id: 'tpl-' + t.id, kind: 'template', name: t.name, sub: t.style + ' · bố cục template', subFg: '#8B8B97', chans: t.chans, owner: t.chans.length ? (t.chans.length === 1 ? t.chans[0].name : t.chans.length + ' kênh dùng') : 'Chưa kênh nào dùng', edited, dur: '—', size, bg: t.bg });
+    const PALL = [
+      PV('nurse', 'The Night Nurse Who Heard Room 214 Breathing', 'Chưa đạt độ hoàn thiện 84/100', '#FFC09A', MT, 'Hôm nay 00:12', '42:10', '1,4 GB', 'url(../img/c_nurse.jpg) center / cover no-repeat'),
+      PT(T[0], 'Hôm nay 23:52', '310 MB'),
+      PV('hotel', 'The Hotel That Wasn’t on Any Map', 'Sẵn sàng · đã xuất MP4', '#8B8B97', MT, '27/10 21:40', '38:12', '1,1 GB', 'url(../img/c_hotel.jpg) center / cover no-repeat'),
+      PV('neighbor', 'My Neighbor Only Mows His Lawn at 3 AM', 'Đã đăng · đã xoá MP4', '#8B8B97', MT, '26/10 19:05', '44:02', '420 MB', 'url(../img/c_lawn.jpg) center / cover no-repeat'),
+      PV('hem', 'Căn nhà cuối hẻm và người hàng xóm không bao giờ ngủ', 'Sẵn sàng · đã xuất MP4', '#8B8B97', CL, '25/10 23:30', '1:02:40', '1,8 GB', 'url(../img/c_hem.jpg) center / cover no-repeat'),
+      PT(T[1], '25/10 10:15', '180 MB'),
+      PV('lighthouse', 'The Lighthouse Keeper’s Last Log', 'Đã đăng · còn MP4', '#8B8B97', MT, '24/10 22:48', '56:19', '1,6 GB', 'url(../img/c_lighthouse.jpg) center / cover no-repeat'),
+      PV('rain', 'Rain on the Lighthouse: A Sleep Story', 'Sẵn sàng · đã xuất MP4', '#8B8B97', QH, '23/10 20:02', '12:05', '380 MB', 'url(../img/c_rainlh.jpg) center / cover no-repeat'),
+      PT(T[2], '22/10 16:40', '95 MB'),
+      PT(T[3], '20/10 09:12', '240 MB'),
+      PT(T[4], '18/10 14:27', '205 MB')
+    ];
+    const plist = pf === 'all' ? PALL : PALL.filter((p) => p.kind === (pf === 'video' ? 'video' : 'template'));
+    const projects = plist.map((p) => {
+      const open = this.state.pmenu === p.id || (this.state.pmenu == null && this.props.menu && p.id === 'tpl-std');
+      const inUse = p.kind === 'template' && p.chans.length > 0;
+      return Object.assign({}, p, {
+        isTpl: p.kind === 'template', isVideo: p.kind === 'video',
+        menuOpen: open, menuOn: open ? 'true' : 'false', menuBg: open ? 'rgba(255,255,255,0.08)' : 'transparent',
+        toggleMenu: () => this.setState({ pmenu: open ? 'none' : p.id }),
+        canDelete: !inUse, cannotDelete: inUse,
+        deleteReason: inUse ? 'Đây là bố cục của template đang dùng ở ' + (p.chans.length === 1 ? p.chans[0].name : p.chans.length + ' kênh') + '. Xoá template trong Thư viện trước.' : ''
+      });
+    });
+    const pfilters = [['all', 'Tất cả', '23'], ['video', 'Video', '18'], ['template', 'Template', '5']].map((f) => {
+      const on = f[0] === pf;
+      return { label: f[1], n: f[2], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ pf: f[0], pmenu: 'none' }) };
+    });
+    const pFoot = 'Hiện ' + projects.length + ' trong ' + (pf === 'all' ? '23' : (pf === 'video' ? '18' : '5')) + ' dự án · cuộn để xem thêm.';
+    return {
+      crumb: 'Thư viện dùng chung', channels, library, tabs,
+      tabPrompts: tab === 'prompts', pList: pview === 'list', pEdit: pview !== 'list', pListTab: tab === 'prompts' && pview === 'list', ed,
+      scenes, covers: coversP, scenesN: '9', coversN: '8', showscenes: pkind !== 'cover', showcovers: pkind !== 'scene',
+      scenesHelp: 'Vẽ cho từng đoạn lời kể', coversHelp: 'Một ảnh mỗi video', addTitle: 'Prompt mới', pkinds,
+      newPrompt: () => this.setState({ tab: 'prompts', pview: 'new', pid: null, ekind: null, eplace: null, emode: null }), backToList: () => this.setState({ pview: 'list' }),
+      tabTemplates: tab === 'templates', tabBackdrops: tab === 'backdrops', tabOverlays: tab === 'overlays', tabProjects: tab === 'projects',
+      projects, pfilters, pFoot,
+      templates, overlays, adding,
+      bdRail, bc, bdVids, bdIsVid, bdIsCh: !bdIsVid, ...AV
+    };
+  }
+}
+</script>
+</body>
+</html>

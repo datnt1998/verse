@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video mới · điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.checker{background-color:#2A2A2E;background-image:linear-gradient(45deg,#1E1E22 25%,transparent 25%),linear-gradient(-45deg,#1E1E22 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1E1E22 75%),linear-gradient(-45deg,transparent 75%,#1E1E22 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+
+html,body{height:100%}
+textarea,select{font:inherit}
+.phone{height:100vh;overflow:hidden;display:flex;flex-direction:column;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;position:relative}
+.hs{overflow-x:auto;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.vs{overflow-y:auto;scrollbar-width:none}.vs::-webkit-scrollbar{display:none}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.02em;color:#EDEDEF}
+.tabbar{position:absolute;left:14px;right:14px;bottom:30px;z-index:4;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(8px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tcap{position:relative;height:100%;display:flex;align-items:stretch;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(255,51,82,.13);border:1px solid rgba(255,77,99,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(255,0,51,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;transition:color .2s}
+.tab.on{color:#FFE3E8;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06);color:#FF4D63}
+.tab:active{transform:scale(.96)}
+.tlab{display:block;max-height:16px;line-height:16px;white-space:nowrap;transition:opacity .2s,max-height .3s,margin .3s}
+.tnew{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;background:radial-gradient(circle at 35% 28%,#FF6A80 0%,#FF1F45 45%,#C80028 100%);box-shadow:0 8px 20px -6px rgba(255,0,51,.7),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 4px rgba(0,0,0,.25);transition:transform .2s}
+.tab:active .tnew{transform:scale(.92)}
+.tbadge{position:absolute;top:5px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#F6CB8C;color:#0B0B0D;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #1A1A1D}
+.phone:has(.tabbar) main.vs{padding-bottom:118px !important}
+.phone:has(.tabbar) .abar{padding-bottom:104px !important}
+.ib{width:44px;height:44px;border-radius:12px;border:none;background:transparent;color:#C9C9D1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.btn{height:44px;padding:0 16px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF}
+.btn-red{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.btn-pri{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.sheet-t{font-size:18px;font-weight:600;line-height:1.35}
+.sec{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97}
+.wait-tile{background:repeating-linear-gradient(135deg,#121214 0 8px,#16161A 8px 16px)}
+.press:active{transform:scale(.98)}
+
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-close{-webkit-mask-image:url(../icons/close.svg);mask-image:url(../icons/close.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
+.i-link{-webkit-mask-image:url(../icons/link.svg);mask-image:url(../icons/link.svg)}
+.i-subtitle{-webkit-mask-image:url(../icons/subtitle.svg);mask-image:url(../icons/subtitle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div class="phone">
+<div aria-hidden="true" style="flex: 0 0 auto; height: 44px; padding: 0 24px 0 30px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600">
+<span class="num">9:41</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; align-items: flex-end; gap: 2px; height: 11px"><span style="width: 3px; height: 4px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 6px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 8px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 11px; border-radius: 1px; background: #EDEDEF"></span></span><span style="width: 25px; height: 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.45); padding: 1.5px; display: flex"><span style="width: 72%; border-radius: 2px; background: #EDEDEF"></span></span></span>
+</div>
+<header style="flex: 0 0 auto; height: 52px; padding: 0 6px; display: flex; align-items: center">
+<a class="ib ghost" href="MMain.dc.html" aria-label="Đóng"><span class="ic i-close" aria-hidden="true"></span></a>
+<span style="flex: 1; min-width: 0; padding-left: 2px; font-size: 16px; font-weight: 600">Video mới</span>
+</header>
+<main class="vs" style="flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding-top: 4px">
+<span aria-hidden="true" style="display: flex; align-items: center; gap: 6px"><span class="orb o-scout" style="width: 18px; height: 18px"></span><span class="orb o-director" style="width: 18px; height: 18px"></span><span class="orb o-artist" style="width: 18px; height: 18px"></span><span class="orb o-qa" style="width: 18px; height: 18px"></span></span>
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em">Bạn muốn làm video nào?</h1>
+</div>
+
+<div role="radiogroup" aria-label="Cách bắt đầu" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 12px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
+<button type="button" role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="height: 40px; border-radius: 9px; border: none; background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; font-weight: {{m.fw}}; display: flex; align-items: center; justify-content: center; gap: 7px"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{m.label}}</button>
+</sc-for>
+</div>
+
+<div class="card" style="border-radius: 16px; padding: 4px 4px 4px 14px; background: #161618">
+<sc-if value="{{isSingle}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 8px">
+<label for="ml" class="sr-only">Link video YouTube</label>
+<input id="ml" type="url" inputmode="url" value="{{linkValue}}" placeholder="Dán link video YouTube" style="flex: 1; min-width: 0; height: 48px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 15px">
+<sc-if value="{{hasLink}}" hint-placeholder-val="{{ false }}"><button class="ib ghost" type="button" aria-label="Xoá link" onClick="{{clear}}"><span class="ic i-close" aria-hidden="true" style="width: 16px; height: 16px"></span></button></sc-if>
+<sc-if value="{{noLink}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{paste}}" style="height: 40px; padding: 0 14px; border-radius: 11px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 14px; font-weight: 600">Dán</button></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
+<label for="mm" class="sr-only">Nhiều link video</label>
+<textarea id="mm" rows="4" style="width: 100%; resize: none; padding: 10px 10px 10px 0; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 14px; line-height: 1.6" value="{{multiText}}"></textarea>
+</sc-if>
+</div>
+
+<sc-if value="{{showPreview}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 12px; align-items: flex-start">
+<span aria-hidden="true" style="position: relative; width: 132px; aspect-ratio: 16 / 9; border-radius: 10px; flex: 0 0 auto; overflow: hidden; background: url(../img/k_lakehouse.jpg) center / cover no-repeat"><span class="num" style="position: absolute; left: 5px; bottom: 4px; height: 18px; padding: 0 6px; display: flex; align-items: center; border-radius: 5px; background: rgba(11,11,13,0.82); color: #F3D9AE; font-size: 11px; font-weight: 600">×2,7</span><span class="num mono" style="position: absolute; right: 5px; bottom: 4px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.75); font-size: 10.5px">48:40</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span class="clamp2" style="font-size: 14px; font-weight: 600; line-height: 1.35">The Lake House Guestbook Had One More Name</span>
+<span class="ell" style="font-size: 12px; color: #8B8B97">Nocturne Stories · 780 N lượt xem · 1 ngày trước</span>
+<span style="display: flex; align-items: center; gap: 5px; color: #A6EDC1; font-size: 12px"><span class="ic i-subtitle" aria-hidden="true" style="width: 13px; height: 13px"></span>Có phụ đề do kênh đăng</span>
+</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px">
+<span style="display: flex; align-items: center; gap: 8px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>3 link đọc được</span>
+<span style="display: flex; align-items: center; gap: 8px; color: #F6CB8C"><span class="ic i-flag" aria-hidden="true" style="width: 15px; height: 15px"></span>1 đã làm cho kênh này · sẽ bỏ qua</span>
+<span style="color: #8B8B97; line-height: 1.5">Video thứ 3 chạy ngày mai.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{hasInput}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="border-radius: 16px; display: flex; flex-direction: column">
+<sc-for list="{{opts}}" as="o" hint-placeholder-count="3">
+<button class="ghost" type="button" onClick="{{o.tap}}" style="min-height: 52px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; border-bottom: 1px solid {{o.line}}; background: transparent; color: #EDEDEF; text-align: left">
+<span class="ic {{o.icon}}" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97"></span>
+<span style="font-size: 14px; color: #A0A0AB">{{o.k}}</span>
+<span class="ell" style="flex: 1; min-width: 0; text-align: right; font-size: 14px">{{o.v}}</span>
+<span class="ic {{o.end}}" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97"></span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{noInput}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; color: #A0A0AB">Hoặc chọn video nổi trội của đối thủ</span>
+<sc-for list="{{ideas}}" as="v" hint-placeholder-count="3">
+<button class="ghost" type="button" onClick="{{v.pick}}" style="display: flex; gap: 12px; padding: 8px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); background: #141416; color: #EDEDEF; text-align: left; white-space: normal">
+<span aria-hidden="true" style="position: relative; width: 104px; height: 58px; border-radius: 9px; flex: 0 0 auto; overflow: hidden; background: {{v.bg}}"><span class="num" style="position: absolute; left: 4px; bottom: 4px; height: 17px; padding: 0 5px; display: flex; align-items: center; border-radius: 5px; background: #F6CB8C; color: #0B0B0D; font-size: 10.5px; font-weight: 600">{{v.score}}</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><span class="clamp2" style="font-size: 13.5px; font-weight: 500; line-height: 1.35">{{v.title}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{v.meta}}</span></span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</main>
+<div style="flex: 0 0 auto; padding: 10px 16px 4px; border-top: 1px solid rgba(255,255,255,0.06); background: #0D0D0F; display: flex; flex-direction: column; gap: 8px">
+<sc-if value="{{hasInput}}" hint-placeholder-val="{{ true }}"><span style="display: flex; gap: 8px; align-items: flex-start; padding: 0 2px 4px; font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-clock" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; color: #8B8B97"></span>{{planText}}</span></sc-if>
+<button class="btn-red" type="button" aria-disabled="{{startDisabled}}" style="background: {{startBg}}; color: {{startFg}}">{{startLabel}}</button>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"input": {"editor": "enum", "options": ["empty", "pasted", "multi"], "default": "pasted", "section": "Ô nhập"}, "$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { input: null, imagesOn: true };
+  }
+  componentDidUpdate(prev) {
+    if (prev.input !== this.props.input) this.setState({ input: null, imagesOn: true });
+  }
+  renderVals() {
+    const input = this.state.input || this.props.input || 'pasted';
+    const multi = input === 'multi';
+    const has = input === 'pasted';
+    const modes = [['link', 'Dán link', 'i-link'], ['multi', 'Nhiều video', 'i-video-add']].map((m) => {
+      const on = (m[0] === 'multi') === multi;
+      return { label: m[1], icon: m[2], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', fw: on ? '500' : '400',
+        pick: () => this.setState({ input: m[0] === 'multi' ? 'multi' : 'empty' }) };
+    });
+    const opts = [
+      { icon: 'i-channel', k: 'Kênh', v: 'Midnight Tales', end: 'i-arrow-d', tap: () => {} },
+      { icon: 'i-layer', k: 'Template', v: 'Luân phiên · Phim tài liệu', end: 'i-arrow-d', tap: () => {} }
+    ].map((o, i) => Object.assign(o, { line: i < 1 ? 'rgba(255,255,255,0.06)' : 'transparent' }));
+    const TH = [
+      'url(../img/k_nurse.jpg) center / cover no-repeat',
+      'url(../img/k_radio.jpg) center / cover no-repeat',
+      'url(../img/k_mall.jpg) center / cover no-repeat'
+    ];
+    const ideas = [
+      { title: 'What I Saw Through the Night Bus Window', meta: 'Nocturne Stories · 4 ngày', score: '×2,8', bg: 'url(../img/k_nightbus.jpg) center / cover no-repeat' },
+      { title: 'The Motel Clerk Who Never Checked Anyone Out', meta: 'The Late Archive · 3 ngày', score: '×3,7', bg: 'url(../img/k_motel.jpg) center / cover no-repeat' },
+      { title: 'What I Found Behind the Hospital’s Sealed Wing', meta: 'Dark Hollow Tales · 5 ngày', score: '×3,2', bg: 'url(../img/k_sealed.jpg) center / cover no-repeat' }
+    ].map((v) => Object.assign(v, { pick: () => this.setState({ input: 'pasted' }) }));
+    const can = has || multi;
+    return {
+      modes, opts, ideas, isSingle: !multi, isMulti: multi, hasLink: has, noLink: !has && !multi,
+      linkValue: has ? 'youtube.com/watch?v=Kx8CbXtaW5Y' : '',
+      multiText: multi ? 'https://youtu.be/Kx8CbXtaW5Y\nhttps://youtu.be/p3Qd8mWz1aE\nhttps://youtu.be/Hh41LwZr0sk\nhttps://youtu.be/Za0Q7nB2cVw' : '',
+      showPreview: has, hasInput: can, noInput: !can,
+      clear: () => this.setState({ input: 'empty' }), paste: () => this.setState({ input: 'pasted' }),
+      startLabel: multi ? 'Làm 3 video' : 'Làm video', startDisabled: can ? 'false' : 'true',
+      startBg: can ? '#EDEDEF' : '#2A2A2E', startFg: can ? '#0B0B0D' : '#8B8B97',
+      planText: multi ? 'Vào cuối hàng chờ, theo nhịp 5 video/ngày của kênh. Hôm nay còn 2 lượt.' : 'Lên đầu hàng chờ · bắt đầu khoảng 00:40'
+    };
+  }
+}
+</script>
+</body>
+</html>

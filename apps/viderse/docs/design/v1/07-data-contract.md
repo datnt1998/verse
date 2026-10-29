@@ -1,0 +1,619 @@
+# Viderse — Hợp đồng dữ liệu
+
+Dữ liệu UI cần, theo từng mục. Mỗi mục ghi **có sẵn** (dùng service/API hiện tại) hay **mới**. Mỗi đợt thiết kế thêm một mục “Bổ sung §X”, không sửa mục cũ; mục bị thay thì ghi “Thay bằng §Y”.
+
+Mọi lỗi trả về giữ dạng hiện tại `{ error, code? }`. UI dịch `code` sang câu tiếng Việt theo [06-copy.md](06-copy.md).
+
+---
+
+## §1 · Trợ lý của một video (mới, chỉ là view-model) <a id="agent-view"></a>
+
+Hàm thuần `agentView(job, steps)` trong `src/lib/` (dùng chung cho client và CLI). Không đổi DB.
+
+```ts
+type AgentId = "scout" | "director" | "artist" | "qa";
+const AGENT_STEPS: Record<AgentId, CloneStepName[]> = {
+  scout: ["download", "backdrop", "transcript"],
+  director: ["metadata", "scenes"],
+  artist: ["images"],
+  qa: ["build", "score", "export"],
+};
+type AgentState = "waiting" | "running" | "done" | "stopped" | "needs_you";
+interface AgentView {
+  id: AgentId;
+  state: AgentState;
+  /** Câu đang làm, lấy từ cùng nguồn với cloneTerminal: “Đang vẽ cảnh 5 — đèn pin soi vào phòng trống” */
+  now: string | null;
+  /** Một dòng số liệu: “Ảnh đã vẽ 5 / 7 · ChatGPT”, “6 cảnh · 14 tag”, “Độ hoàn thiện 96 / 100” */
+  metric: { label: string; value: string } | null;
+}
+```
+
+Quy tắc trạng thái:
+- `running` khi bất kỳ step nào của trợ lý đang chạy.
+- `done` khi mọi step đều xong.
+- `stopped` khi có step lỗi hoặc đang chờ thử lại.
+- `needs_you` chỉ dành cho `qa` khi video ở Chờ duyệt.
+- Còn lại là `waiting`.
+
+## §2 · Trạng thái video (đổi ánh xạ, thêm Tạm dừng)
+
+`CloneStageGroup` hiện có → nhóm UI:
+
+| Nhóm UI | Lấy từ |
+|---|---|
+| `queued` | Mục trong hàng chờ, chưa có job |
+| `working` | `preparing`, `images`, `rendering` |
+| `review` | `review` |
+| `attention` | `attention` |
+| `paused` | job có `pausedAt` |
+| `ready` | `done` |
+| `posted` | `posted` |
+| `legacy` | `legacy` |
+
+**Mới — Tạm dừng một video:**
+- **DB:** cột `clone_jobs.paused_at` (nullable).
+- **API:**
+  - `POST /api/clone/<jobId>/pause` — step đang chạy làm xong rồi không chạy step kế; scheduler bỏ qua job; job không giữ luồng.
+  - `POST /api/clone/<jobId>/resume`.
+- **CLI:** `ytf clone pause|resume <jobId>`.
+- Khác `cancel`: `cancel` giữ nguyên nghĩa “dừng hẳn”.
+
+**Mới — dòng phụ cho mọi trạng thái:** `job.subline` (string), tính ở view-model, ví dụ:
+- “Hoạ sĩ đang vẽ cảnh 5/6”
+- “Chờ hạn mức ảnh · 07:00”
+- “7 ảnh · 42 phút trước”
+
+## §3 · Hàng chờ (mới: ưu tiên, nhịp, giải thích)
+
+**DB:**
+- `clone_queue.priority`: `"pick" | "batch"`, mặc định `"batch"` cho dữ liệu cũ.
+- `clone_queue.position`: dùng sẵn có.
+
+**Luật** (xem [ia-flows §5](01-ia-flows.md#5-luật-chạy)):
+- Enqueue `pick` → chèn sau mục `pick` cuối cùng.
+- Enqueue `batch` → cuối hàng.
+- Scheduler:
+  1. Lấy mục `pick` đầu tiên trước.
+  2. Hết mục `pick` thì luân phiên kênh trong các mục `batch`.
+  3. Bỏ qua kênh đã đủ nhịp, hoặc kênh không còn template dùng được.
+- **Nhịp** chỉ đếm job bắt đầu từ mục `batch`, kể cả mục do Tự lấy video tạo. Thay cho “giới hạn mỗi ngày” hiện tại, vốn đếm cả video chọn tay đi qua hàng chờ.
+- **Thay đổi hành vi:** video chọn tay không còn “bắt đầu thẳng không qua hàng chờ”. Nó vào hàng `pick`, và còn luồng thì scheduler bắt đầu ngay (kích hoạt scheduler ngay khi enqueue, không đợi chu kỳ 1 phút).
+
+**`GET /api/queue`** trả:
+
+```ts
+{
+  paused: boolean;
+  workers: { used: number; total: number };
+  imageWorkers: number;
+  rescanHours: number;
+  running: Array<{ jobId; channelId; title; agent: AgentId; now: string; stepIndex: number /* 0–8 */; etaMinutes: number | null }>;
+  rotation: {
+    order: string[];                                    // channelId theo vòng
+    next: string | null;
+    skipped: Array<{ channelId; reason: "pace_full" | "no_template" | "paused_channel"; until?: string }>;
+  };
+  items: Array<{ id; channelId; title; source; templateName; durationSec; priority: "pick" | "batch"; etaStart: string | null; waitReason?: "pace_full" | "no_template" }>;
+  pace: Array<{ channelId; used: number; limit: number }>;
+  imageQuota: Array<{ provider: "chatgpt" | "grok"; used: number; limit: number | null; period: "day" | "week"; resetsAt: string | null; role: "main" | "fallback" }>;
+  doneToday: Array<{ jobId; title; at: string; state: "ready" | "review" }>;
+}
+```
+
+`limit`/`resetsAt` là `null` khi nhà cung cấp không cho biết. Khi đó UI ghi “43 ảnh hôm nay”, không bịa “/50”.
+
+**Hành động:**
+- Có sẵn: `pause`, `resume`, `move` (lên đầu, đổi vị trí), `remove`.
+- Mới: `PATCH settings { workers, imageWorkers, rescanHours }`. Các khoá này đang nằm ở Cài đặt → Clone video, chỉ đổi nơi gọi.
+
+## §4 · Kế hoạch trước khi làm video (mới)
+
+`POST /api/clone/plan` với `{ channelId, urls: string[], priority?: "pick" | "batch", noImages?: boolean }`. Mặc định `priority` là `pick` khi có 1 link, `batch` khi nhiều hơn.
+
+Trả:
+
+```ts
+{
+  accepted: Array<{ url; videoId; title; durationSec; outlier: number | null; hasCaptions: boolean }>;
+  duplicates: Array<{ url; jobId; state }>;   // đã làm cho kênh này → UI dẫn tới video đó
+  invalid: Array<{ url; reason: "unreadable" | "private" | "not_youtube" }>;
+  position: "front" | "back";
+  etaStart: string | null;                    // giờ bắt đầu dự kiến của video đầu
+  paceLeftToday: number;                      // chỉ có nghĩa với batch
+  overflowDays: number;                       // số ngày rải ra theo nhịp
+  template: { id; name; fromRotation: boolean };
+}
+```
+
+Sau đó `POST /api/clone/enqueue` với cùng body (không còn endpoint “start now” riêng cho UI; CLI `clone start` giữ nguyên và tương đương `priority: "pick"`).
+
+## §5 · Đầu trang (mới)
+
+`GET /api/status` (poll 3 giây khi tab đang hiện), trả:
+
+```ts
+{
+  running: number;
+  queued: number;
+  paused: boolean;
+  reviewCount: number;
+  attention: Array<{ kind: "tool_update" | "login_expired" | "quota_low" | "tool_failed"; text: string; href: string }>;
+}
+```
+
+Chấm trên bánh răng hiện khi `attention.length > 0`.
+
+## §6 · Bàn dựng
+
+- Danh sách trái: `GET /api/clone?channel=<id>`. Đã có, chỉ cần thêm nhóm `paused` và `subline`. <!-- r5-scope -->
+- **Mọi kênh (mới):** `GET /api/clone?channel=all` trả video của mọi kênh, mỗi video có `channelId`. Có thể giới hạn mỗi nhóm: `queued` trả 3 video đầu theo thứ tự Hàng chờ kèm `queuedTotal`, `posted` không trả ở Mọi kênh.
+- **Dòng kênh (mới):** `GET /api/channels/summary` trả một dòng cho mỗi kênh:
+
+```ts
+Array<{
+  channelId: string; name: string; initials: string; color: string;
+  today: { done: number; cap: number };      // nhịp kênh hôm nay, chỉ đếm batch/auto (L4)
+  waitingYou: number;                        // Chờ duyệt + Cần xử lý + Tạm dừng
+  ready: number;                             // Sẵn sàng đăng
+  postedThisWeek: number;                    // chỉ dùng trong tooltip
+  autoFetch: boolean;
+  templateIssue?: { templateId: string; text: string }; // ví dụ “Template Cận cảnh thiếu clip nền”
+}>
+```
+
+- Bộ đổi kênh dùng chung endpoint này (nhịp hôm nay, chấm Chờ bạn). Dòng “Mọi kênh” cộng tổng `today` và `waitingYou`.
+- Video mặc định: hàm thuần `pickDefaultJob(jobs)` theo [ia-flows W5](01-ia-flows.md#w5--theo-dõi-video-đang-làm-bàn-dựng).
+- Tab **Nền**: `ytf clone backdrop` có sẵn (items, độ phủ, cảnh báo); hành động `backdrop-reroll | swap | add | remove` có sẵn.
+- Tab **Nội dung**: metadata và scene manifest có sẵn.
+- Ô ảnh **bị chặn**: dùng trạng thái `skipped` của image item có sẵn.
+- **Sẵn sàng:** cần `exportBytes` của MP4 để gợi ý xoá sau khi đăng. Có trong `delete-export` (freedBytes); cần đọc trước khi xoá.
+
+## §7 · Chọn nhiều trong Kênh
+
+Dùng `POST /api/clone/bulk` có sẵn. UI cần đếm trước số job hợp lệ cho từng thao tác: hàm thuần `bulkEligibility(jobs)` → `{ retry, approve, bundle, markPosted, cancel, delete }`, mỗi mục là danh sách `jobId`.
+
+“Mọi video của 3 kênh” = `GET /api/clone` không có `channel`.
+
+## §8 · Tạo kênh
+
+- `POST /api/owner-channels` đã có. **Đổi:** UI bắt buộc ít nhất 1 đối thủ; CLI giữ tuỳ chọn.
+- Ô “Đối thủ mới” trên màn Tạo kênh dùng API theo dõi đối thủ đã có (như Khám phá), rồi đưa id vào danh sách chọn; lỗi handle hiện ngay dưới ô. <!-- r13-create -->
+- Ngay sau khi tạo: chạy tạo bộ nhận diện (logic có sẵn khi liên kết đối thủ đầu tiên). Trả `identityJobId` để màn **Xong** theo dõi. <!-- r11-audit -->
+- Cùng request đặt luôn “Cách kênh chạy” (template rotation = Mẫu chuẩn, nhịp, `autonomy` — data-contract §20) bằng các API đã có, và `language` = ngôn ngữ đoán từ đối thủ tham chiếu.
+- Nhận diện tham chiếu **đối thủ liên kết đầu tiên** (thứ tự `owner_channel_sources.linked_at`). Chi tiết §16.
+
+## §9 · Nhắn trợ lý (mới, Gói V11)
+
+```
+POST /api/assistant/parse { scope: { jobId } | { channelId }, text }
+→ {
+    ok: true,
+    intent: IntentId,
+    params: object,
+    confirm: {
+      title: string,         // “Vẽ lại cảnh 5”
+      detail: string,        // “Hoạ sĩ vẽ lại theo góp ý: ‘cho y tá cầm đèn pin’”
+      cost: { images?: number },
+      reruns: AgentId[]
+    }
+  }
+  | { ok: false, suggestions: string[] }
+
+POST /api/assistant/run { intent, params } → kết quả của service tương ứng
+```
+
+Danh sách `IntentId` v1 ở [Gói V11](08-dev-prompt.md#goi-v11).
+
+**Cách chuyển câu thành intent:** dùng ChatGPT qua đường Codex hiện có, chỉ phân loại chữ, không vẽ ảnh. Câu người dùng là dữ liệu, không phải chỉ dẫn hệ thống. Chỉ cho phép đúng các intent trong danh sách.
+
+## §10 · Truy cập từ điện thoại (chờ quyết định D1)
+
+App hiện chỉ nghe `127.0.0.1`. Bản điện thoại cần một trong hai cách:
+- **(a)** nghe trên mạng LAN, kèm mã ghép thiết bị một lần và cookie phiên;
+- **(b)** chỉ qua Tailscale/VPN của người dùng.
+
+Cả hai đều phải thêm xác thực trước khi mở ra ngoài localhost (theo DESIGN.md › Discovery policy). Chưa chốt thì Gói V10 chỉ làm giao diện responsive và chạy được trên cùng máy.
+
+## §11 · Việc nền & thông báo (mới, Gói V14) <a id="activity"></a>
+
+```ts
+interface BackgroundTask {
+  id: string;
+  kind: "video" | "identity" | "channel_scan" | "backdrop_scan" | "thumbnail_preview" | "template_preview" | "editor_export" | "setup" | "cleanup" | "logs";
+  agent?: AgentId;              // orb khi có
+  title: string;                // “Tạo bộ nhận diện”
+  objectRef: { type: string; id: string; label: string };
+  phase: string;                // câu tiếng Việt
+  progress: { done: number; total: number } | null;   // null = không xác định
+  etaSec: number | null;
+  state: "running" | "paused" | "waiting" | "failed";
+  action: { label: string; href?: string; op?: "cancel" | "resume" | "retry" };
+}
+interface Notification {
+  id: string;
+  kind: "review_ready" | "needs_attention" | "ready_to_post" | "task_done" | "action_result";
+  count: number;                // > 1 khi đã gộp
+  text: string; href: string; actionLabel: string;
+  createdAt: string; readAt: string | null;
+}
+GET /api/activity → { running: BackgroundTask[]; videoJobs: number; queued: number; unread: Notification[] }
+GET /api/notifications?cursor= → lịch sử
+POST /api/notifications/read { ids | "all" }
+```
+
+- Thay `GET /api/status` ở §5 bằng `GET /api/activity` (cùng nhịp poll 3 giây khi tab hiện).
+- Gộp: thông báo cùng `kind` trong 10 giây → tăng `count`, không tạo dòng mới.
+- Toast chỉ hiện cho `review_ready`, `needs_attention`, `ready_to_post`, `task_done` của việc người dùng tự bắt đầu, và `action_result`.
+<!-- r3-dc -->
+
+## §12 · Khung đăng lặp lại (đổi, Gói V5 + V4) <a id="posting-slots"></a>
+
+`ytf channel posting-times` hiện trả khung hay đăng nhất. UI cần **mọi** khung lặp lại.
+
+```ts
+interface PostingSlot {
+  weekdays: number[];        // 0 = T2 … 6 = CN, theo múi giờ đang xem
+  start: string; end: string; // "06:00", "08:00"
+  count: number;             // số video trong 30 video gần nhất rơi vào khung
+  weeksHit: number; weeksTotal: number;   // độ đều: 6/6 tuần
+  rhythm: "weekly" | "most_weeks" | "biweekly" | "new";
+  isTop: boolean;
+  competitorIds?: string[];  // chỉ khi gộp nhiều đối thủ (trang Kênh)
+}
+GET /api/channels/<id>/posting-schedule?zone=vn|ny → { total: 30, perWeek: number, slots: PostingSlot[], offSlot: number, grid: number[7][12] }
+GET /api/owner-channels/<id>/posting-schedule?zone=vn|ny → { total: number, slots: PostingSlot[] }   // gộp các đối thủ liên kết
+```
+
+Cách tính khung (một hàm thuần dùng chung cho UI và CLI):
+1. Đổi giờ đăng chính xác của 30 video sang múi giờ đang xem (New York tự tính giờ mùa hè/đông; thứ đổi theo khi qua nửa đêm).
+2. Gom theo (thứ, khung 1 giờ); gộp hai khung giờ liền kề cùng thứ.
+3. Một khung là **lặp lại** khi có ≥ 3 video và rơi vào ≥ 2 tuần khác nhau.
+4. Các thứ có cùng khoảng giờ và cùng độ đều được gộp thành một dòng (T3, T5 · 06:00–08:00).
+5. Sắp theo `count` giảm dần; video không thuộc khung nào đếm vào `offSlot`.
+6. Gộp nhiều đối thủ: hai khung trùng nhau ≥ 50% thời lượng và cùng thứ được gộp, `competitorIds` là hợp các đối thủ.
+<!-- r4-slots -->
+
+## §13 · Prompt ảnh (mới, Gói V15) <a id="image-prompts"></a> <!-- r7-prompts -->
+
+```ts
+type ImagePrompt = {
+  id: string;                         // có sẵn: "builtin:scene" | "builtin:cover-<ThumbnailStyle>"  <!-- r9-assets -->
+  name: string;                       // ≤ 60 ký tự, duy nhất
+  kind: "scene" | "cover";
+  builtIn: boolean;                   // true: chỉ đọc, không xoá
+  composition?: ThumbnailStyle;              // kind = cover → recipe.thumbnail ('clean' | 'hook' | 'circle-arrow' | 'hook-arrow' | 'split' | 'closeup')
+  prompt: string;                     // ≤ 2.000 ký tự; có sẵn có thể rỗng (dùng house style)
+  samples: Array<{ mediaId: string; videoId?: string; createdAt: string }>;  // tối đa 12, mới nhất trước
+  usedBy: string[];                   // templateId, tính khi đọc
+  updatedAt: string;
+};
+```
+
+API:
+- `GET /api/image-prompts?kind=scene|cover&q=` → `ImagePrompt[]` (có sẵn trước, rồi theo `updatedAt`).
+- `POST /api/image-prompts` `{ name, kind, composition?, prompt, fromId? }` (`composition` chỉ khi `kind = cover`) → tạo hoặc nhân bản (`fromId`).
+- `PATCH /api/image-prompts/:id` → sửa; `403` với prompt có sẵn; đổi `kind` khi `usedBy` khác rỗng → `409 { reason: "in_use", usedBy }`.
+- `DELETE /api/image-prompts/:id` → `409 { reason: "in_use", usedBy }` khi đang dùng; `403` với có sẵn.
+- `POST /api/image-prompts/:id/samples` `{ videoId, sceneId? }` → tạo việc nền (§11) vẽ 1 ảnh; xong thì thêm vào `samples`.
+- `GET /api/image-prompts/:id/export` · `POST /api/image-prompts/import` (tệp `.json` gồm các trường trên, không có `usedBy`, `samples` tuỳ chọn).
+
+Recipe template:
+
+```ts
+recipe.scenes.style: "full" | "cutout";  // giữ nguyên: Cách ghép ảnh vào video (Cận cảnh = cutout + framing "close")
+recipe.scenes.framing?: "close";       // mới, cho Cận cảnh
+recipe.scenes.scenePromptId: string;   // thay imagePrompt + imagePromptMode
+recipe.scenes.coverPromptId: string;   // thay thumbnail
+```
+
+Lúc video bắt đầu (L9), app phân giải prompt và ghi vào manifest đúng các trường đang có: `imagePrompt ← prompt`, `imagePromptMode ← builtIn ? "blend" : "custom"`, `thumbnail ← composition`, và trường mới `coverPrompt ← prompt của prompt bìa`. `style` lấy thẳng từ recipe. Nhờ vậy `storyFingerprint`, `buildStoryPrompt`, `thumbnailPrompt` giữ nguyên chữ ký. <!-- r9-assets -->
+
+## §14 · Ngoại lệ ảnh của một video (mới, Gói V16) <a id="prompt-override"></a> <!-- r8-pm --> <!-- r9-assets -->
+
+Hai lớp: **template → video** (ia-flows L14). Không có ngoại lệ cho từng ảnh.
+
+```ts
+// clone_jobs (thêm cột; null = theo template)
+scene_prompt_id: string | null;
+cover_prompt_id: string | null;
+// no_images: đã có, cùng được đặt từ chip Ảnh
+```
+
+- `resolveJobRecipe` đè `scene_prompt_id` / `cover_prompt_id` / `no_images` lên recipe template.
+- `style` (cách ghép) **không** đè được theo video; đổi thì Làm lại từ đầu với template khác.
+
+API:
+- `POST /api/clone/:id/prompts/plan` `{ scenePromptId?: string | null, coverPromptId?: string | null, noImages?: boolean }` → `{ redraw: { scenes: number, cover: boolean }, cost: { images: number }, quotaLeft: number, rebuild: boolean }`.
+- `PATCH /api/clone/:id/prompts` cùng body → áp dụng, chạy reconcile; trả về như `plan`.
+- Vẽ lại một ảnh giữ API hiện có (`direction` = góp ý); không nhận `promptId`.
+
+Reconcile: prompt cảnh đổi → vẽ lại item cảnh đã vẽ, item chưa vẽ dùng prompt mới; prompt bìa đổi → chỉ item bìa; `noImages` → bỏ item cảnh, dựng từ nền. Video đã dựng: ảnh cảnh đổi → dựng + xuất lại; chỉ bìa đổi → chỉ cập nhật gói đăng.
+
+## §15 · Kết nối AI và model của trợ lý (mới, Gói V17) <a id="ai-providers"></a> <!-- r8-ai -->
+
+```ts
+type Capability = "text" | "vision" | "image";
+type AiProvider = {
+  id: string;
+  kind: "chatgpt" | "grok" | "openai" | "gemini" | "openrouter" | "deepseek" | "xai" | "anthropic" | "ollama" | "openai_compat";
+  auth: "subscription" | "api_key" | "local";
+  label: string;
+  keyHint?: string;                   // "••••7c2e"; khoá đầy đủ không bao giờ trả về
+  baseUrl?: string;                   // ollama, openai_compat
+  status: "ready" | "logged_out" | "login_pending" | "auth_failed" | "unreachable";
+  quota?: { used: number; limit: number; period: "day" | "week"; resetAt: string };   // gói đăng nhập
+  spendMonth?: number;                // khoá API, USD
+  catalogAt?: string;
+  catalogCount: number;
+  selected: string[];                 // model id đã chọn
+};
+type AiModel = { id: string; caps: Capability[]; contextK?: number; price?: { inPerM?: number; outPerM?: number; perImage?: number }; recommended?: boolean; manual?: boolean };
+type ModelRef = { provider: string; model: string };
+type AgentModels = {
+  director: { model: ModelRef; effort: "auto" | "low" | "medium" | "high"; fallback: ModelRef[] };
+  artist: { promptModel: ModelRef; draw: ModelRef; fallbackOn: boolean; drawFallback: ModelRef[] };
+};
+```
+
+API:
+- `GET /api/ai/providers` → `AiProvider[]`.
+- `POST /api/ai/providers` `{ kind, apiKey?, baseUrl? }` → tạo + lấy danh mục; khoá sai → `422 { reason: "auth_failed", status: 401 }` (thẻ vẫn được tạo với `status: "auth_failed"` để sửa khoá).
+- `GET /api/ai/providers/:id/models?q=&filter=selected|recommended|all` → `AiModel[]`.
+- `PATCH /api/ai/providers/:id` `{ selected?, apiKey?, baseUrl? }`.
+- `POST /api/ai/providers/:id/test` → `{ ok, ms }`. `POST /api/ai/providers/:id/models/check` `{ model }` → `{ ok, ms, caps, contextK }` rồi thêm với `manual: true`.
+- `DELETE /api/ai/providers/:id` → `409 { reason: "in_use", agents }` khi đang được gán.
+- `GET /api/ai/agents` · `PUT /api/ai/agents` `AgentModels` → `422 { reason: "capability_missing", need }` khi model thiếu `text` (director), `vision` (artist.promptModel) hoặc `image` (artist.draw / drawFallback).
+
+Đối chiếu code hiện tại:
+- `chatgpt` = Codex CLI (`tools:codex`): `gpt-6.1-sol` (text + vision), `gpt-image-2` (image). `grok` = grok CLI: `grok-imagine-image`.
+- `clone.imageProvider` → `artist.draw`; `clone.imageFallback` → `artist.fallbackOn`; `drawFallback` mới (mặc định: nguồn còn lại).
+- `metadata.ts`, `branding.ts` (text) và đường viết mô tả ảnh trong `images.ts` (vision) gọi qua adapter theo `AgentModels` thay cho Codex cố định.
+- Mỗi step ghi `modelRef` vào job khi bắt đầu; đổi cài đặt không ảnh hưởng step đang chạy.
+
+## §16 · Hồ sơ kênh và nội dung đăng (đợt 9) <a id="channel-profile"></a> <!-- r10-channel -->
+
+**Kênh** (`owner_channels`, thêm cột):
+
+```ts
+language: "en" | "vi" | "auto";        // mới; "auto" = theo ngôn ngữ video nguồn (hành vi hiện tại)
+styleNote: string | null;              // đã có: Giọng văn
+descriptionFooter: string | null;      // mới, ≤ 1.000 ký tự, thêm nguyên văn vào cuối mô tả
+alwaysTags: string[];                  // mới, ≤ 10, đứng đầu danh sách tag
+```
+
+**Nhận diện** (đã có trong `branding.ts`, chỉ nói rõ cho UI):
+- `BrandingState { brief, summary, look, avatar, banner }`: `brief` = Mô tả kênh (sửa được), `summary` = câu tiếng Việt hiện ở “Phong cách nhận diện”, `look` = phong cách nhận diện dùng cho avatar, ảnh bìa và ảnh video ở prompt **Theo nhận diện kênh** (`imagePromptMode = blend`).
+- Tạo lại: `POST /api/owner-channels/:id/branding` `{ part: "all" | "name" | "avatar" | "banner", brief, direction? }` (theo `brandingInputSchema`). Avatar hoặc ảnh bìa = 1 ảnh; cả bộ = 2 ảnh.
+- Trạng thái: `autoBrandingStatus` → UI `ready | generating | failed`; `failed` kèm `error` và giờ thử lại.
+- Tham chiếu = đối thủ liên kết đầu tiên; bỏ liên kết nó thì đối thủ kế tiếp thành tham chiếu cho lần tạo lại sau.
+- `part: "all"` gửi `brief` hiện tại (kể cả bản người dùng sửa) làm hướng; có thể trả tên mới. <!-- r11-audit -->
+
+**Bỏ liên kết đối thủ** (`unlinkCompetitor`, đã có): giữ video đã làm và `clone_queue` đã có; nếu không còn đối thủ nào thì đặt `autoPick.enabled = false` và trả `autoPickPaused: true` để UI ghi lý do.
+
+**Nội dung đăng của một video** (`metadata` artifact, `cloneMetadataSchema`):
+- Step `metadata` thêm `language`, `descriptionFooter`, `alwaysTags` vào prompt; app (không phải model) nối `descriptionFooter` vào cuối và đặt `alwaysTags` lên đầu, rồi cắt tag của Đạo diễn cho vừa 30 tag / 500 ký tự.
+- `PATCH /api/clone/:id/metadata` `{ title?, description?, tags? }` → kiểm theo `cloneMetadataSchema`; ghi `editedBy: "owner"`, `editedAt`; bản trước vào `metadata-history`.
+- `POST /api/clone/:id/metadata/rewrite` `{ parts: ("title" | "description" | "tags")[], direction?: string }` → chạy lại step `metadata` cho các phần chọn (không tốn ảnh), giữ phần không chọn.
+- Lịch sử: `GET /api/clone/:id/metadata/history` → tối đa 10 bản `{ at, by: "director" | "owner", parts, title, description, tags }`; `POST /api/clone/:id/metadata/restore` `{ at }` đưa bản đó thành bản đang dùng (bản hiện tại vào lịch sử). <!-- r11-audit -->
+- Trạng thái cho UI: `pending` (chưa tới step `metadata`), `writing` (step đang chạy), `failed` (step lỗi; video vẫn dựng tiếp, chỉ chặn Tải gói đăng), `ready`.
+- Gói đăng (`download-bundle.ts`) đọc bản mới nhất.
+- Ảnh bìa của bạn: `POST /api/clone/:id/cover` (đã có, `uploadCloneCover`).
+
+## §17 · Lý do của trợ lý (mới, Gói V18) <a id="reason"></a> <!-- r16-agent -->
+
+```ts
+interface Reason {
+  agent: AgentId;
+  text: string;                       // “Lượt xem/giờ gấp 4,2 lần mức thường của Nocturne Stories”
+  facts: { label: string; value: string; source: string }[];   // 2–4 dòng, source = “YouTube · 08:10”, “30 video gần nhất”…
+  fix?: { label: string; href: string };                         // “Sửa quy tắc viết”
+}
+```
+- Gắn vào: `competitorVideo.scoreReason`, `metadata.reason` (theo phần title/description/tags), `image.scoreReason`, `autoPick.decision.reason`, `suggestion.reason`.
+- Sinh bằng code từ số đã có (không gọi model) trừ `metadata.reason`: Đạo diễn trả kèm trong JSON của step `metadata` (`basedOn: { sourceTitle, rules: ruleId[] }`), app dựng câu.
+
+## §18 · Đề xuất (mới, Gói V19) <a id="suggestions"></a>
+
+```ts
+type SuggestionKind = "hot_video" | "template_failing" | "learn_rule" | "raise_autonomy" | "pace" | "perf_insight" | "cleanup";
+interface Suggestion {
+  id: string; kind: SuggestionKind; agent: AgentId; channelId: string | null;
+  title: string;                      // ≤ 2 dòng
+  reason: Reason;
+  primary: { label: string; op: string; params: object; cost?: { images?: number } };
+  createdAt: string; expiresAt: string;
+  state: "open" | "accepted" | "dismissed" | "expired";
+}
+GET  /api/suggestions?channelId=        → Suggestion[]  (tối đa 5 open, xếp theo giá trị)
+POST /api/suggestions/:id/accept        → kết quả của op
+POST /api/suggestions/:id/dismiss { forever?: boolean }   // forever = tắt loại cho kênh
+```
+- Bộ sinh chạy cùng chu kỳ quét đối thủ và sau mỗi sự kiện liên quan (duyệt, sửa metadata, video chưa đạt). Khoá trùng: `kind + channelId + đối tượng`; bỏ qua → `cooldownUntil = +7 ngày`.
+- `op` chỉ là thao tác có sẵn (enqueue `pick`, `set_pace`, `set_autonomy`, `add_rule`, `template.rotation`, `cleanup`).
+
+## §19 · Quy tắc đã học (mới, Gói V19) <a id="learned-rules"></a>
+
+```ts
+interface LearnedRule {
+  id: string; scope: { channelId: string } | { imagePromptId: string };
+  agent: "director" | "artist";
+  text: string;                       // “Không thêm phần trong ngoặc ở cuối tiêu đề”
+  learnedFrom: { count: number; from: string; to: string; examples: { before: string; after: string; jobId: string }[] };
+  enabled: boolean; createdAt: string;
+}
+GET/POST/PATCH/DELETE /api/learned-rules
+```
+- Phát hiện: so `metadata-history` bản `director` với bản `owner` cùng video; phân loại kiểu sửa bằng code trước (phần trong ngoặc, emoji, độ dài, năm, tag), phần còn lại hỏi model một lần mỗi ngày theo kênh.
+- Hoạ sĩ: góp ý vẽ lại (`regenerate --prompt`) gom theo `imagePromptId`, chuẩn hoá bằng model; trùng ≥ 2 lần → đề xuất.
+- Step `metadata` nhận thêm `learnedRules[]` (enabled) sau quy tắc viết; prompt ảnh nối `Ghi chú đã học` vào cuối nội dung lúc chốt (L14).
+
+## §20 · Mức tự chủ và điểm ảnh (mới, Gói V20) <a id="autonomy"></a>
+
+```ts
+interface Autonomy {
+  preset: "careful" | "balanced" | "auto" | "custom";
+  pick: "suggest" | "score2" | "all";               // thay autoPick.enabled
+  approve: { mode: "ask" | "score" | "all"; min: number };   // min 70–95, mặc định 85; thay autoApprove
+  onError: "stop" | "retry_once";
+  belowQuality: "ask" | "fix_then_ask";
+}
+owner_channels.autonomy  (JSON)        // migration: autoApprove=true → approve.mode="all"; false → preset "balanced"
+owner_channels.priority: "steady" | "views"
+ai_providers.dailyPaidImageLimit: number | null   // mặc định 50 (D7); 0 = không tự tiêu
+image.score: { value: number; parts: { match: number; artifacts: number; identity: number; duplicate: number }; reason: Reason }
+```
+- Điểm ảnh: Kiểm định chấm sau khi ảnh vẽ xong bằng model đọc ảnh của Hoạ sĩ (§15), không tốn ảnh. `approve.mode="score"` và mọi ảnh ≥ `min` → bỏ qua Chờ duyệt, ghi `action_result` “Tự duyệt theo điểm”.
+- `retry_once`: chỉ với mã lỗi trong danh sách tự sửa được (`source_download_failed`, `image_failed`, `render_failed`); thêm `job.autoFix = { at, code, result }`.
+- `fix_then_ask`: chạy lại các mục chưa đạt có cách tự sửa (vẽ lại ảnh lỗi, dựng lại phụ đề); đo lại một lần.
+
+## §21 · Số liệu sau đăng và nhận xét (mới, Gói V21) <a id="performance"></a>
+
+```ts
+interface PostedStats { jobId: string; youtubeId: string; at24h?: Stat; at7d?: Stat; at28d?: Stat; vsMedian7d?: number }
+interface Stat { views: number; likes: number; comments: number; readAt: string }
+interface Insight {
+  id: string; channelId: string; dimension: "template" | "title_pattern" | "length" | "post_hour";
+  text: string;                     // “Tiêu đề dạng câu hỏi: lượt xem 7 ngày gấp 1,8 lần”
+  groups: { label: string; n: number; median7d: number }[];
+  preliminary: boolean;             // < 20 video
+  apply?: { op: "add_rule" | "template.rotation"; params: object };
+}
+POST /api/clone/:id/posted { youtubeUrl? }     // đã có “Đánh dấu đã đăng”, thêm link
+GET  /api/channels/:id/performance → { posted: PostedStats[]; insights: Insight[]; needMore: number }
+```
+- Nguồn số: theo quyết định D5. Đọc ở mốc 24 giờ, 7 ngày, 28 ngày; lỗi đọc không chặn gì, chỉ để trống.
+
+## §22 · Bản tin và kế hoạch (mới, Gói V18 + V11) <a id="recap"></a>
+
+```ts
+interface Recap {
+  from: string; to: string;          // lần dùng cuối → bây giờ
+  summary: string;                   // một câu
+  needsYou: { jobId: string; label: string; state: string }[];
+  auto: { kind: "auto_pick" | "auto_fix" | "auto_approve" | "auto_retry"; text: string; count: number; href: string; undo?: { op: string; params: object } }[];
+  suggestions: Suggestion[];         // tối đa 3
+  today: { queued: number; expectedDone: number; byTime: string; imagesLeft: number; imagesTotal: number; paidLeft?: number };
+  channels: { channelId: string; done: number; cap: number; waiting: number; ready: number }[];
+}
+GET  /api/recap?since=               // since mặc định = lastSeenAt của máy
+POST /api/recap/seen
+
+POST /api/assistant/plan { scope: { jobId } | { channelId } | "all", text }
+→ { ok: true, steps: { id: string; intent: IntentId; params: object; title: string; agent: AgentId; cost?: { images?: number } }[]; total: { images: number } }
+  | { ok: false, ask: { question: string; options: string[] } }
+  | { ok: false, suggestions: string[] }
+POST /api/assistant/run-plan { steps: StepId[] } → { runId }; tiến độ qua GET /api/activity
+```
+
+## §23 · Thư mục lưu dự án (mới, Gói V22) <a id="storage"></a> <!-- r17-storage -->
+
+```ts
+interface StorageLocation {
+  path: string;                    // tuyệt đối, ví dụ "/Volumes/Samsung T7/Viderse Projects"
+  volume: { name: string; kind: "internal" | "external" | "network" | "cloud_sync"; fs: string; freeBytes: number };
+  usedBytes: number;               // assets dự án ở thư mục này
+  online: boolean;                 // false khi ổ bị rút / thư mục biến mất
+  previous?: { path: string; bytes: number; deleteAfter: string };   // bản cũ giữ 7 ngày sau khi chuyển
+}
+GET  /api/storage → { projects: StorageLocation; stayBytes: number; suggestions: { path: string; volume: StorageLocation["volume"] }[] }
+POST /api/storage/check { path, mode: "move" | "new_only" }
+  → { ok: boolean; createSubdir: boolean; checks: { kind: "space" | "write" | "cloud" | "fs" | "same_volume"; status: "ok" | "warn" | "fail"; text: string }[]; needBytes: number; etaSec: number | null }
+POST /api/storage/move { path, mode } → { taskId }       // BackgroundTask kind "storage_move" (§11)
+POST /api/storage/move/:taskId/cancel
+POST /api/storage/previous/delete
+POST /api/storage/use-default-for-new                   // khi ổ bị rút: video mới lưu lại vào máy này
+```
+- `kind: "storage_move"` thêm vào `BackgroundTask.kind`; tiến độ theo nhóm `{ group: "images" | "editor" | "sources" | "exports", done, total }`.
+- `Notification.kind = "needs_attention"` với `objectRef.type = "storage"` khi `online` chuyển sang `false`.
+
+## §24 · Video nền và nền tảng nguồn (mới, Gói V23) <a id="sources"></a> <!-- r22-sources -->
+
+```ts
+type PlatformId = "youtube" | "twitch" | "bilibili";   // registry; nền tảng mới thêm giá trị ở đây
+interface PlatformStatus {
+  id: PlatformId; label: string;
+  uses: ("competitor" | "backdrop")[];
+  kinds: ("clip" | "highlight" | "vod" | "video")[];
+  targetHeight: number;                                   // YouTube 360 · Twitch 480 · Bilibili 1080
+  login: { type: "none" | "browser_cookie" | "cookie_string"; saved: boolean; masked?: string; browserProfile?: string };
+  state: "ready" | "paused" | "needs_login";
+  pausedUntil?: string; pauseReason?: string; failureCount?: number;   // từ backdrop_platform_state
+  lastError?: { code: "cookies_failed"; at: string; jobId?: string };   // YouTube “không phải bot”
+  usage: { channels: number; videos: number; rivals?: number };
+}
+GET /api/platforms → PlatformStatus[]
+
+type ParsedSource =
+  | { kind: "channel"; platform: PlatformId; id: string; handle: string; url: string }
+  | { kind: "video"; platform: PlatformId; id: string; url: string; title?: string; durationSec?: number }
+  | { kind: "unsupported"; host: string; label: string }          // “Douyin”
+  | { kind: "invalid"; message: string; recovery?: string };
+POST /api/sources/parse { input } → ParsedSource                  // b23.tv: một lần đọc chuyển hướng
+
+interface BackdropVideo {                                          // “Video lẻ” trong Thư viện › Video nền
+  id: string;                    // "<platform>:<videoId>"
+  platform: PlatformId; url: string; title: string; durationSec: number;
+  segment: { fromSec: number; toSec: number };                   // toSec - fromSec ≤ 600
+  file?: { path: string; height: number; bytes: number };
+  state: "downloading" | "ready" | "failed"; progress?: number;
+  usedBy: { templateId: string; name: string }[];
+}
+GET    /api/backdrop/videos → BackdropVideo[]
+POST   /api/backdrop/videos { url, segment? } → BackdropVideo     // BackgroundTask kind "backdrop_download"
+PATCH  /api/backdrop/videos/:id { segment }
+DELETE /api/backdrop/videos/:id                                    // 409 khi usedBy không rỗng
+POST   /api/platforms/requests { host }                            // ghi platform_requests, kèm vào gói Báo lỗi
+```
+- Template: `recipe.backdrop.fixedVideoIds: string[]` thay clip cố định nhúng; `GET /api/templates/:id` trả kèm `BackdropVideo` đã gắn.
+- **Xem video của một kênh** (đợt 25) <!-- r25-backdrops -->:
+```ts
+GET /api/backdrop/channels/:id/videos?kind=clip|highlight|vod|video&sort=newest&cursor=&limit=24
+  → { items: { videoId, kind, title, durationSec, publishedAt, thumbnailUrl, url, unavailable?: { reason } , chosenBy: { templateId, name }[] }[],
+      counts: Record<Kind, number>, total: number, nextCursor?: string }
+GET /api/backdrop/channels/:id → { …BackdropChannel, usedBy: { templateId, name, mode: "random" | "pick", kinds: Kind[], chosenCount?: number }[] }
+```
+- **Nguồn nền của template** giữ đúng dạng code (`templateBackdropSchema`): `channels: { channelId, kinds, pinned: videoId[] }[]` — `pinned` rỗng = **Ngẫu nhiên từ mọi video**, có phần tử = **Chỉ từ video tôi chọn**; `clipCount?` (bỏ trống = tự phủ kín), `clipSec`. Video lẻ là `fixedVideoIds`.
+- **Ước lượng cho thanh Nền của một video:** `GET /api/templates/:id/backdrop/mix?lengthSec=2520` → `{ fixedSec, perChannel: { channelId, clips, freshVideos, repeats: boolean }[], loopSec, need, capped }` — dùng cùng hàm chia của `pickBackdropSources` (vòng tròn, kênh hết video nhường kênh khác, tối đa 40 clip) để số trên thanh khớp video làm ra.
+- `BackdropChannel.platform` và `BackdropVideo.platform` dùng cùng `PlatformId`; chip lọc nền tảng ở Thư viện sinh từ `GET /api/platforms` (chỉ các nền tảng có `uses` chứa `backdrop`).
+
+### §24.2 · Editor: việc cần sửa, khớp phụ đề, đo lại (Gói V13, đợt 27) <a id="editor-fix"></a> <!-- r27-editor -->
+```ts
+// mở rộng CloneScore (src/lib/clone-quality.ts): mỗi mục có fix + vùng lệch
+interface QualityItemView { id: CloneQualityItemId; status: "pass" | "fail" | "unknown"; label: string; evidence?: string;
+  fix?: { itemId?: string; href?: string };
+  ranges?: { cueId: string; startSec: number; endSec: number; text: string; offsetSec: number }[];   // offset < 0: chữ sớm hơn tiếng
+  stale?: boolean;                                                                                   // đã sửa sau lần đo gần nhất → “Cần đo lại”
+}
+GET  /api/editor/:projectId/quality → { total: number; measuredAt: string; items: QualityItemView[]; changedSinceMeasure: number }
+POST /api/editor/:projectId/captions/align { cueIds: string[] | "all-drifting" } → { cues: { cueId, offsetSec, words: { w, startSec, endSec }[] }[] }   // khớp mốc từng từ theo giọng gốc
+POST /api/clone/:jobId/measure → BackgroundTask (kind "measure")                                    // Đo lại độ hoàn thiện; Kiểm định chạy nền ~1 phút
+POST /api/clone/:jobId/export { accept?: true }                                                      // accept = Vẫn xuất (ghi gate.accepted)
+```
+- Mở editor từ Cần xử lý: `?fix=captionAlignment&cue=<id đầu tiên>` → chọn sẵn đoạn, playhead tới `startSec`.
+- `captions/align` là một thao tác hoàn tác được (một bước undo cho cả lệnh), lưu project như mọi sửa khác; không tự đo lại.
+
+### §24.1 · Đăng nhập nền tảng bằng mã QR (Gói V24) <a id="qr-login"></a> <!-- r24-biliqr -->
+
+Bản tham chiếu đã chạy: `yt-factory`: `src/server/backdrop/bilibili-qr-login.ts`, `bilibili-login.ts`, `src/app/settings/bilibili-cookie-controls.tsx`. API dưới đây là dạng HTTP cho verse của các server action đó.
+
+```ts
+// PlatformStatus.login mở rộng
+interface PlatformLogin {
+  type: "none" | "browser_cookie" | "cookie_string" | "qr";      // Bilibili: "qr" (vẫn nhận cookie dán tay)
+  saved: boolean; masked?: string;                                // "SESSDATA=8f3a••••c21e"
+  account?: string;                                               // tên tài khoản phụ, lấy khi kiểm tra cookie
+  method: "qr" | "manual" | null;                                 // manual = cookie dán tay
+  renewable: boolean;                                             // method = "qr" và có refresh token
+  lastRefreshAt?: string; refreshError?: string;                  // refreshError → thẻ “Cần đăng nhập lại”
+}
+POST   /api/platforms/:id/login/qr        → { qrcodeKey, qrImage /* data:image/svg+xml */, loginUrl, expiresAt }   // mã sống 180 giây
+GET    /api/platforms/:id/login/qr/:key   → { status: "waiting" | "scanned" | "expired" | "success" | "rejected"; account? }
+POST   /api/platforms/:id/login/refresh   → PlatformLogin & { status: "refreshed" | "current" | "skipped" | "failed" }   // Gia hạn ngay (force)
+PUT    /api/platforms/:id/login { cookie } → PlatformLogin        // cookie dán tay; kiểm tra với nền tảng trước khi lưu
+DELETE /api/platforms/:id/login
+```
+- UI hỏi `GET …/qr/:key` mỗi 2 giây khi `waiting | scanned`; dừng khi đóng hộp thoại, khi hết `expiresAt` (tự chuyển `expired`, không cần hỏi server) hoặc khi có kết quả cuối. Lỗi mạng hay lỗi đọc dữ liệu → trạng thái lỗi kết nối.
+- `success`: cookie và refresh token lưu cùng lúc (ghi một lần, hỏng thì giữ đăng nhập cũ); **xoá giờ chờ bị chặn** của nền tảng (`pausedUntil`, `failureCount`) nên `GET /api/platforms` trả `state: "ready"` ngay. Không kiểm tra được tên tài khoản vì mạng: vẫn lưu, `account` trống, `refreshError` = “Đã nhận đăng nhập; chưa kiểm tra được tài khoản do kết nối Bilibili…”.
+- Tự gia hạn: trước mỗi lần quét kênh, tối đa một lần mỗi 24 giờ (`ensureFresh`); lỗi gia hạn không chặn lần quét (quét bằng cookie đang có). Thất bại → `refreshError`, `PlatformStatus.state = "needs_login"`.
+- Một khoá chung cho đăng nhập, hỏi mã và gia hạn (không chạy song song). Cookie và trạng thái lưu tệp quyền 600 trên máy chạy app; API chỉ trả giá trị đã che.

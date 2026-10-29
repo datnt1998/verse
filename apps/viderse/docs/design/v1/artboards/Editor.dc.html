@@ -1,0 +1,1204 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.checker{background-color:#2A2A2E;background-image:linear-gradient(45deg,#1E1E22 25%,transparent 25%),linear-gradient(-45deg,#1E1E22 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1E1E22 75%),linear-gradient(-45deg,transparent 75%,#1E1E22 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-redo{-webkit-mask-image:url(../icons/redo.svg);mask-image:url(../icons/redo.svg)}
+.i-undo{-webkit-mask-image:url(../icons/undo.svg);mask-image:url(../icons/undo.svg)}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-calendar{-webkit-mask-image:url(../icons/calendar.svg);mask-image:url(../icons/calendar.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-chart{-webkit-mask-image:url(../icons/chart.svg);mask-image:url(../icons/chart.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-close{-webkit-mask-image:url(../icons/close.svg);mask-image:url(../icons/close.svg)}
+.i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-doc{-webkit-mask-image:url(../icons/doc.svg);mask-image:url(../icons/doc.svg)}
+.i-download{-webkit-mask-image:url(../icons/download.svg);mask-image:url(../icons/download.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit.svg);mask-image:url(../icons/edit.svg)}
+.i-export{-webkit-mask-image:url(../icons/export.svg);mask-image:url(../icons/export.svg)}
+.i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
+.i-filter{-webkit-mask-image:url(../icons/filter.svg);mask-image:url(../icons/filter.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder.svg);mask-image:url(../icons/folder.svg)}
+.i-gallery-edit{-webkit-mask-image:url(../icons/gallery-edit.svg);mask-image:url(../icons/gallery-edit.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp.svg);mask-image:url(../icons/lamp.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
+.i-link{-webkit-mask-image:url(../icons/link.svg);mask-image:url(../icons/link.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic.svg);mask-image:url(../icons/magic.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-mic{-webkit-mask-image:url(../icons/mic.svg);mask-image:url(../icons/mic.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-msg{-webkit-mask-image:url(../icons/msg.svg);mask-image:url(../icons/msg.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notify.svg);mask-image:url(../icons/notify.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh.svg);mask-image:url(../icons/refresh.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing.svg);mask-image:url(../icons/routing.svg)}
+.i-sb-left{-webkit-mask-image:url(../icons/sb-left.svg);mask-image:url(../icons/sb-left.svg)}
+.i-sb-right{-webkit-mask-image:url(../icons/sb-right.svg);mask-image:url(../icons/sb-right.svg)}
+.i-scissor{-webkit-mask-image:url(../icons/scissor.svg);mask-image:url(../icons/scissor.svg)}
+.i-search{-webkit-mask-image:url(../icons/search.svg);mask-image:url(../icons/search.svg)}
+.i-send{-webkit-mask-image:url(../icons/send.svg);mask-image:url(../icons/send.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting.svg);mask-image:url(../icons/setting.svg)}
+.i-subtitle{-webkit-mask-image:url(../icons/subtitle.svg);mask-image:url(../icons/subtitle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer.svg);mask-image:url(../icons/timer.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-trend{-webkit-mask-image:url(../icons/trend.svg);mask-image:url(../icons/trend.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+.i-video-play{-webkit-mask-image:url(../icons/video-play.svg);mask-image:url(../icons/video-play.svg)}
+.i-volume{-webkit-mask-image:url(../icons/volume.svg);mask-image:url(../icons/volume.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning.svg);mask-image:url(../icons/warning.svg)}
+.i-workbench{-webkit-mask-image:url(../icons/workbench.svg);mask-image:url(../icons/workbench.svg)}
+.spinner{display:inline-block;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);animation:spin .9s linear infinite;flex:0 0 auto}@keyframes spin{to{transform:rotate(360deg)}}
+
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+.ed{height:100vh;overflow:hidden;display:flex;flex-direction:column;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;position:relative}
+.ib{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:#A0A0AB;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:15px}
+.ib:hover{background:rgba(255,255,255,.07);color:#EDEDEF}
+.rail{width:44px;flex:0 0 44px;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0}
+.rb{width:34px;height:34px;border-radius:9px;border:none;background:transparent;color:#8B8B97;display:flex;align-items:center;justify-content:center}
+.rb[aria-selected=true]{background:#222225;color:#EDEDEF}
+.rb[aria-selected=true] .ic{color:#FF4D63}
+.fld{height:28px;padding:0 8px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:#131315;color:#EDEDEF;display:flex;align-items:center;gap:6px;font-size:12.5px;min-width:0;white-space:nowrap}
+@media (max-width:1360px){.q-only{display:none !important}}
+@media (max-width:1279px){.lp{width:240px !important;flex-basis:240px !important}.rp{width:268px !important;flex-basis:268px !important}.z-only{display:none !important}}
+@media (max-width:1180px){.sf-l{display:none}}
+.fld b{font-weight:400;color:#8B8B97;font-size:11.5px}
+.sec{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sec h4{margin:0;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#8B8B97;display:flex;align-items:center;gap:6px}
+.trk{display:flex;height:30px;border-bottom:1px solid rgba(255,255,255,.04)}
+.th{width:168px;flex:0 0 168px;display:flex;align-items:center;gap:7px;padding:0 6px 0 10px;border-right:1px solid rgba(255,255,255,.06);background:#0F0F11}
+.thl{font-size:12px;color:#C9C9D1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{width:24px;height:24px;border-radius:6px;border:none;background:transparent;color:#8B8B97;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.lane{position:relative;flex:1;min-width:0}
+.it{position:absolute;top:4px;bottom:4px;border-radius:5px;box-sizing:border-box;display:flex;align-items:center;min-width:2px}
+.itl{padding:0 6px;font-size:11px;color:#EDEDEF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}
+.itl.bgd{margin-left:4px;padding:0 5px;border-radius:4px;background:rgba(13,13,15,.82)}
+.kf{position:absolute;top:50%;width:8px;height:8px;margin-top:-4px;background:#EED654;transform:rotate(45deg);border:1px solid #0B0B0D;z-index:2}
+.wave{position:absolute;inset:3px 0;-webkit-mask:linear-gradient(0deg,transparent 0,#000 30%,#000 70%,transparent 100%),repeating-linear-gradient(90deg,#000 0 37px,rgba(0,0,0,.45) 37px 61px,#000 61px 83px);-webkit-mask-composite:source-in;opacity:.75}
+.bars{position:absolute;inset:6px 0;background:repeating-linear-gradient(90deg,rgba(229,157,187,.55) 0 2px,transparent 2px 6px);opacity:.7}
+.ruler{position:relative;height:24px;border-bottom:1px solid rgba(255,255,255,.08)}
+.tick{position:absolute;bottom:0;width:1px;height:10px;background:#5E5E68}
+.tick span{position:absolute;left:4px;bottom:5px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#8B8B97;white-space:nowrap}
+.tick.s{height:5px;background:#3A3A42}
+.dm{position:absolute;top:2px;width:10px;height:10px;margin-left:-5px;background:#FF9A5C;clip-path:polygon(50% 100%,0 0,100% 0)}
+.ph{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#E6002E;box-shadow:0 0 0 1px rgba(11,11,13,.85);z-index:4;pointer-events:none}
+.ph:before{content:"";position:absolute;top:0;left:-5px;width:12px;height:10px;background:#E6002E;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%)}
+.io{position:absolute;top:0;bottom:0;background:rgba(121,207,212,.07);border-left:1px solid rgba(121,207,212,.6);border-right:1px solid rgba(121,207,212,.6);pointer-events:none;z-index:1}
+.rng{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;background:linear-gradient(90deg,#FF4D63 var(--p,50%),#2A2A2E var(--p,50%));margin:0;flex:1;min-width:0}
+.rng::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#EDEDEF;border:none;box-shadow:0 0 0 4px rgba(255,77,99,.25),0 2px 6px rgba(0,0,0,.5)}
+.seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#131315;border:1px solid rgba(255,255,255,.06)}
+.seg button{flex:1;height:26px;border:none;border-radius:6px;background:transparent;color:#A0A0AB;font-size:12px}
+.seg button[aria-checked=true]{background:#222225;color:#EDEDEF;font-weight:500}
+.mt{position:relative;aspect-ratio:16/9;border-radius:7px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+.fx-snow{position:absolute;inset:0;background:radial-gradient(1.6px 1.6px at 12% 18%,#fff 98%,transparent),radial-gradient(1.2px 1.2px at 38% 62%,#fff 98%,transparent),radial-gradient(2px 2px at 66% 30%,#fff 98%,transparent),radial-gradient(1.4px 1.4px at 84% 74%,#fff 98%,transparent),radial-gradient(1px 1px at 52% 88%,#fff 98%,transparent);background-size:137px 151px;opacity:.32;animation:fall 9s linear infinite}
+.fx-snow.b{background-size:211px 197px;background-position:61px 23px;opacity:.22;animation-duration:13s}
+@keyframes fall{to{background-position:0 120px}}
+.scrim{position:absolute;inset:0;background:rgba(5,5,7,.66);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}
+.dlg{width:min(520px,100%);border-radius:18px;background:#18181A;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);padding:20px;display:flex;flex-direction:column;gap:16px}
+.stp{display:flex;align-items:center;gap:10px;font-size:13px}
+.narrow-only{display:none}
+@media (max-width:1023px){.wide-only{display:none !important}.narrow-only{display:flex !important}}
+
+/* r27-editor */
+.erail{width:68px;flex:0 0 68px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border-right:1px solid rgba(255,255,255,.06)}
+.erb{width:56px;height:54px;border:none;border-radius:10px;background:transparent;color:#A0A0AB;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;font:inherit}
+.erb:hover{background:rgba(255,255,255,.04);color:#EDEDEF}
+.erb[aria-selected="true"]{background:rgba(255,255,255,.08);color:#EDEDEF}
+.erb-l{font-size:10.5px;line-height:1;white-space:nowrap}
+.gh{margin:0;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E78;display:flex;gap:6px;align-items:center}
+.gh .num{letter-spacing:0;font-weight:400}
+.isec{display:flex;flex-direction:column;gap:8px;padding:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.isec h4{margin:0;font-size:12.5px;font-weight:500;color:#A0A0AB}
+.vv-kbd{min-width:18px;height:18px;padding:0 4px;border-radius:4px;border:1px solid rgba(255,255,255,.14);font-family:'JetBrains Mono',monospace;font-size:10.5px;display:inline-flex;align-items:center;justify-content:center;color:#A0A0AB}
+
+/* r16-agent: tokens + kit (đợt 27) */
+/* Viderse tokens — bộ của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cỡ, bo góc, bóng, chuyển động lấy y nguyên từ UI Kit của Noverse; chỉ màu nhấn và màu phá huỷ đổi:
+   tím Noverse → đỏ Viderse, đỏ phá huỷ Noverse → cam Viderse. Chỉ dark.
+   Dùng biến, không viết cứng mã màu đã có ở đây. */
+:root {
+  /* Nền và bề mặt (giống Noverse) */
+  --vv-bg: #0B0B0D;
+  --vv-stage: #0D0D0F;                /* nền khung minh hoạ, vùng làm việc phụ */
+  --vv-surface-1: #131315;            /* thanh điều hướng, segmented, chip */
+  --vv-surface-2: #161618;            /* ô nhập lớn */
+  --vv-surface-3: #18181A;            /* composer, hộp thoại */
+  --vv-card: linear-gradient(180deg, #171719 0%, #131315 100%);
+  --vv-card-border: rgba(255,255,255,.07);
+  --vv-card-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.5);
+  --vv-hairline: rgba(255,255,255,.06);
+  --vv-selected: #222225;             /* tab/segment đang chọn trên thanh */
+  --vv-selected-2: #2A2A2E;           /* nút đang chọn trong nhóm chọn, tooltip */
+
+  /* Chữ */
+  --vv-text: #EDEDEF;
+  --vv-text-2: #C9C9D1;
+  --vv-text-soft: #B4B4BE;            /* thân hộp thoại, luật */
+  --vv-text-3: #A0A0AB;
+  --vv-text-hint: #8E8E99;            /* mô tả dưới lựa chọn */
+  --vv-muted: #8B8B97;                /* tối thiểu cho chữ phụ: 5.8:1 trên --vv-bg, 5.4:1 trên card */
+  --vv-faint: #6E6E78;                /* 3.9:1 — chỉ cho chấm, icon, viền; KHÔNG dùng cho chữ */
+  --vv-disabled: #5E5E68;             /* chữ của thứ đang khoá (không cần đạt tương phản) */
+
+  /* Màu nhấn — Noverse dùng tím, Viderse dùng đỏ */
+  --vv-accent: #FF4D63;               /* hộp kiểm, radio, thanh trượt, dấu tick, link, icon tab đang chọn — 6:1 trên nền */
+  --vv-accent-strong: #E6002E;        /* công tắc bật (núm sáng 4:1) */
+  --vv-accent-soft: #FFD3DA;          /* chữ trên nền nhấn nhạt (thẻ chọn nhiều, huy hiệu) */
+  --vv-accent-bg: rgba(255,77,99,.12);
+  --vv-accent-tint: rgba(255,77,99,.06);   /* nền lựa chọn đang chọn */
+  --vv-accent-border: rgba(255,77,99,.40); /* viền lựa chọn đang chọn */
+  --vv-accent-focus: rgba(255,77,99,.55);  /* viền ô đang mở / focus */
+  --vv-accent-ring: rgba(255,77,99,.14);   /* vòng 3px quanh ô đang focus */
+  --vv-accent-mark: rgba(255,77,99,.22);   /* tô phần khớp khi tìm */
+
+  /* Thương hiệu — đỏ YouTube (logo, chấm đang chạy) */
+  --vv-red: #FF0033;
+  --vv-red-ink: #FF4D63;              /* = --vv-accent */
+  --vv-red-deep: #A3001C;
+  --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
+  --vv-red-button-hover: #FF1F4B;
+
+  /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */
+  --vv-danger: #FF9A5C;               /* nút xoá vĩnh viễn (nền), icon lỗi */
+  --vv-danger-hover: #FFAD78;
+  --vv-danger-fg: #1A0E06;            /* chữ trên nút cam đặc */
+  --vv-danger-text: #FFC09A;          /* chữ lỗi, mục menu nguy hiểm */
+  --vv-danger-text-2: #FFD2B5;        /* chữ trên nền lỗi nhạt */
+  --vv-danger-soft: rgba(255,154,92,.12);  /* nút nguy hiểm làm lại được */
+  --vv-danger-soft-hover: rgba(255,154,92,.20);
+  --vv-danger-tint: rgba(255,154,92,.06);  /* nền danh sách hệ quả, banner lỗi */
+  --vv-danger-border: rgba(255,154,92,.30);
+  --vv-danger-focus: rgba(255,154,92,.55); /* viền ô lỗi */
+  --vv-danger-ring: rgba(255,154,92,.12);
+
+  /* Trạng thái video (ia-flows §3.1) */
+  --vv-st-queued: #8E8E99;            /* Chờ lượt, Tạm dừng */
+  --vv-st-working: #B9D0F7;           /* Đang làm */
+  --vv-st-review: #F6CB8C;            /* Chờ duyệt, chờ bạn */
+  --vv-st-issue: #FF9A5C;             /* Cần xử lý — cùng màu với --vv-danger */
+  --vv-st-issue-text: #FFC09A;
+  --vv-st-ready: #A6EDC1;             /* Sẵn sàng, Ổn, Xong */
+  --vv-st-posted: #8B8B97;
+  --vv-info: #9DB0F7;                 /* banner thông tin */
+  --vv-info-bg: rgba(124,147,243,.07);
+  --vv-info-border: rgba(124,147,243,.20);
+  --vv-st-review-bg: rgba(246,203,140,.12);
+  --vv-st-review-tint: rgba(246,203,140,.06);
+  --vv-st-review-border: rgba(246,203,140,.20);
+  --vv-st-issue-bg: var(--vv-danger-tint);
+  --vv-st-issue-border: var(--vv-danger-border);
+  --vv-st-ready-bg: rgba(166,237,193,.12);
+  --vv-st-ready-tint: rgba(166,237,193,.06);
+  --vv-st-ready-border: rgba(166,237,193,.20);
+  --vv-st-working-bg: rgba(185,208,247,.12);
+  --vv-director-bg: rgba(184,156,255,.07);
+  --vv-ref-bg: rgba(255,208,138,.10);
+
+  /* Bốn trợ lý: chữ, vòng logo, orb */
+  --vv-scout-ink: #B7CEFF;    --vv-scout-arc: #7FA3FF;
+  --vv-director-ink: #CDB5FF; --vv-director-arc: #B08AF7;
+  --vv-artist-ink: #FFD08A;   --vv-artist-arc: #FFBE66;
+  --vv-qa-ink: #9DECC9;       --vv-qa-arc: #5DDDB0;
+  --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
+  --vv-orb-director: radial-gradient(circle at 32% 26%, #F5EAFF 0%, #D2AEFF 28%, #9566F0 62%, #5B2FB8 100%);
+  --vv-orb-artist: radial-gradient(circle at 32% 26%, #FFF3DC 0%, #FFD08A 28%, #F5A13F 62%, #C2611D 100%);
+  --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
+  --vv-orb-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4);
+
+  /* Chỉ số nổi trội (chỉ trong thumbnail) */
+  --vv-outlier-bg: #F6CB8C;
+  --vv-outlier-fg: #0B0B0D;
+
+  /* Chữ */
+  --vv-font: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;  /* 400/500/600/700, subset vietnamese */
+  --vv-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --vv-fs-page: 17px;
+  --vv-fs-hero: 30px;
+  --vv-fs-dialog: 16px;    /* tiêu đề hộp thoại */
+  --vv-fs-body: 14px;
+  --vv-fs-card: 14px;      /* tiêu đề thẻ (600) */
+  --vv-fs-ui: 13px;        /* nút, ô nhập, mục menu */
+  --vv-fs-meta: 12px;
+  --vv-fs-small: 11.5px;   /* mô tả dưới lựa chọn, toast nhỏ */
+  --vv-fs-group: 11px;     /* nhãn nhóm VIẾT HOA, 600, letter-spacing .08em */
+
+  /* Bo góc (Noverse) */
+  --vv-r-kbd: 4px;
+  --vv-r-tag: 6px;         /* huy hiệu, nhãn */
+  --vv-r-tip: 7px;         /* tooltip, thẻ trong ô chọn nhiều, nút trong nhóm chọn */
+  --vv-r-chip: 8px;        /* chip, nút nhỏ */
+  --vv-r-opt: 9px;         /* mục menu / lựa chọn */
+  --vv-r-btn: 10px;        /* nút, ô nhập, ô chọn */
+  --vv-r-field: 10px;
+  --vv-r-choice: 11px;     /* thẻ lựa chọn có mô tả */
+  --vv-r-tile: 12px;       /* banner, khối trống, thẻ nhỏ trong danh sách */
+  --vv-r-pop: 14px;        /* menu, popover, select mở */
+  --vv-r-card: 16px;       /* thẻ nhóm */
+  --vv-r-dialog: 18px;     /* hộp thoại, khung minh hoạ */
+  --vv-r-thumb: 7px;
+  --vv-r-composer: 18px;
+  --vv-r-sheet: 22px;
+  --vv-r-field-m: 12px;
+  --vv-r-pill: 999px;
+
+  /* Kích thước */
+  --vv-h-btn: 36px;  --vv-h-btn-sm: 30px;  --vv-h-field: 36px;  --vv-h-opt: 34px;
+  --vv-hit-desktop: 30px;
+  --vv-hit-touch: 44px;
+  --vv-m-btn: 44px; --vv-m-btn-lg: 48px; --vv-m-row: 56px; --vv-m-bar: 52px; --vv-m-tabbar: 64px;
+
+  /* Nút sáng = nút chính */
+  --vv-primary: #EDEDEF;
+  --vv-primary-hover: #FFFFFF;
+  --vv-primary-fg: #0B0B0D;
+  --vv-white-button: var(--vv-primary);     /* tên cũ, giữ để màn chưa chuyển vẫn đọc được */
+  --vv-white-button-fg: var(--vv-primary-fg);
+  --vv-ghost-border: rgba(255,255,255,.12);
+
+  /* Ô nhập & lớp nổi */
+  --vv-field: #0F0F11;
+  --vv-field-hover: #121214;
+  --vv-field-border: rgba(255,255,255,.10);
+  --vv-field-border-hover: rgba(255,255,255,.18);
+  --vv-field-border-focus: var(--vv-accent-focus);
+  --vv-popover: #1A1A1D;
+  --vv-popover-border: rgba(255,255,255,.10);
+  --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-dialog: #18181A;
+  --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-toast: #1C1C1F;
+  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
+  --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
+  --vv-hover: rgba(255,255,255,.07);
+  --vv-hover-row: rgba(255,255,255,.04);
+  --vv-opt-hover: rgba(255,255,255,.06);
+  --vv-opt-active: rgba(255,255,255,.075);  /* mục đang trỏ bằng phím */
+  --vv-skel-a: #17171A; --vv-skel-b: #222226;
+  --vv-focus: 0 0 0 3px var(--vv-accent-ring);
+  --vv-focus-outline: 2px solid var(--vv-accent);
+
+  /* Chuyển động (Noverse) */
+  --vv-ease: cubic-bezier(.2,.9,.3,1);          /* menu, popover mở */
+  --vv-ease-spring: cubic-bezier(.34,1.45,.5,1); /* công tắc, nhóm chọn */
+  --vv-dur: 150ms;
+  --vv-dur-pop: 170ms;
+  --vv-dur-dialog: 300ms;
+}
+
+/* Lớp tiện ích dùng lại từ artboard */
+.vv-orb { border-radius: 50%; flex: 0 0 auto; box-shadow: var(--vv-orb-shadow); }
+.vv-live { animation: vv-breathe 2.8s ease-in-out infinite; }      /* orb trợ lý đang chạy */
+.vv-rec { animation: vv-rec 1.6s ease-in-out infinite; }            /* chấm đỏ “đang chạy” */
+.vv-lens-run { transform-box: fill-box; transform-origin: center; animation: vv-lensrot 9s linear infinite; }
+@keyframes vv-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }
+@keyframes vv-rec { 50% { opacity: .35 } }
+@keyframes vv-lensrot { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Viderse UI Kit — bộ thành phần của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cần tokens.css nạp trước. Board tham chiếu: artboards/Kit.dc.html (máy tính) và MKit.dc.html (điện thoại);
+   hai board dựng bằng chính các lớp dưới đây, nên giá trị ở đây là giá trị thật.
+   Cỡ, bo góc, bóng, chuyển động giống hệt Kit Noverse; khác duy nhất: tím → đỏ (--vv-accent*), đỏ phá huỷ → cam (--vv-danger*).
+   Quy ước tên: .vv-<thành phần>, biến thể --<tên>, phần con __<tên>, trạng thái .is-<tên> hoặc thuộc tính ARIA. */
+
+/* ---------- Nền ---------- */
+.vv-root { background: var(--vv-bg); color: var(--vv-text); font-family: var(--vv-font); font-size: var(--vv-fs-body); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.vv-root *, .vv-root *::before, .vv-root *::after { box-sizing: border-box; }
+.vv-root :focus-visible { outline: var(--vv-focus-outline); outline-offset: 2px; }
+.vv-num { font-variant-numeric: tabular-nums; }
+.vv-mono { font-family: var(--vv-font-mono); }
+.vv-ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-spacer { flex: 1 1 auto; }
+.vv-group { font-size: var(--vv-fs-group); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-kbd { font-family: var(--vv-font-mono); font-size: 11px; color: var(--vv-text-3); padding: 1px 5px; border-radius: var(--vv-r-kbd); border: 1px solid var(--vv-field-border); background: #151517; white-space: nowrap; }
+.vv-ic { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; background-color: currentColor; -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+.vv-mark { background: var(--vv-accent-mark); color: var(--vv-accent-soft); border-radius: 3px; padding: 0 1px; }
+.vv-link { color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---------- Nút ---------- */
+/* Một màn một nút chính (sáng). Cam đặc chỉ cho xoá vĩnh viễn; cam nhạt cho việc nguy hiểm làm lại được. */
+.vv-btn { --h: var(--vv-h-btn); height: var(--h); padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--vv-r-btn); border: 1px solid var(--vv-ghost-border); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); font-weight: 500; white-space: nowrap; cursor: pointer; text-decoration: none; transition: background-color var(--vv-dur), box-shadow .2s, transform 80ms, border-color var(--vv-dur); }
+.vv-btn:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn.is-hover { background: var(--vv-hover); }
+.vv-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.98); }
+.vv-btn--primary, .vv-btn--white { background: var(--vv-primary); border-color: transparent; color: var(--vv-primary-fg); font-weight: 600; }
+.vv-btn--primary:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--white:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--primary.is-hover, .vv-btn--white.is-hover { background: var(--vv-primary-hover); }
+.vv-btn--danger { background: var(--vv-danger); border-color: transparent; color: var(--vv-danger-fg); font-weight: 600; }
+.vv-btn--danger:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger.is-hover { background: var(--vv-danger-hover); box-shadow: 0 0 0 4px var(--vv-danger-ring); }
+.vv-btn--danger-soft { background: var(--vv-danger-soft); border-color: var(--vv-danger-border); color: var(--vv-danger-text-2); }
+.vv-btn--danger-soft:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger-soft.is-hover { background: var(--vv-danger-soft-hover); }
+.vv-btn--quiet { border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--quiet:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn--sm { --h: var(--vv-h-btn-sm); padding: 0 10px; font-size: 12px; border-radius: var(--vv-r-chip); }
+.vv-btn--icon { width: var(--h); padding: 0; border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--icon:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn[aria-disabled="true"], .vv-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.vv-btn .vv-ic, .vv-btn .ic { width: 15px; height: 15px; }
+.vv-btn--sm .vv-ic, .vv-btn--sm .ic { width: 13px; height: 13px; }
+.vv-btn--primary .vv-spinner, .vv-btn--white .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-primary-fg); }
+.vv-btn--danger .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-danger-fg); }
+.vv-btn--hold { position: relative; overflow: hidden; }
+.vv-btn--hold > i { position: absolute; left: 0; top: 0; bottom: 0; width: var(--hold, 0%); background: rgba(255,255,255,.16); pointer-events: none; }
+.vv-btn--hold > :not(i) { position: relative; }
+/* điện thoại */
+.vv-btn--m { --h: var(--vv-m-btn); padding: 0 16px; border-radius: 12px; font-size: 14px; }
+.vv-btn--m-lg { --h: var(--vv-m-btn-lg); padding: 0 16px; border-radius: 13px; font-size: 15px; font-weight: 600; width: 100%; }
+
+/* ---------- Ô nhập ---------- */
+.vv-field { height: var(--vv-h-field); width: 100%; min-width: 0; padding: 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); outline: none; text-overflow: ellipsis; transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-field::placeholder { color: var(--vv-muted); }
+.vv-field:hover, .vv-field.is-hover { border-color: var(--vv-field-border-hover); }
+.vv-field:focus, .vv-field.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-field.is-error, .vv-field[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-field:disabled, .vv-field.is-disabled { opacity: .45; cursor: not-allowed; }
+textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize: none; }
+.vv-field--m { height: var(--vv-m-btn); border-radius: var(--vv-r-field-m); font-size: 15px; }
+.vv-fieldbox { display: flex; align-items: center; gap: 8px; min-height: var(--vv-h-field); padding: 4px 8px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-fieldbox:focus-within, .vv-fieldbox.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-fieldbox.is-error { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-fieldbox--wrap { flex-wrap: wrap; padding: 5px 8px; }
+.vv-fieldbox > input { flex: 1 1 60px; min-width: 60px; height: 26px; border: none; background: transparent; outline: none; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); padding: 0; }
+.vv-fieldbox > input::placeholder { color: var(--vv-muted); }
+.vv-fieldbox > .vv-ic, .vv-fieldbox > .ic { width: 15px; height: 15px; color: var(--vv-muted); }
+.vv-fieldbox__affix { font-family: var(--vv-font-mono); font-size: 12.5px; color: var(--vv-muted); white-space: nowrap; }
+.vv-fieldbox__suffix { font-family: var(--vv-font-mono); font-size: 12px; color: var(--vv-st-ready); padding: 2px 6px; border-radius: 5px; background: rgba(166,237,193,.1); white-space: nowrap; }
+.vv-label { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-label small { font-size: inherit; color: var(--vv-muted); }
+.vv-label--group { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-help, .vv-err { display: flex; gap: 6px; align-items: flex-start; font-size: var(--vv-fs-small); line-height: 1.5; color: var(--vv-muted); }
+.vv-err { color: var(--vv-danger-text); }
+.vv-help > .vv-ic, .vv-help > .ic, .vv-err > .vv-ic, .vv-err > .ic { width: 13px; height: 13px; margin-top: 2px; }
+.vv-counter { font-size: 11px; color: var(--vv-muted); font-variant-numeric: tabular-nums; }
+.vv-counter.is-near { color: var(--vv-st-review); }
+
+/* ---------- Ô chọn (select) ---------- */
+.vv-select { display: flex; align-items: center; gap: 8px; width: 100%; height: var(--vv-h-field); padding: 0 10px 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; transition: border-color var(--vv-dur), box-shadow var(--vv-dur), background-color var(--vv-dur); }
+.vv-select:hover, .vv-select.is-hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-select[aria-expanded="true"], .vv-select:focus-visible, .vv-select.is-open { outline: none; border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-select.is-error, .vv-select[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-select:disabled { opacity: .45; cursor: not-allowed; }
+.vv-select__value { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-select__value.is-placeholder { color: var(--vv-muted); }
+.vv-select__chev { width: 15px; height: 15px; color: var(--vv-muted); transition: transform .18s; }
+.vv-select[aria-expanded="true"] .vv-select__chev, .vv-select.is-open .vv-select__chev { transform: rotate(180deg); }
+.vv-select--rich { height: 48px; }
+
+/* ---------- Menu, danh sách chọn, popover ---------- */
+.vv-pop, .vv-menu { padding: 6px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); }
+.vv-menu { min-width: 240px; display: flex; flex-direction: column; }
+.vv-pop--float { position: absolute; z-index: 40; }
+.vv-pop--note { padding: 14px; display: flex; flex-direction: column; gap: 8px; width: 280px; }
+.vv-pop-in { animation: vv-popIn var(--vv-dur-pop) var(--vv-ease) both; }
+.vv-pop-side { animation: vv-flyL .16s var(--vv-ease) both; }
+@keyframes vv-popIn { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes vv-flyL { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.vv-opt, .vv-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--vv-h-opt); padding: 6px 10px; border: none; border-radius: var(--vv-r-opt); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; text-decoration: none; cursor: pointer; }
+.vv-opt:hover, .vv-menu__item:hover { background: var(--vv-opt-hover); }
+.vv-opt.is-active, .vv-menu__item.is-active, .vv-menu__item.is-hover { background: var(--vv-opt-active); }
+.vv-opt > .vv-ic, .vv-opt > .ic, .vv-menu__item > .vv-ic, .vv-menu__item > .ic { width: 16px; height: 16px; color: var(--vv-text-3); }
+.vv-opt--danger, .vv-menu__item--danger, .vv-opt--danger > .ic, .vv-menu__item--danger > .ic, .vv-opt--danger > .vv-ic, .vv-menu__item--danger > .vv-ic { color: var(--vv-danger-text); }
+.vv-opt--danger:hover, .vv-opt--danger.is-active, .vv-menu__item--danger:hover { background: var(--vv-danger-soft); }
+.vv-opt:disabled, .vv-opt[aria-disabled="true"], .vv-menu__item[aria-disabled="true"] { color: var(--vv-disabled); background: transparent; cursor: not-allowed; }
+.vv-opt--rich { min-height: 48px; }
+.vv-opt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-opt__text > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-opt__desc, .vv-menu__hint { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); line-height: 1.4; }
+.vv-opt__meta { font-size: 11px; color: var(--vv-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-opt__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); font-size: 11px; color: var(--vv-text-3); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.vv-opt__tick, .vv-option__tick { width: 16px; height: 16px; flex: 0 0 auto; color: var(--vv-accent); }
+.vv-opt__chev { width: 14px; height: 14px; color: var(--vv-muted); }
+.vv-opt__add, .vv-opt > .ic.is-accent { color: var(--vv-accent); }
+.vv-menu__sep { height: 1px; margin: 6px 4px; background: rgba(255,255,255,.07); flex: 0 0 auto; }
+.vv-menu__group { display: flex; justify-content: space-between; padding: 6px 10px 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+
+/* ---------- Chọn & bật tắt ---------- */
+.vv-check, .vv-radio { width: 18px; height: 18px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,.28); background: transparent; transition: background-color .16s, border-color .16s; }
+.vv-check { border-radius: 5px; }
+.vv-radio { border-radius: 50%; }
+.vv-check[aria-checked="true"], .vv-check.is-on, .vv-check[aria-checked="mixed"], .vv-check.is-mixed { background: var(--vv-accent); border-color: var(--vv-accent); }
+.vv-check[aria-checked="true"]::after, .vv-check.is-on::after { content: ""; width: 5px; height: 9px; border: solid var(--vv-primary-fg); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+.vv-check[aria-checked="mixed"]::after, .vv-check.is-mixed::after { content: ""; width: 8px; height: 2px; border-radius: 1px; background: var(--vv-primary-fg); }
+.vv-radio[aria-checked="true"], .vv-radio.is-on { border-color: var(--vv-accent); }
+.vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vv-accent); }
+.vv-check--m, .vv-radio--m { width: 22px; height: 22px; }
+.vv-checkrow { display: flex; align-items: center; gap: 10px; padding: 0; border: none; background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; }
+.vv-checkrow:disabled, .vv-checkrow[aria-disabled="true"] { color: var(--vv-disabled); cursor: not-allowed; }
+.vv-checkrow:disabled .vv-check { opacity: .6; }
+.vv-choice { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .14s; }
+.vv-choice > .vv-radio, .vv-choice > .vv-check { margin-top: 1px; }
+.vv-choice[aria-checked="true"] { border-color: var(--vv-accent-border); background: var(--vv-accent-tint); }
+.vv-choice[aria-disabled="true"] { color: var(--vv-text-3); cursor: default; }
+.vv-choice:active:not([aria-disabled="true"]) { transform: scale(.985); }
+.vv-choice--lg { gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-choice); border-color: rgba(255,255,255,.08); }
+.vv-choice__text { display: flex; flex-direction: column; min-width: 0; }
+.vv-choice__label { font-size: var(--vv-fs-ui); }
+.vv-choice--lg .vv-choice__label { font-weight: 500; }
+.vv-choice__note { font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-switch { position: relative; width: 36px; height: 22px; flex: 0 0 auto; border: none; padding: 0; border-radius: var(--vv-r-pill); background: var(--vv-selected-2); cursor: pointer; transition: background-color .2s; }
+.vv-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: left .3s var(--vv-ease-spring), transform .3s var(--vv-ease-spring); transform-origin: left center; }
+.vv-switch[aria-checked="true"] { background: var(--vv-accent-strong); }
+.vv-switch[aria-checked="true"]::after { left: 17px; transform-origin: right center; }
+.vv-switch:active:not(:disabled):not([aria-disabled="true"])::after { transform: scaleX(1.22); }
+.vv-switch:disabled, .vv-switch[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+.vv-switch--m { width: 50px; height: 30px; }
+.vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
+.vv-switch--m[aria-checked="true"]::after { left: 23px; }
+.vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
+.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+.vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
+.vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
+.vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
+.vv-seg--thumb > button[aria-checked="true"] { background: transparent; }
+.vv-seg--bar { gap: 2px; border-radius: 11px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--bar > button { height: 32px; border-radius: 8px; font-size: var(--vv-fs-ui); }
+.vv-seg--bar > button[aria-checked="true"], .vv-seg--bar > button[aria-selected="true"] { background: var(--vv-selected); font-weight: 500; }
+.vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
+.vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+.vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
+.vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.vv-tab:hover { color: var(--vv-text); }
+.vv-tab[aria-selected="true"] { color: var(--vv-text); font-weight: 600; border-bottom-color: var(--vv-accent); }
+.vv-tab__n { font-size: 12px; color: var(--vv-muted); font-weight: 400; }
+.vv-stepper { display: inline-flex; align-items: stretch; width: 148px; height: var(--vv-h-field); border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); overflow: hidden; }
+.vv-stepper > button { width: 36px; flex: 0 0 auto; border: none; background: transparent; color: var(--vv-text-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.vv-stepper > button:hover:not(:disabled) { background: var(--vv-hover); }
+.vv-stepper > button:disabled, .vv-stepper > button[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.vv-stepper > input, .vv-stepper > output { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: none; border-left: 1px solid rgba(255,255,255,.08); border-right: 1px solid rgba(255,255,255,.08); background: transparent; color: var(--vv-text); font-family: var(--vv-font-mono); font-size: var(--vv-fs-ui); font-variant-numeric: tabular-nums; text-align: center; outline: none; }
+.vv-stepper--m { height: var(--vv-m-btn); width: 160px; }
+.vv-stepper--m > button { width: 44px; }
+.vv-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.vv-range::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range__bubble { position: absolute; top: 0; transform: translateX(-50%); height: 18px; padding: 0 6px; border-radius: 5px; background: var(--vv-selected-2); font-family: var(--vv-font-mono); font-size: 10.5px; display: flex; align-items: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Chip, huy hiệu, đếm ---------- */
+.vv-chip { height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-chip); background: var(--vv-surface-1); border: 1px solid var(--vv-field-border); font: inherit; font-size: 12px; color: var(--vv-text-2); white-space: nowrap; cursor: pointer; }
+.vv-chip > .ic, .vv-chip > .vv-ic { width: 13px; height: 13px; color: var(--vv-text-hint); }
+.vv-chip b { font-weight: 500; color: var(--vv-text); }
+.vv-chip[aria-expanded="true"] { border-color: var(--vv-field-border-hover); background: #1C1C1F; }
+.vv-chip.is-custom { border-color: rgba(246,203,140,.3); }
+.vv-pill { height: 30px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-pill); border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.vv-pill[aria-checked="true"], .vv-pill[aria-pressed="true"] { background: var(--vv-selected); border-color: rgba(255,255,255,.14); color: var(--vv-text); }
+.vv-pill__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.vv-tag { height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); color: var(--vv-text-3); font-size: var(--vv-fs-small); white-space: nowrap; }
+.vv-tag__dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--dot, currentColor); }
+.vv-tag--accent { background: var(--vv-accent-bg); color: var(--vv-accent-soft); --dot: var(--vv-accent); }
+.vv-tag--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-tag--review { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-tag--issue { background: var(--vv-danger-soft); color: var(--vv-danger-text); --dot: var(--vv-danger); }
+.vv-tag--working { background: var(--vv-st-working-bg); color: var(--vv-st-working); }
+.vv-tag--muted { --dot: var(--vv-disabled); }
+.vv-tag--ref { background: var(--vv-ref-bg); color: var(--vv-artist-ink); }
+.vv-tag--next { background: var(--vv-accent-bg); color: var(--vv-accent-soft); }
+.vv-tag--auto { color: var(--vv-qa-ink); background: rgba(157,236,201,.08); }
+.vv-token { height: 26px; padding: 0 4px 0 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: var(--vv-r-tip); background: var(--vv-accent-bg); border: 1px solid rgba(255,77,99,.25); color: var(--vv-accent-soft); font-size: 12px; white-space: nowrap; }
+.vv-token > button { width: 18px; height: 18px; border: none; border-radius: 5px; background: transparent; color: var(--vv-accent); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.vv-count { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--vv-r-pill); background: rgba(246,203,140,.16); color: var(--vv-st-review); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-count--solid { background: var(--vv-st-review); color: var(--vv-bg); font-weight: 700; }
+.vv-count--info { background: rgba(185,208,247,.14); color: var(--vv-st-working); }
+.vv-score { height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: var(--vv-r-tag); background: var(--vv-outlier-bg); color: var(--vv-outlier-fg); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-score--low { background: rgba(0,0,0,.75); color: #F3D9AE; }
+
+/* ---------- Trạng thái video ---------- */
+.vv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; color: var(--c, var(--vv-text-3)); }
+.vv-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.vv-status--queued { --c: var(--vv-st-queued); }
+.vv-status--working { --c: var(--vv-st-working); }
+.vv-status--working::before { width: 9px; height: 9px; background: none; border: 1.5px solid rgba(255,255,255,.15); border-top-color: currentColor; animation: vv-spin .9s linear infinite; }
+.vv-status--review { --c: var(--vv-st-review); }
+.vv-status--issue { --c: var(--vv-st-issue); }
+.vv-status--ready { --c: var(--vv-st-ready); }
+.vv-status--posted { --c: var(--vv-st-posted); }
+.vv-status--paused { --c: var(--vv-st-queued); }
+
+/* ---------- Thông báo trong trang, toast, tooltip ---------- */
+.vv-banner { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-tile); border: 1px solid var(--vv-card-border); background: var(--vv-surface-1); --c: var(--vv-text-3); }
+.vv-banner > .ic, .vv-banner > .vv-ic, .vv-banner__icon { width: 17px; height: 17px; flex: 0 0 auto; color: var(--c); }
+.vv-banner__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.vv-banner__title { font-size: var(--vv-fs-ui); font-weight: 500; color: var(--vv-text); }
+.vv-banner__text { font-size: 12px; color: var(--vv-text-3); }
+.vv-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.vv-banner--info { --c: var(--vv-info); background: var(--vv-info-bg); border-color: var(--vv-info-border); }
+.vv-banner--ready { --c: var(--vv-st-ready); background: var(--vv-st-ready-tint); border-color: var(--vv-st-ready-border); }
+.vv-banner--review { --c: var(--vv-st-review); background: var(--vv-st-review-tint); border-color: var(--vv-st-review-border); }
+.vv-banner--issue { --c: var(--vv-danger); background: rgba(255,154,92,.07); border-color: rgba(255,154,92,.22); }
+.vv-banner--director { --c: var(--vv-director-ink); background: var(--vv-director-bg); border-color: rgba(184,156,255,.22); }
+.vv-toast { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); white-space: nowrap; }
+.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; }
+.vv-toast .vv-btn { --h: 28px; }
+.vv-toast--ok { border-color: rgba(166,237,193,.28); }
+.vv-toast--ok > .ic, .vv-toast--ok > .vv-ic { color: var(--vv-st-ready); }
+.vv-toast--issue { border-color: var(--vv-danger-border); }
+.vv-toast--issue > .ic, .vv-toast--issue > .vv-ic { color: var(--vv-danger); }
+.vv-toast--sm { height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+.vv-toast-in { animation: vv-tIn .4s cubic-bezier(.2,.9,.25,1.12) both; }
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+.vv-tip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); border: 1px solid rgba(255,255,255,.08); font-size: var(--vv-fs-small); line-height: 1.45; color: var(--vv-text); white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.7); }
+.vv-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--vv-selected-2); }
+.vv-tip .vv-kbd { font-size: 10px; }
+.vv-tip--wrap { white-space: normal; max-width: 260px; }
+.vv-tipwrap { position: relative; display: inline-flex; }
+.vv-tipwrap > .vv-tip { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 4px); opacity: 0; pointer-events: none; z-index: 30; transition: opacity .12s, transform .12s; }
+.vv-tipwrap > .vv-tip--below { bottom: auto; top: calc(100% + 8px); transform: translate(-50%, -4px); }
+.vv-tipwrap > .vv-tip--below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--vv-selected-2); }
+.vv-tipwrap:hover > .vv-tip, .vv-tipwrap:focus-within > .vv-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: .4s; }
+
+/* ---------- Tiến độ, đang tải, trống ---------- */
+.vv-progress { height: 4px; border-radius: var(--vv-r-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.vv-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vv-accent); }
+.vv-progress--working > span { background: var(--vv-st-working); }
+.vv-progress--artist > span { background: var(--vv-artist-ink); }
+.vv-progress--ready > span { background: var(--vv-st-ready); }
+.vv-progress--issue > span { background: var(--vv-st-issue); }
+.vv-spinner { width: 14px; height: 14px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,.16); border-top-color: var(--vv-text); animation: vv-spin .9s linear infinite; }
+.vv-skel { border-radius: 6px; background: linear-gradient(90deg, var(--vv-skel-a) 0%, var(--vv-skel-b) 40%, var(--vv-skel-a) 80%); background-size: 200% 100%; animation: vv-skel 1.4s linear infinite; }
+.vv-shimmer { background: linear-gradient(90deg, var(--vv-text-3) 0%, var(--vv-text-3) 35%, #FFE3E8 50%, var(--vv-text-3) 65%, var(--vv-text-3) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: vv-shim 2.4s linear infinite; }
+.vv-wait { background: repeating-linear-gradient(135deg, #121214 0 8px, #16161A 8px 16px); }
+.vv-empty { padding: 18px; border-radius: var(--vv-r-tile); border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.vv-empty__icon { width: 40px; height: 40px; border-radius: var(--vv-r-tile); background: var(--vv-accent-bg); color: var(--vv-accent); display: flex; align-items: center; justify-content: center; }
+.vv-empty__icon > .ic, .vv-empty__icon > .vv-ic { width: 19px; height: 19px; }
+.vv-empty__title { font-size: 13.5px; font-weight: 500; }
+.vv-empty__text { font-size: 12px; color: var(--vv-text-hint); }
+@keyframes vv-spin { to { transform: rotate(360deg); } }
+@keyframes vv-skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes vv-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ---------- Bề mặt ---------- */
+.vv-card { background: var(--vv-card); border: 1px solid var(--vv-card-border); box-shadow: var(--vv-card-shadow); border-radius: var(--vv-r-card); }
+.vv-card__title { font-size: var(--vv-fs-card); font-weight: 600; }
+.vv-stage { position: relative; border-radius: var(--vv-r-dialog); border: 1px solid var(--vv-card-border); background: var(--vv-stage); }
+.vv-row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px 0 12px; border-radius: 10px; color: var(--vv-text); text-decoration: none; }
+.vv-row:hover { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on, .vv-row.is-open { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.vv-row__more { opacity: 0; transition: opacity .12s; }
+.vv-row:hover .vv-row__more, .vv-row.is-open .vv-row__more, .vv-row__more[aria-expanded="true"] { opacity: 1; }
+.vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
+@media (hover: none) { .vv-row__more { opacity: 1; } }
+.vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+.vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
+.vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
+.vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
+.vv-thumb__bl { left: 6px; } .vv-thumb__br { right: 6px; }
+.vv-thumb__dur { height: 20px; padding: 0 5px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,.75); font-family: var(--vv-font-mono); font-size: 10.5px; color: var(--vv-text); }
+.vv-orb--scout { background: var(--vv-orb-scout); } .vv-orb--director { background: var(--vv-orb-director); }
+.vv-orb--artist { background: var(--vv-orb-artist); } .vv-orb--qa { background: var(--vv-orb-qa); }
+
+/* ---------- Hộp thoại & sheet ---------- */
+.vv-scrim { position: absolute; inset: 0; background: var(--vv-scrim); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.vv-scrim--center { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.vv-dialog { width: 460px; max-width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-radius: var(--vv-r-dialog); background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); font-size: var(--vv-fs-ui); }
+.vv-dialog__head { display: flex; gap: 14px; align-items: flex-start; }
+.vv-dialog__icon { width: 42px; height: 42px; flex: 0 0 auto; border-radius: var(--vv-r-tile); display: flex; align-items: center; justify-content: center; background: var(--vv-accent-bg); color: var(--vv-accent); }
+.vv-dialog__icon > .ic, .vv-dialog__icon > .vv-ic { width: 20px; height: 20px; }
+.vv-dialog__icon--warn { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-dialog__icon--danger { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-dialog__icon--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-dialog__icon--agent { border-radius: 50%; }
+.vv-dialog__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.vv-dialog__title { margin: 0; font-size: var(--vv-fs-dialog); font-weight: 600; line-height: 1.4; }
+.vv-dialog__sub { margin: 0; font-size: 13.5px; color: var(--vv-text-soft); line-height: 1.55; }
+.vv-dialog__list { margin: 0; padding: 10px 12px; border-radius: var(--vv-r-choice); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--vv-text-2); line-height: 1.55; }
+ul.vv-dialog__list { padding-left: 30px; }
+.vv-dialog__list--danger { background: rgba(255,154,92,.05); border-color: rgba(255,154,92,.16); }
+.vv-dialog__compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vv-dialog__ver { padding: 10px 12px; border-radius: 10px; background: var(--vv-field); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.vv-dialog__ver--new { border-color: var(--vv-st-ready-border); }
+.vv-dialog__err { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,154,92,.08); border: 1px solid rgba(255,154,92,.25); font-size: 12.5px; color: var(--vv-danger-text-2); }
+.vv-dialog__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vv-scrim-in { animation: vv-fade .2s ease-out both; } .vv-scrim-out { animation: vv-fade .2s ease-in reverse both; }
+.vv-dlg-in { animation: vv-dlgIn var(--vv-dur-dialog) cubic-bezier(.2,.9,.25,1.08) both; }
+.vv-dlg-out { animation: vv-dlgOut .18s cubic-bezier(.5,0,.75,0) both; }
+.vv-shake { animation: vv-shake .38s cubic-bezier(.36,.07,.19,.97); }
+.vv-tick-in { animation: vv-tick .3s cubic-bezier(.2,.9,.3,1.5) both; }
+@keyframes vv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vv-dlgIn { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes vv-dlgOut { to { opacity: 0; transform: translateY(6px) scale(.97); } }
+@keyframes vv-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes vv-tick { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.vv-sheet { display: flex; flex-direction: column; max-height: 86%; border-radius: var(--vv-r-sheet) var(--vv-r-sheet) 0 0; background: var(--vv-dialog); border-top: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); }
+.vv-sheet__grab { display: flex; justify-content: center; padding: 8px 0 2px; }
+.vv-sheet__grab::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.vv-sheet__title { padding: 6px 16px 10px; font-size: var(--vv-fs-sheet); font-weight: 600; line-height: 1.35; }
+
+/* ---------- Điện thoại: đầu trang & thanh dưới ---------- */
+.vv-appbar { height: var(--vv-m-bar); padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+.vv-navbar { height: var(--vv-m-bar); padding: 0 6px; display: flex; align-items: center; gap: 2px; }
+.vv-navbar__title { flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-navbar__title > b { font-size: var(--vv-fs-nav-m); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-navbar__title > span { font-size: 12px; color: var(--vv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-ib { width: 44px; height: 44px; flex: 0 0 auto; border: none; border-radius: 12px; background: transparent; color: var(--vv-text-2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.vv-title-m { margin: 0; font-size: var(--vv-fs-title-m); font-weight: 600; letter-spacing: -.02em; }
+.vv-tabbar { position: absolute; left: 14px; right: 14px; bottom: 30px; height: var(--vv-m-tabbar); transition: transform .42s cubic-bezier(.2,.9,.25,1), opacity .3s; }
+.vv-tabbar.is-mini { transform: translateY(8px) scale(.92); }
+.vv-tabbar.is-mini .vv-tabbar__label { opacity: 0; max-height: 0; margin-top: -2px; }
+.vv-tabbar__cap { position: relative; height: 100%; display: flex; padding: 5px; border-radius: 32px; background: var(--vv-glass); -webkit-backdrop-filter: blur(26px) saturate(180%); backdrop-filter: blur(26px) saturate(180%); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 22px 44px -14px rgba(0,0,0,.85), 0 2px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09); }
+.vv-tabbar__ind { position: absolute; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5); left: calc(5px + var(--i, 0) * (100% - 10px) / 5); border-radius: 27px; background: rgba(255,51,82,.13); border: 1px solid rgba(255,77,99,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px -4px rgba(255,0,51,.45); transition: left .45s cubic-bezier(.2,.9,.25,1.15); }
+.vv-tabbar__item { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; font-size: 10.5px; font-weight: 500; color: var(--vv-text-hint); text-decoration: none; }
+.vv-tabbar__item[aria-current="page"] { color: #FFE3E8; font-weight: 600; }
+.vv-tabbar__item[aria-current="page"] .vv-ic, .vv-tabbar__item[aria-current="page"] .ic { color: var(--vv-accent); transform: translateY(-1px) scale(1.06); }
+.vv-tabbar__item .vv-ic, .vv-tabbar__item .ic { width: 24px; height: 24px; transition: transform .35s cubic-bezier(.2,.9,.3,1.4); }
+.vv-tabbar__label { max-height: 16px; line-height: 16px; white-space: nowrap; transition: opacity .2s, max-height .3s, margin .3s; }
+.vv-tabbar__new { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); box-shadow: 0 8px 20px -6px rgba(255,0,51,.7), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
+.vv-tabbar__badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--vv-st-review); color: var(--vv-bg); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A1A1D; }
+
+/* ---------- Trợ lý chủ động (đợt 16, đổi theme đợt 19) ---------- */
+/* Màu trợ lý truyền qua --ag (chữ) trên phần tử gốc: style="--ag: var(--vv-scout-ink)". */
+.vv-why { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 2px; border: none; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12px; white-space: nowrap; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; cursor: pointer; }
+.vv-why:hover, .vv-why[aria-expanded="true"] { color: var(--vv-text); }
+.vv-reason { width: 320px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); font-size: var(--vv-fs-ui); line-height: 1.5; color: var(--vv-text-soft); }
+.vv-reason__head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ag, var(--vv-text-3)); font-weight: 600; }
+.vv-reason__text { color: var(--vv-text); font-size: 13.5px; }
+.vv-reason__facts { display: flex; flex-direction: column; border-top: 1px solid var(--vv-hairline); }
+.vv-reason__fact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--vv-hairline); }
+.vv-reason__fact b { max-width: 190px; font-weight: 600; color: var(--vv-text); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.45; }
+.vv-reason__src { grid-column: 1 / -1; font-size: var(--vv-fs-small); color: var(--vv-muted); }
+.vv-reason__fix { font-size: 12.5px; color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+.vv-suggest { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 12px; border-radius: var(--vv-r-tile); background: var(--vv-surface-1); border: 1px solid var(--vv-card-border); }
+.vv-suggest > .vv-orb { grid-row: span 3; margin-top: 2px; }
+.vv-suggest__who { font-size: var(--vv-fs-small); font-weight: 600; color: var(--ag, var(--vv-text-3)); }
+.vv-suggest__title { font-size: 13.5px; line-height: 1.45; color: var(--vv-text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vv-suggest__ev { font-size: 12px; line-height: 1.45; color: var(--vv-muted); display: flex; flex-wrap: wrap; gap: 0 8px; align-items: center; }
+.vv-suggest__actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.vv-suggest__actions > .vv-btn:first-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vv-suggest--compact { padding: 10px; gap: 2px 8px; }
+.vv-suggest--compact .vv-suggest__title { font-size: var(--vv-fs-ui); }
+.vv-suggest--m { width: 288px; flex: 0 0 auto; padding: 14px; border-radius: var(--vv-r-card); scroll-snap-align: start; }
+
+.vv-recap { display: flex; flex-direction: column; gap: 18px; }
+.vv-recap__when { font-size: 12px; color: var(--vv-muted); }
+.vv-recap__lead { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--vv-text); text-wrap: balance; }
+.vv-recap__lead em { font-style: normal; }
+.vv-recap__sec { display: flex; flex-direction: column; gap: 8px; }
+.vv-recap__line { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: 10px; background: var(--vv-surface-1); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-recap__line > .vv-ic, .vv-recap__line > .ic { color: var(--vv-text-3); }
+.vv-recap__text { flex: 1; min-width: 0; }
+.vv-recap__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.vv-recap__tile { padding: 10px 12px; border-radius: 10px; background: var(--vv-surface-1); display: flex; flex-direction: column; gap: 2px; }
+.vv-recap__tile b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-recap__tile span { font-size: 12px; color: var(--vv-muted); }
+
+.vv-autonomy { display: flex; flex-direction: column; gap: 12px; }
+.vv-arow { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 4px 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-arow__label { font-size: 13.5px; color: var(--vv-text); }
+.vv-arow__hint { font-size: 12px; color: var(--vv-muted); line-height: 1.45; }
+.vv-arow--stack { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.vv-arow--m { grid-template-columns: minmax(0, 1fr); min-height: var(--vv-m-row); }
+.vv-guard { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); font-size: 12.5px; color: var(--vv-text-3); line-height: 1.5; }
+
+.vv-rule { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-rule > .vv-switch { grid-row: span 2; margin-top: 1px; }
+.vv-rule__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-rule__src { font-size: 12px; color: var(--vv-muted); }
+.vv-rule__actions { grid-row: span 2; display: flex; gap: 4px; }
+
+.vv-learn { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; align-items: start; padding: 10px 12px; border-radius: var(--vv-r-tile); background: var(--vv-director-bg); border: 1px solid rgba(184,156,255,.22); font-size: 12.5px; line-height: 1.5; color: #D6C9FF; }
+.vv-learn > .vv-orb { margin-top: 2px; }
+.vv-learn__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.vv-learn__text { min-width: 0; }
+.vv-learn--artist { background: rgba(255,208,138,.07); border-color: rgba(255,208,138,.22); color: #FFE2B5; }
+
+.vv-plan { display: flex; flex-direction: column; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); overflow: hidden; }
+.vv-plan__head { padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 2px; }
+.vv-plan__head b { font-size: 14px; font-weight: 600; }
+.vv-plan__head span { font-size: 12px; color: var(--vv-muted); }
+.vv-plan__step { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--vv-hairline); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-plan__step b { display: block; font-weight: 500; color: var(--vv-text); line-height: 1.4; }
+.vv-plan__step small { display: block; font-size: 12px; color: var(--vv-muted); line-height: 1.4; }
+.vv-plan__step[aria-checked="false"] b, .vv-plan__step[aria-checked="false"] small { opacity: .5; text-decoration: line-through; }
+.vv-plan__cost { font-size: 12px; color: var(--vv-text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-plan__foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--vv-hairline); background: rgba(255,255,255,.02); }
+.vv-plan__foot > span { flex: 1; font-size: 12.5px; color: var(--vv-text-3); }
+.vv-plan__ask { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+
+.vv-insight { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-insight__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-insight__bars { grid-column: 1; display: flex; flex-direction: column; gap: 4px; }
+.vv-insight__bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 8px; align-items: center; font-size: 12px; color: var(--vv-text-3); }
+.vv-insight__bar > i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.vv-insight__bar > i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w, 50%); border-radius: 3px; background: var(--c, var(--vv-scout-ink)); }
+.vv-insight__bar > b { font-weight: 500; color: var(--vv-text-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+.vv-imgscore { height: 20px; padding: 0 6px; display: inline-flex; align-items: center; gap: 3px; border-radius: var(--vv-r-tag); background: rgba(0,0,0,.72); color: var(--vv-qa-ink); font-size: var(--vv-fs-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-imgscore--low { background: var(--vv-st-issue); color: var(--vv-danger-fg); }
+.vv-why--m { height: 44px; padding: 0 6px; }
+.vv-reason__fix--m { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- Chuyển động của điều khiển (Noverse motion:controls v1) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vv-check[aria-checked="true"], .vv-check.is-on { animation: vv-pop .34s cubic-bezier(.34,1.56,.64,1); }
+  .vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { animation: vv-dot .32s cubic-bezier(.34,1.56,.64,1); }
+}
+@keyframes vv-pop { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* /r16-agent */
+.i-tick{-webkit-mask-image:url(../icons/tick.svg);mask-image:url(../icons/tick.svg)}
+</style>
+</helmet>
+<div class="ed">
+<sc-if value="{{notNarrow}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+<header style="flex: 0 0 auto; height: 52px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<a class="vv-btn vv-btn--sm vv-btn--quiet" href="Main.dc.html" title="Quay lại Bàn dựng"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; transform: rotate(180deg)"></span>Bàn dựng</a>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: rgba(255,255,255,0.08)"></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; padding-left: 4px">
+<span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="The Night Nurse Who Heard Room 214 Breathing">The Night Nurse Who Heard Room 214 Breathing</span>
+<span class="num" style="font-size: 11.5px; color: #8B8B97; white-space: nowrap">Midnight Tales · 42:10 · 7 cảnh · Mẫu chuẩn · Tách nền</span>
+</div>
+<span role="status" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: {{saveFg}}; white-space: nowrap"><span class="ic {{saveIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{saveText}}</span>
+<button class="vv-btn vv-btn--icon vv-btn--sm" type="button" aria-label="Hoàn tác" title="Hoàn tác (⌘Z)"><span class="ic i-undo" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<button class="vv-btn vv-btn--icon vv-btn--sm" type="button" aria-label="Làm lại" title="Làm lại (⌘⇧Z)"><span class="ic i-redo" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<button class="vv-btn vv-btn--icon vv-btn--sm" type="button" aria-label="Phím tắt" title="Phím tắt (?)"><span class="mono" style="font-size: 13px">?</span></button>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: rgba(255,255,255,0.08); margin: 0 2px"></span>
+<button type="button" class="vv-btn vv-btn--sm" aria-controls="ed-left" aria-label="Độ hoàn thiện {{scoreText}}, mở danh sách cần sửa" onClick="{{openFix}}" style="color: {{scoreFg}}; border-color: {{scoreBd}}; background: {{scoreBg}}"><span class="ic {{scoreIc}}" aria-hidden="true" style="width: 14px; height: 14px"></span>Độ hoàn thiện <b class="num" style="font-weight: 600">{{scoreText}}</b></button>
+<button class="vv-btn {{exportCls}}" type="button" onClick="{{startExport}}" title="Xuất MP4 (⌘E)"><span class="ic i-export" aria-hidden="true" style="width: 15px; height: 15px"></span>Xuất</button>
+</header>
+<div style="flex: 1; min-height: 0; display: flex">
+<nav class="erail" aria-label="Bảng bên trái" role="tablist" aria-orientation="vertical">
+<sc-for list="{{rail}}" as="r" hint-placeholder-count="6"><button class="erb" type="button" role="tab" aria-selected="{{r.on}}" aria-controls="ed-left" onClick="{{r.pick}}" title="{{r.tip}}"><span style="position: relative; display: flex"><span class="ic {{r.icon}}" aria-hidden="true" style="width: 19px; height: 19px; color: {{r.ic}}"></span><sc-if value="{{r.hasBadge}}" hint-placeholder-val="{{ false }}"><span class="num" aria-label="{{r.badge}} việc" style="position: absolute; right: -9px; top: -6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: #FF9A5C; color: #0B0B0D; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{r.badge}}</span></sc-if></span><span class="erb-l">{{r.label}}</span></button></sc-for>
+</nav>
+<aside id="ed-left" class="scroll" aria-label="{{panelTitle}}" style="width: 316px; flex: 0 0 316px; min-height: 0; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column">
+<div style="position: sticky; top: 0; z-index: 2; background: #0B0B0D; height: 46px; padding: 0 10px 0 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06)"><h2 style="flex: 1; margin: 0; font-size: 14px; font-weight: 600">{{panelTitle}}</h2><sc-if value="{{pMedia}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--sm" type="button"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Nhập media</button></sc-if><span class="num" style="font-size: 12px; color: #8B8B97">{{panelMeta}}</span></div>
+<sc-if value="{{pFix}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 14px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="flex: 1; font-size: 13px; color: #A0A0AB">Độ hoàn thiện</span><b class="num" style="font-size: 22px; font-weight: 600; color: {{scoreFg}}">{{score}}</b><span class="num" style="font-size: 13px; color: #8B8B97">/100</span></div>
+<div aria-hidden="true" style="position: relative; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07)"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{score}}%; border-radius: 999px; background: {{scoreBar}}"></span><span title="Cần 90" style="position: absolute; left: 90%; top: -3px; width: 2px; height: 12px; border-radius: 1px; background: #EDEDEF"></span></div>
+<span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">{{fixLede}}</span>
+</div>
+<sc-if value="{{hasFail}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="fx-h" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="fx-h" class="gh">Chưa đạt <span class="num">1</span></h3>
+<div style="border-radius: 12px; border: 1px solid rgba(255,154,92,0.28); background: rgba(255,154,92,0.04); padding: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 8px; align-items: flex-start"><span class="ic i-danger" aria-hidden="true" style="width: 15px; height: 15px; color: #FF9A5C; margin-top: 2px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><b style="font-size: 13.5px; font-weight: 600">Phụ đề khớp tiếng</b><span style="font-size: 12px; color: #A0A0AB; line-height: 1.45">{{failSub}}</span></span></div>
+<div role="list" style="display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{cues}}" as="c" hint-placeholder-count="3"><button type="button" role="listitem" class="row" aria-current="{{c.cur}}" onClick="{{c.go}}" style="width: 100%; min-height: 40px; padding: 5px 8px; display: flex; align-items: center; gap: 8px; border: none; border-radius: 8px; background: {{c.bg}}; color: #EDEDEF; text-align: left">
+<span class="num mono" style="flex: 0 0 auto; font-size: 11.5px; color: #A0A0AB">{{c.t}}</span>
+<span style="flex: 1; min-width: 0; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.text}}</span>
+<span class="num" style="flex: 0 0 auto; display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: {{c.fg}}"><sc-if value="{{c.ok}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 12px; height: 12px"></span></sc-if>{{c.st}}</span>
+</button></sc-for>
+</div>
+<sc-if value="{{canFixAll}}" hint-placeholder-val="{{ true }}"><button class="vv-btn vv-btn--sm" type="button" onClick="{{fixAll}}" style="align-self: flex-start"><span class="ic i-magic" aria-hidden="true" style="width: 14px; height: 14px"></span>Khớp theo giọng cả {{leftN}} đoạn</button></sc-if>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{hasRemeasure}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 6px">
+<h3 class="gh">Cần đo lại <span class="num">{{remN}}</span></h3>
+<sc-for list="{{remeasure}}" as="m" hint-placeholder-count="2"><span style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 12.5px; color: #C9C9D1"><span class="ic i-clock" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span><span style="flex: 1">{{m.label}}</span><span style="font-size: 11.5px; color: #8B8B97">{{m.why}}</span></span></sc-for>
+</section>
+</sc-if>
+<section style="display: flex; flex-direction: column; gap: 6px">
+<button type="button" class="vv-btn vv-btn--sm vv-btn--quiet" aria-expanded="{{passA}}" onClick="{{togglePass}}" style="align-self: flex-start; padding: 0 2px"><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; transform: {{passRot}}"></span><span class="gh" style="margin: 0">Đã đạt <span class="num">{{passN}}</span></span></button>
+<sc-if value="{{passOpen}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 2px"><sc-for list="{{passed}}" as="p" hint-placeholder-count="9"><span style="display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-size: 12.5px; color: #C9C9D1"><span class="ic i-tick-b" aria-hidden="true" style="width: 14px; height: 14px; color: #A6EDC1"></span><span style="flex: 1">{{p.label}}</span><span class="num" style="font-size: 11.5px; color: #8B8B97">{{p.ev}}</span></span></sc-for></div></sc-if>
+</section>
+</div>
+<div style="position: sticky; bottom: 0; margin-top: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); background: #0B0B0D">
+<sc-if value="{{measuring}}" hint-placeholder-val="{{ false }}"><div role="status" style="display: flex; flex-direction: column; gap: 6px"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span class="orb o-qa live" aria-hidden="true" style="width: 16px; height: 16px"></span>Kiểm định đang đo lại · 38 giây</span><div class="vv-progress vv-progress--working" aria-hidden="true"><span style="width: 55%"></span></div></div></sc-if>
+<sc-if value="{{showMeasure}}" hint-placeholder-val="{{ true }}"><button class="vv-btn {{measureCls}}" type="button" onClick="{{measure}}" aria-disabled="{{measureDis}}" style="width: 100%"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Đo lại độ hoàn thiện</button></sc-if>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.5">{{measureNote}}</span>
+</div>
+</sc-if>
+<sc-if value="{{pScenes}}" hint-placeholder-val="{{ false }}">
+<div role="list" style="padding: 10px 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{scenes}}" as="s" hint-placeholder-count="7"><button type="button" role="listitem" class="row" aria-current="{{s.cur}}" onClick="{{s.pick}}" style="width: 100%; padding: 6px; display: flex; align-items: center; gap: 10px; border: none; border-radius: 10px; background: {{s.bg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="position: relative; width: 84px; flex: 0 0 auto; aspect-ratio: 16 / 9; border-radius: 7px; background: {{s.img}}"><span class="num" style="position: absolute; left: 4px; top: 3px; padding: 0 4px; border-radius: 4px; background: rgba(11,11,13,0.75); font-size: 10px; color: #C9C9D1">{{s.n}}</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.title}}</span><span class="num" style="font-size: 11.5px; color: #8B8B97">{{s.meta}}</span></span>
+</button></sc-for>
+</div>
+<span class="vv-help" style="padding: 0 14px 14px"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px"></span>Vẽ lại nhiều cảnh cùng lúc ở Duyệt ảnh. Ở đây sửa từng cảnh của video này.</span>
+</sc-if>
+<sc-if value="{{pSubs}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 10px 14px 6px; display: flex; flex-direction: column; gap: 8px">
+<label for="ed-sub-q" class="sr-only">Tìm trong phụ đề</label>
+<div style="position: relative"><span class="ic i-search" aria-hidden="true" style="width: 14px; height: 14px; position: absolute; left: 10px; top: 9px; color: #8B8B97"></span><input id="ed-sub-q" class="vv-field" type="text" placeholder="Tìm trong phụ đề" style="width: 100%; height: 32px; padding-left: 30px; font-size: 12.5px"></div>
+<span style="font-size: 12px; color: {{subsNoteFg}}">{{subsNote}}</span>
+</div>
+<div role="list" style="padding: 0 8px 14px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{subLines}}" as="s" hint-placeholder-count="9"><button type="button" role="listitem" class="row" aria-current="{{s.cur}}" onClick="{{s.go}}" style="width: 100%; display: flex; gap: 8px; padding: 7px 8px; border: none; border-radius: 8px; background: {{s.bg}}; color: #EDEDEF; text-align: left">
+<span class="num mono" style="flex: 0 0 auto; font-size: 11px; color: #8B8B97; padding-top: 1px">{{s.t}}</span>
+<span style="flex: 1; min-width: 0; font-size: 12.5px; color: #C9C9D1; line-height: 1.45">{{s.text}}</span>
+<sc-if value="{{s.drift}}" hint-placeholder-val="{{ false }}"><span class="num" style="flex: 0 0 auto; font-size: 11px; color: {{s.fg}}">{{s.st}}</span></sc-if>
+</button></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{pBg}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: baseline; gap: 8px"><b style="flex: 1; font-size: 13px; font-weight: 600; color: #A6EDC1">Phủ kín video</b><span class="num" style="font-size: 12px; color: #8B8B97">42 clip</span></div>
+<div aria-hidden="true" style="height: 6px; border-radius: 999px; background: #A6EDC1"></div><span class="num" style="font-size: 12px; color: #8B8B97">40 clip từ kênh · 2 clip cố định · lớp phủ Tuyết 35%</span></div>
+<div style="display: flex; align-items: center; justify-content: space-between"><h3 class="gh" style="margin: 0">Clip của video này</h3><button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" title="Clip bạn tự chọn được giữ nguyên"><span class="ic i-refresh" aria-hidden="true" style="width: 13px; height: 13px"></span>Đổi ngẫu nhiên tất cả</button></div>
+<div role="list" style="display: flex; flex-direction: column; gap: 2px; margin: -4px -6px 0">
+<sc-for list="{{bgClips}}" as="b" hint-placeholder-count="6"><div role="listitem" class="row" style="display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-radius: 9px; background: {{b.bg}}" onClick="{{b.pick}}">
+<span aria-hidden="true" style="position: relative; width: 56px; flex: 0 0 auto; aspect-ratio: 16 / 9; border-radius: 6px; background: {{b.img}}"><span class="num mono" style="position: absolute; right: 2px; bottom: 2px; padding: 0 3px; border-radius: 3px; background: rgba(0,0,0,0.75); font-size: 9.5px">{{b.len}}</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{b.src}}</span><span class="num" style="font-size: 11px; color: {{b.kfg}}">{{b.kind}} · {{b.at}}</span></span>
+<button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Đổi ngẫu nhiên {{b.src}}" title="Đổi ngẫu nhiên"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+</div></sc-for>
+</div>
+<span class="vv-help"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px"></span>Đổi ở đây chỉ áp cho video này. Đổi cho mọi video: Template › Nền &amp; hiệu ứng.</span>
+</div>
+</sc-if>
+<sc-if value="{{pAudio}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03)"><span class="ic i-volume" aria-hidden="true" style="width: 16px; height: 16px; color: #A6EDC1"></span><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><b style="font-size: 13px; font-weight: 600">Âm lượng −14,2 LUFS</b><span style="font-size: 12px; color: #8B8B97">Mục tiêu −14 như video gốc · đo lúc 00:10</span></span></div>
+<sc-for list="{{vols}}" as="v" hint-placeholder-count="3"><label style="display: flex; flex-direction: column; gap: 6px"><span style="display: flex; justify-content: space-between; font-size: 12.5px"><span>{{v.label}}</span><span class="num" style="color: #A0A0AB">{{v.val}}</span></span><input class="rng" type="range" min="0" max="100" value="{{v.pos}}" aria-label="Âm lượng {{v.label}}" style="--p: {{v.pos}}%"><span style="font-size: 11.5px; color: #8B8B97">{{v.help}}</span></label></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{pMedia}}" hint-placeholder-val="{{ false }}"><div style="padding: 12px 14px 0"><div class="vv-seg vv-seg--sm" role="tablist" aria-label="Loại media"><button type="button" role="tab" aria-selected="true">Ảnh 7</button><button type="button" role="tab" aria-selected="false">Nền 42</button><button type="button" role="tab" aria-selected="false">Phủ 1</button><button type="button" role="tab" aria-selected="false">Âm 2</button></div></div></sc-if>
+<sc-if value="{{pMedia}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+<sc-for list="{{media}}" as="m" hint-placeholder-count="7">
+<button class="ghost" type="button" title="{{m.title}}" style="padding: 0; border: none; background: transparent; color: #EDEDEF; text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0; grid-column: {{m.span}}">
+<span class="mt" style="background: {{m.bg}}; border-color: {{m.bd}}"><span class="num mono" style="position: absolute; left: 4px; top: 3px; font-size: 10px; padding: 0 4px; border-radius: 4px; background: rgba(11,11,13,0.75); color: #C9C9D1">{{m.key}}</span><sc-if value="{{m.used}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" aria-hidden="true" style="position: absolute; right: 4px; top: 4px; width: 13px; height: 13px; color: #A6EDC1"></span></sc-if>
+</aside>
+<main style="flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 12px 14px 8px; gap: 8px; background: #09090B">
+<div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; container-type: size">
+<div role="img" aria-label="Khung xem: The Night Nurse Who Heard Room 214 Breathing, 30:12, {{pvSel}}" style="position: relative; width: min(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; background: url(../img/ed_frame.jpg) center / cover no-repeat; box-shadow: 0 0 0 1px rgba(255,255,255,0.06)">
+<span aria-hidden="true" style="position: absolute; left: 36%; bottom: 0; width: 22%; height: 78%; background: transparent"></span>
+<span aria-hidden="true" style="position: absolute; left: 35%; top: 20%; width: 24%; height: 79%; border: 1.5px solid rgba(230,0,46,0.9); display: {{gizD}}"><span style="position: absolute; left: -5px; top: -5px; width: 9px; height: 9px; background: #EDEDEF; border: 1.5px solid #E6002E; border-radius: 2px"></span><span style="position: absolute; right: -5px; top: -5px; width: 9px; height: 9px; background: #EDEDEF; border: 1.5px solid #E6002E; border-radius: 2px"></span><span style="position: absolute; left: -5px; bottom: -5px; width: 9px; height: 9px; background: #EDEDEF; border: 1.5px solid #E6002E; border-radius: 2px"></span><span style="position: absolute; right: -5px; bottom: -5px; width: 9px; height: 9px; background: #EDEDEF; border: 1.5px solid #E6002E; border-radius: 2px"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 57%; top: 38%; width: 30%; height: 26%; background: transparent"></span>
+<span class="fx-snow" aria-hidden="true"></span><span class="fx-snow b" aria-hidden="true"></span>
+<sc-if value="{{safeOn}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: absolute; inset: 5% 5%; border: 1px dashed rgba(255,255,255,0.28)"></span><span aria-hidden="true" style="position: absolute; inset: 10% 10%; border: 1px dashed rgba(255,255,255,0.16)"></span></sc-if>
+<sc-if value="{{capFocus}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: absolute; left: 50%; bottom: calc(13% + 34px); transform: translateX(-50%); height: 22px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 6px; background: rgba(11,11,13,0.82); font-size: 11.5px; color: {{cueFg}}; white-space: nowrap"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{cueFg}}"></span>{{cueShort}}</span></sc-if><span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 13%; text-align: center;  font-size: clamp(12px, 2.1vw, 22px); font-weight: 700; color: #FFFFFF; text-shadow: 0 2px 6px rgba(0,0,0,0.8); letter-spacing: 0.01em">I pointed the flashlight <span style="color: #FFD84A">into</span> the room.</span>
+<span aria-hidden="true" style="position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; height: 16px"><span style="width: 3px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 8px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 6px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 14px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 5px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 9px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 13px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 7px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 11px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span><span style="width: 3px; height: 6px; border-radius: 2px; background: rgba(255,255,255,0.7)"></span></span>
+</div>
+</div>
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 4px">
+<button class="ib" type="button" aria-label="Về đầu" title="Về đầu (Home)"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; transform: rotate(180deg)"></span></button>
+<button class="ib" type="button" aria-label="Phát" title="Phát / tạm dừng (Space)" style="width: 34px; height: 34px; border-radius: 50%; background: #EDEDEF; color: #0B0B0D"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<button class="ib" type="button" aria-label="Tới cuối" title="Tới cuối (End)"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+<span class="num mono" style="margin-left: 8px; font-size: 12.5px; white-space: nowrap"><span style="color: #EDEDEF">00:30:12:08</span><span style="color: #8B8B97"> / 00:42:10:00</span></span>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{toggleSafe}}" aria-pressed="{{safeAttr}}" title="Khung an toàn" style="height: 28px; padding: 0 9px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid {{safeBd}}; background: transparent; color: #C9C9D1; font-size: 12px; white-space: nowrap"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span><span class="sf-l">Khung an toàn</span></button>
+<span class="fld q-only" title="Chất lượng xem trước"><b>Xem</b>1/2</span>
+<span class="fld z-only" title="Thu phóng khung xem"><b>Zoom</b>Vừa khung</span>
+<button class="ib" type="button" aria-label="Âm lượng xem trước" title="Âm lượng xem trước"><span class="ic i-volume" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</div>
+</main><aside class="scroll" aria-label="{{inspTitle}}" style="width: 316px; flex: 0 0 316px; min-height: 0; overflow-y: auto; border-left: 1px solid rgba(255,255,255,0.06)">
+<sc-if value="{{iCap}}" hint-placeholder-val="{{ true }}">
+<div class="isec" style="gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span class="ic i-subtitle" aria-hidden="true" style="width: 15px; height: 15px; color: #D6BE5A"></span>Phụ đề</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">Đoạn lệch {{cueN}}/3</span>
+<button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick="{{prevCue}}"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; transform: rotate(180deg)"></span></button><button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick="{{nextCue}}"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px"></span></button></div>
+<span class="num" style="font-size: 12px; color: #8B8B97">{{cueRange}}</span>
+<div role="status" style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: {{stBg}}; color: {{stFg}}; font-size: 12.5px"><span class="ic {{stIc}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{stText}}</div>
+<div aria-label="Chữ so với tiếng trong 3 giây quanh đoạn này" role="img" style="display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 12px; background: #111113; border: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 8px"><span style="width: 34px; font-size: 11px; color: #8B8B97">Tiếng</span><div style="position: relative; flex: 1; height: 30px"><span style="position: absolute; left: 23.3%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 24.9%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 27.3%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 28.9%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 30.5%; bottom: 50%; width: 2px; height: 14px; margin-bottom: -7px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 32.1%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 33.7%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 35.3%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 36.9%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 39.3%; bottom: 50%; width: 2px; height: 6px; margin-bottom: -3px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 40.9%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 42.7%; bottom: 50%; width: 2px; height: 6px; margin-bottom: -3px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 44.3%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 45.9%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 47.5%; bottom: 50%; width: 2px; height: 14px; margin-bottom: -7px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 49.1%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 50.7%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 52.3%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 53.9%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 55.5%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 57.1%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 58.7%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 60.0%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 61.6%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 63.2%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 64.8%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 66.4%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 68.7%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 70.3%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 71.9%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 73.3%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 74.9%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 76.5%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 78.1%; bottom: 50%; width: 2px; height: 18px; margin-bottom: -9px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 79.7%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 81.3%; bottom: 50%; width: 2px; height: 6px; margin-bottom: -3px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 82.9%; bottom: 50%; width: 2px; height: 12px; margin-bottom: -6px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 84.5%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 86.1%; bottom: 50%; width: 2px; height: 6px; margin-bottom: -3px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 87.7%; bottom: 50%; width: 2px; height: 10px; margin-bottom: -5px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 89.3%; bottom: 50%; width: 2px; height: 8px; margin-bottom: -4px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span><span style="position: absolute; left: 90.9%; bottom: 50%; width: 2px; height: 22px; margin-bottom: -11px; border-radius: 1px; background: rgba(147,220,223,0.75)"></span></div></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="width: 34px; font-size: 11px; color: #8B8B97">Chữ</span><div style="position: relative; flex: 1; height: 22px; overflow: hidden"><sc-for list="{{words}}" as="w" hint-placeholder-count="7"><span title="{{w.w}}" style="position: absolute; left: {{w.l}}%; width: {{w.wd}}%; top: 5px; height: 12px; border-radius: 3px; background: {{w.bg}}; box-shadow: inset 0 0 0 1px {{w.bd}}"></span></sc-for></div></div>
+<div class="num mono" style="display: flex; justify-content: space-between; padding-left: 42px; font-size: 10px; color: #6E6E78"><span>30:11</span><span>30:12</span><span>30:13</span><span>30:14</span></div>
+</div>
+<button class="vv-btn {{alignCls}}" type="button" onClick="{{alignCue}}" aria-disabled="{{alignDis}}" style="width: 100%"><span class="ic i-magic" aria-hidden="true" style="width: 15px; height: 15px"></span>{{alignLabel}}</button>
+<div style="display: flex; align-items: center; gap: 6px"><span style="flex: 1; font-size: 12.5px; color: #A0A0AB">Dời cả đoạn</span><button class="vv-btn vv-btn--sm" type="button" title="Sớm hơn 0,1 giây (,)">−0,1 s</button><button class="vv-btn vv-btn--sm" type="button" title="Muộn hơn 0,1 giây (.)">+0,1 s</button></div>
+<button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" title="Nghe lại đoạn này (L)" style="align-self: flex-start; padding: 0 2px"><span class="ic i-play" aria-hidden="true" style="width: 14px; height: 14px"></span>Nghe lại đoạn này</button>
+</div>
+<div class="isec">
+<label for="ed-cue" style="font-size: 12.5px; color: #A0A0AB">Chữ của đoạn</label>
+<textarea id="ed-cue" class="vv-field" rows="2" style="height: auto; padding: 8px 10px; font-size: 13px; line-height: 1.5; resize: vertical">I pointed the flashlight into the room.</textarea>
+<span style="font-size: 11.5px; color: #8B8B97; line-height: 1.5">Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; cỡ chữ và màu theo template.</span>
+</div>
+</sc-if>
+<sc-if value="{{iScene}}" hint-placeholder-val="{{ false }}">
+<div class="isec" style="gap: 10px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span class="ic i-gallery" aria-hidden="true" style="width: 15px; height: 15px; color: #C49BEA"></span>Cảnh 5 · Đèn pin soi phòng trống</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">28:00–35:20 · dài 7:20 · <span style="color: #A6EDC1">Đã duyệt</span></span>
+<div aria-hidden="true" style="aspect-ratio: 16 / 9; border-radius: 10px; background: url(../img/nurse_s5.jpg) center / cover no-repeat"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"><a class="vv-btn" href="Review.dc.html"><span class="ic i-gallery-edit" aria-hidden="true" style="width: 15px; height: 15px"></span>Vẽ lại ảnh</a><button class="vv-btn" type="button"><span class="ic i-gallery" aria-hidden="true" style="width: 15px; height: 15px"></span>Thay ảnh</button></div>
+<span style="font-size: 11.5px; color: #8B8B97; line-height: 1.5">Vẽ lại: góp ý một câu, Hoạ sĩ vẽ ảnh mới, ảnh cũ giữ tới khi bạn duyệt. Thay ảnh: chọn ảnh khác trong Media.</span>
+</div>
+<div class="isec"><h4>Chuyển động</h4><div class="vv-seg vv-seg--sm" role="radiogroup" aria-label="Chuyển động của ảnh"><button type="button" role="radio" aria-checked="false">Đứng yên</button><button type="button" role="radio" aria-checked="false">Zoom chậm</button><button type="button" role="radio" aria-checked="true">Trôi + co giãn</button></div></div>
+<div class="isec"><h4>Sang cảnh 6</h4><div class="vv-seg vv-seg--sm" role="radiogroup" aria-label="Chuyển sang cảnh 6"><button type="button" role="radio" aria-checked="false">Cắt</button><button type="button" role="radio" aria-checked="true">Mờ 1,2 s</button><button type="button" role="radio" aria-checked="false">Trượt</button></div><span style="font-size: 11.5px; color: #8B8B97">Theo template. Đổi ở đây chỉ cho chỗ này.</span></div>
+<div class="isec" style="border-bottom: none">
+<button type="button" class="vv-btn vv-btn--sm vv-btn--quiet" aria-expanded="{{advA}}" onClick="{{toggleAdv}}" style="align-self: flex-start; padding: 0 2px"><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; transform: {{advRot}}"></span>Nâng cao <span style="color: #8B8B97">· vị trí, kích thước, độ trong suốt, keyframe</span></button>
+<sc-if value="{{advOpen}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px"><span class="fld"><b>X</b><span class="num">−96</span></span><span class="fld"><b>Y</b><span class="num">0</span></span><span class="fld"><b>Tỉ lệ</b><span class="num">100%</span></span><span class="fld"><b>Xoay</b><span class="num">0°</span></span></div>
+<label style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #A0A0AB"><span style="width: 76px">Độ trong suốt</span><input class="rng" type="range" min="0" max="100" value="100" aria-label="Độ trong suốt ảnh cảnh 5" style="--p: 100%"><span class="num" style="width: 36px; text-align: right">100%</span></label>
+<span style="font-size: 12px; color: #A0A0AB">Keyframe <span class="num">2</span> · 29:40 phóng 110%, 33:10 phóng 100%</span>
+</div></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{iBg}}" hint-placeholder-val="{{ false }}">
+<div class="isec" style="gap: 10px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span class="ic i-video-play" aria-hidden="true" style="width: 15px; height: 15px; color: #7FB4E6"></span>Clip nền · slowroads</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">Highlight · trong video 30:00–31:00 · lấy đoạn 1:02:10–1:03:10</span>
+<div aria-hidden="true" style="aspect-ratio: 16 / 9; border-radius: 10px; background: url(../img/bg_forest.jpg) center / cover no-repeat"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"><button class="vv-btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Đổi ngẫu nhiên</button><button class="vv-btn" type="button"><span class="ic i-scissor" aria-hidden="true" style="width: 15px; height: 15px"></span>Chọn đoạn khác</button></div>
+<button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" style="align-self: flex-start; padding: 0 2px"><span class="ic i-trash" aria-hidden="true" style="width: 14px; height: 14px"></span>Bỏ clip này</button>
+<span style="font-size: 11.5px; color: #8B8B97; line-height: 1.5">Chỉ đổi cho video này. Bỏ clip thì nền lặp lại 1:00 ở cuối — Kiểm định sẽ báo nếu nền không phủ kín.</span>
+</div>
+</sc-if>
+<sc-if value="{{iNone}}" hint-placeholder-val="{{ false }}">
+<div class="isec" style="gap: 8px"><span style="font-size: 14px; font-weight: 600">Video</span><span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">Chọn một cảnh, đoạn phụ đề hay clip nền trên timeline để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</span></div>
+<div class="isec"><h4>Khung hình</h4><span class="num" style="font-size: 13px">1920×1080 · 30 fps · cả video 42:10</span><span style="font-size: 11.5px; color: #8B8B97">Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</span></div>
+</sc-if>
+</aside>
+</div>
+<section aria-label="Timeline" style="flex: 0 0 auto; height: 286px; display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.08); background: #0D0D0F">
+<div style="flex: 0 0 auto; height: 40px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<button class="vv-btn vv-btn--sm" type="button" title="Tách tại playhead (S)"><span class="ic i-scissor" aria-hidden="true" style="width: 14px; height: 14px"></span>Tách <span class="vv-kbd">S</span></button>
+<button class="vv-btn vv-btn--sm" type="button" title="Xoá phần đang chọn (⌫)"><span class="ic i-trash" aria-hidden="true" style="width: 14px; height: 14px"></span>Xoá</button>
+<button class="vv-btn vv-btn--sm" type="button" aria-pressed="true" title="Bắt dính vào mép cảnh và phụ đề (N)" style="border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.06)"><span class="ic i-tick" aria-hidden="true" style="width: 13px; height: 13px"></span>Bắt dính</button>
+<sc-if value="{{showDriftNav}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 1px; height: 18px; background: rgba(255,255,255,0.08); margin: 0 4px"></span>
+<span style="display: flex; align-items: center; gap: 2px; height: 28px; padding: 0 2px 0 10px; border-radius: 8px; border: 1px solid rgba(255,154,92,0.35); background: rgba(255,154,92,0.06); color: #FFC09A; font-size: 12px"><span class="num">Đoạn lệch {{cueN}}/3</span><button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Đoạn lệch trước" onClick="{{prevCue}}" style="color: #FFC09A"><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px; transform: rotate(180deg)"></span></button><button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Đoạn lệch sau" onClick="{{nextCue}}" style="color: #FFC09A"><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></button></span></sc-if>
+<span style="flex: 1"></span>
+<button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Thu nhỏ timeline" title="Thu nhỏ (−)"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+<input class="rng" type="range" min="0" max="100" value="12" aria-label="Thu phóng timeline" style="--p: 12%; flex: 0 0 90px">
+<button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Phóng to timeline" title="Phóng to (=)"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+<button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" title="Vừa cả video (\)">Vừa</button>
+</div>
+<div style="flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative">
+<div style="display: flex">
+<div style="width: 168px; flex: 0 0 168px; border-right: 1px solid rgba(255,255,255,0.06); background: #0F0F11; height: 24px; border-bottom: 1px solid rgba(255,255,255,0.08)"></div>
+<div class="ruler" role="slider" aria-label="Vị trí phát" aria-valuemin="0" aria-valuemax="2530" aria-valuenow="1812" aria-valuetext="30 phút 12 giây" tabindex="0" style="flex: 1; min-width: 0"><span class="tick" style="left: 0.0%"><span>0:00</span></span><span class="tick" style="left: 11.858%"><span>5:00</span></span><span class="tick" style="left: 23.715%"><span>10:00</span></span><span class="tick" style="left: 35.573%"><span>15:00</span></span><span class="tick" style="left: 47.431%"><span>20:00</span></span><span class="tick" style="left: 59.289%"><span>25:00</span></span><span class="tick" style="left: 71.146%"><span>30:00</span></span><span class="tick" style="left: 83.004%"><span>35:00</span></span><span class="tick" style="left: 94.862%"><span>40:00</span></span><span class="tick s" style="left: 2.372%"></span><span class="tick s" style="left: 4.743%"></span><span class="tick s" style="left: 7.115%"></span><span class="tick s" style="left: 9.486%"></span><span class="tick s" style="left: 14.229%"></span><span class="tick s" style="left: 16.601%"></span><span class="tick s" style="left: 18.972%"></span><span class="tick s" style="left: 21.344%"></span><span class="tick s" style="left: 26.087%"></span><span class="tick s" style="left: 28.458%"></span><span class="tick s" style="left: 30.83%"></span><span class="tick s" style="left: 33.202%"></span><span class="tick s" style="left: 37.945%"></span><span class="tick s" style="left: 40.316%"></span><span class="tick s" style="left: 42.688%"></span><span class="tick s" style="left: 45.059%"></span><span class="tick s" style="left: 49.802%"></span><span class="tick s" style="left: 52.174%"></span><span class="tick s" style="left: 54.545%"></span><span class="tick s" style="left: 56.917%"></span><span class="tick s" style="left: 61.66%"></span><span class="tick s" style="left: 64.032%"></span><span class="tick s" style="left: 66.403%"></span><span class="tick s" style="left: 68.775%"></span><span class="tick s" style="left: 73.518%"></span><span class="tick s" style="left: 75.889%"></span><span class="tick s" style="left: 78.261%"></span><span class="tick s" style="left: 80.632%"></span><span class="tick s" style="left: 85.375%"></span><span class="tick s" style="left: 87.747%"></span><span class="tick s" style="left: 90.119%"></span><span class="tick s" style="left: 92.49%"></span><span class="tick s" style="left: 97.233%"></span><span class="tick s" style="left: 99.605%"></span><span class="dm" style="left: 30.04%; opacity: {{dm1}}" title="Phụ đề lệch tiếng ở 12:40"></span><span class="dm" style="left: 71.621%; opacity: {{dm2}}" title="Phụ đề lệch tiếng ở 30:12"></span><span class="dm" style="left: 90.198%; opacity: {{dm3}}" title="Phụ đề lệch tiếng ở 38:02"></span></div>
+</div>
+<div class="scroll" style="flex: 1; min-height: 0; overflow-y: auto"><div role="group" aria-label="Track Phụ đề karaoke" class="trk">
+<div class="th"><span class="ic i-subtitle" aria-hidden="true" style="width: 14px; height: 14px; color: #D6BE5A"></span><span class="thl">Phụ đề karaoke</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Phụ đề karaoke" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0.079%; width: 0.522%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 0.636%; width: 0.69%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 1.355%; width: 0.631%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 2.036%; width: 0.386%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 2.481%; width: 0.375%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 2.91%; width: 0.392%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 3.332%; width: 0.574%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 3.989%; width: 0.419%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 4.448%; width: 0.678%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 5.217%; width: 0.652%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 5.921%; width: 0.857%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 6.805%; width: 0.797%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 7.647%; width: 0.43%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 8.109%; width: 0.514%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 8.705%; width: 0.449%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 9.218%; width: 0.684%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 9.953%; width: 0.637%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 10.618%; width: 0.386%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 11.043%; width: 0.705%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 11.802%; width: 0.517%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 12.385%; width: 0.589%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 13.018%; width: 0.764%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 13.856%; width: 0.481%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 14.401%; width: 0.626%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 15.113%; width: 0.731%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 15.888%; width: 0.859%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 16.779%; width: 0.571%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 17.427%; width: 0.434%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 17.92%; width: 0.376%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 18.367%; width: 0.749%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 19.18%; width: 0.806%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 20.031%; width: 0.713%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 20.81%; width: 0.654%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 21.52%; width: 0.787%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 22.399%; width: 0.599%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 23.069%; width: 0.387%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 23.529%; width: 0.688%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 24.312%; width: 0.778%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 25.134%; width: 0.554%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 25.759%; width: 0.367%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 26.183%; width: 0.442%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 26.657%; width: 0.386%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 27.122%; width: 0.422%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 27.585%; width: 0.557%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 28.228%; width: 0.397%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 28.68%; width: 0.638%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 29.405%; width: 0.777%; background: {{c1Bg}}; border: 1.5px solid {{c1Bd}}; outline: {{c1Ol}}; outline-offset: 1px; top: 1px; bottom: 1px; z-index: 2;"></span><span class="it" style="left: 30.267%; width: 0.499%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 30.819%; width: 0.54%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 31.446%; width: 0.848%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 32.328%; width: 0.446%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 32.814%; width: 0.476%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 33.348%; width: 0.658%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 34.049%; width: 0.358%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 34.461%; width: 0.545%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 35.07%; width: 0.845%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 35.988%; width: 0.621%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 36.677%; width: 0.703%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 37.407%; width: 0.818%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 38.304%; width: 0.805%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 39.19%; width: 0.557%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 39.799%; width: 0.409%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 40.277%; width: 0.388%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 40.693%; width: 0.463%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 41.192%; width: 0.53%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 41.75%; width: 0.356%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 42.14%; width: 0.408%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 42.597%; width: 0.369%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 43.052%; width: 0.671%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 43.758%; width: 0.485%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 44.292%; width: 0.543%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 44.867%; width: 0.792%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 45.753%; width: 0.595%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 46.406%; width: 0.4%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 46.837%; width: 0.532%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 47.412%; width: 0.782%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 48.228%; width: 0.368%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 48.687%; width: 0.627%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 49.349%; width: 0.635%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 50.009%; width: 0.627%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 50.73%; width: 0.799%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 51.602%; width: 0.49%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 52.142%; width: 0.442%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 52.662%; width: 0.629%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 53.371%; width: 0.525%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 53.935%; width: 0.773%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 54.802%; width: 0.794%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 55.677%; width: 0.776%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 56.529%; width: 0.472%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 57.062%; width: 0.538%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 57.626%; width: 0.37%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 58.04%; width: 0.489%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 58.602%; width: 0.847%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 59.505%; width: 0.837%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 60.436%; width: 0.846%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 61.332%; width: 0.469%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 61.841%; width: 0.457%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 62.336%; width: 0.676%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 63.1%; width: 0.788%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 71.30%; width: 0.691%; background: {{c2Bg}}; border: 1.5px solid {{c2Bd}}; outline: {{c2Ol}}; outline-offset: 1px; top: 1px; bottom: 1px; z-index: 2;"></span><span class="it" style="left: 64.717%; width: 0.399%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 65.187%; width: 0.823%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 66.09%; width: 0.741%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 66.889%; width: 0.447%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 67.416%; width: 0.527%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 68.023%; width: 0.855%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 68.93%; width: 0.562%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 69.583%; width: 0.728%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 70.347%; width: 0.421%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 70.803%; width: 0.821%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 71.705%; width: 0.431%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 72.218%; width: 0.859%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 73.148%; width: 0.536%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 73.746%; width: 0.423%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 74.194%; width: 0.855%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 75.119%; width: 0.626%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 75.835%; width: 0.579%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 76.5%; width: 0.78%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 77.318%; width: 0.485%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 77.848%; width: 0.479%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 78.393%; width: 0.489%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 78.935%; width: 0.423%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 79.447%; width: 0.538%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 80.041%; width: 0.655%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 80.784%; width: 0.572%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 81.445%; width: 0.613%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 82.12%; width: 0.625%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 82.77%; width: 0.582%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 83.389%; width: 0.358%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 83.827%; width: 0.444%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 84.329%; width: 0.728%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 85.12%; width: 0.523%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 85.704%; width: 0.641%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 86.425%; width: 0.41%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 86.899%; width: 0.483%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 87.426%; width: 0.753%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 88.238%; width: 0.644%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 88.96%; width: 0.825%; background: {{c3Bg}}; border: 1.5px solid {{c3Bd}}; outline: {{c3Ol}}; outline-offset: 1px; top: 1px; bottom: 1px; z-index: 2;"></span><span class="it" style="left: 89.84%; width: 0.67%; background: {{c3Bg}}; border: 1.5px solid {{c3Bd}}; outline: {{c3Ol}}; outline-offset: 1px; top: 1px; bottom: 1px; z-index: 2;"></span><span class="it" style="left: 90.57%; width: 0.619%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 91.262%; width: 0.588%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 91.912%; width: 0.601%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 92.604%; width: 0.715%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 93.405%; width: 0.84%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 94.287%; width: 0.643%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 95.021%; width: 0.787%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 95.842%; width: 0.418%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 96.315%; width: 0.393%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 96.749%; width: 0.393%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 97.214%; width: 0.759%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 98.06%; width: 0.435%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 98.57%; width: 0.695%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span><span class="it" style="left: 99.298%; width: 0.622%; background: rgba(214,190,90,0.22); border: 1px solid rgba(214,190,90,0.85);"></span></div>
+</div>
+<div role="group" aria-label="Track Subscribe" class="trk">
+<div class="th"><span class="ic i-notify" aria-hidden="true" style="width: 14px; height: 14px; color: #C49BEA"></span><span class="thl">Subscribe</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Subscribe" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0.198%; width: 0.395%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"></span><span class="it" style="left: 98.419%; width: 1.265%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"></span></div>
+</div>
+<div role="group" aria-label="Track Lớp phủ" class="trk">
+<div class="th"><span class="ic i-magic" aria-hidden="true" style="width: 14px; height: 14px; color: #E59DBB"></span><span class="thl">Lớp phủ</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Lớp phủ" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0.0%; width: 100.0%; background: rgba(229,157,187,0.22); border: 1px solid rgba(229,157,187,0.85);"><span class="itl">Tuyết · 35%</span></span></div>
+</div>
+<div role="group" aria-label="Track Ảnh cảnh" class="trk">
+<div class="th"><span class="ic i-gallery" aria-hidden="true" style="width: 14px; height: 14px; color: #C49BEA"></span><span class="thl">Ảnh cảnh</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Ảnh cảnh" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0.0%; width: 16.68%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"><span class="itl">1 · Hành lang khoa đêm</span></span><span class="it" style="left: 16.68%; width: 16.917%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"><span class="itl">2 · Cửa phòng 214</span></span><span class="it" style="left: 33.597%; width: 16.403%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"><span class="itl">3 · Y tá áp tai vào cửa</span></span><span class="it" style="left: 50.0%; width: 16.403%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"><span class="itl">4 · Hồ sơ bệnh nhân cũ</span></span><span class="it" style="left: 66.403%; width: 17.391%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85); outline: {{sc5Ol}}; outline-offset: 1px;"><span class="itl">5 · Đèn pin soi phòng trống</span></span><span class="it" style="left: 83.794%; width: 16.206%; background: rgba(196,155,234,0.22); border: 1px solid rgba(196,155,234,0.85);"><span class="itl">6 · Bình minh</span></span><span class="kf" style="left: calc(66.482% - 4px); display: {{kfD}}"></span><span class="kf" style="left: calc(83.715% - 4px); display: {{kfD}}"></span></div>
+</div>
+<div role="group" aria-label="Track Nền video · 41" class="trk">
+<div class="th"><span class="ic i-video-play" aria-hidden="true" style="width: 14px; height: 14px; color: #7FB4E6"></span><span class="thl">Nền video · 41</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Nền video · 41" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0.0%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 2.439%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 4.877%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 7.316%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 9.755%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 12.194%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 14.632%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 17.071%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 19.51%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 21.949%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 24.387%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 26.826%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 29.265%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 31.704%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 34.142%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 36.581%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 39.02%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 41.458%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 43.897%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 46.336%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 48.775%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 51.213%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 53.652%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 56.091%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 58.53%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 60.968%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 63.407%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 65.846%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 68.285%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 70.723%; width: 2.36%; outline: {{bgOl}}; outline-offset: 1px; z-index: 2; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 73.162%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 75.601%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 78.04%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 80.478%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 82.917%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 85.356%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 87.794%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 90.233%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 92.672%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span><span class="it" style="left: 95.111%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: 1;"></span><span class="it" style="left: 97.549%; width: 2.36%; background: rgba(127,180,230,0.22); border: 1px solid rgba(127,180,230,0.85); opacity: .78;"></span></div>
+</div>
+<div role="group" aria-label="Track Sóng giọng" class="trk">
+<div class="th"><span class="ic i-activity" aria-hidden="true" style="width: 14px; height: 14px; color: #E59DBB"></span><span class="thl">Sóng giọng</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Ẩn track Sóng giọng" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0%; width: 100%; background: rgba(229,157,187,0.14); border: 1px solid rgba(229,157,187,0.7); overflow: hidden"><span class="bars"></span><span class="itl bgd">Sóng giọng · theo giọng gốc</span></span></div>
+</div>
+<div role="group" aria-label="Track Giọng gốc" class="trk">
+<div class="th"><span class="ic i-volume" aria-hidden="true" style="width: 14px; height: 14px; color: #78C99A"></span><span class="thl">Giọng gốc</span><span style="flex: 1"></span><button class="tb ghost" type="button" aria-label="Tắt tiếng Giọng gốc" title="Tắt tiếng"><span class="ic i-volume" aria-hidden="true" style="width: 13px; height: 13px"></span></button><button class="tb ghost" type="button" aria-label="Ẩn track Giọng gốc" title="Ẩn track"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div>
+<div class="lane"><span class="it" style="left: 0%; width: 100%; background: rgba(120,201,154,0.18); border: 1px solid rgba(120,201,154,0.85); overflow: hidden"><span class="wave" style="background-image: repeating-linear-gradient(90deg, rgba(147,220,223,0.9) 0 1px, transparent 1px 3px)"></span><span class="itl bgd">Giọng gốc · −14 LUFS</span></span></div>
+</div>
+</div>
+<div aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 168px; right: 0; pointer-events: none">
+
+<span class="ph" style="left: 71.621%"></span>
+</div>
+</div>
+</section>
+</div>
+</sc-if>
+<sc-if value="{{isNarrow}}" hint-placeholder-val="{{ false }}"><div style="flex: 1; display: flex; flex-direction: column">
+<header style="flex: 0 0 auto; height: 48px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06)"><a class="ghost" href="Main.dc.html" style="height: 44px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 6px; border-radius: 8px; color: #A0A0AB; font-size: 13px"><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; transform: rotate(180deg)"></span>Bàn dựng</a></header>
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px">
+<div role="status" style="max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+<span class="ic i-workbench" aria-hidden="true" style="width: 30px; height: 30px; color: #8B8B97"></span>
+<span style="font-size: 17px; font-weight: 600">Cần màn hình rộng ≥ 1024px</span>
+<span style="font-size: 13.5px; color: #A0A0AB; line-height: 1.6">Editor cần chỗ cho khung xem, timeline và bảng thuộc tính. Kéo rộng cửa sổ hoặc mở trên máy tính. Duyệt ảnh và theo dõi video vẫn làm được ở Bàn dựng.</span>
+<a class="ghost" href="Main.dc.html" style="height: 44px; padding: 0 16px; display: flex; align-items: center; border-radius: 11px; border: 1px solid rgba(255,255,255,0.12); font-size: 13.5px">Quay lại Bàn dựng</a>
+</div></div></div></sc-if>
+<sc-if value="{{isGate}}" hint-placeholder-val="{{ false }}">
+<div class="vv-scrim vv-scrim--center vv-scrim-in" style="position: fixed; z-index: 60"><section class="vv-dialog" role="alertdialog" aria-modal="true" aria-labelledby="gt-t" aria-describedby="gt-d">
+<div class="vv-dialog__head"><span class="vv-dialog__icon vv-dialog__icon--warn" aria-hidden="true"><span class="ic i-warning" aria-hidden="true" style="width: 20px; height: 20px"></span></span><div class="vv-dialog__text"><h2 id="gt-t" class="vv-dialog__title">Xuất khi chưa đạt độ hoàn thiện?</h2><p id="gt-d" class="vv-dialog__sub">84/100, cần 90. Còn 3 đoạn phụ đề lệch tiếng; khớp theo giọng mất khoảng 10 giây.</p></div></div>
+<ul class="vv-dialog__list"><li>Phụ đề khớp tiếng: 12:40, 30:12, 38:02</li><li>Vẫn xuất: video chuyển sang Sẵn sàng đăng, Kiểm định ghi bạn đã chọn bỏ qua mục này</li></ul>
+<div class="vv-dialog__actions" style="justify-content: flex-end"><button class="vv-btn" type="button" onClick="{{forceExport}}">Vẫn xuất</button><button class="vv-btn vv-btn--primary" type="button" onClick="{{backFix}}">Sửa tiếp</button></div>
+</section></div>
+</sc-if>
+<sc-if value="{{isExporting}}" hint-placeholder-val="{{ false }}">
+<div class="scrim"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ex-t">
+<div style="display: flex; align-items: center; gap: 10px"><span class="orb o-qa live" aria-hidden="true" style="width: 22px; height: 22px"></span><h2 id="ex-t" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">Đang xuất video</h2><span class="num" style="font-size: 13px; color: #A0A0AB">62%</span></div>
+<span style="font-size: 12.5px; color: #8B8B97">1080p · 30 fps · toàn bộ 42:10 · nén sau khi xuất</span>
+<div aria-hidden="true" style="height: 6px; border-radius: 999px; background: #222225; overflow: hidden"><span style="display: block; width: 62%; height: 100%; border-radius: 999px; background: #9DECC9"></span></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div class="stp"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px; color: #A6EDC1"></span><span style="flex: 1">Dựng khung hình</span><span class="num" style="color: #8B8B97; font-size: 12px">4 phút</span></div>
+<div class="stp"><span class="spinner" aria-hidden="true" style="width: 14px; height: 14px; margin: 0 1px; border-top-color: #9DECC9"></span><span class="shimmer" style="flex: 1">Mã hoá MP4 · 26:08 / 42:10</span><span class="num" style="color: #C9C9D1; font-size: 12px">còn khoảng 6 phút</span></div>
+<div class="stp" style="color: #8B8B97"><span aria-hidden="true" style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center">·</span><span style="flex: 1">Lưu lên máy và kiểm tra tệp</span></div>
+</div>
+<div style="padding: 10px 12px; border-radius: 10px; background: #111113; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB; line-height: 1.55">Giữ tab này mở cho tới khi xong: video được dựng ngay trong trình duyệt. Bạn vẫn xem được timeline nhưng không sửa được.</div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="ghost" type="button" onClick="{{backEdit}}" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,154,92,0.35); background: transparent; color: #FFC09A; font-size: 13px">Huỷ xuất</button></div>
+</div></div>
+</sc-if>
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<div class="scrim"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dn-t">
+<div style="display: flex; align-items: center; gap: 10px"><span class="ic i-tick-b" aria-hidden="true" style="width: 22px; height: 22px; color: #A6EDC1"></span><h2 id="dn-t" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">Đã xuất MP4</h2><span class="num" style="font-size: 12.5px; color: #8B8B97">42:10 · 1,2 GB</span></div>
+<div style="position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: url(../img/ed_frame.jpg) center / cover no-repeat"><button type="button" aria-label="Phát bản vừa xuất" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(11,11,13,0.55); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-play" aria-hidden="true" style="width: 20px; height: 20px"></span></button><span class="num mono" style="position: absolute; right: 8px; bottom: 7px; padding: 0 5px; border-radius: 4px; background: rgba(0,0,0,0.75); font-size: 11px">42:10</span></div>
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(157,236,201,0.05); border: 1px solid rgba(157,236,201,0.2); font-size: 12.5px; color: #C9C9D1; line-height: 1.55"><span class="orb o-qa" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span>Quay lại Bàn dựng, Kiểm định sẽ đo lại độ hoàn thiện cho bản này. Đạt từ 90 thì video chuyển sang Sẵn sàng.</span></div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="ghost" type="button" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Tải MP4</button><a class="primary" href="Main.dc.html" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Quay lại Bàn dựng</a></div>
+</div></div>
+</sc-if>
+<sc-if value="{{isConflict}}" hint-placeholder-val="{{ false }}">
+<div class="scrim"><div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" aria-describedby="cf-d">
+<div style="display: flex; align-items: center; gap: 10px"><span class="ic i-warning" aria-hidden="true" style="width: 20px; height: 20px; color: #FF9A5C"></span><h2 id="cf-t" style="margin: 0; font-size: 16px; font-weight: 600">Dự án vừa được lưu ở nơi khác</h2></div>
+<p id="cf-d" style="margin: 0; font-size: 13px; color: #C9C9D1; line-height: 1.6">Lúc 00:14, Kiểm định lưu lại dự án này sau khi bạn đổi clip nền trên Bàn dựng. Thay đổi bạn làm ở đây từ 00:12 (dời keyframe cảnh 5, sửa 2 dòng phụ đề) chưa được lưu.</p>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button class="ghost" type="button" onClick="{{backEdit}}" style="text-align: left; padding: 10px 12px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; flex-direction: column; gap: 2px; white-space: normal"><span style="font-size: 13.5px; font-weight: 500">Tải lại bản mới</span><span style="font-size: 12px; color: #8B8B97">Bỏ 2 thay đổi chưa lưu của bạn</span></button>
+<button class="ghost" type="button" onClick="{{backEdit}}" style="text-align: left; padding: 10px 12px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; flex-direction: column; gap: 2px; white-space: normal"><span style="font-size: 13.5px; font-weight: 500">Tiếp tục ở đây, tạm tắt tự lưu</span><span style="font-size: 12px; color: #8B8B97">Bạn tự quyết sau; không ghi đè bản mới</span></button>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="primary" type="button" onClick="{{backEdit}}" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Lưu thay đổi thành bản sao</button></div>
+</div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["editing", "export-gate", "exporting", "export-done", "conflict", "narrow"], "default": "editing", "section": "Trạng thái"}, "fix": {"editor": "enum", "options": ["todo", "partial", "done", "measuring", "passed"], "default": "todo", "section": "Việc cần sửa"}, "panel": {"editor": "enum", "options": ["fix", "scenes", "subs", "bg", "audio", "media"], "default": "fix", "section": "Bảng trái"}, "focus": {"editor": "enum", "options": ["caption", "scene", "bg", "none"], "default": "caption", "section": "Đang chọn"}, "$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { st: null, fx: null, panel: null, focus: null, cue: 2, safe: true, pass: false, adv: false };
+  }
+  componentDidUpdate(prev) {
+    if (['state', 'fix', 'panel', 'focus'].some((k) => prev[k] !== this.props[k])) this.setState({ st: null, fx: null, panel: null, focus: null, cue: 2, pass: false, adv: false });
+  }
+  renderVals() {
+    // r27-editor: mở từ “Sửa trong editor” → bảng Cần sửa, chọn sẵn đoạn lệch, playhead ở đoạn đó
+    const st = this.state.st || this.props.state || 'editing';
+    const fx = this.state.fx || this.props.fix || 'todo';
+    const panel = this.state.panel || this.props.panel || 'fix';
+    const focus = this.state.focus || this.props.focus || 'caption';
+    const cue = this.state.cue;
+    const passed = fx === 'passed', measuring = fx === 'measuring';
+    const fixedSet = fx === 'todo' ? [] : (fx === 'partial' ? [2] : [1, 2, 3]);
+    const isFixed = (n) => fixedSet.indexOf(n) >= 0;
+    const leftN = 3 - fixedSet.length;
+    const score = passed ? 93 : 84;
+    const set = (o) => () => this.setState(o);
+    // thanh trái
+    const RL = [['fix', 'Cần sửa', passed ? 'i-tick-b' : 'i-danger', passed ? '#A6EDC1' : '#FF9A5C'], ['scenes', 'Cảnh', 'i-gallery'], ['subs', 'Phụ đề', 'i-subtitle'], ['bg', 'Nền', 'i-video-play'], ['audio', 'Âm thanh', 'i-volume'], ['media', 'Media', 'i-folder']];
+    const rail = RL.map((r) => ({ label: r[1], icon: r[2], ic: r[3] || 'currentColor', tip: r[1], on: r[0] === panel ? 'true' : 'false', hasBadge: r[0] === 'fix' && leftN > 0 && !passed, badge: String(leftN), pick: set({ panel: r[0] }) }));
+    const TT = { fix: 'Cần sửa', scenes: 'Cảnh', subs: 'Phụ đề', bg: 'Nền & lớp phủ', audio: 'Âm thanh', media: 'Media' };
+    const META = { fix: passed ? 'đạt' : (leftN ? leftN + ' đoạn' : 'đo lại'), scenes: '7 cảnh', subs: '412 đoạn', bg: '42 clip', audio: '', media: '' };
+    // đoạn lệch
+    const CUES = [[1, '12:40', 'Then the call light for 214 came on.', 'muộn 0,4 s'], [2, '30:12', 'I pointed the flashlight into the room.', 'sớm 0,6 s'], [3, '38:02', 'And the chart on the door had my name on it.', 'muộn 0,5 s']];
+    const goCue = (n) => () => this.setState({ cue: n, focus: 'caption' });
+    const cues = CUES.map((c) => { const ok = isFixed(c[0]); const cur = c[0] === cue && focus === 'caption';
+      return { t: c[1], text: c[2], ok, st: ok ? 'đã khớp' : c[3], fg: ok ? '#A6EDC1' : '#FFC09A', cur: cur ? 'true' : 'false', bg: cur ? 'rgba(255,255,255,0.08)' : 'transparent', go: goCue(c[0]) }; });
+    const PASS = [['Thời lượng', '42:10 · gốc 41:55'], ['Số cảnh', '7 · khớp nguồn'], ['Nhịp cắt', 'đúng mép đã duyệt'], ['Ảnh tất cả cảnh', '7/7 đã duyệt'], ['Phụ đề phủ tiếng', '100%'], ['Âm lượng', '−14,2 LUFS'], ['1080p', '1920×1080 · 30 fps'], ['Thumbnail', '1280×720'], ['Nền video', 'phủ kín 42:10']];
+    const passList = (passed ? PASS.concat([['Phụ đề khớp tiếng', '0 đoạn lệch'], ['Phụ đề karaoke', 'đo mốc từng từ']]) : PASS).map((p) => ({ label: p[0], ev: p[1] }));
+    const changed = fixedSet.length > 0 && !passed;
+    const remeasure = changed && !measuring ? [{ label: 'Phụ đề khớp tiếng', why: fixedSet.length + ' đoạn vừa khớp' }, { label: 'Phụ đề karaoke', why: 'mốc từng từ đổi' }] : [];
+    const fixLede = passed ? 'Đã đạt. Xuất được rồi; xuất xong video chuyển sang Sẵn sàng đăng.'
+      : (measuring ? 'Kiểm định đang đo lại sau khi bạn sửa.' : (leftN ? 'Cần 90 để tự xuất. Còn ' + leftN + ' đoạn phụ đề lệch tiếng.' : 'Đã sửa xong. Đo lại để cập nhật điểm.'));
+    // bảng phải
+    const curFixed = isFixed(cue);
+    const C = CUES[cue - 1];
+    const off = curFixed ? 0 : (cue === 2 ? -0.6 : (cue === 1 ? 0.4 : 0.5));
+    const W = [['I', 0.70, 0.10], ['pointed', 0.82, 0.34], ['the', 1.18, 0.08], ['flashlight', 1.28, 0.50], ['into', 1.80, 0.24], ['the', 2.06, 0.12], ['room.', 2.20, 0.58]];
+    const words = W.map((w) => ({ w: w[0], l: ((w[1] + off) / 3 * 100).toFixed(1), wd: (w[2] / 3 * 100 - 0.8).toFixed(1), bg: curFixed ? 'rgba(166,237,193,0.35)' : 'rgba(255,154,92,0.35)', bd: curFixed ? 'rgba(166,237,193,0.7)' : 'rgba(255,154,92,0.8)' }));
+    const mark = (n) => ({ bg: isFixed(n) ? 'rgba(214,190,90,0.22)' : 'rgba(255,154,92,0.75)', bd: isFixed(n) ? 'rgba(214,190,90,0.85)' : '#FF9A5C', ol: n === cue && focus === 'caption' ? '2px solid #E6002E' : '0 solid transparent' });
+    const m1 = mark(1), m2 = mark(2), m3 = mark(3);
+    const showGate = st === 'export-gate';
+    return {
+      rail, panelTitle: TT[panel], panelMeta: META[panel], pFix: panel === 'fix', pScenes: panel === 'scenes', pSubs: panel === 'subs', pBg: panel === 'bg', pAudio: panel === 'audio', pMedia: panel === 'media',
+      openFix: set({ panel: 'fix' }),
+      score: String(score), scoreText: score + '/100', scoreFg: passed ? '#A6EDC1' : '#FFC09A', scoreBd: passed ? 'rgba(166,237,193,0.3)' : 'rgba(255,154,92,0.35)', scoreBg: passed ? 'rgba(166,237,193,0.06)' : 'rgba(255,154,92,0.06)', scoreIc: passed ? 'i-tick-b' : 'i-danger', scoreBar: passed ? '#A6EDC1' : '#FF9A5C',
+      exportCls: passed ? 'vv-btn--primary' : '', startExport: () => this.setState({ st: passed ? 'exporting' : 'export-gate' }),
+      forceExport: set({ st: 'exporting' }), backFix: () => this.setState({ st: 'editing', panel: 'fix', focus: 'caption' }), backEdit: set({ st: 'editing' }),
+      fixLede, hasFail: !passed && !measuring, failSub: leftN ? leftN + ' đoạn chữ lệch tiếng quá 0,3 giây' : 'Đã khớp cả 3 đoạn',
+      cues, canFixAll: leftN > 0, leftN: String(leftN), fixAll: set({ fx: 'done' }),
+      hasRemeasure: remeasure.length > 0, remeasure, remN: String(remeasure.length),
+      passed: passList, passN: String(passList.length), passOpen: this.state.pass || passed, passA: (this.state.pass || passed) ? 'true' : 'false', passRot: (this.state.pass || passed) ? 'rotate(0deg)' : 'rotate(-90deg)', togglePass: () => this.setState({ pass: !this.state.pass }),
+      measuring, showMeasure: !measuring && !passed, measureCls: fx === 'done' ? 'vv-btn--primary' : '', measureDis: changed ? 'false' : 'true', measure: changed ? set({ fx: 'measuring' }) : () => {},
+      measureNote: passed ? 'Đo lúc 23:41 · 93/100. Sửa thêm thì đo lại trước khi xuất.' : (measuring ? 'Đo xong tự cập nhật điểm và danh sách.' : (changed ? 'Có ' + fixedSet.length + ' thay đổi chưa đo · khoảng 1 phút, chạy nền.' : 'Sửa xong các đoạn lệch rồi đo lại. Đo lần cuối 23:12.')),
+      scenes: [['0', 'Ảnh bìa · ROOM 214', '1280×720 · đã duyệt', 'e1726d9c7a70ea3ad442339ddac5ac4c'], ['1', 'Hành lang khoa đêm', '0:00–7:02', '51833e113a4301c88634b30b273c467b'], ['2', 'Cửa phòng 214', '7:02–14:10', '89bc24ad1dd8cccc6cafd29e0799fbdf'], ['3', 'Y tá áp tai vào cửa', '14:10–21:05', 'ebca590725ac189ed369dc3f17d87851'], ['4', 'Hồ sơ bệnh nhân cũ', '21:05–28:00', 'bc18df3bec937f9e324d5ccf6adde1d6'], ['5', 'Đèn pin soi phòng trống', '28:00–35:20', 'b57e9d378f0570d7aba384d9b3aa800b'], ['6', 'Bình minh', '35:20–42:10', 'deafb991926e3c85d3abefcadeded73e']]
+        .map((s) => { const on = s[0] === '5' && focus === 'scene'; return { n: s[0], title: s[1], meta: s[2], img: 'url(/_blob/' + s[3] + ') center / cover no-repeat', cur: on ? 'true' : 'false', bg: on ? 'rgba(255,255,255,0.08)' : 'transparent', pick: set({ focus: 'scene' }) }; }),
+      subsNote: leftN ? leftN + ' đoạn lệch tiếng · bấm để tới đoạn đó' : 'Không còn đoạn lệch', subsNoteFg: leftN ? '#FFC09A' : '#A6EDC1',
+      subLines: [['12:31', 'The night shift started like any other.'], ['12:40', 'Then the call light for 214 came on.', 1], ['12:47', 'Nobody had been in 214 for three years.'], ['30:05', 'I took the flashlight off my belt.'], ['30:12', 'I pointed the flashlight into the room.', 2], ['30:18', 'The bed was made. Nobody was there.'], ['37:58', 'By morning the room was locked again.'], ['38:02', 'And the chart on the door had my name on it.', 3], ['38:09', 'I never went back to the third floor.']]
+        .map((s) => { const d = s[2]; const ok = d && isFixed(d); const cur = d === cue && focus === 'caption'; return { t: s[0], text: s[1], drift: !!d, st: ok ? 'đã khớp' : 'lệch', fg: ok ? '#A6EDC1' : '#FFC09A', cur: cur ? 'true' : 'false', bg: cur ? 'rgba(255,255,255,0.08)' : (d && !ok ? 'rgba(255,154,92,0.05)' : 'transparent'), go: d ? goCue(d) : () => {} }; }),
+      bgClips: [['slowroads · clip', 'Kênh', '12:05–13:05', '1:00', 'hw'], ['slowroads · highlight', 'Kênh', '30:00–31:00', '1:00', 'forest'], ['Đường đèo sương mù', 'Cố định', '0:00–1:30', '1:30', 'pass'], ['slowroads · highlight', 'Bạn chọn', '6:20–7:20', '1:00', 'city'], ['nightdrivefm · clip', 'Kênh', '0:20–1:20', '1:00', 'city2'], ['Mưa trên kính xe', 'Cố định', '0:00–1:20', '1:20', 'glass']]
+        .map((b, i) => { const IMG = { hw: '303397d12b3fed28478736e25a6593fa', forest: '9a3cc53070c2950765fbc994c39a9fc8', pass: '8069d1281ab18b3bd62887ee044223ea', city: '9922ca1eb842ef0ddabb596870ee4081', city2: '9922ca1eb842ef0ddabb596870ee4081', glass: 'aecc6e35cc24d45d4a9d751175d82fd6' }; const on = i === 1 && focus === 'bg';
+          return { src: b[0], kind: b[1], at: b[2], len: b[3], img: 'url(/_blob/' + IMG[b[4]] + ') ' + (b[4] === 'city2' ? '70% 50% / 200%' : 'center / cover') + ' no-repeat', kfg: b[1] === 'Cố định' ? '#F6CB8C' : '#8B8B97', bg: on ? 'rgba(255,255,255,0.08)' : 'transparent', pick: set({ focus: 'bg' }) }; }),
+      vols: [['Giọng gốc', '80%', 80, 'Tiếng của video gốc'], ['Nền video', '20%', 20, 'Tiếng của clip nền, thấp để không lấn giọng'], ['Lớp phủ', 'tắt', 0, 'Lớp phủ Tuyết không có tiếng']].map((v) => ({ label: v[0], val: v[1], pos: String(v[2]), help: v[3] })),
+      inspTitle: { caption: 'Phụ đề đang chọn', scene: 'Cảnh đang chọn', bg: 'Clip nền đang chọn', none: 'Video' }[focus],
+      iCap: focus === 'caption', iScene: focus === 'scene', iBg: focus === 'bg', iNone: focus === 'none',
+      cueN: String(cue), cueRange: C[1] + ' · đoạn ' + (cue === 2 ? '30:12,20–30:14,30' : (cue === 1 ? '12:40,05–12:42,60' : '38:02,10–38:05,40')),
+      stText: curFixed ? 'Đã khớp tiếng · lệch 0,02 giây' : 'Chữ hiện ' + C[3].replace(' s', ' giây') + ' so với tiếng', stIc: curFixed ? 'i-tick-b' : 'i-danger', stFg: curFixed ? '#A6EDC1' : '#FFC09A', stBg: curFixed ? 'rgba(166,237,193,0.06)' : 'rgba(255,154,92,0.07)',
+      words, alignCls: curFixed ? '' : 'vv-btn--primary', alignDis: curFixed ? 'true' : 'false', alignLabel: curFixed ? 'Đã khớp theo giọng' : 'Khớp theo giọng',
+      alignCue: curFixed ? () => {} : () => this.setState({ fx: fx === 'todo' ? (cue === 2 ? 'partial' : 'done') : 'done' }),
+      prevCue: () => this.setState({ cue: cue === 1 ? 3 : cue - 1, focus: 'caption' }), nextCue: () => this.setState({ cue: cue % 3 + 1, focus: 'caption' }),
+      showDriftNav: leftN > 0 && !passed,
+      advOpen: this.state.adv, advA: this.state.adv ? 'true' : 'false', advRot: this.state.adv ? 'rotate(0deg)' : 'rotate(-90deg)', toggleAdv: () => this.setState({ adv: !this.state.adv }),
+      // khung xem + timeline
+      capFocus: focus === 'caption', cueFg: curFixed ? '#A6EDC1' : '#FFC09A', cueShort: curFixed ? 'Đã khớp tiếng' : 'Chữ ' + C[3] + ' so với tiếng', capOl: focus === 'caption' && cue === 2 ? '1.5px dashed rgba(230,0,46,0.8)' : '0 solid transparent',
+      gizD: focus === 'scene' ? 'block' : 'none', pvSel: { caption: 'đang chọn phụ đề 30:12', scene: 'đang chọn ảnh cảnh 5', bg: 'đang chọn clip nền', none: 'chưa chọn gì' }[focus],
+      c1Bg: m1.bg, c1Bd: m1.bd, c1Ol: m1.ol, c2Bg: m2.bg, c2Bd: m2.bd, c2Ol: m2.ol, c3Bg: m3.bg, c3Bd: m3.bd, c3Ol: m3.ol,
+      dm1: isFixed(1) ? '0' : '1', dm2: isFixed(2) ? '0' : '1', dm3: isFixed(3) ? '0' : '1',
+      sc5Ol: focus === 'scene' ? '2px solid #E6002E' : '0 solid transparent', bgOl: focus === 'bg' ? '2px solid #E6002E' : '0 solid transparent', kfD: focus === 'scene' ? 'block' : 'none',
+      safeOn: this.state.safe, safeAttr: this.state.safe ? 'true' : 'false', safeBd: this.state.safe ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.1)', toggleSafe: () => this.setState({ safe: !this.state.safe }),
+      saveText: st === 'conflict' ? 'Chưa lưu · có bản mới hơn' : (st === 'exporting' ? 'Đã lưu · khoá khi đang xuất' : (changed ? 'Đã lưu · vừa xong' : 'Đã lưu · 00:12')),
+      saveIcon: st === 'conflict' ? 'i-warning' : 'i-tick-b', saveFg: st === 'conflict' ? '#FFC09A' : '#8B8B97',
+      isGate: showGate, isExporting: st === 'exporting', isDone: st === 'export-done', isConflict: st === 'conflict', isNarrow: st === 'narrow', notNarrow: st !== 'narrow',
+      media: [['0', 'Ảnh bìa · ROOM 214', '1280×720', 'e1726d9c7a70ea3ad442339ddac5ac4c'], ['1', 'Hành lang khoa đêm', '7:02', '51833e113a4301c88634b30b273c467b'], ['2', 'Cửa phòng 214', '7:08', '89bc24ad1dd8cccc6cafd29e0799fbdf'], ['3', 'Y tá áp tai vào cửa', '6:55', 'ebca590725ac189ed369dc3f17d87851'], ['4', 'Hồ sơ bệnh nhân cũ', '6:55', 'bc18df3bec937f9e324d5ccf6adde1d6'], ['5', 'Đèn pin soi phòng trống', '7:20', 'b57e9d378f0570d7aba384d9b3aa800b'], ['6', 'Bình minh', '6:50', 'deafb991926e3c85d3abefcadeded73e']]
+        .map((m, i) => ({ key: m[0], title: m[1], meta: m[2], bg: 'url(/_blob/' + m[3] + ') center / cover no-repeat', span: i === 0 ? '1 / -1' : 'auto', bd: 'rgba(255,255,255,0.07)' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

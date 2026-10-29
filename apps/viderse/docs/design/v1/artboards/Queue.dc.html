@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hàng chờ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-link{-webkit-mask-image:url(../icons/link.svg);mask-image:url(../icons/link.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh.svg);mask-image:url(../icons/refresh.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing.svg);mask-image:url(../icons/routing.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting.svg);mask-image:url(../icons/setting.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer.svg);mask-image:url(../icons/timer.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+.i-workbench{-webkit-mask-image:url(../icons/workbench.svg);mask-image:url(../icons/workbench.svg)}
+@media (max-width:1100px){
+.shell{height:auto !important;overflow:visible !important}
+.body{flex-wrap:wrap !important}
+.side{max-width:none !important;flex:1 1 100% !important;border:none !important;overflow:visible !important}
+.center{overflow:visible !important;flex:1 1 100% !important;order:-1}
+}
+@media (max-width:700px){
+nav[aria-label="Điều hướng chính"]{max-width:100%;overflow-x:auto;scrollbar-width:none}
+nav[aria-label="Điều hướng chính"] a{white-space:nowrap;flex:0 0 auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+.qrow{display:grid;grid-template-columns:24px 14px 64px minmax(0,1fr) 196px 156px 92px 64px;gap:12px;align-items:center}
+.handle{width:10px;height:16px;opacity:.55;cursor:grab;background-image:radial-gradient(circle,#A0A0AB 1.2px,transparent 1.4px);background-size:5px 5px}
+.qrow:hover .handle{opacity:1}
+.bar{height:4px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:999px}
+.seg{flex:1;height:4px;border-radius:2px}
+.av{border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.02em}
+.menu-it{width:100%;min-height:34px;padding:6px 10px;display:flex;align-items:center;gap:9px;border:none;border-radius:9px;background:transparent;color:#EDEDEF;font-size:13px;text-align:left}
+.menu-it:hover{background:rgba(255,255,255,0.07)}
+.step{width:32px;height:100%;border-radius:0;border:none;background:transparent;color:#EDEDEF;display:flex;align-items:center;justify-content:center;font-size:15px}
+@media (max-width:1380px){.qrow{grid-template-columns:24px 14px 64px minmax(0,1fr) 176px 88px 64px !important}.c-tpl{display:none !important}}
+@media (max-width:1100px){.qrow{grid-template-columns:24px 64px minmax(0,1fr) 88px 64px !important}.c-ch,.handle{display:none !important}}
+</style>
+</helmet>
+<div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 260px">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 64 64" style="flex: 0 0 auto; margin: 0 1px"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient><radialGradient id="lnHalo" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#FF0033" stop-opacity=".22"></stop><stop offset="1" stop-color="#FF0033" stop-opacity="0"></stop></radialGradient><linearGradient id="lnGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"></stop><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".18"></stop></linearGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Hàng chờ · mọi kênh</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-workbench" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn dựng</a>
+<a class="navl" href="Review.dc.html" style="height: 30px; padding: 0 10px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-gallery" aria-hidden="true" style="width: 16px; height: 16px"></span>Duyệt<span class="num" style="min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: rgba(246,203,140,0.16); color: #F6CB8C; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">3</span></a>
+<a class="navl" href="Channel.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-channel" aria-hidden="true" style="width: 16px; height: 16px"></span>Kênh</a>
+<a class="navl" href="Explore.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Khám phá</a>
+<a class="navl" href="NewVideo.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a href="Queue.dc.html" aria-current="page" title="{{pillTitle}}" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; background: #222225; color: #EDEDEF; font-size: 12.5px; font-weight: 500; white-space: nowrap"><span class="{{pillDotCls}}" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{pillDot}}; box-shadow: 0 0 0 3px {{pillHalo}}"></span><span class="num">{{pillText}}</span></a>
+<a class="ghost" href="Settings.dc.html" aria-label="Cài đặt · 1 việc cần xem" title="Cài đặt · tài khoản ChatGPT sắp hết hạn mức ảnh" style="position: relative; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span><span aria-hidden="true" style="position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: #FF4D63; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
+<div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
+</div>
+</header>
+
+<div class="body" style="flex: 1; min-height: 0; display: flex">
+
+<main class="center scroll" style="flex: 1 1 640px; min-width: 0; min-height: 0; overflow-y: auto; padding: 22px 28px 32px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px">
+<div style="flex: 1 1 380px; min-width: 0">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em">Hàng chờ</h1>
+<p style="margin: 4px 0 0; font-size: 13.5px; color: #A0A0AB">{{lede}}</p>
+</div>
+<sc-if value="{{canPause}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{togglePause}}" style="height: 36px; padding: 0 13px; display: flex; align-items: center; gap: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-pause" aria-hidden="true" style="width: 16px; height: 16px"></span>Tạm dừng hàng chờ</button></sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><button class="primary" type="button" onClick="{{togglePause}}" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span>Chạy tiếp</button></sc-if>
+</div>
+
+<sc-if value="{{limited}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,154,92,0.35); background: rgba(255,154,92,0.07)">
+<span class="ic i-danger" aria-hidden="true" style="color: #FF9A5C"></span>
+<span style="flex: 1 1 420px; min-width: 0; font-size: 13.5px; color: #FFC09A; line-height: 1.55">Hết hạn mức vẽ ảnh: ChatGPT 50/50 hôm nay, Grok dự phòng 400/400 tuần này. Bước vẽ ảnh chờ tới <b class="num" style="font-weight: 600">07:00</b>; tải video, phụ đề, dựng và kiểm định vẫn chạy.</span>
+<a class="ghost" href="Settings.dc.html" style="height: 30px; padding: 0 11px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid rgba(255,154,92,0.4); color: #FFC09A; font-size: 12.5px; white-space: nowrap">Thêm nguồn vẽ dự phòng</a>
+</div>
+</sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #141416">
+<span class="ic i-pause" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; min-width: 0; font-size: 13.5px; color: #C9C9D1">12 video giữ nguyên thứ tự. Tự lấy video vẫn thêm video mới vào cuối hàng, nhưng chưa video nào được bắt đầu.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{hasWork}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="h-run" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h2 id="h-run" class="h3" style="color: #EDEDEF; font-size: 14px; font-weight: 600">Đang chạy</h2>
+<span class="chip num"><b>{{runCount}}</b> luồng</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; color: #8B8B97">{{runHint}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{running}}" as="j" hint-placeholder-count="2">
+<article class="card" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px; border-color: {{j.bd}}">
+<div style="display: flex; gap: 12px; min-width: 0">
+<span aria-hidden="true" style="position: relative; width: 112px; height: 63px; border-radius: 8px; flex: 0 0 auto; overflow: hidden; background: {{j.thumb}}; border: 1px solid rgba(255,255,255,0.06)"><span class="num mono" style="position: absolute; right: 4px; bottom: 3px; font-size: 10px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.72)">{{j.dur}}</span></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+<span style="font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden" title="{{j.title}}">{{j.title}}</span>
+<span style="display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 12px; color: #8B8B97"><span class="av" aria-hidden="true" style="width: 18px; height: 18px; font-size: 8.5px; background: #2E2236; box-shadow: inset 0 0 0 1px #D79BFF; color: #EDEDEF">MT</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Midnight Tales · {{j.tpl}}</span></span>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 9px; min-width: 0">
+<span class="orb {{j.orb}} {{j.live}}" aria-hidden="true" style="width: 20px; height: 20px"></span>
+<span style="flex: 1; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b style="font-weight: 600; color: {{j.ink}}">{{j.agent}}</b><span style="color: {{j.doingColor}}"> · {{j.doing}}</span></span>
+<span class="num" style="font-size: 12px; color: #8B8B97; white-space: nowrap">{{j.eta}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div role="img" aria-label="{{j.stepAria}}" style="display: flex; gap: 3px">
+<sc-for list="{{j.segs}}" as="s" hint-placeholder-count="9"><span class="seg" title="{{s.label}}" style="background: {{s.bg}}"></span></sc-for>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+<span class="num" style="font-size: 12px; color: #8B8B97; white-space: nowrap">Bước {{j.stepNo}}/9 · {{j.stepName}} · {{j.started}}</span>
+<span style="flex: 1"></span>
+<a class="ghost" href="Main.dc.html" style="height: 30px; padding: 0 11px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px"><span class="ic i-workbench" aria-hidden="true" style="width: 14px; height: 14px"></span>Mở Bàn dựng</a>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+
+<section class="card" aria-labelledby="h-rot" style="border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span class="ic i-routing" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span>
+<h2 id="h-rot" class="h3" style="color: #EDEDEF; font-size: 13.5px; font-weight: 600">Luân phiên giữa các kênh</h2>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<sc-for list="{{rot}}" as="r" hint-placeholder-count="3">
+<li style="display: flex; align-items: center; gap: 8px">
+<span style="height: 38px; padding: 0 12px 0 6px; display: flex; align-items: center; gap: 9px; border-radius: 10px; border: 1px solid {{r.bd}}; background: {{r.bg}}">
+<span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 10px; background: {{r.tint}}; box-shadow: inset 0 0 0 1.5px {{r.ring}}; color: #EDEDEF">{{r.ini}}</span>
+<span style="display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 12.5px; font-weight: 500; white-space: nowrap">{{r.name}}</span><span class="num" style="font-size: 11px; color: {{r.subColor}}; white-space: nowrap">{{r.sub}}</span></span>
+</span>
+<sc-if value="{{r.arrow}}" hint-placeholder-val="{{ true }}"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span></sc-if>
+</li>
+</sc-for>
+<li aria-hidden="true" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8B8B97"><span class="ic i-refresh" style="width: 14px; height: 14px"></span>rồi lặp lại</li>
+</ol>
+<p style="margin: 0; font-size: 12.5px; color: #A0A0AB; line-height: 1.6">{{rotText}}</p>
+</section>
+
+<section aria-labelledby="h-q" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px">
+<h2 id="h-q" class="h3" style="color: #EDEDEF; font-size: 14px; font-weight: 600">Chờ lượt</h2>
+<div role="tablist" aria-label="Lọc theo kênh" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button type="button" role="tab" aria-selected="{{f.on}}" onClick="{{f.pick}}" style="height: 26px; padding: 0 9px; display: flex; align-items: center; gap: 6px; border-radius: 6px; border: none; background: {{f.bg}}; color: {{f.fg}}; font-size: 12.5px">{{f.label}}<span class="num" style="color: #8B8B97">{{f.n}}</span></button></sc-for>
+</div>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; color: #8B8B97">Kéo để đổi thứ tự · video trên cùng bắt đầu trước</span>
+</div>
+<div class="card" role="table" aria-label="Video chờ lượt" style="border-radius: 14px; overflow: visible">
+<div class="qrow" role="row" style="padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #8B8B97">
+<span role="columnheader" style="text-align: right">#</span><span class="handle" aria-hidden="true" style="visibility: hidden"></span><span role="columnheader" style="grid-column: span 2">Video</span><span class="c-ch" role="columnheader">Kênh</span><span class="c-tpl" role="columnheader">Template</span><span role="columnheader">Bắt đầu</span><span role="columnheader" class="sr-only">Thao tác</span>
+</div>
+<sc-for list="{{queue}}" as="q" hint-placeholder-count="12">
+<div class="row qrow" role="row" style="position: relative; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.04)">
+<span class="num" role="cell" style="text-align: right; font-size: 12.5px; color: #8B8B97">{{q.n}}</span>
+<span class="handle" aria-hidden="true" title="Kéo để đổi thứ tự"></span>
+<span aria-hidden="true" style="position: relative; width: 64px; height: 36px; border-radius: 6px; overflow: hidden; background: {{q.thumb}}; border: 1px solid rgba(255,255,255,0.06)"><span class="num mono" style="position: absolute; right: 3px; bottom: 2px; font-size: 9.5px; padding: 0 3px; border-radius: 3px; background: rgba(0,0,0,0.72)">{{q.dur}}</span></span>
+<span role="cell" style="min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="{{q.title}}">{{q.title}}</span>
+<span style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{q.src}}</span>
+</span>
+<span class="c-ch" role="cell" style="min-width: 0; display: flex; align-items: center; gap: 8px">
+<span class="av" aria-hidden="true" style="width: 22px; height: 22px; font-size: 9px; background: {{q.tint}}; box-shadow: inset 0 0 0 1.5px {{q.ring}}; color: #EDEDEF">{{q.ini}}</span>
+<span style="font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{q.ch}}</span>
+</span>
+<span class="c-tpl" role="cell" style="min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{q.tpl}}</span>
+<sc-if value="{{q.tplWarn}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #FF9A5C; white-space: nowrap" title="Template Cận cảnh thiếu clip nền. Chưa sửa thì video này dùng template kế tiếp.">cần sửa · có thể đổi</span></sc-if>
+</span>
+<span role="cell" style="display: flex; flex-direction: column; gap: 0; line-height: 1.35">
+<span class="num" style="font-size: 13px; color: {{q.startColor}}">{{q.start}}</span>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap">{{q.startSub}}</span>
+</span>
+<span role="cell" style="display: flex; justify-content: flex-end; gap: 2px">
+<button class="ghost" type="button" onClick="{{q.up}}" aria-label="Đưa lên đầu hàng: {{q.title}}" title="Lên đầu hàng" style="width: 28px; height: 28px; border-radius: 7px; border: none; background: transparent; color: #8B8B97; display: flex; align-items: center; justify-content: center; visibility: {{q.upVis}}"><span class="ic i-arrow-up" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+<button class="ghost" type="button" onClick="{{q.openMenu}}" aria-haspopup="menu" aria-expanded="{{q.menuOpen}}" aria-label="Thêm thao tác cho {{q.title}}" style="width: 28px; height: 28px; border-radius: 7px; border: none; background: {{q.moreBg}}; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</span>
+<sc-if value="{{q.showMenu}}" hint-placeholder-val="{{ false }}">
+<div role="menu" class="card" style="position: absolute; right: 12px; top: 44px; z-index: 5; width: 232px; padding: 5px; border-radius: 11px; background: #1B1B1E; box-shadow: 0 12px 32px rgba(0,0,0,0.55)">
+<button class="menu-it" type="button" role="menuitem" onClick="{{q.up}}"><span class="ic i-arrow-up" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Lên đầu hàng</button>
+<a class="menu-it" role="menuitem" href="Channel.dc.html"><span class="ic i-channel" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Mở trang kênh</a>
+<a class="menu-it" role="menuitem" href="Explore.dc.html"><span class="ic i-link" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Xem video gốc của đối thủ</a>
+<div aria-hidden="true" style="height: 1px; margin: 4px 6px; background: rgba(255,255,255,0.07)"></div>
+<button class="menu-it" type="button" role="menuitem" onClick="{{q.remove}}" style="color: #FF9A5C"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>Bỏ khỏi hàng chờ</button>
+</div>
+</sc-if>
+</div>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div style="padding: 24px 14px; text-align: center; font-size: 13px; color: #8B8B97">Kênh này không còn video chờ lượt.</div></sc-if>
+<div style="padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: #8B8B97">
+<span>Tự lấy video đang bật ở Midnight Tales và Chuyện Lạ Đêm Khuya · video mới vào cuối hàng</span>
+<span style="flex: 1"></span>
+<span class="num">{{removedNote}}</span>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="flex: 1; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center">
+<span aria-hidden="true" style="display: flex; align-items: center; gap: 8px"><span class="orb o-scout" style="width: 22px; height: 22px; opacity: 0.85"></span><span class="orb o-director" style="width: 22px; height: 22px; opacity: 0.85"></span><span class="orb o-artist" style="width: 22px; height: 22px; opacity: 0.85"></span><span class="orb o-qa" style="width: 22px; height: 22px; opacity: 0.85"></span></span>
+<span style="font-size: 18px; font-weight: 600">Hàng chờ trống</span>
+<span style="max-width: 440px; font-size: 13.5px; color: #A0A0AB; line-height: 1.6">Bốn trợ lý đang rảnh. Chọn video nổi trội của đối thủ ở Khám phá, dán link ở Video mới, hoặc bật Tự lấy video trong trang kênh.</span>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px">
+<a class="ghost" href="Explore.dc.html" style="height: 36px; padding: 0 13px; display: flex; align-items: center; gap: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 13px"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Mở Khám phá</a>
+<a class="primary" href="NewVideo.dc.html" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-radius: 10px; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
+</div>
+</div>
+</sc-if>
+</main>
+
+<aside class="side scroll" aria-label="Quy tắc chạy" style="flex: 0 0 340px; max-width: 340px; min-height: 0; padding: 22px 16px 24px; display: flex; flex-direction: column; gap: 12px; border-left: 1px solid rgba(255,255,255,0.06)">
+<span class="grp" style="padding: 0 4px">Quy tắc chạy</span>
+
+<section class="card" aria-labelledby="h-w" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h3 id="h-w" style="margin: 0; flex: 1; font-size: 13.5px; font-weight: 600">Luồng chạy cùng lúc</h3>
+<div role="group" aria-label="Số luồng chạy cùng lúc" style="display: flex; align-items: stretch; height: 32px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; overflow: hidden">
+<button class="step ghost" type="button" onClick="{{wDown}}" aria-label="Bớt một luồng"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button>
+<span class="num mono" aria-live="polite" style="min-width: 42px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); font-size: 13px; white-space: nowrap">{{workers}}</span>
+<button class="step ghost" type="button" onClick="{{wUp}}" aria-label="Thêm một luồng"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button>
+</div>
+</div>
+<p style="margin: 0; font-size: 12.5px; color: #A0A0AB; line-height: 1.55">{{wText}}</p>
+<div style="height: 1px; background: rgba(255,255,255,0.06)"></div>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">Ảnh vẽ cùng lúc</span><span style="font-size: 12px; color: #8B8B97">dùng chung cho mọi video</span></span>
+<div role="group" aria-label="Số ảnh vẽ cùng lúc" style="display: flex; align-items: stretch; height: 32px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; overflow: hidden"><button class="step ghost" type="button" aria-label="Bớt một ảnh"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button><span class="num mono" style="min-width: 42px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); font-size: 13px; white-space: nowrap">3</span><button class="step ghost" type="button" aria-label="Thêm một ảnh"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">Trinh sát xem đối thủ</span><span style="font-size: 12px; color: #8B8B97">cho kênh bật Tự lấy video</span></span>
+<div role="group" aria-label="Khoảng giờ xem lại đối thủ" style="display: flex; align-items: stretch; height: 32px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; overflow: hidden"><button class="step ghost" type="button" aria-label="Xem thường hơn"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button><span class="num mono" style="min-width: 64px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); font-size: 13px; white-space: nowrap">1 giờ</span><button class="step ghost" type="button" aria-label="Xem thưa hơn"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button></div>
+</div>
+</section>
+
+<section class="card" aria-labelledby="h-d" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 11px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h3 id="h-d" style="margin: 0; flex: 1; font-size: 13.5px; font-weight: 600">Nhịp kênh mỗi ngày</h3>
+<a href="Channel.dc.html" style="font-size: 12px; color: #A0A0AB">Sửa ở trang kênh</a>
+</div>
+<sc-for list="{{limits}}" as="l" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span class="av" aria-hidden="true" style="width: 20px; height: 20px; font-size: 8.5px; background: {{l.tint}}; box-shadow: inset 0 0 0 1.5px {{l.ring}}; color: #EDEDEF">{{l.ini}}</span>
+<span style="flex: 1; min-width: 0; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.name}}</span>
+<span class="num" style="font-size: 12.5px; color: #C9C9D1">{{l.v}}</span>
+</div>
+<div class="bar" role="img" aria-label="{{l.name}}: {{l.v}} video hôm nay"><span style="width: {{l.pct}}; background: {{l.color}}"></span></div>
+</div>
+</sc-for>
+<span style="font-size: 12px; color: #8B8B97">Áp cho video tự lấy và thêm hàng loạt · đếm lại từ 00:00</span>
+</section>
+
+<section class="card" aria-labelledby="h-img" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 11px; border-color: {{quotaBd}}">
+<div style="display: flex; align-items: center; gap: 10px">
+<h3 id="h-img" style="margin: 0; flex: 1; font-size: 13.5px; font-weight: 600">Hạn mức vẽ ảnh</h3>
+<a href="Settings.dc.html" style="font-size: 12px; color: #A0A0AB">Cài đặt</a>
+</div>
+<sc-for list="{{quotas}}" as="k" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: baseline; gap: 8px">
+<span style="font-size: 12.5px; font-weight: 500">{{k.name}}</span><span style="font-size: 11.5px; color: #8B8B97">{{k.role}}</span>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12.5px; color: {{k.vColor}}">{{k.v}}</span>
+</div>
+<div class="bar" role="img" aria-label="{{k.name}}: {{k.v}}"><span style="width: {{k.pct}}; background: {{k.color}}"></span></div>
+<span class="num" style="font-size: 11.5px; color: #8B8B97">{{k.reset}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="h-done" style="padding: 4px 4px 0; display: flex; flex-direction: column; gap: 8px">
+<h3 id="h-done" style="margin: 0; font-size: 12.5px; font-weight: 500; color: #A0A0AB">Xong hôm nay · 6 video</h3>
+<a class="row" href="Channel.dc.html" style="display: flex; align-items: center; gap: 9px; padding: 6px; margin: 0 -6px; border-radius: 8px; font-size: 12.5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #A6EDC1; flex: 0 0 auto"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">The Hotel That Wasn’t on Any Map</span><span class="num" style="color: #8B8B97">22:31</span></a>
+<a class="row" href="Review.dc.html" style="display: flex; align-items: center; gap: 9px; padding: 6px; margin: 0 -6px; border-radius: 8px; font-size: 12.5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #F6CB8C; flex: 0 0 auto"></span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">I Took a Job Watching an Empty Mall…</span><span style="color: #8B8B97; white-space: nowrap">chờ duyệt</span></a>
+</section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["running", "paused", "limited", "empty"], "default": "running", "section": "Trạng thái hàng chờ"}, "$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { st: null, workers: 2, order: null, removed: {}, menu: null, filter: 'all' };
+  }
+  componentDidUpdate(prev) {
+    if (prev.state !== this.props.state) this.setState({ st: null, order: null, removed: {}, menu: null, filter: 'all' });
+  }
+  renderVals() {
+    const st = this.state.st || this.props.state || 'running';
+    const paused = st === 'paused', limited = st === 'limited', empty = st === 'empty';
+    const CH = {
+      MT: { ini: 'MT', name: 'Midnight Tales', tint: '#2E2236', ring: '#D79BFF' },
+      CL: { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', tint: '#302418', ring: '#F6CB8C' },
+      QH: { ini: 'QH', name: 'Quiet Hours', tint: '#1F2C27', ring: '#A6EDC1' }
+    };
+    const TH = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/c_ferry.jpg) center / cover no-repeat',
+      'url(../img/c_mall.jpg) center / cover no-repeat',
+      'url(../img/c_lastbus.jpg) center / cover no-repeat',
+      'url(../img/c_elevator.jpg) center / cover no-repeat',
+      'url(../img/c_hotel.jpg) center / cover no-repeat'
+    ];
+    const STEPS = ['Tải video', 'Nền video', 'Phụ đề', 'Thông tin', 'Chia cảnh', 'Vẽ ảnh', 'Dựng', 'Kiểm định', 'Xuất'];
+    const job = (o) => {
+      const segs = STEPS.map((label, i) => ({ label, bg: i < o.step - 1 ? '#5E5E68' : (i === o.step - 1 ? o.cur : 'rgba(255,255,255,0.08)') }));
+      return Object.assign({ segs, stepNo: o.step, stepName: STEPS[o.step - 1], stepAria: 'Bước ' + o.step + ' trên 9: ' + STEPS[o.step - 1] }, o);
+    };
+    const nurseWait = limited;
+    const running = empty ? [] : [
+      job({ title: 'The Night Nurse Who Heard Room 214 Breathing', dur: '42:10', thumb: 'url(../img/c_nurse.jpg) center / cover no-repeat', tpl: 'Mẫu chuẩn · Tách nền', orb: 'o-artist', live: nurseWait ? '' : 'live', agent: 'Hoạ sĩ', ink: '#FFD08A',
+        doing: nurseWait ? 'chờ hạn mức ảnh tới 07:00' : (paused ? 'vẽ nốt cảnh 5 rồi dừng' : 'đang vẽ cảnh 5/6'), doingColor: nurseWait ? '#FF9A5C' : '#C9C9D1', eta: nurseWait ? '' : 'còn ~9 phút', step: 6, cur: nurseWait ? '#FF9A5C' : '#FFD08A',
+        started: 'bắt đầu 23:41', bd: nurseWait ? 'rgba(255,154,92,0.3)' : 'rgba(255,255,255,0.07)', hasNote: paused, note: 'Làm nốt bước này' }),
+      job({ title: 'What the Ferryman Saw on the Fog Night', dur: '51:34', thumb: 'url(../img/c_ferry.jpg) center / cover no-repeat', tpl: 'Phim tài liệu', orb: 'o-scout', live: 'live', agent: 'Trinh sát', ink: '#B7CEFF',
+        doing: paused ? 'làm nốt phụ đề rồi dừng' : 'đang làm phụ đề', doingColor: '#C9C9D1', eta: 'còn ~4 phút', step: 3, cur: '#B7CEFF', started: 'bắt đầu 23:58', bd: 'rgba(255,255,255,0.07)', hasNote: paused, note: 'Làm nốt bước này' })
+    ];
+
+    const Q0 = [
+      { id: 1, c: 'CL', title: 'Người lái taxi đêm và vị khách không có bóng', src: 'Ưu tiên · bạn chọn · Hồ Sơ Bí Ẩn ×3,6', tpl: 'Truyện kể đêm', dur: '48:22', t: '00:20', th: 'url(../img/c_taxi.jpg) center / cover no-repeat' },
+      { id: 2, c: 'QH', title: 'Snowfall Over an Empty Train Station', src: 'Slow Rooms · ×2,4', tpl: 'Ru ngủ · Không ảnh', dur: '1:02:15', t: '00:30', th: 'url(../img/c_snowstation.jpg) center / cover no-repeat' },
+      { id: 3, c: 'MT', title: 'The Hospital Elevator Stops at Floor 13', src: 'Nocturne Stories · ×3,3', tpl: 'Phim tài liệu', dur: '45:20', t: '00:40', th: 'url(../img/c_elevator.jpg) center / cover no-repeat' },
+      { id: 4, c: 'CL', title: 'Chiếc gương cũ trong tiệm đồ cổ phố Hàng Bạc', src: 'Hồ Sơ Bí Ẩn · ×2,9', tpl: 'Truyện kể đêm', dur: '41:07', t: '01:00', th: 'url(../img/c_guong.jpg) center / cover no-repeat' },
+      { id: 5, c: 'QH', title: 'A Night Ferry Across a Quiet Lake', src: 'Slow Rooms · ×2,1', tpl: 'Ru ngủ · Không ảnh', dur: '58:40', t: '01:10', th: 'url(../img/c_ferrylake.jpg) center / cover no-repeat' },
+      { id: 6, c: 'MT', title: 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', src: 'Nocturne Stories · ×4,2', tpl: 'Cận cảnh', warn: true, dur: '39:51', t: '01:25', th: 'url(../img/c_radio.jpg) center / cover no-repeat' },
+      { id: 7, c: 'CL', title: 'Tiếng gõ cửa lúc 3 giờ sáng ở khu tập thể', src: 'Hồ Sơ Bí Ẩn · ×4,0', tpl: 'Truyện kể đêm', dur: '36:18', t: '01:50', th: 'url(../img/c_tapthe.jpg) center / cover no-repeat' },
+      { id: 8, c: 'QH', title: 'Rain on the Lighthouse: Part Two', src: 'Slow Rooms · ×1,9', tpl: 'Ru ngủ · Không ảnh', dur: '1:00:02', t: '02:05', th: 'url(../img/c_rainlh2.jpg) center / cover no-repeat' },
+      { id: 9, c: 'MT', title: 'The Snowplow Driver Who Never Stopped', src: 'The Late Archive · ×3,4', tpl: 'Mẫu chuẩn · Tách nền', dur: '47:33', t: '02:20', th: 'url(../img/c_snowplow.jpg) center / cover no-repeat' },
+      { id: 10, c: 'CL', title: 'Cô gái áo trắng trên chuyến xe buýt cuối', src: 'Hồ Sơ Bí Ẩn · ×2,7', tpl: 'Truyện kể đêm', dur: '44:50', t: '02:45', th: 'url(../img/c_aotrang.jpg) center / cover no-repeat' },
+      { id: 11, c: 'MT', title: 'Room Service Kept Calling From the 9th Floor', src: 'Dark Hollow Tales · ×2,8', tpl: 'Phim tài liệu', dur: '52:09', t: '03:10', th: 'url(../img/c_roomservice.jpg) center / cover no-repeat' },
+      { id: 12, c: 'CL', title: 'Ngôi nhà hoang cuối con dốc Đà Lạt', src: 'Hồ Sơ Bí Ẩn · ×3,1', tpl: 'Truyện kể đêm', dur: '39:27', t: '03:30', th: 'url(../img/c_dalat.jpg) center / cover no-repeat' }
+    ];
+    const order = this.state.order || Q0.map((q) => q.id);
+    const live = order.map((id) => Q0.find((q) => q.id === id)).filter((q) => q && !this.state.removed[q.id]);
+    const times = Q0.map((q) => q.t);
+    const flt = this.state.filter;
+    const moveUp = (id) => () => { const o = order.filter((x) => x !== id); o.unshift(id); this.setState({ order: o, menu: null }); };
+    const queue = empty ? [] : live.map((q, i) => ({ n: String(i + 1), c: q.c, title: q.title, src: q.src, tpl: q.tpl, tplWarn: !!q.warn, dur: q.dur, thumb: q.th,
+      ini: CH[q.c].ini, ch: CH[q.c].name, tint: CH[q.c].tint, ring: CH[q.c].ring,
+      start: paused ? '—' : times[i] || '04:00', startSub: paused ? 'đang dừng' : (i === 0 ? 'lượt kế tiếp' : 'khoảng'), startColor: paused ? '#8B8B97' : (i === 0 ? '#EDEDEF' : '#C9C9D1'),
+      upVis: i === 0 ? 'hidden' : 'visible', up: moveUp(q.id),
+      showMenu: this.state.menu === q.id, menuOpen: this.state.menu === q.id ? 'true' : 'false', moreBg: this.state.menu === q.id ? 'rgba(255,255,255,0.08)' : 'transparent',
+      openMenu: () => this.setState({ menu: this.state.menu === q.id ? null : q.id }),
+      remove: () => { const r = Object.assign({}, this.state.removed); r[q.id] = true; this.setState({ removed: r, menu: null }); }
+    })).filter((q) => flt === 'all' || q.c === flt);
+    const count = (c) => live.filter((q) => q.c === c).length;
+    const F = [['all', 'Tất cả', live.length], ['MT', 'Midnight Tales', count('MT')], ['CL', 'Chuyện Lạ', count('CL')], ['QH', 'Quiet Hours', count('QH')]];
+    const filters = F.map(([k, label, n]) => ({ label, n: String(n), on: flt === k ? 'true' : 'false', bg: flt === k ? '#222225' : 'transparent', fg: flt === k ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ filter: k, menu: null }) }));
+    const removedN = Object.keys(this.state.removed).length;
+
+    const rot = [
+      { ini: 'MT', name: 'Midnight Tales', sub: '3/5 hôm nay · vừa lấy', subColor: '#8B8B97', bd: 'rgba(255,255,255,0.07)', bg: '#141416', tint: CH.MT.tint, ring: CH.MT.ring, arrow: true },
+      { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', sub: paused ? '2/5 hôm nay · tiếp theo khi chạy lại' : '2/5 hôm nay · tiếp theo', subColor: '#EDEDEF', bd: 'rgba(255,255,255,0.28)', bg: '#1A1A1D', tint: CH.CL.tint, ring: CH.CL.ring, arrow: true },
+      { ini: 'QH', name: 'Quiet Hours', sub: '1/3 hôm nay', subColor: '#8B8B97', bd: 'rgba(255,255,255,0.07)', bg: '#141416', tint: CH.QH.tint, ring: CH.QH.ring, arrow: false }
+    ];
+    const W = this.state.workers;
+    const wText = W <= 2 ? 'Máy này chạy ổn 2 luồng. Thêm luồng thì mỗi video chậm hơn và hết hạn mức ảnh sớm hơn.' : 'Máy này nên chạy 2 luồng. Với ' + W + ' luồng, dựng video sẽ chậm và quạt chạy nhiều.';
+    const lim = (c, v, max) => ({ ini: CH[c].ini, name: CH[c].name, tint: CH[c].tint, ring: CH[c].ring, v: v + '/' + max, pct: Math.round(v / max * 100) + '%', color: v >= max ? '#A6EDC1' : '#C9C9D1' });
+    const quotas = limited ? [
+      { name: 'ChatGPT', role: 'chính', v: '50/50 ảnh', vColor: '#FF9A5C', pct: '100%', color: '#FF9A5C', reset: 'Đặt lại 07:00 hôm nay' },
+      { name: 'Grok', role: 'dự phòng', v: '400/400 ảnh', vColor: '#FF9A5C', pct: '100%', color: '#FF9A5C', reset: 'Tuần này · đặt lại thứ Hai' }
+    ] : [
+      { name: 'ChatGPT', role: 'chính', v: '43/50 ảnh', vColor: '#C9C9D1', pct: '86%', color: '#C9C9D1', reset: 'Hôm nay · đặt lại 07:00' },
+      { name: 'Grok', role: 'dự phòng', v: '210/400 ảnh', vColor: '#C9C9D1', pct: '52.5%', color: '#8E8E99', reset: 'Tuần này · đặt lại thứ Hai' }
+    ];
+    const pill = empty ? { t: 'Máy rảnh', d: '#5E5E68', h: 'rgba(255,255,255,0.06)', c: '' } : paused ? { t: 'Tạm dừng · ' + live.length + ' chờ lượt', d: '#8E8E99', h: 'rgba(255,255,255,0.08)', c: '' } : limited ? { t: '2 đang chạy · ' + live.length + ' chờ lượt', d: '#FF9A5C', h: 'rgba(255,154,92,0.2)', c: 'rec' } : { t: '2 đang chạy · ' + live.length + ' chờ lượt', d: '#FF0033', h: 'rgba(255,0,51,0.18)', c: 'rec' };
+    const lede = empty ? 'Máy đang rảnh. Video bạn thêm sẽ bắt đầu ngay khi có luồng trống.'
+      : paused ? 'Đã tạm dừng lúc 00:04. Video đang chạy làm nốt bước hiện tại rồi dừng.'
+      : 'Máy chạy ' + W + ' video cùng lúc, video bạn chọn chạy trước, video tự lấy và hàng loạt chạy lần lượt từng kênh theo nhịp ngày.';
+    return {
+      lede, paused, limited, empty, hasWork: !empty, canPause: !paused && !empty,
+      togglePause: () => this.setState({ st: paused ? 'running' : 'paused' }),
+      running, runCount: (empty ? 0 : 2) + '/' + W,
+      runHint: limited ? 'Bước không cần vẽ ảnh vẫn chạy' : 'Luồng rảnh sẽ lấy video tiếp theo',
+      rot, rotText: paused ? 'Khi chạy lại, luồng rảnh đầu tiên lấy video của Chuyện Lạ Đêm Khuya.' : 'Video bạn chọn từng cái luôn chạy trước. Sau đó mỗi luồng rảnh lấy lần lượt từng kênh: tiếp theo là Chuyện Lạ Đêm Khuya. Kênh đã đủ nhịp ngày được bỏ qua tới 00:00; template cần sửa thì dùng template kế tiếp.',
+      filters, queue, noRows: !empty && queue.length === 0, removedNote: removedN ? 'Đã bỏ ' + removedN + ' video khỏi hàng chờ' : '',
+      workers: String(W), wText, wDown: () => this.setState({ workers: Math.max(1, W - 1) }), wUp: () => this.setState({ workers: Math.min(4, W + 1) }),
+      limits: [lim('MT', 3, 5), lim('CL', 2, 5), lim('QH', 1, 3)],
+      quotas, quotaBd: limited ? 'rgba(255,154,92,0.3)' : 'rgba(255,255,255,0.07)',
+      pillText: pill.t, pillDot: pill.d, pillHalo: pill.h, pillDotCls: pill.c, pillTitle: 'Hàng chờ của mọi kênh'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-27T17:10:00Z"
+  },
+  "title": "Viderse — Thiết kế UI/UX",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [
+    {
+      "id": "desktop",
+      "name": "Máy tính"
+    },
+    {
+      "id": "mobile",
+      "name": "Điện thoại"
+    }
+  ],
+  "boards": {
+    "Onboard.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "A1 · Lần đầu mở & tạo kênh — chuẩn bị máy, tạo kênh một màn, đối thủ tham chiếu, xong (nhận diện chạy nền, lỗi vẽ) (tweak: Bước, Chuẩn bị máy, Nhận diện)",
+      "is_interactive": true
+    },
+    "Explore.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "B1 · Khám phá — video nổi trội, bấm thẻ để xem trước và Làm video, chọn nhiều · Vì sao nổi trội? · chưa theo dõi đối thủ (tweak: Video đã chọn, Chọn nhiều, Menu ⋯, Quét lịch sử, Trợ lý chủ động, Chưa theo dõi đối thủ)",
+      "is_interactive": true
+    },
+    "NewVideo.dc.html": {
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 1200,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "C1 · Video mới — một link hoặc nhiều link, chỉ chọn Kênh + Template, một nút Làm video (tweak: Ô nhập)",
+      "is_interactive": true
+    },
+    "Main.dc.html": {
+      "x": 0,
+      "y": 1620,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "D1 · Bàn dựng — mở ở Mọi kênh: thẻ từng kênh, việc chờ bạn của cả 3 kênh; trợ lý làm video, nhật ký, phòng vẽ, nền video, chip Ảnh là chỗ ngoại lệ duy nhất của video, tạm dừng, sự cố, xuất xong · nội dung đăng sửa được, trạng thái viết, lịch sử · trợ lý chủ động: Bản tin, Đề xuất, Kế hoạch, Lưu thành quy tắc, Vì sao? (tweak: Phạm vi, Trạng thái video, Bảng bên phải, Nền chưa phủ đủ, Ảnh của video, Nội dung đăng, Trợ lý chủ động)",
+      "is_interactive": true
+    },
+    "Queue.dc.html": {
+      "x": 1520,
+      "y": 1620,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "D2 · Hàng chờ — video bạn chọn đi trước, hàng loạt luân phiên theo nhịp, quy tắc chạy (tweak: Trạng thái hàng chờ)",
+      "is_interactive": true
+    },
+    "Activity.dc.html": {
+      "x": 3040,
+      "y": 1620,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "D3 · Việc nền & thông báo — popover việc nền, lịch sử thông báo, chuẩn toast, thông báo hệ thống, cài đặt (có Bản tin và loại đề xuất) (tweak: Hiển thị)",
+      "is_interactive": true
+    },
+    "Review.dc.html": {
+      "x": 0,
+      "y": 2940,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "E1 · Duyệt — duyệt cả video bằng phím, vẽ lại có góp ý, ảnh gốc/tách nền, ảnh bị chặn · điểm ảnh của Kiểm định, gợi ý học từ góp ý (tweak: Trạng thái, Lớp ảnh, Trợ lý chủ động)",
+      "is_interactive": true
+    },
+    "Editor.dc.html": {
+      "x": 1520,
+      "y": 2940,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "E2 · Editor — mở ra là sửa: bảng Cần sửa (mục chưa đạt, từng đoạn lệch, Khớp theo giọng, Đo lại), bảng phải theo thứ đang chọn (phụ đề: tiếng/chữ, dời ±0,1 s; cảnh: Vẽ lại, Thay ảnh; clip nền), thanh trái có chữ theo việc, hỏi lại khi xuất lúc chưa đạt (tweak: Trạng thái, Việc cần sửa, Bảng trái, Đang chọn)",
+      "is_interactive": true
+    },
+    "Channel.dc.html": {
+      "x": 3040,
+      "y": 2940,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "F1 · Kênh — video & đăng, nguồn & tự động (liên kết / bỏ liên kết đối thủ, tham chiếu nhận diện, nhịp & ưu tiên, Mức tự chủ hỏi xác nhận khi lên Tự chạy), template luân phiên, hồ sơ kênh (nhận diện tự sinh, quy tắc viết tiêu đề/mô tả/tag, Quy tắc đã học), Trợ lý nhận ra ở Video, cột Đang áp dụng · kênh mới chưa có video (tweak: Tab, Lọc, Chọn nhiều, Nhận diện, Liên kết đối thủ, Trợ lý chủ động, Kênh mới)",
+      "is_interactive": true
+    },
+    "Library.dc.html": {
+      "x": 0,
+      "y": 4260,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "G1 · Thư viện (Assets) — nơi duy nhất tạo template, prompt ảnh, video nền, lớp phủ; Video nền: danh sách nguồn bên trái (kênh nền theo nền tảng, video lẻ), lưới video của nguồn đang chọn bên phải, một ô dán link cho mọi nền tảng (tweak: Tab, Prompt ảnh, Menu ⋯, Video nền, Kênh đang xem)",
+      "is_interactive": true
+    },
+    "Template.dc.html": {
+      "x": 1520,
+      "y": 4260,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "G2 · Cài đặt template — ghép asset: cách ghép ảnh vào video, prompt ảnh cảnh, prompt ảnh bìa, nền & hiệu ứng (một danh sách Lấy nền từ: kênh ngẫu nhiên + video lẻ luôn có; hộp thoại Gắn kênh hoặc video; thanh Nền của một video), xuất; tự lưu, xem thử (tweak: Mục, Bản xem thử, Kênh nền ít video, Gắn kênh hoặc video)",
+      "is_interactive": true
+    },
+    "Settings.dc.html": {
+      "x": 3040,
+      "y": 4260,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "G3 · Cài đặt — công cụ, Kết nối AI (nhà cung cấp, model lấy từ nhà cung cấp, thêm, lỗi khoá), Trợ lý AI (model từng trợ lý, nguồn vẽ, dự phòng), Tài khoản nền tảng (YouTube, Twitch, Bilibili: trạng thái, bị chặn, đăng nhập bằng mã QR, cookie dán tay, hết hạn), Lưu trữ (thư mục lưu dự án: chọn thư mục, chuyển, ổ bị rút; dọn dẹp), báo lỗi (tweak: Mục, Kết nối AI, Grok, Chọn model, Công cụ, Bilibili, Mã QR, YouTube, Dọn, Thư mục lưu dự án)",
+      "is_interactive": true
+    },
+    "Dialogs.dc.html": {
+      "x": 0,
+      "y": 5580,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "H1 · Hộp thoại & toast — xoá, chuyển Mức tự chủ, vẽ lại cả bộ, làm lại, chọn đoạn clip nền, phím tắt, đổi kênh, nhắn trợ lý, toast (tweak: Hộp thoại, Đã gõ tên kênh)",
+      "is_interactive": true
+    },
+    "System.dc.html": {
+      "x": 1520,
+      "y": 5580,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "H2 · Trạng thái hệ thống của Bàn dựng — đang tải, mất kết nối, không tìm thấy video, Bàn dựng chưa có video (tweak: Trạng thái)",
+      "is_interactive": true
+    },
+    "Brand.dc.html": {
+      "x": 3040,
+      "y": 5580,
+      "w": 1440,
+      "h": 2840,
+      "expand": "fill",
+      "page": "desktop",
+      "title": "H3 · Thương hiệu Viderse — logo ống kính, 4 trợ lý, màu, chữ, chuyển động"
+    },
+    "MExplore.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "B1 · Khám phá — duyệt, chọn nhiều, thông tin đối thủ (liên kết với kênh), theo dõi đối thủ mới + liên kết luôn (tweak: Chế độ)"
+    },
+    "MCompVideo.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "B2 · Chi tiết video — chương, đã làm cho kênh nào, chọn kênh rồi Làm video, Vì sao nổi trội? (tweak: Sheet)"
+    },
+    "MNew.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "C1 · Video mới — một link, nhiều link, Kênh + Template (tweak: Ô nhập)"
+    },
+    "MMain.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "D1 · Bàn dựng — Mọi kênh hoặc một kênh, chi tiết video, Ảnh của video (ngoại lệ), Nội dung đăng (chưa viết / đang viết / lỗi, viết lại, lịch sử), việc nền và đổi kênh dạng sheet · thẻ Bản tin, đề xuất cuộn ngang, màn Bản tin, sheet Kế hoạch, Vì sao?, Lưu quy tắc (tweak: Phạm vi, Màn hình, Trạng thái video, Ảnh của video, Nội dung đăng, Trợ lý chủ động)"
+    },
+    "MReview.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "E1 · Duyệt — chạm đổi ảnh, góp ý vẽ lại, duyệt cả video, điểm ảnh, gợi ý học từ góp ý (tweak: Trạng thái, Trợ lý chủ động)"
+    },
+    "MChannel.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "F1 · Kênh — video (tải gói đăng), nguồn & tự động (sheet ⋯ đối thủ, bỏ liên kết có xác nhận, nhịp & ưu tiên, Mức tự chủ với sheet chọn, lịch đăng), template luân phiên, hồ sơ kênh (nhận diện đang vẽ / lỗi, Quy tắc đã học), Trợ lý nhận ra (tweak: Tab, Nhận diện, Mức tự chủ, Sheet)"
+    },
+    "MSettings.dc.html": {
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "G3 · Cài đặt — mục, công cụ, Kết nối AI, Trợ lý AI, Tài khoản nền tảng (đăng nhập Bilibili bằng mã QR), Lưu trữ (thư mục lưu dự án, đổi sang ổ đang cắm, dọn dẹp) (tweak: Màn hình, Thư mục lưu dự án, Sheet, Bilibili, Mã QR)"
+    },
+    "CreateChannel.dc.html": {
+      "x": 4600,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "is_interactive": true,
+      "title": "A2 · Tạo kênh — mở từ Kênh › Tạo kênh hoặc bộ đổi kênh: chọn đối thủ (theo dõi mới ngay tại đây), cách kênh chạy mặc định (Mức tự chủ), xong thì nhận diện chạy nền (tweak: Bước, Đối thủ, Nhận diện)"
+    },
+    "MCreate.dc.html": {
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "A2 · Tạo kênh — chọn đối thủ, theo dõi mới, cách kênh chạy, xong (tweak: Bước, Đối thủ, Nhận diện)"
+    },
+    "Kit.dc.html": {
+      "x": 4600,
+      "y": 5580,
+      "w": 1440,
+      "h": 900,
+      "expand": "fill",
+      "page": "desktop",
+      "is_interactive": true,
+      "title": "H4 · UI Kit — lấy nguyên Kit Noverse, chỉ đổi theme màu (tím → đỏ, đỏ xoá → cam): nền tảng, xác nhận (7 tình huống), menu tài khoản & ⋯, select & combobox, ô nhập & nút, gợi ý & trạng thái, video & thẻ, trợ lý chủ động; dựng bằng kit.css (tweak: Nhóm, Hộp xác nhận, Select đang mở)"
+    },
+    "MKit.dc.html": {
+      "x": 3760,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "page": "mobile",
+      "is_interactive": true,
+      "title": "H4 · UI Kit điện thoại — theme Noverse đổi màu: đầu trang, điều khiển, hàng, sheet, trợ lý chủ động (tweak: Nhóm)"
+    }
+  },
+  "order": [
+    "Onboard.dc.html",
+    "CreateChannel.dc.html",
+    "Explore.dc.html",
+    "NewVideo.dc.html",
+    "Main.dc.html",
+    "Queue.dc.html",
+    "Activity.dc.html",
+    "Review.dc.html",
+    "Editor.dc.html",
+    "Channel.dc.html",
+    "Library.dc.html",
+    "Template.dc.html",
+    "Settings.dc.html",
+    "Dialogs.dc.html",
+    "System.dc.html",
+    "Brand.dc.html",
+    "Kit.dc.html",
+    "MCreate.dc.html",
+    "MExplore.dc.html",
+    "MCompVideo.dc.html",
+    "MNew.dc.html",
+    "MMain.dc.html",
+    "MReview.dc.html",
+    "MChannel.dc.html",
+    "MSettings.dc.html",
+    "MKit.dc.html"
+  ],
+  "notes": {
+    "title": {
+      "x": 0,
+      "y": -560,
+      "text": "Viderse — hành trình A → Z",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "rowA": {
+      "x": 0,
+      "y": -300,
+      "text": "A–C · Bắt đầu → tìm video → làm video",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "rowD": {
+      "x": 0,
+      "y": 1320,
+      "text": "D · Máy tự chạy — bạn không phải ngồi chờ",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "rowE": {
+      "x": 0,
+      "y": 2640,
+      "text": "E–F · Duyệt, sửa, đăng",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "rowG": {
+      "x": 0,
+      "y": 3960,
+      "text": "G · Thiết lập — chỉ mở khi cần",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "rowH": {
+      "x": 0,
+      "y": 5280,
+      "text": "H · Hệ thống & thương hiệu",
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "desktop"
+    },
+    "flow": {
+      "x": 6120,
+      "y": 0,
+      "w": 520,
+      "size": "m",
+      "fill": "gray",
+      "page": "desktop",
+      "text": "Một đường duy nhất:\nA. Đăng nhập ChatGPT → chọn đối thủ → Tạo kênh\nB. Khám phá → bấm video → Làm video\nC. Hoặc dán link ở Video mới\nD. Máy tự chạy theo Mức tự chủ của kênh; Việc nền báo khi cần bạn\nE. Duyệt cả video & dựng (hoặc sửa trong editor)\nF. Tải gói đăng → đăng YouTube → Đánh dấu đã đăng\n\nQuay lại → Bản tin: cần bạn, máy đã tự làm, đề xuất.\nTrợ lý luôn có Vì sao?, học khi bạn sửa, không bao giờ tự đăng hay xoá.\n\nMỗi màn một việc chính, một nút đỏ."
+    },
+    "notify": {
+      "x": 4600,
+      "y": 1620,
+      "w": 520,
+      "size": "m",
+      "fill": "gray",
+      "page": "desktop",
+      "text": "Thông báo chỉ khi máy cần bạn:\nChờ duyệt → E1 · Duyệt\nCần xử lý → D1 · Bàn dựng\nSẵn sàng → D1 / F1 · Tải gói đăng\n\nKhông toast tiến độ. Tiến độ nằm trong viên “2 đang chạy · 12 chờ lượt”."
+    },
+    "cut": {
+      "x": 4600,
+      "y": 4260,
+      "w": 520,
+      "size": "m",
+      "fill": "gray",
+      "page": "desktop",
+      "text": "Đã cắt khỏi YT Factory:\n• Trang Video đối thủ + dán transcript (app tự chép lời) → xem trước trong Khám phá\n• Chế độ “Chọn video nổi trội” ở Video mới (trùng Khám phá)\n• Tạo kênh 4 bước → 1 màn + chạy nền\n• Tab Nhận diện + Cài đặt → Hồ sơ kênh\n• Danh sách Dự án editor, bộ lọc Bản cũ\n• Tổng quan, Tất cả video, tour"
+    },
+    "mtitle": {
+      "x": 0,
+      "y": -300,
+      "text": "Điện thoại — cùng hành trình B → G",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "mobile"
+    }
+  },
+  "designSystems": []
+}

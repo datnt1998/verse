@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khám phá · điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.checker{background-color:#2A2A2E;background-image:linear-gradient(45deg,#1E1E22 25%,transparent 25%),linear-gradient(-45deg,#1E1E22 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1E1E22 75%),linear-gradient(-45deg,transparent 75%,#1E1E22 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+
+html,body{height:100%}
+textarea,select{font:inherit}
+.phone{height:100vh;overflow:hidden;display:flex;flex-direction:column;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;position:relative}
+.hs{overflow-x:auto;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.vs{overflow-y:auto;scrollbar-width:none}.vs::-webkit-scrollbar{display:none}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.02em;color:#EDEDEF}
+.tabbar{position:absolute;left:14px;right:14px;bottom:30px;z-index:4;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(8px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tcap{position:relative;height:100%;display:flex;align-items:stretch;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(255,51,82,.13);border:1px solid rgba(255,77,99,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(255,0,51,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;transition:color .2s}
+.tab.on{color:#FFE3E8;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06);color:#FF4D63}
+.tab:active{transform:scale(.96)}
+.tlab{display:block;max-height:16px;line-height:16px;white-space:nowrap;transition:opacity .2s,max-height .3s,margin .3s}
+.tnew{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;background:radial-gradient(circle at 35% 28%,#FF6A80 0%,#FF1F45 45%,#C80028 100%);box-shadow:0 8px 20px -6px rgba(255,0,51,.7),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 4px rgba(0,0,0,.25);transition:transform .2s}
+.tab:active .tnew{transform:scale(.92)}
+.tbadge{position:absolute;top:5px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#F6CB8C;color:#0B0B0D;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #1A1A1D}
+.phone:has(.tabbar) main.vs{padding-bottom:118px !important}
+.phone:has(.tabbar) .abar{padding-bottom:104px !important}
+.ib{width:44px;height:44px;border-radius:12px;border:none;background:transparent;color:#C9C9D1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.btn{height:44px;padding:0 16px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF}
+.btn-red{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.btn-pri{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.sheet-t{font-size:18px;font-weight:600;line-height:1.35}
+.sec{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97}
+.wait-tile{background:repeating-linear-gradient(135deg,#121214 0 8px,#16161A 8px 16px)}
+.press:active{transform:scale(.98)}
+
+.cbx{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0B0B0D}
+
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-calendar{-webkit-mask-image:url(../icons/calendar.svg);mask-image:url(../icons/calendar.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-filter{-webkit-mask-image:url(../icons/filter.svg);mask-image:url(../icons/filter.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-radar-b{-webkit-mask-image:url(../icons/radar-b.svg);mask-image:url(../icons/radar-b.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer.svg);mask-image:url(../icons/timer.svg)}
+.i-workbench{-webkit-mask-image:url(../icons/workbench.svg);mask-image:url(../icons/workbench.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div class="phone">
+<div aria-hidden="true" style="flex: 0 0 auto; height: 44px; padding: 0 24px 0 30px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600">
+<span class="num">9:41</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; align-items: flex-end; gap: 2px; height: 11px"><span style="width: 3px; height: 4px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 6px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 8px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 11px; border-radius: 1px; background: #EDEDEF"></span></span><span style="width: 25px; height: 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.45); padding: 1.5px; display: flex"><span style="width: 72%; border-radius: 2px; background: #EDEDEF"></span></span></span>
+</div>
+<header style="flex: 0 0 auto; height: 52px; padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 64 64" style="flex: 0 0 auto"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
+
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{openGj}}" aria-haspopup="dialog" aria-label="Việc nền: 2 đang chạy, 12 chờ lượt" style="height: 36px; padding: 0 11px; display: flex; align-items: center; gap: 7px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: #131315; color: #C9C9D1; font-size: 12.5px"><span class="rec" aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 · 12</span></button>
+<a href="MSettings.dc.html" aria-label="Cài đặt" style="width: 34px; height: 34px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; flex: 0 0 auto">D</a>
+</header>
+<main class="vs" onScroll="{{tabScroll}}" style="flex: 1; min-height: 0; padding: 4px 16px 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px">
+<h1 style="margin: 0; flex: 1; font-size: 24px; font-weight: 600; letter-spacing: -0.02em">Khám phá</h1>
+<button class="btn ghost" type="button" onClick="{{openInfo}}" aria-label="Thông tin đối thủ {{curName}}" style="width: 44px; padding: 0"><span class="ic i-info" aria-hidden="true" style="width: 18px; height: 18px"></span></button>
+<button class="btn ghost" type="button" onClick="{{toggleSelect}}" aria-pressed="{{selAttr}}" style="height: 44px; padding: 0 14px; font-size: 13.5px; background: {{selBg}}; border-color: {{selBd}}"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px; color: {{selIc}}"></span>{{selText}}</button>
+</div>
+
+<div class="hs" role="radiogroup" aria-label="Đối thủ" style="display: flex; gap: 6px; margin: 0 -16px; padding: 0 16px; flex: 0 0 auto">
+<sc-for list="{{rivals}}" as="r" hint-placeholder-count="6">
+<button type="button" role="radio" aria-checked="{{r.on}}" onClick="{{r.pick}}" style="flex: 0 0 auto; height: 44px; padding: 0 12px 0 6px; display: flex; align-items: center; gap: 8px; border-radius: 999px; border: 1px solid {{r.bd}}; background: {{r.bg}}; color: #EDEDEF; font-size: 13.5px">
+<sc-if value="{{r.isAll}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: #1E1E22; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-radar" style="width: 16px; height: 16px"></span></span></sc-if>
+<sc-if value="{{r.notAll}}" hint-placeholder-val="{{ true }}"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 11px; background: {{r.av}}">{{r.ini}}</span></sc-if>
+<span style="white-space: nowrap">{{r.short}}</span>
+<sc-if value="{{r.hasNew}}" hint-placeholder-val="{{ false }}"><span class="num" style="min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: rgba(246,203,140,0.14); color: #F6CB8C; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{r.newCount}}</span></sc-if>
+</button>
+</sc-for>
+<button type="button" onClick="{{openAdd}}" aria-label="Theo dõi đối thủ mới" style="flex: 0 0 auto; height: 44px; padding: 0 14px; display: flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.2); background: transparent; color: #C9C9D1; font-size: 13.5px"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Theo dõi</button>
+</div>
+
+<div class="hs" style="display: flex; gap: 6px; margin: 0 -16px; padding: 0 16px; flex: 0 0 auto">
+<div role="radiogroup" aria-label="Sắp xếp" style="flex: 0 0 auto; display: flex; gap: 2px; padding: 3px; border-radius: 12px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{sorts}}" as="s" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{s.on}}" onClick="{{s.pick}}" style="height: 38px; padding: 0 12px; border-radius: 9px; border: none; background: {{s.bg}}; color: {{s.fg}}; font-size: 13.5px; font-weight: {{s.fw}}">{{s.label}}</button></sc-for>
+</div>
+<button class="chip ghost" type="button" style="height: 44px; padding: 0 12px; font-size: 13px; border-radius: 12px"><span class="ic i-timer" aria-hidden="true" style="width: 15px; height: 15px"></span>Dài <b>≥ 8 phút</b><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px"></span></button>
+<button class="chip ghost" type="button" role="switch" aria-checked="false" style="height: 44px; padding: 0 12px; font-size: 13px; border-radius: 12px"><span class="ic i-filter" aria-hidden="true" style="width: 15px; height: 15px"></span>Chưa làm cho kênh nào</button>
+</div>
+
+<span class="num" style="font-size: 12.5px; color: #8B8B97; margin-top: -4px">{{countLine}}</span>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<sc-for list="{{videos}}" as="v" hint-placeholder-count="4">
+<article style="display: flex; flex-direction: column; gap: 8px; opacity: {{v.op}}">
+<div style="position: relative">
+<a href="MCompVideo.dc.html" aria-label="Xem chi tiết {{v.title}}" style="display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: {{v.bg}}; box-shadow: 0 0 0 2px {{v.ring}}">
+<span class="num" style="position: absolute; left: 8px; bottom: 7px; height: 22px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: {{v.scoreBg}}; color: {{v.scoreFg}}; font-size: 12px; font-weight: 600">{{v.score}}</span>
+<span class="num mono" style="position: absolute; right: 8px; bottom: 7px; height: 22px; padding: 0 6px; display: flex; align-items: center; border-radius: 5px; background: rgba(0,0,0,0.75); font-size: 11px">{{v.dur}}</span>
+</a>
+<sc-if value="{{selectMode}}" hint-placeholder-val="{{ false }}"><button type="button" role="checkbox" aria-checked="{{v.chkAttr}}" aria-disabled="{{v.lockAttr}}" aria-label="{{v.chkLabel}}" onClick="{{v.toggle}}" style="position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><span class="cbx" aria-hidden="true" style="background: {{v.boxBg}}; border: 1.5px solid {{v.boxBd}}">{{v.mark}}</span></button></sc-if>
+</div>
+<div style="display: flex; gap: 8px; align-items: flex-start">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<a href="MCompVideo.dc.html" class="clamp2" style="font-size: 14.5px; font-weight: 500; line-height: 1.4">{{v.title}}</a>
+<span class="ell" style="font-size: 12.5px; color: #8B8B97">{{v.meta}}</span>
+<sc-if value="{{v.isUsed}}" hint-placeholder-val="{{ false }}"><a href="MMain.dc.html" style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: {{v.stColor}}; min-height: 24px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: {{v.stColor}}"></span><span class="ell">{{v.st}}</span></a></sc-if>
+</span>
+<button class="ib ghost" type="button" aria-label="Sao chép link YouTube của {{v.title}}" style="margin: -6px -10px 0 0; color: #8B8B97"><span class="ic i-copy" aria-hidden="true" style="width: 18px; height: 18px"></span></button>
+</div>
+</article>
+</sc-for>
+</div>
+</main>
+
+<sc-if value="{{selectMode}}" hint-placeholder-val="{{ false }}">
+<div role="toolbar" aria-label="Thao tác với video đã chọn" style="flex: 0 0 auto; padding: 10px 16px 4px; border-top: 1px solid rgba(255,255,255,0.08); background: #111113; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 6px">
+<span class="num" style="flex: 1; font-size: 14px; font-weight: 600">Đã chọn {{selCount}}</span>
+<button class="btn ghost" type="button" style="height: 40px; padding: 0 12px; font-size: 13px">Top 10</button>
+<button class="btn ghost" type="button" aria-label="Sao chép link các video đã chọn" style="height: 40px; padding: 0 12px; font-size: 13px"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Sao chép link</button>
+</div>
+<button class="btn-red" type="button" aria-disabled="{{makeDis}}" title="Vào cuối hàng chờ, theo nhịp 5 video/ngày của kênh" style="background: {{makeBg}}; color: {{makeFg}}">{{makeLabel}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+<span style="font-size: 12px; color: #8B8B97; text-align: center">Vào cuối hàng chờ · theo nhịp 5 video/ngày</span>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</sc-if>
+<sc-if value="{{notSelect}}" hint-placeholder-val="{{ true }}">
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: calc(5px + 4 * (100% - 10px) / 5); width: calc((100% - 10px) / 5)"></span>
+<a class="tab" href="MMain.dc.html"><span class="ic tic i-workbench" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Bàn dựng</span></a>
+<a class="tab" href="MReview.dc.html"><span class="ic tic i-gallery" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Duyệt</span><sc-if value="{{hasBadge}}" hint-placeholder-val="{{ true }}"><span class="num tbadge" aria-label="{{badge}} video chờ duyệt">{{badge}}</span></sc-if></a>
+<a class="tab" href="MNew.dc.html" aria-label="Video mới"><span class="tnew"><span class="ic i-add" aria-hidden="true" style="width: 22px; height: 22px"></span></span></a>
+<a class="tab" href="MChannel.dc.html"><span class="ic tic i-channel" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Kênh</span></a>
+<a class="tab on" href="MExplore.dc.html" aria-current="page"><span class="ic tic i-radar-b" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Khám phá</span></a>
+</div>
+</nav>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</sc-if>
+
+
+<sc-if value="{{isAdd}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeInfo}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Theo dõi đối thủ mới" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 8px 16px 4px; display: flex; flex-direction: column; gap: 12px">
+<span class="sheet-t">Theo dõi đối thủ mới</span>
+<label for="addrv" class="sr-only">@handle hoặc link kênh YouTube</label>
+<input id="addrv" type="url" inputmode="url" value="@thelatehours" placeholder="@handle hoặc link kênh YouTube" style="height: 48px; padding: 0 14px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.14); color: #EDEDEF; font-size: 15px; outline: none">
+<div style="display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)"><span class="av" style="width: 40px; height: 40px; font-size: 13px; background: #4A3A6E">TL</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14.5px; font-weight: 600">The Late Hours</span><span class="ell" style="font-size: 12.5px; color: #8B8B97">640 N người theo dõi · 4 video/tuần · Tiếng Anh</span></span></div>
+<span style="font-size: 13px; color: #A0A0AB">Liên kết luôn với kênh (tuỳ chọn)</span>
+<div role="group" aria-label="Liên kết với kênh" style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{addChans}}" as="c" hint-placeholder-count="3"><button type="button" role="checkbox" aria-checked="{{c.on}}" onClick="{{c.pick}}" style="height: 40px; padding: 0 12px; display: flex; align-items: center; gap: 8px; border-radius: 999px; border: 1px solid {{c.bd}}; background: {{c.bg}}; color: #EDEDEF; font-size: 13.5px"><span class="av" style="width: 24px; height: 24px; font-size: 9.5px; background: {{c.tint}}">{{c.ini}}</span>{{c.name}}</button></sc-for></div>
+<span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">Trinh sát quét lịch sử video chạy nền. Liên kết sau cũng được ở Kênh › Nguồn &amp; tự động.</span>
+<button class="btn-pri" type="button" onClick="{{closeInfo}}">Theo dõi{{addSuffix}}</button>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{isInfo}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeInfo}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Thông tin Nocturne Stories" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div class="vs" style="flex: 1; min-height: 0; padding: 8px 16px 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span class="av" style="width: 48px; height: 48px; font-size: 16px; background: #34407A">NS</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 17px; font-weight: 600">Nocturne Stories</span><span class="ell" style="font-size: 12.5px; color: #8B8B97">1,24 Tr người theo dõi · 3 video/tuần</span></span>
+<button class="ib ghost" type="button" aria-label="Thao tác khác: mở YouTube, quét lại, bỏ theo dõi"><span class="ic i-more" aria-hidden="true"></span></button>
+</div>
+<div class="card" style="border-radius: 14px; padding: 6px 12px; display: flex; align-items: center; gap: 10px"><span class="ic i-channel" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Liên kết với Midnight Tales</span><span style="font-size: 12px; color: #8B8B97">Tham chiếu nhận diện của kênh này</span></span><a href="MChannel.dc.html" style="font-size: 13px; color: #C9C9D1; white-space: nowrap; min-height: 44px; display: flex; align-items: center">Đổi ở Kênh ›</a></div>
+<div class="card" style="border-radius: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr))">
+<div style="padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 1px"><span class="num" style="font-size: 17px; font-weight: 600">286 N</span><span style="font-size: 11.5px; color: #8B8B97">Mức thường</span></div>
+<div style="padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 1px; border-left: 1px solid rgba(255,255,255,0.06)"><span class="num" style="font-size: 17px; font-weight: 600">3 video</span><span style="font-size: 11.5px; color: #8B8B97">Mỗi tuần</span></div>
+<div style="padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 1px; border-left: 1px solid rgba(255,255,255,0.06)"><span class="num" style="font-size: 17px; font-weight: 600; color: #F6CB8C">11</span><span style="font-size: 11.5px; color: #8B8B97">Nổi trội</span></div>
+</div>
+<section aria-label="Quét lịch sử" class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="orb o-scout live" aria-hidden="true" style="width: 16px; height: 16px"></span><span style="flex: 1; font-size: 14px; font-weight: 600">Quét lịch sử</span><span class="num" style="font-size: 12.5px; color: #A0A0AB">1.284 / 2.000</span></div>
+<span aria-hidden="true" style="height: 4px; border-radius: 2px; background: #1E1E22; overflow: hidden"><span style="display: block; width: 64%; height: 100%; background: #B7CEFF"></span></span>
+<span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">Trinh sát đang đọc tab Videos, mỗi lượt cách nhau vài giây. App mở lại vẫn chạy tiếp.</span>
+<button class="btn ghost" type="button" style="align-self: flex-start"><span class="ic i-pause" aria-hidden="true" style="width: 16px; height: 16px"></span>Tạm dừng</button>
+</section>
+<section aria-label="Lịch đăng" class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="ic i-calendar" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span style="flex: 1; font-size: 14px; font-weight: 600">Lịch đăng</span>
+<div role="radiogroup" aria-label="Múi giờ" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{z.on}}" onClick="{{z.pick}}" style="height: 38px; padding: 0 12px; border-radius: 8px; border: none; background: {{z.bg}}; color: {{z.fg}}; font-size: 13px">{{z.label}}</button></sc-for>
+</div></div>
+<span class="num" style="font-size: 13px; color: #A0A0AB; line-height: 1.5">30 video gần nhất · <b style="font-weight: 600; color: #EDEDEF">4 khung lặp lại</b></span>
+<ul aria-label="Các khung đăng lặp lại" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<sc-for list="{{slots}}" as="t" hint-placeholder-count="4"><li style="min-height: 48px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; gap: 3px">
+<span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; gap: 3px"><sc-for list="{{t.days}}" as="d" hint-placeholder-count="2"><span style="height: 22px; min-width: 26px; padding: 0 5px; border-radius: 6px; background: #222225; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{d}}</span></sc-for></span><span class="num" style="font-size: 14px; font-weight: 600">{{t.time}}</span><span style="flex: 1"></span><span class="num" style="font-size: 12.5px; color: #C9C9D1">{{t.count}}/30</span></span>
+<span style="font-size: 12px; color: #8B8B97">{{t.rhythm}}</span>
+</li></sc-for>
+</ul>
+<div role="img" aria-label="Lịch đăng 30 video gần nhất theo thứ và giờ, 4 khung lặp lại" style="display: flex; flex-direction: column; gap: 3px">
+<sc-for list="{{heat}}" as="h" hint-placeholder-count="7"><div style="display: flex; align-items: center; gap: 3px"><span style="width: 22px; font-size: 10.5px; color: #8B8B97">{{h.d}}</span><sc-for list="{{h.cells}}" as="c" hint-placeholder-count="12"><span style="flex: 1; height: 12px; border-radius: 3px; background: {{c.bg}}"></span></sc-for></div></sc-for>
+<div style="display: flex; padding-left: 25px; font-size: 10.5px; color: #8B8B97; justify-content: space-between"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div>
+</div>
+</section>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{gjOpen}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeGj}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Việc nền" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 6px 16px 10px; display: flex; flex-direction: column"><span class="sheet-t">Việc nền</span><span class="num" style="font-size: 12.5px; color: #8B8B97">2 đang chạy · 12 chờ lượt · 3 kênh</span></div>
+<div style="padding: 0 16px 12px; display: flex; flex-direction: column; gap: 8px">
+<a href="MMain.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.06)"><span class="orb o-artist live" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 13.5px; font-weight: 500">The Night Nurse Who Heard Room 214 Breathing</span><span class="ell" style="font-size: 12px; color: #8B8B97">Hoạ sĩ · vẽ cảnh 5 / 6</span></span></a>
+<a href="MMain.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.06)"><span class="orb o-scout live" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 13.5px; font-weight: 500">What the Ferryman Saw on the Fog Night</span><span class="ell" style="font-size: 12px; color: #8B8B97">Trinh sát · làm phụ đề</span></span></a>
+<a class="btn" href="MMain.dc.html" style="margin-top: 4px">Mở hàng chờ đầy đủ ở Bàn dựng</a>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode": {"editor": "enum", "options": ["browse", "select", "info", "add"], "default": "browse", "section": "Chế độ"}, "$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mode: null, rival: 'noc', sort: 'top', zone: 'vn', checked: null };
+  }
+  componentDidUpdate(prev) {
+    if (prev.mode !== this.props.mode) this.setState({ mode: null, checked: null });
+  }
+  __rv() {
+    const mode = this.state.mode || this.props.mode || 'browse';
+    const selectMode = mode === 'select';
+    const RV = [
+      { id: 'all', short: 'Tất cả', av: '', ini: '', isAll: true, hasNew: true, newCount: '12' },
+      { id: 'noc', short: 'Nocturne Stories', av: '#34407A', ini: 'NS', hasNew: true, newCount: '4' },
+      { id: 'late', short: 'The Late Archive', av: '#6E4F25', ini: 'LA', hasNew: true, newCount: '3' },
+      { id: 'dark', short: 'Dark Hollow Tales', av: '#255E4B', ini: 'DH', hasNew: false, newCount: '' },
+      { id: 'hsba', short: 'Hồ Sơ Bí Ẩn', av: '#6E3324', ini: 'HS', hasNew: true, newCount: '3' },
+      { id: 'slow', short: 'Slow Rooms', av: '#3E4659', ini: 'SR', hasNew: true, newCount: '2' }
+    ];
+    const rivals = RV.map((r) => { const on = r.id === this.state.rival; return Object.assign({}, r, { notAll: !r.isAll, on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', bd: on ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.07)', pick: () => this.setState({ rival: r.id }) }); });
+    const sorts = [['top', 'Nổi trội'], ['new', 'Mới nhất'], ['views', 'Lượt xem']].map((s) => { const on = s[0] === this.state.sort; return { label: s[1], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', fw: on ? '500' : '400', pick: () => this.setState({ sort: s[0] }) }; });
+    const TH = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/c_ferry.jpg) center / cover no-repeat',
+      'url(../img/c_mall.jpg) center / cover no-repeat',
+      'url(../img/c_lastbus.jpg) center / cover no-repeat',
+      'url(../img/c_elevator.jpg) center / cover no-repeat',
+      'url(../img/c_hotel.jpg) center / cover no-repeat'
+    ];
+    const V = (id, title, meta, score, dur, bg, o) => Object.assign({ id, title, meta, score, dur, bg, isUsed: false, st: '', stColor: '#8B8B97' }, o || {});
+    const raw = [
+      V('v1', 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', 'Nocturne Stories · 1,2 Tr lượt xem · 2 ngày', '×4,2', '39:51', 'url(../img/k_radio.jpg) center / cover no-repeat', { isUsed: true, st: 'Làm cho Midnight Tales · Chờ lượt', stColor: '#8E8E99' }),
+      V('v2', 'Night Shift Nurse Hears Breathing From an Empty Room', 'Nocturne Stories · 1,2 Tr lượt xem · 9 ngày', '×4,2', '42:10', 'url(../img/k_nurse.jpg) center / cover no-repeat', { isUsed: true, st: 'Làm cho Midnight Tales · Đang vẽ ảnh', stColor: '#B9D0F7' }),
+      V('v3', 'I Took a Job Watching an Empty Mall After Midnight', 'Nocturne Stories · 1,08 Tr lượt xem · 12 ngày', '×3,8', '37:05', 'url(../img/k_mall.jpg) center / cover no-repeat', { isUsed: true, st: 'Làm cho Midnight Tales · Chờ duyệt', stColor: '#F6CB8C' }),
+      V('v5', 'What I Saw Through the Night Bus Window', 'Nocturne Stories · 812 N lượt xem · 4 ngày', '×2,8', '33:12', 'url(../img/k_nightbus.jpg) center / cover no-repeat'),
+      V('v6', 'The Lake House Guestbook Had One More Name', 'Nocturne Stories · 780 N lượt xem · 1 ngày', '×2,7', '48:40', 'url(../img/k_lakehouse.jpg) center / cover no-repeat')
+    ];
+    const checked = this.state.checked || { v5: true, v6: true };
+    const videos = raw.map((v) => {
+      const hi = parseFloat(v.score.replace('×', '').replace(',', '.')) >= 3;
+      const on = !!checked[v.id] && !v.isUsed;
+      return Object.assign(v, {
+        scoreBg: hi ? '#F6CB8C' : 'rgba(11,11,13,0.82)', scoreFg: hi ? '#0B0B0D' : '#F3D9AE',
+        op: selectMode && v.isUsed ? '0.55' : '1', ring: selectMode && on ? '#FF4D63' : 'transparent',
+        chkAttr: on ? 'true' : 'false', lockAttr: v.isUsed ? 'true' : 'false', mark: on ? '✓' : '',
+        chkLabel: v.isUsed ? 'Đã làm cho Midnight Tales, không chọn được' : 'Chọn ' + v.title,
+        boxBg: on ? '#EDEDEF' : 'rgba(11,11,13,0.6)', boxBd: on ? '#EDEDEF' : 'rgba(255,255,255,0.55)',
+        toggle: v.isUsed ? () => {} : () => { const n = Object.assign({}, checked); n[v.id] = !n[v.id]; this.setState({ checked: n }); }
+      });
+    });
+    const selCount = raw.filter((v) => checked[v.id] && !v.isUsed).length;
+    const vn = this.state.zone === 'vn';
+    const zones = [['vn', 'VN'], ['ny', 'New York']].map((z) => { const on = z[0] === this.state.zone; return { label: z[1], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ zone: z[0] }) }; });
+    const DAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    const EV = []; const add = (n, d, h) => { for (let k = 0; k < n; k++) EV.push([d, h]); };
+    add(6, 1, 6); add(5, 3, 6); add(7, 5, 21); add(5, 0, 10); add(4, 6, 8); add(1, 2, 7); add(1, 4, 5); add(1, 4, 19);
+    const tz = (d, h) => { if (vn) return [d, h]; let hh = h - 11, dd = d; if (hh < 0) { hh += 24; dd = (d + 6) % 7; } return [dd, hh]; };
+    const grid = DAYS.map(() => new Array(12).fill(0)); EV.forEach(([d, h]) => { const [zd, zh] = tz(d, h); grid[zd][Math.floor(zh / 2)]++; });
+    const mx = Math.max(...grid.flat());
+    const heat = DAYS.map((d, i) => ({ d, cells: grid[i].map((n) => ({ bg: n === 0 ? 'rgba(237,237,239,0.05)' : 'rgba(237,237,239,' + (0.2 + n / mx * 0.75).toFixed(2) + ')' })) }));
+    const slots = [
+      [['T3', 'T5'], '06:00–08:00', ['T2', 'T4'], '19:00–21:00', 11, 'Mỗi tuần · 6/6 tuần · nhiều nhất'],
+      [['T7'], '21:00–22:00', ['T7'], '10:00–11:00', 7, 'Gần như mỗi tuần · 5/6'],
+      [['T2'], '10:00–11:00', ['CN'], '23:00–00:00', 5, 'Mới · từ 3 tuần nay'],
+      [['CN'], '08:00–09:00', ['T7'], '21:00–22:00', 4, 'Hai tuần một lần']
+    ].map((r) => ({ days: vn ? r[0] : r[2], time: vn ? r[1] : r[3], count: String(r[4]), rhythm: r[5] }));
+    return {
+      badge: '3', hasBadge: true, rivals, sorts, videos, selectMode, notSelect: !selectMode, isInfo: mode === 'info',
+      curName: 'Nocturne Stories', countLine: '24 / 1.284 video · Nocturne Stories · 4 mới',
+      selAttr: selectMode ? 'true' : 'false', selText: selectMode ? 'Thoát chọn' : 'Chọn',
+      selBg: selectMode ? 'rgba(255,255,255,0.08)' : 'transparent', selBd: selectMode ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)', selIc: selectMode ? '#EDEDEF' : '#A0A0AB',
+      toggleSelect: () => this.setState({ mode: selectMode ? 'browse' : 'select' }),
+      openInfo: () => this.setState({ mode: 'info' }), closeInfo: () => this.setState({ mode: 'browse' }), openAdd: () => this.setState({ mode: 'add' }), isAdd: mode === 'add',
+      addChans: [['MT', 'Midnight Tales', '#2E2236'], ['CL', 'Chuyện Lạ', '#302418'], ['QH', 'Quiet Hours', '#1F2C27']].map((c) => { const sel = Object.assign({ MT: true }, this.state.addCh || {}); const on = !!sel[c[0]]; return { ini: c[0], name: c[1], tint: c[2], on: on ? 'true' : 'false', bd: on ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)', bg: on ? '#222225' : 'transparent', pick: () => this.setState({ addCh: Object.assign({}, sel, { [c[0]]: !on }) }) }; }),
+      addSuffix: (() => { const n = Object.values(Object.assign({ MT: true }, this.state.addCh || {})).filter(Boolean).length; return n ? ' và liên kết ' + n + ' kênh' : ''; })(),
+      selCount: String(selCount), makeLabel: 'Làm ' + selCount + ' video cho Midnight Tales', makeDis: selCount ? 'false' : 'true', makeBg: selCount ? '#EDEDEF' : '#2A2A2E', makeFg: selCount ? '#0B0B0D' : '#8B8B97',
+      zones, heat, slots
+    };
+  }
+  renderVals() {
+    const r = this.__rv();
+    const st = this.state || {};
+    const down = !!st.tabDown;
+    r.tabMode = down ? 'mini' : '';
+    r.tabScroll = (e) => { const y = e.target.scrollTop; const last = this._ty || 0; const d = y > 60 && y > last; if (d !== down && Math.abs(y - last) > 4) this.setState({ tabDown: d }); this._ty = y; };
+    r.swOpen = !!st.gSw; r.openSw = () => this.setState({ gSw: true, gJ: false }); r.closeSw = () => this.setState({ gSw: false });
+    r.gjOpen = !!st.gJ; r.openGj = () => this.setState({ gJ: true, gSw: false }); r.closeGj = () => this.setState({ gJ: false });
+    return r;
+  }
+}
+</script>
+</body>
+</html>

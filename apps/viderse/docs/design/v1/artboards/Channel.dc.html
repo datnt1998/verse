@@ -1,0 +1,1398 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kênh · Midnight Tales</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.send:hover{background:#FFFFFF !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.035) !important}
+.navl:hover{color:#EDEDEF !important}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:#2A2A2E;border-radius:8px}
+.sw{position:relative;width:34px;height:20px;border-radius:999px;flex:0 0 auto;display:inline-block;transition:background-color .2s ease}
+.sw i{position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#EDEDEF;transition:left .3s cubic-bezier(.34,1.45,.5,1)}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-close{-webkit-mask-image:url(../icons/close.svg);mask-image:url(../icons/close.svg)}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-calendar{-webkit-mask-image:url(../icons/calendar.svg);mask-image:url(../icons/calendar.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-download{-webkit-mask-image:url(../icons/download.svg);mask-image:url(../icons/download.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit.svg);mask-image:url(../icons/edit.svg)}
+.i-filter{-webkit-mask-image:url(../icons/filter.svg);mask-image:url(../icons/filter.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
+.i-link{-webkit-mask-image:url(../icons/link.svg);mask-image:url(../icons/link.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic.svg);mask-image:url(../icons/magic.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-msg{-webkit-mask-image:url(../icons/msg.svg);mask-image:url(../icons/msg.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh.svg);mask-image:url(../icons/refresh.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing.svg);mask-image:url(../icons/routing.svg)}
+.i-search{-webkit-mask-image:url(../icons/search.svg);mask-image:url(../icons/search.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting.svg);mask-image:url(../icons/setting.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer.svg);mask-image:url(../icons/timer.svg)}
+.i-trend{-webkit-mask-image:url(../icons/trend.svg);mask-image:url(../icons/trend.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+.i-video-play{-webkit-mask-image:url(../icons/video-play.svg);mask-image:url(../icons/video-play.svg)}
+.i-workbench{-webkit-mask-image:url(../icons/workbench.svg);mask-image:url(../icons/workbench.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning.svg);mask-image:url(../icons/warning.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-send{-webkit-mask-image:url(../icons/send.svg);mask-image:url(../icons/send.svg)}
+@media (max-width:1380px){
+.vg{grid-template-columns:minmax(0,1fr) 156px 124px !important}
+.c-tpl{display:none !important}
+}
+@media (max-width:1100px){
+.shell{height:auto !important;overflow:visible !important}
+.body{flex-wrap:wrap !important}
+.side{max-width:none !important;flex:1 1 100% !important;border:none !important;overflow:visible !important}
+.center{overflow:visible !important;flex:1 1 100% !important;order:-1}
+}
+@media (max-width:700px){
+nav[aria-label="Điều hướng chính"]{max-width:100%;overflow-x:auto;scrollbar-width:none}
+nav[aria-label="Điều hướng chính"] a{white-space:nowrap;flex:0 0 auto}
+.vtable{min-width:720px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+/* r16-agent */
+/* Viderse tokens — bộ của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cỡ, bo góc, bóng, chuyển động lấy y nguyên từ UI Kit của Noverse; chỉ màu nhấn và màu phá huỷ đổi:
+   tím Noverse → đỏ Viderse, đỏ phá huỷ Noverse → cam Viderse. Chỉ dark.
+   Dùng biến, không viết cứng mã màu đã có ở đây. */
+:root {
+  /* Nền và bề mặt (giống Noverse) */
+  --vv-bg: #0B0B0D;
+  --vv-stage: #0D0D0F;                /* nền khung minh hoạ, vùng làm việc phụ */
+  --vv-surface-1: #131315;            /* thanh điều hướng, segmented, chip */
+  --vv-surface-2: #161618;            /* ô nhập lớn */
+  --vv-surface-3: #18181A;            /* composer, hộp thoại */
+  --vv-card: linear-gradient(180deg, #171719 0%, #131315 100%);
+  --vv-card-border: rgba(255,255,255,.07);
+  --vv-card-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.5);
+  --vv-hairline: rgba(255,255,255,.06);
+  --vv-selected: #222225;             /* tab/segment đang chọn trên thanh */
+  --vv-selected-2: #2A2A2E;           /* nút đang chọn trong nhóm chọn, tooltip */
+
+  /* Chữ */
+  --vv-text: #EDEDEF;
+  --vv-text-2: #C9C9D1;
+  --vv-text-soft: #B4B4BE;            /* thân hộp thoại, luật */
+  --vv-text-3: #A0A0AB;
+  --vv-text-hint: #8E8E99;            /* mô tả dưới lựa chọn */
+  --vv-muted: #8B8B97;                /* tối thiểu cho chữ phụ: 5.8:1 trên --vv-bg, 5.4:1 trên card */
+  --vv-faint: #6E6E78;                /* 3.9:1 — chỉ cho chấm, icon, viền; KHÔNG dùng cho chữ */
+  --vv-disabled: #5E5E68;             /* chữ của thứ đang khoá (không cần đạt tương phản) */
+
+  /* Màu nhấn — Noverse dùng tím, Viderse dùng đỏ */
+  --vv-accent: #FF4D63;               /* hộp kiểm, radio, thanh trượt, dấu tick, link, icon tab đang chọn — 6:1 trên nền */
+  --vv-accent-strong: #E6002E;        /* công tắc bật (núm sáng 4:1) */
+  --vv-accent-soft: #FFD3DA;          /* chữ trên nền nhấn nhạt (thẻ chọn nhiều, huy hiệu) */
+  --vv-accent-bg: rgba(255,77,99,.12);
+  --vv-accent-tint: rgba(255,77,99,.06);   /* nền lựa chọn đang chọn */
+  --vv-accent-border: rgba(255,77,99,.40); /* viền lựa chọn đang chọn */
+  --vv-accent-focus: rgba(255,77,99,.55);  /* viền ô đang mở / focus */
+  --vv-accent-ring: rgba(255,77,99,.14);   /* vòng 3px quanh ô đang focus */
+  --vv-accent-mark: rgba(255,77,99,.22);   /* tô phần khớp khi tìm */
+
+  /* Thương hiệu — đỏ YouTube (logo, chấm đang chạy) */
+  --vv-red: #FF0033;
+  --vv-red-ink: #FF4D63;              /* = --vv-accent */
+  --vv-red-deep: #A3001C;
+  --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
+  --vv-red-button-hover: #FF1F4B;
+
+  /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */
+  --vv-danger: #FF9A5C;               /* nút xoá vĩnh viễn (nền), icon lỗi */
+  --vv-danger-hover: #FFAD78;
+  --vv-danger-fg: #1A0E06;            /* chữ trên nút cam đặc */
+  --vv-danger-text: #FFC09A;          /* chữ lỗi, mục menu nguy hiểm */
+  --vv-danger-text-2: #FFD2B5;        /* chữ trên nền lỗi nhạt */
+  --vv-danger-soft: rgba(255,154,92,.12);  /* nút nguy hiểm làm lại được */
+  --vv-danger-soft-hover: rgba(255,154,92,.20);
+  --vv-danger-tint: rgba(255,154,92,.06);  /* nền danh sách hệ quả, banner lỗi */
+  --vv-danger-border: rgba(255,154,92,.30);
+  --vv-danger-focus: rgba(255,154,92,.55); /* viền ô lỗi */
+  --vv-danger-ring: rgba(255,154,92,.12);
+
+  /* Trạng thái video (ia-flows §3.1) */
+  --vv-st-queued: #8E8E99;            /* Chờ lượt, Tạm dừng */
+  --vv-st-working: #B9D0F7;           /* Đang làm */
+  --vv-st-review: #F6CB8C;            /* Chờ duyệt, chờ bạn */
+  --vv-st-issue: #FF9A5C;             /* Cần xử lý — cùng màu với --vv-danger */
+  --vv-st-issue-text: #FFC09A;
+  --vv-st-ready: #A6EDC1;             /* Sẵn sàng, Ổn, Xong */
+  --vv-st-posted: #8B8B97;
+  --vv-info: #9DB0F7;                 /* banner thông tin */
+  --vv-info-bg: rgba(124,147,243,.07);
+  --vv-info-border: rgba(124,147,243,.20);
+  --vv-st-review-bg: rgba(246,203,140,.12);
+  --vv-st-review-tint: rgba(246,203,140,.06);
+  --vv-st-review-border: rgba(246,203,140,.20);
+  --vv-st-issue-bg: var(--vv-danger-tint);
+  --vv-st-issue-border: var(--vv-danger-border);
+  --vv-st-ready-bg: rgba(166,237,193,.12);
+  --vv-st-ready-tint: rgba(166,237,193,.06);
+  --vv-st-ready-border: rgba(166,237,193,.20);
+  --vv-st-working-bg: rgba(185,208,247,.12);
+  --vv-director-bg: rgba(184,156,255,.07);
+  --vv-ref-bg: rgba(255,208,138,.10);
+
+  /* Bốn trợ lý: chữ, vòng logo, orb */
+  --vv-scout-ink: #B7CEFF;    --vv-scout-arc: #7FA3FF;
+  --vv-director-ink: #CDB5FF; --vv-director-arc: #B08AF7;
+  --vv-artist-ink: #FFD08A;   --vv-artist-arc: #FFBE66;
+  --vv-qa-ink: #9DECC9;       --vv-qa-arc: #5DDDB0;
+  --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
+  --vv-orb-director: radial-gradient(circle at 32% 26%, #F5EAFF 0%, #D2AEFF 28%, #9566F0 62%, #5B2FB8 100%);
+  --vv-orb-artist: radial-gradient(circle at 32% 26%, #FFF3DC 0%, #FFD08A 28%, #F5A13F 62%, #C2611D 100%);
+  --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
+  --vv-orb-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4);
+
+  /* Chỉ số nổi trội (chỉ trong thumbnail) */
+  --vv-outlier-bg: #F6CB8C;
+  --vv-outlier-fg: #0B0B0D;
+
+  /* Chữ */
+  --vv-font: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;  /* 400/500/600/700, subset vietnamese */
+  --vv-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --vv-fs-page: 17px;
+  --vv-fs-hero: 30px;
+  --vv-fs-dialog: 16px;    /* tiêu đề hộp thoại */
+  --vv-fs-body: 14px;
+  --vv-fs-card: 14px;      /* tiêu đề thẻ (600) */
+  --vv-fs-ui: 13px;        /* nút, ô nhập, mục menu */
+  --vv-fs-meta: 12px;
+  --vv-fs-small: 11.5px;   /* mô tả dưới lựa chọn, toast nhỏ */
+  --vv-fs-group: 11px;     /* nhãn nhóm VIẾT HOA, 600, letter-spacing .08em */
+
+  /* Bo góc (Noverse) */
+  --vv-r-kbd: 4px;
+  --vv-r-tag: 6px;         /* huy hiệu, nhãn */
+  --vv-r-tip: 7px;         /* tooltip, thẻ trong ô chọn nhiều, nút trong nhóm chọn */
+  --vv-r-chip: 8px;        /* chip, nút nhỏ */
+  --vv-r-opt: 9px;         /* mục menu / lựa chọn */
+  --vv-r-btn: 10px;        /* nút, ô nhập, ô chọn */
+  --vv-r-field: 10px;
+  --vv-r-choice: 11px;     /* thẻ lựa chọn có mô tả */
+  --vv-r-tile: 12px;       /* banner, khối trống, thẻ nhỏ trong danh sách */
+  --vv-r-pop: 14px;        /* menu, popover, select mở */
+  --vv-r-card: 16px;       /* thẻ nhóm */
+  --vv-r-dialog: 18px;     /* hộp thoại, khung minh hoạ */
+  --vv-r-thumb: 7px;
+  --vv-r-composer: 18px;
+  --vv-r-sheet: 22px;
+  --vv-r-field-m: 12px;
+  --vv-r-pill: 999px;
+
+  /* Kích thước */
+  --vv-h-btn: 36px;  --vv-h-btn-sm: 30px;  --vv-h-field: 36px;  --vv-h-opt: 34px;
+  --vv-hit-desktop: 30px;
+  --vv-hit-touch: 44px;
+  --vv-m-btn: 44px; --vv-m-btn-lg: 48px; --vv-m-row: 56px; --vv-m-bar: 52px; --vv-m-tabbar: 64px;
+
+  /* Nút sáng = nút chính */
+  --vv-primary: #EDEDEF;
+  --vv-primary-hover: #FFFFFF;
+  --vv-primary-fg: #0B0B0D;
+  --vv-white-button: var(--vv-primary);     /* tên cũ, giữ để màn chưa chuyển vẫn đọc được */
+  --vv-white-button-fg: var(--vv-primary-fg);
+  --vv-ghost-border: rgba(255,255,255,.12);
+
+  /* Ô nhập & lớp nổi */
+  --vv-field: #0F0F11;
+  --vv-field-hover: #121214;
+  --vv-field-border: rgba(255,255,255,.10);
+  --vv-field-border-hover: rgba(255,255,255,.18);
+  --vv-field-border-focus: var(--vv-accent-focus);
+  --vv-popover: #1A1A1D;
+  --vv-popover-border: rgba(255,255,255,.10);
+  --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-dialog: #18181A;
+  --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-toast: #1C1C1F;
+  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
+  --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
+  --vv-hover: rgba(255,255,255,.07);
+  --vv-hover-row: rgba(255,255,255,.04);
+  --vv-opt-hover: rgba(255,255,255,.06);
+  --vv-opt-active: rgba(255,255,255,.075);  /* mục đang trỏ bằng phím */
+  --vv-skel-a: #17171A; --vv-skel-b: #222226;
+  --vv-focus: 0 0 0 3px var(--vv-accent-ring);
+  --vv-focus-outline: 2px solid var(--vv-accent);
+
+  /* Chuyển động (Noverse) */
+  --vv-ease: cubic-bezier(.2,.9,.3,1);          /* menu, popover mở */
+  --vv-ease-spring: cubic-bezier(.34,1.45,.5,1); /* công tắc, nhóm chọn */
+  --vv-dur: 150ms;
+  --vv-dur-pop: 170ms;
+  --vv-dur-dialog: 300ms;
+}
+
+/* Lớp tiện ích dùng lại từ artboard */
+.vv-orb { border-radius: 50%; flex: 0 0 auto; box-shadow: var(--vv-orb-shadow); }
+.vv-live { animation: vv-breathe 2.8s ease-in-out infinite; }      /* orb trợ lý đang chạy */
+.vv-rec { animation: vv-rec 1.6s ease-in-out infinite; }            /* chấm đỏ “đang chạy” */
+.vv-lens-run { transform-box: fill-box; transform-origin: center; animation: vv-lensrot 9s linear infinite; }
+@keyframes vv-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }
+@keyframes vv-rec { 50% { opacity: .35 } }
+@keyframes vv-lensrot { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Viderse UI Kit — bộ thành phần của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cần tokens.css nạp trước. Board tham chiếu: artboards/Kit.dc.html (máy tính) và MKit.dc.html (điện thoại);
+   hai board dựng bằng chính các lớp dưới đây, nên giá trị ở đây là giá trị thật.
+   Cỡ, bo góc, bóng, chuyển động giống hệt Kit Noverse; khác duy nhất: tím → đỏ (--vv-accent*), đỏ phá huỷ → cam (--vv-danger*).
+   Quy ước tên: .vv-<thành phần>, biến thể --<tên>, phần con __<tên>, trạng thái .is-<tên> hoặc thuộc tính ARIA. */
+
+/* ---------- Nền ---------- */
+.vv-root { background: var(--vv-bg); color: var(--vv-text); font-family: var(--vv-font); font-size: var(--vv-fs-body); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.vv-root *, .vv-root *::before, .vv-root *::after { box-sizing: border-box; }
+.vv-root :focus-visible { outline: var(--vv-focus-outline); outline-offset: 2px; }
+.vv-num { font-variant-numeric: tabular-nums; }
+.vv-mono { font-family: var(--vv-font-mono); }
+.vv-ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-spacer { flex: 1 1 auto; }
+.vv-group { font-size: var(--vv-fs-group); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-kbd { font-family: var(--vv-font-mono); font-size: 11px; color: var(--vv-text-3); padding: 1px 5px; border-radius: var(--vv-r-kbd); border: 1px solid var(--vv-field-border); background: #151517; white-space: nowrap; }
+.vv-ic { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; background-color: currentColor; -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+.vv-mark { background: var(--vv-accent-mark); color: var(--vv-accent-soft); border-radius: 3px; padding: 0 1px; }
+.vv-link { color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---------- Nút ---------- */
+/* Một màn một nút chính (sáng). Cam đặc chỉ cho xoá vĩnh viễn; cam nhạt cho việc nguy hiểm làm lại được. */
+.vv-btn { --h: var(--vv-h-btn); height: var(--h); padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--vv-r-btn); border: 1px solid var(--vv-ghost-border); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); font-weight: 500; white-space: nowrap; cursor: pointer; text-decoration: none; transition: background-color var(--vv-dur), box-shadow .2s, transform 80ms, border-color var(--vv-dur); }
+.vv-btn:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn.is-hover { background: var(--vv-hover); }
+.vv-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.98); }
+.vv-btn--primary, .vv-btn--white { background: var(--vv-primary); border-color: transparent; color: var(--vv-primary-fg); font-weight: 600; }
+.vv-btn--primary:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--white:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--primary.is-hover, .vv-btn--white.is-hover { background: var(--vv-primary-hover); }
+.vv-btn--danger { background: var(--vv-danger); border-color: transparent; color: var(--vv-danger-fg); font-weight: 600; }
+.vv-btn--danger:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger.is-hover { background: var(--vv-danger-hover); box-shadow: 0 0 0 4px var(--vv-danger-ring); }
+.vv-btn--danger-soft { background: var(--vv-danger-soft); border-color: var(--vv-danger-border); color: var(--vv-danger-text-2); }
+.vv-btn--danger-soft:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger-soft.is-hover { background: var(--vv-danger-soft-hover); }
+.vv-btn--quiet { border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--quiet:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn--sm { --h: var(--vv-h-btn-sm); padding: 0 10px; font-size: 12px; border-radius: var(--vv-r-chip); }
+.vv-btn--icon { width: var(--h); padding: 0; border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--icon:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn[aria-disabled="true"], .vv-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.vv-btn .vv-ic, .vv-btn .ic { width: 15px; height: 15px; }
+.vv-btn--sm .vv-ic, .vv-btn--sm .ic { width: 13px; height: 13px; }
+.vv-btn--primary .vv-spinner, .vv-btn--white .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-primary-fg); }
+.vv-btn--danger .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-danger-fg); }
+.vv-btn--hold { position: relative; overflow: hidden; }
+.vv-btn--hold > i { position: absolute; left: 0; top: 0; bottom: 0; width: var(--hold, 0%); background: rgba(255,255,255,.16); pointer-events: none; }
+.vv-btn--hold > :not(i) { position: relative; }
+/* điện thoại */
+.vv-btn--m { --h: var(--vv-m-btn); padding: 0 16px; border-radius: 12px; font-size: 14px; }
+.vv-btn--m-lg { --h: var(--vv-m-btn-lg); padding: 0 16px; border-radius: 13px; font-size: 15px; font-weight: 600; width: 100%; }
+
+/* ---------- Ô nhập ---------- */
+.vv-field { height: var(--vv-h-field); width: 100%; min-width: 0; padding: 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); outline: none; text-overflow: ellipsis; transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-field::placeholder { color: var(--vv-muted); }
+.vv-field:hover, .vv-field.is-hover { border-color: var(--vv-field-border-hover); }
+.vv-field:focus, .vv-field.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-field.is-error, .vv-field[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-field:disabled, .vv-field.is-disabled { opacity: .45; cursor: not-allowed; }
+textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize: none; }
+.vv-field--m { height: var(--vv-m-btn); border-radius: var(--vv-r-field-m); font-size: 15px; }
+.vv-fieldbox { display: flex; align-items: center; gap: 8px; min-height: var(--vv-h-field); padding: 4px 8px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-fieldbox:focus-within, .vv-fieldbox.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-fieldbox.is-error { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-fieldbox--wrap { flex-wrap: wrap; padding: 5px 8px; }
+.vv-fieldbox > input { flex: 1 1 60px; min-width: 60px; height: 26px; border: none; background: transparent; outline: none; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); padding: 0; }
+.vv-fieldbox > input::placeholder { color: var(--vv-muted); }
+.vv-fieldbox > .vv-ic, .vv-fieldbox > .ic { width: 15px; height: 15px; color: var(--vv-muted); }
+.vv-fieldbox__affix { font-family: var(--vv-font-mono); font-size: 12.5px; color: var(--vv-muted); white-space: nowrap; }
+.vv-fieldbox__suffix { font-family: var(--vv-font-mono); font-size: 12px; color: var(--vv-st-ready); padding: 2px 6px; border-radius: 5px; background: rgba(166,237,193,.1); white-space: nowrap; }
+.vv-label { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-label small { font-size: inherit; color: var(--vv-muted); }
+.vv-label--group { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-help, .vv-err { display: flex; gap: 6px; align-items: flex-start; font-size: var(--vv-fs-small); line-height: 1.5; color: var(--vv-muted); }
+.vv-err { color: var(--vv-danger-text); }
+.vv-help > .vv-ic, .vv-help > .ic, .vv-err > .vv-ic, .vv-err > .ic { width: 13px; height: 13px; margin-top: 2px; }
+.vv-counter { font-size: 11px; color: var(--vv-muted); font-variant-numeric: tabular-nums; }
+.vv-counter.is-near { color: var(--vv-st-review); }
+
+/* ---------- Ô chọn (select) ---------- */
+.vv-select { display: flex; align-items: center; gap: 8px; width: 100%; height: var(--vv-h-field); padding: 0 10px 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; transition: border-color var(--vv-dur), box-shadow var(--vv-dur), background-color var(--vv-dur); }
+.vv-select:hover, .vv-select.is-hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-select[aria-expanded="true"], .vv-select:focus-visible, .vv-select.is-open { outline: none; border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-select.is-error, .vv-select[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-select:disabled { opacity: .45; cursor: not-allowed; }
+.vv-select__value { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-select__value.is-placeholder { color: var(--vv-muted); }
+.vv-select__chev { width: 15px; height: 15px; color: var(--vv-muted); transition: transform .18s; }
+.vv-select[aria-expanded="true"] .vv-select__chev, .vv-select.is-open .vv-select__chev { transform: rotate(180deg); }
+.vv-select--rich { height: 48px; }
+
+/* ---------- Menu, danh sách chọn, popover ---------- */
+.vv-pop, .vv-menu { padding: 6px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); }
+.vv-menu { min-width: 240px; display: flex; flex-direction: column; }
+.vv-pop--float { position: absolute; z-index: 40; }
+.vv-pop--note { padding: 14px; display: flex; flex-direction: column; gap: 8px; width: 280px; }
+.vv-pop-in { animation: vv-popIn var(--vv-dur-pop) var(--vv-ease) both; }
+.vv-pop-side { animation: vv-flyL .16s var(--vv-ease) both; }
+@keyframes vv-popIn { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes vv-flyL { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.vv-opt, .vv-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--vv-h-opt); padding: 6px 10px; border: none; border-radius: var(--vv-r-opt); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; text-decoration: none; cursor: pointer; }
+.vv-opt:hover, .vv-menu__item:hover { background: var(--vv-opt-hover); }
+.vv-opt.is-active, .vv-menu__item.is-active, .vv-menu__item.is-hover { background: var(--vv-opt-active); }
+.vv-opt > .vv-ic, .vv-opt > .ic, .vv-menu__item > .vv-ic, .vv-menu__item > .ic { width: 16px; height: 16px; color: var(--vv-text-3); }
+.vv-opt--danger, .vv-menu__item--danger, .vv-opt--danger > .ic, .vv-menu__item--danger > .ic, .vv-opt--danger > .vv-ic, .vv-menu__item--danger > .vv-ic { color: var(--vv-danger-text); }
+.vv-opt--danger:hover, .vv-opt--danger.is-active, .vv-menu__item--danger:hover { background: var(--vv-danger-soft); }
+.vv-opt:disabled, .vv-opt[aria-disabled="true"], .vv-menu__item[aria-disabled="true"] { color: var(--vv-disabled); background: transparent; cursor: not-allowed; }
+.vv-opt--rich { min-height: 48px; }
+.vv-opt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-opt__text > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-opt__desc, .vv-menu__hint { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); line-height: 1.4; }
+.vv-opt__meta { font-size: 11px; color: var(--vv-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-opt__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); font-size: 11px; color: var(--vv-text-3); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.vv-opt__tick, .vv-option__tick { width: 16px; height: 16px; flex: 0 0 auto; color: var(--vv-accent); }
+.vv-opt__chev { width: 14px; height: 14px; color: var(--vv-muted); }
+.vv-opt__add, .vv-opt > .ic.is-accent { color: var(--vv-accent); }
+.vv-menu__sep { height: 1px; margin: 6px 4px; background: rgba(255,255,255,.07); flex: 0 0 auto; }
+.vv-menu__group { display: flex; justify-content: space-between; padding: 6px 10px 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+
+/* ---------- Chọn & bật tắt ---------- */
+.vv-check, .vv-radio { width: 18px; height: 18px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,.28); background: transparent; transition: background-color .16s, border-color .16s; }
+.vv-check { border-radius: 5px; }
+.vv-radio { border-radius: 50%; }
+.vv-check[aria-checked="true"], .vv-check.is-on, .vv-check[aria-checked="mixed"], .vv-check.is-mixed { background: var(--vv-accent); border-color: var(--vv-accent); }
+.vv-check[aria-checked="true"]::after, .vv-check.is-on::after { content: ""; width: 5px; height: 9px; border: solid var(--vv-primary-fg); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+.vv-check[aria-checked="mixed"]::after, .vv-check.is-mixed::after { content: ""; width: 8px; height: 2px; border-radius: 1px; background: var(--vv-primary-fg); }
+.vv-radio[aria-checked="true"], .vv-radio.is-on { border-color: var(--vv-accent); }
+.vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vv-accent); }
+.vv-check--m, .vv-radio--m { width: 22px; height: 22px; }
+.vv-checkrow { display: flex; align-items: center; gap: 10px; padding: 0; border: none; background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; }
+.vv-checkrow:disabled, .vv-checkrow[aria-disabled="true"] { color: var(--vv-disabled); cursor: not-allowed; }
+.vv-checkrow:disabled .vv-check { opacity: .6; }
+.vv-choice { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .14s; }
+.vv-choice > .vv-radio, .vv-choice > .vv-check { margin-top: 1px; }
+.vv-choice[aria-checked="true"] { border-color: var(--vv-accent-border); background: var(--vv-accent-tint); }
+.vv-choice[aria-disabled="true"] { color: var(--vv-text-3); cursor: default; }
+.vv-choice:active:not([aria-disabled="true"]) { transform: scale(.985); }
+.vv-choice--lg { gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-choice); border-color: rgba(255,255,255,.08); }
+.vv-choice__text { display: flex; flex-direction: column; min-width: 0; }
+.vv-choice__label { font-size: var(--vv-fs-ui); }
+.vv-choice--lg .vv-choice__label { font-weight: 500; }
+.vv-choice__note { font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-switch { position: relative; width: 36px; height: 22px; flex: 0 0 auto; border: none; padding: 0; border-radius: var(--vv-r-pill); background: var(--vv-selected-2); cursor: pointer; transition: background-color .2s; }
+.vv-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: left .3s var(--vv-ease-spring), transform .3s var(--vv-ease-spring); transform-origin: left center; }
+.vv-switch[aria-checked="true"] { background: var(--vv-accent-strong); }
+.vv-switch[aria-checked="true"]::after { left: 17px; transform-origin: right center; }
+.vv-switch:active:not(:disabled):not([aria-disabled="true"])::after { transform: scaleX(1.22); }
+.vv-switch:disabled, .vv-switch[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+.vv-switch--m { width: 50px; height: 30px; }
+.vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
+.vv-switch--m[aria-checked="true"]::after { left: 23px; }
+.vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
+.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+.vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
+.vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
+.vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
+.vv-seg--thumb > button[aria-checked="true"] { background: transparent; }
+.vv-seg--bar { gap: 2px; border-radius: 11px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--bar > button { height: 32px; border-radius: 8px; font-size: var(--vv-fs-ui); }
+.vv-seg--bar > button[aria-checked="true"], .vv-seg--bar > button[aria-selected="true"] { background: var(--vv-selected); font-weight: 500; }
+.vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
+.vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+.vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
+.vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.vv-tab:hover { color: var(--vv-text); }
+.vv-tab[aria-selected="true"] { color: var(--vv-text); font-weight: 600; border-bottom-color: var(--vv-accent); }
+.vv-tab__n { font-size: 12px; color: var(--vv-muted); font-weight: 400; }
+.vv-stepper { display: inline-flex; align-items: stretch; width: 148px; height: var(--vv-h-field); border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); overflow: hidden; }
+.vv-stepper > button { width: 36px; flex: 0 0 auto; border: none; background: transparent; color: var(--vv-text-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.vv-stepper > button:hover:not(:disabled) { background: var(--vv-hover); }
+.vv-stepper > button:disabled, .vv-stepper > button[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.vv-stepper > input, .vv-stepper > output { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: none; border-left: 1px solid rgba(255,255,255,.08); border-right: 1px solid rgba(255,255,255,.08); background: transparent; color: var(--vv-text); font-family: var(--vv-font-mono); font-size: var(--vv-fs-ui); font-variant-numeric: tabular-nums; text-align: center; outline: none; }
+.vv-stepper--m { height: var(--vv-m-btn); width: 160px; }
+.vv-stepper--m > button { width: 44px; }
+.vv-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.vv-range::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range__bubble { position: absolute; top: 0; transform: translateX(-50%); height: 18px; padding: 0 6px; border-radius: 5px; background: var(--vv-selected-2); font-family: var(--vv-font-mono); font-size: 10.5px; display: flex; align-items: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Chip, huy hiệu, đếm ---------- */
+.vv-chip { height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-chip); background: var(--vv-surface-1); border: 1px solid var(--vv-field-border); font: inherit; font-size: 12px; color: var(--vv-text-2); white-space: nowrap; cursor: pointer; }
+.vv-chip > .ic, .vv-chip > .vv-ic { width: 13px; height: 13px; color: var(--vv-text-hint); }
+.vv-chip b { font-weight: 500; color: var(--vv-text); }
+.vv-chip[aria-expanded="true"] { border-color: var(--vv-field-border-hover); background: #1C1C1F; }
+.vv-chip.is-custom { border-color: rgba(246,203,140,.3); }
+.vv-pill { height: 30px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-pill); border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.vv-pill[aria-checked="true"], .vv-pill[aria-pressed="true"] { background: var(--vv-selected); border-color: rgba(255,255,255,.14); color: var(--vv-text); }
+.vv-pill__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.vv-tag { height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); color: var(--vv-text-3); font-size: var(--vv-fs-small); white-space: nowrap; }
+.vv-tag__dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--dot, currentColor); }
+.vv-tag--accent { background: var(--vv-accent-bg); color: var(--vv-accent-soft); --dot: var(--vv-accent); }
+.vv-tag--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-tag--review { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-tag--issue { background: var(--vv-danger-soft); color: var(--vv-danger-text); --dot: var(--vv-danger); }
+.vv-tag--working { background: var(--vv-st-working-bg); color: var(--vv-st-working); }
+.vv-tag--muted { --dot: var(--vv-disabled); }
+.vv-tag--ref { background: var(--vv-ref-bg); color: var(--vv-artist-ink); }
+.vv-tag--next { background: var(--vv-accent-bg); color: var(--vv-accent-soft); }
+.vv-tag--auto { color: var(--vv-qa-ink); background: rgba(157,236,201,.08); }
+.vv-token { height: 26px; padding: 0 4px 0 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: var(--vv-r-tip); background: var(--vv-accent-bg); border: 1px solid rgba(255,77,99,.25); color: var(--vv-accent-soft); font-size: 12px; white-space: nowrap; }
+.vv-token > button { width: 18px; height: 18px; border: none; border-radius: 5px; background: transparent; color: var(--vv-accent); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.vv-count { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--vv-r-pill); background: rgba(246,203,140,.16); color: var(--vv-st-review); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-count--solid { background: var(--vv-st-review); color: var(--vv-bg); font-weight: 700; }
+.vv-count--info { background: rgba(185,208,247,.14); color: var(--vv-st-working); }
+.vv-score { height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: var(--vv-r-tag); background: var(--vv-outlier-bg); color: var(--vv-outlier-fg); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-score--low { background: rgba(0,0,0,.75); color: #F3D9AE; }
+
+/* ---------- Trạng thái video ---------- */
+.vv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; color: var(--c, var(--vv-text-3)); }
+.vv-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.vv-status--queued { --c: var(--vv-st-queued); }
+.vv-status--working { --c: var(--vv-st-working); }
+.vv-status--working::before { width: 9px; height: 9px; background: none; border: 1.5px solid rgba(255,255,255,.15); border-top-color: currentColor; animation: vv-spin .9s linear infinite; }
+.vv-status--review { --c: var(--vv-st-review); }
+.vv-status--issue { --c: var(--vv-st-issue); }
+.vv-status--ready { --c: var(--vv-st-ready); }
+.vv-status--posted { --c: var(--vv-st-posted); }
+.vv-status--paused { --c: var(--vv-st-queued); }
+
+/* ---------- Thông báo trong trang, toast, tooltip ---------- */
+.vv-banner { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-tile); border: 1px solid var(--vv-card-border); background: var(--vv-surface-1); --c: var(--vv-text-3); }
+.vv-banner > .ic, .vv-banner > .vv-ic, .vv-banner__icon { width: 17px; height: 17px; flex: 0 0 auto; color: var(--c); }
+.vv-banner__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.vv-banner__title { font-size: var(--vv-fs-ui); font-weight: 500; color: var(--vv-text); }
+.vv-banner__text { font-size: 12px; color: var(--vv-text-3); }
+.vv-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.vv-banner--info { --c: var(--vv-info); background: var(--vv-info-bg); border-color: var(--vv-info-border); }
+.vv-banner--ready { --c: var(--vv-st-ready); background: var(--vv-st-ready-tint); border-color: var(--vv-st-ready-border); }
+.vv-banner--review { --c: var(--vv-st-review); background: var(--vv-st-review-tint); border-color: var(--vv-st-review-border); }
+.vv-banner--issue { --c: var(--vv-danger); background: rgba(255,154,92,.07); border-color: rgba(255,154,92,.22); }
+.vv-banner--director { --c: var(--vv-director-ink); background: var(--vv-director-bg); border-color: rgba(184,156,255,.22); }
+.vv-toast { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); white-space: nowrap; }
+.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; }
+.vv-toast .vv-btn { --h: 28px; }
+.vv-toast--ok { border-color: rgba(166,237,193,.28); }
+.vv-toast--ok > .ic, .vv-toast--ok > .vv-ic { color: var(--vv-st-ready); }
+.vv-toast--issue { border-color: var(--vv-danger-border); }
+.vv-toast--issue > .ic, .vv-toast--issue > .vv-ic { color: var(--vv-danger); }
+.vv-toast--sm { height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+.vv-toast-in { animation: vv-tIn .4s cubic-bezier(.2,.9,.25,1.12) both; }
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+.vv-tip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); border: 1px solid rgba(255,255,255,.08); font-size: var(--vv-fs-small); line-height: 1.45; color: var(--vv-text); white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.7); }
+.vv-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--vv-selected-2); }
+.vv-tip .vv-kbd { font-size: 10px; }
+.vv-tip--wrap { white-space: normal; max-width: 260px; }
+.vv-tipwrap { position: relative; display: inline-flex; }
+.vv-tipwrap > .vv-tip { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 4px); opacity: 0; pointer-events: none; z-index: 30; transition: opacity .12s, transform .12s; }
+.vv-tipwrap > .vv-tip--below { bottom: auto; top: calc(100% + 8px); transform: translate(-50%, -4px); }
+.vv-tipwrap > .vv-tip--below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--vv-selected-2); }
+.vv-tipwrap:hover > .vv-tip, .vv-tipwrap:focus-within > .vv-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: .4s; }
+
+/* ---------- Tiến độ, đang tải, trống ---------- */
+.vv-progress { height: 4px; border-radius: var(--vv-r-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.vv-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vv-accent); }
+.vv-progress--working > span { background: var(--vv-st-working); }
+.vv-progress--artist > span { background: var(--vv-artist-ink); }
+.vv-progress--ready > span { background: var(--vv-st-ready); }
+.vv-progress--issue > span { background: var(--vv-st-issue); }
+.vv-spinner { width: 14px; height: 14px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,.16); border-top-color: var(--vv-text); animation: vv-spin .9s linear infinite; }
+.vv-skel { border-radius: 6px; background: linear-gradient(90deg, var(--vv-skel-a) 0%, var(--vv-skel-b) 40%, var(--vv-skel-a) 80%); background-size: 200% 100%; animation: vv-skel 1.4s linear infinite; }
+.vv-shimmer { background: linear-gradient(90deg, var(--vv-text-3) 0%, var(--vv-text-3) 35%, #FFE3E8 50%, var(--vv-text-3) 65%, var(--vv-text-3) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: vv-shim 2.4s linear infinite; }
+.vv-wait { background: repeating-linear-gradient(135deg, #121214 0 8px, #16161A 8px 16px); }
+.vv-empty { padding: 18px; border-radius: var(--vv-r-tile); border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.vv-empty__icon { width: 40px; height: 40px; border-radius: var(--vv-r-tile); background: var(--vv-accent-bg); color: var(--vv-accent); display: flex; align-items: center; justify-content: center; }
+.vv-empty__icon > .ic, .vv-empty__icon > .vv-ic { width: 19px; height: 19px; }
+.vv-empty__title { font-size: 13.5px; font-weight: 500; }
+.vv-empty__text { font-size: 12px; color: var(--vv-text-hint); }
+@keyframes vv-spin { to { transform: rotate(360deg); } }
+@keyframes vv-skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes vv-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ---------- Bề mặt ---------- */
+.vv-card { background: var(--vv-card); border: 1px solid var(--vv-card-border); box-shadow: var(--vv-card-shadow); border-radius: var(--vv-r-card); }
+.vv-card__title { font-size: var(--vv-fs-card); font-weight: 600; }
+.vv-stage { position: relative; border-radius: var(--vv-r-dialog); border: 1px solid var(--vv-card-border); background: var(--vv-stage); }
+.vv-row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px 0 12px; border-radius: 10px; color: var(--vv-text); text-decoration: none; }
+.vv-row:hover { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on, .vv-row.is-open { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.vv-row__more { opacity: 0; transition: opacity .12s; }
+.vv-row:hover .vv-row__more, .vv-row.is-open .vv-row__more, .vv-row__more[aria-expanded="true"] { opacity: 1; }
+.vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
+@media (hover: none) { .vv-row__more { opacity: 1; } }
+.vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+.vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
+.vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
+.vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
+.vv-thumb__bl { left: 6px; } .vv-thumb__br { right: 6px; }
+.vv-thumb__dur { height: 20px; padding: 0 5px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,.75); font-family: var(--vv-font-mono); font-size: 10.5px; color: var(--vv-text); }
+.vv-orb--scout { background: var(--vv-orb-scout); } .vv-orb--director { background: var(--vv-orb-director); }
+.vv-orb--artist { background: var(--vv-orb-artist); } .vv-orb--qa { background: var(--vv-orb-qa); }
+
+/* ---------- Hộp thoại & sheet ---------- */
+.vv-scrim { position: absolute; inset: 0; background: var(--vv-scrim); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.vv-scrim--center { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.vv-dialog { width: 460px; max-width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-radius: var(--vv-r-dialog); background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); font-size: var(--vv-fs-ui); }
+.vv-dialog__head { display: flex; gap: 14px; align-items: flex-start; }
+.vv-dialog__icon { width: 42px; height: 42px; flex: 0 0 auto; border-radius: var(--vv-r-tile); display: flex; align-items: center; justify-content: center; background: var(--vv-accent-bg); color: var(--vv-accent); }
+.vv-dialog__icon > .ic, .vv-dialog__icon > .vv-ic { width: 20px; height: 20px; }
+.vv-dialog__icon--warn { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-dialog__icon--danger { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-dialog__icon--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-dialog__icon--agent { border-radius: 50%; }
+.vv-dialog__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.vv-dialog__title { margin: 0; font-size: var(--vv-fs-dialog); font-weight: 600; line-height: 1.4; }
+.vv-dialog__sub { margin: 0; font-size: 13.5px; color: var(--vv-text-soft); line-height: 1.55; }
+.vv-dialog__list { margin: 0; padding: 10px 12px; border-radius: var(--vv-r-choice); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--vv-text-2); line-height: 1.55; }
+ul.vv-dialog__list { padding-left: 30px; }
+.vv-dialog__list--danger { background: rgba(255,154,92,.05); border-color: rgba(255,154,92,.16); }
+.vv-dialog__compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vv-dialog__ver { padding: 10px 12px; border-radius: 10px; background: var(--vv-field); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.vv-dialog__ver--new { border-color: var(--vv-st-ready-border); }
+.vv-dialog__err { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,154,92,.08); border: 1px solid rgba(255,154,92,.25); font-size: 12.5px; color: var(--vv-danger-text-2); }
+.vv-dialog__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vv-scrim-in { animation: vv-fade .2s ease-out both; } .vv-scrim-out { animation: vv-fade .2s ease-in reverse both; }
+.vv-dlg-in { animation: vv-dlgIn var(--vv-dur-dialog) cubic-bezier(.2,.9,.25,1.08) both; }
+.vv-dlg-out { animation: vv-dlgOut .18s cubic-bezier(.5,0,.75,0) both; }
+.vv-shake { animation: vv-shake .38s cubic-bezier(.36,.07,.19,.97); }
+.vv-tick-in { animation: vv-tick .3s cubic-bezier(.2,.9,.3,1.5) both; }
+@keyframes vv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vv-dlgIn { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes vv-dlgOut { to { opacity: 0; transform: translateY(6px) scale(.97); } }
+@keyframes vv-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes vv-tick { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.vv-sheet { display: flex; flex-direction: column; max-height: 86%; border-radius: var(--vv-r-sheet) var(--vv-r-sheet) 0 0; background: var(--vv-dialog); border-top: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); }
+.vv-sheet__grab { display: flex; justify-content: center; padding: 8px 0 2px; }
+.vv-sheet__grab::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.vv-sheet__title { padding: 6px 16px 10px; font-size: var(--vv-fs-sheet); font-weight: 600; line-height: 1.35; }
+
+/* ---------- Điện thoại: đầu trang & thanh dưới ---------- */
+.vv-appbar { height: var(--vv-m-bar); padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+.vv-navbar { height: var(--vv-m-bar); padding: 0 6px; display: flex; align-items: center; gap: 2px; }
+.vv-navbar__title { flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-navbar__title > b { font-size: var(--vv-fs-nav-m); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-navbar__title > span { font-size: 12px; color: var(--vv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-ib { width: 44px; height: 44px; flex: 0 0 auto; border: none; border-radius: 12px; background: transparent; color: var(--vv-text-2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.vv-title-m { margin: 0; font-size: var(--vv-fs-title-m); font-weight: 600; letter-spacing: -.02em; }
+.vv-tabbar { position: absolute; left: 14px; right: 14px; bottom: 30px; height: var(--vv-m-tabbar); transition: transform .42s cubic-bezier(.2,.9,.25,1), opacity .3s; }
+.vv-tabbar.is-mini { transform: translateY(8px) scale(.92); }
+.vv-tabbar.is-mini .vv-tabbar__label { opacity: 0; max-height: 0; margin-top: -2px; }
+.vv-tabbar__cap { position: relative; height: 100%; display: flex; padding: 5px; border-radius: 32px; background: var(--vv-glass); -webkit-backdrop-filter: blur(26px) saturate(180%); backdrop-filter: blur(26px) saturate(180%); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 22px 44px -14px rgba(0,0,0,.85), 0 2px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09); }
+.vv-tabbar__ind { position: absolute; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5); left: calc(5px + var(--i, 0) * (100% - 10px) / 5); border-radius: 27px; background: rgba(255,51,82,.13); border: 1px solid rgba(255,77,99,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px -4px rgba(255,0,51,.45); transition: left .45s cubic-bezier(.2,.9,.25,1.15); }
+.vv-tabbar__item { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; font-size: 10.5px; font-weight: 500; color: var(--vv-text-hint); text-decoration: none; }
+.vv-tabbar__item[aria-current="page"] { color: #FFE3E8; font-weight: 600; }
+.vv-tabbar__item[aria-current="page"] .vv-ic, .vv-tabbar__item[aria-current="page"] .ic { color: var(--vv-accent); transform: translateY(-1px) scale(1.06); }
+.vv-tabbar__item .vv-ic, .vv-tabbar__item .ic { width: 24px; height: 24px; transition: transform .35s cubic-bezier(.2,.9,.3,1.4); }
+.vv-tabbar__label { max-height: 16px; line-height: 16px; white-space: nowrap; transition: opacity .2s, max-height .3s, margin .3s; }
+.vv-tabbar__new { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); box-shadow: 0 8px 20px -6px rgba(255,0,51,.7), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
+.vv-tabbar__badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--vv-st-review); color: var(--vv-bg); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A1A1D; }
+
+/* ---------- Trợ lý chủ động (đợt 16, đổi theme đợt 19) ---------- */
+/* Màu trợ lý truyền qua --ag (chữ) trên phần tử gốc: style="--ag: var(--vv-scout-ink)". */
+.vv-why { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 2px; border: none; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12px; white-space: nowrap; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; cursor: pointer; }
+.vv-why:hover, .vv-why[aria-expanded="true"] { color: var(--vv-text); }
+.vv-reason { width: 320px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); font-size: var(--vv-fs-ui); line-height: 1.5; color: var(--vv-text-soft); }
+.vv-reason__head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ag, var(--vv-text-3)); font-weight: 600; }
+.vv-reason__text { color: var(--vv-text); font-size: 13.5px; }
+.vv-reason__facts { display: flex; flex-direction: column; border-top: 1px solid var(--vv-hairline); }
+.vv-reason__fact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--vv-hairline); }
+.vv-reason__fact b { max-width: 190px; font-weight: 600; color: var(--vv-text); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.45; }
+.vv-reason__src { grid-column: 1 / -1; font-size: var(--vv-fs-small); color: var(--vv-muted); }
+.vv-reason__fix { font-size: 12.5px; color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+.vv-suggest { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 12px; border-radius: var(--vv-r-tile); background: var(--vv-surface-1); border: 1px solid var(--vv-card-border); }
+.vv-suggest > .vv-orb { grid-row: span 3; margin-top: 2px; }
+.vv-suggest__who { font-size: var(--vv-fs-small); font-weight: 600; color: var(--ag, var(--vv-text-3)); }
+.vv-suggest__title { font-size: 13.5px; line-height: 1.45; color: var(--vv-text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vv-suggest__ev { font-size: 12px; line-height: 1.45; color: var(--vv-muted); display: flex; flex-wrap: wrap; gap: 0 8px; align-items: center; }
+.vv-suggest__actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.vv-suggest__actions > .vv-btn:first-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vv-suggest--compact { padding: 10px; gap: 2px 8px; }
+.vv-suggest--compact .vv-suggest__title { font-size: var(--vv-fs-ui); }
+.vv-suggest--m { width: 288px; flex: 0 0 auto; padding: 14px; border-radius: var(--vv-r-card); scroll-snap-align: start; }
+
+.vv-recap { display: flex; flex-direction: column; gap: 18px; }
+.vv-recap__when { font-size: 12px; color: var(--vv-muted); }
+.vv-recap__lead { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--vv-text); text-wrap: balance; }
+.vv-recap__lead em { font-style: normal; }
+.vv-recap__sec { display: flex; flex-direction: column; gap: 8px; }
+.vv-recap__line { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: 10px; background: var(--vv-surface-1); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-recap__line > .vv-ic, .vv-recap__line > .ic { color: var(--vv-text-3); }
+.vv-recap__text { flex: 1; min-width: 0; }
+.vv-recap__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.vv-recap__tile { padding: 10px 12px; border-radius: 10px; background: var(--vv-surface-1); display: flex; flex-direction: column; gap: 2px; }
+.vv-recap__tile b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-recap__tile span { font-size: 12px; color: var(--vv-muted); }
+
+.vv-autonomy { display: flex; flex-direction: column; gap: 12px; }
+.vv-arow { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 4px 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-arow__label { font-size: 13.5px; color: var(--vv-text); }
+.vv-arow__hint { font-size: 12px; color: var(--vv-muted); line-height: 1.45; }
+.vv-arow--stack { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.vv-arow--m { grid-template-columns: minmax(0, 1fr); min-height: var(--vv-m-row); }
+.vv-guard { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); font-size: 12.5px; color: var(--vv-text-3); line-height: 1.5; }
+
+.vv-rule { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-rule > .vv-switch { grid-row: span 2; margin-top: 1px; }
+.vv-rule__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-rule__src { font-size: 12px; color: var(--vv-muted); }
+.vv-rule__actions { grid-row: span 2; display: flex; gap: 4px; }
+
+.vv-learn { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; align-items: start; padding: 10px 12px; border-radius: var(--vv-r-tile); background: var(--vv-director-bg); border: 1px solid rgba(184,156,255,.22); font-size: 12.5px; line-height: 1.5; color: #D6C9FF; }
+.vv-learn > .vv-orb { margin-top: 2px; }
+.vv-learn__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.vv-learn__text { min-width: 0; }
+.vv-learn--artist { background: rgba(255,208,138,.07); border-color: rgba(255,208,138,.22); color: #FFE2B5; }
+
+.vv-plan { display: flex; flex-direction: column; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); overflow: hidden; }
+.vv-plan__head { padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 2px; }
+.vv-plan__head b { font-size: 14px; font-weight: 600; }
+.vv-plan__head span { font-size: 12px; color: var(--vv-muted); }
+.vv-plan__step { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--vv-hairline); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-plan__step b { display: block; font-weight: 500; color: var(--vv-text); line-height: 1.4; }
+.vv-plan__step small { display: block; font-size: 12px; color: var(--vv-muted); line-height: 1.4; }
+.vv-plan__step[aria-checked="false"] b, .vv-plan__step[aria-checked="false"] small { opacity: .5; text-decoration: line-through; }
+.vv-plan__cost { font-size: 12px; color: var(--vv-text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-plan__foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--vv-hairline); background: rgba(255,255,255,.02); }
+.vv-plan__foot > span { flex: 1; font-size: 12.5px; color: var(--vv-text-3); }
+.vv-plan__ask { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+
+.vv-insight { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-insight__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-insight__bars { grid-column: 1; display: flex; flex-direction: column; gap: 4px; }
+.vv-insight__bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 8px; align-items: center; font-size: 12px; color: var(--vv-text-3); }
+.vv-insight__bar > i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.vv-insight__bar > i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w, 50%); border-radius: 3px; background: var(--c, var(--vv-scout-ink)); }
+.vv-insight__bar > b { font-weight: 500; color: var(--vv-text-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+.vv-imgscore { height: 20px; padding: 0 6px; display: inline-flex; align-items: center; gap: 3px; border-radius: var(--vv-r-tag); background: rgba(0,0,0,.72); color: var(--vv-qa-ink); font-size: var(--vv-fs-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-imgscore--low { background: var(--vv-st-issue); color: var(--vv-danger-fg); }
+.vv-why--m { height: 44px; padding: 0 6px; }
+.vv-reason__fix--m { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- Chuyển động của điều khiển (Noverse motion:controls v1) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vv-check[aria-checked="true"], .vv-check.is-on { animation: vv-pop .34s cubic-bezier(.34,1.56,.64,1); }
+  .vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { animation: vv-dot .32s cubic-bezier(.34,1.56,.64,1); }
+}
+@keyframes vv-pop { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* /r16-agent */
+</style>
+</helmet>
+<div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 260px">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 64 64" style="flex: 0 0 auto; margin: 0 1px"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient><radialGradient id="lnHalo" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#FF0033" stop-opacity=".22"></stop><stop offset="1" stop-color="#FF0033" stop-opacity="0"></stop></radialGradient><linearGradient id="lnGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"></stop><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".18"></stop></linearGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Kênh của tôi</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-workbench" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn dựng</a>
+<a class="navl" href="Review.dc.html" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-gallery" aria-hidden="true" style="width: 16px; height: 16px"></span>Duyệt<span class="num" style="min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: rgba(246,203,140,0.16); color: #F6CB8C; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">3</span></a>
+<a href="Channel.dc.html" aria-current="page" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-channel" aria-hidden="true" style="width: 16px; height: 16px; color: #FF4D63"></span>Kênh</a>
+<a class="navl" href="Explore.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Khám phá</a>
+<a class="navl" href="NewVideo.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Activity.dc.html" title="Máy đang chạy 2/2 luồng · 12 video chờ lượt" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="rec" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 đang chạy · 12 chờ lượt</span></a>
+<a class="ghost" href="Settings.dc.html" aria-label="Cài đặt · 1 việc cần xem" title="Cài đặt · tài khoản ChatGPT sắp hết hạn mức ảnh" style="position: relative; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span><span aria-hidden="true" style="position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: #FF4D63; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
+<div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
+</div>
+</header>
+
+<div class="body" style="flex: 1; min-height: 0; display: flex">
+
+<aside class="side scroll" aria-label="Kênh và thư viện" style="flex: 0 0 252px; max-width: 252px; min-height: 0; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid rgba(255,255,255,0.06)">
+<a class="row" href="#" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 4px; border-radius: 10px; color: #C9C9D1; font-size: 13px"><span class="ic i-video-play" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span style="flex: 1">Mọi video của {{chN}} kênh</span><span class="num" style="font-size: 12px; color: #8B8B97">31</span></a>
+<div class="grp" style="padding-top: 4px"><span>Kênh của tôi</span><span class="num" style="font-weight: 500">{{chN}}</span></div>
+<sc-for list="{{channels}}" as="c" hint-placeholder-count="3">
+<a class="row" href="#" aria-current="{{c.current}}" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: {{c.bg}}; border: 1px solid {{c.bd}}">
+<span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: {{c.tint}}; border: 1.5px solid {{c.ring}}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; flex: 0 0 auto">{{c.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.name}}</span>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.sub}}</span>
+</span>
+<sc-if value="{{c.hasDot}}" hint-placeholder-val="{{ false }}"><span aria-label="{{c.dotLabel}}" role="img" style="width: 8px; height: 8px; border-radius: 50%; background: {{c.dot}}; flex: 0 0 auto"></span></sc-if>
+</a>
+</sc-for>
+<a class="ghost" href="CreateChannel.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Tạo kênh</a>
+
+<div class="grp"><span>Thư viện dùng chung</span></div>
+<sc-for list="{{library}}" as="l" hint-placeholder-count="4">
+<a class="row" href="{{l.href}}" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; color: #C9C9D1; font-size: 13px">
+<span class="ic {{l.icon}}" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span>
+<span style="flex: 1">{{l.label}}</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">{{l.count}}</span>
+</a>
+</sc-for>
+
+<div style="margin-top: auto; padding: 12px 10px 0">
+<div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(166,237,193,0.25); color: #A6EDC1; font-size: 12.5px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Máy sẵn sàng · 2/2 luồng</div>
+</div>
+</aside>
+
+<main class="center scroll" style="flex: 1 1 560px; min-width: 0; min-height: 0; overflow-y: auto; padding: 18px 26px 0; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 18px">
+<!-- r21-empty --><span aria-hidden="true" style="width: 64px; height: 64px; border-radius: 50%; flex: 0 0 auto; background: {{hd.tint}}; border: 2px solid {{hd.ring}}; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{hd.ini}}</span>
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<span class="chip" style="color: #A6EDC1; border-color: rgba(166,237,193,0.25); background: rgba(166,237,193,0.06)"><span class="ic i-refresh" aria-hidden="true" style="width: 13px; height: 13px"></span>Tự chủ · {{presetLabel}}</span>
+<span class="chip">Tiếng Anh</span>
+
+</div>
+<h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2">{{hd.name}}</h1>
+<span title="{{hd.subTip}}" style="font-size: 13px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{hd.sub}}</span>
+</div>
+<div style="display: flex; gap: 6px; flex: 0 0 auto">
+<a class="ghost" href="#" style="height: 34px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 13px"><span class="ic i-link" aria-hidden="true" style="width: 15px; height: 15px"></span>{{hd.yt}}</a>
+<a class="primary" href="NewVideo.dc.html" style="height: 34px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 8px; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-video-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Video mới cho kênh</a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 10px">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+<div class="card" style="border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #8B8B97">{{s.k}}</span>
+<span class="num" style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: {{s.color}}">{{s.v}}</span>
+<span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.s}}</span>
+</div>
+</sc-for>
+</div>
+
+<div role="tablist" aria-label="Trang kênh" style="display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="4">
+<button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="height: 38px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border: none; border-bottom: 2px solid {{tb.line}}; margin-bottom: -1px; background: transparent; color: {{tb.fg}}; font-size: 13.5px; font-weight: {{tb.weight}}">{{tb.label}}<sc-if value="{{tb.hasCount}}" hint-placeholder-val="{{ true }}"><span class="num" style="font-size: 12px; color: #8B8B97">{{tb.count}}</span></sc-if></button>
+</sc-for>
+</div>
+
+<sc-if value="{{tabVideos}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{fresh}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Video của kênh" class="card" style="border-radius: 16px; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center"><h2 style="margin: 0; font-size: 17px; font-weight: 600">Kênh chưa có video</h2><p style="margin: 0; max-width: 560px; font-size: 13.5px; color: #A0A0AB; line-height: 1.6">Tự lấy video đang bật: video đối thủ đăng từ giờ sẽ tự vào hàng chờ. Muốn có video ngay thì làm video mới nhất của đối thủ.</p><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; width: min(760px, 100%); margin-top: 6px; text-align: left"><div style="padding: 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 10px"><span style="font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #8B8B97">Video mới nhất của đối thủ</span><div style="display: flex; gap: 10px; align-items: center"><span aria-hidden="true" style="position: relative; width: 96px; height: 54px; border-radius: 8px; flex: 0 0 auto; overflow: hidden; background: url(../img/k_lakehouse.jpg) center / cover no-repeat"><span class="num mono" style="position: absolute; right: 4px; bottom: 3px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.75); font-size: 10px">48:40</span></span><span style="min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500; line-height: 1.35">The Lake House Guestbook Had One More Name</span><span class="num" style="font-size: 12px; color: #8B8B97">Nocturne Stories · 1 ngày · ×2,7</span></span></div><a class="vv-btn vv-btn--sm vv-btn--primary" href="NewVideo.dc.html" style="align-self: flex-start"><span class="ic i-video-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Làm video cho kênh</a></div><div style="padding: 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 10px"><span style="font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #8B8B97">Tự lấy video</span><div style="display: flex; align-items: center; gap: 10px"><span class="orb o-scout" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="flex: 1; font-size: 13px; color: #C9C9D1; line-height: 1.5">Trinh sát xem 2 đối thủ mỗi giờ, đưa video mới đăng vào cuối hàng chờ.</span><span class="vv-tag" style="color: #A6EDC1; background: rgba(166,237,193,0.08); border-color: transparent">Đang bật</span></div><span class="num" style="display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #8B8B97"><span>Nhịp 5/ngày · xem gần nhất 23:30</span><button type="button" class="vv-link" onClick="{{goSources}}" style="background: none; border: none; padding: 0; color: #C9C9D1; font: inherit; cursor: pointer; white-space: nowrap">Đổi nhịp ›</button></span></div></div></section>
+</sc-if>
+<sc-if value="{{notFresh}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Video của kênh" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<div role="radiogroup" aria-label="Lọc theo trạng thái" style="display: flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="7">
+<button type="button" role="radio" aria-checked="{{f.on}}" onClick="{{f.pick}}" style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: none; background: {{f.bg}}; color: {{f.fg}}; font-size: 12.5px; white-space: nowrap"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{f.dot}}"></span>{{f.label}}<span class="num" style="color: #8B8B97">{{f.count}}</span></button>
+</sc-for>
+</div>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{toggleSelect}}" aria-pressed="{{selectAttr}}" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid {{selBd}}; background: {{selBg}}; color: #EDEDEF; font-size: 13px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; color: {{selIc}}"></span>{{selText}}</button>
+<sc-if value="{{notSelect}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Tải gói đã xong</button></sc-if>
+</div>
+
+<sc-if value="{{showInsTeaser}}" hint-placeholder-val="{{ true }}">
+<button type="button" class="vv-suggest" onClick="{{goPosted}}" style="grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; text-align: left; cursor: pointer; color: inherit; font: inherit; --ag: var(--vv-scout-ink)"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 18px; height: 18px; grid-row: auto; margin: 0"></span><span style="display: flex; flex-direction: column; gap: 1px; min-width: 0"><span style="font-size: 13.5px">Trợ lý nhận ra 2 điều từ 7 video có số 7 ngày</span><span class="vv-suggest__ev">Tiêu đề dạng câu hỏi ×1,8 · Mẫu chuẩn ×1,4 so với Cận cảnh · Sơ bộ</span></span><span style="font-size: 12.5px; color: #A0A0AB; white-space: nowrap">Xem ở Đã đăng ›</span></button>
+</sc-if>
+<sc-if value="{{showIns}}" hint-placeholder-val="{{ true }}">
+<section class="card" aria-label="Trợ lý nhận ra" style="border-radius: 14px; padding: 2px 16px 4px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 0 8px"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 18px; height: 18px"></span><b style="font-size: 14px; font-weight: 600">Trợ lý nhận ra</b><span class="vv-tag vv-tag--review">Sơ bộ · 7 video có số liệu 7 ngày</span><span style="flex: 1"></span><span class="vv-help">So theo lượt xem 7 ngày · không tự áp dụng</span></div>
+<div class="vv-insight"><div class="vv-insight__text">Tiêu đề dạng câu hỏi được xem gấp 1,8 lần sau 7 ngày</div><button class="vv-btn vv-btn--sm" type="button">Thêm vào quy tắc viết</button><div class="vv-insight__bars"><div class="vv-insight__bar"><span>Câu hỏi · 3 video</span><i style="--w: 90%; --c: var(--vv-scout-ink)"></i><b>8,1 N</b></div><div class="vv-insight__bar"><span>Không phải câu hỏi · 4</span><i style="--w: 50%; --c: rgba(255,255,255,.3)"></i><b>4,5 N</b></div></div></div><div class="vv-insight"><div class="vv-insight__text">Template Mẫu chuẩn · Tách nền được xem gấp 1,4 lần Cận cảnh</div><button class="vv-btn vv-btn--sm" type="button">Cho chạy nhiều hơn</button><div class="vv-insight__bars"><div class="vv-insight__bar"><span>Mẫu chuẩn · 4 video</span><i style="--w: 80%; --c: var(--vv-scout-ink)"></i><b>6,9 N</b></div><div class="vv-insight__bar"><span>Cận cảnh · 3 video</span><i style="--w: 57%; --c: rgba(255,255,255,.3)"></i><b>4,9 N</b></div></div></div>
+</section>
+</sc-if>
+<div class="card" style="border-radius: 14px; overflow-x: auto">
+<div class="vtable" role="table" aria-label="Danh sách video" style="display: flex; flex-direction: column">
+<div class="vg" role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 168px 132px 128px; gap: 12px; padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #8B8B97">
+<span role="columnheader">Video</span><span role="columnheader">Trạng thái</span><span class="c-tpl" role="columnheader">Template</span><span role="columnheader" style="text-align: right">Việc tiếp</span>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div class="row vg" role="row" style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 168px 132px 128px; gap: 12px; align-items: center; padding: 8px 14px 8px {{padL}}; border-bottom: 1px solid rgba(255,255,255,0.04); background: {{r.selBg}}">
+<sc-if value="{{selectMode}}" hint-placeholder-val="{{ false }}"><button type="button" role="checkbox" aria-checked="{{r.selAttr}}" aria-label="Chọn {{r.title}}" onClick="{{r.toggle}}" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><span class="cbx" aria-hidden="true" style="width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid {{r.boxBd}}; background: {{r.boxBg}}; display: flex; align-items: center; justify-content: center; color: #0B0B0D; font-size: 12px; font-weight: 800">{{r.mark}}</span></button></sc-if>
+<a role="cell" href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; min-width: 0">
+<span aria-hidden="true" style="position: relative; width: 80px; height: 45px; border-radius: 7px; flex: 0 0 auto; overflow: hidden; background: {{r.bg}}; border: 1px solid rgba(255,255,255,0.06)"><span class="num mono" style="position: absolute; right: 4px; bottom: 3px; font-size: 10px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.72)">{{r.dur}}</span></span>
+<span style="min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="{{r.title}}">{{r.title}}</span>
+<span style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.src}}</span>
+</span>
+</a>
+<span role="cell" style="display: flex; flex-direction: column; gap: 1px; min-width: 0">
+<span style="display: flex; align-items: center; gap: 7px; font-size: 13px; color: {{r.stColor}}">
+<sc-if value="{{r.spin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 11px; height: 11px; border-top-color: {{r.stColor}}"></span></sc-if>
+<sc-if value="{{r.notSpin}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{r.stColor}}"></span></sc-if>
+{{r.st}}</span>
+<span style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 14px">{{r.stSub}}</span>
+</span>
+<span class="c-tpl" role="cell" style="font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.tpl}}</span>
+<span role="cell" style="display: flex; justify-content: flex-end; gap: 4px">
+<sc-if value="{{r.hasAct}}" hint-placeholder-val="{{ false }}"><a class="{{r.actCls}}" href="Main.dc.html" style="height: 28px; padding: 0 10px; display: flex; align-items: center; border-radius: 7px; border: {{r.actBd}}; background: {{r.actBg}}; color: {{r.actFg}}; font-size: 12.5px; font-weight: {{r.actFw}}; white-space: nowrap">{{r.act}}</a></sc-if>
+<button class="ghost" type="button" aria-label="Thêm thao tác cho {{r.title}}" style="width: 28px; height: 28px; border-radius: 7px; border: none; background: transparent; color: #8B8B97; display: flex; align-items: center; justify-content: center"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</span>
+</div>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 32px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center"><span class="ic i-video-play" aria-hidden="true" style="width: 22px; height: 22px; color: #8B8B97"></span><span style="font-size: 13.5px; color: #C9C9D1">Không có video nào ở trạng thái này</span><button class="ghost" type="button" onClick="{{showAll}}" style="height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px">Hiện mọi video</button></div>
+</sc-if>
+</div>
+</div>
+<sc-if value="{{filterAll}}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; color: #8B8B97; padding: 0 2px">Hiện 9 video gần nhất trong 18 · cuộn để tải thêm</span></sc-if>
+</section>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{tabSources}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Nguồn và tự động" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 14px; align-items: start">
+<div class="card" style="border-radius: 14px; padding: 6px 0 0; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 14px">
+<h2 class="h3"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Đối thủ liên kết <span class="num" style="color: #8B8B97; font-weight: 400">{{rivalN}}</span></h2>
+<div style="position: relative"><button class="ghost" type="button" aria-haspopup="dialog" aria-expanded="{{linkOpenA}}" onClick="{{toggleLink}}" style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: {{linkBtnBg}}; color: #EDEDEF; font-size: 12.5px"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Liên kết đối thủ</button>
+<sc-if value="{{linkOpen}}" hint-placeholder-val="{{ false }}"><div class="card" role="dialog" aria-label="Liên kết đối thủ" style="position: absolute; z-index: 30; right: 0; top: calc(100% + 6px); width: 340px; border-radius: 14px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); padding: 6px; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 600">Liên kết đối thủ với Midnight Tales</span><span style="font-size: 12px; color: #8B8B97; line-height: 1.45">Chọn từ đối thủ đang theo dõi. Tự lấy video bắt đầu tính video mới từ lúc liên kết.</span></div>
+<div role="group" aria-label="Đối thủ đang theo dõi" style="display: flex; flex-direction: column">
+<sc-for list="{{linkList}}" as="l" hint-placeholder-count="5"><button class="ghost" type="button" role="checkbox" aria-checked="{{l.on}}" aria-disabled="{{l.dis}}" onClick="{{l.pick}}" title="{{l.tip}}" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; border: none; background: transparent; color: #EDEDEF; text-align: left; opacity: {{l.op}}"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid {{l.boxBd}}; background: {{l.boxBg}}; display: flex; align-items: center; justify-content: center; color: #0B0B0D; flex: 0 0 auto"><sc-if value="{{l.checked}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" style="width: 14px; height: 14px"></span></sc-if></span><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 50%; flex: 0 0 auto; background: {{l.bg}}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700">{{l.ini}}</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">{{l.name}}</span><span style="font-size: 11.5px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.sub}}</span></span></button></sc-for>
+</div>
+<div style="padding: 6px 8px 4px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2px"><a href="Explore.dc.html" style="flex: 1; font-size: 12.5px; color: #A0A0AB; display: flex; align-items: center; gap: 5px"><span class="ic i-radar" aria-hidden="true" style="width: 13px; height: 13px"></span>Theo dõi đối thủ mới ở Khám phá</a><button type="button" aria-disabled="{{linkDis}}" style="height: 30px; padding: 0 12px; border-radius: 8px; border: none; background: {{linkBg}}; color: {{linkFg}}; font-size: 12.5px; font-weight: 600">{{linkBtn}}</button></div>
+</div></sc-if></div>
+</div>
+<sc-if value="{{noRivals}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin: 0 14px 12px; padding: 16px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.14); display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><span style="font-size: 14px; font-weight: 600">Chưa liên kết đối thủ nào</span><span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.55">Tự lấy video tạm dừng vì không có nguồn. Video đã làm và nhận diện kênh giữ nguyên; lần tạo lại nhận diện sau cần một đối thủ tham chiếu.</span><button type="button" onClick="{{toggleLink}}" style="height: 32px; padding: 0 12px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Liên kết đối thủ</button></div></sc-if>
+<sc-for list="{{rivals}}" as="v" hint-placeholder-count="3">
+<div style="padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 50%; background: {{v.bg}}; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #FFFFFF">{{v.ini}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><span style="font-size: 14px; font-weight: 500">{{v.name}}</span><sc-if value="{{v.isRef}}" hint-placeholder-val="{{ false }}"><span title="Tên, mô tả, avatar, ảnh bìa kênh và phong cách nhận diện lấy từ đối thủ này (đối thủ liên kết sớm nhất)" style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,208,138,0.1); color: #FFD08A; font-size: 11px">Tham chiếu nhận diện</span></sc-if></span>
+<span style="font-size: 12px; color: #8B8B97">{{v.meta}}</span>
+</div>
+<span class="chip" style="color: {{v.scanColor}}">{{v.scan}}</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px"><span class="ic i-video-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Làm video mới nhất</button>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px"><span class="ic i-trend" aria-hidden="true" style="width: 14px; height: 14px"></span>Chọn video nổi trội</button>
+<a class="ghost" href="Explore.dc.html" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; color: #A0A0AB; font-size: 12.5px">Mở trong Khám phá<span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></a>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" title="{{v.unlinkTip}}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px">Bỏ liên kết</button>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div class="card" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: flex-start; gap: 12px">
+<span class="orb o-scout live" aria-hidden="true" style="width: 22px; height: 22px; margin-top: 2px"></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">Nhịp và ưu tiên</span>
+<span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">Trinh sát xem đối thủ mỗi giờ. Lấy video nào do Mức tự chủ bên dưới quyết định.</span><sc-if value="{{noRivals}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #F6CB8C">Tạm dừng · cần ít nhất một đối thủ liên kết</span></sc-if>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<span style="font-size: 13px; color: #C9C9D1">Nhịp mỗi ngày</span>
+<span style="display: flex; align-items: stretch; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; overflow: hidden">
+<button class="ghost" type="button" aria-label="Giảm" onClick="{{dec}}" style="width: 36px; height: 100%; border-radius: 0; border: none; background: transparent; color: #EDEDEF"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button>
+<span class="num mono" aria-live="polite" style="min-width: 52px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); font-size: 13px">{{perDay}}</span>
+<button class="ghost" type="button" aria-label="Tăng" onClick="{{inc}}" style="width: 36px; height: 100%; border-radius: 0; border: none; background: transparent; color: #EDEDEF"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px; vertical-align: middle"></span></button>
+</span>
+<span style="font-size: 12.5px; color: #8B8B97">video mỗi ngày</span>
+<span style="flex-basis: 100%; font-size: 12px; color: #8B8B97">Nhịp này áp cho video tự lấy và video thêm hàng loạt. Video bạn chọn từng cái luôn được làm trước, không tính vào nhịp.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span id="prio-l" style="font-size: 12.5px; color: #A0A0AB">Ưu tiên kênh</span><div class="vv-seg" role="radiogroup" aria-labelledby="prio-l" style="align-self: flex-start"><sc-for list="{{prios}}" as="o" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div><span class="vv-help">{{prioHint}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #8B8B97"><span>Hôm nay <b class="num" style="color: #EDEDEF; font-weight: 500">3/{{perDay}}</b> · lần xem gần nhất 23:30</span><button class="ghost" type="button" style="height: 26px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; color: #FF4D63; font-size: 12.5px">Xem ngay</button></div>
+</div>
+
+<div class="card" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: flex-start; gap: 12px">
+<span aria-hidden="true" style="position: relative; width: 22px; height: 22px; margin-top: 2px; flex: 0 0 auto"><span class="vv-orb vv-orb--qa" style="position: absolute; left: 0; top: 0; width: 14px; height: 14px"></span><span class="vv-orb vv-orb--artist" style="position: absolute; right: 0; bottom: 0; width: 14px; height: 14px"></span></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 600">Mức tự chủ</span><sc-if value="{{isCustom}}" hint-placeholder-val="{{ false }}"><span class="vv-tag">Tuỳ chỉnh</span></sc-if></span>
+<span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">Máy tự quyết tới đâu ở kênh này. Việc máy tự làm luôn được kể lại trong Bản tin, có Hoàn tác khi được.</span>
+</div>
+</div>
+<div class="vv-seg" role="radiogroup" aria-label="Mức tự chủ" style="align-self: flex-start"><sc-for list="{{presets}}" as="o" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="padding: 0 16px">{{o.label}}</button></sc-for></div>
+<div class="vv-autonomy" style="gap: 0">
+<sc-for list="{{arows}}" as="r" hint-placeholder-count="4">
+<div class="vv-arow vv-arow--stack"><div><div class="vv-arow__label">{{r.label}}</div><div class="vv-arow__hint">{{r.hint}}</div></div>
+<div style="position: relative"><button type="button" class="vv-fieldbox" aria-haspopup="listbox" aria-expanded="{{r.openA}}" onClick="{{r.toggle}}" style="width: 100%; justify-content: space-between; color: #EDEDEF; font-size: 13px; cursor: pointer">{{r.cur}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></button>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}"><div class="vv-menu" role="listbox" aria-label="{{r.label}}" style="position: absolute; left: 0; right: 0; top: 40px; z-index: 30"><sc-for list="{{r.opts}}" as="o" hint-placeholder-count="3"><button type="button" class="vv-menu__item" role="option" aria-selected="{{o.on}}" onClick="{{o.pick}}"><span style="flex: 1">{{o.label}}</span><sc-if value="{{o.onB}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px;"></span></sc-if></button></sc-for></div></sc-if>
+</div>
+<sc-if value="{{r.hasThr}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap"><span class="vv-help">Ngưỡng điểm ảnh</span><span class="vv-stepper" role="group" aria-label="Ngưỡng điểm ảnh"><button type="button" aria-label="Giảm 5" aria-disabled="{{r.thrDecDis}}" onClick="{{r.thrDec}}"><span class="ic i-minus" aria-hidden="true" style="width: 13px; height: 13px;"></span></button><output aria-live="polite">{{r.thr}}</output><button type="button" aria-label="Tăng 5" aria-disabled="{{r.thrIncDis}}" onClick="{{r.thrInc}}"><span class="ic i-add" aria-hidden="true" style="width: 13px; height: 13px;"></span></button></span><span class="vv-help">70–95 · bước 5</span></div></sc-if>
+</div>
+</sc-for>
+</div>
+<div class="vv-guard"><span class="ic i-info" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px"></span><span>Không bao giờ tự làm: đăng YouTube, xoá, đổi template hay prompt, bỏ liên kết đối thủ, tiêu ảnh trả phí quá giới hạn ngày.</span></div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{tabTemplates}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Template luân phiên" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); font-size: 13px; color: #C9C9D1"><span class="ic i-routing" aria-hidden="true" style="width: 16px; height: 16px"></span><span style="flex: 1">Mỗi video mới lấy template tiếp theo trong danh sách. Template đang lỗi được bỏ qua.</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{templates}}" as="t" hint-placeholder-count="3">
+<li class="card" style="border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 12px; border-color: {{t.bd}}">
+<span class="num mono" style="width: 22px; text-align: center; font-size: 12px; color: #8B8B97">{{t.n}}</span>
+<span aria-hidden="true" style="width: 112px; height: 63px; border-radius: 8px; flex: 0 0 auto; background: {{t.bg}}; border: 1px solid rgba(255,255,255,0.06)"></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="font-size: 14px; font-weight: 500">{{t.name}}</span><sc-if value="{{t.next}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,51,82,0.14); color: #FFB3BD; font-size: 11.5px">Video tiếp theo</span></sc-if></div>
+<span style="font-size: 12px; color: #8B8B97">{{t.recipe}}</span>
+</div>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: {{t.healthColor}}; white-space: nowrap"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{t.healthColor}}"></span>{{t.health}}</span>
+<a class="ghost" href="Template.dc.html" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px; white-space: nowrap"><span class="ic i-edit" aria-hidden="true" style="width: 14px; height: 14px"></span>Cài đặt</a>
+<button class="ghost" type="button" aria-label="Thêm thao tác cho {{t.name}}" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: #8B8B97; display: flex; align-items: center; justify-content: center"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</li>
+</sc-for>
+</ol>
+<button class="ghost" type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.16); background: transparent; color: #C9C9D1; font-size: 13px"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Thêm template từ thư viện</button>
+</section>
+</sc-if>
+
+<sc-if value="{{tabIdentity}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Nhận diện kênh" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 14px; align-items: start">
+<div class="card" style="border-radius: 14px; overflow: hidden">
+<div style="position: relative; overflow: hidden; aspect-ratio: 16 / 9; background: url(../img/ferryman.jpg) center / cover no-repeat">
+<sc-if value="{{idGen}}" hint-placeholder-val="{{ false }}"><div class="skel-img" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px"><span class="orb o-artist live" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="shimmer" style="font-size: 13.5px">Hoạ sĩ đang vẽ avatar và ảnh bìa kênh…</span><span style="font-size: 12px; color: #8B8B97">khoảng 1–3 phút · ảnh cũ giữ tới khi xong</span></div></sc-if>
+<sc-if value="{{safeOn}}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 60.4%; height: 29.4%; transform: translate(-50%, -50%); border: 1px dashed rgba(255,255,255,0.55); border-radius: 6px; box-shadow: 0 0 0 9999px rgba(11,11,13,0.45)"></div></sc-if>
+<span style="position: absolute; left: 10px; top: 10px; font-size: 11.5px; color: #C9C9D1; padding: 2px 7px; border-radius: 6px; background: rgba(11,11,13,0.7)">Ảnh bìa kênh 2560×1440</span>
+<button class="ghost" type="button" role="switch" aria-checked="{{safeAttr}}" onClick="{{toggleSafe}}" style="position: absolute; right: 10px; bottom: 10px; height: 28px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.14); background: rgba(11,11,13,0.78); color: #EDEDEF; font-size: 12px"><span aria-hidden="true" style="width: 26px; height: 15px; border-radius: 999px; padding: 2px; background: {{safeBg}}; display: flex; justify-content: {{safeJ}}"><span style="width: 11px; height: 11px; border-radius: 50%; background: #EDEDEF"></span></span>Vùng hiện trên điện thoại 1546×423</button>
+</div>
+<div style="padding: 12px 14px; display: flex; gap: 6px; flex-wrap: wrap">
+<button class="ghost" type="button" aria-disabled="{{idLockA}}" title="Vẽ lại ảnh bìa kênh theo phong cách nhận diện · 1 ảnh" style="opacity: {{idLockOp}}; height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Vẽ lại ảnh bìa kênh · 1 ảnh</button>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px"><span class="ic i-download" aria-hidden="true" style="width: 14px; height: 14px"></span>Tải avatar + ảnh bìa kênh</button>
+</div>
+</div>
+<div class="card" style="border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{idFail}}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,154,92,0.3); background: rgba(255,154,92,0.06); display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; color: #FFC09A; line-height: 1.55"><b style="font-weight: 600">Chưa vẽ được avatar và ảnh bìa.</b> ChatGPT hết hạn mức vẽ ảnh. Tên và mô tả kênh đã có; ảnh cũ (nếu có) được giữ.</span><span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"><button class="ghost" type="button" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap; border-color: rgba(255,154,92,0.45); color: #FFC09A"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Thử lại</button><span style="font-size: 12px; color: #8B8B97">Tự thử lại lúc 07:00</span></span></div></sc-if>
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap"><span aria-hidden="true" style="position: relative; width: 56px; height: 56px; border-radius: 50%; flex: 0 0 auto; background: url(../img/st_cutout.jpg) 50% 30% / 180% no-repeat; border: 2px solid #D79BFF"><sc-if value="{{idGen}}" hint-placeholder-val="{{ false }}"><span class="skel-img" style="position: absolute; inset: 0; border-radius: 50%"></span></sc-if></span><div style="flex: 1; min-width: 140px; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Midnight Tales</span><span style="font-size: 12px; color: {{idSubFg}}">{{idSub}}</span></div>
+<span style="display: flex; gap: 6px; flex-wrap: wrap"><button class="ghost" type="button" aria-disabled="{{idLockA}}" title="Vẽ lại avatar · 1 ảnh" style="opacity: {{idLockOp}}; height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Vẽ lại avatar · 1 ảnh</button><button class="ghost" type="button" aria-disabled="{{idLockA}}" title="Đạo diễn đề xuất tên mới cùng nghĩa với tên đối thủ tham chiếu" style="opacity: {{idLockOp}}; height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap"><span class="ic i-edit" aria-hidden="true" style="width: 14px; height: 14px"></span>Đặt tên khác</button></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span id="brief-l" class="h3">Mô tả kênh</span>
+<div role="textbox" aria-multiline="true" aria-labelledby="brief-l" tabindex="0" style="padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13.5px; line-height: 1.6; outline: none; font-size: 13px">Slow, unsettling stories told after midnight — hospitals, highways and the places nobody talks about.</div>
+<span style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #8B8B97"><span>Dán vào phần Giới thiệu trên YouTube. Đạo diễn viết từ mô tả đối thủ; bản bạn sửa là hướng cho lần tạo lại sau.</span><span class="num" style="white-space: nowrap">103 / 2.000</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)"><span class="h3"><span class="ic i-magic" aria-hidden="true" style="width: 15px; height: 15px; color: #FFD08A"></span>Phong cách nhận diện <span style="font-weight: 400; color: #8B8B97">· app tự rút</span></span>
+<p style="margin: 0; font-size: 13px; color: #C9C9D1; line-height: 1.6">Ảnh chụp điện ảnh tông xanh rêu, đèn trực vàng, nhân vật đứng một mình trong hành lang tối; tên kênh chữ trắng viền mảnh.</p>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55">Rút từ avatar và ảnh bìa của <b style="font-weight: 500; color: #C9C9D1">Nocturne Stories</b> (đối thủ tham chiếu), làm mới hoàn toàn. Dùng cho avatar, ảnh bìa kênh và ảnh video ở template chọn prompt <b style="font-weight: 500; color: #C9C9D1">Theo nhận diện kênh</b>.</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="iddir" style="font-size: 12.5px; color: #A0A0AB">Góp ý cho lần tạo lại <span style="color: #8B8B97">(tuỳ chọn)</span></label>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><input id="iddir" type="text" placeholder="ví dụ: ấm hơn, bớt tối, chữ tên kênh to hơn" style="flex: 1 1 220px; min-width: 0; height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13px; outline: none"><button class="ghost" type="button" aria-disabled="{{idLockA}}" title="Đặt lại tên, mô tả, phong cách, avatar và ảnh bìa · 2 ảnh" style="opacity: {{idLockOp}}; height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap; height: 34px"><span class="ic i-magic" aria-hidden="true" style="width: 14px; height: 14px"></span>Tạo lại cả bộ · 2 ảnh</button></div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55">Đạo diễn giữ ý của mô tả hiện tại, có thể đặt tên mới. Ảnh cũ giữ tới khi ảnh mới xong; video đã làm không đổi.</span></div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{tabSettings}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Thông tin và cài đặt kênh" style="display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 14px; align-items: start">
+<div class="card" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<h2 class="h3"><span class="ic i-setting" aria-hidden="true" style="width: 16px; height: 16px"></span>Thông tin kênh</h2>
+<label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12.5px; color: #A0A0AB">Tên kênh</span><input type="text" value="Midnight Tales" style="height: 38px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13.5px; outline: none; width: 100%; min-width: 0"></label>
+<label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12.5px; color: #A0A0AB">Link kênh YouTube</span><input type="url" value="youtube.com/@midnighttales.stories" style="height: 38px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13.5px; outline: none; width: 100%; min-width: 0"><span style="font-size: 12px; color: #8B8B97">Chỉ để mở nhanh kênh. App không đăng hay sửa gì trên YouTube.</span></label>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8B8B97"><span class="ic i-tick-b" aria-hidden="true" style="width: 14px; height: 14px; color: #A6EDC1"></span>Tự lưu khi bạn rời ô</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div class="card" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px"><span class="orb o-director" aria-hidden="true" style="width: 20px; height: 20px"></span><h2 class="h3" style="color: #EDEDEF; font-size: 14px; font-weight: 600">Khi viết tiêu đề, mô tả, tag</h2></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span id="lang-l" style="font-size: 12.5px; color: #A0A0AB">Ngôn ngữ video</span>
+<div role="radiogroup" aria-labelledby="lang-l" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06); align-self: flex-start">
+<button type="button" role="radio" aria-checked="true" style="height: 30px; padding: 0 12px; border-radius: 7px; border: none; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500">Tiếng Anh</button>
+<button type="button" role="radio" aria-checked="false" style="height: 30px; padding: 0 12px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; font-size: 13px">Tiếng Việt</button>
+<button type="button" role="radio" aria-checked="false" style="height: 30px; padding: 0 12px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; font-size: 13px">Theo đối thủ</button>
+</div>
+<span style="font-size: 12px; color: #8B8B97">“Theo đối thủ”: giữ ngôn ngữ của từng video nguồn.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="voice" style="font-size: 12.5px; color: #A0A0AB">Giọng văn</label>
+<textarea id="voice" rows="3" style="resize: vertical; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13.5px; line-height: 1.6; outline: none; font: inherit; font-size: 13.5px">Kể chậm, ngôi thứ nhất, không giật tít. Tiêu đề gợi tò mò nhưng đúng nội dung, không viết hoa cả câu.</textarea></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="footer" style="font-size: 12.5px; color: #A0A0AB">Đoạn cuối mô tả <span style="color: #8B8B97">· thêm nguyên văn vào cuối mọi mô tả</span></label>
+<textarea id="footer" rows="4" style="resize: vertical; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; font-size: 13.5px; line-height: 1.6; outline: none; font: inherit; font-size: 13px">New stories every night at 9 PM (New York time). Subscribe and turn on notifications.
+All stories are fiction. Names and places are changed.
+#scarystories #horrorstories #midnighttales</textarea>
+<span style="display: flex; justify-content: space-between; font-size: 12px; color: #8B8B97"><span>Đạo diễn không sửa đoạn này.</span><span class="num">182 / 1.000</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span id="atags-l" style="font-size: 12.5px; color: #A0A0AB">Tag luôn thêm <span style="color: #8B8B97">· đứng đầu danh sách tag của mọi video · <span class="num">3/10</span></span></span>
+<div role="list" aria-labelledby="atags-l" style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{atags}}" as="t" hint-placeholder-count="3"><span role="listitem" style="height: 28px; padding: 0 6px 0 10px; display: flex; align-items: center; gap: 4px; border-radius: 999px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.08); font-size: 12.5px; color: #C9C9D1">{{t}}<button class="ghost" type="button" aria-label="Bỏ tag {{t}}" style="width: 20px; height: 20px; border: none; border-radius: 50%; background: transparent; color: #8B8B97; display: flex; align-items: center; justify-content: center"><span class="ic i-close" aria-hidden="true" style="width: 12px; height: 12px"></span></button></span></sc-for><button class="ghost" type="button" style="height: 28px; padding: 0 10px; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.18); background: transparent; color: #A0A0AB; font-size: 12.5px; display: flex; align-items: center; gap: 5px"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm tag</button></div></div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.55">Tự lưu khi rời ô. Áp dụng cho video viết sau đó. Video đã có tiêu đề giữ nguyên; muốn áp thì bấm Viết lại ở Bàn dựng › Nội dung. Vẫn giữ giới hạn YouTube: mô tả 5.000 ký tự, tối đa 30 tag, tổng 500 ký tự.</span>
+<div style="display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px">
+<div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding-bottom: 4px"><span style="font-size: 12.5px; color: #A0A0AB">Quy tắc đã học</span><span class="vv-help" style="flex: 1">Đạo diễn học từ việc bạn sửa; chỉ có hiệu lực khi bạn bấm Lưu.</span><span class="vv-counter">3 / 20</span></div>
+<sc-for list="{{lrules}}" as="r" hint-placeholder-count="3"><div class="vv-rule"><button type="button" class="vv-switch" role="switch" aria-checked="{{r.on}}" aria-label="{{r.t}}" onClick="{{r.toggle}}"></button><span class="vv-rule__text">{{r.t}}</span><span class="vv-rule__actions"><button class="vv-btn vv-btn--sm vv-btn--quiet" type="button">Xem ví dụ</button><button class="vv-btn vv-btn--sm vv-btn--quiet vv-btn--icon" type="button" aria-label="Xoá quy tắc {{r.t}}"><span class="ic i-trash" aria-hidden="true" style="width: 14px; height: 14px;"></span></button></span><span class="vv-rule__src">{{r.src}}</span></div></sc-for>
+</div>
+</div>
+<div class="card" style="border-radius: 14px; padding: 6px 0; display: flex; flex-direction: column">
+<a class="row" href="#" onClick="{{goSources}}" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px">
+<span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Đối thủ, nhịp, mức tự chủ</span><span style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">3 đối thủ · Nhịp {{perDay}}/ngày · {{apprSum}}</span></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span>
+</a>
+<a class="row" href="#" onClick="{{goTemplates}}" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid rgba(255,255,255,0.05)">
+<span class="ic i-layer" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Template luân phiên</span><span style="font-size: 12px; color: #8B8B97">3 template · tiếp theo: Phim tài liệu</span></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span>
+</a>
+<a class="row" href="Settings.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid rgba(255,255,255,0.05)">
+<span class="ic i-magic" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Trợ lý AI</span><span style="font-size: 12px; color: #8B8B97">Dùng chung mọi kênh · Đạo diễn gpt-6.1-sol · vẽ bằng ChatGPT</span></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span>
+</a>
+</div>
+</div>
+</div>
+
+<div style="border-radius: 14px; padding: 16px; border: 1px solid rgba(255,154,92,0.28); background: rgba(255,154,92,0.04); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; font-weight: 600; color: #FFC09A">Xoá kênh khỏi Viderse</span>
+<span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.55">Bỏ kênh, lịch tự lấy video và thứ tự template. 18 video đã làm vẫn còn trong Bàn dựng; template và kênh đối thủ giữ nguyên. Kênh trên YouTube không bị đụng tới.</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #FF9A5C"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px"></span>Đang có 2 video đang làm. Chờ xong hoặc dừng chúng rồi xoá.</span>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button class="ghost" type="button" onClick="{{goWorking}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px">Xem 2 video đang làm</button>
+<button type="button" aria-disabled="true" title="Chờ 2 video đang làm xong" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,154,92,0.25); background: transparent; color: rgba(255,192,154,0.5); font-size: 13px; cursor: not-allowed"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>Xoá kênh</button>
+</div>
+</div>
+</section>
+</sc-if>
+
+
+<div class="dock" style="position: sticky; bottom: 0; margin-top: auto; padding: 10px 0 14px; background: linear-gradient(0deg, #0B0B0D 70%, rgba(11,11,13,0))">
+<sc-if value="{{selectMode}}" hint-placeholder-val="{{ false }}">
+<div class="card" role="toolbar" aria-label="Thao tác với video đã chọn" style="border-radius: 16px; padding: 7px 7px 7px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; background: #1C1C1F; border-color: rgba(255,255,255,0.14)">
+<span class="num" style="font-size: 13.5px; font-weight: 600; margin-right: 6px; white-space: nowrap">Đã chọn {{selCount}}</span>
+<sc-for list="{{bulk}}" as="b" hint-placeholder-count="4"><button class="ghost" type="button" aria-disabled="{{b.dis}}" title="{{b.tip}}" style="height: 36px; padding: 0 11px; display: flex; align-items: center; gap: 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: {{b.fg}}; font-size: 13px"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 15px; height: 15px"></span>{{b.label}}<span class="num" style="color: #8B8B97">{{b.n}}</span></button></sc-for>
+<button class="ghost" type="button" aria-label="Thao tác khác: huỷ, xoá video" style="width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-more" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{toggleSelect}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: none; background: transparent; color: #A0A0AB; font-size: 13px; display: flex; align-items: center; gap: 6px">Thoát chọn<span class="kbd">Esc</span></button>
+</div>
+</sc-if>
+<sc-if value="{{notSelect}}" hint-placeholder-val="{{ true }}">
+<form class="card" aria-label="Dặn trợ lý về kênh này" style="border-radius: 18px; padding: 7px 7px 7px 14px; display: flex; align-items: center; gap: 10px; background: #18181A">
+<span class="ic i-msg" aria-hidden="true" style="color: #8B8B97"></span>
+<label for="chcomposer" class="sr-only">Dặn trợ lý về kênh này</label>
+<input id="chcomposer" type="text" placeholder="Dặn trợ lý về kênh này, ví dụ: chỉ lấy video trên 20 phút từ Nocturne Stories" style="flex: 1; min-width: 0; height: 38px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 14px">
+<button class="ghost" type="button" style="height: 36px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; white-space: nowrap"><span class="orb o-scout" aria-hidden="true" style="width: 12px; height: 12px"></span>Bàn với Trinh sát</button>
+<button class="send" type="submit" aria-label="Gửi" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-arrow-up" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+</form>
+</sc-if>
+</div>
+</main>
+
+<aside class="side scroll" aria-label="Đang áp dụng cho kênh" style="flex: 0 0 316px; max-width: 316px; min-height: 0; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid rgba(255,255,255,0.06)">
+<div class="card" style="border-radius: 16px; padding: 14px 14px 10px; display: flex; flex-direction: column">
+<div style="display: flex; flex-direction: column; padding-bottom: 6px"><span style="font-size: 14px; font-weight: 600">Đang áp dụng cho kênh</span><span style="font-size: 12px; color: #8B8B97">“riêng” = khác mặc định của kênh mới</span></div>
+<sc-for list="{{applied}}" as="a" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.05)">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8B8B97">{{a.k}}<sc-if value="{{a.own}}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; display: flex; align-items: center; border-radius: 5px; background: rgba(255,255,255,0.06); color: #C9C9D1; font-size: 10.5px">riêng</span></sc-if></span><span title="{{a.v}}" style="font-size: 13px; color: #EDEDEF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{a.v}}</span></div>
+<a class="ghost" href="{{a.href}}" onClick="{{a.go}}" aria-label="Tuỳ chỉnh {{a.k}}" style="flex: 0 0 auto; height: 28px; padding: 0 8px; display: flex; align-items: center; border-radius: 7px; font-size: 12px; color: #A0A0AB; white-space: nowrap">{{a.link}}</a>
+</div>
+</sc-for>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0 4px; border-top: 1px solid rgba(255,255,255,0.05)">
+<div style="display: flex; justify-content: space-between; font-size: 12.5px"><span style="color: #8B8B97">Hôm nay</span><span class="num">{{todayDone}} / {{perDay}} video</span></div>
+<div style="height: 4px; border-radius: 4px; background: #1E1E21; overflow: hidden"><div style="width: {{quotaPct}}; height: 100%; border-radius: 4px; background: linear-gradient(90deg,#FF0033,#FF4D63)"></div></div>
+</div>
+</div>
+
+<div class="card" style="border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="ic i-calendar" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span style="flex: 1; font-size: 14px; font-weight: 600; white-space: nowrap">Lịch đăng</span>
+<div role="radiogroup" aria-label="Múi giờ" style="display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: #131315; border: 1px solid rgba(255,255,255,0.06)"><sc-for list="{{czones}}" as="z" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{z.on}}" onClick="{{z.pick}}" style="height: 24px; padding: 0 8px; border-radius: 6px; border: none; background: {{z.bg}}; color: {{z.fg}}; font-size: 11.5px">{{z.label}}</button></sc-for></div>
+</div>
+<span class="num" style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5">{{schedTxt}} · <b style="color: #EDEDEF; font-weight: 500">{{schedN}} khung lặp lại</b></span>
+<ul aria-label="Khung đăng lặp lại của các đối thủ" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<sc-for list="{{cslots}}" as="t" hint-placeholder-count="6">
+<li style="padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; align-items: center; gap: 6px">
+<span style="display: flex; gap: 3px"><sc-for list="{{t.days}}" as="d" hint-placeholder-count="2"><span style="height: 20px; min-width: 24px; padding: 0 5px; border-radius: 5px; background: #222225; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{d}}</span></sc-for></span>
+<span class="num" style="font-size: 13px; font-weight: 600; white-space: nowrap">{{t.time}}</span>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12px; color: #C9C9D1; white-space: nowrap">{{t.count}} video</span>
+</span>
+<span style="display: flex; align-items: center; gap: 6px; min-width: 0">
+<span style="display: flex"><sc-for list="{{t.who}}" as="w" hint-placeholder-count="2"><span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 50%; margin-right: -4px; background: {{w.c}}; border: 1.5px solid #141416; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #FFFFFF">{{w.i}}</span></sc-for></span>
+<span style="margin-left: 6px; font-size: 11.5px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.names}}</span>
+</span>
+</li>
+</sc-for>
+</ul>
+<a href="Explore.dc.html" style="display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: #A0A0AB">Xem từng đối thủ trong Khám phá<span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></a>
+</div>
+</aside>
+</div>
+</div>
+<sc-if value="{{askOpen}}" hint-placeholder-val="{{ false }}">
+<div class="vv-root" style="position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: transparent">
+<div class="vv-scrim" aria-hidden="true" onClick="{{askCancel}}" style="position: fixed"></div>
+<section class="vv-dialog" role="dialog" aria-modal="true" aria-labelledby="ask-t" style="position: relative">
+<div class="vv-dialog__head"><span class="vv-dialog__icon vv-dialog__icon--ok"><span class="ic i-tick-b" aria-hidden="true" style="width: 19px; height: 19px;"></span></span><div style="flex: 1; min-width: 0"><h2 id="ask-t" class="vv-dialog__title">{{askT}}</h2><p class="vv-dialog__sub">{{askS}}</p></div><button class="vv-ib" type="button" aria-label="Đóng" onClick="{{askCancel}}" style="width: 32px; height: 32px; margin: -4px -6px 0 0"><span class="ic i-close" aria-hidden="true" style="width: 16px; height: 16px;"></span></button></div>
+<div class="vv-dialog__list"><sc-for list="{{askL}}" as="l" hint-placeholder-count="3"><span>• {{l}}</span></sc-for></div>
+<div class="vv-dialog__actions"><span class="vv-help"><span class="vv-kbd">Esc</span> đóng</span><button class="vv-btn" type="button" onClick="{{askCancel}}">Huỷ</button><button class="vv-btn vv-btn--white" type="button" onClick="{{askOk}}">{{askB}}</button></div>
+</section>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tab": {"editor": "enum", "options": ["videos", "sources", "templates", "settings"], "default": "videos", "section": "Tab đang mở"}, "filter": {"editor": "enum", "options": ["all", "working", "waiting", "queued", "ready", "posted"], "default": "all", "section": "Lọc video"}, "select": {"editor": "boolean", "default": false, "section": "Chọn nhiều video"}, "identity": {"editor": "enum", "options": ["ready", "generating", "failed"], "default": "ready", "section": "Nhận diện"}, "link": {"editor": "enum", "options": ["none", "picker", "empty"], "default": "none", "section": "Liên kết đối thủ (tab Nguồn)"}, "$preview": {"width": 1440, "height": 900}, "autonomy": {"editor": "enum", "options": ["balanced", "careful", "auto", "custom", "confirm"], "default": "balanced", "section": "Trợ lý chủ động"}, "fresh": {"editor": "boolean", "default": false, "section": "Kênh mới chưa có video (After Dark Stories)"}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { link: null, lk: null, tab: null, filter: null, autoOn: true, perDay: 5, sel: null, picked: null, safe: true, appr: null, apprAsk: null, preset: null, vals: null, openRow: null, ask: null, prio: null, lr: null };
+  }
+  componentDidUpdate(prev) {
+    if (prev.tab !== this.props.tab || prev.filter !== this.props.filter || prev.select !== this.props.select) if (prev.autonomy !== this.props.autonomy) this.setState({ preset: null, vals: null, openRow: null, ask: null });
+    this.setState({ tab: null, filter: null, sel: null, picked: null });
+    if (prev.link !== this.props.link) this.setState({ link: null, lk: null });
+    if (prev.fresh !== this.props.fresh) this.setState({ tab: null });
+  }
+  baseVals() {
+    const tab = this.state.tab || this.props.tab || 'videos';
+    const filter = this.state.filter || this.props.filter || 'all';
+
+    const channels = [
+      { ini: 'MT', name: 'Midnight Tales', sub: 'Hôm nay 3/5 · 2 chờ bạn', tint: '#2E2236', ring: '#D79BFF', current: 'page', bg: '#1A1A1D', bd: 'rgba(255,255,255,0.08)', hasDot: true, dot: '#F6CB8C', dotLabel: 'Có video chờ bạn' },
+      { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', sub: 'Hôm nay 2/5 · 1 chờ bạn', tint: '#302418', ring: '#F6CB8C', current: 'false', bg: 'transparent', bd: 'transparent', hasDot: true, dot: '#F6CB8C', dotLabel: 'Có video chờ bạn' },
+      { ini: 'QH', name: 'Quiet Hours', sub: 'Hôm nay 1/3 · 1 chờ bạn', tint: '#1F2C27', ring: '#A6EDC1', current: 'false', bg: 'transparent', bd: 'transparent', hasDot: true, dot: '#F6CB8C', dotLabel: 'Có video chờ bạn' }
+    ];
+    const library = [
+      { icon: 'i-layer', label: 'Template', count: '5', href: 'Library.dc.html' },
+      { icon: 'i-magicpen', label: 'Prompt ảnh', count: '15', href: 'Library.dc.html' },
+      { icon: 'i-video-play', label: 'Video nền', count: '7', href: 'Library.dc.html' },
+      { icon: 'i-magic', label: 'Lớp phủ', count: '12', href: 'Library.dc.html' }
+    ];
+    const stats = [
+      { k: 'Video đã làm', v: '18', s: 'từ 12/10', color: '#EDEDEF' },
+      { k: 'Đã đăng', v: '9', s: 'gần nhất 26/10', color: '#EDEDEF' },
+      { k: 'Chờ bạn', v: '2', s: '1 chờ duyệt · 1 cần xử lý', color: '#F6CB8C' },
+      { k: 'Chờ lượt', v: '4', s: 'tiếp theo khoảng 00:40', color: '#EDEDEF' }
+    ];
+    const tabDefs = [
+      { id: 'videos', label: 'Video', count: '18' },
+      { id: 'sources', label: 'Nguồn & tự động', count: this.props.link === 'empty' ? '0' : '3' },
+      { id: 'templates', label: 'Template luân phiên', count: '3' },
+      { id: 'settings', label: 'Hồ sơ kênh', count: '' }
+    ];
+    const tabs = tabDefs.map((t) => {
+      const on = t.id === tab;
+      return Object.assign({}, t, { on: on ? 'true' : 'false', fg: on ? '#EDEDEF' : '#A0A0AB', weight: on ? '500' : '400', line: on ? '#FF4D63' : 'transparent', hasCount: !!t.count, pick: () => this.setState({ tab: t.id }) });
+    });
+
+    const C = { work: '#B9D0F7', wait: '#F6CB8C', issue: '#FF9A5C', queue: '#8E8E99', ready: '#A6EDC1', posted: '#8B8B97' };
+    const TH = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/c_ferry.jpg) center / cover no-repeat',
+      'url(../img/c_mall.jpg) center / cover no-repeat',
+      'url(../img/c_lastbus.jpg) center / cover no-repeat',
+      'url(../img/c_elevator.jpg) center / cover no-repeat',
+      'url(../img/c_hotel.jpg) center / cover no-repeat'
+    ];
+    const ACT = {
+      open: { act: 'Mở Bàn dựng', actCls: 'ghost', actBd: '1px solid rgba(255,255,255,0.1)', actBg: 'transparent', actFg: '#EDEDEF', actFw: '400' },
+      review: { act: 'Duyệt ảnh', actCls: 'ghost', actBd: '1px solid rgba(246,203,140,0.4)', actBg: 'transparent', actFg: '#F6CB8C', actFw: '500' },
+      retry: { act: 'Xử lý', actCls: 'ghost', actBd: '1px solid rgba(255,154,92,0.4)', actBg: 'transparent', actFg: '#FFC09A', actFw: '500' },
+      pack: { act: 'Tải gói đăng', actCls: 'ghost', actBd: '1px solid rgba(255,255,255,0.1)', actBg: 'transparent', actFg: '#EDEDEF', actFw: '400' },
+      old: { act: 'Làm lại cho kênh', actCls: 'ghost', actBd: '1px solid rgba(255,255,255,0.1)', actBg: 'transparent', actFg: '#EDEDEF', actFw: '400' }
+    };
+    const R = (g, title, src, st, stSub, color, tpl, when, dur, bg, act, spin) => Object.assign({ g, title, src, st, stSub, stColor: color, tpl, when, dur, bg, spin: !!spin, notSpin: !spin, hasAct: !!act }, act ? ACT[act] : {});
+    const all = [
+      R('working', 'The Night Nurse Who Heard Room 214 Breathing', 'Nocturne Stories · ×4,2 · 23:41', 'Đang làm', 'Đang vẽ cảnh 5/6', C.work, 'Mẫu chuẩn · Tách nền', '23:41', '42:10', 'url(../img/c_nurse.jpg) center / cover no-repeat', 'open', true),
+      R('working', 'What the Ferryman Saw on the Fog Night', 'The Late Archive · ×3,0 · 23:58', 'Đang làm', 'Đang làm phụ đề', C.work, 'Phim tài liệu', '23:58', '51:34', 'url(../img/c_ferry.jpg) center / cover no-repeat', null, true),
+      R('waiting', 'I Took a Job Watching an Empty Mall After Midnight', 'Nocturne Stories · ×3,8 · 23:18', 'Chờ duyệt', '7 ảnh · 42 phút trước', C.wait, 'Mẫu chuẩn · Tách nền', '23:18', '37:05', 'url(../img/c_mall.jpg) center / cover no-repeat', 'review'),
+      R('waiting', 'The Last Bus Doesn’t Stop at Elm Street', 'Dark Hollow Tales · ×2,9 · 22:50', 'Cần xử lý', 'Cần đăng nhập ChatGPT', C.issue, 'Cận cảnh', '22:50', '33:48', 'url(../img/c_lastbus.jpg) center / cover no-repeat', 'retry'),
+      R('queued', 'The Hospital Elevator Stops at Floor 13', 'Nocturne Stories · ×3,3', 'Chờ lượt', 'Bắt đầu khoảng 00:40', C.queue, 'Phim tài liệu', '—', '45:20', 'url(../img/c_elevator.jpg) center / cover no-repeat'),
+      R('queued', 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', 'Nocturne Stories · ×4,2', 'Chờ lượt', 'Bắt đầu khoảng 01:25', C.queue, 'Cận cảnh', '—', '39:51', 'url(../img/c_radio.jpg) center / cover no-repeat'),
+      R('ready', 'The Hotel That Wasn’t on Any Map', 'The Late Archive · ×3,1 · 27/10', 'Sẵn sàng', 'MP4 38:12 · 172 MB', C.ready, 'Mẫu chuẩn · Tách nền', '27/10', '38:12', 'url(../img/c_hotel.jpg) center / cover no-repeat', 'pack'),
+      R('posted', 'My Neighbor Only Mows His Lawn at 3 AM', 'Dark Hollow Tales · ×5,1 · 26/10', 'Đã đăng', '6,2 N / 24 giờ · ×1,3', C.posted, 'Cận cảnh', '26/10', '44:02', 'url(../img/c_lawn.jpg) center / cover no-repeat'),
+      R('posted', 'The Lighthouse Keeper’s Last Log', 'Nocturne Stories · ×2,7 · 24/10', 'Đã đăng', '3,9 N / 24 giờ · ×0,8', C.posted, 'Phim tài liệu', '24/10', '56:19', 'url(../img/c_lighthouse.jpg) center / cover no-repeat')
+    ];
+    const FDEF = [
+      { id: 'all', label: 'Tất cả', count: '18', dot: '#EDEDEF' },
+      { id: 'working', label: 'Đang làm', count: '2', dot: C.work },
+      { id: 'waiting', label: 'Chờ bạn', count: '2', dot: C.wait },
+      { id: 'queued', label: 'Chờ lượt', count: '4', dot: C.queue },
+      { id: 'ready', label: 'Sẵn sàng', count: '1', dot: C.ready },
+      { id: 'posted', label: 'Đã đăng', count: '9', dot: C.posted }
+    ];
+    const filters = FDEF.map((f) => {
+      const on = f.id === filter;
+      return Object.assign({}, f, { on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ filter: f.id }) });
+    });
+    const rows = filter === 'all' ? all : all.filter((r) => r.g === filter);
+    const selectMode = this.state.sel !== null ? this.state.sel : !!this.props.select;
+    const picked = this.state.picked || { 2: true, 3: true, 6: true };
+    all.forEach((r, i) => {
+      const on = !!picked[i];
+      Object.assign(r, { selAttr: on ? 'true' : 'false', mark: on ? '✓' : '', boxBg: on ? '#FF4D63' : 'transparent', boxBd: on ? '#FF4D63' : 'rgba(255,255,255,0.3)',
+        selBg: selectMode && on ? 'rgba(255,255,255,0.035)' : 'transparent',
+        toggle: () => { const n = Object.assign({}, picked); n[i] = !n[i]; this.setState({ picked: n }); } });
+    });
+    const chosen = all.filter((r, i) => picked[i]);
+    const cnt = (st) => chosen.filter((r) => r.st === st).length;
+    const B = (icon, label, n, tip) => ({ icon, label, n: String(n), dis: n ? 'false' : 'true', fg: n ? '#EDEDEF' : '#6E6E78', tip });
+    const bulk = [
+      B('i-refresh', 'Thử lại', cnt('Cần xử lý'), 'Chỉ áp dụng cho video cần xử lý'),
+      B('i-tick-b', 'Duyệt & dựng', cnt('Chờ duyệt'), 'Chỉ áp dụng cho video chờ duyệt'),
+      B('i-download', 'Tải gói', cnt('Sẵn sàng'), 'Gộp MP4, ảnh bìa, ảnh và thông tin đăng thành một tệp ZIP'),
+      B('i-send', 'Đánh dấu đã đăng', cnt('Sẵn sàng'), 'Chỉ áp dụng cho video đã xuất xong')
+    ];
+
+    const rivals = [
+      { isRef: true, unlinkTip: 'Bỏ khỏi kênh này (hỏi xác nhận). Video đã làm và video đã vào hàng chờ giữ nguyên; Tự lấy không lấy thêm từ đối thủ này. The Late Archive thành tham chiếu nhận diện. Đối thủ vẫn ở Khám phá.', name: 'Nocturne Stories', meta: '1,24 Tr người theo dõi · 3 video/tuần · đang quét lịch sử 1.284/2.000', scan: 'Đang quét lịch sử', scanColor: '#B9D0F7', bg: '#34407A', ini: 'NS' },
+      { isRef: false, unlinkTip: 'Bỏ khỏi kênh này (hỏi xác nhận). Video đã làm và video đã vào hàng chờ giữ nguyên; Tự lấy không lấy thêm từ đối thủ này. Đối thủ vẫn ở Khám phá.', name: 'The Late Archive', meta: '486 N người theo dõi · 2 video/tuần · 131 video đã quét', scan: 'Xem 40 phút trước', scanColor: '#8B8B97', bg: '#6E4F25', ini: 'LA' },
+      { isRef: false, unlinkTip: 'Bỏ khỏi kênh này (hỏi xác nhận). Video đã làm và video đã vào hàng chờ giữ nguyên; Tự lấy không lấy thêm từ đối thủ này. Đối thủ vẫn ở Khám phá.', name: 'Dark Hollow Tales', meta: '812 N người theo dõi · 4 video/tuần · đang quét lịch sử 640/2.000', scan: 'Đang quét lịch sử', scanColor: '#B9D0F7', bg: '#255E4B', ini: 'DH' }
+    ];
+
+    const linkMode = this.state.link !== null ? this.state.link : (this.props.link || 'none');
+    const linkOpen = linkMode === 'picker';
+    const LK = this.state.lk || {};
+    const FOL = [['NS', 'Nocturne Stories', '#34407A', 'Đã liên kết · tham chiếu nhận diện', true], ['LA', 'The Late Archive', '#6E4F25', 'Đã liên kết', true], ['DH', 'Dark Hollow Tales', '#255E4B', 'Đã liên kết', true], ['HS', 'Hồ Sơ Bí Ẩn', '#6B2B2B', 'Tiếng Việt · đang dùng cho Chuyện Lạ Đêm Khuya', false], ['SR', 'Slow Rooms', '#3B4A5E', 'Tiếng Anh · đang dùng cho Quiet Hours', false]];
+    const linkList = FOL.map((r) => { const linked = r[4] && linkMode !== 'empty'; const on = linked || !!LK[r[0]]; return { ini: r[0], name: r[1], bg: r[2], sub: linked ? r[3] : r[3], on: on ? 'true' : 'false', checked: on, dis: linked ? 'true' : 'false', op: linked ? '0.55' : '1', tip: linked ? 'Đã liên kết · bỏ ở danh sách bên dưới' : 'Một đối thủ dùng được cho nhiều kênh', boxBd: on ? '#FF4D63' : '#5E5E68', boxBg: on ? '#FF4D63' : 'transparent', pick: linked ? () => {} : () => this.setState({ lk: Object.assign({}, LK, { [r[0]]: !LK[r[0]] }) }) }; });
+    const nNew = Object.keys(LK).filter((k) => LK[k]).length;
+    const templates = [
+      { n: '1', name: 'Mẫu chuẩn · Tách nền', recipe: 'Prompt Đêm xanh rêu · 6 ảnh · trôi + co giãn · bìa Hook đỏ Midnight · 2 kênh nền Twitch', health: 'Ổn', healthColor: '#A6EDC1', next: false, bd: 'rgba(255,255,255,0.07)', bg: 'url(../img/st_cutout.jpg) center / cover no-repeat' },
+      { n: '2', name: 'Phim tài liệu', recipe: 'Prompt Phim tài liệu 35mm · mỗi 7 phút 1 ảnh · zoom chậm · bìa Ảnh sạch', health: 'Ổn', healthColor: '#A6EDC1', next: true, bd: 'rgba(255,51,82,0.35)', bg: 'url(../img/pr_doc35.jpg) center / cover no-repeat' },
+      { n: '3', name: 'Cận cảnh', recipe: 'Prompt Cận mặt kịch tính · 5 ảnh · trôi + co giãn · bìa Cận mặt cảm xúc', health: 'Cần sửa · thiếu clip nền', healthColor: '#F6CB8C', next: false, bd: 'rgba(255,255,255,0.07)', bg: 'url(../img/pr_face_teal.jpg) center / cover no-repeat' }
+    ];
+    const perDay = this.state.perDay;
+    const appr = this.state.appr !== null ? this.state.appr : (this.props.approve === 'on');
+    const apprAsk = this.state.apprAsk !== null ? this.state.apprAsk : (this.props.approve === 'confirm');
+    const GO = (t) => (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tab: t }); };
+    // r16-agent: Mức tự chủ
+    const PRE = {"careful": {"pick": "suggest", "approve": "ask", "onError": "stop", "below": "ask"}, "balanced": {"pick": "all", "approve": "ask", "onError": "retry", "below": "ask"}, "auto": {"pick": "all", "approve": "score", "onError": "retry", "below": "fix"}};
+    const PL = {"careful": "Cẩn thận", "balanced": "Cân bằng", "auto": "Tự chạy", "custom": "Tuỳ chỉnh"};
+    const ROWS = [["pick", "Lấy video mới của đối thủ", "Trinh sát xem đối thủ mỗi giờ", [["suggest", "Chỉ đề xuất video ≥ ×3"], ["score2", "Video ≥ ×2"], ["all", "Mọi video mới"]]], ["approve", "Duyệt ảnh", "Duyệt theo điểm vẫn duyệt cả video: một ảnh dưới ngưỡng thì hỏi bạn", [["ask", "Luôn hỏi"], ["score", "Duyệt theo điểm ≥ 85"], ["all", "Tự duyệt hết"]]], ["onError", "Khi gặp lỗi", "Chỉ lỗi máy tự sửa được: tải lại nguồn, vẽ lại ảnh lỗi, dựng lại", [["stop", "Dừng và báo"], ["retry", "Tự thử sửa 1 lần"]]], ["below", "Video chưa đạt 90 điểm", "Khi Kiểm định chấm cả video dưới 90 sau khi dựng", [["ask", "Hỏi"], ["fix", "Tự sửa rồi hỏi"]]]];
+    const OPT = {}; ROWS.forEach((r) => { OPT[r[0]] = {}; r[3].forEach((o) => { OPT[r[0]][o[0]] = o[1]; }); });
+    const thr = this.state.thr || 85;
+    const AP = this.props.autonomy || 'balanced';
+    const CUS = { pick: 'score2', approve: 'score', onError: 'retry', below: 'ask' };
+    const vals = this.state.vals || (AP === 'custom' ? CUS : PRE[AP === 'confirm' ? 'balanced' : AP]);
+    const presetNow = Object.keys(PRE).find((k) => Object.keys(PRE[k]).every((x) => PRE[k][x] === vals[x])) || 'custom';
+    const ask = this.state.ask !== null ? this.state.ask : (AP === 'confirm' ? { preset: 'auto' } : false);
+    const openRow = this.state.openRow;
+    const presets = ['careful', 'balanced', 'auto'].map((k) => ({ label: PL[k], on: k === presetNow ? 'true' : 'false', pick: () => k === 'auto' ? this.setState({ ask: { preset: 'auto' }, openRow: null }) : this.setState({ vals: PRE[k], ask: false, openRow: null }) }));
+    OPT.approve.score = 'Duyệt theo điểm ≥ ' + thr;
+    const arows = ROWS.map((r) => ({ label: r[1], hint: r[2], cur: OPT[r[0]][vals[r[0]]], hasThr: r[0] === 'approve' && vals.approve === 'score', thr: String(thr), thrDec: () => this.setState({ thr: Math.max(70, thr - 5) }), thrInc: () => this.setState({ thr: Math.min(95, thr + 5) }), thrDecDis: thr <= 70 ? 'true' : 'false', thrIncDis: thr >= 95 ? 'true' : 'false', open: openRow === r[0], openA: openRow === r[0] ? 'true' : 'false',
+      toggle: () => this.setState({ openRow: openRow === r[0] ? null : r[0] }),
+      opts: r[3].map((o) => ({ label: o[0] === 'score' ? 'Duyệt theo điểm ≥ ' + thr : o[1], on: vals[r[0]] === o[0] ? 'true' : 'false', onB: vals[r[0]] === o[0], pick: () => (r[0] === 'approve' && o[0] === 'all') ? this.setState({ ask: { row: 'approve', val: 'all' }, openRow: null }) : this.setState({ vals: Object.assign({}, vals, { [r[0]]: o[0] }), openRow: null }) })) }));
+    const askAuto = ask && ask.preset === 'auto';
+    const ASKS = {"auto": ["Chuyển Midnight Tales sang Tự chạy?", "Máy tự duyệt video khi mọi ảnh từ 85 điểm, và tự sửa video chưa đạt trước khi hỏi bạn.", ["Có ảnh dưới 85 thì cả video vẫn chờ bạn duyệt, ảnh đó được đánh dấu", "Áp dụng cho ảnh vẽ từ bây giờ. 1 video đang chờ duyệt vẫn chờ bạn", "Đổi lại bất cứ lúc nào ở Mức tự chủ. Không bao giờ tự đăng, tự xoá hay đổi template"], "Chuyển sang Tự chạy"], "all": ["Cho máy tự duyệt hết ảnh của Midnight Tales?", "Ảnh mới, kể cả ảnh điểm thấp, không chờ bạn duyệt nữa.", ["Video vẫn phải đạt 90 điểm mới tự xuất", "Áp dụng cho ảnh vẽ từ bây giờ. 1 video đang chờ duyệt vẫn chờ bạn", "Đổi lại bất cứ lúc nào ở Mức tự chủ. Không bao giờ tự đăng, tự xoá hay đổi template"], "Tự duyệt hết"]};
+    const AK = ASKS[askAuto ? 'auto' : 'all'];
+    const askT = AK[0], askS = AK[1], askL = AK[2];
+    const prio = this.state.prio || 'steady';
+    const prios = [['steady', 'Đều đặn'], ['views', 'Lượt xem']].map((o) => ({ label: o[1], on: o[0] === prio ? 'true' : 'false', pick: () => this.setState({ prio: o[0] }) }));
+    const prioHint = prio === 'steady' ? 'Giữ nhịp, lấy video theo thứ tự mới đăng.' : 'Video điểm nổi trội cao chạy trước; template có lượt xem 7 ngày tốt hơn chạy nhiều hơn (tối đa gấp đôi). Kênh có 7 video có số liệu 7 ngày — đủ để dùng.';
+    const LR = [["Không thêm phần trong ngoặc ở cuối tiêu đề", true, "Học từ 3 lần bạn sửa · 26–28/10"], ["Giữ giờ hoặc con số cụ thể trong tiêu đề", true, "Học từ 4 lần bạn sửa · 20–25/10"], ["Mô tả mở đầu bằng một câu hỏi", false, "Học từ 3 lần bạn sửa · 18/10 · đang tắt"]];
+    const lrs = this.state.lr || LR.map((r) => r[1]);
+    const lrules = LR.map((r, n) => ({ t: r[0], src: r[2].replace(' · đang tắt', '') + (lrs[n] ? '' : ' · đang tắt'), on: lrs[n] ? 'true' : 'false', toggle: () => { const x = lrs.slice(); x[n] = !x[n]; this.setState({ lr: x }); } }));
+    const applied = [
+      { k: 'Lấy video', v: OPT.pick[vals.pick] + ' · Nhịp ' + perDay + '/ngày' + (prio === 'views' ? ' · ưu tiên lượt xem' : ''), own: vals.pick !== 'all' || perDay !== 5 || prio !== 'steady', link: 'Tuỳ chỉnh', href: '#', go: GO('sources') },
+      { k: 'Mức tự chủ', v: PL[presetNow] + ' · duyệt ảnh: ' + OPT.approve[vals.approve].toLowerCase(), own: presetNow !== 'balanced', link: 'Tuỳ chỉnh', href: '#', go: GO('sources') },
+      { k: 'Template luân phiên', v: '3 template · tiếp theo: Phim tài liệu', own: true, link: 'Tuỳ chỉnh', href: '#', go: GO('templates') },
+      { k: 'Tiêu đề, mô tả, tag', v: 'Tiếng Anh · giọng văn, đoạn cuối, 3 tag luôn thêm', own: true, link: 'Tuỳ chỉnh', href: '#', go: GO('settings') },
+      { k: 'Trợ lý AI · chung mọi kênh', v: 'Đạo diễn gpt-6.1-sol · vẽ bằng ChatGPT', own: false, link: 'Cài đặt ›', href: 'Settings.dc.html', go: () => {} }
+    ];
+    const cvn = (this.state.czone || 'vn') === 'vn';
+    const czones = [{ id: 'vn', label: 'VN' }, { id: 'ny', label: 'New York' }].map((z) => { const on = z.id === (this.state.czone || 'vn'); return { label: z.label, on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ czone: z.id }) }; });
+    const RV = { NS: { i: 'NS', c: '#34407A', n: 'Nocturne Stories' }, LA: { i: 'LA', c: '#6E4F25', n: 'The Late Archive' }, DH: { i: 'DH', c: '#255E4B', n: 'Dark Hollow Tales' } };
+    const cslots = [
+      [['T3', 'T5'], '06:00–08:00', ['T2', 'T4'], '19:00–21:00', 17, ['NS', 'LA']],
+      [['T2'], '10:00–11:00', ['CN'], '23:00–00:00', 9, ['NS', 'DH']],
+      [['T7'], '21:00–22:00', ['T7'], '10:00–11:00', 7, ['NS']],
+      [['T6'], '19:00–20:00', ['T6'], '08:00–09:00', 6, ['DH']],
+      [['T4'], '20:00–21:00', ['T4'], '09:00–10:00', 5, ['LA']],
+      [['CN'], '08:00–09:00', ['T7'], '21:00–22:00', 4, ['NS']]
+    ].map((r) => ({ days: cvn ? r[0] : r[2], time: cvn ? r[1] : r[3], count: String(r[4]), who: r[5].map((k) => RV[k]), names: r[5].map((k) => RV[k].n).join(', ') }));
+
+    return {
+      channels, library, stats, tabs, filters, rows, noRows: rows.length === 0,
+      selectMode, notSelect: !selectMode, selectAttr: selectMode ? 'true' : 'false', padL: selectMode ? '46px' : '14px',
+      selText: selectMode ? 'Thoát chọn' : 'Chọn nhiều', selBd: selectMode ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', selBg: selectMode ? 'rgba(255,255,255,0.08)' : 'transparent', selIc: selectMode ? '#EDEDEF' : '#A0A0AB',
+      toggleSelect: () => this.setState({ sel: !selectMode }), selCount: String(chosen.length), bulk,
+      showAll: () => this.setState({ filter: 'all' }),
+      tabVideos: tab === 'videos', tabSources: tab === 'sources', tabTemplates: tab === 'templates', tabIdentity: tab === 'settings' || tab === 'identity', filterAll: filter === 'all', idGen: (this.props.identity || 'ready') === 'generating', idFail: (this.props.identity || 'ready') === 'failed', idLockA: (this.props.identity || 'ready') === 'generating' ? 'true' : 'false', idLockOp: (this.props.identity || 'ready') === 'generating' ? '0.45' : '1', idSub: (this.props.identity || 'ready') === 'generating' ? 'Hoạ sĩ đang vẽ avatar và ảnh bìa kênh · nút tạo lại khoá tới khi xong' : 'Avatar 800×800', idSubFg: (this.props.identity || 'ready') === 'generating' ? '#FFD08A' : '#8B8B97', atags: ['midnight tales', 'scary stories', 'horror stories'], safeOn: this.state.safe && (this.props.identity || 'ready') !== 'generating', safeAttr: this.state.safe ? 'true' : 'false', safeBg: this.state.safe ? '#E6002E' : '#3A3A40', safeJ: this.state.safe ? 'flex-end' : 'flex-start', toggleSafe: () => this.setState({ safe: !this.state.safe }), tabSettings: tab === 'settings',
+      goSources: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tab: 'sources' }); }, goTemplates: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tab: 'templates' }); }, goWorking: () => this.setState({ tab: 'videos', filter: 'working' }), goSettings: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tab: 'settings' }); },
+      rivals: (this.props.link === 'empty' && this.state.link === null) ? [] : rivals, noRivals: this.props.link === 'empty' && this.state.link === null, rivalN: this.props.link === 'empty' ? '0' : '3', templates, linkOpen, linkOpenA: linkOpen ? 'true' : 'false', linkBtnBg: linkOpen ? '#222225' : 'transparent', toggleLink: () => this.setState({ link: linkOpen ? 'none' : 'picker' }), linkList, linkDis: nNew ? 'false' : 'true', linkBg: nNew ? '#EDEDEF' : '#2A2A2E', linkFg: nNew ? '#0B0B0D' : '#8B8B97', linkBtn: nNew ? 'Liên kết ' + nNew : 'Chọn đối thủ', applied, czones, cslots, perDay,
+      quotaPct: Math.min(100, Math.round(300 / perDay)) + '%',
+      apprAttr: appr ? 'true' : 'false', apprBg: appr ? '#E6002E' : '#2A2A2E', apprLeft: appr ? '16px' : '2px', apprKnob: appr ? '#EDEDEF' : '#EDEDEF', apprAsk,
+      toggleAppr: () => appr ? this.setState({ appr: false, apprAsk: false }) : this.setState({ apprAsk: true }), apprCancel: () => this.setState({ apprAsk: false }), apprConfirm: () => this.setState({ appr: true, apprAsk: false }),
+      apprSum: 'mức ' + PL[presetNow].toLowerCase(), presetLabel: PL[presetNow], presets, arows, isCustom: presetNow === 'custom', prios, prioHint, lrules,
+      showIns: tab === 'videos' && filter === 'posted', showInsTeaser: tab === 'videos' && filter === 'all' && !selectMode, goPosted: () => this.setState({ filter: 'posted' }),
+      askOpen: !!ask, askT, askS, askL, askB: AK[3], askCancel: () => this.setState({ ask: false }), askOk: () => this.setState({ vals: askAuto ? PRE.auto : Object.assign({}, vals, { approve: 'all' }), ask: false }),
+      autoOn: this.state.autoOn ? 'true' : 'false',
+      autoBg: this.state.autoOn ? '#E6002E' : '#2A2A2E', autoLeft: this.state.autoOn ? '16px' : '2px',
+      toggleAuto: () => this.setState({ autoOn: !this.state.autoOn }),
+      inc: () => this.setState({ perDay: Math.min(50, this.state.perDay + 1) }),
+      dec: () => this.setState({ perDay: Math.max(1, this.state.perDay - 1) })
+    };
+  }
+  renderVals() { const r = this.baseVals();
+    const fresh = !!this.props.fresh;
+    const AD = { ini: 'AD', name: 'After Dark Stories', sub: 'Mới tạo · chưa có video', tint: '#1C2433', ring: '#7FB8FF', current: 'page', bg: '#1A1A1D', bd: 'rgba(255,255,255,0.08)', hasDot: false, dot: 'transparent', dotLabel: '' };
+    r.fresh = fresh; r.notFresh = !fresh; r.chN = fresh ? '4' : '3';
+    r.goSources = () => this.setState({ tab: 'sources' });
+    r.todayDone = fresh ? '0' : '3'; r.schedTxt = fresh ? '60 video gần nhất của 2 đối thủ' : '90 video gần nhất của 3 đối thủ';
+    if (fresh) { r.quotaPct = '0%'; r.cslots = r.cslots.filter((t) => t.who.every((w) => w.i !== 'DH')); }
+    r.schedN = String(r.cslots.length);
+    if (fresh) r.applied = r.applied.map((a) => a.k === 'Template luân phiên' ? Object.assign({}, a, { v: '1 template · Mẫu chuẩn · Tách nền', own: false }) : (a.k === 'Tiêu đề, mô tả, tag' ? Object.assign({}, a, { v: 'Tiếng Anh · mặc định của kênh mới', own: false }) : a));
+    r.hd = fresh
+      ? { ini: 'AD', tint: '#1C2433', ring: '#7FB8FF', name: 'After Dark Stories', sub: 'Chưa liên kết YouTube · tạo hôm nay · 2 đối thủ liên kết', subTip: 'Chưa liên kết YouTube · tạo hôm nay · 2 đối thủ liên kết', yt: 'Liên kết YouTube' }
+      : { ini: 'MT', tint: '#2E2236', ring: '#D79BFF', name: 'Midnight Tales', sub: '@midnighttales.stories · tạo 12/10 · ' + r.rivalN + ' đối thủ liên kết', subTip: 'youtube.com/@midnighttales.stories · tạo 12/10 · ' + r.rivalN + ' đối thủ liên kết', yt: 'Mở YouTube' };
+    if (fresh) {
+      r.channels = r.channels.map((c) => Object.assign({}, c, { current: 'false', bg: 'transparent', bd: 'transparent' })).concat([AD]);
+      r.stats = [
+        { k: 'Video đã làm', v: '0', s: 'tạo hôm nay', color: '#EDEDEF' },
+        { k: 'Đã đăng', v: '0', s: 'chưa liên kết YouTube', color: '#EDEDEF' },
+        { k: 'Chờ bạn', v: '0', s: 'không có việc', color: '#EDEDEF' },
+        { k: 'Chờ lượt', v: '0', s: 'tự lấy video đang bật', color: '#EDEDEF' }
+      ];
+      const cnt = { videos: '0', sources: '2', templates: '1', settings: '' };
+      r.tabs = r.tabs.map((t) => Object.assign({}, t, { count: cnt[t.id], hasCount: !!cnt[t.id] }));
+    }
+    return r; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bàn dựng · điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FF4D63;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-scout{background:radial-gradient(circle at 32% 26%,#EAF3FF 0%,#A9C8FF 28%,#5E86F2 62%,#3049C9 100%)}
+.o-director{background:radial-gradient(circle at 32% 26%,#F5EAFF 0%,#D2AEFF 28%,#9566F0 62%,#5B2FB8 100%)}
+.o-artist{background:radial-gradient(circle at 32% 26%,#FFF3DC 0%,#FFD08A 28%,#F5A13F 62%,#C2611D 100%)}
+.o-qa{background:radial-gradient(circle at 32% 26%,#E6FFF4 0%,#A3F2D2 28%,#3CCB9F 62%,#137A72 100%)}
+.rec{animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.live{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.strip:hover{border-color:rgba(255,255,255,.3) !important}
+.shimmer{background:linear-gradient(90deg,#8A8A96 0%,#8A8A96 30%,#FFFFFF 45%,#FFFFFF 55%,#8A8A96 70%,#8A8A96 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.skel-img{background:linear-gradient(110deg,#17171A 0%,#17171A 35%,#232328 50%,#17171A 65%,#17171A 100%);background-size:250% 100%;animation:skimg 1.8s linear infinite}
+@keyframes skimg{from{background-position:120% 0}to{background-position:-120% 0}}
+.num{font-variant-numeric:tabular-nums}
+.checker{background-color:#2A2A2E;background-image:linear-gradient(45deg,#1E1E22 25%,transparent 25%),linear-gradient(-45deg,#1E1E22 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1E1E22 75%),linear-gradient(-45deg,transparent 75%,#1E1E22 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.h3{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#A0A0AB}
+.grp{padding:12px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97;display:flex;justify-content:space-between}
+.chip{height:26px;padding:0 9px 0 7px;display:inline-flex;align-items:center;gap:6px;border-radius:7px;background:#151517;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#8B8B97;white-space:nowrap}
+.chip b{font-weight:500;color:#EDEDEF}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.lens-run{transform-box:fill-box;transform-origin:center;animation:lensrot 9s linear infinite}
+@keyframes lensrot{to{transform:rotate(360deg)}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-tick{-webkit-mask-image:url(../icons/tick.svg);mask-image:url(../icons/tick.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
+.h3{white-space:nowrap}
+
+html,body{height:100%}
+textarea,select{font:inherit}
+.phone{height:100vh;overflow:hidden;display:flex;flex-direction:column;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;position:relative}
+.hs{overflow-x:auto;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.vs{overflow-y:auto;scrollbar-width:none}.vs::-webkit-scrollbar{display:none}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.02em;color:#EDEDEF}
+.tabbar{position:absolute;left:14px;right:14px;bottom:30px;z-index:4;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(8px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tcap{position:relative;height:100%;display:flex;align-items:stretch;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(255,51,82,.13);border:1px solid rgba(255,77,99,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(255,0,51,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;transition:color .2s}
+.tab.on{color:#FFE3E8;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06);color:#FF4D63}
+.tab:active{transform:scale(.96)}
+.tlab{display:block;max-height:16px;line-height:16px;white-space:nowrap;transition:opacity .2s,max-height .3s,margin .3s}
+.tnew{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;background:radial-gradient(circle at 35% 28%,#FF6A80 0%,#FF1F45 45%,#C80028 100%);box-shadow:0 8px 20px -6px rgba(255,0,51,.7),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 4px rgba(0,0,0,.25);transition:transform .2s}
+.tab:active .tnew{transform:scale(.92)}
+.tbadge{position:absolute;top:5px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#F6CB8C;color:#0B0B0D;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #1A1A1D}
+.phone:has(.tabbar) main.vs{padding-bottom:118px !important}
+.phone:has(.tabbar) .abar{padding-bottom:104px !important}
+.ib{width:44px;height:44px;border-radius:12px;border:none;background:transparent;color:#C9C9D1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.btn{height:44px;padding:0 16px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF}
+.btn-red{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.btn-pri{height:48px;padding:0 16px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;border:none;background:#EDEDEF;color:#0B0B0D}
+.sheet-t{font-size:18px;font-weight:600;line-height:1.35}
+.sec{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97}
+.wait-tile{background:repeating-linear-gradient(135deg,#121214 0 8px,#16161A 8px 16px)}
+.press:active{transform:scale(.98)}
+/* Viderse tokens — bộ của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cỡ, bo góc, bóng, chuyển động lấy y nguyên từ UI Kit của Noverse; chỉ màu nhấn và màu phá huỷ đổi:
+   tím Noverse → đỏ Viderse, đỏ phá huỷ Noverse → cam Viderse. Chỉ dark.
+   Dùng biến, không viết cứng mã màu đã có ở đây. */
+:root {
+  /* Nền và bề mặt (giống Noverse) */
+  --vv-bg: #0B0B0D;
+  --vv-stage: #0D0D0F;                /* nền khung minh hoạ, vùng làm việc phụ */
+  --vv-surface-1: #131315;            /* thanh điều hướng, segmented, chip */
+  --vv-surface-2: #161618;            /* ô nhập lớn */
+  --vv-surface-3: #18181A;            /* composer, hộp thoại */
+  --vv-card: linear-gradient(180deg, #171719 0%, #131315 100%);
+  --vv-card-border: rgba(255,255,255,.07);
+  --vv-card-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.5);
+  --vv-hairline: rgba(255,255,255,.06);
+  --vv-selected: #222225;             /* tab/segment đang chọn trên thanh */
+  --vv-selected-2: #2A2A2E;           /* nút đang chọn trong nhóm chọn, tooltip */
+
+  /* Chữ */
+  --vv-text: #EDEDEF;
+  --vv-text-2: #C9C9D1;
+  --vv-text-soft: #B4B4BE;            /* thân hộp thoại, luật */
+  --vv-text-3: #A0A0AB;
+  --vv-text-hint: #8E8E99;            /* mô tả dưới lựa chọn */
+  --vv-muted: #8B8B97;                /* tối thiểu cho chữ phụ: 5.8:1 trên --vv-bg, 5.4:1 trên card */
+  --vv-faint: #6E6E78;                /* 3.9:1 — chỉ cho chấm, icon, viền; KHÔNG dùng cho chữ */
+  --vv-disabled: #5E5E68;             /* chữ của thứ đang khoá (không cần đạt tương phản) */
+
+  /* Màu nhấn — Noverse dùng tím, Viderse dùng đỏ */
+  --vv-accent: #FF4D63;               /* hộp kiểm, radio, thanh trượt, dấu tick, link, icon tab đang chọn — 6:1 trên nền */
+  --vv-accent-strong: #E6002E;        /* công tắc bật (núm sáng 4:1) */
+  --vv-accent-soft: #FFD3DA;          /* chữ trên nền nhấn nhạt (thẻ chọn nhiều, huy hiệu) */
+  --vv-accent-bg: rgba(255,77,99,.12);
+  --vv-accent-tint: rgba(255,77,99,.06);   /* nền lựa chọn đang chọn */
+  --vv-accent-border: rgba(255,77,99,.40); /* viền lựa chọn đang chọn */
+  --vv-accent-focus: rgba(255,77,99,.55);  /* viền ô đang mở / focus */
+  --vv-accent-ring: rgba(255,77,99,.14);   /* vòng 3px quanh ô đang focus */
+  --vv-accent-mark: rgba(255,77,99,.22);   /* tô phần khớp khi tìm */
+
+  /* Thương hiệu — đỏ YouTube (logo, chấm đang chạy) */
+  --vv-red: #FF0033;
+  --vv-red-ink: #FF4D63;              /* = --vv-accent */
+  --vv-red-deep: #A3001C;
+  --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
+  --vv-red-button-hover: #FF1F4B;
+
+  /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */
+  --vv-danger: #FF9A5C;               /* nút xoá vĩnh viễn (nền), icon lỗi */
+  --vv-danger-hover: #FFAD78;
+  --vv-danger-fg: #1A0E06;            /* chữ trên nút cam đặc */
+  --vv-danger-text: #FFC09A;          /* chữ lỗi, mục menu nguy hiểm */
+  --vv-danger-text-2: #FFD2B5;        /* chữ trên nền lỗi nhạt */
+  --vv-danger-soft: rgba(255,154,92,.12);  /* nút nguy hiểm làm lại được */
+  --vv-danger-soft-hover: rgba(255,154,92,.20);
+  --vv-danger-tint: rgba(255,154,92,.06);  /* nền danh sách hệ quả, banner lỗi */
+  --vv-danger-border: rgba(255,154,92,.30);
+  --vv-danger-focus: rgba(255,154,92,.55); /* viền ô lỗi */
+  --vv-danger-ring: rgba(255,154,92,.12);
+
+  /* Trạng thái video (ia-flows §3.1) */
+  --vv-st-queued: #8E8E99;            /* Chờ lượt, Tạm dừng */
+  --vv-st-working: #B9D0F7;           /* Đang làm */
+  --vv-st-review: #F6CB8C;            /* Chờ duyệt, chờ bạn */
+  --vv-st-issue: #FF9A5C;             /* Cần xử lý — cùng màu với --vv-danger */
+  --vv-st-issue-text: #FFC09A;
+  --vv-st-ready: #A6EDC1;             /* Sẵn sàng, Ổn, Xong */
+  --vv-st-posted: #8B8B97;
+  --vv-info: #9DB0F7;                 /* banner thông tin */
+  --vv-info-bg: rgba(124,147,243,.07);
+  --vv-info-border: rgba(124,147,243,.20);
+  --vv-st-review-bg: rgba(246,203,140,.12);
+  --vv-st-review-tint: rgba(246,203,140,.06);
+  --vv-st-review-border: rgba(246,203,140,.20);
+  --vv-st-issue-bg: var(--vv-danger-tint);
+  --vv-st-issue-border: var(--vv-danger-border);
+  --vv-st-ready-bg: rgba(166,237,193,.12);
+  --vv-st-ready-tint: rgba(166,237,193,.06);
+  --vv-st-ready-border: rgba(166,237,193,.20);
+  --vv-st-working-bg: rgba(185,208,247,.12);
+  --vv-director-bg: rgba(184,156,255,.07);
+  --vv-ref-bg: rgba(255,208,138,.10);
+
+  /* Bốn trợ lý: chữ, vòng logo, orb */
+  --vv-scout-ink: #B7CEFF;    --vv-scout-arc: #7FA3FF;
+  --vv-director-ink: #CDB5FF; --vv-director-arc: #B08AF7;
+  --vv-artist-ink: #FFD08A;   --vv-artist-arc: #FFBE66;
+  --vv-qa-ink: #9DECC9;       --vv-qa-arc: #5DDDB0;
+  --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
+  --vv-orb-director: radial-gradient(circle at 32% 26%, #F5EAFF 0%, #D2AEFF 28%, #9566F0 62%, #5B2FB8 100%);
+  --vv-orb-artist: radial-gradient(circle at 32% 26%, #FFF3DC 0%, #FFD08A 28%, #F5A13F 62%, #C2611D 100%);
+  --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
+  --vv-orb-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4);
+
+  /* Chỉ số nổi trội (chỉ trong thumbnail) */
+  --vv-outlier-bg: #F6CB8C;
+  --vv-outlier-fg: #0B0B0D;
+
+  /* Chữ */
+  --vv-font: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;  /* 400/500/600/700, subset vietnamese */
+  --vv-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --vv-fs-page: 17px;
+  --vv-fs-hero: 30px;
+  --vv-fs-dialog: 16px;    /* tiêu đề hộp thoại */
+  --vv-fs-body: 14px;
+  --vv-fs-card: 14px;      /* tiêu đề thẻ (600) */
+  --vv-fs-ui: 13px;        /* nút, ô nhập, mục menu */
+  --vv-fs-meta: 12px;
+  --vv-fs-small: 11.5px;   /* mô tả dưới lựa chọn, toast nhỏ */
+  --vv-fs-group: 11px;     /* nhãn nhóm VIẾT HOA, 600, letter-spacing .08em */
+
+  /* Bo góc (Noverse) */
+  --vv-r-kbd: 4px;
+  --vv-r-tag: 6px;         /* huy hiệu, nhãn */
+  --vv-r-tip: 7px;         /* tooltip, thẻ trong ô chọn nhiều, nút trong nhóm chọn */
+  --vv-r-chip: 8px;        /* chip, nút nhỏ */
+  --vv-r-opt: 9px;         /* mục menu / lựa chọn */
+  --vv-r-btn: 10px;        /* nút, ô nhập, ô chọn */
+  --vv-r-field: 10px;
+  --vv-r-choice: 11px;     /* thẻ lựa chọn có mô tả */
+  --vv-r-tile: 12px;       /* banner, khối trống, thẻ nhỏ trong danh sách */
+  --vv-r-pop: 14px;        /* menu, popover, select mở */
+  --vv-r-card: 16px;       /* thẻ nhóm */
+  --vv-r-dialog: 18px;     /* hộp thoại, khung minh hoạ */
+  --vv-r-thumb: 7px;
+  --vv-r-composer: 18px;
+  --vv-r-sheet: 22px;
+  --vv-r-field-m: 12px;
+  --vv-r-pill: 999px;
+
+  /* Kích thước */
+  --vv-h-btn: 36px;  --vv-h-btn-sm: 30px;  --vv-h-field: 36px;  --vv-h-opt: 34px;
+  --vv-hit-desktop: 30px;
+  --vv-hit-touch: 44px;
+  --vv-m-btn: 44px; --vv-m-btn-lg: 48px; --vv-m-row: 56px; --vv-m-bar: 52px; --vv-m-tabbar: 64px;
+
+  /* Nút sáng = nút chính */
+  --vv-primary: #EDEDEF;
+  --vv-primary-hover: #FFFFFF;
+  --vv-primary-fg: #0B0B0D;
+  --vv-white-button: var(--vv-primary);     /* tên cũ, giữ để màn chưa chuyển vẫn đọc được */
+  --vv-white-button-fg: var(--vv-primary-fg);
+  --vv-ghost-border: rgba(255,255,255,.12);
+
+  /* Ô nhập & lớp nổi */
+  --vv-field: #0F0F11;
+  --vv-field-hover: #121214;
+  --vv-field-border: rgba(255,255,255,.10);
+  --vv-field-border-hover: rgba(255,255,255,.18);
+  --vv-field-border-focus: var(--vv-accent-focus);
+  --vv-popover: #1A1A1D;
+  --vv-popover-border: rgba(255,255,255,.10);
+  --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-dialog: #18181A;
+  --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  --vv-toast: #1C1C1F;
+  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
+  --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
+  --vv-hover: rgba(255,255,255,.07);
+  --vv-hover-row: rgba(255,255,255,.04);
+  --vv-opt-hover: rgba(255,255,255,.06);
+  --vv-opt-active: rgba(255,255,255,.075);  /* mục đang trỏ bằng phím */
+  --vv-skel-a: #17171A; --vv-skel-b: #222226;
+  --vv-focus: 0 0 0 3px var(--vv-accent-ring);
+  --vv-focus-outline: 2px solid var(--vv-accent);
+
+  /* Chuyển động (Noverse) */
+  --vv-ease: cubic-bezier(.2,.9,.3,1);          /* menu, popover mở */
+  --vv-ease-spring: cubic-bezier(.34,1.45,.5,1); /* công tắc, nhóm chọn */
+  --vv-dur: 150ms;
+  --vv-dur-pop: 170ms;
+  --vv-dur-dialog: 300ms;
+}
+
+/* Lớp tiện ích dùng lại từ artboard */
+.vv-orb { border-radius: 50%; flex: 0 0 auto; box-shadow: var(--vv-orb-shadow); }
+.vv-live { animation: vv-breathe 2.8s ease-in-out infinite; }      /* orb trợ lý đang chạy */
+.vv-rec { animation: vv-rec 1.6s ease-in-out infinite; }            /* chấm đỏ “đang chạy” */
+.vv-lens-run { transform-box: fill-box; transform-origin: center; animation: vv-lensrot 9s linear infinite; }
+@keyframes vv-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }
+@keyframes vv-rec { 50% { opacity: .35 } }
+@keyframes vv-lensrot { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Viderse UI Kit — bộ thành phần của Noverse, đổi theme màu (đợt 19, 29/10/2026).
+   Cần tokens.css nạp trước. Board tham chiếu: artboards/Kit.dc.html (máy tính) và MKit.dc.html (điện thoại);
+   hai board dựng bằng chính các lớp dưới đây, nên giá trị ở đây là giá trị thật.
+   Cỡ, bo góc, bóng, chuyển động giống hệt Kit Noverse; khác duy nhất: tím → đỏ (--vv-accent*), đỏ phá huỷ → cam (--vv-danger*).
+   Quy ước tên: .vv-<thành phần>, biến thể --<tên>, phần con __<tên>, trạng thái .is-<tên> hoặc thuộc tính ARIA. */
+
+/* ---------- Nền ---------- */
+.vv-root { background: var(--vv-bg); color: var(--vv-text); font-family: var(--vv-font); font-size: var(--vv-fs-body); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.vv-root *, .vv-root *::before, .vv-root *::after { box-sizing: border-box; }
+.vv-root :focus-visible { outline: var(--vv-focus-outline); outline-offset: 2px; }
+.vv-num { font-variant-numeric: tabular-nums; }
+.vv-mono { font-family: var(--vv-font-mono); }
+.vv-ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-spacer { flex: 1 1 auto; }
+.vv-group { font-size: var(--vv-fs-group); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-kbd { font-family: var(--vv-font-mono); font-size: 11px; color: var(--vv-text-3); padding: 1px 5px; border-radius: var(--vv-r-kbd); border: 1px solid var(--vv-field-border); background: #151517; white-space: nowrap; }
+.vv-ic { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; background-color: currentColor; -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+.vv-mark { background: var(--vv-accent-mark); color: var(--vv-accent-soft); border-radius: 3px; padding: 0 1px; }
+.vv-link { color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---------- Nút ---------- */
+/* Một màn một nút chính (sáng). Cam đặc chỉ cho xoá vĩnh viễn; cam nhạt cho việc nguy hiểm làm lại được. */
+.vv-btn { --h: var(--vv-h-btn); height: var(--h); padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--vv-r-btn); border: 1px solid var(--vv-ghost-border); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); font-weight: 500; white-space: nowrap; cursor: pointer; text-decoration: none; transition: background-color var(--vv-dur), box-shadow .2s, transform 80ms, border-color var(--vv-dur); }
+.vv-btn:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn.is-hover { background: var(--vv-hover); }
+.vv-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.98); }
+.vv-btn--primary, .vv-btn--white { background: var(--vv-primary); border-color: transparent; color: var(--vv-primary-fg); font-weight: 600; }
+.vv-btn--primary:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--white:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--primary.is-hover, .vv-btn--white.is-hover { background: var(--vv-primary-hover); }
+.vv-btn--danger { background: var(--vv-danger); border-color: transparent; color: var(--vv-danger-fg); font-weight: 600; }
+.vv-btn--danger:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger.is-hover { background: var(--vv-danger-hover); box-shadow: 0 0 0 4px var(--vv-danger-ring); }
+.vv-btn--danger-soft { background: var(--vv-danger-soft); border-color: var(--vv-danger-border); color: var(--vv-danger-text-2); }
+.vv-btn--danger-soft:hover:not(:disabled):not([aria-disabled="true"]), .vv-btn--danger-soft.is-hover { background: var(--vv-danger-soft-hover); }
+.vv-btn--quiet { border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--quiet:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn--sm { --h: var(--vv-h-btn-sm); padding: 0 10px; font-size: 12px; border-radius: var(--vv-r-chip); }
+.vv-btn--icon { width: var(--h); padding: 0; border-color: transparent; color: var(--vv-text-3); }
+.vv-btn--icon:hover:not(:disabled) { color: var(--vv-text); }
+.vv-btn[aria-disabled="true"], .vv-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.vv-btn .vv-ic, .vv-btn .ic { width: 15px; height: 15px; }
+.vv-btn--sm .vv-ic, .vv-btn--sm .ic { width: 13px; height: 13px; }
+.vv-btn--primary .vv-spinner, .vv-btn--white .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-primary-fg); }
+.vv-btn--danger .vv-spinner { border-color: rgba(0,0,0,.15); border-top-color: var(--vv-danger-fg); }
+.vv-btn--hold { position: relative; overflow: hidden; }
+.vv-btn--hold > i { position: absolute; left: 0; top: 0; bottom: 0; width: var(--hold, 0%); background: rgba(255,255,255,.16); pointer-events: none; }
+.vv-btn--hold > :not(i) { position: relative; }
+/* điện thoại */
+.vv-btn--m { --h: var(--vv-m-btn); padding: 0 16px; border-radius: 12px; font-size: 14px; }
+.vv-btn--m-lg { --h: var(--vv-m-btn-lg); padding: 0 16px; border-radius: 13px; font-size: 15px; font-weight: 600; width: 100%; }
+
+/* ---------- Ô nhập ---------- */
+.vv-field { height: var(--vv-h-field); width: 100%; min-width: 0; padding: 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); outline: none; text-overflow: ellipsis; transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-field::placeholder { color: var(--vv-muted); }
+.vv-field:hover, .vv-field.is-hover { border-color: var(--vv-field-border-hover); }
+.vv-field:focus, .vv-field.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-field.is-error, .vv-field[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-field:disabled, .vv-field.is-disabled { opacity: .45; cursor: not-allowed; }
+textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize: none; }
+.vv-field--m { height: var(--vv-m-btn); border-radius: var(--vv-r-field-m); font-size: 15px; }
+.vv-fieldbox { display: flex; align-items: center; gap: 8px; min-height: var(--vv-h-field); padding: 4px 8px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); transition: border-color var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-fieldbox:focus-within, .vv-fieldbox.is-focus { border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-fieldbox.is-error { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-fieldbox--wrap { flex-wrap: wrap; padding: 5px 8px; }
+.vv-fieldbox > input { flex: 1 1 60px; min-width: 60px; height: 26px; border: none; background: transparent; outline: none; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); padding: 0; }
+.vv-fieldbox > input::placeholder { color: var(--vv-muted); }
+.vv-fieldbox > .vv-ic, .vv-fieldbox > .ic { width: 15px; height: 15px; color: var(--vv-muted); }
+.vv-fieldbox__affix { font-family: var(--vv-font-mono); font-size: 12.5px; color: var(--vv-muted); white-space: nowrap; }
+.vv-fieldbox__suffix { font-family: var(--vv-font-mono); font-size: 12px; color: var(--vv-st-ready); padding: 2px 6px; border-radius: 5px; background: rgba(166,237,193,.1); white-space: nowrap; }
+.vv-label { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-label small { font-size: inherit; color: var(--vv-muted); }
+.vv-label--group { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+.vv-help, .vv-err { display: flex; gap: 6px; align-items: flex-start; font-size: var(--vv-fs-small); line-height: 1.5; color: var(--vv-muted); }
+.vv-err { color: var(--vv-danger-text); }
+.vv-help > .vv-ic, .vv-help > .ic, .vv-err > .vv-ic, .vv-err > .ic { width: 13px; height: 13px; margin-top: 2px; }
+.vv-counter { font-size: 11px; color: var(--vv-muted); font-variant-numeric: tabular-nums; }
+.vv-counter.is-near { color: var(--vv-st-review); }
+
+/* ---------- Ô chọn (select) ---------- */
+.vv-select { display: flex; align-items: center; gap: 8px; width: 100%; height: var(--vv-h-field); padding: 0 10px 0 12px; border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; transition: border-color var(--vv-dur), box-shadow var(--vv-dur), background-color var(--vv-dur); }
+.vv-select:hover, .vv-select.is-hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-select[aria-expanded="true"], .vv-select:focus-visible, .vv-select.is-open { outline: none; border-color: var(--vv-accent-focus); box-shadow: var(--vv-focus); }
+.vv-select.is-error, .vv-select[aria-invalid="true"] { border-color: var(--vv-danger-focus); box-shadow: 0 0 0 3px var(--vv-danger-ring); }
+.vv-select:disabled { opacity: .45; cursor: not-allowed; }
+.vv-select__value { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-select__value.is-placeholder { color: var(--vv-muted); }
+.vv-select__chev { width: 15px; height: 15px; color: var(--vv-muted); transition: transform .18s; }
+.vv-select[aria-expanded="true"] .vv-select__chev, .vv-select.is-open .vv-select__chev { transform: rotate(180deg); }
+.vv-select--rich { height: 48px; }
+
+/* ---------- Menu, danh sách chọn, popover ---------- */
+.vv-pop, .vv-menu { padding: 6px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); }
+.vv-menu { min-width: 240px; display: flex; flex-direction: column; }
+.vv-pop--float { position: absolute; z-index: 40; }
+.vv-pop--note { padding: 14px; display: flex; flex-direction: column; gap: 8px; width: 280px; }
+.vv-pop-in { animation: vv-popIn var(--vv-dur-pop) var(--vv-ease) both; }
+.vv-pop-side { animation: vv-flyL .16s var(--vv-ease) both; }
+@keyframes vv-popIn { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes vv-flyL { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.vv-opt, .vv-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--vv-h-opt); padding: 6px 10px; border: none; border-radius: var(--vv-r-opt); background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; text-decoration: none; cursor: pointer; }
+.vv-opt:hover, .vv-menu__item:hover { background: var(--vv-opt-hover); }
+.vv-opt.is-active, .vv-menu__item.is-active, .vv-menu__item.is-hover { background: var(--vv-opt-active); }
+.vv-opt > .vv-ic, .vv-opt > .ic, .vv-menu__item > .vv-ic, .vv-menu__item > .ic { width: 16px; height: 16px; color: var(--vv-text-3); }
+.vv-opt--danger, .vv-menu__item--danger, .vv-opt--danger > .ic, .vv-menu__item--danger > .ic, .vv-opt--danger > .vv-ic, .vv-menu__item--danger > .vv-ic { color: var(--vv-danger-text); }
+.vv-opt--danger:hover, .vv-opt--danger.is-active, .vv-menu__item--danger:hover { background: var(--vv-danger-soft); }
+.vv-opt:disabled, .vv-opt[aria-disabled="true"], .vv-menu__item[aria-disabled="true"] { color: var(--vv-disabled); background: transparent; cursor: not-allowed; }
+.vv-opt--rich { min-height: 48px; }
+.vv-opt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-opt__text > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-opt__desc, .vv-menu__hint { display: block; font-size: var(--vv-fs-small); color: var(--vv-text-hint); line-height: 1.4; }
+.vv-opt__meta { font-size: 11px; color: var(--vv-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-opt__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); font-size: 11px; color: var(--vv-text-3); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.vv-opt__tick, .vv-option__tick { width: 16px; height: 16px; flex: 0 0 auto; color: var(--vv-accent); }
+.vv-opt__chev { width: 14px; height: 14px; color: var(--vv-muted); }
+.vv-opt__add, .vv-opt > .ic.is-accent { color: var(--vv-accent); }
+.vv-menu__sep { height: 1px; margin: 6px 4px; background: rgba(255,255,255,.07); flex: 0 0 auto; }
+.vv-menu__group { display: flex; justify-content: space-between; padding: 6px 10px 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vv-muted); }
+
+/* ---------- Chọn & bật tắt ---------- */
+.vv-check, .vv-radio { width: 18px; height: 18px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,.28); background: transparent; transition: background-color .16s, border-color .16s; }
+.vv-check { border-radius: 5px; }
+.vv-radio { border-radius: 50%; }
+.vv-check[aria-checked="true"], .vv-check.is-on, .vv-check[aria-checked="mixed"], .vv-check.is-mixed { background: var(--vv-accent); border-color: var(--vv-accent); }
+.vv-check[aria-checked="true"]::after, .vv-check.is-on::after { content: ""; width: 5px; height: 9px; border: solid var(--vv-primary-fg); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+.vv-check[aria-checked="mixed"]::after, .vv-check.is-mixed::after { content: ""; width: 8px; height: 2px; border-radius: 1px; background: var(--vv-primary-fg); }
+.vv-radio[aria-checked="true"], .vv-radio.is-on { border-color: var(--vv-accent); }
+.vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vv-accent); }
+.vv-check--m, .vv-radio--m { width: 22px; height: 22px; }
+.vv-checkrow { display: flex; align-items: center; gap: 10px; padding: 0; border: none; background: transparent; color: var(--vv-text); font: inherit; font-size: var(--vv-fs-ui); text-align: left; cursor: pointer; }
+.vv-checkrow:disabled, .vv-checkrow[aria-disabled="true"] { color: var(--vv-disabled); cursor: not-allowed; }
+.vv-checkrow:disabled .vv-check { opacity: .6; }
+.vv-choice { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .14s; }
+.vv-choice > .vv-radio, .vv-choice > .vv-check { margin-top: 1px; }
+.vv-choice[aria-checked="true"] { border-color: var(--vv-accent-border); background: var(--vv-accent-tint); }
+.vv-choice[aria-disabled="true"] { color: var(--vv-text-3); cursor: default; }
+.vv-choice:active:not([aria-disabled="true"]) { transform: scale(.985); }
+.vv-choice--lg { gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-choice); border-color: rgba(255,255,255,.08); }
+.vv-choice__text { display: flex; flex-direction: column; min-width: 0; }
+.vv-choice__label { font-size: var(--vv-fs-ui); }
+.vv-choice--lg .vv-choice__label { font-weight: 500; }
+.vv-choice__note { font-size: var(--vv-fs-small); color: var(--vv-text-hint); }
+.vv-switch { position: relative; width: 36px; height: 22px; flex: 0 0 auto; border: none; padding: 0; border-radius: var(--vv-r-pill); background: var(--vv-selected-2); cursor: pointer; transition: background-color .2s; }
+.vv-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: left .3s var(--vv-ease-spring), transform .3s var(--vv-ease-spring); transform-origin: left center; }
+.vv-switch[aria-checked="true"] { background: var(--vv-accent-strong); }
+.vv-switch[aria-checked="true"]::after { left: 17px; transform-origin: right center; }
+.vv-switch:active:not(:disabled):not([aria-disabled="true"])::after { transform: scaleX(1.22); }
+.vv-switch:disabled, .vv-switch[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+.vv-switch--m { width: 50px; height: 30px; }
+.vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
+.vv-switch--m[aria-checked="true"]::after { left: 23px; }
+.vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
+.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+.vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
+.vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
+.vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
+.vv-seg--thumb > button[aria-checked="true"] { background: transparent; }
+.vv-seg--bar { gap: 2px; border-radius: 11px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--bar > button { height: 32px; border-radius: 8px; font-size: var(--vv-fs-ui); }
+.vv-seg--bar > button[aria-checked="true"], .vv-seg--bar > button[aria-selected="true"] { background: var(--vv-selected); font-weight: 500; }
+.vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
+.vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
+.vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+.vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
+.vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.vv-tab:hover { color: var(--vv-text); }
+.vv-tab[aria-selected="true"] { color: var(--vv-text); font-weight: 600; border-bottom-color: var(--vv-accent); }
+.vv-tab__n { font-size: 12px; color: var(--vv-muted); font-weight: 400; }
+.vv-stepper { display: inline-flex; align-items: stretch; width: 148px; height: var(--vv-h-field); border-radius: var(--vv-r-field); border: 1px solid var(--vv-field-border); background: var(--vv-field); overflow: hidden; }
+.vv-stepper > button { width: 36px; flex: 0 0 auto; border: none; background: transparent; color: var(--vv-text-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.vv-stepper > button:hover:not(:disabled) { background: var(--vv-hover); }
+.vv-stepper > button:disabled, .vv-stepper > button[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.vv-stepper > input, .vv-stepper > output { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: none; border-left: 1px solid rgba(255,255,255,.08); border-right: 1px solid rgba(255,255,255,.08); background: transparent; color: var(--vv-text); font-family: var(--vv-font-mono); font-size: var(--vv-fs-ui); font-variant-numeric: tabular-nums; text-align: center; outline: none; }
+.vv-stepper--m { height: var(--vv-m-btn); width: 160px; }
+.vv-stepper--m > button { width: 44px; }
+.vv-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.vv-range::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--vv-accent) var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%)); }
+.vv-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--vv-text); box-shadow: 0 0 0 4px rgba(255,77,99,.25), 0 2px 6px rgba(0,0,0,.5); }
+.vv-range__bubble { position: absolute; top: 0; transform: translateX(-50%); height: 18px; padding: 0 6px; border-radius: 5px; background: var(--vv-selected-2); font-family: var(--vv-font-mono); font-size: 10.5px; display: flex; align-items: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Chip, huy hiệu, đếm ---------- */
+.vv-chip { height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-chip); background: var(--vv-surface-1); border: 1px solid var(--vv-field-border); font: inherit; font-size: 12px; color: var(--vv-text-2); white-space: nowrap; cursor: pointer; }
+.vv-chip > .ic, .vv-chip > .vv-ic { width: 13px; height: 13px; color: var(--vv-text-hint); }
+.vv-chip b { font-weight: 500; color: var(--vv-text); }
+.vv-chip[aria-expanded="true"] { border-color: var(--vv-field-border-hover); background: #1C1C1F; }
+.vv-chip.is-custom { border-color: rgba(246,203,140,.3); }
+.vv-pill { height: 30px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-pill); border: 1px solid var(--vv-card-border); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.vv-pill[aria-checked="true"], .vv-pill[aria-pressed="true"] { background: var(--vv-selected); border-color: rgba(255,255,255,.14); color: var(--vv-text); }
+.vv-pill__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.vv-tag { height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--vv-r-tag); background: rgba(255,255,255,.06); color: var(--vv-text-3); font-size: var(--vv-fs-small); white-space: nowrap; }
+.vv-tag__dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--dot, currentColor); }
+.vv-tag--accent { background: var(--vv-accent-bg); color: var(--vv-accent-soft); --dot: var(--vv-accent); }
+.vv-tag--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-tag--review { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-tag--issue { background: var(--vv-danger-soft); color: var(--vv-danger-text); --dot: var(--vv-danger); }
+.vv-tag--working { background: var(--vv-st-working-bg); color: var(--vv-st-working); }
+.vv-tag--muted { --dot: var(--vv-disabled); }
+.vv-tag--ref { background: var(--vv-ref-bg); color: var(--vv-artist-ink); }
+.vv-tag--next { background: var(--vv-accent-bg); color: var(--vv-accent-soft); }
+.vv-tag--auto { color: var(--vv-qa-ink); background: rgba(157,236,201,.08); }
+.vv-token { height: 26px; padding: 0 4px 0 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: var(--vv-r-tip); background: var(--vv-accent-bg); border: 1px solid rgba(255,77,99,.25); color: var(--vv-accent-soft); font-size: 12px; white-space: nowrap; }
+.vv-token > button { width: 18px; height: 18px; border: none; border-radius: 5px; background: transparent; color: var(--vv-accent); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.vv-count { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--vv-r-pill); background: rgba(246,203,140,.16); color: var(--vv-st-review); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-count--solid { background: var(--vv-st-review); color: var(--vv-bg); font-weight: 700; }
+.vv-count--info { background: rgba(185,208,247,.14); color: var(--vv-st-working); }
+.vv-score { height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: var(--vv-r-tag); background: var(--vv-outlier-bg); color: var(--vv-outlier-fg); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-score--low { background: rgba(0,0,0,.75); color: #F3D9AE; }
+
+/* ---------- Trạng thái video ---------- */
+.vv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; color: var(--c, var(--vv-text-3)); }
+.vv-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.vv-status--queued { --c: var(--vv-st-queued); }
+.vv-status--working { --c: var(--vv-st-working); }
+.vv-status--working::before { width: 9px; height: 9px; background: none; border: 1.5px solid rgba(255,255,255,.15); border-top-color: currentColor; animation: vv-spin .9s linear infinite; }
+.vv-status--review { --c: var(--vv-st-review); }
+.vv-status--issue { --c: var(--vv-st-issue); }
+.vv-status--ready { --c: var(--vv-st-ready); }
+.vv-status--posted { --c: var(--vv-st-posted); }
+.vv-status--paused { --c: var(--vv-st-queued); }
+
+/* ---------- Thông báo trong trang, toast, tooltip ---------- */
+.vv-banner { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--vv-r-tile); border: 1px solid var(--vv-card-border); background: var(--vv-surface-1); --c: var(--vv-text-3); }
+.vv-banner > .ic, .vv-banner > .vv-ic, .vv-banner__icon { width: 17px; height: 17px; flex: 0 0 auto; color: var(--c); }
+.vv-banner__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.vv-banner__title { font-size: var(--vv-fs-ui); font-weight: 500; color: var(--vv-text); }
+.vv-banner__text { font-size: 12px; color: var(--vv-text-3); }
+.vv-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.vv-banner--info { --c: var(--vv-info); background: var(--vv-info-bg); border-color: var(--vv-info-border); }
+.vv-banner--ready { --c: var(--vv-st-ready); background: var(--vv-st-ready-tint); border-color: var(--vv-st-ready-border); }
+.vv-banner--review { --c: var(--vv-st-review); background: var(--vv-st-review-tint); border-color: var(--vv-st-review-border); }
+.vv-banner--issue { --c: var(--vv-danger); background: rgba(255,154,92,.07); border-color: rgba(255,154,92,.22); }
+.vv-banner--director { --c: var(--vv-director-ink); background: var(--vv-director-bg); border-color: rgba(184,156,255,.22); }
+.vv-toast { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); white-space: nowrap; }
+.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; }
+.vv-toast .vv-btn { --h: 28px; }
+.vv-toast--ok { border-color: rgba(166,237,193,.28); }
+.vv-toast--ok > .ic, .vv-toast--ok > .vv-ic { color: var(--vv-st-ready); }
+.vv-toast--issue { border-color: var(--vv-danger-border); }
+.vv-toast--issue > .ic, .vv-toast--issue > .vv-ic { color: var(--vv-danger); }
+.vv-toast--sm { height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+.vv-toast-in { animation: vv-tIn .4s cubic-bezier(.2,.9,.25,1.12) both; }
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+.vv-tip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); border: 1px solid rgba(255,255,255,.08); font-size: var(--vv-fs-small); line-height: 1.45; color: var(--vv-text); white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.7); }
+.vv-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--vv-selected-2); }
+.vv-tip .vv-kbd { font-size: 10px; }
+.vv-tip--wrap { white-space: normal; max-width: 260px; }
+.vv-tipwrap { position: relative; display: inline-flex; }
+.vv-tipwrap > .vv-tip { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 4px); opacity: 0; pointer-events: none; z-index: 30; transition: opacity .12s, transform .12s; }
+.vv-tipwrap > .vv-tip--below { bottom: auto; top: calc(100% + 8px); transform: translate(-50%, -4px); }
+.vv-tipwrap > .vv-tip--below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--vv-selected-2); }
+.vv-tipwrap:hover > .vv-tip, .vv-tipwrap:focus-within > .vv-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: .4s; }
+
+/* ---------- Tiến độ, đang tải, trống ---------- */
+.vv-progress { height: 4px; border-radius: var(--vv-r-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.vv-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vv-accent); }
+.vv-progress--working > span { background: var(--vv-st-working); }
+.vv-progress--artist > span { background: var(--vv-artist-ink); }
+.vv-progress--ready > span { background: var(--vv-st-ready); }
+.vv-progress--issue > span { background: var(--vv-st-issue); }
+.vv-spinner { width: 14px; height: 14px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,.16); border-top-color: var(--vv-text); animation: vv-spin .9s linear infinite; }
+.vv-skel { border-radius: 6px; background: linear-gradient(90deg, var(--vv-skel-a) 0%, var(--vv-skel-b) 40%, var(--vv-skel-a) 80%); background-size: 200% 100%; animation: vv-skel 1.4s linear infinite; }
+.vv-shimmer { background: linear-gradient(90deg, var(--vv-text-3) 0%, var(--vv-text-3) 35%, #FFE3E8 50%, var(--vv-text-3) 65%, var(--vv-text-3) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: vv-shim 2.4s linear infinite; }
+.vv-wait { background: repeating-linear-gradient(135deg, #121214 0 8px, #16161A 8px 16px); }
+.vv-empty { padding: 18px; border-radius: var(--vv-r-tile); border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.vv-empty__icon { width: 40px; height: 40px; border-radius: var(--vv-r-tile); background: var(--vv-accent-bg); color: var(--vv-accent); display: flex; align-items: center; justify-content: center; }
+.vv-empty__icon > .ic, .vv-empty__icon > .vv-ic { width: 19px; height: 19px; }
+.vv-empty__title { font-size: 13.5px; font-weight: 500; }
+.vv-empty__text { font-size: 12px; color: var(--vv-text-hint); }
+@keyframes vv-spin { to { transform: rotate(360deg); } }
+@keyframes vv-skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes vv-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ---------- Bề mặt ---------- */
+.vv-card { background: var(--vv-card); border: 1px solid var(--vv-card-border); box-shadow: var(--vv-card-shadow); border-radius: var(--vv-r-card); }
+.vv-card__title { font-size: var(--vv-fs-card); font-weight: 600; }
+.vv-stage { position: relative; border-radius: var(--vv-r-dialog); border: 1px solid var(--vv-card-border); background: var(--vv-stage); }
+.vv-row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px 0 12px; border-radius: 10px; color: var(--vv-text); text-decoration: none; }
+.vv-row:hover { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on, .vv-row.is-open { background: var(--vv-hover-row); }
+.vv-row[aria-current="page"], .vv-row.is-on { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.vv-row__more { opacity: 0; transition: opacity .12s; }
+.vv-row:hover .vv-row__more, .vv-row.is-open .vv-row__more, .vv-row__more[aria-expanded="true"] { opacity: 1; }
+.vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
+@media (hover: none) { .vv-row__more { opacity: 1; } }
+.vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+.vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
+.vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
+.vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
+.vv-thumb__bl { left: 6px; } .vv-thumb__br { right: 6px; }
+.vv-thumb__dur { height: 20px; padding: 0 5px; display: inline-flex; align-items: center; border-radius: 4px; background: rgba(0,0,0,.75); font-family: var(--vv-font-mono); font-size: 10.5px; color: var(--vv-text); }
+.vv-orb--scout { background: var(--vv-orb-scout); } .vv-orb--director { background: var(--vv-orb-director); }
+.vv-orb--artist { background: var(--vv-orb-artist); } .vv-orb--qa { background: var(--vv-orb-qa); }
+
+/* ---------- Hộp thoại & sheet ---------- */
+.vv-scrim { position: absolute; inset: 0; background: var(--vv-scrim); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.vv-scrim--center { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.vv-dialog { width: 460px; max-width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-radius: var(--vv-r-dialog); background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); font-size: var(--vv-fs-ui); }
+.vv-dialog__head { display: flex; gap: 14px; align-items: flex-start; }
+.vv-dialog__icon { width: 42px; height: 42px; flex: 0 0 auto; border-radius: var(--vv-r-tile); display: flex; align-items: center; justify-content: center; background: var(--vv-accent-bg); color: var(--vv-accent); }
+.vv-dialog__icon > .ic, .vv-dialog__icon > .vv-ic { width: 20px; height: 20px; }
+.vv-dialog__icon--warn { background: var(--vv-st-review-bg); color: var(--vv-st-review); }
+.vv-dialog__icon--danger { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-dialog__icon--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-dialog__icon--agent { border-radius: 50%; }
+.vv-dialog__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.vv-dialog__title { margin: 0; font-size: var(--vv-fs-dialog); font-weight: 600; line-height: 1.4; }
+.vv-dialog__sub { margin: 0; font-size: 13.5px; color: var(--vv-text-soft); line-height: 1.55; }
+.vv-dialog__list { margin: 0; padding: 10px 12px; border-radius: var(--vv-r-choice); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--vv-text-2); line-height: 1.55; }
+ul.vv-dialog__list { padding-left: 30px; }
+.vv-dialog__list--danger { background: rgba(255,154,92,.05); border-color: rgba(255,154,92,.16); }
+.vv-dialog__compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vv-dialog__ver { padding: 10px 12px; border-radius: 10px; background: var(--vv-field); border: 1px solid var(--vv-hairline); display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.vv-dialog__ver--new { border-color: var(--vv-st-ready-border); }
+.vv-dialog__err { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,154,92,.08); border: 1px solid rgba(255,154,92,.25); font-size: 12.5px; color: var(--vv-danger-text-2); }
+.vv-dialog__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vv-scrim-in { animation: vv-fade .2s ease-out both; } .vv-scrim-out { animation: vv-fade .2s ease-in reverse both; }
+.vv-dlg-in { animation: vv-dlgIn var(--vv-dur-dialog) cubic-bezier(.2,.9,.25,1.08) both; }
+.vv-dlg-out { animation: vv-dlgOut .18s cubic-bezier(.5,0,.75,0) both; }
+.vv-shake { animation: vv-shake .38s cubic-bezier(.36,.07,.19,.97); }
+.vv-tick-in { animation: vv-tick .3s cubic-bezier(.2,.9,.3,1.5) both; }
+@keyframes vv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vv-dlgIn { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes vv-dlgOut { to { opacity: 0; transform: translateY(6px) scale(.97); } }
+@keyframes vv-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes vv-tick { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.vv-sheet { display: flex; flex-direction: column; max-height: 86%; border-radius: var(--vv-r-sheet) var(--vv-r-sheet) 0 0; background: var(--vv-dialog); border-top: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-dialog-shadow); }
+.vv-sheet__grab { display: flex; justify-content: center; padding: 8px 0 2px; }
+.vv-sheet__grab::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.vv-sheet__title { padding: 6px 16px 10px; font-size: var(--vv-fs-sheet); font-weight: 600; line-height: 1.35; }
+
+/* ---------- Điện thoại: đầu trang & thanh dưới ---------- */
+.vv-appbar { height: var(--vv-m-bar); padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+.vv-navbar { height: var(--vv-m-bar); padding: 0 6px; display: flex; align-items: center; gap: 2px; }
+.vv-navbar__title { flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column; line-height: 1.3; }
+.vv-navbar__title > b { font-size: var(--vv-fs-nav-m); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-navbar__title > span { font-size: 12px; color: var(--vv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-ib { width: 44px; height: 44px; flex: 0 0 auto; border: none; border-radius: 12px; background: transparent; color: var(--vv-text-2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.vv-title-m { margin: 0; font-size: var(--vv-fs-title-m); font-weight: 600; letter-spacing: -.02em; }
+.vv-tabbar { position: absolute; left: 14px; right: 14px; bottom: 30px; height: var(--vv-m-tabbar); transition: transform .42s cubic-bezier(.2,.9,.25,1), opacity .3s; }
+.vv-tabbar.is-mini { transform: translateY(8px) scale(.92); }
+.vv-tabbar.is-mini .vv-tabbar__label { opacity: 0; max-height: 0; margin-top: -2px; }
+.vv-tabbar__cap { position: relative; height: 100%; display: flex; padding: 5px; border-radius: 32px; background: var(--vv-glass); -webkit-backdrop-filter: blur(26px) saturate(180%); backdrop-filter: blur(26px) saturate(180%); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 22px 44px -14px rgba(0,0,0,.85), 0 2px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09); }
+.vv-tabbar__ind { position: absolute; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5); left: calc(5px + var(--i, 0) * (100% - 10px) / 5); border-radius: 27px; background: rgba(255,51,82,.13); border: 1px solid rgba(255,77,99,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px -4px rgba(255,0,51,.45); transition: left .45s cubic-bezier(.2,.9,.25,1.15); }
+.vv-tabbar__item { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; font-size: 10.5px; font-weight: 500; color: var(--vv-text-hint); text-decoration: none; }
+.vv-tabbar__item[aria-current="page"] { color: #FFE3E8; font-weight: 600; }
+.vv-tabbar__item[aria-current="page"] .vv-ic, .vv-tabbar__item[aria-current="page"] .ic { color: var(--vv-accent); transform: translateY(-1px) scale(1.06); }
+.vv-tabbar__item .vv-ic, .vv-tabbar__item .ic { width: 24px; height: 24px; transition: transform .35s cubic-bezier(.2,.9,.3,1.4); }
+.vv-tabbar__label { max-height: 16px; line-height: 16px; white-space: nowrap; transition: opacity .2s, max-height .3s, margin .3s; }
+.vv-tabbar__new { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); box-shadow: 0 8px 20px -6px rgba(255,0,51,.7), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
+.vv-tabbar__badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--vv-st-review); color: var(--vv-bg); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A1A1D; }
+
+/* ---------- Trợ lý chủ động (đợt 16, đổi theme đợt 19) ---------- */
+/* Màu trợ lý truyền qua --ag (chữ) trên phần tử gốc: style="--ag: var(--vv-scout-ink)". */
+.vv-why { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 2px; border: none; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12px; white-space: nowrap; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; cursor: pointer; }
+.vv-why:hover, .vv-why[aria-expanded="true"] { color: var(--vv-text); }
+.vv-reason { width: 320px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); font-size: var(--vv-fs-ui); line-height: 1.5; color: var(--vv-text-soft); }
+.vv-reason__head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ag, var(--vv-text-3)); font-weight: 600; }
+.vv-reason__text { color: var(--vv-text); font-size: 13.5px; }
+.vv-reason__facts { display: flex; flex-direction: column; border-top: 1px solid var(--vv-hairline); }
+.vv-reason__fact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--vv-hairline); }
+.vv-reason__fact b { max-width: 190px; font-weight: 600; color: var(--vv-text); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.45; }
+.vv-reason__src { grid-column: 1 / -1; font-size: var(--vv-fs-small); color: var(--vv-muted); }
+.vv-reason__fix { font-size: 12.5px; color: var(--vv-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+.vv-suggest { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 12px; border-radius: var(--vv-r-tile); background: var(--vv-surface-1); border: 1px solid var(--vv-card-border); }
+.vv-suggest > .vv-orb { grid-row: span 3; margin-top: 2px; }
+.vv-suggest__who { font-size: var(--vv-fs-small); font-weight: 600; color: var(--ag, var(--vv-text-3)); }
+.vv-suggest__title { font-size: 13.5px; line-height: 1.45; color: var(--vv-text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vv-suggest__ev { font-size: 12px; line-height: 1.45; color: var(--vv-muted); display: flex; flex-wrap: wrap; gap: 0 8px; align-items: center; }
+.vv-suggest__actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.vv-suggest__actions > .vv-btn:first-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vv-suggest--compact { padding: 10px; gap: 2px 8px; }
+.vv-suggest--compact .vv-suggest__title { font-size: var(--vv-fs-ui); }
+.vv-suggest--m { width: 288px; flex: 0 0 auto; padding: 14px; border-radius: var(--vv-r-card); scroll-snap-align: start; }
+
+.vv-recap { display: flex; flex-direction: column; gap: 18px; }
+.vv-recap__when { font-size: 12px; color: var(--vv-muted); }
+.vv-recap__lead { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--vv-text); text-wrap: balance; }
+.vv-recap__lead em { font-style: normal; }
+.vv-recap__sec { display: flex; flex-direction: column; gap: 8px; }
+.vv-recap__line { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: 10px; background: var(--vv-surface-1); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-recap__line > .vv-ic, .vv-recap__line > .ic { color: var(--vv-text-3); }
+.vv-recap__text { flex: 1; min-width: 0; }
+.vv-recap__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.vv-recap__tile { padding: 10px 12px; border-radius: 10px; background: var(--vv-surface-1); display: flex; flex-direction: column; gap: 2px; }
+.vv-recap__tile b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-recap__tile span { font-size: 12px; color: var(--vv-muted); }
+
+.vv-autonomy { display: flex; flex-direction: column; gap: 12px; }
+.vv-arow { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 4px 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-arow__label { font-size: 13.5px; color: var(--vv-text); }
+.vv-arow__hint { font-size: 12px; color: var(--vv-muted); line-height: 1.45; }
+.vv-arow--stack { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.vv-arow--m { grid-template-columns: minmax(0, 1fr); min-height: var(--vv-m-row); }
+.vv-guard { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); font-size: 12.5px; color: var(--vv-text-3); line-height: 1.5; }
+
+.vv-rule { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-rule > .vv-switch { grid-row: span 2; margin-top: 1px; }
+.vv-rule__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-rule__src { font-size: 12px; color: var(--vv-muted); }
+.vv-rule__actions { grid-row: span 2; display: flex; gap: 4px; }
+
+.vv-learn { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; align-items: start; padding: 10px 12px; border-radius: var(--vv-r-tile); background: var(--vv-director-bg); border: 1px solid rgba(184,156,255,.22); font-size: 12.5px; line-height: 1.5; color: #D6C9FF; }
+.vv-learn > .vv-orb { margin-top: 2px; }
+.vv-learn__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.vv-learn__text { min-width: 0; }
+.vv-learn--artist { background: rgba(255,208,138,.07); border-color: rgba(255,208,138,.22); color: #FFE2B5; }
+
+.vv-plan { display: flex; flex-direction: column; border-radius: var(--vv-r-pop); background: var(--vv-popover); border: 1px solid var(--vv-popover-border); box-shadow: var(--vv-popover-shadow); overflow: hidden; }
+.vv-plan__head { padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 2px; }
+.vv-plan__head b { font-size: 14px; font-weight: 600; }
+.vv-plan__head span { font-size: 12px; color: var(--vv-muted); }
+.vv-plan__step { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--vv-hairline); font-size: var(--vv-fs-ui); color: var(--vv-text-2); }
+.vv-plan__step b { display: block; font-weight: 500; color: var(--vv-text); line-height: 1.4; }
+.vv-plan__step small { display: block; font-size: 12px; color: var(--vv-muted); line-height: 1.4; }
+.vv-plan__step[aria-checked="false"] b, .vv-plan__step[aria-checked="false"] small { opacity: .5; text-decoration: line-through; }
+.vv-plan__cost { font-size: 12px; color: var(--vv-text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vv-plan__foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--vv-hairline); background: rgba(255,255,255,.02); }
+.vv-plan__foot > span { flex: 1; font-size: 12.5px; color: var(--vv-text-3); }
+.vv-plan__ask { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+
+.vv-insight { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--vv-hairline); }
+.vv-insight__text { font-size: 13.5px; color: var(--vv-text); line-height: 1.45; }
+.vv-insight__bars { grid-column: 1; display: flex; flex-direction: column; gap: 4px; }
+.vv-insight__bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 8px; align-items: center; font-size: 12px; color: var(--vv-text-3); }
+.vv-insight__bar > i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.vv-insight__bar > i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w, 50%); border-radius: 3px; background: var(--c, var(--vv-scout-ink)); }
+.vv-insight__bar > b { font-weight: 500; color: var(--vv-text-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+.vv-imgscore { height: 20px; padding: 0 6px; display: inline-flex; align-items: center; gap: 3px; border-radius: var(--vv-r-tag); background: rgba(0,0,0,.72); color: var(--vv-qa-ink); font-size: var(--vv-fs-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.vv-imgscore--low { background: var(--vv-st-issue); color: var(--vv-danger-fg); }
+.vv-why--m { height: 44px; padding: 0 6px; }
+.vv-reason__fix--m { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- Chuyển động của điều khiển (Noverse motion:controls v1) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vv-check[aria-checked="true"], .vv-check.is-on { animation: vv-pop .34s cubic-bezier(.34,1.56,.64,1); }
+  .vv-radio[aria-checked="true"]::after, .vv-radio.is-on::after { animation: vv-dot .32s cubic-bezier(.34,1.56,.64,1); }
+}
+@keyframes vv-pop { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
+
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-download{-webkit-mask-image:url(../icons/download.svg);mask-image:url(../icons/download.svg)}
+.i-export{-webkit-mask-image:url(../icons/export.svg);mask-image:url(../icons/export.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-gallery{-webkit-mask-image:url(../icons/gallery.svg);mask-image:url(../icons/gallery.svg)}
+.i-gallery-edit{-webkit-mask-image:url(../icons/gallery-edit.svg);mask-image:url(../icons/gallery-edit.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic.svg);mask-image:url(../icons/magic.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-more{-webkit-mask-image:url(../icons/more.svg);mask-image:url(../icons/more.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh.svg);mask-image:url(../icons/refresh.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-b.svg);mask-image:url(../icons/tick-b.svg)}
+.i-video-add{-webkit-mask-image:url(../icons/video-add.svg);mask-image:url(../icons/video-add.svg)}
+.i-workbench-b{-webkit-mask-image:url(../icons/workbench-b.svg);mask-image:url(../icons/workbench-b.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div class="phone">
+<div aria-hidden="true" style="flex: 0 0 auto; height: 44px; padding: 0 24px 0 30px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600">
+<span class="num">9:41</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; align-items: flex-end; gap: 2px; height: 11px"><span style="width: 3px; height: 4px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 6px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 8px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 11px; border-radius: 1px; background: #EDEDEF"></span></span><span style="width: 25px; height: 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.45); padding: 1.5px; display: flex"><span style="width: 72%; border-radius: 2px; background: #EDEDEF"></span></span></span>
+</div>
+<sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+<header style="flex: 0 0 auto; height: 52px; padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 64 64" style="flex: 0 0 auto"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
+<button class="ghost" type="button" onClick="{{openSwitch}}" aria-haspopup="dialog" aria-label="Đổi kênh, đang xem {{scopeName}}" style="height: 36px; min-width: 0; padding: 0 8px 0 4px; display: flex; align-items: center; gap: 7px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: #131315; color: #EDEDEF; font-size: 13.5px; font-weight: 500">
+<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="display: flex; padding-left: 2px"><sc-for list="{{chans}}" as="c" hint-placeholder-count="3"><span class="av" style="width: 20px; height: 20px; margin-left: {{c.ml}}; font-size: 7.5px; background: {{c.tint}}; box-shadow: inset 0 0 0 1.5px {{c.ring}}, 0 0 0 1.5px #131315">{{c.ini}}</span></sc-for></span></sc-if>
+<sc-if value="{{notAll}}" hint-placeholder-val="{{ false }}"><span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 10px; background: {{scTint}}; box-shadow: inset 0 0 0 1.5px {{scRing}}">{{scIni}}</span></sc-if>
+<span class="ell">{{scopeName}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span></button>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{openJobs}}" aria-haspopup="dialog" aria-label="Việc nền: 2 đang chạy, 12 chờ lượt" style="height: 36px; padding: 0 11px; display: flex; align-items: center; gap: 7px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: #131315; color: #C9C9D1; font-size: 12.5px"><span class="rec" aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 · 12</span></button>
+<a href="MSettings.dc.html" aria-label="Cài đặt" style="width: 34px; height: 34px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; flex: 0 0 auto">D</a>
+</header>
+<main class="vs" onScroll="{{tabScroll}}" style="flex: 1; min-height: 0; padding: 6px 16px 20px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.02em">Bàn dựng</h1>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #A0A0AB"><span class="num"><b style="color: #EDEDEF; font-weight: 600">{{todayN}}</b> video hôm nay</span><span aria-hidden="true" style="flex: 1; height: 4px; border-radius: 2px; background: #1E1E22; overflow: hidden"><span style="display: block; width: {{todayPct}}; height: 100%; background: #EDEDEF; border-radius: 2px"></span></span><span>{{autoLine}}</span></div>
+</div>
+
+<button type="button" class="card press" onClick="{{openRecap}}" aria-label="Mở Bản tin" style="border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; color: #EDEDEF; text-align: left; white-space: normal"><span aria-hidden="true" style="position: relative; width: 26px; height: 26px; flex: 0 0 auto; margin-top: 2px"><span class="vv-orb vv-orb--scout" style="position: absolute; left: 0; top: 0; width: 15px; height: 15px"></span><span class="vv-orb vv-orb--qa" style="position: absolute; right: 0; top: 4px; width: 13px; height: 13px"></span><span class="vv-orb vv-orb--director" style="position: absolute; left: 6px; bottom: 0; width: 12px; height: 12px"></span></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #8B8B97">Bản tin · 23:40 → 08:15</span><span class="clamp2" style="font-size: 14.5px; font-weight: 500; line-height: 1.45">Trong lúc bạn vắng: 2 video sẵn sàng đăng, 3 chờ bạn duyệt, 1 cần xử lý.</span><span style="font-size: 12.5px; color: #A0A0AB">Máy đã tự làm 3 việc · 5 đề xuất</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97; margin-top: 4px"></span></button>
+<section aria-label="Đề xuất" style="display: flex; flex-direction: column; gap: 10px"><div class="sec"><span>Đề xuất</span><span class="num" style="font-weight: 500">5</span></div><div class="hs" style="display: flex; gap: 10px; margin: 0 -16px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory"><article class="vv-suggest vv-suggest--m" style="--ag: var(--vv-scout-ink)"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="vv-suggest__who">Trinh sát đề xuất</span><div class="vv-suggest__title">Đưa “My Grandfather’s Radio Picks Up a Station That Shut Down in 1962” lên đầu hàng của Midnight Tales</div><div class="vv-suggest__ev"><span>Nocturne Stories · ×4,2 · đang thứ 6 ở cuối hàng</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mct0}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mco0}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">Lượt xem/giờ gấp 4,2 lần mức thường của Nocturne Stories, cao nhất tuần; video đang thứ 6 ở cuối hàng của Midnight Tales.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Lên đầu hàng</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest vv-suggest--m" style="--ag: var(--vv-qa-ink)"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="vv-suggest__who">Kiểm định đề xuất</span><div class="vv-suggest__title">Template Cận cảnh: 3 video tuần này chưa đạt 90 điểm vì nền lặp quá lâu</div><div class="vv-suggest__ev"><span>Midnight Tales · 3/4 video Cận cảnh từ 24/10</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mct1}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mco1}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">3/4 video Cận cảnh từ 24/10 chưa đạt 90 điểm, cùng mục “nền lặp quá 5 phút”; 2 template còn lại đạt 94–97.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Bỏ khỏi luân phiên</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest vv-suggest--m" style="--ag: var(--vv-qa-ink)"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="vv-suggest__who">Kiểm định đề xuất</span><div class="vv-suggest__title">Quiet Hours: bật Duyệt theo điểm ≥ 85?</div><div class="vv-suggest__ev"><span>15 video liền không vẽ lại ảnh nào · mọi ảnh ≥ 85</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mct2}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mco2}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">Quiet Hours: 15 video gần nhất bạn duyệt không vẽ lại ảnh nào, Kiểm định chấm mọi ảnh từ 86 trở lên.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Bật Duyệt theo điểm</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest vv-suggest--m" style="--ag: var(--vv-director-ink)"><span class="vv-orb vv-orb--director" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="vv-suggest__who">Đạo diễn đề xuất</span><div class="vv-suggest__title">Lưu quy tắc “Không thêm phần trong ngoặc ở cuối tiêu đề” cho Midnight Tales?</div><div class="vv-suggest__ev"><span>Bạn đã bỏ phần trong ngoặc ở 3 tiêu đề · 26–28/10</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mct3}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mco3}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">Bạn bỏ phần “(True … Story)” ở tiêu đề 3 video Midnight Tales từ 26 tới 28/10.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Lưu quy tắc</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest vv-suggest--m" style="--ag: var(--vv-scout-ink)"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 26px; height: 26px"></span><span class="vv-suggest__who">Trinh sát đề xuất</span><div class="vv-suggest__title">Tiêu đề dạng câu hỏi của Midnight Tales được xem gấp 1,8 lần sau 7 ngày</div><div class="vv-suggest__ev"><span>Sơ bộ · 7 video có số 7 ngày (3 câu hỏi, 4 không)</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mct4}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mco4}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">3 tiêu đề câu hỏi: trung vị 8,1 N lượt xem 7 ngày; 4 tiêu đề khác: 4,5 N. Sơ bộ vì chưa đủ 20 video.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Thêm vào quy tắc viết</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article></div></section>
+<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Kênh" style="display: flex; flex-direction: column; gap: 10px">
+<div class="sec"><span>Kênh</span><span class="num" style="font-weight: 500">3</span></div>
+<div class="hs" style="display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none">
+<sc-for list="{{chans}}" as="c" hint-placeholder-count="3">
+<button class="card press" type="button" onClick="{{c.open}}" aria-label="{{c.tip}}" style="flex: 0 0 158px; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; color: #EDEDEF; text-align: left">
+<span style="display: flex; align-items: center; gap: 8px; width: 100%"><span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 10px; background: {{c.tint}}; box-shadow: inset 0 0 0 1.5px {{c.ring}}">{{c.ini}}</span><span class="num" style="flex: 1; font-size: 12px; color: #A0A0AB">{{c.today}}</span><sc-if value="{{c.hasWarn}}" hint-placeholder-val="{{ false }}"><span class="ic i-danger" role="img" aria-label="{{c.warn}}" style="width: 15px; height: 15px; color: #FF9A5C"></span></sc-if></span>
+<span class="ell" style="width: 100%; font-size: 13.5px; font-weight: 500">{{c.name}}</span>
+<span aria-hidden="true" style="width: 100%; height: 3px; border-radius: 2px; background: #1E1E22; overflow: hidden"><span style="display: block; width: {{c.pct}}; height: 100%; background: #8B8B97; border-radius: 2px"></span></span>
+<span style="width: 100%; display: flex; flex-direction: column; gap: 1px; font-size: 12px"><sc-for list="{{c.facts}}" as="f" hint-placeholder-count="2"><span class="num ell" style="color: {{f.c}}">{{f.t}}</span></sc-for></span>
+</button>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<section aria-label="Chờ bạn" style="display: flex; flex-direction: column; gap: 4px">
+<div class="sec" style="margin-bottom: 6px"><span>Chờ bạn</span><span class="num" style="font-weight: 500">{{yoursN}}</span></div>
+<sc-for list="{{yours}}" as="y" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
+<span aria-hidden="true" style="position: relative; width: 80px; height: 45px; border-radius: 8px; flex: 0 0 auto; background: {{y.bg}}"><sc-if value="{{y.hasCh}}" hint-placeholder-val="{{ false }}"><span class="av" style="position: absolute; left: -4px; bottom: -4px; width: 20px; height: 20px; font-size: 7.5px; background: {{y.tint}}; box-shadow: inset 0 0 0 1.5px {{y.ring}}, 0 0 0 2px #0B0B0D">{{y.ch}}</span></sc-if></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span class="ell" style="font-size: 13.5px; font-weight: 500">{{y.title}}</span>
+<span class="ell" style="font-size: 12px; color: {{y.color}}">{{y.st}}</span>
+</span>
+<a class="ghost" href="{{y.href}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; border-radius: 10px; border: 1px solid {{y.bd}}; color: {{y.color}}; font-size: 13px; font-weight: 500; white-space: nowrap; flex: 0 0 auto">{{y.act}}</a>
+</div>
+</sc-for>
+</section>
+
+<sc-if value="{{hasWorking}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Đang làm" style="display: flex; flex-direction: column; gap: 10px">
+<div class="sec"><span>Đang làm</span><span class="num" style="font-weight: 500">{{workingN}}</span></div>
+<sc-for list="{{working}}" as="w" hint-placeholder-count="2">
+<button class="card press" type="button" onClick="{{w.open}}" style="border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; color: #EDEDEF; text-align: left; white-space: normal">
+<span style="display: flex; gap: 12px; align-items: flex-start">
+<span aria-hidden="true" style="position: relative; width: 92px; height: 52px; border-radius: 9px; flex: 0 0 auto; overflow: hidden; background: {{w.bg}}"><span class="num mono" style="position: absolute; right: 4px; bottom: 3px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.72); font-size: 10px">{{w.dur}}</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span class="clamp2" style="font-size: 14px; font-weight: 500; line-height: 1.4">{{w.title}}</span>
+<span class="ell" style="font-size: 12px; color: #8B8B97">{{w.src}}</span>
+</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px">
+<span class="orb {{w.orb}} live" aria-hidden="true" style="width: 18px; height: 18px"></span>
+<span class="shimmer ell" style="flex: 1; min-width: 0; font-size: 13px">{{w.step}}</span>
+<span class="num" style="font-size: 12px; color: #8B8B97">{{w.pct}}</span>
+</span>
+<span aria-hidden="true" style="height: 3px; border-radius: 2px; background: #1E1E22; overflow: hidden"><span style="display: block; height: 100%; width: {{w.pct}}; background: {{w.bar}}; border-radius: 2px"></span></span>
+</button>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{hasReady}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Sẵn sàng đăng" style="display: flex; flex-direction: column; gap: 4px">
+<div class="sec" style="margin-bottom: 6px"><span>Sẵn sàng đăng</span><span class="num" style="font-weight: 500">{{readyN}}</span></div>
+<sc-for list="{{ready}}" as="r" hint-placeholder-count="1">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
+<span aria-hidden="true" style="position: relative; width: 80px; height: 45px; border-radius: 8px; flex: 0 0 auto; background: {{r.bg}}"><sc-if value="{{r.hasCh}}" hint-placeholder-val="{{ false }}"><span class="av" style="position: absolute; left: -4px; bottom: -4px; width: 20px; height: 20px; font-size: 7.5px; background: {{r.tint}}; box-shadow: inset 0 0 0 1.5px {{r.ring}}, 0 0 0 2px #0B0B0D">{{r.ch}}</span></sc-if></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span class="ell" style="font-size: 13.5px; font-weight: 500">{{r.title}}</span><span class="ell" style="font-size: 12px; color: #A6EDC1">{{r.st}}</span></span>
+<button class="ghost" type="button" aria-label="Tải gói đăng: {{r.title}}" style="width: 44px; height: 44px; border-radius: 12px; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-download" aria-hidden="true"></span></button>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<section aria-label="Chờ lượt" style="display: flex; flex-direction: column; gap: 4px">
+<div class="sec" style="margin-bottom: 6px"><span>Chờ lượt</span><span class="num" style="font-weight: 500">{{queuedN}}</span></div>
+<sc-for list="{{queued}}" as="q" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
+<sc-if value="{{q.hasCh}}" hint-placeholder-val="{{ false }}"><span class="av" role="img" aria-label="{{q.chName}}" style="width: 20px; height: 20px; margin: 0 1px; font-size: 7.5px; background: {{q.tint}}; box-shadow: inset 0 0 0 1.5px {{q.ring}}">{{q.ch}}</span></sc-if>
+<sc-if value="{{q.noCh}}" hint-placeholder-val="{{ true }}"><span class="num" aria-hidden="true" style="width: 22px; text-align: center; font-size: 12px; color: #8B8B97">{{q.n}}</span></sc-if>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span class="ell" style="font-size: 13.5px">{{q.title}}</span>
+<span class="ell" style="font-size: 12px; color: #8B8B97">{{q.meta}}</span>
+</span>
+<span class="ic i-clock" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span>
+</div>
+</sc-for>
+<button class="ghost" type="button" onClick="{{openJobs}}" style="height: 44px; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.12); background: transparent; color: #C9C9D1; font-size: 13px">{{queueMore}}<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+</section>
+
+<sc-if value="{{notAll}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Đã đăng" style="display: flex; flex-direction: column; gap: 4px">
+<div class="sec" style="margin-bottom: 6px"><span>Đã đăng</span><span class="num" style="font-weight: 500">{{postedN}}</span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
+<span aria-hidden="true" style="width: 80px; height: 45px; border-radius: 8px; flex: 0 0 auto; opacity: 0.6; background: {{postedBg}}"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span class="ell" style="font-size: 13.5px; color: #A0A0AB">{{postedTitle}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{postedSt}}</span></span>
+</div>
+<a class="ghost" href="MChannel.dc.html" style="height: 44px; display: flex; align-items: center; gap: 6px; color: #A0A0AB; font-size: 13px">Xem ở trang kênh<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px"></span></a>
+</section>
+</sc-if>
+</main>
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: calc(5px + 0 * (100% - 10px) / 5); width: calc((100% - 10px) / 5)"></span>
+<a class="tab on" href="MMain.dc.html" aria-current="page"><span class="ic tic i-workbench-b" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Bàn dựng</span></a>
+<a class="tab" href="MReview.dc.html"><span class="ic tic i-gallery" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Duyệt</span><sc-if value="{{hasBadge}}" hint-placeholder-val="{{ true }}"><span class="num tbadge" aria-label="{{badge}} video chờ duyệt">{{badge}}</span></sc-if></a>
+<a class="tab" href="MNew.dc.html" aria-label="Video mới"><span class="tnew"><span class="ic i-add" aria-hidden="true" style="width: 22px; height: 22px"></span></span></a>
+<a class="tab" href="MChannel.dc.html"><span class="ic tic i-channel" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Kênh</span></a>
+<a class="tab" href="MExplore.dc.html"><span class="ic tic i-radar" aria-hidden="true" style="width: 24px; height: 24px"></span><span class="tlab">Khám phá</span></a>
+</div>
+</nav>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</sc-if>
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+<header style="flex: 0 0 auto; height: 52px; padding: 0 6px; display: flex; align-items: center; gap: 2px">
+<button class="ib ghost" type="button" onClick="{{back}}" aria-label="Quay lại Bàn dựng"><span class="ic i-arrow-r" aria-hidden="true" style="transform: rotate(180deg)"></span></button>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3">
+<span class="ell" style="font-size: 16px; font-weight: 600">The Night Nurse Who Heard Room 214 Breathing</span>
+<span class="ell" style="font-size: 12px; color: #8B8B97">Midnight Tales · 42:10 · Mẫu chuẩn · Tách nền</span>
+</span>
+<button class="ib ghost" type="button" aria-label="Thêm thao tác"><span class="ic i-more" aria-hidden="true"></span></button>
+</header>
+<main class="vs" onScroll="{{tabScroll}}" style="flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px">
+
+<div role="list" aria-label="Bốn trợ lý" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="4">
+<div role="listitem" style="padding: 10px 4px 8px; border-radius: 12px; background: {{a.bg}}; border: 1px solid {{a.bd}}; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center">
+<span class="orb {{a.orb}} {{a.live}}" aria-hidden="true" style="width: 24px; height: 24px; opacity: {{a.op}}"></span>
+<span style="font-size: 12px; font-weight: 500; color: {{a.ink}}">{{a.name}}</span>
+<span class="num" style="font-size: 11px; color: {{a.stColor}}">{{a.st}}</span>
+</div>
+</sc-for>
+</div>
+
+<button class="ghost" type="button" aria-haspopup="dialog" onClick="{{openPP}}" style="min-height: 52px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; border-radius: 14px; border: 1px solid {{ppBd}}; background: #141416; color: #EDEDEF; text-align: left; white-space: normal">
+<span class="ic i-magicpen" aria-hidden="true" style="flex: 0 0 auto; width: 18px; height: 18px; color: #B9D0F7"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13.5px; font-weight: 500">Ảnh của video</span><span class="ell" style="font-size: 12px; color: #8B8B97">Cảnh {{ppScName}} · Bìa {{ppCvName}}</span></span>
+<sc-if value="{{ppCustom}}" hint-placeholder-val="{{ false }}"><span style="flex: 0 0 auto; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(246,203,140,0.12); color: #F6CB8C; font-size: 11.5px">Riêng video này</span></sc-if>
+<span class="ic i-arrow-r" aria-hidden="true" style="flex: 0 0 auto; width: 15px; height: 15px; color: #8B8B97"></span>
+</button>
+
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="padding: 12px; border-radius: 14px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.3); display: flex; flex-direction: column; gap: 10px">
+<span style="display: flex; gap: 10px; align-items: flex-start"><span class="ic i-flag" aria-hidden="true" style="width: 18px; height: 18px; color: #F6CB8C; margin-top: 1px"></span><span style="font-size: 13.5px; color: #F3D9AE; line-height: 1.5">Hoạ sĩ vẽ xong 7 ảnh. Duyệt xong, Kiểm định tự dựng và xuất video.</span></span>
+<a class="btn-red" href="MReview.dc.html"><span class="ic i-gallery" aria-hidden="true" style="width: 18px; height: 18px"></span>Duyệt 7 ảnh</a>
+</div>
+</sc-if>
+
+<section aria-label="Phòng vẽ trực tiếp" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between"><span class="h3"><span class="orb o-artist" aria-hidden="true" style="width: 14px; height: 14px"></span>Phòng vẽ</span><span class="num" style="font-size: 12.5px; color: #8B8B97">{{doneLabel}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="7">
+<div style="grid-column: {{t.span}}; display: flex; flex-direction: column; gap: 5px; min-width: 0">
+<div style="position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; border: 1px solid {{t.bd}}">
+<sc-if value="{{t.isImg}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: absolute; inset: 0; background: {{t.bg}}"></span></sc-if>
+<sc-if value="{{t.isDrawing}}" hint-placeholder-val="{{ false }}"><span class="skel-img" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 6px"><span class="orb o-artist live" aria-hidden="true" style="width: 14px; height: 14px"></span><span class="shimmer" style="font-size: 12px">đang vẽ</span></span></sc-if>
+<sc-if value="{{t.isWait}}" hint-placeholder-val="{{ false }}"><span class="wait-tile" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #8B8B97">Chờ lượt vẽ</span></sc-if>
+<span style="position: absolute; left: 6px; top: 6px; height: 20px; padding: 0 7px; display: flex; align-items: center; gap: 5px; border-radius: 6px; background: rgba(11,11,13,0.78); font-size: 11.5px"><span class="num mono" style="color: #A0A0AB">{{t.key}}</span>{{t.label}}</span>
+</div>
+<span style="display: flex; gap: 6px; font-size: 11.5px; color: #8B8B97"><span class="ell" style="flex: 1; min-width: 0">{{t.caption}}</span><span class="num" style="flex: 0 0 auto">{{t.time}}</span></span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="pub-h" class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between"><span id="pub-h" class="h3"><span class="orb o-director" aria-hidden="true" style="width: 14px; height: 14px"></span>Nội dung đăng</span><span style="height: 22px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; font-size: 11.5px; background: {{pubStBg}}; color: {{pubStFg}}">{{pubSt}}</span></div>
+<sc-if value="{{pubPending}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #A0A0AB; line-height: 1.5">Đạo diễn viết ngay khi có lời thoại của video gốc, thường vài phút sau khi tải xong. Không tốn ảnh.</span></sc-if>
+<sc-if value="{{pubWriting}}" hint-placeholder-val="{{ false }}"><div role="status" style="display: flex; flex-direction: column; gap: 8px"><span class="shimmer" style="font-size: 13px">Đạo diễn đang viết tiêu đề, mô tả, tag…</span><span class="skel-img" style="height: 40px; border-radius: 10px"></span><span class="skel-img" style="height: 66px; border-radius: 10px"></span></div></sc-if>
+<sc-if value="{{pubFailed}}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,154,92,0.3); background: rgba(255,154,92,0.06); display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; color: #FFC09A; line-height: 1.55"><b style="font-weight: 600">Chưa viết được.</b> Phiên ChatGPT của Đạo diễn đã hết. Video vẫn dựng tiếp.</span><span style="display: flex; gap: 8px"><button class="btn ghost" type="button" style="flex: 1; height: 40px; border-color: rgba(255,154,92,0.45); color: #FFC09A; font-size: 13.5px"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Thử lại</button><a class="btn ghost" href="MSettings.dc.html" style="flex: 1; height: 40px; font-size: 13.5px">Đăng nhập lại</a></span></div></sc-if>
+<sc-if value="{{pubHas}}" hint-placeholder-val="{{ true }}">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #A0A0AB">Tiêu đề · <span class="num">{{pubTitleN}}/100</span><sc-if value="{{pubEdited}}" hint-placeholder-val="{{ false }}"><span style="color: #F6CB8C">· bạn đã sửa</span></sc-if><span style="flex: 1"></span><sc-if value="{{whyBtn}}" hint-placeholder-val="{{ true }}"><button type="button" class="vv-why" onClick="{{openWhy}}" style="height: 32px"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></sc-if></span>
+<div role="textbox" tabindex="0" aria-label="Tiêu đề" style="padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.1); font-size: 14px; font-weight: 500; line-height: 1.45">{{pubTitle}}</div><sc-if value="{{learnOn}}" hint-placeholder-val="{{ false }}"><div class="vv-learn" role="status"><span class="vv-orb vv-orb--director" aria-hidden="true" style="width: 16px; height: 16px"></span><span class="vv-learn__text" style="font-size: 13px">Đạo diễn nhận ra: lần thứ 3 bạn bỏ phần trong ngoặc ở cuối tiêu đề. Lưu thành quy tắc cho Midnight Tales?</span><div class="vv-learn__actions"><button class="vv-btn vv-btn--m vv-btn--white" type="button" onClick="{{learnSave}}">Lưu quy tắc</button><button class="vv-btn vv-btn--m vv-btn--quiet" type="button" onClick="{{learnNo}}">Không</button><button class="vv-btn vv-btn--m vv-btn--quiet" type="button">Xem 3 lần sửa</button></div></div></sc-if><sc-if value="{{learnSaved}}" hint-placeholder-val="{{ false }}"><div class="vv-banner vv-banner--ready" role="status"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span style="flex: 1">Đã lưu vào Hồ sơ kênh › Quy tắc đã học.</span><button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" onClick="{{learnUndo}}">Hoàn tác</button></div></sc-if>
+<span style="font-size: 12px; color: #A0A0AB">Mô tả · 389/5.000, có đoạn cuối của kênh</span>
+<div role="textbox" tabindex="0" aria-label="Mô tả" style="padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: #C9C9D1; line-height: 1.55"><span class="clamp2" style="-webkit-line-clamp: 3">Room 214 had been empty for three years. So why did the night nurse hear someone breathing behind the door every night at 3:12 AM? A slow, unsettling true-style hospital story for late listeners.</span></div>
+<span style="font-size: 12px; color: #A0A0AB">Tag · 11/30 · <span style="display: inline-flex; vertical-align: -2px"><span class="ic i-channel" aria-hidden="true" style="width: 12px; height: 12px"></span></span> là tag luôn thêm của kênh</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{pubTags}}" as="t" hint-placeholder-count="6"><span style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 5px; border-radius: 8px; background: {{t.bg}}; border: 1px solid {{t.bd}}; font-size: 12.5px; color: #C9C9D1"><sc-if value="{{t.always}}" hint-placeholder-val="{{ false }}"><span class="ic i-channel" aria-hidden="true" style="width: 12px; height: 12px; color: #8B8B97"></span></sc-if>{{t.t}}</span></sc-for><span style="height: 28px; padding: 0 10px; display: flex; align-items: center; font-size: 12.5px; color: #8B8B97">+5</span></div>
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px">
+<button class="btn ghost" type="button" aria-haspopup="dialog" onClick="{{openRw}}"><span class="ic i-magic" aria-hidden="true" style="width: 16px; height: 16px"></span>Viết lại</button>
+<button class="btn ghost" type="button" aria-haspopup="dialog" onClick="{{openHist}}" aria-label="Lịch sử nội dung, {{pubHistN}} bản" style="padding: 0 12px"><span class="ic i-clock" aria-hidden="true" style="width: 16px; height: 16px"></span><span class="num">{{pubHistN}}</span></button>
+<button class="btn ghost" type="button"><span class="ic i-copy" aria-hidden="true" style="width: 16px; height: 16px"></span>Sao chép gói</button>
+</div>
+<span style="font-size: 12px; color: #8B8B97; line-height: 1.5">Chạm vào ô để sửa; chỉ áp cho video này. Đoạn cuối và tag luôn thêm sửa ở Hồ sơ kênh.</span>
+</sc-if>
+</section>
+
+<section aria-label="Nhật ký tiến độ" class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; justify-content: space-between"><span class="h3"><span class="ic i-activity" aria-hidden="true" style="width: 15px; height: 15px"></span>Nhật ký</span><span style="font-size: 12.5px; color: #8B8B97">3 dòng gần nhất</span></div>
+<sc-for list="{{log}}" as="l" hint-placeholder-count="3">
+<div style="display: flex; gap: 8px; font-size: 12.5px; line-height: 1.45"><span class="num mono" style="flex: 0 0 auto; color: #8B8B97; font-size: 11px; padding-top: 2px">{{l.t}}</span><span style="min-width: 0"><b style="font-weight: 600; color: {{l.ink}}">{{l.who}}</b> <span style="color: #C9C9D1">{{l.what}}</span></span></div>
+</sc-for>
+</section>
+</main>
+<form style="flex: 0 0 auto; padding: 8px 12px 0; border-top: 1px solid rgba(255,255,255,0.06); background: #0D0D0F">
+<div class="card" style="border-radius: 22px; padding: 4px 4px 4px 14px; display: flex; align-items: center; gap: 8px; background: #18181A">
+<label for="mmsg" class="sr-only">Nhắn cho Hoạ sĩ</label>
+<input id="mmsg" type="text" placeholder="Nhắn cho Hoạ sĩ…" style="flex: 1; min-width: 0; height: 40px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 15px">
+<button type="button" aria-label="Gửi" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-arrow-up" aria-hidden="true" style="width: 18px; height: 18px"></span></button>
+</div>
+</form>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</sc-if>
+<sc-if value="{{isJobs}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeJobs}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Hàng chờ" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 6px 16px 12px; display: flex; align-items: center; gap: 10px">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 18px; font-weight: 600">Hàng chờ</span><span class="num" style="font-size: 12.5px; color: #8B8B97">{{jobsSub}}</span></span>
+<button class="btn ghost" type="button" onClick="{{togglePause}}" aria-pressed="{{pausedAttr}}" style="height: 40px; padding: 0 14px; font-size: 13.5px"><span class="ic {{pauseIcon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{pauseLabel}}</button>
+</div>
+<div class="vs" style="flex: 1; min-height: 0; padding: 0 16px 12px; display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 10px 12px; border-radius: 12px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.08); font-size: 13px; color: #C9C9D1; line-height: 1.5">Đã tạm dừng. Hai video đang làm chạy nốt bước hiện tại rồi dừng; chưa video nào mới được bắt đầu.</div></sc-if>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="sec">Đang chạy</span>
+<sc-for list="{{running}}" as="r" hint-placeholder-count="2">
+<a href="MMain.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.06)">
+<span class="orb {{r.orb}} {{r.live}}" aria-hidden="true" style="width: 22px; height: 22px"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 13.5px; font-weight: 500">{{r.title}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{r.step}}</span></span>
+<span class="av" style="width: 26px; height: 26px; font-size: 10px; background: #2E2236; box-shadow: inset 0 0 0 1.5px #D79BFF">MT</span>
+</a>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="sec" style="margin-bottom: 6px"><span>Tiếp theo · luân phiên kênh</span></span>
+<sc-for list="{{next}}" as="n" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; min-height: 52px; border-bottom: 1px solid rgba(255,255,255,0.05)">
+<span class="num" style="width: 18px; font-size: 12px; color: #8B8B97; text-align: center">{{n.n}}</span>
+<span class="av" style="width: 26px; height: 26px; font-size: 10px; background: {{n.tint}}; box-shadow: inset 0 0 0 1.5px {{n.ring}}">{{n.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 13.5px">{{n.title}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{n.meta}}</span></span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: #A0A0AB">
+<span class="ic i-gallery" aria-hidden="true" style="width: 16px; height: 16px"></span><span style="flex: 1">Ảnh ChatGPT hôm nay</span><span class="num" style="color: #EDEDEF">43/50</span><span style="color: #8B8B97">· đặt lại 07:00</span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 2px; font-size: 12.5px; color: #8B8B97"><span style="flex: 1">2 luồng chạy cùng lúc · mỗi kênh có giới hạn riêng mỗi ngày</span><a href="Queue.dc.html" style="color: #C9C9D1; white-space: nowrap">Chỉnh</a></div>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{isSwitch}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeSheet}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Đổi kênh" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding-bottom: 24px">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 6px 16px 8px; font-size: 18px; font-weight: 600">Đổi kênh</div>
+<div style="padding: 0 8px; display: flex; flex-direction: column; gap: 2px">
+<button class="press" type="button" role="radio" aria-checked="{{allChecked}}" onClick="{{pickAll}}" style="min-height: 56px; padding: 6px 10px; display: flex; align-items: center; gap: 12px; border-radius: 12px; border: none; background: {{allBg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="width: 34px; display: flex"><sc-for list="{{chans}}" as="c" hint-placeholder-count="3"><span class="av" style="width: 18px; height: 18px; margin-left: {{c.mlS}}; font-size: 6.5px; background: {{c.tint}}; box-shadow: inset 0 0 0 1.5px {{c.ring}}, 0 0 0 1.5px #141416">{{c.ini}}</span></sc-for></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 500">Mọi kênh</span><span class="num" style="font-size: 12.5px; color: #8B8B97">{{allSub}}</span></span>
+<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 18px; height: 18px"></span></sc-if>
+</button>
+<sc-for list="{{chans}}" as="c" hint-placeholder-count="3">
+<button class="press" type="button" role="radio" aria-checked="{{c.cur}}" onClick="{{c.open}}" style="min-height: 56px; padding: 6px 10px; display: flex; align-items: center; gap: 12px; border-radius: 12px; border: none; background: {{c.menuBg}}; color: #EDEDEF; text-align: left">
+<span class="av" aria-hidden="true" style="width: 34px; height: 34px; font-size: 11.5px; background: {{c.tint}}; box-shadow: inset 0 0 0 1.5px {{c.ring}}">{{c.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 15px; font-weight: 500">{{c.name}}</span><span class="num" style="font-size: 12.5px; color: #8B8B97">{{c.sub}}</span></span>
+<sc-if value="{{c.isCur}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 18px; height: 18px"></span></sc-if>
+</button>
+</sc-for>
+<a class="press" href="MCreate.dc.html" style="min-height: 52px; padding: 6px 10px; display: flex; align-items: center; gap: 12px; color: #C9C9D1; font-size: 15px"><span class="ic i-add-square" aria-hidden="true" style="width: 20px; height: 20px; margin: 0 7px"></span>Tạo kênh</a>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{rwShow}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeMs}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Viết lại nội dung đăng" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 6px 16px 4px; display: flex; flex-direction: column; gap: 12px">
+<span class="sheet-t">Viết lại nội dung đăng</span>
+<div role="group" aria-label="Phần viết lại" style="display: flex; gap: 6px"><sc-for list="{{rwParts}}" as="r" hint-placeholder-count="3"><button type="button" role="checkbox" aria-checked="{{r.on}}" onClick="{{r.pick}}" style="flex: 1; height: 40px; border-radius: 999px; border: 1px solid {{r.bd}}; background: {{r.bg}}; color: {{r.fg}}; font-size: 14px">{{r.label}}</button></sc-for></div>
+<label for="mrw" class="sr-only">Góp ý cho Đạo diễn</label>
+<input id="mrw" type="text" placeholder="Góp ý, ví dụ: tiêu đề ngắn hơn" style="height: 46px; padding: 0 14px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.14); color: #EDEDEF; font-size: 15px; outline: none">
+<div class="hs" style="display: flex; gap: 6px; margin: 0 -16px; padding: 0 16px"><sc-for list="{{rwQuick}}" as="q" hint-placeholder-count="3"><button type="button" style="flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 13.5px">{{q}}</button></sc-for></div>
+<span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">Không tốn ảnh. Phần bạn đã sửa tay bị thay; bản cũ vào Lịch sử.</span>
+<button class="btn-pri" type="button" aria-disabled="{{rwDis}}" onClick="{{closeMs}}" style="opacity: {{rwOp}}">Viết lại {{rwCount}}</button>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{histShow}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeMs}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Lịch sử nội dung" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="padding: 6px 16px 4px; display: flex; flex-direction: column">
+<span class="sheet-t" style="padding-bottom: 6px">Lịch sử nội dung</span>
+<sc-for list="{{pubHist}}" as="h" hint-placeholder-count="2"><div style="padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 10px; align-items: flex-start"><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12.5px; color: #8B8B97">{{h.who}}</span><span style="font-size: 14px; line-height: 1.45">{{h.title}}</span><span style="font-size: 12px; color: #8B8B97">{{h.what}}</span></span><sc-if value="{{h.cur}}" hint-placeholder-val="{{ false }}"><span style="flex: 0 0 auto; height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 11.5px">Đang dùng</span></sc-if><sc-if value="{{h.old}}" hint-placeholder-val="{{ true }}"><button class="btn ghost" type="button" style="flex: 0 0 auto; height: 40px; font-size: 13.5px">Dùng lại</button></sc-if></div></sc-for>
+<span style="padding: 8px 0 6px; font-size: 12.5px; color: #8B8B97; line-height: 1.5">Giữ 10 bản gần nhất. Dùng lại một bản cũ thì bản đang dùng cũng vào lịch sử.</span>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{ppShow}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{pp.close}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 7"></div>
+<section role="dialog" aria-modal="true" aria-label="{{pp.title}}" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="flex: 0 0 auto; display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div>
+<div style="flex: 0 0 auto; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 16px; font-weight: 600">{{pp.title}}</span><span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">{{pp.sub}}</span></div>
+<sc-if value="{{pp.hasTabs}}" hint-placeholder-val="{{ false }}">
+<div role="tablist" aria-label="Loại ảnh" style="flex: 0 0 auto; margin: 0 16px 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{pp.tabs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" aria-label="{{t.label}}" style="min-width: 0; min-height: 46px; padding: 4px 10px; border: none; border-radius: 9px; background: {{t.bg}}; color: {{t.fg}}; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; line-height: 1.3"><span style="font-size: 11.5px; color: #8B8B97">{{t.kind}}</span><span style="max-width: 100%; font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis">{{t.name}}</span></button></sc-for>
+</div>
+</sc-if>
+<div class="vs" role="radiogroup" aria-label="{{pp.title}}" style="flex: 1 1 auto; min-height: 0; padding: 0 8px; display: flex; flex-direction: column; gap: 1px">
+<sc-for list="{{pp.rows}}" as="r" hint-placeholder-count="6">
+<sc-if value="{{r.isSep}}" hint-placeholder-val="{{ false }}"><div role="separator" style="flex: 0 0 auto; height: 1px; margin: 4px 8px; background: rgba(255,255,255,0.07)"></div></sc-if>
+<sc-if value="{{r.isRow}}" hint-placeholder-val="{{ true }}">
+<button type="button" role="radio" aria-checked="{{r.on}}" aria-disabled="{{r.ariaDis}}" onClick="{{r.pick}}" style="flex: 0 0 auto; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 6px 8px; border-radius: 12px; border: none; background: {{r.bg}}; color: #EDEDEF; text-align: left; opacity: {{r.op}}; white-space: normal">
+<sc-if value="{{r.hasImg}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: relative; width: 68px; height: 38px; border-radius: 7px; flex: 0 0 auto; overflow: hidden; background: {{r.img}}"><span style="position: absolute; left: 6%; top: 10%; font-size: 7px; font-weight: 800; color: #FFFFFF; text-shadow: 0 1px 0 #A3001C; display: {{r.hookD}}">NO CHECK-IN</span><span style="position: absolute; right: 8%; top: 22%; width: 30%; height: 56%; border-radius: 50%; border: 1.5px solid #FF3B5C; display: {{r.circleD}}"></span><span style="position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #FFFFFF; display: {{r.splitD}}"></span></span></sc-if>
+<sc-if value="{{r.hasIcon}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 68px; height: 38px; border-radius: 7px; flex: 0 0 auto; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic {{r.icon}}" style="width: 17px; height: 17px"></span></span></sc-if>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 500; line-height: 1.35">{{r.name}}</span><span style="font-size: 12px; color: {{r.subFg}}; line-height: 1.4">{{r.sub}}</span></span>
+<sc-if value="{{r.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="flex: 0 0 auto; width: 18px; height: 18px; color: #FF4D63"></span></sc-if>
+</button>
+</sc-if>
+</sc-for>
+</div>
+<sc-if value="{{pp.hasCost}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="flex: 0 0 auto; margin: 8px 16px 0; padding: 10px 12px; border-radius: 12px; background: {{pp.costBg}}; border: 1px solid {{pp.costBd}}; display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: #C9C9D1; line-height: 1.5"><span class="ic i-info" aria-hidden="true" style="flex: 0 0 auto; width: 15px; height: 15px; margin-top: 2px; color: {{pp.costFg}}"></span><span>{{pp.cost}}</span></div>
+</sc-if>
+<sc-if value="{{pp.hasActions}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 0 0 auto; padding: 10px 16px 0; display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px">
+<button class="btn ghost" type="button" onClick="{{pp.close}}">Huỷ</button>
+<button type="button" aria-disabled="{{pp.btnDis}}" onClick="{{pp.apply}}" style="height: 44px; padding: 0 12px; border-radius: 12px; border: none; background: {{pp.btnBg}}; color: {{pp.btnFg}}; font-size: 14px; font-weight: 600">{{pp.btn}}</button>
+</div>
+</sc-if>
+<span style="flex: 0 0 auto; padding: 10px 16px 2px; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8B8B97"><span class="ic i-magicpen" aria-hidden="true" style="width: 13px; height: 13px"></span>Thêm hoặc sửa prompt trong Thư viện trên máy tính</span>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{isRecap}}" hint-placeholder-val="{{ false }}">
+<header class="vv-navbar"><button class="ib ghost" type="button" onClick="{{back}}" aria-label="Quay lại Bàn dựng"><span class="ic i-arrow-r" aria-hidden="true" style="width: 20px; height: 20px; transform: rotate(180deg)"></span></button><span class="vv-navbar__title"><b>Bản tin</b><span>mọi kênh · từ 23:40 tới 08:15</span></span></header>
+<main class="vs" onScroll="{{tabScroll}}" style="flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 20px">
+<p class="vv-recap__lead" style="font-size: 19px">Trong lúc bạn vắng: 2 video sẵn sàng đăng, 3 chờ bạn duyệt, 1 cần xử lý.</p>
+<section aria-label="Cần bạn" style="display: flex; flex-direction: column; gap: 8px"><div class="sec"><span>Cần bạn</span><span class="num" style="font-weight: 500">4</span></div><a class="vv-row vv-row--m" href="#" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #2E2236; box-shadow: inset 0 0 0 1.5px #D79BFF">MT</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">The Last Bus Doesn’t Stop at Elm Street</span><span style="font-size: 12.5px; color: #FF9A5C">Cần đăng nhập ChatGPT</span></span><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px; color: #FF9A5C"></span></a><a class="vv-row vv-row--m" href="MReview.dc.html" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #2E2236; box-shadow: inset 0 0 0 1.5px #D79BFF">MT</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">I Took a Job Watching an Empty Mall After Midnight</span><span style="font-size: 12.5px; color: #F6CB8C">Chờ duyệt 7 ảnh</span></span><span class="ic i-flag" aria-hidden="true" style="width: 16px; height: 16px; color: #F6CB8C"></span></a><a class="vv-row vv-row--m" href="MReview.dc.html" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #302418; box-shadow: inset 0 0 0 1.5px #F6CB8C">CL</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">Căn nhà cuối hẻm và người hàng xóm không bao giờ ngủ</span><span style="font-size: 12.5px; color: #F6CB8C">Chờ duyệt 9 ảnh</span></span><span class="ic i-flag" aria-hidden="true" style="width: 16px; height: 16px; color: #F6CB8C"></span></a><a class="vv-row vv-row--m" href="MReview.dc.html" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #1F2C27; box-shadow: inset 0 0 0 1.5px #A6EDC1">QH</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">Rain on the Lighthouse: A Sleep Story</span><span style="font-size: 12.5px; color: #F6CB8C">Chờ duyệt 5 ảnh</span></span><span class="ic i-flag" aria-hidden="true" style="width: 16px; height: 16px; color: #F6CB8C"></span></a><a class="btn-red {{revBtnCls}}" href="MReview.dc.html" style="margin-top: 6px"><span class="ic i-flag" aria-hidden="true" style="width: 18px; height: 18px;"></span>Duyệt 3 video</a><button class="btn" type="button"><span class="ic i-danger" aria-hidden="true" style="width: 17px; height: 17px;"></span>Xử lý 1 lỗi</button></section>
+<section aria-label="Máy đã tự làm" style="display: flex; flex-direction: column; gap: 8px"><div class="sec"><span>Máy đã tự làm</span><span class="num" style="font-weight: 500">3</span></div><div class="vv-recap__line" style="align-items: flex-start; padding: 10px 12px; border-radius: 12px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span class="vv-recap__text" style="display: flex; flex-direction: column; gap: 6px"><span>Tự lấy 4 video mới từ Nocturne Stories và The Late Archive</span><span style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap"><span class="vv-tag vv-tag--auto">Tự làm</span><button class="vv-btn vv-btn--m vv-btn--quiet" type="button" style="height: 44px">Xem</button><button class="vv-btn vv-btn--m vv-btn--quiet" type="button" style="height: 44px">Hoàn tác</button><button type="button" class="vv-why vv-why--m" onClick="{{tPickWhy}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></span><sc-if value="{{pickWhy}}" hint-placeholder-val="{{ false }}"><div class="vv-reason" style="width: auto; padding: 10px; box-shadow: none" role="dialog" aria-label="Vì sao" style="--ag: var(--vv-scout-ink)"><div class="vv-reason__head"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 16px; height: 16px"></span><span>Trinh sát giải thích</span></div><div class="vv-reason__text">Lấy 4 video mới đăng sau lần xem trước (23:30) của 2 đối thủ liên kết với Midnight Tales; bỏ 1 video vì là Shorts.</div><div class="vv-reason__facts"><div class="vv-reason__fact"><span>Nocturne Stories</span><b>3 lấy</b><span class="vv-reason__src">đăng 00:10 → 06:40</span></div><div class="vv-reason__fact"><span>The Late Archive</span><b>1 lấy · 1 bỏ</b><span class="vv-reason__src">bỏ: Shorts 0:48, dưới bộ lọc 1 phút</span></div><div class="vv-reason__fact"><span>Mức tự chủ</span><b>Lấy mọi video mới</b><span class="vv-reason__src">Kênh › Nguồn & tự động</span></div></div></div></sc-if></span></div><div class="vv-recap__line" style="align-items: flex-start; padding: 10px 12px; border-radius: 12px"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span class="vv-recap__text" style="display: flex; flex-direction: column; gap: 6px"><span>Vẽ tiếp 2 ảnh bằng Grok (dự phòng) khi phiên ChatGPT hết hạn lúc 23:58</span><span style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap"><span class="vv-tag vv-tag--auto">Tự làm</span><button class="vv-btn vv-btn--m vv-btn--quiet" type="button" style="height: 44px">Xem</button></span></span></div><div class="vv-recap__line" style="align-items: flex-start; padding: 10px 12px; border-radius: 12px"><span class="ic i-download" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span class="vv-recap__text" style="display: flex; flex-direction: column; gap: 6px"><span>Tải lại nguồn 1 video của Chuyện Lạ Đêm Khuya sau lỗi mạng lúc 03:40 — đã chạy tiếp</span><span style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap"><span class="vv-tag vv-tag--auto">Tự làm</span><button class="vv-btn vv-btn--m vv-btn--quiet" type="button" style="height: 44px">Xem</button></span></span></div></section>
+<section aria-label="Đề xuất" style="display: flex; flex-direction: column; gap: 8px"><div class="sec"><span>Đề xuất</span><span class="num" style="font-weight: 500">3 trong 5</span></div><article class="vv-suggest" style="--ag: var(--vv-scout-ink)"><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 22px; height: 22px"></span><span class="vv-suggest__who">Trinh sát đề xuất</span><div class="vv-suggest__title">Đưa “My Grandfather’s Radio Picks Up a Station That Shut Down in 1962” lên đầu hàng của Midnight Tales</div><div class="vv-suggest__ev"><span>Nocturne Stories · ×4,2 · đang thứ 6 ở cuối hàng</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mrt0}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mro0}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">Lượt xem/giờ gấp 4,2 lần mức thường của Nocturne Stories, cao nhất tuần; video đang thứ 6 ở cuối hàng của Midnight Tales.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Lên đầu hàng</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest" style="--ag: var(--vv-qa-ink)"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 22px; height: 22px"></span><span class="vv-suggest__who">Kiểm định đề xuất</span><div class="vv-suggest__title">Template Cận cảnh: 3 video tuần này chưa đạt 90 điểm vì nền lặp quá lâu</div><div class="vv-suggest__ev"><span>Midnight Tales · 3/4 video Cận cảnh từ 24/10</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mrt1}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mro1}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">3/4 video Cận cảnh từ 24/10 chưa đạt 90 điểm, cùng mục “nền lặp quá 5 phút”; 2 template còn lại đạt 94–97.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Bỏ khỏi luân phiên</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article><article class="vv-suggest" style="--ag: var(--vv-qa-ink)"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 22px; height: 22px"></span><span class="vv-suggest__who">Kiểm định đề xuất</span><div class="vv-suggest__title">Quiet Hours: bật Duyệt theo điểm ≥ 85?</div><div class="vv-suggest__ev"><span>15 video liền không vẽ lại ảnh nào · mọi ảnh ≥ 85</span><button type="button" class="vv-why vv-why--m" aria-haspopup="dialog" aria-expanded="false" onClick="{{mrt2}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div><sc-if value="{{mro2}}" hint-placeholder-val="{{ false }}"><div style="grid-column: 2; font-size: 12.5px; line-height: 1.5; color: #C9C9D1; padding: 4px 0 2px">Quiet Hours: 15 video gần nhất bạn duyệt không vẽ lại ảnh nào, Kiểm định chấm mọi ảnh từ 86 trở lên.</div></sc-if><div class="vv-suggest__actions"><button type="button" class="vv-btn vv-btn--white vv-btn--m">Bật Duyệt theo điểm</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m">Bỏ qua</button><button type="button" class="vv-btn vv-btn--quiet vv-btn--m vv-btn--icon" aria-label="Thêm: Đừng đề xuất kiểu này" style="margin-left: auto"><span class="ic i-more" aria-hidden="true" style="width: 15px; height: 15px;"></span></button></div></article></section>
+<section aria-label="Hôm nay" style="display: flex; flex-direction: column; gap: 8px"><div class="sec"><span>Hôm nay</span></div><div class="vv-recap__tiles" style="grid-template-columns: 1fr 1fr"><div class="vv-recap__tile"><b>12</b><span>chờ lượt</span></div><div class="vv-recap__tile"><b>4</b><span>chờ bạn</span></div><div class="vv-recap__tile"><b>190<span style="font-size: 12px; color: #8B8B97"> / 400</span></b><span>ảnh Grok (dự phòng) còn tuần này</span></div><div class="vv-recap__tile"><b>0<span style="font-size: 12px; color: #8B8B97"> / 50</span></b><span>ảnh trả phí (Gemini) máy đã tự tiêu hôm nay</span></div></div><div class="vv-banner vv-banner--issue"><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span style="flex: 1; display: flex; flex-direction: column; gap: 8px"><span>Phiên ChatGPT hết hạn lúc 23:58. Hoạ sĩ đã chuyển sang Grok, nhưng Đạo diễn cần ChatGPT để viết: 12 video chờ lượt sẽ dừng ở bước viết tới khi bạn đăng nhập lại.</span><a class="vv-btn vv-btn--m" href="MSettings.dc.html" style="align-self: flex-start">Đăng nhập ChatGPT</a></span></div></section>
+<section aria-label="Theo kênh" style="display: flex; flex-direction: column; gap: 4px"><div class="sec" style="margin-bottom: 4px"><span>Theo kênh</span></div><div class="vv-row vv-row--m" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #2E2236; box-shadow: inset 0 0 0 1.5px #D79BFF">MT</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">Midnight Tales</span><span class="num" style="font-size: 12.5px; color: #8B8B97">Hôm nay 3/5 · <span style="color: #F6CB8C">2 chờ bạn</span> · <span style="color: #A6EDC1">1 sẵn sàng</span></span></span></div><div class="vv-row vv-row--m" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #302418; box-shadow: inset 0 0 0 1.5px #F6CB8C">CL</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">Chuyện Lạ Đêm Khuya</span><span class="num" style="font-size: 12.5px; color: #8B8B97">Hôm nay 2/5 · <span style="color: #F6CB8C">1 chờ bạn</span></span></span></div><div class="vv-row vv-row--m" style="padding: 6px 4px"><span class="av" aria-hidden="true" style="width: 30px; height: 30px; font-size: 10.5px; background: #1F2C27; box-shadow: inset 0 0 0 1.5px #A6EDC1">QH</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 14px">Quiet Hours</span><span class="num" style="font-size: 12.5px; color: #8B8B97">Hôm nay 1/3 · <span style="color: #F6CB8C">1 chờ bạn</span> · <span style="color: #A6EDC1">1 sẵn sàng</span></span></span></div></section>
+</main>
+<div style="flex: 0 0 auto; padding: 8px 12px 0; border-top: 1px solid rgba(255,255,255,0.06); background: #0D0D0F"><form class="card" aria-label="Nhắn trợ lý · mọi kênh" style="border-radius: 22px; padding: 5px 5px 5px 14px; display: flex; align-items: center; gap: 8px; background: #18181A"><label for="mcmp" class="sr-only">Nhắn trợ lý · mọi kênh</label><input id="mcmp" type="text" placeholder="Nhắn trợ lý · mọi kênh" style="flex: 1; min-width: 0; height: 40px; border: none; outline: none; background: transparent; color: #EDEDEF; font-size: 15px"><button type="button" onClick="{{openPlan}}" aria-label="Gửi" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-up" aria-hidden="true" style="width: 18px; height: 18px;"></span></button></form></div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</sc-if>
+<sc-if value="{{planShow}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closePlan}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Kế hoạch" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div><div style="padding: 6px 16px 10px; display: flex; flex-direction: column; gap: 4px"><span class="sheet-t">Kế hoạch · {{nSteps}} bước</span><span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">“đưa video nổi nhất tuần này của Nocturne lên đầu, làm thêm 2 video ×2,7 trở lên chưa làm cho Midnight Tales, và từ giờ đừng lấy video dưới 30 phút”</span></div><div class="vs" style="flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column"><sc-for list="{{steps}}" as="st" hint-placeholder-count="4"><div class="vv-plan__step" role="checkbox" aria-checked="{{st.on}}" tabindex="0" onClick="{{st.t}}" style="padding: 12px 16px; cursor: pointer"><span class="vv-check vv-check--m" aria-hidden="true" aria-checked="{{st.on}}"></span><span class="vv-orb vv-orb--scout" aria-hidden="true" style="width: 16px; height: 16px"></span><span><b>{{st.title}}</b><small>{{st.sub}}</small></span><span class="vv-plan__cost">{{st.cost}}</span></div></sc-for></div><div style="padding: 10px 16px 6px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06)"><span class="num" style="font-size: 12.5px; color: #A0A0AB">{{planTotal}}</span><button class="{{planBtnCls}}" type="button" onClick="{{closePlan}}"><span>Làm {{nSteps}} bước</span></button><button class="btn" type="button" onClick="{{closePlan}}">Sửa câu</button></div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+<sc-if value="{{whyShow}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" onClick="{{closeWhy}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div>
+<section role="dialog" aria-modal="true" aria-label="Vì sao" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 86%; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div><div style="padding: 4px 16px 16px"><div class="vv-reason" style="width: auto; border: none; box-shadow: none; background: transparent; padding: 0" role="dialog" aria-label="Vì sao" style="--ag: var(--vv-director-ink)"><div class="vv-reason__head"><span class="vv-orb vv-orb--director" aria-hidden="true" style="width: 16px; height: 16px"></span><span>Đạo diễn giải thích</span></div><div class="vv-reason__text">Viết lại từ tiêu đề gốc theo quy tắc viết của Midnight Tales, giữ từ khoá mà video nổi trội cùng dùng.</div><div class="vv-reason__facts"><div class="vv-reason__fact"><span>Tiêu đề gốc</span><b>Night Shift Nurse Hears Breathing From an Empty Room</b><span class="vv-reason__src">video nguồn · Nocturne Stories</span></div><div class="vv-reason__fact"><span>Quy tắc viết</span><b>Tiếng Anh · giọng kể</b><span class="vv-reason__src">Hồ sơ kênh › Khi viết…</span></div><div class="vv-reason__fact"><span>Từ khoá giữ lại</span><b>Room 214 · night nurse</b><span class="vv-reason__src">tiêu đề gốc + 3 video ×3 trở lên</span></div></div><a class="vv-reason__fix vv-reason__fix--m" href="#">Sửa quy tắc viết</a></div></div>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scope": {"editor": "enum", "options": ["all", "channel"], "default": "all", "section": "Phạm vi"}, "screen": {"editor": "enum", "options": ["list", "detail", "jobs", "switch", "recap", "plan"], "default": "list", "section": "Màn hình"}, "stage": {"editor": "enum", "options": ["images", "review"], "default": "images", "section": "Trạng thái video (chi tiết)"}, "promptPop": {"editor": "enum", "options": ["none", "scene", "cover"], "default": "none", "section": "Ảnh của video (chi tiết)"}, "meta": {"editor": "enum", "options": ["pending", "writing", "failed", "ai", "edited", "rewrite", "history"], "default": "ai", "section": "Nội dung đăng (chi tiết)"}, "agent": {"editor": "enum", "options": ["off", "learn", "why"], "default": "off", "section": "Trợ lý chủ động (chi tiết)"}, "$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ms: null, rwp: null, screen: null, paused: null, scope: null, chan: null, pp: null, ppTab: null, ppSc: 'tpl', ppCv: 'tpl', ppPickSc: null, ppPickCv: null };
+  }
+  componentDidUpdate(prev) {
+    if (prev.screen !== this.props.screen || prev.stage !== this.props.stage || prev.scope !== this.props.scope || prev.promptPop !== this.props.promptPop || prev.meta !== this.props.meta || prev.agent !== this.props.agent) this.setState({ off: null, planX: null, why: null, learn: null, ms: null, rwp: null, screen: null, paused: null, scope: null, chan: null, pp: null, ppTab: null, ppSc: 'tpl', ppCv: 'tpl', ppPickSc: null, ppPickCv: null });
+  }
+  __rv() {
+    const agentP = this.props.agent || 'off';
+    const screen = this.state.screen || ((agentP === 'learn' || agentP === 'why') ? 'detail' : (this.props.screen || 'list'));
+    const stage = this.props.stage || 'images';
+    const paused = this.state.paused !== null ? this.state.paused : false;
+
+    const PR = [{"id": "def", "kind": "scene", "name": "Theo nhận diện kênh", "built": true, "tag": "Mỗi kênh một vẻ", "img": "url(../img/ferryman.jpg) center / cover no-repeat", "prompt": "Vẽ theo phong cách nhận diện của kênh đang làm video (app tự rút từ đối thủ tham chiếu khi tạo kênh, xem ở Hồ sơ kênh): cùng chất liệu, màu và ánh sáng với avatar và ảnh bìa kênh. Mỗi kênh ra một vẻ riêng. Mẫu chuẩn của kênh mới dùng prompt này.", "used": ["Mẫu chuẩn của kênh mới"], "edited": "Viderse", "samples": ["url(../img/ferryman.jpg) center / cover no-repeat", "url(../img/pv_cutout.jpg) center / cover no-repeat", "url(../img/st_close.jpg) center / cover no-repeat"], "ov": ""}, {"id": "moss", "kind": "scene", "name": "Đêm xanh rêu", "built": false, "tag": "Đêm lạnh, đèn vàng", "img": "url(../img/st_cutout.jpg) center / cover no-repeat", "prompt": "Minh hoạ điện ảnh ban đêm. Ánh sáng lạnh xanh rêu, đèn trực vàng hắt từ một phía, hạt phim nhẹ. Nhân vật là khối tối có viền sáng ấm. Không chữ.", "used": ["Mẫu chuẩn · Tách nền"], "edited": "sửa 23:40", "samples": ["url(../img/st_cutout.jpg) center / cover no-repeat", "url(../img/ed_frame.jpg) center / cover no-repeat", "url(../img/nurse_s3.jpg) center / cover no-repeat", "url(../img/nurse_s1.jpg) center / cover no-repeat"], "ov": ""}, {"id": "doc35", "kind": "scene", "name": "Phim tài liệu 35mm", "built": false, "tag": "Phim 35mm, màu ấm", "img": "url(../img/pr_doc35.jpg) center / cover no-repeat", "prompt": "Khung hình phim 35mm, màu ấm ngả vàng, hạt phim rõ, viền đen điện ảnh. Góc máy rộng, nhân vật nhỏ trong không gian lớn.", "used": ["Phim tài liệu"], "edited": "sửa 25/10", "samples": ["url(../img/pr_doc35.jpg) center / cover no-repeat"], "ov": ""}, {"id": "drama", "kind": "scene", "name": "Cận mặt kịch tính", "built": false, "tag": "Tương phản mạnh", "img": "url(../img/pr_face_teal.jpg) center / cover no-repeat", "prompt": "Cận mặt, ánh sáng gắt một phía, nền tối loang màu lạnh. Cảm xúc rõ: sợ hãi, sững sờ.", "used": ["Cận cảnh"], "edited": "sửa 22/10", "samples": ["url(../img/pr_face_teal.jpg) center / cover no-repeat"], "ov": ""}, {"id": "lantern", "kind": "scene", "name": "Đèn lồng phố cổ", "built": false, "tag": "Đỏ cam đèn lồng", "img": "url(../img/st_cutout_cl.jpg) center / cover no-repeat", "prompt": "Tranh minh hoạ phố cổ Hà Nội ban đêm, đèn lồng đỏ cam, dây điện chằng chịt. Nhân vật áo trắng sáng nổi trên nền đỏ sẫm.", "used": ["Truyện kể đêm"], "edited": "sửa 18/10", "samples": ["url(../img/st_cutout_cl.jpg) center / cover no-repeat"], "ov": ""}, {"id": "water", "kind": "scene", "name": "Màu nước dịu", "built": false, "tag": "Màu nước", "img": "url(../img/pr_watercolor.jpg) center / cover no-repeat", "prompt": "Tranh màu nước loang trên giấy thô, xanh chàm và tím nhạt, cảnh tĩnh, không người. Hợp truyện ru ngủ.", "used": [], "edited": "tạo 21/10", "samples": ["url(../img/pr_watercolor.jpg) center / cover no-repeat"], "ov": ""}, {"id": "ink", "kind": "scene", "name": "Mực in đen trắng", "built": false, "tag": "Đen trắng", "img": "url(../img/pr_woodcut.jpg) center / cover no-repeat", "prompt": "Tranh in hai màu đen và kem, nét gạch chéo đổ bóng, tương phản rất mạnh, như truyện tranh in khắc gỗ.", "used": [], "edited": "tạo 20/10", "samples": ["url(../img/pr_woodcut.jpg) center / cover no-repeat"], "ov": ""}, {"id": "c-clean", "kind": "cover", "name": "Ảnh sạch", "built": true, "tag": "Không chữ", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "", "prompt": "Ảnh đẹp không chữ, để tiêu đề video tự nói.", "used": ["Phim tài liệu"], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-hook", "kind": "cover", "name": "Chữ hook", "built": true, "tag": "Chữ hook", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "hook", "prompt": "1–4 chữ to gợi tò mò, Đạo diễn lấy từ chi tiết lạ nhất của câu chuyện. Nhân vật ở một bên, bên kia để trống cho chữ.", "used": ["Mẫu chuẩn của kênh mới"], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-circle", "kind": "cover", "name": "Khoanh tròn + mũi tên", "built": true, "tag": "Khoanh tròn", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "circle", "prompt": "Khoanh tròn một chi tiết đáng ngờ có thật trong truyện, kèm mũi tên đỏ chỉ vào. Không chữ.", "used": [], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-hookarrow", "kind": "cover", "name": "Chữ hook + mũi tên", "built": true, "tag": "Hook + mũi tên", "img": "url(../img/hotel_nomap.jpg) center / cover no-repeat", "ov": "hookarrow", "prompt": "Chữ hook ở phần trống, mũi tên đỏ chỉ vào chi tiết chính của câu chuyện.", "used": [], "edited": "Viderse", "samples": ["url(../img/hotel_nomap.jpg) center / cover no-repeat"]}, {"id": "c-split", "kind": "cover", "name": "Trước / sau", "built": true, "tag": "Trước / sau", "img": "url(../img/cover_split.jpg) center / cover no-repeat", "ov": "split", "prompt": "Chia đôi khung: bên trái lúc đầu, bên phải lúc sau, cùng nhân vật nhưng số phận khác hẳn. Không chữ.", "used": [], "edited": "Viderse", "samples": ["url(../img/cover_split.jpg) center / cover no-repeat"]}, {"id": "c-face", "kind": "cover", "name": "Cận mặt cảm xúc", "built": true, "tag": "Cận mặt", "img": "url(../img/face_fear.jpg) center / cover no-repeat", "ov": "", "prompt": "Mặt nhân vật chiếm hai phần ba khung, cảm xúc cực rõ, nền mờ là nơi chốn của câu chuyện.", "used": ["Cận cảnh"], "edited": "Viderse", "samples": ["url(../img/face_fear.jpg) center / cover no-repeat"]}, {"id": "c-red", "kind": "cover", "name": "Hook đỏ Midnight", "built": false, "tag": "Chữ hook", "img": "url(../img/c_nurse.jpg) center / cover no-repeat", "ov": "", "prompt": "Chữ hook trắng viền đen dày, dòng cuối màu đỏ. Nhân vật quay lưng giữa khung, hành lang tối có đèn trực.", "used": ["Mẫu chuẩn · Tách nền"], "edited": "sửa 23:12", "samples": ["url(../img/c_nurse.jpg) center / cover no-repeat"]}, {"id": "c-yellow", "kind": "cover", "name": "Hook vàng phố đêm", "built": false, "tag": "Hook + mũi tên", "img": "url(../img/c_hem.jpg) center / cover no-repeat", "ov": "", "prompt": "Chữ hook vàng nghiêng, viền đen dày, dòng cuối đỏ. Tông đỏ cam đèn lồng, dây điện, hẻm sâu.", "used": ["Truyện kể đêm"], "edited": "sửa 18/10", "samples": ["url(../img/c_hem.jpg) center / cover no-repeat"]}];
+    const OVF = (ov) => ({ hookD: ov === 'hook' || ov === 'hookarrow' ? 'block' : 'none', circleD: ov === 'circle' || ov === 'hookarrow' ? 'block' : 'none', arrowD: ov === 'circle' || ov === 'hookarrow' ? 'block' : 'none', splitD: ov === 'split' ? 'block' : 'none' });
+    const usedText = (p) => p.used.length ? 'Dùng ở ' + p.used.join(', ') : 'Chưa template nào dùng';
+    const PRX = PR.map((p) => Object.assign({}, p, OVF(p.ov), { usedText: usedText(p), isBuilt: p.built, isMine: !p.built, kindLabel: p.kind === 'scene' ? 'Ảnh cảnh' : 'Ảnh bìa', usedN: p.used.length }));
+
+    const PMSEP = { isSep: true, isRow: false };
+    const pmRow = (p, o) => Object.assign({ id: p.id, isSep: false, isRow: true, name: p.name, sub: p.tag + (p.built ? ' · Có sẵn' : ''), img: p.img, hasImg: true, hasIcon: false, icon: '', dis: false, tip: p.prompt, subFg: '#8B8B97' }, OVF(p.ov || ''), o);
+    const pmSpecial = (id, name, sub, icon, o) => Object.assign({ id, isSep: false, isRow: true, name, sub, img: 'transparent', hasImg: false, hasIcon: true, icon, dis: false, tip: sub, subFg: '#8B8B97' }, OVF(''), o);
+    const pmFinal = (rows, cur, onPick) => rows.map((r) => r.isSep ? Object.assign({ isRow: false }, r) : Object.assign({}, r, { on: r.id === cur ? 'true' : 'false', sel: r.id === cur, bg: r.id === cur ? '#232327' : 'transparent', op: r.dis ? '0.45' : '1', ariaDis: r.dis ? 'true' : 'false', pick: r.dis ? () => {} : () => onPick(r.id) }));
+    const prById = (id) => PRX.find((p) => p.id === id);
+    const ppOpenTab = this.state.pp === null ? (this.props.promptPop || 'none') : this.state.pp;
+    const ppTab = this.state.ppTab || (ppOpenTab === 'cover' ? 'cover' : 'scene');
+    const PP_TSC = prById('moss'), PP_TCV = prById('c-red');
+    const PP_NONE = { id: 'none', name: 'Không tạo ảnh', tag: '' };
+    const ppScEff = this.state.ppSc === 'tpl' ? PP_TSC : (this.state.ppSc === 'none' ? PP_NONE : prById(this.state.ppSc));
+    const PP_UP = { id: 'upload', name: 'Ảnh của bạn', tag: '' };
+    const ppCvEff = this.state.ppCv === 'tpl' ? PP_TCV : (this.state.ppCv === 'upload' ? PP_UP : prById(this.state.ppCv));
+    const ppPkSc = this.state.ppPickSc || this.state.ppSc;
+    const ppPkCv = this.state.ppPickCv || this.state.ppCv;
+    const PP_DRAWN = stage === 'review' ? 6 : 4;
+    const PP_LEFT = stage === 'review' ? 5 : 7;
+    const scRowsPP = pmFinal([pmSpecial('tpl', 'Theo template · ' + PP_TSC.name, 'Mẫu chuẩn · Tách nền dùng prompt này', 'i-layer'), PMSEP].concat(PRX.filter((p) => p.kind === 'scene').map((p) => pmRow(p))).concat([PMSEP, pmSpecial('none', 'Không tạo ảnh cho video này', 'Dựng từ nền, hiệu ứng và phụ đề', 'i-gallery-edit')]), ppPkSc, (id) => this.setState({ ppPickSc: id }));
+    const cvRowsPP = pmFinal([pmSpecial('tpl', 'Theo template · ' + PP_TCV.name, 'Mẫu chuẩn · Tách nền dùng prompt này', 'i-layer'), PMSEP].concat(PRX.filter((p) => p.kind === 'cover').map((p) => pmRow(p))).concat([PMSEP, pmSpecial('upload', 'Dùng ảnh của bạn', 'PNG, JPEG hoặc WebP · không vẽ', 'i-export')]), ppPkCv, (id) => this.setState({ ppPickCv: id }));
+    const ppIsSc = ppTab === 'scene';
+    const ppTarget = ppIsSc ? (ppPkSc === 'tpl' ? PP_TSC : (ppPkSc === 'none' ? PP_NONE : prById(ppPkSc))) : (ppPkCv === 'tpl' ? PP_TCV : (ppPkCv === 'upload' ? PP_UP : prById(ppPkCv)));
+    const ppCur = ppIsSc ? ppScEff : ppCvEff;
+    const ppChanged = ppIsSc ? ppPkSc !== this.state.ppSc : ppPkCv !== this.state.ppCv;
+    let ppCost = '', ppBtn = 'Chọn prompt khác', ppOver = false;
+    if (ppChanged && ppTarget.id !== ppCur.id) {
+      if (ppIsSc && ppTarget.id === 'none') {
+        ppCost = 'Bỏ ảnh cảnh: Kiểm định dựng từ nền, hiệu ứng và phụ đề. Không tốn ảnh; ảnh đã vẽ được giữ.';
+        ppBtn = 'Đổi · không tạo ảnh';
+      } else if (ppIsSc) {
+        const n = ppCur.id === 'none' ? 6 : PP_DRAWN;
+        ppOver = n > PP_LEFT;
+        ppCost = (ppCur.id === 'none' ? 'Vẽ 6 ảnh cảnh theo prompt mới.' : 'Vẽ lại ' + PP_DRAWN + ' ảnh cảnh đã vẽ' + (PP_DRAWN < 6 ? '; ' + (6 - PP_DRAWN) + ' ảnh còn lại vẽ luôn theo prompt mới.' : '.')) + ' Tốn ' + n + ' ảnh, hôm nay còn ' + PP_LEFT + '.' + (ppOver ? ' Phần vượt hạn mức chờ tới 07:00 rồi vẽ tiếp.' : '') + ' Ảnh bìa giữ nguyên.';
+        ppBtn = 'Đổi và vẽ lại ' + n + ' ảnh';
+      } else if (ppTarget.id === 'upload') {
+        ppCost = 'Chọn ảnh bìa từ máy (PNG, JPEG, WebP). Không tốn ảnh. Ảnh cảnh giữ nguyên.';
+        ppBtn = 'Chọn ảnh…';
+      } else {
+        ppCost = 'Chỉ vẽ lại ảnh bìa · tốn 1 ảnh, hôm nay còn ' + PP_LEFT + '. Ảnh cảnh giữ nguyên.';
+        ppBtn = 'Đổi và vẽ lại ảnh bìa';
+      }
+    } else if (ppChanged) { ppCost = 'Prompt này giống prompt video đang dùng, không vẽ lại gì.'; ppBtn = 'Lưu'; }
+    const ppCan = ppChanged;
+    const pp = {
+      title: 'Ảnh của video này', sub: 'Mặc định theo template Mẫu chuẩn · Tách nền. Đổi ở đây chỉ áp cho video này.',
+      hasTabs: true, tabs: [['scene', 'Ảnh cảnh', ppScEff.name], ['cover', 'Ảnh bìa', ppCvEff.name]].map((t) => { const on = t[0] === ppTab; return { label: t[1] + ' · ' + t[2], kind: t[1], name: t[2], on: on ? 'true' : 'false', bg: on ? '#2A2A2E' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ ppTab: t[0] }) }; }),
+      rows: ppIsSc ? scRowsPP : cvRowsPP,
+      hasCost: !!ppCost, cost: ppCost, costBg: ppOver ? 'rgba(246,203,140,0.07)' : 'rgba(255,255,255,0.03)', costBd: ppOver ? 'rgba(246,203,140,0.3)' : 'rgba(255,255,255,0.08)', costFg: ppOver ? '#F6CB8C' : '#A0A0AB',
+      hasActions: true, close: () => this.setState({ pp: 'none', ppPickSc: null, ppPickCv: null }),
+      apply: ppCan ? () => this.setState(ppIsSc ? { ppSc: ppPkSc, ppPickSc: null, pp: 'none' } : { ppCv: ppPkCv, ppPickCv: null, pp: 'none' }) : () => {},
+      btn: ppBtn, btnDis: ppCan ? 'false' : 'true', btnBg: ppCan ? '#EDEDEF' : '#2A2A2E', btnFg: ppCan ? '#0B0B0D' : '#8B8B97'
+    };
+    const ppCustom = this.state.ppSc !== 'tpl' || this.state.ppCv !== 'tpl';
+    const TH = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/c_ferry.jpg) center / cover no-repeat',
+      'url(../img/c_mall.jpg) center / cover no-repeat',
+      'url(../img/c_lastbus.jpg) center / cover no-repeat',
+      'url(../img/c_elevator.jpg) center / cover no-repeat',
+      'url(../img/c_hotel.jpg) center / cover no-repeat'
+    ];
+    const go = (s) => () => this.setState({ screen: s });
+    const scope = this.state.scope || this.props.scope || 'all';
+    const isAll = scope === 'all';
+    const chanId = isAll ? 'MT' : (this.state.chan || 'MT');
+    const CHS = {
+      MT: { ini: 'MT', name: 'Midnight Tales', tint: '#2E2236', ring: '#D79BFF', done: 3, cap: 5, week: 3, warn: 'Template Cận cảnh thiếu clip nền' },
+      CL: { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', tint: '#302418', ring: '#F6CB8C', done: 2, cap: 5, week: 1, warn: '' },
+      QH: { ini: 'QH', name: 'Quiet Hours', tint: '#1F2C27', ring: '#A6EDC1', done: 1, cap: 3, week: 1, warn: '' }
+    };
+    const IDS = ['MT', 'CL', 'QH'];
+    const tagM = (id) => ({ ch: id, chName: 'Kênh ' + CHS[id].name, tint: CHS[id].tint, ring: CHS[id].ring, hasCh: isAll, noCh: !isAll });
+    const mine = (list) => list.filter((v) => isAll || v.ch === chanId);
+    const YOURS = [
+      Object.assign({ title: 'The Last Bus Doesn’t Stop at Elm Street', st: 'Cần xử lý · cần đăng nhập ChatGPT', color: '#FF9A5C', bd: 'rgba(255,154,92,0.4)', act: 'Xử lý', href: 'MMain.dc.html', bg: 'url(../img/c_lastbus.jpg) center / cover no-repeat' }, tagM('MT')),
+      Object.assign({ title: 'I Took a Job Watching an Empty Mall After Midnight', st: 'Chờ duyệt · 7 ảnh', color: '#F6CB8C', bd: 'rgba(246,203,140,0.4)', act: 'Duyệt', href: 'MReview.dc.html', bg: 'url(../img/c_mall.jpg) center / cover no-repeat' }, tagM('MT')),
+      Object.assign({ title: 'Căn nhà cuối hẻm và người hàng xóm không bao giờ ngủ', st: 'Chờ duyệt · 9 ảnh', color: '#F6CB8C', bd: 'rgba(246,203,140,0.4)', act: 'Duyệt', href: 'MReview.dc.html', bg: 'url(../img/c_hem.jpg) center / cover no-repeat' }, tagM('CL')),
+      Object.assign({ title: 'Rain on the Lighthouse: A Sleep Story', st: 'Chờ duyệt · 5 ảnh', color: '#F6CB8C', bd: 'rgba(246,203,140,0.4)', act: 'Duyệt', href: 'MReview.dc.html', bg: 'url(../img/c_rainlh.jpg) center / cover no-repeat' }, tagM('QH'))
+    ];
+    const READY = [
+      Object.assign({ title: 'The Hotel That Wasn’t on Any Map', st: 'Sẵn sàng đăng · MP4 38:12', bg: 'url(../img/c_hotel.jpg) center / cover no-repeat' }, tagM('MT')),
+      Object.assign({ title: 'Night Train Through the Snow', st: 'Sẵn sàng đăng · MP4 1:00:40', bg: 'url(../img/c_train.jpg) center / cover no-repeat' }, tagM('QH'))
+    ];
+    const QUEUE = [
+      ['CL', 'Người lái taxi đêm và vị khách không có bóng', '00:20', 'Truyện kể đêm'],
+      ['QH', 'Snowfall Over an Empty Train Station', '00:30', 'Ru ngủ · Không ảnh'],
+      ['MT', 'The Hospital Elevator Stops at Floor 13', '00:40', 'Phim tài liệu'],
+      ['CL', 'Chiếc gương cũ trong tiệm đồ cổ phố Hàng Bạc', '01:00', 'Truyện kể đêm'],
+      ['QH', 'A Night Ferry Across a Quiet Lake', '01:10', 'Ru ngủ · Không ảnh'],
+      ['MT', 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', '01:25', 'Cận cảnh']
+    ].map((r) => Object.assign({ title: r[1], meta: 'Bắt đầu khoảng ' + r[2] + ' · ' + r[3] }, tagM(r[0])));
+    const yours = mine(YOURS);
+    const ready = mine(READY);
+    const queued = (isAll ? QUEUE.slice(0, 3) : mine(QUEUE).slice(0, 2)).map((q, i) => Object.assign(q, { n: String(i + 1) }));
+    const working = [
+      { title: 'The Night Nurse Who Heard Room 214 Breathing', src: 'Nocturne Stories · ×4,2', dur: '42:10', bg: 'url(../img/c_nurse.jpg) center / cover no-repeat', orb: 'o-artist', step: 'Hoạ sĩ đang vẽ cảnh 5 / 6', pct: '71%', bar: '#FFD08A' },
+      { title: 'What the Ferryman Saw on the Fog Night', src: 'The Late Archive · ×3,0', dur: '51:34', bg: 'url(../img/c_ferry.jpg) center / cover no-repeat', orb: 'o-scout', step: 'Trinh sát đang làm phụ đề', pct: '28%', bar: '#B7CEFF' }
+    ].map((w) => Object.assign(w, { src: (isAll ? 'Midnight Tales · ' : '') + w.src, open: go('detail') })).filter(() => isAll || chanId === 'MT');
+    const POSTED = { MT: ['My Neighbor Only Mows His Lawn at 3 AM', 'Đã đăng 26/10', 9, 'url(../img/c_lawn.jpg) center / cover no-repeat'], CL: ['Bà cụ bán vé số ở ga Hàng Cỏ lúc nửa đêm', 'Đã đăng 25/10', 1, 'url(../img/c_veso.jpg) center / cover no-repeat'], QH: ['Ocean Fog Over a Sleeping Harbor', 'Đã đăng 26/10', 1, 'url(../img/c_ocean.jpg) center / cover no-repeat'] }[chanId];
+    const chans = IDS.map((id, n) => {
+      const c = CHS[id];
+      const w = YOURS.filter((v) => v.ch === id).length, r = READY.filter((v) => v.ch === id).length;
+      const facts = [];
+      if (w) facts.push({ t: w + ' chờ bạn', c: '#F6CB8C' });
+      if (r) facts.push({ t: r + ' sẵn sàng đăng', c: '#A6EDC1' });
+      if (!facts.length) facts.push({ t: 'Không có việc chờ bạn', c: '#8B8B97' });
+      const cur = !isAll && id === chanId;
+      return { ini: c.ini, name: c.name, tint: c.tint, ring: c.ring, ml: n ? '-6px' : '0', mlS: n ? '-6px' : '0', facts,
+        today: c.done + '/' + c.cap + ' hôm nay', pct: Math.round(c.done / c.cap * 100) + '%', hasWarn: !!c.warn, warn: c.warn,
+        sub: 'Hôm nay ' + c.done + '/' + c.cap + (w ? ' · ' + w + ' chờ bạn' : ''),
+        tip: c.name + ' · hôm nay ' + c.done + '/' + c.cap + ' · ' + facts.map((f) => f.t).join(' · ') + (c.warn ? ' · ' + c.warn : ''),
+        cur: cur ? 'true' : 'false', isCur: cur, menuBg: cur ? '#1E1E21' : 'transparent',
+        open: () => this.setState({ scope: 'channel', chan: id, screen: 'list' }) };
+    });
+    const sc = CHS[chanId];
+    const scopeName = isAll ? 'Mọi kênh' : sc.name;
+    const todayN = isAll ? '6/13' : sc.done + '/' + sc.cap;
+    const todayPct = isAll ? '46%' : Math.round(sc.done / sc.cap * 100) + '%';
+    const autoLine = isAll ? 'Tự lấy video · 2/3 kênh' : 'Tự lấy video bật';
+    const allSub = 'Hôm nay 6/13 · 4 chờ bạn';
+    const yoursN = String(yours.length), readyN = String(ready.length), queuedN = isAll ? '12' : String({ MT: 4, CL: 5, QH: 3 }[chanId]);
+    const queueMore = isAll ? 'Xem cả 12 trong hàng chờ' : 'Xem cả hàng chờ của 3 kênh';
+    const hasWorking = working.length > 0, hasReady = ready.length > 0, workingN = String(working.length);
+    const postedTitle = POSTED[0], postedSt = POSTED[1], postedN = String(POSTED[2]), postedBg = POSTED[3];
+    const scTint = sc.tint, scRing = sc.ring, scIni = sc.ini;
+    const review = stage === 'review';
+    const AG = [
+      { orb: 'o-scout', name: 'Trinh sát', ink: '#B7CEFF', st: 'Xong', on: false },
+      { orb: 'o-director', name: 'Đạo diễn', ink: '#CDB5FF', st: 'Xong', on: false },
+      { orb: 'o-artist', name: 'Hoạ sĩ', ink: '#FFD08A', st: review ? '7/7' : '5/7', on: !review },
+      { orb: 'o-qa', name: 'Kiểm định', ink: '#9DECC9', st: review ? 'Chờ bạn' : 'Chờ lượt', on: false, wait: true }
+    ];
+    const agents = AG.map((a) => ({ orb: a.orb, name: a.name, ink: a.ink, st: a.st, live: a.on ? 'live' : '', op: a.wait ? '0.55' : '1',
+      stColor: a.on ? '#FFD08A' : (a.wait ? (review ? '#F6CB8C' : '#8B8B97') : '#A6EDC1'),
+      bg: a.on ? 'rgba(255,208,138,0.06)' : '#131315', bd: a.on ? 'rgba(255,208,138,0.3)' : 'rgba(255,255,255,0.06)' }));
+    const IMG = [
+      'url(../img/c_nurse.jpg) center / cover no-repeat',
+      'url(../img/nurse_s1.jpg) center / cover no-repeat',
+      'url(../img/nurse_s2.jpg) center / cover no-repeat',
+      'url(../img/nurse_s3.jpg) center / cover no-repeat',
+      'url(../img/nurse_s4.jpg) center / cover no-repeat',
+      'url(../img/nurse_s5.jpg) center / cover no-repeat',
+      'url(../img/nurse_s6.jpg) center / cover no-repeat'
+    ];
+    const SC = [
+      ['0', 'Ảnh bìa', 'Chữ hook “ROOM 214”', '1280×720'], ['1', 'Cảnh 1', 'Hành lang khoa đêm', '0:00–7:02'], ['2', 'Cảnh 2', 'Cửa phòng 214', '7:02–14:10'],
+      ['3', 'Cảnh 3', 'Y tá áp tai vào cửa', '14:10–21:05'], ['4', 'Cảnh 4', 'Hồ sơ bệnh nhân cũ', '21:05–28:00'], ['5', 'Cảnh 5', 'Đèn pin soi phòng trống', '28:00–35:20'], ['6', 'Cảnh 6', 'Bình minh', '35:20–42:10']
+    ];
+    const tiles = SC.map((s, i) => {
+      const st = review ? 'img' : (i <= 4 ? 'img' : (i === 5 ? 'drawing' : 'wait'));
+      return { key: s[0], label: s[1], caption: s[2], time: s[3], span: i === 0 ? '1 / -1' : 'auto', bg: IMG[i], isImg: st === 'img', isDrawing: st === 'drawing', isWait: st === 'wait',
+        bd: st === 'drawing' ? 'rgba(255,208,138,0.45)' : 'rgba(255,255,255,0.06)' };
+    });
+    const log = review ? [
+      { t: '00:07', who: 'Hoạ sĩ', ink: '#FFD08A', what: 'Vẽ xong cảnh 6. Chờ bạn duyệt 7 ảnh.' },
+      { t: '23:58', who: 'Hoạ sĩ', ink: '#FFD08A', what: 'Vẽ xong cảnh 5 — đèn pin soi vào phòng trống' },
+      { t: '23:44', who: 'Hoạ sĩ', ink: '#FFD08A', what: 'Vẽ ảnh bìa và cảnh 1–4' }
+    ] : [
+      { t: '23:53', who: 'Hoạ sĩ', ink: '#FFD08A', what: 'Đang vẽ cảnh 5 · đèn pin soi vào phòng trống' },
+      { t: '23:44', who: 'Hoạ sĩ', ink: '#FFD08A', what: 'Vẽ ảnh bìa và cảnh 1–4' },
+      { t: '23:43', who: 'Đạo diễn', ink: '#CDB5FF', what: 'Chia 6 cảnh theo nhịp truyện, mỗi cảnh ~7 phút' }
+    ];
+    const running = [
+      { orb: 'o-artist', live: 'live', title: 'The Night Nurse Who Heard Room 214 Breathing', step: 'Hoạ sĩ · vẽ cảnh 5 / 6' },
+      { orb: 'o-scout', live: 'live', title: 'What the Ferryman Saw on the Fog Night', step: 'Trinh sát · làm phụ đề' }
+    ];
+    const CH = { MT: ['#2E2236', '#D79BFF'], CL: ['#302418', '#F6CB8C'], QH: ['#1F2C27', '#A6EDC1'] };
+    const next = [
+      ['1', 'CL', 'Người lái taxi đêm và vị khách không có bóng', 'Chuyện Lạ Đêm Khuya · khoảng 00:20'],
+      ['2', 'QH', 'Snowfall Over an Empty Train Station', 'Quiet Hours · khoảng 00:30'],
+      ['3', 'MT', 'The Hospital Elevator Stops at Floor 13', 'Midnight Tales · khoảng 00:40'],
+      ['4', 'CL', 'Chiếc gương cũ trong tiệm đồ cổ phố Hàng Bạc', 'Chuyện Lạ Đêm Khuya · khoảng 01:00']
+    ].map((r) => ({ n: r[0], ini: r[1], tint: CH[r[1]][0], ring: CH[r[1]][1], title: r[2], meta: r[3] }));
+    const mm = agentP === 'learn' ? 'edited' : (agentP === 'why' ? 'ai' : (this.props.meta || 'ai'));
+    const pubHas = ['ai', 'edited', 'rewrite', 'history'].indexOf(mm) >= 0;
+    const pubEdited = mm === 'edited' || mm === 'history';
+    const ms = this.state.ms !== null ? this.state.ms : (mm === 'rewrite' ? 'rw' : (mm === 'history' ? 'hist' : 'none'));
+    const MST = { pending: ['Chưa viết', '#1B1B1E', '#8B8B97'], writing: ['Đang viết…', 'rgba(184,156,255,0.1)', '#D6C9FF'], failed: ['Chưa viết được', 'rgba(255,154,92,0.1)', '#FFC09A'] }[mm] || (pubEdited ? ['Bạn đã sửa · 00:12', 'rgba(246,203,140,0.1)', '#F6CB8C'] : ['Đạo diễn viết · 23:41', '#1B1B1E', '#8B8B97']);
+    const pubTitle = pubEdited ? 'Room 214 Was Empty. So Who Was Breathing at 3:12 AM?' : 'The Night Nurse Who Heard Room 214 Breathing (True Hospital Horror Story)';
+    const RWP = this.state.rwp || { title: true, desc: false, tags: false };
+    const rwParts = [['title', 'Tiêu đề'], ['desc', 'Mô tả'], ['tags', 'Tag']].map((r) => { const on = !!RWP[r[0]]; return { label: r[1], on: on ? 'true' : 'false', bg: on ? 'rgba(255,77,99,0.12)' : 'transparent', bd: on ? 'rgba(255,77,99,0.4)' : 'rgba(255,255,255,0.1)', fg: on ? '#FFD3DA' : '#A0A0AB', pick: () => this.setState({ rwp: Object.assign({}, RWP, { [r[0]]: !on }) }) }; });
+    const rwN = ['title', 'desc', 'tags'].filter((k) => RWP[k]).length;
+    const PH = pubEdited ? [['Bạn sửa · 00:12', 'Room 214 Was Empty. So Who Was Breathing at 3:12 AM?', 'Tiêu đề', true], ['Đạo diễn viết · 23:41', 'The Night Nurse Who Heard Room 214 Breathing (True Hospital Horror Story)', 'Tiêu đề, mô tả, 8 tag', false]] : [['Đạo diễn viết · 23:41', 'The Night Nurse Who Heard Room 214 Breathing (True Hospital Horror Story)', 'Tiêu đề, mô tả, 8 tag', true]];
+    const pubHist = PH.map((h) => ({ who: h[0], title: h[1], what: h[2], cur: h[3], old: !h[3] }));
+    const pubTags = ['midnight tales', 'scary stories', 'horror stories'].map((t) => ({ t, always: true, bg: '#121214', bd: 'rgba(255,255,255,0.14)' })).concat(['night shift stories', 'hospital horror', 'room 214'].map((t) => ({ t, always: false, bg: '#1B1B1E', bd: 'rgba(255,255,255,0.08)' })));
+    const inDetail = screen === 'detail';
+    // r16-agent
+    const ST = [["scout", "Lên đầu hàng: “…Station That Shut Down in 1962” · ×4,2", "Midnight Tales · đang thứ 6", "miễn phí"], ["scout", "Làm “What I Saw Through the Night Bus Window” · ×2,8", "Đầu hàng · Midnight Tales", "~7 ảnh"], ["scout", "Làm “The Lake House Guestbook…” · ×2,7", "Đầu hàng · Midnight Tales", "~7 ảnh"], ["scout", "Tự lấy: bỏ video dưới 30 phút", "Midnight Tales · từ lần quét sau", "miễn phí"]];
+    const off = this.state.off || {};
+    const steps = ST.map((x, n) => ({ title: x[1], sub: x[2], cost: x[3], on: off[n] ? 'false' : 'true', t: () => this.setState({ off: Object.assign({}, off, { [n]: !off[n] }) }) }));
+    const nOn = ST.filter((x, n) => !off[n]).length; const vidOn = ST.filter((x, n) => !off[n] && x[3].indexOf('ảnh') >= 0).length;
+    const planShow = screen === 'plan' && this.state.planX !== true;
+    const whyOpen = screen === 'detail' && (this.state.why !== null && this.state.why !== undefined ? this.state.why : agentP === 'why');
+    const learnS = this.state.learn;
+    const AGX = { pickWhy: !!this.state.pw, tPickWhy: () => this.setState({ pw: !this.state.pw }),
+      mco0: this.state.mco === 0, mco1: this.state.mco === 1, mco2: this.state.mco === 2, mco3: this.state.mco === 3, mco4: this.state.mco === 4, mct0: () => this.setState({ mco: this.state.mco === 0 ? null : 0 }), mct1: () => this.setState({ mco: this.state.mco === 1 ? null : 1 }), mct2: () => this.setState({ mco: this.state.mco === 2 ? null : 2 }), mct3: () => this.setState({ mco: this.state.mco === 3 ? null : 3 }), mct4: () => this.setState({ mco: this.state.mco === 4 ? null : 4 }),
+      mro0: this.state.mro === 0, mro1: this.state.mro === 1, mro2: this.state.mro === 2, mrt0: () => this.setState({ mro: this.state.mro === 0 ? null : 0 }), mrt1: () => this.setState({ mro: this.state.mro === 1 ? null : 1 }), mrt2: () => this.setState({ mro: this.state.mro === 2 ? null : 2 }),
+      isRecap: screen === 'recap' || screen === 'plan', openRecap: () => this.setState({ screen: 'recap' }), planShow, closePlan: () => this.setState({ planX: true }), openPlan: () => this.setState({ screen: 'plan', planX: false }),
+      steps, nSteps: String(nOn), planTotal: (vidOn ? '~' + vidOn * 7 + ' ảnh' : 'Không tốn ảnh') + ' · Grok (dự phòng) còn 190 / 400 tuần này', planBtnCls: vidOn ? 'btn-red' : 'btn-pri', revBtnCls: '',
+      whyBtn: pubHas && !pubEdited, whyShow: whyOpen && pubHas && !pubEdited, openWhy: () => this.setState({ why: true }), closeWhy: () => this.setState({ why: false }),
+      learnOn: agentP === 'learn' && pubEdited && !learnS, learnSaved: learnS === 'saved', learnSave: () => this.setState({ learn: 'saved' }), learnNo: () => this.setState({ learn: 'no' }), learnUndo: () => this.setState({ learn: null }) };
+    return {
+      ...AGX,
+      badge: '3', hasBadge: true, pubTags, pubHas, pubEdited, pubPending: mm === 'pending', pubWriting: mm === 'writing', pubFailed: mm === 'failed', pubSt: MST[0], pubStBg: MST[1], pubStFg: MST[2], pubTitle, pubTitleN: String(pubTitle.length), pubHist, pubHistN: String(pubHist.length),
+      rwShow: inDetail && pubHas && ms === 'rw', histShow: inDetail && pubHas && ms === 'hist', openRw: () => this.setState({ ms: 'rw' }), openHist: () => this.setState({ ms: 'hist' }), closeMs: () => this.setState({ ms: 'none' }),
+      rwParts, rwCount: rwN ? rwN + ' phần' : '', rwDis: rwN ? 'false' : 'true', rwOp: rwN ? '1' : '0.45', rwQuick: ['Ngắn hơn', 'Gợi tò mò hơn', 'Đúng nội dung hơn'],
+      pp, ppShow: screen === 'detail' && ppOpenTab !== 'none', openPP: () => this.setState({ pp: 'scene', ppTab: 'scene' }), ppScName: ppScEff.name, ppCvName: ppCvEff.name, ppCustom, ppBd: ppCustom ? 'rgba(246,203,140,0.3)' : 'rgba(255,255,255,0.07)',
+      isList: screen === 'list' || screen === 'jobs' || screen === 'switch', isSwitch: screen === 'switch', isDetail: screen === 'detail', isJobs: screen === 'jobs', isReview: review,
+      working, yours, queued, ready, chans, isAll, notAll: !isAll, scopeName, todayN, todayPct, autoLine, yoursN, readyN, queuedN, queueMore, allSub, hasWorking, hasReady, workingN, postedTitle, postedSt, postedN, postedBg, scTint, scRing, scIni,
+      allChecked: isAll ? 'true' : 'false', allBg: isAll ? '#1E1E21' : 'transparent', pickAll: () => this.setState({ scope: 'all', screen: 'list' }), openSwitch: go('switch'), closeSheet: go('list'),
+      agents, tiles, log, running, next,
+      doneLabel: review ? '7 / 7 ảnh · chờ bạn duyệt' : '5 / 7 ảnh · ảnh hôm nay 43/50',
+      openJobs: go('jobs'), closeJobs: go('list'), back: go('list'),
+      paused, pausedAttr: paused ? 'true' : 'false', pauseLabel: paused ? 'Chạy tiếp' : 'Tạm dừng', pauseIcon: paused ? 'i-play' : 'i-pause',
+      togglePause: () => this.setState({ paused: !paused }),
+      jobsSub: paused ? 'Đã tạm dừng · 12 chờ lượt' : '2 đang chạy · 12 chờ lượt · 3 kênh'
+    };
+  }
+  renderVals() {
+    const r = this.__rv();
+    const st = this.state || {};
+    const down = !!st.tabDown;
+    r.tabMode = down ? 'mini' : '';
+    r.tabScroll = (e) => { const y = e.target.scrollTop; const last = this._ty || 0; const d = y > 60 && y > last; if (d !== down && Math.abs(y - last) > 4) this.setState({ tabDown: d }); this._ty = y; };
+    r.swOpen = !!st.gSw; r.openSw = () => this.setState({ gSw: true, gJ: false }); r.closeSw = () => this.setState({ gSw: false });
+    r.gjOpen = !!st.gJ; r.openGj = () => this.setState({ gJ: true, gSw: false }); r.closeGj = () => this.setState({ gJ: false });
+    return r;
+  }
+}
+</script>
+</body>
+</html>
