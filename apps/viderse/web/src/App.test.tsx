@@ -30,7 +30,7 @@ beforeEach(() => {
     addListener: () => {}, removeListener: () => {},
   })))
   location.hash = '#/'
-  setKitLabels({ brand: { name: 'Vidverse', studio: 'Studio' } })
+  setKitLabels({ brand: { name: 'Viderse', studio: 'Studio' } })
 })
 
 afterEach(async () => {

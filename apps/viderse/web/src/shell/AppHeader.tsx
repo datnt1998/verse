@@ -11,7 +11,7 @@ export function AppHeader({ route }: { route: Route }) {
       height: 52, padding: '0 16px',
       borderBottom: '1px solid var(--line-1)', background: 'var(--color-bg)',
     }}>
-      <a href="#/" aria-label="Vidverse" style={{ display: 'flex', alignItems: 'center', color: 'var(--color-fg)' }}>
+      <a href="#/" aria-label="Viderse" style={{ display: 'flex', alignItems: 'center', color: 'var(--color-fg)' }}>
         <BrandLockup size={22} studio />
       </a>
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>

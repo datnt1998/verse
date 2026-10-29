@@ -1,9 +1,10 @@
 # Viderse (Go)
 
 Khung agent bằng Go trong monorepo `verse` — một Writer agent viết kịch bản
-video từ brief, giao diện web tối giản (React + Vite) nhúng vào binary. Tách
-biệt hoàn toàn khỏi Noverse: dữ liệu ở `~/.viderse`, database `viderse_go`,
-không chia sẻ credential hay lịch sử.
+video từ brief. Giao diện web nhúng vào binary, dựng theo kiến trúc của Noverse
+(React + Vite, StyleX + Tailwind, kit `@noverse/ui` ở `platform/ui`, hash router,
+`SessionProvider`, shell desktop/mobile). Tách biệt hoàn toàn khỏi Noverse: dữ
+liệu ở `~/.viderse`, database `viderse_go`, không chia sẻ credential hay lịch sử.
 
 ## Yêu cầu
 
@@ -40,10 +41,12 @@ go run ./apps/viderse/cmd/viderse logout
 ```
 
 - Lần `serve` đầu (chưa có tài khoản): terminal in một **mã thiết lập** dùng một
-  lần; mở `http://127.0.0.1:8789`, nhập mã, tạo quản trị viên, đăng nhập.
-- Gửi brief (chủ đề, khán giả, độ dài giây HOẶC số từ) → run chạy nền, UI poll
-  trạng thái; kịch bản lưu vào bảng `scripts`, số đo run ở `agent_runs`
-  (status/provider/model/token/cost/thời điểm/lỗi).
+  lần; mở `http://127.0.0.1:8789`, nhập mã, tạo quản trị viên, nhận mã khôi phục.
+- Giao diện web hiện mới là **khung**: thiết lập, đăng nhập/đăng xuất, shell
+  (trang chủ, tài khoản). Chưa có màn gửi brief hay xem kịch bản; API vẫn đủ:
+  `GET/POST /api/runs`, `GET /api/runs/{id}`, `GET /api/scripts`,
+  `GET /api/scripts/{id}`. Run chạy nền, kịch bản lưu vào bảng `scripts`, số đo
+  run ở `agent_runs` (status/provider/model/token/cost/thời điểm/lỗi).
 - Hàng đợi run nằm trong `agent_runs` (database là hàng đợi): `serve` claim
   run queued cũ nhất; deployment giả định **một tiến trình serve mỗi
   database** — lúc khởi động nó đánh `failed` mọi run còn `running` của tiến
@@ -64,11 +67,17 @@ go run ./apps/viderse/cmd/viderse logout
 
 ## Phát triển web
 
+Web là một workspace npm ở gốc repo (cùng `platform/ui` và `apps/noverse/web`):
+
 ```bash
-cd apps/viderse/web
-npm install
-npm run dev         # vite dev server, proxy /api → 127.0.0.1:8789
-npm run typecheck
-npm test
-npm run build       # build ra internal/web/dist (được //go:embed vào binary)
+# ở gốc repo
+npm ci                                   # một lần
+npm run dev -w apps/viderse/web          # vite dev server, proxy /api → 127.0.0.1:8789
+npm run typecheck -w apps/viderse/web
+npm test -w apps/viderse/web
+npm run build -w apps/viderse/web        # build ra internal/web/dist (được //go:embed vào binary)
 ```
+
+Brand Viderse (màu chính `#F43F5E`) và nhãn tiếng Việt nạp ở `web/src/main.tsx`.
+Bản build `internal/web/dist` được commit vì `go build` nhúng nó; sửa web xong
+phải build lại.

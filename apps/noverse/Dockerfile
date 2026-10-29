@@ -23,7 +23,7 @@ WORKDIR /src
 COPY package.json package-lock.json ./
 COPY platform/ui/package.json platform/ui/package.json
 COPY apps/noverse/web/package.json apps/noverse/web/package.json
-COPY apps/vidverse/web/package.json apps/vidverse/web/package.json
+COPY apps/viderse/web/package.json apps/viderse/web/package.json
 RUN npm ci --no-audit --no-fund
 
 COPY platform/ui/ platform/ui/

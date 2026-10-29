@@ -1,4 +1,4 @@
-// Trang chủ — trạng thái trống thật: Vidverse mới cài chưa có nội dung nào.
+// Trang chủ — chưa có màn nghiệp vụ trên khung này; nói thật điều đó, không giả rỗng dữ liệu.
 import { t } from '../../i18n/vi'
 import { EmptyState } from '@noverse/ui'
 

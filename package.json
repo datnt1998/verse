@@ -4,6 +4,6 @@
   "workspaces": [
     "platform/ui",
     "apps/noverse/web",
-    "apps/vidverse/web"
+    "apps/viderse/web"
   ]
 }

@@ -87,7 +87,7 @@ jobs:
         run: go test -race -buildvcs=false -count=1 ./apps/noverse/internal/host ./apps/noverse/internal/store ./apps/noverse/internal/tools
 
   # npm workspace ở gốc repo: platform/ui (kit dùng chung), apps/noverse/web,
-  # apps/vidverse/web — một lockfile, chạy typecheck/test của từng workspace.
+  # apps/viderse/web — một lockfile, chạy typecheck/test của từng workspace.
   web:
     runs-on: ubuntu-latest
     steps:

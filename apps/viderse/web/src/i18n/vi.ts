@@ -2,7 +2,7 @@
 // Giọng: viết cho người dùng, không phải lập trình viên.
 
 export const vi = {
-  brand: { name: 'Vidverse', studio: 'Studio' },
+  brand: { name: 'Viderse', studio: 'Studio' },
 
   common: {
     loading: 'Đang tải…',
@@ -20,8 +20,8 @@ export const vi = {
   },
 
   auth: {
-    serverOnline: 'Máy chủ Vidverse · đang hoạt động',
-    serverOffline: 'Không kết nối được máy chủ Vidverse',
+    serverOnline: 'Máy chủ Viderse · đang hoạt động',
+    serverOffline: 'Không kết nối được máy chủ Viderse',
     loginTitle: 'Đăng nhập',
     loginSub: 'Dùng tài khoản quản trị viên đã tạo lúc thiết lập',
     username: 'Tên đăng nhập',
@@ -34,11 +34,11 @@ export const vi = {
   },
 
   setup: {
-    title: 'Thiết lập Vidverse',
+    title: 'Thiết lập Viderse',
     stepsAria: 'Các bước thiết lập',
     steps: ['Mã thiết lập', 'Tài khoản', 'Mã khôi phục'],
     codeLabel: 'Mã thiết lập',
-    codeHint: 'Mã in trong terminal khi chạy `vidverse serve` lần đầu.',
+    codeHint: 'Mã in trong terminal khi chạy `viderse serve` lần đầu.',
     codePlaceholder: 'XXXX-XXXX',
     verifying: 'Đang kiểm tra…',
     attemptsLeft: (n: number) => `Mã chưa đúng — còn ${n} lần thử.`,
@@ -50,15 +50,15 @@ export const vi = {
     creating: 'Đang tạo…',
     recoveryTitle: 'Đã tạo quản trị viên',
     recoveryWarning:
-      'Đây là mã khôi phục duy nhất — Vidverse chỉ hiện một lần này. Lưu lại ở nơi an toàn: mất cả mật khẩu lẫn mã này là mất quyền vào máy chủ.',
+      'Đây là mã khôi phục duy nhất — Viderse chỉ hiện một lần này. Lưu lại ở nơi an toàn: mất cả mật khẩu lẫn mã này là mất quyền vào máy chủ.',
     recoveryLabel: 'Mã khôi phục',
-    enter: 'Vào Vidverse',
+    enter: 'Vào Viderse',
   },
 
   home: {
     title: 'Trang chủ',
-    emptyTitle: 'Chưa có nội dung nào',
-    emptyHint: 'Vidverse mới được cài đặt. Chưa có dự án hay video nào — mọi thứ bạn tạo sẽ hiện ở đây.',
+    emptyTitle: 'Chưa có màn hình kịch bản',
+    emptyHint: 'Giao diện Viderse đang ở bước dựng khung: đăng nhập và tài khoản đã dùng được, các màn brief và kịch bản sẽ dựng tiếp trên khung này.',
   },
 
   account: {

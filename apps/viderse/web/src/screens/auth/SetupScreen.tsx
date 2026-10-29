@@ -1,5 +1,5 @@
 // Màn thiết lập lần đầu (máy chủ chưa có tài khoản nào → setupNeeded):
-//   bước 1: nhập mã in trong terminal `vidverse serve` → POST /api/setup/verify → setupToken
+//   bước 1: nhập mã in trong terminal `viderse serve` → POST /api/setup/verify → setupToken
 //   bước 2: tên + tên đăng nhập + mật khẩu quản trị → POST /api/setup/admin → { user, recoveryCode }
 //   bước 3: hiện mã khôi phục đúng một lần (server không lưu bản rõ, không lấy lại được)
 // Mã thiết lập chỉ sống ở máy chủ; màn này không bao giờ nhận hay hiện lại mã.

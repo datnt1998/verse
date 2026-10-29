@@ -2,7 +2,7 @@
 /* Kit dùng chung nằm ngoài thư mục app (platform/ui) — Tailwind phải quét cả nó. */
 @source "../../../../../platform/ui/src";
 @import "./tokens.css";
-/* Vidverse — base styles. Tailwind v4 (chỉ preflight) + biến design token của kit
+/* Viderse — base styles. Tailwind v4 (chỉ preflight) + biến design token của kit
    (@noverse/ui/tokens.stylex sinh :root); giá trị tra platform/ui. */
 
 /* Thứ tự lớp: StyleX (priority*) nằm TRÊN preflight/utilities của Tailwind nhưng dưới CSS không layer —

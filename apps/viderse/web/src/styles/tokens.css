@@ -1,4 +1,4 @@
-/* Vidverse — phông và base :root. Biến design token (màu, đường kẻ, bo góc…)
+/* Viderse — phông và base :root. Biến design token (màu, đường kẻ, bo góc…)
    do kit sinh từ @noverse/ui/tokens.stylex + brand (main.tsx applyBrand);
    CSS ở đây và các tệp khác chỉ đọc var(--…), không ghi màu tay. */
 

@@ -5,18 +5,16 @@ Monorepo for the AI writing apps that share one agent core.
 | Path | What it is |
 |---|---|
 | `apps/noverse` | Noverse: novel/story writing CLI, TUI and web app (binary `ainovel-cli`). See [apps/noverse/README.md](apps/noverse/README.md). |
-| `apps/viderse` | Viderse (Go): video-script writing agent app (binary `viderse`), one Writer agent on the shared core. See [apps/viderse/README.md](apps/viderse/README.md). |
-| `apps/vidverse` | Vidverse: new app, initial scaffold (binary `vidverse`); web UI on the Noverse architecture and the shared kit. See [apps/vidverse/README.md](apps/vidverse/README.md). |
+| `apps/viderse` | Viderse (Go): video-script writing agent app (binary `viderse`), one Writer agent on the shared core. Its web UI is a scaffold on the Noverse architecture and the shared kit (setup, login, app shell). See [apps/viderse/README.md](apps/viderse/README.md). |
 | `core/` | Shared AI core: `agentcore` (agent runtime), `llm` (model interface and providers), `models`, `llmretry`, `llmcontract`, `llmconfig` (shared provider/model config schema), `auth` (OAuth and credentials), `roles` (role→model config). |
 | `platform/` | App-agnostic infrastructure: `identity` (web accounts, sessions, pairing), `webguard` (trusted proxies, same-origin guard, client IP, secure-cookie decision), `webapp` (embedded SPA, first-run setup, login/logout/me, session cookie, authenticated `/api` routes), `pgmigrate` (embedded goose migrations), `pgtest` (isolated Postgres schemas for tests), `ui` (`@noverse/ui` web kit: tokens, components, icons, brand, Vietnamese labels). |
 | `archtest/` | Import boundary test: `core/**` imports only the standard library, third-party modules and `core/**`; `platform/**` adds `platform/**`; an app never imports another app. |
 | `plans/` | Monorepo-level plans, starting with [the move into this repository](plans/261029-1138-verse-monorepo/plan.md). |
 
 One Go module, `github.com/datnt1998/verse`, rooted here. One npm workspace,
-also rooted here: `platform/ui`, `apps/noverse/web`, `apps/vidverse/web` share a
-single `package-lock.json` and `node_modules`. `apps/viderse/web` stays a
-standalone npm project. Each app keeps its own Dockerfile, migrations and docs
-inside its directory.
+also rooted here: `platform/ui`, `apps/noverse/web` and `apps/viderse/web` share a
+single `package-lock.json` and `node_modules`. Each app keeps its own Dockerfile,
+migrations and docs inside its directory.
 
 ## Build and test
 
@@ -34,24 +32,24 @@ Postgres and MinIO for the full suite: `apps/noverse/deploy/compose.test.yml`
 
 ## Adding an app
 
-`apps/viderse` is the smallest complete example with Postgres and an agent; `apps/vidverse` is the smallest web app on the shared kit. Copy their layout and wiring.
+`apps/viderse` is the smallest complete example: Postgres, one agent, and a web UI on the shared kit. Copy its layout and wiring.
 
 1. **Layout.** Put the code in `apps/<name>/` with `cmd/<binary>/`, `internal/` and a `README.md`. Add `apps/<name>/.gitignore` only if the app writes local artifacts. Everything stays in this Go module; there is no `go.work`.
 2. **Imports.** An app may import the standard library, third-party modules, `core/**`, `platform/**` and itself. `archtest` classifies every `apps/<name>` automatically, so `go test ./archtest` covers a new app with no registration.
 3. **Isolated runtime state.** Nothing is shared with other apps:
-   - config dir: `~/.ainovel`, `~/.viderse`, `~/.vidverse`;
+   - config dir: `~/.ainovel`, `~/.viderse`;
    - credentials: `core/auth` configured per app, see `apps/viderse/internal/bootstrap`;
-   - session cookie name: `ainovel_session`, `viderse_session`, `vidverse_session`;
+   - session cookie name: `ainovel_session`, `viderse_session`;
    - Postgres database and roles: `noverse_*`; `viderse_go` with `viderse_app`/`viderse_migrate`;
-   - fixed default port: Noverse live 8790, Viderse 8789, Vidverse 8788.
+   - fixed default port: Noverse live 8790, Viderse 8789.
 
    Browsers share cookies across ports of the same host, so cookie names must differ.
 4. **Web server.** Build the HTTP side on `platform/webapp`: `webapp.New(accounts, webapp.Options{AppName, CookieName, UI})`. Accounts come from `platform/identity` (`identity.NewStore`), and proxy rules from `webguard.ConfigFromEnv()` through `SetProxyConfig`. The package provides:
    - the SPA, health probes and the same-origin guard;
    - first-run setup with a one-time code and login/logout/me.
 
-   App routes register with `Handle`. References: `apps/vidverse/internal/web/web.go` (no app routes), `apps/viderse/internal/web/gateway.go` (with routes).
-5. **Web UI.** Put the SPA in `apps/<name>/web/`, add it to the root `package.json` workspaces, and depend on `@noverse/ui`. Copy from `apps/vidverse/web`:
+   App routes register with `Handle`. Reference: `apps/viderse/internal/web/gateway.go`.
+5. **Web UI.** Put the SPA in `apps/<name>/web/`, add it to the root `package.json` workspaces, and depend on `@noverse/ui`. Copy from `apps/viderse/web`:
    - `vite.config.ts`: kit aliases and the StyleX plugin; `build.outDir` is the directory the Go side embeds;
    - `tsconfig.json` paths;
    - the `@source` line for the kit in `src/styles/base.css`;

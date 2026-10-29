@@ -9,7 +9,12 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@noverse/ui": ["../../../platform/ui/src/index.ts"],
+      "@noverse/ui/tokens.stylex": ["../../../platform/ui/src/tokens.stylex.ts"],
+      "@noverse/ui/*": ["../../../platform/ui/src/*"]
+    }
   },
   "include": ["src", "vite.config.ts"]
 }
