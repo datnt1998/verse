@@ -13,6 +13,7 @@ func renderCallback(t *testing.T, kind callbackKind, from, raw string) (int, htt
 }
 
 func renderCallbackBrand(t *testing.T, kind callbackKind, from, raw string, brand callbackBrand) (int, http.Header, string) {
+	useTestApp(t)
 	t.Helper()
 	w := httptest.NewRecorder()
 	writeCallbackPage(w, kind, from, raw, brand)
@@ -52,20 +53,19 @@ func TestCallbackPageSuccessCLI(t *testing.T) {
 	}
 	for _, want := range []string{
 		"Đã kết nối ChatGPT",
-		"Cho phép Noverse sử dụng gói của bạn",
+		"Cho phép Viderse sử dụng gói của bạn",
 		"Chọn model để bắt đầu viết",
 		"Bạn có thể đóng tab này",
-		"Noverse không nhìn thấy mật khẩu ChatGPT của bạn",
-		// 23-brand §4: logo thanh trên cùng = biểu tượng + chữ Noverse 16/700.
-		`font-size:16px;font-weight:700;letter-spacing:-0.012em">Noverse</span>`,
+		"Viderse không nhìn thấy mật khẩu ChatGPT của bạn",
+		// 23-brand §4: logo thanh trên cùng = biểu tượng + tên app 16/700.
+		`font-size:16px;font-weight:700;letter-spacing:-0.012em">Viderse</span>`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("trang success thiếu %q", want)
 		}
 	}
-	// 23-brand §5: chỉ còn chữ thương hiệu Noverse; tên kỹ thuật duy nhất được giữ là lệnh ainovel-cli.
-	if strings.Contains(strings.ReplaceAll(body, "ainovel-cli", ""), "ainovel") {
-		t.Error("trang còn chữ ainovel ngoài lệnh ainovel-cli")
+	if strings.Contains(body, "Noverse") || strings.Contains(body, "ainovel") {
+		t.Error("trang còn chuỗi của app khác")
 	}
 	if strings.Contains(body, "Chi tiết kỹ thuật") {
 		t.Error("trang success không nên có mục Chi tiết kỹ thuật")
@@ -88,7 +88,7 @@ func TestCallbackPageSuccessWeb(t *testing.T) {
 	if status != http.StatusOK {
 		t.Fatalf("status = %d, want 200", status)
 	}
-	for _, want := range []string{"Quay lại Noverse", "tự đóng sau 3 giây", "window.close", "history.replaceState"} {
+	for _, want := range []string{"Quay lại Viderse", "tự đóng sau 3 giây", "window.close", "history.replaceState"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("trang web thiếu %q", want)
 		}
@@ -111,8 +111,8 @@ func TestCallbackPageDenied(t *testing.T) {
 		"Đăng nhập bằng mã",
 		"Chi tiết kỹ thuật",
 		"access_denied",
-		"ainovel-cli login --device",
-		"Thử lại trong cửa sổ Noverse",
+		"viderse login --device",
+		"Thử lại trong cửa sổ Viderse",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("trang denied thiếu %q", want)
@@ -191,8 +191,8 @@ func TestCallbackTechLines(t *testing.T) {
 		_, _, cli := renderCallback(t, kind, "cli", "boom")
 		for _, want := range []string{
 			`<div style="color:#FFC9CE">Lỗi: boom</div>`,
-			`<div style="color:#C9A6F5">$ ainovel-cli login</div>`,
-			`<div style="color:#C9A6F5">$ ainovel-cli login --device   # đăng nhập bằng mã</div>`,
+			`<div style="color:#C9A6F5">$ viderse login</div>`,
+			`<div style="color:#C9A6F5">$ viderse login --device   # đăng nhập bằng mã</div>`,
 		} {
 			if !strings.Contains(cli, want) {
 				t.Errorf("%s/cli: thiếu %q", kind, want)
@@ -202,12 +202,12 @@ func TestCallbackTechLines(t *testing.T) {
 		if !strings.Contains(web, `Lỗi: boom</div>`) {
 			t.Errorf("%s/web: thiếu dòng Lỗi", kind)
 		}
-		if strings.Contains(web, "ainovel-cli") || strings.Contains(web, "--device") {
-			t.Errorf("%s/web: không được lộ lệnh ainovel-cli (chỉ from=cli)", kind)
+		if strings.Contains(web, "viderse login") || strings.Contains(web, "--device") {
+			t.Errorf("%s/web: không được lộ lệnh login (chỉ from=cli)", kind)
 		}
 	}
 	_, _, claude := renderCallbackBrand(t, callbackDenied, "cli", "boom", claudeBrand)
-	if !strings.Contains(claude, `$ ainovel-cli login anthropic-oauth --device   # đăng nhập bằng mã</div>`) {
+	if !strings.Contains(claude, `$ viderse login anthropic-oauth --device   # đăng nhập bằng mã</div>`) {
 		t.Error("Claude/cli: thiếu dòng --device")
 	}
 }
