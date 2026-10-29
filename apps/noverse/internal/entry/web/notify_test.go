@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestNotificationSecurityOnNewLoginAndReadAll(t *testing.T) {
@@ -78,5 +80,29 @@ func TestNotificationPrefsConflictAndSessionCleanup(t *testing.T) {
 	}
 	if len(g.notifications.store.Subscriptions("writer")) != 0 {
 		t.Fatal("logout left push subscription registered")
+	}
+}
+
+// Story ID không tên miền ("<story>" thay vì "<project>/<story>") phải rơi về
+// project legacy của store: member được đọc, người ngoài project thì không.
+// Bảo hiểm cho việc User dựng từ Users() phải mang legacyProject của store —
+// trước kia mọi User tự suy ra library.LegacyProjectID.
+func TestNotifyAllowedResolvesBareStoryToLegacyProject(t *testing.T) {
+	g, accounts := newAuthGateway(t)
+	defer g.Close()
+	legacy := library.LegacyProjectID
+	for _, u := range []identity.NewUser{
+		{Username: "member", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{legacy: identity.ProjectView}, Password: "member-pass"},
+		{Username: "outsider", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}, Password: "outsider-pass"},
+	} {
+		if _, err := accounts.CreateUser(u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !g.notifyAllowed("member", "truyen-cu") {
+		t.Error("member của project legacy phải đọc được story ID trần")
+	}
+	if g.notifyAllowed("outsider", "truyen-cu") {
+		t.Error("người không thuộc project legacy không được đọc story ID trần")
 	}
 }

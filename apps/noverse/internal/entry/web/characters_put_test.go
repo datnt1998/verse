@@ -7,7 +7,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // charactersIn lưu sẵn hai nhân vật để PUT /characters có dữ liệu mà sửa.
@@ -96,7 +96,7 @@ func TestServeStoryRead_PutCharactersRejects(t *testing.T) {
 		t.Errorf("batch must be atomic, got %+v", saved[1])
 	}
 
-	reader := webauth.User{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 	rec := storyReq(t, g, "PUT", "/x/characters", reader, st, "/characters", `{"characters":[{"name":"Phùng Chấn","kind":"ally"}]}`)
 	if rec.Code != 404 {
 		t.Errorf("reader PUT = %d %s, want 404", rec.Code, rec.Body)

@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-34 · 09 §10.4: GET /api/library/inspect?path= → library.Inspection.
 // Chỉ quản trị. Không giới hạn trong các Nơi: hộp chọn của máy có thể trả thư mục bất kỳ,
 // và kết quả chỉ gồm loại + số đếm + chuỗi "Nơi › Thư mục" (không lộ đường dẫn tuyệt đối).
-func (g *Gateway) serveLibraryInspect(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveLibraryInspect(w http.ResponseWriter, r *http.Request, user identity.User) {
 	// Folder inspection is a desktop picker helper; hosted has no filesystem
 	// library to inspect — explicit 501.
 	if g.libRepo != nil {
@@ -45,7 +45,7 @@ func (g *Gateway) rootDisplay() string {
 
 // writeUnconfiguredLibrary trả GET /api/library khi cài mới chưa chọn nơi lưu: cùng hình dạng
 // với bản đã cấu hình (config mặc định, danh sách rỗng) kèm configured=false.
-func (g *Gateway) writeUnconfiguredLibrary(w http.ResponseWriter, _ webauth.User) {
+func (g *Gateway) writeUnconfiguredLibrary(w http.ResponseWriter, _ identity.User) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"configured":  false,
 		"rootDisplay": "",

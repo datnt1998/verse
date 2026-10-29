@@ -11,7 +11,7 @@ import (
 )
 
 // AuthLimiter là backoff limiter login/pairing trên login_rate_limits:
-// cùng mô hình retryAfter/base/cap như webauth.Limiter nhưng state sống trong
+// cùng mô hình retryAfter/base/cap như identity.Limiter nhưng state sống trong
 // DB nên hạn chế chia sẻ giữa các process/serve và sống sót restart.
 // Bucket key = sha256(prefix + "|" + key) — không lưu IP/username thô.
 type AuthLimiter struct {
@@ -36,7 +36,7 @@ func bucketKey(kind, key string) []byte {
 }
 
 // Wait returns the longest remaining block across keys (0 = allowed) — the
-// same contract as webauth.Limiter.Wait.
+// same contract as identity.Limiter.Wait.
 func (l *AuthLimiter) Wait(keys ...string) time.Duration {
 	maxRetry := time.Duration(0)
 	now := l.now()
@@ -132,7 +132,7 @@ func NewWindowLimiter(pool *Pool, kind string, limit int, window time.Duration) 
 }
 
 // Wait reports the remaining block time (0 = allowed). Read-only: a try is
-// charged by Fail, matching webauth.WindowLimiter semantics exactly.
+// charged by Fail, matching identity.WindowLimiter semantics exactly.
 func (l *WindowLimiter) Wait(key string) time.Duration {
 	bucket := bucketKey(l.kind, key)
 	row, err := gen.New(l.pool.Pool()).GetLimitBucket(context.Background(), bucket)

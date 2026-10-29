@@ -18,7 +18,7 @@ import (
 	"unicode"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -248,7 +248,7 @@ func readActivity(path string, size int64, storyDir, libRoot string) ([]host.Eve
 	return events, nil
 }
 
-func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, user webauth.User, sr *host.StoryReader) {
+func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, user identity.User, sr *host.StoryReader) {
 	// Nhật ký hoạt động đọc tui.log bên cạnh tài liệu engine — năng lực thuần
 	// file; hosted không có thư mục engine nên trả 501 thay vì đọc cwd.
 	if sr.EngineDir() == "" {

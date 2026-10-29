@@ -11,7 +11,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // TestDraftSaveRefusesTombstonedChapter is the M6 regression: after a chapter
@@ -122,7 +122,7 @@ func TestAuditRetentionIsNotAReadSideEffect(t *testing.T) {
 		t.Fatalf("insert old audit: %v", err)
 	}
 
-	page, err := accounts.Audit(webauth.AuditQuery{Limit: 10})
+	page, err := accounts.Audit(identity.AuditQuery{Limit: 10})
 	if err != nil {
 		t.Fatalf("read audit: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestAuditRetentionIsNotAReadSideEffect(t *testing.T) {
 	if purged != 1 {
 		t.Fatalf("purged %d rows, want 1", purged)
 	}
-	if page, err = accounts.Audit(webauth.AuditQuery{Limit: 10}); err != nil || len(page.Items) != 0 {
+	if page, err = accounts.Audit(identity.AuditQuery{Limit: 10}); err != nil || len(page.Items) != 0 {
 		t.Fatalf("audit after purge = %d, %v; want 0", len(page.Items), err)
 	}
 }

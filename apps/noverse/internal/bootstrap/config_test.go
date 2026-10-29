@@ -7,12 +7,13 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 func TestConfigResolveReasoningEffort(t *testing.T) {
 	cfg := Config{
 		ReasoningEffort: "low", // 顶层默认
-		Roles: map[string]RoleConfig{
+		Roles: map[string]roles.RoleConfig{
 			"writer":    {Provider: "p", Model: "m", ReasoningEffort: "high"}, // 角色覆盖
 			"architect": {Provider: "p", Model: "m"},                          // 无 reasoning_effort，应回落默认
 		},
@@ -36,7 +37,7 @@ func TestConfigResolveReasoningEffort(t *testing.T) {
 	}
 
 	// 顶层默认也为空时，未覆盖角色返回 ""（不覆盖）。
-	empty := Config{Roles: map[string]RoleConfig{"writer": {ReasoningEffort: "xhigh"}}}
+	empty := Config{Roles: map[string]roles.RoleConfig{"writer": {ReasoningEffort: "xhigh"}}}
 	if got := empty.ResolveReasoningEffort("editor"); got != "" {
 		t.Errorf("空默认下 editor 应返回 \"\"，得 %q", got)
 	}
@@ -54,7 +55,7 @@ func TestValidateBaseRejectsNonConfigurableRoles(t *testing.T) {
 				Providers: map[string]ProviderConfig{
 					"openrouter": {APIKey: "sk-test-123456"},
 				},
-				Roles: map[string]RoleConfig{
+				Roles: map[string]roles.RoleConfig{
 					role: {Provider: "openrouter", Model: "test-model"},
 				},
 			}
@@ -101,7 +102,7 @@ func TestValidateBaseAcceptsCodexSubscriptionWithoutAPIKey(t *testing.T) {
 			"openai-codex": {},
 			"chatgpt":      {Type: "openai-codex", BaseURL: "https://proxy.example/codex"},
 		},
-		Roles: map[string]RoleConfig{"writer": {Provider: "chatgpt", Model: "gpt-6-sol"}},
+		Roles: map[string]roles.RoleConfig{"writer": {Provider: "chatgpt", Model: "gpt-6-sol"}},
 	}
 	if err := cfg.ValidateBase(); err != nil {
 		t.Fatalf("订阅 provider 不需要 api_key: %v", err)
@@ -170,7 +171,7 @@ func TestXAIOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 			"supergrok": {Type: "xai-oauth"},
 			"grok":      {APIKey: "xai-key"},
 		},
-		Roles: map[string]RoleConfig{"writer": {Provider: "supergrok", Model: "grok-4.3"}},
+		Roles: map[string]roles.RoleConfig{"writer": {Provider: "supergrok", Model: "grok-4.3"}},
 	}
 	if err := cfg.ValidateBase(); err != nil {
 		t.Fatalf("xai-oauth không cần api_key: %v", err)
@@ -210,7 +211,7 @@ func TestAnthropicOAuthProviderIsSubscriptionWithoutAPIKey(t *testing.T) {
 			"claude-max":      {Type: "anthropic-oauth"},
 			"anthropic":       {APIKey: "sk-ant-key"},
 		},
-		Roles: map[string]RoleConfig{"writer": {Provider: "claude-max", Model: "claude-opus-4-8"}},
+		Roles: map[string]roles.RoleConfig{"writer": {Provider: "claude-max", Model: "claude-opus-4-8"}},
 	}
 	if err := cfg.ValidateBase(); err != nil {
 		t.Fatalf("anthropic-oauth không cần api_key: %v", err)

@@ -124,7 +124,7 @@ func DeviceOnly(id string) bool {
 }
 
 // PasteCode báo provider id nhận mã dán tay (LoginOptions.Manual) — nơi trình duyệt không
-// với tới máy chạy ainovel (mở từ thiết bị khác) vẫn đăng nhập được.
+// với tới máy chạy app (mở từ thiết bị khác) vẫn đăng nhập được.
 func PasteCode(id string) bool {
 	p, ok := Lookup(id)
 	if !ok {
@@ -135,8 +135,12 @@ func PasteCode(id string) bool {
 }
 
 // NotLoggedInError bọc ErrNotLoggedIn kèm hướng dẫn đăng nhập.
+// Khi chưa cấu hình LoginCommand, gợi ý rơi về câu trung lập không kèm lệnh.
 func NotLoggedInError(id string) error {
-	return fmt.Errorf("%w %s — chạy `ainovel-cli login %s` để đăng nhập", ErrNotLoggedIn, id, id)
+	if cmd := options().LoginCommand; cmd != "" {
+		return fmt.Errorf("%w %s — chạy `%s %s` để đăng nhập", ErrNotLoggedIn, id, cmd, id)
+	}
+	return fmt.Errorf("%w %s — hãy đăng nhập lại bằng lệnh login của app", ErrNotLoggedIn, id)
 }
 
 // defaultRefreshSkew: refresh sớm trước hạn để request dài không mang token hết hạn giữa chừng.
@@ -243,7 +247,7 @@ func (m *Manager) refresh(ctx context.Context, id string, need func(Credential) 
 			return cur, true, errUnchanged
 		}
 		if cur.Refresh == "" {
-			return cur, true, fmt.Errorf("phiên đăng nhập %s đã hết hạn và không có refresh token — chạy `ainovel-cli login %s`", id, id)
+			return cur, true, fmt.Errorf("phiên đăng nhập %s đã hết hạn và không có refresh token%s", id, reloginHint(id))
 		}
 		next, err := provider.Refresh(ctx, cur)
 		if err != nil {
@@ -251,7 +255,7 @@ func (m *Manager) refresh(ctx context.Context, id string, need func(Credential) 
 				// Giới hạn gói, không phải token hỏng: đăng nhập lại không giúp được gì.
 				return cur, true, err
 			}
-			return cur, true, fmt.Errorf("làm mới phiên đăng nhập %s thất bại (thử `ainovel-cli login %s`): %w", id, id, err)
+			return cur, true, fmt.Errorf("làm mới phiên đăng nhập %s thất bại%s: %w", id, retryHint(id), err)
 		}
 		out = next
 		return next, true, nil
@@ -260,4 +264,21 @@ func (m *Manager) refresh(ctx context.Context, id string, need func(Credential) 
 		return Credential{}, err
 	}
 	return out, nil
+}
+
+// reloginHint trả vế "— chạy `cmd id`" (hoặc câu trung lập khi app chưa cấu
+// hình LoginCommand) cho lỗi phiên hết hạn không còn refresh token.
+func reloginHint(id string) string {
+	if cmd := options().LoginCommand; cmd != "" {
+		return fmt.Sprintf(" — chạy `%s %s`", cmd, id)
+	}
+	return " — hãy đăng nhập lại bằng lệnh login của app"
+}
+
+// retryHint trả vế " (thử `cmd id`)" cho lỗi refresh thất bại.
+func retryHint(id string) string {
+	if cmd := options().LoginCommand; cmd != "" {
+		return fmt.Sprintf(" (thử `%s %s`)", cmd, id)
+	}
+	return " (hãy đăng nhập lại)"
 }

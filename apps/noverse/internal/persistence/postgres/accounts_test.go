@@ -8,26 +8,27 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth/webauthtest"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/identitytest"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // provisionAccounts migrates an isolated schema and returns a Store facade
 // over the postgres repository + the raw pool for storage-level assertions.
-func provisionAccounts(t *testing.T) (*webauth.Store, *postgres.Pool) {
+func provisionAccounts(t *testing.T) (*identity.Store, *postgres.Pool) {
 	t.Helper()
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	return webauth.NewFromRepository(postgres.NewAccounts(pool)), pool
+	return identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions()), pool
 }
 
 // TestAccountContractPostgresBackend chạy đúng contract suite của file
 // backend trên Postgres — parity là điều kiện qua cửa của phase 04.
 func TestAccountContractPostgresBackend(t *testing.T) {
-	webauthtest.Run(t, func(t *testing.T) *webauth.Store {
+	identitytest.Run(t, func(t *testing.T) *identity.Store {
 		t.Helper()
 		s, _ := provisionAccounts(t)
 		return s
@@ -39,7 +40,7 @@ func TestAccountContractPostgresBackend(t *testing.T) {
 func TestAccountsSessionTokenHash(t *testing.T) {
 	s, pool := provisionAccounts(t)
 	ctx := context.Background()
-	if _, err := s.CreateUser(webauth.NewUser{Username: "chu", Role: webauth.RoleAdmin, Password: "mat-khau-12345"}); err != nil {
+	if _, err := s.CreateUser(identity.NewUser{Username: "chu", Role: identity.RoleAdmin, Password: "mat-khau-12345"}); err != nil {
 		t.Fatal(err)
 	}
 	ns, err := s.Login("chu", "mat-khau-12345", "Mac", "10.0.0.1")
@@ -100,8 +101,8 @@ func TestAccountsSetClockExpiry(t *testing.T) {
 	repo := postgres.NewAccounts(pool)
 	now := time.Now()
 	repo.SetClock(func() time.Time { return now })
-	s := webauth.NewFromRepository(repo)
-	if _, err := s.CreateUser(webauth.NewUser{Username: "moi", Role: webauth.RoleMember,
+	s := identity.NewFromRepository(repo, library.IdentityOptions())
+	if _, err := s.CreateUser(identity.NewUser{Username: "moi", Role: identity.RoleMember,
 		Password: "temp-pass-111", MustChangePassword: true}); err != nil {
 		t.Fatal(err)
 	}

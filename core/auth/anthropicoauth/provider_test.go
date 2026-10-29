@@ -378,7 +378,8 @@ func TestForbiddenAndRateLimitedMapToVietnamese(t *testing.T) {
 }
 
 func TestAdoptRequiredVersionRetriesOnce(t *testing.T) {
-	t.Setenv(auth.ClaudeCodeVersionEnv, "")
+	auth.Configure(auth.Options{ClaudeCodeVersionEnv: "VIDERSE_CLAUDE_CODE_VERSION"})
+	t.Setenv("VIDERSE_CLAUDE_CODE_VERSION", "")
 	var calls int
 	var userAgents []string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

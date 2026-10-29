@@ -11,7 +11,7 @@ import (
 )
 
 // unprefixResponse bỏ tiền tố tên tool (applyToolPrefix) khỏi phản hồi để phần còn lại của
-// ainovel chỉ thấy tên tool gốc: JSON thường (content[].tool_use) và SSE (content_block_start).
+// app chỉ thấy tên tool gốc: JSON thường (content[].tool_use) và SSE (content_block_start).
 func unprefixResponse(resp *http.Response) {
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 || resp.Body == nil {
 		return

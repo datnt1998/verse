@@ -134,15 +134,20 @@ type callbackPerk struct {
 	Desc  string
 	Icon  template.HTML
 }
-
 type callbackPageData struct {
 	OK      bool
 	FromWeb bool
 	Steps   []callbackStep
 	Perks   []callbackPerk
 	// Thương hiệu nhà cung cấp (ChatGPT / Claude) để dùng chung một trang.
-	Service  string
-	Plan     string
+	Service string
+	Plan    string
+	// Thương hiệu app và vế mục đích (vd. " để viết truyện", có sẵn dấu cách;
+	// rỗng khi Options.Purpose trống) để dùng chung một trang.
+	AppName string
+	Purpose string
+	// Lệnh đăng nhập đầy đủ của provider (LoginCommand + LoginArgs); rỗng khi
+	// app chưa cấu hình → mục lệnh trong "Chi tiết kỹ thuật" được giấu.
 	LoginCmd string
 	// Lỗi
 	ReasonTitle string
@@ -153,15 +158,15 @@ type callbackPageData struct {
 
 // callbackBrand là phần chữ riêng của từng nhà cung cấp trên trang callback.
 type callbackBrand struct {
-	Service  string // "ChatGPT" / "Claude"
-	Plan     string // "ChatGPT Plus/Pro" / "Claude Pro/Max"
-	Tier     string // "Plus hoặc Pro" / "Pro hoặc Max"
-	LoginCmd string // lệnh đăng nhập CLI hiển thị ở "Chi tiết kỹ thuật" (chỉ bản from=cli)
+	Service   string // "ChatGPT" / "Claude"
+	Plan      string // "ChatGPT Plus/Pro" / "Claude Pro/Max"
+	Tier      string // "Plus hoặc Pro" / "Pro hoặc Max"
+	LoginArgs string // vế nối sau LoginCommand ở "Chi tiết kỹ thuật" (chỉ bản from=cli), vd. " anthropic-oauth"
 }
 
-var chatGPTBrand = callbackBrand{Service: "ChatGPT", Plan: "ChatGPT Plus/Pro", Tier: "Plus hoặc Pro", LoginCmd: "ainovel-cli login"}
+var chatGPTBrand = callbackBrand{Service: "ChatGPT", Plan: "ChatGPT Plus/Pro", Tier: "Plus hoặc Pro"}
 
-var claudeBrand = callbackBrand{Service: "Claude", Plan: "Claude Pro/Max", Tier: "Pro hoặc Max", LoginCmd: "ainovel-cli login anthropic-oauth"}
+var claudeBrand = callbackBrand{Service: "Claude", Plan: "Claude Pro/Max", Tier: "Pro hoặc Max", LoginArgs: " anthropic-oauth"}
 
 var callbackPageTemplate = template.Must(template.New("oauth-callback").Funcs(template.FuncMap{
 	"add":  func(a, b int) int { return a + b },
@@ -172,35 +177,44 @@ var callbackPageTemplate = template.Must(template.New("oauth-callback").Funcs(te
 // "cli"|"web" — được server truyền vào, KHÔNG lộ trên URL (hợp đồng §6).
 func writeCallbackPage(w http.ResponseWriter, kind callbackKind, from, raw string, brand callbackBrand) {
 	web := from == "web"
-	data := callbackPageData{OK: kind == callbackSuccess, FromWeb: web, Raw: raw, Service: brand.Service, Plan: brand.Plan, LoginCmd: brand.LoginCmd}
+	app := appName()
+	purpose := options().Purpose
+	if purpose != "" {
+		purpose = " " + purpose
+	}
+	loginCmd := ""
+	if cmd := options().LoginCommand; cmd != "" {
+		loginCmd = cmd + brand.LoginArgs
+	}
+	data := callbackPageData{OK: kind == callbackSuccess, FromWeb: web, Raw: raw, Service: brand.Service, Plan: brand.Plan, AppName: app, Purpose: purpose, LoginCmd: loginCmd}
 	if data.OK {
-		note := "trong cửa sổ Noverse"
+		note := "trong cửa sổ " + app
 		if web {
-			note = "trong Noverse"
+			note = "trong " + app
 		}
 		data.Steps = []callbackStep{
 			{Label: "Đăng nhập " + brand.Service, Note: "xong", Done: true},
-			{Label: "Cho phép Noverse sử dụng gói của bạn", Note: "xong", Done: true},
+			{Label: "Cho phép " + app + " sử dụng gói của bạn", Note: "xong", Done: true},
 			{Label: "Chọn model để bắt đầu viết", Note: note, Next: true},
 		}
 		data.Perks = []callbackPerk{
 			{Title: "Không cần mua API riêng, không tốn thêm phí", Desc: "Các trợ lý AI dùng hạn mức của gói " + brand.Service + " bạn đang có.", Icon: callbackIcon("coin-1", 16)},
-			{Title: "Không phải đăng nhập lại mỗi lần", Desc: "Noverse tự giữ kết nối luôn còn hiệu lực.", Icon: callbackIcon("refresh-2", 16)},
+			{Title: "Không phải đăng nhập lại mỗi lần", Desc: app + " tự giữ kết nối luôn còn hiệu lực.", Icon: callbackIcon("refresh-2", 16)},
 			{Title: "Ngắt kết nối bất cứ lúc nào", Desc: "Trong Cài đặt › Nhà cung cấp AI.", Icon: callbackIcon("setting-2", 16)},
 		}
 	} else {
-		again := "Quay lại cửa sổ Noverse và chạy lại bước đăng nhập."
+		again := "Quay lại cửa sổ " + app + " và chạy lại bước đăng nhập."
 		if web {
-			again = "Quay lại Noverse và bấm “Đăng nhập " + brand.Service + "” lần nữa."
+			again = "Quay lại " + app + " và bấm “Đăng nhập " + brand.Service + "” lần nữa."
 		}
 		switch kind {
 		case callbackDenied:
 			data.ReasonTitle = "Bạn đã huỷ hoặc chưa bấm “Cho phép”"
-			data.ReasonText = "Noverse cần bạn đồng ý trên trang " + brand.Service + " mới dùng được gói của bạn. Chưa có gì bị thay đổi."
+			data.ReasonText = app + " cần bạn đồng ý trên trang " + brand.Service + " mới dùng được gói của bạn. Chưa có gì bị thay đổi."
 			data.Fixes = []string{again, "Kiểm tra tài khoản đang đăng nhập có gói " + brand.Tier + "."}
 		case callbackStateMismatch:
 			data.ReasonTitle = "Liên kết đăng nhập này đã cũ"
-			data.ReasonText = "Trang này đến từ một lần đăng nhập trước đó, nên Noverse đã chặn lại để bảo vệ tài khoản của bạn."
+			data.ReasonText = "Trang này đến từ một lần đăng nhập trước đó, nên " + app + " đã chặn lại để bảo vệ tài khoản của bạn."
 			data.Fixes = []string{"Đóng tab này.", again}
 		default: // callbackMissingCode
 			data.ReasonTitle = "Thông tin đăng nhập chưa đầy đủ"
@@ -259,7 +273,7 @@ button{font:inherit;cursor:pointer}
 
 <div class="rise" style="display:flex;align-items:center;gap:8px">
 <div aria-hidden="true" style="position:relative;flex:0 0 auto;width:30.2px;height:22px"><span style="position:absolute;left:0.05px;top:4.94px;width:12.23px;height:12.23px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position:absolute;left:7.89px;top:0.0px;width:14.38px;height:14.38px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position:absolute;left:17.87px;top:5.47px;width:12.23px;height:12.23px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position:absolute;left:9.6px;top:11.05px;width:10.95px;height:10.95px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
-<span style="font-family:'Plus Jakarta Sans','Be Vietnam Pro',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.012em">Noverse</span>
+<span style="font-family:'Plus Jakarta Sans','Be Vietnam Pro',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.012em">{{.AppName}}</span>
 </div>
 
 <div class="card rise" style="width:100%;border-radius:20px;padding:28px 24px 22px;display:flex;flex-direction:column;gap:18px;animation-delay:.05s">
@@ -274,7 +288,7 @@ button{font:inherit;cursor:pointer}
 <span style="height:26px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#1E1E21;border:1px solid rgba(255,255,255,0.07);font-size:12px;color:#C9C9D1"><span class="ic" style="color:#C9A6F5">{{icon "login" 14}}</span>Tài khoản {{.Plan}}</span>
 <div role="{{if .OK}}status{{else}}alert{{end}}">
 <h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.015em">{{if .OK}}Đã kết nối {{.Service}}{{else}}Chưa kết nối được {{.Service}}{{end}}</h1>
-<p style="margin:8px 0 0;font-size:14.5px;color:#A0A0AB">{{if .OK}}Noverse đã được phép dùng gói {{.Service}} của bạn để viết truyện.{{else}}Đừng lo, tài khoản của bạn vẫn an toàn. Làm theo các bước dưới đây để thử lại.{{end}}</p>
+<p style="margin:8px 0 0;font-size:14.5px;color:#A0A0AB">{{if .OK}}{{.AppName}} đã được phép dùng gói {{.Service}} của bạn{{.Purpose}}.{{else}}Đừng lo, tài khoản của bạn vẫn an toàn. Làm theo các bước dưới đây để thử lại.{{end}}</p>
 </div>
 </div>
 
@@ -313,19 +327,19 @@ button{font:inherit;cursor:pointer}
 </div>
 <div style="display:flex;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);font-size:12.5px;color:#A0A0AB">
 <span class="ic" style="margin-top:1px">{{icon "mobile" 16}}</span>
-<span>Đang dùng Noverse trên máy khác hoặc điện thoại? Chọn <span style="color:#EDEDEF">“Đăng nhập bằng mã”</span> — chỉ cần nhập một mã ngắn, không phải mở trang trên máy này.</span>
+<span>Đang dùng {{.AppName}} trên máy khác hoặc điện thoại? Chọn <span style="color:#EDEDEF">“Đăng nhập bằng mã”</span> — chỉ cần nhập một mã ngắn, không phải mở trang trên máy này.</span>
 </div>
 {{end}}
 
 {{if .FromWeb}}
 <div style="display:flex;flex-direction:column;gap:8px">
-<button class="primary" type="button" onclick="window.close()" style="height:44px;border-radius:12px;border:none;background:#EDEDEF;color:#0B0B0D;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px"><span class="ic">{{if .OK}}{{icon "arrow-left-2" 17}}{{else}}{{icon "refresh-2" 17}}{{end}}</span>{{if .OK}}Quay lại Noverse{{else}}Quay lại Noverse để thử lại{{end}}</button>
+<button class="primary" type="button" onclick="window.close()" style="height:44px;border-radius:12px;border:none;background:#EDEDEF;color:#0B0B0D;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px"><span class="ic">{{if .OK}}{{icon "arrow-left-2" 17}}{{else}}{{icon "refresh-2" 17}}{{end}}</span>{{if .OK}}Quay lại {{.AppName}}{{else}}Quay lại {{.AppName}} để thử lại{{end}}</button>
 <span role="status" style="text-align:center;font-size:12.5px;color:#7E7E8A">{{if .OK}}Tab này sẽ tự đóng sau 3 giây{{else}}Có thể đóng tab này{{end}}</span>
 </div>
 {{else}}
 <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:#1E1E21">
 <span class="ic" style="color:#C9A6F5">{{if .OK}}{{icon "arrow-left-2" 18}}{{else}}{{icon "refresh-2" 18}}{{end}}</span>
-<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:500">{{if .OK}}Bạn có thể đóng tab này{{else}}Thử lại trong cửa sổ Noverse{{end}}</span><span style="font-size:12.5px;color:#A0A0AB">{{if .OK}}Quay lại cửa sổ Noverse — danh sách model bạn được dùng sẽ hiện ra ở đó.{{else}}Lệnh cần chạy nằm trong “Chi tiết kỹ thuật” bên dưới.{{end}}</span></span>
+<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:500">{{if .OK}}Bạn có thể đóng tab này{{else}}Thử lại trong cửa sổ {{.AppName}}{{end}}</span><span style="font-size:12.5px;color:#A0A0AB">{{if .OK}}Quay lại cửa sổ {{.AppName}} — danh sách model bạn được dùng sẽ hiện ra ở đó.{{else}}Lệnh cần chạy nằm trong “Chi tiết kỹ thuật” bên dưới.{{end}}</span></span>
 </div>
 {{end}}
 
@@ -334,8 +348,8 @@ button{font:inherit;cursor:pointer}
 <button id="tech-toggle" type="button" aria-expanded="false" style="align-self:flex-start;display:flex;align-items:center;gap:6px;padding:0;border:none;background:transparent;color:#7E7E8A;font-size:12.5px"><span class="ic" id="tech-ic-closed">{{icon "arrow-right-2" 14}}</span><span class="ic" id="tech-ic-open" hidden>{{icon "arrow-down-2" 14}}</span>Chi tiết kỹ thuật</button>
 <div id="tech-body" class="mono" hidden style="padding:10px 12px;border-radius:10px;background:#0B0B0D;border:1px solid rgba(255,255,255,0.07);font-size:11.5px;line-height:1.8;color:#A0A0AB;word-break:break-word">
 <div style="color:#FFC9CE">Lỗi: {{.Raw}}</div>
-{{if not .FromWeb}}<div style="color:#C9A6F5">$ {{.LoginCmd}}</div>
-<div style="color:#C9A6F5">$ {{.LoginCmd}} --device   # đăng nhập bằng mã</div>{{end}}
+{{if not .FromWeb}}{{if .LoginCmd}}<div style="color:#C9A6F5">$ {{.LoginCmd}}</div>
+<div style="color:#C9A6F5">$ {{.LoginCmd}} --device   # đăng nhập bằng mã</div>{{end}}{{end}}
 </div>
 </div>
 {{end}}
@@ -344,7 +358,7 @@ button{font:inherit;cursor:pointer}
 
 <div class="rise" style="display:flex;align-items:flex-start;gap:8px;max-width:460px;font-size:12px;color:#7E7E8A;animation-delay:.1s">
 <span class="ic" style="margin-top:2px">{{icon "shield-security" 14}}</span>
-<span>Trang này do Noverse mở trên chính máy tính của bạn và sẽ tự tắt sau khi xong. Noverse không nhìn thấy mật khẩu {{.Service}} của bạn.</span>
+<span>Trang này do {{.AppName}} mở trên chính máy tính của bạn và sẽ tự tắt sau khi xong. {{.AppName}} không nhìn thấy mật khẩu {{.Service}} của bạn.</span>
 </div>
 
 </div>

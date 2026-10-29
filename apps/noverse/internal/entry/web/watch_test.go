@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestRulesChangesCarryScopeAndSection(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	g := tg.g
-	sub, _, _ := g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, []string{"proj/01-story"})
+	sub, _, _ := g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, []string{"proj/01-story"})
 	defer g.events().unsubscribe(sub)
 	watcher := &fileWatcher{g: g, previous: map[string]string{}, stop: make(chan struct{})}
 	watcher.scan(false)
@@ -57,8 +57,8 @@ func TestRulesChangesCarryScopeAndSection(t *testing.T) {
 func TestFileWatcherExternalEditAndPermissionFilter(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	g := tg.g
-	writer := webauth.User{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectCollab}}
-	denied := webauth.User{Username: "other", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"other": webauth.ProjectView}}
+	writer := identity.User{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectCollab}}
+	denied := identity.User{Username: "other", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"other": identity.ProjectView}}
 	g.startWatcher()
 	defer g.Close()
 	allowed, _, _ := g.events().subscribe(writer, 0, []string{"proj/01-story"})
@@ -129,7 +129,7 @@ func TestFileWatcherNaoParts(t *testing.T) {
 	g := tg.g
 	g.startWatcher()
 	defer g.Close()
-	sub, _, _ := g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, []string{"proj/01-story"})
+	sub, _, _ := g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, []string{"proj/01-story"})
 	defer g.events().unsubscribe(sub)
 	engine := mkdirAll(t, tg.story, "output", "novel")
 
@@ -189,10 +189,10 @@ func naoWatchParts(sub *EventSub) []string {
 func TestEventsWatchUpdatesOnlyOwnSubscriptions(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	cookie := tg.login("writer", "writer-pass")
-	user := webauth.User{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectCollab}}
+	user := identity.User{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectCollab}}
 	sub, _, _ := tg.g.events().subscribe(user, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
-	foreign, _, _ := tg.g.events().subscribe(webauth.User{Username: "other", Role: webauth.RoleAdmin}, 0, nil)
+	foreign, _, _ := tg.g.events().subscribe(identity.User{Username: "other", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(foreign)
 	w := tg.do("POST", "/api/events/watch", cookie, `{"keys":["proj/01-story","secret/nope"]}`)
 	if w.Code != 200 {
@@ -247,7 +247,7 @@ func TestFileWatcherSSEDetectsEditWithinThreeSeconds(t *testing.T) {
 func TestFileWatcherIgnoresMetadataOnlyStoryEdits(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	g := tg.g
-	sub, _, _ := g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, []string{"proj/01-story"})
+	sub, _, _ := g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, []string{"proj/01-story"})
 	defer g.events().unsubscribe(sub)
 	chapter := filepath.Join(mkdirAll(t, tg.story, "output", "novel", "chapters"), "01.md")
 	if err := os.WriteFile(chapter, []byte("Nội dung không đổi"), 0o644); err != nil {

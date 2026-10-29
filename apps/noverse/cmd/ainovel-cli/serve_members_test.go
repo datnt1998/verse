@@ -5,7 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestReviewCommandLineAuditActor(t *testing.T) {
@@ -28,11 +30,11 @@ func TestReviewCommandLineAuditActor(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	path, err := webauth.DefaultPath()
+	path, err := identity.DefaultPath(bootstrap.DefaultConfigDir())
 	if err != nil {
 		t.Fatal(err)
 	}
-	page, err := webauth.NewStore(path).Audit(webauth.AuditQuery{})
+	page, err := identity.NewStore(path, library.IdentityOptions()).Audit(identity.AuditQuery{})
 	if err != nil {
 		t.Fatal(err)
 	}

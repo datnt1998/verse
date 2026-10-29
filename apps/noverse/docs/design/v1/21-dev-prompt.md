@@ -131,7 +131,7 @@
 **Backend (GAP-33):**
 - `POST /api/me/recovery` (quản trị):
   - tạo mã 16 ký tự `[A-Z0-9]`, nhóm 4, trả về **một lần**;
-  - lưu băm (cùng cơ chế băm mật khẩu của `internal/webauth`);
+  - lưu băm (cùng cơ chế băm mật khẩu của `platform/identity`);
   - gọi tự động ở bước Hoàn tất.
 - `POST /api/me/recovery/rotate` · `GET /api/me/recovery` → `{createdAt, used}`.
 - `POST /api/recover {username, code, newPassword}` (công khai, không cần phiên):

@@ -17,8 +17,6 @@ const (
 	DefaultClaudeCodeVersion = "2.1.280"
 	// ClaudeCodeSDKVersion là phiên bản @anthropic-ai/sdk đi kèm bản Claude Code trên.
 	ClaudeCodeSDKVersion = "0.112.1"
-	// ClaudeCodeVersionEnv ghim cứng version trên wire (tương đương PI_AI_CLAUDE_CODE_VERSION của omp).
-	ClaudeCodeVersionEnv = "AINOVEL_CLAUDE_CODE_VERSION"
 	// ClaudeCodeIdentity là khối system đầu tiên mà Claude Code CLI luôn gửi.
 	ClaudeCodeIdentity = "You are Claude Code, Anthropic's official CLI for Claude."
 	// ClaudeToolPrefix tách tool tuỳ biến khỏi tool dựng sẵn của Claude Code (chỉ trên wire).
@@ -34,8 +32,10 @@ var (
 // ClaudeCodeVersion là version Claude Code đại diện trên wire (User-Agent, billing header):
 // biến môi trường → version học từ lần bị từ chối → mặc định ghim.
 func ClaudeCodeVersion() string {
-	if v := strings.TrimSpace(os.Getenv(ClaudeCodeVersionEnv)); v != "" {
-		return v
+	if env := options().ClaudeCodeVersionEnv; env != "" {
+		if v := strings.TrimSpace(os.Getenv(env)); v != "" {
+			return v
+		}
 	}
 	if v := adoptedVersion.Load(); v != nil {
 		return *v
@@ -53,7 +53,7 @@ func ClaudeCodeUserAgent() string {
 // bị từ chối thay vì hỏng hẳn. Chỉ trả true khi version thật sự tăng (nơi gọi thử lại khi
 // true nên không thể lặp vô hạn); luôn false khi biến môi trường đã ghim version.
 func AdoptRequiredClaudeCodeVersion(message string) bool {
-	if strings.TrimSpace(os.Getenv(ClaudeCodeVersionEnv)) != "" {
+	if env := options().ClaudeCodeVersionEnv; env != "" && strings.TrimSpace(os.Getenv(env)) != "" {
 		return false
 	}
 	if !strings.Contains(message, "claude_code_version_too_old") {

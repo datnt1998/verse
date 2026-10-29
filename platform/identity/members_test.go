@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"encoding/json"
@@ -81,7 +81,7 @@ func TestADWildcardMigrationAndImmediateExternalChanges(t *testing.T) {
 	if err := os.WriteFile(path, []byte(fixture), 0600); err != nil {
 		t.Fatal(err)
 	}
-	s := NewStore(path)
+	s := NewStore(path, testOptions())
 	s.SetProjectSource(func() ([]string, error) { return []string{"p", "q"}, nil })
 	users, err := s.Users()
 	if err != nil {
@@ -129,7 +129,7 @@ func TestADWildcardMigrationAndImmediateExternalChanges(t *testing.T) {
 	if u, _, err := live.Authenticate(login.Cookie); err != nil || !u.CanWrite("p/story") {
 		t.Fatal("initial access missing")
 	}
-	external := NewStore(live.Path())
+	external := NewStore(live.Path(), testOptions())
 	external.now = live.now
 	projects := map[string]ProjectRole{"p": ProjectView}
 	if _, err := external.UpdateUser("member", UserPatch{Projects: &projects}); err != nil {

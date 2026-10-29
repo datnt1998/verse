@@ -11,7 +11,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // projectBySlug resolves (or lazily anchors when create=true) a projects row.
@@ -25,7 +25,7 @@ func projectBySlug(ctx context.Context, q *gen.Queries, slug string, create bool
 		return p, sanitizeErr(err)
 	}
 	if !create {
-		return p, webauth.ErrNotFound
+		return p, identity.ErrNotFound
 	}
 	ensured, err := q.EnsureProject(ctx, gen.EnsureProjectParams{
 		ID:   deterministicUUID("project", slug),
@@ -48,7 +48,7 @@ func projectID(ctx context.Context, q *gen.Queries, slug string) (pgtype.UUID, e
 	p, err := q.GetProjectBySlug(ctx, slug)
 	if err != nil {
 		if noRows(err) {
-			return pgtype.UUID{}, webauth.ErrNotFound
+			return pgtype.UUID{}, identity.ErrNotFound
 		}
 		return pgtype.UUID{}, sanitizeErr(err)
 	}
@@ -58,7 +58,7 @@ func projectID(ctx context.Context, q *gen.Queries, slug string) (pgtype.UUID, e
 // checkOwnerInvariants enforces "đúng một owner active mỗi project" for a
 // user patch: every project in before∪after must not drop to 0 or grow past
 // 1 active owner. membershipMemberRows are locked per project.
-func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, user gen.User, disabling bool, before, after map[string]webauth.ProjectRole) error {
+func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, user gen.User, disabling bool, before, after map[string]identity.ProjectRole) error {
 	slugs := map[string]bool{}
 	for s := range before {
 		slugs[s] = true
@@ -70,8 +70,8 @@ func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, use
 		p, err := q.GetProjectBySlug(ctx, slug)
 		if err != nil {
 			if noRows(err) {
-				if after[slug] == webauth.ProjectOwner {
-					return webauth.ErrNotFound
+				if after[slug] == identity.ProjectOwner {
+					return identity.ErrNotFound
 				}
 				continue
 			}
@@ -84,7 +84,7 @@ func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, use
 		}
 		othersActive := 0
 		for _, m := range members {
-			if m.UserID == user.ID || m.Role != string(webauth.ProjectOwner) {
+			if m.UserID == user.ID || m.Role != string(identity.ProjectOwner) {
 				continue
 			}
 			if st, err := memberActive(ctx, q, m.UserID); err != nil {
@@ -93,17 +93,17 @@ func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, use
 				othersActive++
 			}
 		}
-		beforeOwner := before[slug] == webauth.ProjectOwner && user.Status == "active"
+		beforeOwner := before[slug] == identity.ProjectOwner && user.Status == "active"
 		hadOwner := othersActive > 0 || beforeOwner
 		ownersAfter := othersActive
-		if after[slug] == webauth.ProjectOwner && !disabling {
+		if after[slug] == identity.ProjectOwner && !disabling {
 			ownersAfter++
 		}
 		if hadOwner && ownersAfter == 0 {
-			return webauth.ErrLastOwner
+			return identity.ErrLastOwner
 		}
 		if ownersAfter > 1 {
-			return webauth.ErrOwnerTaken
+			return identity.ErrOwnerTaken
 		}
 	}
 	return nil
@@ -120,7 +120,7 @@ func memberActive(ctx context.Context, q *gen.Queries, userID pgtype.UUID) (bool
 // replaceMemberships diffs a user's project grants inside the tx: creates
 // project anchors lazily, upserts/removes member rows and enforces the
 // owner invariants. One summary audit line per patch (file parity).
-func (a *Accounts) replaceMemberships(ctx context.Context, q *gen.Queries, user gen.User, before, after map[string]webauth.ProjectRole, actor *webauth.AuditActor, reason string) error {
+func (a *Accounts) replaceMemberships(ctx context.Context, q *gen.Queries, user gen.User, before, after map[string]identity.ProjectRole, actor *identity.AuditActor, reason string) error {
 	slugs := map[string]bool{}
 	for s := range before {
 		slugs[s] = true
@@ -151,7 +151,7 @@ func (a *Accounts) replaceMemberships(ctx context.Context, q *gen.Queries, user 
 	return nil
 }
 
-func projectSummary(projects map[string]webauth.ProjectRole) string {
+func projectSummary(projects map[string]identity.ProjectRole) string {
 	keys := make([]string, 0, len(projects))
 	for k := range projects {
 		keys = append(keys, k)
@@ -166,13 +166,13 @@ func projectSummary(projects map[string]webauth.ProjectRole) string {
 
 // --- scoped member APIs (owner/admin qua /api/projects/:p/members*) ---------
 
-func (a *Accounts) ProjectMembers(project string) ([]webauth.ProjectMember, error) {
+func (a *Accounts) ProjectMembers(project string) ([]identity.ProjectMember, error) {
 	ctx := context.Background()
 	q := a.qp()
 	p, err := q.GetProjectBySlug(ctx, project)
 	if err != nil {
 		if noRows(err) {
-			return []webauth.ProjectMember{}, nil
+			return []identity.ProjectMember{}, nil
 		}
 		return nil, sanitizeErr(err)
 	}
@@ -180,22 +180,22 @@ func (a *Accounts) ProjectMembers(project string) ([]webauth.ProjectMember, erro
 	if err != nil {
 		return nil, sanitizeErr(err)
 	}
-	out := []webauth.ProjectMember{}
+	out := []identity.ProjectMember{}
 	for _, m := range rows {
-		out = append(out, webauth.ProjectMember{
+		out = append(out, identity.ProjectMember{
 			Username: m.Username, Name: m.DisplayName,
-			Role: webauth.ProjectRole(m.Role), Disabled: m.UserStatus == "locked",
+			Role: identity.ProjectRole(m.Role), Disabled: m.UserStatus == "locked",
 		})
 	}
 	return out, nil
 }
 
-func (a *Accounts) SetProjectMember(project, username string, role webauth.ProjectRole, actor *webauth.AuditActor) (webauth.UserView, error) {
-	if role != webauth.ProjectCollab && role != webauth.ProjectView {
-		return webauth.UserView{}, fmt.Errorf("%w: vai trò dự án phải là collab hoặc view", webauth.ErrInvalidInput)
+func (a *Accounts) SetProjectMember(project, username string, role identity.ProjectRole, actor *identity.AuditActor) (identity.UserView, error) {
+	if role != identity.ProjectCollab && role != identity.ProjectView {
+		return identity.UserView{}, fmt.Errorf("%w: vai trò dự án phải là collab hoặc view", identity.ErrInvalidInput)
 	}
 	if !library.ValidProjectID(project) {
-		return webauth.UserView{}, fmt.Errorf("%w: dự án không hợp lệ", webauth.ErrInvalidInput)
+		return identity.UserView{}, fmt.Errorf("%w: dự án không hợp lệ", identity.ErrInvalidInput)
 	}
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
@@ -203,7 +203,7 @@ func (a *Accounts) SetProjectMember(project, username string, role webauth.Proje
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -220,13 +220,13 @@ func (a *Accounts) SetProjectMember(project, username string, role webauth.Proje
 		for _, m := range members {
 			if m.UserID == row.ID {
 				before = m.Role
-				targetWasOwner = m.Role == string(webauth.ProjectOwner)
+				targetWasOwner = m.Role == string(identity.ProjectOwner)
 			}
 		}
 		if targetWasOwner {
 			othersActive := 0
 			for _, m := range members {
-				if m.UserID != row.ID && m.Role == string(webauth.ProjectOwner) {
+				if m.UserID != row.ID && m.Role == string(identity.ProjectOwner) {
 					if active, err := memberActive(ctx, q, m.UserID); err != nil {
 						return err
 					} else if active {
@@ -235,7 +235,7 @@ func (a *Accounts) SetProjectMember(project, username string, role webauth.Proje
 				}
 			}
 			if othersActive == 0 && row.Status == "active" {
-				return webauth.ErrLastOwner
+				return identity.ErrLastOwner
 			}
 		}
 		if err := q.UpsertMember(ctx, gen.UpsertMemberParams{ProjectID: p.ID, UserID: row.ID, Role: string(role)}); err != nil {
@@ -247,23 +247,23 @@ func (a *Accounts) SetProjectMember(project, username string, role webauth.Proje
 		return nil
 	})
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	u, _, err := a.userByUsername(context.Background(), a.qp(), username)
 	if err != nil {
-		return webauth.UserView{}, err
+		return identity.UserView{}, err
 	}
 	return u.View(), nil
 }
 
-func (a *Accounts) RemoveProjectMember(project, username string, actor *webauth.AuditActor) error {
+func (a *Accounts) RemoveProjectMember(project, username string, actor *identity.AuditActor) error {
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -282,7 +282,7 @@ func (a *Accounts) RemoveProjectMember(project, username string, actor *webauth.
 				before = m.Role
 				continue
 			}
-			if m.Role == string(webauth.ProjectOwner) {
+			if m.Role == string(identity.ProjectOwner) {
 				if active, err := memberActive(ctx, q, m.UserID); err != nil {
 					return err
 				} else if active {
@@ -291,10 +291,10 @@ func (a *Accounts) RemoveProjectMember(project, username string, actor *webauth.
 			}
 		}
 		if before == "" {
-			return webauth.ErrNotFound
+			return identity.ErrNotFound
 		}
-		if before == string(webauth.ProjectOwner) && othersActive == 0 && row.Status == "active" {
-			return webauth.ErrLastOwner
+		if before == string(identity.ProjectOwner) && othersActive == 0 && row.Status == "active" {
+			return identity.ErrLastOwner
 		}
 		if err := q.RemoveMember(ctx, gen.RemoveMemberParams{ProjectID: p.ID, UserID: row.ID, RemovedAt: ts(a.now())}); err != nil {
 			return sanitizeErr(err)
@@ -306,19 +306,19 @@ func (a *Accounts) RemoveProjectMember(project, username string, actor *webauth.
 // TransferProjectOwner atomically demotes every active owner to collab and
 // grants owner to the target user — serialized by member row locks, the
 // partial-unique index additionally rejects a second owner at commit.
-func (a *Accounts) TransferProjectOwner(project, username string, actor *webauth.AuditActor) error {
+func (a *Accounts) TransferProjectOwner(project, username string, actor *identity.AuditActor) error {
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
 		if row.Status == "locked" {
-			return fmt.Errorf("%w: không thể chuyển quyền cho tài khoản đang bị khoá", webauth.ErrInvalidInput)
+			return fmt.Errorf("%w: không thể chuyển quyền cho tài khoản đang bị khoá", identity.ErrInvalidInput)
 		}
 		p, err := projectBySlug(ctx, q, project, true)
 		if err != nil {
@@ -330,7 +330,7 @@ func (a *Accounts) TransferProjectOwner(project, username string, actor *webauth
 		}
 		previous := []string{}
 		for _, m := range members {
-			if m.Role == string(webauth.ProjectOwner) && m.UserID != row.ID {
+			if m.Role == string(identity.ProjectOwner) && m.UserID != row.ID {
 				if u, err := q.GetUserByID(ctx, m.UserID); err == nil && u.Status == "active" {
 					previous = append(previous, u.Username)
 				}
@@ -339,10 +339,10 @@ func (a *Accounts) TransferProjectOwner(project, username string, actor *webauth
 		if err := q.DemoteOwnersToCollab(ctx, gen.DemoteOwnersToCollabParams{ProjectID: p.ID, UpdatedAt: ts(a.now())}); err != nil {
 			return sanitizeErr(err)
 		}
-		if err := q.UpsertMember(ctx, gen.UpsertMemberParams{ProjectID: p.ID, UserID: row.ID, Role: string(webauth.ProjectOwner)}); err != nil {
+		if err := q.UpsertMember(ctx, gen.UpsertMemberParams{ProjectID: p.ID, UserID: row.ID, Role: string(identity.ProjectOwner)}); err != nil {
 			return sanitizeErr(err)
 		}
 		sort.Strings(previous)
-		return a.addAudit(ctx, q, actor, p.Slug, "perm", "Chuyển chủ dự án", username, strings.Join(previous, ","), string(webauth.ProjectOwner), "")
+		return a.addAudit(ctx, q, actor, p.Slug, "perm", "Chuyển chủ dự án", username, strings.Join(previous, ","), string(identity.ProjectOwner), "")
 	})
 }

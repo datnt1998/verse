@@ -127,13 +127,10 @@ func (h *Host) contextWindowForAgent(agent string) int {
 		if p, m, ok := models.CurrentSelection(role); ok {
 			provider, model = p, m
 		}
-	} else if rc, ok := cfg.Roles[role]; ok {
-		if rc.Provider != "" {
-			provider = rc.Provider
-		}
-		if rc.Model != "" {
-			model = rc.Model
-		}
+	} else {
+		// Chưa có ModelSet (đang dựng lại): đọc thẳng cấu hình — cùng luật resolve
+		// của core/roles (vế nào rỗng thì rơi về mặc định).
+		provider, model, _ = cfg.ResolveRole(role)
 	}
 	window, _ := cfg.ResolveContextWindow(provider, model)
 	return window

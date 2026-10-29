@@ -46,7 +46,7 @@ Canvas thiết kế gốc (xem tương tác, bấm Play): Claude Design artifact
 
 ## Phạm vi v1
 
-- **Làm được ngay với API hiện có**: Đăng nhập nhiều tài khoản + QR điện thoại + thiết bị + quản lý tài khoản (`internal/webauth`), Workspace (live), Nhật ký tiến độ, Trình đọc + tải xuất TXT/EPUB, Tạo truyện (Bắt đầu nhanh), pause/resume/next/review/reopen, trạng thái kết nối & 401 & 409.
+- **Làm được ngay với API hiện có**: Đăng nhập nhiều tài khoản + QR điện thoại + thiết bị + quản lý tài khoản (`platform/identity`), Workspace (live), Nhật ký tiến độ, Trình đọc + tải xuất TXT/EPUB, Tạo truyện (Bắt đầu nhanh), pause/resume/next/review/reopen, trạng thái kết nối & 401 & 409.
 - **Cần backend bổ sung** (đánh dấu `GAP` trong spec): tầng Thư viện → Dự án → Truyện → Tập, `project.json`/`story.json`, xuất tự động vào `xuat-ban/`, đọc/ghi cấu hình, cờ thiết lập lần đầu & mật khẩu tạm, đăng nhập provider từ web, chi tiết thẩm duyệt, kế hoạch/hợp đồng chương, sổ phục bút, Đồng sáng tác, `/import`, `/sync`, `/diag`.
 - **v1 · Lệnh** (GAP-22…25, `13-commands.md`): popover `/` và trang Hướng dẫn lệnh.
 - **v1 · Việc chạy nền** (GAP-26…29, `14-jobs-dock.md`): dock tiến độ ở mọi màn, bảng `/model`, `/diag`, thẻ kết quả `/export`, `/sync`, `/simulate`.

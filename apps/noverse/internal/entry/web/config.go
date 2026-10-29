@@ -32,17 +32,17 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/codex"
 	"github.com/datnt1998/verse/core/auth/xai"
 	"github.com/datnt1998/verse/core/llm/wire"
 	"github.com/datnt1998/verse/core/models"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // serveConfig 处理配置与规则接口；返回 false 表示路径不归它管。
-func (g *Gateway) serveConfig(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveConfig(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path, get, post, put := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost, r.Method == http.MethodPut
 	switch {
 	case path == "/api/system" && get:
@@ -173,15 +173,15 @@ func (g *Gateway) resolveConfigScope(scope, project, story string) (configTarget
 // checkConfigWrite 校验目标层的写入权限（合约 §6：global=admin；project 需可管理、
 // story 需可写）。故事级目标一律 ErrNotFound——与故事不存在时相同，不暴露存在性；
 // 项目级仍 ErrForbidden——可读项目的不可管理者不隐藏（与 POST /:p/stories 的 403 一致）。
-func checkConfigWrite(user webauth.User, t configTarget) error {
+func checkConfigWrite(user identity.User, t configTarget) error {
 	switch t.scope {
 	case "global":
-		if user.Role != webauth.RoleAdmin {
-			return webauth.ErrForbidden
+		if user.Role != identity.RoleAdmin {
+			return identity.ErrForbidden
 		}
 	case "project":
 		if !user.CanManageProject(t.project) {
-			return webauth.ErrForbidden
+			return identity.ErrForbidden
 		}
 	case "story":
 		if !user.CanWrite(t.story.ID) {
@@ -193,7 +193,7 @@ func checkConfigWrite(user webauth.User, t configTarget) error {
 
 // configReadAllowed 校验目标层的读取权限：global 一律可读；project 需可列、
 // story 需可读。不满足时调用方返回 404（见 scopeError）。
-func configReadAllowed(user webauth.User, t configTarget) bool {
+func configReadAllowed(user identity.User, t configTarget) bool {
 	switch t.scope {
 	case "project":
 		return user.CanReadProject(t.project)
@@ -429,7 +429,7 @@ func configToMap(cfg bootstrap.Config) (map[string]any, error) {
 	return m, nil
 }
 
-func (g *Gateway) getConfig(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) getConfig(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
@@ -440,7 +440,7 @@ func (g *Gateway) getConfig(w http.ResponseWriter, r *http.Request, user webauth
 		jsonError(w, 404, "không tìm thấy")
 		return
 	}
-	resp, err := g.buildConfigResponse(t, user.Role == webauth.RoleAdmin)
+	resp, err := g.buildConfigResponse(t, user.Role == identity.RoleAdmin)
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -448,7 +448,7 @@ func (g *Gateway) getConfig(w http.ResponseWriter, r *http.Request, user webauth
 	writeJSON(w, 200, resp)
 }
 
-func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
@@ -481,7 +481,7 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user webauth
 		entries, _ := p["models"].([]any)
 		for _, entry := range entries {
 			model, _ := entry.(map[string]any)
-			if _, has := model["context_window"]; has && user.Role != webauth.RoleAdmin {
+			if _, has := model["context_window"]; has && user.Role != identity.RoleAdmin {
 				jsonError(w, 403, "Chỉ quản trị được đổi ngữ cảnh")
 				return
 			}
@@ -595,7 +595,7 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user webauth
 		}
 	}
 
-	if user.Role != webauth.RoleAdmin && hasSaved {
+	if user.Role != identity.RoleAdmin && hasSaved {
 		for provider, pc := range saved.Providers {
 			for _, model := range pc.Models {
 				if model.ContextWindow == 0 {
@@ -625,7 +625,7 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user webauth
 		jsonError(w, 502, "Đã lưu thiết lập nhưng chưa cập nhật được ngữ cảnh của trợ lý đang chạy")
 		return
 	}
-	resp, err := g.buildConfigResponse(t, user.Role == webauth.RoleAdmin)
+	resp, err := g.buildConfigResponse(t, user.Role == identity.RoleAdmin)
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -730,8 +730,8 @@ func (g *Gateway) servePresets(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (g *Gateway) testConfig(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) testConfig(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -978,13 +978,13 @@ func resolvedModelInfo(cfg bootstrap.Config, provider, name, display string) mod
 		RegistryWindow: models.DefaultRegistry().ResolveContextWindow(name), AutomaticWindow: automatic, AutomaticSource: automaticSource, SummaryThreshold: max(0, window-bootstrap.CompactReserveTokens(window))}
 }
 
-func (g *Gateway) configModels(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) configModels(w http.ResponseWriter, r *http.Request, user identity.User) {
 	provider := r.URL.Query().Get("provider")
 	if provider == "" {
 		jsonError(w, 400, "Chưa chọn nhà cung cấp mô hình")
 		return
 	}
-	if user.Role != webauth.RoleAdmin {
+	if user.Role != identity.RoleAdmin {
 		writeJSON(w, 200, map[string]any{"models": configuredModels(provider, r.URL.Query()["model"]...)})
 		return
 	}
@@ -1110,8 +1110,8 @@ func (g *Gateway) configAccounts(admin bool) map[string]any {
 	return out
 }
 
-func (g *Gateway) configAccount(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) configAccount(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1203,8 +1203,8 @@ func isLoopbackRequest(r *http.Request) bool {
 	return ip != nil && ip.IsLoopback()
 }
 
-func (g *Gateway) oauthStart(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) oauthStart(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1351,8 +1351,8 @@ func (g *Gateway) oauthStart(w http.ResponseWriter, r *http.Request, user webaut
 	writeJSON(w, 200, resp)
 }
 
-func (g *Gateway) oauthStatus(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) oauthStatus(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1386,8 +1386,8 @@ func (g *Gateway) oauthStatus(w http.ResponseWriter, r *http.Request, user webau
 	writeJSON(w, 200, resp)
 }
 
-func (g *Gateway) oauthCancel(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) oauthCancel(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1415,8 +1415,8 @@ func (g *Gateway) oauthCancel(w http.ResponseWriter, r *http.Request, user webau
 
 // oauthComplete nhận mã dán tay (`code#state` hoặc URL chuyển hướng) của luồng đăng nhập đang chờ
 // và chuyển cho provider kiểm tra; trả lỗi tiếng Việt nếu mã không dùng được (luồng vẫn chờ).
-func (g *Gateway) oauthComplete(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) oauthComplete(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1471,8 +1471,8 @@ func (g *Gateway) oauthComplete(w http.ResponseWriter, r *http.Request, user web
 	writeJSON(w, 200, map[string]bool{"ok": true})
 }
 
-func (g *Gateway) oauthLogout(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) oauthLogout(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -1587,7 +1587,7 @@ func validRuleName(name string) bool {
 	return ruleFileName.MatchString(name)
 }
 
-func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
@@ -1606,7 +1606,7 @@ func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user webauth.
 	writeJSON(w, 200, map[string]any{"chain": dirs})
 }
 
-func (g *Gateway) getRuleFile(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) getRuleFile(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
@@ -1634,7 +1634,7 @@ func (g *Gateway) getRuleFile(w http.ResponseWriter, r *http.Request, user webau
 	writeJSON(w, 200, map[string]any{"name": name, "text": string(data)})
 }
 
-func (g *Gateway) putRuleFile(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) putRuleFile(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var req struct {
 		Scope   string `json:"scope"`
 		Project string `json:"project,omitempty"`
@@ -1679,7 +1679,7 @@ func (g *Gateway) putRuleFile(w http.ResponseWriter, r *http.Request, user webau
 	})
 }
 
-func (g *Gateway) deleteRuleFile(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) deleteRuleFile(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var req struct {
 		Scope   string `json:"scope"`
 		Project string `json:"project,omitempty"`
@@ -1715,7 +1715,7 @@ func (g *Gateway) deleteRuleFile(w http.ResponseWriter, r *http.Request, user we
 
 // ---------- /api/system ----------
 
-func (g *Gateway) serveSystem(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveSystem(w http.ResponseWriter, r *http.Request, user identity.User) {
 	latest := g.latestRelease()
 	writeJSON(w, 200, map[string]any{
 		"version": g.build.Version,

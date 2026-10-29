@@ -27,7 +27,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func runServe(args []string) error {
@@ -109,7 +109,7 @@ func runServe(args []string) error {
 		// Hosted engine workers get the same storage contract via env (never
 		// argv); the child resolves its own scoped store and claims the lease.
 		gateway.SetWorkerStorage(&storageCfg)
-		gateway.SetFactStore(func(st library.Story, user *webauth.User) (*store.Store, error) {
+		gateway.SetFactStore(func(st library.Story, user *identity.User) (*store.Store, error) {
 			if user == nil {
 				return bootstrap.OpenStoryStoreInternal(ctx, pool, st.Project, st.Story)
 			}
@@ -224,7 +224,7 @@ func runServe(args []string) error {
 			target = phoneURLs[0]
 		}
 		fmt.Printf("Mở trình duyệt để thiết lập: %s\n", target)
-		fmt.Printf("Mã thiết lập: %s (hết hạn sau %d phút)\n", code, int(webauth.SetupCodeTTL.Minutes()))
+		fmt.Printf("Mã thiết lập: %s (hết hạn sau %d phút)\n", code, int(identity.SetupCodeTTL.Minutes()))
 	}
 	for _, u := range phoneURLs {
 		fmt.Printf("Điện thoại / mạng khác: %s\n", u)
@@ -257,8 +257,8 @@ func runServe(args []string) error {
 // openAccounts mở kho tài khoản theo STORE_DRIVER — cờ này chọn trọn bộ
 // backend sự kiện + tài khoản, không có selector thứ hai.
 // file: web-accounts.json như cũ. postgres: pool app-role + postgres.Accounts
-// qua webauth.NewFromRepository. Trả kèm closer cho pool (no-op ở file).
-func openAccounts(cfg bootstrap.StorageConfig) (*webauth.Store, func(), error) {
+// qua identity.NewFromRepository. Trả kèm closer cho pool (no-op ở file).
+func openAccounts(cfg bootstrap.StorageConfig) (*identity.Store, func(), error) {
 	if cfg.Driver == bootstrap.StoreDriverPostgres {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
@@ -266,13 +266,13 @@ func openAccounts(cfg bootstrap.StorageConfig) (*webauth.Store, func(), error) {
 		if err != nil {
 			return nil, nil, fmt.Errorf("mở postgres cho tài khoản: %w", err)
 		}
-		return webauth.NewFromRepository(postgres.NewAccounts(pool)), pool.Close, nil
+		return identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions()), pool.Close, nil
 	}
-	path, err := webauth.DefaultPath()
+	path, err := identity.DefaultPath(bootstrap.DefaultConfigDir())
 	if err != nil {
 		return nil, nil, err
 	}
-	return webauth.NewStore(path), func() {}, nil
+	return identity.NewStore(path, library.IdentityOptions()), func() {}, nil
 }
 
 // promptNewPassword 在终端无回显地读两次密码；非终端（脚本管道）读一行。
@@ -290,7 +290,7 @@ func promptNewPassword(reader *bufio.Reader) (string, error) {
 		fmt.Println()
 		return string(b), err
 	}
-	first, err := read(fmt.Sprintf("Mật khẩu (ít nhất %d ký tự): ", webauth.MinPasswordLen))
+	first, err := read(fmt.Sprintf("Mật khẩu (ít nhất %d ký tự): ", identity.MinPasswordLen))
 	if err != nil {
 		return "", err
 	}
@@ -333,7 +333,7 @@ func runServeUser(args []string) error {
 		}
 		return rest[0], nil
 	}
-	actor := &webauth.AuditActor{Username: "dòng lệnh", Name: "Dòng lệnh"}
+	actor := &identity.AuditActor{Username: "dòng lệnh", Name: "Dòng lệnh"}
 	switch command {
 	case "add":
 		username, err := needName()
@@ -355,26 +355,26 @@ func runServeUser(args []string) error {
 			if err != nil {
 				return err
 			}
-			*role = string(webauth.RoleMember)
+			*role = string(identity.RoleMember)
 			if !has {
-				*role = string(webauth.RoleAdmin)
+				*role = string(identity.RoleAdmin)
 			}
 		}
 		password, err := promptNewPassword(bufio.NewReader(os.Stdin))
 		if err != nil {
 			return err
 		}
-		permissions := map[string]webauth.ProjectRole{}
+		permissions := map[string]identity.ProjectRole{}
 		if *projects != "" {
 			for _, entry := range strings.Split(*projects, ",") {
 				id, level, ok := strings.Cut(strings.TrimSpace(entry), "=")
 				if !ok {
 					return fmt.Errorf("Quyền dự án cần có dạng dự-án=owner|collab|view.")
 				}
-				permissions[id] = webauth.ProjectRole(level)
+				permissions[id] = identity.ProjectRole(level)
 			}
 		}
-		user, err := accounts.CreateUser(webauth.NewUser{Username: username, Name: *name, Role: webauth.Role(*role), Projects: permissions, Password: password, Actor: actor})
+		user, err := accounts.CreateUser(identity.NewUser{Username: username, Name: *name, Role: identity.Role(*role), Projects: permissions, Password: password, Actor: actor})
 		if err != nil {
 			return err
 		}
@@ -398,7 +398,7 @@ func runServeUser(args []string) error {
 			}
 			sort.Strings(permissions)
 			summary := strings.Join(permissions, ",")
-			if u.Role == webauth.RoleAdmin {
+			if u.Role == identity.RoleAdmin {
 				summary = "Mọi dự án"
 			}
 			fmt.Printf("%-20s %-7s dự án: %-30s %s%s\n", u.Username, u.Role, summary, u.Name, status)
@@ -412,7 +412,7 @@ func runServeUser(args []string) error {
 		if err != nil {
 			return err
 		}
-		if _, err := accounts.UpdateUser(username, webauth.UserPatch{Password: &password, Actor: actor}); err != nil {
+		if _, err := accounts.UpdateUser(username, identity.UserPatch{Password: &password, Actor: actor}); err != nil {
 			return err
 		}
 		fmt.Printf("Đã đổi mật khẩu %q; mọi thiết bị của tài khoản này đã bị đăng xuất.\n", username)
@@ -421,7 +421,7 @@ func runServeUser(args []string) error {
 		if err != nil {
 			return err
 		}
-		if err := accounts.DeleteUser(username, webauth.AuditContext{Actor: actor}); err != nil {
+		if err := accounts.DeleteUser(username, identity.AuditContext{Actor: actor}); err != nil {
 			return err
 		}
 		fmt.Printf("Đã xoá %q.\n", username)

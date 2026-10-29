@@ -15,7 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // errBody decodes the standard error envelope.
@@ -79,8 +79,8 @@ func TestErrorPolicyClassifiesSharedStorageFamily(t *testing.T) {
 		body   string
 	}{
 		{"invalid", fmt.Errorf("tên dự án: %w", library.ErrInvalidName), 400, ""},
-		{"unauthenticated", webauth.ErrUnauthenticated, 401, ""},
-		{"invalid credentials", webauth.ErrInvalidCredentials, 401, ""},
+		{"unauthenticated", identity.ErrUnauthenticated, 401, ""},
+		{"invalid credentials", identity.ErrInvalidCredentials, 401, ""},
 		{"forbidden", fmt.Errorf("đọc dự án: %w", errs.ErrStorageForbidden), 403, ""},
 		{"not found (repository scope)", cause, 404, "Không tìm thấy."},
 		{"not found (member of another tenant)", fmt.Errorf("truyện b: %w", errs.ErrStorageNotFound), 404, ""},
@@ -144,7 +144,7 @@ func TestAudioErrorStorageForbiddenIs403(t *testing.T) {
 // user-facing (Vietnamese, no internals), so it is preserved on the 400.
 func TestAccountErrorKeepsCuratedValidationText(t *testing.T) {
 	rec := httptest.NewRecorder()
-	accountError(rec, fmt.Errorf("%w: mật khẩu cần ít nhất 8 ký tự", webauth.ErrInvalidInput))
+	accountError(rec, fmt.Errorf("%w: mật khẩu cần ít nhất 8 ký tự", identity.ErrInvalidInput))
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400", rec.Code)
 	}

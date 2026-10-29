@@ -18,7 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 const watchInterval = 2 * time.Second
@@ -282,7 +282,7 @@ func (w *fileWatcher) scan(publish bool) {
 	}
 }
 
-func (g *Gateway) serveEventsWatch(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveEventsWatch(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var req struct {
 		Keys       []string `json:"keys"`
 		Subscriber string   `json:"subscriber,omitempty"`

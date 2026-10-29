@@ -24,7 +24,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // §3 的 API 类型（camelCase，时间用 RFC3339，空时间为 null）。
@@ -96,7 +96,7 @@ func displayTitle(sf *library.StoryFile, engineTitle string) string {
 }
 
 // engineBookTitle đọc tên sách engine đặt (meta/book.json) qua thư mục output cấu hình.
-func (g *Gateway) engineBookTitle(st library.Story, user *webauth.User) string {
+func (g *Gateway) engineBookTitle(st library.Story, user *identity.User) string {
 	if engine, err := g.openFactStore(st, user); err == nil {
 		if book, err := engine.Book.Load(); err == nil && book != nil {
 			return book.Title
@@ -145,7 +145,7 @@ func (g *Gateway) lib(ctx context.Context, actor *library.Actor) (library.Reposi
 
 // actorOf ánh xạ tài khoản request thành actor bất biến cho tầng repository —
 // repository kiểm lại membership trong tx, không tin check ở handler.
-func actorOf(user webauth.User) *library.Actor {
+func actorOf(user identity.User) *library.Actor {
 	return &library.Actor{Username: user.Username, GlobalRole: string(user.Role)}
 }
 
@@ -190,7 +190,7 @@ func (g *Gateway) libraryUnconfigured(w http.ResponseWriter, r *http.Request) bo
 	return needs
 }
 
-func isAdmin(user webauth.User) bool { return user.Role == webauth.RoleAdmin }
+func isAdmin(user identity.User) bool { return user.Role == identity.RoleAdmin }
 
 // libError maps library/repository errors with the shared policy (httperr.go):
 // missing membership stays 404 (no existence leak), missing write permission
@@ -201,7 +201,7 @@ func libError(w http.ResponseWriter, err error) {
 }
 
 // serveLibrary 处理 /api/library（GET 列表、PUT 配置）。返回 false 表示路径不归它管。
-func (g *Gateway) serveLibrary(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveLibrary(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	if r.URL.Path != "/api/library" {
 		return false
 	}
@@ -395,7 +395,7 @@ func validateLibraryConfig(cfg library.Config) string {
 }
 
 // serveProjects 处理 /api/projects 及以下全部路由。返回 false 表示路径不归它管。
-func (g *Gateway) serveProjects(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveProjects(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path := r.URL.Path
 	if path != "/api/projects" && !strings.HasPrefix(path, "/api/projects/") {
 		return false
@@ -484,7 +484,7 @@ func (g *Gateway) serveProjects(w http.ResponseWriter, r *http.Request, user web
 
 // requireProject 检查项目存在且用户可读；不满足时已写响应并返回 false。
 // "_" 只有在存在旧式故事时才算存在；普通项目必须有 project.json。
-func (g *Gateway) requireProject(w http.ResponseWriter, lib library.Repository, ctx context.Context, actor *library.Actor, user webauth.User, p string) bool {
+func (g *Gateway) requireProject(w http.ResponseWriter, lib library.Repository, ctx context.Context, actor *library.Actor, user identity.User, p string) bool {
 	exists := false
 	if p == library.LegacyProjectID {
 		if dirs, err := lib.Stories(ctx, actor, library.LegacyProjectID); err == nil && len(dirs) > 0 {
@@ -513,7 +513,7 @@ func (g *Gateway) requireProject(w http.ResponseWriter, lib library.Repository, 
 	return true
 }
 
-func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user identity.User) {
 	if !isAdmin(user) {
 		jsonError(w, 403, "Không có quyền")
 		return
@@ -663,7 +663,7 @@ func createProjectAutoSlug(ctx context.Context, lib library.Repository, actor *l
 	return "", library.ErrExists
 }
 
-func (g *Gateway) adoptProject(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) adoptProject(w http.ResponseWriter, r *http.Request, user identity.User) {
 	if !isAdmin(user) {
 		jsonError(w, 403, "Không có quyền")
 		return
@@ -689,7 +689,7 @@ func (g *Gateway) adoptProject(w http.ResponseWriter, r *http.Request, user weba
 }
 
 // projectDetailFor 组装一个项目的完整响应：可读故事数 + project.json 字段。
-func (g *Gateway) projectDetailFor(ctx context.Context, lib library.Repository, user webauth.User, p string) projectDetail {
+func (g *Gateway) projectDetailFor(ctx context.Context, lib library.Repository, user identity.User, p string) projectDetail {
 	ref, ok := lib.ResolveProject(ctx, actorOf(user), p)
 	legacy := p == library.LegacyProjectID
 	if !ok {
@@ -711,7 +711,7 @@ func (g *Gateway) projectDetailFor(ctx context.Context, lib library.Repository, 
 	return d
 }
 
-func (g *Gateway) getProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) getProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	actor := actorOf(user)
 	if !g.requireProject(w, lib, r.Context(), actor, user, p) {
 		return
@@ -757,7 +757,7 @@ func (g *Gateway) getProject(w http.ResponseWriter, r *http.Request, lib library
 	})
 }
 
-func (g *Gateway) updateProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) updateProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	if p == library.LegacyProjectID {
 		jsonError(w, 409, "Dự án ẩn danh không sửa được")
 		return
@@ -802,7 +802,7 @@ func (g *Gateway) updateProject(w http.ResponseWriter, r *http.Request, lib libr
 }
 
 // serveStories 处理 /api/projects/:p/stories[...] 下的路由；segs 为 stories 之后的段。
-func (g *Gateway) serveStories(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveStories(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	actor := actorOf(user)
 	if len(segs) == 0 {
 		switch r.Method {
@@ -917,7 +917,7 @@ func (g *Gateway) serveStories(w http.ResponseWriter, r *http.Request, lib libra
 }
 
 // All story reads require view; writes require collab; delete/share require owner.
-func storyAccessAllowed(user webauth.User, st library.Story, method, rest string) bool {
+func storyAccessAllowed(user identity.User, st library.Story, method, rest string) bool {
 	if method == http.MethodGet || method == http.MethodHead {
 		return user.CanRead(st.ID)
 	}
@@ -937,7 +937,7 @@ func keepTail(rest string) bool {
 	return strings.HasPrefix(rest, "/review/items/") && strings.HasSuffix(rest, "/keep")
 }
 
-func (g *Gateway) createStory(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) createStory(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	actor := actorOf(user)
 	if !g.requireProject(w, lib, r.Context(), actor, user, p) {
 		return
@@ -973,7 +973,7 @@ func (g *Gateway) createStory(w http.ResponseWriter, r *http.Request, lib librar
 }
 
 // serveStoryMeta 处理 GET/PUT S/meta；授权已在 serveStories 的 storyAccessAllowed 完成。
-func (g *Gateway) serveStoryMeta(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, st library.Story) {
+func (g *Gateway) serveStoryMeta(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, st library.Story) {
 	actor := actorOf(user)
 	switch r.Method {
 	case "GET":
@@ -1061,7 +1061,7 @@ func (g *Gateway) serveStoryMeta(w http.ResponseWriter, r *http.Request, lib lib
 }
 
 // renameStory 处理 POST S/rename；授权已在 serveStories 的 storyAccessAllowed 完成。
-func (g *Gateway) renameStory(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, st library.Story) {
+func (g *Gateway) renameStory(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, st library.Story) {
 	var req struct {
 		Slug string `json:"slug"`
 	}
@@ -1086,7 +1086,7 @@ func (g *Gateway) renameStory(w http.ResponseWriter, r *http.Request, lib librar
 	writeJSON(w, 200, g.storySummary(lib, renamed, &user))
 }
 
-func (g *Gateway) serveIdeas(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveIdeas(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	actor := actorOf(user)
 	if len(segs) == 0 {
 		switch r.Method {
@@ -1156,7 +1156,7 @@ func (g *Gateway) serveIdeas(w http.ResponseWriter, r *http.Request, lib library
 	})
 }
 
-func (g *Gateway) listAssets(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) listAssets(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	if !g.requireProject(w, lib, r.Context(), actorOf(user), user, p) {
 		return
 	}
@@ -1168,7 +1168,7 @@ func (g *Gateway) listAssets(w http.ResponseWriter, r *http.Request, lib library
 	writeJSON(w, 200, map[string]any{"assets": assets})
 }
 
-func (g *Gateway) validateProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) validateProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	if !g.requireProject(w, lib, r.Context(), actorOf(user), user, p) {
 		return
 	}
@@ -1180,7 +1180,7 @@ func (g *Gateway) validateProject(w http.ResponseWriter, r *http.Request, lib li
 	writeJSON(w, 200, v)
 }
 
-func (g *Gateway) fixProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string) {
+func (g *Gateway) fixProject(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string) {
 	if !isAdmin(user) {
 		jsonError(w, 403, "Không có quyền")
 		return
@@ -1229,7 +1229,7 @@ func storyVolumes(engine *store.Store) int {
 }
 
 // storySummary 汇总一个故事卡片所需的全部字段（引擎信息 + story.json + 锁状态）。
-func (g *Gateway) storySummary(lib library.Repository, st library.Story, user *webauth.User) storySummary {
+func (g *Gateway) storySummary(lib library.Repository, st library.Story, user *identity.User) storySummary {
 	sum := storySummary{
 		ID: st.ID, Project: st.Project, Story: st.Story, Title: st.Story,
 		Status: "idea", Tags: []string{}, TempName: tempNamePattern.MatchString(st.Story),
@@ -1349,7 +1349,7 @@ func countExportFiles(lib library.Repository, st library.Story) int {
 }
 
 // projectSummary 汇总项目卡片（故事数只计当前用户可读的）。
-func (g *Gateway) projectSummary(ctx context.Context, lib library.Repository, user webauth.User, ref library.ProjectRef) projectSummary {
+func (g *Gateway) projectSummary(ctx context.Context, lib library.Repository, user identity.User, ref library.ProjectRef) projectSummary {
 	sum := projectSummary{ID: ref.ID, Legacy: ref.Legacy}
 	if ref.Legacy {
 		sum.Name = "_"

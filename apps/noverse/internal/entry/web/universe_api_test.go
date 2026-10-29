@@ -11,7 +11,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // projectBrainFixture creates three legacy stories in project "_".
@@ -58,8 +58,8 @@ func projectBrainFixture(t *testing.T, tg *testGateway, chapters map[string][]st
 		}
 		write(story, "meta/progress.json", `{"phase":"writing","completed_chapters":[`+strings.Join(done, ",")+`]}`)
 	}
-	projects := map[string]webauth.ProjectRole{"_": webauth.ProjectView}
-	if _, err := tg.g.accounts.UpdateUser("reader", webauth.UserPatch{Projects: &projects}); err != nil {
+	projects := map[string]identity.ProjectRole{"_": identity.ProjectView}
+	if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &projects}); err != nil {
 		t.Fatal(err)
 	}
 }

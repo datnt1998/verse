@@ -22,7 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Audio 端点（GAP-17…20）。全部走网关进程、直接读写故事目录：
@@ -287,7 +287,7 @@ func storyFileNames(st library.Story) (title, shortTitle string) {
 
 // serveStoryAudio 处理 S/audio 之后的全部路径。返回 false 表示不归它管。
 // 授权已在 serveStories 的 storyAccessAllowed 完成（GET 需可读、其余需可写）。
-func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user webauth.User, st library.Story, rest string) bool {
+func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, rest string) bool {
 	tail := strings.TrimPrefix(rest, "/audio")
 	tail = strings.TrimPrefix(tail, "/")
 	if tail == "" {
@@ -1012,7 +1012,7 @@ func (g *Gateway) serveAudioSettings(w http.ResponseWriter, r *http.Request, st 
 // ── 项目级路由 ──
 
 // serveProjectVoices 处理 /api/projects/:p/voices（GET 列表 / POST 上传）。
-func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, user webauth.User, p string) {
+func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, user identity.User, p string) {
 	lib, err := g.lib(r.Context(), actorOf(user))
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, err.Error())
@@ -1139,7 +1139,7 @@ func (g *Gateway) uploadProjectVoice(w http.ResponseWriter, r *http.Request, lay
 }
 
 // serveProjectPronunciations 处理 /api/projects/:p/pronunciations。
-func (g *Gateway) serveProjectPronunciations(w http.ResponseWriter, r *http.Request, user webauth.User, p string) {
+func (g *Gateway) serveProjectPronunciations(w http.ResponseWriter, r *http.Request, user identity.User, p string) {
 	lib, err := g.lib(r.Context(), actorOf(user))
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, err.Error())

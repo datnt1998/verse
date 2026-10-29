@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 func newModelConfigTestHost(t *testing.T) (*Host, string) {
@@ -19,9 +20,9 @@ func newModelConfigTestHost(t *testing.T) (*Host, string) {
 	}
 	cfg := bootstrap.Config{
 		Provider: "proxy", ModelName: "old", Providers: map[string]bootstrap.ProviderConfig{"proxy": pc},
-		Roles: map[string]bootstrap.RoleConfig{"writer": {
+		Roles: map[string]roles.RoleConfig{"writer": {
 			Provider: "proxy", Model: "writer-model",
-			Fallbacks: []bootstrap.ModelRef{{Provider: "proxy", Model: "old"}},
+			Fallbacks: []roles.ModelRef{{Provider: "proxy", Model: "old"}},
 		}},
 	}
 	models, err := bootstrap.NewModelSet(cfg)
@@ -200,7 +201,7 @@ func TestModelConfigurationsIncludesReferencedUnlistedModel(t *testing.T) {
 	pc := bootstrap.ProviderConfig{Models: []bootstrap.ModelConfig{{Name: "listed"}}}
 	cfg := bootstrap.Config{
 		Provider: "proxy", ModelName: "listed", Providers: map[string]bootstrap.ProviderConfig{"proxy": pc},
-		Roles: map[string]bootstrap.RoleConfig{"writer": {Provider: "proxy", Model: "referenced-only"}},
+		Roles: map[string]roles.RoleConfig{"writer": {Provider: "proxy", Model: "referenced-only"}},
 	}
 	models := modelConfigurations(cfg, "proxy", pc)
 	if len(models) != 2 || models[0].Name != "listed" || models[1].Name != "referenced-only" {

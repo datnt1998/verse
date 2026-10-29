@@ -20,14 +20,14 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // openStoryReader mở đầu đọc cho một truyện: file backend → StoryReader từ
 // thư mục; hosted (factStore factory đã cài) → reader trên store scoped,
 // resolve đã kiểm membership của user. Lỗi lưu trữ lan đúng nguyên trạng —
 // đường proxy/handler quyết 404/403/500.
-func (g *Gateway) openStoryReader(user webauth.User, st library.Story) (*host.StoryReader, error) {
+func (g *Gateway) openStoryReader(user identity.User, st library.Story) (*host.StoryReader, error) {
 	if g.factStore != nil {
 		engine, err := g.openFactStore(st, &user)
 		if err != nil {
@@ -42,7 +42,7 @@ func (g *Gateway) openStoryReader(user webauth.User, st library.Story) (*host.St
 // 全部经 StoryReader 从磁盘读，不经过 worker，故事被 TUI 持锁时也能读。
 // rest = 故事前缀后的剩余路径（以 "/" 开头，或为 ""）。
 // 返回 false 表示路径不属于本钩子，调用方继续转 worker 代理。
-func (g *Gateway) serveStoryRead(w http.ResponseWriter, r *http.Request, user webauth.User, st library.Story, rest string) bool {
+func (g *Gateway) serveStoryRead(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, rest string) bool {
 	rest = "/" + strings.TrimPrefix(rest, "/")
 	sr, err := g.openStoryReader(user, st)
 	if err != nil {

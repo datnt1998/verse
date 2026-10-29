@@ -9,18 +9,19 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // newAuthGateway 建立只带账号路由的网关；helper 与 gateway_test.go 相互独立，避免共享命名。
-func newAuthGateway(t *testing.T) (*Gateway, *webauth.Store) {
+func newAuthGateway(t *testing.T) (*Gateway, *identity.Store) {
 	t.Helper()
 	t.Setenv("HOME", t.TempDir())
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectCollab}, Password: "writer-pass"},
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectCollab}, Password: "writer-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)

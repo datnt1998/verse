@@ -14,8 +14,9 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 	"github.com/gofrs/flock"
 )
 
@@ -50,11 +51,11 @@ func newTestGateway(t *testing.T) *testGateway {
 	mkdirAll(t, root, "oldbook", "output", "novel")
 	mkdirAll(t, root, "secret", "output", "novel")
 
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectOwner, "proj": webauth.ProjectOwner}, Password: "writer-pass"},
-		{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectView}, Password: "reader-pass"},
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectOwner, "proj": identity.ProjectOwner}, Password: "writer-pass"},
+		{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}, Password: "reader-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -85,11 +86,11 @@ func newTestGatewayForBuild(t *testing.T, build version.Info) *testGateway {
 	mkdirAll(t, root, "oldbook", "output", "novel")
 	mkdirAll(t, root, "secret", "output", "novel")
 
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectOwner, "proj": webauth.ProjectOwner}, Password: "writer-pass"},
-		{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectView}, Password: "reader-pass"},
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectOwner, "proj": identity.ProjectOwner}, Password: "writer-pass"},
+		{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}, Password: "reader-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)

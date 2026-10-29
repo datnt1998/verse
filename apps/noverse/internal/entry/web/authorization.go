@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // routePermission is the shared request boundary for all project/story/audio
 // handlers, including worker-proxied routes. Unknown writes are never read-only.
-func routePermission(r *http.Request) (project string, minimum webauth.ProjectRole, admin bool) {
+func routePermission(r *http.Request) (project string, minimum identity.ProjectRole, admin bool) {
 	path := strings.Trim(r.URL.Path, "/")
 	seg := strings.Split(path, "/")
 	read := r.Method == http.MethodGet || r.Method == http.MethodHead
@@ -26,23 +26,23 @@ func routePermission(r *http.Request) (project string, minimum webauth.ProjectRo
 	}
 	if len(seg) >= 3 && seg[0] == "api" && seg[1] == "projects" {
 		project = seg[2]
-		minimum = webauth.ProjectView
+		minimum = identity.ProjectView
 		if !read {
-			minimum = webauth.ProjectCollab
+			minimum = identity.ProjectCollab
 		}
 		// Owner-scoped member API (ma trận §9, quyết định 2026-10-28): chỉ
 		// chủ dự án (admin = owner mọi project) mời/đổi vai/gỡ/chuyển chủ.
 		if !read && len(seg) > 3 && (seg[3] == "members" || seg[3] == "owner") {
-			minimum = webauth.ProjectOwner
+			minimum = identity.ProjectOwner
 		}
 		if !read && (len(seg) == 3 || (len(seg) > 3 && (seg[3] == "ledger" || seg[3] == "validate"))) {
-			minimum = webauth.ProjectOwner
+			minimum = identity.ProjectOwner
 		}
 	} else if len(seg) >= 4 && seg[0] == "api" && seg[1] == "jobs" {
 		project = seg[2]
-		minimum = webauth.ProjectView
+		minimum = identity.ProjectView
 		if !read {
-			minimum = webauth.ProjectCollab
+			minimum = identity.ProjectCollab
 		}
 	} else if path == "api/config" || strings.HasPrefix(path, "api/config/") || path == "api/rules" || strings.HasPrefix(path, "api/rules/") {
 		scope := r.URL.Query().Get("scope")
@@ -52,11 +52,11 @@ func routePermission(r *http.Request) (project string, minimum webauth.ProjectRo
 		}
 		if scope == "project" || scope == "story" {
 			project = projectID
-			minimum = webauth.ProjectView
+			minimum = identity.ProjectView
 			if !read {
-				minimum = webauth.ProjectCollab
+				minimum = identity.ProjectCollab
 				if scope == "project" {
-					minimum = webauth.ProjectOwner
+					minimum = identity.ProjectOwner
 				}
 			}
 		} else if !read || strings.HasPrefix(path, "api/config/oauth/") {
@@ -67,12 +67,12 @@ func routePermission(r *http.Request) (project string, minimum webauth.ProjectRo
 	}
 	if project != "" && !read {
 		if r.Method == http.MethodDelete {
-			minimum = webauth.ProjectOwner
+			minimum = identity.ProjectOwner
 			// Collab unkeep Cảnh báo (quyết định 2026-10-28): DELETE đối xứng
 			// với POST trên …/review/items/{id}/keep — các DELETE khác giữ owner.
 			if len(seg) >= 9 && seg[1] == "projects" && seg[3] == "stories" &&
 				seg[5] == "review" && seg[6] == "items" && seg[8] == "keep" {
-				minimum = webauth.ProjectCollab
+				minimum = identity.ProjectCollab
 			}
 		}
 		start := 2
@@ -87,13 +87,13 @@ func routePermission(r *http.Request) (project string, minimum webauth.ProjectRo
 		if len(seg) > start {
 			action, last := seg[start], seg[len(seg)-1]
 			if action == "share" || last == "delete" || last == "remove" || last == "share" {
-				minimum = webauth.ProjectOwner
+				minimum = identity.ProjectOwner
 			}
 		}
 	}
 	return
 }
-func requestAllowed(user webauth.User, r *http.Request) bool {
+func requestAllowed(user identity.User, r *http.Request) bool {
 	project, minimum, admin := routePermission(r)
 	if user.Disabled {
 		return false
@@ -105,15 +105,15 @@ func requestAllowed(user webauth.User, r *http.Request) bool {
 		return true
 	}
 	switch minimum {
-	case webauth.ProjectOwner:
+	case identity.ProjectOwner:
 		return user.CanManageProject(project)
-	case webauth.ProjectCollab:
+	case identity.ProjectCollab:
 		return user.CanCollaborateProject(project)
 	default:
 		return user.CanReadProject(project)
 	}
 }
-func authorizeRequest(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func authorizeRequest(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	if user.MustChangePassword && r.URL.Path != "/api/me" && r.URL.Path != "/api/me/password" && r.URL.Path != "/api/logout" && !strings.HasPrefix(r.URL.Path, "/api/me/sessions") {
 		writeJSON(w, 403, map[string]any{"error": "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.", "mustChangePassword": true})
 		return false
@@ -127,9 +127,9 @@ func authorizeRequest(w http.ResponseWriter, r *http.Request, user webauth.User)
 		message = "Chỉ quản trị viên được thực hiện thao tác này."
 	} else {
 		switch user.ProjectRole(project) {
-		case webauth.ProjectView:
+		case identity.ProjectView:
 			message = "Bạn chỉ có quyền Chỉ xem ở dự án này"
-		case webauth.ProjectCollab:
+		case identity.ProjectCollab:
 			message = "Thao tác này cần quyền Chủ dự án."
 		}
 	}

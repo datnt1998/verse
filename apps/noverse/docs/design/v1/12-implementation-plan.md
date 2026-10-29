@@ -19,7 +19,7 @@
 | **B2 · Đọc truyện & xuất** | 7, 4 | `internal/host/storyread.go` (mới), `internal/host/exp/*`, `internal/host/autoexport.go` (mới), `internal/entry/web/storyread.go` (mới) | `library.Story` |
 | **B3 · Cấu hình, quy tắc, OAuth** | 5, 10, 16 | `internal/bootstrap/configfile.go` (kế thừa 3 cấp), `internal/rules/loader.go`, `internal/auth/oauth.go` (trang callback A4), `internal/entry/web/config.go` (mới) | `library.FindProjectDir` |
 | **B4 · Lệnh live trong worker** | 6, 8 | `internal/entry/web/worker.go`, `internal/entry/web/worker_*.go` (mới), host methods mới nếu thiếu (`internal/host/web_*.go`) | — |
-| **B5 · Tài khoản bổ sung** | 14, 15, quyền `p/s` | `internal/webauth/*`, `internal/entry/web/auth.go` | — |
+| **B5 · Tài khoản bổ sung** | 14, 15, quyền `p/s` | `platform/identity/*`, `internal/entry/web/auth.go` | — |
 | **F0 · Nền móng frontend** | — | `web/src/styles/`, `web/src/ui/`, `web/src/shell/`, `web/src/router.ts`, `web/src/i18n/`, `web/src/api/*` (toàn bộ hợp đồng), `web/mock/*`, `web/src/main.tsx`, `web/src/App.tsx` | Hợp đồng |
 | **FA · Đăng nhập & onboard** | — | `web/src/screens/auth/*`, `web/src/screens/onboard/*`, `web/src/screens/account/*` | F0 |
 | **F1 · Workspace & Nhật ký** | — | `web/src/screens/workspace/*`, `web/src/screens/activity/*`, `web/src/lib/streamRounds.ts` (+test) | F0 |

@@ -13,7 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // fsHome trả HOME của gateway thử nghiệm đã theo symlink (macOS: /var → /private/var).
@@ -225,10 +225,10 @@ func newUnconfiguredGateway(t *testing.T) *testGateway {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
-	accounts := webauth.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"_": webauth.ProjectView}, Password: "reader-pass"},
+	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}, Password: "reader-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)

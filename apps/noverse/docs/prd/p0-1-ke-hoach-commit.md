@@ -78,8 +78,8 @@ Package lá / gần lá mà các cụm sau phụ thuộc; không import gì ngo�
 ## 4. `p0-1/dang-nhap` — Đăng nhập (38 file)
 
 - Message: `feat: dang nhap OAuth cho Codex, xAI, Anthropic va xac thuc web`
-- `git add -A internal/auth/ internal/anthropicoauth/ internal/codex/ internal/xai/ internal/webauth/ go.mod go.sum`
-  - `internal/auth` 14, `internal/anthropicoauth` 7, `internal/codex` 4, `internal/xai` 3, `internal/webauth` 8, `go.mod` + `go.sum` 2.
+- `git add -A internal/auth/ internal/anthropicoauth/ internal/codex/ internal/xai/ platform/identity/ go.mod go.sum`
+  - `internal/auth` 14, `internal/anthropicoauth` 7, `internal/codex` 4, `internal/xai` 3, `platform/identity` 8, `go.mod` + `go.sum` 2.
   - `go.mod/go.sum` đi kèm commit này vì gần hết require mới (`rsc.io/qr`, `x/crypto`, `golang-jwt`, `x/term`, `webpush-go`) phục vụ đăng nhập/push; commit trọn cặp để nhất quán.
 - Build riêng: **có** — providers→`internal/auth` (cùng cụm); webauth→`internal/library` (cụm 3).
 

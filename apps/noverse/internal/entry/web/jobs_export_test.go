@@ -13,7 +13,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func TestExportConflictIsPreflightWithoutJobAndPathsAreRelative(t *testing.T) {
@@ -27,15 +27,15 @@ func TestExportConflictIsPreflightWithoutJobAndPathsAreRelative(t *testing.T) {
 	g := &Gateway{Root: st.Root}
 	hub := g.jobsHub()
 	defer hub.close()
-	subscriber, _, _ := g.events().subscribe(webauth.User{Role: webauth.RoleAdmin}, 0, nil)
+	subscriber, _, _ := g.events().subscribe(identity.User{Role: identity.RoleAdmin}, 0, nil)
 	defer g.events().unsubscribe(subscriber)
 	_, id, err := g.runGatewayExport(context.Background(), st, reader, exp.Options{OutPath: path, OnExists: "fail"}, exports)
 	var conflict *exportConflictError
 	if !errors.As(err, &conflict) {
 		t.Fatalf("expected structured conflict: %v", err)
 	}
-	if id != "" || len(hub.list(webauth.User{Role: webauth.RoleAdmin})) != 0 {
-		t.Fatalf("preflight conflict registered a failed job: id=%q jobs=%+v", id, hub.list(webauth.User{Role: webauth.RoleAdmin}))
+	if id != "" || len(hub.list(identity.User{Role: identity.RoleAdmin})) != 0 {
+		t.Fatalf("preflight conflict registered a failed job: id=%q jobs=%+v", id, hub.list(identity.User{Role: identity.RoleAdmin}))
 	}
 	select {
 	case event := <-subscriber.ch:
@@ -66,7 +66,7 @@ func TestExportFailureDoesNotExposeServerPathsInJobsOrMessages(t *testing.T) {
 	if err == nil || strings.Contains(err.Error(), st.Root) {
 		t.Fatalf("unsafe export error: %v", err)
 	}
-	for _, job := range g.jobsHub().list(webauth.User{Role: webauth.RoleAdmin}) {
+	for _, job := range g.jobsHub().list(identity.User{Role: identity.RoleAdmin}) {
 		encoded, _ := json.Marshal(job)
 		if strings.Contains(string(encoded), st.Root) {
 			t.Fatalf("job leaked server path: %s", encoded)

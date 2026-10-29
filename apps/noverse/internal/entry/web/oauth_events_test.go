@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func nextOAuthEvent(t *testing.T, sub *EventSub, flow, status string) Event {
@@ -35,9 +35,9 @@ func TestOAuthTransitionEventsPrivateSuccessFailureExpiry(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	cookie := tg.login("admin", "admin-pass")
 	provider := registerFakeOAuth(t)
-	owner, _, _ := tg.g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, nil)
+	owner, _, _ := tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(owner)
-	other, _, _ := tg.g.events().subscribe(webauth.User{Username: "another-admin", Role: webauth.RoleAdmin}, 0, nil)
+	other, _, _ := tg.g.events().subscribe(identity.User{Username: "another-admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(other)
 	start := func(device bool) string {
 		w := tg.doWith("POST", "/api/config/oauth/start", cookie, fmt.Sprintf(`{"provider":%q,"device":%t}`, provider, device), func(r *http.Request) { r.RemoteAddr = "127.0.0.1:8888" })

@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // --- sessions: inet/nullable-uuid parameters live in queries/accounts.sql ---
@@ -102,29 +102,29 @@ func revokeUserSessionsExcept(ctx context.Context, tx pgx.Tx, userID pgtype.UUID
 
 // newSession creates device + session inside the caller's tx. Returned cookie
 // is id.secret — the only copy of the secret; storage keeps its SHA-256.
-func (a *Accounts) newSession(ctx context.Context, q *gen.Queries, tx pgx.Tx, row gen.User, kind string, tempID pgtype.UUID, device, ip string) (webauth.NewSession, error) {
+func (a *Accounts) newSession(ctx context.Context, q *gen.Queries, tx pgx.Tx, row gen.User, kind string, tempID pgtype.UUID, device, ip string) (identity.NewSession, error) {
 	u, err := a.userFromRow(ctx, q, row)
 	if err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
 	sessionID, err := randomUUID()
 	if err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
 	secret := make([]byte, 32)
 	if _, err := rand.Read(secret); err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
 	secretHex := hexString(secret)
 	deviceID, err := upsertDevice(ctx, tx, a, row.ID, device, ip)
 	if err != nil {
-		return webauth.NewSession{}, fmt.Errorf("ghi thiết bị: %w", sanitizeErr(err))
+		return identity.NewSession{}, fmt.Errorf("ghi thiết bị: %w", sanitizeErr(err))
 	}
 	expiresAt := a.now().Add(pgSessionTTL)
 	if err := insertSession(ctx, tx, a, row, deviceID, sessionID, digestBytes(secretHex), kind, tempID, ip, device, expiresAt); err != nil {
-		return webauth.NewSession{}, err
+		return identity.NewSession{}, err
 	}
-	return webauth.NewSession{
+	return identity.NewSession{
 		Cookie:    uuidText(sessionID) + "." + secretHex,
 		ExpiresAt: expiresAt,
 		User:      u.View(),
@@ -151,22 +151,22 @@ func randomHex(n int) (string, error) {
 
 // --- login / pairing / authenticate ----------------------------------------
 
-func (a *Accounts) Login(username, password, device, ip string) (webauth.NewSession, error) {
+func (a *Accounts) Login(username, password, device, ip string) (identity.NewSession, error) {
 	ctx := context.Background()
 	username = strings.TrimSpace(username)
 	// Load + verify OUTSIDE the tx (argon2 must not hold locks); unknown users
 	// still pay the full argon2 cost via a dummy hash — no enumeration.
 	row, err := a.qp().GetUserByUsername(ctx, username)
-	var u webauth.User
+	var u identity.User
 	if err == nil {
 		u, err = a.userFromRow(ctx, a.qp(), row)
 	}
 	if err != nil && !noRows(err) {
-		return webauth.NewSession{}, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
+		return identity.NewSession{}, fmt.Errorf("đọc tài khoản: %w", sanitizeErr(err))
 	}
 	found := err == nil
 	now := a.now()
-	hash := webauth.DummyHashForBackend()
+	hash := identity.DummyHashForBackend()
 	tempOpen := false
 	if found && u.TempPassword != nil {
 		hash = u.TempPassword.CodeHash
@@ -174,10 +174,10 @@ func (a *Accounts) Login(username, password, device, ip string) (webauth.NewSess
 	} else if found {
 		hash = u.PasswordHash
 	}
-	if !webauth.VerifyPasswordForBackend(password, hash) || !found || u.Disabled || (u.TempPassword != nil && !tempOpen) {
-		return webauth.NewSession{}, webauth.ErrInvalidCredentials
+	if !identity.VerifyPasswordForBackend(password, hash) || !found || u.Disabled || (u.TempPassword != nil && !tempOpen) {
+		return identity.NewSession{}, identity.ErrInvalidCredentials
 	}
-	var out webauth.NewSession
+	var out identity.NewSession
 	err = RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		q := a.q(tx)
 		// Re-check inside the tx: verify ran before the write lock; the
@@ -185,19 +185,19 @@ func (a *Accounts) Login(username, password, device, ip string) (webauth.NewSess
 		cur, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrInvalidCredentials
+				return identity.ErrInvalidCredentials
 			}
 			return sanitizeErr(err)
 		}
 		if cur.Status == "locked" {
-			return webauth.ErrInvalidCredentials
+			return identity.ErrInvalidCredentials
 		}
 		tempID := pgtype.UUID{}
 		kind := "password"
 		if temp, err := q.GetOpenTempPasswordForUpdate(ctx, cur.ID); err == nil {
 			if u.TempPassword == nil || temp.PasswordHash != u.TempPassword.CodeHash ||
 				!temp.ExpiresAt.Time.After(a.now()) {
-				return webauth.ErrInvalidCredentials
+				return identity.ErrInvalidCredentials
 			}
 			if err := q.ConsumeTempPassword(ctx, gen.ConsumeTempPasswordParams{ID: temp.ID, UsedAt: ts(a.now())}); err != nil {
 				return sanitizeErr(err)
@@ -206,17 +206,17 @@ func (a *Accounts) Login(username, password, device, ip string) (webauth.NewSess
 		} else if noRows(err) {
 			if u.TempPassword != nil {
 				// Temp was consumed/revoked concurrently.
-				return webauth.ErrInvalidCredentials
+				return identity.ErrInvalidCredentials
 			}
 			cred, err := q.GetCredential(ctx, cur.ID)
 			if err != nil {
 				if noRows(err) {
-					return webauth.ErrInvalidCredentials
+					return identity.ErrInvalidCredentials
 				}
 				return sanitizeErr(err)
 			}
 			if !cred.PasswordHash.Valid || cred.PasswordHash.String != u.PasswordHash {
-				return webauth.ErrInvalidCredentials
+				return identity.ErrInvalidCredentials
 			}
 		} else {
 			return sanitizeErr(err)
@@ -227,28 +227,28 @@ func (a *Accounts) Login(username, password, device, ip string) (webauth.NewSess
 	return out, err
 }
 
-func (a *Accounts) Pair(code, device, ip string) (webauth.NewSession, error) {
+func (a *Accounts) Pair(code, device, ip string) (identity.NewSession, error) {
 	ctx := context.Background()
-	h := digestBytes(webauth.DigestForBackend(strings.TrimSpace(code)))
-	var out webauth.NewSession
+	h := digestBytes(identity.DigestForBackend(strings.TrimSpace(code)))
+	var out identity.NewSession
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		q := a.q(tx)
 		p, err := q.GetPairingByTokenHash(ctx, h)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrInvalidPairing
+				return identity.ErrInvalidPairing
 			}
 			return sanitizeErr(err)
 		}
 		row, err := q.GetUserByID(ctx, p.UserID)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrInvalidPairing
+				return identity.ErrInvalidPairing
 			}
 			return sanitizeErr(err)
 		}
 		if row.Status == "locked" || p.UsedAt.Valid || p.RevokedAt.Valid || !p.ExpiresAt.Time.After(a.now()) {
-			return webauth.ErrInvalidPairing
+			return identity.ErrInvalidPairing
 		}
 		if err := q.ConsumePairing(ctx, gen.ConsumePairingParams{ID: p.ID, UsedAt: ts(a.now())}); err != nil {
 			return sanitizeErr(err)
@@ -271,7 +271,7 @@ func (a *Accounts) NewPairing(username, createdBy string) (string, time.Time, er
 		row, err := q.GetUserByUsername(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
@@ -285,44 +285,44 @@ func (a *Accounts) NewPairing(username, createdBy string) (string, time.Time, er
 		}
 		expires = a.now().Add(pgPairingTTL)
 		return q.InsertPairing(ctx, gen.InsertPairingParams{
-			ID: id, UserID: row.ID, TokenHash: digestBytes(webauth.DigestForBackend(code)),
+			ID: id, UserID: row.ID, TokenHash: digestBytes(identity.DigestForBackend(code)),
 			CreatedBy: creator, ExpiresAt: ts(expires),
 		})
 	})
 	return code, expires, err
 }
 
-func (a *Accounts) Authenticate(cookie string) (webauth.User, webauth.Session, error) {
+func (a *Accounts) Authenticate(cookie string) (identity.User, identity.Session, error) {
 	id, secret, ok := strings.Cut(cookie, ".")
 	if !ok || id == "" || secret == "" {
-		return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 	}
 	sessionID, err := parseUUID(id)
 	if err != nil {
-		return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 	}
 	ctx := context.Background()
 	q := a.qp()
 	sess, err := q.GetSessionByID(ctx, sessionID)
 	if err != nil {
 		if noRows(err) {
-			return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+			return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 		}
-		return webauth.User{}, webauth.Session{}, sanitizeErr(err)
+		return identity.User{}, identity.Session{}, sanitizeErr(err)
 	}
 	row, err := q.GetUserByID(ctx, sess.UserID)
 	if err != nil {
 		if noRows(err) {
-			return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+			return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 		}
-		return webauth.User{}, webauth.Session{}, sanitizeErr(err)
+		return identity.User{}, identity.Session{}, sanitizeErr(err)
 	}
 	now := a.now()
 	if row.Status == "locked" || !sess.ExpiresAt.Time.After(now) || sess.RevokedAt.Valid {
-		return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 	}
 	if !equalBytes(sess.TokenHash, digestBytes(secret)) {
-		return webauth.User{}, webauth.Session{}, webauth.ErrUnauthenticated
+		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
 	}
 	if now.Sub(sess.LastSeenAt.Time) >= pgTouchGap {
 		// last_seen touch is opportunistic: a failed write must NOT be
@@ -335,14 +335,14 @@ func (a *Accounts) Authenticate(cookie string) (webauth.User, webauth.Session, e
 	}
 	u, err := a.userFromRow(ctx, q, row)
 	if err != nil {
-		return webauth.User{}, webauth.Session{}, err
+		return identity.User{}, identity.Session{}, err
 	}
 	deviceLabel := sess.UserAgent
 	return u, sessionView(sess, deviceLabel, id), nil
 }
 
-func sessionView(sess gen.Session, deviceLabel, currentID string) webauth.Session {
-	return webauth.Session{
+func sessionView(sess gen.Session, deviceLabel, currentID string) identity.Session {
+	return identity.Session{
 		ID:        uuidText(sess.ID),
 		Device:    deviceLabel,
 		CreatedAt: sess.CreatedAt.Time.UTC(),
@@ -395,14 +395,14 @@ func hexDigit(c byte) (byte, error) {
 
 // --- session management -----------------------------------------------------
 
-func (a *Accounts) Sessions(username, currentID string) ([]webauth.Session, error) {
+func (a *Accounts) Sessions(username, currentID string) ([]identity.Session, error) {
 	ctx := context.Background()
 	var userID pgtype.UUID
 	if strings.TrimSpace(username) != "" {
 		row, err := a.qp().GetUserByUsername(ctx, strings.TrimSpace(username))
 		if err != nil {
 			if noRows(err) {
-				return nil, webauth.ErrNotFound
+				return nil, identity.ErrNotFound
 			}
 			return nil, sanitizeErr(err)
 		}
@@ -412,38 +412,38 @@ func (a *Accounts) Sessions(username, currentID string) ([]webauth.Session, erro
 	if err != nil {
 		return nil, err
 	}
-	out := make([]webauth.Session, 0, len(rows))
+	out := make([]identity.Session, 0, len(rows))
 	for _, r := range rows {
 		out = append(out, sessionView(r.Session, r.Device, currentID))
 	}
 	return out, nil
 }
 
-func (a *Accounts) RevokeSession(id string, allowed func(owner string) bool, auditCtxs ...webauth.AuditContext) error {
+func (a *Accounts) RevokeSession(id string, allowed func(owner string) bool, auditCtxs ...identity.AuditContext) error {
 	ctx_ := auditContextOf(auditCtxs)
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		sessionID, err := parseUUID(strings.ToLower(strings.TrimSpace(id)))
 		if err != nil {
-			return webauth.ErrNotFound
+			return identity.ErrNotFound
 		}
 		sess, err := q.GetSessionByID(ctx, sessionID)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
 		row, err := q.GetUserByID(ctx, sess.UserID)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}
 		if !allowed(row.Username) {
-			return webauth.ErrForbidden
+			return identity.ErrForbidden
 		}
 		if sess.RevokedAt.Valid {
 			return nil // no-op: don't add audit (file parity)
@@ -455,14 +455,14 @@ func (a *Accounts) RevokeSession(id string, allowed func(owner string) bool, aud
 	})
 }
 
-func (a *Accounts) RevokeAll(username, keep string, auditCtx webauth.AuditContext) error {
+func (a *Accounts) RevokeAll(username, keep string, auditCtx identity.AuditContext) error {
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
 		row, err := q.GetUserForUpdate(ctx, username)
 		if err != nil {
 			if noRows(err) {
-				return webauth.ErrNotFound
+				return identity.ErrNotFound
 			}
 			return sanitizeErr(err)
 		}

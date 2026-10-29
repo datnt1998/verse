@@ -17,6 +17,7 @@ import (
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/codex"
 	"github.com/datnt1998/verse/core/auth/xai"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 // exampleConfig là mẫu cấu hình có chú thích ghi vào ~/.ainovel/config.example.jsonc.
@@ -183,7 +184,7 @@ func RunSetup() (Config, error) {
 		Provider:  providerName,
 		ModelName: modelName,
 		Providers: map[string]ProviderConfig{providerName: pc},
-		Roles:     map[string]RoleConfig{},
+		Roles:     map[string]roles.RoleConfig{},
 		Style:     "default",
 	}
 

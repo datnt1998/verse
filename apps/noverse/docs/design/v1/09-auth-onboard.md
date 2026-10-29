@@ -1,7 +1,7 @@
 # 09 · Đăng nhập, tài khoản, QR điện thoại & thiết lập lần đầu
 
 Artboard: `Login.dc.html` (A1), `Phone.dc.html` (A2), `Onboard.dc.html` (A3).
-Backend tham chiếu: `internal/webauth/*`, `internal/entry/web/auth.go`, `cmd/ainovel-cli/serve.go` (đang viết — đối chiếu lại khi merge).
+Backend tham chiếu: `platform/identity/*`, `internal/entry/web/auth.go`, `cmd/ainovel-cli/serve.go` (đang viết — đối chiếu lại khi merge).
 
 ## 1. Mô hình (theo backend thật)
 

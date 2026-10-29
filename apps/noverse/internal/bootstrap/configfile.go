@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 const configDirName = ".ainovel"
@@ -314,7 +315,7 @@ func MergeConfig(base, overlay Config) Config {
 	// Roles: overlay 的 key 覆盖 base 同名 key
 	if len(overlay.Roles) > 0 {
 		if base.Roles == nil {
-			base.Roles = make(map[string]RoleConfig)
+			base.Roles = make(map[string]roles.RoleConfig)
 		}
 		for k, v := range overlay.Roles {
 			existing := base.Roles[k]
@@ -325,7 +326,7 @@ func MergeConfig(base, overlay Config) Config {
 				existing.Model = v.Model
 			}
 			if len(v.Fallbacks) > 0 {
-				existing.Fallbacks = append([]ModelRef(nil), v.Fallbacks...)
+				existing.Fallbacks = append([]roles.ModelRef(nil), v.Fallbacks...)
 			}
 			if v.ReasoningEffort != "" {
 				existing.ReasoningEffort = v.ReasoningEffort
@@ -389,9 +390,9 @@ func CloneConfig(cfg Config) Config {
 		pc.ExtraBody = cloneMap(pc.ExtraBody)
 		clone.Providers[name] = pc
 	}
-	clone.Roles = make(map[string]RoleConfig, len(cfg.Roles))
+	clone.Roles = make(map[string]roles.RoleConfig, len(cfg.Roles))
 	for role, rc := range cfg.Roles {
-		rc.Fallbacks = append([]ModelRef(nil), rc.Fallbacks...)
+		rc.Fallbacks = append([]roles.ModelRef(nil), rc.Fallbacks...)
 		clone.Roles[role] = rc
 	}
 	clone.Notify.Events = append([]string(nil), cfg.Notify.Events...)

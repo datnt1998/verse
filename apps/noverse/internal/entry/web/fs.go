@@ -9,7 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // GAP-34 · 09 §10.3: bộ duyệt thư mục trong app, dùng khi không có hộp chọn của máy
@@ -20,7 +20,7 @@ import (
 //	GET  /api/fs/list?path=                   → [{name,path,kind,items,writable}]
 //	POST /api/fs/mkdir {parent,name}          → {name,path,display}
 //	GET  /api/library/inspect?path=           → library_inspect.go
-func (g *Gateway) serveFS(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveFS(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path := r.URL.Path
 	if path == "/api/library/inspect" {
 		g.serveLibraryInspect(w, r, user)

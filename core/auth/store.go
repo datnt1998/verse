@@ -2,7 +2,8 @@
 // (subscription) thay vì API Key — mô phỏng kiến trúc AuthStorage + OAuth
 // registry của omp:
 //
-//   - Store: kho credential ~/.ainovel/auth.json (0600, khoá file liên tiến trình).
+//   - Store: kho credential auth.json dưới thư mục dữ liệu của app (0600,
+//     khoá file liên tiến trình); thư mục do Options.StoreDir quy định.
 //   - Provider: định nghĩa luồng đăng nhập/refresh của từng nhà cung cấp, đăng ký
 //     vào registry theo ID (vd. "openai-codex").
 //   - Manager: cấp access token còn hạn cho lớp wire, tự refresh khi sắp hết hạn
@@ -67,7 +68,7 @@ func (c Credential) Label() string {
 }
 
 // Store là kho credential dạng JSON {"<provider>": Credential}. Mọi thao tác
-// đọc-sửa-ghi đều nằm dưới khoá file để hai tiến trình ainovel không ghi đè
+// đọc-sửa-ghi đều nằm dưới khoá file để hai tiến trình cùng app không ghi đè
 // refresh token của nhau (refresh token của OpenAI xoay vòng: dùng lại token cũ
 // sẽ bị thu hồi).
 type Store struct {
@@ -77,16 +78,21 @@ type Store struct {
 // NewStore tạo kho tại đường dẫn chỉ định.
 func NewStore(path string) *Store { return &Store{path: path} }
 
-// DefaultStorePath trả về ~/.ainovel/auth.json.
+// DefaultStorePath trả về $HOME/<Options.StoreDir>/auth.json. Lỗi khi app chưa
+// Configure — không có đường mặc định ngầm để tránh hai app ghi đè kho của nhau.
 func DefaultStorePath() (string, error) {
+	o := options()
+	if o.StoreDir == "" {
+		return "", errors.New("auth: chưa Configure — không xác định được thư mục kho credential")
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("không xác định được thư mục home: %w", err)
 	}
-	return filepath.Join(home, ".ainovel", "auth.json"), nil
+	return filepath.Join(home, o.StoreDir, "auth.json"), nil
 }
 
-// DefaultStore mở kho mặc định ~/.ainovel/auth.json.
+// DefaultStore mở kho mặc định tại DefaultStorePath.
 func DefaultStore() (*Store, error) {
 	path, err := DefaultStorePath()
 	if err != nil {

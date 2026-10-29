@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 var recoveryCodeFormat = regexp.MustCompile(`^[A-Z0-9]{4}(-[A-Z0-9]{4}){3}$`)
@@ -191,7 +191,7 @@ func TestRecoverPublishesSessionRevokedForEverySession(t *testing.T) {
 		}
 		want[s.ID] = true
 	}
-	sub, _, _ := tg.g.events().subscribe(webauth.User{Username: "admin", Role: webauth.RoleAdmin}, 0, nil)
+	sub, _, _ := tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
 
 	if w := tg.do("POST", "/api/recover", "", recoverBody("admin", code, "new-password-1")); w.Code != 200 {

@@ -16,6 +16,7 @@ import (
 	"github.com/datnt1998/verse/core/auth/xai"
 	"github.com/datnt1998/verse/core/llm"
 	"github.com/datnt1998/verse/core/models"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 // DefaultContextWindow 模型未在 registry 登记时的兜底窗口大小。
@@ -190,21 +191,8 @@ func (pc ProviderConfig) ProviderType(name string) (string, error) {
 	return "", fmt.Errorf("provider %q thiếu type và không nằm trong danh sách provider đã biết của litellm: %w", name, errs.ErrConfig)
 }
 
-// ModelRef 表示一个 provider/model 组合。
-type ModelRef struct {
-	Provider string `json:"provider"` // provider 名称（Providers map 中的 key）
-	Model    string `json:"model"`    // 模型名（原样透传，不做任何解析）
-}
-
-// RoleConfig 定义单个角色的模型覆盖。
-type RoleConfig struct {
-	Provider  string     `json:"provider"`            // 主 provider 名称（Providers map 中的 key）
-	Model     string     `json:"model"`               // 主模型名（原样透传，不做任何解析）
-	Fallbacks []ModelRef `json:"fallbacks,omitempty"` // 显式备用 provider/model 列表
-	// ReasoningEffort 该角色的推理强度（off/low/medium/high/xhigh/max），空=继承顶层默认。
-	// 由 agents.ParseThinkingLevel 校验后应用，越级值视为空。
-	ReasoningEffort string `json:"reasoning_effort,omitempty"`
-}
+// roles.RoleConfig/roles.ModelRef 与按角色解析的规则已提取到 core/roles（跨应用共享）；
+// 下方 knownRoles 是本应用允许配置的具体角色名。
 
 // knownRoles 支持的可配置角色名。Arbiter 当前不开放角色级配置，
 // 统一使用顶层默认模型（host.arbiterModel 用 models.Default）。
@@ -235,7 +223,7 @@ type Config struct {
 	Providers map[string]ProviderConfig `json:"providers,omitempty"`
 
 	// 角色级模型覆盖
-	Roles map[string]RoleConfig `json:"roles,omitempty"`
+	Roles map[string]roles.RoleConfig `json:"roles,omitempty"`
 
 	// 创作参数
 	Style string `json:"style,omitempty"`
@@ -390,7 +378,7 @@ func (c *Config) ValidateBase() error {
 		}
 		if err := c.validateModelRef(
 			fmt.Sprintf("vai %q", role),
-			ModelRef{Provider: rc.Provider, Model: rc.Model},
+			roles.ModelRef{Provider: rc.Provider, Model: rc.Model},
 		); err != nil {
 			return err
 		}
@@ -507,7 +495,7 @@ func (c *Config) FillDefaults() {
 		c.Providers = make(map[string]ProviderConfig)
 	}
 	if c.Roles == nil {
-		c.Roles = make(map[string]RoleConfig)
+		c.Roles = make(map[string]roles.RoleConfig)
 	}
 	if c.Style == "" {
 		c.Style = "default"
@@ -552,14 +540,15 @@ func (c Config) ResolveContextWindow(provider, modelName string) (int, ContextWi
 
 // ResolveReasoningEffort 返回某角色生效的推理强度原始串（off/low/medium/high/xhigh/max 或空）。
 // 优先级：角色级 Roles[role].ReasoningEffort → 顶层默认 ReasoningEffort → ""（不覆盖，沿用模型/provider 默认）。
-// role 为空或 "default" 时直接取顶层默认。值的合法性由 agents.ParseThinkingLevel 把关。
+// role 为空或 "default" 时直接取顶层默认。值的合法性由 llm.ParseThinkingLevel 把关。
 func (c Config) ResolveReasoningEffort(role string) string {
-	if role != "" && role != "default" {
-		if rc, ok := c.Roles[role]; ok && rc.ReasoningEffort != "" {
-			return rc.ReasoningEffort
-		}
-	}
-	return c.ReasoningEffort
+	return roles.ResolveReasoningEffort(c.Roles, role, c.ReasoningEffort)
+}
+
+// ResolveRole 返回某角色当前生效的 provider/model；未配置的角色回落默认对，
+// explicit=false。解析规则在 core/roles。
+func (c Config) ResolveRole(role string) (provider, model string, explicit bool) {
+	return roles.Resolve(c.Roles, role, c.Provider, c.ModelName)
 }
 
 // LogContextWindowChoice 打印某个角色的窗口决策。source=default 时发 Warn 提示
@@ -618,7 +607,7 @@ func (c Config) CandidateModels(provider string) []string {
 	return models
 }
 
-func (c Config) validateModelRef(owner string, ref ModelRef) error {
+func (c Config) validateModelRef(owner string, ref roles.ModelRef) error {
 	if ref.Provider == "" || ref.Model == "" {
 		return fmt.Errorf("%s phải có đủ provider và model: %w", owner, errs.ErrConfig)
 	}

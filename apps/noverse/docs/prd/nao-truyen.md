@@ -89,7 +89,7 @@ Khung bắt buộc từ W1:
    - `source` ghi chương hoặc lần duyệt sinh ra dữ kiện.
    - Dữ kiện truyện **không bao giờ** tự chảy sang truyện khác. Thứ duy nhất được dùng chung là thực thể cấp dự án (vũ trụ chung) mà truyện liên kết tới một cách tường minh.
 3. **Lọc theo quyền tài khoản ở mọi đường đọc.**
-   - Tài khoản đã có quyền theo từng truyện (`Books`: `p/s`, `p/*`, `*` trong `internal/webauth/store.go`).
+   - Tài khoản đã có quyền theo từng truyện (`Books`: `p/s`, `p/*`, `*` trong `platform/identity/store.go`).
    - Tìm kiếm, ngữ cảnh và đồ thị ở cấp dự án hay hệ thống phải lọc theo `CanRead`, để người viết không thấy truyện ngoài quyền.
 4. **Liên kết ghi bằng mã, hiển thị bằng tên.**
    - Kho ghi chú dùng `[[đường-dẫn-từ-gốc-thư-viện|Tên]]`. Nhờ vậy, mở cả thư viện như một vault Obsidian vẫn không lẫn tên trùng giữa các truyện và dự án.

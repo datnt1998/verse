@@ -14,7 +14,7 @@ import (
 	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/bootcfg"
 	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/openaispeech"
 	_ "github.com/datnt1998/verse/apps/noverse/internal/voice/vieneu"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Nhóm endpoint GAP-21: bộ đọc trên máy. Đây là thiết lập của máy (không thuộc
@@ -57,7 +57,7 @@ type ttsEngineInfo struct {
 func ttsService() *voice.Service { return voice.Shared() }
 
 // serveTTS định tuyến /api/tts/*; trả false khi đường dẫn không thuộc nhóm này.
-func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user webauth.User) bool {
+func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path, get, post := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost
 	switch {
 	case path == "/api/tts/status" && get:
@@ -143,8 +143,8 @@ func (g *Gateway) ttsEngines(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"engines": infos, "active": cfg.Engine})
 }
 
-func (g *Gateway) ttsInstall(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) ttsInstall(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}

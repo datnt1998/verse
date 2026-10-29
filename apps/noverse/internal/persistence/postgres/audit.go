@@ -11,12 +11,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // addAudit appends one audit entry inside the caller's transaction — the log
 // is part of the same atomic write as the mutation it records.
-func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *webauth.AuditActor, project, typ, action, target, from, to, reason string) error {
+func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *identity.AuditActor, project, typ, action, target, from, to, reason string) error {
 	id, err := randomUUID()
 	if err != nil {
 		return err
@@ -67,9 +67,9 @@ func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *webauth.
 // Audit reads entries newest-first with the same filter/cursor semantics as
 // the file backend: cursor is the zero-padded entry id, Next is the id of
 // the last returned item when a full page was emitted.
-func (a *Accounts) Audit(query webauth.AuditQuery) (webauth.AuditPage, error) {
+func (a *Accounts) Audit(query identity.AuditQuery) (identity.AuditPage, error) {
 	if query.Type != "" && query.Type != "acct" && query.Type != "perm" && query.Type != "sec" {
-		return webauth.AuditPage{}, fmt.Errorf("%w: loại nhật ký không hợp lệ", webauth.ErrInvalidInput)
+		return identity.AuditPage{}, fmt.Errorf("%w: loại nhật ký không hợp lệ", identity.ErrInvalidInput)
 	}
 	if query.Limit <= 0 {
 		query.Limit = 50
@@ -80,9 +80,9 @@ func (a *Accounts) Audit(query webauth.AuditQuery) (webauth.AuditPage, error) {
 	ctx := context.Background()
 	rows, err := listAuditRows(ctx, a.pool, query.Type, strings.TrimSpace(query.Actor), seqBefore(query.Before), query.Limit+1)
 	if err != nil {
-		return webauth.AuditPage{}, err
+		return identity.AuditPage{}, err
 	}
-	page := webauth.AuditPage{Items: []webauth.AuditEntry{}}
+	page := identity.AuditPage{Items: []identity.AuditEntry{}}
 	for i, r := range rows {
 		if i == query.Limit {
 			page.Next = page.Items[len(page.Items)-1].ID
@@ -90,7 +90,7 @@ func (a *Accounts) Audit(query webauth.AuditQuery) (webauth.AuditPage, error) {
 		}
 		var details map[string]string
 		_ = json.Unmarshal(r.Details, &details)
-		entry := webauth.AuditEntry{
+		entry := identity.AuditEntry{
 			ID:      seqID(r.Sequence),
 			At:      r.OccurredAt.Time,
 			Type:    r.TargetKind,
@@ -102,7 +102,7 @@ func (a *Accounts) Audit(query webauth.AuditQuery) (webauth.AuditPage, error) {
 			Reason:  details["reason"],
 		}
 		if r.ActorUsername != "" {
-			entry.Actor = &webauth.AuditActor{Username: r.ActorUsername, Name: r.ActorName}
+			entry.Actor = &identity.AuditActor{Username: r.ActorUsername, Name: r.ActorName}
 		}
 		page.Items = append(page.Items, entry)
 	}
@@ -179,7 +179,7 @@ func seqID(seq int64) string {
 
 func (a *Accounts) RecordSecurityFailure(username string) error {
 	username = strings.TrimSpace(username)
-	if !webauth.ValidUsername(username) {
+	if !identity.ValidUsername(username) {
 		return nil
 	}
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {

@@ -22,7 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 	"github.com/datnt1998/verse/apps/noverse/internal/userrules"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Các endpoint quy tắc chạy thẳng trong gateway (như audio/export): chúng chỉ đọc/ghi tệp của
@@ -68,7 +68,7 @@ func writeRulesNoModel(w http.ResponseWriter) {
 
 // POST /api/rules/understand {text, scope?, project?, story?} → {structured, preferences, uncertain, chips, status}.
 // Không lưu gì. scope/project/story chỉ chọn chuỗi cấu hình model (mặc định: toàn cục).
-func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var req struct {
 		Text    string `json:"text"`
 		Scope   string `json:"scope,omitempty"`
@@ -121,7 +121,7 @@ func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, u
 // GET /api/rules/effective?scope=global|project&project= → {snapshot, items}: như S/rules/effective
 // nhưng không có truyện (không runtime, không timing, không cấp truyện). Dòng chưa chuẩn hoá được
 // (chưa có model, lỗi model) hạ cấp thành lời dặn nguyên văn — GET này không bao giờ 409.
-func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Request, user webauth.User) {
+func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	scope := q.Get("scope")
 	if scope == "" {

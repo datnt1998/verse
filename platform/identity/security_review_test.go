@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ func TestReviewMigrationDefersUntilActualRoot(t *testing.T) {
 	if err = os.WriteFile(s.Path(), raw, 0600); err != nil {
 		t.Fatal(err)
 	}
-	s = NewStore(s.Path())
+	s = NewStore(s.Path(), testOptions())
 	if _, err = s.Users(); err != nil {
 		t.Fatal(err)
 	}

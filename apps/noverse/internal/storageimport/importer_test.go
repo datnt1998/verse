@@ -16,11 +16,11 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storageimport"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 const (
@@ -596,9 +596,9 @@ func TestExportRoundTrip(t *testing.T) {
 		t.Fatalf("sự kiện quyết định sau export: %d, err=%v", len(decisions), err)
 	}
 
-	// accounts: read through a fresh webauth store, never the fixture file.
+	// accounts: read through a fresh identity store, never the fixture file.
 	accountsPath := filepath.Join(destination, storageimport.PathAccountsExport)
-	accounts := webauth.NewStore(accountsPath)
+	accounts := identity.NewStore(accountsPath, library.IdentityOptions())
 	users, err := accounts.Users()
 	if err != nil {
 		t.Fatalf("mở tài khoản đã export: %v", err)
@@ -606,7 +606,7 @@ func TestExportRoundTrip(t *testing.T) {
 	if len(users) != 3 {
 		t.Fatalf("tài khoản sau export: %d", len(users))
 	}
-	byName := map[string]webauth.UserListView{}
+	byName := map[string]identity.UserListView{}
 	for _, u := range users {
 		byName[u.Username] = u
 	}
@@ -614,7 +614,7 @@ func TestExportRoundTrip(t *testing.T) {
 	if !ok {
 		t.Fatalf("thiếu tài khoản tac-gia: %+v", users)
 	}
-	if author.Projects["du-an"] != webauth.ProjectOwner {
+	if author.Projects["du-an"] != identity.ProjectOwner {
 		t.Fatalf("quyền dự án sau export: %+v", author.Projects)
 	}
 	var exportedFile struct {

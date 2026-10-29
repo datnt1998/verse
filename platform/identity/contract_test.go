@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ func contractStorePath(t *testing.T) string {
 func TestAccountContractFile(t *testing.T) {
 	t.Run("envelope_and_roles", func(t *testing.T) {
 		path := contractStorePath(t)
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		v, err := s.CreateUser(NewUser{
 			Username: "tac-gia",
 			Name:     "Tác Giả Mẫu",
@@ -75,7 +75,7 @@ func TestAccountContractFile(t *testing.T) {
 
 	t.Run("login_session_revoke_change_password", func(t *testing.T) {
 		path := contractStorePath(t)
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		if _, err := s.CreateUser(NewUser{Username: "quan-tri", Role: RoleAdmin, Password: "mat-khau-quan-tri-1"}); err != nil {
 			t.Fatal(err)
 		}
@@ -118,7 +118,7 @@ func TestAccountContractFile(t *testing.T) {
 
 	t.Run("disabled_and_grants", func(t *testing.T) {
 		path := contractStorePath(t)
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		if _, err := s.CreateUser(NewUser{Username: "quan-tri", Role: RoleAdmin, Password: "mat-khau-quan-tri-1"}); err != nil {
 			t.Fatal(err)
 		}
@@ -143,11 +143,11 @@ func TestAccountContractFile(t *testing.T) {
 
 	t.Run("absent_vs_corrupt_file", func(t *testing.T) {
 		path := contractStorePath(t)
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		if has, err := s.HasUsers(); err != nil || has {
 			t.Fatalf("absent file must mean no users: %v %v", has, err)
 		}
-		fixture, err := os.ReadFile(filepath.Join("..", "store", "testdata", "storage-contract", "accounts", "web-accounts.corrupt.json"))
+		fixture, err := os.ReadFile(filepath.Join("..", "..", "apps", "noverse", "internal", "store", "testdata", "storage-contract", "accounts", "web-accounts.corrupt.json"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -160,7 +160,7 @@ func TestAccountContractFile(t *testing.T) {
 	})
 
 	t.Run("v3_fixture_login_and_grants", func(t *testing.T) {
-		fixture, err := os.ReadFile(filepath.Join("..", "store", "testdata", "storage-contract", "accounts", "web-accounts.v3.json"))
+		fixture, err := os.ReadFile(filepath.Join("..", "..", "apps", "noverse", "internal", "store", "testdata", "storage-contract", "accounts", "web-accounts.v3.json"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -168,7 +168,7 @@ func TestAccountContractFile(t *testing.T) {
 		if err := os.WriteFile(path, fixture, 0o600); err != nil {
 			t.Fatal(err)
 		}
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		ns, err := s.Login("tac-gia", "fixture-mat-khau-456", "Mac", "")
 		if err != nil {
 			t.Fatalf("fixture hash must verify: %v", err)
@@ -198,7 +198,7 @@ func TestAccountContractFile(t *testing.T) {
 	})
 
 	t.Run("v2_legacy_migrates_grants", func(t *testing.T) {
-		fixture, err := os.ReadFile(filepath.Join("..", "store", "testdata", "storage-contract", "accounts", "web-accounts.v2-legacy.json"))
+		fixture, err := os.ReadFile(filepath.Join("..", "..", "apps", "noverse", "internal", "store", "testdata", "storage-contract", "accounts", "web-accounts.v2-legacy.json"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -206,7 +206,7 @@ func TestAccountContractFile(t *testing.T) {
 		if err := os.WriteFile(path, fixture, 0o600); err != nil {
 			t.Fatal(err)
 		}
-		s := NewStore(path)
+		s := NewStore(path, testOptions())
 		s.SetProjectSource(func() ([]string, error) { return []string{"du-an", "du-an-khac"}, nil })
 		users, err := s.Users()
 		if err != nil {

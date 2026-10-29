@@ -5,7 +5,8 @@ Monorepo for the AI writing apps that share one agent core.
 | Path | What it is |
 |---|---|
 | `apps/noverse` | Noverse: novel/story writing CLI, TUI and web app (binary `ainovel-cli`). See [apps/noverse/README.md](apps/noverse/README.md). |
-| `core/` | Shared AI core: `agentcore` (agent runtime), `llm` (model interface and providers), `models`, `llmretry`, `llmcontract`, `auth` (OAuth and credentials). |
+| `core/` | Shared AI core: `agentcore` (agent runtime), `llm` (model interface and providers), `models`, `llmretry`, `llmcontract`, `auth` (OAuth and credentials), `roles` (role→model config). |
+| `platform/` | App-agnostic infrastructure: `identity` (web accounts, sessions, pairing), `pgtest` (isolated Postgres schemas for tests). |
 | `archtest/` | Import boundary test: `core/**` imports only the standard library, third-party modules and `core/**`; `platform/**` adds `platform/**`; an app never imports another app. |
 | `plans/` | Monorepo-level plans, starting with [the move into this repository](plans/261029-1138-verse-monorepo/plan.md). |
 

@@ -19,6 +19,7 @@ import (
 	"github.com/datnt1998/verse/core/auth/xai"
 	"github.com/datnt1998/verse/core/llmcontract"
 	"github.com/datnt1998/verse/core/llmretry"
+	"github.com/datnt1998/verse/core/roles"
 )
 
 // FailoverEvent 表示一次显式 provider 切换。
@@ -252,7 +253,7 @@ func (ms *ModelSet) Swap(role, provider, model string) error {
 		ms.models[role] = NewSwappableModel(provider, model, next, jsonSchema)
 	}
 	if ms.config.Roles == nil {
-		ms.config.Roles = make(map[string]RoleConfig)
+		ms.config.Roles = make(map[string]roles.RoleConfig)
 	}
 	rc := ms.config.Roles[role]
 	rc.Provider = provider

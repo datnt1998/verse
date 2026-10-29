@@ -19,7 +19,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func ledgerValues(prefix string) ledger.Values {
@@ -77,7 +77,7 @@ func TestLedgerAPIVisibilityAndCandidate(t *testing.T) {
 	out := saveLedgerTestStory(t, tg, "01-story", visible, false)
 	saveLedgerTestStory(t, tg, "99-hidden", hidden, false)
 	moveStoryToUnassignedProject(t, tg.root, filepath.Join(tg.project, "kich_ban", "99-hidden"))
-	if _, err := tg.g.accounts.CreateUser(webauth.NewUser{Username: "limited", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectView}, Password: "limited-pass"}); err != nil {
+	if _, err := tg.g.accounts.CreateUser(identity.NewUser{Username: "limited", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectView}, Password: "limited-pass"}); err != nil {
 		t.Fatal(err)
 	}
 	cookie := tg.login("limited", "limited-pass")

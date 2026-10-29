@@ -18,9 +18,9 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // The suite needs the disposable MinIO and Postgres from deploy/compose.test.yml

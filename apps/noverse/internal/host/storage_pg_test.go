@@ -17,10 +17,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // pgAnchorUUID derives a stable UUID for a test row (same shape as phase 04).

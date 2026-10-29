@@ -10,7 +10,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/diag"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 type testJobsProvider struct{ jobs []Job }
@@ -26,7 +26,7 @@ func TestJobsAggregateSourcesAndFilterPermissions(t *testing.T) {
 	hub.addProvider(&testJobsProvider{jobs: []Job{{ID: "p/visible/audio/1", Kind: "audio", Project: "p", Story: "visible", Status: JobRunning}}})
 	hub.resetStory("p", "visible", []Job{{ID: "p/visible/write/1", Kind: "write", Project: "p", Story: "visible", Status: JobRunning}})
 	hub.resetStory("hidden", "secret", []Job{{ID: "hidden/secret/import/1", Kind: "import", Project: "hidden", Story: "secret", Status: JobWaiting}})
-	reader := webauth.User{Username: "r", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectView}}
+	reader := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
 	jobs := hub.list(reader)
 	if len(jobs) != 2 {
 		t.Fatalf("expected readable worker + provider jobs, got %+v", jobs)
@@ -36,7 +36,7 @@ func TestJobsAggregateSourcesAndFilterPermissions(t *testing.T) {
 			t.Fatalf("permission leak: %+v", job)
 		}
 	}
-	if got := len(hub.list(webauth.User{Role: webauth.RoleAdmin})); got != 3 {
+	if got := len(hub.list(identity.User{Role: identity.RoleAdmin})); got != 3 {
 		t.Fatalf("admin aggregation: %d", got)
 	}
 }
@@ -51,7 +51,7 @@ func TestJobsDoneRetentionAndGatewayOwnership(t *testing.T) {
 	hub.controls = map[string]func(context.Context, string) error{job.ID: func(context.Context, string) error { return nil }}
 	hub.apply(JobChange{Job: job})
 	hub.resetStory("p", "s", nil)
-	admin := webauth.User{Role: webauth.RoleAdmin}
+	admin := identity.User{Role: identity.RoleAdmin}
 	if got := len(hub.list(admin)); got != 1 {
 		t.Fatalf("worker reset removed gateway result: %d", got)
 	}
@@ -66,7 +66,7 @@ func TestJobsDoneRetentionAndGatewayOwnership(t *testing.T) {
 
 func TestGlobalEventsReplayFiltersPermissions(t *testing.T) {
 	hub := newEventHub()
-	user := webauth.User{Username: "r", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"p": webauth.ProjectView}}
+	user := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
 	first := hub.Publish(Event{Type: "job.created", Project: "p", Story: "s", Data: map[string]string{"id": "first"}})
 	hub.Publish(Event{Type: "job.created", Project: "hidden", Story: "secret", Data: map[string]string{"id": "secret"}})
 	hub.Publish(Event{Type: "job.done", Project: "p", Story: "s", Data: map[string]string{"id": "visible"}})
@@ -86,7 +86,7 @@ func TestGlobalEventsReplayFiltersPermissions(t *testing.T) {
 	if !stale {
 		t.Fatal("replay cursor older than ring must reset")
 	}
-	admin := webauth.User{Username: "admin", Role: webauth.RoleAdmin}
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
 	if !(Event{User: "r", AdminsToo: true}).visibleTo(admin) {
 		t.Fatal("account event hidden from administrator")
 	}
@@ -110,7 +110,7 @@ func TestGlobalEventsLastEventIDHeader(t *testing.T) {
 	}
 	writer := &streamWriter{signal: make(chan struct{}, 1), header: make(http.Header)}
 	done := make(chan struct{})
-	go func() { tg.g.serveEvents(writer, request, webauth.User{Role: webauth.RoleAdmin}); close(done) }()
+	go func() { tg.g.serveEvents(writer, request, identity.User{Role: identity.RoleAdmin}); close(done) }()
 	body := writer.until(t, `"id":"replayed"`)
 	if strings.Contains(body, `"id":"first"`) {
 		t.Fatalf("replayed acknowledged event: %s", body)

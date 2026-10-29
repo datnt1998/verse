@@ -350,7 +350,8 @@ func TestCredentialLabelOmitsOrgContainingEmail(t *testing.T) {
 }
 
 func TestClaudeCodeVersionAdoption(t *testing.T) {
-	t.Setenv(ClaudeCodeVersionEnv, "")
+	useTestApp(t)
+	t.Setenv(testApp.ClaudeCodeVersionEnv, "")
 	adoptedVersion.Store(nil)
 	defer adoptedVersion.Store(nil)
 	if AdoptRequiredClaudeCodeVersion("claude_code_version_too_old: version 1.0.0 or newer is required") {
@@ -362,7 +363,7 @@ func TestClaudeCodeVersionAdoption(t *testing.T) {
 	if AdoptRequiredClaudeCodeVersion("claude_code_version_too_old: version 99.1.2 or newer is required") {
 		t.Error("cùng version không được thử lại lần hai")
 	}
-	t.Setenv(ClaudeCodeVersionEnv, "5.0.0")
+	t.Setenv(testApp.ClaudeCodeVersionEnv, "5.0.0")
 	if ClaudeCodeVersion() != "5.0.0" || AdoptRequiredClaudeCodeVersion("claude_code_version_too_old: version 99.9.9 or newer is required") {
 		t.Error("biến môi trường phải ghim version")
 	}

@@ -20,9 +20,10 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/models"
+	"github.com/datnt1998/verse/core/roles"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // providerModel / providerModelList 是该接口的响应形状（11-api-contract）。
@@ -143,8 +144,8 @@ func (e *listError) message(label string) string {
 	}
 }
 
-func (g *Gateway) listProviderModels(w http.ResponseWriter, r *http.Request, user webauth.User) {
-	if user.Role != webauth.RoleAdmin {
+func (g *Gateway) listProviderModels(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if user.Role != identity.RoleAdmin {
 		jsonError(w, 403, "Không có quyền")
 		return
 	}
@@ -570,17 +571,17 @@ func roleLabel(role string) string {
 }
 
 // orderedRoleKeys 让 409 文案稳定：先三个主角色，其余按字母序。
-func orderedRoleKeys(roles map[string]bootstrap.RoleConfig) []string {
-	keys := make([]string, 0, len(roles))
+func orderedRoleKeys(all map[string]roles.RoleConfig) []string {
+	keys := make([]string, 0, len(all))
 	seen := map[string]bool{}
 	for _, r := range []string{"architect", "writer", "editor"} {
-		if _, ok := roles[r]; ok {
+		if _, ok := all[r]; ok {
 			keys = append(keys, r)
 			seen[r] = true
 		}
 	}
-	rest := make([]string, 0, len(roles))
-	for r := range roles {
+	rest := make([]string, 0, len(all))
+	for r := range all {
 		if !seen[r] {
 			rest = append(rest, r)
 		}

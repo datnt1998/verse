@@ -12,7 +12,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Não dự án (D14) › Tìm trong dự án (GAP-45): một ô tìm cho mọi truyện người gọi
@@ -47,7 +47,7 @@ type searchResponse struct {
 	Total int `json:"total"`
 }
 
-func (g *Gateway) serveProjectSearch(w http.ResponseWriter, r *http.Request, lib library.Repository, user webauth.User, p string, segs []string) {
+func (g *Gateway) serveProjectSearch(w http.ResponseWriter, r *http.Request, lib library.Repository, user identity.User, p string, segs []string) {
 	if len(segs) != 0 || r.Method != http.MethodGet {
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
 		return

@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"errors"
@@ -66,9 +66,10 @@ var (
 	ErrOwnerTaken = errors.New("Dự án đã có Chủ dự án; hãy chuyển quyền thay vì thêm chủ.")
 )
 
-// NewFromRepository tạo facade Store trên một backend ngoài (postgres).
-// Các phương thức Store chuyển tiếp 1:1; Path/SetProjectSource là tiện ích
-// riêng của file backend và trả về giá trị mô tả cho postgres.
-func NewFromRepository(repo Repository) *Store {
-	return &Store{repo: repo}
+// NewFromRepository tạo facade Store trên một backend ngoài (postgres), với
+// định danh project của app ở opts (xem Options). Các phương thức Store chuyển
+// tiếp 1:1; Path/SetProjectSource là tiện ích riêng của file backend và trả
+// về giá trị mô tả cho postgres.
+func NewFromRepository(repo Repository, opts Options) *Store {
+	return &Store{repo: repo, opts: opts}
 }

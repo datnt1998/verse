@@ -1,4 +1,4 @@
-package webauth
+package identity
 
 import (
 	"encoding/json"
@@ -11,8 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/datnt1998/verse/apps/noverse/internal/library"
 )
 
 type AuditActor struct {
@@ -167,16 +165,16 @@ func (s *Store) migrate(d *data) (bool, error) {
 					continue
 				}
 				for _, id := range ids {
-					if library.ValidProjectID(id) {
+					if s.opts.validProjectID(id) {
 						u.Projects[id] = level
 					}
 				}
 			} else {
 				project, _, ok := strings.Cut(book, "/")
 				if !ok {
-					project = library.LegacyProjectID
+					project = s.opts.LegacyProjectID
 				}
-				if library.ValidProjectID(project) {
+				if s.opts.validProjectID(project) {
 					u.Projects[project] = level
 				}
 			}
@@ -411,7 +409,7 @@ func (s *Store) SetProjectMember(project, username string, role ProjectRole, act
 	if role != ProjectCollab && role != ProjectView {
 		return UserView{}, fmt.Errorf("%w: vai trò dự án phải là collab hoặc view", ErrInvalidInput)
 	}
-	if !library.ValidProjectID(project) {
+	if !s.opts.validProjectID(project) {
 		return UserView{}, fmt.Errorf("%w: dự án không hợp lệ", ErrInvalidInput)
 	}
 	var updated User

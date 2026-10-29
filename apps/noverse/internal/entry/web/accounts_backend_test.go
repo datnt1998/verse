@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/pgtest"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // pgAccountsGateway migrates an isolated Postgres schema and returns a Gateway
@@ -47,11 +48,11 @@ func pgAccountsGateway(t *testing.T) *Gateway {
 	must(os.WriteFile(filepath.Join(mkdirAll(t, root, "proj"), "project.json"), []byte(`{"name":"Proj"}`), 0o644))
 	mkdirAll(t, root, "proj", "kich_ban")
 
-	accounts := webauth.NewFromRepository(postgres.NewAccounts(pool))
-	for _, u := range []webauth.NewUser{
-		{Username: "admin", Role: webauth.RoleAdmin, Password: "admin-pass"},
-		{Username: "writer", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{"proj": webauth.ProjectOwner}, Password: "writer-pass"},
-		{Username: "member", Role: webauth.RoleMember, Password: "member-pass"},
+	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	for _, u := range []identity.NewUser{
+		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
+		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectOwner}, Password: "writer-pass"},
+		{Username: "member", Role: identity.RoleMember, Password: "member-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -82,14 +83,14 @@ func TestAccountsBackendLoginMeMemberLogout(t *testing.T) {
 	}
 	var meBody struct {
 		User struct {
-			Username string                         `json:"username"`
-			Projects map[string]webauth.ProjectRole `json:"projects"`
+			Username string                          `json:"username"`
+			Projects map[string]identity.ProjectRole `json:"projects"`
 		} `json:"user"`
 	}
 	if err := json.Unmarshal(me.Body.Bytes(), &meBody); err != nil {
 		t.Fatal(err)
 	}
-	if meBody.User.Username != "writer" || meBody.User.Projects["proj"] != webauth.ProjectOwner {
+	if meBody.User.Username != "writer" || meBody.User.Projects["proj"] != identity.ProjectOwner {
 		t.Fatalf("me = %+v", meBody.User)
 	}
 
@@ -102,11 +103,11 @@ func TestAccountsBackendLoginMeMemberLogout(t *testing.T) {
 	if rec.Code != 200 {
 		t.Fatalf("patch member = %d: %s", rec.Code, rec.Body)
 	}
-	var member webauth.ProjectMember
+	var member identity.ProjectMember
 	if err := json.Unmarshal(rec.Body.Bytes(), &member); err != nil {
 		t.Fatal(err)
 	}
-	if member.Role != webauth.ProjectView {
+	if member.Role != identity.ProjectView {
 		t.Fatalf("member role = %q", member.Role)
 	}
 

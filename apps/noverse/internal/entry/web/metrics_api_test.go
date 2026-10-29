@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // metricsResponse là phần thân của GET /metrics dùng trong test.
@@ -246,7 +246,7 @@ func TestMetricsReaderAllowedAndNoPack(t *testing.T) {
 	if err := s.Drafts.SaveFinalChapter(1, metricsTextSimple); err != nil {
 		t.Fatal(err)
 	}
-	reader := webauth.User{Username: "reader", Role: webauth.RoleMember, Projects: map[string]webauth.ProjectRole{st.Project: webauth.ProjectView}}
+	reader := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{st.Project: identity.ProjectView}}
 	out := decodeMetrics(t, storyReq(t, g, http.MethodGet, "/x/metrics", reader, st, "/metrics", ""))
 	if len(out.Chapters) != 0 {
 		t.Fatalf("truyện không gói: chapters = %+v", out.Chapters)

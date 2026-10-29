@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // refreshJobs reads only already-running, readable workers. It never launches a
 // worker simply because the dock is opened.
-func (g *Gateway) refreshJobs(ctx context.Context, user webauth.User) {
+func (g *Gateway) refreshJobs(ctx context.Context, user identity.User) {
 	g.mu.Lock()
 	slots := make(map[string]*storyWorker, len(g.workers))
 	for key, slot := range g.workers {
