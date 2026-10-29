@@ -1,17 +1,29 @@
 // Package agent chạy writer agent của Viderse: nhận brief, chạy agentcore
 // loop với model của role "writer", kết thúc bằng tool save_script và ghi một
 // dòng agent_runs cho mỗi lần chạy (trạng thái, token, chi phí, thời điểm,
-// lỗi). Mỗi serve một dispatcher nền chạy tuần tự.
+// lỗi).
+//
+// Database chính là hàng đợi: Submit chỉ ghi một dòng queued và báo hiệu cho
+// dispatcher; dispatcher claim run cũ nhất bằng UPDATE … FOR UPDATE SKIP
+// LOCKED nên run ghi trước khi serve (kể cả do tiến trình trước để lại) vẫn
+// được chạy, và tắt máy giữa chừng không làm run kẹt ở queued. Hàng đợi giả
+// định một dispatcher cho một database — serve là tiến trình duy nhất chạy
+// writer; Start đánh failed mọi dòng còn 'running' (thuộc tiến trình đã chết).
 package agent
 
 import (
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	llmtypes "github.com/datnt1998/verse/core/llm"
 
@@ -19,16 +31,18 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/viderse/internal/script"
 	"github.com/datnt1998/verse/core/agentcore"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// interruptedMessage là lỗi ghi cho run còn 'running' khi serve mới khởi động —
+// tiến trình chủ của nó đã chết trước khi ghi kết quả.
+const interruptedMessage = "run bị gián đoạn: tiến trình serve trước đã dừng"
 
 // RunStore là phần DB runner cần: tạo/đọc/cập nhật agent_runs và lưu scripts.
 // gen.Queries thoả interface này; test có thể thay bằng implementation khác.
 type RunStore interface {
 	CreateRun(ctx context.Context, arg gen.CreateRunParams) (gen.AgentRun, error)
-	GetRun(ctx context.Context, id pgtype.UUID) (gen.AgentRun, error)
-	MarkRunRunning(ctx context.Context, id pgtype.UUID) (gen.AgentRun, error)
+	ClaimNextRun(ctx context.Context) (gen.AgentRun, error)
+	FailInterruptedRuns(ctx context.Context, errText pgtype.Text) (int64, error)
 	FinishRun(ctx context.Context, arg gen.FinishRunParams) (gen.AgentRun, error)
 	CreateScript(ctx context.Context, arg gen.CreateScriptParams) (gen.Script, error)
 }
@@ -39,18 +53,15 @@ type RunStore interface {
 // config thì bản mới nhất được dùng để chạy.
 type ModelFactory func(role string) (llmtypes.ChatModel, string, string, error)
 
-// Brief chuyển tiếp script.Brief — giữ một chỗ định nghĩa.
-type Brief = script.Brief
-
-// Runner điều phối hàng đợi lần chạy trong tiến trình serve: tuần tự, một
-// goroutine, hủy theo ctx của serve (run đang chạy khi tắt máy bị đánh failed).
+// Runner điều phối hàng đợi lần chạy trong tiến trình serve. Tuần tự, một
+// goroutine: hàng đợi nằm trong agent_runs (xem doc của package), hủy theo ctx
+// của serve.
 type Runner struct {
 	store    RunStore
 	factory  ModelFactory
 	prompt   string
 	thinking func(role string) string
 
-	queue    chan pgtype.UUID
 	dispatch chan struct{}
 	once     sync.Once
 	wg       sync.WaitGroup
@@ -64,17 +75,23 @@ func NewRunner(store RunStore, factory ModelFactory, prompt string, thinking fun
 		factory:  factory,
 		prompt:   prompt,
 		thinking: thinking,
-		queue:    make(chan pgtype.UUID, 64),
 		dispatch: make(chan struct{}, 1),
 	}
 }
 
 // Start khởi động goroutine dispatch; ctx của serve quyết vòng đời runner.
+// Trước khi vào vòng lặp, đánh failed mọi run còn 'running' của tiến trình
+// trước — deployment giả định một dispatcher mỗi database.
 func (r *Runner) Start(ctx context.Context) {
 	r.once.Do(func() {
 		r.wg.Add(1)
 		go func() {
 			defer r.wg.Done()
+			if n, err := r.store.FailInterruptedRuns(ctx, pgtype.Text{String: interruptedMessage, Valid: true}); err != nil {
+				slog.Error("không dọn run gián đoạn được", "module", "agent", "err", err)
+			} else if n > 0 {
+				slog.Info("đánh failed run bị gián đoạn từ tiến trình trước", "module", "agent", "count", n)
+			}
 			r.dispatchLoop(ctx)
 		}()
 	})
@@ -83,9 +100,9 @@ func (r *Runner) Start(ctx context.Context) {
 // Wait chờ dispatcher dừng hẳn (sau khi ctx huỷ).
 func (r *Runner) Wait() { r.wg.Wait() }
 
-// Submit tạo một dòng agent_runs queued và xếp nó vào hàng. RunID trả về để
-// caller/API theo dõi qua polling.
-func (r *Runner) Submit(ctx context.Context, brief Brief) (pgtype.UUID, error) {
+// Submit ghi một dòng agent_runs queued (hàng đợi là DB) và báo hiệu cho
+// dispatcher. RunID trả về để caller/API theo dõi qua polling.
+func (r *Runner) Submit(ctx context.Context, brief script.Brief) (pgtype.UUID, error) {
 	if err := brief.Validate(); err != nil {
 		return pgtype.UUID{}, err
 	}
@@ -108,45 +125,54 @@ func (r *Runner) Submit(ctx context.Context, brief Brief) (pgtype.UUID, error) {
 	}); err != nil {
 		return pgtype.UUID{}, fmt.Errorf("tạo agent_runs: %w", err)
 	}
-	select {
-	case r.queue <- id:
-	default:
-		// Hàng đầy: giữ queued trong DB; độ dài hàng thực tế nhỏ vì form brief
-		// chỉ phục vụ một người dùng cục bộ.
-	}
+	r.signal()
+	return id, nil
+}
+
+func (r *Runner) signal() {
 	select {
 	case r.dispatch <- struct{}{}:
 	default:
 	}
-	return id, nil
 }
 
 func (r *Runner) dispatchLoop(ctx context.Context) {
+	// Ngay khi vào vòng: hút hết run đang chờ (kể cả của tiến trình trước).
+	r.drain(ctx)
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case id := <-r.queue:
-			r.runOnce(ctx, id)
 		case <-r.dispatch:
+			r.drain(ctx)
 		}
 	}
 }
 
-// runOnce điều khiển vòng đời một lần chạy: running → agent loop →
+// drain claim và chạy tuần tự mọi run đang chờ cho đến khi hàng rỗng. Lỗi
+// claim khác ErrNoRows: log rồi chờ tín hiệu kế — không busy loop.
+func (r *Runner) drain(ctx context.Context) {
+	for {
+		if ctx.Err() != nil {
+			return
+		}
+		row, err := r.store.ClaimNextRun(ctx)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return
+		}
+		if err != nil {
+			slog.Error("claim run lỗi", "module", "agent", "err", err)
+			return
+		}
+		r.runOnce(ctx, row)
+	}
+}
+
+// runOnce điều khiển vòng đời một run đã claim (đã ở running): agent loop →
 // succeeded/failed với số đo usage.
-func (r *Runner) runOnce(ctx context.Context, id pgtype.UUID) {
-	if _, err := r.store.MarkRunRunning(ctx, id); err != nil {
-		slog.Error("không đánh dấu running được", "module", "agent", "run", UUIDString(id), "err", err)
-		r.finish(ctx, id, "failed", llmtypes.Usage{}, fmt.Sprintf("đánh dấu running: %v", err))
-		return
-	}
-	row, err := r.store.GetRun(ctx, id)
-	if err != nil {
-		r.finish(ctx, id, "failed", llmtypes.Usage{}, fmt.Sprintf("đọc lại run: %v", err))
-		return
-	}
-	var brief Brief
+func (r *Runner) runOnce(ctx context.Context, row gen.AgentRun) {
+	id := row.ID
+	var brief script.Brief
 	if err := json.Unmarshal(row.Brief, &brief); err != nil {
 		r.finish(ctx, id, "failed", llmtypes.Usage{}, fmt.Sprintf("brief không hợp lệ: %v", err))
 		return
@@ -258,7 +284,7 @@ type saveOutcome struct {
 type saveScriptTool struct {
 	store RunStore
 	runID pgtype.UUID
-	brief Brief
+	brief script.Brief
 	out   *saveOutcome
 }
 
@@ -390,7 +416,7 @@ func ParseUUID(s string) (pgtype.UUID, error) {
 
 // buildBriefMessage dựng user message từ brief: chủ đề, khán giả, độ dài mục
 // tiêu và nhắc kết thúc bằng save_script.
-func buildBriefMessage(brief Brief) string {
+func buildBriefMessage(brief script.Brief) string {
 	var b strings.Builder
 	b.WriteString("Viết kịch bản video từ brief sau.\n\n")
 	fmt.Fprintf(&b, "Chủ đề: %s\n", brief.Topic)

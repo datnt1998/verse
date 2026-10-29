@@ -11,6 +11,41 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const claimNextRun = `-- name: ClaimNextRun :one
+UPDATE agent_runs
+SET status = 'running', started_at = now()
+WHERE id = (
+    SELECT id FROM agent_runs
+    WHERE status = 'queued'
+    ORDER BY created_at, id
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+)
+RETURNING id, status, provider, model, brief, input_tokens, output_tokens, cost_usd, error, created_at, started_at, finished_at
+`
+
+// The database is the run queue: oldest queued run becomes running,
+// SKIP LOCKED so concurrent dispatchers never take the same row.
+func (q *Queries) ClaimNextRun(ctx context.Context) (AgentRun, error) {
+	row := q.db.QueryRow(ctx, claimNextRun)
+	var i AgentRun
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.Provider,
+		&i.Model,
+		&i.Brief,
+		&i.InputTokens,
+		&i.OutputTokens,
+		&i.CostUsd,
+		&i.Error,
+		&i.CreatedAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+	)
+	return i, err
+}
+
 const createRun = `-- name: CreateRun :one
 INSERT INTO agent_runs (id, status, provider, model, brief)
 VALUES ($1, 'queued', $2, $3, $4)
@@ -87,6 +122,21 @@ func (q *Queries) CreateScript(ctx context.Context, arg CreateScriptParams) (Scr
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const failInterruptedRuns = `-- name: FailInterruptedRuns :execrows
+UPDATE agent_runs
+SET status = 'failed', error = $1, finished_at = now()
+WHERE status = 'running'
+`
+
+// Runs still 'running' when a dispatcher starts belong to a dead process.
+func (q *Queries) FailInterruptedRuns(ctx context.Context, error pgtype.Text) (int64, error) {
+	result, err := q.db.Exec(ctx, failInterruptedRuns, error)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const finishRun = `-- name: FinishRun :one
@@ -249,31 +299,4 @@ func (q *Queries) ListScripts(ctx context.Context, limit int32) ([]Script, error
 		return nil, err
 	}
 	return items, nil
-}
-
-const markRunRunning = `-- name: MarkRunRunning :one
-UPDATE agent_runs
-SET status = 'running', started_at = now()
-WHERE id = $1 AND status = 'queued'
-RETURNING id, status, provider, model, brief, input_tokens, output_tokens, cost_usd, error, created_at, started_at, finished_at
-`
-
-func (q *Queries) MarkRunRunning(ctx context.Context, id pgtype.UUID) (AgentRun, error) {
-	row := q.db.QueryRow(ctx, markRunRunning, id)
-	var i AgentRun
-	err := row.Scan(
-		&i.ID,
-		&i.Status,
-		&i.Provider,
-		&i.Model,
-		&i.Brief,
-		&i.InputTokens,
-		&i.OutputTokens,
-		&i.CostUsd,
-		&i.Error,
-		&i.CreatedAt,
-		&i.StartedAt,
-		&i.FinishedAt,
-	)
-	return i, err
 }

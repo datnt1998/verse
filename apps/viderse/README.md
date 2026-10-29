@@ -44,6 +44,10 @@ go run ./apps/viderse/cmd/viderse logout
 - Gửi brief (chủ đề, khán giả, độ dài giây HOẶC số từ) → run chạy nền, UI poll
   trạng thái; kịch bản lưu vào bảng `scripts`, số đo run ở `agent_runs`
   (status/provider/model/token/cost/thời điểm/lỗi).
+- Hàng đợi run nằm trong `agent_runs` (database là hàng đợi): `serve` claim
+  run queued cũ nhất; deployment giả định **một tiến trình serve mỗi
+  database** — lúc khởi động nó đánh `failed` mọi run còn `running` của tiến
+  trình đã dừng.
 - Model mặc định: `gpt-6-luna` qua provider `openai-codex` (đăng nhập bằng
   `viderse login`). Đổi qua `~/.viderse/config.json` (`provider`/`model`/
   `providers`/`roles`).

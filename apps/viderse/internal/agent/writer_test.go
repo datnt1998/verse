@@ -12,6 +12,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/viderse/internal/script"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -32,6 +33,7 @@ func (s *memStore) CreateRun(_ context.Context, arg gen.CreateRunParams) (gen.Ag
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	row := gen.AgentRun{ID: arg.ID, Status: "queued", Provider: arg.Provider, Model: arg.Model, Brief: arg.Brief}
+	row.CreatedAt = pgtype.Timestamptz{Time: time.Now(), Valid: true}
 	s.runs[arg.ID.Bytes] = row
 	return row, nil
 }
@@ -46,19 +48,49 @@ func (s *memStore) GetRun(_ context.Context, id pgtype.UUID) (gen.AgentRun, erro
 	return row, nil
 }
 
-func (s *memStore) MarkRunRunning(_ context.Context, id pgtype.UUID) (gen.AgentRun, error) {
+// ClaimNextRun giống UPDATE … ORDER BY created_at, id FOR UPDATE SKIP
+// LOCKED: run queued cũ nhất → running, ErrNoRows khi hàng rỗng.
+func (s *memStore) ClaimNextRun(_ context.Context) (gen.AgentRun, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	row, ok := s.runs[id.Bytes]
-	if !ok {
-		return gen.AgentRun{}, fmt.Errorf("run không tồn tại")
+	var oldest *gen.AgentRun
+	for _, row := range s.runs {
+		if row.Status != "queued" {
+			continue
+		}
+		if oldest == nil || row.CreatedAt.Time.Before(oldest.CreatedAt.Time) {
+			c := row
+			oldest = &c
+		}
 	}
-	if row.Status != "queued" {
-		return gen.AgentRun{}, fmt.Errorf("run không ở trạng thái queued")
+	if oldest == nil {
+		return gen.AgentRun{}, pgx.ErrNoRows
 	}
-	row.Status = "running"
-	s.runs[id.Bytes] = row
-	return row, nil
+	oldest.Status = "running"
+	s.runs[oldest.ID.Bytes] = *oldest
+	return *oldest, nil
+}
+
+func (s *memStore) FailInterruptedRuns(_ context.Context, errText pgtype.Text) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var n int64
+	for k, row := range s.runs {
+		if row.Status != "running" {
+			continue
+		}
+		row.Status = "failed"
+		row.Error = errText
+		s.runs[k] = row
+		n++
+	}
+	if n > 0 {
+		select {
+		case s.finish <- struct{}{}:
+		default:
+		}
+	}
+	return n, nil
 }
 
 func (s *memStore) FinishRun(_ context.Context, arg gen.FinishRunParams) (gen.AgentRun, error) {
@@ -149,8 +181,8 @@ func validScriptArgs(t *testing.T) json.RawMessage {
 	return args
 }
 
-func testBrief() Brief {
-	return Brief{Topic: "Vì sao đế chế La Mã sụp đổ", Audience: "người thích lịch sử", TargetSeconds: 90}
+func testBrief() script.Brief {
+	return script.Brief{Topic: "Vì sao đế chế La Mã sụp đổ", Audience: "người thích lịch sử", TargetSeconds: 90}
 }
 
 // TestWriterRunSucceedsAndPersistsScript chứng minh toàn vòng đời: submit →
@@ -297,5 +329,125 @@ func TestWriterRunFailsOnModelError(t *testing.T) {
 	}
 	if got := row.Error.String; got != "dựng model: chưa đăng nhập openai-codex — chạy viderse login" {
 		t.Fatalf("error = %q", got)
+	}
+}
+
+// waitFinish chờ một run kết thúc (finish channel của memStore báo sau mỗi
+// FinishRun/FailInterruptedRuns).
+func waitFinish(t *testing.T, s *memStore) {
+	t.Helper()
+	select {
+	case <-s.finish:
+	case <-time.After(15 * time.Second):
+		t.Fatal("run không kết thúc sau 15s")
+	}
+}
+
+// TestRunsSubmittedBeforeStartArePickedUp: hàng đợi là DB — run ghi trước khi
+// Start (như dòng queued do tiến trình trước để lại) vẫn chạy.
+func TestRunsSubmittedBeforeStartArePickedUp(t *testing.T) {
+	store := newMemStore()
+	model := &scriptedModel{
+		toolCall: llmtypes.ToolCall{ID: "tc-1", Name: saveScriptToolName, Args: validScriptArgs(t)},
+		usage:    &llmtypes.Usage{Input: 10, Output: 5},
+	}
+	r := NewRunner(store, func(string) (llmtypes.ChatModel, string, string, error) {
+		return model, "openai-codex", "gpt-6-luna", nil
+	}, "system", nil)
+
+	id, err := r.Submit(context.Background(), testBrief())
+	if err != nil {
+		t.Fatalf("submit: %v", err)
+	}
+	if model.calls != 0 {
+		t.Fatal("model chạy trước Start")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	r.Start(ctx)
+	waitFinish(t, store)
+	cancel()
+	r.Wait()
+
+	row, err := store.GetRun(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if row.Status != "succeeded" {
+		t.Fatalf("status = %q, want succeeded", row.Status)
+	}
+}
+
+// TestInterruptedRunMarkedFailedOnStart: dòng còn 'running' khi Start thuộc
+// tiến trình đã chết → failed với thông báo gián đoạn.
+func TestInterruptedRunMarkedFailedOnStart(t *testing.T) {
+	store := newMemStore()
+	r := NewRunner(store, func(string) (llmtypes.ChatModel, string, string, error) {
+		return &scriptedModel{}, "openai-codex", "gpt-6-luna", nil
+	}, "system", nil)
+	id := NewUUID()
+	store.mu.Lock()
+	store.runs[id.Bytes] = gen.AgentRun{
+		ID: id, Status: "running", Provider: "openai-codex", Model: "gpt-6-luna",
+		Brief:     []byte(`{"topic":"t","target_seconds":60}`),
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	}
+	store.mu.Unlock()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	r.Start(ctx)
+	waitFinish(t, store)
+	cancel()
+	r.Wait()
+
+	row, err := store.GetRun(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if row.Status != "failed" {
+		t.Fatalf("status = %q, want failed", row.Status)
+	}
+	if row.Error.String != interruptedMessage {
+		t.Fatalf("error = %q, want %q", row.Error.String, interruptedMessage)
+	}
+}
+
+// TestManySubmissionsAllFinish: gửi 70 brief (>64) — hàng đợi là DB, không có
+// trần in-memory, mọi run đều hoàn thành.
+func TestManySubmissionsAllFinish(t *testing.T) {
+	store := newMemStore()
+	model := &scriptedModel{
+		toolCall: llmtypes.ToolCall{ID: "tc-1", Name: saveScriptToolName, Args: validScriptArgs(t)},
+		usage:    &llmtypes.Usage{Input: 1, Output: 1},
+	}
+	r := NewRunner(store, func(string) (llmtypes.ChatModel, string, string, error) {
+		return model, "openai-codex", "gpt-6-luna", nil
+	}, "system", nil)
+	const n = 70
+	ids := make([]pgtype.UUID, 0, n)
+	for i := range n {
+		id, err := r.Submit(context.Background(), testBrief())
+		if err != nil {
+			t.Fatalf("submit %d: %v", i, err)
+		}
+		ids = append(ids, id)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	r.Start(ctx)
+	for range n {
+		waitFinish(t, store)
+	}
+	cancel()
+	r.Wait()
+	for _, id := range ids {
+		row, err := store.GetRun(context.Background(), id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if row.Status != "succeeded" {
+			t.Fatalf("run %s status = %q", UUIDString(id), row.Status)
+		}
 	}
 }

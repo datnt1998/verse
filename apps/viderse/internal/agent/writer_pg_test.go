@@ -112,7 +112,7 @@ func TestWriterRunOnPostgres(t *testing.T) {
 	}, "system", nil)
 
 	ctx := context.Background()
-	id, err := runner.Submit(ctx, agent.Brief{Topic: "test", Audience: "testers", TargetWords: 300})
+	id, err := runner.Submit(ctx, script.Brief{Topic: "test", Audience: "testers", TargetWords: 300})
 	if err != nil {
 		t.Fatalf("submit: %v", err)
 	}
@@ -193,5 +193,88 @@ func TestAppRoleCannotDDL(t *testing.T) {
 		ID: agent.NewUUID(), Provider: "p", Model: "m", Brief: []byte(`{"topic":"t","target_seconds":60}`),
 	}); err != nil {
 		t.Fatalf("app role không ghi được agent_runs: %v", err)
+	}
+}
+
+// TestClaimNextRunOrdersAndLocks: claim trả run queued cũ nhất trước, và hai
+// claim cạnh tranh (hai tx giữ khóa cùng lúc) không bao giờ lấy cùng một dòng —
+// FOR UPDATE SKIP LOCKED đúng ngữ nghĩa hàng đợi.
+func TestClaimNextRunOrdersAndLocks(t *testing.T) {
+	pool := provision(t)
+	q := gen.New(pool)
+	ctx := context.Background()
+
+	var want []string
+	for range 3 {
+		row, err := q.CreateRun(ctx, gen.CreateRunParams{
+			ID: agent.NewUUID(), Provider: "p", Model: "m", Brief: []byte(`{"topic":"t","target_seconds":60}`),
+		})
+		if err != nil {
+			t.Fatalf("create run: %v", err)
+		}
+		want = append(want, agent.UUIDString(row.ID))
+		time.Sleep(2 * time.Millisecond) // đảm bảo created_at phân biệt
+	}
+
+	// Claim tuần tự: đúng thứ tự cũ nhất trước, dòng đã ở running với started_at.
+	for i, expect := range want {
+		row, err := q.ClaimNextRun(ctx)
+		if err != nil {
+			t.Fatalf("claim %d: %v", i, err)
+		}
+		if got := agent.UUIDString(row.ID); got != expect {
+			t.Fatalf("claim %d = %s, want oldest %s", i, got, expect)
+		}
+		if row.Status != "running" || !row.StartedAt.Valid {
+			t.Fatalf("claimed run không running/started_at: %+v", row)
+		}
+	}
+	if _, err := q.ClaimNextRun(ctx); err == nil {
+		t.Fatal("claim khi hàng rỗng phải báo lỗi (ErrNoRows)")
+	}
+
+	// Claim cạnh tranh: tx1 giữ khóa dòng đầu trong một update chưa commit —
+	// tx2 claim phải SKIP sang dòng kế, không lấy trùng.
+	rowA, err := q.CreateRun(ctx, gen.CreateRunParams{
+		ID: agent.NewUUID(), Provider: "p", Model: "m", Brief: []byte(`{"topic":"t","target_seconds":60}`),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rowB, err := q.CreateRun(ctx, gen.CreateRunParams{
+		ID: agent.NewUUID(), Provider: "p", Model: "m", Brief: []byte(`{"topic":"t","target_seconds":60}`),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx1, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx1.Rollback(ctx)
+	tx2, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx2.Rollback(ctx)
+	q1, q2 := gen.New(tx1), gen.New(tx2)
+
+	claimed1, err := q1.ClaimNextRun(ctx)
+	if err != nil {
+		t.Fatalf("tx1 claim: %v", err)
+	}
+	if claimed1.ID != rowA.ID {
+		t.Fatalf("tx1 claimed %s, want oldest %s", agent.UUIDString(claimed1.ID), agent.UUIDString(rowA.ID))
+	}
+	claimed2, err := q2.ClaimNextRun(ctx)
+	if err != nil {
+		t.Fatalf("tx2 claim (SKIP LOCKED): %v", err)
+	}
+	if claimed2.ID == claimed1.ID {
+		t.Fatal("hai claim cạnh tranh lấy cùng một dòng")
+	}
+	if claimed2.ID != rowB.ID {
+		t.Fatalf("tx2 claimed %s, want %s", agent.UUIDString(claimed2.ID), agent.UUIDString(rowB.ID))
 	}
 }
