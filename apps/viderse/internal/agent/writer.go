@@ -106,8 +106,9 @@ func (r *Runner) Submit(ctx context.Context, brief script.Brief) (pgtype.UUID, e
 	if err := brief.Validate(); err != nil {
 		return pgtype.UUID{}, err
 	}
-	// provider/model ghi lúc enqueue từ cùng một resolve của run — không build
-	// model ở đây (build chậm/lỗi credential là chuyện của run).
+	// provider/model ghi lúc enqueue lấy từ cùng factory với run. Dựng model
+	// không chạm mạng hay kiểm credential, nên lỗi đăng nhập lộ ra ở run (dòng
+	// failed kèm lỗi) chứ không chặn Submit.
 	_, provider, model, err := r.factory(bootstrap.WriterRole)
 	if err != nil {
 		return pgtype.UUID{}, fmt.Errorf("resolve vai %s: %w", bootstrap.WriterRole, err)

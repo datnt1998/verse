@@ -18,6 +18,8 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/viderse/internal/web"
+	"github.com/datnt1998/verse/core/auth"
+	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/webguard"
@@ -44,9 +46,6 @@ func runServe(args []string) error {
 	if appDSN == "" {
 		return fmt.Errorf("thiếu VIDERSE_DATABASE_URL (vd postgres://viderse_app@127.0.0.1:5432/viderse_go)")
 	}
-	if _, err := os.Stat(mustConfigPath()); err != nil {
-		fmt.Println("Chưa có cấu hình mô hình: đăng nhập model bằng `viderse login` (mặc định writer = openai-codex / gpt-6-luna).")
-	}
 
 	accounts, err := openAccounts()
 	if err != nil {
@@ -71,6 +70,12 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
+	// Giá theo token lấy từ OpenRouter (cache 24h trong ~/.viderse) như Noverse;
+	// thiếu bảng giá thì agent_runs.cost_usd để trống.
+	if dir, err := bootstrap.DefaultConfigDir(); err == nil {
+		models.StartPricingRefresh(models.DefaultRegistry(), dir)
+	}
+	printWriterLoginHint(cfg)
 	runner := agent.NewRunner(queries,
 		agent.ModelFactory(cfg.ModelForRole),
 		assets.WriterSystemPrompt,
@@ -134,12 +139,23 @@ func openAccounts() (*identity.Store, error) {
 	return identity.NewStore(path, identity.Options{}), nil
 }
 
-func mustConfigPath() string {
-	path, err := bootstrap.DefaultConfigPath()
-	if err != nil {
-		return ""
+// printWriterLoginHint báo ngay lúc khởi động khi writer dùng provider OAuth
+// chưa đăng nhập: run nào cũng sẽ fail ở lượt gọi model đầu tiên.
+func printWriterLoginHint(cfg bootstrap.Config) {
+	provider, model, _ := cfg.ResolveRole(bootstrap.WriterRole)
+	if _, oauth := auth.Lookup(provider); !oauth {
+		return
 	}
-	return path
+	store, err := auth.DefaultStore()
+	if err != nil {
+		fmt.Printf("Không mở được kho đăng nhập: %v\n", err)
+		return
+	}
+	if _, ok, err := store.Get(provider); err != nil {
+		fmt.Printf("Không đọc được kho đăng nhập: %v\n", err)
+	} else if !ok {
+		fmt.Printf("Writer dùng %s/%s nhưng chưa đăng nhập: chạy `viderse login %s`.\n", provider, model, provider)
+	}
 }
 
 func runMigrate(args []string) error {
