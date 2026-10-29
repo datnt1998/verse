@@ -85,8 +85,7 @@ func WithBaseURL(url string) ModelOption { return func(c *modelConfig) { c.baseU
 
 // WithStreamIdleTimeout aborts a streaming response if no chunk arrives within
 // the window. Pass 0 to disable the watchdog explicitly. When the option is
-// never set no watchdog is installed — the harness supplies its own default
-// (Noverse bootstrap defaults to 5 minutes).
+// never set no watchdog is installed; the application supplies its own default.
 func WithStreamIdleTimeout(d time.Duration) ModelOption {
 	return func(c *modelConfig) {
 		c.streamIdle = d

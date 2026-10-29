@@ -88,6 +88,7 @@ func (s *ToolResultMicrocompactStrategy) Apply(ctx context.Context, _ []llmtypes
 		if !ok {
 			continue
 		}
+		already, _ := msg.Metadata["compacted_tool_result"].(bool)
 		next := msg
 		next.Content = []llmtypes.ContentBlock{llmtypes.TextBlock(s.clearedText(candidate.ToolName, msg))}
 		next.Metadata = cloneMetadata(msg.Metadata)
@@ -99,14 +100,17 @@ func (s *ToolResultMicrocompactStrategy) Apply(ctx context.Context, _ []llmtypes
 		out[candidate.Index] = next
 		saved += max(0, EstimateTokens(msg)-EstimateTokens(next))
 		applied = true
-		// Observation only: one compaction event per compacted tool result so
-		// eval can count compactions by tool. No-op when ctx carries no
-		// run reporter.
-		agentcore.ReportEvent(ctx, agentcore.Event{
-			Type:   agentcore.EventCompaction,
-			Tool:   candidate.ToolName,
-			Reason: s.Name(),
-		})
+		// Observation only: one compaction event per tool result the first time
+		// it is cleared, so eval can count compactions by tool. A placeholder that
+		// a later pass rewrites again is not counted twice. No-op when ctx carries
+		// no run reporter.
+		if !already {
+			agentcore.ReportEvent(ctx, agentcore.Event{
+				Type:   agentcore.EventCompaction,
+				Tool:   candidate.ToolName,
+				Reason: s.Name(),
+			})
+		}
 	}
 
 	return out, StrategyResult{
@@ -162,11 +166,6 @@ func findCompactableToolResults(msgs []llmtypes.AgentMessage, classifier ToolCla
 			continue
 		}
 
-		// Already compacted once: skip so repeated projection passes neither
-		// rewrite the placeholder nor double-count the compaction event.
-		if compacted, _ := msg.Metadata["compacted_tool_result"].(bool); compacted {
-			continue
-		}
 		callID, _ := msg.Metadata["tool_call_id"].(string)
 		call := pending[callID]
 		if call.name == "" {

@@ -589,12 +589,12 @@ func recoverOverflow(ctx context.Context, agentCtx *AgentContext, config LoopCon
 	if len(recovery.View) == 0 {
 		return llmtypes.Message{}, llmCallInfo{}, &llmtypes.ContextOverflowError{Cause: errors.New("compaction returned empty prompt view")}
 	}
+	agentCtx.Messages = recovery.View
 	if recovery.ShouldCommit && len(recovery.CommitMessages) > 0 && config.CommitContext != nil {
 		if err := config.CommitContext(recovery.CommitMessages, recovery.Usage); err != nil {
 			return llmtypes.Message{}, llmCallInfo{}, &llmtypes.ContextOverflowError{Cause: fmt.Errorf("commit failed: %w", err)}
 		}
 	}
-	agentCtx.Messages = recovery.View
 	sink.emit(Event{Type: EventCompaction, Reason: "overflow"})
 	return callLLM(ctx, agentCtx, config, sink)
 }
