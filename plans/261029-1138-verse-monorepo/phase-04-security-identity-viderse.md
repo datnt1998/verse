@@ -74,6 +74,22 @@ Chỉ dời những gì Viderse thực sự import.
 - Có test mới chứng minh `core/auth` ghi vào `StorePath` được truyền vào, không ghi vào `~/.ainovel`.
 - Smoke eval 3/3, chạy bằng binary build từ commit ứng viên và gọi theo đường dẫn tuyệt đối như phase 02. Phải chạy smoke vì `core/roles` và `core/auth` nằm trên đường gọi model.
 
+## Kết quả 4b (2026-10-29)
+
+Nhánh `identity-core`, merge vào `main` ở `346512b`, cộng các commit sửa sau merge: tạo role trong `platform/pgtest` (DO block không nhận bind parameter, lỗi lộ ra khi chạy suite có Postgres) và gofmt.
+
+- `core/auth`: `auth.Configure(Options{AppName, Purpose, LoginCommand, StoreDir, ClaudeCodeVersionEnv})`; chưa configure thì `DefaultStorePath` báo lỗi, không ngầm dùng `~/.ainovel`. Noverse configure trong `bootstrap/identity.go` (`init`). Danh tính wire (`CodexOriginator`, user agent) giữ nguyên.
+- `core/roles`: `RoleConfig`, `ModelRef`, resolve; giữ tag JSON. `ParseThinkingLevel` sang `core/llm`.
+- `platform/identity` (+ `identitytest`), `Options{ValidProjectID, LegacyProjectID}`. Review bắt một regression: `User` dựng tay ở `notify.go` và `events_producers.go` mất fallback dự án legacy cho story ID trần; đã sửa để mọi `User` lấy từ store, có test `TestNotifyAllowedResolvesBareStoryToLegacyProject`.
+- `platform/pgtest`: tên role, khoá advisory, script init là tham số.
+
+| Gate | Kết quả |
+|---|---|
+| Gate phase 01 với luật phase 02 | Suite đầy đủ có Postgres/MinIO ở `e8d1bb3` (sau cả 4c): 4117 pass, 0 fail. Mọi test của `tests-before.txt` còn và pass, trừ hai nhóm đổi chỗ có chủ ý: `TestHostedCSRF` thay bằng test bảng của 4a; 21 test proxy dời nguyên sang `platform/webguard` (`TestProxyConfigFromEnv` thành `TestConfigFromEnv`, các subtest giữ tên) |
+| Ranh giới | `./archtest` qua |
+| `core/auth` ghi đúng chỗ | `TestDefaultStoreFollowsStoreDir` (HOME tạm, `StoreDir=.viderse`: file nằm ở `.viderse/auth.json`, không có `.ainovel`), `TestDefaultStorePathRequiresConfigure`, `TestCallbackPageUsesConfiguredApp`, `TestNotLoggedInErrorFollowsLoginCommand` (không lọt chữ Noverse/ainovel), `TestAuthIdentityIsNoverse` (Noverse vẫn `~/.ainovel/auth.json` và câu lỗi cũ) |
+| Smoke 3/3 | Đang chạy: baseline phase 05 dùng binary `51708aa`, đã gồm 4b, smoke ×3. Ghi kết quả khi xong |
+
 # 4c. Khung Viderse bằng Go + một Writer agent
 
 ## Phạm vi
@@ -99,6 +115,22 @@ Chỉ dời những gì Viderse thực sự import.
 | Không giẫm Noverse | Đăng nhập Viderse trên cùng trình duyệt, rồi mở live Noverse 8790: phiên Noverse vẫn còn hiệu lực. Trang Viderse gửi POST sang `127.0.0.1:8790`: bị từ chối (nhờ 4a) |
 | Ranh giới | Test ranh giới qua. Thêm tạm một import `apps/noverse/...` vào Viderse thì test fail |
 | Dọn | Dừng mọi process đã khởi động. DB thử nghiệm được xoá, hoặc ghi rõ là giữ lại |
+
+## Kết quả 4c (2026-10-29)
+
+Nhánh `viderse-go`, merge ở `e8d1bb3`. Thêm `apps/viderse` (CLI `viderse`: `serve`, `migrate`, `login`/`logout`), cùng ba phần dùng chung tách ra để không chép code từ Noverse: `platform/webguard` (proxy tin cậy, kiểm Origin, kiểm body JSON), `core/llmconfig` (cấu hình provider/model, dựng model kèm OAuth), `platform/pgmigrate` (goose nhúng). Noverse chuyển sang dùng chúng, bỏ hẳn alias kiểu.
+
+Review bắt hai lỗi vòng đời run và đã sửa: hàng đợi trong bộ nhớ đầy thì run nằm `queued` mãi, và run dở dang khi tắt máy không bao giờ được đóng. Giờ database là hàng đợi: `ClaimNextRun` (`FOR UPDATE SKIP LOCKED`, run cũ nhất trước); lúc `serve` khởi động thì đánh `failed` các run còn `running`. Giả định một process `serve` cho mỗi database.
+
+| Gate | Kết quả |
+|---|---|
+| Build và test | `go build ./...`, `go vet ./...` sạch; suite đầy đủ 4117 pass, gồm test Postgres của Viderse (vòng đời run trên bảng thật, claim theo thứ tự và không trùng khi hai giao dịch claim cùng lúc, role app không có DDL). Web Viderse: `typecheck` + `test` qua. CI có job `viderse-web` và bước `sqlc diff` cho Viderse (chưa chạy CI theo yêu cầu) |
+| sqlc | `(cd apps/viderse && go tool sqlc diff)` sạch |
+| Chạy không cần model | DB trống `viderse_go_smoke`: `migrate up` → `serve` 8789 (HOME tạm) → `/healthz` 200 → mã thiết lập → tạo admin → đăng nhập → gửi brief → run `queued → running → failed` với lỗi "chưa đăng nhập openai-codex — chạy viderse login openai-codex…". DB thử đã xoá |
+| Chạy thật | **Chờ anh chạy `viderse login openai-codex`** (OAuth trên tài khoản ChatGPT của anh). Không chép `~/.ainovel/auth.json`: refresh token của OpenAI xoay vòng, hai app dùng chung một token thì live Noverse sẽ bị đăng xuất |
+| Không giẫm Noverse | Xem dòng ghi sau khi chạy kiểm trên trình duyệt |
+| Ranh giới | `./archtest` qua; thêm tạm import `apps/noverse/...` vào Viderse thì test fail (đã gỡ) |
+| Dọn | DB thử `viderse_go_smoke` đã xoá. Giữ lại DB `viderse_go` và role `viderse_app`/`viderse_migrate` cho lần chạy thật |
 
 # 4d. SSO — không làm trong MVP (Q6), giữ lại để làm sau
 
