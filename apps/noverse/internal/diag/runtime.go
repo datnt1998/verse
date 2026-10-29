@@ -66,12 +66,15 @@ type DupStat struct {
 }
 
 // sessionLine 解析 sessions/*.jsonl 的一行：内嵌 agentcore.Message + 可选 _meta。
+// 同一文件里还夹着 {"_event": {...}} 观察事件行（retry、compaction 等），
+// 它们不是消息，scanSession 跳过。
 type sessionLine struct {
 	llmtypes.Message
 	Meta *struct {
 		Provider string `json:"provider"`
 		Model    string `json:"model"`
 	} `json:"_meta"`
+	Event json.RawMessage `json:"_event"`
 }
 
 var kindRe = regexp.MustCompile(`kind=(\S+)`)
@@ -185,7 +188,7 @@ func scanSession(path, agent string, rc *RuntimeCapture, models map[string]RoleM
 	sc.Buffer(make([]byte, 0, 64<<10), 8<<20)
 	for sc.Scan() {
 		var sl sessionLine
-		if json.Unmarshal(sc.Bytes(), &sl) != nil {
+		if json.Unmarshal(sc.Bytes(), &sl) != nil || sl.Event != nil {
 			continue
 		}
 		ev := redactMessage(agent, sl.Message)
