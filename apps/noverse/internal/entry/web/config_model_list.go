@@ -21,6 +21,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/core/auth"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/core/roles"
 	"github.com/datnt1998/verse/platform/identity"
@@ -216,7 +217,7 @@ func (g *Gateway) listProviderModels(w http.ResponseWriter, r *http.Request, use
 }
 
 // listOAuthProviderModels 复用 oauthModelList（订阅 provider 的既有实现）。
-func (g *Gateway) listOAuthProviderModels(w http.ResponseWriter, r *http.Request, provider, typ string, pc bootstrap.ProviderConfig, cfg bootstrap.Config, refresh bool) {
+func (g *Gateway) listOAuthProviderModels(w http.ResponseWriter, r *http.Request, provider, typ string, pc llmconfig.ProviderConfig, cfg bootstrap.Config, refresh bool) {
 	store, err := auth.DefaultStore()
 	if err != nil {
 		jsonError(w, 500, err.Error())
@@ -253,7 +254,7 @@ func (g *Gateway) listOAuthProviderModels(w http.ResponseWriter, r *http.Request
 }
 
 // effectiveListBase 选列表请求的地址：配置里的 base_url，否则该类型的官方默认。
-func effectiveListBase(typ string, pc bootstrap.ProviderConfig) string {
+func effectiveListBase(typ string, pc llmconfig.ProviderConfig) string {
 	if base := strings.TrimSpace(pc.BaseURL); base != "" {
 		return strings.TrimRight(base, "/")
 	}
@@ -470,7 +471,7 @@ func fetchOllamaModels(ctx context.Context, base string) ([]fetchedModel, *listE
 
 // buildModelListResponse 把缓存/新拉的原始条目按当前草稿解析成响应：
 // 窗口取 model_config > provider > registry > default；recommended 查 Noverse 目录。
-func buildModelListResponse(cfg bootstrap.Config, provider, typ string, pc bootstrap.ProviderConfig, entry modelListCacheEntry) providerModelList {
+func buildModelListResponse(cfg bootstrap.Config, provider, typ string, pc llmconfig.ProviderConfig, entry modelListCacheEntry) providerModelList {
 	entries := models.DefaultRegistry().List("")
 	defaultModel := defaultModelFor(provider, typ)
 	out := make([]providerModel, 0, len(entry.models))
@@ -521,7 +522,7 @@ func registryHasExact(registry []models.ModelEntry, id string) bool {
 }
 
 // cachedListWindow 在 provider 的缓存清单里找模型上报的窗口（testConfig 用）。
-func cachedListWindow(provider string, pc bootstrap.ProviderConfig, model string) (int, bool) {
+func cachedListWindow(provider string, pc llmconfig.ProviderConfig, model string) (int, bool) {
 	typ, err := pc.ProviderType(provider)
 	if err != nil || typ == "bedrock" {
 		return 0, false

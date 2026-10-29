@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 func TestModelThinkingLevelsProbeConfiguredModel(t *testing.T) {
-	cfg := bootstrap.Config{Providers: map[string]bootstrap.ProviderConfig{
-		"openrouter": {APIKey: "sk-test", Models: []bootstrap.ModelConfig{{Name: "openai/gpt-5"}}},
+	cfg := bootstrap.Config{Providers: map[string]llmconfig.ProviderConfig{
+		"openrouter": {APIKey: "sk-test", Models: []llmconfig.ModelConfig{{Name: "openai/gpt-5"}}},
 	}}
 	levels := modelThinkingLevels(cfg, "openrouter", "openai/gpt-5")
 	if len(levels) < 2 || levels[0] != "" {

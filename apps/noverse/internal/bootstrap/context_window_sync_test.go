@@ -1,10 +1,14 @@
 package bootstrap
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/datnt1998/verse/core/llmconfig"
+)
 
 func TestApplyContextWindowsKeepsConfigOwnership(t *testing.T) {
-	original := Config{Provider: "one", ModelName: "old", Providers: map[string]ProviderConfig{"one": {APIKey: "secret", Models: []ModelConfig{{Name: "old", ContextWindow: 128000}}}}}
-	source := Config{Providers: map[string]ProviderConfig{"one": {Models: []ModelConfig{{Name: "old", ContextWindow: 256000}}}}}
+	original := Config{Provider: "one", ModelName: "old", Providers: map[string]llmconfig.ProviderConfig{"one": {APIKey: "secret", Models: []llmconfig.ModelConfig{{Name: "old", ContextWindow: 128000}}}}}
+	source := Config{Providers: map[string]llmconfig.ProviderConfig{"one": {Models: []llmconfig.ModelConfig{{Name: "old", ContextWindow: 256000}}}}}
 	updated := original
 	updated.ApplyContextWindows(source)
 	if original.Providers["one"].Models[0].ContextWindow != 128000 {

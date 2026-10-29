@@ -13,13 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/xai"
-	"github.com/datnt1998/verse/core/llm/wire"
+	litellm "github.com/datnt1998/verse/core/llm/wire"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/platform/identity"
 )
 
@@ -692,7 +692,7 @@ func TestPresetsListXAIOAuthAsDeviceOnlySubscription(t *testing.T) {
 }
 
 func TestConnectionFailureForXAIOAuthIsVietnameseAndActionable(t *testing.T) {
-	pc := bootstrap.ProviderConfig{}
+	pc := llmconfig.ProviderConfig{}
 	msg, _ := connectionFailure("xai-oauth", pc, fmt.Errorf("request failed: %w", auth.NotLoggedInError("xai-oauth")))
 	if !strings.Contains(msg, "Chưa đăng nhập") || strings.Contains(msg, "Không kết nối được") {
 		t.Fatalf("chưa đăng nhập: %q", msg)
@@ -827,7 +827,7 @@ func TestPresetsListAnthropicOAuthAsPasteCodeSubscription(t *testing.T) {
 }
 
 func TestConnectionFailureForAnthropicOAuthUsesVietnameseMessages(t *testing.T) {
-	pc := bootstrap.ProviderConfig{}
+	pc := llmconfig.ProviderConfig{}
 	msg, _ := connectionFailure("anthropic-oauth", pc, fmt.Errorf("request failed: %w", auth.NotLoggedInError("anthropic-oauth")))
 	if !strings.Contains(msg, "Chưa đăng nhập") {
 		t.Fatalf("chưa đăng nhập: %q", msg)

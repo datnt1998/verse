@@ -27,11 +27,8 @@ func Up(ctx context.Context, db *sql.DB) ([]*goose.MigrationResult, error) {
 	return pgmigrate.Up(ctx, db, migrations.FS)
 }
 
-// StatusEntry reports one migration's applied state.
-type StatusEntry = pgmigrate.StatusEntry
-
 // Status returns all migrations merged from filesystem and database state.
-func Status(ctx context.Context, db *sql.DB) ([]StatusEntry, error) {
+func Status(ctx context.Context, db *sql.DB) ([]pgmigrate.StatusEntry, error) {
 	return pgmigrate.Status(ctx, db, migrations.FS)
 }
 

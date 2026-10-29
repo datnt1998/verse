@@ -9,17 +9,18 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/roles"
 )
 
 func newModelConfigTestHost(t *testing.T) (*Host, string) {
 	t.Helper()
-	pc := bootstrap.ProviderConfig{
+	pc := llmconfig.ProviderConfig{
 		Type: "openai", APIKey: "old-secret", BaseURL: "https://example.com/v1",
-		Models: []bootstrap.ModelConfig{{Name: "old", ContextWindow: 128000}, {Name: "writer-model"}},
+		Models: []llmconfig.ModelConfig{{Name: "old", ContextWindow: 128000}, {Name: "writer-model"}},
 	}
 	cfg := bootstrap.Config{
-		Provider: "proxy", ModelName: "old", Providers: map[string]bootstrap.ProviderConfig{"proxy": pc},
+		Provider: "proxy", ModelName: "old", Providers: map[string]llmconfig.ProviderConfig{"proxy": pc},
 		Roles: map[string]roles.RoleConfig{"writer": {
 			Provider: "proxy", Model: "writer-model",
 			Fallbacks: []roles.ModelRef{{Provider: "proxy", Model: "old"}},
@@ -64,7 +65,7 @@ func TestConfigureModelsRejectsDeletingReferencedModel(t *testing.T) {
 	// 删掉被 writer 角色引用的 "writer-model"（保留顶层在用的 "old"）应被拒。
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: "https://example.com/v1",
-		Models:       []bootstrap.ModelConfig{{Name: "old"}, {Name: "new"}},
+		Models:       []llmconfig.ModelConfig{{Name: "old"}, {Name: "new"}},
 		APIKeyAction: APIKeyKeep,
 	})
 	if err == nil || !strings.Contains(err.Error(), "writer") {
@@ -81,7 +82,7 @@ func TestConfigureModelsRejectsDeletingCurrentModel(t *testing.T) {
 	h, _ := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: "https://example.com/v1",
-		Models:       []bootstrap.ModelConfig{{Name: "writer-model"}, {Name: "new"}},
+		Models:       []llmconfig.ModelConfig{{Name: "writer-model"}, {Name: "new"}},
 		APIKeyAction: APIKeyKeep,
 	})
 	if err == nil || !strings.Contains(err.Error(), "default") {
@@ -93,7 +94,7 @@ func TestConfigureModelsPersistsAndHotApplies(t *testing.T) {
 	h, path := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", API: "responses", BaseURL: "https://new.example/v1",
-		Models:       []bootstrap.ModelConfig{{Name: "old", ContextWindow: 640000}, {Name: "writer-model"}},
+		Models:       []llmconfig.ModelConfig{{Name: "old", ContextWindow: 640000}, {Name: "writer-model"}},
 		APIKeyAction: APIKeyKeep,
 	})
 	if err != nil {
@@ -130,7 +131,7 @@ func TestConfigureModelsPreservesJSONSchemaTriState(t *testing.T) {
 	tr := true
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: "https://example.com/v1",
-		Models: []bootstrap.ModelConfig{
+		Models: []llmconfig.ModelConfig{
 			{Name: "old", ContextWindow: 128000, JSONSchema: &tr},
 			{Name: "writer-model"},
 		},
@@ -156,7 +157,7 @@ func TestConfigureModelsRenamesModelAndReferencesAtomically(t *testing.T) {
 	h, path := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: "https://example.com/v1",
-		Models: []bootstrap.ModelConfig{{Name: "renamed", ContextWindow: 256000}, {Name: "writer-renamed"}},
+		Models: []llmconfig.ModelConfig{{Name: "renamed", ContextWindow: 256000}, {Name: "writer-renamed"}},
 		Renames: []ModelRename{
 			{From: "old", To: "renamed"},
 			{From: "writer-model", To: "writer-renamed"},
@@ -190,7 +191,7 @@ func TestConfigureModelsDoesNotGuessRenameFromDeleteAndAdd(t *testing.T) {
 	h, _ := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: "https://example.com/v1",
-		Models: []bootstrap.ModelConfig{{Name: "renamed"}, {Name: "writer-model"}}, APIKeyAction: APIKeyKeep,
+		Models: []llmconfig.ModelConfig{{Name: "renamed"}, {Name: "writer-model"}}, APIKeyAction: APIKeyKeep,
 	})
 	if err == nil || !strings.Contains(err.Error(), "default") {
 		t.Fatalf("Khi không khai báo đổi tên rõ ràng vẫn phải áp dụng bảo vệ xoá, got %v", err)
@@ -198,9 +199,9 @@ func TestConfigureModelsDoesNotGuessRenameFromDeleteAndAdd(t *testing.T) {
 }
 
 func TestModelConfigurationsIncludesReferencedUnlistedModel(t *testing.T) {
-	pc := bootstrap.ProviderConfig{Models: []bootstrap.ModelConfig{{Name: "listed"}}}
+	pc := llmconfig.ProviderConfig{Models: []llmconfig.ModelConfig{{Name: "listed"}}}
 	cfg := bootstrap.Config{
-		Provider: "proxy", ModelName: "listed", Providers: map[string]bootstrap.ProviderConfig{"proxy": pc},
+		Provider: "proxy", ModelName: "listed", Providers: map[string]llmconfig.ProviderConfig{"proxy": pc},
 		Roles: map[string]roles.RoleConfig{"writer": {Provider: "proxy", Model: "referenced-only"}},
 	}
 	models := modelConfigurations(cfg, "proxy", pc)
@@ -232,7 +233,7 @@ func TestConfigureModelsRejectsMissingRequiredAPIKeyForUnusedProvider(t *testing
 	h, _ := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider:     "anthropic",
-		Models:       []bootstrap.ModelConfig{{Name: "claude-test"}},
+		Models:       []llmconfig.ModelConfig{{Name: "claude-test"}},
 		APIKeyAction: APIKeyKeep,
 	})
 	if err == nil || !strings.Contains(err.Error(), "phải cấu hình API Key") {
@@ -260,7 +261,7 @@ func TestModelConnectionUsesDraftWithoutSaving(t *testing.T) {
 	originalURL := h.cfg.Providers["proxy"].BaseURL
 	err := h.TestModelConnection(context.Background(), ModelConfigurationDraft{
 		Provider: "proxy", Type: "openai", BaseURL: server.URL + "/v1",
-		Models: []bootstrap.ModelConfig{{Name: "old"}}, APIKeyAction: APIKeyKeep,
+		Models: []llmconfig.ModelConfig{{Name: "old"}}, APIKeyAction: APIKeyKeep,
 	}, "old")
 	if err != nil {
 		t.Fatalf("test connection: %v", err)
@@ -284,7 +285,7 @@ func TestConfigureModelsSuggestsSwitchForNewProvider(t *testing.T) {
 	h, _ := newModelConfigTestHost(t)
 	err := h.ConfigureModels(ModelConfigurationDraft{
 		Provider: "backup", Type: "openai", BaseURL: "https://backup.example/v1",
-		Models: []bootstrap.ModelConfig{{Name: "backup-model"}}, APIKeyAction: APIKeyKeep,
+		Models: []llmconfig.ModelConfig{{Name: "backup-model"}}, APIKeyAction: APIKeyKeep,
 	})
 	if err != nil {
 		t.Fatalf("configure backup: %v", err)

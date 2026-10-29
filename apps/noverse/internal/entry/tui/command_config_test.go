@@ -9,10 +9,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/muesli/termenv"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/commands"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
-	"github.com/muesli/termenv"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 func hubFieldIDs(fields []hubField) []string {
@@ -37,7 +39,7 @@ func TestSelectingProviderOpensHub(t *testing.T) {
 	st := &modelConfigState{editModelIdx: -1}
 	st.applyProviderChoice(configProviderChoice{existing: &host.ProviderSnapshot{
 		Name: "openrouter", BaseURL: "u", HasAPIKey: true,
-		Models: []bootstrap.ModelConfig{{Name: "m"}},
+		Models: []llmconfig.ModelConfig{{Name: "m"}},
 	}})
 	if st.step != configStepHub {
 		t.Fatalf("选中已有 Provider 应进入 hub，得到 step=%d", st.step)
@@ -59,7 +61,7 @@ func TestCustomProviderHubShowsProtocolAndEndpoint(t *testing.T) {
 	st := &modelConfigState{editModelIdx: -1}
 	st.applyProviderChoice(configProviderChoice{existing: &host.ProviderSnapshot{
 		Name: "proxy", Type: "openai", API: "responses", HasAPIKey: true,
-		Models: []bootstrap.ModelConfig{{Name: "m"}},
+		Models: []llmconfig.ModelConfig{{Name: "m"}},
 	}})
 	ids := hubFieldIDs(st.hubFields())
 	if !slices.Contains(ids, "protocol") || !slices.Contains(ids, "api") {
@@ -87,7 +89,7 @@ func TestEscapeBackHierarchy(t *testing.T) {
 
 func TestModelListAddsAndEditsInPlace(t *testing.T) {
 	st := &modelConfigState{step: configStepModels, editModelIdx: -1,
-		models: []bootstrap.ModelConfig{{Name: "m1"}}, modelOrigins: []string{"m1"}}
+		models: []llmconfig.ModelConfig{{Name: "m1"}}, modelOrigins: []string{"m1"}}
 	st.cursor = len(st.models)
 	m := Model{modelConfig: st}
 	m.handleModelConfigKey(tea.KeyMsg{Type: tea.KeyEnter})
@@ -108,7 +110,7 @@ func TestModelListAddsAndEditsInPlace(t *testing.T) {
 
 func TestModelListEditsSelectedCellAndCancels(t *testing.T) {
 	st := &modelConfigState{step: configStepModels, editModelIdx: -1,
-		models: []bootstrap.ModelConfig{{Name: "m1", ContextWindow: 1000}}, modelOrigins: []string{"m1"}}
+		models: []llmconfig.ModelConfig{{Name: "m1", ContextWindow: 1000}}, modelOrigins: []string{"m1"}}
 	m := Model{modelConfig: st}
 	m.handleModelConfigKey(tea.KeyMsg{Type: tea.KeyRight})
 	m.handleModelConfigKey(tea.KeyMsg{Type: tea.KeyEnter})
@@ -124,7 +126,7 @@ func TestModelListEditsSelectedCellAndCancels(t *testing.T) {
 
 func TestModelRenameProducesExplicitDraftAndReferenceNotice(t *testing.T) {
 	st := &modelConfigState{
-		step: configStepModels, provider: "proxy", models: []bootstrap.ModelConfig{{Name: "old"}},
+		step: configStepModels, provider: "proxy", models: []llmconfig.ModelConfig{{Name: "old"}},
 		modelOrigins: []string{"old"}, snapshot: host.ModelConfigurationSnapshot{
 			References: map[string][]string{"proxy\x00old": {"default", "writer fallback[0]"}},
 		},
@@ -144,7 +146,7 @@ func TestModelRenameProducesExplicitDraftAndReferenceNotice(t *testing.T) {
 
 func TestModelListRendersEditableColumnsAndReferences(t *testing.T) {
 	st := &modelConfigState{
-		step: configStepModels, provider: "proxy", models: []bootstrap.ModelConfig{{Name: "deepseek-chat", ContextWindow: 128000}},
+		step: configStepModels, provider: "proxy", models: []llmconfig.ModelConfig{{Name: "deepseek-chat", ContextWindow: 128000}},
 		modelOrigins: []string{"deepseek-chat"}, snapshot: host.ModelConfigurationSnapshot{
 			References: map[string][]string{"proxy\x00deepseek-chat": {"default"}},
 		},
@@ -163,7 +165,7 @@ func TestModelNameInlineEditorKeepsModalRowsIntact(t *testing.T) {
 	t.Cleanup(func() { lipgloss.SetColorProfile(oldProfile) })
 	st := &modelConfigState{
 		step: configStepModels, provider: "deepseek",
-		models:       []bootstrap.ModelConfig{{Name: "deepseek-v4-pro"}, {Name: "deepseek-v4-flash"}},
+		models:       []llmconfig.ModelConfig{{Name: "deepseek-v4-pro"}, {Name: "deepseek-v4-flash"}},
 		modelOrigins: []string{"deepseek-v4-pro", "deepseek-v4-flash"},
 	}
 	st.beginModelEdit(0, 0)
@@ -181,7 +183,7 @@ func TestModelNameInlineEditorKeepsModalRowsIntact(t *testing.T) {
 
 func TestRenamedReferencedModelStillCannotBeDeleted(t *testing.T) {
 	st := &modelConfigState{
-		provider: "proxy", currentModel: "old", models: []bootstrap.ModelConfig{{Name: "renamed"}},
+		provider: "proxy", currentModel: "old", models: []llmconfig.ModelConfig{{Name: "renamed"}},
 		modelOrigins: []string{"old"}, snapshot: host.ModelConfigurationSnapshot{
 			References: map[string][]string{"proxy\x00old": {"default"}},
 		},
@@ -192,7 +194,7 @@ func TestRenamedReferencedModelStillCannotBeDeleted(t *testing.T) {
 }
 
 func TestCancellingNewModelNameRemovesTemporaryRow(t *testing.T) {
-	st := &modelConfigState{step: configStepModels, models: []bootstrap.ModelConfig{{Name: "m1"}}, modelOrigins: []string{"m1"}}
+	st := &modelConfigState{step: configStepModels, models: []llmconfig.ModelConfig{{Name: "m1"}}, modelOrigins: []string{"m1"}}
 	st.cursor = 1
 	m := Model{modelConfig: st}
 	m.handleModelConfigKey(tea.KeyMsg{Type: tea.KeyEnter})
@@ -274,7 +276,7 @@ func TestSaveConfigHighlightsOnlyWhenDirty(t *testing.T) {
 	state := &modelConfigState{editModelIdx: -1}
 	state.applyProviderChoice(configProviderChoice{existing: &host.ProviderSnapshot{
 		Name: "proxy", Type: "openai", BaseURL: "https://old.example/v1", HasAPIKey: true,
-		APIKeyHint: "sk-o******7890", Models: []bootstrap.ModelConfig{{Name: "m1"}},
+		APIKeyHint: "sk-o******7890", Models: []llmconfig.ModelConfig{{Name: "m1"}},
 	}})
 	if state.isDirty() {
 		t.Fatal("刚进入已有 Provider 时不应标记为已修改")
@@ -378,7 +380,7 @@ func TestConfigTextInputSupportsCursorEditing(t *testing.T) {
 func TestProviderHubShowsConfigPathAndConnectionAction(t *testing.T) {
 	state := &modelConfigState{
 		step: configStepHub, provider: "proxy", apiKeyOptional: true, currentModel: "m2",
-		models:   []bootstrap.ModelConfig{{Name: "m1"}, {Name: "m2"}},
+		models:   []llmconfig.ModelConfig{{Name: "m1"}, {Name: "m2"}},
 		snapshot: host.ModelConfigurationSnapshot{ConfigPath: `C:\work\.ainovel\config.json`},
 	}
 	fields := state.hubFields()
@@ -410,7 +412,7 @@ func TestModelConfigMessageWrapKeepsErrorTail(t *testing.T) {
 
 func TestConnectionActionStartsAsyncTestWithoutLeavingHub(t *testing.T) {
 	state := &modelConfigState{step: configStepHub, provider: "proxy", providerType: "openai",
-		apiKeyOptional: true, models: []bootstrap.ModelConfig{{Name: "m1"}}}
+		apiKeyOptional: true, models: []llmconfig.ModelConfig{{Name: "m1"}}}
 	state.cursor = hubFieldIndex(state.hubFields(), "test")
 	m := Model{modelConfig: state}
 	_, cmd := m.handleModelConfigKey(tea.KeyMsg{Type: tea.KeyEnter})
@@ -438,7 +440,7 @@ func TestConnectionTestCanBeCancelled(t *testing.T) {
 
 func TestOAuthProviderLoginReplacesAPIKeyAndCanBeCancelled(t *testing.T) {
 	state := &modelConfigState{step: configStepHub, provider: "openai-codex", oauth: true, apiKeyOptional: true,
-		models: []bootstrap.ModelConfig{{Name: "m1"}}}
+		models: []llmconfig.ModelConfig{{Name: "m1"}}}
 	if hubFieldIndex(state.hubFields(), "key") >= 0 || hubFieldIndex(state.hubFields(), "login") < 0 {
 		t.Fatalf("订阅 provider 应显示账号而非 API Key: %+v", state.hubFields())
 	}

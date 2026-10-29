@@ -2,6 +2,7 @@ package host
 
 import (
 	llmtypes "github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmconfig"
 
 	"context"
 	"fmt"
@@ -26,7 +27,7 @@ type ProviderSnapshot struct {
 	Type           string
 	API            string
 	BaseURL        string
-	Models         []bootstrap.ModelConfig
+	Models         []llmconfig.ModelConfig
 	HasAPIKey      bool
 	APIKeyHint     string
 	RequiresAPIKey bool
@@ -57,7 +58,7 @@ type ModelConfigurationDraft struct {
 	Type         string
 	API          string
 	BaseURL      string
-	Models       []bootstrap.ModelConfig
+	Models       []llmconfig.ModelConfig
 	Renames      []ModelRename
 	APIKeyAction APIKeyAction
 	APIKey       string
@@ -136,12 +137,12 @@ func (h *Host) ModelConfiguration() ModelConfigurationSnapshot {
 	}
 }
 
-func modelConfigurations(cfg bootstrap.Config, provider string, pc bootstrap.ProviderConfig) []bootstrap.ModelConfig {
-	models := make([]bootstrap.ModelConfig, 0)
+func modelConfigurations(cfg bootstrap.Config, provider string, pc llmconfig.ProviderConfig) []llmconfig.ModelConfig {
+	models := make([]llmconfig.ModelConfig, 0)
 	for _, modelName := range cfg.CandidateModels(provider) {
 		model, ok := pc.ModelConfig(modelName)
 		if !ok {
-			model = bootstrap.ModelConfig{Name: modelName}
+			model = llmconfig.ModelConfig{Name: modelName}
 		}
 		models = append(models, model)
 	}
@@ -163,8 +164,8 @@ func (h *Host) ConfiguredModelOptions(provider string) []ConfiguredModel {
 type preparedProviderDraft struct {
 	draft     ModelConfigurationDraft
 	candidate bootstrap.Config
-	provider  bootstrap.ProviderConfig
-	oldModels []bootstrap.ModelConfig
+	provider  llmconfig.ProviderConfig
+	oldModels []llmconfig.ModelConfig
 }
 
 // prepareProviderDraftLocked 将 TUI 草稿规范化并合入配置副本，保存和连接测试共用同一条校验链路。
@@ -187,7 +188,7 @@ func (h *Host) prepareProviderDraftLocked(draft ModelConfigurationDraft) (prepar
 	pc.Type = draft.Type
 	pc.API = draft.API
 	pc.BaseURL = draft.BaseURL
-	configuredModels := make([]bootstrap.ModelConfig, 0, len(draft.Models))
+	configuredModels := make([]llmconfig.ModelConfig, 0, len(draft.Models))
 	seen := make(map[string]bool, len(draft.Models))
 	for _, model := range draft.Models {
 		model.Name = strings.TrimSpace(model.Name)
@@ -220,7 +221,7 @@ func (h *Host) prepareProviderDraftLocked(draft ModelConfigurationDraft) (prepar
 	}
 
 	if candidate.Providers == nil {
-		candidate.Providers = make(map[string]bootstrap.ProviderConfig)
+		candidate.Providers = make(map[string]llmconfig.ProviderConfig)
 	}
 	candidate.Providers[draft.Provider] = pc
 	return preparedProviderDraft{draft: draft, candidate: candidate, provider: pc, oldModels: oldModels}, nil
@@ -294,7 +295,7 @@ func (h *Host) ConfigureModels(draft ModelConfigurationDraft) error {
 	return nil
 }
 
-func validateModelRenames(requested []ModelRename, oldModels, newModels []bootstrap.ModelConfig) (map[string]string, error) {
+func validateModelRenames(requested []ModelRename, oldModels, newModels []llmconfig.ModelConfig) (map[string]string, error) {
 	oldNames := make(map[string]bool, len(oldModels))
 	newNames := make(map[string]bool, len(newModels))
 	for _, model := range oldModels {
@@ -365,7 +366,7 @@ func renameModelReferences(cfg *bootstrap.Config, provider string, renames map[s
 	}
 }
 
-func (h *Host) saveModelConfigurationLocked(candidate bootstrap.Config, provider string, pc bootstrap.ProviderConfig, renamed bool) error {
+func (h *Host) saveModelConfigurationLocked(candidate bootstrap.Config, provider string, pc llmconfig.ProviderConfig, renamed bool) error {
 	if renamed {
 		// 引用与 provider 定义必须在同一次文件替换中落盘，否则进程重启可能只看到一半。
 		// /model 也使用 SaveConfig 写回有效配置；重命名沿用同一语义。

@@ -15,6 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 type noModelInput func()
@@ -163,7 +164,7 @@ func TestNoModelRejectedActionAppearsInActivity(t *testing.T) {
 
 func TestNoModelInvalidProviderKeepsSnapshotReadable(t *testing.T) {
 	_, s := storyFixture(t, []int{1})
-	cfg := bootstrap.Config{OutputDir: s.Dir(), Provider: "broken", ModelName: "test", Providers: map[string]bootstrap.ProviderConfig{"broken": {Type: "not-a-provider", APIKey: "test-only"}}}
+	cfg := bootstrap.Config{OutputDir: s.Dir(), Provider: "broken", ModelName: "test", Providers: map[string]llmconfig.ProviderConfig{"broken": {Type: "not-a-provider", APIKey: "test-only"}}}
 	h, err := host.New(cfg, assets.Bundle{}, host.WithUnconfiguredReads())
 	if err != nil {
 		t.Fatalf("invalid provider must not block reading: %v", err)

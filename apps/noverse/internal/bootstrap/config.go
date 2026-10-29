@@ -46,12 +46,6 @@ func CompactReserveTokens(window int) int {
 	return reserve
 }
 
-// ProviderConfig/ModelConfig 及各派生方法已移到 core/llmconfig（跨应用共享：
-// Viderse 用同一份 schema 与构造逻辑）。这里保留别名，既有调用点不用改。
-type ProviderConfig = llmconfig.ProviderConfig
-
-type ModelConfig = llmconfig.ModelConfig
-
 // ModelJSONSchema 返回模型的 json_schema 三态声明；未列入 models 或未配置时
 // 返回 nil（按 adapter 能力判断）。
 func (c Config) ModelJSONSchema(provider, model string) *bool {
@@ -92,7 +86,7 @@ type Config struct {
 	ReasoningEffort string `json:"reasoning_effort,omitempty"`
 
 	// Provider 凭证库
-	Providers map[string]ProviderConfig `json:"providers,omitempty"`
+	Providers map[string]llmconfig.ProviderConfig `json:"providers,omitempty"`
 
 	// 角色级模型覆盖
 	Roles map[string]roles.RoleConfig `json:"roles,omitempty"`
@@ -293,14 +287,14 @@ func (c *Config) ValidateBase() error {
 
 // ValidateProvider 只校验单个 provider 的结构（models、api、stream_idle_timeout、控制字符），
 // 不要求它是默认 provider，也不检查 key——供网关“Thử kết nối”在建模型前给出越南语错误。
-func ValidateProvider(name string, pc ProviderConfig) error {
+func ValidateProvider(name string, pc llmconfig.ProviderConfig) error {
 	if err := validateProviderConfigText(name, pc); err != nil {
 		return err
 	}
 	return Config{}.validateProviderAPI(fmt.Sprintf("provider %q", name), name, pc)
 }
 
-func validateProviderConfigText(name string, pc ProviderConfig) error {
+func validateProviderConfigText(name string, pc llmconfig.ProviderConfig) error {
 	fields := []struct {
 		label string
 		value string
@@ -351,9 +345,9 @@ func validateConfigText(name, value string) error {
 }
 
 // DefaultProviderConfig 返回默认 provider 的凭证配置。
-func (c *Config) DefaultProviderConfig() ProviderConfig {
+func (c *Config) DefaultProviderConfig() llmconfig.ProviderConfig {
 	if c.Providers == nil {
-		return ProviderConfig{}
+		return llmconfig.ProviderConfig{}
 	}
 	return c.Providers[c.Provider]
 }
@@ -364,7 +358,7 @@ func (c *Config) FillDefaults() {
 		c.OutputDir = filepath.Join("output", "novel")
 	}
 	if c.Providers == nil {
-		c.Providers = make(map[string]ProviderConfig)
+		c.Providers = make(map[string]llmconfig.ProviderConfig)
 	}
 	if c.Roles == nil {
 		c.Roles = make(map[string]roles.RoleConfig)
@@ -497,7 +491,7 @@ func (c Config) validateModelRef(owner string, ref roles.ModelRef) error {
 	return nil
 }
 
-func (c Config) validateProviderAPI(owner, providerName string, pc ProviderConfig) error {
+func (c Config) validateProviderAPI(owner, providerName string, pc llmconfig.ProviderConfig) error {
 	if pc.API == "" {
 		return nil
 	}

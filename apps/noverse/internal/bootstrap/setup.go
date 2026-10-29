@@ -11,12 +11,14 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/core/auth/anthropicoauth"
 	"github.com/datnt1998/verse/core/auth/codex"
 	"github.com/datnt1998/verse/core/auth/xai"
+	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/roles"
 )
 
@@ -103,7 +105,7 @@ func RunSetup() (Config, error) {
 	}
 
 	providerName := sp.name
-	var pc ProviderConfig
+	var pc llmconfig.ProviderConfig
 	printStepDone("Nhà cung cấp AI", sp.label)
 
 	// Tùy biến proxy: hỏi thêm tên và giao thức API
@@ -163,7 +165,7 @@ func RunSetup() (Config, error) {
 	}
 
 	// Step 4: Tên Model (bắt buộc)
-	var modelCfg ModelConfig
+	var modelCfg llmconfig.ModelConfig
 	if sp.oauth {
 		modelCfg, err = runOAuthModelSelect(providerName)
 	} else {
@@ -178,12 +180,12 @@ func RunSetup() (Config, error) {
 	}
 	modelName := modelCfg.Name
 	printStepDone("Model", modelName)
-	pc.Models = []ModelConfig{modelCfg}
+	pc.Models = []llmconfig.ModelConfig{modelCfg}
 
 	cfg := Config{
 		Provider:  providerName,
 		ModelName: modelName,
-		Providers: map[string]ProviderConfig{providerName: pc},
+		Providers: map[string]llmconfig.ProviderConfig{providerName: pc},
 		Roles:     map[string]roles.RoleConfig{},
 		Style:     "default",
 	}
@@ -344,10 +346,10 @@ func listOAuthModels(ctx context.Context, id string, manager *auth.Manager) ([]o
 // runOAuthModelSelect cho chọn trong danh sách model mà tài khoản gói thuê bao được
 // dùng (kèm context window nếu backend công bố); không lấy được danh sách thì rơi về
 // nhập tay.
-func runOAuthModelSelect(id string) (ModelConfig, error) {
+func runOAuthModelSelect(id string) (llmconfig.ModelConfig, error) {
 	manager, err := auth.DefaultManager()
 	if err != nil {
-		return ModelConfig{}, err
+		return llmconfig.ModelConfig{}, err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -364,7 +366,7 @@ func runOAuthModelSelect(id string) (ModelConfig, error) {
 			example = "Ví dụ: " + anthropicoauth.DefaultModel
 		}
 		name, err := runTextInput("[4/4] Tên Model chính", example)
-		return ModelConfig{Name: name}, err
+		return llmconfig.ModelConfig{Name: name}, err
 	}
 	items := make([]setupProvider, len(available))
 	for i, m := range available {
@@ -379,14 +381,14 @@ func runOAuthModelSelect(id string) (ModelConfig, error) {
 	}
 	final, err := tea.NewProgram(setupSelectModel{title: "[4/4] Chọn Model chính", items: items}, tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
-		return ModelConfig{}, err
+		return llmconfig.ModelConfig{}, err
 	}
 	result := final.(setupSelectModel)
 	if result.cancelled {
-		return ModelConfig{}, fmt.Errorf("đã hủy khởi tạo")
+		return llmconfig.ModelConfig{}, fmt.Errorf("đã hủy khởi tạo")
 	}
 	chosen := available[result.cursor]
-	return ModelConfig{Name: chosen.slug, ContextWindow: chosen.contextWindow}, nil
+	return llmconfig.ModelConfig{Name: chosen.slug, ContextWindow: chosen.contextWindow}, nil
 }
 
 func runOptionalTextInput(label, placeholder string) (string, error) {

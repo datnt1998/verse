@@ -12,9 +12,11 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/core/auth"
+	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 type configStep int
@@ -46,7 +48,7 @@ type modelConfigBaseline struct {
 	providerType string
 	api          string
 	baseURL      string
-	models       []bootstrap.ModelConfig
+	models       []llmconfig.ModelConfig
 }
 
 type modelConfigState struct {
@@ -68,7 +70,7 @@ type modelConfigState struct {
 	providerType    string
 	api             string
 	baseURL         string
-	models          []bootstrap.ModelConfig
+	models          []llmconfig.ModelConfig
 	currentModel    string
 	existing        bool
 	hasAPIKey       bool
@@ -134,7 +136,7 @@ func (s *modelConfigState) applyProviderChoice(choice configProviderChoice) {
 		s.providerType = p.Type
 		s.api = p.API
 		s.baseURL = p.BaseURL
-		s.models = append([]bootstrap.ModelConfig(nil), p.Models...)
+		s.models = append([]llmconfig.ModelConfig(nil), p.Models...)
 		s.existing = true
 		s.hasAPIKey = p.HasAPIKey
 		s.apiKeyHint = p.APIKeyHint
@@ -196,7 +198,7 @@ func (s *modelConfigState) captureBaseline() {
 		providerType: s.providerType,
 		api:          s.api,
 		baseURL:      s.baseURL,
-		models:       append([]bootstrap.ModelConfig(nil), s.models...),
+		models:       append([]llmconfig.ModelConfig(nil), s.models...),
 	}
 }
 
@@ -539,7 +541,7 @@ func (s *modelConfigState) draft() host.ModelConfigurationDraft {
 	}
 	return host.ModelConfigurationDraft{
 		Provider: s.provider, Type: s.providerType, API: s.api, BaseURL: s.baseURL,
-		Models:       append([]bootstrap.ModelConfig(nil), s.models...),
+		Models:       append([]llmconfig.ModelConfig(nil), s.models...),
 		Renames:      renames,
 		APIKeyAction: s.apiKeyAction, APIKey: s.apiKey,
 	}
@@ -792,7 +794,7 @@ func (m Model) handleModelConfigKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		if msg.Type == tea.KeyEnter {
 			if state.cursor == len(state.models) {
-				state.models = append(state.models, bootstrap.ModelConfig{})
+				state.models = append(state.models, llmconfig.ModelConfig{})
 				state.modelOrigins = append(state.modelOrigins, "")
 				state.cursor = len(state.models) - 1
 				state.addingModel = true
