@@ -1,7 +1,7 @@
 ---
 title: "Chuyển Noverse sang monorepo verse"
 description: "Dời Noverse vào monorepo verse không mang lịch sử, tách lớp AI core có test ranh giới import, chạy live từ repo mới, dựng khung Viderse bằng Go, rồi đo và nâng cấp core qua eval."
-status: done (chờ mốc 7 ngày 2026-11-05 để gỡ worktree cũ)
+status: done
 priority: P1
 branch: "main của datnt1998/verse (private, Actions đang tắt)"
 tags: [monorepo, refactor, core, auth, eval, infra]
@@ -96,7 +96,7 @@ CI đang tắt để giữ quota, nên mọi gate chạy trên máy anh (10 nhâ
 | 00 [Chốt baseline và đẩy lên GitHub](./phase-00-baseline-push.md) | Tree sạch, tag ở commit cuối, gate xanh (CI cuối ở `c49b37d`, gate tương đương chạy trên máy ở `04aee55`) | — | xong |
 | 01 [Dời Noverse vào `apps/noverse`](./phase-01-move-noverse.md) | Repo `verse` qua toàn bộ gate cũ; số test không đổi | 00 | xong (CI hoãn, Actions tắt) |
 | 02 [Tách `core/` và test ranh giới](./phase-02-carve-core.md) | 32 package nằm ở `core/`; test ranh giới có kiểm chứng đối chứng; smoke eval 3/3 | 01 | xong |
-| 03 [Live chạy từ `verse`](./phase-03-live-from-verse.md) | Cổng 8790 chạy binary build từ `verse` dưới launchd; phiên đăng nhập cũ còn hiệu lực; rollback dưới 1 phút | 02 | xong; dữ liệu đã kiểm (binary cũ và mới đọc ra giống hệt). Anh đã xác nhận phiên cũ trên thiết bị. Chờ mốc 7 ngày (2026-11-05) |
+| 03 [Live chạy từ `verse`](./phase-03-live-from-verse.md) | Cổng 8790 chạy binary build từ `verse` dưới launchd; phiên đăng nhập cũ còn hiệu lực; rollback dưới 1 phút | 02 | Xong. Dữ liệu đã kiểm: binary cũ và mới đọc ra giống hệt. Anh đã xác nhận phiên cũ trên thiết bị. Ngày 2026-10-29 anh bỏ mốc 7 ngày: live đã dựng lại từ `main` và live cũ đã gỡ. Quay về một commit `verse` vẫn nhanh, còn quay về repo cũ thì phải dựng lại worktree |
 | 04 [An toàn request, identity, khung Viderse](./phase-04-security-identity-viderse.md) | 4a an toàn request; 4b identity dùng chung code; 4c Viderse + Writer chạy thật. Không làm 4d (SSO) | 03 | xong. Smoke của 4b chỉ có `architect_long` ×3 (anh cắt eval) |
 | 05 [Metric core trong eval](./phase-05-core-metrics.md) | Report có các trường metric mới; baseline có số đo độ dao động | 02 | xong; baseline rút gọn còn `architect_long` ×3 theo quyết định của anh. Baseline lộ một lỗi đo retry trước stream, đã sửa |
 | 06 [Nâng cấp core có A/B](./phase-06-core-upgrades.md) | Mỗi nâng cấp có giả thuyết, ngưỡng đặt trước và kết quả A/B | 05 | 2 nâng cấp đã merge **không qua A/B**, theo quyết định của anh; có test thay thế, ghi trong file A/B |

@@ -1,6 +1,6 @@
 ---
 title: "Phase 03 — Live chạy từ repo verse"
-status: done (chờ mốc 7 ngày 2026-11-05 để gỡ worktree cũ)
+status: done
 ---
 
 # Hiện trạng (2026-10-29)
@@ -62,22 +62,48 @@ Tên cookie, `~/.ainovel` và thư mục sách đều giữ nguyên, nên phase 
 | Sống | `/healthz` 200 ngay sau khi khởi động, cả lúc chuyển lẫn sau lần update |
 | Phiên cũ còn hiệu lực | Cookie, file tài khoản và 4 phiên giữ nguyên; `/api/projects` không cookie trả 401 như cũ. Ngày 2026-10-29 anh đã mở live trên thiết bị đang đăng nhập và xác nhận mọi thứ vẫn ổn; lúc đó `/healthz` trả 200 và log không có dòng error/panic |
 | Dữ liệu | Qua. Danh sách thư mục sách sau khi chuyển trùng `/tmp/live-books.txt`. Kiểm đọc trên bản sao APFS của `NoverseLive` và `.ainovel` (bỏ `auth.json`, `web-token` và tài khoản; dùng một admin tạm). Binary cũ `917e65a` và binary live `ccfa802` lần lượt đọc qua API thật và cho kết quả **giống hệt nhau**: dự án `tron-audio` có 2 truyện; truyện 1 xong 64/64 chương (94.296 từ), audio tập 1 có 519 đoạn, 1872 giây; truyện 2 xong 28/36 chương (32.330 từ), audio 2559 đoạn, 8406 giây. Mở được chương cuối của mỗi truyện. Bản sao đã xoá; `NoverseLive` không có file nào đổi sau bản sao lưu lúc chuyển |
-| Ổn định | Log `~/Library/Logs/noverse-live.log` không có dòng ERROR/panic sau khi chuyển và sau lần update. Mốc 7 ngày: tới 2026-11-05 |
-
-Worktree cũ `/Users/dat/Projects/noverse-live` và binary cũ giữ tới 2026-11-05 để rollback.
+| Ổn định | Log `~/Library/Logs/noverse-live.log` không có dòng ERROR/panic sau khi chuyển và sau mỗi lần update. Mốc 7 ngày được anh bỏ ngày 2026-10-29 (xem dưới) |
 
 Cập nhật 2026-10-29 lên `ce3f221` (sau khi merge 4b, phase 05 và Viderse Go) bằng `run-live.sh update` + `launchctl kickstart -k`: pid mới có ppid 1, `/healthz` 200, `/api/projects` không cookie 401, POST từ origin cổng khác hoặc host lạ (DNS rebinding) đều 403, danh sách sách và `web-accounts.json` (v4, 1 user, 4 phiên) giữ nguyên, log không có dòng lỗi.
 
+Ngày 2026-10-29 anh quyết định không chờ mốc 7 ngày (2026-11-05) mà dựng lại live rồi gỡ ngay bản cũ.
+
+- **Dựng lại live:** từ `main` mới nhất `dc2f7f9`, bằng `run-live.sh update` + `launchctl kickstart -k`. Từ `ccfa802` đến đó chỉ đổi file `.md`. Gate:
+  - pid mới có ppid 1;
+  - `/healthz` 200 trên `127.0.0.1`, IP LAN và IP Tailscale;
+  - `/api/projects` không cookie trả 401;
+  - POST từ origin cổng khác hoặc từ host lạ trả 403; đăng nhập sai trên cùng origin trả 401;
+  - `web-accounts.json` không đổi (cùng SHA-256; v4, 1 user, 4 phiên);
+  - danh sách thư mục sách không đổi.
+- **Gỡ live cũ** khỏi repo `ainovel-cli`, sau khi xác nhận không còn process nào chạy từ worktree cũ:
+  - worktree `/Users/dat/Projects/noverse-live`, trong đó chỉ còn dist build lại, `web/node_modules` và `bin/`;
+  - nhánh `live` (`917e65a`, đã nằm trong `main`);
+  - stash `live dist rebuilt at 26ccf12`.
+- **Giữ lại** bản sao lưu dữ liệu `~/Backups/noverse-live-20261029-163638.tgz`.
+
 # Rollback
 
-1. Dừng bản mới theo đúng cách đang giữ nó:
-   - launchd: `launchctl bootout gui/$(id -u)/dev.verse.noverse-live`. Chỉ kill process thì `KeepAlive` sẽ khởi động lại nó.
-   - service omp: dừng service đó.
+Bản cũ và bản mới không được chạy cùng lúc trên cùng `~/.ainovel` (xem Rủi ro).
+
+**Về một commit `verse` cũ hơn (nhanh nhất).** Thao tác trong `/Users/dat/Projects/verse-live`:
+
+1. `git reset --hard <sha>`
+2. `go build -o bin/noverse ./apps/noverse/cmd/ainovel-cli`
+3. `launchctl kickstart -k gui/$(id -u)/dev.verse.noverse-live`
+
+Mất khoảng thời gian một lần build. Lần `run-live.sh update` sau sẽ fast-forward lại lên `main`.
+
+**Về binary của repo cũ (`917e65a`).** Worktree cũ đã gỡ nên phải dựng lại:
+
+1. Dừng bản mới: `launchctl bootout gui/$(id -u)/dev.verse.noverse-live`. Nếu chỉ kill process thì `KeepAlive` sẽ khởi động lại nó.
 2. Chờ cổng 8790 được nhả (`lsof -iTCP:8790 -sTCP:LISTEN` rỗng).
-3. Chạy `/Users/dat/Projects/noverse-live/bin/run-live.sh`. Binary cũ vẫn nằm ở đó.
+3. Dựng lại bản cũ:
+   - `git -C /Users/dat/Projects/ainovel-cli worktree add /Users/dat/Projects/noverse-live 917e65a`
+   - trong worktree đó: `go build -o bin/noverse ./cmd/ainovel-cli`
+   - chạy `bin/noverse serve -root /Users/dat/NoverseLive -addr 127.0.0.1:8790`
 4. Nếu bước 5 đã ghi nhận thay đổi định dạng dữ liệu, khôi phục `NoverseLive` và `.ainovel` từ bản sao lưu trước khi chạy binary cũ.
 
-Không có thay đổi định dạng thì cả quá trình mất dưới 1 phút. Muốn chuyển sang bản mới lần nữa thì làm lại bước 6.
+Muốn chuyển lại sang bản mới: `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.verse.noverse-live.plist`, sau khi đã dừng hẳn bản cũ.
 
 # Rủi ro
 
