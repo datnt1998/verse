@@ -38,6 +38,7 @@ export default defineConfig(({ mode }) => ({
       { find: /^@noverse\/ui\/tokens\.stylex$/, replacement: uiPkg('tokens.stylex.ts') },
       { find: /^@noverse\/ui\/(.+\.css)$/, replacement: uiPkg('$1') },
       { find: /^@noverse\/ui$/, replacement: uiPkg('index.ts') },
+      { find: /^@noverse\/ui\/data$/, replacement: uiPkg('data/index.ts') },
     ],
   },
   plugins: [stylexPlugin(), react(), tailwindcss(), ...(mode === 'mock' ? [mockApiPlugin()] : [])],

@@ -49,10 +49,7 @@ func (g *Gateway) initNotifications() {
 		slog.Error("Không mở được kho thông báo", "module", "web", "err", n.err)
 		return
 	}
-	hub := g.events()
-	hub.mu.Lock()
-	hub.onEvent = append(hub.onEvent, g.consumeNotifyEvent)
-	hub.mu.Unlock()
+	g.events().OnPublish(g.consumeNotifyEvent)
 }
 func (g *Gateway) closeNotifications() {
 	if g.notifications != nil && g.notifications.store != nil {

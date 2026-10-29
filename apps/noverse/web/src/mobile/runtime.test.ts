@@ -2,7 +2,8 @@ import 'fake-indexeddb/auto'
 import { afterEach, expect, it, vi } from 'vitest'
 import { me, sendInput, setUnauthorizedHandler } from '../api/client'
 import { getRemembered, rememberAccount } from '../api/storage'
-import { createEventsClient, events } from '../data/events'
+import { createEventsClient } from '@noverse/ui/data'
+import { events } from '../data/events'
 import { getDraft, registerAccountSession, setDraft, setDraftAccount, switchAccount } from './accounts'
 import { mobileBackoff, MOBILE_BACKOFF_MS, tabModeFor } from './logic'
 import { drainOutbox, enqueueComment, readOutbox, setOutboxAccount } from './outbox'
@@ -24,7 +25,7 @@ it('tabMode: bàn phím và màn ẩn thắng mini; cuộn lên trả mặc đ�
 it('nối lại thật theo 1 → 2 → 4 → 5 giây và giữ trần 5 giây', () => {
   vi.useFakeTimers()
   const sources: { onerror: (() => void) | null; close: () => void; addEventListener: () => void }[] = []
-  const client = createEventsClient({ backoff: () => MOBILE_BACKOFF_MS, createSource: () => { const source = { onerror: null, close() {}, addEventListener() {} }; sources.push(source); return source } })
+  const client = createEventsClient({ eventTypes: ['hello'], backoff: () => MOBILE_BACKOFF_MS, createSource: () => { const source = { onerror: null, close() {}, addEventListener() {} }; sources.push(source); return source } })
   client.start()
   const observed: number[] = []
   for (const expected of [1000, 2000, 4000, 5000, 5000]) {

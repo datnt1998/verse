@@ -4767,6 +4767,14 @@
   --agent-writer-aura: 154,99,227;
   --agent-editor-aura: 236,149,72;
   --agent-arbiter-aura: 93,193,176;
+  --banner-agent-architect-bg: #7c93f312;
+  --banner-agent-architect-bd: #7c93f338;
+  --banner-agent-writer-bg: #9a63e312;
+  --banner-agent-writer-bd: #9a63e338;
+  --banner-agent-editor-bg: #ec954812;
+  --banner-agent-editor-bd: #ec954838;
+  --banner-agent-arbiter-bg: #5dc1b012;
+  --banner-agent-arbiter-bd: #5dc1b038;
 }
 
 :root, .x1799u0l, :root, .xyc3hrq {

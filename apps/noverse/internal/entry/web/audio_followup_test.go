@@ -32,7 +32,7 @@ func TestAudioProviderLiveWatch(t *testing.T) {
 	timeout := time.After(20 * time.Second)
 	for {
 		select {
-		case event := <-sub.ch:
+		case event := <-sub.C:
 			if event.Type == "job.progress" {
 				if job, ok := event.Data.(Job); ok && job.ID == "proj/01-tra-xanh/audio/1" {
 					sawProgress = true

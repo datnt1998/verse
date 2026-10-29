@@ -38,7 +38,7 @@ func TestExportConflictIsPreflightWithoutJobAndPathsAreRelative(t *testing.T) {
 		t.Fatalf("preflight conflict registered a failed job: id=%q jobs=%+v", id, hub.list(identity.User{Role: identity.RoleAdmin}))
 	}
 	select {
-	case event := <-subscriber.ch:
+	case event := <-subscriber.C:
 		t.Fatalf("preflight conflict published job event %s", event.Type)
 	default:
 	}

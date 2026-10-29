@@ -1,6 +1,6 @@
 import { getConfig, getConfigModels, putConfig } from '../api/client'
 import { configForSave } from '../screens/settings/lib/config'
-import { invalidate } from './cache'
+import { invalidate } from '@noverse/ui/data'
 import { useResource } from './useResource'
 
 export const modelContextKey = (provider: string, model: string) => ['model-context', provider, model] as const

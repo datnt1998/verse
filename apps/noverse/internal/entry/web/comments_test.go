@@ -44,8 +44,8 @@ func TestCommentsGatewayCRUDPermissionAndTUILock(t *testing.T) {
 		t.Fatalf("create = %d: %s", w.Code, w.Body)
 	}
 	select {
-	case ev := <-sub.ch:
-		if ev.Type != "story.changed" || ev.Project != "_" || ev.Story != "oldbook" {
+	case ev := <-sub.C:
+		if ev.Type != "story.changed" || ev.Meta.(Event).Project != "_" || ev.Meta.(Event).Story != "oldbook" {
 			t.Fatalf("comment event = %+v", ev)
 		}
 		parts := ev.Data.(map[string]any)["parts"].([]string)

@@ -999,8 +999,8 @@ func TestAudioCastVersionConflictAndChangeEvent(t *testing.T) {
 	deadline := time.After(2 * time.Second)
 	for {
 		select {
-		case ev := <-sub.ch:
-			if ev.Type == "story.changed" && ev.Story == f.st.Story {
+		case ev := <-sub.C:
+			if ev.Type == "story.changed" && ev.Meta.(Event).Story == f.st.Story {
 				return
 			}
 		case <-deadline:

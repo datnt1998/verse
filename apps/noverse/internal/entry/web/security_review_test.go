@@ -44,7 +44,7 @@ func TestReviewStoryStreamsCloseAfterStoredRevocation(t *testing.T) {
 				tg := newTestGateway(t)
 				stubNextWorker(t, tg.g)
 				reader := tg.login("reader", "reader-pass")
-				tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+				tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 					if r.URL.Path != "/api/events" {
 						return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"ok":true}`))}, nil
 					}
@@ -55,7 +55,7 @@ func TestReviewStoryStreamsCloseAfterStoredRevocation(t *testing.T) {
 						<-r.Context().Done()
 					}()
 					return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/event-stream"}}, Body: body}, nil
-				})
+				}))
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
 				r := httptest.NewRequest("GET", "/api/projects/_/stories/oldbook/"+stream, nil).WithContext(ctx)

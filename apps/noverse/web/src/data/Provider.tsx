@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore, type ReactNode } from 'react'
 import { useSession } from '../api/session'
-import { cache } from './cache'
+import { cache } from '@noverse/ui/data'
 import { events, startDataEvents } from './events'
 import { toast } from '@noverse/ui'
 import { setNextRoute } from '../api/storage'

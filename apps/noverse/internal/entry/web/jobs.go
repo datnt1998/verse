@@ -493,8 +493,8 @@ func (g *Gateway) streamWorkerJobs(ctx context.Context, project, story string, w
 	}
 	req.Header.Set("X-Ainovel-Worker-Token", g.workerToken)
 	client := &http.Client{}
-	if g.transport != nil {
-		client.Transport = g.transport
+	if rt := g.workerTransport(); rt != nil {
+		client.Transport = rt
 	}
 	resp, err := client.Do(req)
 	if err != nil {

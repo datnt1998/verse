@@ -434,9 +434,9 @@ func TestGatewayRolePermissions(t *testing.T) {
 		launched++
 		return fakeWorker(make(chan struct{}), &sync.Once{}), nil
 	}
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"ok":true}`))}, nil
-	})
+	}))
 	reader, writer := tg.login("reader", "reader-pass"), tg.login("writer", "writer-pass")
 
 	// A view role covers every story in the assigned project.
@@ -542,7 +542,7 @@ func TestGatewayConcurrentRequestsLaunchOnce(t *testing.T) {
 		launches.Add(1)
 		return &launchedWorker{addr: "127.0.0.1:1", stdin: io.NopCloser(strings.NewReader("")), done: done, kill: func() error { once.Do(func() { close(done) }); return nil }}, nil
 	}
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		if r.Header.Get("X-Ainovel-Worker-Token") != tg.g.workerToken || tg.g.workerToken == "" {
 			t.Errorf("missing worker token")
 		}
@@ -556,7 +556,7 @@ func TestGatewayConcurrentRequestsLaunchOnce(t *testing.T) {
 			t.Errorf("unexpected worker path %q", r.URL.Path)
 		}
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":false}`))}, nil
-	})
+	}))
 	var wg sync.WaitGroup
 	for range 20 {
 		wg.Add(1)

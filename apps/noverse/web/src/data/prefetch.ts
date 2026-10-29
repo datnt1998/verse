@@ -7,7 +7,7 @@ import {
   getAudioCast, getAudioReady, getAudioSettings,
   ApiError, getChapters, getConfig, getOutline, getProject, getSnapshot, listStories,
 } from '../api/client'
-import { cache } from './cache'
+import { cache } from '@noverse/ui/data'
 import { keys } from './keys'
 
 export type PrefetchTarget = 'workspace' | 'project' | 'reader' | 'audio' | 'newstory'

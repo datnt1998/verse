@@ -61,3 +61,31 @@ it('stays quiet after the client closes the stream itself', async () => {
   window.dispatchEvent(new Event('online'))
   expect(onerror).not.toHaveBeenCalled()
 })
+
+it('stallMs cấu hình được: hello rồi im lặng báo lỗi trong giới hạn đặt', async () => {
+  vi.useFakeTimers()
+  silentStream(['event: hello\ndata: {}\n\n'])
+  const source = fetchSource('/api/events', { stallMs: 3500, stallCheckMs: 500 })
+  const onerror = vi.fn()
+  source.onerror = onerror
+  await vi.advanceTimersByTimeAsync(3499)
+  expect(onerror).not.toHaveBeenCalled()
+  await vi.advanceTimersByTimeAsync(500)
+  expect(onerror).toHaveBeenCalledTimes(1)
+  source.close()
+})
+
+it('connectTimeoutMs: headers không bao giờ về cũng báo lỗi đúng giới hạn', async () => {
+  vi.useFakeTimers()
+  vi.stubGlobal('fetch', vi.fn((_url: unknown, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+    init?.signal?.addEventListener('abort', () => reject(new DOMException('Đã huỷ yêu cầu', 'AbortError')))
+  })))
+  const source = fetchSource('/api/events', { stallMs: 3500, stallCheckMs: 500, connectTimeoutMs: 3500 })
+  const onerror = vi.fn()
+  source.onerror = onerror
+  await vi.advanceTimersByTimeAsync(3499)
+  expect(onerror).not.toHaveBeenCalled()
+  await vi.advanceTimersByTimeAsync(1)
+  expect(onerror).toHaveBeenCalledTimes(1)
+  source.close()
+})

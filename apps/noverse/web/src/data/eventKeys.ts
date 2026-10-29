@@ -1,6 +1,7 @@
 // Ánh xạ sự kiện toàn cục (/api/events, 16-feedback-refresh.md §2) → prefix khoá cần invalidate.
 import type { Job } from '../api/types'
-import { keys, matchesPrefix, type Key, type StoryPart } from './keys'
+import { matchesPrefix, type Key } from '@noverse/ui/data'
+import { keys, type StoryPart } from './keys'
 
 export type ServerEventType =
   | 'hello' | 'reset' | 'ping' | 'live'

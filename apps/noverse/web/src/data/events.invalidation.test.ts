@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest'
-import { cache } from './cache'
+import { cache } from '@noverse/ui/data'
 import { events, startDataEvents, type EventHandler } from './events'
 import { keys } from './keys'
 

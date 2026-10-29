@@ -1,6 +1,6 @@
 # Dữ liệu và phản hồi thao tác
 
-Một `DataProvider` trong `App` giữ một luồng `/api/events` cho phiên đăng nhập. SSE dùng `fetch` để gửi header `Last-Event-ID`; mất luồng nối lại sau 1 → 2 → 4 → 5 giây (giữ 5 giây cho các lần sau). Chỉ luồng SSE điều khiển backoff; `/api/me` kiểm tra phiên một lần sau `hello` nối lại, không probe trong outage. Nối lại/reset làm mới mọi tài nguyên đang hiển thị. Focus/hiện tab giới hạn 15 giây mỗi khoá khi luồng đang mở; có mạng lại nối SSE ngay rồi làm mới cache khi nhận `hello`. Đăng xuất xoá cache.
+Một `DataProvider` trong `App` giữ một luồng `/api/events` cho phiên đăng nhập. Lõi lớp dữ liệu (cache theo khoá, helpers `Key`/`keyHash`/`matchesPrefix`, client SSE với EventSource/fetch stream, backoff 1→2→4→5 s và `Last-Event-ID`) nằm ở `@noverse/ui/data`; thư mục này giữ phần Noverse: `keys`, ánh xạ sự kiện→khoá, `Provider`, `useResource`, `useAction`/`createAction`, `prefetch`. Chỉ luồng SSE điều khiển backoff; `/api/me` kiểm tra phiên một lần sau `hello` nối lại, không probe trong outage. Nối lại/reset làm mới mọi tài nguyên đang hiển thị. Focus/hiện tab giới hạn 15 giây mỗi khoá khi luồng đang mở; có mạng lại nối SSE ngay rồi làm mới cache khi nhận `hello`. Đăng xuất xoá cache.
 Bootstrap `/api/me` có thể trả 401 khi trình duyệt sạch: App xoá phiên nhưng giữ nguyên các route công khai (`login`, `pair`, gallery phát triển), không chuyển trang ghép QR sang đăng nhập. Route cần đăng nhập vẫn chuyển về login.
 `session.revoked` khớp cả username lẫn session ID hiện tại thì giữ trang đích, dừng SSE, xoá phiên và về `/login` kèm thông báo bị thu hồi; không đi qua 401 hoặc dùng lời báo hết hạn 30 ngày. Thu hồi thiết bị khác chỉ làm mới danh sách phiên.
 
@@ -50,7 +50,7 @@ Các panel, nội dung, đại cương, thẩm duyệt, xuất và nhận xét d
 
 ## Kiểm chứng
 
-`npx vitest run src/data/data.test.ts` gồm 11 kiểm tra. Đã chạy mutation thật trong bản sao `/tmp/FData3-web` (không sửa nguồn dùng chung) và quan sát 9 thất bại trước khi khôi phục; hai regression bổ sung cũng được chạy trên mã trước khi sửa:
+`npx vitest run src/data/data.test.ts` gồm 9 kiểm tra phần Noverse (test lõi chung chuyển theo mã sang `platform/ui/src/data/`). Đã chạy mutation thật trong bản sao `/tmp/FData3-web` (không sửa nguồn dùng chung) và quan sát 9 thất bại trước khi khôi phục; hai regression bổ sung cũng được chạy trên mã trước khi sửa:
 
 | Trường hợp | Mutation | Fail-before quan sát |
 |---|---|---|

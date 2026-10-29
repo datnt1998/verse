@@ -36,14 +36,14 @@ func TestRulesChangesCarryScopeAndSection(t *testing.T) {
 			}
 			watcher.scan(true)
 			seen := false
-			for len(sub.ch) > 0 {
-				ev := <-sub.ch
+			for len(sub.C) > 0 {
+				ev := <-sub.C
 				if ev.Type != "config.changed" {
 					continue
 				}
 				seen = true
 				data := ev.Data.(map[string]any)
-				if data["section"] != "rules" || data["scope"] != tc.scope || ev.Project != tc.project || ev.Story != tc.story {
+				if data["section"] != "rules" || data["scope"] != tc.scope || ev.Meta.(Event).Project != tc.project || ev.Meta.(Event).Story != tc.story {
 					t.Fatalf("rules event missing discriminator/scope: %+v", ev)
 				}
 			}
@@ -71,8 +71,8 @@ func TestFileWatcherExternalEditAndPermissionFilter(t *testing.T) {
 	}
 	g.watcher.scan(true)
 	select {
-	case event := <-allowed.ch:
-		if event.Type != "story.changed" || event.Project != "proj" || event.Story != "01-story" {
+	case event := <-allowed.C:
+		if event.Type != "story.changed" || event.Meta.(Event).Project != "proj" || event.Meta.(Event).Story != "01-story" {
 			t.Fatalf("external event: %+v", event)
 		}
 		parts := event.Data.(map[string]any)["parts"].([]string)
@@ -83,13 +83,13 @@ func TestFileWatcherExternalEditAndPermissionFilter(t *testing.T) {
 		t.Fatal("external chapter edit emitted no event")
 	}
 	select {
-	case event := <-other.ch:
+	case event := <-other.C:
 		t.Fatalf("unauthorized event: %+v", event)
 	default:
 	}
 	g.watcher.scan(true)
 	select {
-	case event := <-allowed.ch:
+	case event := <-allowed.C:
 		t.Fatalf("unchanged scan emitted duplicate: %+v", event)
 	default:
 	}
@@ -99,7 +99,7 @@ func TestFileWatcherExternalEditAndPermissionFilter(t *testing.T) {
 	}
 	g.watcher.scan(true)
 	select {
-	case event := <-allowed.ch:
+	case event := <-allowed.C:
 		if event.Type != "config.changed" {
 			t.Fatalf("config event: %+v", event)
 		}
@@ -112,7 +112,7 @@ func TestFileWatcherExternalEditAndPermissionFilter(t *testing.T) {
 	}
 	g.watcher.scan(true)
 	select {
-	case event := <-allowed.ch:
+	case event := <-allowed.C:
 		if event.Type != "config.changed" || event.Data.(map[string]any)["section"] != "rules" {
 			t.Fatalf("rules event: %+v", event)
 		}
@@ -173,7 +173,7 @@ func naoWatchParts(sub *EventSub) []string {
 	var parts []string
 	for {
 		select {
-		case ev := <-sub.ch:
+		case ev := <-sub.C:
 			if ev.Type != "story.changed" {
 				continue
 			}
@@ -260,8 +260,8 @@ func TestFileWatcherIgnoresMetadataOnlyStoryEdits(t *testing.T) {
 		t.Fatal(err)
 	}
 	watcher.scan(true)
-	for len(sub.ch) > 0 {
-		event := <-sub.ch
+	for len(sub.C) > 0 {
+		event := <-sub.C
 		if event.Type == "story.changed" {
 			t.Fatalf("unchanged chapter invalidated parts: %v", event.Data)
 		}
@@ -271,7 +271,7 @@ func TestFileWatcherIgnoresMetadataOnlyStoryEdits(t *testing.T) {
 	}
 	watcher.scan(true)
 	select {
-	case event := <-sub.ch:
+	case event := <-sub.C:
 		if got := strings.Join(event.Data.(map[string]any)["parts"].([]string), ","); got != "chapters,snapshot" {
 			t.Fatalf("changed chapter invalidated unrelated parts: %s", got)
 		}

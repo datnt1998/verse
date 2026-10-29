@@ -11,7 +11,7 @@ import {
   jobError, setDownloadState,
 } from './exportFlow'
 import { events, subscribeEvents } from '../../data/events'
-import { cache, sameData } from '../../data/cache'
+import { cache, sameData } from '@noverse/ui/data'
 import { keys } from '../../data/keys'
 import { notificationsEnabled, setNotificationUser } from '../../mobile/pwa'
 import { navigate } from '../../router'

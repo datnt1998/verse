@@ -234,9 +234,9 @@ func TestLibraryRootSwitch(t *testing.T) {
 	tg.g.launch = func(_, _, _, _ string) (*launchedWorker, error) {
 		return fakeWorker(done, &once), nil
 	}
-	tg.g.transport = transportFunc(func(*http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(*http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":true}`))}, nil
-	})
+	}))
 	if _, err := tg.g.startDir("proj/01-story", tg.story); err != nil {
 		t.Fatal(err)
 	}
@@ -252,9 +252,9 @@ func TestLibraryRootSwitch(t *testing.T) {
 	}
 
 	// Rảnh → đổi được và worker bị dừng.
-	tg.g.transport = transportFunc(func(*http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(*http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":false}`))}, nil
-	})
+	}))
 	if w := tg.do("PUT", "/api/library", admin, fmt.Sprintf(`{"root":%q}`, third)); w.Code != 200 {
 		t.Fatalf("idle switch -> %d %s", w.Code, w.Body.String())
 	}
@@ -406,7 +406,7 @@ func TestProjectCoCreateLifecycle(t *testing.T) {
 		return fakeWorker(done, &once), nil
 	}
 	inputText := ""
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		payload := `{"ok":true}`
 		switch r.URL.Path {
 		case "/api/cocreate":
@@ -423,7 +423,7 @@ func TestProjectCoCreateLifecycle(t *testing.T) {
 			payload = `{"ok":true,"action":"start"}`
 		}
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(payload))}, nil
-	})
+	}))
 
 	// Reader (chỉ đọc) không được đồng sáng tác.
 	if code := tg.do("POST", "/api/projects/proj/cocreate/message", reader, `{"message":"x"}`).Code; code != 403 {
@@ -555,12 +555,12 @@ func TestProjectCoCreateCommitReportsStartFailure(t *testing.T) {
 	done := make(chan struct{})
 	var once sync.Once
 	tg.g.launch = func(_, _, _, _ string) (*launchedWorker, error) { return fakeWorker(done, &once), nil }
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		if r.URL.Path == "/api/cocreate/commit" {
 			return &http.Response{StatusCode: 500, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"error":"thiếu khoá API"}`))}, nil
 		}
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"active":true,"messages":[{"role":"user","content":"Truyện thử"}],"draft":"## Chủ đề\nThử","ready":true,"suggestions":[]}`))}, nil
-	})
+	}))
 
 	w := tg.do("POST", "/api/projects/proj/cocreate/message", admin, `{"message":"Truyện thử"}`)
 	id, _ := decodeResp(t, w)["draftId"].(string)
@@ -591,9 +591,9 @@ func TestProjectCoCreateCommitWithoutSession(t *testing.T) {
 	done := make(chan struct{})
 	var once sync.Once
 	tg.g.launch = func(_, _, _, _ string) (*launchedWorker, error) { return fakeWorker(done, &once), nil }
-	tg.g.transport = transportFunc(func(*http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(*http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"active":false,"messages":[],"draft":"","ready":false,"suggestions":[]}`))}, nil
-	})
+	}))
 
 	lib, err := library.Open(tg.root)
 	if err != nil {

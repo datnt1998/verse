@@ -86,9 +86,9 @@ func TestDeleteStoryRunningOrLeasedLeavesFilesUntouched(t *testing.T) {
 				var once sync.Once
 				slot := tg.g.slot("proj/01-story")
 				slot.worker = fakeWorker(workerDone, &once)
-				tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+				tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 					return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":true}`))}, nil
-				})
+				}))
 				defer tg.g.closeBook("proj/01-story")
 			}
 			w := tg.doWith(http.MethodDelete, deleteStoryURL, cookie, deleteStoryBody, func(r *http.Request) { r.Header.Set("Content-Type", "application/json") })
@@ -136,9 +136,9 @@ func TestDeleteStoryClosesIdleWorkerAndCleansState(t *testing.T) {
 	var once sync.Once
 	slot := tg.g.slot("proj/01-story")
 	slot.worker = fakeWorker(done, &once)
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":false}`))}, nil
-	})
+	}))
 	w := tg.doWith(http.MethodDelete, deleteStoryURL, cookie, deleteStoryBody, func(r *http.Request) { r.Header.Set("Content-Type", "application/json") })
 	if w.Code != 200 {
 		t.Fatalf("idle delete = %d: %s", w.Code, w.Body.String())
@@ -176,7 +176,7 @@ func TestDeleteStoryClosesIdleWorkerAndCleansState(t *testing.T) {
 	libraryChanged, projectChanged := false, false
 	for {
 		select {
-		case ev := <-sub.ch:
+		case ev := <-sub.C:
 			libraryChanged = libraryChanged || ev.Type == "library.changed"
 			projectChanged = projectChanged || ev.Type == "project.changed"
 		default:

@@ -1,9 +1,8 @@
-// Khoá cache dùng chung (16-feedback-refresh.md §1). Khoá là mảng; `invalidate(prefix)` khớp
-// mọi khoá bắt đầu bằng prefix, nên đặt phần chung (truyện, dự án) lên trước phần chi tiết.
+// Khoá cache của Noverse. Khoá là mảng; `invalidate(prefix)` khớp mọi khoá bắt đầu
+// bằng prefix, nên đặt phần chung (truyện, dự án) lên trước phần chi tiết.
+// Phần lõi (Key, keyHash, matchesPrefix) nằm ở @noverse/ui/data.
 import type { ConfigScope } from '../api/types'
-
-export type KeyPart = string | number | boolean | null
-export type Key = readonly KeyPart[]
+import type { Key, KeyPart } from '@noverse/ui/data'
 
 /** Phần dữ liệu của một truyện — trùng `parts` của sự kiện `story.changed`. */
 export type StoryPart =
@@ -30,14 +29,4 @@ export const keys = {
   jobs: () => ['jobs'] as const,
   tts: () => ['tts'] as const,
   system: () => ['system'] as const,
-}
-
-/** Băm khoá ổn định (JSON) — hai khoá cùng nội dung → cùng mục cache. */
-export const keyHash = (key: Key) => JSON.stringify(key)
-
-/** `key` bắt đầu bằng `prefix`? Prefix rỗng khớp mọi khoá. */
-export function matchesPrefix(key: Key, prefix: Key): boolean {
-  if (prefix.length > key.length) return false
-  for (let i = 0; i < prefix.length; i++) if (key[i] !== prefix[i]) return false
-  return true
 }

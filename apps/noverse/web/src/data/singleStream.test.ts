@@ -27,9 +27,9 @@ describe('một luồng SSE cho mỗi tab', () => {
     const offenders = files
       .filter((path) => /new\s+EventSource\s*\(/.test(code(path)))
       .map((path) => relative(root, path))
-    // data/events.ts giữ đường dự phòng cho môi trường không có fetch-stream;
-    // singleton `events` thật ra dùng fetchSource nên production chỉ có một kết nối.
-    expect(offenders).toEqual(['data/events.ts'])
+    // EventSource/fetch-stream sống trong @noverse/ui/data; app không tự mở luồng nào,
+    // singleton `events` (data/events.ts) dùng fetchSource của kit — một kết nối mỗi tab.
+    expect(offenders).toEqual([])
   })
 
   it('không màn hình nào dùng lại URL SSE riêng của worker/audio', () => {

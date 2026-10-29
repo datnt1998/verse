@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { cache } from '../data/cache'
-import type { Key } from '../data/keys'
+import { cache, type Key } from '@noverse/ui/data'
 
 const travel = stylex.keyframes({ from: { transform: 'translateX(-100%)' }, to: { transform: 'translateX(100%)' } })
 const sx = stylex.create({

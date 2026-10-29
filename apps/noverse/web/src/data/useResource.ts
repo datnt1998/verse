@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import { cache, sameData, type EntrySnapshot, type Fetcher } from './cache'
-import { keyHash, type Key } from './keys'
+import { cache, sameData, keyHash, type EntrySnapshot, type Fetcher, type Key } from '@noverse/ui/data'
 
 export type ResourceOptions = {
   enabled?: boolean

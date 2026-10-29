@@ -37,6 +37,18 @@ describe('ranh giới @noverse/ui', () => {
     expect(bad, 'gói đang import ngoài ranh giới').toEqual([])
   })
 
+  it('subpath data không kéo thư viện ngoài (thuần TS, không cả stylex)', () => {
+    const bad: string[] = []
+    const files = [...sourceFiles(join(PKG_SRC, 'data'))].filter((file) => !/\.test\.tsx?$/.test(file))
+    expect(files.length, 'thiếu platform/ui/src/data').toBeGreaterThan(0)
+    for (const file of files) {
+      for (const spec of specifiers(file)) {
+        if (!spec.startsWith('.')) bad.push(`${file.slice(PKG.length + 1)} → ${spec}`)
+      }
+    }
+    expect(bad, 'mã data chỉ được dùng import tương đối trong gói').toEqual([])
+  })
+
   it('app chỉ đến kit qua tên gói @noverse/ui', () => {
     const bad: string[] = []
     for (const { app, src } of consumers()) {

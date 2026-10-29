@@ -1,7 +1,11 @@
-export { cache, createCache, invalidate, setData } from './cache'
-export type { Fetcher, EntrySnapshot, ResourceCache, ResourceStatus } from './cache'
-export { keys, keyHash, matchesPrefix } from './keys'
-export type { Key, StoryPart } from './keys'
+// Lớp dữ liệu của app: lõi chung ở @noverse/ui/data (cache, khoá, client SSE),
+// phần Noverse (khoá, ánh xạ sự kiện, prefetch, action) ở các file bên cạnh.
+export { cache, invalidate, setData, createCache } from '@noverse/ui/data'
+export type { Fetcher, EntrySnapshot, ResourceCache, ResourceStatus } from '@noverse/ui/data'
+export { keyHash, matchesPrefix } from '@noverse/ui/data'
+export type { Key } from '@noverse/ui/data'
+export { keys } from './keys'
+export type { StoryPart } from './keys'
 export { useResource, useResourceValue } from './useResource'
 export type { Resource, ResourceOptions } from './useResource'
 export { useAction } from './useAction'

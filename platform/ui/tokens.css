@@ -141,6 +141,14 @@
   --agent-writer-aura: 154,99,227;
   --agent-editor-aura: 236,149,72;
   --agent-arbiter-aura: 93,193,176;
+  --banner-agent-architect-bg: rgba(124,147,243,.07);
+  --banner-agent-architect-bd: rgba(124,147,243,.22);
+  --banner-agent-writer-bg: rgba(154,99,227,.07);
+  --banner-agent-writer-bd: rgba(154,99,227,.22);
+  --banner-agent-editor-bg: rgba(236,149,72,.07);
+  --banner-agent-editor-bd: rgba(236,149,72,.22);
+  --banner-agent-arbiter-bg: rgba(93,193,176,.07);
+  --banner-agent-arbiter-bd: rgba(93,193,176,.22);
   --grad-writer-progress: linear-gradient(90deg, #C9A6F5, #9A63E3 60%, #C9457F);
   --grad-progress-nav: linear-gradient(90deg, #9A63E3, #C9A6F5);
   --ring-arc: transparent 0deg, transparent 190deg, #5A57E3 240deg, #9A63E3 280deg, #C9457F 315deg, #5DC1B0 345deg, transparent 360deg;

@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createCache } from './cache'
+import { createCache } from '@noverse/ui/data'
 import { createAction, type ActionNotice } from './action'
-import { createEventsClient } from './events'
 import { keysForEvent, watchListOf } from './eventKeys'
 
 const deferred = <T>() => {
@@ -11,53 +10,6 @@ const deferred = <T>() => {
   return { promise, resolve, reject }
 }
 afterEach(() => { vi.useRealTimers() })
-
-describe('bộ nhớ đệm', () => {
-  it('gộp yêu cầu trùng và chỉ huỷ khi không còn người đọc', async () => {
-    const work = deferred<number>()
-    const fetcher = vi.fn(({ signal }: { signal: AbortSignal }) => { expect(signal.aborted).toBe(false); return work.promise })
-    const cache = createCache({ defer: (fn) => fn() })
-    const release = cache.retain(['a'], fetcher)
-    const second = cache.retain(['a'], fetcher)
-    expect(fetcher).toHaveBeenCalledTimes(1)
-    release(); work.resolve(7); await work.promise; await Promise.resolve()
-    expect(cache.get(['a']).data).toBe(7)
-    second()
-  })
-  it('SWR giữ dữ liệu cũ khi tải lại thất bại', async () => {
-    const cache = createCache()
-    const fetcher = vi.fn().mockResolvedValueOnce('bản cũ').mockRejectedValueOnce(new Error('mạng lỗi'))
-    cache.retain(['a'], fetcher)
-    await cache.refresh(['a']); await Promise.resolve(); await Promise.resolve()
-    expect(cache.get(['a']).data).toBe('bản cũ')
-    expect(cache.get(['a']).status).toBe('ready')
-    expect(cache.get(['a']).error).toBeInstanceOf(Error)
-  })
-  it('invalidate khớp prefix và không chạm khoá bên cạnh', async () => {
-    const cache = createCache()
-    const story = vi.fn().mockResolvedValue(1)
-    const other = vi.fn().mockResolvedValue(2)
-    cache.retain(['story', 'p', 's', 'chapter', 1], story)
-    cache.retain(['story', 'p', 't', 'chapter', 1], other)
-    await Promise.resolve(); await Promise.resolve()
-    await cache.invalidate(['story', 'p', 's'])
-    expect(story).toHaveBeenCalledTimes(2)
-    expect(other).toHaveBeenCalledTimes(1)
-  })
-  it('focus giới hạn 15 giây cho mỗi khoá đang hiển thị', async () => {
-    let now = 0
-    const cache = createCache({ now: () => now })
-    const fetcher = vi.fn().mockResolvedValue(1)
-    cache.retain(['a'], fetcher)
-    await Promise.resolve(); await Promise.resolve()
-    now = 14999; await cache.revalidateActive(15000)
-    expect(fetcher).toHaveBeenCalledTimes(1)
-    now = 15000; await cache.revalidateActive(15000)
-    expect(fetcher).toHaveBeenCalledTimes(2)
-    now = 15001; await cache.revalidateActive(15000)
-    expect(fetcher).toHaveBeenCalledTimes(2)
-  })
-})
 
 it('ánh xạ sự kiện sang prefix, kế thừa cấu hình và danh sách theo dõi', () => {
   expect(keysForEvent({ type: 'story.changed', data: { project: 'p', story: 's', parts: ['chapters', 'audio/scripts'] } })).toContainEqual(['story', 'p', 's', 'chapter'])
@@ -85,63 +37,6 @@ it('theo dõi scope của quy tắc ngay cả khi chỉ mở Tuỳ chỉnh', () 
 
 it('sự kiện âm thanh cấp dự án làm mới mọi truyện trong dự án', () => {
   expect(keysForEvent({ type: 'story.changed', data: { project: 'p', parts: ['audio'] } })).toContainEqual(['story', 'p'])
-})
-
-it('chỉ kiểm tra phiên sau khi nối lại, không probe trong lúc mất kết nối', async () => {
-  vi.useFakeTimers()
-  const sources: { target: EventTarget; onerror: ((event: Event) => void) | null; close: () => void; addEventListener: (type: string, fn: (event: Event) => void) => void }[] = []
-  const probe = vi.fn().mockResolvedValue('ok')
-  const client = createEventsClient({ probe, createSource: () => {
-    const target = new EventTarget()
-    const source = { target, onerror: null, close: vi.fn(), addEventListener: target.addEventListener.bind(target) }
-    sources.push(source)
-    return source
-  } })
-  client.start()
-  sources[0].target.dispatchEvent(new MessageEvent('hello', { data: '{"subscriber":"one"}' }))
-  sources[0].onerror?.(new Event('error'))
-  await vi.advanceTimersByTimeAsync(1000)
-  sources[1].onerror?.(new Event('error'))
-  expect(probe).not.toHaveBeenCalled()
-  await vi.advanceTimersByTimeAsync(2000)
-  sources[2].target.dispatchEvent(new MessageEvent('hello', { data: '{"subscriber":"two"}' }))
-  await Promise.resolve()
-  expect(probe).toHaveBeenCalledTimes(1)
-  client.stop()
-})
-
-it('nối lại 1→2→4→5 giây, giữ Last-Event-ID và làm mới mọi khoá hiển thị', async () => {
-  vi.useFakeTimers()
-  const sources: { target: EventTarget; onerror: ((event: Event) => void) | null; close: () => void; addEventListener: (type: string, fn: (event: Event) => void) => void }[] = []
-  const urls: string[] = []
-  const cache = createCache()
-  const fetcher = vi.fn().mockResolvedValue(1)
-  cache.retain(['a'], fetcher)
-  await Promise.resolve(); await Promise.resolve()
-  const client = createEventsClient({ createSource: (url) => {
-    urls.push(url)
-    const target = new EventTarget()
-    const source = { target, onerror: null, close: vi.fn(), addEventListener: target.addEventListener.bind(target) }
-    sources.push(source)
-    return source
-  } })
-  client.onReconnect(() => { void cache.invalidate() })
-  client.start()
-  sources[0].target.dispatchEvent(new MessageEvent('hello', { data: '{"subscriber":"one"}', lastEventId: '41' }))
-  for (const [index, delay] of [1000, 2000, 4000, 5000].entries()) {
-    sources[index].onerror?.(new Event('error'))
-    expect(client.status().reconnectAt).toBe(Date.now() + delay)
-    await vi.advanceTimersByTimeAsync(delay - 1)
-    expect(sources).toHaveLength(index + 1)
-    await vi.advanceTimersByTimeAsync(1)
-    expect(sources).toHaveLength(index + 2)
-  }
-  expect(urls.at(-1)).toContain('lastEventId=41')
-  sources.at(-1)!.target.dispatchEvent(new MessageEvent('hello', { data: '{"subscriber":"two"}' }))
-  await Promise.resolve(); await Promise.resolve()
-  expect(fetcher).toHaveBeenCalledTimes(2)
-  expect(client.status().state).toBe('open')
-  client.stop()
 })
 
 it('action khoá ngay, spinner sau 150 ms và giữ 400 ms', async () => {
@@ -217,17 +112,6 @@ it('hoàn tác 5 giây chỉ chạy một lần, lỗi có thể thử lại', a
   expect(undo).toHaveBeenCalledTimes(2)
   expect(notices.at(-1)?.text).toBe('Đã hoàn tác')
   action.dispose()
-})
-
-it('AbortError bên trong fetcher không giữ yêu cầu đang bay mãi', async () => {
-  const cache = createCache()
-  const fetcher = vi.fn().mockRejectedValueOnce(new DOMException('Đã huỷ yêu cầu', 'AbortError')).mockResolvedValueOnce('đã tải lại')
-  cache.retain(['aborted'], fetcher)
-  await Promise.resolve(); await Promise.resolve()
-  expect(cache.get(['aborted']).status).toBe('error')
-  await cache.refresh(['aborted'])
-  expect(fetcher).toHaveBeenCalledTimes(2)
-  expect(cache.get(['aborted']).data).toBe('đã tải lại')
 })
 
 it('hoàn tác giữ đúng tài nguyên gốc sau khi đổi chương', async () => {

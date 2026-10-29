@@ -3,7 +3,7 @@ import { Activity, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { expect, it } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { cache } from './cache'
+import { cache } from '@noverse/ui/data'
 import { useResource } from './useResource'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })

@@ -179,12 +179,12 @@ func TestProjectCoCreateProposalMoveCommit(t *testing.T) {
 		current.storyDir = dir
 		return fakeWorker(make(chan struct{}), &sync.Once{}), nil
 	}
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		r.Header.Set("X-Ainovel-Worker-Token", "secret")
 		w := httptest.NewRecorder()
 		current.ServeHTTP(w, r)
 		return w.Result(), nil
-	})
+	}))
 	empty := decodeResp(t, tg.do("GET", "/api/projects/proj/cocreate", admin, ""))
 	if empty["schemaVersion"] != float64(1) || empty["proposal"] != nil || empty["committed"] != false || empty["nextChapter"] != nil {
 		t.Fatalf("project empty contract: %+v", empty)

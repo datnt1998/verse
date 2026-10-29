@@ -199,7 +199,7 @@ func TestRecoverPublishesSessionRevokedForEverySession(t *testing.T) {
 	}
 	for len(want) > 0 {
 		select {
-		case ev := <-sub.ch:
+		case ev := <-sub.C:
 			if ev.Type == "session.revoked" {
 				delete(want, ev.Data.(map[string]any)["session"].(string))
 			}

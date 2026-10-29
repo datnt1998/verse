@@ -4,7 +4,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Config, ConfigModelInfo, ModelsResponse } from '../../api/types'
-import { cache } from '../../data/cache'
+import { cache } from '@noverse/ui/data'
 import { formatContext } from './logic'
 import { formatContextK } from '../../lib/modelContext'
 

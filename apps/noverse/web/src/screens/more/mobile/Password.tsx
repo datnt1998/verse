@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import { ApiError, changePassword, me } from '../../../api/client'
 import { useSession } from '../../../api/session'
-import { invalidate } from '../../../data/cache'
+import { invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { MobilePage, useMobileToast } from '../../../mobile'
 import { useTabMode } from '../../../mobile/runtime'

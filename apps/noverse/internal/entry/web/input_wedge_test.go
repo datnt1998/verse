@@ -21,7 +21,7 @@ func TestSlowWorkerInputDoesNotWedgeLibrary(t *testing.T) {
 	}
 	inputSeen := make(chan struct{})
 	release := make(chan struct{})
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		switch r.URL.Path {
 		case "/api/input":
 			close(inputSeen)
@@ -35,7 +35,7 @@ func TestSlowWorkerInputDoesNotWedgeLibrary(t *testing.T) {
 		default:
 			return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"isRunning":false}`))}, nil
 		}
-	})
+	}))
 	t.Cleanup(func() {
 		select {
 		case <-release:

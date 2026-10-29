@@ -160,14 +160,7 @@ func (g *Gateway) removeIdleStory(ctx context.Context, lib library.Repository, s
 }
 
 func (g *Gateway) removeStoryWatch(id string) {
-	hub := g.events()
-	hub.mu.Lock()
-	for _, sub := range hub.subs {
-		delete(sub.watch, id)
-	}
-	hooks := append([]func(){}, hub.onWatch...)
-	hub.mu.Unlock()
-	runHooks(hooks)
+	g.events().RemoveWatch(id)
 }
 
 func (h *jobsHub) removeStory(project, story string) {

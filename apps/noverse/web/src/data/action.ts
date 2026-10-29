@@ -1,6 +1,5 @@
 import { isNeedsConfig } from '../api/needsConfig'
-import { invalidate } from './cache'
-import type { Key } from './keys'
+import { invalidate, type Key } from '@noverse/ui/data'
 
 export type ActionState = { busy: boolean; pending: boolean; success: boolean; error: unknown }
 export type ActionOptions<T, A extends unknown[]> = {

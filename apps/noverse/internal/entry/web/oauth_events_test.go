@@ -15,7 +15,7 @@ func nextOAuthEvent(t *testing.T, sub *EventSub, flow, status string) Event {
 	defer timer.Stop()
 	for {
 		select {
-		case event := <-sub.ch:
+		case event := <-sub.C:
 			data, ok := event.Data.(map[string]any)
 			if !ok || event.Type != "config.changed" || data["scope"] != "oauth" {
 				continue
@@ -23,7 +23,7 @@ func nextOAuthEvent(t *testing.T, sub *EventSub, flow, status string) Event {
 			if data["flow"] != flow || data["status"] != status {
 				t.Fatalf("OAuth event = %v, want flow=%s status=%s", data, flow, status)
 			}
-			return event
+			return fromWire(event)
 		case <-timer.C:
 			t.Fatalf("missing OAuth transition event: flow=%s status=%s", flow, status)
 			return Event{}
@@ -74,7 +74,7 @@ func TestOAuthTransitionEventsPrivateSuccessFailureExpiry(t *testing.T) {
 	sess.cancel()
 	for {
 		select {
-		case event := <-other.ch:
+		case event := <-other.C:
 			if data, ok := event.Data.(map[string]any); ok && data["scope"] == "oauth" {
 				t.Fatalf("OAuth flow leaked to another admin: %+v", event)
 			}

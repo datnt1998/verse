@@ -30,13 +30,14 @@ func TestRulesMutationCarriesScopeAndSection(t *testing.T) {
 				r := httptest.NewRequest(http.MethodPost, "/api/rules/"+path, nil)
 				r = r.WithContext(context.WithValue(r.Context(), mutationScopeKey{}, mutationScope{scope: scope, project: p, story: s}))
 				tg.g.publishMutation(r, identity.User{}, identity.Session{}, nil)
-				ev := <-sub.ch
+				ev := <-sub.C
 				data := ev.Data.(map[string]any)
-				if ev.Type != "config.changed" || data["section"] != "rules" || data["scope"] != scope || ev.Project != p || ev.Story != s {
+				meta := ev.Meta.(Event)
+				if ev.Type != "config.changed" || data["section"] != "rules" || data["scope"] != scope || meta.Project != p || meta.Story != s {
 					t.Fatalf("rules mutation missing discriminator/scope: %+v", ev)
 				}
-				for len(sub.ch) > 0 {
-					<-sub.ch
+				for len(sub.C) > 0 {
+					<-sub.C
 				}
 			}
 		})
@@ -53,8 +54,8 @@ func TestGatewayMutationPublishesImmediately(t *testing.T) {
 		t.Fatalf("PUT = %d %s", w.Code, w.Body.String())
 	}
 	select {
-	case ev := <-sub.ch:
-		if ev.Type != "config.changed" || ev.Project != "proj" || ev.Story != "01-story" {
+	case ev := <-sub.C:
+		if ev.Type != "config.changed" || ev.Meta.(Event).Project != "proj" || ev.Meta.(Event).Story != "01-story" {
 			t.Fatalf("event: %+v", ev)
 		}
 	default:
@@ -65,7 +66,7 @@ func TestGatewayMutationPublishesImmediately(t *testing.T) {
 		t.Fatalf("stale write = %d", w.Code)
 	}
 	select {
-	case ev := <-sub.ch:
+	case ev := <-sub.C:
 		t.Fatalf("failed mutation emitted event: %+v", ev)
 	default:
 	}
@@ -85,7 +86,7 @@ func TestWorkerChangeMapping(t *testing.T) {
 		data, _ := json.Marshal(ev)
 		g.publishWorkerChange("proj/story", "event", data)
 		select {
-		case event := <-sub.ch:
+		case event := <-sub.C:
 			parts := event.Data.(map[string]any)["parts"].([]string)
 			if !strings.Contains(strings.Join(parts, ","), tc.part) {
 				t.Fatalf("%s: %v", tc.summary, parts)
@@ -96,7 +97,7 @@ func TestWorkerChangeMapping(t *testing.T) {
 	}
 	g.publishWorkerChange("proj/story", "job.done", []byte(`{"kind":"export","status":"done"}`))
 	select {
-	case ev := <-sub.ch:
+	case ev := <-sub.C:
 		parts := ev.Data.(map[string]any)["parts"].([]string)
 		if !strings.Contains(strings.Join(parts, ","), "exports") {
 			t.Fatalf("export parts: %v", parts)
@@ -106,7 +107,7 @@ func TestWorkerChangeMapping(t *testing.T) {
 	}
 	g.publishWorkerChange("proj/story", "event", []byte(`{"category":"TOOL","summary":"commit_chapter(chương 1)","failed":true,"finishedAt":"2026-01-01T00:00:00Z"}`))
 	select {
-	case ev := <-sub.ch:
+	case ev := <-sub.C:
 		t.Fatalf("failed tool invalidated: %+v", ev)
 	default:
 	}
@@ -128,7 +129,7 @@ func TestRevokingSessionPublishesOnlyRevokedSession(t *testing.T) {
 		t.Fatalf("revoke = %d %s", w.Code, w.Body.String())
 	}
 	select {
-	case ev := <-sub.ch:
+	case ev := <-sub.C:
 		if ev.Type != "session.revoked" || ev.Data.(map[string]any)["session"] != session.ID {
 			t.Fatalf("revoke event: %+v", ev)
 		}

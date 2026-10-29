@@ -1,4 +1,4 @@
-// Bộ nhớ đệm theo khoá (16-feedback-refresh.md §1) — không phụ thuộc React để test được bằng node.
+// Bộ nhớ đệm theo khoá dùng chung giữa các app — không phụ thuộc React để test được bằng node.
 // stale-while-revalidate: tải lại không bao giờ xoá dữ liệu cũ; lỗi tải lại chỉ gắn `error`.
 // Gộp yêu cầu trùng đang bay; huỷ (AbortController) khi không còn ai giữ khoá.
 import { keyHash, matchesPrefix, type Key } from './keys'

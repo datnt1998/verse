@@ -6,7 +6,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ApiError, getFsPlaces, getSystem, inspectLibraryPath, listFsFolders, mkFsFolder, pickFolder } from '../../api/client'
 import type { FsPlace, LibraryInspect, SystemInfo } from '../../api/types'
-import { cache } from '../../data/cache'
+import { cache } from '@noverse/ui/data'
 
 vi.mock('../../api/client', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../api/client')>()

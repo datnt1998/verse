@@ -180,6 +180,11 @@ export const agent = stylex.defineVars({
   '--agent-writer-aura': '154,99,227',
   '--agent-editor-aura': '236,149,72',
   '--agent-arbiter-aura': '93,193,176',
+  /* Banner tone="agent": nền/viền nhạt theo quầng của trợ lý (màu trợ lý đổi theo brand nên đọc qua biến). */
+  '--banner-agent-architect-bg': 'rgba(124,147,243,.07)', '--banner-agent-architect-bd': 'rgba(124,147,243,.22)',
+  '--banner-agent-writer-bg': 'rgba(154,99,227,.07)', '--banner-agent-writer-bd': 'rgba(154,99,227,.22)',
+  '--banner-agent-editor-bg': 'rgba(236,149,72,.07)', '--banner-agent-editor-bd': 'rgba(236,149,72,.22)',
+  '--banner-agent-arbiter-bg': 'rgba(93,193,176,.07)', '--banner-agent-arbiter-bd': 'rgba(93,193,176,.22)',
 })
 
 /** Gradient hoạt động, card “liquid dark”, kính mờ của dock & toast */

@@ -24,7 +24,9 @@ const styles = stylex.create({
   primary: { backgroundColor: color['--color-fg'], color: color['--color-bg'], fontWeight: 600 },
   primaryHover: { backgroundColor: { default: color['--color-fg'], ':hover': 'white' } },
   ghost: { backgroundColor: 'transparent', color: color['--color-fg'], borderColor: kit['--kit-wash-12'] },
+  quiet: { backgroundColor: 'transparent', color: color['--color-fg-3'] },
   ghostHover: { backgroundColor: { default: 'transparent', ':hover': W7 } },
+  quietHover: { color: { default: color['--color-fg-3'], ':hover': color['--color-fg'] } },
   danger: { backgroundColor: kit['--kit-err-deep'], color: 'white', fontWeight: 600 },
   dangerHover: {
     backgroundColor: { default: kit['--kit-err-deep'], ':hover': kit['--kit-err-deep-hi'] },
@@ -55,7 +57,7 @@ const styles = stylex.create({
 })
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'ghost' | 'icon' | 'icon-only' | 'dsoft' | 'danger'
+  variant?: 'primary' | 'ghost' | 'quiet' | 'icon' | 'icon-only' | 'dsoft' | 'danger'
   size?: 'sm' | 'md'
   /** hiển thị phím tắt bên phải (vd 'Esc') */
   kbd?: ReactNode
@@ -83,6 +85,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     styles.base,
     kind === 'primary' && styles.primary,
     kind === 'ghost' && styles.ghost,
+    kind === 'quiet' && styles.quiet,
     kind === 'danger' && styles.danger,
     kind === 'dsoft' && styles.dsoft,
     kind === 'icon' && styles.icon,
@@ -91,6 +94,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       styles.enabled,
       kind === 'primary' && styles.primaryHover,
       (kind === 'ghost' || kind === 'icon') && styles.ghostHover,
+      kind === 'quiet' && styles.quietHover,
       kind === 'danger' && styles.dangerHover,
       kind === 'dsoft' && styles.dsoftHover,
     ],

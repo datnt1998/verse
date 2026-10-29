@@ -18,6 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/identity"
 )
 
@@ -291,14 +292,13 @@ func (g *Gateway) serveEventsWatch(w http.ResponseWriter, r *http.Request, user 
 		return
 	}
 	hub := g.events()
-	hub.mu.Lock()
 	ids := make([]string, 0)
-	for id, sub := range hub.subs {
-		if sub.user.Username == user.Username && (req.Subscriber == "" || req.Subscriber == id) {
-			ids = append(ids, id)
+	hub.inner.ForEachSub(func(s *events.Sub) {
+		u, _ := s.Principal().(identity.User)
+		if u.Username == user.Username && (req.Subscriber == "" || req.Subscriber == s.ID) {
+			ids = append(ids, s.ID)
 		}
-	}
-	hub.mu.Unlock()
+	})
 	if req.Subscriber != "" && len(ids) == 0 {
 		jsonError(w, 404, "Không tìm thấy kết nối sự kiện")
 		return

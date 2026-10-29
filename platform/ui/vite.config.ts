@@ -10,6 +10,7 @@ export default defineConfig({
         index: 'src/index.ts',
         'tokens.stylex': 'src/tokens.stylex.ts',
         brand: 'src/brand.ts',
+        data: 'src/data/index.ts',
       },
       cssFileName: 'style',
       formats: ['es'],

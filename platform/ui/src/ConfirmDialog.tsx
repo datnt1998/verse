@@ -5,7 +5,7 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line, surface, kit } from './tokens.stylex'
 import { Button } from './Button'
 import { Checkbox, RadioDot } from './controls'
-import { AgentOrb } from './AgentOrb'
+import { AgentOrb, type AgentKind } from './AgentOrb'
 import { Icon } from './Icon'
 import { useEscapeLayer } from './Overlays'
 import { toast } from './Toast'
@@ -127,6 +127,7 @@ const sx = stylex.create({
     fontSize: 12.5, color: kit['--kit-err-text'],
   },
   errorIcon: { marginTop: 2 },
+  note: { display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, color: color['--color-fg-3'] },
   footer: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   remember: { color: color['--color-fg-3'], fontSize: 12.5 },
   spacer: { flex: 1 },
@@ -142,11 +143,13 @@ export type ConfirmTone = 'normal' | 'warn' | 'dsoft' | 'danger'
 export type ConfirmChoice = { value: string; label: string; description?: string }
 export type ConfirmCompare = { label: string; summary: ReactNode; meta?: ReactNode }
 export type ConfirmDialogProps = {
-  title: string; body: ReactNode; tone?: ConfirmTone; icon?: ReactNode; agent?: boolean
+  title: string; body: ReactNode; tone?: ConfirmTone; icon?: ReactNode; agent?: boolean | AgentKind
   confirmLabel: string; cancelLabel?: string; pendingLabel?: string
   choices?: ConfirmChoice[]; defaultChoice?: string; compare?: ConfirmCompare[]; consequences?: string[]
   phrase?: string; hold?: boolean
   remember?: { user: string; kind: string }
+  /** Khi đặt: hành động phá hoại không thể kích hoạt bằng click, giữ hay phím — lý do hiện trong hộp. */
+  disabledReason?: string
   secondary?: { label: string; onConfirm: () => void | Promise<void>; danger?: boolean; successMessage?: string }
   onConfirm: (choice: string) => void | Promise<void>; onClose: (accepted?: boolean) => void
   /** chuỗi cố định, hoặc hàm theo lựa chọn radio; trả undefined → không hiện toast */
@@ -170,7 +173,7 @@ export function isConfirmationRemembered(user: string, kind: string) {
   try { return localStorage.getItem(rememberKey(user, kind)) === '1' } catch { return false }
 }
 
-export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, remember, secondary, onConfirm, onClose, successMessage, undo, inline }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, disabledReason, remember, secondary, onConfirm, onClose, successMessage, undo, inline }: ConfirmDialogProps) {
   const L = getKitLabels()
   const cancelText = cancelLabel ?? L.cancel
   const pendingText = pendingLabel ?? L.confirm.pendingGeneric
@@ -241,7 +244,7 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   const shake = () => { setShaking(true); window.clearTimeout(shakeTimer.current); shakeTimer.current = window.setTimeout(() => setShaking(false), 380) }
   const run = async (action = () => onConfirm(choice), message?: string | null) => {
     if (busyRef.current || closing) return
-    if (!matched) { shake(); return }
+    if (!matched || disabledReason) { if (!matched) shake(); return }
     busyRef.current = true; setError(''); stopHold()
     try {
       const success = await execute(action)
@@ -253,7 +256,7 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
     } finally { busyRef.current = false }
   }
   const startHold = () => {
-    if (busyRef.current || closing || cancelHold.current !== undefined) return
+    if (busyRef.current || closing || cancelHold.current !== undefined || disabledReason) return
     setHolding(true)
     cancelHold.current = scheduleConfirmationHold(() => { cancelHold.current = undefined; void run() })
   }
@@ -261,7 +264,7 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   const dlg = stylex.props(sx.confirm, closing && sx.confirmClosing)
   const content = <div className={scrim.className} style={scrim.style}>
     <div ref={dialog} role="alertdialog" aria-modal={!inline} aria-labelledby={`${id}-title`} aria-describedby={`${id}-body`} className={dlg.className} style={dlg.style} onKeyDown={(event) => {
-      if (event.key === 'Enter' && !hold) {
+      if (event.key === 'Enter' && !hold && !disabledReason) {
         if (phrase && !matched && event.target instanceof HTMLInputElement) { event.preventDefault(); shake(); return }
         if (dangerous && event.target === primary.current) { event.preventDefault(); return }
         if (!dangerous && event.target !== cancel.current && event.target instanceof HTMLElement && event.target.getAttribute('role') !== 'radio' && event.target !== dialog.current?.querySelector('[data-secondary]')) { event.preventDefault(); void run() }
@@ -275,7 +278,7 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
     }}>
       <div {...stylex.props(sx.row)}>
         {agent
-          ? <span {...stylex.props(sx.orbWrap)}><AgentOrb agent="writer" size={24} /></span>
+          ? <span {...stylex.props(sx.orbWrap)}><AgentOrb agent={agent === true ? 'writer' : agent} size={24} /></span>
           : <span {...stylex.props(sx.iconChip, sx.iconChipLook(chip.bg, chip.fg))}>{icon ?? <Icon name={chip.icon} size={20} />}</span>}
         <div {...stylex.props(sx.leadCol)}>
           <h3 id={`${id}-title`} {...stylex.props(sx.title)}>{title}</h3>
@@ -286,9 +289,10 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
       {compare && <div {...stylex.props(sx.compare)}>{compare.map((item, index) => <div key={item.label} {...stylex.props(sx.compareCell, index ? sx.compareAfter : sx.compareBefore)}><span className="lbl" {...stylex.props(sx.compareLabel, index === 1 && sx.compareLabelAfter)} style={{ fontSize: 10.5 }}>{item.label}</span><span className={`num ${stylex.props(sx.compareSum).className}`} style={stylex.props(sx.compareSum).style}>{item.summary}</span><span {...stylex.props(sx.compareMeta)}>{item.meta}</span></div>)}</div>}
       {consequences && <ul {...stylex.props(sx.consequences)}>{consequences.map((item) => <li key={item}>{item}</li>)}</ul>}
       {phrase && <div {...stylex.props(sx.phraseCol, shaking && sx.shaking)}><label htmlFor={`${id}-typed`} {...stylex.props(sx.phraseLabel)}>{L.confirm.typeToConfirmPre} <span className="mono" style={{ color: 'var(--color-fg)', background: 'var(--line-1)', padding: '1px 5px', borderRadius: 4 }}>{phrase}</span> {L.confirm.typeToConfirmPost}</label><div {...stylex.props(sx.typedWrap)}><input id={`${id}-typed`} className={`mono kit-frame ${stylex.props(sx.typed, typed.length > 0 && !phrase.startsWith(typed) ? sx.typedBad : sx.typedOk).className}`} value={typed} autoComplete="off" spellCheck={false} placeholder={phrase} aria-invalid={typed.length > 0 && !phrase.startsWith(typed)} onChange={(e) => setTyped(e.target.value)} />{matched && <Icon name="tick-circle" size={16} {...stylex.props(sx.tick)} />}</div><span id={`${id}-typed-hint`} {...stylex.props(sx.hint, matched ? sx.hintOk : sx.hintIdle)}>{matched ? L.confirm.typedHintOk : L.confirm.typedHintIdle}</span></div>}
+      {disabledReason && <div {...stylex.props(sx.note)}><Icon name="warning-2" size={15} style={{ color: 'var(--color-warn)', flexShrink: 0 }} /><span>{disabledReason}</span></div>}
       {error && <div role="alert" {...stylex.props(sx.error)}><Icon name="warning-2" size={15} {...stylex.props(sx.errorIcon)} /><span>{error}</span></div>}
       <div {...stylex.props(sx.footer)}>{remember && <Checkbox checked={dontAsk} onChange={setDontAsk} label={L.confirm.dontAskAgain} style={{ minHeight: 0, gap: 8, color: 'var(--color-fg-3)', fontSize: 12.5, whiteSpace: 'nowrap' }} />}<span {...stylex.props(sx.spacer)} /><Button ref={cancel} onClick={() => close()}>{cancelText}</Button>{secondary && <Button data-secondary variant={secondary.danger ? 'dsoft' : 'ghost'} disabled={busy} onClick={() => void run(secondary.onConfirm, secondary.successMessage ?? null)}>{secondary.label}</Button>}
-      <Button ref={primary} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
+      <Button ref={primary} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || !!disabledReason || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
     </div>
   </div>
   return inline ? content : createPortal(content, document.body)

@@ -228,7 +228,7 @@ func TestActivityHistoryWatcherFreshness(t *testing.T) {
 	appendActivityFixture(t, path, host.Event{ID: "fresh", Time: time.Now(), Summary: "Mới ghi từ TUI"})
 	watcher.scan(true)
 	select {
-	case ev := <-sub.ch:
+	case ev := <-sub.C:
 		parts := ev.Data.(map[string]any)["parts"].([]string)
 		if ev.Type != "story.changed" || !strings.Contains(strings.Join(parts, ","), "activity") {
 			t.Fatalf("activity invalidation: %+v", ev)

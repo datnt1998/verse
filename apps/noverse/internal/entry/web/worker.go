@@ -22,6 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
+	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
@@ -337,9 +338,9 @@ func (s *workerServer) handle(w http.ResponseWriter, r *http.Request) {
 			jsonError(w, 500, "Máy chủ không hỗ trợ luồng sự kiện")
 			return
 		}
-		replay, stream, ch, resumable := b.subscribeAt(eventResumeID(r))
+		replay, stream, ch, resumable := b.subscribeAt(events.ResumeID(r))
 		defer b.unsubscribe(ch)
-		out := newDeadlineWriter(w)
+		out := events.NewDeadlineWriter(w)
 		send := func(m message) bool {
 			data, _ := json.Marshal(m.data)
 			if m.kind == "delta" {

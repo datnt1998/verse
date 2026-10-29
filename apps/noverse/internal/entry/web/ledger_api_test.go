@@ -203,13 +203,13 @@ func TestLedgerAPICheckSuggestAndStartGates(t *testing.T) {
 	done := make(chan struct{})
 	var once sync.Once
 	tg.g.launch = func(string, string, string, string) (*launchedWorker, error) { return fakeWorker(done, &once), nil }
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		payload := `{"ok":true}`
 		if r.URL.Path == "/api/cocreate" {
 			payload = `{"active":true,"draft":"Yêu cầu gốc","messages":[]}`
 		}
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(payload))}, nil
-	})
+	}))
 	draftDir := filepath.Join(tg.project, ".ainovel", "drafts", "test-draft")
 	if err := os.MkdirAll(draftDir, 0755); err != nil {
 		t.Fatal(err)

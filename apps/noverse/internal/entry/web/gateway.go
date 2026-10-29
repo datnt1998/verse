@@ -95,7 +95,11 @@ type Gateway struct {
 	// scope/存储经 env 传入（绝不在 argv 放 secret）。测试 stub 它跑进程内
 	// worker —— 与 launch 分两条缝，文件模式测试不受 hosted 变化影响。
 	launchHosted func(key, project, story string) (*launchedWorker, error)
-	transport    http.RoundTripper
+	// transport 是测试注入 outbound HTTP 的缝（worker/代理/上下文同步共用）。
+	// 测试会在 watcher 已运行时替换它，所以读写都必须经 workerTransport/
+	// setTransport 过 transportMu，否则 -race 会把中间态的赋值抓出来。
+	transportMu sync.RWMutex
+	transport   http.RoundTripper
 	// eventHub 是全局事件流 /api/events（events.go），经 events() 惰性取用；
 	// jobs 汇总全部故事的后台任务（GAP-26，jobs.go），经 jobsHub() 惰性取用。
 	eventHub      *EventHub
@@ -149,6 +153,21 @@ type Gateway struct {
 	health       *HealthDeps
 	blobProbedAt time.Time
 	blobOK       bool
+}
+
+// workerTransport trả transport hiện hành cho outbound HTTP tới worker; đọc
+// dưới RWMutex vì test có thể đổi nó khi watcher đang chạy.
+func (g *Gateway) workerTransport() http.RoundTripper {
+	g.transportMu.RLock()
+	defer g.transportMu.RUnlock()
+	return g.transport
+}
+
+// setTransport thay transport của outbound HTTP (test dùng; nil = mặc định).
+func (g *Gateway) setTransport(rt http.RoundTripper) {
+	g.transportMu.Lock()
+	g.transport = rt
+	g.transportMu.Unlock()
 }
 
 // PGAudioDeps 是 Postgres 音频后端的所有依赖（serve 注入一次）。
@@ -513,8 +532,8 @@ func (g *Gateway) workerCall(ctx context.Context, worker *launchedWorker, method
 	}
 	req.Header.Set("X-Ainovel-Worker-Token", g.workerToken)
 	client := &http.Client{}
-	if g.transport != nil {
-		client.Transport = g.transport
+	if rt := g.workerTransport(); rt != nil {
+		client.Transport = rt
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -781,8 +800,8 @@ func (g *Gateway) proxyWorker(w http.ResponseWriter, r *http.Request, key, dir, 
 	target := &url.URL{Scheme: "http", Host: worker.addr}
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	proxy.FlushInterval = -1
-	if g.transport != nil {
-		proxy.Transport = g.transport
+	if rt := g.workerTransport(); rt != nil {
+		proxy.Transport = rt
 	}
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
 		slog.Warn("máy viết của truyện không phản hồi", "module", "web", "story_slug", key, "err", err)

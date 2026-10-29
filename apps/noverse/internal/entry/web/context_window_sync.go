@@ -21,7 +21,7 @@ func (g *Gateway) refreshWorkerModelContexts(ctx context.Context, scope, project
 		}
 	}
 	g.mu.Unlock()
-	client := &http.Client{Transport: g.transport, Timeout: 5 * time.Second}
+	client := &http.Client{Transport: g.workerTransport(), Timeout: 5 * time.Second}
 	var failures []error
 	for _, slot := range slots {
 		slot.mu.Lock()

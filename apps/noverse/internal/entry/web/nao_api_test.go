@@ -131,14 +131,14 @@ func naoFakeWritingFlow(t *testing.T, tg *testGateway, flow string) {
 	var once sync.Once
 	slot := tg.g.slot("_/oldbook")
 	slot.worker = fakeWorker(done, &once)
-	tg.g.transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+	tg.g.setTransport(transportFunc(func(r *http.Request) (*http.Response, error) {
 		if r.URL.Path != "/api/snapshot" {
 			t.Errorf("unexpected worker path %q", r.URL.Path)
 		}
 		body := `{"isRunning":true,"currentChapter":4,"inProgressChapter":4,"flow":"` + flow + `",` +
 			`"agents":[{"name":"architect_long","state":"idle"},{"name":"writer","state":"working"}]}`
 		return &http.Response{StatusCode: 200, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(body))}, nil
-	})
+	}))
 }
 
 func TestNaoAddressTermsRead(t *testing.T) {

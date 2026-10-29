@@ -10,6 +10,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/diag"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
+	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/identity"
 )
 
@@ -78,7 +79,7 @@ func TestGlobalEventsReplayFiltersPermissions(t *testing.T) {
 	if hub.Watched()["hidden/secret"] {
 		t.Fatal("unauthorized watch key retained")
 	}
-	for range eventRing + 1 {
+	for range events.RingSize + 1 {
 		hub.Publish(Event{Type: "story.changed", Project: "p", Story: "s", Data: map[string]any{}})
 	}
 	newer, _, stale := hub.subscribe(user, first, nil)
