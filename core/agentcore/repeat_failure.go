@@ -87,12 +87,3 @@ func NewRepeatFailureMiddleware(opts *RepeatFailureOptions) ToolMiddleware {
 		return out, err
 	}
 }
-
-// WithRepeatFailure installs the repeat-failure guard as an opt-in agent
-// option. It appends to any middlewares already set (e.g. via
-// WithMiddlewares); pass nil opts for the generic refusal message.
-func WithRepeatFailure(opts *RepeatFailureOptions) AgentOption {
-	return func(a *Agent) {
-		a.middlewares = append(a.middlewares, NewRepeatFailureMiddleware(opts))
-	}
-}
