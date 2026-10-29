@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"testing"

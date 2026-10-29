@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/llmretry"
 )
 
 // G3：每条事件都带当前引擎会话 ID；beginSession 每次自增。

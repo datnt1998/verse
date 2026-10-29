@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 type budgetRecorder struct {

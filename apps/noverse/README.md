@@ -740,8 +740,8 @@ Hệ thống sẽ tự động tổng hợp các yêu cầu này vào bộ quy t
 ## 11. Tech Stack & License
 
 - **Ngôn ngữ**: [Go](https://go.dev/) (Hiệu năng cao, kiểm soát chặt chẽ concurrency và I/O)
-- **Agent Core**: [internal/agent](internal/agent) (Tool-calling + Streaming)
-- **LLM Interface**: [internal/llm](internal/llm)
+- **Agent Core**: [core/agentcore](../../core/agentcore) (Tool-calling + Streaming)
+- **LLM Interface**: [core/llm](../../core/llm)
 - **TUI Framework**: [Bubble Tea](https://github.com/charmbracelet/bubbletea) & [Lip Gloss](https://github.com/charmbracelet/lipgloss)
 
 ### License

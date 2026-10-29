@@ -10,8 +10,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
 )
 
 func TestActivityToolTruncationAndResult(t *testing.T) {

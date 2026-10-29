@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/schema"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // AuditFoundationTool 接收 Architect 对已落盘基础设定的语义审查结论。

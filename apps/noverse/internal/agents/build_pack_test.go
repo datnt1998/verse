@@ -1,7 +1,7 @@
 package agents
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"os"
 	"path/filepath"
@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/assets"
-	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	corecontext "github.com/datnt1998/verse/core/agentcore/context"
 )
 
 // newPackTestWorkers chạy BuildWorkers đúng đường dây production (provider giả

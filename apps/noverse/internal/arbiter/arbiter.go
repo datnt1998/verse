@@ -12,7 +12,7 @@
 package arbiter
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -21,8 +21,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/agentcore/schema"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // decideMaxTokens 单次裁定的输出上限;裁定 JSON 很小,大头留给推理模型的思考预算

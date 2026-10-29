@@ -1,7 +1,7 @@
 package ctxpack
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"os"
@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	corecontext "github.com/datnt1998/verse/core/agentcore/context"
 )
 
 func TestStoreSummaryCompactApplyUsesPersistentStoreData(t *testing.T) {

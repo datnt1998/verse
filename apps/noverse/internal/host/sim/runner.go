@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 const maxSourceRunes = 60000

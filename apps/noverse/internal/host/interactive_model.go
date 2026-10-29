@@ -1,16 +1,16 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"errors"
 	"net"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/core/llm/wire"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // ActionCallTimeout bounds host-side model calls (rule normalization, Arbiter

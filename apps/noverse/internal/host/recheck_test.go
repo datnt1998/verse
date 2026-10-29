@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"testing"
 
-	agentcore "github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/flow"
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	agentcore "github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
+	llmtypes "github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func TestRecheckLifecycleHasTwoRewritesAndOneRecheck(t *testing.T) {

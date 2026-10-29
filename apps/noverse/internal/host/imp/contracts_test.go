@@ -1,7 +1,7 @@
 package imp
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func TestStructuredContractsAreStrictReady(t *testing.T) {

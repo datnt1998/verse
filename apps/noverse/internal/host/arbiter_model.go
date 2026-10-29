@@ -1,11 +1,11 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // usageTrackedModel 给模型调用接上用量追踪:token/成本必须进入预算与 usage 系统,

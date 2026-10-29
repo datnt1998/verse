@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 func testObserver(events *[]Event) *observer {

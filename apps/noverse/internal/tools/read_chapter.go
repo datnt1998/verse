@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/schema"
 )
 
 // ReadChapterTool 读取章节原文，让 Agent 能回读自己和前文的文字。

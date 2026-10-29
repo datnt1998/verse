@@ -1,7 +1,7 @@
 package imp
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"errors"
@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
+	"github.com/datnt1998/verse/core/llm/wire"
+	"github.com/datnt1998/verse/core/llmcontract"
+	"github.com/datnt1998/verse/core/llmretry"
 )
 
 // callModel 是内核对模型的最小依赖，便于测试注入 mock。

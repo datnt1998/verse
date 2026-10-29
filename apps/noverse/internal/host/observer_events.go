@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"encoding/json"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
+	"github.com/datnt1998/verse/core/agentcore"
 	"log/slog"
 )
 

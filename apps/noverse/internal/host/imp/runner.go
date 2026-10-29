@@ -1,7 +1,7 @@
 package imp
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"errors"
@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
 	"github.com/datnt1998/verse/apps/noverse/internal/logger"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmretry"
 )
 
 // prompt/schema 版本纳入各阶段 InputDigest；升级 prompt 契约时递增以自然失效下游工件。

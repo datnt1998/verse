@@ -1,7 +1,7 @@
 package arbiter
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // scriptedModel 按调用序号返回预设文本。

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/agentcore/schema"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // Properties 返回完整章节事实共用的 JSON Schema 字段。

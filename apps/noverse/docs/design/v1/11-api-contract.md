@@ -445,7 +445,7 @@ type ProviderPreset = { id: string; label: string; type: string; baseURL: string
 
 `ask_user` (`bool`, mặc định `false`, 27/10): khoá trong `Config`, kế thừa 3 cấp như `advance_mode` (truyện ghi đè dự án ghi đè toàn cục; con trỏ bool nên `false` ở cấp gần cũng là một giá trị). Bật → Trọng tài được dừng hỏi người dùng (quyết định `ask` trong hợp đồng can thiệp). Tắt → prompt bỏ luật `ask`; model vẫn trả `ask` thì máy chủ từ chối, tự chọn phương án `is_default` (không có thì lấy phương án đầu), coi `reply` của nó như lời người dùng rồi phán định lại, và ghi nhật ký "Trọng tài tự chọn: … (vì bạn đã tắt Hỏi khi phân vân)". `snapshot.pendingAsk` không bao giờ được đặt khi cờ tắt.
 
-Trang callback OAuth (`internal/auth/oauth.go`): thiết kế A4 (`OAuth.dc.html`), `html/template`, 4 trường hợp `success · denied · stateMismatch · missingCode`, biến thể `from=cli|web` (web: `?from=web` truyền qua `state` phía server, không lộ ra URL).
+Trang callback OAuth (`core/auth/oauth.go`): thiết kế A4 (`OAuth.dc.html`), `html/template`, 4 trường hợp `success · denied · stateMismatch · missingCode`, biến thể `from=cli|web` (web: `?from=web` truyền qua `state` phía server, không lộ ra URL). Icon inline của trang so với bản chép `core/auth/testdata/icons`; test `TestCoreOAuthIconsMatchDesignFiles` (`internal/entry/web`) giữ bản chép trùng từng byte với `docs/design/v1/icons`.
 
 ### Quy tắc của truyện (GAP-32, 21 §Gói D)
 

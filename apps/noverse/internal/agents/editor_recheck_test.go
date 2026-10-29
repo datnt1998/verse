@@ -7,10 +7,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/assets"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	llmtypes "github.com/datnt1998/verse/core/llm"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func TestEditorRecheckStopsThroughBuiltWorkers(t *testing.T) {

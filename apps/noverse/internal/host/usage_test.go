@@ -1,14 +1,14 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/models"
+	"github.com/datnt1998/verse/core/models"
 )
 
 func TestUsageTrackerReplaySessionsReadsWorkerLogs(t *testing.T) {

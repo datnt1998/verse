@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 var updateSchemaGolden = flag.Bool("update", false, "ghi lại golden testdata")

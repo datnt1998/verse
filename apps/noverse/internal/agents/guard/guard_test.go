@@ -1,16 +1,16 @@
 package guard
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 func newTestStore(t *testing.T) *store.Store {

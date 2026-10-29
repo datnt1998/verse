@@ -1,15 +1,15 @@
 package guard
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"log/slog"
 	"strings"
 	"sync/atomic"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 // subagentMaxConsecutiveBlocks 连续阻拦 N 次后升级为终止，避免弱模型死循环。

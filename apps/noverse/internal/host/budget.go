@@ -5,8 +5,8 @@ import (
 	"math"
 	"sync/atomic"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/core/agentcore"
 )
 
 // 预算状态机：单调递进，每次迁移恰好触发一次副作用，不回退。

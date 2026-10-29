@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"errors"
@@ -13,9 +13,9 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	"github.com/datnt1998/verse/core/llmretry"
 )
 
 func TestImportPreviewRequiresConfiguredModel(t *testing.T) {

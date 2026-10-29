@@ -189,7 +189,7 @@ GAP-5 (đọc/ghi config + thử kết nối) cũng là điều kiện cho bư�
 
 Artboard: `OAuth.dc.html` (A4) — trang trình duyệt thấy sau khi đăng nhập ở nhà cung cấp; `Onboard.dc.html` › step `provider` + tweak `oauth` — thẻ kết quả trong app.
 
-### 8.1 Trang callback (`internal/auth/oauth.go` › `callbackPage`)
+### 8.1 Trang callback (`core/auth/oauth.go` › `callbackPage`)
 Phục vụ bởi callback server cục bộ `127.0.0.1:1455/auth/callback` (redirect `http://localhost:1455/auth/callback`). Thay trang `<h2>/<p>` hiện tại bằng thiết kế A4.
 
 | Trường hợp | Điều kiện trong `startCallbackServer` | Tiêu đề | Chi tiết hiển thị |

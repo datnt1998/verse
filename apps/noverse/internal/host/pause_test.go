@@ -1,16 +1,16 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"sync"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
 )
 
 func TestPauseAfterStepFinishesCurrentAgentBeforeStopping(t *testing.T) {

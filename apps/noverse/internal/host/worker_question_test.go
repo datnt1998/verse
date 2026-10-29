@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/flow"
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 )
 
 func TestWorkerFinalQuestionIsNotSuccess(t *testing.T) {

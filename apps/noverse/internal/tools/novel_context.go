@@ -9,9 +9,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/schema"
 )
 
 // References 嵌入的参考资料。

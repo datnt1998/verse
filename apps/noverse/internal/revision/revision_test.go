@@ -1,7 +1,7 @@
 package revision
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func TestAnalysisContractIsStrictReady(t *testing.T) {

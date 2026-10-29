@@ -167,7 +167,7 @@ tail -50 output/{novel}/meta/sessions/agents/writer-*.jsonl
 「有 name、args 空」和「args 全、name 空」两个 block。
 
 **根因**：litellm v1.8.10 的 Responses 流解析在并行调用时丢 name / 错配 ID（详见
-`docs/architecture.md` §6.4）。修复在 wire 适配层（`internal/codex/toolstream.go`）与
+`docs/architecture.md` §6.4）。修复在 wire 适配层（`core/llm/provider/openai/toolstream.go`）与
 历史不变量（`internal/agents/replay.go`），不是 prompt 或模型问题。
 
 **怎么确认修好了**：

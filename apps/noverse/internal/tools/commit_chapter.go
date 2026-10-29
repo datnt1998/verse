@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/llmcontract"
 	"log/slog"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/chapterfacts"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
@@ -19,6 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/schema"
 )
 
 // CommitChapterTool 提交章节：加载正文 → 保存终稿 → 生成摘要 → 更新状态 → 更新进度。

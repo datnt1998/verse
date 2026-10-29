@@ -1,9 +1,9 @@
 package imp
 
 import (
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/agentcore/schema"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func nullableString(description string) map[string]any {

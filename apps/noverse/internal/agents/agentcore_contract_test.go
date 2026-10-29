@@ -19,7 +19,7 @@ package agents
 //     host/engine.go 的 isDeterministicWorkerError 依赖此分类而非错误文案。
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -28,8 +28,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
 )
 
 // contractModel 按调用序号返回预设响应的 mock 模型。

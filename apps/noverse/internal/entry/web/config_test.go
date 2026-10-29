@@ -13,13 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/anthropicoauth"
-	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
-	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/apps/noverse/internal/webauth"
-	"github.com/datnt1998/verse/apps/noverse/internal/xai"
+	"github.com/datnt1998/verse/core/auth"
+	"github.com/datnt1998/verse/core/auth/anthropicoauth"
+	"github.com/datnt1998/verse/core/auth/xai"
+	"github.com/datnt1998/verse/core/llm/wire"
 )
 
 // configTestGateway 建带项目/故事目录结构与三个账号的网关。

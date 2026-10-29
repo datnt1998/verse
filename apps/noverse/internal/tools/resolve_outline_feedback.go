@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/agentcore/schema"
 )
 
 // ResolveOutlineFeedbackTool 落盘“现有计划仍适用”的审查结论并消费反馈。

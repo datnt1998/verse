@@ -1,14 +1,14 @@
 package arbiter
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"fmt"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
+	"github.com/datnt1998/verse/core/agentcore/schema"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 // PlanStartDecision 启动裁定:选规划师并产出(必要时扩充过的)任务文本。

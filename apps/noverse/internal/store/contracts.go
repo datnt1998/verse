@@ -9,8 +9,8 @@ package store
 
 import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 )
 
 // BookStore persists book metadata (meta/book.json is facts; book.md derived).

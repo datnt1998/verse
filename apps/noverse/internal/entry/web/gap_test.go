@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/auth"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/core/auth"
 )
 
 // closerFunc 让测试 worker 的 stdin 关闭时立刻结束 done，避免 stopWorker 等 10s。

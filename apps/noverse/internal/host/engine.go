@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/subagent"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/agentcore/subagent"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
 	"github.com/datnt1998/verse/apps/noverse/internal/arbiter"

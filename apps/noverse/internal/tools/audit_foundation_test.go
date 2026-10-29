@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func completeShortFoundation(t *testing.T) *store.Store {

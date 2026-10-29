@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/agent/schema"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/core/agentcore/schema"
 )
 
 func TestQuotePropertyIsNullableRequired(t *testing.T) {

@@ -11,9 +11,9 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/assets"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmcontract"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
+	"github.com/datnt1998/verse/core/llmcontract"
 )
 
 func retentionStore(t *testing.T, dir string) *store.Store {

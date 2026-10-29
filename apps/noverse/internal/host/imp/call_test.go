@@ -1,7 +1,7 @@
 package imp
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/llm/wire"
+	"github.com/datnt1998/verse/core/llm/wire"
 )
 
 // flakyModel 前 fails 次返回可重试错误，之后按 mockModel 响应。

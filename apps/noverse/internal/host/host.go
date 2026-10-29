@@ -1,7 +1,7 @@
 package host
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"encoding/json"
@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/assets"
-	"github.com/datnt1998/verse/apps/noverse/internal/agent"
 	"github.com/datnt1998/verse/apps/noverse/internal/agents"
 	"github.com/datnt1998/verse/apps/noverse/internal/agents/ctxpack"
 	"github.com/datnt1998/verse/apps/noverse/internal/arbiter"
@@ -27,15 +26,16 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
-	"github.com/datnt1998/verse/apps/noverse/internal/llmretry"
 	runtimelog "github.com/datnt1998/verse/apps/noverse/internal/logger"
-	modelreg "github.com/datnt1998/verse/apps/noverse/internal/models"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 	"github.com/datnt1998/verse/apps/noverse/internal/userrules"
+	"github.com/datnt1998/verse/core/agentcore"
+	"github.com/datnt1998/verse/core/llmretry"
+	modelreg "github.com/datnt1998/verse/core/models"
 )
 
 // Host 是运行时外壳:生命周期/干预入口/事件投影/模型管理。

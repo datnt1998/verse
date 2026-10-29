@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	agentcore "github.com/datnt1998/verse/apps/noverse/internal/agent"
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	agentcore "github.com/datnt1998/verse/core/agentcore"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 )
 
 func TestWorkerAmbiguityHandsBackToArbiter(t *testing.T) {

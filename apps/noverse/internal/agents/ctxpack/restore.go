@@ -1,14 +1,14 @@
 package ctxpack
 
 import (
-	llmtypes "github.com/datnt1998/verse/apps/noverse/internal/llm"
+	llmtypes "github.com/datnt1998/verse/core/llm"
 
 	"context"
 	"fmt"
 	"sync"
 
-	corecontext "github.com/datnt1998/verse/apps/noverse/internal/agent/context"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	corecontext "github.com/datnt1998/verse/core/agentcore/context"
 )
 
 // ---------------------------------------------------------------------------

@@ -358,7 +358,7 @@ writer.md 只承担：执行协议、断点续跑认知模型、章节契约解�
 
 | 落点 | 职责 |
 |---|---|
-| `internal/codex/toolstream.go` | 与 `transport.go` 同层：缓冲每个 item 的 ToolUse 事件，在 `output_item.done`（或流结束时）发**唯一**一组 `Start/Delta/Done`，name/args/ID 取自 item，call_id 优先于 item_id |
+| `core/llm/provider/openai/toolstream.go` | 与 `transport.go` 同层：缓冲每个 item 的 ToolUse 事件，在 `output_item.done`（或流结束时）发**唯一**一组 `Start/Delta/Done`，name/args/ID 取自 item，call_id 优先于 item_id |
 | `internal/agents/replay.go`（`replayConvert`） | 历史不变量：`ConvertToLLM` 之后**不得存在 name 为空的 tool_use**；缺失时改名为 `unknown_tool` 并保留 call/result 配对，让模型读到 "tool not found" 后自行重试，而不是永久毒化会话 |
 
 升级 litellm 修复上游后应删除 `toolstream.go` 并保留 `replayConvert`（后者是历史不变量，与 provider 无关）。
@@ -519,8 +519,9 @@ assets/
   references/     写作技巧 + anti-ai-tone + 体裁模板等
   styles/         默认/奇幻/言情/悬疑(用户可覆盖/新增)
 
-../agentcore     通用 Agent 框架（go.work 兄弟目录，可加通用能力，不加业务）
-../litellm       LLM 网关
+../../core/      verse 仓库共享的 AI core：agentcore（通用 Agent 框架）、llm（LLM 接口 + provider）、
+                 models / llmretry / llmcontract、auth（OAuth 与凭据）。只依赖 core 自身与第三方库，
+                 不 import 任何 app（`archtest/boundary_test.go` 强制）；可加通用能力，不加业务
 ```
 
 ### 9.1 演进里程碑
