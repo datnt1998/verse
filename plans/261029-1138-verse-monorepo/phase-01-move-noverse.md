@@ -1,6 +1,6 @@
 ---
 title: "Phase 01 — Dời Noverse vào apps/noverse"
-status: in-progress
+status: done
 ---
 
 # Bối cảnh
@@ -105,6 +105,27 @@ Repo `noverse` không bị đụng tới. Bỏ repo `verse` là quay về như c
 - `gofmt` sạch, `go build ./...` qua, `go vet ./...` sạch.
 - `(cd apps/noverse && go tool sqlc diff)` sạch.
 - `go test ./...` (không có PG/MinIO) fail đúng 2 test đã dự đoán ở bước 4: `TestNoKeyLiteralsOutsideBlobkey` (tìm `go.mod` ở gốc app) và `TestGeneratedTypesAreCurrent` (đọc `web/` tính từ gốc module). Không có test nào khác fail.
+
+# Kết quả (2026-10-29)
+
+Ba commit trên `main` của `verse`: `0cc9f98` (import từ `5f7a25e` = `pre-verse`), `17dd6df` (neo đường dẫn), `76a0e80` (build lại bundle web nhúng).
+
+| Gate | Kết quả |
+|---|---|
+| Đủ file | Khớp bảng ánh xạ (kiểm ở commit đầu) |
+| Build | `gofmt` 1.26.0 và 1.27.0 rỗng; `go build ./...` và `go vet ./...` sạch |
+| Không sót module cũ | Không file `.go` nào còn import `github.com/datnt1998/noverse`; chuỗi `datnt1998/noverse` trong Go chỉ còn ở `update_test.go` |
+| sqlc | Không có diff |
+| Test Go | 4084 pass, 0 fail, có Postgres và MinIO (`REQUIRE_POSTGRES_TEST=1`, `REQUIRE_MINIO_TEST=1`) |
+| Số test không đổi | `diff` với `tests-before.txt` rỗng. Phải đổi tiền tố ở **mọi chỗ** trong dòng, không chỉ đầu dòng: subtest `TestAllDiagnosticRulesVietnamese/<tên hàm>` lấy tên qua `runtime.FuncForPC`, nên tên subtest chứa cả module path |
+| Race | Qua trên `host/...`, `store/...`, `tools/...`, `persistence/postgres`, `storageimport`, `audio` |
+| Kiểu TS sinh ra | `go generate` không đổi `types.gen.ts` |
+| Web | `npm ci`, `typecheck` sạch; 205 file / 1639 test pass, bằng phase 00 |
+| `dist` khớp nguồn | Bundle commit ở `pre-verse` đã cũ hơn nguồn web: build ở `pre-verse` cho hash khác bản commit, và hai lần build liên tiếp cho cùng hash. Vì build ổn định, không bỏ dòng gate này mà commit lại bundle (`76a0e80`). Sau commit, `npm run build` để `git status` rỗng |
+| Image | `docker build` qua; container (HOME là tmpfs) trả `/healthz` 200 và trang SPA |
+| Binary | `serve` trên `127.0.0.1:8791` với HOME/root tạm: `/healthz` 200, `/` trả SPA với hash bundle mới. Đã dừng process và xoá thư mục tạm |
+| Đường release | `goreleaser check` (v2.19.0) qua; `sh -n` qua cho `install.sh` và `gen-changelog.sh` |
+| CI | **Hoãn theo yêu cầu của anh (tiết kiệm quota).** Repo `datnt1998/verse` (private) tắt Actions trước lần push đầu (`actions/permissions.enabled=false`); sau khi push, `actions/runs.total_count = 0`. Các gate cục bộ ở trên thay cho run CI. Khi bật lại Actions, chạy CI một lần ở commit mới nhất |
 
 # Rủi ro
 
