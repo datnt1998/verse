@@ -76,7 +76,7 @@ Commit `1a820ec` (dời 32 package sang `core/`) và `da2b431` (test ranh giới
 | Gate phase 01 | gofmt 1.26/1.27 sạch (gofmt có sắp lại vài khối import sau khi đổi đường dẫn), build/vet sạch, sqlc sạch, `types.gen.ts` không đổi, dist khớp nguồn, image và binary trả `/healthz` 200. Test Go: 4087 pass, 0 fail (có Postgres và MinIO); đủ 4084 test của `tests-before.txt` sau khi đổi đường dẫn; 3 test mới: `TestImportBoundaries`, `TestImportBoundariesCatchPlantedViolations`, `TestCoreOAuthIconsMatchDesignFiles`. `-race` qua ở 6 package. Web 205 file / 1639 test |
 | Kiểm icon | Sửa tạm một byte trong `login.svg`: `TestCoreOAuthIconsMatchDesignFiles` fail. Đã hoàn tác |
 | Smoke eval | Binary `/tmp/verse-m2/ainovel-cli-da2b431`, run `20261029-151106`: architect_long PASS, architect_short PASS, writer_first_chapter WARN (pass 1/1, không hard fail; cảnh báo nội dung `PromiseScenePosition`: cảnh thực hiện lời hứa nằm ở chương 5/6). Gate của report là WARN, không có FAIL |
-| Ghi số đo | $1,83 / khoảng 85 phút / 2 lỗi tool, so với baseline $1,49 / 67 phút / 3 |
+| Ghi số đo | $1,83 / khoảng 85 phút / 2 lỗi tool, so với baseline $1,49 / 67 phút / 3. Chạy lại riêng writer_first_chapter (run `20261029-163755`): vẫn WARN, cùng cảnh báo `PromiseScenePosition` (chương 7/8), $0,30, 1 lỗi tool. Luật này đã có từ trước `c49b37d`, và từ `c49b37d` tới `pre-verse` không có thay đổi runtime; phase 01–02 chỉ dời code. Cảnh báo đến từ cách architect của model xếp chương, không phải do dời code. Độ dao động đo ở baseline phase 05 |
 
 # Rollback
 
