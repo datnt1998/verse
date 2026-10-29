@@ -18,9 +18,10 @@ hiện tĩnh (tiền lệ thật: `save_foundation` thiếu `axes` ở run
 - Metric mục tiêu (phase 05): `tool_errors_by_kind.validation` — đo được trong
   report.json; thứ cấp: `tool_errors` tổng không tăng.
 - Thay đổi: (ghi ở đây nếu lint phát hiện schema hỏng cần sửa — sẽ cập nhật
-  trước khi chạy eval).
-
-## 2. Ngưỡng cải thiện (vs baseline phase 05)
+- Thay đổi: `save_foundation.nguoi_nghe.items.enum` đổi `[]int` → `[]any`
+  (`save_foundation.go:59`). Lint phát hiện validator lúc gọi chỉ đọc enum
+  dạng `[]any`/`[]string`, nên enum `[]int` bị im lặng bỏ qua — giá trị ngoài
+  {0..4} trước đây lọt vào tool không qua kiểm tra. Sau sửa enum được ép thật.
 
 - Nếu baseline có `tool_errors_by_kind.validation` trung bình ≥ 1/run trên bộ
   case đã chọn: trung bình nhánh mới phải giảm ≥ 1 lỗi/run.
