@@ -1,0 +1,263 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-user-xung-ho",
+      "origin": "user",
+      "refs": [
+        "Xưng hô"
+      ],
+      "text": "Khi hai nhân vật cắt đứt quan hệ, đổi cách gọi ngay trong cảnh cắt đứt và ghi lý do; không để chương sau mới đổi.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 0,
+        "userEdits": 3,
+        "object": "xưng hô",
+        "stories": 2,
+        "pack": "",
+        "packsCount": 2,
+        "chips": []
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-22T09:00:00Z"
+    },
+    {
+      "id": "lesson-0f0943dfe00e81c03be3893a",
+      "origin": "review",
+      "refs": [
+        "Quy tắc của bạn"
+      ],
+      "text": "Từ “khẽ” và “dường như” bị lạm dụng ở mọi gói; giữ dưới 2 lần trên 1.000 tiếng.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 9,
+        "userEdits": 0,
+        "stories": 6,
+        "pack": "",
+        "packsCount": 3,
+        "chips": []
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-21T09:00:00Z"
+    },
+    {
+      "id": "lesson-009fbee21c934a6ec9fe0b73",
+      "origin": "review",
+      "refs": [
+        "Bộ A §4.3"
+      ],
+      "text": "Trà xanh phải gắn với mạch phản diện, không để nó thành chi tiết trang trí.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 3,
+        "userEdits": 0,
+        "stories": 2,
+        "pack": "Nữ tần trọng sinh báo thù, vả mặt",
+        "packsCount": 1,
+        "chips": [
+          "Chị Dâu Bắt May Váy Cưới · ch.1",
+          "Chị Dâu Bắt May Váy Cưới · ch.2",
+          "Trà Xanh Cướp Kịch Bản · ch.3"
+        ]
+      },
+      "scope": "pack",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T11:00:00Z"
+    },
+    {
+      "id": "lesson-2207f299355ae72b45e486d7",
+      "origin": "review",
+      "refs": [
+        "Xưng hô"
+      ],
+      "text": "Khi hai nhân vật cắt đứt quan hệ, đổi cách gọi ngay trong cảnh cắt đứt và ghi lý do; không để chương sau mới đổi.",
+      "evidence": {
+        "errors": 3,
+        "warnings": 1,
+        "userEdits": 0,
+        "stories": 4,
+        "pack": "",
+        "packsCount": 2,
+        "chips": [
+          "Em Gái Nuôi Mặc Váy Cưới · ch.2",
+          "Em Rể Vào Cửa Sau · ch.1",
+          "Mẹ Kế Cướp Tiệm May · ch.1",
+          "Trà Xanh Cướp Kịch Bản · ch.2"
+        ]
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T10:00:00Z"
+    },
+    {
+      "id": "lesson-3dbaad9e601fc0d69803471c",
+      "origin": "review",
+      "refs": [
+        "Master §11"
+      ],
+      "text": "Kết cục phản diện phải được người khác chứng kiến, không chỉ là tự nhận trong phòng kín.",
+      "evidence": {
+        "errors": 3,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 3,
+        "pack": "",
+        "packsCount": 1,
+        "chips": [
+          "Chị Dâu Bắt May Váy Cưới · ch.3",
+          "Em Gái Nuôi Mặc Váy Cưới · ch.1",
+          "Trà Xanh Cướp Kịch Bản · ch.1"
+        ]
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T09:00:00Z"
+    },
+    {
+      "id": "lesson-68e7ae019b8831ecd96ad853",
+      "origin": "review",
+      "refs": [
+        "Master §13"
+      ],
+      "text": "Chương đầu hay thiếu thoại (dưới mức của gói). Mở bằng một cuộc đối đáp trước khi kể bối cảnh.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 6,
+        "userEdits": 0,
+        "stories": 5,
+        "pack": "",
+        "packsCount": 2,
+        "chips": [
+          "Em Gái Nuôi Mặc Váy Cưới · ch.2",
+          "Làm Tổng Tài Giả · ch.1",
+          "Làm Tổng Tài Giả · ch.4",
+          "Mẹ Kế Cướp Tiệm May · ch.1",
+          "Thiên Kim Thật Trở Về · ch.1",
+          "Trà Xanh Cướp Kịch Bản · ch.3"
+        ]
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T11:00:00Z"
+    },
+    {
+      "id": "lesson-9375cdcc0808781f950bfd93",
+      "origin": "review",
+      "refs": [
+        "Master §6"
+      ],
+      "text": "Leo thang phải tăng cược sau mỗi chương, không quay về điểm cũ.",
+      "evidence": {
+        "errors": 2,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 2,
+        "pack": "",
+        "packsCount": 1,
+        "chips": [
+          "Cô Dâu Nhỏ Thập Niên Tám Mươi · ch.2",
+          "Ông Chủ Xưởng May · ch.1"
+        ]
+      },
+      "scope": "all",
+      "packId": "nien-dai-van",
+      "packName": "Niên đại văn, trọng sinh thập niên, làm giàu",
+      "state": "pending",
+      "createdAt": "2026-10-20T20:00:00Z"
+    },
+    {
+      "id": "lesson-aa4c23b5a78099e69721876e",
+      "origin": "review",
+      "refs": [
+        "Master §7"
+      ],
+      "text": "Không kết chương bằng cảnh nhân vật chính đi ngủ hay về nhà an toàn. Nếu cần cảnh nghỉ, đặt nó ở giữa chương và cắt bằng một tin nhắn, tiếng gõ cửa hoặc một phát hiện.",
+      "evidence": {
+        "errors": 6,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 5,
+        "pack": "",
+        "packsCount": 2,
+        "chips": [
+          "Em Gái Nuôi Mặc Váy Cưới · ch.2",
+          "Em Gái Nuôi Mặc Váy Cưới · ch.5",
+          "Em Rể Vào Cửa Sau · ch.1",
+          "Mẹ Kế Cướp Tiệm May · ch.6",
+          "Thiên Kim Thật Trở Về · ch.4",
+          "Trà Xanh Cướp Kịch Bản · ch.3"
+        ]
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T11:00:00Z"
+    },
+    {
+      "id": "lesson-ce33627d2ba13755c65db3fa",
+      "origin": "review",
+      "refs": [
+        "Master §8"
+      ],
+      "text": "Vùng giữa truyện cần một nút thắt mới, không chỉ kéo dài cấu hình đầu.",
+      "evidence": {
+        "errors": 2,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 2,
+        "pack": "",
+        "packsCount": 2,
+        "chips": [
+          "Em Gái Nuôi Mặc Váy Cưới · ch.2",
+          "Người Yêu Cũ Quay Lại · ch.3"
+        ]
+      },
+      "scope": "all",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "pending",
+      "createdAt": "2026-10-20T13:00:00Z"
+    }
+  ],
+  "counts": {
+    "dropped": 1,
+    "kept": 3,
+    "pending": 9
+  },
+  "stats": {
+    "projects": 1,
+    "stories": 13,
+    "rounds": 30
+  },
+  "packs": [
+    {
+      "id": "nguoc-hon-nhan",
+      "name": "Ngược hôn nhân, ly hôn, hối hận muộn",
+      "stories": 4
+    },
+    {
+      "id": "nien-dai-van",
+      "name": "Niên đại văn, trọng sinh thập niên, làm giàu",
+      "stories": 2
+    },
+    {
+      "id": "nu-tan-bao-thu",
+      "name": "Nữ tần trọng sinh báo thù, vả mặt",
+      "stories": 6
+    }
+  ]
+}

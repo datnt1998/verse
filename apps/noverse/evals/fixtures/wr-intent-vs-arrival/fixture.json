@@ -1,0 +1,222 @@
+{
+  "title": "Trà Sườn Sương",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn đời thường nghề trà — giọng kể chậm, chi tiết nghề, không khí núi ẩm.\n\n## Định vị thể loại\nChuyện nghề và chuyện nhớ: Lệ giữ quán trà mẹ để lại, một người làm trà cũ mang ba mẫu trà đến nhờ cô nối lại cách làm đã mất.\n\n## Xung đột cốt lõi\nLệ chỉ nhớ cách làm trà Tra Tử qua lời kể của mẹ, nhưng muốn làm được phải lên tận nơi — một chuyến đi vượt quá sức quen thuộc của cô.\n\n## Mục tiêu nhân vật chính\nDám rời quán để học lại nghề mẹ, thay vì chỉ giữ quán bằng nỗi nhớ.\n\n## Hướng kết cục\nLệ lên Tra Tử, làm lại mẻ trà đầu tiên và hiểu vì sao mẹ cô nói trà Tra Tử là trà để nhớ người.\n\n## Vùng cấm sáng tác\nKhông phép thuật, không trà thần kỳ chữa bệnh; mọi chuyện nghề đều làm được bằng tay và nguyên liệu thật.\n\n## Điểm bán hàng khác biệt\nBa nhúm trà đánh dấu ba loại hiểu biết: trà quen, trà giả, trà của một nơi chưa từng đến.\n\n## Móc câu khác biệt\nNhúm trà Tra Tử mang vị mặn của suối đá — vị không thể giả bằng nguyên liệu khác.\n\n## Cam kết cốt lõi\nMỗi chương tiến gần hơn tới chuyến đi Tra Tử và cái giá của việc giữ quán.\n\n## Tính phù hợp với truyện ngắn\nMột quán, một chuyến đi, một người thầy già.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Người đem mẫu trà",
+      "core_event": "Sản lên quán Trà Sườn, đưa ba nhúm trà và mời Lệ lên Tra Tử tìm mình trước hết mùa mưa; Lệ nhận ra nhúm thứ ba là trà Tra Tử.",
+      "hook": "Sản để lại gậy tre, hẹn đợi ở Tra Tử; Lệ quyết định sẽ lên nhưng chưa phải hôm nay.",
+      "scenes": ["Sản đến hiên quán lúc sáng sớm", "Lệ ngửi ba nhúm trà", "Sản kể chuyện Tra Tử và mời Lệ lên", "Lệ đọc lại trang sổ tay của mẹ"],
+      "open_questions": ["Lệ có dám lên Tra Tử không?", "Vì sao Sản tìm đúng quán này?"],
+      "promise": "Sản đưa ba nhúm trà và chỉ đường lên Tra Tử"
+    },
+    {
+      "chapter": 2,
+      "title": "Ba nhúm trà",
+      "core_event": "Bà cụ bản dưới kể chuyện Sản và vợ mất trong lũ; Lệ pha thử ba nhúm trà, nhận ra vị mặn của suối đá, và quyết định lên đường vào sáng hôm sau.",
+      "hook": "Lệ bước ra dốc lúc chưa sáng, biết trên đường có ba lần vực và phải tới chòi Sản trước khi trời tối.",
+      "scenes": ["Bà cụ lên quán mua muối, kể chuyện Sản", "Lệ pha thử ba nhúm trà", "Lệ dọn túi, dặn hàng xóm trông quán", "Lệ ra dốc lúc chưa sáng"],
+      "open_questions": ["Lệ có qua được cả ba lần vực không?", "Sản có còn đợi không?"],
+      "promise": "Lệ lên đường lên Tra Tử",
+      "hook_type": "quyet_dinh_treo"
+    },
+    {
+      "chapter": 3,
+      "title": "Lối suối đá đỏ",
+      "core_event": "Lệ đi men theo suối đá đỏ, qua vực thứ nhất và vực thứ hai; đường sạt buộc cô đi chậm, và cô chỉ kịp thấy ánh lửa chòi Sản từ xa khi trời tối.",
+      "hook": "Ánh lửa chòi Sản hiện ra bên kia vực thứ ba — Lệ còn một đoạn đường chưa qua.",
+      "scenes": ["Bắt đầu đi từ chân dốc lúc chưa sáng", "Qua vực thứ nhất, dùng dây vải bắc qua", "Nghỉ ăn gạo rang bên suối", "Thấy ánh lửa chòi Sản từ xa khi trời tối"],
+      "open_questions": ["Lệ có qua được vực thứ ba trước khi mưa không?", "Sản sẽ nói gì khi gặp cô?"],
+      "promise": "da_tra: Lệ đi hết hai lần vực đầu của lối suối đá đỏ",
+      "hook_type": "de_doa_moi",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Chòi đá",
+      "core_event": "Lệ qua vực thứ ba, đến chòi Sản; Sản dạy cô nhận đất trà, nhóm bếp và sao trà Tra Tử trong đêm.",
+      "hook": "Sản nói Trà Tử không phải tên vùng — đó là tên vợ ông, người trồng những gốc trà đầu tiên.",
+      "scenes": ["Qua vực thứ ba", "Vào chòi đá, gặp Sản", "Học nhận đất và sao trà", "Nghe chuyện tên Tra Tử"],
+      "open_questions": ["Mẻ trà đầu tiên có đạt vị mặn của suối đá không?", "Sản có theo Lệ xuống quán không?"],
+      "promise": "Học được cách làm trà Tra Tử",
+      "hook_type": "lat_thong_tin"
+    },
+    {
+      "chapter": 5,
+      "title": "Mẻ trà đầu",
+      "core_event": "Lệ làm mẻ trà đầu tiên một mình dưới mắt Sản; mẻ trà chưa đúng, và cô nhận ra mình phải ở lại lâu hơn một chuyến.",
+      "hook": "Sản giao cho Lệ chìa khóa chòi và nói ông không còn đủ sức qua mùa mưa năm sau.",
+      "scenes": ["Nhóm bếp, sao trà", "Nếm mẻ đầu chưa đạt", "Sản chỉ chỗ sai", "Nhận chìa khóa chòi"],
+      "open_questions": ["Lệ có bỏ quán dưới chân núi không?", "Ai sẽ giữ chòi khi Sản mất?"],
+      "promise": "Đối diện cái giá của việc học nghề",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 6,
+      "title": "Trà để nhớ người",
+      "core_event": "Lệ trở về quán với mẻ trà đạt, pha ấm trà cúng cho mẹ bằng trà Tra Tử; Sản xuống núi một lần cuối.",
+      "hook": "Quán Trà Sườn bắt đầu bán trà Tra Tử — và Lệ giữ lại ba nhúm trà cũ trong gói giấy dầu làm kỷ niệm.",
+      "scenes": ["Mang mẻ trà về quán", "Pha trà cúng cho mẹ", "Sản xuống núi lần cuối", "Mở bán trà Tra Tử"],
+      "open_questions": [],
+      "promise": "da_tra: Lệ làm được trà Tra Tử và pha cho mẹ",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Lệ",
+      "role": "chủ quán trà Trà Sườn, con gái bà Hạnh",
+      "description": "Giữ quán mẹ để lại, pha trà cúng mỗi sáng; nhớ lời mẹ kể nhưng chưa từng tự làm trà Tra Tử.",
+      "arc": "Từ người giữ quán bằng nỗi nhớ thành người dám rời quán để học nghề.",
+      "traits": ["chậm rãi", "nhớ kỹ lời mẹ", "ngại đi xa"],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Sản",
+      "role": "người làm trà Tra Tử trước trận lũ, quay lại tìm người nối nghề",
+      "description": "Áo nâu bạc, gậy tre bọc đồng, ở chòi đá dưới chân Tra Tử đến hết mùa mưa; vợ mất trong trận sạt.",
+      "arc": "Từ người tìm người nhớ nghề thành người trao lại nghề và chòi.",
+      "traits": ["kiên nhẫn", "nói ít", "sống bằng đất trà"],
+      "kind": "support",
+      "tier": "important"
+    },
+    {
+      "name": "Bà cụ bản dưới",
+      "role": "người hàng xóm quen chuyện cũ",
+      "description": "Lên quán mua muối, uống nước rồi kể chuyện Sản và con đường lên Tra Tử; biết đủ chi tiết để Lệ quyết định đi.",
+      "arc": "Người mở đường thông tin cho chuyến đi của Lệ.",
+      "traits": ["nhớ chuyện cũ", "nói có đầu có đuôi"],
+      "kind": "ally",
+      "tier": "support"
+    },
+    {
+      "name": "Bà Hạnh",
+      "role": "mẹ Lệ đã mất, chỉ hiện qua sổ tay",
+      "description": "Chủ quán trước, người từng nhớ cách làm trà Tra Tử; để lại sổ tay ghi các nguyên tắc nghề.",
+      "arc": "Vắng mặt nhưng là lý do Lệ đi.",
+      "traits": ["vắng mặt", "được nhớ qua sổ tay"],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Tra Tử là vùng núi cao phía sau quán, đường cũ sạt từ trận lũ; chỉ còn lối đi men theo suối đá đỏ, qua ba lần vực, đi từ sáng mới tới chòi.",
+      "boundary": "Không có đường khác lên Tra Tử; không thể lên và về trong cùng một buổi."
+    },
+    {
+      "category": "other",
+      "rule": "Trà Tra Tử phải sao bằng chảo gang trên bếp củi, dùng đất trà lấy tại chỗ; vị mặn đặc trưng đến từ nước suối đá đỏ, không thể tạo bằng muối.",
+      "boundary": "Không thể làm ra đúng vị trà Tra Tử nếu chưa ở tận nơi lấy đất và nước."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Người đem mẫu trà",
+        "summary": "Sản lên quán Trà Sườn lúc sáng sớm, đưa ba nhúm trà và mời Lệ lên Tra Tử tìm mình trước hết mùa mưa. Lệ nhận ra nhúm thứ ba là trà Tra Tử, đọc lại sổ tay mẹ và quyết định sẽ lên — nhưng chưa phải hôm nay.",
+        "characters": ["Lệ", "Sản"],
+        "key_events": ["Sản đưa ba nhúm trà", "Lệ nhận ra trà Tra Tử", "Sản mời Lệ lên Tra Tử", "Lệ đọc sổ tay mẹ, quyết định sẽ đi"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Ba nhúm trà",
+        "summary": "Bà cụ bản dưới kể chuyện Sản và vợ mất trong lũ, chỉ lối suối đá đỏ có ba lần vực. Lệ pha thử ba nhúm trà, nhận ra vị mặn của suối đá trong nhúm Tra Tử. Sáng hôm sau cô dặn hàng xóm trông quán và lên đường.",
+        "characters": ["Lệ", "Bà cụ bản dưới"],
+        "key_events": ["Bà cụ kể chuyện Sản", "Lệ pha thử ba nhúm trà", "Nhận ra vị mặn của suối đá", "Lệ lên đường lúc chưa sáng"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Sáng sớm",
+      "event": "Sản đến quán Trà Sườn, đưa ba nhúm trà, mời Lệ lên Tra Tử trước hết mùa mưa",
+      "characters": ["Lệ", "Sản"]
+    },
+    {
+      "chapter": 1,
+      "time": "Chiều cùng ngày",
+      "event": "Lệ đọc lại sổ tay của mẹ và quyết định sẽ lên Tra Tử",
+      "characters": ["Lệ"]
+    },
+    {
+      "chapter": 2,
+      "time": "Bốn ngày sau, buổi chiều",
+      "event": "Bà cụ bản dưới kể chuyện Sản và con đường suối đá đỏ có ba lần vực",
+      "characters": ["Lệ", "Bà cụ bản dưới"]
+    },
+    {
+      "chapter": 2,
+      "time": "Đêm và sáng hôm sau",
+      "event": "Lệ pha thử ba nhúm trà, nhận ra vị mặn của suối đá, rồi lên đường lúc chưa sáng",
+      "characters": ["Lệ"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {"id": "ba_nhom_tra", "action": "plant", "description": "Ba nhúm trà: một trà khói quen, một trà hoa giả, một trà Tra Tử có mùi nguyệt quế nướng."},
+        {"id": "vi_suoi_da", "action": "plant", "description": "Sổ tay của mẹ ghi trà Tra Tử phải lấy nước suối đá đỏ tại chỗ mới đúng vị."}
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "vi_suoi_da", "action": "advance", "description": "Lệ pha thử nhúm Tra Tử, nếm được vị mặn chậm ở cuống họng — đúng như sổ tay mẹ ghi."},
+        {"id": "ba_lan_vuc", "action": "plant", "description": "Đường lên chòi Sản phải qua ba lần vực men theo suối đá đỏ."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Lệ", "field": "status", "new_value": "đã nhận ba nhúm trà và lời mời lên Tra Tử"},
+    {"chapter": 1, "entity": "Quán Trà Sườn", "field": "status", "new_value": "vẫn mở, Lệ dự định đi Tra Tử"},
+    {"chapter": 2, "entity": "Lệ", "field": "status", "old_value": "đã nhận ba nhúm trà và lời mời lên Tra Tử", "new_value": "đang trên đường lên Tra Tử, đã rời quán"},
+    {"chapter": 2, "entity": "Quán Trà Sườn", "field": "status", "old_value": "vẫn mở, Lệ dự định đi Tra Tử", "new_value": "đóng cửa một ngày, hàng xóm trông giúp"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Lối suối đá đỏ",
+      "goal": "Kể chuyến đi trong ngày của Lệ từ chân dốc lên tới trước chòi Sản, dừng lại khi cô còn cách chòi một đoạn.",
+      "conflict": "Đường sạt buộc Lệ đi chậm; cô phải qua những lần vực bằng dây vải và tự quyết định có đi tiếp khi trời tối.",
+      "hook": "Ánh lửa chòi Sản hiện ra bên kia vực thứ ba khi trời đã tối, Lệ còn một đoạn đường chưa qua.",
+      "emotion_arc": "Từ lo lắng vì đường lạ sang quyết tâm đi nốt đoạn còn lại.",
+      "contract": {
+        "required_beats": [
+          "Lệ rời chân dốc lúc trời còn tối, men theo suối đá đỏ",
+          "Qua vực thứ nhất bằng dây vải, nghỉ ăn gạo rang bên suối",
+          "Qua vực thứ hai, đi tiếp tới trước vực thứ ba khi trời đã tối",
+          "Nhìn thấy ánh lửa chòi Sản từ xa, chưa qua vực thứ ba"
+        ],
+        "forbidden_moves": [
+          "Không để Lệ đặt chân tới chòi Sản trong chương này",
+          "Không để Lệ gặp Sản hay nói chuyện với Sản",
+          "Không tóm tắt chuyến đi thành một câu rồi chuyển sang cảnh khác"
+        ],
+        "continuity_checks": [
+          "Lệ rời quán từ lúc chưa sáng, mang ba nhúm trà, gạo rang và ống nước",
+          "Đường lên chòi Sản phải qua ba lần vực men theo suối đá đỏ",
+          "Sản đợi ở chòi đến hết mùa mưa"
+        ],
+        "evaluation_focus": [
+          "Chương dừng trước khi Lệ tới chòi; lần gặp Sản để chương sau",
+          "Không dùng lời kể để Lệ vừa đi vừa tới được chòi Sản trong cùng một đoạn"
+        ],
+        "emotion_target": "Mệt và quyết tâm.",
+        "payoff_points": ["Con đường bà cụ kể ở chương trước được đi thật, từng lần vực"],
+        "hook_goal": "Người đọc muốn biết Lệ có qua được vực thứ ba."
+      }
+    }
+  ]
+}

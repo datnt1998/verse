@@ -1,0 +1,321 @@
+{
+  "title": "Ngôi nhà có hai người giống nhau",
+  "premise": "Cường, hai mươi tám tuổi, về phố Cẩm Nam dọn nhà bà ngoại sau tang lễ. Trong tập ảnh cũ trên gác, anh tìm thấy một tấm ảnh chụp hai người phụ nữ trẻ trước một tiệm may, một người anh nhận là mẹ mình. Dì Liên khẳng định ảnh chụp ở Sài Gòn năm 1990, trong khi Cường nhớ mẹ từng nói chưa vào Sài Gòn lần nào. Không ai trong nhà nhớ chắc ai đúng, tấm ảnh không ghi chú, và không có giấy tờ nào xác nhận — gia đình thiếu hẳn đoạn lịch sử để kết luận đây là mâu thuẫn hay chỉ là ký ức lệch nhau.",
+  "total_chapters": 7,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Nhà bà ngoại sau tang lễ",
+      "core_event": "Cường về phố Cẩm Nam dọn nhà bà ngoại; dì Liên giao cho anh dọn gác xép đầy đồ cũ.",
+      "hook": "Trên gác xép có một thùng gỗ khóa kín, chìa khóa thất lạc.",
+      "scenes": [
+        "Sân nhà bà ngoại",
+        "Cầu thang lên gác xép"
+      ],
+      "hook_type": "discovery"
+    },
+    {
+      "chapter": 2,
+      "title": "Tập ảnh trong thùng gỗ",
+      "core_event": "Cường xem hết tập ảnh lấy từ thùng gỗ; tấm cuối chụp hai người phụ nữ trẻ trước tiệm may, một người mang khăn quàng giống hệt mẹ anh.",
+      "hook": "Cường nhận ra một trong hai người là mẹ mình, người còn lại trẻ hơn, có nét hao hao dì Liên.",
+      "scenes": [
+        "Gác xép",
+        "Hiên nhà buổi chiều"
+      ],
+      "hook_type": "question"
+    },
+    {
+      "chapter": 3,
+      "title": "Câu trả lời của dì Liên",
+      "core_event": "Cường đưa ảnh cho dì Liên; dì khẳng định ảnh chụp ở Sài Gòn năm 1990 và người còn lại là dì hồi trẻ. Cường nhớ mẹ từng nói chưa vào Sài Gòn lần nào. Hai người đều không có bằng chứng; không ai nhớ chắc, và tấm ảnh không ghi chú.",
+      "hook": "Cường quyết định không hỏi thêm, chỉ giữ tấm ảnh trong ví.",
+      "scenes": [
+        "Bếp nhà bà ngoại",
+        "Hiên nhà lúc chạng vạng"
+      ],
+      "hook_type": "uncertainty"
+    },
+    {
+      "chapter": 4,
+      "title": "Những người hàng xóm nhớ khác nhau",
+      "core_event": "Cường hỏi vài người hàng xóm lớn tuổi; mỗi người nhớ một kiểu, có người nói mẹ anh từng đi Sài Gòn, có người nói chưa bao giờ.",
+      "hook": "Một cụ già nhắc tới 'chuyến đi năm đó' nhưng không nhớ rõ năm nào.",
+      "scenes": [
+        "Quán nước đầu phố",
+        "Đình làng"
+      ],
+      "hook_type": "ambiguity",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 5,
+      "title": "Cuốn sổ may vá",
+      "core_event": "Cường tìm thấy cuốn sổ ghi đơn may của bà ngoại; có vài dòng ghi tên mẹ anh nhưng không ghi địa chỉ, chỉ ghi ngày và tên khách.",
+      "hook": "Trang cuối cuốn sổ bị xé mất.",
+      "scenes": [
+        "Gác xép",
+        "Bàn thờ bà ngoại"
+      ],
+      "hook_type": "clue"
+    },
+    {
+      "chapter": 6,
+      "title": "Bức thư chưa gửi",
+      "core_event": "Cường tìm thấy bức thư mẹ viết cho bà ngoại nhưng chưa gửi, nhắc tới 'chuyến đi xa' mà không nói đi đâu.",
+      "hook": "Bức thư dừng đúng chỗ quan trọng nhất.",
+      "scenes": [
+        "Hiên nhà",
+        "Gác xép"
+      ],
+      "hook_type": "cliffhanger"
+    },
+    {
+      "chapter": 7,
+      "title": "Không cần biết hết",
+      "core_event": "Cường quyết định không truy tiếp; anh đóng gói tấm ảnh cùng những kỷ vật khác, để câu hỏi lại cho gia đình sau này.",
+      "hook": "Anh gọi điện cho mẹ, chỉ hỏi mẹ có khỏe không.",
+      "scenes": [
+        "Nhà bà ngoại",
+        "Sân ga Cẩm Nam"
+      ],
+      "hook_type": "closure"
+    }
+  ],
+  "characters": [
+    {
+      "id": "cuong",
+      "name": "Cường",
+      "role": "nhân vật chính, cháu ngoại về dọn nhà",
+      "kind": "lead",
+      "description": "Hai mươi tám tuổi, làm kỹ thuật ở thành phố, ít nói, hay ghi chú mọi thứ. Về Cẩm Nam dọn nhà bà ngoại sau tang lễ.",
+      "arc": "Từ người muốn biết hết mọi chuyện đến người chấp nhận có chuyện không cần biết hết.",
+      "traits": [
+        "kỹ tính",
+        "tò mò",
+        "tôn trọng người lớn"
+      ]
+    },
+    {
+      "id": "di-lien",
+      "name": "dì Liên",
+      "role": "em gái mẹ Cường, sống ở Cẩm Nam",
+      "kind": "ally",
+      "description": "Năm mươi hai tuổi, bán vải ở chợ Cẩm Nam. Nhớ chuyện gia đình theo kiểu của người kể nhiều hơn người chứng kiến.",
+      "arc": "Giữ hòa khí gia đình hơn là truy cho ra lẽ.",
+      "traits": [
+        "nhanh nhẹn",
+        "khéo léo",
+        "tránh chuyện nặng"
+      ]
+    },
+    {
+      "id": "me-cuong",
+      "name": "mẹ Cường",
+      "role": "con gái lớn của bà ngoại, sống ở thành phố",
+      "kind": "support",
+      "description": "Sáu mươi tuổi, ít nói về quá khứ. Từng kể với Cường rằng bà chưa vào Sài Gòn lần nào, nhưng không nói rõ đó là chưa đi hay chưa ở.",
+      "arc": "Vắng mặt trong chuyện điều tra của con trai, tự nguyện.",
+      "traits": [
+        "kín đáo",
+        "thương con",
+        "không thích nhắc chuyện cũ"
+      ]
+    },
+    {
+      "id": "ba-cuc",
+      "name": "bà Cúc",
+      "role": "bà ngoại Cường, vừa mất",
+      "kind": "support",
+      "description": "Thợ may cả đời ở phố Cẩm Nam. Chỉ hiện diện qua đồ vật và ký ức của người khác.",
+      "arc": "Để lại những câu hỏi không có lời giải trong đồ đạc.",
+      "traits": [
+        "kỹ lưỡng",
+        "thích cất giữ"
+      ]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Bối cảnh đời thường ở một phố nhỏ miền Trung; không có yếu tố kỳ huyễn hay bí mật tội phạm.",
+      "boundary": "Không biến câu hỏi gia đình thành âm mưu hình sự."
+    },
+    {
+      "category": "geography",
+      "rule": "Toàn bộ truyện ở phố Cẩm Nam và vùng phụ cận.",
+      "boundary": "Không mở thêm bối cảnh Sài Gòn như hiện tại; Sài Gòn chỉ được nhắc trong ảnh và ký ức."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Nhà bà ngoại sau tang lễ",
+        "summary": "Cường về phố Cẩm Nam dọn nhà bà ngoại sau tang lễ. Dì Liên giao cho anh dọn gác xép đầy đồ cũ và nhắc có một thùng gỗ khóa kín từ lâu, chìa khóa đã thất lạc. Cường nạy ổ khóa, tìm thấy một tập ảnh bọc giấy báo và mang xuống nhà, định xem kỹ sau.",
+        "characters": [
+          "Cường",
+          "dì Liên"
+        ],
+        "key_events": [
+          "Cường về Cẩm Nam dọn nhà",
+          "Dì Liên nhắc tới thùng gỗ khóa kín trên gác xép",
+          "Cường mở thùng gỗ và lấy tập ảnh ra"
+        ]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Tập ảnh trong thùng gỗ",
+        "summary": "Sáng hôm sau, Cường xem hết tập ảnh lấy từ thùng gỗ. Tấm cuối chụp hai người phụ nữ trẻ trước một tiệm may; một người mang chiếc khăn quàng anh nhận ra là của mẹ. Người còn lại trẻ hơn, có nét hao hao dì Liên. Mặt sau tấm ảnh trắng trơn, không ghi chú. Dì Liên thoáng thấy tấm ảnh, nói để tối dì xem kỹ rồi kể.",
+        "characters": [
+          "Cường",
+          "dì Liên"
+        ],
+        "key_events": [
+          "Cường xem tập ảnh cũ",
+          "Tấm ảnh hai người phụ nữ trước tiệm may không có ghi chú",
+          "Dì Liên hẹn tối xem kỹ tấm ảnh và kể"
+        ]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Câu trả lời của dì Liên",
+        "summary": "Cường đưa tấm ảnh cho dì Liên xem. Dì khẳng định ảnh chụp ở Sài Gòn năm 1990 và người còn lại chính là dì hồi trẻ. Cường nhớ mẹ từng nói chưa vào Sài Gòn lần nào, nhưng không nhớ rõ mẹ nói trong hoàn cảnh nào và ý mẹ là chưa đi hay chưa ở. Dì Liên cũng không chắc năm tháng, chỉ nhớ 'hồi đó'. Cả hai đều không có giấy tờ hay người làm chứng; tấm ảnh không ghi chú. Cường quyết định không hỏi thêm và giữ tấm ảnh trong ví.",
+        "characters": [
+          "Cường",
+          "dì Liên"
+        ],
+        "key_events": [
+          "Dì Liên nói ảnh chụp ở Sài Gòn năm 1990",
+          "Cường nhớ mẹ nói chưa vào Sài Gòn lần nào",
+          "Không ai nhớ chắc, không có bằng chứng"
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "ba ngày sau tang lễ bà ngoại",
+      "event": "Cường về phố Cẩm Nam dọn nhà; dì Liên nhắc tới thùng gỗ khóa kín.",
+      "characters": [
+        "Cường",
+        "dì Liên"
+      ]
+    },
+    {
+      "chapter": 2,
+      "time": "chiều cùng ngày",
+      "event": "Cường xem tập ảnh lấy từ thùng gỗ; tấm ảnh hai người phụ nữ trước tiệm may không có ghi chú.",
+      "characters": [
+        "Cường"
+      ]
+    },
+    {
+      "chapter": 3,
+      "time": "tối cùng ngày",
+      "event": "Dì Liên khẳng định ảnh chụp ở Sài Gòn năm 1990; Cường nhớ mẹ nói chưa vào Sài Gòn lần nào; không ai có bằng chứng.",
+      "characters": [
+        "Cường",
+        "dì Liên"
+      ]
+    }
+  ],
+  "state_changes": [
+    {
+      "chapter": 1,
+      "entity": "Cường",
+      "field": "location",
+      "new_value": "phố Cẩm Nam, nhà bà ngoại",
+      "reason": "về dọn nhà sau tang lễ"
+    },
+    {
+      "chapter": 2,
+      "entity": "tấm ảnh cũ",
+      "field": "own",
+      "old_value": "trong thùng gỗ của bà ngoại",
+      "new_value": "Cường giữ",
+      "reason": "Cường tìm thấy và muốn giữ làm kỷ vật"
+    }
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Nhà bà ngoại sau tang lễ",
+      "goal": "Cường về dọn nhà, nhận việc dọn gác xép; biết có thùng gỗ khóa kín.",
+      "conflict": "Cường muốn dọn nhanh nhưng đồ đạc gợi chuyện.",
+      "hook": "Thùng gỗ khóa kín, mất chìa.",
+      "contract": {
+        "required_beats": [
+          "Cường về Cẩm Nam",
+          "Dì Liên nhắc thùng gỗ khóa kín"
+        ],
+        "emotion_target": "bâng khuâng"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Tập ảnh trong thùng gỗ",
+      "goal": "Cường mở thùng, tìm thấy tấm ảnh hai người phụ nữ, không có ghi chú.",
+      "conflict": "Cường không chắc người thứ hai là ai.",
+      "hook": "Tấm ảnh không ghi chú.",
+      "contract": {
+        "required_beats": [
+          "Xem tập ảnh cũ",
+          "Tìm thấy tấm ảnh trước tiệm may không ghi chú"
+        ],
+        "continuity_checks": [
+          "Tấm ảnh không ghi ngày, không ghi địa điểm"
+        ],
+        "emotion_target": "tò mò"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Câu trả lời của dì Liên",
+      "goal": "Dì Liên khẳng định ảnh chụp ở Sài Gòn năm 1990; Cường nhớ mẹ nói chưa vào Sài Gòn lần nào; không ai có bằng chứng.",
+      "conflict": "Hai lời kể lệch nhau nhưng gia đình thiếu lịch sử để xác định ai đúng.",
+      "hook": "Cường giữ ảnh, không hỏi thêm.",
+      "contract": {
+        "required_beats": [
+          "Dì Liên nói ảnh chụp ở Sài Gòn năm 1990",
+          "Cường nhớ mẹ nói chưa vào Sài Gòn lần nào",
+          "Cả hai đều không có bằng chứng"
+        ],
+        "continuity_checks": [
+          "Không có dữ kiện nào trong truyện xác nhận mẹ Cường đã hoặc chưa từng tới Sài Gòn; đây là chỗ trống lịch sử, không phải lỗi nhất quán"
+        ],
+        "emotion_target": "day dứt nhẹ"
+      }
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 2,
+      "updates": [
+        {
+          "id": "tam-anh-khong-ghi-chu",
+          "action": "plant",
+          "description": "Tấm ảnh hai người phụ nữ trước tiệm may không có ghi chú, không ngày tháng, không tên người."
+        }
+      ]
+    },
+    {
+      "chapter": 3,
+      "updates": [
+        {
+          "id": "tam-anh-khong-ghi-chu",
+          "action": "advance",
+          "description": "Không ai trong nhà nhớ chắc ngày chụp hay người trong ảnh; câu hỏi được để mở."
+        }
+      ]
+    }
+  ]
+}

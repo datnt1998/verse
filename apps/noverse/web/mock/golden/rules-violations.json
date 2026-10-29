@@ -1,0 +1,34 @@
+{
+  "chapters": [
+    {
+      "chapter": 3,
+      "at": "2026-10-22T09:00:00Z",
+      "violations": [
+        {
+          "rule": "fatigue_words",
+          "target": "khẽ",
+          "limit": 2,
+          "actual": 5,
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "at": "2026-10-21T10:00:00Z",
+      "violations": []
+    },
+    {
+      "chapter": 1,
+      "at": "2026-10-20T09:00:00Z",
+      "violations": [
+        {
+          "rule": "forbidden_phrases",
+          "target": "bỗng nhiên",
+          "actual": 1,
+          "severity": "error"
+        }
+      ]
+    }
+  ]
+}

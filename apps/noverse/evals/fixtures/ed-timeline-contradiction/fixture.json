@@ -1,0 +1,221 @@
+{
+  "title": "Ba Hồi Trống Thôn Tam Ngàn",
+  "premise": "Đồng Ghém lần đầu giữ chiếc trống đồng cổ của dòng họ trong hội Vớt Muối Đầu Vụ ở thôn Tam Ngàn, thì phát hiện một tuyến tráo đồng cổ từ chợ Gò Nhã bên kia sông Ghìa nhắm vào bốn con ếch đồng trên mặt trống.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Canh trống đêm mười ba",
+      "core_event": "Đồng Ghém trực đêm mười ba tháng tư, phát hiện dấu chân lạ ở sào muối mười hai và mảnh vải nâu nam trên song cửa đình; bà Gân Lúa dặn canh thêm đình.",
+      "hook": "Mảnh vải nâu nam mắc trên song đình — kẻ lạ đã vào tới nơi để trống.",
+      "scenes": ["Ba hồi trống chuyển canh, Đồng nhận ca", "Dấu chân lạ ở sào mười hai", "Mảnh vải nâu nam trên song đình"]
+    },
+    {
+      "chapter": 2,
+      "title": "Vải nâu nam ở chợ Gò Nhã",
+      "core_event": "Đồng và Giò Bông Bụp sang chợ Gò Nhã truy mảnh vải, biết một người đàn bà mua hai tấm nâu nam mười hôm trước và hỏi đò đêm sang Tam Ngàn; bà Gân bố trí phục đêm mười bốn.",
+      "hook": "Tiếng động trên mái đình đúng khoảng khắc đổi canh.",
+      "scenes": ["Sang chợ Gò Nhã hỏi bà Tía Mươi", "Suy đoán về việc trùm đồng đêm", "Bố trí phục trong đình và ngoài rào"]
+    },
+    {
+      "chapter": 3,
+      "title": "Ba hồi trống",
+      "core_event": "Đồng chạm mặt người đàn bà tráo ếch đồng trong đình; bà ta thoát bằng ghe không đèn mang dấu cá chép Gò Nhã, để lại dao khắc Nhã Xá và hai con ếch giả; hội vẫn khai đúng ngày và ba hồi trống vang.",
+      "hook": "Dao khắc Nhã Xá nối vụ tráo này với vụ tráo trống thôn Bến Chùa ba năm trước.",
+      "scenes": ["Chạm mặt kẻ tráo trong đình đêm", "Đuổi theo ra bờ sông, ghe không đèn thoát", "Khai hội, ba hồi trống, bà Gân quyết đưa chứng cứ ra huyện"]
+    },
+    {
+      "chapter": 4,
+      "title": "Hiệu Nhã Xá",
+      "core_event": "Đồng theo bà Gân ra huyện, rồi cùng hương chức sang chợ Gò Nhã tìm hiệu Nhã Xá.",
+      "hook": "Hiệu Nhã Xá đã đóng cửa từ đêm hội.",
+      "scenes": ["Ra huyện trình chứng cứ", "Sang Gò Nhã, hiệu đóng cửa", "Hỏi hàng xóm về chủ hiệu"]
+    },
+    {
+      "chapter": 5,
+      "title": "Người mua ếch giả",
+      "core_event": "Lần ra xưởng đúc đồng giả sau chợ; gặp lại người đàn bà tóc ngắn trong vai khách mua.",
+      "hook": "Người đàn bà nhận ra Đồng và không bỏ chạy.",
+      "scenes": ["Xưởng đúc sau chợ", "Chạm mặt người đàn bà", "Bà ta đề nghị mua chuộc"]
+    },
+    {
+      "chapter": 6,
+      "title": "Trống thôn Bến Chùa",
+      "core_event": "Đồng tìm sang thôn Bến Chùa xem trống bị tráo ba năm trước, phát hiện cùng một dấu tráo.",
+      "hook": "Trống Bến Chùa vẫn còn giữ một con ếch thật sót lại.",
+      "scenes": ["Thôn Bến Chùa", "Trống bị tráo", "Con ếch thật sót lại"]
+    },
+    {
+      "chapter": 7,
+      "title": "Đêm trước phiên chợ",
+      "core_event": "Tuyến tráo đồng bị bắt quả tang trong phiên chợ Gò Nhã; Giò Bông Bụp bị thương nhẹ.",
+      "hook": "Sổ ghi mua bán đồng cổ lộ tên người đặt hàng ở xa.",
+      "scenes": ["Phiên chợ Gò Nhã", "Bắt quả tang", "Sổ mua bán"]
+    },
+    {
+      "chapter": 8,
+      "title": "Mùa muối đầu vụ",
+      "core_event": "Hội năm sau, trống vẫn đủ bốn ếch; Đồng nhận trách nhiệm giữ trống chính thức và giữ cả tuyến chống tráo.",
+      "hook": "Trống đánh ba hồi, mặt sông Ghìa phẳng lặng — nhưng có thuyền lạ neo ngoài cửa sông.",
+      "scenes": ["Hội năm sau", "Nghi thức dâng muối", "Thuyền lạ ngoài cửa sông"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Đồng Ghém",
+      "role": "Người giữ trống đồng",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Nam, hai mươi bảy tuổi, thợ muối thôn Tam Ngàn, năm đầu đứng tên sổ hương chức và giữ chiếc trống đồng cổ của dòng họ.",
+      "arc": "Từ người trực canh theo lệ thành người giữ tuyến chống tráo đồ cổ dọc sông Ghìa.",
+      "traits": ["quan sát", "bình tĩnh", "trọng lệ làng"]
+    },
+    {
+      "name": "Giò Bông Bụp",
+      "role": "Bạn thân, ban nhạc lễ",
+      "kind": "ally",
+      "tier": "core",
+      "description": "Bạn cùng lớp tre của Đồng, gõ chiêng nhỏ trong ban nhạc lễ thôn, nhanh chân và dễ gần.",
+      "arc": "Từ người bạn phụ việc thành người cùng giữ tuyến.",
+      "traits": ["hăng", "nói nhiều", "trung thành"]
+    },
+    {
+      "name": "bà Gân Lúa",
+      "role": "Người tổ chức hội thôn",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Gần bảy mươi, lưng thẳng, người tổ chức hội Vớt Muối Đầu Vụ, giữ ký ức các vụ tráo trống cũ.",
+      "arc": "Từ người giữ lệ thành người đẩy vụ việc ra huyện.",
+      "traits": ["cứng cỏi", "nhớ lâu", "nói thẳng"]
+    },
+    {
+      "name": "người đàn bà tóc ngắn",
+      "role": "Kẻ tráo ếch đồng",
+      "kind": "antagonist",
+      "tier": "important",
+      "description": "Đàn bà trạc bốn mươi, nhỏ người, chân đất, mua vải nâu nam ở chợ Gò Nhã, phụ trách tráo ếch đồng cho hiệu Nhã Xá.",
+      "arc": "Từ bóng ẩn thành đối thủ lộ diện ở xưởng đúc.",
+      "traits": ["lạnh", "tính toán", "nhanh nhẹn"]
+    },
+    {
+      "name": "bà Tía Mươi",
+      "role": "Người bán vải chợ Gò Nhã",
+      "kind": "support",
+      "tier": "secondary",
+      "description": "Bán vải nâu nam và chỉ dệt cuối chợ Gò Nhã, nhớ mặt người mua lạ.",
+      "arc": "Mắt xích thông tin đầu tiên của tuyến điều tra.",
+      "traits": ["tinh mắt", "kể chuyện", "không sợ"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Thôn Tam Ngàn nằm bên đê muối, đối diện qua sông Ghìa là chợ Gò Nhã; thôn Bến Chùa ở phía hạ lưu cùng tuyến.",
+      "boundary": "Không mở rộng ra thành phố hay vùng biển xa; mọi di chuyển bằng ghe qua sông Ghìa."
+    },
+    {
+      "category": "society",
+      "rule": "Lệ làng quy định canh trực đổi lúc qua giờ Hợi, khi chuông chùa làng bên đánh hai tiếng trầm; giữ trống đồng là trách nhiệm dòng họ ghi trong sổ hương chức.",
+      "boundary": "Không thay đổi lệ canh trực hay quyền giữ trống bằng thông lệ mới."
+    },
+    {
+      "category": "other",
+      "rule": "Trống đồng cổ có bốn con ếch đồng trên mặt, chỉ được đánh ba hồi trong lễ khai hội: hồi khai, hồi giữa, hồi dứt.",
+      "boundary": "Không đánh trống ngoài ba hồi lệ và không thay đổi số ếch đồng."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Canh trống đêm mười ba",
+        "summary": "Đêm mười ba tháng tư, Đồng Ghém nhận ca trực đê muối, ca đổi lúc qua giờ Hợi. Anh phát hiện dấu chân nhỏ ở sào muối mười hai hướng về sông Ghìa và mảnh vải nâu nam mắc trên song cửa đình. Bà Gân Lúa dặn canh thêm sân đình vì hai hôm nữa là hội Vớt Muối Đầu Vụ ngày trăng rằm.",
+        "characters": ["Đồng Ghém", "bà Gân Lúa"],
+        "key_events": ["Ca trực đổi lúc qua giờ Hợi", "Dấu chân lạ ở sào mười hai", "Mảnh vải nâu nam trên song đình"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Vải nâu nam ở chợ Gò Nhã",
+        "summary": "Sáng mười bốn, Đồng đo lại dấu chân rồi cùng Giò Bông Bụp sang chợ Gò Nhã. Bà Tía Mươi kể có người đàn bà tóc ngắn mua hai tấm nâu nam mười hôm trước và hỏi đò đêm sang Tam Ngàn. Bà Gân bố trí Đồng phục trong đình, Giò và hai đứa ban nhạc lễ phục ngoài rào đêm mười bốn; đúng khoảng đổi canh qua giờ Hợi thì có tiếng động trên mái đình.",
+        "characters": ["Đồng Ghém", "Giò Bông Bụp", "bà Gân Lúa", "bà Tía Mươi"],
+        "key_events": ["Người đàn bà mua nâu nam và hỏi đò đêm", "Lý do trùm đồng bằng vải khi vận chuyển", "Phục đêm mười bốn, tiếng động trên mái đình"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Ba hồi trống",
+        "summary": "Đồng chạm mặt người đàn bà tráo ếch đồng trong đình; bà ta thoát bằng ghe không đèn mang dấu cá chép Gò Nhã. Anh tìm được hai con ếch giả giấu dưới chân giá trống và con dao khắc chữ Nhã Xá. Sáng ngày trăng rằm, hội Vớt Muối Đầu Vụ khai đúng lệ, trống đánh đủ ba hồi; bà Gân quyết đưa chứng cứ ra huyện.",
+        "characters": ["Đồng Ghém", "Giò Bông Bụp", "bà Gân Lúa", "người đàn bà tóc ngắn"],
+        "key_events": ["Chạm mặt kẻ tráo trong đình", "Hai con ếch giả và dao khắc Nhã Xá", "Hội khai mạc đúng ngày rằm, ba hồi trống"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Đêm 13 tháng 4 âm lịch, qua giờ Hợi", "event": "Đồng Ghém nhận ca trực đê muối; phát hiện dấu chân lạ ở sào mười hai và mảnh vải nâu nam trên song đình.", "characters": ["Đồng Ghém"]},
+    {"chapter": 1, "time": "Sáng 14 tháng 4 âm lịch", "event": "Bà Gân Lúa dặn canh thêm đình; mẹ dặn Đồng quay lại sào mười hai khi dấu bùn chưa khô.", "characters": ["Đồng Ghém", "bà Gân Lúa"]},
+    {"chapter": 2, "time": "Trưa 14 tháng 4 âm lịch", "event": "Đồng và Giò sang chợ Gò Nhã; bà Tía Mươi kể người đàn bà mua nâu nam và hỏi đò đêm.", "characters": ["Đồng Ghém", "Giò Bông Bụp", "bà Tía Mươi"]},
+    {"chapter": 2, "time": "Đêm 14 tháng 4 âm lịch, qua giờ Hợi", "event": "Phục trong đình; nghe tiếng động trên mái đúng khoảng đổi canh.", "characters": ["Đồng Ghém", "Giò Bông Bụp"]},
+    {"chapter": 3, "time": "Rạng sáng 15 tháng 4 âm lịch (trăng rằm)", "event": "Chạm mặt kẻ tráo; thu hai con ếch giả và dao khắc Nhã Xá; kẻ tráo thoát bằng ghe không đèn.", "characters": ["Đồng Ghém", "Giò Bông Bụp", "người đàn bà tóc ngắn"]},
+    {"chapter": 3, "time": "Sáng 15 tháng 4 âm lịch (ngày rằm, khai hội)", "event": "Hội Vớt Muối Đầu Vụ khai mạc; trống đánh đủ ba hồi; bà Gân quyết đưa chứng cứ ra huyện.", "characters": ["Đồng Ghém", "bà Gân Lúa", "Giò Bông Bụp"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-vai-nau-nam", "action": "plant", "description": "Mảnh vải nâu nam không phải vải dệt trong thôn mắc trên song đình."},
+      {"id": "fs-dau-chan-sao-12", "action": "plant", "description": "Dấu chân nhỏ hướng về sông Ghìa ở sào muối mười hai."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-vai-nau-nam", "action": "advance", "description": "Vải nâu nam dệt ở chợ Gò Nhã, dùng để trùm đồng khi vận chuyển đêm."},
+      {"id": "fs-gio-doi-canh", "action": "plant", "description": "Kẻ lạ biết đúng giờ đổi canh qua giờ Hợi."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-dau-chan-sao-12", "action": "resolve"},
+      {"id": "fs-ech-gia", "action": "plant", "description": "Hai con ếch đồng giả và dao khắc Nhã Xá — tuyến tráo đồ cổ có tổ chức."},
+      {"id": "fs-nha-xa", "action": "plant", "description": "Hiệu Nhã Xá từng tráo trống thôn Bến Chùa ba năm trước."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Đồng Ghém", "field": "status", "new_value": "đang giữ ca trực đêm và nhận thêm canh sân đình", "reason": "bà Gân dặn canh thêm đình trước hội"},
+    {"chapter": 2, "entity": "Giò Bông Bụp", "field": "relation", "new_value": "cùng điều tra với Đồng", "reason": "cùng sang chợ Gò Nhã và phục ngoài rào đình"},
+    {"chapter": 2, "entity": "Đồng Ghém", "field": "location", "new_value": "đã sang chợ Gò Nhã và trở về Tam Ngàn", "reason": "truy mảnh vải nâu nam"},
+    {"chapter": 3, "entity": "ếch đồng trên trống", "field": "status", "new_value": "bốn con thật vẫn nguyên trên mặt trống", "reason": "kẻ tráo bị phát hiện trước khi kịp tráo"},
+    {"chapter": 3, "entity": "người đàn bà tóc ngắn", "field": "status", "new_value": "đã thoát bằng ghe không đèn mang dấu cá chép Gò Nhã", "reason": "bị phát hiện trong đình, chạy ra sông"},
+    {"chapter": 3, "entity": "chứng cứ tráo đồng", "field": "status", "new_value": "hai ếch giả và dao khắc Nhã Xá được niêm phong, chờ đưa ra huyện", "reason": "bà Gân quyết định mở điều tra"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Canh trống đêm mười ba",
+      "goal": "Dựng thôn Tam Ngàn, lệ canh trực và trách nhiệm giữ trống của Đồng; gieo dấu hiệu kẻ lạ đã thăm dò.",
+      "conflict": "Đồng vừa nhận trách nhiệm lớn đã thấy dấu hiệu bất thường nhưng chưa đủ chứng cứ.",
+      "hook": "Mảnh vải lạ trên song đình."
+    },
+    {
+      "chapter": 2,
+      "title": "Vải nâu nam ở chợ Gò Nhã",
+      "goal": "Mở rộng điều tra sang chợ Gò Nhã, xác định kẻ lạ và lý do trùm đồng; bố trí phục đêm mười bốn.",
+      "conflict": "Thời gian còn một đêm trước hội, chứng cứ mới là suy đoán.",
+      "hook": "Tiếng động trên mái đình đúng khoảng đổi canh."
+    },
+    {
+      "chapter": 3,
+      "title": "Ba hồi trống",
+      "goal": "Cho Đồng chạm mặt kẻ tráo, thu chứng cứ tráo đồ và giữ được hội đúng lệ ngày rằm; mở tuyến điều tra hiệu Nhã Xá.",
+      "conflict": "Kẻ tráo thoát, nhưng chứng cứ ở lại — đổi từ phòng ngự sang truy tuyến.",
+      "hook": "Dao khắc Nhã Xá nối với vụ tráo trống thôn Bến Chùa ba năm trước.",
+      "contract": {
+        "required_beats": ["Chạm mặt kẻ tráo trong đình và để bà ta thoát", "Thu hai con ếch giả và dao khắc Nhã Xá", "Hội khai mạc đúng ngày rằm, trống đánh đủ ba hồi"],
+        "forbidden_moves": ["Bắt được kẻ tráo", "Thay đổi số ếch đồng trên mặt trống"],
+        "continuity_checks": ["Hội Vớt Muối Đầu Vụ diễn ra ngày trăng rằm tháng tư", "Canh trực đổi lúc qua giờ Hợi", "Kẻ tráo biết lịch canh và đã thăm dò từ đêm mười ba"],
+        "evaluation_focus": ["Mốc ngày hội có khớp hai chương trước", "Diễn biến thu chứng cứ có rõ ràng, không tự nhiên"],
+        "emotion_target": "Căng thẳng dồn, nhẹ đi khi hội khai",
+        "hook_goal": "Muốn biết hiệu Nhã Xá và vụ tráo trống ba năm trước"
+      }
+    }
+  ]
+}

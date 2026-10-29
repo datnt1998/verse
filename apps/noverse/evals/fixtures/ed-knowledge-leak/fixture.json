@@ -1,0 +1,217 @@
+{
+  "title": "Phong Bì Niêm Sáp Ở Bưu Cục Cửa Hàm",
+  "premise": "Lâm Cầu, thư ký bưu cục Cửa Hàm, giữ một phong bì niêm sáp từ Đảo Sóng gửi cho bà Hồ Thị Then trong khi phó phòng thương chính huyện nhiều lần hỏi thăm và chuyến tàu muối Sóng Bạc sắp cập bến.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Phong bì niêm sáp con sò",
+      "core_event": "Người đánh cá Trương Vạm mang phong bì niêm sáp con sò từ Đảo Sóng đến bưu cục, gửi cho bà Hồ Thị Then; Lâm Cầu ghi sổ niêm phong. Ông Đốc Nghị hỏi thăm thư từ đảo và bị từ chối.",
+      "hook": "Phong bì dày và có vết hằn của vật cứng bên trong.",
+      "scenes": ["Trương Vạm giao thư niêm sáp", "Cô Tơ nhắc điều lệ không mở thư niêm", "Đốc Nghị hỏi thăm thư từ đảo"]
+    },
+    {
+      "chapter": 2,
+      "title": "Mười lăm ngày chờ phát",
+      "core_event": "Bà Hồ Thị Then vắng nhà; Đốc Nghị đưa giấy yêu cầu danh mục thư từ Đảo Sóng. Lâm chỉ cung cấp danh mục, không nội dung. Ông biết bà Hồ có cháu trai làm thủy thủ tàu Sóng Bạc.",
+      "hook": "Đốc Nghị muốn chứng kiến lúc niêm lại phong bì.",
+      "scenes": ["Trương Vạm hỏi thăm bà Hồ", "Đốc Nghị yêu cầu danh mục", "Lâm cân nhắc giữa điều lệ và nỗi lo riêng"]
+    },
+    {
+      "chapter": 3,
+      "title": "Đêm tàu cập bến",
+      "core_event": "Bà Hồ Thị Then trở về; Lâm và cô Tơ phát thư tận tay theo điều lệ. Bà chưa bóc thư, chờ cháu trai về. Lâm chạy ra ngăn bà ra bến đêm tàu Sóng Bạc cập; bà bóc dấu sáp.",
+      "hook": "Bà Hồ bóc thư và hỏi Lâm một câu — nguồn gốc điều anh biết.",
+      "scenes": ["Phát thư tận tay cho bà Hồ", "Lâm quay lại ngăn bà ra bến", "Bà Hồ bóc dấu sáp trước mặt Lâm"]
+    },
+    {
+      "chapter": 4,
+      "title": "Câu hỏi của bà Hồ",
+      "core_event": "Bà Hồ đối chất Lâm về việc anh biết nội dung thư; Lâm phải giải trình với bưu cục và với Đốc Nghị.",
+      "hook": "Đốc Nghị có mặt ở bến đêm ấy.",
+      "scenes": ["Bà Hồ hỏi Lâm", "Lâm báo cáo bưu cục", "Đốc Nghị xuất hiện ở bến"]
+    },
+    {
+      "chapter": 5,
+      "title": "Tàu không về",
+      "core_event": "Tàu Sóng Bạc không cập bến như lịch; đội cứu hộ ra khơi, phát hiện tàu bị giữ ở đảo.",
+      "hook": "Thư trong phong bì là giấy báo tàu bị giữ.",
+      "scenes": ["Bến vắng tàu", "Đội cứu hộ ra khơi", "Tin từ đảo"]
+    },
+    {
+      "chapter": 6,
+      "title": "Người gửi thư",
+      "core_event": "Tìm ra người gửi là một nữ nhân viên giữ kho ở Đảo Sóng; bà gửi thư vì không dám đi trình báo.",
+      "hook": "Người gửi biết tên kẻ đứng sau việc giữ tàu.",
+      "scenes": ["Ra đảo", "Gặp người gửi", "Lời khai về chủ tàu"]
+    },
+    {
+      "chapter": 7,
+      "title": "Giấy tờ ở phòng thương chính",
+      "core_event": "Hồ sơ thương chính bị lộ việc sửa giấy tờ tàu; Đốc Nghị bị điều tra.",
+      "hook": "Đốc Nghị biết trước ngày tàu bị giữ — vì hắn là người ký.",
+      "scenes": ["Kiểm tra hồ sơ", "Đốc Nghị bị giữ", "Lâm làm chứng"]
+    },
+    {
+      "chapter": 8,
+      "title": "Bưu cục mở cửa",
+      "core_event": "Tàu Sóng Bạc về; bưu cục Cửa Hàm giữ nguyên điều lệ niêm phong; Lâm ở lại nghề.",
+      "hook": "Phong bì mới từ đảo, dấu sáp con sò, người nhận là Lâm Cầu.",
+      "scenes": ["Tàu về", "Bưu cục làm việc", "Phong bì mới"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Lâm Cầu",
+      "role": "Thư ký bưu cục",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Hai mươi hai tuổi, làm thư ký bưu cục Cửa Hàm bốn năm, thuộc lòng tuyến tàu và con dấu bưu tá, cha mất tích ngoài khơi mười năm trước.",
+      "arc": "Từ người giữ điều lệ đúng mực thành người phải chịu trách nhiệm về điều mình biết.",
+      "traits": ["cẩn thận", "kín", "nặng lòng"]
+    },
+    {
+      "name": "Nguyễn Thị Tơ",
+      "role": "Thư ký thâm niên",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Cô Tơ, thâm niên bưu cục, người nhắc điều lệ niêm phong và đi cùng Lâm phát thư tận tay.",
+      "arc": "Từ người cảnh báo thành người chứng kiến và bảo vệ Lâm.",
+      "traits": ["nghiêm", "thực tế", "che chở"]
+    },
+    {
+      "name": "Hồ Thị Then",
+      "role": "Người nhận thư",
+      "kind": "support",
+      "tier": "core",
+      "description": "Bà cụ xóm Cồn Cát, có cháu trai làm thủy thủ tàu Sóng Bạc, người nhận phong bì niêm sáp từ Đảo Sóng.",
+      "arc": "Từ người nhận thư thụ động thành người buộc Lâm phải nói ra điều anh biết.",
+      "traits": ["điềm", "sắc sảo", "thương cháu"]
+    },
+    {
+      "name": "Đốc Nghị",
+      "role": "Phó phòng thương chính huyện",
+      "kind": "antagonist",
+      "tier": "core",
+      "description": "Phó phòng thương chính, áo vải trắng, cặp da mỏng, ba lần hỏi thăm thư từ Đảo Sóng và yêu cầu danh mục.",
+      "arc": "Từ người hỏi thăm lịch sự thành đối tượng bị điều tra.",
+      "traits": ["lịch sự giả", "kiên trì", "nắm giấy tờ"]
+    },
+    {
+      "name": "Trương Vạm",
+      "role": "Người đánh cá chuyển thư",
+      "kind": "support",
+      "tier": "secondary",
+      "description": "Người đánh cá chở phong bì từ Đảo Sóng vào bờ, dặn phải đưa tận bưu cục.",
+      "arc": "Người đưa tin vô tình kéo bưu cục vào vụ việc.",
+      "traits": ["thẳng", "giữ lời", "ít nói"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Cửa Hàm là thị trấn cửa biển nhỏ, có bưu cục ở đầu dốc chợ cá, xóm Cồn Cát dọc bờ cát, bến tàu và Đảo Sóng ngoài khơi.",
+      "boundary": "Không có sân bay, tàu lớn hay thành phố trong truyện; đi lại bằng ghe, tàu muối và đi bộ."
+    },
+    {
+      "category": "society",
+      "rule": "Điều lệ bưu cục: thư niêm sáp không được mở, không soi, không hơ nến; thư không có người nhận giữ mười lăm ngày rồi trả về nơi gửi; phát thư niêm sáp phải có hai nhân viên chứng kiến.",
+      "boundary": "Không ai được đọc nội dung thư niêm sáp ngoài người nhận."
+    },
+    {
+      "category": "technology",
+      "rule": "Thời đại dùng thư tay, dấu sáp, sổ giấy, dấu bưu tá và tàu hơi nước chở muối; không có điện thoại hay máy ảnh.",
+      "boundary": "Không dùng phương tiện liên lạc hiện đại để biết nội dung thư."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Phong bì niêm sáp con sò",
+        "summary": "Sáng mười bảy tháng tám, Trương Vạm mang phong bì niêm sáp con sò từ Đảo Sóng đến bưu cục Cửa Hàm, gửi cho bà Hồ Thị Then xóm Cồn Cát, không ghi tên người gửi. Lâm Cầu ghi sổ niêm phong và từ chối tiết lộ thông tin khi ông Đốc Nghị hỏi thăm thư từ đảo. Anh để ý phong bì dày và có vết hằn của vật cứng trên mép trái.",
+        "characters": ["Lâm Cầu", "Trương Vạm", "Nguyễn Thị Tơ", "Đốc Nghị"],
+        "key_events": ["Nhận phong bì niêm sáp từ Đảo Sóng", "Điều lệ không mở thư niêm được nhắc lại", "Đốc Nghị hỏi thăm thư từ đảo lần đầu"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Mười lăm ngày chờ phát",
+        "summary": "Ba hôm sau, bà Hồ Thị Then vẫn vắng nhà vì lên nhà con gái ở xóm Tràm; hạn trả thư là mồng một tháng chín. Đốc Nghị đưa giấy có dấu đỏ yêu cầu danh mục thư từ Đảo Sóng; Lâm chỉ cung cấp danh mục, không cung cấp nội dung, và ghi việc này vào sổ theo dõi. Cô Tơ cho biết bà Hồ có cháu trai làm thủy thủ trên tàu Sóng Bạc và cảnh báo Lâm đừng dây vào.",
+        "characters": ["Lâm Cầu", "Nguyễn Thị Tơ", "Đốc Nghị", "Trương Vạm"],
+        "key_events": ["Bà Hồ vắng nhà, hạn trả mồng một tháng chín", "Đốc Nghị yêu cầu danh mục và được cung cấp danh mục", "Tin cháu trai bà Hồ làm thủy thủ tàu Sóng Bạc"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Đêm tàu cập bến",
+        "summary": "Ngày hai mươi lăm tháng tám, bà Hồ Thị Then trở về Cồn Cát. Chiều hôm ấy Lâm Cầu và cô Tơ phát thư tận tay theo điều lệ; bà Hồ kiểm tra dấu niêm còn nguyên, ký sổ phát thư và nói chưa bóc vội vì chờ cháu trai về cùng tàu. Trên đường về, Lâm quay lại nhà bà Hồ, ngăn bà ra bến đêm tàu Sóng Bạc cập; bà bóc dấu sáp ngay trước mặt anh và bảo anh ngồi xuống chờ bà đọc xong.",
+        "characters": ["Lâm Cầu", "Nguyễn Thị Tơ", "Hồ Thị Then"],
+        "key_events": ["Phát thư tận tay cho bà Hồ, dấu niêm nguyên vẹn", "Lâm quay lại ngăn bà Hồ ra bến", "Bà Hồ bóc dấu sáp trước mặt Lâm"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Ngày 15 tháng 8", "event": "Thư được đóng dấu bưu tá ở Đảo Sóng.", "characters": []},
+    {"chapter": 1, "time": "Sáng 17 tháng 8", "event": "Trương Vạm giao phong bì niêm sáp con sò cho bưu cục Cửa Hàm, người nhận Hồ Thị Then.", "characters": ["Lâm Cầu", "Trương Vạm"]},
+    {"chapter": 1, "time": "Trưa 17 tháng 8", "event": "Đốc Nghị hỏi thăm thư từ Đảo Sóng lần đầu; Lâm từ chối tiết lộ.", "characters": ["Lâm Cầu", "Đốc Nghị"]},
+    {"chapter": 2, "time": "Sáng 20 tháng 8", "event": "Đốc Nghị đưa giấy yêu cầu danh mục thư từ Đảo Sóng; Lâm cung cấp danh mục, không cung cấp nội dung.", "characters": ["Lâm Cầu", "Đốc Nghị"]},
+    {"chapter": 3, "time": "Chiều 25 tháng 8", "event": "Bà Hồ Thị Then về Cồn Cát; Lâm và cô Tơ phát thư tận tay, dấu niêm nguyên vẹn, bà ký sổ.", "characters": ["Lâm Cầu", "Nguyễn Thị Tơ", "Hồ Thị Then"]},
+    {"chapter": 3, "time": "Tối 25 tháng 8", "event": "Lâm quay lại nhà bà Hồ, ngăn bà ra bến đêm tàu Sóng Bạc cập; bà bóc dấu sáp.", "characters": ["Lâm Cầu", "Hồ Thị Then"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-phong-bi-day", "action": "plant", "description": "Phong bì niêm sáp con sò dày bất thường, có vết hằn của vật cứng ở mép trái."},
+      {"id": "fs-doc-nghi-hoi-tham", "action": "plant", "description": "Đốc Nghị hỏi thăm thư từ Đảo Sóng ngay ngày thư đến."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-doc-nghi-hoi-tham", "action": "advance", "description": "Đốc Nghị chính thức yêu cầu danh mục thư từ Đảo Sóng và muốn chứng kiến lúc niêm lại."},
+      {"id": "fs-tau-song-bac", "action": "plant", "description": "Cháu trai bà Hồ làm thủy thủ trên tàu muối Sóng Bạc; Đốc Nghị đang kiểm tra giấy tờ tàu."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-phong-bi-day", "action": "advance", "description": "Dấu sáp bị bóc trước mặt Lâm; nội dung thư chưa được đọc lên."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "phong bì niêm sáp con sò", "field": "location", "new_value": "ngăn thư chờ phát, bưu cục Cửa Hàm", "reason": "Trương Vạm giao thư, người nhận vắng nhà"},
+    {"chapter": 2, "entity": "Đốc Nghị", "field": "status", "new_value": "đã có danh mục thư từ Đảo Sóng", "reason": "yêu cầu bằng giấy có dấu đỏ của phòng thương chính"},
+    {"chapter": 3, "entity": "phong bì niêm sáp con sò", "field": "status", "new_value": "dấu sáp đã bóc, thư trong tay bà Hồ Thị Then", "reason": "phát tận tay theo điều lệ rồi bà tự bóc"},
+    {"chapter": 3, "entity": "Lâm Cầu", "field": "status", "new_value": "đã ngăn bà Hồ ra bến đêm tàu cập", "reason": "anh chạy lại nhà bà Hồ trước giờ tàu"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Phong bì niêm sáp con sò",
+      "goal": "Dựng bưu cục Cửa Hàm, nghề thư ký và điều lệ niêm phong; đặt phong bì bí ẩn vào tay Lâm và mối quan tâm của Đốc Nghị.",
+      "conflict": "Lâm phải giữ điều lệ trước sức ép của một người có chức quyền.",
+      "hook": "Phong bì dày, có vật cứng bên trong."
+    },
+    {
+      "chapter": 2,
+      "title": "Mười lăm ngày chờ phát",
+      "goal": "Tăng sức ép: người nhận vắng, giấy yêu cầu danh mục, tin về tàu Sóng Bạc; Lâm vẫn giữ đúng ranh giới điều lệ.",
+      "conflict": "Giữ điều lệ đồng nghĩa để phong bì nằm im trong khi có thể có chuyện lớn.",
+      "hook": "Đốc Nghị muốn chứng kiến lúc niêm lại."
+    },
+    {
+      "chapter": 3,
+      "title": "Đêm tàu cập bến",
+      "goal": "Phát thư tận tay đúng điều lệ, rồi để Lâm hành động theo điều mình biết; kết chương ở lúc dấu sáp vừa bóc.",
+      "conflict": "Điều lệ cấm mở thư, nhưng Lâm tin phải ngăn bà Hồ ra bến.",
+      "hook": "Bà Hồ bóc thư và sẽ hỏi Lâm nguồn gốc điều anh biết.",
+      "contract": {
+        "required_beats": ["Phát thư tận tay có hai nhân viên chứng kiến", "Bà Hồ kiểm tra dấu niêm còn nguyên và chưa bóc vội", "Lâm quay lại ngăn bà Hồ ra bến đêm tàu cập", "Bà Hồ bóc dấu sáp trước mặt Lâm"],
+        "forbidden_moves": ["Bà Hồ đọc to nội dung thư", "Tàu Sóng Bạc cập bến trong chương này"],
+        "continuity_checks": ["Thư chưa từng bị mở trước khi bà Hồ bóc", "Người nhận là Hồ Thị Then, xóm Cồn Cát", "Điều lệ: thư niêm sáp không được mở, phát phải có hai nhân viên"],
+        "evaluation_focus": ["Lâm chỉ biết điều có thể biết từ sổ sách và quan sát", "Diễn biến phát thư khớp điều lệ đã nêu"],
+        "emotion_target": "Lo âu dồn nén, quyết liệt",
+        "hook_goal": "Muốn biết trong thư viết gì và bà Hồ sẽ hỏi gì"
+      }
+    }
+  ]
+}

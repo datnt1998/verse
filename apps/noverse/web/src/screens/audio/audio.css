@@ -1,0 +1,101 @@
+/* Chuyển động của màn Audio — bám đúng keyframes trong Transcript.dc.html / AudioExport.dc.html.
+   Mọi chuyển động gắn với tiến độ thật; prefers-reduced-motion đã tắt toàn bộ ở styles/tokens.css. */
+
+.audio-run {
+  background: linear-gradient(90deg, #5A57E3, #9A63E3, #C9457F, #5DC1B0, #5A57E3);
+  background-size: 300% 100%;
+  animation: audio-flow 3s linear infinite;
+}
+@keyframes audio-flow { from { background-position: 0 0 } to { background-position: 300% 0 } }
+
+.audio-eq span {
+  display: inline-block; width: 2px; border-radius: 1px; background: currentColor;
+  animation: audio-eq 1s ease-in-out infinite;
+}
+.audio-eq span:nth-child(2) { animation-delay: -.3s }
+.audio-eq span:nth-child(3) { animation-delay: -.6s }
+.audio-eq span:nth-child(4) { animation-delay: -.15s }
+@keyframes audio-eq { 0%, 100% { height: 4px } 50% { height: 12px } }
+
+.audio-shim {
+  background: linear-gradient(90deg, #A0A0AB 0%, #A0A0AB 35%, #F3E8FF 50%, #A0A0AB 65%, #A0A0AB 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: audio-shim 2.4s linear infinite;
+}
+@keyframes audio-shim { from { background-position: 100% 0 } to { background-position: -100% 0 } }
+
+.audio-spin { animation: audio-spin .9s linear infinite }
+@keyframes audio-spin { to { transform: rotate(360deg) } }
+
+.audio-vring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid var(--audio-ring-color);
+  opacity: 0;
+  animation: audio-vring 1.8s ease-out infinite;
+}
+.audio-vring.r2 { animation-delay: .9s }
+@keyframes audio-vring {
+  0% { transform: scale(.9); opacity: .75 }
+  100% { transform: scale(1.55); opacity: 0 }
+}
+
+.audio-talk { animation: audio-talk .42s ease-in-out infinite alternate }
+@keyframes audio-talk { from { transform: scale(1) } to { transform: scale(1.045) } }
+
+.audio-frozen * { animation-play-state: paused !important }
+
+.audio-pen { box-shadow: 0 0 12px 2px rgba(201, 166, 245, .85) }
+
+.audio-wa { animation: audio-wa .32s ease-out both; transform-origin: center }
+.audio-wb { animation: audio-wb .32s ease-out both; transform-origin: center }
+@keyframes audio-wa { from { transform: scaleY(.15); opacity: .4 } to { transform: none; opacity: 1 } }
+@keyframes audio-wb { from { transform: scaleY(.15); opacity: .4 } to { transform: none; opacity: 1 } }
+
+.audio-fa { animation: audio-fa .45s cubic-bezier(.2, .8, .3, 1) both }
+.audio-fb { animation: audio-fb .45s cubic-bezier(.2, .8, .3, 1) both }
+@keyframes audio-fa { from { transform: translateY(-10px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes audio-fb { from { transform: translateY(-10px); opacity: 0 } to { transform: none; opacity: 1 } }
+
+.audio-ringspin { animation: audio-spinr 3.2s linear infinite }
+@keyframes audio-spinr { to { transform: rotate(360deg) } }
+
+.audio-glowdrift { animation: audio-drift 9s ease-in-out infinite alternate }
+@keyframes audio-drift { from { transform: translate(0, 0) } to { transform: translate(-60px, 40px) } }
+
+.audio-wnow {
+  background: linear-gradient(90deg, #F3E8FF, #C9A6F5, #F3E8FF);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent !important;
+  animation: audio-shim 1.2s linear infinite;
+}
+
+.audio-tick { stroke-dasharray: 30; stroke-dashoffset: 30; animation: audio-draw .5s ease-out .35s forwards }
+@keyframes audio-draw { to { stroke-dashoffset: 0 } }
+
+.audio-burst { animation: audio-burst 1.5s ease-out both }
+@keyframes audio-burst { from { transform: scale(.75); opacity: .85 } to { transform: scale(1.9); opacity: 0 } }
+
+.audio-fillring { animation: audio-fillr .8s ease-out both }
+@keyframes audio-fillr { from { transform: rotate(-200deg); opacity: 0 } to { transform: none; opacity: 1 } }
+
+.audio-sweep { animation: audio-sweep 1.2s ease-out both }
+@keyframes audio-sweep {
+  0% { transform: scaleY(.6); opacity: .3 }
+  60% { transform: scaleY(1.06); opacity: 1; filter: brightness(1.5) }
+  100% { transform: none; filter: none }
+}
+
+.audio-pop { animation: audio-pop .5s cubic-bezier(.2, .9, .3, 1.3) both }
+@keyframes audio-pop { from { transform: scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
+
+.audio-norm { border-bottom: 1.5px dotted #A6EDC1; cursor: help }
+.audio-flag { border-bottom: 1.5px dotted #F6CB8C }
+
+.audio-segact { opacity: 0; transition: opacity .15s }
+.audio-seg:hover .audio-segact, .audio-seg:focus-within .audio-segact,
+.audio-dictrow:hover .audio-segact, .audio-dictrow:focus-within .audio-segact { opacity: 1 }
+
+.audio-refresh-line { height: 2px; width: 35%; background: var(--color-accent); animation: audio-refresh 1.1s ease-in-out infinite }
+@keyframes audio-refresh { from { transform: translateX(-100%) } to { transform: translateX(385%) } }
+@media (prefers-reduced-motion: reduce) { .audio-refresh-line { animation: none; width: 100% } }

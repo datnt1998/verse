@@ -1,0 +1,153 @@
+{
+  "name": "Thành phố Vân Châu",
+  "counts": {
+    "stories": 9,
+    "chars": 4,
+    "places": 2
+  },
+  "entities": [
+    {
+      "id": "char:ba-tu-ban-xoi",
+      "type": "char",
+      "name": "Bà Tư bán xôi",
+      "stories": [
+        {
+          "id": "ganh-xoi",
+          "title": "Gánh Xôi Năm Tám Mươi"
+        },
+        {
+          "id": "dam-gio",
+          "title": "Đám Giỗ Cả Họ"
+        },
+        {
+          "id": "01-tra-xanh-cuop-kich-ban",
+          "title": "Trà Xanh Cướp Kịch Bản"
+        }
+      ],
+      "lastRole": "Bà Tư bán xôi đầu ngõ",
+      "kind": "support"
+    },
+    {
+      "id": "char:co-lao-cong-lua",
+      "type": "char",
+      "name": "Cô lao công Lụa",
+      "stories": [
+        {
+          "id": "thien-kim",
+          "title": "Thiên Kim Thật Trở Về"
+        },
+        {
+          "id": "dong-nghiep",
+          "title": "Đồng Nghiệp Cướp Công"
+        }
+      ],
+      "lastRole": "Người lao công biết bí mật",
+      "kind": "support"
+    },
+    {
+      "id": "char:em-nuoi",
+      "type": "char",
+      "name": "Em nuôi",
+      "stories": [
+        {
+          "id": "thien-kim",
+          "title": "Thiên Kim Thật Trở Về"
+        },
+        {
+          "id": "em-gai-nuoi",
+          "title": "Em Gái Nuôi Mặc Váy Cưới"
+        }
+      ],
+      "lastRole": "Em nuôi nhà thiên kim",
+      "kind": "support"
+    },
+    {
+      "id": "char:luat-su-han",
+      "type": "char",
+      "name": "Luật sư Hàn",
+      "stories": [
+        {
+          "id": "me-chong",
+          "title": "Mẹ Chồng Đuổi Tôi Đi"
+        },
+        {
+          "id": "ban-than",
+          "title": "Bạn Thân Giật Chồng"
+        }
+      ],
+      "lastRole": "Luật sư phía nữ chính ở phiên toà",
+      "kind": "lead"
+    },
+    {
+      "id": "place:cho-van-chau",
+      "type": "place",
+      "name": "Chợ Vân Châu",
+      "stories": [
+        {
+          "id": "me-ke-tiem-may",
+          "title": "Mẹ Kế Cướp Tiệm May"
+        },
+        {
+          "id": "ganh-xoi",
+          "title": "Gánh Xôi Năm Tám Mươi"
+        }
+      ],
+      "lastRole": "Chợ phiên đầu phố"
+    },
+    {
+      "id": "place:dai-truyen-hinh-van-chau",
+      "type": "place",
+      "name": "Đài truyền hình Vân Châu",
+      "stories": [
+        {
+          "id": "em-gai-nuoi",
+          "title": "Em Gái Nuôi Mặc Váy Cưới"
+        },
+        {
+          "id": "01-tra-xanh-cuop-kich-ban",
+          "title": "Trà Xanh Cướp Kịch Bản"
+        }
+      ],
+      "lastRole": "Trường quay livestream"
+    }
+  ],
+  "checks": [
+    {
+      "ref": "Master §19",
+      "story": "01-tra-xanh-cuop-kich-ban",
+      "ch": 6,
+      "text": "Đoạn mở chương nhắc lại 4 câu về buổi ghi hình cũ; Master §19 cho tối đa 2 câu, lồng vào hành động.",
+      "quoteId": "ch6-45b2123c"
+    },
+    {
+      "ref": "Master §19",
+      "story": "dam-gio",
+      "ch": 2,
+      "text": "“Bà Tư bán xôi” ở chương 2 của “Đám Giỗ Cả Họ, Tôi Đọc Di Chúc Của Bà” nhắc lại 4 câu về truyện cũ. Master §19 cho tối đa 2 câu, lồng vào hành động.",
+      "quoteId": "ch2-e9502bef"
+    }
+  ],
+  "keptCount": 2,
+  "kept": [
+    {
+      "ref": "Master §19",
+      "story": "ganh-xoi",
+      "ch": 3,
+      "text": "Đoạn mở chương nhắc lại 4 câu về gánh xôi buổi sáng; Master §19 cho tối đa 2 câu, lồng vào hành động.",
+      "quoteId": "ch3-4a037216",
+      "reason": "Người nghe mới cần biết vì sao bà Tư có mặt ở đám giỗ",
+      "decidedBy": "Dat",
+      "decidedAt": "2026-10-24T12:00:00Z"
+    },
+    {
+      "ref": "Master §19",
+      "story": "me-chong",
+      "ch": 5,
+      "text": "“Mẹ chồng đuổi tôi đi” ở chương 5 nhắc lại 4 câu về phiên toà cũ; Master §19 cho tối đa 2 câu, lồng vào hành động.",
+      "quoteId": "ch5-944914af",
+      "reason": "Hồi tưởng có chủ ý, là manh mối của chương",
+      "decidedBy": "Dat",
+      "decidedAt": "2026-10-22T12:00:00Z"
+    }
+  ]
+}

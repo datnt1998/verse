@@ -1,0 +1,335 @@
+{
+  "title": "Mẻ Cá Chép Thứ Ba",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn về nghề phục chế gốm — giọng kể chậm, khô, chú trọng vật chứng và giấy tờ.\n\n## Định vị thể loại\nTrinh thám đồ cổ nhỏ: một mẻ gốm, một khoản nợ bốn mươi năm, một chiếc bát không có trong danh mục.\n\n## Xung đột cốt lõi\nNgạn phải phục chế đúng đường nứt của chiếc bát cổ, trong khi giấy tờ dòng họ và hiện vật kể hai câu chuyện khác nhau.\n\n## Mục tiêu nhân vật chính\nGiữ đúng lời chú dặn: không nhận đồ không rõ nguồn, không phục chế để giả.\n\n## Hướng kết cục\nChiếc bát thứ ba lộ ra là hàng làm lại để dựng câu chuyện dòng họ — Ngạn chọn trả lại thay vì phục chế.\n\n## Vùng cấm sáng tác\nKhông có bùa chú, không có lời nguyền đồ cổ; mọi bí ẩn giải bằng men, dấu lò và giấy tờ.\n\n## Điểm bán hàng khác biệt\nChi tiết nghề phục chế thật: men phủ, dấu lò hai gạch, giấy dán dưới chân đế, cách giữ đường nứt.\n\n## Móc câu khác biệt\nMỗi chiếc bát cùng mẻ lại nứt cùng một chỗ — không thể là ngẫu nhiên.\n\n## Cam kết cốt lõi\nMỗi chương mở thêm một lớp giấy tờ hoặc vật chứng, ép Ngạn chọn giữa nghề và lời chú dặn.\n\n## Tính phù hợp với truyện ngắn\nMột tiệm, hai chiếc bát, một chiếc hộp gấm, một quyết định trả lại.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Hộp gấm của dòng họ Tố Ngâm",
+      "core_event": "Người đàn ông áo the mang hai chiếc bát men lam cá chép của dòng họ Tố Ngâm đến nhờ phục chế, dặn giữ nguyên đường nứt; Ngạn đọc cuốn sổ nợ của chú và thấy khoản nợ bốn mươi năm 'chờ đúng người'.",
+      "hook": "Danh mục nhà thờ họ ghi ba chiếc bát cùng một mẻ, nhưng chiếc thứ ba 'không rõ ở đâu'.",
+      "scenes": [
+        "Khách áo the chờ trước cửa tiệm",
+        "Mở ba lớp vải, thấy hai chiếc bát men lam",
+        "Nhận ra dấu lò trên chiếc bát lành",
+        "Đọc cuốn sổ nợ của chú"
+      ],
+      "open_questions": [
+        "Chiếc bát thứ ba ở đâu?",
+        "Khoản nợ bốn mươi năm là gì?"
+      ],
+      "promise": "Ngạn nhận hai chiếc bát cổ và ba ngày phục chế"
+    },
+    {
+      "chapter": 2,
+      "title": "Mẻ cá chép dưới men",
+      "core_event": "Ngạn soi đường nứt, tìm thấy dấu lò hai gạch và mảnh giấy 'Mẻ thứ ba' dưới chân đế; người đàn ông quay lại sớm hơn hẹn và hỏi cô có tìm thấy gì dưới đáy bát không.",
+      "hook": "Người đàn ông đứng trước cửa, làn mây trống, hỏi đúng câu Ngạn chưa kịp trả lời.",
+      "scenes": [
+        "Đọc danh mục nhà thờ họ",
+        "Soi đường nứt bằng kính lúp",
+        "Tách mảnh giấy dưới chân đế",
+        "Người đàn ông quay lại sớm"
+      ],
+      "open_questions": [
+        "'Mẻ thứ ba' nghĩa là gì?",
+        "Người đàn ông biết gì về mảnh giấy?"
+      ],
+      "promise": "Lộ mâu thuẫn giữa giấy tờ và hiện vật",
+      "hook_type": "lat_thong_tin"
+    },
+    {
+      "chapter": 3,
+      "title": "Con dấu sáp ong",
+      "core_event": "Người đàn ông thú nhận chiếc bát thứ ba do một lò khác làm lại, rồi đặt hộp gấm lên bàn, bẻ con dấu sáp ong và mở hộp gấm; Ngạn nhận ra vết rạn chân tóc trên chiếc bát thứ ba giống hệt vết nứt chiếc thứ hai.",
+      "hook": "Vết rạn chân tóc trên bát thứ ba trùng khít vết nứt bát thứ hai — cả hai đều do một tay làm lại, không phải mẻ gốm thật.",
+      "scenes": [
+        "Ngạn trả lời câu hỏi về mảnh giấy",
+        "Người đàn ông kể chuyện lò khác làm lại bát",
+        "Bẻ con dấu sáp ong, mở hộp gấm",
+        "Soi vết rạn chân tóc, nhận ra trùng khít"
+      ],
+      "open_questions": [
+        "Ai đặt làm chiếc bát giả?",
+        "Ngạn sẽ trả lại hay phục chế?"
+      ],
+      "promise": "da_tra: Ngạn mở hộp gấm và thấy chiếc bát thứ ba",
+      "hook_type": "lat_thong_tin",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Sổ nợ bốn mươi năm",
+      "core_event": "Ngạn tra trang bìa sau cuốn sổ nợ và tìm ra tên người đặt làm chiếc bát giả; người đó là chú ruột cô, làm để trả một món nợ khác.",
+      "hook": "Trang cuối sổ nợ có dòng chữ chú cô viết: 'Đã trả bằng bát thứ ba. Chưa ai biết.'",
+      "scenes": [
+        "Đọc lại trang bìa sau sổ nợ",
+        "So chữ ký với danh mục nhà thờ họ",
+        "Hỏi người đàn ông về món nợ cũ",
+        "Đọc dòng chữ cuối của chú"
+      ],
+      "open_questions": [
+        "Chú Ngạn trả nợ cho ai?",
+        "Dòng họ Tố Ngâm có biết chuyện này không?"
+      ],
+      "promise": "Giải khoản nợ bốn mươi năm",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 5,
+      "title": "Người nhận bát",
+      "core_event": "Ngạn tìm tới nhà thờ họ Tố Ngâm, gặp người giữ từ đường và biết chiếc bát thật đã mất từ lâu; chiếc bát giả được làm để lấp chỗ trống trong mâm thờ.",
+      "hook": "Người giữ từ đường mở mâm thờ — ba chiếc bát đủ chỗ, nhưng một chiếc là bát giả không ai dám nói ra.",
+      "scenes": [
+        "Đi tới nhà thờ họ",
+        "Gặp người giữ từ đường",
+        "Xem mâm thờ ba chiếc bát",
+        "Nghe chuyện chiếc bát thật bị mất"
+      ],
+      "open_questions": [
+        "Ngạn sẽ nói sự thật với dòng họ không?",
+        "Ai chịu trách nhiệm chiếc bát giả?"
+      ],
+      "promise": "Tới được nơi chiếc bát thuộc về",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 6,
+      "title": "Trả lại",
+      "core_event": "Ngạn từ chối phục chế chiếc bát giả, trả cả ba chiếc bát cho dòng họ và ghi vào sổ nợ dòng cuối: đã trả đủ.",
+      "hook": "Cuốn sổ nợ của chú khép lại; Ngạn mở trang mới cho món đồ đầu tiên cô tự nhận.",
+      "scenes": [
+        "Từ chối phục chế bát giả",
+        "Trả ba chiếc bát cho dòng họ",
+        "Ghi dòng cuối sổ nợ",
+        "Mở trang sổ mới"
+      ],
+      "open_questions": [],
+      "promise": "da_tra: Khoản nợ bốn mươi năm được trả đúng cách",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Ngạn",
+      "role": "thợ phục chế gốm, cháu gái chú Ngạn",
+      "description": "Nhận tiệm cuối ngõ Chái Thanh sau khi chú mất; giữ nguyên tắc không nhận đồ không rõ nguồn, không phục chế để giả.",
+      "arc": "Từ người giữ nguyên tắc thành người dám trả lại món đồ thay vì cứu vãn nó.",
+      "traits": [
+        "tỉ mỉ",
+        "nhớ lời chú",
+        "không thích nói nhiều"
+      ],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Người đàn ông áo the",
+      "role": "người nhà dòng họ Tố Ngâm mang bát đến",
+      "description": "Áo the đen, làn mây, nói ngắn; biết trước về mảnh giấy dưới đáy bát và giấu chuyện chiếc bát thứ ba.",
+      "arc": "Từ người nhờ phục chế thành người thú nhận sự thật về chiếc bát giả.",
+      "traits": [
+        "kín đáo",
+        "biết nhiều hơn nói",
+        "trọng thể diện dòng họ"
+      ],
+      "kind": "support",
+      "tier": "important"
+    },
+    {
+      "name": "Chú Ngạn",
+      "role": "thợ phục chế quá cố, chỉ hiện qua sổ nợ và quy tắc dán trên tủ",
+      "description": "Để lại tiệm, cuốn sổ nợ và quy tắc nghề; từng nhận một khoản nợ bốn mươi năm với dòng họ Tố Ngâm.",
+      "arc": "Quá khứ của chú dần lộ ra qua sổ nợ.",
+      "traits": [
+        "cẩn thận",
+        "giữ lời"
+      ],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "other",
+      "rule": "Gốm men lam cổ của lò Tố Ngâm có dấu lò hai gạch khắc mảnh dưới chân đế; men phủ dày, màu không đều, vẽ cá chép bằng bút lông cứng.",
+      "boundary": "Không có món gốm Tố Ngâm thật nào thiếu dấu lò hai gạch dưới chân đế."
+    },
+    {
+      "category": "society",
+      "rule": "Nghề phục chế trong ngõ Chái Thanh theo luật bất thành văn: không nhận đồ không rõ nguồn, không phục chế để giả, không cho người ngoài xem đồ khi chưa được phép.",
+      "boundary": "Không nhân vật nào phá luật nghề mà không phải trả giá trong truyện."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Hộp gấm của dòng họ Tố Ngâm",
+        "summary": "Người đàn ông áo the mang hai chiếc bát men lam cá chép của dòng họ Tố Ngâm tới nhờ phục chế, dặn giữ nguyên đường nứt. Ngạn nhận ra dấu lò hai gạch và đọc cuốn sổ nợ của chú, thấy khoản nợ bốn mươi năm với dòng họ này ghi 'chờ đúng người'. Danh mục nhà thờ họ ghi ba chiếc bát cùng mẻ nhưng chiếc thứ ba không rõ ở đâu.",
+        "characters": [
+          "Ngạn",
+          "Người đàn ông áo the"
+        ],
+        "key_events": [
+          "Nhận hai chiếc bát cổ, hẹn ba ngày",
+          "Thấy dấu lò hai gạch dưới chân đế",
+          "Đọc khoản nợ bốn mươi năm trong sổ của chú",
+          "Danh mục nhà thờ họ thiếu chiếc bát thứ ba"
+        ]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Mẻ cá chép dưới men",
+        "summary": "Ngạn đối chiếu danh mục nhà thờ họ với sổ nợ của chú, soi đường nứt và tách được mảnh giấy ghi 'Mẻ thứ ba' dưới chân đế chiếc bát nứt. Sáng hôm sau người đàn ông áo the quay lại sớm hơn hẹn, làn mây trống, và hỏi cô có tìm thấy gì dưới đáy bát không.",
+        "characters": [
+          "Ngạn",
+          "Người đàn ông áo the"
+        ],
+        "key_events": [
+          "Đối chiếu danh mục nhà thờ họ với sổ nợ",
+          "Tìm thấy dấu lò hai gạch trên đường nứt",
+          "Tách mảnh giấy 'Mẻ thứ ba' dưới chân đế",
+          "Người đàn ông quay lại sớm và hỏi về đáy bát"
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Buổi sáng",
+      "event": "Người đàn ông áo the mang hai chiếc bát men lam Tố Ngâm tới tiệm, nhờ phục chế giữ nguyên đường nứt",
+      "characters": [
+        "Ngạn",
+        "Người đàn ông áo the"
+      ]
+    },
+    {
+      "chapter": 1,
+      "time": "Sau khi khách về",
+      "event": "Ngạn đọc sổ nợ của chú, thấy khoản nợ bốn mươi năm với dòng họ Tố Ngâm",
+      "characters": [
+        "Ngạn"
+      ]
+    },
+    {
+      "chapter": 2,
+      "time": "Sáng, chiều và đêm cùng ngày",
+      "event": "Ngạn đối chiếu danh mục nhà thờ họ, soi đường nứt và tìm mảnh giấy 'Mẻ thứ ba' dưới chân đế",
+      "characters": [
+        "Ngạn"
+      ]
+    },
+    {
+      "chapter": 2,
+      "time": "Sáng hôm sau",
+      "event": "Người đàn ông áo the quay lại sớm hơn hẹn, làn mây trống, hỏi Ngạn có tìm thấy gì dưới đáy bát không",
+      "characters": [
+        "Ngạn",
+        "Người đàn ông áo the"
+      ]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {
+          "id": "khoan_no_bon_muoi_nam",
+          "action": "plant",
+          "description": "Sổ nợ của chú ghi khoản nợ bốn mươi năm với dòng họ Tố Ngâm, chú thích 'chờ đúng người'."
+        },
+        {
+          "id": "bat_thu_ba",
+          "action": "plant",
+          "description": "Danh mục nhà thờ họ ghi ba chiếc bát cùng mẻ, nhưng chiếc thứ ba không rõ ở đâu."
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {
+          "id": "bat_thu_ba",
+          "action": "advance",
+          "description": "Mảnh giấy dưới chân đế chiếc bát nứt ghi 'Mẻ thứ ba', mâu thuẫn với danh mục nhà thờ họ chỉ ghi một mẻ."
+        },
+        {
+          "id": "khoan_no_bon_muoi_nam",
+          "action": "advance",
+          "description": "Mẩu giấy dán bìa sau sổ nợ ghi ba chiếc cùng mẻ, hai chiếc nứt cùng chỗ, chiếc thứ ba chưa từng thấy."
+        }
+      ]
+    }
+  ],
+  "state_changes": [
+    {
+      "chapter": 1,
+      "entity": "Hai chiếc bát men lam Tố Ngâm",
+      "field": "status",
+      "new_value": "đang ở tiệm phục chế ngõ Chái Thanh, chờ ba ngày"
+    },
+    {
+      "chapter": 1,
+      "entity": "Ngạn",
+      "field": "status",
+      "new_value": "nhận phục chế hai chiếc bát cổ"
+    },
+    {
+      "chapter": 2,
+      "entity": "Chiếc bát nứt",
+      "field": "status",
+      "old_value": "nguyên trạng, chờ phục chế",
+      "new_value": "đã tách mảnh giấy dưới chân đế, lộ dòng chữ 'Mẻ thứ ba'"
+    },
+    {
+      "chapter": 2,
+      "entity": "Người đàn ông áo the",
+      "field": "status",
+      "new_value": "quay lại sớm hơn hẹn, chủ động hỏi về đáy bát"
+    }
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Con dấu sáp ong",
+      "goal": "Trả lời câu hỏi của người đàn ông, để ông thú nhận về chiếc bát thứ ba do lò khác làm lại, rồi mở hộp gấm và soi vết rạn trùng khít.",
+      "conflict": "Ngạn phải chọn giữa việc giữ bí mật cho dòng họ và việc nói thẳng rằng chiếc bát thứ ba là hàng làm lại — trong khi khách đứng ngay trước quầy, chờ cô trả lời.",
+      "hook": "Vết rạn chân tóc trên bát thứ ba trùng khít vết nứt bát thứ hai: cả hai cùng một tay làm lại.",
+      "emotion_arc": "Từ cảnh giác chuyển sang được nghe sự thật, rồi lạnh người khi nhận ra quy mô của việc làm lại.",
+      "contract": {
+        "required_beats": [
+          "Ngạn trả lời câu hỏi của người đàn ông về mảnh giấy dưới đáy bát",
+          "Người đàn ông thú nhận chiếc bát thứ ba do một lò khác làm lại để lấp chỗ trống trong mâm thờ",
+          "Người đàn ông đặt hộp gấm lên bàn, bẻ con dấu sáp ong và mở hộp gấm, lộ ra chiếc bát thứ ba",
+          "Người đàn ông nhắc lại chuyện chiếc bát thứ ba; Ngạn mở hộp gấm lần nữa dưới đèn, lấy chiếc bát ra soi",
+          "Ngạn soi vết rạn chân tóc trên chiếc bát thứ ba, nhận ra nó trùng khít vết nứt chiếc thứ hai"
+        ],
+        "forbidden_moves": [
+          "Không kể lại cảnh tách mảnh giấy ở chương trước như một cảnh mới",
+          "Không để Ngạn nhận lời phục chế chiếc bát thứ ba",
+          "Không đưa thêm nhân vật mới vào tiệm trong chương này"
+        ],
+        "continuity_checks": [
+          "Mảnh giấy 'Mẻ thứ ba' đã được tách ra từ chương trước, hiện nằm trên quầy",
+          "Chiếc bát nứt và chiếc bát lành đều đang trong tủ kính của tiệm",
+          "Dấu lò hai gạch đã được xác định dưới chân đế chiếc bát lành"
+        ],
+        "evaluation_focus": [
+          "Cảnh mở hộp gấm chỉ được kể một lần, dù plan nhắc tới hộp gấm ở hai gạch đầu dòng",
+          "Trình tự: trả lời, thú nhận, mở hộp, soi vết rạn — không lặp lại đoạn nào"
+        ],
+        "emotion_target": "Cảnh giác rồi lạnh người.",
+        "payoff_points": [
+          "Câu hỏi cuối chương trước được trả lời trong cùng mạch"
+        ],
+        "hook_goal": "Người đọc muốn biết ai đặt làm chiếc bát giả."
+      }
+    }
+  ]
+}

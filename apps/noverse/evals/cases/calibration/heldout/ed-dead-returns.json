@@ -1,0 +1,25 @@
+{
+  "id": "ed-dead-returns",
+  "category": "quality",
+  "role": "editor",
+  "description": "Chương 3 để Lò Văn Giàn — nhân vật đã chết và được an táng ở chương 1 — xuất hiện sống, hành động và nói chuyện mà không có giải thích. Kỳ vọng một issue mức error trích đúng câu.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-dead-returns",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": false,
+  "expect": {
+    "review": {
+      "must_find": [
+        {
+          "severity_min": "error",
+          "chapter": 3,
+          "quote_contains": "Lò Văn Giàn"
+        }
+      ]
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

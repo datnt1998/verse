@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Lần chạy đầu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.breathe{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.fld{height:42px;padding:0 12px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:14px;outline:none;width:100%;transition:border-color .2s}
+.fld:focus{border-color:rgba(201,166,245,.6)}
+.fld::placeholder{color:#5E5E68}
+.cbox{width:42px;height:50px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:20px;font-weight:500;color:#EDEDEF;transition:border-color .2s,background .2s}
+.cbox.cur{border-color:rgba(201,166,245,.7);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.cbox.bad{border-color:rgba(255,154,162,.6);background:rgba(255,154,162,.05)}
+.cbox.ok{border-color:rgba(166,237,193,.5)}
+.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.stp{display:flex;align-items:center;gap:8px;font-size:12.5px;white-space:nowrap}
+.stp i{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:600}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
+.i-eye-off{-webkit-mask-image:url(../icons/eye-slash.svg);mask-image:url(../icons/eye-slash.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-shield-tick{-webkit-mask-image:url(../icons/shield-tick.svg);mask-image:url(../icons/shield-tick.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; overflow: hidden; background: radial-gradient(60% 50% at 50% 30%, rgba(154,99,227,0.08), transparent 70%), #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column">
+<header style="flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px">
+<div style="display: flex; align-items: center; gap: 10px">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span class="nv-lockup" style="display: inline-flex; align-items: baseline; gap: 6px; line-height: 1"><span class="nv-word" style="font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.012em">Noverse</span><span style="font-size: 13px; font-weight: 500; color: #7E7E8A">Studio</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 999px; background: #131315; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #A0A0AB"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #F6CB8C; box-shadow: 0 0 0 3px rgba(246,203,140,0.14)"></span>Lần chạy đầu · chưa có tài khoản</div>
+</header>
+
+<main style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div style="width: min(440px, 100%); display: flex; flex-direction: column; gap: 22px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<div aria-hidden="true" style="position: relative; width: 84px; height: 64px">
+<div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,99,227,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
+<span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
+<span class="orb o-writer breathe" style="position: absolute; left: 22px; top: 0; width: 40px; height: 40px; animation-delay: -0.9s"></span>
+<span class="orb o-editor breathe" style="position: absolute; left: 50px; top: 16px; width: 32px; height: 32px; animation-delay: -1.8s"></span>
+<span class="orb o-arbiter breathe" style="position: absolute; left: 28px; top: 34px; width: 28px; height: 28px; animation-delay: -2.7s"></span>
+</div>
+<div><h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A0A0AB">{{sub}}</p></div>
+</div>
+
+<ol aria-label="Các bước" style="list-style: none; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: 10px">
+<sc-for list="{{steps}}" as="t" hint-placeholder-count="3"><li class="stp" aria-current="{{t.cur}}" style="color: {{t.fg}}"><i style="background: {{t.bg}}; color: {{t.ifg}}; border: 1px solid {{t.bd}}">{{t.n}}</i>{{t.label}}<sc-if value="{{t.sep}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 22px; height: 1px; background: rgba(255,255,255,0.12); margin-left: 2px"></span></sc-if></li></sc-for>
+</ol>
+
+<!-- ===== BƯỚC 1: MÃ THIẾT LẬP ===== -->
+<sc-if value="{{isCode}}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{submitCode}}" class="card" style="border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px"><label class="lbl" for="sc-0">Mã thiết lập · 8 ký tự</label><span style="font-size: 13px; color: #A0A0AB; line-height: 1.55">Noverse in mã này ra màn hình của máy đang chạy Noverse mỗi lần khởi động. Mã dùng một lần và hết hạn sau 30 phút.</span></div>
+<div class="{{shakeCls}}" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 6px">
+<sc-for list="{{boxes}}" as="b" hint-placeholder-count="8"><span class="cbox {{b.cls}}" aria-hidden="true">{{b.ch}}</span><sc-if value="{{b.dash}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 10px; height: 2px; border-radius: 2px; background: #3A3A42"></span></sc-if></sc-for>
+<input id="sc-0" type="text" inputmode="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" value="{{code}}" onInput="{{onCode}}" maxlength="9" aria-label="Mã thiết lập, 8 ký tự" aria-describedby="sc-msg" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: none; background: transparent; color: transparent; caret-color: transparent; cursor: text; font-size: 16px">
+</div>
+<sc-if value="{{hasMsg}}" hint-placeholder-val="{{ false }}"><div id="sc-msg" role="alert" style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: {{msgBg}}; border: 1px solid {{msgBd}}; font-size: 13px; line-height: 1.5"><span class="ic {{msgIcon}}" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; color: {{msgFg}}"></span><span style="display: flex; flex-direction: column; gap: 2px"><span style="color: {{msgFg}}; font-weight: 500">{{msgTitle}}</span><span style="color: #A0A0AB">{{msgText}}</span></span></div></sc-if>
+<button class="primary" type="submit" disabled="{{codeDisabled}}" style="height: 42px; border-radius: 11px; border: none; background: {{codeBtnBg}}; color: {{codeBtnFg}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><sc-if value="{{checking}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="border-color: rgba(0,0,0,0.15); border-top-color: #0B0B0D"></span></sc-if>{{codeBtn}}</button>
+<details style="font-size: 13px; color: #A0A0AB"><summary style="cursor: pointer; color: #C9C9D1">Không thấy mã ở đâu?</summary><ul style="margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; line-height: 1.55"><li>Mã nằm ở cửa sổ hoặc nhật ký nơi Noverse được khởi động, ngay dưới dòng “Mở trình duyệt để thiết lập”.</li><li>Người cài Noverse cho bạn sẽ có mã này. Hỏi họ đọc 8 ký tự.</li><li>Mã hết hạn hoặc nhập sai quá 5 lần: khởi động lại Noverse để có mã mới.</li></ul></details>
+</form>
+</sc-if>
+
+<!-- ===== BƯỚC 2: TÀI KHOẢN QUẢN TRỊ ===== -->
+<sc-if value="{{isAccount}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{submitAccount}}" class="card" style="border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{tokOk}}" hint-placeholder-val="{{ true }}"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: rgba(166,237,193,0.06); border: 1px solid rgba(166,237,193,0.18); font-size: 13px"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; color: #A6EDC1"></span><span style="color: #C9C9D1">Mã đúng. Còn <span class="num">27 phút</span> để tạo tài khoản.</span></div></sc-if><sc-if value="{{tokExp}}" hint-placeholder-val="{{ false }}"><div role="alert" style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 12px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.28); font-size: 13px"><div style="display: flex; gap: 10px; align-items: flex-start"><span class="ic i-clock" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; color: #F3D9AE"></span><span style="display: flex; flex-direction: column; gap: 2px"><b style="font-weight: 600; color: #F3D9AE">Mã thiết lập vừa hết hạn</b><span style="color: #C9C9D1; line-height: 1.5">Những gì bạn đã điền vẫn còn đây. Khởi động lại Noverse để có mã mới, rồi nhập mã vào ô dưới.</span></span></div><div style="display: flex; gap: 8px"><label for="newcode" class="sr-only">Mã thiết lập mới, 8 ký tự</label><input id="newcode" class="mono" value="{{newCode}}" onInput="{{onNewCode}}" placeholder="XXXX-XXXX" autocomplete="one-time-code" style="flex: 1; min-width: 0; height: 38px; padding: 0 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.12); color: #EDEDEF; font-size: 15px; letter-spacing: .14em; text-transform: uppercase"><button type="button" class="btn2" onClick="{{checkNewCode}}" disabled="{{newCodeDis}}" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: transparent; color: {{newCodeFg}}; font-size: 13px; font-weight: 500">Kiểm mã</button></div></div></sc-if>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Tên hiển thị</span><input class="fld" type="text" value="{{name}}" onInput="{{onName}}" autocomplete="name" placeholder="VD: Dat"></label>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Tên đăng nhập</span><span style="position: relative; display: block"><span aria-hidden="true" style="position: absolute; left: 12px; top: 11px; color: #5E5E68">@</span><input class="fld mono" type="text" value="{{username}}" onInput="{{onUser}}" autocomplete="username" spellcheck="false" style="padding-left: 28px" aria-describedby="su-u"></span></label>
+</div>
+<span id="su-u" style="font-size: 12px; color: {{userFg}}; margin-top: -6px">{{userHint}}</span>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Mật khẩu</span><span style="position: relative; display: block"><input class="fld" type="{{pwType}}" value="{{pw}}" onInput="{{onPw}}" autocomplete="new-password" aria-describedby="su-pw" style="padding-right: 44px"><button class="ghost" type="button" onClick="{{togglePw}}" aria-label="{{pwToggleLabel}}" style="position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic {{pwIcon}}" aria-hidden="true" style="width: 16px; height: 16px"></span></button></span></label>
+<div id="su-pw" style="display: flex; flex-direction: column; gap: 6px; margin-top: -4px"><div aria-hidden="true" style="display: flex; gap: 4px"><sc-for list="{{strength.bars}}" as="b" hint-placeholder-count="4"><span style="flex: 1; height: 3px; border-radius: 3px; background: {{b}}"></span></sc-for></div><span style="font-size: 12px; color: {{strength.color}}">{{strength.label}}</span></div>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Nhập lại mật khẩu</span><input class="fld" type="{{pwType}}" value="{{pw2}}" onInput="{{onPw2}}" autocomplete="new-password" style="border-color: {{pw2Bd}}"></label>
+<sc-if value="{{pw2Bad}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; color: #FF9AA2; margin-top: -6px">Hai mật khẩu chưa giống nhau</span></sc-if>
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-crown" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; color: #C9A6F5"></span><span>Đây là tài khoản quản trị: chọn nơi lưu truyện, kết nối AI, tạo tài khoản cho người cùng viết. Thiết lập xong, Noverse đưa bạn mã khôi phục, dùng khi quên mật khẩu.</span></div>
+<button class="primary" type="submit" disabled="{{accDisabled}}" style="height: 42px; border-radius: 11px; border: none; background: {{accBtnBg}}; color: {{accBtnFg}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><sc-if value="{{creating}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="border-color: rgba(0,0,0,0.15); border-top-color: #0B0B0D"></span></sc-if>{{accBtn}}</button>
+</form>
+</sc-if>
+
+<!-- ===== ĐÃ CÓ QUẢN TRỊ ===== -->
+<sc-if value="{{isTaken}}" hint-placeholder-val="{{ false }}">
+<div class="card" role="alert" style="border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 12px; align-items: flex-start"><span style="width: 38px; height: 38px; border-radius: 11px; background: rgba(185,208,247,0.1); display: flex; align-items: center; justify-content: center; flex: none"><span class="ic i-shield-tick" aria-hidden="true" style="width: 19px; height: 19px; color: #B9D0F7"></span></span><div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 600">Noverse đã có quản trị viên</span><span style="font-size: 13px; color: #A0A0AB; line-height: 1.55">Một người khác vừa hoàn tất thiết lập, lúc 21:04. Trang thiết lập đã đóng. Hãy đăng nhập, hoặc nhờ quản trị viên tạo tài khoản cho bạn.</span></div></div>
+<a class="primary" href="Login.dc.html" style="height: 42px; border-radius: 11px; background: #EDEDEF; color: #0B0B0D; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Đến trang đăng nhập<span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px"></span></a>
+</div>
+</sc-if>
+
+<p style="margin: 0; text-align: center; font-size: 12px; color: #6E6E78">{{foot}}</p>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["code","codeWrong","codeLocked","codeExpired","account","tokenExpired","creating","taken"],"default":"code","section":"Màn"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(p) { const st = p.state || 'code'; const wrong = st === 'codeWrong' || st === 'codeLocked'; return { st, code: wrong ? 'K7Q2-9XMB' : (st === 'codeExpired' ? 'K7Q2-9XMF' : 'K7Q2-9X'), checking: false, shake: wrong, name: st === 'creating' || st === 'account' || st === 'tokenExpired' ? 'Dat' : '', username: st === 'creating' || st === 'account' || st === 'tokenExpired' ? 'dat' : '', pw: st === 'creating' || st === 'tokenExpired' ? 'tra-xanh-2026!' : (st === 'account' ? 'traxanh' : ''), pw2: st === 'creating' || st === 'tokenExpired' ? 'tra-xanh-2026!' : '', show: false, newCode: '' }; }
+  componentDidUpdate(prev) { if (prev.state !== this.props.state) this.setState(this.fresh(this.props)); }
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  renderVals() {
+    const s = this.state; const set = (x) => this.setState(x); const st = s.st;
+    const isCode = ['code', 'codeWrong', 'codeLocked', 'codeExpired'].indexOf(st) >= 0, isAccount = st === 'account' || st === 'creating' || st === 'tokenExpired', isTaken = st === 'taken';
+    const raw = s.code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    const bad = st === 'codeWrong' || st === 'codeLocked';
+    const boxes = Array.from({ length: 8 }, (_, i) => ({ ch: raw[i] || '', dash: i === 3, cls: bad && raw.length === 8 ? 'bad' : (i === raw.length && !s.checking ? 'cur' : (raw.length === 8 && st === 'code' ? 'ok' : '')) }));
+    const MSG = {
+      codeWrong: ['i-warning', '#FFB3BA', 'rgba(255,154,162,0.06)', 'rgba(255,154,162,0.25)', 'Mã chưa đúng', 'Kiểm tra lại từng ký tự. Còn 4 lần thử.'],
+      codeLocked: ['i-lock', '#FFB3BA', 'rgba(255,154,162,0.06)', 'rgba(255,154,162,0.25)', 'Đã thử sai 5 lần', 'Thử lại lúc 21:44 (sau 10 phút). Muốn nhanh hơn: khởi động lại Noverse để có mã mới và mở khoá ngay.'],
+      codeExpired: ['i-clock', '#F3D9AE', 'rgba(246,203,140,0.06)', 'rgba(246,203,140,0.25)', 'Mã đã hết hạn', 'Mã chỉ dùng được 30 phút sau khi Noverse khởi động. Khởi động lại Noverse để in mã mới.']
+    }[st];
+    const locked = st === 'codeLocked' || st === 'codeExpired';
+    const codeDisabled = s.checking || locked || raw.length < 8;
+    const np = s.pw; let sc = 0; if (np.length >= 8) { sc = 1; if (np.length >= 12) sc++; if (/[^a-zA-Z0-9]/.test(np)) sc++; if (/\d/.test(np) && /[a-zA-Z]/.test(np)) sc++; }
+    const scColor = ['#FF9AA2', '#FF9AA2', '#F6CB8C', '#A6EDC1', '#A6EDC1'][sc];
+    const strength = { bars: [0, 1, 2, 3].map((i) => i < sc ? scColor : '#222225'), color: np.length && np.length < 8 ? '#FF9AA2' : '#A0A0AB', label: !np.length ? 'Ít nhất 8 ký tự' : np.length < 8 ? 'Cần ít nhất 8 ký tự (còn ' + (8 - np.length) + ')' : ['', 'Yếu', 'Tạm được', 'Mạnh', 'Rất mạnh'][sc] };
+    const userOk = /^[a-z0-9._-]{2,32}$/.test(s.username);
+    const pw2Bad = !!s.pw2 && s.pw2 !== s.pw;
+    const creating = st === 'creating';
+    const tokExp = st === 'tokenExpired';
+    const accDisabled = creating || tokExp || !s.name.trim() || !userOk || np.length < 8 || s.pw2 !== s.pw;
+    const ncRaw = (s.newCode || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const stepIdx = isCode ? 0 : 1;
+    const steps = [['1', 'Mã thiết lập'], ['2', 'Tài khoản quản trị'], ['3', 'Thiết lập thư viện · 7 bước']].map(([n, label], i) => { const done = i < stepIdx, cur = i === stepIdx; return { n: done ? '✓' : n, label, cur: cur ? 'step' : 'false', sep: i < 2, fg: cur ? '#EDEDEF' : (done ? '#A6EDC1' : '#7E7E8A'), bg: cur ? '#EDEDEF' : (done ? 'rgba(166,237,193,0.12)' : 'transparent'), ifg: cur ? '#0B0B0D' : (done ? '#A6EDC1' : '#7E7E8A'), bd: cur ? '#EDEDEF' : (done ? 'rgba(166,237,193,0.3)' : 'rgba(255,255,255,0.14)') }; });
+    return {
+      h1: isTaken ? 'Đã thiết lập xong' : (isCode ? 'Chào mừng đến với Noverse' : 'Tạo tài khoản quản trị'), sub: isTaken ? 'Trang này chỉ mở khi Noverse chưa có tài khoản nào' : (isCode ? 'Lần đầu chạy: nhập mã thiết lập để tạo tài khoản quản trị' : 'Người đầu tiên vào Noverse sẽ là quản trị viên'),
+      steps, isCode, isAccount, isTaken,
+      boxes, code: s.code, onCode: (e) => { let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); if (v.length > 4) v = v.slice(0, 4) + '-' + v.slice(4); set({ code: v, st: st === 'codeWrong' ? 'code' : st, shake: false }); },
+      shakeCls: s.shake ? 'shake' : '', hasMsg: !!MSG, msgIcon: MSG ? MSG[0] : '', msgFg: MSG ? MSG[1] : '', msgBg: MSG ? MSG[2] : '', msgBd: MSG ? MSG[3] : '', msgTitle: MSG ? MSG[4] : '', msgText: MSG ? MSG[5] : '',
+      checking: s.checking, codeDisabled, codeBtn: s.checking ? 'Đang kiểm tra…' : (locked ? 'Cần mã mới' : 'Tiếp tục'), codeBtnBg: codeDisabled ? 'rgba(255,255,255,0.08)' : '#EDEDEF', codeBtnFg: codeDisabled ? '#7E7E8A' : '#0B0B0D',
+      submitCode: (e) => { if (e && e.preventDefault) e.preventDefault(); if (codeDisabled) return; set({ checking: true }); this.tm.push(setTimeout(() => this.setState({ checking: false, st: 'account', name: '', username: '', pw: '', pw2: '' }), 900)); },
+      name: s.name, onName: (e) => { const v = e.target.value; const auto = !s.username || s.username === s.autoU; const u = v.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '').slice(0, 32); set(auto ? { name: v, username: u, autoU: u } : { name: v }); },
+      username: s.username, onUser: (e) => set({ username: e.target.value.toLowerCase() }),
+      userHint: !s.username ? 'Chữ thường không dấu, số, dấu chấm hoặc gạch. Dùng để đăng nhập.' : (userOk ? 'Đăng nhập bằng @' + s.username : 'Chỉ dùng chữ thường không dấu, số, dấu chấm, gạch ngang hoặc gạch dưới (2–32 ký tự)'), userFg: s.username && !userOk ? '#FF9AA2' : '#7E7E8A',
+      pw: s.pw, onPw: (e) => set({ pw: e.target.value }), pw2: s.pw2, onPw2: (e) => set({ pw2: e.target.value }), pw2Bad, pw2Bd: pw2Bad ? 'rgba(255,154,162,0.55)' : 'rgba(255,255,255,0.1)',
+      pwType: s.show ? 'text' : 'password', togglePw: () => set({ show: !s.show }), pwIcon: s.show ? 'i-eye-off' : 'i-eye', pwToggleLabel: s.show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu', strength,
+      creating, accDisabled, accBtn: creating ? 'Đang tạo tài khoản…' : (tokExp ? 'Nhập mã mới để tạo tài khoản' : 'Tạo tài khoản và tiếp tục'),
+      tokOk: !tokExp, tokExp, newCode: s.newCode, onNewCode: (e) => { let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); if (v.length > 4) v = v.slice(0, 4) + '-' + v.slice(4); set({ newCode: v }); }, newCodeDis: ncRaw.length < 8, newCodeFg: ncRaw.length < 8 ? '#6E6E78' : '#EDEDEF', checkNewCode: () => { if (ncRaw.length === 8) set({ st: 'account', newCode: '' }); }, accBtnBg: accDisabled && !creating ? 'rgba(255,255,255,0.08)' : '#EDEDEF', accBtnFg: accDisabled && !creating ? '#7E7E8A' : '#0B0B0D',
+      submitAccount: (e) => { if (e && e.preventDefault) e.preventDefault(); if (accDisabled) return; set({ st: 'creating' }); },
+      foot: isTaken ? '' : 'Trang thiết lập tự đóng ngay khi có tài khoản quản trị · Noverse 0.9.3'
+    };
+  }
+}
+</script>
+</body>
+</html>

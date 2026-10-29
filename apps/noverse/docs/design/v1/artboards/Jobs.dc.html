@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Việc chạy nền</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+/* ---------- glass ---------- */
+.glass{background:linear-gradient(180deg,rgba(30,30,33,.93),rgba(20,20,22,.96));-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);border:1px solid rgba(255,255,255,.09);box-shadow:0 22px 60px -14px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}
+/* ---------- dock enter / leave ---------- */
+.dock-a,.dock-b{animation:dockIn .55s cubic-bezier(.18,.95,.22,1.12) both;transform-origin:100% 100%}
+.dock-b{animation-name:dockIn2}
+@keyframes dockIn{0%{opacity:0;transform:translate(10px,14px) scale(.82);filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none}}
+@keyframes dockIn2{0%{opacity:0;transform:translate(10px,14px) scale(.82);filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none}}
+.dock-out{animation:dockOut .38s cubic-bezier(.5,0,.75,0) both;transform-origin:100% 100%}
+@keyframes dockOut{to{opacity:0;transform:translate(6px,10px) scale(.86);filter:blur(4px)}}
+/* ---------- pill ---------- */
+.pill{transition:width .42s cubic-bezier(.2,.9,.25,1),border-radius .42s,box-shadow .3s}
+.pill:hover{box-shadow:0 26px 70px -14px rgba(0,0,0,.9),0 0 0 1px rgba(201,166,245,.18),inset 0 1px 0 rgba(255,255,255,.08)}
+.pill .hov{opacity:0;width:0 !important;overflow:hidden;transition:opacity .18s,width .25s cubic-bezier(.2,.9,.25,1)}
+.pill:hover .hov,.pill:focus-within .hov{opacity:1;width:28px !important}
+.txtfade{transition:opacity .14s,transform .35s cubic-bezier(.2,.9,.25,1)}
+.tick-col{transition:transform .5s cubic-bezier(.3,.9,.25,1)}
+.bump-a{animation:bumpA .6s cubic-bezier(.2,.9,.3,1.4)}.bump-b{animation:bumpB .6s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes bumpA{0%{transform:scale(1)}35%{transform:scale(1.045)}100%{transform:scale(1)}}
+@keyframes bumpB{0%{transform:scale(1)}35%{transform:scale(1.045)}100%{transform:scale(1)}}
+.glow-a,.glow-b{position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;animation:glowA 1s ease-out both}
+.glow-b{animation-name:glowB}
+@keyframes glowA{0%{box-shadow:0 0 0 0 rgba(166,237,193,.55)}100%{box-shadow:0 0 0 14px rgba(166,237,193,0)}}
+@keyframes glowB{0%{box-shadow:0 0 0 0 rgba(166,237,193,.55)}100%{box-shadow:0 0 0 14px rgba(166,237,193,0)}}
+.agg{background:linear-gradient(90deg,#5A57E3,#9A63E3,#C9457F,#5DC1B0,#5A57E3);background-size:300% 100%;animation:flow 3s linear infinite;transition:width .3s linear}
+@keyframes flow{from{background-position:0 0}to{background-position:300% 0}}
+/* ---------- rings ---------- */
+.rg{position:relative;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#141416;box-shadow:0 0 0 2px #19191B}
+.rg i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));transition:background .2s}
+.rg .spin{animation:spin 1.1s linear infinite}
+.ping{position:absolute;border-radius:50%;background:#F6CB8C}
+.ping::after{content:"";position:absolute;inset:0;border-radius:50%;background:#F6CB8C;animation:ping 1.6s cubic-bezier(0,0,.2,1) infinite}
+@keyframes ping{75%,100%{transform:scale(2.6);opacity:0}}
+/* ---------- panel morph ---------- */
+.morph-in{animation:morphIn .52s cubic-bezier(.2,.9,.22,1) both}
+.morph-out{animation:morphOut .34s cubic-bezier(.55,0,.7,.2) both}
+@keyframes morphIn{from{clip-path:inset(calc(100% - 52px) 0 0 calc(100% - 352px) round 26px);opacity:.6}to{clip-path:inset(0 0 0 0 round 20px);opacity:1}}
+@keyframes morphOut{from{clip-path:inset(0 0 0 0 round 20px);opacity:1}to{clip-path:inset(calc(100% - 52px) 0 0 calc(100% - 352px) round 26px);opacity:.7}}
+.stag{animation:stag .42s cubic-bezier(.2,.9,.3,1) both}
+@keyframes stag{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.jrow{transition:background .15s, max-height .3s ease, opacity .25s, margin .3s, padding .3s}
+.jrow:hover{background:rgba(255,255,255,.04)}
+.jrow .act{opacity:0;transition:opacity .15s}
+.jrow:hover .act,.jrow:focus-within .act{opacity:1}
+.row-out{max-height:0 !important;opacity:0;padding-top:0 !important;padding-bottom:0 !important;overflow:hidden}
+.flash-row{animation:flashRow 1.4s ease-out}
+@keyframes flashRow{0%{background:rgba(166,237,193,.14)}100%{background:transparent}}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:2px;transition:width .3s linear}
+.indet>i{width:35% !important;animation:indet 1.4s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes indet{from{transform:translateX(-110%)}to{transform:translateX(320%)}}
+.draw{stroke-dasharray:24;stroke-dashoffset:24;animation:draw .5s cubic-bezier(.3,.8,.3,1) .12s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+/* ---------- toasts ---------- */
+.toast-in{animation:tIn .5s cubic-bezier(.18,.95,.25,1.15) both;transform-origin:100% 100%}
+@keyframes tIn{from{opacity:0;transform:translateY(18px) scale(.94);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
+.toast-out{animation:tOut .42s cubic-bezier(.5,0,.7,.2) both;transform-origin:calc(100% - 40px) 100%}
+@keyframes tOut{0%{opacity:1;filter:blur(0)}65%{opacity:0;transform:translateY(34px) scale(.5);filter:blur(3px)}100%{opacity:0;transform:translateY(40px) scale(.45);filter:blur(3px)}}
+.tback{transform:translateY(4px) scale(.955);opacity:.6;filter:saturate(.7);transform-origin:50% 100%;transition:transform .4s cubic-bezier(.2,.9,.25,1),opacity .4s,filter .4s}
+.tfront{transform-origin:50% 100%;transition:transform .4s cubic-bezier(.2,.9,.25,1),opacity .4s,filter .4s}
+.tw{max-height:240px;padding-top:8px}
+.tw.leaving{animation:twCol .32s cubic-bezier(.4,0,.2,1) .2s both}
+@keyframes twCol{to{max-height:0;padding-top:0}}
+.cdr{transition:stroke-dashoffset .16s linear,opacity .3s ease}
+.cdbtn:hover .cdr{opacity:.25 !important}
+.head{position:absolute;inset:0;border-radius:50%;transition:transform .3s linear;pointer-events:none}
+.head b{position:absolute;left:50%;top:-1px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
+.live{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.aura{position:absolute;inset:-5px;border-radius:50%;pointer-events:none;animation:aura 2.6s ease-in-out infinite}
+@keyframes aura{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.9;transform:scale(1.04)}}
+.dimmed{filter:saturate(.25);opacity:.75}
+.agcard{position:relative;overflow:hidden}
+.ibtn:hover{background:rgba(255,255,255,.08) !important;color:#EDEDEF !important}
+.tbtn:hover{background:rgba(255,255,255,.1) !important}
+.demo button:hover{background:rgba(255,255,255,.08) !important;color:#EDEDEF !important}
+.nav-b:hover{color:#EDEDEF !important}
+.eqs span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eqs span:nth-child(2){animation-delay:-.3s}.eqs span:nth-child(3){animation-delay:-.6s}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-chev-up{-webkit-mask-image:url(../icons/arrow-up-2.svg);mask-image:url(../icons/arrow-up-2.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-download{-webkit-mask-image:url(../icons/document-download.svg);mask-image:url(../icons/document-download.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-export2{-webkit-mask-image:url(../icons/export-curve.svg);mask-image:url(../icons/export-curve.svg)}
+.i-flash{-webkit-mask-image:url(../icons/flash.svg);mask-image:url(../icons/flash.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-help{-webkit-mask-image:url(../icons/message-question.svg);mask-image:url(../icons/message-question.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic-star.svg);mask-image:url(../icons/magic-star.svg)}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-voice{-webkit-mask-image:url(../icons/voice-square.svg);mask-image:url(../icons/voice-square.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition:none !important}}
+/* RING v2: vòng tiến độ đầu bo tròn. Giá trị qua biến CSS ở thẻ bọc: --pv (0–100), --c (màu), --tr (màu nền vòng), --op */
+.prw{position:absolute;inset:0;pointer-events:none}
+.prw svg{display:block;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.prw circle{fill:none}
+.prw .pr-t{stroke:var(--tr,rgba(255,255,255,.08))}
+.prw .pr-v{stroke:var(--c,#C9A6F5);stroke-linecap:round;stroke-dasharray:var(--pv,0) 100;opacity:var(--op,1);transition:stroke-dasharray .5s cubic-bezier(.2,.9,.25,1),stroke .25s}
+.prw .pr-v.g{stroke:url(#prg)}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; min-height: 680px; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<!-- ============ APP HEADER (nav switches backdrop to show the dock persists) ============ -->
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</span>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<span style="min-width: 0; font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{navs}}" as="n" hint-placeholder-count="5"><button class="nav-b" type="button" onClick="{{n.pick}}" aria-current="{{n.cur}}" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border: none; border-radius: 7px; background: {{n.bg}}; color: {{n.fg}}; font-size: 13px; font-weight: {{n.fw}}; white-space: nowrap"><span class="ic {{n.icon}}" aria-hidden="true" style="width: 16px; height: 16px; color: {{n.ic}}"></span>{{n.label}}</button></sc-for>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<span class="ghost" style="height: 32px; padding: 0 10px; border-radius: 8px; display: flex; align-items: center; gap: 6px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="ic i-help" aria-hidden="true" style="width: 17px; height: 17px"></span>Hướng dẫn</span>
+<span class="ghost" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span></span>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+
+<!-- ============ BACKDROP SCREENS ============ -->
+<div aria-hidden="true" style="flex: 1 1 auto; min-height: 0; display: flex">
+<aside style="flex: 0 0 236px; border-right: 1px solid rgba(255,255,255,0.06); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px">
+<span class="lbl" style="padding: 0 8px 6px">{{side.label}}</span>
+<sc-for list="{{side.items}}" as="o" hint-placeholder-count="10"><div style="display: flex; gap: 10px; align-items: center; height: 32px; padding: 0 8px; border-radius: 8px; background: {{o.bg}}; font-size: 13px; color: {{o.fg}}"><span class="mono num" style="color: #5E5E68; width: 18px; font-size: 12px">{{o.n}}</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.t}}</span></div></sc-for>
+<span style="flex: 1"></span>
+<div style="display: flex; justify-content: space-between; padding: 8px; font-size: 12px; color: #7E7E8A"><span>Số chữ</span><span class="mono num" style="color: #C9C9D1">78.204</span></div>
+</aside>
+<main style="flex: 1 1 auto; min-width: 0; overflow: hidden; padding: 28px 40px">
+<sc-if value="{{scr.reader}}" hint-placeholder-val="{{ true }}">
+<article style="max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; font-family: 'Literata', Georgia, serif; font-size: 17px; line-height: 1.8; color: #D6D6DC">
+<div style="font-family: 'Be Vietnam Pro', sans-serif; display: flex; flex-direction: column; gap: 4px"><span class="lbl">Chương 24</span><span style="font-size: 26px; font-weight: 600; color: #EDEDEF">Tên tôi trên màn hình</span></div>
+<p style="margin: 0">Đèn trường quay bật lên cùng lúc, trắng đến mức tôi phải nheo mắt. Trên màn hình lớn phía sau sân khấu, tên tôi chạy thành một dòng chữ đỏ — đúng cái tên mà ba tháng trước người ta đã gạch khỏi kịch bản.</p>
+<p style="margin: 0">Nhược Vy đứng cách tôi hai bước, nụ cười vẫn còn nguyên, nhưng ngón tay cô đang siết chặt mép tờ giấy. Tôi biết tờ giấy đó. Tôi đã viết nó vào một đêm mất điện, bằng cây bút chì cùn duy nhất còn lại trong nhà.</p>
+<p style="margin: 0">“Mời khách mời đọc đoạn mở đầu,” người dẫn chương trình nói. Không ai nhìn tôi. Mọi máy quay đều đã quay về phía cô ấy.</p>
+<p style="margin: 0">Tôi bước lên, cầm lấy micro, và đọc — không phải bản trên tay cô, mà bản tôi vẫn thuộc lòng từng dấu phẩy.</p>
+<p style="margin: 0">Khán phòng im lặng đến mức tôi nghe được tiếng chiếc máy quay số ba xoay ống kính. Ở hàng ghế đầu, đạo diễn Phùng đặt cốc trà xuống, chậm rãi, như thể sợ làm vỡ khoảnh khắc này.</p>
+</article>
+</sc-if>
+<sc-if value="{{scr.outline}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px"><span style="font-size: 22px; font-weight: 600">Tập 1 · Kịch bản bị cướp</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px"><sc-for list="{{cards}}" as="c" hint-placeholder-count="12"><div class="card" style="border-radius: 12px; padding: 12px; height: 96px; display: flex; flex-direction: column; gap: 6px"><span class="num" style="font-size: 11px; color: #7E7E8A">{{c.n}}</span><span style="font-size: 13px; color: #D6D6DC">{{c.t}}</span></div></sc-for></div></div>
+</sc-if>
+<sc-if value="{{scr.audio}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 22px; font-weight: 600; margin-bottom: 6px">Audio · Tập 1</span>
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="8"><div class="card" style="border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 14px"><span class="num" style="font-size: 12px; color: #7E7E8A; white-space: nowrap">{{c.n}}</span><span style="flex: 0 0 220px; font-size: 13px; color: #D6D6DC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.t}}</span><span style="flex: 1; height: 20px; border-radius: 4px; background: repeating-linear-gradient(90deg, rgba(201,166,245,0.35) 0 2px, transparent 2px 5px)"></span></div></sc-for></div>
+</sc-if>
+<sc-if value="{{scr.settings}}" hint-placeholder-val="{{ false }}">
+<div style="max-width: 760px; display: flex; flex-direction: column; gap: 12px"><span style="font-size: 22px; font-weight: 600; margin-bottom: 6px">Cài đặt</span>
+<sc-for list="{{setRows}}" as="s" hint-placeholder-count="6"><div class="card" style="border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 16px"><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13.5px">{{s.a}}</span><span style="font-size: 12px; color: #7E7E8A">{{s.b}}</span></span><span style="width: 220px; height: 32px; border-radius: 8px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"></span></div></sc-for></div>
+</sc-if>
+<sc-if value="{{scr.workspace}}" hint-placeholder-val="{{ false }}">
+<div style="height: 100%; display: flex; gap: 16px">
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 19px; font-weight: 600">Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc</span>
+<div class="card" style="flex: 1; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px"><span class="orb o-writer" style="width: 18px; height: 18px"></span><span style="font-size: 13px; font-weight: 600">Người viết</span><span class="shim" style="font-size: 13px">Đang viết chương 25 · soát nhất quán</span></div>
+<sc-for list="{{feed}}" as="f" hint-placeholder-count="6"><div style="font-size: 12.5px; color: #8E8E99; display: flex; gap: 12px"><span class="num" style="color: #5E5E68">{{f.t}}</span><span>{{f.x}}</span></div></sc-for>
+</div>
+<div class="card" style="height: 52px; border-radius: 18px; display: flex; align-items: center; padding: 0 16px; color: #7E7E8A; font-size: 14px">Nhập can thiệp cốt truyện, hoặc gõ / để dùng lệnh</div>
+</div>
+<div style="flex: 0 0 290px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="4"><div class="card agcard" style="border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="position: absolute; inset: 0; background: {{a.wash}}"></span><span class="orb {{a.orb}} {{a.live}}" style="position: relative; width: 30px; height: 30px; box-shadow: {{a.glow}}"></span><span style="position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 12.5px; font-weight: 600; letter-spacing: .04em">{{a.name}}</span><span class="num" style="font-size: 11.5px; color: #8E8E99">{{a.meta}}</span></span><span style="position: relative; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11px; display: flex; align-items: center; white-space: nowrap; background: {{a.stBg}}; color: {{a.stFg}}">{{a.st}}</span></div></sc-for>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+
+<!-- ============ DEMO CONTROLS (not part of UI) ============ -->
+<div class="demo" style="position: absolute; top: 62px; left: 252px; z-index: 30; width: 228px; padding: 10px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.18); background: rgba(11,11,13,0.82); display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 11px; color: #7E7E8A; padding: 0 4px 2px">Bảng thử animation · không thuộc giao diện</span>
+<sc-for list="{{demo}}" as="d" hint-placeholder-count="6"><button type="button" onClick="{{d.run}}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 8px; white-space: nowrap; text-align: left"><span class="ic {{d.icon}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{d.c}}"></span>{{d.label}}</button></sc-for>
+</div>
+
+<!-- ============ THE DOCK ============ -->
+<section aria-label="Việc chạy nền" style="position: absolute; right: 16px; bottom: 16px; z-index: 40; width: 392px; pointer-events: none">
+
+<!-- toasts -->
+<div role="status" aria-live="polite" style="position: absolute; right: 0; bottom: {{toastBottom}}; width: 352px; display: flex; flex-direction: column-reverse; pointer-events: auto" onMouseEnter="{{toastHoverOn}}" onMouseLeave="{{toastHoverOff}}">
+<sc-for list="{{toasts}}" as="t" hint-placeholder-count="1">
+<div class="tw {{t.wcls}}">
+<div class="{{t.cls}}" style="pointer-events: auto">
+<div class="{{t.stack}}">
+<div class="glass" style="position: relative; border-radius: 18px; padding: 12px 12px 13px; display: flex; gap: 12px; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 0%, {{t.tint}}, transparent 55%); pointer-events: none"></div>
+<span style="position: relative; width: 34px; height: 34px; border-radius: 50%; background: {{t.iconBg}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto">
+<sc-if value="{{t.isAgent}}" hint-placeholder-val="{{ false }}"><span class="orb {{t.agOrb}}" style="width: 22px; height: 22px; box-shadow: {{t.agGlow}}"></span><span style="position: absolute; right: -2px; bottom: -2px; width: 15px; height: 15px; border-radius: 50%; background: #A6EDC1; box-shadow: 0 0 0 2px #1C1C1F; display: flex; align-items: center; justify-content: center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="draw" d="M6 12.5l4 4 8-9" stroke="#0B0B0D" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></sc-if><sc-if value="{{t.ok}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path class="draw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+<sc-if value="{{t.bad}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="width: 18px; height: 18px; color: #FF9FA8"></span></sc-if>
+<sc-if value="{{t.wait}}" hint-placeholder-val="{{ false }}"><span class="ic i-info" aria-hidden="true" style="width: 18px; height: 18px; color: #F6CB8C"></span></sc-if>
+</span>
+<div style="position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 28px">{{t.title}}</span>
+<span style="font-size: 12px; color: #A0A0AB">{{t.sub}}</span>
+<div style="display: flex; gap: 6px; margin-top: 8px">
+<sc-for list="{{t.acts}}" as="a" hint-placeholder-count="2"><button class="tbtn" type="button" onClick="{{a.run}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: {{a.bg}}; color: {{a.fg}}; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; white-space: nowrap"><span class="ic {{a.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{a.label}}</button></sc-for>
+</div>
+</div>
+<button class="ibtn cdbtn" type="button" onClick="{{t.close}}" aria-label="Đóng thông báo" title="{{t.cdTitle}}" style="position: absolute; top: 9px; right: 9px; width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: #8E8E99; display: flex; align-items: center; justify-content: center"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate(-90deg)"><circle cx="14" cy="14" r="12" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.6"/><circle class="cdr" cx="14" cy="14" r="12" fill="none" stroke="{{t.cdc}}" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="75.4" stroke-dashoffset="{{t.cdo}}" style="opacity: {{t.cdOp}}"/></svg><span class="ic i-add" aria-hidden="true" style="position: relative; width: 14px; height: 14px; transform: rotate(45deg)"></span></button>
+</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+
+<!-- pill / mini -->
+<sc-if value="{{showPill}}" hint-placeholder-val="{{ true }}">
+<div class="{{dockCls}}" style="position: absolute; right: 0; bottom: 0; pointer-events: auto">
+<div class="glass pill {{bumpCls}}" role="button" tabindex="0" aria-expanded="false" aria-label="{{pillAria}}" onClick="{{pillClick}}" style="position: relative; width: {{pillW}}; height: 52px; border-radius: 26px; display: flex; align-items: center; gap: 10px; padding: 0 {{pillPadR}} 0 9px; cursor: pointer; overflow: hidden">
+<span aria-hidden="true" class="{{glowCls}}"></span>
+<div style="position: relative; display: flex; align-items: center; flex: 0 0 auto; padding-left: 0">
+<sc-for list="{{rings}}" as="r" hint-placeholder-count="2"><span class="rg" style="width: 34px; height: 34px; margin-left: {{r.ml}}; z-index: {{r.z}}; opacity: {{r.op}}; transition: opacity .4s; background: {{r.chip}}"><span class="prw {{r.spin}}" style="--pv: {{r.bg.pv}}; --c: {{r.bg.c}}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-t" cx="50" cy="50" r="46.33" stroke-width="7.35"/><circle class="pr-v" cx="50" cy="50" r="46.33" stroke-width="7.35" pathLength="100"/></svg></span><sc-if value="{{r.hasHead}}" hint-placeholder-val="{{ true }}"><i class="head" style="transform: rotate({{r.deg}})"><b style="background: {{r.headC}}; box-shadow: {{r.headG}}"></b></i></sc-if><sc-if value="{{r.orb}}" hint-placeholder-val="{{ false }}"><span class="orb {{r.orbCls}} {{r.live}}" style="width: 18px; height: 18px; box-shadow: {{r.orbG}}"></span></sc-if><sc-if value="{{r.isIcon}}" hint-placeholder-val="{{ true }}"><span class="ic {{r.icon}}" style="width: 15px; height: 15px; color: {{r.c}}"></span></sc-if></span></sc-for>
+<sc-if value="{{more}}" hint-placeholder-val="{{ false }}"><span class="rg num" style="width: 34px; height: 34px; margin-left: -12px; font-size: 11px; color: #C9C9D1">{{moreText}}</span></sc-if>
+<sc-if value="{{attn}}" hint-placeholder-val="{{ false }}"><span class="ping" style="top: -1px; left: 26px; width: 9px; height: 9px; box-shadow: 0 0 0 2px #1A1A1C"></span></sc-if>
+</div>
+<div class="txtfade" style="flex: 1 1 auto; min-width: 0; height: 36px; overflow: hidden; opacity: {{txtOp}}">
+<div class="tick-col" style="transform: translateY({{tickY}})">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2"><div style="height: 36px; display: flex; flex-direction: column; justify-content: center; min-width: 0"><span style="font-size: 13px; font-weight: 500; color: {{l.fg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.a}}</span><span class="num" style="font-size: 11.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.b}}</span></div></sc-for>
+</div>
+</div>
+<div class="txtfade" style="display: flex; align-items: center; gap: 2px; flex: 0 0 auto; opacity: {{txtOp}}">
+<button class="ibtn hov" type="button" onClick="{{toMini}}" aria-label="Thu nhỏ thành chấm" title="Thu nhỏ thành chấm" style="width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: #8E8E99; display: flex; align-items: center; justify-content: center"><span class="ic i-minus" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+<sc-if value="{{multi}}" hint-placeholder-val="{{ true }}"><span class="num" style="min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #EDEDEF; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{activeCount}}</span></sc-if>
+<span class="ic i-chev-up" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB; margin: 0 4px"></span>
+</div>
+<span aria-hidden="true" style="position: absolute; left: 18px; right: 18px; bottom: 0; height: 2px; border-radius: 1px; background: rgba(255,255,255,0.05); overflow: hidden; opacity: {{txtOp}}"><span class="{{aggCls}}" style="display: block; height: 100%; width: {{aggW}}; background: {{aggBg}}"></span></span>
+</div>
+</div>
+</sc-if>
+
+<!-- expanded panel -->
+<sc-if value="{{showPanel}}" hint-placeholder-val="{{ false }}">
+<div class="glass {{panelCls}}" role="dialog" aria-label="Việc chạy nền" style="position: absolute; right: 0; bottom: 0; width: 392px; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; pointer-events: auto">
+<div aria-hidden="true" style="position: absolute; inset: 0 0 auto 0; height: 120px; background: radial-gradient(90% 100% at 20% 0%, rgba(154,99,227,0.12), transparent 70%); pointer-events: none"></div>
+<div class="stag" style="position: relative; display: flex; align-items: center; gap: 10px; padding: 14px 12px 10px 16px; animation-delay: .1s">
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14.5px; font-weight: 600">Việc chạy nền</span><span style="font-size: 12px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="Vẫn chạy khi bạn chuyển sang màn khác">{{panelSub}}</span></span>
+<button class="ibtn" type="button" onClick="{{toggleNotify}}" aria-pressed="{{notify}}" title="Báo khi xong" style="height: 28px; padding: 0 8px; border-radius: 8px; border: none; background: transparent; color: {{notifyFg}}; font-size: 11.5px; display: flex; align-items: center; gap: 5px; white-space: nowrap"><span class="ic i-notify" aria-hidden="true" style="width: 15px; height: 15px"></span>{{notifyLabel}}</button>
+<button class="ibtn" type="button" onClick="{{toMini}}" aria-label="Thu nhỏ thành chấm" title="Thu nhỏ thành chấm" style="width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: #8E8E99; display: flex; align-items: center; justify-content: center"><span class="ic i-minus" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</div>
+<div class="scroll" style="position: relative; max-height: 470px; overflow-y: auto; padding: 0 8px 6px">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<div class="stag" style="display: flex; align-items: center; gap: 8px; padding: 8px 8px 4px; animation-delay: {{g.delay}}"><span class="lbl" style="font-size: 10.5px; color: {{g.c}}">{{g.label}}</span><span class="num" style="font-size: 10.5px; color: #5E5E68">{{g.n}}</span></div>
+<sc-for list="{{g.rows}}" as="j" hint-placeholder-count="2">
+<div class="jrow stag {{j.out}} {{j.flash}}" style="max-height: 120px; display: flex; gap: 12px; padding: 10px 8px; border-radius: 12px; animation-delay: {{j.delay}}">
+<span class="rg {{j.dim}}" style="width: 38px; height: 38px; box-shadow: none; background: {{j.chipBg}}"><sc-if value="{{j.orb}}" hint-placeholder-val="{{ false }}"><span class="aura" aria-hidden="true" style="background: {{j.auraBg}}; animation-play-state: {{j.auraPlay}}"></span></sc-if><span class="prw {{j.spin}}" style="--pv: {{j.ring.pv}}; --c: {{j.ring.c}}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-t" cx="50" cy="50" r="46.71" stroke-width="6.58"/><circle class="pr-v" cx="50" cy="50" r="46.71" stroke-width="6.58" pathLength="100"/></svg></span><sc-if value="{{j.hasHead}}" hint-placeholder-val="{{ false }}"><i class="head" style="transform: rotate({{j.deg}})"><b style="background: {{j.headC}}; box-shadow: {{j.headG}}"></b></i></sc-if><sc-if value="{{j.orb}}" hint-placeholder-val="{{ false }}"><span class="orb {{j.orbCls}} {{j.live}}" style="width: 22px; height: 22px; box-shadow: {{j.orbG}}"></span></sc-if><sc-if value="{{j.isIcon}}" hint-placeholder-val="{{ true }}"><span class="ic {{j.icon}}" aria-hidden="true" style="width: 16px; height: 16px; color: {{j.c}}"></span></sc-if><sc-if value="{{j.isDone}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="draw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+<span style="flex: 1 1 auto; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.title}}</span>
+<sc-if value="{{j.hasEq}}" hint-placeholder-val="{{ false }}"><span class="eqs" aria-hidden="true" style="display: flex; align-items: center; gap: 2px; height: 12px; color: #C9A6F5"><span></span><span></span><span></span></span></sc-if>
+<span class="act" style="display: flex; gap: 2px; flex: 0 0 auto">
+<sc-for list="{{j.icons}}" as="b" hint-placeholder-count="2"><button class="ibtn" type="button" onClick="{{b.run}}" aria-label="{{b.label}}" title="{{b.label}}" style="width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 14px; height: 14px; transform: {{b.rot}}"></span></button></sc-for>
+</span>
+</div>
+<span style="font-size: 12px; color: {{j.subFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.sub}}</span>
+<sc-if value="{{j.hasBar}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 3px">
+<div class="bar {{j.indet}}" style="flex: 1 1 auto"><i style="width: {{j.w}}; background: {{j.barBg}}"></i></div>
+<span class="num" style="font-size: 11.5px; color: #8E8E99; white-space: nowrap; flex: 0 0 auto">{{j.meta}}</span>
+</div>
+</sc-if>
+<sc-if value="{{j.hasCta}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 6px; margin-top: 6px">
+<sc-for list="{{j.ctas}}" as="a" hint-placeholder-count="2"><button class="tbtn" type="button" onClick="{{a.run}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: {{a.bg}}; color: {{a.fg}}; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; white-space: nowrap"><span class="ic {{a.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{a.label}}</button></sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</sc-for>
+<sc-if value="{{panelEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 22px 12px; text-align: center; font-size: 12.5px; color: #7E7E8A">Không còn việc nào chạy nền.</div></sc-if>
+<sc-if value="{{hiddenNote}}" hint-placeholder-val="{{ false }}"><div style="margin: 4px 8px 6px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.03); font-size: 11.5px; color: #8E8E99; display: flex; gap: 8px; align-items: center"><span class="orb o-writer" aria-hidden="true" style="width: 12px; height: 12px"></span>Việc của các trợ lý đang hiện ngay trên Bàn viết nên không nhắc lại ở đây.</div></sc-if>
+</div>
+<!-- footer bar = same geometry as the pill, so the morph is seamless -->
+<div style="position: relative; height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 10px 0 16px; border-top: 1px solid rgba(255,255,255,0.06)">
+<span class="ic i-activity" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span>
+<a href="Activity.dc.html" style="flex: 1 1 auto; min-width: 0; font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Xem nhật ký đầy đủ</a>
+<span style="font-size: 11px; color: #5E5E68; display: flex; gap: 4px; align-items: center; white-space: nowrap"><span class="kbd">⌥</span><span class="kbd">J</span></span>
+<button class="ibtn" type="button" onClick="{{closePanel}}" aria-label="Thu gọn" style="height: 32px; padding: 0 10px; border-radius: 9px; border: none; background: rgba(255,255,255,0.06); color: #EDEDEF; font-size: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap">Thu gọn<span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+</div>
+</div>
+</sc-if>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["running","expanded","finishing","attention","error","mini","empty"],"default":"running","section":"Kịch bản"},"screen":{"editor":"enum","options":["reader","outline","audio","settings","workspace"],"default":"reader","section":"Đang ở màn"},"$preview":{"width":1440,"height":900}}'>
+const TICK = 120;
+const AG = {
+  writer: { orb: 'o-writer', name: 'Người viết', c1: '#C9A6F5', c2: '#9A63E3', c3: '#C9457F', aura: '154,99,227' },
+  architect: { orb: 'o-architect', name: 'Kiến trúc sư', c1: '#B9D0F7', c2: '#7C93F3', c3: '#5A57E3', aura: '124,147,243' },
+  editor: { orb: 'o-editor', name: 'Biên tập viên', c1: '#F6CB8C', c2: '#EC9548', c3: '#E25E36', aura: '236,149,72' },
+  arbiter: { orb: 'o-arbiter', name: 'Trọng tài', c1: '#A6EDC1', c2: '#5DC1B0', c3: '#3E73D6', aura: '93,193,176' }
+};
+const ORB_IN = 'inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4)';
+const T = {
+  plan: { agent: 'architect', title: 'Lên dàn ý Tập 2', steps: ['Đọc tóm tắt Tập 1', 'Chọn tuyến chính', 'Chia chương', 'Viết đề cương'], mins: 4, rate: 0.0021, href: 'Outline.dc.html',
+    done: { title: 'Đã lên dàn ý Tập 2', sub: '12 chương · 3 tuyến truyện mới', acts: [['i-note', 'Xem dàn ý', 'Outline.dc.html', 1]] } },
+  grade: { agent: 'editor', title: 'Chấm chương 24', steps: ['Đọc chương', 'Soát nhất quán', 'Chấm điểm'], mins: 1, rate: 0.0062, href: 'Reader.dc.html',
+    done: { title: 'Đã chấm chương 24 · 8,1 điểm', sub: '2 góp ý nhỏ về nhịp cảnh cuối', acts: [['i-book', 'Xem góp ý', 'Reader.dc.html', 1]] } },
+  steer: { agent: 'arbiter', title: 'Xét góp ý của bạn', steps: ['Đọc góp ý', 'Đối chiếu đại cương', 'Quyết định'], mins: 1, rate: 0.008, href: 'Main.dc.html',
+    done: { title: 'Trọng tài đã nhận góp ý', sub: 'Áp dụng từ chương 26', acts: [['i-arrow-r', 'Xem quyết định', 'Main.dc.html', 1]] } },
+  write: { agent: 'writer', title: 'Viết chương 25', steps: ['Đọc bối cảnh', 'Viết bản nháp', 'Soát nhất quán', 'Biên tập chấm điểm', 'Lưu chương'], mins: 6, rate: 0.0016, href: 'Main.dc.html',
+    done: { title: 'Đã viết xong chương 25', sub: '3.214 chữ · Biên tập chấm 8,6', acts: [['i-book', 'Đọc chương', 'Reader.dc.html', 1]] } },
+  audio: { icon: 'i-voice', c: '#C9A6F5', title: 'Tạo giọng Tập 1', unit: 'Chương', total: 12, mins: 18, rate: 0.0011, eq: true, href: 'AudioExport.dc.html',
+    done: { title: 'Đã tạo giọng Tập 1', sub: '12 chương · 2 giờ 41 phút', acts: [['i-play', 'Nghe', 'AudioExport.dc.html', 1], ['i-export2', 'Ghép & xuất', 'AudioExport.dc.html']] } },
+  export: { icon: 'i-export', c: '#A6EDC1', title: 'Xuất EPUB', unit: 'Chương', total: 24, mins: 1, rate: 0.0085, href: 'Commands.dc.html',
+    done: { title: 'Đã xuất EPUB · 24 chương', sub: 'Trà Xanh Cướp Kịch Bản.epub · 1,2 MB', acts: [['i-download', 'Tải xuống', null, 1], ['i-folder', 'Mở thư mục', 'Outline.dc.html']] } },
+  sync: { icon: 'i-refresh', c: '#7C93F3', title: 'Tiếp nhận chương sửa tay', unit: 'Chương', total: 3, mins: 1, rate: 0.012, indet: false,
+    done: { title: 'Đã tiếp nhận 2 chương sửa tay', sub: 'Chương 3, 7 · phát hiện 1 chỗ mâu thuẫn', acts: [['i-arrow-r', 'Xem chỗ mâu thuẫn', 'Reader.dc.html', 1]] } },
+  simulate: { icon: 'i-magic', c: '#F6CB8C', title: 'Học văn phong', mins: 3, rate: 0.006, indet: true,
+    done: { title: 'Đã cập nhật hồ sơ văn phong', sub: 'Học từ 6 văn mẫu', acts: [['i-arrow-r', 'Xem hồ sơ', 'Settings.dc.html', 1]] } },
+  import: { icon: 'i-doc', c: '#F6CB8C', title: 'Nhập truyện tra-xanh.txt', short: 'Xác nhận cách chia chương', wait: 'Đã chia 42 chương — chờ bạn xác nhận', cta: [['i-arrow-r', 'Xem & xác nhận', 'Dialogs.dc.html', 1]] },
+  review: { icon: 'i-book', c: '#F6CB8C', title: 'Chương 24 chờ bạn duyệt', short: 'Duyệt chương 24', wait: 'Đang bật duyệt từng chương — đọc rồi cho viết tiếp', cta: [['i-book', 'Đọc & duyệt', 'Reader.dc.html', 1]] },
+  audioErr: { icon: 'i-voice', c: '#FF9FA8', title: 'Tạo giọng chương 7', err: 'Bộ đọc trên máy không phản hồi sau 3 lần thử' }
+};
+const SCEN = {
+  running: { mode: 'pill', jobs: [['write', 0.46], ['audio', 0.38], ['export', 0.62]] },
+  expanded: { mode: 'panel', jobs: [['plan', 0.34], ['audio', 0.38], ['export', 0.62], ['review', 'wait']] },
+  finishing: { mode: 'pill', jobs: [['grade', 0.9], ['export', 0.93]] },
+  attention: { mode: 'pill', jobs: [['import', 'wait'], ['audio', 0.52]] },
+  error: { mode: 'pill', jobs: [['audioErr', 'err'], ['export', 0.3]], toast: 'audioErr' },
+  mini: { mode: 'mini', jobs: [['write', 0.46], ['audio', 0.38], ['export', 0.62]] },
+  empty: { mode: 'hidden', jobs: [] }
+};
+const POOL = ['plan', 'grade', 'steer', 'sync', 'simulate', 'export', 'audio'];
+let UID = 1;
+const mkJob = (t, p) => ({ id: UID++, t, p: typeof p === 'number' ? p : 0, st: p === 'wait' ? 'wait' : (p === 'err' ? 'err' : 'run'), out: false, flash: 0 });
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.timers = []; }
+  fresh(props) {
+    const sc = SCEN[props.scenario || 'running'] || SCEN.running;
+    const jobs = sc.jobs.map(([t, p]) => mkJob(t, p));
+    const toasts = sc.toast ? [{ id: UID++, jid: jobs[0].id, kind: 'err', left: 6000, leaving: false }] : [];
+    return { jobs, toasts, mode: sc.mode, panelAnim: sc.mode === 'panel' ? 'morph-in' : '', leaving: false, enterN: 0, bumpN: 0, t: 0, idle: 0, hoverT: false, screen: null, screenFor: null, notify: true, poolI: 0, scen: props.scenario };
+  }
+  componentDidMount() { this.iv = setInterval(() => this.tick(), TICK); }
+  componentWillUnmount() { clearInterval(this.iv); this.timers.forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (prev.scenario !== this.props.scenario) this.setState(this.fresh(this.props)); }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  onWorkspace() { return this.curScreen() === 'workspace'; }
+  curScreen() { return (this.state.screen && this.state.screenFor === this.props.screen) ? this.state.screen : (this.props.screen || 'reader'); }
+  visibleJobs(s) { const ws = this.onWorkspace(); return s.jobs.filter((j) => !(ws && T[j.t].agent && j.st !== 'done')); }
+  tick() {
+    const s = this.state; let bump = 0; const newToasts = [];
+    const jobs = s.jobs.map((j) => {
+      if (j.st !== 'run') return j; const d = T[j.t]; const p = Math.min(1, j.p + d.rate);
+      if (p >= 1) { bump++; if (s.mode !== 'panel') newToasts.push({ id: UID++, jid: j.id, kind: 'done', left: 6000, leaving: false }); return Object.assign({}, j, { p: 1, st: 'done', flash: j.flash + 1 }); }
+      return Object.assign({}, j, { p });
+    });
+    let toasts = s.toasts.concat(newToasts).map((t) => (s.hoverT || t.leaving) ? t : Object.assign({}, t, { left: t.left - TICK }));
+    toasts = toasts.map((t) => { if (t.left <= 0 && !t.leaving) { const id = t.id; this.later(() => this.setState({ toasts: this.state.toasts.filter((x) => x.id !== id), bumpN: this.state.bumpN + 1 }), 520); return Object.assign({}, t, { leaving: true }); } return t; });
+    const active = jobs.filter((j) => j.st !== 'done' && !(this.onWorkspace() && T[j.t].agent)).length;
+    const idle = (active === 0 && toasts.length === 0 && s.mode !== 'hidden' && s.mode !== 'panel') ? s.idle + TICK : 0;
+    const patch = { jobs, toasts, t: s.t + 1, idle, bumpN: s.bumpN + bump };
+    if (idle >= 4200 && !s.leaving) { patch.leaving = true; this.later(() => this.setState({ mode: 'hidden', leaving: false, jobs: this.state.jobs.filter((j) => j.st !== 'done'), idle: 0 }), 380); }
+    this.setState(patch);
+  }
+  dismiss(id) {
+    this.setState({ toasts: this.state.toasts.map((t) => t.id === id ? Object.assign({}, t, { leaving: true }) : t) });
+    this.later(() => this.setState({ toasts: this.state.toasts.filter((t) => t.id !== id), bumpN: this.state.bumpN + 1 }), 520);
+  }
+  addJob(t, p) {
+    const s = this.state; const j = mkJob(t, p === undefined ? 0 : p);
+    const patch = { jobs: s.jobs.concat([j]), idle: 0, leaving: false };
+    if (s.mode === 'hidden') { patch.mode = 'pill'; patch.enterN = s.enterN + 1; }
+    if ((p === 'wait' || p === 'err') && s.mode !== 'panel') patch.toasts = s.toasts.concat([{ id: UID++, jid: j.id, kind: p === 'err' ? 'err' : 'wait', left: 6000, leaving: false }]).slice(-2);
+    this.setState(patch);
+  }
+  setJob(id, fn) { this.setState({ jobs: this.state.jobs.map((j) => j.id === id ? Object.assign({}, j, fn(j)) : j) }); }
+  removeJob(id) { this.setJob(id, () => ({ out: true })); this.later(() => this.setState({ jobs: this.state.jobs.filter((j) => j.id !== id) }), 300); }
+  openPanel() { this.setState({ mode: 'panel', panelAnim: 'morph-in', toasts: [] }); }
+  closePanel() { this.setState({ panelAnim: 'morph-out' }); this.later(() => this.setState({ mode: 'pill', panelAnim: '' }), 320); }
+  renderVals() {
+    const s = this.state; const scr = this.curScreen(); const ws = scr === 'workspace';
+    const vis = this.visibleJobs(s);
+    const act = vis.filter((j) => j.st !== 'done');
+    const order = { wait: 0, err: 1, run: 2, paused: 3, done: 4 };
+    const sorted = act.slice().sort((a, b) => order[a.st] - order[b.st]);
+    const pct = (j) => Math.round(j.p * 100) + '%';
+    const unitTxt = (j) => { const d = T[j.t]; return d.unit ? d.unit + ' ' + Math.max(1, Math.ceil(j.p * d.total)) + '/' + d.total : ''; };
+    const eta = (j) => { const m = (1 - j.p) * T[j.t].mins; return m < 1 ? 'dưới 1 phút' : 'còn khoảng ' + Math.ceil(m) + ' phút'; };
+    const step = (j) => { const st = T[j.t].steps; const i = Math.min(st.length - 1, Math.floor(j.p * st.length)); return 'Bước ' + (i + 1) + '/' + st.length + ' · ' + st[i]; };
+    // RING v2: trả {pv: 0–100, c: màu}; vẽ bằng SVG đầu bo tròn
+    const ringBg = (j) => { const pv = Math.round(j.p * 100);
+      if (j.st === 'wait') return { pv: 100, c: '#F6CB8C' };
+      if (j.st === 'err') return { pv: 100, c: '#FF9FA8' };
+      if (j.st === 'done') return { pv: 100, c: '#A6EDC1' };
+      if (j.st === 'paused') return { pv, c: '#5E5E68' };
+      if (T[j.t].indet) return { pv: 25, c: '#F6CB8C' };
+      if (T[j.t].agent) return { pv, c: AG[T[j.t].agent].c2 };
+      return { pv, c: T[j.t].c }; };
+    // ---------- pill ----------
+    const mini = s.mode === 'mini' || (ws && s.mode === 'pill');
+    const lines = sorted.map((j) => {
+      const d = T[j.t];
+      if (j.st === 'wait') return { a: 'Cần bạn · ' + (d.short || d.title), b: d.wait, fg: '#F6CB8C' };
+      if (j.st === 'err') return { a: 'Lỗi · ' + d.title, b: d.err, fg: '#FFC9CE' };
+      if (j.st === 'paused') return { a: d.title + ' · đã tạm dừng', b: unitTxt(j) || pct(j), fg: '#C9C9D1' };
+      if (d.agent) return { a: d.title + ' · ' + pct(j), b: AG[d.agent].name + ' · ' + step(j), fg: '#EDEDEF' };
+      if (d.indet) return { a: d.title, b: 'Đang phân tích văn mẫu…', fg: '#EDEDEF' };
+      return { a: d.title + ' · ' + pct(j), b: unitTxt(j) + ' · ' + eta(j), fg: '#EDEDEF' };
+    });
+    const lastDone = vis.filter((j) => j.st === 'done').slice(-1)[0];
+    if (!lines.length && lastDone) lines.push({ a: '✓ ' + T[lastDone.t].done.title, b: 'Mọi việc đã xong', fg: '#A6EDC1' });
+    if (!lines.length) lines.push({ a: 'Không có việc nào', b: '', fg: '#8E8E99' });
+    const tickI = lines.length > 1 ? Math.floor(s.t / 30) % lines.length : 0;
+    const vis3 = (j) => { const d = T[j.t]; const A = d.agent ? AG[d.agent] : null; const runLike = j.st === 'run' || j.st === 'paused';
+      const headC = A ? A.c3 : (d.c || '#EDEDEF'); const rgb = A ? A.aura : '255,255,255';
+      return { A, deg: Math.round(j.p * 360) + 'deg', hasHead: runLike && !d.indet && j.p > 0.02, headC: '#FFFFFF', headG: '0 0 6px 2px ' + headC,
+        chip: A ? 'radial-gradient(circle at 50% 55%, rgba(' + rgb + ',0.32) 0%, rgba(20,20,22,0) 70%), #141416' : (j.st === 'done' ? 'rgba(166,237,193,0.1)' : '#141416'),
+        orbCls: A ? A.orb : '', live: (A && j.st === 'run') ? 'live' : '', orbG: A ? ORB_IN + ', 0 0 12px rgba(' + rgb + ',0.55)' : ORB_IN, auraBg: A ? 'radial-gradient(circle, rgba(' + rgb + ',0.35) 0%, rgba(' + rgb + ',0) 68%)' : 'none' }; };
+    const rings = sorted.slice(0, mini ? 1 : 3).map((j, i) => { const x = vis3(j); return { bg: ringBg(j), spin: (T[j.t].indet && j.st === 'run') ? 'spin' : '', orb: !!T[j.t].agent, isIcon: !T[j.t].agent, icon: T[j.t].icon || '', c: j.st === 'err' ? '#FF9FA8' : (j.st === 'wait' ? '#F6CB8C' : (T[j.t].c || '#C9C9D1')), ml: i ? '-12px' : '0', z: 5 - i, op: (sorted.length > 1 && i !== tickI % Math.max(1, Math.min(3, sorted.length)) && !mini) ? 0.5 : 1,
+      chip: x.chip, hasHead: x.hasHead, deg: x.deg, headC: x.headC, headG: x.headG, orbCls: x.orbCls, live: x.live, orbG: x.orbG }; });
+    const runs = act.filter((j) => j.st === 'run');
+    const agg = runs.length ? runs.reduce((a, j) => a + j.p, 0) / runs.length : (act.length ? 0 : 1);
+    const showDock = s.mode !== 'hidden' && !(ws && act.length === 0 && !lastDone && s.toasts.length === 0);
+    // ---------- toasts ----------
+    const tlist = s.toasts.slice(-2).reverse();
+    const toasts = tlist.map((t, i) => {
+      const j = s.jobs.find((x) => x.id === t.jid) || { t: 'export' }; const d = T[j.t];
+      const front = i === 0;
+      const A = d.agent ? AG[d.agent] : null;
+      const base = { cls: t.leaving ? 'toast-out' : 'toast-in', stack: (front || s.hoverT) ? 'tfront' : 'tback', wcls: t.leaving ? 'leaving' : '', close: () => this.dismiss(t.id), cdo: (75.4 * (1 - Math.max(0, t.left) / 6000)).toFixed(2), cdOp: s.hoverT ? 0.3 : 1, cdTitle: s.hoverT ? 'Đã dừng tự đóng' : 'Tự đóng sau ' + Math.ceil(Math.max(0, t.left) / 1000) + ' giây',
+        isAgent: !!A && t.kind === 'done', agOrb: A ? A.orb : '', agGlow: A ? ORB_IN + ', 0 0 14px rgba(' + A.aura + ',0.6)' : '' };
+      const acts = (list) => list.map(([icon, label, href, primary]) => ({ icon, label, bg: primary ? '#EDEDEF' : 'transparent', fg: primary ? '#0B0B0D' : '#EDEDEF', run: () => this.dismiss(t.id) }));
+      if (t.kind === 'err') return Object.assign(base, { ok: false, bad: true, wait: false, title: d.title + ' dừng lại', sub: d.err, tint: 'rgba(255,159,168,0.12)', iconBg: 'rgba(255,159,168,0.12)', cdc: '#FF9FA8',
+        acts: [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => { this.setJob(j.id, () => ({ st: 'run', p: 0.2, t: 'audio' })); this.dismiss(t.id); } }, { icon: 'i-arrow-r', label: 'Chi tiết', bg: 'transparent', fg: '#EDEDEF', run: () => { this.dismiss(t.id); this.openPanel(); } }] });
+      if (t.kind === 'wait') return Object.assign(base, { ok: false, bad: false, wait: true, title: d.title, sub: d.wait, tint: 'rgba(246,203,140,0.12)', iconBg: 'rgba(246,203,140,0.12)', cdc: '#F6CB8C', acts: acts(d.cta) });
+      return Object.assign(base, { ok: !A, bad: false, wait: false, title: d.done.title, sub: d.done.sub, tint: A ? 'rgba(' + A.aura + ',0.16)' : 'rgba(166,237,193,0.12)', iconBg: A ? 'radial-gradient(circle, rgba(' + A.aura + ',0.3), rgba(20,20,22,0) 70%)' : 'rgba(166,237,193,0.12)', cdc: A ? A.c1 : '#A6EDC1', acts: acts(d.done.acts) });
+    });
+    // ---------- panel ----------
+    const rowOf = (j, gi, ri) => {
+      const d = T[j.t]; const st = j.st; const X = vis3(j);
+      const icons = [];
+      if (st === 'run' && !d.agent) icons.push({ icon: 'i-pause', label: 'Tạm dừng', rot: 'none', run: () => this.setJob(j.id, () => ({ st: 'paused' })) });
+      if (st === 'run' && d.agent) icons.push({ icon: 'i-pause', label: 'Tạm dừng sau bước này', rot: 'none', run: () => this.setJob(j.id, () => ({ st: 'paused' })) });
+      if (st === 'paused') icons.push({ icon: 'i-play', label: 'Chạy tiếp', rot: 'none', run: () => this.setJob(j.id, () => ({ st: 'run' })) });
+      if (d.href && st !== 'done') icons.push({ icon: 'i-arrow-r', label: 'Mở', rot: 'none', run: () => {} });
+      if (st !== 'wait') icons.push({ icon: 'i-add', label: st === 'done' ? 'Bỏ khỏi danh sách' : 'Huỷ', rot: 'rotate(45deg)', run: () => this.removeJob(j.id) });
+      const cta = (list) => list.map(([icon, label, href, primary]) => ({ icon, label, bg: primary ? '#EDEDEF' : 'transparent', fg: primary ? '#0B0B0D' : '#EDEDEF', run: () => {} }));
+      let sub = '', subFg = '#8E8E99', hasBar = false, meta = '', w = '0%', barBg = '', indet = '', ctas = [];
+      if (st === 'run' || st === 'paused') { hasBar = true; w = (j.p * 100).toFixed(1) + '%';
+        if (d.agent) { const A = AG[d.agent]; sub = A.name + ' · ' + step(j); barBg = 'linear-gradient(90deg,' + A.c1 + ',' + A.c2 + ',' + A.c3 + ')'; meta = pct(j); }
+        else if (d.indet) { sub = 'Đang phân tích văn mẫu…'; indet = 'indet'; barBg = d.c; meta = eta(j); }
+        else { sub = unitTxt(j); barBg = d.c; meta = pct(j) + ' · ' + eta(j); }
+        if (st === 'paused') { sub = 'Đã tạm dừng · ' + (unitTxt(j) || pct(j)); barBg = '#5E5E68'; meta = pct(j); } }
+      if (st === 'wait') { sub = d.wait; subFg = '#E9D9BD'; ctas = cta(d.cta); }
+      if (st === 'err') { sub = d.err; subFg = '#FFC9CE'; ctas = [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => this.setJob(j.id, () => ({ st: 'run', p: 0.2, t: 'audio' })) }, { icon: 'i-add', label: 'Bỏ qua chương này', bg: 'transparent', fg: '#EDEDEF', run: () => this.removeJob(j.id) }]; }
+      if (st === 'done') { sub = d.done.sub; ctas = cta(d.done.acts); }
+      return { title: st === 'done' ? d.done.title : d.title, sub, subFg, hasBar, meta, w, barBg, indet, hasCta: ctas.length > 0, ctas, icons,
+        orb: !!d.agent && st !== 'done', isIcon: !d.agent && st !== 'done', isDone: st === 'done', icon: d.icon || '', c: st === 'err' ? '#FF9FA8' : (st === 'wait' ? '#F6CB8C' : d.c),
+        ring: ringBg(j), spin: (d.indet && st === 'run') ? 'spin' : '', chipBg: X.chip, hasEq: !!d.eq && st === 'run', hasHead: X.hasHead, deg: X.deg, headC: X.headC, headG: X.headG, orbCls: X.orbCls, live: X.live, orbG: X.orbG, auraBg: X.auraBg, auraPlay: st === 'run' ? 'running' : 'paused', dim: st === 'paused' ? 'dimmed' : '',
+        out: j.out ? 'row-out' : '', flash: j.flash ? (j.flash % 2 ? 'flash-row' : '') : '', delay: (0.12 + (gi * 3 + ri) * 0.045).toFixed(3) + 's' };
+    };
+    const G = [
+      { label: 'Cần bạn', c: '#F6CB8C', f: (j) => j.st === 'wait' || j.st === 'err' },
+      { label: 'Đang chạy', c: '#7E7E8A', f: (j) => j.st === 'run' || j.st === 'paused' },
+      { label: 'Vừa xong', c: '#7E7E8A', f: (j) => j.st === 'done' }
+    ];
+    const groups = G.map((g) => ({ g, rows: vis.filter(g.f) })).filter((x) => x.rows.length).map((x, gi) => ({ label: x.g.label, c: x.g.c, n: String(x.rows.length), delay: (0.1 + gi * 0.13).toFixed(2) + 's', rows: x.rows.map((j, ri) => rowOf(j, gi, ri)) }));
+    const nRun = act.filter((j) => j.st === 'run').length, nNeed = act.filter((j) => j.st === 'wait' || j.st === 'err').length;
+    const subParts = []; if (nNeed) subParts.push(nNeed + ' cần bạn'); if (nRun) subParts.push(nRun + ' đang chạy');
+    const pillW = mini ? '52px' : '352px';
+    const panelOpen = s.mode === 'panel';
+    const demoAdd = () => { const t = POOL[s.poolI % POOL.length]; this.setState({ poolI: s.poolI + 1 }); this.addJob(t); };
+    const navDef = [['reader', 'Trình đọc', 'i-book'], ['outline', 'Dự án', 'i-folder'], ['audio', 'Audio', 'i-headphone'], ['settings', 'Cài đặt', 'i-setting'], ['workspace', 'Bàn viết', 'i-category']];
+    const titles = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình', 'Máy quay số ba', 'Cốc trà của đạo diễn', 'Bản gốc', 'Đêm mất điện'];
+    return {
+      navs: navDef.map(([k, label, icon]) => { const cur = scr === k; return { label, icon, cur, bg: cur ? '#222225' : 'transparent', fg: cur ? '#EDEDEF' : '#A0A0AB', ic: cur ? '#C9A6F5' : 'currentColor', fw: cur ? 500 : 400, pick: () => this.setState({ screen: k, screenFor: this.props.screen }) }; }),
+      scr: { reader: scr === 'reader', outline: scr === 'outline', audio: scr === 'audio', settings: scr === 'settings', workspace: ws },
+      side: { label: scr === 'settings' ? 'Cài đặt' : 'Đại cương', items: (scr === 'settings' ? ['Thư viện', 'Nhà cung cấp', 'Model & vai trò', 'Sáng tác', 'Ngân sách', 'Thông báo', 'Hệ thống'] : titles.slice(0, 10)).map((t, i) => ({ n: scr === 'settings' ? '' : i + 17, t, bg: (scr === 'reader' && i === 7) ? '#1C1C1F' : 'transparent', fg: (scr === 'reader' && i === 7) ? '#EDEDEF' : '#A0A0AB' })) },
+      cards: titles.map((t, i) => ({ n: 'Chương ' + (i + 13), t })),
+      setRows: [['Thư mục thư viện', 'Nơi lưu mọi dự án'], ['Nhà cung cấp AI', 'ChatGPT · đã kết nối'], ['Model cho Người viết', 'gpt-5 · suy luận cao'], ['Duyệt từng chương', 'Đang tắt'], ['Bộ đọc trên máy', 'VieNeu-TTS'], ['Thông báo khi xong việc', 'Bật']].map(([a, b]) => ({ a, b })),
+      agents: [['writer', 'Người viết', '3,5 triệu · $2,05', 'Đang chạy'], ['architect', 'Kiến trúc sư', '488,7 nghìn · $0,45', 'Chờ lệnh'], ['editor', 'Biên tập viên', '72,1 nghìn · $0,10', 'Chờ lệnh'], ['arbiter', 'Trọng tài', '13,3 nghìn · $0,04', 'Gọi khi cần']].map(([k, name, meta, st]) => { const A = AG[k]; const run = st === 'Đang chạy';
+        return { orb: A.orb, name, meta, st, live: run ? 'live' : '', glow: ORB_IN + (run ? ', 0 0 16px rgba(' + A.aura + ',0.6)' : ''), wash: 'radial-gradient(120% 140% at 0% 50%, rgba(' + A.aura + ',' + (run ? 0.16 : 0.06) + '), transparent 60%)', stBg: run ? 'rgba(' + A.aura + ',0.16)' : 'rgba(255,255,255,0.05)', stFg: run ? A.c1 : '#7E7E8A' }; }),
+      feed: [['21:52:47', 'Đọc chương · chương 24 · bản nháp'], ['21:52:58', 'Đọc bối cảnh · chương 25'], ['21:53:10', 'Gọt giũa · chương 25'], ['21:53:24', 'Soát nhất quán · chương 25']].map(([t, x]) => ({ t, x })),
+      demo: [
+        { icon: 'i-add', c: '#C9A6F5', label: 'Thêm việc mới', run: demoAdd },
+        { icon: 'i-tick', c: '#A6EDC1', label: 'Hoàn thành 1 việc', run: () => { const r = this.state.jobs.filter((j) => j.st === 'run').sort((a, b) => b.p - a.p)[0]; if (r) this.setJob(r.id, () => ({ p: 0.999 })); } },
+        { icon: 'i-info', c: '#F6CB8C', label: 'Cần bạn xác nhận', run: () => this.addJob('import', 'wait') },
+        { icon: 'i-warning', c: '#FF9FA8', label: 'Gây lỗi', run: () => this.addJob('audioErr', 'err') },
+        { icon: 'i-flash', c: '#7C93F3', label: 'Xong hết (xem tự ẩn)', run: () => this.setState({ jobs: this.state.jobs.map((j) => (j.st === 'run' || j.st === 'paused') ? Object.assign({}, j, { st: 'run', p: 0.999 }) : (j.st === 'wait' || j.st === 'err' ? Object.assign({}, j, { out: true, st: 'done', t: j.t === 'audioErr' ? 'audio' : (j.t === 'import' ? 'sync' : j.t) }) : j)) }) },
+        { icon: 'i-refresh', c: '#A0A0AB', label: 'Đặt lại kịch bản', run: () => this.setState(this.fresh(this.props)) }
+      ],
+      showPill: showDock && !panelOpen, showPanel: showDock && panelOpen,
+      dockCls: s.leaving ? 'dock-out' : (s.enterN % 2 ? 'dock-b' : 'dock-a'),
+      bumpCls: s.bumpN ? (s.bumpN % 2 ? 'bump-a' : 'bump-b') : '', glowCls: s.bumpN ? (s.bumpN % 2 ? 'glow-a' : 'glow-b') : '',
+      pillW, pillPadR: mini ? '0' : '8px', txtOp: mini ? 0 : 1, rings: rings.length ? rings : [{ bg: { pv: 100, c: '#A6EDC1' }, spin: '', orb: false, isIcon: true, icon: 'i-tick', c: '#A6EDC1', ml: '0', z: 5 }],
+      more: !mini && sorted.length > 3, moreText: '+' + (sorted.length - 3), attn: act.some((j) => j.st === 'wait'),
+      lines, tickY: (-36 * tickI) + 'px', multi: act.length > 1 && !mini, activeCount: String(act.length), aggW: (agg * 100).toFixed(1) + '%', aggCls: act.length ? 'agg' : '', aggBg: act.length ? '' : 'rgba(166,237,193,0.55)',
+      pillAria: 'Việc chạy nền: ' + act.length + ' việc. Bấm để mở',
+      pillClick: () => { if (s.mode === 'mini' && !ws) this.setState({ mode: 'pill' }); else this.openPanel(); },
+      toMini: (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (s.mode === 'panel') { this.setState({ panelAnim: 'morph-out' }); this.later(() => this.setState({ mode: 'mini', panelAnim: '' }), 320); } else this.setState({ mode: 'mini' }); },
+      panelCls: s.panelAnim, closePanel: () => this.closePanel(), groups, panelEmpty: groups.length === 0, hiddenNote: ws && s.jobs.some((j) => T[j.t].agent && j.st !== 'done'),
+      panelSub: subParts.join(' · ') || 'Không còn việc đang chạy',
+      notify: s.notify, notifyFg: s.notify ? '#C9A6F5' : '#7E7E8A', notifyLabel: s.notify ? 'Báo khi xong' : 'Không báo', toggleNotify: () => this.setState({ notify: !s.notify }),
+      toasts, toastBottom: (52 + 4) + 'px', toastHoverOn: () => this.setState({ hoverT: true }), toastHoverOff: () => this.setState({ hoverT: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

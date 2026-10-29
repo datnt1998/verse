@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@noverse/ui": ["./packages/ui/src/index.ts"],
+      "@noverse/ui/tokens.stylex": ["./packages/ui/src/tokens.stylex.ts"],
+      "@noverse/ui/*": ["./packages/ui/src/*"]
+    }
+  },
+  "include": ["src", "packages/ui/src", "vite.config.ts", "mock"]
+}

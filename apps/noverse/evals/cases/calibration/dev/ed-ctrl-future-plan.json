@@ -1,0 +1,23 @@
+{
+  "id": "ed-ctrl-future-plan",
+  "category": "quality",
+  "role": "editor",
+  "description": "Đối chứng: Nga tuyên bố Ý ĐỊNH sẽ đốt sổ đỏ nếu bị ép tới cùng — một lời thề, chưa xảy ra (đại cương đặt việc đốt ở chương 5). Sổ đỏ vẫn nguyên trong lọ quế. Đáp án đúng là không báo lỗi.",
+  "fixture": "ed-ctrl-future-plan",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "prompt": "Thẩm duyệt chương 3",
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [
+        {"severity_min": "error"},
+        {"severity_min": "warning", "quote_contains": "sẽ đốt sổ đỏ"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

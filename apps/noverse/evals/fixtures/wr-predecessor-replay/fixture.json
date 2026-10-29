@@ -1,0 +1,210 @@
+{
+  "title": "Tiệm May Ô Cầu",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn đời thường nghề mộc — giọng kể trầm, ưu tiên chi tiết thủ công và không gian miền sông nước.\n\n## Định vị thể loại\nPhỏng vấn bản sắc lao động: chiếc áo dài lụa đôi hỏng giữa chừng là phép thử nghề, không phải tai nạn diễn lại.\n\n## Xung đột cốt lõi\nĐan Tiên phải trả áo cho bà Cần đúng hạn, trong khi nước đã ngấm vào món đồ tưởng niệm và khuy nguyệt nga chỉ còn bốn viên dự phòng.\n\n## Mục tiêu nhân vật chính\nGiữ vững cái nghề mà bà nội truyền lại: không giấu lỗi, không lừa khách.\n\n## Hướng kết cục\nBí mật về mối quan hệ giữa nghề may của nhà Tiên và lụa đôi nhà bà Cần mở ra người mới giữ kỹ nghệ cũ.\n\n## Vùng cấm sáng tác\nKhông phép thần thánh, không chuyện ma, không nhân vật nói giọng đại học.\n\n## Điểm bán hàng khác biệt\nChi tiết nghề cụ thể (nước vo gạo, lùi lụa, khuy nguyệt nga) thay cho miêu tả lịch sử chung chung.\n\n## Móc câu khác biệt\nViên khuy dự phòng còn ba viên: mỗi lần sai là một lần không có sửa.\n\n## Cam kết cốt lõi\nMỗi chương đẩy chiếc áo gần hơn tới việc được trả, và gần hơn tới sự thật vì sao bà Cần chọn tiệm này.\n\n## Tính phù hợp với truyện ngắn\nMột vật chứng duy nhất, một hẹn ngắn, một mối quan hệ chưa kể.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Tiệm may đầu cầu",
+      "core_event": "Bà Cần đưa áo dài lụa đôi của mẹ để Đan Tiên sửa trước dỗ sáu mươi năm; viên khuy nguyệt nga thứ ba kẽ nứt và chỉ còn bốn viên dự phòng.",
+      "hook": "Mưa đầu mùa kéo tới kẽ ván chưa trám — chiếc áo treo ngay dưới điểm rỉ.",
+      "scenes": ["Bà Cần đến bằng xuồng, đưa hòm áo", "Tiên phát hiện khuy nứt, nhận sửa trong hai ngày", "Tiên tìm vỉ khuy dự phòng trong rương bà nội", "Mưa bắt đầu đập mái sau nhà"],
+      "open_questions": ["Vì sao bà Cần chọn đúng tiệm của Tiên?", "Bốn viên khuy dự phòng có đủ cho cả việc sửa không?"],
+      "promise": "Bà Cần giao áo và hẹn ngày trả trước mặt người xem"
+    },
+    {
+      "chapter": 2,
+      "title": "Vệt nước trên lụa đôi",
+      "core_event": "Mưa đêm rỉ qua kẽ ván làm loang vạt áo và làm lan vết nứt trên viên khuy; Tiên lùi lụa gần sạch vệt nước và thay khuy, chỉ còn ba viên dự phòng.",
+      "hook": "Tiên tự nhủ sáng mai sẽ nói sự thật từng chữ khi bà Cần đến nhận áo.",
+      "scenes": ["Mưa đêm thức dậy, phát hiện vết loang", "Thử ba cách tẩy theo nghề", "Thay viên khuy thứ ba bằng khuy dự phòng cuối vỉ", "Chiều gấp áo lên giá chờ khách"],
+      "open_questions": ["Vệt loang còn lại có bị bà Cần phát hiện không?", "Tiên sẽ nói thật hay giấu vệt loang?"],
+      "promise": "Tiên quyết định trước giờ trả áo",
+      "hook_type": "quyet_dinh_treo"
+    },
+    {
+      "chapter": 3,
+      "title": "Bà Cần đến nhận áo",
+      "core_event": "Bà Cần đến đúng hẹn sáng hôm sau, soi áo, phát hiện vệt nước còn nhạt và khuy mới; Tiên kể sự thật, bà Cần chỉ ra đường khuyết do chính bà nội Tiên may.",
+      "hook": "Bà Cần tiết lộ bà biết tay may kẽ khuyết đó từ bốn mươi năm trước — và hỏi Tiên muốn học thêm không.",
+      "scenes": ["Bà Cần leo lên tiệm, đưa tay soi từng viên khuy", "Vệt nước lộ ra khi bà lật vạt trong", "Tiên kể lại đêm mưa và ba cách tẩy", "Bà Cần nhận ra đường khuyết của nghề cũ, mở lời học nghề"],
+      "open_questions": ["Bà Cần đã biết gì về bà nội Tiên?", "Vỉ khuy dự phòng ai gói và để lại?"],
+      "promise": "da_tra: Tiên nói sự thật từng chữ như đã tự hứa",
+      "hook_type": "lat_thong_tin",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Sổ tay thợ may",
+      "core_event": "Bà Cần đưa cuốn sổ tay của bà nội Tiên mà bà giữ hộ bốn mươi năm, kể về thời hai gia đình cùng cung lụa cho một xưởng áo.",
+      "hook": "Trong sổ có ghi thiếu một lô khuy nguyệt nga chưa trả — kẻ nợ không ai còn sống.",
+      "scenes": ["Bà Cần mở hòm thứ hai trên xuồng", "Đọc sổ tay, nhận lại chuyện xưởng dệt họ Hùng", "Phát hiện mục nợ khuy bị bỏ dở"],
+      "open_questions": ["Vì sao cuốn sổ ở tay bà Cần?", "Lô khuy còn nợ đi đâu?"],
+      "promise": "Kể được nguồn cơn vì sao hai nhà mất liên lạc",
+      "hook_type": "lat_thong_tin"
+    },
+    {
+      "chapter": 5,
+      "title": "Học lại đường khuyết",
+      "core_event": "Tiên theo bà Cần đến xưởng họ Hùng đổ nát để gỡ lại cách dệt hai lớp, học được đường khuyết mà tay ngoại cô từng làm.",
+      "hook": "Tiên nhận ra chiếc áo mẹ của bà Cần chính là áo cuối cùng xuất xưởng trước ngày xưởng đóng.",
+      "scenes": ["Đi bằng xuồng tới xưởng cũ", "Bà Cần dạy nhận sợi lụa đôi", "Tìm thấy khung dệt còn nguyên trong nhà kho"],
+      "open_questions": ["Xưởng họ Hùng đóng vì lý do gì?", "Tiên có đủ khuy để làm lại một áo mới không?"],
+      "promise": "Học được một kỹ nghệ đã tưởng mất",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 6,
+      "title": "Áo trả về",
+      "core_event": "Tiên hoàn thiện áo, trả lại bà Cần vào đúng ngày dỗ; bà Cần mặc áo đi chùa và để lại cho tiệm tấm biển mới ghi tên chung.",
+      "hook": "Tiệm may đầu cầu đổi tên theo chữ ký hai nhà trên biển — nghề được nối lại.",
+      "scenes": ["Trả áo đúng hẹn", "Bà Cần mặc áo đi lễ", "Treo tấm biển gỗ khắc hai họ"],
+      "open_questions": [],
+      "promise": "da_tra: Áo được trả nguyên vẹn và nghề nối tiếp",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Đan Tiên",
+      "role": "thợ may trẻ giữ tiệm của bà nội",
+      "description": "Cháu gái ông Duyện, tay may chắc nhưng chưa từng sửa lụa đôi thật; sợ nhất là phải giấu lỗi.",
+      "arc": "Từ người sợ mất khách thành người dám nói sự thật trước khách.",
+      "traits": ["kỹ lưỡng", "nhớ kỹ nghề bà nội", "khó nói lời thừa"],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Bà Cần",
+      "role": "thương nhân tơ lụa già, khách đưa áo",
+      "description": "Đi xuồng ba lá, nói ngắn, mắt soi đường may nhanh hơn người may; giữ một cuốn sổ tay không phải của mình.",
+      "arc": "Từ khách khắt khe thành người trả lại một gia sản nghề.",
+      "traits": ["khắt khe", "nhớ việc bốn mươi năm trước", "thích thử thách người trẻ"],
+      "kind": "support",
+      "tier": "important"
+    },
+    {
+      "name": "Ông Duyện",
+      "role": "bà nội đã mất của Đan Tiên, chỉ hiện qua sổ tay và đường may",
+      "description": "Thợ may tài ở phố Ô Cầu một thời; giữ lối cườm chín mũi mỗi tấc và thói quen ghi sổ bằng mực tàu.",
+      "arc": "Quá khứ được lật mở qua những đường may còn lại.",
+      "traits": ["tỉ mỉ", "giữ lời hứa"],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "other",
+      "rule": "Lụa đôi dệt hai lớp thấm nước chậm nhưng giữ vệt loang lâu; chỉ xưởng họ Hùng từng dệt loại này.",
+      "boundary": "Không cách tẩy nào làm vệt loang biến mất hoàn toàn trong một đêm."
+    },
+    {
+      "category": "society",
+      "rule": "Phố Ô Cầu quanh bến cầu gỗ, hàng hóa và tin tức đi bằng xuồng ba lá; nghề may truyền nội bộ trong nhà.",
+      "boundary": "Không có điện thoại, xe máy hay hình thức liên lạc hiện đại nào xuất hiện."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Tiệm may đầu cầu",
+        "summary": "Bà Cần đưa áo dài lụa đôi của mẹ để Đan Tiên sửa trước dỗ sáu mươi năm. Tiên phát hiện viên khuy nguyệt nga thứ ba kẽ nứt, tìm được vỉ khuy dự phòng bốn viên trong rương bà nội. Chiều tối mưa đầu mùa kéo tới.",
+        "characters": ["Đan Tiên", "Bà Cần"],
+        "key_events": ["Bà Cần giao áo và hẹn chiều mai trả", "Phát hiện khuy thứ ba nứt", "Tìm thấy vỉ khuy dự phòng còn bốn viên", "Mưa bắt đầu trước đêm"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Vệt nước trên lụa đôi",
+        "summary": "Mưa đêm rỉ qua kẽ ván làm loang vạt áo và làm lan vết nứt trên viên khuy. Tiên dùng nước vo gạo và cách lùi lụa tẩy gần sạch vệt nước, thay khuy thứ ba, chỉ còn ba viên dự phòng. Chiều gấp áo chờ bà Cần, cô tự nhủ sáng mai sẽ nói sự thật.",
+        "characters": ["Đan Tiên"],
+        "key_events": ["Phát hiện vết loang do mưa rỉ", "Tẩy vệt nước bằng nước vo gạo và lùi lụa", "Thay khuy nguyệt nga thứ ba, còn ba viên dự phòng", "Quyết sẽ kể sự thật cho bà Cần"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Sáng, trước khi mưa mùa",
+      "event": "Bà Cần giao áo dài lụa đôi cho Tiên sửa, hẹn chiều hôm sau trả",
+      "characters": ["Đan Tiên", "Bà Cần"]
+    },
+    {
+      "chapter": 1,
+      "time": "Chiều cùng ngày",
+      "event": "Tiên lục rương bà nội, tìm được vỉ khuy nguyệt nga dự phòng còn bốn viên",
+      "characters": ["Đan Tiên"]
+    },
+    {
+      "chapter": 2,
+      "time": "Đêm và sáng hôm sau",
+      "event": "Mưa rỉ làm loang áo; Tiên tẩy vệt nước và thay viên khuy nứt, còn ba viên dự phòng",
+      "characters": ["Đan Tiên"]
+    },
+    {
+      "chapter": 2,
+      "time": "Chiều cùng ngày",
+      "event": "Tiên gấp áo chờ bà Cần, quyết nói sự thật vào sáng mai",
+      "characters": ["Đan Tiên"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {"id": "khuy_nguyet_nga", "action": "plant", "description": "Vỉ khuy nguyệt nga dự phòng của bà nội chỉ còn bốn viên cho đúng lô áo của bà Cần."},
+        {"id": "moi_quan_he_hai_nha", "action": "plant", "description": "Bà Cần biết rõ tay bà nội Tiên và nhắc tới việc may áo cưới cho mẹ bà bốn mươi năm trước."}
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "khuy_nguyet_nga", "action": "advance", "description": "Một viên dự phòng đã được dùng cho khuy thứ ba; còn ba viên."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Áo dài lụa đôi", "field": "status", "new_value": "chờ sửa tại tiệm may Ô Cầu"},
+    {"chapter": 2, "entity": "Áo dài lụa đôi", "field": "status", "old_value": "chờ sửa tại tiệm may Ô Cầu", "new_value": "đã sửa gần xong, còn vệt nước nhạt ở vạt trong"},
+    {"chapter": 2, "entity": "Khuy nguyệt nga dự phòng", "field": "status", "old_value": "còn 4 viên", "new_value": "còn 3 viên", "reason": "thay viên khuy thứ ba bị nứt"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Bà Cần đến nhận áo",
+      "goal": "Đưa bà Cần đến đúng hẹn và để sự thật vệt nước được đặt lên bàn, kết bằng lời mở học nghề.",
+      "conflict": "Tiên phải chọn giữa giấu vệt loang còn nhạt và kể rõ đêm mưa, trong khi bà Cần đến đúng hẹn và soi áo rất kỹ.",
+      "hook": "Bà Cần nhận ra đường khuyết do tay bà nội Tiên may và mở lời học nghề.",
+      "emotion_arc": "Từ lo lắng thấp thỏm chuyển sang được lắng nghe và mở ra một cơ hội.",
+      "contract": {
+        "required_beats": [
+          "Bà Cần đậu xuồng đầu cầu đúng giờ hẹn",
+          "Bà Cần tự soi áo, phát hiện vệt nước nhạt ở vạt trong và khuy mới",
+          "Tiên kể lại đêm mưa và ba lần tẩy bằng nghề",
+          "Bà Cần chỉ ra đường khuyết của tay bà nội và mở lời học nghề"
+        ],
+        "forbidden_moves": [
+          "Không để bà Cần kết thúc buổi gặp bằng giận dỗi bỏ về",
+          "Không kể lại cảnh mưa đêm ở chương trước như một đoạn độc lập"
+        ],
+        "continuity_checks": [
+          "Vỉ khuy dự phòng chỉ còn ba viên sau khi dùng một",
+          "Vệt nước chỉ còn nhạt ở vạt trong, không mất hẳn",
+          "Mưa đã tạnh từ sáng; chiếc áo đã khô hẳn"
+        ],
+        "evaluation_focus": [
+          "Lời thú nhận của Tiên có đúng thứ tự sự việc đã viết ở chương trước không",
+          "Bà Cần nhận ra đường khuyết bằng quan sát vật lý, không phải đoán mò"
+        ],
+        "emotion_target": "Lo lắng chuyển thành được tin tưởng.",
+        "payoff_points": ["Lời hứa sẽ nói sự thật ở cuối chương trước được giữ"],
+        "hook_goal": "Người đọc muốn biết bà Cần và bà nội Tiên từng quan hệ thế nào."
+      }
+    }
+  ]
+}

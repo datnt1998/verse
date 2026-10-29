@@ -1,0 +1,19 @@
+{
+  "events": [
+    {"id":"line-467975","time":"2026-10-24T23:01:52.112+07:00","finishedAt":"0001-01-01T00:00:00Z","failed":false,"category":"SYSTEM","agent":"","summary":"✓ Đã xuất 8 chương / 81.6 KB đến Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc Cho Cả Nước Nghe.txt","kind":"","level":"info","depth":0,"durationNs":0,"retryAt":"0001-01-01T00:00:00Z","sessionId":"20261024T225940.212+0700-p77273","canRetryNow":false,"chapter":7},
+    {"id":"line-467695","time":"2026-10-24T23:01:52.099+07:00","finishedAt":"0001-01-01T00:00:00Z","failed":false,"category":"SYSTEM","agent":"","summary":"Đang tiến hành xuất bản...","kind":"","level":"info","depth":0,"durationNs":0,"retryAt":"0001-01-01T00:00:00Z","sessionId":"20261024T225940.212+0700-p77273","canRetryNow":false,"chapter":7}
+  ],
+  "nextCursor":"eyJzIjo0NzExODgsImIiOjIsImYiOiJ8fHx8fGFkbWluIn0",
+  "chapters": [
+    {"chapter":8,"title":"Mời tác giả thật bước lên","eventCount":68},
+    {"chapter":7,"title":"Bản gốc không biết khóc","eventCount":56},
+    {"chapter":6,"title":"Rửa oan cần nước sạch và bản sao lưu","eventCount":33},
+    {"chapter":5,"title":"Tôi cướp vai cái nồi à?","eventCount":34},
+    {"chapter":4,"title":"Chị thuộc bản quay, tôi thuộc bản gốc","eventCount":42},
+    {"chapter":3,"title":"Tác giả ơi, chị làm rơi động cơ nhân vật","eventCount":33},
+    {"chapter":2,"title":"Chị nêm nước mắt hơi quá tay","eventCount":34},
+    {"chapter":1,"title":"Đứa con này có giấy khai sinh","eventCount":39},
+    {"chapter":0,"title":"Hệ thống","eventCount":29}
+  ],
+  "counts":{"total":368,"byAgent":{"":65,"arbiter":7,"architect":16,"editor":4,"writer":276},"errors":25,"mine":0}
+}

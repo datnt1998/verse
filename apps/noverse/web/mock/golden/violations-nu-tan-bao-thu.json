@@ -1,0 +1,75 @@
+{
+  "rows": [
+    {
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "stories": 4,
+      "total": 6,
+      "level": "warning",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 0
+    },
+    {
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "stories": 4,
+      "total": 6,
+      "level": "error",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 5
+    },
+    {
+      "ref": "Master §11",
+      "refName": "Công lý và kết cục phản diện (mới)",
+      "stories": 3,
+      "total": 6,
+      "level": "error",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 3
+    },
+    {
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "stories": 3,
+      "total": 6,
+      "level": "warning",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 0
+    },
+    {
+      "ref": "Xưng hô",
+      "refName": "Bảng xưng hô của truyện",
+      "stories": 3,
+      "total": 6,
+      "level": "error",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 3
+    },
+    {
+      "ref": "Bộ A §4.3",
+      "refName": "Trà xanh và phản diện",
+      "stories": 2,
+      "total": 6,
+      "level": "warning",
+      "alert": false
+    },
+    {
+      "ref": "Master §8",
+      "refName": "Vùng giữa truyện (khoảng 40–70% thời lượng)",
+      "stories": 1,
+      "total": 6,
+      "level": "error",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 2
+    }
+  ],
+  "preamble": "Truyện Nữ tần trọng sinh báo thù, vả mặt trước đây hay vấp Master §7 (đầu chương và cuối chương, 5 truyện ở mọi gói), Master §11 (công lý và kết cục phản diện (mới), 3/6 truyện), Xưng hô (bảng xưng hô của truyện, 3/6 truyện). Khi lập bản đồ giữ chân, kiểm kỹ các mục này trước khi giao Người viết.",
+  "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+  "stories": 6
+}

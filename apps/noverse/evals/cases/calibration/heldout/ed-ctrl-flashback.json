@@ -1,0 +1,23 @@
+{
+  "id": "ed-ctrl-flashback",
+  "category": "quality",
+  "role": "editor",
+  "description": "Đối chứng: chương 3 có một đoạn hồi tưởng được đánh dấu rõ ('mười năm trước, ở ga Hàng Cỏ') về buổi chia tay Long, rồi quay về hiện tại. Long vắng mặt ở hiện tại vì đây là ký ức, không phải lỗi nhất quán. Đáp án đúng là không báo lỗi.",
+  "fixture": "ed-ctrl-flashback",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "prompt": "Thẩm duyệt chương 3",
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [
+        {"severity_min": "error"},
+        {"severity_min": "warning", "quote_contains": "mười năm trước, ở ga Hàng Cỏ"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

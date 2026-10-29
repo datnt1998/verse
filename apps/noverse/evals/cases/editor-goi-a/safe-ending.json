@@ -1,0 +1,30 @@
+{
+  "id": "editor-goi-a-safe-ending",
+  "category": "quality",
+  "role": "editor",
+  "description": "Chương ba không phải chương cuối kết an toàn: khách hiểu chuyện, Khiết xin lỗi, mọi giấy tờ cất cẩn thận, Vãn ngủ yên — vi phạm Master §7. Kỳ vọng polish, issue error, requires_change=true, rule_ref Master §7, quote trích đoạn kết.",
+  "fixture": "editor-goi-a-safe-ending",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "style": "nu-tan-bao-thu",
+  "max_chapters": 3,
+  "target_prompts": ["editor.md"],
+  "rubric": "Thẩm duyệt độc lập chương ba trong truyện tám chương, không viết tiếp. Nhóm nghe nữ 18–35. Lâm Vãn là người kể, Tô Khiết là em nuôi, Hạ Dương là đồng nghiệp. Điểm khác: thợ sửa đồng hồ dùng vết khắc của mẹ để tìm lại tác quyền. Các chương trước đã gieo chiếc đồng hồ, giấy đặt hàng và âm mưu đánh tráo mẫu; các mốc cấp truyện không thuộc nhiệm vụ này. Chỉ chấm mẫu ngắn, không chấm thiếu độ dài chuẩn. Bắt buộc verdict polish vì đoạn cuối chủ động đóng mọi nguy cơ và cho nhân vật ngủ yên, trái Master §7. Issue phải severity error hoặc critical, requires_change=true, rule_ref Master §7, quote trích đoạn kết, rule_text chép câu luật Không kết chương ở trạng thái an toàn. Không được duyệt accept chỉ vì nữ chính đã thắng một ván.",
+  "prompt": "Thẩm duyệt chương 3",
+  "expect": {
+    "review": {
+      "verdict_in": ["polish"],
+      "must_find": [
+        {
+          "severity_min": "error",
+          "chapter": 3,
+          "rule_ref": "Master §7",
+          "quote_contains": "không còn điều gì phải lo"
+        }
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

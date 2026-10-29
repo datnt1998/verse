@@ -1,0 +1,2 @@
+/* Trang Hướng dẫn lệnh — Commands.dc.html: `.chip:hover` (viền sáng + chữ trắng). */
+.help-chip:hover { border-color: rgba(255, 255, 255, .22) !important; color: #EDEDEF !important; }

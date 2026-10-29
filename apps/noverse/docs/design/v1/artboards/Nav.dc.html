@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Chuyển trang</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.frame{position:relative;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:#0B0B0D;overflow:hidden;display:flex;flex-direction:column}
+/* SAU: lưới 3 cột, thanh điều hướng luôn ở giữa */
+.hdrA{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;height:54px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+/* TRƯỚC: flex, độ rộng phần trái thay đổi theo trang làm thanh giữa bị đẩy */
+.hdrB{display:flex;align-items:center;gap:16px;height:54px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav{position:relative;display:flex;gap:2px;padding:3px;border-radius:10px;background:#131315;border:1px solid rgba(255,255,255,.06)}
+.nvi{position:relative;z-index:1;height:30px;padding:0 12px 0 10px;display:flex;align-items:center;gap:8px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:13px;white-space:nowrap;transition:color calc(160ms*var(--k)) ease}
+.nvi .ic{width:16px;height:16px;transition:color calc(160ms*var(--k)) ease}
+.nvi:hover{color:#EDEDEF}
+.ind{position:absolute;z-index:0;top:3px;left:0;height:30px;border-radius:7px;background:#222225;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:transform calc(280ms*var(--k)) cubic-bezier(.3,.9,.3,1),width calc(280ms*var(--k)) cubic-bezier(.3,.9,.3,1)}
+.crumb{min-width:0;display:flex;align-items:center;gap:8px;font-size:13px;color:#C9C9D1;white-space:nowrap;overflow:hidden}
+.crumb>span{overflow:hidden;text-overflow:ellipsis}
+.cf{animation:cfIn calc(200ms*var(--k)) ease-out both}
+@keyframes cfIn{from{opacity:0}to{opacity:1}}
+.cfA{animation:cfA calc(200ms*var(--k)) ease-out both}.cfB{animation:cfB calc(200ms*var(--k)) ease-out both}
+@keyframes cfA{from{opacity:0}to{opacity:1}}@keyframes cfB{from{opacity:0}to{opacity:1}}
+.pgA{animation:pgInA calc(200ms*var(--k)) cubic-bezier(.2,.8,.2,1) both}
+.pgB{animation:pgInB calc(200ms*var(--k)) cubic-bezier(.2,.8,.2,1) both}
+@keyframes pgInA{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pgInB{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.bar{position:absolute;left:0;top:54px;height:2px;background:linear-gradient(90deg,#9A63E3,#C9A6F5);animation:barRun calc(700ms*var(--k)) cubic-bezier(.2,.7,.3,1) both}
+@keyframes barRun{from{width:0}to{width:82%}}
+.blk{border-radius:10px;background:#141416;border:1px solid rgba(255,255,255,.05)}
+.ln{height:9px;border-radius:5px;background:#1E1E21}
+.rule{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;font-size:13px;color:#C9C9D1;line-height:1.55}
+.rule b{color:#EDEDEF;font-weight:600}
+.rn{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:rgba(201,166,245,.1);color:#C9A6F5;font-size:12px;font-weight:600}
+@media (prefers-reduced-motion: reduce){.ind{transition:none}.pgA,.pgB{animation:cfIn 120ms linear both}.bar{animation:none;width:60%}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; padding: 28px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; --k: {{k}}">
+
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<h1 style="margin: 0; font-size: 20px; font-weight: 600; flex: 1">Chuyển trang mượt</h1>
+<div role="radiogroup" aria-label="So sánh" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)"><sc-for list="{{modes}}" as="m" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="height: 28px; padding: 0 12px; border: none; border-radius: 7px; background: {{m.bg}}; color: {{m.fg}}; font-size: 12.5px; font-weight: 500">{{m.label}}</button></sc-for></div>
+</div>
+<p style="margin: -6px 0 0; font-size: 13px; color: #8E8E99">Bấm các mục trên thanh điều hướng bên dưới để thử. “Trước” mô phỏng cách app đang chạy; “Sau” là cách cần làm.</p>
+
+<div class="frame" style="height: 600px">
+<sc-if value="{{isAfter}}" hint-placeholder-val="{{ true }}">
+<header class="hdrA">
+<div style="min-width: 0; display: flex; align-items: center; gap: 10px"><div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div><div class="crumb {{cfCls}}"><span>{{crumb}}</span></div></div>
+<nav class="nav" aria-label="Điều hướng chính"><span class="ind" aria-hidden="true" style="width: {{indW}}; transform: translateX({{indX}})"></span><sc-for list="{{items}}" as="t" hint-placeholder-count="5"><button type="button" class="nvi" data-nv="{{t.id}}" onClick="{{t.pick}}" aria-current="{{t.cur}}" style="color: {{t.fg}}; font-weight: 500"><span class="ic {{t.icon}}" aria-hidden="true" style="color: {{t.ifg}}"></span>{{t.label}}</button></sc-for></nav>
+<div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px"><span class="ic i-setting" aria-hidden="true" style="width: 18px; height: 18px; color: #A0A0AB"></span><span class="av" style="width: 30px; height: 30px; font-size: 12px">D</span></div>
+</header>
+</sc-if>
+<sc-if value="{{isBefore}}" hint-placeholder-val="{{ false }}">
+<header class="hdrB">
+<div style="flex: 0 1 auto; display: flex; align-items: center; gap: 10px; white-space: nowrap"><div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div><span style="font-size: 13px; color: #C9C9D1">{{crumbFull}}</span></div>
+<nav class="nav" aria-label="Điều hướng chính"><sc-for list="{{items}}" as="t" hint-placeholder-count="5"><button type="button" class="nvi" onClick="{{t.pick}}" aria-current="{{t.cur}}" style="color: {{t.fg}}; font-weight: {{t.fwB}}; background: {{t.bgB}}; transition: none"><span class="ic {{t.icon}}" aria-hidden="true"></span>{{t.label}}</button></sc-for></nav>
+<div style="flex: 1"></div>
+<div style="display: flex; align-items: center; gap: 8px"><span class="ic i-setting" aria-hidden="true" style="width: 18px; height: 18px; color: #A0A0AB"></span><span class="av" style="width: 30px; height: 30px; font-size: 12px">D</span></div>
+</header>
+</sc-if>
+<sc-if value="{{showBar}}" hint-placeholder-val="{{ false }}"><div class="bar" aria-hidden="true"></div></sc-if>
+
+<main style="position: relative; flex: 1; min-height: 0; padding: 18px; overflow: hidden">
+<sc-if value="{{blank}}" hint-placeholder-val="{{ false }}"><div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center"><span class="spinner" aria-hidden="true"></span></div></sc-if>
+<sc-if value="{{showPage}}" hint-placeholder-val="{{ true }}">
+<div class="{{pgCls}}" style="height: 100%; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 18px; font-weight: 600">{{page.title}}</span><span style="font-size: 12.5px; color: #7E7E8A">{{page.sub}}</span></div>
+<div style="flex: 1; min-height: 0; display: grid; grid-template-columns: {{page.cols}}; gap: 12px">
+<sc-for list="{{page.blocks}}" as="b" hint-placeholder-count="3"><div class="blk" style="padding: 14px; display: flex; flex-direction: column; gap: 10px"><span style="font-size: 12px; color: #8E8E99">{{b.t}}</span><sc-for list="{{b.lines}}" as="l" hint-placeholder-count="4"><span class="ln" style="width: {{l}}"></span></sc-for></div></sc-for>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+
+<div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #8E8E99">
+<sc-for list="{{toggles}}" as="g" hint-placeholder-count="2"><button type="button" class="ghost" onClick="{{g.toggle}}" aria-pressed="{{g.on}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid {{g.bd}}; background: transparent; color: {{g.fg}}; font-size: 12px">{{g.label}}</button></sc-for>
+<span style="align-self: center">{{note}}</span>
+</div>
+</div>
+
+<aside class="card scroll" style="border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: calc(100vh - 56px)">
+<span style="font-size: 15px; font-weight: 600">Vì sao đang bị nhảy</span>
+<sc-for list="{{causes}}" as="c" hint-placeholder-count="4"><div class="rule"><span class="rn" style="background: rgba(255,154,162,0.1); color: #FF9AA2">!</span><span>{{c}}</span></div></sc-for>
+<span style="font-size: 15px; font-weight: 600; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06)">Cách làm</span>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="7"><div class="rule"><span class="rn">{{r.n}}</span><span><b>{{r.b}}</b> {{r.t}}</span></div></sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["after","before"],"default":"after","section":"So sánh"},"speed":{"editor":"enum","options":["normal","slow"],"default":"normal","section":"Tốc độ (xem chậm ×5)"},"load":{"editor":"enum","options":["fast","slow"],"default":"fast","section":"Dữ liệu trang mới"},"$preview":{"width":1440,"height":900}}'>
+const TABS = [
+  ['work', 'Bàn viết', 'i-category', 'Trà Xanh Cướp Kịch Bản…  /  Tập 1', 'Kênh truyện audio  /  Trà Xanh Cướp Kịch Bản Của Tôi…  /  Tập 1', { title: 'Bàn viết', sub: 'Chương 4 · đang viết lại', cols: '200px minmax(0, 1fr) 260px', blocks: [['Đại cương', ['80%', '70%', '76%', '64%', '72%']], ['Luồng viết trực tiếp', ['92%', '86%', '95%', '70%', '88%', '60%']], ['Trợ lý', ['60%', '74%', '52%']]] }],
+  ['proj', 'Dự án', 'i-folder', 'Kênh truyện audio', 'Kênh truyện audio', { title: 'Dự án & truyện', sub: '3 truyện · 24 chương', cols: 'repeat(3, minmax(0, 1fr))', blocks: [['Trà Xanh Cướp Kịch Bản…', ['70%', '50%', '80%']], ['Đám Giỗ Cả Họ…', ['64%', '44%', '72%']], ['Mẹ Chồng Đuổi Tôi Đi…', ['76%', '40%', '66%']]] }],
+  ['read', 'Trình đọc', 'i-book', 'Trà Xanh…  /  Chương 4', 'Kênh truyện audio  /  Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show…  /  Chương 4', { title: 'Chương 4 · Bảy mươi ba giây', sub: '7.182 chữ', cols: 'minmax(0, 1fr) 240px', blocks: [['Bản nộp', ['96%', '92%', '98%', '90%', '94%', '72%']], ['Thẩm duyệt', ['70%', '58%']]] }],
+  ['audio', 'Audio', 'i-headphone-b', 'Trà Xanh…  /  Tập 1  /  Audio', 'Trà Xanh Cướp Kịch Bản…  /  Tập 1  /  Bản đọc audio', { title: 'Bản đọc audio', sub: 'Tập 1 · 8 chương', cols: 'minmax(0, 1fr) 300px', blocks: [['Bản đọc', ['88%', '80%', '92%', '76%']], ['Giọng đọc', ['60%', '70%']]] }],
+  ['new', 'Truyện mới', 'i-add-square', 'Truyện mới', '', { title: 'Tạo truyện mới', sub: 'so với truyện trước khi viết', cols: 'minmax(0, 1fr) 320px', blocks: [['Ý tưởng', ['90%', '84%', '70%']], ['Kiểm trùng', ['66%', '58%', '62%', '50%']]] }]
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mode: null, speed: null, load: null, tab: 'work', flip: false, ind: { x: 0, w: 0 }, loading: false, pending: null, blank: false }; this.tm = []; }
+  componentDidMount() { this.measure(); this.onR = () => this.measure(); window.addEventListener('resize', this.onR); setTimeout(() => this.measure(), 300); }
+  componentDidUpdate(prev) { if (prev.mode !== this.props.mode || prev.speed !== this.props.speed || prev.load !== this.props.load) { this.setState({ mode: null, speed: null, load: null }); setTimeout(() => this.measure(), 30); } }
+  opt(k, d) { return this.state[k] || this.props[k] || d; }
+  componentWillUnmount() { window.removeEventListener('resize', this.onR); this.tm.forEach(clearTimeout); }
+  later(f, ms) { this.tm.push(setTimeout(f, ms)); }
+  measure(id) {
+    const el = document.querySelector('[data-nv="' + (id || this.state.tab) + '"]');
+    if (!el) return; const x = el.offsetLeft - 3; const w = el.offsetWidth;
+    if (x !== this.state.ind.x || w !== this.state.ind.w) this.setState({ ind: { x, w } });
+  }
+  go(id) {
+    if (id === this.state.tab && !this.state.pending) return;
+    const after = this.opt('mode', 'after') === 'after', k = this.opt('speed', 'normal') === 'slow' ? 5 : 1, slow = this.opt('load', 'fast') === 'slow';
+    this.tm.forEach(clearTimeout); this.tm = [];
+    if (after) {
+      // Sau: chỉ báo trượt ngay; nội dung cũ giữ nguyên tới khi trang mới sẵn sàng
+      this.measure(id);
+      if (slow) { this.setState({ pending: id, loading: true }); this.later(() => this.setState({ tab: id, pending: null, loading: false, flip: !this.state.flip }), 700 * k); }
+      else this.setState({ tab: id, flip: !this.state.flip });
+    } else {
+      // Trước: trang trắng rồi mới hiện, không chuyển động
+      this.setState({ tab: id, blank: true });
+      this.later(() => this.setState({ blank: false }), (slow ? 700 : 140) * k);
+    }
+  }
+  renderVals() {
+    const s = this.state, after = this.opt('mode', 'after') === 'after', k = this.opt('speed', 'normal') === 'slow' ? 5 : 1, slow = this.opt('load', 'fast') === 'slow';
+    const active = after && s.pending ? s.pending : s.tab;
+    const T = TABS.find((t) => t[0] === s.tab);
+    return {
+      k: String(k), isAfter: after, isBefore: !after,
+      modes: [['after', 'Sau'], ['before', 'Trước (đang bị)']].map(([id, label]) => { const on = this.opt('mode', 'after') === id; return { label, on, bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => { this.setState({ mode: id, blank: false, loading: false, pending: null }); setTimeout(() => this.measure(), 30); } }; }),
+      items: TABS.map(([id, label, icon]) => { const on = id === active; return { id, label, icon, cur: on ? 'page' : 'false', fg: on ? '#EDEDEF' : '#A0A0AB', ifg: on ? '#C9A6F5' : 'currentColor', fwB: on ? 600 : 400, bgB: on ? '#222225' : 'transparent', pick: () => this.go(id) }; }),
+      indX: s.ind.x + 'px', indW: s.ind.w + 'px',
+      crumb: T[3], crumbFull: T[4], cfCls: s.flip ? 'cfA' : 'cfB',
+      page: { title: T[5].title, sub: T[5].sub, cols: T[5].cols, blocks: T[5].blocks.map(([t, lines]) => ({ t, lines })) },
+      pgCls: after ? (s.flip ? 'pgA' : 'pgB') : '', showPage: !s.blank, blank: s.blank, showBar: after && s.loading,
+      toggles: [['speed', 'slow', 'normal', 'Xem chậm ×5'], ['load', 'slow', 'fast', 'Trang mới tải chậm (0,7 giây)']].map(([key, onV, offV, label]) => { const on = this.opt(key, offV) === onV; return { label: (on ? '✓ ' : '') + label, on, bd: on ? 'rgba(201,166,245,0.45)' : 'rgba(255,255,255,0.1)', fg: on ? '#EDEDEF' : '#A0A0AB', toggle: () => this.setState({ [key]: on ? offV : onV }) }; }),
+      note: after ? 'Thanh trên đứng yên · chỉ báo trượt 280 ms · nội dung hiện dần 200 ms' : 'Thanh giữa bị đẩy theo độ dài đường dẫn · chữ đậm làm nút giãn · trang trắng chớp',
+      causes: [
+        'Thanh trên được dựng lại ở mỗi trang, mỗi trang lề và khoảng cách hơi khác nhau.',
+        'Phần đường dẫn bên trái dài ngắn khác nhau, đẩy thanh điều hướng sang trái hoặc phải.',
+        'Mục đang chọn đổi độ đậm chữ (400 → 600) nên nút giãn ra, các mục bên cạnh xê dịch.',
+        'Trang cũ biến mất trước khi trang mới có dữ liệu: chớp trắng hoặc vòng xoay giữa màn.',
+        'Trang có thanh cuộn và trang không có làm nội dung rộng hẹp khác nhau vài pixel.'
+      ],
+      rules: [
+        { n: '1', b: 'Một khung app dùng chung.', t: 'Thanh trên, cột bên và ô nhập nằm ở layout gốc, ngoài phần đổi theo trang. Chuyển trang chỉ thay phần nội dung, không dựng lại thanh trên.' },
+        { n: '2', b: 'Lưới 3 cột cho thanh trên:', t: 'minmax(0,1fr) auto minmax(0,1fr). Thanh điều hướng luôn ở giữa; đường dẫn bên trái tự cắt “…”, không bao giờ đẩy thanh giữa.' },
+        { n: '3', b: 'Không đổi độ đậm khi chọn.', t: 'Mọi mục 500; mục đang chọn chỉ đổi màu chữ và icon tím. Một khối nền duy nhất trượt tới mục mới (transform + width, 280 ms, cubic-bezier(.3,.9,.3,1)).' },
+        { n: '4', b: 'Giữ trang cũ tới khi trang mới sẵn sàng.', t: 'Dùng startTransition / Suspense giữ nội dung cũ; chỉ báo trượt ngay khi bấm. Quá 300 ms thì hiện vạch tiến độ 2 px dưới thanh trên, không có vòng xoay giữa màn.' },
+        { n: '5', b: 'Nội dung mới hiện dần:', t: 'mờ → rõ và nhích lên 6 px trong 200 ms. Không có hiệu ứng khi rời trang. Có thể dùng View Transitions API, đặt view-transition-name cho thanh trên để nó đứng yên.' },
+        { n: '6', b: 'Nạp trước khi rê chuột:', t: 'rê hoặc focus vào mục điều hướng thì tải sẵn mã trang và dữ liệu (dùng bộ đệm của tầng dữ liệu, 16-feedback-refresh.md). Phần lớn lần chuyển sẽ không phải chờ.' },
+        { n: '7', b: 'Chống xô lệch:', t: 'scrollbar-gutter: stable trên vùng cuộn chính; khung tải giữ đúng kích thước khối thật; nạp sẵn font Be Vietnam Pro 400/500/600; nhớ vị trí cuộn và trạng thái cột (ẩn/hiện, tab) của từng trang.' },
+        { n: '8', b: 'Giảm chuyển động:', t: 'khi người dùng bật “giảm chuyển động”, bỏ trượt và nhích, chỉ còn mờ dần 120 ms.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

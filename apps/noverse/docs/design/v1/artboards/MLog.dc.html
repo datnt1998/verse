@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Nhật ký — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.mscroll>*{flex-shrink:0}
+.chead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 16px;border:none;background:rgba(11,11,13,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#EDEDEF;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
+.ev{position:relative;display:flex;gap:12px;padding:10px 16px 10px 16px}
+.ev .rail{position:absolute;left:27px;top:0;bottom:0;width:1.5px;background:rgba(255,255,255,.09)}
+.ev:first-child .rail{top:18px}.ev:last-child .rail{bottom:calc(100% - 18px)}
+.ev .nd{position:relative;z-index:1;width:24px;height:24px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:#0B0B0D;margin-top:1px}
+.tool{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:0 10px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:#121214;color:#C9C9D1;text-align:left;font-size:13px}
+.tool.on{border-color:rgba(201,166,245,.35);background:rgba(201,166,245,.06)}
+.toolio{margin:6px 0 0;padding:10px 12px;border-radius:11px;background:#0E0E10;border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:6px}
+.code{margin:6px 0 0;padding:10px 12px;border-radius:11px;background:#0E0E10;border:1px solid rgba(255,255,255,.06);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.65;color:#B8B8C2;white-space:pre-wrap;word-break:break-word;animation:mrise .3s cubic-bezier(.2,.9,.25,1.05) both}
+.newin{animation:evIn .5s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes evIn{from{opacity:0;transform:translateY(-8px);background:rgba(201,166,245,.1)}to{opacity:1;transform:none;background:transparent}}
+.livedot{width:8px;height:8px;border-radius:50%;background:#A6EDC1;box-shadow:0 0 0 0 rgba(166,237,193,.6);animation:lpulse 1.8s ease-out infinite}
+@keyframes lpulse{0%{box-shadow:0 0 0 0 rgba(166,237,193,.55)}100%{box-shadow:0 0 0 9px rgba(166,237,193,0)}}
+.jump{position:absolute;left:50%;top:204px;z-index:20;transform:translateX(-50%);height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(201,166,245,.4);background:rgba(36,28,48,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#F3E8FF;font-size:13.5px;display:flex;align-items:center;gap:6px;box-shadow:0 12px 28px -10px rgba(0,0,0,.8);animation:jIn .4s cubic-bezier(.2,.9,.25,1.2) both;white-space:nowrap}
+@keyframes jIn{from{opacity:0;transform:translate(-50%,-10px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
+mark{background:rgba(246,203,140,.25);color:#FBE3BD;border-radius:3px;padding:0 1px}
+.chev{transition:transform .25s cubic-bezier(.2,.9,.3,1)}
+.chev.up{transform:rotate(180deg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-chart{-webkit-mask-image:url(../icons/chart-2.svg);mask-image:url(../icons/chart-2.svg)}
+.i-chev-up{-webkit-mask-image:url(../icons/arrow-up-2.svg);mask-image:url(../icons/arrow-up-2.svg)}
+.i-code{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing-2.svg);mask-image:url(../icons/routing-2.svg)}
+.i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar" style="padding-left: 4px; gap: 4px">
+<a class="tap" href="MWork.dc.html" aria-label="Quay lại Viết" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-arrow-l" aria-hidden="true" style="width: 22px; height: 22px"></span></a>
+<sc-if value="{{noSearch}}" hint-placeholder-val="{{ true }}"><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 17px; font-weight: 600">Nhật ký hoạt động</span><span style="font-size: 12px; color: #8E8E99; display: flex; align-items: center; gap: 6px"><span class="livedot" aria-hidden="true"></span>Đang ghi trực tiếp · {{evCount}} sự kiện</span></span>
+<button class="tap" type="button" onClick="{{openSearch}}" aria-label="Tìm trong nhật ký" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-search" aria-hidden="true" style="width: 21px; height: 21px"></span></button></sc-if>
+<sc-if value="{{searching}}" hint-placeholder-val="{{ false }}"><label style="flex: 1 1 auto; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; background: #18181A; border: 1px solid rgba(201,166,245,0.4); display: flex; align-items: center; gap: 8px"><span class="ic i-search" aria-hidden="true" style="width: 17px; height: 17px; color: #8E8E99"></span><input type="search" value="{{q}}" onInput="{{onQ}}" placeholder="Tìm sự kiện, công cụ, lỗi…" aria-label="Tìm trong nhật ký" style="flex: 1 1 auto; min-width: 0; border: none; background: transparent; color: #EDEDEF; font-size: 16px; outline: none"></label>
+<button class="tap" type="button" onClick="{{closeSearch}}" style="height: 44px; padding: 0 8px; border: none; background: transparent; color: #C9A6F5; font-size: 15px; flex: 0 0 auto">Huỷ</button></sc-if>
+</header>
+<div class="hscroll" role="tablist" aria-label="Lọc nhật ký" style="padding-top: 2px; padding-bottom: 10px; flex: 0 0 auto">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="6"><button class="chipm tap {{f.cls}}" type="button" role="tab" aria-selected="{{f.on}}" onClick="{{f.pick}}"><sc-if value="{{f.isOrb}}" hint-placeholder-val="{{ false }}"><span class="orb {{f.orb}}" aria-hidden="true" style="width: 12px; height: 12px"></span></sc-if><sc-if value="{{f.isErr}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF9FA8"></span></sc-if>{{f.label}}<sc-if value="{{f.hasN}}" hint-placeholder-val="{{ false }}"><span class="num" style="opacity: .6">{{f.n}}</span></sc-if></button></sc-for>
+</div>
+
+<div class="mscroll" onScroll="{{onScroll}}" style="padding-bottom: 40px; display: flex; flex-direction: column">
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><div class="rise" style="padding: 80px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #141416; display: flex; align-items: center; justify-content: center"><span class="ic i-search" aria-hidden="true" style="width: 24px; height: 24px; color: #7E7E8A"></span></span><span style="font-size: 16px; font-weight: 600">Không có sự kiện phù hợp</span><span style="font-size: 13.5px; color: #8E8E99">Thử bỏ bộ lọc hoặc tìm từ khác.</span></div></sc-if>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<section aria-label="{{g.label}}">
+<button class="chead press" type="button" onClick="{{g.toggle}}" aria-expanded="{{g.open}}">
+<sc-if value="{{g.live}}" hint-placeholder-val="{{ false }}"><span class="orb o-writer live" aria-hidden="true" style="width: 14px; height: 14px; box-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4), 0 0 12px rgba(154,99,227,0.6)"></span></sc-if>
+<sc-if value="{{g.notLive}}" hint-placeholder-val="{{ true }}"><span class="ic i-book" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span></sc-if>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.label}}</span><span class="num" style="font-size: 12px; color: {{g.subFg}}">{{g.sub}}</span></span>
+<span class="ic i-arrow-d chev {{g.chev}}" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span>
+</button>
+<sc-if value="{{g.open}}" hint-placeholder-val="{{ true }}"><div style="padding: 6px 0">
+<sc-for list="{{g.evs}}" as="e" hint-placeholder-count="4"><div class="ev {{e.cls}}">
+<span class="rail" aria-hidden="true"></span>
+<span class="nd" aria-hidden="true"><sc-if value="{{e.isOrb}}" hint-placeholder-val="{{ true }}"><span class="orb {{e.orb}}" style="width: 14px; height: 14px"></span></sc-if><sc-if value="{{e.isErr}}" hint-placeholder-val="{{ false }}"><span style="width: 22px; height: 22px; border-radius: 50%; background: rgba(255,159,168,0.14); display: flex; align-items: center; justify-content: center"><span class="ic i-warning" style="width: 13px; height: 13px; color: #FF9FA8"></span></span></sc-if><sc-if value="{{e.isMe}}" hint-placeholder-val="{{ false }}"><span style="width: 20px; height: 20px; border-radius: 50%; background: #EDEDEF; color: #0B0B0D; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">D</span></sc-if></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 13px; color: {{e.whoFg}}; font-weight: 600; flex: 0 0 auto">{{e.who}}</span><span class="num" style="font-size: 12px; color: #6E6E78; margin-left: auto; flex: 0 0 auto">{{e.time}}</span></div>
+<span style="font-size: 14.5px; line-height: 1.5; color: {{e.fg}}"><sc-for list="{{e.parts}}" as="p" hint-placeholder-count="1"><sc-if value="{{p.hl}}" hint-placeholder-val="{{ false }}"><mark>{{p.t}}</mark></sc-if><sc-if value="{{p.plain}}" hint-placeholder-val="{{ true }}">{{p.t}}</sc-if></sc-for></span>
+<sc-if value="{{e.hasTool}}" hint-placeholder-val="{{ false }}"><div>
+<button class="tool tap {{e.toolCls}}" type="button" onClick="{{e.toggle}}" aria-expanded="{{e.open}}"><span class="ic {{e.toolIc}}" aria-hidden="true" style="width: 15px; height: 15px; color: #C9A6F5"></span><span style="flex: 1 1 auto; min-width: 0; font-size: 13px; color: #DCC8F8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{e.toolLabel}}</span><sc-if value="{{e.running}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-label="Đang chạy" style="width: 12px; height: 12px"></span></sc-if><span class="num" style="font-size: 12px; color: {{e.durFg}}; white-space: nowrap">{{e.dur}}</span><span class="ic i-arrow-d chev {{e.chev}}" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A"></span></button>
+<sc-if value="{{e.open}}" hint-placeholder-val="{{ false }}"><div class="toolio"><sc-for list="{{e.io}}" as="r" hint-placeholder-count="2"><div style="display: flex; gap: 12px; font-size: 13px; line-height: 1.45"><span style="flex: 0 0 104px; color: #8E8E99">{{r.k}}</span><span style="flex: 1 1 auto; min-width: 0; color: #EDEDEF">{{r.v}}</span></div></sc-for><div style="display: flex; gap: 8px; align-items: flex-start; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 13px; line-height: 1.45; color: {{e.outFg}}"><span class="ic {{e.outIc}}" aria-hidden="true" style="flex: 0 0 auto; width: 14px; height: 14px; margin-top: 2px"></span><span>{{e.out}}</span></div></div><div style="display: flex; gap: 8px; margin-top: 8px"><button class="chipm tap" type="button" onClick="{{e.copy}}" style="height: 32px; font-size: 12.5px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Chép chi tiết kỹ thuật</button></div></sc-if>
+</div></sc-if>
+<sc-if value="{{e.hasIss}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px"><sc-for list="{{e.iss}}" as="v" hint-placeholder-count="2"><div style="display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 10px; background: #0F0F11; border: 1px solid {{v.bd}}"><span style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: {{v.bBg}}; color: {{v.bFg}}; font-size: 11.5px; font-weight: 500">{{v.lvl}}</span><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,255,255,0.05); color: #C9C9D1; font-size: 11.5px">{{v.ref}}</span><span style="font-size: 12px; color: #7E7E8A">{{v.refName}}</span></span><span style="font-size: 13.5px; line-height: 1.5; color: #E4E4E8">{{v.t}}</span></div></sc-for></div></sc-if>
+<sc-if value="{{e.hasRetry}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #A6EDC1"><span class="ic i-tick" aria-hidden="true" style="width: 13px; height: 13px"></span>{{e.retry}}</span></sc-if>
+</div>
+</div></sc-for>
+</div></sc-if>
+</section>
+</sc-for>
+<sc-if value="{{showOlder}}" hint-placeholder-val="{{ true }}"><button class="mbtn gho tap" type="button" onClick="{{loadOlder}}" style="margin: 14px 16px 0; font-size: 14.5px; height: 46px">{{olderLabel}}</button></sc-if>
+</div>
+<sc-if value="{{jump}}" hint-placeholder-val="{{ false }}"><button class="jump tap" type="button" onClick="{{toTop}}"><span class="ic i-chev-up" aria-hidden="true" style="width: 15px; height: 15px"></span>{{newCount}} sự kiện mới</button></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="bottom: 30px"><span class="ic i-tick" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span><span style="flex: 1 1 auto">{{toastText}}</span></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["live","tool","errors","review","search","scrolled"],"default":"live","section":"Trạng thái"},"$preview":{"width":390,"height":844}}'>
+const AG = { writer: ['Người viết', '#DCC8F8', 'o-writer'], architect: ['Kiến trúc sư', '#C8D3F8', 'o-architect'], editor: ['Biên tập viên', '#F8D9B0', 'o-editor'], arbiter: ['Trọng tài', '#BDEFD9', 'o-arbiter'], me: ['Bạn', '#EDEDEF', ''], err: ['Lỗi', '#FF9FA8', ''] };
+const BASE = {
+  25: [
+    { id: 'a5', a: 'writer', t: '14:31:40', x: 'Đang viết bản nháp chương 25', tool: 'draft_chapter', run: true, dur: '1.840/3.200 chữ', io: [['Chương', '25'], ['Độ dài mục tiêu', '3.200 chữ'], ['Theo dàn ý', 'Tri Hạ gửi lại kịch bản gốc, không ký tên']], out: 'Đang viết · được 1.840 chữ sau 41 giây', code: 'draft_chapter({\n  chapter: 25,\n  target_words: 3200,\n  outline: "Tri Hạ gửi lại kịch bản gốc, không ký tên"\n})\n→ đang chạy · 1.840 chữ · 41s' },
+    { id: 'a4', a: 'writer', t: '14:31:05', x: 'Đọc bối cảnh: tóm tắt chương 22–24 và 3 phục bút liên quan', tool: 'read_context', dur: '1,2 giây', io: [['Chương', '22–24'], ['Chi tiết cài cắm', 'Vỏ ổ cứng · Tên bị gạch · Phùng biết chuyện']], out: 'Lấy được 3 bản tóm tắt và 3 chi tiết cài cắm', code: 'read_context({ chapters: [22, 23, 24], foreshadow: ["vo-o-cung", "ten-bi-gach", "phung-biet"] })\n→ 3 tóm tắt · 3 phục bút · 4.210 token' },
+    { id: 'a3', a: 'architect', t: '14:30:58', x: 'Cập nhật dàn ý chương 25–27 theo hướng đã chốt', tool: 'update_outline', dur: '0,4 giây', io: [['Chương', '25–27'], ['Hồi', 'Bản gốc']], out: 'Sửa 3 chương · đẩy tiếp chi tiết “Vỏ ổ cứng”', code: 'update_outline({ from: 25, to: 27, arc: "Bản gốc" })\n→ 3 chương · đẩy phục bút "vo-o-cung"' },
+    { id: 'a2', a: 'me', t: '14:30:51', x: 'Đồng sáng tác — chốt hướng đi hồi 3: Tri Hạ quay lại, không còn là phản diện' }
+  ],
+  24: [
+    { id: 'b6', a: 'editor', t: '14:22:10', x: 'Thẩm chương 24 · đạt · 2 cảnh báo', iss: [['w', 'Master §7', 'Đầu chương và cuối chương', 'Móc cuối chương yếu (5,9 điểm): cảnh tắt đèn chưa để lại câu hỏi treo.'], ['w', 'Xưng hô', 'Bảng xưng hô của truyện', 'Kỳ Dương gọi Tri Hạ là “cậu”, bảng xưng hô ghi “chị” từ chương 2.']], tool: 'score_chapter', dur: '6,8 giây', io: [['Chương', '24']], out: 'Tổng 8,1 · nhịp 8,4 · nhân vật 8,3 · móc cuối 5,9', code: 'score_chapter({ chapter: 24 })\n→ tổng 8,1 · nhịp 8,4 · nhân vật 8,3 · móc cuối 5,9' },
+    { id: 'b5', a: 'arbiter', t: '14:21:02', x: 'Thông qua — không cần viết lại' },
+    { id: 'b4', a: 'err', t: '14:19:44', x: 'Model báo vượt hạn mức khi soát nhất quán', retry: 'Tự thử lại sau 8 giây · thành công', tool: 'check_consistency', dur: 'lỗi', io: [['Chương', '24']], out: 'OpenRouter báo vượt hạn mức (mã 429)', bad: true, code: 'check_consistency({ chapter: 24 })\n✗ 429 Too Many Requests · provider: openrouter\n↻ thử lại lần 1 sau 8s → OK (2,3s)' },
+    { id: 'b3', a: 'writer', t: '14:12:30', x: 'Viết xong 3.410 chữ · “Đèn tắt”', tool: 'save_chapter', dur: '0,2 giây', io: [['Chương', '24'], ['Số chữ', '3.410']], out: 'Đã lưu chương 24', code: 'save_chapter({ chapter: 24, words: 3410 })\n→ chapters/024.md' }
+  ],
+  20: [
+    { id: 'c2', a: 'err', t: 'hôm qua 21:04', x: 'Lưu chương thất bại: ổ đĩa máy chủ đầy', retry: 'Bạn đã dọn ổ đĩa và chạy lại lúc 21:10', tool: 'save_chapter', dur: 'lỗi', io: [['Chương', '20']], out: 'Ổ đĩa máy chủ đã đầy — không ghi được chương', bad: true, code: 'save_chapter({ chapter: 20 })\n✗ ENOSPC: no space left on device' },
+    { id: 'c4', a: 'writer', t: 'hôm qua 20:55', x: 'Đã sửa xưng hô chương 20 theo bảng nhân vật' },
+    { id: 'c3', a: 'editor', t: 'hôm qua 20:52', x: 'Thẩm chương 20 · 1 bắt sửa', iss: [['e', 'Xưng hô', 'Tri Hạ → Nhược Vy', 'Tri Hạ gọi Nhược Vy là “em”. Từ chương 2 đã đổi thành “cô” vì hai người cắt đứt quan hệ.']] },
+    { id: 'c1', a: 'writer', t: 'hôm qua 20:48', x: 'Viết xong 3.180 chữ · “Phòng dựng phim”' }
+  ]
+};
+// icons used: i-edit i-note i-routing i-chart i-shield i-folder
+const TIC = { draft_chapter: 'i-edit', read_context: 'i-note', update_outline: 'i-routing', score_chapter: 'i-chart', check_consistency: 'i-shield', save_chapter: 'i-folder' };
+const TN = { draft_chapter: 'Viết bản nháp', read_context: 'Đọc bối cảnh', update_outline: 'Cập nhật dàn ý', score_chapter: 'Chấm điểm chương', check_consistency: 'Soát nhất quán', save_chapter: 'Lưu chương' };
+const LIVE = [
+  { a: 'writer', x: 'Đạt 2.400 chữ · cảnh Tri Hạ ở trường quay số ba' },
+  { a: 'architect', x: 'Ghi chú: giữ giọng châm biếm nhẹ của Tri Hạ' },
+  { a: 'writer', x: 'Đạt 2.900 chữ · sắp tới cảnh kết' }
+];
+const GL = { 25: ['Chương 25 · Bản gốc trở về', 'Đang viết'], 24: ['Chương 24 · Đèn tắt', '8,1 điểm · 6 sự kiện'], 20: ['Chương 20 · Phòng dựng phim', '7,9 điểm · 11 sự kiện'] };
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(props) { const st = props.state || 'live';
+    return { st, f: st === 'errors' ? 'err' : st === 'review' ? 'editor' : 'all', q: st === 'search' ? 'Tri Hạ' : '', searching: st === 'search', open: { 25: true, 24: st !== 'live', 20: st === 'errors' || st === 'review' }, tool: st === 'tool' ? { a5: true } : (st === 'errors' ? { b4: true } : {}), extra: [], li: 0, older: st === 'review', jump: st === 'scrolled', newN: st === 'scrolled' ? 3 : 0, toast: '' }; }
+  componentDidMount() { if (this.state.st === 'scrolled') this.later(() => { const el = document.querySelector('.mscroll'); if (el) el.scrollTop = 360; }, 50); this.iv = setInterval(() => { const s = this.state; if (s.li >= LIVE.length) return; const d = new Date(); const L = LIVE[s.li]; const t = '14:3' + (2 + s.li) + ':' + String(10 + s.li * 13).padStart(2, '0');
+    this.setState({ extra: [{ id: 'l' + s.li, a: L.a, t, x: L.x, fresh: true }].concat(s.extra.map((e) => Object.assign({}, e, { fresh: false }))), li: s.li + 1, newN: s.jump ? s.newN + 1 : 0 }); }, 3200); }
+  componentWillUnmount() { clearInterval(this.iv); this.tm.forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (prev.state !== this.props.state) this.setState(this.fresh(this.props)); }
+  later(f, ms) { this.tm.push(setTimeout(f, ms)); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p);
+    const q = s.q.trim().toLowerCase();
+    const pass = (e) => { if (s.f === 'err' && e.a !== 'err') return false; if (s.f !== 'all' && s.f !== 'err' && e.a !== s.f) return false; if (q && (e.x + ' ' + (e.tool || '')).toLowerCase().indexOf(q) < 0) return false; return true; };
+    const split = (x) => { if (!q) return [{ t: x, hl: false, plain: true }]; const i = x.toLowerCase().indexOf(q); if (i < 0) return [{ t: x, hl: false, plain: true }]; return [{ t: x.slice(0, i), hl: false, plain: true }, { t: x.slice(i, i + q.length), hl: true, plain: false }, { t: x.slice(i + q.length), hl: false, plain: true }]; };
+    const keys = s.older ? [25, 24, 20] : [25, 24].concat(s.f === 'err' ? [20] : []);
+    const all = (k) => (k === 25 ? s.extra.concat(BASE[25]) : BASE[k]);
+    let total = 0;
+    const groups = keys.map((k) => { const evs = all(k).filter(pass); total += evs.length; const open = !!s.open[k] || !!q || s.f !== 'all'; const live = k === 25;
+      return { k, label: GL[k][0], sub: (s.f !== 'all' || q) ? evs.length + ' kết quả' : GL[k][1], subFg: live ? '#DCC8F8' : '#7E7E8A', live, notLive: !live, open, chev: open ? 'up' : '', toggle: () => set({ open: Object.assign({}, s.open, { [k]: !open }) }),
+        evs: evs.map((e) => { const ag = AG[e.a]; const op = !!s.tool[e.id];
+          return { who: ag[0], whoFg: ag[1], orb: ag[2], isOrb: !!ag[2], isErr: e.a === 'err', isMe: e.a === 'me', time: e.t, fg: e.a === 'err' ? '#FFC4CA' : '#E4E4E8', parts: split(e.x), cls: e.fresh ? 'newin' : '',
+            hasTool: !!e.tool, tool: e.tool || '', toolIc: TIC[e.tool] || 'i-code', toolLabel: TN[e.tool] || e.tool || '', running: !!e.run, dur: e.dur || '', durFg: e.dur === 'lỗi' ? '#FF9FA8' : '#8E8E99', open: op, chev: op ? 'up' : '', toolCls: op ? 'on' : '', code: e.code || '', io: (e.io || []).map(([k, v]) => ({ k, v })), out: e.out || '', outFg: e.bad ? '#FFB3BA' : '#A6EDC1', outIc: e.bad ? 'i-warning' : 'i-tick',
+            toggle: () => set({ tool: Object.assign({}, s.tool, { [e.id]: !op }) }), copy: () => { set({ toast: 'Đã chép chi tiết kỹ thuật' }); this.later(() => this.setState({ toast: '' }), 2000); },
+            hasRetry: !!e.retry, retry: e.retry || '', hasIss: !!(e.iss && e.iss.length), iss: (e.iss || []).map(([l, ref, refName, t]) => ({ lvl: l === 'e' ? 'Bắt sửa' : 'Cảnh báo', bBg: l === 'e' ? 'rgba(255,154,162,0.12)' : 'rgba(246,203,140,0.12)', bFg: l === 'e' ? '#FFB3BA' : '#F3D9AE', bd: l === 'e' ? 'rgba(255,154,162,0.22)' : 'rgba(255,255,255,0.07)', ref, refName, t })) }; }) }; }).filter((g) => g.evs.length);
+    const cnt = (k) => [25, 24, 20].reduce((n, g) => n + all(g).filter((e) => k === 'err' ? e.a === 'err' : e.a === k).length, 0);
+    const filters = [['all', 'Tất cả', ''], ['writer', 'Người viết', 'o-writer'], ['architect', 'Kiến trúc sư', 'o-architect'], ['editor', 'Biên tập', 'o-editor'], ['arbiter', 'Trọng tài', 'o-arbiter'], ['err', 'Lỗi', ''], ['me', 'Của bạn', '']].map(([k, label, orb]) => { const on = s.f === k; return { label, orb, isOrb: !!orb, isErr: k === 'err', hasN: k === 'err', n: String(cnt('err')), on, cls: on ? 'on' : '', pick: () => set({ f: k }) }; });
+    return {
+      noSearch: !s.searching, searching: s.searching, q: s.q, onQ: (e) => set({ q: e.target.value }), openSearch: () => set({ searching: true }), closeSearch: () => set({ searching: false, q: '' }),
+      evCount: String(42 + s.extra.length), filters, groups, empty: !groups.length,
+      onScroll: (e) => { const y = e.target.scrollTop; if (y < 20 && s.jump) set({ jump: false, newN: 0 }); },
+      jump: s.jump && s.newN > 0, newCount: String(s.newN), toTop: () => { const el = document.querySelector('.mscroll'); if (el) el.scrollTo({ top: 0, behavior: 'smooth' }); set({ jump: false, newN: 0 }); },
+      showOlder: !s.older && !q && s.f === 'all', olderLabel: 'Xem các chương trước', loadOlder: () => set({ older: true, open: Object.assign({}, s.open, { 20: true }) }),
+      toast: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

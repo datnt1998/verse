@@ -1,0 +1,44 @@
+# Build context hygiene for the hosted image.
+# The web stage builds dist from source; the Go stage embeds it.
+
+# VCS / editors / agents
+.git
+.github
+.vscode
+.idea
+.agentkit
+.omp
+.DS_Store
+
+# Local config, keys, credentials, run logs
+.env
+.env.*
+.ainovel
+config
+*.log
+*.pem
+*.key
+
+# Host-only artifacts and homes
+ainovel-cli
+workspace
+dist
+tasks
+refer
+output*
+serve*.log
+
+# Node deps and CI caches: the web stage runs `npm ci` from the lockfile
+**/node_modules
+**/.vite
+**/coverage
+**/playwright-report
+**/test-results
+
+# Generated SPA output: rebuilt inside the image, never taken from the host
+internal/entry/web/dist
+
+# Python/Go local caches (Go modules come from the proxy, not the context)
+**/__pycache__
+**/.pytest_cache
+**/testdata

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo giọng — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+
+.bgcard{margin:0 16px;padding:14px;border-radius:18px;background:#141416;border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:12px}
+.ov{display:flex;gap:3px;height:8px}
+.ov span{flex:1;border-radius:3px}
+.ov span.done{background:rgba(166,237,193,.55)}.ov span.stale{background:#F6CB8C}.ov span.run{background:linear-gradient(90deg,#C9A6F5 var(--p),rgba(201,166,245,.2) var(--p))}.ov span.queue{background:rgba(201,166,245,.25)}.ov span.new{background:rgba(255,255,255,.12)}.ov span.err{background:#FF9AA2}
+.ovleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:#A0A0AB}
+.ovleg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.cta{height:50px;border-radius:14px;border:none;background:#EDEDEF;color:#0B0B0D;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.cta.w{background:#F6CB8C;color:#1A1408}
+.cta:disabled{opacity:.4}
+.gh{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;padding:16px 4px 8px;font-size:12.5px;color:#8E8E99}
+.gh>span{order:3;flex:1 0 100%}
+.gh b{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#C9C9D1}
+.gh.w b{color:#F6CB8C}.gh.r b{color:#DCC8F8}
+.gh .lk{margin-left:auto;height:30px;padding:0 10px;border:none;border-radius:8px;background:transparent;color:#C9A6F5;font-size:13px}
+.grp{border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grp.w{border-color:rgba(246,203,140,.28)}
+.vr{display:flex;align-items:center;gap:12px;min-height:62px;padding:10px 12px 10px 14px;width:100%;border:none;background:transparent;color:#EDEDEF;text-align:left;font:inherit}
+.vr+.vr{border-top:1px solid rgba(255,255,255,.06)}
+.vr .tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px;line-height:1.3}
+.vr .tt{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vr .mt{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;color:#8E8E99}
+.tg{height:22px;padding:0 8px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;white-space:nowrap;background:rgba(255,255,255,.06);color:#C9C9D1}
+.tg.w{background:rgba(246,203,140,.14);color:#F6CB8C}.tg.r{background:rgba(201,166,245,.16);color:#DCC8F8}.tg.e{background:rgba(255,154,162,.14);color:#FFB3BA}.tg.ok{background:rgba(166,237,193,.12);color:#A6EDC1}
+.ico{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.ico.done{background:rgba(166,237,193,.12);color:#A6EDC1}.ico.stale{background:rgba(246,203,140,.14);color:#F6CB8C}.ico.err{background:rgba(255,154,162,.14);color:#FFB3BA}
+.ico.new,.ico.queue{border:1.5px dashed rgba(255,255,255,.22)}.ico.queue{border-color:rgba(201,166,245,.45)}
+.ico.run{background:conic-gradient(#C9A6F5 var(--p),rgba(255,255,255,.1) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px))}
+.box{width:24px;height:24px;border-radius:7px;border:1.5px solid rgba(255,255,255,.28);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.box.on{background:#C9A6F5;border-color:#C9A6F5;color:#0B0B0D}
+.grp.w .box.on{background:#F6CB8C;border-color:#F6CB8C}
+.chp{height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF;font-size:13px;white-space:nowrap;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px}
+.chp.on{border-color:rgba(201,166,245,.5);background:rgba(201,166,245,.12);color:#F3E8FF}
+.pct{font-size:14px;font-weight:600;color:#DCC8F8;flex:0 0 auto}
+.qg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:#141416;border:1px solid rgba(255,255,255,.06)}
+.qg button{height:56px;border:none;border-radius:10px;background:transparent;color:#C9C9D1;font-size:13px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.qg button.on{background:#2A2A2E;color:#EDEDEF;font-weight:500}
+.qg small{font-size:11.5px;color:#8E8E99;font-weight:400}
+.sfoot{flex:0 0 auto;padding:10px 16px 28px;border-top:1px solid rgba(255,255,255,.06);background:#18181A;display:flex;flex-direction:column;gap:8px}
+.sum{font-size:13px;color:#A0A0AB;text-align:center;line-height:1.45}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-book-b{-webkit-mask-image:url(../icons/book-1-bulk.svg);mask-image:url(../icons/book-1-bulk.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-mic{-webkit-mask-image:url(../icons/microphone-2.svg);mask-image:url(../icons/microphone-2.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar" style="gap: 8px">
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; padding-left: 4px"><span style="font-size: 12px; color: #8E8E99">Sách nói</span><span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Tập 1 · Trà Xanh Cướp Kịch Bản</span></div>
+<a class="tap" href="MAudio.dc.html" style="height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); color: #EDEDEF; font-size: 14px; display: flex; align-items: center; gap: 6px; text-decoration: none"><span class="ic i-export" aria-hidden="true" style="width: 16px; height: 16px"></span>Xuất</a>
+</header>
+<div class="mscroll" style="padding: 8px 0 120px">
+<div class="bgcard">
+<button type="button" class="tap" onClick="{{openSheet}}" style="display: flex; align-items: center; gap: 12px; border: none; background: transparent; color: #EDEDEF; padding: 0; text-align: left">
+<span class="ic i-mic" aria-hidden="true" style="width: 22px; height: 22px; color: #C9A6F5; flex: 0 0 auto"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><b style="font-size: 16px; font-weight: 600">Tạo giọng · Tập 1</b><span style="font-size: 13px; color: #A0A0AB">{{ovText}}</span></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span></button>
+<div class="ov" aria-hidden="true"><sc-for list="{{ov}}" as="o" hint-placeholder-count="8"><span class="{{o.cls}}" style="--p: {{o.p}}"></span></sc-for></div>
+<sc-if value="{{entryCta}}" hint-placeholder-val="{{ true }}"><button type="button" class="cta {{ctaCls}}" onClick="{{openSheet}}" style="height: 44px; font-size: 15px"><span class="ic {{ctaIcon}}" aria-hidden="true" style="width: 18px; height: 18px"></span>{{ctaLabel}}</button></sc-if>
+</div>
+<div style="padding: 18px 30px 8px; font-size: 12.5px; color: #7E7E8A">Chương</div>
+<div class="grp" style="margin: 0 16px"><sc-for list="{{bgRows}}" as="r" hint-placeholder-count="8"><div class="vr" style="min-height: 54px"><span class="ico {{r.ico}}" style="--p: {{r.p}}; width: 28px; height: 28px"><sc-if value="{{r.tick}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if></span><span class="tx"><span class="tt">{{r.n}}. {{r.t}}</span><span class="mt"><span class="tg {{r.tc}}">{{r.tag}}</span></span></span></div></sc-for></div>
+</div>
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: {{tabInd}}; width: calc((100% - 10px) / 4)"></span>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><a class="tab tap {{t.cls}}" href="{{t.href}}" aria-current="{{t.cur}}"><span class="ic tic {{t.icon}}" aria-hidden="true" style="width: 24px; height: 24px; color: {{t.ic}}"></span><span class="tlab">{{t.label}}</span><sc-if value="{{t.dot}}" hint-placeholder-val="{{ false }}"><span class="dot" aria-label="Có việc cần bạn"></span></sc-if></a></sc-for>
+</div>
+</nav>
+
+
+<sc-if value="{{sheetOn}}" hint-placeholder-val="{{ true }}"><div class="scrim" aria-hidden="true" onClick="{{closeSheet}}"></div>
+<section class="sheet" role="dialog" aria-label="Tạo giọng · Tập 1" style="height: 790px; padding-bottom: 0">
+<div class="grab" aria-hidden="true"></div>
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 2px 16px 8px"><b style="flex: 1; font-size: 18px; font-weight: 600">Tạo giọng · Tập 1</b><button class="tap" type="button" onClick="{{closeSheet}}" aria-label="Đóng" style="width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,0.07); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-add" aria-hidden="true" style="width: 17px; height: 17px; transform: rotate(45deg)"></span></button></div>
+<div class="mscroll" style="padding: 0 16px 18px">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 2px 0 4px"><div class="ov" aria-hidden="true"><sc-for list="{{ov}}" as="o" hint-placeholder-count="8"><span class="{{o.cls}}" style="--p: {{o.p}}"></span></sc-for></div><div class="ovleg"><sc-for list="{{leg}}" as="l" hint-placeholder-count="3"><span><i style="background: {{l.c}}"></i>{{l.t}}</span></sc-for></div></div>
+
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2"><sc-if value="{{g.show}}" hint-placeholder-val="{{ true }}">
+<div class="gh {{g.tone}}"><b>{{g.title}}</b><span>{{g.note}}</span><sc-if value="{{g.hasLink}}" hint-placeholder-val="{{ false }}"><button type="button" class="lk tap" onClick="{{g.link}}">{{g.linkT}}</button></sc-if></div>
+<sc-if value="{{g.hasBar}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 8px; padding: 0 0 8px"><sc-for list="{{g.bar}}" as="b" hint-placeholder-count="2"><button type="button" class="chp tap {{b.cls}}" onClick="{{b.go}}"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{b.t}}</button></sc-for></div></sc-if>
+<sc-if value="{{g.open}}" hint-placeholder-val="{{ true }}"><div class="grp {{g.tone}}"><sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2"><div class="vr" role="{{r.role}}" aria-checked="{{r.ariaC}}" onClick="{{r.tap}}">
+<span class="ico {{r.ico}}" style="--p: {{r.p}}"><sc-if value="{{r.tick}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px"></span></sc-if><sc-if value="{{r.isStale}}" hint-placeholder-val="{{ false }}"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if><sc-if value="{{r.isErr}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if></span>
+<span class="tx"><span class="tt">{{r.n}}. {{r.t}}</span><span class="mt"><sc-for list="{{r.tags}}" as="t" hint-placeholder-count="1"><span class="tg {{t.c}}">{{t.t}}</span></sc-for><span>{{r.meta}}</span></span></span>
+<sc-if value="{{r.hasBox}}" hint-placeholder-val="{{ false }}"><span class="box {{r.boxCls}}" aria-hidden="true"><sc-if value="{{r.on}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 12 12" width="13" height="13" fill="none"><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if></span></sc-if>
+<sc-if value="{{r.hasPct}}" hint-placeholder-val="{{ false }}"><span class="pct num">{{r.pct}}</span></sc-if>
+<sc-if value="{{r.hasAct}}" hint-placeholder-val="{{ false }}"><button type="button" class="chp tap" onClick="{{r.act}}">{{r.actT}}</button></sc-if>
+</div></sc-for></div></sc-if>
+</sc-if></sc-for>
+
+<div class="gh"><b>Cách đọc</b><span>cho chương sắp tạo</span></div>
+<div class="grp"><a class="vr tap" href="MAudio.dc.html" style="text-decoration: none; min-height: 58px"><span class="av" style="width: 32px; height: 32px; font-size: 11px">DT</span><span class="tx"><span class="tt">Một giọng kể</span><span class="mt">Đổi kiểu giọng hoặc giọng từng vai</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span></a></div>
+<div class="qg" role="radiogroup" aria-label="Chất lượng" style="margin-top: 8px"><sc-for list="{{qs}}" as="q" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{q.on}}" class="{{q.cls}}" onClick="{{q.pick}}">{{q.t}}<small>{{q.m}}</small></button></sc-for></div>
+<p style="margin: 8px 14px 0; font-size: 12.5px; color: #8E8E99; line-height: 1.5">Chương đã có giọng giữ nguyên, trừ khi bạn chọn Tạo lại.</p>
+<div class="grp" style="margin-top: 14px"><div class="vr" style="min-height: 58px"><span class="tx"><span class="tt">Tự tạo giọng khi chốt chương</span><span class="mt">Chốt xong là xếp vào hàng đợi</span></span><button type="button" class="msw tap" role="switch" aria-checked="{{autoA}}" aria-label="Tự tạo giọng khi chốt chương" onClick="{{toggleAuto}}" style="background: {{autoBg}}"><i style="left: {{autoKnob}}"></i></button></div></div>
+</div>
+<div class="sfoot">
+<span class="sum">{{sum}}</span>
+<sc-if value="{{hasCta}}" hint-placeholder-val="{{ true }}"><button type="button" class="cta tap {{ctaCls}}" onClick="{{go}}"><span class="ic {{ctaIcon}}" aria-hidden="true" style="width: 18px; height: 18px"></span>{{ctaLabel}}</button></sc-if>
+<sc-if value="{{hasAlt}}" hint-placeholder-val="{{ false }}"><a class="cta tap" href="MAudio.dc.html" style="background: rgba(255,255,255,0.08); color: #EDEDEF; text-decoration: none"><span class="ic i-headphone" aria-hidden="true" style="width: 18px; height: 18px"></span>Nghe &amp; xuất cả tập</a></sc-if>
+</div>
+</section></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="top: 100px"><span class="ic i-tick" aria-hidden="true" style="width: 17px; height: 17px; color: #A6EDC1; flex: 0 0 auto"></span><span style="flex: 1">{{toast}}</span></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"gk":{"editor":"enum","options":["entry","stale","ready","redo","running","error","allDone"],"default":"stale","section":"Tạo giọng (Gói AK)"},"$preview":{"width":390,"height":844}}'>
+// icons used: i-category-b i-book-b i-headphone-b i-setting-b
+const MTAB_KEYS = ['write', 'read', 'listen', 'more'];
+function mtabs(active, dots) {
+  dots = dots || {};
+  return [['write', 'Viết', 'MWork.dc.html', 'i-category'], ['read', 'Đọc', 'MReader.dc.html', 'i-book'], ['listen', 'Nghe', 'MAudio.dc.html', 'i-headphone'], ['more', 'Thêm', 'MMore.dc.html', 'i-setting']].map(([k, label, href, icon]) => {
+    const on = k === active; return { label, href, icon: on ? icon + '-b' : icon, cls: on ? 'on' : '', cur: on ? 'page' : 'false', ic: on ? '#C9A6F5' : 'currentColor', dot: !!dots[k] };
+  });
+}
+function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
+
+
+const TITLES = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
+const DUR = ['16:42', '18:05', '17:12', '17:30', '18:20', '17:48', '18:36', '17:57'];
+const QMIN = { fast: 4, std: 13, high: 25 };
+// st: done · stale · new · run · queue · err
+function chInit(gk) {
+  const C = TITLES.map((t, i) => ({ n: i + 1, t, st: 'done' }));
+  const stale = (i, why, segs) => Object.assign(C[i], { st: 'stale', why, segs });
+  if (gk === 'allDone') return C;
+  stale(0, 'chapter', 3); stale(3, 'script', 2);
+  if (gk === 'stale') return C;
+  Object.assign(C[6], { st: 'new', locked: false, issues: 2, segsAll: 46 }); Object.assign(C[7], { st: 'new', compose: true });
+  if (gk === 'running') { Object.assign(C[0], { st: 'run', p: 60, upd: true, seg: '2/3', left: '1 phút' }); Object.assign(C[3], { st: 'queue', pos: 1, upd: true }); Object.assign(C[6], { st: 'queue', pos: 2 }); Object.assign(C[7], { st: 'queue', pos: 3, compose: true }); }
+  if (gk === 'error') { C[0] = { n: 1, t: TITLES[0], st: 'done' }; Object.assign(C[3], { st: 'err', upd: true, err: 'Dừng ở đoạn 1/2 · bộ đọc không phản hồi' }); Object.assign(C[6], { st: 'run', p: 12, seg: '6/46', left: '11 phút' }); Object.assign(C[7], { st: 'queue', pos: 1, compose: true }); }
+  return C;
+}
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(props) { const gk = props.gk || 'stale'; const C = chInit(gk === 'entry' || gk === 'redo' ? 'ready' : gk);
+    const sel = {}; C.forEach((c) => { if (c.st === 'stale' || c.st === 'new') sel[c.n] = true; }); if (gk === 'redo') sel[3] = true;
+    return { gk, C, sel, redo: gk === 'redo' ? { 3: true } : {}, doneOpen: gk === 'redo', sheet: gk !== 'entry', q: 'std', auto: true, paused: false, notify: true, toast: '' }; }
+  componentDidUpdate(prev) { if (prev.gk !== this.props.gk) this.setState(this.fresh(this.props)); }
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  later(f, ms) { this.tm.push(setTimeout(f, ms)); }
+  toast(t) { this.setState({ toast: t }); this.later(() => { if (this.state.toast === t) this.setState({ toast: '' }); }, 2600); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p); const C = s.C;
+    const flip = (n) => set({ sel: Object.assign({}, s.sel, { [n]: !s.sel[n] }) });
+    const picked = C.filter((c) => s.sel[c.n] && (c.st === 'stale' || c.st === 'new' || (c.st === 'done' && s.redo[c.n])));
+    const nUpd = picked.filter((c) => c.st === 'stale').length, nNew = picked.filter((c) => c.st === 'new').length, nRedo = picked.filter((c) => c.st === 'done').length;
+    const segsUpd = picked.filter((c) => c.st === 'stale').reduce((a, c) => a + c.segs, 0);
+    const mins = Math.round(segsUpd * 0.6) + (nNew + nRedo) * QMIN[s.q];
+    const onlyUpd = picked.length > 0 && nNew === 0 && nRedo === 0;
+    const cta = picked.length ? (onlyUpd ? 'Cập nhật ' + picked.length + ' chương' : 'Tạo giọng ' + picked.length + ' chương') : '';
+    const busy = C.filter((c) => c.st === 'run' || c.st === 'queue' || c.st === 'err');
+    const cnt = (k) => C.filter((c) => c.st === k).length;
+    const ovText = [cnt('done') + '/8 có giọng', cnt('stale') ? cnt('stale') + ' cần cập nhật' : '', cnt('new') ? cnt('new') + ' chưa có giọng' : '', busy.length ? busy.length + ' đang tạo' : ''].filter(Boolean).join(' · ');
+    const tagsOf = (c) => {
+      if (c.st === 'stale') return [{ t: c.why === 'chapter' ? 'Chương đã sửa' : 'Bản đọc đã sửa', c: 'w' }];
+      if (c.st === 'new') return [{ t: c.compose ? 'Chưa soạn bản đọc' : 'Chưa chốt', c: '' }].concat(c.issues ? [{ t: c.issues + ' chỗ cần xem', c: 'w' }] : []);
+      if (c.st === 'run') return [{ t: s.paused ? 'Tạm dừng' : (c.upd ? 'Đang cập nhật' : 'Đang tạo'), c: s.paused ? 'w' : 'r' }];
+      if (c.st === 'queue') return [{ t: c.pos === 1 ? 'Tiếp theo' : 'Chờ · thứ ' + c.pos, c: '' }];
+      if (c.st === 'err') return [{ t: 'Dừng do lỗi', c: 'e' }];
+      if (s.redo[c.n] && s.sel[c.n]) return [{ t: 'Tạo lại từ đầu', c: 'r' }];
+      return [];
+    };
+    const metaOf = (c) => ({ stale: c.segs + ' đoạn đổi · ' + (c.why === 'chapter' ? 'AI soạn lại phần đổi rồi đọc lại' : 'chỉ đọc lại đoạn đổi') + ' · khoảng ' + Math.max(1, Math.round(c.segs * 0.6)) + ' phút', new: c.compose ? 'AI soạn bản đọc trước · khoảng ' + (QMIN[s.q] + 3) + ' phút' : c.segsAll + ' đoạn · khoảng ' + QMIN[s.q] + ' phút', run: 'đoạn ' + c.seg + ' · còn khoảng ' + c.left, queue: (c.upd ? 'cập nhật đoạn đổi' : c.compose ? 'AI soạn bản đọc trước' : 'tạo giọng cả chương'), err: c.err, done: DUR[c.n - 1] + (s.redo[c.n] && s.sel[c.n] ? ' · khoảng ' + QMIN[s.q] + ' phút' : '') })[c.st];
+    const row = (c) => { const box = c.st === 'stale' || c.st === 'new' || (c.st === 'done' && s.redo[c.n]); const on = !!s.sel[c.n];
+      const act = c.st === 'err' ? ['Thử lại', () => { const C2 = C.map((x) => x.n === c.n ? Object.assign({}, x, { st: 'queue', pos: 1 }) : x); set({ C: C2 }); this.toast('Đã thử lại chương ' + c.n); }] : (c.st === 'queue' && c.pos > 1) ? ['Làm trước', () => this.toast('Chương ' + c.n + ' sẽ làm ngay sau chương đang tạo')] : (c.st === 'done' && !s.redo[c.n]) ? ['Tạo lại', () => set({ redo: Object.assign({}, s.redo, { [c.n]: true }), sel: Object.assign({}, s.sel, { [c.n]: true }) })] : null;
+      return { n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', isStale: c.st === 'stale', isErr: c.st === 'err', tags: tagsOf(c), meta: metaOf(c),
+        hasBox: box, on, boxCls: on ? 'on' : '', role: box ? 'checkbox' : 'group', ariaC: box ? (on ? 'true' : 'false') : 'false', tap: box ? () => flip(c.n) : () => {},
+        hasPct: c.st === 'run', pct: c.p + '%', hasAct: !!act, actT: act ? act[0] : '', act: act ? (e) => { if (e && e.stopPropagation) e.stopPropagation(); act[1](); } : () => {} }; };
+    const todo = C.filter((c) => c.st === 'stale' || c.st === 'new'); const done = C.filter((c) => c.st === 'done');
+    const allTodoOn = todo.length && todo.every((c) => s.sel[c.n]);
+    const groups = [
+      { k: 'todo', title: 'Cần làm · ' + todo.length, note: cnt('stale') ? cnt('stale') + ' chương sửa sau khi tạo giọng' : '', tone: cnt('stale') ? 'w' : '', rows: todo.map(row), show: todo.length > 0, open: true, hasLink: todo.length > 1, linkT: allTodoOn ? 'Bỏ chọn hết' : 'Chọn hết', link: () => { const sel = Object.assign({}, s.sel); todo.forEach((c) => { sel[c.n] = !allTodoOn; }); set({ sel }); }, hasBar: false, bar: [] },
+      { k: 'busy', title: 'Đang tạo · ' + busy.length, note: s.paused ? 'đã tạm dừng' : 'chạy trên máy chủ, đóng app vẫn tiếp tục', tone: 'r', rows: busy.map(row), show: busy.length > 0, open: true, hasLink: false, hasBar: true,
+        bar: [{ t: s.paused ? 'Tiếp tục' : 'Tạm dừng', icon: s.paused ? 'i-play' : 'i-pause', cls: '', go: () => set({ paused: !s.paused }) }, { t: 'Báo khi xong', icon: 'i-notify', cls: s.notify ? 'on' : '', go: () => set({ notify: !s.notify }) }] },
+      { k: 'done', title: 'Đã có giọng · ' + done.length, note: '', tone: '', rows: done.map(row), show: done.length > 0, open: s.doneOpen, hasLink: true, linkT: s.doneOpen ? 'Thu gọn' : 'Xem · tạo lại', link: () => set({ doneOpen: !s.doneOpen }), hasBar: false, bar: [] }
+    ];
+    const sumParts = [nUpd ? nUpd + ' cập nhật' : '', nNew ? nNew + ' mới' : '', nRedo ? nRedo + ' tạo lại từ đầu' : ''].filter(Boolean);
+    const qn = { fast: 'Nghe thử nhanh', std: 'Chuẩn', high: 'Cao nhất' };
+    const sum = picked.length ? sumParts.join(' · ') + ' · ' + qn[s.q] + ' · khoảng ' + mins + ' phút' + (busy.length ? ', sau các chương đang tạo' : '') + (nNew && C.some((c) => s.sel[c.n] && c.st === 'new' && !c.compose) ? '. Chương chưa chốt sẽ được chốt theo bản đọc hiện tại.' : '')
+      : busy.length ? 'Không còn chương nào cần làm · ' + busy.length + ' chương đang tạo' : (todo.length ? 'Chọn chương để tạo giọng' : 'Cả 8 chương đã có giọng mới nhất');
+    const go = () => { if (!picked.length) return; const C2 = C.map((c) => Object.assign({}, c)); let pos = C2.filter((c) => c.st === 'queue').length; const first = !C2.some((c) => c.st === 'run');
+      picked.forEach((pc, i) => { const c = C2[pc.n - 1]; const upd = c.st === 'stale'; if (i === 0 && first) Object.assign(c, { st: 'run', p: 4, upd, seg: '1/' + (upd ? c.segs : 46), left: (upd ? 2 : QMIN[s.q]) + ' phút' }); else { pos += 1; Object.assign(c, { st: 'queue', pos, upd }); } });
+      set({ C: C2, sel: {}, redo: {}, doneOpen: false }); this.toast('Đã xếp ' + picked.length + ' chương · theo dõi ở mục Đang tạo'); };
+    const ovCls = (c) => c.st === 'stale' ? 'stale' : c.st;
+    return {
+      tabs: mtabs('listen'), tabInd: mtabInd('listen'), tabMode: s.sheet ? 'hide' : '',
+      ovText, ov: C.map((c) => ({ cls: ovCls(c), p: (c.p || 0) + '%' })),
+      leg: [['#A6EDC1', cnt('done') + ' có giọng'], ['#F6CB8C', cnt('stale') + ' cần cập nhật'], ['rgba(255,255,255,.3)', cnt('new') + ' chưa có'], ['#C9A6F5', busy.length + ' đang tạo']].filter((x) => parseInt(x[1], 10) > 0).map(([c, t]) => ({ c, t })),
+      bgRows: C.map((c) => ({ n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', tag: ({ done: DUR[c.n - 1], stale: 'Cần cập nhật', new: c.compose ? 'Chưa soạn bản đọc' : 'Chưa chốt', run: 'Đang tạo ' + (c.p || 0) + '%', queue: 'Chờ', err: 'Dừng do lỗi' })[c.st], tc: ({ stale: 'w', run: 'r', err: 'e' })[c.st] || '' })),
+      entryCta: !!cta, sheetOn: s.sheet, openSheet: () => set({ sheet: true }), closeSheet: () => set({ sheet: false }),
+      groups,
+      qs: [['fast', 'Nghe thử nhanh'], ['std', 'Chuẩn'], ['high', 'Cao nhất']].map(([k, t]) => ({ t, m: '≈ ' + QMIN[k] + ' ph/chương', on: s.q === k ? 'true' : 'false', cls: s.q === k ? 'on' : '', pick: () => set({ q: k }) })),
+      autoA: s.auto ? 'true' : 'false', autoBg: s.auto ? '#9A63E3' : '#2A2A2E', autoKnob: s.auto ? '22px' : '2px', toggleAuto: () => set({ auto: !s.auto }),
+      sum, hasCta: !!cta, ctaLabel: cta, ctaCls: onlyUpd ? 'w' : '', ctaIcon: onlyUpd ? 'i-refresh' : 'i-mic', go,
+      hasAlt: !cta && !busy.length && !todo.length, toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

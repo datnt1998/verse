@@ -1,0 +1,148 @@
+/* Kit: lớp dùng chung của web/src/ui — số liệu lấy từ <style> của docs/design/v1/artboards/Kit.dc.html.
+   Còn lại sau khi chuyển sang StyleX:
+   - lớp còn được CSS/TSX khác nhắm tới làm hook (kit-pop của AccountMenu, lớp gallery không thuộc phạm vi di cư);
+   - chọn lọc con-cháu/trạng thái cha (:has, :focus-visible .kit-switch-track, hover-cha .kit-action-trigger) StyleX không diễn đạt;
+   - @keyframes giữ nguyên tên để stylex tham chiếu bằng chuỗi (tên băm sẽ đổi computed animation-name). */
+.kit-pop { background: #1A1A1D; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 6px; box-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); animation: kit-pop .17s cubic-bezier(.2,.9,.3,1) both; transform-origin: top right; z-index: 60; }
+.kit-option { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 6px 10px; border: 0; border-radius: 9px; background: transparent; color: #EDEDEF; font-size: 13px; text-align: left; cursor: pointer; }
+.kit-option:hover { background: rgba(255,255,255,.06); }
+.kit-option:focus-visible, .kit-option[aria-selected=true] { background: rgba(255,255,255,.075); }
+.kit-option:disabled { color: #5E5E68; cursor: not-allowed; background: transparent; }
+.kit-option[aria-expanded=true] { background: rgba(255,255,255,.075); }
+.kit-option[data-hi=true] { background: rgba(255,255,255,.075); }
+.kit-danger { color: #FFB3BA; }
+.kit-danger:hover, .kit-danger:focus-visible { background: rgba(255,95,110,.12); }
+.kit-danger[data-hi=true] { background: rgba(255,95,110,.12); }
+.kit-separator { height: 1px; background: rgba(255,255,255,.07); margin: 6px 4px; }
+.kit-fly { position: absolute; top: -6px; left: calc(100% + 8px); width: 232px; animation: kit-fly .16s cubic-bezier(.2,.9,.3,1) both; }
+.kit-fly[data-flip=true] { left: auto; right: calc(100% + 8px); animation-name: kit-fly-left; }
+/* Nút ⋯ chỉ hiện khi rê chuột vào dòng chứa — StyleX không vẽ trạng thái theo phần tử cha. */
+.kit-action-trigger { opacity: 0; transition: opacity .12s; }
+.kit-context:hover .kit-action-trigger, .kit-action-trigger:focus-visible, .kit-action-trigger[aria-expanded=true] { opacity: 1; }
+@media (pointer: coarse) { .kit-action-trigger { opacity: 1; } }
+/* Gallery (không thuộc phạm vi di cư) */
+.kit-gallery { height: 100vh; background: #0B0B0D; color: #EDEDEF; overflow: auto; }
+.kit-gallery header { display: flex; align-items: center; gap: 18px; padding: 10px 20px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.kit-gallery main { max-width: 1300px; margin: auto; padding: 24px 32px 56px; }
+.kit-gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.kit-panel { background: linear-gradient(180deg, #171719, #131315); border: 1px solid rgba(255,255,255,.07); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.kit-panel h2 { font-size: 14px; margin: 0; }
+.kit-panel p { font-size: 12.5px; color: #A0A0AB; margin: 0; }
+.kit-gallery-row { position: relative; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 8px 0 12px; border-radius: 10px; }
+.kit-gallery-row:hover, .kit-gallery-row:has(.kit-action-trigger[aria-expanded=true]) { background: rgba(255,255,255,.04); }
+.kit-gallery-row:hover .kit-action-trigger { opacity: 1; }
+.kit-scard:hover { border-color: rgba(255,255,255,.14) !important; }
+.kit-shim { background: linear-gradient(90deg, #A0A0AB 0%, #A0A0AB 35%, #F3E8FF 50%, #A0A0AB 65%, #A0A0AB 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: kit-shim 2.4s linear infinite; }
+.kit-toast-in { animation: kit-toast-in .4s cubic-bezier(.2,.9,.25,1.12) both; }
+@media (max-width: 760px) {
+  .kit-gallery-grid { grid-template-columns: 1fr; }
+  .kit-gallery header { flex-wrap: wrap; }
+  .kit-gallery main { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kit-pop, .kit-fly, .kit-toast-in { animation: none !important; }
+}
+/* Switch: vòng focus vẽ quanh ô rãnh, không quanh vùng bấm 48×44 — chọn lọc con cháu. */
+.kit-switch:focus-visible { outline: none; }
+.kit-switch:focus-visible .kit-switch-track { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.kit-rcard:focus-visible, [role=radio]:focus-visible, [role=checkbox]:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* Ô nhập nằm trong khung (.kit-frame): khung đã vẽ vòng focus bo góc (:focus-within hoặc lớp khung trên
+   chính phần tử), nên tắt viền vuông của luật :focus-visible chung (tokens.css) cũng như luật
+   :focus-visible riêng của từng màn hình (vd .mc-page input:focus-visible). StyleX outline:none thua
+   các luật đó vì nằm trong @layer; :focus-within trên tổ tiên nâng specificity lên trên chúng. */
+.kit-frame:focus-within :is(input, textarea, [contenteditable="true"]):focus-visible,
+.kit-frame:is(input, textarea, [contenteditable="true"]):focus-within:focus-visible { outline: none; }
+
+/* motion:controls v1 — thời gian và easing từ khối ở đầu <style> artboard (17-kit.md).
+   Animation bám [aria-checked] nên chỉ chạy khi trạng thái đổi (chuột, phím hay SSE);
+   re-render giữ nguyên aria-checked không chạy lại. */
+[role=switch],[role=radio],[role=checkbox]{transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+.kit-switch-track{transition:background-color .2s ease}
+.kit-seg-thumb{position:absolute;top:0;left:0;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+.kit-seg-thumb{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.kit-switch-thumb{transition:transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease}
+[role=switch]:active:not(:disabled) .kit-switch-thumb{--kit-sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .kit-switch-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.kit-rcard:active:not(:disabled){transform:scale(.985)}
+.kit-rdot[data-checked=true]>span{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .kit-radio-tick{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .kit-cb-tick{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+[role=checkbox][aria-checked=true] .kit-cb-box,[role=checkbox][aria-checked=mixed] .kit-cb-box{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .kit-cb-box svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+}
+@media (prefers-reduced-motion:reduce){
+[role=switch],[role=radio],[role=checkbox],[role=switch] *,[role=radio] *,[role=checkbox] *,.kit-rdot>span,.kit-switch-track,.kit-switch-thumb,.kit-seg-thumb{animation:none !important;transition:background-color .2s ease,border-color .2s ease,color .2s ease !important}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+/* Thanh trượt (Kit.dc.html › input[type=range]) — pseudo-element vendor StyleX không hỗ trợ. */
+.kit-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 2px 2px 0; background: transparent; cursor: pointer; }
+.kit-range::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #C9A6F5 var(--p), rgba(255,255,255,.1) var(--p)); }
+.kit-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: #EDEDEF; box-shadow: 0 0 0 4px rgba(201,166,245,.25), 0 2px 6px rgba(0,0,0,.5); }
+.kit-range::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #C9A6F5 var(--p), rgba(255,255,255,.1) var(--p)); }
+.kit-range::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: #EDEDEF; box-shadow: 0 0 0 4px rgba(201,166,245,.25), 0 2px 6px rgba(0,0,0,.5); }
+/* Chuyển động đóng chạy khi overlay đã gỡ khỏi React — playDialogExit gắn .kit-dlg-closing lên wrapper,
+   nên phải là chọn lọc con cháu (không qua props được). */
+.kit-dlg:has(>.cr-dlg-in) { animation: none; }
+.kit-dlg-closing .kit-dlg-scrim { animation: kit-fade-out .2s ease-in both; }
+.kit-dlg-closing .kit-dlg { animation: kit-dialog-out .18s cubic-bezier(.5,0,.75,0) both; }
+.kit-dlg-closing .cr-dlg-in { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kit-dlg, .kit-dlg-scrim { animation: none !important; }
+}
+/* Ô chọn trình diễn trong SelectGallery (không thuộc phạm vi di cư) */
+.kit-sel-trg { display: flex; align-items: center; gap: 8px; width: 100%; height: 36px; padding: 0 10px 0 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,.1); color: #EDEDEF; font-size: 13px; text-align: left; cursor: pointer; transition: border-color .15s, box-shadow .15s, background .15s; }
+.kit-sel-trg:hover, .kit-sel-trg[data-demo=hover] { border-color: rgba(255,255,255,.18); background: #121214; }
+.kit-sel-trg[aria-expanded=true], .kit-sel-trg:focus-visible, .kit-sel-trg[data-demo=open] { outline: none; border-color: rgba(201,166,245,.55); box-shadow: 0 0 0 3px rgba(201,166,245,.14); }
+.kit-sel-trg[aria-invalid=true], .kit-sel-trg[data-demo=err] { border-color: rgba(255,159,168,.55); box-shadow: 0 0 0 3px rgba(255,95,110,.1); }
+.kit-sel-trg:disabled { opacity: .45; cursor: not-allowed; }
+.kit-sel-chev { transition: transform .18s; }
+.kit-sel-trg[aria-expanded=true] .kit-sel-chev, .kit-sel-trg[data-demo=open] .kit-sel-chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  [style*="kit-select-"] { animation: none !important; transition: none !important; }
+  .kit-sel-trg, .kit-sel-chev { transition: none !important; }
+}
+/* @keyframes — tên cố định, stylex.create tham chiếu bằng chuỗi; không đổi tên (computed animation-name nằm trong snapshot). */
+@keyframes kit-pop { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes kit-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kit-fade-out { to { opacity: 0; } }
+@keyframes kit-dialog { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes kit-dialog-out { to { opacity: 0; transform: translateY(6px) scale(.97); } }
+@keyframes kit-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes kit-tick { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes kit-toast-in { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes kit-fly { from { opacity: 0; transform: translateX(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes kit-fly-left { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes kit-tt-top { from { opacity: 0; transform: translateX(-50%) translateY(4px); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes kit-tt-bottom { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes kit-tt-top-out { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-50%) translateY(4px); } }
+@keyframes kit-tt-bottom-out { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-50%) translateY(-4px); } }
+@keyframes kit-skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes kit-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes kit-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes kit-select-wave { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+@keyframes kit-select-spin { to { transform: rotate(360deg); } }
+@keyframes kit-select-skeleton { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+
+/* Sheet di động (.m-*) — chuyển từ mobile.css; class giữ nguyên để CSS màn cũ vẫn khớp. */
+.m-overlay{position:fixed;inset:0;z-index:80;color:#EDEDEF;font-size:15px;line-height:1.5}
+.m-scrim{position:absolute;inset:0;background:rgba(4,4,6,.58);animation:m-fade .25s both}
+.m-sheet{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-height:calc(100dvh - var(--m-top) - 12px);padding-bottom:max(26px,var(--m-safe-bottom));background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid #ffffff1a;box-shadow:0 -24px 60px -10px #000c;animation:m-sheet-in .44s cubic-bezier(.2,.9,.25,1.03) both;outline:none}
+.m-out .m-sheet{animation:m-sheet-out .26s cubic-bezier(.5,0,.75,0) both}
+.m-out .m-scrim{animation:m-fade .26s reverse both}
+.m-drag{height:19px;min-height:19px;display:flex;justify-content:center;padding-top:8px;touch-action:none;cursor:grab}
+.m-drag span{width:38px;height:5px;border-radius:3px;background:#ffffff38}
+.m-sheet-title{display:flex;align-items:baseline;justify-content:space-between;padding:2px 16px 6px}
+.m-sheet-title h2{margin:0;font-size:18px;font-weight:600}
+.m-sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+@keyframes m-sheet-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes m-sheet-out{to{transform:translateY(100%)}}
+@keyframes m-fade{from{opacity:0}to{opacity:1}}
+.m-overlay .m-confirm-danger{color:#FF6B76;font-weight:500}
+.m-overlay .m-confirm-cancel{font-weight:600}

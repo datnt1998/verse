@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo và nghe audio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.bar-run{background:linear-gradient(90deg,#5A57E3,#9A63E3,#C9457F,#5DC1B0,#5A57E3);background-size:300% 100%;animation:flow 3s linear infinite}
+@keyframes flow{from{background-position:0 0}to{background-position:300% 0}}
+.wave span{flex:1;border-radius:999px;min-height:4px}
+.seg:hover .segact{opacity:1}
+.segact{opacity:0;transition:opacity .15s}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.pop{animation:pop .5s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.vring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--rc);opacity:0;animation:vring 1.8s ease-out infinite}
+.vring.r2{animation-delay:.9s}
+@keyframes vring{0%{transform:scale(.9);opacity:.75}100%{transform:scale(1.55);opacity:0}}
+.talk{animation:talk .42s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scale(1)}to{transform:scale(1.045)}}
+.frozen *{animation-play-state:paused !important}
+.pen{box-shadow:0 0 12px 2px rgba(201,166,245,.85)}
+/* Dòng thời gian chương — 3 chế độ theo bề rộng mỗi chương */
+.tlb2{min-width:3px;position:relative;overflow:hidden;border-radius:9px;padding:0 8px;display:flex;align-items:center;gap:6px;font-size:11.5px;cursor:pointer;transition:filter .12s,transform .12s}
+.tlb2:hover,.tlb2:focus-visible{filter:brightness(1.35)}
+.tlb2:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.m-num .tlb2{justify-content:center;padding:0;border-radius:7px}
+.m-bar .tlb2{padding:0;border-radius:3px;border:none !important}
+.m-bar .tlb2.hatch{background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 2px,transparent 2px 5px) !important}
+.tlttp{position:absolute;bottom:calc(100% + 8px);transform:translateX(-50%);z-index:5;padding:7px 10px;border-radius:10px;background:#222225;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 10px 24px rgba(0,0,0,.5);font-size:12px;line-height:1.45;white-space:nowrap;pointer-events:none}
+.tlr{position:relative;height:16px}
+.tlr>span{position:absolute;top:0;transform:translateX(-50%);font-size:11px;color:#6E6E78;white-space:nowrap}
+.tlr>span::before{content:"";position:absolute;left:50%;top:-5px;width:1px;height:4px;background:rgba(255,255,255,.18)}
+.tlleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:#8E8E99}
+.tlleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.wa{animation:wa .32s ease-out both;transform-origin:center}.wb{animation:wb .32s ease-out both;transform-origin:center}
+@keyframes wa{from{transform:scaleY(.15);opacity:.4}to{transform:none;opacity:1}}
+@keyframes wb{from{transform:scaleY(.15);opacity:.4}to{transform:none;opacity:1}}
+.fa{animation:fa .45s cubic-bezier(.2,.8,.3,1) both}.fb{animation:fb .45s cubic-bezier(.2,.8,.3,1) both}
+@keyframes fa{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fb{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+.ringspin{animation:spinr 3.2s linear infinite}
+@keyframes spinr{to{transform:rotate(360deg)}}
+.glowdrift{animation:drift 9s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-60px,40px)}}
+.wnow{background:linear-gradient(90deg,#F3E8FF,#C9A6F5,#F3E8FF);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:shim 1.2s linear infinite}
+.tick-draw{stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s ease-out .35s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.burst{animation:burst 1.5s ease-out both}
+@keyframes burst{from{transform:scale(.75);opacity:.85}to{transform:scale(1.9);opacity:0}}
+.fillring{animation:fillr .8s ease-out both}
+@keyframes fillr{from{transform:rotate(-200deg);opacity:0}to{transform:none;opacity:1}}
+.sweep{animation:sweep 1.2s ease-out both}
+@keyframes sweep{0%{transform:scaleY(.6);opacity:.3}60%{transform:scaleY(1.06);opacity:1;filter:brightness(1.5)}100%{transform:none;filter:none}}
+.lsli{display:flex;align-items:center;gap:0;border-radius:9px;padding-right:2px}
+.lsli:hover{background:rgba(255,255,255,0.03)}
+.lsx{width:28px;height:28px;flex:0 0 auto;border-radius:7px;border:none;background:transparent;color:#A0A0AB;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.lsli:hover .lsx,.lsli:focus-within .lsx,.lsx.on{opacity:1}
+.lsx:hover{background:rgba(255,255,255,0.07);color:#EDEDEF}
+/* async export dock (cùng hình với Jobs dock) */
+.jglass{background:linear-gradient(180deg,rgba(30,30,33,.93),rgba(20,20,22,.96));-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);border:1px solid rgba(255,255,255,.09);box-shadow:0 22px 60px -14px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}
+.jdock{animation:jdIn .55s cubic-bezier(.18,.95,.22,1.12) both;transform-origin:100% 100%}
+@keyframes jdIn{0%{opacity:0;transform:translate(10px,14px) scale(.82);filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none}}
+.jtoast{animation:jtIn .5s cubic-bezier(.18,.95,.25,1.15) both;transform-origin:100% 100%}
+@keyframes jtIn{from{opacity:0;transform:translateY(18px) scale(.94);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
+.jring{position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#141416;box-shadow:0 0 0 2px #19191B}
+.jring svg.jr{position:absolute;inset:0;transform:rotate(-90deg)}
+.jring .v{transition:stroke-dashoffset .3s linear}
+.jbump{animation:jbump .6s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes jbump{35%{transform:scale(1.045)}}
+.jdraw{stroke-dasharray:24;stroke-dashoffset:24;animation:jdraw .5s cubic-bezier(.3,.8,.3,1) .12s forwards}
+@keyframes jdraw{to{stroke-dashoffset:0}}
+.jbtn{height:28px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.jbtn:hover{filter:brightness(1.15)}
+.jsw{width:32px;height:18px;border-radius:999px;padding:2px;border:none;display:flex;flex:0 0 auto}
+.jsw i{width:14px;height:14px;border-radius:50%;transition:transform .2s}
+.jspin{animation:spinr 1s linear infinite}
+.updbar{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(246,203,140,.07);border:1px solid rgba(246,203,140,.3);color:#F3E2C4}
+.updbar.q{background:rgba(201,166,245,.06);border-color:rgba(201,166,245,.3);color:#E4D6FA}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-audio{-webkit-mask-image:url(../icons/audio-square.svg);mask-image:url(../icons/audio-square.svg)}
+.i-back10{-webkit-mask-image:url(../icons/backward-10seconds.svg);mask-image:url(../icons/backward-10seconds.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-chev-up{-webkit-mask-image:url(../icons/arrow-up-2.svg);mask-image:url(../icons/arrow-up-2.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-download{-webkit-mask-image:url(../icons/document-download.svg);mask-image:url(../icons/document-download.svg)}
+.i-export2{-webkit-mask-image:url(../icons/export-curve.svg);mask-image:url(../icons/export-curve.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-fwd10{-webkit-mask-image:url(../icons/forward-10seconds.svg);mask-image:url(../icons/forward-10seconds.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-mic{-webkit-mask-image:url(../icons/microphone-2.svg);mask-image:url(../icons/microphone-2.svg)}
+.i-music{-webkit-mask-image:url(../icons/music.svg);mask-image:url(../icons/music.svg)}
+.i-next{-webkit-mask-image:url(../icons/next.svg);mask-image:url(../icons/next.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-prev{-webkit-mask-image:url(../icons/previous.svg);mask-image:url(../icons/previous.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-sound{-webkit-mask-image:url(../icons/sound.svg);mask-image:url(../icons/sound.svg)}
+.i-speed{-webkit-mask-image:url(../icons/speedometer.svg);mask-image:url(../icons/speedometer.svg)}
+.i-tag{-webkit-mask-image:url(../icons/tag.svg);mask-image:url(../icons/tag.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
+.i-voice{-webkit-mask-image:url(../icons/voice-square.svg);mask-image:url(../icons/voice-square.svg)}
+.i-volume{-webkit-mask-image:url(../icons/volume-high.svg);mask-image:url(../icons/volume-high.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* RING v2: vòng tiến độ đầu bo tròn. Giá trị qua biến CSS ở thẻ bọc: --pv (0–100), --c (màu), --tr (màu nền vòng), --op */
+.prw{position:absolute;inset:0;pointer-events:none}
+.prw svg{display:block;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.prw circle{fill:none}
+.prw .pr-t{stroke:var(--tr,rgba(255,255,255,.08))}
+.prw .pr-v{stroke:var(--c,#C9A6F5);stroke-linecap:round;stroke-dasharray:var(--pv,0) 100;opacity:var(--op,1);transition:stroke-dasharray .5s cubic-bezier(.2,.9,.25,1),stroke .25s}
+.prw .pr-v.g{stroke:url(#prg)}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a href="Outline.dc.html" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<a href="Outline.dc.html" style="min-width: 0; font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Tập 1</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-category" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn viết</a>
+<a class="navl" href="Outline.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a href="Transcript.dc.html" aria-current="page" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-headphone-b" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Settings.dc.html" aria-label="Tuỳ chỉnh" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span></a>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+
+
+<sc-if value="{{showPipe}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px"><span class="ic i-headphone-b" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span><h1 style="margin: 0; font-size: 16px; font-weight: 600">Audio Tập 1</h1></div>
+<ol aria-label="Các bước làm audio" style="list-style: none; margin: 0; padding: 3px; display: flex; gap: 2px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{pipe}}" as="p" hint-placeholder-count="3">
+<li><a href="{{p.href}}" onClick="{{p.go}}" title="{{p.tip}}" aria-current="{{p.cur}}" style="height: 30px; padding: 0 12px 0 8px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: {{p.bg}}; color: {{p.fg}}; font-size: 13px; font-weight: {{p.fw}}"><span style="width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: {{p.nbg}}; color: {{p.nfg}}"><sc-if value="{{p.done}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 14px; height: 14px"></span></sc-if><sc-if value="{{p.notDone}}" hint-placeholder-val="{{ true }}">{{p.n}}</sc-if></span>{{p.label}}<span style="font-size: 12px; color: #7E7E8A; font-weight: 400">{{p.meta}}</span></a></li>
+</sc-for>
+</ol>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12.5px; color: #A0A0AB">{{topMeta}}</span>
+</div>
+</sc-if>
+
+<!-- ═════ XÁC NHẬN ═════ -->
+<sc-if value="{{isConfirm}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: 1; min-height: 0">
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; gap: 12px; padding: 12px 16px; opacity: 0.45; filter: blur(2px)">
+<div style="flex: 0 0 264px; border-radius: 14px; background: #131315"></div><div style="flex: 1; border-radius: 14px; background: #131315"></div><div style="flex: 0 0 344px; border-radius: 14px; background: #131315"></div>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(5,5,7,0.6)"></div>
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div class="dlg" role="dialog" aria-labelledby="cf-title" style="width: min(820px, 100%); max-height: 100%; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07)">
+<span class="ic i-sound" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span>
+<h2 id="cf-title" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">{{xTitle}}</h2>
+<button class="ghost" type="button" aria-label="Đóng" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true"></span></button>
+</div>
+<div class="scroll" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #A0A0AB">Giọng đọc đã tạo</span><span style="font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span class="ic i-tick-b" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span>8/8 chương</span><span style="font-size: 12px; color: #7E7E8A">372 đoạn · đã nghe & duyệt · không tạo lại</span></div>
+<div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #A0A0AB">{{xLenLbl}}</span><span class="num" style="font-size: 18px; font-weight: 600">{{xLen}}</span><span style="font-size: 12px; color: #7E7E8A">{{xLenNote}}</span></div>
+<div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 6px"><span style="font-size: 12px; color: #A0A0AB">Giọng đọc</span>
+</div>
+<sc-if value="{{isCastMode}}" hint-placeholder-val="{{ true }}"><span style="font-size: 18px; font-weight: 600">6 giọng</span><div style="display: flex"><sc-for list="{{castMini}}" as="c" hint-placeholder-count="6"><span title="{{c.name}}" style="width: 28px; height: 28px; flex: 0 0 auto; margin-left: {{c.ml}}; border-radius: 50%; background: #222225; box-shadow: 0 0 0 2px #171719, 0 0 0 3.5px {{c.ring}}; display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 600">{{c.ini}}</span></sc-for></div></sc-if>
+<sc-if value="{{isSingle}}" hint-placeholder-val="{{ false }}"><span style="font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px">{{singleTitle}}<sc-if value="{{packV}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 11.5px; font-weight: 500">theo gói</span></sc-if></span><span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #C9C9D1"><span class="ic i-mic" aria-hidden="true" style="width: 14px; height: 14px; color: #A0A0AB"></span>{{singleSub}}</span></sc-if>
+<a href="{{castHref}}" style="font-size: 12px; color: #A0A0AB">{{castLink}}</a></div>
+</div>
+
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB">
+<span class="ic i-info" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 1px"></span>
+<span>Bước này <span style="color: #EDEDEF">chỉ ghép</span> audio đã có {{xNoteWhat}} thành file để đăng — không đọc lại gì. Đoạn nào muốn đổi giọng hãy sửa ở trình nghe trước khi ghép.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Xuất gì</span>
+<div role="radiogroup" aria-label="Xuất gì" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><sc-for list="{{xScopes}}" as="x" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{x.sel}}" onClick="{{x.pick}}" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; border: 1px solid {{x.bd}}; background: {{x.bg}}; color: #EDEDEF; text-align: left; font: inherit"><span aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; border-radius: 50%; border: 1.5px solid {{x.rb}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{x.rd}}"></span></span><span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 500">{{x.t}}</span><span style="font-size: 12px; color: #7E7E8A; line-height: 1.45">{{x.d}}</span></span></button></sc-for></div>
+<sc-if value="{{xIsCh}}" hint-placeholder-val="{{ false }}"><div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex: 1; font-size: 13px; color: #A0A0AB">Chọn chương · <span class="num" style="color: #EDEDEF">{{xSelN}}/8</span></span><button class="ghost" type="button" onClick="{{xAll}}" style="height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px">{{xAllT}}</button></div>
+<div role="group" aria-label="Chọn chương để xuất" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px"><sc-for list="{{xChs}}" as="c" hint-placeholder-count="8"><button type="button" role="checkbox" aria-checked="{{c.on}}" onClick="{{c.toggle}}" title="{{c.title}}" style="height: 48px; padding: 0 10px; border-radius: 10px; border: 1px solid {{c.bd}}; background: {{c.bg}}; color: #EDEDEF; font: inherit; display: flex; align-items: center; gap: 8px; text-align: left"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{c.cb}}; background: {{c.cbg}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-tick" style="width: 12px; height: 12px; color: #0B0B0D; opacity: {{c.tk}}"></span></span><span style="min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span class="num" style="font-size: 13px; font-weight: 500">Chương {{c.n}}</span><span class="num" style="font-size: 11.5px; color: #7E7E8A">{{c.dur}}</span></span></button></sc-for></div>
+<span style="font-size: 12px; color: #7E7E8A">Mỗi chương một tệp riêng, tên theo số chương. Có thể chọn chương không liền nhau.</span>
+</div></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Thành phẩm</span>
+<div class="card" style="border-radius: 14px; padding: 4px 14px">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0">
+<span class="ic i-audio" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13.5px">Định dạng</span><span style="font-size: 12px; color: #7E7E8A">{{fmtNote}}</span></span>
+<div role="radiogroup" aria-label="Định dạng" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><sc-for list="{{formats}}" as="f" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{f.sel}}" onClick="{{f.pick}}" style="height: 28px; padding: 0 12px; border: none; border-radius: 6px; background: {{f.bg}}; color: {{f.fg}}; font-size: 12.5px">{{f.label}}</button></sc-for></div>
+</div>
+<sc-for list="{{opts}}" as="o" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06)">
+<span class="ic {{o.icon}}" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">{{o.label}}</span><span style="font-size: 12px; color: #7E7E8A">{{o.desc}}</span></span>
+<sc-if value="{{o.hasPlay}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" aria-label="Nghe nhạc mở đầu" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-play" aria-hidden="true" style="width: 11px; height: 11px"></span></button></sc-if>
+<button type="button" role="switch" aria-checked="{{o.on}}" aria-label="{{o.label}}" onClick="{{o.toggle}}" style="width: 36px; height: 20px; border-radius: 999px; padding: 2px; border: none; background: {{o.bg}}; display: flex; justify-content: flex-start"><span class="mo-thumb" style="--tx: {{o.j}}; width: 16px; height: 16px; border-radius: 50%; background: {{o.dot}}"></span></button>
+</div>
+</sc-for>
+<sc-if value="{{xIsCh}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06)">
+<span class="ic i-folder" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Cách nhận tệp</span><span style="font-size: 12px; color: #7E7E8A">{{xSplitNote}}</span></span>
+<div role="radiogroup" aria-label="Cách nhận tệp" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><sc-for list="{{xPack}}" as="f" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{f.sel}}" onClick="{{f.pick}}" style="height: 28px; padding: 0 12px; border: none; border-radius: 6px; background: {{f.bg}}; color: {{f.fg}}; font-size: 12.5px; white-space: nowrap">{{f.label}}</button></sc-for></div>
+</div>
+</sc-if>
+</div>
+</div>
+
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<div style="flex: 1 1 300px; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span><span>Lưu vào <span style="color: #EDEDEF">Bản xuất › Tập 1</span></span></div>
+<div style="flex: 1 1 220px; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB"><span class="ic i-box" aria-hidden="true" style="width: 16px; height: 16px"></span><span class="num">Cần ≈ {{diskNeed}} trống · máy còn 86 GB</span></div>
+</div>
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: #A0A0AB"><span class="ic i-cpu" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 1px"></span><span>Đọc ngay trên máy của bạn, không gửi chữ đi đâu. Máy sẽ chạy nặng trong lúc tạo — tạm dừng được bất cứ lúc nào, chương đã xong được giữ lại.</span></div>
+</div>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 20px 16px; border-top: 1px solid rgba(255,255,255,0.07)">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px"><span class="num" style="font-size: 12.5px; color: #A0A0AB">{{xFoot}}</span><label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #C9C9D1; cursor: pointer; width: max-content"><button class="jsw" type="button" role="switch" aria-checked="{{autoDl}}" onClick="{{toggleAutoDl}}" style="background: {{autoBg}}"><i style="background: {{autoKnob}}; transform: translateX({{autoX}})"></i></button>Tự tải về máy này khi xong</label></span>
+<button class="ghost" type="button" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13.5px">Huỷ</button>
+<button class="primary" type="button" onClick="{{start}}" style="height: 38px; padding: 0 16px 0 12px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-export2" aria-hidden="true" style="width: 14px; height: 14px"></span>{{xBtn}}</button>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ═════ ĐANG TẠO (phòng thu) ═════ -->
+<sc-if value="{{isStudio}}" hint-placeholder-val="{{ false }}">
+<div class="{{frozenCls}}" style="flex: 1; min-height: 0; display: flex">
+<main class="scroll" style="flex: 999 1 640px; min-width: 0; padding: 18px 24px 22px; display: flex; flex-direction: column; gap: 14px">
+
+<sc-if value="{{showLiveHero}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Đang tạo audio" class="card" style="position: relative; overflow: hidden; border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; border-color: {{heroBd}}">
+<div aria-hidden="true" class="glowdrift" style="position: absolute; right: -120px; top: -160px; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(closest-side, {{glowA}}, transparent 70%); filter: blur(12px); pointer-events: none"></div>
+<div style="position: relative; display: flex; align-items: center; gap: 18px">
+<div style="position: relative; width: 60px; height: 60px; flex: 0 0 auto">
+<sc-if value="{{running}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" class="vring" style="--rc: {{spk.ring}}"></span><span aria-hidden="true" class="vring r2" style="--rc: {{spk.ring}}"></span></sc-if>
+<span class="{{spkCls}}" style="position: absolute; inset: 0; border-radius: 50%; background: #222225; box-shadow: 0 0 0 2.5px {{spk.ring}}, 0 8px 24px -8px rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600">{{spk.ini}}</span>
+<sc-if value="{{running}}" hint-placeholder-val="{{ true }}"><span class="eq" aria-hidden="true" style="position: absolute; right: -6px; bottom: -4px; height: 22px; padding: 0 6px; border-radius: 999px; background: #18181A; border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; gap: 2px; color: #C9A6F5"><span></span><span></span><span></span><span></span></span></sc-if>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span role="status" aria-live="polite" style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em">{{heroTitle}}</span>
+<span class="num" style="font-size: 13px; color: #A0A0AB">{{heroSub}}</span>
+</div>
+<div style="position: relative; width: 96px; height: 96px; flex: 0 0 auto" aria-label="Đã xong {{pct}} phần trăm" role="img">
+<sc-if value="{{running}}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" class="ringspin" style="position: absolute; inset: -6px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(154,99,227,0.0) 200deg, rgba(201,166,245,0.55) 300deg, rgba(93,193,176,0.45) 350deg, transparent 360deg); filter: blur(8px)"></div></sc-if>
+<span class="prw" style="--pv: {{pv}}; --ca: {{ringA}}; --cb: {{ringB}}; --tr: #1E1E21"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="prgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--ca)"/><stop offset="1" style="stop-color: var(--cb)"/></linearGradient></defs><circle class="pr-t" cx="50" cy="50" r="46.09" stroke-width="7.81"/><circle class="pr-v" cx="50" cy="50" r="46.09" stroke-width="7.81" pathLength="100" style="stroke: url(#prgA)"/></svg></span>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1"><span class="num" style="font-size: 22px; font-weight: 700">{{pct}}%</span><span class="num" style="font-size: 10.5px; color: #7E7E8A">{{etaShort}}</span></div>
+</div>
+</div>
+
+<p style="position: relative; margin: 0; min-height: 66px; font-family: 'Literata', Georgia, serif; font-size: 19px; line-height: 1.7; letter-spacing: 0.002em"><span style="font-family: 'Be Vietnam Pro', sans-serif; font-size: 12px; color: #7E7E8A; display: block; line-height: 1.4; margin-bottom: 2px">{{lineLabel}}</span><sc-for list="{{words}}" as="w" hint-placeholder-count="14"><span class="{{w.cls}}" style="color: {{w.c}}; transition: color .25s">{{w.w}}</span></sc-for></p>
+
+<div style="position: relative">
+<div class="wave" aria-hidden="true" style="height: 72px; display: flex; align-items: center; gap: 2px"><sc-for list="{{bars}}" as="b" hint-placeholder-count="96"><span class="{{b.cls}}" style="height: {{b.h}}; background: {{b.c}}"></span></sc-for></div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)"></div>
+</div>
+
+<ol aria-label="Các bước của đoạn đang tạo" style="position: relative; list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<li style="height: 30px; padding: 0 12px 0 8px; display: flex; align-items: center; gap: 7px; border-radius: 999px; background: {{s.bg}}; border: 1px solid {{s.bd}}; font-size: 12.5px; color: {{s.fg}}">
+<sc-if value="{{s.done}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; color: #A6EDC1"></span></sc-if>
+<sc-if value="{{s.now}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 15px; height: 15px; border-top-color: #C9A6F5"></span></sc-if>
+<sc-if value="{{s.todo}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 15px; height: 15px; box-sizing: border-box; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,0.25)"></span></sc-if>
+<span class="{{s.tcls}}" style="text-decoration: {{s.td}}">{{s.label}}</span>
+</li>
+</sc-for>
+<li style="flex: 1"></li>
+<li class="num" style="height: 30px; display: flex; align-items: center; font-size: 12px; color: #7E7E8A">{{segLabel}}</li>
+</ol>
+
+<div style="position: relative; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding-top: 2px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px">
+<button class="ghost" type="button" onClick="{{togglePause}}" style="height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic {{pauseIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{pauseLabel}}</button>
+<button class="ghost" type="button" onClick="{{toBackground}}" style="height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px"></span>Chạy nền</button>
+<button class="ghost" type="button" style="height: 34px; padding: 0 12px; border-radius: 9px; border: none; background: transparent; color: #A0A0AB; font-size: 13px">Huỷ, giữ phần đã xong</button>
+<span style="flex: 1"></span>
+<span style="font-size: 12.5px; color: #7E7E8A; display: flex; align-items: center; gap: 6px"><span class="ic i-notify" aria-hidden="true" style="width: 14px; height: 14px"></span>Báo khi xong</span>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+<section role="alert" class="card" style="border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; border-color: rgba(246,203,140,0.35)">
+<div style="display: flex; align-items: center; gap: 16px">
+<span class="pop" aria-hidden="true" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(246,203,140,0.1); box-shadow: 0 0 0 1px rgba(246,203,140,0.35), 0 0 30px -8px rgba(246,203,140,0.5); display: flex; align-items: center; justify-content: center; color: #F6CB8C"><span class="ic i-warning" style="width: 26px; height: 26px"></span></span>
+<div style="flex: 1; min-width: 0"><span style="display: block; font-size: 17px; font-weight: 600">Bộ đọc trên máy đã dừng giữa chừng</span><span class="num" style="font-size: 13px; color: #A0A0AB">Chương 4 · đoạn 23/51 · lúc 22:31 · đã xong 43%</span></div>
+</div>
+<div style="padding: 12px 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13.5px; font-weight: 500">Máy hết bộ nhớ đồ hoạ khi đọc đoạn này</span><span style="font-size: 13px; color: #A0A0AB">Thường xảy ra khi đang mở thêm phần mềm nặng, hoặc đoạn quá dài. 3 chương đầu và 22 đoạn của chương 4 vẫn được giữ nguyên.</span></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button class="primary" type="button" onClick="{{retry}}" style="height: 36px; padding: 0 14px 0 12px; border-radius: 9px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Thử lại từ đoạn 23</button>
+<button class="ghost" type="button" style="height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px">Phần còn lại dùng “Nghe thử nhanh”</button>
+<a class="ghost" href="Settings.dc.html" style="height: 36px; padding: 0 12px; border-radius: 9px; color: #A0A0AB; font-size: 13px; display: flex; align-items: center">Mở Cài đặt › Giọng đọc</a>
+</div>
+<button type="button" onClick="{{toggleTech}}" aria-expanded="{{techOpen}}" style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: #7E7E8A; font-size: 12.5px"><span class="ic {{techIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>Chi tiết kỹ thuật</button>
+<sc-if value="{{techOpen}}" hint-placeholder-val="{{ false }}"><div style="padding: 10px 12px; border-radius: 10px; background: #0B0B0D; border: 1px solid rgba(255,255,255,0.07); font-size: 11.5px; line-height: 1.8; color: #A0A0AB">[thông báo lỗi gốc của bộ đọc]<br>đoạn s0023 · giọng giong-nhuoc-vy · chất lượng Chuẩn</div></sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<section role="status" class="card" style="position: relative; overflow: hidden; border-radius: 20px; padding: 24px 22px; display: flex; align-items: center; gap: 22px; border-color: rgba(166,237,193,0.3)">
+<div aria-hidden="true" style="position: absolute; left: -80px; top: -140px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(166,237,193,0.12), transparent 70%); filter: blur(10px)"></div>
+<div style="position: relative; width: 96px; height: 96px; flex: 0 0 auto">
+<span class="burst" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(166,237,193,0.6)"></span>
+<span class="burst" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(201,166,245,0.5); animation-delay: .25s"></span>
+<div aria-hidden="true" class="fillring" style="position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from -90deg, #A6EDC1, #5DC1B0, #A6EDC1); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px))"></div>
+<svg aria-hidden="true" width="96" height="96" viewBox="0 0 24 24" fill="none" style="position: absolute; inset: 0; padding: 26px"><path class="tick-draw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+<div style="position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em">Đã tạo xong audio Tập 1</span>
+<span class="num" style="font-size: 13.5px; color: #A0A0AB">{{doneSub}}</span>
+<div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap">
+<button class="primary" type="button" onClick="{{toListen}}" style="height: 38px; padding: 0 16px 0 12px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Nghe & duyệt</button>
+<button class="ghost" type="button" onClick="{{exportNow}}" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13.5px">Ghép & xuất ngay</button>
+</div>
+</div>
+</section>
+</sc-if>
+
+<!-- Dòng thời gian chương -->
+<section aria-label="Tiến độ theo chương" class="card" style="border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><span style="font-size: 13.5px; font-weight: 600; white-space: nowrap">Tập 1 · {{nCh}} chương</span><span class="num" style="font-size: 12px; color: #7E7E8A; text-align: right">{{madeLabel}}</span></div>
+<sc-if value="{{updBar}}" hint-placeholder-val="{{ false }}"><div class="updbar {{updCls}}" role="status"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px; flex: 0 0 auto"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><b style="font-weight: 600; font-size: 13px">{{updText}}</b><span style="font-size: 12px; opacity: .8">{{updSub}}</span></span><sc-if value="{{updStale}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{doUpd}}" style="height: 32px; padding: 0 14px; border-radius: 9px; border: none; background: #F6CB8C; color: #1A1408; font-size: 12.5px; font-weight: 600; white-space: nowrap">{{updBtn}}</button></sc-if></div></sc-if>
+<div class="{{tlMode}}" style="position: relative; display: flex; flex-direction: column; gap: 8px" onMouseLeave="{{tlLeave}}">
+<sc-if value="{{hasHov}}" hint-placeholder-val="{{ false }}"><div class="tlttp" role="tooltip" style="left: {{hov.x}}"><span style="font-weight: 600">Chương {{hov.n}}</span><span style="color: #A0A0AB"> · {{hov.title}}</span><br><span class="num" style="color: {{hov.c}}">{{hov.state}}</span></div></sc-if>
+<div role="group" aria-label="Các chương của Tập 1 · phím ← → để chuyển chương" onKeyDown="{{tlKey}}" style="display: flex; gap: {{tlGap}}; height: {{tlH}}">
+<sc-for list="{{tl}}" as="c" hint-placeholder-count="8">
+<button type="button" onClick="{{c.pick}}" onMouseEnter="{{c.hover}}" onFocus="{{c.hover}}" aria-label="{{c.aria}}" tabindex="{{c.ti}}" class="tlb2 {{c.cls}}" style="flex: {{c.flex}}; border: 1px {{c.bs}} {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; animation-delay: {{c.delay}}">
+<sc-if value="{{c.now}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" class="bar-run" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{c.fill}}; opacity: {{c.runOp}}"></span><sc-if value="{{c.pen}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" class="pen" style="position: absolute; top: 4px; bottom: 4px; left: {{c.fill}}; width: 2px; border-radius: 1px; background: #F3E8FF"></span></sc-if></sc-if>
+<sc-if value="{{c.showN}}" hint-placeholder-val="{{ true }}"><span class="num" style="position: relative; font-weight: 600">{{c.n}}</span></sc-if>
+<sc-if value="{{c.showMeta}}" hint-placeholder-val="{{ true }}"><sc-if value="{{c.done}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="position: relative; width: 13px; height: 13px; color: #A6EDC1"></span></sc-if><span class="num" style="position: relative; margin-left: auto; color: #7E7E8A; white-space: nowrap">{{c.meta}}</span></sc-if>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{tlRuler}}" hint-placeholder-val="{{ false }}"><div class="tlr" aria-hidden="true"><sc-for list="{{rTicks}}" as="t" hint-placeholder-count="5"><span class="num" style="left: {{t.x}}; color: {{t.c}}; font-weight: {{t.w}}">{{t.n}}</span></sc-for></div></sc-if>
+<sc-if value="{{tlLegend}}" hint-placeholder-val="{{ false }}"><div class="tlleg" aria-hidden="true"><span><i style="background: rgba(166,237,193,0.5)"></i>Đã tạo</span><span><i style="background: linear-gradient(90deg, #9A63E3, #C9457F)"></i>Đang tạo</span><span><i style="background: rgba(255,255,255,0.12)"></i>Chờ tạo</span><span><i style="background: repeating-linear-gradient(135deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 5px)"></i>Chưa chốt</span><span style="color: #6E6E78">Rê hoặc dùng phím ← → để xem từng chương</span></div></sc-if>
+</div>
+</section>
+
+<div style="display: flex; gap: 14px; flex-wrap: wrap">
+<section aria-label="Theo giọng" class="card" style="flex: 1 1 300px; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13.5px; font-weight: 600">{{laneTitle}}</span>
+<sc-for list="{{lanes}}" as="l" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="width: 24px; height: 24px; flex: 0 0 auto; border-radius: 50%; background: #222225; box-shadow: 0 0 0 1.5px {{l.ring}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600">{{l.ini}}</span>
+<span style="flex: 0 0 108px; font-size: 12.5px; color: {{l.fg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.name}}</span>
+<span aria-hidden="true" style="flex: 1; height: 5px; border-radius: 5px; background: #1E1E21; overflow: hidden"><span class="{{l.barCls}}" style="display: block; width: {{l.pct}}; height: 100%; border-radius: 5px; background: {{l.barBg}}; transition: width .3s"></span></span>
+<span class="num" style="flex: 0 0 62px; text-align: right; font-size: 11.5px; color: #7E7E8A">{{l.count}}</span>
+</div>
+</sc-for>
+</section>
+<section aria-label="Nhật ký tạo" class="card" style="flex: 1 1 300px; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 13.5px; font-weight: 600">Nhật ký tạo</span><span style="font-size: 12px; color: #7E7E8A">mới nhất trên cùng</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{log}}" as="g" hint-placeholder-count="6">
+<li class="{{g.cls}}" style="display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: {{g.bt}}; font-size: 12.5px; opacity: {{g.op}}">
+<span class="ic {{g.icon}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{g.ic}}"></span>
+<span style="flex: 1; min-width: 0; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.text}}</span>
+<span class="num mono" style="font-size: 11px; color: #7E7E8A">{{g.meta}}</span>
+</li>
+</sc-for>
+</ol>
+</section>
+</div>
+</main>
+
+<aside class="scroll" style="flex: 0 0 340px; padding: 18px 16px; border-left: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">Nghe trong lúc chờ</span>
+<div class="card" style="border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; color: #7E7E8A">Chương {{mini.n}}</span><span style="font-size: 14px; font-weight: 600">{{mini.title}}</span></div>
+<div class="wave" aria-hidden="true" style="height: 44px; display: flex; align-items: center; gap: 2px"><sc-for list="{{miniWave}}" as="w" hint-placeholder-count="48"><span style="height: {{w.h}}; background: {{w.c}}"></span></sc-for></div>
+<div style="display: flex; align-items: center; gap: 10px">
+<button class="primary" type="button" onClick="{{toggleMini}}" aria-label="{{miniLabel}}" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic {{miniIcon}}" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<span class="num mono" style="font-size: 12px; color: #A0A0AB">{{miniTime}} / {{mini.dur}}</span>
+<span style="flex: 1"></span>
+<a href="#" onClick="{{toListen}}" style="font-size: 12.5px; color: #A0A0AB">Mở trình nghe</a>
+</div>
+</div>
+<span class="lbl" style="padding-top: 6px">Máy của bạn</span>
+<div class="card" style="border-radius: 14px; padding: 4px 14px">
+<sc-for list="{{machine}}" as="m" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: {{m.bt}}"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span><span style="flex: 1; font-size: 12.5px; color: #A0A0AB">{{m.k}}</span><span class="num" style="font-size: 12.5px; color: #EDEDEF">{{m.v}}</span></div>
+</sc-for>
+</div>
+<span style="font-size: 12px; color: #7E7E8A">Ước tính tự cập nhật theo tốc độ thật của máy. Có thể rời trang — Noverse báo khi xong.</span>
+</aside>
+</div>
+</sc-if>
+
+<!-- ═════ CHẠY NỀN ═════ -->
+<sc-if value="{{isBackground}}" hint-placeholder-val="{{ false }}">
+<div style="position: relative; flex: 1; min-height: 0">
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; gap: 12px; padding: 12px 16px">
+<div style="flex: 0 0 236px; border-radius: 14px; background: #131315"></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px"><div style="flex: 4; border-radius: 14px; background: #131315"></div><div style="flex: 6; border-radius: 14px; background: #131315"></div><div style="height: 56px; border-radius: 18px; background: #18181A"></div></div>
+<div style="flex: 0 0 340px; border-radius: 14px; background: #131315"></div>
+</div>
+<div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-size: 13px; color: #5E5E68">Bạn đang ở Bàn viết — audio vẫn tạo trong nền</div>
+<div class="fa" role="status" style="position: absolute; right: 20px; bottom: 20px; width: 360px; border-radius: 18px; background: #18181A; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -20px rgba(0,0,0,0.9); padding: 12px 12px 12px 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="position: relative; width: 40px; height: 40px; flex: 0 0 auto">
+<div aria-hidden="true" class="ringspin" style="position: absolute; inset: -4px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, transparent 220deg, rgba(201,166,245,0.5) 320deg, transparent 360deg); filter: blur(5px)"></div>
+<span class="prw" style="--pv: {{pv}}; --ca: #9A63E3; --cb: #C9A6F5; --tr: #2A2A2E"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="prgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--ca)"/><stop offset="1" style="stop-color: var(--cb)"/></linearGradient></defs><circle class="pr-t" cx="50" cy="50" r="46.25" stroke-width="7.5"/><circle class="pr-v" cx="50" cy="50" r="46.25" stroke-width="7.5" pathLength="100" style="stroke: url(#prgB)"/></svg></span>
+<span class="eq" aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 2px; color: #C9A6F5"><span></span><span></span><span></span><span></span></span>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 600">Đang tạo audio Tập 1 · <span class="num">{{pct}}%</span></span><span class="num" style="font-size: 12px; color: #A0A0AB; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Chương 4 · {{spk.name}} · {{etaShort}}</span></div>
+<button class="ghost" type="button" onClick="{{toStudio}}" aria-label="Mở lại phòng thu" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-up" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+</div>
+<div aria-hidden="true" style="display: flex; gap: 3px; height: 6px"><sc-for list="{{tl}}" as="c" hint-placeholder-count="8"><span style="flex: {{c.flex}}; position: relative; overflow: hidden; border-radius: 3px; background: {{c.mbg}}"><sc-if value="{{c.now}}" hint-placeholder-val="{{ false }}"><span class="bar-run" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{c.fill}}"></span></sc-if></span></sc-for></div>
+</div>
+</div>
+</sc-if>
+
+<!-- ═════ NGHE & DUYỆT ═════ -->
+<sc-if value="{{isListen}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; min-height: 0; display: flex">
+<nav aria-label="Chương" class="scroll" style="flex: 0 0 248px; padding: 14px 10px; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 8px"><span style="font-size: 13px; font-weight: 600">Tập 1</span><span class="num" style="font-size: 12px; color: #7E7E8A">2:24:31</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px">
+<sc-for list="{{lsRows}}" as="r" hint-placeholder-count="8">
+<li class="lsli" style="background: {{r.bg}}"><button class="row" type="button" aria-current="{{r.cur}}" style="flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px; border: none; background: transparent; color: #EDEDEF; text-align: left">
+<span class="mono num" style="flex: 0 0 18px; font-size: 12px; color: #7E7E8A">{{r.n}}</span>
+<span style="flex: 1; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+<sc-if value="{{r.flags}}" hint-placeholder-val="{{ false }}"><span class="num" style="height: 18px; padding: 0 5px; border-radius: 5px; background: rgba(246,203,140,0.14); color: #F6CB8C; font-size: 11px; display: flex; align-items: center; gap: 3px"><span class="ic i-flag" aria-hidden="true" style="width: 11px; height: 11px"></span>{{r.flags}}</span></sc-if>
+<span class="num" style="font-size: 11.5px; color: #7E7E8A">{{r.dur}}</span>
+</button><button class="lsx {{r.xon}}" type="button" onClick="{{r.export}}" title="Xuất riêng chương {{r.n}}" aria-label="Xuất riêng chương {{r.n}}"><span class="ic i-export2" aria-hidden="true" style="width: 14px; height: 14px"></span></button></li>
+</sc-for>
+</ol>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<div style="flex: 0 0 auto; padding: 16px 24px 14px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 12px; color: #7E7E8A">Chương 3</span><h2 style="margin: 0; font-size: 19px; font-weight: 600">Hai chiếc bát trên bàn</h2></div>
+<div style="position: relative">
+<div class="wave" aria-label="Sóng âm chương 3, đang ở 06:12" role="img" style="height: 64px; display: flex; align-items: center; gap: 2px"><sc-for list="{{wave}}" as="w" hint-placeholder-count="120"><span style="height: {{w.h}}; background: {{w.c}}"></span></sc-for></div>
+<sc-for list="{{marks}}" as="m" hint-placeholder-count="2"><span title="{{m.t}}" style="position: absolute; top: -6px; left: {{m.x}}; width: 2px; height: 76px; background: #F6CB8C; border-radius: 1px"><span style="position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: #F6CB8C"></span></span></sc-for>
+<span aria-hidden="true" style="position: absolute; top: -4px; left: 36%; width: 2px; height: 72px; background: #EDEDEF; border-radius: 1px"></span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<span class="num mono" style="font-size: 12.5px; color: #C9C9D1; flex: 0 0 110px">06:12 / 17:12</span>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" aria-label="Chương trước" style="width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-prev" aria-hidden="true"></span></button>
+<button class="ghost" type="button" aria-label="Lùi 10 giây" style="width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-back10" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+<button class="primary" type="button" onClick="{{togglePlay}}" aria-label="{{playLabel}}" style="width: 46px; height: 46px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic {{playIcon}}" aria-hidden="true" style="width: 18px; height: 18px"></span></button>
+<button class="ghost" type="button" aria-label="Tới 10 giây" style="width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-fwd10" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+<button class="ghost" type="button" aria-label="Chương sau" style="width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-next" aria-hidden="true"></span></button>
+<span style="flex: 1"></span>
+<div style="flex: 0 0 110px; display: flex; justify-content: flex-end; gap: 6px">
+<button class="ghost" type="button" onClick="{{cycleSpeed}}" aria-label="Tốc độ nghe" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; font-variant-numeric: tabular-nums">{{speed}}</button>
+<button class="ghost" type="button" aria-label="Đánh dấu chỗ cần sửa" title="Đánh dấu chỗ cần sửa (M)" style="width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #F6CB8C; display: flex; align-items: center; justify-content: center"><span class="ic i-flag" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+</div>
+</div>
+</div>
+<div class="scroll" style="flex: 1; min-height: 0; padding: 12px 16px">
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{follow}}" as="g" hint-placeholder-count="8">
+<li class="seg" style="display: flex; gap: 12px; padding: 10px 12px; border-radius: 12px; background: {{g.bg}}; border: 1px solid {{g.bd}}">
+<span class="num mono" style="flex: 0 0 44px; font-size: 11.5px; color: #7E7E8A; padding-top: 3px">{{g.t}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 12px; font-weight: 500; color: {{g.sc}}">{{g.speaker}}</span><sc-if value="{{g.now}}" hint-placeholder-val="{{ false }}"><span class="eq" aria-hidden="true" style="display: flex; align-items: center; gap: 2px; height: 12px; color: #C9A6F5"><span></span><span></span><span></span><span></span></span></sc-if><sc-if value="{{g.flag}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px; border-radius: 6px; background: rgba(246,203,140,0.12); color: #F6CB8C; font-size: 11px; display: inline-flex; align-items: center; gap: 4px"><span class="ic i-flag" aria-hidden="true" style="width: 11px; height: 11px"></span>{{g.flag}}</span></sc-if><span style="flex: 1"></span>
+<span class="segact" style="display: flex; gap: 4px"><button class="ghost" type="button" style="height: 26px; padding: 0 8px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 11.5px; display: flex; align-items: center; gap: 5px"><span class="ic i-refresh" aria-hidden="true" style="width: 12px; height: 12px"></span>Đọc lại đoạn này</button><button class="ghost" type="button" aria-label="Đánh dấu" style="width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-flag" style="width: 13px; height: 13px"></span></button></span></div>
+<p style="margin: 0; font-family: 'Literata', Georgia, serif; font-size: 15.5px; line-height: 1.75; color: {{g.tc}}">{{g.text}}</p>
+</div>
+</li>
+</sc-for>
+</ol>
+</div>
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-top: 1px solid rgba(255,255,255,0.06)">
+<span style="flex: 1 1 auto; min-width: 0; font-size: 13px; color: {{lsFootColor}}; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span class="ic {{lsFootIcon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{lsFoot}}</span>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{exportChNow}}" style="flex: 0 0 auto; white-space: nowrap; height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-music" aria-hidden="true" style="width: 15px; height: 15px"></span>Xuất từng chương</button>
+<sc-if value="{{jIdle}}" hint-placeholder-val="{{ true }}"><button class="primary" type="button" onClick="{{exportNow}}" style="flex: 0 0 auto; white-space: nowrap; height: 36px; padding: 0 14px 0 12px; border-radius: 9px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-export2" aria-hidden="true" style="width: 15px; height: 15px"></span>Ghép & xuất Tập 1</button></sc-if>
+<sc-if value="{{jBusy}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" onClick="{{jFocus}}" title="Đang chạy nền — xem ở góc dưới phải" style="flex: 0 0 auto; white-space: nowrap; height: 36px; padding: 0 14px 0 10px; border-radius: 9px; border: 1px solid rgba(166,237,193,0.3); background: rgba(166,237,193,0.06); color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="jspin" aria-hidden="true" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(166,237,193,0.25); border-top-color: #A6EDC1"></span><span class="num">Đang ghép · {{jPct}}</span></button></sc-if>
+</div>
+</main>
+<aside class="scroll" style="flex: 0 0 340px; padding: 16px 14px; border-left: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl">Cần nghe lại</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{flagCount}}</span></div>
+<sc-for list="{{flags}}" as="f" hint-placeholder-count="2">
+<div class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border-color: {{f.bd}}">
+<div style="display: flex; gap: 10px"><span class="ic i-flag" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C; margin-top: 2px"></span><span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500">{{f.title}}</span><span style="font-size: 12px; color: #A0A0AB">{{f.where}} · {{f.who}}</span></span></div>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #7E7E8A">Giọng</span><span style="height: 30px; padding: 0 8px; border-radius: 8px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; font-size: 12px">Nam trầm</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #7E7E8A">Tốc độ</span><span class="num" style="height: 30px; padding: 0 8px; border-radius: 8px; background: #0F0F11; border: 1px solid rgba(201,166,245,0.4); display: flex; align-items: center; font-size: 12px">0,9× (chậm hơn)</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; background: #0F0F11"><button class="ghost" type="button" aria-label="Nghe bản cũ" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-play" style="width: 11px; height: 11px"></span></button><span style="flex: 1; font-size: 12.5px; color: #A0A0AB">Bản cũ</span><span class="num mono" style="font-size: 11.5px; color: #7E7E8A">0:07</span></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; background: rgba(166,237,193,0.06); border: 1px solid rgba(166,237,193,0.25)"><button class="ghost" type="button" aria-label="Nghe bản mới" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-play" style="width: 11px; height: 11px"></span></button><span style="flex: 1; font-size: 12.5px">Bản mới</span><span class="num mono" style="font-size: 11.5px; color: #7E7E8A">0:08</span></div>
+</div>
+<div style="display: flex; gap: 6px"><button class="primary" type="button" style="flex: 1; height: 32px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 12.5px; font-weight: 600">Dùng bản mới</button><button class="ghost" type="button" style="height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px">Giữ bản cũ</button></div>
+</sc-if>
+<sc-if value="{{f.closed}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" style="height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; display: flex; align-items: center; justify-content: center; gap: 6px"><span class="ic i-refresh" aria-hidden="true" style="width: 13px; height: 13px"></span>Đọc lại đoạn này</button></sc-if>
+</div>
+</sc-for>
+<span style="font-size: 12px; color: #7E7E8A">Đọc lại chỉ tạo lại đúng đoạn đó (vài giây), rồi ghép vào chương — không phải tạo lại cả chương.</span>
+</aside>
+</div>
+</sc-if>
+
+<!-- ═════ ĐÃ XUẤT ═════ -->
+<sc-if value="{{isExported}}" hint-placeholder-val="{{ false }}">
+<div class="scroll" style="flex: 1; min-height: 0; padding: 28px 16px">
+<div style="max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px">
+<div class="card" style="border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 16px">
+<span class="pop" aria-hidden="true" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(166,237,193,0.1); box-shadow: 0 0 0 1px rgba(166,237,193,0.3), 0 0 36px -6px rgba(166,237,193,0.45); display: flex; align-items: center; justify-content: center; color: #A6EDC1"><span class="ic i-tick-b" style="width: 30px; height: 30px"></span></span>
+<div style="flex: 1; min-width: 0"><h2 style="margin: 0; font-size: 21px; font-weight: 600">{{xDoneTitle}}</h2><p class="num" style="margin: 4px 0 0; font-size: 13.5px; color: #A0A0AB">{{xDoneSub}}</p></div>
+</div>
+<sc-if value="{{xNotCh}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<button class="primary" type="button" aria-label="Phát cả tập" style="width: 42px; height: 42px; border-radius: 50%; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{fullName}}</span>
+<div class="wave" aria-hidden="true" style="height: 26px; display: flex; align-items: center; gap: 2px"><sc-for list="{{fullWave}}" as="w" hint-placeholder-count="96"><span style="height: {{w.h}}; background: {{w.c}}"></span></sc-for></div>
+</div>
+<span class="num mono" style="font-size: 12px; color: #A0A0AB">{{fullMeta}}</span>
+</div>
+</sc-if>
+<sc-if value="{{xIsCh}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); overflow: hidden"><sc-for list="{{xFiles}}" as="x" hint-placeholder-count="3"><div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: {{x.bt}}"><button class="ghost" type="button" aria-label="Phát {{x.name}}" style="width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-play" aria-hidden="true" style="width: 13px; height: 13px"></span></button><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{x.name}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{x.meta}}</span></span><button class="ghost" type="button" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-download" aria-hidden="true" style="width: 13px; height: 13px"></span>Tải</button></div></sc-for></div></sc-if>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button class="primary" type="button" style="height: 36px; padding: 0 14px 0 12px; border-radius: 9px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px"></span>Mở thư mục</button>
+<button class="ghost" type="button" style="height: 36px; padding: 0 14px 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-export2" aria-hidden="true" style="width: 15px; height: 15px"></span>{{xDl}}</button>
+<a href="Transcript.dc.html" class="ghost" style="height: 36px; padding: 0 14px; border-radius: 9px; color: #A0A0AB; font-size: 13px; display: flex; align-items: center">Sửa & xuất lại</a>
+</div>
+</div>
+<div style="display: flex; gap: 16px; flex-wrap: wrap">
+<sc-if value="{{xNotCh}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="flex: 1 1 400px; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 14px; font-weight: 600">Mốc chương</span><span style="font-size: 12px; color: #7E7E8A">dán vào mô tả video</span><button class="ghost" type="button" style="height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12px; display: flex; align-items: center; gap: 6px"><span class="ic i-copy" aria-hidden="true" style="width: 13px; height: 13px"></span>Sao chép</button></div>
+<div style="padding: 10px 12px; border-radius: 10px; background: #0B0B0D; border: 1px solid rgba(255,255,255,0.06); font-size: 12px; line-height: 1.9; color: #C9C9D1">
+<sc-for list="{{stamps}}" as="s" hint-placeholder-count="9"><div><span class="mono num" style="color: #A6EDC1">{{s.t}}</span> {{s.label}}</div></sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{xNotCh}}" hint-placeholder-val="{{ true }}"><div class="card" style="flex: 1 1 300px; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; font-weight: 600; padding-bottom: 6px">Trong Bản xuất · Tập 1</span>
+<sc-for list="{{outFiles}}" as="f" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: {{f.bt}}"><span class="ic {{f.icon}}" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{f.name}}</span><span style="font-size: 11.5px; color: #7E7E8A">{{f.desc}}</span></span><span class="num" style="font-size: 11.5px; color: #7E7E8A">{{f.size}}</span><sc-if value="{{f.more}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" onClick="{{f.toggle}}" aria-expanded="{{f.open}}" style="height: 26px; padding: 0 8px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 4px">{{f.moreT}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; transform: {{f.chev}}"></span></button></sc-if></div>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; margin: 0 0 6px 26px; border-left: 1px solid rgba(255,255,255,0.08)"><sc-for list="{{f.kids}}" as="k" hint-placeholder-count="8"><div style="display: flex; align-items: center; gap: 8px; padding: 5px 0 5px 12px"><span class="num" style="flex: 1; min-width: 0; font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.name}}</span><span class="num" style="font-size: 11.5px; color: #7E7E8A">{{k.meta}}</span><button class="ghost" type="button" aria-label="Tải {{k.name}}" style="width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-download" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div></sc-for></div></sc-if>
+</sc-for>
+</div></sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ═════ VIỆC CHẠY NỀN: ghép & xuất (dock góc dưới phải, như Jobs) ═════ -->
+<sc-if value="{{jShow}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Việc chạy nền" style="position: absolute; right: 16px; bottom: {{jBottom}}; z-index: 40; width: 352px; display: flex; flex-direction: column; gap: 8px; pointer-events: none">
+<sc-if value="{{jToast}}" hint-placeholder-val="{{ false }}"><div class="jtoast" role="status" aria-live="polite" style="pointer-events: auto"><div class="jglass" style="position: relative; border-radius: 18px; padding: 12px 12px 13px; display: flex; gap: 12px; overflow: hidden" onMouseEnter="{{jHoverOn}}" onMouseLeave="{{jHoverOff}}">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 0%, {{jt.tint}}, transparent 55%); pointer-events: none"></div>
+<span style="position: relative; width: 34px; height: 34px; border-radius: 50%; background: {{jt.iconBg}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><sc-if value="{{jt.ok}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="jdraw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if><sc-if value="{{jt.dl}}" hint-placeholder-val="{{ false }}"><span class="ic i-download" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span></sc-if><sc-if value="{{jt.bad}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="width: 18px; height: 18px; color: #FF9FA8"></span></sc-if><sc-if value="{{jt.wait}}" hint-placeholder-val="{{ false }}"><span class="ic i-download" aria-hidden="true" style="width: 18px; height: 18px; color: #F6CB8C"></span></sc-if></span>
+<div style="position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 28px">{{jt.title}}</span>
+<span title="{{jt.sub}}" style="font-size: 12px; color: #A0A0AB; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{jt.sub}}</span>
+<sc-if value="{{jt.hasNote}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: {{jt.noteFg}}; line-height: 1.45">{{jt.note}}</span></sc-if>
+<sc-if value="{{jt.hasBar}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="margin-top: 6px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.07); overflow: hidden"><span style="display: block; height: 100%; width: {{jt.bar}}; border-radius: 2px; background: #A6EDC1; transition: width .3s linear"></span></span></sc-if>
+<div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap"><sc-for list="{{jt.acts}}" as="a" hint-placeholder-count="2"><button class="jbtn" type="button" onClick="{{a.run}}" style="background: {{a.bg}}; color: {{a.fg}}; border-color: {{a.bd}}"><span class="ic {{a.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{a.label}}</button></sc-for></div>
+</div>
+<button class="ghost" type="button" onClick="{{jClose}}" aria-label="Đóng thông báo" title="{{jt.cdTitle}}" style="position: absolute; top: 9px; right: 9px; width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: #8E8E99; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate(-90deg)"><circle cx="14" cy="14" r="12" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.6"/><circle class="jcd" cx="14" cy="14" r="12" fill="none" stroke="#A6EDC1" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="75.4" style="stroke-dashoffset: {{jt.cdo}}; opacity: {{jt.cdOp}}; stroke: {{jt.cdc}}; transition: stroke-dashoffset .16s linear"/></svg><span class="ic i-add" aria-hidden="true" style="position: relative; width: 14px; height: 14px; transform: rotate(45deg)"></span></button>
+</div></div></sc-if>
+<sc-if value="{{jPill}}" hint-placeholder-val="{{ true }}"><div class="jdock" style="align-self: flex-end; pointer-events: auto"><div class="jglass {{jBump}}" role="button" tabindex="0" aria-label="{{jAria}}" title="Bấm để mở danh sách việc chạy nền" style="position: relative; width: 352px; height: 52px; border-radius: 26px; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 9px; overflow: hidden; cursor: pointer">
+<span class="jring"><svg class="jr" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.4"/><circle class="v" cx="17" cy="17" r="15" fill="none" stroke="{{jRingC}}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="94.25" style="stroke-dashoffset: {{jRingO}}"/></svg><sc-if value="{{jRunning}}" hint-placeholder-val="{{ true }}"><span class="ic i-export2" aria-hidden="true" style="position: relative; width: 14px; height: 14px; color: #A6EDC1"></span></sc-if><sc-if value="{{jDoneIc}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="position: relative"><path class="jdraw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if><sc-if value="{{jFailIc}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="position: relative; width: 14px; height: 14px; color: #FF9FA8"></span></sc-if></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13px; font-weight: 500; color: {{jLineFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{jLineA}}</span><span class="num" style="font-size: 11.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{jLineB}}</span></span>
+<sc-if value="{{jRunning}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{jCancel}}" title="Huỷ ghép" aria-label="Huỷ ghép" style="width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: #8E8E99; display: flex; align-items: center; justify-content: center; padding: 0"><span class="ic i-close-b" aria-hidden="true" style="width: 16px; height: 16px"></span></button></sc-if>
+<span class="ic i-chev-up" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span>
+<span aria-hidden="true" style="position: absolute; left: 18px; right: 18px; bottom: 0; height: 2px; border-radius: 1px; background: rgba(255,255,255,0.05); overflow: hidden"><span style="display: block; height: 100%; width: {{jAgg}}; background: {{jRingC}}; transition: width .3s linear"></span></span>
+</div></div></sc-if>
+</section>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["confirm","confirmCh","merging","merged","mergedManual","mergeBlocked","mergeFailed","rendering","paused","renderError","background","rendered","listen","exported","exportedCh"],"default":"rendering","section":"Màn"},"voice":{"editor":"enum","options":["cast","single","pack"],"default":"cast","section":"Giọng đọc"},"upd":{"editor":"enum","options":["none","stale","queued"],"default":"none","section":"Chương đã sửa sau khi tạo giọng (Gói AK)"},"len":{"editor":"enum","options":["8","16","40","120"],"default":"8","section":"Số chương trong tập"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { t: 14, unpause: false, tech: false, miniPlay: true, vmode: null, vmodeFor: null, local: null, forProp: null, q: 'std', fmt: 'mp3', on: { music: true, title: true, loud: true, gap: true, marks: true, srt: true }, pack: 'files', autoDl: true, paused: false, play: true, speed: 1, listenCh: 1 }; }
+  componentDidMount() { this.iv = setInterval(() => { const st = this.curState ? this.curState() : ''; if (st === 'run') this.setState({ t: this.state.t + 1 }); this.tickJob(); }, 150); }
+  tickJob() { const J = this.state.job; if (!J) return; if (J.phase === 'run') { const p = Math.min(1, J.p + 0.011); if (p >= 1) this.setState({ job: Object.assign({}, J, { p: 1, phase: J.auto ? 'dl' : 'done', dl: 0, tc: 0, bump: (J.bump || 0) + 1 }) }); else this.setState({ job: Object.assign({}, J, { p }) }); return; } if (J.phase === 'dl') { const dl = Math.min(1, (J.dl || 0) + 0.06); this.setState({ job: Object.assign({}, J, dl >= 1 ? { dl: 1, phase: 'done', tc: 0 } : { dl }) }); return; } if (J.toast && !J.hover && !J.freeze && (J.phase === 'done' || J.phase === 'blocked')) { const tc = (J.tc || 0) + 150 / 6000; if (tc >= 1) this.setState({ job: null }); else this.setState({ job: Object.assign({}, J, { tc }) }); } }
+  componentWillUnmount() { clearInterval(this.iv); }
+  renderVals() {
+    const S = this.state, P = this.props;
+    const prop0 = P.state || 'confirm'; const prop = ({ confirmCh: 'confirm', exportedCh: 'exported', merging: 'listen', merged: 'listen', mergedManual: 'listen', mergeBlocked: 'listen', mergeFailed: 'listen' })[prop0] || prop0;
+    const xScope = S.xFor === prop0 && S.xScope ? S.xScope : ((prop0 === 'confirmCh' || prop0 === 'exportedCh') ? 'ch' : 'all');
+    const xSel = S.xFor === prop0 && S.xSel ? S.xSel : { 2: true, 3: true, 4: true };
+    const setX = (p) => this.setState(Object.assign({ xFor: prop0, xScope, xSel }, p));
+    const st = S.forProp === prop && S.local ? S.local : prop;
+    const go = (v) => this.setState({ local: v, forProp: prop, t: 14 });
+
+    // ── việc ghép chạy nền ──
+    const JPRE = { merging: { phase: 'run', p: 0.34 }, merged: { phase: 'done', p: 1, dl: 1, freeze: true, tc: 0.3 }, mergedManual: { phase: 'done', p: 1, manual: true, freeze: true, tc: 0.3 }, mergeBlocked: { phase: 'blocked', p: 1, freeze: true, tc: 0 }, mergeFailed: { phase: 'fail', p: 0.62 } };
+    const J = S.jobFor === prop0 ? S.job : (JPRE[prop0] ? Object.assign({ kind: 'all', n: 8, auto: !JPRE[prop0].manual, toast: true }, JPRE[prop0]) : null);
+    const setJ = (o) => this.setState({ jobFor: prop0, job: o === null ? null : Object.assign({}, J, o) });
+    const jCh = J ? Math.min(J.n, Math.max(1, Math.ceil(J.p * J.n))) : 0;
+    const jEta = J ? Math.max(1, Math.round((1 - J.p) * (J.kind === 'all' ? 70 : J.n * 6))) : 0;
+    const T8 = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
+    const jName = J && J.kind === 'ch' ? (J.n === 1 ? 'Trà Xanh Cướp Kịch Bản · Tập 1 · Chương ' + String(J.first || 4).padStart(2, '0') + ' · ' + T8[(J.first || 4) - 1] + '.' + (S.fmt || 'mp3') : ((S.pack || 'files') === 'zip' ? 'Trà Xanh Cướp Kịch Bản · Tập 1 · ' + J.n + ' chương.zip' : J.n + ' tệp .' + (S.fmt || 'mp3'))) : 'Trà Xanh Cướp Kịch Bản · Tập 1.' + (S.fmt || 'mp3');
+    const jSize = J && J.kind === 'ch' ? (J.n === 1 ? '22 MB' : J.n * 21 + ' MB') : ({ mp3: '198 MB', m4b: '160 MB', wav: '1,5 GB' })[S.fmt || 'mp3'];
+    const jWhat = J && J.kind === 'ch' ? (J.n === 1 ? 'chương ' + (J.first || 4) : J.n + ' chương') : 'Tập 1';
+    const jFiles = J && J.kind === 'ch' && J.n > 1 && (S.pack || 'files') !== 'zip' ? J.n + ' tệp' : '1 tệp';
+    const act = (label, icon, run, pri) => ({ label, icon, run, bg: pri ? '#EDEDEF' : 'transparent', fg: pri ? '#0B0B0D' : '#EDEDEF', bd: pri ? 'transparent' : 'rgba(255,255,255,0.1)' });
+    const toExported = () => { setJ(null); go('exported'); };
+    const jt = !J ? { title: '', sub: '', acts: [] } : J.phase === 'dl' ? { dl: true, title: 'Đã ghép ' + jWhat + ' · đang tải về máy', sub: jName + ' · ' + jSize, hasBar: true, bar: Math.round((J.dl || 0) * 100) + '%', tint: 'rgba(166,237,193,0.14)', iconBg: 'rgba(166,237,193,0.12)', acts: [] }
+      : J.phase === 'done' ? (J.manual || !J.auto ? { ok: true, title: 'Đã ghép xong ' + jWhat, sub: jName + ' · ' + jSize, tint: 'rgba(166,237,193,0.14)', iconBg: 'rgba(166,237,193,0.12)', acts: [act('Tải xuống', 'i-download', () => { setJ({ dl: 0, phase: 'dl', manual: false, freeze: false }); }, true), act('Xem bản xuất', 'i-folder', toExported)] }
+        : { ok: true, title: 'Đã tải về máy này · ' + jWhat, sub: jName + ' · ' + jSize + ' · trong thư mục Tải về', tint: 'rgba(166,237,193,0.14)', iconBg: 'rgba(166,237,193,0.12)', acts: [act('Mở tệp', 'i-play', () => this.setState({ fileOpen: true })), act('Xem bản xuất', 'i-folder', toExported)] })
+      : J.phase === 'blocked' ? { wait: true, title: 'Đã ghép xong ' + jWhat + ' · chưa tải được', sub: jName + ' · ' + jSize, hasNote: true, note: 'Trình duyệt chặn tự tải. Bấm Tải xuống; muốn lần sau tự tải, chọn “Cho phép” khi trình duyệt hỏi.', noteFg: '#E9D9BD', tint: 'rgba(246,203,140,0.12)', iconBg: 'rgba(246,203,140,0.12)', acts: [act('Tải xuống', 'i-download', () => setJ({ phase: 'dl', dl: 0, freeze: false }), true), act('Xem bản xuất', 'i-folder', toExported)] }
+      : J.phase === 'fail' ? { bad: true, title: 'Ghép ' + jWhat + ' dừng ở chương ' + jCh, sub: 'Nhạc mở đầu đã bị xoá khỏi Tài sản', hasNote: true, note: 'Các chương đã ghép được giữ lại. Thử lại sẽ chạy tiếp từ chương ' + jCh + '.', noteFg: '#C9A9AD', tint: 'rgba(255,159,168,0.12)', iconBg: 'rgba(255,159,168,0.12)', acts: [act('Thử lại', 'i-refresh', () => setJ({ phase: 'run' }), true), act('Ghép không nhạc', 'i-music', () => { this.setState({ on: Object.assign({}, S.on, { music: false }) }); setJ({ phase: 'run' }); })] }
+      : null;
+    const jtV = Object.assign({ ok: false, dl: false, bad: false, wait: false, hasNote: false, note: '', noteFg: '#A0A0AB', hasBar: false, bar: '0%', tint: 'transparent', iconBg: '#1C1C1F', acts: [], title: '', sub: '' }, jt || {}, { cdo: String(75.4 * (J && J.tc ? J.tc : 0)), cdOp: J && J.hover ? 0.3 : 1, cdc: J && J.phase === 'blocked' ? '#F6CB8C' : '#A6EDC1', cdTitle: J && (J.hover || J.freeze) ? 'Đã dừng tự đóng' : 'Tự đóng sau 6 giây' });
+    const jRun = !!J && J.phase === 'run';
+    const jVals = {
+      autoDl: S.autoDl ? 'true' : 'false', toggleAutoDl: () => this.setState({ autoDl: !S.autoDl }), autoBg: S.autoDl ? '#9A63E3' : '#2A2A2E', autoKnob: S.autoDl ? '#fff' : '#7E7E8A', autoX: S.autoDl ? '14px' : '0px',
+      jShow: !!J, jPill: !!J, jToast: !!J && J.toast !== false && !!jt, jt: jtV, jRunning: jRun, jDoneIc: !!J && (J.phase === 'done' || J.phase === 'dl' || J.phase === 'blocked'), jFailIc: !!J && J.phase === 'fail',
+      jRingC: J && J.phase === 'fail' ? '#FF9FA8' : '#A6EDC1', jRingO: String(94.25 * (1 - (J ? J.p : 0))), jAgg: Math.round((J ? J.p : 0) * 100) + '%', jBump: J && J.bump ? 'jbump' : '',
+      jLineA: !J ? '' : jRun ? 'Đang ghép ' + jWhat : J.phase === 'fail' ? 'Ghép ' + jWhat + ' dừng lại' : 'Vừa xong · ' + jWhat, jLineFg: J && J.phase === 'fail' ? '#FF9FA8' : '#EDEDEF',
+      jLineB: !J ? '' : jRun ? (J.kind === 'all' ? 'Chương ' + jCh + '/' + J.n : 'Tệp ' + jCh + '/' + J.n) + ' · ' + Math.round(J.p * 100) + '% · còn ' + jEta + ' giây' : J.phase === 'fail' ? 'Đã ghép ' + (jCh - 1) + '/' + J.n + ' chương' : jName + ' · ' + jSize,
+      jAria: J ? 'Việc chạy nền: ' + (jRun ? 'đang ghép ' + jWhat + ' ' + Math.round(J.p * 100) + '%' : 'ghép ' + jWhat) : '',
+      jHoverOn: () => J && setJ({ hover: true }), jHoverOff: () => J && setJ({ hover: false, freeze: false }), jClose: () => setJ(J && J.phase === 'run' ? { toast: false } : null),
+      jCancel: () => setJ(null),
+      jBottom: st === 'listen' ? '72px' : '16px', jIdle: !jRun, jBusy: jRun, jPct: J ? Math.round(J.p * 100) + '%' : '', jFocus: () => {}
+    };
+    const vProp = P.voice || 'cast';
+    const vmode = S.vmodeFor === vProp && S.vmode ? S.vmode : vProp;
+    const single = vmode === 'single' || vmode === 'pack'; const packV = vmode === 'pack';
+    const nVoices = single ? '1 giọng' : '6 giọng';
+    const TITLES = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
+    const DUR = ['16:42', '18:05', '17:12', '19:31', '18:20', '17:48', '18:36', '17:57'];
+    const stepIdx = ['rendering', 'paused', 'renderError', 'background', 'rendered'].indexOf(st) >= 0 ? 1 : 2;
+    const pipe = [
+      { n: 1, label: 'Duyệt & chốt', meta: stepIdx === 1 ? '6/8 chương' : '8/8 chương', href: 'Transcript.dc.html', tip: 'Bản đọc · phân vai · chốt chương', go: () => {} },
+      { n: 2, label: 'Tạo giọng', meta: ['rendering', 'paused', 'renderError', 'background'].indexOf(st) >= 0 ? '3/8 chương' : st === 'rendered' ? '8/8 chương' : stepIdx > 1 ? '' : '', href: '#', tip: 'Phòng thu · tiến độ tạo giọng', go: (e) => { if (e) e.preventDefault(); go('rendering'); } },
+      { n: 3, label: 'Nghe & xuất', meta: st === 'exported' ? 'đã xuất' : '', href: '#', tip: 'Nghe cả tập, sửa chỗ cần nghe lại, ghép & xuất', go: (e) => { if (e) e.preventDefault(); go('listen'); } }
+    ].map((p, i) => { const on = i === stepIdx, done = i < stepIdx || st === 'exported'; return Object.assign(p, { cur: on ? 'step' : 'false', done, notDone: !done, bg: on ? '#222225' : 'transparent', fg: on || done ? '#EDEDEF' : '#A0A0AB', fw: on ? 600 : 400, nbg: done ? 'rgba(166,237,193,0.15)' : on ? '#C9A6F5' : '#2A2A2E', nfg: done ? '#A6EDC1' : on ? '#0B0B0D' : '#A0A0AB' }); });
+    const RING = ['rgba(185,208,247,0.7)', 'rgba(246,203,140,0.7)', 'rgba(166,237,193,0.7)', 'rgba(201,201,209,0.6)', 'rgba(246,203,140,0.5)', 'rgba(255,255,255,0.25)'];
+    const castMini = [['TH', 'Dẫn truyện & Lâm Tri Hạ'], ['NV', 'Tống Nhược Vy'], ['HC', 'Hứa Hoài Châu'], ['ĐM', 'Đỗ Mẫn'], ['KD', 'Kỳ Dương'], ['…', 'Nhân vật phụ']].map(([ini, name], i) => ({ ini, name, ring: RING[i] || RING[6], ml: i ? '-3px' : '0' }));
+    const Q = { fast: ['Nghe thử nhanh', 'Kiểm tra trước, giọng hơi máy', '≈ 25 phút', 25], std: ['Chuẩn', 'Đủ tốt để đăng', '≈ 1 giờ 40 phút', 100], high: ['Cao nhất', 'Mượt và tự nhiên nhất, chậm', '≈ 3 giờ 10 phút', 190] };
+    const quality = ['fast', 'std', 'high'].map((k) => ({ label: Q[k][0], desc: Q[k][1], time: Q[k][2], rec: k === 'std', sel: S.q === k, bd: S.q === k ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: S.q === k ? 'rgba(201,166,245,0.06)' : '#131315', pick: () => this.setState({ q: k }) }));
+    const FMT = { mp3: ['MP3', 'Mở được mọi nơi, hợp YouTube và podcast', 1.18, '.mp3'], m4b: ['M4B', 'Sách nói: app nghe nhớ chỗ, có mốc chương', 0.95, '.m4b'], wav: ['WAV', 'Chất lượng gốc để dựng video, nặng gấp khoảng 8 lần', 10.1, '.wav'] };
+    const fk = FMT[S.fmt] ? S.fmt : 'mp3';
+    const formats = ['mp3', 'm4b', 'wav'].map((k) => [k, FMT[k][0]]).map(([k, label]) => ({ label, sel: S.fmt === k, bg: S.fmt === k ? '#222225' : 'transparent', fg: S.fmt === k ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ fmt: k }) }));
+    const O = S.on;
+    const optRaw = [
+      ['music', 'i-music', 'Nhạc mở đầu & kết thúc', 'intro-dit-dang.mp3 · từ Tài sản › Nhạc của dự án', true],
+      ['title', 'i-voice', 'Đọc tên chương ở đầu mỗi chương', '“Chương ba. Hai chiếc bát trên bàn.”', false],
+      ['loud', 'i-volume', 'Cân bằng âm lượng để đăng mạng', 'Các giọng to nhỏ đều nhau, hợp YouTube và podcast', false],
+      ['gap', 'i-timer', 'Khoảng lặng 2 giây giữa các chương', 'Dễ nghe hơn khi chuyển chương', false],
+      ['marks', 'i-tag', 'Mốc chương trong tệp', 'Nhảy chương ngay trong app nghe sách nói', false],
+      ['srt', 'i-doc', 'Kèm phụ đề .srt', 'Lời đọc khớp thời gian từng câu, tải lên cùng video', false]
+    ].filter(([k]) => !(xScope === 'ch' && (k === 'music' || k === 'gap' || k === 'marks')) && !(k === 'marks' && fk !== 'm4b'));
+    const opts = optRaw.map(([k, icon, label, desc, hasPlay]) => ({ icon, label, desc, hasPlay: hasPlay && O[k], on: O[k], bg: O[k] ? '#EDEDEF' : '#2A2A2E', j: O[k] ? '16px' : '0px', dot: O[k] ? '#0B0B0D' : '#7E7E8A', toggle: () => this.setState({ on: Object.assign({}, O, { [k]: !O[k] }) }) }));
+    const mins = Q[S.q][3];
+    const at = new Date(2026, 9, 25, 21, 40 + mins);
+    const pad = (n) => String(n).padStart(2, '0');
+    // rendering
+    const paused = S.paused;
+    const renRows = TITLES.map((title, i) => { const done = i < 3, now = i === 3; return { n: i + 1, title, done, now, wait: !done && !now, tc: done || now ? '#EDEDEF' : '#7E7E8A', meta: done ? DUR[i] : now ? 'đoạn 23/51' : 'Chờ', bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', lbg: S.listenCh === i + 1 ? '#222225' : 'transparent', listen: () => this.setState({ listenCh: i + 1 }) }; });
+    const seedWave = (n, seed, played, color) => Array.from({ length: n }, (_, i) => { const v = Math.abs(Math.sin(i * 0.37 + seed) * 0.6 + Math.sin(i * 1.7 + seed * 2) * 0.3 + Math.sin(i * 0.08) * 0.25); const h = Math.max(10, Math.min(100, Math.round(v * 100))); return { h: h + '%', c: i < played ? color : '#2A2A2E' }; });
+    const mini = { n: S.listenCh, title: TITLES[S.listenCh - 1], dur: DUR[S.listenCh - 1] };
+    // ── phòng thu ──
+    const studio = ['rendering', 'paused', 'renderError', 'rendered'].indexOf(st) >= 0;
+    const pausedEff = st === 'paused' ? !S.unpause : S.paused;
+    const running = (st === 'rendering' || st === 'paused' || st === 'background') && !pausedEff;
+    this.curState = () => running ? 'run' : '';
+    const TT = S.t, L = 36;
+    const segIdx = Math.min(51, 23 + Math.floor(TT / L)), ph = TT % L;
+    const LINES = [
+      ['nv', 'Em đọc trước nhé, chị sợ mọi người phải chờ lâu.'],
+      ['dan', 'Đồng hồ trên màn hình lớn bắt đầu đếm ngược từ bảy mươi ba giây.'],
+      ['th', 'Không sao, chị cứ đọc. Tôi còn nguyên bảy mươi ba giây.'],
+      ['dan', 'Tôi lật tấm thẻ trong tay, mép giấy vẫn còn mùi mực mới.'],
+      ['nv', 'Vậy em không khách sáo nữa.']
+    ];
+    const SPK = single ? { nv: ['giong-tri-ha', (packV ? 'Giọng kể của gói' : 'Giọng đọc chung')], dan: ['giong-tri-ha', (packV ? 'Giọng kể của gói' : 'Giọng đọc chung')], th: ['giong-tri-ha', (packV ? 'Giọng kể của gói' : 'Giọng đọc chung')] } : null;
+    const SPI = { nv: { ini: 'NV', name: 'Tống Nhược Vy', ring: 'rgba(246,203,140,0.85)' }, dan: { ini: 'TH', name: 'Dẫn truyện', ring: 'rgba(185,208,247,0.85)' }, th: { ini: 'TH', name: 'Lâm Tri Hạ', ring: 'rgba(185,208,247,0.85)' } };
+    const [lk, ltext] = LINES[segIdx % LINES.length];
+    const spk0 = SPI[lk];
+    const spk = single ? { ini: 'TH', name: (packV ? 'Giọng kể của gói' : 'Giọng đọc chung'), ring: 'rgba(201,166,245,0.85)' } : spk0;
+    const genP = Math.max(0, Math.min(1, (ph - 5) / 22));
+    const wl = ltext.split(' ');
+    const spoken = Math.floor(genP * wl.length);
+    const words = wl.map((w, i) => ({ w: w + ' ', cls: running && i === spoken && genP < 1 ? 'wnow' : '', c: i < spoken || genP >= 1 ? '#EDEDEF' : i === spoken ? '#C9A6F5' : '#4A4A52' }));
+    const filled = Math.floor(genP * 96);
+    const bars = Array.from({ length: 96 }, (_, i) => { const v = Math.abs(Math.sin(i * 0.41 + segIdx) * 0.55 + Math.sin(i * 1.9 + segIdx * 3) * 0.32 + Math.sin(i * 0.11) * 0.2); const h = Math.max(12, Math.min(100, Math.round(v * 100))); if (i < filled) { const newest = i === filled - 1 && running; return { h: h + '%', c: i >= filled - 3 ? '#C9A6F5' : '#C9C9D1', cls: newest ? ((TT % 2) ? 'wa pen' : 'wb pen') : '' }; } return { h: '4px', c: '#2A2A2E', cls: '' }; });
+    const STEPS = [['Chuẩn bị câu', 0, 5], ['Tạo giọng', 5, 27], ['Làm sạch âm', 27, 32], ['Ghép vào chương', 32, 36]];
+    const steps = STEPS.map(([label, a, b]) => { const done = ph >= b, now = ph >= a && ph < b; return { label, done, now: now && running, todo: !done && !(now && running), bg: now ? 'rgba(201,166,245,0.08)' : done ? 'transparent' : 'transparent', bd: now ? 'rgba(201,166,245,0.35)' : 'rgba(255,255,255,0.08)', fg: done ? '#7E7E8A' : now ? '#EDEDEF' : '#7E7E8A', td: done ? 'line-through' : 'none', tcls: now && running ? 'shim' : '' }; });
+    const pctN = st === 'rendered' ? 100 : Math.min(99, 43 + Math.floor(TT * 0.03));
+    const etaMin = Math.max(1, Math.round((100 - pctN) * 1.02));
+    const deg = Math.round(pctN * 3.6) + 'deg'; const pv = pctN;
+    const chFill = Math.round((segIdx - 1) / 51 * 100);
+    const TDUR = ['16:42', '18:05', '17:12', '19:31', '18:20', '17:48', '18:36', '17:57'];
+    const NCH = +(this.props.len || 8);
+    const toSecT = (x) => x.split(':').reduce((a2, y) => a2 * 60 + Number(y), 0);
+    const fmtMS = (x) => (x >= 3600 ? Math.floor(x / 3600) + ':' + String(Math.floor(x % 3600 / 60)).padStart(2, '0') : String(Math.floor(x / 60)).padStart(2, '0')) + ':' + String(x % 60).padStart(2, '0');
+    // thời lượng: chương đã tạo dùng số thật; chương chưa tạo ước tính từ số chữ ÷ tốc độ đọc của giọng — không bao giờ để 0
+    const SEC = Array.from({ length: NCH }, (_, i) => i < 8 ? toSecT(TDUR[i]) : 960 + ((i * 7919) % 9) * 45 + ((i * 31) % 40));
+    const doneN = st === 'rendered' ? NCH : (NCH === 8 ? 3 : Math.max(1, Math.round(NCH * 0.3))), nowI = st === 'rendered' ? -1 : doneN, lockFrom = st === 'rendered' ? NCH : Math.ceil(NCH * 0.75);
+    const tlMode = NCH <= 12 ? 'm-full' : NCH <= 32 ? 'm-num' : 'm-bar'; /* thật: theo bề rộng mỗi chương — ≥ 72 px đầy đủ, ≥ 28 px chỉ số, nhỏ hơn thì dải màu */ const bar = tlMode === 'm-bar';
+    const total = SEC.reduce((a2, x) => a2 + x, 0); let cum = 0; const mid = SEC.map((x) => { const m = (cum + x / 2) / total * 100; cum += x; return m; });
+    const xPct = (i) => Math.min(96, Math.max(4, mid[i])).toFixed(2) + '%';
+    const TTL = (i) => i < 8 ? TITLES[i] : '[tên chương]';
+    const UPD = (S.updFor === (P.upd || 'none') && S.updLocal) ? S.updLocal : (P.upd || 'none'); const UPDI = [0, 3];
+    const stOf0 = (i) => i < doneN ? 'done' : i === nowI ? 'now' : i >= lockFrom ? 'lock' : 'wait';
+    const UPDN = UPDI.filter((i) => stOf0(i) === 'done').map((i) => i + 1); const UPDS = UPDN.reduce((a2, n) => a2 + (n === 1 ? 3 : 2), 0);
+    const stOf = (i) => { const k = stOf0(i); if (k === 'done' && UPD !== 'none' && UPDI.indexOf(i) >= 0) return UPD === 'stale' ? 'stale' : 'requeue'; return k; };
+    const stTxt = (i) => ({ stale: 'đã sửa sau khi tạo giọng · ' + (i === 0 ? 3 : 2) + ' đoạn đổi · bấm Cập nhật', requeue: 'chờ cập nhật · chỉ đọc lại ' + (i === 0 ? 3 : 2) + ' đoạn đổi', done: 'đã tạo · ' + fmtMS(SEC[i]), now: 'đang tạo ' + chFill + '% · khoảng ' + fmtMS(SEC[i]), wait: 'chờ tạo · khoảng ' + fmtMS(SEC[i]), lock: 'chưa chốt · khoảng ' + fmtMS(SEC[i]) })[stOf(i)];
+    const tl = SEC.map((sec, i) => { const k = stOf(i), stl = k === 'stale', rq = k === 'requeue', done = k === 'done', now = k === 'now', lock = k === 'lock';
+      const bgFull = done ? 'rgba(166,237,193,0.08)' : now ? '#18181A' : 'transparent';
+      const bgBar = done ? 'rgba(166,237,193,0.5)' : now ? 'rgba(201,166,245,0.22)' : lock ? 'transparent' : 'rgba(255,255,255,0.12)';
+      if (stl || rq) return { n: i + 1, done: false, now: false, flex: String(sec), fill: '0%', runOp: 0, pen: false, meta: stl ? 'đã sửa' : 'chờ cập nhật', showN: !bar, showMeta: tlMode === 'm-full', bg: stl ? 'rgba(246,203,140,0.09)' : 'transparent', bd: stl ? 'rgba(246,203,140,0.5)' : 'rgba(201,166,245,0.5)', bs: stl ? 'solid' : 'dashed', fg: stl ? '#F3D9AE' : '#DCC8F8', cls: '', delay: '0s', aria: 'Chương ' + (i + 1) + ' · ' + TTL(i) + ' · ' + stTxt(i), ti: '-1', hover: () => { if (this.state.hov !== i) this.setState({ hov: i, tlf: i }); }, pick: () => {} };
+      return { n: i + 1, done, now, flex: String(sec), fill: chFill + '%', runOp: bar ? 0.9 : 0.32, pen: tlMode === 'm-full', meta: done ? fmtMS(sec) : now ? chFill + '%' : lock ? 'chưa chốt' : 'chờ',
+        showN: !bar, showMeta: tlMode === 'm-full',
+        bg: bar ? bgBar : (tlMode === 'm-num' && done ? 'rgba(166,237,193,0.14)' : bgFull), bd: done ? 'rgba(166,237,193,0.32)' : now ? 'rgba(201,166,245,0.55)' : 'rgba(255,255,255,0.12)', bs: done || now ? 'solid' : 'dashed', fg: done ? (tlMode === 'm-num' ? '#C9F5DA' : '#EDEDEF') : now ? '#EDEDEF' : '#7E7E8A',
+        cls: (st === 'rendered' ? 'sweep ' : '') + (lock ? 'hatch' : ''), delay: (Math.min(i, 30) * 0.04) + 's', aria: 'Chương ' + (i + 1) + ' · ' + TTL(i) + ' · ' + stTxt(i),
+        ti: i === (this.state.tlf != null ? this.state.tlf : Math.max(0, nowI)) ? '0' : '-1', hover: () => { if (this.state.hov !== i) this.setState({ hov: i, tlf: i }); }, pick: () => { if (done) this.setState({ listenCh: i + 1 }); } }; });
+    const step = NCH <= 60 ? 5 : NCH <= 150 ? 10 : 25;
+    const rTicks = bar ? SEC.map((x, i) => i).filter((i) => (i === 0 || (i + 1) % step === 0 || i === NCH - 1 || i === nowI) && (i === nowI || nowI < 0 || Math.abs(i - nowI) > 1)).map((i) => ({ n: i === nowI ? 'Ch. ' + (i + 1) + ' · ' + chFill + '%' : String(i + 1), x: mid[i].toFixed(2) + '%', c: i === nowI ? '#DCC8F8' : '#6E6E78', w: i === nowI ? 600 : 400 })) : [];
+    const hv = this.state.hov; const hasHov = hv != null && hv < NCH;
+    const madeSecN = SEC.slice(0, doneN).reduce((a2, x) => a2 + x, 0) + (nowI >= 0 ? Math.round(chFill / 100 * SEC[nowI]) : 0);
+    const doneSegs = segIdx - 1;
+    const lanes = single ? [{ ini: 'TH', name: (packV ? 'Giọng kể của gói' : 'Giọng đọc chung'), ring: 'rgba(201,166,245,0.85)', d: 158 + doneSegs, total: 372, active: true }] : [
+      { ini: 'TH', name: 'Dẫn truyện', ring: 'rgba(185,208,247,0.85)', d: 74 + Math.floor(doneSegs * 0.45), total: 172, active: lk === 'dan' },
+      { ini: 'TH', name: 'Lâm Tri Hạ', ring: 'rgba(185,208,247,0.85)', d: 41 + Math.floor(doneSegs * 0.25), total: 98, active: lk === 'th' },
+      { ini: 'NV', name: 'Tống Nhược Vy', ring: 'rgba(246,203,140,0.85)', d: 22 + Math.floor(doneSegs * 0.3), total: 54, active: lk === 'nv' },
+      { ini: 'HC', name: 'Hứa Hoài Châu', ring: 'rgba(166,237,193,0.85)', d: 9, total: 21, active: false },
+      { ini: '…', name: 'Nhân vật phụ', ring: 'rgba(255,255,255,0.3)', d: 11, total: 27, active: false }
+    ];
+    const lanesV = lanes.map((l) => { const d = st === 'rendered' ? l.total : Math.min(l.total, l.d); return { ini: l.ini, name: l.name, ring: l.ring, fg: l.active && running ? '#EDEDEF' : '#A0A0AB', pct: Math.round(d / l.total * 100) + '%', count: d + '/' + l.total, barCls: l.active && running ? 'bar-run' : '', barBg: st === 'rendered' ? '#A6EDC1' : l.active && running ? '' : '#7E7E8A' }; });
+    const log = [];
+    for (let k = segIdx - 1; k >= Math.max(1, segIdx - 6); k--) {
+      const [lk2] = LINES[k % LINES.length]; const nm = single ? (packV ? 'Giọng kể của gói' : 'Giọng đọc chung') : SPI[lk2].name;
+      const reread = k === 21;
+      log.push({ text: reread ? 'Đoạn ' + k + ' bị rè — đã tự đọc lại' : 'Đoạn ' + k + ' · ' + nm, meta: (3 + (k * 7 % 30) / 10).toFixed(1).replace('.', ',') + ' s', icon: reread ? 'i-refresh' : 'i-tick-b', ic: reread ? '#F6CB8C' : '#A6EDC1' });
+    }
+    const logV = (st === 'rendered' ? [{ text: 'Xong chương 8 · Tên tôi trên màn hình', meta: '17:57', icon: 'i-tick-b', ic: '#A6EDC1' }, { text: 'Xong chương 7 · Dòng tên bị gạch', meta: '18:36', icon: 'i-tick-b', ic: '#A6EDC1' }, { text: 'Chương 6 · đoạn 40 dài bất thường — nên nghe lại', meta: '', icon: 'i-flag', ic: '#F6CB8C' }] : log).map((g, i) => Object.assign({}, g, { cls: i === 0 && running ? (segIdx % 2 ? 'fa' : 'fb') : '', bt: i ? '1px solid rgba(255,255,255,0.05)' : 'none', op: String(Math.max(0.35, 1 - i * 0.12)) }));
+    const madeSec = 3 * 1046 + Math.round(chFill / 100 * 1171);
+    const fmtHM = (x) => Math.floor(x / 3600) + ' giờ ' + String(Math.floor(x % 3600 / 60)).padStart(2, '0') + ' phút';
+    const miniSec = 231 + (S.miniPlay ? Math.floor(TT * 0.15) : 0);
+    // listen
+    const lsRows = TITLES.map((title, i) => ({ n: i + 1, title, dur: DUR[i], flags: i === 2 ? '2' : i === 6 ? '1' : '', cur: i === 2 ? 'page' : 'false', bg: i === 2 ? '#1E1E21' : 'transparent', xon: i === 2 ? 'on' : '', export: () => { this.setState({ xFor: prop0, xScope: 'ch', xSel: { [i + 1]: true } }); go('confirm'); } }));
+    const FOL = [
+      ['05:41', 'Lâm Tri Hạ', 'Tôi giữ hồ sơ để có ngày xin xem lại căn cứ, tôi nói, cất nó vào túi.', 'past'],
+      ['05:48', 'Lâm Tri Hạ', 'Học phí trường đời hơi đắt, lại không được trả góp.', 'past'],
+      ['05:54', 'Hứa Hoài Châu', 'Nếu cần nguồn thuộc đoàn, gửi yêu cầu cụ thể. Phần kho phát triển vẫn đang chờ hãng duyệt trích.', 'past', 'Đọc hơi nhanh'],
+      ['06:03', 'Dẫn truyện', 'Cuối buổi, Nhược Vy đề nghị dành ngày lai cuối cho trò đọc lời thoại bất kỳ.', 'now'],
+      ['06:10', 'Tống Nhược Vy', 'Chị muốn mọi người cảm nhận trực tiếp công sức viết. Luật có sẵn rồi, mình cứ chơi cho vui.', 'next'],
+      ['06:18', 'Dẫn truyện', 'Đỗ Mẫn cho tổ nội dung đọc lại phụ lục: tổng phần trích từ phim không quá chín mươi giây, gồm kho phát triển đã được cấp phép.', 'next', 'Ngắt hơi sai chỗ'],
+      ['06:29', 'Dẫn truyện', 'Chỉ đọc, không phát tệp.', 'next'],
+      ['06:32', 'Dẫn truyện', 'Thẻ được xáo và bốc trước máy, bản chuẩn đoàn phim niêm phong, mở sau lượt đọc.', 'next']
+    ];
+    const SPC = { 'Lâm Tri Hạ': '#B9D0F7', 'Dẫn truyện': '#B9D0F7', 'Hứa Hoài Châu': '#A6EDC1', 'Tống Nhược Vy': '#F6CB8C' };
+    const follow = FOL.map(([t, speaker, text, ph, flag]) => ({ t, speaker, text, flag: flag || '', now: ph === 'now' && S.play, sc: SPC[speaker] || '#C9C9D1', tc: ph === 'past' ? '#7E7E8A' : ph === 'now' ? '#EDEDEF' : '#C9C9D1', bg: ph === 'now' ? 'rgba(201,166,245,0.07)' : 'transparent', bd: ph === 'now' ? 'rgba(201,166,245,0.3)' : 'transparent' }));
+    const flags = [
+      { title: 'Đọc hơi nhanh', where: 'Chương 3 · 05:54', who: 'Hứa Hoài Châu', open: true },
+      { title: 'Ngắt hơi sai chỗ', where: 'Chương 3 · 06:18', who: 'Dẫn truyện', open: false },
+      { title: 'Đọc sai tên “Tinh Mang”', where: 'Chương 7 · 11:02', who: 'Kỳ Dương', open: false }
+    ].map((f) => Object.assign(f, { closed: !f.open, bd: f.open ? 'rgba(246,203,140,0.35)' : 'rgba(255,255,255,0.07)' }));
+    const speeds = [1, 1.25, 1.5, 0.75];
+    // exported
+    let acc = 12;
+    const toSec = (d) => { const [m, s] = d.split(':').map(Number); return m * 60 + s; };
+    const fmtT = (s) => { const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(x); };
+    const stamps = [{ t: '00:00', label: 'Mở đầu' }].concat(TITLES.map((title, i) => { const t = acc; acc += toSec(DUR[i]) + 2; return { t: fmtT(t), label: 'Chương ' + (i + 1) + ' · ' + title }; }));
+    const outFiles = [
+      ['i-audio', 'Trà Xanh Cướp Kịch Bản · Tập 1' + FMT[fk][3], 'Cả tập' + (O.music ? ', có nhạc mở đầu & kết thúc' : '') + (fk === 'm4b' && O.marks ? ', có mốc chương' : ''), ({ mp3: '198 MB', m4b: '160 MB', wav: '1,5 GB' })[fk]],
+      ['i-folder', 'Từng chương (8 tệp)', 'Để đăng lẻ hoặc dựng video', ({ mp3: '171 MB', m4b: '137 MB', wav: '1,4 GB' })[fk]],
+      ...(O.srt ? [['i-doc', 'Phụ đề Tập 1.srt', 'Khớp thời gian từng câu — tải lên cùng video', '84 KB']] : []),
+      ['i-note', 'Bản đọc Tập 1.txt', 'Bản đã chốt, dùng làm lời mô tả hoặc lưu trữ', '312 KB']
+    ].map(([icon, name, desc, size], i) => ({ icon, name, desc, size, bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', more: i === 1, open: i === 1 && !!S.xOpen, moreT: S.xOpen ? 'Thu gọn' : 'Xem 8 tệp', chev: S.xOpen ? 'rotate(180deg)' : 'none', toggle: () => this.setState({ xOpen: !S.xOpen }), kids: i === 1 ? TITLES.map((t, k) => { const p = DUR[k].split(':').map(Number); return { name: 'Tập 1 · Chương ' + String(k + 1).padStart(2, '0') + ' · ' + t + '.mp3', meta: DUR[k] + ' · ' + Math.round((p[0] * 60 + p[1]) / 60 * 1.18) + ' MB' }; }) : [] }));
+    return {
+      ...jVals,
+      isStudio: studio, isBackground: st === 'background', showPipe: st !== 'background', showLiveHero: st === 'rendering' || st === 'paused', isError: st === 'renderError', isDone: st === 'rendered',
+      frozenCls: pausedEff ? 'frozen' : '', running, spk, spkCls: running ? 'talk' : '',
+      heroTitle: pausedEff ? 'Đã tạm dừng · tiếp tục từ đoạn ' + segIdx : spk.name + (single && !pausedEff ? ' · đang đọc lời ' + spk0.name : ' đang đọc'),
+      heroSub: 'Chương 4 · Bảy mươi ba giây · ' + (pausedEff ? 'phần đã tạo được giữ nguyên' : 'còn khoảng ' + etaMin + ' phút cho các chương đã chốt'),
+      heroBd: pausedEff ? 'rgba(246,203,140,0.35)' : 'rgba(201,166,245,0.22)', glowA: pausedEff ? 'rgba(246,203,140,0.08)' : 'rgba(154,99,227,0.16)',
+      pct: pctN, deg, pv, etaShort: pausedEff ? 'tạm dừng' : 'còn ' + etaMin + ' ph', ringA: pausedEff ? '#F6CB8C' : '#9A63E3', ringB: pausedEff ? '#F6CB8C' : '#C9A6F5',
+      lineLabel: 'Đoạn ' + segIdx + ' · ' + (single ? 'lời ' + spk0.name : spk0.name), words, bars, steps, segIdx, segLabel: 'đoạn ' + segIdx + '/51 · ' + (3 + (segIdx * 7 % 30) / 10).toFixed(1).replace('.', ',') + ' giây',
+      toBackground: () => go('background'), toStudio: () => go('rendering'), retry: () => go('rendering'),
+      techOpen: S.tech, techIcon: S.tech ? 'i-arrow-d' : 'i-arrow-r', toggleTech: () => this.setState({ tech: !S.tech }),
+      doneSub: '8 chương · 2 giờ 24 phút 31 giây audio · tạo trong 1 giờ 37 phút · 3 đoạn đã tự đọc lại · ' + nVoices,
+      tl, tlMode, nCh: String(NCH), tlGap: bar ? (NCH > 80 ? '1px' : '2px') : '4px', tlH: bar ? '28px' : '40px', tlRuler: bar, tlLegend: bar, rTicks, hasHov, hov: hasHov ? { n: String(hv + 1), title: TTL(hv), state: stTxt(hv), c: ({ done: '#A6EDC1', now: '#DCC8F8', wait: '#A0A0AB', lock: '#7E7E8A' })[stOf(hv)], x: xPct(hv) } : { n: '', title: '', state: '', c: '', x: '0' }, tlKey: (e) => { const cur = this.state.tlf != null ? this.state.tlf : Math.max(0, nowI); const nx = ({ ArrowRight: cur + 1, ArrowLeft: cur - 1, Home: 0, End: NCH - 1 })[e.key]; if (nx == null) return; e.preventDefault(); const j = Math.max(0, Math.min(NCH - 1, nx)); this.setState({ tlf: j, hov: j }); const b = document.querySelectorAll('.tlb2')[j]; if (b) b.focus(); }, tlLeave: () => { if (this.state.hov != null) this.setState({ hov: null }); },
+      updBar: UPD !== 'none' && UPDN.length > 0, updCls: UPD === 'queued' ? 'q' : '', updBtn: 'Cập nhật ' + UPDN.length + ' chương', updStale: UPD === 'stale', updQueued: UPD === 'queued', updText: UPD === 'stale' ? 'Chương ' + UPDN.join(' và ') + ' đã sửa sau khi tạo giọng' : 'Đã xếp chương ' + UPDN.join(' và ') + ' · chỉ đọc lại ' + UPDS + ' đoạn đã đổi' + (st === 'rendered' ? '' : ', sau chương đang tạo'), updSub: UPD === 'stale' ? 'Chỉ đọc lại ' + UPDS + ' đoạn đã đổi · khoảng ' + Math.max(1, Math.round(UPDS * 0.6)) + ' phút · phần còn lại giữ nguyên' : 'Theo dõi ở dòng chương bên dưới hoặc trong Việc chạy nền', doUpd: () => this.setState({ updLocal: 'queued', updFor: P.upd || 'none' }),
+      madeLabel: st === 'rendered' ? 'đã tạo ' + fmtHM(total) + ' · ' + NCH + '/' + NCH + ' chương' : 'đã tạo ' + fmtHM(madeSecN) + ' / khoảng ' + fmtHM(total) + ' · ' + doneN + '/' + NCH + ' chương', laneTitle: single ? 'Giọng đọc' : 'Theo giọng · đoạn đã đọc', lanes: lanesV, log: logV,
+      miniTime: String(Math.floor(miniSec / 60)).padStart(2, '0') + ':' + String(miniSec % 60).padStart(2, '0'), toggleMini: () => this.setState({ miniPlay: !S.miniPlay }), miniIcon: S.miniPlay ? 'i-pause' : 'i-play', miniLabel: S.miniPlay ? 'Tạm dừng' : 'Phát',
+      machine: [['i-speed', 'Tốc độ tạo', '1 phút audio ≈ 41 giây'], ['i-cpu', 'Đang dùng', 'Card đồ hoạ'], ['i-timer', 'Đã chạy', st === 'rendered' ? '1 giờ 37 phút' : '42 phút'], ['i-box', 'Dung lượng đã dùng', st === 'rendered' ? '1,4 / 1,4 GB' : '0,6 / 1,4 GB']].map(([icon, k, v], i) => ({ icon, k, v, bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none' })),
+      ...(() => { const isCh = xScope === 'ch'; const sel = Object.keys(xSel).filter((k) => xSel[k]).map(Number).sort((a, b) => a - b); const ext = FMT[fk][3].slice(1);
+        const sec = (d) => { const p = d.split(':').map(Number); return p[0] * 60 + p[1]; }; const MB = (i) => Math.round(sec(DUR[i - 1]) / 60 * FMT[fk][2]);
+        const fname = (i) => 'Trà Xanh Cướp Kịch Bản · Tập 1 · Chương ' + String(i).padStart(2, '0') + ' · ' + TITLES[i - 1].replace(/[\\/:*?"<>|]/g, '') + '.' + ext;
+        const tot = sel.reduce((a, i) => a + sec(DUR[i - 1]), 0);
+        return {
+          xTitle: isCh ? 'Xuất từng chương · Tập 1' : 'Ghép & xuất Tập 1', xIsCh: isCh, xNotCh: !isCh,
+          xLenLbl: isCh ? 'Độ dài đã chọn' : 'Độ dài cả tập', xLen: isCh ? Math.floor(tot / 60) + ' phút' : '2 giờ 24 phút', xLenNote: isCh ? sel.length + ' chương · không kèm nhạc mở/kết' : 'kể cả nhạc mở/kết và khoảng lặng', xDl: isCh && sel.length > 1 ? 'Tải cả ' + sel.length + ' tệp' : 'Tải xuống', xNoteWhat: isCh ? 'của ' + sel.length + ' chương đã chọn' : 'của 8 chương',
+          xScopes: [['all', 'Cả tập', 'Một tệp cả tập có nhạc mở/kết, kèm thư mục từng chương và phụ đề.'], ['ch', 'Chọn chương', 'Mỗi chương một tệp riêng — để đăng lẻ, gửi duyệt hoặc dựng video.']].map(([k, t, d]) => { const on = xScope === k; return { t, d, sel: on, bg: on ? 'rgba(201,166,245,0.07)' : '#141416', bd: on ? 'rgba(201,166,245,0.45)' : 'rgba(255,255,255,0.08)', rb: on ? '#C9A6F5' : '#5E5E68', rd: on ? '#C9A6F5' : 'transparent', pick: () => setX({ xScope: k }) }; }),
+          xSelN: String(sel.length), xAllT: sel.length === 8 ? 'Bỏ chọn' : 'Chọn cả 8', xAll: () => { if (sel.length === 8) setX({ xSel: {} }); else { const o = {}; for (let i = 1; i <= 8; i++) o[i] = true; setX({ xSel: o }); } },
+          xChs: TITLES.map((t, k) => { const n = k + 1; const on = !!xSel[n]; return { n: String(n), dur: DUR[k], title: 'Chương ' + n + ' · ' + t, on, bd: on ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: on ? 'rgba(201,166,245,0.08)' : 'transparent', cb: on ? '#C9A6F5' : 'rgba(255,255,255,0.3)', cbg: on ? '#C9A6F5' : 'transparent', tk: on ? 1 : 0, toggle: () => setX({ xSel: Object.assign({}, xSel, { [n]: !on }) }) }; }),
+          xFoot: isCh ? (sel.length ? sel.length + ' tệp · ' + Math.floor(tot / 60) + ' phút · khoảng ' + sel.reduce((a, i) => a + MB(i), 0) + ' MB' + (O.srt ? ' · kèm .srt' : '') + ((S.pack || 'files') === 'zip' && sel.length > 1 ? ' · gộp .zip' : '') + ' · chạy nền khoảng ' + Math.max(5, sel.length * 6) + ' giây' : 'Chọn ít nhất một chương') : 'Chạy nền khoảng 1 phút — đóng hộp này, việc vẫn tiếp tục',
+          xBtn: isCh ? (sel.length === 1 ? 'Xuất chương ' + sel[0] : 'Xuất ' + sel.length + ' chương') : 'Ghép & xuất',
+          xDoneTitle: isCh ? 'Đã xuất ' + sel.length + ' chương · Tập 1' : 'Đã xuất audio Tập 1', xDoneSub: isCh ? sel.length + ' tệp .' + ext + (O.srt ? ' + .srt' : '') + ((S.pack || 'files') === 'zip' && sel.length > 1 ? ' · trong một tệp .zip' : '') + ' · ' + Math.floor(tot / 60) + ' phút · xong lúc 23:18' : '8 chương · 2 giờ 24 phút 31 giây · ' + nVoices + ' đọc · xong lúc 23:18',
+          xFiles: sel.map((i, k) => ({ name: fname(i), meta: DUR[i - 1] + ' · ' + MB(i) + ' MB', bt: k ? '1px solid rgba(255,255,255,0.06)' : 'none' })),
+          chKids: TITLES.map((t, k) => ({ name: fname(k + 1), meta: DUR[k] + ' · ' + MB(k + 1) + ' MB' }))
+        }; })(),
+      pipe, isConfirm: st === 'confirm', isListen: st === 'listen', isExported: st === 'exported',
+      topMeta: st === 'confirm' ? '2:24:31 · ' + nVoices + ' · chỉ ghép, không đọc lại' : ['rendering', 'paused', 'renderError', 'background', 'rendered'].indexOf(st) >= 0 ? 'Tự tạo khi chốt chương · ' + Q[S.q][0] : '2:24:31 · 8 chương',
+      vmodes: [['cast', 'Phân vai'], ['single', 'Một giọng']].map(([k, label]) => ({ label, sel: vmode === k, bg: vmode === k ? '#222225' : 'transparent', fg: vmode === k ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ vmode: k, vmodeFor: vProp }) })),
+      isSingle: single, isCastMode: !single, packV, singleTitle: packV ? 'Một giọng kể' : '1 giọng', singleSub: packV ? 'Gói Nữ tần báo thù · giọng nữ trẻ đọc cả truyện' : 'Giọng Tri Hạ · lời thoại đổi giọng nhẹ', castHref: packV ? 'Settings.dc.html' : 'Transcript.dc.html', castLink: packV ? 'Gói chọn sẵn · đổi gói trong Cách viết' : single ? 'Đổi giọng' : 'Sửa phân vai', nVoices,
+      castMini, quality, formats, fmtNote: FMT[fk][1], fullName: 'Trà Xanh Cướp Kịch Bản · Tập 1' + FMT[fk][3], fullMeta: '2:24:31 · ' + ({ mp3: '198 MB', m4b: '160 MB', wav: '1,5 GB' })[fk], xSplitNote: 'Tệp lẻ không kèm nhạc mở/kết, khoảng lặng và mốc chương.',
+      xPack: [['files', 'Từng tệp riêng'], ['zip', 'Gộp một tệp .zip']].map(([k, label]) => { const on = (S.pack || 'files') === k; return { label, sel: on, bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ pack: k }) }; }),
+      opts, diskNeed: ({ mp3: '1,4 GB', m4b: '1,3 GB', wav: '3,1 GB' })[fk], eta: Q[S.q][2].replace('≈ ', ''), etaAt: pad(at.getHours()) + ':' + pad(at.getMinutes()),
+      start: () => { const selN = Object.keys(xSel).filter((k) => xSel[k]).map(Number).sort((a, b) => a - b); if (xScope === 'ch' && !selN.length) return; this.setState({ local: 'listen', forProp: prop, t: 14, jobFor: prop0, job: { kind: xScope === 'ch' ? 'ch' : 'all', n: xScope === 'ch' ? selN.length : 8, first: selN[0], p: 0, phase: 'run', auto: !!S.autoDl, toast: true } }); },
+      renTitle: paused ? 'Đã tạm dừng tạo audio Tập 1' : 'Đang tạo audio Tập 1', renRunning: !paused, renPaused: paused,
+      barCls: paused ? '' : 'bar-run', barBg: paused ? '#7E7E8A' : '',
+      togglePause: () => { if (st === 'paused') this.setState({ unpause: !S.unpause }); else this.setState({ paused: !S.paused }); }, pauseIcon: pausedEff ? 'i-play' : 'i-pause', pauseLabel: pausedEff ? 'Tiếp tục' : 'Tạm dừng',
+      renRows, mini, miniWave: seedWave(48, S.listenCh, 11, '#C9A6F5'), toListen: (e) => { if (e) e.preventDefault(); go('listen'); },
+      lsRows, wave: seedWave(120, 3, 43, '#C9A6F5'), marks: [{ x: '34%', t: 'Đọc hơi nhanh · 05:54' }, { x: '37.5%', t: 'Ngắt hơi sai chỗ · 06:18' }],
+      togglePlay: () => this.setState({ play: !S.play }), playIcon: S.play ? 'i-pause' : 'i-play', playLabel: S.play ? 'Tạm dừng' : 'Phát',
+      speed: String(S.speed).replace('.', ',') + '×', cycleSpeed: () => this.setState({ speed: speeds[(speeds.indexOf(S.speed) + 1) % speeds.length] }),
+      follow, flags, flagCount: flags.length,
+      lsFoot: '3 chỗ cần nghe lại · vẫn xuất được nếu bạn thấy ổn', lsFootIcon: 'i-flag', lsFootColor: '#F6CB8C',
+      exportNow: () => { setX({ xScope: 'all' }); go('confirm'); }, exportChNow: () => { setX({ xScope: 'ch' }); go('confirm'); },
+      fullWave: seedWave(96, 7, 0, '#EDEDEF'), stamps, outFiles
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+# Artboards (tham chiếu)
+
+Mã nguồn các màn từ canvas thiết kế “Noverse Agentic Studio”. Đây là **định dạng của công cụ thiết kế** (`<x-dc>`, `<sc-if>`, `<sc-for>`, `{{hole}}`, `class Component extends DCLogic`) — không chạy trực tiếp trong app và **không copy nguyên vào React**. Dùng để tra:
+
+- giá trị pixel/màu/bo góc chính xác (inline `style`),
+- cấu trúc DOM & thứ tự phần tử, nhãn ARIA,
+- dữ liệu mẫu và logic trạng thái trong `renderVals()`.
+
+**Xem artboard có bảng tweak** (bổ sung 25/10) <!-- preview -->
+
+```sh
+cd docs/design/v1 && python3 -m http.server 8700
+# mở http://localhost:8700/artboards/preview.html
+```
+
+- `preview.html` liệt kê mọi màn theo `canvas.json`. Mỗi `data-props` dạng enum thành một ô chọn.
+- Đường dẫn giữ trạng thái, ví dụ `#Setup?state=codeLocked` hoặc `#Outline?tab=cast&person=detail&xedit=add`.
+- `support.js` là runtime của công cụ thiết kế, chỉ dùng để xem; không đưa vào app.
+- Mở thẳng tệp bằng `file://` sẽ không chạy, vì trình duyệt chặn `fetch`.
+
+| Tệp | Màn | Tweak (`data-props`) |
+|---|---|---|
+| `Setup.dc.html` | A0 · Lần chạy đầu — mã thiết lập & tạo tài khoản quản trị (Gói B) | `state`: code · codeWrong · codeLocked · codeExpired · account · tokenExpired · creating · taken |
+| `Login.dc.html` | A1 · Đăng nhập & tài khoản | `state`: login · password · other · expired · menu · qr · qrExpired · qrNoLan · devices (bỏ `users` — thay bằng `Members.dc.html`, Gói AD); `error`: none · wrong · limited; `paired` |
+| `LoginQR.dc.html` | A2a · Máy tính — hiện mã QR cho điện thoại | như `Login.dc.html`, mặc định `state = qr` |
+| `Phone.dc.html` | A2b · Điện thoại — quét QR & đăng nhập (390×844) | `state`: scan · scanFound · scanWrong · cameraBlocked · confirm · pairing · invalid · login · home |
+| `Onboard.dc.html` | A3 · Thiết lập lần đầu | `role`: admin · writer; `step`: profile · password · provider · model · library · project · mobile · done (bỏ bước language — Quyết định 6); `lib` (bước library): existing · fresh · picking · browse · picked · readonly; `oauth` (bước provider): none · idle · browser · device · done · failed |
+| `OAuth.dc.html` | A4 · Trang xác thực OAuth (localhost:1455) | `state`: success · denied · stateMismatch · missingCode; `from`: cli · web |
+| `NewStory.dc.html` | 00 · Tạo truyện mới — so với truyện trước khi bắt đầu viết | `mode`: quick · cocreate; `check`: none · checking · conflict · fixed (D14) |
+| `Main.dc.html` | 01 · Bàn viết | `phase`: ready (kế hoạch xong) · plan (lập kế hoạch, Gói P) · rewrite · wait (đang chờ bạn) · gate (thẻ thẩm duyệt chương 3 có § — D4) · done; `drawer`: none · brain (ngăn kéo Não truyện — dùng chung đồ thị với `Brain`, Gói U); `peek`: none · nv (thẻ rê ở tab Truyện); avatar nhân vật theo loại vai, có chú giải (Gói S) |
+| `Activity.dc.html` | 01b · Nhật ký tiến độ | — (nhóm “Thẩm duyệt, đo bằng máy & xưng hô”: D4, D6, D9; bộ lọc Thẩm duyệt) |
+| `Outline.dc.html` | 02 · Dự án & truyện — khung truyện, bản đồ giữ chân, nhân vật & xưng hô, bản xuất | `view`: story · project; `nav`: none · project · story · search (đổi dự án ở thanh trên / đổi truyện / tìm chương, Gói AG); `len`: 8 · 40 · 120 (số chương ở cột trái, Gói AG); `tab`: outline · cast · fs · rules (Quy tắc viết của truyện, Gói AC) · style (Cách viết của truyện, Gói AL) · export; `wstyle`: pack · builtin · inherit (theo dự án) · samples (văn mẫu, đang thêm) · proj (Cách viết mặc định của dự án) (Gói AL); `rules`: list · understood · thinking · unsure (Gói AC); `health`: ok · issues; `omap`: list · map (D5); `person`: grid · detail (D7); `xedit`: locked · free · edit · confirm · add · addConfirm · rel · relConfirm (D8); `scroll`: top · deep (nút lên đầu, Gói T) |
+| `Brain.dc.html` | 02b · Não truyện — đồ thị quan hệ & xưng hô theo chương (D10) · màu nút theo loại vai (Gói S) · cùng mã vẽ với ngăn kéo ở Bàn viết (Gói U) | `ch`: 1–8; `sel`: nv · th · pc · hc · vo; `view`: graph · list; `lock`: writing · free |
+| `Quality.dc.html` | 02c · Chất lượng truyện — việc cần làm, ma trận mục luật × chương (D13) | `view`: todo · matrix; `len`: 8 · 40; `level`: all · error · warning; `scope`: open · all; `sel`: cell · chapter · row |
+| `ProjBrain.dc.html` | 02d · Não dự án — sổ cái 10 trục, vũ trụ chung, tìm trong dự án (D14) | `tab`: ledger · universe · search; `check`: conflict · fixed; `kept`: closed · open (vũ trụ: mục đã giữ nguyên) |
+| `Reader.dc.html` | 03 · Trình đọc & duyệt | `tab`: review (D4) · export (D3); `fmt`: txt · epub · narr; `keep`: none · asking · kept (lý do giữ nguyên); `scroll`: top · deep (nút lên đầu, Gói T) |
+| `Feedback.dc.html` | 03b · Góp ý theo đoạn — vòng đời, sau khi viết lại, cần gắn lại (Gói AI) <!-- ai-ab --> | `fb`: pending · sent · after · fixed (thẻ Đã sửa mở Trước/Sau) · unsure (Không chắc vị trí, gợi ý viền vàng) · relink (đang gắn lại) · history (Đã xử lý) |
+| `Settings.dc.html` | 04 · Tuỳ chỉnh — văn phong riêng của truyện/dự án đã chuyển sang `Outline` › Cách viết, ở đây chỉ còn Văn phong chung + thẻ chỉ dẫn (Gói AL) <!-- al-set --> · quy tắc chung cho mọi truyện (quy tắc truyện/dự án đã chuyển sang `Outline`, Gói AC), cách viết, trợ lý, ngân sách · 3 cấp · Kết nối AI: chọn model theo nhà cung cấp (Gói AH) | `conn`: list · added · models · search · manual · loading · failed (Gói AH, tự mở mục Kết nối AI khi khác list); `ai`: none · model · ctx · custom · fallback (Trợ lý AI: danh sách model, popover ngữ cảnh, Gói W); `pick`: none · project · story · confirm; `target`: open · other (Gói R); `section` (Cách viết có thêm công tắc “Trọng tài hỏi bạn khi phân vân”; Giao diện bỏ hàng Tối/Theo máy): rules · writing · models · budget · info · connect · export · notify · app · adv; `scope`: story · project · global; `rules`: list · understood · adding · thinking · retry · unsure · dirty; `writing`: pack · packOpen · builtin (D2); `metrics`: issues · numbers (D6); `update`: none · available · whatsnew (D1) |
+| `SysBrain.dc.html` | 04b · Não hệ thống — bài học chờ duyệt & mục luật hay vấp (D15, chỉ quản trị) | `tab`: pending · kept · dropped; `pack`: A · B · C |
+| `Members.dc.html` | 04c · Thành viên — tài khoản, vai trò theo dự án, thiết bị, mật khẩu tạm, nhật ký quản trị (Gói AD, chỉ quản trị) | `view`: members · log; `who`: linh · dat · minh · ha; `dlg`: none · add · addError · added · reset · resetDone · lock · remove; `edit`: clean · dirty · promote |
+| `Transcript.dc.html` | 06 · Audio — duyệt, nghe thử & chốt (chốt là tự tạo giọng) | `state`: review · locked · drafting · stale · allDone; `tab`: cast · issues · dict; `voice`: cast · single · pack (D11); `scroll`: top · deep (nút lên đầu, Gói T) |
+| `AudioExport.dc.html` | 07 · Audio — chương đã sửa cần cập nhật (`upd`: none · stale · queued, Gói AK) <!-- ak-ae --> · tạo giọng chạy nền, nghe cả tập & xuất (bấm “Tạo giọng” / “Nghe & xuất” trên thanh bước để chuyển màn) | `state`: confirm · confirmCh (xuất lẻ, Gói AA) · merging · merged · mergedManual · mergeBlocked · mergeFailed (ghép chạy nền + tự tải, Gói AE) · rendering · paused · renderError · background · rendered · listen (nút xuất ở từng dòng chương + nút Xuất từng chương ở chân, Gói AA) · exported · exportedCh (Gói AA); `voice`: cast · single · pack (D11); `len`: 8 · 16 · 40 · 120 (số chương trong tập, Gói V) (bấm Play để xem phòng thu chạy thật) |
+| `AudioMeta.dc.html` | 07c · Audio ngoài app — màn khoá, thông báo, xe, tệp tải về: metadata & tên tệp (Gói AF) | `scope`: chapter · volume · trial; `cover`: uploaded · generated; `compare`: bật để so với bản hiện tại |
+| `Dialogs.dc.html` | 05 · Lệnh & hộp thoại | `state`: palette · newProject · reopen · import · offline · locked · recovery (mã khôi phục chưa dùng — 409) |
+| `Slash.dc.html` | 05b · Gõ / trong ô chat — gợi ý, mô tả & cách dùng lệnh | `stage`: slash · filter · args · value · enum · invalid · unknown · text; `busy` (gõ thật trong ô chat: ↑↓ Tab Enter Esc đều chạy) |
+| `Commands.dc.html` | 08 · Hướng dẫn lệnh chi tiết | `cmd`: intro · help · model · config · diag · review · next · start · import · reopen · cocreate · simulate · importsim · sync · export; `busy`; `q` (từ khoá tìm) |
+| `CmdResults.dc.html` | 05c · Sau khi chọn lệnh — bảng, thẻ kết quả & lỗi | `view`: model · modelCtx (ngữ cảnh tự đặt, Gói W) · diagLoading · diag · exportRun · exportDone · exportExists · syncCheck · syncDone · simulateRun · simulateDone (các trạng thái chạy tự chuyển sang xong) |
+| `Jobs.dc.html` | 09 · Việc chạy nền — dock thu gọn ở mọi màn | `scenario`: running · expanded · finishing · attention · error · mini · empty; `screen`: reader · outline · audio · settings · workspace. Có bảng thử animation (viền đứt) |
+| `Brand.dc.html` | B0 · Thương hiệu Noverse — logo, biểu tượng, app icon, màu, chữ | — (bảng tĩnh) |
+| `Nav.dc.html` | 10b · Chuyển trang mượt (Gói Q) | `mode`: after · before; `speed`: normal · slow; `load`: fast · slow — bấm thanh điều hướng trong khung để thử |
+| `ScrollTop.dc.html` | 10c · Nút lên đầu cho chỗ đọc và danh sách dài (Gói T) | — (hai khung cuộn thử: máy tính và điện thoại; trạng thái; bảng vị trí) |
+| `Kit.dc.html` | 10 · Bộ thành phần | `section`: confirm · menus · select · inputs · overlays; `confirm`: pause · overwrite · device · user · story · allDevices · leave; `open`: voice · lang · model · genres · none |
+| `MWork.dc.html` | M1 · Điện thoại — Viết (orb trợ lý đang chạy chuyển động, Gói Y) | `state`: running · gate · idle · paused · done · error · empty · offline · expired · typing · cmd · cmdArgs · jobs · pause |
+| `MFeedback.dc.html` | M2b · Điện thoại — Góp ý (Gói AI) <!-- ai-mab --> | `fb`: pending · sheet (ngăn Góp ý) · sent · after (toast + dải báo) · afterSheet (nhóm Cần gắn lại) · fixed · unsure · relink |
+| `MReader.dc.html` | M2 · Điện thoại — Đọc | `state`: gate · read · readDeep (đã cuộn sâu, có nút lên đầu, Gói T) · immersive · comment · commentKb · chapters · chapterMenu · exportMenu (D3) · font · person (chạm tên nhân vật, M8) |
+| `MAudio.dc.html` | M3 · Điện thoại — Nghe | `state`: list · player · genPick · genPickRedo · genVoice · genVoicePick · genVoiceRec (chọn chương, đổi giọng, ghi âm mẫu, Gói Z) · queue · queuePaused · queueError (sheet Tạo giọng, Gói Z) · export · bgRun · bgDone · bgManual · bgBlocked · bgFail (ghép chạy nền + tự tải, Gói AE; bỏ `exportRun`) · exportTrial (xuất thử) · exportDone · chMenu · exportCh · exportChDone (xuất lẻ từng chương, Gói AA); `voice`: cast · pack (D11) |
+| `MVoiceGen.dc.html` | M3b · Điện thoại — Tạo giọng: một ngăn (Gói AK, thay `MAudio` genPick/queue) <!-- ak-ab --> | `gk`: entry (thẻ trên trang Nghe) · stale (chỉ chương đã sửa → Cập nhật) · ready (đã sửa + chưa có giọng → Tạo giọng) · redo (chọn Tạo lại từ đầu) · running · error · allDone |
+| `MMore.dc.html` | M4 · Điện thoại — Thêm | `state`: home · rules · rulesAdd · rulesThinking · storyset · accounts · password · firstPwd · guide · guideCmd · projects · model · pick · pickCtx (ngữ cảnh tự đặt, Gói W) · devices · confirm |
+| `MBrain.dc.html` | M8 · Điện thoại — Não truyện (danh sách theo chương) | `state`: list · sheet · filter · search · empty; `ch`: 1–8; `len`: 8 · 30 (dàn ý dài: hàng ô cuộn ngang) |
+| `MCmd.dc.html` | M5 · Điện thoại — Kết quả lệnh | `view`: cocreate · import · importGuide · importRun · diag · syncCheck · syncDone · reopen · reopenBlocked |
+| `MLog.dc.html` | M6 · Điện thoại — Nhật ký hoạt động | `state`: live · tool · errors · review (D4, D9) · search · scrolled |
+| `MNotify.dc.html` | M7 · Điện thoại — Thông báo | `view`: inbox · prompt · system · denied · settings · lock · lockActions |
+| `MTablet.dc.html` | T1 · Máy tính bảng 834×1194 — Viết + Đọc hai cột | `state`: running · gate · cmd · jobs · readFocus |
+| `canvas.json` | Bố cục canvas | — |
+
+Đường dẫn icon đã đổi từ `/_blob/<id>` sang `../icons/<tên>.svg`.
+
+**Dữ liệu trong artboard**: số liệu, nhân vật, log 20:59 / 21:49, đoạn văn chương 3–4 lấy từ ảnh chụp phiên thật của truyện “Trà Xanh Cướp Kịch Bản…”; mọi `[ngoặc vuông]` là placeholder thiết kế — không đưa vào sản phẩm.

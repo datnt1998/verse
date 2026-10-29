@@ -1,0 +1,17 @@
+/* Tuỳ chỉnh — lớp phụ của Settings.dc.html, đổi tiền tố `st-`. Giá trị chép nguyên văn từ artboard. */
+.st-nav { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; padding: 0 10px; border: none; border-radius: 9px; background: transparent; color: #A0A0AB; font-size: 13.5px; text-align: left; }
+.st-nav:hover { background: rgba(255,255,255,.04); color: #EDEDEF; }
+.st-nav.on { background: #1C1C1F; color: #EDEDEF; font-weight: 500; }
+.st-ngrp { padding: 16px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .08em; color: #6E6E78; display: flex; align-items: center; gap: 6px; }
+.st-ovr { height: 22px; padding: 0 8px; border-radius: 6px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.st-ovr.own { background: rgba(201,166,245,.12); color: #DCC8F8; }
+.st-ovr.inh { background: rgba(255,255,255,.05); color: #8E8E99; }
+.st-tpl { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.09); background: transparent; color: #C9C9D1; font-size: 12.5px; white-space: nowrap; }
+.st-tpl:hover { background: rgba(255,255,255,.05); }
+/* Các lớp .st-* của Cách viết (sec · srow · style · grph · lyr · field · inh · smp…) đã chuyển sang style.css (Gói AL) — Tuỳ chỉnh và màn Dự án & truyện dùng chung. */
+
+.st-savebar { position: absolute; left: 50%; bottom: 20px; z-index: 30; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 18px; border-radius: 16px; background: rgba(30,30,33,.96); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 24px 50px -16px rgba(0,0,0,.9); animation: st-sbIn .4s cubic-bezier(.2,.9,.25,1.15) both; white-space: nowrap; }
+@keyframes st-sbIn { from { opacity: 0; transform: translate(-50%, 16px) } to { opacity: 1; transform: translate(-50%, 0) } }
+.st-mbar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; }
+.st-nav:focus-visible { outline: 2px solid #C9A6F5; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .st-savebar { animation: none !important; transition: none !important; } }

@@ -1,0 +1,217 @@
+{
+  "title": "Chuông gió làng Hồn Cò",
+  "premise": "Ở làng chài Hồn Cò, ông Đại — thợ đúc chuông già — trao chiếc chuông gió bằng đồng cho Tuyền, cô gái sắp theo chồng ra đảo lớn. Trước khi rời làng, Tuyền lại trao chiếc chuông cho Hải, người bạn thời thơ ấu ở lại đóng tàu, như một lời gửi giữ tiếng chuông quê nhà. Việc đổi chủ qua trung gian được ghi rõ trong từng chương: chuông của Hải hiện nay chính là chuông ông Đại tặng Tuyền.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Chiếc chuông cuối cùng của lò đúc",
+      "core_event": "Ông Đại trao chiếc chuông gió đồng cuối cùng của lò cho Tuyền trước ngày cô theo chồng ra đảo lớn.",
+      "hook": "Tuyền nhận chuông nhưng nói cô không mang được nó theo.",
+      "scenes": ["Lò đúc chuông cũ của ông Đại", "Bãi cát trước làng Hồn Cò"],
+      "hook_type": "reveal"
+    },
+    {
+      "chapter": 2,
+      "title": "Lời gửi giữ tiếng chuông",
+      "core_event": "Tuyền gặp Hải ở xưởng đóng tàu, trao chiếc chuông và nhờ anh giữ nó thay mình ở làng.",
+      "hook": "Hải treo chuông lên xà xưởng tàu, tiếng chuông vang trong gió biển.",
+      "scenes": ["Xưởng đóng tàu ven sông", "Đường làng lúc hoàng hôn"],
+      "hook_type": "emotional"
+    },
+    {
+      "chapter": 3,
+      "title": "Tiếng chuông gọi người giữ",
+      "core_event": "Ông Đại nghe tiếng chuông từ xưởng tàu, tìm đến và nhận ra chuông của mình trong tay Hải; Hải kể lại lời Tuyền gửi giữ.",
+      "hook": "Ông Đại đề nghị dạy Hải nghề đúc chuông nếu anh chịu học.",
+      "scenes": ["Xưởng đóng tàu buổi sáng", "Lò đúc cũ chiều muộn"],
+      "hook_type": "question"
+    },
+    {
+      "chapter": 4,
+      "title": "Điều kiện của thợ đúc",
+      "core_event": "Ông Đại thử Hải bằng một tuần chặt đồng vụn; Hải bỏ cuộc giữa chừng vì sợ mình không đủ kiên nhẫn.",
+      "hook": "Thư của Tuyền từ đảo lớn gửi về, hỏi tiếng chuông còn vang không.",
+      "scenes": ["Lò đúc lúc mở lửa", "Bưu điện xã"],
+      "hook_type": "setback",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 5,
+      "title": "Bản nháp đầu tiên",
+      "core_event": "Hải quay lại lò, đúc chiếc chuông đầu tiên — mép hỏng nhưng tiếng vẫn trong; ông Đại mỉm cười lần đầu.",
+      "hook": "Ông Đại trao cho Hải chiếc búa đúc của cố sư phụ.",
+      "scenes": ["Lò đúc", "Bờ sông lúc lên nước"],
+      "hook_type": "hope"
+    },
+    {
+      "chapter": 6,
+      "title": "Trận bão giữa mùa",
+      "core_event": "Bão đổ bộ, xưởng tàu cháy một góc; Hải liều mình cứu chiếc chuông ra khỏi lửa.",
+      "hook": "Chiếc chuông bị rạn nhẹ, tiếng chuông thay đổi.",
+      "scenes": ["Xưởng tàu trong bão", "Nhà ông Đại sau bão"],
+      "hook_type": "danger"
+    },
+    {
+      "chapter": 7,
+      "title": "Tiếng chuông mới",
+      "core_event": "Ông Đại và Hải sửa vết rạn; tiếng chuông mới trầm hơn nhưng đi xa hơn, làng gọi là chuông giữ người.",
+      "hook": "Tuyền viết thư báo sẽ về làng thăm vào cuối mùa cá.",
+      "scenes": ["Lò đúc", "Sân nhà ông Đại"],
+      "hook_type": "resolution"
+    },
+    {
+      "chapter": 8,
+      "title": "Người giữ tiếng chuông",
+      "core_event": "Tuyền về làng, nghe tiếng chuông từ xưởng tàu; ba người cùng ngồi nghe, chuông chính thức thuộc về Hải.",
+      "hook": "Làng Hồn Cò lại có người trẻ học nghề đúc.",
+      "scenes": ["Xưởng tàu đã sửa", "Bãi cát buổi chiều"],
+      "hook_type": "closing"
+    }
+  ],
+  "characters": [
+    {
+      "id": "ong-dai",
+      "name": "ông Đại",
+      "role": "thợ đúc chuông già của làng Hồn Cò",
+      "kind": "support",
+      "description": "Sáu mươi tám tuổi, chủ lò đúc cuối cùng của làng. Tiếng chuông ông đúc từng báo giờ trở tàu cho cả làng trước khi người ta có đồng hồ điện thoại.",
+      "arc": "Từ người giữ nghề một mình đến người truyền nghề cho đúng đứa trẻ.",
+      "traits": ["cẩn thận", "ít lời", "giữ chữ tín"]
+    },
+    {
+      "id": "tuyen",
+      "name": "Tuyền",
+      "role": "cô gái làng Hồn Cò theo chồng ra đảo lớn",
+      "kind": "support",
+      "description": "Hai mươi sáu tuổi. Nhận chuông của ông Đại nhưng không mang theo được; trao lại cho Hải để giữ tiếng chuông quê nhà.",
+      "arc": "Rời quê nhưng tìm cách giữ lại tiếng của quê.",
+      "traits": ["dịu dàng", "chu đáo", "sống nội tâm"]
+    },
+    {
+      "id": "hai",
+      "name": "Hải",
+      "role": "thợ đóng tàu trẻ, bạn thời thơ ấu của Tuyền",
+      "kind": "lead",
+      "description": "Hai mươi bảy tuổi. Nhận chiếc chuông từ Tuyền để giữ thay, rồi vì tiếng chuông ấy mà được ông Đại nhìn thấy.",
+      "arc": "Từ thợ đóng tàu chỉ biết gỗ và đinh đến người học nghề giữ tiếng chuông làng.",
+      "traits": ["thật thà", "bền bỉ", "hay tự nhủ mình chưa đủ giỏi"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Truyện diễn ra ở làng chài Hồn Cò ven biển và đảo lớn cách bờ nửa ngày đi tàu.",
+      "boundary": "Không tạo thành phố lớn hay bối cảnh hiện đại xa lạ để giải quyết xung đột."
+    },
+    {
+      "category": "society",
+      "rule": "Làng nhỏ, mọi người biết nhau; đồ vật có thể tích thường được trao tay trực tiếp.",
+      "boundary": "Không dùng yếu tố siêu nhiên; tiếng chuông chỉ là vật thật mang ký ức."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Chiếc chuông cuối cùng của lò đúc",
+        "summary": "Ông Đại mở lò đúc lần cuối, trao chiếc chuông gió đồng cho Tuyền trước ngày cô theo chồng ra đảo lớn. Tuyền nhận chuông nhưng nói mình không thể mang nó theo, vì nhà chồng ở đảo đã đông và không còn chỗ cho đồ cũ.",
+        "characters": ["ông Đại", "Tuyền"],
+        "key_events": ["Ông Đại tặng Tuyền chiếc chuông gió đồng cuối cùng của lò", "Tuyền nhận chuông nhưng nói không mang được theo ra đảo"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Lời gửi giữ tiếng chuông",
+        "summary": "Tuyền đến xưởng đóng tàu của Hải, trao chiếc chuông của ông Đại và nhờ Hải giữ nó thay mình ở làng. Hải treo chuông lên xà xưởng; tiếng chuông vang trong gió biển khiến cả xưởng ngừng tay nghe.",
+        "characters": ["Tuyền", "Hải"],
+        "key_events": ["Tuyền trao chuông của ông Đại cho Hải giữ thay", "Hải treo chuông lên xà xưởng tàu"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Tiếng chuông gọi người giữ",
+        "summary": "Ông Đại nghe tiếng chuông lạ từ xưởng tàu, tìm đến và nhận ra chính chiếc chuông mình tặng Tuyền đang treo ở xà nhà Hải. Hải kể lại lời Tuyền gửi giữ chuông thay ở làng. Ông Đại ngồi nghe chuông rất lâu rồi bất ngờ đề nghị dạy Hải nghề đúc chuông nếu anh chịu học.",
+        "characters": ["ông Đại", "Hải"],
+        "key_events": ["Ông Đại nhận ra chuông của mình trong tay Hải", "Hải kể lại lời Tuyền gửi giữ chuông", "Ông Đại đề nghị dạy Hải nghề đúc chuông"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "sáng mùa cá, làng Hồn Cò",
+      "event": "Ông Đại trao chiếc chuông gió đồng cuối cùng của lò cho Tuyền.",
+      "characters": ["ông Đại", "Tuyền"]
+    },
+    {
+      "chapter": 2,
+      "time": "chiều hôm sau, xưởng đóng tàu",
+      "event": "Tuyền trao chiếc chuông cho Hải, nhờ anh giữ thay ở làng; Hải treo chuông lên xà xưởng.",
+      "characters": ["Tuyền", "Hải"]
+    },
+    {
+      "chapter": 3,
+      "time": "sáng mấy hôm sau",
+      "event": "Ông Đại nghe tiếng chuông từ xưởng tàu, tìm đến, nhận ra chuông của mình và đề nghị dạy Hải nghề.",
+      "characters": ["ông Đại", "Hải"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 3,
+      "updates": [
+        {"id": "thu-tuyen", "action": "plant", "description": "Tuyền hứa sẽ viết thư hỏi tiếng chuông quê nhà còn vang không."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "chuông gió đồng", "field": "own", "old_value": "ông Đại", "new_value": "Tuyền", "reason": "ông Đại tặng trước ngày Tuyền ra đảo"},
+    {"chapter": 2, "entity": "chuông gió đồng", "field": "own", "old_value": "Tuyền", "new_value": "Hải", "reason": "Tuyền gửi Hải giữ thay ở làng"},
+    {"chapter": 2, "entity": "chuông gió đồng", "field": "location", "new_value": "xà xưởng đóng tàu của Hải", "reason": "Hải treo chuông tại xưởng"},
+    {"chapter": 3, "entity": "Hải", "field": "relation", "new_value": "được ông Đại đề nghị học nghề đúc chuông", "reason": "ông Đại nghe chuông và thấy Hải trân trọng nó"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Chiếc chuông cuối cùng của lò đúc",
+      "goal": "Ông Đại trao chiếc chuông đồng cho Tuyền trước ngày cô rời làng.",
+      "conflict": "Tuyền muốn giữ tiếng quê nhà nhưng không mang được chuông ra đảo.",
+      "hook": "Tuyền nói không mang được chuông theo.",
+      "contract": {
+        "required_beats": ["Ông Đại tặng chuông cho Tuyền"],
+        "continuity_checks": ["Chuông thuộc sở hữu ông Đại trước khi tặng"],
+        "emotion_target": "luyến tiếc"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Lời gửi giữ tiếng chuông",
+      "goal": "Tuyền trao chuông cho Hải giữ thay ở làng.",
+      "conflict": "Tuyền phải chọn ai giữ tiếng chuông quê nhà thay mình.",
+      "hook": "Tiếng chuông vang trong xưởng tàu.",
+      "contract": {
+        "required_beats": ["Tuyền trao chuông cho Hải", "Hải treo chuông ở xưởng"],
+        "continuity_checks": ["Chuông mà Hải nhận chính là chuông ông Đại tặng Tuyền"],
+        "emotion_target": "gửi gắm"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Tiếng chuông gọi người giữ",
+      "goal": "Ông Đại nhận ra chuông của mình trong tay Hải và đề nghị dạy nghề.",
+      "conflict": "Ông Đại tưởng chuông đã mất dấu theo Tuyền ra đảo.",
+      "hook": "Lời đề nghị học nghề bất ngờ.",
+      "contract": {
+        "required_beats": ["Ông Đại nhận ra chuông", "Hải kể lại lời Tuyền gửi giữ"],
+        "continuity_checks": ["Đường đi của chuông: ông Đại → Tuyền → Hải là nhất quán qua các chương"],
+        "emotion_target": "bất ngờ ấm lòng"
+      }
+    }
+  ]
+}

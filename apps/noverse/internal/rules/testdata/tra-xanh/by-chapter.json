@@ -1,0 +1,211 @@
+[
+  {
+    "chapters": [
+      {
+        "name": "第 1 章  Vai của tôi là đổ canh",
+        "words": 1611,
+        "dialogue_words": 540,
+        "dialogue_ratio": 0.33519553072625696,
+        "procedural": 15
+      }
+    ],
+    "english": null,
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": [
+      3
+    ],
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 2 章  Chiếc cân ở giữa bàn",
+        "words": 1700,
+        "dialogue_words": 590,
+        "dialogue_ratio": 0.34705882352941175,
+        "procedural": 5
+      }
+    ],
+    "english": null,
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 3 章  Tác giả ơi, chị làm rơi động cơ nhân vật",
+        "words": 1594,
+        "dialogue_words": 692,
+        "dialogue_ratio": 0.4341279799247177,
+        "procedural": 3
+      }
+    ],
+    "english": {
+      "live": 1
+    },
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 4 章  Bảy mươi ba giây",
+        "words": 1610,
+        "dialogue_words": 655,
+        "dialogue_ratio": 0.40683229813664595,
+        "procedural": 15
+      }
+    ],
+    "english": {
+      "live": 2
+    },
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": [
+      "phụ trách mở phong bì"
+    ],
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 5 章  Tờ giấy bị mất tiêu đề",
+        "words": 1655,
+        "dialogue_words": 699,
+        "dialogue_ratio": 0.42235649546827797,
+        "procedural": 18
+      }
+    ],
+    "english": {
+      "casting": 4,
+      "live": 1,
+      "scandal": 1
+    },
+    "day_lines": [
+      129
+    ],
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 6 章  Chiếc vỏ ổ cứng",
+        "words": 1639,
+        "dialogue_words": 569,
+        "dialogue_ratio": 0.34716290420988405,
+        "procedural": 19
+      }
+    ],
+    "english": null,
+    "day_lines": [
+      7
+    ],
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 7 章  Bản gốc không biết khóc",
+        "words": 1673,
+        "dialogue_words": 475,
+        "dialogue_ratio": 0.2839210998206814,
+        "procedural": 20
+      }
+    ],
+    "english": {
+      "credit": 3
+    },
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": null,
+    "repeated": null,
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "chapters": [
+      {
+        "name": "第 8 章  Tên tôi trên màn hình",
+        "words": 1899,
+        "dialogue_words": 579,
+        "dialogue_ratio": 0.3048973143759874,
+        "procedural": 17
+      }
+    ],
+    "english": {
+      "credit": 3
+    },
+    "day_lines": null,
+    "sentence_lines": null,
+    "paragraph_lines": [
+      91,
+      127
+    ],
+    "repeated": [
+      "nhà sản xuất điều hành"
+    ],
+    "quiet": null,
+    "openings": [
+      {
+        "name": "same-story",
+        "ratio": 1.0
+      }
+    ]
+  }
+]

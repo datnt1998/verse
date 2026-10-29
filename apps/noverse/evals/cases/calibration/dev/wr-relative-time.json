@@ -1,0 +1,24 @@
+{
+  "id": "wr-relative-time",
+  "category": "quality",
+  "role": "writer",
+  "description": "Chương 2 kết lúc chạng vạng, Ân còn ngồi trong trạm với bó thư và bản đồ. Chương 3 tiếp ngay buổi tối hôm đó, nên đoạn mở đầu (600 ký tự đầu) không được nhảy sang sáng hôm sau.",
+  "prompt": "Viết chương 3",
+  "fixture": "wr-relative-time",
+  "instruction": {
+    "agent": "writer",
+    "task": "Viết chương 3"
+  },
+  "control": false,
+  "expect": {
+    "prose": {
+      "chapter": 3,
+      "forbid_regex": [
+        "^(?is).{0,600}?sáng (ngày )?hôm sau"
+      ]
+    }
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

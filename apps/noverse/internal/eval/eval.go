@@ -1,0 +1,237 @@
+package eval
+
+import (
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/datnt1998/noverse/assets"
+	"github.com/datnt1998/noverse/internal/bootstrap"
+)
+
+// Command 是 `ainovel-cli eval` 子命令入口，返回进程退出码：
+// 0=PASS/WARN，1=有 case FAIL，2=用法/配置错误。
+//
+// 清晰流程：加载配置 → 加载 case → 按 single/A-B 编排运行 → 采集 → 评分 → 聚合 → 报告。
+func Command(argv []string) int {
+	fs := flag.NewFlagSet("eval", flag.ContinueOnError)
+	casesPath := fs.String("cases", "", "thư mục case hoặc một tệp .json (bắt buộc)")
+	variantDir := fs.String("variant", "", "thư mục ghi đè prompt của variant (chứa writer.md và các prompt lõi)")
+	configPath := fs.String("config", "", "đường dẫn tệp cấu hình (mặc định dùng đường dẫn chuẩn)")
+	outDir := fs.String("out", "", "thư mục xuất báo cáo (mặc định workspace/evals/<run_id>)")
+	maxChapters := fs.Int("max-chapters", -1, "ghi đè giới hạn số chương cho mọi case (-1=không ghi đè)")
+	fixturesDir := fs.String("fixtures", defaultFixturesDir, "thư mục gốc fixture của case ở fixture mode")
+	timeout := fs.Duration("timeout", 30*time.Minute, "giới hạn thời gian thực cho mỗi case (0=không giới hạn)")
+	repeat := fs.Int("repeat", 1, "số lần chạy lặp mỗi case (giảm ảnh hưởng ngẫu nhiên của model)")
+	ci := fs.Bool("ci", false, "chế độ CI: tắt tiến trình từng sự kiện, chỉ in kết luận cuối (mã thoát đã phản ánh cổng kiểm, không cần flag này vẫn có hiệu lực)")
+	if err := fs.Parse(argv); err != nil {
+		return 2
+	}
+	if strings.TrimSpace(*casesPath) == "" {
+		fmt.Fprintln(os.Stderr, "eval: thiếu --cases")
+		fs.Usage()
+		return 2
+	}
+	if *repeat <= 0 {
+		fmt.Fprintln(os.Stderr, "eval: --repeat phải lớn hơn 0")
+		return 2
+	}
+
+	// eval 的 -config 指向独立文件时按单文件加载（可复现、不被本机全局/项目污染）；
+	// 缺省则走默认的全局+项目两层合并。
+	loadConfig := bootstrap.LoadConfig
+	if strings.TrimSpace(*configPath) != "" {
+		loadConfig = func() (bootstrap.Config, error) { return bootstrap.LoadConfigFile(*configPath) }
+	}
+	cfg, err := loadConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "eval: tải cấu hình thất bại: %v\n", err)
+		return 2
+	}
+
+	cases, err := LoadCases(*casesPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "eval: tải case thất bại: %v\n", err)
+		return 2
+	}
+
+	variantPrompts, err := loadVariant(*variantDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "eval: tải variant thất bại: %v\n", err)
+		return 2
+	}
+
+	runID := time.Now().Format("20060102-150405")
+	if *outDir == "" {
+		*outDir = filepath.Join("workspace", "evals", runID)
+	}
+	variantName := ""
+	if *variantDir != "" {
+		variantName = filepath.Base(*variantDir)
+	}
+
+	mode := "single"
+	if variantName != "" {
+		mode = "ab"
+	}
+	fmt.Fprintf(os.Stderr, "eval run %s · %d cases · mode=%s · variant=%s · repeat=%d\n",
+		runID, len(cases), mode, orNone(variantName), *repeat)
+
+	caseResults := make([]CaseResult, 0, len(cases))
+	for _, c := range cases {
+		if *maxChapters >= 0 {
+			c.MaxChapters = *maxChapters
+		}
+		fmt.Fprintf(os.Stderr, "\n▶ %s (%s)\n", c.ID, c.Category)
+
+		style := c.Style
+		if style == "" {
+			style = cfg.Style
+		}
+		var progressW io.Writer
+		if !*ci {
+			progressW = os.Stderr // CI 模式静默逐事件输出，保持日志干净
+		}
+		baseOpts := RunOptions{Timeout: *timeout, Progress: progressW, FixturesDir: *fixturesDir}
+
+		if variantName == "" {
+			runs := make([]RunResult, 0, *repeat)
+			for i := 1; i <= *repeat; i++ {
+				bundle := assets.Load(style, assets.LoadOptions{}) // 纯内置,确定性 baseline,不受本机覆盖污染
+				if bundle.Err != nil {
+					fmt.Fprintf(os.Stderr, "eval: nạp gói thể loại thất bại: %v\n", bundle.Err)
+					return 2
+				}
+				opts := baseOpts
+				opts.OutputDir = runDir(*outDir, c.ID, ArmSingle, i, *repeat)
+				res := runOne(cfg, bundle, c, opts)
+				res.Arm, res.Repeat = ArmSingle, i
+				runs = append(runs, RunResult{Arm: ArmSingle, Repeat: i, Result: res})
+				fmt.Fprintf(os.Stderr, "  → single#%d %s\n", i, res.Outcome)
+			}
+			caseResults = append(caseResults, NewSingleRunsCaseResult(c, runs))
+			continue
+		}
+
+		runs := make([]RunResult, 0, *repeat*2)
+		deltas := make([]Delta, 0, *repeat)
+		for i := 1; i <= *repeat; i++ {
+			baseBundle := assets.Load(style, assets.LoadOptions{})
+			if baseBundle.Err != nil {
+				fmt.Fprintf(os.Stderr, "eval: nạp gói thể loại thất bại: %v\n", baseBundle.Err)
+				return 2
+			}
+			baseOptsRun := baseOpts
+			baseOptsRun.OutputDir = runDir(*outDir, c.ID, ArmBaseline, i, *repeat)
+			base := runOne(cfg, baseBundle, c, baseOptsRun)
+			base.Arm, base.Repeat = ArmBaseline, i
+			runs = append(runs, RunResult{Arm: ArmBaseline, Repeat: i, Result: base})
+			fmt.Fprintf(os.Stderr, "  → baseline#%d %s\n", i, base.Outcome)
+
+			varBundle := assets.Load(style, assets.LoadOptions{})
+			if varBundle.Err != nil {
+				fmt.Fprintf(os.Stderr, "eval: nạp gói thể loại thất bại: %v\n", varBundle.Err)
+				return 2
+			}
+			if err := applyVariant(&varBundle, variantPrompts); err != nil {
+				fmt.Fprintf(os.Stderr, "eval: ghi đè variant thất bại: %v\n", err)
+				return 2
+			}
+			variantOpts := baseOpts
+			variantOpts.OutputDir = runDir(*outDir, c.ID, ArmVariant, i, *repeat)
+			variant := runOne(cfg, varBundle, c, variantOpts)
+			variant.Arm, variant.Repeat = ArmVariant, i
+			runs = append(runs, RunResult{Arm: ArmVariant, Repeat: i, Result: variant})
+			delta := GradeDelta(c, base, variant)
+			deltas = append(deltas, delta)
+			fmt.Fprintf(os.Stderr, "  → variant#%d %s · delta %s\n", i, variant.Outcome, delta.Outcome)
+		}
+		caseResults = append(caseResults, NewABCaseResult(c, runs, deltas))
+	}
+
+	suite := Aggregate(runID, mode, variantName, *repeat, caseResults)
+	if err := WriteReport(suite, *outDir); err != nil {
+		fmt.Fprintf(os.Stderr, "eval: ghi báo cáo thất bại: %v\n", err)
+		return 2
+	}
+
+	fmt.Fprintf(os.Stderr, "\n%s\nBáo cáo: %s\n", Summary(suite), filepath.Join(*outDir, "report.md"))
+	if suite.Gate == Fail {
+		return 1
+	}
+	return 0
+}
+
+func runOne(cfg bootstrap.Config, bundle assets.Bundle, c Case, opts RunOptions) Result {
+	runErr := RunCase(cfg, bundle, c, opts)
+	col := Collect(opts.OutputDir, runErr)
+	return Grade(c, col)
+}
+
+func runDir(outDir, caseID, arm string, repeat, totalRepeats int) string {
+	if totalRepeats <= 1 {
+		if arm == ArmSingle {
+			return filepath.Join(outDir, "artifacts", caseID)
+		}
+		return filepath.Join(outDir, "artifacts", caseID, arm)
+	}
+	if arm == ArmSingle {
+		return filepath.Join(outDir, "artifacts", caseID, fmt.Sprintf("r%d", repeat))
+	}
+	return filepath.Join(outDir, "artifacts", caseID, fmt.Sprintf("r%d", repeat), arm)
+}
+
+// loadVariant 读取 variant 目录下所有 *.md（文件名→内容）。
+func loadVariant(dir string) (map[string]string, error) {
+	if strings.TrimSpace(dir) == "" {
+		return nil, nil
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	out := map[string]string{}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		if !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			return nil, err
+		}
+		out[e.Name()] = string(data)
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("thư mục variant không có tệp *.md: %s", dir)
+	}
+	return out, nil
+}
+
+func applyVariant(b *assets.Bundle, prompts map[string]string) error {
+	for file, raw := range prompts {
+		// voice.md 是文风层独立 variant 入口:只替换文风段,协议模板不动,
+		// 组装仍走 BuildWriterPrompt 同一路径(docs/voice-layer.md §3.6)。
+		if file == "voice.md" {
+			b.OverrideVoice(raw)
+			continue
+		}
+		if err := b.OverridePrompt(file, raw); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func orNone(s string) string {
+	if s == "" {
+		return "<none>"
+	}
+	return s
+}

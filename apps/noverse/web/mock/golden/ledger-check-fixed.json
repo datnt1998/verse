@@ -1,0 +1,125 @@
+{
+  "axes": [
+    {
+      "n": 1,
+      "name": "Bộ quy tắc và biến thể"
+    },
+    {
+      "n": 2,
+      "name": "Bối cảnh"
+    },
+    {
+      "n": 3,
+      "name": "Nghề của nhân vật chính"
+    },
+    {
+      "n": 4,
+      "name": "Kiểu phản diện"
+    },
+    {
+      "n": 5,
+      "name": "Điểm thương"
+    },
+    {
+      "n": 6,
+      "name": "Vũ khí và cơ chế lật"
+    },
+    {
+      "n": 7,
+      "name": "Sân khấu cao trào"
+    },
+    {
+      "n": 8,
+      "name": "Tông giọng"
+    },
+    {
+      "n": 9,
+      "name": "Cấu trúc mở đầu"
+    },
+    {
+      "n": 10,
+      "name": "Kiểu kết"
+    }
+  ],
+  "values": [
+    "A trọng sinh",
+    "Khu chợ",
+    "Thợ may",
+    "Chủ tiệm",
+    "Mẹ già",
+    "Sổ sách viết tay",
+    "Lễ đính hôn",
+    "Mỏ hỗn sắc",
+    "Khoảnh khắc tỉnh lại",
+    "Sự nghiệp riêng"
+  ],
+  "checks": [
+    {
+      "level": "ok",
+      "rule": "combination",
+      "text": "Tổ hợp trục 1 + 3 + 4 + 6 chưa dùng trong 10 truyện gần nhất.",
+      "short": "Bốn trục chính chưa trùng truyện nào.",
+      "fix": null,
+      "axes": [
+        1,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "level": "ok",
+      "rule": "distance",
+      "text": "Khác truyện liền trước ở 7 trục (cần ít nhất 4).",
+      "short": "Khác truyện vừa đăng 7/10 trục.",
+      "fix": null,
+      "axes": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        10
+      ],
+      "against": "proj/thien-kim"
+    },
+    {
+      "level": "warning",
+      "rule": "overuse",
+      "text": "Nghề của nhân vật chính “Thợ may” đã dùng 2 lần; truyện mới sẽ vượt tối đa 2 lần.",
+      "short": "Nghề “Thợ may” đã có 2 truyện dùng.",
+      "fix": "Cân nhắc đổi",
+      "axes": [
+        3
+      ]
+    },
+    {
+      "level": "ok",
+      "rule": "opening",
+      "text": "Kiểu mở đầu không lặp 3 truyện liền nhau.",
+      "short": "Mở đầu khác 2 truyện trước.",
+      "fix": null,
+      "axes": [
+        9
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "story": "new",
+      "axis": 3,
+      "mark": "overused"
+    },
+    {
+      "story": "proj/me-ke-tiem-may",
+      "axis": 3,
+      "mark": "overused"
+    },
+    {
+      "story": "proj/em-gai-nuoi",
+      "axis": 3,
+      "mark": "overused"
+    }
+  ]
+}

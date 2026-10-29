@@ -1,0 +1,229 @@
+{
+  "title": "Mười Một Bậc Đá Dưới Cống Đầm Vạc",
+  "premise": "Lưu Thị Cầm giữ cống Đầm Vạc thay cha, chiếc cống triều đóng mở theo con nước cho cả xóm Gò Cói. Khi Cả Trác, chủ bãi cát Vạn Lực, đòi thuê mặt bằng cạnh cống để sà lan ra vào ban đêm, Cầm mở hộp thiếc của cha, phát hiện những chuyến hàng đêm chạy qua cống bằng giấy tờ chưa dấu — rồi một đêm dông, cô tận mắt thấy sà lan không đèn bốc bao lạ lên doi Cát Lở.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Con nước đầu mùa",
+      "core_event": "Nước đầu mùa lên sớm; Cả Trác đến đòi thuê bãi cát cạnh cống Đầm Vạc, để lại giấy thuê chưa có dấu đỏ. Đêm ấy, một ánh đèn nháy hai ngắn một dài từ doi Cát Lở.",
+      "hook": "Ai nháy đèn từ doi cát trong đêm mây kín, khi không có ghe nào neo?",
+      "scenes": ["Con nước lên sớm, Cầm hạ cửa cống", "Cả Trác và Tư Hợp đến đưa giấy thuê chưa dấu", "Đêm, đèn hiệu nháy từ doi Cát Lở"]
+    },
+    {
+      "chapter": 2,
+      "title": "Hộp thiếc của cha",
+      "core_event": "Chú Bảy Rùa trao hộp thiếc của cha Cầm: sổ trực cũ, danh sách chín chuyến đêm của Vạn Lực, tấm ảnh chụp cống từ giữa sông, mẩu giấy rách nhắc 'đêm không trăng'. Hai người quyết định đêm mười lăm ra doi kiểm tra.",
+      "hook": "Mẩu giấy rách chỉ còn nửa dòng, và đêm không trăng gần nhất đã cận kề.",
+      "scenes": ["Chú Bảy mang hộp thiếc đến", "Danh sách chín chuyến đêm và chữ V.L.", "Quyết định chờ đêm không trăng"]
+    },
+    {
+      "chapter": 3,
+      "title": "Đêm không trăng",
+      "core_event": "Trong dông đêm mười lăm, chú Bảy ngủ lại trên ghe dưới chân cống. Cầm chứng kiến sà lan không đèn bốc bao cát đen lên doi Cát Lở; chớp lóe cho thấy chữ V.L. in đỏ trên bao. Một người đứng nhìn về phía cống rất lâu rồi đi. Cầm ghi sổ trực và hẹn sáng mai ra doi.",
+      "hook": "Người trên doi nhìn thẳng vào chỗ ngọn đèn vẫn thường sáng — cái cống đã bị để ý.",
+      "scenes": ["Chú Bảy ngủ lại trên ghe dưới chân cống", "Sà lan không đèn bốc bao lên doi Cát Lở", "Cầm ghi sổ trực, hẹn kiểm tra lúc nước ròng"]
+    },
+    {
+      "chapter": 4,
+      "title": "Nước ròng",
+      "core_event": "Sáng sau dông, Cầm và chú Bảy ra doi Cát Lở, đếm bao và chụp lại chữ in trên vải; họ quyết định chưa động vào hàng.",
+      "hook": "Bao hàng khắc đúng con dấu của bãi cát Vạn Lực.",
+      "scenes": ["Nước ròng lúc năm giờ", "Đếm bao và chụp chữ in", "Quyết định giữ im lặng"]
+    },
+    {
+      "chapter": 5,
+      "title": "Giấy có dấu đỏ",
+      "core_event": "Cả Trác quay lại với tờ giấy đã có dấu đỏ; Cầm so với mẫu dấu của xã và phát hiện dấu giả.",
+      "hook": "Con dấu đỏ trên giấy Cả Trác sai một nét.",
+      "scenes": ["Cả Trác ép ký", "Cầm so dấu", "Lời đe ngầm"]
+    },
+    {
+      "chapter": 6,
+      "title": "Bãi cát sau đê",
+      "core_event": "Cầm lần theo đường vận chuyển ban đêm, tìm thấy bãi tập kết hàng sau đê, nơi sà lan Vạn Lực dừng trước khi vào đầm.",
+      "hook": "Bãi tập kết nằm ngay sau miếu ông nội, khuất mọi con mắt.",
+      "scenes": ["Đường mòn sau đê", "Bãi tập kết và người gác", "Thoát về trước khi trời sáng"]
+    },
+    {
+      "chapter": 7,
+      "title": "Đêm hai chuyến",
+      "core_event": "Vạn Lực chạy hai chuyến trong một đêm; chú Bảy bị giữ trên sông, Cầm vừa giữ cống vừa ghi bằng chứng.",
+      "hook": "Chú Bảy bị giữ lại giữa dòng, ngay trước cửa cống.",
+      "scenes": ["Hai chuyến liên tiếp", "Chú Bảy bị giữ", "Cầm gọi xã và công an huyện"]
+    },
+    {
+      "chapter": 8,
+      "title": "Cống mở",
+      "core_event": "Sổ trực, danh sách và ảnh chụp được giao cho xã; Vạn Lực bị đình chỉ, cống Đầm Vạc trở lại tay Cầm.",
+      "hook": "Sáng đầu tháng bảy, cống mở đúng giờ — nhưng người giữ cống đã khác.",
+      "scenes": ["Giao bằng chứng", "Cả Trác rút khỏi đầm", "Cống mở, nước xuôi"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Lưu Thị Cầm",
+      "role": "Nhân vật chính",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Hai mươi sáu tuổi, người giữ cống Đầm Vạc ở xóm Gò Cói, thay cha sau mùa nước lớn. Thuộc con nước, giữ sổ trực từng canh, ít nói.",
+      "arc": "Từ người giữ cống thụ động thành người giữ bằng chứng, dám đối mặt với Vạn Lực.",
+      "traits": ["tỉ mỉ", "kiên trì", "ít nói"]
+    },
+    {
+      "name": "Bảy Rùa",
+      "role": "Người chèo đò bến Gò Cói",
+      "kind": "ally",
+      "tier": "core",
+      "description": "Chú Bảy, người chèo đò ngang dưới chân cống, bạn chèo của cha Cầm, giữ hộp thiếc theo lời hứa và từng chở người cho Vạn Lực mà không biết.",
+      "arc": "Từ người chở đò trung lập thành đồng minh chủ động, dám nhận phần sai của mình.",
+      "traits": ["thận trọng", "thuộc sông", "hay cười khà"]
+    },
+    {
+      "name": "Cả Trác",
+      "role": "Chủ bãi cát Vạn Lực",
+      "kind": "antagonist",
+      "tier": "important",
+      "description": "Chủ bãi cát Vạn Lực, muốn thuê mặt bằng cạnh cống để sà lan ra vào ban đêm; nói nhỏ nhẹ, luôn cầm cặp da đen.",
+      "arc": "Từ đe dọa bằng giấy tờ sang đe dọa trực tiếp khi bị lộ.",
+      "traits": ["ranh", "kiên nhẫn", "thích khoe giấy tờ"]
+    },
+    {
+      "name": "Tư Hợp",
+      "role": "Quản đốc bãi cát Vạn Lực",
+      "kind": "antagonist",
+      "tier": "important",
+      "description": "Người lái sà lan của Cả Trác, mắt luôn nhìn quanh trước khi nhìn vào người đối diện; điều sà lan không đèn trong các chuyến đêm.",
+      "arc": "Từ người thi hành kín đáo thành kẻ bị lộ mặt khi bằng chứng được giao cho xã.",
+      "traits": ["kín", "cẩn trọng", "nghe lệnh"]
+    },
+    {
+      "name": "Lưu Văn Khoa",
+      "role": "Cha của Cầm, người giữ cống trước",
+      "kind": "support",
+      "tier": "secondary",
+      "description": "Người giữ cống Đầm Vạc trước Cầm, mất trong mùa nước lớn; để lại sổ trực, hộp thiếc và danh sách chín chuyến đêm của Vạn Lực.",
+      "arc": "Hiện diện qua di vật và những dòng ghi chép.",
+      "traits": ["chu đáo", "ngờ vực", "bướng"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Cống Đầm Vạc nằm ở cửa đầm, nối sông Dài với đầm Vạc; xóm Gò Cói ở bờ nam, doi Cát Lở ở bờ bắc, bến đò chú Bảy dưới chân cống.",
+      "boundary": "Không thêm thành phố, biển hay cảng lớn; toàn bộ hành động quanh cống, doi cát và con sông."
+    },
+    {
+      "category": "society",
+      "rule": "Cống do xóm cử người giữ; mở cống ngoài giờ phải có giấy của xã có dấu đỏ. Giấy chưa dấu không có giá trị.",
+      "boundary": "Không dùng thủ tục hiện đại phức tạp; tranh chấp giải quyết bằng bằng chứng và uy tín."
+    },
+    {
+      "category": "technology",
+      "rule": "Đời sống dùng đèn bão, ghe chèo, sà lan máy nổ, sổ trực giấy; không có camera hay điện thoại di động.",
+      "boundary": "Không xuất hiện công nghệ giám sát hiện đại."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Con nước đầu mùa",
+        "summary": "Ngày mười hai tháng sáu, nước đầu mùa lên sớm; Lưu Thị Cầm hạ cửa cống Đầm Vạc. Cả Trác cùng Tư Hợp đến đòi thuê bãi cát cạnh cống và để lại giấy thuê chưa có dấu đỏ; Cầm từ chối giữ giấy. Đêm mây kín, một ánh đèn nháy hai ngắn một dài từ doi Cát Lở, không rõ người.",
+        "characters": ["Lưu Thị Cầm", "Bảy Rùa", "Cả Trác", "Tư Hợp"],
+        "key_events": ["Cả Trác để lại giấy thuê chưa dấu", "Cầm từ chối mở cống ban đêm", "Đèn hiệu nháy từ doi Cát Lở trong đêm"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Hộp thiếc của cha",
+        "summary": "Sáng mười ba tháng sáu, chú Bảy Rùa trao hộp thiếc của cha Cầm: sổ trực cũ, danh sách chín chuyến đêm của Vạn Lực có chữ V.L., tấm ảnh chụp cống từ giữa sông, và mẩu giấy rách nhắc 'đêm không trăng'. Chú Bảy thú nhận từng chở người và một bao cho Vạn Lực mà không biết trong bao là gì. Hai người quyết định đêm mười lăm ra doi kiểm tra.",
+        "characters": ["Lưu Thị Cầm", "Bảy Rùa", "Lưu Văn Khoa"],
+        "key_events": ["Hộp thiếc của cha được trao", "Danh sách chín chuyến đêm của Vạn Lực", "Hẹn kiểm tra doi Cát Lở đêm không trăng"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Đêm không trăng",
+        "summary": "Đêm mười lăm tháng sáu, dông lớn; chú Bảy ngủ lại trên ghe dưới chân cống. Cầm thấy sà lan không đèn bốc bao cát đen lên doi Cát Lở; một tia chớp cho cô nhìn rõ chữ V.L. in đỏ trên bao. Một người đứng nhìn về phía cống rất lâu rồi mới đi. Cầm ghi giờ và hướng sà lan vào sổ trực, hẹn sáng mai cùng chú Bảy ra doi kiểm tra.",
+        "characters": ["Lưu Thị Cầm", "Bảy Rùa"],
+        "key_events": ["Chú Bảy ngủ lại trên ghe dưới chân cống", "Sà lan không đèn bốc bao có chữ V.L. lên doi", "Cầm ghi sổ trực và hẹn kiểm tra lúc nước ròng"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Ngày 12 tháng 6, sáng sớm", "event": "Nước đầu mùa lên sớm; Cầm hạ cửa cống xuống hai tấc.", "characters": ["Lưu Thị Cầm"]},
+    {"chapter": 1, "time": "Ngày 12 tháng 6, giữa sáng", "event": "Cả Trác và Tư Hợp đến đòi thuê bãi cát; để lại giấy thuê chưa dấu, Cầm không giữ.", "characters": ["Lưu Thị Cầm", "Bảy Rùa", "Cả Trác", "Tư Hợp"]},
+    {"chapter": 1, "time": "Ngày 12 tháng 6, đêm mây kín", "event": "Đèn hiệu hai ngắn một dài nháy từ doi Cát Lở; Cầm ghi vào sổ trực.", "characters": ["Lưu Thị Cầm"]},
+    {"chapter": 2, "time": "Ngày 13 tháng 6, sáng", "event": "Chú Bảy trao hộp thiếc của cha Cầm; danh sách chín chuyến đêm của Vạn Lực được mở ra.", "characters": ["Lưu Thị Cầm", "Bảy Rùa"]},
+    {"chapter": 2, "time": "Ngày 13 tháng 6, sáng", "event": "Cầm và chú Bảy chốt kế hoạch đêm mười lăm ra doi Cát Lở.", "characters": ["Lưu Thị Cầm", "Bảy Rùa"]},
+    {"chapter": 3, "time": "Ngày 15 tháng 6, canh ba", "event": "Dông lớn; sà lan không đèn bốc bao cát đen có chữ V.L. lên doi Cát Lở; một người đứng nhìn về phía cống rồi đi.", "characters": ["Lưu Thị Cầm", "Bảy Rùa"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-den-doi", "action": "plant", "description": "Đèn hiệu nháy từ doi Cát Lở trong đêm mây kín — tín hiệu của một đường hàng đêm."},
+      {"id": "fs-giay-chua-dau", "action": "plant", "description": "Giấy thuê mặt bằng của Cả Trác để lại, góc dưới còn trắng."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-chu-vl", "action": "plant", "description": "Chữ V.L. của Vạn Lực xuất hiện trong danh sách chín chuyến đêm của cha Cầm."},
+      {"id": "fs-dem-khong-trang", "action": "plant", "description": "Mẩu giấy rách nhắc 'đêm không trăng, nước đứng hai giờ' — chuyến tới đã cận kề."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-den-doi", "action": "advance", "description": "Đèn hiệu được xác nhận là sà lan không đèn của Vạn Lực vào doi Cát Lở."},
+      {"id": "fs-chu-vl", "action": "advance", "description": "Chữ V.L. in đỏ trên chính những bao hàng bốc lên doi."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Cả Trác", "field": "location", "new_value": "đã đến cống Đầm Vạc một lượt", "reason": "đi sà lan của Tư Hợp đến đòi thuê bãi cát"},
+    {"chapter": 2, "entity": "Lưu Thị Cầm", "field": "status", "new_value": "giữ hộp thiếc, sổ trực cũ và danh sách chuyến đêm của cha", "reason": "chú Bảy trao di vật theo lời hứa"},
+    {"chapter": 2, "entity": "Bảy Rùa", "field": "relation", "new_value": "đồng minh chủ động của Cầm", "reason": "thú nhận từng chở hàng cho Vạn Lực và nhận phần trách nhiệm"},
+    {"chapter": 3, "entity": "doi Cát Lở", "field": "status", "new_value": "có hai hàng bao cát đen của Vạn Lực phủ lưới cũ", "reason": "sà lan không đèn bốc hàng trong đêm dông"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Con nước đầu mùa",
+      "goal": "Đặt bối cảnh cống Đầm Vạc, giới thiệu Cầm và nghề giữ cống, đưa mối đe dọa của Cả Trác vào qua giấy tờ chưa dấu.",
+      "conflict": "Cả Trác muốn mở cống ban đêm; Cầm chưa biết lý do thật.",
+      "hook": "Đèn hiệu nháy từ doi Cát Lở trong đêm mây kín."
+    },
+    {
+      "chapter": 2,
+      "title": "Hộp thiếc của cha",
+      "goal": "Mở lớp quá khứ: hộp thiếc, danh sách chín chuyến đêm, chữ V.L. của Vạn Lực, biến chuyện thuê bãi cát thành chuyện đường hàng đêm.",
+      "conflict": "Sự thật cha giấu đặt Cầm vào vị trí nguy hiểm mà cô chưa lường hết.",
+      "hook": "Mẩu giấy rách nhắc đêm không trăng, và đêm ấy đã cận kề."
+    },
+    {
+      "chapter": 3,
+      "title": "Đêm không trăng",
+      "goal": "Cho Cầm chứng kiến trực tiếp chuyến hàng đêm của Vạn Lực, xác nhận lời cha ghi là đúng, và đặt nền cho việc kiểm tra sáng hôm sau.",
+      "conflict": "Cầm phải chọn giữa ra ngoài can thiệp và ở yên ghi bằng chứng.",
+      "hook": "Người trên doi đứng nhìn thẳng về phía cống rất lâu.",
+      "contract": {
+        "required_beats": [
+          "Đêm dông, chú Bảy Rùa ngủ lại trên ghe buộc dưới chân cống.",
+          "Cầm nhìn rõ ký hiệu V.L. in đỏ trên những bao cát đen bốc lên doi Cát Lở.",
+          "Cầm ghi giờ và hướng đi của sà lan vào sổ trực, hẹn sáng mai cùng chú Bảy ra doi kiểm tra."
+        ],
+        "forbidden_moves": [
+          "Cầm đối đầu trực tiếp với người trên sà lan."
+        ],
+        "continuity_checks": [
+          "Màu xanh rêu trên cửa cống vẫn đúng màu ông nội đã chọn trước khi mất."
+        ],
+        "evaluation_focus": [
+          "Nhịp căng thẳng của đêm dông",
+          "Quyết định không ra ngoài của Cầm có hợp lý không"
+        ],
+        "emotion_target": "Căng thẳng kiềm chế, tỉnh táo",
+        "hook_goal": "Muốn biết trong những bao là gì và người đứng trên doi là ai"
+      }
+    }
+  ]
+}

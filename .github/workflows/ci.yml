@@ -1,0 +1,104 @@
+name: CI
+
+# Chạy tay (Actions › CI › Run workflow) hoặc khi mở PR — không chạy mỗi lần push để tiết kiệm quota.
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      windows:
+        description: "Chạy thêm Windows (tính phút gấp đôi)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(inputs.windows && '["ubuntu-latest","windows-latest"]' || '["ubuntu-latest"]') }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install ffmpeg
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+
+      - name: Format check
+        shell: bash
+        run: test -z "$(gofmt -l .)"
+
+      - name: Installer syntax check
+        if: runner.os == 'Linux'
+        run: sh -n scripts/install.sh
+
+      - name: Vet
+        env:
+          GOWORK: "off"
+        run: go vet ./...
+
+      - name: Generated SQL code is current
+        if: runner.os == 'Linux'
+        env:
+          GOWORK: "off"
+        run: go tool sqlc diff
+
+      - name: Start Postgres and MinIO
+        if: runner.os == 'Linux'
+        run: docker compose -f deploy/compose.test.yml up -d --wait postgres minio
+
+      # Linux runs the Postgres and MinIO suites against deploy/compose.test.yml
+      # and fails instead of skipping them; Windows has no service containers.
+      - name: Test
+        env:
+          GOWORK: "off"
+          REQUIRE_POSTGRES_TEST: ${{ runner.os == 'Linux' && '1' || '' }}
+          TEST_DATABASE_URL: ${{ runner.os == 'Linux' && 'postgres://postgres:test@127.0.0.1:55432/ainovel_test' || '' }}
+          REQUIRE_MINIO_TEST: ${{ runner.os == 'Linux' && '1' || '' }}
+          MINIO_TEST_ENDPOINT: ${{ runner.os == 'Linux' && 'http://127.0.0.1:59000' || '' }}
+        run: go test -buildvcs=false -count=1 ./...
+
+      - name: Race test critical state paths
+        if: runner.os == 'Linux'
+        env:
+          GOWORK: "off"
+        run: go test -race -buildvcs=false -count=1 ./internal/host ./internal/store ./internal/tools
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test

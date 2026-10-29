@@ -1,0 +1,61 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-4c36c9e294d209f762c5249f",
+      "origin": "review",
+      "refs": [
+        "Master §15"
+      ],
+      "text": "Luôn ngắt đoạn sau 60 tiếng.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 6,
+        "userEdits": 0,
+        "stories": 4,
+        "pack": "",
+        "packsCount": 2,
+        "chips": [
+          "Bạn Thân Giật Chồng · ch.2",
+          "Bạn Thân Giật Chồng · ch.4",
+          "Cô Dâu Nhỏ Thập Niên Tám Mươi · ch.2",
+          "Cô Dâu Nhỏ Thập Niên Tám Mươi · ch.4",
+          "Mẹ Kế Cướp Tiệm May · ch.4",
+          "Trà Xanh Cướp Kịch Bản · ch.2"
+        ]
+      },
+      "scope": "pack",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "dropped",
+      "createdAt": "2026-10-11T09:00:00Z",
+      "decidedAt": "2026-10-19T09:00:00Z"
+    }
+  ],
+  "counts": {
+    "dropped": 1,
+    "kept": 3,
+    "pending": 9
+  },
+  "stats": {
+    "projects": 1,
+    "stories": 13,
+    "rounds": 30
+  },
+  "packs": [
+    {
+      "id": "nguoc-hon-nhan",
+      "name": "Ngược hôn nhân, ly hôn, hối hận muộn",
+      "stories": 4
+    },
+    {
+      "id": "nien-dai-van",
+      "name": "Niên đại văn, trọng sinh thập niên, làm giàu",
+      "stories": 2
+    },
+    {
+      "id": "nu-tan-bao-thu",
+      "name": "Nữ tần trọng sinh báo thù, vả mặt",
+      "stories": 6
+    }
+  ]
+}

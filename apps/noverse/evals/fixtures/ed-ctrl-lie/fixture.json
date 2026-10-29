@@ -1,0 +1,246 @@
+{
+  "title": "Cơn mưa trên phố Lam",
+  "premise": "Đan, hai mươi sáu tuổi, vừa nghỉ việc ở xưởng in để lo cho bà Hoa đang ốm. Một chiều mưa lớn trên phố Lam, cô nhận công chạy thuốc cho Minh — chủ tiệm thuốc tây từng là bạn cùng lớp. Khi mẹ cô bắt gặp chiếc áo mưa của tiệm thuốc trên giàn phơi, Đan sợ bị cấm tiếp tục công việc nguy hiểm dưới mưa nên đã nói dối rằng mình ở nhà cả buổi chiều. Lời nói dối này là sự kiện trong truyện, không phải lỗi nhất quán.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Tiếng chuông tiệm thuốc",
+      "core_event": "Minh thiếu người giao thuốc cuối tuần, Đan nhận chạy đơn cấp cấp dù bầu trời sắp mưa.",
+      "hook": "Đan mang thuốc vào ngõ Đồi Sứ và nhìn thấy người mẹ già đang đợi ở cửa.",
+      "scenes": ["Tiệm thuốc Hương Bạc vào buổi sáng", "Đường phố Lam giữa cơn mưa đầu mùa"],
+      "hook_type": "danger"
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc áo mưa mượn",
+      "core_event": "Đan giao được thuốc kịp giờ cho bà Nội; Minh cho mượn áo mưa và ô của tiệm vì trời mưa đổ càng lúc càng lớn.",
+      "hook": "Người mẹ già nhìn thấy áo mưa của tiệm thuốc trên người Đan.",
+      "scenes": ["Ngõ Đồi Sứ ngập nước", "Tiệm thuốc lúc chạng vạng"],
+      "hook_type": "reveal"
+    },
+    {
+      "chapter": 3,
+      "title": "Lời nói dối đầu bữa cơm",
+      "core_event": "Bị mẹ chất vấn, Đan nói dối rằng cô ở nhà cả buổi chiều; cô thú nhận với bà Hoa về lời nói dối và lý do thật.",
+      "hook": "Mẹ Đan giấu đi tờ hóa đơn tiền thuốc bà Hoa nhặt được.",
+      "scenes": ["Nhà bếp nhỏ lúc ăn cơm tối", "Phòng bà Hoa sau bữa cơm"],
+      "hook_type": "question"
+    },
+    {
+      "chapter": 4,
+      "title": "Cuộc gọi từ ngõ Đồi Sứ",
+      "core_event": "Gia đình bà Nội tìm đến cảm ơn Đan, khiến lời nói dối của cô bắt đầu lộ trước mặt mẹ.",
+      "hook": "Mẹ Đan cầm tờ hóa đơn lên đến tận tiệm thuốc để hỏi cho ra nhẽ.",
+      "scenes": ["Sân nhà bà Hoa buổi sáng", "Bàn khách của Minh"],
+      "hook_type": "confrontation",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 5,
+      "title": "Bà Hoa kể chuyện năm xưa",
+      "core_event": "Bà Hoa kể hồi xưa mình cũng từng giấu cha mẹ để đi gánh hàng xa; bà khuyên Đan nói thật trước khi mẹ tự phát hiện.",
+      "hook": "Đan quyết định sẽ nhận lỗi vào buổi tối trả áo mưa.",
+      "scenes": ["Gác nhỏ của bà Hoa", "Đường phố Lam đêm khuya"],
+      "hook_type": "decision"
+    },
+    {
+      "chapter": 6,
+      "title": "Bữa cơm thứ hai",
+      "core_event": "Đan nói thật với mẹ; người mẹ giận không phải vì công việc mà vì bị coi như người ngoài.",
+      "hook": "Mẹ đòi đi cùng Đan trong chuyến giao thuốc tới.",
+      "scenes": ["Nhà bếp lúc hoàng hôn", "Tiệm thuốc Hương Bạc"],
+      "hook_type": "emotional"
+    },
+    {
+      "chapter": 7,
+      "title": "Hai mẹ con trên đường",
+      "core_event": "Hai mẹ con cùng giao thuốc; mẹ Đan thấy con gái biết từng ngách đường và từng lời hứa.",
+      "hook": "Bà Nội nhờ Đan dạy chữ cho đứa cháu côi cút.",
+      "scenes": ["Ngõ Đồi Sứ sau mưa", "Bến xe cuối phố"],
+      "hook_type": "hope"
+    },
+    {
+      "chapter": 8,
+      "title": "Chiếc áo mưa của riêng mình",
+      "core_event": "Minh tặng Đan chiếc áo mưa mới; mẹ Đan cho phép cô tiếp tục công việc, chỉ đặt một điều kiện không nói dối nữa.",
+      "hook": "Gia đình nhỏ lại quây quần bên bữa cơm thật sự.",
+      "scenes": ["Tiệm thuốc Hương Bạc", "Nhà bếp đêm cuối tuần"],
+      "hook_type": "closing"
+    }
+  ],
+  "characters": [
+    {
+      "id": "dan",
+      "name": "Đan",
+      "role": "nhân vật chính, cô gái vừa nghỉ việc xưởng in để phụ chăm bà",
+      "kind": "lead",
+      "description": "Sống cùng mẹ và bà Hoa trong căn nhà cuối phố Lam. Chân thật nhưng sợ làm mẹ lo, nên dễ rơi vào nói dối vì thương.",
+      "arc": "Từ giấu việc vì sợ đến dám nói thật để giữ lại công việc mình yêu.",
+      "traits": ["chịu khó", "tình cảm", "hay tự trách"]
+    },
+    {
+      "id": "me-dan",
+      "name": "mẹ Đan",
+      "role": "mẹ của Đan, bán chè đầu phố",
+      "kind": "support",
+      "description": "Yêu con nhưng hay lo, ghét nhất là bị con giấu chuyện.",
+      "arc": "Học cách tin con thay vì kiểm soát con.",
+      "traits": ["nghiêm khắc", "thương con theo cách cục cằn"]
+    },
+    {
+      "id": "ba-hoa",
+      "name": "bà Hoa",
+      "role": "bà ngoại Đan, đang bệnh nặng",
+      "kind": "ally",
+      "description": "Người duy nhất Đan kể mọi chuyện. Từng giấu gia đình đi làm xa thời trẻ nên hiểu cả hai phía.",
+      "arc": "Giúp hai mẹ con nối lại câu chuyện bị đứt.",
+      "traits": ["mềm", "hiểu chuyện", "hay nghe hơn hay nói"]
+    },
+    {
+      "id": "minh",
+      "name": "Minh",
+      "role": "chủ tiệm thuốc Hương Bạc, bạn cùng lớp cũ của Đan",
+      "kind": "ally",
+      "description": "Bao dung, giữ chữ tín. Cho Đan mượn áo mưa và ô của tiệm trong cơn mưa lớn.",
+      "arc": "Trở thành điểm tựa công việc cho Đan.",
+      "traits": ["điềm tĩnh", "chừng mực", "thực tế"]
+    },
+    {
+      "id": "ba-noi",
+      "name": "bà Nội",
+      "role": "người mẹ già ở ngõ Đồi Sứ chờ thuốc",
+      "kind": "support",
+      "description": "Cả đời nuôi đứa cháu côi cút. Cuộc chờ thuốc của bà là lý do Đan không dám bỏ cuộc giữa mưa.",
+      "arc": "Nhờ Đan mà có lần đầu được người ngoài gia đình nhớ tới.",
+      "traits": ["kiên nhẫn", "khắc khổ"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Chuyện đời thường ở một con phố nhỏ; không có yếu tố kỳ huyễn.",
+      "boundary": "Không được đưa phép màu, siêu năng lực hay tổ chức ngầm vào truyện."
+    },
+    {
+      "category": "geography",
+      "rule": "Toàn bộ truyện gói trong phố Lam và ngõ Đồi Sứ cách nhau mười phút đi bộ.",
+      "boundary": "Không tạo địa danh xa đột ngột chỉ để giải quyết xung đột."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Tiếng chuông tiệm thuốc",
+        "summary": "Minh thiếu người giao thuốc cuối tuần. Đan, vừa nghỉ việc xưởng in, nhận chạy đơn cấp cấp tới ngõ Đồi Sứ dù trời sắp mưa. Cuối chương, Đan thấy người mẹ già của bà Nội đang đợi ở cửa.",
+        "characters": ["Đan", "Minh", "bà Nội"],
+        "key_events": ["Đan nhận công giao thuốc của Minh", "Bầu trời chuyển mưa lớn đúng lúc Đan vào ngõ Đồi Sứ"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Chiếc áo mưa mượn",
+        "summary": "Đan giao được thuốc kịp giờ cho bà Nội. Mưa đổ nặng hạt hơn, Minh cho Đan mượn áo mưa và ô của tiệm để về nhà. Cuối chương, người mẹ già nhìn thấy chiếc áo mưa của tiệm thuốc trên người Đan khi cô về tới nhà.",
+        "characters": ["Đan", "Minh", "bà Nội", "mẹ Đan"],
+        "key_events": ["Đan giao thuốc kịp giờ", "Minh cho Đan mượn áo mưa và ô của tiệm Hương Bạc", "Mẹ Đan trông thấy chiếc áo mưa lạ"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Lời nói dối đầu bữa cơm",
+        "summary": "Tại bàn cơm, mẹ Đan chất vấn vì cô trở về nhà với áo mưa của tiệm thuốc. Đan sợ bị cấm việc nên nói dối rằng mình ở nhà cả buổi chiều và chiếc áo mưa là của hàng xóm. Sau bữa cơm, Đan thú nhận với bà Hoa rằng mình đã nói dối mẹ vì sợ mất việc và sợ mẹ lo. Cuối chương, mẹ Đan lén giấu tờ hóa đơn tiền thuốc nhặt được.",
+        "characters": ["Đan", "mẹ Đan", "bà Hoa"],
+        "key_events": ["Đan nói dối mẹ rằng cô ở nhà cả buổi chiều", "Đan thú nhận với bà Hoa và giải thích lý do", "Mẹ Đan giấu tờ hóa đơn"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "sáng thứ bảy, phố Lam",
+      "event": "Minh thiếu người giao thuốc; Đan nhận chạy đơn cấp cấp tới ngõ Đồi Sứ.",
+      "characters": ["Đan", "Minh"]
+    },
+    {
+      "chapter": 2,
+      "time": "trưa và chiều cùng ngày",
+      "event": "Đan giao thuốc kịp giờ cho bà Nội; mưa lớn; Minh cho Đan mượn áo mưa và ô của tiệm để về nhà.",
+      "characters": ["Đan", "Minh", "bà Nội"]
+    },
+    {
+      "chapter": 2,
+      "time": "chiều muộn cùng ngày",
+      "event": "Mẹ Đan nhìn thấy chiếc áo mưa của tiệm thuốc trên người Đan khi cô về tới nhà.",
+      "characters": ["Đan", "mẹ Đan"]
+    },
+    {
+      "chapter": 3,
+      "time": "tối cùng ngày",
+      "event": "Đan nói dối mẹ rằng mình ở nhà cả buổi chiều; sau đó cô thú nhận với bà Hoa.",
+      "characters": ["Đan", "mẹ Đan", "bà Hoa"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "to-hoa-don", "action": "plant", "description": "Tờ hóa đơn tiền thuốc rơi khỏi túi áo mưa khi Đan về nhà."}
+      ]
+    },
+    {
+      "chapter": 3,
+      "updates": [
+        {"id": "to-hoa-don", "action": "advance", "description": "Mẹ Đan nhặt được tờ hóa đơn và giấu đi, chưa hỏi Đan."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Đan", "field": "status", "old_value": "nghỉ việc xưởng in", "new_value": "nhận chạy đơn thuốc của Minh", "reason": "cần thu nhập để lo thuốc cho bà Hoa"},
+    {"chapter": 2, "entity": "Đan", "field": "own", "new_value": "mượn áo mưa và ô của tiệm Hương Bạc", "reason": "Minh cho mượn vì trời mưa lớn"},
+    {"chapter": 3, "entity": "Đan", "field": "status", "new_value": "nói dối mẹ về buổi chiều", "reason": "sợ bị cấm việc giao thuốc"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Tiếng chuông tiệm thuốc",
+      "goal": "Giới thiệu Đan, tiệm thuốc Hương Bạc và đơn thuốc cấp cấp tới ngõ Đồi Sứ.",
+      "conflict": "Đan cần việc nhưng trời sắp mưa lớn và đường vào ngõ Đồi Sứ rất khó đi.",
+      "hook": "Người mẹ già đợi ở cửa.",
+      "contract": {
+        "required_beats": ["Đan nhận công giao thuốc", "Bầu trời chuyển xấu"],
+        "continuity_checks": ["Đan chưa có áo mưa của tiệm trong chương này"],
+        "emotion_target": "lo lắng lẫn hy vọng"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc áo mưa mượn",
+      "goal": "Đan hoàn thành đơn thuốc; Minh cho mượn áo mưa và ô của tiệm.",
+      "conflict": "Mưa đổ nặng hạt và Đan phải đưa thuốc về nhà trước giờ bà Hoa uống thuốc tối.",
+      "hook": "Mẹ Đan trông thấy chiếc áo mưa lạ.",
+      "contract": {
+        "required_beats": ["Đan giao thuốc kịp giờ", "Minh cho mượn áo mưa và ô của tiệm"],
+        "continuity_checks": ["Chiếc áo mưa thuộc tiệm Hương Bạc, không phải đồ của Đan"],
+        "emotion_target": "ấm áp giữa cơn mưa"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Lời nói dối đầu bữa cơm",
+      "goal": "Đan nói dối mẹ rằng cô ở nhà cả buổi chiều; cô thú nhận với bà Hoa.",
+      "conflict": "Mẹ Đan thấy chiếc áo mưa của tiệm thuốc và chất vấn; Đan sợ bị cấm việc.",
+      "hook": "Mẹ Đan giấu tờ hóa đơn.",
+      "contract": {
+        "required_beats": ["Đan nói dối mẹ", "Đan thú nhận với bà Hoa"],
+        "continuity_checks": ["Lời nói dối là sự kiện trong truyện, không phải lỗi nhất quán"],
+        "emotion_target": "căng thẳng trong gia đình"
+      }
+    }
+  ]
+}

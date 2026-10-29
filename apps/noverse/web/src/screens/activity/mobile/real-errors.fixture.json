@@ -1,0 +1,42 @@
+[
+  {
+    "id": "20261024T205910.952+0700-p41530/20261024T205910.952+0700-p41530/e124",
+    "time": "2026-10-24T22:41:53.009+07:00",
+    "finishedAt": "2026-10-24T22:41:53.009+07:00",
+    "failed": true,
+    "category": "TOOL",
+    "agent": "writer",
+    "summary": "commit_chapter(chương 7) lỗi: foreshadow_updates[2] references unknown id \"E8\": tool precondition failed",
+    "kind": "",
+    "level": "error",
+    "depth": 0,
+    "durationNs": 12954397375,
+    "retryAt": "0001-01-01T00:00:00Z",
+    "sessionId": "20261024T205910.952+0700-p41530",
+    "canRetryNow": false,
+    "chapter": 7,
+    "tool": "commit_chapter(chương 7)",
+    "durationMs": 12954,
+    "status": "error"
+  },
+  {
+    "id": "20261024T205910.952+0700-p41530/20261024T205910.952+0700-p41530/e34",
+    "time": "2026-10-24T21:59:49.429+07:00",
+    "finishedAt": "2026-10-24T21:59:49.429+07:00",
+    "failed": true,
+    "category": "TOOL",
+    "agent": "writer",
+    "summary": "commit_chapter(chương 4) lỗi: chính văn và tiêu đề chương 4 không thay đổi, không phát hiện chỉnh sửa viết lại: tool precondition failed",
+    "kind": "",
+    "level": "error",
+    "depth": 0,
+    "durationNs": 6866416583,
+    "retryAt": "0001-01-01T00:00:00Z",
+    "sessionId": "20261024T205910.952+0700-p41530",
+    "canRetryNow": false,
+    "chapter": 4,
+    "tool": "commit_chapter(chương 4)",
+    "durationMs": 6866,
+    "status": "error"
+  }
+]

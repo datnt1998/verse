@@ -1,0 +1,9 @@
+{
+  "phase": "writing",
+  "current_chapter": 2,
+  "total_chapters": 4,
+  "completed_chapters": [1],
+  "total_word_count": 148,
+  "chapter_word_counts": {"1": 148},
+  "flow": "writing"
+}

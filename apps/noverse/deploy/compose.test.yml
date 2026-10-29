@@ -1,0 +1,44 @@
+# Test-only dependencies for the DB/BlobStore upgrade plan
+# (plans/261028-1340-db-vps-storage). NOT a Dokploy/proxy topology — disposable
+# containers on nonstandard ports, removed with `down -v` after runs.
+#
+#   docker compose -f deploy/compose.test.yml up -d postgres minio
+#   docker compose -f deploy/compose.test.yml down -v
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      # migrate_test builds an app DSN by substituting this exact userinfo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: ainovel_test
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ainovel_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  minio:
+    # minio/minio was deleted from Docker Hub in September 2026 and quay.io now
+    # requires an account; Chainguard publishes the same server (entrypoint
+    # /usr/bin/minio, ships mc) anonymously, latest tag only.
+    image: cgr.dev/chainguard/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "59000:9000"
+      - "59001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    tmpfs:
+      - /data

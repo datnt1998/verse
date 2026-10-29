@@ -1,0 +1,22 @@
+{
+  "id": "wr-predecessor-replay",
+  "category": "quality",
+  "role": "writer",
+  "description": "Chương 2 kết ở đoạn cuối có độ dài đặc biệt (lời tự nhủ của Đan Tiên trước cửa tiệm). Chương 3 phải mở tiếp từ trạng thái đó, không kể lại đoạn kết chương trước: độ trùng mở đầu tối đa 60 rune.",
+  "prompt": "Viết chương 3",
+  "fixture": "wr-predecessor-replay",
+  "instruction": {
+    "agent": "writer",
+    "task": "Viết chương 3"
+  },
+  "control": false,
+  "expect": {
+    "prose": {
+      "chapter": 3,
+      "max_opening_overlap_runes": 60
+    }
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

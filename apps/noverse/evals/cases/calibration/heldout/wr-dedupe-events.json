@@ -1,0 +1,27 @@
+{
+  "id": "wr-dedupe-events",
+  "category": "quality",
+  "role": "writer",
+  "description": "Contract chương 3 liệt kê cảnh mở hộp gấm hai lần (một lần khi khách mở, một lần khi Ngạn mở lại để soi). Chương chỉ được kể cảnh mở hộp một lần: mở hộp gấm phải xuất hiện đúng một lần, không lặp lại.",
+  "prompt": "Viết chương 3",
+  "fixture": "wr-dedupe-events",
+  "instruction": {
+    "agent": "writer",
+    "task": "Viết chương 3"
+  },
+  "control": false,
+  "expect": {
+    "prose": {
+      "chapter": 3,
+      "require_regex": [
+        "mở (nắp |chiếc )*hộp gấm"
+      ],
+      "forbid_regex": [
+        "(?s)mở (nắp |chiếc )*hộp gấm.*mở (nắp |chiếc )*hộp gấm"
+      ]
+    }
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Nút lên đầu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Literata:opsz,wght@7..72,400;7..72,600&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.totop{position:absolute;right:20px;bottom:16px;z-index:15;width:40px;height:40px;padding:0;border:none;border-radius:50%;background:rgba(26,26,29,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#EDEDEF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 8px 24px rgba(0,0,0,.45);cursor:pointer;opacity:1;transform:none;visibility:visible;transition:opacity 180ms ease-out,transform 180ms cubic-bezier(.2,.8,.2,1),background-color 120ms ease,visibility 0s}
+.totop:hover{background:#26262A}
+.totop:active{transform:scale(.94)}
+.totop:focus-visible{outline:2px solid #C9A6F5;outline-offset:3px}
+.totop.off{opacity:0;transform:translateY(8px) scale(.9);visibility:hidden;pointer-events:none;transition:opacity 120ms ease-in,transform 120ms ease-in,visibility 0s 120ms}
+.totop>.ic{position:relative;width:18px;height:18px}
+.totop>.ring{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px))}
+.totop>.tip{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);height:28px;padding:0 10px;border-radius:8px;background:#222225;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 6px 16px rgba(0,0,0,.4);color:#EDEDEF;font-size:12px;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:opacity 120ms ease}
+.totop:hover>.tip,.totop:focus-visible>.tip,.totop.tipon>.tip{opacity:1}
+.totop>.tip .k{color:#7E7E8A;font-weight:400}
+.totop.m{width:44px;height:44px;right:16px}
+@media (prefers-reduced-motion: reduce){.totop,.totop.off{transition:none}}
+
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-chev-up{-webkit-mask-image:url(../icons/arrow-up-2.svg);mask-image:url(../icons/arrow-up-2.svg)}
+.frame{position:relative;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:#0B0B0D;overflow:hidden;display:flex;flex-direction:column}
+.dscroll{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent;outline:none}
+.mscr{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;outline:none}.mscr::-webkit-scrollbar{display:none}
+.prose{font-family:'Literata',Georgia,serif;color:#DADAE0;display:flex;flex-direction:column;gap:.9em;margin:0 auto}
+.prose p{margin:0}
+.mbar{position:absolute;left:0;right:0;z-index:10;transition:transform .32s cubic-bezier(.2,.9,.25,1)}
+.tile{border-radius:14px;background:#111113;border:1px solid rgba(255,255,255,.06);height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative}
+.tile .totop{position:relative;right:auto;bottom:auto}
+.tile span.cap{font-size:12px;color:#8E8E99;text-align:center;line-height:1.35}
+.ghostc{width:40px;height:40px;border-radius:50%;border:1px dashed rgba(255,255,255,.18)}
+.tbl{display:flex;flex-direction:column;font-size:12.5px}
+.tr{display:grid;grid-template-columns:130px minmax(0,1.3fr) minmax(0,1.6fr) 96px 120px;gap:12px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#C9C9D1}
+.tr>span:first-child{color:#EDEDEF;font-weight:500}
+.tr.th>span{color:#7E7E8A !important;font-weight:500 !important}
+.tr.th{border-bottom-color:rgba(255,255,255,.08)}
+.rule{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;font-size:12.5px;color:#C9C9D1;line-height:1.55}
+.rule b{color:#EDEDEF;font-weight:600}
+.rn{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:rgba(201,166,245,.1);color:#C9A6F5;font-size:12px;font-weight:600}
+.hd{font-size:14px;font-weight:600}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; padding: 28px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px">
+
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h1 style="margin: 0; font-size: 20px; font-weight: 600">Nút lên đầu</h1>
+<p style="margin: -6px 0 0; font-size: 13px; color: #8E8E99">Dùng cho chỗ đọc chương và danh sách dài. Cuộn hai khung dưới đây để thử: máy tính hiện nút khi đã qua 1 màn hình; điện thoại chỉ hiện khi bạn cuộn ngược lên.</p>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 16px">
+<div class="frame" style="height: 452px">
+<div style="flex: 0 0 auto; height: 46px; padding: 0 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06)"><span style="font-size: 12px; color: #A0A0AB">Trình đọc · máy tính</span><span style="flex: 1"></span><span class="num" style="font-size: 12px; color: #7E7E8A">đã đọc {{dPct}}%</span></div>
+<div style="position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column">
+<div class="dscroll ds" onScroll="{{onD}}" tabindex="-1" style="padding: 22px 24px 28px">
+<div class="prose" style="max-width: 60ch; font-size: 15px; line-height: 1.8">
+<h2 id="d-title" tabindex="-1" style="outline: none; margin: 0 0 4px; font-family: 'Be Vietnam Pro', sans-serif; font-size: 17px; font-weight: 600; color: #EDEDEF">Chương 24 · Tên tôi trên màn hình</h2>
+<sc-for list="{{paras}}" as="p" hint-placeholder-count="6"><p>{{p}}</p></sc-for>
+</div>
+</div>
+<button type="button" class="totop {{dCls}}" onClick="{{dTop}}" aria-label="{{dAria}}"><span class="ring" aria-hidden="true" style="background: conic-gradient(#C9A6F5 {{dDeg}}deg, rgba(255,255,255,0.12) 0)"></span><span class="ic i-chev-up" aria-hidden="true"></span><span class="tip" aria-hidden="true">Lên đầu chương<span class="k num">đã đọc {{dPct}}%</span></span></button>
+</div>
+<div style="flex: 0 0 auto; padding: 10px 16px 12px; border-top: 1px solid rgba(255,255,255,0.06)"><div style="height: 40px; border-radius: 14px; background: #18181A; border: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; padding: 0 6px 0 14px; gap: 8px"><span style="flex: 1; font-size: 13px; color: #6E6E78">Nhập yêu cầu sửa cho chương 24…</span><span style="width: 30px; height: 30px; border-radius: 50%; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-up" aria-hidden="true" style="width: 16px; height: 16px"></span></span></div></div>
+</div>
+
+<div class="frame" style="height: 452px; border-radius: 28px">
+<div class="mbar" style="top: 0; transform: translateY({{mTopY}}); height: 50px; padding: 0 16px; display: flex; align-items: center; background: rgba(11,11,13,0.94); border-bottom: 1px solid rgba(255,255,255,0.05)"><span style="font-size: 13px; font-weight: 600">Tên tôi trên màn hình</span><span style="flex: 1"></span><span style="font-size: 12px; color: #7E7E8A">Đọc · điện thoại</span></div>
+<div class="mscr ms" onScroll="{{onM}}" tabindex="-1" style="padding: 62px 18px 90px">
+<div class="prose" style="font-size: 15px; line-height: 1.75">
+<h2 id="m-title" tabindex="-1" style="outline: none; margin: 0 0 4px; font-size: 21px; font-weight: 600; color: #EDEDEF">Tên tôi trên màn hình</h2>
+<sc-for list="{{paras}}" as="p" hint-placeholder-count="6"><p>{{p}}</p></sc-for>
+</div>
+</div>
+<button type="button" class="totop m {{mCls}}" onClick="{{mTop}}" aria-label="{{mAria}}" style="bottom: {{mBottom}}; transition: opacity 180ms ease-out, transform 180ms cubic-bezier(.2,.8,.2,1), bottom .32s cubic-bezier(.2,.9,.25,1), visibility 0s"><span class="ring" aria-hidden="true" style="background: conic-gradient(#C9A6F5 {{mDeg}}deg, rgba(255,255,255,0.12) 0)"></span><span class="ic i-chev-up" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+<div class="mbar" style="bottom: 0; transform: translateY({{mBotY}}); height: 64px; padding: 8px 12px 12px; background: rgba(11,11,13,0.94); border-top: 1px solid rgba(255,255,255,0.05); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px"><sc-for list="{{mtabs}}" as="t" hint-placeholder-count="4"><span style="border-radius: 14px; background: {{t.bg}}; color: {{t.fg}}; font-size: 11px; display: flex; align-items: center; justify-content: center">{{t.l}}</span></sc-for></div>
+</div>
+</div>
+
+<span class="hd" style="padding-top: 4px">Trạng thái</span>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px">
+<div class="tile"><span class="ghostc" aria-hidden="true"></span><span class="cap">Ẩn<br>chưa qua 1 màn hình</span></div>
+<div class="tile"><span class="totop" aria-hidden="true"><span class="ic i-chev-up"></span></span><span class="cap">Hiện<br>danh sách dài</span></div>
+<div class="tile"><span class="totop" aria-hidden="true"><span class="ring" style="background: conic-gradient(#C9A6F5 223deg, rgba(255,255,255,0.12) 0)"></span><span class="ic i-chev-up"></span></span><span class="cap">Có tiến độ<br>đọc chương · 62%</span></div>
+<div class="tile"><span class="totop" aria-hidden="true" style="background: #26262A"><span class="ic i-chev-up"></span></span><span class="cap">Rê chuột<br>nền sáng hơn + nhãn</span></div>
+<div class="tile"><span class="totop" aria-hidden="true" style="outline: 2px solid #C9A6F5; outline-offset: 3px"><span class="ic i-chev-up"></span></span><span class="cap">Focus bàn phím<br>viền tím, cách 3 px</span></div>
+<div class="tile"><span class="totop m" aria-hidden="true" style="right: auto"><span class="ring" style="background: conic-gradient(#C9A6F5 151deg, rgba(255,255,255,0.12) 0)"></span><span class="ic i-chev-up" style="width: 20px; height: 20px"></span></span><span class="cap">Điện thoại<br>44 px</span></div>
+</div>
+
+<span class="hd" style="padding-top: 4px">Đặt ở đâu</span>
+<div class="tbl" role="table" aria-label="Đặt ở đâu">
+<div class="tr th" role="row"><span role="columnheader">Màn</span><span role="columnheader">Vùng cuộn</span><span role="columnheader">Vị trí</span><span role="columnheader">Vòng tiến độ</span><span role="columnheader">Nhãn</span></div>
+<sc-for list="{{places}}" as="r" hint-placeholder-count="5"><div class="tr" role="row"><span role="cell">{{r.a}}</span><span role="cell">{{r.b}}</span><span role="cell">{{r.c}}</span><span role="cell">{{r.d}}</span><span role="cell">{{r.e}}</span></div></sc-for>
+</div>
+</div>
+
+<aside class="card" style="border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 11px; align-self: start">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+<span class="hd" style="padding-top: {{g.pt}}; border-top: {{g.bt}}">{{g.h}}</span>
+<sc-for list="{{g.rules}}" as="r" hint-placeholder-count="3"><div class="rule"><span class="rn">{{r.n}}</span><span><b>{{r.b}}</b> {{r.t}}</span></div></sc-for>
+</sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+const PARAS = [
+  'Đèn trường quay bật lên cùng lúc, trắng đến mức tôi phải nheo mắt. Trên màn hình lớn phía sau sân khấu, tên tôi chạy thành một dòng chữ đỏ — đúng cái tên mà ba tháng trước người ta đã gạch khỏi kịch bản.',
+  'Nhược Vy đứng cách tôi hai bước, nụ cười vẫn còn nguyên, nhưng ngón tay cô đang siết chặt mép tờ giấy. Tôi biết tờ giấy đó. Tôi đã viết nó vào một đêm mất điện, bằng cây bút chì cùn duy nhất còn lại trong nhà.',
+  '“Mời khách mời đọc đoạn mở đầu,” người dẫn chương trình nói. Không ai nhìn tôi. Mọi máy quay đều đã quay về phía cô ấy.',
+  'Tôi bước lên, cầm lấy micro, và đọc — không phải bản trên tay cô, mà bản tôi vẫn thuộc lòng từng dấu phẩy.',
+  'Khán phòng im lặng đến mức tôi nghe được tiếng chiếc máy quay số ba xoay ống kính. Ở hàng ghế đầu, đạo diễn Hoài Châu đặt cốc trà xuống, chậm rãi, như thể sợ làm vỡ khoảnh khắc này.',
+  'Nhược Vy cười, rất khẽ. “Chị thuộc kịch bản của em kỹ thật đấy.” Câu nói nhẹ như gió, nhưng tôi thấy cổ tay cô run lên một nhịp.',
+  'Tôi không trả lời. Tôi chỉ lật trang cuối của bản gốc — trang mà chưa ai từng thấy — và đọc tiếp.'
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { dOn: false, dP: 0, mOn: false, mImm: false, mP: 0 }; this.ly = 0; }
+  go(sel, title) { const el = document.querySelector(sel); if (!el) return; const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; if (el.scrollTop > el.clientHeight * 6) el.scrollTop = el.clientHeight; el.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); const h = document.getElementById(title); if (h) h.focus({ preventScroll: true }); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p);
+    const pc = (v) => Math.round(v * 100);
+    return {
+      paras: PARAS.concat(PARAS, PARAS),
+      onD: (e) => { const el = e.target; const y = el.scrollTop, max = Math.max(1, el.scrollHeight - el.clientHeight), h = el.clientHeight; set({ dOn: s.dOn ? y > h / 2 : y > h, dP: Math.min(1, y / max) }); },
+      dTop: () => this.go('.ds', 'd-title'), dCls: s.dOn ? '' : 'off', dDeg: Math.round(s.dP * 360), dPct: String(pc(s.dP)), dAria: 'Lên đầu chương, đã đọc ' + pc(s.dP) + '%',
+      onM: (e) => { const el = e.target; const y = el.scrollTop, max = Math.max(1, el.scrollHeight - el.clientHeight), h = el.clientHeight; const dy = y - this.ly; const p = { mP: Math.min(1, y / max) }; if (Math.abs(dy) > 4) { p.mImm = dy > 0 && y > 60 && y < max - 30; } this.ly = y; const imm = ('mImm' in p) ? p.mImm : s.mImm; p.mOn = !imm && (s.mOn ? y > h / 2 : y > h); set(p); },
+      mTop: () => { this.go('.ms', 'm-title'); set({ mImm: false }); }, mCls: s.mOn ? '' : 'off', mDeg: Math.round(s.mP * 360), mAria: 'Lên đầu chương, đã đọc ' + pc(s.mP) + '%',
+      mTopY: s.mImm ? '-52px' : '0', mBotY: s.mImm ? '66px' : '0', mBottom: s.mImm ? '16px' : '78px',
+      mtabs: [['Viết', false], ['Đọc', true], ['Nghe', false], ['Thêm', false]].map(([l, on]) => ({ l, bg: on ? 'rgba(201,166,245,0.14)' : 'transparent', fg: on ? '#DCC8F8' : '#7E7E8A' })),
+      places: [
+        { a: 'Trình đọc', b: 'Nội dung chương', c: 'Phải 20 px, trên ô nhập 16 px', d: 'Có', e: 'Lên đầu chương' },
+        { a: 'Đọc · điện thoại', b: 'Nội dung chương', c: 'Phải 16 px, trên thanh dưới 16 px; trên nút Duyệt nếu đang hiện', d: 'Có', e: '— (chỉ aria)' },
+        { a: 'Dự án & truyện', b: 'Nội dung tab (Dàn ý, Nhân vật, Chi tiết cài cắm, Bản xuất)', c: 'Thẳng mép phải ô dặn hướng, trên ô 26 px', d: 'Không', e: 'Lên đầu' },
+        { a: 'Audio', b: 'Danh sách đoạn của chương', c: 'Phải 20 px, dưới 16 px (trên thanh “Chốt”)', d: 'Không', e: 'Lên đầu chương' },
+        { a: 'Nhật ký tiến độ', b: 'Cả trang', c: 'Phải 24 px, dưới 24 px của khung nội dung', d: 'Không', e: 'Lên đầu' }
+      ],
+      groups: [
+        { h: 'Khi nào hiện', pt: '0', bt: 'none', rules: [
+          { n: '1', b: 'Chỉ cho vùng cuộn dài.', t: 'Gắn khi nội dung cao ít nhất 3 màn hình; đo lại khi đổi chương, đổi tab, đổi cỡ chữ.' },
+          { n: '2', b: 'Qua 1 màn hình thì hiện,', t: 'về dưới nửa màn hình thì ẩn. Khoảng đệm này để nút không nhấp nháy ở ranh giới.' },
+          { n: '3', b: 'Điện thoại:', t: 'chỉ hiện khi thanh trên/dưới đang hiện (cuộn ngược lên, chạm, hoặc tới cuối chương). Đang cuộn xuống đọc thì ẩn cùng thanh. Máy tính hiện liên tục khi đã qua ngưỡng.' },
+          { n: '4', b: 'Ẩn khi', t: 'mở bottom sheet, bàn phím, menu, hoặc đang chọn một đoạn văn.' }
+        ] },
+        { h: 'Khi bấm', pt: '8px', bt: '1px solid rgba(255,255,255,0.06)', rules: [
+          { n: '5', b: 'Cuộn mượt về đầu,', t: 'tối đa khoảng 400 ms. Xa hơn 6 màn hình thì nhảy tới cách đầu 1 màn hình rồi mới cuộn mượt. Bật “giảm chuyển động” thì nhảy thẳng.' },
+          { n: '6', b: 'Chuyển focus', t: 'tới tiêu đề chương (hoặc tới vùng cuộn nếu không có tiêu đề) để trình đọc màn hình đọc lại từ đầu. Nút tự ẩn.' },
+          { n: '7', b: 'Phím Home', t: 'vẫn làm việc như cũ; nhãn khi rê chuột nhắc phím này.' }
+        ] },
+        { h: 'Hình và chuyển động', pt: '8px', bt: '1px solid rgba(255,255,255,0.06)', rules: [
+          { n: '8', b: 'Tròn 40 px', t: '(điện thoại 44 px). Nền #1A1A1D 90% làm mờ phía sau 12 px, viền trong 1 px trắng 10%, bóng đổ. Icon mũi nhọn lên 18 px, khác icon mũi tên của nút Gửi.' },
+          { n: '9', b: 'Vòng tiến độ', t: '2 px tím #C9A6F5 trên nền trắng 12%, bằng phần đã cuộn. Chỉ có ở chỗ đọc chương.' },
+          { n: '10', b: 'Hiện 180 ms', t: '(mờ → rõ, nhích lên 8 px, 0,9 → 1). Ẩn 120 ms. Nhấn thu về 0,94.' }
+        ] },
+        { h: 'Trợ năng và không dùng ở', pt: '8px', bt: '1px solid rgba(255,255,255,0.06)', rules: [
+          { n: '11', b: 'Là một nút thật', t: 'có nhãn đọc được, vd. “Lên đầu chương, đã đọc 62%”. Khi ẩn thì ra khỏi thứ tự Tab.' },
+          { n: '12', b: 'Không dùng ở', t: 'luồng trực tiếp của Bàn viết (bám ở cuối), nhật ký điện thoại (đã có nút “N sự kiện mới”; không hiện hai nút cùng lúc), cột bên hẹp, danh sách ngắn.' }
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

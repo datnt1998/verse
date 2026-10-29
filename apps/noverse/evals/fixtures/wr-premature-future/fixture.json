@@ -1,0 +1,213 @@
+{
+  "title": "Thủ Thư Đảo Mãi",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn trinh thám biển — giọng kể chậm, khô, chú trọng giấy tờ và lời kể của người đã chứng kiến.\n\n## Định vị thể loại\nTrinh thám tư liệu: bản đồ giấu trong sổ đăng ký tàu, dấu triện vô danh, một tàu chìm không xác thuyền trưởng.\n\n## Xung đột cốt lõi\nTriều phải dựng lại đường đi của tàu Liên Hải chỉ bằng giấy tờ, trước khi có người thứ ba biết cô đã tìm được bản đồ.\n\n## Mục tiêu nhân vật chính\nĐọc đúng sự thật từ giấy tờ, không suy đoán khi chưa có chứng cứ.\n\n## Hướng kết cục\nBản đồ dẫn tới một bãi đá không có trong hải đồ đảo — và một người trong thư viện đã biết về nó từ trước.\n\n## Vùng cấm sáng tác\nKhông phép thuật, không sinh vật biển huyền bí; mọi bí ẩn phải giải bằng chứng cứ giấy tờ hoặc lời kể có nguồn.\n\n## Điểm bán hàng khác biệt\nNghề thủ thư biển: sổ đăng ký tàu, sổ thuế hải quan, bảng nhịp thủy triều viết tay.\n\n## Móc câu khác biệt\nDấu triện tam giác lộn ngược xuất hiện trước cả tàu Liên Hải.\n\n## Cam kết cốt lõi\nMỗi chương đi qua một loại giấy tờ và mở ra một phần tuyến đi của tàu chìm.\n\n## Tính phù hợp với truyện ngắn\nBa loại sổ, một hòn đảo, một cuộc điều tra trước mùa bão.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Thư viện bên ghềnh",
+      "core_event": "Triều tìm thấy bản đồ nửa mảnh và bảng nhịp thủy triều giấu trong sổ đăng ký tàu năm con Dê; chú Mộ xác nhận ký hiệu ĐK là đá kép phía tây.",
+      "hook": "Dưới lớp giấy dính còn dấu triện tam giác lộn ngược chưa giải.",
+      "scenes": ["Triều tra sổ đăng ký tàu", "Phát hiện giấy lót dính trong trang cuối", "Mang bản đồ sang đèn hiệu cho chú Mộ", "Ghi nhật ký thư viện về dấu triện"],
+      "open_questions": ["Ai giấu bản đồ trong sổ đăng ký?", "Dấu triện tam giác lộn ngược là của ai?"],
+      "promise": "Triều tìm thấy bản đồ giấu trong sổ đăng ký tàu"
+    },
+    {
+      "chapter": 2,
+      "title": "Dấu triện tam giác",
+      "core_event": "Triều tìm thấy dấu triện lần hai và dòng đăng ký tàu Liên Hải; chú Mộ kể chuyện tàu mất neo đêm triều rạch. Cô đánh dấu trang sổ thuế hải quan để đọc tiếp.",
+      "hook": "Sổ thuế hải quan năm con Hổ còn nguyên, đã đánh dấu trang tàu Liên Hải — mai đọc tiếp.",
+      "scenes": ["Lật ba quyển sổ đăng ký", "Tìm dòng tàu Liên Hải", "Chú Mộ kể đêm triều rạch", "Đánh dấu trang sổ thuế hải quan"],
+      "open_questions": ["Tàu Liên Hải chở thật sự là gì?", "Dấu triện thuộc gia tộc nào?"],
+      "promise": "Mở rộng tuyến điều tra sang sổ thuế",
+      "hook_type": "quyet_dinh_treo"
+    },
+    {
+      "chapter": 3,
+      "title": "Sổ thuế năm con Hổ",
+      "core_event": "Triều đọc sổ thuế hải quan ngay trong thư viện, đối chiếu hàng tàu Liên Hải với sổ đăng ký; phát hiện hàng khai thuế là gốm men nhưng trọng lượng ghi gấp ba lần số thùng — có lớp hàng thứ hai giấu dưới.",
+      "hook": "Ở mép trang sổ thuế có ghi chú tay của một thủ thư tiền nhiệm: 'đã xem, chưa nói'.",
+      "scenes": ["Mở bộ sao tay sổ thuế năm con Hổ", "Đối chiếu trọng lượng hàng với số thùng", "Phát hiện ghi chú tay của thủ thư tiền nhiệm", "Quyết giữ kín kết quả trong thư viện"],
+      "open_questions": ["Lớp hàng thứ hai là gì?", "Thủ thư tiền nhiệm là ai và vì sao giấu?"],
+      "promise": "da_tra: Triều đọc sổ thuế và phát hiện lớp hàng thứ hai",
+      "hook_type": "lat_thong_tin",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Đá Hồng Yên",
+      "core_event": "Triều và chú Mộ đi thuyền ra Đá Hồng Yên — bãi đá kép phía tây đảo — khi thủy rạch; họ tìm thấy hang đá giấu hàng và một hòm sắt còn niêm.",
+      "hook": "Trong hòm sắt có tên người nhận hàng trùng tên thủ thư tiền nhiệm.",
+      "scenes": ["Chuẩn bị thuyền theo nhịp thủy rạch", "Ra bãi đá phía tây", "Tìm hang giấu hàng", "Mở hòm sắt còn niêm"],
+      "open_questions": ["Thủ thư tiền nhiệm nhận hàng gì?", "Ai còn sống biết chuyện này?"],
+      "promise": "Giải ký hiệu ĐK và tìm ra chỗ giấu hàng",
+      "hook_type": "lat_thong_tin"
+    },
+    {
+      "chapter": 5,
+      "title": "Người giữ sổ",
+      "core_event": "Triều tra hồ sơ thủ thư tiền nhiệm và phát hiện người đó đã bị đuổi việc sau vụ tàu Liên Hải; chú Mộ thú nhận từng biết và im lặng.",
+      "hook": "Chú Mộ đưa Triều chiếc chìa khóa thứ hai của tủ gỗ dầu — mở ra một ngăn chưa từng được nhắc.",
+      "scenes": ["Tra hồ sơ nhân sự thư viện", "Đọc biên bản đuổi việc", "Chú Mộ thú nhận", "Nhận chìa khóa thứ hai"],
+      "open_questions": ["Ngăn bí mật của tủ gỗ dầu giữ gì?", "Ai đứng sau dấu triện tam giác?"],
+      "promise": "Lộ người trong cuộc",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 6,
+      "title": "Ngọn đèn cuối ghềnh",
+      "core_event": "Triều mở ngăn bí mật, hoàn tất hồ sơ vụ tàu Liên Hải và chọn nộp cho đồn hải canh dù có thể mất việc; ngọn đèn hiệu được thắp lại đúng cách.",
+      "hook": "Thư viện đảo Mãi từ nay giữ thêm một quyển sổ: hồ sơ những tàu đã mất tích quanh đảo.",
+      "scenes": ["Mở ngăn bí mật", "Hoàn tất hồ sơ", "Nộp hồ sơ cho hải canh", "Thắp lại đèn hiệu"],
+      "open_questions": [],
+      "promise": "da_tra: Hồ sơ tàu Liên Hải được khép lại bằng chứng cứ",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Triều",
+      "role": "thủ thư duy nhất của thư viện đảo Mãi",
+      "description": "Hai mươi lăm tuổi, quen đọc giấy tờ hơn đọc người; giữ thói quen ghi nhật ký thư viện từng ngày.",
+      "arc": "Từ người giữ sách thành người dám công bố sự thật giấy tờ.",
+      "traits": ["tỉ mỉ", "ít nói", "tin giấy tờ hơn lời kể"],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Chú Mộ",
+      "role": "người gác đèn hiệu phía tây đảo",
+      "description": "Sáu mươi năm ở đảo, nhớ mọi tàu cập bến; giữ mật mã tủ sổ đăng ký và nhiều chuyện chưa kể.",
+      "arc": "Từ người im lặng thành người phải chọn đứng về phía sự thật.",
+      "traits": ["nhớ dai", "kín đáo", "thương đảo"],
+      "kind": "ally",
+      "tier": "important"
+    },
+    {
+      "name": "Đỗ Ưn",
+      "role": "thuyền trưởng tàu Liên Hải, mất tích",
+      "description": "Chỉ hiện qua sổ đăng ký và lời kể; cập bến ba ngày, không xuống phố, mất cùng tàu trong đêm triều rạch.",
+      "arc": "Vắng mặt, là trung tâm của mọi tuyến tra.",
+      "traits": ["vắng mặt", "bí ẩn"],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Đảo Mãi có hai phía: ghềnh đông có thư viện và đèn hiệu, phía tây có bãi đá kép nguy hiểm, chỉ đi được khi thủy rạch. Đường tới phía tây chỉ bằng thuyền nhỏ.",
+      "boundary": "Không có đường bộ sang phía tây đảo; không đi thuyền ra bãi đá ngoài nhịp thủy rạch."
+    },
+    {
+      "category": "society",
+      "rule": "Sổ đăng ký tàu và sổ thuế hải quan là chứng cứ duy nhất được công nhận; lời kể chỉ dùng để tìm chỗ tra.",
+      "boundary": "Không kết luận tội hay tai nạn chỉ dựa vào lời kể, không dựa vào giấy tờ."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Thư viện bên ghềnh",
+        "summary": "Triều tìm thấy bản đồ nửa mảnh và bảng nhịp thủy triều viết tay giấu trong sổ đăng ký tàu năm con Dê. Chú Mộ xác nhận ký hiệu ĐK là đá kép phía tây. Dưới lớp giấy dính còn dấu triện tam giác lộn ngược chưa giải.",
+        "characters": ["Triều", "Chú Mộ"],
+        "key_events": ["Tìm bản đồ và bảng nhịp giấu trong sổ", "Chú Mộ xác nhận ĐK là đá kép phía tây", "Phát hiện dấu triện tam giác lộn ngược", "Ghi nhật ký thư viện"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Dấu triện tam giác",
+        "summary": "Triều tìm thấy dấu triện tam giác lần hai và dòng đăng ký tàu Liên Hải của thuyền trưởng Đỗ Ưn. Chú Mộ kể chuyện tàu mất neo trong đêm triều rạch, xác thuyền trưởng không thấy. Triều đánh dấu trang sổ thuế hải quan năm con Hổ để đọc tiếp.",
+        "characters": ["Triều", "Chú Mộ"],
+        "key_events": ["Tìm dòng đăng ký tàu Liên Hải", "Chú Mộ kể đêm triều rạch", "Đánh dấu trang sổ thuế hải quan", "Ghi nhật ký về dấu triện"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Buổi sáng",
+      "event": "Triều tìm bản đồ và bảng nhịp thủy triều trong sổ đăng ký tàu năm con Dê",
+      "characters": ["Triều"]
+    },
+    {
+      "chapter": 1,
+      "time": "Chiều",
+      "event": "Chú Mộ xác nhận ĐK là đá kép phía tây; dấu triện tam giác lộn ngược chưa giải",
+      "characters": ["Triều", "Chú Mộ"]
+    },
+    {
+      "chapter": 2,
+      "time": "Hai buổi sau",
+      "event": "Triều tìm dòng đăng ký tàu Liên Hải và dấu triện lần hai",
+      "characters": ["Triều"]
+    },
+    {
+      "chapter": 2,
+      "time": "Chiều và đêm cùng ngày",
+      "event": "Chú Mộ kể đêm triều rạch; Triều đánh dấu trang sổ thuế hải quan để đọc tiếp",
+      "characters": ["Triều", "Chú Mộ"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {"id": "dau_trien_tam_giac", "action": "plant", "description": "Dấu triện tam giác lộn ngược giấu dưới lớp giấy dính trong sổ đăng ký tàu."},
+        {"id": "ban_do_dk", "action": "plant", "description": "Bản đồ nửa mảnh chỉ eo biển phía tây và ký hiệu ĐK, kèm bảng nhịp thủy triều."}
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "dau_trien_tam_giac", "action": "advance", "description": "Dấu triện tam giác lộn ngược xuất hiện lần hai cạnh dòng đăng ký tàu Liên Hải."},
+        {"id": "so_thue_hai_quan", "action": "plant", "description": "Bộ sao tay sổ thuế hải quan năm con Hổ còn nguyên trong tủ gỗ dầu, chưa ai đụng."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Sổ đăng ký tàu năm con Dê", "field": "status", "new_value": "đã tách lớp giấy lót, mất bản đồ và bảng nhịp giấu bên trong"},
+    {"chapter": 1, "entity": "Triều", "field": "status", "new_value": "đang điều tra bản đồ giấu trong sổ"},
+    {"chapter": 2, "entity": "Triều", "field": "status", "old_value": "đang điều tra bản đồ giấu trong sổ", "new_value": "đã xác định tàu Liên Hải là mục tiêu tra chính"},
+    {"chapter": 2, "entity": "Bộ sổ thuế hải quan năm con Hổ", "field": "status", "new_value": "đã đánh dấu trang tàu Liên Hải, chờ đọc"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Sổ thuế năm con Hổ",
+      "goal": "Đọc bộ sao tay sổ thuế hải quan ngay trong thư viện, đối chiếu với sổ đăng ký tàu để lộ lớp hàng thứ hai của tàu Liên Hải.",
+      "conflict": "Triều có chứng cứ giấy tờ cho thấy tàu Liên Hải khai thuế không khớp, nhưng chưa có quyền công bố và chưa biết ai đứng sau dấu triện.",
+      "hook": "Ghi chú tay của thủ thư tiền nhiệm ở mép trang: 'đã xem, chưa nói'.",
+      "emotion_arc": "Từ tò mò nghề nghiệp chuyển sang lo ngại rằng người tiền nhiệm đã biết và im lặng.",
+      "contract": {
+        "required_beats": [
+          "Triều mở bộ sao tay sổ thuế hải quan năm con Hổ ở bàn đọc trong thư viện",
+          "Đối chiếu mục hàng tàu Liên Hải với sổ đăng ký tàu: trọng lượng khai thuế gấp ba lần số thùng gốm men",
+          "Phát hiện ghi chú tay của thủ thư tiền nhiệm ở mép trang",
+          "Triều quyết giữ kín kết quả trong thư viện, chưa kể cho ai"
+        ],
+        "forbidden_moves": [
+          "Không rời đảo Mãi trong chương này",
+          "Không ra bãi đá phía tây hay đi thuyền",
+          "Không để chú Mộ xuất hiện và tiết lộ thông tin mới"
+        ],
+        "continuity_checks": [
+          "Sổ thuế mới chỉ được đánh dấu trang ở cuối chương trước, chưa đọc nội dung",
+          "Tàu Liên Hải đăng ký chở gốm men và dầu, mất neo đêm triều rạch",
+          "Dấu triện tam giác lộn ngược đã thấy hai lần trong sổ đăng ký"
+        ],
+        "evaluation_focus": [
+          "Chương chỉ diễn ra trong thư viện và các địa điểm đã biết trên đảo",
+          "Thông tin mới phải đến từ trang sổ thuế đang đọc, không phải từ nơi khác"
+        ],
+        "emotion_target": "Lo ngại lặng lẽ.",
+        "payoff_points": ["Trang sổ thuế đã đánh dấu ở chương trước được đọc"],
+        "hook_goal": "Người đọc muốn biết thủ thư tiền nhiệm là ai và vì sao im lặng."
+      }
+    }
+  ]
+}

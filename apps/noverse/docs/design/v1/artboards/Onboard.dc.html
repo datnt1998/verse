@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Thiết lập lần đầu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.breathe{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.05) !important}
+.opt:hover{border-color:rgba(255,255,255,.18) !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.015em}
+.lead{margin:6px 0 0;font-size:14px;color:#A0A0AB;max-width:560px}
+.field{height:38px;padding:0 12px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13.5px;outline:none;width:100%}
+.field:focus{border-color:rgba(201,166,245,.6)}
+.field::placeholder{color:#5E5E68}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-cloud{-webkit-mask-image:url(../icons/cloud-connection.svg);mask-image:url(../icons/cloud-connection.svg)}
+.i-cloud-b{-webkit-mask-image:url(../icons/cloud-connection-bulk.svg);mask-image:url(../icons/cloud-connection-bulk.svg)}
+.i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-download{-webkit-mask-image:url(../icons/document-download.svg);mask-image:url(../icons/document-download.svg)}
+.i-edit-r{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
+.i-keyboard{-webkit-mask-image:url(../icons/keyboard.svg);mask-image:url(../icons/keyboard.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-lang{-webkit-mask-image:url(../icons/language-square.svg);mask-image:url(../icons/language-square.svg)}
+.i-link{-webkit-mask-image:url(../icons/link-2.svg);mask-image:url(../icons/link-2.svg)}
+.i-login{-webkit-mask-image:url(../icons/login.svg);mask-image:url(../icons/login.svg)}
+.i-logout{-webkit-mask-image:url(../icons/logout.svg);mask-image:url(../icons/logout.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic-star.svg);mask-image:url(../icons/magic-star.svg)}
+.i-messages{-webkit-mask-image:url(../icons/messages-2.svg);mask-image:url(../icons/messages-2.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-pwd{-webkit-mask-image:url(../icons/password-check.svg);mask-image:url(../icons/password-check.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-scan2{-webkit-mask-image:url(../icons/scan.svg);mask-image:url(../icons/scan.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-swap{-webkit-mask-image:url(../icons/arrow-swap-horizontal.svg);mask-image:url(../icons/arrow-swap-horizontal.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
+.i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
+.i-user-add{-webkit-mask-image:url(../icons/user-add.svg);mask-image:url(../icons/user-add.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+.i-wifi{-webkit-mask-image:url(../icons/wifi.svg);mask-image:url(../icons/wifi.svg)}
+@keyframes fadeQ{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span class="nv-word" style="font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.012em">Noverse</span>
+<span style="color: #3A3A40">/</span>
+<span style="font-size: 13px; color: #A0A0AB">Thiết lập lần đầu</span>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12px; color: #7E7E8A">Bước {{stepNo}} / {{stepTotal}}</span>
+<div aria-hidden="true" style="width: 120px; height: 4px; border-radius: 4px; background: #1E1E21"><div style="width: {{pct}}; height: 100%; border-radius: 4px; background: #EDEDEF; transition: width .3s"></div></div>
+<span class="av" aria-label="Tài khoản: {{me.name}}" style="width: 30px; height: 30px; font-size: 12px; margin-left: 8px">{{me.initial}}</span>
+</header>
+
+<div style="flex: 1; min-height: 0; display: flex">
+
+<!-- Rail các bước -->
+<nav aria-label="Các bước thiết lập" class="scroll" style="flex: 0 0 272px; padding: 18px 14px; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{fromSetup}}" hint-placeholder-val="{{ true }}"><div aria-label="Lần chạy đầu: đã xong" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(166,237,193,0.16); background: rgba(166,237,193,0.04)"><span style="font-size: 12px; color: #8E8E99">Lần chạy đầu</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Mã thiết lập</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Tài khoản quản trị</span></div></sc-if>
+<div class="card" style="border-radius: 16px; padding: 12px 10px 10px">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 6px 8px"><span style="font-size: 13px; font-weight: 600">{{railTitle}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{leftLabel}}</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{rail}}" as="r" hint-placeholder-count="8">
+<li>
+<button type="button" onClick="{{r.go}}" aria-current="{{r.aria}}" disabled="{{r.locked}}" style="width: 100%; display: flex; align-items: flex-start; gap: 10px; padding: 8px; border-radius: 10px; border: 1px solid {{r.bd}}; background: {{r.bg}}; color: {{r.fg}}; text-align: left">
+<span aria-hidden="true" style="width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{r.done}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" style="width: 18px; height: 18px; color: #A6EDC1"></span></sc-if>
+<sc-if value="{{r.cur}}" hint-placeholder-val="{{ false }}"><span style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #C9A6F5; display: flex; align-items: center; justify-content: center"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C9A6F5"></span></span></sc-if>
+<sc-if value="{{r.todo}}" hint-placeholder-val="{{ true }}"><span style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,0.25)"></span></sc-if>
+</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: {{r.fw}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.label}}</span><span style="font-size: 11.5px; color: #7E7E8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.value}}</span></span>
+<sc-if value="{{r.optional}}" hint-placeholder-val="{{ false }}"><span style="flex: 0 0 auto; font-size: 10.5px; color: #7E7E8A; margin-top: 2px; white-space: nowrap">tùy chọn</span></sc-if>
+</button>
+</li>
+</sc-for>
+</ol>
+</div>
+<div style="padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); display: flex; gap: 10px; font-size: 12px; color: #A0A0AB">
+<span class="ic i-info" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 1px"></span>
+<span>{{railNote}}</span>
+</div>
+</nav>
+
+<!-- Nội dung bước -->
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<div class="scroll" style="flex: 1; min-height: 0; padding: 30px 40px 24px">
+<div style="max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px">
+
+<!-- 1 · Hồ sơ (quản trị) -->
+<sc-if value="{{s.profile}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 18px">
+<div aria-hidden="true" style="position: relative; width: 84px; height: 64px; flex: 0 0 auto">
+<div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,99,227,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
+<span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
+<span class="orb o-writer breathe" style="position: absolute; left: 22px; top: 0; width: 40px; height: 40px; animation-delay: -0.9s"></span>
+<span class="orb o-editor breathe" style="position: absolute; left: 50px; top: 16px; width: 32px; height: 32px; animation-delay: -1.8s"></span>
+<span class="orb o-arbiter breathe" style="position: absolute; left: 28px; top: 34px; width: 28px; height: 28px; animation-delay: -2.7s"></span>
+</div>
+<div><h1 class="h2" style="font-size: 26px">{{welcome}}</h1><p class="lead">{{welcomeSub}}</p></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="4">
+<div class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<span class="orb {{a.orb}}" aria-hidden="true" style="width: 22px; height: 22px"></span>
+<span style="font-size: 13px; font-weight: 600">{{a.name}}</span>
+<span style="font-size: 12px; color: #A0A0AB">{{a.desc}}</span>
+</div>
+</sc-for>
+</div>
+<div class="card" style="border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px"><span class="ic i-user" aria-hidden="true" style="color: #A0A0AB"></span><span style="font-size: 14px; font-weight: 600; flex: 1">Hồ sơ của bạn</span><span style="height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; background: {{me.roleBg}}; color: {{me.roleFg}}; font-size: 11.5px"><span class="ic {{me.roleIcon}}" aria-hidden="true" style="width: 12px; height: 12px"></span>{{me.roleLabel}}</span></div>
+<div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap">
+<span class="av" aria-hidden="true" style="width: 56px; height: 56px; font-size: 22px">{{me.initial}}</span>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px"><label for="ob-name" class="lbl">Tên hiển thị</label><input id="ob-name" class="field" type="text" value="{{nameVal}}" onInput="{{onName}}" placeholder="Tên hiện trên ảnh đại diện"></div>
+<div style="flex: 0 1 180px; display: flex; flex-direction: column; gap: 6px"><span class="lbl">Tên đăng nhập</span><span class="mono" style="height: 38px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; background: #131315; border: 1px dashed rgba(255,255,255,0.08); color: #A0A0AB; font-size: 13px">@{{me.username}}</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #A0A0AB">
+<span style="display: flex; align-items: center; gap: 6px"><span class="ic i-shield" aria-hidden="true" style="width: 14px; height: 14px"></span>Phiên trên máy này đến <span class="num" style="color: #C9C9D1">23/11/2026</span></span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="ic i-monitor" aria-hidden="true" style="width: 14px; height: 14px"></span>{{me.createdNote}}</span>
+</div>
+</div>
+<sc-if value="{{isWriter}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; font-weight: 600">Truyện bạn được giao</span><span style="font-size: 12px; color: #7E7E8A">do Dat (quản trị) cấp</span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<span class="ic i-book" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px">Trà Xanh Cướp Kịch Bản…</span><span style="font-size: 12px; color: #7E7E8A">Dự án Kênh truyện audio · Tập 1 · 4/8 chương</span></span>
+<span style="font-size: 12px; color: #A6EDC1">Viết & can thiệp</span>
+</div>
+<span style="font-size: 12px; color: #7E7E8A">Người viết được viết các truyện được giao và tạo truyện mới; cài đặt nhà cung cấp AI do quản trị viên quản lý.</span>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- Đặt mật khẩu mới (người viết / người đọc) -->
+<sc-if value="{{s.password}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Đặt mật khẩu của riêng bạn</h1><p class="lead">Quản trị viên đã tạo tài khoản với mật khẩu tạm. Đổi ngay để chỉ mình bạn biết — các thiết bị khác đang dùng mật khẩu tạm sẽ bị đăng xuất.</p></div>
+<div class="card" style="border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-width: 460px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="ob-cur" class="lbl">Mật khẩu tạm</label><input id="ob-cur" class="field" type="password" autocomplete="current-password" value="••••••••••"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="ob-new" class="lbl">Mật khẩu mới</label><input id="ob-new" class="field" type="password" autocomplete="new-password" value="{{newPw}}" onInput="{{onNewPw}}" placeholder="Ít nhất 8 ký tự">
+<div aria-hidden="true" style="display: flex; gap: 4px"><sc-for list="{{strength.bars}}" as="b" hint-placeholder-count="4"><span style="flex: 1; height: 3px; border-radius: 3px; background: {{b}}"></span></sc-for></div>
+<span style="font-size: 12px; color: {{strength.color}}">{{strength.label}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="ob-re" class="lbl">Nhập lại</label><input id="ob-re" class="field" type="password" autocomplete="new-password" value="{{newPw}}"></div>
+</div>
+</sc-if>
+
+<!-- 2 · Ngôn ngữ -->
+<sc-if value="{{s.language}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Truyện sẽ được viết bằng ngôn ngữ nào?</h1><p class="lead">Giao diện luôn là Tiếng Việt. Mỗi dự án có thể chọn riêng sau trong Tuỳ chỉnh.</p></div>
+<div role="radiogroup" aria-label="Ngôn ngữ sáng tác" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{langs}}" as="l" hint-placeholder-count="2">
+<button class="opt" type="button" role="radio" aria-checked="{{l.sel}}" onClick="{{l.pick}}" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; border: 1px solid {{l.bd}}; background: {{l.bg}}; color: #EDEDEF; text-align: left">
+<span style="display: flex; align-items: center; gap: 10px; width: 100%"><span class="ic i-lang" aria-hidden="true" style="color: {{l.ic}}"></span><span style="flex: 1; font-size: 15px; font-weight: 600">{{l.name}}</span><span class="mono" style="font-size: 12px; color: #7E7E8A">{{l.code}}</span></span>
+<span style="font-size: 13px; color: #A0A0AB">{{l.desc}}</span>
+<span lang="{{l.code}}" style="padding: 12px 14px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-family: 'Literata', Georgia, serif; font-size: 15px; line-height: 1.7; color: #C9C9D1">{{l.sample}}</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<!-- 3 · Nhà cung cấp AI -->
+<sc-if value="{{s.provider}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Nhà cung cấp AI</h1><p class="lead">Bốn trợ lý cần một nhà cung cấp AI để viết. Noverse đã tìm thấy thiết lập bạn làm lúc cài đặt — kiểm tra lại hoặc đổi tại đây.</p></div>
+<div class="card" style="border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; border-color: {{detBd}}">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; background: #1E1E21; display: flex; align-items: center; justify-content: center; color: #C9C9D1"><span class="ic i-cloud-b" style="width: 21px; height: 21px"></span></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14.5px; font-weight: 600">{{cur.label}}</span><span style="font-size: 12.5px; color: #7E7E8A">{{cur.detail}}</span></div>
+<span style="font-size: 11.5px; color: #7E7E8A">{{cur.source}}</span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<sc-if value="{{testIdle}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{runTest}}" style="height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic i-activity" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra kết nối</button></sc-if>
+<sc-if value="{{testing}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A0A0AB"><span class="spinner" aria-hidden="true"></span>Đang gọi thử model…</span></sc-if>
+<sc-if value="{{testOk}}" hint-placeholder-val="{{ false }}"><span role="status" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px"></span>Kết nối được · <span class="num">612 ms</span> · {{cur.okNote}}</span></sc-if>
+<span style="flex: 1"></span>
+<button class="ghost" type="button" onClick="{{toggleChange}}" aria-expanded="{{changing}}" style="height: 32px; padding: 0 12px; border-radius: 8px; border: none; background: transparent; color: #C9C9D1; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic i-swap" aria-hidden="true" style="width: 15px; height: 15px"></span>{{changeLabel}}</button>
+</div>
+</div>
+<sc-if value="{{changing}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{showGrid}}" hint-placeholder-val="{{ true }}">
+<div role="radiogroup" aria-label="Nhà cung cấp" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{providers}}" as="p" hint-placeholder-count="12">
+<button class="opt" type="button" role="radio" aria-checked="{{p.sel}}" onClick="{{p.pick}}" style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid {{p.bd}}; background: {{p.bg}}; color: #EDEDEF; text-align: left">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500">{{p.label}}<sc-if value="{{p.oauth}}" hint-placeholder-val="{{ false }}"><span class="ic i-login" aria-hidden="true" style="width: 13px; height: 13px; color: #C9A6F5"></span></sc-if></span>
+<span style="font-size: 11.5px; color: #7E7E8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.hint}}</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+<div class="card" style="border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{pick.oauth}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 14px; font-weight: 600">Đăng nhập ChatGPT Plus/Pro</span>
+<span style="font-size: 13px; color: #A0A0AB">Dùng hạn mức gói ChatGPT bạn đang có, không cần mua API riêng. Noverse tự giữ kết nối luôn còn hiệu lực.</span>
+<sc-if value="{{oauthIdle}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="opt" type="button" onClick="{{oauthBrowser}}" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; text-align: left"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500"><span class="ic i-global" aria-hidden="true" style="width: 16px; height: 16px"></span>Mở trang đăng nhập</span><span style="font-size: 12px; color: #7E7E8A">Khi bạn đang dùng chính máy cài Noverse</span></button>
+<button class="opt" type="button" onClick="{{oauthDevice}}" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #0F0F11; color: #EDEDEF; text-align: left"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500"><span class="ic i-keyboard" aria-hidden="true" style="width: 16px; height: 16px"></span>Dùng mã thiết bị</span><span style="font-size: 12px; color: #7E7E8A">Khi bạn ở máy khác hoặc trên điện thoại</span></button>
+</div>
+</sc-if>
+<sc-if value="{{oauthWaitBrowser}}" hint-placeholder-val="{{ false }}"><span role="status" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #C9C9D1"><span class="spinner" aria-hidden="true"></span>Đang chờ đăng nhập ở tab mới · hết hạn sau <span class="mono num">9:42</span></span></sc-if>
+<sc-if value="{{oauthWaitDevice}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 14px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<span class="mono" style="font-size: 24px; font-weight: 500; letter-spacing: 0.12em">K7QP-M2XD</span>
+<button class="ghost" type="button" aria-label="Sao chép mã" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
+<span style="flex: 1; min-width: 200px; font-size: 12.5px; color: #A0A0AB">Mở trang <span class="mono" style="color: #EDEDEF">auth.openai.com/codex/device</span> trên điện thoại hoặc máy bất kỳ, đăng nhập ChatGPT rồi nhập mã này.</span>
+</div>
+<span role="status" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #A0A0AB"><span class="spinner" aria-hidden="true"></span>Đang chờ xác nhận…</span>
+</sc-if>
+<sc-if value="{{oauthDone}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; flex-direction: column; gap: 0; border-radius: 14px; border: 1px solid rgba(166,237,193,0.3); background: rgba(166,237,193,0.04); overflow: hidden">
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px">
+<span aria-hidden="true" style="width: 38px; height: 38px; border-radius: 50%; background: rgba(166,237,193,0.12); box-shadow: 0 0 0 1px rgba(166,237,193,0.3), 0 0 24px -6px rgba(166,237,193,0.45); display: flex; align-items: center; justify-content: center; color: #A6EDC1"><span class="ic i-tick-b" style="width: 22px; height: 22px"></span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Đã đăng nhập ChatGPT Plus/Pro</span><span style="font-size: 12.5px; color: #A0A0AB">{{oauthVia}} · vừa xong</span></span>
+<span style="height: 22px; padding: 0 8px; display: inline-flex; align-items: center; border-radius: 6px; background: rgba(201,166,245,0.12); color: #C9A6F5; font-size: 11.5px; font-weight: 500">plus</span>
+</div>
+<div style="display: flex; flex-direction: column; padding: 0 14px 6px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06)"><span class="ic i-user" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span><span style="flex: 0 0 120px; font-size: 12.5px; color: #A0A0AB">Tài khoản</span><span class="mono" style="flex: 1; font-size: 12.5px">[email tài khoản]</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06)"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span><span style="flex: 0 0 120px; font-size: 12.5px; color: #A0A0AB">Giữ kết nối</span><span style="flex: 1; font-size: 12.5px">Tự động gia hạn — không phải đăng nhập lại</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06)"><span class="ic i-cpu" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span><span style="flex: 0 0 120px; font-size: 12.5px; color: #A0A0AB">Model dùng được</span><span style="flex: 1; font-size: 12.5px"><span class="mono">gpt-5.6-terra</span></span><span style="font-size: 11.5px; color: #7E7E8A">chọn ở bước sau</span></div>
+</div>
+<div style="display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.15)">
+<span style="flex: 1; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #7E7E8A"><span class="ic i-setting" aria-hidden="true" style="width: 14px; height: 14px"></span>Ngắt kết nối bất cứ lúc nào trong Cài đặt › Nhà cung cấp AI</span>
+<button class="ghost" type="button" onClick="{{oauthLogout}}" style="height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 6px"><span class="ic i-logout" aria-hidden="true" style="width: 14px; height: 14px"></span>Dùng tài khoản khác</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{oauthFailed}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,154,162,0.3); background: rgba(255,154,162,0.04)">
+<div style="display: flex; align-items: center; gap: 10px"><span class="ic i-close-b" aria-hidden="true" style="color: #FF9AA2"></span><span style="font-size: 14px; font-weight: 600">Đăng nhập thất bại</span></div>
+<span style="font-size: 13px; color: #C9C9D1">Liên kết đăng nhập đã cũ nên Noverse chặn lại để bảo vệ tài khoản của bạn. Thử lại để mở trang đăng nhập mới.</span>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="primary" type="button" onClick="{{oauthBrowser}}" style="height: 32px; padding: 0 12px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Thử lại</button><button class="ghost" type="button" onClick="{{oauthDevice}}" style="height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 12.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-keyboard" aria-hidden="true" style="width: 14px; height: 14px"></span>Dùng mã thiết bị</button></div>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{pick.key}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 14px; font-weight: 600">{{pick.label}}</span>
+<sc-if value="{{pick.custom}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pv-name" class="lbl">Tên provider</label><input id="pv-name" class="field mono" type="text" placeholder="my-proxy"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Giao thức API</span><div style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><span style="flex: 1; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: #222225; font-size: 12.5px">OpenAI</span><span style="flex: 1; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; color: #A0A0AB">Anthropic</span><span style="flex: 1; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; color: #A0A0AB">Gemini</span></div></div>
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pv-key" class="lbl">API Key{{pick.keyOpt}}</label><input id="pv-key" class="field mono" type="password" autocomplete="off" placeholder="{{pick.keyPh}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pv-url" class="lbl">Base URL</label><input id="pv-url" class="field mono" type="text" value="{{pick.baseURL}}" placeholder="Để trống dùng địa chỉ mặc định"></div>
+</sc-if>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- 4 · Model & vai trò -->
+<sc-if value="{{s.model}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Model cho các trợ lý</h1><p class="lead">Một model chính dùng chung là đủ để bắt đầu. Đổi riêng từng trợ lý khi cần cân bằng chất lượng và chi phí — đổi lại bất cứ lúc nào trong Cài đặt.</p></div>
+<div class="card" style="border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl">Model chính</span><span style="font-size: 12px; color: #7E7E8A">từ tài khoản ChatGPT</span></div>
+<div role="radiogroup" aria-label="Model chính" style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{models}}" as="m" hint-placeholder-count="2">
+<button class="opt" type="button" role="radio" aria-checked="{{m.sel}}" onClick="{{m.pick}}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid {{m.bd}}; background: {{m.bg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid {{m.dot}}; display: flex; align-items: center; justify-content: center"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{m.fill}}"></span></span>
+<span class="mono" style="flex: 1; font-size: 13px">{{m.name}}</span>
+<span class="num" style="font-size: 12px; color: #A0A0AB">{{m.ctx}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Mức suy luận</span>
+<div role="radiogroup" aria-label="Mức suy luận" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)">
+<sc-for list="{{efforts}}" as="e" hint-placeholder-count="7"><button type="button" role="radio" aria-checked="{{e.sel}}" onClick="{{e.pick}}" style="flex: 1; height: 30px; border: none; border-radius: 7px; background: {{e.bg}}; color: {{e.fg}}; font-size: 12px; white-space: nowrap">{{e.label}}</button></sc-for>
+</div></div>
+</div>
+<div class="card" style="border-radius: 16px; padding: 6px 6px 8px">
+<button type="button" role="switch" aria-checked="{{shared}}" onClick="{{toggleShared}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; border-radius: 10px; background: transparent; color: #EDEDEF; text-align: left">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 500">Dùng model chính cho mọi trợ lý</span><span style="font-size: 12px; color: #7E7E8A">Tắt để chọn riêng cho Kiến trúc sư, Người viết, Biên tập viên</span></span>
+<span aria-hidden="true" style="width: 36px; height: 20px; border-radius: 999px; padding: 2px; background: {{swBg}}; display: flex; justify-content: flex-start"><span class="mo-thumb" style="--tx: {{swJ}}; width: 16px; height: 16px; border-radius: 50%; background: {{swDot}}"></span></span>
+</button>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 0 6px">
+<sc-for list="{{roleRows}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 6px; border-top: 1px solid rgba(255,255,255,0.05); opacity: {{r.op}}">
+<span class="orb {{r.orb}}" aria-hidden="true" style="width: 22px; height: 22px"></span>
+<span style="flex: 0 0 110px; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">{{r.name}}</span><span style="font-size: 11px; color: #7E7E8A">{{r.job}}</span></span>
+<span class="mono" style="flex: 1; min-width: 0; height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 10px; border-radius: 8px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: {{r.fg}}">{{r.model}}<sc-if value="{{r.editable}}" hint-placeholder-val="{{ false }}"><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A"></span></sc-if></span>
+<span style="flex: 0 0 110px; height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; border-radius: 8px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: {{r.fg}}">{{r.effort}}<sc-if value="{{r.editable}}" hint-placeholder-val="{{ false }}"><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A"></span></sc-if></span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- 5 · Thư viện -->
+<sc-if value="{{s.library}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Lưu truyện ở đâu?</h1><p class="lead">Chọn một thư mục trên máy đang chạy Noverse. Mọi dự án, truyện và bản xuất sẽ nằm gọn trong đó.</p></div>
+<div role="radiogroup" aria-label="Thư mục lưu truyện" style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{libOpts}}" as="o" hint-placeholder-count="3"><button class="opt" type="button" role="radio" aria-checked="{{o.sel}}" onClick="{{o.pick}}" style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px solid {{o.bd}}; background: {{o.bg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{o.ring}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{o.dot}}"></span></span>
+<span style="width: 38px; height: 38px; border-radius: 11px; background: {{o.ibg}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic {{o.icon}}" aria-hidden="true" style="width: 19px; height: 19px; color: {{o.ic}}"></span></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.4"><span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14.5px; font-weight: 500">{{o.title}}</span><sc-if value="{{o.hasTag}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px; border-radius: 6px; background: {{o.tagBg}}; color: {{o.tagFg}}; font-size: 11px; display: flex; align-items: center">{{o.tag}}</span></sc-if></span><span style="font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.where}}</span></span>
+<span style="font-size: 12.5px; color: {{o.noteFg}}; white-space: nowrap; flex: 0 0 auto">{{o.note}}</span>
+</button></sc-for>
+<button class="ghost" type="button" onClick="{{pickFolder}}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.14); background: transparent; color: #C9C9D1; font-size: 13.5px; text-align: left"><sc-if value="{{picking}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true"></span></sc-if><sc-if value="{{notPicking}}" hint-placeholder-val="{{ true }}"><span class="ic i-folder" aria-hidden="true" style="width: 18px; height: 18px; color: #A0A0AB"></span></sc-if><span style="flex: 1 1 auto">{{pickLabel}}</span><span style="font-size: 12px; color: #7E7E8A">{{pickHint}}</span></button>
+</div>
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: {{libChkBg}}; border: 1px solid {{libChkBd}}; font-size: 13px; color: {{libChkFg}}; line-height: 1.5"><span class="ic {{libChkIcon}}" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; flex: 0 0 auto"></span><span>{{libChkText}}</span></div>
+<div class="card" style="border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">Mỗi dự án tự có sẵn</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{dirChips}}" as="d" hint-placeholder-count="4"><div style="padding: 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 6px"><span class="ic {{d.icon}}" aria-hidden="true" style="width: 18px; height: 18px; color: {{d.c}}"></span><span style="font-size: 13.5px; font-weight: 500">{{d.label}}</span><span style="font-size: 12px; color: #8E8E99; line-height: 1.45">{{d.note}}</span></div></sc-for>
+</div>
+<span style="font-size: 12px; color: #7E7E8A">Noverse tự sắp xếp tệp, bạn không cần tạo hay đặt tên thư mục.</span>
+</div>
+<div class="card" style="border-radius: 16px; padding: 6px 6px 12px">
+<button type="button" role="switch" aria-checked="{{autoExport}}" onClick="{{toggleExport}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; border-radius: 10px; background: transparent; color: #EDEDEF; text-align: left">
+<span class="ic i-export" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 500">Tự xuất bản khi xong một tập</span><span style="font-size: 12px; color: #7E7E8A">Tự lưu bản đọc được vào mục Bản xuất của mỗi truyện, chia theo tập</span></span>
+<span aria-hidden="true" style="width: 36px; height: 20px; border-radius: 999px; padding: 2px; background: {{exBg}}; display: flex; justify-content: flex-start"><span class="mo-thumb" style="--tx: {{exJ}}; width: 16px; height: 16px; border-radius: 50%; background: {{exDot}}"></span></span>
+</button>
+<div style="display: flex; gap: 6px; padding: 0 12px 0 42px; opacity: {{exOp}}">
+<sc-for list="{{formats}}" as="f" hint-placeholder-count="2"><button type="button" role="checkbox" aria-checked="{{f.on}}" onClick="{{f.pick}}" style="height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid {{f.bd}}; background: {{f.bg}}; color: {{f.fg}}; font-size: 12px; display: flex; align-items: center; gap: 6px"><sc-if value="{{f.on}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 13px; height: 13px"></span></sc-if>{{f.label}}</button></sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- 6 · Dự án đầu tiên -->
+<sc-if value="{{s.project}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">Dự án đầu tiên</h1><p class="lead">Dự án là một kênh / series, gom nhiều truyện dùng chung văn phong và cấu hình.</p></div>
+<div role="radiogroup" aria-label="Cách tạo dự án" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{projModes}}" as="m" hint-placeholder-count="2">
+<button class="opt" type="button" role="radio" aria-checked="{{m.sel}}" onClick="{{m.pick}}" style="display: flex; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid {{m.bd}}; background: {{m.bg}}; color: #EDEDEF; text-align: left">
+<span class="ic {{m.icon}}" aria-hidden="true" style="color: {{m.ic}}; margin-top: 1px"></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 500">{{m.title}}</span><span style="font-size: 12.5px; color: #A0A0AB">{{m.desc}}</span></span>
+</button>
+</sc-for>
+</div>
+<div class="card" style="border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pj-name" class="lbl">Tên hiển thị</label><input id="pj-name" class="field" type="text" value="{{projName}}" onInput="{{onProjName}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pj-slug" class="lbl">Thư mục</label><input id="pj-slug" class="field mono" type="text" value="{{projSlug}}" readonly style="color: #A0A0AB; border-color: {{slugBd}}"><span style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: {{slugColor}}"><span class="ic {{slugIcon}}" aria-hidden="true" style="width: 13px; height: 13px"></span>{{slugMsg}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pj-desc" class="lbl">Mô tả kênh · tùy chọn</label><textarea id="pj-desc" class="field" rows="2" style="height: auto; padding: 9px 12px; resize: none" placeholder="Kênh / series này nói về gì, giọng đọc, đối tượng…">Truyện audio drama đô thị, nhịp nhanh, nhiều plot twist.</textarea></div>
+<sc-if value="{{adopt}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px">
+<span style="color: #C9C9D1">Trong thư mục đã có:</span>
+<span style="display: flex; align-items: center; gap: 8px; color: #A0A0AB"><span class="ic i-book" aria-hidden="true" style="width: 14px; height: 14px"></span><span>Truyện “Trà Xanh Cướp Kịch Bản…” · Tập 1 · 4/8 chương — giữ nguyên</span></span>
+<span style="display: flex; align-items: center; gap: 8px; color: #A0A0AB"><span class="ic i-note" aria-hidden="true" style="width: 14px; height: 14px"></span><span>Quy tắc văn phong của kênh — giữ nguyên</span></span>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- 7 · Điện thoại & thành viên -->
+<sc-if value="{{s.mobile}}" hint-placeholder-val="{{ false }}">
+<div><h1 class="h2">{{mobileTitle}}</h1><p class="lead">{{mobileLead}}</p></div>
+<div style="display: grid; grid-template-columns: {{mobGrid}}; gap: 12px; align-items: start">
+<section class="card" aria-label="Điện thoại của bạn" style="border-radius: 18px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<div style="align-self: stretch; display: flex; align-items: center; gap: 8px"><span class="ic i-mobile" aria-hidden="true" style="width: 18px; height: 18px; color: #C9A6F5"></span><span style="flex: 1 1 auto; font-size: 14.5px; font-weight: 600">Điện thoại của bạn</span><span class="num" style="height: 24px; padding: 0 9px; border-radius: 999px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 12px; display: flex; align-items: center; gap: 5px"><span class="ic i-timer" aria-hidden="true" style="width: 13px; height: 13px"></span>{{qrLeft}}</span><button class="ghost" type="button" onClick="{{zoomQr}}" aria-label="Phóng to mã QR" title="Phóng to" style="width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-scan2" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div>
+<div style="position: relative; width: 232px; height: 232px; border-radius: 16px; background: #FFFFFF; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 22px 50px -22px rgba(0,0,0,0.9)">
+<sc-if value="{{qrHome}}" hint-placeholder-val="{{ true }}"><svg viewBox="-2 -2 29 29" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="29" height="29" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM15 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM13 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM6 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM24 8h1v1h-1zM0 9h1v1h-1zM3 9h1v1h-1zM8 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM19 12h1v1h-1zM23 12h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM20 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM11 15h1v1h-1zM14 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM18 17h1v1h-1zM21 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM19 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM16 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM13 22h1v1h-1zM17 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM9 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1z" fill="#0B0B0D"/></svg></sc-if><sc-if value="{{qrOut}}" hint-placeholder-val="{{ false }}"><svg viewBox="-2 -2 33 33" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="33" height="33" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM19 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM15 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM12 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM26 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM19 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM22 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1z" fill="#0B0B0D"/></svg></sc-if>
+</div>
+<div role="tablist" aria-label="Điện thoại đang ở đâu" style="align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 11px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)"><sc-for list="{{qrWhere}}" as="w" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{w.on}}" onClick="{{w.pick}}" style="height: 40px; border: none; border-radius: 8px; background: {{w.bg}}; color: {{w.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25"><span style="font-size: 12.5px; font-weight: 500; display: flex; align-items: center; gap: 5px"><span class="ic {{w.icon}}" aria-hidden="true" style="width: 13px; height: 13px"></span>{{w.t}}</span><span style="font-size: 11px; color: #7E7E8A">{{w.sub}}</span></button></sc-for></div>
+<ol style="align-self: stretch; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #B8B8C2"><li style="display: flex; gap: 8px"><span class="num" style="width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.07); font-size: 11px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1px">1</span>Mở Camera trên điện thoại, hướng vào mã.</li><li style="display: flex; gap: 8px"><span class="num" style="width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.07); font-size: 11px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1px">2</span>Chạm đường dẫn hiện ra, bấm Đăng nhập. Phiên giữ 30 ngày.</li></ol>
+<div style="align-self: stretch; display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06)"><span role="status" style="flex: 1 1 auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #A0A0AB"><span class="spinner" aria-hidden="true" style="width: 12px; height: 12px"></span>Đang chờ quét…</span><button class="ghost" type="button" onClick="{{copyQrLink}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 5px; white-space: nowrap"><span class="ic {{qrCopyIcon}}" aria-hidden="true" style="width: 13px; height: 13px"></span>{{qrCopyLabel}}</button></div>
+</section>
+<sc-if value="{{isAdmin}}" hint-placeholder-val="{{ true }}">
+<section class="card" aria-label="Mời người cùng viết" style="border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600"><span class="ic i-user-add" aria-hidden="true" style="width: 18px; height: 18px; color: #C9A6F5"></span>Mời người cùng viết</span>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Tên đăng nhập</span><input class="field" type="text" value="{{invUser}}" onInput="{{onInvUser}}" placeholder="vd: linh" autocomplete="off" style="height: 38px; font-size: 14px"><span style="font-size: 11.5px; color: {{invHintFg}}">{{invHint}}</span></label>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Vai trò</span><div role="radiogroup" aria-label="Vai trò" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><sc-for list="{{invRoles}}" as="r" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{r.on}}" onClick="{{r.pick}}" style="height: 40px; border: none; border-radius: 8px; background: {{r.bg}}; color: {{r.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25"><span style="font-size: 12.5px; font-weight: 500">{{r.t}}</span><span style="font-size: 11px; color: #7E7E8A">{{r.sub}}</span></button></sc-for></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Mật khẩu tạm</span><div style="display: flex; gap: 6px"><span class="num" style="flex: 1 1 auto; min-width: 0; height: 38px; padding: 0 12px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; font-size: 15px; font-weight: 600; letter-spacing: .02em; color: #EDEDEF">{{invPw}}</span><button class="ghost" type="button" onClick="{{copyPw}}" aria-label="Chép mật khẩu tạm" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic {{pwCopyIcon}}" aria-hidden="true" style="width: 16px; height: 16px"></span></button><button class="ghost" type="button" onClick="{{newPw}}" aria-label="Tạo mật khẩu khác" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px"></span></button></div></div>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Được viết</span><span style="position: relative; display: block"><select class="field" style="appearance: none; height: 38px; padding-right: 34px; font-size: 13.5px"><option>Trà Xanh Cướp Kịch Bản…</option><option>Mọi truyện trong Kênh truyện audio</option><option>Chọn sau</option></select><span class="ic i-arrow-d" aria-hidden="true" style="position: absolute; right: 11px; top: 12px; width: 14px; height: 14px; color: #8E8E99; pointer-events: none"></span></span></label>
+<sc-if value="{{invNotDone}}" hint-placeholder-val="{{ true }}"><button class="primary" type="button" onClick="{{createInv}}" disabled="{{invBad}}" style="height: 38px; border-radius: 10px; border: none; background: {{invBg}}; color: {{invFg}}; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Tạo tài khoản</button></sc-if>
+<sc-if value="{{invDone}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: rgba(166,237,193,0.06); border: 1px solid rgba(166,237,193,0.25)"><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #C6F3D6"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px"></span>Đã tạo tài khoản cho {{invUser}}</span><button class="ghost" type="button" onClick="{{copyInvite}}" style="align-self: flex-start; height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 12.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>{{inviteCopyLabel}}</button></div></sc-if>
+</section>
+</sc-if>
+</div>
+<sc-if value="{{isAdmin}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.18); font-size: 12.5px; color: #C9C9D1"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C; margin-top: 2px"></span><span>Gửi tên đăng nhập và mật khẩu tạm qua kênh riêng (tin nhắn, gặp trực tiếp). Lần đầu vào, họ được nhắc đặt mật khẩu mới.</span></div>
+</sc-if>
+</sc-if>
+<sc-if value="{{browseOpen}}" hint-placeholder-val="{{ false }}"><div style="position: absolute; inset: 0; z-index: 75; background: rgba(4,4,6,0.72); display: flex; align-items: center; justify-content: center; animation: fadeQ .2s ease-out both">
+<div class="dlg" role="dialog" aria-labelledby="fb-t" style="background: #18181A; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.9); width: 760px; height: 540px; display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07)"><span class="ic i-folder" aria-hidden="true" style="width: 18px; height: 18px; color: #C9A6F5"></span><span id="fb-t" style="flex: 1 1 auto; font-size: 15px; font-weight: 600">Chọn thư mục lưu truyện</span><button class="ghost" type="button" onClick="{{closeBrowse}}" aria-label="Đóng" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true" style="width: 17px; height: 17px"></span></button></div>
+<div style="flex: 1 1 auto; min-height: 0; display: flex">
+<nav aria-label="Vị trí" style="flex: 0 0 190px; padding: 10px 8px; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 2px"><sc-for list="{{places}}" as="p" hint-placeholder-count="5"><button type="button" onClick="{{p.go}}" style="display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 10px; border: none; border-radius: 8px; background: {{p.bg}}; color: {{p.fg}}; font-size: 13px; text-align: left"><span class="ic {{p.icon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{p.t}}</button></sc-for></nav>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 4px; padding: 10px 14px; font-size: 13px; color: #A0A0AB; border-bottom: 1px solid rgba(255,255,255,0.05)"><sc-for list="{{crumbs}}" as="c" hint-placeholder-count="2"><span style="color: {{c.fg}}">{{c.t}}</span><sc-if value="{{c.sep}}" hint-placeholder-val="{{ true }}"><span class="ic i-arrow-r" aria-hidden="true" style="width: 12px; height: 12px; color: #5E5E68"></span></sc-if></sc-for><span style="flex: 1 1 auto"></span><button class="ghost" type="button" onClick="{{newFolder}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 5px"><span class="ic i-add" aria-hidden="true" style="width: 13px; height: 13px"></span>Thư mục mới</button></div>
+<div class="scroll" style="flex: 1 1 auto; min-height: 0; padding: 6px 8px">
+<sc-for list="{{fbRows}}" as="r" hint-placeholder-count="6"><button type="button" onClick="{{r.pick}}" onDblClick="{{r.open}}" style="width: 100%; display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 10px; border: none; border-radius: 9px; background: {{r.bg}}; color: {{r.fg}}; text-align: left"><span class="ic {{r.icon}}" aria-hidden="true" style="width: 18px; height: 18px; color: {{r.ic}}"></span><span style="flex: 1 1 auto; min-width: 0; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span><sc-if value="{{r.hasBadge}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px; border-radius: 6px; background: {{r.bBg}}; color: {{r.bFg}}; font-size: 11px; display: flex; align-items: center; white-space: nowrap">{{r.badge}}</span></sc-if><span style="font-size: 12px; color: #6E6E78; white-space: nowrap">{{r.meta}}</span></button></sc-for>
+<sc-if value="{{mkOpen}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 10px"><span class="ic i-folder" aria-hidden="true" style="width: 18px; height: 18px; color: #C9A6F5"></span><input class="field" type="text" value="{{mkName}}" onInput="{{onMk}}" aria-label="Tên thư mục mới" style="height: 32px; font-size: 13.5px; flex: 1 1 auto"><button class="primary" type="button" onClick="{{doMk}}" style="height: 32px; padding: 0 12px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 12.5px; font-weight: 600">Tạo</button></div></sc-if>
+</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.07)"><span class="ic {{fbChkIcon}}" aria-hidden="true" style="width: 16px; height: 16px; color: {{fbChkFg}}"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{fbSelPath}}</span><span style="font-size: 12px; color: {{fbChkFg}}">{{fbChkText}}</span></span><button class="ghost" type="button" onClick="{{closeBrowse}}" style="height: 34px; padding: 0 14px; border-radius: 9px; border: none; background: transparent; color: #A0A0AB; font-size: 13px">Huỷ</button><button class="primary" type="button" onClick="{{useFolder}}" disabled="{{fbBad}}" style="height: 34px; padding: 0 16px; border-radius: 9px; border: none; background: {{fbBtnBg}}; color: {{fbBtnFg}}; font-size: 13px; font-weight: 600">Dùng thư mục này</button></div>
+</div></div></sc-if>
+<sc-if value="{{qrZoom}}" hint-placeholder-val="{{ false }}"><div role="dialog" aria-label="Mã QR phóng to" onClick="{{zoomQr}}" style="position: absolute; inset: 0; z-index: 80; background: rgba(4,4,6,0.86); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; animation: fadeQ .25s ease-out both">
+<div style="width: 464px; height: 464px; border-radius: 24px; background: #FFFFFF; overflow: hidden; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.9)"><sc-if value="{{qrHome}}" hint-placeholder-val="{{ true }}"><svg viewBox="-2 -2 29 29" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="29" height="29" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM15 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM13 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM6 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM24 8h1v1h-1zM0 9h1v1h-1zM3 9h1v1h-1zM8 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM19 12h1v1h-1zM23 12h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM20 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM11 15h1v1h-1zM14 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM18 17h1v1h-1zM21 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM19 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM16 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM13 22h1v1h-1zM17 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM9 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1z" fill="#0B0B0D"/></svg></sc-if><sc-if value="{{qrOut}}" hint-placeholder-val="{{ false }}"><svg viewBox="-2 -2 33 33" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="33" height="33" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM19 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM15 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM12 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM26 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM19 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM22 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1z" fill="#0B0B0D"/></svg></sc-if></div>
+<span style="font-size: 14px; color: #C9C9D1">Tăng độ sáng màn hình nếu điện thoại khó quét · bấm bất kỳ đâu để đóng</span>
+</div></sc-if>
+
+<!-- 8 · Hoàn tất -->
+<sc-if value="{{s.done}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 18px">
+<div aria-hidden="true" style="position: relative; width: 84px; height: 64px; flex: 0 0 auto">
+<div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(93,193,176,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
+<span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
+<span class="orb o-writer breathe" style="position: absolute; left: 22px; top: 0; width: 40px; height: 40px; animation-delay: -0.9s"></span>
+<span class="orb o-editor breathe" style="position: absolute; left: 50px; top: 16px; width: 32px; height: 32px; animation-delay: -1.8s"></span>
+<span class="orb o-arbiter breathe" style="position: absolute; left: 28px; top: 34px; width: 28px; height: 28px; animation-delay: -2.7s"></span>
+</div>
+<div><h1 class="h2" style="font-size: 26px">Mọi thứ đã sẵn sàng</h1><p class="lead">{{doneLead}}</p></div>
+</div>
+<sc-if value="{{showRecovery}}" hint-placeholder-val="{{ true }}"><div class="card" style="border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border-color: rgba(246,203,140,0.28)">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span class="ic i-key" aria-hidden="true" style="width: 17px; height: 17px; color: #F6CB8C"></span>Mã khôi phục của quản trị</span>
+<span style="font-size: 13px; color: #A0A0AB; line-height: 1.5">Dùng khi bạn quên mật khẩu mà không có quản trị viên khác. Mã chỉ hiện một lần — hãy cất ở nơi an toàn.</span>
+<div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1 1 auto; height: 42px; padding: 0 14px; border-radius: 10px; background: #0F0F11; border: 1px dashed rgba(246,203,140,0.35); display: flex; align-items: center; font-size: 17px; font-weight: 600; letter-spacing: .12em; color: #FBE3BD">TRAX-8K2M-QP7D-41ZN</span><button class="ghost" type="button" onClick="{{copyRecovery}}" style="height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic {{rcIcon}}" aria-hidden="true" style="width: 15px; height: 15px"></span>{{rcLabel}}</button><button class="ghost" type="button" style="height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Tải tệp</button></div>
+</div></sc-if>
+<div class="card" style="border-radius: 16px; padding: 6px 16px">
+<sc-for list="{{summary}}" as="x" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: {{x.bt}}">
+<span class="ic {{x.icon}}" aria-hidden="true" style="color: {{x.ic}}"></span>
+<span style="flex: 0 0 160px; font-size: 13px; color: #A0A0AB">{{x.k}}</span>
+<span class="{{x.cls}}" style="flex: 1; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{x.v}}</span>
+<button class="ghost" type="button" onClick="{{x.go}}" style="height: 26px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; color: #7E7E8A; font-size: 12px">Sửa</button>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{tips}}" as="t" hint-placeholder-count="3">
+<div class="card" style="border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px"><span class="ic {{t.icon}}" aria-hidden="true" style="width: 17px; height: 17px; color: #C9A6F5"></span><span style="font-size: 13px; font-weight: 500">{{t.title}}</span><span style="font-size: 12px; color: #A0A0AB">{{t.desc}}</span></div>
+</sc-for>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+<!-- Thanh hành động -->
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 12px 40px; border-top: 1px solid rgba(255,255,255,0.06); background: #0B0B0D">
+<sc-if value="{{canBack}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{back}}" style="height: 38px; padding: 0 14px 0 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-arrow-l" aria-hidden="true" style="width: 16px; height: 16px"></span>Quay lại</button></sc-if>
+<span style="flex: 1"></span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #7E7E8A"><span class="kbd">Enter</span>{{nextHint}}</span>
+<sc-if value="{{canSkip}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" onClick="{{next}}" style="height: 38px; padding: 0 14px; border-radius: 10px; border: none; background: transparent; color: #A0A0AB; font-size: 13.5px">Để sau</button></sc-if>
+<sc-if value="{{isLast}}" hint-placeholder-val="{{ false }}"><a class="ghost" href="Main.dc.html" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: #EDEDEF; font-size: 13.5px; display: flex; align-items: center">Vào Bàn viết</a></sc-if>
+<sc-if value="{{isLast}}" hint-placeholder-val="{{ false }}"><a class="primary" href="{{lastHref}}" style="height: 38px; padding: 0 16px 0 12px; border-radius: 10px; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-magic" aria-hidden="true" style="width: 16px; height: 16px"></span>{{lastLabel}}</a></sc-if>
+<sc-if value="{{notLast}}" hint-placeholder-val="{{ true }}"><button class="primary" type="button" onClick="{{next}}" disabled="{{nextBlocked}}" style="height: 38px; padding: 0 12px 0 16px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 6px">{{nextLabel}}<span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px"></span></button></sc-if>
+</div>
+</main>
+
+<!-- Xem trước tệp được ghi -->
+<aside aria-label="Thiết lập sẽ lưu" class="scroll" style="flex: 0 0 340px; padding: 18px 16px; border-left: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="ic i-doc" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span class="lbl" style="flex: 1">{{plainTitle}}</span></div>
+<div class="card" style="border-radius: 14px; padding: 4px 14px">
+<sc-for list="{{plain}}" as="x" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 1px; padding: 10px 0; border-top: {{x.bt}}">
+<span style="font-size: 12px; color: #7E7E8A">{{x.k}}</span>
+<span style="font-size: 13.5px; color: #EDEDEF">{{x.v}}</span>
+</div>
+</sc-for>
+</div>
+<span style="font-size: 12px; color: #7E7E8A">Lưu ngay khi bạn bấm Tiếp tục. Mọi thứ đổi lại được trong Tuỳ chỉnh.</span>
+<div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; display: flex; flex-direction: column; gap: 10px">
+<sc-if value="{{showTech}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{toggleTech}}" aria-expanded="{{techOpen}}" style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: #7E7E8A; font-size: 12.5px"><span class="ic {{techIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span><span class="ic i-crown" aria-hidden="true" style="width: 12px; height: 12px; color: #B89A6E"></span>Tệp sẽ ghi (cho quản trị)</button>
+<sc-if value="{{techOpen}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="border-radius: 14px; overflow: hidden">
+<div class="mono" style="padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #C9C9D1; display: flex; justify-content: space-between; gap: 8px"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{file}}</span><span style="color: #7E7E8A">{{fileNote}}</span></div>
+<div class="mono" style="padding: 10px 0; font-size: 11.5px; line-height: 1.75">
+<sc-for list="{{code}}" as="ln" hint-placeholder-count="12">
+<div style="padding: 0 12px 0 {{ln.pad}}; background: {{ln.bg}}; white-space: pre; overflow: hidden; text-overflow: ellipsis"><sc-for list="{{ln.segs}}" as="sg" hint-placeholder-count="3"><span style="color: {{sg.c}}">{{sg.t}}</span></sc-for></div>
+</sc-for>
+</div>
+</div>
+</sc-if></sc-if>
+</div>
+</aside>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["admin","writer"],"default":"admin","section":"Luồng"},"step":{"editor":"enum","options":["profile","password","provider","model","library","project","mobile","done"],"default":"profile","section":"Luồng"},"lib":{"editor":"enum","options":["existing","fresh","picking","browse","picked","readonly"],"default":"existing","section":"Bước Nơi lưu truyện"},"oauth":{"editor":"enum","options":["none","idle","browser","device","done","failed"],"default":"none","section":"Bước Nhà cung cấp"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { local: null, forProp: null, name: null, lang: 'vi', changing: false, test: 'idle', pick: 'openrouter', oauth: 'idle', model: 0, effort: 'medium', shared: true, dirs: { y: 'y-tuong', t: 'tai-san', k: 'kich_ban', x: 'xuat-ban' }, autoExport: true, fmt: { txt: true, epub: true, narration: false }, projMode: 'adopt', projName: 'Kênh truyện audio', newPw: '' };
+  }
+  libWhere(S, P) { const v = this.libVals(S, P); const o = v.libOpts.find((x) => x.sel); return o ? o.where : ''; }
+  libVals(S, P) {
+    const lib = S.libFor === P.lib && S.libSel ? S.libSel : (P.lib === 'fresh' ? 'docs' : (P.lib === 'picked' || P.lib === 'readonly' ? 'custom' : 'home'));
+    const custom = S.libCustom || (P.lib === 'readonly' ? ['Ổ ngoài “Samsung T7”', 'Sao lưu cũ', 'readonly'] : ['iCloud Drive', 'Truyện của Dat', 'empty']);
+    const hasCustom = lib === 'custom' || !!S.libCustom || P.lib === 'picked' || P.lib === 'readonly';
+    const opts = [['home', 'i-folder', 'Truyen', 'Thư mục nhà › Truyen', 'Đang dùng', '1 dự án · 1 truyện', '#A6EDC1', 'found'], ['docs', 'i-doc', 'Truyện Noverse', 'Tài liệu › Truyện Noverse', 'Gợi ý', 'Thư mục mới', '#8E8E99', 'new']].concat(hasCustom ? [['custom', 'i-cloud', custom[1], custom[0] + ' › ' + custom[1], 'Bạn chọn', custom[2] === 'readonly' ? 'Không ghi được' : 'Thư mục trống', custom[2] === 'readonly' ? '#FF9AA2' : '#8E8E99', custom[2]]] : []);
+    const sel = opts.find((o) => o[0] === lib) || opts[0];
+    const set = (k) => this.setState({ libSel: k, libFor: P.lib });
+    const CHK = { found: ['i-tick', 'rgba(166,237,193,0.06)', 'rgba(166,237,193,0.22)', '#C6F3D6', 'Đã có 1 dự án Noverse (“Kênh truyện audio”) với 1 truyện — Noverse dùng luôn, không đổi gì.'], new: ['i-info', 'rgba(157,176,247,0.06)', 'rgba(157,176,247,0.2)', '#C8D3F8', 'Noverse sẽ tạo thư mục “Truyện Noverse” trong Tài liệu. Truyện cũ ở “Truyen” vẫn giữ nguyên, nhập lại được bất cứ lúc nào.'], empty: ['i-tick', 'rgba(166,237,193,0.06)', 'rgba(166,237,193,0.22)', '#C6F3D6', 'Thư mục trống, ghi được. iCloud Drive tự sao lưu truyện của bạn — nên bật “Luôn giữ trên máy” để Noverse không phải chờ tải về.'], readonly: ['i-warning', 'rgba(255,154,162,0.06)', 'rgba(255,154,162,0.25)', '#FFC4CA', 'Noverse không ghi được vào thư mục này (chỉ đọc). Chọn thư mục khác hoặc cấp quyền ghi trên máy.'] }[sel[7]];
+    const picking = P.lib === 'picking' && !S.libSel;
+    const browseOpen = S.browseFor === P.lib ? !!S.browse : P.lib === 'browse';
+    const cur = S.fbDir || 'docs';
+    const PL = [['home', 'Thư mục nhà', 'i-user'], ['docs', 'Tài liệu', 'i-doc'], ['desk', 'Màn hình', 'i-monitor'], ['icloud', 'iCloud Drive', 'i-cloud'], ['ext', 'Samsung T7', 'i-box']];
+    const ROWS = { home: [['Truyen', 'lib', 'Thư viện Noverse · 1 dự án'], ['Tài liệu', 'dir', ''], ['Màn hình', 'dir', ''], ['Tải về', 'dir', '']], docs: [['Bản thảo cũ', 'dir', '24 mục'], ['Hoá đơn', 'dir', '112 mục'], ['Truyện Noverse', 'empty', 'trống']], desk: [['Ảnh chụp', 'dir', '8 mục']], icloud: [['Truyện của Dat', 'empty', 'trống'], ['Ghi chú', 'dir', '31 mục']], ext: [['Sao lưu cũ', 'ro', 'chỉ đọc']] };
+    const fbSel = S.fbSel == null ? (cur === 'docs' ? 2 : 0) : S.fbSel;
+    const rows = (ROWS[cur] || []).concat(S.fbNew && cur === S.fbNewDir ? [[S.fbNew, 'empty', 'vừa tạo']] : []);
+    const pickedRow = rows[fbSel] || rows[0];
+    const kindChk = { lib: ['i-tick', '#A6EDC1', 'Thư viện Noverse có sẵn — dùng luôn'], empty: ['i-tick', '#A6EDC1', 'Thư mục trống, ghi được'], dir: ['i-warning', '#F6CB8C', 'Có tệp khác không phải truyện — Noverse không đụng tới, nhưng nên chọn thư mục riêng'], ro: ['i-warning', '#FF9AA2', 'Không ghi được vào thư mục này'] }[pickedRow ? pickedRow[1] : 'dir'];
+    const placeName = (PL.find((p) => p[0] === cur) || PL[0])[1];
+    return {
+      libOpts: opts.map(([k, icon, title, where, tag, note, noteFg]) => { const on = k === sel[0]; return { title, where, icon, note, noteFg, tag, hasTag: on || k !== 'custom', tagBg: tag === 'Đang dùng' ? 'rgba(166,237,193,0.12)' : 'rgba(201,166,245,0.12)', tagFg: tag === 'Đang dùng' ? '#A6EDC1' : '#DCC8F8', sel: on, bd: on ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: on ? 'rgba(201,166,245,0.06)' : '#141416', ring: on ? '#C9A6F5' : 'rgba(255,255,255,0.25)', dot: on ? '#C9A6F5' : 'transparent', ibg: on ? 'rgba(201,166,245,0.14)' : 'rgba(255,255,255,0.05)', ic: on ? '#C9A6F5' : '#A0A0AB', pick: () => set(k) }; }),
+      picking, notPicking: !picking, pickLabel: picking ? 'Đang mở cửa sổ chọn thư mục trên máy…' : 'Chọn thư mục khác…', pickHint: picking ? 'chọn xong quay lại đây' : 'iCloud, Google Drive, ổ ngoài…',
+      pickFolder: () => this.setState({ browse: true, browseFor: P.lib }),
+      nextBlocked: P.step === 'library' && sel[7] === 'readonly', libChkIcon: CHK[0], libChkBg: CHK[1], libChkBd: CHK[2], libChkFg: CHK[3], libChkText: CHK[4],
+      browseOpen, closeBrowse: () => this.setState({ browse: false, browseFor: P.lib, mk: false }),
+      places: PL.map(([k, t2, icon]) => { const on = k === cur; return { t: t2, icon, bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', go: () => this.setState({ fbDir: k, fbSel: 0, mk: false }) }; }),
+      crumbs: [[placeName, false]].map(([t2]) => ({ t: t2, fg: '#EDEDEF', sep: false })),
+      fbRows: rows.map(([name, kind, meta], i) => { const on = i === fbSel; return { name, meta, icon: kind === 'lib' ? 'i-book' : 'i-folder', ic: kind === 'lib' ? '#C9A6F5' : (kind === 'ro' ? '#7E7E8A' : '#A0A0AB'), hasBadge: kind === 'lib' || kind === 'ro', badge: kind === 'lib' ? 'Noverse' : 'chỉ đọc', bBg: kind === 'lib' ? 'rgba(201,166,245,0.12)' : 'rgba(255,154,162,0.1)', bFg: kind === 'lib' ? '#DCC8F8' : '#FFB3BA', bg: on ? 'rgba(201,166,245,0.1)' : 'transparent', fg: kind === 'ro' ? '#8E8E99' : '#EDEDEF', pick: () => this.setState({ fbSel: i }), open: () => {} }; }),
+      mkOpen: !!S.mk, mkName: S.mkName == null ? 'Truyện Noverse 2' : S.mkName, onMk: (e) => this.setState({ mkName: e.target.value }), newFolder: () => this.setState({ mk: true }),
+      doMk: () => { const n = (S.mkName == null ? 'Truyện Noverse 2' : S.mkName).trim(); if (!n) return; this.setState({ mk: false, fbNew: n, fbNewDir: cur, fbSel: rows.length }); },
+      fbSelPath: pickedRow ? placeName + ' › ' + pickedRow[0] : placeName, fbChkIcon: kindChk[0], fbChkFg: kindChk[1], fbChkText: kindChk[2], fbBad: !pickedRow || pickedRow[1] === 'ro',
+      fbBtnBg: pickedRow && pickedRow[1] !== 'ro' ? '#EDEDEF' : 'rgba(255,255,255,0.08)', fbBtnFg: pickedRow && pickedRow[1] !== 'ro' ? '#0B0B0D' : '#7E7E8A',
+      useFolder: () => { if (!pickedRow || pickedRow[1] === 'ro') return; this.setState({ browse: false, browseFor: P.lib, libSel: 'custom', libFor: P.lib, libCustom: [placeName, pickedRow[0], pickedRow[1] === 'lib' ? 'found' : (pickedRow[1] === 'dir' ? 'empty' : 'empty')] }); }
+    };
+  }
+  renderVals() {
+    const S = this.state, P = this.props;
+    const OP = P.oauth || 'none';
+    const forced = OP !== 'none' && S.oauthFor !== OP;
+    const pickName = forced ? 'openai-codex' : S.pick;
+    const changingEff = forced || S.changing;
+    const oauthEff = forced ? OP : S.oauth;
+    const setO = (o) => this.setState({ oauth: o, oauthFor: OP, pick: pickName, changing: true });
+    const role = P.role || 'admin';
+    const isAdmin = role === 'admin';
+    const ADMIN = ['profile', 'provider', 'model', 'library', 'project', 'mobile', 'done']; // quyết định 6 (brief 25/10): bỏ bước chọn ngôn ngữ — chỉ viết tiếng Việt
+    const WRITER = ['profile', 'password', 'mobile', 'done'];
+    const steps = isAdmin ? ADMIN : WRITER;
+    const propKey = role + ':' + (P.step || 'profile');
+    let stepFromProp = steps.indexOf(P.step || 'profile'); if (stepFromProp < 0) stepFromProp = 0;
+    const idx = S.forProp === propKey && S.local !== null ? S.local : stepFromProp;
+    const key = steps[idx];
+    const go = (i) => this.setState({ local: Math.max(0, Math.min(steps.length - 1, i)), forProp: propKey });
+    const me = isAdmin
+      ? { name: S.name ?? 'Dat', username: 'dat', roleLabel: 'Quản trị', roleIcon: 'i-crown', roleBg: 'rgba(201,166,245,0.12)', roleFg: '#C9A6F5', createdNote: 'Vừa tạo ở bước Lần chạy đầu' }
+      : { name: S.name ?? 'Linh', username: 'linh', roleLabel: 'Người viết', roleIcon: 'i-edit-r', roleBg: 'rgba(185,208,247,0.10)', roleFg: '#B9D0F7', createdNote: 'Do Dat tạo ngày 12/10/2026' };
+    me.initial = (me.name || me.username)[0].toUpperCase();
+    // provider
+    const PROV = [
+      ['ollama', 'Ollama', 'Cục bộ / offline · miễn phí', 'http://localhost:11434/v1', 'opt'],
+      ['openrouter', 'OpenRouter', 'Claude, Gemini, DeepSeek, Qwen…', 'https://openrouter.ai/api/v1', 'req'],
+      ['openai-codex', 'ChatGPT Plus/Pro', 'Gói thuê bao · đăng nhập OAuth', '', 'oauth'],
+      ['gemini', 'Google Gemini', 'API Key', '', 'req'], ['anthropic', 'Anthropic Claude', 'API Key', '', 'req'],
+      ['deepseek', 'DeepSeek', 'API Key', 'https://api.deepseek.com/v1', 'req'], ['openai', 'OpenAI', 'API Key', '', 'req'],
+      ['qwen', 'Alibaba Qwen', 'DashScope', '', 'req'], ['glm', 'Zhipu GLM', 'API Key', '', 'req'], ['grok', 'xAI Grok', 'API Key', '', 'req'],
+      ['bedrock', 'AWS Bedrock', 'Thông tin AWS trên máy chủ', '', 'opt'], ['custom', 'Proxy tùy chỉnh', 'OpenAI / Anthropic / Gemini', '', 'custom']
+    ];
+    const providers = PROV.map(([name, label, hint, baseURL, kind]) => ({ name, label, hint, oauth: kind === 'oauth', sel: pickName === name, bd: pickName === name ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: pickName === name ? 'rgba(201,166,245,0.06)' : '#131315', pick: () => this.setState({ pick: name, oauth: 'idle', oauthFor: OP, changing: true, test: 'idle' }) }));
+    const pk = PROV.find((p) => p[0] === pickName);
+    const pick = { label: pk[1], oauth: pk[4] === 'oauth', key: pk[4] !== 'oauth', custom: pk[4] === 'custom', baseURL: pk[3], keyOpt: pk[4] === 'req' ? '' : ' · không bắt buộc', keyPh: pk[4] === 'req' ? 'sk-…' : 'Để trống nếu không cần API Key' };
+    const curIsCodex = !changingEff || pickName === 'openai-codex';
+    const cur = !changingEff
+      ? { label: 'ChatGPT Plus/Pro', name: 'openai-codex', detail: 'Đã kết nối · [email tài khoản] · gói Plus', source: 'thiết lập lúc cài đặt', okNote: 'có 1 model dùng được' }
+      : { label: pk[1], name: pk[0] === 'custom' ? 'my-proxy' : pk[0], detail: pk[4] === 'oauth' ? (oauthEff === 'done' ? 'Đã kết nối · [email tài khoản] · gói Plus' : 'Chưa kết nối') : pk[2], source: 'chưa lưu', okNote: 'tìm thấy model dùng được' };
+    // models
+    const MODELS = curIsCodex ? [['gpt-5.6-terra', 'ngữ cảnh 272K']] : [['google/gemini-2.5-flash', 'ngữ cảnh 200K'], ['google/gemini-2.5-pro', 'ngữ cảnh 1M'], ['anthropic/claude-3.5-sonnet', 'ngữ cảnh 200K'], ['deepseek/deepseek-chat', 'ngữ cảnh 64K']];
+    const mi = Math.min(S.model, MODELS.length - 1);
+    const models = MODELS.map(([name, ctx], i) => ({ name, ctx, sel: i === mi, bd: i === mi ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: i === mi ? 'rgba(201,166,245,0.06)' : '#0F0F11', dot: i === mi ? '#C9A6F5' : 'rgba(255,255,255,0.25)', fill: i === mi ? '#C9A6F5' : 'transparent', pick: () => this.setState({ model: i }) }));
+    const mainModel = MODELS[mi][0];
+    const EFF = [['', 'Mặc định'], ['off', 'Tắt'], ['low', 'Thấp'], ['medium', 'Vừa'], ['high', 'Cao'], ['xhigh', 'Rất cao'], ['max', 'Tối đa']];
+    const efforts = EFF.map(([k, label]) => ({ label, sel: S.effort === k, bg: S.effort === k ? '#222225' : 'transparent', fg: S.effort === k ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ effort: k }) }));
+    const effLabel = (EFF.find((e) => e[0] === S.effort) || EFF[0])[1];
+    const roleRows = [
+      ['Kiến trúc sư', 'o-architect', 'Lên dàn ý', 'high', 'Cao'], ['Người viết', 'o-writer', 'Viết chương', S.effort, effLabel], ['Biên tập viên', 'o-editor', 'Thẩm duyệt', 'high', 'Cao'], ['Trọng tài', 'o-arbiter', 'Luôn dùng model chính', '', '']
+    ].map(([name, orb, job, , el]) => {
+      const arb = name === 'Trọng tài';
+      const custom = !S.shared && !arb;
+      return { name, orb, job, model: mainModel, effort: arb ? '—' : custom ? el : effLabel, editable: custom, fg: custom ? '#EDEDEF' : '#7E7E8A', op: S.shared && !arb ? 0.6 : 1 };
+    });
+    // library
+    const valid = (v) => /^[a-z0-9][a-z0-9_-]*$/.test(v);
+    const D = S.dirs;
+    const mk = (id, k, label, note) => ({ id, label, value: D[k], on: (e) => this.setState({ dirs: Object.assign({}, D, { [k]: e.target.value }) }), bd: valid(D[k]) ? 'rgba(255,255,255,0.1)' : 'rgba(255,154,162,0.6)', note: valid(D[k]) ? note : 'Chỉ chữ thường không dấu, số, “-”, “_”', noteColor: valid(D[k]) ? '#7E7E8A' : '#FF9AA2' });
+    const dirs = [mk('d-y', 'y', 'Kho ý tưởng', 'mỗi ý tưởng là một ghi chú'), mk('d-t', 't', 'Tài sản', 'bìa · nhạc · giọng mẫu'), mk('d-k', 'k', 'Các truyện', 'mỗi truyện một thư mục, đánh số 01, 02…'), mk('d-x', 'x', 'Bản xuất', 'bản TXT, EPUB, audio để đăng')];
+    const formats = [['txt', 'Văn bản'], ['epub', 'Ebook'], ['narration', 'Bản đọc TTS']].map(([k, label]) => { const on = S.fmt[k]; return { label, on, bd: on ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ fmt: Object.assign({}, S.fmt, { [k]: !on }) }) }; });
+    // project
+    const slugify = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').trim().split(/\s+/).filter(Boolean).join('-');
+    const adopt = S.projMode === 'adopt';
+    const projSlug = adopt ? 'dit-dang-audio' : (slugify(S.projName) || '[ten-thu-muc]');
+    const clash = !adopt && projSlug === 'dit-dang-audio';
+    const projModes = [
+      { k: 'adopt', icon: 'i-folder', title: 'Dùng thư mục có sẵn', desc: 'Đã có 1 truyện trong thư viện · Noverse gom thành một dự án' },
+      { k: 'new', icon: 'i-add-square', title: 'Tạo dự án mới', desc: 'Bắt đầu trống, có sẵn Ý tưởng · Tư liệu · Truyện · Bản xuất' }
+    ].map((m) => Object.assign(m, { sel: S.projMode === m.k, bd: S.projMode === m.k ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: S.projMode === m.k ? 'rgba(201,166,245,0.06)' : '#131315', ic: S.projMode === m.k ? '#C9A6F5' : '#A0A0AB', pick: () => this.setState({ projMode: m.k, projName: m.k === 'adopt' ? 'Kênh truyện audio' : 'Truyện Ngắn Đêm Khuya' }) }));
+    // password strength
+    const np = S.newPw; let sc = 0; if (np.length >= 8) { sc = 1; if (np.length >= 12) sc++; if (/[^a-zA-Z0-9]/.test(np)) sc++; if (/\d/.test(np) && /[a-zA-Z]/.test(np)) sc++; }
+    const scColor = ['#FF9AA2', '#FF9AA2', '#F6CB8C', '#A6EDC1', '#A6EDC1'][sc];
+    const strength = { bars: [0, 1, 2, 3].map((i) => i < sc ? scColor : '#222225'), color: np.length && np.length < 8 ? '#FF9AA2' : '#A0A0AB', label: !np.length ? 'Ít nhất 8 ký tự' : np.length < 8 ? 'Cần ít nhất 8 ký tự (còn ' + (8 - np.length) + ')' : ['', 'Yếu', 'Tạm được', 'Mạnh', 'Rất mạnh'][sc] };
+    // labels
+    const LABEL = { profile: 'Hồ sơ', password: 'Mật khẩu riêng', language: 'Ngôn ngữ sáng tác', provider: 'Nhà cung cấp AI', model: 'Model & trợ lý', library: 'Nơi lưu truyện', project: 'Dự án đầu tiên', mobile: isAdmin ? 'Điện thoại & nhóm' : 'Điện thoại', done: 'Hoàn tất' };
+    const VALUE = { profile: me.name + ' · @' + me.username, password: np.length >= 8 ? 'đã đổi' : 'nên đổi mật khẩu tạm', language: S.lang === 'vi' ? 'Tiếng Việt' : 'Tiếng Trung', provider: cur.label, model: mainModel + (S.shared ? ' · dùng chung' : ' · riêng từng trợ lý'), library: this.libWhere(S, P) + ' · tự xuất bản ' + (S.autoExport ? 'bật' : 'tắt'), project: S.projName, mobile: isAdmin ? 'QR · mời 1 người' : 'QR', done: '' };
+    const OPTIONAL = { project: true, mobile: true, password: true };
+    const rail = steps.map((k, i) => ({ label: LABEL[k], value: i < idx ? VALUE[k] : i === idx ? 'đang thiết lập' : '', done: i < idx, cur: i === idx, todo: i > idx, aria: i === idx ? 'step' : 'false', locked: i > idx, optional: !!OPTIONAL[k] && i > idx, bd: i === idx ? 'rgba(201,166,245,0.35)' : 'transparent', bg: i === idx ? '#1E1E21' : 'transparent', fg: i > idx ? '#7E7E8A' : '#EDEDEF', fw: i === idx ? 600 : 400, go: () => go(i) }));
+    const left = steps.length - 1 - idx;
+    // preview JSON
+    const C = { k: '#B9D0F7', s: '#A6EDC1', n: '#F6CB8C', p: '#7E7E8A', c: '#5E5E68' };
+    const code = [];
+    const line = (depth, segs, hot) => code.push({ pad: (12 + depth * 14) + 'px', segs, bg: hot ? 'rgba(201,166,245,0.09)' : 'transparent' });
+    const kv = (depth, k, v, hot, comma) => { const vs = typeof v === 'number' || typeof v === 'boolean' ? { t: String(v), c: C.n } : { t: JSON.stringify(v), c: C.s }; line(depth, [{ t: JSON.stringify(k), c: C.k }, { t: ': ', c: C.p }, vs, { t: comma === false ? '' : ',', c: C.p }], hot); };
+    const open = (depth, k, br, hot) => line(depth, k ? [{ t: JSON.stringify(k), c: C.k }, { t: ': ' + br, c: C.p }] : [{ t: br, c: C.p }], hot);
+    const close = (depth, br) => line(depth, [{ t: br, c: C.p }]);
+    const cm = (depth, t) => line(depth, [{ t: '// ' + t, c: C.c }]);
+    let file = '', fileNote = '', previewNote = '', previewGap = false;
+    if (key === 'profile') {
+      file = '~/.ainovel/web-accounts.json'; fileNote = 'users[]';
+      open(0, '', '{'); kv(1, 'username', me.username); kv(1, 'name', me.name, true); kv(1, 'role', isAdmin ? 'admin' : 'writer'); open(1, 'books', '['); line(2, [{ t: isAdmin ? '' : '"dit-dang-audio/01-tra-xanh-cuop-kich-ban"', c: C.s }]); close(1, '],'); kv(1, 'disabled', false); cm(1, 'passwordHash, createdAt… giữ nguyên'); close(0, '}');
+      previewNote = isAdmin ? 'Quản trị viên đổi tên của chính mình qua POST /api/users/' + me.username + '.' : 'Người viết cần API đổi tên của chính mình (GAP-14).';
+      previewGap = !isAdmin;
+    } else if (key === 'password') {
+      file = 'POST /api/me/password'; fileNote = 'API có sẵn';
+      open(0, '', '{'); kv(1, 'current', '••••••••••'); kv(1, 'new', np ? '•'.repeat(Math.min(np.length, 14)) : '', true, false); close(0, '}');
+      cm(0, 'giữ phiên hiện tại, đăng xuất phiên khác');
+      previewNote = 'Sai mật khẩu hiện tại → 403 “Mật khẩu hiện tại không đúng”; thử sai nhiều lần → 429.';
+    } else if (['language', 'provider', 'model'].indexOf(key) >= 0) {
+      file = '~/.ainovel/config.json'; fileNote = 'toàn cục';
+      const prov = cur.name;
+      open(0, '', '{'); kv(1, 'provider', prov, key === 'provider'); kv(1, 'model', mainModel, key === 'model'); kv(1, 'reasoning_effort', S.effort, key === 'model'); kv(1, 'language', S.lang, key === 'language'); kv(1, 'style', 'default');
+      open(1, 'providers', '{'); open(2, prov, '{', key === 'provider');
+      if (prov !== 'openai-codex') { kv(3, 'api_key', 'sk-…' , key === 'provider'); if (pk[3]) kv(3, 'base_url', pk[3], key === 'provider'); }
+      open(3, 'models', '['); line(4, [{ t: '{ ', c: C.p }, { t: '"name"', c: C.k }, { t: ': ', c: C.p }, { t: JSON.stringify(mainModel), c: C.s }, { t: ' }', c: C.p }], key === 'model'); close(3, ']'); close(2, '}'); close(1, '},');
+      if (!S.shared) { open(1, 'roles', '{'); line(2, [{ t: '"architect"', c: C.k }, { t: ': { "reasoning_effort": "high" },', c: C.p }], key === 'model'); line(2, [{ t: '"editor"', c: C.k }, { t: ': { "reasoning_effort": "high" }', c: C.p }], key === 'model'); close(1, '}'); } else { line(1, [{ t: '"roles"', c: C.k }, { t: ': {}', c: C.p }]); }
+      close(0, '}');
+      previewNote = key === 'provider' ? 'Kiểm tra kết nối và lưu cấu hình cần API đọc/ghi config (GAP-5); đăng nhập ChatGPT từ web cần GAP-16 (dùng lại internal/auth).' : key === 'model' ? 'Trọng tài luôn dùng model chính — engine chưa cho cấu hình riêng.' : 'Ghi đè được bằng project.json của từng dự án.';
+      previewGap = key !== 'language';
+    } else if (key === 'library') {
+      file = '~/Truyen/.ainovel/library.json'; fileNote = 'thư viện'; previewGap = true;
+      open(0, '', '{'); open(1, 'dirs', '{'); kv(2, 'ideas', D.y, true); kv(2, 'assets', D.t, true); kv(2, 'stories', D.k, true); kv(2, 'exports', D.x, true, false); close(1, '},'); kv(1, 'slug', '{nn}-{ten-truyen}'); open(1, 'autoExport', '{'); kv(2, 'onVolumeDone', S.autoExport, true); line(2, [{ t: '"formats"', c: C.k }, { t: ': [', c: C.p }, { t: ['txt', 'epub', 'narration'].filter((k) => S.fmt[k]).map((k) => '"' + k + '"').join(', '), c: C.s }, { t: '],', c: C.p }]); kv(2, 'pattern', 'tap-{tap}/{truyen}.tap-{tap}.{ext}', false, false); close(1, '}'); close(0, '}');
+      previewNote = 'Cấu hình thư viện là phần mới (GAP-13, xuất tự động GAP-4). Cài đặt › Thư viện dùng cùng tệp này.';
+    } else if (key === 'project') {
+      file = projSlug + '/project.json'; fileNote = adopt ? 'thêm mới' : 'tạo mới'; previewGap = true;
+      open(0, '', '{'); kv(1, 'name', S.projName, true); kv(1, 'description', 'Truyện audio drama đô thị, nhịp nhanh…'); kv(1, 'language', S.lang); kv(1, 'notes', '', false, false); close(0, '}');
+      cm(0, adopt ? 'kich_ban/01-…/story.json suy từ meta/book.json' : '.ainovel/  ' + D.y + '/  ' + D.t + '/  ' + D.k + '/');
+      previewNote = 'Dự án 3 cấp cần backend (GAP-1/2/9).';
+    } else if (key === 'mobile') {
+      file = 'POST /api/me/pairings'; fileNote = 'API có sẵn';
+      open(0, '', '{'); kv(1, 'code', '9f3c…e21a'); kv(1, 'username', me.username); kv(1, 'expiresAt', '2026-10-24T16:42:00Z'); open(1, 'links', '['); line(2, [{ t: '{ "label": ', c: C.p }, { t: '"192.168.1.12:8686"', c: C.s }, { t: ', "url", "svg" }', c: C.p }]); close(1, ']'); close(0, '}');
+      if (isAdmin) { cm(0, 'POST /api/users'); open(0, '', '{'); kv(1, 'username', 'linh', true); kv(1, 'role', 'writer', true); line(1, [{ t: '"books"', c: C.k }, { t: ': [', c: C.p }, { t: '"dit-dang-audio/01-…"', c: C.s }, { t: '],', c: C.p }], true); kv(1, 'password', '••••••••', false, false); close(0, '}'); }
+      previewNote = 'Mã dùng một lần, hết hạn sau 5 phút. Trang dò GET /api/me/sessions để biết điện thoại đã vào.';
+    } else {
+      file = 'Đã ghi'; fileNote = isAdmin ? '4 tệp' : '2 thay đổi';
+      const done = isAdmin ? [['~/.ainovel/web-accounts.json', 'tên hiển thị'], ['~/.ainovel/config.json', 'provider · model · ngôn ngữ'], ['~/Truyen/.ainovel/library.json', 'thư mục · xuất bản'], [projSlug + '/project.json', 'dự án']] : [['web-accounts.json', 'tên hiển thị'], ['/api/me/password', 'mật khẩu mới']];
+      done.forEach(([f, d]) => line(0, [{ t: '✓ ', c: '#A6EDC1' }, { t: f, c: '#C9C9D1' }, { t: '  ' + d, c: C.c }]));
+      previewNote = 'Đánh dấu đã thiết lập để lần sau vào thẳng Bàn viết (GAP-15).'; previewGap = true;
+    }
+    const nm = S.name ?? me.name;
+    return {
+      stepNo: idx + 1, stepTotal: steps.length, pct: Math.round((idx + 1) / steps.length * 100) + '%', me,
+      fromSetup: isAdmin, railTitle: isAdmin ? 'Thiết lập thư viện' : 'Bắt đầu', leftLabel: left ? left + ' bước còn lại' : 'xong', rail,
+      railNote: isAdmin ? 'Đã dùng Noverse trước đây? Thiết lập cũ được giữ nguyên — chỉ cần kiểm tra lại.' : 'Nhà cung cấp AI, model và thư viện do quản trị viên quản lý.',
+      s: { profile: key === 'profile', password: key === 'password', language: key === 'language', provider: key === 'provider', model: key === 'model', library: key === 'library', project: key === 'project', mobile: key === 'mobile', done: key === 'done' },
+      isAdmin, isWriter: !isAdmin,
+      welcome: isAdmin ? 'Chào mừng đến Noverse, ' + nm : 'Chào ' + nm + ', bạn đã vào thư viện của Dat',
+      welcomeSub: isAdmin ? 'Vài bước để bốn trợ lý AI sẵn sàng viết truyện. Mọi thứ đổi lại được trong Tuỳ chỉnh.' : 'Bạn là Người viết: viết và can thiệp các truyện được giao, tạo truyện mới.',
+      agents: [
+        { orb: 'o-architect', name: 'Kiến trúc sư', desc: 'Lên dàn ý, nhân vật, chi tiết cài cắm' },
+        { orb: 'o-writer', name: 'Người viết', desc: 'Viết từng chương theo kế hoạch' },
+        { orb: 'o-editor', name: 'Biên tập viên', desc: 'Thẩm duyệt, yêu cầu viết lại' },
+        { orb: 'o-arbiter', name: 'Trọng tài', desc: 'Phân xử khi bạn can thiệp' }
+      ],
+      nameVal: nm, onName: (e) => this.setState({ name: e.target.value }),
+      newPw: S.newPw, onNewPw: (e) => this.setState({ newPw: e.target.value }), strength,
+      langs: [
+        { code: 'vi', name: 'Tiếng Việt', desc: 'Mặc định · sáng tác văn phong Việt tự nhiên', sample: 'Đêm đó, cô đẩy cánh cửa phòng thu, và kịch bản trên bàn đã không còn là của cô.' }
+      ].map((l) => Object.assign(l, { sel: S.lang === l.code, bd: S.lang === l.code ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.08)', bg: S.lang === l.code ? 'rgba(201,166,245,0.05)' : '#131315', ic: S.lang === l.code ? '#C9A6F5' : '#7E7E8A', pick: () => this.setState({ lang: l.code }) })),
+      cur, detBd: S.test === 'ok' ? 'rgba(166,237,193,0.35)' : 'rgba(255,255,255,0.07)',
+      testIdle: S.test === 'idle', testing: S.test === 'run', testOk: S.test === 'ok',
+      runTest: () => { this.setState({ test: 'run' }); setTimeout(() => this.setState({ test: 'ok' }), 1200); },
+      changing: changingEff, changeLabel: changingEff ? 'Giữ cấu hình cũ' : 'Đổi nhà cung cấp', toggleChange: () => this.setState({ changing: !changingEff, oauthFor: OP, pick: pickName, oauth: 'idle', test: 'idle', model: 0 }),
+      providers, pick,
+      oauthIdle: oauthEff === 'idle', oauthWaitBrowser: oauthEff === 'browser', oauthWaitDevice: oauthEff === 'device', oauthDone: oauthEff === 'done', showGrid: !(oauthEff === 'done' && pickName === 'openai-codex'), oauthFailed: oauthEff === 'failed',
+      oauthVia: S.via === 'device' ? 'qua mã thiết bị' : 'qua trình duyệt',
+      oauthBrowser: () => { setO('browser'); this.setState({ via: 'browser' }); setTimeout(() => this.setState({ oauth: 'done', oauthFor: OP }), 2600); },
+      oauthDevice: () => { setO('device'); this.setState({ via: 'device' }); setTimeout(() => this.setState({ oauth: 'done', oauthFor: OP }), 3200); },
+      oauthRetry: () => setO('idle'), oauthLogout: () => setO('idle'),
+      models, efforts, shared: S.shared, toggleShared: () => this.setState({ shared: !S.shared }), swBg: S.shared ? '#EDEDEF' : '#2A2A2E', swJ: S.shared ? '16px' : '0px', swDot: S.shared ? '#0B0B0D' : '#7E7E8A', roleRows,
+      ...this.libVals(S, P),
+      dirChips: [['i-lamp', 'Ý tưởng', 'Ghi nhanh ý tưởng truyện', '#F6CB8C'], ['i-box', 'Tư liệu', 'Bìa, nhạc nền, giọng mẫu', '#9DB0F7'], ['i-book', 'Truyện', 'Bản thảo do trợ lý viết', '#C9A6F5'], ['i-export', 'Bản xuất', 'Văn bản, ebook, bản đọc TTS, sách nói', '#A6EDC1']].map(([icon, label, note, c]) => ({ icon, label, note, c })),
+      dirs, dirXuat: D.x, autoExport: S.autoExport, toggleExport: () => this.setState({ autoExport: !S.autoExport }), exBg: S.autoExport ? '#EDEDEF' : '#2A2A2E', exJ: S.autoExport ? '16px' : '0px', exDot: S.autoExport ? '#0B0B0D' : '#7E7E8A', exOp: S.autoExport ? 1 : 0.4, formats,
+      projModes, adopt, projName: S.projName, onProjName: (e) => this.setState({ projName: e.target.value }), projSlug,
+      slugMsg: adopt ? 'Giữ nguyên tên thư mục hiện có' : clash ? 'Đã có dự án trùng tên trong thư viện' : 'Hợp lệ · tạo tự động từ tên hiển thị', slugIcon: clash ? 'i-warning' : 'i-tick-b', slugColor: clash ? '#FF9AA2' : '#A6EDC1', slugBd: clash ? 'rgba(255,154,162,0.6)' : 'rgba(255,255,255,0.1)',
+      mobGrid: isAdmin ? 'minmax(0, 1fr) minmax(0, 1fr)' : 'minmax(0, 340px)', qrLeft: '04:37', qrHome: (S.where || 'home') === 'home', qrOut: S.where === 'out', zoomQr: () => this.setState({ qrZoom: !S.qrZoom }), qrZoom: !!S.qrZoom,
+      qrWhere: [['home', 'Ở nhà', 'cùng Wi-Fi', 'i-wifi'], ['out', 'Ra ngoài', 'qua Tailscale', 'i-global']].map(([k, t, sub, icon]) => { const on = (S.where || 'home') === k; return { t, sub, icon, on, bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ where: k }) }; }),
+      copyQrLink: () => this.setState({ qrCopied: true }), qrCopyIcon: S.qrCopied ? 'i-tick' : 'i-link', qrCopyLabel: S.qrCopied ? 'Đã chép' : 'Chép đường dẫn',
+      invUser: S.invUser == null ? 'linh' : S.invUser, onInvUser: (e) => this.setState({ invUser: e.target.value.toLowerCase(), invDone: false }),
+      invHint: /^[a-z0-9._-]{2,32}$/.test(S.invUser == null ? 'linh' : S.invUser) ? 'Chữ thường không dấu, số, dấu chấm hoặc gạch' : 'Chỉ dùng chữ thường không dấu, số, “.”, “_” hoặc “-” (2–32 ký tự)', invHintFg: /^[a-z0-9._-]{2,32}$/.test(S.invUser == null ? 'linh' : S.invUser) ? '#7E7E8A' : '#FF9AA2',
+      invRoles: [['writer', 'Người viết', 'viết & góp ý'], ['reader', 'Người đọc', 'chỉ đọc, xuất']].map(([k, t, sub]) => { const on = (S.invRole || 'writer') === k; return { t, sub, on, bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ invRole: k }) }; }),
+      invPw: ['vang-may-7314', 'nang-moc-5184', 'gio-bac-2209'][S.pwI || 0], newPw: () => this.setState({ pwI: ((S.pwI || 0) + 1) % 3, pwCopied: false }), copyPw: () => this.setState({ pwCopied: true }), pwCopyIcon: S.pwCopied ? 'i-tick' : 'i-copy',
+      invBad: !/^[a-z0-9._-]{2,32}$/.test(S.invUser == null ? 'linh' : S.invUser), invBg: /^[a-z0-9._-]{2,32}$/.test(S.invUser == null ? 'linh' : S.invUser) ? '#EDEDEF' : 'rgba(255,255,255,0.08)', invFg: /^[a-z0-9._-]{2,32}$/.test(S.invUser == null ? 'linh' : S.invUser) ? '#0B0B0D' : '#7E7E8A',
+      invDone: !!S.invDone, invNotDone: !S.invDone, createInv: () => this.setState({ invDone: true }), copyInvite: () => this.setState({ invCopied: true }), inviteCopyLabel: S.invCopied ? 'Đã chép' : 'Chép lời mời (địa chỉ + tên + mật khẩu tạm)',
+      mobileTitle: isAdmin ? 'Điện thoại & người cùng viết' : 'Mở Noverse trên điện thoại',
+      mobileLead: isAdmin ? 'Theo dõi và can thiệp ngay trên điện thoại. Thêm tài khoản cho người cộng tác — mỗi người chỉ thấy truyện được giao.' : 'Quét mã để đăng nhập trên điện thoại, không cần gõ mật khẩu.',
+      doneLead: isAdmin ? 'Thư viện, model và dự án đã sẵn sàng. Bắt đầu bằng một câu ý tưởng — Kiến trúc sư sẽ lo phần còn lại.' : 'Mở truyện được giao để xem Người viết làm việc, hoặc tạo truyện mới.',
+      summary: (isAdmin ? [
+        ['i-user', 'Tài khoản', nm + ' · @' + me.username + ' · Quản trị', '', 0], ['i-cloud', 'Nhà cung cấp', cur.label, '', 1], ['i-cpu', 'Model', mainModel + ' · suy luận ' + effLabel.toLowerCase(), '', 2], ['i-folder', 'Nơi lưu truyện', this.libWhere(S, P), '', 3], ['i-book', 'Dự án', S.projName, '', 4]
+      ] : [['i-user', 'Tài khoản', nm + ' · @' + me.username + ' · Người viết', '', 0], ['i-pwd', 'Mật khẩu', np.length >= 8 ? 'Đã đặt mật khẩu riêng' : 'Vẫn dùng mật khẩu tạm', '', 1], ['i-book', 'Truyện được giao', 'Trà Xanh Cướp Kịch Bản…', '', 0]]).map(([icon, k, v, cls, step], i) => ({ icon, k, v, cls, ic: '#A6EDC1', bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', go: () => go(step) })),
+      tips: [
+        { icon: 'i-messages', title: 'Can thiệp bất cứ lúc nào', desc: 'Gõ vào ô chat khi trợ lý đang viết — Trọng tài phân xử.' },
+        { icon: 'i-command', title: 'Bảng lệnh ⌘K', desc: 'Gõ / để duyệt chương, xuất bản, viết lại…' },
+        { icon: 'i-mobile', title: 'Theo dõi trên điện thoại', desc: 'Ảnh đại diện → Đăng nhập điện thoại bằng QR.' }
+      ],
+      canBack: idx > 0, back: () => go(idx - 1), next: () => go(idx + 1),
+      canSkip: !!OPTIONAL[key], isLast: key === 'done', notLast: key !== 'done',
+      lastHref: isAdmin ? 'NewStory.dc.html' : 'Main.dc.html', lastLabel: isAdmin ? 'Viết truyện đầu tiên' : 'Mở truyện được giao',
+      nextLabel: key === 'provider' && S.test !== 'ok' && !changingEff ? 'Dùng cấu hình này' : 'Tiếp tục', nextHint: 'tiếp tục',
+      plainTitle: key === 'done' ? 'Đã lưu' : 'Thiết lập sẽ lưu',
+      plain: ({
+        profile: [['Tên hiển thị', nm], ['Vai trò', me.roleLabel]],
+        password: [['Mật khẩu', np.length >= 8 ? 'Mật khẩu mới của riêng bạn' : 'Chưa đổi'], ['Thiết bị khác', 'Sẽ được đăng xuất để an toàn']],
+        language: [['Ngôn ngữ viết truyện', VALUE.language], ['Ngôn ngữ giao diện', 'Tiếng Việt']],
+        provider: [['Nhà cung cấp AI', cur.label], ['Trạng thái', (!changingEff || oauthEff === 'done' || S.test === 'ok') ? 'Đã kết nối' : 'Chưa kết nối']],
+        model: [['Model chính', mainModel], ['Mức suy luận', effLabel], ['Các trợ lý', S.shared ? 'Dùng chung model chính' : 'Kiến trúc sư và Biên tập viên đặt riêng']],
+        library: [['Lưu ở', this.libWhere(S, P)], ['Mỗi dự án có', 'Ý tưởng · Tư liệu · Truyện · Bản xuất'], ['Tự xuất bản khi xong một tập', S.autoExport ? ['txt', 'epub', 'narration'].filter((k) => S.fmt[k]).map((k) => ({ txt: 'Văn bản', epub: 'Ebook', narration: 'Bản đọc TTS' })[k]).join(' + ') : 'Tắt']],
+        project: [['Dự án', S.projName], ['Thư mục', projSlug], ['Cách tạo', adopt ? 'Dùng thư mục có sẵn, giữ nguyên nội dung' : 'Tạo thư mục mới']],
+        mobile: isAdmin ? [['Điện thoại', 'Mã QR dùng một lần, hết hạn sau 5 phút'], ['Người cùng viết', 'linh · Người viết · 1 truyện']] : [['Điện thoại', 'Mã QR dùng một lần, hết hạn sau 5 phút']],
+        done: isAdmin ? [['Tài khoản', nm], ['Nhà cung cấp & model', cur.label + ' · ' + mainModel], ['Nơi lưu & dự án', this.libWhere(S, P) + ' · ' + S.projName]] : [['Tài khoản', nm], ['Mật khẩu', np.length >= 8 ? 'Đã đổi' : 'Vẫn là mật khẩu tạm']]
+      }[key] || []).map(([k, v], i) => ({ k, v, bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none' })),
+      showTech: isAdmin, showRecovery: isAdmin, rcIcon: S.rcCopied ? 'i-tick' : 'i-copy', rcLabel: S.rcCopied ? 'Đã chép' : 'Chép', copyRecovery: () => this.setState({ rcCopied: true }), techOpen: !!S.tech, techIcon: S.tech ? 'i-arrow-d' : 'i-arrow-r', toggleTech: () => this.setState({ tech: !S.tech }),
+      file, fileNote, code, previewNote, previewGap
+    };
+  }
+}
+</script>
+</body>
+</html>

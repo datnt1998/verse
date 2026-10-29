@@ -1,0 +1,20 @@
+{
+  "id": "ed-clean-01",
+  "category": "quality",
+  "role": "editor",
+  "description": "Case đối chứng: chương 3 nhất quán với hai chương trước và dữ kiện lưu; đáp án đúng là không có issue mức error.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-clean-01",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [{ "severity_min": "error" }]
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

@@ -1,0 +1,48 @@
+/* CmdResults.dc.html — chuyển động & hover của thẻ kết quả lệnh và bảng /model, /diag (14-jobs-dock §2). */
+.cr-rise { animation: cr-rise .45s cubic-bezier(.2, .9, .25, 1.05) both; }
+@keyframes cr-rise { from { opacity: 0; transform: translateY(14px) scale(.985) } to { opacity: 1; transform: none } }
+.cr-dlg-in { animation: cr-dlg-in .38s cubic-bezier(.2, .9, .25, 1.08) both; }
+@keyframes cr-dlg-in { from { opacity: 0; transform: translateY(10px) scale(.97) } to { opacity: 1; transform: none } }
+.cr-toast { animation: cr-rise .4s cubic-bezier(.2, .9, .25, 1.1) both; }
+
+.cr-crow:hover { background: rgba(255, 255, 255, .045) !important; }
+.cr-tbtn:hover:not(:disabled) { background: rgba(255, 255, 255, .1) !important; }
+.cr-primary:hover:not(:disabled) { background: #FFFFFF !important; }
+
+.cr-spinner {
+  width: 14px; height: 14px; border-radius: 50%; flex: 0 0 auto;
+  border: 2px solid rgba(255, 255, 255, .16); border-top-color: #EDEDEF;
+  animation: cr-spin .9s linear infinite;
+}
+@keyframes cr-spin { to { transform: rotate(360deg) } }
+.cr-orbit { animation: cr-spin 3.2s linear infinite; }
+
+.cr-shim {
+  background: linear-gradient(90deg, #A0A0AB 0%, #A0A0AB 35%, #F3E8FF 50%, #A0A0AB 65%, #A0A0AB 100%);
+  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: cr-shim 2.4s linear infinite;
+}
+@keyframes cr-shim { from { background-position: 100% 0 } to { background-position: -100% 0 } }
+
+.cr-skel {
+  background: linear-gradient(90deg, #17171A 0%, #1F1F23 40%, #17171A 80%);
+  background-size: 200% 100%; animation: cr-shim 1.4s linear infinite; border-radius: 10px;
+}
+
+.cr-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .07); overflow: hidden; }
+.cr-bar > i { display: block; height: 100%; border-radius: 3px; transition: width .2s linear; }
+.cr-indet > i { width: 30% !important; animation: cr-indet 1.4s cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes cr-indet { from { transform: translateX(-110%) } to { transform: translateX(360%) } }
+
+.cr-cell { transition: background .25s, transform .25s; }
+.cr-cell.cr-on { animation: cr-cell-pop .35s cubic-bezier(.2, .9, .3, 1.5); }
+@keyframes cr-cell-pop { 0% { transform: scale(.6) } 100% { transform: none } }
+
+.cr-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: cr-draw .5s ease-out .15s forwards; }
+@keyframes cr-draw { to { stroke-dashoffset: 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-rise, .cr-dlg-in, .cr-toast, .cr-spinner, .cr-orbit, .cr-shim, .cr-skel, .cr-indet > i, .cr-cell.cr-on, .cr-draw { animation: none !important; }
+  .cr-draw { stroke-dashoffset: 0; }
+  .cr-shim { color: #A0A0AB; background: none; }
+}

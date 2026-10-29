@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Audio ngoài app</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:#141416;border:1px solid rgba(255,255,255,.07)}
+.seg button{height:30px;padding:0 12px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:13px;white-space:nowrap}
+.seg button.on{background:#232326;color:#EDEDEF;font-weight:500}
+.cap{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.06em;color:#8E8E99;text-transform:uppercase}
+.frame{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+/* bìa: kích thước qua --s */
+.cov{position:relative;width:var(--s);height:var(--s);flex:0 0 auto;border-radius:calc(var(--s) * .12);overflow:hidden;font-size:calc(var(--s) / 9);display:flex;flex-direction:column;justify-content:space-between;padding:.62em .6em .55em;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset}
+.cov.up{background:radial-gradient(120% 90% at 80% 10%,#F6CB8C 0%,rgba(246,203,140,0) 45%),radial-gradient(90% 80% at 10% 100%,#C9457F 0%,rgba(201,69,127,0) 60%),linear-gradient(160deg,#2B1A3A 0%,#5A2E5E 55%,#1C1426 100%)}
+.cov.up::after{content:"";position:absolute;left:52%;top:18%;width:38%;height:62%;border-radius:40% 40% 8% 8%;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.02));filter:blur(.5px)}
+.cov.gen{background:radial-gradient(110% 90% at 0% 0%,#7896F2 0%,rgba(120,150,242,0) 55%),radial-gradient(100% 90% at 100% 100%,#C9457F 0%,rgba(201,69,127,0) 55%),linear-gradient(140deg,#24224A,#3B2A5C 60%,#2A1830)}
+.cov .ct{position:relative;z-index:1;font-weight:700;line-height:1.08;letter-spacing:-.01em}
+.cov .cv{position:relative;z-index:1;font-size:.62em;font-weight:500;opacity:.85}
+.cov .cb{position:relative;z-index:1;font-size:.52em;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75;display:flex;align-items:center;gap:.4em}
+.cov .cb i{width:.9em;height:.9em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#C9A6F5 60%,#7C93F3)}
+.cov.small .ct{font-size:.95em}.cov.small .cv,.cov.small .cb{display:none}
+.cov.bad{background:#C5A9EE;color:#1A1426;align-items:center;justify-content:center;font-size:calc(var(--s) / 3);font-weight:500;padding:0}
+.scrub{height:6px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+.scrub>i{display:block;height:100%;background:rgba(255,255,255,.85);border-radius:3px}
+.bad-note{position:absolute;z-index:3;display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#3A1F24;border:1px solid rgba(255,159,168,.5);color:#FFC4CA;font-size:11.5px;font-weight:500;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.mt{display:grid;grid-template-columns:150px minmax(0,1.25fr) repeat(3,minmax(0,1fr));font-size:12.5px}
+.mt>span{padding:9px 10px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;min-width:0;line-height:1.4}
+.mt>span.h{border-top:none;font-size:11.5px;color:#8E8E99;padding-top:4px}
+.mt code{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px;color:#C8D3F8}
+.rule{display:flex;gap:10px;font-size:13px;line-height:1.5;color:#C9C9D1}
+.rule .ic{flex:0 0 auto;margin-top:2px}
+.tbtn{height:32px;width:32px;border-radius:50%;border:none;background:transparent;color:inherit;display:flex;align-items:center;justify-content:center}
+.i-back10{-webkit-mask-image:url(../icons/backward-10seconds.svg);mask-image:url(../icons/backward-10seconds.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-code{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-download{-webkit-mask-image:url(../icons/document-download.svg);mask-image:url(../icons/document-download.svg)}
+.i-fwd10{-webkit-mask-image:url(../icons/forward-10seconds.svg);mask-image:url(../icons/forward-10seconds.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-next{-webkit-mask-image:url(../icons/next.svg);mask-image:url(../icons/next.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-prev{-webkit-mask-image:url(../icons/previous.svg);mask-image:url(../icons/previous.svg)}
+.i-tag{-webkit-mask-image:url(../icons/tag.svg);mask-image:url(../icons/tag.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="scroll" style="height: 100vh; overflow: auto; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased">
+<div style="max-width: 1360px; margin: 0 auto; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 22px">
+
+<!-- header -->
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="min-width: 0"><h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Audio ngoài app — màn khoá, thông báo, tệp tải về</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A0A0AB; max-width: 760px">Mọi nơi hiển thị lấy từ <b style="color: #EDEDEF; font-weight: 600">một bộ thông tin</b>: tên chương, tên truyện và tập, người đọc là <b style="color: #EDEDEF; font-weight: 600">Noverse Audio</b>, bìa truyện. Không bao giờ hiện trạng thái nội bộ (“Chưa chọn giọng”, “Đang tạo…”) hay chữ viết tắt thay bìa.</p></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<div class="seg" role="radiogroup" aria-label="Đang phát"><sc-for list="{{scopes}}" as="o" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{o.on}}" class="{{o.cls}}" onClick="{{o.pick}}">{{o.t}}</button></sc-for></div>
+<div class="seg" role="radiogroup" aria-label="Bìa"><sc-for list="{{covers}}" as="o" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{o.on}}" class="{{o.cls}}" onClick="{{o.pick}}">{{o.t}}</button></sc-for></div>
+<button type="button" onClick="{{toggleCmp}}" aria-pressed="{{cmpOn}}" style="height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid {{cmpBd}}; background: {{cmpBg}}; color: {{cmpFg}}; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px"></span>So với bản hiện tại</button>
+</div>
+</div>
+
+<!-- surfaces -->
+<div style="display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr); gap: 18px">
+
+<!-- iPhone lock screen -->
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-mobile" aria-hidden="true" style="width: 14px; height: 14px"></span>Màn khoá iPhone</span>
+<div class="frame" style="height: 300px; background: radial-gradient(80% 60% at 30% 20%, #6B5A55, transparent 70%), radial-gradient(70% 60% at 80% 70%, #3E3A44, transparent 70%), linear-gradient(180deg, #4A4148, #26222A); padding: 18px 14px">
+<div style="position: relative; border-radius: 26px; padding: 14px 16px 12px; background: rgba(150,140,150,0.35); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.18); color: #fff">
+<div style="display: flex; gap: 12px; align-items: center">
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><span class="cov {{covCls}} small" style="--s: 58px"><span class="ct">{{coverTitle}}</span></span></sc-if>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="cov bad" style="--s: 58px">CG</span></sc-if>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mTitle}}</span><span style="font-size: 14px; color: rgba(255,255,255,0.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{lockSub}}</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 11.5px; color: rgba(255,255,255,0.6)"><span class="num">{{tNow}}</span><span class="scrub" style="flex: 1"><i style="width: {{pct}}"></i></span><span class="num">−{{tLeft}}</span></div>
+<div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 6px"><button class="tbtn" type="button" aria-label="Lùi 10 giây"><span class="ic i-back10" aria-hidden="true" style="width: 26px; height: 26px"></span></button><button class="tbtn" type="button" onClick="{{togglePlay}}" aria-label="{{playAria}}" style="width: 44px; height: 44px"><span class="ic {{playIc}}" aria-hidden="true" style="width: 30px; height: 30px"></span></button><button class="tbtn" type="button" aria-label="Tới 10 giây"><span class="ic i-fwd10" aria-hidden="true" style="width: 26px; height: 26px"></span></button></div>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="bad-note" style="left: 84px; top: -12px"><span class="ic i-close-b" aria-hidden="true" style="width: 13px; height: 13px"></span>Hiện “Chưa chọn giọng”, bìa “CG”</span></sc-if>
+</div>
+<p style="margin: 12px 4px 0; font-size: 11.5px; color: rgba(255,255,255,0.55)">iPhone hiện tên và người đọc; tên truyện hiện ở trung tâm điều khiển và xe.</p>
+</div>
+</section>
+
+<!-- Android notification -->
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-mobile" aria-hidden="true" style="width: 14px; height: 14px"></span>Thông báo Android</span>
+<div class="frame" style="height: 300px; background: linear-gradient(180deg, #1D2230, #121520); padding: 18px 14px">
+<div style="position: relative; border-radius: 24px; overflow: hidden; padding: 14px 14px 12px; color: #fff; background: #2A2340">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(42,35,64,0.98) 35%, rgba(42,35,64,0.55)), radial-gradient(90% 120% at 100% 0%, #C9457F, transparent 60%)"></div>
+<div style="position: relative; display: flex; gap: 12px">
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden"><span class="ic i-headphone" aria-hidden="true" style="width: 13px; height: 13px; flex: 0 0 auto"></span><span style="overflow: hidden; text-overflow: ellipsis">Noverse · {{albumShort}}</span></span><span style="margin-top: 6px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mTitle}}</span><span style="font-size: 13.5px; color: rgba(255,255,255,0.72)">{{mArtist}}</span></span>
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><span class="cov {{covCls}}" style="--s: 76px"><span class="ct">{{coverTitle}}</span><span class="cb"><i></i>Noverse Audio</span></span></sc-if>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="cov bad" style="--s: 76px">CG</span></sc-if>
+</div>
+<div style="position: relative; display: flex; align-items: center; gap: 10px; margin-top: 14px"><span class="ic i-prev" aria-hidden="true" style="width: 20px; height: 20px; opacity: 0.85"></span><span class="ic i-back10" aria-hidden="true" style="width: 20px; height: 20px; opacity: 0.85"></span><button class="tbtn" type="button" onClick="{{togglePlay}}" aria-label="{{playAria}}" style="width: 40px; height: 40px; border-radius: 14px; background: rgba(255,255,255,0.16)"><span class="ic {{playIc}}" aria-hidden="true" style="width: 20px; height: 20px"></span></button><span class="ic i-fwd10" aria-hidden="true" style="width: 20px; height: 20px; opacity: 0.85"></span><span class="ic i-next" aria-hidden="true" style="width: 20px; height: 20px; opacity: 0.85"></span><span class="scrub" style="flex: 1; height: 4px"><i style="width: {{pct}}"></i></span></div>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="bad-note" style="left: 14px; top: 6px">Người đọc “Chưa chọn giọng”, bìa “CG”</span></sc-if>
+</div>
+<p style="margin: 12px 4px 0; font-size: 11.5px; color: rgba(255,255,255,0.55)">⏮ ⏭ = chương trước/sau khi đang nghe theo chương; nghe tệp cả tập thì nhảy theo mốc chương.</p>
+</div>
+</section>
+
+<!-- Desktop / browser media + car -->
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-monitor" aria-hidden="true" style="width: 14px; height: 14px"></span>Máy tính · trình duyệt & xe</span>
+<div class="frame" style="height: 300px; background: linear-gradient(180deg, #1A1A1E, #111113); padding: 16px 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; border-radius: 14px; background: #24242A; border: 1px solid rgba(255,255,255,0.08); padding: 12px; display: flex; gap: 12px; align-items: center">
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><span class="cov {{covCls}} small" style="--s: 54px"><span class="ct">{{coverTitle}}</span></span></sc-if>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="cov bad" style="--s: 54px">CG</span></sc-if>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mTitle}}</span><span style="font-size: 12.5px; color: #A0A0AB; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mArtist}}</span><span style="font-size: 12px; color: #7E7E8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mAlbum}}</span></span>
+<button class="tbtn" type="button" onClick="{{togglePlay}}" aria-label="{{playAria}}" style="background: rgba(255,255,255,0.08)"><span class="ic {{playIc}}" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+</div>
+<div style="position: relative; flex: 1; border-radius: 14px; background: #0E1013; border: 1px solid rgba(255,255,255,0.06); padding: 12px 14px; display: flex; gap: 14px; align-items: center">
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><span class="cov {{covCls}}" style="--s: 92px"><span class="ct">{{coverTitle}}</span><span class="cb"><i></i>Noverse</span></span></sc-if>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="cov bad" style="--s: 92px">CG</span></sc-if>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; line-height: 1.3"><span style="font-size: 11px; color: #6E6E78; letter-spacing: .06em">MÀN HÌNH XE · BLUETOOTH</span><span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mTitle}}</span><span style="font-size: 14px; color: #C9C9D1">{{mArtist}}</span><span style="font-size: 13px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mAlbum}}</span></span>
+</div>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><span class="bad-note" style="right: 18px; top: 88px">Thiếu tên truyện và tập</span></sc-if>
+</div>
+</section>
+</div>
+
+<!-- files -->
+<div style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 18px">
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-download" aria-hidden="true" style="width: 14px; height: 14px"></span>Tệp tải về · tin nhắn, Tệp, Finder</span>
+<div class="card" style="position: relative; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: flex-end"><div style="display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 12px 18px 12px 12px; border-radius: 22px; background: #2C2C30"><span class="cov {{fileCov}} small" style="--s: 48px; border-radius: 50%"><span class="ct" style="font-size: 0.8em">{{coverTitle}}</span></span><span style="min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="{{fileName}}">{{fileName}}</span><span class="num" style="font-size: 13px; color: #A0A0AB">{{fileSize}}</span></span></div></div>
+<sc-if value="{{cmp}}" hint-placeholder-val="{{ false }}"><div style="display: flex; justify-content: flex-end"><div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 12px; border-radius: 22px; background: #2C2C30; outline: 1.5px dashed rgba(255,159,168,0.6); outline-offset: 3px"><span style="width: 48px; height: 48px; border-radius: 50%; background: #5E5E68; display: flex; align-items: center; justify-content: center"><span class="ic i-doc" aria-hidden="true" style="width: 22px; height: 22px; color: #EDEDEF"></span></span><span style="display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 14.5px; font-weight: 600; text-decoration: line-through; text-decoration-color: #FF9FA8">Noverse.mp3</span><span class="num" style="font-size: 13px; color: #A0A0AB">22,5 MB · bản hiện tại</span></span></div></div></sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #A0A0AB">
+<span style="color: #C9C9D1; font-weight: 500">Quy tắc tên tệp (máy tính và điện thoại như nhau)</span>
+<span>• Theo chương: <b style="color: #EDEDEF; font-weight: 500">{Tên ngắn} · Tập 1 · Chương 04 · {Tên chương}.mp3</b></span>
+<span>• Cả tập: <b style="color: #EDEDEF; font-weight: 500">{Tên ngắn} · Tập 1.mp3</b> · nhiều chương gộp: <b style="color: #EDEDEF; font-weight: 500">{Tên ngắn} · Tập 1 · 3 chương.zip</b></span>
+<span>• Bản thử: thêm “(bản thử)” trước đuôi. Số chương luôn 2 chữ số để xếp đúng thứ tự.</span>
+<span>• Tên ngắn = tên ngắn của truyện; chưa đặt thì cắt tên truyện ở ranh giới từ, tối đa 32 ký tự. Bỏ ký tự cấm trong tên tệp (/ \ : * ? " &lt; &gt; |).</span>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-tag" aria-hidden="true" style="width: 14px; height: 14px"></span>Thông tin gắn trong tệp</span>
+<div class="card" style="border-radius: 18px; padding: 16px; display: flex; gap: 16px">
+<span class="cov {{fileCov}}" style="--s: 132px"><span class="ct">{{coverTitle}}</span><span class="cv">{{coverVol}}</span><span class="cb"><i></i>Noverse Audio</span></span>
+<div style="flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 6px 12px; font-size: 13px; align-content: start">
+<sc-for list="{{tags}}" as="t" hint-placeholder-count="9"><span style="color: #8E8E99">{{t.k}}</span><span style="color: #EDEDEF; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="{{t.v}}">{{t.v}}</span></sc-for>
+</div>
+</div>
+</section>
+</div>
+
+<!-- mapping table + rules -->
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px">
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-code" aria-hidden="true" style="width: 14px; height: 14px"></span>Ánh xạ cho dev</span>
+<div class="card" style="border-radius: 18px; padding: 10px 6px">
+<div class="mt"><span class="h">Trường</span><span class="h">Giá trị ({{scopeName}})</span><span class="h">Trình phát web</span><span class="h">MP3</span><span class="h">M4B</span>
+<sc-for list="{{map}}" as="m" hint-placeholder-count="9"><span style="color: #C9C9D1; font-weight: 500">{{m.k}}</span><span title="{{m.v}}" style="color: #EDEDEF"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{m.v}}</span></span><span><code>{{m.ms}}</code></span><span><code>{{m.id3}}</code></span><span><code>{{m.mp4}}</code></span></sc-for>
+</div>
+<p style="margin: 8px 10px 4px; font-size: 12px; color: #7E7E8A">WAV: ghi cả khối thông tin cơ bản (tên, người đọc, album) và khối ID3 như MP3. Trình phát web cập nhật ngay khi chuyển chương, kèm vị trí phát để thanh tua trên màn khoá chạy đúng.</p>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px"></span>Quy tắc</span>
+<div class="card" style="border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="6"><div class="rule"><span class="ic {{r.ic}}" aria-hidden="true" style="width: 15px; height: 15px; color: {{r.c}}"></span><span>{{r.t}}</span></div></sc-for>
+</div>
+</section>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scope":{"editor":"enum","options":["chapter","volume","trial"],"default":"chapter","section":"Đang phát"},"cover":{"editor":"enum","options":["uploaded","generated"],"default":"uploaded","section":"Bìa"},"compare":{"editor":"boolean","default":false,"section":"So với bản hiện tại"},"$preview":{"width":1440,"height":1320}}'>
+// icons used: i-warning i-mobile i-monitor i-headphone i-back10 i-fwd10 i-prev i-next i-play i-pause i-close-b i-download i-doc i-tag i-code i-info i-tick
+const STORY = 'Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc';
+const SHORT = 'Trà Xanh Cướp Kịch Bản';
+const CH = { n: 4, title: 'Bảy mươi ba giây', dur: 1171 };
+const VOL = { n: 1, total: 8, dur: 8671 };
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { scope: props.scope || 'chapter', cover: props.cover || 'uploaded', cmp: !!props.compare, playing: true, t: 312 }; }
+  componentDidUpdate(prev) { if (prev.scope !== this.props.scope || prev.cover !== this.props.cover || prev.compare !== this.props.compare) this.setState({ scope: this.props.scope || 'chapter', cover: this.props.cover || 'uploaded', cmp: !!this.props.compare }); }
+  componentDidMount() { this.iv = setInterval(() => { if (this.state.playing) this.setState({ t: this.state.t + 1 }); }, 1000); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p);
+    const vol = s.scope === 'volume', trial = s.scope === 'trial';
+    const pad = (n) => String(n).padStart(2, '0'); const mmss = (x) => { x = Math.max(0, Math.round(x)); const h = Math.floor(x / 3600), m = Math.floor(x % 3600 / 60), sec = x % 60; return (h ? h + ':' + pad(m) : m) + ':' + pad(sec); };
+    const dur = vol ? VOL.dur : CH.dur; const t = vol ? 3600 + 1450 + s.t : s.t;
+    const title = vol ? 'Chương 4 · Bảy mươi ba giây' : 'Chương ' + CH.n + ' · ' + CH.title + (trial ? ' (bản thử)' : '');
+    const album = STORY + ' · Tập ' + VOL.n;
+    const ext = 'mp3';
+    const fileName = vol ? SHORT + ' · Tập 1.' + ext : SHORT + ' · Tập 1 · Chương ' + pad(CH.n) + ' · ' + CH.title + (trial ? ' (bản thử)' : '') + '.' + ext;
+    const fileSize = vol ? '198 MB · 2:24:31' : (trial ? '13,4 MB · 19:31' : '22,5 MB · 19:31');
+    const covCls = s.cover === 'uploaded' ? 'up' : 'gen';
+    const tags = [
+      ['Tên', vol ? SHORT + ' · Tập 1' : title],
+      ['Người đọc', 'Noverse Audio'],
+      ['Album', album],
+      ['Nghệ sĩ album', 'Noverse Audio'],
+      ['Số bài', vol ? '1/1' : CH.n + '/' + VOL.total],
+      ['Số đĩa', 'Tập ' + VOL.n],
+      ['Thể loại', 'Sách nói'],
+      ['Năm', '2026'],
+      ['Mốc chương', vol ? '8 mốc · có tên chương' : 'không (tệp một chương)'],
+      ['Ghi chú', 'Tạo bằng Noverse · tiếng Việt']
+    ].map(([k, v]) => ({ k, v }));
+    const map = [
+      ['Tên', vol ? 'Tệp: “' + SHORT + ' · Tập 1”; khi phát: chương theo mốc' : title, 'title', 'TIT2', '©nam'],
+      ['Người đọc', 'Noverse Audio', 'artist', 'TPE1', '©ART'],
+      ['Album', album, 'album', 'TALB', '©alb'],
+      ['Nghệ sĩ album', 'Noverse Audio', '—', 'TPE2', 'aART'],
+      ['Số bài · số đĩa', vol ? '1/1 · 1' : CH.n + '/' + VOL.total + ' · 1', '—', 'TRCK · TPOS', 'trkn · disk'],
+      ['Thể loại · năm', 'Sách nói · 2026', '—', 'TCON · TDRC', '©gen · ©day'],
+      ['Bìa', s.cover === 'uploaded' ? 'bìa truyện, vuông ≥ 1400 px' : 'bìa tự tạo, vuông 1400 px', 'artwork 96–512', 'APIC (front)', 'covr'],
+      ['Mốc chương', vol ? '8 mốc, tên chương' : '—', 'chapterInfo', 'CHAP · CTOC', 'chpl'],
+      ['Loại', 'sách nói', '—', '—', 'stik = 2']
+    ].map(([k, v, ms, id3, mp4]) => ({ k, v, ms, id3, mp4 }));
+    const rules = [
+      ['i-tick', '#A6EDC1', 'Người đọc luôn là “Noverse Audio”, kể cả khi chương chưa chọn giọng hay đang tạo.'],
+      ['i-tick', '#A6EDC1', 'Tên: “Chương N · Tên chương”. Album: “Tên truyện · Tập N”. Không thêm tên app hay trạng thái vào tên.'],
+      ['i-tick', '#A6EDC1', 'Bìa: bìa truyện ở Tư liệu › Bìa truyện. Chưa có thì dùng bìa tự tạo (tên truyện + tập + Noverse Audio). Không dùng chữ viết tắt.'],
+      ['i-tick', '#A6EDC1', 'Một bộ thông tin dùng cho cả trình phát web (màn khoá, thông báo, xe) và tệp xuất — nghe trong app hay mở tệp tải về đều giống nhau.'],
+      ['i-tick', '#A6EDC1', 'Đổi chương: cập nhật ngay tên, vị trí phát và thời lượng; nghe tệp cả tập thì tên đổi theo mốc chương.'],
+      ['i-warning', '#F6CB8C', 'Tên tệp tải về luôn có tên truyện và chương; trình duyệt nhận đúng tên tiếng Việt (có tên dự phòng không dấu cho máy cũ).']
+    ].map(([ic, c, t]) => ({ ic, c, t }));
+    return {
+      scopes: [['chapter', 'Nghe theo chương'], ['volume', 'Tệp cả tập'], ['trial', 'Bản thử']].map(([k, tt]) => ({ t: tt, on: s.scope === k ? 'true' : 'false', cls: s.scope === k ? 'on' : '', pick: () => set({ scope: k }) })),
+      covers: [['uploaded', 'Có bìa truyện'], ['generated', 'Bìa tự tạo']].map(([k, tt]) => ({ t: tt, on: s.cover === k ? 'true' : 'false', cls: s.cover === k ? 'on' : '', pick: () => set({ cover: k }) })),
+      cmp: s.cmp, ok: !s.cmp, cmpOn: s.cmp ? 'true' : 'false', toggleCmp: () => set({ cmp: !s.cmp }), cmpBd: s.cmp ? 'rgba(255,159,168,0.5)' : 'rgba(255,255,255,0.1)', cmpBg: s.cmp ? 'rgba(255,159,168,0.08)' : 'transparent', cmpFg: s.cmp ? '#FFC4CA' : '#C9C9D1',
+      mTitle: title, mArtist: s.cmp ? 'Chưa chọn giọng' : 'Noverse Audio', mAlbum: s.cmp ? '' : album, albumShort: SHORT + ' · Tập 1',
+      lockSub: s.cmp ? 'Chưa chọn giọng' : 'Noverse Audio',
+      coverTitle: SHORT, coverVol: 'Tập ' + VOL.n + ' · sách nói', covCls, fileCov: covCls,
+      tNow: mmss(t), tLeft: mmss(dur - t), pct: (t / dur * 100).toFixed(1) + '%',
+      playIc: s.playing ? 'i-pause' : 'i-play', playAria: s.playing ? 'Tạm dừng' : 'Phát', togglePlay: () => set({ playing: !s.playing }),
+      fileName, fileSize, tags, map, rules, scopeName: vol ? 'tệp cả tập' : trial ? 'bản thử' : 'theo chương'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "voices": [
+    {"id": "hai-dang", "name": "Hải Đăng", "sample": "hai-dang.wav"},
+    {"id": "lam-anh", "name": "Lam Anh", "sample": "lam-anh.wav"}
+  ]
+}

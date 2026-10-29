@@ -1,0 +1,412 @@
+{
+  "title": "Vết khắc của mẹ",
+  "premise": "Lâm Vãn sống lại ba năm trước ngày em nuôi Tô Khiết cướp bản vẽ hoa cúc của mẹ. Kiếp này Vãn giữ bằng chứng trước: cuốn sổ đơn hàng, mẫu khắc gốc, ảnh chụp ba bản sao Khiết in lậu. Chương ba, Vãn lật lại cuộc đối chất trước quầy và buộc Khiết trả lại chiếc hộp cùng giấy đặt hàng; nhưng chương lại đóng mọi nguy cơ bằng một kết an toàn — khách hiểu chuyện, Khiết xin lỗi, mọi giấy tờ được cất cẩn thận, Vãn ngủ yên — trong khi truyện còn năm chương phía trước.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Tỉnh dậy ở tiệm cũ",
+      "core_event": "Lâm Vãn tỉnh dậy ba năm về trước, trong tiệm đồng hồ của mẹ; cô xác định lại mốc thời gian và quyết định giữ bằng chứng trước khi Khiết ra tay.",
+      "hook": "Vãn phát hiện Khiết đã bắt đầu sao chép mẫu khắc của mẹ.",
+      "scenes": [
+        "Buồng ngủ sau tiệm",
+        "Gian ngoài tiệm đồng hồ"
+      ],
+      "hook_type": "rebirth"
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc đồng hồ bạc của ông Khiêm",
+      "core_event": "Ông Khiêm mang chiếc đồng hồ bạc có vết xước tới phục chế và đặt khắc hoa cúc năm cánh ở đáy nắp; mẹ ghi đơn vào sổ, ký giấy giới thiệu. Vãn phát hiện ba bản chụp lậu của Khiết.",
+      "hook": "Khiết nhận công khắc mẫu hoa cúc trước mặt khách.",
+      "scenes": [
+        "Quầy sửa đồng hồ",
+        "Bàn sửa sau tiệm"
+      ],
+      "hook_type": "theft"
+    },
+    {
+      "chapter": 3,
+      "title": "Vết khắc thứ hai",
+      "core_event": "Khiết đẩy bản vẽ của Vãn vào máy hủy giấy trước mặt khách; Vãn lấy cuốn sổ của mẹ và vết xước trên chiếc đồng hồ bạc ra đối chất, buộc Khiết phải gạch tên mình trên giấy giới thiệu. Kết chương, Khiết nhận tin nhắn từ người trong nhà.",
+      "hook": "Tin nhắn trong điện thoại Khiết: 'Tối nay mẹ chị ta sẽ biết ai mới là người nuôi nhà này.'",
+      "scenes": [
+        "Quầy sửa đồng hồ trước mặt khách",
+        "Sân sau tiệm lúc chiều muộn"
+      ],
+      "hook_type": "confrontation"
+    },
+    {
+      "chapter": 4,
+      "title": "Người trong nhà",
+      "core_event": "Vãn lần ra người nhắn tin cho Khiết chính là bố cô — người vẫn nghĩ mình đang giúp đứa cháu mồ côi có chỗ đứng trong nghề.",
+      "hook": "Bố yêu cầu Vãn nhường quyền đứng tên tiệm cho Khiết.",
+      "scenes": [
+        "Bếp nhà",
+        "Sân trước tiệm"
+      ],
+      "hook_type": "betrayal",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 5,
+      "title": "Cuốn sổ bị đánh tráo",
+      "core_event": "Khiết tráo cuốn sổ đơn hàng bằng một cuốn giả đã sửa ngày tháng; Vãn đưa ra bản chụp có mật khẩu từ trước.",
+      "hook": "Mẹ nhìn thấy hai cuốn sổ giống nhau trên bàn.",
+      "scenes": [
+        "Bàn sửa",
+        "Buồng của Vãn"
+      ],
+      "hook_type": "reversal"
+    },
+    {
+      "chapter": 6,
+      "title": "Đối chất trước hội đồng hồ cổ",
+      "core_event": "Tại buổi trưng bày, ông Khiêm xác nhận đơn hàng và chữ ký; Khiết bị bẽ mặt trước giới thợ.",
+      "hook": "Khiết tuyên bố sẽ rời tiệm, nhưng mang theo bí mật về bố.",
+      "scenes": [
+        "Hội trường trưng bày",
+        "Hành lang hội trường"
+      ],
+      "hook_type": "payoff"
+    },
+    {
+      "chapter": 7,
+      "title": "Mẹ chọn",
+      "core_event": "Mẹ đứng về phía Vãn, đòi Khiết trả lại mẫu khắc và rời khỏi tiệm; bố phản đối nhưng không đủ bằng chứng.",
+      "hook": "Khiết để lại một phong bì trước khi đi.",
+      "scenes": [
+        "Gian thờ nhà",
+        "Cổng tiệm"
+      ],
+      "hook_type": "resolution"
+    },
+    {
+      "chapter": 8,
+      "title": "Tên khắc dưới bản lề",
+      "core_event": "Vãn khắc tên mình dưới bản lề chiếc đồng hồ đầu tiên cô tự phục chế; tiệm mở lại với tên Lâm Gia đúng nghĩa.",
+      "hook": "Một người khách mới bước vào, cầm chiếc đồng hồ có cùng kiểu khắc.",
+      "scenes": [
+        "Tiệm đồng hồ Lâm Gia",
+        "Chợ đồng hồ cũ buổi sáng"
+      ],
+      "hook_type": "closing"
+    }
+  ],
+  "characters": [
+    {
+      "id": "lam-van",
+      "name": "Lâm Vãn",
+      "aliases": [
+        "Vãn"
+      ],
+      "role": "nhân vật chính, con gái thợ đồng hồ, sống lại ba năm trước biến cố",
+      "kind": "lead",
+      "description": "Hai mươi bốn tuổi, thợ sửa đồng hồ học nghề từ mẹ. Kiếp trước bị vu oan lấy trộm mẫu khắc, mất tiệm và mẹ; kiếp này giữ bằng chứng trước.",
+      "arc": "Từ người bị động chờ mất tất cả đến người chủ động lật lại ván cờ.",
+      "traits": [
+        "điềm tĩnh",
+        "nhớ dai",
+        "khắc chữ đẹp"
+      ]
+    },
+    {
+      "id": "to-khiet",
+      "name": "Tô Khiết",
+      "aliases": [
+        "Khiết"
+      ],
+      "role": "em nuôi, phản diện chính",
+      "kind": "antagonist",
+      "description": "Hai mươi hai tuổi, được mẹ Vãn nhận nuôi từ nhỏ, học nghề sửa đồng hồ. Có tài nhưng quen nhận công của người khác, được bố Vãn che chở.",
+      "arc": "Từ chỗ được tin đến chỗ bị lật mặt trước giới thợ.",
+      "traits": [
+        "khéo nói",
+        "thu vén",
+        "hay khóc đúng lúc"
+      ]
+    },
+    {
+      "id": "me-van",
+      "name": "bà Lâm Thu",
+      "aliases": [
+        "mẹ"
+      ],
+      "role": "thợ đồng hồ chủ tiệm, mẹ của Vãn",
+      "kind": "ally",
+      "description": "Năm mươi hai tuổi, thợ đồng hồ ba đời. Giữ mẫu khắc hoa cúc của bà ngoại trong ngăn kéo khóa, tin vào chữ tín với khách hơn mọi lời đồn.",
+      "arc": "Từ chỗ đứng ngoài cuộc đến chỗ công khai đứng về phía con gái.",
+      "traits": [
+        "cẩn thận",
+        "kín đáo",
+        "trọng chữ tín"
+      ]
+    },
+    {
+      "id": "bo-van",
+      "name": "ông Lâm Bình",
+      "aliases": [
+        "bố"
+      ],
+      "role": "bố Vãn, làm nghề giao hàng",
+      "kind": "support",
+      "description": "Năm mươi lăm tuổi, thương Khiết vì nghĩ cô bé mồ côi, hay đứng về phía Khiết mỗi khi hai chị em có chuyện.",
+      "arc": "Bị lộ là người đứng sau Khiết mà không biết mình đang tiếp tay cho việc gì.",
+      "traits": [
+        "thương người",
+        "dễ tin",
+        "ngại đối chất"
+      ]
+    },
+    {
+      "id": "ha-duong",
+      "name": "Hạ Dương",
+      "role": "đồng nghiệp thợ đồng hồ ở tiệm bên kia chợ, bạn của mẹ Vãn",
+      "kind": "ally",
+      "description": "Hai mươi sáu tuổi, thợ đồng hồ, thường ghé tiệm lấy phụ tùng và giúp mẹ Vãn những việc lặt vặt. Không biết chuyện gia đình cho tới khi Vãn kể.",
+      "arc": "Từ người ngoài cuộc thành người làm chứng cho Vãn.",
+      "traits": [
+        "thật thà",
+        "tinh ý",
+        "hay mang quà vặt"
+      ]
+    },
+    {
+      "id": "ong-khiem",
+      "name": "ông Đỗ Văn Khiêm",
+      "aliases": [
+        "ông Khiêm"
+      ],
+      "role": "khách hàng lớn tuổi, thành viên hội đồng hồ cổ",
+      "kind": "support",
+      "description": "Sáu mươi tuổi, mang chiếc đồng hồ bạc của bố tới phục chế, yêu cầu giữ nguyên vết xước và khắc hoa cúc năm cánh. Ký giấy giới thiệu ghi tên người làm.",
+      "arc": "Trở thành người xác nhận đơn hàng trước hội đồng, giúp Vãn thắng.",
+      "traits": [
+        "kỹ tính",
+        "trọng kỷ niệm",
+        "giữ lời"
+      ]
+    },
+    {
+      "id": "bac-bay",
+      "name": "bác Bảy",
+      "role": "quản lý khu chợ đồng hồ cũ",
+      "kind": "support",
+      "description": "Sáu mươi tám tuổi, trông coi dãy ki-ốt ba mươi năm, nhớ tên từng hộ trong chợ.",
+      "arc": "Người chứng kiến và đứng ra phân xử khi tiệm có chuyện.",
+      "traits": [
+        "công bằng",
+        "nói thẳng",
+        "nhớ dai"
+      ]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Bối cảnh đời thường ở khu chợ đồng hồ cũ; nghề sửa và phục chế đồng hồ là trung tâm câu chuyện.",
+      "boundary": "Không có yếu tố kỳ huyễn ngoài việc Vãn sống lại một lần; không có âm mưu hình sự ngoài chuyện tranh chấp tác quyền."
+    },
+    {
+      "category": "technology",
+      "rule": "Thiết bị hiện đại ở mức đời thường: điện thoại chụp ảnh, máy tính cá nhân, máy in.",
+      "boundary": "Không dùng công nghệ vượt thời điểm truyện."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Tỉnh dậy ở tiệm cũ",
+        "summary": "Lâm Vãn tỉnh dậy trong căn buồng sau tiệm đồng hồ của mẹ, nhận ra mình đã trở lại ba năm trước biến cố. Cô gặp lại mẹ, Khiết, và xác định mốc thời gian qua cuốn lịch. Cô mở cuốn sổ đơn hàng của mẹ, thấy ghi chú 'Mẫu khắc hoa cúc — của mẹ, không bán', rồi nhớ lại kiếp trước Khiết đã cướp mẫu khắc và cuốn sổ. Cô quyết định giữ bằng chứng trước. Trong nhà có bố, người luôn đứng về phía Khiết; tiệm nằm trong khu chợ đồng hồ cũ do bác Bảy quản lý.",
+        "characters": [
+          "Lâm Vãn",
+          "mẹ",
+          "Tô Khiết",
+          "bố"
+        ],
+        "key_events": [
+          "Vãn sống lại ba năm trước biến cố",
+          "Vãn xem cuốn sổ đơn hàng và ghi chú mẫu khắc của mẹ",
+          "Vãn quyết định giữ bằng chứng trước"
+        ]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Chiếc đồng hồ bạc của ông Khiêm",
+        "summary": "Ông Khiêm mang chiếc đồng hồ bỏ túi bằng bạc của bố tới phục chế, yêu cầu giữ nguyên vết xước mặt sau và khắc hoa cúc năm cánh ở đáy nắp theo mẫu của mẹ. Mẹ ghi đơn hàng vào cuốn sổ, viết giấy đặt hàng cho ông ký và nhận giấy giới thiệu cho buổi trưng bày của hội đồng hồ cổ. Chiều hôm ấy mẹ dạy Vãn mẹo cánh cuối ngắn hơn để che lỗi. Sáng hôm sau Vãn phát hiện ba bản chụp trang sổ Khiết in lậu, và Khiết đã nhận công khắc mẫu trước mặt ông Khiêm.",
+        "characters": [
+          "Lâm Vãn",
+          "mẹ",
+          "Tô Khiết",
+          "ông Khiêm",
+          "Hạ Dương"
+        ],
+        "key_events": [
+          "Ông Khiêm đặt phục chế đồng hồ bạc và khắc hoa cúc năm cánh",
+          "Mẹ ghi đơn và nhận giấy giới thiệu",
+          "Vãn phát hiện ba bản chụp lậu của Khiết",
+          "Khiết nhận công khắc mẫu trước mặt khách"
+        ]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Chiếc hộp được trả lại",
+        "summary": "Tô Khiết giật chiếc hộp đựng đồng hồ khỏi tay Vãn trước quầy và nói với bác Bảy rằng Vãn lấy trộm mẫu đặt riêng của khách. Vãn lấy tờ giấy đặt hàng ra, chỉ ra khách yêu cầu hình hoa năm cánh còn bản Khiết gửi chỉ có bốn, và để bác Bảy tự mở nắp đồng hồ thấy tên Vãn khắc dưới bản lề. Bác Bảy trả đồng hồ lại cho người làm và gạch tên Khiết trên giấy giới thiệu. Khiết xin lỗi; khách hiểu chuyện và đặt sửa chiếc đồng hồ khác. Vãn gọi cho mẹ, đóng cửa tiệm, thấy mọi chuyện tạm ổn và ngủ một giấc yên.",
+        "characters": [
+          "Lâm Vãn",
+          "Tô Khiết",
+          "bác Bảy",
+          "Hạ Dương",
+          "mẹ"
+        ],
+        "key_events": [
+          "Khiết giật hộp và vu Vãn lấy trộm mẫu",
+          "Vãn đối chiếu giấy đặt hàng và tên khắc dưới bản lề",
+          "Bác Bảy trả đồng hồ lại cho Vãn và gạch tên Khiết",
+          "Vãn đóng cửa tiệm, mọi chuyện tạm ổn, ngủ yên"
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "buổi sáng, ba năm trước biến cố",
+      "event": "Lâm Vãn tỉnh dậy trong buồng sau tiệm, xác định mình đã trở lại quá khứ.",
+      "characters": [
+        "Lâm Vãn",
+        "mẹ",
+        "Tô Khiết"
+      ]
+    },
+    {
+      "chapter": 2,
+      "time": "ba ngày sau",
+      "event": "Ông Khiêm tới đặt phục chế đồng hồ bạc và khắc hoa cúc năm cánh; mẹ ghi đơn và nhận giấy giới thiệu.",
+      "characters": [
+        "Lâm Vãn",
+        "mẹ",
+        "Tô Khiết",
+        "ông Khiêm"
+      ]
+    },
+    {
+      "chapter": 2,
+      "time": "đêm cùng ngày",
+      "event": "Khiết lén chụp ảnh cuốn sổ và in ba bản sao.",
+      "characters": [
+        "Tô Khiết"
+      ]
+    },
+    {
+      "chapter": 3,
+      "time": "chiều cùng tuần",
+      "event": "Khiết giật hộp và vu Vãn lấy trộm mẫu; Vãn đối chiếu giấy đặt hàng và tên khắc, bác Bảy trả đồng hồ lại cho Vãn; mọi việc khép lại trong ngày.",
+      "characters": [
+        "Lâm Vãn",
+        "Tô Khiết",
+        "bác Bảy",
+        "Hạ Dương"
+      ]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 2,
+      "updates": [
+        {
+          "id": "ba-ban-chup",
+          "action": "plant",
+          "description": "Ba bản chụp trang sổ Khiết in lậu, một bản đã bị sửa ngày tháng bằng bút xóa."
+        }
+      ]
+    }
+  ],
+  "state_changes": [
+    {
+      "chapter": 2,
+      "entity": "ông Khiêm",
+      "field": "relation",
+      "new_value": "khách đặt phục chế đồng hồ bạc, giới thiệu tiệm với hội đồng hồ cổ",
+      "reason": "ông mang đồng hồ của bố tới phục chế"
+    },
+    {
+      "chapter": 3,
+      "entity": "Tô Khiết",
+      "field": "status",
+      "new_value": "bị bác Bảy gạch tên trên giấy giới thiệu, xin lỗi Vãn",
+      "reason": "Vãn đối chiếu giấy đặt hàng và tên khắc dưới bản lề"
+    },
+    {
+      "chapter": 3,
+      "entity": "Lâm Vãn",
+      "field": "status",
+      "new_value": "nhận lại đồng hồ, nhận đơn sửa mới, mọi nguy cơ trong ngày đã đóng",
+      "reason": "bác Bảy xác nhận tên người làm"
+    }
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Tỉnh dậy ở tiệm cũ",
+      "goal": "Vãn xác định mình sống lại, nắm lại mốc thời gian và bằng chứng.",
+      "conflict": "Vãn biết trước biến cố nhưng chưa có bằng chứng trong tay.",
+      "hook": "Khiết bắt đầu sao chép mẫu khắc.",
+      "contract": {
+        "required_beats": [
+          "Vãn sống lại",
+          "Vãn xem cuốn sổ của mẹ"
+        ],
+        "continuity_checks": [
+          "Cuốn sổ vẫn còn trong ngăn kéo của mẹ"
+        ],
+        "emotion_target": "căng thẳng"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc đồng hồ bạc của ông Khiêm",
+      "goal": "Đơn hàng của ông Khiêm được ghi vào sổ; Vãn phát hiện ba bản chụp lậu.",
+      "conflict": "Khiết bắt đầu nhận công trước mặt khách.",
+      "hook": "Khiết nhận công khắc mẫu.",
+      "contract": {
+        "required_beats": [
+          "Ông Khiêm đặt khắc hoa cúc năm cánh",
+          "Mẹ ghi đơn vào sổ",
+          "Vãn phát hiện ba bản chụp"
+        ],
+        "continuity_checks": [
+          "Mẫu khắc hoa cúc thuộc về mẹ, không phải Khiết"
+        ],
+        "emotion_target": "ngờ vực"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Chiếc hộp được trả lại",
+      "goal": "Vãn lấy lại đồng hồ và tên mình; chương khép lại trong trạng thái an toàn, mọi nguy cơ đã đóng.",
+      "conflict": "Khiết giật hộp và vu Vãn lấy trộm mẫu trước mặt bác Bảy.",
+      "hook": "Không còn nguy cơ nào mở — Vãn ngủ yên.",
+      "contract": {
+        "required_beats": [
+          "Khiết giật hộp và vu Vãn",
+          "Vãn đối chiếu giấy đặt hàng và tên khắc",
+          "Bác Bảy trả đồng hồ lại cho Vãn"
+        ],
+        "continuity_checks": [
+          "Người khách trong chương này chính là ông Khiêm của chương 2",
+          "Truyện còn năm chương phía trước nên chương này không được kết an toàn"
+        ],
+        "emotion_target": "thỏa mãn"
+      }
+    }
+  ]
+}

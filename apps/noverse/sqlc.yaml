@@ -1,0 +1,19 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # schema source of truth = the goose migration files; keep them expand-only
+    # so the catalog sqlc builds matches production upgrade order.
+    schema: "internal/persistence/migrations/"
+    # hand-written queries per domain (no ORM, no scattered strings in repos).
+    queries: "internal/persistence/postgres/queries/"
+    gen:
+      go:
+        package: "gen"
+        out: "internal/persistence/postgres/gen"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: false
+        emit_interface: false
+        emit_exact_table_names: false
+        emit_empty_slices: true
+        overrides: []

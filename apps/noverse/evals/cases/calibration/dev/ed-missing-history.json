@@ -1,0 +1,23 @@
+{
+  "id": "ed-missing-history",
+  "category": "quality",
+  "role": "editor",
+  "description": "Đối chứng: dì Liên nói ảnh chụp ở Sài Gòn năm 1990, Cường nhớ mẹ nói chưa vào Sài Gòn lần nào. Hai lời kể lệch nhau nhưng truyện không có giấy tờ, ghi chú hay nhân chứng nào để xác định ai đúng — thiếu hẳn lịch sử gia đình, nên không thể kết luận là lỗi nhất quán. Đáp án đúng là không báo lỗi.",
+  "fixture": "ed-missing-history",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "prompt": "Thẩm duyệt chương 3",
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [
+        {"severity_min": "error"},
+        {"severity_min": "error", "quote_contains": "chụp ở Sài Gòn năm 1990"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

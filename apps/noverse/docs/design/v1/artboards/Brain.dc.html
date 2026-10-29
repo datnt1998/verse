@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Não truyện</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.fl{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:0 10px;border:none;border-radius:9px;background:transparent;color:#C9C9D1;font-size:13px;text-align:left}
+.fl:hover{background:rgba(255,255,255,.04)}
+.fl .bx{width:16px;height:16px;border-radius:5px;border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;flex:none;transition:background .18s,border-color .18s}
+.fl[aria-checked=true] .bx{background:#EDEDEF;border-color:#EDEDEF}
+.fl .bx i{width:8px;height:5px;border-left:2px solid #0B0B0D;border-bottom:2px solid #0B0B0D;transform:rotate(-45deg) translate(1px,-1px);opacity:0;transition:opacity .15s}
+.fl[aria-checked=true] .bx i{opacity:1}
+.stage{position:relative;width:800px;height:540px;margin:0 auto}
+.edge{position:absolute;height:0;transform-origin:0 0;transition:opacity .25s}
+.elbl{position:absolute;transform:translate(-50%,-50%);padding:1px 6px;border-radius:5px;background:#0E0E10;border:1px solid rgba(255,255,255,.06);font-size:11px;white-space:nowrap;transition:opacity .25s}
+.node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:5px;border:none;background:transparent;padding:0;color:#EDEDEF;font:inherit;transition:opacity .25s}
+.node .dot{display:flex;align-items:center;justify-content:center;flex:none;transition:box-shadow .2s,transform .2s}
+.node:hover .dot{transform:scale(1.06)}
+.node .nm{font-size:12px;white-space:nowrap;padding:0 5px;border-radius:5px;background:rgba(11,11,13,.85)}
+.newb{position:absolute;top:-6px;right:-10px;height:16px;padding:0 5px;border-radius:5px;background:#C9A6F5;color:#0B0B0D;font-size:10px;font-weight:700;display:flex;align-items:center}
+.tick{flex:1;height:30px;border:none;background:transparent;color:#7E7E8A;font-size:12px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.tick .dt{width:6px;height:6px;border-radius:50%;background:currentColor}
+.tick[aria-pressed=true]{color:#EDEDEF;background:#1E1E21}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:#141416;border:1px solid rgba(255,255,255,.07)}
+.seg button{height:28px;padding:0 10px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:12.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.seg button[aria-pressed=true]{background:#232326;color:#EDEDEF;font-weight:500}
+.kvr{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px}
+.kvr:first-child{border-top:none}
+.lrow{display:grid;grid-template-columns:minmax(0,1.3fr) 130px minmax(0,2fr) 110px;gap:12px;align-items:center;padding:10px 14px;font-size:13px;border:none;background:transparent;color:#EDEDEF;width:100%;text-align:left;font-family:inherit}
+.lrow+.lrow{border-top:1px solid rgba(255,255,255,.05)}
+input[type=range].chs{width:100%;accent-color:#C9A6F5}
+.gwrap{flex:1 1 auto;min-height:0;position:relative;overflow:hidden;margin:0 14px;border-radius:16px;border:1px solid rgba(255,255,255,.06);background:radial-gradient(70% 70% at 50% 46%,#121117 0%,#0C0C0F 60%,#0A0A0C 100%)}
+.brain-host{position:absolute;inset:0}
+.brain-host svg{display:block;width:100%;height:100%}
+.bn{cursor:pointer;outline:none}
+.bn .bn-body{transition:opacity .35s ease,transform .45s cubic-bezier(.2,.9,.25,1.15)}
+.bn .bn-halo{transition:opacity .35s ease}
+.bn .bn-cont{transition:opacity .35s ease}
+.bn .bn-ring{transition:opacity .25s ease,stroke-width .25s ease}
+.bn:focus-visible .bn-ring{opacity:1 !important;stroke:#C9A6F5 !important}
+.bn .bn-lbl{transition:opacity .35s ease;paint-order:stroke;stroke:#0B0B0E;stroke-width:4px;stroke-linejoin:round}
+.be{transition:opacity .35s ease,stroke-width .25s ease}
+.bf{stroke-dasharray:0.1 22;animation:bflow 1.5s linear infinite}
+@keyframes bflow{to{stroke-dashoffset:-44.2}}
+.bpulse{animation:bpulse 2.4s cubic-bezier(.2,.6,.3,1) infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bpulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(1.18,1.5)}}
+.bl{transition:opacity .25s ease}
+.gctl{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:2px;padding:3px;border-radius:11px;background:rgba(20,20,24,.82);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px -8px rgba(0,0,0,.6)}
+.gctl button{height:28px;min-width:28px;padding:0 8px;border:none;border-radius:8px;background:transparent;color:#A0A0AB;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.gctl button:hover{background:rgba(255,255,255,.06);color:#EDEDEF}
+.gctl button[aria-pressed=true]{background:#232327;color:#EDEDEF}
+.gctl .sep{width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 3px}
+.ghint{position:absolute;left:14px;bottom:14px;font-size:11.5px;color:#6E6E78;display:flex;align-items:center;gap:6px;pointer-events:none}
+.gcap{position:absolute;left:14px;top:12px;display:flex;align-items:center;gap:8px;pointer-events:none}
+.gcap b{font-size:12px;font-weight:500;color:#C9C9D1}
+.gcap span{font-size:11.5px;color:#6E6E78}
+.tl{flex:0 0 auto;padding:10px 26px 6px;display:flex;flex-direction:column;gap:8px}
+.tlh{display:flex;align-items:center;gap:10px}
+.tlb{width:26px;height:26px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:transparent;color:#A0A0AB;display:flex;align-items:center;justify-content:center}
+.tlb:hover:not(:disabled){background:rgba(255,255,255,.06);color:#EDEDEF}
+.tlb:disabled{opacity:.35}
+.tlt{position:relative;height:38px;margin:0 10px}
+.tll{position:absolute;left:0;right:0;top:9px;height:2px;border-radius:2px;background:rgba(255,255,255,.07)}
+.tlf{position:absolute;left:0;top:9px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(166,237,193,.55),rgba(201,166,245,.9));transition:width .45s cubic-bezier(.2,.9,.25,1)}
+/* RAIL v2: chấm luôn tròn (vị trí tuyệt đối, không bị flex co), tâm chấm nằm đúng trên đường */
+.tk{position:absolute;top:0;transform:translateX(-50%);width:40px;height:38px;border:none;background:transparent;padding:0;cursor:pointer;border-radius:10px}
+.tk i{position:absolute;left:50%;top:10px;width:10px;height:10px;margin:-5px 0 0 -5px;box-sizing:border-box;border-radius:50%;background:#0B0B0D;border:1.5px solid #4A4A54;transition:transform .3s cubic-bezier(.2,.9,.25,1.3),box-shadow .3s,background .3s,border-color .3s}
+.tk.done i{background:#A6EDC1;border-color:#A6EDC1}
+.tk.live i{background:#C9A6F5;border-color:#C9A6F5}
+.tk[aria-pressed=true] i{transform:scale(1.4);box-shadow:0 0 0 2.5px #0B0B0D,0 0 0 4px rgba(237,237,239,.75)}
+.tk.live[aria-pressed=true] i{box-shadow:0 0 0 2.5px #0B0B0D,0 0 0 4px rgba(201,166,245,.85)}
+.tk>span{position:absolute;left:0;right:0;top:25px;text-align:center;font-size:11.5px;line-height:1}
+.tk:focus-visible{outline:none}
+.tk:focus-visible i{box-shadow:0 0 0 2.5px #0B0B0D,0 0 0 4.5px #C9A6F5}
+.tk em{position:absolute;top:24px;left:50%;transform:translateX(-50%);display:flex;gap:2px}
+.tk em b{width:3px;height:3px;border-radius:50%;background:#C9A6F5;opacity:.75}
+.tk:hover:not([aria-pressed=true]) i{transform:scale(1.25)}
+.tk.live:not([aria-pressed=true]) i{animation:tklive 2s ease-in-out infinite}
+@keyframes tklive{50%{box-shadow:0 0 0 5px rgba(201,166,245,.18)}}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-routing{-webkit-mask-image:url(../icons/routing-2.svg);mask-image:url(../icons/routing-2.svg)}
+.i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a href="Outline.dc.html" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<a href="Outline.dc.html" style="min-width: 0; font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Não truyện</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-category" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn viết</a>
+<a href="Outline.dc.html" aria-current="page" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a class="navl" href="Transcript.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Settings.dc.html" aria-label="Tuỳ chỉnh" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span></a>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+
+<div style="flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 244px minmax(0, 1fr) 360px">
+<!-- ===== RAIL ===== -->
+<aside aria-label="Bộ lọc" class="scroll" style="border-right: 1px solid rgba(255,255,255,0.06); padding: 14px 10px; display: flex; flex-direction: column; gap: 14px">
+<a href="Outline.dc.html" class="ghost" style="height: 30px; padding: 0 10px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #A0A0AB"><span class="ic i-arrow-l" aria-hidden="true" style="width: 14px; height: 14px"></span>Về truyện</a>
+<div style="padding: 0 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 17px; font-weight: 600">Não truyện</span><span style="font-size: 12px; color: #8E8E99; line-height: 1.5">Nhân vật, quan hệ và xưng hô theo từng chương. Trợ lý ghi, Biên tập viên soát, bạn sửa được.</span></div>
+<div role="group" aria-label="Loại thực thể" style="display: flex; flex-direction: column; gap: 1px">
+<span class="lbl" style="padding: 0 10px 6px">Loại</span>
+<sc-for list="{{types}}" as="t" hint-placeholder-count="6"><button class="fl" type="button" role="checkbox" aria-checked="{{t.on}}" onClick="{{t.toggle}}"><span class="bx"><i></i></span><span class="ic {{t.icon}}" aria-hidden="true" style="width: 15px; height: 15px; color: {{t.c}}"></span><span style="flex: 1">{{t.label}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{t.n}}</span></button></sc-for>
+</div>
+<div role="group" aria-label="Kiểu quan hệ" style="display: flex; flex-direction: column; gap: 1px">
+<span class="lbl" style="padding: 0 10px 6px">Kiểu quan hệ</span>
+<sc-for list="{{etypes}}" as="t" hint-placeholder-count="6"><button class="fl" type="button" role="checkbox" aria-checked="{{t.on}}" onClick="{{t.toggle}}"><span class="bx"><i></i></span><span aria-hidden="true" style="width: 18px; height: 0; border-top: 2px {{t.style}} {{t.c}}; flex: none"></span><span style="flex: 1">{{t.label}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{t.n}}</span></button></sc-for>
+</div>
+<div style="margin-top: auto; padding: 10px; border-radius: 12px; background: #111113; border: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #8E8E99; line-height: 1.5; display: flex; gap: 8px"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: none"></span><span>Đây là dữ kiện gốc của truyện. Sửa ở đây thì Người viết và Biên tập viên dùng ngay từ chương sau.</span></div>
+</aside>
+
+<!-- ===== CENTER ===== -->
+<main style="min-width: 0; display: flex; flex-direction: column">
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 12px 20px">
+<div class="seg" role="group" aria-label="Cách xem"><button type="button" aria-pressed="{{isGraph}}" onClick="{{toGraph}}"><span class="ic i-routing" aria-hidden="true" style="width: 14px; height: 14px"></span>Đồ thị</button><button type="button" aria-pressed="{{isList}}" onClick="{{toList}}"><span class="ic i-doc" aria-hidden="true" style="width: 14px; height: 14px"></span>Danh sách</button></div>
+<label style="flex: 1; max-width: 320px; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.1)"><span class="ic i-search" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span><input type="search" value="{{q}}" onInput="{{onQ}}" placeholder="Tìm nhân vật, vật, sự kiện…" aria-label="Tìm trong Não truyện" style="flex: 1; min-width: 0; border: none; background: transparent; color: #EDEDEF; font-size: 13px; outline: none"></label>
+<span style="flex: 1"></span>
+</div>
+
+<sc-if value="{{isGraph}}" hint-placeholder-val="{{ true }}">
+<div class="gwrap">
+<div class="brain-host" role="group" aria-label="{{graphAria}}"></div>
+<div class="gcap" aria-hidden="true"><b>Tại chương {{ch}}</b><span>{{countText}}</span></div>
+<div class="ghint" aria-hidden="true"><span class="ic i-info" style="width: 13px; height: 13px"></span>Rê chuột để xem quan hệ · bấm để chọn</div>
+<div class="gctl" role="toolbar" aria-label="Điều khiển đồ thị">
+<button type="button" aria-pressed="{{focusOn}}" onClick="{{toggleFocus}}" title="Chỉ hiện các thực thể nối trực tiếp với mục đang chọn"><span class="ic i-eye" aria-hidden="true" style="width: 14px; height: 14px"></span>Chỉ quanh mục chọn</button>
+<span class="sep"></span>
+<button type="button" onClick="{{zoomOut}}" aria-label="Thu nhỏ"><span class="ic i-minus" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+<button type="button" onClick="{{zoomFit}}" aria-label="Vừa khung" class="num" style="min-width: 46px">{{zoomText}}</button>
+<button type="button" onClick="{{zoomIn}}" aria-label="Phóng to"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{ false }}">
+<div class="scroll" style="flex: 1 1 auto; min-height: 0; padding: 0 20px 12px">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3"><section class="card" style="border-radius: 14px; overflow: hidden; margin-bottom: 10px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06)"><span class="ic {{g.icon}}" aria-hidden="true" style="width: 15px; height: 15px; color: {{g.c}}"></span><span style="font-size: 13.5px; font-weight: 600">{{g.label}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{g.n}}</span></div>
+<sc-for list="{{g.items}}" as="it" hint-placeholder-count="3"><button class="lrow row" type="button" onClick="{{it.pick}}" aria-pressed="{{it.sel}}" style="background: {{it.bg}}"><span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.name}}</span><span style="font-size: 12px; color: #8E8E99">{{it.since}}</span><span style="font-size: 12.5px; color: #A0A0AB; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.rels}}</span><span style="font-size: 12px; color: {{it.chgFg}}; text-align: right">{{it.chg}}</span></button></sc-for>
+</section></sc-for>
+</div>
+</sc-if>
+
+<!-- chapter timeline -->
+<div class="tl">
+<div class="tlh">
+<button class="tlb" type="button" onClick="{{chPrev}}" disabled="{{atFirst}}" aria-label="Chương trước"><span class="ic i-arrow-l" aria-hidden="true" style="width: 13px; height: 13px"></span></button>
+<button class="tlb" type="button" onClick="{{chNext}}" disabled="{{atLast}}" aria-label="Chương sau"><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></button>
+<span style="font-size: 13px; font-weight: 600; margin-left: 4px">Chương <span class="num">{{ch}}</span></span><span style="font-size: 12.5px; color: #8E8E99">{{chTitle}}</span>
+<span style="flex: 1"></span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: {{chNoteFg}}"><sc-if value="{{chLive}}" hint-placeholder-val="{{ false }}"><span class="orb o-writer" aria-hidden="true" style="width: 9px; height: 9px"></span></sc-if>{{chNote}}</span>
+</div>
+<div class="tlt" role="group" aria-label="Chọn chương để xem trạng thái">
+<span class="tll" aria-hidden="true"></span><span class="tlf" aria-hidden="true" style="width: {{tlFill}}"></span>
+<sc-for list="{{ticks}}" as="t" hint-placeholder-count="8"><button class="tk {{t.cls}}" type="button" aria-pressed="{{t.on}}" aria-label="{{t.aria}}" title="{{t.aria}}" onClick="{{t.pick}}" style="left: {{t.x}}"><i></i><span class="num" style="color: {{t.fg}}">{{t.n}}</span></button></sc-for>
+</div>
+</div>
+</main>
+
+<!-- ===== DETAIL ===== -->
+<aside aria-label="Chi tiết" class="scroll" style="border-left: 1px solid rgba(255,255,255,0.06); padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: flex-start">
+<span style="width: 44px; height: 44px; border-radius: {{d.rad}}; background: {{d.bg}}; border: 1.5px solid {{d.bd}}; color: {{d.c}}; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex: none"><sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}">{{d.ini}}</sc-if><sc-if value="{{d.notChar}}" hint-placeholder-val="{{ false }}"><span class="ic {{d.icon}}" aria-hidden="true" style="width: 18px; height: 18px"></span></sc-if></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px; font-weight: 600">{{d.name}}</span><span style="display: flex; gap: 6px; flex-wrap: wrap"><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,255,255,0.05); color: {{d.c}}; font-size: 11.5px">{{d.type}}</span><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,255,255,0.05); color: #A0A0AB; font-size: 11.5px">{{d.since}}</span></span></div>
+</div>
+<span style="font-size: 13px; color: #C9C9D1; line-height: 1.55">{{d.desc}}</span>
+<sc-if value="{{d.notYet}}" hint-placeholder-val="{{ false }}"><div style="padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12); font-size: 12.5px; color: #A0A0AB">Chưa xuất hiện ở chương {{ch}}. Có mặt từ chương {{d.from}}.</div></sc-if>
+
+<section class="card" style="border-radius: 14px; padding: 10px 12px">
+<div style="display: flex; align-items: center; gap: 8px; padding-bottom: 4px"><span style="font-size: 13px; font-weight: 600">Quan hệ tại chương {{ch}}</span><span style="flex: 1"></span><button class="ghost" type="button" disabled="{{locked}}" aria-disabled="{{locked}}" style="height: 26px; padding: 0 8px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px; display: flex; align-items: center; gap: 5px; opacity: {{lockOp}}"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm</button></div>
+<sc-if value="{{d.noRels}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #7E7E8A">Chưa có quan hệ nào ở chương này.</span></sc-if>
+<div><sc-for list="{{d.rels}}" as="r" hint-placeholder-count="3"><div class="kvr"><span aria-hidden="true" style="width: 14px; height: 0; margin-top: 10px; border-top: 2px {{r.style}} {{r.c}}; flex: none"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span><span style="color: {{r.c}}">{{r.label}}</span> · {{r.other}}</span><span style="font-size: 11.5px; color: #7E7E8A">{{r.since}}</span></span><button class="ghost" type="button" disabled="{{locked}}" aria-label="Sửa quan hệ với {{r.other}}" style="width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: #7E7E8A; display: flex; align-items: center; justify-content: center; opacity: {{lockOp}}"><span class="ic i-edit" aria-hidden="true" style="width: 13px; height: 13px"></span></button></div></sc-for></div>
+</section>
+
+<sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}"><section class="card" style="border-radius: 14px; padding: 10px 12px">
+<div style="display: flex; align-items: center; gap: 8px; padding-bottom: 4px"><span style="font-size: 13px; font-weight: 600">Xưng hô tại chương {{ch}}</span><span style="font-size: 11.5px; color: #7E7E8A">có chiều</span></div>
+<sc-if value="{{d.noXh}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #7E7E8A">Chưa ghi xưng hô.</span></sc-if>
+<div><sc-for list="{{d.xh}}" as="x" hint-placeholder-count="3"><div class="kvr" style="flex-direction: column; gap: 2px"><span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #A0A0AB; min-width: 0; width: 100%"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; flex: none">{{x.from}}</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 11px; height: 11px; flex: none"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0">{{x.to}}</span></span><span>gọi <b style="font-weight: 600">“{{x.call}}”</b> · tự xưng <b style="font-weight: 600">“{{x.self}}”</b></span><sc-if value="{{x.hasWas}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #F3D9AE">{{x.was}}</span></sc-if></div></sc-for></div>
+</section></sc-if>
+
+<section class="card" style="border-radius: 14px; padding: 10px 12px">
+<span style="font-size: 13px; font-weight: 600">Diễn biến</span>
+<ol style="list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px"><sc-for list="{{d.hist}}" as="h" hint-placeholder-count="3"><li style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 8px; font-size: 12.5px; opacity: {{h.op}}"><span class="num" style="color: #8E8E99">Ch. {{h.ch}}</span><span style="color: #C9C9D1">{{h.t}}<sc-if value="{{h.future}}" hint-placeholder-val="{{ false }}"><span style="color: #7E7E8A"> · sau chương {{ch}}</span></sc-if></span></li></sc-for></ol>
+</section>
+
+<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><span style="font-size: 12px; color: #7E7E8A; margin-right: 2px">Xuất hiện</span><sc-for list="{{d.appear}}" as="a" hint-placeholder-count="8"><span class="num" style="width: 24px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11.5px; background: {{a.bg}}; color: {{a.fg}}; border: 1px solid {{a.bd}}">{{a.n}}</span></sc-for></div>
+
+<sc-if value="{{locked}}" hint-placeholder-val="{{ true }}"><div role="status" style="display: flex; gap: 8px; padding: 10px 12px; border-radius: 12px; background: rgba(201,166,245,0.06); border: 1px solid rgba(201,166,245,0.22); font-size: 12.5px; color: #DCC8F8; line-height: 1.5"><span class="ic i-lock" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: none"></span><span>Người viết đang viết lại chương 4, nên đang khoá sửa. <a href="Main.dc.html" style="color: #EDEDEF; text-decoration: underline; text-underline-offset: 3px">Tạm dừng ở Bàn viết</a> để sửa.</span></div></sc-if>
+<sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}"><a href="Outline.dc.html" class="ghost" style="height: 34px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px"><span class="ic i-user" aria-hidden="true" style="width: 15px; height: 15px"></span>Mở trang nhân vật</a></sc-if>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ch":{"editor":"enum","options":["1","2","3","4","5","6","7","8"],"default":"4","section":"Chương"},"sel":{"editor":"enum","options":["nv","th","pc","hc","vo"],"default":"nv","section":"Đang chọn"},"view":{"editor":"enum","options":["graph","list"],"default":"graph","section":"Cách xem"},"lock":{"editor":"enum","options":["writing","free"],"default":"writing","section":"Trạng thái"},"$preview":{"width":1440,"height":900}}'>
+// SG · Não truyện dùng chung: dữ liệu, vẽ đồ thị, bảng chi tiết. Brain, Main (ngăn kéo) cùng dùng.
+const SG = (() => {
+const TITLES = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
+const TY = { char: ['Nhân vật', 'i-user', '#C9A6F5'], place: ['Địa điểm', 'i-global', '#8FDCCB'], obj: ['Vật', 'i-box', '#9DB0F7'], ev: ['Sự kiện', 'i-clock', '#F6CB8C'], fs: ['Chi tiết cài cắm', 'i-flag', '#FFB3BA'], rule: ['Quy tắc thế giới', 'i-shield', '#B8B8C2'] };
+const ET = { enemy: ['Đối đầu', '#FF9AA2', 'solid'], ally: ['Đồng minh', '#A6EDC1', 'solid'], work: ['Công việc', '#8C9BC0', 'solid'], own: ['Sở hữu · tác giả', '#9DB0F7', 'solid'], secret: ['Ẩn, chưa lộ', '#F6CB8C', 'dashed'], rel: ['Liên quan', '#6E6E78', 'dashed'] };
+// id: [type, name, ini, x, y, fromCh, desc, appear]
+const N = {
+  th: ['char', 'Lâm Tri Hạ', 'TH', 400, 270, 1, 'Biên kịch độc lập 26 tuổi, người kể chuyện. Viết kịch bản gốc nhưng bị xếp vai phụ.', [1, 2, 3, 4, 5, 6, 7, 8]],
+  nv: ['char', 'Tống Nhược Vy', 'NV', 620, 160, 1, 'Ảnh hậu 28 tuổi, đứng tên tác giả kịch bản của Tri Hạ.', [1, 2, 3, 4, 5, 6, 7]],
+  pc: ['char', 'Phùng Chấn', 'PC', 650, 390, 1, 'Giám đốc điều hành Tinh Mang. Người kể chưa biết ông đứng sau vụ cướp kịch bản cho tới chương 5.', [1, 4, 5, 7]],
+  hc: ['char', 'Hứa Hoài Châu', 'HC', 190, 140, 1, 'Đạo diễn 32 tuổi của chương trình, giữ lại bản live đọc thoại.', [1, 3, 4, 6, 7]],
+  kd: ['char', 'Kỳ Dương', 'KD', 175, 385, 2, 'Nam ca sĩ thần tượng 24 tuổi, cùng nhóm với Tri Hạ trong show.', [2, 3, 4, 5, 7, 8]],
+  dm: ['char', 'Đỗ Mẫn', 'ĐM', 400, 470, 3, 'Tổng đạo diễn show, giữ luật chơi công bằng.', [3, 7]],
+  kb: ['obj', 'Kịch bản gốc', '', 520, 50, 1, 'Bản Tri Hạ viết, đang đứng tên Nhược Vy.', [1, 2, 4, 5, 6, 8]],
+  rec: ['obj', 'Bản live đọc thoại', '', 235, 500, 4, 'Bản ghi buổi đọc thoại trực tiếp, có đoạn 73 giây bị cắt.', [4, 5, 6]],
+  ev: ['ev', 'Buổi đọc thoại live', '', 95, 260, 2, 'Trò đọc thoại trực tiếp. Được báo trước từ chương 2, diễn ra ở chương 4.', [2, 3, 4]],
+  tq: ['place', 'Trường quay số ba', '', 560, 500, 3, 'Nơi quay buổi đọc thoại live.', [3, 4]],
+  solao: ['fs', 'Số lạ nhắn tin', '', 330, 80, 3, 'Tin nhắn đe doạ cuối chương 3. Chưa rõ người gửi.', [3, 4, 6]],
+  vo: ['fs', 'Vỏ ổ cứng', '', 765, 250, 5, 'Vỏ ổ cứng cũ, có thể từng chứa bản gốc. Ruột đã bị tháo.', [5, 6, 8]],
+  luat: ['rule', 'Luật thẻ ngẫu nhiên', '', 75, 465, 2, 'Thẻ rút ngẫu nhiên, xáo công khai, không ai được nhường lượt.', [2, 4]]
+};
+// [a, b, phases [[fromCh, type, label]]]
+const E = [
+  ['th', 'nv', [[1, 'work', 'Bạn diễn cũ'], [2, 'enemy', 'Đối đầu']]],
+  ['th', 'kb', [[1, 'own', 'Người viết thật']]],
+  ['nv', 'kb', [[1, 'own', 'Đứng tên tác giả']]],
+  ['th', 'hc', [[1, 'work', 'Công việc'], [4, 'ally', 'Tin tưởng một phần']]],
+  ['th', 'kd', [[2, 'ally', 'Đồng minh']]],
+  ['pc', 'nv', [[5, 'secret', 'Chống lưng']]],
+  ['pc', 'th', [[1, 'work', 'Công việc'], [4, 'enemy', 'Ép xoá bản live']]],
+  ['hc', 'rec', [[4, 'own', 'Giữ lại']]],
+  ['th', 'solao', [[3, 'rel', 'Nhận tin đe doạ']]],
+  ['vo', 'kb', [[5, 'secret', 'Chứa bản gốc?']]],
+  ['th', 'ev', [[4, 'rel', 'Nối đúng câu bị ngắt']]],
+  ['nv', 'ev', [[4, 'rel', 'Đọc hỏng']]],
+  ['luat', 'ev', [[2, 'rel', 'Áp dụng']]],
+  ['ev', 'tq', [[3, 'rel', 'Diễn ra tại']]],
+  ['dm', 'th', [[3, 'work', 'Công việc']]],
+  ['ev', 'rec', [[4, 'rel', 'Ghi lại']]]
+];
+// xưng hô: [from, to, call, self, fromCh, untilCh|0, why]
+const XH = [
+  ['th', 'nv', 'chị Vy', 'em', 1, 1, 'đồng nghiệp cũ'], ['th', 'nv', 'cô', 'tôi', 2, 0, 'cắt đứt sau khi biết bị cướp tên'],
+  ['nv', 'th', 'em', 'chị', 1, 0, 'giữ vẻ đàn chị'],
+  ['th', 'hc', 'đạo diễn Hứa', 'tôi', 1, 0, 'công việc'],
+  ['kd', 'th', 'chị', 'em', 2, 0, 'kém hai tuổi'],
+  ['pc', 'th', 'cô Lâm', 'tôi', 1, 0, 'xa cách'], ['pc', 'nv', 'Vy', 'anh', 5, 0, 'lộ quan hệ ngầm']
+];
+// bố cục quỹ đạo: [vòng, góc°]; vòng 0 = người kể ở tâm
+// NODE v3 — vị trí tâm thẻ (đơn vị viewBox 960×640)
+const VW = 860, VH = 690, BX = 0, BY = 0, BW = 860, BH = 690, CX = 430, CY = 345;
+const POS = { th: [430, 345], nv: [604, 226], pc: [630, 432], dm: [446, 530], kd: [238, 448], hc: [250, 238], kb: [478, 64], solao: [236, 100], vo: [764, 318], tq: [688, 616], rec: [326, 640], luat: [112, 566], ev: [96, 340] };
+const CHR = { th: ['#E2D0FF', '#7B55E0', 'Nữ chính · người kể'], nv: ['#FFC2C8', '#C2485A', 'Phản diện chính'], pc: ['#FFC2C8', '#8E3A47', 'Đồng phạm · chưa lộ'], hc: ['#D6D6DC', '#4A4A55', 'Nam chính phụ trợ'], kd: ['#C9F5DA', '#2F9A73', 'Đồng minh hài'], dm: ['#D6D6DC', '#4A4A55', 'Phụ chức năng'] }; // màu theo loại vai (04-components › CharAvatar): chính tím · phản diện đỏ · đồng minh xanh · phụ xám
+const GLY = { obj: 'M8 1.8l5.4 3.1v6.2L8 14.2 2.6 11.1V4.9z M2.6 4.9L8 8l5.4-3.1 M8 8v6.2', ev: 'M8 2.2a5.8 5.8 0 1 0 0 11.6A5.8 5.8 0 1 0 8 2.2z M8 4.8V8l2.2 1.4', fs: 'M4 14V2.4 M4 3h7.6l-1.8 2.6 1.8 2.6H4', place: 'M8 14.2s-4.6-4.1-4.6-7.6a4.6 4.6 0 0 1 9.2 0c0 3.5-4.6 7.6-4.6 7.6z M8 4.9a1.7 1.7 0 1 0 0 3.4a1.7 1.7 0 1 0 0-3.4z', rule: 'M8 1.8l5.2 2v4.1c0 3.2-2.3 5.3-5.2 6.3-2.9-1-5.2-3.1-5.2-6.3V3.8z M5.8 8l1.6 1.6 2.9-3' };
+const NS = 'http://www.w3.org/2000/svg';
+const mk = (tag, at, par) => { const el = document.createElementNS(NS, tag); for (const k in at) el.setAttribute(k, at[k]); if (par) par.appendChild(el); return el; };
+// Loại vai (CharAvatar · 04-components): [kind, revealAt|0]
+const KINDS = { th: ['lead', 0], nv: ['anta', 0], pc: ['anta', 5], hc: ['sup', 0], kd: ['ally', 0], dm: ['sup', 0] };
+const KC = { lead: '#C9A6F5', anta: '#FF9AA2', ally: '#A6EDC1', sup: 'rgba(255,255,255,0.18)' };
+const KL = { lead: 'Chính', anta: 'Phản diện', ally: 'Đồng minh', sup: 'Phụ' };
+const KBG = { lead: 'M0.00 -3.70 L0.94 -1.29 L3.52 -1.14 L1.52 0.49 L2.17 2.99 L0.00 1.60 L-2.17 2.99 L-1.52 0.49 L-3.52 -1.14 L-0.94 -1.29Z', anta: 'M0 -3.4L3.4 2.7H-3.4Z', ally: 'M0 -3.5L3 -2.3V0.3C3 2.1 1.6 3.2 0 3.8C-1.6 3.2 -3 2.1 -3 0.3V-2.3Z' };
+const hiddenAt = (id, ch) => !!(KINDS[id] && KINDS[id][1] && ch < KINDS[id][1]);
+const phaseAt = (ph, ch) => { let cur = null; ph.forEach((x) => { if (x[0] <= ch) cur = x; }); return cur; };
+// Dữ liệu cho bảng chi tiết (dùng chung Não truyện toàn màn và ngăn kéo)
+function detail(ch, id) {
+  const n = N[id], t = TY[n[0]], isChar = n[0] === 'char';
+  const alive = (x) => N[x][5] <= ch;
+  const act = E.map(([a, b, ph]) => ({ a, b, cur: phaseAt(ph, ch) })).filter((e) => e.cur && alive(e.a) && alive(e.b));
+  const other = (e) => (e.a === id ? e.b : e.a);
+  const rels = act.filter((e) => e.a === id || e.b === id).map((e) => { const tt = ET[e.cur[1]]; return { label: e.cur[2], other: N[other(e)][1], c: tt[1], style: tt[2], kind: tt[0], from: e.cur[0], since: tt[0] + ' · ' + (e.cur[0] === ch && ch > 1 ? 'mới ở chương ' + ch : 'từ chương ' + e.cur[0]) }; });
+  const xh = XH.filter((x) => (x[0] === id || x[1] === id) && x[4] <= ch && (!x[5] || x[5] >= ch)).map((x) => { const prev = XH.find((y) => y[0] === x[0] && y[1] === x[1] && y[5] && y[5] < x[4] && x[4] <= ch); return { from: N[x[0]][1], to: N[x[1]][1], call: x[2], self: x[3], hasWas: !!prev, was: prev ? 'Đổi ở chương ' + x[4] + ', trước đó gọi “' + prev[2] + '” · ' + x[6] : '' }; });
+  const hist = [];
+  E.forEach(([a, b, ph]) => { if (a !== id && b !== id) return; const o = a === id ? b : a; ph.forEach((p, i) => hist.push({ ch: p[0], t: (i ? 'Đổi thành ' : '') + p[2] + ' · ' + N[o][1] })); });
+  XH.forEach((x) => { if ((x[0] === id || x[1] === id) && x[4] > 1) hist.push({ ch: x[4], t: N[x[0]][1] + ' gọi ' + N[x[1]][1] + ' là “' + x[2] + '”' }); });
+  hist.sort((p, r) => p.ch - r.ch);
+  const seen = {}; const histU = hist.filter((h) => { const k = h.ch + h.t; if (seen[k]) return false; seen[k] = 1; return true; }).map((h) => ({ ch: String(h.ch), t: h.t, future: h.ch > ch, op: h.ch > ch ? 0.5 : 1 }));
+  const kd = KINDS[id] ? KINDS[id][0] : null; const hid = hiddenAt(id, ch);
+  return { id, name: n[1], ini: n[2], isChar, notChar: !isChar, icon: t[1], type: t[0], c: t[2], role: isChar ? CHR[id][2] : t[0], desc: n[6], since: 'có từ chương ' + n[5], notYet: n[5] > ch, from: String(n[5]), kind: kd, hid, kindLabel: kd ? KL[kd] + (hid ? ' · chưa lộ' : '') : t[0], kindColor: kd ? KC[kd] : t[2], rels, noRels: !rels.length, xh, noXh: !xh.length, hist: histU, appear: n[7] };
+}
+// Dữ liệu ngắn cho danh sách Nhân vật ở Bàn viết
+function cast(ch, id) {
+  const d = detail(ch, id);
+  return { rels: d.rels.map((r) => ({ t: r.label, c: r.c, to: r.other, since: r.from === ch && ch > 1 ? 'mới ở chương ' + ch : 'từ chương ' + r.from })), xhs: d.xh.map((x) => [x.from + ' → ' + x.to, 'gọi “' + x.call + '”, tự xưng “' + x.self + '”']), hid: d.hid };
+}
+function build(self, host) {
+    host.innerHTML = '';
+    const F = 'Be Vietnam Pro, system-ui, sans-serif';
+    // FIT v31: đo bằng font thật, quá bề rộng thì cắt và thêm “…”; tên đầy đủ nằm trong <title> và bảng chi tiết
+    const fit = (el, full, max) => { el.textContent = full; let w = el.getComputedTextLength() || full.length * 7; if (w <= max) return w; let t = full; while (t.length > 2) { t = t.slice(0, -1).replace(/[\s·,]+$/, ''); el.textContent = t + '…'; w = el.getComputedTextLength() || t.length * 7; if (w <= max) break; } return w; };
+    const svg = mk('svg', { viewBox: BX + ' ' + BY + ' ' + BW + ' ' + BH, preserveAspectRatio: 'xMidYMid meet' }, host);
+    const defs = mk('defs', {}, svg);
+    const pat = mk('pattern', { id: 'bdots', width: 20, height: 20, patternUnits: 'userSpaceOnUse' }, defs); mk('circle', { cx: 10, cy: 10, r: 0.75, fill: 'rgba(255,255,255,0.05)' }, pat);
+    const glow = mk('radialGradient', { id: 'bglow', cx: '50%', cy: '50%', r: '50%' }, defs); mk('stop', { offset: '0', 'stop-color': '#9C7CF0', 'stop-opacity': '0.10' }, glow); mk('stop', { offset: '0.6', 'stop-color': '#9C7CF0', 'stop-opacity': '0.025' }, glow); mk('stop', { offset: '1', 'stop-color': '#9C7CF0', 'stop-opacity': '0' }, glow);
+    const fade = mk('radialGradient', { id: 'bfade', cx: '50%', cy: '50%', r: '62%' }, defs); mk('stop', { offset: '0.7', 'stop-color': '#0B0B0E', 'stop-opacity': '0' }, fade); mk('stop', { offset: '1', 'stop-color': '#0B0B0E', 'stop-opacity': '0.55' }, fade);
+    const blur = mk('filter', { id: 'bblur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs); mk('feGaussianBlur', { stdDeviation: 9 }, blur);
+    const eblur = mk('filter', { id: 'beblur', x: '-20%', y: '-20%', width: '140%', height: '140%' }, defs); mk('feGaussianBlur', { stdDeviation: 2.4 }, eblur);
+    const card = mk('linearGradient', { id: 'bcard', x1: 0, y1: 0, x2: 0, y2: 1 }, defs); mk('stop', { offset: '0', 'stop-color': '#1E1D25' }, card); mk('stop', { offset: '1', 'stop-color': '#141418' }, card);
+    const cardHi = mk('linearGradient', { id: 'bcardhi', x1: 0, y1: 0, x2: 0, y2: 1 }, defs); mk('stop', { offset: '0', 'stop-color': '#FFFFFF', 'stop-opacity': '0.16' }, cardHi); mk('stop', { offset: '0.5', 'stop-color': '#FFFFFF', 'stop-opacity': '0.05' }, cardHi); mk('stop', { offset: '1', 'stop-color': '#FFFFFF', 'stop-opacity': '0.03' }, cardHi);
+    Object.keys(CHR).forEach((k) => { const g = mk('radialGradient', { id: 'bav-' + k, cx: '32%', cy: '28%', r: '80%' }, defs); mk('stop', { offset: '0', 'stop-color': CHR[k][0] }, g); mk('stop', { offset: '1', 'stop-color': CHR[k][1] }, g); });
+    mk('rect', { x: -VW, y: -VH, width: VW * 3, height: VH * 3, fill: 'url(#bdots)' }, svg);
+    mk('ellipse', { cx: CX, cy: CY, rx: 420, ry: 360, fill: 'url(#bglow)' }, svg);
+    mk('ellipse', { cx: CX, cy: CY, rx: 210, ry: 175, fill: 'none', stroke: 'rgba(255,255,255,0.04)', 'stroke-width': 1 }, svg);
+    mk('ellipse', { cx: CX, cy: CY, rx: 352, ry: 300, fill: 'none', stroke: 'rgba(255,255,255,0.03)', 'stroke-width': 1, 'stroke-dasharray': '1 7', 'stroke-linecap': 'round' }, svg);
+    const gE = mk('g', {}, svg), gN = mk('g', {}, svg), gL = mk('g', {}, svg);
+    mk('rect', { x: -VW, y: -VH, width: VW * 3, height: VH * 3, fill: 'url(#bfade)', 'pointer-events': 'none' }, svg);
+    // ---- nodes (đo chữ trước để biết kích thước thẻ)
+    const nodes = {};
+    Object.keys(N).forEach((id) => {
+      const [x, y] = POS[id]; const n = N[id]; const ty = n[0]; const isChar = ty === 'char'; const big = id === 'th';
+      const g = mk('g', { class: 'bn', 'data-id': id, tabindex: 0, role: 'button' }, gN); mk('title', {}, g).textContent = n[1] + ' · ' + (isChar ? CHR[id][2] : TY[ty][0]);
+      const body = mk('g', { class: 'bn-body', style: 'transform-origin: ' + x + 'px ' + y + 'px' }, g);
+      const halo = mk('rect', { fill: isChar ? CHR[id][1] : TY[ty][2], opacity: 0, filter: 'url(#bblur)', class: 'bn-halo' }, body);
+      const back = mk('rect', { fill: '#101014' }, body);
+      const cb = mk('g', { class: 'bn-cont' }, body);
+      const plate = mk('rect', { fill: 'url(#bcard)', stroke: 'rgba(255,255,255,0.09)', 'stroke-width': 1 }, cb);
+      const sheen = mk('rect', { fill: 'none', stroke: 'url(#bcardhi)', 'stroke-width': 1, 'pointer-events': 'none' }, cb);
+      let w, h, nm, sub = null, kring = null;
+      if (isChar) {
+        const r = big ? 18 : 15; h = big ? 54 : 46;
+        nm = mk('text', { y: y - (big ? 2 : 1.5), 'font-size': big ? 15 : 13.5, 'font-weight': 600, 'font-family': F, fill: '#EDEDEF' }, cb);
+        sub = mk('text', { y: y + (big ? 15 : 13.5), 'font-size': big ? 11.5 : 11, 'font-family': F, fill: '#8E8E99' }, cb);
+        const tw = Math.ceil(Math.max(fit(nm, n[1], big ? 150 : 132), fit(sub, CHR[id][2], big ? 150 : 132)));
+        w = Math.round(6 + r * 2 + 10 + tw + 16);
+        const ax = x - w / 2 + 6 + r;
+        kring = mk('circle', { cx: ax, cy: y, r: r + 2.5, fill: 'none', stroke: CHR[id][0], 'stroke-opacity': 0.25, 'stroke-width': 1 }, cb);
+        mk('circle', { cx: ax, cy: y, r, fill: 'url(#bav-' + id + ')' }, cb);
+        mk('text', { x: ax, y: y + (big ? 4.6 : 4), 'text-anchor': 'middle', 'font-size': big ? 12 : 10.5, 'font-weight': 700, fill: '#FFFFFF', 'fill-opacity': 0.95, 'font-family': F, 'letter-spacing': '0.02em' }, cb).textContent = n[2];
+        const kd = KINDS[id] ? KINDS[id][0] : 'sup';
+        if (KBG[kd]) { const bx = ax + r * 0.74, by = y + r * 0.74; const kg = mk('g', { 'pointer-events': 'none' }, cb); mk('circle', { cx: bx, cy: by, r: 6.6, fill: KC[kd], stroke: '#101014', 'stroke-width': 1.6 }, kg); mk('path', { d: KBG[kd], transform: 'translate(' + bx.toFixed(1) + ' ' + by.toFixed(1) + ')', fill: '#1A1420' }, kg); }
+        const tx = ax + r + 10; nm.setAttribute('x', tx); sub.setAttribute('x', tx);
+      } else {
+        h = 32; const c = TY[ty][2];
+        nm = mk('text', { y: y + 4.4, 'font-size': 12.5, 'font-weight': 500, 'font-family': F, fill: '#D6D6DC' }, cb);
+        const tw = Math.ceil(fit(nm, n[1], 136));
+        w = Math.round(10 + 16 + 8 + tw + 13);
+        const ix = x - w / 2 + 10;
+        mk('rect', { x: ix - 3, y: y - 11, width: 22, height: 22, rx: 7, fill: c, 'fill-opacity': 0.12 }, cb);
+        mk('path', { d: GLY[ty], transform: 'translate(' + (ix) + ' ' + (y - 8) + ')', fill: 'none', stroke: c, 'stroke-width': 1.35, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, cb);
+        nm.setAttribute('x', ix + 16 + 10);
+      }
+      const rx = h / 2, x0 = x - w / 2, y0 = y - h / 2;
+      [back, plate, sheen].forEach((el) => { el.setAttribute('x', x0); el.setAttribute('y', y0); el.setAttribute('width', w); el.setAttribute('height', h); el.setAttribute('rx', rx); });
+      halo.setAttribute('x', x0 - 4); halo.setAttribute('y', y0 - 4); halo.setAttribute('width', w + 8); halo.setAttribute('height', h + 8); halo.setAttribute('rx', rx + 4);
+      const ring = mk('rect', { x: x0 - 3.5, y: y0 - 3.5, width: w + 7, height: h + 7, rx: rx + 3.5, fill: 'none', stroke: isChar ? CHR[id][0] : TY[ty][2], 'stroke-width': 1.3, opacity: 0, class: 'bn-ring' }, body);
+      const pulse = mk('rect', { x: x0 - 3.5, y: y0 - 3.5, width: w + 7, height: h + 7, rx: rx + 3.5, fill: 'none', stroke: isChar ? CHR[id][0] : TY[ty][2], 'stroke-width': 1, opacity: 0 }, body);
+      const nb = mk('g', { opacity: 0, 'pointer-events': 'none' }, body);
+      mk('rect', { x: x0 + w - 22, y: y0 - 8, width: 30, height: 16, rx: 8, fill: '#C9A6F5', stroke: '#0B0B0E', 'stroke-width': 2 }, nb);
+      mk('text', { x: x0 + w - 7, y: y0 + 3.4, 'text-anchor': 'middle', 'font-size': 9.5, 'font-weight': 700, fill: '#0B0B0D', 'font-family': F }, nb).textContent = 'mới';
+      nodes[id] = { g, body, cb, halo, plate, ring, pulse, nm, sub, nb, kring, w, h, isChar, c: isChar ? CHR[id][0] : TY[ty][2] };
+    });
+    // ---- edges: nối mép thẻ, cong ra ngoài tâm
+    const hit = (id, qx, qy) => { const [x, y] = POS[id]; const nd = nodes[id]; const dx = qx - x, dy = qy - y; const hw = nd.w / 2 + 5, hh = nd.h / 2 + 5; const t = Math.min(hw / Math.max(Math.abs(dx), 1e-3), hh / Math.max(Math.abs(dy), 1e-3)); return [x + dx * t, y + dy * t]; };
+    const edges = E.map(([a, b], i) => {
+      const A = POS[a], B = POS[b];
+      const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy);
+      const nx = -dy / len, ny = dx / len; const side = (mx - CX) * nx + (my - CY) * ny; const sg = Math.abs(side) < 10 ? (i % 2 ? 1 : -1) : Math.sign(side);
+      const bend = len * 0.16 * sg, qx = mx + nx * bend, qy = my + ny * bend;
+      const [ax, ay] = hit(a, qx, qy), [bx, by] = hit(b, qx, qy);
+      const d = 'M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + qy.toFixed(1) + ' ' + bx.toFixed(1) + ' ' + by.toFixed(1);
+      const gr = mk('linearGradient', { id: 'bg-' + i, gradientUnits: 'userSpaceOnUse', x1: ax, y1: ay, x2: bx, y2: by }, defs);
+      const st = [[0, 0.25], [0.5, 1], [1, 0.25]].map(([o, op]) => mk('stop', { offset: o, 'stop-color': '#888', 'stop-opacity': op }, gr));
+      const aura = mk('path', { d, fill: 'none', 'stroke-width': 5, 'stroke-linecap': 'round', filter: 'url(#beblur)', class: 'be', opacity: 0 }, gE);
+      const path = mk('path', { d, fill: 'none', stroke: 'url(#bg-' + i + ')', 'stroke-width': 1.2, 'stroke-linecap': 'round', class: 'be', opacity: 0 }, gE);
+      const flow = mk('path', { d, fill: 'none', stroke: '#FFFFFF', 'stroke-width': 2, 'stroke-linecap': 'round', class: 'bf', opacity: 0 }, gE);
+      const ends = [[ax, ay], [bx, by]].map(([ex, ey]) => mk('circle', { cx: ex, cy: ey, r: 2.2, opacity: 0, class: 'be' }, gE));
+      let lx = 0, ly = 0, best = -1; [0.5, 0.42, 0.58, 0.35, 0.65].forEach((t) => { const u = 1 - t; const px = u * u * ax + 2 * u * t * qx + t * t * bx, py = u * u * ay + 2 * u * t * qy + t * t * by; let dmin = 1e9; Object.keys(POS).forEach((k) => { if (k === a || k === b) return; const P = POS[k], nd = nodes[k]; const ddx = Math.max(0, Math.abs(P[0] - px) - nd.w / 2), ddy = Math.max(0, Math.abs(P[1] - py) - nd.h / 2); dmin = Math.min(dmin, Math.hypot(ddx, ddy)); }); if (dmin > best + 4) { best = dmin; lx = px; ly = py; } });
+      const lg = mk('g', { class: 'bl', opacity: 0, 'pointer-events': 'none' }, gL);
+      const rect = mk('rect', { x: lx, y: ly - 10.5, height: 21, rx: 10.5, fill: '#111116', 'stroke-width': 1 }, lg);
+      const dot = mk('circle', { cy: ly, r: 2.6 }, lg);
+      const txt = mk('text', { x: lx, y: ly + 3.9, 'font-size': 11, 'font-weight': 500, 'font-family': F }, lg);
+      const newT = mk('text', { 'font-size': 9.5, 'font-weight': 700, fill: '#C9A6F5', 'font-family': F, 'letter-spacing': '0.04em' }, lg); newT.textContent = 'MỚI'; const newW = newT.getComputedTextLength() || 22;
+      return { path, aura, flow, ends, st, lg, rect, dot, txt, newT, newW, lx, ly, a, b, geo: [ax, ay, qx, qy, bx, by], fit, lab: null, labW: 0 };
+    });
+    const pick = (el) => { const t = el && el.closest && el.closest('[data-id]'); return t ? t.getAttribute('data-id') : null; };
+    svg.addEventListener('click', (e) => { const id = pick(e.target); if (id && self.vis && self.vis[id]) self.sgPick(id); });
+    svg.addEventListener('keydown', (e) => { if (e.key !== 'Enter' && e.key !== ' ') return; const id = pick(e.target); if (id) { e.preventDefault(); self.sgPick(id); } });
+    svg.addEventListener('mouseover', (e) => { const id = pick(e.target); if (id && id !== self.sgS().hover && self.vis && self.vis[id]) self.sgHover(id); });
+    svg.addEventListener('mouseleave', () => { if (self.sgS().hover) self.sgHover(null); });
+    svg.addEventListener('mouseout', (e) => { const to = pick(e.relatedTarget); if (!to && self.sgS().hover) self.sgHover(null); });
+    self.G = { host, svg, edges, nodes, vb: [BX, BY, BW, BH] };
+  }
+function paint(self, hostSel) {
+    const host = document.querySelector(hostSel); if (!host) { self.G = null; return; }
+    if (!self.G || self.G.host !== host || !host.firstChild) build(self, host);
+    const G = self.G, s = self.sgS(), ch = s.ch, q = s.q.trim().toLowerCase();
+    const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const phaseAt = (ph) => { let cur = null; ph.forEach((x) => { if (x[0] <= ch) cur = x; }); return cur; };
+    const alive = (id) => N[id][5] <= ch && !s.tOff[N[id][0]];
+    const act = E.map(([a, b, ph], i) => ({ i, a, b, cur: phaseAt(ph) })).filter((e) => e.cur && alive(e.a) && alive(e.b) && !s.eOff[e.cur[1]]);
+    const focus = (s.hover && alive(s.hover)) ? s.hover : s.sel;
+    const near = {}; near[focus] = 1; act.forEach((e) => { if (e.a === focus) near[e.b] = 1; if (e.b === focus) near[e.a] = 1; });
+    const selNear = {}; selNear[s.sel] = 1; act.forEach((e) => { if (e.a === s.sel) selNear[e.b] = 1; if (e.b === s.sel) selNear[e.a] = 1; });
+    const vis = {}; Object.keys(N).forEach((id) => { vis[id] = alive(id) && (!s.focus || selNear[id]); }); self.vis = vis;
+    const on = {}; act.forEach((e) => { on[e.i] = e; }); const hiE = [];
+    G.edges.forEach((g, i) => {
+      const e = on[i]; const show = e && vis[e.a] && vis[e.b];
+      if (!show) { g.fresh = false; [g.path, g.aura, g.flow, g.lg].concat(g.ends).forEach((el) => el.setAttribute('opacity', 0)); return; }
+      const t = ET[e.cur[1]]; const hi = e.a === focus || e.b === focus;
+      g.st.forEach((x) => x.setAttribute('stop-color', t[1]));
+      g.path.setAttribute('stroke-dasharray', t[2] === 'dashed' ? '3.5 5' : 'none');
+      g.path.setAttribute('stroke-width', hi ? 1.8 : 1.2);
+      g.path.setAttribute('opacity', hi ? 1 : 0.5);
+      g.aura.setAttribute('stroke', t[1]); g.aura.setAttribute('opacity', hi ? 0.45 : 0);
+      g.ends.forEach((c) => { c.setAttribute('fill', t[1]); c.setAttribute('opacity', hi ? 0.95 : 0); });
+      g.flow.setAttribute('stroke', t[1]); g.flow.setAttribute('opacity', hi && !reduce ? 1 : 0);
+      g.txt.setAttribute('fill', '#E4E4EA'); g.rect.setAttribute('stroke', t[1]); g.rect.setAttribute('stroke-opacity', 0.45); g.dot.setAttribute('fill', t[1]);
+      g.fresh = e.cur[0] === ch && ch > 1;
+      if (g.lab !== e.cur[2]) { g.lab = e.cur[2]; g.labW = g.fit(g.txt, e.cur[2], 128); }
+      g.lg.setAttribute('opacity', hi ? 1 : 0);
+      if (hi) hiE.push(g);
+    });
+    // đặt nhãn: ưu tiên phía xa mục đang xem, né thẻ và né nhãn khác
+    const boxes = Object.keys(G.nodes).filter((k) => vis[k]).map((k) => { const P = POS[k], nd = G.nodes[k]; return [P[0] - nd.w / 2 - 4, P[1] - nd.h / 2 - 4, P[0] + nd.w / 2 + 4, P[1] + nd.h / 2 + 4]; });
+    const ov = (r1, r2) => Math.max(0, Math.min(r1[2], r2[2]) - Math.max(r1[0], r2[0])) * Math.max(0, Math.min(r1[3], r2[3]) - Math.max(r1[1], r2[1]));
+    const placed = [];
+    hiE.sort((g1, g2) => g2.labW - g1.labW).forEach((g) => {
+      const [ax, ay, qx, qy, bx, by] = g.geo; const fromA = g.a === focus;
+      const w = 10 + 5 + 7 + g.labW + 11 + (g.fresh ? g.newW + 7 : 0), h = 21;
+      let best = null, bestScore = 1e12;
+      [0.62, 0.7, 0.54, 0.78, 0.46, 0.38].forEach((tt, k) => { const t2 = fromA ? tt : 1 - tt; const u = 1 - t2; const px = u * u * ax + 2 * u * t2 * qx + t2 * t2 * bx, py = u * u * ay + 2 * u * t2 * qy + t2 * t2 * by; const r = [px - w / 2, py - h / 2, px + w / 2, py + h / 2]; let sc = k * 40; boxes.forEach((bb) => { sc += ov(r, bb) * 6; }); placed.forEach((bb) => { sc += ov(r, bb) * 10; }); if (r[0] < BX + 4 || r[2] > BX + BW - 4 || r[1] < BY + 4 || r[3] > BY + BH - 4) sc += 5000; if (sc < bestScore) { bestScore = sc; best = [px, py, r]; } });
+      const [px, py, r] = best; placed.push(r);
+      const x0 = px - w / 2;
+      g.rect.setAttribute('x', x0.toFixed(1)); g.rect.setAttribute('y', (py - h / 2).toFixed(1)); g.rect.setAttribute('width', w.toFixed(1));
+      g.dot.setAttribute('cx', (x0 + 12).toFixed(1)); g.dot.setAttribute('cy', py.toFixed(1));
+      g.txt.setAttribute('x', (x0 + 21).toFixed(1)); g.txt.setAttribute('y', (py + 3.9).toFixed(1));
+      g.newT.setAttribute('x', (x0 + 21 + g.labW + 7).toFixed(1)); g.newT.setAttribute('y', (py + 3.5).toFixed(1));
+    });
+    G.edges.forEach((g) => { g.newT.setAttribute('opacity', g.fresh ? 1 : 0); });
+    Object.keys(G.nodes).forEach((id) => {
+      const n = G.nodes[id]; const v = vis[id]; const isSel = id === s.sel; const isHov = id === s.hover; const m = !q || N[id][1].toLowerCase().indexOf(q) >= 0;
+      n.body.style.transform = v ? 'scale(1)' : 'scale(0.7)';
+      n.body.style.opacity = v ? 1 : 0; n.cb.style.opacity = !m ? 0.18 : (near[id] ? 1 : 0.5);
+      n.g.style.pointerEvents = v ? 'auto' : 'none'; n.g.setAttribute('tabindex', v ? 0 : -1);
+      n.g.setAttribute('aria-label', N[id][1] + ' · ' + TY[N[id][0]][0] + (isSel ? ' · đang chọn' : ''));
+      n.g.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+      n.halo.setAttribute('opacity', isSel ? 0.42 : (isHov ? 0.22 : (near[id] && focus !== id ? 0.08 : 0)));
+      n.plate.setAttribute('stroke', isSel ? n.c : (isHov || near[id] ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.08)'));
+      n.plate.setAttribute('stroke-opacity', isSel ? 0.85 : 1);
+      n.ring.setAttribute('opacity', isSel ? 0.35 : 0);
+      n.pulse.setAttribute('class', isSel && !reduce ? 'bpulse' : ''); n.pulse.setAttribute('opacity', isSel && !reduce ? 0.5 : 0);
+      n.nm.setAttribute('fill', isSel ? '#FFFFFF' : '#E4E4EA');
+      n.nb.setAttribute('opacity', v && N[id][5] === ch && ch > 1 ? 1 : 0);
+      if (n.kring) { const hid = hiddenAt(id, ch); n.kring.setAttribute('stroke-dasharray', hid ? '2.6 2.4' : 'none'); n.kring.setAttribute('stroke-opacity', hid ? 0.9 : 0.25); n.kring.setAttribute('stroke-width', hid ? 1.3 : 1); }
+    });
+    const z = s.z; let tv;
+    if (z <= 1) { const w = BW / z, h = BH / z; tv = [BX + BW / 2 - w / 2, BY + BH / 2 - h / 2, w, h]; }
+    else { const P = POS[s.sel]; const w = BW / z, h = BH / z; tv = [Math.max(BX - 40, Math.min(BX + BW + 40 - w, P[0] - w / 2)), Math.max(BY - 30, Math.min(BY + BH + 30 - h, P[1] - h / 2)), w, h]; }
+    const cur = G.vb; if (tv.some((x, k) => Math.abs(x - cur[k]) > 0.5)) {
+      cancelAnimationFrame(self.vbRaf); const from = cur.slice(), t0 = performance.now(), dur = reduce ? 1 : 420;
+      const step = (now) => { const k = Math.min(1, (now - t0) / dur), e2 = 1 - Math.pow(1 - k, 3); G.vb = from.map((f, i2) => f + (tv[i2] - f) * e2); G.svg.setAttribute('viewBox', G.vb.map((x) => x.toFixed(2)).join(' ')); if (k < 1) self.vbRaf = requestAnimationFrame(step); };
+      self.vbRaf = requestAnimationFrame(step);
+    }
+  }
+return { TITLES, TY, ET, N, E, XH, POS, CHR, GLY, VW, VH, BX, BY, BW, BH, CX, CY, NS, mk, KINDS, KC, KL, hiddenAt, detail, cast, build, paint };
+})();
+
+const { TITLES, TY, ET, N, E, XH, POS, CHR, GLY, VW, VH, BX, BY, BW, BH, CX, CY, NS, mk } = SG;
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); }
+  fresh(p) { return { ch: +(p.ch || 4), sel: p.sel || 'nv', view: p.view || 'graph', tOff: {}, eOff: {}, q: '', hover: null, focus: false, z: 1 }; }
+  componentDidMount() { this.paint(); const re = () => { this.G = null; this.paint(); }; if (document.fonts) { this.fontH = re; document.fonts.addEventListener('loadingdone', re); if (document.fonts.ready) document.fonts.ready.then(re); } }
+  componentWillUnmount() { cancelAnimationFrame(this.vbRaf); if (document.fonts && this.fontH) document.fonts.removeEventListener('loadingdone', this.fontH); }
+  componentDidUpdate(prev) { const P = this.props; if (prev.ch !== P.ch || prev.sel !== P.sel || prev.view !== P.view || prev.lock !== P.lock) { this.setState(this.fresh(P)); return; } this.paint(); }
+  sgS() { return this.state; }
+  sgPick(id) { this.setState({ sel: id }); }
+  sgHover(id) { this.setState({ hover: id }); }
+  paint() { SG.paint(this, '.brain-host'); }
+  renderVals() {
+    const s = this.state; const set = (x) => this.setState(x); const ch = s.ch; const q = s.q.trim().toLowerCase();
+    const phaseAt = (ph) => { let cur = null; ph.forEach((x) => { if (x[0] <= ch) cur = x; }); return cur; };
+    const alive = (id) => N[id][5] <= ch;
+    const visT = (id) => !s.tOff[N[id][0]];
+    const match = (id) => !q || N[id][1].toLowerCase().indexOf(q) >= 0;
+    const act = E.map(([a, b, ph]) => ({ a, b, ph, cur: phaseAt(ph) })).filter((e) => e.cur && alive(e.a) && alive(e.b) && visT(e.a) && visT(e.b) && !s.eOff[e.cur[1]]);
+    const adj = {}; act.forEach((e) => { if (e.a === s.sel) adj[e.b] = 1; if (e.b === s.sel) adj[e.a] = 1; });
+    const edges = act.map((e) => { const A = N[e.a], B = N[e.b]; const dx = B[3] - A[3], dy = B[4] - A[4]; const on = e.a === s.sel || e.b === s.sel; const t = ET[e.cur[1]]; const fresh = e.cur[0] === ch;
+      return { x: A[3], y: A[4], len: Math.round(Math.hypot(dx, dy)), ang: (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2), w: on ? 2 : 1.5, style: t[2], c: t[1], op: on ? 1 : 0.28, mx: Math.round(A[3] + dx / 2), my: Math.round(A[4] + dy / 2), label: e.cur[2] + (fresh && ch > 1 ? ' · mới' : ''), lc: on ? t[1] : '#7E7E8A', showLbl: on }; });
+    const nodes = Object.keys(N).filter((id) => alive(id) && visT(id)).map((id) => { const n = N[id]; const t = TY[n[0]]; const sel = id === s.sel; const near = sel || adj[id]; const isChar = n[0] === 'char';
+      return { x: n[3], y: n[4], name: n[1], ini: n[2], isChar, notChar: !isChar, icon: t[1], size: isChar ? (id === 'th' ? 46 : 38) : 32, rad: isChar ? '50%' : '9px', fs: id === 'th' ? 14 : 12.5, bg: isChar ? '#1C1C20' : '#141417', bd: sel ? '#EDEDEF' : t[2] + '88', c: t[2], ring: sel ? '0 0 0 4px rgba(201,166,245,0.18)' : 'none', op: !match(id) ? 0.2 : (near ? 1 : 0.5), nc: sel ? '#EDEDEF' : '#C9C9D1', fw: sel ? 600 : 400, isNew: n[5] === ch && ch > 1, sel, aria: n[1] + ' · ' + t[0], pick: () => set({ sel: id }) }; });
+    const counts = (k) => Object.keys(N).filter((id) => N[id][0] === k && alive(id)).length;
+    const types = Object.keys(TY).map((k) => ({ label: TY[k][0], icon: TY[k][1], c: TY[k][2], n: String(counts(k)), on: !s.tOff[k], toggle: () => set({ tOff: Object.assign({}, s.tOff, { [k]: !s.tOff[k] }) }) }));
+    const allAct = E.map(([a, b, ph]) => ({ a, b, cur: phaseAt(ph) })).filter((e) => e.cur && alive(e.a) && alive(e.b));
+    const etypes = Object.keys(ET).map((k) => ({ label: ET[k][0], c: ET[k][1], style: ET[k][2], n: String(allAct.filter((e) => e.cur[1] === k).length), on: !s.eOff[k], toggle: () => set({ eOff: Object.assign({}, s.eOff, { [k]: !s.eOff[k] }) }) }));
+    // detail
+    const id = s.sel, n = N[id], t = TY[n[0]], isChar = n[0] === 'char';
+    const other = (e) => (e.a === id ? e.b : e.a);
+    const rels = allAct.filter((e) => e.a === id || e.b === id).map((e) => { const tt = ET[e.cur[1]]; return { label: e.cur[2], other: N[other(e)][1], c: tt[1], style: tt[2], since: tt[0] + ' · từ chương ' + e.cur[0] }; });
+    const xh = XH.filter((x) => (x[0] === id || x[1] === id) && x[4] <= ch && (!x[5] || x[5] >= ch)).map((x) => { const prev = XH.find((y) => y[0] === x[0] && y[1] === x[1] && y[5] && y[5] < x[4] && x[4] <= ch); return { from: N[x[0]][1], to: N[x[1]][1], call: x[2], self: x[3], hasWas: !!prev, was: prev ? 'Đổi ở chương ' + x[4] + ', trước đó gọi “' + prev[2] + '” · ' + x[6] : '' }; });
+    const hist = [];
+    E.forEach(([a, b, ph]) => { if (a !== id && b !== id) return; const o = a === id ? b : a; ph.forEach((p, i) => hist.push({ ch: p[0], t: (i ? 'Đổi thành ' : '') + p[2] + ' · ' + N[o][1] })); });
+    XH.forEach((x) => { if ((x[0] === id || x[1] === id) && x[4] > 1) hist.push({ ch: x[4], t: N[x[0]][1] + ' gọi ' + N[x[1]][1] + ' là “' + x[2] + '”' }); });
+    hist.sort((p, r) => p.ch - r.ch);
+    const seen = {}; const histU = hist.filter((h) => { const k = h.ch + h.t; if (seen[k]) return false; seen[k] = 1; return true; }).slice(0, 7).map((h) => ({ ch: String(h.ch), t: h.t, future: h.ch > ch, op: h.ch > ch ? 0.5 : 1 }));
+    const locked = (this.props.lock || 'writing') === 'writing';
+    const groups = Object.keys(TY).map((k) => { const ids = Object.keys(N).filter((x) => N[x][0] === k && visT(x) && match(x)); return { label: TY[k][0], icon: TY[k][1], c: TY[k][2], n: String(ids.length), items: ids.map((x) => { const r = allAct.filter((e) => e.a === x || e.b === x); const chg = E.some(([a, b, ph]) => (a === x || b === x) && ph.some((p) => p[0] === ch)); return { name: N[x][1], since: alive(x) ? 'từ chương ' + N[x][5] : 'từ chương ' + N[x][5] + ' · chưa có', rels: r.length ? r.map((e) => e.cur[2] + ' · ' + N[e.a === x ? e.b : e.a][1]).join(', ') : '—', chg: chg ? 'đổi ở ch. ' + ch : '', chgFg: '#DCC8F8', sel: x === s.sel, bg: x === s.sel ? 'rgba(201,166,245,0.06)' : 'transparent', pick: () => set({ sel: x }) }; }) }; }).filter((g) => g.items.length);
+    const changed = E.filter(([a, b, ph]) => ph.some((p) => p[0] === ch)).length + Object.keys(N).filter((x) => N[x][5] === ch).length;
+    return {
+      types, etypes, edges, nodes, groups,
+      isGraph: s.view === 'graph', isList: s.view === 'list', toGraph: () => set({ view: 'graph' }), toList: () => set({ view: 'list' }),
+      q: s.q, onQ: (e) => set({ q: e.target.value }),
+      countText: nodes.length + ' thực thể · ' + edges.length + ' quan hệ',
+      graphAria: 'Đồ thị quan hệ tại chương ' + ch + ': ' + nodes.length + ' thực thể, ' + edges.length + ' quan hệ. Danh sách đầy đủ ở chế độ Danh sách.',
+      ch: String(ch), chTitle: TITLES[ch - 1], chNote: ch === 4 ? 'Đang viết lại chương này' : (changed ? changed + ' thay đổi so với chương trước' : 'Không đổi so với chương trước'), chNoteFg: ch === 4 ? '#DCC8F8' : '#8E8E99',
+      ticks: TITLES.map((x, i) => { const on = ch === i + 1; return { n: String(i + 1), on, x: (i / 7 * 100).toFixed(3) + '%', cls: i < 3 ? 'done' : (i === 3 ? 'live' : 'todo'), fg: on ? '#EDEDEF' : (i <= 3 ? '#A0A0AB' : '#5E5E68'), aria: 'Chương ' + (i + 1) + ' · ' + x + (i < 3 ? ' · đã viết' : i === 3 ? ' · đang viết lại' : ' · chưa viết'), pick: () => set({ ch: i + 1 }) }; }),
+      tlFill: (3 / 7 * 100).toFixed(3) + '%', atFirst: ch <= 1, atLast: ch >= 8, chPrev: () => set({ ch: Math.max(1, ch - 1) }), chNext: () => set({ ch: Math.min(8, ch + 1) }), chLive: ch === 4,
+      focusOn: !!s.focus, toggleFocus: () => set({ focus: !s.focus }), zoomText: Math.round(s.z * 100) + '%', zoomIn: () => set({ z: Math.min(2, +(s.z + 0.25).toFixed(2)) }), zoomOut: () => set({ z: Math.max(0.75, +(s.z - 0.25).toFixed(2)) }), zoomFit: () => set({ z: 1 }),
+      locked, lockOp: locked ? 0.4 : 1,
+      d: { name: n[1], ini: n[2], isChar, notChar: !isChar, icon: t[1], type: t[0], c: t[2], bg: isChar ? '#1C1C20' : '#141417', bd: t[2] + '88', rad: isChar ? '50%' : '11px', since: 'có từ chương ' + n[5], desc: n[6], notYet: n[5] > ch, from: String(n[5]), rels, noRels: !rels.length, xh, noXh: !xh.length, hist: histU,
+        appear: TITLES.map((x, i) => { const on = n[7].indexOf(i + 1) >= 0; const cur = i + 1 === ch; return { n: String(i + 1), bg: on ? 'rgba(201,166,245,0.1)' : 'transparent', fg: on ? '#EDEDEF' : '#5E5E68', bd: cur ? 'rgba(201,166,245,0.6)' : 'rgba(255,255,255,0.08)' }; }) }
+    };
+  }
+}
+</script>
+</body>
+</html>

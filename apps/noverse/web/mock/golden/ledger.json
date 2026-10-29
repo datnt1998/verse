@@ -1,0 +1,421 @@
+{
+  "axes": [
+    {
+      "n": 1,
+      "name": "Bộ quy tắc và biến thể"
+    },
+    {
+      "n": 2,
+      "name": "Bối cảnh"
+    },
+    {
+      "n": 3,
+      "name": "Nghề của nhân vật chính"
+    },
+    {
+      "n": 4,
+      "name": "Kiểu phản diện"
+    },
+    {
+      "n": 5,
+      "name": "Điểm thương"
+    },
+    {
+      "n": 6,
+      "name": "Vũ khí và cơ chế lật"
+    },
+    {
+      "n": 7,
+      "name": "Sân khấu cao trào"
+    },
+    {
+      "n": 8,
+      "name": "Tông giọng"
+    },
+    {
+      "n": 9,
+      "name": "Cấu trúc mở đầu"
+    },
+    {
+      "n": 10,
+      "name": "Kiểu kết"
+    }
+  ],
+  "stories": [
+    {
+      "id": "proj/thien-kim",
+      "title": "Thiên Kim Thật Trở Về, Cả Họ Quỳ Trước Cổng",
+      "values": [
+        "A thiên kim",
+        "Hào môn",
+        "Y tá",
+        "Em nuôi",
+        "Mẹ già",
+        "Bản xét nghiệm",
+        "Đám giỗ",
+        "Mỏ hỗn sắc",
+        "Khoảnh khắc tỉnh lại",
+        "Đoàn tụ"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-24T00:00:00Z",
+      "opening": "Khoảnh khắc tỉnh lại"
+    },
+    {
+      "id": "proj/me-ke-tiem-may",
+      "title": "Mẹ Kế Cướp Tiệm May, Tôi Trọng Sinh Lấy Lại Từng Đường Kim",
+      "values": [
+        "A trọng sinh",
+        "Khu chợ",
+        "Thợ may",
+        "Mẹ kế",
+        "Món đồ của mẹ",
+        "Sổ sách viết tay",
+        "Chợ phiên",
+        "Điềm tĩnh lạnh",
+        "Khoảnh khắc chết",
+        "Rời đi"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-22T00:00:00Z",
+      "opening": "Khoảnh khắc chết"
+    },
+    {
+      "id": "proj/me-chong",
+      "title": "Mẹ Chồng Đuổi Tôi Đi, Tôi Thành Chủ Chuỗi Tiệm Bánh",
+      "values": [
+        "B",
+        "Nhà hàng",
+        "Đầu bếp",
+        "Mẹ chồng",
+        "Con nhỏ",
+        "Ghi âm",
+        "Phiên toà",
+        "Ấm, khóc được",
+        "Một quyết định",
+        "Sự nghiệp riêng"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-21T00:00:00Z",
+      "opening": "Một quyết định"
+    },
+    {
+      "id": "proj/hidden-story",
+      "title": "Truyện riêng không được xem",
+      "values": [
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật",
+        "Bí mật"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-20T00:00:00Z",
+      "opening": "Bí mật"
+    },
+    {
+      "id": "proj/ganh-xoi",
+      "title": "Năm Tám Mươi, Tôi Nuôi Cả Nhà Bằng Gánh Xôi",
+      "values": [
+        "C-Nữ",
+        "Thập niên 80",
+        "Bán xôi",
+        "Họ hàng",
+        "Bà nội",
+        "Sổ sách viết tay",
+        "Chợ phiên",
+        "Ấm, khóc được",
+        "Một quyết định",
+        "Đoàn tụ"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-19T00:00:00Z",
+      "opening": "Một quyết định"
+    },
+    {
+      "id": "proj/em-gai-nuoi",
+      "title": "Em Gái Nuôi Mặc Váy Cưới Của Tôi Lên Livestream",
+      "values": [
+        "A trọng sinh",
+        "Công ty",
+        "Thợ may",
+        "Em nuôi",
+        "Con vật nuôi",
+        "Bản nháp có dấu thời gian",
+        "Livestream",
+        "Hài",
+        "Khoảnh khắc tỉnh lại",
+        "Sự nghiệp riêng"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-17T00:00:00Z",
+      "opening": "Khoảnh khắc tỉnh lại"
+    },
+    {
+      "id": "proj/dong-nghiep",
+      "title": "Đồng Nghiệp Cướp Công, Tôi Trình Bày Lại Trước Đại Hội Cổ Đông",
+      "values": [
+        "A trọng sinh",
+        "Công ty",
+        "Kế toán",
+        "Đồng nghiệp",
+        "Mẹ già",
+        "Email gốc",
+        "Đại hội cổ đông",
+        "Điềm tĩnh lạnh",
+        "Khoảnh khắc chết",
+        "Sự nghiệp riêng"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-16T00:00:00Z",
+      "opening": "Khoảnh khắc chết"
+    },
+    {
+      "id": "proj/dam-gio",
+      "title": "Đám Giỗ Cả Họ, Tôi Đọc Di Chúc Của Bà",
+      "values": [
+        "C-Nữ",
+        "Thập niên 80",
+        "Thợ mộc",
+        "Họ hàng",
+        "Bà nội",
+        "Di chúc",
+        "Đám giỗ",
+        "Ấm, khóc được",
+        "Câu thoại bất công",
+        "Đoàn tụ"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-13T00:00:00Z",
+      "opening": "Câu thoại bất công"
+    },
+    {
+      "id": "proj/chong-cu-quan-pho",
+      "title": "Chồng Cũ Hối Hận Khi Tôi Mở Quán Phở Đầu Ngõ",
+      "values": [
+        "B",
+        "Phố cổ",
+        "Đầu bếp",
+        "Chồng",
+        "Con nhỏ",
+        "Ghi âm",
+        "Đám giỗ",
+        "Ấm, khóc được",
+        "Một quyết định",
+        "Tình cảm mới"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-12T00:00:00Z",
+      "opening": "Một quyết định"
+    },
+    {
+      "id": "proj/ban-than",
+      "title": "Bạn Thân Giật Chồng, Tôi Lật Sổ Đỏ Giữa Lễ Đính Hôn",
+      "values": [
+        "B",
+        "Làng chài",
+        "Kế toán",
+        "Bạn thân",
+        "Con nhỏ",
+        "Sổ đỏ",
+        "Lễ đính hôn",
+        "Điềm tĩnh lạnh",
+        "Khoảnh khắc chết",
+        "Rời đi"
+      ],
+      "day7": null,
+      "createdAt": "2026-10-10T00:00:00Z",
+      "opening": "Khoảnh khắc chết"
+    },
+    {
+      "id": "proj/02-chua-co-ten",
+      "title": "Chưa có tên",
+      "values": [
+        "A trọng sinh",
+        "Khu chợ",
+        "Thợ may",
+        "Mẹ kế",
+        "Mẹ già",
+        "Sổ sách viết tay",
+        "Lễ đính hôn",
+        "Mỏ hỗn sắc",
+        "Khoảnh khắc tỉnh lại",
+        "Sự nghiệp riêng"
+      ],
+      "day7": null,
+      "createdAt": null,
+      "opening": "Khoảnh khắc tỉnh lại"
+    },
+    {
+      "id": "proj/01-tra-xanh-cuop-kich-ban",
+      "title": "Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc",
+      "values": [
+        "A showbiz",
+        "Đoàn phim",
+        "Biên kịch",
+        "Bạn diễn",
+        "Mẹ già",
+        "Bản ghi âm gốc",
+        "Livestream",
+        "Mỏ hỗn sắc",
+        "Câu thoại bất công",
+        "Sự nghiệp riêng"
+      ],
+      "day7": null,
+      "createdAt": "2026-09-28T00:00:00Z",
+      "opening": "Câu thoại bất công"
+    },
+    {
+      "id": "proj/01-story",
+      "title": "01-story",
+      "values": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "day7": null,
+      "createdAt": null,
+      "opening": ""
+    }
+  ],
+  "channelMedianDay7": null,
+  "candidate": {
+    "story": "proj/02-chua-co-ten",
+    "title": "Chưa có tên",
+    "brief": "Thợ May Trọng Sinh, Mẹ Kế Bắt Tôi May Váy Cưới Cho Em Gái",
+    "values": [
+      "A trọng sinh",
+      "Khu chợ",
+      "Thợ may",
+      "Mẹ kế",
+      "Mẹ già",
+      "Sổ sách viết tay",
+      "Lễ đính hôn",
+      "Mỏ hỗn sắc",
+      "Khoảnh khắc tỉnh lại",
+      "Sự nghiệp riêng"
+    ],
+    "checks": [
+      {
+        "level": "error",
+        "rule": "combination",
+        "text": "Trùng tổ hợp trục 1 + 3 + 4 + 6 với “Mẹ Kế Cướp Tiệm May, Tôi Trọng Sinh Lấy Lại Từng Đường Kim”.",
+        "short": "Giống “Mẹ Kế Cướp Tiệm May, Tôi Trọng Sinh Lấy Lại Từng Đường Kim” ở 4 trục chính (bộ, nghề, phản diện, vũ khí).",
+        "fix": "Đổi ít nhất 1 trong 4 trục",
+        "axes": [
+          1,
+          3,
+          4,
+          6
+        ],
+        "against": "proj/me-ke-tiem-may"
+      },
+      {
+        "level": "ok",
+        "rule": "distance",
+        "text": "Khác truyện liền trước ở 7 trục (cần ít nhất 4).",
+        "short": "Khác truyện vừa đăng 7/10 trục.",
+        "fix": null,
+        "axes": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          9
+        ],
+        "against": "proj/01-tra-xanh-cuop-kich-ban"
+      },
+      {
+        "level": "warning",
+        "rule": "overuse",
+        "text": "Nghề của nhân vật chính “Thợ may” đã dùng 2 lần; truyện mới sẽ vượt tối đa 2 lần.",
+        "short": "Nghề “Thợ may” đã có 2 truyện dùng.",
+        "fix": "Cân nhắc đổi",
+        "axes": [
+          3
+        ]
+      },
+      {
+        "level": "ok",
+        "rule": "opening",
+        "text": "Kiểu mở đầu không lặp 3 truyện liền nhau.",
+        "short": "Mở đầu khác 2 truyện trước.",
+        "fix": null,
+        "axes": [
+          9
+        ]
+      }
+    ],
+    "cells": [
+      {
+        "story": "new",
+        "axis": 1,
+        "mark": "dup"
+      },
+      {
+        "story": "proj/me-ke-tiem-may",
+        "axis": 1,
+        "mark": "dup"
+      },
+      {
+        "story": "new",
+        "axis": 3,
+        "mark": "dup"
+      },
+      {
+        "story": "proj/me-ke-tiem-may",
+        "axis": 3,
+        "mark": "dup"
+      },
+      {
+        "story": "new",
+        "axis": 4,
+        "mark": "dup"
+      },
+      {
+        "story": "proj/me-ke-tiem-may",
+        "axis": 4,
+        "mark": "dup"
+      },
+      {
+        "story": "new",
+        "axis": 6,
+        "mark": "dup"
+      },
+      {
+        "story": "proj/me-ke-tiem-may",
+        "axis": 6,
+        "mark": "dup"
+      },
+      {
+        "story": "new",
+        "axis": 3,
+        "mark": "overused"
+      },
+      {
+        "story": "proj/me-ke-tiem-may",
+        "axis": 3,
+        "mark": "overused"
+      },
+      {
+        "story": "proj/em-gai-nuoi",
+        "axis": 3,
+        "mark": "overused"
+      }
+    ]
+  }
+}

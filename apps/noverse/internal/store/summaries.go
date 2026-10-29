@@ -1,0 +1,214 @@
+package store
+
+import (
+	"fmt"
+	"os"
+	"sync"
+
+	"github.com/datnt1998/noverse/internal/domain"
+)
+
+// fileSummaryStore 管理章节、弧、卷摘要（file backend）。
+type fileSummaryStore struct {
+	io         *IO
+	outline    *fileOutlineStore // 只读依赖，用于获取弧/卷数量
+	titleMu    sync.RWMutex
+	titleCache map[int]string
+}
+
+func newFileSummaryStore(io *IO, outline *fileOutlineStore) *fileSummaryStore {
+	return &fileSummaryStore{io: io, outline: outline, titleCache: make(map[int]string)}
+}
+
+// SaveSummary 保存章节摘要到 summaries/{ch}.json。
+func (s *fileSummaryStore) SaveSummary(sum domain.ChapterSummary) error {
+	if err := s.io.WriteJSON(fmt.Sprintf("summaries/%02d.json", sum.Chapter), sum); err != nil {
+		return err
+	}
+	s.titleMu.Lock()
+	s.titleCache[sum.Chapter] = sum.Title
+	s.titleMu.Unlock()
+	return nil
+}
+
+// LoadSummary 读取指定章节的摘要。
+func (s *fileSummaryStore) LoadSummary(chapter int) (*domain.ChapterSummary, error) {
+	var sum domain.ChapterSummary
+	if err := s.io.ReadJSON(fmt.Sprintf("summaries/%02d.json", chapter), &sum); err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &sum, nil
+}
+
+// LoadSummaryTitle 读取章节标题并在进程内缓存。标题仅在 SaveSummary 时变化，
+// 无需重复解码同一份章节摘要。
+func (s *fileSummaryStore) LoadSummaryTitle(chapter int) (string, error) {
+	s.titleMu.RLock()
+	title, ok := s.titleCache[chapter]
+	s.titleMu.RUnlock()
+	if ok {
+		return title, nil
+	}
+	s.titleMu.Lock()
+	defer s.titleMu.Unlock()
+	if title, ok := s.titleCache[chapter]; ok {
+		return title, nil
+	}
+	sum, err := s.LoadSummary(chapter)
+	if err != nil || sum == nil {
+		return "", err
+	}
+	s.titleCache[chapter] = sum.Title
+	return sum.Title, nil
+}
+
+// LoadRecentSummaries 加载 current 章之前最近 count 章的摘要。
+func (s *fileSummaryStore) LoadRecentSummaries(current, count int) ([]domain.ChapterSummary, error) {
+	var result []domain.ChapterSummary
+	start := max(current-count, 1)
+	for ch := start; ch < current; ch++ {
+		sum, err := s.LoadSummary(ch)
+		if err != nil {
+			return nil, err
+		}
+		if sum != nil {
+			result = append(result, *sum)
+		}
+	}
+	return result, nil
+}
+
+// SaveArcSummary 保存弧级摘要。
+func (s *fileSummaryStore) SaveArcSummary(sum domain.ArcSummary) error {
+	return s.io.WriteJSON(fmt.Sprintf("summaries/arc-v%02da%02d.json", sum.Volume, sum.Arc), sum)
+}
+
+// HasArcSummary 检查指定弧是否已保存摘要。
+func (s *fileSummaryStore) HasArcSummary(volume, arc int) (bool, error) {
+	sum, err := s.LoadArcSummary(volume, arc)
+	if err != nil {
+		return false, err
+	}
+	return sum != nil, nil
+}
+
+// HasVolumeSummary 检查指定卷是否已保存摘要。
+func (s *fileSummaryStore) HasVolumeSummary(volume int) (bool, error) {
+	sum, err := s.LoadVolumeSummary(volume)
+	if err != nil {
+		return false, err
+	}
+	return sum != nil, nil
+}
+
+// LoadArcSummary 读取指定弧的摘要。
+func (s *fileSummaryStore) LoadArcSummary(volume, arc int) (*domain.ArcSummary, error) {
+	var sum domain.ArcSummary
+	if err := s.io.ReadJSON(fmt.Sprintf("summaries/arc-v%02da%02d.json", volume, arc), &sum); err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &sum, nil
+}
+
+// LoadArcSummaries 加载一卷内所有已有弧摘要。
+func (s *fileSummaryStore) LoadArcSummaries(volume int) ([]domain.ArcSummary, error) {
+	maxArc := s.arcCountForVolume(volume)
+	var result []domain.ArcSummary
+	for arc := 1; arc <= maxArc; arc++ {
+		sum, err := s.LoadArcSummary(volume, arc)
+		if err != nil {
+			return nil, err
+		}
+		if sum != nil {
+			result = append(result, *sum)
+		}
+	}
+	return result, nil
+}
+
+// SaveVolumeSummary 保存卷级摘要。
+func (s *fileSummaryStore) SaveVolumeSummary(sum domain.VolumeSummary) error {
+	return s.io.WriteJSON(fmt.Sprintf("summaries/vol-v%02d.json", sum.Volume), sum)
+}
+
+// LoadVolumeSummary 读取指定卷的摘要。
+func (s *fileSummaryStore) LoadVolumeSummary(volume int) (*domain.VolumeSummary, error) {
+	var sum domain.VolumeSummary
+	if err := s.io.ReadJSON(fmt.Sprintf("summaries/vol-v%02d.json", volume), &sum); err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &sum, nil
+}
+
+// LoadAllVolumeSummaries 加载所有已有卷摘要。
+func (s *fileSummaryStore) LoadAllVolumeSummaries() ([]domain.VolumeSummary, error) {
+	maxVol := s.volumeCount()
+	var result []domain.VolumeSummary
+	for vol := 1; vol <= maxVol; vol++ {
+		sum, err := s.LoadVolumeSummary(vol)
+		if err != nil {
+			return nil, err
+		}
+		if sum != nil {
+			result = append(result, *sum)
+		}
+	}
+	return result, nil
+}
+
+// FindCharacterAppearances 批量查找多个角色的最后出场章节号。
+func (s *fileSummaryStore) FindCharacterAppearances(names []string, endChapter, recentWindow int) (map[string]int, error) {
+	result := make(map[string]int, len(names))
+	remaining := make(map[string]struct{}, len(names))
+	for _, n := range names {
+		remaining[n] = struct{}{}
+	}
+	for ch := endChapter - recentWindow; ch >= 1; ch-- {
+		if len(remaining) == 0 {
+			break
+		}
+		sum, err := s.LoadSummary(ch)
+		if err != nil {
+			return nil, err
+		}
+		if sum == nil {
+			continue
+		}
+		for _, c := range sum.Characters {
+			if _, need := remaining[c]; need {
+				result[c] = ch
+				delete(remaining, c)
+			}
+		}
+	}
+	return result, nil
+}
+
+func (s *fileSummaryStore) volumeCount() int {
+	volumes, err := s.outline.LoadLayeredOutline()
+	if err == nil && len(volumes) > 0 {
+		return len(volumes)
+	}
+	return 20
+}
+
+func (s *fileSummaryStore) arcCountForVolume(volume int) int {
+	volumes, err := s.outline.LoadLayeredOutline()
+	if err == nil {
+		for _, v := range volumes {
+			if v.Index == volume {
+				return len(v.Arcs)
+			}
+		}
+	}
+	return 20
+}

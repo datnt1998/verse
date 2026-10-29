@@ -1,0 +1,218 @@
+{
+  "title": "Đèn Hổ Phách Trên Bến Vô Đềm",
+  "premise": "Nhiệp Anh, người trông ngọn hải đăng Cồn Phao thừa hưởng từ mẹ tại bến Vô Đềm, phát hiện bến sông nhỏ của mình nằm trên đường hàng lạnh của nhà máy đá Cái Bè. Khi địa chủ Bầu Dứa đòi thuê nhà đò, Anh dùng sổ phụ của mẹ và con mắt của ngọn đèn để giữ lại cả bến lẫn sự thật.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Con phà giờ Mão",
+      "core_event": "Bầu Dứa đến bến Vô Đềm thăm dò, để lại hợp đồng thuê mặt bằng chưa dấu nhắm vào nhà đò; đêm đó xuất hiện thuyền không đèn ở bãi cò.",
+      "hook": "Chấm sáng lạ chớp rồi tắt gần bãi cò giữa đêm mưa.",
+      "scenes": ["Mưa đầu mùa, Anh bật đèn hổ phách", "Chú Sáu kể chuyện chở Bầu Dứa và hợp đồng chưa dấu", "Đêm, chấm sáng lạ ở bãi cò"]
+    },
+    {
+      "chapter": 2,
+      "title": "Bức thư trong hộp mực",
+      "core_event": "Chú Sáu trả hộp mực của mẹ Anh: bức thư tiết lộ mẹ từng theo dõi chuyến hàng lạnh, sổ phụ ghi danh sách tám cái tên và ký hiệu Đ.T. — Đàm Tước, chủ nhà máy đá Cái Bè.",
+      "hook": "Trang cuối sổ phụ ghi chuyến hàng hình thoi chỉ một tháng trước — đường dây vẫn chạy.",
+      "scenes": ["Hộp mực và bức thư của mẹ", "Danh sách tám tên và ký hiệu Đ.T.", "Sổ phụ dưới đáy phà và tấm ảnh chụp ngọn đèn"]
+    },
+    {
+      "chapter": 3,
+      "title": "Tiếng gõ dưới gầm phà",
+      "core_event": "Trong đêm dông, Anh chứng kiến thuyền không đèn cất bao hàng dưới bạt xanh ở gốc cò lớn; một kẻ đứng lại nhìn ngọn đèn rất lâu trước khi đi về hướng cửa lớn.",
+      "hook": "Kẻ lạ đứng nhìn thẳng vào ngọn hải đăng — bến đã bị để ý.",
+      "scenes": ["Bão dông kéo đến, chú Sáu ngủ lại dưới gầm phà", "Thuyền không đèn cất bao dưới bạt xanh ở bãi cò", "Anh ghi sổ trực và quyết định sáng mai kiểm tra"]
+    },
+    {
+      "chapter": 4,
+      "title": "Gốc cò lúc nước ròng",
+      "core_event": "Sáng sau dông, Anh và chú Sáu kiểm tra bãi cò, tìm thấy bao hàng và vết giẫm; dấu ấn Đàm Tước xuất hiện trên bao.",
+      "hook": "Bao hàng khắc ký hiệu nhà máy đá Cái Bè.",
+      "scenes": ["Nước ròng, lội ra bãi cò", "Bao hàng và dấu ấn", "Quyết định giữ im lặng chờ chuyến tiếp"]
+    },
+    {
+      "chapter": 5,
+      "title": "Người hỏi đường lần thứ hai",
+      "core_event": "Bầu Dứa quay lại với bản hợp đồng đã có dấu đỏ hỏng và lời đe; Anh nhận ra con dấu giả.",
+      "hook": "Con dấu xã trên giấy Bầu Dứa sai một nét mà không ai chú ý.",
+      "scenes": ["Bầu Dứa ép ký", "Anh so con dấu với sổ xã", "Đe dọa ngầm"]
+    },
+    {
+      "chapter": 6,
+      "title": "Đồi chùa không có chùa",
+      "core_event": "Anh theo đường lên đồi chùa, phát hiện kho riêng của Đàm Tước nơi mọi chuyến hàng hình thoi đều dừng.",
+      "hook": "Kho hàng nằm ngay dưới chân tượng Phật đổ nát.",
+      "scenes": ["Đường lên đồi chùa", "Kho riêng và gác", "Bị phát hiện, thoát về bến"]
+    },
+    {
+      "chapter": 7,
+      "title": "Đêm hai chuyến",
+      "core_event": "Chuyến hàng kép trong một đêm; Anh phải vừa giữ đèn vừa ghi bằng chứng, chú Sáu bị giữ trên sông.",
+      "hook": "Chú Sáu bị người của Đàm Tước giữ lại giữa dòng.",
+      "scenes": ["Hai chuyến liên tiếp", "Chú Sáu bị giữ", "Anh gọi đồn công an quận"]
+    },
+    {
+      "chapter": 8,
+      "title": "Ánh đèn không tắt",
+      "core_event": "Sổ phụ và chứng cứ bãi cò được nộp; Đàm Tước và Bầu Dứa bị truy; bến Vô Đềm giữ lại nhà đò, Anh tiếp tục trông đèn.",
+      "hook": "Ngọn đèn hổ phách sáng đúng giờ như mọi đêm — nhưng bến đã khác.",
+      "scenes": ["Nộp bằng chứng", "Bầu Dứa rút hợp đồng", "Đèn sáng, phà chạy"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Nhiệp Anh",
+      "role": "Nhân vật chính",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Nữ, hai mươi tư tuổi, người trông hải đăng Cồn Phao ở bến Vô Đềm, thừa hưởng sổ trực và con mắt quan sát của mẹ quá cố.",
+      "arc": "Từ người giữ đèn thụ động thành người giữ bằng chứng chủ động bảo vệ bến.",
+      "traits": ["tỉ mỉ", "kiên trì", "ít nói"]
+    },
+    {
+      "name": "Sáu Đồi",
+      "role": "Người lái phà già",
+      "kind": "ally",
+      "tier": "core",
+      "description": "Chú Sáu, chủ con phà duy nhất của bến Vô Đềm, bạn thân của mẹ Anh, giữ hộp mực và sổ phụ theo lời hứa.",
+      "arc": "Từ người chở đò trung lập thành đồng minh chủ động của Anh.",
+      "traits": ["thận trọng", "thuộc sông", "hay cười khà"]
+    },
+    {
+      "name": "Bầu Dứa",
+      "role": "Địa chủ muốn chiếm nhà đò",
+      "kind": "antagonist",
+      "tier": "important",
+      "description": "Trùm vận tải Dứa Phát, mặt tiền hợp pháp của đường hàng lạnh, muốn chiếm vị trí nhà đò để mù tầm nhìn của ngọn đèn.",
+      "arc": "Từ đe dọa giấy tờ sang đe dọa trực tiếp khi bị lộ.",
+      "traits": ["ranh", "kiên nhẫn", "thích khoe giấy tờ"]
+    },
+    {
+      "name": "Đàm Tước",
+      "role": "Chủ nhà máy đá Cái Bè",
+      "kind": "antagonist",
+      "tier": "important",
+      "description": "Người đứng sau đường hàng lạnh, chỉ xuất hiện qua ký hiệu Đ.T. trong sổ phụ và tài xế xe đá.",
+      "arc": "Bóng sau màn, bị lật khi sổ phụ đến tay công quyền.",
+      "traits": ["kín", "cẩn trọng", "quy tắc chu kỳ"]
+    },
+    {
+      "name": "Bà Thái",
+      "role": "Mẹ quá cố của Anh",
+      "kind": "support",
+      "tier": "secondary",
+      "description": "Người giữ đèn trước Anh, để lại hộp mực, bức thư và sổ phụ ghi ba năm theo dõi chuyến hàng lạnh.",
+      "arc": "Hiện diện qua di vật và chữ viết tay.",
+      "traits": ["chu đáo", "sáng", "bí hiểm"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Bến Vô Đềm nằm trên sông Lờ Song, có nhà đò lợp tôn, gàu đá, bãi cò phía cửa lớn và đồi chùa trên bờ đối diện.",
+      "boundary": "Không thêm thành phố, biển hay cảng lớn; toàn bộ hành động quanh bến nhỏ và dòng sông."
+    },
+    {
+      "category": "society",
+      "rule": "Nhà đò và phà hoạt động bằng thỏa thuận lâu đời với xã; giấy tờ đất không dấu chưa có giá trị.",
+      "boundary": "Không dùng luật hay thủ tục hiện đại phức tạp; tranh chấp giải quyết qua bằng chứng và uy tín."
+    },
+    {
+      "category": "technology",
+      "rule": "Đời sống dùng đèn dầu, hải đăng hỏa tinh, ghe chèo và điện thoại đồn công an; không có camera hay mạng.",
+      "boundary": "Không xuất hiện công nghệ giám sát hiện đại."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Con phà giờ Mão",
+        "summary": "Mưa đầu mùa ngày mười hai tháng ba, Nhiệp Anh bật đèn hổ phách trên hải đăng Cồn Phao. Chú Sáu Đồi kể đã chở Bầu Dứa qua sông; hắn để lại hợp đồng thuê mặt bằng chưa dấu nhắm vào nhà đò và hỏi đường lên đồi chùa. Đêm đó Anh thấy chấm sáng lạ chớp rồi tắt gần bãi cò.",
+        "characters": ["Nhiệp Anh", "Sáu Đồi", "Bầu Dứa"],
+        "key_events": ["Bầu Dứa đến bến và để lại hợp đồng chưa dấu", "Chấm sáng lạ ở bãi cò trong đêm mưa", "Chú Sáu hứa trả đồ mẹ Anh gửi từ năm ngoái"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Bức thư trong hộp mực",
+        "summary": "Chú Sáu trả hộp mực của mẹ Anh: bức thư tiết lộ bà theo dõi chuyến hàng lạnh từ ba năm trước và giữ sổ phụ. Sổ phụ dưới đáy phà ghi danh sách tám tên, ký hiệu Đ.T. là Đàm Tước chủ nhà máy đá Cái Bè; trang cuối vẫn ghi chuyến hình thoi tháng hai năm nay, do chú Sáu ghi tiếp sau khi mẹ Anh mất. Anh tìm thêm tấm ảnh chụp hải đăng từ giữa dòng với dòng chữ cảnh báo của mẹ.",
+        "characters": ["Nhiệp Anh", "Sáu Đồi", "Bà Thái"],
+        "key_events": ["Bức thư của mẹ trong hộp mực", "Sổ phụ liệt kê tám tên và ký hiệu Đ.T.", "Tấm ảnh chụp ngọn đèn từ thuyền lạ"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Tiếng gõ dưới gầm phà",
+        "summary": "Đêm dông ngày mười lăm tháng ba, chú Sáu ngủ lại dưới gầm phà. Anh chứng kiến thuyền không đèn vào bãi cò, hai người cất bao dẹp dưới tấm bạt xanh ở gốc cò lớn; một kẻ đứng lại nhìn ngọn đèn rất lâu. Anh ghi đầy đủ vào sổ trực và định sáng mai kiểm tra bãi cò cùng chú Sáu.",
+        "characters": ["Nhiệp Anh", "Sáu Đồi"],
+        "key_events": ["Dông đêm, chú Sáu ngủ dưới gầm phà", "Thuyền không đèn giấu bao dưới bạt xanh ở bãi cò", "Kẻ lạ đứng nhìn hải đăng rồi đi về cửa lớn"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Ngày 12 tháng 3, giờ Mão", "event": "Mưa đầu mùa; Anh bật đèn, chú Sáu cập phà và kể chuyện chở Bầu Dứa; hợp đồng chưa dấu để lại nhà đò.", "characters": ["Nhiệp Anh", "Sáu Đồi", "Bầu Dứa"]},
+    {"chapter": 1, "time": "Ngày 12 tháng 3, đêm", "event": "Chấm sáng lạ chớp rồi tắt gần bãi cò.", "characters": ["Nhiệp Anh"]},
+    {"chapter": 1, "time": "Ngày 13 tháng 3, giờ Mão sáng", "event": "Chú Sáu chở chuyến đầu, hứa trả đồ mẹ Anh gửi ở ghe.", "characters": ["Nhiệp Anh", "Sáu Đồi"]},
+    {"chapter": 2, "time": "Ngày 15 tháng 3, sáng", "event": "Chú Sáu trả hộp mực; bức thư của mẹ tiết lộ sổ phụ và đường hàng lạnh ba năm trước.", "characters": ["Nhiệp Anh", "Sáu Đồi"]},
+    {"chapter": 2, "time": "Ngày 15 tháng 3, trưa", "event": "Lấy sổ phụ dưới đáy phà: tám tên, ký hiệu Đ.T. là Đàm Tước; tìm thấy tấm ảnh chụp hải đăng.", "characters": ["Nhiệp Anh", "Sáu Đồi"]},
+    {"chapter": 3, "time": "Ngày 18 tháng 3, giờ Hợi đến qua giờ Tý", "event": "Dông lớn; thuyền không đèn giấu bao dưới bạt xanh ở gốc cò lớn; một kẻ đứng nhìn ngọn đèn rồi đi về cửa lớn.", "characters": ["Nhiệp Anh", "Sáu Đồi"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-thuyen-khong-den", "action": "plant", "description": "Thuyền không đèn xuất hiện gần bãi cò đêm mưa — đường hàng lạnh của Đàm Tước."},
+      {"id": "fs-hop-muc-me", "action": "plant", "description": "Đồ mẹ Anh gửi ở ghe chú Sáu từ năm ngoái chưa trả."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-hop-muc-me", "action": "resolve"},
+      {"id": "fs-so-phu", "action": "plant", "description": "Sổ phụ của mẹ ghi tám tên và chu kỳ chuyến hình thoi của Đàm Tước."},
+      {"id": "fs-anh-den", "action": "plant", "description": "Tấm ảnh chụp hải đăng từ giữa dòng — kẻ nào đó đang soi bến."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-thuyen-khong-den", "action": "advance", "description": "Thuyền không đèn cất bao dưới bạt xanh ở gốc cò; kẻ lạ soi lại ngọn đèn."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Bầu Dứa", "field": "location", "new_value": "đã sang bến Vô Đềm một lượt", "reason": "đi đò của chú Sáu khảo sát nhà đò"},
+    {"chapter": 2, "entity": "Nhiệp Anh", "field": "status", "new_value": "giữ hộp mực, sổ phụ và tấm ảnh của mẹ", "reason": "chú Sáu trả đồ gửi; Anh lục tủ tìm thêm ảnh"},
+    {"chapter": 2, "entity": "Sáu Đồi", "field": "relation", "new_value": "đồng minh chủ động của Anh", "reason": "tiết lộ ông giữ sổ phụ theo lời mẹ Anh"},
+    {"chapter": 3, "entity": "bãi cò", "field": "status", "new_value": "có bao hàng giấu dưới bạt xanh ở gốc cò lớn", "reason": "thuyền không đèn cất hàng trong đêm dông"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Con phà giờ Mão",
+      "goal": "Đặt bối cảnh bến Vô Đềm, giới thiệu Anh và nghề giữ đèn, đưa mối đe dọa đầu tiên của Bầu Dứa vào qua giấy tờ.",
+      "conflict": "Bầu Dứa muốn lấy mặt bằng nhà đò; Anh chưa biết lý do thật.",
+      "hook": "Chấm sáng lạ ở bãi cò trong đêm mưa."
+    },
+    {
+      "chapter": 2,
+      "title": "Bức thư trong hộp mực",
+      "goal": "Mở lớp quá khứ của mẹ Anh: bức thư, sổ phụ và cái tên Đàm Tước, biến chuyện nhà đò thành chuyện đường hàng lạnh.",
+      "conflict": "Sự thật mẹ giấu đặt Anh vào vị trí nguy hiểm mà chị chưa nhận ra hết.",
+      "hook": "Trang cuối sổ phụ ghi chuyến hình thoi chỉ một tháng trước."
+    },
+    {
+      "chapter": 3,
+      "title": "Tiếng gõ dưới gầm phà",
+      "goal": "Cho Anh chứng kiến trực tiếp hoạt động của đường hàng lạnh trong đêm dông, khẳng định lời mẹ viết là đúng và đặt nền cho hành động sáng hôm sau.",
+      "conflict": "Anh phải chọn giữa báo động ngay hay quan sát cho đủ bằng chứng.",
+      "hook": "Kẻ lạ đứng nhìn thẳng vào ngọn hải đăng rồi mới đi.",
+      "contract": {
+        "required_beats": ["Đêm dông, chú Sáu ngủ lại dưới gầm phà", "Thuyền không đèn vào bãi cò giấu bao dưới bạt xanh", "Anh ghi sổ trực và hẹn kiểm tra sáng hôm sau"],
+        "forbidden_moves": ["Đối đầu trực tiếp giữa Anh và kẻ lạ", "Bầu Dứa xuất hiện tại hiện trường"],
+        "continuity_checks": ["Hợp đồng của Bầu Dứa vẫn chưa dấu", "Sổ phụ và hộp mực đang ở nhà đò", "Chu kỳ chuyến hình thoi khớp sổ phụ"],
+        "evaluation_focus": ["Nhịp căng thẳng của đêm dông", "Quyết định không gõ chuông báo chú Sáu có hợp lý"],
+        "emotion_target": "Căng thẳng kiềm chế, tỉnh táo",
+        "hook_goal": "Muốn biết trong bao là gì và kẻ nhìn đèn là ai"
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+/* Màn Dự án & truyện — class chép nguyên từ Outline.dc.html (tiền tố pj-). */
+.pj-sb{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:6px 10px;border:none;border-radius:9px;background:transparent;color:#C9C9D1;font-size:13px;text-align:left;text-decoration:none}
+.pj-sb:hover{background:rgba(255,255,255,.04)}
+.pj-sb.on{background:#1C1C1F;color:#EDEDEF;font-weight:500}
+.pj-sh{padding:14px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.08em;color:#6E6E78}
+.pj-tab{height:34px;padding:0 14px;border:none;border-radius:9px;display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.pj-chip{height:22px;padding:0 8px;border-radius:6px;font-size:11.5px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pj-tile{border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;text-align:left;color:#EDEDEF}
+.pj-kv{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.06);text-decoration:none;color:#EDEDEF}
+.pj-kv:first-of-type{border-top:none}
+.pj-kv:hover .pj-kvv{color:#EDEDEF}
+.pj-drop{border:1.5px dashed rgba(255,255,255,.12);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;transition:border-color .2s,background .2s}
+.pj-drop:hover,.pj-drop[data-over=true]{border-color:rgba(201,166,245,.45);background:rgba(201,166,245,.04)}
+.pj-crow{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 14px;border:none;background:transparent;color:#EDEDEF;text-align:left;font-size:13.5px}
+.pj-cbody{padding:4px 14px 16px 50px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 20px;animation:pj-fa .3s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes pj-fa{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.pj-ph{color:#7E7E8A}
+.pj-a{color:#EDEDEF;text-decoration:none}
+.pj-bare{flex:1 1 auto;min-width:0;height:36px;border:none;outline:none;background:transparent;color:#EDEDEF;font-size:14px}
+@media (prefers-reduced-motion:reduce){.pj-cbody{animation:none!important}.pj-drop{transition:none!important}}
+.pj-av{width:40px;height:40px;font-size:13px;border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+
+/* Gói AG — thẻ truyện + popover + mục lục (Outline.dc.html › aside) */
+.pj-scard { cursor: pointer; transition: border-color .15s }
+.pj-scard:hover, .pj-scard[aria-expanded="true"] { border-color: var(--kit-acc-35) }
+.pj-popt { cursor: pointer }
+.pj-popt:hover, .pj-popt:focus-visible { background: var(--toc-hov) }
+.pj-popt.on { background: var(--toc-hov) }
+.pj-crumb:hover, .pj-crumb[aria-expanded="true"] { border-color: var(--kit-wash-18); background: var(--color-surface-4) }
+.pj-ib { width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 7px; background: transparent; color: var(--kit-fg-icon); cursor: pointer }
+.pj-ib:hover { background: var(--kit-wash-6); color: var(--color-fg) }
+.pj-ib:disabled { opacity: .4; cursor: default }
+.pj-tocq { display: flex; align-items: center; gap: 8px; padding: 0 10px; height: 32px; border-radius: 9px; border: 1px solid var(--line-3); background: var(--color-surface-0) }
+.pj-tocq:focus-within { border-color: var(--kit-acc-50) }
+.pj-vhd { position: sticky; top: 0; z-index: 2; width: 100%; display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 8px; border: none; border-radius: 8px; background: var(--toc-head); color: var(--color-fg-2); font-size: 12.5px; font-weight: 500; text-align: left; cursor: pointer }
+.pj-vhd:hover:not(:disabled) { background: var(--kit-surface-15) }
+.pj-vhd:disabled { cursor: default }
+.pj-crow2 { width: 100%; display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 3px 8px 3px 30px; border: none; border-radius: 8px; background: transparent; color: var(--color-fg-2); font-size: 12.5px; text-align: left; cursor: pointer }
+.pj-crow2:hover { background: var(--kit-wash-4) }
+.pj-crow2[aria-current="true"] { background: var(--tint-accent); color: var(--color-fg) }

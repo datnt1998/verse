@@ -1,0 +1,10 @@
+/* Toast chung: vào theo Kit.dc.html (.toast-in · tIn .4 s), ra + thu khung + chồng toast theo Jobs.dc.html / 14-jobs-dock §1.3–1.4.
+   Giữ lại: keyframes (tên cố định, stylex tham chiếu bằng chuỗi) + chọn lọc con-cháu mà StyleX không diễn đạt được. */
+@keyframes ui-toast-in { from { opacity: 0; transform: translateY(12px) scale(.96) } to { opacity: 1; transform: none } }
+@keyframes ui-toast-out {
+  0% { opacity: 1; filter: blur(0) }
+  65% { opacity: 0; transform: translateY(34px) scale(.5); filter: blur(3px) }
+  100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px) }
+}
+@keyframes ui-toast-collapse { to { max-height: 0; padding-top: 0 } }
+.ui-toast-close:hover .ui-toast-countdown { opacity: .25 !important; }

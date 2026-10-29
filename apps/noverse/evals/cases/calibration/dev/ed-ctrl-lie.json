@@ -1,0 +1,23 @@
+{
+  "id": "ed-ctrl-lie",
+  "category": "quality",
+  "role": "editor",
+  "description": "Đối chứng: nhân vật Đan nói dối mẹ trong thoại rằng cô ở nhà cả buổi chiều — một sự kiện trong truyện (nhân vật cố tình nói sai sự thật), không phải lỗi nhất quán. Đáp án đúng là không báo lỗi.",
+  "fixture": "ed-ctrl-lie",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "prompt": "Thẩm duyệt chương 3",
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [
+        {"severity_min": "error"},
+        {"severity_min": "warning", "quote_contains": "ở nhà cả buổi chiều"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

@@ -1,0 +1,220 @@
+{
+  "title": "Hộp Nhạc Xưởng Voi Trắng",
+  "premise": "Trà Mi, học trò tiệm sửa đồng hồ số 11 ngõ Rễ Bàng ở phố cổ Đồng Triều, chứng kiến thầy mình — nghệ nhân Lựu Bính — đối mặt lại quá khứ xưởng nhạc cụ Voi Trắng cháy ba mươi năm trước, khi một khách áo xám mang đến chiếc hộp nhạc có đáy giấu bản nhạc tổng tưởng đã cháy theo kho.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Khách áo xám và hộp nhạc",
+      "core_event": "Khách Phước Sa mang hộp nhạc xưởng Voi Trắng đến tiệm nhờ sửa trước cuối tuần; ông Lựu nhận ra dấu khắc V.T. và mất bình tĩnh.",
+      "hook": "Hộp nhạc của một xưởng đã cháy ba mươi năm trước xuất hiện lại.",
+      "scenes": ["Sáng mở tiệm, sửa đồng hồ quả quýt của bác Tạ", "Khách áo xám gửi hộp nhạc, hẹn thứ Năm", "Ông Lựu kể vụ cháy xưởng Voi Trắng"]
+    },
+    {
+      "chapter": 2,
+      "title": "Nhịp sói trong hộp",
+      "core_event": "Ông Lựu mở hộp thấy mảng giấy giấu trong khe đế; bà Tầm, con gái chủ xưởng Voi Trắng, đến tiệm theo một bức thư không tên viết tay nghi của Viên Thạc — nghệ nhân tưởng đã chết trong vụ cháy.",
+      "hook": "Bức thư mời bà Tầm về viết bằng nét chữ của người đã chết ba mươi năm.",
+      "scenes": ["Ông Lựu mở hộp một mình, thấy giấy trong khe đế", "Ông kể mình từng là thợ phụ xưởng Voi Trắng", "Bà Tầm xuất hiện với thư tay nghi Viên Thạc"]
+    },
+    {
+      "chapter": 3,
+      "title": "Bản nhạc không tên",
+      "core_event": "Mi mở đáy hộp theo kiểu hàm voi, tìm thấy bản nhạc viết tay cho Vĩ Miên; khách Phước Sa trở lại sớm một ngày và thú nhận ông là Viên Thạc còn sống, vụ cháy là phóng hỏa; ông trao bà Tầm bản nhạc viết xong sau ba mươi năm.",
+      "hook": "Viên Thạc còn sống và có tên kẻ phóng hỏa.",
+      "scenes": ["Mở đáy hộp kiểu hàm voi, lấy bản nhạc", "Khách áo xám thú nhận là Viên Thạc", "Bà Tầm nhận bản nhạc của mình"]
+    },
+    {
+      "chapter": 4,
+      "title": "Canh âm cho voi kêu",
+      "core_event": "Ông Lựu và Mi canh lại nan lược mai vàng; hộp nhạc kêu bản của Vĩ Miên trước mặt bà Tầm.",
+      "hook": "Bản nhạc kêu đúng một nốt cuối bị méo — hộp còn giấu một chi tiết.",
+      "scenes": ["Canh âm nan lược", "Hộp kêu bản Vĩ Miên", "Nốt cuối méo"]
+    },
+    {
+      "chapter": 5,
+      "title": "Giấy tờ của người chết",
+      "core_event": "Viên Thạc trình bộ chứng cứ phóng hỏa ông thu thập ba mươi năm; cái tên đứng sau xuất hiện: một nhà buôn gỗ quyền lực trong phố.",
+      "hook": "Kẻ phóng hỏa nay là người tài trợ hội chợ phố cổ.",
+      "scenes": ["Bộ chứng cứ ba mươi năm", "Tên nhà buôn gỗ", "Cãi nhau nên công khai hay không"]
+    },
+    {
+      "chapter": 6,
+      "title": "Ngõ Tre Héo ban đêm",
+      "core_event": "Nhóm quay lại tàn tích xưởng Voi Trắng ban đêm, tìm kho ẩn dưới nền còn sót chứng cứ.",
+      "hook": "Dưới nền xưởng còn một ngăn tường đôi chưa ai biết.",
+      "scenes": ["Đêm vào tàn tích xưởng", "Ngăn tường đôi", "Bị ai đó theo dõi"]
+    },
+    {
+      "chapter": 7,
+      "title": "Hội chợ phố cổ",
+      "core_event": "Bản nhạc của Vĩ Miên và của bà Tầm được chơi công khai ở hội chợ, trước mặt kẻ phóng hỏa.",
+      "hook": "Kẻ phóng hỏa nghe bản nhạc nhận ra giọng xưởng cũ ngay tức khắc.",
+      "scenes": ["Hội chợ", "Hộp nhạc kêu trước đám đông", "Đối mặt"]
+    },
+    {
+      "chapter": 8,
+      "title": "Tiệm số 11",
+      "core_event": "Vụ phóng hỏa được mở lại điều tra; tiệm đồng hồ số 11 trở thành nơi lưu giữ hồi ức xưởng Voi Trắng.",
+      "hook": "Ông Lựu treo lên tường dấu khắc V.T. — xưởng cháy nhưng nghề còn.",
+      "scenes": ["Mở lại điều tra", "Bà Tầm quyết định ở lại", "Tiệm treo dấu xưởng"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Trà Mi",
+      "role": "Học trò tiệm đồng hồ",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Nữ, học nghề ba năm dưới ông Lựu, người ghi sổ nghề cẩn thận và là nhân chứng trẻ nhất của câu chuyện xưởng Voi Trắng.",
+      "arc": "Từ học trò chỉ biết sửa đồng hồ thành người giữ và chuyển tiếp ký ức một xưởng nhạc cụ.",
+      "traits": ["chăm chú", "nhớ chi tiết", "tò mò có chừng mực"]
+    },
+    {
+      "name": "Lựu Bính",
+      "role": "Chủ tiệm sửa đồng hồ",
+      "kind": "ally",
+      "tier": "core",
+      "description": "Ông Lựu, nghệ nhân sửa đồng hồ, từng là thợ phụ lắp nan lược ở xưởng Voi Trắng, sống sót vụ cháy nhờ ốm ở nhà đêm đó.",
+      "arc": "Từ người giấu quá khứ thành người canh âm cho bản nhạc trở về.",
+      "traits": ["ít nói", "chính xác", "day dứt kín"]
+    },
+    {
+      "name": "Phước Sa",
+      "role": "Khách gửi hộp nhạc",
+      "kind": "lead",
+      "tier": "core",
+      "revealAt": 3,
+      "description": "Khách áo xám mang hộp nhạc đến tiệm; thật ra là Viên Thạc, nghệ nhân trưởng xưởng Voi Trắng, được tưởng là đã chết trong vụ cháy.",
+      "arc": "Từ kẻ ẩn danh ba mươi năm thành người đứng ra đối mặt kẻ phóng hỏa.",
+      "traits": ["kiên nhẫn", "bí ẩn", "nhớ từng chiếc hộp"]
+    },
+    {
+      "name": "bà Tầm",
+      "role": "Con gái chủ xưởng Voi Trắng",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Con gái út của chủ xưởng, chín tuổi năm xưởng cháy, về phố cổ theo bức thư không tên để tìm bản nhạc cha đặt viết cho mình.",
+      "arc": "Từ đứa con mất cha thành người giữ lại tiếng nhạc của gia đình.",
+      "traits": ["dứt khoát", "đa cảm", "gan"]
+    },
+    {
+      "name": "bác Hai Vỹ",
+      "role": "Chủ quán cà phê đối diện",
+      "kind": "support",
+      "tier": "secondary",
+      "description": "Chủ quán cà phê ngõ Rễ Bàng, tai mắt của con ngõ, chỗ trú của bà Tầm.",
+      "arc": "Người ngoài cuộc trở thành mắt xích tin cậy.",
+      "traits": ["nhiều chuyện", "tốt bụng", "nhớ mặt khách"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Phố cổ Đồng Triều có ngõ Rễ Bàng nơi đặt tiệm số 11 và ngõ Tre Héo nơi có tàn tích xưởng Voi Trắng.",
+      "boundary": "Không mở rộng bối cảnh ra ngoài phố cổ và các ngõ liền kề."
+    },
+    {
+      "category": "technology",
+      "rule": "Đồng hồ cơ, hộp nhạc cơ khí nan lược, thư tay và sổ giấy; không có thiết bị số.",
+      "boundary": "Không dùng điện thoại thông minh, camera hay lưu trữ số."
+    },
+    {
+      "category": "society",
+      "rule": "Nghề thủ công truyền thầy-trò; uy tín tiệm dựa trên tay nghề và lời làng.",
+      "boundary": "Mâu thuẫn pháp lý lớn chỉ ở hậu cảnh, câu chuyện sống bằng con người và vật chứng."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Khách áo xám và hộp nhạc",
+        "summary": "Sáng thứ Hai ngày hai tháng sáu, tiệm sửa đồng hồ số 11 ngõ Rễ Bàng mở cửa như thường lệ. Khách Phước Sa áo xám mang đến hộp nhạc gỗ đen chạm con voi, hẹn lấy trước cuối tuần và dặn cách mở nắp riêng. Ông Lựu nhận ra dấu khắc V.T. của xưởng Voi Trắng — xưởng nhạc cụ ngõ Tre Héo cháy ba mươi năm trước.",
+        "characters": ["Trà Mi", "Lựu Bính", "Phước Sa", "Hai Vỹ"],
+        "key_events": ["Khách áo xám gửi hộp nhạc xưởng Voi Trắng", "Khách đợi ngoài ngõ từ sáu giờ", "Ông Lựu nhận ra dấu khắc V.T. và kể vụ cháy"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Nhịp sói trong hộp",
+        "summary": "Sáng thứ Ba, ông Lựu mở hộp và thấy mảng giấy trong khe đế. Ông kể từng là thợ phụ lắp nan lược ở xưởng Voi Trắng, sống sót vụ cháy vì ốm. Chiều, bà Tầm — con gái út chủ xưởng — đến theo bức thư không tên; ông Lựu nhận nét chữ của Viên Thạc, nghệ nhân tưởng đã chết, và nhận xét mực còn mới. Ông quyết định hôm sau mở đáy hộp cùng Mi.",
+        "characters": ["Trà Mi", "Lựu Bính", "bà Tầm", "Hai Vỹ"],
+        "key_events": ["Mảng giấy giấu trong khe đế hộp", "Ông Lựu là thợ phụ xưởng Voi Trắng", "Bà Tầm đến với thư tay nghi Viên Thạc"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Bản nhạc không tên",
+        "summary": "Sáng thứ Tư, Mi mở đáy hộp kiểu hàm voi, lấy ra bản nhạc viết tay cho Vĩ Miên — con trai chủ xưởng mất trong vụ cháy. Khách Phước Sa đến sớm một ngày, thú nhận là Viên Thạc còn sống; vụ cháy là phóng hỏa của kẻ tham công thức nan lược mai vàng. Ông trao bà Tầm bản nhạc của bà viết xong sau ba mươi năm và nhờ ông Lựu canh âm cho hộp kêu lại.",
+        "characters": ["Trà Mi", "Lựu Bính", "Phước Sa", "bà Tầm", "Hai Vỹ"],
+        "key_events": ["Bản nhạc cho Vĩ Miên trong đáy hộp", "Khách Phước Sa là Viên Thạc còn sống", "Bà Tầm nhận bản nhạc của mình; hẹn canh âm trước cuối tuần"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Thứ Hai, ngày 2 tháng 6, sáng", "event": "Mở tiệm; khách Phước Sa gửi hộp nhạc xưởng Voi Trắng, hẹn thứ Năm lấy.", "characters": ["Trà Mi", "Lựu Bính", "Phước Sa"]},
+    {"chapter": 1, "time": "Thứ Hai, ngày 2 tháng 6, chiều", "event": "Ông Lựu nhận dấu khắc V.T.; kể vụ cháy xưởng ba mươi năm trước.", "characters": ["Trà Mi", "Lựu Bính"]},
+    {"chapter": 2, "time": "Thứ Ba, ngày 3 tháng 6, sáng", "event": "Ông Lựu mở hộp, thấy giấy trong khe đế; kể quá khứ thợ phụ xưởng.", "characters": ["Trà Mi", "Lựu Bính"]},
+    {"chapter": 2, "time": "Thứ Ba, ngày 3 tháng 6, xế chiều", "event": "Bà Tầm đến với thư tay nghi Viên Thạc; ông Lựu nhận chữ và nói mực còn mới.", "characters": ["Trà Mi", "Lựu Bính", "bà Tầm"]},
+    {"chapter": 3, "time": "Thứ Tư, ngày 4 tháng 6, sáng", "event": "Mở đáy hộp tìm bản nhạc cho Vĩ Miên; khách áo xám thú nhận là Viên Thạc; trao bản nhạc cho bà Tầm.", "characters": ["Trà Mi", "Lựu Bính", "Phước Sa", "bà Tầm"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-hop-nhac-den", "action": "plant", "description": "Hộp nhạc xưởng Voi Trắng có cách mở riêng và nặng hơn kích thước."},
+      {"id": "fs-khach-doi-ba-gio", "action": "plant", "description": "Khách áo xám đợi ba giờ ngoài ngõ trước khi vào tiệm."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-hop-nhac-den", "action": "advance", "description": "Trong khe đế hộp có giấy giấu kín."},
+      {"id": "fs-thu-vien-thac", "action": "plant", "description": "Bức thư không tên mời bà Tầm về viết bằng nét chữ Viên Thạc — người tưởng đã chết."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-thu-vien-thac", "action": "resolve"},
+      {"id": "fs-hop-nhac-den", "action": "resolve"},
+      {"id": "fs-ke-phong-hoa", "action": "plant", "description": "Vụ cháy xưởng là phóng hỏa; kẻ tham công thức nan lược mai vàng có tên và giấy tờ."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "hộp nhạc xưởng Voi Trắng", "field": "location", "new_value": "tiệm số 11 ngõ Rễ Bàng", "reason": "khách Phước Sa gửi sửa, cọc 30%"},
+    {"chapter": 2, "entity": "bà Tầm", "field": "location", "new_value": "phố cổ Đồng Triều, trú nhờ bác Hai Vỹ", "reason": "đi đêm xe về theo bức thư không tên"},
+    {"chapter": 2, "entity": "Lựu Bính", "field": "status", "new_value": "đã thú nhận từng là thợ phụ xưởng Voi Trắng", "reason": "nhận ra dấu khắc V.T. và bà Tầm"},
+    {"chapter": 3, "entity": "Phước Sa", "field": "status", "new_value": "lộ danh tính là Viên Thạc còn sống", "reason": "tự thú trước ông Lựu và bà Tầm"},
+    {"chapter": 3, "entity": "bản nhạc của bà Tầm", "field": "location", "new_value": "trong tay bà Tầm", "reason": "Viên Thạc trao sau ba mươi năm viết dở"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Khách áo xám và hộp nhạc",
+      "goal": "Giới thiệu tiệm đồng hồ, thầy trò ông Lựu–Trà Mi, và đặt hộp nhạc bí ẩn vào giữa nhịp ngày bình thường.",
+      "conflict": "Vật gửi sửa kéo theo quá khứ thầy không muốn đụng tới.",
+      "hook": "Hộp nhạc của xưởng đã cháy ba mươi năm trước."
+    },
+    {
+      "chapter": 2,
+      "title": "Nhịp sói trong hộp",
+      "goal": "Mở lớp quá khứ của ông Lựu và đưa bà Tầm cùng bức thư không tên vào, biến hộp nhạc thành mắt xích của một vụ cháy chưa khép.",
+      "conflict": "Quá khứ ông Lựu trở lại đúng lúc tiệm phải giữ nhịp thường nhật.",
+      "hook": "Thư mời bà Tầm viết bằng chữ người đã chết."
+    },
+    {
+      "chapter": 3,
+      "title": "Bản nhạc không tên",
+      "goal": "Mở đáy hộp để lấy bản nhạc, lật danh tính khách áo xám thành Viên Thạc, đặt mục tiêu canh âm cho hộp trước cuối tuần.",
+      "conflict": "Sự thật ba mươi năm đổ bộ vào một buổi sáng, buộc mọi người chọn cách đối mặt.",
+      "hook": "Viên Thạc còn sống và nắm tên kẻ phóng hỏa.",
+      "contract": {
+        "required_beats": ["Mở đáy hộp kiểu hàm voi lấy bản nhạc", "Khách áo xám thú nhận là Viên Thạc", "Trao bà Tầm bản nhạc của bà"],
+        "forbidden_moves": ["Đối đầu bạo lực với kẻ phóng hỏa", "Lộ thêm nhân chứng mới chưa gieo"],
+        "continuity_checks": ["Vụ cháy xưởng cách nay ba mươi năm", "Khách hẹn lấy hộp trước cuối tuần", "Ông Lựu từng là thợ phụ lắp nan lược"],
+        "evaluation_focus": ["Nhịp lật danh tính có đủ nền", "Bản nhạc trong đáy hộp khớp cách mở đã dặn"],
+        "emotion_target": "Chấn động dịu, xúc động kìm",
+        "hook_goal": "Muốn biết kẻ phóng hỏa là ai và hộp sẽ kêu ra sao"
+      }
+    }
+  ]
+}

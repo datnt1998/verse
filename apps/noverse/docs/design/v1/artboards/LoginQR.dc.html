@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Đăng nhập điện thoại bằng QR</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.breathe{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.05) !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:40px;padding:0 12px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:14px;outline:none;width:100%}
+.field:focus{border-color:rgba(201,166,245,.6)}
+.field::placeholder{color:#5E5E68}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-devices{-webkit-mask-image:url(../icons/devices.svg);mask-image:url(../icons/devices.svg)}
+.i-edit-r{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
+.i-eye-off{-webkit-mask-image:url(../icons/eye-slash.svg);mask-image:url(../icons/eye-slash.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-login{-webkit-mask-image:url(../icons/login.svg);mask-image:url(../icons/login.svg)}
+.i-logout{-webkit-mask-image:url(../icons/logout.svg);mask-image:url(../icons/logout.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-mobile-b{-webkit-mask-image:url(../icons/mobile-bulk.svg);mask-image:url(../icons/mobile-bulk.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-pwd{-webkit-mask-image:url(../icons/password-check.svg);mask-image:url(../icons/password-check.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-sb-left{-webkit-mask-image:url(../icons/sidebar-left.svg);mask-image:url(../icons/sidebar-left.svg)}
+.i-sb-right{-webkit-mask-image:url(../icons/sidebar-right.svg);mask-image:url(../icons/sidebar-right.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-shield-b{-webkit-mask-image:url(../icons/shield-security-bulk.svg);mask-image:url(../icons/shield-security-bulk.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
+.i-user-add{-webkit-mask-image:url(../icons/user-add.svg);mask-image:url(../icons/user-add.svg)}
+.i-users{-webkit-mask-image:url(../icons/profile-2user.svg);mask-image:url(../icons/profile-2user.svg)}
+.i-users-b{-webkit-mask-image:url(../icons/profile-2user-bulk.svg);mask-image:url(../icons/profile-2user-bulk.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+.i-wifi{-webkit-mask-image:url(../icons/wifi.svg);mask-image:url(../icons/wifi.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<!-- ═════════ AUTH (chưa đăng nhập) ═════════ -->
+<sc-if value="{{isAuth}}" hint-placeholder-val="{{ true }}">
+<div style="height: 100%; display: flex; flex-direction: column">
+<header style="flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px">
+<div style="display: flex; align-items: center; gap: 10px">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span class="nv-lockup" style="display: inline-flex; align-items: baseline; gap: 6px; line-height: 1"><span class="nv-word" style="font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.012em">Noverse</span><span style="font-size: 13px; font-weight: 500; color: #7E7E8A">Studio</span></span>
+</div>
+<div title="Noverse đang chạy" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 999px; background: #131315; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #A0A0AB">
+<span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: #A6EDC1; box-shadow: 0 0 0 3px rgba(166,237,193,0.14)"></span>
+<span>Thư viện “Truyen”</span><span style="color: #3A3A40">·</span><span>đang hoạt động</span>
+</div>
+</header>
+
+<main style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div style="width: min(400px, 100%); display: flex; flex-direction: column; gap: 22px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<div aria-hidden="true" style="position: relative; width: 84px; height: 64px">
+<div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,99,227,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
+<span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
+<span class="orb o-writer breathe" style="position: absolute; left: 22px; top: 0; width: 40px; height: 40px; animation-delay: -0.9s"></span>
+<span class="orb o-editor breathe" style="position: absolute; left: 50px; top: 16px; width: 32px; height: 32px; animation-delay: -1.8s"></span>
+<span class="orb o-arbiter breathe" style="position: absolute; left: 28px; top: 34px; width: 28px; height: 28px; animation-delay: -2.7s"></span>
+</div>
+<div>
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1>
+<p style="margin: 6px 0 0; font-size: 14px; color: #A0A0AB">{{sub}}</p>
+</div>
+</div>
+
+<sc-if value="{{isExpired}}" hint-placeholder-val="{{ false }}">
+<div role="status" class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; border-color: rgba(246,203,140,0.3)">
+<span class="ic i-clock" aria-hidden="true" style="color: #F6CB8C; margin-top: 2px"></span>
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px">
+<span style="font-weight: 500; color: #EDEDEF">Phiên đăng nhập đã hết hạn</span>
+<span style="color: #A0A0AB">Phiên của Dat trên thiết bị này đã đủ 30 ngày (24/09 → 24/10). AI vẫn tiếp tục viết trong lúc bạn đăng nhập lại.</span>
+<span style="display: flex; align-items: center; gap: 6px; color: #7E7E8A; font-size: 12px"><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span>Sau khi đăng nhập sẽ quay lại Bàn viết · Trà Xanh Cướp Kịch Bản…</span>
+</div>
+</div>
+</sc-if>
+
+<!-- Chọn tài khoản -->
+<sc-if value="{{isPicker}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px"><span class="lbl">Tài khoản đã dùng trên máy này</span><span style="font-size: 12px; color: #7E7E8A">{{rememberedCount}}</span></div>
+<div class="card" style="border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{remembered}}" as="a" hint-placeholder-count="2">
+<div class="row" style="display: flex; align-items: center; gap: 4px; border-radius: 10px">
+<button type="button" onClick="{{a.pick}}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px; border: none; background: transparent; color: #EDEDEF; text-align: left; border-radius: 10px">
+<span class="av" aria-hidden="true" style="width: 38px; height: 38px; font-size: 14px">{{a.initial}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500">{{a.name}}<span style="height: 20px; padding: 0 7px; display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; background: {{a.roleBg}}; color: {{a.roleFg}}; font-size: 11px; font-weight: 500"><span class="ic {{a.roleIcon}}" aria-hidden="true" style="width: 12px; height: 12px"></span>{{a.roleLabel}}</span></span>
+<span style="font-size: 12px; color: #7E7E8A"><span class="mono">@{{a.username}}</span> · {{a.meta}}</span>
+</span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span>
+</button>
+<button class="ghost" type="button" aria-label="Gỡ {{a.name}} khỏi máy này" title="Gỡ khỏi máy này" style="width: 30px; height: 30px; margin-right: 6px; border-radius: 8px; border: none; background: transparent; color: #5E5E68; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+</div>
+</sc-for>
+<button class="row" type="button" onClick="{{goOther}}" style="display: flex; align-items: center; gap: 12px; padding: 10px; border: none; border-radius: 10px; background: transparent; color: #C9C9D1; text-align: left">
+<span aria-hidden="true" style="width: 38px; height: 38px; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-user-add" style="width: 17px; height: 17px"></span></span>
+<span style="flex: 1; font-size: 14px">Đăng nhập tài khoản khác</span>
+</button>
+</div>
+</div>
+</sc-if>
+
+<!-- Mật khẩu / tài khoản khác -->
+<sc-if value="{{isForm}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{submit}}" style="display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{hasAccount}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="border-radius: 14px; padding: 10px 10px 10px 12px; display: flex; align-items: center; gap: 12px">
+<span class="av" aria-hidden="true" style="width: 38px; height: 38px; font-size: 14px">{{acc.initial}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">{{acc.name}}</span><span style="font-size: 12px; color: #7E7E8A"><span class="mono">@{{acc.username}}</span> · {{acc.roleLabel}}</span></span>
+<button class="ghost" type="button" onClick="{{goPicker}}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px">Đổi</button>
+</div>
+</sc-if>
+<sc-if value="{{isOther}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="lg-user" class="lbl">Tên đăng nhập</label>
+<input id="lg-user" class="field mono" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="vd: linh" value="{{username}}" onInput="{{onUser}}" style="border-color: {{fieldBd}}">
+<span style="font-size: 12px; color: #7E7E8A">Chữ thường không dấu, số và . _ - · 2–32 ký tự</span>
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><label for="lg-pass" class="lbl">Mật khẩu</label><button type="button" onClick="{{toggleForgot}}" aria-expanded="{{forgotOpen}}" style="border: none; background: transparent; padding: 0; color: #A0A0AB; font-size: 12px">Quên mật khẩu?</button></div>
+<div style="position: relative">
+<input id="lg-pass" class="field" type="{{pwType}}" autocomplete="current-password" placeholder="Ít nhất 8 ký tự" value="{{password}}" onInput="{{onPass}}" aria-invalid="{{hasError}}" aria-describedby="lg-err" style="padding-right: 44px; border-color: {{fieldBd}}">
+<button class="ghost" type="button" onClick="{{togglePw}}" aria-label="{{pwToggleLabel}}" style="position: absolute; right: 4px; top: 4px; width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic {{pwIcon}}" aria-hidden="true" style="width: 17px; height: 17px"></span></button>
+</div>
+<sc-if value="{{hasError}}" hint-placeholder-val="{{ false }}"><span id="lg-err" role="alert" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #FF9AA2"><span class="ic i-warning" aria-hidden="true" style="width: 14px; height: 14px"></span>{{errorText}}</span></sc-if>
+</div>
+<sc-if value="{{forgotOpen}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 12px; border-radius: 12px; background: #131315; border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #A0A0AB">
+<span>Nhờ quản trị viên đặt lại mật khẩu cho bạn. Họ sẽ gửi một mật khẩu tạm — lần đầu vào, bạn tự đặt mật khẩu mới.</span>
+<sc-if value="{{accIsAdmin}}" hint-placeholder-val="{{ false }}"><div style="height: 1px; background: rgba(255,255,255,0.06)"></div>
+<span style="font-size: 12.5px">Bạn là quản trị viên duy nhất? Dùng <span style="color: #EDEDEF">mã khôi phục</span> Noverse đưa cho bạn lúc thiết lập lần đầu.</span>
+<sc-if value="{{noRecover}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{openRecover}}" style="align-self: flex-start; height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic i-key" aria-hidden="true" style="width: 15px; height: 15px; color: #C9A6F5"></span>Dùng mã khôi phục</button></sc-if>
+<sc-if value="{{recoverOpen}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px">
+<label for="lg-rc" class="lbl">Mã khôi phục</label><input id="lg-rc" class="field" type="text" value="{{rcode}}" onInput="{{onRcode}}" placeholder="VD: TRAX-8K2M-QP7D-41ZN" autocomplete="one-time-code" style="height: 38px; letter-spacing: .06em; font-size: 14px">
+<label for="lg-rp" class="lbl">Mật khẩu mới</label><input id="lg-rp" class="field" type="password" value="{{rpw}}" onInput="{{onRpw}}" autocomplete="new-password" style="height: 38px; font-size: 14px">
+<button class="primary" type="button" onClick="{{doRecover}}" disabled="{{recoverBad}}" style="height: 36px; border-radius: 10px; border: none; background: {{rcBg}}; color: {{rcFg}}; font-size: 13px; font-weight: 600">Đặt lại &amp; đăng nhập</button>
+<span style="font-size: 12px; color: #7E7E8A">Mỗi mã dùng một lần. Sau khi dùng, Noverse phát mã mới trong Tuỳ chỉnh › Nâng cao. Mọi thiết bị của tài khoản sẽ được đăng xuất.</span>
+</div></sc-if></sc-if>
+</div>
+</sc-if>
+<button class="primary" type="submit" disabled="{{submitDisabled}}" style="height: 42px; border-radius: 11px; border: none; background: {{submitBg}}; color: {{submitFg}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+<sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="border-color: rgba(0,0,0,0.15); border-top-color: #0B0B0D"></span></sc-if>
+<sc-if value="{{showLoginIcon}}" hint-placeholder-val="{{ true }}"><span class="ic i-login" aria-hidden="true" style="width: 17px; height: 17px"></span></sc-if>
+{{submitLabel}}
+</button>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 12px; color: #A0A0AB">
+<span style="display: flex; align-items: center; gap: 8px"><span class="ic i-shield" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span>Phiên giữ 30 ngày trên thiết bị này — đến <span class="num" style="color: #C9C9D1">23/11/2026</span></span>
+<button type="button" role="checkbox" aria-checked="{{shared}}" onClick="{{toggleShared}}" style="display: flex; align-items: center; gap: 8px; padding: 0; border: none; background: transparent; color: #A0A0AB; font-size: 12px; text-align: left">
+<span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 5px; display: flex; align-items: center; justify-content: center; border: 1px solid {{sharedBd}}; background: {{sharedBg}}"><sc-if value="{{shared}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" style="width: 13px; height: 13px; color: #0B0B0D"></span></sc-if></span>
+Máy dùng chung — không ghi nhớ tài khoản trên máy này
+</button>
+</div>
+<sc-if value="{{isOther}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{goPicker}}" style="align-self: center; display: flex; align-items: center; gap: 6px; border: none; background: transparent; color: #A0A0AB; font-size: 13px"><span class="ic i-arrow-l" aria-hidden="true" style="width: 15px; height: 15px"></span>Tài khoản đã lưu</button></sc-if>
+</form>
+</sc-if>
+
+</div>
+</main>
+
+<footer style="flex: 0 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; padding: 14px 20px 18px; font-size: 12px; color: #7E7E8A">
+<span style="display: flex; align-items: center; gap: 6px"><span class="ic i-mobile" aria-hidden="true" style="width: 14px; height: 14px"></span>Điện thoại: quét mã QR từ máy tính đã đăng nhập</span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="ic i-user-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Chưa có tài khoản? Nhờ quản trị viên tạo</span>
+</footer>
+</div>
+</sc-if>
+
+<!-- ═════════ APP (đã đăng nhập) — nền cho menu & hộp thoại ═════════ -->
+<sc-if value="{{isApp}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="{{appHidden}}" style="height: 100%; display: flex; flex-direction: column">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<span class="ic i-sb-left" aria-hidden="true" style="color: #A0A0AB; margin: 0 7px"></span>
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</span>
+<span style="color: #3A3A40">/</span><span style="font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<span style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; font-size: 13px; font-weight: 500"><span class="ic i-category-b" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>Bàn viết</span>
+<span style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; color: #A0A0AB; font-size: 13px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</span>
+<span style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</span>
+<span style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</span>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<span class="ic i-setting" aria-hidden="true" style="color: #A0A0AB; margin: 0 7px"></span>
+<button type="button" aria-haspopup="menu" aria-expanded="{{isMenu}}" aria-label="Tài khoản: Dat" style="width: 32px; height: 32px; padding: 0; border-radius: 50%; border: none; background: transparent; box-shadow: {{avatarRing}}; display: flex; align-items: center; justify-content: center"><span class="av" style="width: 30px; height: 30px; font-size: 12px">D</span></button>
+<span class="ic i-sb-right" aria-hidden="true" style="color: #A0A0AB; margin: 0 7px"></span>
+</div>
+</header>
+<div style="flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px 16px; opacity: 0.55">
+<div style="flex: 0 0 236px; border-radius: 14px; background: #131315"></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px"><div style="flex: 4; border-radius: 14px; background: #131315"></div><div style="flex: 6; border-radius: 14px; background: #131315"></div><div style="height: 56px; border-radius: 18px; background: #18181A"></div></div>
+<div style="flex: 0 0 340px; border-radius: 14px; background: #131315"></div>
+</div>
+</div>
+<sc-if value="{{isDialog}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(5,5,7,0.66); backdrop-filter: blur(2px)"></div></sc-if>
+</sc-if>
+
+<!-- Menu tài khoản -->
+<sc-if value="{{isMenu}}" hint-placeholder-val="{{ false }}">
+<div class="dlg" role="menu" aria-label="Tài khoản" style="position: absolute; top: 52px; right: 52px; width: 330px; padding: 6px; display: flex; flex-direction: column">
+<div style="padding: 12px 12px 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span class="av" aria-hidden="true" style="width: 42px; height: 42px; font-size: 16px">D</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600">Dat<span style="height: 20px; padding: 0 7px; display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; background: rgba(201,166,245,0.12); color: #C9A6F5; font-size: 11px; font-weight: 500"><span class="ic i-crown" aria-hidden="true" style="width: 12px; height: 12px"></span>Quản trị</span></span>
+<span class="mono" style="font-size: 12px; color: #7E7E8A">@dat</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #A0A0AB"><span style="display: flex; align-items: center; gap: 6px"><span class="ic i-shield" aria-hidden="true" style="width: 14px; height: 14px"></span>Phiên trên Mac · Chrome</span><span class="num">còn 30 ngày</span></div>
+<div aria-hidden="true" style="height: 3px; border-radius: 3px; background: #1E1E21"><div style="width: 100%; height: 100%; border-radius: 3px; background: #A6EDC1"></div></div>
+<span style="font-size: 11px; color: #7E7E8A">Hết hạn 23/11/2026 · sau đó cần đăng nhập lại</span>
+</div>
+</div>
+<div style="height: 1px; background: rgba(255,255,255,0.07); margin: 0 6px 6px"></div>
+<sc-for list="{{menuItems}}" as="m" hint-placeholder-count="4">
+<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: none; border-radius: 10px; background: {{m.bg}}; color: #EDEDEF; font-size: 13px; text-align: left">
+<span class="ic {{m.icon}}" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB"></span><span style="flex: 1">{{m.label}}</span>
+<sc-if value="{{m.badge}}" hint-placeholder-val="{{ false }}"><span class="num" style="height: 20px; min-width: 20px; padding: 0 6px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(255,255,255,0.06); color: #A0A0AB; font-size: 11px">{{m.badge}}</span></sc-if>
+</button>
+</sc-for>
+<div style="height: 1px; background: rgba(255,255,255,0.07); margin: 6px"></div>
+<div style="padding: 6px 12px 4px" class="lbl">Chuyển tài khoản</div>
+<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: #EDEDEF; text-align: left">
+<span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 11px">L</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Linh</span><span style="font-size: 11px; color: #7E7E8A">Người viết · cần nhập mật khẩu</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span>
+</button>
+<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: #C9C9D1; font-size: 13px; text-align: left"><span class="ic i-user-add" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB; margin: 0 4px"></span>Đăng nhập tài khoản khác</button>
+<div style="height: 1px; background: rgba(255,255,255,0.07); margin: 6px"></div>
+<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: none; border-radius: 10px; background: transparent; color: #FF9AA2; font-size: 13px; text-align: left"><span class="ic i-logout" aria-hidden="true" style="width: 17px; height: 17px"></span>Đăng xuất</button>
+</div>
+</sc-if>
+
+<!-- Đăng nhập điện thoại bằng QR -->
+<sc-if value="{{isQr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div class="dlg" role="dialog" aria-labelledby="qr-title" style="width: min(880px, 100%); display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.07)">
+<span class="ic i-mobile-b" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span>
+<h2 id="qr-title" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">Đăng nhập điện thoại bằng QR</h2>
+<button class="ghost" type="button" aria-label="Đóng" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true"></span></button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 20px">
+
+<div style="flex: 0 0 300px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="qr-user" class="lbl">Cho tài khoản</label>
+<div style="position: relative"><select id="qr-user" class="field" onChange="{{onQrUser}}" style="appearance: none; padding-right: 34px; height: 38px; font-size: 13px"><sc-for list="{{qrUsers}}" as="u" hint-placeholder-count="3"><option value="{{u.username}}" selected="{{u.sel}}">{{u.label}}</option></sc-for></select><span class="ic i-arrow-d" aria-hidden="true" style="position: absolute; right: 10px; top: 10px; width: 16px; height: 16px; color: #7E7E8A; pointer-events: none"></span></div>
+</div>
+<sc-if value="{{hasLinks}}" hint-placeholder-val="{{ true }}">
+<div role="tablist" aria-label="Địa chỉ máy chủ" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{links}}" as="l" hint-placeholder-count="2">
+<button role="tab" type="button" aria-selected="{{l.sel}}" onClick="{{l.pick}}" style="flex: 1; min-width: 0; height: 40px; padding: 0 8px; border: none; border-radius: 7px; background: {{l.bg}}; color: {{l.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2">
+<span style="font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 5px"><span class="ic {{l.icon}}" aria-hidden="true" style="width: 13px; height: 13px"></span>{{l.kind}}</span>
+<span style="font-size: 11px; color: #7E7E8A">{{l.label}}</span>
+</button>
+</sc-for>
+</div>
+<div style="position: relative; width: 300px; height: 300px; padding: 18px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px -20px rgba(0,0,0,0.8)">
+<div style="width: 100%; height: 100%; opacity: {{qrOpacity}}; filter: {{qrFilter}}">
+<sc-if value="{{qrA}}" hint-placeholder-val="{{ true }}"><svg viewBox="-2 -2 33 33" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="33" height="33" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM19 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM15 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM12 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM26 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM19 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM22 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1z" fill="#0B0B0D"/></svg></sc-if>
+<sc-if value="{{qrB}}" hint-placeholder-val="{{ false }}"><svg viewBox="-2 -2 33 33" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="33" height="33" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM15 0h1v1h-1zM20 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM19 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM13 5h1v1h-1zM17 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM18 7h1v1h-1zM20 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM11 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM27 8h1v1h-1zM4 9h1v1h-1zM7 9h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM27 9h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM21 10h1v1h-1zM25 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM25 11h1v1h-1zM1 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM18 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM28 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM25 14h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM17 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM16 16h1v1h-1zM21 16h1v1h-1zM27 16h1v1h-1zM0 17h1v1h-1zM1 17h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM14 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM28 17h1v1h-1zM0 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM12 18h1v1h-1zM14 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM28 18h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM18 19h1v1h-1zM22 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM0 20h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM8 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM28 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM12 22h1v1h-1zM13 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM28 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM10 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM27 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM12 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM17 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM26 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM15 27h1v1h-1zM17 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM9 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM26 28h1v1h-1zM28 28h1v1h-1z" fill="#0B0B0D"/></svg></sc-if>
+</div>
+<sc-if value="{{qrExpired}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border-radius: 18px; background: rgba(255,255,255,0.7)">
+<span style="font-size: 14px; font-weight: 600; color: #0B0B0D">Mã đã hết hạn</span>
+<button class="primary" type="button" onClick="{{renew}}" style="height: 34px; padding: 0 14px; border-radius: 9px; border: none; background: #0B0B0D; color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Tạo mã mới</button>
+</div>
+</sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #A0A0AB"><span style="display: flex; align-items: center; gap: 6px"><span class="ic i-timer" aria-hidden="true" style="width: 14px; height: 14px"></span>Dùng một lần · hết hạn sau</span><span class="mono num" style="color: {{ttlColor}}">{{ttl}}</span></div>
+<div aria-hidden="true" style="height: 3px; border-radius: 3px; background: #1E1E21"><div style="width: {{ttlPct}}; height: 100%; border-radius: 3px; background: {{ttlColor}}"></div></div>
+</div>
+<div style="display: flex; gap: 8px">
+<button class="ghost" type="button" onClick="{{renew}}" style="flex: 1; height: 34px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Tạo mã mới</button>
+<button class="ghost" type="button" style="flex: 1; height: 34px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Sao chép liên kết</button>
+</div>
+</sc-if>
+<sc-if value="{{noLinks}}" hint-placeholder-val="{{ false }}">
+<div style="height: 384px; border-radius: 18px; border: 1.5px dashed rgba(255,255,255,0.14); padding: 22px; display: flex; flex-direction: column; justify-content: center; gap: 12px">
+<span class="ic i-wifi" aria-hidden="true" style="width: 28px; height: 28px; color: #F6CB8C"></span>
+<span style="font-size: 15px; font-weight: 600">Điện thoại chưa vào được</span>
+<span style="font-size: 13px; color: #A0A0AB">Noverse đang chỉ mở trên máy tính này nên điện thoại chưa thấy được.</span>
+<sc-if value="{{lanIdle}}" hint-placeholder-val="{{ true }}"><button class="primary" type="button" onClick="{{enableLan}}" style="align-self: flex-start; height: 38px; padding: 0 16px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px"><span class="ic i-wifi" aria-hidden="true" style="width: 16px; height: 16px"></span>Cho phép thiết bị cùng Wi-Fi</button>
+<span style="font-size: 12px; color: #7E7E8A">Chỉ máy trong cùng mạng Wi-Fi nhà bạn vào được, và vẫn phải đăng nhập. Tắt lại trong Tuỳ chỉnh › Nâng cao.</span></sc-if>
+<sc-if value="{{lanBusy}}" hint-placeholder-val="{{ false }}"><span role="status" style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #EDEDEF"><span class="spinner" aria-hidden="true"></span>Đang mở kết nối cho Wi-Fi nhà… khoảng 5 giây</span><span style="font-size: 12px; color: #7E7E8A">Truyện đang viết và các phiên đang mở không bị ngắt.</span></sc-if>
+<span style="font-size: 12px; color: #7E7E8A">Muốn dùng cả khi ra ngoài? Cài ứng dụng Tailscale trên máy tính và điện thoại.</span>
+</div>
+</sc-if>
+</div>
+
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 16px">
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{qrSteps}}" as="s" hint-placeholder-count="3">
+<li style="display: flex; gap: 12px">
+<span class="num" aria-hidden="true" style="width: 26px; height: 26px; flex: 0 0 auto; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #C9C9D1">{{s.n}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px; padding-top: 2px"><span style="font-size: 14px; font-weight: 500">{{s.title}}</span><span style="font-size: 13px; color: #A0A0AB">{{s.desc}}</span></span>
+</li>
+</sc-for>
+</ol>
+
+<sc-if value="{{hasLinks}}" hint-placeholder-val="{{ true }}">
+<div role="status" class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; border-color: {{waitBd}}">
+<sc-if value="{{waiting}}" hint-placeholder-val="{{ true }}"><span class="spinner" aria-hidden="true"></span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">Đang chờ điện thoại quét…</span><span style="font-size: 12px; color: #7E7E8A">Thiết bị mới sẽ hiện ở danh sách bên dưới ngay khi đăng nhập</span></span></sc-if>
+<sc-if value="{{paired}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="color: #A6EDC1"></span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">Đã đăng nhập trên iPhone · Safari</span><span style="font-size: 12px; color: #7E7E8A">giữ đăng nhập đến 23/11/2026</span></span><button class="primary" type="button" style="height: 32px; padding: 0 12px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Xong</button></sc-if>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl">Thiết bị của {{qrUserName}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{qrDevCount}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{qrDevices}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: {{d.bg}}">
+<span class="ic {{d.icon}}" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; display: flex; align-items: center; gap: 6px">{{d.device}}<sc-if value="{{d.current}}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 10.5px">Thiết bị này</span></sc-if><sc-if value="{{d.fresh}}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 5px; background: rgba(201,166,245,0.12); color: #C9A6F5; font-size: 10.5px">Vừa đăng nhập</span></sc-if></span><span style="font-size: 11.5px; color: #7E7E8A">{{d.seen}}</span></span>
+<span class="num" style="font-size: 11.5px; color: {{d.expColor}}">{{d.exp}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.18); font-size: 12px; color: #C9C9D1">
+<span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C; margin-top: 1px"></span>
+<span>Đừng chia sẻ mã này — ai quét được sẽ vào được tài khoản <span class="mono">@{{qrUser}}</span> trong 5 phút. Khi ở ngoài nhà, hãy kết nối qua Tailscale thay vì Wi-Fi công cộng.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- Thiết bị & mật khẩu -->
+<sc-if value="{{isDevices}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div class="dlg" role="dialog" aria-labelledby="dv-title" style="width: min(920px, 100%); display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.07)">
+<span class="ic i-shield-b" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span>
+<h2 id="dv-title" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">Thiết bị & bảo mật</h2>
+<button class="ghost" type="button" aria-label="Đóng" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true"></span></button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 20px">
+<section aria-labelledby="dv-s1" style="flex: 1 1 440px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="dv-s1" class="lbl" style="margin: 0">Thiết bị đang đăng nhập · {{sessionCount}}</h3><span style="font-size: 12px; color: #7E7E8A">Mỗi phiên giữ 30 ngày kể từ lúc đăng nhập</span></div>
+<div class="card" style="border-radius: 14px; padding: 4px">
+<sc-for list="{{sessions}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-top: {{d.bt}}">
+<span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 10px; background: #1E1E21; display: flex; align-items: center; justify-content: center; color: #C9C9D1"><span class="ic {{d.icon}}" style="width: 18px; height: 18px"></span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 6px">{{d.device}}<sc-if value="{{d.current}}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 10.5px; font-weight: 400">Thiết bị này</span></sc-if></span>
+<span style="font-size: 12px; color: #7E7E8A">{{d.seen}} · đăng nhập {{d.created}}</span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px"><span class="num" style="font-size: 12px; color: {{d.expColor}}">{{d.exp}}</span><button class="ghost" type="button" aria-label="Đăng xuất {{d.device}}" style="height: 26px; padding: 0 8px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.08); background: transparent; color: #C9C9D1; font-size: 12px">Đăng xuất</button></span>
+</div>
+</sc-for>
+</div>
+<button class="ghost" type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,154,162,0.3); background: transparent; color: #FF9AA2; font-size: 12.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-logout" aria-hidden="true" style="width: 15px; height: 15px"></span>Đăng xuất mọi thiết bị khác</button>
+</section>
+<section aria-labelledby="dv-s2" style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px">
+<h3 id="dv-s2" class="lbl" style="margin: 0">Đổi mật khẩu</h3>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pw-cur" style="font-size: 12.5px; color: #A0A0AB">Mật khẩu hiện tại</label><input id="pw-cur" class="field" type="password" autocomplete="current-password" value="••••••••••"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pw-new" style="font-size: 12.5px; color: #A0A0AB">Mật khẩu mới</label><input id="pw-new" class="field" type="password" autocomplete="new-password" value="{{newPw}}" onInput="{{onNewPw}}" placeholder="Ít nhất 8 ký tự">
+<div aria-hidden="true" style="display: flex; gap: 4px"><sc-for list="{{strength.bars}}" as="b" hint-placeholder-count="4"><span style="flex: 1; height: 3px; border-radius: 3px; background: {{b}}"></span></sc-for></div>
+<span style="font-size: 12px; color: {{strength.color}}">{{strength.label}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pw-re" style="font-size: 12.5px; color: #A0A0AB">Nhập lại mật khẩu mới</label><input id="pw-re" class="field" type="password" autocomplete="new-password" placeholder="Nhập lại"></div>
+<span style="display: flex; gap: 8px; font-size: 12px; color: #A0A0AB"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px"></span>Các thiết bị khác sẽ bị đăng xuất; thiết bị này giữ nguyên phiên.</span>
+<button class="primary" type="button" disabled="{{pwDisabled}}" style="align-self: flex-start; height: 36px; padding: 0 16px; border-radius: 9px; border: none; background: {{pwBg}}; color: {{pwFg}}; font-size: 13px; font-weight: 600">Đổi mật khẩu</button>
+</section>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- Quản lý tài khoản (quản trị) -->
+<sc-if value="{{isUsers}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
+<div class="dlg" role="dialog" aria-labelledby="us-title" style="width: min(1040px, 100%); height: min(700px, 100%); display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.07)">
+<span class="ic i-users-b" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span>
+<h2 id="us-title" style="margin: 0; font-size: 16px; font-weight: 600">Quản lý tài khoản</h2>
+<span class="num" style="font-size: 13px; color: #7E7E8A">{{userCount}} tài khoản</span>
+<span style="flex: 1"></span>
+<button class="primary" type="button" style="height: 34px; padding: 0 12px 0 10px; border-radius: 9px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Thêm tài khoản</button>
+<button class="ghost" type="button" aria-label="Đóng" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true"></span></button>
+</div>
+<div style="flex: 1; min-height: 0; display: flex">
+<div class="scroll" style="flex: 1 1 520px; min-width: 0; padding: 10px; border-right: 1px solid rgba(255,255,255,0.06)">
+<div role="listbox" aria-label="Tài khoản" style="display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{users}}" as="u" hint-placeholder-count="4">
+<button class="row" role="option" aria-selected="{{u.sel}}" type="button" onClick="{{u.pick}}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; border-radius: 11px; background: {{u.bg}}; color: #EDEDEF; text-align: left; opacity: {{u.op}}">
+<span class="av" aria-hidden="true" style="width: 34px; height: 34px; font-size: 13px">{{u.initial}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 6px">{{u.name}}<sc-if value="{{u.me}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; color: #7E7E8A; font-weight: 400">(bạn)</span></sc-if></span><span class="mono" style="font-size: 11.5px; color: #7E7E8A">@{{u.username}}</span></span>
+<span style="flex: 0 0 104px"><span style="height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; background: {{u.roleBg}}; color: {{u.roleFg}}; font-size: 11.5px"><span class="ic {{u.roleIcon}}" aria-hidden="true" style="width: 12px; height: 12px"></span>{{u.roleLabel}}</span></span>
+<span style="flex: 0 0 140px; font-size: 12px; color: {{u.booksColor}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{u.books}}</span>
+<span class="num" style="flex: 0 0 64px; display: flex; align-items: center; gap: 5px; font-size: 12px; color: #A0A0AB"><span class="ic i-devices" aria-hidden="true" style="width: 14px; height: 14px"></span>{{u.devices}}</span>
+<span style="flex: 0 0 74px; font-size: 12px; color: {{u.statusColor}}">{{u.status}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+<div class="scroll" style="flex: 0 0 380px; padding: 18px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span class="av" aria-hidden="true" style="width: 44px; height: 44px; font-size: 16px">{{sel.initial}}</span>
+<div style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{sel.name}}</span><span style="font-size: 12px; color: #7E7E8A"><span class="mono">@{{sel.username}}</span> · tạo {{sel.created}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="us-name" class="lbl">Tên hiển thị</label><input id="us-name" class="field" type="text" value="{{sel.name}}" style="height: 36px; font-size: 13px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl" id="us-role">Vai trò</span>
+<div role="radiogroup" aria-labelledby="us-role" style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{roles}}" as="r" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{r.sel}}" onClick="{{r.pick}}" style="display: flex; align-items: flex-start; gap: 10px; padding: 9px 11px; border-radius: 10px; border: 1px solid {{r.bd}}; background: {{r.bg}}; color: #EDEDEF; text-align: left">
+<span aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; border-radius: 50%; border: 1.5px solid {{r.dot}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{r.fill}}"></span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">{{r.label}}</span><span style="font-size: 12px; color: #A0A0AB">{{r.desc}}</span></span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl">Truyện được truy cập</span><span style="font-size: 12px; color: #7E7E8A">{{accessNote}}</span></div>
+<div style="padding: 6px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 1px">
+<sc-for list="{{bookAccess}}" as="b" hint-placeholder-count="4">
+<button type="button" role="checkbox" aria-checked="{{b.on}}" disabled="{{b.lock}}" style="display: flex; align-items: center; gap: 10px; min-height: 32px; padding: 4px 8px 4px {{b.pad}}; border: none; border-radius: 8px; background: transparent; color: {{b.fg}}; font-size: 12.5px; text-align: left">
+<span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 5px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; border: 1px solid {{b.bd}}; background: {{b.bgc}}"><sc-if value="{{b.on}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" style="width: 13px; height: 13px; color: #0B0B0D"></span></sc-if></span>
+<span class="{{b.cls}}" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{b.label}}</span><span style="font-size: 11px; color: #7E7E8A">{{b.note}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<button class="ghost" type="button" style="height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-mobile" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span>Đăng nhập điện thoại cho {{sel.name}}</button>
+<button class="ghost" type="button" style="height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-key" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span>Đặt lại mật khẩu<span style="flex: 1"></span><span style="font-size: 11px; color: #7E7E8A">đăng xuất mọi thiết bị</span></button>
+<div style="display: flex; gap: 6px">
+<button class="ghost" type="button" disabled="{{sel.lastAdmin}}" title="{{sel.lockTitle}}" style="flex: 1; height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: {{sel.lockFg}}; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic i-lock" aria-hidden="true" style="width: 16px; height: 16px"></span>{{sel.lockLabel}}</button>
+<button class="ghost" type="button" disabled="{{sel.lastAdmin}}" title="{{sel.lockTitle}}" style="height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,154,162,0.28); background: transparent; color: {{sel.delFg}}; font-size: 13px">Xoá</button>
+</div>
+<sc-if value="{{sel.lastAdmin}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #7E7E8A">Phải còn ít nhất một quản trị viên đang hoạt động.</span></sc-if>
+</div>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid rgba(255,255,255,0.07)">
+<span style="flex: 1; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #7E7E8A"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px"></span>Quản trị viên luôn thấy mọi truyện.</span>
+<button class="ghost" type="button" style="height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px">Hoàn tác</button>
+<button class="primary" type="button" style="height: 36px; padding: 0 16px; border-radius: 9px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Lưu thay đổi</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["login","password","other","expired","menu","qr","qrExpired","qrNoLan","devices","users"],"default":"qr","section":"Màn"},"error":{"editor":"enum","options":["none","wrong","limited"],"default":"none","section":"Đăng nhập"},"paired":{"editor":"boolean","default":false,"section":"QR"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { local: null, forProp: null, acc: 0, username: '', password: '', showPw: false, forgot: false, shared: false, busy: false, link: 0, qrUser: 'dat', user: 1, role: null, newPw: 'trà-xanh-2026', recover: false, rcode: '', rpw: '', lan: 'idle' };
+  }
+  renderVals() {
+    const s = this.state, p = this.props;
+    const prop = p.state || 'login';
+    const view = s.forProp === prop && s.local ? s.local : prop;
+    const go = (v, extra) => this.setState(Object.assign({ local: v, forProp: prop, forgot: false }, extra || {}));
+    const ROLE = {
+      admin: { label: 'Quản trị', icon: 'i-crown', bg: 'rgba(201,166,245,0.12)', fg: '#C9A6F5', desc: 'Toàn quyền, quản lý tài khoản' },
+      writer: { label: 'Người viết', icon: 'i-edit-r', bg: 'rgba(185,208,247,0.10)', fg: '#B9D0F7', desc: 'Viết các truyện được giao, tạo truyện mới' },
+      reader: { label: 'Người đọc', icon: 'i-eye', bg: 'rgba(255,255,255,0.06)', fg: '#C9C9D1', desc: 'Chỉ đọc, xuất file' }
+    };
+    const rememberedRaw = [
+      { name: 'Dat', username: 'dat', role: 'admin', meta: 'lần cuối 21/10 · Mac · Chrome' },
+      { name: 'Linh', username: 'linh', role: 'writer', meta: 'lần cuối 18/10 · Mac · Safari' }
+    ];
+    const remembered = rememberedRaw.map((a, i) => Object.assign({}, a, { initial: a.name[0], roleLabel: ROLE[a.role].label, roleIcon: ROLE[a.role].icon, roleBg: ROLE[a.role].bg, roleFg: ROLE[a.role].fg, pick: () => go('password', { acc: i, password: '' }) }));
+    const acc = view === 'expired' ? remembered[0] : remembered[s.acc] || remembered[0];
+    const isAuth = ['login', 'password', 'other', 'expired'].indexOf(view) >= 0;
+    const isForm = ['password', 'other', 'expired'].indexOf(view) >= 0;
+    const err = p.error || 'none';
+    const hasError = isForm && err !== 'none';
+    const limited = isForm && err === 'limited';
+    const pwValue = s.forProp === prop || err === 'none' || !isForm ? s.password : 'matkhau-cu-2025';
+    const pwLen = pwValue.length;
+    const userOk = view !== 'other' || /^[a-z0-9._-]{2,32}$/.test(s.username);
+    const submitDisabled = limited || s.busy || pwLen === 0 || !userOk;
+    const h1 = view === 'expired' ? 'Đăng nhập lại' : view === 'password' ? 'Chào mừng trở lại, ' + acc.name : view === 'other' ? 'Đăng nhập' : 'Chào mừng trở lại';
+    const sub = view === 'login' ? 'Chọn tài khoản để vào thư viện truyện' : view === 'other' ? 'Dùng tài khoản quản trị viên đã tạo cho bạn' : 'Nhập mật khẩu để tiếp tục';
+    // App overlay
+    const isApp = !isAuth;
+    const isMenu = view === 'menu';
+    const isQr = view === 'qr' || view === 'qrExpired' || view === 'qrNoLan';
+    const isDialog = isQr || view === 'devices' || view === 'users';
+    const hasLinks = isQr && view !== 'qrNoLan';
+    const linksRaw = [{ kind: 'Wi-Fi nhà', icon: 'i-wifi', label: 'khi ở nhà' }, { kind: 'Tailscale', icon: 'i-global', label: 'khi ra ngoài' }];
+    const links = linksRaw.map((l, i) => Object.assign({}, l, { sel: s.link === i, bg: s.link === i ? '#222225' : 'transparent', fg: s.link === i ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ link: i }) }));
+    const USERS = [
+      { name: 'Dat', username: 'dat', role: 'admin', books: ['*'], devices: 3, created: '02/10/2026', me: true },
+      { name: 'Linh', username: 'linh', role: 'writer', books: ['dit-dang-audio/01-tra-xanh-cuop-kich-ban'], devices: 1, created: '12/10/2026' },
+      { name: 'Minh', username: 'minh', role: 'reader', books: ['*'], devices: 0, created: '15/10/2026' },
+      { name: 'Hà', username: 'ha', role: 'writer', books: [], devices: 0, created: '20/10/2026', disabled: true }
+    ];
+    const qrUserObj = USERS.find((u) => u.username === s.qrUser) || USERS[0];
+    const qrUsers = USERS.filter((u) => !u.disabled).map((u) => ({ username: u.username, sel: u.username === s.qrUser, label: u.name + (u.me ? ' (bạn)' : '') + ' · @' + u.username }));
+    const devAll = {
+      dat: [
+        { device: 'Mac · Chrome', icon: 'i-monitor', ip: '127.0.0.1', seen: 'đang hoạt động', created: '24/10', exp: 'đến 23/11', current: true },
+        { device: 'iPhone · Safari', icon: 'i-mobile', ip: '192.168.1.20', seen: 'hoạt động 1 giờ trước', created: '16/10', exp: 'đến 15/11' },
+        { device: 'iPad · Safari', icon: 'i-mobile', ip: '192.168.1.31', seen: 'hoạt động 3 ngày trước', created: '27/09', exp: 'hết hạn sau 2 ngày', warn: true }
+      ],
+      linh: [{ device: 'Mac · Safari', icon: 'i-monitor', ip: '192.168.1.44', seen: 'hoạt động 2 giờ trước', created: '18/10', exp: 'đến 17/11' }],
+      minh: []
+    };
+    let qrDevices = (devAll[s.qrUser] || []).slice();
+    if (p.paired && s.qrUser === 'dat') qrDevices = [{ device: 'iPhone · Safari', icon: 'i-mobile', ip: '192.168.1.20', seen: 'vừa xong', exp: 'đến 23/11', fresh: true }].concat(qrDevices.filter((d, i) => i !== 1));
+    qrDevices = qrDevices.map((d) => Object.assign({}, d, { bg: d.fresh ? 'rgba(201,166,245,0.07)' : 'transparent', expColor: d.warn ? '#F6CB8C' : '#7E7E8A', current: !!d.current, fresh: !!d.fresh }));
+    const qrExpired = view === 'qrExpired';
+    const sessions = devAll.dat.map((d, i) => Object.assign({}, d, { bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', expColor: d.warn ? '#F6CB8C' : '#A0A0AB', current: !!d.current }));
+    // strength
+    const np = s.newPw;
+    let score = 0; if (np.length >= 8) score++; if (np.length >= 12) score++; if (/[^a-zA-Z0-9]/.test(np)) score++; if (/\d/.test(np) && /[a-zA-Z]/.test(np)) score++;
+    const sc = np.length < 8 ? 0 : Math.max(1, score);
+    const scColor = ['#FF9AA2', '#FF9AA2', '#F6CB8C', '#A6EDC1', '#A6EDC1'][sc];
+    const strength = { bars: [0, 1, 2, 3].map((i) => i < sc ? scColor : '#222225'), color: np.length && np.length < 8 ? '#FF9AA2' : '#A0A0AB', label: !np.length ? 'Ít nhất 8 ký tự' : np.length < 8 ? 'Cần ít nhất 8 ký tự (còn ' + (8 - np.length) + ')' : ['', 'Yếu', 'Tạm được', 'Mạnh', 'Rất mạnh'][sc] };
+    // users
+    const users = USERS.map((u, i) => {
+      const R = ROLE[u.role];
+      const books = u.role === 'admin' ? 'Tất cả truyện' : u.books[0] === '*' ? 'Tất cả truyện' : u.books.length ? u.books.length + ' truyện' : 'Chưa giao truyện';
+      return { name: u.name, username: u.username, initial: u.name[0], me: !!u.me, sel: s.user === i, bg: s.user === i ? '#222225' : 'transparent', pick: () => this.setState({ user: i, role: null }), roleLabel: R.label, roleIcon: R.icon, roleBg: R.bg, roleFg: R.fg, books, booksColor: books === 'Chưa giao truyện' ? '#F6CB8C' : '#A0A0AB', devices: u.devices, status: u.disabled ? 'Đã khoá' : 'Hoạt động', statusColor: u.disabled ? '#FF9AA2' : '#A6EDC1', op: u.disabled ? 0.6 : 1 };
+    });
+    const su = USERS[s.user] || USERS[1];
+    const selRole = s.role || su.role;
+    const lastAdmin = su.role === 'admin' && USERS.filter((u) => u.role === 'admin' && !u.disabled).length === 1;
+    const sel = { name: su.name, username: su.username, initial: su.name[0], created: su.created, lastAdmin, lockTitle: lastAdmin ? 'Phải còn ít nhất một quản trị viên đang hoạt động' : '', lockLabel: su.disabled ? 'Mở khoá' : 'Khoá tài khoản', lockFg: lastAdmin ? '#5E5E68' : '#EDEDEF', delFg: lastAdmin ? '#5E5E68' : '#FF9AA2' };
+    const roles = ['admin', 'writer', 'reader'].map((k) => ({ label: ROLE[k].label, desc: ROLE[k].desc, sel: selRole === k, bd: selRole === k ? 'rgba(201,166,245,0.45)' : 'rgba(255,255,255,0.08)', bg: selRole === k ? 'rgba(201,166,245,0.06)' : 'transparent', dot: selRole === k ? '#C9A6F5' : 'rgba(255,255,255,0.25)', fill: selRole === k ? '#C9A6F5' : 'transparent', pick: () => this.setState({ role: k }) }));
+    const all = selRole === 'admin' || su.books[0] === '*';
+    const has = (b) => all || su.books.indexOf(b) >= 0;
+    const bookRows = [
+      { label: 'Tất cả truyện', key: '*', pad: 8, note: 'kể cả truyện tạo sau', cls: '' },
+      { label: 'Kênh truyện audio', key: 'p', pad: 8, note: 'dự án · 2 truyện', cls: '' },
+      { label: 'Trà Xanh Cướp Kịch Bản…', key: 'dit-dang-audio/01-tra-xanh-cuop-kich-ban', pad: 30, note: 'Tập 1 · 8 ch.', cls: '' },
+      { label: '[truyện thứ hai]', key: 'dit-dang-audio/02-truyen-moi', pad: 30, note: 'chưa bắt đầu', cls: '' }
+    ];
+    const bookAccess = bookRows.map((b) => {
+      const on = b.key === '*' ? all : b.key === 'p' ? all : has(b.key);
+      const lock = selRole === 'admin';
+      return { label: b.label, note: b.note, pad: b.pad + 'px', cls: b.cls, on, lock, fg: lock ? '#7E7E8A' : '#C9C9D1', bd: on ? '#EDEDEF' : 'rgba(255,255,255,0.2)', bgc: on ? (lock ? '#7E7E8A' : '#EDEDEF') : 'transparent' };
+    });
+    return {
+      rememberedCount: remembered.length, qrDevCount: qrDevices.length, sessionCount: sessions.length, userCount: users.length,
+      isAuth, isForm, isApp, isMenu, isQr, isDialog, appHidden: isDialog ? 'true' : 'false',
+      isPicker: view === 'login', isExpired: view === 'expired', isOther: view === 'other', hasAccount: view !== 'other',
+      isDevices: view === 'devices', isUsers: view === 'users',
+      h1, sub, remembered, acc,
+      goOther: () => go('other', { password: '' }), goPicker: () => go('login'),
+      username: s.username, onUser: (e) => this.setState({ username: e.target.value.trim().toLowerCase() }),
+      password: pwValue, onPass: (e) => this.setState({ password: e.target.value, local: view, forProp: prop }),
+      pwType: s.showPw ? 'text' : 'password', pwIcon: s.showPw ? 'i-eye-off' : 'i-eye', pwToggleLabel: s.showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu', togglePw: () => this.setState({ showPw: !s.showPw }),
+      forgotOpen: s.forgot, toggleForgot: () => this.setState({ forgot: !s.forgot, recover: false }),
+      accIsAdmin: acc.role === 'admin', noRecover: !s.recover, recoverOpen: s.recover, openRecover: () => this.setState({ recover: true }),
+      rcode: s.rcode, rpw: s.rpw, onRcode: (e) => this.setState({ rcode: e.target.value.toUpperCase() }), onRpw: (e) => this.setState({ rpw: e.target.value }),
+      recoverBad: s.rcode.replace(/[^A-Z0-9]/g, '').length < 16 || s.rpw.length < 8, rcBg: s.rcode.replace(/[^A-Z0-9]/g, '').length >= 16 && s.rpw.length >= 8 ? '#EDEDEF' : 'rgba(255,255,255,0.08)', rcFg: s.rcode.replace(/[^A-Z0-9]/g, '').length >= 16 && s.rpw.length >= 8 ? '#0B0B0D' : '#7E7E8A',
+      doRecover: () => this.setState({ busy: true }),
+      lanIdle: s.lan === 'idle', lanBusy: s.lan === 'busy', enableLan: () => { this.setState({ lan: 'busy' }); setTimeout(() => { this.setState({ lan: 'idle' }); go('qr'); }, 2200); },
+      hasError, errorText: limited ? 'Thử sai quá nhiều lần, vui lòng đợi rồi thử lại' : 'Sai tên đăng nhập hoặc mật khẩu',
+      fieldBd: hasError && !limited ? 'rgba(255,154,162,0.6)' : 'rgba(255,255,255,0.1)',
+      submitDisabled, submitBg: submitDisabled ? '#2A2A2E' : '#EDEDEF', submitFg: submitDisabled ? '#7E7E8A' : '#0B0B0D',
+      submitLabel: limited ? 'Thử lại sau 0:42' : s.busy ? 'Đang đăng nhập…' : 'Đăng nhập', busy: s.busy, showLoginIcon: !s.busy && !limited,
+      submit: (e) => { e.preventDefault(); if (submitDisabled) return; this.setState({ busy: true }); setTimeout(() => this.setState({ busy: false }), 1400); },
+      shared: s.shared, toggleShared: () => this.setState({ shared: !s.shared }), sharedBd: s.shared ? '#EDEDEF' : 'rgba(255,255,255,0.25)', sharedBg: s.shared ? '#EDEDEF' : 'transparent',
+      avatarRing: isMenu ? '0 0 0 2px #0B0B0D, 0 0 0 3.5px #C9A6F5' : 'none',
+      menuItems: [
+        { icon: 'i-mobile', label: 'Đăng nhập điện thoại bằng QR', bg: '#222225' },
+        { icon: 'i-devices', label: 'Thiết bị đang đăng nhập', badge: '3', bg: 'transparent' },
+        { icon: 'i-pwd', label: 'Đổi mật khẩu', bg: 'transparent' },
+        { icon: 'i-users', label: 'Quản lý tài khoản', badge: '4', bg: 'transparent' }
+      ],
+      hasLinks, noLinks: view === 'qrNoLan', links, qrA: s.link === 0, qrB: s.link === 1,
+      qrUsers, onQrUser: (e) => this.setState({ qrUser: e.target.value }), qrUser: s.qrUser, qrUserName: qrUserObj.name, qrDevices,
+      qrExpired, qrOpacity: qrExpired ? '0.25' : '1', qrFilter: qrExpired ? 'blur(3px)' : 'none',
+      ttl: qrExpired ? '00:00' : '04:12', ttlPct: qrExpired ? '0%' : '84%', ttlColor: qrExpired ? '#FF9AA2' : '#A6EDC1',
+      renew: () => go('qr'),
+      waiting: !p.paired, paired: !!p.paired, waitBd: p.paired ? 'rgba(166,237,193,0.35)' : 'rgba(255,255,255,0.07)',
+      qrSteps: [
+        { n: 1, title: 'Cùng mạng với máy này', desc: view === 'qrNoLan' ? 'Cần bật chế độ cho phép Wi-Fi nhà (xem bên trái).' : 'Điện thoại dùng chung Wi-Fi với máy tính này, hoặc bật Tailscale khi ra ngoài.' },
+        { n: 2, title: 'Mở Camera và quét mã', desc: 'Trang Noverse mở ra trên trình duyệt điện thoại.' },
+        { n: 3, title: 'Bấm “Đăng nhập” trên điện thoại', desc: 'Phiên mới giữ 30 ngày, quản lý được ở “Thiết bị đang đăng nhập”.' }
+      ],
+      sessions, newPw: s.newPw, onNewPw: (e) => this.setState({ newPw: e.target.value }), strength,
+      pwDisabled: np.length < 8, pwBg: np.length < 8 ? '#2A2A2E' : '#EDEDEF', pwFg: np.length < 8 ? '#7E7E8A' : '#0B0B0D',
+      users, sel, roles, bookAccess, accessNote: selRole === 'admin' ? 'quản trị thấy tất cả' : all ? 'tất cả' : su.books.length + ' đã chọn'
+    };
+  }
+}
+</script>
+</body>
+</html>

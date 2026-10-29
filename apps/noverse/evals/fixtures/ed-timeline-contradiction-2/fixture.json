@@ -1,0 +1,219 @@
+{
+  "title": "Khói Trên Đồi Chè Tà Mẩy",
+  "premise": "Hảng Thị Mỉa, cô gái trồng chè ở bản Tà Mẩy, một năm sau đám cháy kho chè của gia đình, gom lại từng mảnh chứng cứ — nắp can dầu, số lô, lời kể của người nghe tiếng xe giữa đêm — để đối mặt lái buôn Chảo Vần, kẻ đang muốn chiếm mảnh đất kho.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Khói trên đồi chè",
+      "core_event": "Hội bản họp định ngày lễ cúng rừng và dựng lại kho chè chung; Chảo Vần đề nghị mua đất kho của Mỉa lần nữa và bị từ chối. Mỉa nhớ lại đêm cháy: lửa bùng lúc gà gáy canh hai, cửa kho bị giật từ ngoài.",
+      "hook": "Cửa kho bị giật từ ngoài — kẻ gây cháy đứng ở phía sân, nơi Mỉa không nhìn thấy.",
+      "scenes": ["Sáng pha trà shan tuyết, nhớ đêm cháy", "Họp bản, Chảo Vần đề nghị mua đất kho", "Mỉa lấy nắp can vàng ra khỏi hộp gỗ"]
+    },
+    {
+      "chapter": 2,
+      "title": "Canh hai và tiếng xe máy",
+      "core_event": "Bà Dợ kể nghe tiếng xe máy của Chảo Vần ở đầu dốc khoảng canh hai, trước tiếng gà; Mỉa mang nắp can ra xã và biết số lô 04-118 chỉ về một đại lý ở Mường Sài, của em họ Chảo Vần.",
+      "hook": "Số lô trên nắp can dẫn về đại lý của em họ Chảo Vần.",
+      "scenes": ["Bà Dợ kể tiếng xe và tiếng gà canh hai", "Nộp nắp can ở xã, cán bộ hứa chuyển huyện", "Ông Chứ chỉ cách truy số lô"]
+    },
+    {
+      "chapter": 3,
+      "title": "Lễ cúng rừng",
+      "core_event": "Lễ cúng rừng và động thổ dựng kho chung; Mỉa đối chất Chảo Vần với nắp can và lời bà Dợ, hắn phủ nhận và dọa. Mỉa quyết xuống đại lý Mường Sài tìm người bán hàng làm chứng.",
+      "hook": "Chảo Vần lần đầu phải để ý tới Mỉa.",
+      "scenes": ["Lễ cúng rừng, khấn và rót rượu", "Động thổ, Mỉa đối chất Chảo Vần", "Mỉa bàn với ông Chứ cách tìm người làm chứng"]
+    },
+    {
+      "chapter": 4,
+      "title": "Đại lý Mường Sài",
+      "core_event": "Mỉa xuống Mường Sài, tìm cô bán hàng nhớ người mua can dầu lô 04-118.",
+      "hook": "Cô bán hàng nhận ra người mua nhưng sợ em họ của chủ.",
+      "scenes": ["Xuống Mường Sài", "Cô bán hàng kể", "Bị người của đại lý để ý"]
+    },
+    {
+      "chapter": 5,
+      "title": "Người làm chứng",
+      "core_event": "Cô bán hàng đồng ý làm chứng; Mỉa có chuỗi chứng cứ khép kín.",
+      "hook": "Sổ bán hàng có ghi tên người nhận can.",
+      "scenes": ["Thuyết phục người làm chứng", "Chép sổ bán hàng", "Về bản trong đêm"]
+    },
+    {
+      "chapter": 6,
+      "title": "Một năm trước",
+      "core_event": "Hồ sơ mở lại; lời khai của Chảo Vần về buổi tối ở Mường Sài bị bẻ.",
+      "hook": "Chảo Vần khai có người làm chứng, nhưng người đó đổi lời.",
+      "scenes": ["Huyện mở hồ sơ", "Đối chất lời khai", "Người làm chứng của Chảo Vần đổi lời"]
+    },
+    {
+      "chapter": 7,
+      "title": "Đêm trước phiên xử",
+      "core_event": "Chảo Vần cho người phá cọc kho; cả bản đứng ra giữ nền.",
+      "hook": "Cả bản ngồi quanh nền kho suốt đêm.",
+      "scenes": ["Phá cọc ban đêm", "Cả bản giữ nền", "Chảo Vần bị giữ tại chỗ"]
+    },
+    {
+      "chapter": 8,
+      "title": "Mùa chè mới",
+      "core_event": "Kho chè dựng lại; vụ án khép; Mỉa mở mẻ chè đầu tiên của nhà mình.",
+      "hook": "Mẻ chè đầu tiên thơm đúng mùi trà của mẹ.",
+      "scenes": ["Khánh thành kho", "Mẻ chè đầu tiên", "Lời hẹn với A Dê"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Hảng Thị Mỉa",
+      "role": "Cô gái trồng chè",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Mười chín tuổi, người gầy, tóc tết một bím, ở bản Tà Mẩy; một năm trước kho chè của gia đình cháy, chị nuôi em trai và tự đi tìm sự thật.",
+      "arc": "Từ cô gái mất kho chè thành người gom đủ chứng cứ buộc tội kẻ đốt.",
+      "traits": ["lì", "nhớ dai", "viết chữ tốt"]
+    },
+    {
+      "name": "Hảng A Dê",
+      "role": "Em trai",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Mười hai tuổi, em trai Mỉa, đêm cháy đang sốt; lớn nhanh và phụ chị dựng lại kho.",
+      "arc": "Từ đứa trẻ bị bảo vệ thành người cùng giữ nền kho.",
+      "traits": ["thật thà", "hay hỏi", "can đảm"]
+    },
+    {
+      "name": "Hảng A Chứ",
+      "role": "Trưởng bản kiêm thầy cúng",
+      "kind": "ally",
+      "tier": "core",
+      "description": "Trưởng bản Tà Mẩy, chủ lễ cúng rừng, người chỉ cho Mỉa cách truy số lô và cách tìm người làm chứng.",
+      "arc": "Từ người giữ hòa khí bản thành người đứng về phía mở hồ sơ.",
+      "traits": ["điềm tĩnh", "sâu", "trọng lệ"]
+    },
+    {
+      "name": "Chảo Vần",
+      "role": "Lái buôn chè",
+      "kind": "antagonist",
+      "tier": "core",
+      "description": "Lái buôn chè từ thị trấn Mường Sài, mập, áo giả da, bao tiêu chè cả bản với giá rẻ, muốn chiếm đất kho của Mỉa; có em họ mở đại lý dầu hỏa.",
+      "arc": "Từ kẻ nắm thế chủ động thành đối tượng bị điều tra.",
+      "traits": ["ngọt miệng", "tính toán", "dọa ngầm"]
+    },
+    {
+      "name": "Hảng Thị Dợ",
+      "role": "Bà cụ sao chè",
+      "kind": "support",
+      "tier": "important",
+      "description": "Ngoài bảy mươi, hàng xóm nhà Mỉa, người nghe tiếng xe máy của Chảo Vần ở đầu dốc đêm cháy, khoảng canh hai, trước tiếng gà gáy.",
+      "arc": "Nhân chứng then chốt bị đối phương hạ thấp uy tín vì tuổi tác.",
+      "traits": ["tinh tai", "nhớ giờ", "không kiêng nể"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Bản Tà Mẩy nằm trên vai núi đá vôi, quanh năm mây phủ; bản dưới, thị trấn Mường Sài và chợ huyện đều phải đi bộ hoặc xe máy qua dốc.",
+      "boundary": "Không có sân bay, tàu hay thành phố lớn trong truyện."
+    },
+    {
+      "category": "society",
+      "rule": "Bản Tà Mẩy sống bằng chè shan tuyết; lệ cúng rừng cầu nước cho khe suối và đồi chè, làm trước khi động thổ công trình chung của bản.",
+      "boundary": "Không thay đổi mục đích lễ cúng rừng hay thứ tự lễ trước động thổ."
+    },
+    {
+      "category": "other",
+      "rule": "Đất kho chưa có giấy tờ riêng; đất thuộc bản, ai cũng phải theo quyết định của bản. Đại lý dầu hỏa ở Mường Sài ghi sổ bán hàng theo số lô in trên nắp can.",
+      "boundary": "Không dùng chứng cứ kỹ thuật số (camera, dữ liệu điện thoại)."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Khói trên đồi chè",
+        "summary": "Bản Tà Mẩy họp định ngày lễ cúng rừng và dựng lại kho chè chung. Chảo Vần đề nghị mua đất kho của Mỉa với giá ủng hộ bản và bị từ chối. Mỉa nhớ lại đêm cháy một năm trước: lửa bùng lúc gà gáy canh hai, chị tỉnh vì khói, kéo em trai A Dê ra sân; sáng sau chị nhặt được nắp can dầu vàng bên rào, và biết cửa kho bị giật từ ngoài.",
+        "characters": ["Hảng Thị Mỉa", "Hảng A Dê", "Chảo Vần", "Hảng A Chứ"],
+        "key_events": ["Họp bản định ngày lễ cúng rừng", "Chảo Vần đề nghị mua đất kho lần nữa", "Mỉa nhớ đêm cháy và nắp can vàng"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Canh hai và tiếng xe máy",
+        "summary": "Bà Dợ kể nghe tiếng xe máy của Chảo Vần ở đầu dốc khoảng canh hai, trước tiếng gà gáy, đêm kho chè cháy. Mỉa và A Dê mang nắp can xuống xã; cán bộ Phùng Đắc Lâm ghi biên bản nhưng nói nắp can không đủ. Ông Chứ chỉ Mỉa cách đọc số lô in ở mép trong nắp can để truy đại lý bán hàng. Bản chốt lễ cúng rừng ngày mồng một.",
+        "characters": ["Hảng Thị Mỉa", "Hảng A Dê", "Hảng Thị Dợ", "Hảng A Chứ", "Phùng Đắc Lâm"],
+        "key_events": ["Bà Dợ khẳng định tiếng xe và tiếng gà canh hai", "Nắp can có số lô 04-118", "Chốt lễ cúng rừng ngày mồng một"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Lễ cúng rừng",
+        "summary": "Lễ cúng rừng diễn ra ngày mồng một, cả bản động thổ dựng kho chung. Mỉa đối chất Chảo Vần: nắp can lô 04-118 chỉ về đại lý của em họ hắn, và bà Dợ nghe tiếng xe hắn trước khi lửa bùng. Chảo Vần phủ nhận, viện người làm chứng ở Mường Sài và dọa chuyện giấy tờ đất. Mỉa quyết xuống Mường Sài tìm người bán hàng ở đại lý làm chứng.",
+        "characters": ["Hảng Thị Mỉa", "Hảng A Dê", "Hảng A Chứ", "Chảo Vần"],
+        "key_events": ["Lễ cúng rừng và động thổ", "Mỉa đối chất Chảo Vần với số lô 04-118", "Chảo Vần dọa chuyện giấy tờ đất"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Một năm trước, đêm kho chè cháy, lúc gà gáy canh hai", "event": "Kho chè nhà Mỉa cháy; Mỉa tỉnh vì khói, kéo A Dê ra sân; cửa kho bị giật từ ngoài.", "characters": ["Hảng Thị Mỉa", "Hảng A Dê"]},
+    {"chapter": 1, "time": "Một năm trước, sáng sau đám cháy", "event": "Mỉa nhặt nắp can dầu vàng bên rào phía đông.", "characters": ["Hảng Thị Mỉa"]},
+    {"chapter": 1, "time": "Ngày 27 tháng 5, họp bản", "event": "Bản họp định ngày lễ cúng rừng; Chảo Vần đề nghị mua đất kho và bị từ chối.", "characters": ["Hảng Thị Mỉa", "Chảo Vần", "Hảng A Chứ"]},
+    {"chapter": 2, "time": "Ngày 30 tháng 5, sáng — ba hôm sau họp bản", "event": "Bà Dợ kể nghe tiếng xe Chảo Vần khoảng canh hai trước tiếng gà; Mỉa mang nắp can ra xã; biết số lô 04-118.", "characters": ["Hảng Thị Mỉa", "Hảng Thị Dợ", "Phùng Đắc Lâm"]},
+    {"chapter": 3, "time": "Ngày mồng một tháng sáu, sáng", "event": "Lễ cúng rừng; cả bản động thổ dựng kho chè chung.", "characters": ["Hảng Thị Mỉa", "Hảng A Chứ", "Chảo Vần"]},
+    {"chapter": 3, "time": "Ngày mồng một tháng sáu, sau lễ", "event": "Mỉa đối chất Chảo Vần với nắp can và lời bà Dợ; hắn phủ nhận và dọa.", "characters": ["Hảng Thị Mỉa", "Chảo Vần"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-nap-can", "action": "plant", "description": "Nắp can dầu hỏa vàng nhặt bên rào sau đám cháy, không ai trong bản dùng loại can này."},
+      {"id": "fs-cua-kho-giat", "action": "plant", "description": "Cửa kho bị giật từ ngoài — kẻ gây cháy đứng phía sân."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-nap-can", "action": "advance", "description": "Số lô 04-118 in chìm ở mép trong nắp can — truy được đại lý bán."},
+      {"id": "fs-tieng-xe-canh-hai", "action": "plant", "description": "Bà Dợ nghe tiếng xe máy của Chảo Vần khoảng canh hai, trước tiếng gà."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-cua-kho-giat", "action": "advance", "description": "Chảo Vần bị đối chất và bắt đầu để ý tới Mỉa."},
+      {"id": "fs-dai-ly-em-ho", "action": "plant", "description": "Đại lý bán lô 04-118 là của em họ Chảo Vần."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Hảng Thị Mỉa", "field": "status", "new_value": "quyết không bán đất kho, tự đi tìm sự thật", "reason": "Chảo Vần đề nghị mua đất lần nữa"},
+    {"chapter": 2, "entity": "Hảng Thị Mỉa", "field": "location", "new_value": "đã xuống ủy ban xã trình nắp can", "reason": "mang chứng cứ mới ra xã"},
+    {"chapter": 2, "entity": "Hảng Thị Dợ", "field": "status", "new_value": "nhân chứng về tiếng xe máy lúc canh hai", "reason": "kể lại đêm cháy cho Mỉa"},
+    {"chapter": 3, "entity": "nền kho chè", "field": "status", "new_value": "đã cắm cọc động thổ dựng kho chung của bản", "reason": "lễ cúng rừng ngày mồng một"},
+    {"chapter": 3, "entity": "Chảo Vần", "field": "status", "new_value": "bị đối chất công khai trước bản", "reason": "Mỉa nêu số lô nắp can và lời bà Dợ"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Khói trên đồi chè",
+      "goal": "Dựng bản Tà Mẩy, nghề chè, đám cháy một năm trước và mối đe dọa Chảo Vần; cài nắp can và chi tiết cửa kho bị giật.",
+      "conflict": "Mỉa muốn giữ đất kho trong khi cả bản đang cần tiền dựng kho chung.",
+      "hook": "Cửa kho bị giật từ ngoài."
+    },
+    {
+      "chapter": 2,
+      "title": "Canh hai và tiếng xe máy",
+      "goal": "Đưa nhân chứng và chứng cứ vật chất vào; xác lập mốc thời gian đám cháy và số lô trên nắp can.",
+      "conflict": "Chứng cứ manh mún, chính quyền xã chưa chịu mở hồ sơ.",
+      "hook": "Số lô 04-118 dẫn tới đại lý của em họ Chảo Vần."
+    },
+    {
+      "chapter": 3,
+      "title": "Lễ cúng rừng",
+      "goal": "Cho lễ cúng rừng và động thổ diễn ra, để Mỉa đối chất Chảo Vần công khai và chuyển từ thu thập sang hành động.",
+      "conflict": "Đối chất không đủ buộc tội; hắn còn thế về giấy tờ đất.",
+      "hook": "Chảo Vần lần đầu phải để ý tới Mỉa.",
+      "contract": {
+        "required_beats": ["Lễ cúng rừng đúng ngày mồng một, trước khi động thổ", "Mỉa đối chất Chảo Vần bằng số lô 04-118 và lời bà Dợ", "Mỉa quyết xuống Mường Sài tìm người bán hàng"],
+        "forbidden_moves": ["Buộc tội Chảo Vần thành công ngay trong chương", "Chảo Vần nhận tội"],
+        "continuity_checks": ["Đám cháy xảy ra lúc gà gáy canh hai", "Nắp can vàng có số lô 04-118", "Đại lý Mường Sài là của em họ Chảo Vần"],
+        "evaluation_focus": ["Mốc thời gian đám cháy có khớp chương 1 và 2", "Đối chất có dựa trên chứng cứ đã gieo"],
+        "emotion_target": "Căng thẳng công khai, nén giận",
+        "hook_goal": "Muốn biết người bán hàng ở đại lý nói gì"
+      }
+    }
+  ]
+}

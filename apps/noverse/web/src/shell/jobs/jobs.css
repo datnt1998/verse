@@ -1,0 +1,108 @@
+/* Dock việc chạy nền — giá trị animation lấy nguyên từ Jobs.dc.html (14-jobs-dock.md §1.3). */
+
+.jd-glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, .09);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ─── xuất hiện / biến mất ─── */
+.jd-in-a, .jd-in-b { animation: jd-dock-in .55s cubic-bezier(.18, .95, .22, 1.12) both; transform-origin: 100% 100%; }
+.jd-in-b { animation-name: jd-dock-in-2; }
+@keyframes jd-dock-in { 0% { opacity: 0; transform: translate(10px, 14px) scale(.82); filter: blur(6px) } 60% { opacity: 1; filter: none } 100% { opacity: 1; transform: none; filter: none } }
+@keyframes jd-dock-in-2 { 0% { opacity: 0; transform: translate(10px, 14px) scale(.82); filter: blur(6px) } 60% { opacity: 1; filter: none } 100% { opacity: 1; transform: none; filter: none } }
+.jd-out { animation: jd-dock-out .38s cubic-bezier(.5, 0, .75, 0) both; transform-origin: 100% 100%; }
+@keyframes jd-dock-out { to { opacity: 0; transform: translate(6px, 10px) scale(.86); filter: blur(4px) } }
+
+/* ─── pill ⇄ chấm ─── */
+.jd-pill { transition: width .42s cubic-bezier(.2, .9, .25, 1), border-radius .42s, box-shadow .3s; }
+.jd-pill:hover { box-shadow: 0 26px 70px -14px rgba(0, 0, 0, .9), 0 0 0 1px rgba(201, 166, 245, .18), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.jd-pill .jd-hov { opacity: 0; width: 0 !important; padding: 0 6px !important; overflow: hidden; transition: opacity .18s, width .25s cubic-bezier(.2, .9, .25, 1); }
+.jd-pill:hover .jd-hov, .jd-pill:focus-within .jd-hov { opacity: 1; width: 28px !important; }
+.jd-txtfade { transition: opacity .14s, transform .35s cubic-bezier(.2, .9, .25, 1); }
+.jd-tick-col { transition: transform .5s cubic-bezier(.3, .9, .25, 1); }
+.jd-bump-a { animation: jd-bump-a .6s cubic-bezier(.2, .9, .3, 1.4); }
+.jd-bump-b { animation: jd-bump-b .6s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes jd-bump-a { 0% { transform: scale(1) } 35% { transform: scale(1.045) } 100% { transform: scale(1) } }
+@keyframes jd-bump-b { 0% { transform: scale(1) } 35% { transform: scale(1.045) } 100% { transform: scale(1) } }
+.jd-glow-a, .jd-glow-b { position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; animation: jd-glow-a 1s ease-out both; }
+.jd-glow-b { animation-name: jd-glow-b; }
+@keyframes jd-glow-a { 0% { box-shadow: 0 0 0 0 rgba(166, 237, 193, .55) } 100% { box-shadow: 0 0 0 14px rgba(166, 237, 193, 0) } }
+@keyframes jd-glow-b { 0% { box-shadow: 0 0 0 0 rgba(166, 237, 193, .55) } 100% { box-shadow: 0 0 0 14px rgba(166, 237, 193, 0) } }
+.jd-agg { background: linear-gradient(90deg, #5A57E3, #9A63E3, #C9457F, #5DC1B0, #5A57E3); background-size: 300% 100%; animation: jd-flow 3s linear infinite; transition: width .3s linear; }
+@keyframes jd-flow { from { background-position: 0 0 } to { background-position: 300% 0 } }
+
+/* ─── vòng tiến độ ─── */
+.jd-rg { position: relative; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #141416; box-shadow: 0 0 0 2px #19191B; }
+.jd-head { position: absolute; inset: 0; border-radius: 50%; transition: transform .3s linear; pointer-events: none; }
+.jd-head > b { position: absolute; left: 50%; top: -1px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #FFFFFF; }
+.jd-ping { position: absolute; border-radius: 50%; background: #F6CB8C; }
+.jd-ping::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #F6CB8C; animation: jd-ping 1.6s cubic-bezier(0, 0, .2, 1) infinite; }
+@keyframes jd-ping { 75%, 100% { transform: scale(2.6); opacity: 0 } }
+.jd-orb { border-radius: 50%; flex: 0 0 auto; }
+.jd-live { animation: ai-breathe-dock 2.6s ease-in-out infinite; }
+.jd-aura { position: absolute; inset: -5px; border-radius: 50%; pointer-events: none; animation: ai-aura 2.6s ease-in-out infinite; }
+.jd-dimmed { filter: saturate(.25); opacity: .75; }
+
+/* ─── bảng: morph clip-path từ đúng khung pill ─── */
+.jd-morph-in { animation: jd-morph-in .52s cubic-bezier(.2, .9, .22, 1) both; }
+.jd-morph-out { animation: jd-morph-out .34s cubic-bezier(.55, 0, .7, .2) both; }
+@keyframes jd-morph-in {
+  from { clip-path: inset(calc(100% - 52px) 0 0 calc(100% - 352px) round 26px); opacity: .6 }
+  to { clip-path: inset(0 0 0 0 round 20px); opacity: 1 }
+}
+@keyframes jd-morph-out {
+  from { clip-path: inset(0 0 0 0 round 20px); opacity: 1 }
+  to { clip-path: inset(calc(100% - 52px) 0 0 calc(100% - 352px) round 26px); opacity: .7 }
+}
+.jd-stag { animation: jd-stag .42s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes jd-stag { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+.jd-row { position: relative; transition: background .15s, max-height .3s ease, opacity .25s, margin .3s, padding .3s; }
+.jd-row:hover { background: rgba(255, 255, 255, .04); }
+.jd-row .jd-act { opacity: 0; transition: opacity .15s; }
+.jd-row:hover .jd-act, .jd-row:focus-within .jd-act { opacity: 1; }
+.jd-row-out { max-height: 0 !important; opacity: 0; padding-top: 0 !important; padding-bottom: 0 !important; overflow: hidden; }
+.jd-flash { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; animation: jd-flash 1.4s ease-out both; }
+@keyframes jd-flash { 0% { background: rgba(166, 237, 193, .14) } 100% { background: transparent } }
+.jd-bar { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .07); overflow: hidden; }
+.jd-bar > i { display: block; height: 100%; border-radius: 2px; transition: width .3s linear; }
+.jd-indet > i { width: 35% !important; animation: jd-indet 1.4s cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes jd-indet { from { transform: translateX(-110%) } to { transform: translateX(320%) } }
+.jd-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: jd-draw .5s cubic-bezier(.3, .8, .3, 1) .12s forwards; }
+@keyframes jd-draw { to { stroke-dashoffset: 0 } }
+.jd-eq { display: flex; align-items: center; gap: 2px; height: 12px; color: #C9A6F5; }
+.jd-eq > span { display: inline-block; width: 2px; border-radius: 1px; background: currentColor; animation: jd-eq 1s ease-in-out infinite; }
+.jd-eq > span:nth-child(2) { animation-delay: -.3s; }
+.jd-eq > span:nth-child(3) { animation-delay: -.6s; }
+@keyframes jd-eq { 0%, 100% { height: 4px } 50% { height: 12px } }
+.jd-ibtn:hover { background: rgba(255, 255, 255, .08) !important; color: #EDEDEF !important; }
+.jd-tbtn:hover { background: rgba(255, 255, 255, .1) !important; }
+.jd-tbtn.jd-primary:hover { background: #FFFFFF !important; }
+.jd-tbtn > span > span { gap: 6px !important; }
+
+/* ─── toast ─── */
+.jd-toast-in { animation: jd-t-in .5s cubic-bezier(.18, .95, .25, 1.15) both; transform-origin: 100% 100%; }
+@keyframes jd-t-in { from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(4px) } to { opacity: 1; transform: none; filter: none } }
+.jd-toast-out { animation: jd-t-out .42s cubic-bezier(.5, 0, .7, .2) both; transform-origin: calc(100% - 40px) 100%; }
+@keyframes jd-t-out {
+  0% { opacity: 1; filter: blur(0) }
+  65% { opacity: 0; transform: translateY(34px) scale(.5); filter: blur(3px) }
+  100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px) }
+}
+.jd-tback { transform: translateY(4px) scale(.955); opacity: .6; filter: saturate(.7); transform-origin: 50% 100%; transition: transform .4s cubic-bezier(.2, .9, .25, 1), opacity .4s, filter .4s; }
+.jd-tfront { transform-origin: 50% 100%; transition: transform .4s cubic-bezier(.2, .9, .25, 1), opacity .4s, filter .4s; }
+.jd-tw { max-height: 240px; padding-top: 8px; }
+.jd-tw.jd-leaving { animation: jd-tw-col .32s cubic-bezier(.4, 0, .2, 1) .2s both; }
+@keyframes jd-tw-col { to { max-height: 0; padding-top: 0 } }
+.jd-cdr { transition: stroke-dashoffset .16s linear, opacity .3s ease; }
+.jd-cdbtn:hover .jd-cdr { opacity: .25 !important; }
+
+/* Giảm chuyển động: tắt animation (tokens.css) nhưng nét tick phải hiện đủ. */
+@media (prefers-reduced-motion: reduce) {
+  .jd-draw { stroke-dashoffset: 0; }
+  .jd-tw.jd-leaving { max-height: 0; padding-top: 0; }
+}
+
+.jd-kbd { font-family: var(--font-mono); font-size: 11px; color: #A0A0AB; padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, .1); background: #151517; }

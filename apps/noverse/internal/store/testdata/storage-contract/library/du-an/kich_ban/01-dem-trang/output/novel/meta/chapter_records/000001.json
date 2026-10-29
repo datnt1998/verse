@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "chapter": 1,
+  "revision": 1,
+  "build": "fixture-build",
+  "origin": "generated",
+  "content": "Bà mở cửa sổ cho gió chạy qua giá sách. Ngoài hành lang im ắng. Cô quay lại bàn. Ngọn đèn dầu rung nhẹ trong bóng tối.",
+  "content_sha256": "d1e9686576ce4dca412f5013bdde7344df1035739290da1736fe6af621cd90b2",
+  "facts": {
+    "title": "Đêm thứ nhất",
+    "summary": "Thủ thư phát hiện cuốn sổ cuối cùng còn nguyên.",
+    "characters": ["Thủ thư trẻ"],
+    "key_events": ["Tìm thấy cuốn sổ trong kho."],
+    "timeline_events": [],
+    "foreshadow_updates": [],
+    "relationship_changes": [],
+    "state_changes": [],
+    "cast_intros": [],
+    "places": [{"name": "Thư viện thành phố", "desc": "Tầng hầm còn sách."}],
+    "objects": [{"name": "Cuốn sổ cuối cùng", "desc": "Bìa da sờn góc."}],
+    "hook_type": "info",
+    "dominant_strand": "chinh"
+  },
+  "style_delta": {
+    "prose": [],
+    "dialogue": [],
+    "taboos": []
+  },
+  "accepted_at": "2026-01-06T12:00:00Z"
+}

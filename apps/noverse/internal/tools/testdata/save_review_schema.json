@@ -1,0 +1,271 @@
+{
+  "properties": {
+    "chapter": {
+      "description": "Số chương được thẩm duyệt (thẩm duyệt toàn cục điền số chương mới nhất)",
+      "type": "integer"
+    },
+    "contract_misses": {
+      "description": "Các mục contract chưa hoàn thành hoặc bị vi phạm; mảng rỗng nếu không có; khi có goal_checks hệ thống tự suy ra, gửi mảng rỗng",
+      "items": {
+        "description": "",
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "contract_notes": {
+      "description": "Mô tả ngắn về việc thực hiện contract; null nếu không có",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_status": {
+      "description": "Mức hoàn thành hợp đồng chương; khi scope=chapter có chapter_goals hệ thống tự suy ra từ goal_checks — điền null; null khi không áp dụng",
+      "enum": [
+        "met",
+        "partial",
+        "missed",
+        null
+      ],
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dimensions": {
+      "description": "Điểm theo từng chiều; rubric cơ bản do gợi ý Editor cung cấp, có thể bổ sung chiều cụ thể hơn theo nhiệm vụ",
+      "items": {
+        "properties": {
+          "comment": {
+            "description": "Kết luận ngắn và bằng chứng cho chiều này; bắt buộc với mọi chiều",
+            "type": "string"
+          },
+          "dimension": {
+            "description": "Chiều đánh giá; do nhiệm vụ thẩm duyệt hiện tại và rubric quyết định",
+            "type": "string"
+          },
+          "score": {
+            "description": "Điểm (0-100)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dimension",
+          "score",
+          "comment"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "goal_checks": {
+      "description": "Kết quả chấm từng ID trong chapter_goals; bắt buộc đủ bộ khi scope=chapter và chương có mục tiêu, gửi mảng rỗng khi không áp dụng",
+      "items": {
+        "properties": {
+          "id": {
+            "description": "ID mục tiêu trong working_memory.chapter_goals, ví dụ rb1, fm1, cc1",
+            "type": "string"
+          },
+          "note": {
+            "description": "Giải thích ngắn; bắt buộc không rỗng khi rb fail hoặc mọi unknown (thiếu gì / vì sao không xác định được)",
+            "type": "string"
+          },
+          "quote": {
+            "description": "Đoạn trích nguyên văn trong chính văn chứng minh kết quả; bắt buộc khi rb pass hoặc fm/cc fail, phải xuất hiện nguyên văn trong chương; null khi không áp dụng",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "description": "Kết quả chấm mục tiêu: pass đã đạt, fail thiếu/vi phạm, unknown không xác định được từ nguyên văn",
+            "enum": [
+              "pass",
+              "fail",
+              "unknown"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "quote",
+          "note"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "issues": {
+      "description": "Các vấn đề phát hiện được",
+      "items": {
+        "properties": {
+          "chapters": {
+            "description": "Các chương thực sự chứa bằng chứng của vấn đề; thẩm duyệt cung phải nằm trong khoảng nhiệm vụ giao",
+            "items": {
+              "description": "Số chương",
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "Mô tả vấn đề",
+            "type": "string"
+          },
+          "evidence": {
+            "description": "Bằng chứng: đoạn nguyên văn, tình tiết cụ thể hoặc dữ liệu trạng thái",
+            "type": "string"
+          },
+          "quote": {
+            "description": "Đoạn trích nguyên văn trong chương chứng minh vi phạm; bắt buộc với luật gói nhãn LỖI, phải xuất hiện nguyên văn trong chính văn của chương đã nêu, null khi không áp dụng",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requires_change": {
+            "description": "Vấn đề này có nên kích hoạt viết lại các chương đã nêu ngay không, do Editor đánh giá theo trải nghiệm đọc tổng thể",
+            "type": "boolean"
+          },
+          "rule": {
+            "description": "Mã phụ ổn định của mục; dùng s19-recap khi tóm tắt lại truyện trước dài hơn hai câu hoặc không lồng vào hành động (Master §19); null khi không áp dụng",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rule_ref": {
+            "description": "Mục luật gói bị vi phạm, đúng dạng Nhãn tệp §số mục, ví dụ Master §7; null nếu không dẫn luật gói",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rule_text": {
+            "description": "Chép nguyên một đoạn ≥ 15 ký tự của chính câu luật bị vi phạm; bắt buộc khi mục chứa cả LỖI và CẢNH BÁO, null khi không cần",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "description": "Mức độ nghiêm trọng",
+            "enum": [
+              "critical",
+              "error",
+              "warning"
+            ],
+            "type": "string"
+          },
+          "suggestion": {
+            "description": "Đề xuất chỉnh sửa; null khi không cần đề xuất",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "description": "Chiều của vấn đề; có thể dùng chiều cơ bản trong gợi ý thẩm duyệt, hoặc ghi chiều cụ thể chính xác hơn",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "chapters",
+          "quote",
+          "evidence",
+          "description",
+          "severity",
+          "requires_change",
+          "rule_ref",
+          "rule_text",
+          "rule",
+          "suggestion"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "recheck": {
+      "description": "true chỉ khi kiểm lại chương trong PendingRechecks; review thường dùng false",
+      "type": "boolean"
+    },
+    "recheck_results": {
+      "description": "Phủ đúng bộ finding_id trong recheck_findings; review thường gửi []",
+      "items": {
+        "properties": {
+          "finding_id": {
+            "description": "ID nguyên văn trong recheck_findings",
+            "type": "string"
+          },
+          "note": {
+            "description": "Giải thích kết quả; fixed/unknown bắt buộc không rỗng",
+            "type": "string"
+          },
+          "quote": {
+            "description": "Trích nguyên văn trong chương mới; unfixed bắt buộc; fixed cần khi đoạn lỗi cũ còn nguyên",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "description": "Kết quả kiểm lại",
+            "enum": [
+              "fixed",
+              "unfixed",
+              "unknown"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "finding_id",
+          "status",
+          "quote",
+          "note"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "scope": {
+      "description": "Phạm vi thẩm duyệt",
+      "enum": [
+        "chapter",
+        "global",
+        "arc"
+      ],
+      "type": "string"
+    },
+    "summary": {
+      "description": "Tóm tắt thẩm duyệt",
+      "type": "string"
+    },
+    "verdict": {
+      "description": "Kết luận thẩm duyệt",
+      "enum": [
+        "accept",
+        "polish",
+        "rewrite"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "chapter",
+    "scope",
+    "recheck",
+    "recheck_results",
+    "dimensions",
+    "issues",
+    "goal_checks",
+    "contract_status",
+    "contract_misses",
+    "contract_notes",
+    "verdict",
+    "summary"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,114 @@
+{
+  "pack": {
+    "id": "nu-tan-bao-thu",
+    "ten": "Nữ tần trọng sinh báo thù, vả mặt"
+  },
+  "sections": [
+    {
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo"
+    },
+    {
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương"
+    }
+  ],
+  "chapters": [
+    {
+      "n": 1,
+      "title": "Chương 1",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 2,
+      "title": "Chương 2",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 3,
+      "title": "Chương 3",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 4,
+      "title": "Chương 4",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 5,
+      "title": "Chương 5",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 6,
+      "title": "Chương 6",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 7,
+      "title": "Chương 7",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 8,
+      "title": "Chương 8",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 9,
+      "title": "Chương 9",
+      "status": "approved",
+      "rewrites": []
+    }
+  ],
+  "cells": [
+    {
+      "ref": "Master §2",
+      "ch": 9,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 9,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    }
+  ],
+  "issues": [
+    {
+      "id": "ch9-12cf9258",
+      "level": "error",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Kết chương treo chưa đạt",
+      "quote": "trích Kết chương treo chưa đạt",
+      "fix": "sửa Kết chương treo chưa đạt",
+      "ch": 9,
+      "state": "open"
+    },
+    {
+      "id": "ch9-e22610a7",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Móc mở đầu nhạt",
+      "quote": "trích Móc mở đầu nhạt",
+      "fix": "sửa Móc mở đầu nhạt",
+      "ch": 9,
+      "state": "open"
+    }
+  ]
+}

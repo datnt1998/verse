@@ -1,0 +1,18 @@
+{
+  "id": "architect_short",
+  "category": "smoke",
+  "role": "architect",
+  "description": "Quy hoạch truyện ngắn lưu được đại cương và hồ sơ nhân vật cùng thiết lập nền, rồi chuyển sang giai đoạn viết.",
+  "prompt": "Viết một truyện ngắn trinh thám khoảng ba vạn chữ, một biệt thự khép kín xảy ra chuỗi mất tích trong một đêm, chỉ một vị khách bên ngoài nhìn ra sơ hở.",
+  "max_chapters": 1,
+  "target_prompts": ["architect-short.md"],
+  "expect": {
+    "phase": "writing",
+    "min_completed_chapters": 1,
+    "required_checkpoints": ["global:outline", "global:characters", "chapter:1:commit"],
+    "no_pending": ["pending_commit", "pending_steer"]
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

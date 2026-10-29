@@ -1,0 +1,15 @@
+{
+  "chapter": 1,
+  "round": 1,
+  "verdict": "warning",
+  "items": [
+    {
+      "id": "warning-pace",
+      "level": "warning",
+      "ref": "Master §7",
+      "text": "Nhịp đoạn mở hơi chậm nhưng chấp nhận được.",
+      "quote": "Ngoài hành lang im ắng."
+    }
+  ],
+  "created_at": "2026-01-06T14:00:00Z"
+}

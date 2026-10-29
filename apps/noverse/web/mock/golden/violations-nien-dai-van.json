@@ -1,0 +1,37 @@
+{
+  "rows": [
+    {
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "stories": 2,
+      "total": 2,
+      "level": "error",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 2
+    },
+    {
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "stories": 1,
+      "total": 2,
+      "level": "warning",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 0
+    },
+    {
+      "ref": "Master §9",
+      "refName": "Cú trả thưởng",
+      "stories": 1,
+      "total": 2,
+      "level": "warning",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 0
+    }
+  ],
+  "preamble": "Chưa có mục Bắt sửa nào lặp ở 3 truyện trở lên trong gói Niên đại văn, trọng sinh thập niên, làm giàu, nên chưa có lời nhắc.",
+  "packName": "Niên đại văn, trọng sinh thập niên, làm giàu",
+  "stories": 2
+}

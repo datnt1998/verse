@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Não hệ thống</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:#141416;border:1px solid rgba(255,255,255,.07)}
+.seg button{height:30px;padding:0 11px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:12.5px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.seg button[aria-pressed=true]{background:#232326;color:#EDEDEF;font-weight:500}
+.chip2{height:20px;padding:0 7px;border-radius:6px;display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;white-space:nowrap}
+.btn2{height:32px;padding:0 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#EDEDEF;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.lg{display:grid;grid-template-columns:minmax(0,1.7fr) repeat(10,minmax(0,1fr)) 64px;gap:6px;align-items:center;padding:8px 14px}
+.lg+.lg{border-top:1px solid rgba(255,255,255,.045)}
+.lgh{font-size:11.5px;color:#8E8E99;padding-top:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.07);align-items:end}
+.lcell{min-width:0;padding:4px 7px;border-radius:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.scroll>*{flex-shrink:0}
+.ur{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) minmax(0,1.5fr) 92px;gap:12px;align-items:center;padding:10px 14px}
+.ur+.ur{border-top:1px solid rgba(255,255,255,.05)}
+.urh{font-size:11.5px;color:#8E8E99;padding-top:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.07)}
+mark{background:rgba(246,203,140,.25);color:#FBE3BD;border-radius:3px;padding:0 2px}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a href="Outline.dc.html" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Thư viện “Truyen”</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<span style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Não hệ thống</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-category" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn viết</a>
+<a class="navl" href="Outline.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a class="navl" href="Transcript.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Settings.dc.html" aria-label="Tuỳ chỉnh" aria-current="page" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #C9A6F5; background: #222225"><span class="ic i-setting" aria-hidden="true"></span></a>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+<div class="scroll" style="flex: 1 1 auto; min-height: 0; padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: flex-end; gap: 16px">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><a href="Settings.dc.html" style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #8E8E99"><span class="ic i-arrow-l" aria-hidden="true" style="width: 13px; height: 13px"></span>Tuỳ chỉnh · Hệ thống</a><h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px">Não hệ thống<span class="chip2" style="background: rgba(201,166,245,0.12); color: #DCC8F8"><span class="ic i-crown" aria-hidden="true" style="width: 12px; height: 12px; margin-right: 4px"></span>Chỉ quản trị</span></h1><span style="font-size: 13px; color: #A0A0AB">Kiến thức cách làm rút ra từ mọi dự án: bài học từ các lần chấm và mục luật hay vấp theo gói. Không chứa nhân vật hay tình tiết của truyện nào.</span></div>
+<div style="display: flex; gap: 10px"><sc-for list="{{stats}}" as="k" hint-placeholder-count="3"><div class="card" style="border-radius: 12px; padding: 8px 12px; display: flex; flex-direction: column; min-width: 96px"><span class="num" style="font-size: 17px; font-weight: 600">{{k.v}}</span><span style="font-size: 11.5px; color: #8E8E99">{{k.k}}</span></div></sc-for></div>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 14px; align-items: start">
+<section aria-label="Bài học rút ra" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px"><div class="seg" role="tablist" aria-label="Bài học"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{t.on}}" aria-pressed="{{t.on}}" onClick="{{t.pick}}">{{t.label}}<span class="num" style="font-size: 11.5px; color: #7E7E8A">{{t.n}}</span></button></sc-for></div><span style="flex: 1"></span><span style="font-size: 12px; color: #7E7E8A; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Bài học đã giữ áp dụng từ truyện mới tiếp theo</span></div>
+<sc-if value="{{noLessons}}" hint-placeholder-val="{{ false }}"><div class="card" style="border-radius: 16px; padding: 30px; text-align: center; font-size: 13px; color: #8E8E99">Chưa có bài học nào ở mục này.</div></sc-if>
+<sc-for list="{{lessons}}" as="l" hint-placeholder-count="3"><article class="card {{l.cls}}" style="border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span class="chip2" style="background: {{l.kBg}}; color: {{l.kFg}}">{{l.kind}}</span><sc-for list="{{l.refs}}" as="r" hint-placeholder-count="1"><span class="chip2" style="background: rgba(255,255,255,0.05); color: #C9C9D1">{{r}}</span></sc-for><span style="flex: 1"></span><span style="font-size: 12px; color: #7E7E8A">{{l.when}}</span></div>
+<sc-if value="{{l.view}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 14.5px; color: #EDEDEF; line-height: 1.55">{{l.t}}</p></sc-if>
+<sc-if value="{{l.editing}}" hint-placeholder-val="{{ false }}"><textarea aria-label="Sửa câu chữ bài học" style="width: 100%; min-height: 64px; padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(201,166,245,0.45); color: #EDEDEF; font: inherit; font-size: 14px; line-height: 1.55; resize: vertical">{{l.t}}</textarea></sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)"><span style="font-size: 12px; color: #A0A0AB">{{l.src}}</span><div style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{l.ev}}" as="e" hint-placeholder-count="3"><span class="chip2" style="background: rgba(255,255,255,0.04); color: #A0A0AB; font-weight: 400">{{e}}</span></sc-for></div></div>
+<sc-if value="{{l.pending}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="font-size: 12.5px; color: #8E8E99">Áp dụng cho</span><div class="seg" role="radiogroup" aria-label="Áp dụng cho"><sc-for list="{{l.scopes}}" as="o" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{o.on}}" aria-pressed="{{o.on}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div><span style="flex: 1"></span><button class="ghost btn2" type="button" onClick="{{l.drop}}" style="border: none; color: #A0A0AB">Bỏ</button><button class="ghost btn2" type="button" onClick="{{l.edit}}">{{l.editLabel}}</button><button class="btn2 primary" type="button" onClick="{{l.keep}}" style="background: #EDEDEF; color: #0B0B0D; border-color: #EDEDEF; font-weight: 600"><span class="ic i-tick" aria-hidden="true" style="width: 14px; height: 14px"></span>Giữ</button></div></sc-if>
+<sc-if value="{{l.done}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: {{l.dFg}}"><span class="ic {{l.dIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span><span style="flex: 1">{{l.dText}}</span><button class="ghost btn2" type="button" onClick="{{l.undo}}" style="border: none; color: #A0A0AB">Hoàn tác</button></div></sc-if>
+</article></sc-for>
+</section>
+<aside style="display: flex; flex-direction: column; gap: 12px">
+<section class="card" aria-label="Mục luật hay vi phạm theo gói" style="border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 600; flex: 1">Mục luật hay vấp</span><span style="font-size: 12px; color: #7E7E8A">số truyện có vi phạm</span></div>
+<div class="seg" role="tablist" aria-label="Gói" style="align-self: flex-start"><sc-for list="{{packs}}" as="p" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{p.on}}" aria-pressed="{{p.on}}" onClick="{{p.pick}}">{{p.label}}<span class="num" style="font-size: 11.5px; color: #7E7E8A">{{p.n}}</span></button></sc-for></div>
+<sc-for list="{{viol}}" as="v" hint-placeholder-count="6"><div style="display: grid; grid-template-columns: 90px minmax(0, 1fr) 64px; gap: 10px; align-items: center"><span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="chip2" style="align-self: flex-start; background: rgba(255,255,255,0.05); color: #C9C9D1">{{v.ref}}</span></span><span style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><span style="font-size: 12.5px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.name}}</span><span style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06)"><span style="display: block; height: 6px; border-radius: 3px; width: {{v.w}}; background: {{v.c}}"></span></span></span><span style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px"><span style="display: flex; align-items: center; justify-content: flex-end; gap: 6px"><span class="num" style="font-size: 12.5px; color: #EDEDEF">{{v.n}}</span><sc-if value="{{v.warn}}" hint-placeholder-val="{{ false }}"><span class="ic i-notify" title="{{v.tip}}" aria-label="{{v.tip}}" style="width: 14px; height: 14px; color: #FFB3BA"></span></sc-if></span><sc-if value="{{v.allLbl}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #8E8E99; white-space: nowrap" title="{{v.tip}}">· mọi gói</span></sc-if></span></div></sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: #8E8E99"><span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 6px; border-radius: 3px; background: #FF9AA2"></span>Bắt sửa</span><span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 6px; border-radius: 3px; background: #F6CB8C"></span>Cảnh báo</span><span style="display: flex; align-items: center; gap: 5px"><span class="ic i-notify" aria-hidden="true" style="width: 12px; height: 12px; color: #FFB3BA"></span>Bắt sửa lặp ở ≥ 3 truyện</span><span>· mọi gói: mục dùng chung, chuông tính trên cả 3 gói</span></div>
+</section>
+<section class="card" aria-label="Lời nhắc trước khi viết" style="border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; border-color: rgba(255,154,162,0.25)">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600"><span class="ic i-notify" aria-hidden="true" style="width: 16px; height: 16px; color: #FFB3BA"></span>Lời nhắc trước khi viết truyện mới</span>
+<span style="font-size: 12.5px; color: #A0A0AB">Kiến trúc sư thấy đoạn này khi lên dàn ý một truyện {{packName}}:</span>
+<p style="margin: 0; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: #D6D6DC; line-height: 1.6">{{reminder}}</p>
+</section>
+<p style="margin: 0; font-size: 12px; color: #6E6E78; line-height: 1.5">Số liệu chỉ tính truyện bạn được xem. Bài học trích dẫn chương làm bằng chứng nhưng không chép tình tiết vào quy tắc.</p>
+</aside>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tab":{"editor":"enum","options":["pending","kept","dropped"],"default":"pending","section":"Bài học"},"pack":{"editor":"enum","options":["A","B","C"],"default":"A","section":"Gói"},"$preview":{"width":1440,"height":900}}'>
+// [id, loại, mục, nội dung, nguồn, bằng chứng[], gói gợi ý, trạng thái]
+const LS = [
+  ['l1', 'Từ lần chấm', ['Master §7'], 'Không kết chương bằng cảnh nhân vật chính đi ngủ hay về nhà an toàn. Nếu cần cảnh nghỉ, đặt nó ở giữa chương và cắt bằng một tin nhắn, tiếng gõ cửa hoặc một phát hiện.', 'Rút từ 5 lần Bắt sửa ở 4 truyện · 1 gói', ['Trà Xanh… · ch.3', 'Em Gái Nuôi… · ch.2', 'Em Gái Nuôi… · ch.5', 'Thiên Kim… · ch.4', 'Mẹ Kế… · ch.6'], 'all', 'pending'],
+  ['l2', 'Từ lần chấm', ['Master §13'], 'Chương đầu hay thiếu thoại (dưới mức của gói). Mở bằng một cuộc đối đáp trước khi kể bối cảnh.', 'Rút từ 7 Cảnh báo ở 3 truyện · 1 gói', ['Trà Xanh… · ch.3', 'Trà Xanh… · ch.2', 'Mẹ Kế… · ch.1', 'Thiên Kim… · ch.1'], 'all', 'pending'],
+  ['l3', 'Từ góp ý của bạn', ['Xưng hô'], 'Khi hai nhân vật cắt đứt quan hệ, đổi cách gọi ngay trong cảnh cắt đứt và ghi lý do; không để chương sau mới đổi.', 'Rút từ 3 lần bạn sửa xưng hô ở 2 truyện · 2 gói', ['Trà Xanh… · ch.2', 'Bạn Thân Giật Chồng… · ch.3', 'Bạn Thân Giật Chồng… · ch.5'], 'all', 'pending'],
+  ['l4', 'Từ lần chấm', ['Quy tắc của bạn'], 'Từ “khẽ” và “dường như” bị lạm dụng ở mọi gói; giữ dưới 2 lần trên 1.000 tiếng.', 'Rút từ 9 Cảnh báo ở 6 truyện · 3 gói', ['6 truyện · 9 chương'], 'all', 'pending'],
+  ['k1', 'Từ lần chấm', ['Master §4'], 'Câu đầu tiên luôn có người và có bất công; không mở bằng thời tiết hay căn phòng.', 'Rút từ 6 lần Bắt sửa ở 4 truyện · 2 gói', ['Mẹ Kế… · ch.1', 'Thiên Kim… · ch.1', '+4'], 'all', 'kept'],
+  ['k2', 'Từ góp ý của bạn', ['Master §11'], 'Kết cục phản diện phải được người khác chứng kiến, không chỉ là tự nhận trong phòng kín.', 'Rút từ 3 lần bạn sửa kết chương ở 3 truyện · 1 gói', ['Em Gái Nuôi… · ch.8', 'Trà Xanh… · ch.8', '+1'], 'pack', 'kept'],
+  ['d1', 'Từ lần chấm', ['Master §15'], 'Luôn ngắt đoạn sau 60 tiếng.', 'Rút từ 4 Cảnh báo ở 2 truyện · 1 gói', ['Bạn Thân Giật Chồng… · ch.2', '+3'], 'all', 'dropped']
+];
+const WHEN = { k1: 'Giữ ngày 20/10 · quy tắc cấp Mọi truyện', k2: 'Giữ ngày 18/10 · quy tắc của gói Nữ tần báo thù', d1: 'Bỏ ngày 19/10 · Noverse không đề xuất lại' };
+const VIO = {
+  A: [['Master §7', 'Đầu chương và cuối chương', 5, 'e'], ['Master §13', 'Văn phong, thoại, hài', 4, 'w'], ['Bộ A §4.3', 'Trà xanh và phản diện', 4, 'w'], ['Master §11', 'Công lý và kết cục phản diện', 3, 'e'], ['Xưng hô', 'Bảng xưng hô của truyện', 3, 'e'], ['Master §5', 'Nhịp sóng và mật độ', 2, 'e']],
+  B: [['Master §10', 'Ức chế và lòng thương', 3, 'e'], ['Master §8', 'Vùng giữa truyện', 2, 'e'], ['Master §13', 'Văn phong, thoại, hài', 2, 'w'], ['Master §7', 'Đầu chương và cuối chương', 1, 'e']],
+  C: [['Master §6', 'Leo thang', 2, 'e'], ['Master §15', 'Viết cho audio', 2, 'w'], ['Master §9', 'Cú trả thưởng', 1, 'w']]
+};
+const PK = { A: ['Nữ tần báo thù', 6], B: ['Ngược hôn nhân', 4], C: ['Niên đại văn', 2] };
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); }
+  fresh(p) { const st = {}; LS.forEach((l) => { st[l[0]] = l[7]; }); const sc = {}; LS.forEach((l) => { sc[l[0]] = l[6]; }); return { tab: p.tab || 'pending', pack: p.pack || 'A', st, sc, edit: null, just: {} }; }
+  componentDidUpdate(prev) { if (prev.tab !== this.props.tab || prev.pack !== this.props.pack) this.setState(this.fresh(this.props)); }
+  renderVals() {
+    const s = this.state; const set = (x) => this.setState(x);
+    const setSt = (id, v) => set({ st: Object.assign({}, s.st, { [id]: v }), just: Object.assign({}, s.just, { [id]: v }) });
+    const count = (k) => LS.filter((l) => s.st[l[0]] === k && !s.just[l[0]]).length + LS.filter((l) => s.just[l[0]] && s.just[l[0]] === k && s.tab !== 'pending').length;
+    const shown = LS.filter((l) => s.tab === 'pending' ? (s.st[l[0]] === 'pending' || s.just[l[0]]) : s.st[l[0]] === s.tab);
+    const lessons = shown.map(([id, kind, refs, t, src, ev]) => { const st = s.st[id]; const just = s.tab === 'pending' && st !== 'pending'; const editing = s.edit === id;
+      return { kind, refs, t, src, ev, kBg: kind === 'Từ góp ý của bạn' ? 'rgba(166,237,193,0.1)' : 'rgba(201,166,245,0.12)', kFg: kind === 'Từ góp ý của bạn' ? '#BDF2D2' : '#DCC8F8', when: st === 'pending' ? 'mới · 25/10' : '', view: !editing, editing, pending: st === 'pending', done: st !== 'pending', cls: just ? 'rise' : '',
+        dText: st === 'kept' ? (just ? 'Đã giữ · thành quy tắc ' + (s.sc[id] === 'pack' ? 'của gói ' + PK.A[0] : 'cấp Mọi truyện') + ', áp dụng từ truyện mới tiếp theo' : (WHEN[id] || src)) : (just ? 'Đã bỏ · Noverse không đề xuất lại bài học này' : (WHEN[id] || src)), dFg: st === 'kept' ? '#A6EDC1' : '#A0A0AB', dIcon: st === 'kept' ? 'i-tick-b' : 'i-trash',
+        scopes: [['pack', 'Gói ' + PK.A[0]], ['all', 'Mọi gói']].map(([k, label]) => ({ label, on: s.sc[id] === k, pick: () => set({ sc: Object.assign({}, s.sc, { [id]: k }) }) })),
+        keep: () => { setSt(id, 'kept'); this.setState({ edit: null }); }, drop: () => setSt(id, 'dropped'), edit: () => set({ edit: editing ? null : id }), editLabel: editing ? 'Xong' : 'Sửa câu chữ', undo: () => set({ st: Object.assign({}, s.st, { [id]: LS.find((l) => l[0] === id)[7] === 'pending' ? 'pending' : LS.find((l) => l[0] === id)[7] }), just: Object.assign({}, s.just, { [id]: null }) }) }; });
+    const nPend = LS.filter((l) => s.st[l[0]] === 'pending').length, nKept = LS.filter((l) => s.st[l[0]] === 'kept').length, nDrop = LS.filter((l) => s.st[l[0]] === 'dropped').length;
+    const V = VIO[s.pack]; const mx = PK[s.pack][1];
+    // Mục dùng chung (Master §…, Xưng hô, Quy tắc của bạn): chuông tính trên mọi gói. Mục Bộ …: theo gói.
+    const shared = (ref) => !/^Bộ /.test(ref);
+    const total = (ref, l) => Object.keys(VIO).reduce((a, k) => a + VIO[k].filter((x) => x[0] === ref && x[3] === l).reduce((b, x) => b + x[2], 0), 0);
+    const isHot = ([ref, , n, l]) => l === 'e' && (shared(ref) ? total(ref, l) : n) >= 3;
+    const viol = V.map((v) => { const [ref, name, n, l] = v; const hot = isHot(v); const all = shared(ref) && hot; const tn = total(ref, l);
+      return { ref, name, n: n + '/' + mx, w: Math.round(n / mx * 100) + '%', c: l === 'e' ? '#FF9AA2' : '#F6CB8C', warn: hot, allLbl: all,
+        tip: all ? 'Bắt sửa ở ' + tn + ' truyện, tính trên mọi gói · được nhắc trước khi viết truyện mới' : 'Bắt sửa ở ' + n + '/' + mx + ' truyện của gói · được nhắc trước khi viết truyện mới' }; });
+    const hot = V.filter(isHot);
+    const reminder = hot.length ? 'Truyện ' + PK[s.pack][0] + ' trước đây hay vấp ' + hot.map((v) => v[0] + ' (' + v[1].toLowerCase() + ', ' + (shared(v[0]) && total(v[0], v[3]) !== v[2] ? total(v[0], v[3]) + ' truyện ở mọi gói' : v[2] + '/' + mx + ' truyện') + ')').join(', ') + '. Khi lập bản đồ giữ chân, kiểm kỹ các mục này trước khi giao Người viết.' : 'Chưa có mục Bắt sửa nào lặp ở 3 truyện trở lên trong gói ' + PK[s.pack][0] + ', nên chưa có lời nhắc.';
+    return {
+      stats: [['2', 'dự án'], ['12', 'truyện'], ['63', 'lần chấm']].map(([v, k]) => ({ v, k })),
+      tabs: [['pending', 'Chờ duyệt', nPend], ['kept', 'Đã giữ', nKept], ['dropped', 'Đã bỏ', nDrop]].map(([k, label, n]) => ({ label, n: String(n), on: s.tab === k, pick: () => set({ tab: k, just: {} }) })),
+      lessons, noLessons: !lessons.length,
+      packs: ['A', 'B', 'C'].map((k) => ({ label: PK[k][0], n: String(PK[k][1]), on: s.pack === k, pick: () => set({ pack: k }) })),
+      viol, packName: PK[s.pack][0], reminder
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "ten": "Nữ tần trọng sinh báo thù, vả mặt",
+  "ten_ngan": "Nữ tần báo thù",
+  "mo_ta": "Trọng sinh, vả mặt, lấy lại từng thứ trước đám đông.",
+  "so_chuong": 8,
+  "nguoi_nghe": "Nữ 18–35",
+  "audience_groups": [
+    { "n": 0, "label": "Phụ nữ trung niên, nghe khi làm việc nhà", "wants": "Thương nhân vật, rồi hả dạ khi kẻ ác bị quả báo" },
+    { "n": 1, "label": "Nữ 18–35", "wants": "Được làm người thông minh, sắc sảo, thắng đẹp" },
+    { "n": 2, "label": "Nam trung niên", "wants": "Làm lại đời, gánh vác gia đình, hoài niệm" },
+    { "n": 3, "label": "Nam trẻ", "wants": "Từ yếu thành mạnh, nâng cấp liên tục" },
+    { "n": 4, "label": "Người cao tuổi", "wants": "Được thấu hiểu, thấy đời mình trong truyện" }
+  ],
+  "thoai": { "min": 40, "max": 55 },
+  "tieng_moi_chuong": { "min": 1400, "max": 1600 },
+  "do_do": {
+    "procedural_max": 10, "quiet_max": 250, "sentence_max": 40, "paragraph_max": 90,
+    "repeated_min": 2, "opening_words": 220, "opening_overlap_max": 0.20, "day_ordinal": true,
+    "english_words": ["live", "credit", "casting", "scandal", "team", "post", "comment", "trend", "view", "share", "follow", "hashtag", "story"]
+  },
+  "audio": { "che_do": "single", "giong": "nu" },
+  "voice": { "hoi-hop": null, "do-dai-doan": null },
+  "nhan_luat": {"master-rules-v3.md":"Master","rules-A-nu-tan-bao-thu.md":"Bộ A","dit-dang-van-phong.md":"Định dạng"},
+  "giu_chan": { "bat_buoc": ["open_questions", "promise", "hook_type", "midpoint_twist", "diem_khac", "nguoi_nghe"], "canh_bao": ["hat_giong_phan_hai"] },
+  "luat": ["master-rules-v3.md", "rules-A-nu-tan-bao-thu.md", "dit-dang-van-phong.md"]
+}

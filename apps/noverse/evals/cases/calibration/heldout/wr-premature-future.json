@@ -1,0 +1,24 @@
+{
+  "id": "wr-premature-future",
+  "category": "quality",
+  "role": "writer",
+  "description": "Đại cương chương 4 có địa danh riêng Đá Hồng Yên, chương 3 chỉ đọc sổ thuế trong thư viện. Địa danh của chương sau không được xuất hiện sớm trong chương 3.",
+  "prompt": "Viết chương 3",
+  "fixture": "wr-premature-future",
+  "instruction": {
+    "agent": "writer",
+    "task": "Viết chương 3"
+  },
+  "control": false,
+  "expect": {
+    "prose": {
+      "chapter": 3,
+      "forbid_regex": [
+        "Đá Hồng Yên"
+      ]
+    }
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

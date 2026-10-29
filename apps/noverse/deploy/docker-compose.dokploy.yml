@@ -1,0 +1,254 @@
+# Self-contained stack that mirrors the Dokploy topology locally:
+#   Internet → Traefik (TLS) → app:8080 → Postgres + S3 (MinIO)
+# plus the one-shot migration job, certificate generator and bucket init.
+#
+# This file is the LOCAL/DEV recipe (self-signed certificate, test passwords,
+# published 8443). In Dokploy you do NOT run this file: Dokploy manages
+# Traefik, the Postgres service and the domain. See deploy/README.md.
+#
+#   cd deploy && docker compose -f docker-compose.dokploy.yml up -d --build
+#   cd deploy && docker compose -f docker-compose.dokploy.yml down -v
+#
+# Production differences are marked [DOKPLOY] next to each default.
+
+name: noverse
+
+x-app-image: &app-image
+  image: noverse:phase09
+  build:
+    context: ..
+    dockerfile: Dockerfile
+    args:
+      VERSION: ${VERSION:-dev}
+      COMMIT: ${COMMIT:-}
+      DATE: ${DATE:-}
+
+x-app-env: &app-env
+  # Facts backend. Hosted is postgres-only; file mode stays for CLI/offline.
+  STORE_DRIVER: postgres
+  # DSNs are not pasted here in the mirror: deploy/dsn-entrypoint.sh builds them
+  # from the component variables below and percent-encodes every reserved
+  # character, so an ordinary generated password (quotes, @, /, :, %, #, ?) works.
+  # In Dokploy the platform prints complete DSNs — paste those verbatim.
+  DATABASE_URL: ""
+  MIGRATION_DATABASE_URL: ""
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: ${POSTGRES_DB:-noverse}
+  POSTGRES_SSLMODE: disable
+  POSTGRES_APP_USER: noverse_app
+  POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:-local-app-password}
+  POSTGRES_MIGRATE_USER: noverse_migrate
+  POSTGRES_MIGRATE_PASSWORD: ${POSTGRES_MIGRATE_PASSWORD:-local-migrate-password}
+  DB_MAX_CONNS: ${DB_MAX_CONNS:-8}
+  DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-10s}
+
+  # BlobStore: S3-compatible (MinIO here). [DOKPLOY] point at R2/AWS/GCS:
+  #   STORAGE_DRIVER=s3, S3_ENDPOINT=https://<account>.r2.cloudflarestorage.com,
+  #   S3_REGION=auto (R2) | us-east-1 (GCS) | bucket region (AWS),
+  #   S3_FORCE_PATH_STYLE=false (AWS/R2) | true (GCS/MinIO).
+  # Local durable volume alternative: STORAGE_DRIVER=local, BLOB_LOCAL_ROOT=/var/lib/noverse/blobs
+  STORAGE_DRIVER: ${STORAGE_DRIVER:-s3}
+  BLOB_LOCAL_ROOT: /var/lib/noverse/blobs
+  S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+  S3_REGION: ${S3_REGION:-us-east-1}
+  S3_BUCKET: ${S3_BUCKET:-noverse}
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-local-minio}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
+  S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+  S3_ALLOW_INSECURE_ENDPOINT: ${S3_ALLOW_INSECURE_ENDPOINT:-true}
+  # [DOKPLOY] S3_PUBLIC_BASE_URL optional, public-marked assets only.
+
+  # Server / proxy contract. [DOKPLOY] PUBLIC_URL=https://<domain>,
+  # TRUSTED_PROXIES=<actual Traefik source CIDR(s)> from `docker network inspect`.
+  HTTP_ADDR: 0.0.0.0:8080
+  PUBLIC_URL: ${PUBLIC_URL:-https://noverse.localhost:8443}
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172.16.0.0/12}
+  SECURE_COOKIES: "true"
+
+  # Private worker listener (Mac over Tailscale). [DOKPLOY] WORKER_LISTEN_ADDR
+  # stays 0.0.0.0:8081 in the container and the host publishes it on the
+  # Tailscale IP only (see ports below / deploy/README.md).
+  WORKER_LISTEN_ADDR: 0.0.0.0:8081
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-noverse}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-local-postgres-superuser}
+      POSTGRES_MIGRATE_PASSWORD: ${POSTGRES_MIGRATE_PASSWORD:-local-migrate-password}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:-local-app-password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [internal]
+    # [DOKPLOY] no published 5432 — the app reaches Postgres on the platform network.
+
+  minio:
+    # minio/minio was deleted from Docker Hub in September 2026 and quay.io now
+    # requires an account. Chainguard publishes the same server anonymously
+    # (entrypoint /usr/bin/minio, ships mc and sh), latest tag only. It runs as
+    # uid 65532: a miniodata volume created by the old root image needs
+    # `chown -R 65532:65532` before the first start.
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-local-minio}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [internal]
+
+  # Creates the private bucket once. [DOKPLOY] use the provider's private
+  # bucket + HMAC credentials instead; nothing is public here.
+  minio-init:
+    # The MinIO server image already ships the `mc` CLI; no separate mc image.
+    image: cgr.dev/chainguard/minio:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    # Credentials travel as environment variables, never interpolated into the
+    # shell command: a secret containing ' " $ or \ must reach mc verbatim and
+    # must not be parsed by the container shell (single-quote interpolation
+    # broke on any apostrophe).
+    environment:
+      MC_ACCESS_KEY: ${S3_ACCESS_KEY_ID:-local-minio}
+      MC_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
+      MC_BUCKET: ${S3_BUCKET:-noverse}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        mc alias set local http://minio:9000 "$$MC_ACCESS_KEY" "$$MC_SECRET_KEY" &&
+        mc mb --ignore-existing "local/$$MC_BUCKET" &&
+        mc anonymous set none "local/$$MC_BUCKET" &&
+        echo "bucket ready"
+    restart: "no"
+    networks: [internal]
+
+  # One-shot migration job, exactly as Dokploy runs it: goose DDL with the
+  # migration role, before the app is allowed to become ready.
+  migrate:
+    <<: *app-image
+    command: ["storage", "migrate", "up"]
+    # The migrate job builds both DSNs (it needs the app DSN for the config
+    # contract, the migration DSN for DDL).
+    entrypoint: ["/bin/sh", "/opt/noverse/dsn-entrypoint.sh"]
+    environment:
+      <<: *app-env
+      DSN_TARGETS: app,migrate
+    volumes:
+      - ./dsn-entrypoint.sh:/opt/noverse/dsn-entrypoint.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks: [internal]
+
+  app:
+    <<: *app-image
+    command: ["serve"]
+    # Build only DATABASE_URL: the app must never receive a migration DSN, so it
+    # can never run DDL even if the role somehow allowed it.
+    entrypoint: ["/bin/sh", "/opt/noverse/dsn-entrypoint.sh"]
+    environment:
+      <<: *app-env
+      DSN_TARGETS: app
+    volumes:
+      - ./dsn-entrypoint.sh:/opt/noverse/dsn-entrypoint.sh:ro
+      - blobdata:/var/lib/noverse/blobs
+      - scratch:/var/cache/noverse
+      - config:/home/noverse/.ainovel
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$${HTTP_CHECK_PORT:-8080}/healthz"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    # [DOKPLOY] set the domain in the app UI (port 8080, HTTPS); the platform
+    # Traefik discovers this container by label. Locally routing lives in
+    # deploy/traefik/dynamic.yml because the Docker socket is not always
+    # mountable from a container.
+    networks: [internal, edge]
+    expose:
+      - "8080"
+    # Worker listener: published ONLY on the Tailscale interface [DOKPLOY].
+    # Locally it binds the host loopback, so it is reachable from this machine
+    # and nowhere else — Traefik has no router for port 8081.
+    ports:
+      - "${WORKER_BIND_IP:-127.0.0.1}:8081:8081"
+    restart: unless-stopped
+
+  traefik:
+    image: traefik:v3.3
+    restart: unless-stopped
+    command:
+      - --log.level=INFO
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+      # File provider: local routing is declarative (see traefik/dynamic.yml).
+      # [DOKPLOY] the platform Traefik uses the Docker provider + ACME.
+      - --providers.file.filename=/etc/traefik/dynamic/tls.yml
+      - --providers.file.watch=true
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic/tls.yml:ro
+      - certs:/certs:ro
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+      app:
+        condition: service_healthy
+    networks: [edge]
+
+  # Local-only self-signed certificate for noverse.localhost. [DOKPLOY] the
+  # platform's Traefik manages ACME/Let's Encrypt; this service does not exist.
+  certgen:
+    image: alpine:3.22
+    entrypoint: >
+      /bin/sh -c "apk add --no-cache openssl >/dev/null &&
+      mkdir -p /certs &&
+      openssl req -x509 -nodes -newkey rsa:2048 -days 30
+      -keyout /certs/noverse.key -out /certs/noverse.crt
+      -subj '/CN=noverse.localhost'
+      -addext 'subjectAltName=DNS:noverse.localhost,DNS:localhost,IP:127.0.0.1' &&
+      chmod 644 /certs/noverse.crt && chmod 600 /certs/noverse.key"
+    volumes:
+      - certs:/certs
+    restart: "no"
+
+volumes:
+  pgdata:
+  miniodata:
+  blobdata:
+  scratch:
+  config:
+  certs:
+
+networks:
+  internal:
+    internal: false
+  edge:
+    name: noverse_edge

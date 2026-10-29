@@ -1,0 +1,20 @@
+{
+  "id": "ed-goal-beat-missing",
+  "category": "quality",
+  "role": "editor",
+  "description": "Chương 3 của cùng cấu trúc contract nhưng bỏ hẳn bước bắt buộc rb2: không hề nhìn thấy ký hiệu V.L. in trên bao. Đáp án đúng là rb2 fail; các goal khác không bị ràng buộc.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-goal-beat-missing",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "expect": {
+    "review": {
+      "goal_status": {
+        "rb2": "fail"
+      }
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

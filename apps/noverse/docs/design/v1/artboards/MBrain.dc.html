@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Não truyện — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.mscroll>*{flex-shrink:0}
+.ent{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 14px;border:none;background:transparent;color:#EDEDEF;text-align:left;font:inherit}
+.ent+.ent{border-top:1px solid rgba(255,255,255,.06)}
+.av2{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;font-size:12.5px;font-weight:700;color:#fff}
+.gl{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+/* Thanh chương điện thoại v3: 8 ô bấm được (≥ 38 px), sọc trạng thái dưới đáy, ô đang xem đặc */
+.seg8{position:relative;height:40px;border:none;border-radius:10px;background:#1C1C1F;color:#8E8E99;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background .2s,color .2s,transform .15s}
+.seg8::after{content:"";position:absolute;left:8px;right:8px;bottom:5px;height:3px;border-radius:2px;background:rgba(255,255,255,.08)}
+.seg8.done{color:#C9C9D1}
+.seg8.done::after{background:#A6EDC1}
+.seg8.live{color:#DCC8F8;animation:none}
+.seg8.live::after{background:#C9A6F5}
+.seg8.todo{color:#5E5E68;background:#161618}
+.seg8[aria-checked=true]{background:#EDEDEF;color:#0B0B0D;font-weight:600}
+.seg8[aria-checked=true].live{background:#DCC8F8}
+.seg8:active{transform:scale(.96)}
+.seg8:focus-visible{outline:none;box-shadow:inset 0 0 0 2px #C9A6F5} /* vòng focus vẽ bên trong ô để hàng cuộn không cắt */
+/* > 10 chương: cuộn ngang, ô 38 px, bám giữa, mờ hai mép */
+.segrow{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.segrow.scroll{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
+.segrow.scroll::-webkit-scrollbar{display:none}
+.segrow.scroll .seg8{flex:0 0 38px;scroll-snap-align:center}
+.rrow{display:flex;align-items:flex-start;gap:10px;padding:10px 0}
+.rrow+.rrow{border-top:1px solid rgba(255,255,255,.06)}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-book-b{-webkit-mask-image:url(../icons/book-1-bulk.svg);mask-image:url(../icons/book-1-bulk.svg)}
+.i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}
+.i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar" style="padding-left: 4px; gap: 4px">
+<a class="tap" href="MMore.dc.html" aria-label="Quay lại Thêm" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-arrow-l" aria-hidden="true" style="width: 22px; height: 22px"></span></a>
+<sc-if value="{{noSearch}}" hint-placeholder-val="{{ true }}"><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 17px; font-weight: 600">Não truyện</span><span style="font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{countText}}</span></span>
+<button class="tap" type="button" onClick="{{openSearch}}" aria-label="Tìm trong Não truyện" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-search" aria-hidden="true" style="width: 21px; height: 21px"></span></button></sc-if>
+<sc-if value="{{searching}}" hint-placeholder-val="{{ false }}"><label style="flex: 1 1 auto; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; background: #18181A; border: 1px solid rgba(201,166,245,0.4); display: flex; align-items: center; gap: 8px"><span class="ic i-search" aria-hidden="true" style="width: 17px; height: 17px; color: #8E8E99"></span><input type="search" value="{{q}}" onInput="{{onQ}}" placeholder="Tìm nhân vật, vật, sự kiện…" aria-label="Tìm trong Não truyện" style="flex: 1; min-width: 0; border: none; background: transparent; color: #EDEDEF; font-size: 16px; outline: none"></label>
+<button class="tap" type="button" onClick="{{closeSearch}}" style="height: 44px; padding: 0 8px; border: none; background: transparent; color: #C9A6F5; font-size: 15px; flex: 0 0 auto">Huỷ</button></sc-if>
+</header>
+
+<section aria-label="Chọn chương" style="margin: 2px 16px 10px; padding: 12px 12px 12px; border-radius: 18px; background: #141416; border: 1px solid rgba(255,255,255,0.07); flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 2px">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Chương <span class="num">{{ch}}</span> <span style="font-weight: 400; color: #A0A0AB">· {{chTitle}}</span></span><span style="font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{chNote}}</span></span>
+<span style="flex: none; height: 24px; padding: 0 9px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: {{stBg}}; color: {{stFg}}; font-size: 12px; font-weight: 500"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: currentColor"></span>{{stLabel}}</span>
+</div>
+<div role="radiogroup" aria-label="Chọn chương" class="segrow {{segCls}}">
+<sc-for list="{{ticks}}" as="t" hint-placeholder-count="8"><button class="seg8 {{t.cls}}" type="button" role="radio" aria-checked="{{t.on}}" aria-label="{{t.aria}}" onClick="{{t.pick}}"><span class="num">{{t.n}}</span></button></sc-for>
+</div>
+</section>
+
+<div class="hscroll" role="tablist" aria-label="Lọc theo loại" style="padding-bottom: 10px; flex: 0 0 auto">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button class="chipm tap {{f.cls}}" type="button" role="tab" aria-selected="{{f.on}}" onClick="{{f.pick}}"><sc-if value="{{f.hasIc}}" hint-placeholder-val="{{ false }}"><span class="ic {{f.icon}}" aria-hidden="true" style="width: 15px; height: 15px; color: {{f.c}}"></span></sc-if>{{f.label}}<span class="num" style="font-size: 12px; color: #8E8E99">{{f.n}}</span></button></sc-for>
+</div>
+
+<div class="mscroll" style="padding: 0 16px 120px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><div style="padding: 60px 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #8E8E99"><span class="ic i-search" aria-hidden="true" style="width: 26px; height: 26px"></span><span style="font-size: 15px; color: #C9C9D1">Không có gì khớp “{{q}}”</span><span style="font-size: 13px">Thử tên khác, hoặc chọn “Tất cả”.</span></div></sc-if>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2"><section aria-label="{{g.label}}">
+<div style="display: flex; align-items: center; gap: 8px; padding: 2px 4px 8px"><span class="lbl">{{g.label}}</span><span class="num" style="font-size: 12px; color: #6E6E78">{{g.n}}</span></div>
+<div style="border-radius: 18px; background: #141416; border: 1px solid rgba(255,255,255,0.07); overflow: hidden">
+<sc-for list="{{g.items}}" as="it" hint-placeholder-count="3"><button class="ent press" type="button" onClick="{{it.open}}" aria-haspopup="dialog" style="opacity: {{it.op}}">
+<sc-if value="{{it.isChar}}" hint-placeholder-val="{{ true }}"><span class="av2" aria-hidden="true" style="background: {{it.avBg}}; box-shadow: 0 0 0 2px #141416, 0 0 0 3px {{it.ring}}">{{it.ini}}</span></sc-if>
+<sc-if value="{{it.notChar}}" hint-placeholder-val="{{ false }}"><span class="gl" aria-hidden="true" style="background: {{it.glBg}}"><span class="ic {{it.icon}}" style="width: 18px; height: 18px; color: {{it.c}}"></span></span></sc-if>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.name}}</span><sc-if value="{{it.isNew}}" hint-placeholder-val="{{ false }}"><span style="flex: none; height: 18px; padding: 0 6px; border-radius: 6px; background: #C9A6F5; color: #0B0B0D; font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center">mới</span></sc-if><sc-if value="{{it.hasChg}}" hint-placeholder-val="{{ false }}"><span style="flex: none; height: 18px; padding: 0 6px; border-radius: 6px; background: rgba(201,166,245,0.12); color: #DCC8F8; font-size: 10.5px; font-weight: 600; display: inline-flex; align-items: center">đổi ở ch. {{ch}}</span></sc-if></span>
+<span style="font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.sub}}</span>
+<sc-if value="{{it.hasRel}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12.5px; color: #C9C9D1"><span aria-hidden="true" style="width: 12px; height: 0; border-top: 2px {{it.relStyle}} {{it.relC}}; flex: none"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0">{{it.rel}}</span><sc-if value="{{it.hasMore}}" hint-placeholder-val="{{ false }}"><span class="num" style="flex: none; font-size: 12px; color: #8E8E99">+{{it.more}}</span></sc-if></span></sc-if>
+</span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #5E5E68; flex: none"></span>
+</button></sc-for>
+</div>
+</section></sc-for>
+<p style="margin: 4px 4px 0; font-size: 12px; color: #6E6E78; line-height: 1.5">Điện thoại chỉ hiện danh sách. Xem đồ thị quan hệ trên máy tính.</p>
+</div>
+
+<sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}"><div class="scrim {{sheetOut}}" aria-hidden="true" onClick="{{closeSheet}}"></div>
+<section class="sheet {{sheetOut}}" role="dialog" aria-modal="true" aria-labelledby="bs-t" style="max-height: 86%">
+<div class="grab" aria-hidden="true"></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 4px 18px 12px">
+<sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}"><span class="av2" aria-hidden="true" style="width: 46px; height: 46px; font-size: 14px; background: {{d.avBg}}; box-shadow: 0 0 0 2px #18181A, 0 0 0 3px {{d.ring}}">{{d.ini}}</span></sc-if>
+<sc-if value="{{d.notChar}}" hint-placeholder-val="{{ false }}"><span class="gl" aria-hidden="true" style="width: 46px; height: 46px; background: {{d.glBg}}"><span class="ic {{d.icon}}" style="width: 21px; height: 21px; color: {{d.c}}"></span></span></sc-if>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><span id="bs-t" style="font-size: 18px; font-weight: 600">{{d.name}}</span><span style="font-size: 12.5px; color: #8E8E99">{{d.sub}}</span></span>
+<button class="tap" type="button" onClick="{{closeSheet}}" aria-label="Đóng" style="width: 36px; height: 36px; border-radius: 50%; border: none; background: #232326; color: #C9C9D1; display: flex; align-items: center; justify-content: center; flex: none"><span class="ic i-add" aria-hidden="true" style="width: 18px; height: 18px; transform: rotate(45deg)"></span></button>
+</div>
+<div class="mscroll" style="padding: 0 18px 8px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 14px; color: #C9C9D1; line-height: 1.55">{{d.desc}}</span>
+<sc-if value="{{d.notYet}}" hint-placeholder-val="{{ false }}"><div style="padding: 10px 12px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.14); font-size: 13px; color: #A0A0AB">Chưa xuất hiện ở chương {{ch}}. Có mặt từ chương {{d.from}}.</div></sc-if>
+<div><span class="lbl">Quan hệ tại chương {{ch}}</span>
+<sc-if value="{{d.noRels}}" hint-placeholder-val="{{ false }}"><p style="margin: 8px 0 0; font-size: 13px; color: #7E7E8A">Chưa có quan hệ nào ở chương này.</p></sc-if>
+<div style="margin-top: 4px"><sc-for list="{{d.rels}}" as="r" hint-placeholder-count="3"><div class="rrow"><span aria-hidden="true" style="width: 14px; height: 0; margin-top: 10px; border-top: 2px {{r.style}} {{r.c}}; flex: none"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px"><span style="color: {{r.c}}">{{r.label}}</span> · {{r.other}}</span><span style="font-size: 12px; color: #7E7E8A">{{r.since}}</span></span></div></sc-for></div></div>
+<sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}"><div><span class="lbl">Xưng hô tại chương {{ch}}</span>
+<sc-if value="{{d.noXh}}" hint-placeholder-val="{{ false }}"><p style="margin: 8px 0 0; font-size: 13px; color: #7E7E8A">Chưa ghi xưng hô.</p></sc-if>
+<div style="margin-top: 4px"><sc-for list="{{d.xh}}" as="x" hint-placeholder-count="2"><div class="rrow" style="flex-direction: column; gap: 3px"><span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #A0A0AB; min-width: 0; width: 100%"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; flex: none">{{x.from}}</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 11px; height: 11px; flex: none"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0">{{x.to}}</span></span><span style="font-size: 14px">gọi <b style="font-weight: 600">“{{x.call}}”</b> · tự xưng <b style="font-weight: 600">“{{x.self}}”</b></span><sc-if value="{{x.hasWas}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #F3D9AE">{{x.was}}</span></sc-if></div></sc-for></div></div></sc-if>
+<div><span class="lbl">Diễn biến</span><ol style="list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px"><sc-for list="{{d.hist}}" as="h" hint-placeholder-count="3"><li style="display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; font-size: 13px; opacity: {{h.op}}"><span class="num" style="color: #8E8E99">Ch. {{h.ch}}</span><span style="color: #C9C9D1">{{h.t}}</span></li></sc-for></ol></div>
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(201,166,245,0.06); border: 1px solid rgba(201,166,245,0.22); font-size: 13px; color: #DCC8F8; line-height: 1.5"><span class="ic i-lock" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; flex: none"></span><span>Người viết đang viết lại chương 4, nên đang khoá sửa xưng hô và quan hệ. Tạm dừng ở tab Viết để sửa.</span></div>
+<sc-if value="{{d.isChar}}" hint-placeholder-val="{{ true }}"><a class="mbtn press" href="Outline.dc.html" style="height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: #222225; color: #EDEDEF; font-size: 15px; font-weight: 500"><span class="ic i-user" aria-hidden="true" style="width: 17px; height: 17px"></span>Mở trang nhân vật</a></sc-if>
+</div>
+</section></sc-if>
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: {{tabInd}}; width: calc((100% - 10px) / 4)"></span>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><a class="tab tap {{t.cls}}" href="{{t.href}}" aria-current="{{t.cur}}"><span class="ic tic {{t.icon}}" aria-hidden="true" style="width: 24px; height: 24px; color: {{t.ic}}"></span><span class="tlab">{{t.label}}</span><sc-if value="{{t.dot}}" hint-placeholder-val="{{ false }}"><span class="dot" aria-label="Có việc cần bạn"></span></sc-if></a></sc-for>
+</div>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["list","sheet","filter","search","empty"],"default":"list","section":"Trạng thái"},"ch":{"editor":"enum","options":["1","2","3","4","5","6","7","8"],"default":"4","section":"Chương"},"len":{"editor":"enum","options":["8","30"],"default":"8","section":"Số chương trong dàn ý"},"$preview":{"width":390,"height":844}}'>
+// icons used: i-category-b i-book-b i-headphone-b i-setting-b
+const MTAB_KEYS = ['write', 'read', 'listen', 'more'];
+function mtabs(active, dots) {
+  dots = dots || {};
+  return [['write', 'Viết', 'MWork.dc.html', 'i-category'], ['read', 'Đọc', 'MReader.dc.html', 'i-book'], ['listen', 'Nghe', 'MAudio.dc.html', 'i-headphone'], ['more', 'Thêm', 'MMore.dc.html', 'i-setting']].map(([k, label, href, icon]) => {
+    const on = k === active; return { label, href, icon: on ? icon + '-b' : icon, cls: on ? 'on' : '', cur: on ? 'page' : 'false', ic: on ? '#C9A6F5' : 'currentColor', dot: !!dots[k] };
+  });
+}
+function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
+
+const TITLES = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
+const TY = { char: ['Nhân vật', 'i-user', '#C9A6F5'], place: ['Địa điểm', 'i-global', '#8FDCCB'], obj: ['Vật', 'i-box', '#9DB0F7'], ev: ['Sự kiện', 'i-clock', '#F6CB8C'], fs: ['Chi tiết cài cắm', 'i-flag', '#FFB3BA'], rule: ['Quy tắc thế giới', 'i-shield', '#B8B8C2'] };
+const ET = { enemy: ['Đối đầu', '#FF9AA2', 'solid'], ally: ['Đồng minh', '#A6EDC1', 'solid'], work: ['Công việc', '#8C9BC0', 'solid'], own: ['Sở hữu · tác giả', '#9DB0F7', 'solid'], secret: ['Ẩn, chưa lộ', '#F6CB8C', 'dashed'], rel: ['Liên quan', '#6E6E78', 'dashed'] };
+// id: [type, name, ini, x, y, fromCh, desc, appear]
+const N = {
+  th: ['char', 'Lâm Tri Hạ', 'TH', 400, 270, 1, 'Biên kịch độc lập 26 tuổi, người kể chuyện. Viết kịch bản gốc nhưng bị xếp vai phụ.', [1, 2, 3, 4, 5, 6, 7, 8]],
+  nv: ['char', 'Tống Nhược Vy', 'NV', 620, 160, 1, 'Ảnh hậu 28 tuổi, đứng tên tác giả kịch bản của Tri Hạ.', [1, 2, 3, 4, 5, 6, 7]],
+  pc: ['char', 'Phùng Chấn', 'PC', 650, 390, 1, 'Giám đốc điều hành Tinh Mang. Người kể chưa biết ông đứng sau vụ cướp kịch bản cho tới chương 5.', [1, 4, 5, 7]],
+  hc: ['char', 'Hứa Hoài Châu', 'HC', 190, 140, 1, 'Đạo diễn 32 tuổi của chương trình, giữ lại bản live đọc thoại.', [1, 3, 4, 6, 7]],
+  kd: ['char', 'Kỳ Dương', 'KD', 175, 385, 2, 'Nam ca sĩ thần tượng 24 tuổi, cùng nhóm với Tri Hạ trong show.', [2, 3, 4, 5, 7, 8]],
+  dm: ['char', 'Đỗ Mẫn', 'ĐM', 400, 470, 3, 'Tổng đạo diễn show, giữ luật chơi công bằng.', [3, 7]],
+  kb: ['obj', 'Kịch bản gốc', '', 520, 50, 1, 'Bản Tri Hạ viết, đang đứng tên Nhược Vy.', [1, 2, 4, 5, 6, 8]],
+  rec: ['obj', 'Bản live đọc thoại', '', 235, 500, 4, 'Bản ghi buổi đọc thoại trực tiếp, có đoạn 73 giây bị cắt.', [4, 5, 6]],
+  ev: ['ev', 'Buổi đọc thoại live', '', 95, 260, 2, 'Trò đọc thoại trực tiếp. Được báo trước từ chương 2, diễn ra ở chương 4.', [2, 3, 4]],
+  tq: ['place', 'Trường quay số ba', '', 560, 500, 3, 'Nơi quay buổi đọc thoại live.', [3, 4]],
+  solao: ['fs', 'Số lạ nhắn tin', '', 330, 80, 3, 'Tin nhắn đe doạ cuối chương 3. Chưa rõ người gửi.', [3, 4, 6]],
+  vo: ['fs', 'Vỏ ổ cứng', '', 765, 250, 5, 'Vỏ ổ cứng cũ, có thể từng chứa bản gốc. Ruột đã bị tháo.', [5, 6, 8]],
+  luat: ['rule', 'Luật thẻ ngẫu nhiên', '', 75, 465, 2, 'Thẻ rút ngẫu nhiên, xáo công khai, không ai được nhường lượt.', [2, 4]]
+};
+// [a, b, phases [[fromCh, type, label]]]
+const E = [
+  ['th', 'nv', [[1, 'work', 'Bạn diễn cũ'], [2, 'enemy', 'Đối đầu']]],
+  ['th', 'kb', [[1, 'own', 'Người viết thật']]],
+  ['nv', 'kb', [[1, 'own', 'Đứng tên tác giả']]],
+  ['th', 'hc', [[1, 'work', 'Công việc'], [4, 'ally', 'Tin tưởng một phần']]],
+  ['th', 'kd', [[2, 'ally', 'Đồng minh']]],
+  ['pc', 'nv', [[5, 'secret', 'Chống lưng']]],
+  ['pc', 'th', [[1, 'work', 'Công việc'], [4, 'enemy', 'Ép xoá bản live']]],
+  ['hc', 'rec', [[4, 'own', 'Giữ lại']]],
+  ['th', 'solao', [[3, 'rel', 'Nhận tin đe doạ']]],
+  ['vo', 'kb', [[5, 'secret', 'Chứa bản gốc?']]],
+  ['th', 'ev', [[4, 'rel', 'Nối đúng câu bị ngắt']]],
+  ['nv', 'ev', [[4, 'rel', 'Đọc hỏng']]],
+  ['luat', 'ev', [[2, 'rel', 'Áp dụng']]],
+  ['ev', 'tq', [[3, 'rel', 'Diễn ra tại']]],
+  ['dm', 'th', [[3, 'work', 'Công việc']]],
+  ['ev', 'rec', [[4, 'rel', 'Ghi lại']]]
+];
+// xưng hô: [from, to, call, self, fromCh, untilCh|0, why]
+const XH = [
+  ['th', 'nv', 'chị Vy', 'em', 1, 1, 'đồng nghiệp cũ'], ['th', 'nv', 'cô', 'tôi', 2, 0, 'cắt đứt sau khi biết bị cướp tên'],
+  ['nv', 'th', 'em', 'chị', 1, 0, 'giữ vẻ đàn chị'],
+  ['th', 'hc', 'đạo diễn Hứa', 'tôi', 1, 0, 'công việc'],
+  ['kd', 'th', 'chị', 'em', 2, 0, 'kém hai tuổi'],
+  ['pc', 'th', 'cô Lâm', 'tôi', 1, 0, 'xa cách'], ['pc', 'nv', 'Vy', 'anh', 5, 0, 'lộ quan hệ ngầm']
+];
+// bố cục quỹ đạo: [vòng, góc°]; vòng 0 = người kể ở tâm
+const CHR = { th: ['#E2D0FF', '#7B55E0', 'Nữ chính · người kể'], nv: ['#FFC2C8', '#C2485A', 'Phản diện chính'], pc: ['#FFC2C8', '#8E3A47', 'Đồng phạm · chưa lộ'], hc: ['#D6D6DC', '#4A4A55', 'Nam chính phụ trợ'], kd: ['#C9F5DA', '#2F9A73', 'Đồng minh hài'], dm: ['#D6D6DC', '#4A4A55', 'Phụ chức năng'] }; // màu theo loại vai (04-components › CharAvatar): chính tím · phản diện đỏ · đồng minh xanh · phụ xám
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(p) { const st = p.state || 'list'; return { st, ch: +(p.ch || 4), f: st === 'filter' ? 'char' : 'all', q: st === 'search' ? 'Tri' : (st === 'empty' ? 'Hoàng' : ''), searching: st === 'search' || st === 'empty', sel: st === 'sheet' ? 'nv' : null, closing: false }; }
+  componentDidUpdate(prev, ps) { if (prev.state !== this.props.state || prev.ch !== this.props.ch || prev.len !== this.props.len) this.setState(this.fresh(this.props)); if (!ps || ps.ch !== this.state.ch || prev.len !== this.props.len) this.center(); }
+  componentDidMount() { this.center(); }
+  // đưa ô đang xem vào giữa khi hàng cuộn ngang
+  center() { requestAnimationFrame(() => { const row = document.querySelector('.segrow.scroll'); const on = row && row.querySelector('[aria-checked=true]'); if (on) { const a = row.getBoundingClientRect(), b = on.getBoundingClientRect(); row.scrollLeft += (b.left + b.width / 2) - (a.left + a.width / 2); } }); } // tính theo khung của hàng, không theo offsetParent
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  renderVals() {
+    const s = this.state; const set = (x) => this.setState(x); const ch = s.ch; const q = s.q.trim().toLowerCase();
+    const phaseAt = (ph) => { let cur = null; ph.forEach((x) => { if (x[0] <= ch) cur = x; }); return cur; };
+    const alive = (id) => N[id][5] <= ch;
+    const act = E.map(([a, b, ph]) => ({ a, b, ph, cur: phaseAt(ph) })).filter((e) => e.cur && alive(e.a) && alive(e.b));
+    const match = (id) => !q || N[id][1].toLowerCase().indexOf(q) >= 0;
+    const ids = Object.keys(N).filter((id) => alive(id) && match(id));
+    const order = ['char', 'obj', 'ev', 'fs', 'place', 'rule'];
+    const filters = [['all', 'Tất cả', '', '']].concat(order.map((k) => [k, TY[k][0], TY[k][1], TY[k][2]])).map(([k, label, icon, c]) => { const n = ids.filter((id) => k === 'all' || N[id][0] === k).length; const on = s.f === k; return { label, icon, c, hasIc: !!icon, n: String(n), on, cls: on ? 'on' : '', pick: () => set({ f: k }) }; }).filter((f) => f.n !== '0' || f.on);
+    const vis = ids.filter((id) => s.f === 'all' || N[id][0] === s.f);
+    const item = (id) => { const n = N[id]; const ty = n[0]; const isChar = ty === 'char'; const rels = act.filter((e) => e.a === id || e.b === id); const top = rels[0]; const other = top ? N[top.a === id ? top.b : top.a][1] : '';
+      const chg = E.some(([a, b, ph]) => (a === id || b === id) && ph.some((pp) => pp[0] === ch && ch > 1));
+      return { name: n[1], ini: n[2], isChar, notChar: !isChar, icon: TY[ty][1], c: TY[ty][2], glBg: TY[ty][2] + '1F', avBg: isChar ? 'radial-gradient(circle at 32% 28%, ' + CHR[id][0] + ', ' + CHR[id][1] + ')' : '', ring: isChar ? CHR[id][0] + '55' : '', sub: isChar ? CHR[id][2] : TY[ty][0], hasRel: !!top, rel: top ? top.cur[2] + ' · ' + other : '', hasMore: rels.length > 1, more: String(rels.length - 1), relC: top ? ET[top.cur[1]][1] : '', relStyle: top ? ET[top.cur[1]][2] : 'solid', isNew: n[5] === ch && ch > 1, hasChg: chg && !(n[5] === ch), op: 1, open: () => set({ sel: id, closing: false }) }; };
+    const groups = order.map((k) => { const its = vis.filter((id) => N[id][0] === k); return { label: TY[k][0], n: String(its.length), items: its.map(item) }; }).filter((g) => g.items.length);
+    // detail
+    const id = s.sel || 'nv', n = N[id], ty = n[0], isChar = ty === 'char';
+    const rels = act.filter((e) => e.a === id || e.b === id).map((e) => { const t = ET[e.cur[1]]; return { label: e.cur[2], other: N[e.a === id ? e.b : e.a][1], c: t[1], style: t[2], since: t[0] + ' · từ chương ' + e.cur[0] }; });
+    const xh = XH.filter((x) => (x[0] === id || x[1] === id) && x[4] <= ch && (!x[5] || x[5] >= ch)).map((x) => { const prev = XH.find((y) => y[0] === x[0] && y[1] === x[1] && y[5] && y[5] < x[4]); return { from: N[x[0]][1], to: N[x[1]][1], call: x[2], self: x[3], hasWas: !!prev, was: prev ? 'Đổi ở chương ' + x[4] + ', trước đó gọi “' + prev[2] + '” · ' + x[6] : '' }; });
+    const hist = []; E.forEach(([a, b, ph]) => { if (a !== id && b !== id) return; const o = a === id ? b : a; ph.forEach((pp, i) => hist.push({ ch: pp[0], t: (i ? 'Đổi thành ' : '') + pp[2] + ' · ' + N[o][1] })); });
+    hist.sort((x, y) => x.ch - y.ch);
+    const closeSheet = () => { set({ closing: true }); this.tm.push(setTimeout(() => this.setState({ sel: null, closing: false }), 260)); };
+    const changed = E.filter(([a, b, ph]) => ph.some((pp) => pp[0] === ch)).length + Object.keys(N).filter((x) => N[x][5] === ch).length;
+    return {
+      tabs: mtabs('more'), tabInd: mtabInd('more'), tabMode: s.sel ? 'hide' : '',
+      noSearch: !s.searching, searching: s.searching, q: s.q, onQ: (e) => set({ q: e.target.value }), openSearch: () => set({ searching: true }), closeSearch: () => set({ searching: false, q: '' }),
+      countText: ids.length + ' thực thể · ' + act.length + ' quan hệ',
+      ch: String(ch), chTitle: TITLES[ch - 1], chPrev: () => set({ ch: Math.max(1, ch - 1) }), chNext: () => set({ ch: Math.min(8, ch + 1) }), atFirst: ch <= 1, atLast: ch >= 8, prevOp: ch <= 1 ? 0.35 : 1, nextOp: ch >= 8 ? 0.35 : 1,
+      tlFill: ((ch - 1) / 7 * 88).toFixed(2) + '%', chLive: ch === 4, chChanged: ch !== 4, chNote: ch > 4 ? 'Theo dàn ý · chưa có trong bản viết' : ch === 4 ? 'Người viết đang viết lại · ' + (changed ? changed + ' thay đổi' : 'chưa đổi gì') : (changed ? changed + ' thay đổi so với chương trước' : 'Không đổi so với chương trước'), stLabel: ch < 4 ? 'Đã viết' : (ch === 4 ? 'Đang viết lại' : 'Chưa viết'), stBg: ch < 4 ? 'rgba(166,237,193,0.1)' : (ch === 4 ? 'rgba(201,166,245,0.14)' : 'rgba(255,255,255,0.06)'), stFg: ch < 4 ? '#A6EDC1' : (ch === 4 ? '#DCC8F8' : '#8E8E99'),
+      tkFill: (3 / 8 * 100).toFixed(3) + '%',
+      segCls: +(this.props.len || 8) > 10 ? 'scroll' : '',
+      ticks: (+(this.props.len || 8) > 10 ? Array.from({ length: +this.props.len }, (_, i) => TITLES[i] || 'Theo dàn ý') : TITLES).map((x, i) => { const on = ch === i + 1; return { n: String(i + 1), on, cls: i < 3 ? 'done' : (i === 3 ? 'live' : 'todo'), fg: on ? '#EDEDEF' : (i <= 3 ? '#A0A0AB' : '#5E5E68'), aria: 'Chương ' + (i + 1) + ' · ' + x + (i < 3 ? ' · đã viết' : (i === 3 ? ' · đang viết lại' : ' · chưa viết')), pick: () => set({ ch: i + 1 }) }; }),
+      filters, groups, empty: !groups.length,
+      sheetOpen: !!s.sel, sheetOut: s.closing ? 'out' : '', closeSheet,
+      d: { name: n[1], ini: n[2], isChar, notChar: !isChar, icon: TY[ty][1], c: TY[ty][2], glBg: TY[ty][2] + '1F', avBg: isChar ? 'radial-gradient(circle at 32% 28%, ' + CHR[id][0] + ', ' + CHR[id][1] + ')' : '', ring: isChar ? CHR[id][0] + '55' : '', sub: (isChar ? CHR[id][2] : TY[ty][0]) + ' · có từ chương ' + n[5], desc: n[6], notYet: n[5] > ch, from: String(n[5]), rels, noRels: !rels.length, xh, noXh: !xh.length, hist: hist.slice(0, 6).map((h) => ({ ch: String(h.ch), t: h.t + (h.ch > ch ? ' · sau chương ' + ch : ''), op: h.ch > ch ? 0.5 : 1 })) }
+    };
+  }
+}
+</script>
+</body>
+</html>

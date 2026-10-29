@@ -1,0 +1,14 @@
+/* A0 · Lần chạy đầu (Setup.dc.html) — chỉ những gì style nội tuyến không làm được:
+   placeholder, viền khi focus và rung khi mã sai. Màu lấy từ token, không viết mã màu. */
+.setup-field::placeholder { color: var(--kit-fg-off); }
+.setup-field:focus { border-color: var(--line-focus); }
+
+.setup-shake { animation: setup-shake .42s cubic-bezier(.36, .07, .19, .97); }
+@keyframes setup-shake {
+  20%, 60% { transform: translateX(-5px) }
+  40%, 80% { transform: translateX(5px) }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-shake { animation: none; }
+}

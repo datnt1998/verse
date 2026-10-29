@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xem artboard</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;display:flex;background:#0B0B0D;color:#EDEDEF;font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+aside{flex:0 0 300px;display:flex;flex-direction:column;border-right:1px solid #222;min-height:0}
+aside header{padding:14px 14px 8px}
+aside h1{margin:0 0 4px;font-size:15px}
+aside p{margin:0;color:#8E8E99;font-size:12px}
+#q{margin:8px 14px;height:32px;padding:0 10px;border-radius:8px;border:1px solid #2A2A2E;background:#131315;color:#EDEDEF}
+#list{flex:1;overflow:auto;padding:0 8px 12px}
+#list button{display:block;width:100%;text-align:left;padding:7px 8px;border:0;border-radius:7px;background:transparent;color:#C9C9D1;font:inherit;cursor:pointer}
+#list button:hover{background:#18181B}
+#list button[aria-current=true]{background:#232326;color:#fff}
+#list small{display:block;color:#7E7E8A;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grp{margin:10px 8px 4px;color:#7E7E8A;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+#bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 14px;border-bottom:1px solid #222}
+#bar label{display:flex;align-items:center;gap:6px;color:#A0A0AB}
+#bar select{height:28px;border-radius:7px;border:1px solid #2A2A2E;background:#131315;color:#EDEDEF;padding:0 6px}
+#bar .sp{flex:1}
+#bar a{color:#C9A6F5}
+#stage{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px;background:#060607}
+#wrap{flex:none;transform-origin:top left}
+iframe{display:block;border:0;background:#0B0B0D;border-radius:6px;box-shadow:0 0 0 1px #222}
+#err{padding:24px;color:#FFB3BA;display:none}
+</style>
+</head>
+<body>
+<aside>
+<header><h1>Artboard ainovel</h1><p>Chọn màn ở dưới, chọn tweak ở thanh trên. Đường dẫn có thể chép để gửi nhau, ví dụ <code>#Setup?state=codeLocked</code>.</p></header>
+<input id="q" type="search" placeholder="Lọc theo tên hoặc mã màn" aria-label="Lọc artboard">
+<div id="list" role="list"></div>
+</aside>
+<main>
+<div id="bar"></div>
+<div id="err"></div>
+<div id="stage"><div id="wrap"><iframe id="f" title="Artboard"></iframe></div></div>
+</main>
+<script>
+// Trang xem artboard cho dev. Cần chạy qua HTTP (fetch không đọc được file://):
+//   cd docs/design/v1 && python3 -m http.server 8700   →   http://localhost:8700/artboards/preview.html
+const $ = (s) => document.querySelector(s);
+let boards = [], cur = null, props = {}, vals = {};
+function parseHash() {
+  const h = decodeURIComponent(location.hash.slice(1)); if (!h) return {};
+  const [name, qs] = h.split('?'); const v = {};
+  (qs || '').split('&').filter(Boolean).forEach((kv) => { const [k, x] = kv.split('='); v[k] = x; });
+  return { name, v };
+}
+function setHash() {
+  const q = Object.keys(vals).filter((k) => props[k] && vals[k] !== props[k].default).map((k) => k + '=' + vals[k]).join('&');
+  history.replaceState(null, '', '#' + cur.name + (q ? '?' + q : ''));
+}
+async function load() {
+  const c = await (await fetch('canvas.json')).json();
+  const order = c.order || Object.keys(c.boards);
+  boards = order.filter((f) => c.boards[f]).map((f) => ({ file: f, name: f.replace('.dc.html', ''), title: c.boards[f].title, page: c.boards[f].page }));
+  Object.keys(c.boards).forEach((f) => { if (!boards.find((b) => b.file === f)) boards.push({ file: f, name: f.replace('.dc.html', ''), title: c.boards[f].title, page: c.boards[f].page }); });
+  renderList();
+  const h = parseHash();
+  open(boards.find((b) => b.name === h.name) || boards[0], h.v || {});
+}
+function renderList() {
+  const q = $('#q').value.trim().toLowerCase(); const el = $('#list'); el.innerHTML = '';
+  ['desktop', 'mobile'].forEach((pg) => {
+    const items = boards.filter((b) => (b.page || 'desktop') === pg && (!q || (b.title + b.name).toLowerCase().includes(q)));
+    if (!items.length) return;
+    const g = document.createElement('div'); g.className = 'grp'; g.textContent = pg === 'mobile' ? 'Điện thoại' : 'Máy tính'; el.appendChild(g);
+    items.forEach((b) => { const bt = document.createElement('button'); bt.setAttribute('aria-current', cur && cur.file === b.file); bt.innerHTML = '<span></span><small></small>'; bt.firstChild.textContent = b.title.split(' — ')[0]; bt.lastChild.textContent = b.name + (b.title.includes(' — ') ? ' · ' + b.title.split(' — ')[1] : ''); bt.onclick = () => open(b, {}); el.appendChild(bt); });
+  });
+}
+async function open(b, v) {
+  cur = b; renderList();
+  let html;
+  try { html = await (await fetch(b.file)).text(); } catch (e) { $('#err').style.display = 'block'; $('#err').textContent = 'Không đọc được ' + b.file + '. Mở trang này qua HTTP (xem ghi chú trong mã nguồn).'; return; }
+  $('#err').style.display = 'none';
+  const m = html.match(/data-props='([^']*)'/);
+  props = m ? JSON.parse(m[1].replace(/&amp;/g, '&')) : {};
+  vals = {}; Object.keys(props).forEach((k) => { if (props[k] && props[k].options) vals[k] = v[k] && props[k].options.includes(v[k]) ? v[k] : props[k].default; });
+  b.html = html; renderBar(); render();
+}
+function renderBar() {
+  const bar = $('#bar'); bar.innerHTML = '';
+  const t = document.createElement('b'); t.textContent = cur.title; bar.appendChild(t);
+  Object.keys(vals).forEach((k) => {
+    const p = props[k]; const l = document.createElement('label'); l.textContent = (p.section ? p.section + ' · ' : '') + k;
+    const s = document.createElement('select'); p.options.forEach((o) => { const op = document.createElement('option'); op.value = o; op.textContent = o; if (o === vals[k]) op.selected = true; s.appendChild(op); });
+    s.onchange = () => { vals[k] = s.value; render(); }; l.appendChild(s); bar.appendChild(l);
+  });
+  const sp = document.createElement('span'); sp.className = 'sp'; bar.appendChild(sp);
+  const a = document.createElement('a'); a.href = cur.file; a.target = '_blank'; a.textContent = 'Mở riêng mặc định'; bar.appendChild(a);
+}
+function render() {
+  setHash();
+  const html = cur.html.replace(/data-props='([^']*)'/, (mm, j) => { const d = JSON.parse(j.replace(/&amp;/g, '&')); Object.keys(vals).forEach((k) => { d[k].default = vals[k]; }); return "data-props='" + JSON.stringify(d).replace(/&/g, '&amp;') + "'"; });
+  const pv = props.$preview || { width: 1440, height: 900 };
+  const f = $('#f'); f.style.width = pv.width + 'px'; f.style.height = pv.height + 'px';
+  const st = $('#stage'); const k = Math.min(1, (st.clientWidth - 32) / pv.width);
+  $('#wrap').style.transform = 'scale(' + k + ')'; $('#wrap').style.width = pv.width * k + 'px'; $('#wrap').style.height = pv.height * k + 'px';
+  // Runtime đọc lại chính tài liệu của nó bằng fetch, nên dùng blob: thay cho srcdoc; <base> để ./support.js và ../icons vẫn đúng.
+  const base = '<base href="' + new URL('.', location.href).href + '">';
+  const doc = html.replace(/<head>/i, '<head>' + base);
+  if (f.dataset.url) URL.revokeObjectURL(f.dataset.url);
+  const url = URL.createObjectURL(new Blob([doc], { type: 'text/html' }));
+  f.dataset.url = url; f.src = url;
+}
+$('#q').oninput = renderList;
+window.onresize = () => cur && render();
+window.onhashchange = () => { const h = parseHash(); const b = boards.find((x) => x.name === h.name); if (b && (b !== cur || JSON.stringify(h.v) !== JSON.stringify(vals))) open(b, h.v || {}); };
+load();
+</script>
+</body>
+</html>

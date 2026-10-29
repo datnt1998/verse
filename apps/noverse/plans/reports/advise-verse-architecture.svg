@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800" width="2000" height="1600" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1000" height="800" fill="#15181c"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9aa0a6"/>
+    </marker>
+  </defs>
+  <text x="10" y="24" font-size="16" font-weight="700" fill="#e6e6e6">verse/ — monorepo, 1 Go module, mỗi app một binary</text>
+  <rect x="10" y="40" width="930" height="254" rx="10" fill="none" stroke="#555555"/>
+  <text x="24" y="60" font-size="13" fill="#9aa0a6">apps/ — riêng từng sản phẩm</text>
+  <g font-size="12" fill="#e6e6e6">
+    <rect x="24" y="72" width="290" height="210" rx="8" fill="#1f2328" stroke="#7ee787" stroke-width="1.5"/>
+    <text x="38" y="96" font-size="16" font-weight="700">Noverse</text>
+    <text x="38" y="114" fill="#9aa0a6">viết truyện</text>
+    <rect x="38" y="128" width="125" height="22" rx="11" fill="none" stroke="#7ee787"/>
+    <text x="100.5" y="143" text-anchor="middle">Điều phối</text>
+    <rect x="175" y="128" width="125" height="22" rx="11" fill="none" stroke="#7ee787"/>
+    <text x="237.5" y="143" text-anchor="middle">Kiến trúc sư</text>
+    <rect x="38" y="156" width="125" height="22" rx="11" fill="none" stroke="#7ee787"/>
+    <text x="100.5" y="171" text-anchor="middle">Người viết</text>
+    <rect x="175" y="156" width="125" height="22" rx="11" fill="none" stroke="#7ee787"/>
+    <text x="237.5" y="171" text-anchor="middle">Biên tập viên</text>
+    <text x="38" y="204">host điều phối riêng · tools · store</text>
+    <text x="38" y="222">prompts · eval · web React riêng</text>
+    <line x1="38" y1="238" x2="300" y2="238" stroke="#555555"/>
+    <text x="38" y="262" font-family="Menlo, monospace" font-size="11.5" fill="#9aa0a6">noverse · :8790 · ~/NoverseLive</text>
+    <rect x="328" y="72" width="290" height="210" rx="8" fill="#1f2328" stroke="#f2cc60" stroke-width="1.5"/>
+    <text x="342" y="96" font-size="16" font-weight="700">Viderse</text>
+    <text x="342" y="114" fill="#9aa0a6">kênh YouTube</text>
+    <rect x="342" y="128" width="125" height="22" rx="11" fill="none" stroke="#f2cc60"/>
+    <text x="404.5" y="143" text-anchor="middle">Writer</text>
+    <rect x="479" y="128" width="125" height="22" rx="11" fill="none" stroke="#f2cc60"/>
+    <text x="541.5" y="143" text-anchor="middle">Voice</text>
+    <rect x="342" y="156" width="125" height="22" rx="11" fill="none" stroke="#f2cc60"/>
+    <text x="404.5" y="171" text-anchor="middle">Art</text>
+    <rect x="479" y="156" width="125" height="22" rx="11" fill="none" stroke="#f2cc60"/>
+    <text x="541.5" y="171" text-anchor="middle">Editor</text>
+    <text x="342" y="204">host điều phối riêng · tools · store</text>
+    <text x="342" y="222">prompts · eval · web React riêng</text>
+    <line x1="342" y1="238" x2="604" y2="238" stroke="#555555"/>
+    <text x="342" y="262" font-family="Menlo, monospace" font-size="11.5" fill="#9aa0a6">viderse · :8791* · ~/ViderseLive*</text>
+    <rect x="632" y="72" width="290" height="210" rx="8" fill="#1f2328" stroke="#d2a8ff" stroke-width="1.5"/>
+    <text x="646" y="96" font-size="16" font-weight="700">Soverse</text>
+    <text x="646" y="114" fill="#9aa0a6">lĩnh vực chưa định*</text>
+    <rect x="646" y="128" width="262" height="50" rx="11" fill="none" stroke="#d2a8ff" stroke-dasharray="5 4"/>
+    <text x="777" y="149" text-anchor="middle">tổ agent riêng</text>
+    <text x="777" y="167" text-anchor="middle" fill="#9aa0a6">chưa định*</text>
+    <text x="646" y="204">host điều phối riêng · tools · store</text>
+    <text x="646" y="222">prompts · eval · web React riêng</text>
+    <line x1="646" y1="238" x2="908" y2="238" stroke="#555555"/>
+    <text x="646" y="262" font-family="Menlo, monospace" font-size="11.5" fill="#9aa0a6">soverse · :8792* · ~/SoverseLive*</text>
+  </g>
+  <g stroke="#9aa0a6" stroke-width="1.5" marker-end="url(#arr)">
+    <line x1="169" y1="282" x2="169" y2="328"/>
+    <line x1="473" y1="282" x2="473" y2="328"/>
+    <line x1="777" y1="282" x2="777" y2="328"/>
+  </g>
+  <rect x="10" y="330" width="930" height="100" rx="10" fill="none" stroke="#79c0ff"/>
+  <text x="24" y="350" font-size="13" fill="#9aa0a6">platform/ — nền tảng backend dùng chung</text>
+  <g font-size="12" fill="#e6e6e6">
+    <rect x="24" y="362" width="216" height="56" rx="8" fill="#1f2328" stroke="#79c0ff"/>
+    <text x="36" y="384" font-size="14" font-weight="700">webauth</text>
+    <text x="36" y="404" fill="#9aa0a6">đăng nhập · phiên · thành viên</text>
+    <rect x="253" y="362" width="216" height="56" rx="8" fill="#1f2328" stroke="#79c0ff"/>
+    <text x="265" y="384" font-size="14" font-weight="700">settings</text>
+    <text x="265" y="404" fill="#9aa0a6">provider · vai · chọn model</text>
+    <rect x="482" y="362" width="216" height="56" rx="8" fill="#1f2328" stroke="#79c0ff"/>
+    <text x="494" y="384" font-size="14" font-weight="700">notify</text>
+    <text x="494" y="404" fill="#9aa0a6">thông báo đẩy</text>
+    <rect x="711" y="362" width="216" height="56" rx="8" fill="#1f2328" stroke="#79c0ff"/>
+    <text x="723" y="384" font-size="14" font-weight="700">logger</text>
+    <text x="723" y="404" fill="#9aa0a6">log có cấu trúc</text>
+  </g>
+  <line x1="475" y1="430" x2="475" y2="468" stroke="#9aa0a6" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="10" y="470" width="930" height="190" rx="10" fill="none" stroke="#4ea1ff"/>
+  <text x="24" y="490" font-size="13" fill="#9aa0a6">core/ — lõi agent dùng chung</text>
+  <g font-size="12" fill="#e6e6e6">
+    <rect x="40" y="504" width="400" height="58" rx="8" fill="#1f2328" stroke="#4ea1ff"/>
+    <text x="54" y="526" font-size="14" font-weight="700">agentcore</text>
+    <text x="54" y="548" fill="#9aa0a6">vòng lặp · subagent · ngữ cảnh/phiên · tool · chặn lặp</text>
+    <rect x="510" y="504" width="400" height="58" rx="8" fill="#1f2328" stroke="#4ea1ff"/>
+    <text x="524" y="526" font-size="14" font-weight="700">roles</text>
+    <text x="524" y="548" fill="#9aa0a6">model theo vai · failover · token và chi phí</text>
+    <rect x="40" y="592" width="400" height="56" rx="8" fill="#1f2328" stroke="#4ea1ff"/>
+    <text x="54" y="614" font-size="14" font-weight="700">llmlite</text>
+    <text x="54" y="634" fill="#9aa0a6">providers · registry model · retry · hợp đồng</text>
+    <rect x="510" y="592" width="400" height="56" rx="8" fill="#1f2328" stroke="#4ea1ff"/>
+    <text x="524" y="614" font-size="14" font-weight="700">auth</text>
+    <text x="524" y="634" fill="#9aa0a6">khoá API + OAuth codex / anthropic / xai</text>
+  </g>
+  <g stroke="#9aa0a6" stroke-width="1.5" fill="none" marker-end="url(#arr)">
+    <line x1="240" y1="562" x2="240" y2="590"/>
+    <line x1="710" y1="562" x2="710" y2="590"/>
+    <line x1="560" y1="562" x2="446" y2="610"/>
+    <path d="M940,167 H968 V533 H944"/>
+    <line x1="240" y1="648" x2="240" y2="698"/>
+    <line x1="710" y1="648" x2="710" y2="698"/>
+  </g>
+  <text x="984" y="355" font-size="12" fill="#9aa0a6" text-anchor="middle" transform="rotate(90 984 355)">apps import core trực tiếp</text>
+  <rect x="10" y="700" width="930" height="40" rx="8" fill="none" stroke="#9aa0a6" stroke-dasharray="5 4"/>
+  <text x="475" y="725" font-size="13" fill="#e6e6e6" text-anchor="middle">Nhà cung cấp LLM: OpenAI · Codex · Anthropic · Gemini · OpenRouter · OpenCode Go · Ollama · …</text>
+  <text x="10" y="766" font-size="12" fill="#9aa0a6">Mũi tên = chiều import, chỉ đi xuống: core không import platform/apps · platform không import apps · app không import app khác.</text>
+  <text x="10" y="786" font-size="12" fill="#9aa0a6">* giả định: cổng, thư mục dữ liệu, lĩnh vực và tổ agent của Soverse.</text>
+</svg>

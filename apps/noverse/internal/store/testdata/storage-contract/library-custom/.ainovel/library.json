@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "dirs": {
+    "ideas": "y-tuong",
+    "assets": "tai-san",
+    "stories": "truyen",
+    "exports": "xuat-ban",
+    "audio": "audio"
+  },
+  "slugWords": 5,
+  "autoExport": {
+    "onVolume": true,
+    "onBook": true,
+    "formats": ["txt"],
+    "pattern": "tap-{tap}/{truyen}.tap-{tap}.{ext}",
+    "onExists": "replace"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "architect_long",
+  "category": "smoke",
+  "role": "architect",
+  "description": "Quy hoạch truyện dài tạo được đại cương phân tầng (khung tập/cung) và mở rộng cung đầu, rồi chuyển sang viết.",
+  "prompt": "Viết một bộ huyền huyễn dài hơn hai trăm chương, nhân vật chính mang mối thù diệt môn, từ kẻ vô dụng thức tỉnh rồi từng bước khuấy động cục diện quyền lực của chín đại tông môn.",
+  "max_chapters": 1,
+  "target_prompts": ["architect-long.md"],
+  "expect": {
+    "phase": "writing",
+    "min_completed_chapters": 1,
+    "required_checkpoints": ["global:layered_outline", "chapter:1:commit"],
+    "no_pending": ["pending_commit", "pending_steer"]
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

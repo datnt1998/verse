@@ -1,0 +1,18 @@
+/* Popover `/` — Slash.dc.html: `.crow:hover` dùng .045 (trang Hướng dẫn dùng .04 = .hov-row). */
+.slash-crow:hover { background: rgba(255, 255, 255, .045) !important; }
+
+/* Viên thuốc “Đã chạy …” — `.toast` của Slash.dc.html */
+.slash-toast { animation: ai-slash-toast .3s ease-out both; }
+@keyframes ai-slash-toast { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) { .slash-toast { animation: none !important; } }
+
+/* Chip “Đang viết chương N” ở header trang Hướng dẫn — `.shim` của Commands.dc.html */
+.cmd-shim {
+  background: linear-gradient(90deg, #A0A0AB 0%, #A0A0AB 35%, #F3E8FF 50%, #A0A0AB 65%, #A0A0AB 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: ai-cmd-shim 2.4s linear infinite;
+}
+@keyframes ai-cmd-shim { from { background-position: 100% 0 } to { background-position: -100% 0 } }
+@media (prefers-reduced-motion: reduce) { .cmd-shim { animation: none !important; } }

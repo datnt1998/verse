@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "dirs": {
+    "ideas": "y-tuong",
+    "assets": "tai-san",
+    "stories": "kich_ban",
+    "exports": "xuat-ban",
+    "audio": "audio"
+  },
+  "slugWords": 5,
+  "autoExport": {
+    "onVolume": true,
+    "onBook": true,
+    "onChapter": false,
+    "formats": ["txt", "epub"],
+    "pattern": "tap-{tap}/{truyen}.tap-{tap}.{ext}",
+    "onExists": "replace"
+  }
+}

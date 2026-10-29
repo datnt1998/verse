@@ -1,0 +1,61 @@
+/* D13 · Chất lượng truyện — Quality.dc.html (.qrow, .qcell, .todo…). Lớp mang tiền tố q-
+   để không đụng lớp toàn cục; mọi màu qua token var(--…) trong styles/tokens.stylex.ts.
+   Ba nhóm chọn (Cách xem/Mức/Phạm vi) dùng chung `ui/Tabs.tsx › Segmented` (Câu 14). */
+
+/* Ma trận: 8 cột co giãn; truyện dài cuộn ngang, cột mục luật đứng yên */
+.q-row { display: grid; align-items: center; gap: 4px; padding: 6px 12px; font-size: 13px; }
+.q-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
+.q-long .q-row { gap: 2px; width: max-content; min-width: 100%; padding: 5px 12px 5px 0; }
+.q-long .q-row > :first-child {
+  position: sticky; left: 0; z-index: 2; background: var(--kit-surface-18); padding: 0 10px 0 16px;
+  align-self: stretch; justify-content: center; box-shadow: var(--quality-sticky-shadow);
+}
+.q-long .q-head > :first-child { background: var(--kit-surface-18); }
+.q-long .q-cell { height: 30px; border-radius: 7px; }
+.q-long .q-pe, .q-long .q-pw, .q-long .q-pf, .q-long .q-pk { min-width: 16px; padding: 0 4px; height: 18px; font-size: 10.5px; }
+.q-long .q-st { display: none; }
+.q-long .q-bar i { min-height: 0; }
+.q-row + .q-row { border-top: 1px solid var(--quality-row-line); }
+.q-head { padding-top: 10px; padding-bottom: 8px; font-size: 11.5px; color: var(--color-fg-4); border-bottom: 1px solid var(--line-2); align-items: end; }
+.q-ch { border: none; background: transparent; border-radius: 9px; padding: 4px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; font: inherit; color: inherit; }
+.q-ch[aria-pressed='true'] { background: var(--tint-accent); }
+.q-bar { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+.q-bar i { display: block; width: 6px; border-radius: 2px; min-height: 2px; }
+.q-cell {
+  height: 34px; border: 1px solid transparent; border-radius: 9px; background: transparent; display: flex;
+  align-items: center; justify-content: center; gap: 3px; font: inherit; transition: background .15s, border-color .15s;
+}
+.q-cell:hover { background: var(--kit-wash-4); }
+.q-cell[aria-pressed='true'] { border-color: var(--kit-acc-55); background: var(--kit-acc-7); }
+.q-name {
+  min-width: 0; display: flex; flex-direction: column; padding: 0;
+  border: none; background: transparent; font: inherit; line-height: 1.35; color: inherit; text-align: left;
+}
+.q-pe, .q-pw, .q-pf, .q-pk {
+  height: 20px; min-width: 20px; padding: 0 6px; border-radius: 6px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.q-pe { background: var(--quality-pe-bg); color: var(--kit-err-soft); box-shadow: inset 0 0 0 1px var(--quality-pe-ring); }
+.q-pw { background: var(--kit-warn-20); color: var(--color-warn); box-shadow: inset 0 0 0 1px var(--kit-warn-30); }
+.q-pf { background: var(--tint-ok); color: var(--color-ok); font-weight: 500; }
+.q-pk { background: var(--kit-wash-6); color: var(--color-fg-3); font-weight: 500; }
+.q-chip { height: 20px; padding: 0 7px; border-radius: 6px; display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+
+/* Việc cần làm */
+.q-todo { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: var(--quality-card); border: 1px solid var(--line-2); }
+.q-tq { padding-left: 10px; border-left: 2px solid var(--kit-wash-14); font-family: var(--font-read); font-size: 13.5px; color: var(--kit-fg-quote); line-height: 1.6; }
+.q-tbtn {
+  height: 30px; padding: 0 11px; border-radius: 8px; border: 1px solid var(--line-4); background: transparent;
+  color: var(--color-fg); font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.q-tbtn:hover { background: var(--kit-wash-5); }
+.q-tbtn.pri { background: var(--color-fg); color: var(--color-bg); border-color: transparent; font-weight: 600; }
+.q-tbtn:disabled { opacity: .55; }
+details.q-auto summary { list-style: none; cursor: pointer; }
+details.q-auto summary::-webkit-details-marker { display: none; }
+details.q-auto .q-chev { transition: transform .2s; }
+details.q-auto[open] .q-chev { transform: rotate(90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .q-cell, details.q-auto .q-chev { transition: none; }
+}

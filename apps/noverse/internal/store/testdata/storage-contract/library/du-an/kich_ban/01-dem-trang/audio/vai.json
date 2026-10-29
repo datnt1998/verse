@@ -1,0 +1,6 @@
+{
+  "narrator": {"voiceId": "hai-dang", "name": "Người kể"},
+  "roles": {
+    "thu-thu-tre": {"voiceId": "lam-anh", "name": "Thủ thư trẻ"}
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "ed-timeline-contradiction-2",
+  "category": "quality",
+  "role": "editor",
+  "description": "Biến thể held-out: chương 3 thuật lại đám cháy lúc chạng vạng, trái với mốc gà gáy canh hai ở chương 1, lời bà Dợ ở chương 2 và dòng thời gian đã lưu. Kỳ vọng một issue mức error kèm trích dẫn.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-timeline-contradiction-2",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": false,
+  "expect": {
+    "review": {
+      "must_find": [
+        {
+          "severity_min": "error",
+          "chapter": 3,
+          "quote_contains": "bùng lên lúc chạng vạng"
+        }
+      ]
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

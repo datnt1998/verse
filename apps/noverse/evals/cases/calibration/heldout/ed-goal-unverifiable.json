@@ -1,0 +1,22 @@
+{
+  "id": "ed-goal-unverifiable",
+  "category": "quality",
+  "role": "editor",
+  "description": "Case held-out: cc1 hỏi màu sơn cửa cống có đúng màu ông nội đã chọn trước khi mất hay không, nhưng lịch sử ấy không có trong chương 1-2 lẫn dữ kiện lưu. Đáp án đúng là cc1 unknown; không được bịa pass/fail và không có issue mức error.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-goal-unverifiable",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": true,
+  "expect": {
+    "review": {
+      "must_not_find": [{ "severity_min": "error" }],
+      "goal_status": {
+        "cc1": "unknown"
+      }
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

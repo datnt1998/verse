@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "users": [
+    {
+      "username": "quan-tri-cu",
+      "name": "Quản Trị Cũ",
+      "role": "admin",
+      "books": ["*"],
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$31+FJKVMutInOyA79q/eLw$LJ1fgS6h1UCSpbsiOLOR2gbE2Ok5eSyzO0Wfy3qcols",
+      "createdAt": "2025-06-01T08:00:00Z",
+      "updatedAt": "2025-06-01T08:00:00Z"
+    },
+    {
+      "username": "nguoi-viet-cu",
+      "name": "Người Viết Cũ",
+      "role": "writer",
+      "books": ["du-an/01-dem-trang", "truyen-cu/chap-01"],
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$ZpQx+h7rTrHs0THRkEp+pg$vL3PyPoB0kMNESXHXHiyWpXxAyB7D7PbQe1Fdux87ro",
+      "createdAt": "2025-06-02T08:00:00Z",
+      "updatedAt": "2025-06-02T08:00:00Z"
+    },
+    {
+      "username": "nguoi-doc-cu",
+      "name": "Người Đọc Cũ",
+      "role": "reader",
+      "books": ["truyen-cu"],
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$ZpQx+h7rTrHs0THRkEp+pg$vL3PyPoB0kMNESXHXHiyWpXxAyB7D7PbQe1Fdux87ro",
+      "createdAt": "2025-06-03T08:00:00Z",
+      "updatedAt": "2025-06-03T08:00:00Z"
+    }
+  ],
+  "sessions": [],
+  "pairings": []
+}

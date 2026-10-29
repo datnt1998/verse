@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Đăng nhập điện thoại bằng QR</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.breathe{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.ghost:active{background:rgba(255,255,255,.07) !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:48px;padding:0 14px;border-radius:12px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none;width:100%}
+.field:focus{border-color:rgba(201,166,245,.6)}
+.field::placeholder{color:#5E5E68}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+.ring-run{position:absolute;inset:-1px;border-radius:19px;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--a),transparent 0deg,transparent 190deg,#5A57E3 240deg,#9A63E3 280deg,#C9457F 315deg,#5DC1B0 345deg,transparent 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:rot 4.5s linear infinite}
+.ring-glow{position:absolute;inset:-2px;border-radius:20px;pointer-events:none;background:conic-gradient(from var(--a),transparent 0deg,transparent 190deg,#5A57E3 240deg,#9A63E3 280deg,#C9457F 315deg,#5DC1B0 345deg,transparent 360deg);filter:blur(14px);opacity:.4;animation:rot 4.5s linear infinite}
+@keyframes rot{to{--a:360deg}}
+.toast{animation:toast .4s ease-out both}
+.scanline{position:absolute;left:8px;right:8px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#C9A6F5 20%,#F3E8FF 50%,#C9A6F5 80%,transparent);box-shadow:0 0 18px 4px rgba(201,166,245,.45);animation:scan 2.2s ease-in-out infinite}
+@keyframes scan{0%{top:10px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% - 12px);opacity:0}}
+.lock{animation:lockin .35s ease-out both}
+@keyframes lockin{from{transform:translate(-50%,-50%) scale(1.08)}to{transform:translate(-50%,-50%) scale(1)}}
+@keyframes toast{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-camera-b{-webkit-mask-image:url(../icons/camera-bulk.svg);mask-image:url(../icons/camera-bulk.svg)}
+.i-camera-off{-webkit-mask-image:url(../icons/camera-slash.svg);mask-image:url(../icons/camera-slash.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-flash{-webkit-mask-image:url(../icons/flash.svg);mask-image:url(../icons/flash.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-login{-webkit-mask-image:url(../icons/login.svg);mask-image:url(../icons/login.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-scan{-webkit-mask-image:url(../icons/scan-barcode.svg);mask-image:url(../icons/scan-barcode.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+.i-wifi{-webkit-mask-image:url(../icons/wifi.svg);mask-image:url(../icons/wifi.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; min-height: 640px; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column">
+
+<!-- ═══ Quét mã QR bằng camera ═══ -->
+<sc-if value="{{isCam}}" hint-placeholder-val="{{ false }}">
+<div style="position: relative; flex: 1; min-height: 0; overflow: hidden; background: #050506">
+<!-- Hình camera mô phỏng: màn hình máy tính đang hiện mã QR -->
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 38%, #1c1c22 0%, #0c0c0f 60%, #050506 100%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 50%; top: 36%; width: 420px; height: 300px; transform: translate(-50%, -50%) perspective(700px) rotateX(10deg) rotateZ(-4deg); border-radius: 16px; background: #141418; box-shadow: 0 40px 80px rgba(0,0,0,0.7); filter: blur(0.4px)">
+<div style="position: absolute; left: 18px; top: 16px; width: 120px; height: 8px; border-radius: 4px; background: #24242a"></div>
+<div style="position: absolute; left: 18px; top: 32px; width: 80px; height: 8px; border-radius: 4px; background: #1e1e23"></div>
+<div style="position: absolute; left: 50%; top: 54%; width: 172px; height: 172px; transform: translate(-50%, -50%); padding: 12px; border-radius: 12px; background: #F4F4F6; box-shadow: {{qrGlow}}"><svg viewBox="-2 -2 33 33" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="33" height="33" fill="#FFFFFF"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM19 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM15 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM12 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM26 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM19 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM22 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1z" fill="#0B0B0D"/></svg></div>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; backdrop-filter: blur({{camBlur}}); -webkit-backdrop-filter: blur({{camBlur}})"></div>
+
+<!-- Khung ngắm -->
+<div style="position: absolute; left: 50%; top: 36%; width: 236px; height: 236px; transform: translate(-50%, -50%); border-radius: 26px; box-shadow: 0 0 0 999px rgba(5,5,7,0.58)" class="{{frameCls}}">
+<sc-for list="{{corners}}" as="c" hint-placeholder-count="4"><span aria-hidden="true" style="position: absolute; width: 38px; height: 38px; {{c.pos}}; border-color: {{frameColor}}; border-style: solid; border-width: {{c.bw}}; border-radius: {{c.br}}"></span></sc-for>
+<sc-if value="{{scanning}}" hint-placeholder-val="{{ true }}"><span class="scanline" aria-hidden="true"></span></sc-if>
+</div>
+
+<!-- Thanh trên -->
+<div style="position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 14px 14px">
+<button class="ghost" type="button" onClick="{{toLogin}}" aria-label="Đóng camera" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(20,20,24,0.7); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true"></span></button>
+<span style="font-size: 15px; font-weight: 600; text-shadow: 0 1px 8px rgba(0,0,0,0.6)">Quét mã đăng nhập</span>
+<button class="ghost" type="button" onClick="{{toggleTorch}}" aria-pressed="{{torch}}" aria-label="Đèn flash" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: {{torchBg}}; color: {{torchFg}}; display: flex; align-items: center; justify-content: center"><span class="ic i-flash" aria-hidden="true"></span></button>
+</div>
+
+<!-- Tấm dưới -->
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 16px 26px; border-radius: 24px 24px 0 0; background: #131315; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 14px">
+<div aria-hidden="true" style="align-self: center; width: 36px; height: 4px; border-radius: 4px; background: #2A2A2E"></div>
+<sc-if value="{{scanning}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 4px; text-align: center"><span style="font-size: 16px; font-weight: 600">Hướng camera vào mã QR trên máy tính</span><span style="font-size: 13px; color: #A0A0AB">Giữ điện thoại cách màn hình khoảng 20–30 cm</span></div>
+<div style="display: flex; gap: 12px; padding: 12px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<span aria-hidden="true" style="width: 36px; height: 36px; flex: 0 0 auto; border-radius: 10px; background: #1E1E21; display: flex; align-items: center; justify-content: center; color: #C9A6F5"><span class="ic i-monitor" style="width: 18px; height: 18px"></span></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500">Chưa thấy mã trên máy tính?</span><span style="font-size: 12.5px; color: #A0A0AB">Mở Noverse trên máy tính → bấm ảnh đại diện → <span style="color: #EDEDEF">Đăng nhập điện thoại bằng QR</span></span></span>
+</div>
+<span role="status" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: #A0A0AB"><span class="spinner" aria-hidden="true" style="width: 14px; height: 14px"></span>Đang tìm mã…</span>
+</sc-if>
+<sc-if value="{{found}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: center; gap: 12px; padding: 4px 0">
+<span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(166,237,193,0.12); box-shadow: 0 0 0 1px rgba(166,237,193,0.3), 0 0 24px -6px rgba(166,237,193,0.5); display: flex; align-items: center; justify-content: center; color: #A6EDC1"><span class="ic i-tick-b" style="width: 24px; height: 24px"></span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">Đã nhận mã đăng nhập</span><span style="font-size: 13px; color: #A0A0AB">Đang mở bước xác nhận…</span></span>
+</div>
+</sc-if>
+<sc-if value="{{wrong}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.22)">
+<span class="ic i-warning" aria-hidden="true" style="color: #F6CB8C; margin-top: 1px"></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Đây không phải mã đăng nhập Noverse</span><span style="font-size: 13px; color: #C9C9D1">Hãy quét mã trong hộp thoại “Đăng nhập điện thoại bằng QR” trên máy tính của bạn.</span></span>
+</div>
+<span role="status" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: #A0A0AB"><span class="spinner" aria-hidden="true" style="width: 14px; height: 14px"></span>Vẫn đang tìm mã…</span>
+</sc-if>
+<button class="ghost" type="button" onClick="{{toPassword}}" style="height: 44px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 15px">Đăng nhập bằng mật khẩu</button>
+</div>
+</div>
+</sc-if>
+
+<!-- ═══ Không mở được camera ═══ -->
+<sc-if value="{{isBlocked}}" hint-placeholder-val="{{ false }}">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 14px 14px 6px">
+<button class="ghost" type="button" onClick="{{toLogin}}" aria-label="Quay lại" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: #131315; color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-l" aria-hidden="true"></span></button>
+<span style="font-size: 15px; font-weight: 600">Quét mã đăng nhập</span>
+</header>
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+<span aria-hidden="true" style="width: 64px; height: 64px; border-radius: 20px; background: #1E1E21; display: flex; align-items: center; justify-content: center; color: #F6CB8C"><span class="ic i-camera-off" style="width: 30px; height: 30px"></span></span>
+<div><h1 style="margin: 0; font-size: 21px; font-weight: 600">Chưa mở được camera ở đây</h1><p style="margin: 8px 0 0; font-size: 14px; color: #A0A0AB">Không sao — ứng dụng Camera của điện thoại quét được mã này, còn nhanh hơn.</p></div>
+</div>
+<div class="card" style="border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span class="ic i-camera-b" aria-hidden="true" style="width: 18px; height: 18px; color: #C9A6F5"></span>Dùng ứng dụng Camera</span>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+<sc-for list="{{camSteps}}" as="c" hint-placeholder-count="3"><li style="display: flex; gap: 10px"><span class="num" style="width: 22px; height: 22px; flex: 0 0 auto; border-radius: 50%; background: #222225; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">{{c.n}}</span><span>{{c.t}}</span></li></sc-for>
+</ol>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: #A0A0AB">
+<span style="font-size: 13px; font-weight: 500; color: #C9C9D1">Vì sao không mở được?</span>
+<span>• Bạn đã chặn quyền camera cho trang này — bật lại trong phần cài đặt trang web của trình duyệt.</span>
+<span>• Trình duyệt chỉ cho dùng camera khi kết nối được bảo mật, nên khi mở Noverse qua Wi-Fi nhà có thể không dùng được.</span>
+</div>
+</main>
+<footer style="flex: 0 0 auto; padding: 12px 16px 26px; display: flex; flex-direction: column; gap: 8px">
+<button class="primary" type="button" onClick="{{toScan}}" style="height: 50px; border-radius: 14px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><span class="ic i-refresh" aria-hidden="true"></span>Thử mở camera lại</button>
+<button class="ghost" type="button" onClick="{{toPassword}}" style="height: 44px; border-radius: 14px; border: none; background: transparent; color: #A0A0AB; font-size: 15px">Đăng nhập bằng mật khẩu</button>
+</footer>
+</sc-if>
+
+<!-- ═══ Màn ngoài (chưa đăng nhập) ═══ -->
+<sc-if value="{{isGate}}" hint-placeholder-val="{{ true }}">
+<header style="flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 6px">
+<div style="display: flex; align-items: center; gap: 8px">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 27.4px; height: 20px"><span style="position: absolute; left: 0.05px; top: 4.49px; width: 11.12px; height: 11.12px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.17px; top: 0.0px; width: 13.07px; height: 13.07px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 16.24px; top: 4.98px; width: 11.12px; height: 11.12px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 8.73px; top: 10.05px; width: 9.95px; height: 9.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span class="nv-word" style="font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.012em">Noverse</span>
+</div>
+<span style="display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: #131315; border: 1px solid rgba(255,255,255,0.07); font-size: 11.5px; color: #A0A0AB"><span class="ic i-wifi" aria-hidden="true" style="width: 13px; height: 13px"></span><span>Wi-Fi nhà</span></span>
+</header>
+
+<main class="scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 22px 16px 16px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<div aria-hidden="true" style="position: relative; width: 84px; height: 64px">
+<div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,99,227,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
+<sc-if value="{{isInvalid}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 20px; top: 10px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,154,162,0.12); display: flex; align-items: center; justify-content: center; color: #FF9AA2"><span class="ic i-close-b" style="width: 26px; height: 26px"></span></span></sc-if>
+<sc-if value="{{showOrbs}}" hint-placeholder-val="{{ true }}">
+<span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
+<span class="orb o-writer breathe" style="position: absolute; left: 22px; top: 0; width: 40px; height: 40px; animation-delay: -0.9s"></span>
+<span class="orb o-editor breathe" style="position: absolute; left: 50px; top: 16px; width: 32px; height: 32px; animation-delay: -1.8s"></span>
+<span class="orb o-arbiter breathe" style="position: absolute; left: 28px; top: 34px; width: 28px; height: 28px; animation-delay: -2.7s"></span>
+</sc-if>
+</div>
+<div>
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1>
+<p style="margin: 8px 0 0; font-size: 14px; color: #A0A0AB">{{sub}}</p>
+</div>
+</div>
+
+<sc-if value="{{isConfirm}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="border-radius: 16px; padding: 4px 14px">
+<sc-for list="{{facts}}" as="f" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: {{f.bt}}">
+<span class="ic {{f.icon}}" aria-hidden="true" style="color: #A0A0AB"></span>
+<span style="flex: 1; font-size: 13px; color: #A0A0AB">{{f.k}}</span>
+<span class="{{f.cls}}" style="font-size: 13px; color: #EDEDEF; text-align: right">{{f.v}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 10px; padding: 12px 14px; border-radius: 14px; background: rgba(246,203,140,0.06); border: 1px solid rgba(246,203,140,0.18); font-size: 13px; color: #C9C9D1">
+<span class="ic i-shield" aria-hidden="true" style="width: 16px; height: 16px; color: #F6CB8C; margin-top: 2px"></span>
+<span>Chỉ tiếp tục nếu chính bạn vừa quét mã trên máy tính của mình. Khi ở ngoài nhà, hãy dùng Tailscale thay vì Wi-Fi công cộng.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isInvalid}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">Lấy mã mới trên máy tính</span>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+<li style="display: flex; gap: 10px"><span class="num" style="width: 22px; height: 22px; flex: 0 0 auto; border-radius: 50%; background: #222225; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">1</span><span>Bấm ảnh đại diện → <b style="font-weight: 500">Đăng nhập điện thoại bằng QR</b></span></li>
+<li style="display: flex; gap: 10px"><span class="num" style="width: 22px; height: 22px; flex: 0 0 auto; border-radius: 50%; background: #222225; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">2</span><span>Bấm <b style="font-weight: 500">Tạo mã mới</b>, quét lại bằng Camera</span></li>
+</ol>
+<span style="font-size: 12.5px; color: #7E7E8A">Mỗi mã chỉ dùng một lần và hết hạn sau 5 phút.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isLogin}}" hint-placeholder-val="{{ false }}">
+<button class="card" type="button" onClick="{{toScan}}" style="border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center; color: #EDEDEF; text-align: left; border-color: rgba(201,166,245,0.3)">
+<span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(201,166,245,0.12); display: flex; align-items: center; justify-content: center; color: #C9A6F5"><span class="ic i-scan" style="width: 22px; height: 22px"></span></span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14.5px; font-weight: 600">Quét mã QR để đăng nhập</span><span style="font-size: 12.5px; color: #A0A0AB">Nhanh hơn, không cần gõ mật khẩu</span></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 18px; height: 18px; color: #7E7E8A"></span>
+</button>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #7E7E8A"><span style="flex: 1; height: 1px; background: rgba(255,255,255,0.07)"></span>hoặc dùng mật khẩu<span style="flex: 1; height: 1px; background: rgba(255,255,255,0.07)"></span></div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="m-user" class="lbl">Tên đăng nhập</label><input id="m-user" class="field mono" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="vd: dat"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="m-pass" class="lbl">Mật khẩu</label><input id="m-pass" class="field" type="password" autocomplete="current-password" placeholder="Ít nhất 8 ký tự"></div>
+</div>
+</sc-if>
+</main>
+
+<footer style="flex: 0 0 auto; padding: 12px 16px 26px; display: flex; flex-direction: column; gap: 8px; background: linear-gradient(180deg, rgba(11,11,13,0) 0%, #0B0B0D 30%)">
+<button class="primary" type="button" onClick="{{primary}}" disabled="{{busy}}" style="height: 50px; border-radius: 14px; border: none; background: {{pBg}}; color: {{pFg}}; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+<sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="border-color: rgba(255,255,255,0.15); border-top-color: #EDEDEF"></span></sc-if>
+<sc-if value="{{pIcon}}" hint-placeholder-val="{{ true }}"><span class="ic i-login" aria-hidden="true"></span></sc-if>
+{{pLabel}}
+</button>
+<sc-if value="{{hasSecondary}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" style="height: 44px; border-radius: 14px; border: none; background: transparent; color: #A0A0AB; font-size: 15px">{{secondary}}</button></sc-if>
+<span style="text-align: center; font-size: 12px; color: #7E7E8A">Phiên giữ 30 ngày trên điện thoại này</span>
+</footer>
+</sc-if>
+
+<!-- ═══ Bàn viết trên điện thoại (sau khi vào) ═══ -->
+<sc-if value="{{isHome}}" hint-placeholder-val="{{ false }}">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 27.4px; height: 20px"><span style="position: absolute; left: 0.05px; top: 4.49px; width: 11.12px; height: 11.12px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.17px; top: 0.0px; width: 13.07px; height: 13.07px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 16.24px; top: 4.98px; width: 11.12px; height: 11.12px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 8.73px; top: 10.05px; width: 9.95px; height: 9.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 11.5px; color: #7E7E8A" >Kênh truyện audio · Tập 1</span><span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</span></div>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</header>
+<div role="status" class="toast" style="position: absolute; top: 62px; left: 14px; right: 14px; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #1C1C1F; border: 1px solid rgba(166,237,193,0.3); box-shadow: 0 14px 30px -12px rgba(0,0,0,0.9); font-size: 13px">
+<span class="ic i-tick-b" aria-hidden="true" style="color: #A6EDC1"></span><span style="flex: 1">Xin chào Dat · phiên đến <span class="num">23/11/2026</span></span><button class="ghost" type="button" aria-label="Đóng thông báo" style="width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: #7E7E8A; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" style="width: 16px; height: 16px"></span></button>
+</div>
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 66px 14px 12px; display: flex; flex-direction: column; gap: 12px">
+<div class="card" style="border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span class="orb o-writer breathe" aria-hidden="true" style="width: 34px; height: 34px"></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Người viết đang viết chương 5</span><span class="shim" style="font-size: 12.5px">Đang suy nghĩ · 5,5 giây</span></div>
+<span style="height: 24px; padding: 0 9px; display: flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 11.5px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #A6EDC1"></span>Đang chạy</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; font-size: 12px; color: #A0A0AB"><span>Tiến độ tập 1</span><span class="num">4 / 8 chương</span></div><div aria-hidden="true" style="height: 4px; border-radius: 4px; background: #1E1E21"><div style="width: 50%; height: 100%; border-radius: 4px; background: #EDEDEF"></div></div></div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 4px 2px 0"><span class="lbl">Nhật ký tiến độ</span><span style="font-size: 12px; color: #7E7E8A">mới nhất</span></div>
+<div class="card" style="border-radius: 16px; padding: 4px 12px">
+<sc-for list="{{feed}}" as="e" hint-placeholder-count="4">
+<div style="display: flex; gap: 10px; padding: 10px 0; border-top: {{e.bt}}">
+<span class="orb {{e.orb}}" aria-hidden="true" style="width: 18px; height: 18px; margin-top: 2px"></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px"><span style="font-weight: 500">{{e.agent}}</span> · {{e.text}}</span><span class="mono num" style="font-size: 11.5px; color: #7E7E8A">{{e.time}}</span></div>
+<sc-if value="{{e.run}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 13px; height: 13px; margin-top: 4px"></span></sc-if>
+<sc-if value="{{e.done}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; color: #A6EDC1; margin-top: 3px"></span></sc-if>
+</div>
+</sc-for>
+</div>
+</main>
+<div style="flex: 0 0 auto; padding: 8px 12px 6px">
+<div style="position: relative; border-radius: 18px">
+<div class="ring-glow" aria-hidden="true"></div>
+<div class="ring-run" aria-hidden="true"></div>
+<div style="position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 14px; border-radius: 18px; background: #18181A; border: 1px solid rgba(255,255,255,0.08)">
+<label for="m-in" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Can thiệp cốt truyện</label>
+<input id="m-in" type="text" placeholder="Can thiệp cốt truyện…" style="flex: 1; min-width: 0; height: 40px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 16px">
+<button type="button" aria-label="Tạm dừng" style="width: 40px; height: 40px; border-radius: 12px; border: none; background: #EDEDEF; color: #0B0B0D; display: flex; align-items: center; justify-content: center"><span class="ic i-pause" aria-hidden="true" style="width: 18px; height: 18px"></span></button>
+</div>
+</div>
+</div>
+<nav aria-label="Điều hướng" style="flex: 0 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 4px 6px 22px; border-top: 1px solid rgba(255,255,255,0.06); background: #0B0B0D">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<span aria-current="{{t.cur}}" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 0 2px; color: {{t.fg}}; font-size: 11px; font-weight: {{t.fw}}"><span class="ic {{t.icon}}" aria-hidden="true" style="width: 21px; height: 21px"></span>{{t.label}}</span>
+</sc-for>
+</nav>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["scan","scanFound","scanWrong","cameraBlocked","confirm","pairing","invalid","login","home"],"default":"scan","section":"Màn"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { local: null, forProp: null, torch: false }; }
+  renderVals() {
+    const prop = this.props.state || 'scan';
+    const s = this.state;
+    const view = s.forProp === prop && s.local ? s.local : prop;
+    const go = (v) => this.setState({ local: v, forProp: prop });
+    const isConfirm = view === 'confirm' || view === 'pairing';
+    const busy = view === 'pairing';
+    const h1 = view === 'invalid' ? 'Không dùng được mã này' : view === 'login' ? 'Đăng nhập Noverse' : 'Đăng nhập trên điện thoại này?';
+    const sub = view === 'invalid' ? 'Mã QR không hợp lệ, đã dùng hoặc đã hết hạn' : view === 'login' ? 'Thư viện truyện trên máy tính của bạn' : 'Bạn vừa quét mã đăng nhập từ máy tính. Mã chỉ dùng một lần.';
+    const facts = [
+      { icon: 'i-book', k: 'Thư viện', v: 'Truyen', cls: '' },
+      { icon: 'i-mobile', k: 'Thiết bị', v: 'iPhone · Safari', cls: '' },
+      { icon: 'i-clock', k: 'Phiên đăng nhập', v: '30 ngày · đến 23/11', cls: 'num' }
+    ].map((f, i) => Object.assign({}, f, { bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none' }));
+    return {
+      isCam: ['scan', 'scanFound', 'scanWrong'].indexOf(view) >= 0, isBlocked: view === 'cameraBlocked',
+      scanning: view === 'scan', found: view === 'scanFound', wrong: view === 'scanWrong',
+      frameColor: view === 'scanFound' ? '#A6EDC1' : view === 'scanWrong' ? '#F6CB8C' : '#FFFFFF', frameCls: view === 'scanFound' ? 'lock' : '',
+      qrGlow: view === 'scanFound' ? '0 0 0 3px rgba(166,237,193,0.7), 0 0 40px rgba(166,237,193,0.45)' : 'none', camBlur: view === 'scanFound' ? '0px' : '0.6px',
+      corners: [['top: -3px; left: -3px', '4px 0 0 4px', '22px 0 0 0'], ['top: -3px; right: -3px', '4px 4px 0 0', '0 22px 0 0'], ['bottom: -3px; left: -3px', '0 0 4px 4px', '0 0 0 22px'], ['bottom: -3px; right: -3px', '0 4px 4px 0', '0 0 22px 0']].map(([pos, bw, br]) => ({ pos, bw, br })),
+      torch: s.torch, toggleTorch: () => this.setState({ torch: !s.torch }), torchBg: s.torch ? '#EDEDEF' : 'rgba(20,20,24,0.7)', torchFg: s.torch ? '#0B0B0D' : '#EDEDEF',
+      toLogin: () => go('login'), toPassword: () => go('login'), toScan: () => { go('scan'); setTimeout(() => this.setState({ local: 'scanFound', forProp: prop }), 2600); setTimeout(() => this.setState({ local: 'confirm', forProp: prop }), 3800); },
+      camSteps: [{ n: 1, t: 'Mở ứng dụng Camera của điện thoại' }, { n: 2, t: 'Hướng vào mã QR trên máy tính' }, { n: 3, t: 'Chạm vào đường liên kết Noverse hiện ra' }],
+      isGate: ['home', 'scan', 'scanFound', 'scanWrong', 'cameraBlocked'].indexOf(view) < 0, isHome: view === 'home', isConfirm, isInvalid: view === 'invalid', isLogin: view === 'login', showOrbs: view !== 'invalid',
+      h1, sub, facts, busy,
+      pLabel: busy ? 'Đang đăng nhập…' : view === 'invalid' ? 'Đăng nhập bằng mật khẩu' : 'Đăng nhập', pIcon: !busy && view !== 'invalid',
+      pBg: busy ? '#2A2A2E' : '#EDEDEF', pFg: busy ? '#A0A0AB' : '#0B0B0D',
+      primary: () => { if (view === 'confirm') { go('pairing'); setTimeout(() => go('home'), 1400); } else if (view === 'invalid') go('login'); else if (view === 'login') go('home'); },
+      hasSecondary: view !== 'login', secondary: view === 'invalid' ? 'Đóng' : 'Huỷ — không phải tôi',
+      feed: [
+        { orb: 'o-writer', agent: 'Người viết', text: 'đang viết bản nháp chương 5', time: '21:52', run: true },
+        { orb: 'o-architect', agent: 'Kiến trúc sư', text: 'lập kế hoạch chương 5 · 6 cảnh', time: '21:49', done: true },
+        { orb: 'o-editor', agent: 'Biên tập viên', text: 'thẩm duyệt chương 4 · đạt', time: '21:47', done: true },
+        { orb: 'o-arbiter', agent: 'Trọng tài', text: 'nhận can thiệp: đẩy tuyến tình cảm lên chương 4', time: '21:31', done: true }
+      ].map((e, i) => Object.assign({ run: false, done: false }, e, { bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none' })),
+      tabs: [
+        { label: 'Bàn viết', icon: 'i-category-b', cur: 'page', fg: '#EDEDEF', fw: 600 },
+        { label: 'Nhật ký', icon: 'i-activity', cur: 'false', fg: '#7E7E8A', fw: 400 },
+        { label: 'Đọc', icon: 'i-book', cur: 'false', fg: '#7E7E8A', fw: 400 },
+        { label: 'Dự án', icon: 'i-folder', cur: 'false', fg: '#7E7E8A', fw: 400 }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "quality": "standard",
+  "autoOnLock": false,
+  "normalize": {
+    "enabled": true,
+    "targetLufs": -16
+  }
+}

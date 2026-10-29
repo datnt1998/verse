@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Thành viên</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.nav{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 10px;border:none;border-radius:9px;background:transparent;color:#A0A0AB;font-size:13.5px;text-align:left;text-decoration:none}
+.nav:hover{background:rgba(255,255,255,.04);color:#EDEDEF}
+.nav.on{background:#1C1C1F;color:#EDEDEF;font-weight:500}
+.ngrp{padding:16px 10px 6px;font-size:11px;font-weight:600;letter-spacing:.08em;color:#6E6E78;display:flex;align-items:center;gap:6px}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:#141416;border:1px solid rgba(255,255,255,.07)}
+.seg button{height:30px;padding:0 12px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.seg button[aria-pressed=true],.seg button.on{background:#232326;color:#EDEDEF;font-weight:500}
+.urow{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:none;border-radius:12px;background:transparent;color:#EDEDEF;text-align:left}
+.urow:hover{background:rgba(255,255,255,.035)}
+.urow[aria-current=true]{background:#1C1C1F;box-shadow:inset 0 0 0 1px rgba(201,166,245,.28)}
+.chipr{height:22px;padding:0 8px;border-radius:6px;font-size:11.5px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:0 0 auto}
+.fchip{height:28px;padding:0 9px;border-radius:999px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#A0A0AB;font-size:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.fchip[aria-pressed=true]{background:rgba(201,166,245,.1);border-color:rgba(201,166,245,.4);color:#EDEDEF}
+.sec{display:flex;flex-direction:column;gap:10px;padding:18px 0;border-top:1px solid rgba(255,255,255,.06)}
+.sech{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600}
+.sech .sub{font-size:12.5px;font-weight:400;color:#8E8E99}
+.rcard{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#131315;color:#EDEDEF;text-align:left;width:100%}
+.rcard[aria-checked=true]{border-color:rgba(201,166,245,.5);background:rgba(201,166,245,.06)}
+.rcard[disabled]{opacity:.55;cursor:not-allowed}
+.rdot{width:16px;height:16px;margin-top:2px;border-radius:50%;border:1.5px solid #5E5E68;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.rdot i{width:8px;height:8px;border-radius:50%;background:transparent}
+.rcard[aria-checked=true] .rdot{border-color:#C9A6F5}
+.rcard[aria-checked=true] .rdot i{background:#C9A6F5}
+.prow{position:relative;display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.05)}
+.prow:first-child{border-top:none}
+.rsel{height:32px;min-width:136px;padding:0 10px 0 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:#0F0F11;color:#EDEDEF;font-size:13px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.rsel:hover:not([disabled]){border-color:rgba(255,255,255,.2)}
+.rsel[aria-expanded=true]{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.12)}
+.rsel[disabled]{opacity:.6;cursor:not-allowed}
+.rmenu{position:absolute;right:12px;top:calc(100% - 4px);z-index:20;width:300px;padding:6px;border-radius:12px;background:#1A1A1D;border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 60px -16px rgba(0,0,0,.9);animation:popIn .16s ease-out both}
+.ropt{display:flex;align-items:flex-start;gap:10px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:transparent;color:#EDEDEF;text-align:left}
+.ropt:hover,.ropt[aria-selected=true]{background:rgba(255,255,255,.05)}
+@keyframes popIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
+.mx{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px 78px;font-size:12.5px}
+.mx>span{padding:7px 8px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center}
+.mx>span.c{justify-content:center}
+.mx>span.h{border-top:none;color:#8E8E99;font-size:11.5px}
+.drow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.05)}
+.drow:first-child{border-top:none}
+.dz{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,154,162,.18);background:rgba(255,154,162,.03)}
+.btn{height:32px;padding:0 12px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none;flex:0 0 auto}
+.btn:hover:not([disabled]){background:rgba(255,255,255,.06)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.red{border-color:rgba(255,154,162,.35);color:#FFB3BA}
+.btn.pri{border:none;background:#EDEDEF;color:#0B0B0D;font-weight:600}
+.btn.pri:hover:not([disabled]){background:#fff}
+.inp{height:38px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0F0F11;color:#EDEDEF;font:inherit;font-size:14px;width:100%;min-width:0;outline:none}
+.inp:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.12)}
+.inp[aria-invalid=true]{border-color:rgba(255,154,162,.6)}
+.flbl{font-size:12.5px;color:#A0A0AB;font-weight:500}
+.scrim{position:absolute;inset:0;z-index:50;background:rgba(5,5,7,.66);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px;animation:fade .2s ease-out both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.mdl{width:560px;max-width:100%;max-height:calc(100% - 24px);display:flex;flex-direction:column;border-radius:20px;background:#161618;border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 90px -20px rgba(0,0,0,.95);animation:mIn .28s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes mIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.cred{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06)}
+.cred:first-child{border-top:none}
+.lrow{display:grid;grid-template-columns:52px 30px minmax(0,1fr);gap:12px;align-items:flex-start;padding:12px 16px;border-top:1px solid rgba(255,255,255,.05)}
+.lrow:first-child{border-top:none}
+.lday{padding:14px 2px 6px;font-size:12px;font-weight:600;color:#8E8E99;letter-spacing:.02em}
+.savebar{position:absolute;left:calc(50% + 124px);bottom:20px;z-index:30;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:10px 10px 10px 18px;border-radius:16px;background:rgba(30,30,33,.96);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 50px -16px rgba(0,0,0,.9);animation:sbIn .4s cubic-bezier(.2,.9,.25,1.15) both;white-space:nowrap}
+@keyframes sbIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+.toast{position:absolute;left:calc(50% + 124px);bottom:24px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:13.5px;white-space:nowrap;animation:sbIn .3s ease-out both}
+.drawer{animation:dIn .3s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes dIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-cloud{-webkit-mask-image:url(../icons/cloud-connection.svg);mask-image:url(../icons/cloud-connection.svg)}
+.i-code{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
+.i-coin{-webkit-mask-image:url(../icons/coin-1.svg);mask-image:url(../icons/coin-1.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-edit-r{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-help{-webkit-mask-image:url(../icons/message-question.svg);mask-image:url(../icons/message-question.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-logout{-webkit-mask-image:url(../icons/logout.svg);mask-image:url(../icons/logout.svg)}
+.i-messages{-webkit-mask-image:url(../icons/messages-2.svg);mask-image:url(../icons/messages-2.svg)}
+.i-minus{-webkit-mask-image:url(../icons/minus.svg);mask-image:url(../icons/minus.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
+.i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-unlock{-webkit-mask-image:url(../icons/unlock.svg);mask-image:url(../icons/unlock.svg)}
+.i-user-add{-webkit-mask-image:url(../icons/user-add.svg);mask-image:url(../icons/user-add.svg)}
+.i-users{-webkit-mask-image:url(../icons/profile-2user.svg);mask-image:url(../icons/profile-2user.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased">
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a href="Outline.dc.html" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<a href="Outline.dc.html" style="min-width: 0; font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</a>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a class="navl" href="Main.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-category" aria-hidden="true" style="width: 16px; height: 16px"></span>Bàn viết</a>
+<a class="navl" href="Outline.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a class="navl" href="Transcript.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a href="Settings.dc.html" aria-current="page" aria-label="Tuỳ chỉnh" style="height: 32px; padding: 0 12px 0 10px; border-radius: 8px; display: flex; align-items: center; gap: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-setting-b" aria-hidden="true" style="width: 17px; height: 17px; color: #C9A6F5"></span>Tuỳ chỉnh</a>
+<span class="av" aria-label="Tài khoản: Dat · Quản trị" style="position: relative; width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+
+<div style="flex: 1 1 auto; min-height: 0; display: flex">
+<!-- NAV -->
+<aside class="scroll" aria-label="Mục tuỳ chỉnh" style="flex: 0 0 248px; padding: 10px 10px 20px; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column">
+<div class="ngrp" style="padding-top: 8px">SÁNG TÁC</div>
+<a class="nav" href="Settings.dc.html"><span class="ic i-edit-r" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Quy tắc chung</span><span class="num" style="font-size: 12px; color: #7E7E8A">1</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-note" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Cách viết</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-cpu" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Trợ lý AI</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-coin" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Ngân sách</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-doc" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Thông tin truyện</span></a>
+<div class="ngrp"><span class="ic i-crown" aria-hidden="true" style="width: 12px; height: 12px; color: #B89A6E"></span>HỆ THỐNG · QUẢN TRỊ</div>
+<a class="nav" href="SysBrain.dc.html"><span class="ic i-lamp" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.3"><span>Não hệ thống</span><span style="font-size: 11.5px; color: #7E7E8A">Bài học từ mọi truyện</span></span><span class="num" style="height: 18px; min-width: 18px; padding: 0 5px; border-radius: 9px; background: rgba(201,166,245,0.18); color: #DCC8F8; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">4</span></a>
+<a class="nav on" href="Members.dc.html" aria-current="page"><span class="ic i-users" aria-hidden="true" style="width: 17px; height: 17px; color: #C9A6F5"></span><span style="flex: 1 1 auto">Thành viên</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{navN}}</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-cloud" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Kết nối AI</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-export" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Xuất tự động</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-notify" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Báo động máy chủ</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-monitor" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Giao diện</span></a>
+<a class="nav" href="Settings.dc.html"><span class="ic i-code" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1 1 auto">Nâng cao</span></a>
+<div style="margin-top: auto; padding: 14px 10px 0; font-size: 12px; color: #6E6E78; line-height: 1.5">Chỉ quản trị thấy mục Thành viên. Người khác tự đổi tên, mật khẩu và thiết bị của mình ở menu tài khoản.</div>
+</aside>
+
+<!-- CONTENT -->
+<main style="flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 18px 28px 0">
+<div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 16px; padding-bottom: 14px">
+<div style="flex: 1 1 auto; min-width: 0"><h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em">Thành viên</h1><p style="margin: 4px 0 0; font-size: 13.5px; color: #A0A0AB">{{headSub}}</p></div>
+<div class="seg" role="group" aria-label="Xem"><button type="button" aria-pressed="{{vMem}}" onClick="{{toMem}}"><span class="ic i-users" aria-hidden="true" style="width: 15px; height: 15px"></span>Thành viên</button><button type="button" aria-pressed="{{vLog}}" onClick="{{toLog}}"><span class="ic i-activity" aria-hidden="true" style="width: 15px; height: 15px"></span>Nhật ký quản trị</button></div>
+<button class="btn pri" type="button" onClick="{{openAdd}}" style="height: 36px; padding: 0 14px 0 12px"><span class="ic i-user-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Thêm thành viên</button>
+</div>
+
+<!-- ===== MEMBERS ===== -->
+<sc-if value="{{vMem}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1 1 auto; min-height: 0; display: flex; gap: 16px; padding-bottom: 20px">
+<!-- list -->
+<section class="card" aria-label="Danh sách thành viên" style="flex: 0 0 380px; min-height: 0; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 12px 12px 8px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<label style="height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><span class="ic i-search" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span><input type="search" value="{{q}}" onInput="{{onQ}}" placeholder="Tìm theo tên hoặc tên đăng nhập" aria-label="Tìm thành viên" style="flex: 1 1 auto; min-width: 0; border: none; outline: none; background: transparent; color: #EDEDEF; font-size: 13px"></label>
+<div role="group" aria-label="Lọc" style="display: flex; gap: 5px; flex-wrap: wrap"><sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button class="fchip" type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.t}}<span class="num" style="color: #7E7E8A">{{f.n}}</span></button></sc-for></div>
+</div>
+<div class="scroll" style="flex: 1 1 auto; min-height: 0; padding: 6px">
+<sc-for list="{{rows}}" as="u" hint-placeholder-count="4"><button class="urow" type="button" aria-current="{{u.cur}}" onClick="{{u.pick}}" style="opacity: {{u.op}}">
+<span class="av" style="width: 38px; height: 38px; font-size: 14px; color: {{u.avFg}}">{{u.av}}</span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35">
+<span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{u.name}}</span><sc-if value="{{u.me}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #7E7E8A">(bạn)</span></sc-if><sc-if value="{{u.admin}}" hint-placeholder-val="{{ false }}"><span class="chipr" style="background: rgba(184,154,110,0.14); color: #E3C99E"><span class="ic i-crown" aria-hidden="true" style="width: 11px; height: 11px"></span>Quản trị</span></sc-if></span>
+<span title="{{u.sub}}" style="font-size: 12.5px; color: {{u.subFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{u.sub}}</span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: 0 0 auto"><span style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: {{u.stFg}}; white-space: nowrap"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: {{u.stDot}}"></span>{{u.st}}</span><sc-if value="{{u.tmp}}" hint-placeholder-val="{{ false }}"><span class="chipr" style="height: 20px; background: rgba(246,203,140,0.1); color: #F3D9AE">Mật khẩu tạm</span></sc-if></span>
+</button></sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div style="padding: 28px 16px; text-align: center; font-size: 13px; color: #8E8E99">Không có ai khớp “{{q}}”.</div></sc-if>
+</div>
+</section>
+
+<!-- detail -->
+<section class="card scroll" aria-label="Chi tiết thành viên" style="flex: 1 1 auto; min-width: 0; min-height: 0; border-radius: 16px; padding: 18px 22px 90px">
+<div style="display: flex; align-items: center; gap: 14px">
+<span class="av" style="width: 52px; height: 52px; font-size: 20px; color: {{d.avFg}}">{{d.av}}</span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35">
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="font-size: 18px; font-weight: 600">{{d.name}}</span><sc-if value="{{d.me}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #7E7E8A">(bạn)</span></sc-if><span class="chipr" style="background: {{d.stBg}}; color: {{d.stFg}}">{{d.st}}</span></span>
+<span style="font-size: 13px; color: #8E8E99"><span class="num">@{{d.user}}</span> · tạo {{d.created}} · {{d.seen}}</span>
+</div>
+<a class="btn" href="LoginQR.dc.html" aria-disabled="{{d.locked}}"><span class="ic i-mobile" aria-hidden="true" style="width: 15px; height: 15px"></span>Đăng nhập điện thoại cho {{d.short}}</a>
+</div>
+
+<sc-if value="{{d.locked}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin-top: 14px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(255,154,162,0.06); border: 1px solid rgba(255,154,162,0.25)"><span class="ic i-lock" aria-hidden="true" style="width: 17px; height: 17px; color: #FF9AA2"></span><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.45"><span style="font-size: 13.5px; font-weight: 500">Đã khoá {{d.lockedAt}}</span><span style="font-size: 12.5px; color: #C9A9AD">{{d.lockNote}} Không đăng nhập được; truyện và lịch sử vẫn giữ nguyên.</span></span><button class="btn" type="button" onClick="{{unlock}}">Mở khoá</button></div></sc-if>
+
+<!-- system role -->
+<div class="sec" style="margin-top: 14px">
+<div class="sech">Quyền hệ thống<span class="sub">· quyết định có vào được phần Quản trị không</span></div>
+<div role="radiogroup" aria-label="Quyền hệ thống" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><sc-for list="{{sysOpts}}" as="o" hint-placeholder-count="2"><button class="rcard" type="button" role="radio" aria-checked="{{o.on}}" disabled="{{o.dis}}" onClick="{{o.pick}}"><span class="rdot" aria-hidden="true"><i></i></span><span style="display: flex; flex-direction: column; gap: 2px; line-height: 1.45"><span style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500"><span class="ic {{o.icon}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{o.ic}}"></span>{{o.t}}</span><span style="font-size: 12.5px; color: #8E8E99">{{o.d}}</span></span></button></sc-for></div>
+<sc-if value="{{d.sysWarn}}" hint-placeholder-val="{{ false }}"><span style="display: flex; gap: 8px; font-size: 12.5px; color: #F3D9AE"><span class="ic i-warning" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; color: #F6CB8C; flex: 0 0 auto"></span>{{d.sysWarnT}}</span></sc-if>
+<sc-if value="{{d.lastAdmin}}" hint-placeholder-val="{{ false }}"><span style="display: flex; gap: 8px; font-size: 12.5px; color: #8E8E99"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: 0 0 auto"></span>Bạn là quản trị viên duy nhất. Thêm một quản trị viên khác trước khi bỏ quyền hoặc khoá tài khoản này.</span></sc-if>
+</div>
+
+<!-- projects -->
+<div class="sec">
+<div class="sech" style="justify-content: space-between"><span style="display: flex; align-items: center; gap: 8px">Dự án<span class="sub">· vai trò trong từng dự án</span></span><button class="btn" type="button" onClick="{{toggleMx}}" aria-expanded="{{mxOpen}}" style="height: 28px; border: none; color: #C9A6F5"><span class="ic i-help" aria-hidden="true" style="width: 14px; height: 14px"></span>{{mxLabel}}</button></div>
+<sc-if value="{{mxOpen}}" hint-placeholder-val="{{ false }}"><div class="drawer" style="border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); padding: 4px 6px">
+<div class="mx"><span class="h">Làm được gì</span><span class="h c">Chỉ xem</span><span class="h c">Cộng tác</span><span class="h c">Chủ dự án</span><sc-for list="{{mx}}" as="m" hint-placeholder-count="7"><span style="color: #C9C9D1">{{m.t}}</span><span class="c"><span class="ic {{m.a}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{m.ac}}"></span></span><span class="c"><span class="ic {{m.b}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{m.bc}}"></span></span><span class="c"><span class="ic {{m.c}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{m.cc}}"></span></span></sc-for></div>
+<span style="display: block; padding: 8px 8px 6px; font-size: 12px; color: #7E7E8A">Quản trị luôn là Chủ dự án ở mọi dự án, và thêm phần Thành viên, Kết nối AI, máy chủ.</span>
+</div></sc-if>
+<div style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); background: #131315">
+<sc-for list="{{d.projects}}" as="p" hint-placeholder-count="3"><div class="prow">
+<span class="ic i-folder" aria-hidden="true" style="width: 17px; height: 17px; color: {{p.ic}}"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</span><span style="font-size: 12.5px; color: #8E8E99">{{p.sub}}</span></span>
+<sc-if value="{{p.changed}}" hint-placeholder-val="{{ false }}"><span class="chipr" style="background: rgba(201,166,245,0.1); color: #DCC8F8">Đã đổi</span></sc-if>
+<button class="rsel" type="button" aria-haspopup="listbox" aria-expanded="{{p.open}}" disabled="{{p.lock}}" onClick="{{p.toggle}}" aria-label="Vai trò ở {{p.name}}"><span style="display: flex; align-items: center; gap: 7px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{p.dot}}"></span><span style="color: {{p.fg}}">{{p.role}}</span></span><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A"></span></button>
+<sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}"><div class="rmenu" role="listbox" aria-label="Vai trò ở {{p.name}}"><sc-for list="{{p.opts}}" as="o" hint-placeholder-count="4"><button class="ropt" type="button" role="option" aria-selected="{{o.on}}" onClick="{{o.pick}}"><span aria-hidden="true" style="width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: {{o.dot}}; flex: 0 0 auto"></span><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 13.5px; font-weight: 500">{{o.t}}</span><span style="font-size: 12px; color: #8E8E99">{{o.d}}</span></span><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 15px; height: 15px; color: #C9A6F5; margin-top: 2px"></span></sc-if></button></sc-for></div></sc-if>
+</div></sc-for>
+</div>
+<span style="font-size: 12.5px; color: #7E7E8A">{{d.projNote}}</span>
+</div>
+
+<!-- devices -->
+<div class="sec">
+<div class="sech" style="justify-content: space-between"><span style="display: flex; align-items: center; gap: 8px">Thiết bị đang đăng nhập<span class="sub num">· {{d.devN}}</span></span><sc-if value="{{d.canOutAll}}" hint-placeholder-val="{{ false }}"><button class="btn" type="button" onClick="{{outAll}}" style="height: 28px">{{d.outAllT}}</button></sc-if></div>
+<sc-if value="{{d.hasDev}}" hint-placeholder-val="{{ true }}"><div style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); background: #131315; padding: 0 14px"><sc-for list="{{d.devs}}" as="v" hint-placeholder-count="2"><div class="drow"><span class="ic {{v.icon}}" aria-hidden="true" style="width: 18px; height: 18px; color: #A0A0AB"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500">{{v.t}}<sc-if value="{{v.cur}}" hint-placeholder-val="{{ false }}"><span class="chipr" style="height: 20px; background: rgba(166,237,193,0.1); color: #A6EDC1">Thiết bị này</span></sc-if></span><span style="font-size: 12.5px; color: #8E8E99">{{v.d}}</span></span><sc-if value="{{v.canOut}}" hint-placeholder-val="{{ true }}"><button class="btn" type="button" onClick="{{v.out}}" style="height: 28px">Đăng xuất</button></sc-if></div></sc-for></div></sc-if>
+<sc-if value="{{d.noDev}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #8E8E99">{{d.noDevT}}</span></sc-if>
+</div>
+
+<!-- password -->
+<div class="sec">
+<div class="sech">Mật khẩu</div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="ic i-key" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB"></span><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.45"><span style="font-size: 13.5px">{{d.pwT}}</span><span style="font-size: 12.5px; color: #8E8E99">{{d.pwD}}</span></span><button class="btn" type="button" onClick="{{openReset}}" disabled="{{d.me}}">Đặt lại mật khẩu</button></div>
+</div>
+
+<!-- danger -->
+<div class="sec">
+<div class="sech">Khoá hoặc xoá</div>
+<div class="dz"><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.45"><span style="font-size: 13.5px; font-weight: 500">{{d.lockT}}</span><span style="font-size: 12.5px; color: #8E8E99">{{d.lockD}}</span></span><button class="btn" type="button" onClick="{{openLock}}" disabled="{{d.noDanger}}">{{d.lockBtn}}</button></div>
+<div class="dz"><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.45"><span style="font-size: 13.5px; font-weight: 500">Xoá tài khoản</span><span style="font-size: 12.5px; color: #8E8E99">Xoá hẳn đăng nhập. Truyện, chương và nhật ký vẫn giữ, ghi tên “{{d.short}} (đã xoá)”.</span></span><button class="btn red" type="button" onClick="{{openRemove}}" disabled="{{d.noDanger}}"><span class="ic i-trash" aria-hidden="true" style="width: 14px; height: 14px"></span>Xoá</button></div>
+<sc-if value="{{d.noDanger}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #7E7E8A">{{d.noDangerT}}</span></sc-if>
+</div>
+</section>
+</div>
+</sc-if>
+
+<!-- ===== LOG ===== -->
+<sc-if value="{{vLog}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<div role="group" aria-label="Loại" style="display: flex; gap: 6px; flex-wrap: wrap"><sc-for list="{{lfilters}}" as="f" hint-placeholder-count="4"><button class="fchip" type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.t}}<span class="num" style="color: #7E7E8A">{{f.n}}</span></button></sc-for></div>
+<span style="flex: 1 1 auto"></span>
+<div role="group" aria-label="Người" style="display: flex; gap: 6px"><sc-for list="{{lwho}}" as="f" hint-placeholder-count="5"><button class="fchip" type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.t}}</button></sc-for></div>
+</div>
+<section class="card scroll" style="flex: 1 1 auto; min-height: 0; border-radius: 16px; padding: 4px 16px 20px">
+<sc-for list="{{days}}" as="g" hint-placeholder-count="3"><div><div class="lday">{{g.day}}</div><div style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: #121214"><sc-for list="{{g.items}}" as="e" hint-placeholder-count="3"><div class="lrow">
+<span class="num" style="font-size: 12.5px; color: #8E8E99; padding-top: 5px">{{e.at}}</span>
+<span class="av" style="width: 28px; height: 28px; font-size: 11.5px; background: {{e.avBg}}; color: {{e.avFg}}"><span class="ic {{e.avIcon}}" aria-hidden="true" style="width: 13px; height: 13px; display: {{e.icD}}"></span>{{e.av}}</span>
+<span style="min-width: 0; display: flex; flex-direction: column; gap: 5px; line-height: 1.5"><span style="font-size: 13.5px; color: #D6D6DC">{{e.t}}</span><sc-if value="{{e.hasCh}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><span class="chipr" style="background: rgba(255,255,255,0.05); color: #A0A0AB; text-decoration: line-through">{{e.from}}</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 12px; height: 12px; color: #7E7E8A"></span><span class="chipr" style="background: rgba(201,166,245,0.1); color: #DCC8F8">{{e.to}}</span></span></sc-if><sc-if value="{{e.hasNote}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: #8E8E99">“{{e.note}}”</span></sc-if></span>
+</div></sc-for></div></div></sc-for>
+<sc-if value="{{noLog}}" hint-placeholder-val="{{ false }}"><div style="padding: 40px 0; text-align: center; font-size: 13px; color: #8E8E99">Không có thay đổi nào khớp bộ lọc.</div></sc-if>
+<p style="margin: 16px 2px 0; font-size: 12px; color: #6E6E78">Nhật ký giữ 1 năm, chỉ quản trị xem được, không sửa hay xoá được. Đăng nhập sai nhiều lần cũng được ghi lại.</p>
+</section>
+</div>
+</sc-if>
+</main>
+</div>
+
+<!-- save bar -->
+<sc-if value="{{dirty}}" hint-placeholder-val="{{ false }}"><div class="savebar" role="region" aria-label="Thay đổi chưa lưu"><span class="ic i-info" aria-hidden="true" style="width: 17px; height: 17px; color: #C9A6F5"></span><span style="font-size: 13.5px">{{dirtyT}}</span><button class="btn" type="button" onClick="{{undo}}" style="height: 34px">Huỷ</button><button class="btn pri" type="button" onClick="{{save}}" style="height: 34px">Lưu</button></div></sc-if>
+
+<!-- ===== DIALOGS ===== -->
+<sc-if value="{{dlgAdd}}" hint-placeholder-val="{{ false }}"><div class="scrim" onClick="{{closeDlg}}"><div class="mdl" role="dialog" aria-modal="true" aria-labelledby="add-t" onClick="{{stop}}">
+<div style="display: flex; align-items: center; gap: 10px; padding: 18px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.07)"><span class="ic i-user-add" aria-hidden="true" style="width: 19px; height: 19px; color: #C9A6F5"></span><span id="add-t" style="flex: 1 1 auto; font-size: 16px; font-weight: 600">Thêm thành viên</span><button class="btn" type="button" onClick="{{closeDlg}}" aria-label="Đóng" style="width: 32px; padding: 0; justify-content: center; border: none"><span class="ic i-close-b" aria-hidden="true" style="width: 17px; height: 17px; color: #7E7E8A"></span></button></div>
+<div class="scroll" style="flex: 1 1 auto; min-height: 0; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="flbl">Tên hiển thị</span><input class="inp" type="text" value="{{nName}}" onInput="{{onNName}}" placeholder="Ví dụ: Ngọc"></label>
+<label style="display: flex; flex-direction: column; gap: 6px"><span class="flbl">Tên đăng nhập</span><input class="inp num" type="text" value="{{nUser}}" onInput="{{onNUser}}" aria-invalid="{{nUserBad}}" aria-describedby="nu-h" placeholder="ngoc"><span id="nu-h" style="font-size: 12px; color: {{nUserHFg}}">{{nUserH}}</span></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="flbl">Quyền hệ thống</span><div role="radiogroup" aria-label="Quyền hệ thống" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><sc-for list="{{nSysOpts}}" as="o" hint-placeholder-count="2"><button class="rcard" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="padding: 10px 12px"><span class="rdot" aria-hidden="true"><i></i></span><span style="display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 13.5px; font-weight: 500">{{o.t}}</span><span style="font-size: 12px; color: #8E8E99">{{o.d}}</span></span></button></sc-for></div></div>
+<sc-if value="{{nIsMember}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; gap: 8px"><span class="flbl">Dự án được vào</span>
+<div style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); background: #131315"><sc-for list="{{nProjects}}" as="p" hint-placeholder-count="3"><div class="prow"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px; color: #8E8E99"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13.5px; font-weight: 500">{{p.name}}</span><span style="font-size: 12px; color: #8E8E99">{{p.sub}}</span></span>
+<div class="seg" role="radiogroup" aria-label="Vai trò ở {{p.name}}" style="padding: 2px"><sc-for list="{{p.opts}}" as="o" hint-placeholder-count="4"><button type="button" role="radio" class="{{o.cls}}" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 26px; padding: 0 9px; font-size: 12px">{{o.t}}</button></sc-for></div></div></sc-for></div>
+<span style="font-size: 12px; color: {{nProjHFg}}">{{nProjH}}</span></div></sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="flbl">Mật khẩu tạm</span><div style="display: flex; gap: 8px"><input class="inp num" type="text" value="{{nPw}}" readonly="true" aria-label="Mật khẩu tạm" style="flex: 1 1 auto; letter-spacing: 0.04em"><button class="btn" type="button" onClick="{{copyPw}}" style="height: 38px"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Sao chép</button><button class="btn" type="button" onClick="{{newPw}}" style="height: 38px" aria-label="Tạo mật khẩu khác"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div><span style="font-size: 12px; color: #8E8E99">Sinh sẵn, 8 ký tự trở lên. Lần đầu vào, {{nShort}} phải tự đặt mật khẩu mới.</span></div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 14px 20px 16px; border-top: 1px solid rgba(255,255,255,0.07)"><span style="flex: 1 1 auto; font-size: 12.5px; color: #8E8E99">{{nSum}}</span><button class="btn" type="button" onClick="{{closeDlg}}" style="height: 36px">Huỷ</button><button class="btn pri" type="button" onClick="{{create}}" disabled="{{nOff}}" style="height: 36px; opacity: {{nOp}}">Tạo tài khoản</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{dlgAdded}}" hint-placeholder-val="{{ false }}"><div class="scrim"><div class="mdl" role="dialog" aria-modal="true" aria-labelledby="added-t" style="width: 500px">
+<div style="padding: 24px 22px 6px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center"><span aria-hidden="true" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(166,237,193,0.1); box-shadow: 0 0 0 1px rgba(166,237,193,0.3), 0 0 32px -6px rgba(166,237,193,0.45); display: flex; align-items: center; justify-content: center"><span class="ic i-tick" style="width: 24px; height: 24px; color: #A6EDC1"></span></span><span id="added-t" style="font-size: 17px; font-weight: 600">{{doneTitle}}</span><span style="font-size: 13px; color: #A0A0AB; max-width: 400px">{{doneSub}}</span></div>
+<div style="margin: 14px 22px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #0F0F11"><sc-for list="{{creds}}" as="c" hint-placeholder-count="3"><div class="cred"><span style="font-size: 12.5px; color: #8E8E99">{{c.k}}</span><span class="{{c.cls}}" style="font-size: 14px; color: #EDEDEF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.v}}</span><sc-if value="{{c.copy}}" hint-placeholder-val="{{ false }}"><button class="btn" type="button" onClick="{{c.doCopy}}" style="height: 28px; border: none"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Chép</button></sc-if></div></sc-for></div>
+<div style="margin: 12px 22px 0; display: flex; gap: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(246,203,140,0.07); border: 1px solid rgba(246,203,140,0.22); font-size: 12.5px; color: #E9D9BD"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C; margin-top: 2px; flex: 0 0 auto"></span>Mật khẩu tạm chỉ hiện lần này. Đóng hộp này rồi thì chỉ còn cách đặt lại.</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 16px 22px 18px"><button class="btn" type="button" onClick="{{copyMsg}}" style="height: 36px"><span class="ic i-messages" aria-hidden="true" style="width: 15px; height: 15px"></span>Chép lời nhắn gửi {{doneShort}}</button><a class="btn" href="LoginQR.dc.html" style="height: 36px"><span class="ic i-mobile" aria-hidden="true" style="width: 15px; height: 15px"></span>Đăng nhập điện thoại</a><span style="flex: 1 1 auto"></span><button class="btn pri" type="button" onClick="{{closeDone}}" style="height: 36px">Xong</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{dlgConfirm}}" hint-placeholder-val="{{ false }}"><div class="scrim" onClick="{{closeDlg}}"><div class="mdl" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" onClick="{{stop}}" style="width: 460px">
+<div style="padding: 20px 22px 4px; display: flex; gap: 14px"><span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; background: {{cf.bg}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic {{cf.icon}}" style="width: 19px; height: 19px; color: {{cf.fg}}"></span></span><span style="display: flex; flex-direction: column; gap: 6px; line-height: 1.5"><span id="cf-t" style="font-size: 16px; font-weight: 600">{{cf.t}}</span><sc-for list="{{cf.lines}}" as="l" hint-placeholder-count="3"><span style="display: flex; gap: 8px; font-size: 13px; color: #B8B8C2"><span aria-hidden="true" style="width: 5px; height: 5px; margin-top: 8px; border-radius: 50%; background: #5E5E68; flex: 0 0 auto"></span>{{l}}</span></sc-for></span></div>
+<sc-if value="{{cf.hasNote}}" hint-placeholder-val="{{ false }}"><label style="margin: 12px 22px 0 76px; display: flex; flex-direction: column; gap: 6px"><span class="flbl">Lý do (ghi vào nhật ký, không bắt buộc)</span><input class="inp" type="text" value="{{cfNote}}" onInput="{{onCfNote}}" placeholder="{{cf.ph}}" style="height: 36px; font-size: 13.5px"></label></sc-if>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 18px 22px 18px"><sc-if value="{{cf.hasAlt}}" hint-placeholder-val="{{ false }}"><button class="btn" type="button" onClick="{{cf.alt}}" style="height: 36px; margin-right: auto; border: none; color: #C9A6F5">{{cf.altT}}</button></sc-if><button class="btn" type="button" onClick="{{closeDlg}}" style="height: 36px">Huỷ</button><button class="btn {{cf.cls}}" type="button" onClick="{{cf.go}}" style="height: 36px">{{cf.btn}}</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="toast" role="status"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px; color: #A6EDC1"></span>{{toastText}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["members","log"],"default":"members","section":"Màn"},"who":{"editor":"enum","options":["linh","dat","minh","ha"],"default":"linh","section":"Đang xem"},"dlg":{"editor":"enum","options":["none","add","addError","added","reset","resetDone","lock","remove"],"default":"none","section":"Hộp thoại"},"edit":{"editor":"enum","options":["clean","dirty","promote"],"default":"clean","section":"Thay đổi"},"$preview":{"width":1440,"height":900}}'>
+// icons used: i-users i-activity i-user-add i-search i-crown i-mobile i-lock i-warning i-info i-help i-folder i-arrow-d i-tick i-key i-trash i-close-b i-copy i-refresh i-messages i-arrow-r i-monitor i-edit i-shield i-minus i-logout i-unlock
+// Thư viện: cùng 3 dự án với Tuỳ chỉnh (PROJ). Vai trò người ≠ tên agent (Người viết, Biên tập viên…).
+const PROJ = [['p1', 'Kênh truyện audio', '2 truyện'], ['p2', 'Vân Châu', '7 truyện'], ['p3', 'Truyện ngắn thử', 'chưa có truyện']];
+const ROLE = {
+  none: ['Không vào', 'Không thấy dự án này', '#5E5E68', '#8E8E99'],
+  view: ['Chỉ xem', 'Đọc, nghe, tải bản xuất', '#A0A0AB', '#C9C9D1'],
+  collab: ['Cộng tác', 'Như Chỉ xem, thêm viết, duyệt, tạo truyện, xuất audio', '#9DB0F7', '#C8D8F8'],
+  owner: ['Chủ dự án', 'Như Cộng tác, thêm quy tắc chung, ngân sách, xoá truyện', '#C9A6F5', '#DCC8F8']
+};
+const RORDER = ['none', 'view', 'collab', 'owner'];
+const USERS0 = [
+  { id: 'dat', name: 'Dat', av: 'D', sys: 'admin', me: true, created: '10/10/2026', seen: 'đang hoạt động', proj: { p1: 'owner', p2: 'owner', p3: 'owner' }, devs: [['i-monitor', 'Mac · Chrome', 'đăng nhập 24/10 · còn 27 ngày', true], ['i-mobile', 'iPhone · Safari', 'hoạt động 2 giờ trước · còn 21 ngày', false], ['i-mobile', 'iPad · Safari', 'hoạt động hôm qua · còn 9 ngày', false]], pw: ['Đổi lần cuối 10/10/2026', 'Bạn tự đổi ở menu tài khoản › Đổi mật khẩu.'] },
+  { id: 'linh', name: 'Linh', av: 'L', sys: 'member', created: '12/10/2026', seen: 'hoạt động 5 phút trước', proj: { p1: 'collab', p2: 'none', p3: 'none' }, devs: [['i-monitor', 'Windows · Edge', 'hoạt động 5 phút trước · còn 18 ngày', false]], pw: ['Đổi lần cuối 13/10/2026', 'Linh đã tự đặt mật khẩu riêng sau lần đầu vào.'] },
+  { id: 'minh', name: 'Minh', av: 'M', sys: 'member', created: '26/10/2026', seen: 'chưa đăng nhập lại', tmp: true, proj: { p1: 'view', p2: 'view', p3: 'none' }, devs: [], pw: ['Đang dùng mật khẩu tạm', 'Đặt lại hôm qua. Lần đầu vào, Minh phải tự đặt mật khẩu mới.'] },
+  { id: 'ha', name: 'Hà', av: 'H', sys: 'member', created: '15/10/2026', seen: 'khoá từ 22/10', locked: true, lockedAt: '22/10/2026 bởi Dat', lockNote: 'Lý do: “Nghỉ cộng tác”.', proj: { p1: 'none', p2: 'none', p3: 'none' }, devs: [], pw: ['Đổi lần cuối 15/10/2026', 'Mở khoá xong nên đặt lại mật khẩu.'] }
+];
+const LOG = [
+  ['Hôm nay', '10:42', 'dat', 'perm', 'Dat đổi vai trò của Linh ở “Kênh truyện audio”', 'Chỉ xem', 'Cộng tác', ''],
+  ['Hôm nay', '10:40', 'dat', 'sec', 'Dat đăng xuất “iPad · Safari” của Minh', '', '', 'Máy cũ ở văn phòng'],
+  ['Hôm nay', '08:15', 'sys', 'sec', '5 lần đăng nhập sai vào tài khoản @ha · đang khoá, không vào được', '', '', ''],
+  ['Hôm qua', '21:16', 'dat', 'sec', 'Dat đặt lại mật khẩu cho Minh · Minh bị đăng xuất khỏi 1 thiết bị', '', '', ''],
+  ['Hôm qua', '21:15', 'dat', 'acct', 'Dat tạo tài khoản Minh · Chỉ xem ở 2 dự án', '', '', ''],
+  ['22/10/2026', '18:03', 'dat', 'acct', 'Dat khoá tài khoản Hà', '', '', 'Nghỉ cộng tác'],
+  ['22/10/2026', '18:02', 'dat', 'perm', 'Dat đổi vai trò của Hà ở “Kênh truyện audio”', 'Cộng tác', 'Không vào', ''],
+  ['13/10/2026', '09:30', 'linh', 'sec', 'Linh tự đặt mật khẩu mới (lần đầu vào)', '', '', ''],
+  ['12/10/2026', '20:05', 'dat', 'acct', 'Dat tạo tài khoản Linh · Chỉ xem ở “Kênh truyện audio”', '', '', '']
+];
+const AV = { dat: ['D', '#EDEDEF'], linh: ['L', '#EDEDEF'], minh: ['M', '#EDEDEF'], ha: ['H', '#EDEDEF'] };
+const clone = (u) => u.map((x) => Object.assign({}, x, { proj: Object.assign({}, x.proj), devs: x.devs.slice() }));
+const slug = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '').slice(0, 32);
+const PWS = ['Tam-7315', 'Moc-2948', 'Lua-5106'];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (['view', 'who', 'dlg', 'edit'].some((k) => prev[k] !== this.props[k])) this.setState(this.fresh(this.props)); }
+  fresh(props) {
+    const base = clone(USERS0); const users = clone(USERS0); const e = props.edit || 'clean'; const who = props.who || 'linh';
+    if (e === 'dirty') { const u = users.find((x) => x.id === 'linh'); u.proj.p2 = 'view'; u.proj.p1 = 'owner'; }
+    if (e === 'promote') { const u = users.find((x) => x.id === 'linh'); u.sys = 'admin'; }
+    const d = props.dlg || 'none'; const add = d === 'add' || d === 'addError';
+    return { view: props.view || 'members', who: (e !== 'clean') ? 'linh' : who, users, base, q: '', filt: 'all', menu: null, mx: false,
+      dlg: d, nName: add ? 'Ngọc' : '', nUser: d === 'addError' ? 'linh' : (add ? 'ngoc' : ''), nUserTouched: d === 'addError', nSys: 'member', nProj: add ? { p1: 'collab', p2: 'none', p3: 'none' } : { p1: 'none', p2: 'none', p3: 'none' }, nPw: PWS[0], pwI: 0,
+      made: d === 'added' ? { name: 'Ngọc', user: 'ngoc', pw: 'Tam-7315', proj: { p1: 'collab' } } : (d === 'resetDone' ? { name: 'Linh', user: 'linh', pw: 'Moc-2948', proj: {}, reset: true } : null), cfNote: '', lf: 'all', lwho: 'all', toast: '' };
+  }
+  toast(t) { this.setState({ toast: t }); this.tm.push(setTimeout(() => { if (this.state.toast === t) this.setState({ toast: '' }); }, 2600)); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p);
+    const U = s.users; const cur = U.find((u) => u.id === s.who) || U[0]; const B = s.base.find((u) => u.id === cur.id) || cur;
+    const admins = U.filter((u) => u.sys === 'admin' && !u.locked).length;
+    const upd = (id, fn) => set({ users: U.map((u) => { if (u.id !== id) return u; const c = Object.assign({}, u, { proj: Object.assign({}, u.proj) }); fn(c); return c; }), menu: null });
+    const diffs = U.reduce((n, u) => { const b = s.base.find((x) => x.id === u.id); if (!b) return n; return n + (u.sys !== b.sys ? 1 : 0) + PROJ.filter(([p]) => u.proj[p] !== b.proj[p]).length; }, 0);
+    const changedUsers = U.filter((u) => { const b = s.base.find((x) => x.id === u.id); return b && (u.sys !== b.sys || PROJ.some(([p]) => u.proj[p] !== b.proj[p])); }).map((u) => u.name);
+    const summary = (u) => { if (u.sys === 'admin') return ['Mọi dự án', '#8E8E99']; const on = PROJ.filter(([p]) => u.proj[p] !== 'none'); if (!on.length) return ['Chưa được vào dự án nào', '#F3D9AE']; const r = u.proj[on[0][0]]; const same = on.every(([p]) => u.proj[p] === r); return [same ? ROLE[r][0] + ' ở ' + (on.length === 1 ? '“' + on[0][1] + '”' : on.length + ' dự án') : on.map(([p, n]) => ROLE[u.proj[p]][0] + ' ở ' + n).join(' · '), '#8E8E99']; };
+    const st = (u) => u.locked ? ['Đã khoá', '#FF9AA2', '#FF9AA2', 'rgba(255,154,162,0.1)'] : (u.me || u.seen.indexOf('5 phút') >= 0 ? ['Đang hoạt động', '#A6EDC1', '#A6EDC1', 'rgba(166,237,193,0.1)'] : [u.tmp ? 'Chưa vào lại' : 'Hoạt động', '#8E8E99', '#5E5E68', 'rgba(255,255,255,0.06)']);
+    const FIL = [['all', 'Tất cả', () => true], ['admin', 'Quản trị', (u) => u.sys === 'admin'], ['none', 'Chưa giao', (u) => u.sys !== 'admin' && PROJ.every(([p]) => u.proj[p] === 'none')], ['locked', 'Đã khoá', (u) => !!u.locked]];
+    const ff = (FIL.find((f) => f[0] === s.filt) || FIL[0])[2]; const qq = s.q.trim().toLowerCase();
+    const rows = U.filter(ff).filter((u) => !qq || u.name.toLowerCase().indexOf(qq) >= 0 || u.id.indexOf(qq) >= 0).map((u) => { const [sub, subFg] = summary(u); const [t, fg, dot] = st(u); return { name: u.name, av: u.av, avFg: u.locked ? '#7E7E8A' : '#EDEDEF', me: !!u.me, admin: u.sys === 'admin', sub, subFg, st: t, stFg: fg, stDot: dot, tmp: !!u.tmp, op: u.locked ? 0.6 : 1, cur: u.id === cur.id ? 'true' : 'false', pick: () => set({ who: u.id, menu: null }) }; });
+    // detail
+    const isAdm = cur.sys === 'admin'; const lastAdmin = isAdm && admins <= 1 && B.sys === 'admin'; const [stT, stFg, , stBg] = st(cur); const short = cur.name;
+    const projects = PROJ.map(([p, name, sub]) => { const r = isAdm ? 'owner' : cur.proj[p]; const open = s.menu === p && !isAdm; return { name, sub: isAdm ? sub + ' · theo quyền quản trị' : sub, role: ROLE[r][0], dot: ROLE[r][2], fg: r === 'none' ? '#8E8E99' : '#EDEDEF', ic: r === 'none' ? '#5E5E68' : '#8E8E99', lock: isAdm || !!cur.locked, changed: !isAdm && cur.proj[p] !== B.proj[p], open, toggle: () => set({ menu: open ? null : p }),
+      opts: RORDER.map((k) => ({ t: ROLE[k][0], d: ROLE[k][1], dot: ROLE[k][2], on: r === k, pick: () => upd(cur.id, (c) => { c.proj[p] = k; }) })) }; });
+    const promoting = isAdm && B.sys !== 'admin';
+    const d = { name: cur.name, short, av: cur.av, avFg: cur.locked ? '#7E7E8A' : '#EDEDEF', user: cur.id, me: !!cur.me, created: cur.created, seen: cur.seen, st: stT, stFg, stBg, locked: !!cur.locked, lockedAt: cur.lockedAt || '', lockNote: cur.lockNote || '',
+      sysWarn: promoting || (!isAdm && B.sys === 'admin'), sysWarnT: promoting ? short + ' sẽ là Chủ dự án ở mọi dự án và quản lý được thành viên, kết nối AI, máy chủ. Vai trò từng dự án bên dưới được giữ lại để dùng khi bỏ quyền quản trị.' : short + ' sẽ mất quyền quản trị và chỉ còn vào được các dự án bên dưới.', lastAdmin,
+      projects, projNote: isAdm ? 'Quản trị luôn vào được mọi dự án, kể cả dự án tạo sau.' : 'Dự án tạo sau: ' + short + ' không thấy cho tới khi được giao. Đổi vai trò có hiệu lực ngay, không cần đăng nhập lại.',
+      devN: String(cur.devs.length), hasDev: cur.devs.length > 0, noDev: cur.devs.length === 0, noDevT: cur.locked ? 'Đã đăng xuất mọi thiết bị khi khoá.' : (cur.tmp ? 'Chưa đăng nhập trên thiết bị nào kể từ lần đặt lại mật khẩu.' : 'Không có thiết bị nào.'),
+      canOutAll: cur.devs.filter((v) => !v[3]).length > 1 || (!cur.me && cur.devs.length > 0), outAllT: cur.me ? 'Đăng xuất các thiết bị khác' : 'Đăng xuất mọi thiết bị',
+      devs: cur.devs.map(([icon, t, dd, c], i) => ({ icon, t, d: dd, cur: !!c, canOut: !c, out: () => { upd(cur.id, (x) => { x.devs = x.devs.filter((_, j) => j !== i); }); this.toast('Đã đăng xuất ' + t + ' của ' + (cur.me ? 'bạn' : short) + ' · ghi vào nhật ký'); } })),
+      pwT: cur.pw[0], pwD: cur.pw[1],
+      lockT: cur.locked ? 'Mở khoá tài khoản' : 'Khoá tài khoản', lockD: cur.locked ? 'Cho đăng nhập lại. Vai trò dự án vẫn như lúc khoá.' : 'Không đăng nhập được, đăng xuất mọi thiết bị. Giữ nguyên truyện, vai trò và lịch sử; mở khoá lại được.', lockBtn: cur.locked ? 'Mở khoá' : 'Khoá',
+      noDanger: !!cur.me || lastAdmin, noDangerT: cur.me ? 'Không tự khoá hay xoá tài khoản đang dùng. Nhờ một quản trị viên khác nếu cần.' : 'Phải còn ít nhất một quản trị viên đang hoạt động.' };
+    const sysOpts = [['member', 'Thành viên', 'Chỉ vào được các dự án được giao bên dưới.', 'i-users', '#A0A0AB'], ['admin', 'Quản trị', 'Toàn quyền: mọi dự án, thành viên, kết nối AI, máy chủ.', 'i-crown', '#E3C99E']].map(([k, t, dd, icon, ic]) => ({ t, d: dd, icon, ic, on: cur.sys === k, dis: lastAdmin || !!cur.locked, pick: () => { if (lastAdmin || cur.locked) return; upd(cur.id, (c) => { c.sys = k; }); } }));
+    const Y = ['i-tick', '#A6EDC1'], N = ['i-minus', '#4A4A52'];
+    const mx = [['Đọc, nghe, tải bản xuất', 1, 1, 1], ['Viết, duyệt và sửa chương; dặn trợ lý', 0, 1, 1], ['Quy tắc riêng, nhân vật & xưng hô của truyện', 0, 1, 1], ['Tạo truyện mới trong dự án', 0, 1, 1], ['Tạo giọng & xuất audio (tốn chi phí)', 0, 1, 1], ['Quy tắc chung, cách viết, ngân sách của dự án', 0, 0, 1], ['Xoá truyện, đổi tên dự án', 0, 0, 1]].map(([t, a, b, c]) => { const [ai, ac] = a ? Y : N; const [bi, bc] = b ? Y : N; const [ci, cc] = c ? Y : N; return { t, a: ai, ac, b: bi, bc, c: ci, cc }; });
+    // add dialog
+    const taken = U.some((u) => u.id === s.nUser.trim()); const badPat = !!s.nUser && !/^[a-z0-9._-]{2,32}$/.test(s.nUser);
+    const nIsMember = s.nSys === 'member'; const nAny = PROJ.some(([p]) => s.nProj[p] !== 'none');
+    const nOff = !s.nName.trim() || !s.nUser.trim() || taken || badPat;
+    const nShort = s.nName.trim() || 'người này';
+    const doCreate = () => { if (nOff) return; const id = s.nUser.trim(); const nu = { id, name: s.nName.trim(), av: s.nName.trim().charAt(0).toUpperCase(), sys: s.nSys, created: '28/10/2026', seen: 'chưa đăng nhập', tmp: true, proj: Object.assign({}, s.nProj), devs: [], pw: ['Đang dùng mật khẩu tạm', 'Tạo hôm nay. Lần đầu vào, ' + s.nName.trim() + ' phải tự đặt mật khẩu mới.'] }; set({ users: U.concat([nu]), base: s.base.concat([clone([nu])[0]]), who: id, dlg: 'added', made: { name: nu.name, user: id, pw: s.nPw, proj: nu.proj, sys: nu.sys } }); };
+    const m = s.made || { name: '', user: '', pw: '', proj: {} };
+    const mProj = PROJ.filter(([p]) => m.proj[p] && m.proj[p] !== 'none').map(([p, n]) => ROLE[m.proj[p]][0] + ' ở “' + n + '”').join(', ');
+    // confirm dialogs
+    const CF = {
+      reset: { t: 'Đặt lại mật khẩu cho ' + short + '?', icon: 'i-key', bg: 'rgba(246,203,140,0.12)', fg: '#F6CB8C', lines: [short + ' bị đăng xuất khỏi ' + (cur.devs.length || 'mọi') + ' thiết bị.', 'Noverse tạo một mật khẩu tạm, chỉ hiện một lần để bạn gửi cho ' + short + '.', 'Lần đầu vào lại, ' + short + ' phải tự đặt mật khẩu mới.'], btn: 'Đặt lại', cls: 'pri', go: () => { upd(cur.id, (c) => { c.devs = []; c.tmp = true; c.pw = ['Đang dùng mật khẩu tạm', 'Đặt lại hôm nay. Lần đầu vào, ' + short + ' phải tự đặt mật khẩu mới.']; }); set({ dlg: 'resetDone', made: { name: short, user: cur.id, pw: PWS[1], proj: cur.proj, reset: true } }); } },
+      lock: { t: (cur.locked ? 'Mở khoá ' : 'Khoá tài khoản ') + short + '?', icon: cur.locked ? 'i-unlock' : 'i-lock', bg: 'rgba(255,154,162,0.1)', fg: '#FF9AA2', lines: cur.locked ? [short + ' đăng nhập lại được với mật khẩu cũ.', 'Nên đặt lại mật khẩu nếu khoá vì lý do an toàn.'] : [short + ' bị đăng xuất khỏi ' + (cur.devs.length ? cur.devs.length + ' thiết bị' : 'mọi thiết bị') + ' ngay.', 'Truyện, chương, vai trò dự án và lịch sử vẫn giữ nguyên.', 'Mở khoá lại được bất cứ lúc nào.'], hasNote: !cur.locked, ph: 'Ví dụ: Nghỉ cộng tác', btn: cur.locked ? 'Mở khoá' : 'Khoá tài khoản', cls: cur.locked ? 'pri' : 'red', go: () => { const was = cur.locked; upd(cur.id, (c) => { c.locked = !was; c.devs = was ? c.devs : []; c.lockedAt = '28/10/2026 bởi Dat'; c.lockNote = s.cfNote ? 'Lý do: “' + s.cfNote + '”.' : ''; c.seen = was ? 'vừa mở khoá' : 'khoá từ 28/10'; }); set({ dlg: 'none', cfNote: '' }); this.toast(was ? 'Đã mở khoá ' + short : 'Đã khoá ' + short + ' · ghi vào nhật ký'); } },
+      remove: { t: 'Xoá tài khoản ' + short + '?', icon: 'i-trash', bg: 'rgba(255,154,162,0.1)', fg: '#FF9AA2', lines: ['Không đăng nhập được nữa, không hoàn tác được.', 'Truyện và chương ' + short + ' đã viết vẫn còn; lịch sử ghi “' + short + ' (đã xoá)”.', 'Tên đăng nhập @' + cur.id + ' dùng lại được cho người khác.'], hasNote: true, ph: 'Ví dụ: Tài khoản tạo nhầm', hasAlt: !cur.locked, altT: 'Khoá thay vì xoá', alt: () => set({ dlg: 'lock' }), btn: 'Xoá tài khoản', cls: 'red', go: () => { const left = U.filter((u) => u.id !== cur.id); set({ users: left, base: s.base.filter((u) => u.id !== cur.id), who: left[0].id, dlg: 'none', cfNote: '' }); this.toast('Đã xoá tài khoản ' + short + ' · ghi vào nhật ký'); } }
+    };
+    const cfK = s.dlg === 'reset' || s.dlg === 'lock' || s.dlg === 'remove' ? s.dlg : null; const cf = Object.assign({ hasNote: false, hasAlt: false, ph: '', altT: '', alt: () => {} }, cfK ? CF[cfK] : CF.reset);
+    // log
+    const LF = [['all', 'Tất cả', () => true], ['acct', 'Tài khoản', (e) => e[3] === 'acct'], ['perm', 'Vai trò', (e) => e[3] === 'perm'], ['sec', 'Mật khẩu & thiết bị', (e) => e[3] === 'sec']];
+    const lff = (LF.find((f) => f[0] === s.lf) || LF[0])[2];
+    const logs = LOG.filter(lff).filter((e) => s.lwho === 'all' || e[2] === s.lwho);
+    const dayNames = []; logs.forEach((e) => { if (dayNames.indexOf(e[0]) < 0) dayNames.push(e[0]); });
+    const days = dayNames.map((day) => ({ day, items: logs.filter((e) => e[0] === day).map(([, at, by, , t, from, to, note]) => { const sys = by === 'sys'; return { at, t, av: sys ? '' : AV[by][0], avIcon: 'i-shield', icD: sys ? 'block' : 'none', avBg: sys ? 'rgba(255,154,162,0.1)' : '#222225', avFg: sys ? '#FF9AA2' : '#EDEDEF', hasCh: !!from, from, to, hasNote: !!note, note }; }) }));
+    return {
+      navN: String(U.length), headSub: U.length + ' tài khoản · ' + admins + ' quản trị · tạo tài khoản và giao dự án cho từng người',
+      vMem: s.view === 'members', vLog: s.view === 'log', toMem: () => set({ view: 'members' }), toLog: () => set({ view: 'log', menu: null }),
+      openAdd: () => set({ dlg: 'add', nName: '', nUser: '', nUserTouched: false, nSys: 'member', nProj: { p1: 'none', p2: 'none', p3: 'none' }, nPw: PWS[(s.pwI + 1) % 3], pwI: s.pwI + 1 }),
+      q: s.q, onQ: (e) => set({ q: e.target.value }),
+      filters: FIL.map(([k, t, f]) => ({ t, n: String(U.filter(f).length), on: s.filt === k, pick: () => set({ filt: k }) })),
+      rows, noRows: rows.length === 0, d, sysOpts, mx, mxOpen: s.mx, toggleMx: () => set({ mx: !s.mx }), mxLabel: s.mx ? 'Ẩn bảng quyền' : 'Mỗi vai trò làm được gì?',
+      unlock: () => set({ dlg: 'lock' }), outAll: () => { upd(cur.id, (c) => { c.devs = c.devs.filter((v) => v[3]); }); this.toast(cur.me ? 'Đã đăng xuất các thiết bị khác' : 'Đã đăng xuất mọi thiết bị của ' + short); },
+      openReset: () => { if (!cur.me) set({ dlg: 'reset' }); }, openLock: () => { if (!d.noDanger) set({ dlg: 'lock' }); }, openRemove: () => { if (!d.noDanger) set({ dlg: 'remove' }); },
+      dirty: diffs > 0, dirtyT: diffs + ' thay đổi cho ' + changedUsers.join(', ') + ' · có hiệu lực ngay khi lưu',
+      undo: () => set({ users: clone(s.base).map((b) => { const u = U.find((x) => x.id === b.id); return u ? Object.assign({}, u, { sys: b.sys, proj: Object.assign({}, b.proj) }) : b; }), menu: null }),
+      save: () => { set({ base: clone(U), menu: null }); this.toast('Đã lưu · ghi vào nhật ký quản trị'); },
+      // add
+      dlgAdd: s.dlg === 'add' || s.dlg === 'addError', closeDlg: () => set({ dlg: 'none', cfNote: '' }), stop: (e) => e.stopPropagation(),
+      nName: s.nName, onNName: (e) => { const v = e.target.value; set(s.nUserTouched ? { nName: v } : { nName: v, nUser: slug(v) }); },
+      nUser: s.nUser, onNUser: (e) => set({ nUser: e.target.value.toLowerCase(), nUserTouched: true }),
+      nUserBad: taken || badPat ? 'true' : 'false', nUserH: taken ? 'Tên đăng nhập “' + s.nUser + '” đã có. Thử “' + s.nUser + '.2” hoặc tên khác.' : (badPat ? 'Chỉ chữ thường không dấu, số và . _ - (2–32 ký tự).' : 'Dùng để đăng nhập. Chữ thường không dấu, số và . _ -'), nUserHFg: taken || badPat ? '#FF9AA2' : '#7E7E8A',
+      nSysOpts: [['member', 'Thành viên', 'Chỉ vào dự án được giao'], ['admin', 'Quản trị', 'Toàn quyền, quản lý thành viên']].map(([k, t, dd]) => ({ t, d: dd, on: s.nSys === k, pick: () => set({ nSys: k }) })),
+      nIsMember, nProjects: PROJ.map(([p, name, sub]) => ({ name, sub, opts: RORDER.map((k) => ({ t: ROLE[k][0], on: s.nProj[p] === k ? 'true' : 'false', cls: s.nProj[p] === k ? 'on' : '', pick: () => set({ nProj: Object.assign({}, s.nProj, { [p]: k }) }) })) })),
+      nProjH: nAny ? 'Đổi được sau ở trang này.' : 'Chưa giao dự án nào: ' + nShort + ' đăng nhập được nhưng chưa thấy truyện nào.', nProjHFg: nAny ? '#7E7E8A' : '#F3D9AE',
+      nPw: s.nPw, copyPw: () => this.toast('Đã chép mật khẩu tạm'), newPw: () => set({ nPw: PWS[(s.pwI + 1) % 3], pwI: s.pwI + 1 }), nShort,
+      nSum: (taken || badPat) ? 'Sửa tên đăng nhập để tiếp tục' : nOff ? 'Điền tên hiển thị và tên đăng nhập' : (s.nSys === 'admin' ? s.nName.trim() + ' · Quản trị' : s.nName.trim() + ' · ' + (nAny ? PROJ.filter(([p]) => s.nProj[p] !== 'none').length + ' dự án' : 'chưa giao dự án')), nOff, nOp: nOff ? 0.45 : 1, create: doCreate,
+      // added / reset done
+      dlgAdded: s.dlg === 'added' || s.dlg === 'resetDone', doneShort: m.name,
+      doneTitle: m.reset ? 'Đã đặt lại mật khẩu cho ' + m.name : 'Đã tạo tài khoản cho ' + m.name,
+      doneSub: m.reset ? m.name + ' đã bị đăng xuất khỏi mọi thiết bị. Gửi mật khẩu tạm dưới đây để ' + m.name + ' vào lại.' : (m.sys === 'admin' ? 'Quản trị · vào được mọi dự án.' : (mProj ? mProj + '.' : 'Chưa giao dự án nào.')) + ' Gửi thông tin dưới đây cho ' + m.name + '.',
+      creds: [['Tên đăng nhập', m.user, 'num', false], ['Mật khẩu tạm', m.pw, 'num', true], ['Mở Noverse', 'Cùng Wi-Fi nhà, hoặc quét QR', '', false]].map(([k, v, cls, copy]) => ({ k, v, cls, copy, doCopy: () => this.toast('Đã chép mật khẩu tạm') })),
+      copyMsg: () => this.toast('Đã chép lời nhắn: tên đăng nhập, mật khẩu tạm và cách vào'), closeDone: () => set({ dlg: 'none', made: null }),
+      // confirm
+      dlgConfirm: !!cfK, cf, cfNote: s.cfNote, onCfNote: (e) => set({ cfNote: e.target.value }),
+      // log
+      lfilters: LF.map(([k, t, f]) => ({ t, n: String(LOG.filter(f).length), on: s.lf === k, pick: () => set({ lf: k }) })),
+      lwho: [['all', 'Mọi người'], ['dat', 'Dat'], ['linh', 'Linh'], ['sys', 'Hệ thống']].map(([k, t]) => ({ t, on: s.lwho === k, pick: () => set({ lwho: k }) })),
+      days, noLog: days.length === 0,
+      toast: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

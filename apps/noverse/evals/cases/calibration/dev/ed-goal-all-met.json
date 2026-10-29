@@ -1,0 +1,26 @@
+{
+  "id": "ed-goal-all-met",
+  "category": "quality",
+  "role": "editor",
+  "description": "Case đối chứng cho checklist mục tiêu: chương 3 hoàn thành đủ ba bước bắt buộc, không đối đầu trực tiếp với người trên sà lan, và giấy thuê vẫn chưa có dấu đỏ. Đáp án đúng là mọi goal đều pass và không có issue mức error.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-goal-all-met",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": true,
+  "expect": {
+    "review": {
+      "must_not_find": [{ "severity_min": "error" }],
+      "goal_status": {
+        "rb1": "pass",
+        "rb2": "pass",
+        "rb3": "pass",
+        "fm1": "pass",
+        "cc1": "pass"
+      }
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

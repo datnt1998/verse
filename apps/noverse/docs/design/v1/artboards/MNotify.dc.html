@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Thông báo — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.mscroll>*{flex-shrink:0}
+.nrow{position:relative;display:flex;gap:12px;align-items:flex-start;width:100%;padding:14px 16px;border:none;background:transparent;color:#EDEDEF;text-align:left;text-decoration:none}
+.nrow+.nrow{border-top:1px solid rgba(255,255,255,.05)}
+.nic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.unread{position:absolute;left:6px;top:30px;width:6px;height:6px;border-radius:50%;background:#C9A6F5}
+.lock{position:absolute;inset:0;background:radial-gradient(90% 60% at 20% 10%,rgba(154,99,227,.55),transparent 60%),radial-gradient(80% 60% at 90% 80%,rgba(62,115,214,.45),transparent 60%),linear-gradient(180deg,#1A1430,#0C0B14)}
+.ln{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:22px;background:rgba(40,36,52,.55);-webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);border:1px solid rgba(255,255,255,.08);color:#F4F2F8;text-decoration:none;animation:lnIn .55s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes lnIn{from{opacity:0;transform:translateY(-18px) scale(.96)}to{opacity:1;transform:none}}
+.lapp{width:38px;height:38px;border-radius:10px;flex:0 0 auto;background:linear-gradient(140deg,#C9A6F5,#9A63E3 55%,#5A57E3);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.lacts{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:rgba(40,36,52,.7);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);animation:mrise .35s cubic-bezier(.2,.9,.25,1.05) both}
+.lacts button{height:48px;padding:0 16px;border:none;background:transparent;color:#F4F2F8;font-size:15px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.08)}
+.lacts button:first-child{border-top:none}
+.salert{position:absolute;left:50%;top:50%;z-index:70;width:270px;transform:translate(-50%,-50%);border-radius:16px;background:rgba(44,44,48,.94);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);overflow:hidden;text-align:center;animation:alIn .3s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes alIn{from{opacity:0;transform:translate(-50%,-50%) scale(1.12)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.salert button{width:100%;height:44px;border:none;border-top:1px solid rgba(255,255,255,.12);background:transparent;color:#5EA4FF;font-size:16px}
+.peek{animation:peek 3.6s cubic-bezier(.2,.9,.25,1) infinite}
+@keyframes peek{0%,8%{transform:translateY(-120%);opacity:0}18%,70%{transform:none;opacity:1}82%,100%{transform:translateY(-120%);opacity:0}}
+.seg{display:grid;gap:3px;padding:3px;border-radius:12px;background:#0F0F11}
+.seg button{height:36px;border:none;border-radius:9px;font-size:13.5px}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-download{-webkit-mask-image:url(../icons/document-download.svg);mask-image:url(../icons/document-download.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-flag-b{-webkit-mask-image:url(../icons/flag-bulk.svg);mask-image:url(../icons/flag-bulk.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-shield-b{-webkit-mask-image:url(../icons/shield-security-bulk.svg);mask-image:url(../icons/shield-security-bulk.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+
+<!-- ================= LOCK SCREEN ================= -->
+<sc-if value="{{v.lock}}" hint-placeholder-val="{{ false }}">
+<div class="lock" aria-hidden="true"></div>
+<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding-top: 72px; color: #F4F2F8">
+<span style="font-size: 17px; font-weight: 500; opacity: .85">Thứ Bảy, 24 tháng 10</span>
+<span class="num" style="font-size: 88px; font-weight: 600; letter-spacing: -0.04em; line-height: 1.05">14:32</span>
+</div>
+<div style="position: relative; z-index: 1; margin-top: auto; padding: 0 10px 40px; display: flex; flex-direction: column; gap: 8px">
+<span style="padding: 0 8px 2px; font-size: 13px; color: rgba(244,242,248,.6)">Chạm để mở đúng màn · nhấn giữ để thao tác nhanh</span>
+<sc-for list="{{lockItems}}" as="n" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 8px">
+<a class="ln tap" href="{{n.href}}" style="animation-delay: {{n.d}}; transform-origin: top center">
+<span class="lapp" aria-hidden="true"><span class="ic {{n.icon}}" style="width: 19px; height: 19px; color: #fff"></span></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="display: flex; gap: 8px; align-items: baseline"><span style="flex: 1 1 auto; min-width: 0; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{n.title}}</span><span style="font-size: 12.5px; color: rgba(244,242,248,.55); flex: 0 0 auto">{{n.when}}</span></span><span style="font-size: 14px; color: rgba(244,242,248,.85)">{{n.body}}</span></span>
+</a>
+<sc-if value="{{n.hasActs}}" hint-placeholder-val="{{ false }}"><div class="lacts" role="menu" aria-label="Thao tác nhanh"><sc-for list="{{n.acts}}" as="a" hint-placeholder-count="2"><button type="button" role="menuitem" onClick="{{a.run}}" style="color: {{a.fg}}">{{a.t}}<span class="ic {{a.icon}}" aria-hidden="true" style="width: 18px; height: 18px"></span></button></sc-for></div></sc-if>
+</div></sc-for>
+</div>
+</sc-if>
+
+<!-- ================= APP SCREENS ================= -->
+<sc-if value="{{v.app}}" hint-placeholder-val="{{ true }}">
+<div class="safe-top"></div>
+<header class="appbar" style="padding-left: 4px; gap: 4px">
+<a class="tap" href="{{backHref}}" aria-label="Quay lại" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-arrow-l" aria-hidden="true" style="width: 22px; height: 22px"></span></a>
+<span style="flex: 1 1 auto; min-width: 0; font-size: 17px; font-weight: 600">{{title}}</span>
+<sc-if value="{{v.inbox}}" hint-placeholder-val="{{ true }}"><button class="tap" type="button" onClick="{{readAll}}" disabled="{{noUnread}}" style="height: 40px; padding: 0 10px; border: none; background: transparent; color: {{readAllFg}}; font-size: 14.5px; flex: 0 0 auto">Đọc hết</button><button class="tap" type="button" onClick="{{toSettings}}" aria-label="Cài đặt thông báo" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: #C9C9D1; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-setting" aria-hidden="true" style="width: 21px; height: 21px"></span></button></sc-if>
+</header>
+
+<!-- inbox -->
+<sc-if value="{{v.inbox}}" hint-placeholder-val="{{ true }}">
+<div class="mscroll" style="padding-bottom: 40px">
+<sc-if value="{{showEnable}}" hint-placeholder-val="{{ true }}"><div class="rise" style="margin: 4px 16px 6px; padding: 14px; border-radius: 18px; background: radial-gradient(120% 120% at 0% 0%, rgba(154,99,227,0.18), transparent 60%), #141416; border: 1px solid rgba(201,166,245,0.22); display: flex; gap: 12px; align-items: center">
+<span class="ic i-notify" aria-hidden="true" style="width: 24px; height: 24px; color: #C9A6F5; flex: 0 0 auto"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 14.5px; font-weight: 600">Nhận thông báo trên điện thoại</span><span style="font-size: 12.5px; color: #A0A0AB">Biết ngay khi chương chờ bạn duyệt</span></span>
+<button class="tap" type="button" onClick="{{toPrompt}}" style="height: 36px; padding: 0 14px; border-radius: 999px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13.5px; font-weight: 600; flex: 0 0 auto">Bật</button>
+</div></sc-if>
+<sc-for list="{{inbox}}" as="g" hint-placeholder-count="2">
+<div class="ghead">{{g.label}}</div>
+<div class="group">
+<sc-for list="{{g.items}}" as="n" hint-placeholder-count="3"><a class="nrow press" href="{{n.href}}" onClick="{{n.read}}">
+<sc-if value="{{n.unread}}" hint-placeholder-val="{{ false }}"><span class="unread" aria-label="Chưa đọc"></span></sc-if>
+<span class="nic" aria-hidden="true" style="background: {{n.bg}}"><span class="ic {{n.icon}}" style="width: 19px; height: 19px; color: {{n.c}}"></span></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.4"><span style="display: flex; gap: 8px; align-items: baseline"><span style="flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: {{n.fw}}">{{n.title}}</span><span class="num" style="font-size: 12px; color: #7E7E8A; flex: 0 0 auto">{{n.when}}</span></span><span style="font-size: 13.5px; color: #A0A0AB">{{n.body}}</span><span style="font-size: 12.5px; color: #C9A6F5; display: flex; align-items: center; gap: 4px">{{n.cta}}<span class="ic i-arrow-r" aria-hidden="true" style="width: 12px; height: 12px"></span></span></span>
+</a></sc-for>
+</div>
+</sc-for>
+<span style="display: block; padding: 18px 30px 0; font-size: 12.5px; color: #7E7E8A; text-align: center">Thông báo cũ hơn 30 ngày được tự xoá.</span>
+</div>
+</sc-if>
+
+<!-- prompt / denied -->
+<sc-if value="{{v.promptAny}}" hint-placeholder-val="{{ false }}">
+<div class="mscroll" style="padding: 8px 24px 150px; display: flex; flex-direction: column; align-items: center; text-align: center">
+<div aria-hidden="true" style="position: relative; width: 290px; height: 236px; margin: 6px 0 18px">
+<span style="position: absolute; left: 30px; right: 30px; top: 0; bottom: 0; border-radius: 34px 34px 0 0; border: 1.5px solid rgba(255,255,255,0.12); border-bottom: none; background: radial-gradient(90% 70% at 30% 0%, rgba(154,99,227,0.35), transparent 70%), #121018"></span>
+<span class="num" style="position: absolute; left: 0; right: 0; top: 30px; font-size: 40px; font-weight: 600; color: rgba(244,242,248,0.9)">14:32</span>
+<div class="peek" style="position: absolute; left: 12px; right: 12px; top: 96px"><div class="ln" style="animation: none; text-align: left"><span class="lapp"><span class="ic i-flag-b" style="width: 18px; height: 18px; color: #fff"></span></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13.5px; font-weight: 600">Chương 25 chờ bạn duyệt</span><span style="font-size: 13px; color: rgba(244,242,248,.8)">Trà Xanh Cướp Kịch Bản · 8,4 điểm</span></span></div></div>
+<div style="position: absolute; left: 22px; right: 22px; top: 170px; opacity: .55"><div class="ln" style="animation: none; text-align: left; padding: 10px 12px"><span class="lapp" style="width: 30px; height: 30px; border-radius: 8px"><span class="ic i-headphone-b" style="width: 15px; height: 15px; color: #fff"></span></span><span style="font-size: 13px; font-weight: 600; align-self: center">Đã xuất sách nói Tập 1</span></div></div>
+</div>
+<sc-if value="{{v.prompt}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 24px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3">Biết ngay khi truyện cần bạn</span>
+<span style="margin-top: 8px; font-size: 15px; color: #A0A0AB; line-height: 1.55">Noverse chỉ báo những lúc đáng báo. Bạn chọn loại nào được báo trong Cài đặt.</span>
+<div class="group" style="margin: 22px 0 0; align-self: stretch; text-align: left"><sc-for list="{{promises}}" as="p" hint-placeholder-count="3"><div class="grow"><span class="ic {{p.icon}}" aria-hidden="true" style="width: 20px; height: 20px; color: {{p.c}}"></span><span style="flex: 1 1 auto; min-width: 0; font-size: 14.5px">{{p.t}}</span></div></sc-for></div>
+<sc-if value="{{iosHint}}" hint-placeholder-val="{{ true }}"><div style="margin-top: 14px; align-self: stretch; display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 12px; border-radius: 14px; background: rgba(157,176,247,0.07); border: 1px solid rgba(157,176,247,0.2); font-size: 13px; color: #C8D3F8; line-height: 1.5"><span class="ic i-info" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px; flex: 0 0 auto"></span><span>Trên iPhone, thông báo chỉ hoạt động khi Noverse đã được <b style="font-weight: 600">Thêm vào Màn hình chính</b> (Chia sẻ → Thêm vào MH chính).</span></div></sc-if>
+</sc-if>
+<sc-if value="{{v.denied}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 22px; font-weight: 600; line-height: 1.3">Thông báo đang bị tắt</span>
+<span style="margin-top: 8px; font-size: 15px; color: #A0A0AB; line-height: 1.55">Trình duyệt đã chặn Noverse gửi thông báo. Noverse không thể tự bật lại — bạn mở trong Cài đặt của máy:</span>
+<ol class="group" style="margin: 20px 0 0; padding: 0; list-style: none; align-self: stretch; text-align: left"><sc-for list="{{fixSteps}}" as="f" hint-placeholder-count="3"><li class="grow"><span class="num" style="width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.07); font-size: 13px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto">{{f.n}}</span><span style="flex: 1 1 auto; min-width: 0; font-size: 14.5px">{{f.t}}</span></li></sc-for></ol>
+<span style="margin-top: 14px; font-size: 13px; color: #8E8E99; line-height: 1.5">Trong lúc đó, mọi thông báo vẫn nằm trong hộp thư (biểu tượng chuông ở màn Viết).</span>
+</sc-if>
+</div>
+<div class="actbar" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; padding: 16px 16px 30px; background: linear-gradient(180deg, rgba(11,11,13,0), #0B0B0D 28%); display: flex; flex-direction: column; gap: 6px">
+<sc-if value="{{v.prompt}}" hint-placeholder-val="{{ true }}"><button class="mbtn pri tap" type="button" onClick="{{askSystem}}"><span class="ic i-notify" aria-hidden="true" style="width: 18px; height: 18px"></span>Bật thông báo</button><button class="mbtn tap" type="button" onClick="{{toInbox}}" style="background: transparent; color: #A0A0AB; font-weight: 500; height: 44px">Để sau</button></sc-if>
+<sc-if value="{{v.denied}}" hint-placeholder-val="{{ false }}"><button class="mbtn pri tap" type="button" onClick="{{recheck}}"><span class="ic i-refresh" aria-hidden="true" style="width: 18px; height: 18px"></span>Tôi đã bật, kiểm tra lại</button><button class="mbtn tap" type="button" onClick="{{toInbox}}" style="background: transparent; color: #A0A0AB; font-weight: 500; height: 44px">Mở hộp thư</button></sc-if>
+</div>
+</sc-if>
+
+<!-- settings -->
+<sc-if value="{{v.settings}}" hint-placeholder-val="{{ false }}">
+<div class="mscroll" style="padding-bottom: 40px">
+<div class="group" style="margin-top: 4px"><div class="grow"><span class="ic i-notify" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.35"><span>Thông báo đẩy</span><span style="font-size: 12.5px; color: {{pushSubFg}}">{{pushSub}}</span></span><button class="msw" type="button" role="switch" aria-checked="{{push}}" aria-label="Thông báo đẩy" onClick="{{togglePush}}" style="background: {{pushBg}}"><i style="left: {{pushKnob}}"></i></button></div></div>
+<div class="ghead">BÁO KHI…</div>
+<div class="group" style="opacity: {{typesOp}}">
+<sc-for list="{{types}}" as="t" hint-placeholder-count="5"><div class="grow" style="align-items: flex-start; padding: 12px 14px"><span class="nic" aria-hidden="true" style="width: 32px; height: 32px; border-radius: 10px; background: {{t.bg}}"><span class="ic {{t.icon}}" style="width: 16px; height: 16px; color: {{t.c}}"></span></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 15px">{{t.label}}</span><span style="font-size: 12.5px; color: #8E8E99">{{t.note}}</span></span><button class="msw" type="button" role="switch" aria-checked="{{t.on}}" aria-label="{{t.label}}" onClick="{{t.toggle}}" disabled="{{t.locked}}" style="background: {{t.swBg}}; margin-top: 1px"><i style="left: {{t.knob}}"></i></button></div></sc-for>
+</div>
+<div class="ghead">CHƯƠNG ĐÃ XONG</div>
+<div style="margin: 0 16px"><div class="seg" role="radiogroup" aria-label="Gộp thông báo chương xong" style="grid-template-columns: repeat(3, minmax(0, 1fr))"><sc-for list="{{digest}}" as="d" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{d.on}}" onClick="{{d.pick}}" style="background: {{d.bg}}; color: {{d.fg}}">{{d.label}}</button></sc-for></div>
+<span style="display: block; padding: 8px 14px 0; font-size: 12.5px; color: #8E8E99">{{digestNote}}</span></div>
+<div class="ghead">GIỜ YÊN LẶNG</div>
+<div class="group"><div class="grow"><span style="flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.35"><span>Không làm phiền</span><span class="num" style="font-size: 12.5px; color: #8E8E99">22:00 – 07:00 · trừ lỗi làm dừng truyện</span></span><button class="msw" type="button" role="switch" aria-checked="{{quiet}}" aria-label="Giờ yên lặng" onClick="{{toggleQuiet}}" style="background: {{quietBg}}"><i style="left: {{quietKnob}}"></i></button></div></div>
+<div class="ghead">THIẾT BỊ NHẬN THÔNG BÁO</div>
+<div class="group"><sc-for list="{{devs}}" as="d" hint-placeholder-count="2"><div class="grow"><span class="ic {{d.icon}}" aria-hidden="true" style="width: 20px; height: 20px; color: #A0A0AB"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 15px">{{d.name}}</span><span style="font-size: 12.5px; color: #8E8E99">{{d.sub}}</span></span><sc-if value="{{d.me}}" hint-placeholder-val="{{ false }}"><span style="height: 22px; padding: 0 8px; border-radius: 6px; background: rgba(166,237,193,0.12); color: #A6EDC1; font-size: 11.5px; display: flex; align-items: center">Máy này</span></sc-if></div></sc-for>
+<button class="grow press" type="button" onClick="{{testPush}}" style="color: #C9A6F5; justify-content: center; min-height: 48px; font-size: 14.5px">Gửi thử một thông báo</button></div>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- system permission alert -->
+<sc-if value="{{sys}}" hint-placeholder-val="{{ false }}"><div class="scrim" aria-hidden="true" style="background: rgba(0,0,0,0.4)"></div>
+<div class="salert" role="alertdialog" aria-labelledby="sa-t"><div style="padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 4px"><span id="sa-t" style="font-size: 16px; font-weight: 600; line-height: 1.35">“Noverse” muốn gửi thông báo cho bạn</span><span style="font-size: 13px; color: #C9C9D1; line-height: 1.4">Thông báo có thể gồm cảnh báo, âm thanh và biểu tượng.</span></div><button type="button" onClick="{{deny}}">Không cho phép</button><button type="button" onClick="{{allow}}" style="font-weight: 600">Cho phép</button></div>
+<span style="position: absolute; left: 0; right: 0; top: calc(50% + 116px); z-index: 71; text-align: center; font-size: 12px; color: rgba(255,255,255,0.5)">Hộp thoại của hệ điều hành — ngoài tầm thiết kế</span></sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="bottom: {{toastBottom}}"><span class="ic i-tick" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span><span style="flex: 1 1 auto">{{toastText}}</span></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["inbox","prompt","system","denied","settings","lock","lockActions"],"default":"inbox","section":"Màn"},"$preview":{"width":390,"height":844}}'>
+// icons used: i-flag-b i-headphone-b i-danger i-download i-shield-b i-tick i-book i-monitor i-mobile i-close-b i-edit
+const N = [
+  { g: 'today', type: 'gate', icon: 'i-flag-b', c: '#F6CB8C', bg: 'rgba(246,203,140,0.12)', title: 'Chương 25 chờ bạn duyệt', body: 'Bản gốc trở về · Biên tập viên chấm 8,4', when: '14:32', cta: 'Mở cổng duyệt', href: 'MReader.dc.html', unread: true },
+  { g: 'today', type: 'job', icon: 'i-headphone-b', c: '#C9A6F5', bg: 'rgba(201,166,245,0.12)', title: 'Đã xuất sách nói Tập 1', body: 'tap-1.m4b · 9 chương · 118 MB', when: '13:58', cta: 'Nghe ngay', href: 'MAudio.dc.html', unread: true },
+  { g: 'today', type: 'error', icon: 'i-danger', c: '#FF9FA8', bg: 'rgba(255,159,168,0.12)', title: 'Truyện dừng do lỗi model', body: 'OpenRouter hết hạn mức · đã thử lại 3 lần', when: '11:20', cta: 'Xem & chạy lại', href: 'MWork.dc.html', unread: false },
+  { g: 'yday', type: 'done', icon: 'i-book', c: '#A6EDC1', bg: 'rgba(166,237,193,0.12)', title: 'Xong 5 chương (20–24)', body: 'Điểm trung bình 8,2 · 1 chương viết lại', when: '23:10', cta: 'Đọc chương 20', href: 'MReader.dc.html', unread: false },
+  { g: 'yday', type: 'security', icon: 'i-shield-b', c: '#9DB0F7', bg: 'rgba(157,176,247,0.12)', title: 'Đăng nhập trên thiết bị mới', body: 'Chrome · MacBook của Dat · Hà Nội', when: '09:02', cta: 'Xem thiết bị', href: 'MMore.dc.html', unread: false }
+];
+const TYPES = [['gate', 'Chương chờ bạn duyệt', 'Có nút Duyệt nhanh ngay trên thông báo', 'i-flag-b', '#F6CB8C', true, false], ['error', 'Truyện dừng do lỗi', 'Luôn báo, kể cả giờ yên lặng', 'i-danger', '#FF9FA8', true, false], ['job', 'Việc nền xong', 'Xuất EPUB/sách nói, nhập truyện, đồng bộ', 'i-headphone-b', '#C9A6F5', true, false], ['done', 'Chương đã xong', 'Gộp theo lựa chọn bên dưới', 'i-book', '#A6EDC1', true, false], ['security', 'Đăng nhập & thiết bị mới', 'Bắt buộc để giữ tài khoản an toàn', 'i-shield-b', '#9DB0F7', true, true]];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(props) { const vw = props.view || 'inbox';
+    return { vw: vw === 'system' ? 'prompt' : (vw === 'lockActions' ? 'lock' : vw), sys: vw === 'system', acts: vw === 'lockActions', read: {}, push: vw !== 'denied', granted: vw === 'settings', on: { gate: true, error: true, job: true, done: false, security: true }, dg: 'five', quiet: true, toast: '' }; }
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (prev.view !== this.props.view) this.setState(this.fresh(this.props)); }
+  toast(t) { this.setState({ toast: t }); this.tm.push(setTimeout(() => { if (this.state.toast === t) this.setState({ toast: '' }); }, 2600)); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p); const vw = s.vw;
+    const sw = (on) => ({ bg: on ? '#9A63E3' : '#2A2A2E', knob: on ? '22px' : '2px' });
+    const unreadN = N.filter((n, i) => n.unread && !s.read[i]).length;
+    const inbox = [['today', 'HÔM NAY'], ['yday', 'HÔM QUA']].map(([g, label]) => ({ label, items: N.map((n, i) => ({ n, i })).filter(({ n }) => n.g === g).map(({ n, i }) => { const un = n.unread && !s.read[i];
+      return { title: n.title, body: n.body, when: n.when, cta: n.cta, href: n.href, icon: n.icon, c: n.c, bg: n.bg, unread: un, fw: un ? '600' : '500', read: () => set({ read: Object.assign({}, s.read, { [i]: true }) }) }; }) }));
+    const lockItems = N.slice(0, 3).map((n, i) => ({ title: n.title, body: n.body, when: i === 0 ? 'bây giờ' : (i === 1 ? '34 phút trước' : '3 giờ trước'), href: n.href, icon: n.icon, d: (i * 0.08).toFixed(2) + 's',
+      hasActs: s.acts && i === 0, acts: [['Duyệt & viết tiếp', 'i-tick', '#A6EDC1', 'Đã duyệt chương 25 · Người viết làm chương 26'], ['Nhờ viết lại…', 'i-edit', '#F4F2F8', 'Mở ô góp ý trong trình đọc'], ['Tắt loại thông báo này', 'i-close-b', '#FF9FA8', 'Đã tắt “Chương chờ duyệt”']].map(([t, icon, fg, msg]) => ({ t, icon, fg, run: () => { set({ acts: false }); this.toast(msg); } })) }));
+    const pushOn = s.push && vw !== 'denied';
+    return {
+      v: { lock: vw === 'lock', app: vw !== 'lock', inbox: vw === 'inbox', prompt: vw === 'prompt', denied: vw === 'denied', promptAny: vw === 'prompt' || vw === 'denied', settings: vw === 'settings' },
+      title: ({ inbox: 'Thông báo', prompt: '', denied: '', settings: 'Cài đặt thông báo' })[vw] || '', backHref: vw === 'settings' ? 'MMore.dc.html' : 'MWork.dc.html',
+      inbox, noUnread: !unreadN, readAllFg: unreadN ? '#C9A6F5' : '#5E5E68', readAll: () => set({ read: { 0: true, 1: true } }), toSettings: () => set({ vw: 'settings' }), toPrompt: () => set({ vw: 'prompt' }), toInbox: () => set({ vw: 'inbox' }),
+      showEnable: !s.granted,
+      promises: [['i-flag-b', '#F6CB8C', 'Chương chờ bạn duyệt — duyệt ngay từ thông báo'], ['i-danger', '#FF9FA8', 'Truyện dừng vì lỗi, kèm cách xử lý'], ['i-headphone-b', '#C9A6F5', 'Xuất EPUB, sách nói, nhập truyện đã xong']].map(([icon, c, t]) => ({ icon, c, t })), iosHint: true,
+      askSystem: () => set({ sys: true }), sys: s.sys,
+      allow: () => { set({ sys: false, granted: true, push: true, vw: 'inbox' }); this.toast('Đã bật thông báo trên máy này'); }, deny: () => set({ sys: false, vw: 'denied', push: false }),
+      fixSteps: ['Mở Cài đặt → Thông báo', 'Chọn Noverse trong danh sách', 'Bật “Cho phép thông báo”'].map((t, i) => ({ n: String(i + 1), t })),
+      recheck: () => this.toast('Vẫn bị chặn — kiểm tra lại các bước trên'),
+      push: pushOn, pushBg: sw(pushOn).bg, pushKnob: sw(pushOn).knob, togglePush: () => set({ push: !s.push }), pushSub: pushOn ? 'Đang bật trên 2 thiết bị' : 'Đang tắt — chỉ hiện trong hộp thư', pushSubFg: pushOn ? '#8E8E99' : '#F6CB8C', typesOp: pushOn ? '1' : '0.45',
+      types: TYPES.map(([k, label, note, icon, c, , locked]) => { const on = !!s.on[k] || locked; const w = sw(on); return { label, note, icon, c, bg: 'rgba(255,255,255,0.05)', on, locked, swBg: locked ? 'rgba(154,99,227,0.45)' : w.bg, knob: w.knob, toggle: () => set({ on: Object.assign({}, s.on, { [k]: !on }) }) }; }),
+      digest: [['each', 'Mỗi chương'], ['five', 'Mỗi 5 chương'], ['day', 'Cuối ngày']].map(([k, label]) => { const on = s.dg === k; return { label, on, bg: on ? '#2A2A2E' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', pick: () => set({ dg: k, on: Object.assign({}, s.on, { done: true }) }) }; }),
+      digestNote: ({ each: 'Có thể tới 10 thông báo mỗi giờ khi viết liên tục.', five: 'Một thông báo tóm tắt cho mỗi 5 chương xong.', day: 'Một bản tin lúc 21:00 tóm tắt cả ngày.' })[s.dg],
+      quiet: s.quiet, quietBg: sw(s.quiet).bg, quietKnob: sw(s.quiet).knob, toggleQuiet: () => set({ quiet: !s.quiet }),
+      devs: [['i-mobile', 'iPhone của Dat', 'Ứng dụng web trên Màn hình chính · iOS 18', true], ['i-monitor', 'MacBook của Dat', 'Chrome · bật từ 12/10', false]].map(([icon, name, sub, me]) => ({ icon, name, sub, me })),
+      testPush: () => this.toast('Đã gửi — kiểm tra màn hình khoá'),
+      lockItems, toast: !!s.toast, toastText: s.toast, toastBottom: vw === 'lock' ? '760px' : '30px'
+    };
+  }
+}
+</script>
+</body>
+</html>

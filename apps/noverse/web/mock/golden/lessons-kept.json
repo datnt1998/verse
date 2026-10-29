@@ -1,0 +1,109 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-9694903220571ef8a4dd4a0a",
+      "origin": "user",
+      "refs": [
+        "Master §12"
+      ],
+      "text": "Kết cục phản diện phải được người khác chứng kiến, không chỉ là tự nhận trong phòng kín.",
+      "evidence": {
+        "errors": 0,
+        "warnings": 0,
+        "userEdits": 2,
+        "object": "kết chương",
+        "stories": 2,
+        "pack": "Nữ tần trọng sinh báo thù, vả mặt",
+        "packsCount": 1,
+        "chips": []
+      },
+      "scope": "pack",
+      "packId": "nu-tan-bao-thu",
+      "packName": "Nữ tần trọng sinh báo thù, vả mặt",
+      "state": "kept",
+      "createdAt": "2026-10-11T09:00:00Z",
+      "decidedAt": "2026-10-12T09:00:00Z"
+    },
+    {
+      "id": "lesson-97d5dc5c0626a74381b11a04",
+      "origin": "review",
+      "refs": [
+        "Master §4"
+      ],
+      "text": "Câu đầu tiên luôn có người và có bất công; không mở bằng thời tiết hay căn phòng.",
+      "evidence": {
+        "errors": 3,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 2,
+        "pack": "",
+        "packsCount": 1,
+        "chips": [
+          "Người Yêu Cũ Quay Lại · ch.1",
+          "Người Yêu Cũ Quay Lại · ch.2",
+          "Tổng Tài Lạnh Lùng Hối Hận · ch.1"
+        ]
+      },
+      "scope": "pack",
+      "packId": "nguoc-hon-nhan",
+      "packName": "Ngược hôn nhân, ly hôn, hối hận muộn",
+      "state": "kept",
+      "createdAt": "2026-10-11T09:00:00Z",
+      "decidedAt": "2026-10-20T09:00:00Z"
+    },
+    {
+      "id": "lesson-bb1c20cd5155e3d2fc9c6510",
+      "origin": "review",
+      "refs": [
+        "Master §10"
+      ],
+      "text": "Khoan cho nhân vật được thương trước khi để họ chịu thiệt.",
+      "evidence": {
+        "errors": 3,
+        "warnings": 0,
+        "userEdits": 0,
+        "stories": 3,
+        "pack": "",
+        "packsCount": 1,
+        "chips": [
+          "Làm Tổng Tài Giả · ch.1",
+          "Người Yêu Cũ Quay Lại · ch.1",
+          "Tổng Tài Lạnh Lùng Hối Hận · ch.2"
+        ]
+      },
+      "scope": "pack",
+      "packId": "nguoc-hon-nhan",
+      "packName": "Ngược hôn nhân, ly hôn, hối hận muộn",
+      "state": "kept",
+      "createdAt": "2026-10-11T09:00:00Z",
+      "decidedAt": "2026-10-21T09:00:00Z"
+    }
+  ],
+  "counts": {
+    "dropped": 1,
+    "kept": 3,
+    "pending": 9
+  },
+  "stats": {
+    "projects": 1,
+    "stories": 13,
+    "rounds": 30
+  },
+  "packs": [
+    {
+      "id": "nguoc-hon-nhan",
+      "name": "Ngược hôn nhân, ly hôn, hối hận muộn",
+      "stories": 4
+    },
+    {
+      "id": "nien-dai-van",
+      "name": "Niên đại văn, trọng sinh thập niên, làm giàu",
+      "stories": 2
+    },
+    {
+      "id": "nu-tan-bao-thu",
+      "name": "Nữ tần trọng sinh báo thù, vả mặt",
+      "stories": 6
+    }
+  ]
+}

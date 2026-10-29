@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Nhật ký tiến độ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}a:hover{color:#FFFFFF}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -2px -3px 6px rgba(0,0,0,.28),inset 1px 2px 4px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.navl:hover{color:#EDEDEF !important}
+.ev:hover{background:rgba(255,255,255,.03) !important}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-note{-webkit-mask-image:url(../icons/note-text.svg);mask-image:url(../icons/note-text.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-code{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
+.i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
+.i-flag{-webkit-mask-image:url(../icons/flag.svg);mask-image:url(../icons/flag.svg)}.i-chart{-webkit-mask-image:url(../icons/chart-2.svg);mask-image:url(../icons/chart-2.svg)}.i-messages{-webkit-mask-image:url(../icons/messages-2.svg);mask-image:url(../icons/messages-2.svg)}.i-shield{-webkit-mask-image:url(../icons/shield-tick.svg);mask-image:url(../icons/shield-tick.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+.i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-code2{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 10px 24px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 300px">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a class="ghost" href="Outline.dc.html" title="Đổi dự án" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<a href="Main.dc.html" style="font-size: 13px; color: #A0A0AB; white-space: nowrap">Trà Xanh… · Tập 1</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<span style="font-size: 13px">Nhật ký tiến độ</span>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a href="Main.dc.html" style="height: 32px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500"><span class="ic i-category-b" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>Bàn viết</a>
+<a class="navl" href="Outline.dc.html" style="height: 32px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 32px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a class="navl" href="Transcript.dc.html" style="height: 32px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 32px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 8px">
+<span class="mono" style="height: 32px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: #A0A0AB"><span class="ic i-cpu" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span>gpt-6.1-sol</span>
+<a class="ghost" href="Settings.dc.html" aria-label="Tuỳ chỉnh" title="Tuỳ chỉnh" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span></a>
+<div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
+</div>
+</header>
+
+<main style="max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.02em">Nhật ký tiến độ</h1>
+<p style="margin: 0; font-size: 14px; color: #A0A0AB">Giữ 500 sự kiện gần nhất. Lượt giao việc cho trợ lý, công cụ và phán quyết tự cập nhật tại chỗ khi xong.</p>
+</div>
+<button class="ghost" type="button" onClick="{{toggleTools}}" aria-pressed="{{showTools}}" style="height: 34px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 9px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #C9C9D1; font-size: 13px"><span class="ic i-code" aria-hidden="true" style="width: 16px; height: 16px"></span>{{toolsLabel}}</button>
+</div>
+
+<div role="tablist" aria-label="Lọc theo loại sự kiện" style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="7">
+<button class="ghost" type="button" role="tab" aria-selected="{{f.on}}" onClick="{{f.pick}}" style="height: 32px; padding: 0 12px 0 10px; border-radius: 999px; border: 1px solid {{f.bd}}; background: {{f.bg}}; color: {{f.fg}}; font-size: 13px; display: flex; align-items: center; gap: 8px"><span class="ic {{f.icon}}" aria-hidden="true" style="width: 15px; height: 15px"></span>{{f.label}}<span class="num" style="font-size: 12px; color: #7E7E8A">{{f.count}}</span></button>
+</sc-for>
+</div>
+
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+<section class="card" style="border-radius: 18px; padding: 8px 8px 10px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 12px 10px">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600">{{g.title}}</h2>
+<span style="height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; font-size: 11px; font-weight: 500; background: {{g.tagBg}}; color: {{g.tagFg}}">{{g.tag}}</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; color: #7E7E8A">{{g.meta}}</span>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0">
+<sc-for list="{{g.events}}" as="e" hint-placeholder-count="6">
+<li class="ev" style="display: flex; gap: 12px; padding: 5px 12px; border-radius: 10px">
+<span class="num mono" style="flex: 0 0 64px; padding-top: 2px; font-size: 12px; color: #7E7E8A">{{e.t}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding-left: {{e.indent}}">
+<div style="display: flex; align-items: flex-start; gap: 8px">
+<sc-if value="{{e.spin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="margin-top: 3px"></span></sc-if>
+<sc-if value="{{e.tree}}" hint-placeholder-val="{{ false }}"><span class="mono" aria-hidden="true" style="color: #4A4A52; font-size: 12px; padding-top: 1px">├</span></sc-if>
+<sc-if value="{{e.icon}}" hint-placeholder-val="{{ true }}"><span class="ic {{e.icon}}" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; color: {{e.iconColor}}"></span></sc-if>
+<sc-if value="{{e.orb}}" hint-placeholder-val="{{ false }}"><span class="orb {{e.orb}}" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 3px"></span></sc-if>
+<span style="flex: 1; min-width: 0; font-size: 13px; color: {{e.color}}"><span style="font-weight: 600; color: {{e.whoColor}}">{{e.who}}</span><span class="{{e.cls}}">{{e.text}}</span></span>
+<span class="num" style="flex: 0 0 auto; font-size: 12px; font-style: italic; color: #7E7E8A">{{e.dur}}</span>
+</div>
+<sc-if value="{{e.sub}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0 0 0 23px; padding: 8px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: #C9C9D1">{{e.sub}}</p>
+</sc-if>
+<sc-if value="{{e.path}}" hint-placeholder-val="{{ false }}">
+<div style="margin-left: 23px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<code style="font-family: inherit; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #A0A0AB">{{e.path}}</code>
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 7px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #C9C9D1; font-size: 12px"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px"></span>Mở thư mục</button>
+</div>
+</sc-if>
+<sc-if value="{{e.hasIssues}}" hint-placeholder-val="{{ false }}">
+<ul style="list-style: none; margin: 0 0 0 23px; padding: 0; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{e.issues}}" as="q" hint-placeholder-count="3">
+<li style="display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid {{q.bd}}">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: {{q.bBg}}; color: {{q.bFg}}; font-size: 11.5px; font-weight: 500; white-space: nowrap">{{q.lvl}}</span>
+<span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 6px; background: rgba(255,255,255,0.05); color: #C9C9D1; font-size: 11.5px; white-space: nowrap">{{q.ref}}</span>
+<span style="font-size: 12px; color: #7E7E8A">{{q.refName}}</span>
+</div>
+<span style="font-size: 13px; color: #EDEDEF; line-height: 1.5">{{q.t}}</span>
+<sc-if value="{{q.q}}" hint-placeholder-val="{{ false }}"><span style="padding-left: 10px; border-left: 2px solid {{q.qBd}}; font-family: 'Literata', Georgia, serif; font-size: 13px; color: #B8B8C2; line-height: 1.55">“{{q.q}}”</span></sc-if>
+</li>
+</sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{e.hasMetrics}}" hint-placeholder-val="{{ false }}">
+<div style="margin-left: 23px; display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{e.metrics}}" as="m" hint-placeholder-count="5"><span style="padding: 3px 8px; border-radius: 6px; background: {{m.bg}}; border: 1px solid {{m.bd}}; font-size: 12px; color: #7E7E8A; white-space: nowrap">{{m.k}} <span class="num" style="color: {{m.fg}}">{{m.v}}</span> <span style="color: #5E5E68">{{m.std}}</span></span></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{e.actions}}" hint-placeholder-val="{{ false }}">
+<div style="margin-left: 23px; display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{e.btns}}" as="b" hint-placeholder-count="2">
+<button class="ghost" type="button" style="height: 30px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 7px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #C9C9D1; font-size: 12px"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 15px; height: 15px"></span>{{b.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</li>
+</sc-for>
+</ol>
+</section>
+</sc-for>
+
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; padding: 32px; text-align: center; color: #7E7E8A">Không có sự kiện nào thuộc loại này.</p>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'all', tools: true };
+  }
+  renderVals() {
+    const s = this.state;
+    const VN = { ARCHITECT: 'Kiến trúc sư', ARCHITECT_LONG: 'Kiến trúc sư', WRITER: 'Người viết', EDITOR: 'Biên tập viên', ARBITER: 'Trọng tài', SYSTEM: 'Hệ thống' };
+    const NUM = (x) => String(x).replace(/(\d),(\d{3})/g, '$1.$2').replace(/(\d)\.(\d)(?!\d{2})/g, '$1,$2');
+    const TK = (x) => { const m = String(x).match(/^([\d.]+)([Mk])$/); return m ? NUM(m[1]) + (m[2] === 'M' ? ' triệu' : ' nghìn') : x; };
+    const USD = (x) => String(x).replace(/\$(\d+)\.(\d+)/, '$$$1,$2');
+    const DUR = (x) => { if (!x || /^[–\[]/.test(x)) return x; let m = x.match(/^(\d+)ms$/); if (m) { const v = m[1] / 1000; return (v < 0.1 ? v.toFixed(2) : v.toFixed(1)).replace('.', ',') + ' giây'; } m = x.match(/^(\d+)m(\d+)s$/); if (m) return m[1] + ' phút ' + m[2] + ' giây'; m = x.match(/^([\d.]+)s$/); if (m) return String(+m[1]).replace('.', ',') + ' giây'; return x; };
+    const TI = (n) => /^Đọc bối cảnh/.test(n) ? 'i-note' : /^Đọc chương/.test(n) ? 'i-book' : /^Viết/.test(n) ? 'i-edit' : /^Gọt giũa/.test(n) ? 'i-magicpen' : /^Soát/.test(n) ? 'i-shield' : /^Lập kế hoạch/.test(n) ? 'i-category' : /^Lưu/.test(n) ? 'i-folder' : '';
+    const W = '#EDEDEF', G = '#A6EDC1', A = '#F6CB8C', R = '#FF9AA2', ACC = '#C9A6F5';
+    const C = { ARCHITECT_LONG: '#B9D0F7', WRITER: '#C9A6F5', EDITOR: '#F6CB8C', ARBITER: '#A6EDC1' };
+    const base = { tree: false, spin: false, icon: '', iconColor: W, orb: '', who: '', whoColor: W, cls: '', color: '#C9C9D1', dur: '', indent: '0px', sub: '', path: '', actions: false, btns: [], hasIssues: false, issues: [], hasMetrics: false, metrics: [] };
+    const LV = { e: ['Bắt sửa', 'rgba(255,154,162,0.12)', '#FFB3BA', 'rgba(255,154,162,0.22)', 'rgba(255,154,162,0.4)'], w: ['Cảnh báo', 'rgba(246,203,140,0.12)', '#F3D9AE', 'rgba(255,255,255,0.07)', 'rgba(246,203,140,0.35)'] };
+    const iss = (l, ref, refName, t, q) => ({ lvl: LV[l][0], bBg: LV[l][1], bFg: LV[l][2], bd: LV[l][3], qBd: LV[l][4], ref, refName, t, q: q || '' });
+    const MT = { ok: ['#0F0F11', 'rgba(255,255,255,0.07)', '#A6EDC1'], w: ['rgba(246,203,140,0.06)', 'rgba(246,203,140,0.25)', '#F3D9AE'], e: ['rgba(255,154,162,0.06)', 'rgba(255,154,162,0.25)', '#FFB3BA'] };
+    const met = (k, v, std, l) => ({ k, v, std, bg: MT[l][0], bd: MT[l][1], fg: MT[l][2] });
+    const rev = (t, text, o) => ({ ...base, cat: 'review', t, icon: 'i-flag', iconColor: C.EDITOR, who: VN.EDITOR, whoColor: C.EDITOR, text: ' · ' + text, color: '#A0A0AB', ...(o || {}) });
+    const disp = (t, who, task, dur, o) => ({ ...base, cat: 'dispatch', t, icon: 'i-tick-b', iconColor: G, who: VN[who] || who, whoColor: C[who] || C.ARCHITECT_LONG, text: ' · ' + task, color: '#7E7E8A', dur: DUR(dur), ...(o || {}) });
+    const tool = (t, name, dur, o) => ({ ...base, cat: 'tool', t, tree: true, icon: TI(name), iconColor: '#7E7E8A', text: name, color: '#A0A0AB', dur: DUR(dur), indent: '22px', ...(o || {}) });
+    const dec = (t, label, dur, o) => ({ ...base, cat: 'decision', t, icon: 'i-tick-b', iconColor: G, who: VN.ARBITER, whoColor: C.ARBITER, text: ' · ' + label, color: '#7E7E8A', dur: DUR(dur), ...(o || {}) });
+    const sys = (t, text, o) => ({ ...base, cat: 'system', t, icon: 'i-setting', iconColor: ACC, text, ...(o || {}) });
+    const warn = (t, text, o) => sys(t, text, { iconColor: A, color: A, ...(o || {}) });
+    const user = (t, text, o) => ({ ...base, cat: 'user', t, icon: 'i-edit', iconColor: '#5DC1B0', text, color: '#9FE3D6', ...(o || {}) });
+    const err = (t, text, o) => ({ ...base, cat: 'error', t, icon: 'i-close-b', iconColor: R, text, color: R, ...(o || {}) });
+    const groups = [
+      { title: 'Khởi động sáng tác', tag: 'Ví dụ định dạng', tagBg: 'rgba(255,255,255,0.06)', tagFg: '#A0A0AB', meta: 'Lập kế hoạch → đại cương', events: [
+        user('--:--', 'Yêu cầu sáng tác: [nội dung yêu cầu, tối đa 160 ký tự]'),
+        dec('--:--', 'Phán quyết khởi động', '[t]'),
+        sys('--:--', 'Bắt đầu sáng tác (Kiến trúc sư lập kế hoạch truyện dài — [lý do])'),
+        disp('--:--', 'ARCHITECT', '[nhiệm vụ]', '[t]'),
+        tool('--:--', 'Đọc bối cảnh', '[t]'), tool('--:--', 'Lưu thông tin truyện', '[t]'), tool('--:--', 'Lưu tiền đề', '[t]'), tool('--:--', 'Lưu dàn ý', '[t]'), tool('--:--', 'Lập kế hoạch chương · chương 1', '[t]')
+      ] },
+      { title: 'Viết, thẩm duyệt & sự cố', tag: 'Ví dụ định dạng', tagBg: 'rgba(255,255,255,0.06)', tagFg: '#A0A0AB', meta: 'Mỗi loại sự kiện một mẫu', events: [
+        disp('--:--', 'WRITER', 'Viết chương 5', '', { spin: true, icon: '' }),
+        tool('--:--', 'Đọc bối cảnh · chương 5', '[t]'), tool('--:--', 'Lập kế hoạch chương · chương 5', '[t]'), tool('--:--', 'Viết bản nháp · chương 5', '', { tree: false, spin: true }),
+        warn('--:--', 'Người viết đã dùng 87% bộ nhớ ngữ cảnh (174.000/200.000) · sẽ tóm tắt phần cũ để viết tiếp'),
+        warn('--:--', 'Thử lại lần 2/7: [lỗi, tối đa 80 ký tự] · tự thử lại sau 7 giây', { actions: true, btns: [{ icon: 'i-refresh', label: 'Thử lại ngay' }, { icon: 'i-cpu', label: 'Đổi model' }] }),
+        tool('--:--', 'Lưu chương 5 không thành công: [thông báo]', '[t]', { tree: false, icon: 'i-close-b', iconColor: R, color: R }),
+        dec('--:--', 'Phán quyết thất bại', '[t]', { sub: 'Quyết định: thử lại · giao trợ lý khác · dừng hẳn' }),
+        disp('--:--', 'EDITOR', 'Thẩm duyệt toàn cục', '[t]'),
+        tool('--:--', 'Đọc chương · chương 3', '[t]'), tool('--:--', 'Lưu thẩm duyệt · toàn truyện · gọt giũa', '[t]'),
+        user('--:--', '[Can thiệp] đẩy tuyến tình cảm lên chương 4'),
+        dec('--:--', 'Phán quyết can thiệp', '[t]', { sub: 'Quyết định: [lý do] — xử lý lần lượt: trả lời bạn → ghi quy tắc → giữ nguyên → mở lại chương → giao việc' }),
+        sys('--:--', 'Quy tắc viết đã cập nhật và lưu lại'),
+        dec('--:--', 'Phán quyết bế tắc', '[t]'),
+        warn('--:--', 'Bộ chống lặp đã chặn lệnh thúc giục: [lý do] (lần thứ N liên tiếp)'),
+        warn('--:--', 'Cảnh báo ngân sách: [đã dùng / giới hạn]'),
+        sys('--:--', 'Chế độ đẩy chương đã chuyển sang: nghiệm thu từng chương'),
+        warn('--:--', 'Đã hoàn thành đến chương 5, nghiệm thu từng chương đang chờ duyệt chương 6; bấm Duyệt để viết tiếp, hoặc nhập ý kiến sửa', { actions: true, btns: [{ icon: 'i-tick-b', label: 'Duyệt, viết chương 6' }] }),
+        sys('--:--', 'Đã đổi model cho Người viết → [nhà cung cấp · model]'),
+        err('--:--', 'Phán quyết can thiệp thất bại: [lỗi] (chưa thay đổi gì)')
+      ] },
+      { title: 'Thẩm duyệt, đo bằng máy & xưng hô', tag: 'Ví dụ định dạng', tagBg: 'rgba(255,255,255,0.06)', tagFg: '#A0A0AB', meta: 'Chấm theo gói Nữ tần báo thù', events: [
+        disp('--:--', 'WRITER', 'Viết chương 3', '[t]'),
+        tool('--:--', 'Đo bằng máy · chương 3', '[t]', { cat: 'review', tree: false, indent: '0px', icon: 'i-chart', iconColor: '#7E7E8A', hasMetrics: true, metrics: [met('Thoại', '34%', '· chuẩn 40–55%', 'w'), met('Đoạn quá 90 tiếng', '1 đoạn', '· dài nhất 96 tiếng', 'w'), met('Câu quá 40 tiếng', '0 câu', '', 'ok'), met('Quãng không thoại quá 250 tiếng', '0 quãng', '', 'ok'), met('Từ thủ tục', '4 từ', '· tối đa 10', 'ok'), met('Từ tiếng Anh dễ đọc sai', '0', '', 'ok'), met('“ngày thứ” + số', '0 dòng', '', 'ok'), met('Cụm 5 tiếng lặp lại', '0 cụm', '', 'ok'), met('Từ mệt nhiều nhất · “khẽ”', '3,1 / 1.000 tiếng', '· tối đa 2', 'w')] }),
+        tool('--:--', 'Soát xưng hô · chương 3', '[t]', { cat: 'review', tree: false, indent: '0px', icon: 'i-messages', iconColor: '#7E7E8A' }),
+        rev('--:--', 'Thẩm chương 3 · 2 bắt sửa · 3 cảnh báo', { hasIssues: true, issues: [
+          iss('e', 'Master §7', 'Đầu chương và cuối chương', 'Chương kết ở trạng thái an toàn, không còn câu hỏi nào treo.', 'Tôi tắt đèn, kéo chăn lên, lần đầu sau nhiều ngày ngủ một giấc yên.'),
+          iss('e', 'Xưng hô', 'Tri Hạ → Nhược Vy', 'Tri Hạ gọi Nhược Vy là “em”. Từ chương 2 đã đổi thành “cô” vì hai người cắt đứt quan hệ.', 'Em về trước đi, chuyện này để chị lo.'),
+          iss('w', 'Xưng hô', 'Bảng xưng hô của truyện', 'Kỳ Dương gọi Tri Hạ là “cậu”, bảng xưng hô ghi “chị” từ chương 2.', 'Cậu về trước đi, để tớ lo.'),
+          iss('w', 'Master §13', 'Văn phong, thoại, hài', 'Thoại chiếm 34%, chuẩn của gói là 40–55%.'),
+          iss('w', 'Quy tắc của bạn', 'Giới hạn từ lặp', '“khẽ” xuất hiện 3,1 lần trên 1.000 tiếng, quy tắc cho tối đa 2.')
+        ] }),
+        sys('--:--', 'Chương 3 vào hàng chờ sửa: 2 mục bắt sửa'),
+        disp('--:--', 'WRITER', 'Sửa chương 3 theo Master §7 và bảng xưng hô', '[t]'),
+        rev('--:--', 'Chấm lại chương 3 · đạt · còn 2 cảnh báo', { icon: 'i-tick-b', iconColor: G })
+      ] },
+      { title: 'Xuất bản', tag: 'Phiên thật', tagBg: 'rgba(166,237,193,0.1)', tagFg: G, meta: '20:59', events: [
+        sys('20:59:21', 'Đang tiến hành xuất bản…'),
+        sys('20:59:21', '✓ Đã xuất 8 chương · 77,8 KB', { path: 'mục Bản xuất · Tập 1' })
+      ] },
+      { title: 'Viết lại toàn bộ theo yêu cầu', tag: 'Phiên thật', tagBg: 'rgba(166,237,193,0.1)', tagFg: G, meta: '21:49 → đang chạy', events: [
+        user('21:49:11', '[Tiếp tục] VAI TRÒ Bạn là biên tập viên truyện audio. Nhiệm vụ: sửa truyện “Trà Xan…'),
+        dec('21:49:11', 'Phán quyết can thiệp', '17.0s'),
+        sys('21:49:28', 'Phán quyết: Tác phẩm đã hoàn thành và người dùng yêu cầu sửa cụ thể trên cả tám chương…', { sub: 'Sẽ mở lại các chương 1–8 để chỉnh sửa theo danh sách L1–L8, không viết lại truy…' }),
+        sys('21:49:28', 'Đã mở lại toàn bộ để viết lại: chương [1 2 3 4 5 6 7 8] vào hàng đợi'),
+        disp('21:49:28', 'WRITER', 'Viết lại chương 1', '1m39s'),
+        tool('21:49:31', 'Đọc bối cảnh · chương 1', '137ms'), tool('21:49:36', 'Đọc chương · chương 1', '237ms'), tool('21:49:46', 'Viết bản nháp · chương 1', '15.6s'),
+        tool('21:50:30', 'Đọc chương · chương 1 · bản nháp', '218ms'), tool('21:50:43', 'Soát nhất quán · chương 1', '104ms'), tool('21:51:00', 'Lưu chương · chương 1', '8.2s'),
+        disp('21:51:08', 'WRITER', 'Viết lại chương 2', '2m31s'),
+        tool('21:51:12', 'Đọc bối cảnh · chương 2', '152ms'), tool('21:51:26', 'Đọc chương · chương 2', '272ms'), tool('21:51:36', 'Đọc bối cảnh · chương 2', '29ms'),
+        tool('21:52:00', 'Viết bản nháp · chương 2', '19.6s'), tool('21:52:47', 'Đọc chương · chương 2 · bản nháp', '146ms')
+      ] }
+    ];
+    const cats = [
+      ['all', 'Tất cả', 'i-category'], ['dispatch', 'Trợ lý', 'i-magicpen'], ['review', 'Thẩm duyệt', 'i-flag'], ['tool', 'Công cụ', 'i-code'], ['decision', 'Phán quyết', 'i-shield'],
+      ['system', 'Hệ thống', 'i-info'], ['user', 'Bạn', 'i-user'], ['error', 'Lỗi', 'i-danger']
+    ];
+    const all = groups.flatMap((g) => g.events);
+    const keep = (e) => (s.filter === 'all' || e.cat === s.filter) && (s.tools || e.cat !== 'tool');
+    const vis = groups.map((g) => ({ ...g, events: g.events.filter(keep) })).filter((g) => g.events.length);
+    return {
+      filters: cats.map(([id, label, icon]) => {
+        const on = s.filter === id;
+        return { label, icon, on, bg: on ? '#222225' : 'transparent', bd: on ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.08)', fg: on ? W : '#A0A0AB', count: id === 'all' ? all.length : all.filter((e) => e.cat === id).length, pick: () => this.setState({ filter: id }) };
+      }),
+      groups: vis,
+      empty: vis.length === 0,
+      showTools: s.tools,
+      toolsLabel: s.tools ? 'Ẩn các bước công cụ' : 'Hiện lệnh gọi công cụ',
+      toggleTools: () => this.setState({ tools: !s.tools })
+    };
+  }
+}
+</script>
+</body>
+</html>

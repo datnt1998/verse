@@ -1,0 +1,501 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "NewStory.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "00 · Tạo truyện mới — so với truyện trước khi bắt đầu viết",
+      "w": 1440,
+      "x": 0,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "01 · Bàn viết",
+      "w": 1440,
+      "x": 1520,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Outline.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "02 · Dự án & truyện — đổi dự án ở thanh trên, đổi truyện & mục lục ở cột trái (Gói AG), khung truyện, nhân vật, quy tắc viết, cách viết (Gói AL), bản xuất",
+      "w": 1440,
+      "x": 3040,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Reader.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "03 · Trình đọc & duyệt chương",
+      "w": 1440,
+      "x": 4560,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Settings.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "04 · Tuỳ chỉnh — quy tắc chung, cách viết chung (riêng truyện/dự án ở 02, Gói AL), trợ lý, ngân sách · Kết nối AI (Gói AH)",
+      "w": 1440,
+      "x": 6080,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Dialogs.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "05 · Lệnh & hộp thoại",
+      "w": 1440,
+      "x": 3040,
+      "y": 1020,
+      "page": "desktop"
+    },
+    "Activity.dc.html": {
+      "expand": "fill",
+      "h": 3240,
+      "is_interactive": true,
+      "title": "01b · Nhật ký tiến độ — mọi trường hợp",
+      "w": 1440,
+      "x": 1520,
+      "y": 1020,
+      "page": "desktop"
+    },
+    "Login.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A1 · Đăng nhập & tài khoản",
+      "w": 1440,
+      "x": 0,
+      "y": 1020,
+      "page": "desktop"
+    },
+    "Onboard.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A3 · Thiết lập lần đầu",
+      "w": 1440,
+      "x": 0,
+      "y": 2040,
+      "page": "desktop"
+    },
+    "Phone.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "A2b · Điện thoại — quét QR & đăng nhập",
+      "w": 390,
+      "x": 2000,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
+    },
+    "OAuth.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A4 · Trang xác thực OAuth (localhost:1455)",
+      "w": 1440,
+      "x": 0,
+      "y": 3060,
+      "page": "desktop"
+    },
+    "LoginQR.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A2a · Máy tính — hiện mã QR cho điện thoại",
+      "w": 1440,
+      "x": 4560,
+      "y": 1020,
+      "page": "desktop"
+    },
+    "Transcript.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "06 · Audio — duyệt, nghe thử & chốt (chốt là tự tạo giọng)",
+      "w": 1440,
+      "x": 3040,
+      "y": 2040,
+      "page": "desktop"
+    },
+    "AudioExport.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "07 · Audio — Phòng thu · Nghe & xuất (bấm các bước ở thanh trên) · xuất cả tập hoặc từng chương · chương đã sửa cần cập nhật (Gói AK)",
+      "w": 1440,
+      "x": 4560,
+      "y": 2040,
+      "page": "desktop"
+    },
+    "Slash.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "05b · Gõ / trong ô chat — gợi ý, mô tả & cách dùng lệnh",
+      "w": 1440,
+      "x": 3040,
+      "y": 3060,
+      "page": "desktop"
+    },
+    "Commands.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "08 · Hướng dẫn lệnh chi tiết",
+      "w": 1440,
+      "x": 4560,
+      "y": 3060,
+      "page": "desktop"
+    },
+    "CmdResults.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "05c · Sau khi chọn lệnh — bảng, thẻ kết quả & lỗi",
+      "w": 1440,
+      "x": 3040,
+      "y": 4080,
+      "page": "desktop"
+    },
+    "Jobs.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "09 · Việc chạy nền — dock thu gọn ở mọi màn",
+      "w": 1440,
+      "x": 4560,
+      "y": 4080,
+      "page": "desktop"
+    },
+    "Kit.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "10 · Bộ thành phần — xác nhận, menu, select, combobox, ô nhập",
+      "w": 1440,
+      "x": 6080,
+      "y": 2040,
+      "page": "desktop"
+    },
+    "MWork.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "M1 · Viết — agent, trạng thái, lệnh /, ngoại tuyến, bàn phím",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MReader.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "M2 · Đọc — duyệt, đọc tập trung, góp ý, chạm tên nhân vật, thao tác chương",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MAudio.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "M3 · Nghe — trình phát, tạo giọng, đổi giọng, hàng đợi, xuất cả tập / từng chương",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MMore.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "M4 · Thêm — quy tắc viết, tuỳ chỉnh truyện, tài khoản, hướng dẫn lệnh",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MCmd.dc.html": {
+      "x": 0,
+      "y": 1040,
+      "w": 390,
+      "h": 844,
+      "title": "M5 · Kết quả lệnh — /cocreate, /import, /diag, /sync, /reopen",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MLog.dc.html": {
+      "x": 470,
+      "y": 1040,
+      "w": 390,
+      "h": 844,
+      "title": "M6 · Nhật ký hoạt động — lọc, tìm, lời gọi công cụ",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MNotify.dc.html": {
+      "x": 940,
+      "y": 1040,
+      "w": 390,
+      "h": 844,
+      "title": "M7 · Thông báo — hộp thư, xin quyền, cài đặt, màn hình khoá",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MTablet.dc.html": {
+      "x": 1410,
+      "y": 1040,
+      "w": 834,
+      "h": 1194,
+      "title": "T1 · Máy tính bảng (641–1099px) — Viết + Đọc hai cột",
+      "is_interactive": true,
+      "page": "mobile",
+      "radius": 28
+    },
+    "Brain.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "02b · Não truyện — đồ thị quan hệ & xưng hô theo chương",
+      "w": 1440,
+      "x": 6080,
+      "y": 1020,
+      "page": "desktop"
+    },
+    "Setup.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A0 · Lần chạy đầu — mã thiết lập & tạo tài khoản quản trị",
+      "w": 1440,
+      "x": 0,
+      "y": 4080,
+      "page": "desktop"
+    },
+    "Quality.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "02c · Chất lượng truyện — việc cần làm, ma trận mục luật × chương",
+      "w": 1440,
+      "x": 6080,
+      "y": 3060,
+      "page": "desktop"
+    },
+    "ProjBrain.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "02d · Não dự án — sổ cái trục, vũ trụ chung, tìm trong dự án",
+      "w": 1440,
+      "x": 6080,
+      "y": 4080,
+      "page": "desktop"
+    },
+    "SysBrain.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "04b · Não hệ thống — bài học chờ duyệt & mục luật hay vấp (quản trị)",
+      "w": 1440,
+      "x": 6080,
+      "y": 5100,
+      "page": "desktop"
+    },
+    "MBrain.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "M8 · Não truyện — danh sách theo chương, lọc, chi tiết",
+      "w": 390,
+      "x": 2470,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
+    },
+    "Brand.dc.html": {
+      "expand": "fill",
+      "h": 4200,
+      "is_interactive": true,
+      "title": "B0 · Thương hiệu Noverse — logo dài, logo đứng, biểu tượng, app icon, màu, chữ",
+      "w": 1440,
+      "x": 7600,
+      "y": 0,
+      "page": "desktop"
+    },
+    "Nav.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "10b · Chuyển trang — thanh điều hướng đứng yên, chỉ báo trượt, nội dung hiện dần (Gói Q)",
+      "w": 1440,
+      "x": 6080,
+      "y": 6120,
+      "page": "desktop"
+    },
+    "ScrollTop.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "title": "10c · Nút lên đầu — chỗ đọc chương và danh sách dài (Gói T)",
+      "w": 1440,
+      "x": 6080,
+      "y": 7120,
+      "page": "desktop"
+    },
+    "Members.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "04c · Thành viên — tài khoản, vai trò theo dự án, thiết bị, mật khẩu tạm, nhật ký quản trị (Gói AD)",
+      "w": 1440,
+      "x": 4560,
+      "y": 5100,
+      "page": "desktop"
+    },
+    "AudioMeta.dc.html": {
+      "expand": "fill",
+      "h": 1320,
+      "is_interactive": true,
+      "title": "07c · Audio ngoài app — màn khoá, thông báo, xe, tệp tải về: metadata & tên tệp (Gói AF)",
+      "w": 1440,
+      "x": 3040,
+      "y": 5100,
+      "page": "desktop"
+    },
+    "Feedback.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "03b · Góp ý theo đoạn — chờ gửi, đã gửi, đã sửa, cần gắn lại sau khi viết lại (Gói AI)",
+      "w": 1440,
+      "x": 4560,
+      "y": 6120,
+      "page": "desktop"
+    },
+    "MFeedback.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "M2b · Góp ý — ngăn góp ý, sau khi viết lại, gắn lại đoạn (Gói AI)",
+      "w": 390,
+      "x": 2940,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
+    },
+    "MVoiceGen.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "M3b · Tạo giọng — một ngăn: cần làm, đang tạo, đã có giọng · cập nhật chương đã sửa (Gói AK)",
+      "w": 390,
+      "x": 3410,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-24T14:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "title": {
+      "kind": "title1",
+      "maxW": 7520,
+      "text": "Noverse — Agentic Studio",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "mobileTitle": {
+      "x": 0,
+      "y": -300,
+      "text": "Noverse — Điện thoại",
+      "kind": "title1",
+      "maxW": 2860,
+      "w": 240,
+      "page": "mobile"
+    }
+  },
+  "order": [
+    "Brand.dc.html",
+    "Setup.dc.html",
+    "Login.dc.html",
+    "Onboard.dc.html",
+    "OAuth.dc.html",
+    "NewStory.dc.html",
+    "Main.dc.html",
+    "Outline.dc.html",
+    "Brain.dc.html",
+    "Quality.dc.html",
+    "ProjBrain.dc.html",
+    "Reader.dc.html",
+    "Feedback.dc.html",
+    "Transcript.dc.html",
+    "AudioExport.dc.html",
+    "AudioMeta.dc.html",
+    "Settings.dc.html",
+    "SysBrain.dc.html",
+    "Members.dc.html",
+    "Activity.dc.html",
+    "Dialogs.dc.html",
+    "Slash.dc.html",
+    "Commands.dc.html",
+    "CmdResults.dc.html",
+    "Jobs.dc.html",
+    "LoginQR.dc.html",
+    "Phone.dc.html",
+    "Kit.dc.html",
+    "Nav.dc.html",
+    "ScrollTop.dc.html",
+    "MWork.dc.html",
+    "MReader.dc.html",
+    "MFeedback.dc.html",
+    "MAudio.dc.html",
+    "MVoiceGen.dc.html",
+    "MMore.dc.html",
+    "MBrain.dc.html",
+    "MCmd.dc.html",
+    "MLog.dc.html",
+    "MNotify.dc.html",
+    "MTablet.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "desktop",
+      "name": "Máy tính"
+    },
+    {
+      "id": "mobile",
+      "name": "Điện thoại"
+    }
+  ],
+  "title": "Noverse Agentic Studio"
+}

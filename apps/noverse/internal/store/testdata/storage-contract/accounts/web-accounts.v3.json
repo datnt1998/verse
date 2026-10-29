@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "users": [
+    {
+      "username": "quan-tri",
+      "name": "Quản Trị Mẫu",
+      "role": "admin",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$31+FJKVMutInOyA79q/eLw$LJ1fgS6h1UCSpbsiOLOR2gbE2Ok5eSyzO0Wfy3qcols",
+      "onboardedAt": "2026-01-05T08:00:00Z",
+      "mustChangePassword": false,
+      "createdAt": "2026-01-05T08:00:00Z",
+      "updatedAt": "2026-01-05T08:00:00Z"
+    },
+    {
+      "username": "tac-gia",
+      "name": "Tác Giả Mẫu",
+      "role": "member",
+      "projects": {"du-an": "owner", "du-an-khac": "collab"},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$ZpQx+h7rTrHs0THRkEp+pg$vL3PyPoB0kMNESXHXHiyWpXxAyB7D7PbQe1Fdux87ro",
+      "mustChangePassword": false,
+      "createdAt": "2026-01-05T09:00:00Z",
+      "updatedAt": "2026-01-05T09:00:00Z"
+    },
+    {
+      "username": "doc-gia",
+      "name": "Độc Giả Mẫu",
+      "role": "member",
+      "projects": {"du-an": "view"},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=2$ZpQx+h7rTrHs0THRkEp+pg$vL3PyPoB0kMNESXHXHiyWpXxAyB7D7PbQe1Fdux87ro",
+      "mustChangePassword": true,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "updatedAt": "2026-01-05T10:00:00Z"
+    }
+  ],
+  "sessions": [],
+  "pairings": [],
+  "audit": [
+    {
+      "id": "00000000000000000001",
+      "at": "2026-01-05T08:00:00Z",
+      "actor": {"username": "quan-tri", "name": "Quản Trị Mẫu"},
+      "type": "acct",
+      "action": "Tạo tài khoản",
+      "target": "tac-gia"
+    }
+  ]
+}

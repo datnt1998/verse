@@ -1,0 +1,29 @@
+[
+  {
+    "id": "cm-fixture-01",
+    "paragraph": 2,
+    "quote": "Bà mở cửa sổ cho gió chạy qua giá sách.",
+    "chips": ["mo-ta"],
+    "text": "Câu này lặp ý với đoạn trước, cân nhắc gộp lại.",
+    "author": "thu-vien-mau",
+    "createdAt": "2026-01-07T08:30:00Z",
+    "status": "pending"
+  },
+  {
+    "id": "cm-fixture-02",
+    "paragraph": 5,
+    "quote": "Ngọn đèn dầu rung nhẹ trong bóng tối.",
+    "chips": [],
+    "text": "Giữ nguyên hình ảnh này, rất hợp bối cảnh.",
+    "author": "thu-vien-mau",
+    "createdAt": "2026-01-07T08:40:00Z",
+    "status": "sent",
+    "sentAt": "2026-01-07T09:00:00Z",
+    "anchor": {
+      "paragraph": 5,
+      "quote": "Ngọn đèn dầu rung nhẹ trong bóng tối.",
+      "prefix": "Cô quay lại bàn.",
+      "suffix": "Ngoài hành lang im ắng."
+    }
+  }
+]

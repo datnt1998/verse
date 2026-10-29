@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "ref": "Master §10",
+      "refName": "Ức chế và lòng thương (mới)",
+      "stories": 3,
+      "total": 4,
+      "level": "error",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 3
+    },
+    {
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "stories": 2,
+      "total": 4,
+      "level": "error",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 2
+    },
+    {
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "stories": 1,
+      "total": 4,
+      "level": "warning",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 0
+    },
+    {
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "stories": 1,
+      "total": 4,
+      "level": "error",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 5
+    },
+    {
+      "ref": "Master §8",
+      "refName": "Vùng giữa truyện (khoảng 40–70% thời lượng)",
+      "stories": 1,
+      "total": 4,
+      "level": "error",
+      "alert": false,
+      "alertScope": "all",
+      "alertStories": 2
+    },
+    {
+      "ref": "Xưng hô",
+      "refName": "Bảng xưng hô của truyện",
+      "stories": 1,
+      "total": 4,
+      "level": "warning",
+      "alert": true,
+      "alertScope": "all",
+      "alertStories": 3
+    }
+  ],
+  "preamble": "Truyện Ngược hôn nhân, ly hôn, hối hận muộn trước đây hay vấp Master §10 (ức chế và lòng thương (mới), 3/4 truyện), Master §7 (đầu chương và cuối chương, 5 truyện ở mọi gói), Xưng hô (bảng xưng hô của truyện, 3 truyện ở mọi gói). Khi lập bản đồ giữ chân, kiểm kỹ các mục này trước khi giao Người viết.",
+  "packName": "Ngược hôn nhân, ly hôn, hối hận muộn",
+  "stories": 4
+}

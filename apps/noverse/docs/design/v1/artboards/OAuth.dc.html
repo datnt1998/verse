@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kết nối ChatGPT</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover{background:#FFFFFF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.pop{animation:pop .5s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.ring{animation:ring 1.6s ease-out .2s both}
+@keyframes ring{from{transform:scale(.8);opacity:.7}to{transform:scale(1.9);opacity:0}}
+.draw{stroke-dasharray:30;stroke-dashoffset:30;animation:draw .45s ease-out .25s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.rise{animation:rise .5s ease-out both}
+@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-coin{-webkit-mask-image:url(../icons/coin-1.svg);mask-image:url(../icons/coin-1.svg)}
+.i-login{-webkit-mask-image:url(../icons/login.svg);mask-image:url(../icons/login.svg)}
+.i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}.draw{stroke-dashoffset:0}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+<main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px">
+<div style="width: min(500px, 100%); display: flex; flex-direction: column; align-items: center; gap: 20px">
+
+<div class="rise" style="display: flex; align-items: center; gap: 8px">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<span class="nv-word" style="font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.012em">Noverse</span>
+</div>
+
+<div class="card rise" style="width: 100%; border-radius: 20px; padding: 28px 24px 22px; display: flex; flex-direction: column; gap: 18px; animation-delay: .05s">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<div aria-hidden="true" style="position: relative; width: 72px; height: 72px">
+<span class="ring" style="position: absolute; inset: 0; border-radius: 50%; border: 2px solid {{tone}}"></span>
+<span class="pop" style="position: absolute; inset: 0; border-radius: 50%; background: {{toneBg}}; box-shadow: 0 0 0 1px {{toneBd}}, 0 0 40px -6px {{toneGlow}}; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path class="draw" d="M6 12.5l4 4 8-9" stroke="#A6EDC1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+<sc-if value="{{fail}}" hint-placeholder-val="{{ false }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path class="draw" d="M12 7v6M12 16.5v.5" stroke="#F6CB8C" stroke-width="2.4" stroke-linecap="round"/></svg></sc-if>
+</span>
+</div>
+<span style="height: 26px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: #1E1E21; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #C9C9D1"><span class="ic i-login" aria-hidden="true" style="width: 14px; height: 14px; color: #C9A6F5"></span>Tài khoản ChatGPT Plus/Pro</span>
+<div role="{{role}}">
+<h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1>
+<p style="margin: 8px 0 0; font-size: 14.5px; color: #A0A0AB">{{lead}}</p>
+</div>
+</div>
+
+<!-- ═══ Thành công ═══ -->
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}">
+<ol style="list-style: none; margin: 0; padding: 4px 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: {{s.bt}}">
+<sc-if value="{{s.done}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" aria-hidden="true" style="color: #A6EDC1"></span></sc-if>
+<sc-if value="{{s.next}}" hint-placeholder-val="{{ false }}"><span class="ic i-arrow-r" aria-hidden="true" style="color: #C9A6F5"></span></sc-if>
+<span style="flex: 1; font-size: 13.5px; color: {{s.fg}}">{{s.label}}</span>
+<span style="font-size: 12px; color: #7E7E8A">{{s.note}}</span>
+</li>
+</sc-for>
+</ol>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="lbl">Điều này có nghĩa là</span>
+<sc-for list="{{perks}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; gap: 12px; align-items: flex-start">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; background: #1E1E21; display: flex; align-items: center; justify-content: center; color: #C9C9D1"><span class="ic {{p.icon}}" style="width: 16px; height: 16px"></span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 500">{{p.title}}</span><span style="font-size: 12.5px; color: #A0A0AB">{{p.desc}}</span></span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<!-- ═══ Chưa thành công ═══ -->
+<sc-if value="{{fail}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; border-radius: 14px; background: rgba(246,203,140,0.05); border: 1px solid rgba(246,203,140,0.22); display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; font-weight: 600">{{reasonTitle}}</span>
+<span style="font-size: 13px; color: #C9C9D1">{{reasonText}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="lbl">Cách khắc phục</span>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{fixes}}" as="f" hint-placeholder-count="2">
+<li style="display: flex; gap: 12px; align-items: flex-start"><span style="width: 22px; height: 22px; flex: 0 0 auto; border-radius: 50%; background: #222225; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #C9C9D1">{{f.n}}</span><span style="font-size: 13.5px; color: #C9C9D1; padding-top: 1px">{{f.text}}</span></li>
+</sc-for>
+</ol>
+</div>
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: #A0A0AB">
+<span class="ic i-mobile" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 1px"></span>
+<span>Đang dùng Noverse trên máy khác hoặc điện thoại? Chọn <span style="color: #EDEDEF">“Đăng nhập bằng mã”</span> — chỉ cần nhập một mã ngắn, không phải mở trang trên máy này.</span>
+</div>
+</sc-if>
+
+<!-- Hành động -->
+<sc-if value="{{fromWeb}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button class="primary" type="button" style="height: 44px; border-radius: 12px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 14.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><span class="ic {{webIcon}}" aria-hidden="true" style="width: 17px; height: 17px"></span>{{webCta}}</button>
+<span role="status" style="text-align: center; font-size: 12.5px; color: #7E7E8A">{{webNote}}</span>
+</div>
+</sc-if>
+<sc-if value="{{fromCli}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #1E1E21">
+<span class="ic {{cliIcon}}" aria-hidden="true" style="color: #C9A6F5"></span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13.5px; font-weight: 500">{{cliTitle}}</span><span style="font-size: 12.5px; color: #A0A0AB">{{cliText}}</span></span>
+</div>
+</sc-if>
+
+<!-- Chi tiết kỹ thuật — thu gọn mặc định -->
+<sc-if value="{{fail}}" hint-placeholder-val="{{ false }}">
+<div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; display: flex; flex-direction: column; gap: 8px">
+<button type="button" onClick="{{toggleTech}}" aria-expanded="{{techOpen}}" style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: #7E7E8A; font-size: 12.5px"><span class="ic {{techIcon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>Chi tiết kỹ thuật</button>
+<sc-if value="{{techOpen}}" hint-placeholder-val="{{ false }}">
+<div class="mono" style="padding: 10px 12px; border-radius: 10px; background: #0B0B0D; border: 1px solid rgba(255,255,255,0.07); font-size: 11.5px; line-height: 1.8; color: #A0A0AB; word-break: break-word">
+<sc-for list="{{tech}}" as="t" hint-placeholder-count="3"><div style="color: {{t.c}}">{{t.text}}</div></sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+</div>
+
+<div class="rise" style="display: flex; align-items: flex-start; gap: 8px; max-width: 460px; font-size: 12px; color: #7E7E8A; animation-delay: .1s">
+<span class="ic i-shield" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px"></span>
+<span>Trang này do Noverse mở trên chính máy tính của bạn và sẽ tự tắt sau khi xong. Noverse không nhìn thấy mật khẩu ChatGPT của bạn.</span>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["success","denied","stateMismatch","missingCode"],"default":"success","section":"Kết quả"},"from":{"editor":"enum","options":["cli","web"],"default":"web","section":"Mở từ"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tech: false }; }
+  renderVals() {
+    const st = this.props.state || 'success';
+    const web = (this.props.from || 'web') === 'web';
+    const ok = st === 'success';
+    const again = web ? 'Quay lại Noverse và bấm “Đăng nhập ChatGPT” lần nữa.' : 'Quay lại cửa sổ Noverse và chạy lại bước đăng nhập.';
+    const ERR = {
+      denied: { title: 'Bạn đã huỷ hoặc chưa bấm “Cho phép”', text: 'Noverse cần bạn đồng ý trên trang ChatGPT mới dùng được gói của bạn. Chưa có gì bị thay đổi.', fixes: [again, 'Kiểm tra tài khoản đang đăng nhập có gói Plus hoặc Pro.'], raw: 'máy chủ OAuth từ chối: access_denied [error_description]' },
+      stateMismatch: { title: 'Liên kết đăng nhập này đã cũ', text: 'Trang này đến từ một lần đăng nhập trước đó, nên Noverse đã chặn lại để bảo vệ tài khoản của bạn.', fixes: ['Đóng tab này.', again], raw: 'OAuth state không khớp — huỷ để tránh giả mạo' },
+      missingCode: { title: 'Thông tin đăng nhập chưa đầy đủ', text: 'Trang ChatGPT trả về thiếu thông tin cần thiết, thường do mạng chập chờn.', fixes: [again, 'Nếu vẫn không được, chọn “Đăng nhập bằng mã”.'], raw: 'callback thiếu mã xác thực' }
+    };
+    const e = ERR[st] || ERR.denied;
+    const steps = [
+      { label: 'Đăng nhập ChatGPT', note: 'xong', done: true },
+      { label: 'Cho phép Noverse sử dụng gói của bạn', note: 'xong', done: true },
+      { label: 'Chọn model để bắt đầu viết', note: web ? 'trong Noverse' : 'trong cửa sổ Noverse', next: true }
+    ].map((s, i) => Object.assign({ done: false, next: false }, s, { bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', fg: s.next ? '#EDEDEF' : '#A0A0AB' }));
+    const tech = [{ text: 'Lỗi: ' + e.raw, c: '#FFC9CE' }].concat(web ? [] : [{ text: '$ ainovel-cli login', c: '#C9A6F5' }, { text: '$ ainovel-cli login --device   # đăng nhập bằng mã', c: '#C9A6F5' }]);
+    return {
+      ok, fail: !ok, fromWeb: web, fromCli: !web, role: ok ? 'status' : 'alert',
+      tone: ok ? 'rgba(166,237,193,0.6)' : 'rgba(246,203,140,0.55)', toneBg: ok ? 'rgba(166,237,193,0.1)' : 'rgba(246,203,140,0.1)', toneBd: ok ? 'rgba(166,237,193,0.3)' : 'rgba(246,203,140,0.3)', toneGlow: ok ? 'rgba(166,237,193,0.35)' : 'rgba(246,203,140,0.28)',
+      h1: ok ? 'Đã kết nối ChatGPT' : 'Chưa kết nối được ChatGPT',
+      lead: ok ? 'Noverse đã được phép dùng gói ChatGPT của bạn để viết truyện.' : 'Đừng lo, tài khoản của bạn vẫn an toàn. Làm theo các bước dưới đây để thử lại.',
+      steps,
+      perks: [
+        { icon: 'i-coin', title: 'Không cần mua API riêng, không tốn thêm phí', desc: 'Các trợ lý AI dùng hạn mức của gói ChatGPT bạn đang có.' },
+        { icon: 'i-refresh', title: 'Không phải đăng nhập lại mỗi lần', desc: 'Noverse tự giữ kết nối luôn còn hiệu lực.' },
+        { icon: 'i-setting', title: 'Ngắt kết nối bất cứ lúc nào', desc: 'Trong Cài đặt › Nhà cung cấp AI.' }
+      ],
+      reasonTitle: e.title, reasonText: e.text, fixes: e.fixes.map((text, i) => ({ n: i + 1, text })),
+      webIcon: ok ? 'i-arrow-l' : 'i-refresh', webCta: ok ? 'Quay lại Noverse' : 'Quay lại Noverse để thử lại',
+      webNote: ok ? 'Tab này sẽ tự đóng sau 3 giây' : 'Có thể đóng tab này',
+      cliIcon: ok ? 'i-arrow-l' : 'i-refresh', cliTitle: ok ? 'Bạn có thể đóng tab này' : 'Thử lại trong cửa sổ Noverse',
+      cliText: ok ? 'Quay lại cửa sổ Noverse — danh sách model bạn được dùng sẽ hiện ra ở đó.' : 'Lệnh cần chạy nằm trong “Chi tiết kỹ thuật” bên dưới.',
+      techOpen: this.state.tech, techIcon: this.state.tech ? 'i-arrow-d' : 'i-arrow-r', toggleTech: () => this.setState({ tech: !this.state.tech }), tech
+    };
+  }
+}
+</script>
+</body>
+</html>

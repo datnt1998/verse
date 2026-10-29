@@ -1,0 +1,28 @@
+/* M4 › Quy tắc viết — chép nguyên từ MMore.dc.html (.mrule .madd .thinkm .uch .ghead .act). Tiền tố `rm-`; `.m-app` để thắng luật button toàn cục. */
+.rm-add{margin:10px 16px 0;border-radius:18px;padding:4px;background:#0F0F11;border:1px solid rgba(255,255,255,.1)}
+.rm-add.f{border-color:rgba(201,166,245,.5);box-shadow:0 0 0 3px rgba(201,166,245,.12)}
+.rm-add textarea{width:100%;min-height:50px;padding:10px 12px 4px;border:none;outline:none;resize:none;background:transparent;color:#EDEDEF;font:inherit;font-size:16px;line-height:1.45}
+.rm-add-bar{display:flex;align-items:center;gap:6px;padding:2px 4px 4px 6px}
+.rm-hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0;flex:1 1 auto;min-width:0}
+.rm-hscroll::-webkit-scrollbar{display:none}
+.m-app .rm-chip{height:30px;font-size:13px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.m-app .rm-add-go:disabled{opacity:1;cursor:default}
+.m-app .rm-add-go{height:36px;padding:0 14px;border-radius:12px;border:none;font-size:14px;font-weight:600;flex:0 0 auto}
+.rm-ghead{display:flex;align-items:center;gap:8px;padding:18px 30px 8px 26px;font-size:12.5px;color:#7E7E8A;letter-spacing:.02em}
+.rm-list{display:flex;flex-direction:column;gap:8px}
+.rm-rule{margin:0 16px;padding:13px 14px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:8px;width:calc(100% - 32px);color:#EDEDEF;text-align:left}
+.m-app button.rm-rule{transition:transform .12s ease}
+.m-app button.rm-rule:active:not(:disabled){transform:scale(.97)}
+.rm-rule.new{animation:rm-new .6s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes rm-new{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rm-uch{height:24px;padding:0 9px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.m-app .rm-grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%}
+.rm-preview{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.rm-preview>span:first-child{font-size:14.5px;color:#C9C9D1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm-preview>span:last-child{font-size:12.5px;color:#8E8E99}
+.rm-sheet-group{border-radius:18px;background:rgba(32,32,35,.98);overflow:hidden}
+.rm-sheet-text{padding:14px 18px;font-size:13.5px;color:#A0A0AB;text-align:center;border-bottom:1px solid rgba(255,255,255,.07);line-height:1.45}
+.m-overlay .rm-act{width:100%;height:56px;border:none;background:transparent;font-size:17px;color:#EDEDEF}
+.m-overlay .rm-act+.rm-act{border-top:1px solid rgba(255,255,255,.07)}
+.rm-ghead .num{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.rm-rule.new{animation:none}}

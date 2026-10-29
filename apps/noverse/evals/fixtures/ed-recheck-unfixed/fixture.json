@@ -1,0 +1,18 @@
+{
+  "title": "Chìa Khóa Ngoài Cửa",
+  "premise": "Lan bị nhốt trong kho sau khi người gác khóa cửa từ bên ngoài. Cô phải tìm cách thoát mà không phá tính nhất quán của cánh cửa và chiếc chìa khóa.",
+  "total_chapters": 3,
+  "outline": [
+    {"chapter":1,"title":"Khóa ngoài","core_event":"Người gác khóa cửa ngoài, mang chìa khóa đi","scenes":["Lan bị nhốt"],"hook":"Lan cần thoát kho"},
+    {"chapter":2,"title":"Bước ra sân","core_event":"Lan thử thoát khỏi kho","scenes":["Lan kiểm tra cửa"],"hook":"Tiếng giày người gác trở lại"},
+    {"chapter":3,"title":"Chiếc chìa khóa","core_event":"Lan đối mặt người gác","scenes":["Tìm chìa khóa"],"hook":"Cuộc đối chất"}
+  ],
+  "characters": [{"name":"Lan","role":"Nhân vật chính","kind":"lead","tier":"core","description":"Người bị nhốt trong kho","traits":["thận trọng"]}],
+  "world_rules": [{"category":"vật lý","rule":"Kho chỉ có một cửa gỗ kín. Khóa ngoài chỉ mở bằng chiếc chìa khóa người gác mang theo; bên trong không có chốt mở khóa."}],
+  "completed": [
+    {"chapter":1,"summary":{"chapter":1,"title":"Khóa ngoài","summary":"Người gác khóa cửa kho từ phía ngoài, bỏ chìa khóa vào túi rồi đi xa. Lan bị nhốt bên trong.","characters":["Lan"],"key_events":["Cửa kho khóa ngoài","Người gác mang chìa khóa đi"]}},
+    {"chapter":2,"summary":{"chapter":2,"title":"Bước ra sân","summary":"Lan kiểm tra cửa khóa, sau đó bước ra sân mà không có ai mở khóa.","characters":["Lan"],"key_events":["Lan đứng trong kho rồi ra sân"]}}
+  ],
+  "reviews": [{"chapter":2,"scope":"chapter","verdict":"rewrite","summary":"Lan ra khỏi kho dù khóa ngoài chưa được mở.","rule_aware":true,"issues":[{"type":"continuity","severity":"error","description":"Cửa vẫn khóa ngoài và chìa khóa do người gác giữ, nhưng Lan đẩy cửa ra sân mà không có bước mở khóa hay lối khác.","evidence":"Lan đẩy cửa bước thẳng ra sân mà không cần mở khóa.","quote":"Lan đẩy cửa bước thẳng ra sân mà không cần mở khóa.","suggestion":"Cho người gác quay lại mở khóa hoặc giữ Lan trong kho cho đến khi có cách thoát hợp lý.","chapters":[2],"requires_change":true}]}],
+  "pending_rechecks": [2]
+}

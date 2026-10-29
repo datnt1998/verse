@@ -1,0 +1,25 @@
+{
+  "id": "ed-timeline-contradiction",
+  "category": "quality",
+  "role": "editor",
+  "description": "Chương 3 dời ngày khai hội về mười ba tháng tư, trái với hai chương trước và dòng thời gian đã lưu (hội ngày rằm, tức mười lăm). Kỳ vọng một issue mức error trích đúng câu sai.",
+  "prompt": "Thẩm duyệt chương 3",
+  "fixture": "ed-timeline-contradiction",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "control": false,
+  "expect": {
+    "review": {
+      "must_find": [
+        {
+          "severity_min": "error",
+          "chapter": 3,
+          "quote_contains": "Hôm nay mười ba tháng tư"
+        }
+      ]
+    }
+  },
+  "gate": { "max_severity": "warning" }
+}

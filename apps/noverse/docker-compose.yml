@@ -1,0 +1,23 @@
+# Offline CLI sandbox only.
+#
+# This file runs the interactive CLI/TUI against a local file library so you can
+# try the book workflow without a database. It is NOT the hosted deployment:
+# no web server, no Postgres, no Traefik, no ffmpeg guarantee.
+#
+# Hosted (Dokploy/Traefik + Postgres + BlobStore + worker) lives in
+# deploy/docker-compose.dokploy.yml with the guide in deploy/README.md.
+services:
+  ainovel:
+    image: ghcr.io/datnt1998/noverse:latest
+    build:
+      context: .
+    volumes:
+      - ./config:/home/noverse/.ainovel
+      - ./workspace:/workspace
+    working_dir: /workspace
+    # Image CMD is `serve` (hosted default); the offline sandbox runs the TUI
+    # (no arguments) instead.
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["exec ainovel-cli"]
+    stdin_open: true
+    tty: true

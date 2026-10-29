@@ -1,0 +1,37 @@
+/* Quy tắc viết — lớp phụ của Settings.dc.html (#rules) và MMore.dc.html (rules*), tiền tố `rl-`. Giá trị chép nguyên văn từ artboard. */
+.rl-rule { position: relative; padding: 14px 16px; border-radius: 14px; background: #141416; border: 1px solid rgba(255,255,255,.07); display: flex; flex-direction: column; gap: 10px; transition: border-color .2s, background .2s; }
+.rl-rule:hover { border-color: rgba(255,255,255,.12); }
+.rl-rule:hover .rl-acts, .rl-rule:focus-within .rl-acts { opacity: 1; }
+.rl-rule.inh { background: transparent; border-style: dashed; border-color: rgba(255,255,255,.08); }
+.rl-rule.new { animation: rl-new .7s cubic-bezier(.2,.9,.25,1.05) both; }
+@keyframes rl-new { 0% { opacity: 0; transform: translateY(-8px); box-shadow: 0 0 0 0 rgba(201,166,245,0); } 40% { box-shadow: 0 0 0 3px rgba(201,166,245,.25); } 100% { opacity: 1; transform: none; box-shadow: 0 0 0 0 rgba(201,166,245,0); } }
+.rl-acts { position: absolute; top: 10px; right: 10px; display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+.rl-acts button { width: 28px; height: 28px; border: none; border-radius: 7px; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center; }
+.rl-acts button:hover { background: rgba(255,255,255,.07); color: #EDEDEF; }
+.rl-uchip { height: 24px; padding: 0 9px; border-radius: 7px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.rl-addbox { border-radius: 16px; padding: 4px; background: #0F0F11; border: 1px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; }
+.rl-addbox.f { border-color: rgba(201,166,245,.5); box-shadow: 0 0 0 3px rgba(201,166,245,.12); }
+.rl-addbox textarea { width: 100%; min-height: 52px; padding: 10px 12px 4px; border: none; outline: none; resize: none; background: transparent; color: #EDEDEF; font: inherit; font-size: 14.5px; line-height: 1.5; }
+.rl-tpl { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.09); background: transparent; color: #C9C9D1; font-size: 12.5px; white-space: nowrap; }
+.rl-tpl:hover { background: rgba(255,255,255,.05); }
+.rl-ghd { display: flex; align-items: center; gap: 10px; padding: 6px 2px 2px; font-size: 12.5px; color: #8E8E99; }
+.rl-ghd b { font-weight: 600; color: #C9C9D1; font-size: 13px; }
+.rl-thinking { background: linear-gradient(90deg, #A0A0AB 0%, #A0A0AB 35%, #F3E8FF 50%, #A0A0AB 65%, #A0A0AB 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: rl-shim 1.6s linear infinite; }
+@keyframes rl-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.rl-vio { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.06); }
+.rl-vio:first-of-type { border-top: none; }
+.rl-drawer { animation: rl-fa .35s cubic-bezier(.2,.9,.25,1.05) both; }
+@keyframes rl-fa { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.rl-orb { border-radius: 50%; flex: 0 0 auto; box-shadow: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4); background: radial-gradient(circle at 32% 26%, #E9FBEF 0%, #A6EDC1 28%, #5DC1B0 60%, #3E73D6 100%); }
+.rl-btn-ghost:hover { background: rgba(255,255,255,.07) !important; }
+.rl-btn-primary:hover:not(:disabled) { background: #FFFFFF !important; }
+.rl-row:hover { background: rgba(255,255,255,.04) !important; }
+.rl-root button:focus-visible, .rl-root textarea:focus-visible, .rl-root input:focus-visible { outline: 2px solid #C9A6F5; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .rl-rule.new, .rl-drawer, .rl-thinking, .rl-acts { animation: none !important; transition: none !important; } .rl-thinking { color: #A0A0AB; background: none; -webkit-background-clip: border-box; background-clip: border-box; } }
+/* Artboard dùng line-height 1.5 (nền app là 1.55) — giữ đúng từng px của Settings.dc.html. */
+.rl-root { line-height: 1.5; }
+/* D6 — badge mức (Bắt sửa / Cảnh báo / Đạt) và bảng “Xem đủ số đo” (Settings.dc.html › .pbadge, .mtab). */
+.rl-pbadge { height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex: 0 0 auto; }
+.rl-mtab { display: flex; flex-direction: column; }
+.rl-mtab > div { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 12.5px; border-top: 1px solid var(--line-1); }
+.rl-mtab > div:first-child { border-top: none; }

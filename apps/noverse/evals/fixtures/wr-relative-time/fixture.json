@@ -1,0 +1,221 @@
+{
+  "title": "Trạm Nghiệp Dư Sông Lôi",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn đời thường miền sông — giọng kể trầm, nhịp chậm, ưu tiên chi tiết nghề và cảnh quan sông rừng.\n\n## Định vị thể loại\nTruyện về một nghề đang tắt: trạm nghiệp dư là nơi giữ những lá thư không thuộc hệ thống, câu chuyện chạy trên ranh giới giữa giao và hóa.\n\n## Xung đột cốt lõi\nÂn vừa nhận trạm thì phải quyết định một lá thư từ năm 1979: bà Thiêm đã mất nhưng người nhận trên phong bì là em gái bà — giao, hóa, hay tra tiếp.\n\n## Mục tiêu nhân vật chính\nLàm đúng luật trạm mà không bỏ rơi người nhận cuối cùng của một lô thư bốn mươi năm chưa giao.\n\n## Hướng kết cục\nLá thư dẫn tới lão Hờn — người viết chưa chắc đã chết — và một lời hứa cũ gắn với bãi Đống Hời ở ngã ba Nậm Mười.\n\n## Vùng cấm sáng tác\nKhông có ma, không có phép, không có điện thoại hay internet tại trạm; mọi liên lạc đi bằng thư tín và ghe hàng.\n\n## Điểm bán hàng khác biệt\nNghi thức xử lý thư nghiệp dư (giao — hóa — tra) làm bộ khung quyết định cho từng chương.\n\n## Móc câu khác biệt\nLuật trạm ghi bằng đũa gõ vào ván: chưa biết thì đừng đoán.\n\n## Cam kết cốt lõi\nMỗi chương mở thêm một lớp của lô thư 1979 và ép Ân chọn giữa tuân lệnh và trách nhiệm.\n\n## Tính phù hợp với truyện ngắn\nMột trạm, một lô thư, một cuộc tra ngắn trước lễ Vu Lan.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Trạm nghiệp dư sông Lôi",
+      "core_event": "Ân nhận trạm từ lão Rơm, học ba luật xử lý thư; lá thư gửi em gái bà Thiêm với mã ĐN-1979 được ghi vào sổ tra.",
+      "hook": "Cuối ngày đầu, Ân ghi lá thư chưa rõ sống chết vào hai trang sổ tra còn trống.",
+      "scenes": ["Bàn giao trạm và ba luật thư", "Ghi lá thư ĐN-1979 vào sổ tra", "Làm quen cột cáp và đèn dầu", "Đêm đầu nghe tiếng kẹt thư đi qua đèo"],
+      "open_questions": ["Lão Hờn là ai và còn sống không?", "Em gái bà Thiêm ở đâu?"],
+      "promise": "Ân nhận ca trực đầu tiên và ghi lá thư đầu tiên vào sổ tra"
+    },
+    {
+      "chapter": 2,
+      "title": "Bó thư chưa hóa",
+      "core_event": "Đỗ Nghiêm xác nhận bà Thiêm đã mất nhưng người nhận là em gái bà; Ân mở rương nghiệp dư, tìm bó thư lũ 1979 và mảnh bản đồ lá cọ ghi ĐH.",
+      "hook": "Chạng vạng đổ xuống sông; Ân giữ bản đồ ĐH cạnh ba lá thư cùng tay, quyết tra tiếp thay vì hóa.",
+      "scenes": ["Ghi sổ tra đầy đủ", "Đỗ Nghiêm mang tin bà Thiêm mất", "Mở rương nghiệp dư, tìm bó thư 1979", "Đọc lá đầu, phát hiện bản đồ lá cọ ghi ĐH"],
+      "open_questions": ["ĐH là nơi lão Hờn trốn nợ hay nơi lão giấu gì?", "Em gái bà Thiêm còn ở ngã ba Nậm Mười không?"],
+      "promise": "Quyết tra người nhận thật trước khi hóa",
+      "hook_type": "quyet_dinh_treo"
+    },
+    {
+      "chapter": 3,
+      "title": "Tra ngược dòng",
+      "core_event": "Ngay chạng vạng hôm ấy, Ân và Đỗ Nghiêm đối chiếu bản đồ lá cọ với sổ ghi của lão Rơm và chuyện ghe cũ, xác định ĐH là Đống Hời trên ngã ba Nậm Mười; Ân đọc lá thư thứ hai.",
+      "hook": "Lá thứ hai tiết lộ lão Hờn giấu một gói tài liệu nhờ bà Thiêm trông — và lễ Vu Lan chỉ còn ba tuần.",
+      "scenes": ["Đối chiếu bản đồ với sổ ghi trong bóng chạng vạng", "Đỗ Nghiêm kể đường ghe lên ngã ba Nậm Mười", "Đọc lá thư thứ hai, biết có gói tài liệu", "Quyết sẽ đi tra người em gái trước lễ Vu Lan"],
+      "open_questions": ["Gói tài liệu lão Hờn giấu là gì?", "Em gái bà Thiêm tên thật là gì?"],
+      "promise": "da_tra: Ân và Đỗ Nghiêm xác định Đống Hời là đích tra",
+      "hook_type": "lat_thong_tin",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Ngã ba Nậm Mười",
+      "core_event": "Ân đi theo ghe Đỗ Nghiêm lên ngã ba Nậm Mười, gặp bà Sành — em gái bà Thiêm — còn sống, già và đợi tin chị hàng chục năm.",
+      "hook": "Bà Sành nhận ra chữ lão Hờn và nói lão từng hẹn sẽ quay lại vào mùa nước lũ.",
+      "scenes": ["Ghe ngược dòng qua đèo", "Hỏi chợ mới, tìm nhà bà Sành", "Đưa lá thư, bà khóc và kể chuyện chị", "Bà kể lời hẹn của lão Hờn"],
+      "open_questions": ["Lão Hờn có còn sống để giữ hẹn không?", "Gói tài liệu bà Thiêm từng giữ đi đâu?"],
+      "promise": "Đưa thư tới đúng tay người nhận trên phong bì",
+      "hook_type": "lat_thong_tin"
+    },
+    {
+      "chapter": 5,
+      "title": "Bãi Đống Hời",
+      "core_event": "Bà Sành dẫn Ân ra bãi Đống Hời khi nước rút; họ tìm thấy gói tài liệu trong hòm gỗ chôn dưới bãi — nhật ký đi đường của lão Hờn.",
+      "hook": "Trang cuối nhật ký ghi ngày lão Hờn sẽ về — trùng đúng lễ Vu Lan năm nay.",
+      "scenes": ["Đi bãi ngập rút", "Đào hòm gỗ dưới cát", "Đọc nhật ký", "Đối chiếu ngày hẹn với lễ Vu Lan"],
+      "open_questions": ["Lão Hờn sẽ đến trạm hay đến bãi?", "Bà Sành có đọc được nhật ký không?"],
+      "promise": "Giải được ký hiệu ĐH",
+      "hook_type": "de_doa_moi"
+    },
+    {
+      "chapter": 6,
+      "title": "Vu Lan ở trạm",
+      "core_event": "Đêm Vu Lan, Ân hóa phần thư không ai nhận theo đúng luật; lão Hờn xuất hiện ở bến để nhận phần thư của mình và gặp bà Sành.",
+      "hook": "Trạm nghiệp dư ghi được lá thư cuối cùng: giao đúng tay bốn mươi sáu năm sau ngày gửi.",
+      "scenes": ["Dọn lễ hóa thư", "Lão Hờn xuất hiện", "Gặp bà Sành", "Ghi dòng sổ tra cuối"],
+      "open_questions": [],
+      "promise": "da_tra: Lô thư 1979 được khép lại theo đúng luật trạm",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Ân",
+      "role": "người trông trạm nghiệp dư mới nhận việc",
+      "description": "Cháu ngoại ông chủ trạm đời trước; cẩn thận, thích ghi chép hơn thích nói, coi luật trạm như ruộng nhà.",
+      "arc": "Từ người giữ luật bằng sổ sách thành người giữ luật bằng cả trách nhiệm với người nhận.",
+      "traits": ["cẩn thận", "ít nói", "nhớ nhanh tên địa danh"],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Lão Rơm",
+      "role": "người trông trạm ba mươi năm vừa tính hưu",
+      "description": "Dạy nghề bằng đũa gõ vào tấm ván luật; giữ lối ghi sổ bằng mã tra và thói quen buộc thư bằng dây trấu đỏ.",
+      "arc": "Rời trạm nhưng để lại cả một triết lý về thư chưa giao.",
+      "traits": ["kỹ luật", "nói ngắn", "giữ thư lâu hơn giữ tiền"],
+      "kind": "support",
+      "tier": "important"
+    },
+    {
+      "name": "Đỗ Nghiêm",
+      "role": "chủ ghe hàng chạy tuyến sông Lôi",
+      "description": "Biết mọi bến và mọi người hai đầu sông; nhận ra chữ lão Hờn và tên địa danh cũ nhanh như tra sổ.",
+      "arc": "Từ người chở hàng thành người dẫn Ân đi tra tận nguồn.",
+      "traits": ["am hiểu đường sông", "kể chuyện quanh co", "máu tò mò"],
+      "kind": "ally",
+      "tier": "important"
+    },
+    {
+      "name": "Bà Thiêm",
+      "role": "người nhận đã mất, chỉ hiện qua thư và lời kể",
+      "description": "Người buôn chợ Đoài, mất đông năm ngoái; người lão Hờn gửi thư trong những năm 1979.",
+      "arc": "Vắng mặt nhưng giữ trọng tâm của cả lô thư.",
+      "traits": ["vắng mặt", "được nhớ bằng thư"],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Trạm nghiệp dư xử lý thư theo ba luật: người sống giao, người mất hóa vào lễ Vu Lan, chưa rõ thì ghi sổ tra. Tính người nhận theo chữ trên phong bì.",
+      "boundary": "Không được hóa hay giao một lá thư khi chưa xác định người nhận trên phong bì còn sống hay đã mất."
+    },
+    {
+      "category": "geography",
+      "rule": "Sông Lôi chạy qua đèo, trạm nhận thư bằng dây cáp; bản Đoài đã đổi chỗ, ngã ba Nậm Mười nằm thượng nguồn, đường chỉ đi được bằng ghe hàng.",
+      "boundary": "Không có đường bộ và không có điện tại trạm; mọi di chuyển xa đều qua ghe."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Trạm nghiệp dư sông Lôi",
+        "summary": "Ân nhận trạm nghiệp dư từ lão Rơm với ba luật: giao cho người sống, hóa cho người mất, ghi sổ tra nếu chưa rõ. Ngày đầu cô nhận lá thư gửi em gái bà Thiêm với mã ĐN-1979, ghi vào sổ tra.",
+        "characters": ["Ân", "Lão Rơm", "Đỗ Nghiêm"],
+        "key_events": ["Bàn giao trạm và ba luật", "Lá thư ĐN-1979 vào sổ tra", "Đỗ Nghiêm nhận ra mã của lão Hờn", "Đêm đầu nghe tiếng kẹt cột cáp"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Bó thư chưa hóa",
+        "summary": "Đỗ Nghiêm xác nhận bà Thiêm mất đông năm ngoái, nhưng người nhận trên phong bì là em gái bà ở ngã ba Nậm Mười. Ân mở rương nghiệp dư, tìm bó thư lũ 1979 chưa giao chưa hóa và mảnh bản đồ lá cọ ghi ĐH — Đống Hời. Chạng vạng đổ xuống khi cô quyết tra tiếp.",
+        "characters": ["Ân", "Đỗ Nghiêm"],
+        "key_events": ["Bà Thiêm đã mất, người nhận là em gái", "Mở rương nghiệp dư, tìm bó thư 1979", "Đọc lá đầu, phát hiện bản đồ lá cọ ghi ĐH", "Ghi sổ tra, quyết không hóa"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Sáng, ngày nhận ca",
+      "event": "Lão Rơm bàn giao trạm và ba luật xử lý thư",
+      "characters": ["Ân", "Lão Rơm"]
+    },
+    {
+      "chapter": 1,
+      "time": "Tối cùng ngày",
+      "event": "Lá thư gửi em gái bà Thiêm, mã ĐN-1979, được ghi vào sổ tra",
+      "characters": ["Ân", "Đỗ Nghiêm"]
+    },
+    {
+      "chapter": 2,
+      "time": "Trưa hôm sau",
+      "event": "Đỗ Nghiêm báo bà Thiêm đã mất đông năm ngoái; người nhận là em gái bà",
+      "characters": ["Ân", "Đỗ Nghiêm"]
+    },
+    {
+      "chapter": 2,
+      "time": "Chiều tối (chạng vạng)",
+      "event": "Ân tìm bó thư 1979 và bản đồ lá cọ ghi ĐH, quyết tra tiếp thay vì hóa",
+      "characters": ["Ân", "Đỗ Nghiêm"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {"id": "thu_dn_1979", "action": "plant", "description": "Lá thư gửi em gái bà Thiêm, mã ĐN-1979 của lão Hờn, chưa rõ người nhận sống hay mất."},
+        {"id": "hai_trang_so_tra", "action": "plant", "description": "Cuối sổ tra của lão Rơm còn đúng hai trang trống — như chờ một vụ tra cuối."}
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "thu_dn_1979", "action": "advance", "description": "Bà Thiêm đã mất; lá thư cùng bó mười hai lá năm 1979 và bản đồ ĐH mở ra đường tra tới ngã ba Nậm Mười."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Ân", "field": "status", "new_value": "người trông trạm nghiệp dư sông Lôi"},
+    {"chapter": 1, "entity": "Lá thư ĐN-1979", "field": "status", "new_value": "ghi sổ tra"},
+    {"chapter": 2, "entity": "Lá thư ĐN-1979", "field": "status", "old_value": "ghi sổ tra", "new_value": "chờ tra người nhận tại ngã ba Nậm Mười"},
+    {"chapter": 2, "entity": "Ân", "field": "location", "old_value": "trong trạm", "new_value": "trạm nghiệp dư, chạng vạng, cùng Đỗ Nghiêm"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Tra ngược dòng",
+      "goal": "Tiếp nối ngay chạng vạng hôm ấy: đối chiếu bản đồ ĐH, nghe Đỗ Nghiêm kể đường ghe lên Nậm Mười, và mở lá thư thứ hai.",
+      "conflict": "Trời tối dần và tin tức còn mỏng: Ân phải chọn giữa hóa theo luật hay giữ lô thư để tra nguồn, khi mà bà Thiêm đã mất và người nhận thật còn bỏ ngỏ.",
+      "hook": "Lá thư thứ hai tiết lộ lão Hờn đã gửi bà Thiêm một gói tài liệu để giữ hộ — và lễ Vu Lan chỉ còn ba tuần.",
+      "emotion_arc": "Từ do dự đứng trước luật sang quyết định lặng lẽ đi tra cho đến tận người nhận cuối cùng.",
+      "contract": {
+        "required_beats": [
+          "Chương tiếp ngay chạng vạng hôm ấy, Ân và Đỗ Nghiêm còn ngồi cạnh bàn với ba lá thư và mảnh bản đồ",
+          "Đối chiếu bản đồ lá cọ với sổ ghi của lão Rơm, khẳng định ĐH là Đống Hời trên ngã ba Nậm Mười",
+          "Đỗ Nghiêm kể đường ghe và người có thể hỏi ở chợ mới",
+          "Ân đọc lá thư thứ hai, biết có gói tài liệu bà Thiêm từng giữ hộ"
+        ],
+        "forbidden_moves": [
+          "Không nhảy sang sáng hôm sau hay ngày mới",
+          "Không để Ân quyết hóa bó thư trong chương này",
+          "Không đưa bà Sành hay lão Hờn ra mặt"
+        ],
+        "continuity_checks": [
+          "Bà Thiêm đã mất đông năm ngoái; người nhận trên phong bì là em gái bà",
+          "Bó thư gồm mười hai lá, ba lá cùng tay lão Hờn đã để riêng trên bàn",
+          "Lễ Vu Lan là hạn hóa thư theo luật trạm"
+        ],
+        "evaluation_focus": [
+          "Thời điểm trong chương có nối liền chạng vạng chương trước không",
+          "Thông tin về Nậm Mười có đi qua lời Đỗ Nghiêm hoặc sổ ghi, không phải kiến thức tự có của người kể"
+        ],
+        "emotion_target": "Quyết định lặng lẽ thay cho xung đột lớn.",
+        "payoff_points": ["Sổ tra hai trang trống bắt đầu được điền"],
+        "hook_goal": "Người đọc muốn biết gói tài liệu lão Hờn giấu là gì."
+      }
+    }
+  ]
+}

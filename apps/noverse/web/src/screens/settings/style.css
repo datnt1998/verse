@@ -1,0 +1,28 @@
+/* Gói AL — lớp phụ của Cách viết (Settings.dc.html + Outline.dc.html › tab=style/pstyle).
+   Tách khỏi settings.css để tab Cách viết của truyện và mục Cách viết của dự án dùng chung. */
+.st-sec { border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.st-srow { display: flex; align-items: flex-start; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line-1); }
+.st-srow:first-of-type { border-top: none; padding-top: 2px; }
+.st-stx { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.st-stx b { font-size: 14px; font-weight: 500; color: var(--color-fg); }
+.st-stx span { font-size: 12.5px; color: var(--kit-fg-icon); line-height: 1.5; }
+.st-field { height: 34px; padding: 0 10px; border-radius: 9px; background: var(--color-surface-0); border: 1px solid var(--line-4); color: var(--color-fg); font-size: 13px; outline: none; width: 100%; }
+.st-uchip { height: 24px; padding: 0 9px; border-radius: 7px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+/* Gói thể loại + kiểu viết (Settings.dc.html .style/.grph/.pbadge/.lyr/.pchip) — màu qua token. */
+.st-style { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line-3); background: var(--color-card); color: var(--color-fg); text-align: left; transition: border-color .2s, background .2s; }
+.st-style.on { border-color: var(--kit-acc-55); background: var(--kit-acc-7); }
+.st-style:disabled { opacity: .55; cursor: default; }
+.st-grph { display: flex; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--color-fg-3); text-transform: uppercase; }
+.st-grph span { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--color-fg-4); }
+.st-pbadge { height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex: 0 0 auto; }
+.st-lyr { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line-1); }
+.st-pchip { height: 26px; padding: 0 10px; border-radius: 8px; background: var(--color-surface-3); border: 1px solid var(--line-2); font-size: 12.5px; color: var(--color-fg-2); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.st-drawer { animation: st-fa .35s cubic-bezier(.2,.9,.25,1.05) both; }
+@keyframes st-fa { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
+/* Thanh kế thừa của tab Cách viết (Outline.dc.html .inh + .smp). */
+.st-inh { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--color-card); border: 1px solid var(--line-2); }
+.st-inh.own { border-color: var(--kit-acc-35); background: var(--kit-acc-5); }
+.st-smp { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line-1); }
+.st-smp:first-child { border-top: none; }
+.st-field:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .st-drawer { animation: none !important; transition: none !important; } }

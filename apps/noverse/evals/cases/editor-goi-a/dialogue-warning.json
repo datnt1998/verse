@@ -1,0 +1,28 @@
+{
+  "id": "editor-goi-a-dialogue-warning",
+  "category": "quality",
+  "role": "editor",
+  "description": "Chương ba của truyện tám chương có khoảng 34% thoại, chỉ vi phạm cảnh báo tỷ lệ thoại Master §13. Kỳ vọng accept kèm issue warning, requires_change=false, rule_ref Master §13. Không được nâng cảnh báo này thành LỖI vì cùng mục §13 có luật LỖI khác; đây không phải cảnh đối chất cao trào.",
+  "fixture": "editor-goi-a-dialogue-warning",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "style": "nu-tan-bao-thu",
+  "max_chapters": 3,
+  "target_prompts": ["editor.md"],
+  "rubric": "Thẩm duyệt độc lập chương ba, không phải cao trào cuối truyện tám chương. Nhóm nghe nữ 18–35. Lâm Vãn kể ngôi tôi, Tô Khiết là em nuôi, Hạ Dương là đồng nghiệp. Điểm khác: thợ đồng hồ dùng vết khắc nhỏ của mẹ để tìm lại tác quyền. Các chương trước đã gieo mẫu khắc, cuốn sổ của mẹ, ảnh gốc và trò đánh tráo; cảnh sau sẽ giải câu hỏi về người trong nhà giúp Khiết. Chỉ chấm mẫu ngắn, không chấm thiếu độ dài chuẩn hay các đầu ra cấp truyện chưa được cung cấp. Mong đợi verdict accept với issue warning về tỷ lệ thoại khoảng 34%, requires_change=false, rule_ref Master §13, rule_text chép câu Thoại chiếm khoảng 40–55% mỗi chương. Có thể giữ nhịp kể để làm rõ vật chứng, nêu lý do trong issue. Không được nâng cảnh báo này thành LỖI chỉ vì cùng mục §13 có luật LỖI khác; đây không phải cảnh đối chất cao trào. Đoạn cuối mở nguy cơ mới nên không phạm Master §7.",
+  "prompt": "Thẩm duyệt chương 3",
+  "expect": {
+    "review": {
+      "verdict_in": ["accept"],
+      "must_find": [
+        {"severity_min": "warning", "chapter": 3, "rule_ref": "Master §13"}
+      ],
+      "must_not_find": [
+        {"severity_min": "error"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

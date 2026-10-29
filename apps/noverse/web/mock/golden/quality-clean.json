@@ -1,0 +1,101 @@
+{
+  "pack": {
+    "id": "nu-tan-bao-thu",
+    "ten": "Nữ tần trọng sinh báo thù, vả mặt"
+  },
+  "sections": [
+    {
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương"
+    },
+    {
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài"
+    },
+    {
+      "ref": "Bộ A §4.3",
+      "refName": "Trà xanh và phản diện"
+    }
+  ],
+  "chapters": [
+    {
+      "n": 1,
+      "title": "Chương 1",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 2,
+      "title": "Chương 2",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 3,
+      "title": "Chương 3",
+      "status": "approved",
+      "rewrites": []
+    }
+  ],
+  "cells": [
+    {
+      "ref": "Master §7",
+      "ch": 3,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 3,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Bộ A §4.3",
+      "ch": 3,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    }
+  ],
+  "issues": [
+    {
+      "id": "ch3-e2ccffd3",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Thoại còn ít",
+      "quote": "trích Thoại còn ít",
+      "fix": "sửa Thoại còn ít",
+      "ch": 3,
+      "state": "open"
+    },
+    {
+      "id": "ch3-3e68f6e8",
+      "level": "warning",
+      "ref": "Bộ A §4.3",
+      "refName": "Trà xanh và phản diện",
+      "text": "Trà xanh chưa gắn",
+      "quote": "trích Trà xanh chưa gắn",
+      "fix": "sửa Trà xanh chưa gắn",
+      "ch": 3,
+      "state": "open"
+    },
+    {
+      "id": "ch3-008528d4",
+      "level": "error",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Vòng 1: kết an toàn",
+      "quote": "trích Vòng 1: kết an toàn",
+      "fix": "sửa Vòng 1: kết an toàn",
+      "ch": 3,
+      "state": "fixed"
+    }
+  ]
+}

@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Gợi ý lệnh khi gõ /</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.crow:hover{background:rgba(255,255,255,.045) !important}
+.chip:hover{border-color:rgba(255,255,255,.22) !important;color:#EDEDEF !important}
+.pop-in{animation:popin .16s cubic-bezier(.2,.8,.3,1) both;transform-origin:50% 100%}
+@keyframes popin{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+.toast{animation:toast .3s ease-out both}
+@keyframes toast{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ring-run{position:absolute;inset:-1px;border-radius:19px;padding:1px;background:linear-gradient(90deg,#5A57E3,#9A63E3,#C9457F,#5DC1B0,#5A57E3);background-size:300% 100%;animation:flow 3s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
+@keyframes flow{from{background-position:0 0}to{background-position:300% 0}}
+.tline{white-space:pre-wrap;word-break:break-word}
+.cmp{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:14px;letter-spacing:0}
+.slot{border-radius:4px;background:rgba(201,166,245,.16);box-shadow:inset 0 -1.5px 0 #C9A6F5}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-flash{-webkit-mask-image:url(../icons/flash.svg);mask-image:url(../icons/flash.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-help{-webkit-mask-image:url(../icons/message-question.svg);mask-image:url(../icons/message-question.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-magic{-webkit-mask-image:url(../icons/magic-star.svg);mask-image:url(../icons/magic-star.svg)}
+.i-messages{-webkit-mask-image:url(../icons/messages-2.svg);mask-image:url(../icons/messages-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-swap{-webkit-mask-image:url(../icons/arrow-swap-horizontal.svg);mask-image:url(../icons/arrow-swap-horizontal.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="height: 100vh; min-height: 700px; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
+
+<header style="flex: 0 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<div style="display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0">
+<div class="nv-mark" aria-hidden="true" style="position: relative; flex: 0 0 auto; width: 30.2px; height: 22px"><span style="position: absolute; left: 0.05px; top: 4.94px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 7.89px; top: 0.0px; width: 14.38px; height: 14.38px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 17.87px; top: 5.47px; width: 12.23px; height: 12.23px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 9.6px; top: 11.05px; width: 10.95px; height: 10.95px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></div>
+<a href="Outline.dc.html" style="height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #131315; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #A0A0AB"></span>Kênh truyện audio</a>
+<span style="color: #3A3A40" aria-hidden="true">/</span>
+<a href="Outline.dc.html" style="min-width: 0; font-size: 13px; color: #C9C9D1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Trà Xanh Cướp Kịch Bản…</a>
+</div>
+<nav aria-label="Điều hướng chính" style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
+<a href="Main.dc.html" aria-current="page" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #222225; color: #EDEDEF; font-size: 13px; font-weight: 500; white-space: nowrap"><span class="ic i-category-b" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>Bàn viết</a>
+<a class="navl" href="Outline.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px; white-space: nowrap"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px"></span>Dự án</a>
+<a class="navl" href="Reader.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px; white-space: nowrap"><span class="ic i-book" aria-hidden="true" style="width: 16px; height: 16px"></span>Trình đọc</a>
+<a class="navl" href="Transcript.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px; white-space: nowrap"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Audio</a>
+<a class="navl" href="NewStory.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px; white-space: nowrap"><span class="ic i-add-square" aria-hidden="true" style="width: 16px; height: 16px"></span>Truyện mới</a>
+</nav>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
+<a class="ghost" href="Commands.dc.html" style="height: 32px; padding: 0 10px; border-radius: 8px; display: flex; align-items: center; gap: 6px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="ic i-help" aria-hidden="true" style="width: 17px; height: 17px"></span>Hướng dẫn</a>
+<a class="ghost" href="Settings.dc.html" aria-label="Tuỳ chỉnh" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span></a>
+<span class="av" aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; font-size: 12px">D</span>
+</div>
+</header>
+
+<div style="flex: 1 1 auto; min-height: 0; display: flex">
+<aside aria-hidden="true" style="flex: 0 0 236px; border-right: 1px solid rgba(255,255,255,0.06); padding: 16px; display: flex; flex-direction: column; gap: 10px; opacity: 0.45">
+<span class="lbl">Đại cương</span>
+<sc-for list="{{outline}}" as="o" hint-placeholder-count="8"><div style="display: flex; gap: 10px; font-size: 13px; color: #A0A0AB"><span class="mono num" style="color: #5E5E68; width: 16px">{{o.n}}</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.t}}</span></div></sc-for>
+</aside>
+
+<main style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: 16px 18px 12px; gap: 12px">
+<div aria-hidden="true" style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; opacity: 0.35">
+<div style="font-size: 19px; font-weight: 600">Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc</div>
+<div class="card" style="flex: 1 1 auto; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{feed}}" as="f" hint-placeholder-count="6"><div style="font-size: 12.5px; color: #8E8E99; display: flex; gap: 12px"><span class="num" style="color: #5E5E68">{{f.t}}</span><span>{{f.x}}</span></div></sc-for>
+</div>
+</div>
+
+<div style="flex: 0 0 auto; position: relative; display: flex; flex-direction: column; gap: 6px">
+
+<sc-if value="{{showPop}}" hint-placeholder-val="{{ true }}">
+<div class="pop-in dlg" role="dialog" aria-label="Gợi ý lệnh" style="position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); height: 452px; display: flex; flex-direction: column; overflow: hidden; z-index: 5">
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+<span class="ic {{popIcon}}" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span>
+<span style="font-size: 12.5px; font-weight: 600; white-space: nowrap">{{popTitle}}</span>
+<span style="font-size: 12px; color: #7E7E8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0">{{popSub}}</span>
+<span style="flex: 1"></span>
+<sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span style="height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(246,203,140,0.08); border: 1px solid rgba(246,203,140,0.22); color: #F6CB8C; font-size: 11.5px; display: flex; align-items: center; gap: 6px; white-space: nowrap"><span class="orb o-writer" aria-hidden="true" style="width: 10px; height: 10px"></span>Đang viết chương 25</span></sc-if>
+</div>
+
+<div style="flex: 1 1 auto; min-height: 0; display: flex">
+<!-- LEFT LIST -->
+<div class="scroll" role="listbox" aria-label="{{popTitle}}" style="flex: 0 0 300px; min-width: 0; border-right: 1px solid rgba(255,255,255,0.06); padding: 6px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto">
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="2">
+<span class="lbl" style="font-size: 10.5px; padding: 8px 10px 4px">{{s.label}}</span>
+<sc-for list="{{s.items}}" as="it" hint-placeholder-count="4">
+<button class="crow" type="button" role="option" aria-selected="{{it.hi}}" onClick="{{it.pick}}" onMouseEnter="{{it.hover}}" style="display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 10px; border: none; border-radius: 9px; background: {{it.bg}}; color: #EDEDEF; text-align: left; flex: 0 0 auto">
+<span style="min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column">
+<span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="color: {{it.c1}}">{{it.a}}</span><span style="color: {{it.c2}}; font-weight: 500">{{it.b}}</span><span style="color: {{it.c1}}">{{it.c}}</span></span>
+<span style="font-size: 11.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.desc}}</span>
+</span>
+<sc-if value="{{it.tag}}" hint-placeholder-val="{{ false }}"><span style="height: 19px; padding: 0 6px; border-radius: 5px; font-size: 10.5px; display: flex; align-items: center; white-space: nowrap; flex: 0 0 auto; background: {{it.tagBg}}; color: {{it.tagFg}}">{{it.tag}}</span></sc-if>
+<sc-if value="{{it.hi}}" hint-placeholder-val="{{ false }}"><span class="kbd" style="flex: 0 0 auto">Tab</span></sc-if>
+</button>
+</sc-for>
+</sc-for>
+<sc-if value="{{listEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px 10px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #C9C9D1">{{emptyTitle}}</span><span style="font-size: 12px; color: #7E7E8A">{{emptyText}}</span></div>
+</sc-if>
+</div>
+
+<!-- RIGHT DETAIL -->
+<div class="scroll" style="flex: 1 1 auto; min-width: 0; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto">
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+<span class="mono" style="font-size: 18px; color: #C9A6F5">{{dt.slash}}</span>
+<span style="font-size: 14.5px; font-weight: 600">{{dt.title}}</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px">
+<sc-for list="{{dt.badges}}" as="b" hint-placeholder-count="2"><span style="height: 22px; padding: 0 8px; border-radius: 6px; background: {{b.bg}}; border: 1px solid {{b.bd}}; color: {{b.fg}}; font-size: 11.5px; display: flex; align-items: center; gap: 5px; white-space: nowrap"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 13px; height: 13px"></span>{{b.label}}</span></sc-for>
+</div>
+
+<sc-if value="{{dt.isList}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; font-size: 13px; color: #C9C9D1">{{dt.lead}}</p>
+</sc-if>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="lbl" style="font-size: 10.5px">Cú pháp</span>
+<div class="mono tline" style="padding: 9px 11px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; line-height: 1.8"><sc-for list="{{dt.usage}}" as="t" hint-placeholder-count="4"><span>{{t.sp}}</span><span class="{{t.cls}}" style="color: {{t.c}}; padding: 0 1px">{{t.t}}</span></sc-for></div>
+</div>
+
+<sc-if value="{{dt.hasSlot}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 10px; background: rgba(201,166,245,0.06); border: 1px solid rgba(201,166,245,0.18)">
+<span style="font-size: 12px; color: #DCC8F8; display: flex; gap: 6px; align-items: center"><span class="ic i-edit" aria-hidden="true" style="width: 13px; height: 13px"></span>{{dt.slotTitle}}</span>
+<span style="font-size: 12.5px; color: #D6D6DC">{{dt.slotDesc}}</span>
+<sc-if value="{{dt.slotDef}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #8E8E99">{{dt.slotDef}}</span></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{dt.hasEx}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="lbl" style="font-size: 10.5px">Gợi ý cách dùng</span>
+<sc-for list="{{dt.examples}}" as="e" hint-placeholder-count="2">
+<button class="crow" type="button" onClick="{{e.use}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 7px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.06); background: transparent; color: #EDEDEF; text-align: left">
+<span class="mono tline" style="font-size: 12.5px"><sc-for list="{{e.toks}}" as="t" hint-placeholder-count="2"><span style="color: {{t.c}}">{{t.t}}</span></sc-for></span>
+<span style="font-size: 11.5px; color: #8E8E99">{{e.text}}</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{dt.isArgs}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="lbl" style="font-size: 10.5px">Khi nhấn Enter</span>
+<div role="status" style="display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: {{dt.stFg}}"><span class="ic {{dt.stIcon}}" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 3px"></span><span>{{dt.stText}}</span></div>
+<sc-for list="{{dt.infos}}" as="i" hint-placeholder-count="1"><div style="display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #A0A0AB"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; color: #7E7E8A"></span><span>{{i}}</span></div></sc-for>
+<sc-if value="{{dt.hasFix}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" onClick="{{dt.fix}}" style="align-self: flex-start; height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap"><span class="ic i-magic" aria-hidden="true" style="width: 14px; height: 14px; color: #C9A6F5"></span>{{dt.fixLabel}}</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{dt.busyWarn}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(246,203,140,0.07); border: 1px solid rgba(246,203,140,0.24)">
+<span class="orb o-writer" aria-hidden="true" style="width: 18px; height: 18px; margin-top: 1px"></span>
+<span style="font-size: 12.5px; color: #E9D9BD">Người viết đang viết chương 25. Lệnh này cần hệ thống rảnh — chờ chương xong, hoặc nhấn <span class="kbd">Esc</span> hai lần để tạm dừng rồi chạy.</span>
+</div>
+</sc-if>
+
+<div style="display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: #A0A0AB">
+<span class="ic i-lamp" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 1px; color: #C9A6F5"></span>
+<span>{{dt.tip}}</span>
+</div>
+</div>
+</div>
+
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 14px; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11.5px; color: #7E7E8A; white-space: nowrap">
+<span><span class="kbd">↑</span> <span class="kbd">↓</span> chọn</span>
+<span><span class="kbd">Tab</span> điền</span>
+<span><span class="kbd">Enter</span> {{enterHint}}</span>
+<span><span class="kbd">Esc</span> đóng gợi ý, giữ chữ đã gõ</span>
+<span style="flex: 1"></span>
+<a href="Commands.dc.html" style="display: flex; align-items: center; gap: 6px; color: #C9C9D1; font-size: 12px">Hướng dẫn đầy đủ<span class="kbd">?</span></a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{sent}}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status" style="position: absolute; left: 12px; bottom: calc(100% + 10px); height: 32px; padding: 0 12px; border-radius: 999px; background: #18181A; border: 1px solid rgba(166,237,193,0.3); display: flex; align-items: center; gap: 8px; font-size: 12.5px; white-space: nowrap"><span class="ic i-tick" aria-hidden="true" style="width: 15px; height: 15px; color: #A6EDC1"></span>Đã chạy<span class="mono" style="color: #C9A6F5">{{sentLine}}</span></div>
+</sc-if>
+
+<div style="position: relative">
+<sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><div class="ring-run" aria-hidden="true"></div></sc-if>
+<div class="card" style="position: relative; border-radius: 18px; padding: 7px 7px 7px 14px; display: flex; align-items: center; gap: 10px; background: #18181A; border-color: {{cmpBd}}">
+<span class="ic {{cmpIcon}}" aria-hidden="true" style="color: {{cmpIconFg}}"></span>
+<div style="position: relative; flex: 1 1 auto; min-width: 0; height: 38px">
+<div aria-hidden="true" class="{{cmpCls}}" style="position: absolute; inset: 0; line-height: 38px; white-space: pre; overflow: hidden; pointer-events: none"><span style="color: transparent">{{text}}</span><span style="color: #5E5E68">{{ghost}}</span></div>
+<label for="composer" class="sr-only">Ô chat</label>
+<input id="composer" class="{{cmpCls}}" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="{{showPop}}" aria-autocomplete="list" value="{{text}}" placeholder="Nhập can thiệp cốt truyện, hoặc gõ / để dùng lệnh" onInput="{{onText}}" onKeyDown="{{onKey}}" style="position: absolute; inset: 0; width: 100%; height: 38px; padding: 0; background: transparent; border: none; outline: none; color: #EDEDEF">
+</div>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}"><span style="height: 24px; padding: 0 8px; border-radius: 7px; background: rgba(255,159,168,0.1); color: #FFC9CE; font-size: 11.5px; display: flex; align-items: center; gap: 5px; white-space: nowrap; flex: 0 0 auto"><span class="ic i-warning" aria-hidden="true" style="width: 13px; height: 13px"></span>Chưa chạy được</span></sc-if>
+<button class="primary" type="button" onClick="{{submit}}" aria-label="Gửi" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: {{sendBg}}; color: #0B0B0D; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-arrow-up" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 4px 14px; padding: 0 6px; font-size: 12px; color: #7E7E8A; white-space: nowrap">
+<span class="ic i-command" aria-hidden="true" style="width: 14px; height: 14px"></span>
+<span style="display: flex; gap: 6px; align-items: center"><span class="kbd">/</span>lệnh</span>
+<span style="display: flex; gap: 6px; align-items: center"><span class="kbd">Enter</span>gửi</span>
+<span style="display: flex; gap: 6px; align-items: center"><span class="kbd">?</span>hướng dẫn</span>
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stage":{"editor":"enum","options":["slash","filter","args","value","enum","invalid","unknown","text"],"default":"slash","section":"Đang gõ"},"busy":{"editor":"boolean","default":false,"section":"Trạng thái","label":"Trợ lý đang viết"},"$preview":{"width":1440,"height":900}}'>
+const PUR = '#C9A6F5', MINT = '#A6EDC1', ORA = '#F6CB8C', SOFT = '#A0A0AB';
+const BOOK = { title: 'Trà Xanh Cướp Kịch Bản', done: 24 };
+const ROLES = [
+  { v: 'architect', label: 'Kiến trúc sư', note: 'Kiến trúc sư — lên dàn ý, quy hoạch tập' },
+  { v: 'writer', label: 'Người viết', note: 'Người viết — viết từng chương' },
+  { v: 'editor', label: 'Biên tập viên', note: 'Biên tập viên — soát và chấm chương' }
+];
+const GROUPS = [
+  { key: 'begin', label: 'Bắt đầu truyện', cmds: ['start', 'import'] },
+  { key: 'write', label: 'Trong lúc viết', cmds: ['review', 'next', 'cocreate', 'sync', 'diag'] },
+  { key: 'style', label: 'Văn phong', cmds: ['simulate', 'importsim'] },
+  { key: 'end', label: 'Khi truyện đã xong', cmds: ['export', 'reopen'] },
+  { key: 'sys', label: 'Cài đặt & trợ giúp', cmds: ['model', 'config', 'help'] }
+];
+const C = {
+  help: { usage: '/help', title: 'Mở hướng dẫn lệnh', auto: true,
+    lead: 'Hiện danh sách mọi lệnh, cách gõ và các phím tắt — chính là trang bạn đang xem.',
+    when: ['Quên tên lệnh hoặc cách gõ', 'Muốn xem lại phím tắt'], avoid: ['Không có — dùng lúc nào cũng được, kể cả khi trợ lý đang viết'],
+    params: [], ex: [{ vals: {}, text: 'Mở trang hướng dẫn này.' }],
+    after: ['Trang hướng dẫn mở ra, truyện vẫn tiếp tục viết bình thường', 'Nhấn Esc hoặc bấm Bàn viết để quay lại'], log: [], errs: [],
+    tip: 'Trên web còn nhanh hơn: bấm phím ? ở bất kỳ màn hình nào.', rel: ['model', 'config'], kw: 'tro giup huong dan phim tat' },
+  model: { usage: '/model [vai-trò]', title: 'Đổi model cho từng trợ lý', auto: true,
+    lead: 'Noverse có ba trợ lý: Kiến trúc sư lên dàn ý, Người viết viết chương, Biên tập viên soát chương. Mỗi trợ lý có thể dùng một model và mức suy luận riêng.',
+    when: ['Muốn Người viết dùng model viết hay hơn', 'Muốn tiết kiệm bằng model rẻ hơn cho Biên tập viên', 'Muốn tăng hoặc giảm mức suy luận'],
+    avoid: ['Chưa thêm nhà cung cấp AI nào — dùng /config trước'],
+    params: [{ k: 'role', tok: '[vai-trò]', kind: 'enum', label: 'Mở sẵn ở vai trò', desc: 'Trợ lý muốn đổi. Bỏ trống để xem cả ba.', opts: ROLES, none: 'Cả ba' }],
+    ex: [{ vals: {}, text: 'Mở bảng chọn model cho cả ba trợ lý.' }, { vals: { role: 'writer' }, text: 'Mở thẳng tới phần của Người viết.' }],
+    after: ['Mở bảng chọn model, nếu có ghi vai trò thì mở sẵn ở vai trò đó', 'Chọn model và mức suy luận, nhấn Enter để lưu', 'Nhấn Esc để đóng mà không đổi gì'],
+    log: [], errs: [{ msg: 'Vai trò không hợp lệ: writter', fix: 'Chỉ dùng một trong ba: architect, writer, editor.' }],
+    tip: 'Danh sách model là của các nhà cung cấp bạn đã thêm. Thiếu model mong muốn thì thêm nhà cung cấp bằng /config.', rel: ['config', 'diag'], kw: 'doi model ai gpt claude suy luan reasoning thinking' },
+  config: { usage: '/config', title: 'Thêm hoặc sửa nhà cung cấp AI', auto: true,
+    lead: 'Thêm nhà cung cấp AI, chọn model, và chỉnh độ dài ngữ cảnh — lượng chữ model đọc được trong một lần.',
+    when: ['Lần đầu dùng, chưa có nhà cung cấp nào', 'Đổi khoá API hoặc thêm nhà cung cấp mới'], avoid: ['Chỉ muốn đổi model cho một trợ lý — /model nhanh hơn'],
+    params: [], ex: [{ vals: {}, text: 'Mở bảng nhà cung cấp AI.' }],
+    after: ['Mở bảng nhà cung cấp, model và độ dài ngữ cảnh', 'Lưu xong là dùng được ngay'], log: [],
+    errs: [{ msg: 'Cách dùng: /config', fix: 'Lệnh này không nhận thêm gì phía sau — chỉ gõ /config.' }],
+    tip: 'Trên web, việc này nằm ở Cài đặt › Nhà cung cấp AI, có sẵn nút đăng nhập ChatGPT.', rel: ['model'], kw: 'cai dat nha cung cap provider api key khoa ngu canh context' },
+  diag: { usage: '/diag', title: 'Khám sức khoẻ truyện', auto: true, group: 'analysis',
+    lead: 'Mở bảng chẩn đoán: tiến độ, các tuyến truyện còn bỏ ngỏ, và những điểm chất lượng cần để ý.',
+    when: ['Viết đã lâu, muốn biết truyện có đang đi đúng hướng', 'Trước khi xuất bản hoặc mở lại truyện'], avoid: ['Truyện mới có vài chương — chưa đủ dữ liệu để đánh giá'],
+    params: [], ex: [{ vals: {}, text: 'Xem bảng chẩn đoán của truyện đang mở.' }],
+    after: ['Bảng chẩn đoán mở ra', 'Truyện vẫn tiếp tục viết trong lúc bạn xem'], log: [], errs: [],
+    tip: 'Thấy nhiều tuyến truyện bỏ ngỏ? Dùng /cocreate để cùng Kiến trúc sư sắp xếp lại giai đoạn tới.', rel: ['cocreate', 'review'], kw: 'chan doan suc khoe chat luong tien do kiem tra' },
+  review: { usage: '/review on|off', title: 'Bật/tắt duyệt từng chương',
+    lead: 'Khi bật, Noverse dừng lại sau mỗi chương để bạn đọc trước. Bạn hài lòng thì gõ /next để cho viết tiếp.',
+    when: ['Muốn kiểm soát chặt từng chương', 'Những chương quan trọng: mở đầu, cao trào, kết tập'], avoid: ['Muốn Noverse viết liền mạch qua đêm — để off'],
+    params: [{ k: 'mode', tok: 'on|off', kind: 'enum', req: true, label: 'Chế độ', desc: 'Chọn một trong hai.', opts: [{ v: 'on', label: 'on · duyệt', note: 'Dừng sau mỗi chương, chờ /next' }, { v: 'off', label: 'off · tự viết', note: 'Viết liền, không dừng' }], init: 'on' }],
+    ex: [{ vals: { mode: 'on' }, text: 'Từ chương tới, dừng lại chờ bạn duyệt.' }, { vals: { mode: 'off' }, text: 'Quay lại viết liền mạch.' }],
+    after: ['Chế độ mới được ghi lại ngay', 'Bật: viết xong chương hiện tại, trợ lý dừng và chờ /next', 'Tắt khi đang dừng: gõ tiếp tục để chạy lại'],
+    log: [{ cat: 'Hệ thống', text: 'Đã chuyển sang chế độ Duyệt từng chương' }],
+    errs: [{ msg: 'Cách dùng: /review on|off', fix: 'Thiếu hoặc sai giá trị. Gõ đúng on hoặc off.' }],
+    tip: 'Trên web, nút Duyệt từng chương ở thanh trên Bàn viết làm đúng việc này.', rel: ['next', 'diag'], kw: 'duyet nghiem thu tung chuong dung lai kiem soat' },
+  next: { usage: '/next', title: 'Cho viết chương tiếp theo', auto: true, idle: true,
+    lead: 'Dùng khi đang bật duyệt từng chương: bạn đọc xong chương vừa viết và đồng ý cho Noverse viết thêm một chương.',
+    when: ['Đã đọc và hài lòng với chương vừa viết', 'Đang bật /review on'], avoid: ['Trợ lý vẫn đang viết — lệnh sẽ bị từ chối', 'Muốn sửa chương trước — gõ góp ý vào ô chat thay vì /next'],
+    params: [], ex: [{ vals: {}, text: 'Duyệt chương vừa xong và viết tiếp một chương.' }],
+    after: ['Chương vừa viết được đánh dấu đã duyệt', 'Người viết bắt đầu chương kế tiếp, rồi lại dừng chờ bạn'],
+    log: [{ cat: 'Hệ thống', text: 'Đã duyệt chương 24 · bắt đầu viết chương 25' }],
+    errs: [{ msg: 'Lệnh chỉ có thể thực hiện khi hệ thống đang rảnh: /next', fix: 'Trợ lý vẫn đang viết. Chờ chương xong rồi gõ lại.' }, { msg: 'Cho phép viết chương tiếp theo thất bại: …', fix: 'Đọc chi tiết trong nhật ký. Nếu lặp lại, chạy /diag.' }],
+    tip: 'Trên web, nút Duyệt & viết tiếp ở cuối Trình đọc chính là /next.', rel: ['review', 'diag'], kw: 'tiep theo duyet chuong tiep viet tiep' },
+  start: { usage: '/start <đường-dẫn-tệp>', title: 'Tạo truyện mới từ tệp có sẵn', only: 'Chỉ ở màn hình chào mừng', href: 'NewStory.dc.html', runLabel: 'Mở Truyện mới & điền sẵn',
+    lead: 'Bạn đã có sẵn thiết lập nhân vật, thế giới hoặc đại cương trong một tệp? /start đọc tệp đó và bắt đầu một truyện mới từ nó.',
+    when: ['Đã viết sẵn thiết lập hoặc đại cương', 'Muốn dùng lại mẫu thiết lập cho nhiều truyện'], avoid: ['Đang mở một truyện — lệnh chỉ chạy ở màn hình chào mừng', 'Có cả bộ truyện đã viết — dùng /import'],
+    params: [{ k: 'path', tok: '<đường-dẫn-tệp>', kind: 'path', req: true, label: 'Tệp thiết lập', desc: 'Tệp văn bản chứa thiết lập hoặc đại cương. Tên có khoảng trắng thì đặt trong ngoặc kép.', ph: 'ideas/thiet-lap.md', init: 'ideas/thiet-lap.md' }],
+    ex: [{ vals: { path: 'ideas/thiet-lap.md' }, text: 'Tạo truyện mới từ tệp thiết lập.' }, { vals: { path: '"ideas/y tuong moi.txt"' }, text: 'Tên tệp có khoảng trắng: đặt trong ngoặc kép.' }],
+    after: ['Đọc tệp và chuẩn bị yêu cầu sáng tác', 'Kiến trúc sư lên dàn ý, rồi Người viết bắt đầu chương 1'], log: [{ cat: 'Hệ thống', text: 'Đang tạo truyện mới từ ideas/thiet-lap.md' }],
+    errs: [{ msg: 'Lệnh /start chỉ có thể dùng ở màn hình chào mừng', fix: 'Đang mở một truyện rồi. Bấm Truyện mới ở thanh trên.' }, { msg: 'Cách dùng: /start <đường dẫn tệp thiết lập hoặc đại cương>', fix: 'Bạn quên ghi đường dẫn tệp.' }],
+    tip: 'Trên web, màn Truyện mới cho phép kéo thả tệp thiết lập — không cần gõ đường dẫn.', rel: ['import'], kw: 'bat dau tao truyen moi thiet lap dai cuong file tep' },
+  import: { usage: '/import <đường-dẫn> [--yes] [--story=open|closed] [--continue] [--guide=<hướng-dẫn>]', title: 'Nhập truyện có sẵn để viết tiếp', idle: true,
+    lead: 'Đưa một bộ truyện đã viết vào Noverse. Hệ thống đọc, chia chương, ghi lại nhân vật và cốt truyện để có thể viết tiếp đúng mạch.',
+    when: ['Có truyện viết dở ở nơi khác', 'Muốn Noverse học mạch truyện cũ trước khi viết phần mới'], avoid: ['Trợ lý đang viết — lệnh sẽ bị từ chối', 'Chỉ có thiết lập, chưa có chương — dùng /start'],
+    params: [
+      { k: 'path', tok: '<đường-dẫn>', kind: 'path', label: 'Tệp truyện', desc: 'Tệp truyện cần nhập. Để trống để tiếp tục lần nhập đang dở.', ph: 'nhap/tra-xanh.txt', init: 'nhap/tra-xanh.txt', defText: 'Trống: tiếp tục lần nhập đang dở' },
+      { k: 'yes', tok: '--yes', kind: 'flag', flag: '--yes', label: 'Tự đồng ý cách chia chương', hint: 'Không hỏi lại cách chia chương', desc: 'Bỏ bước xem trước, tự đồng ý cách chia chương hệ thống đề xuất.' },
+      { k: 'story', tok: '--story=open|closed', kind: 'enum', pre: '--story=', label: 'Truyện gốc', desc: 'Cho biết truyện gốc đã kết thúc hay còn dang dở. Bỏ trống thì hệ thống hỏi khi cần.', opts: [{ v: 'open', label: 'Còn dở', note: 'Truyện còn dang dở, sẽ viết tiếp' }, { v: 'closed', label: 'Đã kết', note: 'Truyện đã có kết thúc' }], none: 'Để hỏi' },
+      { k: 'cont', tok: '--continue', kind: 'flag', flag: '--continue', label: 'Viết tiếp ngay', hint: 'Nhập xong thì viết tiếp luôn', desc: 'Nhập xong thì bắt đầu viết tiếp, không cần lệnh khác.' },
+      { k: 'guide', tok: '--guide=<hướng-dẫn>', kind: 'text', pre: '--guide=', label: 'Hướng dẫn chia chương', desc: 'Nói bằng lời thường cách chia chương. Luôn đặt cuối cùng — mọi chữ phía sau đều được tính là hướng dẫn.', ph: 'Hồi thứ X cũng là chương độc lập' }
+    ],
+    ex: [
+      { vals: { path: 'nhap/tra-xanh.txt' }, text: 'Nhập và xem trước cách chia chương trước khi đồng ý.' },
+      { vals: { path: 'nhap/tra-xanh.txt', yes: true, story: 'open', cont: true }, text: 'Nhập, tự đồng ý, báo truyện còn dở và viết tiếp ngay.' },
+      { vals: { path: '', guide: 'Hồi thứ X cũng là chương độc lập' }, text: 'Chia lại chương cho lần nhập đang dở theo hướng dẫn của bạn.' },
+      { vals: { path: '' }, text: 'Tiếp tục lần nhập bị dừng giữa chừng.' }
+    ],
+    after: ['Đọc tệp và đề xuất cách chia chương', 'Nhấn y để đồng ý, hoặc Esc rồi chạy lại kèm --guide để chia khác', 'Ghi lại nhân vật, tuyến truyện và tóm tắt từng chương'],
+    log: [{ cat: 'Hệ thống', text: 'Đã chia 42 chương từ nhap/tra-xanh.txt · nhấn y để xác nhận' }],
+    errs: [
+      { msg: '--story chỉ nhận giá trị open hoặc closed: "mo"', fix: 'Gõ --story=open hoặc --story=closed.' },
+      { msg: 'chỉ nhận một đường dẫn tệp nguồn: thừa "moi.txt"', fix: 'Mỗi lần nhập một tệp. Tên tệp có khoảng trắng thì đổi tên cho liền, ví dụ tra-xanh-moi.txt.' },
+      { msg: 'tùy chọn không hợp lệ "--auto"', fix: 'Chỉ có --yes, --story=, --continue và --guide=.' },
+      { msg: '--guide cần kèm hướng dẫn ngôn ngữ tự nhiên…', fix: 'Ghi hướng dẫn ngay sau dấu =.' }
+    ],
+    tip: 'Truyện dài? Lần đầu đừng dùng --yes — xem cách chia chương trước sẽ đỡ phải nhập lại.', rel: ['start', 'sync', 'simulate'], kw: 'nhap truyen cu co san viet tiep import file' },
+  reopen: { usage: '/reopen [hướng-viết-tiếp]', title: 'Mở lại truyện đã xong để viết tiếp', idle: true,
+    lead: 'Truyện đã hoàn thành nhưng bạn muốn viết thêm? /reopen mở lại truyện để viết tiếp. Có thể ghi kèm hướng bạn muốn, trợ lý sẽ cân nhắc trước khi lên kế hoạch.',
+    when: ['Muốn viết thêm tập mới sau kết thúc', 'Kết thúc chưa ưng, muốn kéo dài mạch truyện'], avoid: ['Truyện chưa hoàn thành — không cần mở lại', 'Còn chương sửa tay chưa tiếp nhận — chạy /sync trước'],
+    params: [{ k: 'dir', tok: '[hướng-viết-tiếp]', kind: 'text', label: 'Hướng viết tiếp', desc: 'Mô tả bằng lời thường. Bỏ trống thì trợ lý tự lên hướng đi.', ph: 'Viết thêm tập 2: nữ chính trở về quê', init: 'Viết thêm tập 2: nữ chính trở về quê' }],
+    ex: [{ vals: { dir: '' }, text: 'Mở lại, để trợ lý tự lên hướng đi.' }, { vals: { dir: 'Viết thêm tập 2: nữ chính trở về quê' }, text: 'Mở lại và gợi ý hướng cho tập mới.' }],
+    after: ['Truyện chuyển từ Hoàn thành sang Đang viết', 'Hướng bạn ghi (nếu có) được xét trước khi lên kế hoạch', 'Kiến trúc sư lên dàn ý tập tiếp theo rồi viết tiếp'],
+    log: [{ cat: 'Hệ thống', text: 'Đã mở lại truyện để viết tiếp' }],
+    errs: [{ msg: 'Phát hiện chương đã bị sửa ngoài ứng dụng: [3]; hãy chạy /sync trước', fix: 'Chạy /sync để tiếp nhận chỗ sửa, rồi /reopen lại.' }, { msg: 'Đang đồng sáng tác, hãy kết thúc trước', fix: 'Kết thúc phiên đồng sáng tác rồi thử lại.' }],
+    tip: 'Muốn sửa lại vài chương thay vì viết thêm? Chỉ cần nói trong ô chat, ví dụ “viết lại chương 12”.', rel: ['sync', 'cocreate', 'export'], kw: 'mo lai viet them tap moi hoan thanh ket thuc' },
+  cocreate: { usage: '/cocreate', alias: 'plan', title: 'Cùng bàn hướng đi giai đoạn tới', auto: true, only: 'Chỉ khi đang viết',
+    lead: 'Tạm dừng viết để bạn và Kiến trúc sư trò chuyện, chốt hướng đi cho giai đoạn tiếp theo, rồi mới viết tiếp.',
+    when: ['Sắp sang tập hoặc giai đoạn mới', 'Thấy mạch truyện lệch, muốn chỉnh trước khi viết thêm'], avoid: ['Truyện đã hoàn thành — dùng /reopen', 'Chưa có truyện nào đang viết'],
+    params: [], ex: [{ vals: {}, text: 'Tạm dừng và vào phòng đồng sáng tác.' }, { vals: {}, slash: '/plan', text: 'Tên ngắn, làm đúng việc như /cocreate.' }],
+    after: ['Trợ lý viết xong bước đang dở rồi tạm dừng', 'Bạn và Kiến trúc sư trao đổi trong ô chat', 'Chốt xong, Noverse viết tiếp theo hướng mới'],
+    log: [{ cat: 'Hệ thống', text: 'Đã vào đồng sáng tác giai đoạn' }],
+    errs: [{ msg: 'Đồng sáng tác giai đoạn chỉ khả dụng khi đang viết truyện', fix: 'Mở hoặc tạo một truyện trước.' }, { msg: 'Không thể vào đồng sáng tác: truyện đã hoàn thành hoặc đang trong đồng sáng tác', fix: 'Truyện đã xong thì dùng /reopen. Đang đồng sáng tác rồi thì cứ tiếp tục trò chuyện.' }],
+    tip: 'Ô chat trống, nhấn Tab cũng chuyển nhanh giữa chế độ Nhanh và Đồng sáng tác.', rel: ['reopen', 'diag'], kw: 'dong sang tac ban bac quy hoach ke hoach plan huong di' },
+  simulate: { usage: '/simulate', title: 'Học văn phong từ văn mẫu', idle: true,
+    lead: 'Thêm vài đoạn văn bạn thích vào Văn mẫu (Tuỳ chỉnh › Cách viết › Văn phong của bạn). Noverse đọc chúng rồi tạo hoặc cập nhật hồ sơ văn phong để các chương sau viết theo giọng đó.',
+    when: ['Muốn truyện mang giọng văn riêng', 'Vừa thêm văn mẫu mới'], avoid: ['Chưa có văn mẫu nào', 'Trợ lý đang viết — lệnh sẽ bị từ chối'],
+    params: [], ex: [{ vals: {}, text: 'Đọc các văn mẫu và tạo hồ sơ văn phong.' }],
+    after: ['Đọc mọi văn mẫu bạn đã thêm', 'Tạo hoặc cập nhật hồ sơ văn phong', 'Các chương viết sau sẽ theo giọng văn này'],
+    log: [{ cat: 'Hệ thống', text: 'Đã cập nhật hồ sơ văn phong từ 6 văn mẫu' }],
+    errs: [{ msg: 'Khởi động mô phỏng văn phong thất bại: …', fix: 'Thường do chưa có văn mẫu. Thêm ít nhất một đoạn văn mẫu rồi chạy lại.' }],
+    tip: 'Văn mẫu càng đa dạng cảnh (đối thoại, miêu tả, hành động) thì hồ sơ càng sát giọng.', rel: ['importsim'], kw: 'van phong giong van mo phong van mau hoc' },
+  importsim: { usage: '/importsim <tệp-profile.json>', title: 'Nhập hồ sơ văn phong có sẵn', idle: true,
+    lead: 'Dùng lại hồ sơ văn phong đã tạo ở truyện khác hoặc do người khác gửi. Nếu hồ sơ được tạo từ cùng bộ văn mẫu, Noverse gộp vào hồ sơ hiện có thay vì tạo bản trùng.',
+    when: ['Muốn nhiều truyện dùng chung một giọng văn', 'Được chia sẻ một hồ sơ văn phong'], avoid: ['Chưa có tệp hồ sơ — dùng /simulate để tạo'],
+    params: [{ k: 'path', tok: '<tệp-profile.json>', kind: 'path', req: true, label: 'Tệp hồ sơ', desc: 'Tệp hồ sơ văn phong, thường có đuôi .json.', ph: 'van-phong/co-trang.json', init: 'van-phong/co-trang.json' }],
+    ex: [{ vals: { path: 'van-phong/co-trang.json' }, text: 'Nhập hồ sơ văn phong cổ trang.' }],
+    after: ['Đọc tệp hồ sơ', 'Gộp vào hồ sơ cùng nguồn, hoặc thêm hồ sơ mới'], log: [{ cat: 'Hệ thống', text: 'Đã nhập hồ sơ văn phong co-trang.json' }],
+    errs: [{ msg: 'Nhập hồ sơ mô phỏng thất bại: …', fix: 'Kiểm tra lại đường dẫn và tệp có đúng là hồ sơ văn phong.' }],
+    tip: 'Hồ sơ văn phong là tệp nhỏ, gửi qua tin nhắn được — tiện để cả nhóm viết cùng một giọng.', rel: ['simulate'], kw: 'nhap ho so van phong profile json' },
+  sync: { usage: '/sync [--check]', title: 'Nhận chỉnh sửa bạn tự làm', auto: true, idle: true,
+    lead: 'Bạn sửa trực tiếp tệp chương bằng một ứng dụng khác? /sync giúp Noverse đọc lại, cập nhật tóm tắt và sự thật cốt truyện, đồng thời báo nếu chỗ sửa mâu thuẫn với các chương sau.',
+    when: ['Vừa sửa tay một vài chương', 'Trước khi /reopen hoặc viết tiếp sau khi sửa'], avoid: ['Trợ lý đang viết — lệnh sẽ bị từ chối'],
+    params: [{ k: 'check', tok: '[--check]', kind: 'flag', flag: '--check', label: 'Chỉ kiểm tra', hint: 'Chỉ liệt kê chương đã bị sửa', desc: 'Chỉ liệt kê chương nào đã bị sửa, chưa tiếp nhận gì.', defText: 'Không ghi: tiếp nhận luôn mọi chỗ sửa' }],
+    ex: [{ vals: { check: true }, text: 'Xem chương nào đã bị sửa, chưa thay đổi gì.' }, { vals: {}, text: 'Tiếp nhận mọi chỗ sửa và cập nhật cốt truyện.' }],
+    after: ['So từng chương với bản Noverse đã lưu', 'Tóm tắt lại chỗ sửa, cập nhật sự thật cốt truyện', 'Báo các mâu thuẫn ở chương sau (nếu có)'],
+    log: [{ cat: 'Hệ thống', text: 'Đã tiếp nhận tu chỉnh các chương: [3 7]; Chương 3: đổi tên quán trà (sự thật cốt truyện đã cập nhật); Chương 7: thêm cảnh mưa (phát hiện 1 xung đột phía sau)' }],
+    errs: [{ msg: 'tham số không hợp lệ "--dry" (hỗ trợ: --check)', fix: 'Chỉ có --check, hoặc không ghi gì.' }, { msg: 'Không phát hiện chương nào bị chỉnh sửa từ bên ngoài', fix: 'Không phải lỗi — không có gì cần tiếp nhận.' }],
+    tip: 'Sửa trong Trình đọc trên web thì không cần /sync — chỉ cần khi bạn sửa bằng ứng dụng khác.', rel: ['diag', 'reopen'], kw: 'dong bo sua tay chinh sua ngoai cap nhat' },
+  export: { usage: '/export [đường-dẫn|txt|epub|narration] [from=N] [to=M] [--overwrite|--keep] [doc-so]', title: 'Xuất truyện ra văn bản, ebook hoặc bản đọc TTS', auto: true,
+    lead: 'Gom các chương đã hoàn thành thành một tệp để đọc, gửi hoặc đăng. Đuôi .txt cho văn bản thường, .epub cho sách điện tử. Gõ narration để có bản đọc TTS: không tiêu đề chương, không in nghiêng hay in đậm, các chương cách nhau hai dòng trống.',
+    when: ['Muốn đọc truyện trên điện thoại hoặc máy đọc sách', 'Gửi bản thảo cho người khác', 'Sao lưu một đoạn chương'], avoid: ['Cần audio — dùng màn Audio'],
+    params: [
+      { k: 'path', tok: '[đường-dẫn]', kind: 'path', label: 'Lưu vào', desc: 'Tên tệp hoặc thư mục. Đuôi tệp quyết định định dạng: .txt hoặc .epub. Gõ txt, epub hoặc narration để chọn định dạng mà không cần đặt tên.', ph: 'exports/tra-xanh.epub', init: 'exports/tra-xanh.epub', defText: 'Trống: lưu vào thư mục truyện, đặt tên theo tên truyện, dạng .txt' },
+      { k: 'from', tok: 'from=N', kind: 'num', pre: 'from=', label: 'Từ chương', desc: 'Chương đầu tiên cần xuất.', ph: '1', init: '1', defText: 'Trống: từ chương đầu' },
+      { k: 'to', tok: 'to=M', kind: 'num', pre: 'to=', label: 'Đến chương', desc: 'Chương cuối cùng cần xuất. Chương chưa viết xong trong khoảng sẽ được bỏ qua và báo lại.', ph: '24', init: '30', defText: 'Trống: tới chương mới nhất đã xong' },
+      { k: 'ow', tok: '--overwrite', kind: 'flag', flag: '--overwrite', label: 'Ghi đè tệp cũ', hint: 'Thay tệp trùng tên nếu đã có', desc: 'Cho phép thay tệp trùng tên. Không ghi cờ nào thì gặp tệp đã có sẽ dừng lại để không mất bản cũ.' },
+      { k: 'keep', tok: '--keep', kind: 'flag', flag: '--keep', label: 'Giữ cả hai', hint: 'Thêm ngày giờ vào tên tệp mới', desc: 'Gặp tệp trùng tên thì giữ bản cũ, lưu bản mới với ngày giờ thêm vào tên. Không dùng chung với --overwrite.' },
+      { k: 'docso', tok: 'doc-so', kind: 'flag', flag: 'doc-so', label: 'Đọc số thành chữ', hint: 'Chỉ cho bản đọc TTS', desc: 'Viết số thành chữ để giọng đọc AI đọc đúng, ví dụ 18 thành mười tám.' }
+    ],
+    ex: [
+      { vals: { path: '', from: '', to: '' }, text: 'Xuất mọi chương đã xong thành tệp .txt trong thư mục truyện.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '' }, text: 'Xuất ebook EPUB để đọc trên điện thoại.' },
+      { vals: { path: 'exports/', from: '1', to: '12' }, text: 'Xuất chương 1–12 vào thư mục exports.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '', ow: true }, text: 'Xuất lại, thay bản EPUB cũ.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '', keep: true }, text: 'Xuất lại nhưng giữ bản cũ, bản mới có thêm ngày giờ trong tên.' },
+      { vals: { path: 'narration', from: '', to: '', docso: true }, text: 'Xuất bản đọc TTS, viết số thành chữ.' }
+    ],
+    after: ['Gom các chương đã hoàn thành trong khoảng bạn chọn', 'Định dạng theo đuôi tệp (.txt, .epub) hoặc theo chữ narration', 'Ghi xong mới thay tệp, nên lỡ lỗi giữa chừng cũng không hỏng bản cũ'],
+    log: [{ cat: 'Hệ thống', text: 'Đang tiến hành xuất bản...' }, { cat: 'Hệ thống', text: '✓ Đã xuất 24 chương (1,2 MB) vào exports/tra-xanh.epub (bỏ qua 6 chương chưa hoàn thành: 25…30)' }],
+    errs: [
+      { msg: 'tệp đã tồn tại: exports/tra-xanh.epub (dùng --overwrite để ghi đè)', fix: 'Thêm --overwrite để thay, --keep để giữ cả hai, hoặc đổi tên tệp.' },
+      { msg: 'chỉ dùng một trong --overwrite hoặc --keep', fix: 'Bỏ một trong hai cờ.' },
+      { msg: 'khoảng chương không hợp lệ: from=30 > to=12', fix: 'Số from phải nhỏ hơn hoặc bằng to.' },
+      { msg: 'không suy ra được định dạng từ đuôi ".pdf" (hỗ trợ .txt / .epub)', fix: 'Chỉ xuất được .txt hoặc .epub.' },
+      { msg: 'khoảng 25..30 không có chương hoàn thành', fix: 'Các chương này chưa viết xong. Chọn khoảng khác.' }
+    ],
+    tip: 'Ghi thư mục (kết thúc bằng /) thay vì tên tệp, Noverse tự đặt tên theo tên truyện.', rel: ['sync', 'reopen'], kw: 'xuat tai xuong luu file epub txt ebook in gui ban thao' }
+};
+const ORDER = ['help', 'model', 'config', 'diag', 'review', 'next', 'start', 'import', 'reopen', 'cocreate', 'simulate', 'importsim', 'sync', 'export'];
+const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
+function usageToks(u) {
+  return u.split(' ').map((w, i) => {
+    let c = SOFT;
+    if (i === 0) c = PUR;
+    else if (w.indexOf('--') >= 0 || /^\[?\w+=/.test(w)) c = ORA;
+    else if (w[0] === '<' || (w[0] !== '[' && w.indexOf('|') >= 0)) c = MINT;
+    return { t: (i ? ' ' : '') + w, c };
+  });
+}
+function initVals(k) { const o = {}; C[k].params.forEach((p) => { o[p.k] = p.init !== undefined ? p.init : (p.kind === 'flag' ? false : ''); }); return o; }
+function compose(k, v, slash) {
+  const d = C[k]; const toks = [{ t: slash || ('/' + k), c: PUR }];
+  d.params.forEach((p) => {
+    const x = v[p.k];
+    if (p.kind === 'flag') { if (x) toks.push({ t: ' ' + p.flag, c: ORA }); return; }
+    const s = String(x == null ? '' : x).trim(); if (!s) return;
+    if (p.pre) { toks.push({ t: ' ' + p.pre, c: ORA }); toks.push({ t: s, c: MINT }); }
+    else toks.push({ t: ' ' + s, c: MINT });
+  });
+  return toks;
+}
+function check(k, v, busy) {
+  const d = C[k]; const infos = []; let err = '', warn = '';
+  d.params.forEach((p) => { if (p.req && !String(v[p.k] || '').trim()) err = err || ('Còn thiếu ' + p.label.toLowerCase() + ' (' + p.tok + ').'); });
+  if (k !== 'start') d.params.forEach((p) => { if (p.kind === 'path' && /\s/.test(String(v[p.k] || '').trim())) err = err || 'Đường dẫn có khoảng trắng sẽ bị tách làm nhiều phần. Đổi tên tệp cho liền, ví dụ tra-xanh-moi.txt.'; });
+  if (k === 'export') {
+    const path = String(v.path || '').trim(); const f = parseInt(v.from, 10), t = parseInt(v.to, 10);
+    const lo = isNaN(f) ? 1 : f, hi = isNaN(t) ? BOOK.done : t;
+    const ext = path && !path.endsWith('/') ? ((path.match(/\.[^./]+$/) || [''])[0].toLowerCase()) : '';
+    if (!isNaN(f) && !isNaN(t) && f > t) err = err || ('khoảng chương không hợp lệ: from=' + f + ' > to=' + t);
+    else if (ext && ext !== '.txt' && ext !== '.epub') err = err || ('Không xuất được đuôi ' + ext + ' — chỉ hỗ trợ .txt hoặc .epub.');
+    else if (lo > BOOK.done) err = err || ('Khoảng ' + lo + '..' + hi + ' không có chương hoàn thành (mới xong tới chương ' + BOOK.done + ').');
+    if (!err) {
+      const fmt = ext === '.epub' ? 'ebook EPUB' : 'văn bản TXT';
+      const where = !path ? 'thư mục truyện, tên “' + BOOK.title + '.txt”' : (path.endsWith('/') ? 'thư mục ' + path + ', tên theo tên truyện' : path);
+      infos.push('Sẽ tạo ' + fmt + ' trong ' + where + '.');
+      const top = Math.min(hi, BOOK.done);
+      infos.push('Gồm chương ' + lo + '–' + top + (hi > BOOK.done ? ' · bỏ qua chương ' + (BOOK.done + 1) + '–' + hi + ' vì chưa viết xong.' : '.'));
+      if (!v.ow) infos.push('Nếu tệp đã có, lệnh sẽ dừng để giữ bản cũ.');
+    }
+  }
+  if (k === 'import') {
+    if (!String(v.path || '').trim()) infos.push('Không ghi tệp: tiếp tục lần nhập đang dở.');
+    if (!v.yes) infos.push('Hệ thống sẽ cho xem cách chia chương, nhấn y để đồng ý.');
+  }
+  if (k === 'importsim' && v.path && !/\.json$/i.test(String(v.path).trim())) warn = 'Hồ sơ văn phong thường là tệp .json — kiểm tra lại tên tệp.';
+  if (k === 'start') warn = 'Chỉ chạy ở màn hình chào mừng. Đang mở truyện thì dùng màn Truyện mới.';
+  if (k === 'review' && v.mode === 'on') infos.push('Viết xong chương 25, trợ lý sẽ dừng chờ /next.');
+  if (k === 'reopen') infos.push('“' + BOOK.title + '” cần ở trạng thái Hoàn thành mới mở lại được.');
+  if (k === 'sync' && v.check) infos.push('Chỉ liệt kê, không thay đổi gì.');
+  if (busy && d.idle) warn = 'Trợ lý đang viết chương 25 — lệnh này sẽ bị từ chối cho tới khi hệ thống rảnh.';
+  return { err, warn, infos };
+}
+
+const PRESET = { slash: '/', filter: '/ex', args: '/export ', value: '/export exports/tra-xanh.epub from=', enum: '/review ', invalid: '/export exports/tra-xanh.pdf', unknown: '/exprt', text: 'đẩy tuyến tình cảm lên chương 26' };
+const RECENT = ['export', 'review', 'diag'];
+const PATHS = { export: [['exports/tra-xanh.epub', 'Lần xuất trước · EPUB'], ['exports/', 'Thư mục exports · tự đặt tên']], import: [['nhap/tra-xanh.txt', 'Tệp trong thư mục nhap']], start: [['ideas/thiet-lap.md', 'Tệp trong thư mục ideas']], importsim: [['van-phong/co-trang.json', 'Hồ sơ đã dùng ở truyện khác']] };
+const NUMS = { from: [['1', 'Từ chương đầu'], ['13', 'Tiếp sau lần xuất trước (1–12)']], to: [['24', 'Chương mới nhất đã xong'], ['12', 'Hết tập 1']] };
+const ALIAS = { plan: 'cocreate' };
+function resolve(n) { n = (n || '').toLowerCase(); return C[n] ? n : (ALIAS[n] || null); }
+function lev(a, b) { const m = []; for (let i = 0; i <= a.length; i++) { m[i] = [i]; for (let j = 1; j <= b.length; j++) m[i][j] = i ? Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)) : j; } return m[a.length][b.length]; }
+function parse(text) {
+  if (!text || text[0] !== '/') return { mode: 'none' };
+  const body = text.slice(1); const sp = body.indexOf(' ');
+  if (sp < 0) return { mode: 'list', q: body };
+  const name = body.slice(0, sp); const rest = body.slice(sp + 1); const key = resolve(name);
+  if (!key) return { mode: 'unknown', name, rest };
+  const toks = rest.split(' '); return { mode: 'args', key, name, toks, cur: toks[toks.length - 1] };
+}
+function valsOf(key, toks) {
+  const d = C[key]; const v = {}; d.params.forEach((p) => { v[p.k] = p.kind === 'flag' ? false : ''; });
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i]; if (!t) continue;
+    const fl = d.params.find((p) => p.kind === 'flag' && p.flag === t); if (fl) { v[fl.k] = true; continue; }
+    const pr = d.params.find((p) => p.pre && t.indexOf(p.pre) === 0);
+    if (pr) { if (pr.kind === 'text') { v[pr.k] = [t.slice(pr.pre.length)].concat(toks.slice(i + 1)).join(' ').trim(); break; } v[pr.k] = t.slice(pr.pre.length); continue; }
+    const pos = d.params.find((p) => !p.pre && p.kind !== 'flag' && !v[p.k]);
+    if (pos) { if (pos.kind === 'text') { v[pos.k] = toks.slice(i).join(' ').trim(); break; } v[pos.k] = t; continue; }
+    v.__extra = t;
+  }
+  return v;
+}
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { text: null, tFor: null, hi: 0, sent: null }; this.tm = null; }
+  componentWillUnmount() { clearTimeout(this.tm); }
+  curText() { return (this.state.text !== null && this.state.tFor === this.props.stage) ? this.state.text : (PRESET[this.props.stage || 'slash'] || '/'); }
+  setText(t) { this.setState({ text: t, tFor: this.props.stage, hi: 0, sent: null, dismiss: false }); }
+  send(line) { clearTimeout(this.tm); this.setState({ text: '', tFor: this.props.stage, hi: 0, sent: line }); this.tm = setTimeout(() => this.setState({ sent: null }), 2600); }
+  renderVals() {
+    const busy = !!this.props.busy; const text = this.curText(); let P = parse(text);
+    if (P.mode === 'list' && P.q) { const qq = norm(P.q); const any = ORDER.some((k) => { const d = C[k]; return [k, d.alias || ''].some((n) => n && n.indexOf(qq) >= 0) || norm(d.title + ' ' + d.kw).split(/\s+/).some((w) => w.indexOf(qq) === 0); }); if (!any) P = { mode: 'unknown', name: P.q, rest: '' }; }
+    let items = [], sections = [], dt = null, ghost = '', popTitle = '', popSub = '', popIcon = 'i-command', listEmpty = false, emptyTitle = '', emptyText = '', enterHint = 'chạy', hasErr = false;
+    const hi = this.state.hi;
+    const badgesOf = (k) => { const d = C[k]; const b = [];
+      b.push(d.auto ? { icon: 'i-flash', label: 'Chạy ngay khi chọn', bg: 'rgba(255,255,255,0.04)', bd: 'rgba(255,255,255,0.08)', fg: '#C9C9D1' } : { icon: 'i-edit', label: 'Cần gõ thêm', bg: 'rgba(255,255,255,0.04)', bd: 'rgba(255,255,255,0.08)', fg: '#C9C9D1' });
+      if (d.idle) b.push({ icon: 'i-timer', label: 'Cần rảnh', bg: busy ? 'rgba(246,203,140,0.1)' : 'rgba(255,255,255,0.04)', bd: busy ? 'rgba(246,203,140,0.3)' : 'rgba(255,255,255,0.08)', fg: busy ? ORA : '#C9C9D1' });
+      if (d.only) b.push({ icon: 'i-info', label: d.only, bg: 'rgba(255,255,255,0.04)', bd: 'rgba(255,255,255,0.08)', fg: '#C9C9D1' });
+      if (d.alias) b.push({ icon: 'i-swap', label: 'Tên khác /' + d.alias, bg: 'rgba(201,166,245,0.08)', bd: 'rgba(201,166,245,0.22)', fg: '#DCC8F8' });
+      return b; };
+    const usageFor = (k, slotTok, filled) => usageToks(C[k].usage).map((t, i) => { const w = t.t.trim(); const bare = w.replace(/^\[|\]$/g, '');
+      const p = C[k].params.find((x) => x.tok.replace(/^\[|\]$/g, '') === bare); const isSlot = p && p.tok === slotTok; const isDone = p && filled[p.k];
+      return { sp: i ? ' ' : '', t: w, c: isDone ? '#5E5E68' : t.c, cls: isSlot ? 'slot' : '' }; });
+    const mkItem = (idx, o) => Object.assign({ hi: idx === hi, bg: idx === hi ? '#26262A' : 'transparent', c1: '#D6D6DC', c2: PUR, a: '', b: '', c: '', tag: '', tagBg: '', tagFg: '',
+      hover: () => { if (this.state.hi !== idx) this.setState({ hi: idx }); } }, o);
+    if (P.mode === 'list' || P.mode === 'none') {
+      const q = norm(P.q || '');
+      const score = (k) => { const d = C[k]; const names = [k].concat(d.alias ? [d.alias] : []);
+        if (!q) return 1; if (names.some((n) => n.indexOf(q) === 0)) return 3; if (names.some((n) => n.indexOf(q) >= 0)) return 2; return norm(d.title + ' ' + d.kw).split(/\s+/).some((w) => w.indexOf(q) === 0) ? 1 : 0; };
+      let keys = ORDER.filter((k) => score(k) > 0).sort((a, b) => score(b) - score(a));
+      const groupsDef = q ? [{ label: keys.length + ' lệnh khớp', keys }] : [{ label: 'Dùng gần đây', keys: RECENT }].concat(GROUPS.map((g) => ({ label: g.label, keys: g.cmds.filter((k) => RECENT.indexOf(k) < 0) })));
+      let idx = 0; const flat = [];
+      sections = groupsDef.map((g) => ({ label: g.label, items: g.keys.map((k) => { const d = C[k]; const nm = k.indexOf(q) === 0 || !q ? k : (d.alias && d.alias.indexOf(q) === 0 ? d.alias : k); const at = q ? nm.indexOf(q) : -1;
+        const it = mkItem(idx, { key: k, a: '/' + (at >= 0 ? nm.slice(0, at) : nm), b: at >= 0 ? nm.slice(at, at + q.length) : '', c: at >= 0 ? nm.slice(at + q.length) : '', desc: d.title,
+          tag: d.idle ? 'Cần rảnh' : '', tagBg: busy ? 'rgba(246,203,140,0.14)' : 'rgba(255,255,255,0.05)', tagFg: busy ? ORA : '#7E7E8A',
+          pick: () => this.setText('/' + k + ' ') }); flat.push(it); idx++; return it; }) })).filter((g) => g.items.length);
+      if (!flat.length) { listEmpty = true; emptyTitle = 'Không có lệnh bắt đầu bằng /' + P.q; emptyText = 'Nhấn Enter sẽ gửi nguyên dòng này cho trợ lý như một lời nhắn.'; enterHint = 'gửi như lời nhắn'; }
+      const sel = flat[Math.min(hi, flat.length - 1)];
+      popTitle = q ? 'Lệnh khớp “/' + P.q + '”' : 'Lệnh'; popSub = q ? '' : '14 lệnh · gõ tiếp để lọc';
+      if (sel) { const k = sel.key; const d = C[k]; if (q && k.indexOf(q) === 0) ghost = k.slice(q.length);
+        enterHint = d.params.length && !d.auto ? 'điền & gõ tiếp' : 'chạy';
+        dt = { slash: '/' + k, title: d.title, badges: badgesOf(k), isList: true, isArgs: false, lead: d.lead, usage: usageFor(k, null, {}), hasSlot: false,
+          examples: d.ex.slice(0, 3).map((e) => { const ev = Object.assign({}, d.params.reduce((o, p) => { o[p.k] = p.kind === 'flag' ? false : ''; return o; }, {}), e.vals); const toks = compose(k, ev, e.slash); return { toks, text: e.text, use: () => this.setText(toks.map((t) => t.t).join('') + (d.params.length ? ' ' : '')) }; }),
+          busyWarn: busy && d.idle, tip: d.tip }; dt.hasEx = dt.examples.length > 0;
+        this._accept = () => { if (d.auto && (!d.params.length)) this.send('/' + k); else this.setText('/' + k + ' '); };
+        this._tab = () => this.setText('/' + k + ' ');
+      } else { this._accept = () => this.send(text); this._tab = () => {}; }
+      this._n = flat.length;
+    } else if (P.mode === 'unknown') {
+      const cands = ORDER.map((k) => [k, lev(P.name.toLowerCase(), k)]).sort((a, b) => a[1] - b[1]).slice(0, 2);
+      let idx = 0; const flat = [];
+      sections = [{ label: 'Có phải bạn muốn', items: cands.map(([k]) => { const it = mkItem(idx, { key: k, a: '/', b: k, c: '', c2: PUR, desc: C[k].title, pick: () => this.setText('/' + k + (P.rest ? ' ' + P.rest : ' ')) }); flat.push(it); idx++; return it; }) }];
+      const sel = flat[Math.min(hi, flat.length - 1)]; const k = sel.key; const d = C[k];
+      popTitle = 'Không có lệnh /' + P.name; popSub = 'Gửi nguyên như vậy sẽ bị báo “Lệnh không xác định”'; popIcon = 'i-warning'; hasErr = true; enterHint = 'sửa thành /' + k;
+      dt = { slash: '/' + k, title: d.title, badges: badgesOf(k), isList: true, isArgs: false, lead: 'Bạn gõ /' + P.name + ' — có thể bạn muốn /' + k + '. ' + d.lead, usage: usageFor(k, null, {}), hasSlot: false, examples: [], busyWarn: false, tip: 'Nếu cứ gửi, Noverse sẽ báo “Lệnh không xác định: /' + P.name + '”. Tên khác như /plan vẫn dùng được.' };
+      this._accept = () => sel.pick(); this._tab = () => sel.pick(); this._n = flat.length;
+    } else {
+      const k = P.key; const d = C[k]; const done = P.toks.slice(0, -1); const cur = P.cur;
+      const v = valsOf(k, P.toks); const vDone = valsOf(k, done);
+      const textP = d.params.find((p) => p.kind === 'text' && vDone[p.k]);
+      let slot = null; let valueOf = null;
+      if (textP) slot = textP; else {
+        const pr = d.params.find((p) => p.pre && cur.indexOf(p.pre) === 0); if (pr) { slot = pr; valueOf = cur.slice(pr.pre.length); }
+        else if (cur[0] === '-') slot = d.params.find((p) => p.kind === 'flag' && p.flag.indexOf(cur) === 0) || d.params.find((p) => p.pre && p.pre.indexOf(cur) === 0) || null;
+        else slot = d.params.find((p) => !p.pre && p.kind !== 'flag' && !vDone[p.k]) || null;
+      }
+      const sugs = [];
+      const base = done.length ? '/' + P.name + ' ' + done.join(' ') + ' ' : '/' + P.name + ' ';
+      const put = (ins) => this.setText(base + ins + (/=$/.test(ins) ? '' : ' '));
+      if (slot && valueOf !== null && slot.kind !== 'text') {
+        const opts = slot.kind === 'enum' ? slot.opts.map((o) => [o.v, o.note]) : (NUMS[slot.k] || []);
+        opts.filter(([x]) => x.indexOf(valueOf) === 0).forEach(([x, n]) => sugs.push({ ins: slot.pre + x, a: slot.pre, b: x, c: '', desc: n, c1: ORA, c2: MINT }));
+      } else if (!textP) {
+        d.params.forEach((p) => {
+          if (p.kind === 'flag') { if (!vDone[p.k] && p.flag.indexOf(cur) === 0) sugs.push({ ins: p.flag, a: p.flag, desc: p.hint, c1: ORA, tag: 'công tắc' }); return; }
+          if (vDone[p.k]) return;
+          if (p.pre) { if (!cur || p.pre.indexOf(cur) === 0) sugs.push({ ins: p.pre, a: p.pre, b: p.kind === 'text' ? '…' : (p.kind === 'enum' ? p.opts.map((o) => o.v).join('|') : 'N'), desc: p.label, c1: ORA, c2: SOFT }); return; }
+          if (p.kind === 'enum') p.opts.filter((o) => o.v.indexOf(cur) === 0).forEach((o) => sugs.push({ ins: o.v, a: o.v, desc: o.note, c1: MINT }));
+          else if (p.kind === 'path') (PATHS[k] || []).filter(([x]) => x.indexOf(cur) === 0).forEach(([x, n]) => sugs.push({ ins: x, a: x, desc: n, c1: MINT, tag: 'gợi ý' }));
+        });
+      }
+      let idx = 0; const flat = sugs.map((s) => { const it = mkItem(idx, Object.assign({}, s, { c1: s.c1, pick: () => put(s.ins) })); idx++; return it; });
+      sections = flat.length ? [{ label: slot && valueOf !== null ? 'Giá trị cho ' + slot.pre.replace(/=$/, '') : 'Có thể thêm', items: flat }] : [];
+      const sel = flat[Math.min(hi, flat.length - 1)];
+      if (sel && sel.ins.indexOf(cur) === 0 && cur.length) ghost = sel.ins.slice(cur.length);
+      else if (!cur && !textP) { const rest = d.params.filter((p) => !vDone[p.k]).map((p) => p.kind === 'flag' ? '[' + p.flag + ']' : (p.req ? p.tok : '[' + p.tok.replace(/^\[|\]$/g, '') + ']')); ghost = rest.join(' '); }
+      const ck = check(k, v, busy); if (v.__extra) ck.err = ck.err || ('Thừa “' + v.__extra + '” — lệnh này không nhận thêm giá trị đó.');
+      if (k === 'export' && /\.pdf$|\.docx?$/i.test(v.path || '')) { ck.fix = () => this.setText(text.replace(/\.(pdf|docx?)\b/i, '.epub')); ck.fixLabel = 'Đổi thành .epub'; }
+      hasErr = !!ck.err; const line = text.trim();
+      const blocked = busy && d.idle;
+      const st = ck.err ? { fg: '#FFC9CE', icon: 'i-warning', text: ck.err } : (blocked ? { fg: ORA, icon: 'i-timer', text: 'Sẽ bị từ chối: hệ thống đang viết.' } : (ck.warn ? { fg: ORA, icon: 'i-info', text: ck.warn } : { fg: MINT, icon: 'i-tick', text: 'Đúng cú pháp — nhấn Enter để chạy.' }));
+      if (!flat.length) { listEmpty = true; emptyTitle = textP ? 'Đang gõ ' + textP.label.toLowerCase() : 'Đã đủ thông tin'; emptyText = textP ? 'Gõ bằng lời thường, bao nhiêu chữ cũng được. Xong thì nhấn Enter.' : 'Không còn tuỳ chọn nào để thêm. Nhấn Enter để chạy.'; }
+      popTitle = 'Tuỳ chọn cho /' + k; popSub = d.title; popIcon = 'i-edit';
+      enterHint = ck.err ? 'chưa chạy được' : 'chạy lệnh';
+      const slotTok = slot ? slot.tok : null;
+      dt = { slash: '/' + k, title: d.title, badges: badgesOf(k), isList: false, isArgs: true, lead: d.lead, usage: usageFor(k, slotTok, vDone),
+        hasSlot: !!slot, slotTitle: slot ? 'Đang nhập: ' + slot.label + (slot.req ? ' · bắt buộc' : ' · có thể bỏ') : '', slotDesc: slot ? slot.desc : '', slotDef: slot && slot.defText ? slot.defText : '',
+        stFg: st.fg, stIcon: st.icon, stText: st.text, infos: ck.err ? [] : ck.infos, hasFix: !!ck.fix, fix: ck.fix || (() => {}), fixLabel: ck.fixLabel || '',
+        examples: [], busyWarn: blocked, tip: d.tip };
+      this._tab = () => { if (sel) sel.pick(); };
+      this._accept = () => { if (sel && cur && sel.ins !== cur) { sel.pick(); return; } if (!ck.err && !blocked) this.send(line); };
+      this._n = flat.length;
+    }
+    const isCmd = text[0] === '/'; const showPop = isCmd && !this.state.sent && !this.state.dismiss;
+    return {
+      busy, text, ghost: isCmd ? ghost : '', showPop, sections, listEmpty, emptyTitle, emptyText, popTitle, popSub, popIcon, enterHint, hasErr,
+      dt: dt || { slash: '', title: '', badges: [], isList: false, isArgs: false, usage: [], examples: [], infos: [], tip: '' },
+      cmpCls: isCmd ? 'cmp' : '', cmpBd: hasErr ? 'rgba(255,159,168,0.35)' : (isCmd ? 'rgba(201,166,245,0.35)' : 'rgba(255,255,255,0.07)'), cmpIcon: isCmd ? 'i-command' : 'i-messages', cmpIconFg: isCmd ? PUR : '#7E7E8A', sendBg: hasErr ? '#3A3A40' : '#EDEDEF',
+      sent: !!this.state.sent, sentLine: this.state.sent || '',
+      onText: (e) => this.setText(e.target.value),
+      onKey: (e) => { const n = this._n || 0;
+        if (!isCmd) { if (e.key === 'Enter') { e.preventDefault(); if (text.trim()) this.send(text.trim()); } return; }
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ hi: n ? (this.state.hi + 1) % n : 0 }); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ hi: n ? (this.state.hi - 1 + n) % n : 0 }); }
+        else if (e.key === 'Tab') { e.preventDefault(); this._tab && this._tab(); }
+        else if (e.key === 'Enter') { e.preventDefault(); this._accept && this._accept(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this.setState({ dismiss: true }); } },
+      submit: () => { if (isCmd) { this._accept && this._accept(); } else if (text.trim()) this.send(text.trim()); },
+      outline: ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'].map((t, i) => ({ n: i + 1, t })),
+      feed: [['21:52:47', 'Đọc chương · chương 24 · bản nháp'], ['21:52:51', 'Người viết · Viết chương 25'], ['21:52:58', 'Đọc bối cảnh · chương 25'], ['21:53:10', 'Gọt giũa · chương 25'], ['21:53:24', 'Soát nhất quán · chương 25'], ['21:53:31', 'Lưu chương · chương 25']].map(([t, x]) => ({ t, x }))
+    };
+  }
+}
+</script>
+</body>
+</html>

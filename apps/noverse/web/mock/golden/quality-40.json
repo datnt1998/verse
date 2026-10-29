@@ -1,0 +1,2354 @@
+{
+  "pack": {
+    "id": "nu-tan-bao-thu",
+    "ten": "Nữ tần trọng sinh báo thù, vả mặt"
+  },
+  "sections": [
+    {
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo"
+    },
+    {
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút"
+    },
+    {
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ"
+    },
+    {
+      "ref": "Master §6",
+      "refName": "Leo thang"
+    },
+    {
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương"
+    },
+    {
+      "ref": "Master §12",
+      "refName": "Nhân vật"
+    },
+    {
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài"
+    },
+    {
+      "ref": "Master §15",
+      "refName": "Viết cho audio"
+    },
+    {
+      "ref": "Master §16",
+      "refName": "Kết truyện"
+    }
+  ],
+  "chapters": [
+    {
+      "n": 1,
+      "title": "Chương 1",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 2,
+      "title": "Chương 2",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 3,
+      "title": "Chương 3",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 4,
+      "title": "Chương 4",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 5,
+      "title": "Chương 5",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 6,
+      "title": "Chương 6",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 7,
+      "title": "Chương 7",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 8,
+      "title": "Chương 8",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 9,
+      "title": "Chương 9",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 10,
+      "title": "Chương 10",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 11,
+      "title": "Chương 11",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 12,
+      "title": "Chương 12",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 13,
+      "title": "Chương 13",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 14,
+      "title": "Chương 14",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 15,
+      "title": "Chương 15",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 16,
+      "title": "Chương 16",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 17,
+      "title": "Chương 17",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 18,
+      "title": "Chương 18",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 19,
+      "title": "Chương 19",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 20,
+      "title": "Chương 20",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 21,
+      "title": "Chương 21",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 22,
+      "title": "Chương 22",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 23,
+      "title": "Chương 23",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 24,
+      "title": "Chương 24",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 25,
+      "title": "Chương 25",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 26,
+      "title": "Chương 26",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 27,
+      "title": "Chương 27",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 28,
+      "title": "Chương 28",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 29,
+      "title": "Chương 29",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 30,
+      "title": "Chương 30",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 31,
+      "title": "Chương 31",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 32,
+      "title": "Chương 32",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 33,
+      "title": "Chương 33",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 34,
+      "title": "Chương 34",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 35,
+      "title": "Chương 35",
+      "status": "rewriting",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    },
+    {
+      "n": 36,
+      "title": "Chương 36",
+      "status": "previous",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    },
+    {
+      "n": 37,
+      "title": "Chương 37",
+      "status": "previous",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    },
+    {
+      "n": 38,
+      "title": "Chương 38",
+      "status": "previous",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    },
+    {
+      "n": 39,
+      "title": "Chương 39",
+      "status": "previous",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    },
+    {
+      "n": 40,
+      "title": "Chương 40",
+      "status": "previous",
+      "rewrites": [
+        {
+          "at": "2026-10-22T09:00:00Z",
+          "cause": "review"
+        }
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "ref": "Master §2",
+      "ch": 4,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 8,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 12,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 16,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 18,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 20,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 24,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 28,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 32,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 36,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §2",
+      "ch": 40,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 3,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 7,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 10,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 11,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 15,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 19,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 23,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 27,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 28,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 31,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 35,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §4",
+      "ch": 39,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 2,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 6,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 10,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 14,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 18,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 20,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 22,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 26,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 30,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 34,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §5",
+      "ch": 38,
+      "error": 1,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 1,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 5,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 9,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 12,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 13,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 17,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 21,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 25,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 29,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 30,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 33,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §6",
+      "ch": 37,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 4,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 8,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 12,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 16,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 20,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 22,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 24,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 28,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 32,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 36,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §7",
+      "ch": 40,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 3,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 7,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 11,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 14,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 15,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 19,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 23,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 27,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 31,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 32,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 35,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §12",
+      "ch": 39,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 2,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 6,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 10,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 14,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 18,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 22,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 24,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 26,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 30,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 34,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §13",
+      "ch": 38,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 1,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 5,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 9,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 13,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 16,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 17,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 21,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 25,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 29,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 33,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 34,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §15",
+      "ch": 37,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 4,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 8,
+      "error": 0,
+      "warning": 1,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 12,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 16,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 20,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 24,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 26,
+      "error": 0,
+      "warning": 0,
+      "fixed": 1,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 28,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 32,
+      "error": 1,
+      "warning": 0,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 36,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    },
+    {
+      "ref": "Master §16",
+      "ch": 40,
+      "error": 0,
+      "warning": 1,
+      "fixed": 0,
+      "kept": 0
+    }
+  ],
+  "issues": [
+    {
+      "id": "ch1-0cce5b06",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 1 vấp Master §6",
+      "quote": "trích Chương 1 vấp Master §6",
+      "fix": "sửa Chương 1 vấp Master §6",
+      "ch": 1,
+      "state": "open"
+    },
+    {
+      "id": "ch1-066b7d33",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 1 vấp Master §15",
+      "quote": "trích Chương 1 vấp Master §15",
+      "fix": "sửa Chương 1 vấp Master §15",
+      "ch": 1,
+      "state": "open"
+    },
+    {
+      "id": "ch2-a7130deb",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 2 vấp Master §5",
+      "quote": "trích Chương 2 vấp Master §5",
+      "fix": "sửa Chương 2 vấp Master §5",
+      "ch": 2,
+      "state": "open"
+    },
+    {
+      "id": "ch2-0dd30240",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 2 vấp Master §13",
+      "quote": "trích Chương 2 vấp Master §13",
+      "fix": "sửa Chương 2 vấp Master §13",
+      "ch": 2,
+      "state": "open"
+    },
+    {
+      "id": "ch2-a1b03050",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Vòng 1 chương 2",
+      "quote": "trích Vòng 1 chương 2",
+      "fix": "sửa Vòng 1 chương 2",
+      "ch": 2,
+      "state": "fixed"
+    },
+    {
+      "id": "ch3-1219fe5e",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 3 vấp Master §4",
+      "quote": "trích Chương 3 vấp Master §4",
+      "fix": "sửa Chương 3 vấp Master §4",
+      "ch": 3,
+      "state": "open"
+    },
+    {
+      "id": "ch3-4004a94d",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 3 vấp Master §12",
+      "quote": "trích Chương 3 vấp Master §12",
+      "fix": "sửa Chương 3 vấp Master §12",
+      "ch": 3,
+      "state": "open"
+    },
+    {
+      "id": "ch4-3c4b8c20",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 4 vấp Master §2",
+      "quote": "trích Chương 4 vấp Master §2",
+      "fix": "sửa Chương 4 vấp Master §2",
+      "ch": 4,
+      "state": "open"
+    },
+    {
+      "id": "ch4-d03ffad2",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 4 vấp Master §7",
+      "quote": "trích Chương 4 vấp Master §7",
+      "fix": "sửa Chương 4 vấp Master §7",
+      "ch": 4,
+      "state": "open"
+    },
+    {
+      "id": "ch4-03756124",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 4 vấp Master §16",
+      "quote": "trích Chương 4 vấp Master §16",
+      "fix": "sửa Chương 4 vấp Master §16",
+      "ch": 4,
+      "state": "open"
+    },
+    {
+      "id": "ch4-f1fe5889",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Vòng 1 chương 4",
+      "quote": "trích Vòng 1 chương 4",
+      "fix": "sửa Vòng 1 chương 4",
+      "ch": 4,
+      "state": "fixed"
+    },
+    {
+      "id": "ch5-1367f025",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 5 vấp Master §6",
+      "quote": "trích Chương 5 vấp Master §6",
+      "fix": "sửa Chương 5 vấp Master §6",
+      "ch": 5,
+      "state": "open"
+    },
+    {
+      "id": "ch5-a1494fdd",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 5 vấp Master §15",
+      "quote": "trích Chương 5 vấp Master §15",
+      "fix": "sửa Chương 5 vấp Master §15",
+      "ch": 5,
+      "state": "open"
+    },
+    {
+      "id": "ch6-be5d543b",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 6 vấp Master §5",
+      "quote": "trích Chương 6 vấp Master §5",
+      "fix": "sửa Chương 6 vấp Master §5",
+      "ch": 6,
+      "state": "open"
+    },
+    {
+      "id": "ch6-46bfd083",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 6 vấp Master §13",
+      "quote": "trích Chương 6 vấp Master §13",
+      "fix": "sửa Chương 6 vấp Master §13",
+      "ch": 6,
+      "state": "open"
+    },
+    {
+      "id": "ch6-cb32aac2",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Vòng 1 chương 6",
+      "quote": "trích Vòng 1 chương 6",
+      "fix": "sửa Vòng 1 chương 6",
+      "ch": 6,
+      "state": "fixed"
+    },
+    {
+      "id": "ch7-b73ec80b",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 7 vấp Master §4",
+      "quote": "trích Chương 7 vấp Master §4",
+      "fix": "sửa Chương 7 vấp Master §4",
+      "ch": 7,
+      "state": "open"
+    },
+    {
+      "id": "ch7-5678d84b",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 7 vấp Master §12",
+      "quote": "trích Chương 7 vấp Master §12",
+      "fix": "sửa Chương 7 vấp Master §12",
+      "ch": 7,
+      "state": "open"
+    },
+    {
+      "id": "ch8-704203e2",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 8 vấp Master §2",
+      "quote": "trích Chương 8 vấp Master §2",
+      "fix": "sửa Chương 8 vấp Master §2",
+      "ch": 8,
+      "state": "open"
+    },
+    {
+      "id": "ch8-4efec6ec",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 8 vấp Master §7",
+      "quote": "trích Chương 8 vấp Master §7",
+      "fix": "sửa Chương 8 vấp Master §7",
+      "ch": 8,
+      "state": "open"
+    },
+    {
+      "id": "ch8-e656e325",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 8 vấp Master §16",
+      "quote": "trích Chương 8 vấp Master §16",
+      "fix": "sửa Chương 8 vấp Master §16",
+      "ch": 8,
+      "state": "open"
+    },
+    {
+      "id": "ch8-7668ffb5",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Vòng 1 chương 8",
+      "quote": "trích Vòng 1 chương 8",
+      "fix": "sửa Vòng 1 chương 8",
+      "ch": 8,
+      "state": "fixed"
+    },
+    {
+      "id": "ch9-baf5b0fb",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 9 vấp Master §6",
+      "quote": "trích Chương 9 vấp Master §6",
+      "fix": "sửa Chương 9 vấp Master §6",
+      "ch": 9,
+      "state": "open"
+    },
+    {
+      "id": "ch9-4bb20e1f",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 9 vấp Master §15",
+      "quote": "trích Chương 9 vấp Master §15",
+      "fix": "sửa Chương 9 vấp Master §15",
+      "ch": 9,
+      "state": "open"
+    },
+    {
+      "id": "ch10-8fb1249c",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 10 vấp Master §5",
+      "quote": "trích Chương 10 vấp Master §5",
+      "fix": "sửa Chương 10 vấp Master §5",
+      "ch": 10,
+      "state": "open"
+    },
+    {
+      "id": "ch10-db9835ec",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 10 vấp Master §13",
+      "quote": "trích Chương 10 vấp Master §13",
+      "fix": "sửa Chương 10 vấp Master §13",
+      "ch": 10,
+      "state": "open"
+    },
+    {
+      "id": "ch10-97138324",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Vòng 1 chương 10",
+      "quote": "trích Vòng 1 chương 10",
+      "fix": "sửa Vòng 1 chương 10",
+      "ch": 10,
+      "state": "fixed"
+    },
+    {
+      "id": "ch11-4ec2f2dc",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 11 vấp Master §4",
+      "quote": "trích Chương 11 vấp Master §4",
+      "fix": "sửa Chương 11 vấp Master §4",
+      "ch": 11,
+      "state": "open"
+    },
+    {
+      "id": "ch11-0c89e572",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 11 vấp Master §12",
+      "quote": "trích Chương 11 vấp Master §12",
+      "fix": "sửa Chương 11 vấp Master §12",
+      "ch": 11,
+      "state": "open"
+    },
+    {
+      "id": "ch12-f6790a8c",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 12 vấp Master §2",
+      "quote": "trích Chương 12 vấp Master §2",
+      "fix": "sửa Chương 12 vấp Master §2",
+      "ch": 12,
+      "state": "open"
+    },
+    {
+      "id": "ch12-19d6e08e",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 12 vấp Master §7",
+      "quote": "trích Chương 12 vấp Master §7",
+      "fix": "sửa Chương 12 vấp Master §7",
+      "ch": 12,
+      "state": "open"
+    },
+    {
+      "id": "ch12-307eecb5",
+      "level": "error",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 12 vấp Master §16",
+      "quote": "trích Chương 12 vấp Master §16",
+      "fix": "sửa Chương 12 vấp Master §16",
+      "ch": 12,
+      "state": "open"
+    },
+    {
+      "id": "ch12-a65f17c1",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Vòng 1 chương 12",
+      "quote": "trích Vòng 1 chương 12",
+      "fix": "sửa Vòng 1 chương 12",
+      "ch": 12,
+      "state": "fixed"
+    },
+    {
+      "id": "ch13-d1851f48",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 13 vấp Master §6",
+      "quote": "trích Chương 13 vấp Master §6",
+      "fix": "sửa Chương 13 vấp Master §6",
+      "ch": 13,
+      "state": "open"
+    },
+    {
+      "id": "ch13-91cdc475",
+      "level": "error",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 13 vấp Master §15",
+      "quote": "trích Chương 13 vấp Master §15",
+      "fix": "sửa Chương 13 vấp Master §15",
+      "ch": 13,
+      "state": "open"
+    },
+    {
+      "id": "ch14-4b2e8a57",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 14 vấp Master §5",
+      "quote": "trích Chương 14 vấp Master §5",
+      "fix": "sửa Chương 14 vấp Master §5",
+      "ch": 14,
+      "state": "open"
+    },
+    {
+      "id": "ch14-81875725",
+      "level": "error",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 14 vấp Master §13",
+      "quote": "trích Chương 14 vấp Master §13",
+      "fix": "sửa Chương 14 vấp Master §13",
+      "ch": 14,
+      "state": "open"
+    },
+    {
+      "id": "ch14-a2a7c862",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Vòng 1 chương 14",
+      "quote": "trích Vòng 1 chương 14",
+      "fix": "sửa Vòng 1 chương 14",
+      "ch": 14,
+      "state": "fixed"
+    },
+    {
+      "id": "ch15-19db88fe",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 15 vấp Master §4",
+      "quote": "trích Chương 15 vấp Master §4",
+      "fix": "sửa Chương 15 vấp Master §4",
+      "ch": 15,
+      "state": "open"
+    },
+    {
+      "id": "ch15-e95220bd",
+      "level": "error",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 15 vấp Master §12",
+      "quote": "trích Chương 15 vấp Master §12",
+      "fix": "sửa Chương 15 vấp Master §12",
+      "ch": 15,
+      "state": "open"
+    },
+    {
+      "id": "ch16-0517e227",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 16 vấp Master §2",
+      "quote": "trích Chương 16 vấp Master §2",
+      "fix": "sửa Chương 16 vấp Master §2",
+      "ch": 16,
+      "state": "open"
+    },
+    {
+      "id": "ch16-4e0448e3",
+      "level": "error",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 16 vấp Master §7",
+      "quote": "trích Chương 16 vấp Master §7",
+      "fix": "sửa Chương 16 vấp Master §7",
+      "ch": 16,
+      "state": "open"
+    },
+    {
+      "id": "ch16-5ca25160",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 16 vấp Master §16",
+      "quote": "trích Chương 16 vấp Master §16",
+      "fix": "sửa Chương 16 vấp Master §16",
+      "ch": 16,
+      "state": "open"
+    },
+    {
+      "id": "ch16-f313ce16",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Vòng 1 chương 16",
+      "quote": "trích Vòng 1 chương 16",
+      "fix": "sửa Vòng 1 chương 16",
+      "ch": 16,
+      "state": "fixed"
+    },
+    {
+      "id": "ch17-622d5748",
+      "level": "error",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 17 vấp Master §6",
+      "quote": "trích Chương 17 vấp Master §6",
+      "fix": "sửa Chương 17 vấp Master §6",
+      "ch": 17,
+      "state": "open"
+    },
+    {
+      "id": "ch17-75d63a86",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 17 vấp Master §15",
+      "quote": "trích Chương 17 vấp Master §15",
+      "fix": "sửa Chương 17 vấp Master §15",
+      "ch": 17,
+      "state": "open"
+    },
+    {
+      "id": "ch18-c5ade811",
+      "level": "error",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 18 vấp Master §5",
+      "quote": "trích Chương 18 vấp Master §5",
+      "fix": "sửa Chương 18 vấp Master §5",
+      "ch": 18,
+      "state": "open"
+    },
+    {
+      "id": "ch18-f96a29e4",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 18 vấp Master §13",
+      "quote": "trích Chương 18 vấp Master §13",
+      "fix": "sửa Chương 18 vấp Master §13",
+      "ch": 18,
+      "state": "open"
+    },
+    {
+      "id": "ch18-6f8e24c2",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Vòng 1 chương 18",
+      "quote": "trích Vòng 1 chương 18",
+      "fix": "sửa Vòng 1 chương 18",
+      "ch": 18,
+      "state": "fixed"
+    },
+    {
+      "id": "ch19-56ad8bc3",
+      "level": "error",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 19 vấp Master §4",
+      "quote": "trích Chương 19 vấp Master §4",
+      "fix": "sửa Chương 19 vấp Master §4",
+      "ch": 19,
+      "state": "open"
+    },
+    {
+      "id": "ch19-ec23c31f",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 19 vấp Master §12",
+      "quote": "trích Chương 19 vấp Master §12",
+      "fix": "sửa Chương 19 vấp Master §12",
+      "ch": 19,
+      "state": "open"
+    },
+    {
+      "id": "ch20-863b9e24",
+      "level": "error",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 20 vấp Master §2",
+      "quote": "trích Chương 20 vấp Master §2",
+      "fix": "sửa Chương 20 vấp Master §2",
+      "ch": 20,
+      "state": "open"
+    },
+    {
+      "id": "ch20-cbf6acb0",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 20 vấp Master §7",
+      "quote": "trích Chương 20 vấp Master §7",
+      "fix": "sửa Chương 20 vấp Master §7",
+      "ch": 20,
+      "state": "open"
+    },
+    {
+      "id": "ch20-cf57137b",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 20 vấp Master §16",
+      "quote": "trích Chương 20 vấp Master §16",
+      "fix": "sửa Chương 20 vấp Master §16",
+      "ch": 20,
+      "state": "open"
+    },
+    {
+      "id": "ch20-98288507",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Vòng 1 chương 20",
+      "quote": "trích Vòng 1 chương 20",
+      "fix": "sửa Vòng 1 chương 20",
+      "ch": 20,
+      "state": "fixed"
+    },
+    {
+      "id": "ch21-8f7707ff",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 21 vấp Master §6",
+      "quote": "trích Chương 21 vấp Master §6",
+      "fix": "sửa Chương 21 vấp Master §6",
+      "ch": 21,
+      "state": "open"
+    },
+    {
+      "id": "ch21-caf5d7fc",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 21 vấp Master §15",
+      "quote": "trích Chương 21 vấp Master §15",
+      "fix": "sửa Chương 21 vấp Master §15",
+      "ch": 21,
+      "state": "open"
+    },
+    {
+      "id": "ch22-9d63c016",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 22 vấp Master §5",
+      "quote": "trích Chương 22 vấp Master §5",
+      "fix": "sửa Chương 22 vấp Master §5",
+      "ch": 22,
+      "state": "open"
+    },
+    {
+      "id": "ch22-642774d4",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 22 vấp Master §13",
+      "quote": "trích Chương 22 vấp Master §13",
+      "fix": "sửa Chương 22 vấp Master §13",
+      "ch": 22,
+      "state": "open"
+    },
+    {
+      "id": "ch22-a6f31009",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Vòng 1 chương 22",
+      "quote": "trích Vòng 1 chương 22",
+      "fix": "sửa Vòng 1 chương 22",
+      "ch": 22,
+      "state": "fixed"
+    },
+    {
+      "id": "ch23-d416b072",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 23 vấp Master §4",
+      "quote": "trích Chương 23 vấp Master §4",
+      "fix": "sửa Chương 23 vấp Master §4",
+      "ch": 23,
+      "state": "open"
+    },
+    {
+      "id": "ch23-7e8086ca",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 23 vấp Master §12",
+      "quote": "trích Chương 23 vấp Master §12",
+      "fix": "sửa Chương 23 vấp Master §12",
+      "ch": 23,
+      "state": "open"
+    },
+    {
+      "id": "ch24-92d0f0f7",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 24 vấp Master §2",
+      "quote": "trích Chương 24 vấp Master §2",
+      "fix": "sửa Chương 24 vấp Master §2",
+      "ch": 24,
+      "state": "open"
+    },
+    {
+      "id": "ch24-dcbb65ea",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 24 vấp Master §7",
+      "quote": "trích Chương 24 vấp Master §7",
+      "fix": "sửa Chương 24 vấp Master §7",
+      "ch": 24,
+      "state": "open"
+    },
+    {
+      "id": "ch24-fda59538",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 24 vấp Master §16",
+      "quote": "trích Chương 24 vấp Master §16",
+      "fix": "sửa Chương 24 vấp Master §16",
+      "ch": 24,
+      "state": "open"
+    },
+    {
+      "id": "ch24-4817853d",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Vòng 1 chương 24",
+      "quote": "trích Vòng 1 chương 24",
+      "fix": "sửa Vòng 1 chương 24",
+      "ch": 24,
+      "state": "fixed"
+    },
+    {
+      "id": "ch25-f79da558",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 25 vấp Master §6",
+      "quote": "trích Chương 25 vấp Master §6",
+      "fix": "sửa Chương 25 vấp Master §6",
+      "ch": 25,
+      "state": "open"
+    },
+    {
+      "id": "ch25-89a05295",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 25 vấp Master §15",
+      "quote": "trích Chương 25 vấp Master §15",
+      "fix": "sửa Chương 25 vấp Master §15",
+      "ch": 25,
+      "state": "open"
+    },
+    {
+      "id": "ch26-f3fb8179",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 26 vấp Master §5",
+      "quote": "trích Chương 26 vấp Master §5",
+      "fix": "sửa Chương 26 vấp Master §5",
+      "ch": 26,
+      "state": "open"
+    },
+    {
+      "id": "ch26-55796467",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 26 vấp Master §13",
+      "quote": "trích Chương 26 vấp Master §13",
+      "fix": "sửa Chương 26 vấp Master §13",
+      "ch": 26,
+      "state": "open"
+    },
+    {
+      "id": "ch26-437a0833",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Vòng 1 chương 26",
+      "quote": "trích Vòng 1 chương 26",
+      "fix": "sửa Vòng 1 chương 26",
+      "ch": 26,
+      "state": "fixed"
+    },
+    {
+      "id": "ch27-fb9d46eb",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 27 vấp Master §4",
+      "quote": "trích Chương 27 vấp Master §4",
+      "fix": "sửa Chương 27 vấp Master §4",
+      "ch": 27,
+      "state": "open"
+    },
+    {
+      "id": "ch27-7959e28d",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 27 vấp Master §12",
+      "quote": "trích Chương 27 vấp Master §12",
+      "fix": "sửa Chương 27 vấp Master §12",
+      "ch": 27,
+      "state": "open"
+    },
+    {
+      "id": "ch28-fa058cd8",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 28 vấp Master §2",
+      "quote": "trích Chương 28 vấp Master §2",
+      "fix": "sửa Chương 28 vấp Master §2",
+      "ch": 28,
+      "state": "open"
+    },
+    {
+      "id": "ch28-05e34609",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 28 vấp Master §7",
+      "quote": "trích Chương 28 vấp Master §7",
+      "fix": "sửa Chương 28 vấp Master §7",
+      "ch": 28,
+      "state": "open"
+    },
+    {
+      "id": "ch28-5509e844",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 28 vấp Master §16",
+      "quote": "trích Chương 28 vấp Master §16",
+      "fix": "sửa Chương 28 vấp Master §16",
+      "ch": 28,
+      "state": "open"
+    },
+    {
+      "id": "ch28-f57a4c6b",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Vòng 1 chương 28",
+      "quote": "trích Vòng 1 chương 28",
+      "fix": "sửa Vòng 1 chương 28",
+      "ch": 28,
+      "state": "fixed"
+    },
+    {
+      "id": "ch29-7112f3fb",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 29 vấp Master §6",
+      "quote": "trích Chương 29 vấp Master §6",
+      "fix": "sửa Chương 29 vấp Master §6",
+      "ch": 29,
+      "state": "open"
+    },
+    {
+      "id": "ch29-d08c37fb",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 29 vấp Master §15",
+      "quote": "trích Chương 29 vấp Master §15",
+      "fix": "sửa Chương 29 vấp Master §15",
+      "ch": 29,
+      "state": "open"
+    },
+    {
+      "id": "ch30-9bc3b610",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 30 vấp Master §5",
+      "quote": "trích Chương 30 vấp Master §5",
+      "fix": "sửa Chương 30 vấp Master §5",
+      "ch": 30,
+      "state": "open"
+    },
+    {
+      "id": "ch30-de7080f1",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 30 vấp Master §13",
+      "quote": "trích Chương 30 vấp Master §13",
+      "fix": "sửa Chương 30 vấp Master §13",
+      "ch": 30,
+      "state": "open"
+    },
+    {
+      "id": "ch30-25d270f7",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Vòng 1 chương 30",
+      "quote": "trích Vòng 1 chương 30",
+      "fix": "sửa Vòng 1 chương 30",
+      "ch": 30,
+      "state": "fixed"
+    },
+    {
+      "id": "ch31-bb0f4055",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 31 vấp Master §4",
+      "quote": "trích Chương 31 vấp Master §4",
+      "fix": "sửa Chương 31 vấp Master §4",
+      "ch": 31,
+      "state": "open"
+    },
+    {
+      "id": "ch31-7db12c15",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 31 vấp Master §12",
+      "quote": "trích Chương 31 vấp Master §12",
+      "fix": "sửa Chương 31 vấp Master §12",
+      "ch": 31,
+      "state": "open"
+    },
+    {
+      "id": "ch32-1c1dead2",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 32 vấp Master §2",
+      "quote": "trích Chương 32 vấp Master §2",
+      "fix": "sửa Chương 32 vấp Master §2",
+      "ch": 32,
+      "state": "open"
+    },
+    {
+      "id": "ch32-daf8deeb",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 32 vấp Master §7",
+      "quote": "trích Chương 32 vấp Master §7",
+      "fix": "sửa Chương 32 vấp Master §7",
+      "ch": 32,
+      "state": "open"
+    },
+    {
+      "id": "ch32-c3b4a872",
+      "level": "error",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 32 vấp Master §16",
+      "quote": "trích Chương 32 vấp Master §16",
+      "fix": "sửa Chương 32 vấp Master §16",
+      "ch": 32,
+      "state": "open"
+    },
+    {
+      "id": "ch32-0e79793d",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Vòng 1 chương 32",
+      "quote": "trích Vòng 1 chương 32",
+      "fix": "sửa Vòng 1 chương 32",
+      "ch": 32,
+      "state": "fixed"
+    },
+    {
+      "id": "ch33-e36e67db",
+      "level": "warning",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 33 vấp Master §6",
+      "quote": "trích Chương 33 vấp Master §6",
+      "fix": "sửa Chương 33 vấp Master §6",
+      "ch": 33,
+      "state": "open"
+    },
+    {
+      "id": "ch33-728a167b",
+      "level": "error",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 33 vấp Master §15",
+      "quote": "trích Chương 33 vấp Master §15",
+      "fix": "sửa Chương 33 vấp Master §15",
+      "ch": 33,
+      "state": "open"
+    },
+    {
+      "id": "ch34-0a3f86f1",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 34 vấp Master §5",
+      "quote": "trích Chương 34 vấp Master §5",
+      "fix": "sửa Chương 34 vấp Master §5",
+      "ch": 34,
+      "state": "open"
+    },
+    {
+      "id": "ch34-f073d497",
+      "level": "error",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 34 vấp Master §13",
+      "quote": "trích Chương 34 vấp Master §13",
+      "fix": "sửa Chương 34 vấp Master §13",
+      "ch": 34,
+      "state": "open"
+    },
+    {
+      "id": "ch34-f3efe628",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Vòng 1 chương 34",
+      "quote": "trích Vòng 1 chương 34",
+      "fix": "sửa Vòng 1 chương 34",
+      "ch": 34,
+      "state": "fixed"
+    },
+    {
+      "id": "ch35-2edbfcdf",
+      "level": "warning",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 35 vấp Master §4",
+      "quote": "trích Chương 35 vấp Master §4",
+      "fix": "sửa Chương 35 vấp Master §4",
+      "ch": 35,
+      "state": "open"
+    },
+    {
+      "id": "ch35-2eb03c98",
+      "level": "error",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 35 vấp Master §12",
+      "quote": "trích Chương 35 vấp Master §12",
+      "fix": "sửa Chương 35 vấp Master §12",
+      "ch": 35,
+      "state": "open"
+    },
+    {
+      "id": "ch36-a3791783",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 36 vấp Master §2",
+      "quote": "trích Chương 36 vấp Master §2",
+      "fix": "sửa Chương 36 vấp Master §2",
+      "ch": 36,
+      "state": "open"
+    },
+    {
+      "id": "ch36-41e4ae5e",
+      "level": "error",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 36 vấp Master §7",
+      "quote": "trích Chương 36 vấp Master §7",
+      "fix": "sửa Chương 36 vấp Master §7",
+      "ch": 36,
+      "state": "open"
+    },
+    {
+      "id": "ch36-881d244b",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 36 vấp Master §16",
+      "quote": "trích Chương 36 vấp Master §16",
+      "fix": "sửa Chương 36 vấp Master §16",
+      "ch": 36,
+      "state": "open"
+    },
+    {
+      "id": "ch36-6abbcf26",
+      "level": "warning",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Vòng 1 chương 36",
+      "quote": "trích Vòng 1 chương 36",
+      "fix": "sửa Vòng 1 chương 36",
+      "ch": 36,
+      "state": "fixed"
+    },
+    {
+      "id": "ch37-3ef368b1",
+      "level": "error",
+      "ref": "Master §6",
+      "refName": "Leo thang",
+      "text": "Chương 37 vấp Master §6",
+      "quote": "trích Chương 37 vấp Master §6",
+      "fix": "sửa Chương 37 vấp Master §6",
+      "ch": 37,
+      "state": "open"
+    },
+    {
+      "id": "ch37-29c0cd65",
+      "level": "warning",
+      "ref": "Master §15",
+      "refName": "Viết cho audio",
+      "text": "Chương 37 vấp Master §15",
+      "quote": "trích Chương 37 vấp Master §15",
+      "fix": "sửa Chương 37 vấp Master §15",
+      "ch": 37,
+      "state": "open"
+    },
+    {
+      "id": "ch38-3d5f9fbd",
+      "level": "error",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Chương 38 vấp Master §5",
+      "quote": "trích Chương 38 vấp Master §5",
+      "fix": "sửa Chương 38 vấp Master §5",
+      "ch": 38,
+      "state": "open"
+    },
+    {
+      "id": "ch38-aa45f465",
+      "level": "warning",
+      "ref": "Master §13",
+      "refName": "Văn phong, thoại, hài",
+      "text": "Chương 38 vấp Master §13",
+      "quote": "trích Chương 38 vấp Master §13",
+      "fix": "sửa Chương 38 vấp Master §13",
+      "ch": 38,
+      "state": "open"
+    },
+    {
+      "id": "ch38-cf05127c",
+      "level": "warning",
+      "ref": "Master §5",
+      "refName": "Nhịp sóng và mật độ",
+      "text": "Vòng 1 chương 38",
+      "quote": "trích Vòng 1 chương 38",
+      "fix": "sửa Vòng 1 chương 38",
+      "ch": 38,
+      "state": "fixed"
+    },
+    {
+      "id": "ch39-0a4d2d4a",
+      "level": "error",
+      "ref": "Master §4",
+      "refName": "Mở đầu: mốc 30 giây, 2 phút, 5 phút",
+      "text": "Chương 39 vấp Master §4",
+      "quote": "trích Chương 39 vấp Master §4",
+      "fix": "sửa Chương 39 vấp Master §4",
+      "ch": 39,
+      "state": "open"
+    },
+    {
+      "id": "ch39-a2919933",
+      "level": "warning",
+      "ref": "Master §12",
+      "refName": "Nhân vật",
+      "text": "Chương 39 vấp Master §12",
+      "quote": "trích Chương 39 vấp Master §12",
+      "fix": "sửa Chương 39 vấp Master §12",
+      "ch": 39,
+      "state": "open"
+    },
+    {
+      "id": "ch40-27b07dde",
+      "level": "error",
+      "ref": "Master §2",
+      "refName": "Động cơ giữ chân: ba lực kéo",
+      "text": "Chương 40 vấp Master §2",
+      "quote": "trích Chương 40 vấp Master §2",
+      "fix": "sửa Chương 40 vấp Master §2",
+      "ch": 40,
+      "state": "open"
+    },
+    {
+      "id": "ch40-6aa0d383",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Chương 40 vấp Master §7",
+      "quote": "trích Chương 40 vấp Master §7",
+      "fix": "sửa Chương 40 vấp Master §7",
+      "ch": 40,
+      "state": "open"
+    },
+    {
+      "id": "ch40-320118a0",
+      "level": "warning",
+      "ref": "Master §16",
+      "refName": "Kết truyện",
+      "text": "Chương 40 vấp Master §16",
+      "quote": "trích Chương 40 vấp Master §16",
+      "fix": "sửa Chương 40 vấp Master §16",
+      "ch": 40,
+      "state": "open"
+    },
+    {
+      "id": "ch40-c14cf850",
+      "level": "warning",
+      "ref": "Master §7",
+      "refName": "Đầu chương và cuối chương",
+      "text": "Vòng 1 chương 40",
+      "quote": "trích Vòng 1 chương 40",
+      "fix": "sửa Vòng 1 chương 40",
+      "ch": 40,
+      "state": "fixed"
+    }
+  ]
+}

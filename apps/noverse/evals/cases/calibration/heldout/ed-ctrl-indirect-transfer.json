@@ -1,0 +1,23 @@
+{
+  "id": "ed-ctrl-indirect-transfer",
+  "category": "quality",
+  "role": "editor",
+  "description": "Đối chứng: chiếc chuông đồng đổi chủ qua trung gian — ông Đại tặng Tuyền (chương 1), Tuyền trao cho Hải giữ thay (chương 2), nên ở chương 3 chuông trong tay Hải là nhất quán, không phải lỗi sở hữu. Đáp án đúng là không báo lỗi.",
+  "fixture": "ed-ctrl-indirect-transfer",
+  "instruction": {
+    "agent": "editor",
+    "task": "Thẩm duyệt chương 3: gọi novel_context(chapter=3), save_review dùng scope=chapter, chapter=3"
+  },
+  "prompt": "Thẩm duyệt chương 3",
+  "control": true,
+  "expect": {
+    "review": {
+      "verdict_in": ["accept", "polish"],
+      "must_not_find": [
+        {"severity_min": "error"},
+        {"severity_min": "warning", "quote_contains": "gửi cháu giữ hộ"}
+      ]
+    }
+  },
+  "gate": {"max_severity": "warning"}
+}

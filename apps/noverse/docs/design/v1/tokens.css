@@ -1,0 +1,120 @@
+/* ainovel Agentic Studio — design tokens v1
+   Dùng với Tailwind CSS v4: @import "tailwindcss"; rồi @import "./tokens.css";
+   Các biến trong @theme sinh utility tương ứng (bg-surface-1, text-fg-3, rounded-card…). */
+
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap");
+
+@theme {
+  /* Nền & bề mặt (tối → sáng) */
+  --color-bg: #0B0B0D;          /* nền app */
+  --color-surface-0: #0F0F11;   /* ô nhập, khối lồng trong card */
+  --color-surface-1: #131315;   /* nền tablist/segmented, card đáy gradient */
+  --color-surface-2: #171719;   /* card đỉnh gradient */
+  --color-surface-3: #18181A;   /* ô chat, hộp thoại */
+  --color-surface-4: #1A1A1D;   /* hàng đang chọn */
+  --color-surface-5: #1E1E21;   /* rãnh progress */
+  --color-surface-6: #222225;   /* tab/segment đang chọn, avatar */
+  --color-surface-7: #2A2A2E;   /* segment chọn mạnh, switch tắt */
+
+  /* Chữ */
+  --color-fg: #EDEDEF;
+  --color-fg-2: #C9C9D1;
+  --color-fg-3: #A0A0AB;
+  --color-fg-4: #7E7E8A;        /* chữ phụ thấp nhất (≥4.5:1 trên ≤ surface-2) */
+  --color-fg-5: #3A3A40;        /* chỉ dùng cho dấu “/” phân cách, không dùng cho chữ */
+
+  /* Accent & trạng thái */
+  --color-accent: #C9A6F5;      /* focus, icon tab đang chọn, caret */
+  --color-accent-soft: #D9CCF7; /* chữ trên nền accent mờ */
+  --color-ok: #A6EDC1;
+  --color-warn: #F6CB8C;
+  --color-err: #FF9AA2;
+  --color-info: #B9D0F7;
+  --color-user: #5DC1B0;        /* icon sự kiện người dùng */
+  --color-user-fg: #9FE3D6;
+  --color-round-star: #E8C36A;  /* ✻ tiêu đề round luồng viết */
+  --color-round-label: #8FDCCB;
+
+  /* Màu chữ theo agent */
+  --color-architect: #B9D0F7;
+  --color-writer: #C9A6F5;
+  --color-editor: #F6CB8C;
+  --color-arbiter: #A6EDC1;
+
+  /* Chữ */
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-read: "Literata", Georgia, serif;
+
+  /* Bo góc */
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-button: 9px;
+  --radius-row: 10px;
+  --radius-tile: 12px;
+  --radius-card: 16px;
+  --radius-dock: 18px;
+
+  /* Chuyển động */
+  --ease-out: cubic-bezier(.2,.8,.2,1);
+}
+
+:root {
+  /* Đường kẻ (alpha trắng) */
+  --line-1: rgba(255,255,255,.06);  /* divider */
+  --line-2: rgba(255,255,255,.07);  /* viền card */
+  --line-3: rgba(255,255,255,.08);  /* viền control */
+  --line-4: rgba(255,255,255,.10);  /* viền nút ghost, field */
+  --line-5: rgba(255,255,255,.16);  /* viền item đang chọn */
+  --line-focus: rgba(201,166,245,.6);
+
+  /* Nền mờ cho trạng thái */
+  --tint-accent: rgba(201,166,245,.10);
+  --tint-ok: rgba(166,237,193,.10);
+  --tint-warn: rgba(246,203,140,.10);
+  --tint-err: rgba(255,154,162,.10);
+  --tint-info: rgba(185,208,247,.10);
+
+  /* Gradient orb của agent (chỉ dùng trong <AgentOrb>, thanh chi phí theo vai trò) */
+  --orb-architect: radial-gradient(circle at 32% 26%, #EEF4FF 0%, #B9D0F7 28%, #7C93F3 62%, #5A57E3 100%);
+  --orb-writer:    radial-gradient(circle at 32% 26%, #F3E8FF 0%, #C9A6F5 28%, #9A63E3 60%, #C9457F 100%);
+  --orb-editor:    radial-gradient(circle at 32% 26%, #FFF1DC 0%, #F6CB8C 30%, #EC9548 62%, #E25E36 100%);
+  --orb-arbiter:   radial-gradient(circle at 32% 26%, #E9FBEF 0%, #A6EDC1 28%, #5DC1B0 60%, #3E73D6 100%);
+  --orb-shade: inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4);
+
+  /* Gradient hoạt động */
+  --grad-writer-progress: linear-gradient(90deg, #C9A6F5, #9A63E3 60%, #C9457F);
+  --grad-run-ring: conic-gradient(from var(--run-angle), transparent 0deg, transparent 190deg, #5A57E3 240deg, #9A63E3 280deg, #C9457F 315deg, #5DC1B0 345deg, transparent 360deg);
+  --grad-thinking: linear-gradient(90deg, #7C93F3, #C9457F 50%, #5DC1B0);
+
+  /* Card “liquid dark” */
+  --card-bg: linear-gradient(180deg, #171719 0%, #131315 100%);
+  --card-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.5);
+  --dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@property --run-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Keyframes dùng chung */
+@keyframes ai-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }       /* orb agent đang chạy · 2.8s */
+@keyframes ai-spin { to { transform: rotate(360deg) } }                                         /* spinner · .9s linear */
+@keyframes ai-shimmer { from { background-position: 100% 0 } to { background-position: -100% 0 } } /* chữ đang chạy · 2.2s linear */
+@keyframes ai-run { to { --run-angle: 360deg } }                                                 /* viền ô chat · 4.5s linear */
+@keyframes ai-infinity { to { stroke-dashoffset: -50 } }                                         /* icon suy nghĩ · 1.8s linear */
+@keyframes ai-twinkle { 0%,100% { opacity: .25; transform: scale(.8) } 50% { opacity: 1; transform: scale(1.1) } } /* ✦ ✧ · 1.6s */
+@keyframes ai-blink { 50% { opacity: 0 } }                                                        /* caret · 1s steps(1) */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

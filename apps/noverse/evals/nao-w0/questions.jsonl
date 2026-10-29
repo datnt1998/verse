@@ -1,0 +1,48 @@
+{"id":"q01","q":"Tống Nhược Vy gọi bộ phim tranh giải Kim Đăng là 'đứa con tinh thần' đã ấp ủ bao lâu trên tivi?","gold":["c01-002"],"kind":"lexical"}
+{"id":"q02","q":"Hợp đồng mới trả bao nhiêu tệ cho ba ngày ghi hình trực tiếp?","gold":["c01-006"],"kind":"lexical"}
+{"id":"q03","q":"Trước khi bấm đồng ý đi chương trình, cô chỉ hỏi một câu duy nhất về điều gì?","gold":["c01-002"],"kind":"paraphrase"}
+{"id":"q04","q":"Tối trước ngày lên sóng, cô bảo toàn chứng cứ viết lách của mình bằng cách nào?","gold":["c01-014"],"kind":"paraphrase"}
+{"id":"q05","q":"Trong cuộc gọi đầu truyện, Phùng Chấn gửi tệp đính kèm ép Tri Hạ xác nhận nội dung gì?","gold":["c01-003","c01-004"],"kind":"entity"}
+{"id":"q06","q":"Nhược Vy nhắn thoại cho Tri Hạ với giọng điệu và đề nghị ra sao chiều hôm đó?","gold":["c01-010"],"kind":"entity"}
+{"id":"q07","q":"Những món nào ghi trong phiếu định lượng nhưng không có trong giỏ nguyên liệu của đội Tri Hạ?","gold":["c02-004"],"kind":"lexical"}
+{"id":"q08","q":"Tri Hạ đã xin để vật gì ở đầu bàn vì lối bưng món đi ngang qua đó?","gold":["c02-010"],"kind":"lexical"}
+{"id":"q09","q":"Bản ghi toàn cảnh cho thấy ai thật sự đã kéo nồi đồ nóng sang bên?","gold":["c02-013"],"kind":"paraphrase"}
+{"id":"q10","q":"Người theo dõi buổi phát sóng trực tiếp đã châm biếm vụ ồn ào qua những dòng ý kiến nào?","gold":["c02-016"],"kind":"paraphrase"}
+{"id":"q11","q":"Khi giỏ nguyên liệu bị dán nhầm thẻ đội, chị Đỗ ra quyết định gì?","gold":["c02-004"],"kind":"entity"}
+{"id":"q12","q":"Tiểu Kỷ đã xác nhận người kể chuyện chính là tác giả mình hâm mộ bằng cách nào?","gold":["c02-008","c02-019"],"kind":"entity"}
+{"id":"q13","q":"Kỷ Dương tập diễn bằng kịch của ai để thi và qua được vòng tuyển?","gold":["c03-001"],"kind":"lexical"}
+{"id":"q14","q":"Theo bảng giới thiệu nhân vật, người con trong phim dị ứng với món gì?","gold":["c03-006"],"kind":"lexical"}
+{"id":"q15","q":"Để đáp lời chê chỉ giỏi nói, cô bố trí một cảnh quay liền mạch ngay trong khu bếp ra sao?","gold":["c03-010","c03-011"],"kind":"paraphrase"}
+{"id":"q16","q":"Đạo diễn tò mò vì sao trong đoạn phim ngắn nhân vật phải tự lấy thêm dụng cụ ăn thay vì được bày sẵn?","gold":["c03-012","c03-013"],"kind":"paraphrase"}
+{"id":"q17","q":"Khi thú nhận mình là fan, Kỷ Dương tự xưng và gọi Tri Hạ như thế nào?","gold":["c03-001","c03-002"],"kind":"entity"}
+{"id":"q18","q":"Trong giờ nghỉ, Hoài Châu mang thứ gì cho Tri Hạ và hỏi cô học chỉ đạo ở đâu?","gold":["c03-013","c03-014"],"kind":"entity"}
+{"id":"q19","q":"Luật vòng đầu của trò đọc thoại quy định gì khi một người bỏ dở câu?","gold":["c04-003"],"kind":"lexical"}
+{"id":"q20","q":"Đồng hồ tổng dừng lại ở bao nhiêu giây sau phần trích đọc của Tri Hạ?","gold":["c04-010"],"kind":"lexical"}
+{"id":"q21","q":"Tấm bảng khẳng định quyền sáng tác trước mặt ngôi sao điện ảnh bị tháo xuống vì lý do gì?","gold":["c04-014"],"kind":"paraphrase"}
+{"id":"q22","q":"Sau buổi phát sóng, ai đó gửi tin nhắn nặc danh hăm dọa cô bằng điều gì?","gold":["c04-018"],"kind":"paraphrase"}
+{"id":"q23","q":"Ai tuyên bố mình là người viết Bữa Cơm Để Nguội và đề nghị hai bên cùng nộp nguồn để đối chiếu?","gold":["c04-013"],"kind":"entity"}
+{"id":"q24","q":"Đạo diễn Hứa xác nhận tình trạng gì của cảnh có hai phương án trong kho phát triển?","gold":["c04-011"],"kind":"entity"}
+{"id":"q25","q":"Tờ giấy Tinh Mang gửi cho Tri Hạ bị mất phần nào khiến nó trông như đơn xin việc?","gold":["c05-007"],"kind":"lexical"}
+{"id":"q26","q":"Trong buổi phỏng vấn được phát lại, Nhược Vy chấm khóe mắt và bảo mình cần gì?","gold":["c05-012"],"kind":"lexical"}
+{"id":"q27","q":"Bức hình cô cúi người bên ghế đạo diễn bị một trang tin bóp méo thành chuyện mưu cầu điều gì?","gold":["c05-001"],"kind":"paraphrase"}
+{"id":"q28","q":"Người cố vấn khuyên cô không được suy đoán điều gì về trang tin bôi nhọ và số điện thoại lạ?","gold":["c05-004"],"kind":"paraphrase"}
+{"id":"q29","q":"Giám đốc Phùng có liên quan thế nào đến hồ sơ tuyển sinh của trường cũ tám năm trước?","gold":["c05-016"],"kind":"entity"}
+{"id":"q30","q":"Kỷ lão sư đã tự đăng bài viết xác nhận điều gì để đính chính tin đồn về buổi họp?","gold":["c05-006"],"kind":"entity"}
+{"id":"q31","q":"Thông báo phạt của Phùng Chấn cho Tri Hạ bao nhiêu giờ để thanh toán?","gold":["c06-004"],"kind":"lexical"}
+{"id":"q32","q":"Nếu ký bản nhận lỗi soạn sẵn, Tri Hạ sẽ được giới thiệu ở lễ Kim Đăng với tư cách gì?","gold":["c06-014"],"kind":"lexical"}
+{"id":"q33","q":"Phía công ty ngỏ ý chuộc lại nơi lưu giữ chứng cứ của cô với mức giá đủ nghỉ dưỡng nhiều năm, kèm điều kiện gì?","gold":["c06-006"],"kind":"paraphrase"}
+{"id":"q34","q":"Cô lý giải cho người thẩm định vì sao trang bản thảo giao cho đoàn khác với cuốn ghi chú tay của mình?","gold":["c06-009"],"kind":"paraphrase"}
+{"id":"q35","q":"Khi xem bảng đối chiếu, đạo diễn Hứa tự nhận đã sai sót thế nào với nguồn hồ sơ trung gian?","gold":["c06-011","c06-012"],"kind":"entity"}
+{"id":"q36","q":"Trong các cuộc gọi tranh cãi, Tri Hạ gọi Phùng Chấn là gì và tự xưng ra sao?","gold":["c01-004","c06-006"],"kind":"entity"}
+{"id":"q37","q":"Nhược Vy mở lời buổi xác minh bằng câu buộc tội nào về việc đọc tài liệu?","gold":["c07-001"],"kind":"lexical"}
+{"id":"q38","q":"Phiếu điểm gốc cho thấy điểm ban đầu của Tri Hạ đủ cho suất nào của chuyên ngành đạo diễn?","gold":["c07-012"],"kind":"lexical"}
+{"id":"q39","q":"Đạo diễn của đoàn phim đã công bố bằng chứng nào về nguồn gốc các bản kịch trước máy quay trực tiếp?","gold":["c07-003"],"kind":"paraphrase"}
+{"id":"q40","q":"Ngôi trường năm xưa đã làm gì với nhận định sai trong hồ sơ và gửi cho cô điều gì?","gold":["c07-014"],"kind":"paraphrase"}
+{"id":"q41","q":"Khi nào trà xanh buông hẳn cách xưng hô chị em để gọi Tri Hạ bằng mày và tự xưng tao?","gold":["c07-013","c08-010"],"kind":"entity"}
+{"id":"q42","q":"Sau buổi xác minh, Hoài Châu rủ Tri Hạ đi đâu và cô đặt điều kiện gì?","gold":["c07-016","c07-017"],"kind":"entity"}
+{"id":"q43","q":"Hội đồng xác định hồ sơ của Tống Nhược Vy khai sai điều gì nên rút tư cách đề cử?","gold":["c08-005"],"kind":"lexical"}
+{"id":"q44","q":"Trong phần giới thiệu phim, dòng credit nào được người dẫn đọc rành rọt?","gold":["c08-006"],"kind":"lexical"}
+{"id":"q45","q":"Cô từ chối tạo ra tấm ảnh thân thiện trên thảm đỏ để đối phương không biến nó thành thông báo gì?","gold":["c08-002"],"kind":"paraphrase"}
+{"id":"q46","q":"Khoản tiền bị chiếm dụng được hoàn trả cho cô thông qua cơ chế nào trước lễ trao giải?","gold":["c08-013"],"kind":"paraphrase"}
+{"id":"q47","q":"Sau khi sai phạm được xác minh, Nhược Vy mất những nguồn công việc nào?","gold":["c08-008"],"kind":"entity"}
+{"id":"q48","q":"Ở buổi đọc kịch bản đầu tiên của dự án mới, Kỷ Dương xin được điều gì?","gold":["c08-020","c08-021"],"kind":"entity"}

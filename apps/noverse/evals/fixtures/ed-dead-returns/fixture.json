@@ -1,0 +1,229 @@
+{
+  "title": "Ba Chiếc Cọn Nước Ở Khúc Sông Đá",
+  "premise": "Sau khi chú ruột Lò Văn Giàn chết đuối ở Khúc Sông Đá khi sửa cọn nước, Lò Thị Vện phải một mình giữ ba chiếc cọn nước của bản Nà Pồn trước sức ép bán bãi suối cho lái buôn Ma Văn Chía — và phát hiện bãi suối ấy đang bị dùng làm kho giấu hàng.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Khúc sông đá",
+      "core_event": "Lò Văn Giàn ra Khúc Sông Đá chèn nêm guồng giữa mùa nước lớn, bị nước hút và chết đuối; bản tổ chức tang, an táng ông trên đồi sau bản, trao chùm chìa khóa cọn nước cho Vện.",
+      "hook": "Guồng thứ ba vẫn nằm dưới nước, cối giã của bản không còn ai sửa.",
+      "scenes": ["Sáng mưa, Giàn ra suối dù Vện can", "Tìm thấy rìu gãy và thi thể ở hút nước", "Tang ba ngày, trao chìa khóa cho Vện"]
+    },
+    {
+      "chapter": 2,
+      "title": "Ba chiếc chìa",
+      "core_event": "Bản họp về đơn xin thuê bãi suối của Ma Văn Chía; Vện từ chối bán. Cô tìm được sổ ghi chép cọn nước của chú, biết phải tự học sửa guồng.",
+      "hook": "Trang cuối sổ ghi cách chèn nêm mà chỉ có Giàn từng làm.",
+      "scenes": ["Họp bản về đơn thuê đất", "Ma Văn Chía đến nhà dụ bán", "Mở rương gỗ, tìm cuốn sổ cọn nước"]
+    },
+    {
+      "chapter": 3,
+      "title": "Hai lớp nêm tre",
+      "core_event": "Vện sửa xong guồng thứ ba theo cách chèn nêm hai lớp; guồng quay trở lại. Ma Văn Chía xuống bãi suối dọa về tờ giấy thuê đất. Vện phát hiện năm bao tiêu giấu dưới sàn cối giã.",
+      "hook": "Năm bao tiêu dưới sàn cối — bãi suối đã bị dùng làm kho từ trước.",
+      "scenes": ["Sửa guồng thứ ba, nêm hai lớp", "Ma Văn Chía xuống bãi suối dọa", "Phát hiện năm bao tiêu dưới sàn cối"]
+    },
+    {
+      "chapter": 4,
+      "title": "Tờ giấy ở xã",
+      "core_event": "Vện xuống xã hỏi ngày nộp đơn thuê đất; phát hiện đơn nộp trước khi chú cô mất.",
+      "hook": "Đơn thuê đất nộp từ trước đám tang.",
+      "scenes": ["Xuống xã", "Xem sổ nhận đơn", "Về bản giữ kín"]
+    },
+    {
+      "chapter": 5,
+      "title": "Người chở tiêu",
+      "core_event": "Vện theo dõi đường chở tiêu ban đêm; biết tiêu được chở ra bãi suối bằng ghe nhỏ.",
+      "hook": "Ghe chở tiêu đi ngược lên phía bến đá.",
+      "scenes": ["Đêm theo dõi", "Ghe nhỏ trên suối", "Ghi biển số ghe"]
+    },
+    {
+      "chapter": 6,
+      "title": "Bà Pánh kể",
+      "core_event": "Bà Pánh kể chuyện mùa nước trước, chú Giàn từng phát hiện bao tiêu và bị dọa.",
+      "hook": "Giàn đã biết chuyện kho tiêu trước khi chết.",
+      "scenes": ["Bà Pánh kể", "Đối chiếu sổ cũ", "Quyết định báo trưởng bản"]
+    },
+    {
+      "chapter": 7,
+      "title": "Họp bản lần hai",
+      "core_event": "Vện trình chứng cứ; bản bác đơn thuê đất; Ma Văn Chía bị giữ để xã điều tra.",
+      "hook": "Trong bao tiêu có lẫn một túi vải đựng giấy tờ.",
+      "scenes": ["Họp bản", "Trình bao tiêu và giấy tờ", "Ma Văn Chía bị giữ"]
+    },
+    {
+      "chapter": 8,
+      "title": "Mùa cối giã",
+      "core_event": "Cối giã chạy lại; Vện nhận giữ cọn nước chính thức; bản dựng bia đá nhỏ cho Giàn.",
+      "hook": "Guồng quay đều, tiếng cót két như tiếng người thở.",
+      "scenes": ["Cối giã chạy lại", "Lễ nhận giữ cọn", "Bia đá cho Giàn"]
+    }
+  ],
+  "characters": [
+    {
+      "name": "Lò Thị Vện",
+      "role": "Người giữ cọn nước",
+      "kind": "lead",
+      "tier": "core",
+      "description": "Hai mươi mốt tuổi, cháu gọi Lò Văn Giàn bằng chú, người nuôi em trai Lò A Chư, nhận chùm chìa khóa cọn nước sau tang chú.",
+      "arc": "Từ người được chú che chở thành người tự giữ cọn nước và vạch trần kho tiêu giấu.",
+      "traits": ["lì", "tỉ mỉ", "nhớ dai"]
+    },
+    {
+      "name": "Lò Văn Giàn",
+      "role": "Chú ruột, thợ cọn nước",
+      "kind": "support",
+      "tier": "core",
+      "description": "Sáu mươi hai tuổi, thợ cọn nước bốn mươi năm của bản Nà Pồn, chết đuối ở Khúc Sông Đá ngày mười hai tháng năm khi sửa guồng giữa mùa nước lớn; an táng trên đồi sau bản.",
+      "arc": "Vắng mặt sau chương 1; di sản là sổ ghi chép và ba chiếc cọn.",
+      "traits": ["bướng", "giỏi tay", "thương cháu"]
+    },
+    {
+      "name": "Lò A Chư",
+      "role": "Em trai",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Sáu tuổi, em trai Vện, có mặt ở Khúc Sông Đá khi tìm thấy thi thể chú Giàn.",
+      "arc": "Đứa trẻ lớn lên trong mùa tang và mùa cối giã chạy lại.",
+      "traits": ["nhỏ", "bám chị", "hay chỉ tay"]
+    },
+    {
+      "name": "Ma Văn Chía",
+      "role": "Lái buôn tiêu",
+      "kind": "antagonist",
+      "tier": "core",
+      "description": "Lái buôn tiêu từ thị trấn Mường Tấc, xin thuê bãi suối làm sân phơi, thực chất dùng bãi suối làm kho giấu tiêu.",
+      "arc": "Từ người xin thuê đất thành đối tượng bị xã điều tra.",
+      "traits": ["ngọt giọng", "dọa ngầm", "tính toán"]
+    },
+    {
+      "name": "bà Pánh",
+      "role": "Hàng xóm",
+      "kind": "support",
+      "tier": "important",
+      "description": "Hàng xóm nhà Vện, người khâu áo tang cho Giàn, biết chuyện Giàn từng phát hiện bao tiêu ở bãi suối.",
+      "arc": "Từ người hàng xóm thương xót thành nhân chứng mở nút câu chuyện.",
+      "traits": ["thương người", "nhớ chuyện", "nói thẳng"]
+    },
+    {
+      "name": "Sồng A Tủa",
+      "role": "Trưởng bản",
+      "kind": "ally",
+      "tier": "important",
+      "description": "Trưởng bản Nà Pồn, người tổ chức tang lễ, trao chìa khóa cọn nước cho Vện và chủ trì hai cuộc họp bản.",
+      "arc": "Từ người giữ hòa khí thành người đứng ra bác đơn thuê đất.",
+      "traits": ["điềm", "giữ lệ", "công bằng"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "geography",
+      "rule": "Bản Nà Pồn nằm trong thung lũng, suối Nặm Cọp chảy qua Khúc Sông Đá — khúc cong hẹp có đá tai mèo và hút nước sâu, không ai tắm ở đó. Bãi suối phía dưới là đất bản.",
+      "boundary": "Không thêm sông lớn, biển hay thành phố; mọi di chuyển bằng đi bộ, xe máy và ghe nhỏ trên suối."
+    },
+    {
+      "category": "society",
+      "rule": "Cọn nước của bản gồm ba chiếc, giữ bởi một người trong dòng họ Lò; đất bãi suối thuộc bản, muốn thuê phải qua họp bản. Người chết vì nước không dựng bia, chỉ cắm cành tre.",
+      "boundary": "Không thay đổi quyền giữ cọn nước hay thủ tục họp bản."
+    },
+    {
+      "category": "technology",
+      "rule": "Cọn nước gỗ, guồng nan tre, nêm tre chèn trục, cối giã gạo; sổ giấy ghi mùa nước. Không có máy móc hiện đại hay điện.",
+      "boundary": "Không dùng máy xay, điện hay thiết bị ghi âm trong truyện."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Khúc sông đá",
+        "summary": "Sáng mười hai tháng năm, giữa mùa nước lớn, Lò Văn Giàn ra Khúc Sông Đá chèn lại guồng thứ ba dù Vện can. Ông bị nước hút và chết đuối; thi thể được tìm thấy dưới phiến đá lớn, tay còn nắm dây chèn nêm. Bản làm tang ba ngày, an táng ông trên đồi sau bản theo tục người chết vì nước. Sồng A Tủa trao chùm chìa khóa cọn nước cho Vện.",
+        "characters": ["Lò Thị Vện", "Lò Văn Giàn", "Lò A Chư", "bà Pánh", "Sồng A Tủa"],
+        "key_events": ["Giàn ra Khúc Sông Đá giữa mùa nước lớn", "Giàn chết đuối, thi thể tìm thấy dưới phiến đá lớn", "Tang ba ngày, an táng trên đồi sau bản", "Vện nhận chùm chìa khóa cọn nước"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Ba chiếc chìa",
+        "summary": "Hai tuần sau tang, bản họp về đơn xin thuê bãi suối của Ma Văn Chía; Vện từ chối bán đất và nhận giữ cọn nước. Ma Văn Chía đến nhà dụ bán, bà Pánh khuyên Vện giữ. Vện ra Khúc Sông Đá một mình, thấy guồng thứ ba nằm nghiêng và mương nứt; cô mở rương chú, tìm được cuốn sổ ghi mùa nước, trong đó có dòng dặn cách chèn nêm cho guồng thứ ba.",
+        "characters": ["Lò Thị Vện", "Ma Văn Chía", "bà Pánh", "Sồng A Tủa"],
+        "key_events": ["Họp bản về đơn thuê bãi suối", "Ma Văn Chía dụ bán đất, Vện từ chối", "Tìm được sổ cọn nước của chú Giàn"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Hai lớp nêm tre",
+        "summary": "Rạng sáng, Vện ra Khúc Sông Đá chẻ nêm, chèn hai lớp vào trục guồng thứ ba và làm guồng quay trở lại; cô ghi việc này vào sổ. Ma Văn Chía xuống bãi suối dọa rằng đơn thuê đất đã nộp ở xã có dấu nhận và bản sẽ ký vì cần tiền. Sau khi hắn đi, Vện phát hiện đất mới xới dưới sàn cối giã và năm bao tiêu đen giấu trong hố.",
+        "characters": ["Lò Thị Vện", "Ma Văn Chía"],
+        "key_events": ["Chèn nêm hai lớp, guồng thứ ba quay lại", "Ma Văn Chía dọa về tờ giấy thuê đất đã nộp", "Phát hiện năm bao tiêu dưới sàn cối giã"]
+      }
+    }
+  ],
+  "timeline": [
+    {"chapter": 1, "time": "Ngày 12 tháng 5, sáng, mưa", "event": "Lò Văn Giàn ra Khúc Sông Đá chèn nêm guồng thứ ba; bị nước hút và chết đuối.", "characters": ["Lò Văn Giàn", "Lò Thị Vện"]},
+    {"chapter": 1, "time": "Ngày 12 tháng 5, trưa", "event": "Thi thể Giàn được tìm thấy dưới phiến đá lớn; rìu gãy cắm trên đá.", "characters": ["Lò Thị Vện", "Lò A Chư", "Sồng A Tủa"]},
+    {"chapter": 1, "time": "Ngày 15 tháng 5", "event": "Tang ba ngày, an táng Giàn trên đồi sau bản; Sồng A Tủa trao chùm chìa khóa cọn nước cho Vện.", "characters": ["Lò Thị Vện", "bà Pánh", "Sồng A Tủa"]},
+    {"chapter": 2, "time": "Khoảng ngày 29 tháng 5", "event": "Bản họp về đơn xin thuê bãi suối của Ma Văn Chía; Vện từ chối bán; tối đó Chía đến nhà dụ.", "characters": ["Lò Thị Vện", "Ma Văn Chía", "bà Pánh", "Sồng A Tủa"]},
+    {"chapter": 2, "time": "Ngày 30 tháng 5, sáng", "event": "Vện ra Khúc Sông Đá một mình; tìm sổ cọn nước trong rương của chú.", "characters": ["Lò Thị Vện"]},
+    {"chapter": 3, "time": "Ngày 31 tháng 5, rạng sáng đến xế", "event": "Vện chèn nêm hai lớp, guồng thứ ba quay lại; Ma Văn Chía dọa về đơn thuê đất; Vện phát hiện năm bao tiêu dưới sàn cối giã.", "characters": ["Lò Thị Vện", "Ma Văn Chía"]}
+  ],
+  "foreshadow": [
+    {"chapter": 1, "updates": [
+      {"id": "fs-guong-ba-gay", "action": "plant", "description": "Guồng thứ ba văng khỏi trục, rìu gãy cắm trên phiến đá — nguyên nhân cái chết của Giàn."},
+      {"id": "fs-chia-khoa-la", "action": "plant", "description": "Chiếc chìa nhỏ nhất trong chùm chưa rõ mở cái gì."}
+    ]},
+    {"chapter": 2, "updates": [
+      {"id": "fs-chia-khoa-la", "action": "advance", "description": "Chiếc chìa lạ vẫn chưa dùng; sổ cọn nước dặn cách chèn nêm guồng ba."},
+      {"id": "fs-don-thue-dat", "action": "plant", "description": "Ma Văn Chía nộp đơn xin thuê bãi suối ở xã, chờ bản ký."}
+    ]},
+    {"chapter": 3, "updates": [
+      {"id": "fs-guong-ba-gay", "action": "resolve"},
+      {"id": "fs-kho-tieu", "action": "plant", "description": "Năm bao tiêu giấu dưới sàn cối giã ở bãi suối."},
+      {"id": "fs-don-thue-dat", "action": "advance", "description": "Chía khẳng định đơn thuê đã có dấu nhận ở xã và bản sẽ ký vì cần tiền."}
+    ]}
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Lò Văn Giàn", "field": "status", "old_value": "sống", "new_value": "đã mất ngày 12 tháng 5, an táng trên đồi sau bản", "reason": "chết đuối ở Khúc Sông Đá khi sửa guồng thứ ba"},
+    {"chapter": 1, "entity": "Lò Thị Vện", "field": "status", "new_value": "người giữ chùm chìa khóa cọn nước", "reason": "Sồng A Tủa trao chìa sau tang"},
+    {"chapter": 2, "entity": "guồng thứ ba", "field": "status", "new_value": "văng khỏi trục, nằm nghiêng trên bờ, mương dẫn nứt", "reason": "mùa nước lớn và tai nạn của Giàn"},
+    {"chapter": 3, "entity": "guồng thứ ba", "field": "status", "new_value": "đã chèn nêm hai lớp và quay trở lại", "reason": "Vện tự sửa theo sổ và kinh nghiệm"},
+    {"chapter": 3, "entity": "bãi suối Nà Pồn", "field": "status", "new_value": "có năm bao tiêu giấu dưới sàn cối giã", "reason": "Vện phát hiện đất mới xới và cạy lên"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Khúc sông đá",
+      "goal": "Dựng bản Nà Pồn và ba chiếc cọn nước; để Giàn chết đuối giữa mùa nước lớn, tang lễ rõ ràng, chuyển trách nhiệm cọn nước sang Vện.",
+      "conflict": "Nước lớn và lệ giữ cọn buộc Giàn phải ra sông một mình.",
+      "hook": "Guồng thứ ba nằm dưới nước, cối giã không còn ai sửa."
+    },
+    {
+      "chapter": 2,
+      "title": "Ba chiếc chìa",
+      "goal": "Đặt mối đe dọa thuê đất và việc Vện phải tự học nghề từ sổ của chú.",
+      "conflict": "Bản cần tiền, Vện cần giữ cọn nước; cô chưa đủ tay nghề.",
+      "hook": "Sổ ghi cách chèn nêm mà chỉ Giàn từng làm."
+    },
+    {
+      "chapter": 3,
+      "title": "Hai lớp nêm tre",
+      "goal": "Cho Vện sửa xong guồng thứ ba, đẩy xung đột với Ma Văn Chía lên, và phát hiện kho tiêu giấu dưới sàn cối.",
+      "conflict": "Vện vừa thắng một trận nhỏ với guồng thì phát hiện bãi suối đã bị chiếm dụng ngầm.",
+      "hook": "Năm bao tiêu dưới sàn cối giã.",
+      "contract": {
+        "required_beats": ["Vện chèn nêm hai lớp và guồng thứ ba quay trở lại", "Ma Văn Chía xuống bãi suối dọa về đơn thuê đất đã nộp", "Vện phát hiện năm bao tiêu giấu dưới sàn cối giã"],
+        "forbidden_moves": ["Ma Văn Chía bị bắt trong chương này", "Bản ký đơn thuê đất"],
+        "continuity_checks": ["Trạng thái nhân vật khớp các chương trước", "Cách chèn nêm khớp sổ cọn nước ở chương 2", "Bãi suối vẫn thuộc đất bản, chưa ký cho thuê"],
+        "evaluation_focus": ["Chuỗi sửa guồng có thao tác rõ ràng", "Phát hiện kho tiêu không tự nhiên quá mức"],
+        "emotion_target": "Tập trung, rồi lạnh người khi phát hiện",
+        "hook_goal": "Muốn biết ai giấu tiêu và Giàn có liên quan gì"
+      }
+    }
+  ]
+}

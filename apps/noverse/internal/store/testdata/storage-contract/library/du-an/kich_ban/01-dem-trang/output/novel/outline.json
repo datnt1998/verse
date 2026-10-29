@@ -1,0 +1,6 @@
+[
+  {"chapter": 1, "title": "Đêm thứ nhất", "core_event": "Tìm thấy cuốn sổ.", "hook": "Bóng người trong kho.", "scenes": ["Cô mở kho sách."], "hook_type": "info"},
+  {"chapter": 2, "title": "Bóng người trong kho", "core_event": "Người lạ xuất hiện.", "hook": "Trang bị xé.", "scenes": ["Tiếng bước chân.", "Người lạ hiện hình."], "hook_type": "threat"},
+  {"chapter": 3, "title": "Trang bị xé", "core_event": "Bí mật của cuốn sổ.", "hook": "Quyết định.", "scenes": ["Đọc trang cuối."], "hook_type": "decision"},
+  {"chapter": 4, "title": "Bình minh", "core_event": "Giữ hay đốt cuốn sổ.", "hook": "", "scenes": ["Trời sáng."], "hook_type": "line"}
+]

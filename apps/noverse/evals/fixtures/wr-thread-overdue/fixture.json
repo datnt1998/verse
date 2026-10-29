@@ -1,0 +1,219 @@
+{
+  "title": "Hiệu khóa đêm ở ngõ Cầu Đông",
+  "premise": "# Tiền đề cốt truyện\n\n## Thể loại và giọng điệu\nTruyện ngắn đời thường pha bí ẩn nhỏ, giọng trầm, nhịp chậm; ưu tiên chi tiết nghề khóa và cảnh chợ đêm ở một huyện nhỏ.\n\n## Định vị thể loại\nMột người thợ khóa trẻ tiếp quản hiệu của thầy mình, và phải trả lại những món đồ mà thầy đã giữ hộ gần bốn mươi năm. Không có phép thuật, không có án mạng; cái hồi hộp nằm ở chỗ mỗi món đồ đều kèm một lời dặn.\n\n## Xung đột cốt lõi\nBình có thể bẻ khóa chiếc hộp niêm chì bất cứ lúc nào, nhưng bẻ khóa là xóa mất câu trả lời về người nhận. Anh phải chọn giữa việc xong cho nhanh và việc tra đúng người.\n\n## Mục tiêu nhân vật chính\nGiữ hiệu khóa bằng đúng luật của ông Tám: không mở đồ của người khác khi không có chủ nhân, không bẻ khóa đã có lời dặn, không bỏ dở một món đồ giữ hộ.\n\n## Hướng kết cục\nBa dòng chưa gạch trong sổ nợ lần lượt được khép lại; chiếc hộp gỗ về tay người cầm chìa thật.\n\n## Vùng cấm sáng tác\nKhông có ma, không có phép, không có điện thoại hay internet ở ngõ Cầu Đông; mọi liên lạc đi qua chợ đêm và người đi ghe.\n\n## Điểm bán hàng khác biệt\nMỗi chương mở một món đồ giữ hộ và luật ứng xử với nó.\n\n## Móc câu khác biệt\nÔng Tám chỉ để lại ba dòng chưa gạch và một câu: đồ giữ hộ không phải của mình.\n\n## Cam kết cốt lõi\nMỗi chương xiết thêm một mối: cái hộp, cái chìa không vừa, người nhận còn thiếu.\n\n## Tính phù hợp với truyện ngắn\nMột hiệu khóa, một cái hộp, một người nhận chưa tìm ra, trong sáu chương.",
+  "total_chapters": 6,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Người mang hộp",
+      "core_event": "Bà Hạnh mang chiếc hộp gỗ niêm chì tới hiệu khóa, nói chồng bà gửi ông Tám từ năm 1979 và dặn chỉ trao cho người cầm chìa; Bình nhận giữ hộp, tìm thấy chiếc chìa khóa đồng khắc hình con rắn trong ngăn kéo và đọc ba dòng chưa gạch trong sổ nợ.",
+      "hook": "Dòng thứ ba trong sổ nợ chỉ có một cái tên: Phượng.",
+      "scenes": ["Bà Hạnh mang hộp tới hiệu khóa", "Bình từ chối mở niêm chì", "Tìm thấy chìa khóa đồng trong ngăn kéo", "Đọc ba dòng chưa gạch trong sổ nợ"],
+      "open_questions": ["Ai là người cầm chìa?", "Vì sao ông Tám chưa trả món nào trong ba dòng ấy?"]
+    },
+    {
+      "chapter": 2,
+      "title": "Chợ đêm và ba nhịp gõ",
+      "core_event": "Bình sang chợ đêm hỏi bà Lý, biết em gái bà Hạnh tên Phượng mất liên lạc từ phiên chợ cuối năm và từng gửi một thùng gỗ cho ông Hòa; về hiệu, anh thử chìa khóa đồng vào hộp và phát hiện không vừa ổ, đêm đó có ba nhịp gõ cửa mà không có ai ngoài.",
+      "hook": "Ba nhịp gõ cửa đêm ấy giống tiếng của người đứng ngoài xác nhận trong nhà có người.",
+      "scenes": ["Chợ đêm, hỏi bà Lý về Phượng", "Nhặt mảnh giấy ở dãy bán đồ cũ", "Thử chìa khóa đồng dưới đèn", "Ba nhịp gõ cửa lúc nửa đêm"],
+      "open_questions": ["Ông Hòa đã đi đâu?", "Ai gõ cửa?"]
+    },
+    {
+      "chapter": 3,
+      "title": "Ổ khóa không vừa",
+      "core_event": "Bình đối chiếu chìa đồng với ổ khóa hộp dưới đèn, đo răng khóa và xác nhận hai thứ thuộc hai ổ khác nhau; anh đối nét chữ mảnh giấy nhặt ở chợ với sổ nợ, rồi nhờ bà Lý hỏi thăm người giữ thùng gỗ của Phượng.",
+      "hook": "Trong sổ nợ, tên ông Hòa hiện ra ngay dưới dòng chỉ có một chữ Phượng.",
+      "scenes": ["Đo răng khóa dưới ngọn đèn", "Đối nét chữ mảnh giấy với sổ nợ", "Nhờ bà Lý hỏi người giữ thùng gỗ", "Tìm thấy tên ông Hòa trong sổ nợ"],
+      "open_questions": ["Ai đang giữ chiếc chìa thật?", "Ông Hòa giữ thùng gỗ ấy ở đâu?"],
+      "promise": "da_tra: Bình xác định chìa đồng không thuộc ổ khóa hộp và có người thứ hai giữ chìa",
+      "hook_type": "lat_thong_tin",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 4,
+      "title": "Người giữ thùng gỗ",
+      "core_event": "Bình theo bà Lý chỉ đường tới nhà ông Hòa ở cuối chợ, gặp người cháu giữ thùng gỗ của Phượng; trong thùng có một phong bì đã bóc và một mảnh vải đỏ.",
+      "hook": "Phong bì ghi tên ông Khiêm — người gửi chiếc hộp năm 1979.",
+      "scenes": ["Đi cuối chợ tìm nhà ông Hòa", "Gặp người cháu giữ thùng", "Mở thùng gỗ của Phượng", "Đọc tên trên phong bì"],
+      "open_questions": ["Phượng biết gì về chiếc hộp?", "Mảnh vải đỏ dùng để làm gì?"]
+    },
+    {
+      "chapter": 5,
+      "title": "Mùa nước cạn",
+      "core_event": "Bình lần theo tên ông Khiêm tới bến phà Vĩnh, gặp bác Hóa trông cổng bến phà cũ và biết chiếc chìa thật từng được gửi cho Phượng; con dao rọc giấy khắc chữ Tám được trả lại đúng người.",
+      "hook": "Bác Hóa nói chiếc chìa thật đã theo Phượng xuống ghe hàng.",
+      "scenes": ["Đi bến phà Vĩnh", "Hỏi bác Hóa trông cổng bến phà", "Trả lại con dao rọc giấy khắc chữ Tám", "Nghe chuyện chiếc chìa thật"],
+      "open_questions": ["Phượng còn sống không?", "Chiếc chìa thật giờ ở đâu?"]
+    },
+    {
+      "chapter": 6,
+      "title": "Người cầm chìa",
+      "core_event": "Phượng trở về trong phiên chợ cuối năm, nhận chiếc hộp từ tay Bình bằng chiếc chìa thật; ba dòng trong sổ nợ được gạch hết.",
+      "hook": "Bình ghi dòng cuối vào sổ: đã trả xong.",
+      "scenes": ["Phiên chợ cuối năm", "Phượng trở về", "Mở hộp bằng chìa thật", "Gạch ba dòng cuối trong sổ nợ"],
+      "open_questions": [],
+      "promise": "da_tra: Chiếc hộp về tay người cầm chìa và ba dòng trong sổ nợ được khép lại",
+      "hook_type": "ket_truyen"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Bình",
+      "role": "thợ khóa trẻ tiếp quản hiệu khóa của thầy",
+      "description": "Ba mươi bốn tuổi, học nghề từ năm mười bảy; cẩn thận, ít nói, không bao giờ mở đồ của người khác khi chưa có lời dặn.",
+      "arc": "Từ người giữ luật bằng thói quen thành người hiểu vì sao luật ấy tồn tại.",
+      "traits": ["cẩn thận", "ít nói", "nhớ dai từng món đồ giữ hộ"],
+      "kind": "lead",
+      "tier": "core"
+    },
+    {
+      "name": "Bà Hạnh",
+      "role": "người mang chiếc hộp gỗ tới hiệu khóa",
+      "description": "Áo nâu sòng, chồng mất ở bến phà đã lâu; giữ chiếc hộp của chồng như giữ một lời dặn chưa trả được.",
+      "arc": "Từ người chờ đợi thành người chấp nhận trao lại cho đúng người.",
+      "traits": ["kín đáo", "kiên nhẫn", "sợ mở hộp"],
+      "kind": "support",
+      "tier": "important"
+    },
+    {
+      "name": "Bà Lý",
+      "role": "người bán hàng nước ở chợ đêm",
+      "description": "Biết chuyện cả huyện trước khi chuyện kịp xảy ra; nói thẳng, hay trách người trẻ ôm việc vào thân.",
+      "arc": "Từ người đứng ngoài nhìn thành người chỉ đường cho Bình.",
+      "traits": ["nhớ dai", "nói thẳng", "thương người"],
+      "kind": "ally",
+      "tier": "important"
+    },
+    {
+      "name": "Ông Tám",
+      "role": "người thầy đã mất, chỉ còn qua sổ nợ và lời dặn",
+      "description": "Thợ khóa già, không có con, giữ hộ đồ của người khác gần bốn mươi năm và không mở món nào.",
+      "arc": "Vắng mặt nhưng để lại toàn bộ luật nghề trong ba dòng chưa gạch.",
+      "traits": ["kỹ luật", "giữ lời", "nói ngắn"],
+      "kind": "support",
+      "tier": "secondary"
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Hiệu khóa chỉ mở khóa khi có chủ nhân hoặc giấy tờ hợp lệ; đồ giữ hộ đã có lời dặn thì không được bẻ khóa, không được mở niêm.",
+      "boundary": "Không bẻ khóa một món đồ giữ hộ để tò mò, kể cả khi chủ nhân đã mất."
+    },
+    {
+      "category": "geography",
+      "rule": "Ngõ Cầu Đông nằm cạnh chợ đêm; tin tức trong huyện đi qua chợ và người đi ghe, không có điện thoại.",
+      "boundary": "Không có điện thoại, internet hay xe máy tại ngõ Cầu Đông; người đi xa đều qua ghe hoặc chuyến đò."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Người mang hộp",
+        "summary": "Ba ngày sau đám tang ông Tám, bà Hạnh mang tới hiệu khóa một chiếc hộp gỗ niêm chì, nói chồng bà là ông Khiêm gửi từ năm 1979 và dặn chỉ trao cho người cầm chìa. Bình nhận giữ hộp nhưng từ chối mở. Tối ấy anh tìm thấy chiếc chìa khóa đồng khắc hình con rắn trong ngăn kéo bàn thợ và đọc ba dòng chưa gạch trong sổ nợ của ông Tám: cái hộp, con dao rọc giấy khắc chữ Tám phải trả bác Hóa ở bến phà Vĩnh, và một cái tên Phượng.",
+        "characters": ["Bình", "Bà Hạnh", "Ông Tám"],
+        "key_events": ["Bà Hạnh mang hộp gỗ niêm chì tới", "Bình từ chối mở niêm chì", "Tìm thấy chìa khóa đồng khắc hình rắn", "Đọc ba dòng chưa gạch trong sổ nợ"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Chợ đêm và ba nhịp gõ",
+        "summary": "Bình sang chợ đêm hỏi bà Lý và biết em gái bà Hạnh tên Phượng mất liên lạc từ phiên chợ cuối năm, từng gửi một thùng gỗ cho ông Hòa ở cuối chợ. Anh nhặt một mảnh giấy có nét chữ giống sổ nợ. Về hiệu, anh thử chìa khóa đồng vào hộp: chuôi vừa nhưng răng khóa cao hơn rãnh, không mở được. Nửa đêm có ba nhịp gõ cửa, mở ra không có ai ngoài.",
+        "characters": ["Bình", "Bà Lý"],
+        "key_events": ["Bà Lý kể chuyện Phượng mất liên lạc", "Nhặt mảnh giấy ở dãy bán đồ cũ", "Chìa khóa đồng không vừa ổ khóa hộp", "Ba nhịp gõ cửa lúc nửa đêm"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "Chiều, ba ngày sau đám tang",
+      "event": "Bà Hạnh mang chiếc hộp gỗ niêm chì tới hiệu khóa và kể lời dặn của ông Khiêm",
+      "characters": ["Bình", "Bà Hạnh"]
+    },
+    {
+      "chapter": 1,
+      "time": "Tối cùng ngày",
+      "event": "Bình tìm thấy chìa khóa đồng khắc hình con rắn và đọc ba dòng chưa gạch trong sổ nợ",
+      "characters": ["Bình"]
+    },
+    {
+      "chapter": 2,
+      "time": "Chập tối hôm sau",
+      "event": "Bình sang chợ đêm hỏi bà Lý về Phượng và ông Hòa",
+      "characters": ["Bình", "Bà Lý"]
+    },
+    {
+      "chapter": 2,
+      "time": "Nửa đêm",
+      "event": "Chìa khóa đồng không vừa ổ khóa hộp; ba nhịp gõ cửa mà không có ai ngoài",
+      "characters": ["Bình"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 1,
+      "updates": [
+        {"id": "loi_hoi_1979", "action": "plant", "description": "Hẹn trả con dao rọc giấy khắc chữ Tám cho bác Hóa ở bến phà Vĩnh trước mùa nước cạn.", "due_by": 2},
+        {"id": "hop_go_niem_chi", "action": "plant", "description": "Hộp gỗ niêm chì ông Khiêm gửi từ năm 1979, chỉ trao cho người cầm chìa.", "due_by": 5},
+        {"id": "chia_khoa_dong", "action": "plant", "description": "Chìa khóa đồng khắc hình con rắn, tìm thấy trong ngăn kéo bàn thợ, không có nhãn.", "due_by": 4},
+        {"id": "so_no_cu", "action": "plant", "description": "Sổ nợ bìa da của ông Tám còn ba dòng chưa gạch, dòng cuối chỉ ghi một cái tên.", "due_by": 6}
+      ]
+    },
+    {
+      "chapter": 2,
+      "updates": [
+        {"id": "nguoi_em_that_lac", "action": "plant", "description": "Phượng mất liên lạc từ phiên chợ cuối năm, nghe nói theo ghe hàng xuống dưới.", "due_by": 5},
+        {"id": "tieng_goi_dem", "action": "plant", "description": "Ba nhịp gõ trên cánh cửa gỗ đêm khuya, ngoài hiên vắng người.", "due_by": 6},
+        {"id": "chia_khoa_dong", "action": "advance", "description": "Chìa đồng thử vào hộp: chuôi vừa nhưng răng khóa cao hơn rãnh."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Bình", "field": "status", "new_value": "chủ hiệu khóa ngõ Cầu Đông"},
+    {"chapter": 1, "entity": "Hộp gỗ niêm chì", "field": "status", "new_value": "Bình giữ hộ, còn nguyên niêm"},
+    {"chapter": 2, "entity": "Hộp gỗ niêm chì", "field": "status", "old_value": "Bình giữ hộ, còn nguyên niêm", "new_value": "đã thử chìa, vẫn chưa mở"},
+    {"chapter": 2, "entity": "Bình", "field": "location", "old_value": "hiệu khóa ngõ Cầu Đông", "new_value": "chợ đêm rồi về hiệu"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 3,
+      "title": "Ổ khóa không vừa",
+      "goal": "Bình đo lại chiếc chìa đồng dưới đèn và xác nhận nó không thuộc ổ khóa của cái hộp; anh chuyển từ việc mở hộp sang việc tìm người cầm chìa.",
+      "conflict": "Bẻ khóa thì xong trong một buổi tối, nhưng bẻ là xóa mất câu trả lời; trong khi bà Hạnh đã trao hộp và không còn manh mối nào ngoài sổ nợ, mảnh giấy và lời bà Lý.",
+      "hook": "Trong sổ nợ, tên ông Hòa hiện ra ngay dưới dòng chỉ có một chữ Phượng.",
+      "emotion_arc": "Từ sốt ruột muốn mở hộp sang lặng lẽ chấp nhận đường tra dài hơn.",
+      "contract": {
+        "required_beats": [
+          "Bình đo răng khóa và xác nhận chìa đồng không vừa ổ khóa hộp",
+          "Bình đối nét chữ trên mảnh giấy nhặt ở chợ với nét chữ trong sổ nợ",
+          "Bình nhờ bà Lý hỏi thăm người giữ thùng gỗ của Phượng",
+          "Bình tìm thấy tên ông Hòa trong sổ nợ"
+        ],
+        "forbidden_moves": [
+          "Không bẻ khóa hay mở niêm chì trong chương này",
+          "Không để Phượng xuất hiện trực tiếp",
+          "Không tiết lộ nội dung bên trong chiếc hộp"
+        ],
+        "continuity_checks": [
+          "Chiếc hộp vẫn còn nguyên niêm chì và do Bình giữ",
+          "Chìa khóa đồng đã thử và không vừa ổ khóa hộp từ chương trước",
+          "Bà Hạnh đã trao hộp và chỉ nói tới người cầm chìa",
+          "Ông Tám đã mất; mọi manh mối đến từ sổ nợ, mảnh giấy và lời kể ở chợ"
+        ],
+        "evaluation_focus": [
+          "Lý do không bẻ khóa có bám đúng luật của hiệu hay không",
+          "Manh mối mới có đi qua người khác hoặc sổ sách, không phải kiến thức tự có của người kể"
+        ],
+        "emotion_target": "Sốt ruột lắng xuống thành quyết tâm tra cho hết.",
+        "payoff_points": ["Ba dòng chưa gạch trong sổ nợ bắt đầu được đối chiếu"],
+        "hook_goal": "Người đọc muốn biết ông Hòa giữ thùng gỗ ấy ở đâu."
+      }
+    }
+  ]
+}

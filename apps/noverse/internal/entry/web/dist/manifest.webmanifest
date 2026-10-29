@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "Noverse · Xưởng viết truyện",
+  "short_name": "Noverse",
+  "description": "Theo dõi trợ lý, duyệt chương và nghe truyện trên điện thoại.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#0B0B0D",
+  "background_color": "#0B0B0D",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

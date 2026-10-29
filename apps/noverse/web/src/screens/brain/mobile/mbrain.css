@@ -1,0 +1,122 @@
+/* M8 · Não truyện trên điện thoại — đối chiếu từng dòng với docs/design/v1/artboards/MBrain.dc.html.
+   Mọi màu qua token var(--brain-*) / var(--color-*) trong styles/tokens.stylex.ts. */
+
+.mb-root { display: flex; flex: 1; min-height: 0; flex-direction: column; overflow: hidden; }
+
+/* ── Thanh trên ─────────────────────────────────────────────────────── */
+.mb-top { flex: 0 0 auto; height: 52px; padding: 0 12px 0 4px; display: flex; align-items: center; gap: 4px; }
+.mb-back, .mb-icon { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.mb-back { color: var(--color-fg); }
+.mb-icon { color: var(--color-fg-2); }
+.mb-title { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.mb-title > span:first-child { font-size: 17px; font-weight: 600; }
+.mb-count { font-size: 12.5px; color: var(--brain-node-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mb-search { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; background: var(--color-surface-3); border: 1px solid var(--kit-acc-40); display: flex; align-items: center; gap: 8px; }
+.mb-search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--color-fg); font-size: 16px; outline: none; }
+.mb-search-icon { color: var(--brain-node-sub); }
+.mb-cancel { height: 44px; padding: 0 8px; border: 0; background: none; color: var(--color-accent); font-size: 15px; flex: 0 0 auto; }
+
+/* ── Thẻ chương (rail-m8-v3): hàng đầu + ô số, sọc đáy theo trạng thái ── */
+.mb-chapter { margin: 2px 16px 10px; padding: 12px; border-radius: 18px; background: var(--color-card); border: 1px solid var(--line-2); flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.mb-chapter-row { display: flex; align-items: center; gap: 10px; padding: 0 2px; }
+.mb-chapter-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.mb-chapter-n { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mb-chapter-title { font-weight: 400; color: var(--color-fg-3); }
+.mb-chapter-note { font-size: 12.5px; color: var(--brain-node-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mb-chapter-st { flex: none; height: 24px; padding: 0 9px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.mb-chapter-st i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.mb-chapter-st.done { background: var(--tint-ok); color: var(--color-ok); }
+.mb-chapter-st.live { background: var(--kit-acc-14); color: var(--brain-chg); }
+.mb-chapter-st.todo { background: var(--kit-wash-6); color: var(--brain-node-sub); }
+/* Câu 17: ≤ 10 chương chia đều cả hàng, không cuộn. > 10 chương (`.scroll`) giữ ô 38 px và cuộn ngang
+   bám giữa như `.segrow.scroll` của artboard. Câu 7: không đệm — vòng focus vẽ bên trong ô nên hàng không cần
+   chừa chỗ, và mép mờ của mask tính đúng từ mép hàng. */
+.mb-cells { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+/* Mask chỉ đọc kênh alpha nên mốc đục viết bằng từ khoá `black`, không phải màu thiết kế (ratchet màu). */
+.mb-cells.scroll {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 18px, black calc(100% - 18px), transparent);
+  mask-image: linear-gradient(90deg, transparent, black 18px, black calc(100% - 18px), transparent);
+}
+.mb-cells.scroll::-webkit-scrollbar { display: none; }
+.mb-cells.scroll .mb-cell { flex: 0 0 38px; scroll-snap-align: center; }
+/* `.m-app button{font:inherit;color:inherit}` thắng lớp 1 cấp → nâng độ ưu tiên để cỡ/độ đậm chữ đúng artboard */
+.m-app .mb-cell { position: relative; height: 40px; border: none; border-radius: 10px; background: var(--brain-seg-bg); color: var(--brain-node-sub); font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background .2s, color .2s, transform .15s; }
+.mb-cell::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 5px; height: 3px; border-radius: 2px; background: var(--line-3); }
+.mb-cell.done { color: var(--color-fg-2); }
+.mb-cell.done::after { background: var(--color-ok); }
+/* Câu 16: ô đang viết lại không “thở” (artboard `.seg8.live{animation:none}`) — màu và sọc đã đủ báo. */
+.mb-cell.live { color: var(--brain-chg); animation: none; }
+.mb-cell.live::after { background: var(--color-accent); }
+.mb-cell.todo { color: var(--brain-tick-num); background: var(--brain-seg-todo-bg); }
+.mb-cell[aria-checked='true'] { background: var(--color-fg); color: var(--color-bg); font-weight: 600; }
+.mb-cell[aria-checked='true'].live { background: var(--brain-chg); }
+.mb-cell:active { transform: scale(.96); }
+/* Câu 7: artboard vẽ vòng focus 2px tím bên trong ô (inset, màu `--color-accent`) để hàng cuộn không cắt vòng. */
+.mb-cell:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-accent); }
+
+/* ── Chip lọc ───────────────────────────────────────────────────────── */
+.mb-filters { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 0 16px 10px; flex: 0 0 auto; }
+.mb-filters::-webkit-scrollbar { display: none; }
+.mb-chip-count { font-size: 12px; color: var(--brain-node-sub); font-variant-numeric: tabular-nums; }
+
+/* ── Danh sách ──────────────────────────────────────────────────────── */
+.mb-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding: 0 16px 120px; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; }
+.mb-list::-webkit-scrollbar { display: none; }
+.mb-group-head { display: flex; align-items: center; gap: 8px; padding: 2px 4px 8px; }
+.mb-lbl { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--color-fg-4); text-transform: uppercase; }
+.mb-group-count { font-size: 12px; color: var(--brain-hint); font-variant-numeric: tabular-nums; }
+.mb-group { border-radius: 18px; background: var(--color-card); border: 1px solid var(--line-2); overflow: hidden; }
+.mb-ent { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; border: 0; background: transparent; color: var(--color-fg); text-align: left; font: inherit; }
+.mb-ent + .mb-ent { border-top: 1px solid var(--line-1); }
+.mb-gl { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex: none; }
+.mb-ent-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mb-ent-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.mb-ent-name > span:first-child { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mb-new { flex: none; height: 18px; padding: 0 6px; border-radius: 6px; background: var(--color-accent); color: var(--color-bg); font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; }
+.mb-chg { flex: none; height: 18px; padding: 0 6px; border-radius: 6px; background: var(--kit-acc-12); color: var(--brain-chg); font-size: 10.5px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap; }
+.mb-ent-sub { font-size: 12.5px; color: var(--brain-node-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mb-ent-rel { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12.5px; color: var(--color-fg-2); }
+.mb-rel-line { width: 12px; height: 0; border-top: 2px solid; flex: none; }
+.mb-rel-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mb-more { flex: none; font-size: 12px; color: var(--brain-node-sub); }
+.mb-chev { color: var(--brain-tick-num); flex: none; }
+.mb-empty { padding: 60px 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--brain-node-sub); }
+.mb-empty-title { font-size: 15px; color: var(--color-fg-2); }
+.mb-empty-hint { font-size: 13px; }
+.mb-foot { margin: 4px 4px 0; font-size: 12px; color: var(--brain-hint); line-height: 1.5; }
+.mb-loading { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.mb-notice { margin: 8px 16px; padding: 14px; border-radius: 16px; background: var(--color-card); border: 1px solid var(--line-2); display: flex; flex-direction: column; gap: 12px; color: var(--color-err); font-size: 14px; }
+
+/* ── Sheet chi tiết ─────────────────────────────────────────────────── */
+.mb-sheet { display: flex; flex-direction: column; min-height: 0; }
+.mb-sheet-head { display: flex; align-items: center; gap: 12px; padding: 4px 18px 12px; }
+.mb-sheet-head .mb-gl { width: 46px; height: 46px; }
+.mb-sheet-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mb-sheet-title > span:first-child { font-size: 18px; font-weight: 600; }
+.mb-sheet-sub { font-size: 12.5px; color: var(--brain-node-sub); }
+.mb-sheet-close { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--color-surface-6); color: var(--color-fg-2); display: flex; align-items: center; justify-content: center; flex: none; }
+.mb-sheet-body { padding: 0 18px 8px; display: flex; flex-direction: column; gap: 14px; }
+.mb-desc { margin: 0; font-size: 14px; color: var(--color-fg-2); line-height: 1.55; }
+.mb-notyet { padding: 10px 12px; border-radius: 14px; border: 1px dashed color-mix(in srgb, var(--kit-white) 14%, transparent); font-size: 13px; color: var(--color-fg-3); }
+.mb-none { margin: 8px 0 0; font-size: 13px; color: var(--color-fg-4); }
+.mb-rrow { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; }
+.mb-rrow + .mb-rrow { border-top: 1px solid var(--line-1); }
+.mb-rrow > .mb-rel-line { margin-top: 10px; width: 14px; }
+.mb-rrow-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mb-rrow-main { font-size: 14px; }
+.mb-rrow-since { font-size: 12px; color: var(--color-fg-4); }
+.mb-xrow { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; }
+.mb-xrow + .mb-xrow { border-top: 1px solid var(--line-1); }
+.mb-xdir { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--color-fg-3); min-width: 0; width: 100%; }
+.mb-xfrom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; flex: none; }
+.mb-xmain { font-size: 14px; }
+.mb-was { font-size: 12px; color: var(--color-fg-4); }
+.mb-hist { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.mb-hist li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; font-size: 13px; }
+.mb-hist .num { color: var(--brain-node-sub); }
+.mb-hist span:last-child { color: var(--color-fg-2); }
+.mb-lock { display: flex; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--kit-acc-6); border: 1px solid var(--kit-acc-22); font-size: 13px; color: var(--brain-chg); line-height: 1.5; }
+.mb-person { height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--color-surface-6); color: var(--color-fg); font-size: 15px; font-weight: 500; border: 0; width: 100%; }
+
+@media (prefers-reduced-motion: reduce) { .mb-cell { transition: none; } }

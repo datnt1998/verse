@@ -1,0 +1,275 @@
+package imp
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"log/slog"
+
+	"github.com/datnt1998/noverse/internal/comments"
+	"github.com/datnt1998/noverse/internal/domain"
+	"github.com/datnt1998/noverse/internal/rules"
+	"github.com/datnt1998/noverse/internal/store"
+)
+
+// ChapterCommitter 是发布章节所需的最小接口，由 tools.CommitChapterTool 满足。
+// 复用其 PendingCommit saga、checkpoint 与完成章节幂等检查，不复制第二套提交逻辑（RFC §12.3）。
+type ChapterCommitter interface {
+	Execute(ctx context.Context, args json.RawMessage) (json.RawMessage, error)
+}
+
+// publishFoundation 按正式依赖顺序发布 Foundation，与 Architect 长篇落盘顺序一致（RFC §12.2）。
+// 重复发布相同内容是幂等的（Store 覆盖同内容 + checkpoint 去重）。
+func publishFoundation(st *store.Store, f *Foundation) error {
+	// 发布前冲突对账：已存在且不同的正式工件拒绝覆盖（§12.2 / 不变量 6）。
+	// 相同内容按幂等继续写（Store 覆盖同内容 + checkpoint 去重）。
+	if err := checkFoundationConflicts(st, f); err != nil {
+		return err
+	}
+	if err := st.Book.Save(f.Book); err != nil {
+		return fmt.Errorf("ghi thông tin tác phẩm: %w", err)
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "book", "meta/book.json"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát thông tin tác phẩm: %w", err)
+	}
+	if err := st.RunMeta.SetPlanningTier(f.PlanningTier); err != nil {
+		return fmt.Errorf("ghi tầng quy hoạch: %w", err)
+	}
+	// premise
+	if err := st.Outline.SavePremise(f.Premise); err != nil {
+		return fmt.Errorf("ghi tiền đề: %w", err)
+	}
+	if err := st.Progress.UpdatePhase(domain.PhasePremise); err != nil {
+		return fmt.Errorf("chuyển sang giai đoạn tiền đề: %w", err)
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "premise", "premise.md"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát tiền đề: %w", err)
+	}
+	// characters
+	if err := st.Characters.Save(f.Characters); err != nil {
+		return fmt.Errorf("ghi hồ sơ nhân vật: %w", err)
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "characters", "characters.json"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát hồ sơ nhân vật: %w", err)
+	}
+	// world rules
+	if err := st.World.SaveWorldRules(f.WorldRules); err != nil {
+		return fmt.Errorf("ghi luật thế giới: %w", err)
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "world_rules", "world_rules.json"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát luật thế giới: %w", err)
+	}
+	// layered outline 是唯一来源，Store 同步重建 flat outline。
+	if err := st.Outline.SaveLayeredOutline(f.Volumes); err != nil {
+		return fmt.Errorf("ghi đại cương phân tầng: %w", err)
+	}
+	// 大纲阶段的进度是引擎重算路由的依据（章节容量/分层/当前卷弧），写入失败会留下不一致的
+	// 已发布状态，必须暴露而非吞掉（RFC §12.2）。
+	if err := st.Progress.UpdatePhase(domain.PhaseOutline); err != nil {
+		return fmt.Errorf("chuyển sang giai đoạn đại cương: %w", err)
+	}
+	if err := st.Progress.SetTotalChapters(domain.EstimatedChapterCapacity(f.Volumes)); err != nil {
+		return fmt.Errorf("ghi tổng số chương: %w", err)
+	}
+	if err := st.Progress.SetLayered(true); err != nil {
+		return fmt.Errorf("bật đại cương phân tầng: %w", err)
+	}
+	if len(f.Volumes) > 0 && len(f.Volumes[0].Arcs) > 0 {
+		if err := st.Progress.UpdateVolumeArc(f.Volumes[0].Index, f.Volumes[0].Arcs[0].Index); err != nil {
+			return fmt.Errorf("ghi tập và cung hiện tại: %w", err)
+		}
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "layered_outline", "layered_outline.json"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát đại cương phân tầng: %w", err)
+	}
+	// compass
+	if err := st.Outline.SaveCompass(f.Compass); err != nil {
+		return fmt.Errorf("ghi la bàn cốt truyện: %w", err)
+	}
+	if _, err := st.Checkpoints.AppendArtifact(domain.GlobalScope(), "compass", "meta/compass.json"); err != nil {
+		return fmt.Errorf("ghi điểm kiểm soát la bàn cốt truyện: %w", err)
+	}
+	// 导入 Foundation 的全部正式写入均已成功，可以显式进入 writing。
+	// 不能复用普通创作流程的 FoundationMissing：导入允许 world_rules 为空，
+	// 把“合法空值”当成缺失会令进度永远停在 outline，随后 StartChapter 被阶段门禁拒绝。
+	p, err := st.Progress.Load()
+	if err != nil {
+		return fmt.Errorf("đọc tiến độ: %w", err)
+	}
+	if p == nil {
+		return fmt.Errorf("đọc tiến độ: tiến độ chưa khởi tạo")
+	}
+	if p.Phase != domain.PhaseWriting && p.Phase != domain.PhaseComplete {
+		if err := st.Progress.UpdatePhase(domain.PhaseWriting); err != nil {
+			return fmt.Errorf("chuyển sang giai đoạn sáng tác: %w", err)
+		}
+	}
+	return nil
+}
+
+// checkFoundationConflicts 校验待发布 Foundation 与既有正式工件的一致性：
+// 既有为空视为首次发布；相同视为幂等；不同则报冲突不覆盖（RFC §12.2 / 不变量 6）。
+// compass 与扁平大纲由分层大纲派生，分层一致即派生一致，故不单独检查派生工件。
+// 读错误不得吞成"文件不存在"：store 加载器对缺失返回 (零值, nil)，故任何非 nil 都是真实错误
+// （损坏/权限/JSON 非法），若当作空值继续会覆盖无法读取的正式工件（RFC §12.2）。
+func checkFoundationConflicts(st *store.Store, f *Foundation) error {
+	wantBook := f.Book.Normalized()
+	book, err := st.Book.Load()
+	if err != nil {
+		return fmt.Errorf("đọc thông tin tác phẩm chính thức: %w", err)
+	}
+	if book != nil && !jsonEqual(book, wantBook) {
+		return fmt.Errorf("thông tin tác phẩm chính thức xung đột với kết quả tổng hợp khi nhập (đã có bản khác), từ chối ghi đè")
+	}
+	cur, err := st.Outline.LoadPremise()
+	if err != nil {
+		return fmt.Errorf("đọc tiền đề chính thức: %w", err)
+	}
+	if cur != "" && cur != f.Premise {
+		return fmt.Errorf("tiền đề chính thức xung đột với kết quả tổng hợp khi nhập (đã có bản khác), từ chối ghi đè")
+	}
+	chars, err := st.Characters.Load()
+	if err != nil {
+		return fmt.Errorf("đọc hồ sơ nhân vật chính thức: %w", err)
+	}
+	if len(chars) > 0 && !jsonEqual(chars, f.Characters) {
+		return fmt.Errorf("hồ sơ nhân vật chính thức xung đột với kết quả tổng hợp khi nhập (đã có bản khác), từ chối ghi đè")
+	}
+	rules, err := st.World.LoadWorldRules()
+	if err != nil {
+		return fmt.Errorf("đọc luật thế giới chính thức: %w", err)
+	}
+	if len(rules) > 0 && !jsonEqual(rules, f.WorldRules) {
+		return fmt.Errorf("luật thế giới chính thức xung đột với kết quả tổng hợp khi nhập (đã có bản khác), từ chối ghi đè")
+	}
+	layered, err := st.Outline.LoadLayeredOutline()
+	if err != nil {
+		return fmt.Errorf("đọc đại cương phân tầng chính thức: %w", err)
+	}
+	if len(layered) > 0 && !jsonEqual(layered, f.Volumes) {
+		return fmt.Errorf("đại cương phân tầng chính thức xung đột với kết quả tổng hợp khi nhập (đã có bản khác), từ chối ghi đè")
+	}
+	return nil
+}
+
+// jsonEqual 按规范化 JSON 字节比较两个值是否等价。
+func jsonEqual(a, b any) bool {
+	ab, _ := json.Marshal(a)
+	bb, _ := json.Marshal(b)
+	return bytes.Equal(ab, bb)
+}
+
+// publishChapter 复用 commit_chapter 发布单章；已完成章节由其幂等检查跳过（RFC §12.3）。
+func publishChapter(ctx context.Context, st *store.Store, commit ChapterCommitter, chapter int, content string, f ImportedChapterFacts) error {
+	completed, err := st.Progress.IsChapterCompleted(chapter)
+	if err != nil {
+		return fmt.Errorf("đọc tiến độ chương %d: %w", chapter, err)
+	}
+	if completed {
+		// 崩溃可能落在 MarkChapterComplete 与 ClearPendingCommit 之间：pending_commit 残留
+		// 指向本章。直接跳过会绕开 commit 工具专为此窗口准备的清理分支（补 checkpoint+清残留），
+		// 下一章 Execute 将以「存在未恢复的章节提交」拒绝，导入每次重跑都死在同一处且
+		// 需手工删 meta/pending_commit.json 才能解锁。命中残留时仍走工具幂等路径完成清理。
+		pending, err := st.Signals.LoadPendingCommit()
+		if err != nil {
+			return fmt.Errorf("đọc bản chờ ghi chương %d: %w", chapter, err)
+		}
+		if pending != nil && pending.Chapter == chapter {
+			raw, err := json.Marshal(commitArgs(chapter, f))
+			if err != nil {
+				return fmt.Errorf("đóng gói tham số ghi chương %d: %w", chapter, err)
+			}
+			if _, err := commit.Execute(ctx, raw); err != nil {
+				return fmt.Errorf("ghi chương %d: %w", chapter, err)
+			}
+		}
+		return nil
+	}
+	if err := st.Drafts.SaveDraft(chapter, content); err != nil {
+		return fmt.Errorf("lưu bản nháp chương %d: %w", chapter, err)
+	}
+	if _, err := comments.AfterWrite(st.Dir(), chapter, content, nil); err != nil {
+		slog.Warn("gắn lại góp ý sau khi lưu bản nháp nhập thất bại", "chapter", chapter, "err", err)
+	}
+	if err := st.Progress.StartChapter(chapter); err != nil {
+		return fmt.Errorf("bắt đầu chương %d: %w", chapter, err)
+	}
+	raw, err := json.Marshal(commitArgs(chapter, f))
+	if err != nil {
+		return fmt.Errorf("đóng gói tham số ghi chương %d: %w", chapter, err)
+	}
+	if _, err := commit.Execute(ctx, raw); err != nil {
+		return fmt.Errorf("ghi chương %d: %w", chapter, err)
+	}
+	return nil
+}
+
+// commitArgs 把逐章事实映射为 commit_chapter 入参。
+func commitArgs(chapter int, f ImportedChapterFacts) map[string]any {
+	keyEvents := f.KeyEvents
+	if len(keyEvents) == 0 {
+		// core_event 已校验非空。剧本导入的 core_event 可能带"CẢNH 1 — NỘI. …"
+		// 这类排版标题；它会被存进章节摘要并注入 writer 上下文，所以先改写成
+		// 普通句子（只影响派生摘要，不改 outline 文件）。
+		keyEvents = []string{rules.SanitizeSceneHeadingText(f.CoreEvent)}
+	}
+	args := map[string]any{
+		"chapter":         chapter,
+		"title":           f.Title,
+		"summary":         f.Summary,
+		"characters":      f.Characters,
+		"key_events":      keyEvents,
+		"hook_type":       f.HookType,
+		"dominant_strand": f.DominantStrand,
+	}
+	if len(f.TimelineEvents) > 0 {
+		args["timeline_events"] = f.TimelineEvents
+	}
+	if len(f.ForeshadowUpdates) > 0 {
+		args["foreshadow_updates"] = f.ForeshadowUpdates
+	}
+	if len(f.RelationshipChanges) > 0 {
+		args["relationship_changes"] = f.RelationshipChanges
+	}
+	if len(f.StateChanges) > 0 {
+		args["state_changes"] = f.StateChanges
+	}
+	return args
+}
+
+// isPublished 判断正式状态是否已反映完整导入：Foundation 已落盘且已完成章节达到预期。
+// 只对账导入真正产出的工件——book、premise、覆盖全章的扁平大纲、完成章节——而不复用
+// FoundationMissing()：后者是普通创作流程的“可写作”门禁，会把合法为空的 world_rules
+// 误判为未完成，导致发布对账永不收敛（RFC §12.3）。
+func isPublished(st *store.Store, expected int) (bool, error) {
+	if expected == 0 {
+		return false, nil
+	}
+	book, err := st.Book.Load()
+	if err != nil {
+		return false, fmt.Errorf("đọc thông tin tác phẩm chính thức: %w", err)
+	}
+	if book == nil {
+		return false, nil
+	}
+	p, err := st.Outline.LoadPremise()
+	if err != nil {
+		return false, fmt.Errorf("đọc tiền đề chính thức: %w", err)
+	}
+	if p == "" {
+		return false, nil
+	}
+	o, err := st.Outline.LoadOutline()
+	if err != nil {
+		return false, fmt.Errorf("đọc đại cương chính thức: %w", err)
+	}
+	if len(o) < expected {
+		return false, nil
+	}
+	prog, err := st.Progress.Load()
+	if err != nil {
+		return false, fmt.Errorf("đọc tiến độ chính thức: %w", err)
+	}
+	return prog != nil && len(prog.CompletedChapters) >= expected, nil
+}

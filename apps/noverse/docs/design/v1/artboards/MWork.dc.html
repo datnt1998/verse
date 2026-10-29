@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Viết — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.stream{position:relative;max-height:92px;overflow:hidden}
+.stream::after{content:"";position:absolute;left:0;right:0;top:0;height:34px;background:linear-gradient(#141416,rgba(20,20,22,0))}
+.agbar{background:linear-gradient(90deg,#7C93F3,#9A63E3,#C9457F);transition:width .3s linear}
+.chips{transition:max-height .32s cubic-bezier(.2,.9,.25,1),opacity .2s,padding .3s;max-height:54px;overflow:hidden}
+.chips.off{max-height:0;opacity:0;padding-bottom:0 !important}
+.dim{opacity:.55;filter:saturate(.4);transition:opacity .3s}
+.netbar{animation:netIn .4s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes netIn{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+.kb{position:absolute;left:0;right:0;bottom:0;height:300px;z-index:40;background:#1F1F22;border-top:1px solid rgba(255,255,255,.06);padding:8px 4px 34px;display:flex;flex-direction:column;gap:10px;animation:kbIn .32s cubic-bezier(.2,.9,.25,1) both}
+@keyframes kbIn{from{transform:translateY(100%)}to{transform:none}}
+.key{flex:1 1 0;height:42px;border-radius:6px;background:#2E2E33;box-shadow:0 1px 0 rgba(0,0,0,.5)}
+.celebrate{animation:cel 2.4s ease-in-out infinite}
+@keyframes cel{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* Orb của trợ lý đang chạy: thở + nổi nhẹ + quầng nhịp + điểm sáng trôi quanh mặt cầu */
+.agorb{position:relative;width:28px;height:28px;flex:none}
+.agorb .orb{position:absolute;inset:0;width:28px;height:28px}
+.agorb.on .orb{animation:agbob 3.2s ease-in-out infinite}
+@keyframes agbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.5px) scale(1.09)}}
+.aghalo{position:absolute;inset:-7px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--rgb),.55),rgba(var(--rgb),0));animation:aghalo 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes aghalo{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:.85;transform:scale(1.08)}}
+.agspec{position:absolute;inset:0;border-radius:50%;overflow:hidden;pointer-events:none;animation:agbob 3.2s ease-in-out infinite}
+.agspec i{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;animation:agorbit 6s linear infinite}
+.agspec i::after{content:"";position:absolute;left:5px;top:4px;width:9px;height:7px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));filter:blur(.5px)}
+@keyframes agorbit{0%{transform:rotate(-25deg)}50%{transform:rotate(35deg)}100%{transform:rotate(-25deg)}}
+/* Chữ hành động đang chạy: ánh sáng lướt qua như bản máy tính (.shimmer · 2,2 s), nền là màu của trợ lý */
+.agshim{--sb:color-mix(in srgb,rgb(var(--rgb)) 72%,#FFFFFF);background:linear-gradient(90deg,var(--sb) 0%,var(--sb) 30%,#FFFFFF 45%,#FFFFFF 55%,var(--sb) 70%,var(--sb) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:agshimk 2.2s linear infinite}
+@keyframes agshimk{from{background-position:100% 0}to{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.agshim{animation:none;background:none;color:var(--fg) !important}.agorb.on .orb,.aghalo,.agspec,.agspec i{animation:none}.aghalo{opacity:.5}}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-book-b{-webkit-mask-image:url(../icons/book-1-bulk.svg);mask-image:url(../icons/book-1-bulk.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
+.i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
+.i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
+.i-voice{-webkit-mask-image:url(../icons/voice-square.svg);mask-image:url(../icons/voice-square.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* RING v2: vòng tiến độ đầu bo tròn. Giá trị qua biến CSS ở thẻ bọc: --pv (0–100), --c (màu), --tr (màu nền vòng), --op */
+.prw{position:absolute;inset:0;pointer-events:none}
+.prw svg{display:block;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.prw circle{fill:none}
+.prw .pr-t{stroke:var(--tr,rgba(255,255,255,.08))}
+.prw .pr-v{stroke:var(--c,#C9A6F5);stroke-linecap:round;stroke-dasharray:var(--pv,0) 100;opacity:var(--op,1);transition:stroke-dasharray .5s cubic-bezier(.2,.9,.25,1),stroke .25s}
+.prw .pr-v.g{stroke:url(#prg)}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar">
+<a class="tap" href="MMore.dc.html" style="flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; color: #EDEDEF">
+<span aria-hidden="true" style="display: flex; flex: 0 0 auto"><span class="orb o-architect" style="width: 14px; height: 14px"></span><span class="orb o-writer" style="width: 14px; height: 14px; margin-left: -4px"></span><span class="orb o-editor" style="width: 14px; height: 14px; margin-left: -4px"></span></span>
+<span style="min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{storyTitle}}</span><span style="font-size: 12px; color: #8E8E99">{{storySub}}</span></span>
+<span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span>
+</a>
+<sc-if value="{{hasJobs}}" hint-placeholder-val="{{ true }}"><button class="tap" type="button" onClick="{{openJobs}}" aria-label="{{jobsAria}}" style="height: 36px; padding: 0 10px 0 4px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: #151517; color: #EDEDEF; display: flex; align-items: center; gap: 6px; flex: 0 0 auto">
+<span class="ringm" style="width: 28px; height: 28px"><span class="prw" style="--pv: {{jobRing.pv}}; --c: {{jobRing.c}}; --tr: rgba(255,255,255,0.1)"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-t" cx="50" cy="50" r="45.53" stroke-width="8.93"/><circle class="pr-v" cx="50" cy="50" r="45.53" stroke-width="8.93" pathLength="100"/></svg></span><span class="ic i-export" aria-hidden="true" style="width: 13px; height: 13px; color: #A6EDC1"></span></span>
+<span class="num" style="font-size: 13px; font-weight: 600">2</span>
+</button></sc-if>
+<a class="tap" href="MNotify.dc.html" aria-label="Thông báo" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-notify" aria-hidden="true" style="width: 21px; height: 21px"></span><span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #C9A6F5; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
+</header>
+
+<sc-if value="{{offline}}" hint-placeholder-val="{{ false }}">
+<div class="netbar" role="status" style="flex: 0 0 auto; margin: 0 12px 8px; padding: 9px 8px 9px 12px; border-radius: 14px; background: rgba(246,203,140,0.1); border: 1px solid rgba(246,203,140,0.28); display: flex; align-items: center; gap: 10px">
+<span class="spinner" aria-hidden="true" style="width: 14px; height: 14px; border-color: rgba(246,203,140,0.25); border-top-color: #F6CB8C"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 14px; font-weight: 500; color: #F6CB8C">Mất kết nối</span><span class="num" style="font-size: 12.5px; color: #C9B48F">{{retryText}}</span></span>
+<button class="tap" type="button" onClick="{{retryNow}}" style="height: 32px; padding: 0 12px; border-radius: 999px; border: none; background: rgba(246,203,140,0.16); color: #F6CB8C; font-size: 13px; font-weight: 600; white-space: nowrap">Thử ngay</button>
+</div>
+</sc-if>
+
+<div class="mscroll" onScroll="{{onScroll}}" style="padding-bottom: 210px">
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div class="rise" style="padding: 70px 30px 0; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<span aria-hidden="true" class="celebrate" style="position: relative; width: 120px; height: 90px"><span class="orb o-architect" style="position: absolute; left: 6px; top: 34px; width: 34px; height: 34px"></span><span class="orb o-writer" style="position: absolute; left: 38px; top: 6px; width: 46px; height: 46px"></span><span class="orb o-editor" style="position: absolute; right: 6px; top: 40px; width: 30px; height: 30px"></span><span class="orb o-arbiter" style="position: absolute; left: 50px; bottom: 0; width: 24px; height: 24px"></span></span>
+<span style="font-size: 21px; font-weight: 600">Chưa có truyện nào</span>
+<span style="font-size: 15px; color: #A0A0AB">Tạo truyện mới hoặc nhập truyện có sẵn trên máy tính. Khi truyện bắt đầu, bạn theo dõi và duyệt ngay tại đây.</span>
+<div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px">
+<a class="mbtn pri tap" href="MMore.dc.html">Mở truyện có sẵn</a>
+<a class="mbtn gho tap" href="MNotify.dc.html">Báo tôi khi có truyện mới</a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{notEmpty}}" hint-placeholder-val="{{ true }}">
+<div class="hscroll {{dimCls}}" role="list" aria-label="Trợ lý" style="padding-top: 4px; padding-bottom: 12px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="4"><div role="listitem" style="position: relative; overflow: hidden; flex: 0 0 auto; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 14px 0 10px; border-radius: 16px; background: #141416; border: 1px solid {{a.bd}}">
+<span aria-hidden="true" style="position: absolute; inset: 0; background: {{a.wash}}"></span>
+<span class="agorb {{a.cls}}" aria-hidden="true" style="--rgb: {{a.rgb}}"><sc-if value="{{a.on}}" hint-placeholder-val="{{ true }}"><span class="aghalo"></span></sc-if><span class="orb {{a.orb}}" style="box-shadow: {{a.glow}}"></span><sc-if value="{{a.on}}" hint-placeholder-val="{{ true }}"><span class="agspec"><i></i></span></sc-if></span>
+<span style="position: relative; display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 13.5px; font-weight: 600">{{a.name}}</span><span class="{{a.shim}}" style="font-size: 12px; color: {{a.stFg}}; --fg: {{a.stFg}}; --rgb: {{a.rgb}}; white-space: nowrap">{{a.st}}</span></span>
+</div></sc-for>
+</div>
+
+<!-- HERO by status -->
+<sc-if value="{{h.running}}" hint-placeholder-val="{{ true }}">
+<section class="{{dimCls}}" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: #141416; border: 1px solid rgba(154,99,227,0.28); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 10px"><span class="lbl" style="font-size: 11px">Đang viết</span><span style="flex: 1"></span><sc-if value="{{offline}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #C9B48F">cập nhật lúc 21:53</span></sc-if><span class="mono num" style="font-size: 13px; color: #DCC8F8">{{pct}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 600; line-height: 1.35">Chương 25 · Máy quay số ba</span><span style="font-size: 13.5px; color: #A0A0AB">{{stepText}}</span></div>
+<span style="height: 5px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden"><span class="agbar" style="display: block; height: 100%; width: {{pct}}"></span></span>
+<div class="stream" aria-live="off" style="font-family: 'Literata', Georgia, serif; font-size: 15px; line-height: 1.65; color: #B4B4BE">Khán phòng im lặng đến mức tôi nghe được tiếng chiếc máy quay số ba xoay ống kính. Ở hàng ghế đầu, đạo diễn Phùng đặt cốc trà xuống, chậm rãi, như thể sợ làm vỡ khoảnh khắc này<span class="caretm"></span></div>
+<div style="display: flex; gap: 8px"><button class="chipm tap" type="button" onClick="{{pauseAsk}}"><span class="ic i-pause" aria-hidden="true" style="width: 14px; height: 14px"></span>Tạm dừng</button><a class="chipm tap" href="MReader.dc.html"><span class="ic i-book" aria-hidden="true" style="width: 14px; height: 14px"></span>Xem bản nháp</a></div>
+</section>
+</sc-if>
+
+<sc-if value="{{h.gate}}" hint-placeholder-val="{{ false }}">
+<section class="rise" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: radial-gradient(120% 100% at 0% 0%, rgba(246,203,140,0.1), transparent 60%), #151517; border: 1px solid rgba(246,203,140,0.28); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(246,203,140,0.14); display: flex; align-items: center; justify-content: center"><span class="ic i-book" aria-hidden="true" style="width: 20px; height: 20px; color: #F6CB8C"></span></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">Chương 24 chờ bạn duyệt</span><span style="font-size: 13px; color: #A0A0AB">3.102 chữ · Biên tập chấm 8,1</span></span></div>
+<p style="margin: 0; font-family: 'Literata', Georgia, serif; font-size: 15px; line-height: 1.65; color: #C9C9D1">“Tôi bước lên, cầm lấy micro, và đọc — không phải bản trên tay cô, mà bản tôi vẫn thuộc lòng từng dấu phẩy.”</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><a class="mbtn gho tap" href="MReader.dc.html" style="height: 46px; font-size: 15px">Đọc chương 24</a><button class="mbtn pri tap" type="button" onClick="{{approve}}" style="height: 46px; font-size: 15px">Duyệt &amp; viết tiếp</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{h.idle}}" hint-placeholder-val="{{ false }}">
+<section class="rise" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: #141416; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center"><span class="ic i-clock" aria-hidden="true" style="width: 20px; height: 20px; color: #A0A0AB"></span></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">Trợ lý đang chờ bạn</span><span style="font-size: 13px; color: #A0A0AB">Chương 24 đã duyệt lúc 21:58</span></span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><a class="mbtn gho tap" href="MCmd.dc.html" style="height: 46px; font-size: 15px">Bàn hướng đi</a><button class="mbtn pri tap" type="button" onClick="{{startNext}}" style="height: 46px; font-size: 15px">Viết chương 25</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{h.paused}}" hint-placeholder-val="{{ false }}">
+<section class="rise" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: #141416; border: 1px solid rgba(154,99,227,0.2); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: center"><span class="orb o-writer" aria-hidden="true" style="width: 36px; height: 36px; filter: saturate(.5); opacity: .8"></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">Đã tạm dừng</span><span style="font-size: 13px; color: #A0A0AB">Chương 25 · dừng sau bước Soát nhất quán</span></span></div>
+<span style="height: 5px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden"><span style="display: block; height: 100%; width: 60%; background: #5E5E68"></span></span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><button class="mbtn gho tap" type="button" onClick="{{focusNote}}" style="height: 46px; font-size: 15px">Góp ý trước</button><button class="mbtn pri tap" type="button" onClick="{{resume}}" style="height: 46px; font-size: 15px"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span>Chạy tiếp</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{h.done}}" hint-placeholder-val="{{ false }}">
+<section class="rise" style="position: relative; overflow: hidden; margin: 0 16px 12px; padding: 18px 16px 16px; border-radius: 20px; background: radial-gradient(90% 80% at 50% 0%, rgba(166,237,193,0.1), transparent 70%), #141416; border: 1px solid rgba(166,237,193,0.25); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<span aria-hidden="true" class="celebrate" style="display: flex"><span class="orb o-architect" style="width: 22px; height: 22px"></span><span class="orb o-writer" style="width: 30px; height: 30px; margin: -6px -6px 0"></span><span class="orb o-editor" style="width: 22px; height: 22px"></span><span class="orb o-arbiter" style="width: 18px; height: 18px; margin-left: -4px; margin-top: 10px"></span></span>
+<span style="font-size: 19px; font-weight: 600">Truyện đã hoàn thành</span>
+<span class="num" style="font-size: 13.5px; color: #A0A0AB">30 chương · 98.420 chữ · xong lúc 23:14</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin-top: 4px"><button class="mbtn pri tap" type="button" onClick="{{exportNow}}" style="height: 46px; font-size: 15px"><span class="ic i-export" aria-hidden="true" style="width: 16px; height: 16px"></span>Xuất EPUB</button><a class="mbtn gho tap" href="MAudio.dc.html" style="height: 46px; font-size: 15px"><span class="ic i-headphone" aria-hidden="true" style="width: 16px; height: 16px"></span>Nghe</a></div>
+<a class="tap" href="MCmd.dc.html" style="font-size: 14px; color: #C9A6F5; padding: 6px">Viết tiếp tập mới ›</a>
+</section>
+</sc-if>
+
+<sc-if value="{{h.error}}" hint-placeholder-val="{{ false }}">
+<section class="rise" role="alert" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: radial-gradient(120% 100% at 0% 0%, rgba(255,95,110,0.1), transparent 60%), #151517; border: 1px solid rgba(255,159,168,0.28); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,95,110,0.14); display: flex; align-items: center; justify-content: center"><span class="ic i-warning" aria-hidden="true" style="width: 20px; height: 20px; color: #FF9FA8"></span></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">Người viết dừng lại</span><span style="font-size: 13px; color: #A0A0AB">Chương 25 · bước 2/5</span></span></div>
+<p style="margin: 0; font-size: 14.5px; color: #D6D6DC">ChatGPT báo đã hết hạn mức hôm nay. Phần đã viết được giữ nguyên. Thử lại sau 23:00, hoặc đổi sang model khác để viết tiếp ngay.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><a class="mbtn gho tap" href="MMore.dc.html" style="height: 46px; font-size: 15px">Đổi model</a><button class="mbtn pri tap" type="button" onClick="{{retryErr}}" style="height: 46px; font-size: 15px"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px"></span>Thử lại</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{hasQueue}}" hint-placeholder-val="{{ false }}">
+<div class="rise" style="margin: 0 16px 12px; padding: 12px 14px; border-radius: 16px; border: 1px dashed rgba(246,203,140,0.35); display: flex; gap: 10px; align-items: flex-start">
+<span class="ic i-clock" aria-hidden="true" style="width: 17px; height: 17px; color: #F6CB8C; margin-top: 2px"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #F6CB8C">Chờ gửi · sẽ tự gửi khi có mạng</span><span style="font-size: 14.5px; color: #D6D6DC">{{queued}}</span></span>
+</div>
+</sc-if>
+
+<div class="ghead {{dimCls}}" style="padding-top: 10px; display: flex; justify-content: space-between"><span>Vừa xong</span><a href="MLog.dc.html" style="color: #C9A6F5">Xem tất cả</a></div>
+<div class="group {{dimCls}}">
+<sc-for list="{{feed}}" as="f" hint-placeholder-count="5"><div class="grow" style="align-items: flex-start; min-height: 0; padding: 12px 14px">
+<span class="orb {{f.orb}}" aria-hidden="true" style="width: 22px; height: 22px; margin-top: 1px"></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 14.5px">{{f.t}}</span><span style="font-size: 12.5px; color: #8E8E99">{{f.s}}</span></span>
+<span class="num" style="font-size: 12px; color: #5E5E68; flex: 0 0 auto">{{f.time}}</span>
+</div></sc-for>
+</div>
+</sc-if>
+</div>
+
+<!-- composer -->
+<sc-if value="{{showComposer}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 0; right: 0; bottom: {{cmpBottom}}; z-index: 41; padding: 10px 0 10px; background: {{cmpBg}}; transition: bottom .32s cubic-bezier(.2,.9,.25,1)">
+<div class="hscroll chips {{chipsCls}}" style="padding-bottom: 10px"><sc-for list="{{quick}}" as="q" hint-placeholder-count="4"><button class="chipm tap" type="button" onClick="{{q.run}}"><span class="mono" style="color: #C9A6F5; font-size: 13px">{{q.cmd}}</span>{{q.label}}</button></sc-for></div>
+<div style="margin: 0 12px; display: flex; align-items: flex-end; gap: 8px; min-height: 50px; padding: 5px 5px 5px 8px; border-radius: 25px; background: #18181A; border: 1px solid {{cmpBd}}; box-shadow: {{cmpGlow}}">
+<button class="tap" type="button" onClick="{{openCmd}}" aria-label="Mở danh sách lệnh" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(201,166,245,0.12); color: #C9A6F5; font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; flex: 0 0 auto">/</button>
+<label for="m-cmp" style="position: absolute; width: 1px; height: 1px; overflow: hidden">Góp ý cho truyện</label>
+<textarea id="m-cmp" rows="{{cmpRows}}" value="{{text}}" onInput="{{onText}}" onFocus="{{onFocus}}" placeholder="{{cmpPh}}" style="flex: 1 1 auto; min-width: 0; padding: 8px 0; border: none; outline: none; resize: none; background: transparent; color: #EDEDEF; font: inherit; font-size: 16px; line-height: 1.4"></textarea>
+<button class="tap" type="button" onClick="{{send}}" aria-label="Gửi" disabled="{{sendOff}}" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: {{sendBg}}; color: #0B0B0D; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span class="ic i-arrow-up" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+</div>
+<sc-if value="{{typing}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 8px; padding: 8px 22px 0; font-size: 12.5px; color: #8E8E99"><span class="orb o-arbiter" aria-hidden="true" style="width: 12px; height: 12px"></span>Trọng tài xét góp ý · áp dụng từ chương sau<span style="flex: 1"></span><button class="tap" type="button" onClick="{{blur}}" style="border: none; background: transparent; color: #C9A6F5; font-size: 13px; padding: 4px">Xong</button></div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{typing}}" hint-placeholder-val="{{ false }}"><div class="kb" role="img" aria-label="Bàn phím của hệ thống">
+<sc-for list="{{kbRows}}" as="r" hint-placeholder-count="4"><div style="display: flex; gap: 6px; padding: 0 {{r.pad}}"><sc-for list="{{r.keys}}" as="k" hint-placeholder-count="10"><span class="key" style="flex: {{k}}"></span></sc-for></div></sc-for>
+<span style="position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 11px; color: #5E5E68">bàn phím hệ thống</span>
+</div></sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="bottom: 214px"><span class="ic i-tick" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span><span style="flex: 1 1 auto; min-width: 0">{{toastText}}</span><sc-if value="{{toastLink}}" hint-placeholder-val="{{ false }}"><a href="MCmd.dc.html" style="font-size: 14px; color: #C9A6F5; white-space: nowrap">Xem</a></sc-if></div></sc-if>
+
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: {{tabInd}}; width: calc((100% - 10px) / 4)"></span>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><a class="tab tap {{t.cls}}" href="{{t.href}}" aria-current="{{t.cur}}"><span class="ic tic {{t.icon}}" aria-hidden="true" style="width: 24px; height: 24px; color: {{t.ic}}"></span><span class="tlab">{{t.label}}</span><sc-if value="{{t.dot}}" hint-placeholder-val="{{ false }}"><span class="dot" aria-label="Có việc cần bạn"></span></sc-if></a></sc-for>
+</div>
+</nav>
+
+
+<!-- ===== SHEETS ===== -->
+<sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}"><div class="scrim {{scrimOut}}" aria-hidden="true" onClick="{{closeSheet}}"></div></sc-if>
+
+<sc-if value="{{sh.cmd}}" hint-placeholder-val="{{ false }}">
+<section class="sheet {{sheetOut}}" role="dialog" aria-label="Lệnh" style="height: 650px">
+<div class="grab" aria-hidden="true"></div>
+<sc-if value="{{cmdList}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 2px 16px 10px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-size: 18px; font-weight: 600">Lệnh</span><a href="MMore.dc.html" style="font-size: 13.5px; color: #C9A6F5">Hướng dẫn</a></div>
+<div style="position: relative"><span class="ic i-search" aria-hidden="true" style="position: absolute; left: 13px; top: 14px; width: 17px; height: 17px; color: #7E7E8A"></span><input class="mfield" type="search" value="{{q}}" onInput="{{onQ}}" placeholder="Tìm lệnh hoặc việc muốn làm" aria-label="Tìm lệnh" style="padding-left: 40px"></div>
+</div>
+<div class="mscroll" style="padding: 0 0 8px">
+<sc-for list="{{cmdGroups}}" as="g" hint-placeholder-count="3">
+<div class="ghead" style="padding: 10px 30px 6px">{{g.label}}</div>
+<div class="group"><sc-for list="{{g.items}}" as="c" hint-placeholder-count="3"><button class="grow press" type="button" onClick="{{c.pick}}">
+<span class="mono" style="flex: 0 0 auto; min-width: 84px; font-size: 14.5px; color: #C9A6F5">{{c.slash}}</span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.title}}</span><sc-if value="{{c.idle}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: {{c.idleFg}}">{{c.idleText}}</span></sc-if></span>
+<span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; color: #5E5E68"></span>
+</button></sc-for></div>
+</sc-for>
+<sc-if value="{{noCmd}}" hint-placeholder-val="{{ false }}"><div style="padding: 28px 30px; text-align: center; font-size: 14.5px; color: #8E8E99">{{noCmdText}}</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{cmdArgs}}" hint-placeholder-val="{{ false }}">
+<div class="push-in" style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 6px; padding: 0 12px 8px 6px">
+<button class="tap" type="button" onClick="{{backCmd}}" aria-label="Quay lại danh sách lệnh" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-l" aria-hidden="true" style="width: 20px; height: 20px"></span></button>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3"><span class="mono" style="font-size: 17px; color: #C9A6F5">{{cd.slash}}</span><span style="font-size: 13px; color: #A0A0AB; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{cd.title}}</span></span>
+</div>
+<div class="mscroll" style="padding: 0 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<p style="margin: 0; font-size: 14.5px; color: #C9C9D1">{{cd.lead}}</p>
+<sc-if value="{{cd.hasEx}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl" style="font-size: 10.5px">Ví dụ · chạm để dùng</span><sc-for list="{{examples}}" as="e" hint-placeholder-count="2"><button class="tap press" type="button" onClick="{{e.use}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #141416; color: #EDEDEF; text-align: left"><span class="mono" style="font-size: 13px; white-space: pre-wrap; word-break: break-word"><sc-for list="{{e.toks}}" as="t" hint-placeholder-count="2"><span style="color: {{t.c}}">{{t.t}}</span></sc-for></span><span style="font-size: 12.5px; color: #8E8E99">{{e.text}}</span></button></sc-for></div></sc-if>
+<sc-for list="{{params}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px"><span style="font-size: 14.5px; font-weight: 500">{{p.label}}</span><span class="mono" style="font-size: 12px; color: {{p.c}}">{{p.tok}}</span></div>
+<sc-if value="{{p.hasChips}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{p.chips}}" as="o" hint-placeholder-count="3"><button class="chipm tap {{o.cls}}" type="button" onClick="{{o.pick}}" aria-pressed="{{o.on}}">{{o.label}}</button></sc-for></div></sc-if>
+<sc-if value="{{p.isText}}" hint-placeholder-val="{{ false }}"><input class="mfield" type="text" value="{{p.val}}" placeholder="{{p.ph}}" onInput="{{p.onInput}}" aria-label="{{p.label}}"></sc-if>
+<span style="font-size: 12.5px; color: #7E7E8A">{{p.desc}}</span>
+</div>
+</sc-for>
+<sc-if value="{{cd.noParams}}" hint-placeholder-val="{{ false }}"><div style="padding: 14px; border-radius: 14px; background: #141416; font-size: 14px; color: #A0A0AB">Lệnh này không cần thêm gì — bấm Chạy.</div></sc-if>
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; background: rgba(201,166,245,0.06); font-size: 13px; color: #C9C9D1"><span class="ic i-lamp" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5; margin-top: 1px"></span><span>{{cd.tip}}</span></div>
+</div>
+<div style="padding: 10px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 10px">
+<div class="mono" style="padding: 10px 12px; border-radius: 12px; background: #0B0B0D; border: 1px solid rgba(255,255,255,0.08); font-size: 13.5px; white-space: pre-wrap; word-break: break-word"><sc-for list="{{lineToks}}" as="t" hint-placeholder-count="3"><span style="color: {{t.c}}">{{t.t}}</span></sc-for></div>
+<div role="status" style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: {{stFg}}"><span class="ic {{stIcon}}" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px"></span><span>{{stText}}</span></div>
+<button class="mbtn pri tap" type="button" onClick="{{runCmd}}" disabled="{{runOff}}">{{runLabel}}</button>
+</div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{sh.jobs}}" hint-placeholder-val="{{ false }}">
+<section class="sheet {{sheetOut}}" role="dialog" aria-label="Việc chạy nền">
+<div class="grab" aria-hidden="true"></div>
+<div style="padding: 2px 16px 6px; display: flex; align-items: baseline; justify-content: space-between"><span style="font-size: 18px; font-weight: 600">Việc chạy nền</span><span style="font-size: 13px; color: #8E8E99">vẫn chạy khi khoá màn hình</span></div>
+<div style="display: flex; flex-direction: column; padding: 4px 8px 4px">
+<sc-for list="{{jobs}}" as="j" hint-placeholder-count="3"><div style="display: flex; gap: 12px; padding: 12px 8px; align-items: center">
+<span class="ringm" style="width: 42px; height: 42px; background: {{j.chip}}"><span class="prw" style="--pv: {{j.ring.pv}}; --c: {{j.ring.c}}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-t" cx="50" cy="50" r="47.02" stroke-width="5.95"/><circle class="pr-v" cx="50" cy="50" r="47.02" stroke-width="5.95" pathLength="100"/></svg></span><span class="ic {{j.icon}}" aria-hidden="true" style="width: 18px; height: 18px; color: {{j.c}}"></span></span>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 15px; font-weight: 500">{{j.title}}</span><span class="mono num" style="font-size: 12.5px; color: #8E8E99">{{j.meta}}</span></span><span style="font-size: 13px; color: #8E8E99">{{j.sub}}</span><span style="height: 4px; border-radius: 2px; background: rgba(255,255,255,0.07); overflow: hidden"><span style="display: block; height: 100%; width: {{j.w}}; background: {{j.c}}; transition: width .3s linear"></span></span></span>
+</div></sc-for>
+</div>
+<div style="padding: 8px 16px 0"><a class="mbtn gho tap" href="MLog.dc.html" style="height: 46px; font-size: 15px">Xem nhật ký đầy đủ</a></div>
+</section>
+</sc-if>
+
+<sc-if value="{{sh.pause}}" hint-placeholder-val="{{ false }}">
+<section class="sheet {{sheetOut}}" role="alertdialog" aria-labelledby="mp-t" style="padding: 0 16px 26px">
+<div class="grab" aria-hidden="true"></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 0 18px; text-align: center">
+<span style="width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle, rgba(154,99,227,0.35), rgba(20,20,22,0) 70%); display: flex; align-items: center; justify-content: center"><span class="orb o-writer" style="width: 30px; height: 30px"></span></span>
+<span id="mp-t" style="font-size: 18px; font-weight: 600">Tạm dừng Người viết?</span>
+<span style="font-size: 14.5px; color: #A0A0AB">Chương 25 đang ở bước {{stepShort}}. Bạn chạy tiếp được bất cứ lúc nào.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<button class="mbtn pri tap" type="button" onClick="{{doPause}}">Tạm dừng sau bước này</button>
+<button class="mbtn gho tap" type="button" onClick="{{doPauseNow}}" style="color: #FFB3BA">Dừng ngay · bỏ phần đang viết</button>
+<button class="mbtn tap" type="button" onClick="{{closeSheet}}" style="background: transparent; color: #A0A0AB">Tiếp tục viết</button>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{sh.expired}}" hint-placeholder-val="{{ false }}">
+<section class="sheet" role="alertdialog" aria-labelledby="ex-t" style="padding: 0 16px 26px; gap: 12px">
+<div class="grab" aria-hidden="true"></div>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 44px; height: 44px; border-radius: 14px; background: rgba(201,166,245,0.12); display: flex; align-items: center; justify-content: center"><span class="ic i-lock" aria-hidden="true" style="width: 21px; height: 21px; color: #C9A6F5"></span></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span id="ex-t" style="font-size: 18px; font-weight: 600">Phiên đăng nhập đã hết</span><span style="font-size: 13.5px; color: #A0A0AB">Sau 30 ngày phải đăng nhập lại</span></span></div>
+<div style="padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px dashed rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #8E8E99">Góp ý đang gõ dở vẫn được giữ</span><span style="font-size: 14.5px; color: #D6D6DC">“Cho Tri Hạ xuất hiện lại ở chương 26…”</span></div>
+<label for="ex-u" style="font-size: 13px; color: #A0A0AB">Tên đăng nhập</label>
+<input id="ex-u" class="mfield mono" type="text" value="dat" autocomplete="username" style="margin-top: -6px">
+<label for="ex-p" style="font-size: 13px; color: #A0A0AB">Mật khẩu</label>
+<input id="ex-p" class="mfield" type="password" value="{{pw}}" onInput="{{onPw}}" autocomplete="current-password" placeholder="Ít nhất 8 ký tự" style="margin-top: -6px">
+<button class="mbtn pri tap" type="button" onClick="{{relogin}}" disabled="{{pwOff}}" style="margin-top: 4px">Đăng nhập</button>
+<a class="tap" href="Phone.dc.html" style="text-align: center; font-size: 14px; color: #C9A6F5; padding: 6px">Quét mã QR từ máy tính</a>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","gate","idle","paused","done","error","empty","offline","expired","typing","cmd","cmdArgs","jobs","pause"],"default":"running","section":"Trạng thái"},"$preview":{"width":390,"height":844}}'>
+const PUR = '#C9A6F5', MINT = '#A6EDC1', ORA = '#F6CB8C', SOFT = '#A0A0AB';
+const BOOK = { title: 'Trà Xanh Cướp Kịch Bản', done: 24 };
+const ROLES = [
+  { v: 'architect', label: 'Kiến trúc sư', note: 'Kiến trúc sư — lên dàn ý, quy hoạch tập' },
+  { v: 'writer', label: 'Người viết', note: 'Người viết — viết từng chương' },
+  { v: 'editor', label: 'Biên tập viên', note: 'Biên tập viên — soát và chấm chương' }
+];
+const GROUPS = [
+  { key: 'begin', label: 'Bắt đầu truyện', cmds: ['start', 'import'] },
+  { key: 'write', label: 'Trong lúc viết', cmds: ['review', 'next', 'cocreate', 'sync', 'diag'] },
+  { key: 'style', label: 'Văn phong', cmds: ['simulate', 'importsim'] },
+  { key: 'end', label: 'Khi truyện đã xong', cmds: ['export', 'reopen'] },
+  { key: 'sys', label: 'Cài đặt & trợ giúp', cmds: ['model', 'config', 'help'] }
+];
+const C = {
+  help: { usage: '/help', title: 'Mở hướng dẫn lệnh', auto: true,
+    lead: 'Hiện danh sách mọi lệnh, cách gõ và các phím tắt — chính là trang bạn đang xem.',
+    when: ['Quên tên lệnh hoặc cách gõ', 'Muốn xem lại phím tắt'], avoid: ['Không có — dùng lúc nào cũng được, kể cả khi trợ lý đang viết'],
+    params: [], ex: [{ vals: {}, text: 'Mở trang hướng dẫn này.' }],
+    after: ['Trang hướng dẫn mở ra, truyện vẫn tiếp tục viết bình thường', 'Nhấn Esc hoặc bấm Bàn viết để quay lại'], log: [], errs: [],
+    tip: 'Trên web còn nhanh hơn: bấm phím ? ở bất kỳ màn hình nào.', rel: ['model', 'config'], kw: 'tro giup huong dan phim tat' },
+  model: { usage: '/model [vai-trò]', title: 'Đổi model cho từng trợ lý', auto: true,
+    lead: 'Noverse có ba trợ lý: Kiến trúc sư lên dàn ý, Người viết viết chương, Biên tập viên soát chương. Mỗi trợ lý có thể dùng một model và mức suy luận riêng.',
+    when: ['Muốn Người viết dùng model viết hay hơn', 'Muốn tiết kiệm bằng model rẻ hơn cho Biên tập viên', 'Muốn tăng hoặc giảm mức suy luận'],
+    avoid: ['Chưa thêm nhà cung cấp AI nào — dùng /config trước'],
+    params: [{ k: 'role', tok: '[vai-trò]', kind: 'enum', label: 'Mở sẵn ở vai trò', desc: 'Trợ lý muốn đổi. Bỏ trống để xem cả ba.', opts: ROLES, none: 'Cả ba' }],
+    ex: [{ vals: {}, text: 'Mở bảng chọn model cho cả ba trợ lý.' }, { vals: { role: 'writer' }, text: 'Mở thẳng tới phần của Người viết.' }],
+    after: ['Mở bảng chọn model, nếu có ghi vai trò thì mở sẵn ở vai trò đó', 'Chọn model và mức suy luận, nhấn Enter để lưu', 'Nhấn Esc để đóng mà không đổi gì'],
+    log: [], errs: [{ msg: 'Vai trò không hợp lệ: writter', fix: 'Chỉ dùng một trong ba: architect, writer, editor.' }],
+    tip: 'Danh sách model là của các nhà cung cấp bạn đã thêm. Thiếu model mong muốn thì thêm nhà cung cấp bằng /config.', rel: ['config', 'diag'], kw: 'doi model ai gpt claude suy luan reasoning thinking' },
+  config: { usage: '/config', title: 'Thêm hoặc sửa nhà cung cấp AI', auto: true,
+    lead: 'Thêm nhà cung cấp AI, chọn model, và chỉnh độ dài ngữ cảnh — lượng chữ model đọc được trong một lần.',
+    when: ['Lần đầu dùng, chưa có nhà cung cấp nào', 'Đổi khoá API hoặc thêm nhà cung cấp mới'], avoid: ['Chỉ muốn đổi model cho một trợ lý — /model nhanh hơn'],
+    params: [], ex: [{ vals: {}, text: 'Mở bảng nhà cung cấp AI.' }],
+    after: ['Mở bảng nhà cung cấp, model và độ dài ngữ cảnh', 'Lưu xong là dùng được ngay'], log: [],
+    errs: [{ msg: 'Cách dùng: /config', fix: 'Lệnh này không nhận thêm gì phía sau — chỉ gõ /config.' }],
+    tip: 'Trên web, việc này nằm ở Cài đặt › Nhà cung cấp AI, có sẵn nút đăng nhập ChatGPT.', rel: ['model'], kw: 'cai dat nha cung cap provider api key khoa ngu canh context' },
+  diag: { usage: '/diag', title: 'Khám sức khoẻ truyện', auto: true, group: 'analysis',
+    lead: 'Mở bảng chẩn đoán: tiến độ, các tuyến truyện còn bỏ ngỏ, và những điểm chất lượng cần để ý.',
+    when: ['Viết đã lâu, muốn biết truyện có đang đi đúng hướng', 'Trước khi xuất bản hoặc mở lại truyện'], avoid: ['Truyện mới có vài chương — chưa đủ dữ liệu để đánh giá'],
+    params: [], ex: [{ vals: {}, text: 'Xem bảng chẩn đoán của truyện đang mở.' }],
+    after: ['Bảng chẩn đoán mở ra', 'Truyện vẫn tiếp tục viết trong lúc bạn xem'], log: [], errs: [],
+    tip: 'Thấy nhiều tuyến truyện bỏ ngỏ? Dùng /cocreate để cùng Kiến trúc sư sắp xếp lại giai đoạn tới.', rel: ['cocreate', 'review'], kw: 'chan doan suc khoe chat luong tien do kiem tra' },
+  review: { usage: '/review on|off', title: 'Bật/tắt duyệt từng chương',
+    lead: 'Khi bật, Noverse dừng lại sau mỗi chương để bạn đọc trước. Bạn hài lòng thì gõ /next để cho viết tiếp.',
+    when: ['Muốn kiểm soát chặt từng chương', 'Những chương quan trọng: mở đầu, cao trào, kết tập'], avoid: ['Muốn Noverse viết liền mạch qua đêm — để off'],
+    params: [{ k: 'mode', tok: 'on|off', kind: 'enum', req: true, label: 'Chế độ', desc: 'Chọn một trong hai.', opts: [{ v: 'on', label: 'on · duyệt', note: 'Dừng sau mỗi chương, chờ /next' }, { v: 'off', label: 'off · tự viết', note: 'Viết liền, không dừng' }], init: 'on' }],
+    ex: [{ vals: { mode: 'on' }, text: 'Từ chương tới, dừng lại chờ bạn duyệt.' }, { vals: { mode: 'off' }, text: 'Quay lại viết liền mạch.' }],
+    after: ['Chế độ mới được ghi lại ngay', 'Bật: viết xong chương hiện tại, trợ lý dừng và chờ /next', 'Tắt khi đang dừng: gõ tiếp tục để chạy lại'],
+    log: [{ cat: 'Hệ thống', text: 'Đã chuyển sang chế độ Duyệt từng chương' }],
+    errs: [{ msg: 'Cách dùng: /review on|off', fix: 'Thiếu hoặc sai giá trị. Gõ đúng on hoặc off.' }],
+    tip: 'Trên web, nút Duyệt từng chương ở thanh trên Bàn viết làm đúng việc này.', rel: ['next', 'diag'], kw: 'duyet nghiem thu tung chuong dung lai kiem soat' },
+  next: { usage: '/next', title: 'Cho viết chương tiếp theo', auto: true, idle: true,
+    lead: 'Dùng khi đang bật duyệt từng chương: bạn đọc xong chương vừa viết và đồng ý cho Noverse viết thêm một chương.',
+    when: ['Đã đọc và hài lòng với chương vừa viết', 'Đang bật /review on'], avoid: ['Trợ lý vẫn đang viết — lệnh sẽ bị từ chối', 'Muốn sửa chương trước — gõ góp ý vào ô chat thay vì /next'],
+    params: [], ex: [{ vals: {}, text: 'Duyệt chương vừa xong và viết tiếp một chương.' }],
+    after: ['Chương vừa viết được đánh dấu đã duyệt', 'Người viết bắt đầu chương kế tiếp, rồi lại dừng chờ bạn'],
+    log: [{ cat: 'Hệ thống', text: 'Đã duyệt chương 24 · bắt đầu viết chương 25' }],
+    errs: [{ msg: 'Lệnh chỉ có thể thực hiện khi hệ thống đang rảnh: /next', fix: 'Trợ lý vẫn đang viết. Chờ chương xong rồi gõ lại.' }, { msg: 'Cho phép viết chương tiếp theo thất bại: …', fix: 'Đọc chi tiết trong nhật ký. Nếu lặp lại, chạy /diag.' }],
+    tip: 'Trên web, nút Duyệt & viết tiếp ở cuối Trình đọc chính là /next.', rel: ['review', 'diag'], kw: 'tiep theo duyet chuong tiep viet tiep' },
+  start: { usage: '/start <đường-dẫn-tệp>', title: 'Tạo truyện mới từ tệp có sẵn', only: 'Chỉ ở màn hình chào mừng', href: 'NewStory.dc.html', runLabel: 'Mở Truyện mới & điền sẵn',
+    lead: 'Bạn đã có sẵn thiết lập nhân vật, thế giới hoặc đại cương trong một tệp? /start đọc tệp đó và bắt đầu một truyện mới từ nó.',
+    when: ['Đã viết sẵn thiết lập hoặc đại cương', 'Muốn dùng lại mẫu thiết lập cho nhiều truyện'], avoid: ['Đang mở một truyện — lệnh chỉ chạy ở màn hình chào mừng', 'Có cả bộ truyện đã viết — dùng /import'],
+    params: [{ k: 'path', tok: '<đường-dẫn-tệp>', kind: 'path', req: true, label: 'Tệp thiết lập', desc: 'Tệp văn bản chứa thiết lập hoặc đại cương. Tên có khoảng trắng thì đặt trong ngoặc kép.', ph: 'ideas/thiet-lap.md', init: 'ideas/thiet-lap.md' }],
+    ex: [{ vals: { path: 'ideas/thiet-lap.md' }, text: 'Tạo truyện mới từ tệp thiết lập.' }, { vals: { path: '"ideas/y tuong moi.txt"' }, text: 'Tên tệp có khoảng trắng: đặt trong ngoặc kép.' }],
+    after: ['Đọc tệp và chuẩn bị yêu cầu sáng tác', 'Kiến trúc sư lên dàn ý, rồi Người viết bắt đầu chương 1'], log: [{ cat: 'Hệ thống', text: 'Đang tạo truyện mới từ ideas/thiet-lap.md' }],
+    errs: [{ msg: 'Lệnh /start chỉ có thể dùng ở màn hình chào mừng', fix: 'Đang mở một truyện rồi. Bấm Truyện mới ở thanh trên.' }, { msg: 'Cách dùng: /start <đường dẫn tệp thiết lập hoặc đại cương>', fix: 'Bạn quên ghi đường dẫn tệp.' }],
+    tip: 'Trên web, màn Truyện mới cho phép kéo thả tệp thiết lập — không cần gõ đường dẫn.', rel: ['import'], kw: 'bat dau tao truyen moi thiet lap dai cuong file tep' },
+  import: { usage: '/import <đường-dẫn> [--yes] [--story=open|closed] [--continue] [--guide=<hướng-dẫn>]', title: 'Nhập truyện có sẵn để viết tiếp', idle: true,
+    lead: 'Đưa một bộ truyện đã viết vào Noverse. Hệ thống đọc, chia chương, ghi lại nhân vật và cốt truyện để có thể viết tiếp đúng mạch.',
+    when: ['Có truyện viết dở ở nơi khác', 'Muốn Noverse học mạch truyện cũ trước khi viết phần mới'], avoid: ['Trợ lý đang viết — lệnh sẽ bị từ chối', 'Chỉ có thiết lập, chưa có chương — dùng /start'],
+    params: [
+      { k: 'path', tok: '<đường-dẫn>', kind: 'path', label: 'Tệp truyện', desc: 'Tệp truyện cần nhập. Để trống để tiếp tục lần nhập đang dở.', ph: 'nhap/tra-xanh.txt', init: 'nhap/tra-xanh.txt', defText: 'Trống: tiếp tục lần nhập đang dở' },
+      { k: 'yes', tok: '--yes', kind: 'flag', flag: '--yes', label: 'Tự đồng ý cách chia chương', hint: 'Không hỏi lại cách chia chương', desc: 'Bỏ bước xem trước, tự đồng ý cách chia chương hệ thống đề xuất.' },
+      { k: 'story', tok: '--story=open|closed', kind: 'enum', pre: '--story=', label: 'Truyện gốc', desc: 'Cho biết truyện gốc đã kết thúc hay còn dang dở. Bỏ trống thì hệ thống hỏi khi cần.', opts: [{ v: 'open', label: 'Còn dở', note: 'Truyện còn dang dở, sẽ viết tiếp' }, { v: 'closed', label: 'Đã kết', note: 'Truyện đã có kết thúc' }], none: 'Để hỏi' },
+      { k: 'cont', tok: '--continue', kind: 'flag', flag: '--continue', label: 'Viết tiếp ngay', hint: 'Nhập xong thì viết tiếp luôn', desc: 'Nhập xong thì bắt đầu viết tiếp, không cần lệnh khác.' },
+      { k: 'guide', tok: '--guide=<hướng-dẫn>', kind: 'text', pre: '--guide=', label: 'Hướng dẫn chia chương', desc: 'Nói bằng lời thường cách chia chương. Luôn đặt cuối cùng — mọi chữ phía sau đều được tính là hướng dẫn.', ph: 'Hồi thứ X cũng là chương độc lập' }
+    ],
+    ex: [
+      { vals: { path: 'nhap/tra-xanh.txt' }, text: 'Nhập và xem trước cách chia chương trước khi đồng ý.' },
+      { vals: { path: 'nhap/tra-xanh.txt', yes: true, story: 'open', cont: true }, text: 'Nhập, tự đồng ý, báo truyện còn dở và viết tiếp ngay.' },
+      { vals: { path: '', guide: 'Hồi thứ X cũng là chương độc lập' }, text: 'Chia lại chương cho lần nhập đang dở theo hướng dẫn của bạn.' },
+      { vals: { path: '' }, text: 'Tiếp tục lần nhập bị dừng giữa chừng.' }
+    ],
+    after: ['Đọc tệp và đề xuất cách chia chương', 'Nhấn y để đồng ý, hoặc Esc rồi chạy lại kèm --guide để chia khác', 'Ghi lại nhân vật, tuyến truyện và tóm tắt từng chương'],
+    log: [{ cat: 'Hệ thống', text: 'Đã chia 42 chương từ nhap/tra-xanh.txt · nhấn y để xác nhận' }],
+    errs: [
+      { msg: '--story chỉ nhận giá trị open hoặc closed: "mo"', fix: 'Gõ --story=open hoặc --story=closed.' },
+      { msg: 'chỉ nhận một đường dẫn tệp nguồn: thừa "moi.txt"', fix: 'Mỗi lần nhập một tệp. Tên tệp có khoảng trắng thì đổi tên cho liền, ví dụ tra-xanh-moi.txt.' },
+      { msg: 'tùy chọn không hợp lệ "--auto"', fix: 'Chỉ có --yes, --story=, --continue và --guide=.' },
+      { msg: '--guide cần kèm hướng dẫn ngôn ngữ tự nhiên…', fix: 'Ghi hướng dẫn ngay sau dấu =.' }
+    ],
+    tip: 'Truyện dài? Lần đầu đừng dùng --yes — xem cách chia chương trước sẽ đỡ phải nhập lại.', rel: ['start', 'sync', 'simulate'], kw: 'nhap truyen cu co san viet tiep import file' },
+  reopen: { usage: '/reopen [hướng-viết-tiếp]', title: 'Mở lại truyện đã xong để viết tiếp', idle: true,
+    lead: 'Truyện đã hoàn thành nhưng bạn muốn viết thêm? /reopen mở lại truyện để viết tiếp. Có thể ghi kèm hướng bạn muốn, trợ lý sẽ cân nhắc trước khi lên kế hoạch.',
+    when: ['Muốn viết thêm tập mới sau kết thúc', 'Kết thúc chưa ưng, muốn kéo dài mạch truyện'], avoid: ['Truyện chưa hoàn thành — không cần mở lại', 'Còn chương sửa tay chưa tiếp nhận — chạy /sync trước'],
+    params: [{ k: 'dir', tok: '[hướng-viết-tiếp]', kind: 'text', label: 'Hướng viết tiếp', desc: 'Mô tả bằng lời thường. Bỏ trống thì trợ lý tự lên hướng đi.', ph: 'Viết thêm tập 2: nữ chính trở về quê', init: 'Viết thêm tập 2: nữ chính trở về quê' }],
+    ex: [{ vals: { dir: '' }, text: 'Mở lại, để trợ lý tự lên hướng đi.' }, { vals: { dir: 'Viết thêm tập 2: nữ chính trở về quê' }, text: 'Mở lại và gợi ý hướng cho tập mới.' }],
+    after: ['Truyện chuyển từ Hoàn thành sang Đang viết', 'Hướng bạn ghi (nếu có) được xét trước khi lên kế hoạch', 'Kiến trúc sư lên dàn ý tập tiếp theo rồi viết tiếp'],
+    log: [{ cat: 'Hệ thống', text: 'Đã mở lại truyện để viết tiếp' }],
+    errs: [{ msg: 'Phát hiện chương đã bị sửa ngoài ứng dụng: [3]; hãy chạy /sync trước', fix: 'Chạy /sync để tiếp nhận chỗ sửa, rồi /reopen lại.' }, { msg: 'Đang đồng sáng tác, hãy kết thúc trước', fix: 'Kết thúc phiên đồng sáng tác rồi thử lại.' }],
+    tip: 'Muốn sửa lại vài chương thay vì viết thêm? Chỉ cần nói trong ô chat, ví dụ “viết lại chương 12”.', rel: ['sync', 'cocreate', 'export'], kw: 'mo lai viet them tap moi hoan thanh ket thuc' },
+  cocreate: { usage: '/cocreate', alias: 'plan', title: 'Cùng bàn hướng đi giai đoạn tới', auto: true, only: 'Chỉ khi đang viết',
+    lead: 'Tạm dừng viết để bạn và Kiến trúc sư trò chuyện, chốt hướng đi cho giai đoạn tiếp theo, rồi mới viết tiếp.',
+    when: ['Sắp sang tập hoặc giai đoạn mới', 'Thấy mạch truyện lệch, muốn chỉnh trước khi viết thêm'], avoid: ['Truyện đã hoàn thành — dùng /reopen', 'Chưa có truyện nào đang viết'],
+    params: [], ex: [{ vals: {}, text: 'Tạm dừng và vào phòng đồng sáng tác.' }, { vals: {}, slash: '/plan', text: 'Tên ngắn, làm đúng việc như /cocreate.' }],
+    after: ['Trợ lý viết xong bước đang dở rồi tạm dừng', 'Bạn và Kiến trúc sư trao đổi trong ô chat', 'Chốt xong, Noverse viết tiếp theo hướng mới'],
+    log: [{ cat: 'Hệ thống', text: 'Đã vào đồng sáng tác giai đoạn' }],
+    errs: [{ msg: 'Đồng sáng tác giai đoạn chỉ khả dụng khi đang viết truyện', fix: 'Mở hoặc tạo một truyện trước.' }, { msg: 'Không thể vào đồng sáng tác: truyện đã hoàn thành hoặc đang trong đồng sáng tác', fix: 'Truyện đã xong thì dùng /reopen. Đang đồng sáng tác rồi thì cứ tiếp tục trò chuyện.' }],
+    tip: 'Ô chat trống, nhấn Tab cũng chuyển nhanh giữa chế độ Nhanh và Đồng sáng tác.', rel: ['reopen', 'diag'], kw: 'dong sang tac ban bac quy hoach ke hoach plan huong di' },
+  simulate: { usage: '/simulate', title: 'Học văn phong từ văn mẫu', idle: true,
+    lead: 'Thêm vài đoạn văn bạn thích vào Văn mẫu (Tuỳ chỉnh › Cách viết › Văn phong của bạn). Noverse đọc chúng rồi tạo hoặc cập nhật hồ sơ văn phong để các chương sau viết theo giọng đó.',
+    when: ['Muốn truyện mang giọng văn riêng', 'Vừa thêm văn mẫu mới'], avoid: ['Chưa có văn mẫu nào', 'Trợ lý đang viết — lệnh sẽ bị từ chối'],
+    params: [], ex: [{ vals: {}, text: 'Đọc các văn mẫu và tạo hồ sơ văn phong.' }],
+    after: ['Đọc mọi văn mẫu bạn đã thêm', 'Tạo hoặc cập nhật hồ sơ văn phong', 'Các chương viết sau sẽ theo giọng văn này'],
+    log: [{ cat: 'Hệ thống', text: 'Đã cập nhật hồ sơ văn phong từ 6 văn mẫu' }],
+    errs: [{ msg: 'Khởi động mô phỏng văn phong thất bại: …', fix: 'Thường do chưa có văn mẫu. Thêm ít nhất một đoạn văn mẫu rồi chạy lại.' }],
+    tip: 'Văn mẫu càng đa dạng cảnh (đối thoại, miêu tả, hành động) thì hồ sơ càng sát giọng.', rel: ['importsim'], kw: 'van phong giong van mo phong van mau hoc' },
+  importsim: { usage: '/importsim <tệp-profile.json>', title: 'Nhập hồ sơ văn phong có sẵn', idle: true,
+    lead: 'Dùng lại hồ sơ văn phong đã tạo ở truyện khác hoặc do người khác gửi. Nếu hồ sơ được tạo từ cùng bộ văn mẫu, Noverse gộp vào hồ sơ hiện có thay vì tạo bản trùng.',
+    when: ['Muốn nhiều truyện dùng chung một giọng văn', 'Được chia sẻ một hồ sơ văn phong'], avoid: ['Chưa có tệp hồ sơ — dùng /simulate để tạo'],
+    params: [{ k: 'path', tok: '<tệp-profile.json>', kind: 'path', req: true, label: 'Tệp hồ sơ', desc: 'Tệp hồ sơ văn phong, thường có đuôi .json.', ph: 'van-phong/co-trang.json', init: 'van-phong/co-trang.json' }],
+    ex: [{ vals: { path: 'van-phong/co-trang.json' }, text: 'Nhập hồ sơ văn phong cổ trang.' }],
+    after: ['Đọc tệp hồ sơ', 'Gộp vào hồ sơ cùng nguồn, hoặc thêm hồ sơ mới'], log: [{ cat: 'Hệ thống', text: 'Đã nhập hồ sơ văn phong co-trang.json' }],
+    errs: [{ msg: 'Nhập hồ sơ mô phỏng thất bại: …', fix: 'Kiểm tra lại đường dẫn và tệp có đúng là hồ sơ văn phong.' }],
+    tip: 'Hồ sơ văn phong là tệp nhỏ, gửi qua tin nhắn được — tiện để cả nhóm viết cùng một giọng.', rel: ['simulate'], kw: 'nhap ho so van phong profile json' },
+  sync: { usage: '/sync [--check]', title: 'Nhận chỉnh sửa bạn tự làm', auto: true, idle: true,
+    lead: 'Bạn sửa trực tiếp tệp chương bằng một ứng dụng khác? /sync giúp Noverse đọc lại, cập nhật tóm tắt và sự thật cốt truyện, đồng thời báo nếu chỗ sửa mâu thuẫn với các chương sau.',
+    when: ['Vừa sửa tay một vài chương', 'Trước khi /reopen hoặc viết tiếp sau khi sửa'], avoid: ['Trợ lý đang viết — lệnh sẽ bị từ chối'],
+    params: [{ k: 'check', tok: '[--check]', kind: 'flag', flag: '--check', label: 'Chỉ kiểm tra', hint: 'Chỉ liệt kê chương đã bị sửa', desc: 'Chỉ liệt kê chương nào đã bị sửa, chưa tiếp nhận gì.', defText: 'Không ghi: tiếp nhận luôn mọi chỗ sửa' }],
+    ex: [{ vals: { check: true }, text: 'Xem chương nào đã bị sửa, chưa thay đổi gì.' }, { vals: {}, text: 'Tiếp nhận mọi chỗ sửa và cập nhật cốt truyện.' }],
+    after: ['So từng chương với bản Noverse đã lưu', 'Tóm tắt lại chỗ sửa, cập nhật sự thật cốt truyện', 'Báo các mâu thuẫn ở chương sau (nếu có)'],
+    log: [{ cat: 'Hệ thống', text: 'Đã tiếp nhận tu chỉnh các chương: [3 7]; Chương 3: đổi tên quán trà (sự thật cốt truyện đã cập nhật); Chương 7: thêm cảnh mưa (phát hiện 1 xung đột phía sau)' }],
+    errs: [{ msg: 'tham số không hợp lệ "--dry" (hỗ trợ: --check)', fix: 'Chỉ có --check, hoặc không ghi gì.' }, { msg: 'Không phát hiện chương nào bị chỉnh sửa từ bên ngoài', fix: 'Không phải lỗi — không có gì cần tiếp nhận.' }],
+    tip: 'Sửa trong Trình đọc trên web thì không cần /sync — chỉ cần khi bạn sửa bằng ứng dụng khác.', rel: ['diag', 'reopen'], kw: 'dong bo sua tay chinh sua ngoai cap nhat' },
+  export: { usage: '/export [đường-dẫn|txt|epub|narration] [from=N] [to=M] [--overwrite|--keep] [doc-so]', title: 'Xuất truyện ra văn bản, ebook hoặc bản đọc TTS', auto: true,
+    lead: 'Gom các chương đã hoàn thành thành một tệp để đọc, gửi hoặc đăng. Đuôi .txt cho văn bản thường, .epub cho sách điện tử. Gõ narration để có bản đọc TTS: không tiêu đề chương, không in nghiêng hay in đậm, các chương cách nhau hai dòng trống.',
+    when: ['Muốn đọc truyện trên điện thoại hoặc máy đọc sách', 'Gửi bản thảo cho người khác', 'Sao lưu một đoạn chương'], avoid: ['Cần audio — dùng màn Audio'],
+    params: [
+      { k: 'path', tok: '[đường-dẫn]', kind: 'path', label: 'Lưu vào', desc: 'Tên tệp hoặc thư mục. Đuôi tệp quyết định định dạng: .txt hoặc .epub. Gõ txt, epub hoặc narration để chọn định dạng mà không cần đặt tên.', ph: 'exports/tra-xanh.epub', init: 'exports/tra-xanh.epub', defText: 'Trống: lưu vào thư mục truyện, đặt tên theo tên truyện, dạng .txt' },
+      { k: 'from', tok: 'from=N', kind: 'num', pre: 'from=', label: 'Từ chương', desc: 'Chương đầu tiên cần xuất.', ph: '1', init: '1', defText: 'Trống: từ chương đầu' },
+      { k: 'to', tok: 'to=M', kind: 'num', pre: 'to=', label: 'Đến chương', desc: 'Chương cuối cùng cần xuất. Chương chưa viết xong trong khoảng sẽ được bỏ qua và báo lại.', ph: '24', init: '30', defText: 'Trống: tới chương mới nhất đã xong' },
+      { k: 'ow', tok: '--overwrite', kind: 'flag', flag: '--overwrite', label: 'Ghi đè tệp cũ', hint: 'Thay tệp trùng tên nếu đã có', desc: 'Cho phép thay tệp trùng tên. Không ghi cờ nào thì gặp tệp đã có sẽ dừng lại để không mất bản cũ.' },
+      { k: 'keep', tok: '--keep', kind: 'flag', flag: '--keep', label: 'Giữ cả hai', hint: 'Thêm ngày giờ vào tên tệp mới', desc: 'Gặp tệp trùng tên thì giữ bản cũ, lưu bản mới với ngày giờ thêm vào tên. Không dùng chung với --overwrite.' },
+      { k: 'docso', tok: 'doc-so', kind: 'flag', flag: 'doc-so', label: 'Đọc số thành chữ', hint: 'Chỉ cho bản đọc TTS', desc: 'Viết số thành chữ để giọng đọc AI đọc đúng, ví dụ 18 thành mười tám.' }
+    ],
+    ex: [
+      { vals: { path: '', from: '', to: '' }, text: 'Xuất mọi chương đã xong thành tệp .txt trong thư mục truyện.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '' }, text: 'Xuất ebook EPUB để đọc trên điện thoại.' },
+      { vals: { path: 'exports/', from: '1', to: '12' }, text: 'Xuất chương 1–12 vào thư mục exports.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '', ow: true }, text: 'Xuất lại, thay bản EPUB cũ.' },
+      { vals: { path: 'exports/tra-xanh.epub', from: '', to: '', keep: true }, text: 'Xuất lại nhưng giữ bản cũ, bản mới có thêm ngày giờ trong tên.' },
+      { vals: { path: 'narration', from: '', to: '', docso: true }, text: 'Xuất bản đọc TTS, viết số thành chữ.' }
+    ],
+    after: ['Gom các chương đã hoàn thành trong khoảng bạn chọn', 'Định dạng theo đuôi tệp (.txt, .epub) hoặc theo chữ narration', 'Ghi xong mới thay tệp, nên lỡ lỗi giữa chừng cũng không hỏng bản cũ'],
+    log: [{ cat: 'Hệ thống', text: 'Đang tiến hành xuất bản...' }, { cat: 'Hệ thống', text: '✓ Đã xuất 24 chương (1,2 MB) vào exports/tra-xanh.epub (bỏ qua 6 chương chưa hoàn thành: 25…30)' }],
+    errs: [
+      { msg: 'tệp đã tồn tại: exports/tra-xanh.epub (dùng --overwrite để ghi đè)', fix: 'Thêm --overwrite để thay, --keep để giữ cả hai, hoặc đổi tên tệp.' },
+      { msg: 'chỉ dùng một trong --overwrite hoặc --keep', fix: 'Bỏ một trong hai cờ.' },
+      { msg: 'khoảng chương không hợp lệ: from=30 > to=12', fix: 'Số from phải nhỏ hơn hoặc bằng to.' },
+      { msg: 'không suy ra được định dạng từ đuôi ".pdf" (hỗ trợ .txt / .epub)', fix: 'Chỉ xuất được .txt hoặc .epub.' },
+      { msg: 'khoảng 25..30 không có chương hoàn thành', fix: 'Các chương này chưa viết xong. Chọn khoảng khác.' }
+    ],
+    tip: 'Ghi thư mục (kết thúc bằng /) thay vì tên tệp, Noverse tự đặt tên theo tên truyện.', rel: ['sync', 'reopen'], kw: 'xuat tai xuong luu file epub txt ebook in gui ban thao' }
+};
+const ORDER = ['help', 'model', 'config', 'diag', 'review', 'next', 'start', 'import', 'reopen', 'cocreate', 'simulate', 'importsim', 'sync', 'export'];
+const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
+function usageToks(u) {
+  return u.split(' ').map((w, i) => {
+    let c = SOFT;
+    if (i === 0) c = PUR;
+    else if (w.indexOf('--') >= 0 || /^\[?\w+=/.test(w)) c = ORA;
+    else if (w[0] === '<' || (w[0] !== '[' && w.indexOf('|') >= 0)) c = MINT;
+    return { t: (i ? ' ' : '') + w, c };
+  });
+}
+function initVals(k) { const o = {}; C[k].params.forEach((p) => { o[p.k] = p.init !== undefined ? p.init : (p.kind === 'flag' ? false : ''); }); return o; }
+function compose(k, v, slash) {
+  const d = C[k]; const toks = [{ t: slash || ('/' + k), c: PUR }];
+  d.params.forEach((p) => {
+    const x = v[p.k];
+    if (p.kind === 'flag') { if (x) toks.push({ t: ' ' + p.flag, c: ORA }); return; }
+    const s = String(x == null ? '' : x).trim(); if (!s) return;
+    if (p.pre) { toks.push({ t: ' ' + p.pre, c: ORA }); toks.push({ t: s, c: MINT }); }
+    else toks.push({ t: ' ' + s, c: MINT });
+  });
+  return toks;
+}
+function check(k, v, busy) {
+  const d = C[k]; const infos = []; let err = '', warn = '';
+  d.params.forEach((p) => { if (p.req && !String(v[p.k] || '').trim()) err = err || ('Còn thiếu ' + p.label.toLowerCase() + ' (' + p.tok + ').'); });
+  if (k !== 'start') d.params.forEach((p) => { if (p.kind === 'path' && /\s/.test(String(v[p.k] || '').trim())) err = err || 'Đường dẫn có khoảng trắng sẽ bị tách làm nhiều phần. Đổi tên tệp cho liền, ví dụ tra-xanh-moi.txt.'; });
+  if (k === 'export') {
+    const path = String(v.path || '').trim(); const f = parseInt(v.from, 10), t = parseInt(v.to, 10);
+    const lo = isNaN(f) ? 1 : f, hi = isNaN(t) ? BOOK.done : t;
+    const ext = path && !path.endsWith('/') ? ((path.match(/\.[^./]+$/) || [''])[0].toLowerCase()) : '';
+    if (!isNaN(f) && !isNaN(t) && f > t) err = err || ('khoảng chương không hợp lệ: from=' + f + ' > to=' + t);
+    else if (ext && ext !== '.txt' && ext !== '.epub') err = err || ('Không xuất được đuôi ' + ext + ' — chỉ hỗ trợ .txt hoặc .epub.');
+    else if (lo > BOOK.done) err = err || ('Khoảng ' + lo + '..' + hi + ' không có chương hoàn thành (mới xong tới chương ' + BOOK.done + ').');
+    if (!err) {
+      const fmt = ext === '.epub' ? 'ebook EPUB' : 'văn bản TXT';
+      const where = !path ? 'thư mục truyện, tên “' + BOOK.title + '.txt”' : (path.endsWith('/') ? 'thư mục ' + path + ', tên theo tên truyện' : path);
+      infos.push('Sẽ tạo ' + fmt + ' trong ' + where + '.');
+      const top = Math.min(hi, BOOK.done);
+      infos.push('Gồm chương ' + lo + '–' + top + (hi > BOOK.done ? ' · bỏ qua chương ' + (BOOK.done + 1) + '–' + hi + ' vì chưa viết xong.' : '.'));
+      if (!v.ow) infos.push('Nếu tệp đã có, lệnh sẽ dừng để giữ bản cũ.');
+    }
+  }
+  if (k === 'import') {
+    if (!String(v.path || '').trim()) infos.push('Không ghi tệp: tiếp tục lần nhập đang dở.');
+    if (!v.yes) infos.push('Hệ thống sẽ cho xem cách chia chương, nhấn y để đồng ý.');
+  }
+  if (k === 'importsim' && v.path && !/\.json$/i.test(String(v.path).trim())) warn = 'Hồ sơ văn phong thường là tệp .json — kiểm tra lại tên tệp.';
+  if (k === 'start') warn = 'Chỉ chạy ở màn hình chào mừng. Đang mở truyện thì dùng màn Truyện mới.';
+  if (k === 'review' && v.mode === 'on') infos.push('Viết xong chương 25, trợ lý sẽ dừng chờ /next.');
+  if (k === 'reopen') infos.push('“' + BOOK.title + '” cần ở trạng thái Hoàn thành mới mở lại được.');
+  if (k === 'sync' && v.check) infos.push('Chỉ liệt kê, không thay đổi gì.');
+  if (busy && d.idle) warn = 'Trợ lý đang viết chương 25 — lệnh này sẽ bị từ chối cho tới khi hệ thống rảnh.';
+  return { err, warn, infos };
+}
+
+// icons used: i-category-b i-book-b i-headphone-b i-setting-b
+const MTAB_KEYS = ['write', 'read', 'listen', 'more'];
+function mtabs(active, dots) {
+  dots = dots || {};
+  return [['write', 'Viết', 'MWork.dc.html', 'i-category'], ['read', 'Đọc', 'MReader.dc.html', 'i-book'], ['listen', 'Nghe', 'MAudio.dc.html', 'i-headphone'], ['more', 'Thêm', 'MMore.dc.html', 'i-setting']].map(([k, label, href, icon]) => {
+    const on = k === active; return { label, href, icon: on ? icon + '-b' : icon, cls: on ? 'on' : '', cur: on ? 'page' : 'false', ic: on ? '#C9A6F5' : 'currentColor', dot: !!dots[k] };
+  });
+}
+function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
+
+const PATHS = { export: [['exports/tra-xanh.epub', 'EPUB'], ['exports/', 'Thư mục exports']], import: [['nhap/tra-xanh.txt', 'tra-xanh.txt']] };
+const NUMS = { from: [['1', '1'], ['13', '13']], to: [['12', '12'], ['24', '24']] };
+const MOBILE_HIDE = ['config', 'start', 'simulate', 'importsim'];
+const SHORT = { help: 'Hướng dẫn lệnh', model: 'Đổi model trợ lý', diag: 'Khám sức khoẻ truyện', review: 'Duyệt từng chương', next: 'Viết chương tiếp', import: 'Nhập truyện có sẵn', reopen: 'Mở lại truyện đã xong', cocreate: 'Bàn hướng đi tới', sync: 'Nhận chỗ sửa tay', export: 'Xuất TXT / EPUB' };
+const RICH = ['cocreate', 'import', 'diag', 'sync', 'reopen'];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; this.lastY = 0; }
+  fresh(props) { const st = props.state || 'running';
+    const status = ({ gate: 'gate', idle: 'idle', paused: 'paused', done: 'done', error: 'error', empty: 'empty' })[st] || 'running';
+    return { status, sheet: ({ cmd: 'cmd', cmdArgs: 'cmd', jobs: 'jobs', pause: 'pause', expired: 'expired' })[st] || null, closing: false, cmdK: st === 'cmdArgs' ? 'export' : null, q: '', vals: st === 'cmdArgs' ? { path: 'exports/tra-xanh.epub', from: '', to: '', ow: false } : {},
+      p: 0.48, text: st === 'typing' ? 'Cho Tri Hạ xuất hiện lại ở chương 26, giữ giọng châm biếm nhẹ' : (st === 'offline' ? '' : ''), typing: st === 'typing', toast: '', toastLink: false, ex: 0.62, au: 0.38,
+      offline: st === 'offline', retry: 4, queue: st === 'offline' ? 'Cho Tri Hạ xuất hiện lại ở chương 26' : '', down: false, pw: '' }; }
+  componentDidMount() { this.iv = setInterval(() => { const s = this.state; const p = {}; if (s.status === 'running' && !s.offline) p.p = s.p >= 0.99 ? 0.12 : s.p + 0.002; if (!s.offline) { p.ex = Math.min(1, s.ex + 0.003); p.au = Math.min(1, s.au + 0.0012); }
+    this.tk = (this.tk || 0) + 1; if (s.offline && this.tk % 7 === 0) p.retry = s.retry <= 1 ? 5 : s.retry - 1; this.setState(p); }, 140); }
+  componentWillUnmount() { clearInterval(this.iv); this.tm.forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (prev.state !== this.props.state) this.setState(this.fresh(this.props)); }
+  later(f, ms) { this.tm.push(setTimeout(f, ms)); }
+  close(after) { this.setState({ closing: true }); this.later(() => this.setState(Object.assign({ sheet: null, closing: false, cmdK: null, q: '' }, after || {})), 260); }
+  toast(t, link) { this.setState({ toast: t, toastLink: !!link }); this.later(() => { if (this.state.toast === t) this.setState({ toast: '' }); }, 2800); }
+  tabMode() { const s = this.state; if (s.typing || s.sheet === 'expired') return 'hide'; return s.down ? 'mini' : ''; }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p); const st = s.status; const busy = st === 'running';
+    const steps = ['Đọc bối cảnh', 'Viết bản nháp', 'Soát nhất quán', 'Biên tập chấm điểm', 'Lưu chương'];
+    const si = Math.min(4, Math.floor(s.p * 5));
+    const wSt = { running: s.offline ? '—' : steps[si], gate: 'Chờ bạn duyệt', idle: 'Đang chờ', paused: 'Đã tạm dừng', done: 'Đã xong', error: 'Dừng do lỗi' }[st] || '';
+    const AGS = [['writer', 'Người viết', wSt, '154,99,227', st === 'error' ? '#FFB3BA' : '#DCC8F8'], ['architect', 'Kiến trúc sư', st === 'done' ? 'Đã xong' : 'Chờ lệnh', '124,147,243', ''], ['editor', 'Biên tập viên', st === 'done' ? 'Đã xong' : 'Chờ chương 25', '236,149,72', ''], ['arbiter', 'Trọng tài', s.queue ? 'Chờ góp ý' : 'Gọi khi cần', '93,193,176', '']];
+    const ORB_IN = 'inset -3px -5px 10px rgba(0,0,0,.28), inset 2px 3px 6px rgba(255,255,255,.4)';
+    const agents = AGS.map(([k, name, stx, rgb, fg], i) => { const on = i === 0 && busy && !s.offline; return { on, shim: on ? 'agshim' : '', cls: on ? 'on' : '', rgb, orb: 'o-' + k, name, st: stx, stFg: (i === 0 && fg) ? fg : '#8E8E99', live: on ? 'live' : '', glow: ORB_IN + (on ? ', 0 0 14px rgba(' + rgb + ',0.6)' : ''), wash: 'radial-gradient(120% 140% at 0% 50%, rgba(' + rgb + ',' + (on ? 0.18 : 0.05) + '), transparent 70%)', bd: on ? 'rgba(' + rgb + ',0.35)' : 'rgba(255,255,255,0.06)' }; });
+    const q = norm(s.q).trim(); const keys = ORDER.filter((k) => MOBILE_HIDE.indexOf(k) < 0);
+    const match = (k) => { if (!q) return true; const d = C[k]; return norm(['/' + k, d.title, SHORT[k] || '', d.kw].join(' ')).indexOf(q) >= 0; };
+    const cmdGroups = GROUPS.map((g) => ({ label: g.label, items: g.cmds.filter((k) => keys.indexOf(k) >= 0 && match(k)).map((k) => { const d = C[k]; return { slash: '/' + k, title: SHORT[k] || d.title, idle: !!d.idle, idleText: busy && d.idle ? 'Cần rảnh · đang viết' : 'Cần hệ thống rảnh', idleFg: busy && d.idle ? '#F6CB8C' : '#7E7E8A', pick: () => set({ cmdK: k, vals: initVals(k) }) }; }) })).filter((g) => g.items.length);
+    const k = s.cmdK; const d = k ? C[k] : null; const v = k ? Object.assign(initVals(k), s.vals) : {};
+    const setV = (key, val) => set({ vals: Object.assign({}, v, { [key]: val }) });
+    const params = d ? d.params.map((p) => {
+      const cur = v[p.k]; const base = { label: p.label, tok: p.kind === 'flag' ? p.flag : p.tok.replace(/^\[|\]$/g, ''), c: (p.kind === 'flag' || p.pre) ? ORA : MINT, desc: p.desc, isText: p.kind === 'text', hasChips: p.kind !== 'text', val: cur || '', ph: p.ph || '', onInput: (e) => setV(p.k, e.target.value), chips: [] };
+      const chip = (label, val, on) => ({ label, on, cls: on ? 'on' : '', pick: () => setV(p.k, on && !p.req ? (p.kind === 'flag' ? false : '') : val) });
+      if (p.kind === 'enum') base.chips = (p.req ? [] : [chip(p.none || 'Không ghi', '', !cur)]).concat(p.opts.map((o) => chip(o.label, o.v, cur === o.v)));
+      if (p.kind === 'flag') base.chips = [chip(p.hint, true, !!cur)];
+      if (p.kind === 'path') base.chips = (p.req ? [] : [chip('Không ghi', '', !cur)]).concat((PATHS[k] || []).map(([x, l]) => chip(l, x, cur === x)));
+      if (p.kind === 'num') base.chips = [chip('Không ghi', '', !cur)].concat((NUMS[p.k] || []).map(([x, l]) => chip((p.pre || '') + l, x, cur === x)));
+      return base; }) : [];
+    const examples = d ? d.ex.slice(0, 2).filter((e) => !e.slash).map((e) => { const ev = Object.assign({}, d.params.reduce((o, p) => { o[p.k] = p.kind === 'flag' ? false : ''; return o; }, {}), e.vals); return { toks: compose(k, ev), text: e.text, use: () => set({ vals: ev }) }; }) : [];
+    const lineToks = k ? compose(k, v) : []; const line = lineToks.map((t) => t.t).join('');
+    const ck = k ? check(k, v, busy) : { err: '', warn: '', infos: [] };
+    const blocked = !!ck.err || (busy && d && d.idle);
+    const stt = ck.err ? { fg: '#FFC9CE', icon: 'i-warning', text: ck.err } : (busy && d && d.idle ? { fg: ORA, icon: 'i-timer', text: 'Cần hệ thống rảnh — chờ chương 25 xong hoặc tạm dừng.' } : { fg: MINT, icon: 'i-tick', text: (ck.infos[0] || 'Đúng cú pháp.') });
+    const exDeg = Math.round(s.ex * 360);
+    const jobs = [
+      { icon: 'i-export', c: '#A6EDC1', title: s.ex >= 1 ? 'Đã xuất EPUB' : 'Xuất EPUB', sub: s.ex >= 1 ? '24 chương · 1,2 MB · bấm để tải' : 'Chương ' + Math.ceil(s.ex * 24) + '/24', meta: Math.round(s.ex * 100) + '%', w: (s.ex * 100).toFixed(1) + '%', ring: { pv: Math.round(s.ex * 100), c: '#A6EDC1' }, chip: '#141416' },
+      { icon: 'i-voice', c: '#C9A6F5', title: 'Tạo giọng Tập 1', sub: 'Chương ' + Math.ceil(s.au * 12) + '/12 · còn khoảng ' + Math.ceil((1 - s.au) * 18) + ' phút', meta: Math.round(s.au * 100) + '%', w: (s.au * 100).toFixed(1) + '%', ring: { pv: Math.round(s.au * 100), c: '#C9A6F5' }, chip: '#141416' }
+    ];
+    const empty = st === 'empty'; const hasText = !!s.text.trim();
+    const kbRows = [[10, 10, '6px'], [9, 9, '22px'], [9, 9, '6px'], [4, 4, '6px']].map(([n, , pad], ri) => ({ pad, keys: ri === 3 ? ['1.4', '1.2', '5', '1.4'] : Array.from({ length: n }, () => '1') }));
+    return {
+      tabs: mtabs('write', { read: st === 'gate' }), tabInd: mtabInd('write'), tabMode: this.tabMode(),
+      storyTitle: empty ? 'Noverse' : 'Trà Xanh Cướp Kịch Bản…', storySub: empty ? 'Chưa mở truyện nào' : (st === 'done' ? 'Hoàn thành · 30/30 chương' : 'Tập 1 · 24/30 chương'), hasJobs: !empty && st !== 'done',
+      offline: s.offline, retryText: 'Thử lại sau ' + s.retry + ' giây · máy vẫn chạy', retryNow: () => { set({ offline: false }); this.later(() => this.toast(s.queue ? 'Đã kết nối lại · đã gửi 1 góp ý' : 'Đã kết nối lại'), 50); this.setState({ queue: '' }); },
+      dimCls: s.offline ? 'dim' : '', empty, notEmpty: !empty,
+      onScroll: (e) => { const y = e.target.scrollTop; const down = y > 60 && y > this.lastY; if (down !== this.state.down && Math.abs(y - this.lastY) > 4) set({ down }); this.lastY = y; },
+      agents, h: { running: st === 'running', gate: st === 'gate', idle: st === 'idle', paused: st === 'paused', done: st === 'done', error: st === 'error' },
+      pct: Math.round(s.p * 100) + '%', stepText: 'Bước ' + (si + 1) + '/5 · ' + steps[si], stepShort: steps[si],
+      approve: () => { set({ status: 'running', p: 0.02 }); this.toast('Đã duyệt chương 24 · đang viết chương 25'); },
+      startNext: () => { set({ status: 'running', p: 0.02 }); this.toast('Đã chạy /next · viết chương 25'); },
+      resume: () => { set({ status: 'running' }); this.toast('Đã chạy tiếp'); }, focusNote: () => set({ typing: true }),
+      exportNow: () => { set({ sheet: 'cmd', cmdK: 'export', vals: initVals('export') }); }, retryErr: () => { set({ status: 'running' }); this.toast('Đang thử lại với gpt-6-luna'); },
+      hasQueue: !!s.queue, queued: '“' + s.queue + '”',
+      feed: (st === 'done' ? [['architect', 'Đóng mọi tuyến truyện', 'Kết tập 3', '23:12'], ['writer', 'Viết xong chương 30', '3.380 chữ', '23:10'], ['editor', 'Chấm chương 30: 8,8', 'Cao nhất truyện', '23:13']] : [['writer', 'Viết xong chương 24', '3.102 chữ', '21:52'], ['editor', 'Chấm chương 24: 8,1', '2 góp ý nhỏ về nhịp cảnh cuối', '21:53'], ['architect', 'Chuẩn bị chương 25', 'Đẩy tuyến “Chiếc vỏ ổ cứng”', '21:53'], ['arbiter', 'Nhận góp ý của bạn', 'Áp dụng từ chương 26', '21:40']]).map(([o, t, sub, time]) => ({ orb: 'o-' + o, t, s: sub, time })),
+      showComposer: !empty, typing: s.typing, chipsCls: (s.down || s.typing) ? 'off' : '',
+      cmpBottom: s.typing ? '300px' : '84px', cmpBg: s.typing ? '#0B0B0D' : 'linear-gradient(rgba(11,11,13,0), #0B0B0D 26%)', cmpRows: s.typing ? 3 : 1, cmpPh: s.offline ? 'Góp ý — sẽ gửi khi có mạng' : 'Góp ý cho truyện…',
+      quick: [['/next'], ['/diag'], ['/export'], ['/review']].map(([cmd]) => ({ cmd, label: SHORT[cmd.slice(1)], run: () => set({ sheet: 'cmd', cmdK: cmd.slice(1), vals: initVals(cmd.slice(1)) }) })),
+      text: s.text, onText: (e) => set({ text: e.target.value }), onFocus: () => set({ typing: true }), blur: () => set({ typing: false }),
+      sendOff: !hasText, sendBg: hasText ? '#EDEDEF' : '#2A2A2E', cmpBd: s.typing ? 'rgba(201,166,245,0.55)' : (s.text ? 'rgba(201,166,245,0.45)' : 'rgba(255,255,255,0.08)'), cmpGlow: s.typing ? '0 0 0 3px rgba(201,166,245,0.12)' : 'none',
+      send: () => { if (!hasText) return; const t = s.text.trim(); if (t[0] === '/') { set({ sheet: 'cmd', q: t.slice(1), text: '', typing: false }); return; } if (s.offline) { set({ text: '', typing: false, queue: t }); return; } set({ text: '', typing: false }); this.toast('Đã gửi góp ý · Trọng tài sẽ xét'); },
+      openCmd: () => set({ sheet: 'cmd', cmdK: null, q: '', typing: false }), openJobs: () => set({ sheet: 'jobs' }), pauseAsk: () => set({ sheet: 'pause' }),
+      jobRing: { pv: Math.round(s.ex * 100), c: '#A6EDC1' }, jobsAria: '2 việc chạy nền — mở',
+      kbRows, toast: !!s.toast, toastText: s.toast, toastLink: s.toastLink,
+      sheetOpen: !!s.sheet, scrimOut: s.closing ? 'out' : '', sheetOut: s.closing ? 'out' : '', closeSheet: () => { if (s.sheet !== 'expired') this.close(); },
+      sh: { cmd: s.sheet === 'cmd', jobs: s.sheet === 'jobs', pause: s.sheet === 'pause', expired: s.sheet === 'expired' },
+      cmdList: !k, cmdArgs: !!k, q: s.q, onQ: (e) => set({ q: e.target.value }), cmdGroups, noCmd: cmdGroups.length === 0, noCmdText: 'Không có lệnh nào khớp “' + s.q + '”',
+      cd: d ? { slash: '/' + k, title: d.title, lead: d.lead, noParams: d.params.length === 0, tip: d.tip, hasEx: examples.length > 0 && d.params.length > 0 } : { slash: '', title: '', lead: '', noParams: false, tip: '', hasEx: false }, backCmd: () => set({ cmdK: null }),
+      params, examples, lineToks, stFg: stt.fg, stIcon: stt.icon, stText: stt.text, runOff: blocked, runLabel: ck.err ? 'Chưa chạy được' : (busy && d && d.idle ? 'Đợi hệ thống rảnh' : 'Chạy ' + (k ? '/' + k : '')),
+      runCmd: () => { if (blocked) return; this.close(); this.toast('Đã chạy ' + line, RICH.indexOf(k) >= 0); },
+      jobs, doPause: () => { this.close({ status: 'paused' }); this.toast('Sẽ tạm dừng sau bước ' + steps[si]); }, doPauseNow: () => { this.close({ status: 'paused' }); this.toast('Đã dừng Người viết'); },
+      pw: s.pw, onPw: (e) => set({ pw: e.target.value }), pwOff: s.pw.length < 8, relogin: () => { this.close(); this.toast('Đã đăng nhập lại · góp ý vẫn còn trong ô chat'); this.setState({ text: 'Cho Tri Hạ xuất hiện lại ở chương 26…' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

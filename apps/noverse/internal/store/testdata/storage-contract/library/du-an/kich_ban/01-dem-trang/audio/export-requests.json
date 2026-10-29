@@ -1,0 +1,17 @@
+{
+  "requests": [
+    {
+      "volume": 1,
+      "bookTitle": "Đêm Trắng Trên Kệ Sách",
+      "source": [{"chapter": 1}],
+      "options": {"format": "mp3"},
+      "state": "done",
+      "createdAt": "2026-01-07T11:00:00Z",
+      "updatedAt": "2026-01-07T11:05:00Z",
+      "result": {
+        "files": [{"path": "xuat-ban/tap-01/dem-trang.tap-01.mp3", "bytes": 0}],
+        "durationSec": 12.5
+      }
+    }
+  ]
+}

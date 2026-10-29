@@ -1,0 +1,22 @@
+{
+  "id": "wr-thread-overdue",
+  "category": "quality",
+  "role": "writer",
+  "description": "Chương 3: phục bút loi_hoi_1979 đã quá hạn thu (due_by=2) mà vẫn mở. Kết quả novel_context phải nhắc tuyến này kèm lý do quá hạn, để Người viết biết mà đẩy hoặc thu.",
+  "prompt": "Viết chương 3",
+  "fixture": "wr-thread-overdue",
+  "instruction": {
+    "agent": "writer",
+    "task": "Viết chương 3"
+  },
+  "control": false,
+  "expect": {
+    "context_contains": [
+      "loi_hoi_1979",
+      "quá hạn thu"
+    ]
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "title": "Ga tàu cuối chiều",
+  "premise": "Mai, ba mươi hai tuổi, dọn lại căn phòng trọ cũ ở Hà Nội trước ngày chuyển về quê sống cùng mẹ. Giữa đống đồ cũ, cô tìm thấy tấm vé tàu Hà Nội — Hải Phòng mười năm trước. Chương 3 chứa một đoạn hồi tưởng được đánh dấu rõ ràng về buổi chia tay ở ga Hàng Cỏ; đoạn hồi tưởng khép lại và truyện quay về hiện tại. Các dữ kiện trong hồi tưởng (mưa, áo xanh, vé một chiều) không mâu thuẫn hiện tại.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Căn phòng trọ cuối phố",
+      "core_event": "Mai thông báo với chủ nhà sẽ trả phòng cuối tháng; cô bắt đầu dọn đồ sau mười năm ở trọ.",
+      "hook": "Trong ngăn kéo cũ, Mai tìm thấy hộp thiếc đựng những món đồ cô quên mất.",
+      "scenes": ["Phòng trọ", "Hành lang nhà trọ"],
+      "hook_type": "discovery"
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc hộp thiếc",
+      "core_event": "Mai mở hộp thiếc: bưu thiếp cũ, dải ruy băng xanh, và tấm vé tàu một chiều Hà Nội — Hải Phòng của mười năm trước.",
+      "hook": "Tấm vé kéo theo một ký ức cô chưa từng kể cho ai.",
+      "scenes": ["Phòng trọ buổi chiều"],
+      "hook_type": "memory"
+    },
+    {
+      "chapter": 3,
+      "title": "Hồi tưởng: ga Hàng Cỏ mười năm trước",
+      "core_event": "Một đoạn hồi tưởng được đánh dấu rõ: mười năm trước, tại ga Hàng Cỏ dưới trời mưa, Mai tiễn Long lên tàu một chiều về Hải Phòng; hai người không hẹn gặp lại. Quay về hiện tại, Mai xếp tấm vé vào hộp quyết định giữ.",
+      "hook": "Mai nhận ra mình không còn buồn khi nhớ lại buổi chia tay ấy nữa.",
+      "scenes": ["Phòng trọ hiện tại", "Ga Hàng Cỏ mười năm trước (hồi tưởng)"],
+      "hook_type": "closure"
+    },
+    {
+      "chapter": 4,
+      "title": "Chuyện kể cho mẹ",
+      "core_event": "Mai gọi điện cho mẹ, lần đầu kể về Long và buổi chia tay; mẹ chỉ nói 'về đi con'.",
+      "hook": "Mai quyết định giữ lại hộp thiếc thay vì vứt.",
+      "scenes": ["Phòng trọ tối", "Điện thoại"],
+      "hook_type": "emotional",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 5,
+      "title": "Những thùng đồ cuối",
+      "core_event": "Mai phân loại đồ: giữ, tặng, vứt; chủ nhà tới nhận phòng, hai người ôn lại mười năm.",
+      "hook": "Cô chủ nhà tặng lại Mai chậu lan cô gửi ở ban công.",
+      "scenes": ["Phòng trọ", "Ban công nhà trọ"],
+      "hook_type": "farewell"
+    },
+    {
+      "chapter": 6,
+      "title": "Chuyến tàu ngược chiều",
+      "core_event": "Mai lên tàu về quê; trên tàu cô gặp một cụ già cũng về quê sau nhiều năm đi xa.",
+      "hook": "Cụ già nói 'về quê không bao giờ là muộn'.",
+      "scenes": ["Ga Hàng Cỏ hiện tại", "Toa tàu"],
+      "hook_type": "journey"
+    },
+    {
+      "chapter": 7,
+      "title": "Nhà mẹ",
+      "core_event": "Mai về tới nhà mẹ ở quê; hai mẹ con dọn lại phòng cũ của cô.",
+      "hook": "Mai đặt hộp thiếc lên kệ đầu giường, vị trí nó từng ở hồi cô còn nhỏ.",
+      "scenes": ["Nhà quê", "Phòng cũ của Mai"],
+      "hook_type": "homecoming"
+    },
+    {
+      "chapter": 8,
+      "title": "Tấm vé giữ lại",
+      "core_event": "Mai kể hết cho mẹ về tấm vé một chiều và người đã đi; mẹ bảo 'vé một chiều của người ta, vé khứ hồi của con'.",
+      "hook": "Sáng hôm sau, Mai bắt đầu công việc mới ở trạm y tế xã.",
+      "scenes": ["Nhà quê", "Trạm y tế"],
+      "hook_type": "closing"
+    }
+  ],
+  "characters": [
+    {
+      "id": "mai",
+      "name": "Mai",
+      "role": "nhân vật chính, y tá ba mươi hai tuổi",
+      "kind": "lead",
+      "description": "Làm y tá ở Hà Nội mười năm, quyết định về quê sống cùng mẹ và làm việc ở trạm y tế xã. Sống nội tâm, giữ nhiều kỷ vật.",
+      "arc": "Từ người tránh nhìn lại quá khứ đến người dám mở hộp thiếc.",
+      "traits": ["chu đáo", "ít khóc trước mặt người khác", "nhớ lâu"]
+    },
+    {
+      "id": "long",
+      "name": "Long",
+      "role": "người yêu cũ của Mai, chỉ xuất hiện trong hồi tưởng",
+      "kind": "support",
+      "description": "Mười năm trước rời Hà Nội về Hải Phòng theo công việc của bố. Không có liên lạc sau buổi chia tay.",
+      "arc": "Một trang ký ức được đóng lại đúng cách.",
+      "traits": ["trầm", "hay cầm đồ hộ người khác", "không hứa điều không chắc"]
+    },
+    {
+      "id": "me-mai",
+      "name": "mẹ Mai",
+      "role": "mẹ của Mai ở quê",
+      "kind": "support",
+      "description": "Ở quê một mình sau khi bố mất. Muốn con về nhưng chưa bao giờ ép.",
+      "arc": "Đợi con bằng cách giữ nguyên căn phòng cũ.",
+      "traits": ["kiên nhẫn", "nói ít ý nhiều"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Đời thường; không có yếu tố kỳ huyễn. Hồi tưởng phải được đánh dấu rõ trong văn bản.",
+      "boundary": "Không để đoạn hồi tưởng trôi thành hiện tại; kết thúc hồi tưởng phải quay về hiện tại rõ ràng."
+    },
+    {
+      "category": "geography",
+      "rule": "Hiện tại ở Hà Nội và quê Mai; hồi tưởng ở ga Hàng Cỏ mười năm trước.",
+      "boundary": "Không chèn thêm bối cảnh nước ngoài."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Căn phòng trọ cuối phố",
+        "summary": "Mai báo trả phòng cuối tháng và bắt đầu dọn đồ sau mười năm ở trọ. Cuối chương, cô tìm thấy chiếc hộp thiếc cũ trong ngăn kéo.",
+        "characters": ["Mai"],
+        "key_events": ["Mai quyết định trả phòng", "Mai tìm thấy hộp thiếc kỷ vật"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Chiếc hộp thiếc",
+        "summary": "Mai mở hộp thiếc: bưu thiếp, dải ruy băng xanh và tấm vé tàu một chiều Hà Nội — Hải Phòng của mười năm trước. Tấm vé gợi một ký ức cô chưa từng kể cho ai.",
+        "characters": ["Mai"],
+        "key_events": ["Mai mở hộp thiếc", "Tấm vé một chiều lộ ra"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Hồi tưởng: ga Hàng Cỏ mười năm trước",
+        "summary": "Trong một đoạn hồi tưởng được đánh dấu rõ ràng, Mai nhớ lại buổi chia tay Long tại ga Hàng Cỏ mười năm trước dưới trời mưa: Long mặc áo xanh, giữ vé một chiều về Hải Phòng, hai người không hẹn gặp lại. Quay về hiện tại, Mai xếp tấm vé vào hộp đồ quyết định giữ và nhận ra mình không còn buồn nữa.",
+        "characters": ["Mai", "Long"],
+        "key_events": ["Đoạn hồi tưởng có đánh dấu về buổi chia tay mười năm trước", "Mai giữ lại tấm vé", "Mai nhận ra mình đã nguôi"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "hiện tại, đầu tháng",
+      "event": "Mai báo trả phòng và bắt đầu dọn đồ.",
+      "characters": ["Mai"]
+    },
+    {
+      "chapter": 2,
+      "time": "hiện tại, chiều hôm sau",
+      "event": "Mai mở hộp thiếc và tìm thấy tấm vé tàu một chiều mười năm trước.",
+      "characters": ["Mai"]
+    },
+    {
+      "chapter": 3,
+      "time": "hiện tại, tối cùng ngày",
+      "event": "Mai nhớ lại (hồi tưởng) buổi chia tay Long ở ga Hàng Cỏ mười năm trước; trở về hiện tại, cô xếp vé vào hộp giữ lại.",
+      "characters": ["Mai", "Long"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 3,
+      "updates": [
+        {"id": "ve-khu-hoi", "action": "plant", "description": "Ý tưởng 'vé khứ hồi' gieo từ quyết định giữ vé của Mai; mẹ sẽ nói câu chốt ở chương 8."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "Mai", "field": "status", "new_value": "quyết định trả phòng, chuyển về quê", "reason": "muốn sống gần mẹ"},
+    {"chapter": 3, "entity": "tấm vé tàu", "field": "location", "old_value": "hộp thiếc trong ngăn kéo", "new_value": "hộp đồ giữ lại", "reason": "Mai quyết định giữ kỷ vật"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Căn phòng trọ cuối phố",
+      "goal": "Mai quyết định trả phòng và bắt đầu dọn đồ.",
+      "conflict": "Mười năm đồ đạc là mười năm ký ức.",
+      "hook": "Hộp thiếc bị quên lãng.",
+      "contract": {
+        "required_beats": ["Mai báo trả phòng", "Tìm thấy hộp thiếc"],
+        "emotion_target": "bâng khuâng"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Chiếc hộp thiếc",
+      "goal": "Mai mở hộp thiếc, tìm thấy tấm vé một chiều.",
+      "conflict": "Ký ức cũ trở lại khi cô đang muốn đóng gói quá khứ.",
+      "hook": "Tấm vé gợi ký ức chưa kể.",
+      "contract": {
+        "required_beats": ["Mở hộp thiếc", "Lộ tấm vé Hà Nội — Hải Phòng"],
+        "continuity_checks": ["Vé là vé một chiều của Long, Mai giữ lại từ buổi tiễn"],
+        "emotion_target": "xúc động"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Hồi tưởng: ga Hàng Cỏ mười năm trước",
+      "goal": "Đoạn hồi tưởng có đánh dấu về buổi chia tay; quay về hiện tại, Mai giữ vé và nhận ra mình đã nguôi.",
+      "conflict": "Mai phải đối diện ký ức để biết mình còn buồn hay không.",
+      "hook": "Nhận ra mình không còn buồn.",
+      "contract": {
+        "required_beats": ["Hồi tưởng được đánh dấu rõ", "Quay về hiện tại rõ ràng", "Mai xếp vé vào hộp giữ lại"],
+        "continuity_checks": ["Trong hồi tưởng Long rời đi — Long không ở hiện tại; đó là ký ức, không phải lỗi"],
+        "emotion_target": "thanh thản"
+      }
+    }
+  ]
+}

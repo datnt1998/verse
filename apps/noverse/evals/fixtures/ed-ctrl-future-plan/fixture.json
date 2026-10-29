@@ -1,0 +1,216 @@
+{
+  "title": "Sổ đỏ phố Cự Đà",
+  "premise": "Nga, ba mươi tuổi, thừa hưởng tiệm thuốc nam của cụ nội ở phố Cự Đà cùng mảnh giấy sổ đỏ ghi tên cụ. Cậu Thịnh — người chú họ hàng xa — muốn lấy căn tiệm để mở nhà hàng, ra sức ép Nga bán. Ở chương 3, Nga tuyên bố Ý ĐỊNH đốt sổ đỏ thà chịu cháy sổ còn hơn giao căn tiệm; việc thật sự đốt sổ chỉ xảy ra ở chương 5 theo đại cương. Ý định không phải hành động đã xảy ra.",
+  "total_chapters": 8,
+  "outline": [
+    {
+      "chapter": 1,
+      "title": "Căn tiệm thừa hưởng",
+      "core_event": "Cụ nội mất, Nga nhận tiệm thuốc nam cùng sổ đỏ ghi tên cụ; cậu Thịnh xuất hiện đề nghị mua lại căn tiệm.",
+      "hook": "Cậu Thịnh ám chỉ sổ đỏ của cụ có vấn đề về giấy tờ.",
+      "scenes": ["Tiệm thuốc nam buổi sáng", "Phòng khách nhà cậu Thịnh"],
+      "hook_type": "threat"
+    },
+    {
+      "chapter": 2,
+      "title": "Áp lực đầu tiên",
+      "core_event": "Cậu Thịnh ép Nga bán tiệm bằng cách rêu rao rằng sổ đỏ không hợp lệ; Nga từ chối bán.",
+      "hook": "Cậu Thịnh nói sẽ tìm cách khiến Nga phải bán dù muốn hay không.",
+      "scenes": ["Tiệm thuốc", "Đường phố Cự Đà"],
+      "hook_type": "confrontation"
+    },
+    {
+      "chapter": 3,
+      "title": "Lời thề trước di ảnh",
+      "core_event": "Trước di ảnh cụ nội, Nga tuyên bố ý định: nếu bị ép tới cùng, cô sẽ đốt sổ đỏ thà chịu mất giấy tờ còn hơn giao căn tiệm cho cậu Thịnh — nhưng cô chưa đốt.",
+      "hook": "Nga giấu sổ đỏ vào chỗ chỉ mình cô biết.",
+      "scenes": ["Gian thờ nhà Nga", "Bếp nhà Nga buổi tối"],
+      "hook_type": "vow"
+    },
+    {
+      "chapter": 4,
+      "title": "Giấy tờ thật giả",
+      "core_event": "Nga đi xác minh sổ đỏ, phát hiện giấy tờ của cụ hoàn toàn hợp lệ; tin đồn của cậu Thịnh chỉ là nghiệp vụ ép giá.",
+      "hook": "Cậu Thịnh cử người đến hỏi thuê mặt bằng với giá gấp ba.",
+      "scenes": ["Văn phòng đăng ký đất", "Tiệm thuốc"],
+      "hook_type": "reveal"
+    },
+    {
+      "chapter": 5,
+      "title": "Ngọn lửa trong sân",
+      "core_event": "Bị ép tới cùng, Nga thật sự đốt bản photo sổ đỏ trước mặt cậu Thịnh để tuyên bố quyết tâm — sổ gốc cô vẫn giữ nguyên.",
+      "hook": "Cậu Thịnh choáng vì nước đi của Nga, lui về tính kế khác.",
+      "scenes": ["Sân sau tiệm thuốc", "Quán nước đối diện"],
+      "hook_type": "climax",
+      "midpoint_twist": true
+    },
+    {
+      "chapter": 6,
+      "title": "Người hàng xóm đứng về phía",
+      "core_event": "Hàng xóm phố Cự Đà biết chuyện, đứng về phía Nga; cậu Thịnh bị cô lập trong thương lượng.",
+      "hook": "Cậu Thịnh đề nghị một thỏa thuận chia doanh thu thay vì mua đứt.",
+      "scenes": ["Sân chung khu phố", "Tiệm thuốc"],
+      "hook_type": "alliance"
+    },
+    {
+      "chapter": 7,
+      "title": "Thỏa thuận không cần giấy",
+      "core_event": "Nga từ chối chia doanh thu; cậu Thịnh nhận thua, rút lui khỏi ý định mua tiệm.",
+      "hook": "Nga quyết định mở lớp dạy bốc thuốc miễn phí cho đám nhỏ khu phố.",
+      "scenes": ["Tiệm thuốc", "Sân chung"],
+      "hook_type": "resolution"
+    },
+    {
+      "chapter": 8,
+      "title": "Tiệm thuốc sáng đèn",
+      "core_event": "Lớp học bốc thuốc mở đầu; Nga treo lại tấm biển cụ nội; sổ đỏ vẫn nằm nguyên trong tủ.",
+      "hook": "Tiếng chuông cửa vang lên báo khách đầu tiên của buổi sáng mới.",
+      "scenes": ["Tiệm thuốc", "Phố Cự Đà sáng sớm"],
+      "hook_type": "closing"
+    }
+  ],
+  "characters": [
+    {
+      "id": "nga",
+      "name": "Nga",
+      "role": "nhân vật chính, người thừa hưởng tiệm thuốc nam",
+      "kind": "lead",
+      "description": "Ba mươi tuổi, học nghề từ cụ nội từ nhỏ. Giỏi chẩn mạch, ít nói, nhưng khi đã quyết thì cứng đầu không ai cản.",
+      "arc": "Từ người muốn giữ yên đến người dám đốt sổ để giữ tiệm.",
+      "traits": ["cứng đầu", "chu đáo", "trọng lời hứa với cụ"]
+    },
+    {
+      "id": "cau-thinh",
+      "name": "cậu Thịnh",
+      "role": "chú họ hàng xa, muốn lấy căn tiệm mở nhà hàng",
+      "kind": "antagonist",
+      "description": "Năm mươi tuổi, từng mở nhiều nhà hàng thất bại. Thấy vị trí tiệm thuốc đẹp nên ra sức ép Nga bán.",
+      "arc": "Từ áp bức đến nhận ra mình không thắng nổi người không sợ mất.",
+      "traits": ["khôn vặt", "hay đe dọa gián tiếp", "sợ mất mặt"]
+    },
+    {
+      "id": "cu-noi",
+      "name": "cụ nội",
+      "role": "ông nội Nga, chủ tiệm thuốc vừa mất",
+      "kind": "support",
+      "description": "Người lập tiệm thuốc nam bốn mươi năm trước. Chỉ hiện diện qua di ảnh và ký ức của Nga.",
+      "arc": "Di sản của cụ là phép thử cho cháu gái.",
+      "traits": ["nghiêm khắc", "thương cháu theo cách riêng"]
+    }
+  ],
+  "world_rules": [
+    {
+      "category": "society",
+      "rule": "Bối cảnh đời thường; tranh chấp giải quyết bằng giấy tờ và áp lực xã hội, không có bạo lực.",
+      "boundary": "Không đưa vào giang hồ, siêu nhiên hay âm mưu giết người."
+    },
+    {
+      "category": "geography",
+      "rule": "Toàn bộ ở phố Cự Đà và một số cơ quan hành chính lân cận.",
+      "boundary": "Không mở bối cảnh tỉnh thành khác."
+    }
+  ],
+  "completed": [
+    {
+      "chapter": 1,
+      "summary": {
+        "chapter": 1,
+        "title": "Căn tiệm thừa hưởng",
+        "summary": "Cụ nội mất. Nga nhận lại tiệm thuốc nam và sổ đỏ ghi tên cụ. Cậu Thịnh — chú họ hàng xa — đến đề nghị mua lại căn tiệm để mở nhà hàng, ngầm ám chỉ giấy tờ của cụ có vấn đề.",
+        "characters": ["Nga", "cậu Thịnh"],
+        "key_events": ["Nga thừa hưởng tiệm thuốc và sổ đỏ", "Cậu Thịnh đề nghị mua tiệm và ám chỉ giấy tờ có vấn đề"]
+      }
+    },
+    {
+      "chapter": 2,
+      "summary": {
+        "chapter": 2,
+        "title": "Áp lực đầu tiên",
+        "summary": "Cậu Thịnh rêu rao rằng sổ đỏ của cụ không hợp lệ để ép Nga bán rẻ. Nga từ chối bán. Cậu Thịnh tuyên bố sẽ tìm cách khiến cô phải bán.",
+        "characters": ["Nga", "cậu Thịnh"],
+        "key_events": ["Cậu Thịnh rêu tin đồn sổ đỏ không hợp lệ", "Nga từ chối bán tiệm"]
+      }
+    },
+    {
+      "chapter": 3,
+      "summary": {
+        "chapter": 3,
+        "title": "Lời thề trước di ảnh",
+        "summary": "Trước di ảnh cụ nội, Nga tuyên bố ý định: nếu bị ép tới cùng, cô sẽ đốt sổ đỏ thà chịu mất giấy tờ còn hơn giao tiệm cho cậu Thịnh — nhưng cô chưa đốt. Sau đó cô giấu sổ đỏ vào chỗ chỉ mình cô biết.",
+        "characters": ["Nga"],
+        "key_events": ["Nga tuyên bố ý định sẽ đốt sổ đỏ nếu bị ép tới cùng", "Nga giấu sổ đỏ vào chỗ bí mật"]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "chapter": 1,
+      "time": "sáng sau tang lễ cụ",
+      "event": "Nga nhận tiệm thuốc và sổ đỏ; cậu Thịnh đến đề nghị mua.",
+      "characters": ["Nga", "cậu Thịnh"]
+    },
+    {
+      "chapter": 2,
+      "time": "vài ngày sau",
+      "event": "Cậu Thịnh rêu tin đồn sổ đỏ không hợp lệ; Nga từ chối bán.",
+      "characters": ["Nga", "cậu Thịnh"]
+    },
+    {
+      "chapter": 3,
+      "time": "tối cùng tuần",
+      "event": "Nga tuyên bố ý định sẽ đốt sổ nếu bị ép tới cùng; cô giấu sổ đỏ vào chỗ bí mật.",
+      "characters": ["Nga"]
+    }
+  ],
+  "foreshadow": [
+    {
+      "chapter": 3,
+      "updates": [
+        {"id": "cho-giau-so-do", "action": "plant", "description": "Chỗ giấu sổ đỏ chỉ Nga biết; sẽ lộ ra khi cần chứng minh ở chương sau."}
+      ]
+    }
+  ],
+  "state_changes": [
+    {"chapter": 1, "entity": "sổ đỏ", "field": "own", "old_value": "cụ nội", "new_value": "Nga", "reason": "thừa kế"},
+    {"chapter": 1, "entity": "tiệm thuốc nam", "field": "own", "old_value": "cụ nội", "new_value": "Nga", "reason": "thừa kế"},
+    {"chapter": 3, "entity": "sổ đỏ", "field": "location", "new_value": "giấu trong chỗ bí mật chỉ Nga biết", "reason": "Nga sợ cậu Thịnh ép đòi giấy tờ"}
+  ],
+  "chapter_plans": [
+    {
+      "chapter": 1,
+      "title": "Căn tiệm thừa hưởng",
+      "goal": "Nga nhận tiệm và sổ đỏ; cậu Thịnh xuất hiện đề nghị mua.",
+      "conflict": "Cậu Thịnh muốn lấy mặt bằng đẹp, ngầm ép giấy tờ.",
+      "hook": "Ám chỉ giấy tờ có vấn đề.",
+      "contract": {
+        "required_beats": ["Nga thừa hưởng tiệm và sổ đỏ", "Cậu Thịnh đề nghị mua"],
+        "continuity_checks": ["Sổ đỏ ghi tên cụ nội, chuyển qua Nga hợp lệ"],
+        "emotion_target": "lo âu"
+      }
+    },
+    {
+      "chapter": 2,
+      "title": "Áp lực đầu tiên",
+      "goal": "Cậu Thịnh ép Nga bán bằng tin đồn; Nga từ chối.",
+      "conflict": "Tin đồn khiến khách hàng xôn xao.",
+      "hook": "Cậu Thịnh dọa sẽ ép tới cùng.",
+      "contract": {
+        "required_beats": ["Tin đồn sổ đỏ không hợp lệ", "Nga từ chối bán"],
+        "continuity_checks": ["Sổ đỏ vẫn nguyên, chưa ai đốt"],
+        "emotion_target": "bức xúc"
+      }
+    },
+    {
+      "chapter": 3,
+      "title": "Lời thề trước di ảnh",
+      "goal": "Nga tuyên bố ý định sẽ đốt sổ nếu bị ép tới cùng; chưa đốt.",
+      "conflict": "Nga phải quyết định mức độ hy sinh để giữ tiệm.",
+      "hook": "Nga giấu sổ vào chỗ bí mật.",
+      "contract": {
+        "required_beats": ["Nga nói ý định đốt sổ", "Nga giấu sổ đỏ"],
+        "continuity_checks": ["Sổ đỏ chưa bị đốt ở chương này; việc đốt sổ (bản photo) diễn ra ở chương 5 theo đại cương"],
+        "emotion_target": "quyết tâm"
+      }
+    }
+  ]
+}

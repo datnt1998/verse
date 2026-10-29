@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Góp ý — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.fbban{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.5}
+.fbban b{font-weight:600}
+.fbban.s{background:rgba(185,208,247,.07);border:1px solid rgba(185,208,247,.22);color:#C8D3F8;align-items:center}
+.fbban.a{background:rgba(201,166,245,.07);border:1px solid rgba(201,166,245,.25);color:#EDEDEF}
+.bpill{height:26px;padding:0 10px;border-radius:999px;border:1px solid transparent;font-size:12.5px;cursor:pointer}
+.bpill.f{background:rgba(166,237,193,.1);color:#BDF0CF}.bpill.p{background:rgba(201,166,245,.12);color:#DCC8F8}.bpill.w{background:rgba(246,203,140,.14);color:#F6CB8C;border-color:rgba(246,203,140,.35)}
+.bpill:hover{filter:brightness(1.15)}
+.gdot{width:8px;height:8px;border-radius:50%}
+.gdot.p{background:#C9A6F5}.gdot.s{background:#9DB0F7}.gdot.f{background:#A6EDC1}
+.gdot.mv{background:transparent;box-shadow:inset 0 0 0 2px #C9A6F5}
+mark.mk{color:inherit;background:transparent;border-radius:3px;cursor:pointer;text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:5px;transition:background .2s}
+mark.mk.p{text-decoration-color:rgba(201,166,245,.75);background:rgba(201,166,245,.07)}
+mark.mk.s{text-decoration-color:rgba(157,176,247,.55);text-decoration-style:dotted}
+mark.mk.f{text-decoration-color:rgba(166,237,193,.55);background:rgba(166,237,193,.06)}
+mark.mk.mv{text-decoration-style:dashed}
+mark.mk.on{background:rgba(201,166,245,.2)}mark.mk.f.on{background:rgba(166,237,193,.16)}
+.cbadge{position:absolute;right:8px;top:-11px;height:20px;padding:0 8px;border-radius:6px;background:#3A2E1A;color:#F6CB8C;font-family:'Be Vietnam Pro',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center}
+.attach{margin-top:8px;height:30px;padding:0 12px;border-radius:8px;border:none;background:#F6CB8C;color:#1A1408;font-family:'Be Vietnam Pro',sans-serif;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.fgrp{display:flex;flex-direction:column;gap:8px}
+.ghd2{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:0 2px;font-size:12px;color:#8E8E99}
+.ghd2 b{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#C9C9D1}
+.gdot2{width:7px;height:7px;border-radius:50%;align-self:center}
+.ghd2.w .gdot2{background:#F6CB8C}.ghd2.w b{color:#F6CB8C}.ghd2.p .gdot2{background:#C9A6F5}.ghd2.s .gdot2{background:#9DB0F7}.ghd2.f .gdot2{background:#A6EDC1}
+.fcard{border-radius:12px;background:#141416;border:1px solid rgba(255,255,255,.07);padding:10px 12px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s,background .2s}
+.fcard.w{border-color:rgba(246,203,140,.28);background:rgba(246,203,140,.035)}
+.fcard[data-open="true"]{border-color:rgba(201,166,245,.45)}
+.fcard.w[data-open="true"]{border-color:rgba(246,203,140,.6)}
+.fhit{display:flex;flex-direction:column;gap:6px;padding:0;border:none;background:transparent;color:#EDEDEF;text-align:left;font:inherit;cursor:pointer}
+.fhd{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fchip{height:20px;padding:0 8px;border-radius:6px;font-size:11.5px;font-weight:500;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.fchip.p{background:rgba(201,166,245,.14);color:#DCC8F8}.fchip.s{background:rgba(157,176,247,.12);color:#C8D3F8}.fchip.f{background:rgba(166,237,193,.12);color:#BDF0CF}.fchip.w{background:rgba(246,203,140,.16);color:#F6CB8C}.fchip.d{background:rgba(255,255,255,.06);color:#A0A0AB}
+.fq{font-family:Literata,Georgia,serif;font-size:13px;line-height:1.55;color:#B8B8C2;font-style:italic}
+.fq.gone{text-decoration:line-through;text-decoration-color:rgba(246,203,140,.55);color:#8E8E99}
+.fbody{font-size:13px;line-height:1.5;color:#EDEDEF}
+.ftag{height:20px;padding:0 7px;border-radius:6px;background:rgba(255,255,255,.05);color:#A0A0AB;font-size:11px;display:inline-flex;align-items:center}
+.facts{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn{height:28px;padding:0 11px;border-radius:8px;font-size:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EDEDEF;white-space:nowrap}
+.fbtn.pri{background:#EDEDEF;color:#0B0B0D;border-color:transparent;font-weight:600}
+.fcard.w .fbtn.pri{background:#F6CB8C;color:#1A1408}
+.fbtn.txt{border-color:transparent;color:#A0A0AB}
+.fbtn:hover{filter:brightness(1.1)}
+.ba{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:10px;background:#0F0F11}
+.ba>div{display:flex;flex-direction:column;gap:2px}
+.lbl2{font-size:11px;color:#7E7E8A;letter-spacing:.04em}
+.ba .old{font-family:Literata,Georgia,serif;font-size:13px;line-height:1.55;color:#8E8E99;text-decoration:line-through;text-decoration-color:rgba(255,154,162,.5)}
+.ba .new{font-family:Literata,Georgia,serif;font-size:13px;line-height:1.55;color:#CDEFD9}
+.cand{display:flex;align-items:center;gap:8px;padding:8px;border-radius:10px;background:#0F0F11;border:1px solid rgba(246,203,140,.2)}
+.cbadge2{flex:0 0 auto;height:20px;padding:0 7px;border-radius:6px;background:#3A2E1A;color:#F6CB8C;font-size:11px;font-weight:600;display:flex;align-items:center}
+.histrow{display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.1);background:transparent;color:#A0A0AB;font-size:12.5px;text-align:left}
+.hrow{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.02)}
+.mp{position:relative;padding:6px 10px 6px 16px;border-radius:12px;transition:background .2s,box-shadow .2s}
+.mp p{margin:0;font-family:'Literata',Georgia,serif;font-size:18px;line-height:1.75;color:#D6D6DC}
+.mdots{position:absolute;left:3px;top:14px;display:flex;flex-direction:column;gap:4px}
+.mdots .gdot{width:7px;height:7px}
+.mp.whole{box-shadow:inset 3px 0 0 #C9A6F5;background:rgba(201,166,245,.05)}
+.mp.cand{box-shadow:0 0 0 1.5px rgba(246,203,140,.55);background:rgba(246,203,140,.05);margin-top:10px}
+.mp.pickable{cursor:pointer}
+.mp.pickable.hov{box-shadow:0 0 0 1.5px rgba(246,203,140,.7);background:rgba(246,203,140,.08)}
+.mp .cbadge{right:10px}
+.mpick{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin:0 12px 6px;padding:10px 12px;border-radius:14px;background:#2A2114;border:1px solid rgba(246,203,140,.35);font-size:13.5px;line-height:1.45;color:#F3E2C4}
+.fpill{position:absolute;left:50%;transform:translateX(-50%);bottom:98px;z-index:28;height:44px;padding:0 16px 0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(30,30,33,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#EDEDEF;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 14px 30px -10px rgba(0,0,0,.8)}
+.fpill.w{border-color:rgba(246,203,140,.45)}
+.fpill .pdot{width:8px;height:8px;border-radius:50%}
+.fbsheet .fcard{padding:12px 14px}
+.fbsheet .fbody{font-size:14.5px}
+.fbsheet .fq{font-size:14px}
+.fbsheet .fbtn{height:36px;padding:0 14px;font-size:13.5px;border-radius:10px}
+.fbsheet .ghd2{font-size:12.5px}
+.cand{flex-wrap:wrap;align-items:flex-start}
+.cand>span:nth-child(2){flex:1 1 calc(100% - 70px) !important}
+.cand .fbtn{margin-left:auto}
+.mattach{margin-top:8px;height:38px;padding:0 14px;border-radius:10px;border:none;background:#F6CB8C;color:#1A1408;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-book-b{-webkit-mask-image:url(../icons/book-1-bulk.svg);mask-image:url(../icons/book-1-bulk.svg)}
+.i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
+.i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
+.i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
+.i-link{-webkit-mask-image:url(../icons/link-2.svg);mask-image:url(../icons/link-2.svg)}
+.i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
+.i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar" style="gap: 6px">
+<a class="tap" href="MReader.dc.html" style="flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 10px 0 4px; color: #EDEDEF; text-decoration: none">
+<span style="min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 12px; color: #8E8E99">Tập 1 · chương 8/8</span><span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Tên tôi trên màn hình</span></span>
+<span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span></a>
+<button class="tap" type="button" aria-label="Cỡ chữ và kiểu chữ" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: #EDEDEF; font-family: 'Literata', Georgia, serif; font-size: 18px; flex: 0 0 auto">Aa</button>
+<a class="tap" href="MAudio.dc.html" aria-label="Nghe chương này" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-headphone" aria-hidden="true" style="width: 21px; height: 21px"></span></a>
+</header>
+<div aria-hidden="true" style="flex: 0 0 auto; height: 2px; background: rgba(255,255,255,0.05)"><span style="display: block; height: 100%; width: 36%; background: #C9A6F5"></span></div>
+<sc-if value="{{relinkOn}}" hint-placeholder-val="{{ false }}"><div class="mpick" role="status" style="margin-top: 8px"><span class="ic i-link" aria-hidden="true" style="width: 17px; height: 17px; color: #F6CB8C; flex: 0 0 auto"></span><span style="flex: 1 1 auto; min-width: 0"><b style="font-weight: 600">Chạm vào đoạn mới</b> cho góp ý “{{relinkBody}}”{{relinkHint}}</span><button class="tap" type="button" onClick="{{cancelRelink}}" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: transparent; color: #EDEDEF; font-size: 13.5px; flex: 0 0 auto">Huỷ</button></div></sc-if>
+
+<div class="mscroll rd-m" style="padding: 16px 12px 190px">
+<div style="padding: 0 10px 14px; display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Chương 8</span>
+<h1 style="margin: 0; font-family: 'Literata', Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1.3">Tên tôi trên màn hình</h1>
+<div style="display: flex; gap: 6px; align-items: center"><span style="height: 26px; padding: 0 10px; border-radius: 999px; background: {{stBg}}; color: {{stFg}}; font-size: 12.5px; display: flex; align-items: center">{{stLabel}}</span><span class="num" style="font-size: 13px; color: #8E8E99">7.182 chữ</span></div>
+</div>
+<sc-if value="{{bannerSent}}" hint-placeholder-val="{{ false }}"><div class="fbban s" role="status" style="margin: 0 10px 14px"><span class="spinner" aria-hidden="true" style="width: 15px; height: 15px; flex: 0 0 auto"></span><span style="flex: 1 1 auto; font-size: 13.5px"><b>Người viết đang sửa theo 5 góp ý.</b> Chương sẽ tự thay khi sửa xong.</span></div></sc-if>
+<sc-if value="{{bannerAfter}}" hint-placeholder-val="{{ false }}"><div class="fbban a" role="status" style="margin: 0 10px 14px; flex-direction: column; gap: 8px"><b style="font-size: 14px">Đã viết lại theo 5 góp ý</b><span style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{bannerPills}}" as="b" hint-placeholder-count="3"><button type="button" class="bpill {{b.cls}}" onClick="{{b.go}}" style="height: 32px; font-size: 13px">{{b.t}}</button></sc-for></span></div></sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px; opacity: {{textOp}}">
+<sc-for list="{{paras}}" as="p" hint-placeholder-count="7"><div class="mp {{p.cls}}" data-p="{{p.i}}" onClick="{{p.click}}">
+<span class="mdots" aria-hidden="true"><sc-for list="{{p.dots}}" as="d" hint-placeholder-count="1"><span class="gdot {{d.cls}}"></span></sc-for></span>
+<sc-if value="{{p.cand}}" hint-placeholder-val="{{ false }}"><span class="cbadge">{{p.candT}}</span></sc-if>
+<p><sc-for list="{{p.segs}}" as="g" hint-placeholder-count="1"><sc-if value="{{g.m}}" hint-placeholder-val="{{ false }}"><mark class="{{g.cls}}" onClick="{{g.go}}">{{g.t}}</mark></sc-if><sc-if value="{{g.plain}}" hint-placeholder-val="{{ true }}">{{g.t}}</sc-if></sc-for></p>
+<sc-if value="{{p.attachBtn}}" hint-placeholder-val="{{ false }}"><button type="button" class="mattach tap" onClick="{{p.attach}}"><span class="ic i-link" aria-hidden="true" style="width: 15px; height: 15px"></span>Gắn góp ý vào đoạn này</button></sc-if>
+</div></sc-for>
+</div>
+</div>
+
+<sc-if value="{{pillOn}}" hint-placeholder-val="{{ true }}"><button type="button" class="fpill tap {{pillCls}}" onClick="{{openSheet}}"><span class="pdot" aria-hidden="true" style="background: {{pillDot}}"></span>{{pillText}}<span class="ic i-arrow-up" aria-hidden="true" style="width: 15px; height: 15px; color: #8E8E99"></span></button></sc-if>
+<nav class="tabbar {{tabMode}}" aria-label="Điều hướng chính">
+<div class="tcap">
+<span class="tind" aria-hidden="true" style="left: {{tabInd}}; width: calc((100% - 10px) / 4)"></span>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><a class="tab tap {{t.cls}}" href="{{t.href}}" aria-current="{{t.cur}}"><span class="ic tic {{t.icon}}" aria-hidden="true" style="width: 24px; height: 24px; color: {{t.ic}}"></span><span class="tlab">{{t.label}}</span><sc-if value="{{t.dot}}" hint-placeholder-val="{{ false }}"><span class="dot" aria-label="Có việc cần bạn"></span></sc-if></a></sc-for>
+</div>
+</nav>
+
+
+<sc-if value="{{sheetOn}}" hint-placeholder-val="{{ false }}"><div class="scrim" aria-hidden="true" onClick="{{closeSheet}}"></div>
+<section class="sheet fbsheet" role="dialog" aria-label="Góp ý chương 8" style="height: 680px; padding-bottom: 0">
+<div class="grab" aria-hidden="true"></div>
+<div style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 4px 16px 10px"><b style="flex: 1; font-size: 18px; font-weight: 600">Góp ý chương 8</b><button class="tap" type="button" onClick="{{closeSheet}}" aria-label="Đóng" style="width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,0.07); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-add" aria-hidden="true" style="width: 17px; height: 17px; transform: rotate(45deg)"></span></button></div>
+<div class="mscroll fbscroll" style="padding: 0 14px 16px; display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{groups}}" as="gp" hint-placeholder-count="3"><sc-if value="{{gp.show}}" hint-placeholder-val="{{ true }}"><section class="fgrp" id="g-{{gp.k}}" aria-label="{{gp.title}}">
+<div class="ghd2 {{gp.tone}}"><span class="gdot2" aria-hidden="true"></span><b>{{gp.title}} · {{gp.n}}</b><sc-if value="{{gp.hasNote}}" hint-placeholder-val="{{ false }}"><span>{{gp.note}}</span></sc-if></div>
+<sc-for list="{{gp.cards}}" as="c" hint-placeholder-count="2"><div class="fcard {{c.tone}}" id="fc-{{c.id}}" data-open="{{c.openA}}">
+<button type="button" class="fhit" onClick="{{c.pick}}" aria-expanded="{{c.openA}}">
+<span class="fhd"><span class="fchip {{c.tone}}"><sc-if value="{{c.sending}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 10px; height: 10px"></span></sc-if>{{c.chipT}}</span><span class="num" style="font-size: 12px; color: #7E7E8A">{{c.at}}</span></span>
+<sc-if value="{{c.struck}}" hint-placeholder-val="{{ false }}"><span class="fq gone">{{c.quote}}</span></sc-if><sc-if value="{{c.plainQ}}" hint-placeholder-val="{{ true }}"><span class="fq">{{c.quote}}</span></sc-if>
+<span class="fbody">{{c.body}}</span>
+<sc-if value="{{c.hasTags}}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-wrap: wrap; gap: 5px"><sc-for list="{{c.tags}}" as="t" hint-placeholder-count="1"><span class="ftag">{{t.t}}</span></sc-for></span></sc-if>
+<sc-if value="{{c.isUnsureClosed}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #F3D9AE">{{c.unsureNote}}</span></sc-if>
+</button>
+<sc-if value="{{c.fix}}" hint-placeholder-val="{{ false }}"><div class="ba"><div><span class="lbl2">Trước</span><span class="old">{{c.before}}</span></div><div><span class="lbl2">Sau</span><span class="new">{{c.after}}</span></div><span style="font-size: 12px; color: #7E7E8A">{{c.how}}</span></div></sc-if>
+<sc-if value="{{c.hasCands}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #F3D9AE">Có thể là một trong các đoạn sau:</span><sc-for list="{{c.cands}}" as="k" hint-placeholder-count="2"><div class="cand"><span class="cbadge2">{{k.label}}</span><span style="flex: 1 1 auto; min-width: 0; font-size: 13.5px; color: #C9C9D1; line-height: 1.5">{{k.snip}}</span><button type="button" class="fbtn pri" onClick="{{k.go}}">Gắn vào đây</button></div></sc-for></div></sc-if>
+<sc-if value="{{c.hasActs}}" hint-placeholder-val="{{ false }}"><div class="facts"><sc-for list="{{c.acts}}" as="a" hint-placeholder-count="2"><button type="button" class="fbtn tap {{a.cls}}" onClick="{{a.go}}">{{a.t}}</button></sc-for></div></sc-if>
+</div></sc-for>
+</section></sc-if></sc-for>
+<button type="button" class="histrow" onClick="{{toggleHist}}" aria-expanded="{{histA}}" style="height: 44px; font-size: 14px"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px; color: #7E7E8A"></span><span style="flex: 1">Đã xử lý · {{doneN}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px; transform: {{histChev}}"></span></button>
+<sc-if value="{{hist}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px"><sc-for list="{{history}}" as="h" hint-placeholder-count="3"><div class="hrow"><span class="fq" style="font-size: 13.5px">{{h.q}}</span><span style="font-size: 13px; color: #8E8E99">{{h.body}} · {{h.at}}</span></div></sc-for></div></sc-if>
+</div>
+<sc-if value="{{foot}}" hint-placeholder-val="{{ false }}"><div style="flex: 0 0 auto; padding: 10px 16px 30px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 6px"><button type="button" class="mbtn pri tap" onClick="{{send}}">{{footLabel}}</button><span style="font-size: 12.5px; color: #8E8E99; text-align: center">{{footNote}}</span></div></sc-if>
+</section></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="top: 100px"><span class="ic i-tick" aria-hidden="true" style="width: 17px; height: 17px; color: #A6EDC1; flex: 0 0 auto"></span><span style="flex: 1">{{toast}}</span><sc-if value="{{toastAct}}" hint-placeholder-val="{{ false }}"><button type="button" class="tap" onClick="{{toastGo}}" style="height: 32px; padding: 0 12px; border-radius: 9px; border: none; background: rgba(246,203,140,0.16); color: #F6CB8C; font-size: 13.5px; font-weight: 600">Xem</button></sc-if></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"fb":{"editor":"enum","options":["pending","sheet","sent","after","afterSheet","fixed","unsure","relink"],"default":"after","section":"Góp ý (Gói AI)"},"$preview":{"width":390,"height":844}}'>
+// icons used: i-category-b i-book-b i-headphone-b i-setting-b
+const MTAB_KEYS = ['write', 'read', 'listen', 'more'];
+function mtabs(active, dots) {
+  dots = dots || {};
+  return [['write', 'Viết', 'MWork.dc.html', 'i-category'], ['read', 'Đọc', 'MReader.dc.html', 'i-book'], ['listen', 'Nghe', 'MAudio.dc.html', 'i-headphone'], ['more', 'Thêm', 'MMore.dc.html', 'i-setting']].map(([k, label, href, icon]) => {
+    const on = k === active; return { label, href, icon: on ? icon + '-b' : icon, cls: on ? 'on' : '', cur: on ? 'page' : 'false', ic: on ? '#C9A6F5' : 'currentColor', dot: !!dots[k] };
+  });
+}
+function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
+
+// Gói AI — dữ liệu và luật dùng chung cho Feedback (máy tính) và MFeedback (điện thoại):
+// cùng chương, cùng góp ý, cùng vị trí, cùng nhóm thẻ. Hai artboard chỉ khác cách bày.
+const FB_CH = { n: 8, next: 9, title: 'Tên tôi trên màn hình' };
+const FB_V1 = [
+  'Đèn trường quay bật lên cùng lúc, trắng đến mức tôi phải nheo mắt. Trên màn hình lớn phía sau sân khấu, tên tôi chạy thành một dòng chữ đỏ — đúng cái tên mà ba tháng trước người ta đã gạch khỏi kịch bản.',
+  'Nhược Vy đứng cách tôi hai bước, nụ cười vẫn còn nguyên, nhưng ngón tay cô đang siết chặt mép tờ giấy. Tôi biết tờ giấy đó. Tôi đã viết nó vào một đêm mất điện, bằng cây bút chì cùn duy nhất còn lại trong nhà.',
+  '“Mời khách mời đọc đoạn mở đầu,” người dẫn chương trình nói. Không ai nhìn tôi. Mọi máy quay đều đã quay về phía cô ấy.',
+  'Tôi bước lên, cầm lấy micro, và đọc — không phải bản trên tay cô, mà bản tôi vẫn thuộc lòng từng dấu phẩy.',
+  'Khán phòng im lặng đến mức tôi nghe được tiếng chiếc máy quay số ba xoay ống kính. Ở hàng ghế đầu, đạo diễn Hoài Châu đặt cốc trà xuống, chậm rãi, như thể sợ làm vỡ khoảnh khắc này.',
+  'Nhược Vy cười, rất khẽ. “Chị thuộc kịch bản của em kỹ thật đấy.” Câu nói nhẹ như gió, nhưng tôi thấy cổ tay cô run lên một nhịp.',
+  'Tôi không trả lời. Tôi chỉ lật trang cuối của bản gốc — trang mà chưa ai từng thấy — và đọc tiếp.'
+];
+const FB_V2 = [
+  FB_V1[0],
+  'Nhược Vy đứng cách tôi hai bước. Nụ cười vẫn trên môi, nhưng tờ giấy trong tay cô đã nhàu một góc — cô siết nó như người sắp ngã siết lấy lan can. Tôi biết tờ giấy đó. Tôi đã viết nó vào một đêm mất điện, bằng cây bút chì cùn duy nhất còn lại trong nhà.',
+  '“Mời khách mời đọc đoạn mở đầu.” Mọi máy quay đều quay về phía cô ấy.',
+  FB_V1[3],
+  'Khán phòng im lặng. Ở góc sân khấu, tiếng máy quay số ba xoay ống kính nghe rõ như tiếng lật trang.',
+  FB_V1[5],
+  'Ở hàng ghế đầu, đạo diễn Hoài Châu đặt cốc trà xuống, chậm rãi, như thể sợ làm vỡ khoảnh khắc này. Máy quay số ba lia theo tay ông.',
+  'Tôi không trả lời. Tôi rút từ túi áo một tờ giấy gấp tư, mép đã ngả vàng, và đọc dòng đầu tiên thành tiếng.'
+];
+// p1: đoạn ở bản cũ · res: kết quả sau khi viết lại · p2/newQ: vị trí và câu mới · cands: đoạn có thể khớp
+const FB_C = [
+  { id: 'c1', q: 'nụ cười vẫn còn nguyên, nhưng ngón tay cô đang siết chặt mép tờ giấy', p1: 1, chips: ['Kịch tính hơn'], text: 'Để Nhược Vy lộ sự hoảng rõ hơn.', at: '21:40', res: 'fixed', p2: 1, newQ: 'tờ giấy trong tay cô đã nhàu một góc — cô siết nó như người sắp ngã siết lấy lan can', how: 'Người viết báo đã sửa' },
+  { id: 'c2', q: 'Không ai nhìn tôi. Mọi máy quay đều đã quay về phía cô ấy.', p1: 2, chips: ['Ngắn lại'], text: '', at: '21:41', res: 'fixed', p2: 2, newQ: 'Mọi máy quay đều quay về phía cô ấy.', how: 'Câu cũ không còn trong chương' },
+  { id: 'c3', q: 'chậm rãi, như thể sợ làm vỡ khoảnh khắc này', p1: 4, chips: ['Giữ giọng văn'], text: 'Ý hay nhưng hơi sến, viết gọn lại.', at: '21:43', res: 'unfixed', p2: 6 },
+  { id: 'c4', q: 'Tôi chỉ lật trang cuối của bản gốc — trang mà chưa ai từng thấy', p1: 6, chips: [], text: 'Trang cuối viết gì? Hé một chi tiết cho người nghe tò mò.', at: '21:44', res: 'lost' },
+  { id: 'c5', q: 'tôi nghe được tiếng chiếc máy quay số ba xoay ống kính', p1: 4, chips: ['Thêm thoại'], text: 'Thêm một câu thì thầm từ hàng ghế khán giả.', at: '21:45', res: 'unsure', cands: [4, 6] }
+];
+const FB_DONE = [
+  { q: 'tên tôi chạy thành một dòng chữ đỏ', body: 'Giữ giọng văn', at: 'hôm qua' },
+  { q: '', body: 'Bớt chữ “nhưng” ở đầu câu.', at: 'hôm qua' },
+  { q: 'người dẫn chương trình nói', body: 'Thêm thoại', at: 'hôm qua' }
+];
+const FB_TONE = {
+  pending: ['Chờ gửi', 'p'], sent: ['Đã gửi', 's'], fixed: ['Đã sửa', 'f'], lost: ['Mất vị trí', 'w'], unsure: ['Không chắc vị trí', 'w'], done: ['Đã xử lý', 'd']
+};
+function fbInit(stage) {
+  const cs = {};
+  FB_C.forEach((c) => {
+    if (stage === 'pending') cs[c.id] = { st: 'pending', para: c.p1 };
+    else if (stage === 'sent') cs[c.id] = { st: 'sent', para: c.p1 };
+    else if (c.res === 'fixed') cs[c.id] = { st: 'fixed', para: c.p2 };
+    else if (c.res === 'unfixed') cs[c.id] = { st: 'pending', para: c.p2, moved: true, unfixed: true };
+    else cs[c.id] = { st: c.res, para: null };
+  });
+  return cs;
+}
+const fbBody = (c) => c.chips.concat(c.text ? [c.text] : []).join(' · ');
+// Cắt câu trích theo ranh giới chữ, không cắt giữa từ.
+const fbClip = (t, n) => t.length <= n ? t : t.slice(0, t.lastIndexOf(' ', n)) + '…';
+function fbParas(s) {
+  const V = s.stage === 'after' ? FB_V2 : FB_V1;
+  const refId = s.relink || s.open; const openC = refId ? FB_C.find((c) => c.id === refId) : null;
+  const candOf = openC && s.cs[openC.id].st === 'unsure' ? (openC.cands || []) : [];
+  return V.map((t, i) => {
+    const marks = [];
+    FB_C.forEach((c) => {
+      const x = s.cs[c.id]; if (!x || x.para !== i || ['pending', 'sent', 'fixed'].indexOf(x.st) < 0) return;
+      const q = x.st === 'fixed' ? c.newQ : (x.relinked ? '' : c.q); const at = q ? t.indexOf(q) : -1;
+      marks.push({ id: c.id, st: x.st, moved: !!x.moved, at, len: at >= 0 ? q.length : 0, on: s.open === c.id });
+    });
+    const inl = marks.filter((m) => m.at >= 0).sort((a, b) => a.at - b.at);
+    const segs = []; let pos = 0;
+    inl.forEach((m) => { if (m.at < pos) return; if (m.at > pos) segs.push({ t: t.slice(pos, m.at), m: false, cls: '' }); segs.push({ t: t.substr(m.at, m.len), m: true, id: m.id, cls: 'mk ' + FB_TONE[m.st][1] + (m.moved ? ' mv' : '') + (m.on ? ' on' : '') }); pos = m.at + m.len; });
+    if (pos < t.length) segs.push({ t: t.slice(pos), m: false, cls: '' });
+    const ci = candOf.indexOf(i);
+    return { i, segs, marks, whole: marks.some((m) => m.at < 0), cand: ci >= 0, candT: ci >= 0 ? 'Gợi ý ' + (ci + 1) : '', anyOn: marks.some((m) => m.on) };
+  });
+}
+// Nhóm thẻ theo thứ tự cần chú ý: cần gắn lại → chờ gửi → đã gửi → đã sửa. Đã xử lý thu gọn ở cuối.
+function fbGroups(s, act) {
+  const G = [
+    ['need', 'Cần gắn lại', 'w', 'Câu trích cũ không còn sau lần viết lại', ['lost', 'unsure']],
+    ['pending', 'Chờ gửi', 'p', '', ['pending']],
+    ['sent', 'Đã gửi', 's', 'Người viết đang sửa', ['sent']],
+    ['fixed', 'Đã sửa', 'f', 'Tự ẩn khi bạn duyệt chương ' + FB_CH.next, ['fixed']]
+  ];
+  return G.map(([k, title, tone, note, sts]) => {
+    const cards = FB_C.filter((c) => s.cs[c.id] && sts.indexOf(s.cs[c.id].st) >= 0).map((c) => {
+      const x = s.cs[c.id]; const open = s.open === c.id; const T = FB_TONE[x.st];
+      const tags = [];
+      if (x.unfixed) tags.push('Người viết chưa sửa chỗ này');
+      if (x.moved) tags.push('Đã tự gắn sang đoạn mới');
+      if (x.relinked) tags.push('Bạn đã gắn lại');
+      if (x.whole) tags.push('Gửi cho cả chương, kèm câu trích cũ');
+      const A = [];
+      if (x.st === 'fixed') { A.push(['Ổn', 'pri', () => act.ok(c.id)]); A.push(['Chưa ổn', 'sec', () => act.reopen(c.id)]); }
+      if (x.st === 'lost') { A.push(['Gắn lại', 'pri', () => act.relink(c.id)]); A.push(['Gửi lại', 'sec', () => act.resend(c.id)]); A.push(['Xoá', 'txt', () => act.del(c.id)]); }
+      if (x.st === 'unsure') { A.push(['Chọn đoạn khác', 'sec', () => act.relink(c.id)]); A.push(['Gửi lại', 'sec', () => act.resend(c.id)]); A.push(['Xoá', 'txt', () => act.del(c.id)]); }
+      if (x.st === 'pending') A.push(['Xoá', 'txt', () => act.del(c.id)]);
+      const fix = x.st === 'fixed';
+      return { id: c.id, chipT: T[0], tone: T[1], at: c.at, quote: x.whole ? 'Cả chương · “' + fbClip(c.q, 60) + '”' : '“' + fbClip(c.q, 90) + '”', struck: x.st === 'lost' || x.st === 'unsure', plainQ: !(x.st === 'lost' || x.st === 'unsure'), body: fbBody(c) || '—',
+        tags: tags.map((t) => ({ t })), hasTags: tags.length > 0, open, openA: open ? 'true' : 'false', sending: x.st === 'sent',
+        acts: open || x.st === 'lost' || x.st === 'unsure' ? A.map(([t, kind, go]) => ({ t, cls: kind, go })) : [], hasActs: (open || x.st === 'lost' || x.st === 'unsure') && A.length > 0,
+        fix: fix && open, before: fbClip(c.q, 120), after: c.newQ || '', how: c.how || '',
+        cands: x.st === 'unsure' && open ? (c.cands || []).map((p, j) => ({ label: 'Gợi ý ' + (j + 1), snip: fbClip(FB_V2[p], 96), go: () => act.attach(c.id, p), peek: () => act.peek(p) })) : [], hasCands: x.st === 'unsure' && open,
+        unsureNote: x.st === 'unsure' && !open ? 'Có ' + (c.cands || []).length + ' đoạn có thể khớp · bấm để xem' : '', isUnsureClosed: x.st === 'unsure' && !open,
+        pick: () => act.pick(c.id) };
+    });
+    return { k, title, tone, note, n: cards.length, cards, show: cards.length > 0, hasNote: !!note };
+  });
+}
+function fbCounts(s) {
+  const v = FB_C.map((c) => s.cs[c.id] || {});
+  return { fixed: v.filter((x) => x.st === 'fixed').length, unfixed: v.filter((x) => x.st === 'pending' && x.unfixed).length, need: v.filter((x) => x.st === 'lost' || x.st === 'unsure').length, pending: v.filter((x) => x.st === 'pending').length, sent: v.filter((x) => x.st === 'sent').length, done: v.filter((x) => x.st === 'done').length + FB_DONE.length };
+}
+function fbHistory(s) {
+  return FB_C.filter((c) => s.cs[c.id] && s.cs[c.id].st === 'done').map((c) => ({ q: '“' + fbClip(c.q, 70) + '”', body: fbBody(c), at: 'vừa xong' })).concat(FB_DONE.map((d) => ({ q: d.q ? '“' + d.q + '”' : 'Cả chương', body: d.body, at: d.at })));
+}
+function fbActs(cmp) {
+  const set = (p) => cmp.setState(p); const S = () => cmp.state;
+  const upd = (id, v) => set({ cs: Object.assign({}, S().cs, { [id]: v }) });
+  return {
+    pick: (id) => { const open = S().open === id ? null : id; set({ open }); if (open && cmp.reveal) cmp.reveal(id); },
+    ok: (id) => { upd(id, { st: 'done', para: null }); set({ open: null }); cmp.toast('Đã đánh dấu đã xử lý'); },
+    reopen: (id) => { const c = FB_C.find((x) => x.id === id); upd(id, { st: 'pending', para: c.p2 }); set({ open: id }); cmp.toast('Đã mở lại góp ý · sửa nội dung rồi gửi lại'); },
+    relink: (id) => set({ relink: id, open: null, sheet: null }),
+    attach: (id, p) => { upd(id, { st: 'pending', para: p, relinked: true }); set({ open: id, relink: null }); cmp.toast('Đã gắn lại góp ý vào đoạn mới'); },
+    resend: (id) => { upd(id, { st: 'pending', para: null, whole: true }); set({ open: id }); cmp.toast('Góp ý sẽ gửi cho cả chương, kèm câu trích cũ'); },
+    del: (id) => { upd(id, { st: 'deleted', para: null }); set({ open: null }); cmp.toast('Đã xoá góp ý · Hoàn tác'); },
+    peek: (p) => { if (cmp.revealPara) cmp.revealPara(p); }
+  };
+}
+
+
+const noop = () => {};
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); this.tm = []; }
+  fresh(props) { const fb = props.fb || 'after'; const stage = fb === 'pending' || fb === 'sheet' ? 'pending' : (fb === 'sent' ? 'sent' : 'after');
+    return { fb, stage, cs: fbInit(stage), open: ({ fixed: 'c1', unsure: 'c5' })[fb] || null, relink: fb === 'relink' ? 'c4' : null, hov: fb === 'relink' ? 7 : -1, sheet: ['sheet', 'afterSheet', 'fixed', 'unsure'].indexOf(fb) >= 0 ? 'fb' : null, hist: false, toast: fb === 'after' ? 'Đã viết lại chương 8 · 2 góp ý cần gắn lại' : '', toastAct: fb === 'after' }; }
+  componentDidMount() { const s = this.state; if (s.open) this.reveal(s.open); if (s.fb === 'relink') this.later(() => { const el = document.querySelector('[data-p="7"]'); const sc = document.querySelector('.rd-m'); if (el && sc) sc.scrollTop = el.offsetTop - 260; }, 120); }
+  componentDidUpdate(prev) { if (prev.fb !== this.props.fb) this.setState(this.fresh(this.props)); }
+  componentWillUnmount() { this.tm.forEach(clearTimeout); }
+  later(f, ms) { this.tm.push(setTimeout(f, ms)); }
+  toast(t) { this.setState({ toast: t, toastAct: false }); this.later(() => { if (this.state.toast === t) this.setState({ toast: '' }); }, 2600); }
+  reveal(id) { if (!this.state.sheet) this.setState({ sheet: 'fb' }); this.later(() => { const c = document.getElementById('fc-' + id); const sc = document.querySelector('.fbscroll'); if (c && sc) sc.scrollTo({ top: c.offsetTop - 70, behavior: 'smooth' }); }, 120); }
+  revealPara(p) {}
+  goGroup(k) { this.setState({ sheet: 'fb', toast: '' }); this.later(() => { const g = document.getElementById('g-' + k); const sc = document.querySelector('.fbscroll'); if (g && sc) sc.scrollTo({ top: g.offsetTop - 60, behavior: 'smooth' }); }, 120); }
+  renderVals() {
+    const s = this.state; const set = (p) => this.setState(p); const act = fbActs(this); const cnt = fbCounts(s);
+    const relinkC = s.relink ? FB_C.find((c) => c.id === s.relink) : null;
+    const paras = fbParas(s).map((p) => ({ i: p.i, cand: p.cand, candT: p.candT,
+      cls: [p.cand ? 'cand' : '', p.whole ? 'whole' : '', relinkC ? 'pickable' : '', relinkC && s.hov === p.i ? 'hov' : ''].join(' '),
+      dots: p.marks.map((m) => ({ cls: m.moved ? 'mv' : FB_TONE[m.st][1] })),
+      click: relinkC ? () => set({ hov: p.i }) : noop,
+      attachBtn: !!relinkC && s.hov === p.i, attach: (e) => { if (e && e.stopPropagation) e.stopPropagation(); act.attach(relinkC.id, p.i); },
+      segs: p.segs.map((g) => ({ t: g.t, m: g.m, plain: !g.m, cls: g.cls, go: g.m ? (e) => { if (relinkC) return; if (e && e.stopPropagation) e.stopPropagation(); set({ open: g.id }); this.reveal(g.id); } : noop })) }));
+    const st = ({ pending: ['Chờ bạn duyệt', 'rgba(246,203,140,0.14)', '#F6CB8C'], sent: ['Đang viết lại theo góp ý', 'rgba(185,208,247,0.12)', '#C8D3F8'], after: ['Đã duyệt', 'rgba(166,237,193,0.12)', '#A6EDC1'] })[s.stage];
+    const pills = [[cnt.fixed + ' đã sửa', 'f', 'fixed'], [cnt.unfixed + ' chưa sửa', 'p', 'pending'], [cnt.need + ' cần gắn lại', 'w', 'need']].filter((x) => parseInt(x[0], 10) > 0);
+    const pill = cnt.need ? ['Góp ý · ' + cnt.need + ' cần gắn lại', 'w', '#F6CB8C'] : (cnt.pending ? ['Góp ý · ' + cnt.pending + ' chờ gửi', '', '#C9A6F5'] : (cnt.sent ? ['Góp ý · ' + cnt.sent + ' đã gửi', '', '#9DB0F7'] : ['Góp ý', '', '#7E7E8A']));
+    const foot = s.stage === 'pending' ? ['Duyệt & gửi ' + cnt.pending + ' góp ý', 'Chương 8 được viết lại theo góp ý, rồi viết tiếp chương 9.'] : (s.stage === 'after' && cnt.pending ? ['Gửi ' + cnt.pending + ' góp ý · viết lại chương 8', 'Chỉ sửa chỗ có góp ý; phần còn lại giữ nguyên.'] : null);
+    return {
+      tabs: mtabs('read'), tabInd: mtabInd('read'), tabMode: relinkC || s.sheet ? 'hide' : '',
+      stLabel: st[0], stBg: st[1], stFg: st[2], textOp: s.stage === 'sent' ? 0.62 : 1,
+      relinkOn: !!relinkC, relinkBody: relinkC ? fbClip(fbBody(relinkC), 38) : '', relinkHint: relinkC && relinkC.cands ? ' · viền vàng là đoạn có thể khớp' : '', cancelRelink: () => set({ relink: null, hov: -1, sheet: 'fb', open: relinkC ? relinkC.id : null }),
+      bannerSent: s.stage === 'sent', bannerAfter: s.stage === 'after' && !relinkC,
+      bannerPills: pills.map(([t, cls, k]) => ({ t, cls, go: () => this.goGroup(k) })),
+      paras, pillOn: !relinkC && !s.sheet, pillText: pill[0], pillCls: pill[1], pillDot: pill[2], openSheet: () => set({ sheet: 'fb', toast: '' }),
+      sheetOn: !!s.sheet, closeSheet: () => set({ sheet: null, open: null }),
+      groups: fbGroups(s, act), doneN: String(cnt.done), hist: s.hist, histA: s.hist ? 'true' : 'false', histChev: s.hist ? 'rotate(180deg)' : 'none', toggleHist: () => set({ hist: !s.hist }), history: fbHistory(s),
+      foot: !!foot, footLabel: foot ? foot[0] : '', footNote: foot ? foot[1] : '',
+      send: () => { if (s.stage === 'pending') { set({ stage: 'sent', cs: fbInit('sent'), open: null, sheet: null }); this.later(() => this.setState({ stage: 'after', cs: fbInit('after'), toast: 'Đã viết lại chương 8 · 2 góp ý cần gắn lại', toastAct: true }), 2600); } else { const cs = Object.assign({}, s.cs); Object.keys(cs).forEach((k) => { if (cs[k].st === 'pending') cs[k] = Object.assign({}, cs[k], { st: 'sent' }); }); set({ cs, open: null }); this.toast('Đã gửi góp ý · Người viết đang sửa'); } },
+      toast: s.toast, toastAct: !!s.toastAct, toastGo: () => this.goGroup('need')
+    };
+  }
+}
+</script>
+</body>
+</html>

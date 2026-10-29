@@ -1,0 +1,100 @@
+{
+  "chapters": [
+    {
+      "name": "第 1 章  Vai của tôi là đổ canh",
+      "words": 1611,
+      "dialogue_words": 540,
+      "dialogue_ratio": 0.33519553072625696,
+      "procedural": 15
+    },
+    {
+      "name": "第 2 章  Chiếc cân ở giữa bàn",
+      "words": 1700,
+      "dialogue_words": 590,
+      "dialogue_ratio": 0.34705882352941175,
+      "procedural": 5
+    },
+    {
+      "name": "第 3 章  Tác giả ơi, chị làm rơi động cơ nhân vật",
+      "words": 1594,
+      "dialogue_words": 692,
+      "dialogue_ratio": 0.4341279799247177,
+      "procedural": 3
+    },
+    {
+      "name": "第 4 章  Bảy mươi ba giây",
+      "words": 1610,
+      "dialogue_words": 655,
+      "dialogue_ratio": 0.40683229813664595,
+      "procedural": 15
+    },
+    {
+      "name": "第 5 章  Tờ giấy bị mất tiêu đề",
+      "words": 1655,
+      "dialogue_words": 699,
+      "dialogue_ratio": 0.42235649546827797,
+      "procedural": 18
+    },
+    {
+      "name": "第 6 章  Chiếc vỏ ổ cứng",
+      "words": 1639,
+      "dialogue_words": 569,
+      "dialogue_ratio": 0.34716290420988405,
+      "procedural": 19
+    },
+    {
+      "name": "第 7 章  Bản gốc không biết khóc",
+      "words": 1673,
+      "dialogue_words": 475,
+      "dialogue_ratio": 0.2839210998206814,
+      "procedural": 20
+    },
+    {
+      "name": "第 8 章  Tên tôi trên màn hình",
+      "words": 1899,
+      "dialogue_words": 579,
+      "dialogue_ratio": 0.3048973143759874,
+      "procedural": 17
+    }
+  ],
+  "english": {
+    "live": 4,
+    "casting": 4,
+    "scandal": 1,
+    "credit": 6
+  },
+  "day_lines": [
+    725,
+    742
+  ],
+  "sentence_lines": null,
+  "paragraph_lines": [
+    5,
+    1086,
+    1122
+  ],
+  "repeated": [
+    "bìa hồ sơ phim ngắn",
+    "như vừa nhận mật lệnh",
+    "phụ trách mở phong bì",
+    "lịch quảng bá hậu show",
+    "kiểm tra xung đột lợi",
+    "tra xung đột lợi ích",
+    "nhận tài liệu bổ sung",
+    "gọi con về ăn cơm",
+    "nhà sản xuất điều hành"
+  ],
+  "quiet": [
+    {
+      "start": 725,
+      "end": 742,
+      "words": 332
+    }
+  ],
+  "openings": [
+    {
+      "name": "same-story",
+      "ratio": 1.0
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "chapter": 1,
+  "source_revision": 1,
+  "locked": true,
+  "segments": [
+    {"id": "seg-001", "speaker": "narrator", "text": "Bà mở cửa sổ cho gió chạy qua giá sách."},
+    {"id": "seg-002", "speaker": "narrator", "text": "Ngoài hành lang im ắng."},
+    {"id": "seg-003", "speaker": "narrator", "text": "Ngọn đèn dầu rung nhẹ trong bóng tối."}
+  ]
+}

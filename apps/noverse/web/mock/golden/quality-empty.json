@@ -1,0 +1,23 @@
+{
+  "pack": {
+    "id": "nu-tan-bao-thu",
+    "ten": "Nữ tần trọng sinh báo thù, vả mặt"
+  },
+  "sections": [],
+  "chapters": [
+    {
+      "n": 1,
+      "title": "Chương 1",
+      "status": "approved",
+      "rewrites": []
+    },
+    {
+      "n": 2,
+      "title": "Chương 2",
+      "status": "approved",
+      "rewrites": []
+    }
+  ],
+  "cells": [],
+  "issues": []
+}

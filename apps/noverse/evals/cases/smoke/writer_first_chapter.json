@@ -1,0 +1,18 @@
+{
+  "id": "writer_first_chapter",
+  "category": "smoke",
+  "role": "writer",
+  "description": "Writer hoàn thành chương một theo plan→draft→commit và ghi xuống đĩa, chuỗi công cụ ổn định.",
+  "prompt": "Viết một truyện ngắn tu tiên, nhân vật chính là thiếu niên tạp dịch ở hiệu thuốc biên thành, nhờ tài nhận biết dược liệu mà bị cuốn vào một vụ mất tích.",
+  "max_chapters": 1,
+  "target_prompts": ["writer.md"],
+  "expect": {
+    "phase": "writing",
+    "min_completed_chapters": 1,
+    "required_checkpoints": ["chapter:1:plan", "chapter:1:draft", "chapter:1:commit"],
+    "no_pending": ["pending_commit", "pending_steer"]
+  },
+  "gate": {
+    "max_severity": "warning"
+  }
+}
