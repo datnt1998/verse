@@ -59,6 +59,7 @@ go run ./apps/viderse/cmd/viderse logout
 | `~/.viderse/auth.json` | credential OAuth (do `viderse login` ghi) |
 | `~/.viderse/web-accounts.json` | tài khoản web + phiên (cookie `viderse_session`) |
 | `~/.viderse/config.json` | cấu hình provider/model/roles |
+| `~/.viderse/models-cache.json` | bảng giá + cửa sổ ngữ cảnh model (OpenRouter, cache 24h) để tính `agent_runs.cost_usd` |
 | database `viderse_go` | bảng `agent_runs`, `scripts` |
 
 ## Phát triển web
