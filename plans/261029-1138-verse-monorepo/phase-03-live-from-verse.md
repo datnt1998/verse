@@ -1,6 +1,6 @@
 ---
 title: "Phase 03 — Live chạy từ repo verse"
-status: chờ phase 02, Q9
+status: done (chờ anh xác nhận 2 dòng gate và mốc 7 ngày)
 ---
 
 # Hiện trạng (2026-10-29)
@@ -46,6 +46,25 @@ Tên cookie, `~/.ainovel` và thư mục sách đều giữ nguyên, nên phase 
 | Phiên cũ còn hiệu lực | Anh mở live trên thiết bị đang đăng nhập, không bị đưa về màn đăng nhập |
 | Dữ liệu | Màn danh sách dự án hiển thị đủ sách trong `/tmp/live-books.txt`. Mở được một chương và danh sách audio của một sách (chỉ đọc) |
 | Ổn định | 10 phút đầu không có log mức ERROR mới. Sau 7 ngày không phải rollback |
+
+# Kết quả (2026-10-29)
+
+- Baseline: `/healthz` 200; danh sách sách ghi ở `/tmp/live-books.txt`; `web-accounts.json` v4, 1 user, 4 phiên.
+- Sao lưu: `~/Backups/noverse-live-20261029-163638.tgz` (khoảng 2,8 GB, quyền `0600`, thư mục `0700`).
+- Script: `apps/noverse/scripts/run-live.sh` (commit "build: track the live run script"); `exec` binary bằng đường dẫn tuyệt đối để `ps` chỉ rõ worktree.
+- Worktree `../verse-live`, nhánh `live`. Lúc chuyển ở `94a6925`; sau đó `run-live.sh update` lên `51708aa` (gồm kiểm Origin, `platform/identity`, sự kiện core).
+- Tương thích dữ liệu: `917e65a..pre-verse` không đổi `internal/store`, `internal/webauth`, `internal/library`. So tag JSON và `fileVersion` của `webauth` với `platform/identity`, và của `store`: không trường nào bị bỏ hay thêm. Thay đổi duy nhất trên đĩa: session log (`meta/sessions/**.jsonl`) có thêm dòng `{"_event": …}`. Binary cũ chỉ đọc các file này ở `diag` (xuất chẩn đoán) và `eval`; resume không đọc chúng. Rollback về binary cũ vẫn an toàn; bản xuất chẩn đoán của binary cũ chỉ hiện thêm vài dòng rỗng.
+- Chuyển: dừng service omp `noverse-live41` (pid 50549, binary cũ), cổng 8790 được nhả, nạp `~/Library/LaunchAgents/dev.verse.noverse-live.plist` bằng `launchctl bootstrap`. PATH trong plist có `~/.local/bin` (uv) và `/opt/homebrew/bin` (ffmpeg, rg), giống PATH của process cũ ở những binary app gọi.
+
+| Gate | Kết quả |
+|---|---|
+| Đúng binary | Cổng 8790 do `/Users/dat/Projects/verse-live/bin/noverse serve -root /Users/dat/NoverseLive -addr 127.0.0.1:8790` giữ, process cha là launchd (ppid 1) |
+| Sống | `/healthz` 200 ngay sau khi khởi động, cả lúc chuyển lẫn sau lần update |
+| Phiên cũ còn hiệu lực | Cookie, file tài khoản và 4 phiên giữ nguyên; `/api/projects` không cookie trả 401 như cũ. **Cần anh mở live trên thiết bị đang đăng nhập để xác nhận** |
+| Dữ liệu | Danh sách thư mục sách sau khi chuyển trùng `/tmp/live-books.txt`. **Cần anh mở một chương và danh sách audio** (cần phiên của anh) |
+| Ổn định | Log `~/Library/Logs/noverse-live.log` không có dòng ERROR/panic sau khi chuyển và sau lần update. Mốc 7 ngày: tới 2026-11-05 |
+
+Worktree cũ `/Users/dat/Projects/noverse-live` và binary cũ giữ tới 2026-11-05 để rollback.
 
 # Rollback
 

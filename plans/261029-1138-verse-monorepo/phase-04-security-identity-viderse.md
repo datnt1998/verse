@@ -1,6 +1,6 @@
 ---
 title: "Phase 04 — An toàn request, identity dùng chung code, khung Viderse"
-status: chờ phase 03, Q6, Q7, Q8
+status: in-progress (4a xong; 4b chờ smoke; 4c đang làm)
 ---
 
 # Bối cảnh
@@ -32,6 +32,21 @@ Phase gồm 4 bước con. Theo Q6, bước 4d (SSO) không làm trong MVP; ph�
 | Content-Type | PATCH có body `text/plain` → 400, giống POST/PUT hiện nay (`gateway.go:614-616`). DELETE không có body → qua |
 | Không hỏng giao diện | Chạy server local trên cổng tạm. Dùng trình duyệt thật làm một thao tác ghi bất kỳ (ví dụ đổi tên hiển thị): thành công. Một trang ở `127.0.0.1:<cổng khác>` gửi `fetch` POST sang: bị từ chối |
 | Live | Sau `run-live.sh update`, chạy lại gate phase 03 |
+
+## Kết quả 4a (2026-10-29)
+
+Commit "fix(web): check Origin on state changes in every mode" và "fix(web): accept only this deployment's origins for state changes".
+
+- Danh sách origin hợp lệ: hosted chỉ `PUBLIC_URL` (cả scheme). Local: origin phải trùng host:port của chính request và host là IP (127.0.0.1, ::1, địa chỉ LAN/Tailscale mà `-lan` in ra) hoặc `localhost`; tên miền bị chặn để tránh DNS rebinding. Cách này phủ đúng danh sách ở bước 1 mà không phải truyền danh sách địa chỉ LAN vào gateway.
+- Test bảng `TestStateChangingRequestsRequireSameOrigin` (4 phương thức × 2 chế độ × 4 Origin × 4 `Sec-Fetch-Site`) thay cho `TestHostedCSRF`; mọi trường hợp của test cũ (same/cross origin, null origin, không Origin, fetch metadata, GET) đều có trong test mới. `TestAllowedOriginHosts` phủ localhost, ::1, IP LAN, DNS rebinding, `PUBLIC_URL` sai scheme. `TestPatchAndDeleteBodiesMustBeJSON`: PATCH/DELETE body `text/plain` → 400, DELETE không body → qua.
+- Helper test gửi request (`tg.do`, `doFrom`, `setup_test`, `auth_test`) giờ đặt `Content-Type: application/json` cho mọi request có body, giống client web.
+
+| Gate | Kết quả |
+|---|---|
+| Test bảng | Qua (cả package `entry/web`) |
+| Content-Type | Qua |
+| Không hỏng giao diện | Binary `51708aa` trên `127.0.0.1:8791` (HOME tạm), Chromium thật: tạo admin bằng mã thiết lập, đổi tên hiển thị ở bước hồ sơ → `POST /api/me` 200. Trang ở `127.0.0.1:8792` gửi `fetch` POST `/api/me` sang 8791 → server trả 403; tên hiển thị không đổi |
+| Live | Sau `run-live.sh update` lên `51708aa`: gate phase 03 qua (xem phase 03). `curl` POST có `Origin: http://127.0.0.1:8789` tới live → 403 |
 
 # 4b. Code dùng chung cho app thứ hai
 

@@ -1,6 +1,6 @@
 ---
 title: "Phase 02 — Tách core/ và test ranh giới import"
-status: chờ phase 01, Q5
+status: done
 ---
 
 # Bối cảnh
@@ -63,6 +63,20 @@ Không làm trong phase này:
 | Kiểm icon | Sửa tạm một byte trong `apps/noverse/docs/design/v1/icons/login.svg`: test so icon fail. Hoàn tác xong mới commit |
 | Smoke eval | Build binary từ commit ứng viên: `go build -o /tmp/verse-m2/ainovel-cli-$(git rev-parse --short HEAD) ./apps/noverse/cmd/ainovel-cli`. Trong `apps/noverse`, gọi binary đó bằng đường dẫn tuyệt đối: `eval --cases evals/cases/smoke --ci --timeout 60m`. Gate PASS 3/3. Ghi SHA của binary cùng run id |
 | Ghi số đo | Ghi chi phí, thời lượng và số lỗi tool, so với baseline ($1,49 / 67 phút / 3). Chi phí không phải gate, vì chưa có số đo độ dao động. Case nào FAIL thì chạy lại đúng case đó một lần để tách flake, rồi ghi cả hai kết quả |
+
+# Kết quả (2026-10-29)
+
+Commit `1a820ec` (dời 32 package sang `core/`) và `da2b431` (test ranh giới).
+
+| Gate | Kết quả |
+|---|---|
+| Số package core | 32 |
+| Ranh giới | `./archtest` qua; đối chứng nhận đúng 3 vi phạm đã cài |
+| Ranh giới có hiệu lực | Thêm tạm import `apps/noverse/assets` vào `core/llm`: test fail và in `core/llm → apps/noverse/assets`. Đã gỡ trước khi commit |
+| Gate phase 01 | gofmt 1.26/1.27 sạch (gofmt có sắp lại vài khối import sau khi đổi đường dẫn), build/vet sạch, sqlc sạch, `types.gen.ts` không đổi, dist khớp nguồn, image và binary trả `/healthz` 200. Test Go: 4087 pass, 0 fail (có Postgres và MinIO); đủ 4084 test của `tests-before.txt` sau khi đổi đường dẫn; 3 test mới: `TestImportBoundaries`, `TestImportBoundariesCatchPlantedViolations`, `TestCoreOAuthIconsMatchDesignFiles`. `-race` qua ở 6 package. Web 205 file / 1639 test |
+| Kiểm icon | Sửa tạm một byte trong `login.svg`: `TestCoreOAuthIconsMatchDesignFiles` fail. Đã hoàn tác |
+| Smoke eval | Binary `/tmp/verse-m2/ainovel-cli-da2b431`, run `20261029-151106`: architect_long PASS, architect_short PASS, writer_first_chapter WARN (pass 1/1, không hard fail; cảnh báo nội dung `PromiseScenePosition`: cảnh thực hiện lời hứa nằm ở chương 5/6). Gate của report là WARN, không có FAIL |
+| Ghi số đo | $1,83 / khoảng 85 phút / 2 lỗi tool, so với baseline $1,49 / 67 phút / 3 |
 
 # Rollback
 

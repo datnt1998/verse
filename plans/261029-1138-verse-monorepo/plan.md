@@ -79,16 +79,26 @@ Sơ đồ [advise-verse-architecture.svg](../reports/advise-verse-architecture.s
 - Phase 00 đạt gate. CI xanh trên GitHub tại commit được gắn tag.
 - Không cutover hosted sang Postgres trong suốt plan này.
 
+# Cách chạy gate trên máy (anh yêu cầu 2026-10-29)
+
+CI đang tắt để giữ quota, nên mọi gate chạy trên máy anh (10 nhân, 16 GB). Để máy không lag và không tràn RAM:
+
+- Mỗi lúc chỉ chạy **một** việc nặng: `go build/vet/test`, `-race`, `npm`/vitest, `docker build`. Khi có nhiều agent cùng làm, mọi lệnh nặng đi qua khoá chung `lockf -k /tmp/verse-heavy.lock <lệnh>` để không bao giờ chạy song song; agent con dùng thêm `GOMAXPROCS=2 -p 1`. Eval smoke không tính là việc nặng: process chủ yếu chờ model qua mạng (đo lúc chạy: 0% CPU, khoảng 10 MB RSS), nên được chạy cùng một việc nặng khác.
+- `go test`: `nice -n 10`, `GOMAXPROCS=4`, `-p 2`. Riêng `-race` dùng `-p 1`.
+- Web: `npm test -- --maxWorkers=2`.
+- `gofmt`: chỉ chạy trên các file đã đổi, không quét cả cây.
+- Postgres/MinIO test (`verifycheck`) chỉ bật khi chạy test cần chúng; xong là `docker compose -p verifycheck down -v`.
+
 # Các giai đoạn
 
 | Giai đoạn | Kết quả | Chặn bởi | Trạng thái |
 |---|---|---|---|
 | 00 [Chốt baseline và đẩy lên GitHub](./phase-00-baseline-push.md) | Tree sạch, tag ở commit cuối, gate xanh (CI cuối ở `c49b37d`, gate tương đương chạy trên máy ở `04aee55`) | — | xong |
 | 01 [Dời Noverse vào `apps/noverse`](./phase-01-move-noverse.md) | Repo `verse` qua toàn bộ gate cũ; số test không đổi | 00 | xong (CI hoãn, Actions tắt) |
-| 02 [Tách `core/` và test ranh giới](./phase-02-carve-core.md) | 32 package nằm ở `core/`; test ranh giới có kiểm chứng đối chứng; smoke eval 3/3 | 01 | chờ |
-| 03 [Live chạy từ `verse`](./phase-03-live-from-verse.md) | Cổng 8790 chạy binary build từ `verse` dưới launchd; phiên đăng nhập cũ còn hiệu lực; rollback dưới 1 phút | 02 | chờ |
-| 04 [An toàn request, identity, khung Viderse](./phase-04-security-identity-viderse.md) | 4a an toàn request; 4b identity dùng chung code; 4c Viderse + Writer chạy thật. Không làm 4d (SSO) | 03 | chờ |
-| 05 [Metric core trong eval](./phase-05-core-metrics.md) | Report có các trường metric mới; baseline có số đo độ dao động | 02 | chờ |
+| 02 [Tách `core/` và test ranh giới](./phase-02-carve-core.md) | 32 package nằm ở `core/`; test ranh giới có kiểm chứng đối chứng; smoke eval 3/3 | 01 | xong |
+| 03 [Live chạy từ `verse`](./phase-03-live-from-verse.md) | Cổng 8790 chạy binary build từ `verse` dưới launchd; phiên đăng nhập cũ còn hiệu lực; rollback dưới 1 phút | 02 | xong; chờ anh xác nhận phiên/dữ liệu trên thiết bị và mốc 7 ngày (2026-11-05) |
+| 04 [An toàn request, identity, khung Viderse](./phase-04-security-identity-viderse.md) | 4a an toàn request; 4b identity dùng chung code; 4c Viderse + Writer chạy thật. Không làm 4d (SSO) | 03 | 4a xong; 4b chờ smoke; 4c đang làm |
+| 05 [Metric core trong eval](./phase-05-core-metrics.md) | Report có các trường metric mới; baseline có số đo độ dao động | 02 | code xong; baseline đang chạy |
 | 06 [Nâng cấp core có A/B](./phase-06-core-upgrades.md) | Mỗi nâng cấp có giả thuyết, ngưỡng đặt trước và kết quả A/B | 05 | chờ |
 
 Phase 05 làm song song được với 03 và 04. Phạm vi của 05: `core/agentcore` (phát sự kiện) và `apps/noverse/internal/{eval,store,agents,host}` (cầu nối và collector). Bước 4b cũng sửa `agents` (dời `ParseThinkingLevel`) và `bootstrap`. Với mỗi file mà hai phase cùng sửa, chỉ một người được giữ file đó tại mỗi thời điểm.
