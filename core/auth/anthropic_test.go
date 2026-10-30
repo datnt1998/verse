@@ -240,23 +240,38 @@ func submit(ch chan<- ManualSubmission, input string) error {
 	return <-res
 }
 
+// offerURL chuyển URL từ goroutine Login sang test qua kênh (không chia sẻ biến).
+func offerURL(ch chan<- string, u string) {
+	select {
+	case ch <- u:
+	default:
+	}
+}
+
+// awaitURL đợi URL đầu tiên tối đa 2 giây; hết hạn trả chuỗi rỗng để test báo lỗi.
+func awaitURL(ch <-chan string) string {
+	select {
+	case u := <-ch:
+		return u
+	case <-time.After(2 * time.Second):
+		return ""
+	}
+}
+
 func TestAnthropicLoginPasteCodeRejectsWrongStateThenAccepts(t *testing.T) {
 	f := newFakeAnthropic(t)
 	p := f.provider()
 	manual := make(chan ManualSubmission)
-	var authURL string
+	authURLs := make(chan string, 1)
 	done := make(chan struct{})
 	var cred Credential
 	var loginErr error
 	go func() {
 		defer close(done)
-		cred, loginErr = p.Login(context.Background(), Controller{OnAuth: func(u, _ string) { authURL = u }}, LoginOptions{Device: true, From: "web", Manual: manual})
+		cred, loginErr = p.Login(context.Background(), Controller{OnAuth: func(u, _ string) { offerURL(authURLs, u) }}, LoginOptions{Device: true, From: "web", Manual: manual})
 	}()
 	// Chờ OnAuth chạy (Login bắt đầu nhận manual sau OnAuth).
-	deadline := time.Now().Add(2 * time.Second)
-	for authURL == "" && time.Now().Before(deadline) {
-		time.Sleep(5 * time.Millisecond)
-	}
+	authURL := awaitURL(authURLs)
 	u, _ := url.Parse(authURL)
 	state := u.Query().Get("state")
 	if state == "" {
@@ -298,17 +313,14 @@ func TestAnthropicLoginBrowserCallbackAndFullURLPaste(t *testing.T) {
 	ln.Close()
 	p.callbackAddr = addr
 
-	var authURL string
+	authURLs := make(chan string, 1)
 	done := make(chan struct{})
 	var loginErr error
 	go func() {
 		defer close(done)
-		_, loginErr = p.Login(context.Background(), Controller{OnAuth: func(u, _ string) { authURL = u }}, LoginOptions{From: "cli"})
+		_, loginErr = p.Login(context.Background(), Controller{OnAuth: func(u, _ string) { offerURL(authURLs, u) }}, LoginOptions{From: "cli"})
 	}()
-	deadline := time.Now().Add(2 * time.Second)
-	for authURL == "" && time.Now().Before(deadline) {
-		time.Sleep(5 * time.Millisecond)
-	}
+	authURL := awaitURL(authURLs)
 	u, _ := url.Parse(authURL)
 	state := u.Query().Get("state")
 	resp, err := http.Get("http://" + addr + anthropicCallbackPath + "?code=browser-code&state=" + url.QueryEscape(state))

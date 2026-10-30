@@ -167,6 +167,9 @@ func (p *xaiOAuth) Login(ctx context.Context, ctrl Controller, opts LoginOptions
 	}
 	ctrl.auth(verifyURL, "Nhập mã: "+dc.UserCode)
 	ctrl.deviceCode(dc.UserCode, verifyURL)
+	if dc.ExpiresIn > 0 {
+		ctrl.deviceCodeExpiry(p.now().Add(time.Duration(dc.ExpiresIn) * time.Second))
+	}
 	// Luồng web: người dùng tự mở link trên thiết bị của họ; server không mở trình duyệt.
 	if p.openBrowser != nil && opts.From != "web" {
 		if err := p.openBrowser(verifyURL); err != nil {

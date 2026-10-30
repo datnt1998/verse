@@ -73,7 +73,7 @@ func (p *openAICodex) Login(ctx context.Context, ctrl Controller, opts LoginOpti
 	if opts.Device {
 		return p.loginDevice(ctx, ctrl)
 	}
-	return p.loginBrowser(ctx, ctrl, opts.From)
+	return p.loginBrowser(ctx, ctrl, opts.From, opts.Manual)
 }
 
 // authorizationURL dựng URL authorize (PKCE S256) cho luồng trình duyệt.
@@ -93,7 +93,7 @@ func (p *openAICodex) authorizationURL(state, challenge string) string {
 	return p.authorizeURL + "?" + q.Encode()
 }
 
-func (p *openAICodex) loginBrowser(ctx context.Context, ctrl Controller, from string) (Credential, error) {
+func (p *openAICodex) loginBrowser(ctx context.Context, ctrl Controller, from string, manual <-chan ManualSubmission) (Credential, error) {
 	verifier, challenge, err := pkce()
 	if err != nil {
 		return Credential{}, err
@@ -117,12 +117,41 @@ func (p *openAICodex) loginBrowser(ctx context.Context, ctrl Controller, from st
 		}
 	}
 	ctrl.progress("Đang chờ trình duyệt hoàn tất đăng nhập…")
-	code, err := server.wait(ctx)
+	code, err := waitCodexCode(ctx, server.result, manual, state)
 	if err != nil {
 		return Credential{}, err
 	}
 	ctrl.progress("Đang đổi mã xác thực lấy token…")
 	return p.exchangeCode(ctx, code, verifier, p.redirectURI)
+}
+
+// waitCodexCode đua callback localhost với mã dán tay (dùng khi trình duyệt
+// khác máy hoặc cổng callback bận). Mã dán kèm state khác state của phiên bị
+// từ chối và luồng vẫn chờ; mã thô/URL thiếu state được chấp nhận.
+func waitCodexCode(ctx context.Context, server <-chan callbackResult, manual <-chan ManualSubmission, state string) (string, error) {
+	for {
+		select {
+		case res := <-server:
+			return res.code, res.err
+		case sub := <-manual:
+			code, got := ParseAuthorizationInput(sub.Input)
+			var reject error
+			switch {
+			case code == "":
+				reject = errors.New("không tìm thấy mã xác thực trong nội dung đã dán")
+			case got != "" && got != state:
+				reject = errors.New("mã dán thuộc một phiên đăng nhập khác (state không khớp) — hãy mở lại URL đăng nhập mới nhất")
+			}
+			if sub.Result != nil {
+				sub.Result <- reject
+			}
+			if reject == nil {
+				return code, nil
+			}
+		case <-ctx.Done():
+			return "", ctx.Err()
+		}
+	}
 }
 
 func (p *openAICodex) loginDevice(ctx context.Context, ctrl Controller) (Credential, error) {

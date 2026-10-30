@@ -19,6 +19,9 @@ type Controller struct {
 	// OnDeviceCode được gọi thêm trong luồng device-code với mã người dùng cần
 	// nhập — UI có thể hiển thị trực tiếp mà không phải parse instructions.
 	OnDeviceCode func(userCode, verifyURL string)
+	// OnDeviceCodeExpiry báo thời điểm mã thiết bị hết hạn (khi provider trả
+	// expires_in) — UI hiện đếm ngược; nil thì UI không hiện.
+	OnDeviceCodeExpiry func(expiresAt time.Time)
 	// OnProgress báo tiến độ dạng văn bản ngắn.
 	OnProgress func(message string)
 }
@@ -39,6 +42,13 @@ func (c Controller) progress(message string) {
 func (c Controller) deviceCode(userCode, verifyURL string) {
 	if c.OnDeviceCode != nil {
 		c.OnDeviceCode(userCode, verifyURL)
+	}
+}
+
+// deviceCodeExpiry báo hạn mã thiết bị cho UI (nếu UI đăng ký nghe).
+func (c Controller) deviceCodeExpiry(expiresAt time.Time) {
+	if c.OnDeviceCodeExpiry != nil && !expiresAt.IsZero() {
+		c.OnDeviceCodeExpiry(expiresAt)
 	}
 }
 
