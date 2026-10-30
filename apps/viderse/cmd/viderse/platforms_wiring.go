@@ -26,7 +26,7 @@ import (
 // mountPlatforms dựng accounts + platforms trên cùng pool/settings và bộ công
 // cụ dùng chung của serve (cùng runner/registry/quyền cài đặt — không tự tạo
 // tools.New thứ hai), gắn /api/platforms* và đăng ký nguồn cần xử lý.
-func mountPlatforms(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, ytdlp ytdlpRunner) error {
+func mountPlatforms(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, ytdlp ytdlpRunner) (*platforms.Service, error) {
 	dir := cfgDir
 	notifyPlatforms := web.Notifier(hub, "platforms")
 	// Mọi thay đổi nền tảng cũng làm mới snapshot đầu trang: chấm Cài đặt
@@ -44,6 +44,7 @@ func mountPlatforms(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.Setti
 	svc := platforms.New(platforms.Deps{
 		Store:  postgres.NewPlatformStateStore(pool),
 		Logins: acc,
+		Usage:  newRivalsUsage(pool),
 		Now:    time.Now,
 		Notify: touch,
 	})
@@ -55,7 +56,7 @@ func mountPlatforms(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.Setti
 		logStore.Append("platforms", logs.LevelError, msg)
 	})
 	statusSvc.RegisterSource(platformAttention{svc: svc})
-	return nil
+	return svc, nil
 }
 
 // platformAttention chuyển mục cần xử lý của mảng nền tảng sang hình mà

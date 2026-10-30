@@ -10,6 +10,9 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -239,6 +242,67 @@ func TestActivityStoreNotificationMergeSerializesConcurrentWriters(t *testing.T)
 	}
 	if snap.Unread[0].Count != 8 {
 		t.Fatalf("count = %d, muốn 8", snap.Unread[0].Count)
+	}
+}
+
+// poolGatedDB chặn câu đọc chạy thẳng trên pool (ngoài giao dịch): đủ để
+// dựng cảnh writer khác ghi xen giữa commit và lúc trả kết quả.
+type poolGatedDB struct {
+	postgres.DBTXer
+	g *gate
+}
+
+func (d poolGatedDB) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+	if err := d.g.before(ctx, sql); err != nil {
+		return failedRow{err}
+	}
+	return d.DBTXer.QueryRow(ctx, sql, args...)
+}
+
+// Thông báo trả về là dòng writer này đã ghi, kể cả khi writer khác chèn
+// thông báo cùng kind ngay sau khi giao dịch của nó commit.
+func TestActivityStoreNotificationReturnsOwnWrite(t *testing.T) {
+	pool := provision(t)
+	g := newGate("LatestNotification")
+	mine := postgres.NewActivityStore(poolGatedDB{DBTXer: pool, g: g})
+	other := postgres.NewActivityStore(pool)
+	ctx := context.Background()
+
+	type result struct {
+		n   *activity.Notification
+		err error
+	}
+	done := make(chan result, 1)
+	go func() {
+		n, err := mine.UpsertNotification(ctx, "needs_attention", "Kênh A lỗi", "#/a", "Mở", 10*time.Second)
+		done <- result{n, err}
+	}()
+
+	var got result
+	select {
+	case <-g.reached:
+		// Đã commit và đang đọc lại trên pool: writer khác chèn dòng mới.
+		if _, err := other.UpsertNotification(ctx, "needs_attention", "Kênh B lỗi", "#/b", "Mở", 0); err != nil {
+			t.Fatal(err)
+		}
+		close(g.resume)
+		got = <-done
+	case got = <-done:
+	}
+	if got.err != nil {
+		t.Fatal(got.err)
+	}
+	if got.n.Text != "Kênh A lỗi" || got.n.Href != "#/a" {
+		t.Fatalf("trả về thông báo của writer khác: %+v", got.n)
+	}
+	snap, err := activity.New(postgres.NewActivityStore(pool), nil).Snapshot(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, n := range snap.Unread {
+		if n.ID == got.n.ID && n.Text != "Kênh A lỗi" {
+			t.Fatalf("id %s thuộc dòng %q", n.ID, n.Text)
+		}
 	}
 }
 

@@ -64,6 +64,22 @@ func (m *memStore) ResetTask(_ context.Context, id string, spec domain.TaskSpec)
 	return nil
 }
 
+func (m *memStore) AdoptTask(_ context.Context, id string, spec domain.TaskSpec) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	t, ok := m.tasks[id]
+	if !ok {
+		return ErrNotFound
+	}
+	t.Title, t.Object, t.Phase, t.State, t.Action = spec.Title, spec.Object, spec.Phase, domain.TaskRunning, spec.Action
+	if spec.Progress != nil {
+		t.Progress = spec.Progress
+	}
+	t.UpdatedAt = time.Now()
+	m.tasks[id] = t
+	return nil
+}
+
 func (m *memStore) UpdateTask(_ context.Context, id string, u domain.TaskUpdate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,6 +252,58 @@ func TestStartIsOneTaskPerObjectAndRetryReusesRow(t *testing.T) {
 	}
 	if len(events) == 0 {
 		t.Fatal("mọi thay đổi phải phát sự kiện")
+	}
+}
+
+func TestStartAdoptionKeepsProgressUntilFailed(t *testing.T) {
+	store := newMemStore()
+	svc := New(store, nil)
+	ctx := context.Background()
+	spec := domain.TaskSpec{
+		Kind: domain.TaskSetup, Title: "Xử lý hình và tiếng",
+		Object: domain.ObjectRef{Type: "tool", ID: "ffmpeg"}, Phase: "Đang cài",
+	}
+	id, err := svc.Start(ctx, spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	paused := domain.TaskPaused
+	if err := svc.Update(ctx, id, domain.TaskUpdate{
+		State: paused, Progress: &domain.TaskProgress{Done: 3, Total: 150},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Nhận lại một việc đang sống: nội dung đổi, tiến độ còn nguyên.
+	spec.Phase = "Đang cài lại"
+	if id2, err := svc.Start(ctx, spec); err != nil || id2 != id {
+		t.Fatalf("adopt id = %q err = %v", id2, err)
+	}
+	task, err := svc.FindTaskByObject(ctx, spec.Kind, spec.Object)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if task.Progress == nil || task.Progress.Done != 3 || task.Progress.Total != 150 {
+		t.Fatalf("nhận lại xoá mất tiến độ: %+v", task.Progress)
+	}
+	if task.State != domain.TaskRunning || task.Phase != "Đang cài lại" {
+		t.Fatalf("nhận lại phải viết lại nội dung: %+v", task)
+	}
+
+	// Retry sau failed vẫn là đường xoá sạch tiến độ.
+	failed := domain.TaskFailed
+	if err := svc.Update(ctx, id, domain.TaskUpdate{State: failed}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.Start(ctx, spec); err != nil {
+		t.Fatal(err)
+	}
+	task, err = svc.FindTaskByObject(ctx, spec.Kind, spec.Object)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if task.Progress != nil {
+		t.Fatalf("retry sau failed phải xoá tiến độ cũ: %+v", task.Progress)
 	}
 }
 
@@ -470,5 +538,21 @@ func TestErrorHistorySurvivesReadAndRetry(t *testing.T) {
 	count, err := svc.ErrorsCount(context.Background())
 	if err != nil || count != 25 {
 		t.Fatalf("count = %d, %v; muốn 25", count, err)
+	}
+}
+
+// TestChangedPublishesWithoutMutating: Changed chỉ phát ref cho SSE, không tạo
+// hay sửa dòng việc/thông báo nào.
+func TestChangedPublishesWithoutMutating(t *testing.T) {
+	store := newMemStore()
+	var refs []string
+	svc := New(store, func(ref string) { refs = append(refs, ref) })
+	svc.Changed("task-1")
+	if len(refs) != 1 || refs[0] != "task-1" {
+		t.Fatalf("refs = %v, muốn [task-1]", refs)
+	}
+	tasks, err := store.ListTasks(context.Background())
+	if err != nil || len(tasks) != 0 {
+		t.Fatalf("Changed đã sửa dữ liệu: tasks=%v err=%v", tasks, err)
 	}
 }

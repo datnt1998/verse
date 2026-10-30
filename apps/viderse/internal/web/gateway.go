@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/platform/events"
@@ -138,15 +139,35 @@ func etagMatches(header, etag string) bool {
 
 // serveEvents phục vụ luồng SSE /api/events: Subscribe của hub quyết phần
 // replay/reset, platform/events.Serve giữ khung frame chung; phiên hết hiệu
-// lực thì đóng kết nối ở nhịp tiếp theo.
+// lực thì đóng kết nối ở lần kiểm tra phiên kế tiếp (≤ sessionRecheck).
 func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user identity.User) {
 	sub, replay, stale := g.hub.Subscribe(user, events.ResumeID(r))
 	defer g.hub.Unsubscribe(sub)
 	hooks := events.Hooks{
-		OnTick: func() bool { return g.eventSessionValid(r) },
+		OnTick: throttledCheck(sessionRecheck, time.Now, func() bool { return g.eventSessionValid(r) }),
 	}
 	if err := g.hub.Serve(w, r, sub, replay, stale, hooks); err != nil {
 		webapp.Error(w, http.StatusInternalServerError, "không hỗ trợ luồng sự kiện")
+	}
+}
+
+// sessionRecheck là nhịp kiểm tra lại phiên của luồng SSE. Ping 2 s chỉ để phát
+// hiện mất kết nối; kiểm phiên mỗi ping là một truy vấn DB mỗi 2 s cho mỗi tab
+// đang mở, nên phiên chỉ được kiểm lại sau mỗi 15 s (bằng nhịp ping của Noverse).
+const sessionRecheck = 15 * time.Second
+
+// throttledCheck gọi check khi đã quá every kể từ lần gọi trước (lần đầu thì
+// chờ đủ every, vì phiên vừa được xác thực khi mở luồng); giữa hai lần gọi trả
+// true. Một lần check false làm hook trả false để đóng luồng.
+func throttledCheck(every time.Duration, now func() time.Time, check func() bool) func() bool {
+	last := now()
+	return func() bool {
+		t := now()
+		if t.Sub(last) < every {
+			return true
+		}
+		last = t
+		return check()
 	}
 }
 

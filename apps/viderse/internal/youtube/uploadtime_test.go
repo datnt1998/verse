@@ -2,7 +2,9 @@
 package youtube
 
 import (
+	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -80,5 +82,86 @@ func TestUploadTimeBotCheckIsRefusal(t *testing.T) {
 	got, err := ParseUploadTime(gated)
 	if err != nil || got == nil {
 		t.Fatalf("ParseUploadTime = %v, %v", got, err)
+	}
+}
+
+func TestUploadTimeCountsOnlyChannelProvidedCaptions(t *testing.T) {
+	withTracks := func(tracks ...map[string]string) any {
+		list := make([]any, len(tracks))
+		for i, track := range tracks {
+			m := jmap{}
+			for k, v := range track {
+				m[k] = v
+			}
+			list[i] = m
+		}
+		return jmap{"captions": jmap{"playerCaptionsTracklistRenderer": jmap{"captionTracks": list}}}
+	}
+	cases := []struct {
+		name string
+		raw  any
+		want bool
+	}{
+		{"kênh tự đăng phụ đề", withTracks(map[string]string{"baseUrl": "https://x", "languageCode": "vi"}), true},
+		{"asr lẫn phụ đề kênh", withTracks(map[string]string{"baseUrl": "https://x", "kind": "asr"}, map[string]string{"baseUrl": "https://x", "languageCode": "en"}), true},
+		{"chỉ phụ đề tự động", withTracks(map[string]string{"baseUrl": "https://x", "kind": "asr"}), false},
+		{"hàng null/rỗng", jmap{"captions": jmap{"playerCaptionsTracklistRenderer": jmap{"captionTracks": []any{nil, jmap{}}}}}, false},
+		{"không có caption", playerResp(map[string]string{"publishDate": "2025-10-14T07:00:06-07:00"}, nil), false},
+		{"không phải object", "not json", false},
+	}
+	for _, c := range cases {
+		if got := ParseChannelCaptions(c.raw); got != c.want {
+			t.Errorf("%s: ParseChannelCaptions = %v, muốn %v", c.name, got, c.want)
+		}
+	}
+}
+
+func TestFetchUploadTimeReadsPlayerThroughPacer(t *testing.T) {
+	ft := (&fixtureTransport{}).install(t, nil)
+	client := newFixtureClient(ft)
+	at, hasCaptions, err := client.FetchUploadTime(context.Background(), "dQw4w9WgXcQ")
+	if err != nil {
+		t.Fatalf("FetchUploadTime: %v", err)
+	}
+	if at == nil {
+		t.Fatal("FetchUploadTime trả nil thời điểm đăng")
+	}
+	want, _ := time.Parse(time.RFC3339, "2025-10-14T14:00:06Z")
+	if !at.Equal(want) {
+		t.Fatalf("thời điểm đăng = %v, muốn %v", at, want)
+	}
+	if !hasCaptions {
+		t.Fatal("fixture có track không phải asr nhưng hasCaptions=false")
+	}
+	assertKinds(t, ft, kindSW, kindPlayer)
+}
+
+func TestFetchUploadTimeAsrOnlyIsNoChannelCaptions(t *testing.T) {
+	ft := (&fixtureTransport{}).install(t, map[reqKind]handlerFunc{
+		kindPlayer: func(tracedReq) (*http.Response, error) {
+			return okResponse(`{"playabilityStatus":{"status":"OK"},"microformat":{"playerMicroformatRenderer":{"publishDate":"2025-10-14T07:00:06-07:00"}},"captions":{"playerCaptionsTracklistRenderer":{"captionTracks":[{"kind":"asr","languageCode":"en"}]}}}`), nil
+		},
+	})
+	client := newFixtureClient(ft)
+	at, hasCaptions, err := client.FetchUploadTime(context.Background(), "dQw4w9WgXcQ")
+	if err != nil || at == nil {
+		t.Fatalf("FetchUploadTime = %v, %v", at, err)
+	}
+	if hasCaptions {
+		t.Fatal("chỉ có phụ đề asr nhưng hasCaptions=true")
+	}
+}
+
+func TestFetchUploadTimeBotChallengeIsBlocked(t *testing.T) {
+	ft := (&fixtureTransport{}).install(t, map[reqKind]handlerFunc{
+		kindPlayer: func(tracedReq) (*http.Response, error) {
+			return okResponse(`{"playabilityStatus":{"status":"LOGIN_REQUIRED","reason":"Sign in to confirm you’re not a bot"}}`), nil
+		},
+	})
+	client := newFixtureClient(ft)
+	_, _, err := client.FetchUploadTime(context.Background(), "dQw4w9WgXcQ")
+	kind, ok := KindOf(err)
+	if !ok || kind != KindBlocked {
+		t.Fatalf("FetchUploadTime lỗi = %v (kind %q, ok=%v); muốn blocked", err, kind, ok)
 	}
 }

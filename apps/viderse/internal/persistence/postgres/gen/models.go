@@ -103,6 +103,94 @@ type PlatformState struct {
 	LastErrorJobID    pgtype.Text        `json:"last_error_job_id"`
 }
 
+type RivalChannel struct {
+	ID              string             `json:"id"`
+	Handle          pgtype.Text        `json:"handle"`
+	Title           string             `json:"title"`
+	Description     string             `json:"description"`
+	AvatarUrl       pgtype.Text        `json:"avatar_url"`
+	Url             string             `json:"url"`
+	SubscriberCount pgtype.Int8        `json:"subscriber_count"`
+	MedianViews     pgtype.Int8        `json:"median_views"`
+	MedianAt        pgtype.Timestamptz `json:"median_at"`
+	AddedAt         pgtype.Timestamptz `json:"added_at"`
+	ScannedAt       pgtype.Timestamptz `json:"scanned_at"`
+}
+
+type RivalVideo struct {
+	ID              string             `json:"id"`
+	ChannelID       string             `json:"channel_id"`
+	Title           string             `json:"title"`
+	DurationSec     pgtype.Int4        `json:"duration_sec"`
+	ViewCount       pgtype.Int8        `json:"view_count"`
+	PublishedText   pgtype.Text        `json:"published_text"`
+	PublishedAt     pgtype.Timestamptz `json:"published_at"`
+	UploadedAt      pgtype.Timestamptz `json:"uploaded_at"`
+	UploadCheckedAt pgtype.Timestamptz `json:"upload_checked_at"`
+	HasCaptions     pgtype.Bool        `json:"has_captions"`
+	Score           pgtype.Float8      `json:"score"`
+	Position        int64              `json:"position"`
+	Origin          string             `json:"origin"`
+	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ScanJob struct {
+	ID            pgtype.UUID        `json:"id"`
+	ChannelID     string             `json:"channel_id"`
+	Kind          string             `json:"kind"`
+	State         string             `json:"state"`
+	RequestedCap  pgtype.Int4        `json:"requested_cap"`
+	Cursor        pgtype.Text        `json:"cursor"`
+	CursorAt      pgtype.Timestamptz `json:"cursor_at"`
+	Remainder     pgtype.Text        `json:"remainder"`
+	ReplayTarget  pgtype.Text        `json:"replay_target"`
+	LastVideoID   pgtype.Text        `json:"last_video_id"`
+	OrderBase     pgtype.Int8        `json:"order_base"`
+	NextOrdinal   int32              `json:"next_ordinal"`
+	Anchors       []string           `json:"anchors"`
+	NewestID      pgtype.Text        `json:"newest_id"`
+	Pages         int32              `json:"pages"`
+	Scanned       int32              `json:"scanned"`
+	Added         int32              `json:"added"`
+	Attempts      int32              `json:"attempts"`
+	Restarts      int32              `json:"restarts"`
+	NextAttemptAt pgtype.Timestamptz `json:"next_attempt_at"`
+	ErrorCode     string             `json:"error_code"`
+	LastError     string             `json:"last_error"`
+	Recovery      string             `json:"recovery"`
+	ReachedEnd    bool               `json:"reached_end"`
+	TaskID        pgtype.UUID        `json:"task_id"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	StartedAt     pgtype.Timestamptz `json:"started_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	FinishedAt    pgtype.Timestamptz `json:"finished_at"`
+}
+
+type ScanSchedule struct {
+	ID                 bool               `json:"id"`
+	UploadTimesNextAt  pgtype.Timestamptz `json:"upload_times_next_at"`
+	UploadTimeFailures int32              `json:"upload_time_failures"`
+}
+
+type ScanState struct {
+	ChannelID         string             `json:"channel_id"`
+	HistoryCap        int32              `json:"history_cap"`
+	IndexedVideos     int32              `json:"indexed_videos"`
+	HistoryEnd        bool               `json:"history_end"`
+	HistoryCursor     pgtype.Text        `json:"history_cursor"`
+	HistoryRemainder  pgtype.Text        `json:"history_remainder"`
+	HeadAnchors       []string           `json:"head_anchors"`
+	HeadNewestID      pgtype.Text        `json:"head_newest_id"`
+	HeadCheckedAt     pgtype.Timestamptz `json:"head_checked_at"`
+	DiscoveryCaughtUp bool               `json:"discovery_caught_up"`
+	Revision          int64              `json:"revision"`
+	LeaseOwner        pgtype.Text        `json:"lease_owner"`
+	LeaseToken        pgtype.UUID        `json:"lease_token"`
+	LeaseUntil        pgtype.Timestamptz `json:"lease_until"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Setting struct {
 	Key       string             `json:"key"`
 	Value     []byte             `json:"value"`

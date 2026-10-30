@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"time"
 )
@@ -59,15 +60,48 @@ func ParseUploadTime(raw any) (*time.Time, error) {
 	return nil, nil
 }
 
-// UploadTime gọi /player cho một video và trả thời điểm đăng (nil khi không có).
-func (c *Client) UploadTime(ctx context.Context, videoID string) (*time.Time, error) {
+// ParseChannelCaptions báo video có phụ đề do kênh đăng (track có kind khác
+// "asr" — phụ đề tự động không tính). Không có danh sách caption → false.
+func ParseChannelCaptions(raw any) bool {
+	page, ok := raw.(map[string]any)
+	if !ok {
+		return false
+	}
+	tracks := jarr(jget(page, "captions", "playerCaptionsTracklistRenderer", "captionTracks"))
+	for _, raw := range tracks {
+		// Hàng null/rác không phải caption track: bỏ qua, không suy ra "kênh tự đăng".
+		track := jobj(raw)
+		if track == nil || jstr(track["baseUrl"]) == "" {
+			continue
+		}
+		if jstr(track["kind"]) != "asr" {
+			return true
+		}
+	}
+	return false
+}
+
+// FetchUploadTime gọi /player cho một video và trả thời điểm đăng chính xác
+// (nil khi không có) cùng cờ phụ đề do kênh đăng. Lỗi đi qua cùng lớp chuẩn
+// hoá với đọc trang kênh (ctx và DeferredError nguyên vẹn, còn lại FetchError).
+func (c *Client) FetchUploadTime(ctx context.Context, videoID string) (*time.Time, bool, error) {
 	sess, err := c.session(ctx, "")
 	if err != nil {
-		return nil, err
+		return nil, false, normalizeError(err, false, c.now())
 	}
 	resp, err := sess.execute(ctx, "/player", jmap{"videoId": videoID})
 	if err != nil {
-		return nil, err
+		return nil, false, normalizeError(err, false, c.now())
 	}
-	return ParseUploadTime(resp)
+	at, err := ParseUploadTime(resp)
+	if err != nil {
+		// Trang thử thách bot là "nền tảng đang chặn", không phải video lỗi:
+		// worker dừng thăm dò một lúc thay vì đếm lỗi từng video.
+		var blocked *UploadTimeBlockedError
+		if errors.As(err, &blocked) {
+			return nil, false, newFetchError(KindBlocked, err.Error(), 0, nil)
+		}
+		return nil, false, normalizeError(err, false, c.now())
+	}
+	return at, ParseChannelCaptions(resp), nil
 }

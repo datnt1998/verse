@@ -72,7 +72,8 @@ func runServe(args []string) error {
 	settings := postgres.NewSettingsStore(pool)
 	statusSvc := status.New(settings, web.PublishStatus(hub))
 	// Một service việc nền duy nhất cho cả app: storage và máy dùng chung.
-	activities := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
+	notifyActivity := web.Notifier(hub, "activity")
+	activities := activity.New(postgres.NewActivityStore(pool), notifyActivity)
 
 	gateway := web.NewGateway(accounts, hub, statusSvc)
 	gateway.SetProxyConfig(proxyCfg)
@@ -118,14 +119,25 @@ func runServe(args []string) error {
 	}
 	toolKit := tools.New(toolDeps)
 	toolManaged := tools.NewManaged(toolDeps, nil, toolKit)
-	if err := mountPlatforms(gateway, pool, settings, hub, statusSvc, cfgDir, toolKit.YtDlp); err != nil {
+	platformSvc, err := mountPlatforms(gateway, pool, settings, hub, statusSvc, cfgDir, toolKit.YtDlp)
+	if err != nil {
 		return err
 	}
+	// Trinh sát: worker quét đối thủ chạy theo vòng đời serve (ctx riêng, dừng
+	// trước khi pool đóng). Service của nó là mutations của mảng đối thủ.
+	scanCtx, scanStop := context.WithCancel(context.Background())
+	defer scanStop()
+	scanSvc, scanWorker, err := mountScan(gateway, pool, settings, hub, activities, platformSvc)
+	if err != nil {
+		return err
+	}
+	scanWorkerDone := runScanWorker(scanCtx, scanWorker)
+	mountRivals(gateway, pool, logStore, scanSvc)
 	ai, err := wireAI(machineCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps.Runner)
 	if err != nil {
 		return err
 	}
-	machine, err := mountMachine(gateway, pool, settings, hub, statusSvc, machineCtx, cfgDir, logStore, toolDeps, toolKit, toolManaged, ai.Service, activities)
+	machine, err := mountMachine(gateway, pool, settings, hub, statusSvc, machineCtx, cfgDir, logStore, toolDeps, toolKit, toolManaged, ai.Service, activities, notifyActivity)
 	if err != nil {
 		return err
 	}
@@ -160,15 +172,25 @@ func runServe(args []string) error {
 	shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	serverDone := stopHTTP(shutdown, server, hub)
+	var first error
 	// Ngừng nhận việc, huỷ worker, rồi chờ chúng (và tiến trình con của
 	// installer) thoát trước khi đóng log/pool. Hub đã đóng subscriber ở
 	// stopHTTP; worker publish thêm chỉ vào ring, không còn ai nghe.
+	scanStop()
+	// Worker join trước khi service dọn notifier: flush cuối cần kho còn sống.
+	select {
+	case <-scanWorkerDone:
+	case <-shutdown.Done():
+		if first == nil {
+			first = shutdown.Err()
+		}
+	}
+	scanSvc.Stop()
 	machineStop()
 	bgStop()
 	// Luồng đăng nhập/danh mục nền của Kết nối AI bám machineCtx đã huỷ ở
 	// machineStop — join chúng trước khi đóng pool.
 	ai.Service.Close()
-	var first error
 	if err := machine.Shutdown(shutdown); err != nil && first == nil {
 		first = err
 	}

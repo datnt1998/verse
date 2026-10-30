@@ -292,8 +292,9 @@ func TestMoveSerializesConcurrentCalls(t *testing.T) {
 		case err == nil:
 			won++
 		case CodeOf(err) == ErrMoveInProgress:
-		case CodeOf(err) == ErrDestConflict || CodeOf(err) == ErrInvalidPath:
-			// thua cuộc chỗ nhưng đi xa hơn vẫn phải bị chặn an toàn
+		case CodeOf(err) == ErrDestConflict || CodeOf(err) == ErrInvalidPath || CodeOf(err) == ErrDestNotEmpty:
+			// thua cuộc chỗ nhưng đi xa hơn vẫn phải bị chặn an toàn; tới lúc
+			// lần thắng đang chép dở thì đích đã có tệp mà chưa có marker
 		default:
 			t.Fatalf("lỗi lạ: %v", err)
 		}

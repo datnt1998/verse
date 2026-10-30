@@ -1,0 +1,1 @@
+import{j as e,t}from"./index-BGYYPbXS.js";import{S as r}from"./ScreenEmpty-DVheW2ZD.js";function s({route:i}){return e.jsx(r,{title:t.screens.editor.emptyTitle,hint:t.screens.editor.emptyHint})}export{s as EditorScreen};

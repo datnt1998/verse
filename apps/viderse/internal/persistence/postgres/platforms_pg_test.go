@@ -65,6 +65,53 @@ func TestPlatformStateEscalatesAndClears(t *testing.T) {
 	}
 }
 
+// Luồng quét đọc giờ chờ YouTube mỗi nhịp heartbeat khi rảnh, nên đọc phải là
+// SELECT: xmin của dòng đổi nghĩa là vừa có một phiên bản dòng mới (một lần ghi).
+func TestPlatformPauseReadDoesNotWrite(t *testing.T) {
+	ctx := context.Background()
+	db := provision(t)
+	store := postgres.NewPlatformStateStore(db)
+	now := time.Date(2026, 10, 30, 8, 0, 0, 0, time.UTC)
+	xmin := func() string {
+		t.Helper()
+		var x string
+		if err := db.QueryRow(ctx, "SELECT xmin::text FROM platform_state WHERE platform = $1", domain.PlatformYouTube).Scan(&x); err != nil {
+			t.Fatal(err)
+		}
+		return x
+	}
+	if _, err := store.RecordBlocked(ctx, domain.PlatformYouTube, now, "YouTube đang giới hạn tốc độ", 0); err != nil {
+		t.Fatal(err)
+	}
+	blocked := xmin()
+	for range 3 {
+		if until, _, err := store.Pause(ctx, domain.PlatformYouTube, now); err != nil || until == nil {
+			t.Fatalf("pause còn hạn = %v %v", until, err)
+		}
+	}
+	if xmin() != blocked {
+		t.Fatal("đọc giờ chờ còn hạn đã ghi dòng platform_state")
+	}
+
+	// Hết hạn: dọn đúng một lần, các lần đọc sau không ghi nữa.
+	later := now.Add(time.Hour)
+	if until, reason, err := store.Pause(ctx, domain.PlatformYouTube, later); err != nil || until != nil || reason != nil {
+		t.Fatalf("pause hết hạn = %v %v %v", until, reason, err)
+	}
+	cleared := xmin()
+	if cleared == blocked {
+		t.Fatal("giờ chờ hết hạn không được dọn")
+	}
+	for range 3 {
+		if until, _, err := store.Pause(ctx, domain.PlatformYouTube, later); err != nil || until != nil {
+			t.Fatalf("pause sau dọn = %v %v", until, err)
+		}
+	}
+	if xmin() != cleared {
+		t.Fatal("đọc giờ chờ sau khi đã dọn vẫn ghi dòng platform_state")
+	}
+}
+
 func TestPlatformRetryAfterOnlyExtends(t *testing.T) {
 	ctx := context.Background()
 	store := postgres.NewPlatformStateStore(provision(t))

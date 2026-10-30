@@ -1,1 +1,0 @@
-import{j as e,t as r}from"./index-BTPG4JVd.js";import{S as t}from"./ScreenEmpty-C7IZgopR.js";function s({route:i}){return e.jsx(t,{icon:"gallery",title:r.screens.library.emptyTitle,hint:r.screens.library.emptyHint})}export{s as LibraryScreen};

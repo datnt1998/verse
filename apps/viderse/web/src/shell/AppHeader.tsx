@@ -9,6 +9,7 @@ import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
 import { Icon } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
+import { ExploreCrumb } from './ExploreCrumb'
 import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
 import type { Status } from '../api/status'
@@ -43,7 +44,9 @@ export function AppHeader({ route, status, online, userName, channels }: {
         </a>
         {inSettings
           ? <span className="vv-header__crumb">{t.shell.settingsCrumb}</span>
-          : showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
+          : route.name === 'explore'
+            ? <ExploreCrumb scope={route.rival} />
+            : showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
       </div>
       <MainNav route={route} reviewCount={status?.reviewCount ?? 0} />
       <div className="vv-header__zone vv-header__zone--right">

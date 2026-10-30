@@ -50,16 +50,27 @@ func (s *PlatformStateStore) One(ctx context.Context, id domain.PlatformID) (dom
 	return platformStateFromRow(r), true, nil
 }
 
-// Pause đọc giờ chờ còn hiệu lực, dọn trường chờ đã hết hạn cùng lúc.
+// Pause đọc giờ chờ còn hiệu lực. Đọc là một SELECT (luồng quét gọi mỗi nhịp
+// heartbeat khi rảnh); chỉ khi giờ chờ đã hết hạn mới ghi một lần để dọn.
 func (s *PlatformStateStore) Pause(ctx context.Context, id domain.PlatformID, now time.Time) (until *time.Time, reason *string, err error) {
-	r, err := s.q.PausePlatformState(ctx, gen.PausePlatformStateParams{Platform: id, Now: ts(now)})
+	r, err := s.q.GetPlatformState(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil, nil
 	}
 	if err != nil {
 		return nil, nil, fmt.Errorf("đọc giờ chờ %s: %w", id, err)
 	}
-	return timePtr(r.PausedUntil), textPtr(r.PauseReason), nil
+	until = timePtr(r.PausedUntil)
+	if until == nil {
+		return nil, nil, nil
+	}
+	if !until.After(now) {
+		if err := s.q.ClearExpiredPlatformPause(ctx, gen.ClearExpiredPlatformPauseParams{Platform: id, Now: ts(now)}); err != nil {
+			return nil, nil, fmt.Errorf("dọn giờ chờ %s: %w", id, err)
+		}
+		return nil, nil, nil
+	}
+	return until, textPtr(r.PauseReason), nil
 }
 
 // RecordBlocked ghi một lần bị chặn: tăng đếm và đặt giờ chờ tăng dần theo

@@ -123,6 +123,7 @@ const (
 	kindTab          reqKind = "tab"
 	kindContinuation reqKind = "continuation"
 	kindResolve      reqKind = "resolve"
+	kindPlayer       reqKind = "player"
 )
 
 type tracedReq struct {
@@ -172,6 +173,7 @@ func (ft *fixtureTransport) defaults(t *testing.T) map[reqKind]handlerFunc {
 		kindResolve: func(tracedReq) (*http.Response, error) {
 			return okResponse(`{"endpoint":{"browseEndpoint":{"browseId":"` + testChannel + `"}}}`), nil
 		},
+		kindPlayer: func(tracedReq) (*http.Response, error) { return okResponse(fixtureText(t, "player.json")), nil },
 	}
 }
 
@@ -200,6 +202,8 @@ func (ft *fixtureTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		kind = kindSW
 	case strings.Contains(req.URL.Path, "resolve_url"):
 		kind = kindResolve
+	case strings.HasSuffix(req.URL.Path, "/youtubei/v1/player"):
+		kind = kindPlayer
 	case body != nil && body["continuation"] != nil:
 		kind = kindContinuation
 	case body != nil && body["params"] != nil:

@@ -30,6 +30,8 @@ export function ChannelAvatar({ name, initials, src, color, size = 26, stacked =
     return (
       <span role="img" aria-label={name} style={{
         ...base,
+        // Nền kênh nằm dưới ảnh: ảnh chưa tải hoặc lỗi vẫn thấy hình tròn.
+        backgroundColor: color?.bg ?? 'var(--color-surface-2)',
         backgroundImage: `url(${JSON.stringify(src)})`, backgroundSize: 'cover', backgroundPosition: 'center',
         border: color?.ring ? `1.5px solid ${color.ring}` : undefined,
       }} />

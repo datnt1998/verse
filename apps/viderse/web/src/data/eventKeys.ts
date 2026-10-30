@@ -4,7 +4,7 @@
 import type { Key } from '@noverse/ui/data'
 import { keys } from './keys'
 
-export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage'] as const
+export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage', 'rivals'] as const
 export type ServerEventType = (typeof SERVER_EVENT_TYPES)[number]
 
 export type ServerEvent = { type: ServerEventType; data: unknown; id: string }
@@ -20,5 +20,8 @@ export function keysForEvent(event: { type: string; data: unknown }): EventKeys 
   if (event.type === 'tools') return [keys.tools(), keys.setup()]
   if (event.type === 'activity') return [keys.activity(), keys.setup(), keys.storage()]
   if (event.type === 'storage') return [keys.storage(), keys.activity()]
+  // `rivals` {rev, ref=id kênh|'': đổi mức danh sách} → mọi khoá dưới ['rivals']
+  // (danh sách đối thủ, video, quét lịch sử, lịch đăng của từng kênh).
+  if (event.type === 'rivals') return [['rivals']]
   return []
 }

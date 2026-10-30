@@ -1,0 +1,1 @@
+import{j as e,t as n,A as t,n as r,p as i}from"./index-BGYYPbXS.js";import{S as s}from"./ScreenEmpty-DVheW2ZD.js";function p({route:a}){return e.jsx(s,{icon:"user",title:n.screens.channel.emptyTitle,hint:n.screens.channel.emptyHint,action:e.jsx(t,{variant:"primary",onClick:()=>r(i.new()),children:n.screens.channel.emptyAction})})}export{p as ChannelScreen};

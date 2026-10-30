@@ -1,1 +1,0 @@
-import{j as t,t as e}from"./index-BTPG4JVd.js";import{S as r}from"./ScreenEmpty-C7IZgopR.js";function s({route:o}){return t.jsx(r,{title:e.screens.explore.emptyTitle,hint:e.screens.explore.emptyHint})}export{s as ExploreScreen};

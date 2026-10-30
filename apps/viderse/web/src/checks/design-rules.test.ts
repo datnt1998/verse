@@ -77,6 +77,34 @@ describe('luật thiết kế trong src/', () => {
     }
     expect(offenders).toEqual([])
   })
+  it('mọi var(--token) không có giá trị dự phòng đều được khai báo', () => {
+    // Token chưa khai báo làm cả khai báo CSS bị bỏ qua mà không báo lỗi
+    // (hover mất nền, min-height mất tác dụng). Token khai báo ở CSS của app,
+    // CSS của kit, hoặc gán trong style JSX ('--x': …).
+    const kitFiles: string[] = []
+    const collect = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const path = join(dir, entry)
+        if (statSync(path).isDirectory()) collect(path)
+        else if (/\.(ts|tsx|css)$/.test(entry)) kitFiles.push(path)
+      }
+    }
+    collect(join(SRC, '../../../../platform/ui/src'))
+    const declared = new Set<string>()
+    for (const file of [...files, ...kitFiles]) {
+      const text = readFileSync(file, 'utf8')
+      for (const m of text.matchAll(/(--[A-Za-z0-9_-]+)\s*:/g)) declared.add(m[1])
+      for (const m of text.matchAll(/['"](--[A-Za-z0-9_-]+)['"]\s*[:,\]]/g)) declared.add(m[1])
+    }
+    const offenders: string[] = []
+    for (const file of files) {
+      const text = readFileSync(file, 'utf8')
+      for (const m of text.matchAll(/var\((--[A-Za-z0-9_-]+)\s*\)/g)) {
+        if (!declared.has(m[1])) offenders.push(`${file.replace(`${SRC}/`, '')}: ${m[1]}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
   it('mỗi màn hình nhiều nhất một nút primary', () => {
     // Đếm ActionButton variant="primary" theo file trong screens/ (trừ dev kit).
     const offenders: string[] = []
@@ -148,5 +176,24 @@ describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () =
     expect(rule).toBeTruthy()
     expect(rule![0]).toContain('margin-inline: var(--vv-s-16)')
     expect(rule![0]).not.toContain('padding')
+  })
+})
+
+describe('Khám phá: lớp phủ <select> trong chip lọc', () => {
+  it('chip chứa <select> phủ tuyệt đối phải là khối chứa (position: relative)', () => {
+    // <select> trong suốt `position:absolute; inset:0` lấy chip làm khối chứa.
+    // Thiếu position trên chip thì select phủ cả cửa sổ và nuốt mọi cú bấm —
+    // jsdom không tính layout nên giữ luật bằng stylesheet.
+    const filterBar = readFileSync(join(SRC, 'screens/explore/FilterBar.tsx'), 'utf8')
+    const exploreCss = readFileSync(join(SRC, 'screens/explore/explore.css'), 'utf8')
+    const hosts = filterBar.split('<label className="').slice(1)
+      .map((chunk) => ({ className: chunk.slice(0, chunk.indexOf('"')), body: chunk.slice(0, chunk.indexOf('</label>')) }))
+      .filter(({ body }) => body.includes('<select') && body.includes("position: 'absolute'"))
+    expect(hosts.length).toBeGreaterThan(0)
+    for (const { className } of hosts) {
+      const positioned = className.split(/\s+/).some((cls) =>
+        new RegExp(String.raw`\.${cls}\s*\{[^}]*position:\s*relative`).test(exploreCss))
+      expect(positioned, `chip "${className}" chứa select phủ tuyệt đối nhưng không có position: relative`).toBe(true)
+    }
   })
 })

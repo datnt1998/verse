@@ -1,1 +1,0 @@
-import{j as t,t as e,A as n,n as r,p as i}from"./index-BTPG4JVd.js";import{S as s}from"./ScreenEmpty-C7IZgopR.js";function u(){return t.jsx(s,{title:e.screens.queue.emptyTitle,hint:e.screens.queue.emptyHint,action:t.jsx(n,{variant:"primary",onClick:()=>r(i.new()),children:e.screens.queue.emptyAction})})}export{u as QueueScreen};

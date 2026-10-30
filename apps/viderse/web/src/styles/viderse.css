@@ -81,13 +81,17 @@
   --vv-s-46: 46px;
   --vv-s-48: 48px;
   --vv-s-56: 56px;
+  --vv-s-58: 58px;
   --vv-s-60: 60px;
+  --vv-s-64: 64px;
   --vv-s-80: 80px;
   --vv-s-9: 9px;
   --vv-s-34: 34px;
   --vv-s-240: 240px;
   --vv-s-250: 250px;
   --vv-s-160: 160px;
+  --vv-s-11: 11px;
+  --vv-s-76: 76px;
   --vv-s-132: 132px;
   --vv-s-400: 400px;
   --vv-r-4: 4px;
@@ -106,6 +110,8 @@
   --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
   /* Chú thích chân cột Cài đặt (#8B8B97 của artboard — giữa fg-3 và fg-4). */
   --vv-fg-note: #8B8B97;
+  /* Thân hộp thoại/lời giải thích của artboard (--vv-text-soft) — giữa fg-2 và fg-3. */
+  --vv-fg-soft: #B4B4BE;
   /* Mực bước cài đang chờ (icon bước/số) và nền tile trung lập của nó. */
   --vv-st-step-fg: #8B8B97;
   --vv-tile-idle: #1A1A1D;
@@ -128,6 +134,30 @@
   --vv-r-9: 9px;
   --vv-r-10: 10px;
   --vv-r-12: 12px;
+  /* Khám phá (artboard Explore): mảng tối của nhãn trên ảnh thu nhỏ, nền ô
+     lịch đăng trống, viền ô tick thẻ video, màu avatar đối thủ, bóng thanh
+     chọn nhiều và nền khung đăng đang chọn. */
+  --vv-thumb-veil: rgba(0, 0, 0, .75);
+  --vv-heat-empty: rgba(237, 237, 239, .05);
+  --vv-check-ring: rgba(255, 255, 255, .4);
+  --vv-line-70: rgba(255, 77, 99, .7);
+  --vv-line-28: rgba(255, 255, 255, .28);
+  /* Viền nút "Chọn nhiều" đang bật (artboard Explore .3). */
+  --vv-line-30: rgba(255, 255, 255, .3);
+  --vv-line-35: rgba(255, 255, 255, .35);
+  --vv-wash-6: rgba(255, 255, 255, .06);
+  --vv-wash-8: rgba(255, 255, 255, .08);
+  --vv-tile-hover: #1C1C1F;
+  /* Nền hover của artboard: nút/chip trong suốt (.07) và hàng danh sách (.04). */
+  --vv-hover: rgba(255, 255, 255, .07);
+  --vv-hover-row: rgba(255, 255, 255, .04);
+  --vv-shadow-bulk: 0 18px 40px -12px rgba(0, 0, 0, .85);
+  --vv-r-3: 3px;
+  --vv-rav-1: #34407A;
+  --vv-rav-2: #6E4F25;
+  --vv-rav-3: #255E4B;
+  --vv-rav-4: #6E3324;
+  --vv-rav-5: #3E4659;
   /* Màu nền/mực riêng của khung QR đăng nhập và ảnh chờ (không có trong kit).
      --vv-qr-done/--vv-qr-reject là vòng 48 px đè lên mã: xong (xanh đậm) và
      Bilibili từ chối (cam cháy) — chữ trắng luôn đủ tương phản. */

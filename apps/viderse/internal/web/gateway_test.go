@@ -143,6 +143,39 @@ func TestAPIRoutesRequireSession(t *testing.T) {
 	}
 }
 
+// Luồng SSE ping mỗi 2 s nhưng chỉ kiểm phiên (một truy vấn DB) sau mỗi
+// sessionRecheck; phiên hết hiệu lực vẫn đóng luồng ở lần kiểm kế tiếp.
+func TestEventSessionRecheckIsThrottled(t *testing.T) {
+	now := time.Date(2026, 10, 30, 9, 0, 0, 0, time.UTC)
+	calls, valid := 0, true
+	tick := throttledCheck(15*time.Second, func() time.Time { return now }, func() bool { calls++; return valid })
+	for i := range 7 { // 7 ping × 2 s = 14 s: chưa tới nhịp kiểm phiên
+		now = now.Add(2 * time.Second)
+		if !tick() {
+			t.Fatalf("ping %d đóng luồng trước nhịp kiểm phiên", i)
+		}
+	}
+	if calls != 0 {
+		t.Fatalf("kiểm phiên %d lần trong 14 s, muốn 0", calls)
+	}
+	now = now.Add(2 * time.Second) // 16 s
+	if !tick() || calls != 1 {
+		t.Fatalf("sau 16 s: calls=%d, muốn 1 lần kiểm và giữ luồng", calls)
+	}
+	valid = false // phiên bị thu hồi
+	now = now.Add(2 * time.Second)
+	if !tick() || calls != 1 {
+		t.Fatalf("2 s sau lần kiểm: calls=%d, muốn chưa kiểm lại", calls)
+	}
+	now = now.Add(14 * time.Second)
+	if tick() {
+		t.Fatal("phiên bị thu hồi mà luồng vẫn mở sau nhịp kiểm phiên")
+	}
+	if calls != 2 {
+		t.Fatalf("calls=%d, muốn 2", calls)
+	}
+}
+
 func TestGetStatusShapeAndETag(t *testing.T) {
 	tg := newTestGateway(t)
 	cookie := tg.sessionCookie()

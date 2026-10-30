@@ -147,6 +147,24 @@ func (s *ActivityStore) ResetTask(ctx context.Context, id string, spec domain.Ta
 	})
 }
 
+// AdoptTask nhận lại một dòng đang sống: nội dung/trạng thái/owner được viết
+// lại, tiến độ giữ nguyên trừ khi spec mang tiến độ mới.
+func (s *ActivityStore) AdoptTask(ctx context.Context, id string, spec domain.TaskSpec) error {
+	objectRef, progress, action, eta, agent, err := taskParams(spec)
+	if err != nil {
+		return err
+	}
+	uid, err := scanUUID(id)
+	if err != nil {
+		return err
+	}
+	return s.q.AdoptTask(ctx, gen.AdoptTaskParams{
+		Agent: agent, Title: spec.Title, ObjectRef: objectRef,
+		Phase: spec.Phase, Progress: progress, EtaSec: eta, State: string(domain.TaskRunning),
+		Action: action, OwnerPid: int32(os.Getpid()), ID: uid,
+	})
+}
+
 func (s *ActivityStore) UpdateTask(ctx context.Context, id string, u domain.TaskUpdate) error {
 	uid, err := scanUUID(id)
 	if err != nil {
@@ -243,14 +261,29 @@ func notificationFromRow(r gen.Notification) activity.Notification {
 
 // UpsertNotification áp luật gộp 10 giây trong một transaction khoá theo kind
 // (hashtext → advisory xact lock): hai writer đồng thời không thể cùng thấy
-// "không có dòng trong cửa sổ" rồi cùng chèn.
+// "không có dòng trong cửa sổ" rồi cùng chèn. Trả về dòng đã ghi trong chính
+// giao dịch đó — đọc lại sau commit có thể ra thông báo của writer khác.
 func (s *ActivityStore) UpsertNotification(ctx context.Context, kind, text, href, actionLabel string, window time.Duration) (*activity.Notification, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	q := gen.New(tx)
+	row, err := upsertNotificationTx(ctx, tx, gen.New(tx), kind, text, href, actionLabel, window)
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	n := notificationFromRow(*row)
+	return &n, nil
+}
+
+// upsertNotificationTx ghi hoặc gộp một thông báo trong giao dịch sẵn có: khoá
+// theo kind bằng advisory xact lock rồi áp luật gộp (cùng kind trong window thì
+// tăng count và giữ created_at của lần đầu).
+func upsertNotificationTx(ctx context.Context, tx pgx.Tx, q *gen.Queries, kind, text, href, actionLabel string, window time.Duration) (*gen.Notification, error) {
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, kind); err != nil {
 		return nil, err
 	}
@@ -270,15 +303,11 @@ func (s *ActivityStore) UpsertNotification(ctx context.Context, kind, text, href
 		}); err != nil {
 			return nil, err
 		}
-		if err := tx.Commit(ctx); err != nil {
-			return nil, err
-		}
-		merged, err := s.q.LatestNotification(ctx, kind)
+		merged, err := q.LatestNotification(ctx, kind)
 		if err != nil {
 			return nil, err
 		}
-		n := notificationFromRow(merged)
-		return &n, nil
+		return &merged, nil
 	}
 	row, err := q.InsertNotification(ctx, gen.InsertNotificationParams{
 		Kind: kind, Text: text, Href: href, ActionLabel: actionLabel,
@@ -286,13 +315,10 @@ func (s *ActivityStore) UpsertNotification(ctx context.Context, kind, text, href
 	if err != nil {
 		return nil, err
 	}
-	if err := tx.Commit(ctx); err != nil {
-		return nil, err
-	}
-	n := notificationFromRow(row)
-	return &n, nil
+	return &row, nil
 }
 
+// ListUnreadNotifications đọc thông báo chưa đọc, mới nhất trước.
 func (s *ActivityStore) ListUnreadNotifications(ctx context.Context, limit int) ([]activity.Notification, error) {
 	rows, err := s.q.ListUnreadNotifications(ctx)
 	if err != nil {
@@ -308,6 +334,7 @@ func (s *ActivityStore) ListUnreadNotifications(ctx context.Context, limit int) 
 	return out, nil
 }
 
+// MarkRead đánh dấu đã đọc; ids rỗng nghĩa là tất cả.
 func (s *ActivityStore) MarkRead(ctx context.Context, ids []string) error {
 	if ids == nil {
 		ids = []string{} // nil = tất cả; JSON null không so được với '[]'
@@ -321,6 +348,12 @@ func (s *ActivityStore) MarkRead(ctx context.Context, ids []string) error {
 
 // InsertErrorEvent ghi một lỗi bền (lịch sử 7 ngày của mục Báo lỗi).
 func (s *ActivityStore) InsertErrorEvent(ctx context.Context, e activity.ErrorEvent) error {
+	return insertErrorEventTx(ctx, s.q, e)
+}
+
+// insertErrorEventTx ghi một lần lỗi trong giao dịch sẵn có (đối tượng liên
+// quan mã hoá thành object_ref).
+func insertErrorEventTx(ctx context.Context, q *gen.Queries, e activity.ErrorEvent) error {
 	var objectRef []byte
 	if e.Object != nil {
 		encoded, err := json.Marshal(e.Object)
@@ -329,7 +362,7 @@ func (s *ActivityStore) InsertErrorEvent(ctx context.Context, e activity.ErrorEv
 		}
 		objectRef = encoded
 	}
-	return s.q.InsertErrorEvent(ctx, gen.InsertErrorEventParams{
+	return q.InsertErrorEvent(ctx, gen.InsertErrorEventParams{
 		Kind: e.Kind, What: e.What, Why: e.Why, Href: e.Href,
 		ActionLabel: e.ActionLabel, Op: e.Op, ObjectRef: objectRef,
 	})

@@ -13,6 +13,7 @@ const usage = `Cách dùng:
   viderse serve [-addr HOST:PORT]     Chạy web UI (mặc định 127.0.0.1:8789)
   viderse migrate up|status|version   Quản lý schema Postgres (VIDERSE_DATABASE_URL)
   viderse login [provider] [--device] Đăng nhập gói thuê bao (mặc định: openai-codex)
+  viderse rival add|list|scan|videos|posting-slots|remove  Đối thủ YouTube (VIDERSE_DATABASE_URL)
   viderse logout [provider]           Xoá phiên đăng nhập
   viderse login --status              Xem trạng thái đăng nhập
   viderse version                     In phiên bản
@@ -45,6 +46,8 @@ func main() {
 		err = runServe(args[1:])
 	case "migrate":
 		err = runMigrate(args[1:])
+	case "rival":
+		code = runRivalCommand(args[1:], os.Stdout, os.Stderr)
 	case "login":
 		code = runLoginCommand(args[1:], os.Stdout, os.Stderr)
 	case "logout":

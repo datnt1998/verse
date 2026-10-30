@@ -1,0 +1,18 @@
+{
+  "playabilityStatus": {"status": "OK"},
+  "microformat": {
+    "playerMicroformatRenderer": {
+      "publishDate": "2025-10-14T07:00:06-07:00",
+      "uploadDate": "2025-10-10T22:15:00-07:00",
+      "ownerChannelName": "Fixture Channel"
+    }
+  },
+  "captions": {
+    "playerCaptionsTracklistRenderer": {
+      "captionTracks": [
+        {"baseUrl": "https://www.youtube.com/api/timedtext?v=fixture&lang=en&kind=asr", "languageCode": "en", "kind": "asr", "name": {"simpleText": "English (auto-generated)"}},
+        {"baseUrl": "https://www.youtube.com/api/timedtext?v=fixture&lang=vi", "languageCode": "vi", "name": {"simpleText": "Tiếng Việt"}}
+      ]
+    }
+  }
+}

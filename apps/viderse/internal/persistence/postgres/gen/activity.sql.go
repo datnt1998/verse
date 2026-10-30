@@ -11,6 +11,52 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const adoptTask = `-- name: AdoptTask :exec
+UPDATE background_tasks
+SET agent      = $1,
+    title      = $2,
+    object_ref = $3::jsonb,
+    phase      = $4,
+    progress   = COALESCE($5::jsonb, progress),
+    eta_sec    = $6,
+    state      = $7,
+    action     = $8::jsonb,
+    owner_pid  = $9,
+    updated_at = now()
+WHERE id = $10::uuid
+`
+
+type AdoptTaskParams struct {
+	Agent     pgtype.Text `json:"agent"`
+	Title     string      `json:"title"`
+	ObjectRef []byte      `json:"object_ref"`
+	Phase     string      `json:"phase"`
+	Progress  []byte      `json:"progress"`
+	EtaSec    pgtype.Int4 `json:"eta_sec"`
+	State     string      `json:"state"`
+	Action    []byte      `json:"action"`
+	OwnerPid  int32       `json:"owner_pid"`
+	ID        pgtype.UUID `json:"id"`
+}
+
+// Nhận lại một dòng việc đã có mà giữ nguyên tiến độ đang hiện (ResetTask chỉ
+// dành cho retry sau failed, nơi tiến độ cũ phải bị xoá sạch).
+func (q *Queries) AdoptTask(ctx context.Context, arg AdoptTaskParams) error {
+	_, err := q.db.Exec(ctx, adoptTask,
+		arg.Agent,
+		arg.Title,
+		arg.ObjectRef,
+		arg.Phase,
+		arg.Progress,
+		arg.EtaSec,
+		arg.State,
+		arg.Action,
+		arg.OwnerPid,
+		arg.ID,
+	)
+	return err
+}
+
 const bumpNotification = `-- name: BumpNotification :exec
 UPDATE notifications
 SET count = count + 1, text = $1, href = $2,

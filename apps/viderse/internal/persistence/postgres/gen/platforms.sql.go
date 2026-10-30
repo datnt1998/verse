@@ -42,6 +42,25 @@ func (q *Queries) AcquirePlatformScanner(ctx context.Context, arg AcquirePlatfor
 	return acquired, err
 }
 
+const clearExpiredPlatformPause = `-- name: ClearExpiredPlatformPause :exec
+UPDATE platform_state
+SET paused_until = NULL, pause_reason = NULL
+WHERE platform = $1 AND paused_until <= $2::timestamptz
+`
+
+type ClearExpiredPlatformPauseParams struct {
+	Platform string             `json:"platform"`
+	Now      pgtype.Timestamptz `json:"now"`
+}
+
+// Dọn giờ chờ đã hết hạn (đếm chặn giữ nguyên). Chỉ chạy khi vừa đọc thấy hạn
+// đã qua, nên đọc giờ chờ lúc bình thường không ghi dòng nào; điều kiện
+// paused_until <= now giữ nguyên lần chặn mới ghi chen giữa đọc và dọn.
+func (q *Queries) ClearExpiredPlatformPause(ctx context.Context, arg ClearExpiredPlatformPauseParams) error {
+	_, err := q.db.Exec(ctx, clearExpiredPlatformPause, arg.Platform, arg.Now)
+	return err
+}
+
 const clearPlatformError = `-- name: ClearPlatformError :exec
 UPDATE platform_state
 SET last_error_code = '', last_error_at = NULL, last_error_job_id = NULL
@@ -134,36 +153,6 @@ func (q *Queries) ListPlatformStates(ctx context.Context) ([]PlatformState, erro
 		return nil, err
 	}
 	return items, nil
-}
-
-const pausePlatformState = `-- name: PausePlatformState :one
-UPDATE platform_state
-SET paused_until = CASE
-        WHEN paused_until IS NOT NULL AND paused_until <= $1::timestamptz THEN NULL
-        ELSE paused_until END,
-    pause_reason = CASE
-        WHEN paused_until IS NOT NULL AND paused_until <= $1::timestamptz THEN NULL
-        ELSE pause_reason END
-WHERE platform = $2
-RETURNING paused_until, pause_reason
-`
-
-type PausePlatformStateParams struct {
-	Now      pgtype.Timestamptz `json:"now"`
-	Platform string             `json:"platform"`
-}
-
-type PausePlatformStateRow struct {
-	PausedUntil pgtype.Timestamptz `json:"paused_until"`
-	PauseReason pgtype.Text        `json:"pause_reason"`
-}
-
-// Đọc giờ chờ còn hiệu lực; dọn các trường chờ đã hết hạn trong cùng truy vấn.
-func (q *Queries) PausePlatformState(ctx context.Context, arg PausePlatformStateParams) (PausePlatformStateRow, error) {
-	row := q.db.QueryRow(ctx, pausePlatformState, arg.Now, arg.Platform)
-	var i PausePlatformStateRow
-	err := row.Scan(&i.PausedUntil, &i.PauseReason)
-	return i, err
 }
 
 const recordPlatformBlocked = `-- name: RecordPlatformBlocked :one

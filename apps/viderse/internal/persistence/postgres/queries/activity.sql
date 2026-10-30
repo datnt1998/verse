@@ -15,6 +15,22 @@ VALUES (gen_random_uuid(), sqlc.arg(kind), sqlc.arg(agent), sqlc.arg(title), sql
         sqlc.arg(owner_pid))
 RETURNING *;
 
+-- name: AdoptTask :exec
+-- Nhận lại một dòng việc đã có mà giữ nguyên tiến độ đang hiện (ResetTask chỉ
+-- dành cho retry sau failed, nơi tiến độ cũ phải bị xoá sạch).
+UPDATE background_tasks
+SET agent      = sqlc.arg(agent),
+    title      = sqlc.arg(title),
+    object_ref = sqlc.arg(object_ref)::jsonb,
+    phase      = sqlc.arg(phase),
+    progress   = COALESCE(sqlc.narg(progress)::jsonb, progress),
+    eta_sec    = sqlc.arg(eta_sec),
+    state      = sqlc.arg(state),
+    action     = sqlc.arg(action)::jsonb,
+    owner_pid  = sqlc.arg(owner_pid),
+    updated_at = now()
+WHERE id = sqlc.arg(id)::uuid;
+
 -- name: UpdateTask :execrows
 -- Trường nil giữ giá trị cũ; state rỗng giữ trạng thái cũ. Chỉ chạm dòng còn
 -- tồn tại: việc đã Finish không hồi sinh.

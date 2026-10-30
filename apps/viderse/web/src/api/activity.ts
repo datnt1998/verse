@@ -1,7 +1,8 @@
 // Kiểu wire của GET /api/activity (hợp đồng dữ liệu §11) — Việc nền & thông báo.
 // Thao tác của một việc nền không qua endpoint chung: `objectRef.type` quyết
 // endpoint (tool → /api/tools/{id}/install|cancel, setup_step → /api/setup/retry,
-// storage_move → /api/storage/move/:taskId/cancel).
+// storage_move → /api/storage/move/:taskId/cancel, rival → POST
+// /api/rivals/{id}/scan với action = op, riêng retry → resume).
 import { request } from './request'
 
 export type TaskKind =

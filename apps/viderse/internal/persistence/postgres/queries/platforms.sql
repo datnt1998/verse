@@ -13,17 +13,13 @@ WHERE platform = $1;
 -- name: EnsurePlatformState :exec
 INSERT INTO platform_state (platform) VALUES ($1) ON CONFLICT (platform) DO NOTHING;
 
--- name: PausePlatformState :one
--- Đọc giờ chờ còn hiệu lực; dọn các trường chờ đã hết hạn trong cùng truy vấn.
+-- name: ClearExpiredPlatformPause :exec
+-- Dọn giờ chờ đã hết hạn (đếm chặn giữ nguyên). Chỉ chạy khi vừa đọc thấy hạn
+-- đã qua, nên đọc giờ chờ lúc bình thường không ghi dòng nào; điều kiện
+-- paused_until <= now giữ nguyên lần chặn mới ghi chen giữa đọc và dọn.
 UPDATE platform_state
-SET paused_until = CASE
-        WHEN paused_until IS NOT NULL AND paused_until <= sqlc.arg(now)::timestamptz THEN NULL
-        ELSE paused_until END,
-    pause_reason = CASE
-        WHEN paused_until IS NOT NULL AND paused_until <= sqlc.arg(now)::timestamptz THEN NULL
-        ELSE pause_reason END
-WHERE platform = sqlc.arg(platform)
-RETURNING paused_until, pause_reason;
+SET paused_until = NULL, pause_reason = NULL
+WHERE platform = sqlc.arg(platform) AND paused_until <= sqlc.arg(now)::timestamptz;
 
 -- name: RecordPlatformBlocked :one
 -- Lần bị chặn thứ n: đếm tăng một, giờ chờ = now + max(15·2^(n-1) phút trần

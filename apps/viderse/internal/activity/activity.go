@@ -64,8 +64,12 @@ type Store interface {
 	// FindTaskByObject trả việc của một đối tượng (kind + object_ref), ErrNotFound khi vắng.
 	FindTaskByObject(ctx context.Context, kind domain.TaskKind, object domain.ObjectRef) (*Task, error)
 	InsertTask(ctx context.Context, spec domain.TaskSpec) (*Task, error)
-	// ResetTask viết lại toàn bộ nội dung của một việc (retry sau failed).
+	// ResetTask viết lại toàn bộ nội dung của một việc (retry sau failed): tiến
+	// độ cũ bị xoá sạch.
 	ResetTask(ctx context.Context, id string, spec domain.TaskSpec) error
+	// AdoptTask nhận lại một việc đang sống: viết lại nội dung, giữ tiến độ
+	// đang hiện trừ khi spec mang tiến độ mới.
+	AdoptTask(ctx context.Context, id string, spec domain.TaskSpec) error
 	UpdateTask(ctx context.Context, id string, u domain.TaskUpdate) error
 	DeleteTask(ctx context.Context, id string) error
 	ListTasks(ctx context.Context) ([]Task, error)
@@ -115,6 +119,22 @@ func (s *Service) emit(ref string) {
 	}
 }
 
+// Changed phát sự kiện một việc nền (hoặc thông báo) vừa đổi mà không sửa dữ
+// liệu. Dùng cho luồng ghi thẳng qua kho chung nhưng vẫn phải báo UI.
+func (s *Service) Changed(ref string) {
+	s.emit(ref)
+}
+
+// FindTaskByObject trả việc còn sống của một đối tượng (nil khi vắng) — dùng
+// cho các mảng cần dọn dòng việc nền sau khi xoá đối tượng.
+func (s *Service) FindTaskByObject(ctx context.Context, kind domain.TaskKind, object domain.ObjectRef) (*Task, error) {
+	t, err := s.store.FindTaskByObject(ctx, kind, object)
+	if errors.Is(err, ErrNotFound) {
+		return nil, nil
+	}
+	return t, err
+}
+
 // Start mở một việc nền mới và trả id của nó. Một đối tượng chỉ có một việc:
 // Start lặp trên cùng (kind, object) kế thừa dòng cũ — việc failed được đặt
 // lại thành running (retry), việc đang sống được viết lại nội dung.
@@ -138,8 +158,16 @@ func (s *Service) Start(ctx context.Context, spec domain.TaskSpec) (string, erro
 			return "", err
 		}
 		id = created.ID
-	} else {
+	} else if existing.State == domain.TaskFailed {
+		// Retry sau failed: viết lại cả dòng, tiến độ cũ bị xoá sạch.
 		if err := s.store.ResetTask(ctx, existing.ID, spec); err != nil {
+			return "", err
+		}
+		id = existing.ID
+	} else {
+		// Nhận lại một việc đang sống: viết lại nội dung nhưng GIỮ tiến độ đang
+		// hiện — trừ khi spec mang tiến độ mới (bên gọi là chủ của con số đó).
+		if err := s.store.AdoptTask(ctx, existing.ID, spec); err != nil {
 			return "", err
 		}
 		id = existing.ID

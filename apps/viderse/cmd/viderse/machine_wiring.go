@@ -30,9 +30,8 @@ import (
 
 // mountMachine dựng mảng "máy" trên pool/hub/status, dùng chung bộ binary
 // (kit/managed) mà serve.go đã dựng để khối AIConn cũng thấy đúng một bản.
-func mountMachine(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, ctx context.Context, dir string, logStore *logs.Store, deps tools.Deps, kit *tools.Tools, managed *tools.Managed, chatGPT toolsvc.ChatGPTSession, activities *activity.Service) (*machineRuntime, error) {
+func mountMachine(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, ctx context.Context, dir string, logStore *logs.Store, deps tools.Deps, kit *tools.Tools, managed *tools.Managed, chatGPT toolsvc.ChatGPTSession, activities *activity.Service, notifyActivity func(ref string)) (*machineRuntime, error) {
 
-	notifyActivity := web.Notifier(hub, "activity")
 	notifyTools := web.Notifier(hub, "tools")
 
 	// Phục hồi sau sập: việc còn "running" của process trước thành failed kèm
