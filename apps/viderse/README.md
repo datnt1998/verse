@@ -78,7 +78,9 @@ lan sang chỗ khác.
   không biến toàn cục).
 - `internal/<mảng>`: mỗi gói là một mảng nghiệp vụ (`status`, `tools`,
   `youtube`, …). `internal/domain` chỉ chứa kiểu giá trị và mã lỗi dùng chung.
-  Chiều phụ thuộc: `cmd`, `web` → gói nghiệp vụ → `domain`.
+  Chiều phụ thuộc: `cmd` → `web`, `persistence` → gói nghiệp vụ → `domain`;
+  gói nghiệp vụ không import `web`, `persistence`, `bootstrap` hay `cmd`
+  (`archtest` › `TestLayeredAppImports` chặn ở mã chạy thật).
 - Interface đặt ở phía dùng và nhỏ nhất có thể; hệ ngoài (binary, HTTP, model,
   YouTube) luôn nằm sau interface để thay bản khác hoặc test bằng bản giả.
 - `internal/persistence`: migration goose (`migrations/`) và store Postgres

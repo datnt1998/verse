@@ -64,8 +64,8 @@ Design: 07 §15 (AI), §23 (thư mục dự án), §24 (nền tảng nguồn, t�
   - biên nhận ghi trước và sau mỗi lần vẽ để không trả tiền hai lần khi phục hồi;
   - D7: giới hạn 50 ảnh mỗi ngày cho mỗi nhà cung cấp trả theo ảnh, có thể chỉnh, 0 nghĩa là không tự tiêu.
 - **`internal/storage`** (V22):
-  - thư mục dự án mặc định `~/Viderse`;
-  - API duyệt thư mục phía server để chọn đường dẫn (hỏi đáp #10);
+  - thư mục dự án mặc định `~/.viderse/projects` (hỏi đáp #10), đường dẫn lưu trong cơ sở dữ liệu nên đổi thư mục không cần khởi động lại;
+  - API duyệt thư mục phía server để chọn đường dẫn (hỏi đáp #10), mở thư mục trên máy chạy Viderse;
   - báo dung lượng đã dùng;
   - phát hiện ổ biến mất hoặc chỉ đọc thì đưa vào Cần xử lý;
   - dọn dữ liệu theo `retention.ts`.
@@ -80,7 +80,7 @@ Design: 07 §15 (AI), §23 (thư mục dự án), §24 (nền tảng nguồn, t�
   - `grok=signed|code|out`, `bili=saved|empty`;
   - `clean=idle|preview|done`;
   - `ai=none|director|artist`.
-- `screens/onboard`: bước `setup` (`running|login|failed`) chạy cài đặt thật và hiện tiến độ qua SSE.
+- `screens/setup` (route `#/setup`, hỏi đáp #17): bước Chuẩn bị máy (`running|login|failed`) chạy cài đặt thật và hiện tiến độ qua SSE.
 - Chấm ở bánh răng khi đăng nhập ChatGPT hết hạn; bấm vào mở đúng mục.
 
 ## Kiểm thử
@@ -105,6 +105,14 @@ Design: 07 §15 (AI), §23 (thư mục dự án), §24 (nền tảng nguồn, t�
 - Đạt mục Nghiệm thu của **V7**, **V17**, **V22**, **V24** và phần tài khoản của **V23** (08-dev-prompt).
 - Lần đầu mở trên máy chưa có công cụ: hoàn tất bước `setup`, không cần mở terminal.
 - Không có bí mật nào trong log, API hay bản xuất chẩn đoán (test che bí mật).
+
+## Tiến độ (30/10/2026)
+
+- [x] Backend: tools, toolsvc, setup, logs, activity, aiconn, secretbox, accounts, platforms, storage, retention, fsio; migration 00003–00005.
+- [x] Web: 6 mục Cài đặt và `#/setup`, máy tính và điện thoại; QA ảnh cặp 5 vòng, còn 0 lỗi lớn / 0 lỗi nhỏ.
+- [x] Smoke trên binary thật: cài thật trên máy trắng (yt-dlp, ffmpeg, môi trường whisper; Chrome và Codex có sẵn trên máy), tắt máy chủ khi còn tab mở thoát mã 0, không hỏi keychain.
+- [x] Ghi `10-gap-closure.md` (V7, V9, V12, V17, V22, V23, V24) và hỏi đáp #24–#30.
+- [ ] Cần chủ máy: đăng nhập Grok bằng mã thiết bị; quét QR Bilibili (≤ 2 s); thêm một khoá API thật, chọn model, gán cho Đạo diễn.
 
 ## Rủi ro
 

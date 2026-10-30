@@ -78,6 +78,7 @@ Mẫu:
 - Code làm khác:
   - Gói V14: `Notification` của Electron và `app.dock.setBadge` thành Notification API của trình duyệt và `navigator.setAppBadge` (cài Viderse dạng PWA).
   - Gói V22, **Chọn thư mục…**: trình duyệt không trả được đường dẫn thật, nên hộp chọn là danh sách thư mục do máy chủ liệt kê (đi từ ổ đang cắm hoặc thư mục nhà). **Mở trong Finder** mở trên máy đang chạy Viderse.
+  - Gói V22 và W13 › Lưu trữ: thư mục lưu dự án mặc định là `~/.viderse/projects` (thư mục dữ liệu của bản web), thay cho `~/Library/Application Support/Viderse/data/projects` của Electron. Đổi thư mục không cần khởi động lại app: máy chủ đọc đường dẫn từ cơ sở dữ liệu, không dùng `storage.json`.
 - Hỏi design: hộp chọn thư mục phía máy chủ có cần artboard riêng không, hay dùng lại khung sheet chọn ổ của `MSettings` · `store=pick`?
 
 ### #11 · Truy cập từ điện thoại (D1) — Mở
@@ -109,3 +110,85 @@ Mẫu:
 - Nếu dưới 768px đã là bản điện thoại thì không còn bề ngang nào để luật 700px của nav máy tính có tác dụng.
 - Code đang làm: dưới 768px dùng khung điện thoại (theo V10). Nav máy tính vẫn giữ CSS cuộn ngang, không rớt dòng.
 - Hỏi design: chốt một mốc. Nếu muốn khoảng 700–767px vẫn là bản máy tính thì đổi câu ở V10.
+
+### #17 · Màn Chuẩn bị máy nằm ở đâu — Mở
+- [02-stack-verse.md](02-stack-verse.md) §4 ghi Lần đầu mở là màn `Setup` của `platform/webapp`. Màn đó chỉ tạo tài khoản quản trị (trước khi đăng nhập), không cài công cụ.
+- `Onboard` · `step=setup` (W1, 6 việc, Đăng nhập ChatGPT) cần chạy sau khi đăng nhập.
+- Code làm: thêm route `#/setup` (Chuẩn bị máy). Sau khi đăng nhập, máy chưa xong 6 việc thì app mở `#/setup`; xong thì sang Tạo kênh. Trên điện thoại, `#/setup` hiện "Mở trên máy tính" như ia-flows §6.2.
+- Hỏi design: đồng ý thêm dòng `#/setup` vào bảng route ở §4?
+
+### #18 · Cài đặt › Công cụ: “Máy sẵn sàng · 2/2 luồng” — Mở
+- Artboard: `Settings` · `section=tools`.
+- Số luồng thuộc phase Hàng chờ (W9/L5). Hiện chưa có cài đặt luồng, nên `/api/status` chưa có `lanes`.
+- Code làm: thẻ tổng chỉ ghi “Máy sẵn sàng” (kèm “có n bản cập nhật” nếu có), không bịa số luồng. Phase Hàng chờ thêm `lanes` thì hiện lại đủ câu.
+- Hỏi design: đồng ý tạm bỏ “· 2/2 luồng” tới phase Hàng chờ?
+
+### #19 · Cột trái Cài đặt: hàng “Giới hạn từng kênh” — Mở
+- Artboard: `Settings` (mọi `section`), nhóm “Ở trang khác”, trỏ sang `Channel`.
+- Router chưa có trang giới hạn của kênh (`#/channels/:id?tab=sources` thuộc phase Kênh).
+- Code làm: chưa dựng hàng này, không đặt link tới trang chưa có. Phase Kênh có route thì thêm.
+
+### #20 · Báo lỗi: ngày phát hành của bản mới — Mở
+- Artboard: `Settings` · `section=logs`, thẻ phiên bản có ngày phát hành.
+- `/api/version` chưa trả ngày phát hành, nên code chỉ hiện số bản mới nhất.
+- Hỏi design: cần ngày thật không? Nếu cần, máy chủ phải đọc ngày từ nguồn phát hành.
+
+### #21 · Lưu trữ: chọn thư mục bằng danh sách của máy chủ — Mở
+- Artboard: `Settings` · `section=storage&store=pick`; `MSettings` · `screen=storage&store=pick`.
+- Artboard mở hộp chọn thư mục của hệ điều hành. Web không lấy được đường dẫn thật trên máy chủ (xem #10).
+- Code làm: “Chọn thư mục…” mở danh sách thư mục do máy chủ liệt kê (Dialog trên máy tính, Sheet trên điện thoại), chọn xong quay về khối chọn ngay tại chỗ.
+
+### #22 · Lưu trữ: “Ổ ngoài USB-C” — Mở
+- Artboard ghi “Ổ ngoài USB-C”. `diskutil` chỉ báo giao tiếp (`USB`, `Thunderbolt`…), không phân biệt đầu cắm USB-C với USB-A.
+- Code làm: hiện “Ổ ngoài USB” / “Ổ ngoài Thunderbolt” theo đúng `diskutil`; chưa phân loại được thì chỉ ghi “Ổ ngoài”.
+- Hỏi design: đồng ý đổi chữ mẫu trong artboard thành “Ổ ngoài USB”?
+
+### #23 · Lưu trữ: số video trong banner chuyển thư mục — Mở
+- Artboard: `store=done` có “2 video đã chạy tiếp.”; `store=moving` có “Xem khi xong ›”; banner `pick`/`moving` nêu số video đang chạy.
+- Chưa có hàng chờ video (phase Hàng chờ), nên chưa đếm được video bị dừng rồi chạy tiếp. “Xem khi xong ›” trong artboard chỉ là nút đổi trạng thái tĩnh.
+- Code làm: banner nêu số việc nền đang chạy (`/api/activity`), không có việc nào thì dùng câu không số. Bỏ “2 video đã chạy tiếp.” và “Xem khi xong ›” tới phase Hàng chờ.
+
+### #24 · Nút cao 32px (`ghost btn`) trong Cài đặt — Đã chốt
+- Artboard `Settings` vẽ các nút `ghost btn` (ví dụ “Xem trước những gì sẽ dọn”, “Mở trang xAI”) cao 32px, bo 8, chữ 13. Kit lúc đầu chỉ có 30 (`sm`), 36 (mặc định) và 44 (`lg`).
+- Trả lời (dev, 30/10/2026): thêm `size="compact"` (32 · bo 8 · chữ 13) vào `Button` của kit. Chỉ thêm, Noverse không đổi. Mỗi nút dùng đúng cỡ theo class artboard tại chỗ đó: `ghost btn` → `compact`, `vv-btn--sm` → `sm`, `vv-btn` → mặc định, điện thoại `vv-btn--m` → `lg`.
+
+### #25 · Tài khoản nền tảng: mốc “từ HH:MM” và “1 video” — Mở
+- Artboard: `Settings` · `section=accounts&bili=blocked` ghi “từ 00:10”; `yt=bot` ghi “phụ đề của 1 video”.
+- Cơ sở dữ liệu chỉ có `paused_until`, không có mốc bắt đầu bị chặn. Lỗi bot của YouTube cũng chưa đếm số video bị ảnh hưởng.
+- Code làm: “từ HH:MM” lấy giờ của lần lỗi cuối (`lastError.at`), tức lần lỗi đã đẩy nền tảng sang tạm chặn. Banner bot ghi “một số video”, không bịa số.
+- Hỏi design: chấp nhận? Nếu cần đúng hơn: thêm cột `paused_since`, và đếm `videosAffected` khi có hàng chờ tải.
+
+### #26 · Kết nối AI: dữ liệu artboard chưa có nguồn — Mở
+- Artboard: `Settings` · `section=connect|agents`; `MSettings` · `screen=connect|agents`.
+- **Gói Grok:** xAI không trả tên gói, nên thẻ Grok bỏ “gói …”. ChatGPT vẫn có gói, đọc từ `chatgpt_plan_type` trong token.
+- **“Tháng này $1,84” (`spendMonth`):** `image_receipts` không ghi giá, nên chưa hiện. Cần pipeline ghi giá mỗi lần gọi.
+- **Ghi chú của model** (“Trong gói · viết và đọc ảnh tốt nhất”): đây là câu biên tập, wire chỉ có khả năng, ngữ cảnh và giá. Code hiện “chữ · đọc ảnh · 272K ngữ cảnh”.
+- **Giờ đặt lại hạn mức:** artboard ghi 07:00. Code dùng mốc thật nếu provider báo, nếu không thì dùng nửa đêm giờ máy, vì đó là lúc trần ảnh mỗi ngày của app (D7) đặt lại.
+- **Mức suy nghĩ trên điện thoại:** artboard điện thoại không có chỗ chỉnh. Code đặt nó trong sheet Đạo diễn.
+- **Nút thêm nhà cung cấp:** bị khoá khi ô khoá API còn trống. Artboard luôn điền sẵn nên không vẽ trạng thái này.
+- Hỏi design: chốt từng ý trên. Muốn câu ghi chú theo model thì cần một bảng câu.
+
+### #27 · Kết nối AI: thứ tự thẻ và thẻ trùng loại — Mở
+- Artboard: `Settings` · `conn=list` xếp ChatGPT, Grok, Gemini, Ollama (cũ trước); `conn=added` và `conn=failed` đặt thẻ vừa thêm hoặc vừa lỗi lên đầu.
+- Code làm: xếp mới nhất trước (`created_at DESC`), khớp `added`/`failed`, lệch `list`.
+- Thẻ lỗi vẫn để ô nguồn đó bấm được, nên dán khoá mới sẽ tạo thẻ thứ hai cùng loại thay vì sửa thẻ cũ.
+- Hỏi design: giữ “mới nhất trước” hay “lỗi trước, còn lại cũ trước”? Cho thêm thẻ trùng loại, hay bắt dùng **Đổi khoá** trên thẻ cũ?
+
+### #28 · Trợ lý AI: giá mỗi video và nguồn vẽ thứ 4 — Mở
+- Artboard: `Settings` · `section=agents`; `MSettings` · `screen=agents`.
+- “≈ $0,27 mỗi video” = giá mỗi ảnh × 7. Số 7 lấy từ design (“~7 ảnh” mỗi video), khai báo một chỗ (`IMAGES_PER_VIDEO` trong `AgentsSection.tsx`), chưa lấy từ template của kênh.
+- Kho có nguồn vẽ thứ 4 (Tương thích OpenAI), nên lưới 3 cột của thẻ nguồn vẽ xuống dòng 2; artboard chỉ vẽ 3 nguồn.
+- Hỏi design: giữ số 7 cố định hay lấy số ảnh của template? Lưới 4 nguồn: xuống dòng (đang làm), cuộn ngang, hay 4 cột?
+
+### #29 · Tài khoản nền tảng trên điện thoại: state chưa vẽ và giãn dòng — Mở
+- `MSettings` không có frame cho `yt=bot`, hồ sơ YouTube “Tắt” và `qr=loading`.
+- Code làm: banner bot nằm trong thân thẻ YouTube (cao thêm 48px, như banner Bilibili bị chặn/hết hạn); `qr=loading` dùng lại khung chờ của máy tính.
+- Thẻ điện thoại trong artboard giãn dòng 1,5; artboard máy tính và phần còn lại của app dùng 1,55. Code chỉ đặt 1,5 trong thẻ tài khoản và sheet trạng thái trên điện thoại.
+- Hỏi design: duyệt hai state trên? Giãn dòng 1,5 là chuẩn cho cả `MSettings` hay chỉ thẻ này?
+
+### #30 · Khung Cài đặt: dải mất kết nối, tông chấm cảnh báo, nhãn pha cài — Mở
+- Artboard `Settings` không vẽ dải mất kết nối. Code chèn dải giữa đầu trang và nội dung, nội dung bị đẩy xuống thay vì bị che.
+- Chấm cảnh báo ở bánh răng lấy tông theo `kind` trong `/api/status.attention` (`tool_failed`, `login_expired`, `tool_update`, `quota_low`), bảng kind → tông nằm ở web. Thêm kind mới thì cần chốt tông ở đây.
+- Tiến trình cài công cụ trả `phaseLabel` là câu tiếng Việt của máy chủ, không phải mã pha; client khác (nếu có) hiện nguyên câu này.
+- Pha không biết tổng dung lượng (tải mô hình nhận giọng nói, dựng môi trường Python) trả `pct: null`. Artboard chỉ vẽ pha có phần trăm (“· 62%”). Code chỉ ghi tên pha, cạnh đó là vòng quay của hàng; không vẽ “0%” và thanh đứng yên.
+- Hỏi design: dải đẩy hay phủ lên nội dung? Đồng ý bảng tông theo kind? Pha không biết tổng có cần thanh chạy vô định không?

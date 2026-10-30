@@ -116,7 +116,7 @@ flowchart LR
 | Phase | Gói design | Phụ thuộc | Ước lượng | Trạng thái |
 |---|---|---|---|---|
 | [01 · Nền móng, dọn Writer, shell](phase-01-foundation.md) | V0, V12, hỏi đáp #1–#4 | — | 32h | xong |
-| [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h | đang làm: đã có `internal/tools`, `internal/imagegen` |
+| [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h | xong code và QA ảnh (30/10/2026); còn chủ máy thử Grok, QR Bilibili, khoá API thật |
 | [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | đang làm: đã có `internal/youtube` |
 | [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h | chưa |
 | [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h | chưa |
@@ -149,6 +149,17 @@ Mỗi phase là một lát cắt dọc gồm backend, web và test. Phase chỉ 
   - #16 mốc đổi sang bản điện thoại (700px hay 768px).
 - **Design hỏi dev:** #6 (Bilibili trên điện thoại, thử ở phase 09), #13 (Khớp theo giọng trong Editor, trả lời ở phase 06).
 
+Ghi thêm trong phase 02 (30/10/2026):
+
+- **Đã chốt:** #24 (kit thêm `Button size="compact"` 32px; nút theo đúng class artboard từng chỗ).
+- **Chờ design:**
+  - #17 màn Chuẩn bị máy là route `#/setup` sau đăng nhập;
+  - #18 thẻ tổng không có số luồng; #19 chưa có “Giới hạn từng kênh”; #20 thẻ phiên bản không có ngày phát hành;
+  - #21 chọn thư mục bằng danh sách của máy chủ; #22 “Ổ ngoài USB”; #23 banner đếm việc nền;
+  - #25 mốc “từ HH:MM” và “một số video”; #26 dữ liệu Kết nối AI chưa có nguồn;
+  - #27 thứ tự thẻ và thẻ trùng loại; #28 giá mỗi video = 7 ảnh, lưới 4 nguồn vẽ;
+  - #29 state điện thoại chưa vẽ của Tài khoản, giãn dòng 1,5; #30 dải mất kết nối, tông chấm cảnh báo, nhãn pha cài.
+
 # Rủi ro chính
 
 | Rủi ro | Cách giảm |
@@ -167,10 +178,16 @@ Mục tiêu: đổi một nhà cung cấp, một bước pipeline hay một màn
 **Go (`apps/viderse/internal`)**
 
 - Mỗi gói là một mảng nghiệp vụ (`tools`, `youtube`, `scan`, `pipeline`…). `domain` chỉ chứa kiểu giá trị và mã lỗi dùng chung, không I/O.
-- Chiều phụ thuộc: `cmd`, `web` → gói nghiệp vụ → `domain`. Gói nghiệp vụ không import `web`, không import gói nghiệp vụ ngang hàng nếu một interface nhỏ đủ dùng.
+- Chiều phụ thuộc: `cmd` → `web`, `persistence` → gói nghiệp vụ → `domain`. Gói nghiệp vụ không import `web`, `persistence`, `bootstrap` hay `cmd`, và không import gói nghiệp vụ ngang hàng nếu một interface nhỏ đủ dùng. `archtest` (`TestLayeredAppImports`) chặn các chiều sai trong mã chạy thật; tệp test được phép ráp store thật.
 - Interface đặt ở phía dùng và nhỏ nhất có thể (ví dụ `pipeline` khai `type Drawer interface{ Draw(...) }`). Hệ ngoài (binary, HTTP, LLM, YouTube) luôn nằm sau interface để thay bản khác hoặc test bằng bản giả trong `_test.go`.
 - `cmd/viderse` là nơi duy nhất ráp các phần; `bootstrap` chỉ giữ danh tính app (thư mục dữ liệu, cấu hình OAuth, DSN). Constructor nhận phụ thuộc, không biến toàn cục, không `init()` có tác dụng phụ.
 - Postgres: mỗi mảng một tệp `persistence/postgres/queries/<mảng>.sql`, sinh bằng sqlc; mỗi phase một migration. Gói nghiệp vụ dùng store qua interface, không cầm `*pgx.Pool`.
+- **Theo dõi mỗi phase:**
+  - review kiến trúc theo các luật trên;
+  - đo đường nóng: GET p95 trên dữ liệu thật cỡ lớn, số dòng DOM, số sự kiện SSE/giây khi có tiến độ, kích thước JS tải lần đầu;
+  - chi phí lúc rảnh: ngoài ping SSE 2 giây và nhịp kiểm ổ ≤ 10 giây, máy chủ không làm gì.
+  - đối chiếu artboard trước khi nhận phần UI: mỗi trạng thái tweak của artboard thuộc phase (máy tính 1440×900, điện thoại 390×844) có một cặp ảnh chụp artboard và app. Mỗi cặp phải khớp, hoặc có mục hỏi-đáp ghi lý do lệch. Chạy được test không thay cho bước này.
+  - Mỗi báo cáo agent có mục "Kiến trúc & hiệu năng" ghi số đo.
 - HTTP mỏng: đọc yêu cầu → gọi service → ghi JSON. Kiểu wire tách khỏi kiểu domain. Mã lỗi domain đổi sang HTTP ở đúng một chỗ.
 - Test: logic thuần dùng test dạng bảng; chạm Postgres dùng `platform/pgtest`; ca test chuyển từ yt-factory ghi nguồn ở tên test hoặc comment đầu tệp.
 
