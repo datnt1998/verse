@@ -7,7 +7,11 @@
 .kit-option { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 6px 10px; border: 0; border-radius: 9px; background: transparent; color: #EDEDEF; font-size: 13px; text-align: left; cursor: pointer; }
 .kit-option:hover { background: rgba(255,255,255,.06); }
 .kit-option:focus-visible, .kit-option[aria-selected=true] { background: rgba(255,255,255,.075); }
-.kit-option:disabled { color: #5E5E68; cursor: not-allowed; background: transparent; }
+/* Mục khoá bằng aria-disabled vẫn focus được: cùng màu với disabled, giữ nền
+   focus-visible, chỉ bỏ nền hover. */
+.kit-option:disabled, .kit-option[aria-disabled=true] { color: #5E5E68; cursor: not-allowed; }
+.kit-option:disabled { background: transparent; }
+.kit-option[aria-disabled=true]:hover:not(:focus-visible) { background: transparent; }
 .kit-option[aria-expanded=true] { background: rgba(255,255,255,.075); }
 .kit-option[data-hi=true] { background: rgba(255,255,255,.075); }
 .kit-danger { color: #FFB3BA; }

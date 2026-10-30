@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from './tokens.stylex'
@@ -20,7 +20,7 @@ const sx = stylex.create({
   optHeight: (minHeight: string) => ({ minHeight }),
   labelCol: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column' },
   label: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  desc: { fontSize: 11.5, color: FG4 },
+  desc: { fontSize: 11.5, color: FG4, overflowWrap: 'anywhere' },
   meta: { fontSize: 11, color: FG4, whiteSpace: 'nowrap' },
   subIcon: { color: FG4 },
   row: { position: 'relative' },
@@ -34,7 +34,7 @@ const sx = stylex.create({
   context: { display: 'flex', alignItems: 'center', gap: 10 },
 })
 
-export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; disabled?: boolean; selected?: boolean; children?: ActionMenuItem[]; onSelect?: () => void }
+export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; disabled?: boolean; /** khoá nhưng vẫn focus được (aria-disabled): lý do thay dòng phụ và là aria-describedby; bấm không làm gì */ lockedReason?: string; selected?: boolean; children?: ActionMenuItem[]; onSelect?: () => void }
 export type MenuPoint = { x: number; y: number }
 /** Icon của mục menu: 16 px (15 px ở mục chọn một), màu fg-3 — mục nguy hiểm --kit-err-bright. */
 function itemIcon(item: ActionMenuItem) {
@@ -46,6 +46,7 @@ function itemIcon(item: ActionMenuItem) {
 }
 function MenuList({ items, close, nested = false, onBack, initialSubmenu = null }: { items: ActionMenuItem[]; close: () => void; nested?: boolean; onBack?: () => void; initialSubmenu?: string | null }) {
   const list = useRef<HTMLDivElement>(null)
+  const uid = useId()
   const [submenu, setSubmenu] = useState<string | null>(initialSubmenu)
   const [flip, setFlip] = useState(false)
   // Không có deps: vị trí của menu cha được đặt sau lần render đầu (ActionMenu), nên phải đo lại ở mỗi lần render.
@@ -66,9 +67,11 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
     }
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close() }
   }}>{items.map((item, index) => {
-    const opt = stylex.props(sx.optHeight(item.description ? '48px' : '34px'))
-    const button = <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} className={[`kit-option${item.danger ? ' kit-danger' : ''}`, opt.className].filter(Boolean).join(' ')} onClick={() => { if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>
-      {itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span {...stylex.props(sx.label)}>{item.label}</span>{item.description && <small {...stylex.props(sx.desc)}>{item.description}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}
+    const note = item.lockedReason ?? item.description
+    const opt = stylex.props(sx.optHeight(note ? '48px' : '34px'))
+    const ids = item.lockedReason ? { label: `${uid}-${item.id}-l`, note: `${uid}-${item.id}-r` } : null
+    const button = <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} aria-disabled={ids ? true : undefined} aria-labelledby={ids?.label} aria-describedby={ids?.note} className={[`kit-option${item.danger ? ' kit-danger' : ''}`, opt.className].filter(Boolean).join(' ')} onClick={() => { if (ids) return; if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>
+      {itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span id={ids?.label} {...stylex.props(sx.label)}>{item.label}</span>{note && <small id={ids?.note} {...stylex.props(sx.desc)}>{note}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}
     </button>
     return <div key={item.id} data-menu-row {...stylex.props(sx.row)} onPointerEnter={() => setSubmenu(item.children ? item.id : null)}>
       {item.danger && !items[index - 1]?.danger && <div role="separator" className="kit-separator" />}

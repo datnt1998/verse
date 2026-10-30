@@ -210,6 +210,9 @@ Notable behaviours:
 - `Button` — `variant: primary|ghost|quiet|icon|icon-only|dsoft|danger|warnGhost`,
   `size: sm (30) | md (36) | compact (32, r8, 13px) | lg (44) | xl (48)`,
   `pending`/`success` states with spinner + tick, `kbd` hint, `forwardRef`.
+  `aria-disabled` locks the button but keeps it focusable: disabled look,
+  clicks (and form submits) do nothing — pair it with `aria-describedby` to
+  the reason.
 - `Banner` — `tone: info|success|warning|error|agent`; optional `icon`,
   `align: center|top`, `role: status|alert`, one trailing `action` or an
   `actions` row under the text.
@@ -232,7 +235,9 @@ Notable behaviours:
 - `ActionMenu` / `ContextMenu` — popover width 264 by default, override with
   `width` (272 for menus whose descriptions run long); rows show
   `label` + optional `description`/`kbd`/`meta`, `danger`, `disabled` with
-  `tooltip`, nested `children` flyout.
+  `tooltip`, nested `children` flyout. `lockedReason` locks a row while
+  keeping it focusable: the reason replaces the description line and is the
+  row's `aria-describedby`; selecting it does nothing and the menu stays open.
 - `Dialog`, `Tooltip`, `InfoPopover` share the escape-layer stack
   (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
 

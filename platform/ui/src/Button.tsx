@@ -84,6 +84,10 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tooltipKbd?: ReactNode
 }
 
+/** Nút khoá bằng `aria-disabled` vẫn nhận focus (đọc được lý do qua `aria-describedby`)
+ *  nhưng bấm không làm gì — kể cả submit form. */
+const blockLocked = (event: { preventDefault: () => void }) => event.preventDefault()
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant = 'ghost', size = 'md', kbd, icon, active, pending, success, pendingLabel, successLabel, tooltip, tooltipKbd, style, className, children, disabled, title, ...rest }, ref,
 ) {
@@ -92,6 +96,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const spin = variant === 'primary' ? { track: 'var(--kit-spin-dark)', top: 'var(--color-bg)' } : variant === 'dsoft' || variant === 'danger' ? { track: 'var(--kit-wash-25)', top: 'white' } : { track: undefined, top: 'currentColor' }
   const label = tooltip ?? title ?? rest['aria-label']
   const off = disabled || pending
+  const locked = rest['aria-disabled'] === true || rest['aria-disabled'] === 'true'
   const kind = iconOnly ? 'icon' : variant
   const sx = stylex.props(
     styles.base,
@@ -108,7 +113,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size === 'sm' && styles.sm,
     size === 'lg' && styles.lg,
     size === 'xl' && styles.xl,
-    off ? styles.disabled : [
+    off || locked ? styles.disabled : [
       styles.enabled,
       kind === 'primary' && styles.primaryHover,
       (kind === 'ghost' || kind === 'icon') && styles.ghostHover,
@@ -118,7 +123,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       kind === 'warnGhost' && styles.warnGhostHover,
     ],
   )
-  const button = <button ref={ref} type="button" {...rest} disabled={off} aria-busy={pending || undefined}
+  const button = <button ref={ref} type="button" {...rest} disabled={off} onClick={locked ? blockLocked : rest.onClick} aria-busy={pending || undefined}
     aria-label={rest['aria-label'] ?? (iconOnly ? label : undefined)}
     className={[sx.className, className].filter(Boolean).join(' ')}
     style={{ ...sx.style, ...(active ? { background: 'var(--color-surface-5)', color: 'var(--color-fg)' } : {}), ...style }}>

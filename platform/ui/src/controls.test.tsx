@@ -1,10 +1,13 @@
 // @vitest-environment happy-dom
-// motion:controls v1 — bật/tắt bằng chuột và phím, không chạy lại animation khi re-render.
+// motion:controls v1 — bật/tắt bằng chuột và phím, không chạy lại animation khi re-render;
+// nút và mục menu khoá bằng aria-disabled vẫn focus được nhưng bấm không làm gì.
 import { act, useState, type ReactElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { Checkbox, Radio, RadioCard, Switch } from './controls'
 import { Segmented } from './Tabs'
+import { Button } from './Button'
+import { ActionMenu } from './Menus'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -154,4 +157,36 @@ it('bỏ trạng thái mixed giữ dấu gạch trong DOM để mờ đi 180ms',
   await act(async () => { root.render(<Checkbox checked={false} onChange={() => {}} />) })
   expect(container.querySelector('.kit-cb-box > span')).toBe(dash)
   expect((dash as HTMLElement).style.opacity).toBe('0')
+})
+
+it('Button aria-disabled: vẫn focus được, bấm không gọi onClick và không submit form', async () => {
+  const onClick = vi.fn()
+  const onSubmit = vi.fn((e: { preventDefault: () => void }) => e.preventDefault())
+  const { container } = await mount(
+    <form onSubmit={onSubmit}><Button type="submit" aria-disabled onClick={onClick}>Làm video</Button></form>,
+  )
+  const btn = container.querySelector('button')!
+  expect(btn.disabled).toBe(false)
+  btn.focus()
+  expect(document.activeElement).toBe(btn)
+  await act(async () => { btn.click() })
+  expect(onClick).not.toHaveBeenCalled()
+  expect(onSubmit).not.toHaveBeenCalled()
+})
+
+it('ActionMenu lockedReason: mục khoá có lý do làm aria-describedby, bấm không chọn và không đóng menu', async () => {
+  const onSelect = vi.fn()
+  const { container } = await mount(
+    <ActionMenu label="Thao tác" trigger={<button type="button">⋯</button>}
+      items={[{ id: 'link', label: 'Liên kết', lockedReason: 'Cần một kênh.', onSelect }]} />,
+  )
+  await act(async () => { container.querySelector('button')!.click() })
+  const item = document.body.querySelector<HTMLButtonElement>('[role="menuitem"]')!
+  expect(item.getAttribute('aria-disabled')).toBe('true')
+  expect(item.disabled).toBe(false)
+  expect(document.getElementById(item.getAttribute('aria-describedby')!)?.textContent).toBe('Cần một kênh.')
+  expect(document.getElementById(item.getAttribute('aria-labelledby')!)?.textContent).toBe('Liên kết')
+  await act(async () => { item.click() })
+  expect(onSelect).not.toHaveBeenCalled()
+  expect(document.body.querySelector('[role="menuitem"]')).toBe(item)
 })
