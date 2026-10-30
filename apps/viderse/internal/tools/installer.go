@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -102,6 +103,72 @@ func ActiveVersionDir(baseDir, toolID string) string {
 		return dir
 	}
 	return ""
+}
+
+// InstalledSizeFile là tên tệp ghi dung lượng cài đặt đo được sau khi xong
+// (bên cạnh install-state.json trong thư mục công cụ). GET chỉ đọc số này —
+// đo cây thư mục chỉ chạy trong tác vụ cài, không bao giờ trong handler.
+const InstalledSizeFile = "installed-size"
+
+// InstalledSizePath là đường tệp số đo của một công cụ.
+func InstalledSizePath(baseDir, toolID string) string {
+	return filepath.Join(ToolRoot(baseDir, toolID), InstalledSizeFile)
+}
+
+// WriteInstalledSize ghi số đo cài đặt (tạm + rename nguyên tử); lỗi ghi
+// không lỗi chặn lượt cài nên caller chỉ cần log.
+func WriteInstalledSize(baseDir, toolID string, size int64) error {
+	if size <= 0 {
+		return nil
+	}
+	root := ToolRoot(baseDir, toolID)
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		return err
+	}
+	tmp := filepath.Join(root, fmt.Sprintf(".installed-size-%d.tmp", time.Now().UnixNano()))
+	if err := os.WriteFile(tmp, []byte(fmt.Sprintf("%d", size)), 0o644); err != nil {
+		return err
+	}
+	return os.Rename(tmp, InstalledSizePath(baseDir, toolID))
+}
+
+// ReadInstalledSize đọc số đo đã ghi; 0 khi vắng/hỏng/chưa đo (cài trước
+// khi có tính năng đo, hoặc cài bên ngoài lượt chạy — hàng hiện “Đã cài”
+// không số thay vì bịa con số).
+func ReadInstalledSize(baseDir, toolID string) int64 {
+	data, err := os.ReadFile(InstalledSizePath(baseDir, toolID))
+	if err != nil {
+		return 0
+	}
+	n, err := strconv.ParseInt(strings.TrimSpace(string(data)), 10, 64)
+	if err != nil || n <= 0 {
+		return 0
+	}
+	return n
+}
+
+// DirSizeBytes là tổng kích thước tệp dưới dir (không theo symlink); trả 0
+// khi đường dẫn không tồn tại.
+func DirSizeBytes(dir string) int64 {
+	if dir == "" {
+		return 0
+	}
+	var total int64
+	_ = filepath.WalkDir(dir, func(_ string, e fs.DirEntry, err error) error {
+		if err != nil || e.IsDir() {
+			return nil
+		}
+		info, ierr := e.Info()
+		if ierr != nil {
+			return nil
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+		total += info.Size()
+		return nil
+	})
+	return total
 }
 
 // Installer cài các công cụ ghim. HTTP và thư mục đích được inject nên test
@@ -239,15 +306,20 @@ func Sha256File(file string) (string, error) {
 // DownloadVerified stream asset.URL xuống file, kiểm SHA-256 trong khi byte
 // chảy về. URL `file:` được sao chép trực tiếp (test). Ném ChecksumError và
 // xoá tệp khi lệch. tick chạy mỗi chunk — trả lỗi để hủy tải.
+//
+// Tải được tiếp sau khi app chết: byte nhận dở nằm ở <file>.part, lượt sau
+// gửi Range: bytes=<size>- và băm lại phần đã có trước khi nối. Máy chủ
+// không hỗ trợ Range (200) thì tải lại từ đầu. Huỷ/lỗi mạng giữ .part; chỉ
+// checksum lệch mới xoá để lượt sau không kế thừa dữ liệu sai.
 func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, file string, tick func(done int64) error) error {
 	parentCtx := ctx
 	dlTimeout := i.DownloadTimeout
 	if dlTimeout <= 0 {
 		dlTimeout = defaultDownloadTimeout
 	}
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(ctx, dlTimeout)
-	defer cancel()
+	var rngCancel context.CancelFunc
+	ctx, rngCancel = context.WithTimeout(ctx, dlTimeout)
+	defer rngCancel()
 	// Phân biệt ba kết thúc: huỷ của caller (ErrCancelled), tải hết hạn (lỗi
 	// thường → phase failed) và lỗi truyền thô.
 	ctxErr := func(fallback error) error {
@@ -259,7 +331,19 @@ func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, fil
 		}
 		return fallback
 	}
+
+	part := file + ".part"
+	var offset int64
+	h := sha256.New()
+	if st, err := os.Stat(part); err == nil && st.Size() > 0 {
+		if err := hashFile(part, h); err != nil {
+			return err
+		}
+		offset = st.Size()
+	}
+
 	var src io.ReadCloser
+	resumed := false
 	if strings.HasPrefix(asset.URL, "file://") {
 		u, err := url.Parse(asset.URL)
 		if err != nil {
@@ -270,6 +354,8 @@ func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, fil
 			return err
 		}
 		src = f
+		offset = 0
+		h = sha256.New()
 	} else {
 		client := i.Client
 		if client == nil {
@@ -279,11 +365,20 @@ func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, fil
 		if err != nil {
 			return err
 		}
+		if offset > 0 {
+			req.Header.Set("Range", fmt.Sprintf("bytes=%d-", offset))
+		}
 		res, err := client.Do(req)
 		if err != nil {
 			return ctxErr(err)
 		}
-		if res.StatusCode < 200 || res.StatusCode >= 300 || res.Body == nil {
+		if offset > 0 && res.StatusCode == http.StatusPartialContent {
+			resumed = true
+		} else if offset > 0 && res.StatusCode == http.StatusOK {
+			// Máy chủ bỏ qua Range: bắt đầu lại, bỏ .part cũ.
+			offset = 0
+			h = sha256.New()
+		} else if res.StatusCode < 200 || res.StatusCode >= 300 || res.Body == nil {
 			res.Body.Close()
 			return fmt.Errorf("tải thất bại: HTTP %d %s", res.StatusCode, asset.URL)
 		}
@@ -291,13 +386,18 @@ func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, fil
 	}
 	defer src.Close()
 
-	h := sha256.New()
-	out, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	flags := os.O_CREATE | os.O_WRONLY
+	if resumed {
+		flags |= os.O_APPEND
+	} else {
+		flags |= os.O_TRUNC
+	}
+	out, err := os.OpenFile(part, flags, 0o644)
 	if err != nil {
 		return err
 	}
 	buf := make([]byte, 256*1024)
-	var done int64
+	done := offset
 	copyErr := func() error {
 		for {
 			n, rerr := src.Read(buf)
@@ -324,19 +424,44 @@ func (i *Installer) DownloadVerified(ctx context.Context, asset PinnedAsset, fil
 	}()
 	closeErr := out.Close()
 	if copyErr != nil {
-		_ = os.Remove(file)
 		return ctxErr(copyErr)
 	}
 	if closeErr != nil {
-		_ = os.Remove(file)
 		return ctxErr(closeErr)
 	}
 	actual := hex.EncodeToString(h.Sum(nil))
 	if !strings.EqualFold(actual, asset.SHA256) {
-		_ = os.Remove(file)
+		_ = os.Remove(part)
 		return &ChecksumError{Asset: asset.Name, Expected: asset.SHA256, Actual: actual}
 	}
+	if err := os.Rename(part, file); err != nil {
+		return err
+	}
 	return nil
+}
+
+// hashFile băm toàn bộ tệp vào h (phần .part đã tải trước khi nối).
+func hashFile(file string, h io.Writer) error {
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = io.Copy(h, f)
+	return err
+}
+
+// partialPath là chỗ giữ byte dở của một asset, bền qua các lần chạy: khoá
+// theo SHA-256 để tên trùng giữa các công cụ không đụng nhau.
+func (i *Installer) partialPath(asset PinnedAsset) string {
+	key := asset.SHA256
+	if len(key) > 16 {
+		key = key[:16]
+	}
+	if key == "" {
+		key = "unknown"
+	}
+	return filepath.Join(i.BaseDir, "downloads", key+"-"+asset.Name)
 }
 
 // unpackAsset giải quyết một asset đã tải vào staging theo Kind.
@@ -765,7 +890,10 @@ func (i *Installer) runInstall(ctx context.Context, spec InstallSpec) (InstallRe
 		if err := checkCancelled(); err != nil {
 			return fail(err)
 		}
-		archive := filepath.Join(staging, ".dl-"+asset.Name)
+		archive := i.partialPath(asset)
+		if err := os.MkdirAll(filepath.Dir(archive), 0o755); err != nil {
+			return fail(err)
+		}
 		report(PhaseDownloading, func(s *InstallState) { d := asset.Name; s.Detail = &d })
 		// n là số byte đã tải của asset này, không phải delta: cộng vào tổng
 		// các asset đã xong thay vì tự cộng dồn (lỗi bội số trước đây).

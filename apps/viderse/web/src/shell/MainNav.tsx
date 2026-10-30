@@ -9,7 +9,7 @@ import { Icon, type IconName } from '@noverse/ui'
 
 const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', path: paths.workbench() },
-  { key: 'review', label: t.nav.review, icon: 'flag', path: paths.review(), badge: 'review' },
+  { key: 'review', label: t.nav.review, icon: 'gallery', path: paths.review(), badge: 'review' },
   { key: 'channels', label: t.nav.channels, icon: 'channel', path: paths.channelNew() },
   { key: 'explore', label: t.nav.explore, icon: 'radar', path: paths.explore() },
   { key: 'new', label: t.nav.new, icon: 'video-add', path: paths.new() },
@@ -21,7 +21,7 @@ export function MainNav({ route, reviewCount, onNavigate }: {
   reviewCount: number
   onNavigate?: (path: string, e: MouseEvent) => void
 }) {
-  const section = navSection(route)
+  const section = navSection(route) // null ở trang ngoài nav → không mục nào sáng
   return (
     <nav role="navigation" aria-label={t.nav.main} className="vv-nav">
       {ITEMS.map((item) => {

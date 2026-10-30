@@ -95,6 +95,8 @@ type scriptedRunner struct {
 	version string
 	dom     string
 	err     error
+	// launches giữ args của mọi lần mở Chrome thật (không tính --version).
+	launches [][]string
 }
 
 func (s *scriptedRunner) Run(ctx context.Context, file string, args []string, spec Spec) (Result, error) {
@@ -106,10 +108,44 @@ func (s *scriptedRunner) Run(ctx context.Context, file string, args []string, sp
 			return Result{Stdout: "Google Chrome " + s.version + "\n"}, nil
 		}
 	}
+	s.launches = append(s.launches, append([]string(nil), args...))
 	if spec.Log != nil {
 		_, _ = spec.Log.Write([]byte(s.dom))
 	}
 	return Result{Stdout: s.dom}, nil
+}
+
+// Probe năng lực và probe export đều mở Chrome với profile mới; thiếu cờ khoá
+// giả, Chrome trên macOS hỏi Keychain của người dùng ở mỗi lần mở.
+func TestChromeProbesNeverAskSystemKeychain(t *testing.T) {
+	base := t.TempDir()
+	sysDir := t.TempDir()
+	exe := filepath.Join(sysDir, "chrome")
+	if err := os.WriteFile(exe, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	runner := &scriptedRunner{version: "131.0.6778.205", dom: "PROBE:ctx:true,aac:true,opus:true"}
+	var cdpArgs []string
+	c := &Chrome{d: Deps{Runner: runner, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base,
+		CDPSpawn: func(cmd *exec.Cmd) (int, error) {
+			cdpArgs = append([]string(nil), cmd.Args[1:]...)
+			return 0, fmt.Errorf("không mở Chrome thật trong test")
+		}}}
+	if st := c.Status(context.Background()); st.State != ChromeReady {
+		t.Fatalf("status = %+v", st)
+	}
+	c.ExportCaps(context.Background())
+	if len(runner.launches) != 1 || cdpArgs == nil {
+		t.Fatalf("launches = %v, cdp = %v", runner.launches, cdpArgs)
+	}
+	for name, args := range map[string][]string{"probe": runner.launches[0], "export": cdpArgs} {
+		joined := " " + strings.Join(args, " ") + " "
+		for _, flag := range []string{"--use-mock-keychain", "--password-store=basic", "--headless=new"} {
+			if !strings.Contains(joined, " "+flag+" ") {
+				t.Errorf("%s args thiếu %s: %v", name, flag, args)
+			}
+		}
+	}
 }
 
 func TestChromeStatusBrokenWhenBinaryFails(t *testing.T) {

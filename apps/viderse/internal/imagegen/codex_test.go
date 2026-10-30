@@ -71,7 +71,7 @@ func readyStatus(exe string) tools.CodexStatus {
 	}
 }
 
-// codexFixture dựng CodexProvider với runner giả + home auth giả.
+// codexFixture dựng CodexProvider với runner giả + nguồn token giả.
 type codexFixture struct {
 	provider *imagegen.CodexProvider
 	runner   *fakeRunner
@@ -79,12 +79,13 @@ type codexFixture struct {
 	journal  *memoryJournal
 }
 
+// fakeTokens trả token cố định cho Auth của CodexProvider.
+func fakeTokens(ctx context.Context) (tools.CodexAuthTokens, error) {
+	return tools.CodexAuthTokens{AccessToken: "access-1", AccountID: "acct-1"}, nil
+}
+
 func newCodexFixture(t *testing.T, onExec func(call runnerCall) (tools.Result, error)) *codexFixture {
 	t.Helper()
-	home := t.TempDir()
-	if err := os.WriteFile(filepath.Join(home, "auth.json"), []byte(`{"tokens":{}}`), 0o600); err != nil {
-		t.Fatal(err)
-	}
 	exe := filepath.Join(t.TempDir(), "codex")
 	if err := os.WriteFile(exe, []byte("#!/bin/sh\n"), 0o755); err != nil {
 		t.Fatal(err)
@@ -94,7 +95,7 @@ func newCodexFixture(t *testing.T, onExec func(call runnerCall) (tools.Result, e
 	journal := newMemoryJournal()
 	p := imagegen.NewCodexProvider(imagegen.CodexDeps{
 		Runner:     runner,
-		SourceHome: home,
+		Auth:       fakeTokens,
 		StatusFunc: func(ctx context.Context) (tools.CodexStatus, error) { return st, nil },
 		PrepareCatalog: func(ctx context.Context, exe, home string) (string, error) {
 			f := filepath.Join(home, "image-model-catalog.json")
@@ -213,7 +214,7 @@ func TestCodexNotReadyBlocksDraw(t *testing.T) {
 	st.Isolation = &tools.CodexIsolation{State: tools.IsolationUnverified}
 	fx.provider = imagegen.NewCodexProvider(imagegen.CodexDeps{
 		Runner:     fx.runner,
-		SourceHome: fx.providerSource(t),
+		Auth:       fakeTokens,
 		StatusFunc: func(ctx context.Context) (tools.CodexStatus, error) { return st, nil },
 	})
 	_, err := fx.drawThrough(t, imagegen.Request{
@@ -226,15 +227,6 @@ func TestCodexNotReadyBlocksDraw(t *testing.T) {
 	if fx.runner.execN != 0 {
 		t.Fatalf("exec bị gọi %d lần", fx.runner.execN)
 	}
-}
-
-func (fx *codexFixture) providerSource(t *testing.T) string {
-	t.Helper()
-	home := t.TempDir()
-	if err := os.WriteFile(filepath.Join(home, "auth.json"), []byte(`{}`), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	return home
 }
 
 // Tool ngoài allowlist trong stream → isolation_unverified, không ảnh.

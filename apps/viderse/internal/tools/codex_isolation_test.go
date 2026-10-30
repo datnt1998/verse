@@ -2,12 +2,15 @@
 package tools
 
 import (
+	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 // catalogFixture là catalog giống catalog ghim của Codex.
@@ -173,19 +176,17 @@ func TestTextAdvertisementRequiresEmptyTools(t *testing.T) {
 	}
 }
 
+// Nguồn: codex-isolation.test.ts + verify format với codex-cli 0.162.1.
 func TestCreateIsolatedCodexHomeCopiesOnlyAuth(t *testing.T) {
-	source := t.TempDir()
 	dest := t.TempDir()
-	if err := os.WriteFile(filepath.Join(source, "auth.json"), []byte(`{"OPENAI_API_KEY":null}`), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	source := t.TempDir()
+	// File trong "home nguồn" không còn được chép — auth.json do app tổng hợp.
 	if err := os.WriteFile(filepath.Join(source, "config.toml"), []byte("model='x'"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.MkdirAll(filepath.Join(source, "skills"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	home, err := CreateIsolatedCodexHome(source, dest)
+	home, err := CreateIsolatedCodexHome(CodexAuthTokens{
+		AccessToken: "access-token-1", AccountID: "acct-1",
+	}, dest)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -195,19 +196,44 @@ func TestCreateIsolatedCodexHomeCopiesOnlyAuth(t *testing.T) {
 	if fileExists(filepath.Join(home, "config.toml")) {
 		t.Fatal("config lọt vào home cô lập")
 	}
-	if fileExists(filepath.Join(home, "skills")) {
-		t.Fatal("skills lọt vào home cô lập")
-	}
 	auth, err := os.ReadFile(filepath.Join(home, "auth.json"))
-	if err != nil || string(auth) != `{"OPENAI_API_KEY":null}` {
-		t.Fatalf("auth = %q %v", auth, err)
+	if err != nil {
+		t.Fatal(err)
 	}
 	info, _ := os.Stat(filepath.Join(home, "auth.json"))
 	if info.Mode().Perm() != 0o600 {
 		t.Fatalf("auth mode = %o", info.Mode().Perm())
 	}
-	if _, err := CreateIsolatedCodexHome(filepath.Join(dest, "nowhere"), dest); err == nil {
-		t.Fatal("thiếu auth vẫn tạo được home")
+	var doc struct {
+		APIKey *string `json:"OPENAI_API_KEY"`
+		Tokens struct {
+			IDToken      string  `json:"id_token"`
+			AccessToken  string  `json:"access_token"`
+			RefreshToken *string `json:"refresh_token"`
+			AccountID    string  `json:"account_id"`
+		} `json:"tokens"`
+		LastRefresh string `json:"last_refresh"`
+	}
+	if err := json.Unmarshal(auth, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if doc.APIKey != nil {
+		t.Fatal("OPENAI_API_KEY phải null")
+	}
+	if doc.Tokens.AccessToken != "access-token-1" || doc.Tokens.IDToken != "access-token-1" {
+		t.Fatalf("tokens sai: %+v", doc.Tokens)
+	}
+	if doc.Tokens.AccountID != "acct-1" {
+		t.Fatalf("account_id = %q", doc.Tokens.AccountID)
+	}
+	if doc.Tokens.RefreshToken == nil || *doc.Tokens.RefreshToken != "" {
+		t.Fatal("refresh_token phải tồn tại và rỗng (CLI không được xoay vòng)")
+	}
+	if doc.LastRefresh == "" {
+		t.Fatal("last_refresh thiếu")
+	}
+	if _, err := CreateIsolatedCodexHome(CodexAuthTokens{}, dest); err == nil {
+		t.Fatal("thiếu token vẫn tạo được home")
 	}
 }
 
@@ -316,4 +342,70 @@ func TestInspectAdvertisementRequestConcurrent(t *testing.T) {
 		}(i)
 	}
 	wg.Wait()
+}
+
+// ParseCodexModelCatalog đọc catalog thật của `debug models` (fixture dưới đây
+// chép từ codex-cli 0.162.1).
+func TestParseCodexModelCatalog(t *testing.T) {
+	stdout := `{"models":[
+		{"slug":"gpt-6.1-sol","input_modalities":["text","image"],"context_window":272000,"supported_in_api":true},
+		{"slug":"codex-auto-review","input_modalities":["text"],"context_window":272000,"supported_in_api":true}
+	]}`
+	models, err := ParseCodexModelCatalog(stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(models) != 2 || models[0].Slug != "gpt-6.1-sol" || models[0].ContextWindow != 272000 {
+		t.Fatalf("models = %+v", models)
+	}
+	if len(models[0].InputModalities) != 2 || models[0].InputModalities[1] != "image" {
+		t.Fatalf("modalities = %v", models[0].InputModalities)
+	}
+	if _, err := ParseCodexModelCatalog("không phải json"); err == nil {
+		t.Fatal("stdout rác vẫn parse được")
+	}
+	if _, err := ParseCodexModelCatalog(`{"models":[]}`); err != nil {
+		t.Fatalf("catalog rỗng phải đọc được: %v", err)
+	}
+}
+
+// Xác nhận định dạng auth.json tổng hợp được Codex CLI ghim chấp nhận:
+// `codex login status` phải báo "Logged in using ChatGPT" khi chỉ có access
+// token và refresh_token rỗng. Miễn phí (không gọi model). TẮT mặc định:
+//
+//	VIDERSE_CODEX_FORMAT_CHECK=1 go test ./internal/tools/ -run TestCodexAuthJSONFormat -v
+func TestCodexAuthJSONFormatAcceptedByCLI(t *testing.T) {
+	if os.Getenv("VIDERSE_CODEX_FORMAT_CHECK") != "1" {
+		t.Skip("đặt VIDERSE_CODEX_FORMAT_CHECK=1 để kiểm định dạng với codex CLI thật")
+	}
+	exe := FindOnPath("codex", os.Getenv("PATH"))
+	if exe == "" {
+		t.Skip("codex không có trên PATH")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	home, err := CreateIsolatedCodexHome(CodexAuthTokens{
+		// Token giả đúng cấu trúc JWT (base64url, 3 đoạn): chỉ kiểm định dạng
+		// auth.json, không gọi model hay mạng.
+		AccessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9." +
+			"eyJzdWIiOiJmb3JtYXQtY2hlY2siLCJlbWFpbCI6ImFAYi5jIn0." +
+			"eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4",
+		AccountID: "00000000-0000-4000-8000-000000000000",
+	}, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := &ExecRunner{}
+	res, err := r.Run(ctx, exe, []string{"login", "status"}, Spec{
+		Timeout: 30 * time.Second,
+		Env:     map[string]string{"CODEX_HOME": home, "HOME": home},
+		OKCodes: []int{0, 1},
+	})
+	if err != nil {
+		t.Fatalf("không chạy được codex login status: %v", err)
+	}
+	out := res.Stdout + res.Stderr
+	if !strings.Contains(strings.ToLower(out), "chatgpt") {
+		t.Fatalf("CLI không nhận auth.json tổng hợp: %q", out)
+	}
 }

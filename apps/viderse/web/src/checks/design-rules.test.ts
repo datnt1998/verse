@@ -106,3 +106,47 @@ describe('luật thiết kế trong src/', () => {
     expect(anims).toEqual([])
   })
 })
+
+describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () => {
+  const settingsCss = readFileSync(join(SRC, 'screens/settings/settings.css'), 'utf8')
+  const toolsCss = readFileSync(join(SRC, 'screens/settings/tools/tools.css'), 'utf8')
+  const componentsCss = readFileSync(join(SRC, 'styles/components.css'), 'utf8')
+
+  it('nhãn nhóm sidebar 11.5px — artboard Settings .grp, không phải 11px', () => {
+    const grp = settingsCss.match(/\.vv-set__grp\s*\{[^}]*\}/)
+    expect(grp).toBeTruthy()
+    expect(grp![0]).toContain('font-size: 11.5px')
+  })
+
+  it('header không co khi cột dưới thiếu chỗ (artboard top cao cố định)', () => {
+    const header = componentsCss.match(/\.vv-header\s*\{[^}]*\}/)
+    expect(header).toBeTruthy()
+    expect(header![0]).toContain('flex-shrink: 0')
+  })
+
+  it('mục Công cụ › câu lỗi hàng cam (.vv-tools__hint.is-err)', () => {
+    expect(toolsCss).toMatch(/\.vv-tools__hint\.is-err\s*\{[^}]*\}/)
+  })
+
+  it('MSettings › Chi tiết: tên công cụ (adv-k) không bị display:none ở mobile', () => {
+    const mobile = toolsCss.match(/@media\s*\(max-width:\s*767px\)\s*\{[\s\S]*/)
+    expect(mobile).toBeTruthy()
+    expect(mobile![0]).not.toMatch(/\.vv-tools__adv-k\s*\{[^}]*display:\s*none[^}]*\}/)
+  })
+
+  it('Báo lỗi › lỗi chưa xử lý dùng token cam lỗi, không phải vàng warn', () => {
+    const logsCss = readFileSync(join(SRC, 'screens/settings/logs/logs.css'), 'utf8')
+    expect(logsCss).toMatch(/\.vv-logs__err-st\.is-err\s*\{[^}]*var\(--color-err\)[^}]*\}/)
+    expect(logsCss).not.toMatch(/\.vv-logs__err-st\.is-warn/)
+  })
+
+  it('MSettings › Lưu trữ: lời dẫn sheet Đổi thư mục thụt vào lề 16', () => {
+    // .vv-sto__hintLine là con trực tiếp của .m-sheet-body không padding — nếu
+    // mất margin-inline 16 thì nó giãn x0/390 thay vì x16/358 như artboard.
+    const storageCss = readFileSync(join(SRC, 'screens/settings/storage/storage.css'), 'utf8')
+    const rule = storageCss.match(/\.vv-sto__hintLine\s*\{[^}]*\}/)
+    expect(rule).toBeTruthy()
+    expect(rule![0]).toContain('margin-inline: var(--vv-s-16)')
+    expect(rule![0]).not.toContain('padding')
+  })
+})

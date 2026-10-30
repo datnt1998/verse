@@ -273,6 +273,22 @@ const staleProbeAge = 10 * time.Minute
 // của nó bị giết.
 const probeExitGrace = 2 * time.Second
 
+// headlessArgs là cờ chung của mọi Chrome headless app tự mở: profile bỏ đi
+// riêng và không bao giờ chạm kho bí mật của máy. Profile này không có đăng
+// nhập nào cần mã hoá, nên Chrome dùng khoá giả thay vì hỏi Keychain (macOS)
+// hay keyring (Linux) — thiếu hai cờ này, mỗi profile mới bật hộp thoại
+// Keychain cho người dùng.
+func headlessArgs(profileDir string, extra ...string) []string {
+	return append([]string{
+		"--headless=new",
+		"--use-mock-keychain",
+		"--password-store=basic",
+		"--no-first-run",
+		"--no-default-browser-check",
+		"--user-data-dir=" + profileDir,
+	}, extra...)
+}
+
 // sweepStaleProbeDirs xoá profile probe mà owner chết trước khi `finally`
 // chạy (server bị giết giữa probe; Chrome chạy nhóm riêng và sống sót). Mỗi
 // profile rò ~75 MB nên không được tích luỹ qua các lần khởi động lại.
@@ -317,18 +333,15 @@ func (c *Chrome) runProbe(ctx context.Context, exe string) chromeProbe {
 	domCtx, markerSeen := context.WithCancel(context.Background())
 	defer markerSeen()
 	var domOut strings.Builder
-	_, runErr := c.d.Runner.Run(domCtx, exe, []string{
-		"--headless=new",
+	_, runErr := c.d.Runner.Run(domCtx, exe, headlessArgs(filepath.Join(work, "profile"),
 		"--disable-gpu",
 		"--mute-audio",
-		"--no-first-run",
 		"--disable-extensions",
 		"--disable-background-networking",
-		"--user-data-dir=" + filepath.Join(work, "profile"),
 		"--virtual-time-budget=3000",
 		"--dump-dom",
-		"file://" + filepath.Join(work, "probe.html"),
-	}, Spec{
+		"file://"+filepath.Join(work, "probe.html"),
+	), Spec{
 		Timeout: 20 * time.Second,
 		// --dump-dom đẩy DOM một khối: gom theo chunk thô qua Log thay vì đợi
 		// đủ dòng; Log được tuần tự hoá nên dom/marker không bị tách.
@@ -643,14 +656,11 @@ func (c *Chrome) runExportProbe(ctx context.Context, exe string) exportProbe {
 	if err := os.WriteFile(filepath.Join(work, "probe.html"), []byte("<!doctype html><meta charset=utf-8><title>probe</title>"), 0o644); err != nil {
 		return exportProbe{Path: exe, Err: err.Error()}
 	}
-	raw, err := c.evaluateInHeadlessPage(ctx, exe, []string{
-		"--headless=new",
+	raw, err := c.evaluateInHeadlessPage(ctx, exe, headlessArgs(filepath.Join(work, "profile"),
 		"--mute-audio",
-		"--no-first-run",
 		"--disable-extensions",
 		"--disable-background-networking",
-		"--user-data-dir=" + filepath.Join(work, "profile"),
-	}, "file://"+filepath.Join(work, "probe.html"), exportProbeExpression, 25*time.Second)
+	), "file://"+filepath.Join(work, "probe.html"), exportProbeExpression, 25*time.Second)
 	if err != nil {
 		return exportProbe{Path: exe, Err: err.Error()}
 	}

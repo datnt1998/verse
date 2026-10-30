@@ -1,0 +1,392 @@
+/* Cài đặt › Lưu trữ (artboard Settings · section=storage, MSettings ·
+   screen=storage). Thẻ, dòng vị trí, khối chọn tại chỗ, checklist, tiến độ
+   chuyển, biểu đồ dung lượng, dọn dẹp và hàng xoá của điện thoại. */
+
+/* ---------- Thẻ ---------- */
+.vv-sto__card { border-radius: var(--vv-r-14); padding: var(--vv-s-16); display: flex; flex-direction: column; gap: var(--vv-s-12); }
+.vv-sto__card--m { border-radius: var(--vv-r-16); padding: var(--vv-s-14); }
+.vv-sto__card--warn { border-color: var(--color-warn); }
+.vv-sto__grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--vv-s-1); }
+.vv-sto__spacer { flex: 1; }
+
+.vv-sto__head { display: flex; align-items: baseline; gap: var(--vv-s-10); flex-wrap: wrap; }
+.vv-sto__headM { display: flex; flex-direction: column; gap: var(--vv-s-2); }
+.vv-sto__headM--row { flex-direction: row; align-items: baseline; gap: var(--vv-s-10); flex-wrap: wrap; }
+.vv-sto__headM--row .vv-sto__h2M { flex: 1; }
+.vv-sto__headNote { flex: 0 1 auto; min-width: 0; }
+.vv-sto__h2 { margin: 0; flex: 1; font-size: 14px; font-weight: 600; }
+.vv-sto__h2--project { flex: 1; }
+.vv-sto__h2M { font-size: 15px; font-weight: 600; }
+.vv-sto__h2Size { font-weight: 400; color: var(--color-fg-4); }
+.vv-sto__free { font-size: 12.5px; color: var(--color-fg-4); }
+.vv-sto__sub { font-size: 12.5px; color: var(--color-fg-3); line-height: 1.6; }
+.vv-sto__cardHead { display: flex; align-items: flex-start; gap: var(--vv-s-14); flex-wrap: wrap; }
+.vv-sto__cardText { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: var(--vv-s-2); }
+
+/* ---------- Dòng vị trí thư mục dự án ---------- */
+.vv-loc {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-12);
+  padding: var(--vv-s-10) var(--vv-s-12);
+  border-radius: var(--vv-r-12);
+  background: var(--color-surface-0);
+  border: var(--vv-s-1) solid var(--line-1);
+}
+.vv-loc__icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--vv-r-10);
+  background: var(--vv-wash-5);
+  color: var(--color-fg-2);
+}
+.vv-loc__name { font-size: 13.5px; font-weight: 500; }
+.vv-loc__kind { font-weight: 400; color: var(--color-fg-4); }
+.vv-loc__path {
+  font-size: 11.5px;
+  color: var(--color-fg-3);
+  min-width: 0;
+}
+.vv-sto__stay { font-size: 12.5px; color: var(--color-fg-3); line-height: 1.5; }
+
+/* Điện thoại: khối vị trí 40px, chữ xếp dọc, nút Đổi thư mục lưu dưới. */
+.vv-sto__locM { display: flex; flex-wrap: wrap; align-items: center; gap: var(--vv-s-12); }
+.vv-sto__locIconM {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--vv-r-12);
+  background: var(--vv-wash-5);
+  color: var(--color-fg-2);
+}
+.vv-sto__locTextM { flex: 1 1 120px; min-width: 0; display: flex; flex-direction: column; gap: var(--vv-s-2); }
+.vv-sto__locAct { flex: 1 0 100%; display: flex; }
+.vv-sto__locAct > * { flex: 1; justify-content: center; }
+.vv-sto__locNameM { font-size: 14.5px; font-weight: 500; }
+.vv-sto__locKindM { font-size: 12.5px; color: var(--color-fg-4); }
+.vv-sto__locPathM { font-size: 11.5px; color: var(--color-fg-3); word-break: break-all; line-height: 1.45; }
+.vv-sto__leadM { margin: 0; font-size: 13px; color: var(--color-fg-3); line-height: 1.55; }
+.vv-sto__mBanner { display: flex; flex-direction: column; }
+
+/* ---------- Khối chọn tại chỗ (store=pick) ---------- */
+.vv-sto__pick { display: flex; flex-direction: column; gap: var(--vv-s-12); }
+.vv-sto__pick--m { gap: var(--vv-s-8); padding: 0; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.vv-sto__pickBody { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--vv-s-8); padding: var(--vv-s-4) var(--vv-s-12) var(--vv-s-8); }
+.vv-sto__pick--m .vv-sto__go--m { flex: 0 0 auto; padding: var(--vv-s-8) var(--vv-s-16) var(--vv-s-32); background: var(--vv-sheet-bg); }
+.vv-sto__newdir { display: flex; flex-direction: column; gap: var(--vv-s-8); }
+.vv-sto__pills { display: flex; flex-wrap: wrap; align-items: center; gap: var(--vv-s-6); }
+.vv-sto__pillFree { color: var(--color-fg-4); }
+.vv-sto__modes { display: flex; flex-direction: column; gap: var(--vv-s-8); }
+.vv-sto__modeList { display: flex; flex-direction: column; gap: var(--vv-s-6); }
+/* Thẻ chọn chế độ ~57,5px như hai thẻ “Dữ liệu đang có” của artboard (kit ~55). */
+.vv-sto__modeList .kit-rcard { min-height: 57px; }
+.vv-sto__drives { display: flex; flex-direction: column; gap: var(--vv-s-6); }
+/* Hàng ổ của sheet: 56 như .vv-choice của artboard (nhãn 15 + phụ 12). */
+.vv-sto__pick--m .vv-sto__drives > * { min-height: var(--vv-s-56); }
+/* Hàng chọn ổ của sheet: nhãn 15, phụ 12, vòng chọn mảnh 1px như
+ * .vv-radio--m của artboard (kit mặc định 13/11.5 + viền 2px; cỡ chữ nằm
+ * trong style inline của kit nên cần !important). */
+.vv-sto__pick--m .vv-sto__drives .kit-rcard > span:not(.kit-rdot) > span:first-of-type { font-size: 15px !important; }
+.vv-sto__pick--m .vv-sto__drives .kit-rcard > span:not(.kit-rdot) > span:last-of-type { font-size: 12px !important; }
+.vv-sto__pick--m .vv-sto__drives .kit-rcard .kit-rdot { border-width: 1px !important; border-color: rgba(255, 255, 255, 0.28) !important; }
+.vv-sto__pick--m .vv-sto__drives .kit-rcard .kit-rdot[data-checked='true'] { border-color: var(--color-accent) !important; }
+/* Helper dưới nhóm ổ thụt vào theo lề sheet (artboard x16: 12 lề + 4 riêng). */
+.vv-sto__pickBody > .vv-help { margin-inline: var(--vv-s-4); }
+/* Ô đường dẫn đám mây đổi màu cảnh báo cam như artboard (pathC). */
+.vv-sto__pickPath.is-bad { color: var(--vv-warn-ink); }
+/* Lời dẫn đầu sheet “Chọn ổ đang cắm…”: con trực tiếp của .m-sheet-body (không
+ * padding) nên tự thụt vào lề nội dung của artboard — x16, rộng 358 trên 390. */
+.vv-sto__hintLine { margin-inline: var(--vv-s-16); }
+
+.vv-sto__jobs {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vv-s-8);
+  padding: var(--vv-s-8) var(--vv-s-12);
+  border-radius: var(--radius-tile);
+  border: var(--vv-s-1) solid var(--line-2);
+  background: var(--color-surface-1);
+}
+.vv-sto__jobs .vv-ic { color: var(--color-fg-3); flex: 0 0 auto; margin-top: var(--vv-s-2); }
+
+/* Nút đi tiếp của artboard = Button xl của kit: 48/r13/15-600 sáng — chỉ cần
+ * kéo ngang hết vì kit không có biến thể đầy chiều rộng. */
+.vv-sto__goBtn { width: 100%; }
+
+.vv-sto__go { display: flex; align-items: center; gap: var(--vv-s-8); flex-wrap: wrap; }
+.vv-sto__go--m { flex-direction: column; align-items: stretch; gap: var(--vv-s-8); padding-top: var(--vv-s-8); border-top: var(--vv-s-1) solid var(--line-1); }
+.vv-sto__reason { flex: 1 1 260px; min-width: 0; }
+.vv-sto__reason.is-empty { flex: 1; }
+.vv-sto__previewNote { flex: 1 1 260px; font-size: 12px; color: var(--color-fg-4); }
+
+/* Ô đường dẫn của khối chọn (cao 40 như artboard). */
+.vv-sto__pick .vv-fieldbox { height: var(--vv-s-40); padding-right: var(--vv-s-4); }
+.vv-sto__pickPath { flex: 1; min-width: 0; font-size: 12.5px; color: var(--color-fg-2); }
+
+/* ---------- Hộp chọn thư mục phía máy chủ ---------- */
+.vv-sto__browse { display: flex; flex-direction: column; gap: var(--vv-s-8); }
+.vv-sto__search {
+  flex: 1;
+  min-width: 0;
+  height: var(--vv-s-30);
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-fg);
+  font-size: 13px;
+}
+/* Hàng thư mục của hộp chọn: tự sở hữu (artboard: một thẻ, hàng 56px). */
+.vv-sto__brow {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-12);
+  min-height: var(--vv-s-56);
+  padding: var(--vv-s-8) var(--vv-s-12);
+  border: none;
+  border-top: var(--vv-s-1) solid var(--line-1);
+  background: transparent;
+  color: var(--color-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.vv-sto__brow:first-child { border-top: none; }
+.vv-sto__brow:hover { background: var(--line-1); }
+.vv-sto__brow > .vv-ic { color: var(--color-fg-3); flex: 0 0 auto; }
+.vv-sto__browName { flex: 1 1 auto; min-width: 0; font-size: var(--vv-s-13); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dải xác nhận cam trong thẻ (artboard Settings › role=alertdialog):
+   nền .06, viền .35, radius 10; câu hỏi 13px cam nhạt; nút: quiet + danger 32px. */
+.vv-sto__confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-10);
+  flex-wrap: wrap;
+  padding: var(--vv-s-12);
+  border-radius: var(--vv-s-10);
+  border: var(--vv-s-1) solid var(--vv-warn-bd);
+  background: var(--vv-warn-bg);
+}
+.vv-sto__confirm > .vv-ic { color: var(--color-warn); flex: 0 0 auto; }
+.vv-sto__confirmQ { flex: 1 1 260px; font-size: var(--vv-s-13); color: var(--vv-warn-ink); line-height: 1.55; }
+.vv-sto__pager { display: flex; align-items: center; gap: var(--vv-s-8); }
+.vv-sto__page { font-size: 12px; color: var(--color-fg-4); }
+.vv-sto__end { display: flex; justify-content: flex-end; }
+
+/* ---------- Gợi ý ổ đang cắm (pill của hộp chọn) ---------- */
+.vv-drives { display: flex; flex-wrap: wrap; align-items: center; gap: var(--vv-s-6); }
+.vv-drive {
+  height: var(--vv-s-30);
+  padding: 0 var(--vv-s-10);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vv-s-6);
+  border-radius: var(--vv-r-pill);
+  border: var(--vv-s-1) solid var(--line-3);
+  background: transparent;
+  color: var(--color-fg-2);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.vv-drive[aria-pressed='true'] { background: var(--color-surface-6); border-color: var(--vv-line-14); color: var(--color-fg); }
+.vv-drive[aria-disabled='true'] { opacity: 0.5; cursor: default; }
+.vv-drive .vv-num { color: var(--color-fg-4); font-size: 11.5px; }
+
+/* ---------- Checklist + tiến độ ---------- */
+.vv-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vv-s-4);
+  padding: var(--vv-s-10) var(--vv-s-12);
+  border-radius: var(--radius-row);
+  background: var(--vv-wash-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.vv-checks .vv-check { display: flex; gap: var(--vv-s-8); align-items: flex-start; color: var(--color-fg-2); }
+.vv-checks .vv-ic { flex: 0 0 auto; margin-top: var(--vv-s-2); }
+.vv-checks .vv-ic.is-ok { color: var(--color-ok); }
+.vv-checks .vv-ic.is-warn { color: var(--color-warn); }
+.vv-checks .vv-ic.is-fail { color: var(--vv-warn-ink); }
+.vv-checks .vv-check.is-fail .vv-check__t { color: var(--vv-warn-ink); }
+.vv-checks .vv-check.is-warn .vv-check__t { color: var(--color-warn); }
+
+.vv-move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vv-s-10);
+  padding: var(--vv-s-12);
+  border-radius: var(--vv-r-12);
+  border: var(--vv-s-1) solid var(--vv-info-bd);
+  background: var(--vv-info-bg);
+}
+.vv-move--m { gap: var(--vv-s-8); }
+.vv-move__head { display: flex; align-items: baseline; gap: var(--vv-s-10); flex-wrap: wrap; }
+.vv-move__title { flex: 1; font-size: 13.5px; font-weight: 600; }
+.vv-move--m .vv-move__title { font-size: 14px; }
+.vv-move__stats { font-size: 12.5px; color: var(--color-fg-3); }
+.vv-move__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vv-s-4) var(--vv-s-16);
+  font-size: 12.5px;
+}
+.vv-move__groups > span { display: flex; align-items: center; gap: var(--vv-s-8); min-width: 0; }
+.vv-move__group { flex: 1; min-width: 0; color: var(--color-fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-move__groupN { color: var(--color-fg-3); }
+.vv-move__groupN.is-done { color: var(--color-ok); }
+.vv-move__groupN.is-run { color: var(--color-info); }
+.vv-move__groups .vv-ic.is-ok { color: var(--color-ok); }
+.vv-move__groups .vv-ic.is-run { color: var(--color-info); }
+.vv-move__groups .vv-ic.is-wait { color: var(--color-fg-4); }
+.vv-move__foot { display: flex; gap: var(--vv-s-8); align-items: center; }
+/* Điện thoại: nút Huỷ chuyển 44px canh trái, không kéo hết bề ngang (MSettings). */
+.vv-move--m > button { align-self: flex-start; }
+
+/* ---------- Biểu đồ dung lượng ---------- */
+.vv-usage__bar { display: flex; gap: var(--vv-s-2); height: var(--vv-s-10); border-radius: var(--vv-r-pill); overflow: hidden; }
+.vv-usage__bar--m { height: var(--vv-s-8); }
+.vv-usage__bar > span { min-width: var(--vv-s-2); }
+/* Bảng màu nhóm dung lượng của biểu đồ (nguồn/MP4/editor/ảnh/hệ thống). */
+.vv-chip--g-sources { background: var(--vv-seg-sources); }
+.vv-chip--g-exports { background: var(--vv-seg-exports); }
+.vv-chip--g-editor { background: var(--vv-seg-editor); }
+.vv-chip--g-images { background: var(--vv-seg-images); }
+.vv-chip--g-stay { background: var(--vv-seg-stay); }
+.vv-chip--g-other { background: var(--vv-seg-stay); }
+.vv-usage__legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: var(--vv-s-8) var(--vv-s-16);
+  font-size: 12.5px;
+}
+.vv-usage__legend > span { display: flex; align-items: center; gap: var(--vv-s-8); min-width: 0; }
+.vv-usage__legend .vv-chip { width: var(--vv-s-8); height: var(--vv-s-8); border-radius: var(--vv-r-2); flex: 0 0 auto; }
+.vv-usage__legend .vv-lb { flex: 1; min-width: 0; color: var(--color-fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-usage__legend .vv-num { color: var(--color-fg); font-variant-numeric: tabular-nums; }
+
+/* Hàng xoá của điện thoại (nằm trong thẻ dung lượng). */
+.vv-sto__rowM {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-10);
+  padding: var(--vv-s-6) 0;
+  border-top: var(--vv-s-1) solid var(--line-1);
+}
+.vv-sto__rowTextM { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.vv-sto__rowTitleM { font-size: 14px; }
+/* Banner sửa theo artboard: tiêu đề đậm 700/14, thân 14px sáng; icon đĩa tick
+   đặc 16px (tick-b) canh giữa + lệch 2px như .vv-banner của artboard. */
+.vv-sto__bannerFix [role] > span:first-child { width: var(--vv-s-16) !important; height: var(--vv-s-16) !important; margin-top: var(--vv-s-2); }
+.vv-sto__bannerFix [role] > span + span > span:first-of-type { font-weight: 700; font-size: var(--vv-s-14); color: var(--color-fg); }
+/* Thân banner là chữ thường 14px sáng như artboard (.vv-banner__text 12px chỉ
+   dành cho banner phụ; banner done/offline của Lưu trữ dùng span thường). */
+.vv-sto__bannerFix [role] > span + span > span:nth-of-type(2) { font-size: var(--vv-s-14); color: var(--color-fg); }
+/* Sheet: thân cuộn bắt footer dính đáy, bề mặt đậm của artboard. */
+.m-sheet:has(.vv-sto__pick--m) { background: var(--vv-sheet-bg); }
+.m-sheet:has(.vv-sto__pick--m) .m-sheet-body { display: flex; flex-direction: column; overflow: hidden; }
+.vv-sto__rowNoteM { font-size: 12.5px; color: var(--color-fg-4); line-height: 1.5; }
+.vv-sto__rowNoteM.is-gone { color: var(--color-ok); }
+
+/* ---------- Dọn dẹp + xoá nhóm ---------- */
+.vv-cleanlist {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-row);
+  background: var(--color-surface-0);
+  border: var(--vv-s-1) solid var(--line-1);
+  font-size: 12.5px;
+}
+.vv-cleanlist > span {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-10);
+  padding: var(--vv-s-10) var(--vv-s-12);
+  border-top: var(--vv-s-1) solid var(--line-1);
+}
+.vv-cleanlist > span:first-child { border-top: none; }
+.vv-cleanlist .vv-lb { flex: 1; color: var(--color-fg-2); }
+.vv-cleanlist .vv-num { font-variant-numeric: tabular-nums; }
+.vv-cleanlist .vv-num.is-muted { color: var(--color-fg-4); }
+
+.vv-sto__doneLine,
+.vv-sto__gone {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-8);
+  font-size: 13px;
+  color: var(--color-ok);
+}
+.vv-sto__failPath { font-size: 12px; color: var(--color-fg-4); }
+.vv-sto__failActs { display: flex; gap: var(--vv-s-8); }
+
+@media (max-width: 767px) {
+  .vv-sto__pick .vv-fieldbox { height: var(--vv-s-44); }
+}
+
+/* ---------- Lớp chữ/ô dùng chung của mục Lưu trữ (05-kit: Input · Field) ---------- */
+.vv-help {
+  display: flex;
+  gap: var(--vv-s-6);
+  align-items: flex-start;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--color-fg-3);
+}
+.vv-err {
+  display: flex;
+  gap: var(--vv-s-6);
+  align-items: flex-start;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--vv-warn-ink);
+}
+.vv-label { display: block; font-size: 11.5px; color: var(--color-fg-3); }
+.vv-num { font-variant-numeric: tabular-nums; }
+.vv-mono { font-family: var(--font-mono); }
+.vv-ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-lb { flex: 1; min-width: 0; }
+
+.vv-fieldbox {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-8);
+  height: var(--vv-s-38);
+  padding: 0 var(--vv-s-4) 0 var(--vv-s-10);
+  border-radius: var(--radius-button, 8px);
+  background: var(--color-surface-1);
+  border: var(--vv-s-1) solid var(--line-3);
+}
+.vv-fieldbox:focus-within { border-color: var(--line-5); }
+
+/* Viên gợi ý ổ (Settings · store=pick): tên ổ + số trống. */
+.vv-pill {
+  height: var(--vv-s-30);
+  padding: 0 var(--vv-s-12);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vv-s-6);
+  border-radius: var(--vv-r-pill);
+  border: var(--vv-s-1) solid var(--line-3);
+  background: transparent;
+  color: var(--color-fg-2);
+  font: inherit;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.vv-pill[aria-pressed='true'] { background: var(--color-surface-6); border-color: var(--vv-line-14); color: var(--color-fg); }
+.vv-pill .vv-num { color: var(--color-fg-3); }
+
+/* MSettings vẽ segment “Project editor” sáng hơn bản desktop (token riêng). */
+@media (max-width: 767px) {
+  .vv-chip--g-editor { background: var(--vv-seg-editor-m); }
+}
+

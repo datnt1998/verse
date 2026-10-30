@@ -10,7 +10,7 @@ const ARCS: { color: string; offset: number }[] = [
   { color: '#5DDDB0', offset: -75 },  // Kiểm định
 ]
 
-export function LensLogo({ size = 26, spinning = false, light = false, halo = false }: {
+export function LensLogo({ size = 26, spinning = false, light = false, halo = false, hero = false }: {
   size?: number
   /** xoay 9s mỗi vòng — chỉ khi có job chạy */
   spinning?: boolean
@@ -18,13 +18,16 @@ export function LensLogo({ size = 26, spinning = false, light = false, halo = fa
   light?: boolean
   /** quầng đỏ mờ sau cầu — bản hero của màn chào/đăng nhập (brand/mark-hero) */
   halo?: boolean
+  /** bản hero không vòng kính: cung dày 4,6 thay vì 2,6 (Onboard › step=setup) */
+  hero?: boolean
 }) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
   const small = size <= 30
-  const stroke = small ? (size <= 18 ? 7 : 5.4) : 2.6
+  // Hero của Onboard: cung dày 4,6, không vòng kính, cầu 16 — đúng SVG artboard.
+  const stroke = hero ? 4.6 : small ? (size <= 18 ? 7 : 5.4) : 2.6
   const arcR = small ? (size <= 18 ? 26 : 27) : 27
-  const sphereR = small ? (size <= 18 ? 15 : 16) : 14.5
-  const dash = small ? '17 83' : '19 81'
+  const sphereR = hero ? 16 : small ? (size <= 18 ? 15 : 16) : 14.5
+  const dash = hero || small ? '17 83' : '19 81'
   const arcColors = light ? ['#4F78F0', '#8A5BE8', '#E8922E', '#21A983'] : ARCS.map((a) => a.color)
   const mark = (
     <svg aria-hidden="true" width={size} height={size} viewBox="0 0 64 64" style={{ flex: '0 0 auto' }}>
@@ -35,7 +38,7 @@ export function LensLogo({ size = 26, spinning = false, light = false, halo = fa
           <stop offset=".55" stopColor="#FF1F45" />
           <stop offset="1" stopColor="#A3001C" />
         </radialGradient>
-        {!small && (
+        {!small && !hero && (
           <linearGradient id={`lnGlass-${id}`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="#FFFFFF" stopOpacity=".35" />
             <stop offset=".5" stopColor="#FFFFFF" stopOpacity=".04" />
@@ -43,7 +46,7 @@ export function LensLogo({ size = 26, spinning = false, light = false, halo = fa
           </linearGradient>
         )}
       </defs>
-      {!small && <circle cx="32" cy="32" r="21.5" fill={light ? `url(#lnGlass-${id})` : '#141417'} stroke={light ? '#D9D9E0' : `url(#lnGlass-${id})`} strokeWidth=".8" />}
+      {!small && !hero && <circle cx="32" cy="32" r="21.5" fill={light ? `url(#lnGlass-${id})` : '#141417'} stroke={light ? '#D9D9E0' : `url(#lnGlass-${id})`} strokeWidth=".8" />}
       <g className={spinning ? 'vv-lens-run' : undefined}>
         <g transform="rotate(-80 32 32)" fill="none" strokeWidth={stroke} strokeLinecap="round">
           {arcColors.map((color, i) => (
@@ -52,10 +55,10 @@ export function LensLogo({ size = 26, spinning = false, light = false, halo = fa
         </g>
       </g>
       <circle cx="32" cy="32" r={sphereR} fill={`url(#lnSph-${id})`} />
-      {!small && <ellipse cx="27.5" cy="26" rx="4.2" ry="2.4" transform="rotate(-35 27.5 26)" fill="#FFFFFF" fillOpacity=".55" />}
+      {!small && !hero && <ellipse cx="27.5" cy="26" rx="4.2" ry="2.4" transform="rotate(-35 27.5 26)" fill="#FFFFFF" fillOpacity=".55" />}
     </svg>
   )
-  if (!halo) return mark
+  if (!halo && !hero) return mark
   // Bản hero (brand/svg/viderse-mark-hero): quầng đỏ mờ loãng phía sau cầu.
   return (
     <span aria-hidden="true" style={{ position: 'relative', display: 'inline-flex', flex: '0 0 auto' }}>

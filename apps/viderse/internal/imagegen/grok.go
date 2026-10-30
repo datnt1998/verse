@@ -85,7 +85,7 @@ func (p *GrokProvider) Ready(ctx context.Context) error {
 func (p *GrokProvider) notLoggedIn() error {
 	return MarkUnpaid(&DrawError{Code: ErrCodeToolMissing,
 		Message:  "Chưa đăng nhập Grok",
-		Recovery: "Mở Cài đặt → Tạo ảnh minh hoạ; đăng nhập Grok"})
+		Recovery: "Mở Cài đặt → Kết nối AI; đăng nhập Grok"})
 }
 
 // grokAspectRatios là các tỉ lệ images API chấp nhận; auto để model tự chọn.

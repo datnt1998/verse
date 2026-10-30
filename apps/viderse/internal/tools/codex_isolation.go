@@ -168,6 +168,62 @@ func (c *Codex) prepareModelCatalog(ctx context.Context, exe, home, kind, filena
 	return file, nil
 }
 
+// CodexModelInfo là một model trong catalog của `codex debug models`.
+type CodexModelInfo struct {
+	Slug            string
+	InputModalities []string
+	ContextWindow   int
+	SupportedInAPI  bool
+}
+
+// ParseCodexModelCatalog đọc stdout của `debug models` thành danh sách model
+// — dùng cho cả preflight (RestrictImageModelCatalog đọc cùng cấu trúc này).
+func ParseCodexModelCatalog(stdout string) ([]CodexModelInfo, error) {
+	var doc struct {
+		Models []struct {
+			Slug            string   `json:"slug"`
+			InputModalities []string `json:"input_modalities"`
+			ContextWindow   int      `json:"context_window"`
+			SupportedInAPI  bool     `json:"supported_in_api"`
+		} `json:"models"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &doc); err != nil {
+		return nil, fmt.Errorf("catalog model không đọc được: %w", err)
+	}
+	out := make([]CodexModelInfo, 0, len(doc.Models))
+	for _, m := range doc.Models {
+		out = append(out, CodexModelInfo{
+			Slug: m.Slug, InputModalities: m.InputModalities,
+			ContextWindow: m.ContextWindow, SupportedInAPI: m.SupportedInAPI,
+		})
+	}
+	return out, nil
+}
+
+// DebugModels chạy `codex debug models --bundled` trên exe và trả danh mục
+// thô — danh sách model cho thẻ ChatGPT trong Kết nối AI. CODEX_HOME tạm
+// (catalog không cần đăng nhập).
+func (c *Codex) DebugModels(ctx context.Context, exe string) ([]CodexModelInfo, error) {
+	home, err := os.MkdirTemp("", "codex-catalog-")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(home)
+	res, err := c.d.Runner.Run(ctx, exe, []string{"debug", "models", "--bundled"}, Spec{
+		EnvExact: map[string]string{
+			"PATH":       filepath.Dir(exe) + ":" + "/usr/bin:/bin",
+			"HOME":       home,
+			"CODEX_HOME": home,
+		},
+		Timeout:  30 * time.Second,
+		LogLimit: 8 * 1024 * 1024,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ParseCodexModelCatalog(res.Stdout)
+}
+
 // PrepareImageModelCatalog dựng catalog ảnh đã hạ cho một CODEX_HOME cô lập.
 func (c *Codex) PrepareImageModelCatalog(ctx context.Context, exe, home string) (string, error) {
 	return c.prepareModelCatalog(ctx, exe, home, "image", "image-model-catalog.json")
@@ -444,14 +500,57 @@ func CodexTextExecArgs(refsDir, modelCatalog, outputFile, prompt string) []strin
 	})
 }
 
+// CodexAuthTokens là bộ token OAuth của app dùng để dựng auth.json cho một
+// CODEX_HOME cô lập. AccessToken đi kèm AccountID (chatgpt_account_id) —
+// cả hai lấy từ credential tươi nhất của core/auth. Refresh token không bao
+// giờ rời core/auth: auth.json tổng hợp mang refresh_token RỖNG để Codex
+// CLI không thể xoay vòng credential của app.
+type CodexAuthTokens struct {
+	AccessToken string
+	AccountID   string
+}
+
+// codexCLIAuthDoc là hình auth.json mà `codex login` ghi: OPENAI_API_KEY,
+// tokens{id_token,access_token,refresh_token,account_id}, last_refresh.
+// id_token bắt buộc theo schema của CLI (kiểm trên codex-cli 0.162.1);
+// vì core/auth không giữ id_token, ta dùng access token (cùng là JWT của
+// ChatGPT) cho trường này.
+type codexCLIAuthDoc struct {
+	APIKey any `json:"OPENAI_API_KEY"`
+	Tokens struct {
+		IDToken      string `json:"id_token"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		AccountID    string `json:"account_id"`
+	} `json:"tokens"`
+	LastRefresh string `json:"last_refresh"`
+}
+
+// CodexCLIAuthJSON dựng nội dung auth.json định dạng Codex CLI từ bộ token
+// của app — refresh_token trống có chủ đích: CLI báo "Logged in using
+// ChatGPT" nhưng không có gì để rotate; khi access token hết hạn thì app
+// dựng lại home từ credential tươi thay vì để CLI tự refresh.
+func CodexCLIAuthJSON(tok CodexAuthTokens, refreshedAt time.Time) ([]byte, error) {
+	var doc codexCLIAuthDoc
+	doc.Tokens.IDToken = tok.AccessToken
+	doc.Tokens.AccessToken = tok.AccessToken
+	doc.Tokens.RefreshToken = ""
+	doc.Tokens.AccountID = tok.AccountID
+	doc.LastRefresh = refreshedAt.UTC().Format(time.RFC3339)
+	return json.Marshal(doc)
+}
+
 // CreateIsolatedCodexHome dựng CODEX_HOME mỗi lời gọi: mode 0700, chỉ chứa
-// bản sao auth (auth.json 0600) — không config, session, MCP, app hay skill.
-// Trả đường dẫn home; caller xoá sau lời gọi.
-func CreateIsolatedCodexHome(sourceHome, destParent string) (string, error) {
-	srcAuth := filepath.Join(sourceHome, "auth.json")
-	data, err := os.ReadFile(srcAuth)
+// auth.json 0600 do app tổng hợp từ credential core/auth — không config,
+// session, MCP, app hay skill, và không refresh token nên CLI không thể
+// xoay vòng khoá của app. Trả đường dẫn home; caller xoá sau lời gọi.
+func CreateIsolatedCodexHome(tok CodexAuthTokens, destParent string) (string, error) {
+	if tok.AccessToken == "" {
+		return "", errors.New("không có credential ChatGPT — đăng nhập trước")
+	}
+	data, err := CodexCLIAuthJSON(tok, time.Now())
 	if err != nil {
-		return "", fmt.Errorf("không có Codex auth.json — đăng nhập trước: %w", err)
+		return "", err
 	}
 	if err := os.MkdirAll(destParent, 0o700); err != nil {
 		return "", err

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,8 +24,9 @@ func (v violation) String() string { return v.from + " → " + v.to }
 
 // scan holds the import edges of every package directory in one module.
 type scan struct {
-	packages map[string]bool            // module-relative package dirs
-	edges    map[string]map[string]bool // importer → module-relative imports
+	packages  map[string]bool            // module-relative package dirs
+	edges     map[string]map[string]bool // importer → module-relative imports, all files
+	prodEdges map[string]map[string]bool // importer → module-relative imports, non-test files
 }
 
 // Imports are read from source with every build constraint ignored, so files for
@@ -33,7 +35,7 @@ type scan struct {
 func scanModule(t *testing.T, root string) scan {
 	t.Helper()
 	modPath := modulePath(t, filepath.Join(root, "go.mod"))
-	s := scan{packages: map[string]bool{}, edges: map[string]map[string]bool{}}
+	s := scan{packages: map[string]bool{}, edges: map[string]map[string]bool{}, prodEdges: map[string]map[string]bool{}}
 	fset := token.NewFileSet()
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -78,10 +80,10 @@ func scanModule(t *testing.T, root string) scan {
 					continue // standard library or another module
 				}
 			}
-			if s.edges[pkg] == nil {
-				s.edges[pkg] = map[string]bool{}
+			addEdge(s.edges, pkg, rel)
+			if !strings.HasSuffix(path, "_test.go") {
+				addEdge(s.prodEdges, pkg, rel)
 			}
-			s.edges[pkg][rel] = true
 		}
 		return nil
 	})
@@ -89,6 +91,13 @@ func scanModule(t *testing.T, root string) scan {
 		t.Fatalf("scan %s: %v", root, err)
 	}
 	return s
+}
+
+func addEdge(edges map[string]map[string]bool, from, to string) {
+	if edges[from] == nil {
+		edges[from] = map[string]bool{}
+	}
+	edges[from][to] = true
 }
 
 func modulePath(t *testing.T, goMod string) string {
@@ -150,6 +159,72 @@ func (s scan) violations() []violation {
 	return out
 }
 
+// layeredApps are the apps whose internal packages follow the layered layout:
+// cmd composes; web and persistence adapt; business packages hold the rules;
+// domain holds shared value types.
+var layeredApps = []string{"viderse"}
+
+// appLayer classifies a package of a layered app: "cmd", "web", "persistence",
+// "bootstrap", "domain", "business", or "" for a package outside the app.
+func appLayer(app, pkg string) string {
+	rest, ok := strings.CutPrefix(pkg, "apps/"+app+"/")
+	if !ok {
+		return ""
+	}
+	under := func(dir string) bool { return rest == dir || strings.HasPrefix(rest, dir+"/") }
+	switch {
+	case under("cmd"):
+		return "cmd"
+	case under("internal/web"):
+		return "web"
+	case under("internal/persistence"):
+		return "persistence"
+	case rest == "internal/bootstrap":
+		return "bootstrap"
+	case rest == "internal/domain":
+		return "domain"
+	case strings.HasPrefix(rest, "internal/"):
+		return "business"
+	}
+	return ""
+}
+
+// appLayerAllowed lists the layers each layer of a layered app may import.
+// Business packages reach storage, HTTP and composition only through
+// interfaces they declare, so they never import web, persistence, bootstrap or
+// cmd. Nothing imports cmd.
+var appLayerAllowed = map[string][]string{
+	"cmd":         {"web", "persistence", "bootstrap", "domain", "business"},
+	"web":         {"web", "domain", "business"},
+	"persistence": {"persistence", "domain", "business"},
+	"bootstrap":   {"bootstrap", "domain"},
+	"business":    {"business", "domain"},
+	"domain":      {"domain"},
+}
+
+// appLayerViolations checks production imports only: a test may wire a real
+// store into the package it tests.
+func (s scan) appLayerViolations(app string) []violation {
+	var out []violation
+	for from, imports := range s.prodEdges {
+		fromLayer := appLayer(app, from)
+		if fromLayer == "" {
+			continue
+		}
+		for to := range imports {
+			toLayer := appLayer(app, to)
+			if toLayer == "" || from == to {
+				continue
+			}
+			if !slices.Contains(appLayerAllowed[fromLayer], toLayer) {
+				out = append(out, violation{from, to})
+			}
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].String() < out[j].String() })
+	return out
+}
+
 func TestImportBoundaries(t *testing.T) {
 	s := scanModule(t, "..")
 	core := 0
@@ -166,6 +241,25 @@ func TestImportBoundaries(t *testing.T) {
 	}
 }
 
+func TestLayeredAppImports(t *testing.T) {
+	s := scanModule(t, "..")
+	for _, app := range layeredApps {
+		found := false
+		for pkg := range s.packages {
+			if appLayer(app, pkg) == "business" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("found no business packages in apps/%s", app)
+		}
+		for _, v := range s.appLayerViolations(app) {
+			t.Errorf("forbidden import in apps/%s: %s", app, v)
+		}
+	}
+}
+
 // The planted module holds exactly one violation per rule next to allowed edges,
 // so a checker that stops seeing violations fails here.
 func TestImportBoundariesCatchPlantedViolations(t *testing.T) {
@@ -177,5 +271,19 @@ func TestImportBoundariesCatchPlantedViolations(t *testing.T) {
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("planted violations = %v, want %v", got, want)
+	}
+}
+
+// The planted layered app holds one violation per forbidden direction next to
+// allowed edges and a test file that imports persistence.
+func TestLayeredAppImportsCatchPlantedViolations(t *testing.T) {
+	got := scanModule(t, filepath.Join("testdata", "violation")).appLayerViolations("viderse")
+	want := []violation{
+		{"apps/viderse/internal/domain", "apps/viderse/internal/status"},
+		{"apps/viderse/internal/status", "apps/viderse/internal/persistence/store"},
+		{"apps/viderse/internal/status", "apps/viderse/internal/web"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("planted layer violations = %v, want %v", got, want)
 	}
 }

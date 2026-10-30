@@ -166,6 +166,8 @@ describe('AppShell — ngưỡng khung và khoá ghi', () => {
       return Promise.resolve(new Response(JSON.stringify({ running: 0, queued: 0, paused: false, reviewCount: 0, attention: [] }), { headers: { 'Content-Type': 'application/json' } }))
     }
     if (url.includes('/api/events')) return hangingStream()
+    // Setup hoàn tất → AppShell không điều hướng sang #/setup trong test.
+    if (url.includes('/api/setup/state')) return Promise.resolve(new Response('{"state":"done","complete":true,"running":false,"steps":[],"disk":{"freeBytes":1,"requiredBytes":1,"enough":true}}', { headers: { 'Content-Type': 'application/json' } }))
     if (url.includes('/api/me')) return Promise.resolve(new Response('{"user":{}}', { headers: { 'Content-Type': 'application/json' } }))
     return Promise.resolve(new Response('{}'))
   }))

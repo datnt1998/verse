@@ -69,6 +69,10 @@ func freeDiskBytes(dir string) int64 {
 	return int64(st.Bavail) * int64(st.Bsize)
 }
 
+// FreeDiskBytes trả số byte trống của filesystem chứa dir (leo lên tổ tiên
+// gần nhất còn tồn tại). -1 khi không đọc được.
+func FreeDiskBytes(dir string) int64 { return freeDiskBytes(dir) }
+
 // fileIdentity nhận dạng ổn định của một tệp trên đĩa (device + inode + kích
 // cỡ + mtime): đổi nội dung hay thay tệp đều đổi identity.
 func fileIdentity(path string) (string, bool) {

@@ -1,0 +1,123 @@
+// @vitest-environment happy-dom
+// Khung Cài đặt — chuyển mục bằng ?section=, alias cũ ?section=images → agents,
+// chấm cam theo attention của /api/status, và mobile danh sách không có tab bar.
+// Nguồn: design v1 artboard Settings + MSettings, 01-ia-flows W13.
+import { act } from 'react'
+import { invalidate } from '@noverse/ui/data'
+import { createRoot, type Root } from 'react-dom/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { SettingsScreen } from './SettingsScreen'
+import { parseHash } from '../../router'
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+
+const roots: Root[] = []
+let mobile = false
+
+const respond = (body: unknown, status = 200) => Promise.resolve(Response.json(body, { status }))
+
+function installFetch() {
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    if (url.startsWith('/api/status')) {
+      return respond({
+        rev: 'r1', running: 0, queued: 0, reviewCount: 0, attention: [{ kind: 'tool_update', text: 'Có bản mới', href: '#/settings?section=tools' }],
+      })
+    }
+    if (url.startsWith('/api/tools')) return respond({ tools: [], checkedAt: '2026-10-30T09:00:00Z' })
+    if (url.startsWith('/api/storage')) return respond({ projects: { path: '/Users/dat/Viderse Projects', volume: { name: 'Macintosh HD', kind: 'internal', fs: 'apfs', freeBytes: 5e11 }, usedBytes: 8.6e10, online: true }, stayBytes: 5.3e9, suggestions: [], usage: [], clean: { lastRunAt: null } })
+    if (url.startsWith('/api/activity')) return respond({ running: [], videoJobs: 0, queued: 0, unread: [] })
+    if (url.startsWith('/api/errors')) return respond({ items: [], count7d: 0 })
+    if (url.startsWith('/api/version')) return respond({ version: '1.4.0', latest: null, checkedAt: null })
+    if (url.startsWith('/api/ai/providers')) return respond([{ id: 'chatgpt', kind: 'chatgpt', auth: 'subscription', label: 'ChatGPT', status: 'ready', catalogCount: 3, selected: [] }])
+    if (url.startsWith('/api/ai/agents')) return respond({ director: { model: { provider: 'chatgpt', model: 'gpt-5' }, effort: 'medium', fallback: [] }, artist: { promptModel: { provider: 'chatgpt', model: 'gpt-5' }, draw: { provider: 'chatgpt', model: 'gpt-image-1' }, fallbackOn: false, drawFallback: [] } })
+    if (url.startsWith('/api/platforms')) return respond([{ id: 'youtube', label: 'YouTube' }, { id: 'twitch', label: 'Twitch' }, { id: 'bilibili', label: 'Bilibili' }])
+    return respond({})
+  }))
+}
+
+async function render(section?: string) {
+  const container = document.createElement('div')
+  document.body.append(container)
+  const root = createRoot(container)
+  roots.push(root)
+  const parsed = parseHash(`#/settings${section ? `?section=${section}` : ''}`)
+  const s = parsed.route.name === 'settings' ? parsed.route.section : undefined
+  await act(async () => { root.render(<SettingsScreen route={{ name: 'settings', section: s }} />) })
+  for (let i = 0; i < 5; i++) await act(async () => { await new Promise((r) => setTimeout(r, 20)) })
+  return container
+}
+
+beforeEach(() => {
+  void invalidate()
+  mobile = false
+  vi.stubGlobal('matchMedia', vi.fn().mockImplementation((q: string) => ({
+    matches: q.includes('767px') ? mobile : false, addEventListener: () => {}, removeEventListener: () => {},
+  })))
+  installFetch()
+})
+
+afterEach(async () => {
+  await invalidate()
+  for (const root of roots.splice(0)) await act(() => root.unmount())
+  document.body.replaceChildren()
+  vi.unstubAllGlobals()
+})
+
+describe('khung Cài đặt', () => {
+  it('mục mặc định là Công cụ, tiêu đề lấy từ META', async () => {
+    const el = await render()
+    expect(el.querySelector('.vv-set__title')?.textContent).toBe('Công cụ trên máy')
+    expect(el.querySelector('.vv-set__nav-it[aria-current="true"]')?.textContent).toContain('Công cụ trên máy')
+  })
+
+  it('?section=storage mở đúng mục Lưu trữ', async () => {
+    const el = await render('storage')
+    expect(el.querySelector('.vv-set__title')?.textContent).toBe('Lưu trữ')
+  })
+
+  it('alias cũ ?section=images rơi về Trợ lý AI', () => {
+    const { route } = parseHash('#/settings?section=images')
+    expect(route).toEqual({ name: 'settings', section: 'agents' })
+  })
+
+  it('chấm cam xuất hiện trên mục có attention trỏ tới', async () => {
+    const el = await render()
+    const toolsNav = el.querySelector('.vv-set__nav-it[aria-current="true"]')
+    expect(toolsNav?.querySelector('.vv-dot--warn')).toBeTruthy()
+  })
+
+  it('mỗi mục sidebar luôn giữ span số ở cuối (kể cả rỗng) để chấm không trôi sát mép', async () => {
+    const el = await render()
+    const its = [...el.querySelectorAll('.vv-set__nav-it')]
+    for (const it of its) {
+      const num = it.querySelector('.vv-set__nav-num')
+      expect(num, it.textContent ?? '').toBeTruthy()
+      // Span phải là phần tử cuối (sau chấm attention nếu có).
+      expect(it.lastElementChild?.className).toBe('vv-set__nav-num')
+    }
+  })
+
+  it('thẻ phải “Khi nào có hiệu lực” đổi theo mục', async () => {
+    const el = await render('storage')
+    expect(el.querySelector('.vv-set__help-card h2')?.textContent).toBe('Không mất gì quan trọng')
+  })
+
+  it('mobile là danh sách phủ toàn màn, không thanh tab dưới', async () => {
+    mobile = true
+    const el = await render()
+    expect(el.querySelector('.vv-mset')).toBeTruthy()
+    expect(el.querySelector('[role="navigation"]')).toBeNull()
+    expect(el.textContent).toContain('Báo lỗi')
+  })
+
+  it('mobile lấy giá trị thật cho Kết nối AI, Trợ lý AI, Tài khoản nền tảng', async () => {
+    mobile = true
+    const el = await render()
+    const value = (label: string) =>
+      [...el.querySelectorAll('.vv-mset__row')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
+    expect(value('Kết nối AI')).toBe('1 nhà cung cấp')
+    expect(value('Trợ lý AI')).toBe('Vẽ bằng ChatGPT')
+    expect(value('Tài khoản nền tảng')).toBe('3 nền tảng')
+  })
+})

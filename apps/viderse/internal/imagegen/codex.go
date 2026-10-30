@@ -48,22 +48,21 @@ var ErrScratchInvalid = errors.New("scratch biên nhận ảnh không đọc đ�
 // interface nhỏ phía consumer, không phải cả trình quản tool.
 type CodexBackend interface {
 	Status(ctx context.Context) tools.CodexStatus
-	DefaultHome() string
 	PrepareImageModelCatalog(ctx context.Context, exe, home string) (string, error)
 }
 
 // CodexDeps là phụ thuộc của CodexProvider.
 type CodexDeps struct {
-	// Codex: năng lực quản binary (Status, DefaultHome, PrepareImageModelCatalog).
-	// Bắt buộc.
+	// Codex: năng lực quản binary (Status, PrepareImageModelCatalog). Bắt buộc.
 	Codex CodexBackend
 	// Runner chạy mọi lời gọi codex (exec + probe cơ học); test tiêm bản giả.
 	// Bắt buộc.
 	Runner tools.Runner
 	// StatusFunc ghi đè Codex.Status (test); nil → Codex.Status.
 	StatusFunc func(ctx context.Context) (tools.CodexStatus, error)
-	// SourceHome ghi đè Codex.DefaultHome() — nguồn auth.json.
-	SourceHome string
+	// Auth cấp token OAuth tươi nhất của app để tổng hợp auth.json cho
+	// CODEX_HOME cô lập; bắt buộc — core/auth là chủ token duy nhất.
+	Auth func(ctx context.Context) (tools.CodexAuthTokens, error)
 	// PrepareCatalog ghi đè Codex.PrepareImageModelCatalog (test không cần
 	// `debug models` thật); nil → bản thật.
 	PrepareCatalog func(ctx context.Context, exe, home string) (string, error)
@@ -102,15 +101,27 @@ func (p *CodexProvider) status(ctx context.Context) (tools.CodexStatus, error) {
 	return p.d.Codex.Status(ctx), nil
 }
 
-// sourceHome trả home login của codex (auth.json nguồn).
-func (p *CodexProvider) sourceHome() string {
-	if p.d.SourceHome != "" {
-		return p.d.SourceHome
+// tokens đọc token tươi nhất của app; lỗi được xếp là chưa đăng nhập.
+func (p *CodexProvider) tokens(ctx context.Context) (tools.CodexAuthTokens, error) {
+	if p.d.Auth == nil {
+		return tools.CodexAuthTokens{}, errors.New("chưa cấu hình đăng nhập ChatGPT")
 	}
-	if p.d.Codex != nil {
-		return p.d.Codex.DefaultHome()
+	tok, err := p.d.Auth(ctx)
+	if err != nil {
+		return tools.CodexAuthTokens{}, err
 	}
-	return ""
+	if tok.AccessToken == "" {
+		return tools.CodexAuthTokens{}, errors.New("chưa đăng nhập ChatGPT")
+	}
+	return tok, nil
+}
+
+// notLoggedIn xếp "chưa có credential" thành tool_missing miễn phí (chưa qua
+// điểm tiêu tiền) — hàng ảnh giữ khoá, người dùng mở Kết nối AI để đăng nhập.
+func notLoggedIn() error {
+	return MarkUnpaid(&DrawError{Code: ErrCodeToolMissing,
+		Message:  "Chưa đăng nhập ChatGPT",
+		Recovery: "Mở Cài đặt → Kết nối AI; đăng nhập ChatGPT"})
 }
 
 // Ready: codex sẵn sàng vẽ khi binary probe được, đăng nhập chatgpt và biên
@@ -120,12 +131,16 @@ func (p *CodexProvider) Ready(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// Đăng nhập lấy từ core/auth (chủ token duy nhất), không từ home CLI.
+	if _, err := p.tokens(ctx); err != nil {
+		return notLoggedIn()
+	}
 	return requireImageReadiness(st)
 }
 
 // requireImageReadiness ném tool_missing khi status chưa đủ chuẩn vẽ ảnh.
 func requireImageReadiness(st tools.CodexStatus) error {
-	ok := st.State == tools.CodexReady && st.Binary != nil && st.Login == tools.CodexLoginChatGPT &&
+	ok := st.State == tools.CodexReady && st.Binary != nil &&
 		st.Isolation != nil && st.Isolation.State == tools.IsolationVerified
 	allowlist := false
 	if ok {
@@ -147,7 +162,7 @@ func requireImageReadiness(st tools.CodexStatus) error {
 		return MarkUnpaid(&DrawError{
 			Code:     ErrCodeToolMissing,
 			Message:  redactLogLine("Codex: " + state),
-			Recovery: "Mở Cài đặt → Codex; đăng nhập ChatGPT và kiểm tra cách ly",
+			Recovery: "Mở Cài đặt → Kết nối AI; đăng nhập ChatGPT và kiểm tra cách ly",
 		})
 	}
 	return nil
@@ -157,7 +172,11 @@ func requireImageReadiness(st tools.CodexStatus) error {
 // chỉ-auth + refs dir giữ bản sao ảnh tham chiếu, rồi chứng minh biên đọc
 // bằng probe cơ học trước khi model được gọi.
 func (p *CodexProvider) prepareIsolatedCall(ctx context.Context, exe, work, refs string, files []string, deny []string) (home, modelCatalog string, env map[string]string, attached []string, err error) {
-	home, err = tools.CreateIsolatedCodexHome(p.sourceHome(), filepath.Join(work, "homes"))
+	tok, err := p.tokens(ctx)
+	if err != nil {
+		return "", "", nil, nil, notLoggedIn()
+	}
+	home, err = tools.CreateIsolatedCodexHome(tok, filepath.Join(work, "homes"))
 	if err != nil {
 		return "", "", nil, nil, err
 	}

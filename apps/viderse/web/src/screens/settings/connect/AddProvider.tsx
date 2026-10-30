@@ -1,0 +1,189 @@
+// AddProvider — thẻ/sheet "Thêm nhà cung cấp" (artboard Settings conn=add,
+// MSettings sheet=add): lưới 8 nhà cung cấp (4 cột máy tính, 2 cột điện thoại),
+// ô khoá API (Ollama: địa chỉ; Tương thích OpenAI: cả hai), nút "Kết nối và
+// lấy model". "Kết nối" → POST /api/ai/providers → thẻ mới lên đầu (conn=added);
+// 401/422 auth_failed → thẻ cam ở đầu danh sách (conn=failed).
+import { useState } from 'react'
+import { Button, Icon } from '@noverse/ui'
+import { Field } from '@noverse/ui'
+import { invalidate } from '@noverse/ui/data'
+import { toast } from '@noverse/ui'
+import { addProvider } from '../../../api/ai'
+import { keys } from '../../../data/keys'
+import { aiCopy } from '../../../i18n/ai'
+import { t } from '../../../i18n/vi'
+import { fieldOf } from './ProviderCard'
+
+const c = aiCopy.connect
+
+export type AddKind = {
+  kind: string
+  label: string
+  auth: 'key' | 'url' | 'both'
+  /** Chú thích dưới tên trên máy tính (artboard Settings conn=add). */
+  sub: string
+  /** Chú thích ngắn trên điện thoại (artboard MSettings sheet=add). */
+  subMobile: string
+}
+
+/** 8 loại của design (ChatGPT/Grok có thẻ quản lý sẵn trong danh sách). */
+export const ADD_KINDS: readonly AddKind[] = [
+  { kind: 'openai', label: 'OpenAI', auth: 'key', sub: 'Khoá API · chữ, vẽ ảnh', subMobile: 'Chữ, vẽ ảnh' },
+  { kind: 'gemini', label: 'Gemini', auth: 'key', sub: 'Khoá API · chữ, đọc ảnh, vẽ ảnh', subMobile: 'Chữ, đọc ảnh, vẽ ảnh' },
+  { kind: 'openrouter', label: 'OpenRouter', auth: 'key', sub: 'Một khoá, hàng trăm model', subMobile: 'Hàng trăm model' },
+  { kind: 'deepseek', label: 'DeepSeek', auth: 'key', sub: 'Khoá API · chữ', subMobile: 'Chữ' },
+  { kind: 'xai', label: 'xAI', auth: 'key', sub: 'Khoá API · chữ, vẽ ảnh', subMobile: 'Chữ, vẽ ảnh' },
+  { kind: 'anthropic', label: 'Anthropic', auth: 'key', sub: 'Khoá API · chữ, đọc ảnh', subMobile: 'Chữ, đọc ảnh' },
+  { kind: 'ollama', label: 'Ollama', auth: 'url', sub: 'Chạy trên máy này', subMobile: 'Trên máy' },
+  { kind: 'openai_compat', label: 'Tương thích OpenAI', auth: 'both', sub: 'Địa chỉ riêng + khoá', subMobile: 'Địa chỉ riêng' },
+]
+
+export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
+  onAdded: (id: string) => void
+  /** Đóng sheet (điện thoại); desktop để trống — thẻ gập lại bằng nút Đóng. */
+  onDone?: () => void
+  /** bare = nội dung sheet (không khung thẻ), cỡ chữ của MSettings. */
+  mobile?: boolean
+  /** kind đã có trong danh sách → ô mờ “Đã kết nối”. */
+  connected: Set<string>
+}) {
+  const firstOpen = () => {
+    const preferred = ADD_KINDS.find((k) => k.kind === 'openrouter' && !connected.has(k.kind))
+    return (preferred ?? ADD_KINDS.find((k) => !connected.has(k.kind)))?.kind ?? ''
+  }
+  const [kind, setKind] = useState(firstOpen)
+  const [key, setKey] = useState('')
+  const [url, setUrl] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const picked = ADD_KINDS.find((k) => k.kind === kind)
+  const needsKey = picked != null && picked.auth !== 'url'
+  const needsUrl = picked != null && picked.auth !== 'key'
+  const canSubmit = picked != null
+    && (!needsKey || key.trim().length > 0)
+    && (!needsUrl || url.trim().length > 0)
+
+  async function connect() {
+    if (!picked || busy) return
+    setBusy(true)
+    try {
+      const provider = await addProvider({
+        kind: picked.kind,
+        ...(needsKey ? { apiKey: key.trim() } : {}),
+        ...(needsUrl ? { baseUrl: url.trim() } : {}),
+      })
+      await invalidate(keys.aiProviders())
+      onAdded(provider.id)
+      onDone?.()
+    } catch (error) {
+      // auth_failed (401): thẻ đã được tạo với status auth_failed — body có id
+      // để UI đưa thẳng thẻ cam lên đầu (conn=failed).
+      await invalidate(keys.aiProviders())
+      const id = fieldOf(error, 'id')
+      if (id) onAdded(id)
+      toast.err(error instanceof Error ? error.message : t.errors.failed)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const name = picked?.label ?? 'nhà cung cấp'
+  const tiles = ADD_KINDS.map((k) => {
+    const done = connected.has(k.kind)
+    return (
+      <button
+        key={k.kind}
+        type="button"
+        role="radio"
+        aria-checked={kind === k.kind}
+        aria-disabled={done || undefined}
+        disabled={done}
+        title={done ? c.alreadyConnected(k.label) : undefined}
+        className="conn-tile"
+        onClick={() => setKind(k.kind)}
+      >
+        <span className="conn-tile__name">{k.label}</span>
+        <span className="conn-tile__sub">{done ? c.connected : (mobile ? k.subMobile : k.sub)}</span>
+      </button>
+    )
+  })
+
+  const submit = (
+    <Button size="compact" variant="primary" className="conn-act" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
+      {c.connectFetch}
+    </Button>
+  )
+
+  /** Desktop: nút Kết nối đứng cạnh ô nhập. Điện thoại: một nút full-width
+   *  dưới sheet (artboard MSettings sheet=add) nên ô nhập chiếm trọn hàng. */
+  const fields = (inlineSubmit: boolean) => (
+    <>
+      {needsKey && (
+        <div className="conn-add__row">
+          <label className="conn-add__field">
+            <span className="conn-add__label">{c.keyLabelOf(name)}</span>
+            <Field
+              type="password"
+              autoComplete="off"
+              style={mobile ? { height: 48, fontSize: 15, paddingInline: 14 } : undefined}
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="sk-…"
+              aria-label={c.keyLabelOf(name)}
+            />
+          </label>
+          {inlineSubmit && !needsUrl && submit}
+        </div>
+      )}
+      {needsUrl && (
+        <div className="conn-add__row">
+          <label className="conn-add__field">
+            <span className="conn-add__label">{c.addressLabelOf(name)}</span>
+            <Field
+              style={mobile ? { height: 48, fontSize: 15, paddingInline: 14 } : undefined}
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder={c.addressPlaceholder}
+              aria-label={c.addressLabelOf(name)}
+            />
+          </label>
+          {inlineSubmit && submit}
+        </div>
+      )}
+    </>
+  )
+
+  if (mobile) {
+    return (
+      <>
+        <div className="conn-add conn-add--m">
+          <div className="conn-add__grid" role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
+          {fields(false)}
+          <span className="conn-add__hint">{c.addHintMobile}</span>
+        </div>
+        <div className="conn-sheet-primary">
+          <Button size="xl" variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
+            {c.connectFetch}
+          </Button>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <div className="conn-add">
+      <div className="conn-add__head">
+        <h2 className="conn-add__title">{c.addTitle}</h2>
+        {onDone && (
+          <Button size="compact" variant="icon" aria-label={c.close} onClick={onDone} icon={<Icon name="close" size={15} />} />
+        )}
+      </div>
+      <div className="conn-add__grid" role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
+      {fields(true)}
+      <span className="conn-add__hint">
+        <Icon name="key" size={14} className="conn-ic" />
+        {c.addHint}
+      </span>
+    </div>
+  )
+}

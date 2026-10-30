@@ -8,15 +8,21 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/viderse/internal/logs"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
+	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/apps/viderse/internal/toolsvc"
 	"github.com/datnt1998/verse/apps/viderse/internal/web"
+	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/webguard"
@@ -65,11 +71,61 @@ func runServe(args []string) error {
 	hub := web.NewEventHub()
 	settings := postgres.NewSettingsStore(pool)
 	statusSvc := status.New(settings, web.PublishStatus(hub))
+	// Một service việc nền duy nhất cho cả app: storage và máy dùng chung.
+	activities := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
 
 	gateway := web.NewGateway(accounts, hub, statusSvc)
 	gateway.SetProxyConfig(proxyCfg)
-
+	// Giữ cổng trước mọi tác dụng phụ: bản serve thứ hai (cổng đã bận) phải
+	// thoát mà không đụng việc nền/phiên bản đang chạy của bản đầu.
 	listener, err := net.Listen("tcp", *addr)
+	if err != nil {
+		return err
+	}
+	defer listener.Close()
+	// Lưu trữ: watch ổ dự án và tự dọn chạy theo vòng đời của serve.
+	bg, bgStop := context.WithCancel(context.Background())
+	defer bgStop()
+	storageSvc, err := mountStorage(gateway, pool, settings, hub, statusSvc, activities, bg)
+	if err != nil {
+		return err
+	}
+	// Máy: việc nền, công cụ, nhật ký và bước Chuẩn bị máy. Probe nền và
+	// lượt cài đi theo vòng đời serve — dừng khi serve tắt.
+	machineCtx, machineStop := context.WithCancel(context.Background())
+	defer machineStop()
+	cfgDir, err := bootstrap.DefaultConfigDir()
+	if err != nil {
+		return err
+	}
+	toolRegistry := tools.NewRegistry(cfgDir, nil)
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("không xác định được thư mục home: %w", err)
+	}
+	// Kho nhật ký dùng chung: mọi tiến trình con ghi vào đây, và Settings ›
+	// Nhật ký/Báo lỗi đọc cùng nguồn.
+	logStore := logs.New(filepath.Join(cfgDir, "logs"), home)
+	runner := toolsvc.NewLoggingRunner(&tools.ExecRunner{Registry: toolRegistry}, func(tool, level string) toolsvc.LineWriter {
+		return logStore.Writer(tool, level)
+	})
+	toolDeps := tools.Deps{
+		Runner:   runner,
+		Paths:    &tools.FilePathStore{Dir: filepath.Join(cfgDir, "tools")},
+		BaseDir:  cfgDir,
+		Client:   &http.Client{Timeout: 15 * time.Minute},
+		Registry: toolRegistry,
+	}
+	toolKit := tools.New(toolDeps)
+	toolManaged := tools.NewManaged(toolDeps, nil, toolKit)
+	if err := mountPlatforms(gateway, pool, settings, hub, statusSvc, cfgDir, toolKit.YtDlp); err != nil {
+		return err
+	}
+	ai, err := wireAI(machineCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps.Runner)
+	if err != nil {
+		return err
+	}
+	machine, err := mountMachine(gateway, pool, settings, hub, statusSvc, machineCtx, cfgDir, logStore, toolDeps, toolKit, toolManaged, ai.Service, activities)
 	if err != nil {
 		return err
 	}
@@ -103,8 +159,40 @@ func runServe(args []string) error {
 	}
 	shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	serverDone := stopHTTP(shutdown, server, hub)
+	// Ngừng nhận việc, huỷ worker, rồi chờ chúng (và tiến trình con của
+	// installer) thoát trước khi đóng log/pool. Hub đã đóng subscriber ở
+	// stopHTTP; worker publish thêm chỉ vào ring, không còn ai nghe.
+	machineStop()
+	bgStop()
+	// Luồng đăng nhập/danh mục nền của Kết nối AI bám machineCtx đã huỷ ở
+	// machineStop — join chúng trước khi đóng pool.
+	ai.Service.Close()
+	var first error
+	if err := machine.Shutdown(shutdown); err != nil && first == nil {
+		first = err
+	}
+	// Move của storage cũng phải join trước khi pool đóng (giữ journal
+	// phục hồi nếu quá hạn).
+	if err := storageSvc.Shutdown(shutdown); err != nil && first == nil {
+		first = err
+	}
+	if err := <-serverDone; err != nil && first == nil {
+		first = err
+	}
+	_ = logStore.Close()
+	return first
+}
+
+// stopHTTP ngừng nhận request mới và kết thúc các luồng SSE đang mở. Luồng
+// SSE chỉ dừng khi hub đóng subscriber của nó; nếu chờ Shutdown xong mới đóng
+// hub thì một tab đang mở giữ Shutdown tới hết hạn và lệnh dừng trả lỗi.
+// Kết quả Shutdown trả qua channel để caller join sau khi worker đã dừng.
+func stopHTTP(ctx context.Context, server *http.Server, hub *events.Hub) <-chan error {
+	done := make(chan error, 1)
+	go func() { done <- server.Shutdown(ctx) }()
 	hub.Close()
-	return server.Shutdown(shutdown)
+	return done
 }
 
 // openAccounts mở kho identity file-backend ở ~/.viderse/web-accounts.json.

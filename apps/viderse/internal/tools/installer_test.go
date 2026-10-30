@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -681,5 +682,71 @@ func TestInstallerBytesDoneMatchesDownloadedTotal(t *testing.T) {
 	want := int64(len(payload1) + len(payload2))
 	if st == nil || st.BytesDone != want {
 		t.Fatalf("bytesDone = %+v, muốn %d", st, want)
+	}
+}
+
+// Tải dở giữ .part và lượt sau nối tiếp bằng Range (sống qua lần chạy lại).
+func TestDownloadVerifiedResumesFromPartFile(t *testing.T) {
+	payload := bytes.Repeat([]byte("abcd"), 50000)
+	sum := sha256.Sum256(payload)
+	var mu sync.Mutex
+	var ranges []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rng := r.Header.Get("Range")
+		mu.Lock()
+		ranges = append(ranges, rng)
+		mu.Unlock()
+		if rng == "" {
+			_, _ = w.Write(payload)
+			return
+		}
+		var start int
+		if _, err := fmt.Sscanf(rng, "bytes=%d-", &start); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, len(payload)-1, len(payload)))
+		w.WriteHeader(http.StatusPartialContent)
+		_, _ = w.Write(payload[start:])
+	}))
+	t.Cleanup(server.Close)
+	inst := &Installer{Client: server.Client(), BaseDir: t.TempDir()}
+	out := filepath.Join(t.TempDir(), "asset.bin")
+	asset := PinnedAsset{Name: "asset.bin", URL: server.URL + "/a", SHA256: hex.EncodeToString(sum[:])}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	err := inst.DownloadVerified(ctx, asset, out, func(n int64) error {
+		cancel()
+		return ctx.Err()
+	})
+	if err == nil {
+		t.Fatal("lượt đầu phải bị huỷ")
+	}
+	part := out + ".part"
+	st, statErr := os.Stat(part)
+	if statErr != nil || st.Size() == 0 {
+		t.Fatalf(".part không được giữ: %v %v", statErr, st)
+	}
+	if _, statErr := os.Stat(out); statErr == nil {
+		t.Fatal("huỷ không được để tệp cuối thành công")
+	}
+	if err := inst.DownloadVerified(context.Background(), asset, out, nil); err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	last := ranges[len(ranges)-1]
+	mu.Unlock()
+	if !strings.HasPrefix(last, "bytes=") {
+		t.Fatalf("lượt hai không gửi Range: %q (ranges %v)", last, ranges)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(data, payload) {
+		t.Fatalf("nội dung sau khi nối sai: %d byte", len(data))
+	}
+	if _, err := os.Stat(part); !os.IsNotExist(err) {
+		t.Fatal(".part phải được đổi tên sau khi xong")
 	}
 }

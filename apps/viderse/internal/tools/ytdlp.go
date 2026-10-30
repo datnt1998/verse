@@ -59,6 +59,10 @@ type YtDlpError struct {
 
 func (e *YtDlpError) Error() string { return e.Message }
 
+// ErrorCode trả mã lỗi ổn định để gói khác phân loại qua interface
+// { ErrorCode() string } mà không cần import gói tools.
+func (e *YtDlpError) ErrorCode() string { return string(e.Code) }
+
 var (
 	ytDlpRateLimitRe = regexp.MustCompile(`(?i)request is (?:blocked by server \((?:412|401)\)|rejected by server \(352\))`)
 	ytDlpLoginRe     = regexp.MustCompile(`(?i)sign in|not a bot|log ?in|members[- ]only|\bage\b`)
@@ -127,6 +131,7 @@ type ytDlpInstallFlight struct {
 	done   chan struct{}
 	result YtDlpInstallResult
 	err    error
+	cancel context.CancelFunc
 }
 
 // ytDlpAsset là asset release chính thức của nền tảng. macOS dùng zip onedir:
@@ -197,14 +202,17 @@ func (y *YtDlp) Candidates() []string {
 
 // Resolve trả binary theo thứ tự cấu hình → hệ thống → app quản; "" khi
 // không có.
+// Resolve chọn binary theo thứ tự: người dùng chỉ định → bản app quản lý →
+// bản hệ thống. Bản app đứng trước hệ thống để "Cập nhật" thực sự có hiệu
+// lực (nếu không, bản homebrew cũ luôn thắng và nút cập nhật thành vô nghĩa).
 func (y *YtDlp) Resolve() string {
 	if c := y.ConfiguredPath(); c != "" {
 		return c
 	}
-	if s := FirstExecutable(y.Candidates()); s != "" {
-		return s
+	if m := y.ManagedPath(); m != "" {
+		return m
 	}
-	return y.ManagedPath()
+	return FirstExecutable(y.Candidates())
 }
 
 // IsInstalled đúng khi một binary yt-dlp dùng được đang hiện diện.
@@ -306,7 +314,8 @@ func (c *cancelOnClose) Close() error {
 	return err
 }
 
-// download stream một URL xuống đĩa và trả SHA-256 của byte đã ghi.
+// download stream một URL xuống đĩa và trả SHA-256 của byte đã ghi. Huỷ giữa
+// chừng trả lỗi và xoá tệp dở — không để lại mảnh tải.
 func (y *YtDlp) download(ctx context.Context, rawURL, file string) (string, error) {
 	src, err := y.fetchOk(ctx, rawURL)
 	if err != nil {
@@ -318,15 +327,30 @@ func (y *YtDlp) download(ctx context.Context, rawURL, file string) (string, erro
 		return "", err
 	}
 	h := sha256.New()
-	_, copyErr := io.Copy(io.MultiWriter(out, h), src)
+	_, copyErr := io.Copy(io.MultiWriter(out, h), ctxReader{ctx: ctx, r: src})
 	closeErr := out.Close()
 	if copyErr != nil {
+		_ = os.Remove(file)
 		return "", copyErr
 	}
 	if closeErr != nil {
+		_ = os.Remove(file)
 		return "", closeErr
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// ctxReader dừng đọc khi context huỷ (body HTTP có thể còn buffer).
+type ctxReader struct {
+	ctx context.Context
+	r   io.Reader
+}
+
+func (c ctxReader) Read(p []byte) (int, error) {
+	if err := c.ctx.Err(); err != nil {
+		return 0, err
+	}
+	return c.r.Read(p)
 }
 
 // YtDlpInstallResult tóm tắt một lượt cài/cập nhật; Previous là phiên bản
@@ -423,10 +447,12 @@ func (y *YtDlp) Install(ctx context.Context) (YtDlpInstallResult, error) {
 	}
 	y.mu.Lock()
 	if y.installFlight == nil {
-		f := &ytDlpInstallFlight{done: make(chan struct{})}
+		flightCtx, cancel := context.WithCancel(ctx)
+		f := &ytDlpInstallFlight{done: make(chan struct{}), cancel: cancel}
 		y.installFlight = f
 		go func() {
-			f.result, f.err = y.install(context.Background())
+			f.result, f.err = y.install(flightCtx)
+			cancel()
 			close(f.done)
 			y.mu.Lock()
 			y.installFlight = nil
@@ -440,6 +466,18 @@ func (y *YtDlp) Install(ctx context.Context) (YtDlpInstallResult, error) {
 		return flight.result, flight.err
 	case <-ctx.Done():
 		return YtDlpInstallResult{}, cancelledErr(ctx)
+	}
+}
+
+// CancelInstall huỷ lượt cài yt-dlp đang chạy: tải dừng, thư mục staging bị
+// xoá (defer RemoveAll), nên không có tệp dở nào thành "sẵn sàng". Lượt sau
+// tải lại từ đầu — pipeline của yt-dlp không chia đoạn.
+func (y *YtDlp) CancelInstall() {
+	y.mu.Lock()
+	flight := y.installFlight
+	y.mu.Unlock()
+	if flight != nil && flight.cancel != nil {
+		flight.cancel()
 	}
 }
 

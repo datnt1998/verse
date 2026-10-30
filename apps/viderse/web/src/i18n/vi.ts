@@ -1,6 +1,13 @@
 // Chuỗi giao diện tiếng Việt — mọi chữ hiển thị của app đi qua `t`.
 // Thuật ngữ, mẫu câu và câu lỗi theo design 06-copy.md; không lộ kỹ thuật
 // (tên công cụ, đường dẫn, mã lỗi) ngoài “Chi tiết”.
+import { accountsCopy } from './accounts'
+import { aiCopy } from './ai'
+import { logs } from './logs'
+import { settings } from './settings'
+import { setup } from './setup'
+import { storage } from './storage'
+import { tools } from './tools'
 
 export const vi = {
   brand: { name: 'Viderse', studio: 'Studio' },
@@ -11,8 +18,9 @@ export const vi = {
     retryNow: 'Thử lại ngay',
     continue: 'Tiếp tục',
     cancel: 'Huỷ',
-    close: 'Đóng',
     open: 'Mở',
+    copy: 'Sao chép',
+    close: 'Đóng',
     details: 'Chi tiết',
     logout: 'Đăng xuất',
     loggingOut: 'Đang đăng xuất…',
@@ -62,6 +70,7 @@ export const vi = {
     jobsTip: (running: number, lanes: number) => `Máy đang chạy ${running}/${lanes} luồng`,
     openQueue: 'Mở Hàng chờ',
     settings: 'Cài đặt',
+    settingsCrumb: 'Cài đặt · máy này',
     settingsAttention: (n: number) => `Cài đặt · ${n} việc cần xem`,
     account: 'Tài khoản của bạn',
     channelSwitcher: 'Đổi kênh',
@@ -270,6 +279,16 @@ export const vi = {
       ok: 'Chuyển sang Tự chạy',
     },
   },
+
+  // Cài đặt: khung + Công cụ/Lưu trữ/Nhật ký (i18n/settings,tools,storage,logs),
+  // Chuẩn bị máy (i18n/setup), Kết nối AI + Trợ lý AI (ai.ts), Tài khoản nền tảng (accounts.ts).
+  ai: aiCopy,
+  accounts: accountsCopy,
+  settings,
+  tools,
+  storage,
+  logs,
+  prep: setup,
 
   // Mã lỗi → câu (06-copy.md › Từ mã lỗi tới câu). Trả null khi mã không nên
   // hiện lỗi (vd rate_limited chỉ là dòng phụ).

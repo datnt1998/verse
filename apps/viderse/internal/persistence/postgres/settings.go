@@ -62,15 +62,25 @@ func (s *SettingsStore) Clear(ctx context.Context, key string) error {
 	return nil
 }
 
-// QueuePaused đọc cờ tạm dừng hàng chờ (domain.KeyQueuePaused); thiếu hoặc sai
-// kiểu trả false.
+// QueuePaused là hiệu lực tạm dừng hàng chờ: cờ của người dùng
+// (domain.KeyQueuePaused) HOẶC cờ do hold của storage bật
+// (domain.KeyStoragePaused). Hai phía ghi vào hai khoá khác nhau nên không
+// bên nào ghi đè ý định của bên kia.
 func (s *SettingsStore) QueuePaused(ctx context.Context) (bool, error) {
 	var paused bool
 	found, err := s.Get(ctx, domain.KeyQueuePaused, &paused)
 	if err != nil {
 		return false, err
 	}
-	return found && paused, nil
+	if found && paused {
+		return true, nil
+	}
+	var storagePaused bool
+	found, err = s.Get(ctx, domain.KeyStoragePaused, &storagePaused)
+	if err != nil {
+		return false, err
+	}
+	return found && storagePaused, nil
 }
 
 // SetQueuePaused ghi cờ tạm dừng hàng chờ.

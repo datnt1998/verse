@@ -103,7 +103,7 @@ func TestYtDlpResolvePrefersConfigured(t *testing.T) {
 	}
 }
 
-func TestYtDlpResolveSystemBeforeManaged(t *testing.T) {
+func TestYtDlpResolveManagedBeforeSystem(t *testing.T) {
 	base := t.TempDir()
 	// Dựng một "system" binary ở chỗ PATH và một managed ở bin/yt-dlp.
 	sysDir := t.TempDir()
@@ -121,12 +121,25 @@ func TestYtDlpResolveSystemBeforeManaged(t *testing.T) {
 		t.Fatal(err)
 	}
 	y := &YtDlp{d: Deps{Runner: &fakeRunner{}, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
+	if got := y.Resolve(); got != managedExe {
+		t.Fatalf("resolve = %q, muốn bản app quản lý %q", got, managedExe)
+	}
+}
+
+func TestYtDlpResolveFallsBackToSystem(t *testing.T) {
+	sysDir := t.TempDir()
+	sysExe := filepath.Join(sysDir, "yt-dlp")
+	if err := os.WriteFile(sysExe, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	base := t.TempDir()
+	y := &YtDlp{d: Deps{Runner: &fakeRunner{}, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
 	if got := y.Resolve(); got != sysExe {
 		t.Fatalf("resolve = %q, muốn hệ thống %q", got, sysExe)
 	}
 }
 
-func TestYtDlpResolveFallsBackToManaged(t *testing.T) {
+func TestYtDlpResolveManagedOnly(t *testing.T) {
 	base := t.TempDir()
 	managed := filepath.Join(base, "bin", "yt-dlp")
 	if err := os.MkdirAll(managed, 0o755); err != nil {

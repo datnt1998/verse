@@ -8,6 +8,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AiModel struct {
+	ProviderID  string        `json:"provider_id"`
+	ID          string        `json:"id"`
+	Caps        []byte        `json:"caps"`
+	ContextK    pgtype.Int4   `json:"context_k"`
+	InPerM      pgtype.Float8 `json:"in_per_m"`
+	OutPerM     pgtype.Float8 `json:"out_per_m"`
+	PerImage    pgtype.Float8 `json:"per_image"`
+	Recommended bool          `json:"recommended"`
+	Manual      bool          `json:"manual"`
+}
+
+type AiProvider struct {
+	ID        string             `json:"id"`
+	Kind      string             `json:"kind"`
+	Auth      string             `json:"auth"`
+	Label     string             `json:"label"`
+	KeyEnc    []byte             `json:"key_enc"`
+	KeyHint   string             `json:"key_hint"`
+	BaseUrl   string             `json:"base_url"`
+	Status    string             `json:"status"`
+	CatalogAt pgtype.Timestamptz `json:"catalog_at"`
+	Selected  []byte             `json:"selected"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
 type BackgroundTask struct {
 	ID        pgtype.UUID        `json:"id"`
 	Kind      string             `json:"kind"`
@@ -21,6 +48,19 @@ type BackgroundTask struct {
 	Action    []byte             `json:"action"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	OwnerPid  int32              `json:"owner_pid"`
+}
+
+type ErrorEvent struct {
+	ID          pgtype.UUID        `json:"id"`
+	At          pgtype.Timestamptz `json:"at"`
+	Kind        string             `json:"kind"`
+	What        string             `json:"what"`
+	Why         string             `json:"why"`
+	Href        string             `json:"href"`
+	ActionLabel string             `json:"action_label"`
+	Op          string             `json:"op"`
+	ObjectRef   []byte             `json:"object_ref"`
 }
 
 type ImageReceipt struct {
@@ -48,6 +88,19 @@ type Notification struct {
 	ActionLabel string             `json:"action_label"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	ReadAt      pgtype.Timestamptz `json:"read_at"`
+}
+
+type PlatformState struct {
+	Platform          string             `json:"platform"`
+	NextRequestAt     pgtype.Timestamptz `json:"next_request_at"`
+	PausedUntil       pgtype.Timestamptz `json:"paused_until"`
+	PauseReason       pgtype.Text        `json:"pause_reason"`
+	FailureCount      int32              `json:"failure_count"`
+	ScannerOwner      pgtype.Text        `json:"scanner_owner"`
+	ScannerLeaseUntil pgtype.Timestamptz `json:"scanner_lease_until"`
+	LastErrorCode     string             `json:"last_error_code"`
+	LastErrorAt       pgtype.Timestamptz `json:"last_error_at"`
+	LastErrorJobID    pgtype.Text        `json:"last_error_job_id"`
 }
 
 type Setting struct {

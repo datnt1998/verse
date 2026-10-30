@@ -1,0 +1,1 @@
+function l(i,s){const t=new AbortController;let e,r=!1;const a=()=>{r=!0,clearTimeout(e),t.abort()},o=async()=>{if(!r){try{if(await s(t.signal)===!1){r=!0;return}}catch(n){if(r||t.signal.aborted)return;if(n?.name!=="AbortError"){r=!0;return}return}r||(e=setTimeout(()=>{o()},i))}};return o(),a}export{l as s};

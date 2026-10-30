@@ -5,20 +5,34 @@
 .vv-header {
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; gap: var(--vv-s-16);
+  /* Không cho co: cột con bên dưới thiếu chỗ thì tự cuộn, header không bị ép
+     ngắn làm lệch toàn trang (artboard top 55px ở mọi trạng thái). */
+  flex-shrink: 0;
   min-height: var(--vv-h-header); padding: var(--vv-s-8) var(--vv-s-18);
   background: var(--color-bg); border-bottom: var(--vv-s-1) solid var(--line-1);
 }
+/* Hai vùng trái/phải cùng basis để nhóm nav luôn đúng giữa khung. */
+.vv-header__zone {
+  flex: 1 1 0; min-width: 0;
+  display: flex; align-items: center; gap: var(--vv-s-10);
+}
+.vv-header__zone--right { justify-content: flex-end; gap: var(--vv-s-8); }
 .vv-nav {
-  display: flex; gap: var(--vv-s-2); overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+  display: flex; gap: var(--vv-s-2); flex: 0 0 auto;
+  padding: var(--vv-s-3);
+  border-radius: var(--vv-r-10);
+  background: var(--color-surface-1);
+  border: var(--vv-s-1) solid var(--line-1);
+  overflow-x: auto; scrollbar-width: none; white-space: nowrap;
 }
 .vv-nav::-webkit-scrollbar { display: none }
 .vv-nav__item {
   position: relative; display: inline-flex; align-items: center; gap: var(--vv-s-7);
-  height: 32px; padding: 0 var(--vv-s-12); border-radius: var(--radius-button); font-size: 13.5px;
-  font-weight: 500; color: var(--color-fg-3); text-decoration: none;
+  height: 30px; padding: 0 var(--vv-s-12); border-radius: var(--vv-r-7); font-size: 13px;
+  color: var(--color-fg-3); text-decoration: none;
 }
 .vv-nav__item:hover { color: var(--color-fg) }
-.vv-nav__item--active { font-weight: 600; color: var(--color-fg); background: var(--color-surface-2) }
+.vv-nav__item--active { font-weight: 500; color: var(--color-fg); background: var(--color-surface-6) }
 .vv-nav__badge {
   min-width: 18px; height: 18px; padding: 0 var(--vv-s-5); border-radius: var(--radius-button);
   display: inline-flex; align-items: center; justify-content: center;
@@ -30,6 +44,9 @@
   color: var(--color-fg-3); border: 1px solid transparent;
 }
 .vv-gear:hover { color: var(--color-fg); background: var(--color-surface-1) }
+.vv-gear[aria-current="page"] { color: var(--color-fg); background: var(--color-surface-6) }
+/* Nhãn “Cài đặt · máy này” thay bộ đổi kênh khi đang ở màn Cài đặt. */
+.vv-header__crumb { font-size: 13px; color: var(--color-fg-3); white-space: nowrap; }
 .vv-gear__dot {
   position: absolute; top: var(--vv-s-4); right: var(--vv-s-4); width: 7px; height: 7px; border-radius: 50%;
   background: var(--color-err); box-shadow: 0 0 0 1.5px var(--color-bg);
@@ -203,3 +220,21 @@
   font-size: 12px; font-weight: 600; color: var(--color-fg-2);
   background: var(--color-surface-2); border: 1px solid var(--line-1); text-decoration: none;
 }
+
+/* Dòng lỗi cam — một câu + một cách sửa (bước cài lỗi, mục Công cụ, Lưu trữ) */
+.vv-errline {
+  display: flex;
+  align-items: center;
+  gap: var(--vv-s-10);
+  flex-wrap: wrap;
+  padding: var(--vv-s-10) var(--vv-s-12);
+  border-radius: var(--radius-row);
+  border: var(--vv-s-1) solid var(--vv-warn-bd);
+  background: var(--vv-warn-bg);
+  font-size: 12.5px;
+  color: var(--vv-warn-ink);
+  line-height: 1.55;
+}
+
+/* Giãn phần còn lại của hàng flex (nhãn trái, nút phải) */
+.vv-grow { flex: 1; min-width: 0; }

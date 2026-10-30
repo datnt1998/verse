@@ -24,6 +24,7 @@ const LibraryScreen = lazy(() => import('./screens/library/LibraryScreen').then(
 const TemplateScreen = lazy(() => import('./screens/library/TemplateScreen').then((m) => ({ default: m.TemplateScreen })))
 const EditorScreen = lazy(() => import('./screens/editor/EditorScreen').then((m) => ({ default: m.EditorScreen })))
 const SettingsScreen = lazy(() => import('./screens/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })))
+const MachineSetupScreen = lazy(() => import('./screens/setup/SetupScreen'))
 const AccountScreen = lazy(() => import('./screens/account/AccountScreen').then((m) => ({ default: m.AccountScreen })))
 const DevKitScreen = import.meta.env.DEV
   ? lazy(() => import('./screens/dev/DevKitScreen').then((m) => ({ default: m.DevKitScreen })))
@@ -43,11 +44,19 @@ function Screen({ route }: { route: Route }) {
       case 'template': return <TemplateScreen route={route} />
       case 'editor': return <EditorScreen route={route} />
       case 'settings': return <SettingsScreen route={route} />
+      case 'setup': return <MachineSetupScreen />
       case 'account': return <AccountScreen />
       case 'devkit': return <DevKitScreen route={route} />
     }
   })()
-  return <Suspense fallback={<SystemLoading />}>{screen}</Suspense>
+  // Skeleton 3 thẻ là của Bàn dựng (System artboard); màn khác chờ bằng
+  // spinner giữa khung, không mượn nhãn “Đang tải Bàn dựng”.
+  const fallback = route.name === 'workbench' ? <SystemLoading /> : (
+    <div aria-busy="true" style={{ flex: '1 1 auto', minHeight: '50vh', display: 'grid', placeItems: 'center' }}>
+      <Spinner size={18} color="var(--color-fg-3)" />
+    </div>
+  )
+  return <Suspense fallback={fallback}>{screen}</Suspense>
 }
 
 function Root() {

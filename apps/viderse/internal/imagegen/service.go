@@ -356,6 +356,19 @@ func (s *Service) noteQuota(provider string, err error) {
 	s.mu.Unlock()
 }
 
+// QuotaReset trả mốc reset THẬT mà provider đã báo (resets_at / retry_at) nếu
+// provider đang bị bỏ qua vì hạn mức. Nguồn: noteQuota (lỗi quota có RetryAt
+// từ provider). Không có → false; UI rơi về mốc nửa đêm của trần ngày.
+func (s *Service) QuotaReset(provider string) (time.Time, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	until, ok := s.skipUntil[provider]
+	if !ok || !until.After(s.now()) {
+		return time.Time{}, false
+	}
+	return until, true
+}
+
 // noteCap ghi nhớ provider vừa chạm trần ngày của app.
 func (s *Service) noteCap(provider string, err error) {
 	var ce *CapError

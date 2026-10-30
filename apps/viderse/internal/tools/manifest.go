@@ -89,6 +89,11 @@ type ToolPin struct {
 	Build         string
 	Assets        map[PlatformKey][]PinnedAsset
 	RequiredBytes int64
+	// ApproxBytes là dung lượng cài đặt XẤP XỈ đã đo trên máy thật — chỉ dùng
+	// để hiển thị trước khi cài (“Chờ lượt · ~300 MB”), không dùng cho kiểm
+	// tra dung lượng trống (RequiredBytes) và không báo sau khi cài (dùng
+	// số đo ghi lại trong install-state).
+	ApproxBytes int64
 }
 
 const ffmpegStaticBase = "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1"
@@ -135,6 +140,8 @@ var ffmpegPin = ToolPin{
 		},
 	},
 	RequiredBytes: 400 * 1024 * 1024,
+	// Đo trên máy thật: ffmpeg + ffprobe đã bung (darwin-arm64, ~88 MB).
+	ApproxBytes: 88 * 1024 * 1024,
 }
 
 const chromeForTestingBase = "https://storage.googleapis.com/chrome-for-testing-public/155.0.8059.79"
@@ -160,6 +167,8 @@ var chromePin = ToolPin{
 	},
 	// Zip (~200 MB) + bundle đã bung (~380 MB) + chồng staging.
 	RequiredBytes: 1024 * 1024 * 1024,
+	// Đo trên máy thật: bundle .app đã bung (~370 MB).
+	ApproxBytes: 370 * 1024 * 1024,
 }
 
 const uvReleaseBase = "https://github.com/astral-sh/uv/releases/download/0.13.0"
@@ -223,6 +232,8 @@ var codexPin = ToolPin{
 		},
 	},
 	RequiredBytes: 300 * 1024 * 1024,
+	// Đo trên máy thật: codex + code-mode-host đã bung (~299 MB).
+	ApproxBytes: 299 * 1024 * 1024,
 }
 
 // CodexMinVersion là phiên bản Codex CLI tối thiểu mà preflight cô lập đòi.
@@ -231,6 +242,21 @@ const CodexMinVersion = "0.130.0"
 // PythonEnvRequiredBytes là dung lượng trống tối thiểu trước khi cài môi
 // trường Python (venv + wheel + cache).
 const PythonEnvRequiredBytes int64 = 4 * 1024 * 1024 * 1024
+
+// PythonEnvApproxBytes là dung lượng cài đặt XẤP XỈ của môi trường tách
+// tiếng, đo trên máy thật (env 551 MB + models 605 MB + python 63 MB, không
+// tính cache uv 541 MB). Chỉ để hiển thị trước khi cài.
+const PythonEnvApproxBytes int64 = 1200 * 1024 * 1024
+
+// YtDlpRequiredBytes là chỗ app dành cho binary yt-dlp. Pipeline của nó tải
+// bản mới nhất từ GitHub nên không ghim kích thước như các công cụ khác; con
+// số này chỉ để hàng Công cụ có dung lượng hiện được và lượt cài kiểm ổ đĩa.
+const YtDlpRequiredBytes int64 = 50 * 1024 * 1024
+
+// YtDlpApproxBytes là kích thước cài đặt XẤP XỈ của bản onedir yt-dlp, đo
+// trên máy thật (bin/yt-dlp ~124 MB sau self-extract). Chỉ để hiển thị
+// trước khi cài; cài xong dùng số đo ghi lại.
+const YtDlpApproxBytes int64 = 124 * 1024 * 1024
 
 var sha256Re = regexp.MustCompile(`^[0-9a-fA-F]{64}$`)
 

@@ -26,9 +26,21 @@
 
   /* Cam lỗi (#FF9A5C = --color-err) với độ trong suốt — halo, nền dải offline.
      Kit chỉ có thang đỏ nên phải định nghĩa riêng ở đây. */
+  --vv-err-4: rgba(255, 154, 92, .04);
   --vv-err-11: rgba(255, 154, 92, .11);
+  --vv-err-12: rgba(255, 154, 92, .12);
   --vv-err-18: rgba(255, 154, 92, .18);
   --vv-err-28: rgba(255, 154, 92, .28);
+  /* Xanh thông tin (#B9D0F7 = --color-info) — nền hàng/tile đang chạy. */
+  --vv-info-3: rgba(185, 208, 247, .03);
+  --vv-info-12: rgba(185, 208, 247, .12);
+  /* Đỏ nhấn: tô nền bước/tile “cần bạn” của ChatGPT (setup-focus). */
+  --vv-red-4: rgba(255, 0, 51, .04);
+  --vv-red-14: rgba(255, 77, 99, .14);
+  /* Thanh tiến độ tổng của Chuẩn bị máy (artboard Onboard: đỏ → hồng). */
+  --vv-grad-progress: linear-gradient(90deg, #FF0033, #FF4D63);
+  /* Dải xanh trượt của thanh tiến độ từng bước đang cài (artboard .bar-run). */
+  --vv-grad-step-run: linear-gradient(90deg, #5E86F2, #A9C8FF, #5E86F2);
   /* Halo chấm đỏ "đang chạy" (#FF0033 = --vv-red) */
   --vv-red-18: rgba(255, 0, 51, .18);
   --vv-badge-ink: #3D2A08;
@@ -53,26 +65,135 @@
   --vv-s-8: 8px;
   --vv-s-10: 10px;
   --vv-s-12: 12px;
+  --vv-s-13: 13px;
   --vv-s-14: 14px;
+  --vv-s-15: 15px;
   --vv-s-16: 16px;
   --vv-s-18: 18px;
   --vv-s-20: 20px;
   --vv-s-22: 22px;
   --vv-s-24: 24px;
   --vv-s-26: 26px;
+  --vv-s-40: 40px;
   --vv-s-38: 38px;
+  --vv-s-42: 42px;
   --vv-s-44: 44px;
+  --vv-s-46: 46px;
+  --vv-s-48: 48px;
+  --vv-s-56: 56px;
   --vv-s-60: 60px;
   --vv-s-80: 80px;
+  --vv-s-9: 9px;
+  --vv-s-34: 34px;
+  --vv-s-240: 240px;
+  --vv-s-250: 250px;
+  --vv-s-160: 160px;
+  --vv-s-132: 132px;
+  --vv-s-400: 400px;
+  --vv-r-4: 4px;
+  --vv-r-6: 6px;
+  --vv-s-28: 28px;
+  --vv-s-30: 30px;
+  --vv-s-32: 32px;
+  --vv-s-36: 36px;
+  /* Bo góc 7px của mục nav trong nhóm header (artboard: .navl radius 7). */
+  --vv-r-7: 7px;
+  /* Orb trợ lý (artboard .o-*): Trinh sát xanh dương, Đạo diễn tím,
+     Hoạ sĩ vàng ấm, Kiểm định xanh ngọc. */
+  --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
+  --vv-orb-director: radial-gradient(circle at 32% 26%, #F5EAFF 0%, #D2AEFF 28%, #9566F0 62%, #5B2FB8 100%);
+  --vv-orb-artist: radial-gradient(circle at 32% 26%, #FFF3DC 0%, #FFD08A 28%, #F5A13F 62%, #C2611D 100%);
+  --vv-orb-qa: radial-gradient(circle at 32% 26%, #E6FFF4 0%, #A3F2D2 28%, #3CCB9F 62%, #137A72 100%);
+  /* Chú thích chân cột Cài đặt (#8B8B97 của artboard — giữa fg-3 và fg-4). */
+  --vv-fg-note: #8B8B97;
+  /* Mực bước cài đang chờ (icon bước/số) và nền tile trung lập của nó. */
+  --vv-st-step-fg: #8B8B97;
+  --vv-tile-idle: #1A1A1D;
+  /* Nền tile icon công cụ (artboard .ibox bg #1B1B1E). */
+  --vv-ibox-bg: #1B1B1E;
 
   /* Bo góc app ngoài thang của kit (kit có chip 6 → dock 18): skeleton mờ,
      menu bộ đổi kênh, sân khấu trống, khung điện thoại ở dev kit. */
   --vv-r-5: 5px;
   --vv-r-14: 14px;
+  --vv-r-16: 16px;
   --vv-r-22: 22px;
   --vv-r-26: 26px;
   /* Viên thuốc đầy đủ (pill) — kit không có bước này. */
   --vv-r-pill: 999px;
+  /* Bo góc nhỏ cho mục Cài đặt (chip chú thích, ô câu hỏi xác nhận). */
+  --vv-r-2: 2px;
+  /* Bo góc 8/9/10/12 px cho thẻ, hàng danh mục model và ô chọn (Cài đặt). */
+  --vv-r-8: 8px;
+  --vv-r-9: 9px;
+  --vv-r-10: 10px;
+  --vv-r-12: 12px;
+  /* Màu nền/mực riêng của khung QR đăng nhập và ảnh chờ (không có trong kit).
+     --vv-qr-done/--vv-qr-reject là vòng 48 px đè lên mã: xong (xanh đậm) và
+     Bilibili từ chối (cam cháy) — chữ trắng luôn đủ tương phản. */
+  --vv-qr-plate: #FFFFFF;
+  --vv-qr-ink: #16161A;
+  --vv-qr-ok: #1D9E57;
+  --vv-qr-done: #15803D;
+  --vv-qr-reject: #C2410C;
+  /* Nền vòng chữ cái của tài khoản Bilibili đã đăng nhập (xanh đêm trên thẻ). */
+  --vv-acct-tile-bg: #1C2433;
+  /* Vòng chữ cái nhà cung cấp (Settings/MSettings › Kết nối AI): nền sáng phẩy
+     cách + mực đậm. Theo kind; chưa biết → nền trung lập. */
+  --vv-av-chatgpt-bg: #D7F5E6;
+  --vv-av-chatgpt-ink: #0F5132;
+  --vv-av-grok-bg: #E4E4E8;
+  --vv-av-grok-ink: #16161A;
+  --vv-av-gemini-bg: #DCE8FF;
+  --vv-av-gemini-ink: #173A8C;
+  --vv-av-ollama-bg: #EDEDEF;
+  --vv-av-ollama-ink: #16161A;
+  --vv-av-openrouter-bg: #E9DEFF;
+  --vv-av-openrouter-ink: #3B1F7A;
+  --vv-av-openai-bg: #D7F5E6;
+  --vv-av-openai-ink: #0F5132;
+  --vv-av-deepseek-bg: #DCE8FF;
+  --vv-av-deepseek-ink: #173A8C;
+  --vv-av-xai-bg: #E4E4E8;
+  --vv-av-xai-ink: #16161A;
+  --vv-av-anthropic-bg: #F6E4D9;
+  --vv-av-anthropic-ink: #5A2D16;
+  --vv-av-openai_compat-bg: #EDEDEF;
+  --vv-av-openai_compat-ink: #16161A;
+  /* Pill năng lực model (Settings/MSettings › danh mục + picker):
+     Chữ = xanh thông tin, Chữ · đọc ảnh = tím, Vẽ ảnh = vàng. */
+  --vv-cap-info-bg: rgba(185, 208, 247, .12);
+  --vv-cap-info-ink: #B9D0F7;
+  --vv-cap-purple-bg: rgba(205, 181, 255, .12);
+  --vv-cap-purple-ink: #CDB5FF;
+  --vv-cap-warn-bg: rgba(255, 208, 138, .12);
+  --vv-cap-warn-ink: #FFD08A;
+  /* Viền trạng thái thẻ nhà cung cấp: mới thêm (tím), lỗi (cam .35),
+     đang đăng nhập (hổ phách), ô chọn model trống (đỏ .45). */
+  --vv-purple-35: rgba(205, 181, 255, .35);
+  --vv-err-35: rgba(255, 154, 92, .35);
+  --vv-amber-30: rgba(246, 203, 140, .3);
+  --vv-accent-45: rgba(255, 77, 99, .45);
+  --vv-accent-6: rgba(255, 77, 99, .06);
+  /* Ô tick tự vẽ của điện thoại (artboard .vv-check--m). */
+  --vv-check-bd: #5E5E68;
+  /* Hổ phách của ghi chú “đã kết nối, chọn model” và xanh của kết quả thử. */
+  --vv-amber-7: rgba(246, 203, 140, .07);
+  --vv-amber-28: rgba(246, 203, 140, .28);
+  --vv-amber-16: rgba(246, 203, 140, .16); /* bước QR đang làm (artboard .step.now) */
+  --vv-note-ink: #F3D9AE;
+  --vv-ok-7: rgba(166, 237, 193, .07);
+  --vv-ok-10: rgba(166, 237, 193, .1);
+  --vv-ok-20: rgba(166, 237, 193, .2);
+  --vv-shadow-strip: 0 12px 32px rgba(0, 0, 0, .5);
+  --vv-check-tick: #0B0B0D;
+  /* Trạng thái bật/tôn của dòng phụ thẻ (xanh/xanh nhạt/cam/nâu). */
+  --vv-prov-sub-ok: #A6EDC1;
+  --vv-prov-sub-ok-2: #7FD8A6;
+  --vv-prov-sub-warn: #F6CB8C;
+  --vv-prov-sub-err: #FFC09A;
+  --vv-skel-a: #EFEFF2;
+  --vv-skel-b: #F8F8FA;
   /* Bóng đổ: menu popover, khung điện thoại dev, nút + đỏ, nền lưới orb. */
   --vv-shadow-pop: 0 20px 50px rgba(0, 0, 0, .6);
   --vv-shadow-device: 0 18px 40px rgba(0, 0, 0, .45);
@@ -87,6 +208,37 @@
 
   /* Viền tách cho avatar chồng nhau trên nền header/nav */
   --vv-hairline: rgba(255, 255, 255, .06);
+  /* Viền viên gợi ý ổ đang chọn (artboard .14) — kit chỉ có .16. */
+  --vv-line-14: rgba(255, 255, 255, .14);
+  /* Ô nhà cung cấp đang chọn ở “Thêm nhà cung cấp” (Settings artboard .55). */
+  --vv-line-55: rgba(255, 255, 255, .55);
+  /* Bán kính ô nhà cung cấp máy tính (artboard 11). */
+  --vv-r-11: 11px;
+
+  /* Khung Cài đặt: cột mục trái và cột giải thích phải (Settings artboard). */
+  --vv-set-side-w: 248px;
+  --vv-set-help-w: 320px;
+  /* Dòng/banner cam “cần sửa” và nền tiến độ xanh (đang chuyển thư mục). */
+  --vv-warn-bg: rgba(255, 154, 92, .07);
+  --vv-warn-bd: rgba(255, 154, 92, .3);
+  --vv-warn-ink: #FFC09A;
+  --vv-warn-btn-ink: #1A0E06;
+  --vv-info-bg: rgba(185, 208, 247, .05);
+  --vv-info-bd: rgba(185, 208, 247, .22);
+  /* Nền lau mờ của artboard Cài đặt (khối vị trí, checklist, icon ô). */
+  --vv-wash-3: rgba(255, 255, 255, .03);
+  --vv-wash-5: rgba(255, 255, 255, .05);
+  /* Sheet “Đổi thư mục lưu” của mục Lưu trữ: nền đậm hơn sheet kit (#141416
+     theo MSettings · store=pick), nút đi tiếp sáng phẳng của artboard. */
+  --vv-sheet-bg: #141416;
+  --vv-seg-sources: #B9D0F7;
+  --vv-seg-stay: #6E6E78;
+  --vv-seg-editor-m: #FFD08A;
+  --vv-seg-exports: #CDB5FF;
+  --vv-seg-editor: #F6CB8C;
+  --vv-seg-images: #9DECC9;
+  /* Lớp phủ Cài đặt/Thiết lập trên mobile che hết khung, kể cả tab bar. */
+  --vv-z-overlay: 40;
 }
 
 /* Logo ống kính xoay 9s chỉ khi có job chạy (.vv-lens-run như tokens.css của design) */

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestManagedToolIdsIsExactlyTheToolList(t *testing.T) {
@@ -113,6 +114,16 @@ func TestManagedLifecycleConcurrentCallersShareRun(t *testing.T) {
 			_, errs[k] = m.Install(context.Background(), ManagedTranscription)
 		}(i)
 	}
+	// Chỉ thả thân run khi cả hai caller đã gộp vào cùng lượt: thả sớm thì
+	// caller đầu có thể xong trước khi caller sau tới, và caller sau mở lượt
+	// mới — đúng hành vi, nhưng không còn là ca "đồng thời" test này cần.
+	deadline := time.Now().Add(5 * time.Second)
+	for flightWaiters(m.installer, string(ManagedTranscription)) < 2 {
+		if time.Now().After(deadline) {
+			t.Fatal("hai caller chưa gộp vào cùng một lượt")
+		}
+		time.Sleep(time.Millisecond)
+	}
 	close(release)
 	wg.Wait()
 	for _, err := range errs {
@@ -130,4 +141,14 @@ func TestManagedLifecycleConcurrentCallersShareRun(t *testing.T) {
 	if st == nil || st.Phase != PhaseDone {
 		t.Fatalf("state = %+v", st)
 	}
+}
+
+// flightWaiters đếm caller đang chờ lượt chạy của toolID (0 khi không có lượt).
+func flightWaiters(i *Installer, toolID string) int {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	if f := i.inFlight[toolID]; f != nil {
+		return f.waiters
+	}
+	return 0
 }

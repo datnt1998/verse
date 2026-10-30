@@ -4,7 +4,7 @@
 import type { Key } from '@noverse/ui/data'
 import { keys } from './keys'
 
-export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status'] as const
+export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage'] as const
 export type ServerEventType = (typeof SERVER_EVENT_TYPES)[number]
 
 export type ServerEvent = { type: ServerEventType; data: unknown; id: string }
@@ -15,5 +15,10 @@ export type EventKeys = readonly Key[] | '*'
 export function keysForEvent(event: { type: string; data: unknown }): EventKeys {
   if (event.type === 'reset') return '*'
   if (event.type === 'status') return [keys.status()]
+  if (event.type === 'ai') return [['ai']]
+  if (event.type === 'platforms') return [['platforms']]
+  if (event.type === 'tools') return [keys.tools(), keys.setup()]
+  if (event.type === 'activity') return [keys.activity(), keys.setup(), keys.storage()]
+  if (event.type === 'storage') return [keys.storage(), keys.activity()]
   return []
 }

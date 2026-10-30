@@ -14,6 +14,7 @@ export type Route =
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
   | { name: 'editor'; projectId: string }                              // '#/editor/<projectId>'
   | { name: 'settings'; section?: SettingsSection }                    // '#/settings'
+  | { name: 'setup' }                                                  // '#/setup'
   | { name: 'account' }                                                // '#/account'
   | { name: 'devkit'; board?: DevKitBoard; section?: string }          // '#/dev/kit' (chỉ dev)
 
@@ -31,6 +32,9 @@ export type TemplateSection = (typeof TEMPLATE_SECTIONS)[number]
 
 export const SETTINGS_SECTIONS = ['tools', 'connect', 'agents', 'accounts', 'storage', 'logs'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
+
+/** Alias mục cũ của bản yt-factory — link đã lưu vẫn mở đúng mục mới. */
+const LEGACY_SECTIONS: Record<string, SettingsSection> = { images: 'agents' }
 
 export const DEVKIT_BOARDS = ['kit', 'mkit'] as const
 export type DevKitBoard = (typeof DEVKIT_BOARDS)[number]
@@ -75,7 +79,9 @@ export function parseHash(hash: string): Parsed {
   } else if (seg[0] === 'editor' && seg.length === 2 && seg[1]) {
     route = { name: 'editor', projectId: seg[1] }
   } else if (seg[0] === 'settings' && seg.length === 1) {
-    route = { name: 'settings', section: oneOf(search.get('section'), SETTINGS_SECTIONS) }
+    route = { name: 'settings', section: oneOf(search.get('section'), SETTINGS_SECTIONS) ?? LEGACY_SECTIONS[search.get('section') ?? ''] }
+  } else if (seg[0] === 'setup' && seg.length === 1) {
+    route = { name: 'setup' }
   } else if (seg[0] === 'account' && seg.length === 1) {
     route = { name: 'account' }
   } else if (seg[0] === 'dev' && seg[1] === 'kit' && seg.length === 2 && import.meta.env.DEV) {
@@ -106,6 +112,7 @@ export function routePath(route: Route): string {
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
     case 'editor': return `/editor/${encodeURIComponent(route.projectId)}`
     case 'settings': return `/settings${q([['section', route.section]])}`
+    case 'setup': return '/setup'
     case 'account': return '/account'
     case 'devkit': return `/dev/kit${q([['board', route.board], ['section', route.section]])}`
   }
@@ -123,20 +130,23 @@ export const paths = {
   template: (templateId: string, section?: TemplateSection) => routePath({ name: 'template', templateId, section }),
   editor: (projectId: string) => routePath({ name: 'editor', projectId }),
   settings: (section?: SettingsSection) => routePath({ name: 'settings', section }),
+  setup: () => '/setup',
   account: () => '/account',
   devkit: (board?: DevKitBoard, section?: string) => routePath({ name: 'devkit', board, section }),
 }
 
-/** Mục MainNav tô sáng cho route đang mở. */
+/** Mục MainNav tô sáng cho route đang mở; null = trang ngoài nav (Hàng chờ,
+ *  Cài đặt, Tài khoản, Editor) — không mục nào sáng (artboard Queue/Settings).
+ */
 export type NavKey = 'workbench' | 'review' | 'channels' | 'explore' | 'new'
-export function navSection(route: Route): NavKey {
+export function navSection(route: Route): NavKey | null {
   switch (route.name) {
     case 'workbench': return 'workbench'
     case 'review': return 'review'
-    case 'channel': case 'channel-new': case 'template': return 'channels'
+    case 'channel': case 'channel-new': case 'template': case 'library': return 'channels'
     case 'explore': return 'explore'
     case 'new': return 'new'
-    default: return 'workbench'
+    default: return null
   }
 }
 

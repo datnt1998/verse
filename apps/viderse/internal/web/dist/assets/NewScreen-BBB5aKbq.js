@@ -1,1 +1,0 @@
-import{j as t,t as e}from"./index-BlsFzjgM.js";import{S as n}from"./ScreenEmpty-DKBa5ddl.js";function o(){return t.jsx(n,{icon:"video-add",title:e.screens.new.emptyTitle,hint:e.screens.new.emptyHint})}export{o as NewScreen};

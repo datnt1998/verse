@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// ---- H5: session data xấu → lỗi đã phân loại, không panic ----
+// ---- session data xấu → lỗi đã phân loại, không panic ----
 
 func swPage(device []any) string {
 	// Cùng layout sw.js_data: data[0][2] = [[device_info, ...], api_key, ...]
@@ -93,7 +93,7 @@ func TestBootstrapTruncatedJSONIsClassifiedNotPanic(t *testing.T) {
 	}
 }
 
-// ---- M3: waiter bootstrap tôn trọng ctx của chính nó ----
+// ---- waiter bootstrap tôn trọng ctx của chính nó ----
 
 func TestBootstrapWaiterHonorsOwnContext(t *testing.T) {
 	release := make(chan struct{})
@@ -144,7 +144,7 @@ func TestBootstrapWaiterHonorsOwnContext(t *testing.T) {
 	}
 }
 
-// ---- M4: MaxWait là ngân sách chờ tích luỹ ----
+// ---- MaxWait là ngân sách chờ tích luỹ ----
 
 func TestPacerMaxWaitIsCumulative(t *testing.T) {
 	p := &Pacer{MinGap: time.Nanosecond, MaxGap: time.Nanosecond, MaxWait: 300 * time.Millisecond}
@@ -194,7 +194,7 @@ func TestPacerScheduledWaitAlsoCountsTowardBudget(t *testing.T) {
 	}
 }
 
-// ---- M5: lỗi mạng khi đọc thân → transient, lỗi lạ → unexpected_page ----
+// ---- lỗi mạng khi đọc thân → transient, lỗi lạ → unexpected_page ----
 
 type failBody struct{ err error }
 
@@ -238,7 +238,7 @@ func TestUnknownContinuationErrorIsUnexpectedPageNotCursorInvalid(t *testing.T) 
 	}
 }
 
-// ---- M6: dữ liệu lưu trữ parse chặt như schema gốc ----
+// ---- dữ liệu lưu trữ parse chặt như schema gốc ----
 
 func TestCursorRequiresSessionKeysAndEOF(t *testing.T) {
 	raw, err := json.Marshal(validCursor())
@@ -299,7 +299,7 @@ func TestRemainderRequiresArrayAndFullKeys(t *testing.T) {
 	}
 }
 
-// ---- M10: pacer mặc định có jitter thật ----
+// ---- pacer mặc định có jitter thật ----
 
 func TestNewPacerHasRealJitterByDefault(t *testing.T) {
 	p := NewPacer()
@@ -320,7 +320,7 @@ func TestNewPacerHasRealJitterByDefault(t *testing.T) {
 	}
 }
 
-// Đảm bảo waiter bị huỷ không kéo theo bootstrap của owner (phần còn lại của M3).
+// Đảm bảo waiter bị huỷ không kéo theo bootstrap của owner.
 func TestCancelledWaiterDoesNotPoisonSharedBootstrap(t *testing.T) {
 	release := make(chan struct{})
 	entered := make(chan struct{}, 1)

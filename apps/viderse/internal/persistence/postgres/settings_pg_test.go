@@ -123,3 +123,31 @@ func TestQueuePausedDefaultsFalseAndRoundTrips(t *testing.T) {
 		t.Fatalf("khoá %q: found=%v raw=%v err=%v", domain.KeyQueuePaused, found, raw, err)
 	}
 }
+
+// Hiệu lực tạm dừng = cờ người dùng OR cờ của storage: hold của storage bật
+// storage.queuePaused và QueuePaused phải báo paused dù cờ người dùng tắt,
+// và tắt cờ storage không được kéo cờ người dùng theo.
+func TestQueuePausedOrsStorageHoldFlag(t *testing.T) {
+	store := postgres.NewSettingsStore(provision(t))
+	ctx := context.Background()
+
+	if err := store.Set(ctx, domain.KeyStoragePaused, true); err != nil {
+		t.Fatal(err)
+	}
+	if paused, err := store.QueuePaused(ctx); err != nil || !paused {
+		t.Fatalf("storage hold mà paused=%v err=%v", paused, err)
+	}
+	if err := store.Set(ctx, domain.KeyStoragePaused, false); err != nil {
+		t.Fatal(err)
+	}
+	if paused, err := store.QueuePaused(ctx); err != nil || paused {
+		t.Fatalf("hết hold mà paused=%v", paused)
+	}
+	// Cờ người dùng bật không bị cờ storage kéo xuống.
+	if err := store.SetQueuePaused(ctx, true); err != nil {
+		t.Fatal(err)
+	}
+	if paused, err := store.QueuePaused(ctx); err != nil || !paused {
+		t.Fatalf("cờ người dùng mà paused=%v", paused)
+	}
+}

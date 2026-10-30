@@ -883,19 +883,110 @@
     "file": "assets/workbench-C8dvxkhe.svg",
     "src": "../../../platform/ui/src/icons/workbench.svg"
   },
-  "_ScreenEmpty-DKBa5ddl.js": {
-    "file": "assets/ScreenEmpty-DKBa5ddl.js",
+  "_Banner-BdWb5mQ2.js": {
+    "file": "assets/Banner-BdWb5mQ2.js",
+    "name": "Banner",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_ChatGPTLogin-CmGKRVlk.js": {
+    "file": "assets/ChatGPTLogin-CmGKRVlk.js",
+    "name": "ChatGPTLogin",
+    "imports": [
+      "index.html",
+      "_fmt-Qvlnz-pB.js",
+      "_poll-G39YnhQu.js"
+    ]
+  },
+  "_ConfirmDialog-D6L2_onS.js": {
+    "file": "assets/ConfirmDialog-D6L2_onS.js",
+    "name": "ConfirmDialog",
+    "imports": [
+      "index.html",
+      "_Sheet-D4q5GlOG.js",
+      "_useAsyncAction-D5yGQLPt.js"
+    ]
+  },
+  "_ProviderCard-hCqtU4_n.js": {
+    "file": "assets/ProviderCard-hCqtU4_n.js",
+    "name": "ProviderCard",
+    "imports": [
+      "index.html",
+      "_ConfirmDialog-D6L2_onS.js",
+      "_fmt-Qvlnz-pB.js",
+      "_poll-G39YnhQu.js"
+    ]
+  },
+  "_ScreenEmpty-C7IZgopR.js": {
+    "file": "assets/ScreenEmpty-C7IZgopR.js",
     "name": "ScreenEmpty",
     "imports": [
       "index.html"
     ]
   },
-  "_index-pr-MtNdp.css": {
-    "file": "assets/index-pr-MtNdp.css",
-    "src": "_index-pr-MtNdp.css"
+  "_SettingsScreen-CYCVPGli.css": {
+    "file": "assets/SettingsScreen-CYCVPGli.css",
+    "src": "_SettingsScreen-CYCVPGli.css"
+  },
+  "_SettingsScreen-TOs2DDft.js": {
+    "file": "assets/SettingsScreen-TOs2DDft.js",
+    "name": "SettingsScreen",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_fmt-Qvlnz-pB.js"
+    ],
+    "dynamicImports": [
+      "src/screens/settings/tools/ToolsSection.tsx",
+      "src/screens/settings/storage/StorageSection.tsx",
+      "src/screens/settings/logs/LogsSection.tsx",
+      "src/screens/settings/connect/ConnectSection.tsx",
+      "src/screens/settings/agents/AgentsSection.tsx",
+      "src/screens/settings/accounts/AccountsSection.tsx"
+    ],
+    "css": [
+      "assets/SettingsScreen-CYCVPGli.css"
+    ]
+  },
+  "_Sheet-D4q5GlOG.js": {
+    "file": "assets/Sheet-D4q5GlOG.js",
+    "name": "Sheet",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_Tabs-vJNnfk98.js": {
+    "file": "assets/Tabs-vJNnfk98.js",
+    "name": "Tabs",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_fmt-Qvlnz-pB.js": {
+    "file": "assets/fmt-Qvlnz-pB.js",
+    "name": "fmt",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_index-_HmW3v2M.css": {
+    "file": "assets/index-_HmW3v2M.css",
+    "src": "_index-_HmW3v2M.css"
+  },
+  "_poll-G39YnhQu.js": {
+    "file": "assets/poll-G39YnhQu.js",
+    "name": "poll"
+  },
+  "_useAsyncAction-D5yGQLPt.js": {
+    "file": "assets/useAsyncAction-D5yGQLPt.js",
+    "name": "useAsyncAction",
+    "imports": [
+      "index.html"
+    ]
   },
   "index.html": {
-    "file": "assets/index-BlsFzjgM.js",
+    "file": "assets/index-BTPG4JVd.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -909,11 +1000,12 @@
       "src/screens/library/LibraryScreen.tsx",
       "src/screens/library/TemplateScreen.tsx",
       "src/screens/editor/EditorScreen.tsx",
-      "src/screens/settings/SettingsScreen.tsx",
+      "_SettingsScreen-TOs2DDft.js",
+      "src/screens/setup/SetupScreen.tsx",
       "src/screens/account/AccountScreen.tsx"
     ],
     "css": [
-      "assets/index-pr-MtNdp.css"
+      "assets/index-_HmW3v2M.css"
     ],
     "assets": [
       "assets/activity-bulk-4ea_oL8w.svg",
@@ -1140,7 +1232,7 @@
     ]
   },
   "src/screens/account/AccountScreen.tsx": {
-    "file": "assets/AccountScreen-kXMF5CV0.js",
+    "file": "assets/AccountScreen-Dg2qmMVt.js",
     "name": "AccountScreen",
     "src": "src/screens/account/AccountScreen.tsx",
     "isDynamicEntry": true,
@@ -1149,103 +1241,214 @@
     ]
   },
   "src/screens/channel/ChannelNewScreen.tsx": {
-    "file": "assets/ChannelNewScreen-GXqUez8z.js",
+    "file": "assets/ChannelNewScreen-Dm2YnNBL.js",
     "name": "ChannelNewScreen",
     "src": "src/screens/channel/ChannelNewScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/channel/ChannelScreen.tsx": {
-    "file": "assets/ChannelScreen-4y9fj9Qf.js",
+    "file": "assets/ChannelScreen-PSs7mlJq.js",
     "name": "ChannelScreen",
     "src": "src/screens/channel/ChannelScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/editor/EditorScreen.tsx": {
-    "file": "assets/EditorScreen-DEEtAXVX.js",
+    "file": "assets/EditorScreen-8A5DwM0Z.js",
     "name": "EditorScreen",
     "src": "src/screens/editor/EditorScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/explore/ExploreScreen.tsx": {
-    "file": "assets/ExploreScreen-D7Dtzg5g.js",
+    "file": "assets/ExploreScreen-DnE_icoK.js",
     "name": "ExploreScreen",
     "src": "src/screens/explore/ExploreScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/library/LibraryScreen.tsx": {
-    "file": "assets/LibraryScreen-CN9Gf0wB.js",
+    "file": "assets/LibraryScreen-D8tSTng5.js",
     "name": "LibraryScreen",
     "src": "src/screens/library/LibraryScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/library/TemplateScreen.tsx": {
-    "file": "assets/TemplateScreen-HFVYBXfw.js",
+    "file": "assets/TemplateScreen-xlcHdLuF.js",
     "name": "TemplateScreen",
     "src": "src/screens/library/TemplateScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/new/NewScreen.tsx": {
-    "file": "assets/NewScreen-BBB5aKbq.js",
+    "file": "assets/NewScreen--C11sxn4.js",
     "name": "NewScreen",
     "src": "src/screens/new/NewScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/queue/QueueScreen.tsx": {
-    "file": "assets/QueueScreen-CJnveTS1.js",
+    "file": "assets/QueueScreen-DSh_t0J9.js",
     "name": "QueueScreen",
     "src": "src/screens/queue/QueueScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
   "src/screens/review/ReviewScreen.tsx": {
-    "file": "assets/ReviewScreen-Db0bvI-B.js",
+    "file": "assets/ReviewScreen-DTiGetEA.js",
     "name": "ReviewScreen",
     "src": "src/screens/review/ReviewScreen.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_ScreenEmpty-C7IZgopR.js"
     ]
   },
-  "src/screens/settings/SettingsScreen.tsx": {
-    "file": "assets/SettingsScreen-DsGased1.js",
-    "name": "SettingsScreen",
-    "src": "src/screens/settings/SettingsScreen.tsx",
+  "src/screens/settings/accounts/AccountsSection.tsx": {
+    "file": "assets/AccountsSection-CHzCrx3l.js",
+    "name": "AccountsSection",
+    "src": "src/screens/settings/accounts/AccountsSection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_ScreenEmpty-DKBa5ddl.js"
+      "_SettingsScreen-TOs2DDft.js",
+      "_ConfirmDialog-D6L2_onS.js",
+      "_Banner-BdWb5mQ2.js",
+      "_fmt-Qvlnz-pB.js",
+      "_Sheet-D4q5GlOG.js",
+      "_poll-G39YnhQu.js",
+      "_useAsyncAction-D5yGQLPt.js"
+    ],
+    "css": [
+      "assets/AccountsSection-DcXuKruL.css"
+    ]
+  },
+  "src/screens/settings/agents/AgentsSection.tsx": {
+    "file": "assets/AgentsSection-DwqaueiB.js",
+    "name": "AgentsSection",
+    "src": "src/screens/settings/agents/AgentsSection.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_Tabs-vJNnfk98.js",
+      "_Sheet-D4q5GlOG.js",
+      "_fmt-Qvlnz-pB.js",
+      "_ProviderCard-hCqtU4_n.js",
+      "_ConfirmDialog-D6L2_onS.js",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_poll-G39YnhQu.js"
+    ],
+    "css": [
+      "assets/AgentsSection-JDLoHga9.css"
+    ]
+  },
+  "src/screens/settings/connect/ConnectSection.tsx": {
+    "file": "assets/ConnectSection-JS2Yh22S.js",
+    "name": "ConnectSection",
+    "src": "src/screens/settings/connect/ConnectSection.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_Sheet-D4q5GlOG.js",
+      "_fmt-Qvlnz-pB.js",
+      "_ProviderCard-hCqtU4_n.js",
+      "_ChatGPTLogin-CmGKRVlk.js",
+      "_ConfirmDialog-D6L2_onS.js",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_poll-G39YnhQu.js"
+    ],
+    "css": [
+      "assets/ConnectSection-DvibiTsQ.css"
+    ]
+  },
+  "src/screens/settings/logs/LogsSection.tsx": {
+    "file": "assets/LogsSection-Cbbt4Sve.js",
+    "name": "LogsSection",
+    "src": "src/screens/settings/logs/LogsSection.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_SettingsScreen-TOs2DDft.js",
+      "_fmt-Qvlnz-pB.js"
+    ],
+    "css": [
+      "assets/LogsSection-BVL-REyl.css"
+    ]
+  },
+  "src/screens/settings/storage/StorageSection.tsx": {
+    "file": "assets/StorageSection-BGpoa2yf.js",
+    "name": "StorageSection",
+    "src": "src/screens/settings/storage/StorageSection.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_Tabs-vJNnfk98.js",
+      "_Sheet-D4q5GlOG.js",
+      "_Banner-BdWb5mQ2.js",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_SettingsScreen-TOs2DDft.js",
+      "_fmt-Qvlnz-pB.js"
+    ],
+    "css": [
+      "assets/StorageSection-CcjtXrxy.css"
+    ]
+  },
+  "src/screens/settings/tools/ToolsSection.tsx": {
+    "file": "assets/ToolsSection-CYC0SY9F.js",
+    "name": "ToolsSection",
+    "src": "src/screens/settings/tools/ToolsSection.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_SettingsScreen-TOs2DDft.js",
+      "_fmt-Qvlnz-pB.js"
+    ],
+    "css": [
+      "assets/ToolsSection-C5Hbtavg.css"
+    ]
+  },
+  "src/screens/setup/SetupScreen.tsx": {
+    "file": "assets/SetupScreen-CjbwxwVD.js",
+    "name": "SetupScreen",
+    "src": "src/screens/setup/SetupScreen.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html",
+      "_useAsyncAction-D5yGQLPt.js",
+      "_fmt-Qvlnz-pB.js",
+      "_ChatGPTLogin-CmGKRVlk.js",
+      "_poll-G39YnhQu.js"
+    ],
+    "css": [
+      "assets/SetupScreen-C4tf89Wy.css"
     ]
   }
 }

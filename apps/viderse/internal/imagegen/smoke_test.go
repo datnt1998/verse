@@ -16,10 +16,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/aiconn"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/core/auth"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
@@ -58,9 +60,23 @@ func TestSmokeOnePaidImageThenCapRefuses(t *testing.T) {
 	tl := tools.New(deps)
 	ctx := context.Background()
 
+	// Auth đi qua core/auth đúng như production: refresh token ở lại kho,
+	// auth.json cô lập chỉ nhận access token tươi (không refresh token).
+	store, err := auth.DefaultStore()
+	if err != nil {
+		t.Fatal(err)
+	}
+	coreAuth := aiconn.NewCoreAuth(auth.NewManager(store), nil)
 	provider := imagegen.NewCodexProvider(imagegen.CodexDeps{
 		Codex:  tl.Codex,
 		Runner: runner,
+		Auth: func(ctx context.Context) (tools.CodexAuthTokens, error) {
+			access, accountID, err := coreAuth.CLITokens(ctx, auth.OpenAICodexID)
+			if err != nil {
+				return tools.CodexAuthTokens{}, err
+			}
+			return tools.CodexAuthTokens{AccessToken: access, AccountID: accountID}, nil
+		},
 	})
 	// Chặn sớm nếu chưa đăng nhập/cô lập chưa verified: báo lỗi chính xác.
 	if err := provider.Ready(ctx); err != nil {
