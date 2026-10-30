@@ -192,3 +192,40 @@ Mẫu:
 - Tiến trình cài công cụ trả `phaseLabel` là câu tiếng Việt của máy chủ, không phải mã pha; client khác (nếu có) hiện nguyên câu này.
 - Pha không biết tổng dung lượng (tải mô hình nhận giọng nói, dựng môi trường Python) trả `pct: null`. Artboard chỉ vẽ pha có phần trăm (“· 62%”). Code chỉ ghi tên pha, cạnh đó là vòng quay của hàng; không vẽ “0%” và thanh đứng yên.
 - Hỏi design: dải đẩy hay phủ lên nội dung? Đồng ý bảng tông theo kind? Pha không biết tổng có cần thanh chạy vô định không?
+
+### #31 · Khám phá: điều khiển cần kênh của bạn và hàng chờ — Mở
+- Artboard: `Explore` (xem trước, chọn nhiều, thẻ đối thủ), `MExplore`.
+- Kênh của bạn có ở gói Kênh (V4), hàng chờ làm video ở gói Hàng chờ (V6). Tới lúc đó code vẽ các điều khiển sau ở trạng thái khoá, kèm lý do “Chưa có kênh của bạn để làm video — tạo kênh ở mục Kênh.”: “Làm cho <kênh>”, chọn kênh, “Làm video”, nút chọn nhiều “Làm N video” (bỏ “cho <kênh>”), “Liên kết với kênh…”, lọc Trạng thái ngoài “Tất cả”.
+- Câu cần số liệu hàng chờ viết không có số: gợi ý “Lên đầu hàng chờ khi bấm Làm video.” (artboard có giờ dự kiến “bắt đầu khoảng 00:40”); hộp Bỏ theo dõi không ghi “2 video trong hàng chờ bị bỏ”.
+- Panel Vì sao không có link “Đổi ngưỡng ở Kênh › Nguồn & tự động” vì màn đó chưa có. Panel giữ 3 dòng số liệu (lượt xem, mức thường, ngày đăng); ngưỡng ×3 nằm trong câu giải thích.
+- Khối chương của video trong panel xem trước bị ẩn: Trinh sát chưa lưu chương.
+- Hỏi design: chấp nhận trạng thái khoá và câu không số tới khi có kênh/hàng chờ? Khi có, các nút mở theo đúng artboard.
+
+### #32 · Khám phá: trạng thái quét và lỗi thêm đối thủ chưa có artboard — Mở
+- Artboard `Explore` vẽ quét đang chạy, tạm dừng, bị giới hạn tốc độ, đã xong.
+- Code thêm câu cho trạng thái còn lại của việc quét lịch sử: đang chờ (`queued`), chưa quét (`idle`), đủ giới hạn (`capped`), quét hết (`complete`), đã huỷ, lỗi, đang kiểm tra video mới. Câu nằm ở `screens.explore.scanStates` trong `i18n/vi.ts`.
+- Lỗi thêm đối thủ: mỗi `code` của `POST /api/rivals` một câu dưới ô nhập (`invalid_input`, `not_found`, `exists` kèm nút Mở, `rate_limited` kèm giờ thử lại, `blocked`, `unexpected_page`, lỗi khác). Câu nằm ở `screens.explore.addErrors`.
+- Hỏi design: duyệt các câu này, hoặc vẽ thêm frame.
+
+### #33 · Menu ⋯ của đối thủ: đệm hàng 6px, cách 0px — Mở
+- Artboard `Explore` · menu đối thủ: hàng đệm 8px, cách nhau 2px, rộng 272px.
+- `ActionMenu` của kit đệm 6/10, cách 0, khớp artboard `Kit` (`.vv-menu__item`) và menu của Noverse. Code đã cho `ActionMenu` prop `width` (đối thủ dùng 272), nên chỉ còn lệch đệm dọc: mỗi hàng thấp hơn ~2,7px.
+- Hỏi design: thêm prop đệm hàng cho kit để riêng menu này 8/2, hay coi đệm 6/0 của Kit là chuẩn?
+
+### #34 · Lịch đăng: số “Mỗi tuần” và câu khi không có khung — Mở
+- Artboard `Explore` · thẻ Lịch đăng chỉ vẽ kênh có khung lặp lại.
+- “Mỗi tuần” = (số video có giờ − 1) chia độ dài thật của mẫu tính theo tuần, tối thiểu 1 tuần. Cách cũ (số video chia số tuần lịch mẫu chạm tới) cho kênh đăng 3 video/ngày ra 15 vì 30 video trong 9 ngày chạm 2 tuần lịch; cách mới ra ~22. Ô số hẹp (“5,6 video” đã xuống dòng) nên từ 1 video/tuần hiện số nguyên như artboard (“6 video”), dưới 1 giữ một chữ số lẻ (“0,4 video”).
+- Không có khung nào, code ghi một trong bốn câu: tạm nghỉ đọc giờ đăng tới HH:MM; đang đọc giờ đăng của video còn lại; chưa đọc được giờ đăng của video nào; “Chưa thấy khung nào lặp lại trong mẫu này.” (đã đọc đủ mẫu, ví dụ kênh đăng giờ lệch nhau mỗi ngày).
+- Hỏi design: duyệt cách tính và bốn câu.
+
+### #35 · Khám phá: không có ô tìm video — Mở
+- Artboard `Explore` không có ô tìm. API (`GET /api/rivals/<id>/videos?q=`, tối đa 200 ký tự) và CLI (`viderse rival videos`) tìm được theo tiêu đề; giao diện chưa có ô tìm.
+- Hỏi design: cần ô tìm trên thanh lọc không? Nếu có, đặt ở đâu.
+
+### #36 · Khám phá trống: ví dụ là kênh tiếng Anh — Mở
+- Artboard `Explore` · `state=empty` ghi ví dụ `@nocturnestories`, `youtube.com/@thelatearchive`, `UCx9…Qw`. Code chép nguyên văn.
+- Hỏi design: app tiếng Việt, có đổi ví dụ sang kênh Việt không?
+
+### #37 · Khám phá trên điện thoại — Mở
+- Artboard `MExplore`. Gói này chưa làm `MExplore`: dưới 768px, màn máy tính xếp thành một cột (đối thủ, lưới ảo hoá, cột phải), vẫn thêm/bỏ đối thủ, quét, xem lịch đăng được. Làm `MExplore` đúng artboard để gói Điện thoại (V10).
+- Hỏi design: đồng ý dời?

@@ -117,7 +117,7 @@ flowchart LR
 |---|---|---|---|---|
 | [01 · Nền móng, dọn Writer, shell](phase-01-foundation.md) | V0, V12, hỏi đáp #1–#4 | — | 32h | xong |
 | [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h | xong code và QA ảnh (30/10/2026); còn chủ máy thử Grok, QR Bilibili, khoá API thật |
-| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | đang làm: đã có `internal/youtube` |
+| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | xong code, review và QA ảnh (30/10/2026); điều khiển cần Kênh/Hàng chờ để khoá tới phase 04/05, `MExplore` ở phase 09 |
 | [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h | chưa |
 | [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h | chưa |
 | [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h | chưa |
