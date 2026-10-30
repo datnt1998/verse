@@ -44,6 +44,66 @@ it('Button variant="quiet" render như button thường, không viền (chữ m�
   expect(html).toContain('Bỏ qua')
 })
 
+it('Button size="compact" đúng hợp đồng 32/r8/13 của artboard Settings', () => {
+  const contract = stylex.create({
+    compact: { height: 32, paddingInline: 12, borderRadius: 8, fontSize: 13 },
+  })
+  const html = renderToStaticMarkup(<Button size="compact">Kiểm tra lại</Button>)
+  const cls = stylex.props(contract.compact).className!.split(' ').filter(Boolean)
+  for (const atom of cls) expect(html).toContain(atom)
+})
+
+it('Button size="compact" không đè fw 600 của primary/danger nhưng vẫn cho ghost 400', () => {
+  const probe = stylex.create({ w600: { fontWeight: 600 }, w400: { fontWeight: 400 } })
+  const atom600 = stylex.props(probe.w600).className!
+  const atom400 = stylex.props(probe.w400).className!
+  const atoms = (html: string) => new Set(html.match(/class="([^"]+)"/)![1].split(' '))
+
+  const primaryCompact = atoms(renderToStaticMarkup(<Button variant="primary" size="compact">Lưu</Button>))
+  expect(primaryCompact.has(atom600)).toBe(true)
+  expect(primaryCompact.has(atom400)).toBe(false)
+
+  const dangerCompact = atoms(renderToStaticMarkup(<Button variant="danger" size="compact">Xoá</Button>))
+  expect(dangerCompact.has(atom600)).toBe(true)
+
+  for (const variant of ['ghost', 'quiet', 'warnGhost'] as const) {
+    const compact = atoms(renderToStaticMarkup(<Button variant={variant} size="compact">Huỷ</Button>))
+    expect(compact.has(atom400)).toBe(true)
+    expect(compact.has(atom600)).toBe(false)
+  }
+})
+
+it('Button variant="warnGhost" dùng viền .45 và chữ ghost-ink (nền trong)', () => {
+  const contract = stylex.create({
+    warnGhost: { backgroundColor: 'transparent', color: 'var(--kit-err-ghost-ink)', borderColor: 'var(--kit-errb-45)' },
+  })
+  const html = renderToStaticMarkup(<Button variant="warnGhost" size="compact">Xoá nhóm</Button>)
+  const atoms = stylex.props(contract.warnGhost).className!.split(' ').filter(Boolean)
+  expect(atoms.length).toBeGreaterThan(0)
+  for (const atom of atoms) expect(html).toContain(atom)
+})
+
+it('ConfirmDialog size="compact" áp cỡ 32 cho cả nút huỷ lẫn nút chính', () => {
+  const html = renderToStaticMarkup(
+    <ConfirmDialog inline size="compact" title="Bỏ nhà cung cấp?" body="Khoá sẽ bị xoá khỏi máy này." confirmLabel="Bỏ" onConfirm={() => {}} onClose={() => {}} />,
+  )
+  const contract = stylex.create({ compact: { height: 32, paddingInline: 12, borderRadius: 8, fontSize: 13 } })
+  const atoms = stylex.props(contract.compact).className!.split(' ').filter(Boolean)
+  for (const atom of atoms) expect(html).toContain(atom)
+  // Mặc định (không truyền size) vẫn là 36/r10 của artboard Dialogs.
+  const def = renderToStaticMarkup(<ConfirmDialog inline title="Xoá?" body="x" confirmLabel="Xoá" onConfirm={() => {}} onClose={() => {}} />)
+  expect(def).not.toContain(atoms[0])
+})
+
+it('Button size="xl" đúng hợp đồng CTA điện thoại 48/r13/15', () => {
+  const contract = stylex.create({
+    xl: { height: 48, paddingInline: 16, borderRadius: 13, fontSize: 15, fontWeight: 600, gap: 8 },
+  })
+  const html = renderToStaticMarkup(<Button variant="primary" size="xl">Tạo kênh</Button>)
+  const cls = stylex.props(contract.xl).className!.split(' ').filter(Boolean)
+  for (const atom of cls) expect(html).toContain(atom)
+})
+
 it('Banner tone="agent" hiện orb của trợ lý và màu quầng của trợ lý đó', () => {
   const html = renderToStaticMarkup(<Banner tone="agent" agent="editor" title="Hoạ sĩ giải thích" action={{ label: 'Xem', onClick: () => {} }}>Đề xuất thay nền cho cảnh mở đầu.</Banner>)
   expect(html).toContain('--banner-agent-editor-bg')

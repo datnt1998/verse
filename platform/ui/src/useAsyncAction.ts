@@ -36,10 +36,11 @@ export function createAsyncAction<A extends unknown[]>(fn: (...args: A) => Promi
       clearTimeout(pendingTimer)
       if (shownAt !== null) {
         const remaining = 400 - (Date.now() - shownAt)
-        if (remaining > 0) {
-          await delay(remaining)
-        }
+        if (remaining > 0) await delay(remaining)
       }
+      // Bắt buộc trả về nhàn rỗi: trước đây `busy` kẹt true mãi khiến mọi lần
+      // bấm sau (retry, đổi mục, kiểm tra lại) đều bị nuốt.
+      update({ busy: false, pending: false })
     }
   }
   return {

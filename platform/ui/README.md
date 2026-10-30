@@ -207,13 +207,19 @@ import {
 
 Notable behaviours:
 
-- `Button` — `variant: primary|ghost|icon|dsoft|danger`, `size: sm|md`,
+- `Button` — `variant: primary|ghost|quiet|icon|icon-only|dsoft|danger|warnGhost`,
+  `size: sm (30) | md (36) | compact (32, r8, 13px) | lg (44) | xl (48)`,
   `pending`/`success` states with spinner + tick, `kbd` hint, `forwardRef`.
-- `Sheet` — bottom sheet (`.m-*` classes, drag-to-close, Esc layer). Falls
-  back to `labels.sheet.defaultLabel` for `aria-label` when neither `title`
-  nor `label` is given.
+- `Banner` — `tone: info|success|warning|error|agent`; optional `icon`,
+  `align: center|top`, `role: status|alert`, one trailing `action` or an
+  `actions` row under the text.
+- `Sheet` — bottom sheet (`.m-*` classes, drag-to-close, Esc layer). `size`:
+  `lg` (default, Noverse sheet) or `md` (Viderse artboard sheet). Falls back to
+  `labels.sheet.defaultLabel` for `aria-label` when neither `title` nor
+  `label` is given.
 - `ConfirmDialog` / `confirm()` — typed-phrase and hold-to-confirm variants;
-  uses `useAsyncAction` internally, all copy via `labels.confirm`.
+  `size` sets the footer button size (default `md`); uses `useAsyncAction`
+  internally, all copy via `labels.confirm`.
 - `ToastHost` + `toast()` — imperative toast API; mount one host per app.
 - `Dialog`, `Tooltip`, `InfoPopover`, `ActionMenu`, `ContextMenu` share the
   escape-layer stack (`useEscapeLayer` / `pushEscapeLayer`).
@@ -224,7 +230,7 @@ Notable behaviours:
 <Icon name="trash" size={18} variant="bulk" label="Bin" />
 ```
 
-142 SVGs ship in `src/icons/`; names are typed:
+188 SVGs ship in `src/icons/`; names are typed:
 
 ```ts
 import { ICON_NAMES, type IconName, hasIcon } from '@noverse/ui'

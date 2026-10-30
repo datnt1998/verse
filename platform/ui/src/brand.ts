@@ -27,6 +27,18 @@ export interface BrandCore {
   neutralTint?: string
   /** Màu trạng thái; bỏ trống từng cái → dùng sắc mặc định của kit. */
   status?: { success?: string; warning?: string; danger?: string; info?: string }
+  /** Thang “nguy hiểm” của kit (nút dsoft/danger, Banner lỗi, ô lỗi) theo đúng
+   *  brand. Bỏ trống → kit giữ thang đỏ Noverse (mọi token --kit-err* hiện tại).
+   *  soft/border là màu gốc; alpha lấy theo độ mờ của từng token. */
+  danger?: {
+    soft: string
+    border?: string
+    ink?: string
+    solid?: string
+    solidInk?: string
+    /** chữ của nút warn-ghost (nền trong, viền cam) — mặc định = `ink` */
+    ghostInk?: string
+  }
   /** Ghi đè một vai trò ngữ nghĩa (ví dụ roles: { accentDeep: '#…', link: '#…' }). */
   roles?: Partial<Record<RoleName, string>>
   /** Ghi đè trực tiếp token đầu ra (cứu chữa cuối cùng — ưu tiên roles hơn). */
@@ -62,6 +74,14 @@ function validate(input: BrandCore): void {
   reqColor(input.neutralTint, 'neutralTint')
   if (input.status != null) {
     for (const [k, v] of Object.entries(input.status)) reqColor(v as string, `status.${k}`)
+  }
+  if (input.danger != null) {
+    reqColor(input.danger.soft, 'danger.soft')
+    reqColor(input.danger.border, 'danger.border')
+    reqColor(input.danger.ink, 'danger.ink')
+    reqColor(input.danger.solid, 'danger.solid')
+    reqColor(input.danger.solidInk, 'danger.solidInk')
+    reqColor(input.danger.ghostInk, 'danger.ghostInk')
   }
   if (input.roles != null) {
     for (const [k, v] of Object.entries(input.roles)) {
@@ -211,7 +231,39 @@ export function neutralScale(tint: Rgb): Record<(typeof STOPS)[number], string> 
 
 
 /** Khoá token set sau khi map màu (giá trị tính từ vai trò, không thuộc literal gốc). */
-const POST_TOKENS = new Set(['--color-accent-fg', '--color-link'])
+const POST_TOKENS: Record<string, true> = { '--color-accent-fg': true, '--color-link': true }
+
+/**
+ * Thang “nguy hiểm” của kit theo brand: mọi --kit-err-N / --kit-errf-N lấy
+ * alpha của token nhưng màu gốc là `soft`; --kit-errb-N dùng `border`; chữ và
+ * nút đặc dùng `ink`/`solid`/`solidInk`. Chạy trước overrides nên overrides vẫn thắng.
+ */
+function applyDangerScale(vars: Record<`--${string}`, string>, d: NonNullable<BrandCore['danger']>): void {
+  const soft = parseHex(d.soft, 'danger.soft')
+  const border = parseHex(d.border ?? d.soft, 'danger.border')
+  const ink = d.ink ?? d.soft
+  const solid = d.solid ?? d.soft
+  const solidRgb = parseHex(solid, 'danger.solid')
+  const rgba = (c: Rgb, pct: number) => `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${pct / 100})`
+  for (const key of Object.keys(vars) as `--${string}`[]) {
+    const tint = /^--kit-err(?:f)?-(\d+)$/.exec(key)
+    if (tint) { vars[key] = rgba(soft, Number(tint[1])); continue }
+    const line = /^--kit-errb-(\d+)$/.exec(key)
+    if (line) { vars[key] = rgba(border, Number(line[1])); continue }
+  }
+  const set = (key: `--${string}`, value: string) => { if (key in vars) vars[key] = value }
+  set('--kit-err-strong', d.soft)
+  set('--kit-err-soft', d.soft)
+  set('--kit-err-bright', d.soft)
+  set('--kit-err-text', ink)
+  set('--kit-err-ghost-ink', d.ghostInk ?? ink)
+  set('--kit-err-deep', solid)
+  set('--kit-err-deep-hi', toHex(lighten(solidRgb, 0.08)))
+  set('--kit-err-deep-fg', d.solidInk ?? '#FFFFFF')
+  set('--kit-ring-err', `0 0 0 3px ${rgba(soft, 10)}`)
+  set('--kit-ring-danger', `0 0 0 4px ${rgba(border, 18)}`)
+  set('--tint-err', rgba(soft, 10))
+}
 
 export function defineBrand(input: BrandCore): Brand {
   validate(input)
@@ -237,7 +289,7 @@ export function defineBrand(input: BrandCore): Brand {
 
   const vars: Record<`--${string}`, string> = {}
   for (const [key, value] of Object.entries(TOKEN_DEFAULTS)) {
-    if (FIXED_TOKENS.has(key) || POST_TOKENS.has(key)) { vars[key as `--${string}`] = value; continue }
+    if (FIXED_TOKENS.has(key) || POST_TOKENS[key] === true) { vars[key as `--${string}`] = value; continue }
     vars[key as `--${string}`] = mapColors(value, (rgb) => {
       const role = lut.get(Math.round(rgb.r) * 65536 + Math.round(rgb.g) * 256 + Math.round(rgb.b))
       if (role) return rolesRgb[role]
@@ -263,6 +315,9 @@ export function defineBrand(input: BrandCore): Brand {
     const scale = neutralScale(tint)
     for (const stop of STOPS) vars[`--scale-neutral-${stop}`] = scale[stop]
   }
+
+  // Thang nguy hiểm theo brand (bỏ trống → giữ nguyên thang đỏ của kit).
+  if (input.danger) applyDangerScale(vars, input.danger)
 
   // Overrides thắng tất cả (đã validate khoá).
   for (const [k, v] of Object.entries(input.overrides ?? {})) vars[k as `--${string}`] = v

@@ -24,9 +24,16 @@ export type SheetProps = {
   /** thanh kéo đóng (mặc định có) */
   grab?: boolean
   role?: 'dialog' | 'alertdialog'
+  /** `md` = tấm theo artboard Viderse (góc 22, nền --color-card, tiêu đề 16px,
+   *  grabber 36×4, max-height 86%). Mặc định `lg` = tấm Noverse hiện tại. */
+  size?: 'lg' | 'md'
+  /** Câu phụ dưới tiêu đề (12.5px, --kit-fg-sub). */
+  subtitle?: ReactNode
+  /** Vạch home indicator 134×5 ở đáy (artboard điện thoại). */
+  homeIndicator?: boolean
 }
 
-export function Sheet({ open, onClose, title, label, children, height = 640, style, grab = true, role = 'dialog' }: SheetProps) {
+export function Sheet({ open, onClose, title, label, children, height = 640, style, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator }: SheetProps) {
   const [mounted, setMounted] = useState(open)
   const [distance, setDistance] = useState(0)
   const ref = useRef<HTMLElement>(null)
@@ -68,7 +75,7 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
   if (!mounted) return null
   return createPortal(<div className={`m-overlay${!open ? ' m-out' : ''}`}>
     <div className="m-scrim" onClick={onClose} />
-    <section ref={ref} className="m-sheet" role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
+    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
       style={{ height, ...(distance ? { transform: `translateY(${distance}px)`, animation: open ? 'none' : undefined } : {}), ...style }}>
       {grab && <div className="m-drag" aria-label={t.sheet.grabHandle}
         onPointerDown={(event) => { start.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId) }}
@@ -80,8 +87,9 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
           else setDistance(0)
         }}
         onPointerCancel={() => { start.current = null; setDistance(0) }}><span /></div>}
-      {title && <div className="m-sheet-title"><h2 id={titleId}>{title}</h2></div>}
+      {title && <div className="m-sheet-title"><h2 id={titleId}>{title}</h2>{subtitle != null && <span className="m-sheet-sub">{subtitle}</span>}</div>}
       <div className="m-sheet-body">{children}</div>
+      {homeIndicator && <div className="m-sheet-home" aria-hidden="true"><span /></div>}
     </section>
   </div>, document.body)
 }

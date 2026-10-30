@@ -114,6 +114,38 @@ describe('defineBrand: tương phản WCAG AA (≥4.5:1 trên nền tối)', () 
   })
 })
 
+describe('defineBrand: thang nguy hiểm theo brand', () => {
+  it('đổi mọi token --kit-err* sang màu brand, giữ nguyên độ mờ của từng token', () => {
+    const brand = defineBrand({
+      primary: '#FF4D63',
+      danger: { soft: '#FF9A5C', border: '#FF9A5C', ink: '#FFD2B5', solid: '#FF9A5C', solidInk: '#1A0E06' },
+    })
+    expect(brand.vars['--kit-err-12']).toBe('rgba(255,154,92,0.12)')
+    expect(brand.vars['--kit-err-7']).toBe('rgba(255,154,92,0.07)')
+    expect(brand.vars['--kit-errb-28']).toBe('rgba(255,154,92,0.28)')
+    expect(brand.vars['--kit-err-text']).toBe('#FFD2B5')
+    expect(brand.vars['--kit-err-deep']).toBe('#FF9A5C')
+    expect(brand.vars['--kit-err-deep-fg']).toBe('#1A0E06')
+    expect(brand.vars['--tint-err']).toBe('rgba(255,154,92,0.1)')
+  })
+  it('không truyền danger → Noverse giữ nguyên thang đỏ của kit', () => {
+    const brand = defineBrand(noverseCore)
+    expect(brand.vars['--kit-err-12']).toBe(TOKEN_DEFAULTS['--kit-err-12'])
+    expect(brand.vars['--kit-err-deep-fg']).toBe('#FFFFFF')
+  })
+  it('mực nút danger luôn đạt AA trên nền nút', () => {
+    const brand = defineBrand({
+      primary: '#FF4D63',
+      danger: { soft: '#FF9A5C', solid: '#FF9A5C', solidInk: '#1A0E06' },
+    })
+    const ratio = contrastRatio(parseHex(brand.vars['--kit-err-deep-fg']), parseHex(brand.vars['--kit-err-deep']))
+    expect(ratio).toBeGreaterThanOrEqual(4.5)
+  })
+  it('danger sai màu → BrandInputError kèm tên trường', () => {
+    expect(() => defineBrand({ primary: '#FF4D63', danger: { soft: 'cam' } })).toThrowError(/danger\.soft/)
+  })
+})
+
 describe('defineBrand: lỗi đầu vào', () => {
   it('thiếu primary → BrandInputError field primary', () => {
     expect(() => defineBrand({} as never)).toThrowError(/primary/)

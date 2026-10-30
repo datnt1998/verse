@@ -1,6 +1,7 @@
 {
-  "QrCode.tsx": 21,
-  "Tabs.tsx": 2,
+  "brand.ts": 7,
   "controls.tsx": 2,
-  "kit.css": 55
+  "kit.css": 57,
+  "QrCode.tsx": 21,
+  "Tabs.tsx": 2
 }

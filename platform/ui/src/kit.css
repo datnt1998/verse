@@ -141,6 +141,18 @@
 .m-sheet-title{display:flex;align-items:baseline;justify-content:space-between;padding:2px 16px 6px}
 .m-sheet-title h2{margin:0;font-size:18px;font-weight:600}
 .m-sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.m-sheet-home{flex:0 0 auto;height:26px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.m-sheet-home span{width:134px;height:5px;border-radius:3px;background:#EDEDEF;opacity:.85}
+/* Tấm theo artboard điện thoại (Viderse MSettings/Settings): góc 22, nền card,
+   tiêu đề 16px + phụ đề, grabber 36×4 trên hàng 8/2, cao tối đa 86%. Tấm mặc
+   định (Noverse) giữ nguyên 26/18px. */
+.m-sheet--md{background:var(--color-card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
+.m-sheet--md .m-drag{height:14px;min-height:14px;padding:8px 0 2px}
+.m-sheet--md .m-drag span{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
+.m-sheet--md .m-sheet-title{flex-direction:column;align-items:stretch;gap:3px;padding:6px 16px 10px}
+.m-sheet--md .m-sheet-title h2{font-size:16px;font-weight:600}
+.m-sheet-sub{font-size:12.5px;line-height:1.5;color:var(--kit-fg-sub)}
+
 @keyframes m-sheet-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes m-sheet-out{to{transform:translateY(100%)}}
 @keyframes m-fade{from{opacity:0}to{opacity:1}}

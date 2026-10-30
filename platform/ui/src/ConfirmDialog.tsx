@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, surface, kit } from './tokens.stylex'
-import { Button } from './Button'
+import { Button, type ButtonProps } from './Button'
 import { Checkbox, RadioDot } from './controls'
 import { AgentOrb, type AgentKind } from './AgentOrb'
 import { Icon } from './Icon'
@@ -154,6 +154,9 @@ export type ConfirmDialogProps = {
   onConfirm: (choice: string) => void | Promise<void>; onClose: (accepted?: boolean) => void
   /** chuỗi cố định, hoặc hàm theo lựa chọn radio; trả undefined → không hiện toast */
   successMessage?: string | ((choice: string) => string | undefined); undo?: () => void; inline?: boolean
+  /** cỡ nút ở chân hộp; mặc định 'md' (36px, artboard Dialogs). Viderse truyền
+   *  'compact' (32px) cho những hộp mà artboard Settings vẽ bằng `ghost btn`. */
+  size?: ButtonProps['size']
 }
 export const HOLD_DURATION = 1200
 export const matchesConfirmation = (input: string, phrase: string) => input.trim() === phrase
@@ -173,7 +176,7 @@ export function isConfirmationRemembered(user: string, kind: string) {
   try { return localStorage.getItem(rememberKey(user, kind)) === '1' } catch { return false }
 }
 
-export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, disabledReason, remember, secondary, onConfirm, onClose, successMessage, undo, inline }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, disabledReason, remember, secondary, onConfirm, onClose, successMessage, undo, inline, size = 'md' }: ConfirmDialogProps) {
   const L = getKitLabels()
   const cancelText = cancelLabel ?? L.cancel
   const pendingText = pendingLabel ?? L.confirm.pendingGeneric
@@ -291,8 +294,8 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
       {phrase && <div {...stylex.props(sx.phraseCol, shaking && sx.shaking)}><label htmlFor={`${id}-typed`} {...stylex.props(sx.phraseLabel)}>{L.confirm.typeToConfirmPre} <span className="mono" style={{ color: 'var(--color-fg)', background: 'var(--line-1)', padding: '1px 5px', borderRadius: 4 }}>{phrase}</span> {L.confirm.typeToConfirmPost}</label><div {...stylex.props(sx.typedWrap)}><input id={`${id}-typed`} className={`mono kit-frame ${stylex.props(sx.typed, typed.length > 0 && !phrase.startsWith(typed) ? sx.typedBad : sx.typedOk).className}`} value={typed} autoComplete="off" spellCheck={false} placeholder={phrase} aria-invalid={typed.length > 0 && !phrase.startsWith(typed)} onChange={(e) => setTyped(e.target.value)} />{matched && <Icon name="tick-circle" size={16} {...stylex.props(sx.tick)} />}</div><span id={`${id}-typed-hint`} {...stylex.props(sx.hint, matched ? sx.hintOk : sx.hintIdle)}>{matched ? L.confirm.typedHintOk : L.confirm.typedHintIdle}</span></div>}
       {disabledReason && <div {...stylex.props(sx.note)}><Icon name="warning-2" size={15} style={{ color: 'var(--color-warn)', flexShrink: 0 }} /><span>{disabledReason}</span></div>}
       {error && <div role="alert" {...stylex.props(sx.error)}><Icon name="warning-2" size={15} {...stylex.props(sx.errorIcon)} /><span>{error}</span></div>}
-      <div {...stylex.props(sx.footer)}>{remember && <Checkbox checked={dontAsk} onChange={setDontAsk} label={L.confirm.dontAskAgain} style={{ minHeight: 0, gap: 8, color: 'var(--color-fg-3)', fontSize: 12.5, whiteSpace: 'nowrap' }} />}<span {...stylex.props(sx.spacer)} /><Button ref={cancel} onClick={() => close()}>{cancelText}</Button>{secondary && <Button data-secondary variant={secondary.danger ? 'dsoft' : 'ghost'} disabled={busy} onClick={() => void run(secondary.onConfirm, secondary.successMessage ?? null)}>{secondary.label}</Button>}
-      <Button ref={primary} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || !!disabledReason || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
+      <div {...stylex.props(sx.footer)}>{remember && <Checkbox checked={dontAsk} onChange={setDontAsk} label={L.confirm.dontAskAgain} style={{ minHeight: 0, gap: 8, color: 'var(--color-fg-3)', fontSize: 12.5, whiteSpace: 'nowrap' }} />}<span {...stylex.props(sx.spacer)} /><Button ref={cancel} size={size} onClick={() => close()}>{cancelText}</Button>{secondary && <Button data-secondary size={size} variant={secondary.danger ? 'dsoft' : 'ghost'} disabled={busy} onClick={() => void run(secondary.onConfirm, secondary.successMessage ?? null)}>{secondary.label}</Button>}
+      <Button ref={primary} size={size} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || !!disabledReason || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
     </div>
   </div>
   return inline ? content : createPortal(content, document.body)

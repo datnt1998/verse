@@ -369,13 +369,17 @@ export const kit = stylex.defineVars({
   '--kit-errb-22': 'rgba(255,159,168,.22)',
   '--kit-errb-25': 'rgba(255,159,168,.25)',
   '--kit-errb-28': 'rgba(255,159,168,.28)',
+  '--kit-errb-45': 'rgba(255,159,168,.45)', // viền nút warn-ghost (.ghost.btn-warn)
   '--kit-errb-55': 'rgba(255,159,168,.55)',
   '--kit-err-deep': '#E5484D',      // nút danger
   '--kit-err-deep-hi': '#EC5D62',   // nút danger :hover
+  '--kit-err-deep-fg': '#FFFFFF',   // chữ trên nút danger (brand cam dùng mực tối)
   '--kit-err-strong': '#FF7A84',    // chấm badge lỗi · icon chip danger
   '--kit-err-soft': '#FFB3BA',      // chữ mục/thông điệp lỗi
   '--kit-err-text': '#FFC9CE',      // chữ trên nền đỏ mờ
   '--kit-err-bright': '#FF9FA8',    // icon lỗi/chữ banner lỗi
+  '--kit-err-ghost-ink': '#FFC9CE', // chữ nút warn-ghost (nền trong, viền cam)
+  '--kit-fg-sub': '#8B8B97',        // phụ đề mờ (sheet: subtitle dưới tiêu đề)
   /* Xanh ok */
   '--kit-ok-5': 'rgba(166,237,193,.05)',  // Main.dc.html › round live của Trọng tài (dự phòng)
   '--kit-ok-25': 'rgba(166,237,193,.25)', // viền round live của Trọng tài

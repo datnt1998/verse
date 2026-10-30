@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button } from './Button'
+import { Button, type ButtonProps } from './Button'
 import { Icon } from './Icon'
+import type { IconName } from './iconNames'
 import { AgentOrb, type AgentKind } from './AgentOrb'
 import { agent as agentVars } from './tokens.stylex'
 
@@ -10,7 +11,18 @@ export type BannerProps = {
   tone: 'info' | 'success' | 'warning' | 'error' | 'agent'
   /** trợ lý đang nói khi `tone="agent"` (khoá của AgentOrb); mặc định `writer` */
   agent?: AgentKind
-  title: string; children?: ReactNode; action: { label: string; onClick: () => void }
+  title: string; children?: ReactNode
+  /** Nút nhỏ bên phải phần chữ (Kit › “Thông báo trong trang”). */
+  action?: { label: string; onClick: () => void; size?: ButtonProps['size'] }
+  /** Hàng nút dưới phần chữ khi nhãn dài hoặc cần 2 hành động (Settings › Lưu trữ “Đã chuyển”). */
+  actions?: { label: string; onClick: () => void; variant?: ButtonProps['variant']; icon?: ReactNode; size?: ButtonProps['size'] }[]
+  /** Đè biểu tượng của tông (vd băng “Tạm chặn” dùng i-clock trên nền cam). */
+  icon?: IconName
+  /** Vai trò a11y của băng; mặc định status, riêng tone="error" là alert. */
+  role?: 'status' | 'alert'
+  /** `top` = icon căn dòng đầu thay vì giữa khối (băng sự cố trên điện thoại,
+   *  artboard MSettings › Tài khoản nền tảng). */
+  align?: 'center' | 'top'
 }
 
 // Màu + biểu tượng theo Kit.dc.html › “Thông báo trong trang”: info-circle · tick-circle · warning-2 · danger.
@@ -35,14 +47,21 @@ const styles = stylex.create({
     display: 'flex', gap: 12, alignItems: 'center', paddingTop: 10, paddingBottom: 10,
     paddingInline: 12, borderRadius: 12, borderWidth: 1, borderStyle: 'solid',
   },
+  top: { alignItems: 'flex-start' },
   tone: (background: string, border: string) => ({ backgroundColor: background, borderColor: border }),
   body: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column' },
   title: { fontSize: 13, fontWeight: 500 },
+  actions: { display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' as const, alignItems: 'center' },
   text: { fontSize: 12, color: 'var(--color-fg-3)' },
 })
 
-export function Banner({ tone, title, children, action, agent = 'writer' }: BannerProps) {
+export function Banner({ tone, title, children, action, actions, agent = 'writer', icon, role, align = 'center' }: BannerProps) {
   const look = tone === 'agent' ? AGENT_LOOK[agent] : tones[tone]
-  const sx = stylex.props(styles.root, styles.tone(look.background, look.border))
-  return <div role={tone === 'error' ? 'alert' : 'status'} className={sx.className} style={sx.style}>{tone === 'agent' ? <AgentOrb agent={agent} size={17} /> : <Icon name={tones[tone].icon} size={17} style={{ color: look.color }} />}<span {...stylex.props(styles.body)}><span {...stylex.props(styles.title)}>{title}</span>{children && <span {...stylex.props(styles.text)}>{children}</span>}</span><Button size="sm" onClick={action.onClick}>{action.label}</Button></div>
+  const glyph: IconName = icon ?? (tone === 'agent' ? 'info-circle' : tones[tone].icon)
+  const ariaRole = role ?? (tone === 'error' ? 'alert' : 'status')
+  const sx = stylex.props(styles.root, align === 'top' && styles.top, styles.tone(look.background, look.border))
+  const row = actions && actions.length > 0
+    ? <span {...stylex.props(styles.actions)}>{actions.map((a) => <Button key={a.label} size={a.size ?? 'sm'} variant={a.variant ?? 'ghost'} icon={a.icon} onClick={a.onClick}>{a.label}</Button>)}</span>
+    : null
+  return <div role={ariaRole} className={sx.className} style={sx.style}>{tone === 'agent' ? <AgentOrb agent={agent} size={17} /> : <Icon name={glyph} size={17} style={{ color: look.color, marginTop: align === 'top' ? 2 : undefined }} />}<span {...stylex.props(styles.body)}><span {...stylex.props(styles.title)}>{title}</span>{children && <span {...stylex.props(styles.text)}>{children}</span>}{row}</span>{action && <Button size={action.size ?? 'sm'} onClick={action.onClick}>{action.label}</Button>}</div>
 }

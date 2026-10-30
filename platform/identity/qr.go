@@ -9,11 +9,16 @@ import (
 
 // QRSVG 把文本编码为自包含的 SVG 二维码（含 4 模块静区），供网页直接内嵌。
 func QRSVG(text string) (string, error) {
+	return QRSVGQuiet(text, 4)
+}
+
+// QRSVGQuiet 与 QRSVG 相同，但静区宽度由调用方指定（模块数）。二维码所在
+// 底板自带白边时可用 2 模块静区，墨迹占满更大的面积。
+func QRSVGQuiet(text string, quiet int) (string, error) {
 	code, err := qr.Encode(text, qr.M)
 	if err != nil {
 		return "", err
 	}
-	const quiet = 4
 	size := code.Size + 2*quiet
 	var path strings.Builder
 	for y := 0; y < code.Size; y++ {

@@ -4,7 +4,7 @@
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
-import { color, line, kit } from './tokens.stylex'
+import { color, line, kit, radius, surface } from './tokens.stylex'
 import { Icon } from './Icon'
 import { pushEscapeLayer } from './Overlays'
 import './kit.css'
@@ -39,7 +39,16 @@ const sx = stylex.create({
     display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 12, paddingBottom: 16,
     paddingInline: padX, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-2'],
   }),
-  box: { display: 'flex', flexDirection: 'column' },
+  // Mặt hộp theo Kit/04-components: surface-3, viền line-4, bo dock, shadow dialog.
+  // Caller cũ chỉ có class .dlg (Noverse tự vẽ) — kit vẽ sẵn để app khác không phải
+  // khai lại; .dlg của Noverse (không layer) trùng giá trị nên không đổi hình.
+  box: {
+    display: 'flex', flexDirection: 'column',
+    backgroundColor: color['--color-surface-3'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
+    borderRadius: radius['--radius-dock'],
+    boxShadow: surface['--dialog-shadow'],
+  },
 })
 // Ngăn xếp dialog đang mở (thứ tự mount) — Esc chỉ đóng cái trên cùng.
 const openDialogs: HTMLElement[] = []

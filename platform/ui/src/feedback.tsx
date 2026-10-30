@@ -31,12 +31,13 @@ const bar = stylex.create({
 
 export function ProgressBar({ value, tone = 'neutral', height = 3, style }: {
   /** 0–100 */
-  value: number; tone?: 'neutral' | 'writer' | 'ok' | 'warn' | 'err'; height?: number; style?: CSSProperties
+  value: number; tone?: 'neutral' | 'writer' | 'info' | 'ok' | 'warn' | 'err'; height?: number; style?: CSSProperties
 }) {
   const fill = tone === 'writer' ? 'var(--grad-writer-progress)'
     : tone === 'ok' ? 'var(--color-ok)'
     : tone === 'warn' ? 'var(--color-warn)'
     : tone === 'err' ? 'var(--color-err)'
+    : tone === 'info' ? 'var(--color-info)'
     : 'var(--color-fg)'
   const outer = stylex.props(bar.track(`${height}px`))
   const inner = stylex.props(bar.fill(`${Math.min(100, Math.max(0, value))}%`, `${height}px`, fill))

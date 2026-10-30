@@ -27,12 +27,16 @@ const styles = stylex.create({
   quiet: { backgroundColor: 'transparent', color: color['--color-fg-3'] },
   ghostHover: { backgroundColor: { default: 'transparent', ':hover': W7 } },
   quietHover: { color: { default: color['--color-fg-3'], ':hover': color['--color-fg'] } },
-  danger: { backgroundColor: kit['--kit-err-deep'], color: 'white', fontWeight: 600 },
+  danger: { backgroundColor: kit['--kit-err-deep'], color: kit['--kit-err-deep-fg'], fontWeight: 600 },
   dangerHover: {
     backgroundColor: { default: kit['--kit-err-deep'], ':hover': kit['--kit-err-deep-hi'] },
     boxShadow: { default: 'none', ':hover': kit['--kit-ring-danger'] },
   },
   dsoft: { backgroundColor: kit['--kit-err-12'], color: kit['--kit-err-text'], borderColor: kit['--kit-errb-28'] },
+  /* `.ghost.btn-warn` của artboard: nền trong, viền cam .45, chữ cam nhạt, hover
+     nền cam .08 — dùng cho nút xoá nhóm/nhóm phụ (Settings › Lưu trữ). */
+  warnGhost: { backgroundColor: 'transparent', color: kit['--kit-err-ghost-ink'], borderColor: kit['--kit-errb-45'] },
+  warnGhostHover: { backgroundColor: { default: 'transparent', ':hover': kit['--kit-err-8'] } },
   dsoftHover: { backgroundColor: { default: kit['--kit-err-12'], ':hover': kit['--kit-err-20'] } },
   icon: {
     width: 36, height: 36, paddingInline: 0, borderWidth: 0, borderStyle: 'none',
@@ -40,6 +44,14 @@ const styles = stylex.create({
     fontSize: 14, fontWeight: 400, backgroundColor: 'transparent', color: color['--color-fg-3'],
   },
   sm: { height: 30, paddingInline: 10, fontSize: 12, borderRadius: 8 },
+  /* Cỡ lớn của mobile/CTA cuối thẻ: 44px, chữ 14, góc 12 (artboard .btn 44px). */
+  lg: { height: 44, paddingInline: 16, fontSize: 14, borderRadius: 12 },
+  /* Cỡ gọn của desktop trong Cài đặt: 32px, pad 12, góc 8, chữ 13 (artboard
+     Settings `.btn`; Onboard dùng cùng chiều cao cho nút ghost). */
+  compact: { height: 32, paddingInline: 12, borderRadius: 8, fontSize: 13, fontWeight: 400 },
+  /* CTA chính của điện thoại: 48px, pad 16, góc 13, chữ 15/600, gap 8
+     (artboard MChannel/MCreate/MCompVideo). */
+  xl: { height: 48, paddingInline: 16, borderRadius: 13, fontSize: 15, fontWeight: 600, gap: 8 },
   cell: { display: 'inline-grid', alignItems: 'center', justifyItems: 'center', minWidth: 0 },
   slot: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', gap: 7 },
   slotCenter: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7 },
@@ -57,8 +69,8 @@ const styles = stylex.create({
 })
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'ghost' | 'quiet' | 'icon' | 'icon-only' | 'dsoft' | 'danger'
-  size?: 'sm' | 'md'
+  variant?: 'primary' | 'ghost' | 'quiet' | 'icon' | 'icon-only' | 'dsoft' | 'danger' | 'warnGhost'
+  size?: 'sm' | 'md' | 'compact' | 'lg' | 'xl'
   /** hiển thị phím tắt bên phải (vd 'Esc') */
   kbd?: ReactNode
   icon?: ReactNode
@@ -83,13 +95,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const kind = iconOnly ? 'icon' : variant
   const sx = stylex.props(
     styles.base,
+    // `compact` đứng trước variant: nó mang fw 400 của `.btn`, còn `primary`/`danger`
+    // phải giữ 600 của mình (`.btn.primary` của artboard). Đặt sau variant là đè mất 600.
+    size === 'compact' && styles.compact,
     kind === 'primary' && styles.primary,
     kind === 'ghost' && styles.ghost,
     kind === 'quiet' && styles.quiet,
     kind === 'danger' && styles.danger,
     kind === 'dsoft' && styles.dsoft,
+    kind === 'warnGhost' && styles.warnGhost,
     kind === 'icon' && styles.icon,
     size === 'sm' && styles.sm,
+    size === 'lg' && styles.lg,
+    size === 'xl' && styles.xl,
     off ? styles.disabled : [
       styles.enabled,
       kind === 'primary' && styles.primaryHover,
@@ -97,6 +115,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       kind === 'quiet' && styles.quietHover,
       kind === 'danger' && styles.dangerHover,
       kind === 'dsoft' && styles.dsoftHover,
+      kind === 'warnGhost' && styles.warnGhostHover,
     ],
   )
   const button = <button ref={ref} type="button" {...rest} disabled={off} aria-busy={pending || undefined}
