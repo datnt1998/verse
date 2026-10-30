@@ -361,7 +361,7 @@ func TestIlikePatternEscapes(t *testing.T) {
 		`%_\`:  `%\%\_\\%`,
 	}
 	for in, want := range cases {
-		if got := ilikePattern(in); got != want {
+		if got := likePattern(in); got != want {
 			t.Fatalf("%q → %q muốn %q", in, got, want)
 		}
 	}

@@ -29,7 +29,7 @@ WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
-  AND ($6::text = '' OR v.title ILIKE $6::text)
+  AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
 `
 
 type CountRivalVideosParams struct {
@@ -42,7 +42,8 @@ type CountRivalVideosParams struct {
 }
 
 // Tổng video khớp bộ lọc của một kênh (channel_id NOT NULL) hoặc mọi kênh
-// (channel_id NULL). q là mẫu ILIKE đã escape sẵn (” = không lọc).
+// (channel_id NULL). q là mẫu LIKE đã escape sẵn (” = không lọc); so với
+// title_fold sau khi gấp q bằng fold_title (không phân biệt hoa thường, dấu).
 func (q *Queries) CountRivalVideos(ctx context.Context, arg CountRivalVideosParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countRivalVideos,
 		arg.ChannelID,
@@ -239,7 +240,7 @@ FROM rival_videos v
 WHERE (NOT $1::bool OR v.duration_sec >= $2::int)
   AND ($3::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $4::timestamptz - $3::int * interval '1 day')
-  AND ($5::text = '' OR v.title ILIKE $5::text)
+  AND ($5::text = '' OR v.title_fold LIKE fold_title($5::text))
   AND ($6::text IS NULL
        OR ($7::timestamptz IS NOT NULL AND
            (COALESCE(v.uploaded_at, v.published_at) < $7::timestamptz
@@ -261,9 +262,27 @@ type PageAllRivalVideosByNewestParams struct {
 	PageSize   int64              `json:"page_size"`
 }
 
+type PageAllRivalVideosByNewestRow struct {
+	ID              string             `json:"id"`
+	ChannelID       string             `json:"channel_id"`
+	Title           string             `json:"title"`
+	DurationSec     pgtype.Int4        `json:"duration_sec"`
+	ViewCount       pgtype.Int8        `json:"view_count"`
+	PublishedText   pgtype.Text        `json:"published_text"`
+	PublishedAt     pgtype.Timestamptz `json:"published_at"`
+	UploadedAt      pgtype.Timestamptz `json:"uploaded_at"`
+	UploadCheckedAt pgtype.Timestamptz `json:"upload_checked_at"`
+	HasCaptions     pgtype.Bool        `json:"has_captions"`
+	Score           pgtype.Float8      `json:"score"`
+	Position        int64              `json:"position"`
+	Origin          string             `json:"origin"`
+	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
 // "Mới nhất" gộp mọi kênh: giờ đăng (chính xác rồi ước lượng) DESC NULLS
 // LAST, id ASC — cùng khoá với rival_videos_published_idx.
-func (q *Queries) PageAllRivalVideosByNewest(ctx context.Context, arg PageAllRivalVideosByNewestParams) ([]RivalVideo, error) {
+func (q *Queries) PageAllRivalVideosByNewest(ctx context.Context, arg PageAllRivalVideosByNewestParams) ([]PageAllRivalVideosByNewestRow, error) {
 	rows, err := q.db.Query(ctx, pageAllRivalVideosByNewest,
 		arg.LongOnly,
 		arg.LongMinSec,
@@ -278,9 +297,9 @@ func (q *Queries) PageAllRivalVideosByNewest(ctx context.Context, arg PageAllRiv
 		return nil, err
 	}
 	defer rows.Close()
-	items := []RivalVideo{}
+	items := []PageAllRivalVideosByNewestRow{}
 	for rows.Next() {
-		var i RivalVideo
+		var i PageAllRivalVideosByNewestRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ChannelID,
@@ -317,7 +336,7 @@ WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
-  AND ($6::text = '' OR v.title ILIKE $6::text)
+  AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
        OR ($8::float8 IS NOT NULL AND
            (v.score < $8::float8
@@ -340,10 +359,28 @@ type PageRivalVideosByOutlierParams struct {
 	PageSize    int64              `json:"page_size"`
 }
 
+type PageRivalVideosByOutlierRow struct {
+	ID              string             `json:"id"`
+	ChannelID       string             `json:"channel_id"`
+	Title           string             `json:"title"`
+	DurationSec     pgtype.Int4        `json:"duration_sec"`
+	ViewCount       pgtype.Int8        `json:"view_count"`
+	PublishedText   pgtype.Text        `json:"published_text"`
+	PublishedAt     pgtype.Timestamptz `json:"published_at"`
+	UploadedAt      pgtype.Timestamptz `json:"uploaded_at"`
+	UploadCheckedAt pgtype.Timestamptz `json:"upload_checked_at"`
+	HasCaptions     pgtype.Bool        `json:"has_captions"`
+	Score           pgtype.Float8      `json:"score"`
+	Position        int64              `json:"position"`
+	Origin          string             `json:"origin"`
+	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
 // Trang keyset theo điểm nổi trội (score DESC NULLS LAST, id ASC). Cursor =
 // (cursor_score, cursor_id) của dòng cuối trang trước; cursor_score NULL bao
 // hết khoá sau khi mọi score khác null đã qua.
-func (q *Queries) PageRivalVideosByOutlier(ctx context.Context, arg PageRivalVideosByOutlierParams) ([]RivalVideo, error) {
+func (q *Queries) PageRivalVideosByOutlier(ctx context.Context, arg PageRivalVideosByOutlierParams) ([]PageRivalVideosByOutlierRow, error) {
 	rows, err := q.db.Query(ctx, pageRivalVideosByOutlier,
 		arg.ChannelID,
 		arg.LongOnly,
@@ -359,9 +396,9 @@ func (q *Queries) PageRivalVideosByOutlier(ctx context.Context, arg PageRivalVid
 		return nil, err
 	}
 	defer rows.Close()
-	items := []RivalVideo{}
+	items := []PageRivalVideosByOutlierRow{}
 	for rows.Next() {
-		var i RivalVideo
+		var i PageRivalVideosByOutlierRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ChannelID,
@@ -398,7 +435,7 @@ WHERE v.channel_id = $1
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
-  AND ($6::text = '' OR v.title ILIKE $6::text)
+  AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
        OR v.position > $8::bigint
        OR (v.position = $8::bigint AND v.id > $7::text))
@@ -418,8 +455,26 @@ type PageRivalVideosByPositionParams struct {
 	PageSize   int64              `json:"page_size"`
 }
 
+type PageRivalVideosByPositionRow struct {
+	ID              string             `json:"id"`
+	ChannelID       string             `json:"channel_id"`
+	Title           string             `json:"title"`
+	DurationSec     pgtype.Int4        `json:"duration_sec"`
+	ViewCount       pgtype.Int8        `json:"view_count"`
+	PublishedText   pgtype.Text        `json:"published_text"`
+	PublishedAt     pgtype.Timestamptz `json:"published_at"`
+	UploadedAt      pgtype.Timestamptz `json:"uploaded_at"`
+	UploadCheckedAt pgtype.Timestamptz `json:"upload_checked_at"`
+	HasCaptions     pgtype.Bool        `json:"has_captions"`
+	Score           pgtype.Float8      `json:"score"`
+	Position        int64              `json:"position"`
+	Origin          string             `json:"origin"`
+	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
 // "Mới nhất" của một kênh: position ASC (nhỏ = mới), id ASC.
-func (q *Queries) PageRivalVideosByPosition(ctx context.Context, arg PageRivalVideosByPositionParams) ([]RivalVideo, error) {
+func (q *Queries) PageRivalVideosByPosition(ctx context.Context, arg PageRivalVideosByPositionParams) ([]PageRivalVideosByPositionRow, error) {
 	rows, err := q.db.Query(ctx, pageRivalVideosByPosition,
 		arg.ChannelID,
 		arg.LongOnly,
@@ -435,9 +490,9 @@ func (q *Queries) PageRivalVideosByPosition(ctx context.Context, arg PageRivalVi
 		return nil, err
 	}
 	defer rows.Close()
-	items := []RivalVideo{}
+	items := []PageRivalVideosByPositionRow{}
 	for rows.Next() {
-		var i RivalVideo
+		var i PageRivalVideosByPositionRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ChannelID,
@@ -474,7 +529,7 @@ WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
-  AND ($6::text = '' OR v.title ILIKE $6::text)
+  AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
        OR ($8::bigint IS NOT NULL AND
            (v.view_count < $8::bigint
@@ -497,8 +552,26 @@ type PageRivalVideosByViewsParams struct {
 	PageSize    int64              `json:"page_size"`
 }
 
+type PageRivalVideosByViewsRow struct {
+	ID              string             `json:"id"`
+	ChannelID       string             `json:"channel_id"`
+	Title           string             `json:"title"`
+	DurationSec     pgtype.Int4        `json:"duration_sec"`
+	ViewCount       pgtype.Int8        `json:"view_count"`
+	PublishedText   pgtype.Text        `json:"published_text"`
+	PublishedAt     pgtype.Timestamptz `json:"published_at"`
+	UploadedAt      pgtype.Timestamptz `json:"uploaded_at"`
+	UploadCheckedAt pgtype.Timestamptz `json:"upload_checked_at"`
+	HasCaptions     pgtype.Bool        `json:"has_captions"`
+	Score           pgtype.Float8      `json:"score"`
+	Position        int64              `json:"position"`
+	Origin          string             `json:"origin"`
+	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
 // Trang keyset theo lượt xem (view_count DESC NULLS LAST, id ASC).
-func (q *Queries) PageRivalVideosByViews(ctx context.Context, arg PageRivalVideosByViewsParams) ([]RivalVideo, error) {
+func (q *Queries) PageRivalVideosByViews(ctx context.Context, arg PageRivalVideosByViewsParams) ([]PageRivalVideosByViewsRow, error) {
 	rows, err := q.db.Query(ctx, pageRivalVideosByViews,
 		arg.ChannelID,
 		arg.LongOnly,
@@ -514,9 +587,9 @@ func (q *Queries) PageRivalVideosByViews(ctx context.Context, arg PageRivalVideo
 		return nil, err
 	}
 	defer rows.Close()
-	items := []RivalVideo{}
+	items := []PageRivalVideosByViewsRow{}
 	for rows.Next() {
-		var i RivalVideo
+		var i PageRivalVideosByViewsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ChannelID,

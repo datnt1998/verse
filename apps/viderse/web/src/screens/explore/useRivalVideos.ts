@@ -10,7 +10,7 @@ import { useResource } from '../../data/useResource'
 
 export const VIDEO_PAGE_LIMIT = 200
 
-export type VideosFilter = { scope: string; sort: VideoSort; long: boolean; within: 0 | 7 | 30 | 90; q?: string }
+export type VideosFilter = { scope: string; sort: VideoSort; long: boolean; within: 0 | 7 | 30 | 90; q: string }
 const queryOf = (f: VideosFilter, cursor: string | null): VideoQuery => ({
   sort: f.sort,
   long: f.long ? 1 : 0,
@@ -22,8 +22,11 @@ const queryOf = (f: VideosFilter, cursor: string | null): VideoQuery => ({
 
 export type RivalVideos = {
   items: Video[]
-  /** `total` của trang đầu mới nhất (sau lọc) — hiện "24 / 1.284 video". */
+  /** `total` của trang đầu mới nhất (sau lọc và tìm) — hiện "24 / 1.284 video". */
   total: number | undefined
+  /** chuỗi tìm của dữ liệu đang hiện: khi đổi tìm, dữ liệu cũ còn hiện tới khi
+   *  trang mới về, nên dòng đếm và khối "không có kết quả" đọc chuỗi này. */
+  shownQ: string
   initialLoading: boolean
   error: unknown
   loadingMore: boolean
@@ -35,7 +38,7 @@ export type RivalVideos = {
 
 export function useRivalVideos(filter: VideosFilter): RivalVideos {
   const first = useResource(
-    keys.rivalVideos(filter.scope, filter.sort, filter.long ? 1 : 0, filter.within),
+    keys.rivalVideos(filter.scope, filter.sort, filter.long ? 1 : 0, filter.within, filter.q),
     ({ signal }) => listRivalVideos(filter.scope, queryOf(filter, null), signal),
     { keepPrevious: true },
   )
@@ -49,13 +52,19 @@ export function useRivalVideos(filter: VideosFilter): RivalVideos {
   scopeRef.current = filter
 
   // Bộ lọc đổi → bỏ hết trang cũ; dữ liệu mới (hoặc trang đầu do SSE làm mới)
-  // đặt lại cursor nối tiếp. Trang sau của bộ lọc mới chưa về thì chưa nối được.
+  // đặt lại cursor nối tiếp. Đang hiện tạm dữ liệu của bộ lọc trước thì chưa có
+  // cursor: cursor đó thuộc truy vấn khác.
   const firstData = first.data
+  const placeholder = first.placeholder
   useEffect(() => {
     setExtra([])
-    setCursor(firstData?.nextCursor ?? null)
+    setCursor(placeholder ? null : firstData?.nextCursor ?? null)
     setMoreError(null)
-  }, [filter.scope, filter.sort, filter.long, filter.within, filter.q, firstData])
+  }, [filter.scope, filter.sort, filter.long, filter.within, filter.q, firstData, placeholder])
+  // Cập nhật ngay trong lượt render có dữ liệu mới (mẫu "lưu từ render trước"
+  // của React) để dòng đếm không chớp chuỗi cũ một khung hình.
+  const [shownQ, setShownQ] = useState(filter.q)
+  if (!placeholder && firstData !== undefined && shownQ !== filter.q) setShownQ(filter.q)
 
   const [loadingMore, setLoadingMore] = useState(false)
   const busyRef = useRef(false)
@@ -94,8 +103,9 @@ export function useRivalVideos(filter: VideosFilter): RivalVideos {
 
   return {
     items,
-    /** `total` của trang đầu mới nhất (sau lọc) — hiện "24 / 1.284 video". */
+    /** `total` của trang đầu mới nhất (sau lọc và tìm) — hiện "24 / 1.284 video". */
     total: firstData?.total,
+    shownQ,
     initialLoading: first.initialLoading,
     error: first.error ?? moreError,
     loadingMore,

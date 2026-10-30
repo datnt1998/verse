@@ -1,11 +1,13 @@
-// Ánh xạ trạng thái quét lịch sử → giao diện thẻ (văn bản, nút, thanh tiến độ).
-// Nguồn bảng: contract history.state + các tweak state của artboard.
+// Ánh xạ trạng thái quét lịch sử → giao diện thẻ (câu, nút, thanh tiến độ).
+// Nguồn bảng: contract history.state + bảng câu 06-copy › Khám phá.
 import { describe, expect, it } from 'vitest'
 import { scanView } from './scanView'
 import type { ScanStatus } from '../../api/rivals'
 import { vi as t } from '../../i18n/vi'
 
 const tt = t.screens.explore.scanStates
+const bt = t.screens.explore.scanButtons
+const every6 = t.screens.explore.everyHours(6)
 
 const status = (history: Partial<ScanStatus['history']>, extra: Partial<ScanStatus> = {}): ScanStatus => ({
   channelId: 'r1',
@@ -20,25 +22,37 @@ const status = (history: Partial<ScanStatus['history']>, extra: Partial<ScanStat
   },
   ...extra,
 })
+const discovering = { discovery: { checkedAt: null, caughtUp: false, running: true, nextAt: null } }
 
 describe('thẻ Quét lịch sử', () => {
-  it('running → đang chạy, nút Tạm dừng', () => {
+  it.each([
+    ['running', tt.running, 'pause', bt.pause],
+    ['paused', tt.paused, 'resume', bt.resume],
+    ['error', tt.error, 'resume', bt.resume],
+    ['idle', tt.idle, 'start', bt.start],
+    ['cancelled', tt.cancelled, 'start', bt.rescan],
+  ] as const)('%s → câu và nút theo bảng câu', (state, text, action, label) => {
+    const v = scanView(status({ state }))
+    expect(v.text).toBe(text)
+    expect(v.button?.action).toBe(action)
+    expect(v.button?.label).toBe(label)
+  })
+
+  it('running → thanh tiến độ theo số đã quét / giới hạn', () => {
     const v = scanView(status({ state: 'running' }))
-    expect(v.text).toBe(tt.running)
     expect(v.live).toBe(true)
-    expect(v.button?.action).toBe('pause')
     expect(v.count).toBe('1.284 / 2.000')
     expect(v.pct).toBeCloseTo(0.642)
   })
 
-  it('queued → cũng đang chạy nhưng text chờ hàng', () => {
+  it('queued → câu chờ lượt, không có nút', () => {
     const v = scanView(status({ state: 'queued' }))
     expect(v.text).toBe(tt.queued)
     expect(v.live).toBe(true)
-    expect(v.button?.action).toBe('pause')
+    expect(v.button).toBeNull()
   })
 
-  it('backoff → limited kèm giờ tự thử lại (HH:MM)', () => {
+  it('backoff → limited kèm giờ tự thử lại (HH:MM), nút Tạm dừng', () => {
     const at = new Date(Date.now() + 30 * 60 * 1000)
     const v = scanView(status({ state: 'backoff', nextAttemptAt: at.toISOString() }))
     const time = at.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
@@ -47,78 +61,43 @@ describe('thẻ Quét lịch sử', () => {
     expect(v.button?.action).toBe('pause')
   })
 
-  it('backoff thiếu nextAttemptAt → text không giờ', () => {
-    const v = scanView(status({ state: 'backoff', nextAttemptAt: null }))
-    expect(v.text).toBe(tt.limitedNoTime)
+  it('backoff thiếu nextAttemptAt → câu "sau ít phút"', () => {
+    expect(scanView(status({ state: 'backoff', nextAttemptAt: null })).text).toBe(tt.limitedNoTime)
   })
 
-  it('paused → đã tạm dừng, nút Tiếp tục', () => {
-    const v = scanView(status({ state: 'paused' }))
-    expect(v.text).toBe(tt.paused)
-    expect(v.live).toBe(false)
-    expect(v.button?.action).toBe('resume')
-  })
-
-  it('capped → done, nút Quét lại (start)', () => {
-    const v = scanView(status({ state: 'capped' }))
-    // Artboard: "Đã quét đủ giới hạn. Video mới vẫn được kiểm tra mỗi giờ." —
-    // chu kỳ lấy từ rescanHours của API (6 giờ ở fixture này).
-    expect(v.text).toBe(tt.capped(t.screens.explore.everyHours(6)))
+  it('capped → số đã quét bằng giới hạn và chu kỳ từ rescanHours, nút Quét lại', () => {
+    const v = scanView(status({ state: 'capped' }, { indexedVideos: 2000 }))
+    expect(v.text).toBe(tt.capped('2.000', every6))
     expect(v.button?.action).toBe('start')
-    expect(v.button?.label).toBe(t.screens.explore.scanButtons.rescan)
+    expect(v.button?.label).toBe(bt.rescan)
+    expect(scanView(status({ state: 'capped' }, { indexedVideos: 2000, rescanHours: 1 })).text)
+      .toBe(tt.capped('2.000', 'mỗi giờ'))
   })
 
-  it('capped với chu kỳ 1 giờ → đúng câu "mỗi giờ" của artboard', () => {
-    const v = scanView(status({ state: 'capped' }, { rescanHours: 1 }))
-    expect(v.text).toBe('Đã quét đủ giới hạn. Video mới vẫn được kiểm tra mỗi giờ.')
-  })
-
-  it('complete → done hết lịch sử, nút Quét lại', () => {
+  it('complete → tổng video của kênh, không có nút', () => {
     const v = scanView(status({ state: 'complete', reachedEnd: true }))
-    expect(v.text).toBe(tt.complete(t.screens.explore.everyHours(6)))
-    expect(v.button?.action).toBe('start')
+    expect(v.text).toBe(tt.complete('1.284', every6))
+    expect(v.button).toBeNull()
   })
 
-  it('idle → chưa quét, nút Quét lịch sử', () => {
-    const v = scanView(status({ state: 'idle', jobId: null }))
-    expect(v.text).toBe(tt.idle)
-    expect(v.button?.action).toBe('start')
-    expect(v.button?.label).toBe(t.screens.explore.scanButtons.start)
-  })
-
-  it('cancelled → đã huỷ, nút Quét lại', () => {
-    const v = scanView(status({ state: 'cancelled' }))
-    expect(v.text).toBe(tt.cancelled)
-    expect(v.button?.action).toBe('start')
-  })
-
-  it('error → dùng recovery của API, nút Tiếp tục', () => {
-    const v = scanView(status({ state: 'error', recovery: 'Thử lại lúc 15:30.', errorCode: 'rate_limited' }))
-    expect(v.text).toBe('Thử lại lúc 15:30.')
-    expect(v.button?.action).toBe('resume')
-  })
-
-  it('error không recovery → text lỗi chung', () => {
-    const v = scanView(status({ state: 'error', recovery: null, error: null }))
-    expect(v.text).toBe(tt.error)
-  })
-
-  it('discovery.running lấn át text khi lịch sử đứng yên (idle)', () => {
-    const v = scanView(status({ state: 'idle', jobId: null }, { discovery: { checkedAt: null, caughtUp: false, running: true, nextAt: null } }))
+  it.each(['idle', 'complete', 'cancelled'] as const)('%s + đang kiểm tra video mới → câu kiểm tra, không có nút', (state) => {
+    const v = scanView(status({ state }, discovering))
     expect(v.text).toBe(tt.discovery)
     expect(v.live).toBe(true)
+    expect(v.button).toBeNull()
   })
 
-  it('discovery.running không lấn át text running/queued/paused', () => {
-    const s = status({ state: 'running' }, { discovery: { checkedAt: null, caughtUp: false, running: true, nextAt: null } })
-    expect(scanView(s).text).toBe(tt.running)
+  it('đang kiểm tra video mới không lấn át running/paused/capped', () => {
+    expect(scanView(status({ state: 'running' }, discovering)).text).toBe(tt.running)
+    expect(scanView(status({ state: 'paused' }, discovering)).text).toBe(tt.paused)
+    expect(scanView(status({ state: 'capped' }, { ...discovering, indexedVideos: 2000 })).text).toBe(tt.capped('2.000', every6))
   })
 
-  it('cap nhỏ hơn indexed → pct kẹp 1 và valuemax theo cap', () => {
+  it('giới hạn nhỏ hơn số đã quét → pct kẹp 1, số hiện theo giới hạn', () => {
     const v = scanView(status({ state: 'capped' }, { historyCap: 500, indexedVideos: 900 }))
     expect(v.pct).toBe(1)
     expect(v.now).toBe(500)
-    // Số hiện không vượt giới hạn đang đặt (tránh "20.000 / 2.000" phi lý)
     expect(v.count).toBe('500 / 500')
+    expect(v.text).toBe(tt.capped('500', every6))
   })
 })

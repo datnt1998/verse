@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, Icon, Spinner } from '@noverse/ui'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
+import { useDebounced } from '../../../lib/useDebounced'
 import { checkModel, listModels, type AiModel, type AiProvider, type ModelFilter } from '../../../api/ai'
 import { aiCopy, capsLine } from '../../../i18n/ai'
 
@@ -18,16 +19,6 @@ import { aiCopy, capsLine } from '../../../i18n/ai'
 export const PAGE = 200
 
 const c = aiCopy.connect
-
-/** Debounce giá trị chuỗi — ô tìm model. */
-function useDebounced<T>(value: T, ms: number): T {
-  const [deb, setDeb] = useState(value)
-  useEffect(() => {
-    const id = setTimeout(() => setDeb(value), ms)
-    return () => clearTimeout(id)
-  }, [value, ms])
-  return deb
-}
 
 /** Nhãn năng lực ngắn của một model (“Chữ”, “Chữ · đọc ảnh”, “Vẽ ảnh”). */
 export function capTags(caps: readonly string[]): string[] {

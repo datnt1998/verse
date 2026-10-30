@@ -62,6 +62,11 @@ a:hover { color: var(--color-fg); }
 /* Placeholder màu nhạt */
 input::placeholder, textarea::placeholder { color: var(--color-fg-4); }
 
+/* Menu kit (portal ra body) trên điện thoại cảm ứng: mỗi dòng ≥ 44px chạm được. */
+@media (max-width: 767px) and (pointer: coarse) {
+  .kit-pop .kit-option { min-height: var(--vv-s-44); }
+}
+
 /* prefers-reduced-motion: mọi hoạ hình đứng yên — vòng cung logo, orb trợ lý
    (kit ai-breathe), chấm đỏ nhấp, spinner, transition. */
 @media (prefers-reduced-motion: reduce) {

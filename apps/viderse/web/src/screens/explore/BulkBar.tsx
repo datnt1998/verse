@@ -1,6 +1,7 @@
 // Thanh chọn nhiều của Khám phá — sticky đáy cột giữa (artboard .card region
 // "Thao tác với video đã chọn"): "Đã chọn N" · Top 10/20 · Bỏ chọn ·
-// Sao chép link · nút chính "Làm N video" (khoá: chưa có kênh của bạn) · nút ✕.
+// Sao chép link · nút chính "Làm N video" (khoá, vẫn focus được: chưa có kênh
+// của bạn) · nút ✕.
 import { Icon, toast } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import { ActionButton } from '../../components'
@@ -35,8 +36,7 @@ export function BulkBar({ count, selected, onTop, onClear, onExit }: {
         <ActionButton
           variant="primary"
           size="md"
-          disabled
-          disabledReason={t.screens.explore.lockedReason}
+          lockedReason={tt.lockedReason}
           icon={<Icon name="clock" size={15} />}
         >
           {tt.bulkMake(count)}

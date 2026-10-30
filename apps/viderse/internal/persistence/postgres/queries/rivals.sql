@@ -61,14 +61,15 @@ SELECT EXISTS(SELECT 1 FROM rival_channels WHERE id = $1)::bool AS exists;
 
 -- name: CountRivalVideos :one
 -- Tổng video khớp bộ lọc của một kênh (channel_id NOT NULL) hoặc mọi kênh
--- (channel_id NULL). q là mẫu ILIKE đã escape sẵn ('' = không lọc).
+-- (channel_id NULL). q là mẫu LIKE đã escape sẵn ('' = không lọc); so với
+-- title_fold sau khi gấp q bằng fold_title (không phân biệt hoa thường, dấu).
 SELECT count(*)::bigint
 FROM rival_videos v
 WHERE (sqlc.narg(channel_id)::text IS NULL OR v.channel_id = sqlc.narg(channel_id)::text)
   AND (NOT sqlc.arg(long_only)::bool OR v.duration_sec >= sqlc.arg(long_min_sec)::int)
   AND (sqlc.arg(within_days)::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= sqlc.arg(now)::timestamptz - sqlc.arg(within_days)::int * interval '1 day')
-  AND (sqlc.arg(q)::text = '' OR v.title ILIKE sqlc.arg(q)::text);
+  AND (sqlc.arg(q)::text = '' OR v.title_fold LIKE fold_title(sqlc.arg(q)::text));
 
 -- name: PageRivalVideosByOutlier :many
 -- Trang keyset theo điểm nổi trội (score DESC NULLS LAST, id ASC). Cursor =
@@ -82,7 +83,7 @@ WHERE (sqlc.narg(channel_id)::text IS NULL OR v.channel_id = sqlc.narg(channel_i
   AND (NOT sqlc.arg(long_only)::bool OR v.duration_sec >= sqlc.arg(long_min_sec)::int)
   AND (sqlc.arg(within_days)::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= sqlc.arg(now)::timestamptz - sqlc.arg(within_days)::int * interval '1 day')
-  AND (sqlc.arg(q)::text = '' OR v.title ILIKE sqlc.arg(q)::text)
+  AND (sqlc.arg(q)::text = '' OR v.title_fold LIKE fold_title(sqlc.arg(q)::text))
   AND (sqlc.narg(cursor_id)::text IS NULL
        OR (sqlc.narg(cursor_score)::float8 IS NOT NULL AND
            (v.score < sqlc.narg(cursor_score)::float8
@@ -102,7 +103,7 @@ WHERE (sqlc.narg(channel_id)::text IS NULL OR v.channel_id = sqlc.narg(channel_i
   AND (NOT sqlc.arg(long_only)::bool OR v.duration_sec >= sqlc.arg(long_min_sec)::int)
   AND (sqlc.arg(within_days)::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= sqlc.arg(now)::timestamptz - sqlc.arg(within_days)::int * interval '1 day')
-  AND (sqlc.arg(q)::text = '' OR v.title ILIKE sqlc.arg(q)::text)
+  AND (sqlc.arg(q)::text = '' OR v.title_fold LIKE fold_title(sqlc.arg(q)::text))
   AND (sqlc.narg(cursor_id)::text IS NULL
        OR (sqlc.narg(cursor_views)::bigint IS NOT NULL AND
            (v.view_count < sqlc.narg(cursor_views)::bigint
@@ -122,7 +123,7 @@ WHERE v.channel_id = sqlc.arg(channel_id)
   AND (NOT sqlc.arg(long_only)::bool OR v.duration_sec >= sqlc.arg(long_min_sec)::int)
   AND (sqlc.arg(within_days)::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= sqlc.arg(now)::timestamptz - sqlc.arg(within_days)::int * interval '1 day')
-  AND (sqlc.arg(q)::text = '' OR v.title ILIKE sqlc.arg(q)::text)
+  AND (sqlc.arg(q)::text = '' OR v.title_fold LIKE fold_title(sqlc.arg(q)::text))
   AND (sqlc.narg(cursor_id)::text IS NULL
        OR v.position > sqlc.narg(cursor_pos)::bigint
        OR (v.position = sqlc.narg(cursor_pos)::bigint AND v.id > sqlc.narg(cursor_id)::text))
@@ -139,7 +140,7 @@ FROM rival_videos v
 WHERE (NOT sqlc.arg(long_only)::bool OR v.duration_sec >= sqlc.arg(long_min_sec)::int)
   AND (sqlc.arg(within_days)::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= sqlc.arg(now)::timestamptz - sqlc.arg(within_days)::int * interval '1 day')
-  AND (sqlc.arg(q)::text = '' OR v.title ILIKE sqlc.arg(q)::text)
+  AND (sqlc.arg(q)::text = '' OR v.title_fold LIKE fold_title(sqlc.arg(q)::text))
   AND (sqlc.narg(cursor_id)::text IS NULL
        OR (sqlc.narg(cursor_ts)::timestamptz IS NOT NULL AND
            (COALESCE(v.uploaded_at, v.published_at) < sqlc.narg(cursor_ts)::timestamptz

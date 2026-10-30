@@ -1,6 +1,8 @@
 // Khám phá (artboard Explore, gói V5): đối thủ → lưới video nổi trội → panel
 // đối thủ/video + Quét lịch sử + Lịch đăng. Phạm vi "Tất cả" hoặc một kênh.
 // Lưới ảo hoá thủ công (≤ ~120 thẻ DOM cho 20.000 video), SSE `rivals` làm mới
+// trang đầu. Ô "Tìm tiêu đề" (q, debounce 250 ms) cộng với bộ lọc; không có kết
+// quả → khối thông báo + "Xoá tìm".
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
@@ -10,6 +12,7 @@ import { navigate, paths } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { useMediaQuery } from '../../lib/useMediaQuery'
+import { useDebounced } from '../../lib/useDebounced'
 import { ActionButton, Orb } from '../../components'
 import {
   getPostingSlots, getRivalScan, listRivals,
@@ -17,7 +20,8 @@ import {
 } from '../../api/rivals'
 import { RivalSidebar, rivalColor } from './RivalSidebar'
 import { AddRivalForm } from './AddRivalForm'
-import { FilterBar } from './FilterBar'
+import { FilterBar, WITHIN } from './FilterBar'
+import { SearchBox } from './SearchBox'
 import { VideoGrid } from './VideoGrid'
 import { BulkBar } from './BulkBar'
 import { RivalCard } from './RivalCard'
@@ -29,6 +33,8 @@ import { GRID_GAP_Y, useVirtualGrid } from './useVirtualGrid'
 import './explore.css'
 
 type Scope = 'all' | string
+
+const num = new Intl.NumberFormat('vi-VN')
 
 /** ?rival= của /explore là handle (@…): đối chiếu handle rồi mới tới id. */
 const scopeOf = (param: string | null | undefined, rivals: Rival[]): Scope => {
@@ -67,12 +73,26 @@ export function ExploreScreen({ route }: { route: Route }) {
   const [sort, setSort] = useState<VideoSort>('outlier')
   const [long, setLong] = useState(false)
   const [within, setWithin] = useState<0 | 7 | 30 | 90>(30)
+  // Ô tìm: gõ thì chờ 250 ms mới hỏi API; xoá trắng thì áp ngay (và xả luôn
+  // giá trị chờ để gõ lại không hỏi chuỗi cũ).
+  const [query, setQuery] = useState('')
+  const typedQ = query.trim()
+  const debouncedQ = useDebounced(typedQ, typedQ === '' ? 0 : 250)
+  const q = typedQ === '' ? '' : debouncedQ
   const filter: VideosFilter = useMemo(
-    () => ({ scope, sort, long, within }),
-    [scope, sort, long, within],
+    () => ({ scope, sort, long, within, q }),
+    [scope, sort, long, within, q],
   )
   const videos = useRivalVideos(filter)
   const items = videos.items
+  // Dòng đếm và khối không có kết quả: số video đã quét của phạm vi + bộ lọc đang bật.
+  const scopeRival = scope === 'all' ? undefined : rivals.find((r) => r.id === scope)
+  const scanned = scopeRival ? scopeRival.videoCount : list.data?.totalVideos ?? 0
+  const withinLabel = WITHIN.find((w) => w.value === within)?.label
+  const activeFilters = [
+    ...(long ? [tt.noMatchLong] : []),
+    ...(within > 0 && withinLabel ? [tt.noMatchWithin(withinLabel)] : []),
+  ]
 
   // Chọn nhiều + video đang xem ở cột phải.
   const [selectMode, setSelectMode] = useState(false)
@@ -159,7 +179,7 @@ export function ExploreScreen({ route }: { route: Route }) {
   const empty = !list.initialLoading && rivals.length === 0 && list.error == null
   if (empty) {
     return (
-      <div className="vx-shell">
+      <div className="vx-shell vx-shell--empty">
         <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
         <main className="vx-empty" aria-label={tt.title}>
           <div className="vx-empty__box">
@@ -190,6 +210,7 @@ export function ExploreScreen({ route }: { route: Route }) {
           <h1 className="vx-title">{tt.outlierTitle}</h1>
           <span className="vx-sub">{tt.outlierHint}</span>
           <span className="vx-grow" />
+          <SearchBox value={query} onChange={setQuery} />
           <ActionButton
             variant="outline"
             size="compact"
@@ -208,11 +229,19 @@ export function ExploreScreen({ route }: { route: Route }) {
           onSort={setSort}
           onLong={setLong}
           onWithin={setWithin}
-          shown={items.length}
           total={videos.total}
+          scanned={scanned}
+          q={videos.shownQ}
         />
         {videos.error != null && items.length === 0 ? (
           <p className="vx-side-empty">{tt.videosError}</p>
+        ) : items.length === 0 && !videos.initialLoading && videos.shownQ ? (
+          <div className="vx-nomatch" role="status">
+            <Icon name="search" size={22} className="vx-nomatch__ic" />
+            <span className="vx-nomatch__title">{tt.noMatchTitle(videos.shownQ)}</span>
+            <span className="vx-nomatch__sub">{tt.noMatchWhere(num.format(scanned), scopeRival?.title ?? tt.noMatchAll, activeFilters)}</span>
+            <ActionButton size="sm" onClick={() => setQuery('')}>{tt.searchClear}</ActionButton>
+          </div>
         ) : items.length === 0 && !videos.initialLoading ? (
           <p className="vx-side-empty">{tt.videosEmpty}</p>
         ) : (

@@ -1,5 +1,6 @@
 // Thẻ đối thủ ở cột phải: avatar, tên, người theo dõi, menu ⋯ (Kiểm tra video
-// mới → POST scan check · Mở trên YouTube · Liên kết với kênh của tôi — khoá ·
+// mới → POST scan check · Mở trên YouTube · Liên kết với kênh của tôi — khoá,
+// vẫn focus được, lý do là dòng phụ ·
 // Bỏ theo dõi → xác nhận cam rồi DELETE) và ba ô Mức thường / Mỗi tuần / Nổi
 // trội. "Mỗi tuần" đến từ posting-slots (perWeek) nên nhận qua prop.
 import { useState } from 'react'
@@ -58,8 +59,8 @@ export function RivalCard({ rival, color, rescanHours, perWeek, onRemoved }: {
 
   const items: ActionMenuItem[] = [
     { id: 'check', label: tt.menuCheck, description: tt.menuCheckHint(rescanHours), icon: <Icon name="refresh" size={16} />, onSelect: check },
-    { id: 'youtube', label: tt.openYouTube, description: rival.url.replace(/^https?:\/\//, ''), icon: <Icon name="link" size={16} />, onSelect: () => window.open(rival.url, '_blank', 'noreferrer') },
-    { id: 'link', label: tt.menuLink, description: tt.lockedReason, icon: <Icon name="channel" size={16} />, disabled: true, tooltip: tt.lockedReason },
+    { id: 'youtube', label: tt.openYouTube, description: rival.handle ? `youtube.com/${rival.handle}` : rival.url.replace(/^https?:\/\/(www\.)?/, ''), icon: <Icon name="link" size={16} />, onSelect: () => window.open(rival.url, '_blank', 'noreferrer') },
+    { id: 'link', label: tt.menuLink, lockedReason: tt.lockedReason, icon: <Icon name="channel" size={16} /> },
     { id: 'unfollow', label: tt.menuUnfollow, description: tt.menuUnfollowHint, icon: <Icon name="trash" size={16} />, danger: true, onSelect: unfollow },
   ]
 

@@ -38,7 +38,7 @@ afterEach(async () => {
 
 describe('Lịch đăng chưa có khung', () => {
   it('đã đọc đủ mẫu nhưng không khung nào lặp lại → không nói "đang đọc"', async () => {
-    expect(await mount(schedule({ total: 30, pending: 0 }))).toBe(tt.postingNoSlots)
+    expect(await mount(schedule({ total: 30, pending: 0 }))).toBe(tt.postingNoSlots(30))
   })
 
   it('còn video chưa đọc giờ → đang đọc', async () => {
@@ -49,8 +49,9 @@ describe('Lịch đăng chưa có khung', () => {
     expect(await mount(schedule({ total: 0, pending: 0, perWeek: null, offSlot: 0 }))).toBe(tt.postingEmpty)
   })
 
-  it('tạm nghỉ thắng mọi trạng thái khác', async () => {
-    const text = await mount(schedule({ total: 0, pending: 30, pausedUntil: '2026-10-30T15:00:00Z' }))
-    expect(text?.startsWith('Đọc giờ đăng tạm nghỉ tới')).toBe(true)
+  it('tạm nghỉ thắng mọi trạng thái khác, kèm giờ đọc tiếp', async () => {
+    const at = '2026-10-30T15:00:00Z'
+    const text = await mount(schedule({ total: 0, pending: 30, pausedUntil: at }))
+    expect(text).toBe(tt.postingPaused(new Date(at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })))
   })
 })

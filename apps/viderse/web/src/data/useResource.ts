@@ -9,7 +9,8 @@ export type ResourceOptions = {
   /** Giữ dữ liệu của khoá trước tới khi khoá mới có dữ liệu (đổi kênh/video không nháy về khung chờ). */
   keepPrevious?: boolean
 }
-export type Resource<T> = EntrySnapshot<T> & { key: Key; initialLoading: boolean; refresh: () => Promise<unknown> }
+/** `placeholder`: `data` là của khoá trước (keepPrevious), khoá hiện tại chưa có dữ liệu. */
+export type Resource<T> = EntrySnapshot<T> & { key: Key; initialLoading: boolean; placeholder: boolean; refresh: () => Promise<unknown> }
 
 export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceOptions = {}): Resource<T> {
   const hash = keyHash(key)
@@ -35,5 +36,5 @@ export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceO
   const previous = useRef<T | undefined>(undefined)
   useEffect(() => { if (state.data !== undefined) previous.current = state.data }, [state.data])
   const data = state.data === undefined && options.keepPrevious && enabled ? previous.current : state.data
-  return { ...state, key: stableKey, data, initialLoading: enabled && data === undefined && !state.error, refresh }
+  return { ...state, key: stableKey, data, initialLoading: enabled && data === undefined && !state.error, placeholder: data !== state.data, refresh }
 }

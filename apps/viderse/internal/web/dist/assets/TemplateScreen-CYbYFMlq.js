@@ -1,1 +1,0 @@
-import{j as t,t as e}from"./index-BGYYPbXS.js";import{S as r}from"./ScreenEmpty-DVheW2ZD.js";function s({route:m}){return t.jsx(r,{title:e.screens.template.emptyTitle,hint:e.screens.template.emptyHint})}export{s as TemplateScreen};

@@ -6,7 +6,9 @@ import { useState } from 'react'
 import { Icon, Segmented } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import type { PostingSchedule, PostingZone } from '../../api/rivals'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { gridMax, slotCells, slotRhythm } from './posting'
+import { TOUCH_COLUMN, TOUCH_TARGET } from './media'
 
 export function PostingCard({ schedule, zone, onZone }: {
   schedule: PostingSchedule | undefined
@@ -15,6 +17,7 @@ export function PostingCard({ schedule, zone, onZone }: {
 }) {
   const tt = t.screens.explore
   const [picked, setPicked] = useState<number | null>(null)
+  const touch = useMediaQuery(TOUCH_COLUMN)
 
   const slots = schedule?.slots ?? []
   const grid = schedule?.grid ?? []
@@ -31,7 +34,7 @@ export function PostingCard({ schedule, zone, onZone }: {
         <Segmented
           label={tt.postingZone}
           value={zone}
-          size={24}
+          size={touch ? TOUCH_TARGET : 24}
           radius={6}
           fit="content"
           onChange={(id) => onZone(id as PostingZone)}
@@ -52,7 +55,7 @@ export function PostingCard({ schedule, zone, onZone }: {
           {schedule.pausedUntil
             ? tt.postingPaused(new Date(schedule.pausedUntil).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }))
             : schedule.pending > 0 ? tt.postingPending
-              : schedule.total === 0 ? tt.postingEmpty : tt.postingNoSlots}
+              : schedule.total === 0 ? tt.postingEmpty : tt.postingNoSlots(schedule.total)}
         </span>
       )}
       {slots.length > 0 && (
@@ -88,7 +91,8 @@ export function PostingCard({ schedule, zone, onZone }: {
           })}
         </ul>
       )}
-      {(schedule?.offSlot ?? 0) > 0 && <span className="vx-offslot">{tt.postingOff(schedule!.offSlot)}</span>}
+      {/* "lẻ ngoài các khung trên" chỉ có nghĩa khi có khung; không có khung thì câu trên đã nói. */}
+      {slots.length > 0 && (schedule?.offSlot ?? 0) > 0 && <span className="vx-offslot">{tt.postingOff(schedule!.offSlot)}</span>}
       {max > 0 && (
         <div role="img" aria-label={tt.postingHeat(zoneLong, slots.length)} className="vx-heat">
           {tt.weekdays.map((day, di) => (

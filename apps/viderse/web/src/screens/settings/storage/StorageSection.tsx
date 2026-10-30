@@ -14,6 +14,7 @@ import { useResource } from '../../../data/useResource'
 import { invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
+import { useDebounced } from '../../../lib/useDebounced'
 import { vi as t } from '../../../i18n/vi'
 import {
   browseStorage, cancelStorageMove, checkStoragePath, deletePreviousStorage, dismissStorageMove,
@@ -75,16 +76,6 @@ function artboardChecks(checks: StorageCheckResult['checks']): StorageCheckResul
     if (c.kind === 'space' && same) return false
     return true
   })
-}
-
-/** Lọc tên thư mục có debounce 250 ms — gõ nhanh không lọc lại mỗi ký tự. */
-function useDebounced(value: string, ms = 250) {
-  const [debounced, setDebounced] = useState(value)
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), ms)
-    return () => clearTimeout(id)
-  }, [value, ms])
-  return debounced
 }
 
 const BROWSE_PAGE = 100

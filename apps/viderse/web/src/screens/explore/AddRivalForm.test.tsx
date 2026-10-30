@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
-// Lỗi POST /api/rivals → câu hiện ngay dưới ô nhập theo `code` (mỗi code một
-// câu), exists kèm link Mở đối thủ. Kiểm cả render trong form.
+// Lỗi POST /api/rivals → câu hiện ngay dưới ô nhập theo `code` (bảng 06-copy ›
+// Khám phá) cùng việc tiếp theo: exists → Mở đối thủ đó, blocked → Mở Tài
+// khoản nền tảng, unexpected_page và lỗi khác → Thử lại gửi lại ô đang nhập.
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -58,24 +59,31 @@ describe('addRivalError — mã lỗi → câu dưới ô', () => {
   it('not_found', () => {
     expect(addRivalError(apiErr(404, { code: 'not_found' })).message).toBe(tt.not_found)
   })
-  it('exists mang theo id đối thủ đã có', () => {
+  it('exists mang theo id đối thủ đã có, kèm "Mở"', () => {
     const e = addRivalError(apiErr(409, { code: 'exists', rival: { id: 'r9' } }))
     expect(e.message).toBe(tt.exists)
     expect(e.rivalId).toBe('r9')
+    expect(e.action).toBe('open')
   })
-  it('rate_limited điền giờ thử lại từ retryAt', () => {
+  it('rate_limited điền giờ thử lại từ retryAt, không giờ thì "sau ít phút"', () => {
     const at = new Date('2026-10-30T15:30:00').toISOString()
     const time = new Date(at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
     expect(addRivalError(apiErr(429, { code: 'rate_limited', retryAt: at })).message).toContain(time)
+    expect(addRivalError(apiErr(429, { code: 'rate_limited' })).message).toBe(tt.rateLimitedNoTime)
   })
-  it('blocked ưu tiên recovery của server', () => {
-    expect(addRivalError(apiErr(403, { code: 'blocked', recovery: 'Thử lại sau ít phút.' })).message).toBe('Thử lại sau ít phút.')
+  it('blocked → mở Tài khoản nền tảng', () => {
+    const e = addRivalError(apiErr(403, { code: 'blocked', recovery: 'Thử lại sau ít phút.' }))
+    expect(e.message).toBe(tt.blocked)
+    expect(e.action).toBe('accounts')
   })
-  it('unexpected_page', () => {
-    expect(addRivalError(apiErr(502, { code: 'unexpected_page' })).message).toBe(tt.unexpected_page)
+  it('unexpected_page → Thử lại', () => {
+    const e = addRivalError(apiErr(502, { code: 'unexpected_page' }))
+    expect(e.message).toBe(tt.unexpected_page)
+    expect(e.action).toBe('retry')
   })
-  it('lỗi không phải ApiError → message của lỗi', () => {
-    expect(addRivalError(new Error('mạng lỗi')).message).toBe('Mạng lỗi')
+  it('lỗi khác (mạng, mã lạ) → câu chung + Thử lại', () => {
+    expect(addRivalError(new Error('mạng lỗi'))).toMatchObject({ message: tt.failed, action: 'retry' })
+    expect(addRivalError(apiErr(500, { code: 'internal' }))).toMatchObject({ message: tt.failed, action: 'retry' })
   })
 })
 
@@ -84,7 +92,7 @@ describe('form thêm đối thủ — lỗi hiện dưới ô', () => {
     const cases: [{ status: number; body: object }, RegExp | string][] = [
       [{ status: 400, body: { error: 'e', code: 'invalid_input' } }, tt.invalid_input],
       [{ status: 404, body: { error: 'e', code: 'not_found' } }, tt.not_found],
-      [{ status: 429, body: { error: 'e', code: 'rate_limited', retryAt: new Date('2026-10-30T15:30:00').toISOString() } }, /thử lại lúc/],
+      [{ status: 429, body: { error: 'e', code: 'rate_limited', retryAt: new Date('2026-10-30T15:30:00').toISOString() } }, /Thử lại lúc 15:30\./],
       [{ status: 403, body: { error: 'e', code: 'blocked' } }, tt.blocked],
       [{ status: 502, body: { error: 'e', code: 'unexpected_page' } }, tt.unexpected_page],
     ]
@@ -106,5 +114,30 @@ describe('form thêm đối thủ — lỗi hiện dưới ô', () => {
     await submit(el.querySelector('form')!)
     await click([...el.querySelectorAll('a')].find((a) => a.textContent === tt.existsOpen))
     expect(opened.id).toBe('r9')
+  })
+
+  it('blocked → link tới Tài khoản nền tảng trong Cài đặt', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => respond({ error: 'e', code: 'blocked' }, 403)))
+    const el = await mount()
+    await typeIn(el.querySelector('input')!, '@kenh')
+    await submit(el.querySelector('form')!)
+    const link = [...el.querySelectorAll('a')].find((a) => a.textContent === tt.blockedOpen)
+    expect(link?.getAttribute('href')).toBe('#/settings?section=accounts')
+  })
+
+  it('Thử lại gửi lại đúng ô đang nhập', async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => respond({ error: 'e', code: 'unexpected_page' }, 502))
+      .mockImplementationOnce(() => respond({ id: 'r9', title: 'Kênh' }, 201))
+    vi.stubGlobal('fetch', fetchMock)
+    const el = await mount()
+    await typeIn(el.querySelector('input')!, '@kenh')
+    await submit(el.querySelector('form')!)
+    const retry = [...el.querySelectorAll('button')].find((b) => b.textContent === tt.retry)!
+    expect(retry.type).toBe('submit')
+    await click(retry)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1].body))).toEqual({ input: '@kenh' })
+    expect(el.querySelector('[role="alert"]')).toBeNull()
   })
 })

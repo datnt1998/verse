@@ -1,10 +1,13 @@
 // Panel "Video đã chọn" ở cột phải khi bấm một thẻ: ảnh, điểm ×, popover "Vì
 // sao?" (lượt xem / mức thường / ngưỡng ×3 / lúc đăng), huy hiệu phụ đề, nhóm
-// "Làm cho kênh" + dòng kế hoạch + nút chính — tất cả khoá vì chưa có kênh của
-// bạn (kênh sở hữu ở gói sau), link "Mở trên YouTube", nút "← Thông tin đối thủ".
-import { useState } from 'react'
+// "Làm cho kênh" + dòng kế hoạch + nút chính — chọn kênh và nút chính khoá
+// (aria-disabled, vẫn focus được) vì chưa có kênh của bạn; lý do hiện một lần
+// ngay dưới nút kèm link "Tạo kênh" (06-copy › Khám phá), cả hai điều khiển trỏ
+// aria-describedby tới câu lý do. Link "Mở trên YouTube", nút "← Thông tin đối thủ".
+import { useId, useState } from 'react'
 import { Icon, useEscapeLayer } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
+import { paths } from '../../router'
 import { ActionButton, Orb } from '../../components'
 import type { Rival, Video } from '../../api/rivals'
 import { fmtDateTime, fmtDuration, fmtScore, fmtSubs, fmtViews, scoreText, videoMeta } from './fmt'
@@ -18,6 +21,7 @@ export function PreviewPanel({ video, rival, onClose }: {
   const tt = t.screens.explore
   const [whyOpen, setWhyOpen] = useState(false)
   useEscapeLayer(whyOpen, () => setWhyOpen(false))
+  const reasonId = useId()
 
   const dur = fmtDuration(video.durationSec)
   const hot = (video.score ?? 0) >= 3
@@ -76,10 +80,9 @@ export function PreviewPanel({ video, rival, onClose }: {
       </div>
       <div className="vx-makegroup" role="radiogroup" aria-label={tt.makeChannel}>
         <span className="vx-makehead"><Icon name="channel" size={14} />{tt.makeChannel}</span>
-        <div className="vx-makeopt" role="radio" aria-checked="false" aria-disabled="true" title={tt.lockedReason}>
+        <div className="vx-makeopt" role="radio" aria-checked="false" aria-disabled="true" tabIndex={0} aria-describedby={reasonId}>
           <span className="vx-makeopt__text">
             <span className="vx-makeopt__name">{tt.notLinked}</span>
-            <span className="vx-makeopt__sub">{tt.lockedReason}</span>
           </span>
         </div>
       </div>
@@ -87,12 +90,16 @@ export function PreviewPanel({ video, rival, onClose }: {
       <ActionButton
         variant="primary"
         size="lg"
-        disabled
-        disabledReason={tt.lockedReason}
+        lockedReason={tt.lockedReason}
+        aria-describedby={reasonId}
         icon={<Icon name="video-add" size={18} />}
       >
         {tt.makeVideo}
       </ActionButton>
+      <p className="vx-locknote">
+        <span id={reasonId}>{tt.lockedReason}</span>{' '}
+        <a href={`#${paths.channelNew()}`}>{tt.createChannel}</a>
+      </p>
       <a href={video.url} target="_blank" rel="noreferrer" className="vx-linkbtn">
         <Icon name="link" size={14} />
         {tt.openYouTube}

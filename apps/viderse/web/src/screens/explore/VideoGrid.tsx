@@ -1,7 +1,9 @@
 // Lưới video ảo hoá + thẻ video của Khám phá. Mỗi thẻ: ảnh mqdefault
 // (loading=lazy, width/height giữ khung — không layout shift), huy hiệu điểm ×
 // (vàng ≥3), phụ đề + thời lượng, checkbox ở chế độ chọn nhiều, nút "Làm cho
-// <kênh>" khoá vì chưa có kênh của bạn, nút sao chép link.
+// <kênh>" khoá (aria-disabled, vẫn focus được) vì chưa có kênh của bạn, nút
+// sao chép link. Thẻ chỉ có một trong hai: trạng thái hàng chờ hoặc nút làm —
+// hàng chờ chưa có nên luôn là nút.
 import type { SyntheticEvent } from 'react'
 import { Icon, toast } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
@@ -87,8 +89,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
       <div className="vx-actions">
         <ActionButton
           size="sm"
-          disabled={channelLabel === null}
-          disabledReason={channelLabel === null ? tt.lockedReason : undefined}
+          lockedReason={channelLabel === null ? tt.lockedReason : undefined}
           icon={<Icon name="video-add" size={14} />}
         >
           {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}

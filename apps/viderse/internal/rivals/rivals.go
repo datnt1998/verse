@@ -90,7 +90,7 @@ type VideoPage struct {
 	NextCursor string
 }
 
-// PageQuery là tham số đã chuẩn hoá mà store dùng: mẫu ILIKE đã escape và
+// PageQuery là tham số đã chuẩn hoá mà store dùng: mẫu LIKE đã escape và
 // cursor đã giải mã.
 type PageQuery struct {
 	ChannelID  string
@@ -218,7 +218,7 @@ func (s *Service) Videos(ctx context.Context, channelID string, in VideoQuery) (
 		Sort:       in.Sort,
 		Long:       in.Long,
 		WithinDays: in.WithinDays,
-		Pattern:    ilikePattern(in.Query),
+		Pattern:    likePattern(in.Query),
 		Now:        s.now(),
 		Limit:      in.Limit + 1,
 	}

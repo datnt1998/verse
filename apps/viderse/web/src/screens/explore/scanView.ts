@@ -1,7 +1,7 @@
 // Thẻ "Quét lịch sử" — ánh xạ ScanStatus (hợp đồng /api/rivals/:id/scan) sang
-// bốn trạng thái của artboard Explore (running · paused · limited · done) cộng
-// các trạng thái không có trong artboard (queued · complete · idle · cancelled
-// · error · đang kiểm tra video mới). Hàm thuần để test theo bảng.
+// câu và nút theo bảng 06-copy › Khám phá: bốn trạng thái có artboard (running ·
+// paused · limited · capped) cộng queued · complete · idle · cancelled · error ·
+// đang kiểm tra video mới. Hàm thuần để test theo bảng.
 import { vi as t } from '../../i18n/vi'
 import { fill } from '../settings/fmt'
 import type { ScanAction, ScanStatus } from '../../api/rivals'
@@ -31,8 +31,8 @@ const fmtHour = (iso: string | null): string | null => {
 
 /**
  * history.state → giao diện thẻ. Kiểm tra video mới (discovery.running) chỉ lấn
- * át khi lịch sử không có trạng thái "sống" nào (idle/complete/capped/cancelled
- * /error/paused vẫn đứng yên thì hiện "Đang kiểm tra video mới").
+ * át khi lịch sử đứng yên mà câu của nó không nói gì về video mới (idle,
+ * complete, cancelled); lúc đó thẻ không có nút như bảng câu.
  */
 export function scanView(s: ScanStatus): ScanView {
   const tt = t.screens.explore.scanStates
@@ -44,30 +44,29 @@ export function scanView(s: ScanStatus): ScanView {
   const count = `${num.format(now)} / ${num.format(max)}`
   const pct = max > 0 ? Math.min(1, s.indexedVideos / max) : 0
   const base = { count, pct, now, max }
+  const discovery = { ...base, text: tt.discovery, live: true, button: null }
 
   switch (s.history.state) {
     case 'running':
       return { ...base, text: tt.running, live: true, button: { action: 'pause', label: bt.pause, icon: 'pause' } }
     case 'queued':
-      return { ...base, text: tt.queued, live: true, button: { action: 'pause', label: bt.pause, icon: 'pause' } }
+      return { ...base, text: tt.queued, live: true, button: null }
     case 'backoff': {
       const at = fmtHour(s.history.nextAttemptAt)
       return { ...base, text: at ? fill(tt.limited, { time: at }) : tt.limitedNoTime, live: false, button: { action: 'pause', label: bt.pause, icon: 'pause' } }
     }
     case 'paused':
       return { ...base, text: tt.paused, live: false, button: { action: 'resume', label: bt.resume, icon: 'refresh' } }
-    case 'error': {
-      const detail = s.history.recovery ?? s.history.error ?? tt.error
-      return { ...base, text: detail, live: false, button: { action: 'resume', label: bt.resume, icon: 'refresh' } }
-    }
+    case 'error':
+      return { ...base, text: tt.error, live: false, button: { action: 'resume', label: bt.resume, icon: 'refresh' } }
     case 'capped':
-      return { ...base, text: tt.capped(every), live: s.discovery.running, button: { action: 'start', label: bt.rescan, icon: 'refresh' } }
+      return { ...base, text: tt.capped(num.format(now), every), live: s.discovery.running, button: { action: 'start', label: bt.rescan, icon: 'refresh' } }
     case 'complete':
-      return { ...base, text: s.discovery.running ? tt.discovery : tt.complete(every), live: s.discovery.running, button: { action: 'start', label: bt.rescan, icon: 'refresh' } }
+      return s.discovery.running ? discovery : { ...base, text: tt.complete(num.format(s.indexedVideos), every), live: false, button: null }
     case 'cancelled':
-      return { ...base, text: s.discovery.running ? tt.discovery : tt.cancelled, live: s.discovery.running, button: { action: 'start', label: bt.rescan, icon: 'refresh' } }
+      return s.discovery.running ? discovery : { ...base, text: tt.cancelled, live: false, button: { action: 'start', label: bt.rescan, icon: 'refresh' } }
     case 'idle':
     default:
-      return { ...base, text: s.discovery.running ? tt.discovery : tt.idle, live: s.discovery.running, button: { action: 'start', label: bt.start, icon: 'video-add' } }
+      return s.discovery.running ? discovery : { ...base, text: tt.idle, live: false, button: { action: 'start', label: bt.start, icon: 'video-add' } }
   }
 }

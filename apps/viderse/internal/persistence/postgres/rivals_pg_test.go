@@ -9,6 +9,7 @@ package postgres_test
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -433,6 +434,69 @@ func TestRivalVideoSearchEscapesLiteralWildcards(t *testing.T) {
 		}
 		if len(page.Videos) != tc.want {
 			t.Fatalf("%q khớp %d video, muốn %d", tc.q, len(page.Videos), tc.want)
+		}
+	}
+}
+
+// TestRivalVideoSearchIgnoresCaseAndAccents: tìm tiêu đề không phân biệt hoa
+// thường và dấu ở cả hai phía (đ ↔ d), cộng dồn với lọc đang bật, và tổng
+// đếm khớp đúng số video tìm thấy.
+func TestRivalVideoSearchIgnoresCaseAndAccents(t *testing.T) {
+	pool := provision(t)
+	svc := rivals.New(postgres.NewRivalsStore(pool))
+	ctx := context.Background()
+	now := time.Now()
+
+	seedRival(t, pool, rivalID(1), "alpha", now)
+	if _, err := pool.Exec(ctx, `INSERT INTO scan_state (channel_id) VALUES ($1)`, rivalID(1)); err != nil {
+		t.Fatal(err)
+	}
+	long, short := 600, 60
+	for i, v := range []struct {
+		title string
+		dur   *int
+	}{
+		{"Ngôi Nhà Ma Ở Đà Lạt", &long},
+		{"THE FLOOR BELOW", &long},
+		{"Café at the end of the floor", &short},
+		{"Đường về nhà", &long},
+	} {
+		seedVideo(t, pool, videoID(i+1), rivalID(1), int64(i+1), nil, nil, v.dur, &now, nil, domain.OriginBaseline, now)
+		if _, err := pool.Exec(ctx, `UPDATE rival_videos SET title = $1 WHERE id = $2`, v.title, videoID(i+1)); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	for _, tc := range []struct {
+		q    string
+		long bool
+		want []string
+	}{
+		{"ngoi nha", false, []string{videoID(1)}},
+		{"DA LAT", false, []string{videoID(1)}},
+		{"Ngôi Nhà", false, []string{videoID(1)}},
+		{"floor", false, []string{videoID(2), videoID(3)}},
+		{"floor", true, []string{videoID(2)}}, // lọc dài bỏ video ngắn
+		{"CAFE", false, []string{videoID(3)}},
+		{"duong ve", false, []string{videoID(4)}},
+		{"đường", false, []string{videoID(4)}},
+		{"basement", false, nil},
+	} {
+		page, err := svc.Videos(ctx, rivalID(1), rivals.VideoQuery{
+			Sort: rivals.SortNewest, Limit: 10, Query: tc.q, Long: tc.long,
+		})
+		if err != nil {
+			t.Fatalf("%q: %v", tc.q, err)
+		}
+		var got []string
+		for _, v := range page.Videos {
+			got = append(got, v.ID)
+		}
+		if !slices.Equal(got, tc.want) {
+			t.Fatalf("%q long=%v → %v, muốn %v", tc.q, tc.long, got, tc.want)
+		}
+		if page.Total != int64(len(tc.want)) {
+			t.Fatalf("%q long=%v: total %d, muốn %d", tc.q, tc.long, page.Total, len(tc.want))
 		}
 	}
 }

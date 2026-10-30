@@ -34,9 +34,9 @@ export const keys = {
   platformProfiles: () => ['platforms', 'profiles'] as const satisfies Key,
   /** GET /api/rivals — danh sách đối thủ + tổng video/video mới (cột trái Khám phá). */
   rivals: () => ['rivals'] as const satisfies Key,
-  /** GET /api/rivals/:id/videos — trang đầu của lưới theo bộ lọc; trang sau qua cursor. */
-  rivalVideos: (id: string, sort: string, long: number, within: number) =>
-    ['rivals', id, 'videos', sort, String(long), String(within)] as const satisfies Key,
+  /** GET /api/rivals/:id/videos — trang đầu của lưới theo bộ lọc + chuỗi tìm; trang sau qua cursor. */
+  rivalVideos: (id: string, sort: string, long: number, within: number, q: string) =>
+    ['rivals', id, 'videos', sort, String(long), String(within), q] as const satisfies Key,
   /** GET /api/rivals/:id/scan — thẻ Quét lịch sử ở cột phải. */
   rivalScan: (id: string) => ['rivals', id, 'scan'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots — thẻ Lịch đăng theo múi giờ. */

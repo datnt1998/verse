@@ -55,6 +55,8 @@ let videos: Video[] = []
 let nextCursor: string | null = null
 let listBody: RivalList = { rivals: [rival], totalVideos: 1284, newOutliers: 4 }
 let posted: { url: string; body: unknown }[] = []
+/** các giá trị q mà lưới đã hỏi API (đếm số lần gọi khi gõ) */
+let searched: string[] = []
 
 const respond = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }))
@@ -67,9 +69,14 @@ function stubFetch() {
       return respond(listBody)
     }
     if (url.startsWith('/api/rivals/all/videos')) {
-      const cursor = new URL(url, 'https://x.test').searchParams.get('cursor')
-      if (cursor === 'c2') return respond({ videos: videos.slice(200, 400), total: videos.length, nextCursor: 'c3' } satisfies VideoPage)
-      return respond({ videos: videos.slice(0, 200), total: videos.length, nextCursor } satisfies VideoPage)
+      const params = new URL(url, 'https://x.test').searchParams
+      const cursor = params.get('cursor')
+      const q = params.get('q')
+      if (q !== null) searched.push(q)
+      // Server tìm không phân biệt hoa thường/dấu; fetch giả chỉ cần lọc theo chữ thường.
+      const pool = q ? videos.filter((v) => v.title.toLowerCase().includes(q.toLowerCase())) : videos
+      if (cursor === 'c2') return respond({ videos: pool.slice(200, 400), total: pool.length, nextCursor: 'c3' } satisfies VideoPage)
+      return respond({ videos: pool.slice(0, 200), total: pool.length, nextCursor: pool.length > 200 ? nextCursor : null } satisfies VideoPage)
     }
     if (url === '/api/rivals/r1/scan') return respond(scanStatus)
     if (url.startsWith('/api/rivals/r1/posting-slots')) return respond(posting)
@@ -119,11 +126,41 @@ const showTip = async (el: Element) => {
   return [...document.body.querySelectorAll('[role="tooltip"]')].pop()?.textContent ?? ''
 }
 
+/** Điều khiển cần kênh của bạn: khoá bằng aria-disabled (không phải disabled), vẫn
+ *  focus được, aria-describedby trỏ tới một phần tử có đúng câu lý do. */
+const expectLocked = (el: HTMLElement) => {
+  expect(el.getAttribute('aria-disabled')).toBe('true')
+  expect((el as HTMLButtonElement).disabled ?? false).toBe(false)
+  el.focus()
+  expect(document.activeElement).toBe(el)
+  const reasons = (el.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
+    .map((id) => document.getElementById(id)?.textContent)
+  expect(reasons).toContain(tt.lockedReason)
+}
+
+/** Gõ vào ô (setter gốc + sự kiện input để React nhận). */
+const typeIn = async (input: HTMLInputElement, value: string) => {
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set?.call(input, value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
+
+const press = async (target: EventTarget, key: string) => {
+  let event: KeyboardEvent | undefined
+  await act(async () => {
+    event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+    target.dispatchEvent(event)
+  })
+  return event!
+}
+
 
 beforeEach(() => {
   videos = Array.from({ length: 240 }, (_, i) => video(i))
   nextCursor = 'c2'
   posted = []
+  searched = []
   void invalidate()
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
     matches: false, addEventListener: () => {}, removeEventListener: () => {},
@@ -196,7 +233,7 @@ describe('lưới video ảo hoá', () => {
     }))
     let hook: RivalVideos | undefined
     const Probe = () => {
-      hook = useRivalVideos({ scope: 'all', sort: 'outlier', long: false, within: 30 })
+      hook = useRivalVideos({ scope: 'all', sort: 'outlier', long: false, within: 30, q: '' })
       return null
     }
     await mount(<Probe />)
@@ -234,7 +271,7 @@ describe('màn Khám phá', () => {
 
     // SSE `rivals` → trang đầu đổi (1 video mới chen đầu) — lựa chọn giữ nguyên
     const fresh = { videos: [video(999), ...videos.slice(0, 199)], total: videos.length + 1, nextCursor: 'c2' }
-    act(() => { setData(keys.rivalVideos('all', 'outlier', 0, 30), fresh) })
+    act(() => { setData(keys.rivalVideos('all', 'outlier', 0, 30, ''), fresh) })
     await flush()
     expect(byText(el, '*', 'Video số 999')).toBeTruthy()
     expect(byText(el, '*', tt.selected(20))).toBeTruthy()
@@ -243,27 +280,33 @@ describe('màn Khám phá', () => {
     expect(el.querySelector('.vx-bulk')).toBeNull()
   })
 
-  it('điều khiển khoá hiện lý do hợp đồng', async () => {
+  it('điều khiển cần kênh của bạn: khoá bằng aria-disabled, vẫn focus được, lý do qua aria-describedby', async () => {
     const el = await mount(<ExploreScreen route={ROUTE} />)
     await until(() => !!byText(el, '*', 'Video số 0'))
     const cardBtn = [...el.querySelectorAll<HTMLButtonElement>('.vx-card button')].find((b) => b.textContent?.includes(tt.makeVideo))!
-    expect(cardBtn.disabled).toBe(true)
+    expectLocked(cardBtn)
     expect(await showTip(cardBtn)).toBe(tt.lockedReason)
 
     await click(byText(el, 'button', tt.selectMany))
     await click(el.querySelector<HTMLInputElement>('.vx-check input'))
     const bulkPrimary = byText(el, 'button', tt.bulkMake(1))!
-    expect(bulkPrimary).toHaveProperty('disabled', true)
+    expectLocked(bulkPrimary as HTMLButtonElement)
     expect(await showTip(bulkPrimary)).toBe(tt.lockedReason)
 
-    // Chip "Trạng thái" khoá: không bọc <select> nên không phải điểm dừng Tab,
-    // lý do khoá nằm ở aria-describedby (và title khi rê chuột).
-    const statusChip = el.querySelector<HTMLElement>('.vx-chip--locked')!
-    expect(statusChip.getAttribute('aria-disabled')).toBe('true')
+    // Chip "Trạng thái": nút khoá, không mở listbox, vẫn là điểm dừng Tab.
+    const statusChip = el.querySelector<HTMLButtonElement>('.vx-chip--locked')!
+    expectLocked(statusChip)
     expect(statusChip.querySelector('select')).toBeNull()
-    expect(statusChip.getAttribute('aria-describedby')).toBe('vx-status-locked')
-    expect(el.querySelector('#vx-status-locked')?.textContent).toBe(tt.lockedReason)
-    expect(statusChip.hasAttribute('tabindex')).toBe(false)
+  })
+
+  it('menu ⋯ của đối thủ: "Liên kết với kênh của tôi" khoá, lý do là dòng phụ, bấm không đóng menu', async () => {
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', tt.statBaseline))
+    await click(el.querySelector(`[aria-label="${tt.rivalActions('Một Phim')}"]`))
+    const item = [...document.body.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')].find((b) => b.textContent?.includes(tt.menuLink))!
+    expectLocked(item)
+    await click(item)
+    expect(document.body.querySelector('[role="menuitem"]')).toBeTruthy()
   })
 
   it('chip Đăng trong: <select> nằm trong chip nên vòng focus của chip hiện khi chọn bằng phím', async () => {
@@ -286,12 +329,67 @@ describe('màn Khám phá', () => {
     await until(() => !!byText(el, 'button', tt.rivalInfo))
     await click(byText(el, 'button', tt.why))
     expect(byText(el, '*', tt.whyFacts.median)).toBeTruthy()
-    const make = byText(el, 'button', tt.makeVideo)!
-    expect(await showTip(make)).toBe(tt.lockedReason)
+    // Chọn kênh + nút chính khoá, cùng trỏ tới câu lý do hiện dưới nút (kèm link Tạo kênh).
+    const make = byText(el.querySelector('.vx-rail')!, 'button', tt.makeVideo)! as HTMLButtonElement
+    expectLocked(make)
+    expectLocked(el.querySelector<HTMLElement>('.vx-makeopt')!)
+    expect(el.querySelector('.vx-locknote a')?.getAttribute('href')).toBe('#/channels/new')
     const link = el.querySelector('a.vx-linkbtn')!
     expect(link.getAttribute('href')).toBe('https://youtu.be/v0')
     await click(byText(el, 'button', tt.rivalInfo))
     expect(byText(el, '*', tt.statBaseline)).toBeTruthy()
+  })
+
+  it('tìm tiêu đề: gõ → chờ debounce rồi hỏi API một lần với q, dòng đếm nói số khớp trong số đã quét', async () => {
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', 'Video số 0'))
+    expect(el.querySelector('.vx-count')?.textContent).toBe(tt.videoCount('240', '1.284'))
+    const box = el.querySelector<HTMLInputElement>('[role="search"] input')!
+    for (const partial of ['s', 'số 1', 'Số 12']) await typeIn(box, partial)
+    await until(() => searched.includes('Số 12'))
+    // Gõ liền tay chỉ hỏi chuỗi cuối.
+    expect(searched).toEqual(['Số 12'])
+    // "Số 12" khớp Video số 12 và 120–129.
+    await until(() => el.querySelector('.vx-count')?.textContent === tt.searchCount('11', 'Số 12', '1.284'))
+    expect(byText(el, '.vx-vtitle', 'Video số 0')).toBeUndefined()
+
+    // Nút ✕ cuối ô xoá tìm ngay, không chờ debounce.
+    await click(el.querySelector(`[role="search"] button[aria-label="${tt.searchClear}"]`))
+    expect(box.value).toBe('')
+    await until(() => !!byText(el, '.vx-vtitle', 'Video số 0'))
+  })
+
+  it('tìm không ra: khối thông báo nói tìm ở đâu, lọc gì + "Xoá tìm"', async () => {
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', 'Video số 0'))
+    await typeIn(el.querySelector<HTMLInputElement>('[role="search"] input')!, 'basement')
+    await until(() => !!el.querySelector('.vx-nomatch'))
+    const block = el.querySelector('.vx-nomatch')!
+    expect(block.getAttribute('role')).toBe('status')
+    expect(block.textContent).toContain(tt.noMatchTitle('basement'))
+    expect(block.textContent).toContain(tt.noMatchWhere('1.284', tt.noMatchAll, [tt.noMatchWithin('30 ngày')]))
+    expect(el.querySelector('.vx-count')?.textContent).toBe(tt.searchCountNone('basement'))
+    await click(byText(block, 'button', tt.searchClear))
+    await until(() => !!byText(el, '.vx-vtitle', 'Video số 0'))
+    expect(el.querySelector('.vx-nomatch')).toBeNull()
+  })
+
+  it('phím "/" đưa focus vào ô tìm (trừ khi đang gõ ô khác), Esc trong ô xoá chữ', async () => {
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', 'Video số 0'))
+    const box = el.querySelector<HTMLInputElement>('[role="search"] input')!
+    const slash = await press(document.body, '/')
+    expect(slash.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(box)
+
+    const other = el.querySelector<HTMLInputElement>('.vx-add input')!
+    other.focus()
+    expect((await press(other, '/')).defaultPrevented).toBe(false)
+    expect(document.activeElement).toBe(other)
+
+    await typeIn(box, 'floor')
+    await press(box, 'Escape')
+    expect(box.value).toBe('')
   })
 
   it('trạng thái trống: tiêu đề riêng, cột đối thủ rỗng, form thêm + POST /api/rivals', async () => {

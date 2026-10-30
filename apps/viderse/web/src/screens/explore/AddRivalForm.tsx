@@ -1,14 +1,15 @@
 // Form thêm đối thủ — POST /api/rivals { input }. Lỗi theo `code` hiện ngay
-// dưới ô nhập (07-data-contract §5): invalid_input · not_found · exists (kèm
-// link Mở đối thủ đó) · rate_limited (kèm giờ thử lại) · blocked ·
-// unexpected_page. Dùng ở hai nơi: ô gọn đầu cột đối thủ và form lớn ở trạng
-// thái trống.
+// dưới ô nhập, câu và nút theo 06-copy › Khám phá: exists → Mở đối thủ đó ·
+// blocked → Mở Tài khoản nền tảng · unexpected_page và lỗi khác → Thử lại
+// (gửi lại đúng ô đang nhập). Dùng ở hai nơi: ô gọn đầu cột đối thủ và form
+// lớn ở trạng thái trống.
 import { useState, type FormEvent } from 'react'
 import { Icon } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { addRival, apiErrorInfo, type Rival } from '../../api/rivals'
 import { keys } from '../../data/keys'
 import { vi as t } from '../../i18n/vi'
+import { paths } from '../../router'
 import { fill } from '../settings/fmt'
 import { ActionButton } from '../../components'
 
@@ -17,25 +18,25 @@ const fmtRetry = (iso: string): string => {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
 
-export type AddError = { code: string; message: string; rivalId?: string }
+/** Việc tiếp theo đi kèm câu lỗi: mở đối thủ đã có, mở Tài khoản nền tảng, hoặc gửi lại. */
+export type AddErrorAction = 'open' | 'accounts' | 'retry'
+export type AddError = { code: string; message: string; action?: AddErrorAction; rivalId?: string }
 
 /** `code` của POST /api/rivals → câu lỗi dưới ô (copy screens.explore.addErrors). */
 export function addRivalError(err: unknown): AddError {
   const tt = t.screens.explore.addErrors
   const info = apiErrorInfo(err)
-  const message = err instanceof Error ? err.message : tt.failed
-  const capital = message.charAt(0).toLocaleUpperCase('vi') + message.slice(1)
   switch (info.code) {
     case 'invalid_input': return { code: info.code, message: tt.invalid_input }
     case 'not_found': return { code: info.code, message: tt.not_found }
-    case 'exists': return { code: info.code, message: tt.exists, rivalId: info.rival?.id }
+    case 'exists': return { code: info.code, message: tt.exists, action: info.rival ? 'open' : undefined, rivalId: info.rival?.id }
     case 'rate_limited': {
       const at = info.retryAt ? fmtRetry(info.retryAt) : ''
-      return { code: info.code, message: at ? fill(tt.rate_limited, { time: at }) : tt.rate_limited.replace(' {time}', '') }
+      return { code: info.code, message: at ? fill(tt.rate_limited, { time: at }) : tt.rateLimitedNoTime }
     }
-    case 'blocked': return { code: info.code, message: info.recovery ?? tt.blocked }
-    case 'unexpected_page': return { code: info.code, message: info.recovery ?? tt.unexpected_page }
-    default: return { code: info.code ?? 'failed', message: capital || tt.failed }
+    case 'blocked': return { code: info.code, message: tt.blocked, action: 'accounts' }
+    case 'unexpected_page': return { code: info.code, message: tt.unexpected_page, action: 'retry' }
+    default: return { code: info.code ?? 'failed', message: tt.failed, action: 'retry' }
   }
 }
 
@@ -70,9 +71,11 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
   const err = error && (
     <span className={compact ? 'vx-add-err' : 'vx-empty__err'} role="alert">
       {error.message}
-      {error.rivalId && (
+      {error.action === 'open' && error.rivalId && (
         <a href="#" onClick={(e) => { e.preventDefault(); error.rivalId && onOpen(error.rivalId) }}>{tt.addErrors.existsOpen}</a>
       )}
+      {error.action === 'accounts' && <a href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>}
+      {error.action === 'retry' && <button type="submit" className="vx-errbtn">{tt.addErrors.retry}</button>}
     </span>
   )
 

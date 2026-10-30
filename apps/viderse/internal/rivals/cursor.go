@@ -88,8 +88,9 @@ func publishedKey(v domain.RivalVideo) *time.Time {
 	return v.PublishedAt
 }
 
-// ilikePattern escape %, _ và \ của chuỗi tìm rồi bọc %…%; rỗng → "".
-func ilikePattern(query string) string {
+// likePattern escape %, _ và \ của chuỗi tìm rồi bọc %…%; rỗng → "". Store
+// gấp mẫu (hoa thường, dấu) bằng cùng hàm với cột tiêu đề trước khi so.
+func likePattern(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""

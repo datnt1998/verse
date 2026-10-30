@@ -2,38 +2,51 @@
 // xem) rồi ba chip — "Dài ≥ 8 phút" (toggle long=1), "Đăng trong N ngày"
 // (listbox 0/7/30/90 → within), "Trạng thái" khoá ở "Tất cả" (lọc theo kênh của
 // bạn cần kênh — gói sau). Chip dùng <select> nguyên bản để có listbox + phím;
-// chip khoá không có <select> nên không vào thứ tự Tab, lý do khoá nằm ở
-// tooltip + aria-describedby của chính nó.
-import { Icon, Segmented } from '@noverse/ui'
+// chip khoá là nút aria-disabled vẫn nhận focus, lý do ở tooltip +
+// aria-describedby. Dòng đếm: "24 / 1.284 video", khi tìm "2 video có “floor”
+// · trong 1.284 đã quét" (1.284 = số video đã quét của phạm vi, không lọc).
+import { useId } from 'react'
+import { Icon, Segmented, Tooltip } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import type { VideoSort } from '../../api/rivals'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import { TOUCH_COLUMN, TOUCH_TARGET } from './media'
 
-const WITHIN: { id: string; value: 0 | 7 | 30 | 90; label: string }[] = [
+export const WITHIN: { id: string; value: 0 | 7 | 30 | 90; label: string }[] = [
   { id: 'any', value: 0, label: t.screens.explore.withinDays.any },
   { id: 'd7', value: 7, label: t.screens.explore.withinDays.d7 },
   { id: 'd30', value: 30, label: t.screens.explore.withinDays.d30 },
   { id: 'd90', value: 90, label: t.screens.explore.withinDays.d90 },
 ]
 
-export function FilterBar({ sort, long, within, onSort, onLong, onWithin, shown, total }: {
+const num = new Intl.NumberFormat('vi-VN')
+
+export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total, scanned, q }: {
   sort: VideoSort
   long: boolean
   within: 0 | 7 | 30 | 90
   onSort: (sort: VideoSort) => void
   onLong: (on: boolean) => void
   onWithin: (days: 0 | 7 | 30 | 90) => void
-  /** "24 / 1.284 video" — tổng của API sau lọc */
-  shown: number
+  /** `total` của API (sau lọc và tìm); undefined khi trang đầu chưa về */
   total: number | undefined
+  /** số video đã quét của phạm vi đang xem (một đối thủ hoặc tất cả) */
+  scanned: number
+  /** chuỗi tìm của dữ liệu đang hiện (đã cắt khoảng trắng); rỗng = không tìm */
+  q: string
 }) {
   const tt = t.screens.explore
-  const num = new Intl.NumberFormat('vi-VN')
+  const lockId = useId()
+  const touch = useMediaQuery(TOUCH_COLUMN)
   const withinLabel = WITHIN.find((w) => w.value === within)?.label ?? tt.withinDays.d30
+  const count = total === undefined ? ''
+    : !q ? tt.videoCount(num.format(total), num.format(scanned))
+      : total > 0 ? tt.searchCount(num.format(total), q, num.format(scanned)) : tt.searchCountNone(q)
   return (
     <div className="vx-filters">
       <Segmented
         label={tt.sortLabel}
-        size="sm"
+        size={touch ? TOUCH_TARGET : 'sm'}
         fit="content"
         style={{ flex: '0 0 auto', gap: 'var(--vv-s-2)', background: 'var(--color-surface-1)', borderColor: 'var(--line-1)' }}
         thumbStyle={{ background: 'var(--color-surface-6)' }}
@@ -63,19 +76,18 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, shown,
         </select>
         <Icon name="arrow-d" size={12} aria-hidden />
       </label>
-      {/* Khoá: chỉ "Tất cả" có nghĩa khi chưa có kênh của bạn, nên chip không mở
-          listbox và không phải điểm dừng Tab; lý do đọc được bằng trình đọc màn hình. */}
-      <span className="vx-chip vx-chip--locked" aria-disabled="true" aria-describedby="vx-status-locked"
-        title={tt.lockedReason}>
-        <Icon name="filter" size={14} />
-        {tt.filterStatus} <b>{tt.statusAll}</b>
-        <Icon name="arrow-d" size={12} aria-hidden />
-        <span id="vx-status-locked" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{tt.lockedReason}</span>
-      </span>
+      {/* Khoá: chỉ "Tất cả" có nghĩa khi chưa có kênh của bạn. Nút vẫn nhận focus,
+          bấm không mở gì; lý do đọc được bằng trình đọc màn hình. */}
+      <Tooltip content={tt.lockedReason} asChild>
+        <button type="button" className="vx-chip vx-chip--locked" aria-disabled="true" aria-describedby={lockId}>
+          <Icon name="filter" size={14} />
+          {tt.filterStatus} <b>{tt.statusAll}</b>
+          <Icon name="arrow-d" size={12} aria-hidden />
+        </button>
+      </Tooltip>
+      <span id={lockId} className="sr-only">{tt.lockedReason}</span>
       <span className="vx-grow" />
-      <span className="vx-count num">
-        {total === undefined ? `${num.format(shown)}` : tt.videoCount(num.format(shown), num.format(total))}
-      </span>
+      <span className="vx-count num">{count}</span>
     </div>
   )
 }

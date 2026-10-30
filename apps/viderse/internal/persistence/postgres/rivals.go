@@ -73,11 +73,9 @@ func (s *RivalsStore) CountVideos(ctx context.Context, q rivals.PageQuery) (int6
 // PageVideos trả một trang theo q.Sort; keyset của trang trước nằm trong
 // q.Cursor (nil = trang đầu).
 func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]domain.RivalVideo, error) {
-	var rows []gen.RivalVideo
-	var err error
 	switch {
 	case q.Sort == rivals.SortViews:
-		rows, err = s.q.PageRivalVideosByViews(ctx, gen.PageRivalVideosByViewsParams{
+		rows, err := s.q.PageRivalVideosByViews(ctx, gen.PageRivalVideosByViewsParams{
 			ChannelID:   channelArg(q.ChannelID),
 			LongOnly:    q.Long,
 			LongMinSec:  domain.LongFormMinSec,
@@ -88,8 +86,9 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			CursorViews: cursorInt8(func(c *rivals.Cursor) *int64 { return c.Views }, q.Cursor),
 			PageSize:    int64(q.Limit),
 		})
+		return videosFrom(rows, err, func(r gen.PageRivalVideosByViewsRow) pageRow { return pageRow(r) })
 	case q.Sort == rivals.SortNewest && q.ChannelID == "":
-		rows, err = s.q.PageAllRivalVideosByNewest(ctx, gen.PageAllRivalVideosByNewestParams{
+		rows, err := s.q.PageAllRivalVideosByNewest(ctx, gen.PageAllRivalVideosByNewestParams{
 			LongOnly:   q.Long,
 			LongMinSec: domain.LongFormMinSec,
 			WithinDays: int32(q.WithinDays),
@@ -99,8 +98,9 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			CursorTs:   cursorTS(q.Cursor),
 			PageSize:   int64(q.Limit),
 		})
+		return videosFrom(rows, err, func(r gen.PageAllRivalVideosByNewestRow) pageRow { return pageRow(r) })
 	case q.Sort == rivals.SortNewest:
-		rows, err = s.q.PageRivalVideosByPosition(ctx, gen.PageRivalVideosByPositionParams{
+		rows, err := s.q.PageRivalVideosByPosition(ctx, gen.PageRivalVideosByPositionParams{
 			ChannelID:  q.ChannelID,
 			LongOnly:   q.Long,
 			LongMinSec: domain.LongFormMinSec,
@@ -111,8 +111,9 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			CursorPos:  cursorInt8(func(c *rivals.Cursor) *int64 { return c.Pos }, q.Cursor),
 			PageSize:   int64(q.Limit),
 		})
+		return videosFrom(rows, err, func(r gen.PageRivalVideosByPositionRow) pageRow { return pageRow(r) })
 	default:
-		rows, err = s.q.PageRivalVideosByOutlier(ctx, gen.PageRivalVideosByOutlierParams{
+		rows, err := s.q.PageRivalVideosByOutlier(ctx, gen.PageRivalVideosByOutlierParams{
 			ChannelID:   channelArg(q.ChannelID),
 			LongOnly:    q.Long,
 			LongMinSec:  domain.LongFormMinSec,
@@ -123,13 +124,22 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			CursorScore: cursorFloat8(q.Cursor),
 			PageSize:    int64(q.Limit),
 		})
+		return videosFrom(rows, err, func(r pageRow) pageRow { return r })
 	}
+}
+
+// pageRow là hàng của bốn truy vấn trang. Chúng chọn cùng danh sách cột (bỏ
+// title_fold chỉ dùng để tìm) nên sqlc sinh bốn kiểu cùng trường, đổi kiểu
+// trực tiếp được.
+type pageRow = gen.PageRivalVideosByOutlierRow
+
+func videosFrom[R any](rows []R, err error, conv func(R) pageRow) ([]domain.RivalVideo, error) {
 	if err != nil {
 		return nil, err
 	}
 	out := make([]domain.RivalVideo, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, rivalVideoFromRow(r))
+		out = append(out, rivalVideoFromRow(conv(r)))
 	}
 	return out, nil
 }
@@ -261,7 +271,7 @@ func rivalChannelFromRow(r gen.ListRivalsRow) domain.RivalChannel {
 	}
 }
 
-func rivalVideoFromRow(r gen.RivalVideo) domain.RivalVideo {
+func rivalVideoFromRow(r pageRow) domain.RivalVideo {
 	v := domain.RivalVideo{
 		ID:            r.ID,
 		ChannelID:     r.ChannelID,

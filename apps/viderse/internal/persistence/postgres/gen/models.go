@@ -133,6 +133,7 @@ type RivalVideo struct {
 	Origin          string             `json:"origin"`
 	FirstSeenAt     pgtype.Timestamptz `json:"first_seen_at"`
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	TitleFold       pgtype.Text        `json:"title_fold"`
 }
 
 type ScanJob struct {
