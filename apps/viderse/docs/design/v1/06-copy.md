@@ -124,4 +124,35 @@
 | `template_changed` | “Template đã đổi số ảnh hoặc prompt ảnh. Đạo diễn cần chia cảnh lại (tốn 7 ảnh).” | Chia cảnh lại |
 | `failed` | Một câu từ lý do đã dịch; nguyên văn trong “Chi tiết” | Thử lại |
 
+## Khám phá <a id="copy-explore"></a> <!-- r28-explore -->
+
+Câu chuẩn cho các trạng thái không vẽ frame riêng (hỏi đáp #31, #32, #34, #35). Một câu nói chuyện gì đang xảy ra, câu sau nói việc tiếp theo; không nối bằng “—”.
+
+| Chỗ | Khoá / trạng thái | Câu | Nút |
+|---|---|---|---|
+| Quét lịch sử | `running` | “Đang đọc tab Videos, mỗi lượt cách nhau vài giây. Tạm dừng được; app mở lại vẫn chạy tiếp.” | Tạm dừng |
+| | `queued` | “Chờ lượt quét. Trinh sát bắt đầu sau ít giây.” | — |
+| | `limited` | “YouTube đang giới hạn tốc độ. Trinh sát tự thử lại lúc 01:10.” (không có giờ: “…sau ít phút.”) | Tạm dừng |
+| | `paused` | “Đã tạm dừng. Video đã quét vẫn dùng được trong Khám phá.” | Tiếp tục |
+| | `capped` | “Đã quét 2.000 video mới nhất, đủ giới hạn đặt cho đối thủ này. Video mới vẫn được kiểm tra mỗi giờ.” | Quét lại |
+| | `complete` | “Đã quét hết lịch sử kênh (1.284 video). Video mới vẫn được kiểm tra mỗi giờ.” | — |
+| | `idle` | “Chưa quét lịch sử. Bấm Quét lịch sử để Trinh sát đọc tab Videos.” | Quét lịch sử |
+| | `cancelled` | “Đã huỷ quét lịch sử. Video đã quét vẫn dùng được trong Khám phá.” | Quét lại |
+| | `error` | “Quét lịch sử dừng vì lỗi. Bấm Tiếp tục để thử lại; video đã quét vẫn dùng được.” | Tiếp tục |
+| | `discovery` | “Đang kiểm tra video mới trên kênh này.” | — |
+| Thêm đối thủ | `invalid_input` | “Chưa nhận ra kênh YouTube. Dán @handle, link kênh hoặc mã UC…” | — |
+| | `not_found` | “Không tìm thấy kênh này trên YouTube. Kiểm tra lại @handle hoặc link.” | — |
+| | `exists` | “Đã theo dõi đối thủ này.” | Mở |
+| | `rate_limited` | “YouTube đang giới hạn tốc độ. Thử lại lúc 01:10.” | — |
+| | `blocked` | “YouTube đòi xác minh không phải bot. Chọn hồ sơ trình duyệt có đăng nhập Google ở Tài khoản nền tảng rồi thử lại.” | Mở Tài khoản nền tảng |
+| | `unexpected_page` | “YouTube trả về trang không đọc được. Thử lại sau ít phút; lặp lại thì gửi Báo lỗi.” | Thử lại |
+| | lỗi khác | “Chưa thêm được đối thủ. Thử lại.” | Thử lại |
+| Lịch đăng | đang đọc | “Đang đọc giờ đăng chính xác của các video còn lại.” | — |
+| | tạm nghỉ | “YouTube đang giới hạn tốc độ. Đọc giờ đăng tiếp lúc 01:10.” | — |
+| | chưa đọc được | “Chưa đọc được giờ đăng chính xác của video nào. Trinh sát đọc khi quét tới.” | — |
+| | không có khung | “30 video gần nhất đăng lệch giờ nhau, chưa có khung nào lặp ít nhất 3 lần.” | — |
+| Nút cần kênh / hàng chờ (tới V4, V6) | khoá | “Cần một kênh của bạn để làm video. Tạo kênh ở mục Kênh.” | Tạo kênh (link) |
+| Tìm tiêu đề | có kết quả | “2 video có “floor” · trong 1.284 đã quét” | — |
+| | không có | “Không có video nào có “basement” trong tiêu đề” + dòng phụ nói đang tìm ở đâu, lọc gì | Xoá tìm |
+
 <!-- r3 -->

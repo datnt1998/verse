@@ -266,6 +266,9 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - **ExportGateDialog:** `.vv-dialog` `role=alertdialog`, icon cảnh báo, liệt kê mục còn lại; **Sửa tiếp** (chính) · **Vẫn xuất**.
 - Một nút chính mỗi lúc: còn lệch → Khớp theo giọng; sửa xong → Đo lại; đạt → Xuất.
 
+## Menu <!-- r28-explore -->
+- Mọi menu ⋯ dùng `ActionMenu` của kit: đệm hàng 6/10, cách hàng 0, bo 8; chỉ đổi `width` (menu đối thủ 272px). Hàng có dòng phụ giữ đệm này, không tăng riêng.
+
 ## Icon <!-- r8-icons -->
 - Mọi icon trong nút dùng bộ icon (mask) của Viderse, không dùng ký tự (↶ ↷ − +). Thêm `i-undo`, `i-redo` (Editor Hoàn tác / Làm lại), `i-minus` (nút giảm), `i-key` (Kết nối AI, khoá API). Nút tăng dùng `i-add`.
 

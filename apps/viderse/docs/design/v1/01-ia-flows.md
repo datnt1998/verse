@@ -268,7 +268,10 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
   - Phải: thông tin đối thủ, quét lịch sử, **lịch đăng hiện mọi khung đăng lặp lại** (không chỉ một khung nhiều nhất): mỗi khung có các thứ, khoảng giờ (VN / New York, đổi cả thứ khi qua nửa đêm), số video trên 30 và độ đều; bấm một khung để làm nổi các ô của nó trên bảng thứ × giờ. Trang Kênh gộp khung của mọi đối thủ liên kết, ghi đối thủ nào đăng khung đó.
 - **Video đã chọn** (bấm một thẻ): cột phải đổi sang xem trước — ảnh, điểm nổi trội, chương (của video gốc), chọn kênh (kênh đã làm video này hiện trạng thái + “Mở ›” ngay trong danh sách, không chọn được), <!-- r12-small --> dòng kế hoạch và nút chính **Làm video cho <kênh>**. “← Thông tin đối thủ” để quay lại. Không có trang chi tiết riêng.
 - **Chọn nhiều:** tích video → **Làm N video cho <kênh>** (đỏ) · Sao chép link · Top 10/20 · Bỏ chọn. Theo L2, các video này vào cuối hàng.
-- **Artboard:** `Explore` · `preview`, `select`, `rivalMenu`, `scan` · điện thoại `MExplore` · `MCompVideo` (Chi tiết video) · `sheet=none|picker`.
+- **Tìm tiêu đề** <!-- r28-explore -->: ô 240px trước Chọn nhiều, phím `/`; tìm trong đối thủ đang chọn, cộng với lọc đang bật, không phân biệt hoa thường và dấu; không có kết quả → khối giữa lưới + Xoá tìm.
+- **Chưa có kênh / hàng chờ** (trước V4, V6): các nút làm video, chọn kênh, liên kết kênh và lọc Trạng thái khoá kèm một câu lý do; không ẩn.
+- Ví dụ ở ô thêm đối thủ: một kênh Anh, một kênh Việt, một mã UC.
+- **Artboard:** `Explore` · `preview`, `select`, `rivalMenu`, `scan`, `search=none|match|nomatch`, `empty` · điện thoại `MExplore` (làm ở V10) · `MCompVideo` (Chi tiết video) · `sheet=none|picker`.
 
 - **Vì sao nổi trội?** cạnh điểm ở Video đã chọn (`Explore` · `preview=true`, `why=true`) và ở chi tiết video trên điện thoại (`MCompVideo` · `sheet=why`) (§9.1); video đạt ≥ ×3 mà Tự lấy không lấy thành đề xuất `hot_video` (§9.2). <!-- r16-agent -->
 ### W4 · Làm video

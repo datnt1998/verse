@@ -265,6 +265,10 @@ GET /api/channels/<id>/posting-schedule?zone=vn|ny → { total: 30, perWeek: num
 GET /api/owner-channels/<id>/posting-schedule?zone=vn|ny → { total: number, slots: PostingSlot[] }   // gộp các đối thủ liên kết
 ```
 
+**Mỗi tuần** (`perWeek`) <!-- r28-explore -->: (số video có giờ đăng − 1) ÷ độ dài thật của mẫu tính bằng tuần (từ video cũ nhất tới mới nhất), tối thiểu 1 tuần. Hiện: ≥ 1 → số nguyên (“6 video”), < 1 → một chữ số lẻ (“0,4 video”). Ví dụ 3 video/ngày, 30 video trong 9 ngày → ≈ 22.
+
+Tìm video của đối thủ: `GET /api/rivals/<id>/videos?q=<≤200 ký tự>&…` — cộng với lọc và sắp xếp, không phân biệt hoa thường và dấu.
+
 Cách tính khung (một hàm thuần dùng chung cho UI và CLI):
 1. Đổi giờ đăng chính xác của 30 video sang múi giờ đang xem (New York tự tính giờ mùa hè/đông; thứ đổi theo khi qua nửa đêm).
 2. Gom theo (thứ, khung 1 giờ); gộp hai khung giờ liền kề cùng thứ.

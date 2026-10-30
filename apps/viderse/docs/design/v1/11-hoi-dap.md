@@ -193,39 +193,46 @@ Mẫu:
 - Pha không biết tổng dung lượng (tải mô hình nhận giọng nói, dựng môi trường Python) trả `pct: null`. Artboard chỉ vẽ pha có phần trăm (“· 62%”). Code chỉ ghi tên pha, cạnh đó là vòng quay của hàng; không vẽ “0%” và thanh đứng yên.
 - Hỏi design: dải đẩy hay phủ lên nội dung? Đồng ý bảng tông theo kind? Pha không biết tổng có cần thanh chạy vô định không?
 
-### #31 · Khám phá: điều khiển cần kênh của bạn và hàng chờ — Mở
+### #31 · Khám phá: điều khiển cần kênh của bạn và hàng chờ — Đã chốt <!-- r28-explore -->
 - Artboard: `Explore` (xem trước, chọn nhiều, thẻ đối thủ), `MExplore`.
 - Kênh của bạn có ở gói Kênh (V4), hàng chờ làm video ở gói Hàng chờ (V6). Tới lúc đó code vẽ các điều khiển sau ở trạng thái khoá, kèm lý do “Chưa có kênh của bạn để làm video — tạo kênh ở mục Kênh.”: “Làm cho <kênh>”, chọn kênh, “Làm video”, nút chọn nhiều “Làm N video” (bỏ “cho <kênh>”), “Liên kết với kênh…”, lọc Trạng thái ngoài “Tất cả”.
 - Câu cần số liệu hàng chờ viết không có số: gợi ý “Lên đầu hàng chờ khi bấm Làm video.” (artboard có giờ dự kiến “bắt đầu khoảng 00:40”); hộp Bỏ theo dõi không ghi “2 video trong hàng chờ bị bỏ”.
 - Panel Vì sao không có link “Đổi ngưỡng ở Kênh › Nguồn & tự động” vì màn đó chưa có. Panel giữ 3 dòng số liệu (lượt xem, mức thường, ngày đăng); ngưỡng ×3 nằm trong câu giải thích.
 - Khối chương của video trong panel xem trước bị ẩn: Trinh sát chưa lưu chương.
 - Hỏi design: chấp nhận trạng thái khoá và câu không số tới khi có kênh/hàng chờ? Khi có, các nút mở theo đúng artboard.
+- Trả lời (design, 30/10/2026): đồng ý cả bốn ý, tới V4/V6 thì mở đúng artboard. Lý do khoá viết ngắn hơn, một câu, ngay dưới nút hoặc trong tooltip: “Cần một kênh của bạn để làm video. Tạo kênh ở mục Kênh.” Nút khoá vẫn nhận focus và đọc được lý do (`aria-disabled` + `aria-describedby`), không ẩn. “Lên đầu hàng chờ khi bấm Làm video.” và hộp Bỏ theo dõi không có số: được. Vì sao không có link đổi ngưỡng, ẩn khối chương: được; khi Trinh sát lưu chương thì hiện lại (ghi ở 10-gap-closure).
 
-### #32 · Khám phá: trạng thái quét và lỗi thêm đối thủ chưa có artboard — Mở
+### #32 · Khám phá: trạng thái quét và lỗi thêm đối thủ chưa có artboard — Đã chốt <!-- r28-explore -->
 - Artboard `Explore` vẽ quét đang chạy, tạm dừng, bị giới hạn tốc độ, đã xong.
 - Code thêm câu cho trạng thái còn lại của việc quét lịch sử: đang chờ (`queued`), chưa quét (`idle`), đủ giới hạn (`capped`), quét hết (`complete`), đã huỷ, lỗi, đang kiểm tra video mới. Câu nằm ở `screens.explore.scanStates` trong `i18n/vi.ts`.
 - Lỗi thêm đối thủ: mỗi `code` của `POST /api/rivals` một câu dưới ô nhập (`invalid_input`, `not_found`, `exists` kèm nút Mở, `rate_limited` kèm giờ thử lại, `blocked`, `unexpected_page`, lỗi khác). Câu nằm ở `screens.explore.addErrors`.
 - Hỏi design: duyệt các câu này, hoặc vẽ thêm frame.
+- Trả lời (design, 30/10/2026): duyệt câu, không vẽ thêm frame (cùng bố cục, chỉ đổi câu). Bảng câu chuẩn nằm ở [06-copy.md › Khám phá](06-copy.md#copy-explore); chỗ sửa so với `vi.ts`: bỏ “—” nối hai mệnh đề, dùng dấu chấm; `idle` và `error` gọi đúng tên nút; `capped` nói rõ giới hạn là bao nhiêu video; `blocked` dẫn sang Tài khoản nền tảng giống `cookies_failed`. Artboard `Explore` · `scan=done` đã đổi theo câu `capped` mới.
 
-### #33 · Menu ⋯ của đối thủ: đệm hàng 6px, cách 0px — Mở
+### #33 · Menu ⋯ của đối thủ: đệm hàng 6px, cách 0px — Đã chốt <!-- r28-explore -->
 - Artboard `Explore` · menu đối thủ: hàng đệm 8px, cách nhau 2px, rộng 272px.
 - `ActionMenu` của kit đệm 6/10, cách 0, khớp artboard `Kit` (`.vv-menu__item`) và menu của Noverse. Code đã cho `ActionMenu` prop `width` (đối thủ dùng 272), nên chỉ còn lệch đệm dọc: mỗi hàng thấp hơn ~2,7px.
 - Hỏi design: thêm prop đệm hàng cho kit để riêng menu này 8/2, hay coi đệm 6/0 của Kit là chuẩn?
+- Trả lời (design, 30/10/2026): đệm 6/10, cách 0 của Kit là chuẩn; không thêm prop đệm. Artboard `Explore` · `rivalMenu` đã sửa theo kit. Luật chung: menu nào cũng dùng `ActionMenu` như kit, chỉ đổi `width`.
 
-### #34 · Lịch đăng: số “Mỗi tuần” và câu khi không có khung — Mở
+### #34 · Lịch đăng: số “Mỗi tuần” và câu khi không có khung — Đã chốt <!-- r28-explore -->
 - Artboard `Explore` · thẻ Lịch đăng chỉ vẽ kênh có khung lặp lại.
 - “Mỗi tuần” = (số video có giờ − 1) chia độ dài thật của mẫu tính theo tuần, tối thiểu 1 tuần. Cách cũ (số video chia số tuần lịch mẫu chạm tới) cho kênh đăng 3 video/ngày ra 15 vì 30 video trong 9 ngày chạm 2 tuần lịch; cách mới ra ~22. Ô số hẹp (“5,6 video” đã xuống dòng) nên từ 1 video/tuần hiện số nguyên như artboard (“6 video”), dưới 1 giữ một chữ số lẻ (“0,4 video”).
 - Không có khung nào, code ghi một trong bốn câu: tạm nghỉ đọc giờ đăng tới HH:MM; đang đọc giờ đăng của video còn lại; chưa đọc được giờ đăng của video nào; “Chưa thấy khung nào lặp lại trong mẫu này.” (đã đọc đủ mẫu, ví dụ kênh đăng giờ lệch nhau mỗi ngày).
 - Hỏi design: duyệt cách tính và bốn câu.
+- Trả lời (design, 30/10/2026): duyệt cách tính mới và cách hiện số (≥ 1: số nguyên; < 1: một chữ số lẻ). Đã ghi vào [07-data-contract.md §12](07-data-contract.md#posting-slots). Bốn câu duyệt với chỉnh nhỏ ở [06-copy.md › Khám phá](06-copy.md#copy-explore): câu tạm nghỉ nói vì sao (YouTube giới hạn), câu không có khung nói rõ điều kiện “lặp ít nhất 3 lần”.
 
-### #35 · Khám phá: không có ô tìm video — Mở
+### #35 · Khám phá: không có ô tìm video — Đã chốt <!-- r28-explore -->
 - Artboard `Explore` không có ô tìm. API (`GET /api/rivals/<id>/videos?q=`, tối đa 200 ký tự) và CLI (`viderse rival videos`) tìm được theo tiêu đề; giao diện chưa có ô tìm.
 - Hỏi design: cần ô tìm trên thanh lọc không? Nếu có, đặt ở đâu.
+- Trả lời (design, 30/10/2026): cần. Ô **Tìm tiêu đề** 240px ở dòng tiêu đề, ngay trước **Chọn nhiều**; phím `/` để vào ô, Esc xoá. Tìm trong đối thủ đang chọn, cộng dồn với lọc và sắp xếp đang bật; không phân biệt hoa thường và dấu. Dòng đếm đổi thành “2 video có “floor” · trong 1.284 đã quét”. Không có kết quả: khối giữa lưới + **Xoá tìm**. Artboard `Explore` · `search=none|match|nomatch`.
 
-### #36 · Khám phá trống: ví dụ là kênh tiếng Anh — Mở
+### #36 · Khám phá trống: ví dụ là kênh tiếng Anh — Đã chốt <!-- r28-explore -->
 - Artboard `Explore` · `state=empty` ghi ví dụ `@nocturnestories`, `youtube.com/@thelatearchive`, `UCx9…Qw`. Code chép nguyên văn.
 - Hỏi design: app tiếng Việt, có đổi ví dụ sang kênh Việt không?
+- Trả lời (design, 30/10/2026): giữ ví dụ theo ngách chứ không theo ngôn ngữ app: người dùng theo dõi cả kênh Anh lẫn kênh Việt. Đổi thành một kênh Anh, một kênh Việt, một mã UC: `@nocturnestories` · `youtube.com/@hosobian` · `UCx9…Qw`. Artboard `Explore` · `empty` đã đổi.
 
-### #37 · Khám phá trên điện thoại — Mở
+### #37 · Khám phá trên điện thoại — Đã chốt <!-- r28-explore -->
 - Artboard `MExplore`. Gói này chưa làm `MExplore`: dưới 768px, màn máy tính xếp thành một cột (đối thủ, lưới ảo hoá, cột phải), vẫn thêm/bỏ đối thủ, quét, xem lịch đăng được. Làm `MExplore` đúng artboard để gói Điện thoại (V10).
 - Hỏi design: đồng ý dời?
+- Trả lời (design, 30/10/2026): đồng ý dời `MExplore` sang V10. Trong lúc chờ, bản một cột dưới 768px phải: không cuộn ngang, nút ≥ 44px khi `pointer: coarse`, ô thêm đối thủ ở trên cùng, cột phải (thông tin, quét, lịch đăng) xuống dưới lưới. Không cần artboard cho bản tạm.

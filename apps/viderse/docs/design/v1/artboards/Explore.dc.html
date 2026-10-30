@@ -774,13 +774,14 @@ ul.vv-dialog__list { padding-left: 30px; }
 
 <main class="center scroll" style="flex: 1 1 560px; min-width: 0; min-height: 0; overflow-y: auto; padding: 16px 22px 0; display: flex; flex-direction: column; gap: 14px">
 <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
-<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 0 64px"><div style="width: min(600px, 100%); display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center"><span class="orb o-scout" aria-hidden="true" style="width: 40px; height: 40px"></span><h1 style="margin: 4px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">Chưa theo dõi đối thủ nào</h1><p style="margin: 0; font-size: 14px; color: #A0A0AB; line-height: 1.6">Thêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.</p><form aria-label="Thêm đối thủ" style="width: 100%; display: flex; gap: 8px; margin-top: 4px"><label for="addc" class="sr-only">Thêm đối thủ bằng @handle, link kênh hoặc mã UC</label><input id="addc" class="vv-field is-focus" type="text" placeholder="@handle, link kênh hoặc mã UC…" style="flex: 1; min-width: 0"><button class="vv-btn vv-btn--primary" type="submit">Thêm đối thủ</button></form><div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; font-size: 12.5px; color: #8B8B97"><span>Ví dụ</span><span class="vv-tag mono">@nocturnestories</span><span class="vv-tag mono">youtube.com/@thelatearchive</span><span class="vv-tag mono">UCx9…Qw</span></div></div></div>
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 0 64px"><div style="width: min(600px, 100%); display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center"><span class="orb o-scout" aria-hidden="true" style="width: 40px; height: 40px"></span><h1 style="margin: 4px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">Chưa theo dõi đối thủ nào</h1><p style="margin: 0; font-size: 14px; color: #A0A0AB; line-height: 1.6">Thêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.</p><form aria-label="Thêm đối thủ" style="width: 100%; display: flex; gap: 8px; margin-top: 4px"><label for="addc" class="sr-only">Thêm đối thủ bằng @handle, link kênh hoặc mã UC</label><input id="addc" class="vv-field is-focus" type="text" placeholder="@handle, link kênh hoặc mã UC…" style="flex: 1; min-width: 0"><button class="vv-btn vv-btn--primary" type="submit">Thêm đối thủ</button></form><div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; font-size: 12.5px; color: #8B8B97"><span>Ví dụ</span><span class="vv-tag mono">@nocturnestories</span><span class="vv-tag mono">youtube.com/@hosobian</span><span class="vv-tag mono">UCx9…Qw</span></div></div></div>
 </sc-if>
 <sc-if value="{{notEmpty}}" hint-placeholder-val="{{ true }}">
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
 <h1 style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.015em">Video nổi trội</h1>
 <span style="font-size: 12.5px; color: #8B8B97">Điểm × = lượt xem so với mức thường của kênh đó</span>
 <span style="flex: 1"></span>
+<!-- r28-explore --><div role="search" style="position: relative; width: 240px"><label for="xp-q" class="sr-only">Tìm theo tiêu đề video</label><span class="ic i-search" aria-hidden="true" style="position: absolute; left: 10px; top: 9px; width: 14px; height: 14px; color: #8B8B97"></span><input id="xp-q" class="vv-field" type="text" enterkeyhint="search" placeholder="Tìm tiêu đề" value="{{q}}" onInput="{{setQ}}" style="width: 100%; height: 32px; padding: 0 30px; font-size: 12.5px"><sc-if value="{{hasQ}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--sm vv-btn--icon" type="button" aria-label="Xoá tìm" onClick="{{clearQ}}" style="position: absolute; right: 2px; top: 2px; --h: 28px"><span class="ic i-close" aria-hidden="true" style="width: 13px; height: 13px"></span></button></sc-if><sc-if value="{{noQ}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: absolute; right: 8px; top: 7px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.14); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #A0A0AB; display: flex; align-items: center; justify-content: center">/</span></sc-if></div>
 <button class="ghost" type="button" onClick="{{toggleSelect}}" aria-pressed="{{selectOn}}" style="height: 32px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid {{selBd}}; background: {{selBg}}; color: #EDEDEF; font-size: 13px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; color: {{selIc}}"></span>{{selText}}</button>
 </div>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
@@ -791,7 +792,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <button class="chip ghost" type="button"><span class="ic i-calendar" aria-hidden="true" style="width: 14px; height: 14px"></span>Đăng trong <b>30 ngày</b><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px"></span></button>
 <button class="chip ghost" type="button" aria-haspopup="listbox" title="Tất cả · Chưa làm cho kênh nào · Đã làm"><span class="ic i-filter" aria-hidden="true" style="width: 14px; height: 14px"></span>Trạng thái <b>Tất cả</b><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px"></span></button>
 <span style="flex: 1"></span>
-<span class="num" style="font-size: 12.5px; color: #8B8B97">24 / 1.284 video</span>
+<span class="num" style="font-size: 12.5px; color: #8B8B97">{{countText}}</span>
 </div>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); gap: 14px 12px; padding-bottom: 90px">
@@ -820,6 +821,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </article>
 </sc-for>
 </div>
+<sc-if value="{{noMatch}}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; border-radius: 14px; border: 1.5px dashed rgba(255,255,255,0.1)"><span class="ic i-search" aria-hidden="true" style="width: 22px; height: 22px; color: #8B8B97"></span><span style="font-size: 14px; font-weight: 500">Không có video nào có “{{q}}” trong tiêu đề</span><span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">Tìm trong 1.284 video đã quét của Nocturne Stories, đang lọc dài ≥ 8 phút, đăng trong 30 ngày.</span><button class="vv-btn vv-btn--sm" type="button" onClick="{{clearQ}}">Xoá tìm</button></div></sc-if>
 
 <sc-if value="{{selectMode}}" hint-placeholder-val="{{ false }}">
 <div style="position: sticky; bottom: 14px; margin-top: -76px; display: flex; justify-content: center; pointer-events: none">
@@ -888,8 +890,8 @@ ul.vv-dialog__list { padding-left: 30px; }
 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Nocturne Stories</span><span title="@nocturnestories · 1,24 Tr người theo dõi" style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">1,24 Tr người theo dõi</span></div>
 <div style="position: relative">
 <button class="ghost" type="button" onClick="{{toggleRivalMenu}}" aria-haspopup="menu" aria-expanded="{{rivalMenuAttr}}" aria-label="Thao tác với Nocturne Stories" style="width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-more" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
-<sc-if value="{{rivalMenu}}" hint-placeholder-val="{{ false }}"><div role="menu" class="card" style="position: absolute; right: 0; top: 36px; z-index: 20; width: 272px; border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 2px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)">
-<sc-for list="{{rivalItems}}" as="m" hint-placeholder-count="5"><button class="ghost" type="button" role="menuitem" style="white-space: normal; text-align: left; padding: 8px 10px; border-radius: 8px; border: none; background: transparent; color: {{m.fg}}; display: flex; gap: 10px; align-items: flex-start; border-top: {{m.sep}}"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13px">{{m.label}}</span><span style="font-size: 11.5px; color: #8B8B97; line-height: 1.45">{{m.hint}}</span></span></button></sc-for>
+<sc-if value="{{rivalMenu}}" hint-placeholder-val="{{ false }}"><div role="menu" class="card" style="position: absolute; right: 0; top: 36px; z-index: 20; width: 272px; border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 0; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)">
+<sc-for list="{{rivalItems}}" as="m" hint-placeholder-count="5"><button class="ghost" type="button" role="menuitem" style="white-space: normal; text-align: left; padding: 6px 10px; border-radius: 8px; border: none; background: transparent; color: {{m.fg}}; display: flex; gap: 10px; align-items: flex-start; border-top: {{m.sep}}"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13px">{{m.label}}</span><span style="font-size: 11.5px; color: #8B8B97; line-height: 1.45">{{m.hint}}</span></span></button></sc-for>
 </div></sc-if>
 </div>
 </div>
@@ -955,14 +957,14 @@ ul.vv-dialog__list { padding-left: 30px; }
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"select": {"editor": "boolean", "default": false, "section": "Chọn nhiều"}, "rivalMenu": {"editor": "boolean", "default": false, "section": "Menu ⋯ của đối thủ"}, "preview": {"editor": "boolean", "default": false, "section": "Video đã chọn"}, "scan": {"editor": "enum", "options": ["running", "paused", "limited", "done"], "default": "running", "section": "Quét lịch sử"}, "$preview": {"width": 1440, "height": 900}, "why": {"editor": "boolean", "default": false, "section": "Trợ lý chủ động"}, "empty": {"editor": "boolean", "default": false, "section": "Chưa theo dõi đối thủ"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"select": {"editor": "boolean", "default": false, "section": "Chọn nhiều"}, "rivalMenu": {"editor": "boolean", "default": false, "section": "Menu ⋯ của đối thủ"}, "preview": {"editor": "boolean", "default": false, "section": "Video đã chọn"}, "scan": {"editor": "enum", "options": ["running", "paused", "limited", "done"], "default": "running", "section": "Quét lịch sử"}, "$preview": {"width": 1440, "height": 900}, "why": {"editor": "boolean", "default": false, "section": "Trợ lý chủ động"}, "empty": {"editor": "boolean", "default": false, "section": "Chưa theo dõi đối thủ"}, "search": {"editor": "enum", "options": ["none", "match", "nomatch"], "default": "none", "section": "Tìm tiêu đề"}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { rival: 'noc', sort: 'top', zone: 'vn', select: null, checked: { v5: true, v6: true, v8: true }, scan: null, rm: null, pick: null, chPick: null, why: null };
+    this.state = { q: null, rival: 'noc', sort: 'top', zone: 'vn', select: null, checked: { v5: true, v6: true, v8: true }, scan: null, rm: null, pick: null, chPick: null, why: null };
   }
   componentDidUpdate(prev) {
-    if (prev.select !== this.props.select || prev.scan !== this.props.scan || prev.rivalMenu !== this.props.rivalMenu || prev.preview !== this.props.preview || prev.why !== this.props.why || prev.empty !== this.props.empty) this.setState({ why: null, select: null, scan: null, rm: null, pick: null, chPick: null });
+    if (prev.select !== this.props.select || prev.scan !== this.props.scan || prev.rivalMenu !== this.props.rivalMenu || prev.preview !== this.props.preview || prev.why !== this.props.why || prev.empty !== this.props.empty || prev.search !== this.props.search) this.setState({ q: null, why: null, select: null, scan: null, rm: null, pick: null, chPick: null });
   }
   baseVals() {
     const selectMode = this.state.select !== null ? this.state.select : !!this.props.select;
@@ -995,7 +997,7 @@ class Component extends DCLogic {
     ];
     const V = (id, title, meta, score, dur, bg, o) => Object.assign({ id, title, meta, score, dur, bg, isNew: true, isUsed: false, st: '', stColor: '', forCh: 'Midnight Tales', hasSubs: false }, o || {});
     const raw = [
-      V('v1', 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', '1,2 Tr lượt xem · 2 ngày', '×4,2', '39:51', 'url(../img/k_radio.jpg) center / cover no-repeat', { isUsed: true, st: 'Midnight Tales · Chờ lượt', stColor: '#8E8E99', hasSubs: true }),
+      V('v1', 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', '1,2 Tr lượt xem · 2 ngày', '×4,2', '39:51', 'url(../img/k_radio.jpg) center / cover no-repeat', { isNew: false, isUsed: true, st: 'Midnight Tales · Chờ lượt', stColor: '#8E8E99', hasSubs: true }),
       V('v2', 'Night Shift Nurse Hears Breathing From an Empty Room', '1,2 Tr lượt xem · 9 ngày', '×4,2', '42:10', 'url(../img/k_nurse.jpg) center / cover no-repeat', { isNew: false, isUsed: true, st: 'Midnight Tales · Đang vẽ ảnh', stColor: '#B9D0F7', hasSubs: true }),
       V('v3', 'I Took a Job Watching an Empty Mall After Midnight', '1,08 Tr lượt xem · 12 ngày', '×3,8', '37:05', 'url(../img/k_mall.jpg) center / cover no-repeat', { isNew: false, isUsed: true, st: 'Midnight Tales · Chờ duyệt', stColor: '#F6CB8C' }),
       V('v4', 'The Hospital Elevator Stops at Floor 13', '944 N lượt xem · 6 ngày', '×3,3', '45:20', 'url(../img/k_elevator.jpg) center / cover no-repeat', { isNew: false, isUsed: true, st: 'Midnight Tales · Chờ lượt', stColor: '#8E8E99' }),
@@ -1006,7 +1008,11 @@ class Component extends DCLogic {
     ];
     const checked = this.state.checked;
     const pickId = this.state.pick !== null ? (this.state.pick || null) : (this.props.preview ? 'v1' : null);
-    const videos = raw.map((v) => {
+    // r28-explore: tìm theo tiêu đề (không phân biệt hoa thường, bỏ dấu); kết hợp với lọc đang bật
+    const qQ = this.state.q !== null ? this.state.q : ({ match: 'floor', nomatch: 'basement' }[this.props.search] || '');
+    const fold = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const rawQ = qQ ? raw.filter((v) => fold(v.title).indexOf(fold(qQ)) >= 0) : raw;
+    const videos = rawQ.map((v) => {
       const hi = parseFloat(v.score.replace('×', '').replace(',', '.')) >= 3;
       const isChecked = !!checked[v.id];
       return Object.assign(v, {
@@ -1023,7 +1029,7 @@ class Component extends DCLogic {
       running: { scanCount: '1.284 / 2.000', scanPct: '64%', scanNow: 1284, scanText: 'Đang đọc tab Videos, mỗi lượt cách nhau vài giây. Tạm dừng được, app mở lại vẫn chạy tiếp.', scanBtn: 'Tạm dừng', scanBtnIcon: 'i-pause', scanLive: 'live' },
       paused: { scanCount: '1.284 / 2.000', scanPct: '64%', scanNow: 1284, scanText: 'Đã tạm dừng. Video đã quét vẫn dùng được trong Khám phá.', scanBtn: 'Tiếp tục', scanBtnIcon: 'i-refresh', scanLive: '' },
       limited: { scanCount: '1.284 / 2.000', scanPct: '64%', scanNow: 1284, scanText: 'YouTube đang giới hạn tốc độ. Trinh sát tự thử lại lúc 01:10.', scanBtn: 'Tạm dừng', scanBtnIcon: 'i-pause', scanLive: '' },
-      done: { scanCount: '2.000 / 2.000', scanPct: '100%', scanNow: 2000, scanText: 'Đã quét đủ giới hạn. Video mới vẫn được kiểm tra mỗi giờ.', scanBtn: 'Quét lại', scanBtnIcon: 'i-refresh', scanLive: '' }
+      done: { scanCount: '2.000 / 2.000', scanPct: '100%', scanNow: 2000, scanText: 'Đã quét 2.000 video mới nhất, đủ giới hạn đặt cho đối thủ này. Video mới vẫn được kiểm tra mỗi giờ.', scanBtn: 'Quét lại', scanBtnIcon: 'i-refresh', scanLive: '' }
     }[scan];
     const toggleScan = () => this.setState({ scan: scan === 'running' ? 'paused' : 'running' });
 
@@ -1062,7 +1068,7 @@ class Component extends DCLogic {
       { icon: 'i-trash', label: 'Bỏ theo dõi', hint: 'Gỡ khỏi Khám phá và khỏi Midnight Tales. Video đã làm giữ nguyên; 2 video trong hàng chờ bị bỏ.', fg: '#FFC09A', sep: '1px solid rgba(255,255,255,0.06)' }
     ];
     const showPreview = !selectMode && !!pickId;
-    const pv0 = videos.find((v) => v.id === pickId) || videos[0];
+    const pv0 = videos.find((v) => v.id === pickId) || videos[0] || Object.assign({}, raw[0], { stColor: raw[0].stColor });
     const CH = [['MT', 'Midnight Tales', '#2E2236', '#D79BFF', 'Tiếp theo: Phim tài liệu'], ['CL', 'Chuyện Lạ Đêm Khuya', '#302418', '#F6CB8C', 'Tiếp theo: Truyện kể đêm'], ['QH', 'Quiet Hours', '#1F2C27', '#A6EDC1', 'Tiếp theo: Ru ngủ · Không ảnh']];
     const usedMT = pv0.isUsed;
     const chSel = this.state.chPick || (usedMT ? 'CL' : 'MT');
@@ -1079,7 +1085,10 @@ class Component extends DCLogic {
     const whyOn = this.state.why !== null ? this.state.why : !!this.props.why;
     const HOT = {"text": "Lượt xem mỗi giờ gấp 4,2 lần mức thường của Nocturne Stories — cao nhất tuần của kênh này.", "facts": [{"l": "Lượt xem / giờ (48 giờ đầu)", "v": "25.000", "s": "YouTube · đọc lúc 08:10"}, {"l": "Mức thường của Nocturne Stories", "v": "5.950", "s": "trung vị 30 video gần nhất"}, {"l": "Tuổi video", "v": "2 ngày", "s": "đăng 26/10 · 19:00"}]};
     const rs = pv0.id === 'v1' ? HOT : { text: 'Lượt xem mỗi giờ gấp ' + pv0.score.replace('×', '') + ' lần mức thường của Nocturne Stories.', facts: [{ l: 'Mức thường của Nocturne Stories', v: '5.950 / giờ', s: 'trung vị 30 video gần nhất' }, { l: 'Lượt xem', v: pv0.meta.split(' · ')[0].replace(' lượt xem', ''), s: 'YouTube · đọc lúc 08:10' }, { l: 'Tuổi video', v: pv0.meta.split(' · ')[1] || '', s: 'tính từ lúc đăng' }] };
-    return {
+    const nQ = rawQ.length;
+    const qVals = { q: qQ, hasQ: !!qQ, noQ: !qQ, noMatch: !!qQ && nQ === 0, setQ: (e) => this.setState({ q: e && e.target ? e.target.value : '' }), clearQ: () => this.setState({ q: '' }),
+      countText: qQ ? (nQ ? nQ + ' video có “' + qQ + '” · trong 1.284 đã quét' : '0 video có “' + qQ + '”') : '24 / 1.284 video' };
+    return Object.assign(qVals, {
       pickNote: showPreview && pv0.id === 'v1', whyOpen: whyOn && showPreview, whyA: whyOn ? 'true' : 'false', tWhy: () => this.setState({ why: !whyOn }), rs,
       showPreview, showRival: !showPreview, pv, railLabel: showPreview ? 'Video đã chọn' : 'Chi tiết đối thủ', closePreview: () => this.setState({ pick: '' }),
       rivalMenu: rmOpen, rivalMenuAttr: rmOpen ? 'true' : 'false', toggleRivalMenu: () => this.setState({ rm: !rmOpen }), rivalItems,
@@ -1090,7 +1099,7 @@ class Component extends DCLogic {
       zones, heat, slots, slotCount: String(SL.length), offSlot: '3 video lẻ ngoài các khung trên · khung = cùng thứ và cùng giờ, lặp ít nhất 3 lần',
       heatLabel: 'Bảng thứ theo giờ đăng của 30 video gần nhất, ' + (vn ? 'giờ Việt Nam' : 'giờ New York') + '. Có ' + SL.length + ' khung lặp lại.',
       hx0: '0h', hx1: '6h', hx2: '12h', hx3: '18h'
-    };
+    });
   }
   renderVals() { const r = this.baseVals();
     const e = !!this.props.empty; r.isEmpty = e; r.notEmpty = !e;

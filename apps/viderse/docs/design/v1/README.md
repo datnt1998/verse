@@ -2,7 +2,7 @@
 
 Bộ thiết kế chính thức của Viderse: vận hành nhiều kênh YouTube bằng bốn trợ lý (Trinh sát, Đạo diễn, Hoạ sĩ, Kiểm định), dựng trên kiến trúc web của Noverse và kit `@noverse/ui`. Thư mục này là **nguồn sự thật cho hành vi và giao diện**; mọi cập nhật thiết kế và trao đổi với dev diễn ra ở đây.
 
-- Canvas thiết kế (bấm được, có tweak): https://claude.ai/artifact/FX1i2msq4xn9L9HdSrPmw6 — phiên bản 51. Link đang riêng tư; chủ canvas cần chia sẻ cho team.
+- Canvas thiết kế (bấm được, có tweak): https://claude.ai/artifact/FX1i2msq4xn9L9HdSrPmw6 — phiên bản 53. Link đang riêng tư; chủ canvas cần chia sẻ cho team.
 - Bản sao mã nguồn từng màn nằm trong `artboards/` để tra giá trị chính xác và mở trạng thái bằng tweak.
 - Viderse trước đây là giao diện mới của yt-factory; trong verse được dựng lại bằng Go + Postgres + React. Đọc [02-stack-verse.md](02-stack-verse.md) trước khi làm.
 

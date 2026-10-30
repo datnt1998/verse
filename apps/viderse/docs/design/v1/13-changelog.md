@@ -2,6 +2,16 @@
 
 Mỗi đợt ghi: ngày, vấn đề, quyết định, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Đợt 1–2 và 10–14 không có mục riêng (ghi trong phần Trạng thái ban đầu và trong các đợt kế tiếp).
 
+## Đợt 28 (30/10/2026) — Duyệt hỏi đáp Khám phá #31–#37 <!-- r28-explore -->
+
+- #31 khoá kèm một câu lý do tới V4/V6, câu hàng chờ không số: đồng ý. #37 `MExplore` dời V10: đồng ý, kèm yêu cầu cho bản một cột tạm.
+- #32, #34: duyệt câu, không vẽ frame; bảng câu chuẩn mới ở [06-copy.md › Khám phá](06-copy.md#copy-explore). Cách tính “Mỗi tuần” ghi vào data-contract §12.
+- #33: đệm menu theo kit 6/0 là chuẩn; artboard sửa theo; luật Menu ở components.
+- #35: thêm ô **Tìm tiêu đề** (tweak `search=none|match|nomatch`).
+- #36: ví dụ một kênh Anh, một kênh Việt (`@hosobian`), một mã UC.
+- Sửa lỗi artboard: thẻ đầu lưới vừa có nút “Làm cho Midnight Tales” vừa có trạng thái “Chờ lượt” (từ đợt 21). Video đã làm cho kênh nào thì chỉ hiện trạng thái.
+- Canvas phiên bản 53.
+
 ## Đợt 27 (29/10/2026) — Editor dễ dùng: mở ra là sửa <!-- r27-editor -->
 
 - **Vấn đề:** editor là NLE đầy đủ nhưng người dùng vào chỉ để sửa video chưa đạt (84/100). Không có danh sách cần sửa (chỉ một chip ở timeline); bảng phải hiện X/Y/Tỉ lệ/Keyframe của ảnh trong khi việc cần làm là khớp phụ đề; thanh trái 6 icon không chữ theo kiểu NLE; thanh timeline có “V/T”, “Vùng In–Out”; Xuất luôn là nút chính, không có bước đo lại.
