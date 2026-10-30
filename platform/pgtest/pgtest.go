@@ -9,6 +9,8 @@ package pgtest
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"regexp"
@@ -36,18 +38,36 @@ func RequireURL(t *testing.T) string {
 
 var schemaNameRe = regexp.MustCompile(`[^a-z0-9_]`)
 
-// SchemaName derives a deterministic schema name from the test name.
+// SchemaName dựng tên schema từ tên test kèm hậu tố ngẫu nhiên: lần chạy lặp,
+// lần chạy cũ còn sót và các lần chạy song song không thể trùng tên, và cả tên
+// vẫn nằm trong giới hạn 63 byte của Postgres.
 func SchemaName(t *testing.T) string {
 	t.Helper()
 	name := schemaNameRe.ReplaceAllString(strings.ToLower(t.Name()), "_")
 	name = strings.Trim(name, "_")
-	if len(name) > 40 {
-		name = name[:40]
-	}
 	if name == "" {
 		name = "pgtest"
 	}
-	return fmt.Sprintf("pgtest_%s_%d", name, time.Now().UnixNano()%1_000_000)
+	// 12 ký tự hex (48 bit) + tên cắt còn 36: schema ≤ 56 byte, và role mà
+	// migrate_test dựng từ tên schema (thêm tiền tố "app_") vẫn ≤ 63 nên phần
+	// ngẫu nhiên không bị cắt mất.
+	const prefix, randHex = "pgtest_", 12
+	if len(name) > 36 {
+		name = name[:36]
+		name = strings.TrimRight(name, "_")
+	}
+	return prefix + name + "_" + randomHex(t)
+}
+
+// randomHex trả 6 byte ngẫu nhiên dạng hex; máy không có nguồn ngẫu nhiên thì
+// vẫn phải ra một tên khác lần trước nên rơi về đồng hồ nano.
+func randomHex(t *testing.T) string {
+	t.Helper()
+	var b [6]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return fmt.Sprintf("%012x", time.Now().UnixNano()%0xffffffffffff)
+	}
+	return hex.EncodeToString(b[:])
 }
 
 // Provision creates an isolated schema on the test database and returns a DSN

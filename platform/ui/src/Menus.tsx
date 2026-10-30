@@ -24,7 +24,7 @@ const sx = stylex.create({
   meta: { fontSize: 11, color: FG4, whiteSpace: 'nowrap' },
   subIcon: { color: FG4 },
   row: { position: 'relative' },
-  menuPos: (left: string, top: string) => ({ position: 'fixed', width: 264, left, top }),
+  menuPos: (left: string, top: string, width: number) => ({ position: 'fixed', width, left, top }),
   trigger: {
     width: 30, height: 30, borderRadius: 8, borderWidth: 0, borderStyle: 'none', color: color['--color-fg-2'],
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
@@ -82,7 +82,7 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
  * Menu thao tác ⋯. Đặt `data-menu-anchor` lên dòng chứa nút để menu mở ngay dưới dòng (4 px) như artboard;
  * không có thì mở dưới nút (6 px). `defaultOpen`/`defaultSubmenu` cho gallery mở sẵn; `onOpen` báo khi người dùng mở.
  */
-export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null }) {
+export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null, width = 264 }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null; /** bề rộng popover (mặc định 264); menu có dòng phụ dài dùng rộng hơn. */ width?: number }) {
   const [open, setOpen] = useState(defaultOpen)
   const [position, setPosition] = useState<MenuPoint>({ x: 0, y: 0 })
   const button = useRef<HTMLButtonElement>(null)
@@ -99,9 +99,9 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
       const row = button.current?.closest<HTMLElement>('[data-menu-anchor]')?.getBoundingClientRect()
       const origin = point ?? { x: (rect?.right ?? 0) + 4, y: row ? row.bottom + 4 : (rect?.bottom ?? 0) + 6 }
       // offsetWidth/Height (không bị scale của animation mở menu làm lệch).
-      const width = menu.current?.offsetWidth ?? 264
+      const w = menu.current?.offsetWidth ?? width
       const height = menu.current?.offsetHeight ?? 250
-      setPosition({ x: Math.max(8, Math.min(point ? origin.x : origin.x - width, window.innerWidth - width - 8)), y: Math.max(8, Math.min(origin.y, window.innerHeight - height - 8)) })
+      setPosition({ x: Math.max(8, Math.min(point ? origin.x : origin.x - w, window.innerWidth - w - 8)), y: Math.max(8, Math.min(origin.y, window.innerHeight - height - 8)) })
     }
     place()
     // Bố cục có thể còn dịch sau lần vẽ đầu (font, thanh cuộn) — đo lại một lần nữa ở khung hình kế.
@@ -110,7 +110,7 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
     if (keyboard.current) menu.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus()
     else menu.current?.querySelector<HTMLElement>('[role=menu]')?.focus({ preventScroll: true })
     return () => cancelAnimationFrame(frame)
-  }, [isOpen, point])
+  }, [isOpen, point, width])
   useEffect(() => {
     if (!point) return
     const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node)) close() }
@@ -121,7 +121,7 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
   useEscapeLayer(isOpen, close)
   const trig = stylex.props(sx.trigger, isOpen ? sx.triggerOpen : sx.triggerIdle)
   const trigger_ = <button ref={button} type="button" className={`hov-ghost${alwaysVisible ? '' : ' kit-action-trigger'} ${trig.className}`} aria-label={label} aria-haspopup="menu" aria-expanded={isOpen} onClick={(event) => { if (open) close(); else openMenu(event.detail === 0) }} onKeyDown={(event) => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); openMenu(true) } }} style={trig.style}>{trigger ?? <Icon name="more" size={17} />}</button>
-  const pos = stylex.props(sx.menuPos(`${position.x}px`, `${position.y}px`))
+  const pos = stylex.props(sx.menuPos(`${position.x}px`, `${position.y}px`, width))
   return <><Tooltip content={label} asChild>{trigger_}</Tooltip>{isOpen && createPortal(<div ref={menu} className={`kit-pop ${pos.className}`} style={pos.style}><MenuList items={items} close={close} initialSubmenu={initialSubmenu.current} /></div>, document.body)}</>
 }
 

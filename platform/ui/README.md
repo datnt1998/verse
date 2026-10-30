@@ -220,9 +220,21 @@ Notable behaviours:
 - `ConfirmDialog` / `confirm()` — typed-phrase and hold-to-confirm variants;
   `size` sets the footer button size (default `md`); uses `useAsyncAction`
   internally, all copy via `labels.confirm`.
+- `Tabs` / `Segmented` — tablist or radiogroup over the same track;
+  `Segmented` takes `size: sm (28) | md (30) | lg (36) | number`, `radius`,
+  `columns`, `thumbStyle`, `tabs: { id, panel }` for tab semantics. Layout is
+  `fit: 'equal'` (default — segments split the track, long labels ellipsize)
+  or `'content'` (one-line groups size each segment to its label, padding 12
+  per segment — override with `options[].style.paddingInline`).
+- `Switch`, `Checkbox`, `Radio`, `RadioCard` — motion:controls v1 (no replay
+  on re-render), roving arrow keys with `radioGroupKeys`.
 - `ToastHost` + `toast()` — imperative toast API; mount one host per app.
-- `Dialog`, `Tooltip`, `InfoPopover`, `ActionMenu`, `ContextMenu` share the
-  escape-layer stack (`useEscapeLayer` / `pushEscapeLayer`).
+- `ActionMenu` / `ContextMenu` — popover width 264 by default, override with
+  `width` (272 for menus whose descriptions run long); rows show
+  `label` + optional `description`/`kbd`/`meta`, `danger`, `disabled` with
+  `tooltip`, nested `children` flyout.
+- `Dialog`, `Tooltip`, `InfoPopover` share the escape-layer stack
+  (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
 
 ## Icons
 

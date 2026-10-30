@@ -322,6 +322,67 @@ func TestLoginBadJSON(t *testing.T) {
 	}
 }
 
+// TestDecodeRejectsTrailingData khoá hành vi chung của DecodeJSON: chỉ một
+// giá trị JSON, không rác sau nó, và body quá cỡ bị chặn trước khi service
+// chạy (login là route dùng chung đầu tiên tiện thử).
+func TestDecodeRejectsTrailingData(t *testing.T) {
+	ts := newTestServer(t, true)
+	cases := []struct {
+		name string
+		body string
+	}{
+		{"hai giá trị", `{"username":"admin","password":"admin-pass"}{"username":"x"}`},
+		{"rác sau giá trị", `{"username":"admin","password":"admin-pass"} xyz`},
+		{"mảng thừa", `{"username":"admin","password":"admin-pass"}[1]`},
+	}
+	for _, c := range cases {
+		w := ts.do(http.MethodPost, "/api/login", "", c.body)
+		if w.Code != http.StatusBadRequest {
+			t.Fatalf("%s: status %d", c.name, w.Code)
+		}
+		var m map[string]any
+		if err := json.Unmarshal(w.Body.Bytes(), &m); err != nil {
+			t.Fatalf("%s: body %q", c.name, w.Body.String())
+		}
+		if m["error"] != "body không phải JSON hợp lệ" {
+			t.Fatalf("%s: body %v", c.name, m)
+		}
+	}
+}
+
+// TestDecodeCodeVariant kiểm DecodeJSONCode gắn code khi client sai body.
+func TestDecodeCodeVariant(t *testing.T) {
+	rec := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/x", strings.NewReader(`{rác`))
+	var into map[string]any
+	if webapp.DecodeJSONCode(rec, r, &into, "invalid_input") {
+		t.Fatal("body rác phải trả false")
+	}
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status %d", rec.Code)
+	}
+	var m map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &m); err != nil {
+		t.Fatal(err)
+	}
+	if m["code"] != "invalid_input" {
+		t.Fatalf("code %v", m["code"])
+	}
+	// Không code: giữ vỏ cũ, không thêm khoá.
+	rec = httptest.NewRecorder()
+	r = httptest.NewRequest(http.MethodPost, "/x", strings.NewReader(`{rác`))
+	if webapp.DecodeJSON(rec, r, &into) {
+		t.Fatal("body rác phải trả false")
+	}
+	var plain map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &plain); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := plain["code"]; ok {
+		t.Fatalf("DecodeJSON không được thêm code: %v", plain)
+	}
+}
+
 func TestLoginLimiter(t *testing.T) {
 	ts := newTestServer(t, true)
 	// Limiter khoá sau 5 lần sai liên tiếp trên cùng key.

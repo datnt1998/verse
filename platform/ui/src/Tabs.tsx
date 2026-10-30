@@ -79,9 +79,16 @@ export type Segment = { id: string; label: ReactNode; icon?: ReactNode; hint?: R
 
 type SegRect = { x: number; y: number; w: number; h: number }
 
-export function Segmented({ options, value, onChange, label, style, columns, size = 'md', radius, thumbStyle, tabs }: {
+export function Segmented({ options, value, onChange, label, style, columns, size = 'md', radius, thumbStyle, tabs, fit = 'equal' }: {
   options: Segment[]; value: string; onChange: (id: string) => void
   label: string; style?: CSSProperties; columns?: number
+  /**
+   * 'equal' (mặc định) chia đều bề rộng nhóm; 'content' để mỗi mục rộng đúng nhãn
+   * (nhóm lọc ngắn cỡ nút "Sắp xếp" của artboard — không cắt bằng dấu ba chấm).
+   * Chỉ áp dụng cho nhóm một dòng; mục có `hint` vẫn là lưới chia đều.
+   * Đệm ngang của mục khi đó là 12 px — đặt lại qua `options[].style.paddingInline`.
+   */
+  fit?: 'equal' | 'content'
   /**
    * Hai vai trò của cùng một control (22-brief-2510.md › Câu 14): mặc định `radiogroup` cho lọc dữ liệu;
    * `tabs` cho chuyển màn trong cùng trang → `tablist`/`tab` + `aria-selected`, `id` = `<id>-<mục>`,
@@ -96,6 +103,8 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
 }) {
   // Không có dòng phụ → "Nhóm chọn" của Kit (nền #0F0F11, mục chọn #2A2A2E); có dòng phụ → thẻ 2 dòng.
   const simple = !options.some((option) => option.hint)
+  /** Nhóm một dòng rộng theo nhãn: mục không co, không chia đều. */
+  const contentFit = simple && fit === 'content'
   const btnH = typeof size === 'number' ? size : { sm: 28, md: 30, lg: 36 }[size]
   const btnR = radius ?? 7
   const itemRole = tabs ? 'tab' : 'radio'
@@ -132,7 +141,8 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
       const next = enabled[event.key === 'Home' ? 0 : event.key === 'End' ? enabled.length - 1 : (index + (event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length]
       if (next) { onChange(next.id); event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')[enabled.indexOf(next)]?.focus() }
     }} style={simple ? {
-      position: 'relative', display: columns ? 'grid' : 'flex', gridTemplateColumns: columns ? `repeat(${columns}, minmax(0, 1fr))` : undefined,
+      position: 'relative', display: columns && !contentFit ? 'grid' : 'flex',
+      gridTemplateColumns: columns && !contentFit ? `repeat(${columns}, minmax(0, 1fr))` : undefined,
       gap: 3, padding: 3, borderRadius: 10, background: 'var(--color-surface-0)', border: '1px solid var(--line-3)', ...style,
     } : {
       position: 'relative', display: 'grid', gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))`,
@@ -155,7 +165,8 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
               : { 'aria-checked': on })}
             tabIndex={on ? 0 : -1} disabled={option.disabled}
             onClick={() => onChange(option.id)} style={simple ? {
-              position: 'relative', zIndex: 1, flex: 1, minWidth: 0, height: btnH, border: 'none', borderRadius: btnR,
+              position: 'relative', zIndex: 1, ...(contentFit ? { flex: '0 0 auto', paddingInline: 12 } : { flex: 1, minWidth: 0 }),
+              height: btnH, border: 'none', borderRadius: btnR,
               background: 'transparent', color: on ? 'var(--color-fg)' : 'var(--color-fg-3)',
               fontSize: 12.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, whiteSpace: 'nowrap', ...option.style,
             } : {

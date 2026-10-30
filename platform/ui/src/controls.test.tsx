@@ -93,6 +93,27 @@ it('Segmented: click + phím mũi tên đổi mục, có khối nền trượt .
   expect(items[0].getAttribute('aria-checked')).toBe('true')
 })
 
+it('Segmented fit="content": mỗi mục rộng theo nhãn, không chia đều; mặc định vẫn chia đều', async () => {
+  const options = [
+    { id: 'vn', label: 'VN', style: { paddingInline: 8 } },
+    { id: 'ny', label: 'New York' },
+  ]
+  const { container } = await mount(
+    <Segmented fit="content" label="Múi giờ" value="vn" onChange={() => {}} options={options} size={24} />,
+  )
+  const radios = [...container.querySelectorAll<HTMLElement>('[role=radio]')]
+  // Rộng theo nhãn: không co, không stretch; nhãn dài không bị cắt.
+  expect(radios.map((r) => r.style.flex)).toEqual(['0 0 auto', '0 0 auto'])
+  expect(radios[0].style.paddingInline).toBe('8px')
+  expect(radios[1].style.paddingInline).toBe('12px')
+  expect(container.querySelector<HTMLElement>('[role=radiogroup]')!.style.display).toBe('flex')
+
+  const { container: equal } = await mount(
+    <Segmented label="Múi giờ" value="vn" onChange={() => {}} options={options} />,
+  )
+  expect([...equal.querySelectorAll<HTMLElement>('[role=radio]')].map((r) => r.style.flex)).toEqual(['1 1 0%', '1 1 0%'])
+})
+
 it('re-render cùng props: giữ DOM node, không animation mới', async () => {
   const { container, root } = await mount(<Switch checked onChange={() => {}} aria-label="Duyệt" />)
   const btn = container.querySelector<HTMLElement>('[role=switch]')!

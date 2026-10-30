@@ -7,6 +7,7 @@ package webapp
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"io/fs"
 	"mime"
 	"net/http"
@@ -448,15 +449,42 @@ func Error(w http.ResponseWriter, status int, msg string) {
 	WriteJSON(w, status, map[string]any{"error": msg})
 }
 
-// DecodeJSON đọc body JSON (tối đa 1 MiB, cấm field lạ); false = đã ghi 400.
+// decodeBodyLimit là trần kích thước body JSON của mọi route (/ 1 MiB).
+const decodeBodyLimit = 1 << 20
+
+// DecodeJSON đọc body JSON (tối đa 1 MiB, cấm field lạ, không cho dữ liệu
+// thừa sau giá trị đầu); false = đã ghi 400, không gọi tiếp service.
 func DecodeJSON(w http.ResponseWriter, r *http.Request, into any) bool {
-	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
+	return DecodeJSONCode(w, r, into, "")
+}
+
+// DecodeJSONCode như DecodeJSON nhưng gắn code vào vỏ lỗi khi client sai body
+// — route nào có mã lỗi ổn định (vd invalid_input) thì dùng bản này.
+func DecodeJSONCode(w http.ResponseWriter, r *http.Request, into any, code string) bool {
+	body := http.MaxBytesReader(w, r.Body, decodeBodyLimit)
+	dec := json.NewDecoder(body)
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(into); err != nil {
-		Error(w, http.StatusBadRequest, "body không phải JSON hợp lệ")
+		writeDecodeError(w, code)
+		return false
+	}
+	// Giá trị thứ hai phải là EOF: chặn {"a":1}{"a":2} và rác sau JSON, đồng
+	// thời buộc reader giới hạn đọc hết phần đuôi trước khi vào service.
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); !errors.Is(err, io.EOF) {
+		writeDecodeError(w, code)
 		return false
 	}
 	return true
+}
+
+func writeDecodeError(w http.ResponseWriter, code string) {
+	if code == "" {
+		Error(w, http.StatusBadRequest, "body không phải JSON hợp lệ")
+		return
+	}
+	WriteJSON(w, http.StatusBadRequest, map[string]any{
+		"error": "body không phải JSON hợp lệ", "code": code})
 }
 
 func tooMany(w http.ResponseWriter, wait time.Duration) {
