@@ -17,6 +17,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/viderse/internal/channels"
+	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
@@ -30,6 +31,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/transcript"
 	"github.com/datnt1998/verse/apps/viderse/internal/render"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 	"github.com/datnt1998/verse/platform/blobstore"
@@ -293,6 +295,7 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 	if !nonzero {
 		t.Fatal("real sine-wave extraction produced a silent envelope")
 	}
+	renderSmokePublishGoldenAnchors(t, ctx, files, store, edits, job.ID, projectID, cfgDir)
 	renderSmokeInstallChrome(t, cfgDir)
 
 	// Create private handoff exclusively: an existing file, even a symlink,
@@ -361,6 +364,117 @@ func TestRenderSmokeInstallChrome(t *testing.T) {
 		t.Fatal("the persistent smoke fixture is not active")
 	}
 	renderSmokeInstallChrome(t, cfgDir)
+}
+
+// TestRenderSmokePublishGoldenAnchors upgrades a live fixture through the public
+// owner-edit publication transaction, without changing its editor timeline.
+func TestRenderSmokePublishGoldenAnchors(t *testing.T) {
+	if os.Getenv("P06_SMOKE_PUBLISH_ANCHORS") != "1" {
+		t.Skip("set P06_SMOKE_PUBLISH_ANCHORS=1 to publish independent golden timing")
+	}
+	raw, err := os.ReadFile("/tmp/p06-editor-smoke/fixture.json")
+	if err != nil { t.Fatal(err) }
+	var fixture struct { JobID string `json:"jobId"`; ProjectID string `json:"projectId"`; ConfigDir string `json:"cfgDir"` }
+	if err := json.Unmarshal(raw, &fixture); err != nil { t.Fatal(err) }
+	if fixture.ConfigDir != "/tmp/p06-editor-smoke/home/.viderse" || os.Getenv("P06_SMOKE_CONFIG_DIR") != fixture.ConfigDir || editor.ValidateID(fixture.JobID) != nil || editor.ValidateID(fixture.ProjectID) != nil {
+		t.Fatal("source the active smoke environment before publishing golden timing")
+	}
+	dsn, _ := bootstrap.DSNFromEnv()
+	if !strings.HasPrefix(pgtest.SchemaOf(dsn), "pgtest_testrenderphase05smokefixture_") {
+		t.Fatal("golden timing can only be published to the isolated smoke schema")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	pool, err := postgres.OpenPool(ctx, dsn)
+	if err != nil { t.Fatal("open isolated smoke publication pool") }
+	defer pool.Close()
+	store := postgres.NewCloneStore(pool)
+	if os.Getenv("P06_SMOKE_RECOVER_INTERRUPTED") == "1" {
+		// Operator-only recovery after stopping the fixture server. Use the
+		// worker's public expired-lease selection and fenced reconciliation;
+		// never rewrite running statuses or bypass owner-edit admission.
+		interrupted, err := store.ListInterruptedJobs(ctx, 1000)
+		if err != nil { t.Fatal(err) }
+		found := false
+		for _, candidate := range interrupted { found = found || candidate.ID == fixture.JobID }
+		if !found { t.Fatal("fixture is not an interrupted job with an expired lease; refusing recovery") }
+		recovery := &pipeline.Runner{Store: store}
+		if err := recovery.ReconcileInterrupted(ctx, fixture.JobID); err != nil { t.Fatal(err) }
+	}
+	job, err := store.GetJob(ctx, fixture.JobID)
+	if err != nil { t.Fatal(err) }
+	records, err := store.ListSteps(ctx, fixture.JobID)
+	if err != nil { t.Fatal(err) }
+	t.Logf("SMOKE_JOB_STATE status=%s fence=%d paused=%t cancelRequested=%t", job.Status, job.Fence, job.PausedAt != nil, job.CancelRequestedAt != nil)
+	for _, record := range records {
+		t.Logf("SMOKE_STEP_STATE step=%s status=%s fence=%d attempt=%d", record.Step, record.Status, record.Fence, record.Attempt)
+	}
+	// Local artifact acquisition does not use a working cache. The persisted
+	// descriptor remains authoritative; this helper never initializes a store.
+	files := media.New(postgres.NewBlobRepository(pool), nil, func(d media.Descriptor) (blobstore.BlobStore, error) { return blobstore.Open(d.Config) })
+	renderSmokePublishGoldenAnchors(t, ctx, files, store, newEditorService(pool, files, fixture.ConfigDir, nil, tools.Deps{}), fixture.JobID, fixture.ProjectID, fixture.ConfigDir)
+}
+
+func renderSmokePublishGoldenAnchors(t *testing.T, ctx context.Context, files *media.Service, store *postgres.CloneStore, editorService *editor.Service, jobID, projectID, cfgDir string) {
+	t.Helper()
+	edits := &jobedit.Service{Store: store, Media: files}
+	built, err := edits.Read(ctx, jobID, domain.CloneBuild)
+	if err != nil { t.Fatal(err) }
+	handle, err := edits.Acquire(ctx, built, "build/manifest.json")
+	if err != nil { t.Fatal(err) }
+	manifest, err := steps.DecodeJSONFile[build.Manifest](handle.Path, "build evidence")
+	handle.Release()
+	if err != nil { t.Fatal(err) }
+	if len(manifest.Audio.SHA256) != 64 { t.Fatal("built source audio has no content digest") }
+	before, err := edits.Read(ctx, jobID, domain.CloneTranscript)
+	if err != nil { t.Fatal(err) }
+	handle, err = edits.Acquire(ctx, before, "transcript/captions.json")
+	if err != nil { t.Fatal(err) }
+	captions, err := steps.DecodeJSONFile[transcript.CaptionManifest](handle.Path, "authored fixture captions")
+	handle.Release()
+	if err != nil { t.Fatal(err) }
+	// Same raw-anchor schema and independent-onset mechanism as the scorer's
+	// golden alignment fixture. These are AUTHOR-DEFINED reference timings,
+	// not ASR output: a 440 Hz sine contains no speech. In particular, never
+	// derive these timings from the mutable editor subtitle cue being measured.
+	anchors := transcript.AsrAnchors{
+		Version: 1, SourceAudioSHA256: manifest.Audio.SHA256,
+		Spans: []transcript.Interval{{StartMs: 0, EndMs: 6000}},
+		Words: []transcript.AnchorWord{
+			{Text: "Xin", StartMs: 0, EndMs: 1000},
+			{Text: "chào", StartMs: 1000, EndMs: 2500},
+			{Text: "Cảnh", StartMs: 3000, EndMs: 4000},
+			{Text: "kết", StartMs: 4000, EndMs: 5000},
+			{Text: "thúc", StartMs: 5000, EndMs: 6000},
+		},
+		Model: transcript.AnchorModel{Name: "authored-golden-not-asr", Version: "1", Size: "synthetic-fixture", ComputeType: "none", Device: "none"},
+		GeneratedAt: time.Unix(1, 0).UTC().Format(time.RFC3339),
+	}
+	file := filepath.Join(cfgDir, "staging", "smoke-golden-anchors.json")
+	if err := steps.WriteJSONAtomic(file, anchors); err != nil { t.Fatal(err) }
+	defer os.Remove(file)
+	hash, err := steps.SHA256File(file)
+	if err != nil { t.Fatal(err) }
+	if err := edits.Commit(ctx, before, captions, "", false, []media.Artifact{{Path: "transcript/asr-anchors.json", File: file, ContentType: "application/json", Filename: "asr-anchors.json"}}); err != nil {
+		t.Fatalf("publish independent golden timing through owner-edit transaction: %v", err)
+	}
+	resolved, err := editorService.Anchors(ctx, projectID)
+	if err != nil { t.Fatalf("resolve published golden timing through the real editor repository: %v", err) }
+	resolvedBytes := renderSmokeJSON(t, resolved)
+	var checked transcript.AsrAnchors
+	if err := json.Unmarshal(resolvedBytes, &checked); err != nil || checked.Model.Name != "authored-golden-not-asr" || len(checked.Words) != 5 || checked.SourceAudioSHA256 != manifest.Audio.SHA256 {
+		t.Fatal("editor anchor resolution did not select the independent golden timing artifact")
+	}
+	published, err := edits.Read(ctx, jobID, domain.CloneTranscript)
+	if err != nil { t.Fatal(err) }
+	handle, err = edits.Acquire(ctx, published, "transcript/asr-anchors.json")
+	if err != nil { t.Fatal(err) }
+	path := handle.Ref.Path
+	handle.Release()
+	if path != "clone/"+jobID+"/"+hash+"/transcript/asr-anchors.json" {
+		t.Fatalf("golden anchor publication lost content identity: %s", path)
+	}
+	t.Logf("SMOKE_GOLDEN_ANCHORS_READY path=%s sha256=%s sourceAudioSha256=%s provenance=authored-golden-not-asr jobId=%s projectId=%s", path, hash, manifest.Audio.SHA256, jobID, projectID)
 }
 
 func renderSmokeInstallChrome(t *testing.T, cfgDir string) {
