@@ -28,6 +28,11 @@ func openMedia(ctx context.Context, pool *pgxpool.Pool, files *storage.Service) 
 	if err != nil {
 		return nil, err
 	}
+	// A fresh server has no config directory yet; the lock must not depend on
+	// some earlier command having created it.
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return nil, err
+	}
 	lock := flock.New(filepath.Join(dir, "server-storage.lock"))
 	ok, err := lock.TryLock()
 	if err != nil {
