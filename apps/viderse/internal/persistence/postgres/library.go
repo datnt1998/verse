@@ -591,7 +591,7 @@ func (s *LibraryStore) InsertOverlay(ctx context.Context, o domain.Overlay) erro
 	if o.Builtin != "" {
 		params.Builtin = pgtype.Text{String: o.Builtin, Valid: true}
 	}
-	return mapLibraryErr(s.q.InsertOverlay(ctx, params))
+	return mapLibraryErr(mediaQueries(ctx, s.q).InsertOverlay(ctx, params))
 }
 
 // RestoreOverlay đưa một dòng đã bỏ trở lại thư viện (đổi tên theo tệp vừa thêm).
@@ -600,7 +600,7 @@ func (s *LibraryStore) RestoreOverlay(ctx context.Context, id, name string) erro
 	if err != nil {
 		return library.ErrNotFound
 	}
-	return s.q.RestoreOverlay(ctx, gen.RestoreOverlayParams{Name: name, ID: uid})
+	return mediaQueries(ctx, s.q).RestoreOverlay(ctx, gen.RestoreOverlayParams{Name: name, ID: uid})
 }
 
 // RemoveOverlay đặt removed_at (tombstone), giữ tệp cho template đang dùng.

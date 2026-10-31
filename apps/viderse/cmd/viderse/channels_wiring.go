@@ -24,6 +24,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
@@ -111,7 +112,7 @@ func (t channelTasks) Notify(ctx context.Context, kind, text, href, actionLabel 
 func mountChannels(
 	g *web.Gateway, pool *pgxpool.Pool, logStore *logs.Store,
 	activities *activity.Service, ai *aiExecutors, storageSvc *storage.Service,
-	hub *events.Hub,
+	hub *events.Hub, mediaSvc *media.Service,
 ) (*channels.Service, error) {
 	// Một library.Service tối giản (không route, không runner) chỉ để tạo/xoá
 	// "Mẫu chuẩn"; vẫn phát SSE thư viện để trang Thư viện thấy template mới.
@@ -126,7 +127,7 @@ func mountChannels(
 	})
 	svc := newChannelService(pool, activities, ai, storageSvc, templates, func(msg string) {
 		logStore.Append("channels", logs.LevelError, logStore.Redact(msg))
-	})
+	}, mediaSvc)
 	svc.SetRunInBackground(true)
 	svc.SetNotifier(web.Notifier(hub, "channels"))
 	web.MountChannelsDiag(g, svc, func(msg string) {
@@ -140,12 +141,13 @@ func mountChannels(
 
 // newChannelService dựng service trên đúng một đường ráp cho serve và CLI.
 // diag nhận nguyên nhân kỹ thuật của lỗi nhận diện (nil ở CLI).
-func newChannelService(pool *pgxpool.Pool, activities *activity.Service, ai *aiExecutors, storageSvc channels.Storage, templates channels.StandardTemplates, diag func(string)) *channels.Service {
+func newChannelService(pool *pgxpool.Pool, activities *activity.Service, ai *aiExecutors, storageSvc channels.Storage, templates channels.StandardTemplates, diag func(string), mediaSvc *media.Service) *channels.Service {
 	opts := channels.Options{Diag: diag,
 		Store:     postgres.NewChannelStore(pool),
 		Templates: templates,
 		Tasks:     channelTasks{svc: activities},
 		Storage:   storageSvc,
+		Media:     mediaSvc,
 	}
 	if ai != nil {
 		opts.AI = channelAI{e: ai}
@@ -162,7 +164,12 @@ func openChannelService(ctx context.Context, needAI bool) (*channels.Service, fu
 	}
 	settings := postgres.NewSettingsStore(pool)
 	activities := activity.New(postgres.NewActivityStore(pool), nil)
-	storageSvc, err := openCLIStorage(settings)
+	storageSvc, err := openCLIStorage(ctx, pool)
+	if err != nil {
+		pool.Close()
+		return nil, nil, err
+	}
+	manager, err := openCLIMedia(ctx, pool, storageSvc.Root)
 	if err != nil {
 		pool.Close()
 		return nil, nil, err
@@ -172,15 +179,17 @@ func openChannelService(ctx context.Context, needAI bool) (*channels.Service, fu
 	if needAI {
 		ai, aiStop, err = openCLIAI(ctx, pool, settings)
 		if err != nil {
+			_ = manager.Close(context.Background())
 			pool.Close()
 			return nil, nil, err
 		}
 	}
 	// CLI: library.Service tối giản, không SSE.
 	templates := library.New(library.Deps{Store: postgres.NewLibraryStore(pool)})
-	svc := newChannelService(pool, activities, ai, storageSvc, templates, nil)
+	svc := newChannelService(pool, activities, ai, storageSvc, templates, nil, manager.Media())
 	if err := svc.Start(ctx); err != nil {
 		aiStop()
+		_ = manager.Close(context.Background())
 		pool.Close()
 		return nil, nil, err
 	}
@@ -189,26 +198,17 @@ func openChannelService(ctx context.Context, needAI bool) (*channels.Service, fu
 		defer cancel()
 		_ = svc.Close(closeCtx)
 		aiStop()
+		_ = manager.Close(closeCtx)
 		pool.Close()
 	}
 	return svc, stop, nil
 }
 
-// cliStorage là channels.Storage cho CLI: đọc thư mục dự án từ settings
-// (cùng khoá với mảng Lưu trữ) và giải đường dẫn tương đối, không dựng cả
-// service Lưu trữ chỉ để lấy Root/Resolve.
-type cliStorage struct {
-	settings *postgres.SettingsStore
-	fallback string
-}
+// cliStorage shares validated root resolution across CLI entrypoints.
+// All durable byte access goes through the media coordinator.
+type cliStorage struct{ root string }
 
-func (c cliStorage) Root() string {
-	var location string
-	if found, err := c.settings.Get(context.Background(), domain.KeyStorageLocation, &location); err == nil && found && location != "" {
-		return location
-	}
-	return c.fallback
-}
+func (c cliStorage) Root() string { return c.root }
 
 func (c cliStorage) Resolve(rel string) (string, error) {
 	if rel == "" || filepath.IsAbs(rel) {
@@ -223,12 +223,12 @@ func (c cliStorage) Resolve(rel string) (string, error) {
 }
 
 // openCLIStorage trả bộ giải đường dẫn cho CLI.
-func openCLIStorage(settings *postgres.SettingsStore) (channels.Storage, error) {
-	cfgDir, err := bootstrap.DefaultConfigDir()
+func openCLIStorage(ctx context.Context, pool *pgxpool.Pool) (channels.Storage, error) {
+	root, err := cliProjectRoot(ctx, pool)
 	if err != nil {
 		return nil, err
 	}
-	return cliStorage{settings: settings, fallback: filepath.Join(cfgDir, "projects")}, nil
+	return cliStorage{root: root}, nil
 }
 
 // openCLIAI dựng chuỗi Đạo diễn/Hoạ sĩ cho `viderse channel identity`. Dùng

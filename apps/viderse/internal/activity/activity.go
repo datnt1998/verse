@@ -48,6 +48,8 @@ type Notification struct {
 	ActionLabel string
 	CreatedAt   time.Time
 	ReadAt      *time.Time
+	Audience    Audience
+	Object      *domain.ObjectRef
 }
 
 // Snapshot là hình dữ liệu của GET /api/activity.
@@ -87,7 +89,7 @@ type Store interface {
 	// UpsertNotification ghi thông báo: cùng kind và lần mới nhất trẻ hơn
 	// window thì tăng count/cập nhật nội dung của dòng đó, ngược lại chèn dòng
 	// mới. Nguyên tử giữa các writer đồng thời.
-	UpsertNotification(ctx context.Context, kind, text, href, actionLabel string, window time.Duration) (*Notification, error)
+	UpsertScopedNotification(ctx context.Context, spec NotificationSpec, window time.Duration) (*Notification, error)
 	ListUnreadNotifications(ctx context.Context, limit int) ([]Notification, error)
 	// MarkRead đánh dấu đã đọc; ids rỗng nghĩa là tất cả.
 	MarkRead(ctx context.Context, ids []string) error
@@ -191,10 +193,14 @@ func (s *Service) Update(ctx context.Context, id string, u domain.TaskUpdate) er
 			if u.Action != nil {
 				label = u.Action.Label
 			}
+			audience := AudienceAll
+			if adminTask(t) {
+				audience = AudienceAdmin
+			}
 			_ = s.store.InsertErrorEvent(ctx, ErrorEvent{
 				Kind: "task_failed", What: t.Title, Why: why,
 				Href: actionHref(t.Action), ActionLabel: label, Op: actionOp(t.Action),
-				Object: &t.Object,
+				Object: &t.Object, Audience: audience,
 			})
 		}
 	}
@@ -218,11 +224,28 @@ func (s *Service) Finish(ctx context.Context, id string) error {
 // gộp vào dòng mới nhất (count tăng), ngoài cửa sổ tạo dòng mới. Trả id thông
 // báo (dòng mới hoặc dòng được gộp).
 func (s *Service) Notify(ctx context.Context, kind, text, href, actionLabel string) (string, error) {
-	n, err := s.store.UpsertNotification(ctx, kind, text, href, actionLabel, NotifyMergeWindow)
+	return s.NotifyScoped(ctx, NotificationSpec{Kind: kind, Text: text, Href: href, ActionLabel: actionLabel})
+}
+
+// NotifyScoped records audience and object identity as part of the merge key.
+func (s *Service) NotifyScoped(ctx context.Context, spec NotificationSpec) (string, error) {
+	spec.Audience = EffectiveAudience(spec.Audience, spec.Object)
+	if spec.Audience != AudienceAll && spec.Audience != AudienceAdmin {
+		return "", fmt.Errorf("đối tượng nhận thông báo không hợp lệ")
+	}
+	if strings.TrimSpace(spec.Kind) == "" {
+		return "", fmt.Errorf("thông báo cần kind")
+	}
+	n, err := s.store.UpsertScopedNotification(ctx, spec, NotifyMergeWindow)
 	if err != nil {
 		return "", err
 	}
-	_ = s.store.InsertErrorEvent(ctx, ErrorEvent{Kind: kind, What: text, Href: href, ActionLabel: actionLabel})
+	if err := s.store.InsertErrorEvent(ctx, ErrorEvent{
+		Kind: spec.Kind, What: spec.Text, Href: spec.Href, ActionLabel: spec.ActionLabel,
+		Object: spec.Object, Audience: spec.Audience,
+	}); err != nil {
+		return "", err
+	}
 	s.emit(n.ID)
 	return n.ID, nil
 }
@@ -262,6 +285,15 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	tasks, err := s.store.ListTasks(ctx)
 	if err != nil {
 		return Snapshot{}, err
+	}
+	if !IsAdminViewer(ctx) {
+		visible := tasks[:0]
+		for _, task := range tasks {
+			if !adminTask(task) {
+				visible = append(visible, task)
+			}
+		}
+		tasks = visible
 	}
 	sort.Slice(tasks, func(i, j int) bool { return tasks[i].CreatedAt.Before(tasks[j].CreatedAt) })
 	video, err := s.store.CountTasks(ctx, domain.TaskVideo, domain.TaskRunning)

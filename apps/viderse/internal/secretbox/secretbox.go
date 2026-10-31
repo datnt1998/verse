@@ -13,10 +13,12 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/gofrs/flock"
+	"syscall"
 )
 
 // ErrWrongKey báo ciphertext không mở được bằng khoá máy hiện tại — khoá file
@@ -36,15 +38,69 @@ func New(dir string) *Box {
 // Path trả đường dẫn tệp khoá (chẩn đoán, không in nội dung).
 func (b *Box) Path() string { return b.path }
 
+// Readiness is safe diagnostic metadata; it never exposes key bytes.
+type Readiness struct {
+	OK    bool   `json:"ok"`
+	Path  string `json:"path"`
+	Issue string `json:"issue,omitempty"`
+}
+
+type keyError struct {
+	issue string
+	err   error
+}
+
+func (e *keyError) Error() string { return e.err.Error() }
+func (e *keyError) Unwrap() error { return e.err }
+
+// Readiness uses the same validation and first-create lock as Seal/Reveal.
+// Existing invalid keys are not chmodded, replaced or regenerated.
+func (b *Box) Readiness() Readiness {
+	_, err := b.key()
+	out := Readiness{OK: err == nil, Path: b.path}
+	if err != nil {
+		out.Issue = "readonly_dir"
+		var typed *keyError
+		if errors.As(err, &typed) {
+			out.Issue = typed.issue
+		}
+	}
+	return out
+}
+
+func readKey(path string) ([]byte, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, err
+		}
+		return nil, &keyError{"bad_permissions", fmt.Errorf("đọc khoá máy: %w", err)}
+	}
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil {
+		return nil, &keyError{"bad_permissions", err}
+	}
+	owner, ok := info.Sys().(*syscall.Stat_t)
+	if !info.Mode().IsRegular() || info.Mode().Perm() != 0o600 || !ok || owner.Uid != uint32(os.Geteuid()) {
+		return nil, &keyError{"bad_permissions", fmt.Errorf("tệp khoá máy phải thuộc người chạy và có quyền 0600")}
+	}
+	data, err := io.ReadAll(io.LimitReader(f, 33))
+	if err != nil {
+		return nil, &keyError{"bad_permissions", err}
+	}
+	return checkKey(path, data)
+}
+
 // key đọc khoá máy; khi chưa có thì tạo DUY NHẤT MỘT LẦN dưới khoá tệp —
 // đọc lại trong khoá rồi mới sinh + ghi tệp tạm riêng + rename. Khoá đã có
 // (kể cả do tiến trình khác vừa tạo trong lúc ta chờ khoá) không bao giờ bị
 // ghi đè: ghi đè làm mọi ciphertext cũ không mở được nữa. Tệp hư hỏng
 // (kích thước sai) là lỗi — tạo lại ngầm cũng mất dữ liệu theo cách âm thầm.
 func (b *Box) key() ([]byte, error) {
-	data, err := os.ReadFile(b.path)
+	data, err := readKey(b.path)
 	if err == nil {
-		return checkKey(b.path, data)
+		return data, nil
 	}
 	if !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("đọc khoá máy: %w", err)
@@ -60,9 +116,9 @@ func (b *Box) key() ([]byte, error) {
 		return nil, fmt.Errorf("khoá tạo khoá máy: %w", err)
 	}
 	defer func() { _ = fl.Unlock() }()
-	data, err = os.ReadFile(b.path)
+	data, err = readKey(b.path)
 	if err == nil {
-		return checkKey(b.path, data)
+		return data, nil
 	}
 	if !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("đọc khoá máy: %w", err)
@@ -99,7 +155,7 @@ func (b *Box) key() ([]byte, error) {
 // checkKey bắt buộc khoá đúng 32 byte; tệp hỏng là lỗi tường minh.
 func checkKey(path string, data []byte) ([]byte, error) {
 	if len(data) != 32 {
-		return nil, fmt.Errorf("tệp khoá %s hỏng (độ dài %d ≠ 32): %w", path, len(data), ErrWrongKey)
+		return nil, &keyError{"corrupt", fmt.Errorf("tệp khoá %s hỏng (độ dài %d ≠ 32): %w", path, len(data), ErrWrongKey)}
 	}
 	return data, nil
 }
@@ -123,7 +179,7 @@ func (b *Box) Seal(plaintext []byte) ([]byte, error) {
 
 // Reveal mở ciphertext do Seal tạo. Sai khoá/hỏng dữ liệu → ErrWrongKey.
 func (b *Box) Reveal(sealed []byte) ([]byte, error) {
-	key, err := b.key()
+	key, err := readKey(b.path)
 	if err != nil {
 		return nil, err
 	}

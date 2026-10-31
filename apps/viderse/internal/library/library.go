@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 )
 
 // Chủ đề sự kiện SSE của mảng Thư viện.
@@ -93,6 +94,7 @@ type PriceOf interface {
 type Deps struct {
 	Store  Store
 	Files  Files
+	Media  *media.Service
 	Runner Runner
 	Bins   Binaries
 	Price  PriceOf
@@ -106,6 +108,7 @@ type Deps struct {
 type Service struct {
 	store  Store
 	files  Files
+	media  *media.Service
 	runner Runner
 	bins   Binaries
 	price  PriceOf
@@ -118,6 +121,7 @@ type Service struct {
 func New(deps Deps) *Service {
 	s := &Service{
 		store: deps.Store, files: deps.Files, runner: deps.Runner, bins: deps.Bins,
+		media: deps.Media,
 		price: deps.Price, notify: deps.Notify, now: deps.Now, newID: deps.NewID,
 	}
 	if s.now == nil {
@@ -128,6 +132,9 @@ func New(deps Deps) *Service {
 	}
 	return s
 }
+
+// Media returns the shared backend; nil is valid for metadata-only services.
+func (s *Service) Media() *media.Service { return s.media }
 
 // newUUID sinh uuid v4 (không thêm phụ thuộc ngoài).
 func newUUID() string {

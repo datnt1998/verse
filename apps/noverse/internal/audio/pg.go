@@ -13,9 +13,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // Postgres audio backend (phase 07). Durable state lives in the audio_*/jobs

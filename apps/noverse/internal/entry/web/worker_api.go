@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // WorkerAPI is the private pull API the Mac TTS worker talks to (phase 07).

@@ -17,6 +17,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/channels"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -52,6 +53,9 @@ func MountChannelsDiag(g *Gateway, svc ChannelService, diag ChannelDiag) {
 		createChannel(w, r, svc, diag)
 	})
 	g.Handle(http.MethodGet, "/api/owner-channels/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+		routeChannels(w, r, svc, diag)
+	})
+	g.Handle(http.MethodHead, "/api/owner-channels/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		routeChannels(w, r, svc, diag)
 	})
 	g.Handle(http.MethodPatch, "/api/owner-channels/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
@@ -335,7 +339,7 @@ func routeChannels(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 		templates(w, r, svc, diag, id)
 	case tail == "branding" && extra == "" && r.Method == http.MethodPost:
 		generateIdentity(w, r, svc, diag, id)
-	case tail == "branding" && extra != "" && r.Method == http.MethodGet:
+	case tail == "branding" && extra != "" && (r.Method == http.MethodGet || r.Method == http.MethodHead):
 		serveBranding(w, r, svc, diag, id, extra)
 	default:
 		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
@@ -507,6 +511,21 @@ func generateIdentity(w http.ResponseWriter, r *http.Request, svc ChannelService
 // uuid-avatar.png / uuid-banner.jpg và đang được kênh dùng; ?download=1 đặt
 // Content-Disposition để tải về.
 func serveBranding(w http.ResponseWriter, r *http.Request, svc ChannelService, diag ChannelDiag, id, file string) {
+	if source, ok := svc.(interface {
+		AssetPath(context.Context, string, string) (string, error)
+		Media() *media.Service
+	}); ok && source.Media() != nil {
+		path, err := source.AssetPath(r.Context(), id, file)
+		if err != nil {
+			writeChannelError(w, err, diag)
+			return
+		}
+		w.Header().Set("Cache-Control", "private, max-age=31536000, immutable")
+		if err := source.Media().ServeHTTP(w, r, path); err != nil {
+			writeChannelError(w, err, diag)
+		}
+		return
+	}
 	f, name, _, err := svc.AssetFile(r.Context(), id, file)
 	if err != nil {
 		writeChannelError(w, err, diag)

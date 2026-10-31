@@ -371,7 +371,7 @@ func (s *BackdropStore) TouchDownload(ctx context.Context, id, owner string, gen
 
 // FinishDownload ghi trạng thái ready khi còn đúng chủ lượt tải.
 func (s *BackdropStore) FinishDownload(ctx context.Context, id, owner string, generation int64, filePath string, height int, size int64, now time.Time) (bool, error) {
-	affected, err := s.q.FinishBackdropVideoDownload(ctx, gen.FinishBackdropVideoDownloadParams{
+	affected, err := mediaQueries(ctx, s.q).FinishBackdropVideoDownload(ctx, gen.FinishBackdropVideoDownloadParams{
 		ID: id, Owner: text(owner), Generation: generation,
 		FilePath: text(filePath), FileHeight: int4Scan(height), FileBytes: int8Scan(size), Now: ts(now),
 	})

@@ -3,14 +3,19 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
 	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/retention"
+	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Nguồn: 07-data-contract §23 + 01-ia-flows W13 — hình JSON của /api/storage*.
@@ -356,5 +361,151 @@ func TestTildePath(t *testing.T) {
 		if got := tildePath(c.in); got != c.want {
 			t.Fatalf("tildePath(%q) = %q, want %q", c.in, got, c.want)
 		}
+	}
+}
+
+type spyFilesystem struct{ calls int }
+
+func (f *spyFilesystem) Open(string) (fs.File, error) {
+	f.calls++
+	return nil, fs.ErrPermission
+}
+
+type untouchedStorage struct {
+	StorageService
+	fs *spyFilesystem
+}
+
+func (s untouchedStorage) Snapshot(context.Context) (storage.Snapshot, error) {
+	_, err := s.fs.Open("/")
+	return storage.Snapshot{}, err
+}
+func (s untouchedStorage) Check(context.Context, string, string) (storage.CheckResult, error) {
+	_, err := s.fs.Open("/")
+	return storage.CheckResult{}, err
+}
+func (s untouchedStorage) Move(context.Context, string, string) (string, bool, error) {
+	_, err := s.fs.Open("/")
+	return "", false, err
+}
+func (s untouchedStorage) CancelMove(context.Context, string) error {
+	_, err := s.fs.Open("/")
+	return err
+}
+func (s untouchedStorage) RetryMove(context.Context) (string, bool, error) {
+	_, err := s.fs.Open("/")
+	return "", false, err
+}
+func (s untouchedStorage) DismissMove(context.Context) error    { _, err := s.fs.Open("/"); return err }
+func (s untouchedStorage) DeletePrevious(context.Context) error { _, err := s.fs.Open("/"); return err }
+func (s untouchedStorage) UseDefaultForNew(context.Context) error {
+	_, err := s.fs.Open("/")
+	return err
+}
+func (s untouchedStorage) Recheck(context.Context) (bool, error) {
+	_, err := s.fs.Open("/")
+	return false, err
+}
+func (s untouchedStorage) Browse(context.Context, string) (storage.BrowseResult, error) {
+	_, err := s.fs.Open("/")
+	return storage.BrowseResult{}, err
+}
+func (s untouchedStorage) Open(context.Context) error { _, err := s.fs.Open("/"); return err }
+
+type untouchedCleanup struct {
+	CleanupService
+	fs *spyFilesystem
+}
+
+func (s untouchedCleanup) ReclaimList(context.Context) ([]retention.ReclaimItem, error) {
+	_, err := s.fs.Open("/")
+	return nil, err
+}
+func (s untouchedCleanup) Reclaim(context.Context, string) (retention.ReclaimItem, error) {
+	_, err := s.fs.Open("/")
+	return retention.ReclaimItem{}, err
+}
+
+func TestServerStorageRefusesPathOperationsBeforeIO(t *testing.T) {
+	tg := newTestGateway(t)
+	filesystem := &spyFilesystem{}
+	MountStorage(tg.g, untouchedStorage{fs: filesystem}, untouchedCleanup{fs: filesystem})
+	tg.g.SetServerStorageMode(func() bool { return true })
+	cookie := tg.sessionCookie()
+	for _, route := range []struct{ method, path string }{
+		{"GET", "/api/storage"}, {"GET", "/api/storage/browse?path=/"},
+		{"POST", "/api/storage/open"}, {"POST", "/api/storage/check"},
+		{"POST", "/api/storage/recheck"}, {"POST", "/api/storage/move"},
+		{"POST", "/api/storage/move/retry"}, {"POST", "/api/storage/move/dismiss"},
+		{"POST", "/api/storage/move/task/cancel"},
+		{"POST", "/api/storage/previous/delete"}, {"POST", "/api/storage/use-default-for-new"},
+		{"GET", "/api/storage/reclaim"}, {"POST", "/api/storage/reclaim/location"},
+	} {
+		t.Run(route.path, func(t *testing.T) {
+			w := tg.do(route.method, route.path, cookie, "{}")
+			if w.Code != http.StatusForbidden {
+				t.Fatalf("path operation not refused: status=%d body=%s", w.Code, w.Body)
+			}
+			var body struct {
+				Code string `json:"code"`
+			}
+			decodeJSON(t, w.Body.Bytes(), &body)
+			if body.Code != "storage_path_unavailable" {
+				t.Fatalf("unexpected error: %s", w.Body)
+			}
+			if filesystem.calls != 0 {
+				t.Fatalf("filesystem accessed %d times", filesystem.calls)
+			}
+		})
+	}
+}
+
+type cleanupViewerSpy struct {
+	fakeCleanup
+	viewer  retention.CleanupViewer
+	present bool
+	runErr  error
+}
+
+func (s *cleanupViewerSpy) PreviewCleanup(ctx context.Context) (*retention.Preview, error) {
+	s.viewer, s.present = retention.Viewer(ctx)
+	return &retention.Preview{ID: "preview"}, nil
+}
+
+func (s *cleanupViewerSpy) RunCleanup(ctx context.Context, _ string) (retention.RunResult, error) {
+	s.viewer, s.present = retention.Viewer(ctx)
+	return retention.RunResult{}, s.runErr
+}
+
+func TestCleanupHandlersForwardAuthenticatedViewerAndForbidden(t *testing.T) {
+	for _, role := range []identity.Role{identity.RoleAdmin, identity.RoleMember} {
+		t.Run(string(role), func(t *testing.T) {
+			clean := &cleanupViewerSpy{}
+			h := storageHandlers{clean: clean}
+			user := identity.User{Username: "actor", Role: role}
+			preview := httptest.NewRecorder()
+			h.preview(preview, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/preview", nil), user)
+			if preview.Code != http.StatusOK {
+				t.Fatalf("preview: %d %s", preview.Code, preview.Body)
+			}
+			if !clean.present || clean.viewer.Actor != "actor" || clean.viewer.Admin != (role == identity.RoleAdmin) {
+				t.Fatalf("preview lost authenticated cleanup viewer: present=%v viewer=%+v", clean.present, clean.viewer)
+			}
+			clean.present = false
+			run := httptest.NewRecorder()
+			h.run(run, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/run", strings.NewReader(`{"previewId":"preview"}`)), user)
+			if run.Code != http.StatusOK {
+				t.Fatalf("run: %d %s", run.Code, run.Body)
+			}
+			if !clean.present || clean.viewer.Actor != "actor" || clean.viewer.Admin != (role == identity.RoleAdmin) {
+				t.Fatalf("run lost authenticated cleanup viewer: present=%v viewer=%+v", clean.present, clean.viewer)
+			}
+			clean.runErr = &serverstorage.Error{Status: http.StatusForbidden, Message: "Chỉ quản trị viên được dọn bộ đệm"}
+			forbidden := httptest.NewRecorder()
+			h.run(forbidden, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/run", strings.NewReader(`{"previewId":"preview"}`)), user)
+			if forbidden.Code != http.StatusForbidden {
+				t.Fatalf("cleanup denial not preserved: %d %s", forbidden.Code, forbidden.Body)
+			}
+		})
 	}
 }

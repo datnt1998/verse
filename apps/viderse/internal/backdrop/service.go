@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
 )
 
@@ -39,6 +40,7 @@ type Tasks interface {
 // việc nền, đồng hồ, thư mục) đều tiêm vào — test không chạm mạng.
 type Deps struct {
 	Store Store
+	Media *media.Service
 	// Platforms đọc giờ chờ và hạn mức cuộn của Bilibili.
 	Platforms PlatformState
 	// Pacer giữ lease quét; nil = không lease (test đơn vị).

@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/platform/identity"
 )
@@ -309,3 +310,60 @@ func TestStatusChangeReachesSSESubscriber(t *testing.T) {
 	cancel()
 	<-done
 }
+
+type storageHealth struct{ down bool }
+
+func (s *storageHealth) StorageDown() (string, time.Time, bool) {
+	return "Garage", time.Date(2026, 10, 31, 10, 0, 0, 0, time.UTC), s.down
+}
+
+func TestStatusStorageDownAndRoleScopedAttention(t *testing.T) {
+	tg := newTestGateway(t)
+	health := &storageHealth{down: true}
+	tg.svc.SetStorageHealthSource(health)
+	tg.svc.RegisterSource(statusSource{rep: status.Report{Attention: []status.Attention{
+		{Kind: domain.AttentionToolFailed, Text: "private storage", Href: "#/settings?section=storage"},
+		{Kind: domain.AttentionToolFailed, Text: "private task", AdminOnly: true},
+		{Kind: domain.AttentionToolFailed, Text: "public tool"},
+	}}})
+	admin := tg.do(http.MethodGet, "/api/status", tg.sessionCookie(), "")
+	if admin.Code != http.StatusOK {
+		t.Fatalf("status=%d: %s", admin.Code, admin.Body)
+	}
+	body := decode(t, admin)
+	if down, ok := body["storageDown"].(map[string]any); !ok || down["label"] != "Garage" || down["since"] != "2026-10-31T10:00:00Z" {
+		t.Fatalf("outage not serialized: %s", admin.Body)
+	}
+	request := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	request.Header.Set("If-None-Match", admin.Header().Get("ETag"))
+	member := httptest.NewRecorder()
+	tg.g.getStatus(member, request, identity.User{Role: identity.RoleMember})
+	if member.Code != http.StatusOK {
+		t.Fatalf("role change reused private status: %d", member.Code)
+	}
+	body = decode(t, member)
+	if attention := body["attention"].([]any); len(attention) != 1 || attention[0].(map[string]any)["text"] != "public tool" {
+		t.Fatalf("member received administrative attention: %v", attention)
+	}
+	if body["storageDown"] == nil {
+		t.Fatal("member safe outage information missing")
+	}
+	if member.Header().Get("Cache-Control") != "private, no-cache" {
+		t.Fatal("status is not private")
+	}
+	health.down = false
+	recovered := tg.do(http.MethodGet, "/api/status", tg.sessionCookie(), "")
+	if recovered.Code != http.StatusOK {
+		t.Fatalf("recovery=%d: %s", recovered.Code, recovered.Body)
+	}
+	if decode(t, recovered)["storageDown"] != nil {
+		t.Fatalf("recovery retained outage: %s", recovered.Body)
+	}
+	if recovered.Header().Get("ETag") == admin.Header().Get("ETag") {
+		t.Fatal("recovery did not invalidate status")
+	}
+}
+
+type statusSource struct{ rep status.Report }
+
+func (s statusSource) Report(context.Context) (status.Report, error) { return s.rep, nil }

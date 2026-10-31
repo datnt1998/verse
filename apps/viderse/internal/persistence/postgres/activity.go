@@ -251,6 +251,13 @@ func notificationFromRow(r gen.Notification) activity.Notification {
 		Href:        r.Href,
 		ActionLabel: r.ActionLabel,
 		CreatedAt:   r.CreatedAt.Time,
+		Audience:    activity.Audience(r.Audience),
+	}
+	if len(r.ObjectRef) > 0 {
+		var ref domain.ObjectRef
+		if json.Unmarshal(r.ObjectRef, &ref) == nil {
+			n.Object = &ref
+		}
 	}
 	if r.ReadAt.Valid {
 		at := r.ReadAt.Time
@@ -264,12 +271,20 @@ func notificationFromRow(r gen.Notification) activity.Notification {
 // "không có dòng trong cửa sổ" rồi cùng chèn. Trả về dòng đã ghi trong chính
 // giao dịch đó — đọc lại sau commit có thể ra thông báo của writer khác.
 func (s *ActivityStore) UpsertNotification(ctx context.Context, kind, text, href, actionLabel string, window time.Duration) (*activity.Notification, error) {
+	return s.UpsertScopedNotification(ctx, activity.NotificationSpec{Kind: kind, Text: text, Href: href, ActionLabel: actionLabel}, window)
+}
+
+func (s *ActivityStore) UpsertScopedNotification(ctx context.Context, spec activity.NotificationSpec, window time.Duration) (*activity.Notification, error) {
+	spec.Audience = activity.EffectiveAudience(spec.Audience, spec.Object)
+	if spec.Audience != activity.AudienceAll && spec.Audience != activity.AudienceAdmin {
+		return nil, fmt.Errorf("đối tượng nhận thông báo không hợp lệ")
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	row, err := upsertNotificationTx(ctx, tx, gen.New(tx), kind, text, href, actionLabel, window)
+	row, err := upsertScopedNotificationTx(ctx, tx, gen.New(tx), spec, window)
 	if err != nil {
 		return nil, err
 	}
@@ -284,10 +299,27 @@ func (s *ActivityStore) UpsertNotification(ctx context.Context, kind, text, href
 // theo kind bằng advisory xact lock rồi áp luật gộp (cùng kind trong window thì
 // tăng count và giữ created_at của lần đầu).
 func upsertNotificationTx(ctx context.Context, tx pgx.Tx, q *gen.Queries, kind, text, href, actionLabel string, window time.Duration) (*gen.Notification, error) {
-	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, kind); err != nil {
+	return upsertScopedNotificationTx(ctx, tx, q, activity.NotificationSpec{Kind: kind, Text: text, Href: href, ActionLabel: actionLabel}, window)
+}
+
+func upsertScopedNotificationTx(ctx context.Context, tx pgx.Tx, q *gen.Queries, spec activity.NotificationSpec, window time.Duration) (*gen.Notification, error) {
+	var objectRef []byte
+	if spec.Object != nil {
+		var err error
+		objectRef, err = json.Marshal(spec.Object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	key := gen.LatestNotificationParams{Kind: spec.Kind, Audience: string(activity.EffectiveAudience(spec.Audience, spec.Object)), ObjectRef: objectRef}
+	lockKey, err := json.Marshal(key)
+	if err != nil {
 		return nil, err
 	}
-	latest, err := q.LatestNotification(ctx, kind)
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, string(lockKey)); err != nil {
+		return nil, err
+	}
+	latest, err := q.LatestNotification(ctx, key)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		// không có dòng nào của kind — chèn mới bên dưới.
@@ -299,18 +331,19 @@ func upsertNotificationTx(ctx context.Context, tx pgx.Tx, q *gen.Queries, kind, 
 			return nil, err
 		}
 		if err := q.BumpNotification(ctx, gen.BumpNotificationParams{
-			Text: text, Href: href, ActionLabel: actionLabel, ID: uid,
+			Text: spec.Text, Href: spec.Href, ActionLabel: spec.ActionLabel, ID: uid,
 		}); err != nil {
 			return nil, err
 		}
-		merged, err := q.LatestNotification(ctx, kind)
+		merged, err := q.LatestNotification(ctx, key)
 		if err != nil {
 			return nil, err
 		}
 		return &merged, nil
 	}
 	row, err := q.InsertNotification(ctx, gen.InsertNotificationParams{
-		Kind: kind, Text: text, Href: href, ActionLabel: actionLabel,
+		Kind: spec.Kind, Text: spec.Text, Href: spec.Href, ActionLabel: spec.ActionLabel,
+		Audience: key.Audience, ObjectRef: objectRef,
 	})
 	if err != nil {
 		return nil, err
@@ -320,15 +353,14 @@ func upsertNotificationTx(ctx context.Context, tx pgx.Tx, q *gen.Queries, kind, 
 
 // ListUnreadNotifications đọc thông báo chưa đọc, mới nhất trước.
 func (s *ActivityStore) ListUnreadNotifications(ctx context.Context, limit int) ([]activity.Notification, error) {
-	rows, err := s.q.ListUnreadNotifications(ctx)
+	rows, err := s.q.ListUnreadNotifications(ctx, gen.ListUnreadNotificationsParams{
+		Admin: activity.IsAdminViewer(ctx), RowLimit: int32(limit),
+	})
 	if err != nil {
 		return nil, err
 	}
 	out := make([]activity.Notification, 0, len(rows))
-	for i, r := range rows {
-		if i >= limit {
-			break
-		}
+	for _, r := range rows {
 		out = append(out, notificationFromRow(r))
 	}
 	return out, nil
@@ -343,7 +375,7 @@ func (s *ActivityStore) MarkRead(ctx context.Context, ids []string) error {
 	if err != nil {
 		return err
 	}
-	return s.q.MarkNotificationsRead(ctx, raw)
+	return s.q.MarkNotificationsRead(ctx, gen.MarkNotificationsReadParams{Admin: activity.IsAdminViewer(ctx), Ids: raw})
 }
 
 // InsertErrorEvent ghi một lỗi bền (lịch sử 7 ngày của mục Báo lỗi).
@@ -365,6 +397,7 @@ func insertErrorEventTx(ctx context.Context, q *gen.Queries, e activity.ErrorEve
 	return q.InsertErrorEvent(ctx, gen.InsertErrorEventParams{
 		Kind: e.Kind, What: e.What, Why: e.Why, Href: e.Href,
 		ActionLabel: e.ActionLabel, Op: e.Op, ObjectRef: objectRef,
+		Audience: string(activity.EffectiveAudience(e.Audience, e.Object)),
 	})
 }
 
@@ -372,6 +405,7 @@ func insertErrorEventTx(ctx context.Context, q *gen.Queries, e activity.ErrorEve
 func (s *ActivityStore) ListErrorEvents(ctx context.Context, since time.Time, limit int) ([]activity.ErrorEvent, error) {
 	rows, err := s.q.ListErrorEvents(ctx, gen.ListErrorEventsParams{
 		Since: pgtype.Timestamptz{Time: since, Valid: true}, RowLimit: int32(limit),
+		Admin: activity.IsAdminViewer(ctx),
 	})
 	if err != nil {
 		return nil, err
@@ -381,6 +415,7 @@ func (s *ActivityStore) ListErrorEvents(ctx context.Context, since time.Time, li
 		ev := activity.ErrorEvent{
 			ID: uuidText(r.ID), At: r.At.Time, Kind: r.Kind, What: r.What,
 			Why: r.Why, Href: r.Href, ActionLabel: r.ActionLabel, Op: r.Op,
+			Audience: activity.Audience(r.Audience),
 		}
 		if len(r.ObjectRef) > 0 {
 			var ref domain.ObjectRef
@@ -395,7 +430,9 @@ func (s *ActivityStore) ListErrorEvents(ctx context.Context, since time.Time, li
 
 // CountErrorEvents đếm lỗi từ since.
 func (s *ActivityStore) CountErrorEvents(ctx context.Context, since time.Time) (int, error) {
-	n, err := s.q.CountErrorEvents(ctx, pgtype.Timestamptz{Time: since, Valid: true})
+	n, err := s.q.CountErrorEvents(ctx, gen.CountErrorEventsParams{
+		Since: pgtype.Timestamptz{Time: since, Valid: true}, Admin: activity.IsAdminViewer(ctx),
+	})
 	if err != nil {
 		return 0, err
 	}

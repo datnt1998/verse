@@ -100,10 +100,16 @@ func runServe(args []string) error {
 	// Lưu trữ: watch ổ dự án và tự dọn chạy theo vòng đời của serve.
 	bg, bgStop := context.WithCancel(context.Background())
 	defer bgStop()
-	storageSvc, err := mountStorage(gateway, pool, settings, hub, statusSvc, activities, bg)
+	storageSvc, serverCleanup, err := mountStorage(gateway, pool, settings, hub, statusSvc, activities, bg)
 	if err != nil {
 		return err
 	}
+	mediaManager, err := openMedia(bg, pool, storageSvc)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = mediaManager.Close(context.Background()) }()
+	mountServerStorage(gateway, mediaManager, activities, hub, statusSvc, serverCleanup)
 	// Máy: việc nền, công cụ, nhật ký và bước Chuẩn bị máy. Probe nền và
 	// lượt cài đi theo vòng đời serve — dừng khi serve tắt.
 	machineCtx, machineStop := context.WithCancel(context.Background())
@@ -134,7 +140,7 @@ func runServe(args []string) error {
 	toolManaged := tools.NewManaged(toolDeps, nil, toolKit)
 	// Video nền ráp TRƯỚC mảng nền tảng: route chính xác
 	// POST /api/platforms/requests phải thắng tiền tố /api/platforms/.
-	backdropRuntime := mountBackdrop(gateway, pool, cfgDir, hub, activities, storageSvc, logStore, toolKit.YtDlp)
+	backdropRuntime := mountBackdrop(gateway, pool, cfgDir, hub, activities, storageSvc, logStore, toolKit.YtDlp, mediaManager.Media())
 	defer backdropRuntime.Close() // dọn lần hai (idempotent) nếu thoát sớm trước khối shutdown
 	platformSvc, err := mountPlatforms(gateway, pool, settings, hub, statusSvc, cfgDir, toolKit.YtDlp)
 	if err != nil {
@@ -155,7 +161,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
-	channelSvc, err := mountChannels(gateway, pool, logStore, activities, ai.Executors, storageSvc, hub)
+	channelSvc, err := mountChannels(gateway, pool, logStore, activities, ai.Executors, storageSvc, hub, mediaManager.Media())
 	if err != nil {
 		return err
 	}
@@ -163,7 +169,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
-	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
+	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, media: mediaManager.Media(), toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
 	go seedLibraryBuiltins(bg, librarySvc, logStore)
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
@@ -223,6 +229,9 @@ func runServe(args []string) error {
 	// machineStop — join chúng trước khi đóng pool.
 	ai.Service.Close()
 	if err := machine.Shutdown(shutdown); err != nil && first == nil {
+		first = err
+	}
+	if err := mediaManager.Close(shutdown); err != nil && first == nil {
 		first = err
 	}
 	// Move của storage cũng phải join trước khi pool đóng (giữ journal

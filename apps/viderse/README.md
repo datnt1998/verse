@@ -42,9 +42,18 @@ và hỏi đáp với design ghi ở [`docs/design/v1/11-hoi-dap.md`](docs/desig
 | `TRUSTED_PROXIES` / `PUBLIC_URL` / `SECURE_COOKIES` | Ranh giới trusted-proxy (xem `platform/webguard`) |
 | `VERSE_COOKIE_DOMAIN` / `VERSE_APP_ORIGINS` | Cookie chung `verse_session` + allowlist origin của SSO (xem `apps/viderse/deploy/README.md`) |
 | `VIDERSE_CLAUDE_CODE_VERSION` | Ghi đè wire version Claude Code cho anthropic-oauth |
+| `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3`; cùng parser với Noverse, không có alias `disk` trong env |
+| `S3_PROVIDER` / `S3_ENDPOINT` / `S3_REGION` / `S3_BUCKET` | Nhà cung cấp và bucket **riêng của Viderse**; Garage dùng vùng `garage` |
+| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | Cặp khoá runtime chỉ có quyền bucket Viderse; không dùng khoá admin hoặc khoá Noverse |
+| `S3_FORCE_PATH_STYLE` / `S3_ALLOW_INSECURE_ENDPOINT` | Boolean nghiêm ngặt; HTTP chỉ khi chủ động cho phép mạng nội bộ |
+| `BLOB_DELIVERY` / `S3_PRESIGN_ENDPOINT` | `proxy` (mặc định) hoặc `redirect`; endpoint ký phải truy cập được từ trình duyệt |
+| `BLOB_CACHE_DIR` / `BLOB_CACHE_MAX_BYTES` | Bộ đệm làm việc cục bộ, có pin và giới hạn; không phải nguồn dữ liệu duy nhất |
 
 Xem `apps/viderse/deploy/README.md` + `apps/viderse/deploy/.env.example` cho
-hai DB, role, cookie SSO và origin.
+hai DB, role, cookie SSO, origin, Garage/CORS, chuyển kho và khôi phục. Đặt
+`STORAGE_DRIVER` hoặc bất kỳ `S3_*` sẽ khoá cấu hình kho trên giao diện.
+V25 mốc A hỗ trợ lớp phủ, video nền, ảnh kênh; editor/render/MP4 chưa được
+tích hợp và các nhóm usage tương ứng trả `null`.
 
 ## Tài khoản và phiên
 

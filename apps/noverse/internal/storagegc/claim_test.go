@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 type deleteBarrier struct {

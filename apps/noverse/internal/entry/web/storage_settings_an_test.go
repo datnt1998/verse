@@ -17,9 +17,9 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 func storageCandidateEnv(t *testing.T, c bootstrap.StorageCandidate) {

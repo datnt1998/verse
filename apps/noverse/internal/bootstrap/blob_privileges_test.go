@@ -13,6 +13,7 @@ import (
 )
 
 func TestStorageProbeConfigApplicationDeleteBoundary(t *testing.T) {
+	pgtest.ProvisionRoles(t, pgtest.RoleSpec{MigrateRole: "noverse_migrate", AppRole: "noverse_app", LockKey1: 2710, LockKey2: 11, InitScriptRef: "deploy/postgres-init/01-roles.sh"})
 	m, dsn := publicationFixture(t, 2)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

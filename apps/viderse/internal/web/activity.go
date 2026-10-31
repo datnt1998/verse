@@ -20,15 +20,16 @@ type Activity interface {
 
 // MountActivity đăng ký các route của Việc nền và thông báo (§11).
 func MountActivity(g *Gateway, svc Activity) {
-	g.Handle(http.MethodGet, "/api/activity", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		snap, err := svc.Snapshot(r.Context())
+	g.Handle(http.MethodGet, "/api/activity", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+		w.Header().Set("Cache-Control", "private, no-store")
+		snap, err := svc.Snapshot(activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin))
 		if err != nil {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		webapp.WriteJSON(w, http.StatusOK, activityToWire(snap))
 	})
-	g.Handle(http.MethodPost, "/api/notifications/read", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+	g.Handle(http.MethodPost, "/api/notifications/read", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		var req struct {
 			IDs []string `json:"ids"`
 			All bool     `json:"all"`
@@ -44,19 +45,21 @@ func MountActivity(g *Gateway, svc Activity) {
 		if req.All {
 			ids = nil // nil → store coi là "tất cả"
 		}
-		if err := svc.MarkRead(r.Context(), ids); err != nil {
+		if err := svc.MarkRead(activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin), ids); err != nil {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		webapp.WriteJSON(w, http.StatusOK, map[string]any{"ok": true})
 	})
-	g.Handle(http.MethodGet, "/api/errors", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		items, err := svc.Errors(r.Context())
+	g.Handle(http.MethodGet, "/api/errors", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+		w.Header().Set("Cache-Control", "private, no-store")
+		ctx := activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin)
+		items, err := svc.Errors(ctx)
 		if err != nil {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		count, err := svc.ErrorsCount(r.Context())
+		count, err := svc.ErrorsCount(ctx)
 		if err != nil {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
@@ -111,14 +114,15 @@ type actionWire struct {
 }
 
 type notificationWire struct {
-	ID          string  `json:"id"`
-	Kind        string  `json:"kind"`
-	Count       int     `json:"count"`
-	Text        string  `json:"text"`
-	Href        string  `json:"href"`
-	ActionLabel string  `json:"actionLabel"`
-	CreatedAt   string  `json:"createdAt"`
-	ReadAt      *string `json:"readAt"`
+	ID          string      `json:"id"`
+	Kind        string      `json:"kind"`
+	Count       int         `json:"count"`
+	Text        string      `json:"text"`
+	Href        string      `json:"href"`
+	ActionLabel string      `json:"actionLabel"`
+	CreatedAt   string      `json:"createdAt"`
+	ReadAt      *string     `json:"readAt"`
+	Object      *objectWire `json:"objectRef,omitempty"`
 }
 
 func activityToWire(snap activity.Snapshot) activityWire {
@@ -159,6 +163,9 @@ func notificationToWire(n activity.Notification) notificationWire {
 		ID: n.ID, Kind: n.Kind, Count: n.Count, Text: n.Text,
 		Href: n.Href, ActionLabel: n.ActionLabel,
 		CreatedAt: n.CreatedAt.UTC().Format(time.RFC3339),
+	}
+	if n.Object != nil {
+		nw.Object = &objectWire{Type: n.Object.Type, ID: n.Object.ID, Label: n.Object.Label}
 	}
 	if n.ReadAt != nil {
 		at := n.ReadAt.UTC().Format(time.RFC3339)

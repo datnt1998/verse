@@ -574,7 +574,7 @@ func (s *ChannelStore) PublishIdentity(ctx context.Context, in channels.PublishI
 	if err != nil {
 		return false, err
 	}
-	n, err := s.q.PublishIdentity(ctx, gen.PublishIdentityParams{
+	n, err := mediaQueries(ctx, s.q).PublishIdentity(ctx, gen.PublishIdentityParams{
 		ID:                 uid,
 		IdentityLeaseToken: token,
 		PublishName:        in.Name,

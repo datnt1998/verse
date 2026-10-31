@@ -110,3 +110,107 @@ viderse user grant  <tên> --app viderse      # cấp quyền dùng Viderse (kho
 viderse user revoke <tên> --app viderse      # thu hồi (thu hồi luôn phiên)
 viderse serve [-addr HOST:PORT]              # cần cả ba DSN
 ```
+
+## Kho lưu trữ máy chủ (V25, mốc A)
+
+Viderse dùng `platform/blobstore` và `platform/blobhttp`, cùng hợp đồng env với
+Noverse. **Mỗi app một bucket và một cặp khoá runtime riêng.** Không dùng khoá
+admin Garage trong tiến trình app. Khoá runtime cần đọc, ghi, liệt kê và xoá
+object trong đúng bucket của app; thử đọc bucket Noverse bằng khoá Viderse phải
+bị từ chối. Sao lưu Postgres, bucket và `secret.key` cùng nhau.
+
+| Biến | Giá trị |
+| --- | --- |
+| `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3`; DTO giao diện dùng `kind:"disk"`, không phải alias env |
+| `S3_PROVIDER` | `garage`, `r2`, `aws`, `gcs`, `wasabi`, `b2`, `spaces`, `other`; giao diện gọi Spaces là `do` |
+| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET` | Endpoint gốc không có path/query/credential; Garage dùng vùng `garage` |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Cặp khoá runtime, không truyền qua đối số CLI hoặc ghi vào log |
+| `S3_FORCE_PATH_STYLE` | Boolean nghiêm ngặt; Garage dùng `true` |
+| `S3_ALLOW_INSECURE_ENDPOINT` | Chỉ đặt `true` khi chủ động dùng HTTP nội bộ tin cậy |
+| `BLOB_DELIVERY` | `proxy` (mặc định Viderse) hoặc `redirect`; cả hai xác thực tài nguyên trước I/O |
+| `S3_PRESIGN_ENDPOINT` | Endpoint trình duyệt truy cập được, chỉ phục vụ URL ký; không thay endpoint nội bộ |
+| `BLOB_CACHE_DIR`, `BLOB_CACHE_MAX_BYTES` | Thư mục tuyệt đối và ngân sách bộ đệm; mặc định `<config>/cache/blobstore`, 2 GiB |
+
+Đặt `STORAGE_DRIVER` hoặc bất kỳ tên biến `S3_*` khoá cấu hình trên giao diện,
+kể cả giá trị rỗng. Không đặt các biến này khi muốn lưu cấu hình từ Cài đặt.
+`BLOB_DELIVERY` và cache riêng lẻ không khoá form. Không có parser `disk|s3`
+hay biến có tiền tố Viderse cho transport.
+
+### Garage và kiểm tra trình duyệt
+
+Tạo bucket bằng Garage admin API trên cổng **3903**, không dùng S3 CreateBucket.
+Quy trình admin là `POST /v2/CreateKey`, `POST /v2/CreateBucket`, rồi
+`POST /v2/AllowBucketKey` cho đúng key/bucket. Lưu phản hồi chứa khoá vào kho bí
+mật, không vào shell history hoặc log. Cổng S3 là 3900. Garage có thể bỏ qua
+`If-None-Match:*`; transport tự probe rồi dùng staging và full readback SHA-256,
+không coi ETag hay multipart ETag là checksum.
+
+Ưu tiên proxy nếu chưa có endpoint công khai. Redirect cần CORS của bucket với
+origin chính xác của Viderse, methods `GET`, `HEAD`, allowed headers viết thường
+`range`, `content-type`, expose headers `content-range`, `content-length`,
+`accept-ranges`, `etag`. Không dùng wildcard origin kèm credentials. Địa chỉ
+`http://garage:3900` có thể đọc được từ server nhưng không từ trình duyệt.
+Lượt kiểm tra redirect chỉ thành công sau khi trình duyệt đọc URL ký bằng
+`Range: bytes=0-1023`, nhận 206 và đủ 1024 byte, rồi server xoá object probe.
+Trình duyệt không phân biệt chắc chắn lỗi mạng với CORS qua `fetch`; lỗi
+`browser_unreachable` cần kiểm tra cả endpoint công khai và CORS.
+
+### Chuyển trực tuyến, import và khôi phục
+
+Apply migration cộng thêm trước khi chạy binary mới. Lần đầu chạy local đăng ký
+các đường dẫn thật của lớp phủ, video nền và ảnh kênh vào manifest. Import kiểm
+tra toàn bộ cây trước khi ghi manifest: tệp pipeline (ảnh đã vẽ/editor/nguồn/bản
+xuất), layout lạ hoặc symlink bị từ chối kèm đường dẫn, không bị bỏ qua. Không
+quét thư mục cấu hình để đẩy secret, cookie, model, process registry hay scratch
+của lần vẽ ảnh đã trả tiền lên kho.
+
+Lưu cấu hình S3 mới không đổi kho đọc hiện tại. Bấm chuyển để chép và xác minh
+từng object trong khi video vẫn chạy. Pause/resume/cancel/retry lưu trong
+Postgres. Cancel giữ cả object đã chép và nguồn; lượt sau xác minh rồi dùng lại,
+không PUT lại. Cutover dùng fence xuyên tiến trình và kiểm tra lại toàn bộ
+tham chiếu hiện hành, không chờ network trong đoạn đổi con trỏ. Không có nút xoá
+kho cũ. CLI và web dùng cùng manifest, generation và fence.
+
+```sh
+# Mặc định mọi lệnh bảo trì chỉ xem trước.
+viderse storage import --dry-run
+viderse storage import --apply
+viderse storage gc --dry-run
+viderse storage gc --apply --grace 24h
+viderse storage materialize --to /srv/viderse-rollback --dry-run
+viderse storage materialize --to /srv/viderse-rollback --apply
+```
+
+GC chỉ xét codec `v1/sha256`, giữ thời gian chờ sau khi mất ref, kho cũ, lượt
+chuyển chưa kết thúc, URL ký chưa hết hạn và các read/publish lease. Apply khoá
+rồi kiểm tra ref lại; preview không phải giấy phép xoá về sau. Dọn trên web giữ
+nguyên các route §23, tính `orphan_objects` theo manifest và `work_cache` chỉ cho
+admin; run dùng đúng preview đã xác thực, giữ cache đang pin. Chế độ local giữ
+hành vi V22; S3 không gọi scanner/reclaimer pipeline local.
+
+Trước rollback sang binary chỉ biết local, **dừng writer**, materialize manifest
+hiện tại (kể cả tệp mới sau cutover), kiểm tra SHA-256, cấu hình đường dẫn local
+đó rồi mới chạy binary cũ. Không chỉ đổi `STORAGE_DRIVER=local` và giả định thư
+mục nguồn cũ còn đầy đủ. Materialize không tự đổi backend, không ghi đè tệp khác
+nội dung, không sửa schema. Migration down từ chối xoá manifest/lịch sử đã có dữ
+liệu. Giữ DB, bucket và key để có thể roll forward an toàn.
+
+### Khoá, cache và giới hạn mốc A
+
+`secret.key` phải là tệp thường 32 byte, thuộc user chạy app, quyền 0600. API trả
+`encryptionKey={ok,path,issue?}` với `readonly_dir`, `bad_permissions`, `corrupt`.
+Không chmod, thay thế hay tái tạo khoá đã tồn tại sai. Khi mất khoá mà còn
+ciphertext, không tạo khoá mới để che lỗi; khôi phục đúng bản backup. Được thử
+cặp khoá mới khi khoá máy chưa dùng được, nhưng không được lưu cho tới khi cả
+descriptor hiện tại và các descriptor giữ lại đều giải mã được.
+
+Cache không phải nguồn dữ liệu. Có thể xoá cache khi đã dừng server; lần đọc sau
+sẽ hydrate, kiểm tra SHA-256 và publish nguyên tử. Pin sống tới hết HTTP/CLI/job;
+cache lỗi/hỏng sau restart không được tin cậy. Input vượt ngân sách dùng workspace
+có owner lock thay vì ép vào cache LRU. Kho mất kết nối bật hold độc lập với pause
+của người dùng, báo `storageDown`, thông báo admin và tự thử lại mỗi phút.
+
+Mốc A chỉ có lớp phủ, video nền và ảnh kênh. Các nhóm ảnh đã vẽ, project editor,
+video nguồn và MP4 trả số lượng/dung lượng `null`, không phải 0. **Chưa có bằng
+chứng render/editor end-to-end trên S3**; phần này bị chặn tới mốc B.
+

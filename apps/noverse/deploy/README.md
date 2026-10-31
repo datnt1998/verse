@@ -544,7 +544,7 @@ object trong `{env}/staging/` cũ hơn `--staging-age` (24h) → object mồ cô
   để tương thích MinIO. Vì vậy lượt scan có đọc metadata upload dở của môi trường
   khác trong cùng bucket, nhưng không trả chúng về GC để abort. Completed-object
   listing vẫn theo prefix môi trường. Nếu cần tách quyền list tuyệt đối, dùng
-  bucket riêng cho từng môi trường. Nguồn: `internal/blobstore/s3_batch.go`.
+  bucket riêng cho từng môi trường. Nguồn: `platform/blobstore/s3_batch.go`.
 - Job upload được liên kết bằng `blobs.upload_job_id`. GC khoá job trước blob:
   lease chưa hết hạn hoặc job queued/paused/waiting (hay running không có lease)
   luôn giữ hàng; running đã hết lease được xem là bỏ dở. Worker thắng race

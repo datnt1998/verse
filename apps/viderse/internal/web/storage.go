@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/retention"
+	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
@@ -43,20 +44,34 @@ type CleanupService interface {
 // MountStorage đăng ký các route /api/storage*.
 func MountStorage(g *Gateway, store StorageService, clean CleanupService) {
 	h := &storageHandlers{store: store, clean: clean}
+	// Every legacy location operation goes through the same gate, including
+	// reads: Snapshot enumerates volumes and reveals server filesystem paths.
+	pathRoute := func(method, path string, handler func(http.ResponseWriter, *http.Request, identity.User)) {
+		g.Handle(method, path, func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			if g.serverStorageMode != nil && g.serverStorageMode() {
+				webapp.WriteJSON(w, http.StatusForbidden, map[string]string{
+					"error": "Không hỗ trợ thao tác thư mục khi lưu trữ trên máy chủ.",
+					"code":  "storage_path_unavailable",
+				})
+				return
+			}
+			handler(w, r, user)
+		})
+	}
 	// Thứ tự khớp: exact trước prefix (webapp giữ thứ tự đăng ký).
-	g.Handle(http.MethodGet, "/api/storage", h.get)
-	g.Handle(http.MethodPost, "/api/storage/check", h.check)
-	g.Handle(http.MethodPost, "/api/storage/recheck", h.recheck)
-	g.Handle(http.MethodPost, "/api/storage/move", h.move)
-	g.Handle(http.MethodPost, "/api/storage/move/retry", h.moveRetry)
-	g.Handle(http.MethodPost, "/api/storage/move/dismiss", h.moveDismiss)
-	g.Handle(http.MethodPost, "/api/storage/move/", h.moveSub)
-	g.Handle(http.MethodPost, "/api/storage/previous/delete", h.deletePrevious)
-	g.Handle(http.MethodPost, "/api/storage/use-default-for-new", h.useDefault)
-	g.Handle(http.MethodGet, "/api/storage/browse", h.browse)
-	g.Handle(http.MethodPost, "/api/storage/open", h.open)
-	g.Handle(http.MethodGet, "/api/storage/reclaim", h.reclaimList)
-	g.Handle(http.MethodPost, "/api/storage/reclaim/", h.reclaimOne)
+	pathRoute(http.MethodGet, "/api/storage", h.get)
+	pathRoute(http.MethodPost, "/api/storage/check", h.check)
+	pathRoute(http.MethodPost, "/api/storage/recheck", h.recheck)
+	pathRoute(http.MethodPost, "/api/storage/move", h.move)
+	pathRoute(http.MethodPost, "/api/storage/move/retry", h.moveRetry)
+	pathRoute(http.MethodPost, "/api/storage/move/dismiss", h.moveDismiss)
+	pathRoute(http.MethodPost, "/api/storage/move/", h.moveSub)
+	pathRoute(http.MethodPost, "/api/storage/previous/delete", h.deletePrevious)
+	pathRoute(http.MethodPost, "/api/storage/use-default-for-new", h.useDefault)
+	pathRoute(http.MethodGet, "/api/storage/browse", h.browse)
+	pathRoute(http.MethodPost, "/api/storage/open", h.open)
+	pathRoute(http.MethodGet, "/api/storage/reclaim", h.reclaimList)
+	pathRoute(http.MethodPost, "/api/storage/reclaim/", h.reclaimOne)
 	g.Handle(http.MethodPost, "/api/storage/cleanup/preview", h.preview)
 	g.Handle(http.MethodPost, "/api/storage/cleanup/run", h.run)
 }
@@ -439,8 +454,9 @@ func reclaimWire(it retention.ReclaimItem) reclaimItemWire {
 	return reclaimItemWire{ID: it.ID, Title: it.Title, Bytes: it.Bytes, Count: it.Count, Desc: it.Desc}
 }
 
-func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	preview, err := h.clean.PreviewCleanup(r.Context())
+func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, user identity.User) {
+	ctx := retention.WithCleanupViewer(r.Context(), user.Username, storageAdmin(user))
+	preview, err := h.clean.PreviewCleanup(ctx)
 	if err != nil {
 		storageError(w, err)
 		return
@@ -454,14 +470,15 @@ func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, _ iden
 	webapp.WriteJSON(w, http.StatusOK, out)
 }
 
-func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, _ identity.User) {
+func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var body struct {
 		PreviewID string `json:"previewId"`
 	}
 	if !webapp.DecodeJSON(w, r, &body) {
 		return
 	}
-	result, err := h.clean.RunCleanup(r.Context(), body.PreviewID)
+	ctx := retention.WithCleanupViewer(r.Context(), user.Username, storageAdmin(user))
+	result, err := h.clean.RunCleanup(ctx, body.PreviewID)
 	if err != nil {
 		storageError(w, err)
 		return
@@ -474,6 +491,11 @@ func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, _ identity
 
 // storageError đổi lỗi nghiệp vụ sang HTTP ở đúng một chỗ.
 func storageError(w http.ResponseWriter, err error) {
+	var serverErr *serverstorage.Error
+	if errors.As(err, &serverErr) {
+		serverStorageError(w, err)
+		return
+	}
 	var re *retention.Error
 	if errors.As(err, &re) {
 		webapp.WriteJSON(w, storageStatus(re.Code), map[string]any{

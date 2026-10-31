@@ -18,6 +18,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/core/llm"
 )
 
@@ -336,19 +337,22 @@ func (s *Service) executeIdentity(run *identityRun) error {
 		<-heartbeatDone
 	}()
 
-	// Thư mục làm việc: tài sản cuối nằm trong channels/<id>/, tệp nháp trong
-	// thư mục con tạm và luôn bị dọn.
+	// Generated source and normalized images stay in an operation workspace.
 	relDir := "channels/" + run.channelID
-	absDir, err := s.storage.Resolve(relDir)
+	absDir := ""
+	var err error
+	if s.media == nil {
+		absDir, err = s.storage.Resolve(relDir)
+		if err != nil {
+			return s.failIdentity(run, err)
+		}
+		if err := os.MkdirAll(absDir, 0o755); err != nil {
+			return s.failIdentity(run, err)
+		}
+	}
+	scratch, err := os.MkdirTemp(absDir, "viderse-identity-")
 	if err != nil {
-		return s.failIdentity(run, &Error{Code: CodeInternal, Message: "Không mở được thư mục kênh."})
-	}
-	if err := os.MkdirAll(absDir, 0o755); err != nil {
-		return s.failIdentity(run, &Error{Code: CodeInternal, Message: "Không tạo được thư mục kênh."})
-	}
-	scratch := filepath.Join(absDir, ".staging-"+run.token[:8])
-	if err := os.MkdirAll(scratch, 0o700); err != nil {
-		return s.failIdentity(run, &Error{Code: CodeInternal, Message: "Không tạo được thư mục tạm."})
+		return s.failIdentity(run, err)
 	}
 	defer os.RemoveAll(scratch)
 
@@ -449,22 +453,41 @@ func (s *Service) executeIdentity(run *identityRun) error {
 			Message: "Lần tạo nhận diện dừng giữa chừng.", Recovery: "Chạy lại tạo nhận diện."})
 	}
 	progress("Đang công bố nhận diện", false)
-	ok, err := s.store.PublishIdentity(ctx, PublishInput{
-		ChannelID:    run.channelID,
-		Token:        run.token,
-		Name:         name,
-		ExpectedName: run.expectedName,
-		Branding:     design,
-		AvatarPath:   avatarRel,
-		BannerPath:   bannerRel,
-	})
+	input := PublishInput{
+		ChannelID: run.channelID, Token: run.token, Name: name,
+		ExpectedName: run.expectedName, Branding: design,
+		AvatarPath: avatarRel, BannerPath: bannerRel,
+	}
+	publish := func(txctx context.Context) error {
+		ok, err := s.store.PublishIdentity(txctx, input)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return &Error{Code: CodeConflict,
+				Message:  "Kênh đã đổi trong lúc tạo nhận diện — kết quả bị huỷ.",
+				Recovery: "Tải lại trang rồi chạy lại."}
+		}
+		return nil
+	}
+	if s.media != nil {
+		var artifacts []media.Artifact
+		for _, rel := range []string{avatarRel, bannerRel} {
+			if rel == "" {
+				continue
+			}
+			contentType := "image/png"
+			if strings.HasSuffix(rel, ".jpg") {
+				contentType = "image/jpeg"
+			}
+			artifacts = append(artifacts, media.Artifact{Path: rel, File: filepath.Join(scratch, filepath.Base(rel)), ContentType: contentType, Filename: filepath.Base(rel)})
+		}
+		err = s.media.Publish(ctx, artifacts, publish)
+	} else {
+		err = publish(ctx)
+	}
 	if err != nil {
 		return s.failIdentity(run, err)
-	}
-	if !ok {
-		return s.failIdentity(run, &Error{Code: CodeConflict,
-			Message:  "Kênh đã đổi trong lúc tạo nhận diện — kết quả bị huỷ.",
-			Recovery: "Tải lại trang rồi chạy lại."})
 	}
 	progress("Đã công bố nhận diện", true)
 	if name != run.expectedName {
@@ -479,9 +502,11 @@ func (s *Service) executeIdentity(run *identityRun) error {
 	if bannerRel != "" {
 		kept[bannerRel] = true
 	}
-	s.removeSuperseded(absDir, run.oldAvatar, avatarRel, kept)
-	s.removeSuperseded(absDir, run.oldBanner, bannerRel, kept)
-	created = nil
+	if s.media == nil {
+		s.removeSuperseded(absDir, run.oldAvatar, avatarRel, kept)
+		s.removeSuperseded(absDir, run.oldBanner, bannerRel, kept)
+		created = nil
+	}
 
 	if s.tasks != nil && run.taskID != "" {
 		_ = s.tasks.Finish(ctx, run.taskID)
@@ -734,9 +759,13 @@ func (s *Service) drawAsset(ctx context.Context, run *identityRun, kind, name st
 	relDir := "channels/" + run.channelID
 	if kind == domain.IdentityAvatar {
 		rel := relDir + "/" + stem + "-avatar.png"
-		abs, err := s.storage.Resolve(rel)
-		if err != nil {
-			return "", err
+		abs := filepath.Join(scratch, filepath.Base(rel))
+		if s.media == nil {
+			var err error
+			abs, err = s.storage.Resolve(rel)
+			if err != nil {
+				return "", err
+			}
 		}
 		if err := writePNGAtomic(coverScale(src, AvatarSize, AvatarSize), abs); err != nil {
 			return "", err
@@ -745,9 +774,13 @@ func (s *Service) drawAsset(ctx context.Context, run *identityRun, kind, name st
 		return rel, nil
 	}
 	rel := relDir + "/" + stem + "-banner.jpg"
-	abs, err := s.storage.Resolve(rel)
-	if err != nil {
-		return "", err
+	abs := filepath.Join(scratch, filepath.Base(rel))
+	if s.media == nil {
+		var err error
+		abs, err = s.storage.Resolve(rel)
+		if err != nil {
+			return "", err
+		}
 	}
 	if err := encodeBanner(coverScale(src, BannerWidth, BannerHeight), abs); err != nil {
 		return "", err

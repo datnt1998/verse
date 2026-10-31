@@ -20,10 +20,9 @@ import (
 
 	"github.com/gofrs/flock"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
-const defaultBlobCacheBytes int64 = 2 << 30
 const blobCacheHeadroom uint64 = 64 << 20
 
 // A process shares one cache for each configured root. Entries remain private
@@ -46,22 +45,11 @@ type verifiedBlobCache struct {
 }
 
 func blobCacheConfig() (string, int64, error) {
-	root := strings.TrimSpace(os.Getenv("BLOB_CACHE_DIR"))
-	if root == "" {
-		root = filepath.Join(os.TempDir(), "ainovel-blob-cache")
-	}
-	root, err := filepath.Abs(root)
+	cfg, err := blobstore.ParseCacheEnv(os.LookupEnv, filepath.Join(os.TempDir(), "ainovel-blob-cache"))
 	if err != nil {
 		return "", 0, err
 	}
-	limit := defaultBlobCacheBytes
-	if value := strings.TrimSpace(os.Getenv("BLOB_CACHE_MAX_BYTES")); value != "" {
-		limit, err = strconv.ParseInt(value, 10, 64)
-		if err != nil || limit <= 0 {
-			return "", 0, errors.New("BLOB_CACHE_MAX_BYTES must be a positive byte count")
-		}
-	}
-	return root, limit, nil
+	return cfg.Dir, cfg.MaxBytes, nil
 }
 
 func configuredBlobCache() (*verifiedBlobCache, error) {

@@ -20,6 +20,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
@@ -99,6 +100,7 @@ func (p libraryPrice) PerImageUSD(ctx context.Context) (float64, bool, error) {
 type libraryDeps struct {
 	pool     *pgxpool.Pool
 	files    library.Files
+	media    *media.Service
 	toolKit  *tools.Tools
 	runner   tools.Runner
 	ai       *aiconn.Service
@@ -124,7 +126,7 @@ func newLibraryService(deps libraryDeps) *library.Service {
 			}
 		}
 	}
-	d := library.Deps{Store: postgres.NewLibraryStore(deps.pool), Files: deps.files}
+	d := library.Deps{Store: postgres.NewLibraryStore(deps.pool), Files: deps.files, Media: deps.media}
 	d.Notify = notify
 	if deps.runner != nil {
 		d.Runner = libraryRunner{runner: deps.runner}
@@ -167,16 +169,6 @@ func seedLibraryBuiltins(ctx context.Context, svc *library.Service, logStore *lo
 
 // ── CLI ────────────────────────────────────────────────────────────────────
 
-// libraryRootFiles là library.Files tối giản cho CLI: đọc vị trí thư mục dự
-// án một lần (cùng khoá settings với mảng Lưu trữ).
-type libraryRootFiles struct{ root string }
-
-func (f libraryRootFiles) Root() string { return f.root }
-
-func (f libraryRootFiles) Resolve(rel string) (string, error) {
-	return filepath.Join(f.root, filepath.FromSlash(rel)), nil
-}
-
 // cliProjectRoot đọc thư mục dự án đang chọn, mặc định <config>/projects.
 func cliProjectRoot(ctx context.Context, pool *pgxpool.Pool) (string, error) {
 	cfgDir, err := bootstrap.DefaultConfigDir()
@@ -211,8 +203,14 @@ func openLibrary(ctx context.Context) (*library.Service, func(), error) {
 		pool.Close()
 		return nil, nil, err
 	}
+	manager, err := openCLIMedia(ctx, pool, func() string { return root })
+	if err != nil {
+		pool.Close()
+		return nil, nil, err
+	}
 	cfgDir, err := bootstrap.DefaultConfigDir()
 	if err != nil {
+		_ = manager.Close(context.Background())
 		pool.Close()
 		return nil, nil, err
 	}
@@ -224,11 +222,15 @@ func openLibrary(ctx context.Context) (*library.Service, func(), error) {
 	})
 	svc := newLibraryService(libraryDeps{
 		pool:    pool,
-		files:   libraryRootFiles{root: root},
+		files:   cliStorage{root: root},
+		media:   manager.Media(),
 		toolKit: toolKit,
 		runner:  runner,
 	})
-	return svc, pool.Close, nil
+	return svc, func() {
+		_ = manager.Close(context.Background())
+		pool.Close()
+	}, nil
 }
 
 // storageFiles đổi *storage.Service sang mặt Files của service Thư viện.

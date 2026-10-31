@@ -46,15 +46,17 @@ type Service struct {
 	deps  Deps
 	clock Clock
 
-	mu       sync.Mutex
-	location string
-	altRoots []string
-	previous *domain.StoragePrevious
-	holds    map[domain.Hold]bool
-	missing  map[string]time.Time // root → lúc phát hiện mất
-	volNames map[string]string    // root → tên ổ lần cuối đọc được
-	moving   *moveState
-	failed   *domain.StorageMoveFailed
+	mu            sync.Mutex
+	location      string
+	altRoots      []string
+	previous      *domain.StoragePrevious
+	holds         map[domain.Hold]bool
+	serverOffline bool // independent HoldOffline owner; disk recovery cannot clear it
+	remoteStorage bool
+	missing       map[string]time.Time // root → lúc phát hiện mất
+	volNames      map[string]string    // root → tên ổ lần cuối đọc được
+	moving        *moveState
+	failed        *domain.StorageMoveFailed
 
 	watchMu sync.Mutex
 	watch   Ticker
@@ -94,6 +96,9 @@ func New(ctx context.Context, deps Deps) (*Service, error) {
 	}
 	s.life, s.lifeCancel = context.WithCancel(context.Background())
 	if err := s.load(ctx); err != nil {
+		return nil, err
+	}
+	if _, err := deps.Settings.Get(ctx, domain.KeyStorageServerOffline, &s.serverOffline); err != nil {
 		return nil, err
 	}
 	// Ẩm snapshot ổ đĩa trước khi phục vụ: phân loại diskutil chạy ở đây, GET
@@ -166,12 +171,14 @@ func (s *Service) Start(ctx context.Context) error {
 	s.lifeMu.Unlock()
 	// Phục hồi TRƯỚC ensureLocation: khởi động sau một lần rename bị cắt ngang
 	// phải nhận đích làm vị trí thay vì dựng thư mục rỗng ở nguồn.
-	s.recoverMove(ctx)
-	s.reconcileHolds(ctx)
-	if err := s.ensureLocation(ctx); err != nil {
-		slog.Warn("storage: thư mục dự án không tạo được", "path", s.location, "err", err)
+	if !s.RemoteStorage() {
+		s.recoverMove(ctx)
+		s.reconcileHolds(ctx)
+		if err := s.ensureLocation(ctx); err != nil {
+			slog.Warn("storage: thư mục dự án không tạo được", "path", s.location, "err", err)
+		}
+		s.tick(ctx)
 	}
-	s.tick(ctx) // đánh giá online/offline ngay khi mở
 
 	every := s.deps.WatchEvery
 	if every <= 0 {
@@ -329,6 +336,9 @@ func (s *Service) Holds() []domain.Hold {
 	out := make([]domain.Hold, 0, len(s.holds))
 	for h := range s.holds {
 		out = append(out, h)
+	}
+	if s.serverOffline && !s.holds[domain.HoldOffline] {
+		out = append(out, domain.HoldOffline)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i] < out[j] })
 	return out
@@ -692,6 +702,9 @@ func (s *Service) watchedRoots() []string {
 // tick là một nhịp theo dõi: stat từng root, phát hiện chuyển mất/hiện, xử
 // lý bản cũ quá hạn. Rẻ: một stat + một access mỗi root mỗi nhịp.
 func (s *Service) tick(ctx context.Context) {
+	if s.RemoteStorage() {
+		return
+	}
 	s.settlePrevious(ctx)
 	// Ổ cắm/rút được phát hiện ở đây: snapshot phân loại ổ mới (một lần
 	// diskutil) và phát sự kiện storage nếu tập ổ đổi — GET không spawn gì.

@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // StoreDriver selects the fact-storage backend for the process. Selection is
@@ -194,8 +195,7 @@ type BlobConfig struct {
 	// local driver
 	LocalRoot string
 	// s3 driver — verbatim recipe fields (see research provider matrix)
-	S3           blobstore.S3Config
-	insecureHTTP bool // S3_ALLOW_INSECURE_ENDPOINT parsed flag
+	S3 blobstore.S3Config
 }
 
 // SafeSummary renders a credential-free one-line description.
@@ -230,64 +230,18 @@ func (c BlobConfig) SafeSummary() string {
 //
 // Every recipe is the same driver; no provider-specific config shape exists.
 func BlobConfigFromEnv() (BlobConfig, error) {
-	get := func(key string) string { return strings.TrimSpace(os.Getenv(key)) }
-	cfg := BlobConfig{Driver: BlobDriverLocal}
-	switch d := get("STORAGE_DRIVER"); d {
-	case "", "local":
-		cfg.Driver = BlobDriverLocal
-	case "s3":
-		cfg.Driver = BlobDriverS3
-	default:
-		return cfg, fmt.Errorf("STORAGE_DRIVER=%q không hợp lệ (local|s3): %w", d, errs.ErrConfig)
-	}
-
-	if insecure := get("S3_ALLOW_INSECURE_ENDPOINT"); insecure != "" {
-		b, err := strictBool("S3_ALLOW_INSECURE_ENDPOINT", insecure)
-		if err != nil {
-			return cfg, err
+	// Cache validation remains at audio cache construction, as before.
+	lookup := func(key string) (string, bool) {
+		if key == "BLOB_CACHE_DIR" || key == "BLOB_CACHE_MAX_BYTES" {
+			return "", false
 		}
-		cfg.insecureHTTP = b
+		return os.LookupEnv(key)
 	}
-
-	cfg.Delivery = get("BLOB_DELIVERY")
-	if cfg.Delivery != "" && cfg.Delivery != "redirect" && cfg.Delivery != "proxy" {
-		return cfg, fmt.Errorf("BLOB_DELIVERY phải là redirect hoặc proxy: %w", errs.ErrConfig)
+	parsed, err := blobstore.ParseEnv(lookup, "")
+	cfg := BlobConfig{Driver: BlobDriver(parsed.Driver), Delivery: parsed.Delivery, Provider: parsed.Provider, LocalRoot: parsed.LocalRoot, S3: parsed.S3}
+	if err != nil {
+		return cfg, fmt.Errorf("%s: %w", err, errs.ErrConfig)
 	}
-	cfg.Provider = get("S3_PROVIDER")
-	if cfg.Driver == BlobDriverLocal {
-		cfg.LocalRoot = get("BLOB_LOCAL_ROOT")
-		if cfg.LocalRoot == "" {
-			return cfg, fmt.Errorf("STORAGE_DRIVER=local yêu cầu BLOB_LOCAL_ROOT: %w", errs.ErrConfig)
-		}
-		return cfg, nil
-	}
-
-	s3cfg := blobstore.S3Config{
-		Endpoint:        get("S3_ENDPOINT"),
-		PresignEndpoint: get("S3_PRESIGN_ENDPOINT"),
-		Region:          get("S3_REGION"),
-		Bucket:          get("S3_BUCKET"),
-		AccessKeyID:     get("S3_ACCESS_KEY_ID"),
-		SecretAccessKey: get("S3_SECRET_ACCESS_KEY"),
-		AllowPlainHTTP:  cfg.insecureHTTP,
-	}
-	if v := get("S3_FORCE_PATH_STYLE"); v != "" {
-		b, err := strictBool("S3_FORCE_PATH_STYLE", v)
-		if err != nil {
-			return cfg, err
-		}
-		s3cfg.ForcePathStyle = b
-	}
-	if cfg.Provider == "garage" {
-		if s3cfg.Region == "" {
-			s3cfg.Region = "garage"
-		}
-		s3cfg.ForcePathStyle = true
-	}
-	if s3cfg.Region == "" || s3cfg.Bucket == "" || s3cfg.AccessKeyID == "" || s3cfg.SecretAccessKey == "" {
-		return cfg, fmt.Errorf("STORAGE_DRIVER=s3 yêu cầu S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY: %w", errs.ErrConfig)
-	}
-	cfg.S3 = s3cfg
 	return cfg, nil
 }
 
@@ -348,20 +302,21 @@ func BlobConfigFromFile(path string) (BlobConfig, error) {
 // OpenBlobStore is the composition root for blobs. Bad config is a startup
 // error; there is no fallback driver.
 func OpenBlobStore(cfg BlobConfig) (blobstore.BlobStore, error) {
-	var st blobstore.BlobStore
-	var err error
-	switch cfg.Driver {
-	case BlobDriverLocal:
-		st, err = blobstore.NewLocal(cfg.LocalRoot)
-	case BlobDriverS3:
-		st, err = blobstore.NewS3(cfg.S3)
-	default:
+	if cfg.Driver != BlobDriverLocal && cfg.Driver != BlobDriverS3 {
 		return nil, fmt.Errorf("STORAGE_DRIVER=%q không được hỗ trợ: %w", cfg.Driver, errs.ErrConfig)
 	}
-	if err != nil {
-		return nil, err // never leak a typed-nil driver as a non-nil interface
+	if cfg.Driver == BlobDriverS3 {
+		env, err := blobkey.EnvFromOS()
+		if err != nil {
+			return nil, err
+		}
+		keys, err := blobkey.New(env)
+		if err != nil {
+			return nil, err
+		}
+		cfg.S3.ConditionalProbePrefix = keys.StagingPrefix()
 	}
-	return st, nil
+	return blobstore.Open(blobstore.Config{Driver: string(cfg.Driver), LocalRoot: cfg.LocalRoot, S3: cfg.S3})
 }
 
 // CheckBlobStore is the readiness probe for the configured blob backend. It
@@ -407,20 +362,6 @@ func CheckBlobStore(ctx context.Context, st blobstore.BlobStore, cfg BlobConfig)
 		return nil
 	}
 	return fmt.Errorf("STORAGE_DRIVER=%q không được hỗ trợ: %w", cfg.Driver, errs.ErrConfig)
-}
-
-// strictBool parses the locked boolean contract: only "true"/"false"/"1"/"0"
-// — never "yes"/"on"/"", so a typo fails closed instead of silently changing
-// endpoint style.
-func strictBool(name, v string) (bool, error) {
-	switch v {
-	case "true", "1":
-		return true, nil
-	case "false", "0":
-		return false, nil
-	default:
-		return false, fmt.Errorf("%s=%q không hợp lệ (true|false): %w", name, v, errs.ErrConfig)
-	}
 }
 
 // OpenStoryStore is the composition root for a scoped postgres story store.

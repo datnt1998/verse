@@ -22,6 +22,7 @@ const (
 	TaskCleanup          TaskKind = "cleanup"
 	TaskLogs             TaskKind = "logs"
 	TaskStorageMove      TaskKind = "storage_move"
+	TaskStorageMigrate   TaskKind = "storage_migrate"
 )
 
 // TaskState là trạng thái của một việc nền đang hiện.

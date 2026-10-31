@@ -13,7 +13,11 @@ import { useStatus } from '../../data/status'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { getStorage } from '../../api/storage'
+import { getServerStorage } from '../../api/storageServer'
+import { serverStorageCopy as serverCopy } from '../../i18n/storageServer'
 import { getErrors } from '../../api/errors'
+import { useSession } from '../../api/session'
+import { AdminStorageStrip } from '../../shell/AdminStorageStrip'
 import { getTools } from '../../api/tools'
 import { getVersion } from '../../api/version'
 import { getAgents, listProviders } from '../../api/ai'
@@ -80,12 +84,15 @@ export type FrameFacts = {
   artist?: string
   /** Số nền tảng app hỗ trợ (undefined = chưa có dữ liệu). */
   platforms?: number
+  server?: boolean
+  storageMobile?: string
 }
 
 /** Số liệu khung cần cho cột mục + danh sách mobile (dung lượng, lỗi, công cụ, bản). */
 function useFrameFacts(): FrameFacts {
   const tools = useResource(keys.tools(), ({ signal }) => getTools(signal))
-  const storage = useResource(keys.storage(), ({ signal }) => getStorage(signal))
+  const server = useResource(['storage', 'server'], ({ signal }) => getServerStorage(signal))
+  const storage = useResource(keys.storage(), ({ signal }) => getStorage(signal), { enabled: server.data === null })
   const errors = useResource(keys.errors(), ({ signal }) => getErrors(signal))
   const version = useResource(keys.appVersion(), ({ signal }) => getVersion(signal))
   // Cùng khoá cache với mục Kết nối AI / Trợ lý AI / Tài khoản nền tảng nên mở
@@ -98,18 +105,32 @@ function useFrameFacts(): FrameFacts {
   const failed = rows.filter((x) => x.state === 'failed').length
   const updates = rows.filter((x) => x.state === 'update').length
   const done = rows.filter((x) => x.state === 'ready' || x.state === 'update').length
-  const used = storage.data ? storage.data.projects.usedBytes + storage.data.stayBytes : 0
+  const serverData = server.data
+  const used = serverData ? serverData.usage.reduce((sum, group) => sum + (group.bytes ?? 0), 0) : storage.data ? storage.data.projects.usedBytes + storage.data.stayBytes : 0
   const providerList = providers.data
   const drawRef = agents.data?.artist.draw
   const artist = drawRef?.provider
     ? (providerList?.find((x) => x.id === drawRef.provider)?.label ?? drawRef.provider)
     : providerList && drawRef ? '' : undefined
+  let storageMobile = serverData ? fmtBytes(used) : undefined
+  if (serverData?.role === 'admin' && serverData.storage) {
+    const saved = serverData.storage
+    const providerName = saved.kind === 's3' ? serverCopy.providers[saved.provider ?? 'other'].name : serverCopy.diskShort
+    const migration = serverData.migration
+    if (!saved.online) storageMobile = fill(serverCopy.mobileDown, { label: providerName })
+    else if (migration && !['done', 'cancelled'].includes(migration.state)) {
+      const percent = migration.bytes.total > 0 ? Math.round(migration.bytes.done / migration.bytes.total * 100) : 0
+      storageMobile = `${serverCopy.mobileMoving} · ${percent}%`
+    } else storageMobile = `${providerName} · ${fmtBytes(used)}`
+  }
   return {
+    server: !!serverData,
     providers: providerList?.length,
     artist,
     platforms: platforms.data?.length,
     toolsCount: installing > 0 ? fill(t.settings.counts.toolsInstalling, { done, total: rows.length }) : '',
-    storageCount: storage.data ? fmtBytes(used) : '',
+    storageCount: serverData || storage.data ? fmtBytes(used) : '',
+    storageMobile,
     logsCount: errors.data ? String(errors.data.count7d) : '',
     installing, failed, updates,
     // Chân cột chỉ hiện semver (“Viderse 1.4.0” — artboard). Chuỗi build đầy đủ
@@ -153,7 +174,7 @@ function NavList({ section, dots, facts, onPick }: {
     ))
   return (
     <>
-      <div className="vv-set__grp">{t.settings.nav.machine}</div>
+      <div className="vv-set__grp">{facts.server ? serverCopy.server : t.settings.nav.machine}</div>
       {render(machine)}
       <div className="vv-set__grp">{t.settings.nav.data}</div>
       {render(data)}
@@ -179,7 +200,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
   const facts = useFrameFacts()
   const active: SettingsSection = section ?? 'tools'
   const meta = t.settings.meta[active] ?? t.settings.meta.tools
-  const help = t.settings.help[active] ?? t.settings.help.tools
+  const help = facts.server && active === 'storage' ? serverCopy.help : t.settings.help[active] ?? t.settings.help.tools
   const go = (id: SettingsSection) => navigate(routePath({ name: 'settings', section: id }))
 
   if (mobile) return <MobileSettings section={section} dots={dots} facts={facts} go={go} />
@@ -196,10 +217,10 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
       </aside>
       <main className="vv-set__center">
         <div className="vv-set__body">
-          <div>
+          {!(facts.server && active === 'storage') ? <div>
             <h1 className="vv-set__title">{meta.title}</h1>
             <p className="vv-set__lede">{meta.lede}</p>
-          </div>
+          </div> : null}
           <Suspense fallback={<Spinner size={16} />}>
             <Body />
           </Suspense>
@@ -224,6 +245,9 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
 /** MSettings — thẻ tổng, danh sách mục kèm giá trị, thẻ Hàng chờ, chân bản. */
 function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, 'warn' | 'err'>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
+  const { user } = useSession()
+  const status = useStatus()
+  const strip = user ? <AdminStorageStrip user={user} status={status.data} /> : null
   // Câu phụ của thẻ “Máy sẵn sàng” — theo việc nặng nhất đang có.
   const summarySub = facts.failed > 0
     ? fill(t.settings.m.summary.failedSub, { n: facts.failed })
@@ -242,7 +266,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
     { id: 'connect', icon: 'key', title: t.settings.m.rows.connect.title, value: facts.providers == null ? '' : fill(t.settings.m.values.providers, { n: facts.providers }) },
     { id: 'agents', icon: 'magic', title: t.settings.m.rows.agents.title, value: facts.artist == null ? '' : facts.artist ? fill(t.settings.m.values.artist, { name: facts.artist }) : t.settings.m.values.artistNone },
     { id: 'accounts', icon: 'global', title: t.settings.m.rows.accounts.title, value: facts.platforms == null ? '' : fill(t.settings.m.values.platforms, { n: facts.platforms }) },
-    { id: 'storage', icon: 'folder', title: t.settings.m.rows.storage.title, value: facts.storageCount || t.settings.counts.storageFallback },
+    { id: 'storage', icon: 'folder', title: t.settings.m.rows.storage.title, value: facts.storageMobile ?? (facts.storageCount || t.settings.counts.storageFallback) },
     { id: 'export', icon: 'flag', title: t.settings.m.rows.logs.title, value: t.settings.m.values.logs },
   ]
 
@@ -251,6 +275,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
     const Body = SECTIONS[section]
     return (
       <div className="vv-mset">
+        {strip}
         <header className="vv-mset__head">
           <button type="button" className="vv-mset__back" aria-label={t.settings.backMobile} onClick={() => navigate(paths.settings())}>
             <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />
@@ -268,6 +293,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
 
   return (
     <div className="vv-mset">
+      {strip}
       <header className="vv-mset__head">
         <button type="button" className="vv-mset__back" aria-label={t.settings.backMobile} onClick={() => navigate(paths.workbench())}>
           <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />

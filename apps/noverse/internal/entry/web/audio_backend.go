@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // audioBackend is the per-story audio surface the HTTP handlers need. The file

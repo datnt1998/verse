@@ -27,7 +27,6 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
@@ -35,6 +34,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
+	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webguard"
 )

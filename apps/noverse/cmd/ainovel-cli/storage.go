@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
 	"github.com/datnt1998/verse/apps/noverse/internal/storageimport"
+	"github.com/datnt1998/verse/platform/blobstore"
 	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 )
 

@@ -46,6 +46,9 @@ func (s *Service) markUsageDirty() {
 // refreshUsage đo lại cây dự án và thư mục luôn-ở-máy, có giới hạn và ctx.
 // Chạy tuần tự (usageWalkMu) để hai lần đo không chồng nhau.
 func (s *Service) refreshUsage(ctx context.Context) {
+	if s.RemoteStorage() {
+		return
+	}
 	s.usageWalkMu.Lock()
 	defer s.usageWalkMu.Unlock()
 	root := s.Root()

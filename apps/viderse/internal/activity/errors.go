@@ -42,6 +42,7 @@ type ErrorEvent struct {
 	ActionLabel string
 	Op          string
 	Object      *domain.ObjectRef
+	Audience    Audience
 }
 
 // findTask đọc một việc theo id (cho lịch sử lỗi khi việc chuyển failed).

@@ -18,8 +18,8 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // Options configures one import (or dry-run) of a frozen snapshot.

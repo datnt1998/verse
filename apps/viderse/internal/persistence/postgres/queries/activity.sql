@@ -84,19 +84,25 @@ RETURNING *;
 SELECT * FROM background_tasks WHERE id = sqlc.arg(id)::uuid;
 
 -- name: InsertErrorEvent :exec
-INSERT INTO error_events (kind, what, why, href, action_label, op, object_ref)
-VALUES (sqlc.arg(kind), sqlc.arg(what), sqlc.arg(why), sqlc.arg(href), sqlc.arg(action_label), sqlc.arg(op), sqlc.narg(object_ref)::jsonb);
+INSERT INTO error_events (kind, what, why, href, action_label, op, object_ref, audience)
+VALUES (sqlc.arg(kind), sqlc.arg(what), sqlc.arg(why), sqlc.arg(href), sqlc.arg(action_label), sqlc.arg(op), sqlc.narg(object_ref)::jsonb, sqlc.arg(audience));
 
 -- name: ListErrorEvents :many
-SELECT * FROM error_events WHERE at >= sqlc.arg(since) ORDER BY at DESC LIMIT sqlc.arg(row_limit);
+SELECT * FROM error_events
+WHERE at >= sqlc.arg(since)
+  AND (sqlc.arg(admin)::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
+ORDER BY at DESC LIMIT sqlc.arg(row_limit);
 
 -- name: CountErrorEvents :one
-SELECT COUNT(*)::bigint FROM error_events WHERE at >= sqlc.arg(since);
+SELECT COUNT(*)::bigint FROM error_events
+WHERE at >= sqlc.arg(since)
+  AND (sqlc.arg(admin)::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'));
 
 -- name: LatestNotification :one
 -- Thông báo mới nhất của một kind để áp luật gộp 10 giây của §11.
 SELECT * FROM notifications
-WHERE kind = sqlc.arg(kind)
+WHERE kind = sqlc.arg(kind) AND audience = sqlc.arg(audience)
+  AND object_ref IS NOT DISTINCT FROM sqlc.narg(object_ref)::jsonb
 ORDER BY created_at DESC
 LIMIT 1;
 
@@ -108,20 +114,22 @@ SET count = count + 1, text = sqlc.arg(text), href = sqlc.arg(href),
 WHERE id = sqlc.arg(id)::uuid;
 
 -- name: InsertNotification :one
-INSERT INTO notifications (id, kind, count, text, href, action_label)
-VALUES (gen_random_uuid(), sqlc.arg(kind), 1, sqlc.arg(text), sqlc.arg(href), sqlc.arg(action_label))
+INSERT INTO notifications (id, kind, count, text, href, action_label, audience, object_ref)
+VALUES (gen_random_uuid(), sqlc.arg(kind), 1, sqlc.arg(text), sqlc.arg(href), sqlc.arg(action_label), sqlc.arg(audience), sqlc.narg(object_ref)::jsonb)
 RETURNING *;
 
 -- name: ListUnreadNotifications :many
 SELECT * FROM notifications
 WHERE read_at IS NULL
+  AND (sqlc.arg(admin)::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
 ORDER BY created_at DESC
-LIMIT 50;
+LIMIT sqlc.arg(row_limit);
 
 -- name: MarkNotificationsRead :exec
 -- Đánh dấu đã đọc; danh sách rỗng (jsonb '[]') nghĩa là "tất cả".
 UPDATE notifications
 SET read_at = now()
 WHERE read_at IS NULL
+  AND (sqlc.arg(admin)::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
   AND (sqlc.arg(ids)::jsonb = '[]'::jsonb
        OR id::text IN (SELECT jsonb_array_elements_text(sqlc.arg(ids)::jsonb)));

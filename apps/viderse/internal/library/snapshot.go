@@ -35,6 +35,7 @@ type OverlaySnapshot struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	FilePath string `json:"filePath"`
+	SHA256   string `json:"sha256"`
 }
 
 // Snapshot là đầu vào chốt của một job start.
@@ -91,7 +92,7 @@ func (s *Service) SnapshotTemplate(ctx context.Context, id string) (*Snapshot, e
 			// job này không có tệp để phủ.
 			continue
 		}
-		overlays = append(overlays, OverlaySnapshot{ID: overlay.ID, Name: overlay.Name, FilePath: overlay.FilePath})
+		overlays = append(overlays, OverlaySnapshot{ID: overlay.ID, Name: overlay.Name, FilePath: overlay.FilePath, SHA256: overlay.SHA256})
 	}
 	snap := &Snapshot{
 		TemplateID:      tpl.ID,

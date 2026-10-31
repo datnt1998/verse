@@ -21,16 +21,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/s3test"
+	"github.com/datnt1998/verse/platform/blobstore/s3test"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
 
