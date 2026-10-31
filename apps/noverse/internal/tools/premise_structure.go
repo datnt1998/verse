@@ -48,7 +48,8 @@ var premiseHeadingAliases = map[string]string{
 	"Tính phù hợp với truyện ngắn": "Tính phù hợp với truyện ngắn",
 }
 
-func parsePremiseSections(premise string) map[string]string {
+// ParsePremiseSections normalizes stored premise headings, including legacy aliases.
+func ParsePremiseSections(premise string) map[string]string {
 	lines := strings.Split(premise, "\n")
 	sections := make(map[string]string)
 	var current string
@@ -88,13 +89,19 @@ func canonicalPremiseHeading(line string) (string, bool) {
 	if title == "" {
 		return "", false
 	}
-	canonical, ok := premiseHeadingAliases[title]
-	return canonical, ok
+	if canonical, ok := premiseHeadingAliases[title]; ok {
+		return canonical, true
+	}
+	// Keep user-authored level-two sections separate from template bodies.
+	if strings.HasPrefix(line, "## ") || strings.HasPrefix(line, "##\t") {
+		return title, true
+	}
+	return "", false
 }
 
 func premiseStructure(premise string, tier domain.PlanningTier) map[string]any {
-	sections := parsePremiseSections(premise)
-	required := requiredPremiseHeadings(tier)
+	sections := ParsePremiseSections(premise)
+	required := RequiredPremiseHeadings(tier)
 	found := make([]string, 0, len(required))
 	var missing []string
 	for _, heading := range required {
@@ -116,7 +123,8 @@ func premiseStructure(premise string, tier domain.PlanningTier) map[string]any {
 	return structure
 }
 
-func requiredPremiseHeadings(tier domain.PlanningTier) []string {
+// RequiredPremiseHeadings returns the canonical headings for a planning tier.
+func RequiredPremiseHeadings(tier domain.PlanningTier) []string {
 	common := []string{
 		"Thể loại và giọng điệu",
 		"Định vị thể loại",

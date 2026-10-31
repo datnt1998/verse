@@ -2,7 +2,9 @@ package host
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -12,6 +14,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 	storepkg "github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/apps/noverse/internal/tools"
 )
 
 // engineSubdir 是故事目录下引擎输出目录的固定相对路径（bootstrap 默认 output/novel）。
@@ -47,6 +50,79 @@ func (r *StoryReader) Store() *storepkg.Store { return r.store }
 
 // EngineDir 返回引擎输出目录。
 func (r *StoryReader) EngineDir() string { return r.store.Dir() }
+
+// PremiseSection contains a canonical heading and its stored, unabridged text.
+type PremiseSection struct {
+	Heading string `json:"heading"`
+	Text    string `json:"text"`
+}
+
+type StoryPremise struct {
+	Sections  []PremiseSection `json:"sections"`
+	Missing   []string        `json:"missing"`
+	UpdatedAt *time.Time      `json:"updatedAt"`
+}
+
+// Premise uses the same parser and tier-specific requirements as the engine.
+func (r *StoryReader) Premise() (*StoryPremise, error) {
+	text, err := r.store.Outline.LoadPremise()
+	if err != nil {
+		return nil, err
+	}
+	meta, err := r.store.RunMeta.Load()
+	if err != nil {
+		return nil, err
+	}
+	tier := domain.PlanningTier("")
+	if meta != nil {
+		tier = meta.PlanningTier
+	}
+	parsed := tools.ParsePremiseSections(text)
+	required := tools.RequiredPremiseHeadings(tier)
+	result := &StoryPremise{Sections: []PremiseSection{}, Missing: []string{}}
+	for _, heading := range required {
+		if _, ok := parsed[heading]; !ok {
+			result.Missing = append(result.Missing, heading)
+		}
+	}
+	// Canonical template order is stable, including populated optional headings.
+	for _, heading := range append(tools.RequiredPremiseHeadings(domain.PlanningTierLong), "Tính phù hợp với truyện ngắn") {
+		if body, ok := parsed[heading]; ok {
+			result.Sections = append(result.Sections, PremiseSection{Heading: heading, Text: body})
+			delete(parsed, heading)
+		}
+	}
+	extra := make([]string, 0, len(parsed))
+	for heading := range parsed {
+		extra = append(extra, heading)
+	}
+	slices.Sort(extra)
+	for _, heading := range extra {
+		result.Sections = append(result.Sections, PremiseSection{Heading: heading, Text: parsed[heading]})
+	}
+	updated, err := r.store.Docs().ModifiedAt("premise.md")
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+	} else {
+		updated = updated.UTC()
+		result.UpdatedAt = &updated
+	}
+	return result, nil
+}
+
+// WorldRules preserves all stored fields and returns [] before foundation exists.
+func (r *StoryReader) WorldRules() ([]domain.WorldRule, error) {
+	rules, err := r.store.World.LoadWorldRules()
+	if err != nil {
+		return nil, err
+	}
+	if rules == nil {
+		rules = []domain.WorldRule{}
+	}
+	return rules, nil
+}
 
 // ── 章节 ──
 

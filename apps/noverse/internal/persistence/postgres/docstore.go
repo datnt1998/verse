@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -523,6 +524,29 @@ func (o *docOps) Read(rel string) ([]byte, error) {
 		return err
 	})
 	return out, err
+}
+
+// ModifiedAt exposes the outline row timestamp through the document boundary.
+func (o *docOps) ModifiedAt(rel string) (time.Time, error) {
+	ref, err := resolveDoc(rel)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if ref.class != docOutline {
+		return time.Time{}, fmt.Errorf("document modification time for %q: %w", rel, errs.ErrStorageUnsupported)
+	}
+	var updated time.Time
+	err = o.runTx(func(tx pgx.Tx) error {
+		row, err := gen.New(tx).GetOutline(o.ctx, gen.GetOutlineParams{
+			ProjectID: o.scope.ProjectID, StoryID: o.scope.StoryID, Kind: ref.name,
+		})
+		if err != nil {
+			return o.notFound(err)
+		}
+		updated = row.UpdatedAt.Time
+		return nil
+	})
+	return updated, err
 }
 
 func (o *docOps) readRef(tx pgx.Tx, ref docRef) ([]byte, error) {
