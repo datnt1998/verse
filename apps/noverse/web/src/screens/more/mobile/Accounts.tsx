@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import * as stylex from '@stylexjs/stylex'
-import { members } from '@noverse/ui/tokens.stylex'
 import { useSession } from '../../../api/session'
 import type { RememberedAccount, Role } from '../../../api/types'
 import { BottomSheet, useMobileToast } from '../../../mobile'
@@ -12,13 +10,11 @@ import { relativeTime } from '../../auth/parts'
 import { ssoCopy } from '../../../i18n/sso'
 
 export const roleLabel: Record<Role, string> = { admin: 'Quản trị', member: 'Thành viên' }
-const badgeStyles = stylex.create({ admin: { color: members['--members-admin-fg'], backgroundColor: members['--members-admin-bg'] } })
 export function AccountAvatar({ name, role, small = false }: { name: string; role: Role; small?: boolean }) {
   return <span className={`mm-avatar mm-avatar-${role}${small ? ' mm-avatar-small' : ''}`}>{name.slice(0, 1).toLocaleUpperCase('vi')}</span>
 }
 export function RoleBadge({ role }: { role: Role }) {
-  const admin = role === 'admin' ? stylex.props(badgeStyles.admin) : undefined
-  return <span {...admin} className={`mm-role mm-role-${role} ${admin?.className ?? ''}`}><Icon name={role === 'admin' ? 'crown' : 'profile-2user'} size={12} />{roleLabel[role]}</span>
+  return <span className={`mm-role mm-role-${role}`}><Icon name={role === 'admin' ? 'crown' : 'profile-2user'} size={12} />{roleLabel[role]}</span>
 }
 export function AccountsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, session } = useSession()
