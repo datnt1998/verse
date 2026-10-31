@@ -62,10 +62,10 @@ describe('khung cam “chưa chắc”', () => {
 })
 
 describe('nhóm theo nguồn', () => {
-  it('cấp truyện có 4 nhóm (truyện → học từ góp ý → dự án → mọi truyện); dự án 2; toàn cục 1', () => {
-    expect(GROUP_ORDER.story).toEqual(['story', 'learned', 'project', 'global'])
-    expect(GROUP_ORDER.project).toEqual(['project', 'global'])
-    expect(GROUP_ORDER.global).toEqual(['global'])
+  it('chỉ có quy tắc truyện, học từ góp ý và dự án', () => {
+    expect(GROUP_ORDER.story).toEqual(['story', 'learned', 'project'])
+    expect(GROUP_ORDER.project).toEqual(['project'])
+    expect(GROUP_ORDER.global).toEqual([])
   })
   it('nhóm kế thừa ghi “· kế thừa”; nhóm học từ góp ý có chú thích Trọng tài', () => {
     expect(groupSub(2, 'project', 'story')).toBe('2 quy tắc · kế thừa')

@@ -183,3 +183,27 @@ describe('số quy tắc theo cấp', () => {
     expect(shownCount).toBe(2)
   })
 })
+
+describe('chỉnh từ dễ lặp qua cùng luồng quy tắc', () => {
+  it('nới, thay lần nữa rồi đặt lại không để sót quy tắc', async () => {
+    await mount()
+    await act(async () => { editor.setFatigue('như một', 4, 3) })
+    expect(editor.lists.story[0].text).toBe('“như một” tối đa 4 lần mỗi chương.')
+    await act(async () => { editor.setFatigue('như một', 5, 3) })
+    expect(editor.lists.story.filter((row) => row.chips.some((chip) => chip.text === 'như một'))).toHaveLength(1)
+    await act(async () => { editor.apply('truyện') })
+    expect(api.putRuleFile).toHaveBeenCalledWith('story', 'quy-tac.md', '- “như một” tối đa 5 lần mỗi chương.\n- Kể ngôi thứ nhất.\n', 'p', 's')
+    await act(async () => { editor.setFatigue('như một', 3, 3) })
+    expect(editor.lists.story.some((row) => row.chips.some((chip) => chip.text === 'như một'))).toBe(false)
+  })
+
+  it('nới một luật học từ góp ý phải gỡ bản runtime khi Áp dụng', async () => {
+    effective.current.runtime![0].chips = [{ kind: 'max', text: 'dường như', limit: 1 }]
+    await mount()
+    await act(async () => { editor.setFatigue('dường như', 2, 2) })
+    expect(editor.runtime.map((row) => row.fromRuntime)).not.toContain('rt-1')
+    await act(async () => { await editor.apply('truyện') })
+    expect(api.dropRuntimeRule).toHaveBeenCalledWith('p', 's', 'rt-1')
+    expect(api.applyRules).toHaveBeenCalledWith('p', 's', true)
+  })
+})
