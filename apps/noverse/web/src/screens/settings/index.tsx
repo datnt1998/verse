@@ -416,7 +416,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
 
   return (
     // line-height 1.5 như khung gốc của Settings.dc.html (nền ứng dụng dùng 1.55 → mỗi dòng lệch ~0,7px, cộng dồn theo trang).
-    <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5, borderTop: '1px solid var(--line-1)' }}>
+    <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5 }}>
       <SettingsNav current={current} scope={effectiveScope} admin={admin} dots={dots}
         version={version} onWhatsNew={() => setWhatsNew(true)} onPick={goSection} />
       <main className="scroll" style={{ flex: '1 1 auto', minWidth: 0, padding: '18px 28px 120px' }}>
