@@ -329,6 +329,10 @@ type CloneQueueItem struct {
 	Position      float64             `json:"position"`
 	State         CloneQueueState     `json:"state"`
 	NoImages      bool                `json:"noImages"`
+	ScenePromptID    *string `json:"scenePromptId"`
+	CoverPromptID    *string `json:"coverPromptId"`
+	NoImagesOverride *bool   `json:"noImagesOverride,omitempty"`
+	OverrideRevision int64   `json:"overrideRevision"`
 	TemplateID    *string             `json:"templateId,omitempty"`
 	JobID         *string             `json:"jobId"`
 	Reason        *string             `json:"reason"`

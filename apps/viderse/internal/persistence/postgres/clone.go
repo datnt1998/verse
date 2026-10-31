@@ -411,7 +411,7 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			if err != nil {
 				return err
 			}
-			item, err := q.GetQueueItem(txctx, queueID)
+			item, err := q.LockQueueItemForAdmission(txctx, queueID)
 			if errors.Is(err, pgx.ErrNoRows) {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ không còn tồn tại"}
 			}
@@ -420,6 +420,9 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			}
 			if item.State != "queued" || item.RemovedAt.Valid {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã bị bỏ hoặc đã chạy"}
+			}
+			if in.QueueOverrideRevision != 0 && item.OverrideRevision != in.QueueOverrideRevision {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã thay đổi, vui lòng tải lại"}
 			}
 		}
 		existing, err := q.GetCloneJobBySourceKey(txctx, in.SourceKey)
@@ -484,6 +487,11 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 		for _, step := range domain.CloneSteps {
 			if err := q.InsertCloneStep(txctx, gen.InsertCloneStepParams{
 				JobID: row.ID, Step: string(step), Column3: now}); err != nil {
+				return err
+			}
+		}
+		if len(in.ImageCheckpoint) > 0 {
+			if err := q.SetInitialImageOverrides(txctx, gen.SetInitialImageOverridesParams{JobID: row.ID, Column2: in.ImageCheckpoint}); err != nil {
 				return err
 			}
 		}

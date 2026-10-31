@@ -22,6 +22,8 @@ type StartJobInput struct {
 	Origin           domain.CloneOrigin
 	Replaces         string
 	QueueItemID      string
+	QueueOverrideRevision int64
+	ImageCheckpoint json.RawMessage
 }
 type StartJobResult struct {
 	Job     *domain.CloneJob
@@ -58,6 +60,7 @@ type Service struct {
 	Media           *media.Service
 	Publish         Publisher
 	ResolveTemplate TemplateResolver
+	ResolveQueuedImageOverrides func(context.Context, domain.CloneQueueItem) (json.RawMessage, error)
 	Queue           QueueReadModel
 	Now             func() time.Time
 }
@@ -87,7 +90,14 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	if err != nil {
 		return nil, err
 	}
-	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateSnapshot: recipe, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID})
+	var checkpoint json.RawMessage
+	if s.ResolveQueuedImageOverrides != nil {
+		checkpoint, err = s.ResolveQueuedImageOverrides(ctx, item)
+		if err != nil {
+			return nil, err
+		}
+	}
+	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateSnapshot: recipe, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID, QueueOverrideRevision: item.OverrideRevision, ImageCheckpoint: checkpoint})
 	if err != nil {
 		return nil, err
 	}

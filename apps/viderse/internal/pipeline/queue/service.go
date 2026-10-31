@@ -395,7 +395,7 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 		seen[key] = true
 		position++
 		source := meta[a.VideoID].Source
-		item := domain.CloneQueueItem{ID: newID(), ChannelID: in.ChannelID, SourceVideoID: a.VideoID, SourceKey: key, Source: source, Priority: priority, Origin: domain.OriginBulk, Position: position, State: domain.QueueQueued, NoImages: in.NoImages, CreatedAt: s.d.Now()}
+		item := domain.CloneQueueItem{ID: newID(), ChannelID: in.ChannelID, SourceVideoID: a.VideoID, SourceKey: key, Source: source, Priority: priority, Origin: domain.OriginBulk, Position: position, State: domain.QueueQueued, NoImages: in.NoImages, OverrideRevision: 1, CreatedAt: s.d.Now()}
 		if priority == domain.ClonePick {
 			item.Origin = domain.OriginManual
 		}
