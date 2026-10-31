@@ -11,7 +11,7 @@ export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClos
   const blockers = quality ? extraBlockers(quality) : []
   const score = quality?.total ?? quality?.score?.total
   const explanation = ranges.length
-    ? `Còn ${ranges.length} đoạn phụ đề lệch tiếng; khớp theo giọng mất khoảng 10 giây.`
+    ? `Còn ${ranges.length} đoạn phụ đề lệch tiếng.`
     : blockers.length ? 'Video còn điều kiện bắt buộc chưa đạt.'
       : quality?.changedSinceMeasure ? 'Bản vừa sửa cần đo lại để cập nhật điểm.'
         : 'Chưa có kết quả đo mới đủ điều kiện xuất.'

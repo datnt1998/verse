@@ -35,6 +35,7 @@ export interface InspectorProps {
   onAlign: () => Promise<void>
   aligning: boolean
   jobId?: string
+  captionAlignmentPassed?: boolean
   beforeMutation?: () => Promise<boolean>
   onProjectChanged?: () => void | Promise<void>
 }
@@ -117,7 +118,7 @@ function CaptionTiming({ item, startFrame, fps }: { item: CaptionItem; startFram
   </div>
 }
 
-function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign, aligning }: InspectorProps & { item: CaptionItem }) {
+function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign, aligning, captionAlignmentPassed }: InspectorProps & { item: CaptionItem }) {
   const fps = useTimelineSettingsStore(state => state.fps)
   const activeCue = usePlaybackStore(state => item.type === 'subtitle'
     ? item.cues.find(entry => (state.currentFrame - item.from) / fps >= entry.startSeconds && (state.currentFrame - item.from) / fps < entry.endSeconds)
@@ -142,10 +143,10 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
       usePlaybackStore.getState().pause()
     }
   }, [cueKey])
-  const drift = ranges.map((range, index) => ({ range, index })).filter(({ range }) => range.status !== 'pass' && range.status !== 'passed' && range.status !== 'ok' && (/caption|subtitle|karaoke|phu_de/iu.test(range.checkId) || Boolean(range.cueId) || range.itemId === item.id))
+  const drift = ranges.map((range, index) => ({ range, index })).filter(({ range }) => !['pass', 'passed', 'ok', 'aligned'].includes(range.status) && (/caption|subtitle|karaoke|phu_de/iu.test(range.checkId) || Boolean(range.cueId) || range.itemId === item.id))
   const driftIndex = drift.findIndex(entry => entry.index === selectedRange)
-  const matching = ranges.find(range => (range.itemId === item.id || range.cueId && range.cueId === cue?.id || range.start < end / fps && range.end > start / fps && /caption|subtitle|karaoke/iu.test(range.checkId)))
-  const passed = matching?.status === 'pass' || matching?.status === 'passed' || matching?.status === 'ok'
+  const matching = ranges.find(range => range.cueId ? range.cueId === (cue?.id ?? item.id) : range.itemId ? range.itemId === item.id : range.start < end / fps && range.end > start / fps && /caption|subtitle|karaoke/iu.test(range.checkId))
+  const passed = captionAlignmentPassed || Boolean(matching && ['pass', 'passed', 'ok', 'aligned'].includes(matching.status))
   const perform = (commands: SerializedCommand[]) => { try { editorCommand(commands); setError('') } catch (error) { setError(panelError(error)) } }
   const navigate = (direction: number) => {
     if (!drift.length) return
@@ -209,12 +210,12 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
     <section {...stylex.props(sx.section, sx.spacious)}>
       <div {...stylex.props(sx.row)}>
         <h2 {...stylex.props(sx.heading)}><span {...stylex.props(sx.captionIcon)}><Icon name="subtitle" size={15} /></span>Phụ đề</h2>
-        <span {...stylex.props(sx.meta)}>Đoạn lệch {driftIndex >= 0 ? driftIndex + 1 : 0}/{drift.length}</span>
-        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" disabled={!drift.length} onClick={() => navigate(-1)}><Icon name="arrow-left-2" size={14} /></button>
-        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" disabled={!drift.length} onClick={() => navigate(1)}><Icon name="arrow-r" size={14} /></button>
+        {driftIndex >= 0 && <><span {...stylex.props(sx.meta)}>Đoạn lệch {driftIndex + 1}/{drift.length}</span>
+        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)}><Icon name="arrow-left-2" size={14} /></button>
+        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)}><Icon name="arrow-r" size={14} /></button></>}
       </div>
       <span {...stylex.props(sx.meta)}>{panelTime(start / fps)}–{panelTime(end / fps)}</span>
-      <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : matching ? passed ? 'Khớp với giọng' : 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
+      <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : passed ? 'Khớp với giọng' : matching ? 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
       <CaptionTiming item={item} startFrame={start} fps={fps} />
       <Button {...stylex.props(sx.fullButton)} pending={aligning} pendingLabel="Đang khớp theo giọng…" onClick={() => { void align() }} icon={<Icon name="magic" size={15} />}>Khớp theo giọng</Button>
       <div {...stylex.props(sx.row)}><span {...stylex.props(sx.grow, sx.muted)}>Dời cả đoạn</span><Button size="sm" title="Sớm hơn 0,1 giây (,)" onClick={() => shift(-1)}>−0,1 s</Button><Button size="sm" title="Muộn hơn 0,1 giây (.)" onClick={() => shift(1)}>+0,1 s</Button></div>

@@ -49,10 +49,10 @@ export async function insertMedia(media: MediaMetadata, frame = usePlaybackStore
   const src = await resolveMediaUrl(media.id);
   if (!src) throw new Error('Không tìm thấy file. Hãy thay file.');
   const { track, tracks, isNew } = destination(type === 'audio' ? 'audio' : 'video', frame, duration, trackId);
-  const item: TimelineItem = { id: crypto.randomUUID(), type, mediaId: media.id, label: media.fileName, from: frame, durationInFrames: duration, trackId: track.id, src, sourceWidth: media.width, sourceHeight: media.height, sourceFps: media.fps || fps, sourceDuration: Math.round(media.duration * (media.fps || fps)), sourceStart: 0 };
+  const item: TimelineItem = { id: crypto.randomUUID(), type, mediaId: media.id, label: media.fileName, from: frame, durationInFrames: duration, trackId: track.id, src, sourceWidth: media.width, sourceHeight: media.height, sourceFps: media.fps || fps, sourceDuration: Math.round(media.duration * (media.fps || fps)), sourceStart: 0, ...(type === 'video' ? { embeddedAudioMuted: !media.audioCodec } : {}) };
   const result = executeCommands([isNew
     ? { type: 'item.addOnNewTracks', params: { items: [item], tracks } }
-    : item.type === 'video' ? { type: 'item.addWithLinkedAudio', params: { video: item } }
+    : item.type === 'video' && media.audioCodec ? { type: 'item.addWithLinkedAudio', params: { video: item } }
     : { type: 'item.add', params: { item } }]);
   if (!result.ok) throw new Error(result.issues.map(issue => issue.message).join('; '));
   useSelectionStore.getState().selectItems([item.id]);

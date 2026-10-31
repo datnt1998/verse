@@ -10,7 +10,7 @@ vi.mock('@editor/infrastructure/gpu-effects/registry', () => ({ getGpuEffectDefa
 
 import { makeTimelineTrack, makeTimelineVideoItem } from '@editor/features/timeline/test-helpers'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
-import { destination } from './library-actions'
+import { destination, insertMedia } from './library-actions'
 
 describe('destination', () => {
   beforeEach(() => {
@@ -166,5 +166,33 @@ describe('addOverlay', () => {
     const { item } = lastItem()
     expect(item.durationInFrames).toBe(150)
     expect(item.loop).toBeUndefined()
+  })
+})
+
+describe('insertMedia audio stream selection', () => {
+  beforeEach(() => {
+    vi.mocked(executeCommands).mockClear()
+    vi.mocked(resolveMediaUrl).mockResolvedValue('blob:video')
+    useTimelineSettingsStore.setState({ fps: 30 })
+    useItemsStore.getState().setItems([])
+  })
+
+  it.each([false, true])('does not schedule PCM for video-only media (new track: %s)', async (newTrack) => {
+    useItemsStore.getState().setTracks(newTrack ? [] : [makeTimelineTrack({ id: 'free-video', kind: 'video' })])
+    await insertMedia(overlayMedia({ audioCodec: undefined }), 0)
+    const [command] = vi.mocked(executeCommands).mock.calls[0]![0]
+    expect(command!.type).toBe(newTrack ? 'item.addOnNewTracks' : 'item.add')
+    const params = command!.params as { item?: { embeddedAudioMuted?: boolean }; items?: { embeddedAudioMuted?: boolean }[] }
+    expect(params.item ?? params.items?.[0]).toMatchObject({ embeddedAudioMuted: true })
+  })
+
+  it('keeps a real audio stream on an existing video track', async () => {
+    useItemsStore.getState().setTracks([makeTimelineTrack({ id: 'free-video', kind: 'video' })])
+    await insertMedia(overlayMedia({ audioCodec: 'aac' }), 0)
+    const [command] = vi.mocked(executeCommands).mock.calls[0]![0]
+    expect(command!.type).toBe('item.addWithLinkedAudio')
+    // The mocked executor captures the in-process command built by insertMedia.
+    const params = command!.params as { video: { embeddedAudioMuted?: boolean } }
+    expect(params.video.embeddedAudioMuted).not.toBe(true)
   })
 })
