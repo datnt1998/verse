@@ -128,13 +128,11 @@ func TestRevealTargetsAndLoopback(t *testing.T) {
 		}
 	}
 
-	// rules: global cần admin; story/project chỉ cần đọc.
-	if code := tg.do("GET", "/api/reveal?target=rules&scope=global", reader, "").Code; code != 403 {
-		t.Fatalf("reader global rules: %d", code)
-	}
-	m = decodeResp(t, tg.do("GET", "/api/reveal?target=rules&scope=global", admin, ""))
-	if !strings.HasSuffix(m["path"].(string), filepath.Join(".ainovel", "rules")) {
-		t.Fatalf("global rules path: %v", m["path"])
+	// The retired rules scope is not a reveal/config surface either.
+	for _, cookie := range []string{reader, admin} {
+		if code := tg.do("GET", "/api/reveal?target=rules&scope=global", cookie, "").Code; code != 400 {
+			t.Fatalf("retired global rules: %d", code)
+		}
 	}
 	m = decodeResp(t, tg.do("GET", "/api/reveal?target=rules&project=proj", admin, ""))
 	if m["path"] != filepath.Join(tg.project, ".ainovel", "rules") {
@@ -533,11 +531,11 @@ func TestLegacyLanguageAcceptedButNeverWritten(t *testing.T) {
 		t.Fatalf("project.json mới không được có language: %s %v", created, err)
 	}
 
-	w = tg.do("PUT", "/api/config?scope=global", admin, `{"style":"default","language":"zh"}`)
+	w = tg.do("PUT", "/api/config?scope=global", admin, `{"language":"zh"}`)
 	if w.Code != 400 {
 		t.Fatalf("PUT config language=zh phải 400, nhận %d %s", w.Code, w.Body.String())
 	}
-	w = tg.do("PUT", "/api/config?scope=global", admin, `{"style":"default","language":"vi"}`)
+	w = tg.do("PUT", "/api/config?scope=global", admin, `{"language":"vi"}`)
 	if w.Code != 200 {
 		t.Fatalf("PUT config language=vi -> %d %s", w.Code, w.Body.String())
 	}

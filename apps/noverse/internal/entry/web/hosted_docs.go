@@ -43,10 +43,7 @@ func (g *Gateway) hostedRuleFiles(ctx context.Context, user identity.User, t con
 	return repo.List(ctx, textActor(user), t.project, ruleStory(t), "rules")
 }
 func (g *Gateway) hostedRulesChain(ctx context.Context, user identity.User, t configTarget) ([]rulesChainDoc, error) {
-	chain, err := g.rulesScopeDirs(configTarget{scope: "global"}, isAdmin(user))
-	if err != nil {
-		return nil, err
-	}
+	chain := []rulesChainDoc{}
 	scopes := []string{"project"}
 	if t.scope == "story" {
 		scopes = append(scopes, "story")

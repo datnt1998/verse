@@ -147,7 +147,11 @@ func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values)
 	path := strings.TrimSuffix(r.URL.Path, "/")
 	switch path {
 	case "/api/config", "/api/rules/file", "/api/rules/file/delete":
-		t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
+		resolve := g.resolveConfigScope
+		if path != "/api/config" {
+			resolve = g.resolveRulesScope
+		}
+		t, err := resolve(q.Get("scope"), q.Get("project"), q.Get("story"))
 		if err != nil {
 			return nil
 		}
@@ -368,6 +372,10 @@ func (g *Gateway) prepareFeedback(w http.ResponseWriter, r *http.Request, user i
 		}
 	}
 	scope := requestedConfigScope(r, data)
+	if strings.HasPrefix(r.URL.Path, "/api/rules") && (r.URL.Query().Get("scope") == "global" || scope.Get("scope") == "global") {
+		jsonError(w, http.StatusBadRequest, retiredGlobalRulesMessage)
+		return nil, false
+	}
 	if scope != nil {
 		*r = *r.WithContext(context.WithValue(r.Context(), mutationScopeKey{}, mutationScope{scope.Get("scope"), scope.Get("project"), scope.Get("story")}))
 	}

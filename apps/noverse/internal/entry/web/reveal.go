@@ -50,6 +50,9 @@ type revealRequest struct {
 // revealPath 解析 target 对应的绝对路径；status 非 0 表示应直接返回该错误。
 // 叶子目录（rules/exports/activity）不存在时会创建，保证“Mở thư mục”总能打开。
 func (g *Gateway) revealPath(user identity.User, req revealRequest) (path string, status int, msg string) {
+	if strings.TrimSpace(req.Target) == "rules" && strings.TrimSpace(req.Scope) == "global" {
+		return "", http.StatusBadRequest, retiredGlobalRulesMessage
+	}
 	// Reveal/open-folder is a desktop file capability: a hosted library has
 	// no directory tree to open, so every target answers 501 rather than
 	// resolving a path inside the server cwd.
@@ -61,7 +64,7 @@ func (g *Gateway) revealPath(user identity.User, req revealRequest) (path string
 		return "", http.StatusBadRequest, "target không hợp lệ: " + target
 	}
 	lib, err := g.lib(context.Background(), actorOf(user))
-	globalRules := (target == "rules" || target == "config") && strings.TrimSpace(req.Scope) == "global"
+	globalRules := target == "config" && strings.TrimSpace(req.Scope) == "global"
 	if errors.Is(err, errNoLibrary) && !globalRules {
 		return "", http.StatusConflict, err.Error()
 	}
@@ -80,19 +83,6 @@ func (g *Gateway) revealPath(user identity.User, req revealRequest) (path string
 	}
 	if naoVaultTarget(target) {
 		return g.revealNaoVault(user, lib, req)
-	}
-	if target == "rules" && strings.TrimSpace(req.Scope) == "global" {
-		if !isAdmin(user) {
-			return "", http.StatusForbidden, "Không có quyền"
-		}
-		dir := rulesHomeDir()
-		if dir == "" {
-			return "", http.StatusInternalServerError, "không xác định được thư mục home"
-		}
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return "", http.StatusInternalServerError, err.Error()
-		}
-		return dir, 0, ""
 	}
 	if project == "" {
 		return "", http.StatusBadRequest, "thiếu tham số project"

@@ -82,6 +82,10 @@ func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, u
 	if !decodeJSON(w, r, &req) {
 		return
 	}
+	if req.Scope == "global" {
+		jsonError(w, http.StatusBadRequest, retiredGlobalRulesMessage)
+		return
+	}
 	text := strings.TrimSpace(req.Text)
 	if text == "" {
 		jsonError(w, http.StatusBadRequest, "Hãy nhập quy tắc cần kiểm tra")
@@ -122,26 +126,27 @@ func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, u
 	writeJSON(w, http.StatusOK, u)
 }
 
-// GET /api/rules/effective?scope=global|project&project= → {snapshot, items}: như S/rules/effective
-// nhưng không có truyện (không runtime, không timing, không cấp truyện). Dòng chưa chuẩn hoá được
-// (chưa có model, lỗi model) hạ cấp thành lời dặn nguyên văn — GET này không bao giờ 409.
+// GET /api/rules/effective?scope=project|story returns the two-level rules chain.
+// Missing model configuration degrades to verbatim preferences, never a 409.
 func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
 	scope := q.Get("scope")
-	if scope == "" {
-		scope = "global"
-	}
-	if scope != "global" && scope != "project" {
-		jsonError(w, http.StatusBadRequest, "scope phải là global hoặc project")
-		return
-	}
-	t, err := g.resolveConfigScope(scope, q.Get("project"), "")
+	t, err := g.resolveRulesScope(scope, q.Get("project"), q.Get("story"))
 	if err != nil {
 		scopeError(w, err)
 		return
 	}
-	if scope == "project" && !user.CanReadProject(t.project) {
+	if !configReadAllowed(user, t) {
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
+		return
+	}
+	if t.scope == "story" {
+		sr, err := g.openStoryReader(user, t.story)
+		if err != nil {
+			scopeError(w, err)
+			return
+		}
+		g.serveRulesEffective(w, r, t.story, sr)
 		return
 	}
 	opts := rules.LoadOptions{HomeRulesDir: rulesHomeDir()}
@@ -156,7 +161,7 @@ func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Reque
 			scopeError(w, err)
 			return
 		}
-	} else if scope == "project" {
+	} else {
 		opts.ProjectRulesDir = rulesDirIn(t.dir)
 	}
 	cachePath := ""

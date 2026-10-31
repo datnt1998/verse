@@ -130,9 +130,11 @@ func (g *Gateway) watchedResources() map[string]watchedResource {
 	addConfig := func(scope, p, s, config, rules string) {
 		key := "config:" + scope + ":" + p + "/" + s
 		resources[key] = watchedResource{paths: []string{config}, event: Event{Type: "config.changed", Project: p, Story: s, Data: map[string]any{"scope": scope, "project": p, "story": s}}}
-		resources["rules:"+key] = watchedResource{paths: []string{rules}, event: Event{Type: "config.changed", Project: p, Story: s, Data: map[string]any{"section": "rules", "scope": scope, "project": p, "story": s}}}
+		if rules != "" {
+			resources["rules:"+key] = watchedResource{paths: []string{rules}, event: Event{Type: "config.changed", Project: p, Story: s, Data: map[string]any{"section": "rules", "scope": scope, "project": p, "story": s}}}
+		}
 	}
-	addConfig("global", "", "", bootstrap.DefaultConfigPath(), rulesHomeDir())
+	addConfig("global", "", "", bootstrap.DefaultConfigPath(), "")
 	if path := g.libraryConfigPath(); path != "" {
 		resources["library"] = watchedResource{paths: []string{path}, event: Event{Type: "library.changed", Data: map[string]any{}}}
 	}

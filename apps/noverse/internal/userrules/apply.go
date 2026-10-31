@@ -20,7 +20,7 @@ var ErrRuntimeRuleNotFound = errors.New("Không tìm thấy quy tắc này")
 // RuleItem là một quy tắc (một dòng trong quy-tac.md) kèm cách Noverse hiểu nó.
 type RuleItem struct {
 	Text    string       `json:"text"`
-	Scope   string       `json:"scope"` // global | project | story
+	Scope   string       `json:"scope"` // project | story | pack
 	Chips   []rules.Chip `json:"chips"`
 	Options []string     `json:"options"` // 0–3 cách hiểu (quy tắc viết lại); [] khi không có điều chưa chắc hoặc đã hạ cấp
 	Status  rules.Status `json:"status"`  // ready | degraded
@@ -122,6 +122,7 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	if snap.Uncertain == nil { // snapshot cũ lưu null
 		snap.Uncertain = []string{}
 	}
+	snap = migratedRuleSources(snap)
 	runtime, err := s.store.UserRules.Runtime()
 	if err != nil {
 		return nil, err
@@ -140,11 +141,10 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 		return nil, err
 	}
 	for _, candidate := range lessonRules {
-		scope := "global"
-		if strings.HasPrefix(candidate.Source, "pack:") {
-			scope = "pack"
+		if !strings.HasPrefix(candidate.Source, "pack:") {
+			continue
 		}
-		items = append(items, newRuleItem(candidate.Preferences, scope, candidate))
+		items = append(items, newRuleItem(candidate.Preferences, "pack", candidate))
 	}
 	views := make([]RuntimeView, 0, len(runtime))
 	for _, r := range runtime {
@@ -164,7 +164,9 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return &Effective{Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing()}, nil
+	return &Effective{
+		Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing(),
+	}, nil
 }
 
 // ApplyResult là kết quả Apply: snapshot mới và chương đầu tiên dùng nó. PinnedChapter > 0 là
@@ -192,7 +194,7 @@ func (s *Service) Apply(ctx context.Context, startupPrompt string) (*ApplyResult
 	if err != nil {
 		return nil, err
 	}
-	cands = append(cands, lessonRules...)
+	cands = append(cands, defaultLessonCandidates(lessonRules)...)
 	b.flush()
 	if err := ctx.Err(); err != nil {
 		return nil, err

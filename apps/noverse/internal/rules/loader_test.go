@@ -91,9 +91,8 @@ func TestDefaultOptions_ScansStoryRulesFromDotAinovel(t *testing.T) {
 	}
 }
 
-// TestRawFileSources_ThreeLevelChain 验证 GAP-10 三级链：
-// 顺序 全局→项目→故事；同名文件只保留最近一层的版本。
-func TestRawFileSources_ThreeLevelChain(t *testing.T) {
+// Project rules precede story rules; global rules are not part of the chain.
+func TestRawFileSources_ProjectStoryChain(t *testing.T) {
 	global := t.TempDir()
 	project := t.TempDir()
 	story := t.TempDir()
@@ -113,8 +112,8 @@ func TestRawFileSources_ThreeLevelChain(t *testing.T) {
 	srcs := RawFileSources(LoadOptions{
 		HomeRulesDir: global, ProjectRulesDir: project, StoryRulesDir: story,
 	})
-	if len(srcs) != 4 {
-		t.Fatalf("应合并出 4 个来源（同名去重后），得到 %d: %+v", len(srcs), srcs)
+	if len(srcs) != 3 {
+		t.Fatalf("want 3 project/story sources, got %d: %+v", len(srcs), srcs)
 	}
 	var shared *RawSource
 	for i := range srcs {
@@ -125,11 +124,11 @@ func TestRawFileSources_ThreeLevelChain(t *testing.T) {
 	if shared == nil || shared.Kind != SourceStory || shared.Text != "story shared" {
 		t.Fatalf("同名文件应由最近层（story）胜出，得到 %+v", srcs)
 	}
-	kinds := []SourceKind{srcs[0].Kind, srcs[1].Kind, srcs[2].Kind, srcs[3].Kind}
-	want := []SourceKind{SourceGlobal, SourceProject, SourceStory, SourceStory}
+	kinds := []SourceKind{srcs[0].Kind, srcs[1].Kind, srcs[2].Kind}
+	want := []SourceKind{SourceProject, SourceStory, SourceStory}
 	for i := range kinds {
 		if kinds[i] != want[i] {
-			t.Fatalf("来源顺序应为 global→project→story，得到 %v", kinds)
+			t.Fatalf("want project→story, got %v", kinds)
 		}
 	}
 }

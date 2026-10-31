@@ -113,6 +113,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
+	defer listener.Close()
 	// Local SSO shares a host-only cookie across loopback ports, so a LAN or
 	// wildcard bind would hand it to untrusted neighbours. Require loopback
 	// before the network listeners can open.
@@ -213,6 +214,10 @@ func runServe(args []string) error {
 		} else {
 			slog.Error("không khởi động được export runner", "module", "serve", "err", err)
 		}
+	}
+	if err := gateway.MigrateRules(context.Background()); err != nil {
+		gateway.Close()
+		return fmt.Errorf("chuyển quy tắc vào dự án: %w", err)
 	}
 	// 14 §G8：nháp đồng sáng tác quá 7 ngày bị dọn khi khởi động.
 	if absolute != "" {

@@ -182,8 +182,8 @@ func TestRawFileSources_ManagedFileAccumulatesAcrossLevels(t *testing.T) {
 			other++
 		}
 	}
-	if managed != 3 || other != 1 {
-		t.Fatalf("quy-tac.md phải cộng dồn 3 cấp, tệp khác vẫn gần-thắng: managed=%d other=%d", managed, other)
+	if managed != 2 || other != 1 {
+		t.Fatalf("managed rules accumulate project/story only: managed=%d other=%d", managed, other)
 	}
 }
 

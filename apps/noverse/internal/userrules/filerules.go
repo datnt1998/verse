@@ -52,10 +52,7 @@ func (f *FileRules) Effective(ctx context.Context) (*FileEffective, error) {
 		if err != nil {
 			return nil, err
 		}
-		cands = append(cands, learned...)
-		for _, candidate := range learned {
-			items = append(items, newRuleItem(candidate.Preferences, "global", candidate))
-		}
+		cands = append(cands, defaultLessonCandidates(learned)...)
 	}
 	b.flush()
 	if err := ctx.Err(); err != nil {

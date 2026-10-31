@@ -23,17 +23,17 @@ func TestRawFileSources_ScansAllMarkdownInOrder(t *testing.T) {
 	write("ignore.txt", "not a rule")
 	write("empty.md", "   ") // 空白文件应跳过
 
-	srcs := RawFileSources(LoadOptions{HomeRulesDir: dir})
+	srcs := RawFileSources(LoadOptions{ProjectRulesDir: dir})
 	if len(srcs) != 2 {
 		t.Fatalf("应扫到 a.md / b.md 两个来源（.txt 与空白跳过），得到 %d：%+v", len(srcs), srcs)
 	}
 	// 字典序：a 在前 b 在后
-	if srcs[0].Label != "global:a.md" || srcs[1].Label != "global:b.md" {
+	if srcs[0].Label != "project:a.md" || srcs[1].Label != "project:b.md" {
 		t.Errorf("应按字典序返回，得到 %q, %q", srcs[0].Label, srcs[1].Label)
 	}
 	for _, s := range srcs {
-		if s.Kind != SourceGlobal {
-			t.Errorf("HomeRulesDir 来源应为 SourceGlobal，得到 %v", s.Kind)
+		if s.Kind != SourceProject {
+			t.Errorf("project directory kind = %v", s.Kind)
 		}
 	}
 }
@@ -68,14 +68,14 @@ func TestRawFileSources_IgnoresHiddenAndSubdirs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	srcs := RawFileSources(LoadOptions{HomeRulesDir: dir})
-	if len(srcs) != 1 || srcs[0].Label != "global:real.md" {
+	srcs := RawFileSources(LoadOptions{ProjectRulesDir: dir})
+	if len(srcs) != 1 || srcs[0].Label != "project:real.md" {
 		t.Fatalf("应只扫到 real.md（隐藏/脏/子目录忽略），得到 %+v", srcs)
 	}
 }
 
-// TestRawFileSources_GlobalThenProject 验证全局来源在前、项目来源在后。
-func TestRawFileSources_GlobalThenProject(t *testing.T) {
+// Legacy global inputs are ignored even when explicitly supplied.
+func TestRawFileSources_IgnoresGlobal(t *testing.T) {
 	base := t.TempDir()
 	global := filepath.Join(base, "global")
 	project := filepath.Join(base, "project")
@@ -91,8 +91,8 @@ func TestRawFileSources_GlobalThenProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	srcs := RawFileSources(LoadOptions{HomeRulesDir: global, ProjectRulesDir: project})
-	if len(srcs) != 2 || srcs[0].Kind != SourceGlobal || srcs[1].Kind != SourceProject {
-		t.Fatalf("应先全局后项目，得到 %+v", srcs)
+	srcs := RawFileSources(LoadOptions{HomeRulesDir: global, ProjectRulesDir: project, Sources: []RawSource{{Kind: SourceGlobal, Name: "stored.md", Text: "stored global"}}})
+	if len(srcs) != 1 || srcs[0].Kind != SourceProject {
+		t.Fatalf("only project rules may load, got %+v", srcs)
 	}
 }

@@ -35,7 +35,7 @@ func TestConfigBackendHTTPContract(t *testing.T) {
 					t.Fatalf("status=%d want %d: %s", w.Code, status, w.Body.String())
 				}
 			}
-			global := call(http.MethodPut, "/api/config?scope=global", admin, `{"style":"default","context_window":8000,"provider":"test","model":"scripted","providers":{"test":{"type":"openai","api_key":"test-global-secret"}}}`, nil)
+			global := call(http.MethodPut, "/api/config?scope=global", admin, `{"context_window":8000,"provider":"test","model":"scripted","providers":{"test":{"type":"openai","api_key":"test-global-secret"}}}`, nil)
 			assertStatus(global, 200)
 			projectURL := "/api/config?scope=project&project=" + project
 			storyURL := "/api/config?scope=story&project=" + project + "&story=" + story
@@ -46,7 +46,7 @@ func TestConfigBackendHTTPContract(t *testing.T) {
 				if m["target"].(map[string]any)["exists"] != false {
 					t.Fatalf("missing layer: %s", got.Body.String())
 				}
-				if m["sources"].(map[string]any)["style"] != "global" {
+				if m["sources"].(map[string]any)["style"] != nil {
 					t.Fatalf("initial sources: %s", got.Body.String())
 				}
 				assertStatus(call(http.MethodGet, path, outsider, "", nil), 403)
