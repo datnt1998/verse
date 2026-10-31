@@ -645,7 +645,7 @@ output/novel/
 
 Bố cục trên là **hợp đồng đã khóa** (xem `docs/architecture.md` §4.5 và fixture `internal/store/testdata/storage-contract/`): `meta/book.json` là nguồn sự thật duy nhất cho tên/tóm tắt sách (`book.md` chỉ là bản chiếu), `meta/chapter_records/` là bản ghi nghiệm thu, các tệp `.jsonl` chỉ ghi nối đuôi. Kế hoạch nâng cấp đã chốt 2026-10-28: chế độ web chạy trên VPS sẽ đưa dữ liệu nghiệp vụ vào **PostgreSQL** (pgx + goose + sqlc), còn **CLI offline vẫn dùng file** như hiện nay; worker TTS chạy trên máy tại nhà qua Tailscale. Không có thay đổi nào cho người dùng ở giai đoạn hiện tại — việc chuyển đổi sẽ đi kèm importer đọc đúng layout trên.
 
-### BlobStore (`internal/blobstore`) — binary storage độc lập với `STORE_DRIVER`
+### BlobStore (`platform/blobstore`, giao qua `platform/blobhttp`) — binary storage độc lập với `STORE_DRIVER`
 
 Âm thanh, ảnh, tệp nhập/xuất đi qua một interface `BlobStore` duy nhất với hai
 driver: `local` (tệp nguyên tử, root confine bằng `os.Root`, kháng symlink/`..`)
@@ -695,7 +695,7 @@ export S3_TEST_ADMIN_ENDPOINT=http://127.0.0.1:64603
 export TEST_DATABASE_URL=postgres://postgres:test@127.0.0.1:64632/ainovel_test
 export REQUIRE_POSTGRES_TEST=1 REQUIRE_S3_TEST=1
 docker compose -f deploy/compose.test.yml up -d --build --wait
-go test -count=1 -timeout=1800s ./internal/blobstore/... ./internal/storagegc/... ./internal/audio/... ./internal/persistence/postgres/...
+go test -count=1 -timeout=1800s ../../platform/blobstore/... ../../platform/blobhttp/... ./internal/storagegc/... ./internal/audio/... ./internal/persistence/postgres/...
 docker compose -f deploy/compose.test.yml down -v
 ```
 

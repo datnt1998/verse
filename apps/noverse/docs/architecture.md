@@ -288,7 +288,7 @@ segment 内容寻址只在该 tenant 分支复用，不做全局 dedupe。故事
   Garage 的大小写限制，也适用于 R2/AWS；浏览器自行完成真实 preflight。
 - **检查与健康**：`POST /api/system/storage/test`（候选配置或 `{"current":true}`，envlocked 时也可用）和 PUT 内的检查共享每 admin 每分钟 6 次配额；过期 version 在网络检查前拒绝，提交仍在 fence 下 CAS。`Accept: application/x-ndjson` 时每完成一步立即 flush 一行 `{step,ok,ms,code,reason}`，最后一行 `{done:true,…}`；客户端断开即停止后续步骤但仍清理 probe 对象。JSON/NDJSON 都是 `no-store`；`corsProbeUrl` 是含完整 access-key ID 的短期 signed URL，不可记录日志或缓存。Probe 过期后回收无 active/pending/blob/migration/probe 引用的配置，不将 probe-only client 留在路由缓存。后台健康检查在 serve 启动后立即运行，之后每 30 秒一次（3 秒超时），GET 只读其结果，不做远端 listing。
 
-- **数据面**：`internal/blobstore/s3.go` 用同一个 SDK client/transport。
+- **数据面**：`platform/blobstore/s3.go`（与 Viderse 共用）用同一个 SDK client/transport。
   Put 先在 TMPDIR 限额 spool 并验证 SHA，成功后才写最终 key，防止坏流覆盖
   已有内容；正常 Open 从一次 GET 取元数据/Range 字节，空范围/空 object
   的边界处理见 provider tests。对象默认 private/no-store + inline，
