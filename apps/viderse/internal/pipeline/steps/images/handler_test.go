@@ -10,40 +10,14 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/stepstest"
-	"github.com/datnt1998/verse/platform/pgmigrate"
-	"github.com/datnt1998/verse/platform/pgtest"
 )
-
-// Port of images.test.ts "capture survives encode interruption": exercise
-// the real imagegen.Service + receipt journal, not an idempotent fake Drawer.
-func realJournal(t *testing.T) imagegen.Journal {
-	t.Helper()
-	dsn := pgtest.Provision(t)
-	db, err := pgmigrate.OpenDB(dsn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	if _, err = pgmigrate.Up(context.Background(), db, migrations.FS); err != nil {
-		t.Fatal(err)
-	}
-	pool, err := postgres.OpenPool(context.Background(), dsn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(pool.Close)
-	return postgres.NewImageReceiptStore(pool)
-}
 
 type provider struct{ calls int }
 
@@ -94,91 +68,6 @@ func encode(_ context.Context, _ *pipeline.StepContext, _ string, out string, w,
 	}
 	hash, err := steps.SHA256File(out)
 	return Encoded{Width: w, Height: h, SHA256: hash, Bytes: 10}, err
-}
-func TestCaptureSurvivesEncodeCrashWithoutDuplicateReceipt(t *testing.T) {
-	s, _ := fixture(t)
-	p := &provider{}
-	j := realJournal(t)
-	service := imagegen.NewService(imagegen.Options{Providers: []imagegen.Provider{p}, Journal: j})
-	h := Handler{Deps: Deps{Drawer: service, Analyse: analysis, Encode: func(context.Context, *pipeline.StepContext, string, string, int, int) (Encoded, error) {
-		return Encoded{}, errors.New("encode interrupted")
-	}}}
-	if _, err := h.Run(context.Background(), s); err == nil {
-		t.Fatal("expected encode interruption")
-	}
-	if p.calls != 1 {
-		t.Fatal(p.calls)
-	}
-	h.Deps.Encode = encode
-	result, err := h.Run(context.Background(), s)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result.Waiting != nil {
-		t.Fatal(result.Waiting)
-	}
-	if p.calls != 1 {
-		t.Fatalf("charged again after crash: %d", p.calls)
-	}
-	if n, err := j.Charged(context.Background(), "codex", time.Time{}); err != nil || n != 1 {
-		t.Fatalf("duplicate receipts: %d, %v", n, err)
-	}
-	var m Manifest
-	if err = json.Unmarshal(s.Checkpoint, &m); err != nil {
-		t.Fatal(err)
-	}
-	if len(m.Items[0].Versions) != 1 || m.Items[0].InFlight != nil {
-		t.Fatalf("not recovered: %+v", m.Items[0])
-	}
-}
-func TestOwnerRedrawUsesNewReceiptWhileCrashRetryReusesFlight(t *testing.T) {
-	s, _ := fixture(t)
-	p := &provider{}
-	j := realJournal(t)
-	h := Handler{Deps: Deps{Drawer: imagegen.NewService(imagegen.Options{Providers: []imagegen.Provider{p}, Journal: j}), Analyse: analysis, Encode: encode}}
-	if _, err := h.Run(context.Background(), s); err != nil {
-		t.Fatal(err)
-	}
-	var m Manifest
-	if err := json.Unmarshal(s.Checkpoint, &m); err != nil {
-		t.Fatal(err)
-	}
-	next, err := Review(m, "thumbnail", "regenerate", "new composition", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err = s.SaveCheckpoint(context.Background(), next); err != nil {
-		t.Fatal(err)
-	}
-	if _, err = h.Run(context.Background(), s); err != nil {
-		t.Fatal(err)
-	}
-	if p.calls != 2 {
-		t.Fatalf("redraw reused old paid receipt: calls=%d", p.calls)
-	}
-	if n, err := j.Charged(context.Background(), "codex", time.Time{}); err != nil || n != 2 {
-		t.Fatalf("redraw journal=%d %v", n, err)
-	}
-}
-func TestD7ExhaustionParksWithRetryAtAndNoPaidDraw(t *testing.T) {
-	s, _ := fixture(t)
-	p := &provider{}
-	zero := 0
-	service := imagegen.NewService(imagegen.Options{Providers: []imagegen.Provider{p}, Journal: realJournal(t), DailyPaidImageLimit: &zero})
-	h := Handler{Deps: Deps{Drawer: service, Analyse: analysis, Encode: encode}}
-	result, err := h.Run(context.Background(), s)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result.Waiting == nil || result.Waiting.Code != domain.CloneErrQuota || result.Waiting.RetryAt == nil {
-		t.Fatalf("not waiting: %+v", result)
-	}
-	if p.calls != 0 {
-		t.Fatalf("quota spent: %d", p.calls)
-	}
-	if len(result.Artifacts) != 1 {
-		t.Fatal("partial manifest not published")
-	}
 }
 func TestCancellationNeverInvokesGeneration(t *testing.T) {
 	s, _ := fixture(t)

@@ -142,6 +142,12 @@ type CloneArtifact struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type CloneBulkReviewIntent struct {
+	JobID         pgtype.UUID        `json:"job_id"`
+	ImageRevision int32              `json:"image_revision"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
 type CloneJob struct {
 	ID                pgtype.UUID        `json:"id"`
 	ChannelID         pgtype.UUID        `json:"channel_id"`
@@ -205,6 +211,27 @@ type CloneStep struct {
 	StartedAt        pgtype.Timestamptz `json:"started_at"`
 	FinishedAt       pgtype.Timestamptz `json:"finished_at"`
 	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+}
+
+type EditorDeletedResource struct {
+	ResourceKey string             `json:"resource_key"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type EditorProject struct {
+	ProjectID       string             `json:"project_id"`
+	Revision        int64              `json:"revision"`
+	LogicalPath     string             `json:"logical_path"`
+	ContentRevision string             `json:"content_revision"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
+type EditorResource struct {
+	ResourceKey     string             `json:"resource_key"`
+	Revision        int64              `json:"revision"`
+	LogicalPath     string             `json:"logical_path"`
+	ContentRevision string             `json:"content_revision"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }
 
 type ErrorEvent struct {

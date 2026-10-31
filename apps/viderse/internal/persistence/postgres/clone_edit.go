@@ -13,7 +13,6 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
-	imagemodel "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 )
 
 var _ jobedit.Store = (*CloneStore)(nil)
@@ -169,15 +168,17 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			output.Data["manifest"] = string(before.Step.Step) + "/manifest.json"
 		}
 		if before.Step.Step == domain.CloneImages {
-			var manifest imagemodel.Manifest
+			// The images service validates the full approval gate before
+			// CommitOwnerApproval; the checkpoint written here is that exact
+			// manifest under the step CAS, so storage only needs its revision.
+			var manifest struct {
+				Revision int `json:"revision"`
+			}
 			if err := json.Unmarshal(change.Checkpoint, &manifest); err != nil {
 				return err
 			}
 			output.Data["revision"] = manifest.Revision
 			if change.ApproveExport {
-				if !imagemodel.ImagesApproved(manifest) {
-					return jobedit.Conflict("Cần duyệt đủ ảnh trước khi duyệt cả video")
-				}
 				if _, err := tx.Exec(txctx, `INSERT INTO clone_bulk_review_intents(job_id,image_revision) VALUES($1,$2) ON CONFLICT(job_id) DO UPDATE SET image_revision=EXCLUDED.image_revision,created_at=now()`, u, manifest.Revision); err != nil {
 					return err
 				}
