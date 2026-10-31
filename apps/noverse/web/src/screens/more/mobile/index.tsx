@@ -1,6 +1,6 @@
 // M4 · Thêm — các trang độc lập trên điện thoại (18-mobile.md / MMore.dc.html).
 import { useEffect, useState } from 'react'
-import { canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, logout, mySessions, revokeSession } from '../../../api/client'
+import { canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, mySessions, revokeSession } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import type { ModelRoleKey, ProjectSummary, Session, StorySummary } from '../../../api/types'
 import { cache, invalidate } from '@noverse/ui/data'
@@ -34,6 +34,8 @@ import { projectLabel, storyLabel } from '../../../shell/labels'
 import { storageCopy } from '../../../i18n/vi'
 import { StorageSection } from '../../settings/storage'
 import { StorageNavSummary } from '../../settings/storage/indicators'
+import { AppSwitcher } from '../../../shell/AppSwitcher'
+import { ssoCopy } from '../../../i18n/sso'
 
 type Page = 'home' | 'projects' | 'model' | 'pick' | 'devices' | 'password' | 'guide' | 'guideCmd' | 'storyset' | 'rules' | 'storage'
 const STATUS: Record<StorySummary['status'], string> = { idea: 'Nháp', writing: 'Đang viết', paused: 'Tạm dừng', done: 'Đã xong', published: 'Đã xuất bản' }
@@ -69,7 +71,7 @@ function ProjectStories({ project, currentProject, currentStory, onChoose, offli
 }
 
 export function MobileMore({ project, story, initialPage, initialCommand, onStoryChange }: { project: string | null; story: string | null; initialPage?: 'home' | 'projects' | 'model' | 'devices' | 'password' | 'guide' | 'storyset' | 'rules' | 'storage'; initialCommand?: string; onStoryChange?: (target: { project: string; story: string }) => void }) {
-  const { user, session, setUser } = useSession()
+  const { user, session, signOut } = useSession()
   const toast = useMobileToast()
   const firstPage = initialPage ?? (story ? 'home' : 'projects')
   const [stack, setStack] = useState<Page[]>(initialCommand ? ['home', 'guide', 'guideCmd'] : firstPage === 'home' ? ['home'] : ['home', firstPage])
@@ -117,10 +119,8 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
     setTransition((old) => ({ number: old.number + 1, back: true }))
   }
   const logoutAction = useAction(async () => {
-    await logout()
+    await signOut()
     cache.clear()
-    setUser(null)
-    navigate('/login', true)
   })
   const revokeAction = useAction(async () => {
     if (!confirm || !online) throw new Error('Không có kết nối. Vui lòng thử lại khi có mạng.')
@@ -188,6 +188,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           </div>
           {canWrite && <ResourceNotice resource={models} label="model trợ lý" />}
           {logoutAction.error != null && <p className="mm-error" role="alert">{logoutAction.error instanceof Error ? logoutAction.error.message : 'Không thực hiện được. Vui lòng thử lại.'}</p>}
+          <AppSwitcher mobile />
           <div className="mm-heading">Tài khoản</div>
           <div className="mm-group">
             <button className="mm-row" type="button" onClick={() => push('devices')}><Icon name="devices" size={22} className="mm-muted" /><span className="mm-fill">Thiết bị đang đăng nhập</span><span className="mm-muted">{devices.data ? sessions.length : devices.error ? 'Không tải được' : '…'}</span><Icon name="arrow-right-2" size={16} className="mm-chevron" /></button>
@@ -197,7 +198,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           {devices.error != null && <ResourceNotice resource={devices} label="thiết bị" />}
           {user?.role === 'admin' && <><div className="mm-heading">{storageCopy.admin}</div><div className="mm-group"><button className="mm-row" type="button" onClick={() => push('storage')}><Icon name="box" size={22} className="mm-muted" /><span className="mm-copy"><span>{storageCopy.title}</span><StorageNavSummary /></span><Icon name="arrow-right-2" size={16} className="mm-chevron" /></button></div></>}
           <div className="mm-heading">Trợ giúp</div><div className="mm-group"><button className="mm-row" type="button" onClick={() => push('guide')}><Icon name="message-question" size={22} className="mm-muted" /><span className="mm-fill">Hướng dẫn lệnh</span>{commandCount > 0 && <span className="mm-muted">{commandCount} lệnh</span>}<Icon name="arrow-right-2" size={16} className="mm-chevron" /></button></div>
-          <div className="mm-group mm-spaced"><button className="mm-row mm-danger mm-center" type="button" disabled={!online || logoutAction.busy} aria-busy={logoutAction.pending} onClick={() => { void logoutAction.run() }}>{logoutAction.pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></div>
+          <div className="mm-group mm-spaced"><button className={`mm-row mm-danger${user?.grants != null ? '' : ' mm-center'}`} type="button" disabled={!online || logoutAction.busy} aria-busy={logoutAction.pending} onClick={() => { void logoutAction.run() }}>{user?.grants != null ? <span className="mm-copy"><span>{logoutAction.pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</span><span className="mm-sub">{ssoCopy.logout}</span></span> : logoutAction.pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></div>
           <p className="mm-note mm-center">Kết nối AI, xuất tự động và quản lý tài khoản nằm trong Tuỳ chỉnh trên máy tính.</p>
         </>}
         {page === 'rules' && <MobileRules project={project} story={story} online={online} toast={toast} />}
@@ -213,6 +214,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
         {(page === 'model' || page === 'pick') && project && story && (canWrite ? <Models project={project} story={story} active={page === 'pick' ? role : null} onPick={(next) => { setRole(next); push('pick') }} disabled={!online} toast={toast} /> : <p className="mm-note">Chỉ người có quyền viết mới đổi được model.</p>)}
         {page === 'devices' && <>
           <ResourceNotice resource={devices} label="thiết bị" />
+          {user?.grants != null && <p className="mm-note">{ssoCopy.devices}</p>}
           {devices.data && <div className="mm-group mm-device-group">{sessions.map((item) => {
             const current = item.current || item.id === session?.id
             return <div className="mm-row" key={item.id}>
@@ -225,13 +227,14 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           {revokeAction.error != null && <p className="mm-error" role="alert">{revokeAction.error instanceof Error ? revokeAction.error.message : 'Không đăng xuất được thiết bị. Vui lòng thử lại.'}</p>}
           {revokeAction.pending && <p className="mm-note" role="status">Đang đăng xuất thiết bị…</p>}
           <p className="mm-note mm-center">Phiên tự hết hạn sau 30 ngày không dùng.</p>
+          {user?.grants != null && <p className="mm-note">{ssoCopy.revoke}</p>}
         </>}
       </div>
     </div>
     <AccountsSheet open={accountsOpen} onClose={() => setAccountsOpen(false)} />
     <ConfirmSheet open={confirm !== null} onClose={() => { if (!revokeAction.busy) setConfirm(null) }}
       title={confirm === 'all' ? `Đăng xuất ${others.length} thiết bị khác?` : `Đăng xuất “${confirm?.device ?? ''}”?`}
-      description={confirm === 'all' ? 'Điện thoại này vẫn giữ phiên. Các thiết bị kia cần quét mã QR hoặc nhập mật khẩu để vào lại.' : 'Thiết bị này cần quét mã QR hoặc nhập mật khẩu để vào lại. Truyện không bị ảnh hưởng.'}
+      description={user?.grants != null ? ssoCopy.revoke : confirm === 'all' ? 'Điện thoại này vẫn giữ phiên. Các thiết bị kia cần quét mã QR hoặc nhập mật khẩu để vào lại.' : 'Thiết bị này cần quét mã QR hoặc nhập mật khẩu để vào lại. Truyện không bị ảnh hưởng.'}
       action={{ label: revokeAction.pending ? 'Đang đăng xuất…' : confirm === 'all' ? 'Đăng xuất tất cả' : 'Đăng xuất thiết bị', destructive: true, onSelect: async () => {
         const succeeded = await revokeAction.run()
         if (!succeeded) throw new Error('Chưa đăng xuất được thiết bị. Vui lòng thử lại.')

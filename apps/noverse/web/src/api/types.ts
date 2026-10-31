@@ -598,6 +598,7 @@ export type AppId = 'noverse' | 'viderse'
  * backend file độc lập trả `null` (không có khái niệm grant liên app).
  */
 export type AppGrants = Partial<Record<AppId, Role>>
+export type AppLink = { id: AppId; name: 'Noverse' | 'Viderse'; origin: string }
 export type ProjectRole = 'owner' | 'collab' | 'view'
 export type ProjectPermissions = Record<string, ProjectRole>
 export type AdminAuditItem = {
@@ -631,6 +632,7 @@ export type RememberedAccount = {
 /** `needed=false` khi đã có ít nhất một tài khoản; mã thiết lập không bao giờ nằm trong phản hồi. */
 export type SetupState = {
   needed: boolean
+  sharedAccounts?: boolean
   expiresAt?: string
   /** Mã đã hết hạn (GAP-41 bổ sung): hết hạn thắng khoá, UI mở trạng thái codeExpired. */
   expired?: boolean

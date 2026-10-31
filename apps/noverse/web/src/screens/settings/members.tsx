@@ -1,12 +1,12 @@
 import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { createUser, deleteUser, getAdminAudit, grantAppAccess, listUsers, mySessions, revokeAppAccess, revokeSession, revokeUserSessions, updateUser, userSessions } from '../../api/client'
+import { createUser, deleteUser, getAdminAudit, grantAppAccess, listUsers, mySessions, revokeAppAccess, revokeOtherSessions, revokeSession, revokeUserSessions, updateUser, userSessions } from '../../api/client'
 import { useLibrary } from '../../api/library'
 import { useSession } from '../../api/session'
 import type { AdminAuditItem, AppId, ProjectPermissions, Role, User } from '../../api/types'
 import { invalidate, keys, useConnection, useResource } from '../../data'
 import { membersCopy as c } from '../../i18n/vi'
-import { navigate, paths } from '../../router'
+import { navigate, paths, useRoute } from '../../router'
 import { Dialog } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { Checkbox, KitSelect } from '@noverse/ui'
@@ -16,6 +16,7 @@ import { PairingDialog } from '../account/PairingDialog'
 import { SettingsNav } from './nav'
 import { sx } from './members.styles'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
+import { ssoCopy } from '../../i18n/sso'
 
 const roleKeys = ['none', 'view', 'collab', 'owner'] as const
 const roleDots = { none: 'var(--ring-paused)', view: 'var(--color-fg-3)', collab: 'var(--kit-info-fg)', owner: 'var(--color-accent)' }
@@ -58,9 +59,11 @@ export function MembersScreen({ users, error: loadError, refresh }: { users?: Us
   const { user: me } = useSession()
   const library = useLibrary()
   const connection = useConnection()
+  const requestedUser = useRoute().search.get('user') ?? ''
+  useEffect(() => { setSelected(requestedUser) }, [requestedUser])
   const projects = library.library?.projects ?? []
   const [view, setView] = useState<'members' | 'log'>('members')
-  const [selected, setSelected] = useState('')
+  const [selected, setSelected] = useState(requestedUser)
   const [drafts, setDrafts] = useState<Record<string, Draft>>({})
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState(0)
@@ -79,10 +82,11 @@ export function MembersScreen({ users, error: loadError, refresh }: { users?: Us
   // ẩn toàn bộ điều khiển. grants là object (kể cả {}) = kho chung Postgres.
   const [grantBusy, setGrantBusy] = useState('')
   const [grantErrors, setGrantErrors] = useState<Record<string, string>>({})
+  const [grantChange, setGrantChange] = useState<{ username: string; app: AppId; on: boolean } | null>(null)
   const all = users ?? []
   const displayed = all.map((entry) => drafts[entry.username] ? { ...entry, ...drafts[entry.username] } : entry)
   const sso = all.length > 0 && all.every((entry) => entry.grants != null)
-  const current = all.find((entry) => entry.username === selected) ?? all.find((entry) => entry.role !== 'admin') ?? all[0]
+  const current = all.find((entry) => entry.username === selected) ?? (selected ? undefined : all.find((entry) => entry.role !== 'admin') ?? all[0])
   const selectedName = current?.username ?? ''
   const draft = current ? drafts[current.username] ?? { role: current.role, projects: current.projects } : null
   const devices = useResource([...keys.sessions(), selectedName], () => selectedName === me?.username ? mySessions() : userSessions(selectedName), { enabled: !!current && me?.role === 'admin' })
@@ -137,6 +141,7 @@ export function MembersScreen({ users, error: loadError, refresh }: { users?: Us
     setGrantBusy(key); setGrantErrors((previous) => { const next = { ...previous }; delete next[key]; return next })
     try {
       await (on ? grantAppAccess(target, app) : revokeAppAccess(target, app))
+      setGrantChange({ username: target, app, on })
       await invalidate(keys.users()); void refresh()
     } catch (err) {
       setGrantErrors((previous) => ({ ...previous, [key]: err instanceof Error ? err.message : c.error }))
@@ -177,7 +182,7 @@ export function MembersScreen({ users, error: loadError, refresh }: { users?: Us
   }
   const copy = async (text: string, message = c.copied) => { try { await navigator.clipboard.writeText(text); toast(message) } catch { setError(c.error) } }
   const confirmAction = dialog === 'reset' ? c.reset : dialog === 'remove' ? c.removeAccount : current?.disabled ? c.unlock : c.lockAccount
-  const confirmLines = !current ? [] : dialog === 'reset' ? c.resetLines(current.name) : dialog === 'remove' ? c.removeLines(current.name, current.username) : current.disabled ? c.unlockLines(current.name) : c.lockLines(current.name)
+  const confirmLines = !current ? [] : dialog === 'reset' ? c.resetLines(current.name, sso) : dialog === 'remove' ? c.removeLines(current.name, current.username) : current.disabled ? c.unlockLines(current.name) : c.lockLines(current.name, sso)
   const entries = [...(audit.data?.items ?? []), ...older]
   const days = [...new Set(entries.map((entry) => date(entry.at)))]
   return <main {...stylex.props(sx.root)}>
@@ -209,12 +214,13 @@ export function MembersScreen({ users, error: loadError, refresh }: { users?: Us
             </div>
           })}
         </div>
-        <span {...stylex.props(sx.small)}>{c.appsNote}</span>
+        <span {...stylex.props(sx.small)}>{ssoCopy.affected(current.name)}</span>
+        {grantChange?.username === current.username && !grantChange.on && <span {...stylex.props(sx.small)}>{current.grants?.[grantChange.app === 'viderse' ? 'noverse' : 'viderse'] != null ? ssoCopy.remaining(current.name, grantChange.app === 'viderse' ? 'Noverse' : 'Viderse', c.appNames[grantChange.app]) : c.appNoneHint}</span>}
       </Section>}
       <Section title={c.projects} hint={c.projectsHint} action={<Button tiny onClick={() => setMatrix(!matrix)}><Icon name="message-question" size={14} />{matrix ? c.hideMatrix : c.showMatrix}</Button>}>
       {matrix && <div {...stylex.props(sx.inset)} style={{ padding: '4px 6px' }}><div {...stylex.props(sx.matrix)}>{[c.matrixHead, c.roles.view[0], c.roles.collab[0], c.roles.owner[0]].map((label) => <span key={label} {...stylex.props(sx.small)} style={{ padding: '7px 8px', fontSize: 11.5 }}>{label}</span>)}{c.matrix.map((label, index) => <Fragment key={label}><span {...stylex.props(sx.matrixCell)}>{label}</span>{[index === 0, index < 5, true].map((yes, column) => <span key={column} {...stylex.props(sx.matrixCell)} style={{ textAlign: 'center', color: yes ? 'var(--color-ok)' : 'var(--ring-paused)' }}><Icon name={yes ? 'tick-circle' : 'minus'} size={14} /></span>)}</Fragment>)}</div><p {...stylex.props(sx.small)} style={{ padding: '0 8px' }}>{c.matrixNote}</p></div>}
       <div {...stylex.props(sx.inset)}>{projects.map((project) => { const role = draft.role === 'admin' ? 'owner' : draft.projects[project.id] ?? 'none'; return <div key={project.id} {...stylex.props(sx.project)}><Icon name="folder-open" size={17} /><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.4 }}><span {...stylex.props(sx.userName)} title={project.name}>{project.name}</span><span {...stylex.props(sx.small)}>{project.storyCount ? c.stories(project.storyCount) : c.noStories}{draft.role === 'admin' ? ` · ${c.inherited}` : ''}</span></span>{draft.role !== 'admin' && draft.projects[project.id] !== current.projects[project.id] && <span {...stylex.props(sx.chip)}>{c.changed}</span>}<KitSelect variant="project-role" aria-label={c.projectRole(project.name)} value={role} disabled={draft.role === 'admin' || current.disabled || disabled} onChange={(value) => permission(project.id, value as Permission)} icon={<i {...stylex.props(sx.dot)} style={{ width: 7, height: 7, background: roleDots[role] }} />} options={roleKeys.map((value) => ({ value, label: c.roles[value][0], description: c.roles[value][1], icon: <i {...stylex.props(sx.dot)} style={{ width: 7, height: 7, background: roleDots[value] }} /> }))} style={{ minWidth: 136, width: 136 }} /></div> })}</div><span {...stylex.props(sx.small)}>{draft.role === 'admin' ? c.adminNote : c.projectNote(current.name)}</span></Section>
-      <Section title={c.devices} hint={`· ${sessionList.length}`} action={sessionList.some((s) => !s.current) && <Button style={{ height: 28 }} disabled={disabled} onClick={() => { void run(() => revokeUserSessions(current.username), self ? c.outOthers : c.outAll) }}>{self ? c.outOthers : c.outAll}</Button>}>{!!devices.error && <StaleBanner error={devices.error} onRetry={() => void devices.refresh()} />}{sessionList.length ? <div {...stylex.props(sx.inset)} style={{ padding: '0 14px' }}>{sessionList.map((session) => <div key={session.id} {...stylex.props(sx.project)} style={{ padding: '10px 0' }}><Icon name={/phone|pad|điện thoại/i.test(session.device) ? 'mobile' : 'monitor'} size={18} /><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.4 }}><span {...stylex.props(sx.row)} style={{ fontSize: 13.5, fontWeight: 500 }}>{session.device}{session.current && <span {...stylex.props(sx.chip, sx.active)}>{c.thisDevice}</span>}</span><span {...stylex.props(sx.small)}>{c.seenAt(date(session.lastSeen))} · {c.remaining(Math.max(0, Math.ceil((new Date(session.expiresAt).getTime() - Date.now()) / 86400000)))}</span></span>{!session.current && <Button style={{ height: 28 }} disabled={disabled} onClick={() => { void run(() => revokeSession(session.id), c.out) }}>{c.out}</Button>}</div>)}</div> : <span {...stylex.props(sx.small)} style={{ fontSize: 13 }}>{current.disabled ? c.lockedDevices : current.mustChangePassword ? c.tempDevices : c.noDevices}</span>}</Section>
+      <Section title={c.devices} hint={`· ${sessionList.length}`} action={sessionList.some((s) => !s.current) && <Button style={{ height: 28 }} disabled={disabled} onClick={() => { void run(() => self ? revokeOtherSessions() : revokeUserSessions(current.username), self ? c.outOthers : c.outAll) }}>{self ? c.outOthers : c.outAll}</Button>}>{sso && <span {...stylex.props(sx.small)}>{ssoCopy.devices} {ssoCopy.revoke}</span>}{!!devices.error && <StaleBanner error={devices.error} onRetry={() => void devices.refresh()} />}{sessionList.length ? <div {...stylex.props(sx.inset)} style={{ padding: '0 14px' }}>{sessionList.map((session) => <div key={session.id} {...stylex.props(sx.project)} style={{ padding: '10px 0' }}><Icon name={/phone|pad|điện thoại/i.test(session.device) ? 'mobile' : 'monitor'} size={18} /><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.4 }}><span {...stylex.props(sx.row)} style={{ fontSize: 13.5, fontWeight: 500 }}>{session.device}{session.current && <span {...stylex.props(sx.chip, sx.active)}>{c.thisDevice}</span>}</span><span {...stylex.props(sx.small)}>{c.seenAt(date(session.lastSeen))} · {c.remaining(Math.max(0, Math.ceil((new Date(session.expiresAt).getTime() - Date.now()) / 86400000)))}</span></span>{!session.current && <Button style={{ height: 28 }} disabled={disabled} onClick={() => { void run(() => revokeSession(session.id), c.out) }}>{c.out}</Button>}</div>)}</div> : <span {...stylex.props(sx.small)} style={{ fontSize: 13 }}>{current.disabled ? c.lockedDevices : current.mustChangePassword ? c.tempDevices : c.noDevices}</span>}</Section>
       <Section title={c.password}><div {...stylex.props(sx.row)}><Icon name="key" size={17} /><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.45 }}><span style={{ fontSize: 13.5 }}>{current.mustChangePassword ? c.usingTemp : c.changedAt(date(current.passwordChangedAt ?? current.updatedAt))}</span><span {...stylex.props(sx.small)}>{self ? c.passwordOwn : c.passwordNote(current.name)}</span></span><Button disabled={self || disabled} onClick={() => open('reset')}>{c.reset}</Button></div></Section>
       <Section title={c.danger}><div {...stylex.props(sx.danger)}><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.45 }}><span style={{ fontSize: 13.5, fontWeight: 500 }}>{current.disabled ? c.unlockAccount : c.lockAccount}</span><span {...stylex.props(sx.small)}>{current.disabled ? c.unlockHint : c.lockHint}</span></span><Button disabled={noDanger || disabled} onClick={() => open('lock')}>{current.disabled ? c.unlock : c.lock}</Button></div><div {...stylex.props(sx.danger)}><span {...stylex.props(sx.grow, sx.col)} style={{ lineHeight: 1.45 }}><span style={{ fontSize: 13.5, fontWeight: 500 }}>{c.removeAccount}</span><span {...stylex.props(sx.small)}>{c.deleteHint(current.name)}</span></span><Button red disabled={noDanger || disabled} onClick={() => open('remove')}><Icon name="trash" size={14} />{c.remove}</Button></div>{noDanger && <span {...stylex.props(sx.small)}>{self ? c.selfDanger : c.lastDanger}</span>}</Section>
       </section>}

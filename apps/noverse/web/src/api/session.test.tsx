@@ -121,3 +121,32 @@ describe('phiên bị chặn cấp quyền app', () => {
     expect(latest?.user).toBeNull()
   })
 })
+
+describe('phiên dùng chung Gói AO', () => {
+  const apps = [{ id: 'viderse', name: 'Viderse', origin: 'https://vid.aarverse.studio' }]
+  it('màn chặn giữ apps từ thân lỗi mà không khởi động dữ liệu', async () => {
+    mocks.me.mockRejectedValue(new ApiError(403, 'Chưa được cấp quyền', undefined, { ...deniedBody(user({ grants: { viderse: 'member' } })), apps }))
+    await mount()
+    expect(latest?.apps).toEqual(apps)
+    expect(mocks.startDataEvents).not.toHaveBeenCalled()
+  })
+  it('401 có nguồn đăng xuất hiển thị lý do app kia ngay lần tải đầu', async () => {
+    mocks.me.mockRejectedValue(new ApiError(401, 'Phiên đã kết thúc', undefined, { code: 'session_ended', reason: 'logout', app: 'viderse' }))
+    await mount()
+    expect(latest?.kicked).toBe('other')
+  })
+  it('trình duyệt sạch nhận chế độ kho chung từ setup nhưng không bịa lý do kết thúc', async () => {
+    mocks.me.mockRejectedValue(new ApiError(401, 'Chưa đăng nhập', undefined, { code: 'session_ended', reason: 'unknown' }))
+    mocks.getSetup.mockResolvedValue({ needed: false, sharedAccounts: true })
+    await mount()
+    expect(latest?.sharedAccounts).toBe(true)
+    expect(latest?.kicked).toBeNull()
+  })
+  it('đăng xuất thất bại giữ phiên và báo lỗi cho người gọi', async () => {
+    mocks.me.mockRejectedValue(new ApiError(403, 'Chưa được cấp quyền', undefined, deniedBody(user())))
+    mocks.logout.mockRejectedValue(new Error('Không kết nối được máy chủ'))
+    await mount()
+    await act(async () => { await expect(latest!.signOut()).rejects.toThrow('Không kết nối được máy chủ') })
+    expect(latest?.deniedUser?.username).toBe('linh')
+  })
+})

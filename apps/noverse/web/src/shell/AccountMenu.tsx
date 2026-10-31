@@ -3,7 +3,7 @@
 // Đổi mật khẩu · Quản lý tài khoản (admin, số) · Chuyển tài khoản · Đăng xuất.
 // Bàn phím: ↑↓/Home/End di chuyển, Enter kích hoạt, Esc đóng và trả focus về avatar.
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
-import { listUsers, logout, mySessions } from '../api/client'
+import { listUsers, mySessions } from '../api/client'
 import { useSession } from '../api/session'
 import { getRemembered, setNextRoute } from '../api/storage'
 import { t } from '../i18n/vi'
@@ -16,6 +16,8 @@ import { Icon } from '@noverse/ui'
 import { keys, useAction, useResource } from '../data'
 import { WhatsNewDialog } from './WhatsNew'
 import { hasNewVersion, useVersionInfo, versionText } from './version'
+import { AppSwitcher } from './AppSwitcher'
+import { ssoCopy } from '../i18n/sso'
 
 const ROLE_STYLE: Record<Role, { bg: string; fg: string; icon: string }> = {
   admin: { bg: 'var(--tint-accent)', fg: 'var(--color-accent)', icon: 'crown' },
@@ -47,7 +49,7 @@ const countStyle: CSSProperties = {
 }
 
 export function AccountMenu() {
-  const { user, session, setUser } = useSession()
+  const { user, session, signOut } = useSession()
   const [open, setOpen] = useState(false)
   const [whatsNew, setWhatsNew] = useState(false)
   const version = useVersionInfo()
@@ -56,9 +58,8 @@ export function AccountMenu() {
   const accounts = useResource(keys.users(), listUsers, { enabled: open && user?.role === 'admin' })
   const counts = sessions.data ? { devices: sessions.data.sessions.length, users: accounts.data?.users.length ?? 0 } : null
   const logoutAction = useAction(async () => {
-    await logout()
+    await signOut()
     setOpen(false)
-    setUser(null)
     return true
   })
   const wrap = useRef<HTMLDivElement>(null)
@@ -138,7 +139,7 @@ export function AccountMenu() {
       {open && (
         <div ref={menu} className="kit-pop" role="menu" aria-label={t.account.menuTitle} onKeyDown={onMenuKey}
           onMouseOver={(event) => (event.target as HTMLElement).closest<HTMLElement>('[role="menuitem"]')?.focus()} style={{
-          position: 'absolute', top: 40, right: 0, zIndex: 40, width: 320, padding: 6,
+          position: 'absolute', top: 40, right: 0, zIndex: 40, width: 336, padding: 6,
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{ padding: '12px 12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -198,6 +199,7 @@ export function AccountMenu() {
               <span style={countStyle}>Xem</span>
             </button>
           )}
+          <AppSwitcher />
           {others.length > 0 && (
             <>
               <div style={{ height: 1, background: 'var(--line-2)', margin: 6 }} />
@@ -208,7 +210,7 @@ export function AccountMenu() {
                   <Avatar name={account.name || account.username} size={26} />
                   <span style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontSize: 13 }}>{account.name || account.username}</span>
-                    <span style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>{t.role[account.role]} · {t.account.needPassword}</span>
+                    <span style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>{user.grants != null ? ssoCopy.switchAccount(account.name || account.username) : <>{t.role[account.role]} · {t.account.needPassword}</>}</span>
                   </span>
                   <Icon name="arrow-right-2" size={15} style={{ color: 'var(--color-fg-4)' }} />
                 </button>
@@ -221,7 +223,7 @@ export function AccountMenu() {
           <div style={{ height: 1, background: 'var(--line-2)', margin: 6 }} />
           <button type="button" role="menuitem" className="hov-row" style={{ ...itemStyle, color: 'var(--color-err)' }}
             onClick={() => { void logoutAction.run() }}>
-            <Icon name="logout" size={17} /><span style={{ flex: 1 }}>{t.account.logout}</span>
+            <Icon name="logout" size={17} /><span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>{t.account.logout}{user.grants != null && <span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{ssoCopy.logout}</span>}</span>
           </button>
         </div>
       )}

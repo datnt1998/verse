@@ -8,6 +8,7 @@ import { useTabMode } from '../../../mobile/runtime'
 import { Icon } from '@noverse/ui'
 import { passwordChecklist, passwordStrength } from './passwordLogic'
 import './more.css'
+import { ssoCopy } from '../../../i18n/sso'
 
 export function MobilePassword({ first = false, onDone, onSkip }: { first?: boolean; onDone: () => void; onSkip?: () => void }) {
   const { user, endSession } = useSession()
@@ -32,7 +33,7 @@ export function MobilePassword({ first = false, onDone, onSkip }: { first?: bool
       // Đổi xong: máy chủ thu hồi mọi phiên kể cả phiên này — không tải lại /me.
       if (result.reauthenticate) {
         toast('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')
-        endSession()
+        endSession(user?.grants != null ? 'password' : undefined)
         return
       }
       setCurrent(''); setNext(''); setRepeat('')
@@ -56,7 +57,7 @@ export function MobilePassword({ first = false, onDone, onSkip }: { first?: bool
           {field.key === 'next' && <div className="mm-strength" aria-label={`Độ mạnh: ${strength.label}`}><div aria-hidden="true">{[0, 1, 2, 3].map((index) => <span key={index} style={{ background: index < strength.score ? strength.color : '#222225' }} />)}</div><span>{next.length >= 8 ? `Độ mạnh: ${strength.label}` : next.length ? `Còn thiếu ${8 - next.length} ký tự` : strength.label}</span></div>}
         </div>)}
         <ul className="mm-rules" aria-label="Yêu cầu mật khẩu" aria-live="polite">{rules.map((rule) => <li key={rule.label} data-met={rule.ok}><Icon name={rule.ok ? 'tick-circle' : 'minus'} size={15} />{rule.label}</li>)}</ul>
-        <div className="mm-password-note"><Icon name="devices" size={17} /><span>Sau khi đổi, mọi thiết bị — kể cả máy này — sẽ phải đăng nhập lại.</span></div>
+        <div className="mm-password-note"><Icon name="devices" size={17} /><span>{user?.grants != null ? ssoCopy.password : 'Sau khi đổi, mọi thiết bị — kể cả máy này — sẽ phải đăng nhập lại.'}</span></div>
         {!navigator.onLine && <p className="mm-field-error" role="status">Cần kết nối mạng để đổi mật khẩu.</p>}
         {error != null && !currentError && <p className="mm-field-error" role="alert">{error instanceof Error ? error.message : 'Chưa đổi được mật khẩu. Vui lòng thử lại.'}</p>}
       </div>

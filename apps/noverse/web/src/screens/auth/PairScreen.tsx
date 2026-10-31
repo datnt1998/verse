@@ -16,6 +16,9 @@ import { AuthInput, OrbHero, authDestination, detectDevice, fmtDate, useServerKi
 import { Scanner } from './Scanner'
 import { toast } from '@noverse/ui'
 import { useAction } from '../../data'
+import { deniedAppLinks } from '../../api/sso'
+import { KickedNotice } from './KickedNotice'
+import { ssoCopy } from '../../i18n/sso'
 
 type View = 'confirm' | 'pairing' | 'invalid' | 'login' | 'scan' | 'cameraBlocked'
 const SESSION_DAYS = 30
@@ -48,7 +51,7 @@ function PhoneShell({ children, footer, header }: { children: ReactNode; footer?
 }
 
 export function PairScreen({ code = '', initialView, onAuthenticated }: { code?: string; initialView?: 'login' | 'scan' | 'confirm'; onAuthenticated?: (user: User) => void }) {
-  const { setUser, setDeniedUser, refresh } = useSession()
+  const { setUser, setDeniedUser, refresh, sharedAccounts, kicked } = useSession()
   const { label: serverLabel } = useServerKind()
   const [view, setView] = useState<View>(initialView ?? (code ? 'confirm' : 'login'))
   const [activeCode, setActiveCode] = useState(code)
@@ -91,14 +94,14 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
     const failure = pairAction.error instanceof ApiError ? pairAction.error : new ApiError(0, 'Không kết nối được máy chủ. Vui lòng thử lại.')
     // Mã hợp lệ nhưng tài khoản chưa được cấp quyền app → màn chặn, không báo mã hỏng.
     const denied = accessDeniedUser(failure)
-    if (denied) { setDeniedUser(denied); return }
+    if (denied) { setDeniedUser(denied, deniedAppLinks(failure)); return }
     setError(failure.message); setView('invalid')
   }, [pairAction.error])
   useEffect(() => {
     if (!loginAction.error) return
     const failure = loginAction.error instanceof ApiError ? loginAction.error : new ApiError(0, 'Không kết nối được máy chủ. Vui lòng thử lại.')
     const denied = accessDeniedUser(failure)
-    if (denied) { setDeniedUser(denied); return }
+    if (denied) { setDeniedUser(denied, deniedAppLinks(failure)); return }
     setError(failure.status === 429 ? `${t.auth.errorLimited} (${failure.retryAfter ?? 60}s)` : failure.message)
   }, [loginAction.error])
 
@@ -232,8 +235,10 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{title}</h1>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--color-fg-3)' }}>{subtitle}</p>
+          {isLogin && (sharedAccounts || kicked) && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
         </div>
       </div>
+      {isLogin && <KickedNotice />}
 
       {isConfirm && (
         <>

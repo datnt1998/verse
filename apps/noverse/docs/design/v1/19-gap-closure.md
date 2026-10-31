@@ -824,3 +824,17 @@ Việc kỹ thuật, không đổi giao diện. Ghi lại vì có đổi hành v
 - **GAP-AN-FE3 (khung và số liệu minh hoạ):** artboard điện thoại mô phỏng status bar; giữ safe-area/header của app thật, không thêm status bar giả. Dữ liệu/tên kho/dung lượng/tốc độ, giờ, môi trường, kết quả thử và tệp lỗi lấy từ máy chủ, không chép số minh hoạ. Thẻ desktop rộng 820px, thẻ điện thoại rộng 358px ở viewport 390; dùng StyleX/token hiện có, không thêm màu hex.
 
 - **Gói AN · rà soát giữ khoá và số liệu:** ngay khi lưu kho thành công, xoá bản nháp và kết quả thử khỏi state, đóng form/hộp xác nhận trước khi chờ bắt đầu chuyển. Nếu bước bắt đầu lỗi, thử lại bằng phiên bản kho đã lưu, không giữ hay gửi lại khoá. Thống kê “Tạo link” gom đúng phép ký link tải mà máy chủ ghi, gồm số lần, lỗi và độ trễ; có kiểm thử component với dữ liệu thật của hợp đồng API.
+
+---
+
+## Gói AO — Đăng nhập chung với Viderse
+
+Đã khép phần web Noverse của Gói AO:
+
+- Menu tài khoản trên máy tính và tab **Thêm** trên điện thoại có nhóm **Ứng dụng**, lấy địa chỉ từ `apps` của `/api/me`. Nhóm ẩn hoàn toàn nếu không có quyền Viderse hoặc chưa cấu hình app kia; kho tệp giữ giao diện cũ. App đang dùng đứng trước, app kia mở thẻ mới.
+- Màn hình chưa được cấp quyền dùng `apps` của lỗi 403 để mở Viderse, có lời nhờ quản trị viên có thể chép và nút thử lại.
+- Đăng xuất, đổi mật khẩu, thu hồi phiên và các xác nhận đặt lại mật khẩu/khoá nói rõ hệ quả ở cả hai app. Thu hồi các thiết bị khác của chính mình giữ phiên hiện tại.
+- Màn đăng nhập giải thích lý do kết thúc phiên theo lỗi 401 `reason`/`app`: tự đăng xuất, đăng xuất ở Viderse, đổi mật khẩu, quản trị thay đổi/khoá tài khoản, hết hạn hoặc không rõ nguyên nhân. Trình duyệt sạch không hiện thông báo phiên bị kết thúc; `sharedAccounts` từ `/api/setup` quyết định dòng phụ cho kho tài khoản chung.
+- `#/settings/members?user=<tên>` mở đúng tài khoản; tên không tồn tại quay về danh sách, không chọn nhầm người.
+
+Kiểm tra: TypeScript và bộ vitest chọn lọc đạt; đã ghi nhận lỗi trước sửa cho quyền chuyển app, ánh xạ lý do và liên kết thành viên. Đã đối chiếu artboard Auth/MAuth với `app=noverse`, chụp giao diện máy tính và điện thoại 390px; kiểm tra lại bằng backend thật với phiên dùng chung. Không thêm mã màu trực tiếp hay sửa `platform/ui`.

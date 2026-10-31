@@ -19,6 +19,9 @@ import {
 } from './parts'
 import { useAction } from '../../data'
 import { RecoveryForm } from './RecoveryForm'
+import { KickedNotice } from './KickedNotice'
+import { ssoCopy } from '../../i18n/sso'
+import { deniedAppLinks } from '../../api/sso'
 
 type View = 'login' | 'password' | 'other'
 
@@ -29,7 +32,7 @@ export { PairScreen } from './PairScreen'
 
 /** Màn đăng nhập. expired=true → thẻ "Phiên đăng nhập đã hết hạn" (hash ?expired=1). */
 export function AuthScreen({ expired = false }: { expired?: boolean }) {
-  const { setUser, setDeniedUser, refresh } = useSession()
+  const { setUser, setDeniedUser, refresh, kicked, sharedAccounts } = useSession()
   const narrow = useMediaQuery('(max-width: 640px)')
   const remembered = useMemo(() => getRemembered(), [])
   const initialAccount = remembered[0] ?? null
@@ -114,7 +117,7 @@ export function AuthScreen({ expired = false }: { expired?: boolean }) {
     // Đăng nhập đúng nhưng chưa được cấp quyền app: cookie đã được đặt — chuyển
     // sang màn chặn (giữ phiên), không đếm là sai mật khẩu, không quay form.
     const denied = accessDeniedUser(err)
-    if (denied) { setDeniedUser(denied); return }
+    if (denied) { setDeniedUser(denied, deniedAppLinks(err)); return }
     if (err.status === 429) { setErrorKind('limited'); setRetryLeft(err.retryAfter ?? 60) }
     else if (err.status === 401) setErrorKind('wrong')
     else { setErrorKind('msg'); setErrorMsg(err.message) }
@@ -131,10 +134,12 @@ export function AuthScreen({ expired = false }: { expired?: boolean }) {
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{h1}</h1>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--color-fg-3)' }}>{sub}</p>
+          {(sharedAccounts || kicked) && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
         </div>
       </div>
+      <KickedNotice />
 
-      {expired && view !== 'login' && (
+      {expired && !kicked && view !== 'login' && (
         <div role="status" className="card" style={{
           borderRadius: 14, padding: '12px 14px', display: 'flex', gap: 12,
           borderColor: 'rgba(246,203,140,0.3)',

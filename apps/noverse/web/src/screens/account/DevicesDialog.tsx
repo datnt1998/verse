@@ -17,6 +17,7 @@ import { useSaveShortcut } from '@noverse/ui'
 import { ConflictBar } from '@noverse/ui'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
+import { ssoCopy } from '../../i18n/sso'
 
 export function DevicesDialog({ onClose }: { onClose: () => void }) {
   const { user, refresh, endSession } = useSession()
@@ -33,13 +34,13 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
   }, [user?.version, current, next, repeat])
   const revokeAction = useAction(revokeSession, { invalidate: [keys.sessions(), keys.users()] })
   const revoke = (session: Session) => {
-    void confirmDeviceLogout({ onConfirm: async () => {
+    void confirmDeviceLogout({ ...(user?.grants != null ? { body: ssoCopy.revoke } : {}), onConfirm: async () => {
       if (!await revokeAction.run(session.id)) throw new Error('Không đăng xuất được thiết bị')
     } }, { name: session.device })
   }
   const revokeOthers = () => {
     const others = sessions.filter((session) => !session.current)
-    void confirmAllDevicesLogout({ onConfirm: async () => {
+    void confirmAllDevicesLogout({ ...(user?.grants != null ? { body: ssoCopy.revoke } : {}), onConfirm: async () => {
       for (const session of others) {
         if (!await revokeAction.run(session.id)) throw new Error('Không đăng xuất được thiết bị')
       }
@@ -49,7 +50,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
   // đưa về đăng nhập; không refresh /api/me (sẽ 401 như thể đổi thất bại).
   const passwordAction = useAction(async (version: string | undefined = baselineVersion.current) => {
     const result = await changePassword(current, next, version)
-    if (result.reauthenticate) { onClose(); toast(t.auth.passwordChanged, 'ok'); endSession(); return true }
+    if (result.reauthenticate) { onClose(); toast(t.auth.passwordChanged, 'ok'); endSession(user?.grants != null ? 'password' : undefined); return true }
     setCurrent(''); setNext(''); setRepeat('')
     await refresh()
     return true
@@ -76,7 +77,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
         <section aria-labelledby="dv-s1" style={{ flex: '1 1 440px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
             <h3 id="dv-s1" className="lbl" style={{ margin: 0 }}>{t.account.devices} · {sessions.length}</h3>
-            <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>Mỗi phiên giữ 30 ngày kể từ lúc đăng nhập</span>
+            <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{user?.grants != null ? ssoCopy.devices : 'Mỗi phiên giữ 30 ngày kể từ lúc đăng nhập'}</span>
           </div>
           <div className="card" style={{ borderRadius: 14, padding: 4 }}>
             <SessionList sessions={sessions} loading={!resource.data && resource.initialLoading} error={!resource.data && resource.error instanceof Error ? resource.error.message : ''} variant="full" onRevoke={connection.writable ? revoke : undefined} />
@@ -85,6 +86,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
           <Button variant="dsoft" size="sm" disabled={!connection.writable || revokeAction.busy || sessions.every((session) => session.current)} pending={revokeAction.pending} onClick={revokeOthers}>
             <Icon name="logout" size={15} />Đăng xuất mọi thiết bị khác
           </Button>
+          {user?.grants != null && <p style={{ margin: 0, fontSize: 12, color: 'var(--color-fg-4)' }}>{ssoCopy.revoke}</p>}
         </section>
 
         <section aria-labelledby="dv-s2" style={{ flex: '1 1 300px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -106,7 +108,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
             {mismatch && <span role="alert" style={{ fontSize: 12, color: 'var(--color-err)' }}>Hai lần nhập chưa khớp</span>}
           </div>
           <span style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--color-fg-3)' }}>
-            <Icon name="info-circle" size={14} style={{ marginTop: 2 }} />{t.account.passwordReauthNote}
+            <Icon name="info-circle" size={14} style={{ marginTop: 2 }} />{user?.grants != null ? ssoCopy.password : t.account.passwordReauthNote}
           </span>
           {conflict && <ConflictBar pending={passwordAction.pending} onView={() => { baselineVersion.current = conflict.version; setCurrent(''); setNext(''); setRepeat(''); setDismissedConflict(conflict); void refresh() }} onOverwrite={() => { void passwordAction.run(conflict.version) }} />}
           {passwordAction.error instanceof Error && !conflict && passwordAction.error !== dismissedConflict && <span role="alert" style={{ fontSize: 12, color: 'var(--color-err)' }}>{passwordAction.error.message}</span>}
