@@ -11,6 +11,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/platform/blobhttp"
 	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/identity"
@@ -409,6 +410,10 @@ func WriteCloneError(w http.ResponseWriter, err error) {
 			})
 			return
 		}
+	}
+	if errors.Is(err, pipeline.ErrNotFound) {
+		webapp.WriteJSON(w, http.StatusNotFound, cloneErrorWire{Error: "Không tìm thấy video.", Code: domain.CloneErrNotFound})
+		return
 	}
 	switch {
 	case errors.Is(err, blobstore.ErrNotFound):

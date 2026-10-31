@@ -11,6 +11,7 @@ import (
 	clonebackdrop "github.com/datnt1998/verse/apps/viderse/internal/clone/backdrop"
 	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 )
 
 type imageHTTPFixture struct {
@@ -51,6 +52,20 @@ func TestCloneImageReviewRoutePreservesRevisionAndFeedback(t *testing.T) {
 	w = tg.do(http.MethodPost, "/api/clone/job/images/sc-f0", cookie, `{"op":"approve","version":1,"expectedRevision":6}`)
 	if w.Code != http.StatusConflict {
 		t.Fatalf("stale revision status %d: %s", w.Code, w.Body.String())
+	}
+}
+func TestCloneImageUnknownJobIsNotFound(t *testing.T) {
+	tg := newTestGateway(t)
+	svc := &imageHTTPFixture{err: pipeline.ErrNotFound}
+	MountCloneOperations(tg.g, CloneOperations{Images: svc})
+	MountClone(tg.g, &fakeCloneService{}, nil, nil)
+	w := tg.do(http.MethodGet, "/api/clone/missing/images", tg.sessionCookie(), "")
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("unknown job status %d: %s", w.Code, w.Body.String())
+	}
+	var body cloneErrorWire
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil || body.Code != domain.CloneErrNotFound {
+		t.Fatalf("unknown job body %s (%v)", w.Body.String(), err)
 	}
 }
 func TestCloneImageReadAndValidation(t *testing.T) {
