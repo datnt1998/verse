@@ -272,6 +272,34 @@ func intField(out *CloneStepOutput, key string) (int, bool) {
 	}
 	return 0, false
 }
+// CloneExportBytes returns the recorded MP4 size while that export exists.
+func CloneExportBytes(steps []CloneStepRecord) *int64 {
+	for _, step := range steps {
+		if step.Step != CloneExport || step.Status != CloneSucceeded || step.Output == nil {
+			continue
+		}
+		if removed, _ := step.Output.Data["removedAt"].(string); removed != "" {
+			return nil
+		}
+		var size int64
+		switch value := step.Output.Data["size"].(type) {
+		case int64:
+			size = value
+		case int:
+			size = int64(value)
+		case float64:
+			size = int64(value)
+		default:
+			return nil
+		}
+		if size < 0 {
+			return nil
+		}
+		return &size
+	}
+	return nil
+}
+
 
 // Subline tính dòng phụ của mọi trạng thái (§2) từ job + steps + giờ hiện
 // tại: câu việc đang làm, giờ hết chờ hạn mức, hoặc tóm tắt xong.

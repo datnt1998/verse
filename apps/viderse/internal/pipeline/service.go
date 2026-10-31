@@ -111,7 +111,7 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 }
 func (s *Service) view(job domain.CloneJob, steps []domain.CloneStepRecord) domain.CloneJobView {
 	job.StageGroup = domain.StageGroupOf(job, steps)
-	return domain.CloneJobView{CloneJob: job, Steps: steps, AgentView: domain.AgentViews(job, steps), Subline: domain.Subline(job, steps, s.now())}
+	return domain.CloneJobView{CloneJob: job, Steps: steps, AgentView: domain.AgentViews(job, steps), Subline: domain.Subline(job, steps, s.now()), ExportBytes: domain.CloneExportBytes(steps)}
 }
 func (s *Service) List(ctx context.Context, channelID *string, limit int) (domain.CloneJobList, error) {
 	if limit <= 0 {

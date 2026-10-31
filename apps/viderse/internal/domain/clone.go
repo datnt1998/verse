@@ -351,6 +351,7 @@ type CloneJobView struct {
 	Subline   string            `json:"subline"`
 	AgentView []CloneAgentView  `json:"agentView"`
 	Steps     []CloneStepRecord `json:"steps"`
+	ExportBytes *int64          `json:"exportBytes"`
 	// QueueItem mang mục hàng chờ gốc khi hàng này là mục chưa có job
 	// (StageGroup "queued"); nil cho job thật.
 	QueueItem *CloneQueueItem `json:"queueItem,omitempty"`

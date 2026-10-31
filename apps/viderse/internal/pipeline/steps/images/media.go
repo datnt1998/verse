@@ -61,7 +61,7 @@ function run(argv) {
  var error=Ref();
  if (!handler.performRequestsError($([request]),error)) throw Error('vision_failed');
  var observation=request.results.firstObject;
- if (!observation || observation.allInstances.count===0) throw Error('no_subject');
+ if (!observation || Number(observation.allInstances.count) === 0) throw Error('no_subject');
  var mask=observation.generateScaledMaskForImageForInstancesFromRequestHandlerError(observation.allInstances,handler,error);
  if (!mask) throw Error('vision_failed');
  var image=$.CIImage.imageWithContentsOfURL(input);
