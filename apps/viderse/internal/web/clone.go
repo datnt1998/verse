@@ -173,6 +173,12 @@ func enqueueClone(w http.ResponseWriter, r *http.Request, svc CloneEnqueuer) {
 }
 
 func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files cloneMedia) {
+	if g.renderCloneRoute != nil && g.renderCloneRoute(w, r) {
+		return
+	}
+	if g.cloneReviewRoute != nil && g.cloneReviewRoute(w, r) {
+		return
+	}
 	svc := g.Clone
 	parts := strings.SplitN(strings.TrimPrefix(r.URL.Path, "/api/clone/"), "/", 4)
 	if !cloneSegment(parts[0]) {

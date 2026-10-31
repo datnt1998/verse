@@ -155,6 +155,10 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if err != nil {
 		return pipeline.StepResult{}, err
 	}
+	videoNoImages := sceneDoc.Recipe.ImagesMode == "none"
+	if imageDoc.Overrides != nil && imageDoc.Overrides.NoImages != nil {
+		videoNoImages = *imageDoc.Overrides.NoImages
+	}
 	byScene, thumbnailVersion, err := buildImageVersions(imageDoc, sceneDoc, s.Job.Source.Title)
 	if err != nil {
 		return pipeline.StepResult{}, err
@@ -406,7 +410,9 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 				if err != nil {
 					return pipeline.StepResult{}, err
 				}
-				backdrops = append(backdrops, canonicalBackdrop(id, src, facts, int(math.Round(facts.Duration*30))))
+				clip := canonicalBackdrop(id, src, facts, int(math.Round(facts.Duration*30)))
+				clip["cloneBackdropId"] = item.ID
+				backdrops = append(backdrops, clip)
 			}
 		}
 	}
@@ -437,7 +443,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	}
 	fillScenes := []editor.FillScene{}
 	for _, scene := range sceneDoc.Scenes {
-		if sceneDoc.Recipe.ImagesMode == "none" {
+		if videoNoImages {
 			continue
 		}
 		v, err := resolveVersion(scene.SceneID)
@@ -478,7 +484,8 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		return pipeline.StepResult{}, err
 	}
 	defer thumbnailFile.Release()
-	if _, _, err = importFile(thumbnailFile.Path, filepath.Base(thumbnailVersion.Path), thumbnailVersion.Mime, thumbnailVersion.SHA256, thumbnailVersion.Width, thumbnailVersion.Height, 0, []string{"clone-thumbnail"}); err != nil {
+	thumbnailID, _, err := importFile(thumbnailFile.Path, filepath.Base(thumbnailVersion.Path), thumbnailVersion.Mime, thumbnailVersion.SHA256, thumbnailVersion.Width, thumbnailVersion.Height, 0, []string{"clone-thumbnail"})
+	if err != nil {
 		return pipeline.StepResult{}, err
 	}
 	fillCues := []editor.FillCue{}
@@ -517,6 +524,17 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		return pipeline.StepResult{}, err
 	}
 	artifacts = append(artifacts, media.Artifact{Path: "build/checkpoint.json", File: file, ContentType: "application/json"})
+	audioEvidence := BuildAudio{MediaID: audioID, SourceLUFS: lufs, ReferenceVersion: 1, DurationInFrames: sceneDoc.TotalFrames, SHA256: audioHash}
+	if filled.Loudness != nil {
+		audioEvidence.LoudnessTargetLUFS = &filled.Loudness.TargetLUFS
+		audioEvidence.AppliedGainDB = &filled.Loudness.AppliedGainDB
+	}
+	manifest := Manifest{Version: 1, GeneratedAt: now().UTC().Format(time.RFC3339Nano), ProjectID: projectID, Generation: s.Job.Generation, BaseRevision: templateHash, CommittedRevision: projectRevision, RecipeFingerprint: fingerprint, ItemIDs: filled.ItemIDs, Audio: audioEvidence, Source: ManifestMedia{SHA256: sourceHash}, Envelope: editor.Object{"sourceHash": envelope["sourceHash"], "durationSeconds": envelope["durationSeconds"], "samplesPerSecond": envelope["samplesPerSecond"]}, Caption: filled.Captions, Thumbnail: ManifestMedia{MediaID: thumbnailID, SHA256: thumbnailVersion.SHA256}, Scenes: fillScenes, CommandCount: len(filled.Commands)}
+	manifestFile := filepath.Join(s.StagingDir, "build", "manifest.json")
+	if err = steps.WriteJSONAtomic(manifestFile, manifest); err != nil {
+		return pipeline.StepResult{}, err
+	}
+	artifacts = append(artifacts, media.Artifact{Path: "build/manifest.json", File: manifestFile, ContentType: "application/json"})
 	if s.PauseRequested() {
 		if err = s.SaveCheckpoint(ctx, checkpoint); err != nil {
 			return pipeline.StepResult{}, err
