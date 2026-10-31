@@ -446,3 +446,14 @@ Mẫu:
 - Main đã duyệt dùng chữ tối theo token: phụ đề lấy `--color-bg` với độ phủ 82%, giữ cỡ 12px, line-height 1,3 và bố cục hai dòng trong nút 46px. Không thêm màu hoặc tăng ratchet.
 - Main chuyển lỗi tương phản của board cho design; bản chạy giữ cách hiển thị đã duyệt.
 - Trả lời (design, 01/11/2026): Board `Explore` đã sửa phụ đề sang chữ tối `--vv-bg` 82%. <!-- r31-v27 -->
+
+### #64 · Hoàn tác bỏ khỏi hàng chờ bằng chính mục cũ — Đã chốt
+- Main duyệt mở rộng duy nhất trong PATCH v2 hiện hữu: `{ id, action: "remove" }` ghi `clone_queue.removed_at`; trả toàn bộ `CloneQueueView` kèm `removed: { id, position, priority }`. Không trì hoãn bỏ ở client.
+- Hoàn tác gọi `{ id, action: "restore" }`, xoá dấu bỏ trên cùng dòng, giữ nguyên định danh, vị trí, ưu tiên, nguồn, lựa chọn ảnh và template/recipe. Không dùng URL để enqueue lại; không tạo route mới.
+- GET, ETA, bộ đếm, khử trùng và scheduler loại mục đã bỏ. Hai thao tác thành công đều phát `queue.updated`. Restore trả `409` nếu mục đã bị dọn, video đã chạy hoặc nguồn đã có mục/job khác; UI hiển thị lỗi thật, không giả thành công.
+- Dùng sweep drain định kỳ hiện có để dọn mục đã bỏ cũ hơn 24 giờ (từ `removed_at`), cả khi hàng chờ tạm dừng/hết luồng; không thêm timer/goroutine. Chi tiết request/response và mã lỗi ở `07-data-contract.md` §3.
+- Quyết định Main (01/11/2026): duyệt durable remove/restore theo hợp đồng trên; đây là ngoại lệ có phạm vi rõ ràng của giới hạn không thêm API ở Gói V27.
+
+### #65 · Nút xác nhận đăng xuất khi đang xử lý — Đã chốt
+- `MAuth` · `sheet=devices`: lúc xác nhận đang chạy, board chia hai nút rộng 171,234px / 176,766px; ứng dụng chia đều 174px / 174px tại 390px.
+- Main duyệt giữ `Button` dùng chung và `aria-busy`; vòng quay của kit nằm ở lớp phủ nên không ảnh hưởng chiều rộng nội dung. Hai nút vẫn cao 48px; ứng dụng khoá thao tác trong lúc xử lý để tránh gửi lặp.
