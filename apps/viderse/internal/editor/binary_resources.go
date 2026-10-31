@@ -118,7 +118,7 @@ func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
 			return err
 		}
 	}
-	return nil
+	return s.reclaimDeletedProjectRevisions(ctx)
 }
 
 func (s *Service) adoptBinary(ctx context.Context, head Resource, key, path, digest string, size int64) error {

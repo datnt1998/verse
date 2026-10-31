@@ -501,6 +501,11 @@ func (s *Service) DeleteProject(ctx context.Context, id string) error {
 		lock.Unlock()
 		return err
 	}
+	head, headErr := s.repository().Get(ctx, "projects/"+id)
+	if headErr != nil && !isMissing(headErr) {
+		lock.Unlock()
+		return headErr
+	}
 	rows, err := s.repository().List(ctx, "projects/"+id+"/")
 	if err != nil {
 		lock.Unlock()
@@ -530,6 +535,7 @@ func (s *Service) DeleteProject(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
+	discardReleasedLocal(ctx, s.Media, head.Path)
 	for _, row := range rows {
 		discardReleasedLocal(ctx, s.Media, row.Path)
 	}

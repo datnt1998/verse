@@ -306,6 +306,24 @@ func (r *EditorRepository) Delete(ctx context.Context, key, expected string) err
 	return r.releaseBinding(ctx, current.Path)
 }
 
+// LockDeletedProject proves a persisted deletion while holding the same
+// publication-scoped advisory lock as create/CAS/delete. It never classifies an
+// unknown project or a recreated pointer as a released revision.
+func (r *EditorRepository) LockDeletedProject(ctx context.Context, id string) (bool, error) {
+	key := "projects/" + id
+	if err := editor.ValidateID(id); err != nil {
+		return false, err
+	}
+	if err := r.lock(ctx, key); err != nil {
+		return false, err
+	}
+	var deleted bool
+	err := mediaDB(ctx, r.pool).QueryRow(ctx, `SELECT EXISTS(
+		SELECT 1 FROM editor_deleted_resources WHERE resource_key=$1
+	) AND NOT EXISTS(SELECT 1 FROM editor_projects WHERE project_id=$2)`, key, id).Scan(&deleted)
+	return deleted, err
+}
+
 // A phase-05 canonical project can still be owned by clone_artifacts; another
 // editor pointer can also share a binding. Remove only the obsolete manifest
 // binding, never the underlying local/S3 bytes, and preserve every live owner.
