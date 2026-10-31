@@ -69,7 +69,7 @@ export const sx = stylex.create({
   iconButton: { width: 30, height: 30, padding: 0 },
   full: { width: '100%' },
   fit: { alignSelf: 'flex-start' },
-  dialogBody: { padding: metrics['--ed-space-20'], display: 'flex', flexDirection: 'column', gap: metrics['--ed-space-16'] },
+  dialogBody: { padding: metrics['--ed-space-20'], display: 'flex', flexDirection: 'column', gap: metrics['--ed-space-16'], fontSize: 13, lineHeight: 1.5 },
   dialogTitle: { margin: 0, fontSize: 16, fontWeight: 600 },
   dialogCopy: { margin: 0, fontSize: 13, color: color['--color-fg-2'], lineHeight: 1.6 },
   dialogActions: { display: 'flex', justifyContent: 'flex-end', gap: metrics['--ed-space-8'] },
