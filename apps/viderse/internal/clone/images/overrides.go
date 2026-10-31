@@ -181,7 +181,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		affected := (item.Kind == "scene" && (sceneChanged || modeChanged)) || (item.Kind == "thumbnail" && coverChanged)
 		if affected {
 			redraw := len(item.Versions) > 0 || modeChanged && !none && item.Kind == "scene"
-			if redraw && !none {
+			if redraw && (!none || item.Kind == "thumbnail") {
 				if item.Kind == "scene" {
 					plan.Redraw.Scenes++
 				} else {
@@ -195,7 +195,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 			item.PromptVersion++
 			// A new video recipe retracts old approvals; unlike feedback redraws, they no longer express the selected recipe.
 			item.CurrentVersion = nil
-			if !none && redraw {
+			if (!none || item.Kind == "thumbnail") && redraw {
 				next.QueueOnly = append(next.QueueOnly, item.ID)
 			}
 		}
@@ -206,7 +206,12 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 	if plan.Redraw.Cover {
 		plan.Cost.Images++
 	}
-	plan.Rebuild = modeChanged || sceneChanged && next.ImageMode != "none"
+	for _, step := range l.snapshot.Steps {
+		if step.Step == domain.CloneBuild && step.Status == domain.CloneSucceeded {
+			plan.Rebuild = modeChanged || sceneChanged && next.ImageMode != "none"
+			break
+		}
+	}
 	if sceneChanged || coverChanged || modeChanged {
 		next.Story = nil
 	}

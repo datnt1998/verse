@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 )
@@ -123,6 +126,33 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	}
 	m := l.manifest
 	out := View{Manifest: &ManifestView{Revision: m.Revision, SceneRevision: m.SceneRevision, SceneGeneration: m.SceneGeneration, Waiting: m.Waiting}, Items: make([]ItemView, 0, len(m.Items)), Approved: model.ImagesApproved(m)}
+	var template library.Snapshot
+	if len(l.snapshot.Job.TemplateSnapshot) > 0 {
+		if err := json.Unmarshal(l.snapshot.Job.TemplateSnapshot, &template); err != nil {
+			return View{}, cloneError(domain.CloneErrInternal, "Template snapshot không đọc được")
+		}
+	}
+	out.Manifest.ScenePrompt = EffectivePrompt{ID: template.ScenePrompt.ID, Name: template.ScenePrompt.Name}
+	out.Manifest.CoverPrompt = EffectivePrompt{ID: template.CoverPrompt.ID, Name: template.CoverPrompt.Name}
+	out.Manifest.Overrides = m.Overrides
+	if m.Overrides != nil {
+		for _, selection := range []struct {
+			set bool
+			id string
+			target *EffectivePrompt
+		}{{m.Overrides.ScenePromptSet, m.Overrides.ScenePromptID, &out.Manifest.ScenePrompt}, {m.Overrides.CoverPromptSet, m.Overrides.CoverPromptID, &out.Manifest.CoverPrompt}} {
+			if !selection.set {
+				continue
+			}
+			*selection.target = EffectivePrompt{ID: selection.id, Overridden: true}
+			if s.Prompts != nil {
+				prompt, err := s.Prompts.GetPrompt(ctx, selection.id)
+				if err == nil && prompt != nil {
+					selection.target.Name = prompt.Name
+				}
+			}
+		}
+	}
 	if m.ImageMode != "" {
 		mode := m.ImageMode
 		out.Manifest.ImageMode = &mode
@@ -149,8 +179,16 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			}
 			version := VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
 			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
+			version.CutoutState = "unavailable"
+			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
+				version.CutoutState = "available"
+				version.CutoutURL = "/api/clone/" + url.PathEscape(id) + "/images/" + url.PathEscape(i.ID) + "?variant=cutout&version=" + strconv.Itoa(v.Version)
+			}
 			if v.Cutout != nil {
 				version.CutoutURL = artifactURL(l.snapshot, v.Cutout.Path, v.Cutout.SHA256)
+				if version.CutoutURL != "" {
+					version.CutoutState = "ready"
+				}
 			}
 			item.Versions = append(item.Versions, version)
 		}

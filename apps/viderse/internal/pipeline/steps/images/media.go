@@ -53,7 +53,7 @@ func (h Handler) encode(ctx context.Context, s *pipeline.StepContext, input, out
 
 // macOS Vision's foreground-instance mask is the same local cutout backend
 // as yt-factory. It never sends the paid image to another provider.
-const cutoutScript = `ObjC.import('Foundation');ObjC.import('Vision');ObjC.import('AppKit');ObjC.import('CoreImage');
+const CutoutScript = `ObjC.import('Foundation');ObjC.import('Vision');ObjC.import('AppKit');ObjC.import('CoreImage');
 function run(argv) {
  var input=$.NSURL.fileURLWithPath(argv[0]);
  var handler=$.VNImageRequestHandler.alloc.initWithURLOptions(input,$({}));
@@ -82,7 +82,7 @@ func (h Handler) cutout(ctx context.Context, s *pipeline.StepContext, input, out
 	if s.ProcessRunner == nil {
 		return steps.CloneError(domain.CloneErrToolMissing, "Thiếu bộ tách nền", "Kiểm tra công cụ tách nền")
 	}
-	_, err := s.RunProcess(ctx, "/usr/bin/osascript", []string{"-l", "JavaScript", "-e", cutoutScript, input, output}, tools.Spec{Timeout: 2 * time.Minute})
+	_, err := s.RunProcess(ctx, "/usr/bin/osascript", []string{"-l", "JavaScript", "-e", CutoutScript, input, output}, tools.Spec{Timeout: 2 * time.Minute})
 	if err != nil {
 		return steps.CloneError(domain.CloneErrInternal, "Không tách được nhân vật", "Không tìm thấy nhân vật để tách nền — bấm Vẽ lại")
 	}

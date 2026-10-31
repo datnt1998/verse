@@ -122,7 +122,7 @@ func listClone(w http.ResponseWriter, r *http.Request, svc CloneService) {
 		}
 		channelID = &channel
 	}
-	limit := 50
+	limit := 10000
 	if values, ok := query["limit"]; ok {
 		var err error
 		limit, err = strconv.Atoi(values[0])

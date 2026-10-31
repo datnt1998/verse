@@ -78,12 +78,20 @@ type ReviewResult struct {
 	Kicked        bool            `json:"kicked"`
 	Generation    *GenerateResult `json:"generation"`
 }
+type EffectivePrompt struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Overridden bool   `json:"overridden"`
+}
 type ManifestView struct {
 	Revision        int                `json:"revision"`
 	SceneGeneration int                `json:"sceneGeneration"`
 	SceneRevision   int                `json:"sceneRevision"`
 	Waiting         *domain.CloneError `json:"waiting"`
 	ImageMode       *string            `json:"imageMode"`
+	ScenePrompt EffectivePrompt `json:"scenePrompt"`
+	CoverPrompt EffectivePrompt `json:"coverPrompt"`
+	Overrides *model.Overrides `json:"overrides"`
 }
 type VersionView struct {
 	Version           int             `json:"version"`
@@ -99,6 +107,7 @@ type VersionView struct {
 	Cutout            *scenes.FileRef `json:"cutout"`
 	OriginalURL       string          `json:"originalUrl,omitempty"`
 	CutoutURL         string          `json:"cutoutUrl,omitempty"`
+	CutoutState       string          `json:"cutoutState"`
 }
 type ItemView struct {
 	ID             string        `json:"id"`
