@@ -47,6 +47,7 @@ type ResetInput struct {
 	ExpectedRevision *int   `json:"expectedRevision"`
 	ConfirmCount     int    `json:"confirmCount"`
 	Kind             string `json:"kind,omitempty"`
+	Feedback         string `json:"feedback,omitempty"`
 }
 type MutationResult struct {
 	JobID    string  `json:"jobId"`
@@ -96,6 +97,8 @@ type VersionView struct {
 	SourceFingerprint string          `json:"sourceFingerprint"`
 	Source            string          `json:"source"`
 	Cutout            *scenes.FileRef `json:"cutout"`
+	OriginalURL       string          `json:"originalUrl,omitempty"`
+	CutoutURL         string          `json:"cutoutUrl,omitempty"`
 }
 type ItemView struct {
 	ID             string        `json:"id"`
@@ -108,6 +111,7 @@ type ItemView struct {
 	ReviewVersion  *int          `json:"reviewVersion"`
 	QueuePosition  *int          `json:"queuePosition"`
 	Reference      string        `json:"reference"`
+	ReferenceURL   string        `json:"referenceUrl,omitempty"`
 	Width          int           `json:"width"`
 	Height         int           `json:"height"`
 	Versions       []VersionView `json:"versions"`

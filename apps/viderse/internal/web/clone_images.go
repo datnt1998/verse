@@ -204,6 +204,7 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 			ExpectedRevision *int                 `json:"expectedRevision"`
 			ConfirmCount     int                  `json:"confirmCount"`
 			Kind             string               `json:"kind,omitempty"`
+			Feedback         string               `json:"feedback,omitempty"`
 			Actions          []cloneimages.Action `json:"actions,omitempty"`
 		}
 		if !webapp.DecodeJSONCode(w, r, &input, domain.CloneErrInvalidRequest) {
@@ -214,7 +215,7 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 			out, err := ops.Images.ApproveAll(r.Context(), id, cloneimages.RevisionInput{ExpectedRevision: input.ExpectedRevision})
 			cloneOperationJSON(w, out, err)
 		case "regenerateAll":
-			out, err := ops.Images.RedrawAll(r.Context(), id, cloneimages.ResetInput{ExpectedRevision: input.ExpectedRevision, ConfirmCount: input.ConfirmCount, Kind: input.Kind})
+			out, err := ops.Images.RedrawAll(r.Context(), id, cloneimages.ResetInput{ExpectedRevision: input.ExpectedRevision, ConfirmCount: input.ConfirmCount, Kind: input.Kind, Feedback: input.Feedback})
 			cloneOperationJSON(w, out, err)
 		case "review":
 			out, err := ops.Images.Review(r.Context(), id, cloneimages.ReviewInput{ExpectedRevision: input.ExpectedRevision, Actions: input.Actions})

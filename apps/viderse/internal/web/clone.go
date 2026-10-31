@@ -139,6 +139,27 @@ func listClone(w http.ResponseWriter, r *http.Request, svc CloneService) {
 		WriteCloneError(w, err)
 		return
 	}
+	list.BulkEligibility = domain.BulkEligibility(list.Jobs)
+	if id := domain.PickDefaultJob(list.Jobs); id != "" {
+		list.DefaultJobID = &id
+	}
+	if channelID == nil {
+		visible := list.Jobs[:0]
+		queued := 0
+		for _, job := range list.Jobs {
+			if job.StageGroup == domain.StagePosted {
+				continue
+			}
+			if job.StageGroup == domain.StageQueued {
+				queued++
+				if queued > 3 {
+					continue
+				}
+			}
+			visible = append(visible, job)
+		}
+		list.Jobs = visible
+	}
 	webapp.WriteJSON(w, http.StatusOK, list)
 }
 

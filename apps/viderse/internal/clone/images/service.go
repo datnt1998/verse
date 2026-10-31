@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/url"
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
@@ -88,6 +89,29 @@ func hasPending(m model.Manifest) bool {
 	}
 	return false
 }
+func artifactURL(snapshot jobedit.Snapshot, path, hash string) string {
+	if path == "" {
+		return ""
+	}
+	found := ""
+	for _, artifact := range snapshot.Artifacts {
+		if artifact.Path != path && !strings.HasSuffix(artifact.Path, "/"+path) {
+			continue
+		}
+		if hash != "" && artifact.SHA256 != hash {
+			continue
+		}
+		if found != "" && found != artifact.ID {
+			return ""
+		}
+		found = artifact.ID
+	}
+	if found == "" {
+		return ""
+	}
+	return "/api/clone/" + url.PathEscape(snapshot.Job.ID) + "/artifacts/" + url.PathEscape(found)
+}
+
 func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	l, err := s.load(ctx, id, nil, false)
 	if err != nil {
@@ -106,6 +130,7 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	queue := 0
 	for _, i := range m.Items {
 		item := ItemView{ID: i.ID, Kind: i.Kind, Status: i.Status, SkipReason: i.SkipReason, Prompt: i.Prompt, PromptVersion: i.PromptVersion, CurrentVersion: i.CurrentVersion, ReviewVersion: i.ReviewVersion, Reference: i.Reference.Path, Width: i.Width, Height: i.Height, Versions: make([]VersionView, 0, len(i.Versions))}
+		item.ReferenceURL = artifactURL(l.snapshot, i.Reference.Path, i.Reference.SHA256)
 		if i.InFlight != nil {
 			item.Status = "running"
 		}
@@ -122,7 +147,12 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			if source == "" {
 				source = "codex"
 			}
-			item.Versions = append(item.Versions, VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout})
+			version := VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
+			if v.Cutout != nil {
+				version.CutoutURL = artifactURL(l.snapshot, v.Cutout.Path, v.Cutout.SHA256)
+			}
+			item.Versions = append(item.Versions, version)
 		}
 		item.SceneID = i.SceneID
 		item.StartFrame = i.StartFrame
@@ -248,13 +278,20 @@ func (s *Service) RedrawAll(ctx context.Context, id string, input ResetInput) (G
 	if input.Kind != "" && input.Kind != "scene" && input.Kind != "thumbnail" {
 		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "kind phải là scene hoặc thumbnail")
 	}
+	if len([]rune(input.Feedback)) > 8000 {
+		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "Góp ý quá dài")
+	}
+	var feedback *string
+	if strings.TrimSpace(input.Feedback) != "" {
+		feedback = &input.Feedback
+	}
 	if l.manifest.ImageMode == "none" {
 		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "Template này không tạo ảnh — đổi ảnh bìa bằng tải lên")
 	}
 	actions := []Action{}
 	for _, i := range l.manifest.Items {
 		if input.Kind == "" || input.Kind == i.Kind {
-			actions = append(actions, Action{ID: i.ID, Op: "regenerate"})
+			actions = append(actions, Action{ID: i.ID, Op: "regenerate", Prompt: feedback})
 		}
 	}
 	if input.ConfirmCount != len(actions) {

@@ -382,9 +382,99 @@ func agoText(d time.Duration) string {
 // CloneJobView đầy đủ của một hàng Bàn dựng: job + subline + agentView + steps.
 // Mục hàng chờ chưa có job trở thành CloneJobView với StageGroup "queued" và
 // QueueItem mang mục hàng gốc.
+// PickDefaultJob chooses the highest-priority actionable job in the scope.
+func PickDefaultJob(jobs []CloneJobView) string {
+	best := -1
+	rank := func(group string) int {
+		switch group {
+		case StageAttention:
+			return 0
+		case StageReview:
+			return 1
+		case StageWorking:
+			return 2
+		case StageReady:
+			return 3
+		default:
+			return 4
+		}
+	}
+	for i := range jobs {
+		r := rank(jobs[i].StageGroup)
+		if r == 4 {
+			continue
+		}
+		if best < 0 || r < rank(jobs[best].StageGroup) ||
+			(r == rank(jobs[best].StageGroup) && ((r < 2 && jobs[i].CreatedAt.Before(jobs[best].CreatedAt)) ||
+				(r >= 2 && jobs[i].CreatedAt.After(jobs[best].CreatedAt)))) {
+			best = i
+		}
+	}
+	if best < 0 {
+		return ""
+	}
+	return jobs[best].ID
+}
+type CloneBulkEligibility struct {
+	Retry      []string `json:"retry"`
+	Approve    []string `json:"approve"`
+	Bundle     []string `json:"bundle"`
+	MarkPosted []string `json:"markPosted"`
+	Cancel     []string `json:"cancel"`
+	Delete     []string `json:"delete"`
+}
+
+// BulkEligibility mirrors the actions available to each persisted job.
+func BulkEligibility(jobs []CloneJobView) CloneBulkEligibility {
+	out := CloneBulkEligibility{[]string{}, []string{}, []string{}, []string{}, []string{}, []string{}}
+	for _, job := range jobs {
+		if job.QueueItem != nil || job.StageGroup == StageQueued || job.StageGroup == "" {
+			continue
+		}
+		switch job.StageGroup {
+		case StageAttention:
+			out.Retry = append(out.Retry, job.ID)
+		case StageReview:
+			out.Approve = append(out.Approve, job.ID)
+		case StageWorking:
+			out.Cancel = append(out.Cancel, job.ID)
+		case StageReady:
+			out.MarkPosted = append(out.MarkPosted, job.ID)
+			var project, export string
+			for _, step := range job.Steps {
+				if step.Output == nil {
+					continue
+				}
+				if step.Step == CloneBuild {
+					project, _ = step.Output.Data["projectId"].(string)
+				}
+				if step.Step == CloneExport && step.Status == CloneSucceeded {
+					if value, _ := step.Output.Data["projectId"].(string); value != "" {
+						project = value
+					}
+					export, _ = step.Output.Data["exportId"].(string)
+					if removed, _ := step.Output.Data["removedAt"].(string); removed != "" {
+						export = ""
+					}
+				}
+			}
+			if job.Status == CloneSucceeded && project != "" && export != "" {
+				out.Bundle = append(out.Bundle, job.ID)
+			}
+		}
+		if job.StageGroup != StageWorking {
+			out.Delete = append(out.Delete, job.ID)
+		}
+	}
+	return out
+}
+
+
 type CloneJobList struct {
 	Jobs        []CloneJobView `json:"jobs"`
 	QueuedTotal int            `json:"queuedTotal"`
+	DefaultJobID *string       `json:"defaultJobId"`
+	BulkEligibility CloneBulkEligibility `json:"bulkEligibility"`
 }
 
 // CloneBucketCounts đếm job theo nhóm cho badge và tổng quan.
