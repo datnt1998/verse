@@ -457,3 +457,10 @@ Mẫu:
 ### #65 · Nút xác nhận đăng xuất khi đang xử lý — Đã chốt
 - `MAuth` · `sheet=devices`: lúc xác nhận đang chạy, board chia hai nút rộng 171,234px / 176,766px; ứng dụng chia đều 174px / 174px tại 390px.
 - Main duyệt giữ `Button` dùng chung và `aria-busy`; vòng quay của kit nằm ở lớp phủ nên không ảnh hưởng chiều rộng nội dung. Hai nút vẫn cao 48px; ứng dụng khoá thao tác trong lúc xử lý để tránh gửi lặp.
+
+### #66 · Điểm Độ hoàn thiện và vùng phụ đề lệch ở V13 — Đã chốt
+- `Editor` V13 dùng điểm 84 và ngưỡng ±0,3 giây làm dữ liệu minh hoạ, không phải điểm cố định hoặc công thức thay thế cho dữ liệu thật.
+- App giữ trọng số yt-factory tại commit `2c201e6`, `src/server/clone/score.ts:699–712`: khớp tiếng và karaoke có trọng số 0; khớp tiếng không đạt vẫn là blocker riêng. Vì vậy tổng 100 vẫn có thể chưa được xuất; không sửa điểm thành 84 để giống board.
+- Vùng cần sửa chỉ chứa từ có độ lệch tuyệt đối **lớn hơn 120 ms**, theo ngưỡng median của nguồn; từ khớp chính xác hoặc trong ngưỡng không được gắn là lỗi. Quyết định chung vẫn dùng đủ điều kiện nguồn: khớp ít nhất 60%, median ≤120 ms và p95 ≤250 ms. Không dùng ngưỡng minh hoạ 300 ms để bỏ sót lỗi median.
+- Giữ nguyên bố cục/copy V13; số điểm, số vùng và offset hiển thị theo kết quả đo thật. Điểm đo cũ sau sửa phụ đề vẫn đóng cổng xuất cho tới khi đo lại hoặc người dùng chọn “Vẫn xuất” theo chính sách đã chốt.
+- Lúc xuất, bỏ lời nhắc giữ tab và khẳng định đang dựng ngay trong trình duyệt: Chrome được server quản lý tiếp tục chạy khi tab editor đóng. Chỉ giữ câu “Bạn vẫn xem được timeline nhưng không sửa được.” Không bịa ETA hoặc thời lượng trên thẻ; nhờ design chốt câu thay thế phù hợp với luồng xuất nền thật.

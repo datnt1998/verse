@@ -9,9 +9,8 @@ import (
 	"strings"
 )
 
-// Command uses the engine's serialized {type, params} wire contract. This
-// applicator supports the commands emitted by BuildTemplateFill; an unknown
-// command fails atomically rather than being ignored.
+// Command uses the engine's serialized {type, params} wire contract. Unknown
+// commands fail atomically rather than being ignored.
 type Command struct {
 	Type   string `json:"type"`
 	Params Object `json:"params"`
@@ -24,6 +23,10 @@ func ApplyCommands(project Project, commands []Command) (Project, error) {
 }
 
 func applyFillCommands(project Project, commands []Command, media []Object) (Project, error) {
+	return applyCommandBatch(project, commands, media, nil, nil)
+}
+
+func applyCommandBatch(project Project, commands []Command, media []Object, results *[]any, finalMedia *[]Object) (Project, error) {
 	if fillNum(Object(project), "schemaVersion", 0) != 15 {
 		return nil, fmt.Errorf("unsupported project schema")
 	}
@@ -45,6 +48,14 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 	transitions := fillObjects(timeline["transitions"])
 	keyframes := fillObjects(timeline["keyframes"])
 	records := fillObjects(p["mediaItems"])
+	// Fill passes supplemental source metadata, not a replacement library.
+	// Only service sessions request the hydrated final media state.
+	if media != nil && finalMedia != nil {
+		records = make([]Object, len(media))
+		for i, record := range media {
+			records[i] = fillCopy(record)
+		}
+	}
 	knownMedia := map[string]Object{}
 	for _, m := range records {
 		knownMedia[fillString(m, "id")] = m
@@ -96,9 +107,82 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 	for index, command := range commands {
 		params := command.Params
 		fail := func(message string) (Project, error) {
-			return nil, fmt.Errorf("command %d (%s): %s", index, command.Type, message)
+			return nil, invalidCommand(message, index, "")
+		}
+		if params == nil || command.Type == "" {
+			return fail("Lệnh phải có {type, params}")
+		}
+		if results != nil {
+			*results = append(*results, nil)
+		}
+		setResult := func(value any) {
+			if results != nil {
+				(*results)[index] = fillCopyValue(value)
+			}
 		}
 		switch command.Type {
+		case "project.rename":
+			name, ok := params["name"].(string)
+			if !ok || strings.TrimSpace(name) == "" || len(params) != 1 {
+				return fail("Tên project không hợp lệ")
+			}
+			p["name"] = strings.TrimSpace(name)
+		case "project.updateSettings":
+			metadata := p.Metadata()
+			if metadata == nil {
+				metadata = Object{}
+				p["metadata"] = metadata
+			}
+			for key, value := range params {
+				switch key {
+				case "width", "height", "fps":
+					n := fillNum(params, key, math.NaN())
+					if !fillFinite(n) || n <= 0 || (key == "fps" && n > 240) || (key != "fps" && n != math.Floor(n)) {
+						return fail("Cài đặt project không hợp lệ")
+					}
+				case "backgroundColor":
+					if _, ok := value.(string); !ok {
+						return fail("Màu nền không hợp lệ")
+					}
+				default:
+					return fail("Cài đặt project không được hỗ trợ")
+				}
+				metadata[key] = fillCopyValue(value)
+			}
+			fps = fillNum(metadata, "fps", fps)
+		case "track.add":
+			id := fillString(params, "id")
+			if id == "" {
+				id = mint()
+			}
+			if find(tracks, id) != nil {
+				return fail("Duplicate track")
+			}
+			if kind := fillString(params, "kind"); kind != "" && kind != "video" && kind != "audio" {
+				return fail("Loại track không hợp lệ")
+			}
+			track := Object{"id": id, "name": "Track mới", "height": 100, "locked": false, "visible": true, "muted": false, "solo": false, "order": 0, "items": []any{}}
+			for key, value := range params {
+				if key != "id" && key != "beforeTrackId" {
+					track[key] = fillCopyValue(value)
+				}
+			}
+			before := 0
+			if target := fillString(params, "beforeTrackId"); target != "" {
+				for i, entry := range tracks {
+					if fillString(entry, "id") == target {
+						before = i
+						break
+					}
+				}
+			}
+			tracks = append(tracks, nil)
+			copy(tracks[before+1:], tracks[before:])
+			tracks[before] = track
+			for order, entry := range tracks {
+				entry["order"] = order
+			}
+			setResult(track)
 		case "track.update":
 			track := find(tracks, fillString(params, "id"))
 			if track == nil {
@@ -150,6 +234,24 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 			}
 			keyframes = kept
 			tracks = fillPruneTracks(tracks, items)
+		case "media.update":
+			id := fillString(params, "mediaId")
+			record := find(records, id)
+			updates := fillObject(params["updates"])
+			if record == nil || updates == nil {
+				return fail("Không tìm thấy tệp " + id)
+			}
+			next := fillMerge(record, updates)
+			if err := fillValidateMedia(next); err != nil {
+				return fail(err.Error())
+			}
+			for key, value := range updates {
+				if key == "id" {
+					return fail("Không thể sửa mã media")
+				}
+				record[key] = fillCopyValue(value)
+			}
+			knownMedia[id] = record
 		case "media.add":
 			m := fillCopy(fillObject(params["media"]))
 			id := fillString(m, "id")
@@ -208,6 +310,7 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 			item["from"] = from
 			items = append(items, item)
 			fillNormalizeItem(item)
+			setResult(item)
 		case "item.update":
 			id := fillString(params, "id")
 			item := find(items, id)
@@ -266,6 +369,7 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 				}
 			}
 			if blocked {
+				setResult("")
 				continue
 			}
 			id := mint()
@@ -308,6 +412,7 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 							old[k] = v
 						}
 					}
+					id = fillString(old, "id")
 					replaced = true
 					break
 				}
@@ -318,6 +423,47 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 			sort.SliceStable(keys, func(i, j int) bool { return fillNum(keys[i], "frame", 0) < fillNum(keys[j], "frame", 0) })
 			lane["keyframes"] = keys
 			group["properties"] = properties
+			setResult(id)
+		case "caption.setWords", "caption.setPreset", "caption.updateWord":
+			item := find(items, fillString(params, "itemId"))
+			if item == nil || (fillString(item, "type") != "text" && fillString(item, "type") != "subtitle") {
+				return fail("Chọn một mục chữ hoặc phụ đề")
+			}
+			switch command.Type {
+			case "caption.setPreset":
+				preset := fillString(params, "preset")
+				switch preset {
+				case "none", "word-highlight", "word-by-word", "karaoke", "typewriter", "bounce", "pop", "fade":
+					item["captionPreset"] = preset
+				default:
+					return fail("Kiểu phụ đề không hợp lệ")
+				}
+			case "caption.setWords", "caption.updateWord":
+				words := fillObjects(params["words"])
+				if command.Type == "caption.updateWord" {
+					words = fillObjects(fillCopyValue(item["words"]))
+					index := fillNum(params, "index", -1)
+					word, validWord := params["word"].(map[string]any)
+					if index < 0 || index != math.Floor(index) || int(index) >= len(words) || !validWord || word == nil {
+						return fail("Không tìm thấy từ")
+					}
+					words[int(index)] = fillMerge(words[int(index)], fillObject(params["word"]))
+				} else if !commandObjectArray(params["words"]) {
+					return fail("Danh sách từ không hợp lệ")
+				}
+				if !fillValidCaptionWords(words, fillNum(item, "durationInFrames", 0)) {
+					return fail("Mốc từ phải tăng dần và nằm trong thời lượng mục")
+				}
+				for _, word := range words {
+					if fillString(word, "text") == "" || fillNum(word, "startFrame", -1) != math.Floor(fillNum(word, "startFrame", -1)) || fillNum(word, "endFrame", -1) != math.Floor(fillNum(word, "endFrame", -1)) {
+						return fail("Mốc từ không hợp lệ")
+					}
+				}
+				item["words"] = fillCopyValue(words)
+				if command.Type == "caption.setWords" {
+					item["wordsEstimated"] = fillBool(params, "estimated")
+				}
+			}
 		case "caption.importTimed":
 			item := find(items, fillString(params, "itemId"))
 			if item == nil || (fillString(item, "type") != "subtitle" && fillString(item, "type") != "text") {
@@ -432,6 +578,9 @@ func applyFillCommands(project Project, commands []Command, media []Object) (Pro
 		if timeline[key] == nil {
 			timeline[key] = 0
 		}
+	}
+	if finalMedia != nil {
+		*finalMedia = records
 	}
 	refs := []Object{}
 	for _, record := range records {

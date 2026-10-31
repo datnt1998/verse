@@ -12,7 +12,9 @@ export type Route =
   | { name: 'new' }                                                    // '#/new'
   | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; nguon?: BackdropSource; kenh?: string } // '#/library'
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
-  | { name: 'editor'; projectId: string }                              // '#/editor/<projectId>'
+  | { name: 'editor'; projectId: string; fix?: string; cue?: string }    // '#/editor/<projectId>'
+  | { name: 'render'; requestId: string; token?: string }
+  | { name: 'measure'; requestId: string; token?: string }
   | { name: 'settings'; section?: SettingsSection }                    // '#/settings'
   | { name: 'setup' }                                                  // '#/setup'
   | { name: 'account' }                                                // '#/account'
@@ -92,7 +94,9 @@ export function parseHash(hash: string): Parsed {
   } else if (seg[0] === 'templates' && seg.length === 2 && seg[1]) {
     route = { name: 'template', templateId: seg[1], section: oneOf(search.get('section'), TEMPLATE_SECTIONS) }
   } else if (seg[0] === 'editor' && seg.length === 2 && seg[1]) {
-    route = { name: 'editor', projectId: seg[1] }
+    route = { name: 'editor', projectId: seg[1], ...(search.get('fix') && { fix: text(search.get('fix')) }), ...(search.get('cue') && { cue: text(search.get('cue')) }) }
+  } else if ((seg[0] === 'render' || seg[0] === 'measure') && seg.length === 2 && seg[1]) {
+    route = { name: seg[0], requestId: seg[1], token: text(search.get('token')) }
   } else if (seg[0] === 'settings' && seg.length === 1) {
     route = { name: 'settings', section: oneOf(search.get('section'), SETTINGS_SECTIONS) ?? LEGACY_SECTIONS[search.get('section') ?? ''] }
   } else if (seg[0] === 'setup' && seg.length === 1) {
@@ -125,7 +129,9 @@ export function routePath(route: Route): string {
     case 'new': return '/new'
     case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['nguon', route.nguon], ['kenh', route.kenh]])}`
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
-    case 'editor': return `/editor/${encodeURIComponent(route.projectId)}`
+    case 'editor': return `/editor/${encodeURIComponent(route.projectId)}${q([['fix', route.fix], ['cue', route.cue]])}`
+    case 'render': return `/render/${encodeURIComponent(route.requestId)}${q([['token', route.token]])}`
+    case 'measure': return `/measure/${encodeURIComponent(route.requestId)}${q([['token', route.token]])}`
     case 'settings': return `/settings${q([['section', route.section]])}`
     case 'setup': return '/setup'
     case 'account': return '/account'

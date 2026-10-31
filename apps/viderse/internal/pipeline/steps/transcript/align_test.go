@@ -211,3 +211,19 @@ func TestMeasureMedianAndP95(t *testing.T) {
 		t.Fatalf("p95: %+v", metric.P95Ms)
 	}
 }
+
+func TestAlignNonBMPUTF16SimilarityThreshold(t *testing.T) {
+	// Pinned caption-align.ts:27-35 counts JS UTF-16 code units. The shared
+	// Deseret letter contributes two units, making one edit / five = 0.8.
+	aligned := AlignCaptionWords(
+		alignCue("𐐀abc", 1000, 4000),
+		anchors("𐐀abd", 1200),
+		0,
+	)
+	if len(aligned.Words) != 1 || aligned.Words[0].TimingSource != "aligned" || aligned.Words[0].StartMs != 1200 {
+		t.Fatalf("UTF-16 similarity at 0.8 must use the measured anchor: %+v", aligned.Words)
+	}
+	if got := similarity("𐐨abc", "𐐨ade"); got != 0 {
+		t.Fatalf("two edits out of five code units must remain unmatched: %v", got)
+	}
+}

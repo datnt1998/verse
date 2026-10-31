@@ -20,6 +20,16 @@ import (
 //go:embed assets/overlays/*.mp4 assets/overlays/manifest.json assets/standard-template/*
 var builtinAssets embed.FS
 
+// BuiltinOverlayAssets exposes the read-only embedded pack to editor workspace
+// imports without duplicating its bytes or coupling the two business packages.
+func BuiltinOverlayAssets() fs.FS {
+	assets, err := fs.Sub(builtinAssets, "assets")
+	if err != nil {
+		panic(err)
+	}
+	return assets
+}
+
 // builtinEffect là một hiệu ứng có sẵn.
 type builtinEffect struct {
 	ID   string // rain, fog, snow…

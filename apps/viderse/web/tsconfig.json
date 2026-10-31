@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
@@ -9,12 +9,30 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "@webgpu/types", "@types/wicg-file-system-access"],
+    "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
       "@noverse/ui": ["../../../platform/ui/src/index.ts"],
       "@noverse/ui/tokens.stylex": ["../../../platform/ui/src/tokens.stylex.ts"],
-      "@noverse/ui/*": ["../../../platform/ui/src/*"]
+      "@noverse/ui/*": ["../../../platform/ui/src/*"],
+      "@editor/*": ["./src/editor/engine/*"],
+      "@/editor/*": ["./src/editor/*"],
+      "@/components/ui/*": ["./src/editor/vendor/components/ui/*"],
+      "@/components/icon-tip": ["./src/editor/vendor/components/icon-tip.tsx"],
+      "@/components/video-thumb": ["./src/editor/vendor/components/video-thumb.tsx"],
+      "@/components/link-pending": ["./src/editor/vendor/components/link-pending.tsx"],
+      "@/components/clone/source-comparison": ["./src/editor/vendor/components/clone/source-comparison.tsx"],
+      "@/components/clone/clone-entry": ["./src/editor/bridge/ui/clone-status.ts"],
+      "@/app/editor/actions": ["./src/editor/bridge/ui/project-actions.ts"],
+      "@/lib/clone-view": ["./src/editor/vendor/lib/clone-view.ts"],
+      "@/lib/clone-quality": ["./src/editor/vendor/lib/clone-quality.ts"],
+      "@/lib/app-routes": ["./src/editor/vendor/lib/app-routes.ts"],
+      "@/lib/navigation-return": ["./src/editor/vendor/lib/navigation-return.ts"],
+      "@/lib/format": ["./src/editor/vendor/lib/format.ts"],
+      "@/lib/video-sort": ["./src/editor/vendor/lib/video-sort.ts"]
     }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "vitest.config.ts", "vitest.editor.config.ts"],
+  "exclude": ["src/editor/engine", "src/editor/**/*.test.ts", "src/editor/**/*.test.tsx"],
+  "references": [{ "path": "./src/editor/tsconfig.json" }]
 }

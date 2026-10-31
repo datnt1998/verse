@@ -329,20 +329,32 @@ Lúc video bắt đầu (L9), app phân giải prompt và ghi vào manifest đú
 
 Hai lớp: **template → video** (ia-flows L14). Không có ngoại lệ cho từng ảnh.
 
+Ngoại lệ được lưu cùng manifest ảnh của video (`images/manifest.json` và checkpoint được CAS trong PostgreSQL), không sửa snapshot template. `scenePromptSet` / `coverPromptSet` phân biệt lựa chọn của video với giá trị kế thừa; API nhận `null` để xoá lựa chọn đó và quay về template.
+
 ```ts
-// clone_jobs (thêm cột; null = theo template)
-scene_prompt_id: string | null;
-cover_prompt_id: string | null;
-// no_images: đã có, cùng được đặt từ chip Ảnh
+type VideoImageOverrides = {
+  scenePromptSet: boolean;
+  scenePromptId?: string;
+  coverPromptSet: boolean;
+  coverPromptId?: string;
+  noImages?: boolean;
+};
 ```
 
-- `resolveJobRecipe` đè `scene_prompt_id` / `cover_prompt_id` / `no_images` lên recipe template.
+- Recipe hiệu lực lấy template trước, rồi đè lựa chọn của video; worker khôi phục manifest đã công bố trước khi reconcile để không làm mất ngoại lệ sau một lượt dựng thành công.
 - `style` (cách ghép) **không** đè được theo video; đổi thì Làm lại từ đầu với template khác.
 
 API:
 - `POST /api/clone/:id/prompts/plan` `{ scenePromptId?: string | null, coverPromptId?: string | null, noImages?: boolean }` → `{ redraw: { scenes: number, cover: boolean }, cost: { images: number }, quotaLeft: number, rebuild: boolean }`.
-- `PATCH /api/clone/:id/prompts` cùng body → áp dụng, chạy reconcile; trả về như `plan`.
-- Vẽ lại một ảnh giữ API hiện có (`direction` = góp ý); không nhận `promptId`.
+- `PATCH /api/clone/:id/prompts` nhận body của `plan` cùng `expectedRevision: number`; khi `cost.images > 0`, bắt buộc `confirmCount` bằng đúng tổng ảnh trong kế hoạch. Áp dụng và trả về như `plan`; revision hoặc số xác nhận cũ → `409`.
+- Vẽ lại một ảnh: `POST /api/clone/:id/images/:imageId` `{ op: "regenerate" | "editPrompt", prompt?: string, expectedRevision: number }`. `prompt` là góp ý (`direction`), không nhận `promptId`; ảnh đã duyệt được giữ đến khi duyệt ứng viên mới.
+- Duyệt một ảnh dùng cùng route `{ op: "approve", version: number, expectedRevision: number }`; duyệt hàng loạt qua `POST /api/clone/:id/images` `{ op: "approveAll", expectedRevision: number }`. Vẽ lại hàng loạt `{ op: "regenerateAll", expectedRevision: number, confirmCount: number, kind?: "scene" | "thumbnail" }` kiểm tra số ảnh ở server trước khi xếp hàng.
+- `POST /api/clone/:id/cover?expectedRevision=N` nhận bytes PNG/JPEG/WebP tối đa 20 MB; ảnh thật được decode, chuẩn hoá WebP 1280×720 và duyệt ngay. `GET /api/clone/:id/images/:imageId?variant=cutout` trả PNG tách nền đã công bố; `GET /api/clone/:id/thumbnail` tải JPG.
+- `GET /api/clone/:id/backdrop` trả `{ backdrop }`; `POST` nhận `{ op: "reroll" | "swap" | "add" | "remove", revision?: string, itemId?: string, channelId?: string, videoId?: string, startSec?: number, endSec?: number }`. Revision chuỗi cũ → `409`; `reroll` có `itemId` chỉ đổi một slot. Chỉ xoá clip thì dựng lại; clip mới/đổi chạy bước lấy nền trước.
+- Nền của timeline giữ `cloneBackdropId`; bản đọc nền có `editorMediaId`, `rebuilding` và `projectRevision` để UI chờ đúng revision dựng xong, không nhầm revision autosave. Ảnh cảnh dùng timeline id `${projectId}-scene-${sceneId}`.
+- `POST /api/clone/bulk` nhận `{ action, jobIds, expectedRevisions? }`, tối đa 100 video, trả lỗi riêng từng video; duyệt ảnh hàng loạt cần revision ảnh theo từng video. `GET /api/clone/download?ids=id1,id2` nhận tối đa 50 video đã xuất xong, stream ZIP từ bản xuất đã công bố (MP4, JPG bìa, ảnh cảnh WebP và thông tin đăng); không nhận đường dẫn tệp từ client.
+- Mọi thay đổi được công bố cùng CAS checkpoint và invalidation pipeline; SSE `clone.job.updated` cập nhật UI. Vẽ lại đi qua hàng đợi ảnh hiện hữu, D7 và receipt, không gọi một nhánh tạo ảnh riêng.
+- Bulk `approve` là hành động **Duyệt cả video & dựng**: ghi ý định chủ duyệt bền vững theo revision ảnh trong cùng giao dịch, worker dựng lại rồi dùng đúng cổng `PrepareCloneExport` khi build tới `awaiting_review` và đã nhả lease. Ý định sống qua khởi động lại; sửa ảnh/nền sau đó huỷ ý định cũ. Không truyền `accept`, nên điểm dưới 90 vẫn bị chặn trước xuất.
 
 Reconcile: prompt cảnh đổi → vẽ lại item cảnh đã vẽ, item chưa vẽ dùng prompt mới; prompt bìa đổi → chỉ item bìa; `noImages` → bỏ item cảnh, dựng từ nền. Video đã dựng: ảnh cảnh đổi → dựng + xuất lại; chỉ bìa đổi → chỉ cập nhật gói đăng.
 

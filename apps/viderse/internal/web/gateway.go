@@ -31,6 +31,9 @@ type Gateway struct {
 	hub               *events.Hub
 	status            *status.Service
 	serverStorageMode func() bool
+	scopedRender      http.Handler
+	renderCloneRoute  func(http.ResponseWriter, *http.Request) bool
+	cloneReviewRoute  func(http.ResponseWriter, *http.Request) bool
 }
 
 // NewGateway dựng handler: accounts là kho identity chung (Postgres); khi
@@ -65,10 +68,29 @@ func (g *Gateway) SetServerStorageMode(mode func() bool) {
 	g.serverStorageMode = mode
 }
 
-// allowFileUpload miễn kiểm application/json cho đúng hai route nhận tệp:
-// tải lớp phủ và nhập tệp prompt. Kiểm multipart + trần kích thước nằm trong
-// handler tương ứng (internal/web/library.go).
+// allowFileUpload exempts only authenticated binary-upload endpoints from the
+// JSON content-type guard. Origin/auth checks still run at the shared gateway.
 func allowFileUpload(r *http.Request) bool {
+	if r.Method == http.MethodPost && r.URL.Path == "/api/editor/media" {
+		return true
+	}
+	if r.Method == http.MethodPost && strings.HasPrefix(r.URL.Path, "/api/clone/") {
+		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/clone/"), "/")
+		if len(parts) == 2 && cloneSegment(parts[0]) && parts[1] == "cover" {
+			return true
+		}
+	}
+	if r.Method == http.MethodPut {
+		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/editor/"), "/")
+		if strings.HasPrefix(r.URL.Path, "/api/editor/") {
+			if len(parts) == 2 && parts[0] == "media" && parts[1] != "" {
+				return true
+			}
+			if len(parts) == 4 && parts[0] == "projects" && parts[1] != "" && parts[2] == "exports" && parts[3] != "" {
+				return true
+			}
+		}
+	}
 	if r.Method != http.MethodPost {
 		return false
 	}

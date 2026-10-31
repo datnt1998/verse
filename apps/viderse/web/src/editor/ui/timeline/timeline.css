@@ -1,0 +1,35 @@
+.ytf-timeline-panel { height:100%; min-height:0; display:flex; flex-direction:column; overflow:hidden; position:relative; background:var(--card); font-size:11px; }
+.ytf-timeline-toolbar { min-height:40px; display:flex; align-items:center; gap:4px; padding:4px 8px; border-bottom:1px solid var(--border); flex-shrink:0; overflow-x:auto; }
+.ytf-timeline-scroll { flex:1; min-height:0; overflow:auto; position:relative; overscroll-behavior:contain; }
+.ytf-timeline-surface { position:relative; min-height:100%; }
+.ytf-timeline-ruler { height:var(--timeline-ruler-height,32px); position:sticky; top:0; z-index:20; background:var(--card); border-bottom:1px solid var(--border); }
+.ytf-timeline-ruler-corner { position:sticky; left:0; z-index:23; width:180px; height:var(--timeline-ruler-height,32px); background:var(--card); border-right:1px solid var(--border); display:flex; align-items:center; padding:0 10px; color:var(--muted-foreground); }
+.ytf-timeline-tick { position:absolute; bottom:0; height:18px; border-left:1px solid var(--ed-ruler-tick); color:var(--muted-foreground); padding-left:5px; font-family:var(--font-mono-face); font-size:10px; white-space:nowrap; }
+.ytf-timeline-track { position:absolute; left:0; width:100%; border-bottom:1px solid var(--border); }
+.ytf-timeline-header { position:sticky; left:0; z-index:12; width:180px; height:100%; background:var(--card); border-right:1px solid var(--border); display:flex; flex-direction:column; justify-content:center; gap:2px; padding:4px 6px; }
+.ytf-timeline-track-name { display:flex; min-width:0; align-items:center; gap:4px; height:28px; }
+.ytf-timeline-track-name > button { min-width:0; flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-radius:4px; height:28px; }
+.ytf-timeline-track-buttons { display:flex; align-items:center; gap:2px; }
+.ytf-timeline-lane { position:absolute; left:180px; right:0; top:0; bottom:0; background:var(--background); }
+.ytf-timeline-clip { position:absolute; top:6px; height:calc(100% - 12px); border:1px solid color-mix(in srgb,var(--track) 85%,transparent); border-radius:5px; background:color-mix(in srgb,var(--track) 22%,var(--card)); color:var(--track); }
+.ytf-timeline-clip:hover { background:color-mix(in srgb,var(--track) 28%,var(--card)); }
+.ytf-timeline-clip[data-selected=true] { outline:2px solid var(--primary); outline-offset:-1px; }
+.ytf-timeline-clip-button { position:absolute; inset:0; width:100%; height:100%; text-align:left; overflow:hidden; border-radius:4px; cursor:grab; touch-action:none; }
+.ytf-timeline-clip-button:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+.ytf-timeline-label { position:absolute; top:5px; display:flex; align-items:center; gap:4px; max-width:calc(100% - 8px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:10px; pointer-events:none; background:color-mix(in srgb,var(--track) 22%,var(--card)); border-radius:2px; }
+.ytf-timeline-handle { position:absolute; bottom:0; width:28px; height:28px; min-width:24px; z-index:4; cursor:ew-resize; touch-action:none; border-radius:3px; }
+.ytf-timeline-handle::after { content:''; position:absolute; width:3px; height:14px; background:var(--track); top:7px; }
+.ytf-timeline-start { left:0; } .ytf-timeline-start::after { left:2px; } .ytf-timeline-end { right:0; } .ytf-timeline-end::after { right:2px; }
+.ytf-timeline-fade { position:absolute; top:0; width:28px; height:28px; z-index:5; cursor:ew-resize; touch-action:none; }
+.ytf-timeline-fade::after { content:''; width:6px; height:6px; position:absolute; top:3px; left:11px; transform:rotate(45deg); background:var(--ed-keyframe); }
+.ytf-timeline-keyframe { position:absolute; bottom:4px; height:5px; width:5px; background:var(--ed-keyframe); transform:rotate(45deg); pointer-events:none; }
+.ytf-timeline-playhead { position:absolute; top:var(--timeline-ruler-height,32px); bottom:0; z-index:10; width:1px; background:var(--ed-playhead); box-shadow:0 0 0 1px var(--background); pointer-events:none; }
+.ytf-timeline-playhead::before { content:''; position:absolute; top:-8px; left:-4px; border-top:8px solid var(--ed-playhead); border-left:4px solid transparent; border-right:4px solid transparent; }
+.ytf-timeline-guide { position:absolute; top:var(--timeline-ruler-height,32px); bottom:0; z-index:11; width:1px; background:var(--ed-snap-guide); pointer-events:none; }
+.ytf-timeline-range { position:absolute; top:0; height:5px; background:var(--ed-io-marker); pointer-events:none; }
+.ytf-timeline-range-handle { position:absolute; top:0; height:28px; width:28px; z-index:22; color:var(--ed-io-marker); touch-action:none; cursor:ew-resize; }
+.ytf-timeline-marker { position:absolute; top:2px; width:28px; height:28px; z-index:21; color:var(--ed-io-marker); }
+.ytf-timeline-marquee { position:absolute; z-index:15; border:1px solid var(--ring); background:color-mix(in srgb,var(--ring) 12%,transparent); pointer-events:none; }
+.ytf-timeline-footer { height:24px; flex-shrink:0; padding:3px 10px; display:flex; justify-content:space-between; color:var(--muted-foreground); border-top:1px solid var(--border); font-size:10px; }
+.ytf-timeline-transition { position:absolute; top:28px; width:28px; height:28px; z-index:6; border:1px solid var(--ed-track-effect); background:var(--card); border-radius:4px; color:var(--ed-track-effect); }
+@media(pointer:coarse) { .ytf-timeline-toolbar { min-height:52px; } }

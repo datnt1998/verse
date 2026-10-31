@@ -300,6 +300,7 @@ type Coverage struct {
 }
 type EvidenceItem struct {
 	Item
+	EditorMediaID    string             `json:"editorMediaId,omitempty"`
 	Platform         *domain.PlatformID `json:"platform"`
 	ChannelHandle    *string            `json:"channelHandle"`
 	ChannelTitle     *string            `json:"channelTitle"`
@@ -307,15 +308,17 @@ type EvidenceItem struct {
 	VideoDurationSec *float64           `json:"videoDurationSec"`
 }
 type EvidenceView struct {
-	Revision    string         `json:"revision"`
-	WantedCount int            `json:"wantedCount"`
-	ReadyCount  int            `json:"readyCount"`
-	Fallback    string         `json:"fallback"`
-	Warnings    []string       `json:"warnings"`
-	RandomPicks bool           `json:"randomPicks"`
-	Busy        bool           `json:"busy"`
-	Coverage    Coverage       `json:"coverage"`
-	Items       []EvidenceItem `json:"items"`
+	Revision        string         `json:"revision"`
+	WantedCount     int            `json:"wantedCount"`
+	ReadyCount      int            `json:"readyCount"`
+	Fallback        string         `json:"fallback"`
+	Warnings        []string       `json:"warnings"`
+	RandomPicks     bool           `json:"randomPicks"`
+	Busy            bool           `json:"busy"`
+	Coverage        Coverage       `json:"coverage"`
+	Items           []EvidenceItem `json:"items"`
+	Rebuilding      bool           `json:"rebuilding"`
+	ProjectRevision *string        `json:"projectRevision"`
 }
 type EvidenceInput struct {
 	Manifest         *Manifest

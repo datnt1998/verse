@@ -20,9 +20,11 @@ import (
 	stepbackdrop "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/build"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/download"
+	stepexport "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/export"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
+	stepscore "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/score"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/transcript"
 	"github.com/datnt1998/verse/apps/viderse/internal/scan"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
@@ -106,12 +108,13 @@ func (g cloneText) Generate(ctx context.Context, m []llm.Message, t []llm.ToolSp
 	return nil, last
 }
 
-func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service) (func() error, error) {
+func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string) (func() error, error) {
 	store := postgres.NewCloneStore(pool)
 	queueStore := postgres.NewQueueStore(pool)
 	rules := cloneSettings{settings}
 	publish := func(name string, data any) { hub.Publish(events.Event{Type: name, Data: data}); statusSvc.Bump() }
 	service := &pipeline.Service{Store: store, Media: files, Publish: publish, Queue: cloneQueueBoard{queueStore}}
+	edits := cloneOwnerEdits(store, files, publish, service.Wake)
 	service.ResolveTemplate = func(ctx context.Context, item domain.CloneQueueItem) (string, json.RawMessage, json.RawMessage, error) {
 		owner, err := queueStore.Owner(ctx, item.ChannelID)
 		if err != nil {
@@ -168,8 +171,29 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		}
 		return r, nil
 	}
+	editorService := newEditorService(pool, files, cfgDir, toolKit, toolDeps)
+	editorService.Store.Templates = librarySvc
+	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps)
+	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {
+		owner, err := queueStore.Owner(ctx, id)
+		if err != nil || owner == nil {
+			return "", err
+		}
+		return owner.Name, nil
+	}
 	tr := tools.NewTranscription(toolDeps, toolKit.Uv, nil)
 	registry := pipeline.Registry{
+		domain.CloneScore: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
+			result, err := (stepscore.Handler{Deps: stepscore.Deps{Measure: renderRuntime.ScoreForPipeline, Accepted: func(ctx context.Context, id string) (bool, error) {
+				state, err := renderRuntime.State(id)
+				return state.AcceptedAt != nil, err
+			}}}).Run(ctx, s)
+			if err != nil {
+				_ = renderRuntime.FailQueuedExports(s.Job.ID, err)
+			}
+			return result, err
+		}),
+		domain.CloneExport:     stepexport.Handler{Deps: stepexport.Deps{Gate: renderRuntime.Gate, Export: renderRuntime.RunExport}},
 		domain.CloneDownload:   download.New(&download.Deps{Tools: toolDeps, ResolveFfmpeg: toolKit.Ffmpeg.Resolve}),
 		domain.CloneBackdrop:   stepbackdrop.New(stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)),
 		domain.CloneTranscript: transcript.New(&transcript.Deps{ResolveFfmpeg: toolKit.Ffmpeg.Resolve, ResolveUv: toolKit.Uv.Resolve, TranscriptionStatus: tr.Status, RunEnv: tr.RunEnv()}),
@@ -218,7 +242,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			limit := ai.Executors.limit
 			fallback := refs.Artist.FallbackOn
 			drawer := imagegen.NewService(imagegen.Options{Providers: providers, Fallback: &fallback, Journal: ai.Executors.journal, DailyPaidImageLimit: &limit})
-			return (images.Handler{Deps: images.Deps{Drawer: drawer, Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
+			return (images.Handler{Deps: images.Deps{Drawer: drawer, Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
 				owner, err := queueStore.Owner(ctx, job.ChannelID)
 				if err != nil || owner == nil {
 					return "", err
@@ -289,11 +313,17 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		registry[step] = handler
 	}
 	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
-	worker := &pipeline.Worker{Store: store, Runner: runner, Settings: rules, ID: fmt.Sprintf("%d", os.Getpid()), OnPrimary: q.Start, OnStopped: q.Stop}
+	worker := &pipeline.Worker{Store: store, Runner: runner, Settings: rules, ID: fmt.Sprintf("%d", os.Getpid()), OnPrimary: func(ctx context.Context) error {
+		if err := renderRuntime.Recover(ctx); err != nil {
+			return err
+		}
+		return q.Start(ctx)
+	}, OnStopped: q.Stop}
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
 	web.MountClone(g, service, q, service.Media)
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName)
 	workerCtx, stop := context.WithCancel(ctx)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()

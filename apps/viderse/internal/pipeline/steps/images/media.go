@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+// EncodeCover reuses the pipeline WebP encoder without drawing or inventing a receipt.
+func (h Handler) EncodeCover(ctx context.Context, s *pipeline.StepContext, input, output string) (Encoded, error) {
+	return h.encode(ctx, s, input, output, 1280, 720)
+}
 func (h Handler) encode(ctx context.Context, s *pipeline.StepContext, input, output string, width, height int) (Encoded, error) {
 	if s.ProcessRunner == nil || h.Deps.Ffmpeg == "" || h.Deps.FFprobe == "" {
 		return Encoded{}, steps.CloneError(domain.CloneErrToolMissing, "Thiếu FFmpeg/libwebp", "Kiểm tra FFmpeg trong Cài đặt")

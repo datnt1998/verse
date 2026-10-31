@@ -27,6 +27,8 @@ const NewScreen = lazy(() => import('./screens/new/NewScreen').then((m) => ({ de
 const LibraryScreen = lazy(() => import('./screens/library/LibraryScreen').then((m) => ({ default: m.LibraryScreen })))
 const TemplateScreen = lazy(() => import('./screens/library/TemplateScreen').then((m) => ({ default: m.TemplateScreen })))
 const EditorScreen = lazy(() => import('./screens/editor/EditorScreen').then((m) => ({ default: m.EditorScreen })))
+const RenderPage = lazy(() => import('./editor/pages/RenderPage').then((m) => ({ default: m.RenderPage })))
+const MeasurePage = lazy(() => import('./editor/pages/MeasurePage').then((m) => ({ default: m.MeasurePage })))
 const SettingsScreen = lazy(() => import('./screens/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })))
 const MachineSetupScreen = lazy(() => import('./screens/setup/SetupScreen'))
 const AccountScreen = lazy(() => import('./screens/account/AccountScreen').then((m) => ({ default: m.AccountScreen })))
@@ -47,6 +49,8 @@ function Screen({ route }: { route: Route }) {
       case 'library': return <LibraryScreen route={route} />
       case 'template': return <TemplateScreen route={route} />
       case 'editor': return <EditorScreen route={route} />
+      case 'render': return <RenderPage requestId={route.requestId} token={route.token} />
+      case 'measure': return <MeasurePage requestId={route.requestId} token={route.token} />
       case 'settings': return <SettingsScreen route={route} />
       case 'setup': return <MachineSetupScreen />
       case 'account': return <AccountScreen />
@@ -99,6 +103,7 @@ function Root() {
   if (accessDenied) return <AccessDeniedScreen />
   if (mustChangePassword) return <ChangePasswordScreen />
   if (!user) return <LoginScreen />
+  if (parsed.route.name === 'editor') return <Screen route={parsed.route} />
   return (
     <AppShell route={parsed.route} user={user}>
       <Screen route={parsed.route} />
@@ -107,6 +112,9 @@ function Root() {
 }
 
 export default function App() {
+  const { route } = useRoute()
+  // Request-scoped credentials are independent of the human account session.
+  if (route.name === 'render' || route.name === 'measure') return <Screen route={route} />
   return (
     <SessionProvider>
       <Root />

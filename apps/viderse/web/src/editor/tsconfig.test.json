@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "types": ["vite/client", "node", "@webgpu/types", "@types/wicg-file-system-access", "vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["engine/**/*.ts", "engine/**/*.tsx", "engine/**/*.json"],
+  "exclude": []
+}
