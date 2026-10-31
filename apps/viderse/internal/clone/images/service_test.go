@@ -65,3 +65,8 @@ func TestApprovalRejectsChangedOrRunningSceneSource(t *testing.T){
   t.Run(tc.name,func(t *testing.T){s,store:=testService();store.sceneRevision=tc.revision;store.sceneStatus=tc.status;rev:=3;_,err:=s.ApproveAll(context.Background(),"job",RevisionInput{ExpectedRevision:&rev});requireCode(t,err,tc.code);if store.commits!=0{t.Fatal("approved stale source")}})
  }
 }
+func TestFinalCoverApprovalReleasesInitialBuildGate(t *testing.T){
+ s,store:=testService();s.Edits.Media=&stepstest.FakeMedia{Root:t.TempDir()};n:=1;store.m.Items[0].Status="approved";store.m.Items[0].CurrentVersion=&n;store.m.Items[0].ReviewVersion=nil;rev:=3
+ _,err:=s.Review(context.Background(),"job",ReviewInput{ExpectedRevision:&rev,Actions:[]Action{{ID:"thumbnail",Op:"approve"}}});if err!=nil{t.Fatal(err)}
+ if store.change.InvalidateFrom!=domain.CloneBuild{t.Fatal("final cover approval did not release initial build review gate")}
+}

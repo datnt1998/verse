@@ -36,6 +36,7 @@ func ValidateCover(file string)(string,error){
 func(s *Service) UploadCover(ctx context.Context,id,file string,input RevisionInput)(CoverResult,error){
  l,err:=s.load(ctx,id,input.ExpectedRevision,true);if err!=nil{return CoverResult{},err}
  if err=s.mutable(l);err!=nil{return CoverResult{},err}
+ wasApproved:=model.ImagesApproved(l.manifest)
  if _,err=ValidateCover(file);err!=nil{return CoverResult{},err}
  index:=-1;for n,i:=range l.manifest.Items{if i.Kind=="thumbnail"{index=n;break}}
  if index<0{return CoverResult{},cloneError(domain.CloneErrInternal,"Manifest ảnh thiếu mục ảnh bìa")}
@@ -53,8 +54,9 @@ func(s *Service) UploadCover(ctx context.Context,id,file string,input RevisionIn
  item.Versions=append(item.Versions,model.Version{Version:number,GenerationID:"upload-"+encoded.SHA256,CreatedAt:time.Now().UTC().Format(time.RFC3339Nano),PromptVersion:item.PromptVersion,RefHash:item.Reference.SHA256,SourceFingerprint:model.SourceFingerprint(*item),Path:path,SHA256:encoded.SHA256,Width:1280,Height:720,Bytes:encoded.Bytes,Mime:"image/webp",Source:"upload"})
  item.CurrentVersion=&number;item.ReviewVersion=nil;item.Status="approved";item.SkipReason="";l.manifest.Revision++
  if !hasPending(l.manifest){l.manifest.Waiting=nil}
- // A cover never changes rendered frames; only the publishing package changes.
- err=s.Edits.Commit(ctx,l.snapshot,l.manifest,"",false,[]media.Artifact{{Path:path,File:output,ContentType:"image/webp"}})
+ // Existing rendered frames stay intact; the first completed review releases build.
+ from:=domain.CloneStep("");if firstReviewCompleted(l.snapshot,wasApproved,l.manifest){from=domain.CloneBuild}
+ err=s.Edits.Commit(ctx,l.snapshot,l.manifest,from,false,[]media.Artifact{{Path:path,File:output,ContentType:"image/webp"}})
  if err!=nil{return CoverResult{},err}
  return CoverResult{JobID:id,Revision:l.manifest.Revision,Version:number},nil
 }

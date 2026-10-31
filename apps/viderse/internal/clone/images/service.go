@@ -58,6 +58,7 @@ func(s *Service) Read(ctx context.Context,id string)(View,error){
 func(s *Service) Review(ctx context.Context,id string,input ReviewInput)(ReviewResult,error){
  l,err:=s.load(ctx,id,input.ExpectedRevision,true);if err!=nil{return ReviewResult{},err};if err=s.mutable(l);err!=nil{return ReviewResult{},err};if err=s.currentScenes(ctx,l);err!=nil{return ReviewResult{},err}
  if len(input.Actions)==0{return ReviewResult{},cloneError(domain.CloneErrInvalidRequest,"Cần ít nhất một hành động duyệt ảnh")}
+ wasApproved:=model.ImagesApproved(l.manifest)
  changed,sceneChanged:=false,false;pending:=[]string{};seen:=map[string]bool{}
  for _,a:=range input.Actions{
   if a.Prompt!=nil&&strings.TrimSpace(*a.Prompt)==""{return ReviewResult{},cloneError(domain.CloneErrInvalidRequest,"Prompt không được để trống")}
@@ -68,12 +69,18 @@ func(s *Service) Review(ctx context.Context,id string,input ReviewInput)(ReviewR
  }
  var from domain.CloneStep;rerun:=len(pending)>0
  if rerun{from=domain.CloneImages;l.manifest.QueueOnly=pending}else if sceneChanged{from=domain.CloneBuild}
+ if !rerun&&from==""&&firstReviewCompleted(l.snapshot,wasApproved,l.manifest){from=domain.CloneBuild}
  err=s.Edits.Commit(ctx,l.snapshot,l.manifest,from,rerun,nil);if err!=nil{return ReviewResult{},err}
  out:=ReviewResult{Approved:model.ImagesApproved(l.manifest),ChosenChanged:changed,Invalidated:from!="",Kicked:from!=""&&!rerun};out.Manifest.Revision=l.manifest.Revision
  if rerun{out.Generation=&GenerateResult{Accepted:true,JobID:id,Pending:pending,Count:len(pending)}}
  return out,nil
 }
 func sameChoice(a,b *int)bool{return (a==nil&&b==nil)||(a!=nil&&b!=nil&&*a==*b)}
+func firstReviewCompleted(snapshot jobedit.Snapshot,wasApproved bool,next model.Manifest)bool{
+ if wasApproved||!model.ImagesApproved(next){return false}
+ for _,step:=range snapshot.Steps{if step.Step==domain.CloneBuild&&step.Status==domain.CloneSucceeded{return false}}
+ return true
+}
 func(s *Service) Redraw(ctx context.Context,id,itemID string,input RedrawInput)(GenerateResult,error){
  result,err:=s.Review(ctx,id,ReviewInput{ExpectedRevision:input.ExpectedRevision,Actions:[]Action{{ID:itemID,Op:"regenerate",Prompt:input.Prompt}}});if err!=nil{return GenerateResult{},err};out:=*result.Generation;out.ItemID=itemID;return out,nil
 }
