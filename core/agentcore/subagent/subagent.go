@@ -1045,11 +1045,11 @@ func (r *Runner) run(ctx context.Context, agentName, taskStr string, modelOverri
 			if opts.reportProgress {
 				if ev.IsError {
 					agentcore.ReportToolProgress(ctx, agentcore.ProgressPayload{
-						Kind:    agentcore.ProgressToolError,
-						Agent:   agentName,
-						Tool:    ev.Tool,
-						Message: toolErrorMessage(ev.Result),
-						IsError: true,
+						Kind:      agentcore.ProgressToolError,
+						Agent:     agentName,
+						Tool:      ev.Tool,
+						Message:   toolErrorMessage(ev.Result),
+						IsError:   true,
 						ErrorKind: ev.ErrorKind,
 					})
 				} else {

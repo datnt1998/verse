@@ -35,24 +35,24 @@ type Event struct {
 	SessionID string `json:"sessionId"`
 	// CanRetryNow 表示该退避等待可被 POST /retry 立即放行（G4）：模型包装器的
 	// 开流前重试为 true；agentcore 流中途重试无法唤醒，为 false。
-	CanRetryNow bool   `json:"canRetryNow"`
-	Chapter     int    `json:"chapter"`
-	Scope       string `json:"scope,omitempty"`
-	Volume      int    `json:"volume,omitempty"`
-	Arc         int    `json:"arc,omitempty"`
-	ChapterFrom int    `json:"chapterFrom,omitempty"`
-	ChapterTo   int    `json:"chapterTo,omitempty"`
-	Username    string `json:"username,omitempty"`
-	Command     string `json:"command,omitempty"`
-	Input       string `json:"input,omitempty"`
-	Tool        string `json:"tool,omitempty"`
-	RoundTitle string `json:"roundTitle,omitempty"`
-	RoundID string `json:"roundId,omitempty"`
+	CanRetryNow    bool       `json:"canRetryNow"`
+	Chapter        int        `json:"chapter"`
+	Scope          string     `json:"scope,omitempty"`
+	Volume         int        `json:"volume,omitempty"`
+	Arc            int        `json:"arc,omitempty"`
+	ChapterFrom    int        `json:"chapterFrom,omitempty"`
+	ChapterTo      int        `json:"chapterTo,omitempty"`
+	Username       string     `json:"username,omitempty"`
+	Command        string     `json:"command,omitempty"`
+	Input          string     `json:"input,omitempty"`
+	Tool           string     `json:"tool,omitempty"`
+	RoundTitle     string     `json:"roundTitle,omitempty"`
+	RoundID        string     `json:"roundId,omitempty"`
 	RoundStartedAt *time.Time `json:"roundStartedAt,omitempty"`
-	Role string `json:"role,omitempty"`
-	Error string `json:"error,omitempty"`
-	Args        string `json:"args,omitempty"`
-	Result      string `json:"result,omitempty"`
+	Role           string     `json:"role,omitempty"`
+	Error          string     `json:"error,omitempty"`
+	Args           string     `json:"args,omitempty"`
+	Result         string     `json:"result,omitempty"`
 	// ResultHint giữ vài con số người đọc cần (số chữ, số vấn đề) từ kết quả gốc — `Result`
 	// bị cắt 800 ký tự nên với chương dài phần đuôi JSON mất số liệu.
 	ResultHint string       `json:"resultHint,omitempty"`

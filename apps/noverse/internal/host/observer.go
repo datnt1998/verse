@@ -54,21 +54,21 @@ func nextEventID() string {
 // activeCall 记录一次正在进行的调用（TOOL / DISPATCH）的 ID、起点时间与 summary。
 // summary 在完成事件时回填进 finish Event，保证 replay（runtime queue）能还原行内容。
 type activeCall struct {
-	id      string
-	start   time.Time
-	summary string
-	title   string
-	depth   int
-	tool    string
-	args    string
-	result  string
+	id        string
+	start     time.Time
+	summary   string
+	title     string
+	depth     int
+	tool      string
+	args      string
+	result    string
 	errorKind string
-	hint    string
-	chapter int
-	scope   string
-	volume  int
-	arc     int
-	retries []EventRetry
+	hint      string
+	chapter   int
+	scope     string
+	volume    int
+	arc       int
+	retries   []EventRetry
 }
 
 // observer 把 Engine 派发与 Worker 进度投影到 Host 的输出通道。
@@ -160,17 +160,19 @@ func (o *observer) dispatchStart(agent, task, reason string, titles ...string) {
 	})
 	id := nextEventID()
 	title := ""
-	if len(titles) > 0 { title = titles[0] }
+	if len(titles) > 0 {
+		title = titles[0]
+	}
 	o.dispatchStarts[agent] = &activeCall{id: id, start: time.Now(), summary: summary, title: title}
 	o.emitAndLog(Event{
-		ID:       id,
-		Time:     time.Now(),
-		Category: "DISPATCH",
-		Agent:    agent,
-		Summary:  summary,
+		ID:         id,
+		Time:       time.Now(),
+		Category:   "DISPATCH",
+		Agent:      agent,
+		Summary:    summary,
 		RoundTitle: title,
-		Detail:   dispatchDetail(task, reason),
-		Level:    "info",
+		Detail:     dispatchDetail(task, reason),
+		Level:      "info",
 	})
 }
 
@@ -249,18 +251,27 @@ func (o *observer) annotateRound(ev *Event) {
 	}
 	if ev.Category == "DISPATCH" {
 		ev.RoundID = ev.ID
-		if ev.RoundStartedAt == nil && !ev.Time.IsZero() { t := ev.Time; ev.RoundStartedAt = &t }
+		if ev.RoundStartedAt == nil && !ev.Time.IsZero() {
+			t := ev.Time
+			ev.RoundStartedAt = &t
+		}
 		if ev.RoundTitle == "" {
-			if call := o.dispatchStarts[ev.Agent]; call != nil && call.id == ev.ID { ev.RoundTitle = call.title }
+			if call := o.dispatchStarts[ev.Agent]; call != nil && call.id == ev.ID {
+				ev.RoundTitle = call.title
+			}
 		}
 		return
 	}
 	call := o.dispatchStarts[ev.Agent]
-	if call == nil { return }
+	if call == nil {
+		return
+	}
 	ev.RoundID = call.id
 	t := call.start
 	ev.RoundStartedAt = &t
-	if ev.RoundTitle == "" { ev.RoundTitle = call.title }
+	if ev.RoundTitle == "" {
+		ev.RoundTitle = call.title
+	}
 }
 
 // persistEvent 把事件写入 runtime queue（slog 由 host.emitEvent 统一记录）。

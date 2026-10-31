@@ -47,7 +47,9 @@ func restoreStreamHistory(h workerHost, b *broadcaster) error {
 		if err := json.Unmarshal(raw, &ev); err != nil {
 			return err
 		}
-		if ev.ID == "" { continue }
+		if ev.ID == "" {
+			continue
+		}
 		if idx, ok := byID[ev.ID]; ok {
 			events[idx] = ev
 		} else {

@@ -423,12 +423,20 @@ func (g *Gateway) serveProjects(w http.ResponseWriter, r *http.Request, user ide
 	if rest == "" || rest == "/" {
 		if r.Method == "GET" {
 			lib, err := g.lib(r.Context(), actorOf(user))
-			if err != nil { libError(w, err); return true }
+			if err != nil {
+				libError(w, err)
+				return true
+			}
 			scan, err := lib.Scan(r.Context(), actorOf(user))
-			if err != nil { libError(w, err); return true }
+			if err != nil {
+				libError(w, err)
+				return true
+			}
 			projects := []projectSummary{}
 			for _, p := range scan.Projects {
-				if user.CanReadProject(p.ID) { projects = append(projects, g.projectSummary(r.Context(), lib, user, p)) }
+				if user.CanReadProject(p.ID) {
+					projects = append(projects, g.projectSummary(r.Context(), lib, user, p))
+				}
 			}
 			writeJSON(w, 200, map[string]any{"projects": projects})
 			return true
@@ -550,10 +558,10 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		return
 	}
 	var req struct {
-		Slug        string `json:"slug"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		Notes       string `json:"notes"`
+		Slug          string `json:"slug"`
+		Name          string `json:"name"`
+		Description   string `json:"description"`
+		Notes         string `json:"notes"`
 		CopyRulesFrom string `json:"copyRulesFrom"`
 		// ShareGlobal controls shared model/role configuration only.
 		// Rules and style always belong to a project or story.
@@ -587,12 +595,23 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 			jsonError(w, 400, "Dự án nguồn không hợp lệ")
 			return
 		}
-		if !user.CanReadProject(source) { jsonError(w, 404, "không tìm thấy dự án"); return }
+		if !user.CanReadProject(source) {
+			jsonError(w, 404, "không tìm thấy dự án")
+			return
+		}
 		ref, ok := lib.ResolveProject(r.Context(), actorOf(user), source)
-		if !ok { jsonError(w, 400, "Không tìm thấy dự án nguồn"); return }
-		if !g.requireProject(w, lib, r.Context(), actorOf(user), user, source) { return }
+		if !ok {
+			jsonError(w, 400, "Không tìm thấy dự án nguồn")
+			return
+		}
+		if !g.requireProject(w, lib, r.Context(), actorOf(user), user, source) {
+			return
+		}
 		snapshot, err = g.readProjectRules(r.Context(), user, ref)
-		if err != nil { libError(w, err); return }
+		if err != nil {
+			libError(w, err)
+			return
+		}
 	}
 	f := library.ProjectFile{Name: name, Description: req.Description, Notes: req.Notes}
 	var dir string
@@ -613,8 +632,14 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 	}
 	if req.CopyRulesFrom != "" {
 		ref, ok := lib.ResolveProject(r.Context(), actorOf(user), filepath.Base(dir))
-		if !ok { jsonError(w, 500, "Không tìm thấy dự án vừa tạo"); return }
-		if err := g.writeProjectRules(r.Context(), user, ref, snapshot); err != nil { libError(w, err); return }
+		if !ok {
+			jsonError(w, 500, "Không tìm thấy dự án vừa tạo")
+			return
+		}
+		if err := g.writeProjectRules(r.Context(), user, ref, snapshot); err != nil {
+			libError(w, err)
+			return
+		}
 	}
 	writeJSON(w, 201, g.projectDetailFor(r.Context(), lib, user, filepath.Base(dir)))
 }

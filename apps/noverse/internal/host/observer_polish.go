@@ -24,7 +24,9 @@ func (o *observer) finishPolishAttempts(agent string, chapter int, runErr error)
 			ev.Failed = true
 			ev.Level = "error"
 			ev.Kind = call.errorKind
-			if ev.Kind == "" { ev.Kind = errorKind(nil, call.result) }
+			if ev.Kind == "" {
+				ev.Kind = errorKind(nil, call.result)
+			}
 			ev.Summary = fmt.Sprintf("%s lỗi: %s", call.summary, truncate(call.result, 100))
 		}
 		call.fillToolEvent(&ev, !ev.Failed)

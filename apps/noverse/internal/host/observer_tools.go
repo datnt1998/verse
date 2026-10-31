@@ -145,7 +145,9 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			msg = "unknown error"
 		}
 		kind := ev.Progress.ErrorKind
-		if kind == "" { kind = errorKind(nil, msg) }
+		if kind == "" {
+			kind = errorKind(nil, msg)
+		}
 		// 如果有进行中的 TOOL 行，原地标记为失败并把完整错误放进 Detail。
 		// 同一次失败只生成一个 ERROR 级事件，避免 TOOL 失败态与附加 ERROR
 		// 详情在 tui.log 中被误读成两次独立故障。

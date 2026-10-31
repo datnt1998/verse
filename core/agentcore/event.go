@@ -115,7 +115,7 @@ type Event struct {
 	Result      json.RawMessage       // tool result for tool_exec_end and preview updates
 	Progress    *ProgressPayload
 	UpdateKind  ToolExecUpdateKind
-	IsError     bool // tool error flag for tool_exec_end
+	IsError     bool   // tool error flag for tool_exec_end
 	ErrorKind   string // structured tool error classification, when IsError
 	Preview     json.RawMessage
 	ToolResults []ToolResult            // for turn_end: all tool results from this turn
