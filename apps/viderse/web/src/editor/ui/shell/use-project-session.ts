@@ -16,6 +16,7 @@ const logger = createLogger("EditorSession");
 export function useProjectSession(projectId: string, autosaveEnabled = true) {
   const [opening, setOpening] = useState<"loading" | "ready" | "not-found" | "error">("loading");
   const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [reload, setReload] = useState(0);
   const dirty = useTimelineSettingsStore((state) => state.isDirty);
@@ -27,6 +28,7 @@ export function useProjectSession(projectId: string, autosaveEnabled = true) {
   const save = useCallback((): Promise<boolean> => {
     if (inFlight.current) return inFlight.current;
     if (!opened.current || getStorageConflict(projectId)) return Promise.resolve(false);
+    if (!useTimelineSettingsStore.getState().isDirty) return Promise.resolve(true);
     const startedGeneration = generation.current;
     setSaving(true); setSaveError(false);
     const operation = (async () => {
@@ -35,7 +37,7 @@ export function useProjectSession(projectId: string, autosaveEnabled = true) {
         // A successful write only covers the snapshot captured when it started.
         const complete = generation.current === startedGeneration;
         if (!complete) useTimelineSettingsStore.getState().markDirty();
-        if (mounted.current && complete) announce("Đã lưu");
+        if (mounted.current && complete) { setSavedAt(Date.now()); announce("Đã lưu"); }
         return complete;
       } catch (error) {
         if (mounted.current) {
@@ -86,5 +88,5 @@ export function useProjectSession(projectId: string, autosaveEnabled = true) {
     return () => window.clearInterval(interval);
   }, [opening, projectId, save, saveError, autosaveEnabled]);
   const reloadProject = () => { setOpening("loading"); setReload((value) => value + 1); };
-  return { opening, saving, saveError, dirty, conflict, save, reloadProject };
+  return { opening, saving, savedAt, saveError, dirty, conflict, save, reloadProject };
 }

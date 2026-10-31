@@ -4,7 +4,7 @@ import { registerAllCommands } from '@editor/commands/handlers'
 import { captureProjectState, commitProjectState } from '@editor/commands/project-state'
 import { createCommandFixture } from '@editor/commands/test-fixture'
 import type { TimelineItem } from '@editor/types/timeline'
-import { canExport, captionSignature, qualityRanges, rangeItem, type EditorQuality } from './quality'
+import { canExport, captionSignature, extraBlockers, normalizeQuality, qualityRanges, rangeItem, type EditorQuality } from './quality'
 
 const quality: EditorQuality = {
   total: 84, changedSinceMeasure: 0, items: [{ id: 'captionAlignment', label: 'Phụ đề khớp tiếng', status: 'fail', ranges: [
@@ -33,6 +33,32 @@ describe('V13 quality selection and export gate', () => {
     expect(canExport({ ...passed, measuring: true })).toBe(false)
     expect(canExport({ ...passed, items: [{ ...passed.items[0], status: 'unknown' }] })).toBe(false)
     expect(canExport({ ...passed, items: [{ ...passed.items[0], stale: true }] })).toBe(false)
+  })
+  it('normalizes the real boolean changedSinceMeasure contract', () => {
+    expect(normalizeQuality({ ...quality, changedSinceMeasure: false }).changedSinceMeasure).toBe(0)
+    expect(normalizeQuality({ ...quality, changedSinceMeasure: true }).changedSinceMeasure).toBe(1)
+    const fresh = normalizeQuality({ ...quality, total: 100, changedSinceMeasure: false, items: [{ id: 'captionAlignment', label: 'Phụ đề', status: 'pass' }] })
+    expect(canExport(fresh)).toBe(true)
+  })
+  it('does not label a Subscribe hard prerequisite as a drifting caption', () => {
+    const ranges = qualityRanges({ ...quality, items: [], ranges: [
+      { start: 0, end: 6, checkId: 'subscribe', status: 'fail' },
+      { start: 1, end: 2, checkId: 'captionAlignment', status: 'fail', cueId: 'actual-cue' },
+    ] })
+    expect(ranges).toEqual([{ start: 1, end: 2, checkId: 'captionAlignment', status: 'fail', cueId: 'actual-cue' }])
+  })
+  it('a 100-point score still gates an independent source hard blocker', () => {
+    const blocked: EditorQuality = {
+      ...quality, total: 100, items: [{ id: 'captionAlignment', label: 'Phụ đề', status: 'pass' }],
+      score: {
+        version: 1, total: 100, passed: false, items: [{ id: 'captionAlignment', label: 'Phụ đề', status: 'pass', weight: 0 }],
+        blockers: [{ id: 'subscribe', message: 'Các lớp Subscribe trong template phải hiện hữu trên timeline' }],
+        binding: { projectRevision: 'revision', settingsHash: 'settings', artifactHash: 'artifact' },
+        measurementId: 'measurement', measuredAt: '2026-11-01T00:00:00Z', generation: 1,
+      },
+    }
+    expect(canExport(blocked)).toBe(false)
+    expect(extraBlockers(blocked).map(blocker => blocker.id)).toEqual(['subscribe'])
   })
 })
 
