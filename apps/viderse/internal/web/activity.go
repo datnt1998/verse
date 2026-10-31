@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -27,8 +28,44 @@ func MountActivity(g *Gateway, svc Activity) {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		webapp.WriteJSON(w, http.StatusOK, activityToWire(snap))
+		out := activityToWire(snap)
+		if preferences, ok := svc.(interface { NotificationSettings(context.Context) (activity.NotificationSettings, error) }); ok {
+			prefs, err := preferences.NotificationSettings(r.Context())
+			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
+			for i, n := range snap.Unread { out.Unread[i].SystemAllowed = prefs.SystemAllowed(n.Kind, n.CreatedAt.In(time.Local)) }
+		}
+		webapp.WriteJSON(w, http.StatusOK, out)
 	})
+	if preferences, ok := svc.(interface {
+		NotificationSettings(context.Context) (activity.NotificationSettings, error)
+		SetNotificationSettings(context.Context, activity.NotificationSettings) error
+		Notifications(context.Context) ([]activity.Notification, error)
+	}); ok {
+		g.Handle(http.MethodGet, "/api/notifications/settings", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			prefs, err := preferences.NotificationSettings(r.Context())
+			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
+			w.Header().Set("Cache-Control", "private, no-store")
+			webapp.WriteJSON(w, http.StatusOK, prefs)
+		})
+		g.Handle(http.MethodPut, "/api/notifications/settings", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			var prefs activity.NotificationSettings
+			if !webapp.DecodeJSON(w, r, &prefs) { return }
+			if err := prefs.Validate(); err != nil { webapp.Error(w, http.StatusBadRequest, err.Error()); return }
+			if err := preferences.SetNotificationSettings(r.Context(), prefs); err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
+			webapp.WriteJSON(w, http.StatusOK, prefs)
+		})
+		g.Handle(http.MethodGet, "/api/notifications", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			ctx := activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin)
+			notes, err := preferences.Notifications(ctx)
+			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
+			prefs, err := preferences.NotificationSettings(ctx)
+			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
+			out := make([]notificationWire, 0, len(notes))
+			for _, n := range notes { item := notificationToWire(n); item.SystemAllowed = prefs.SystemAllowed(n.Kind, n.CreatedAt.In(time.Local)); out = append(out, item) }
+			w.Header().Set("Cache-Control", "private, no-store")
+			webapp.WriteJSON(w, http.StatusOK, map[string]any{"notifications": out})
+		})
+	}
 	g.Handle(http.MethodPost, "/api/notifications/read", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		var req struct {
 			IDs []string `json:"ids"`
@@ -74,6 +111,7 @@ type activityWire struct {
 	VideoJobs int                `json:"videoJobs"`
 	Queued    int                `json:"queued"`
 	Unread    []notificationWire `json:"unread"`
+	Badge int `json:"badge"`
 }
 
 type taskWire struct {
@@ -123,6 +161,7 @@ type notificationWire struct {
 	CreatedAt   string      `json:"createdAt"`
 	ReadAt      *string     `json:"readAt"`
 	Object      *objectWire `json:"objectRef,omitempty"`
+	SystemAllowed bool `json:"systemAllowed"`
 }
 
 func activityToWire(snap activity.Snapshot) activityWire {
@@ -131,6 +170,7 @@ func activityToWire(snap activity.Snapshot) activityWire {
 		VideoJobs: snap.VideoJobs,
 		Queued:    snap.Queued,
 		Unread:    make([]notificationWire, 0, len(snap.Unread)),
+		Badge: snap.Badge,
 	}
 	for _, t := range snap.Tasks {
 		out.Running = append(out.Running, taskToWire(t))
@@ -163,6 +203,10 @@ func notificationToWire(n activity.Notification) notificationWire {
 		ID: n.ID, Kind: n.Kind, Count: n.Count, Text: n.Text,
 		Href: n.Href, ActionLabel: n.ActionLabel,
 		CreatedAt: n.CreatedAt.UTC().Format(time.RFC3339),
+	}
+	if n.Kind == "review_ready" && n.Count > 1 {
+		nw.Text = fmt.Sprintf("%d video chờ duyệt", n.Count)
+		nw.Href = "#/review"
 	}
 	if n.Object != nil {
 		nw.Object = &objectWire{Type: n.Object.Type, ID: n.Object.ID, Label: n.Object.Label}

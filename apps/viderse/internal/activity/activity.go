@@ -58,6 +58,7 @@ type Snapshot struct {
 	VideoJobs int            // việc kind video đang state=running
 	Queued    int            // việc kind video đang state=waiting (tới khi có hàng chờ thật)
 	Unread    []Notification // thông báo chưa đọc
+	Badge int
 }
 
 // Store là phần lưu trữ service cần. Mọi thao tác nguyên tử theo dòng; luật
@@ -236,7 +237,11 @@ func (s *Service) NotifyScoped(ctx context.Context, spec NotificationSpec) (stri
 	if strings.TrimSpace(spec.Kind) == "" {
 		return "", fmt.Errorf("thông báo cần kind")
 	}
-	n, err := s.store.UpsertScopedNotification(ctx, spec, NotifyMergeWindow)
+	prefs, err := s.NotificationSettings(ctx)
+	if err != nil { return "", err }
+	window := NotifyMergeWindow
+	if !prefs.Merge { window = 0 }
+	n, err := s.store.UpsertScopedNotification(ctx, spec, window)
 	if err != nil {
 		return "", err
 	}
@@ -300,6 +305,12 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	if err != nil {
 		return Snapshot{}, err
 	}
+	if source, ok := s.store.(interface { ListRunningVideos(context.Context) ([]Task, error) }); ok {
+		active, err := source.ListRunningVideos(ctx)
+		if err != nil { return Snapshot{}, err }
+		tasks = append(tasks, active...)
+		video += int64(len(active))
+	}
 	queued, err := s.store.CountTasks(ctx, domain.TaskVideo, domain.TaskWaiting)
 	if err != nil {
 		return Snapshot{}, err
@@ -308,7 +319,12 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	if err != nil {
 		return Snapshot{}, err
 	}
-	return Snapshot{Tasks: tasks, VideoJobs: int(video), Queued: int(queued), Unread: unread}, nil
+	badge := 0
+	if store, ok := s.store.(interface { CountWaitingVideos(context.Context) (int, error) }); ok {
+		badge, err = store.CountWaitingVideos(ctx)
+		if err != nil { return Snapshot{}, err }
+	}
+	return Snapshot{Tasks: tasks, VideoJobs: int(video), Queued: int(queued), Unread: unread, Badge: badge}, nil
 }
 
 // MarkRead đánh dấu thông báo đã đọc; ids rỗng = tất cả.

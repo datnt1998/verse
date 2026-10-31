@@ -36,6 +36,61 @@ func NewActivityStore(db DBTXer) *ActivityStore {
 	return &ActivityStore{db: db, q: gen.New(db)}
 }
 
+func (s *ActivityStore) Get(ctx context.Context, key string, out any) (bool, error) {
+	return NewSettingsStore(s.db).Get(ctx, key, out)
+}
+
+func (s *ActivityStore) Set(ctx context.Context, key string, value any) error {
+	return NewSettingsStore(s.db).Set(ctx, key, value)
+}
+
+func (s *ActivityStore) ListNotifications(ctx context.Context, limit int) ([]activity.Notification, error) {
+	rows, err := s.db.Query(ctx, `SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications WHERE ($1 OR audience = 'all') ORDER BY created_at DESC, id DESC LIMIT $2`, activity.IsAdminViewer(ctx), limit)
+	if err != nil { return nil, err }
+	defer rows.Close()
+	out := make([]activity.Notification, 0)
+	for rows.Next() {
+		var n activity.Notification
+		var id pgtype.UUID
+		var readAt pgtype.Timestamptz
+		var object []byte
+		if err := rows.Scan(&id, &n.Kind, &n.Count, &n.Text, &n.Href, &n.ActionLabel, &n.CreatedAt, &readAt, &n.Audience, &object); err != nil { return nil, err }
+		n.ID = uuidText(id)
+		if readAt.Valid { at := readAt.Time; n.ReadAt = &at }
+		if len(object) > 0 { var ref domain.ObjectRef; if json.Unmarshal(object, &ref) == nil { n.Object = &ref } }
+		out = append(out, n)
+	}
+	return out, rows.Err()
+}
+
+func (s *ActivityStore) CountWaitingVideos(ctx context.Context) (int, error) {
+	var count int
+	err := s.db.QueryRow(ctx, `SELECT count(*) FROM clone_jobs WHERE superseded_at IS NULL AND stage_group IN ('review','attention')`).Scan(&count)
+	return count, err
+}
+
+// ListRunningVideos exposes active clone jobs without duplicating them in
+// background_tasks, which is reserved for non-video work.
+func (s *ActivityStore) ListRunningVideos(ctx context.Context) ([]activity.Task, error) {
+	rows, err := s.db.Query(ctx, `SELECT j.id::text, COALESCE(j.source_snapshot->>'title',''), COALESCE(s.progress_phase,''), COALESCE(s.progress_done,0), s.progress_total, j.created_at, j.updated_at FROM clone_jobs j LEFT JOIN clone_steps s ON s.job_id=j.id AND s.step=j.active_step WHERE j.superseded_at IS NULL AND j.stage_group='working' AND j.status='running' ORDER BY j.created_at,j.id`)
+	if err != nil { return nil, err }
+	defer rows.Close()
+	out := make([]activity.Task, 0)
+	for rows.Next() {
+		var t activity.Task
+		var title string
+		var done int64
+		var total *int64
+		if err := rows.Scan(&t.ID,&title,&t.Phase,&done,&total,&t.CreatedAt,&t.UpdatedAt); err != nil { return nil,err }
+		t.Kind, t.Title, t.State = domain.TaskVideo, title, domain.TaskRunning
+		t.Object = domain.ObjectRef{Type:"video", ID:t.ID, Label:title}
+		t.Action = domain.TaskAction{Label:"Mở", Href:"#/?video="+t.ID}
+		if total != nil { t.Progress = &domain.TaskProgress{Done:done, Total:*total} }
+		out = append(out,t)
+	}
+	return out, rows.Err()
+}
+
 var _ activity.Store = (*ActivityStore)(nil)
 
 func uuidText(u pgtype.UUID) string {

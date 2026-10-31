@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/rivals"
 	"github.com/datnt1998/verse/apps/viderse/internal/scan"
 	"github.com/datnt1998/verse/platform/identity"
@@ -99,6 +100,7 @@ type videoWire struct {
 	PublishedAt  *time.Time `json:"publishedAt"`
 	ExactTime    bool       `json:"exactTime"`
 	Score        *float64   `json:"score"`
+	ScoreReason  *insight.Reason `json:"scoreReason,omitempty"`
 	HasCaptions  *bool      `json:"hasCaptions"`
 	ThumbnailURL string     `json:"thumbnailUrl"`
 	URL          string     `json:"url"`
@@ -415,8 +417,17 @@ func getRivalVideos(w http.ResponseWriter, r *http.Request, reads RivalReads, di
 		Videos: make([]videoWire, 0, len(page.Videos)),
 		Total:  page.Total,
 	}
+	channels, err := reads.List(r.Context())
+	if err != nil {
+		writeRivalError(w, r.Context(), err, reads, diag)
+		return
+	}
+	byID := make(map[string]domain.RivalChannel)
+	if channels != nil { for _, entry := range channels.Rivals { byID[entry.Channel.ID] = entry.Channel } }
 	for _, v := range page.Videos {
-		out.Videos = append(out.Videos, VideoToWire(v))
+		item := VideoToWire(v)
+		if channel, ok := byID[v.ChannelID]; ok { item.ScoreReason = insight.ScoreReason(v, channel) }
+		out.Videos = append(out.Videos, item)
 	}
 	if page.NextCursor != "" {
 		out.NextCursor = &page.NextCursor
