@@ -77,7 +77,7 @@ export const ROLE_LITERALS = {
   edgeWork: ['#8C9BC0'],
 }
 
-/** Token KHÔNG đổi theo brand: biểu tượng Noverse, avatar nhân vật 6 cặp, ô báo icon thiếu. */
+/** Token KHÔNG đổi theo brand: biểu tượng Noverse, avatar nhân vật 6 cặp, màu vai Đồng phạm (lấy từ board MOutline, chờ design chốt tên), ô báo icon thiếu. */
 export const FIXED_TOKENS = new Set([
   '--brand-architect-1', '--brand-architect-2', '--brand-architect-3', '--brand-architect-4',
   '--brand-writer-1', '--brand-writer-2', '--brand-writer-3', '--brand-writer-4',
@@ -86,5 +86,6 @@ export const FIXED_TOKENS = new Set([
   '--brand-rim', '--brand-shadow',
   '--brain-av-1a', '--brain-av-1b', '--brain-av-2a', '--brain-av-2b', '--brain-av-3a', '--brain-av-3b',
   '--brain-av-4a', '--brain-av-4b', '--brain-av-5a', '--brain-av-5b', '--brain-av-6a', '--brain-av-6b',
+  '--role-accomplice-fg', '--role-accomplice-bg',
   '--kit-dev-miss', '--kit-dev-miss-bg',
 ])
