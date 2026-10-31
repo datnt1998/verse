@@ -202,3 +202,8 @@
 
 Attribution: ainovel-cli, agentcore v1.8.2 and litellm v1.8.10 by voocel (https://github.com/voocel).
 Modified by the Noverse contributors: libraries incorporated into this repository, imports renamed, unused packages removed, and agent/provider implementation improved.
+
+Attribution: Viderse editor engine (apps/viderse/web/src/editor/engine/**) is derived from FreeCut, Copyright (c) 2025 FreeCut, commit 4d62e808, MIT License; full text in apps/viderse/web/src/editor/LICENSE-freecut.
+Attribution: Viderse editor includes code from OpenReel, Copyright (c) 2024-2026 Augustus Otu and Contributors, MIT License; full text in apps/viderse/web/src/editor/LICENSE-openreel.
+Both were ported via yt-factory commit 2c201e6 and modified by the Viderse contributors: aliases rewritten, ML/i18n subtrees removed, product UI rebuilt; provenance in apps/viderse/web/src/editor/UPSTREAM.md.
+ffmpeg, Chrome for Testing and yt-dlp are external binaries downloaded by the user; they are not distributed with this repository.

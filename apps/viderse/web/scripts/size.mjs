@@ -7,6 +7,7 @@ import { join } from 'node:path'
 const LIMIT_KB = 250
 const dist = new URL('../../internal/web/dist', import.meta.url).pathname
 const manifest = JSON.parse(readFileSync(join(dist, '.vite/manifest.json'), 'utf8'))
+const editorModules = JSON.parse(readFileSync(join(dist, '.vite/editor-budget.json'), 'utf8'))
 
 const entry = Object.entries(manifest).find(([, meta]) => meta.isEntry)
 if (!entry) {
@@ -25,6 +26,12 @@ visit(entry[0])
 let bytes = 0
 for (const key of chunks) {
   const file = manifest[key].file
+  if (!Object.hasOwn(editorModules, file)) {
+    throw new Error(`[size] thiếu nguồn gốc module cho ${file} — cần build lại ứng dụng`)
+  }
+  if (editorModules[file].length) {
+    throw new Error(`[size] chunk đầu chứa mã editor: ${file}\n${editorModules[file].join('\n')}`)
+  }
   const gz = gzipSync(readFileSync(join(dist, file)), { level: 9 }).length
   bytes += gz
   console.log(`  ${file}  ${(gz / 1024).toFixed(1)} kB`)
@@ -35,3 +42,4 @@ if (kb > LIMIT_KB) {
   console.error(`[size] VƯỢT ngưỡng ${LIMIT_KB} kB — tách thêm màn hoặc giảm phụ thuộc`)
   process.exit(1)
 }
+console.log('[size] chunk đầu không chứa mã editor; editor/render/measure chỉ tải ở route lazy')

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "engine",
+    "outDir": "../../node_modules/.cache/editor-types",
+    "tsBuildInfoFile": "../../node_modules/.cache/editor-types.tsbuildinfo",
+    "types": ["vite/client", "node", "@webgpu/types", "@types/wicg-file-system-access"],
+    "paths": {
+      "@editor/*": ["./engine/*"]
+    }
+  },
+  "include": ["engine/**/*.ts", "engine/**/*.tsx", "engine/**/*.json"],
+  "exclude": ["engine/**/*.test.ts", "engine/**/*.test.tsx", "engine/test/**", "engine/**/windowed-dsp-memory-run.ts"]
+}

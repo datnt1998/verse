@@ -7,7 +7,23 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const SRC = new URL('..', import.meta.url).pathname
+const SRC = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
+
+// MIT donor internals are not Viderse chrome. New V13 surfaces stay fully checked.
+// Exact legacy UI exceptions only; none of these NLE panels is mounted by V13.
+const LEGACY_EDITOR_INTERNALS: Record<string, string> = {
+  'editor/ui/controls/index.tsx': 'Legacy NLE controls; content-color swatch defaults, not V13 controls.',
+  'editor/ui/inspector/canvas.tsx': 'Legacy canvas settings; V13 has a read-only fixed-frame inspector.',
+  'editor/ui/inspector/text.tsx': 'Legacy rich-text inspector; V13 caption inspector is separate.',
+  'editor/ui/inspector/effect-preview.ts': 'Synthetic effect sample image, not V13 surface colors.',
+  'editor/ui/library/library-actions.ts': 'Timeline media constructors: literal colors describe rendered text, not UI.',
+  'editor/ui/preview/use-preview-composition.ts': 'Composition pixel background fallback belongs to rendering, not app chrome.',
+  'editor/ui/timeline/timeline.css': 'Retained upstream NLE engine stylesheet; V13 timeline uses StyleX track tokens.',
+}
+const vendoredEditor = (path: string) => {
+  const relative = path.replace(`${SRC}/`, '')
+  return relative.startsWith('editor/engine/') || relative.startsWith('editor/vendor/') || Object.hasOwn(LEGACY_EDITOR_INTERNALS, relative)
+}
 
 const files: string[] = []
 const walk = (dir: string) => {
@@ -15,13 +31,13 @@ const walk = (dir: string) => {
     const path = join(dir, entry)
     const stat = statSync(path)
     if (stat.isDirectory()) walk(path)
-    else if (/\.(ts|tsx|css)$/.test(entry) && !entry.endsWith('.test.ts') && !entry.endsWith('.test.tsx')) files.push(path)
+    else if (/\.(ts|tsx|css)$/.test(entry) && !entry.endsWith('.test.ts') && !entry.endsWith('.test.tsx') && !vendoredEditor(path)) files.push(path)
   }
 }
 walk(SRC)
 
 // Tệp được phép chứa hex cứng: tệp token, bộ icon SVG (đồ hoạ), brand.
-const TOKEN_FILES = /tokens\.css|viderse\.css|brand\.ts$|LensLogo\.tsx$|\/icons\//
+const TOKEN_FILES = /tokens\.css|tokens\.stylex\.ts$|viderse\.css|brand\.ts$|LensLogo\.tsx$|\/icons\//
 
 describe('luật thiết kế trong src/', () => {
   it('không màu hex cứng ngoài token/đồ hoạ', () => {

@@ -12,6 +12,7 @@ import stylex from '@stylexjs/unplugin'
 // Kit dùng chung nằm ở platform/ui (npm workspace ở gốc repo).
 const uiPkg = (rel: string) => fileURLToPath(new URL(`../../../platform/ui/src/${rel}`, import.meta.url))
 
+const editorPath = (rel: string) => fileURLToPath(new URL(`./src/editor/${rel}`, import.meta.url))
 // StyleX's own resolver can't see vite aliases — map the package to source.
 // Vitest không có httpServer nên bỏ configureServer để vòng hẹn giờ HMR không kẹt.
 function stylexPlugin(): Plugin {
@@ -30,6 +31,22 @@ function stylexPlugin(): Plugin {
   return plugin
 }
 
+/** Preserve module provenance alongside Vite's manifest for the cold-route budget. */
+function editorBudgetManifest(): Plugin {
+  return {
+    name: 'viderse-editor-budget',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const chunks: Record<string, string[]> = {}
+      for (const output of Object.values(bundle)) {
+        if (output.type !== 'chunk') continue
+        chunks[output.fileName] = Object.keys(output.modules).filter((id) => id.includes('/src/editor/'))
+      }
+      this.emitFile({ type: 'asset', fileName: '.vite/editor-budget.json', source: JSON.stringify(chunks) })
+    },
+  }
+}
+
 export default defineConfig({
   resolve: {
     alias: [
@@ -37,10 +54,20 @@ export default defineConfig({
       { find: /^@noverse\/ui\/(.+\.css)$/, replacement: uiPkg('$1') },
       { find: /^@noverse\/ui\/data$/, replacement: uiPkg('data/index.ts') },
       { find: /^@noverse\/ui$/, replacement: uiPkg('index.ts') },
+      { find: /^@editor\/(.+)$/, replacement: editorPath('engine/$1') },
+      { find: /^@\/editor\/(.+)$/, replacement: editorPath('$1') },
+      { find: /^@\/components\/ui\/(.+)$/, replacement: editorPath('vendor/components/ui/$1') },
+      { find: /^@\/components\/(icon-tip|video-thumb|link-pending)$/, replacement: editorPath('vendor/components/$1') },
+      { find: /^@\/components\/clone\/source-comparison$/, replacement: editorPath('vendor/components/clone/source-comparison.tsx') },
+      { find: /^@\/components\/clone\/clone-entry$/, replacement: editorPath('bridge/ui/clone-status.ts') },
+      { find: /^@\/app\/editor\/actions$/, replacement: editorPath('bridge/ui/project-actions.ts') },
+      { find: /^@\/lib\/(clone-view|clone-quality|app-routes|navigation-return|format|video-sort)$/, replacement: editorPath('vendor/lib/$1.ts') },
     ],
+    dedupe: ['react', 'react-dom'],
   },
   // Tailwind chỉ dùng preflight + @source (styles/base.css); StyleX nằm trên nó.
-  plugins: [stylexPlugin(), react(), tailwindcss()],
+  plugins: [stylexPlugin(), react(), tailwindcss(), editorBudgetManifest()],
+  worker: { format: 'es' },
   server: {
     port: 5181,
     proxy: {

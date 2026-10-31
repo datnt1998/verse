@@ -1,0 +1,112 @@
+// @vitest-environment node
+
+import { describe, expect, it, beforeEach } from 'vitest'
+import { useSettingsStore } from './settings-store'
+
+const DEFAULT_SETTINGS = {
+  snapEnabled: true,
+  showWaveforms: true,
+  showFilmstrips: true,
+  enableFilmstripExtraction: true,
+  editorDensity: 'compact' as const,
+  maxUndoHistory: 50,
+  autoSaveInterval: 5,
+  defaultCaptionStylePresetId: 'netflix',
+}
+
+describe('settings-store', () => {
+  beforeEach(() => {
+    useSettingsStore.getState().resetToDefaults()
+  })
+
+  describe('setSetting', () => {
+    it('updates boolean settings', () => {
+      useSettingsStore.getState().setSetting('snapEnabled', false)
+      expect(useSettingsStore.getState().snapEnabled).toBe(false)
+    })
+
+    it('updates string settings', () => {
+      useSettingsStore.getState().setSetting('defaultCaptionStylePresetId', 'youtube')
+      expect(useSettingsStore.getState().defaultCaptionStylePresetId).toBe('youtube')
+    })
+
+    it('normalizes removed editor density presets back to compact', () => {
+      useSettingsStore.getState().setSetting('editorDensity', 'default' as never)
+
+      expect(useSettingsStore.getState().editorDensity).toBe('compact')
+    })
+
+
+
+    it('updates auto-save interval', () => {
+      useSettingsStore.getState().setSetting('autoSaveInterval', 5)
+      expect(useSettingsStore.getState().autoSaveInterval).toBe(5)
+    })
+
+    it('does not affect other settings when changing one', () => {
+      useSettingsStore.getState().setSetting('snapEnabled', false)
+      expect(useSettingsStore.getState().showWaveforms).toBe(true)
+      expect(useSettingsStore.getState().editorDensity).toBe('compact')
+    })
+  })
+
+  describe('resetToDefaults', () => {
+    it('restores all settings to defaults', () => {
+      // Change several settings
+      useSettingsStore.getState().setSetting('snapEnabled', false)
+      useSettingsStore.getState().setSetting('autoSaveInterval', 10)
+
+
+      // Reset
+      useSettingsStore.getState().resetToDefaults()
+
+      const state = useSettingsStore.getState()
+      expect(state.snapEnabled).toBe(DEFAULT_SETTINGS.snapEnabled)
+      expect(state.editorDensity).toBe(DEFAULT_SETTINGS.editorDensity)
+      expect(state.autoSaveInterval).toBe(DEFAULT_SETTINGS.autoSaveInterval)
+      expect(state.defaultCaptionStylePresetId).toBe(DEFAULT_SETTINGS.defaultCaptionStylePresetId)
+    })
+  })
+
+  describe('replaceHotkeyOverrides', () => {
+    it('unassigns hotkeys with explicit blank overrides', () => {
+      useSettingsStore.getState().unbindHotkeyBinding('DELETE_SELECTED')
+
+      expect(useSettingsStore.getState().hotkeyOverrides).toEqual({
+        DELETE_SELECTED: '',
+      })
+    })
+
+    it('replaces hotkey overrides with a sanitized imported preset', () => {
+      useSettingsStore.getState().setHotkeyBinding('PLAY_PAUSE', 'shift+space')
+
+      useSettingsStore.getState().replaceHotkeyOverrides({
+        EXPORT: 'Ctrl+E',
+        PLAY_PAUSE: 'space',
+        DELETE_SELECTED: '',
+        UNKNOWN_COMMAND: 'q',
+      } as never)
+
+      expect(useSettingsStore.getState().hotkeyOverrides).toEqual({
+        EXPORT: 'mod+e',
+        DELETE_SELECTED: '',
+      })
+    })
+
+    it('does not update state for equivalent overrides with different key order', () => {
+      useSettingsStore.getState().replaceHotkeyOverrides({
+        PLAY_PAUSE: 'shift+space',
+        EXPORT: 'ctrl+e',
+      })
+
+      const previousState = useSettingsStore.getState()
+
+      useSettingsStore.getState().replaceHotkeyOverrides({
+        EXPORT: 'ctrl+e',
+        PLAY_PAUSE: 'shift+space',
+      })
+
+      expect(useSettingsStore.getState()).toBe(previousState)
+    })
+  })
+})
