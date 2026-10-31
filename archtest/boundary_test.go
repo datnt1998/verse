@@ -159,6 +159,35 @@ func (s scan) violations() []violation {
 	return out
 }
 
+// blobTransportIssues keeps the shared byte transport cutover complete: apps
+// must consume platform directly rather than retaining private copies or shims.
+func (s scan) blobTransportIssues() []string {
+	var issues []string
+	for _, required := range []string{"platform/blobstore", "platform/blobhttp"} {
+		if !s.packages[required] {
+			issues = append(issues, "missing shared blob transport package: "+required)
+		}
+	}
+	obsolete := func(pkg string) bool {
+		return pkg == "apps/noverse/internal/blobstore" || strings.HasPrefix(pkg, "apps/noverse/internal/blobstore/") ||
+			pkg == "apps/noverse/internal/s3test" || strings.HasPrefix(pkg, "apps/noverse/internal/s3test/")
+	}
+	for pkg := range s.packages {
+		if obsolete(pkg) {
+			issues = append(issues, "obsolete blob transport package: "+pkg)
+		}
+	}
+	for from, imports := range s.edges {
+		for to := range imports {
+			if obsolete(to) {
+				issues = append(issues, "obsolete blob transport import: "+(violation{from, to}).String())
+			}
+		}
+	}
+	sort.Strings(issues)
+	return issues
+}
+
 // layeredApps are the apps whose internal packages follow the layered layout:
 // cmd composes; web and persistence adapt; business packages hold the rules;
 // domain holds shared value types.

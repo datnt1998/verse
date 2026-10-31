@@ -16,8 +16,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -75,7 +75,7 @@ func ValidateConfigEncryptionKey() error { _, err := encryptionFromEnv(); return
 func BlobEnvLocked() bool {
 	for _, entry := range os.Environ() {
 		name, _, _ := strings.Cut(entry, "=")
-		if name == "STORAGE_DRIVER" || name == "BLOB_LOCAL_ROOT" || name == "BLOB_DELIVERY" || strings.HasPrefix(name, "S3_") {
+		if blobstore.EnvVarLocks(name) {
 			return true
 		}
 	}
@@ -115,7 +115,7 @@ func normalizeBlobConfig(cfg BlobConfig) BlobConfig {
 }
 
 func candidateConfig(c StorageCandidate, old BlobConfig) (BlobConfig, error) {
-	cfg := BlobConfig{Driver: BlobDriver(c.Driver), Provider: c.Provider, LocalRoot: c.LocalRoot, Delivery: c.Delivery}
+	cfg := BlobConfig{Driver: BlobDriver(c.Driver), Provider: blobstore.NormalizeProvider(c.Provider), LocalRoot: c.LocalRoot, Delivery: c.Delivery}
 	if cfg.Driver == BlobDriverLocal && cfg.LocalRoot == "" {
 		fallback, err := defaultBlobConfig()
 		if err != nil {
@@ -134,12 +134,7 @@ func candidateConfig(c StorageCandidate, old BlobConfig) (BlobConfig, error) {
 	if cfg.Driver == BlobDriverLocal {
 		cfg.S3 = blobstore.S3Config{}
 	}
-	if c.Provider == "garage" {
-		if cfg.S3.Region == "" {
-			cfg.S3.Region = "garage"
-		}
-		cfg.S3.ForcePathStyle = true
-	}
+	cfg.S3 = blobstore.ProviderDefaults(cfg.Provider, cfg.S3)
 	cfg = normalizeBlobConfig(cfg)
 	if cfg.Delivery != "redirect" && cfg.Delivery != "proxy" {
 		return cfg, errors.New("Cách giao tệp phải là chuyển hướng hoặc truyền qua app")

@@ -13,7 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/datnt1998/verse/apps/noverse/internal/s3test"
+	"github.com/datnt1998/verse/platform/blobstore/s3test"
 )
 
 // minioConfig is the shared S3 configuration for the disposable Garage.

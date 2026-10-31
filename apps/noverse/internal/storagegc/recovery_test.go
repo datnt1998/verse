@@ -12,9 +12,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 type lostDeleteAck struct{ blobstore.BlobStore }

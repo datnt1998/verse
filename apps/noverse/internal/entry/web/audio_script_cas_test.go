@@ -12,13 +12,13 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
+	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/identity"
 )
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // TestBlobConfig covers the STORAGE_DRIVER/S3_* env contract phase 03 locks:

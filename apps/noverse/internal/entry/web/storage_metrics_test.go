@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 func TestStorageMetricsAdminPrivacy(t *testing.T) {

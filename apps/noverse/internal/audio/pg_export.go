@@ -20,8 +20,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // Hosted audio export (phase 07): the web layer enqueues a durable

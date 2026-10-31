@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 type deliveryStore struct {
@@ -86,18 +86,18 @@ func TestBlobDeliveryConditionals(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r := httptest.NewRequest("GET", "/api/blobs/stream/"+info.Key, nil)
 			r.SetPathValue("key", info.Key)
-			r.Header.Set("If-None-Match", "W/"+shaETag(info.SHA256))
+			r.Header.Set("If-None-Match", `W/"`+strings.ToLower(info.SHA256)+`"`)
 			w := httptest.NewRecorder()
 			before := s.opens
 			handler(w, r)
-			if w.Code != 304 || s.opens != before || s.stats != 0 || w.Header().Get("ETag") != shaETag(info.SHA256) {
+			if w.Code != 304 || s.opens != before || s.stats != 0 || w.Header().Get("ETag") != `"`+strings.ToLower(info.SHA256)+`"` {
 				t.Fatalf("conditional code=%d opens=%d stats=%d etag=%q", w.Code, s.opens, s.stats, w.Header().Get("ETag"))
 			}
 			for _, match := range []bool{true, false} {
 				r = httptest.NewRequest("GET", "/api/blobs/stream/"+info.Key, nil)
 				r.SetPathValue("key", info.Key)
 				r.Header.Set("Range", "bytes=2-4")
-				v := shaETag(info.SHA256)
+				v := `"` + strings.ToLower(info.SHA256) + `"`
 				if !match {
 					v = `"other"`
 				}

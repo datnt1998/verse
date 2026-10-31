@@ -13,8 +13,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-
-	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 )
 
 // A successful response to a conditional write says nothing about whether the
@@ -112,14 +110,7 @@ func TestConditionalProbeNetworkErrorRetries(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	keys, err := blobkey.New(blobkey.EnvStaging)
-	if err != nil {
-		t.Fatal(err)
-	}
-	key, err := keys.Staging("6f0c2a8e-1b3d-4c5e-9f70-8a1b2c3d4e5f")
-	if err != nil {
-		t.Fatal(err)
-	}
+	key := "staging/test/6f0c2a8e-1b3d-4c5e-9f70-8a1b2c3d4e5f"
 	input := func() *s3.PutObjectInput {
 		return &s3.PutObjectInput{Bucket: aws.String("test"), Key: aws.String(key), Body: strings.NewReader("data"), IfNoneMatch: aws.String("*")}
 	}

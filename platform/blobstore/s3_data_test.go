@@ -78,7 +78,7 @@ func capturedMinioStore(t *testing.T, delay time.Duration) (*S3, *s3RequestCaptu
 	}
 	// Measure steady-state operations separately from the one-time capability
 	// probe. Capability tests below exercise the lazy path and its concurrency.
-	state, err := store.probeConditional(context.Background(), "dev/test-fixture")
+	state, err := store.probeConditional(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

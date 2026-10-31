@@ -25,7 +25,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 )
 
 // S3Config is the validated configuration for the single S3-compatible
@@ -66,6 +65,9 @@ type S3Config struct {
 	MaxPresignTTL time.Duration
 	// HTTPClient overrides transport (tests inject corrupting round-trippers).
 	HTTPClient *http.Client
+	// ConditionalProbePrefix is an app-owned disposable staging namespace.
+	// Empty defaults to staging/conditional-probe/; never derived from final keys.
+	ConditionalProbePrefix string
 }
 
 const (
@@ -197,6 +199,12 @@ func NewS3(cfg S3Config) (*S3, error) {
 		if u.Scheme == "http" && !cfg.AllowPlainHTTP {
 			return nil, fmt.Errorf("địa chỉ kho http:// chỉ dùng khi đã cho phép mạng nội bộ: %w", ErrInvalidKey)
 		}
+	}
+	if cfg.ConditionalProbePrefix == "" {
+		cfg.ConditionalProbePrefix = "staging/conditional-probe/"
+	}
+	if !strings.HasSuffix(cfg.ConditionalProbePrefix, "/") || ValidateKey(strings.TrimSuffix(cfg.ConditionalProbePrefix, "/")) != nil {
+		return nil, fmt.Errorf("conditional probe prefix không hợp lệ: %w", ErrInvalidKey)
 	}
 	if cfg.PartSize == 0 {
 		cfg.PartSize = defaultS3PartSize
@@ -342,19 +350,15 @@ func (s *S3) Put(ctx context.Context, key string, r io.Reader, opts PutOptions) 
 		}
 	}
 	if fallback {
-		// Verified content-addressed keys can only be overwritten with identical
-		// bytes. Non-addressed keys need a lock spanning HEAD and upload; CAS after
-		// upload cannot protect their bytes from a competing writer in this process.
-		object, parseErr := blobkey.Parse(key)
-		if parseErr != nil || object.SHA256 == "" || object.SHA256 != sha {
-			var hash uint64 = 14695981039346656037
-			for i := range key {
-				hash = (hash ^ uint64(key[i])) * 1099511628211
-			}
-			lock := &s3FallbackLocks[hash%uint64(len(s3FallbackLocks))]
-			lock.Lock()
-			defer lock.Unlock()
+		// Every key uses a bounded same-key lock spanning HEAD and upload.
+		// Cross-process publication fences remain the application's responsibility.
+		var hash uint64 = 14695981039346656037
+		for i := range key {
+			hash = (hash ^ uint64(key[i])) * 1099511628211
 		}
+		lock := &s3FallbackLocks[hash%uint64(len(s3FallbackLocks))]
+		lock.Lock()
+		defer lock.Unlock()
 		existing, err := s.identicalBlob(ctx, key, sha, n)
 		if err == nil {
 			return existing, nil
@@ -379,26 +383,35 @@ func (s *S3) Put(ctx context.Context, key string, r io.Reader, opts PutOptions) 
 	}, nil
 }
 
-// putConditional probes against a disposable blobkey-owned staging key, never
-// against caller data. Only a rejected second write proves enforcement.
-func (s *S3) putConditional(ctx context.Context, input *s3.PutObjectInput) (*s3.PutObjectOutput, bool, error) {
-	if s.conditionalState.Load() == conditionalUnknown {
-		select {
-		case s.conditionalProbe <- struct{}{}:
-		case <-ctx.Done():
-			return nil, false, ctx.Err()
-		}
-		if s.conditionalState.Load() == conditionalUnknown {
-			state, err := s.probeConditional(ctx, aws.ToString(input.Key))
-			if err != nil {
-				<-s.conditionalProbe
-				return nil, false, err
-			}
-			s.conditionalState.Store(state)
-		}
-		<-s.conditionalProbe
+// ProbeConditional performs the bounded disposable-object capability probe once.
+// Transport and cleanup failures leave the result unknown so a later call retries.
+func (s *S3) ProbeConditional(ctx context.Context) (string, error) {
+	if s.conditionalState.Load() != conditionalUnknown {
+		return s.ConditionalPutSupport(), nil
 	}
-	if s.conditionalState.Load() == conditionalUnsupported {
+	select {
+	case s.conditionalProbe <- struct{}{}:
+	case <-ctx.Done():
+		return "unknown", ctx.Err()
+	}
+	defer func() { <-s.conditionalProbe }()
+	if s.conditionalState.Load() == conditionalUnknown {
+		state, err := s.probeConditional(ctx)
+		if err != nil {
+			return "unknown", err
+		}
+		s.conditionalState.Store(state)
+	}
+	return s.ConditionalPutSupport(), nil
+}
+
+// putConditional never probes against caller data.
+func (s *S3) putConditional(ctx context.Context, input *s3.PutObjectInput) (*s3.PutObjectOutput, bool, error) {
+	state, err := s.ProbeConditional(ctx)
+	if err != nil {
+		return nil, false, err
+	}
+	if state == "unsupported" {
 		return nil, true, nil
 	}
 	out, err := s.client.PutObject(ctx, input)
@@ -409,29 +422,13 @@ func (s *S3) putConditional(ctx context.Context, input *s3.PutObjectInput) (*s3.
 	return out, false, err
 }
 
-func (s *S3) probeConditional(ctx context.Context, callerKey string) (state uint32, err error) {
-	// Follow the caller's environment, not a hard-coded dev prefix: a production
-	// key may only be permitted to write prod/. Legacy arbitrary keys use env.
-	env, envErr := blobkey.ParseEnv(strings.SplitN(callerKey, "/", 2)[0])
-	if envErr != nil {
-		env, err = blobkey.EnvFromOS()
-		if err != nil {
-			return conditionalUnknown, err
-		}
-	}
-	keys, err := blobkey.New(env)
-	if err != nil {
-		return conditionalUnknown, err
-	}
+func (s *S3) probeConditional(ctx context.Context) (state uint32, err error) {
 	var token [16]byte
 	if _, err := rand.Read(token[:]); err != nil {
 		return conditionalUnknown, err
 	}
 	id := fmt.Sprintf("%x-%x-%x-%x-%x", token[:4], token[4:6], token[6:8], token[8:10], token[10:])
-	key, err := keys.Staging(id)
-	if err != nil {
-		return conditionalUnknown, err
-	}
+	key := s.cfg.ConditionalProbePrefix + id
 	defer func() {
 		cleanup, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 		defer cancel()

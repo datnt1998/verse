@@ -22,10 +22,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
-	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/apps/noverse/internal/s3test"
+	"github.com/datnt1998/verse/platform/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore/s3test"
 )
 
 type storageHTTPFixture struct {
