@@ -212,6 +212,28 @@ type CloneMetadataState struct {
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
+type ClonePostFact struct {
+	JobID        pgtype.UUID        `json:"job_id"`
+	YoutubeID    pgtype.Text        `json:"youtube_id"`
+	Title        string             `json:"title"`
+	DurationSec  pgtype.Int4        `json:"duration_sec"`
+	PublishedAt  pgtype.Timestamptz `json:"published_at"`
+	ReadAttempts int32              `json:"read_attempts"`
+	NextReadAt   pgtype.Timestamptz `json:"next_read_at"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ClonePostStat struct {
+	JobID     pgtype.UUID        `json:"job_id"`
+	Milestone string             `json:"milestone"`
+	Views     int64              `json:"views"`
+	Likes     pgtype.Int8        `json:"likes"`
+	Comments  pgtype.Int8        `json:"comments"`
+	Source    string             `json:"source"`
+	ReadAt    pgtype.Timestamptz `json:"read_at"`
+}
+
 type CloneQueue struct {
 	ID               pgtype.UUID        `json:"id"`
 	ChannelID        pgtype.UUID        `json:"channel_id"`
@@ -385,6 +407,15 @@ type OwnerChannelTemplate struct {
 	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
 	TemplateID     pgtype.UUID `json:"template_id"`
 	Position       int32       `json:"position"`
+	Weight         int16       `json:"weight"`
+}
+
+type PerformanceInsightsApplied struct {
+	ChannelID pgtype.UUID        `json:"channel_id"`
+	InsightID string             `json:"insight_id"`
+	Kind      string             `json:"kind"`
+	RuleID    pgtype.Text        `json:"rule_id"`
+	AppliedAt pgtype.Timestamptz `json:"applied_at"`
 }
 
 type PlatformRequest struct {

@@ -22,7 +22,6 @@ import { t } from '../../../i18n/vi'
 import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, catalogSource } from './ModelCatalog'
 import { ProviderCard, reasonOf } from './ProviderCard'
-import { YoutubeDataKeyCard } from './YoutubeDataKeyCard'
 
 const c = aiCopy.connect
 
@@ -178,7 +177,6 @@ export function ConnectSection() {
           />
         ))}
         {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
-        <YoutubeDataKeyCard />
 
         {dirtyBar}
 
@@ -240,7 +238,6 @@ export function ConnectSection() {
           />
         ))}
         {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
-        <YoutubeDataKeyCard />
       </div>
 
       {addOpen ? (

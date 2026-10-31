@@ -201,6 +201,9 @@ func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files clone
 	if g.cloneReviewRoute != nil && g.cloneReviewRoute(w, r) {
 		return
 	}
+	if g.clonePostedRoute != nil && g.clonePostedRoute(w, r) {
+		return
+	}
 	svc := g.Clone
 	parts := strings.SplitN(strings.TrimPrefix(r.URL.Path, "/api/clone/"), "/", 4)
 	if !cloneSegment(parts[0]) {

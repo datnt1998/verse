@@ -7,10 +7,10 @@ import { channelStyles } from './channel.stylex'
 // artboard (role=dialog, role=checkbox rows, Esc đóng, focus trả về nút mở),
 // ô theo dõi đối thủ mới rồi liên kết luôn, công tắc Tự lấy + nhịp 1–50 lưu
 // ngay khi đổi. Bỏ liên kết hỏi xác nhận cam nhạt (copy sheet MChannel); bỏ
-// đối thủ cuối → khối nhịp hiện lý do tạm dừng.
-// Mức tự chủ + Ưu tiên kênh (§20) thay công tắc Tự lấy: AutonomyCard.
+// đối thủ cuối → server trả autoPickPaused, hiện lý do tạm dừng.
+// Mức tự chủ/Ưu tiên (§20) không dựng — không vẽ khối giả.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
+import { Icon, confirm, Switch, toast, useEscapeLayer } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/vi'
@@ -23,8 +23,6 @@ import { linkSource, patchChannel, unlinkSource, type Channel, type ChannelSourc
 import { addRivalError } from '../explore/AddRivalForm'
 import { channelTint } from '../../lib/channelTint'
 import { PaceStepper } from './PaceStepper'
-import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
-import { AutonomyCard, PrioritySeg } from '../../components/autonomy/AutonomyCard'
 import { ScheduleCard } from './ScheduleCard'
 import { ASIDE_HIDDEN } from './breakpoint'
 import { fmtAge, fmtSubs } from '../explore/fmt'
@@ -43,8 +41,11 @@ export function SourcesTab({ channel, channels }: {
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = rivalsRes.data?.rivals ?? []
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [paused, setPaused] = useState(!channel.autoPick || channel.sources.length === 0)
   const [error, setError] = useState<string | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => { setPaused(!channel.autoPick || channel.sources.length === 0) }, [channel.autoPick, channel.sources.length])
 
   const save = async (patch: Parameters<typeof patchChannel>[1]) => {
     setError(null)
@@ -81,7 +82,8 @@ export function SourcesTab({ channel, channels }: {
       confirmLabel: tt.unlinkOk,
       successMessage: tt.unlinkDone,
       onConfirm: async () => {
-        await unlinkSource(channel.id, rivalId)
+        const result = await unlinkSource(channel.id, rivalId)
+        if (result.autoPickPaused) setPaused(true)
         void invalidate(keys.channels())
       },
     })
@@ -139,11 +141,23 @@ export function SourcesTab({ channel, channels }: {
           <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="refresh" size={16} />{tt.pacingTitle}</h2>
         </div>
         <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: '0 var(--vv-s-14)' }}>{tt.pacingHint}</p>
-        {channel.sources.length === 0 && (
+        {paused && (
           <p className={`vch-alert ${stylex.props(channelStyles.alert).className}`} role="status" style={{ margin: 'var(--vv-s-8) var(--vv-s-14) 0' }}>
-            {tt.emptyBody}
+            {channel.sources.length === 0 ? tt.emptyBody : tt.pausedReason}
           </p>
         )}
+        <div className={`vch-settingrow ${stylex.props(channelStyles.settingrow).className}`}>
+          <span className={`vch-settingrow__text ${stylex.props(channelStyles.settingrowText).className}`}>
+            <span className={`vch-settingrow__label ${stylex.props(channelStyles.settingrowLabel).className}`}>{tt.autoPick}</span>
+            <span className={`vch-settingrow__sub ${stylex.props(channelStyles.settingrowSub).className}`}>{tt.autoPickHint}</span>
+          </span>
+          <Switch className={stylex.props(channelStyles.touchTarget).className}
+            checked={channel.autoPick}
+            onChange={(on) => { setPaused(!on || channel.sources.length === 0); void save({ autoPick: on }) }}
+            label={tt.autoPick}
+            size="sm"
+          />
+        </div>
         <div className={`vch-settingrow ${stylex.props(channelStyles.settingrow).className}`}>
           <span className={`vch-settingrow__text ${stylex.props(channelStyles.settingrowText).className}`}>
             <span className={`vch-settingrow__label ${stylex.props(channelStyles.settingrowLabel).className}`}>{tt.pace}</span>
@@ -151,7 +165,6 @@ export function SourcesTab({ channel, channels }: {
           </span>
           <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
         </div>
-        <div {...stylex.props(autonomyStyles.prioWrap)}><PrioritySeg channel={channel} /></div>
         {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: 'var(--vv-s-8) var(--vv-s-14)' }}>{error}</p>}
         <div style={{ padding: 'var(--vv-s-8) var(--vv-s-14) var(--vv-s-12)' }}>
           <AddRivalRow
@@ -160,8 +173,6 @@ export function SourcesTab({ channel, channels }: {
           />
         </div>
       </div>
-
-      <AutonomyCard channel={channel} />
 
       {narrow && <ScheduleCard channel={channel} variant="tab" />}
     </section>

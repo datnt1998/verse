@@ -1,8 +1,7 @@
+import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { space as s, corners as r } from '../../../styles/viderse.stylex'
 import type { RecapData } from '../../../api/workbench'
-import { AssistantComposer } from '../../../components/assistant/AssistantComposer'
-import { assistantCopy } from '../../../i18n/assistant'
 import { useOnline } from '../../../data/status'
 
 type Props = {
@@ -36,6 +35,8 @@ const time = (value: string) => {
 }
 
 export function Recap({ data, loading, error, waitingCount, readyCount, channelNames, onRetry, onEnter, onSelectJob }: Props) {
+  const [draft, setDraft] = useState('')
+  const [notice, setNotice] = useState(false)
   const online = useOnline()
   return <div {...stylex.props(styles.layout)}><div role="region" aria-label="Bản tin" {...stylex.props(styles.scroll)}><div {...stylex.props(styles.root)}>
     <header {...stylex.props(styles.header)}><div {...stylex.props(styles.heading)}><span {...stylex.props(styles.when)}>Bản tin · mọi kênh{data && ` · từ ${time(data.from)} tới ${time(data.to)}`}</span>{data && <p {...stylex.props(styles.lead)}>{recapLead(waitingCount, readyCount)}</p>}</div><button type="button" {...stylex.props(styles.quiet)} onClick={onEnter}>Vào việc ›</button></header>
@@ -47,13 +48,14 @@ export function Recap({ data, loading, error, waitingCount, readyCount, channelN
     </>}
   </div></div>
   <div {...stylex.props(styles.composerFoot)}>
-    <AssistantComposer scope="all" label={assistantCopy.composer.recap} placeholder={assistantCopy.composer.recapPlaceholder} hints={{ esc: false }} onSettled={onRetry} />
-  </div></div>
+    <form {...stylex.props(styles.composer)} onSubmit={event => { event.preventDefault(); setNotice(true) }}><input {...stylex.props(styles.input)} aria-label="Nhắn trợ lý · mọi kênh" placeholder="Nhắn trợ lý · mọi kênh" value={draft} onChange={event => setDraft(event.target.value)} /><button {...stylex.props(styles.button)} type="submit" disabled={!online}>Gửi</button></form>{notice && <span role="status">Sắp có</span>}
+  <div {...stylex.props(styles.hint)}>Enter gửi</div></div></div>
 }
 
 const styles = stylex.create({
   layout: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'] },
   composerFoot: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
+  hint: { minHeight: 23, padding: `0 ${s['--vv-s-6']}`, color: 'var(--color-fg-4)', fontSize: 12, lineHeight: 1.55 },
   scroll: { flex: 1, minHeight: 0, overflowY: 'auto', margin: `0 calc(-1 * ${s['--vv-s-8']})`, padding: `${s['--vv-s-6']} ${s['--vv-s-8']} ${s['--vv-s-14']}` },
   root: { maxWidth: 800, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: s['--vv-s-18'] },
   header: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'] },
@@ -72,4 +74,7 @@ const styles = stylex.create({
   tile: { padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-1)', display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'], fontSize: 12, color: 'var(--color-fg-3)' },
   quiet: { border: 0, backgroundColor: 'transparent', color: 'var(--color-fg-2)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer', whiteSpace: 'nowrap' },
   primary: { alignSelf: 'flex-start', padding: `${s['--vv-s-7']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-fg)', color: 'var(--color-surface-1)', textDecoration: 'none', fontSize: 13 },
+  composer: { display: 'flex', alignItems: 'center', minHeight: 54, gap: s['--vv-s-10'], padding: `${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-14']}`, borderRadius: r['--vv-r-16'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-2)' },
+  input: { flex: 1, minWidth: 0, height: 38, border: 0, outline: 'none', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 14 },
+  button: { border: '1px solid var(--line-2)', borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-surface-2)', color: 'var(--color-fg)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer' },
 })

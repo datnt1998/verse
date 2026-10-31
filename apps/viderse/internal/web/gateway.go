@@ -34,6 +34,8 @@ type Gateway struct {
 	scopedRender      http.Handler
 	renderCloneRoute  func(http.ResponseWriter, *http.Request) bool
 	cloneReviewRoute  func(http.ResponseWriter, *http.Request) bool
+	clonePostedRoute  func(http.ResponseWriter, *http.Request) bool
+	channelRoutes     map[string][]channelRoute
 }
 
 // NewGateway dựng handler: accounts là kho identity chung (Postgres); khi

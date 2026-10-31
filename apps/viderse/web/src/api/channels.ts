@@ -10,7 +10,6 @@
 //   POST   /api/owner-channels/:id/branding       → 202 { channel, identityJobId }
 //   GET    /api/owner-channels/:id/branding/:file → ảnh (?download=1 để tải về)
 // Lỗi luôn có vỏ {error, code, recovery?, retryAt?}.
-import type { Autonomy, Priority } from './autonomy'
 import { ApiError, mutate, request } from './request'
 
 export type ChannelLanguage = 'en' | 'vi' | 'auto'
@@ -54,9 +53,6 @@ export type Channel = {
   pacePerDay: number
   templateCursor: number
   branding: Branding
-  /** Mức tự chủ (§20); server suy `preset` từ bốn dòng. */
-  autonomy: Autonomy
-  priority: Priority
   avatarUrl: string | null
   bannerUrl: string | null
   sources: ChannelSource[]
@@ -73,8 +69,7 @@ export type CreateChannelInput = {
   youtubeUrl?: string
   /** bắt buộc ≥ 1 — server trả 400 khi rỗng */
   competitorIds: string[]
-  /** Tạo kênh: Tự chạy không cần xác nhận; approve 'all' bị từ chối. */
-  autonomy?: Autonomy
+  autoPick?: boolean
   pacePerDay?: number
   language?: ChannelLanguage
 }
@@ -87,6 +82,7 @@ export type ChannelPatch = {
   styleNote?: string | null
   descriptionFooter?: string | null
   alwaysTags?: string[]
+  autoPick?: boolean
   pacePerDay?: number
   brief?: string
 }
