@@ -172,6 +172,7 @@ func TestLiveFramesRespectVisibilityAndStayOutOfResumeRing(t *testing.T) {
 	mux := newLiveMux(g, "p", "s")
 	mux.frame("event", []byte(`{"id":"e1","summary":"xong"}`))
 	mux.frame("delta", []byte(`{"text":"một đoạn"}`))
+	mux.flush(true) // Only flushed batches belong in a reconnect snapshot.
 
 	first := readFrame(t, mine.C)
 	if first.Type != liveDataType {
@@ -310,11 +311,15 @@ func TestSetWatchBackfillAndLiveDeltaReconstructInOrder(t *testing.T) {
 
 		// The authoritative transcript is one atomic stream frame, plus live B.
 		var text string
+		cursor := liveCursor{}
 		for range 2 {
-			ev := readFrame(t, sub.C)
-			frame, ok := ev.Data.(liveFrame)
+			wire := readFrame(t, sub.C)
+			if !cursor.accept(wire) {
+				continue
+			}
+			frame, ok := wire.Data.(liveFrame)
 			if !ok {
-				t.Fatalf("lần %d: frame %T", attempt, ev.Data)
+				t.Fatalf("lần %d: frame %T", attempt, wire.Data)
 			}
 			switch frame.Kind {
 			case "stream":
@@ -327,5 +332,113 @@ func TestSetWatchBackfillAndLiveDeltaReconstructInOrder(t *testing.T) {
 			t.Fatalf("lần %d: text rebuilt = %q, muốn %q", attempt, text, "AB")
 		}
 		hub.unsubscribe(sub)
+	}
+}
+
+// Keep B in the coalescing buffer while SetWatch takes its snapshot. Before
+// the fix, appendStream had already published AB, so the later flush added B twice.
+func TestSetWatchPendingDeltaSnapshotBoundary(t *testing.T) {
+	hub := newEventHub()
+	user := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
+	mux := newLiveMux(&Gateway{eventHub: hub}, "p", "s")
+	mux.frame("delta", []byte(`{"text":"A"}`))
+	sub, _, _ := hub.subscribe(user, 0, nil)
+	defer hub.unsubscribe(sub)
+
+	mux.lastFlush = time.Now().Add(time.Hour) // B cannot auto-flush, regardless of machine load.
+	mux.frame("delta", []byte(`{"text":"B"}`))
+	if !hub.SetWatch(sub.ID, "r", []string{"p/s"}) {
+		t.Fatal("SetWatch failed")
+	}
+	mux.flush(true)
+
+	var text string
+	for range 2 {
+		frame := readFrame(t, sub.C).Data.(liveFrame)
+		switch frame.Kind {
+		case "stream":
+			text = frameText(frame.Data)
+		case "delta":
+			text += frameText(frame.Data)
+		}
+	}
+	if text != "AB" {
+		t.Fatalf("snapshot plus pending delta = %q, want AB", text)
+	}
+}
+
+func TestSetWatchSnapshotSuppressesDelayedLiveBatch(t *testing.T) {
+	hub := newEventHub()
+	user := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
+	mux := newLiveMux(&Gateway{eventHub: hub}, "p", "s")
+	mux.frame("delta", []byte(`{"text":"A"}`))
+	sub, _, _ := hub.subscribe(user, 0, nil)
+	defer hub.unsubscribe(sub)
+
+	published, release, finished := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	mux.beforeStreamBroadcast = func() {
+		close(published)
+		<-release
+	}
+	go func() {
+		defer close(finished)
+		mux.frame("delta", []byte(`{"text":"B"}`))
+		mux.flush(true)
+	}()
+	<-published // AB and seq are visible, but live B cannot be broadcast yet.
+	ok := hub.SetWatch(sub.ID, "r", []string{"p/s"})
+	close(release)
+	<-finished
+	if !ok {
+		t.Fatal("SetWatch failed")
+	}
+	hub.Broadcast(Event{Type: "test.end"})
+
+	// Exercise the actual shared SSE writer, not a test-only reconstruction.
+	w := httptest.NewRecorder()
+	cursor := liveCursor{}
+	err := hub.inner.Serve(w, httptest.NewRequest(http.MethodGet, "/api/events", nil), sub.Sub, nil, false, events.Hooks{
+		FilterFrame: cursor.accept,
+		AfterFrame:  func(ev events.Event) bool { return ev.Type != "test.end" },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, `"kind":"stream","data":{"text":"AB"}`) || strings.Contains(body, `"kind":"delta"`) {
+		t.Fatalf("SSE must send AB once and suppress its already-covered B batch:\n%s", body)
+	}
+}
+
+func TestLivePreambleSuppressesAlreadyQueuedBatch(t *testing.T) {
+	hub := newEventHub()
+	user := identity.User{Username: "r", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"p": identity.ProjectView}}
+	mux := newLiveMux(&Gateway{eventHub: hub}, "p", "s")
+	mux.frame("delta", []byte(`{"text":"A"}`))
+	sub, _, _ := hub.subscribe(user, 0, []string{"p/s"})
+	defer hub.unsubscribe(sub)
+	mux.frame("delta", []byte(`{"text":"B"}`))
+	mux.flush(true)
+	hub.Broadcast(Event{Type: "test.end"})
+
+	w := httptest.NewRecorder()
+	cursor := liveCursor{}
+	err := hub.inner.Serve(w, httptest.NewRequest(http.MethodGet, "/api/events", nil), sub.Sub, nil, false, events.Hooks{
+		FilterFrame: cursor.accept,
+		Preamble: func(write func(events.Event) bool) {
+			for _, ev := range hub.Backlog([]string{"p/s"}) {
+				if !write(toWire(ev)) {
+					return
+				}
+			}
+		},
+		AfterFrame: func(ev events.Event) bool { return ev.Type != "test.end" },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, `"kind":"stream","data":{"text":"AB"}`) || strings.Contains(body, `"kind":"delta"`) {
+		t.Fatalf("preamble must cover queued B without duplicating it:\n%s", body)
 	}
 }

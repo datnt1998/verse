@@ -45,6 +45,9 @@ type Hooks struct {
 	// trực tiếp (ví dụ bù backlog của kênh con). write(ev) chuyển hoá và ghi đúng
 	// định dạng khung; trả false khi ghi lỗi.
 	Preamble func(write func(ev Event) bool)
+	// FilterFrame returns false to skip a frame already represented by a
+	// snapshot. It runs for replay, preamble and live delivery in writer order.
+	FilterFrame func(ev Event) bool
 	// AfterFrame chạy sau mỗi frame sự kiện trực tiếp đã ghi (vd kiểm phiên còn
 	// hiệu lực sau frame session.revoked).
 	AfterFrame func(ev Event) bool
@@ -107,7 +110,12 @@ func (h *Hub) Serve(w http.ResponseWriter, r *http.Request, sub *Sub, replay []E
 		f.Flush()
 		return err == nil
 	}
-	writeEvent := func(ev Event) bool { return write(ev.ID, ev.Type, ev.Data) }
+	writeEvent := func(ev Event) bool {
+		if hooks.FilterFrame != nil && !hooks.FilterFrame(ev) {
+			return true
+		}
+		return write(ev.ID, ev.Type, ev.Data)
+	}
 
 	if !write(0, "hello", map[string]any{"subscriber": sub.ID}) {
 		return nil

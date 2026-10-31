@@ -46,6 +46,8 @@ Mã lỗi: 401 → `#/login` (phiên hết hạn, xem `09-auth-onboard.md`); 403
 
 Reconnect: backoff `min(1000·2^n, 15000)` ms → `ConnectionBanner` đếm ngược.
 
+Luồng chung `/api/events` bọc các khung `stream`/`delta` bằng `seq` tăng dần theo truyện. Bản `stream` chỉ chứa các batch đã flush; batch đang gom chưa được công bố vào bản phục hồi. SSE writer giữ watermark riêng cho từng kết nối và truyện: khung có `seq` nhỏ hơn hoặc bằng watermark bị bỏ trước khi ghi ra mạng. Quy tắc áp dụng cả preamble khi nối lại lẫn snapshot do đổi watch, để một batch không vừa nằm trong bản phục hồi vừa được nối lại lần nữa.
+
 ## Snapshot → UI
 
 | UI | Trường |
