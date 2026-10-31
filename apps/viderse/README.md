@@ -155,6 +155,13 @@ npm run build -w apps/viderse/web        # build ra internal/web/dist (được 
 npm run size -w apps/viderse/web         # kích thước gzip JS tải lần đầu, lỗi khi vượt 250 kB
 ```
 
+Các màn Cài đặt dùng StyleX (`web/src/screens/settings/settings.stylex.ts`),
+không nạp stylesheet CSS riêng. Trị số artboard chưa có token chung nằm trong
+`settingsVars.stylex.ts`; trạng thái và breakpoint được ghép bằng StyleX.
+Kit nhận `xstyle` cho phần tử gốc và `<part>Style` cho phần tử con (ví dụ
+`inputStyle`, `buttonStyle`), để app ghi đè đúng thứ tự mà không dùng selector
+xuyên vào DOM nội bộ của kit.
+
 Brand Viderse (màu chính `#FF4D63`, bộ màu ở `docs/design/v1/02-stack-verse.md`
 §2) nạp ở `web/src/brand.ts`. Bản dev có trang `#/dev/kit` dựng lại board `Kit`
 và `MKit` bằng component thật để so với artboard. Bản build `internal/web/dist`

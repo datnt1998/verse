@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles } from './settings.stylex'
 // @vitest-environment happy-dom
 // Khung Cài đặt — chuyển mục bằng ?section=, alias cũ ?section=images → agents,
 // chấm cam theo attention của /api/status, và mobile danh sách không có tab bar.
@@ -91,7 +93,9 @@ describe('khung Cài đặt', () => {
   it('chấm cam xuất hiện trên mục có attention trỏ tới', async () => {
     const el = await render()
     const toolsNav = el.querySelector('.vv-set__nav-it[aria-current="true"]')
-    expect(toolsNav?.querySelector('.vv-dot--warn')).toBeTruthy()
+    const dot = toolsNav?.querySelector('.vv-dot')
+    expect(dot).toBeTruthy()
+    for (const atom of stylex.props(styles.dotWarn).className!.split(' ')) expect(dot?.classList.contains(atom)).toBe(true)
   })
 
   it('mỗi mục sidebar luôn giữ span số ở cuối (kể cả rỗng) để chấm không trôi sát mép', async () => {
@@ -101,7 +105,7 @@ describe('khung Cài đặt', () => {
       const num = it.querySelector('.vv-set__nav-num')
       expect(num, it.textContent ?? '').toBeTruthy()
       // Span phải là phần tử cuối (sau chấm attention nếu có).
-      expect(it.lastElementChild?.className).toBe('vv-set__nav-num')
+      expect(it.lastElementChild?.classList.contains('vv-set__nav-num')).toBe(true)
     }
   })
 

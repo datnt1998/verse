@@ -1,0 +1,32 @@
+import * as stylex from '@stylexjs/stylex'
+
+/** Settings artboard metrics without an existing Viderse token. */
+export const settingsVars = stylex.defineVars({
+  setGrpfontSize: "11.5px",
+  setNavItfontSize: "13.5px",
+  setBodymaxWidth: "760px",
+  setTipsTitlefontSize: "12.5px",
+  msetRowLabelfontSize: "14.5px",
+  logsExportMainflex: "1 1 340px",
+  logsVersionMainflex: "1 1 280px",
+  toolsProgmaxWidth: "420px",
+  toolsSpinborderWidth: "1.5px",
+  toolsRowgridTemplateColumns: "19px minmax(0, 1fr) auto",
+  toolsIboxwidth: "19px",
+  agtPopShadow: "0 24px 60px -16px rgba(0, 0, 0, .9), 0 2px 8px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .05)",
+  agtPopBodymaxHeight: "300px",
+  connSheetRowCheckborderWidth: "0 2px 2px 0",
+  connTileBackground: "rgba(255, 77, 99, .06)",
+  saccAcctTextflex: "1 1 260px",
+  saccEmptyTextflex: "1 1 320px",
+  saccSelectminWidth: "220px",
+  kitDlgScrimSaccQrDialogbackdropFilter: "blur(3px)",
+  saccQrLeftwidth: "200px",
+  saccQrSkelwidth: "172px",
+  saccQrBoxwidth: "196px",
+  saccQrSkelwidthAlternate: "168px",
+  stoLocTextMflex: "1 1 120px",
+  kitRcardminHeight: "57px",
+  kitRdotborderColor: "rgba(255, 255, 255, 0.28)",
+  usageLegendgridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))",
+})

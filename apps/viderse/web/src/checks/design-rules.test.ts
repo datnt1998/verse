@@ -136,14 +136,13 @@ describe('luật thiết kế trong src/', () => {
 })
 
 describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () => {
-  const settingsCss = readFileSync(join(SRC, 'screens/settings/settings.css'), 'utf8')
-  const toolsCss = readFileSync(join(SRC, 'screens/settings/tools/tools.css'), 'utf8')
+  const settingsSource = readFileSync(join(SRC, 'screens/settings/settings.stylex.ts'), 'utf8')
+  const settingsMetrics = readFileSync(join(SRC, 'screens/settings/settingsVars.stylex.ts'), 'utf8')
   const componentsCss = readFileSync(join(SRC, 'styles/components.css'), 'utf8')
 
   it('nhãn nhóm sidebar 11.5px — artboard Settings .grp, không phải 11px', () => {
-    const grp = settingsCss.match(/\.vv-set__grp\s*\{[^}]*\}/)
-    expect(grp).toBeTruthy()
-    expect(grp![0]).toContain('font-size: 11.5px')
+    expect(settingsSource.match(/^  setGrp:.*$/m)?.[0]).toContain('fontSize: settingsVars.setGrpfontSize')
+    expect(settingsMetrics).toContain('setGrpfontSize: "11.5px"')
   })
 
   it('header không co khi cột dưới thiếu chỗ (artboard top cao cố định)', () => {
@@ -153,29 +152,28 @@ describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () =
   })
 
   it('mục Công cụ › câu lỗi hàng cam (.vv-tools__hint.is-err)', () => {
-    expect(toolsCss).toMatch(/\.vv-tools__hint\.is-err\s*\{[^}]*\}/)
+    expect(settingsSource.match(/^  toolsHintIsErr:.*$/m)?.[0]).toContain('color: "var(--vv-warn-ink)"')
   })
 
   it('MSettings › Chi tiết: tên công cụ (adv-k) không bị display:none ở mobile', () => {
-    const mobile = toolsCss.match(/@media\s*\(max-width:\s*767px\)\s*\{[\s\S]*/)
-    expect(mobile).toBeTruthy()
-    expect(mobile![0]).not.toMatch(/\.vv-tools__adv-k\s*\{[^}]*display:\s*none[^}]*\}/)
+    const rule = settingsSource.match(/^  toolsAdvK:.*$/m)?.[0]
+    expect(rule).toBeTruthy()
+    expect(rule).not.toMatch(/display:.*"none"/)
+    expect(rule).toContain('color:')
   })
 
   it('Báo lỗi › lỗi chưa xử lý dùng token cam lỗi, không phải vàng warn', () => {
-    const logsCss = readFileSync(join(SRC, 'screens/settings/logs/logs.css'), 'utf8')
-    expect(logsCss).toMatch(/\.vv-logs__err-st\.is-err\s*\{[^}]*var\(--color-err\)[^}]*\}/)
-    expect(logsCss).not.toMatch(/\.vv-logs__err-st\.is-warn/)
+    expect(settingsSource.match(/^  logsErrStIsErr:.*$/m)?.[0]).toContain('color: color["--color-err"]')
+    expect(settingsSource).not.toMatch(/^  logsErrStIsWarn:/m)
   })
 
   it('MSettings › Lưu trữ: lời dẫn sheet Đổi thư mục thụt vào lề 16', () => {
     // .vv-sto__hintLine là con trực tiếp của .m-sheet-body không padding — nếu
     // mất margin-inline 16 thì nó giãn x0/390 thay vì x16/358 như artboard.
-    const storageCss = readFileSync(join(SRC, 'screens/settings/storage/storage.css'), 'utf8')
-    const rule = storageCss.match(/\.vv-sto__hintLine\s*\{[^}]*\}/)
+    const rule = settingsSource.match(/^  stoHintLine:.*$/m)?.[0]
     expect(rule).toBeTruthy()
-    expect(rule![0]).toContain('margin-inline: var(--vv-s-16)')
-    expect(rule![0]).not.toContain('padding')
+    expect(rule).toContain('marginInline: "var(--vv-s-16)"')
+    expect(rule).not.toContain('padding')
   })
 })
 
@@ -183,17 +181,16 @@ describe('Khám phá: lớp phủ <select> trong chip lọc', () => {
   it('chip chứa <select> phủ tuyệt đối phải là khối chứa (position: relative)', () => {
     // <select> trong suốt `position:absolute; inset:0` lấy chip làm khối chứa.
     // Thiếu position trên chip thì select phủ cả cửa sổ và nuốt mọi cú bấm —
-    // jsdom không tính layout nên giữ luật bằng stylesheet.
+    // jsdom không tính layout nên giữ luật trên StyleX và nơi gắn style.
     const filterBar = readFileSync(join(SRC, 'screens/explore/FilterBar.tsx'), 'utf8')
-    const exploreCss = readFileSync(join(SRC, 'screens/explore/explore.css'), 'utf8')
-    const hosts = filterBar.split('<label className="').slice(1)
-      .map((chunk) => ({ className: chunk.slice(0, chunk.indexOf('"')), body: chunk.slice(0, chunk.indexOf('</label>')) }))
-      .filter(({ body }) => body.includes('<select') && body.includes("position: 'absolute'"))
+    const exploreStyles = readFileSync(join(SRC, 'screens/explore/explore.stylex.ts'), 'utf8')
+    const hosts = (filterBar.match(/<label\b[\s\S]*?<\/label>/g) ?? [])
+      .filter((host) => host.includes('<select') && host.includes("position: 'absolute'"))
     expect(hosts.length).toBeGreaterThan(0)
-    for (const { className } of hosts) {
-      const positioned = className.split(/\s+/).some((cls) =>
-        new RegExp(String.raw`\.${cls}\s*\{[^}]*position:\s*relative`).test(exploreCss))
-      expect(positioned, `chip "${className}" chứa select phủ tuyệt đối nhưng không có position: relative`).toBe(true)
+    for (const host of hosts) {
+      expect(host, 'chip chứa select phải gắn style chip').toContain('stylex.props(exploreStyles.chip')
+      expect(exploreStyles, 'chip phải giữ position: relative')
+        .toMatch(/\bchip:\s*\{\s*position:\s*['"]relative['"]/)
     }
   })
 })

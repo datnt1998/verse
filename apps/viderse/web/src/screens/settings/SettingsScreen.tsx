@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, setNavLinkMarker, setHelpCardMarker, msetRowMarker, msetQueueMarker, isWarnMarker } from './settings.stylex'
 // Khung Cài đặt — desktop: cột mục trái + nội dung giữa + thẻ “Khi nào…” phải
 // (artboard Settings); mobile: lớp phủ toàn màn theo MSettings — thẻ “Máy sẵn
 // sàng”, danh sách mục kèm giá trị, thẻ Hàng chờ, chân phiên bản; màn con không
@@ -24,7 +26,6 @@ import { getAgents, listProviders } from '../../api/ai'
 import { listPlatforms } from '../../api/platforms'
 import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
-import './settings.css'
 import { membersUrl } from '../../api/sso'
 import { MembersLink } from '../../components/AppLinks'
 
@@ -165,28 +166,28 @@ function NavList({ section, dots, facts, onPick }: {
       <button
         key={n.id}
         type="button"
-        className="vv-set__nav-it"
+        className={`vv-set__nav-it ${stylex.props(settingsStyles.setNavIt).className}`}
         aria-current={n.id === section ? 'true' : undefined}
         onClick={() => onPick(n.id)}
       >
-        <Icon name={n.icon} size={17} className="vv-ic" />
-        <span className="vv-set__nav-label">{n.label}</span>
-        {dots.has(n.id) ? <span className={`vv-dot vv-dot--${dots.get(n.id) ?? 'warn'}`} aria-label={t.shell.settingsAttention(1)} /> : null}
+        <Icon name={n.icon} size={17} className="vv-ic" xstyle={[settingsStyles.ic]} />
+        <span className={`vv-set__nav-label ${stylex.props(settingsStyles.setNavLabel).className}`}>{n.label}</span>
+        {dots.has(n.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, dots.get(n.id) === 'err' ? settingsStyles.dotErr : settingsStyles.dotWarn).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
         {/* Artboard luôn giữ span số ở cuối (kể cả rỗng) nên chấm không bị đẩy sát mép. */}
-        <span className="vv-set__nav-num">{n.count ?? ''}</span>
+        <span className={`vv-set__nav-num ${stylex.props(settingsStyles.setNavNum).className}`}>{n.count ?? ''}</span>
       </button>
     ))
   return (
     <>
-      <div className="vv-set__grp">{facts.server ? serverCopy.server : t.settings.nav.machine}</div>
+      <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{facts.server ? serverCopy.server : t.settings.nav.machine}</div>
       {render(machine)}
-      <div className="vv-set__grp">{t.settings.nav.data}</div>
+      <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.data}</div>
       {render(data)}
-      <div className="vv-set__grp">{t.settings.nav.elsewhere}</div>
-      <a className="vv-set__nav-link" href={`#${paths.queue()}`}>
-        <Icon name="routing" size={17} className="vv-ic" />
-        <span className="vv-set__nav-label">{t.settings.nav.queue}</span>
-        <Icon name="arrow-r" size={13} className="vv-ic" />
+      <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.elsewhere}</div>
+      <a className={`vv-set__nav-link ${stylex.props(setNavLinkMarker, settingsStyles.setNavLink).className}`} href={`#${paths.queue()}`}>
+        <Icon name="routing" size={17} className="vv-ic" xstyle={[settingsStyles.ic]} />
+        <span className={`vv-set__nav-label ${stylex.props(settingsStyles.setNavLabel).className}`}>{t.settings.nav.queue}</span>
+        <Icon name="arrow-r" size={13} className="vv-ic" xstyle={[settingsStyles.ic]} />
       </a>
       {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
     </>
@@ -212,34 +213,34 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
   const Body = SECTIONS[active]
   return (
-    <div className="vv-set">
-      <aside className="vv-set__side" aria-label={t.shell.settings}>
+    <div className={`vv-set ${stylex.props(settingsStyles.set).className}`}>
+      <aside className={`vv-set__side ${stylex.props(settingsStyles.setSide).className}`} aria-label={t.shell.settings}>
         <NavList section={active} dots={dots} facts={facts} onPick={go} />
-        <div className="vv-set__foot">
-          <span className="vv-set__foot-note">{t.settings.nav.footerNote}</span>
-          <span className="vv-set__foot-ver num">{fill(t.settings.nav.version, { version: facts.version })}</span>
+        <div className={`vv-set__foot ${stylex.props(settingsStyles.setFoot).className}`}>
+          <span className={`vv-set__foot-note ${stylex.props(settingsStyles.setFootNote).className}`}>{t.settings.nav.footerNote}</span>
+          <span className={`vv-set__foot-ver num ${stylex.props(settingsStyles.setFootVer).className}`}>{fill(t.settings.nav.version, { version: facts.version })}</span>
         </div>
       </aside>
-      <main className="vv-set__center">
-        <div className="vv-set__body">
+      <main className={`vv-set__center ${stylex.props(settingsStyles.setCenter).className}`}>
+        <div className={`vv-set__body ${stylex.props(settingsStyles.setBody).className}`}>
           {!(facts.server && active === 'storage') ? <div>
-            <h1 className="vv-set__title">{meta.title}</h1>
-            <p className="vv-set__lede">{meta.lede}</p>
+            <h1 className={`vv-set__title ${stylex.props(settingsStyles.setTitle).className}`}>{meta.title}</h1>
+            <p className={`vv-set__lede ${stylex.props(settingsStyles.setLede).className}`}>{meta.lede}</p>
           </div> : null}
           <Suspense fallback={<Spinner size={16} />}>
             <Body />
           </Suspense>
         </div>
       </main>
-      <aside className="vv-set__help" aria-label={t.shell.settings}>
-        <section className="card vv-set__help-card">
-          <h2>{help.title}</h2>
-          {help.lines.map((line) => <p key={line}>{line}</p>)}
+      <aside className={`vv-set__help ${stylex.props(settingsStyles.setHelp).className}`} aria-label={t.shell.settings}>
+        <section className={`vv-set__help-card ${stylex.props(settingsStyles.card, setHelpCardMarker, settingsStyles.setHelpCard).className}`}>
+          <h2 {...stylex.props(settingsStyles.VvSetHelpCardH2)}>{help.title}</h2>
+          {help.lines.map((line) => <p key={line} {...stylex.props(settingsStyles.VvSetHelpCardP)}>{line}</p>)}
         </section>
-        <div className="vv-set__tips">
-          <span className="vv-set__tips-title">{help.tips.title}</span>
+        <div className={`vv-set__tips ${stylex.props(settingsStyles.setTips).className}`}>
+          <span className={`vv-set__tips-title ${stylex.props(settingsStyles.setTipsTitle).className}`}>{help.tips.title}</span>
           {help.tips.items.map((tip) => (
-            <span key={tip} className="vv-set__tip"><span aria-hidden="true">•</span><span>{tip}</span></span>
+            <span key={tip} className={`vv-set__tip ${stylex.props(settingsStyles.setTip).className}`}><span aria-hidden="true">•</span><span>{tip}</span></span>
           ))}
         </div>
       </aside>
@@ -280,15 +281,15 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
     const meta = t.settings.meta[section] ?? t.settings.meta.tools
     const Body = SECTIONS[section]
     return (
-      <div className="vv-mset">
+      <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
         {strip}
-        <header className="vv-mset__head">
-          <button type="button" className="vv-mset__back" aria-label={t.settings.backMobile} onClick={() => navigate(paths.settings())}>
+        <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
+          <button type="button" className={`vv-mset__back ${stylex.props(settingsStyles.msetBack).className}`} aria-label={t.settings.backMobile} onClick={() => navigate(paths.settings())}>
             <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />
           </button>
-          <span className="vv-mset__title">{meta.title}</span>
+          <span className={`vv-mset__title ${stylex.props(settingsStyles.msetTitle).className}`}>{meta.title}</span>
         </header>
-        <div className="vv-mset__body">
+        <div className={`vv-mset__body ${stylex.props(settingsStyles.msetBody).className}`}>
           <Suspense fallback={<Spinner size={16} />}>
             <Body />
           </Suspense>
@@ -298,54 +299,54 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
   }
 
   return (
-    <div className="vv-mset">
+    <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
       {strip}
-      <header className="vv-mset__head">
-        <button type="button" className="vv-mset__back" aria-label={t.settings.backMobile} onClick={() => navigate(paths.workbench())}>
+      <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
+        <button type="button" className={`vv-mset__back ${stylex.props(settingsStyles.msetBack).className}`} aria-label={t.settings.backMobile} onClick={() => navigate(paths.workbench())}>
           <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />
         </button>
-        <span className="vv-mset__title">{t.shell.settings}</span>
+        <span className={`vv-mset__title ${stylex.props(settingsStyles.msetTitle).className}`}>{t.shell.settings}</span>
       </header>
-      <div className="vv-mset__body">
-        <div className="card vv-mset__sum">
-          <span className={`vv-mset__sum-ic${facts.failed > 0 ? ' is-warn' : ''}`} aria-hidden="true">
+      <div className={`vv-mset__body ${stylex.props(settingsStyles.msetBody).className}`}>
+        <div className={`vv-mset__sum ${stylex.props(settingsStyles.card, settingsStyles.msetSum).className}`}>
+          <span className={`vv-mset__sum-ic ${stylex.props((facts.failed > 0) && isWarnMarker, settingsStyles.msetSumIc, (facts.failed > 0) && settingsStyles.msetSumIcIsWarn).className}`} aria-hidden="true">
             <Icon name={facts.failed > 0 ? 'danger' : 'tick-b'} size={20} />
           </span>
-          <span className="vv-mset__sum-main">
-            <span className="vv-mset__sum-title">
+          <span className={`vv-mset__sum-main ${stylex.props(settingsStyles.msetSumMain).className}`}>
+            <span className={`vv-mset__sum-title ${stylex.props(settingsStyles.msetSumTitle).className}`}>
               {facts.failed > 0 ? fill(t.settings.m.summary.failedTitle, { n: facts.failed }) : t.settings.m.summary.ok}
             </span>
-            <span className="vv-mset__sum-sub">{summarySub}</span>
+            <span className={`vv-mset__sum-sub ${stylex.props(settingsStyles.msetSumSub).className}`}>{summarySub}</span>
           </span>
         </div>
-        <nav className="vv-mset__list card" aria-label={t.shell.settings}>
+        <nav className={`vv-mset__list card ${stylex.props(settingsStyles.msetList).className}`} aria-label={t.shell.settings}>
           {rows.map((r) => (
             <button
               key={r.id}
               type="button"
-              className="vv-mset__row"
+              className={`vv-mset__row ${stylex.props(msetRowMarker, settingsStyles.msetRow).className}`}
               onClick={() => { if (r.id === 'export') window.location.assign(logsExportUrl); else go(r.id as SettingsSection) }}
             >
-              <Icon name={r.icon} size={19} className="vv-ic" />
-              <span className="vv-mset__row-label">{r.title}</span>
-              <span className="vv-mset__row-value-wrap">
-                {dots.has(r.id) ? <span className={`vv-dot vv-dot--${dots.get(r.id) ?? 'warn'}`} aria-label={t.shell.settingsAttention(1)} /> : null}
-                <span className={`vv-mset__row-value${r.warm ? ' is-warm' : ''}`}>{r.value}</span>
+              <Icon name={r.icon} size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />
+              <span className={`vv-mset__row-label ${stylex.props(settingsStyles.msetRowLabel).className}`}>{r.title}</span>
+              <span className={`vv-mset__row-value-wrap ${stylex.props(settingsStyles.msetRowValueWrap).className}`}>
+                {dots.has(r.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, dots.get(r.id) === 'err' ? settingsStyles.dotErr : settingsStyles.dotWarn).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
+                <span className={`vv-mset__row-value ${stylex.props(settingsStyles.msetRowValue, (r.warm) && settingsStyles.msetRowValueIsWarm).className}`}>{r.value}</span>
               </span>
-              <Icon name="arrow-r" size={15} className="vv-ic vv-mset__row-caret" />
+              <Icon name="arrow-r" size={15} className="vv-ic vv-mset__row-caret" xstyle={[settingsStyles.ic, settingsStyles.msetRowCaret]} />
             </button>
           ))}
         </nav>
-        <a className="card vv-mset__queue" href={`#${paths.queue()}`}>
-          <Icon name="routing" size={19} className="vv-ic" />
-          <span className="vv-mset__queue-main">
-            <span className="vv-mset__queue-title">{t.settings.m.rows.queue.title}</span>
-            <span className="vv-mset__queue-hint">{t.settings.m.rows.queue.hint}</span>
+        <a className={`vv-mset__queue ${stylex.props(settingsStyles.card, msetQueueMarker, settingsStyles.msetQueue).className}`} href={`#${paths.queue()}`}>
+          <Icon name="routing" size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />
+          <span className={`vv-mset__queue-main ${stylex.props(settingsStyles.msetQueueMain).className}`}>
+            <span className={`vv-mset__queue-title ${stylex.props(settingsStyles.msetQueueTitle).className}`}>{t.settings.m.rows.queue.title}</span>
+            <span className={`vv-mset__queue-hint ${stylex.props(settingsStyles.msetQueueHint).className}`}>{t.settings.m.rows.queue.hint}</span>
           </span>
-          <Icon name="arrow-r" size={15} className="vv-ic" />
+          <Icon name="arrow-r" size={15} className="vv-ic" xstyle={[settingsStyles.ic]} />
         </a>
         {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
-        <span className="vv-mset__foot">{fill(t.settings.m.foot, { version: facts.version })}</span>
+        <span className={`vv-mset__foot ${stylex.props(settingsStyles.msetFoot).className}`}>{fill(t.settings.m.foot, { version: facts.version })}</span>
       </div>
     </div>
   )
