@@ -233,9 +233,30 @@ func (o *observer) retryEventID(scope string, attempt int) string {
 // reconstruct in-flight calls and dispatch boundaries after a restart.
 func (o *observer) emitAndLog(ev Event) {
 	if ev.Category == "DISPATCH" || ev.Category == "TOOL" {
+		o.annotateRound(&ev)
 		o.persistEvent(ev)
 	}
 	o.emitEv(ev)
+}
+
+// annotateRound pins live operation events to their dispatch round so the
+// writer stream and the paginated history merge start→finish by identity.
+func (o *observer) annotateRound(ev *Event) {
+	ev.Role = NormalizeRole(ev.Agent)
+	if ev.Category == "DISPATCH" {
+		ev.RoundID = ev.ID
+		if ev.RoundStartedAt == nil && !ev.Time.IsZero() { t := ev.Time; ev.RoundStartedAt = &t }
+		if ev.RoundTitle == "" {
+			if call := o.dispatchStarts[ev.Agent]; call != nil && call.id == ev.ID { ev.RoundTitle = call.title }
+		}
+		return
+	}
+	call := o.dispatchStarts[ev.Agent]
+	if call == nil { return }
+	ev.RoundID = call.id
+	t := call.start
+	ev.RoundStartedAt = &t
+	if ev.RoundTitle == "" { ev.RoundTitle = call.title }
 }
 
 // persistEvent 把事件写入 runtime queue（slog 由 host.emitEvent 统一记录）。

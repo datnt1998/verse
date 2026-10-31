@@ -7,12 +7,12 @@
 import type { CharacterKind, LessonScope, ProjectUniverseEntity, ReviewItem } from './types.gen'
 export * from './types.gen'
 export type LiveHistoryOperation = {
-  id: string; role: string; round: number; startedAt: string; durationMs: number
+  id: string; role: string; round: number; roundId?: string; startedAt: string; durationMs: number
   status: 'done' | 'running' | 'error'; error: string
   key: string; params: string; result: string
 }
 export type LiveHistoryRound = {
-  round: number; role: string; title?: string; startedAt: string
+  round: number; roundId: string; role: string; title?: string; startedAt: string
   operations: LiveHistoryOperation[]
 }
 export type LiveHistory = { rounds: LiveHistoryRound[]; nextBeforeRound: number | null }

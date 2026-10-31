@@ -46,7 +46,9 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		if _, ok := o.toolStarts[ev.Progress.Agent]; ok {
 			call := o.toolStarts[ev.Progress.Agent]
 			call.summary = toolName
-			o.persistEvent(Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Tool: call.tool, Args: call.args, Chapter: call.chapter, Status: "running", Summary: call.summary, Depth: call.depth})
+			startEv := Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Tool: call.tool, Args: call.args, Chapter: call.chapter, Status: "running", Summary: call.summary, Depth: call.depth}
+			o.annotateRound(&startEv)
+			o.persistEvent(startEv)
 			o.updateToolCallSummary(ev.Progress.Agent, ev.Progress.Tool, toolName)
 			o.updateAgent(ev.Progress.Agent, func(a *agentState) {
 				a.state = "working"
@@ -101,6 +103,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			Duration:   time.Since(call.start),
 		}
 		call.fillToolEvent(&finishEv, true)
+		o.annotateRound(&finishEv)
 		o.persistEvent(finishEv)
 		o.emitEv(finishEv)
 	case agentcore.ProgressThinking:
@@ -156,6 +159,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 				pending := Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Summary: call.summary, Detail: fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg), Level: "info", Depth: call.depth}
 				call.fillToolEvent(&pending, true)
 				pending.Result = "" // diagnostics stay in Detail/Retries, not the user-facing result
+				o.annotateRound(&pending)
 				o.persistEvent(pending)
 				o.emitEv(pending)
 				return
@@ -177,6 +181,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			}
 			call.result = msg
 			call.fillToolEvent(&finishEv, false)
+			o.annotateRound(&finishEv)
 			o.persistEvent(finishEv)
 			o.emitEv(finishEv)
 			return
@@ -389,6 +394,7 @@ func (o *observer) emitCallFinish(call *activeCall, category, agentName string, 
 	if question != nil {
 		finishEv.Status = "attention"
 	}
+	o.annotateRound(&finishEv)
 	o.persistEvent(finishEv)
 	o.emitEv(finishEv)
 }

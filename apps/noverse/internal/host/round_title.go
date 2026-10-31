@@ -28,3 +28,9 @@ func roundTitle(inst *flow.Instruction, state flow.State) string {
 	}
 	return ""
 }
+
+// NormalizeRole collapses internal architect variants to the board role.
+func NormalizeRole(role string) string {
+	if role == "architect_long" || role == "architect_short" { return "architect" }
+	return role
+}

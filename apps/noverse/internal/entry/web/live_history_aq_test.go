@@ -25,7 +25,7 @@ func TestLiveHistoryPagesDispatchRounds(t *testing.T) {
  path := "/api/projects/_/stories/oldbook/live-history"
  rec:=tg.do(http.MethodGet,path,cookie,""); if rec.Code != 200 { t.Fatalf("history: %d %s",rec.Code,rec.Body) }
  first:=decodeJSONBody(t,rec); rounds:=first["rounds"].([]any); if len(rounds)!=20 || rounds[0].(map[string]any)["round"]!=float64(6) { t.Fatalf("newest: %v",rounds) }
- for i, item := range rounds { if item.(map[string]any)["round"] != float64(i+6) { t.Fatalf("out of order: %v", rounds) } }
+ for i, item := range rounds { r:=item.(map[string]any); if r["round"] != float64(i+6) || r["roundId"]=="" { t.Fatalf("out of order: %v", rounds) } }
  last:=rounds[19].(map[string]any)["operations"].([]any)[0].(map[string]any); if last["status"]!="error" || last["error"]=="" { t.Fatalf("error: %v",last) }
  rec=tg.do(http.MethodGet,path+"?beforeRound=6&limit=20",cookie,""); if rec.Code!=200 { t.Fatal(rec.Body.String()) }; second:=decodeJSONBody(t,rec); older:=second["rounds"].([]any); if len(older)!=5 { t.Fatalf("older: %v",second) }; for i,item:=range older { if item.(map[string]any)["round"]!=float64(i+1) { t.Fatalf("older order: %v", older) } }
 }
