@@ -36,7 +36,7 @@ func liveHistoryRounds(queue []domain.RuntimeQueueItem) ([]liveRound,error) {
   if ev.Tool=="" { continue }
   r:=active[ev.Agent]-1; if r<0 || r>=len(rounds) { continue }
   status:="running"; if ev.Failed || ev.Status=="error" { status="error" } else if !ev.FinishedAt.IsZero() || ev.Status=="ok" || ev.Status=="done" { status="done" }
-  message:=""; if status=="error" { message="Không thực hiện được thao tác." }
+  message:=""; if status=="error" { message=host.OperationErrorMessage(ev) }
   duration:=ev.DurationMs; if duration==0 { duration=ev.Duration.Milliseconds() }
   rounds[r].Operations=append(rounds[r].Operations,liveOperation{ID:ev.ID,Role:liveRole(ev.Agent),Round:r+1,RoundID:rounds[r].RoundID,StartedAt:ev.Time,DurationMs:duration,Status:status,Error:message,Key:ev.Tool,Params:ev.Args,Result:ev.Result})
  }

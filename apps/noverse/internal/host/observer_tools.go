@@ -144,12 +144,15 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		if msg == "" {
 			msg = "unknown error"
 		}
+		kind := ev.Progress.ErrorKind
+		if kind == "" { kind = errorKind(nil, msg) }
 		// 如果有进行中的 TOOL 行，原地标记为失败并把完整错误放进 Detail。
 		// 同一次失败只生成一个 ERROR 级事件，避免 TOOL 失败态与附加 ERROR
 		// 详情在 tui.log 中被误读成两次独立故障。
 		if call, ok := o.toolStarts[ev.Progress.Agent]; ok {
 			delete(o.toolStarts, ev.Progress.Agent)
 			if ev.Progress.Tool == "edit_chapter" && call.chapter > 0 {
+				call.errorKind = kind
 				call.result = msg
 				call.retries = append(call.retries, EventRetry{AtSec: time.Since(call.start).Seconds(), Error: EventText(msg, 800)})
 				if o.polishAttempts == nil {
@@ -174,7 +177,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 				Agent:      ev.Progress.Agent,
 				Summary:    fmt.Sprintf("%s lỗi: %s", call.summary, truncate(msg, 100)),
 				Detail:     detail,
-				Kind:       errorKind(nil, msg),
+				Kind:       kind,
 				Level:      "error",
 				Depth:      call.depth,
 				Duration:   time.Since(call.start),
@@ -193,7 +196,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			Agent:    ev.Progress.Agent,
 			Summary:  fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, truncate(msg, 100)),
 			Detail:   fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg),
-			Kind:     errorKind(nil, msg),
+			Kind:     kind,
 			Level:    "error",
 			Depth:    1,
 		}

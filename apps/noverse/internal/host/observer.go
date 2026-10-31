@@ -62,6 +62,7 @@ type activeCall struct {
 	tool    string
 	args    string
 	result  string
+	errorKind string
 	hint    string
 	chapter int
 	scope   string
@@ -243,6 +244,9 @@ func (o *observer) emitAndLog(ev Event) {
 // writer stream and the paginated history merge start→finish by identity.
 func (o *observer) annotateRound(ev *Event) {
 	ev.Role = NormalizeRole(ev.Agent)
+	if ev.Category == "TOOL" && (ev.Failed || ev.Status == "error") {
+		ev.Error = OperationErrorMessage(*ev)
+	}
 	if ev.Category == "DISPATCH" {
 		ev.RoundID = ev.ID
 		if ev.RoundStartedAt == nil && !ev.Time.IsZero() { t := ev.Time; ev.RoundStartedAt = &t }

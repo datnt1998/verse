@@ -1079,6 +1079,7 @@ func executeSingleToolCall(ctx context.Context, tools []Tool, call llmtypes.Tool
 		ToolLabel: label,
 		Result:    result.Content,
 		IsError:   result.IsError,
+		ErrorKind: result.ErrorKind,
 	})
 
 	// Mark for toolErrors tracking by caller.
@@ -1104,6 +1105,7 @@ func failToolCall(sink eventSink, call llmtypes.ToolCall, label, msg string, cou
 		ToolLabel: label,
 		Result:    content,
 		IsError:   true,
+		ErrorKind: kind,
 	})
 	return result
 }

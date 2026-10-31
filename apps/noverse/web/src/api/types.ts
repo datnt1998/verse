@@ -287,7 +287,7 @@ export type HostEvent = {
   /** Round pinning (GAP-AQ2): DISPATCH/TOOL events of a dispatch share roundId; DISPATCH id == roundId. */
   role?: string; roundId?: string; roundStartedAt?: string; roundTitle?: string
   /** Thao tác trực tiếp: khóa công cụ, tham số/kết quả thô, trạng thái và thời lượng. */
-  tool?: string; args?: string; result?: string; status?: 'running' | 'ok' | 'error'; durationMs?: number
+  tool?: string; args?: string; result?: string; status?: 'running' | 'ok' | 'error'; durationMs?: number; error?: string
   /** GAP-31: chỉ có ở đầu vào/lệnh của người dùng. */
   username?: string
   /** User action audit data, separate from its Vietnamese presentation. */
