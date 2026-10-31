@@ -37,6 +37,11 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 			return StageReview
 		}
 	}
+	for _, step := range steps {
+		if step.Status == CloneWaiting && step.Error != nil && step.Error.Code == CloneErrQuota {
+			return StageWorking
+		}
+	}
 	if ChainDone(steps) {
 		if job.PostedAt != nil {
 			return StagePosted

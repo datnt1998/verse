@@ -55,6 +55,8 @@ type ClonePlan struct {
 	PaceLeftToday int                  `json:"paceLeftToday"`
 	OverflowDays  int                  `json:"overflowDays"`
 	Template      ClonePlanTemplate    `json:"template"`
+	ImageCalls    int                 `json:"imageCalls"`
+	PriceUSD      *float64            `json:"priceUSD"`
 }
 type CloneEnqueueResult struct {
 	Items      []CloneQueueItem     `json:"items"`

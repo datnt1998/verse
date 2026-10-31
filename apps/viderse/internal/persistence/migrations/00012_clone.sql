@@ -56,9 +56,25 @@ CREATE TABLE clone_artifacts (
     bytes bigint NOT NULL CHECK (bytes >= 0),
     content_type text NOT NULL DEFAULT 'application/octet-stream',
     filename text NOT NULL DEFAULT '',
+    created_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY(job_id,id),
     UNIQUE(job_id,path)
 );
+-- clone_artifacts là live ref của blob_store: đường dẫn của artifact tham gia
+-- storage_live_refs để GC giữ content còn được trỏ; xoá ref (huỷ dọn nguồn,
+-- xoá job) làm content unreferenced để GC thu hồi sau ân hạn.
+CREATE OR REPLACE VIEW storage_live_refs AS
+ SELECT file_path AS logical_path, mime AS content_type, 'library'::text AS usage_group FROM overlays
+ UNION
+ SELECT file_path, 'video/mp4', 'library' FROM backdrop_videos WHERE file_path IS NOT NULL AND file_path <> ''
+ UNION
+ SELECT avatar_path, 'image/png', 'library' FROM owner_channels WHERE avatar_path IS NOT NULL AND avatar_path <> ''
+ UNION
+ SELECT banner_path, 'image/jpeg', 'library' FROM owner_channels WHERE banner_path IS NOT NULL AND banner_path <> ''
+ UNION
+ SELECT path, content_type, 'clone' FROM clone_artifacts;
+CREATE TRIGGER storage_clone_artifact_fence BEFORE INSERT OR UPDATE OR DELETE ON clone_artifacts FOR EACH STATEMENT EXECUTE FUNCTION storage_publication_fence();
+CREATE TRIGGER storage_clone_artifact_journal AFTER INSERT OR UPDATE OR DELETE ON clone_artifacts FOR EACH STATEMENT EXECUTE FUNCTION storage_record_mutation();
 CREATE TABLE clone_queue (
     id uuid PRIMARY KEY,
     channel_id uuid NOT NULL REFERENCES owner_channels(id) ON DELETE CASCADE,
@@ -70,6 +86,7 @@ CREATE TABLE clone_queue (
     position double precision NOT NULL,
     state text NOT NULL DEFAULT 'queued' CHECK (state IN ('queued','started','skipped')),
     no_images boolean NOT NULL DEFAULT false,
+    template_id uuid REFERENCES templates(id) ON DELETE RESTRICT,
     job_id uuid REFERENCES clone_jobs(id) ON DELETE SET NULL,
     reason text,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -77,8 +94,26 @@ CREATE TABLE clone_queue (
 );
 CREATE UNIQUE INDEX clone_queue_active_key_idx ON clone_queue(source_key) WHERE state='queued';
 CREATE INDEX clone_queue_lane_idx ON clone_queue(state,priority,channel_id,position);
+-- +goose StatementBegin
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'viderse_app') THEN
+        GRANT SELECT, INSERT, UPDATE, DELETE ON clone_jobs, clone_steps, clone_artifacts, clone_queue TO viderse_app;
+    END IF;
+END $$;
+-- +goose StatementEnd
 -- Paid image attempts continue to use image_receipts and its pre-spend journal.
 -- +goose Down
+CREATE OR REPLACE VIEW storage_live_refs AS
+ SELECT file_path AS logical_path, mime AS content_type, 'library'::text AS usage_group FROM overlays
+ UNION
+ SELECT file_path, 'video/mp4', 'library' FROM backdrop_videos WHERE file_path IS NOT NULL AND file_path <> ''
+ UNION
+ SELECT avatar_path, 'image/png', 'library' FROM owner_channels WHERE avatar_path IS NOT NULL AND avatar_path <> ''
+ UNION
+ SELECT banner_path, 'image/jpeg', 'library' FROM owner_channels WHERE banner_path IS NOT NULL AND banner_path <> '';
+DROP TRIGGER IF EXISTS storage_clone_artifact_journal ON clone_artifacts;
+DROP TRIGGER IF EXISTS storage_clone_artifact_fence ON clone_artifacts;
 DROP TABLE clone_queue;
 DROP TABLE clone_artifacts;
 DROP TABLE clone_steps;

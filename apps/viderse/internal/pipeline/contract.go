@@ -33,6 +33,10 @@ type ProcessResult = tools.Result
 // Steps dùng trực tiếp cho argv thô, hoặc truyền làm tools.Runner khi dựng
 // tools.YtDlp/tools.Ffmpeg để giữ phân loại lỗi + OnLine.
 type ProcessRunner func(ctx context.Context, file string, args []string, spec tools.Spec) (tools.Result, error)
+
+func (r ProcessRunner) Run(ctx context.Context, file string, args []string, spec tools.Spec) (tools.Result, error) {
+	return r(ctx, file, args, spec)
+}
 type StepResult struct {
 	Artifacts []media.Artifact
 	// Step-specific structured manifests have intentionally heterogeneous values.
@@ -92,6 +96,14 @@ func (s *StepContext) WithImageSlot(ctx context.Context, run func(context.Contex
 	return s.ImageSlot(ctx, run)
 }
 func (s *StepContext) PauseRequested() bool { return s.IsPaused != nil && s.IsPaused() }
+
+// ClaimedStep là step vừa được claim bởi worker kèm fence của attempt và
+// output của các step upstream đã xong.
+type ClaimedStep struct {
+	Step     domain.CloneStepRecord
+	Fence    int64
+	Upstream map[domain.CloneStep]domain.CloneStepOutput
+}
 
 // QueueDrain là điểm gọi của pipeline vào hàng chờ (internal/pipeline/queue):
 // RequestDrain xếp lịch một vòng drain (debounce bên trong queue), gọi sau khi

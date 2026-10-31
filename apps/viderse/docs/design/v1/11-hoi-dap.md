@@ -323,11 +323,11 @@ Mẫu:
 ### #52 · Hàng chờ + Kế hoạch (Gói V6/V2): mã lý do chưa chạy, giá, khoá xếp lại — Mở
 - Artboard: `Queue` · `state=running|paused|limited|empty`, `NewVideo`.
 - Chốt dev:
-  1. `GET /api/queue` trả thêm `pausedAt` (giờ bấm Tạm dừng, cho câu “Đã tạm dừng lúc 00:04”) và mỗi dòng chờ có `waitReason` ngoài `pace_full|no_template` còn `queue_paused|workers_busy|rotation|paused_channel`; `rotation.skipped[]` cũng nhận `workers_busy` khi toàn bộ luồng bận.
-  2. `paused_channel` được hiểu là **Tự lấy tắt** (`owner_channels.auto_pick = false`): chỉ khoá các mục `origin = auto` của kênh đó; mục `pick`/`bulk` người dùng chủ động xếp vẫn chạy. Không có cột “tạm dừng kênh” nào khác.
-  3. `POST /api/clone/plan` trả thêm `imageCalls` (ước số lần vẽ, cùng công thức nhịp cũ + 10% vẽ lại) và `priceUSD` — `null` vì chưa có bảng giá theo ảnh của model nào. `accepted[]` thêm `viewCount`, `publishedAt`; `duplicates[]` thêm `title` (tên job/video trùng) và nhận cả bản `state: "queued"` với `jobId: null`.
-  4. `PATCH /api/queue` nhận `{paused}`, `{id, beforeId}` (đổi vị trí theo neo, `beforeId: null` = lên đầu, vắng mặt = xuống cuối), `{id, action: "remove"}`. Không PATCH trực tiếp `position` (số thực tách đôi do server tính).
-  5. `imageQuota[]` lấy từ `image_receipts` (ảnh đã tính hôm nay theo provider, trần = hạn mức ảnh trả phí mỗi ngày của nhà cung cấp trả theo ảnh; `resetsAt = null` khi nhà cung cấp không báo). `doneToday[]` lấy job `stage_group` `ready|review` cập nhật sau 00:00 giờ máy (`at` = `updated_at` vì chưa có cột giờ xong riêng).
+  1. `GET /api/queue` trả thêm `pausedAt` (giờ bấm Tạm dừng, cho câu “Đã tạm dừng lúc 00:04”) và mỗi dòng chờ có `waitReason` ngoài `pace_full|no_template` còn `queue_paused|workers_busy|rotation|paused_channel`.
+  2. `paused_channel` được hiểu là **Tự lấy tắt** (`owner_channels.auto_pick = false`): chỉ khoá các mục `batch` có `origin = auto` của kênh đó; mục `pick`/`bulk` người dùng chủ động xếp vẫn chạy. Không có cột “tạm dừng kênh” nào khác.
+  3. `POST /api/clone/plan` trả thêm `imageCalls` (số ảnh tính theo recipe thật, cộng 10% vẽ lại theo `yt-factory 2c201e6:src/server/clone/queue.ts:72,898`) và `priceUSD` — `null` vì chưa có bảng giá theo ảnh của model nào. `accepted[]` thêm `imageEstimate`, `imageCalls`, `priceUSD`, `viewCount`, `publishedAt`; `duplicates[]` thêm `title` (tên job/video trùng) và nhận cả bản `state: "queued"` với `jobId: null`.
+  4. `PATCH /api/queue` theo hợp đồng v2: `{paused}`, `{workers, imageWorkers, rescanHours}`, `{id, position}` (vị trí số thực), `{id, action: "front"|"remove"}`. `front` chuyển mục sang `pick` và đặt trước mọi mục `pick` hiện có; nhịp chỉ tính khi mục bắt đầu với ưu tiên `batch`. `items[]` trả `position` thật để kéo thả tính midpoint, `sourceUrl` và `thumbnailUrl` khi có dữ liệu.
+  5. `imageQuota[]` lấy số ảnh đã tính hôm nay từ `image_receipts`, giới hạn và giờ reset từ nguồn vẽ thật (không có số thì `null`). `doneToday[]` lấy job `stage_group` `ready|posted|review` cập nhật sau 00:00 giờ máy (`at` = `updated_at` vì chưa có cột giờ xong riêng, `posted` hiện như `ready`).
   6. SSE: một sự kiện `queue.updated` cho mọi thay đổi hàng chờ (xếp, xếp lại, bỏ, tạm dừng, drain bắt đầu/xong) + `clone.job.*` hiện hữu để invalidate; không bắn mỗi lần ETA đổi.
 - Hỏi design: duyệt.
 
@@ -336,4 +336,10 @@ Mẫu:
 - Dropdown ở chip template cho phép chọn khác vòng luân phiên. Bổ sung `templateId?` vào `CloneEnqueueRequest` (lệch §4 `07-data-contract.md`): khi có, kiểm template hợp lệ của kênh và chụp đúng recipe đó; khi vắng, giữ luân phiên hiện hữu. Kế hoạch đọc cùng override.
 - Dòng chờ trả `position`, `thumbnailUrl`, `sourceUrl`; thẻ đang chạy trả `pausedAt`. Đây là dữ liệu thực để kéo-thả và mở nguồn, không suy ra số hoặc ảnh ở trình duyệt.
 - Dòng “Máy này chạy ổn 2 luồng” thiếu cơ sở đo máy: giữ trống tới khi design chốt; không dùng số tự suy đoán.
+
+
+### #54 · Dựng bản nháp trước khi chờ duyệt — Đã chốt
+- Artboard: `VideoDetail` · luồng tạo video tới `awaiting_review`; backend Phase 05.
+- Dev: Phase 05 dựng project editor schema 15 bằng ảnh đã chọn, hoặc ứng viên hợp lệ mới nhất nếu chủ kênh chưa chọn. Đây chỉ là **bản nháp để duyệt**: không tự ghi thao tác duyệt ảnh, không xuất MP4, không chạy bước kiểm định/xuất.
+- Khác yt-factory `build.ts` (chặn trước khi dựng khi ảnh chưa duyệt): điểm chờ được đặt **sau** khi dựng project, đúng yêu cầu Phase 05 “dựng rồi chờ duyệt”. Project và artifact được publish trước khi job đỗ `awaiting_review`, không có `retryAt`; chỉ thao tác duyệt mới mở bước tiếp.
 

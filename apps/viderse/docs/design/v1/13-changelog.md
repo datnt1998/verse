@@ -1,5 +1,14 @@
 # Viderse — Lịch sử thiết kế
 
+## Phase 05 · 31/10/2026 — pipeline core đang tích hợp, chưa nghiệm thu
+
+- Thêm contract clone (generation, checkpoint, fence, tạm dừng/chạy tiếp/huỷ), read-model phía server và sự kiện tiến độ giới hạn 4 Hz/job.
+- Kết nối worker có advisory lock, luồng job 1–6 và semaphore ảnh đọc Quy tắc chạy; HTTP/CLI dùng cùng dịch vụ.
+- Thêm gỡ binding media trong publication transaction cho dọn nguồn an toàn; byte dùng chung chỉ thu hồi qua GC sau ân hạn.
+- Golden JSON ban đầu ở `internal/pipeline/testdata/clone-views.golden.json`; chưa có bằng chứng đủ cho mọi trạng thái hoặc smoke ảnh trả phí, kill/restart từng bước và chỉ tiêu p95.
+- V0/V2/V6 backend và phase 05 vẫn mở cho tới khi toàn bộ kiểm thử/đo thực tế đạt; không suy ra nghiệm thu từ code đã viết.
+
+
 Mỗi đợt ghi: ngày, vấn đề, quyết định, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Đợt 1–2 và 10–14 không có mục riêng (ghi trong phần Trạng thái ban đầu và trong các đợt kế tiếp).
 
 ## Đợt 30 (31/10/2026) — Gói V26: một tài khoản cho Noverse và Viderse <!-- r30-sso -->

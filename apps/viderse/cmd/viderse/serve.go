@@ -171,6 +171,11 @@ func runServe(args []string) error {
 	}
 	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, media: mediaManager.Media(), toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
 	go seedLibraryBuiltins(bg, librarySvc, logStore)
+	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media())
+	if err != nil {
+		return err
+	}
+	defer cloneClose()
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
 
@@ -207,6 +212,9 @@ func runServe(args []string) error {
 	// installer) thoát trước khi đóng log/pool. Hub đã đóng subscriber ở
 	// stopHTTP; worker publish thêm chỉ vào ring, không còn ai nghe.
 	scanStop()
+	if err := cloneClose(); err != nil && first == nil {
+		first = err
+	}
 	// Worker join trước khi service dọn notifier: flush cuối cần kho còn sống.
 	select {
 	case <-scanWorkerDone:
