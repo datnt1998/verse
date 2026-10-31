@@ -1,7 +1,7 @@
 ---
 phase: 6
 title: "Editor, render, đo và chấm điểm, xuất MP4"
-status: pending
+status: in-progress
 priority: P1
 effort: 60h
 dependsOn: [5]
