@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
@@ -98,7 +99,7 @@ type harness struct {
 func newHarness(t *testing.T, b *domain.BackdropRecipe, video *float64) *harness {
 	t.Helper()
 	h := &harness{t: t, store: newStore(), refreshes: map[string]time.Duration{}, paused: map[domain.PlatformID]time.Time{}}
-	raw, err := json.Marshal(domain.Recipe{Backdrop: b, BackgroundAppearance: domain.BackgroundAppearance{Speed: 1}})
+	raw, err := json.Marshal(library.Snapshot{Backdrop: b, Appearance: domain.BackgroundAppearance{Speed: 1}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -175,11 +176,11 @@ func (h *harness) seed(m Manifest) {
 }
 func (h *harness) speed(speed float64, fixed bool) {
 	h.t.Helper()
-	var r domain.Recipe
+	var r library.Snapshot
 	if err := json.Unmarshal(h.s.Job.TemplateSnapshot, &r); err != nil {
 		h.t.Fatal(err)
 	}
-	r.BackgroundAppearance.Speed = speed
+	r.Appearance.Speed = speed
 	if fixed {
 		r.Backdrop.FixedVideoIDs = []string{"fixed"}
 		h.store.fixed["fixed"] = domain.BackdropVideo{Segment: domain.BackdropSegment{ToSec: 10}}

@@ -17,6 +17,7 @@ import (
 
 	catalogue "github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
@@ -84,11 +85,11 @@ func ResolveTemplate(ctx context.Context, raw json.RawMessage, store Store) (Tem
 	if len(raw) == 0 || string(raw) == "null" {
 		return t, nil
 	}
-	var recipe domain.Recipe
+	var recipe library.Snapshot
 	if err := json.Unmarshal(raw, &recipe); err != nil {
 		return t, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Snapshot template không đọc được"}
 	}
-	speed := recipe.BackgroundAppearance.Speed
+	speed := recipe.Appearance.Speed
 	if speed == 0 {
 		speed = 1
 	}
