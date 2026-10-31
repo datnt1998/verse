@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { saccQrStepDoneMarker } from '../settings.stylex'
 // @vitest-environment happy-dom
 // Tài khoản nền tảng — bố cục theo artboard Settings section=accounts và
 // MSettings screen=accounts. Wire khớp internal/web/platforms.go; test giữ
@@ -336,7 +338,7 @@ describe('Tài khoản nền tảng', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(2100) })
     const dialog = lastDialog()!
     expect(dialog.textContent).toContain('Bilibili chưa chấp nhận đăng nhập')
-    expect(dialog.querySelectorAll('.sacc-qr__step--done')).toHaveLength(2)
+    expect(dialog.querySelectorAll(`.sacc-qr__step.${stylex.props(saccQrStepDoneMarker).className}`)).toHaveLength(2)
     expect(dialog.textContent).toContain('Chưa đăng nhập được')
   })
 
@@ -366,7 +368,7 @@ describe('Tài khoản nền tảng', () => {
     expect(sheet.querySelector('.sacc-qr__same')).toBeNull()
     expect(sheet.textContent).toContain('Đã quét. Bấm xác nhận trên điện thoại.')
     expect(sheet.textContent).not.toContain('để xong')
-    expect(sheet.querySelectorAll('.sacc-qr__step--done')).toHaveLength(2)
+    expect(sheet.querySelectorAll(`.sacc-qr__step.${stylex.props(saccQrStepDoneMarker).className}`)).toHaveLength(2)
   })
 
   it('điện thoại QR: nút cuối sheet chỉ có chữ, không icon', async () => {
@@ -380,7 +382,7 @@ describe('Tài khoản nền tảng', () => {
     const retry = byText(lastDialog()!, 'button', 'Tạo mã mới') as HTMLElement | undefined
     expect(retry).toBeTruthy()
     expect(retry?.querySelector('span[role="img"], svg')).toBeFalsy()
-    expect(lastDialog()!.querySelectorAll('.sacc-qr__step--done')).toHaveLength(2)
+    expect(lastDialog()!.querySelectorAll(`.sacc-qr__step.${stylex.props(saccQrStepDoneMarker).className}`)).toHaveLength(2)
   })
 
   it('điện thoại: câu dẫn + thẻ gọn không select, không thẻ “Nền tảng khác”, cuối có ghi chú', async () => {
@@ -401,27 +403,29 @@ describe('Tài khoản nền tảng', () => {
   })
 })
 
-describe('Hợp đồng CSS theo artboard', () => {
-  const css = readFileSync(resolve('src/screens/settings/accounts/accounts.css'), 'utf8')
+describe('Hợp đồng StyleX theo artboard', () => {
+  const styles = readFileSync(resolve('src/screens/settings/settings.stylex.ts'), 'utf8')
 
   it('ô chọn trình duyệt YouTube nằm một hàng riêng, rộng đầy nội dung (vv-select width:100% + wrap)', () => {
     vi.useFakeTimers()
-    const rule = css.match(/\.sacc-select\s*\{[^}]*\}/)?.[0] ?? ''
-    expect(rule).toContain('width: 100%')
-    const row = css.match(/\.sacc-yt\s*\{[^}]*\}/)?.[0] ?? ''
-    expect(row).toContain('flex-wrap: wrap')
+    const rule = styles.match(/^  saccSelect:.*$/m)?.[0] ?? ''
+    expect(rule).toContain('width: "100%"')
+    const row = styles.match(/^  saccYt:.*$/m)?.[0] ?? ''
+    expect(row).toContain('flexWrap: "wrap"')
   })
 
   it('badge bước QR (xong · đang làm) chỉ dùng token có định nghĩa', () => {
     vi.useFakeTimers()
     const defined = new Set([
       readFileSync(resolve('src/styles/viderse.css'), 'utf8'),
+      readFileSync(resolve('src/styles/viderse.stylex.ts'), 'utf8'),
       readFileSync(resolve('../../../platform/ui/src/tokenDefaults.ts'), 'utf8'),
-      css,
+      styles,
     ].flatMap((src) => [...src.matchAll(/["']?(--[\w-]+)["']?\s*:/g)].map((m) => m[1])))
     for (const state of ['done', 'now']) {
-      const rule = css.match(new RegExp(`\\.sacc-qr__step--${state} \\.sacc-qr__stepnum\\s*\\{[^}]*\\}`))?.[0] ?? ''
-      const refs = [...rule.matchAll(/var\((--[\w-]+)\)/g)].map((m) => m[1])
+      const rule = styles.match(/^  saccQrStepnum:.*$/m)?.[0] ?? ''
+      expect(rule).toContain(state === 'done' ? 'saccQrStepDoneMarker' : 'saccQrStepNowMarker')
+      const refs = [...rule.matchAll(/--[\w-]+/g)].map((m) => m[0])
       expect(refs.length, state).toBeGreaterThan(0)
       expect(refs.filter((r) => !defined.has(r)), state).toEqual([])
     }

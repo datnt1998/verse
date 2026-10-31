@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, saccMetaMarker, saccMoreMarker } from '../settings.stylex'
 // Tài khoản nền tảng — artboard Settings section=accounts (máy tính) và
 // MSettings screen=accounts (điện thoại). Wire: internal/web/platforms.go
 //   platform {id,label,uses,kinds,targetHeight,login{type,saved,masked,
@@ -12,7 +14,6 @@
 //   - Bilibili: QR / cookie dán tay / hết hạn / chưa đăng nhập — xem BilibiliLogin.
 //   - Cuối danh sách: thẻ nét đứt “Nền tảng khác” + ghi chú an toàn.
 import { Badge, Button, Icon, Spinner } from '@noverse/ui'
-import './accounts.css'
 import { ApiError } from '../../../api/client'
 import { listPlatforms, type Platform } from '../../../api/platforms'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
@@ -87,7 +88,7 @@ function StatusTag({ platform, mobile }: { platform: Platform; mobile: boolean }
 
 function TwitchLogin() {
   return (
-    <div className="sacc-none">
+    <div className={`sacc-none ${stylex.props(settingsStyles.saccNone).className}`}>
       <Icon name="info" size={14} />
       <span>{t.twitchNoLogin}</span>
     </div>
@@ -97,11 +98,11 @@ function TwitchLogin() {
 /** Điện thoại: hàng “Không cần đăng nhập / Chỉ đọc clip và video công khai”. */
 function TwitchRow() {
   return (
-    <div className="sacc-login">
-      <div className="sacc-mrow">
-        <span className="sacc-mrow__text">
-          <span className="sacc-mrow__k">{t.twitchLoginK}</span>
-          <span className="sacc-mrow__v">{t.twitchLoginV}</span>
+    <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
+      <div className={`sacc-mrow ${stylex.props(settingsStyles.saccMrow).className}`}>
+        <span className={`sacc-mrow__text ${stylex.props(settingsStyles.saccMrowText).className}`}>
+          <span className={`sacc-mrow__k ${stylex.props(settingsStyles.saccMrowK).className}`}>{t.twitchLoginK}</span>
+          <span className={`sacc-mrow__v ${stylex.props(settingsStyles.saccMrowV).className}`}>{t.twitchLoginV}</span>
         </span>
       </div>
     </div>
@@ -122,15 +123,15 @@ export function PlatformCard({ platform, mobile }: { platform: Platform; mobile:
   // bị chặn thì artboard để viền trung tính — banner cam đã đủ tín hiệu.
   const broken = expired(platform) || needsCookie(platform)
   return (
-    <section className={`card sacc-card${broken ? ' sacc-card--issue' : ''}`} aria-label={platform.label}>
-      <div className="sacc-head">
-        <span className="sacc-tile" aria-hidden="true">{initial(platform.id, platform.label)}</span>
-        <div className="sacc-head__text">
-          <h2 className="sacc-name">{platform.label}</h2>
-          {uses && <span className="sacc-uses">{uses}</span>}
+    <section className={`sacc-card ${stylex.props(settingsStyles.card, settingsStyles.saccCard, (broken) && settingsStyles.saccCardIssue).className}`} aria-label={platform.label}>
+      <div className={`sacc-head ${stylex.props(settingsStyles.saccHead).className}`}>
+        <span className={`sacc-tile ${stylex.props(settingsStyles.saccTile).className}`} aria-hidden="true">{initial(platform.id, platform.label)}</span>
+        <div className={`sacc-head__text ${stylex.props(settingsStyles.saccHeadText).className}`}>
+          <h2 className={`sacc-name ${stylex.props(settingsStyles.saccName).className}`}>{platform.label}</h2>
+          {uses && <span className={`sacc-uses ${stylex.props(settingsStyles.saccUses).className}`}>{uses}</span>}
           {meta && (
-            <span className="sacc-meta">
-              {meta}{link && <> · <a href={link.href}>{link.label}</a></>}
+            <span className={`sacc-meta ${stylex.props(saccMetaMarker, settingsStyles.saccMeta).className}`}>
+              {meta}{link && <> · <a href={link.href} {...stylex.props(settingsStyles.SaccMetaA)}>{link.label}</a></>}
             </span>
           )}
         </div>
@@ -149,11 +150,11 @@ export function PlatformCard({ platform, mobile }: { platform: Platform; mobile:
 
 function MorePlatforms() {
   return (
-    <div className="sacc-more">
+    <div className={`sacc-more ${stylex.props(saccMoreMarker, settingsStyles.saccMore).className}`}>
       <Icon name="add-square" size={18} />
-      <span className="sacc-more__text">
-        <span className="sacc-more__title">{t.moreTitle}</span>
-        <span className="sacc-more__body">{t.moreBody}</span>
+      <span className={`sacc-more__text ${stylex.props(settingsStyles.saccMoreText).className}`}>
+        <span className={`sacc-more__title ${stylex.props(settingsStyles.saccMoreTitle).className}`}>{t.moreTitle}</span>
+        <span className={`sacc-more__body ${stylex.props(settingsStyles.saccMoreBody).className}`}>{t.moreBody}</span>
       </span>
       <Button size="sm" onClick={() => { window.location.hash = paths.library('backdrops') }}>{t.moreLink}</Button>
     </div>
@@ -162,7 +163,7 @@ function MorePlatforms() {
 
 function SecureNote() {
   return (
-    <span className="sacc-secure">
+    <span className={`sacc-secure ${stylex.props(settingsStyles.saccSecure).className}`}>
       <Icon name="shield-tick" size={14} />
       <span>{t.secureNote}</span>
     </span>
@@ -175,19 +176,19 @@ export function AccountsSection() {
   const offline = platforms.error instanceof ApiError && platforms.error.status === 0
 
   return (
-    <div className="sacc-section">
-      {mobile && <p className="sacc-mlead">{t.mLead}</p>}
-      {offline && <div className="sacc-fail" role="status">{t.offline}</div>}
-      {platforms.error != null && !offline && <div className="sacc-fail" role="alert">{t.loadFail}</div>}
+    <div className={`sacc-section ${stylex.props(settingsStyles.saccSection).className}`}>
+      {mobile && <p className={`sacc-mlead ${stylex.props(settingsStyles.saccMlead).className}`}>{t.mLead}</p>}
+      {offline && <div className={`sacc-fail ${stylex.props(settingsStyles.saccFail).className}`} role="status">{t.offline}</div>}
+      {platforms.error != null && !offline && <div className={`sacc-fail ${stylex.props(settingsStyles.saccFail).className}`} role="alert">{t.loadFail}</div>}
       {platforms.data === undefined && !platforms.error && (
-        <div className="sacc-note"><Spinner size={13} color="var(--color-fg-3)" /> {t.loading}</div>
+        <div className={`sacc-note ${stylex.props(settingsStyles.saccNote).className}`}><Spinner size={13} color="var(--color-fg-3)" /> {t.loading}</div>
       )}
-      <div className="sacc-list">
+      <div className={`sacc-list ${stylex.props(settingsStyles.saccList).className}`}>
         {(platforms.data ?? []).map((p) => <PlatformCard key={p.id} platform={p} mobile={mobile} />)}
         {!mobile && <MorePlatforms />}
         {!mobile && <SecureNote />}
       </div>
-      {mobile && <p className="sacc-mfoot">{t.mFoot}</p>}
+      {mobile && <p className={`sacc-mfoot ${stylex.props(settingsStyles.saccMfoot).className}`}>{t.mFoot}</p>}
     </div>
   )
 }

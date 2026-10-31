@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, saccQrBoxMarker, saccQrProgressMarker, saccQrTimerrowMarker, saccQrStepDoneMarker, saccQrStepNowMarker } from '../settings.stylex'
 // QrLogin — đăng nhập Bilibili bằng mã QR (§24.1; artboard Settings qr=… và
 // MSettings screen=accounts sheet mã QR).
 // Wire: POST …/login/qr → {qrcodeKey, qrImage, loginUrl, expiresAt}; poll
@@ -152,17 +154,17 @@ function QrPlate({ session, phase, mobile }: { session: QrSession | null; phase:
     : undefined
   const size = mobile ? 168 : 172
   return (
-    <div className="sacc-qr__box">
-      {phase === 'loading' && <div className="sacc-qr__skel" aria-hidden="true" />}
+    <div className={`sacc-qr__box ${stylex.props(saccQrBoxMarker, settingsStyles.saccQrBox).className}`}>
+      {phase === 'loading' && <div className={`sacc-qr__skel ${stylex.props(settingsStyles.saccQrSkel).className}`} aria-hidden="true" />}
       {!hideCode && session?.qrImage && (
-        <img src={session.qrImage} alt="" width={size} height={size} style={imgStyle} />
+        <img src={session.qrImage} alt="" width={size} height={size} style={imgStyle} {...stylex.props(settingsStyles.SaccQrBoxImg)} />
       )}
       {overlay && (
-        <div className="sacc-qr__overlay">
-          <span className={`sacc-qr__ovicon sacc-qr__ovicon--${overlay.ring}`} aria-hidden="true">
+        <div className={`sacc-qr__overlay ${stylex.props(settingsStyles.saccQrOverlay).className}`}>
+          <span className={`sacc-qr__ovicon ${stylex.props(settingsStyles.saccQrOvicon, ((overlay.ring) === "scanned") && settingsStyles.saccQrOviconScanned, ((overlay.ring) === "success") && settingsStyles.saccQrOviconSuccess, ((overlay.ring) === "rejected") && settingsStyles.saccQrOviconRejected, ((overlay.ring) === "muted") && settingsStyles.saccQrOviconMuted).className}`} aria-hidden="true">
             <Icon name={overlay.icon} size={24} />
           </span>
-          <span className="sacc-qr__ovtext">{overlay.text}</span>
+          <span className={`sacc-qr__ovtext ${stylex.props(settingsStyles.saccQrOvtext).className}`}>{overlay.text}</span>
         </div>
       )}
     </div>
@@ -181,14 +183,14 @@ function QrStatus({ phase, account, extra, mobile }: { phase: QrPhase; account?:
   const color = STATUS_COLOR[phase] ?? 'var(--color-fg-3)'
   const spinner = phase === 'loading' || phase === 'waiting'
   return (
-    <div role="status" aria-live="polite" className="sacc-qr__status">
-      <span className="sacc-qr__statusline" style={{ color }}>
+    <div role="status" aria-live="polite" className={`sacc-qr__status ${stylex.props(settingsStyles.saccQrStatus).className}`}>
+      <span className={`sacc-qr__statusline ${stylex.props(settingsStyles.saccQrStatusline).className}`} style={{ color }}>
         {spinner
           ? <Spinner size={13} color={color} />
-          : <span className="sacc-qr__stdot" style={{ background: color }} aria-hidden="true" />}
+          : <span className={`sacc-qr__stdot ${stylex.props(settingsStyles.saccQrStdot).className}`} style={{ background: color }} aria-hidden="true" />}
         {text}
       </span>
-      {extra && <span className="sacc-qr__extra">{extra}</span>}
+      {extra && <span className={`sacc-qr__extra ${stylex.props(settingsStyles.saccQrExtra).className}`}>{extra}</span>}
     </div>
   )
 }
@@ -198,13 +200,13 @@ function QrSteps({ phase, mobile }: { phase: QrPhase; mobile?: boolean }) {
   const steps = mobile ? t.qrStepsMobile : t.qrSteps
   const done = phase === 'success' ? 3 : phase === 'scanned' || phase === 'rejected' ? 2 : 0
   return (
-    <ol className="sacc-qr__steps">
+    <ol className={`sacc-qr__steps ${stylex.props(settingsStyles.saccQrSteps).className}`}>
       {steps.map((step, i) => (
         <li
           key={step}
-          className={`sacc-qr__step${i < done ? ' sacc-qr__step--done' : ''}${i === done && phase === 'scanned' ? ' sacc-qr__step--now' : ''}`}
+          className={`sacc-qr__step ${stylex.props((((i < done) && (i === done && phase === 'scanned')) || ((i < done) && (!(i === done && phase === 'scanned')))) && saccQrStepDoneMarker, (((i < done) && (i === done && phase === 'scanned')) || ((!(i < done)) && (i === done && phase === 'scanned'))) && saccQrStepNowMarker, settingsStyles.saccQrStep, (((i < done) && (i === done && phase === 'scanned')) || ((i < done) && (!(i === done && phase === 'scanned')))) && settingsStyles.saccQrStepDone, (((i < done) && (i === done && phase === 'scanned')) || ((!(i < done)) && (i === done && phase === 'scanned'))) && settingsStyles.saccQrStepNow).className}`}
         >
-          <span className="sacc-qr__stepnum" aria-hidden="true">
+          <span className={`sacc-qr__stepnum ${stylex.props(settingsStyles.saccQrStepnum).className}`} aria-hidden="true">
             {i < done ? <Icon name="tick" size={13} /> : i + 1}
           </span>
           <span>{step}</span>
@@ -219,16 +221,16 @@ function TimerRow({ session, now }: { session: QrSession | null; now: number }) 
   return (
     <>
       <span
-        className="sacc-qr__progress"
+        className={`sacc-qr__progress ${stylex.props(saccQrProgressMarker, settingsStyles.saccQrProgress).className}`}
         role="progressbar"
         aria-label={t.qrTimerLabel}
         aria-valuemin={0}
         aria-valuemax={QR_SECONDS}
         aria-valuenow={secs}
       >
-        <span style={{ width: `${Math.min(100, (secs / QR_SECONDS) * 100)}%` }} />
+        <span style={{ width: `${Math.min(100, (secs / QR_SECONDS) * 100)}%` }} {...stylex.props(settingsStyles.SaccQrProgressSpan)} />
       </span>
-      <span className="sacc-qr__timer-label">{t.qrTimer(clock(secs))}</span>
+      <span className={`sacc-qr__timer-label ${stylex.props(settingsStyles.saccQrTimerLabel).className}`}>{t.qrTimer(clock(secs))}</span>
     </>
   )
 }
@@ -279,11 +281,11 @@ export function QrBody({ session, phase, account, mobile, pausedUntil, onClose, 
 
   if (mobile) {
     return (
-      <div className="sacc-qr sacc-qr--sheet">
-        <div className="sacc-qr__left">
+      <div className={`sacc-qr sacc-qr--sheet ${stylex.props(settingsStyles.saccQr, settingsStyles.saccQrSheet).className}`}>
+        <div className={`sacc-qr__left ${stylex.props(settingsStyles.saccQrLeft).className}`}>
           <QrPlate session={session} phase={eff} mobile />
           {counting && !expiredByClock && (
-            <span className="sacc-qr__timerrow">
+            <span className={`sacc-qr__timerrow ${stylex.props(saccQrTimerrowMarker, settingsStyles.saccQrTimerrow).className}`}>
               <TimerRow session={session} now={now} />
             </span>
           )}
@@ -292,11 +294,11 @@ export function QrBody({ session, phase, account, mobile, pausedUntil, onClose, 
         {bannerEl}
         <QrSteps phase={eff} mobile />
         {showSame && (
-          <div className="sacc-qr__same">
-            <Icon name="mobile" size={20} className="sacc-qr__same-ic" />
-            <span className="sacc-qr__same-text">
-              <span className="sacc-qr__same-title">{t.qrSameTitle}</span>
-              <span className="sacc-qr__same-body">{t.qrSameBody}</span>
+          <div className={`sacc-qr__same ${stylex.props(settingsStyles.saccQrSame).className}`}>
+            <Icon name="mobile" size={20} className="sacc-qr__same-ic" xstyle={[settingsStyles.saccQrSameIc]} />
+            <span className={`sacc-qr__same-text ${stylex.props(settingsStyles.saccQrSameText).className}`}>
+              <span className={`sacc-qr__same-title ${stylex.props(settingsStyles.saccQrSameTitle).className}`}>{t.qrSameTitle}</span>
+              <span className={`sacc-qr__same-body ${stylex.props(settingsStyles.saccQrSameBody).className}`}>{t.qrSameBody}</span>
             </span>
             <Button size="lg" onClick={() => { window.location.href = session.loginUrl }}>{t.qrSameAct}</Button>
           </div>
@@ -307,26 +309,26 @@ export function QrBody({ session, phase, account, mobile, pausedUntil, onClose, 
 
   return (
     <>
-      <div className="sacc-qr">
-        <div className="sacc-qr__left">
+      <div className={`sacc-qr ${stylex.props(settingsStyles.saccQr).className}`}>
+        <div className={`sacc-qr__left ${stylex.props(settingsStyles.saccQrLeft).className}`}>
           <QrPlate session={session} phase={eff} />
           {counting && !expiredByClock && (
-            <span className="sacc-qr__timerrow">
+            <span className={`sacc-qr__timerrow ${stylex.props(saccQrTimerrowMarker, settingsStyles.saccQrTimerrow).className}`}>
               <TimerRow session={session} now={now} />
             </span>
           )}
         </div>
-        <div className="sacc-qr__right">
+        <div className={`sacc-qr__right ${stylex.props(settingsStyles.saccQrRight).className}`}>
           <QrSteps phase={eff} />
           <QrStatus phase={eff} account={account} extra={extra} />
         </div>
       </div>
       {bannerEl}
-      <div className="sacc-qr__actions">
+      <div className={`sacc-qr__actions ${stylex.props(settingsStyles.saccQrActions).className}`}>
         <Button variant="quiet" size="sm" onClick={onManual} style={{ padding: '0 var(--vv-s-4)' }}>
           {t.qrManualLink}
         </Button>
-        <span className="sacc-qr__actions-end">
+        <span className={`sacc-qr__actions-end ${stylex.props(settingsStyles.saccQrActionsEnd).className}`}>
           {eff !== 'success' && <Button onClick={onClose}>{t.qrClose}</Button>}
           {RETRYABLE[eff] && (
             <Button variant="primary" icon={<Icon name="refresh" size={15} />} onClick={retry}>{t.qrNew}</Button>
@@ -334,7 +336,7 @@ export function QrBody({ session, phase, account, mobile, pausedUntil, onClose, 
           {eff === 'success' && <Button variant="primary" onClick={onDone}>{t.qrDone}</Button>}
         </span>
       </div>
-      <span className="sacc-qr__hint"><Icon name="shield-tick" size={14} className="sacc-ic-top" />{t.qrHint}</span>
+      <span className={`sacc-qr__hint ${stylex.props(settingsStyles.saccQrHint).className}`}><Icon name="shield-tick" size={14} className="sacc-ic-top" xstyle={[settingsStyles.saccIcTop]} />{t.qrHint}</span>
     </>
   )
 }
@@ -371,22 +373,22 @@ export function QrLoginDialog({ platformId, pausedUntil, open, mobile, onClose, 
           borderRadius: 'var(--vv-r-22) var(--vv-r-22) 0 0',
         }}
       >
-        <div className="sacc-sheet__head">
-          <span className="sacc-sheet__title">{t.qrTitleMobile}</span>
-          <span className="sacc-sheet__sub">{t.qrSubMobile}</span>
+        <div className={`sacc-sheet__head ${stylex.props(settingsStyles.saccSheetHead).className}`}>
+          <span className={`sacc-sheet__title ${stylex.props(settingsStyles.saccSheetTitle).className}`}>{t.qrTitleMobile}</span>
+          <span className={`sacc-sheet__sub ${stylex.props(settingsStyles.saccSheetSub).className}`}>{t.qrSubMobile}</span>
         </div>
-        <div className="sacc-sheet__body">
+        <div className={`sacc-sheet__body ${stylex.props(settingsStyles.saccSheetBody).className}`}>
           <QrBody
             session={session} phase={phase} account={account} mobile pausedUntil={pausedUntil}
             onClose={onClose} onManual={onManual} retry={retry} onDone={finish} onExpire={() => setClockExpired(true)}
           />
         </div>
-        <div className="sacc-sheet__foot">
+        <div className={`sacc-sheet__foot ${stylex.props(settingsStyles.saccSheetFoot).className}`}>
           {RETRYABLE[eff] && (
             <Button size="xl" style={{ width: '100%' }} variant="primary" onClick={retry}>{t.qrNew}</Button>
           )}
           {eff === 'success' && <Button size="xl" style={{ width: '100%' }} variant="primary" onClick={finish}>{t.qrDone}</Button>}
-          <span className="sacc-sheet__help">{t.qrManualFootMobile}</span>
+          <span className={`sacc-sheet__help ${stylex.props(settingsStyles.saccSheetHelp).className}`}>{t.qrManualFootMobile}</span>
         </div>
       </Sheet>
     )
@@ -394,13 +396,13 @@ export function QrLoginDialog({ platformId, pausedUntil, open, mobile, onClose, 
 
   if (!open) return null
   return (
-    <Dialog onClose={onClose} label={t.qrTitle} width={620}>
-      <div className="sacc-qr-dialog">
-        <div className="sacc-qr-head">
-          <span className="sacc-qr-head__icon"><Icon name="scan-line" size={20} /></span>
-          <span className="sacc-qr-head__text">
-            <h2 className="sacc-qr-head__title">{t.qrTitle}</h2>
-            <p className="sacc-qr-head__sub">{t.qrSub}</p>
+    <Dialog onClose={onClose} label={t.qrTitle} width={620} scrimStyle={settingsStyles.qrScrim}>
+      <div className={`sacc-qr-dialog ${stylex.props(settingsStyles.saccQrDialog).className}`}>
+        <div className={`sacc-qr-head ${stylex.props(settingsStyles.saccQrHead).className}`}>
+          <span className={`sacc-qr-head__icon ${stylex.props(settingsStyles.saccQrHeadIcon).className}`}><Icon name="scan-line" size={20} /></span>
+          <span className={`sacc-qr-head__text ${stylex.props(settingsStyles.saccQrHeadText).className}`}>
+            <h2 className={`sacc-qr-head__title ${stylex.props(settingsStyles.saccQrHeadTitle).className}`}>{t.qrTitle}</h2>
+            <p className={`sacc-qr-head__sub ${stylex.props(settingsStyles.saccQrHeadSub).className}`}>{t.qrSub}</p>
           </span>
           <Button variant="icon" aria-label={t.qrClose} onClick={onClose}><Icon name="close" size={14} /></Button>
         </div>

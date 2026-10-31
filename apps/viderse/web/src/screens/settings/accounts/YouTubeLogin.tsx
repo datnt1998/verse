@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, saccYtLabelMarker } from '../settings.stylex'
 // YouTube trong thẻ Tài khoản nền tảng: chọn hồ sơ trình duyệt để lấy cookie
 // (một select duy nhất, lưu ngay khi đổi; “Tắt” = xoá đăng nhập có xác nhận cam)
 // và banner bot “xác nhận bạn không phải bot” → POST login/check.
@@ -110,8 +112,8 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
   }
 
   const status = (
-    <span className="sacc-yt__state">
-      <span className={`sacc-dot ${platform.login.saved ? 'sacc-dot--on' : 'sacc-dot--off'}`} aria-hidden="true" />
+    <span className={`sacc-yt__state ${stylex.props(settingsStyles.saccYtState).className}`}>
+      <span className={`sacc-dot ${stylex.props(settingsStyles.saccDot, (platform.login.saved) && settingsStyles.saccDotOn, (!(platform.login.saved)) && settingsStyles.saccDotOff).className}`} aria-hidden="true" />
       {platform.login.saved ? t.ytStatusOn : t.ytStatusOff}
     </span>
   )
@@ -121,17 +123,17 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
   return (
     <>
       <BotBanner platform={platform} align="center" />
-      <div className="sacc-login">
-        <div className="sacc-yt">
-          <span className="sacc-yt__label">
-            <b>{t.ytLoginLabel}</b>
-            <span>{t.ytLoginSub}</span>
+      <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
+        <div className={`sacc-yt ${stylex.props(settingsStyles.saccYt).className}`}>
+          <span className={`sacc-yt__label ${stylex.props(saccYtLabelMarker, settingsStyles.saccYtLabel).className}`}>
+            <b {...stylex.props(settingsStyles.SaccYtLabelB)}>{t.ytLoginLabel}</b>
+            <span {...stylex.props(settingsStyles.SaccYtLabelSpan)}>{t.ytLoginSub}</span>
           </span>
           {profiles.data !== undefined && options.length === 1
-            ? <span className="sacc-yt__state">{t.ytProfilesEmpty}</span>
+            ? <span className={`sacc-yt__state ${stylex.props(settingsStyles.saccYtState).className}`}>{t.ytProfilesEmpty}</span>
             : (
               <select
-                className="sacc-select"
+                className={`sacc-select ${stylex.props(settingsStyles.saccSelect).className}`}
                 value={choice}
                 onChange={(e) => void pick(e.target.value)}
                 aria-label={t.ytLoginLabel}
@@ -153,11 +155,11 @@ export function YouTubeLoginRow({ platform }: { platform: Platform }) {
   return (
     <>
       <BotBanner platform={platform} align="top" />
-      <div className="sacc-login">
-        <div className="sacc-mrow">
-          <span className="sacc-mrow__text">
-            <span className="sacc-mrow__k">{t.mYtLoginK}</span>
-            <span className="sacc-mrow__v">{saved ? t.mYtLoginV(saved) : t.mYtLoginVOff}</span>
+      <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
+        <div className={`sacc-mrow ${stylex.props(settingsStyles.saccMrow).className}`}>
+          <span className={`sacc-mrow__text ${stylex.props(settingsStyles.saccMrowText).className}`}>
+            <span className={`sacc-mrow__k ${stylex.props(settingsStyles.saccMrowK).className}`}>{t.mYtLoginK}</span>
+            <span className={`sacc-mrow__v ${stylex.props(settingsStyles.saccMrowV).className}`}>{saved ? t.mYtLoginV(saved) : t.mYtLoginVOff}</span>
           </span>
         </div>
       </div>

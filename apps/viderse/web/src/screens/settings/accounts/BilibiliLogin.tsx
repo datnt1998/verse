@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, saccAcctMarker, saccEmptyTitleMarker, saccManualToggleMarker, saccManualLabelMarker } from '../settings.stylex'
 // Bilibili trong thẻ Tài khoản nền tảng — bốn trạng thái của artboard:
 //   · chưa đăng nhập (câu lợi ích + nút “Đăng nhập bằng mã QR”)
 //   · mã QR (tên tài khoản · nhãn “Mã QR”, tự gia hạn mỗi ngày, “Gia hạn ngay”)
@@ -154,13 +156,13 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
       <>
         {blockedBanner}
         {expiredBanner}
-        <div className="sacc-login">
-          <div className="sacc-mrow">
-            <span className="sacc-mrow__text">
-              <span className="sacc-mrow__k">
+        <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
+          <div className={`sacc-mrow ${stylex.props(settingsStyles.saccMrow).className}`}>
+            <span className={`sacc-mrow__text ${stylex.props(settingsStyles.saccMrowText).className}`}>
+              <span className={`sacc-mrow__k ${stylex.props(settingsStyles.saccMrowK).className}`}>
                 {saved ? `${account} · ${isManual ? t.mBiliMethodManual : t.mBiliMethodQr}` : t.mBiliEmptyK}
               </span>
-              <span className={`sacc-mrow__v${isExpired ? ' sacc-mrow__v--warn' : ''}`}>
+              <span className={`sacc-mrow__v ${stylex.props(settingsStyles.saccMrowV, (isExpired) && settingsStyles.saccMrowVWarn).className}`}>
                 {!saved
                   ? t.mBiliEmptyV
                   : isExpired
@@ -195,18 +197,18 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
     <>
       {blockedBanner}
       {expiredBanner}
-      <div className="sacc-login">
+      <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
         {saved
           ? (
-            <div className="sacc-acct" data-dim={isExpired ? 'true' : undefined}>
-              <span className="sacc-acct__tile" aria-hidden="true">{account.slice(0, 1).toUpperCase()}</span>
-              <span className="sacc-acct__text">
-                <span className="sacc-acct__row">
+            <div className={`sacc-acct ${stylex.props(saccAcctMarker, settingsStyles.saccAcct).className}`} data-dim={isExpired ? 'true' : undefined}>
+              <span className={`sacc-acct__tile ${stylex.props(settingsStyles.saccAcctTile).className}`} aria-hidden="true">{account.slice(0, 1).toUpperCase()}</span>
+              <span className={`sacc-acct__text ${stylex.props(settingsStyles.saccAcctText).className}`}>
+                <span className={`sacc-acct__row ${stylex.props(settingsStyles.saccAcctRow).className}`}>
                   {account}
                   <Badge tone="neutral" fg={tag.fg} bg={isExpired ? 'var(--vv-warn-bg)' : undefined}
                     style={{ height: 20, fontSize: 11 }}>{tag.label}</Badge>
                 </span>
-                <span className="sacc-acct__sub">{subline}</span>
+                <span className={`sacc-acct__sub ${stylex.props(settingsStyles.saccAcctSub).className}`}>{subline}</span>
               </span>
               {canRenew && (
                 <Button size="sm" icon={<Icon name="refresh" size={13} />} pending={renewing} pendingLabel={t.biliRenewing} onClick={() => void renew()}>
@@ -222,12 +224,12 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
             </div>
           )
           : (
-            <div className="sacc-empty">
-              <span className="sacc-empty__text">
-                <span className="sacc-empty__title">
-                  {t.biliEmptyTitle} <span>{t.biliEmptyOptional}</span>
+            <div className={`sacc-empty ${stylex.props(settingsStyles.saccEmpty).className}`}>
+              <span className={`sacc-empty__text ${stylex.props(settingsStyles.saccEmptyText).className}`}>
+                <span className={`sacc-empty__title ${stylex.props(saccEmptyTitleMarker, settingsStyles.saccEmptyTitle).className}`}>
+                  {t.biliEmptyTitle} <span {...stylex.props(settingsStyles.SaccEmptyTitleSpan)}>{t.biliEmptyOptional}</span>
                 </span>
-                <span className="sacc-empty__body">{t.biliEmptyBody}</span>
+                <span className={`sacc-empty__body ${stylex.props(settingsStyles.saccEmptyBody).className}`}>{t.biliEmptyBody}</span>
               </span>
               <Button size="sm" variant="primary" icon={<Icon name="scan-line" size={14} />} onClick={() => setQrOpen(true)}>
                 {t.biliQr}
@@ -236,29 +238,29 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
           )}
 
         {isManual && (
-          <span className="sacc-help">
-            <Icon name="info" size={14} className="sacc-ic-top" />
+          <span className={`sacc-help ${stylex.props(settingsStyles.saccHelp).className}`}>
+            <Icon name="info" size={14} className="sacc-ic-top" xstyle={[settingsStyles.saccIcTop]} />
             <span>{t.biliManualHelp}</span>
           </span>
         )}
 
         {showManual && (
-          <div className="sacc-manual">
+          <div className={`sacc-manual ${stylex.props(settingsStyles.saccManual).className}`}>
             <Button
               variant="quiet"
               size="sm"
-              className="sacc-manual__toggle"
+              className={`sacc-manual__toggle ${stylex.props(saccManualToggleMarker).className}`} xstyle={[settingsStyles.saccManualToggle]}
               aria-expanded={manualOpen}
-              icon={<Icon name="arrow-d" size={14} className="sacc-manual__chev" />}
+              icon={<Icon name="arrow-d" size={14} className="sacc-manual__chev" xstyle={[settingsStyles.saccManualChev]} />}
               onClick={() => setManualOpen((open) => !open)}
             >
               {isManual ? t.biliManualToggleOther : t.biliManualToggle}
             </Button>
             {manualOpen && (
-              <div className="sacc-manual__panel">
-                <span className="sacc-manual__label">
-                  <b>{t.biliManualLabel}</b>
-                  <span>{t.biliManualHint}</span>
+              <div className={`sacc-manual__panel ${stylex.props(settingsStyles.saccManualPanel).className}`}>
+                <span className={`sacc-manual__label ${stylex.props(saccManualLabelMarker, settingsStyles.saccManualLabel).className}`}>
+                  <b {...stylex.props(settingsStyles.SaccManualLabelB)}>{t.biliManualLabel}</b>
+                  <span {...stylex.props(settingsStyles.SaccManualLabelSpan)}>{t.biliManualHint}</span>
                 </span>
                 <TextArea
                   rows={2}
@@ -270,7 +272,7 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
                   onChange={(e) => setCookie(e.target.value)}
                   style={{ fontSize: 12.5, lineHeight: 1.6, paddingBlock: 'var(--vv-s-8)', paddingInline: 'var(--vv-s-12)', resize: 'vertical' }}
                 />
-                <span className="sacc-manual__foot">
+                <span className={`sacc-manual__foot ${stylex.props(settingsStyles.saccManualFoot).className}`}>
                   <Button size="sm" pending={busy} pendingLabel={t.biliSaving} disabled={!cookie.trim()} onClick={() => void saveCookie()}>
                     {t.biliSave}
                   </Button>
