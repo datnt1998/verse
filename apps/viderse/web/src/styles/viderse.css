@@ -19,6 +19,9 @@
   /* Chữ của bốn trợ lý (03-tokens.md › Trợ lý) */
   --vv-scout-ink: #B7CEFF;
   --vv-director-ink: #CDB5FF;
+  --vv-director-notice-ink: #D6C9FF;
+  --vv-director-notice-fill: rgba(184, 156, 255, .07);
+  --vv-director-notice-line: rgba(184, 156, 255, .22);
   --vv-artist-ink: #FFD08A;
   --vv-qa-ink: #9DECC9;
 
