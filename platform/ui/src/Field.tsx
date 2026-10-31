@@ -23,6 +23,8 @@ const sx = stylex.create({
   padded: { paddingRight: 44 },
   area: { height: 'auto', paddingTop: 10, paddingBottom: 10, paddingInline: 12, borderRadius: 10, lineHeight: 1.55, resize: 'none' },
   wrap: { position: 'relative' },
+  framed: { display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 },
+  plain: { flexGrow: 1, minWidth: 0, width: 0, padding: 0, borderWidth: 0, borderRadius: 0, backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', color: color['--color-fg'] },
   eye: {
     position: 'absolute', right: 4, top: 4, width: 32, height: 28, borderRadius: 8,
     borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: color['--color-fg-3'],
@@ -78,17 +80,17 @@ export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   },
 )
 
-export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function PasswordField({ invalid, style, className, ...rest }, ref) {
+export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; toggleStyle?: CSSProperties; frameStyle?: CSSProperties }>(
+  function PasswordField({ invalid, style, className, toggleStyle, frameStyle, ...rest }, ref) {
     const [show, setShow] = useState(false)
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, sx.padded)
     return (
-      <div {...stylex.props(sx.wrap)}>
+      <div {...stylex.props(sx.wrap, frameStyle && sx.field, frameStyle && sx.framed, frameStyle && inputFrame({ invalid, disabled: rest.disabled }))} style={frameStyle}>
         <input ref={ref} type={show ? 'text' : 'password'} aria-invalid={invalid || undefined}
-          className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
+          className={[(frameStyle ? stylex.props(sx.plain).className : p.className), className].filter(Boolean).join(' ')} style={{ ...p.style, ...style, ...(frameStyle ? { height: '100%', padding: 0, borderRadius: 0 } : {}) }} {...rest} />
         <button type="button" onClick={() => setShow((v) => !v)}
           aria-label={show ? getKitLabels().inputs.hidePassword : getKitLabels().inputs.showPassword}
-          {...stylex.props(sx.eye)}>
+          className={stylex.props(sx.eye).className} style={toggleStyle}>
           <Icon name={show ? 'eye' : 'eye-slash'} size={17} />
         </button>
       </div>

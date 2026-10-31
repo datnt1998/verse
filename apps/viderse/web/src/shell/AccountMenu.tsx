@@ -4,20 +4,22 @@ import { Avatar, FieldError, Icon, useEscapeLayer } from '@noverse/ui'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import { useSession } from '../api/session'
 import { membersUrl } from '../api/sso'
-import { AppLinks, ExternalIcon } from '../components/AppLinks'
+import { accountStyles, AppLinks, ExternalIcon } from '../components/AppLinks'
 import { t } from '../i18n/vi'
 import { navigate, paths } from '../router'
 import { useMediaQuery } from '../lib/useMediaQuery'
 const sx = stylex.create({
-  anchor: { position: 'relative' },
-  menu: { position: 'absolute', zIndex: 40, top: 40, right: 0, width: 336, padding: 6, borderRadius: 16, backgroundColor: color['--color-surface-4'], border: '1px solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column' },
+  anchor: { position: 'relative', transform: 'translateX(2px)' },
+  menu: { position: 'absolute', zIndex: 40, top: 38, right: 0, width: 336, padding: 6, borderRadius: 16, backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column' },
   user: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 10px 12px' },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 },
   name: { fontSize: 14.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   sub: { fontSize: 11.5, color: color['--color-fg-3'] },
   heading: { padding: '6px 10px 4px', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: color['--color-fg-4'] },
   divider: { height: 1, margin: 6, backgroundColor: line['--line-2'] },
-  row: { minHeight: 44, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 10, borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], fontSize: 13.5, textAlign: 'left', cursor: 'pointer' },
+  row: { minHeight: 40, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 10, borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], fontSize: 13.5, textAlign: 'left', cursor: 'pointer' },
+  tall: { minHeight: 48 },
+  actionText: { lineHeight: 1.3 },
   logout: { color: color['--color-err'] },
 })
 export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
@@ -56,12 +58,12 @@ export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
       const index = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (current + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length
       items[index]?.focus()
     }}>
-      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} /><span {...stylex.props(sx.text)}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(sx.sub)}>{t.role[user.role]} · @{user.username}</span></span></div>
+      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} /><span {...stylex.props(sx.text)}><span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(accountStyles.tag, user.role !== 'admin' && accountStyles.neutralTag)}>{t.role[user.role]}</span></span><span className="mono" style={{ fontSize: 12, color: 'var(--vv-fg-note)' }}>@{user.username}</span></span></div>
       {apps.some((app) => app.id !== 'viderse') && <><div {...stylex.props(sx.divider)} /><span {...stylex.props(sx.heading)}>{t.account.apps}</span><AppLinks apps={apps} menu /></>}
       <div {...stylex.props(sx.divider)} />
       <button type="button" role="menuitem" {...stylex.props(sx.row)} onClick={() => { close(); navigate(paths.account()) }}><Icon name="user" size={17} /><span style={{ flex: 1 }}>{t.account.title}</span><span {...stylex.props(sx.sub)}>{t.account.menuAccountHint}</span></button>
-      {user.role === 'admin' && memberHref && <a role="menuitem" href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(sx.row)}><Icon name="crown" size={17} /><span {...stylex.props(sx.text)}>{t.account.manageMembers}<span {...stylex.props(sx.sub)}>{t.account.membersHint}</span></span><ExternalIcon /></a>}
-      <button type="button" role="menuitem" disabled={busy} onClick={() => void logout()} {...stylex.props(sx.row, sx.logout)}><Icon name="logout" size={17} /><span {...stylex.props(sx.text)}>{t.account.logout}<span {...stylex.props(sx.sub)}>{t.account.menuLogoutHint}</span></span></button>
+      {user.role === 'admin' && memberHref && <a role="menuitem" href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(sx.row, sx.tall)}><Icon name="crown" size={17} /><span {...stylex.props(sx.text, sx.actionText)}>{t.account.manageMembers}<span {...stylex.props(sx.sub)}>{t.account.membersHint}</span></span><ExternalIcon /></a>}
+      <button type="button" role="menuitem" disabled={busy} onClick={() => void logout()} {...stylex.props(sx.row, sx.tall, sx.logout)}><Icon name="logout" size={17} /><span {...stylex.props(sx.text, sx.actionText)}>{t.account.logout}<span {...stylex.props(sx.sub)}>{t.account.menuLogoutHint}</span></span></button>
       {error && <FieldError>{error}</FieldError>}
     </div>}
   </div>

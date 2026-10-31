@@ -10,11 +10,12 @@ import { useState, type FormEvent } from 'react'
 import { ApiError, changePassword } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
-import { Button, FieldError, FieldLabel, Icon, PasswordField, toast } from '@noverse/ui'
-import { authLabelStyle, AuthShell, AuthUser, HintLine } from './parts'
+import { Button, FieldError, Icon, toast } from '@noverse/ui'
+import { AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
 import { accountStyles } from '../../components/AppLinks'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 const MIN_PASSWORD = 8
 
@@ -23,13 +24,13 @@ const MIN_PASSWORD = 8
  * đã thu hồi mọi phiên). `forced` chỉ đổi nhãn trường hiện tại + dòng dẫn.
  */
 export function ChangePasswordForm({ forced = false, horizontal = false }: { forced?: boolean; horizontal?: boolean }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
   const { endSession } = useSession()
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const inputStyle = stylex.props(sx.input)
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -52,23 +53,23 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
   }
 
   return (
-    <form onSubmit={(event) => void submit(event)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: horizontal ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr)', gap: 14 }}>
+    <form onSubmit={(event) => void submit(event)} style={{ display: 'flex', flexDirection: 'column', gap: mobile ? (forced ? 20 : 12) : horizontal ? 12 : 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: horizontal ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr)', gap: mobile ? (forced ? 20 : 12) : horizontal ? 12 : 14 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-        <FieldLabel htmlFor="pw-current" size={12.5} style={authLabelStyle}>{forced ? t.auth.passwordForm.currentTemp : t.auth.passwordForm.current}</FieldLabel>
-        <PasswordField id="pw-current" autoComplete="current-password"
-          value={current} invalid={!!error} {...inputStyle} onChange={(event) => setCurrent(event.currentTarget.value)} />
+        <AuthLabel htmlFor="pw-current">{forced ? t.auth.passwordForm.currentTemp : t.auth.passwordForm.current}</AuthLabel>
+        <AuthPassword id="pw-current" autoComplete="current-password"
+          value={current} invalid={!!error} onChange={(event) => setCurrent(event.currentTarget.value)} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-        <FieldLabel htmlFor="pw-next" size={12.5} style={authLabelStyle}>{t.auth.passwordForm.next}</FieldLabel>
-        <PasswordField id="pw-next" autoComplete="new-password"
-          value={next} invalid={next.length > 0 && next.length < MIN_PASSWORD} {...inputStyle} onChange={(event) => setNext(event.currentTarget.value)} />
-        <span {...stylex.props(accountStyles.help)}>{t.auth.passwordForm.hint}</span>
+        <AuthLabel htmlFor="pw-next">{t.auth.passwordForm.next}</AuthLabel>
+        <AuthPassword id="pw-next" autoComplete="new-password"
+          value={next} invalid={next.length > 0 && next.length < MIN_PASSWORD} onChange={(event) => setNext(event.currentTarget.value)} />
+        <span {...stylex.props(accountStyles.fieldHelp)}>{t.auth.passwordForm.hint}</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-        <FieldLabel htmlFor="pw-confirm" size={12.5} style={authLabelStyle}>{t.auth.passwordForm.confirm}</FieldLabel>
-        <PasswordField id="pw-confirm" autoComplete="new-password"
-          value={confirm} invalid={confirm.length > 0 && next !== confirm} {...inputStyle} onChange={(event) => setConfirm(event.currentTarget.value)} />
+        <AuthLabel htmlFor="pw-confirm">{forced ? t.auth.passwordForm.confirm : t.auth.passwordForm.confirmShort}</AuthLabel>
+        <AuthPassword id="pw-confirm" autoComplete="new-password"
+          value={confirm} invalid={confirm.length > 0 && next !== confirm} onChange={(event) => setConfirm(event.currentTarget.value)} />
       </div>
       </div>
       {next.length > 0 && next.length < MIN_PASSWORD && <FieldError>{t.auth.passwordForm.short}</FieldError>}
@@ -77,7 +78,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
       <Button type="submit" variant={horizontal ? 'ghost' : 'primary'} pending={busy}
         disabled={busy || !current || next.length < MIN_PASSWORD || next !== confirm}
         className={horizontal ? undefined : stylex.props(sx.submit).className}
-        style={{ minHeight: horizontal ? 32 : undefined, alignSelf: horizontal ? 'flex-start' : undefined, justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
+        style={{ alignSelf: horizontal ? 'flex-start' : undefined, justifyContent: 'center', fontSize: horizontal ? 13 : mobile ? 15 : 14, fontWeight: horizontal ? 500 : 600 }}>
         {busy ? t.auth.passwordForm.changing : t.auth.passwordForm.submit}
       </Button>
     </form>
@@ -87,6 +88,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
 /** Cổng ép đổi mật khẩu tạm — render thay shell, không có đường tắt nào khác. */
 export function ChangePasswordScreen() {
   const { user, signOut } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const [error, setError] = useState('')
   const leave = async () => {
     try { await signOut() } catch { setError(t.account.logoutFailed) }
@@ -101,13 +103,13 @@ export function ChangePasswordScreen() {
           <Icon name="key" size={26} />
         </span>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{t.auth.passwordForm.forceTitle}</h1>
-        <p style={{ margin: 0, fontSize: 14, color: 'var(--color-fg-3)', maxWidth: 380 }}>{t.auth.passwordForm.forceBody}</p>
+        <p {...stylex.props(sx.body)}>{mobile ? t.auth.passwordForm.forceBodyMobile : t.auth.passwordForm.forceBody}</p>
       </div>
       {user && <AuthUser user={user} />}
-      <ChangePasswordForm forced />
-      <HintLine icon="info">{t.auth.passwordForm.forceNote}</HintLine>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}><ChangePasswordForm forced />
+      <HintLine icon="info">{mobile ? t.auth.passwordForm.forceNoteMobile : t.auth.passwordForm.forceNote}</HintLine></div>
       {error && <FieldError>{error}</FieldError>}
-      <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'center' }}><Icon name="logout" size={15} />{t.account.logout}</Button>
+      <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'center', height: 34 }}><Icon name="logout" size={15} />{t.account.logout}</Button>
     </AuthShell>
   )
 }

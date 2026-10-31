@@ -6,9 +6,11 @@ import { t } from '../../i18n/vi'
 import { AuthShell, AuthUser, HintLine } from './parts'
 import { authStyles as sx } from './auth.stylex'
 import { accountStyles } from '../../components/AppLinks'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 export function AccessDeniedScreen() {
   const { accessDenied, apps, refresh, signOut } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const [busy, setBusy] = useState<'retry' | 'logout' | null>(null)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
@@ -30,7 +32,7 @@ export function AccessDeniedScreen() {
       setCopied(true)
     } catch { setError(t.auth.copyFailed) }
   }
-  return <AuthShell>
+  return <AuthShell fill>
     <div {...stylex.props(sx.intro)}>
       <span {...stylex.props(sx.icon)}><Icon name="lock" size={26} /></span>
       <h1 {...stylex.props(sx.title)}>{t.auth.accessDeniedTitle}</h1>
@@ -40,16 +42,16 @@ export function AccessDeniedScreen() {
     {error && <FieldError>{error}</FieldError>}
     <div {...stylex.props(sx.col)}>
       {noverse && <a href={noverse.origin} target="_blank" rel="noopener noreferrer" {...stylex.props(accountStyles.button, accountStyles.primary, sx.submit)}>
-        <BrandMark size={18} />{t.auth.openNoverse}<span style={{ opacity: .6, fontWeight: 400 }}>{new URL(noverse.origin).host}</span>
+        <BrandMark size={18} />{t.auth.openNoverse}{!mobile && <span style={{ opacity: .6, fontWeight: 400 }}>{new URL(noverse.origin).host}</span>}
       </a>}
       <Button variant={noverse ? 'ghost' : 'primary'} onClick={() => void retry()} disabled={busy !== null} pending={busy === 'retry'} {...stylex.props(sx.submit)}>
         <Icon name="refresh" size={16} />{t.common.retry}
       </Button>
-      <Button variant="quiet" onClick={() => void copy()}><Icon name="copy" size={15} />{copied ? t.auth.copied : t.auth.copyRequest}</Button>
+      <Button variant="quiet" onClick={() => void copy()} {...stylex.props(sx.copy)}><Icon name="copy" size={15} />{copied ? t.auth.copied : t.auth.copyRequest}</Button>
     </div>
-    <div {...stylex.props(sx.col, sx.divider)}>
-      <Button variant="quiet" onClick={() => void leave()} disabled={busy !== null} pending={busy === 'logout'} style={{ color: 'var(--color-err)', alignSelf: 'flex-start' }}>
-        <Icon name="logout" size={16} />{t.account.logout}
+    <div {...stylex.props(sx.col, sx.divider, sx.deniedLogout)}>
+      <Button variant="quiet" onClick={() => void leave()} disabled={busy !== null} pending={busy === 'logout'} style={{ color: 'var(--color-err)', alignSelf: 'flex-start', height: mobile ? 44 : 36, fontSize: mobile ? 14 : 13, paddingInline: mobile ? 16 : 14 }}>
+        <Icon name="logout" size={mobile ? 16 : 15} />{t.account.logout}
       </Button>
       <HintLine icon="info">{t.account.sharedLogoutNote}</HintLine>
     </div>

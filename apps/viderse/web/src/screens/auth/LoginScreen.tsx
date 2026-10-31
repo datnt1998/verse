@@ -4,9 +4,9 @@ import { ApiError } from '../../api/client'
 import { useSession } from '../../api/session'
 import type { SessionEnded } from '../../api/types'
 import { t } from '../../i18n/vi'
-import { Banner, Button, FieldError, FieldLabel, PasswordField, TextField } from '@noverse/ui'
+import { Banner, Button, Field, FieldError } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
-import { authLabelStyle, AuthShell, HintLine } from './parts'
+import { AuthLabel, AuthPassword, AuthShell, HintLine } from './parts'
 import { authStyles as sx } from './auth.stylex'
 
 import { useMediaQuery } from '../../lib/useMediaQuery'
@@ -49,30 +49,30 @@ export function LoginScreen() {
   const button = stylex.props(sx.submit)
   return <AuthShell footer="login">
     <div {...stylex.props(sx.intro)}>
-      <LensLogo size={mobile ? 48 : 64} halo />
+      <LensLogo size={mobile ? 56 : 64} halo />
       <h1 {...stylex.props(sx.title)}>{t.auth.loginTitle}</h1>
       <p {...stylex.props(sx.body)}>{t.auth.loginSub}</p>
     </div>
-    {explanation && <div data-session-ended><Banner title={explanation.title} tone={ended?.reason === 'logout' && ended.app === 'viderse' ? 'success' : 'info'} icon={ended?.reason === 'password_changed' ? 'key' : ended?.reason === 'expired' ? 'clock' : ended?.reason === 'admin_changed' || ended?.reason === 'locked' ? 'crown' : ended?.reason === 'logout' && ended.app === 'viderse' ? 'tick-b' : 'info'}>
-      {explanation.body}
+    {explanation && <div data-session-ended><Banner title="" align="top" tone={ended?.reason === 'logout' && ended.app === 'viderse' ? 'success' : 'info'} icon={ended?.reason === 'password_changed' ? 'key' : ended?.reason === 'expired' ? 'clock' : ended?.reason === 'admin_changed' || ended?.reason === 'locked' ? 'crown' : ended?.reason === 'logout' && ended.app === 'viderse' ? 'tick-b' : 'info'}>
+      <span {...stylex.props(sx.notice)}><b {...stylex.props(sx.noticeTitle)}>{explanation.title}</b><span>{explanation.body}</span></span>
     </Banner></div>}
     <form onSubmit={(event) => void submit(event)} {...stylex.props(sx.form)}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <FieldLabel htmlFor="lg-user" size={12.5} style={authLabelStyle}>{t.auth.username}</FieldLabel>
-        <TextField id="lg-user" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false}
-          placeholder={t.auth.usernamePlaceholder} aria-invalid={!!error || remaining > 0} value={username} onChange={setUsername}
-          className={input.className} style={{ ...input.style, fontFamily: 'var(--font-mono)' }} />
+        <AuthLabel htmlFor="lg-user">{t.auth.username}</AuthLabel>
+        <Field id="lg-user" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false}
+          placeholder={t.auth.usernamePlaceholder} invalid={!!error} value={username}
+          className={input.className} style={{ ...input.style, borderRadius: 'var(--vv-r-10)', fontFamily: 'var(--font-mono)' }} onChange={(event) => setUsername(event.currentTarget.value)} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <FieldLabel htmlFor="lg-pass" size={12.5} style={authLabelStyle}>{t.auth.password}</FieldLabel>
-        <PasswordField id="lg-pass" autoComplete="current-password" invalid={!!error || remaining > 0}
-          value={password} onChange={(event) => setPassword(event.currentTarget.value)} {...input} />
+        <AuthLabel htmlFor="lg-pass">{t.auth.password}</AuthLabel>
+        <AuthPassword id="lg-pass" autoComplete="current-password" invalid={!!error}
+          value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
       </div>
       {(error || remaining > 0) && <FieldError>{remaining ? t.auth.limited(time) : error}</FieldError>}
       <Button type="submit" variant="primary" pending={busy} disabled={busy || remaining > 0 || !username.trim() || !password} {...button}>
         {remaining ? t.auth.wait(time) : busy ? t.auth.loggingIn : t.auth.login}
       </Button>
-      {mobile ? <p style={{ margin: 0, textAlign: 'center', fontSize: 13, color: 'var(--color-fg-3)', lineHeight: 1.55 }}>{t.auth.sessionNote}</p> : <HintLine icon="shield-tick">{t.auth.sessionNote}</HintLine>}
+      <HintLine icon="shield-tick">{t.auth.sessionNote}</HintLine>
     </form>
   </AuthShell>
 }

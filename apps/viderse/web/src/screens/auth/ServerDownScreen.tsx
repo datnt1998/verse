@@ -5,9 +5,11 @@ import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { AuthShell, HintLine } from './parts'
 import { authStyles as sx } from './auth.stylex'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 export function ServerDownScreen() {
   const { refresh, outage } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [remaining, setRemaining] = useState(12)
@@ -25,8 +27,8 @@ export function ServerDownScreen() {
   return <AuthShell centered>
     <div {...stylex.props(sx.intro)}>
       <span {...stylex.props(sx.icon)}><Icon name="danger" size={26} /></span>
-      <h1 {...stylex.props(sx.title)}>{accounts ? t.auth.accountsDownTitle : t.auth.serverDownTitle}</h1>
-      <p {...stylex.props(sx.body)}>{accounts ? t.auth.accountsDownBody : t.auth.serverDownBody}</p>
+      <h1 {...stylex.props(sx.title)}>{accounts ? t.auth.accountsDownTitle : mobile ? t.auth.serverDownTitleMobile : t.auth.serverDownTitle}</h1>
+      <p {...stylex.props(sx.body)}>{accounts ? (mobile ? t.auth.accountsDownBodyMobile : t.auth.accountsDownBody) : (mobile ? t.auth.serverDownBodyMobile : t.auth.serverDownBody)}</p>
     </div>
     <div {...stylex.props(sx.col)}>
       <Button variant="primary" onClick={() => void retry()} pending={busy} disabled={busy} {...stylex.props(sx.submit)}><Icon name="refresh" size={16} />{t.common.retry}</Button>

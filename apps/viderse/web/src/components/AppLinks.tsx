@@ -4,26 +4,34 @@ import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import type { AppLink } from '../api/types'
 import { LensLogo } from './LensLogo'
 import { t } from '../i18n/vi'
+import { useMediaQuery } from '../lib/useMediaQuery'
 const sx = stylex.create({
   row: { minHeight: 52, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 10, color: color['--color-fg'], textDecoration: 'none', backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] } },
+  mobileRow: { height: 56, borderRadius: 0, padding: '6px 14px', gap: 12, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-2'], ':last-child': { borderBottomWidth: 0 } },
+  mobileLogo: { width: 36, height: 36, borderRadius: 10 },
+  mobileName: { fontSize: 15, fontWeight: 400 },
+  mobileHost: { fontSize: 12 },
   current: { backgroundColor: line['--line-3'] },
-  logo: { width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', flexShrink: 0, backgroundColor: color['--color-surface-3'], border: '1px solid', borderColor: line['--line-2'] },
+  logo: { width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', flexShrink: 0, backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'] },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.3 },
   name: { fontSize: 13.5, fontWeight: 500 },
-  host: { fontFamily: 'var(--font-mono)', fontSize: 11.5, color: color['--color-fg-4'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  tag: { padding: '2px 6px', borderRadius: 5, backgroundColor: line['--line-3'], fontSize: 11.5 },
+  host: { fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 8, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: kit['--kit-acc-25'], backgroundColor: kit['--kit-acc-14'], color: 'var(--vv-tabbar-on)', fontSize: 11.5 },
+  neutralTag: { backgroundColor: line['--line-3'], borderColor: line['--line-3'], color: color['--color-fg-3'] },
   help: { fontSize: 12.5, lineHeight: 1.55, color: color['--color-fg-3'] },
-  button: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '6px 12px', borderRadius: 8, border: '1px solid', borderColor: line['--line-3'], backgroundColor: { default: kit['--kit-wash-5'], ':hover': kit['--kit-wash-10'] }, color: color['--color-fg'], textDecoration: 'none', fontSize: 13, lineHeight: '18px', fontWeight: 500 },
+  fieldHelp: { fontSize: 11.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
+  button: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '6px 12px', borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: { default: kit['--kit-wash-5'], ':hover': kit['--kit-wash-10'] }, color: color['--color-fg'], textDecoration: 'none', fontSize: 13, lineHeight: '18px', fontWeight: 500 },
   primary: { backgroundColor: { default: color['--color-fg'], ':hover': color['--color-fg-2'] }, borderColor: 'transparent', color: color['--color-bg'] },
 })
 export { sx as accountStyles }
 export function AppLinks({ apps, menu = false }: { apps: readonly AppLink[]; menu?: boolean }) {
+  const mobile = useMediaQuery('(max-width: 767px)') && !menu
   return apps.map((app) => <a key={app.id} href={app.id === 'viderse' ? '#/account' : app.origin}
     target={app.id === 'viderse' ? undefined : '_blank'} rel={app.id === 'viderse' ? undefined : 'noopener noreferrer'}
     role={menu ? 'menuitem' : undefined} aria-current={app.id === 'viderse' ? 'true' : undefined}
-    {...stylex.props(sx.row, app.id === 'viderse' && sx.current)}>
-    <span {...stylex.props(sx.logo)}>{app.id === 'viderse' ? <LensLogo size={20} /> : <BrandMark size={22} />}</span>
-    <span {...stylex.props(sx.text)}><span {...stylex.props(sx.name)}>{app.name}</span><span {...stylex.props(sx.host)} title={app.origin}>{new URL(app.origin).host}</span></span>
+    {...stylex.props(sx.row, app.id === 'viderse' && !mobile && sx.current, mobile && sx.mobileRow)}>
+    <span {...stylex.props(sx.logo, mobile && sx.mobileLogo)}>{app.id === 'viderse' ? <LensLogo size={mobile ? 22 : 20} /> : <BrandMark size={22} />}</span>
+    <span {...stylex.props(sx.text)}><span {...stylex.props(sx.name, mobile && sx.mobileName)}>{app.name}</span><span {...stylex.props(sx.host, mobile && sx.mobileHost)} title={app.origin}>{new URL(app.origin).host}</span></span>
     {app.id === 'viderse' ? <span {...stylex.props(sx.tag)}>{t.account.currentApp}</span> : <ExternalIcon />}
   </a>)
 }

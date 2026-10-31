@@ -335,3 +335,17 @@ Mẫu:
   - Logo menu: artboard dùng `#18181B`, token gần nhất là `--color-surface-3` = `#18181A`. Code dùng token; nhờ sửa artboard về token.
   - Thẻ app ở Thành viên khi chưa cấu hình `VERSE_APP_LINKS`: code ẩn địa chỉ app kia. Cần chốt cách hiển thị dự phòng.
   - `MAuth` vẽ thanh trạng thái và thanh home của hệ điều hành. Bản web không vẽ hai thanh này, nên toạ độ dọc lệch đúng bằng chiều cao của chúng.
+
+### #51 · Gói V26: đối chiếu Auth/MAuth và phần artboard còn thiếu — Cần design chốt
+- Nguồn chuẩn: `artboards/Auth.dc.html`, `artboards/MAuth.dc.html`, chỉ `app=viderse`; không lấy bản Noverse cũ làm mẫu.
+- Sai khác chủ đích đã nêu ở #50:
+  - Web không vẽ thanh trạng thái 44px và thanh home 26px của hệ điều hành. Khi so cùng viewport, phần neo trên của MAuth có `y(web) = y(board) - 44px`; phần căn giữa có `y(web) = y(board) - 9px`; phần neo đáy có `y(web) = y(board) + 26px`. Không cộng một độ lệch duy nhất cho cả trang.
+  - Ô logo menu dùng `--color-surface-3` thay literal của artboard. Nền toàn menu vẫn dùng `--color-surface-4`.
+  - Không tự đoán địa chỉ app kia khi thiếu AppLink. Đây là sai khác cấu hình đã ghi ở #50, không phải quyền mới.
+- GAP cần bổ sung, không tự vẽ reference:
+  - `MAuth` chỉ có `sheet=none|password`, không có tấm thiết bị; app cần danh sách và thao tác thu hồi phiên thực.
+  - Dữ liệu mẫu về tên người, ngày tạo, tên thiết bị, hạn phiên, số phiên và domain trong board không phải fixture của backend thực. Không đổi dữ liệu thực thành dữ liệu giả chỉ để khớp ảnh.
+  - Lần vào chưa có cookie cũng được backend trả `session_ended/unknown`; chưa có response riêng để phân biệt với cookie lạ/hỏng. Vì vậy `kicked=none` chưa có cặp đo trực tiếp với backend hiện tại.
+  - Cổng mật khẩu tạm trên điện thoại cần đường đăng xuất; board không có nút đó. Các lỗi mạng, sao chép thất bại, mã khôi phục không được trả và các thao tác đang chờ cũng chưa có state tương ứng đầy đủ.
+- Màu chữ badge nhấn của board chưa có token trùng chính xác: hiện dùng `--vv-tabbar-on`, không thêm literal màu. Đây **chưa phải xác nhận 1:1**; cần design chọn token hoặc bổ sung token được duyệt.
+- Bằng chứng đo và sai khác còn lại nằm trong báo cáo QA được yêu cầu riêng; mục này không miễn tiêu chí 0,5px hay tự phê duyệt các sai khác chưa chốt.

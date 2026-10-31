@@ -11,11 +11,15 @@ function fill(input: HTMLInputElement, value: string) {
 }
 afterEach(async () => { if (root) await act(() => root!.unmount()); document.body.replaceChildren(); vi.unstubAllGlobals() })
 it('keeps the recovery code visible until the administrator confirms saving it', async () => {
+  let created = false
+  const user = { username: 'dat', name: 'Đạt', role: 'admin', onboarded: true }
   vi.stubGlobal('fetch', vi.fn(async (path: string) => {
-    if (path === '/api/me') return Response.json({ reason: 'unknown' }, { status: 401 })
+    if (path === '/api/me') return created
+      ? Response.json({ user, apps: [{ id: 'noverse', name: 'Noverse', origin: 'http://127.0.0.1:8813' }] })
+      : Response.json({ reason: 'unknown' }, { status: 401 })
     if (path === '/api/setup') return Response.json({ needed: true, attemptsLeft: 5 })
     if (path === '/api/setup/verify') return Response.json({ verified: true })
-    if (path === '/api/setup/admin') return Response.json({ user: { username: 'dat', name: 'Đạt', role: 'admin', onboarded: true }, recoveryCode: 'TEST-RECOVERY-CODE' })
+    if (path === '/api/setup/admin') { created = true; return Response.json({ user, recoveryCode: 'TEST-RECOVERY-CODE' }) }
     return Response.json({})
   }))
   const el = document.createElement('div'); document.body.append(el); root = createRoot(el)
@@ -34,4 +38,7 @@ it('keeps the recovery code visible until the administrator confirms saving it',
   await act(() => el.querySelector<HTMLButtonElement>('[role="checkbox"]')!.click())
   expect(enter.disabled).toBe(false)
   expect(el.textContent).toContain('TEST-RECOVERY-CODE')
+  sessionStorage.setItem('viderse:setup-checked', '1')
+  await act(async () => enter.click())
+  expect(vi.mocked(fetch).mock.calls.filter(([path]) => path === '/api/me')).toHaveLength(2)
 })
