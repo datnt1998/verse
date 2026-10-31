@@ -11,7 +11,7 @@ import { ApiError, changePassword } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { Button, FieldError, Icon, toast } from '@noverse/ui'
-import { AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
+import { AuthError, AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
 import { accountStyles } from '../../components/AppLinks'
@@ -72,9 +72,9 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
           value={confirm} invalid={confirm.length > 0 && next !== confirm} onChange={(event) => setConfirm(event.currentTarget.value)} />
       </div>
       </div>
-      {next.length > 0 && next.length < MIN_PASSWORD && <FieldError>{t.auth.passwordForm.short}</FieldError>}
-      {confirm.length > 0 && next !== confirm && <FieldError id="pw-mismatch">{t.auth.passwordForm.mismatch}</FieldError>}
-      {error && <FieldError id="pw-error">{error}</FieldError>}
+      {next.length > 0 && next.length < MIN_PASSWORD && <AuthError>{t.auth.passwordForm.short}</AuthError>}
+      {confirm.length > 0 && next !== confirm && <AuthError id="pw-mismatch">{t.auth.passwordForm.mismatch}</AuthError>}
+      {error && <AuthError id="pw-error">{error}</AuthError>}
       <Button type="submit" variant={horizontal ? 'ghost' : 'primary'} pending={busy}
         disabled={busy || !current || next.length < MIN_PASSWORD || next !== confirm}
         className={horizontal ? undefined : stylex.props(sx.submit).className}

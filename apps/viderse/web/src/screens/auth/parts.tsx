@@ -3,7 +3,7 @@
 import type { ComponentProps, CSSProperties, ReactNode } from 'react'
 import { t } from '../../i18n/vi'
 import { useSession } from '../../api/session'
-import { Icon, PasswordField } from '@noverse/ui'
+import { FieldError, Icon, PasswordField } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
@@ -21,7 +21,7 @@ export function AuthShell({ children, footer, centered = false, fill = false }: 
     <div {...stylex.props(sx.shell)}>
       <header {...stylex.props(sx.header)}>
         {/* Lockup Viderse (12-brand): ống kính + chữ "Viderse" — không dùng BrandLockup của kit (orb Noverse). */}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 700, fontSize: mobile ? 15 : 14, letterSpacing: '-0.02em' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 700, fontSize: mobile ? 15 : 14, letterSpacing: mobile ? 'normal' : '-0.02em' }}>
           <LensLogo size={mobile ? 22 : 24} />
           {t.brand.name}
         </span>
@@ -31,7 +31,7 @@ export function AuthShell({ children, footer, centered = false, fill = false }: 
           whiteSpace: 'nowrap',
         }}>
           <span aria-hidden="true" style={{
-            width: 7, height: 7, borderRadius: '50%', flex: '0 0 auto',
+            width: mobile ? 6 : 7, height: mobile ? 6 : 7, borderRadius: '50%', flex: '0 0 auto',
             background: serverReachable ? 'var(--color-ok)' : 'var(--color-err)',
             boxShadow: `0 0 0 3px ${serverReachable ? 'var(--tint-ok)' : 'var(--tint-err)'}`,
           }} />
@@ -42,7 +42,7 @@ export function AuthShell({ children, footer, centered = false, fill = false }: 
         <div {...stylex.props(sx.content, fill && sx.filled)}>{children}</div>
       </main>
       {footer && <footer {...stylex.props(sx.footer)}>
-        {footer === 'login' ? (mobile ? <span>{t.auth.footerMobile}</span> : <><span>{t.auth.footerForgot}</span><span aria-hidden="true">·</span><span>{t.auth.footerNew}</span></>) : <><span>{t.setup.footerShared}</span><span aria-hidden="true">·</span><span>{t.setup.footerLogin}</span></>}
+        {footer === 'login' ? (mobile ? <span>{t.auth.footerMobilePrompt}<br />{t.auth.footerMobileHelp}</span> : <><span>{t.auth.footerForgot}</span><span aria-hidden="true">·</span><span>{t.auth.footerNew}</span></>) : <><span>{t.setup.footerShared}</span><span aria-hidden="true">·</span><span>{t.setup.footerLogin}</span></>}
       </footer>}
     </div>
   )
@@ -62,7 +62,7 @@ export function HintLine({ icon, children, style }: { icon: string; children: Re
 export function AuthUser({ user }: { user: User }) {
   const mobile = useMediaQuery('(max-width: 767px)')
   return <div className={`card ${stylex.props(sx.row).className}`}>
-    <Avatar name={user.name || user.username} size={mobile ? 40 : 38} />
+    <Avatar name={user.name || user.username} size={mobile ? 40 : 38} style={{ fontSize: mobile ? 15 : 14, border: '1px solid var(--kit-wash-10)' }} />
     <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
       <span style={{ fontSize: mobile ? 15 : 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }} title={user.name}>{user.name || user.username}</span>
       <span style={{ fontSize: mobile ? 12.5 : 12, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span> · {t.role[user.role]}</span>
@@ -72,6 +72,10 @@ export function AuthUser({ user }: { user: User }) {
 
 export function AuthLabel({ htmlFor, children }: { htmlFor: string; children: ReactNode }) {
   return <label htmlFor={htmlFor} {...stylex.props(sx.label)}>{children}</label>
+}
+
+export function AuthError({ children, id }: { children: ReactNode; id?: string }) {
+  return <FieldError id={id} showIcon={false} style={{ fontSize: 11.5, lineHeight: 1.5, color: 'var(--vv-warn-ink)' }}>{children}</FieldError>
 }
 
 export function AuthPassword(props: ComponentProps<typeof PasswordField>) {

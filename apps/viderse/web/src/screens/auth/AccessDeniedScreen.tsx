@@ -41,16 +41,16 @@ export function AccessDeniedScreen() {
     <AuthUser user={accessDenied} />
     {error && <FieldError>{error}</FieldError>}
     <div {...stylex.props(sx.col)}>
-      {noverse && <a href={noverse.origin} target="_blank" rel="noopener noreferrer" {...stylex.props(accountStyles.button, accountStyles.primary, sx.submit)}>
-        <BrandMark size={18} />{t.auth.openNoverse}{!mobile && <span style={{ opacity: .6, fontWeight: 400 }}>{new URL(noverse.origin).host}</span>}
+      {noverse && <a href={noverse.origin} target="_blank" rel="noopener noreferrer" {...stylex.props(accountStyles.button, accountStyles.primary, sx.submit, sx.otherApp)}>
+        <BrandMark size={mobile ? 20 : 18} style={{ width: mobile ? 20 : 18 }} />{t.auth.openNoverse}{!mobile && <span style={{ opacity: .6, fontWeight: 400 }}>{new URL(noverse.origin).host}</span>}
       </a>}
-      <Button variant={noverse ? 'ghost' : 'primary'} onClick={() => void retry()} disabled={busy !== null} pending={busy === 'retry'} {...stylex.props(sx.submit)}>
-        <Icon name="refresh" size={16} />{t.common.retry}
+      <Button variant={noverse ? 'ghost' : 'primary'} onClick={() => void retry()} disabled={busy !== null} pending={busy === 'retry'} {...stylex.props(sx.submit, noverse && sx.retry)}>
+        <Icon name="refresh" size={mobile ? 17 : 16} />{t.common.retry}
       </Button>
-      <Button variant="quiet" onClick={() => void copy()} {...stylex.props(sx.copy)}><Icon name="copy" size={15} />{copied ? t.auth.copied : t.auth.copyRequest}</Button>
+      <Button variant="quiet" onClick={() => void copy()} {...stylex.props(sx.copy)}><Icon name="copy" size={mobile ? 16 : 15} />{copied ? t.auth.copied : t.auth.copyRequest}</Button>
     </div>
     <div {...stylex.props(sx.col, sx.divider, sx.deniedLogout)}>
-      <Button variant="quiet" onClick={() => void leave()} disabled={busy !== null} pending={busy === 'logout'} style={{ color: 'var(--color-err)', alignSelf: 'flex-start', height: mobile ? 44 : 36, fontSize: mobile ? 14 : 13, paddingInline: mobile ? 16 : 14 }}>
+      <Button variant="quiet" onClick={() => void leave()} disabled={busy !== null} pending={busy === 'logout'} style={{ color: 'var(--vv-warn-ink)', alignSelf: 'flex-start', height: mobile ? 44 : 36, fontSize: mobile ? 14 : 13, borderRadius: mobile ? 12 : 10, paddingInline: mobile ? 16 : 14 }}>
         <Icon name="logout" size={mobile ? 16 : 15} />{t.account.logout}
       </Button>
       <HintLine icon="info">{t.account.sharedLogoutNote}</HintLine>

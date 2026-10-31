@@ -153,10 +153,10 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   },
 )
 
-export function FieldError({ children, id }: { children: ReactNode; id?: string }) {
+export function FieldError({ children, id, showIcon = true, style }: { children: ReactNode; id?: string; showIcon?: boolean; style?: CSSProperties }) {
   return (
-    <span id={id} role="alert" {...stylex.props(sx.err)}>
-      <Icon name="warning-2" size={14} />
+    <span id={id} role="alert" {...stylex.props(sx.err)} style={style}>
+      {showIcon && <Icon name="warning-2" size={14} />}
       {children}
     </span>
   )

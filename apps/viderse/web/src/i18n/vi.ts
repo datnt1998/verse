@@ -111,7 +111,8 @@ export const vi = {
     wait: (time: string) => `Đợi ${time}`,
     footerForgot: 'Quên mật khẩu? Nhờ quản trị viên đặt lại ở Noverse › Thành viên',
     footerNew: 'Chưa có tài khoản? Nhờ quản trị viên tạo',
-    footerMobile: 'Quên mật khẩu hay chưa có tài khoản? Nhờ quản trị viên ở Noverse › Thành viên.',
+    footerMobilePrompt: 'Quên mật khẩu hay chưa có tài khoản?',
+    footerMobileHelp: 'Nhờ quản trị viên ở Noverse › Thành viên.',
     kicked: {
       self: { title: 'Đã đăng xuất', body: 'Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.' },
       other: { title: 'Bạn vừa đăng xuất ở Noverse', body: 'Hai app dùng chung một lần đăng nhập, nên Viderse cũng cần đăng nhập lại.' },

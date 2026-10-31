@@ -4,9 +4,9 @@ import { ApiError } from '../../api/client'
 import { useSession } from '../../api/session'
 import type { SessionEnded } from '../../api/types'
 import { t } from '../../i18n/vi'
-import { Banner, Button, Field, FieldError } from '@noverse/ui'
+import { Banner, Button, Field } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
-import { AuthLabel, AuthPassword, AuthShell, HintLine } from './parts'
+import { AuthError, AuthLabel, AuthPassword, AuthShell, HintLine } from './parts'
 import { authStyles as sx } from './auth.stylex'
 
 import { useMediaQuery } from '../../lib/useMediaQuery'
@@ -68,7 +68,7 @@ export function LoginScreen() {
         <AuthPassword id="lg-pass" autoComplete="current-password" invalid={!!error}
           value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
       </div>
-      {(error || remaining > 0) && <FieldError>{remaining ? t.auth.limited(time) : error}</FieldError>}
+      {(error || remaining > 0) && <AuthError>{remaining ? t.auth.limited(time) : error}</AuthError>}
       <Button type="submit" variant="primary" pending={busy} disabled={busy || remaining > 0 || !username.trim() || !password} {...button}>
         {remaining ? t.auth.wait(time) : busy ? t.auth.loggingIn : t.auth.login}
       </Button>
