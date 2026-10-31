@@ -605,6 +605,11 @@ func (h renderHTTP) clone(w http.ResponseWriter, r *http.Request, jobID, action 
 					return true
 				}
 			}
+			request, e = s.ExportState(ctx, request)
+			if e != nil {
+				renderHTTPError(w, e)
+				return true
+			}
 			payload := editor.Object{"request": publicRender(request)}
 			if request.Status == "done" {
 				file, record, e := s.Editor.AcquireExport(ctx, request.ProjectID, request.ExportID)
