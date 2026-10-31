@@ -193,7 +193,7 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		if (leaseActive && before.Step.Step != domain.CloneMetadata) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
 			return jobedit.Conflict("Video đang xử lý — chờ xong rồi thử lại")
 		}
-		if job.Fence != before.Job.Fence || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || current.Step.Status != before.Step.Status || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
+		if (before.Step.Step != domain.CloneMetadata && job.Fence != before.Job.Fence) || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || current.Step.Status != before.Step.Status || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
 			return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
 		}
 		output := domain.CloneStepOutput{Artifacts: []domain.CloneArtifact{}, Data: map[string]any{}}

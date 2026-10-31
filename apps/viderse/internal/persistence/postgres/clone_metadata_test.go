@@ -70,6 +70,11 @@ func TestCloneMetadataEditWithActiveBuildAndMetadataWrite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// A worker acquiring a later pipeline step changes the job fence without
+	// changing metadata; it must not make this metadata edit stale.
+	if _, err := pool.Exec(ctx, `UPDATE clone_jobs SET fence=fence+1 WHERE id=$1`, job.ID); err != nil {
+		t.Fatal(err)
+	}
 	change := jobedit.Change{Checkpoint: json.RawMessage(`{"revision":1,"current":{"title":"edited","description":"text","tags":[]},"history":[]}`)}
 	if err = store.Commit(ctx, before, change); err != nil {
 		t.Fatalf("metadata edit while build active: %v", err)
