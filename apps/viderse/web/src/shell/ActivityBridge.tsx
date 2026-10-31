@@ -15,6 +15,18 @@ function openNotification(n: AppNotification) {
   if (n.href) window.location.href = n.href
   window.focus()
 }
+async function showSystemNotification(n: AppNotification) {
+  const options = { body: n.text, tag: `activity:${n.id}`, icon: '/app-icon-192.png', data: { href: n.href } }
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready
+      await registration.showNotification('Viderse', options)
+      return
+    } catch { /* Fall back to the window notification API. */ }
+  }
+  const notification = new Notification('Viderse', options)
+  notification.onclick = () => { openNotification(n); notification.close() }
+}
 export function ActivityBridge() {
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const settings = useResource(['activity', 'settings'], ({ signal }) => getNotificationSettings(signal))
@@ -41,8 +53,7 @@ export function ActivityBridge() {
         else toast(n.text, 'ok', action, { key: `activity:${n.id}`, duration: 5000 })
       }
       if (!previous.has(n.id) && document.hidden && n.systemAllowed !== false && config.system && ['review_ready', 'needs_attention', 'ready_to_post'].includes(n.kind) && 'Notification' in window && Notification.permission === 'granted') {
-        const notification = new Notification('Viderse', { body: n.text, tag: `activity:${n.id}`, icon: '/app-icon.svg' })
-        notification.onclick = () => { openNotification(n); notification.close() }
+        void showSystemNotification(n)
       }
     }
   }, [activity.data, settings.data])
