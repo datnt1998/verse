@@ -10,6 +10,7 @@ import { useOnline } from '../../data/status'
 import { paths } from '../../router'
 import { imageURL, useReview, type ReviewImage } from './useReview'
 import { useReviewKeys } from './useReviewKeys'
+import { LearnSlot } from '../../components/learn/LearnSlot'
 import { sx } from './review.stylex'
 
 const drawing = (item: ReviewImage) => item.status === 'running' || item.status === 'pending' || item.status === 'queued'
@@ -94,6 +95,7 @@ export function ReviewScreen() {
           </div>
           <div role="listbox" aria-label="Ảnh của video" {...stylex.props(sx.strip)}>{items.map((img, i) => <button key={img.id} type="button" role="option" aria-selected={selected === i} aria-label={label(img, i)} onClick={() => { setIndex(i); setView('full') }} {...stylex.props(sx.tile, blocked(img) && sx.tileBlocked, selected === i && sx.tileSelected)}>{imageURL(job.id, img) && <img src={imageURL(job.id, img)} alt="" {...stylex.props(sx.tileImage)} />}<span {...stylex.props(sx.tileLabel)}>{i}</span><span {...stylex.props(sx.tileState)}>{blocked(img) ? '!' : drawing(img) ? '●' : img.status === 'approved' ? '✓' : ''}</span></button>)}</div>
           <div {...stylex.props(sx.composer)}><Icon name="gallery-edit" size={18} /><input aria-label="Góp ý để vẽ lại ảnh này" placeholder="Góp ý để vẽ lại, ví dụ: thêm tấm biển “Mall closes at 10PM”, ánh đèn xanh hơn" value={feedback} onChange={e => setFeedback(e.target.value)} {...stylex.props(sx.input)} /><button type="button" disabled={drawing(item) || busy || !online} onClick={redraw} {...stylex.props(sx.button)}>Vẽ lại　R</button><button type="button" disabled={item.kind !== 'scene' || busy || !online} title="Cảnh này dùng ảnh của cảnh bên cạnh" onClick={() => void review.mutate(job.id, item, 'skip')} {...stylex.props(sx.button)}>Bỏ ảnh này</button><button type="button" aria-disabled={locked || !online} title={locked ? reason : 'Duyệt mọi ảnh của video này rồi dựng'} onClick={approve} {...stylex.props(sx.button, sx.primary, (locked || !online) && sx.disabled)}>Duyệt cả video &amp; dựng　A</button></div>
+          <LearnSlot learn={images?.learn} />
           <div {...stylex.props(sx.hints)}><span {...stylex.props(sx.keyHint)}><kbd {...stylex.props(sx.key)}>← →</kbd> ảnh</span><span {...stylex.props(sx.keyHint)}><kbd {...stylex.props(sx.key)}>J K</kbd> video trước / sau</span><span {...stylex.props(sx.keyHint)}><kbd {...stylex.props(sx.key)}>R</kbd> vẽ lại</span><span {...stylex.props(sx.keyHint)}><kbd {...stylex.props(sx.key)}>A</kbd> duyệt cả video</span><span {...stylex.props(sx.hintSpacer)} /><span>Duyệt xong, video tự chuyển sang dựng và mở video kế tiếp</span></div>
         </> : <div role="status">Chưa có ảnh để duyệt.</div>}
       </main>

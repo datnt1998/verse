@@ -7,6 +7,7 @@ import { aiCopy } from './ai'
 import { backdropCopy } from './backdrop'
 import { channelsCopy } from './channels'
 import { libraryCopy } from './library'
+import { learnCopy } from './learn'
 import { logs } from './logs'
 import { settings } from './settings'
 import { setup } from './setup'
@@ -523,6 +524,7 @@ export const vi = {
   library: libraryCopy,
   backdrop: backdropCopy,
   channels: channelsCopy,
+  learn: learnCopy,
 
   // Mã lỗi → câu (06-copy.md › Từ mã lỗi tới câu). Trả null khi mã không nên
   // hiện lỗi (vd rate_limited chỉ là dòng phụ).

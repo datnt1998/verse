@@ -4,7 +4,7 @@
 import type { Key } from '@noverse/ui/data'
 import { keys } from './keys'
 
-export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage', 'rivals', 'channels', 'library.templates', 'library.prompts', 'library.overlays', 'backdrop', 'clone.job.created', 'clone.job.updated', 'clone.job.deleted', 'clone.step.progress', 'queue.updated'] as const
+export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage', 'rivals', 'channels', 'library.templates', 'library.prompts', 'library.overlays', 'backdrop', 'clone.job.created', 'clone.job.updated', 'clone.job.deleted', 'clone.step.progress', 'queue.updated', 'suggestions', 'learned.rules'] as const
 export type ServerEventType = (typeof SERVER_EVENT_TYPES)[number]
 
 export type ServerEvent = { type: ServerEventType; data: unknown; id: string }
@@ -35,6 +35,9 @@ export function keysForEvent(event: { type: string; data: unknown }): EventKeys 
   // Video nền: `backdrop` {rev, ref=channelId|videoId|''} → mọi khoá dưới
   // ['backdrop'] (danh sách kênh/video, trang kênh, trang danh mục, mix).
   if (event.type === 'backdrop') return [['backdrop'], ['platforms']]
+  // Đề xuất (Bàn dựng, Bản tin, Kênh) và Quy tắc đã học (Kênh › Cài đặt, Thư viện › Prompt ảnh).
+  if (event.type === 'suggestions') return [['suggestions'], ['workbench', 'recap']]
+  if (event.type === 'learned.rules') return [['learned-rules']]
   // Pipeline §3/§4: job/queue đổi → Hàng chờ + JobsPill (status) làm mới;
   // tiến độ step chỉ ảnh hưởng thẻ đang chạy trong Hàng chờ.
   if (event.type.startsWith('clone.step.')) return [keys.queue()]

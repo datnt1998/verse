@@ -14,6 +14,8 @@ import { PromptMenu } from './PromptMenu'
 import { LiveStudio } from './LiveStudio'
 import { OverflowMenu } from './OverflowMenu'
 import { Recap, shouldAutoOpenRecap } from './recap/Recap'
+import { SuggestionDock, SuggestionToggles } from '../../components/suggestions/SuggestionPanels'
+import { useSuggestionList } from '../../components/suggestions/useSuggestions'
 import { workbenchPlaceholder } from '../../components/assistant/placeholders'
 import { assistantCopy } from '../../i18n/assistant'
 import { usePanelKeys } from './usePanelKeys'
@@ -39,6 +41,8 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
   const images = useResource(['workbench', 'images', selectedId || ''], ({ signal }) => getJobImages(selectedId!, signal), { enabled: !!selectedId && !queuedJob })
   const detail = useResource(['workbench', 'job', selectedId || ''], ({ signal }) => getWorkbenchJob(selectedId!, signal), { enabled: !!selectedId && !queuedJob })
   const recap = useResource(['workbench', 'recap'], ({ signal }) => getRecap(signal))
+  const suggestionCount = useSuggestionList(scope).data?.total ?? 0
+  const [suggestOpen, setSuggestOpen] = useState(false)
   const recapSettings = useResource(['activity', 'settings'], ({ signal }) => getNotificationSettings(signal))
   const autoRecapChecked = useRef(false)
   const { leftOpen, rightOpen } = usePanelKeys()
@@ -75,6 +79,7 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
     navigate(routePath({ name: 'workbench', channel, video: selectedId }))
   }
   const refresh = () => { void list.refresh(); void detail.refresh(); void channels.refresh() }
+  const openRecap = () => { autoRecapChecked.current = true; setRecapOpen(true); void recap.refresh() }
   const closeRecap = () => {
     autoRecapChecked.current = true
     setRecapOpen(false)
@@ -101,7 +106,8 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
   return <div {...stylex.props(styles.root)}>
     {leftOpen && <aside aria-label="Video" {...stylex.props(styles.side)}>
       <div {...stylex.props(styles.sideTitle)}><span>Video</span><span>{jobs.length}</span></div>
-      <button type="button" {...stylex.props(styles.button)} onClick={() => { autoRecapChecked.current = true; setRecapOpen(true); void recap.refresh() }}>Bản tin</button>
+      <SuggestionToggles recapOpen={recapOpen} suggestOpen={suggestOpen} count={suggestionCount} onRecap={openRecap} onToggle={() => setSuggestOpen(open => !open)} />
+      {suggestOpen && <SuggestionDock scope={scope} onSeeAll={openRecap} />}
       {scope === 'all' && channelRows.length > 0 && <section><h2 {...stylex.props(styles.group)}>Kênh <span>{channelRows.length}</span></h2>{channelRows.map(c => <button key={c.channelId} type="button" {...stylex.props(styles.row)} onClick={() => pickScope(c.channelId)}><span {...stylex.props(styles.avatar)}>{c.initials}</span><span {...stylex.props(styles.rowText)}><strong title={c.name}>{c.name}</strong><small>{c.today.done}/{c.today.cap} · {c.waitingYou} chờ bạn · {c.ready} sẵn sàng đăng</small>{c.templateIssue && <small>{c.templateIssue.text}</small>}</span></button>)}</section>}
       {groups.map(group => <section key={group.key}><h2 {...stylex.props(styles.group)}>{group.label}<span>{group.key === 'queued' ? list.data?.queuedTotal : group.count}</span></h2>{group.items.map(item => <button key={item.id} type="button" {...stylex.props(styles.row, item.id === selectedId && styles.selected)} onClick={() => { if (recapOpen) closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, scope: route.scope, video: item.id })) }}>{scope === 'all' && <span {...stylex.props(styles.avatar)}>{channelRows.find(c => c.channelId === item.channelId)?.initials}</span>}<span {...stylex.props(styles.rowText)}><strong title={item.source.title}>{item.source.title}</strong><small title={item.subline}>{item.subline}</small></span></button>)}{group.key === 'queued' && (list.data?.queuedTotal || 0) > group.items.length && <a href="#/queue" {...stylex.props(styles.link)}>Xem cả {list.data?.queuedTotal} trong Hàng chờ →</a>}{group.key === 'posted' && <a href={`#/channels/${encodeURIComponent(scope)}`} {...stylex.props(styles.link)}>Xem trang kênh →</a>}</section>)}
       <div {...stylex.props(styles.footer)}>{scope === 'all' ? <>Tự lấy video: bật ở {channelRows.filter(c => c.autoFetch).length}/{channelRows.length} kênh<br />Hàng chờ chung: {list.data?.queuedTotal || 0} video</> : <button type="button" {...stylex.props(styles.button)} onClick={() => pickScope()}>Mọi kênh</button>}</div>
