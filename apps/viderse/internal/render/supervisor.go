@@ -185,10 +185,16 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 	defer cancel()
 	started := s.Clock.Now()
 	driftRecovered := false
+	retryID := ""
 	for restarts := 0; ; {
 		var r ExportRequest
 		var err error
-		if restarts == 0 && !driftRecovered {
+		if retryID != "" {
+			r, err = s.Store.RecoverExport(retryID)
+			if err != nil {
+				return ExportLaunchResult{}, err
+			}
+		} else if restarts == 0 && !driftRecovered {
 			pending, e := s.Store.ListExports()
 			if e != nil {
 				return ExportLaunchResult{}, e
@@ -211,6 +217,7 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 			return ExportLaunchResult{ExportID: done.ExportID, ProjectID: projectID, RequestID: done.ID, DurationMS: s.Clock.Now().Sub(started).Milliseconds()}, nil
 		}
 		if ctx.Err() != nil {
+			_, _ = s.Store.CancelExport(r.ID, r.Nonce)
 			return ExportLaunchResult{}, ctx.Err()
 		}
 		latest, readErr := s.Store.GetExport(r.ID)
@@ -219,6 +226,7 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 		}
 		if latest.Error != nil && latest.Error.Code == "gate" && jobID != "" && !driftRecovered && s.Remeasure != nil {
 			driftRecovered = true
+			retryID = ""
 			allowed, reasons, measureErr := s.Remeasure(ctx, jobID, projectID)
 			if measureErr != nil {
 				return ExportLaunchResult{}, measureErr
@@ -232,12 +240,14 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 			return ExportLaunchResult{}, err
 		}
 		if restarts >= MaxCrashRestarts {
+			_, _ = s.Store.CancelExport(r.ID, r.Nonce)
 			return ExportLaunchResult{}, renderError(domain.CloneErrInterrupted, fmt.Sprintf("Xuất ngầm thất bại sau %d lần: %v", restarts+1, err))
 		}
+		retryID = r.ID
 		restarts++
 	}
 }
-func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, rerun bool, onProgress func(ExportProgress, bool)) (ExportRequest, bool, error) {
+func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, rerun bool, onProgress func(ExportProgress, bool)) (result ExportRequest, crashed bool, resultErr error) {
 	chrome, err := s.ChromePath(ctx)
 	if err != nil {
 		return r, false, err
@@ -274,7 +284,7 @@ func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, reru
 		latest, e := s.Store.GetExport(r.ID)
 		if e == nil {
 			_ = s.terminate(cleanupCtx, latest.Chrome)
-			if !latest.Terminal() {
+			if !latest.Terminal() && !crashed {
 				_, _ = s.Store.CancelExport(r.ID, r.Nonce)
 			}
 			if latest.Status != "done" && s.DeleteStaged != nil {
