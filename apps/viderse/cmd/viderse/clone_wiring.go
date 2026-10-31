@@ -129,7 +129,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		if owner == nil {
 			return "", nil, nil, pipeline.ErrNotFound
 		}
-		templates, err := queueStore.Templates(ctx, item.ChannelID)
+		templates, err := queueStore.RotationTemplates(ctx, *owner)
 		if err != nil {
 			return "", nil, nil, err
 		}
@@ -333,8 +333,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		}
 		registry[step] = handler
 	}
-	autonomySvc := newAutonomyService(pool, publish, func(err string) { fmt.Fprintln(os.Stderr, "Mức tự chủ:", err) })
-	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q, AutoFix: autonomySvc}
+	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
 	runner.OnHumanState = func(_ context.Context, _ *domain.CloneJob, _ string) {
 		activityService.Changed("")
 	}
@@ -369,11 +368,12 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	}})
 	web.MountClone(g, service, q, service.Media)
 	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc)
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService)
 	workerCtx, stop := context.WithCancel(ctx)
+	_, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()
 	var once sync.Once
 	var stopped error
-	return func() error { once.Do(func() { stop(); stopped = <-done }); return stopped }, nil
+	return func() error { once.Do(func() { stop(); stopPerformance(); stopped = <-done }); return stopped }, nil
 }

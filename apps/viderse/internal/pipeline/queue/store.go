@@ -60,6 +60,11 @@ type Store interface {
 	ListQueueCountsByChannel(context.Context) (map[string]int64, error)
 	ListDoneTodayCounts(context.Context, time.Time) (map[string]int64, error)
 	CountChargedImagesToday(context.Context, time.Time) (map[string]int64, error)
+	// RotationTemplates là danh sách luân phiên của kênh: Templates cộng vòng
+	// thứ hai cho template được chạy nhiều hơn. Con trỏ TemplateCursor chạy trên nó.
+	RotationTemplates(context.Context, domain.Channel) ([]domain.ChannelTemplate, error)
+	// RivalVideoScores trả điểm nổi trội của video đối thủ (chỉ video có điểm).
+	RivalVideoScores(context.Context, []string) (map[string]float64, error)
 }
 
 // LaneLastStart identifies the last started turn in a channel's batch lane.

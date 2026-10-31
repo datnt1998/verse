@@ -33,7 +33,7 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 	if owner == nil {
 		return nil, notFound("Kênh không tồn tại")
 	}
-	templates, err := s.store.Templates(ctx, job.ChannelID)
+	templates, err := s.store.RotationTemplates(ctx, *owner)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (s *Service) EnqueueRestart(ctx context.Context, job *domain.CloneJob) (*do
 	if owner == nil {
 		return nil, notFound("Kênh không tồn tại")
 	}
-	templates, err := repo.Templates(ctx, job.ChannelID)
+	templates, err := repo.RotationTemplates(ctx, *owner)
 	if err != nil {
 		return nil, err
 	}

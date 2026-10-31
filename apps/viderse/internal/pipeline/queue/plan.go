@@ -84,7 +84,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	if owner == nil {
 		return out, meta, notFound("Kênh không tồn tại")
 	}
-	templates, err := s.store.Templates(ctx, in.ChannelID)
+	templates, err := s.store.RotationTemplates(ctx, *owner)
 	if err != nil {
 		return out, meta, err
 	}
