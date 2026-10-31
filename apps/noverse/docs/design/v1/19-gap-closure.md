@@ -936,3 +936,5 @@ Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông 
 ### Gói AQ — lệch khi triển khai
 
 - Luồng viết › tiêu đề vòng: vòng cũ chưa lưu metadata công việc nên không có `title`; chỉ hiển thị số vòng, vai và giờ (“Vòng N · {vai} · hh:mm”). Vòng mới lấy `title` từ trạng thái của host lúc giao việc, không suy từ chữ tự do của điều phối.
+- Huy hiệu Quản trị trên `MMore` còn tím (`rgb(220,200,248)` / `rgba(201,166,245,.14)`); app dùng `--members-admin-fg` / `--members-admin-bg` theo mục 5 của Gói AQ cho mọi huy hiệu, kể cả điện thoại. Nhờ design sửa board cho thống nhất.
+- M9 `found=partial`: board minh hoạ 2 mục thiếu trong 10 mục, gồm cả “Tính phù hợp với truyện ngắn”. Với fixture tier thực tế, API chỉ báo thiếu “Vùng cấm sáng tác” trong 9 mục; mục còn lại không thuộc danh sách bắt buộc của tier. App giữ danh sách từ API, không tự thêm mục hay tạo lời nhờ cho mục không được máy chủ yêu cầu. Khối tiền đề do đó cao 936,875 px thay vì 1.068,75 px của board ở 390 px. Thanh trạng thái 40 px của board là minh hoạ; app dùng safe-area thật theo mục 8.
