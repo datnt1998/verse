@@ -33,8 +33,8 @@ export function AuthShell({ children, footer, centered = false, fill = false, of
         }}>
           <span aria-hidden="true" style={{
             width: 7, height: 7, borderRadius: '50%', flex: '0 0 auto',
-            background: reachable ? 'var(--color-ok)' : 'var(--color-warn)',
-            boxShadow: `0 0 0 3px ${reachable ? 'var(--tint-ok)' : 'var(--kit-warn-12)'}`,
+            background: reachable ? 'var(--color-ok)' : 'var(--color-err)',
+            boxShadow: `0 0 0 3px ${reachable ? 'var(--tint-ok)' : 'var(--vv-err-18)'}`,
           }} />
           {chip}
         </div>

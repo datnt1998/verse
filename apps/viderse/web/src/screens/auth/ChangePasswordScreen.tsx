@@ -78,7 +78,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false, onNetwo
       {next.length > 0 && next.length < MIN_PASSWORD && <AuthError>{t.auth.passwordForm.short}</AuthError>}
       {confirm.length > 0 && next !== confirm && <AuthError id="pw-mismatch">{t.auth.passwordForm.mismatch}</AuthError>}
       {error && <AuthError id="pw-error">{error}</AuthError>}
-      {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
+      {networkError && <Banner tone="error" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant={horizontal ? 'ghost' : 'primary'} pending={busy}
         disabled={busy || !current || next.length < MIN_PASSWORD || next !== confirm}
         className={horizontal ? undefined : stylex.props(sx.submit).className}
@@ -115,7 +115,7 @@ export function ChangePasswordScreen() {
       <HintLine icon="info">{t.auth.passwordForm.forceNote}</HintLine></div>
       {error && <FieldError>{error}</FieldError>}
       <div {...stylex.props(sx.divider, sx.deniedLogout)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-        <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'flex-start', height: mobile ? 48 : 34, color: 'var(--vv-warn-ink)' }}><Icon name="logout" size={16} />{t.account.logout}</Button>
+        <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'flex-start', height: mobile ? 44 : 34, paddingInline: mobile ? 'var(--vv-s-16)' : undefined, borderRadius: mobile ? 'var(--vv-r-12)' : undefined, fontSize: 14, color: 'var(--vv-warn-ink)' }}><Icon name="logout" size={16} />{t.account.logout}</Button>
         <HintLine icon="info">{t.auth.otherAccountLogout}</HintLine>
       </div>
     </AuthShell>

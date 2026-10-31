@@ -9,7 +9,7 @@ import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { Banner, Button, Checkbox, Field, FieldError, Icon } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
-import { AuthLabel, AuthPassword, AuthShell } from './parts'
+import { AuthError, AuthLabel, AuthPassword, AuthShell } from './parts'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
@@ -137,7 +137,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{mobile ? t.setup.codeHintMobile : t.setup.codeHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
-          {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
+          {networkError && <Banner tone="error" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy} disabled={busy || !code.trim()}
             {...stylex.props(sx.submit)}>
             {busy ? t.setup.verifying : t.common.continue}
@@ -165,7 +165,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.setup.passwordHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
-          {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
+          {networkError && <Banner tone="error" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy}
             disabled={busy || !name.trim() || !USERNAME_RE.test(username) || password.length < MIN_PASSWORD}
             {...stylex.props(sx.submit)}>
@@ -188,10 +188,11 @@ export function SetupScreen() {
                   catch { setError(mobile ? t.auth.copyRecoveryFailedMobile : t.auth.copyRecoveryFailedDesktop) }
                 })()
               }}><Icon name="copy" size={mobile ? 16 : 14} />{copied ? t.auth.copied : mobile ? t.setup.copyRecoveryMobile : t.setup.copyRecovery}</Button>
+              {mobile && error && <AuthError>{error}</AuthError>}
             </div>
+            {!mobile && error && <AuthError>{error}</AuthError>}
             <span style={{ fontSize: mobile ? 13 : 12.5, color: 'var(--vv-note-ink)', lineHeight: 1.55 }}>{mobile ? t.setup.recoveryWarningMobile : t.setup.recoveryWarning}</span>
-          </div> : <Banner tone="warning" title={t.setup.recoveryUnavailableTitle} icon="danger" iconSize={16} align="top">{t.setup.recoveryUnavailable}</Banner>}
-          {error && <FieldError>{error}</FieldError>}
+          </div> : <Banner tone="error" role="status" title={t.setup.recoveryUnavailableTitle} titleStyle={sx.missingRecoveryTitle} textStyle={sx.missingRecoveryText} icon="danger" iconSize={16} align="top">{t.setup.recoveryUnavailable}</Banner>}
           {recovery !== null && <Checkbox checked={saved} onChange={setSaved} label={t.setup.saved} size={mobile ? 18 : 16} style={{ minHeight: 0, height: mobile ? 44 : 'auto', margin: 0, padding: 0, gap: mobile ? 12 : 10, fontSize: mobile ? 15 : 13.5, color: 'var(--color-fg)' }} />}
           <Button type="button" variant="primary" pending={busy} disabled={busy || (recovery !== null && !saved)} onClick={async () => {
             setBusy(true)

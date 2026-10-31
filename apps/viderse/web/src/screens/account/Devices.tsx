@@ -12,7 +12,7 @@ import { ApiError } from '../../api/client'
 import { Banner } from '@noverse/ui'
 const sx = stylex.create({
   mobileList: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-hairline)', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--color-surface-0)', overflow: 'hidden' },
-  mobileAction: { flexGrow: 1, height: 48, justifyContent: 'center' },
+  mobileAction: { flex: '1 1 0', minWidth: 0, height: 48, justifyContent: 'center' },
 })
 
 function deviceActivity(session: Session): string {
@@ -56,16 +56,16 @@ export function Devices() {
   }
   return <>
     {!mobile && <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--vv-s-10)' }}><h2 style={{ flex: 1, margin: 0, fontSize: 14, fontWeight: 600 }}>{t.account.devices}</h2><span {...stylex.props(accountStyles.fieldHelp)} style={{ color: 'var(--kit-fg-sub)' }}>{t.account.deviceNote}</span></div>}
-    {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={authStyles.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
+    {networkError && <Banner tone="error" title={t.account.networkFailed} titleStyle={authStyles.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
     {error && <FieldError>{error}</FieldError>}
     {!sessions && (error || networkError ? <Button onClick={() => void load()}>{t.common.retry}</Button> : <Spinner size={16} />)}
     <div role="list" {...(mobile ? stylex.props(sx.mobileList) : {})}>{sessions?.map((session) => <div key={session.id} role="listitem" style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', minHeight: mobile ? 64 : 48, padding: mobile ? '0 14px' : 0, borderTop: '1px solid var(--vv-hairline)' }}>
       <Icon name={/mobile|android|iphone|ipad/i.test(session.device) ? 'mobile' : 'monitor'} size={mobile ? 20 : 18} style={{ color: 'var(--color-fg-3)' }} />
       <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}>
-        <span title={`${session.device}${session.browser ? ` · ${session.browser}` : ''}`} style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.device}{session.browser && ` · ${session.browser}`}{session.current && <span {...stylex.props(accountStyles.tag, accountStyles.neutralTag)}>{t.account.currentDevice}</span>}</span>
+        <span title={`${session.device}${session.browser ? ` · ${session.browser}` : ''}`} style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontSize: mobile ? 15 : 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.device}{session.browser && ` · ${session.browser}`}{session.current && <span {...stylex.props(accountStyles.tag, accountStyles.neutralTag)}>{t.account.currentDevice}</span>}</span>
         <span style={{ fontSize: mobile ? 12.5 : 12, color: mobile && new Date(session.expiresAt).getTime() - Date.now() <= 3 * 86400000 ? 'var(--color-warn)' : 'var(--kit-fg-sub)' }}>{mobile ? deviceActivity(session) : t.account.lastSeen(new Date(session.lastActiveAt).toLocaleString('vi-VN'))}</span>
       </span>
-      {!session.current && <Button size="sm" variant="quiet" disabled={busy} aria-label={`${t.account.logout} ${session.device}${session.browser ? ` · ${session.browser}` : ''}`} onClick={() => void revoke([session.id])} style={mobile ? { height: 44, flexShrink: 0, color: 'var(--vv-warn-ink)' } : undefined}>{t.account.logout}</Button>}
+      {!session.current && <Button size="sm" variant="quiet" disabled={busy} aria-label={`${t.account.logout} ${session.device}${session.browser ? ` · ${session.browser}` : ''}`} onClick={() => void revoke([session.id])} style={mobile ? { height: 44, flexShrink: 0, paddingInline: 'var(--vv-s-12)', fontSize: 13, color: 'var(--vv-warn-ink)' } : undefined}>{t.account.logout}</Button>}
     </div>)}</div>
     {done ? <Banner tone="success" title={done} icon="tick-b" iconSize={16} /> : mobile && <span {...stylex.props(layout.mobileNote)}>{t.account.deviceSelfNote}</span>}
     <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', flexWrap: 'wrap', alignItems: mobile ? 'stretch' : 'center', gap: 'var(--vv-s-12)', paddingTop: 'var(--vv-s-12)', borderTop: '1px solid var(--vv-hairline)' }}>

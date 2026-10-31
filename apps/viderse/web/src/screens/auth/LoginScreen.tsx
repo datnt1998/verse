@@ -38,12 +38,15 @@ export function LoginScreen() {
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (busy || remaining || !username.trim() || !password) return
-    setBusy(true); setError(''); setNetworkError(false)
-    try { await signIn(username.trim(), password) }
+    setBusy(true); setError('')
+    try { await signIn(username.trim(), password); setNetworkError(false) }
     catch (e) {
       if (e instanceof ApiError && e.status === 0) setNetworkError(true)
-      else if (e instanceof ApiError && e.status === 429) setRemaining(Math.max(1, Math.ceil(e.retryAfter ?? 30)))
-      else setError(e instanceof ApiError && e.status === 401 ? t.auth.wrongLogin : t.auth.loginFailed)
+      else {
+        setNetworkError(false)
+        if (e instanceof ApiError && e.status === 429) setRemaining(Math.max(1, Math.ceil(e.retryAfter ?? 30)))
+        else setError(e instanceof ApiError && e.status === 401 ? t.auth.wrongLogin : t.auth.loginFailed)
+      }
     } finally { setBusy(false) }
   }
   const explanation = ended && (ended.reason !== 'unknown' || localStorage.getItem('vv.signedInBefore')) ? sessionExplanation(ended) : null
@@ -71,7 +74,7 @@ export function LoginScreen() {
           value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
       </div>
       {(error || remaining > 0) && <AuthError>{remaining ? t.auth.limited(time) : error}</AuthError>}
-      {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
+      {networkError && <Banner tone="error" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant="primary" pending={busy} disabled={busy || remaining > 0 || !username.trim() || !password} {...button}>
         {remaining ? t.auth.wait(time) : busy ? t.auth.loggingIn : t.auth.login}
       </Button>

@@ -4,6 +4,8 @@ const MOBILE = '@media (max-width: 767px)'
 export const authStyles = stylex.create({
   recoveryTitle: { fontSize: 'var(--vv-s-14)', lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
   networkTitle: { fontSize: 'var(--vv-s-14)', fontWeight: 400, color: color['--color-fg'], lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
+  missingRecoveryTitle: { fontSize: 'var(--vv-s-14)', fontWeight: 600, color: color['--color-fg'], lineHeight: 1.5, marginBottom: 'var(--vv-s-2)' },
+  missingRecoveryText: { fontSize: 'var(--vv-s-14)', color: color['--color-fg'], lineHeight: 1.5 },
   shell: { minHeight: '100dvh', height: '100dvh', display: 'flex', flexDirection: 'column', backgroundColor: color['--color-bg'], color: color['--color-fg'], lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
   header: { flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingBlock: { default: 14, [MOBILE]: 6 }, paddingInline: { default: 20, [MOBILE]: 16 } },
   main: { flexGrow: 1, minHeight: 0, overflowY: 'auto', display: 'flex', alignItems: { default: 'center', [MOBILE]: 'flex-start' }, justifyContent: 'center', padding: { default: 16, [MOBILE]: '18px 20px 20px' } },
