@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	xdraw "golang.org/x/image/draw"
 )
 
@@ -24,16 +25,16 @@ func assetFileOK(file string) bool {
 // hoặc ảnh bìa của chính kênh; file mở dưới os.Root của thư mục dự án nên
 // symlink (tệp hay thư mục cha) thoát ra ngoài project bị chặn ngay khi mở —
 // không cần check realpath riêng trước.
-func (s *Service) AssetFile(ctx context.Context, id, file string) (io.ReadSeekCloser, string, int64, error) {
+func (s *Service) AssetPath(ctx context.Context, id, file string) (string, error) {
 	if !assetFileOK(file) {
-		return nil, "", 0, errNotFound("Không tìm thấy ảnh nhận diện.")
+		return "", errNotFound("Không tìm thấy ảnh nhận diện.")
 	}
 	avatar, banner, found, err := s.store.ChannelAssetPaths(ctx, id)
 	if err != nil {
-		return nil, "", 0, err
+		return "", err
 	}
 	if !found {
-		return nil, "", 0, errNotFound("Kênh không tồn tại.")
+		return "", errNotFound("Kênh không tồn tại.")
 	}
 	matched := ""
 	for _, rel := range []*string{avatar, banner} {
@@ -42,7 +43,31 @@ func (s *Service) AssetFile(ctx context.Context, id, file string) (io.ReadSeekCl
 		}
 	}
 	if matched == "" {
-		return nil, "", 0, errNotFound("Ảnh nhận diện không còn được kênh dùng.")
+		return "", errNotFound("Ảnh nhận diện không còn được kênh dùng.")
+	}
+	return matched, nil
+}
+
+func (s *Service) Media() *media.Service { return s.media }
+
+// AssetFile pins a local working file until Close. Authorization and channel
+// ownership are checked before consulting the media manifest.
+func (s *Service) AssetFile(ctx context.Context, id, file string) (io.ReadSeekCloser, string, int64, error) {
+	matched, err := s.AssetPath(ctx, id, file)
+	if err != nil {
+		return nil, "", 0, err
+	}
+	if s.media != nil {
+		handle, err := s.media.Acquire(ctx, matched)
+		if err != nil {
+			return nil, "", 0, err
+		}
+		f, err := os.Open(handle.Path)
+		if err != nil {
+			handle.Release()
+			return nil, "", 0, err
+		}
+		return &assetHandle{File: f, handle: handle}, file, handle.Ref.Bytes, nil
 	}
 	root, err := os.OpenRoot(s.storage.Root())
 	if err != nil {
@@ -59,6 +84,16 @@ func (s *Service) AssetFile(ctx context.Context, id, file string) (io.ReadSeekCl
 		return nil, "", 0, errNotFound("Không tìm thấy ảnh nhận diện.")
 	}
 	return f, file, st.Size(), nil
+}
+
+type assetHandle struct {
+	*os.File
+	handle *media.Handle
+}
+
+func (f *assetHandle) Close() error {
+	defer f.handle.Release()
+	return f.File.Close()
 }
 
 // moveFile chuyển tệp trong cùng ổ đĩa (rename nguyên tử); khác ổ thì chép

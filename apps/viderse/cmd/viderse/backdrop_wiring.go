@@ -23,6 +23,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
@@ -91,6 +92,7 @@ func mountBackdrop(
 	storageSvc *storage.Service,
 	logStore *logs.Store,
 	ytdlp ytdlpRunner,
+	mediaSvc *media.Service,
 ) *backdropRuntime {
 	ctx, cancel := context.WithCancel(context.Background())
 	r := &backdropRuntime{pool: pool, ctx: ctx, stop: cancel}
@@ -99,6 +101,7 @@ func mountBackdrop(
 	run := makeBackdropYtdlpRun(ytdlp, func() *platforms.Pacer { return r.pacer.Load() }, acc)
 	r.svc = backdrop.New(backdrop.Deps{
 		Store:    postgres.NewBackdropStore(pool),
+		Media:    mediaSvc,
 		RunYtDlp: run,
 		CfgDir:   cfgDir,
 		// Bilibili coi mọi lời gọi là một trình duyệt; timeout 30 giây cho

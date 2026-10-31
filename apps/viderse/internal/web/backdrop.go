@@ -12,6 +12,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
@@ -69,7 +70,7 @@ func MountBackdropDiag(g *Gateway, svc BackdropService, diag BackdropDiag) {
 	g.Handle(http.MethodPost, "/api/backdrop/videos", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		addBackdropVideo(w, r, svc, diag)
 	})
-	for _, method := range []string{http.MethodGet, http.MethodPatch, http.MethodDelete} {
+	for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodPatch, http.MethodDelete} {
 		m := method
 		g.Handle(m, "/api/backdrop/videos/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 			routeBackdropVideo(w, r, svc, diag)
@@ -295,7 +296,21 @@ func routeBackdropVideo(w http.ResponseWriter, r *http.Request, svc BackdropServ
 			return
 		}
 		webapp.WriteJSON(w, http.StatusOK, BackdropVideoToWire(view))
-	case len(parts) == 2 && parts[1] == "file" && r.Method == http.MethodGet:
+	case len(parts) == 2 && parts[1] == "file" && (r.Method == http.MethodGet || r.Method == http.MethodHead):
+		if source, ok := svc.(interface {
+			VideoMediaPath(context.Context, string) (string, error)
+			Media() *media.Service
+		}); ok && source.Media() != nil {
+			path, err := source.VideoMediaPath(r.Context(), id)
+			if err != nil {
+				WriteBackdropError(w, err, diag)
+				return
+			}
+			if err := source.Media().ServeHTTP(w, r, path); err != nil {
+				WriteBackdropError(w, err, diag)
+			}
+			return
+		}
 		path, err := svc.VideoFile(r.Context(), id)
 		if err != nil {
 			WriteBackdropError(w, err, diag)

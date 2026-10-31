@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 )
 
 // Lớp phủ dùng chung (Thư viện › Lớp phủ): một dòng mỗi nội dung (sha256),
@@ -93,15 +94,19 @@ func (s *Service) AddOverlayReader(ctx context.Context, filename, displayName st
 	case size > MaxOverlayBytes:
 		return nil, false, invalidInput("Tệp lớp phủ quá lớn", "Chọn tệp nhỏ hơn 256 MB")
 	}
-	if s.files == nil {
-		return nil, false, fmt.Errorf("thiếu thư mục dự án để lưu lớp phủ")
+	if s.files == nil && s.media == nil {
+		return nil, false, fmt.Errorf("thiếu kho lưu lớp phủ")
 	}
-	dir, err := s.overlayAbsDir()
-	if err != nil {
-		return nil, false, err
+	dir := ""
+	if s.media == nil {
+		var err error
+		dir, err = s.overlayAbsDir()
+		if err != nil {
+			return nil, false, err
+		}
 	}
 	ext := strings.ToLower(filepath.Ext(filename))
-	temp, err := os.CreateTemp(dir, ".tmp-*"+ext)
+	temp, err := os.CreateTemp(dir, "viderse-overlay-*"+ext)
 	if err != nil {
 		return nil, false, fmt.Errorf("tạo tệp tạm lớp phủ: %w", err)
 	}
@@ -150,13 +155,15 @@ func (s *Service) AddOverlayReader(ctx context.Context, filename, displayName st
 		return nil, false, err
 	}
 	if existing != nil {
-		if err := s.publishOverlayBytes(existing, tempPath); err != nil {
+		if err := s.publishOverlay(ctx, existing, tempPath, func(txctx context.Context) error {
+			if removed {
+				return s.store.RestoreOverlay(txctx, existing.ID, display)
+			}
+			return nil
+		}); err != nil {
 			return nil, false, err
 		}
 		if removed {
-			if err := s.store.RestoreOverlay(ctx, existing.ID, display); err != nil {
-				return nil, false, err
-			}
 			existing.Name = display
 			s.emit(TopicOverlay, existing.ID)
 		}
@@ -178,27 +185,30 @@ func (s *Service) AddOverlayReader(ctx context.Context, filename, displayName st
 
 	id := s.newID()
 	rel := filepath.ToSlash(filepath.Join(OverlayDir, id+ext))
-	target, err := s.files.Resolve(rel)
-	if err != nil {
-		return nil, false, fmt.Errorf("đường dẫn lớp phủ: %w", err)
-	}
-	if err := os.Rename(tempPath, target); err != nil {
-		return nil, false, fmt.Errorf("lưu tệp lớp phủ: %w", err)
-	}
 	overlay := domain.Overlay{
 		ID: id, SHA256: sum, Name: display, FilePath: rel, Mime: mime,
 		Bytes: written, DurationSec: info.DurationSec, Width: info.Width, Height: info.Height,
 		Background: background, CreatedAt: s.now().UTC(),
 	}
-	if err := s.store.InsertOverlay(ctx, overlay); err != nil {
-		_ = os.Remove(target)
+	if err := s.publishOverlay(ctx, &overlay, tempPath, func(txctx context.Context) error {
+		return s.store.InsertOverlay(txctx, overlay)
+	}); err != nil {
 		if isUniqueViolation(err) {
-			if again, removed, gerr := s.store.OverlayBySHA(ctx, sum); gerr == nil && again != nil {
-				if rerr := s.publishOverlayBytes(again, target); rerr != nil {
-					return nil, false, rerr
+			again, removed, lookupErr := s.store.OverlayBySHA(ctx, sum)
+			if lookupErr != nil {
+				return nil, false, lookupErr
+			}
+			if again != nil {
+				if err := s.publishOverlay(ctx, again, tempPath, func(txctx context.Context) error {
+					if removed {
+						return s.store.RestoreOverlay(txctx, again.ID, display)
+					}
+					return nil
+				}); err != nil {
+					return nil, false, err
 				}
 				if removed {
-					_ = s.store.RestoreOverlay(ctx, again.ID, again.Name)
+					again.Name = display
 				}
 				return again, true, nil
 			}
@@ -237,6 +247,21 @@ func copyBounded(ctx context.Context, w io.Writer, r io.Reader, limit int64) (in
 		}
 	}
 	return total, nil
+}
+
+// publishOverlay keeps the domain mutation inside the manifest transaction.
+// Files-only dependencies are retained for local in-memory store tests.
+func (s *Service) publishOverlay(ctx context.Context, overlay *domain.Overlay, from string, commit func(context.Context) error) error {
+	if s.media != nil {
+		return s.media.Publish(ctx, []media.Artifact{{
+			Path: overlay.FilePath, File: from, ContentType: overlay.Mime,
+			Filename: overlay.Name + filepath.Ext(overlay.FilePath),
+		}}, commit)
+	}
+	if err := s.publishOverlayBytes(overlay, from); err != nil {
+		return err
+	}
+	return commit(ctx)
 }
 
 // publishOverlayBytes đảm bảo tệp của một dòng còn trên đĩa; thiếu thì đặt
@@ -295,8 +320,24 @@ func (s *Service) requireLiveOverlay(_ context.Context, overlay *domain.Overlay)
 	return path, nil
 }
 
-// OverlayPath trả đường dẫn tuyệt đối để phục vụ tệp (Range do
-// http.ServeContent lo).
+// AcquireOverlay pins a working file until its consumer releases the handle.
+func (s *Service) AcquireOverlay(ctx context.Context, id string) (*media.Handle, *domain.Overlay, error) {
+	overlay, err := s.GetOverlay(ctx, id)
+	if err != nil {
+		return nil, nil, err
+	}
+	if s.media != nil {
+		handle, err := s.media.Acquire(ctx, overlay.FilePath)
+		return handle, overlay, err
+	}
+	path, err := s.requireLiveOverlay(ctx, overlay)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &media.Handle{Path: path}, overlay, nil
+}
+
+// OverlayPath is the files-only adapter. Backend consumers use AcquireOverlay.
 func (s *Service) OverlayPath(ctx context.Context, id string) (string, *domain.Overlay, error) {
 	overlay, err := s.GetOverlay(ctx, id)
 	if err != nil {
@@ -347,8 +388,8 @@ func (s *Service) SeedBuiltins(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if s.files == nil {
-		return 0, fmt.Errorf("thiếu thư mục dự án để ghi hiệu ứng có sẵn")
+	if s.files == nil && s.media == nil {
+		return 0, fmt.Errorf("thiếu kho lưu hiệu ứng có sẵn")
 	}
 	existing, err := s.store.ExistingBuiltins(ctx)
 	if err != nil {
@@ -388,20 +429,20 @@ func (s *Service) seedBuiltin(ctx context.Context, effect builtinEffect) (bool, 
 	if err != nil {
 		return false, err
 	}
-	dir, err := s.overlayAbsDir()
-	if err != nil {
-		return false, err
+	dir := ""
+	if s.media == nil {
+		dir, err = s.overlayAbsDir()
+		if err != nil {
+			return false, err
+		}
 	}
 	rel := filepath.ToSlash(filepath.Join(OverlayDir, effect.ID+"-loop.mp4"))
-	target, err := s.files.Resolve(rel)
-	if err != nil {
-		return false, err
-	}
-	temp, err := os.CreateTemp(dir, ".tmp-"+effect.ID+"-*")
+	temp, err := os.CreateTemp(dir, "viderse-builtin-"+effect.ID+"-*")
 	if err != nil {
 		return false, fmt.Errorf("tạo tệp tạm hiệu ứng: %w", err)
 	}
 	tempPath := temp.Name()
+	defer os.Remove(tempPath)
 	if _, err := temp.Write(data); err != nil {
 		temp.Close()
 		os.Remove(tempPath)
@@ -415,19 +456,15 @@ func (s *Service) seedBuiltin(ctx context.Context, effect builtinEffect) (bool, 
 		os.Remove(tempPath)
 		return false, err
 	}
-	if err := os.Rename(tempPath, target); err != nil {
-		os.Remove(tempPath)
-		return false, fmt.Errorf("đặt tệp hiệu ứng %s: %w", effect.ID, err)
-	}
 	// Siêu dữ liệu là tuỳ chọn: máy chưa có ffmpeg vẫn có hiệu ứng (nền đen
 	// như yt-factory, thời lượng để trống).
 	var info ProbeInfo
 	background := domain.BgBlack
 	if ffmpeg, ffprobe, ok := s.toolPaths(ctx); ok {
-		if probed, err := probeFile(ctx, s.runner, ffprobe, target); err == nil {
+		if probed, err := probeFile(ctx, s.runner, ffprobe, tempPath); err == nil {
 			info = probed
 			if probed.DurationSec != nil {
-				background = detectBackground(ctx, s.runner, ffmpeg, target, probed.DurationSec)
+				background = detectBackground(ctx, s.runner, ffmpeg, tempPath, probed.DurationSec)
 			}
 		}
 	}
@@ -437,7 +474,9 @@ func (s *Service) seedBuiltin(ctx context.Context, effect builtinEffect) (bool, 
 		DurationSec: info.DurationSec, Width: info.Width, Height: info.Height,
 		Background: background, Builtin: effect.ID, CreatedAt: s.now().UTC(),
 	}
-	if err := s.store.InsertOverlay(ctx, overlay); err != nil {
+	if err := s.publishOverlay(ctx, &overlay, tempPath, func(txctx context.Context) error {
+		return s.store.InsertOverlay(txctx, overlay)
+	}); err != nil {
 		// Đường dẫn hiệu ứng là dùng chung giữa các tiến trình seed: thua cuộc
 		// không được xoá tệp của tiến trình thắng — nội dung trùng sha nên cứ
 		// để file lại, seed sau sẽ ghi đè nếu cần.

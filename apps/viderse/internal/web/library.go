@@ -18,6 +18,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -91,7 +92,7 @@ func MountLibraryDiag(g *Gateway, svc LibraryService, mix TemplateBackdropMix, d
 	g.Handle(http.MethodPost, "/api/overlays", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		addOverlay(w, r, svc, diag)
 	})
-	for _, method := range []string{http.MethodGet, http.MethodDelete} {
+	for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodDelete} {
 		g.Handle(method, "/api/overlays/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 			routeOverlays(w, r, svc, diag)
 		})
@@ -694,7 +695,7 @@ func routeOverlays(w http.ResponseWriter, r *http.Request, svc LibraryService, d
 			return
 		}
 		w.WriteHeader(http.StatusNoContent)
-	case tail == "file" && r.Method == http.MethodGet:
+	case tail == "file" && (r.Method == http.MethodGet || r.Method == http.MethodHead):
 		serveOverlayFile(w, r, svc, diag, id)
 	default:
 		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
@@ -703,6 +704,24 @@ func routeOverlays(w http.ResponseWriter, r *http.Request, svc LibraryService, d
 
 // serveOverlayFile phục vụ tệp lớp phủ với Range (trình duyệt tua được video).
 func serveOverlayFile(w http.ResponseWriter, r *http.Request, svc LibraryService, diag LibraryDiag, id string) {
+	if source, ok := svc.(interface {
+		GetOverlay(context.Context, string) (*domain.Overlay, error)
+		Media() *media.Service
+	}); ok && source.Media() != nil {
+		overlay, err := source.GetOverlay(r.Context(), id)
+		if err != nil {
+			writeLibraryError(w, err, diag)
+			return
+		}
+		if r.URL.Query().Get("download") == "1" {
+			w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": downloadName(overlay)}))
+		}
+		w.Header().Set("Cache-Control", "private, max-age=3600")
+		if err := source.Media().ServeHTTP(w, r, overlay.FilePath); err != nil {
+			writeLibraryError(w, err, diag)
+		}
+		return
+	}
 	filePath, overlay, err := svc.OverlayPath(r.Context(), id)
 	if err != nil {
 		writeLibraryError(w, err, diag)

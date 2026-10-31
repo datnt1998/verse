@@ -21,6 +21,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 )
 
 // Mã lỗi ổn định của mảng kênh (trường "code" của body lỗi HTTP/CLI).
@@ -241,6 +242,7 @@ type Options struct {
 	AI        AI
 	Tasks     Tasks
 	Storage   Storage
+	Media     *media.Service
 	Now       func() time.Time
 	// HTTP tải avatar đối thủ (nil = client mặc định, chỉ https, không redirect).
 	HTTP *http.Client
@@ -261,6 +263,7 @@ type Service struct {
 	ai         AI
 	tasks      Tasks
 	storage    Storage
+	media      *media.Service
 	now        func() time.Time
 	http       *http.Client
 	background bool
@@ -290,6 +293,7 @@ func New(opts Options) *Service {
 		ai:         opts.AI,
 		tasks:      opts.Tasks,
 		storage:    opts.Storage,
+		media:      opts.Media,
 		now:        now,
 	}
 }
@@ -683,7 +687,7 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 // removeChannelFiles xoá thư mục channels/<id> (best-effort: kênh đã xoá khỏi
 // DB rồi, không có gì để bù trừ).
 func (s *Service) removeChannelFiles(id string) {
-	if s.storage == nil {
+	if s.storage == nil || s.media != nil {
 		return
 	}
 	dir, err := s.storage.Resolve("channels/" + id)

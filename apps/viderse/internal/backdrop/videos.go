@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
 )
 
@@ -282,13 +283,47 @@ func (s *Service) RemoveVideo(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	if row.FilePath != "" {
+	if row.FilePath != "" && s.d.Media == nil {
 		if absolute, err := s.d.ResolvePath(row.FilePath); err == nil {
 			_ = os.Remove(absolute)
 		}
 	}
 	s.notify(id)
 	return nil
+}
+
+// Media is shared with the HTTP adapter and all byte-producing entrypoints.
+func (s *Service) Media() *media.Service { return s.d.Media }
+
+// VideoMediaPath checks the resource before resolving any manifest entry.
+func (s *Service) VideoMediaPath(ctx context.Context, id string) (string, error) {
+	row, found, err := s.d.Store.Video(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	if !found {
+		return "", notFoundVideo()
+	}
+	if row.State != domain.BackdropReady || row.FilePath == "" {
+		return "", ErrorfRecovery(CodeConflict, "Video nền chưa tải xong", "Đợi việc nền tải xong rồi mở lại")
+	}
+	return row.FilePath, nil
+}
+
+// AcquireVideo pins a local input for ffprobe/ffmpeg until Release.
+func (s *Service) AcquireVideo(ctx context.Context, id string) (*media.Handle, error) {
+	rel, err := s.VideoMediaPath(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if s.d.Media != nil {
+		return s.d.Media.Acquire(ctx, rel)
+	}
+	path, err := s.d.ResolvePath(rel)
+	if err != nil {
+		return nil, err
+	}
+	return &media.Handle{Path: path}, nil
 }
 
 // VideoFile trả đường dẫn tuyệt đối của tệp một video lẻ đã tải xong.
@@ -411,6 +446,42 @@ func (s *Service) download(ctx context.Context, id string, generation int64) {
 	produced, err := findProduced(tmp)
 	if err != nil {
 		fail(err)
+		return
+	}
+	if s.d.Media != nil {
+		stat, err := os.Stat(produced)
+		if err != nil {
+			fail(wrapf(err, "đọc tệp video nền"))
+			return
+		}
+		// Each download gets an immutable logical reference. A newer segment
+		// or upstream revision must not change bytes used by older snapshots.
+		name := strings.ReplaceAll(id, ":", "-") + "-" + s.owner + "-" + strconv.FormatInt(generation, 10) + filepath.Ext(produced)
+		rel := filepath.ToSlash(filepath.Join("library", "backdrops", name))
+		contentType := "video/mp4"
+		switch strings.ToLower(filepath.Ext(produced)) {
+		case ".webm":
+			contentType = "video/webm"
+		case ".mkv":
+			contentType = "video/x-matroska"
+		}
+		err = s.d.Media.Publish(ctx, []media.Artifact{{Path: rel, File: produced, ContentType: contentType, Filename: name}}, func(txctx context.Context) error {
+			applied, err := s.d.Store.FinishDownload(txctx, id, s.owner, generation, rel, height, stat.Size(), s.now())
+			if err != nil {
+				return err
+			}
+			if !applied {
+				return media.ErrConflict
+			}
+			return nil
+		})
+		if err != nil {
+			if !errors.Is(err, media.ErrConflict) {
+				fail(err)
+			}
+			return
+		}
+		s.notify(id)
 		return
 	}
 	dir := filepath.Join(s.d.StorageRoot(), "library", "backdrops")

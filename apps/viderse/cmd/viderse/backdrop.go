@@ -236,6 +236,15 @@ func openBackdropCLI(ctx context.Context) (*backdrop.Service, func(), error) {
 		closeAll()
 		return nil, nil, err
 	}
+	manager, err := openCLIMedia(ctx, pool, func() string { return root })
+	if err != nil {
+		closeAll()
+		return nil, nil, err
+	}
+	closeAll = func() {
+		_ = manager.Close(context.Background())
+		pool.Close()
+	}
 	store := postgres.NewBackdropStore(pool)
 	settings := postgres.NewSettingsStore(pool)
 	acc := accounts.New(accounts.Deps{Dir: cfgDir, Settings: settings})
@@ -253,6 +262,7 @@ func openBackdropCLI(ctx context.Context) (*backdrop.Service, func(), error) {
 	runYtDlp := makeBackdropYtdlpRun(ytdlp, func() *platforms.Pacer { return pacer }, acc)
 	svc := backdrop.New(backdrop.Deps{
 		Store:     store,
+		Media:     manager.Media(),
 		Platforms: platformSvc,
 		Pacer:     pacer,
 		Request: func(callCtx context.Context, resetBackoff bool, fn func(context.Context) error) error {
