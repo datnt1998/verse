@@ -8,6 +8,13 @@
   --vv-red-button: #E6002E;
   --vv-red-ink: #FFFFFF;
   --vv-red-button-hover: #FF1F4B;
+  /* Gói V27: nguồn màu cho các vai trò defineVars của Viderse. */
+  --vv-control-sphere-highlight: #FF6A80;
+  --vv-control-sphere-center: #FF1F45;
+  --vv-control-sphere-edge: #C80028;
+  --vv-accent-soft-ink: #FFD3DA;
+  --vv-info-ink: #9DB0F7;
+  --vv-app-logo-surface: #18181A;
 
   /* Chữ của bốn trợ lý (03-tokens.md › Trợ lý) */
   --vv-scout-ink: #B7CEFF;

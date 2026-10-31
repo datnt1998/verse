@@ -253,3 +253,14 @@ export const exploreLayout = stylex.defineVars({
   thumbImgTransitionDuration: ".2s",
 })
 
+
+/** Chốt màu theo 03-tokens.md › Token đợt 31; giữ tên cho cả CSS consumers. */
+export const visualRoles = stylex.defineVars({
+  '--vv-red-button-fill': 'radial-gradient(circle at 35% 28%, var(--vv-control-sphere-highlight) 0%, var(--vv-control-sphere-center) 45%, var(--vv-control-sphere-edge) 100%)',
+  '--vv-accent-soft': 'var(--vv-accent-soft-ink)',
+  '--vv-info': 'var(--vv-info-ink)',
+  '--vv-surface-3': 'var(--vv-app-logo-surface)',
+  queueWarningBackground: 'color-mix(in srgb, var(--color-err) 8%, transparent)',
+  queueWarningBorder: 'color-mix(in srgb, var(--color-err) 25%, transparent)',
+  jobsOfflineBorder: 'color-mix(in srgb, var(--color-err) 30%, transparent)',
+})

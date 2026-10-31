@@ -19,7 +19,7 @@ export const brand = defineBrand({
     ghostInk: '#FFC09A', // chữ `.ghost.btn-warn` của artboard
   },
   // Rãnh công tắc của kit là literal #9A63E3 — ghim thẳng token để đúng #E6002E của design.
-  overrides: { '--kit-switch-on': '#E6002E' },
+  overrides: { '--kit-switch-on': '#E6002E', '--kit-info-fg': 'var(--vv-info)' },
 })
 
 export function applyViderseBrand() {

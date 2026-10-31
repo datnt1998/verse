@@ -1,22 +1,23 @@
 import * as stylex from '@stylexjs/stylex'
 import { BrandMark, Icon } from '@noverse/ui'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
+import { visualRoles } from '../styles/viderse.stylex'
 import type { AppLink } from '../api/types'
 import { LensLogo } from './LensLogo'
 import { t } from '../i18n/vi'
 import { useMediaQuery } from '../lib/useMediaQuery'
 const sx = stylex.create({
   row: { minHeight: 52, padding: 'var(--vv-s-6) var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', borderRadius: 'var(--vv-r-10)', color: color['--color-fg'], textDecoration: 'none', backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] } },
-  mobileRow: { height: 56, borderRadius: '0', padding: 'var(--vv-s-6) var(--vv-s-14)', gap: 'var(--vv-s-12)', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)', ':last-child': { borderBottomWidth: 0 } },
+  mobileRow: { height: 56, borderRadius: '0', padding: 'var(--vv-s-6) var(--vv-s-14)', gap: 'var(--vv-s-12)', borderBottomWidth: { default: 1, ':last-child': 0 }, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)' },
   mobileLogo: { width: 34, height: 34, borderRadius: '50%' },
   mobileName: { fontSize: 15, fontWeight: 400 },
   mobileHost: { fontSize: 12 },
   current: { backgroundColor: line['--line-3'] },
-  logo: { width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', flexShrink: 0, backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'] },
+  logo: { width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', flexShrink: 0, backgroundColor: visualRoles['--vv-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'] },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.3 },
   name: { fontSize: 13.5, fontWeight: 500 },
   host: { fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 'var(--vv-s-8)', gap: 'var(--vv-s-6)', borderRadius: 'var(--vv-r-6)', borderWidth: 0, backgroundColor: kit['--kit-acc-12'], color: 'var(--vv-tabbar-on)', fontSize: 11.5 },
+  tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 'var(--vv-s-8)', gap: 'var(--vv-s-6)', borderRadius: 'var(--vv-r-6)', borderWidth: 0, backgroundColor: kit['--kit-acc-12'], color: visualRoles['--vv-accent-soft'], fontSize: 11.5 },
   neutralTag: { backgroundColor: kit['--kit-wash-6'], color: color['--color-fg-3'] },
   help: { fontSize: 12.5, lineHeight: 1.55, color: color['--color-fg-3'] },
   fieldHelp: { fontSize: 11.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },

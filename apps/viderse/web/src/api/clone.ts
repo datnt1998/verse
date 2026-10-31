@@ -148,6 +148,8 @@ export type QueueView = {
   pace: QueuePace[]
   imageQuota: QueueImageQuota[]
   doneToday: QueueDoneToday[]
+  /** Receipt returned only after an immediate, reversible removal. */
+  removed?: { id: string; position: number; priority: 'pick' | 'batch' }
 }
 
 export const getQueue = (signal?: AbortSignal) =>
@@ -159,7 +161,7 @@ export type QueuePatch =
   | { paused: boolean }
   | { workers?: number; imageWorkers?: number; rescanHours?: number }
   | { id: string; position: number }
-  | { id: string; action: 'front' | 'remove' }
+  | { id: string; action: 'front' | 'remove' | 'restore' }
 
 export const patchQueue = async (body: QueuePatch) => {
   const view = await mutate<QueueView>('PATCH', '/api/queue', body)

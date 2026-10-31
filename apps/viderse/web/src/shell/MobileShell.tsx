@@ -2,7 +2,7 @@
 // Thanh trên: logo 24 + bộ đổi kênh trên Bàn dựng + JobsPill gọn + avatar.
 // Thanh dưới 64px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
 // mục đang mở nền pill đỏ nhạt, mục thường icon xám. Nội dung pad-bottom 110px.
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, navSection, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -10,9 +10,10 @@ import { Icon, type IconName } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { JobsPill } from './JobsPill'
 import type { Status } from '../api/status'
+import { QueueSummarySheet } from '../screens/queue/QueueSummarySheet'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
-import { space as s, corners as r, pipeline } from '../styles/viderse.stylex'
+import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
 
 const TAB_ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; iconActive: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', iconActive: 'workbench-b', path: paths.workbench() },
@@ -72,6 +73,8 @@ export function MobileShell({ route, status, online, userName, channels, channel
   channelHref?: string
   children: ReactNode
 }) {
+  const [jobsOpen, setJobsOpen] = useState(false)
+  if (route.name === 'queue') return <div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div>
   const running = status?.running ?? 0
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
@@ -100,7 +103,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
         </a>
         {showSwitcher && <ChannelSwitcher mobileBar channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
         <span {...stylex.props(mobileShellStyles.grow)} />
-        <JobsPill mobileBar status={status} online={online} compact unread={(status?.attention.length ?? 0) > 0} />
+        <JobsPill mobileBar status={status} online={online} compact unread={(status?.attention.length ?? 0) > 0} onOpen={() => setJobsOpen(true)} expanded={jobsOpen} />
         <a href={`#${paths.settings()}`} aria-label={t.shell.settings} className={`vv-mavatar ${stylex.props(mobileShellStyles.avatar).className}`}>
           {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
           <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
@@ -108,6 +111,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
       </header>
       {children}
       <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
+      <QueueSummarySheet open={jobsOpen} onClose={() => setJobsOpen(false)} />
     </div>
   )
 }
@@ -128,13 +132,13 @@ export const mobileShellStyles = stylex.create({
   tabbarSheen: { position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', backgroundImage: `linear-gradient(180deg, ${line['--line-2']}, transparent 45%)` },
   item: { position: 'relative', flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-2'], textDecoration: 'none', minWidth: 0, borderRadius: pipeline.mobileDockItemRadius, fontSize: 10.5, fontWeight: 500, color: 'var(--vv-st-neutral)' },
   itemActive: { isolation: 'isolate', color: 'var(--vv-tabbar-on)', fontWeight: 600 },
-  itemGlow: { position: 'absolute', inset: `calc(-1 * ${s['--vv-s-1']})`, zIndex: -1, borderRadius: 'inherit', backgroundImage: "var(--vv-tabbar-ind-bg)", borderWidth: "1px", borderStyle: "solid", borderColor: "var(--vv-tabbar-ind-bd)", boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)' },
+  itemGlow: { position: 'absolute', inset: `calc(-1 * ${s['--vv-s-1']})`, zIndex: -1, borderRadius: 'inherit', backgroundColor: 'var(--vv-tabbar-ind-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--vv-tabbar-ind-bd)', boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)' },
   pill: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 24, color: 'var(--vv-st-neutral)' },
   pillActive: { color: color['--color-accent'], transform: 'translateY(-1px) scale(1.06)' },
   label: { fontSize: 10.5, lineHeight: '16px', fontWeight: 500, color: 'var(--vv-st-neutral)' },
   labelActive: { fontWeight: 600, color: 'var(--vv-tabbar-on)' },
   badge: { position: 'absolute', top: s['--vv-s-5'], left: `calc(50% + ${s['--vv-s-6']})`, minWidth: 17, height: 17, padding: `0 ${s['--vv-s-4']}`, borderRadius: r['--vv-r-pill'], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, backgroundColor: color['--color-warn'], color: color['--color-bg'], boxShadow: `0 0 0 2px ${color['--color-surface-4']}` },
-  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: "var(--vv-red-button)", color: 'var(--vv-red-ink)', boxShadow: 'var(--vv-shadow-fab)', transform: { default: null, ':active': 'scale(.94)' } },
+  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--vv-red-button)', backgroundImage: visualRoles['--vv-red-button-fill'], color: 'var(--vv-red-ink)', boxShadow: 'var(--vv-shadow-fab)', transform: { default: null, ':active': 'scale(.94)' } },
 })
 
 

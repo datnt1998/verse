@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 export type Route =
   | { name: 'workbench'; channel?: string; video?: string }            // '#/'
   | { name: 'review'; channel?: string }                               // '#/review'
-  | { name: 'queue' }                                                  // '#/queue'
+  | { name: 'queue'; item?: string; sheet?: 'rules' }                    // '#/queue'
   | { name: 'channel'; channelId: string; tab?: ChannelTab }           // '#/channels/<id>'
   | { name: 'channel-new'; step?: ChannelNewStep }                     // '#/channels/new'
   | { name: 'explore'; rival?: string; video?: string }                // '#/explore'
@@ -72,7 +72,7 @@ export function parseHash(hash: string): Parsed {
   } else if (seg[0] === 'review' && seg.length === 1) {
     route = { name: 'review', channel: text(search.get('channel')) }
   } else if (seg[0] === 'queue' && seg.length === 1) {
-    route = { name: 'queue' }
+    route = { name: 'queue', item: text(search.get('item')), sheet: oneOf(search.get('sheet'), ['rules'] as const) }
   } else if (seg[0] === 'channels' && seg[1] === 'new' && seg.length === 2) {
     route = { name: 'channel-new', step: oneOf(search.get('step'), CHANNEL_NEW_STEPS) }
   } else if (seg[0] === 'channels' && seg.length === 2 && seg[1]) {
@@ -118,7 +118,7 @@ export function routePath(route: Route): string {
   switch (route.name) {
     case 'workbench': return `/${q([['channel', route.channel], ['video', route.video]])}`
     case 'review': return `/review${q([['channel', route.channel]])}`
-    case 'queue': return '/queue'
+    case 'queue': return `/queue${q([['item', route.item], ['sheet', route.sheet]])}`
     case 'channel': return `/channels/${encodeURIComponent(route.channelId)}${q([['tab', route.tab]])}`
     case 'channel-new': return `/channels/new${q([['step', route.step]])}`
     case 'explore': return `/explore${q([['rival', route.rival], ['video', route.video]])}`
@@ -136,7 +136,7 @@ export function routePath(route: Route): string {
 export const paths = {
   workbench: (opts?: { channel?: string; video?: string }) => routePath({ name: 'workbench', ...opts }),
   review: (opts?: { channel?: string }) => routePath({ name: 'review', ...opts }),
-  queue: () => '/queue',
+  queue: (opts?: { item?: string; sheet?: 'rules' }) => routePath({ name: 'queue', ...opts }),
   channel: (channelId: string, tab?: ChannelTab) => routePath({ name: 'channel', channelId, tab }),
   channelNew: (step?: ChannelNewStep) => routePath({ name: 'channel-new', step }),
   explore: (opts?: { rival?: string; video?: string }) => routePath({ name: 'explore', ...opts }),
