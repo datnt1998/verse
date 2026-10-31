@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -419,11 +420,11 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 // Drain is serialized by a session-scoped PostgreSQL advisory lock. The
 // runner owns the atomic item->job transaction and independently rechecks it.
 func (s *Service) Drain(ctx context.Context) (int, error) {
-	conn, err := s.d.Pool.Acquire(ctx)
+	conn, err := pgx.ConnectConfig(ctx, s.d.Pool.Config().ConnConfig.Copy())
 	if err != nil {
 		return 0, err
 	}
-	defer conn.Release()
+	defer conn.Close(context.Background())
 	lockRepo := s.store.With(conn)
 	held, err := lockRepo.TryAdvisoryLock(ctx, queueLock)
 	if err != nil || !held {

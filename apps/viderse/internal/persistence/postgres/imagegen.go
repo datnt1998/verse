@@ -24,13 +24,21 @@ import (
 // advisory lock theo provider: hai process không thể cùng đọc 49 rồi cùng ghi
 // attempt thứ 50/51.
 type ImageReceiptStore struct {
-	db gen.DBTX
-	q  *gen.Queries
+	db        gen.DBTX
+	q         *gen.Queries
+	lockPool  *pgxpool.Pool
+	lockSlots chan struct{}
 }
 
 // NewImageReceiptStore dựng store trên một DBTX bất kỳ (pool hoặc transaction).
 func NewImageReceiptStore(db gen.DBTX) *ImageReceiptStore {
-	return &ImageReceiptStore{db: db, q: gen.New(db)}
+	s := &ImageReceiptStore{db: db, q: gen.New(db)}
+	if pool, ok := db.(*pgxpool.Pool); ok {
+		s.lockPool = pool
+		// Bound concurrent dedicated sessions without consuming query slots.
+		s.lockSlots = make(chan struct{}, int(pool.Config().MaxConns))
+	}
+	return s
 }
 
 var _ imagegen.Journal = (*ImageReceiptStore)(nil)
@@ -40,27 +48,28 @@ type txBeginner interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-// connAcquirer là pool lấy được một kết nối giữ riêng cho session lock.
-type connAcquirer interface {
-	Acquire(ctx context.Context) (*pgxpool.Conn, error)
-}
-
 // LockKey giành quyền sở hữu logic của draw key qua process bằng session
 // advisory lock của Postgres. Store dựng trên DBTX không phải pool (ví dụ
 // transaction đang mở) thì không giữ được lock qua câu lệnh: trả no-op —
 // unique index one-running vẫn chặn hai attempt chạy song song.
 func (s *ImageReceiptStore) LockKey(ctx context.Context, key string) (func(), error) {
-	acq, ok := s.db.(connAcquirer)
-	if !ok {
+	if s.lockPool == nil {
 		return func() {}, nil
 	}
-	conn, err := acq.Acquire(ctx)
+	select {
+	case s.lockSlots <- struct{}{}:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+	conn, err := pgx.ConnectConfig(ctx, s.lockPool.Config().ConnConfig.Copy())
 	if err != nil {
+		<-s.lockSlots
 		return nil, fmt.Errorf("giữ kết nối cho khoá %s: %w", key, err)
 	}
 	const lockSQL = `SELECT pg_advisory_lock(hashtextextended($1, 0))`
 	if _, err := conn.Exec(ctx, lockSQL, "image-draw:"+key); err != nil {
-		conn.Release()
+		_ = conn.Close(context.Background())
+		<-s.lockSlots
 		return nil, fmt.Errorf("khoá draw key %s: %w", key, err)
 	}
 	return func() {
@@ -68,7 +77,8 @@ func (s *ImageReceiptStore) LockKey(ctx context.Context, key string) (func(), er
 		unlockCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_, _ = conn.Exec(unlockCtx, `SELECT pg_advisory_unlock(hashtextextended($1, 0))`, "image-draw:"+key)
-		conn.Release()
+		_ = conn.Close(unlockCtx)
+		<-s.lockSlots
 	}, nil
 }
 

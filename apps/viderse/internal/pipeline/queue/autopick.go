@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/jackc/pgx/v5"
 )
 
 // Discover is serialized across processes by a session advisory lock. Its
@@ -16,11 +17,11 @@ func (s *Service) Discover(ctx context.Context) error {
 	if s.d.Scan == nil {
 		return errors.New("chưa có bộ quét đối thủ cho Tự lấy")
 	}
-	conn, err := s.d.Pool.Acquire(ctx)
+	conn, err := pgx.ConnectConfig(ctx, s.d.Pool.Config().ConnConfig.Copy())
 	if err != nil {
 		return err
 	}
-	defer conn.Release()
+	defer conn.Close(context.Background())
 	repo := s.store.With(conn)
 	held, err := repo.TryAdvisoryLock(ctx, discoveryLock)
 	if err != nil || !held {
@@ -49,7 +50,7 @@ func (s *Service) Discover(ctx context.Context) error {
 			case <-discoveryCtx.Done():
 				return
 			case <-ticker.C:
-				if conn.Conn().Ping(discoveryCtx) != nil {
+				if conn.Ping(discoveryCtx) != nil {
 					cancel()
 					return
 				}

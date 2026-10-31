@@ -12,6 +12,8 @@ import (
 
 // OpenPool mở pgxpool từ DSN (dùng chung cho serve/test) và ping để lỗi
 // kết nối/DSN sai bùng ngay lúc khởi động thay vì lần query đầu.
+// Long-lived session locks and LISTEN use separate connections, never pool
+// slots: their work must still be able to query even when every holder is busy.
 func OpenPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
