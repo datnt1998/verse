@@ -88,8 +88,8 @@ export function NewScreen() {
         <h1>{tt.hero}</h1><p>{tt.heroSub}</p>
       </div>
       <div className="nv-modes" role="radiogroup" aria-label={tt.modesLabel}>
-        <button type="button" role="radio" aria-checked={!multi} onClick={() => setMode('single')}><Icon name="link" size={15} />{tt.single}</button>
-        <button type="button" role="radio" aria-checked={multi} onClick={() => setMode('multi')}><Icon name="video-add" size={15} />{tt.multi}</button>
+        <button type="button" role="radio" aria-checked={!multi} onClick={() => setMode('single')}><Icon name="link" size={mobile ? 16 : 15} />{mobile ? tt.mobileSingle : tt.single}</button>
+        <button type="button" role="radio" aria-checked={multi} onClick={() => setMode('multi')}><Icon name="video-add" size={mobile ? 16 : 15} />{mobile ? tt.mobileMulti : tt.multi}</button>
       </div>
       <form className="nv-card card" onSubmit={submit}>
         <label htmlFor="nv-url" className="sr-only">{tt.textarea}</label>
@@ -110,16 +110,16 @@ export function NewScreen() {
         </div>}
         {onlyDuplicate && !multi && <div className="nv-banner nv-banner--duplicate" role="status"><Icon name="flag" size={16} /><span>{tt.duplicateTitle(duplicate?.title ?? duplicate?.url ?? '')}</span><a href={`#${duplicate?.jobId ? paths.workbench({ video: duplicate.jobId }) : paths.queue()}`}>{tt.dup.open}</a></div>}
         {invalid && !multi && <div className="nv-banner" role="alert"><Icon name="danger" size={16} /><span>{tt.invalid}</span></div>}
-        {multi && current && <div className="nv-summary"><span className="nv-chip nv-chip--ok">{tt.accepted(current.accepted.length)}</span>{current.duplicates.length > 0 && <span className="nv-chip nv-chip--warn">{tt.plan.skipDup(current.duplicates.length)}</span>}{current.invalid.length > 0 && <span>{tt.plan.skipInvalid(current.invalid.length)}</span>}</div>}
+        {multi && current && <div className="nv-summary"><span className="nv-chip nv-chip--ok"><Icon name="tick-b" size={15} />{tt.accepted(current.accepted.length)}</span>{current.duplicates.length > 0 && <span className="nv-chip nv-chip--warn"><Icon name="flag" size={15} />{tt.plan.skipDup(current.duplicates.length)}</span>}{current.invalid.length > 0 && <span className="nv-chip">{tt.plan.skipInvalid(current.invalid.length)}</span>}{line?.detail && <span className="nv-chip">{line.detail}</span>}</div>}
         <div className="nv-options">
-          <label className="nv-option"><Icon name="channel" size={14} /><span>{tt.channel}</span><select aria-label={tt.channel} value={channel?.id ?? ''} onChange={(e) => { setChannelId(e.target.value); setTemplateId('') }}>{channels.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-          <label className="nv-option"><Icon name="layer" size={14} /><span>{tt.template}</span><select aria-label={tt.template} value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">{tt.rotation}{current?.template?.name ? ` · ${current.template.name}` : ''}</option>{channel?.templates.map((tpl) => <option key={tpl.id} value={tpl.id}>{tpl.name}</option>)}</select></label>
+          <label className="nv-option"><Icon name="channel" size={mobile ? 17 : 14} /><span>{tt.channel}</span><select aria-label={tt.channel} value={channel?.id ?? ''} onChange={(e) => { setChannelId(e.target.value); setTemplateId('') }}>{channels.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+          <label className="nv-option"><Icon name="layer" size={mobile ? 17 : 14} /><span>{tt.template}</span><select aria-label={tt.template} value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">{tt.rotation}{current?.template?.name ? ` · ${current.template.name}` : ''}</option>{channel?.templates.map((tpl) => <option key={tpl.id} value={tpl.id}>{tpl.name}</option>)}</select></label>
           <label className="nv-noimages"><input type="checkbox" checked={noImages} onChange={(e) => setNoImages(e.target.checked)} />{tt.noImages}</label>
           {mobile && multi && <button className="nv-option nv-priority-row" type="button" role="switch" aria-checked={priority} onClick={() => setPriority((value) => !value)}><span>{tt.priorityTurn}</span><span className="nv-toggle" /></button>}
         </div>
         <div className="nv-plan">
-          <span className="nv-plantext"><Icon name="clock" size={15} /><span>{phase === 'failed' ? <button type="button" onClick={() => setRetry((v) => v + 1)}>{tt.plan.failed}</button> : phase === 'loading' ? tt.plan.fixing : line?.text || tt.empty.pickFirst}{multi && line?.detail && <> · {line.detail}</>}</span></span>
-          {!mobile && multi && <button className="nv-priority" type="button" role="switch" aria-checked={priority} onClick={() => setPriority((p) => !p)}>{tt.priority(current?.accepted.length ?? urls.length)}</button>}
+          <span className="nv-plantext"><Icon name="clock" size={15} /><span>{phase === 'failed' ? <button type="button" onClick={() => setRetry((v) => v + 1)}>{tt.plan.failed}</button> : phase === 'loading' ? tt.plan.fixing : line?.text || tt.empty.pickFirst}</span></span>
+          {!mobile && multi && <button className="nv-priority" type="button" role="switch" aria-checked={priority} onClick={() => setPriority((p) => !p)}><span className="nv-priority-track" aria-hidden="true" />{tt.priority(current?.accepted.length ?? urls.length)}</button>}
           <ActionButton type="submit" variant="primary" className="nv-submit" disabled={busy} lockedReason={disabled ? !channel ? tt.noChannel : current && !current.template.id ? tt.plan.blockedNoTemplate : tt.needLink : undefined}>{multi && current?.accepted.length ? tt.makeMany(current.accepted.length) : tt.makeVideo}<span className="nv-key">Enter</span></ActionButton>
         </div>
       </form>
@@ -129,6 +129,7 @@ export function NewScreen() {
       </section>
       <div className="nv-workflow"><span>{tt.whatNext}</span>{agents.map((a, i) => <span className="nv-workchip" key={a}><Orb of={a} size={14} />{tt.steps[i]}</span>)}</div>
       <div className="nv-alts">{tt.alts.map((a, i) => <a key={a.title} href={`#${i === 0 ? paths.explore() : i === 1 ? channel ? paths.channel(channel.id) : paths.channelNew() : paths.library()}`}><Icon name={i === 0 ? 'radar' : i === 1 ? 'refresh' : 'layer'} size={17} /><span><b>{a.title}</b><span>{a.body}</span></span></a>)}</div>
+      {!mobile && <div className="nv-shortcuts"><span><kbd>Tab</kbd>{tt.modeHint}</span><span><kbd>Enter</kbd>{tt.submitHint}</span></div>}
     </main>
   )
 }

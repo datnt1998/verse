@@ -32,3 +32,9 @@ Dev ghi mỗi gói khi xong: ngày, PR/commit, chỗ lệch so với artboard (n
 - Phiên ảnh dùng journal PostgreSQL: khôi phục lần vẽ đã tính phí trước khi mã hoá, lần vẽ lại có receipt mới, chặn người chờ ngay trong callback khi nguồn lỗi. D7 hết hạn đỗ cùng `retryAt`; `VIDERSE_DAILY_PAID_IMAGE_LIMIT=1..50` chỉ hạ trần mặc định 50 để chạy máy hoặc kiểm tra có giới hạn.
 - Khởi động lại nhận diện namespace `clone` và tài nguyên template đi kèm; migration `00014_builtin_media_roots.sql` giữ đúng bốn asset chuẩn khỏi GC. Job bị ngắt còn lease cũ hết hạn được mở lại bước với checkpoint nguyên vẹn, không phát lại bước đã xong.
 - Smoke mạng thật với video YouTube 19 giây `jNQXAC9IVRw`: enqueue HTTP, tải video, xử lý nền và chép lời thật. Chưa xác nhận một ảnh trả phí hay trạng thái `awaiting_review` trong môi trường cô lập khi hai nguồn ảnh đều chưa đăng nhập; không đánh dấu toàn bộ gói đã xong vì thiếu chứng cứ ngoài này.
+
+## Đối chiếu Video mới — 31/10/2026
+
+- Đo lại `NewVideo` đủ năm trạng thái và `MNew` đủ ba trạng thái bằng hình học DOM sau khi font và React ổn định, với kế hoạch và metadata thật từ máy chủ cô lập.
+- Sửa ô nhiều link bị ẩn bởi selector phần tử đầu; khớp thẻ gợi ý, nhóm trợ lý, thẻ lối đi khác, màu nút khoá, dải lỗi/trùng và nhãn chế độ điện thoại với artboard. Không thêm màu hoặc nâng ratchet.
+- Giữ chuẩn hoá safe-area #57, hàng Không cần ảnh #58 và ghi rõ hàng ưu tiên nhiều link điện thoại ở #61. Thiếu ba trạng thái viên việc nền của Main ghi #60; không tự vẽ thay design.

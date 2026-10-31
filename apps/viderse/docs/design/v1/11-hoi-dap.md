@@ -366,3 +366,13 @@ Mẫu:
 - Artboard `MMain`, sheet Hàng chờ có “Chỉnh” trỏ tới `Queue`; chưa có artboard Queue điện thoại riêng.
 - “Chỉnh” mở Dialog của kit, dùng lại chính các control Quy tắc chạy của Queue và cùng PATCH thật. Không thêm tuỳ chọn hoặc lời mới. Đóng Dialog trở về sheet đang xem.
 
+
+### #60 · Viên việc nền: thiếu artboard cho máy rảnh, tạm dừng, mất kết nối — Mở
+- `Main.dc.html` chỉ vẽ viên “2 đang chạy · 12 chờ lượt”; đổi `stage=paused` chỉ đổi video, không đổi viên. Không có tweak cho `idle|paused|offline`.
+- Đối chiếu viên đang chạy trực tiếp với `Main`; ba trạng thái còn lại giữ cùng chiều cao 30px, padding 10px, gap 8px, chữ 12,5px và dùng trạng thái/câu của Gói V0. Không sửa artboard hoặc dựng trạng thái giả để gọi là chứng cứ cặp.
+- Hỏi design: bổ sung ba trạng thái trên. Câu “Đã tạm dừng” tiếp tục theo #56.
+
+### #61 · Video mới nhiều link: ưu tiên trên điện thoại — Mở
+- `NewVideo` có công tắc “Ưu tiên cả N”, nhưng `MNew` · `input=multi` chỉ có hai hàng Kênh/Template và chưa vẽ công tắc tương ứng.
+- Giữ thao tác ưu tiên thật bằng hàng “Ưu tiên lượt này” 52px trong nhóm tuỳ chọn, dùng cùng trạng thái và kế hoạch của máy tính. Nhóm nhiều link cao thêm 104px: 52px cho Không cần ảnh (#58) và 52px cho Ưu tiên. Không coi hai hàng này là sai số bố cục.
+- Hỏi design: duyệt hàng công tắc hoặc bổ sung chỗ đặt khác trên `MNew`.
