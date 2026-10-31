@@ -187,7 +187,7 @@ func hostWithinDomain(host, domain string) bool {
 func ParseCookieDomain(raw string) (string, error) {
 	domain := strings.ToLower(strings.TrimSpace(raw))
 	domain = strings.TrimPrefix(domain, ".")
-	if strings.ContainsAny(domain, "/:@?#&= \\t") || strings.Contains(domain, "*") {
+	if strings.ContainsAny(domain, "/:@?#&= \t") || strings.Contains(domain, "*") {
 		return "", fmt.Errorf("VERSE_COOKIE_DOMAIN=%q không phải tên miền (cấm scheme, port, userinfo, wildcard): %w", raw, ErrConfig)
 	}
 	if net.ParseIP(domain) != nil {

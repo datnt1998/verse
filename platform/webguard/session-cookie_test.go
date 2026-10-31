@@ -59,6 +59,16 @@ func TestCookieDomainConfig(t *testing.T) {
 			t.Fatalf("%s: CookieDomain = %q, want %q", tc.name, cfg.CookieDomain, tc.want)
 		}
 	}
+	// Every DNS letter is allowed: only separators, whitespace and wildcards
+	// are refused before the label check.
+	for _, domain := range []string{"verse.net", "studio.test", "tet.vn"} {
+		if got, err := ParseCookieDomain(domain); err != nil || got != domain {
+			t.Fatalf("ParseCookieDomain(%q) = %q, %v; want the domain back", domain, got, err)
+		}
+	}
+	if _, err := ParseCookieDomain("exa\tmple.com"); err == nil {
+		t.Fatal("a tab inside the domain must be refused")
+	}
 	for _, tc := range []struct {
 		name string
 		vars map[string]string
