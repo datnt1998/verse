@@ -55,6 +55,12 @@ export const color = stylex.defineVars({
   '--toc-head': '#0E0E10',
 })
 
+/** Vai Đồng phạm theo MOutline. */
+export const role = stylex.defineVars({
+  '--role-accomplice-fg': '#E8A3AA',
+  '--role-accomplice-bg': 'rgba(255,154,162,.06)',
+})
+
 /** Thang tông OKLCH 50–950 sinh từ core brand (lớp scale của defineBrand).
     Component KHÔNG dùng trực tiếp — chỉ consumer xây variant riêng mới đọc --scale-*. */
 export const scale = stylex.defineVars({

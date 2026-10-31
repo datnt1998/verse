@@ -357,7 +357,7 @@ export function WorkspaceScreen({ project, story }: { project: string; story: st
       if (mobileTab === 'stream') {
         return planning
           ? <PlanPanel snapshot={snapshot} loading={loading} mobile />
-          : <LiveStream streamText={streamText} isRunning={running} snapshot={snapshot} events={feed} loading={loading} mobile idleActions={idleActions}
+          : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} mobile idleActions={idleActions}
             gate={gate} review={gateReview} reviewLoading={gateReviewResource.initialLoading}
             gateChapter={gateChapter} onOpenReader={openGateReader} />
       }
@@ -415,7 +415,7 @@ export function WorkspaceScreen({ project, story }: { project: string; story: st
             results={<CommandResults ctl={commandResults} jobs={jobs} project={project} story={story} />} />
           {planning
             ? <PlanPanel snapshot={snapshot} loading={loading} />
-            : <LiveStream streamText={streamText} isRunning={running} snapshot={snapshot} events={feed} loading={loading} idleActions={idleActions}
+            : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} idleActions={idleActions}
               gate={gate} review={gateReview} reviewLoading={gateReviewResource.initialLoading}
               gateChapter={gateChapter} onOpenReader={openGateReader} />}
         </div>

@@ -36,6 +36,8 @@ func restoreStreamHistory(h workerHost, b *broadcaster) error {
 	}
 	// Preserve full payloads here: the activity endpoint intentionally truncates
 	// diagnostics, but the writing stream needs the original content.
+	events := []host.Event{}
+	byID := map[string]int{}
 	for _, item := range queue {
 		raw, err := json.Marshal(item.Payload)
 		if err != nil {
@@ -45,9 +47,16 @@ func restoreStreamHistory(h workerHost, b *broadcaster) error {
 		if err := json.Unmarshal(raw, &ev); err != nil {
 			return err
 		}
-		if ev.ID != "" {
-			b.emit(message{kind: "event", data: ev})
+		if ev.ID == "" { continue }
+		if idx, ok := byID[ev.ID]; ok {
+			events[idx] = ev
+		} else {
+			byID[ev.ID] = len(events)
+			events = append(events, ev)
 		}
+	}
+	for _, ev := range events {
+		b.emit(message{kind: "event", data: ev})
 	}
 	return nil
 }

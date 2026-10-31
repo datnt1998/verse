@@ -46,7 +46,7 @@ const detail = (): ProjectDetail => ({
   version: 'v1',
   project: {
     id: PROJECT, name: 'Kênh truyện audio', description: '', notes: '', universeName: '',
-    legacy: false, storyCount: 2, runningCount: 0, updatedAt: null, createdAt: null, path: '',
+    legacy: false, storyCount: 2, runningCount: 0, updatedAt: null, createdAt: null, path: '', ruleCount: 0, style: '',
   },
   stories: [OWN, INHERIT], ideas: [], assets: [],
 })

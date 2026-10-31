@@ -8,10 +8,9 @@ import { useSession } from '../api/session'
 import { getRemembered, setNextRoute } from '../api/storage'
 import { t } from '../i18n/vi'
 import { navigate, paths, setDialog } from '../router'
-import { rememberHelpTarget } from '../commands/target'
 import '@noverse/ui/kit.css'
 import type { Role } from '../api/types'
-import { Avatar, Kbd } from '@noverse/ui'
+import { Avatar } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { keys, useAction, useResource } from '../data'
 import { WhatsNewDialog } from './WhatsNew'
@@ -20,7 +19,7 @@ import { AppSwitcher } from './AppSwitcher'
 import { ssoCopy } from '../i18n/sso'
 
 const ROLE_STYLE: Record<Role, { bg: string; fg: string; icon: string }> = {
-  admin: { bg: 'var(--tint-accent)', fg: 'var(--color-accent)', icon: 'crown' },
+  admin: { bg: 'var(--members-admin-bg)', fg: 'var(--members-admin-fg)', icon: 'crown' },
   member: { bg: 'var(--line-1)', fg: 'var(--color-fg-3)', icon: 'profile-2user' },
 }
 
@@ -30,9 +29,9 @@ export function RoleBadge({ role, compact = false }: { role: Role; compact?: boo
   return (
     <span style={{
       height: 20, padding: '0 7px', display: 'inline-flex', alignItems: 'center', gap: 4,
-      borderRadius: 6, background: compact && role === 'admin' ? 'var(--members-admin-bg)' : c.bg, color: compact && role === 'admin' ? 'var(--members-admin-fg)' : c.fg, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
+      borderRadius: 6, background: c.bg, color: c.fg, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
     }}>
-      <Icon name={c.icon} size={compact ? 11 : 12} />{compact ? t.role[role] : `tài khoản ${t.role[role]}`}
+      <Icon name={c.icon} size={12} />{compact ? t.role[role] : `tài khoản ${t.role[role]}`}
     </span>
   )
 }
@@ -139,7 +138,7 @@ export function AccountMenu() {
       {open && (
         <div ref={menu} className="kit-pop" role="menu" aria-label={t.account.menuTitle} onKeyDown={onMenuKey}
           onMouseOver={(event) => (event.target as HTMLElement).closest<HTMLElement>('[role="menuitem"]')?.focus()} style={{
-          position: 'absolute', top: user.grants != null ? 'calc(100% + 9px)' : 40, right: user.grants != null ? -4 : 0, zIndex: 40, width: user.grants != null ? 330 : 336, padding: 6,
+          position: 'absolute', top: 'calc(100% + 9px)', right: -4, zIndex: 40, width: 330, padding: 6,
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{ padding: '12px 12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -147,7 +146,7 @@ export function AccountMenu() {
               <Avatar name={name} size={42} />
               <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600 }}>
-                  {name}<RoleBadge role={user.role} compact={user.grants != null} />
+                  {name}<RoleBadge role={user.role} compact />
                 </span>
                 <span className="mono" style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>@{user.username}</span>
               </div>
@@ -186,15 +185,6 @@ export function AccountMenu() {
               {counts && counts.users > 0 && <span className="num" style={countStyle}>{counts.users}</span>}
             </button>
           )}
-          {user.grants == null && <>
-          <div role="separator" className="kit-separator" />
-          <button type="button" role="menuitem" className="kit-option" onClick={() => { setOpen(false); navigate(paths.settings()) }}>
-            <Icon name="setting-2" size={16} /><span style={{ flex: 1 }}>{t.nav.settings}</span><Kbd>⌘ ,</Kbd>
-          </button>
-          <button type="button" role="menuitem" className="kit-option" onClick={() => { setOpen(false); rememberHelpTarget(); navigate(paths.help()) }}>
-            <Icon name="message-question" size={16} /><span style={{ flex: 1 }}>Hướng dẫn lệnh</span><Kbd>?</Kbd>
-          </button>
-          </>}
           {newer && (
             <button type="button" role="menuitem" className="kit-option" onClick={() => { setOpen(false); setWhatsNew(true) }}>
               <Icon name="refresh-2" size={16} /><span style={{ flex: 1 }}>Có bản mới · {versionText(version?.latestVersion)}</span>

@@ -23,15 +23,17 @@ func (o *observer) finishPolishAttempts(agent string, chapter int, runErr error)
 		if runErr != nil && !o.aborting.Load() {
 			ev.Failed = true
 			ev.Level = "error"
-			ev.Kind = errorKind(nil, call.result)
+			ev.Kind = call.errorKind
+			if ev.Kind == "" { ev.Kind = errorKind(nil, call.result) }
 			ev.Summary = fmt.Sprintf("%s lỗi: %s", call.summary, truncate(call.result, 100))
 		}
 		call.fillToolEvent(&ev, !ev.Failed)
 		if !ev.Failed {
 			ev.Result = ""
 		}
-		o.emitEv(ev)
+		o.annotateRound(&ev)
 		o.persistEvent(ev)
+		o.emitEv(ev)
 	}
 	if len(remaining) == 0 {
 		delete(o.polishAttempts, agent)

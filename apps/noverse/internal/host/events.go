@@ -46,6 +46,11 @@ type Event struct {
 	Command     string `json:"command,omitempty"`
 	Input       string `json:"input,omitempty"`
 	Tool        string `json:"tool,omitempty"`
+	RoundTitle string `json:"roundTitle,omitempty"`
+	RoundID string `json:"roundId,omitempty"`
+	RoundStartedAt *time.Time `json:"roundStartedAt,omitempty"`
+	Role string `json:"role,omitempty"`
+	Error string `json:"error,omitempty"`
 	Args        string `json:"args,omitempty"`
 	Result      string `json:"result,omitempty"`
 	// ResultHint giữ vài con số người đọc cần (số chữ, số vấn đề) từ kết quả gốc — `Result`

@@ -28,8 +28,8 @@ export type PaneSnapshot = {
 export function paneKeyOf(parsed: Parsed): string | null {
   const { route, search } = parsed
   switch (route.name) {
-    case 'workspace':
-    case 'story': return 'work'
+    case 'workspace': return 'work'
+    case 'story': return search.has('tab') ? null : 'work'
     case 'reader': return 'read'
     // Mọi chế độ nghe (review/make/listen) đều dựng bằng trình nghe điện thoại.
     case 'audio': return 'audio'
@@ -37,6 +37,7 @@ export function paneKeyOf(parsed: Parsed): string | null {
     case 'help': return `more:help:${route.cmd ?? ''}`
     case 'activity':
     case 'brain':
+    case 'projbrain':
     case 'notifications': return null
     case 'settings': {
       if (route.section === 'notify') return null
@@ -64,7 +65,6 @@ export function phoneRedirect(parsed: Parsed): string | null {
     }
     // Chất lượng truyện có nghĩa nhất khi quay về màn Viết của chính truyện đó.
     case 'quality': return paths.workspace(route.project, route.story)
-    case 'projbrain':
     case 'newstory':
     case 'sysbrain':
     case 'missing': return PHONE_MORE

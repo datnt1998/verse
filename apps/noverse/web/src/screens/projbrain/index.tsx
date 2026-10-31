@@ -12,6 +12,8 @@ import { Segmented } from '@noverse/ui'
 import { styles as s } from './styles'
 import { apCopy as ap } from './copy'
 import { CharAvatar } from '../../ui/CharAvatar'
+import { useMediaQuery } from '../../shell/AppShell'
+import { MobileProjectBrain } from './mobile'
 
 const copy = t.projbrain
 const levelStyle = { error: s.errorChip, warning: s.warningChip, ok: s.okChip }
@@ -34,6 +36,7 @@ const withRow = (props: { className?: string; style?: object }) => ({ ...props, 
 
 export function ProjectBrainScreen({ project }: { project: string }) {
   const parsed = useRoute()
+  const mobile = useMediaQuery('(max-width: 759px)')
   const tab = parsed.search.get('tab') ?? 'ledger'
   const { user } = useSession()
   const projectName = useProjectName(project)
@@ -133,6 +136,13 @@ export function ProjectBrainScreen({ project }: { project: string }) {
     if (chosen && useCount(index, chosen) === 0) counts.set(chosen, 0)
     return { ...axis, index, limited: [3, 4, 7].includes(axis.n), note: [[3, 4, 7].includes(axis.n) ? ap.limit : '', [1, 3, 4, 6].includes(axis.n) ? ap.combination : '', axis.n === 9 ? ap.opening : ''].filter(Boolean).join(' · '), values: [...counts].sort(([a, an], [b, bn]) => bn - an || a.localeCompare(b, 'vi')) }
   })
+  if (mobile) return <MobileProjectBrain project={project} projectName={projectName} tab={tab} pickTab={pickTab}
+    axes={ledger.data?.axes ?? []} rows={rows} candidate={activeCandidate} checks={checkRows} frequency={frequency}
+    errors={errors} warnings={warnings} busy={busy} suggest={suggest} replacement={!!activeReplacement}
+    entities={entities} universe={universe.data} needsReview={needsReview}
+    q={q} setQ={setQ} search={filteredSearch} error={error || (ledger.error || universe.error || results.error ? copy.error : '')}
+    loading={!ledger.data && !ledger.error} />
+
 
   return <main {...stylex.props(s.root)} aria-label={copy.title}>
     <div {...stylex.props(s.heading)}>

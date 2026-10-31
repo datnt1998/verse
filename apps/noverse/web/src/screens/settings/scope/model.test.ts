@@ -94,9 +94,9 @@ describe('đổi dự án thì chọn truyện', () => {
 
 describe('ngữ cảnh cũ trỏ vào dự án/truyện không có trên máy chủ', () => {
   const projects: ProjectSummary[] = [
-    { id: 'cu', name: 'Cũ', description: '', legacy: true, storyCount: 1, runningCount: 0, updatedAt: null },
-    { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 2, runningCount: 0, updatedAt: null },
-    { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 0, runningCount: 0, updatedAt: null },
+    { id: 'cu', name: 'Cũ', description: '', legacy: true, storyCount: 1, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
+    { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 2, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
+    { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 0, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
   ]
   const lists: Record<string, readonly StorySummary[]> = {
     cu: [story('cu-mot')],

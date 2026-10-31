@@ -364,3 +364,11 @@ Mốc ↺ cấp dự án gồm mặc định + gói; cấp truyện gồm mặc 
 
 Hosted: hai API nền truyện đọc kho fact PG theo quyền dự án trước nhánh proxy; snapshot đi qua gateway → worker như cũ và có đủ hai khóa mới. File mode dùng cùng DTO và parser; lỗi đọc/giải mã là lỗi API, không giả thành dữ liệu rỗng. Hai API đọc bổ sung không thay đổi công cụ ghi nền truyện hiện có.
 
+
+## Sao chép quy tắc và lịch sử luồng viết
+
+- `POST /api/projects` nhận `copyRulesFrom?: string` là slug dự án có quyền đọc. Sao chép một lần các tệp quy tắc dự án và `config.style`, không liên kết hai dự án. `shareGlobal` vẫn chỉ điều khiển cấu hình trợ lý. `GET /api/library` và `GET /api/projects` trả mỗi dự án thêm `ruleCount: number` và `style: string` (rỗng là mặc định). `ruleCount` đếm từng dòng quy tắc trong `quy-tac.md`, cộng một cho mỗi tệp quy tắc khác có nội dung; tệp trống không tính.
+- `GET S/live-history?beforeRound=&limit=20` trả `{rounds, nextBeforeRound}`; `beforeRound` là mốc loại trừ, mặc định tải 20 vòng mới nhất, từng trang sắp theo vòng tăng dần, `nextBeforeRound: number | null`.
+- Mỗi vòng: `{round: number, roundId: string, role: string, title?: string, startedAt: string, operations: []}`; `roundId` là id sự kiện điều phối của vòng (live SSE gửi kèm). `title` chỉ có khi dữ kiện điều phối có cấu trúc đủ xác định; vòng cũ không có thì bỏ qua.
+- Mỗi thao tác: `{id, role, round, roundId?, startedAt, durationMs, status, error, key, params, result}`; `status` là `done | running | error`, `error` là câu tiếng Việt an toàn được dựng từ loại lỗi và ngữ cảnh số chương/cung/tập, không chép lỗi gốc hay khoá, bí mật, đường dẫn. Lỗi không phân loại dùng câu chung; `params` và `result` giữ dữ liệu thô trong chi tiết kỹ thuật. Lịch sử dùng hàng đợi runtime bền sẵn có, không thêm kho thứ hai.
+- SSE `event` loại DISPATCH/TOOL trong Luồng viết mang `id` (id thao tác; DISPATCH trùng `roundId`), `agent`, `role`, `roundId`, `roundStartedAt`, `roundTitle?` để gộp live vào đúng vòng/thẻ; TOOL lỗi có thêm `error` an toàn và lưu bền cùng sự kiện. Các sự kiện khác không bắt buộc có các trường này.

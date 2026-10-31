@@ -57,10 +57,12 @@ type activeCall struct {
 	id      string
 	start   time.Time
 	summary string
+	title   string
 	depth   int
 	tool    string
 	args    string
 	result  string
+	errorKind string
 	hint    string
 	chapter int
 	scope   string
@@ -149,7 +151,7 @@ func newObserver(s *storepkg.Store, emitEv func(Event), emitD func(string), emit
 //     (TOOL 行/流式正文/thinking/retry/context)。
 
 // dispatchStart 记录一次 Worker 派发开始并发 DISPATCH 行。
-func (o *observer) dispatchStart(agent, task, reason string) {
+func (o *observer) dispatchStart(agent, task, reason string, titles ...string) {
 	summary := dispatchSummary(agent, task)
 	o.updateAgent(agent, func(a *agentState) {
 		a.state = "working"
@@ -157,13 +159,16 @@ func (o *observer) dispatchStart(agent, task, reason string) {
 		a.summary = fmt.Sprintf("engine → %s", summary)
 	})
 	id := nextEventID()
-	o.dispatchStarts[agent] = &activeCall{id: id, start: time.Now(), summary: summary}
+	title := ""
+	if len(titles) > 0 { title = titles[0] }
+	o.dispatchStarts[agent] = &activeCall{id: id, start: time.Now(), summary: summary, title: title}
 	o.emitAndLog(Event{
 		ID:       id,
 		Time:     time.Now(),
 		Category: "DISPATCH",
 		Agent:    agent,
 		Summary:  summary,
+		RoundTitle: title,
 		Detail:   dispatchDetail(task, reason),
 		Level:    "info",
 	})
@@ -225,10 +230,37 @@ func (o *observer) retryEventID(scope string, attempt int) string {
 	return o.retryEvents[scope]
 }
 
-// emitAndLog 用于调用类事件的"开始"态：发给 TUI 但不写入 runtime queue，
-// 避免 replay 时"开始一行、完成又一行"重复。slog 由 host.emitEvent 统一记录。
+// Keep start and finish in the existing durable queue so live history can
+// reconstruct in-flight calls and dispatch boundaries after a restart.
 func (o *observer) emitAndLog(ev Event) {
+	if ev.Category == "DISPATCH" || ev.Category == "TOOL" {
+		o.annotateRound(&ev)
+		o.persistEvent(ev)
+	}
 	o.emitEv(ev)
+}
+
+// annotateRound pins live operation events to their dispatch round so the
+// writer stream and the paginated history merge start→finish by identity.
+func (o *observer) annotateRound(ev *Event) {
+	ev.Role = NormalizeRole(ev.Agent)
+	if ev.Category == "TOOL" && (ev.Failed || ev.Status == "error") {
+		ev.Error = OperationErrorMessage(*ev)
+	}
+	if ev.Category == "DISPATCH" {
+		ev.RoundID = ev.ID
+		if ev.RoundStartedAt == nil && !ev.Time.IsZero() { t := ev.Time; ev.RoundStartedAt = &t }
+		if ev.RoundTitle == "" {
+			if call := o.dispatchStarts[ev.Agent]; call != nil && call.id == ev.ID { ev.RoundTitle = call.title }
+		}
+		return
+	}
+	call := o.dispatchStarts[ev.Agent]
+	if call == nil { return }
+	ev.RoundID = call.id
+	t := call.start
+	ev.RoundStartedAt = &t
+	if ev.RoundTitle == "" { ev.RoundTitle = call.title }
 }
 
 // persistEvent 把事件写入 runtime queue（slog 由 host.emitEvent 统一记录）。

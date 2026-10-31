@@ -36,8 +36,8 @@ vi.mock('../../../data', async (original) => ({
 }))
 
 const projects: ProjectSummary[] = [
-  { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null },
-  { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null },
+  { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
+  { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
 ]
 const story = (project: string, id: string, title: string): StorySummary => ({
   id: `${project}/${id}`, project, story: id, folder: `kich_ban/01-${id}`, title, status: 'writing', tags: [], idea: '',

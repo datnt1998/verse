@@ -18,6 +18,11 @@ type RawSource struct {
 	Text  string     // 文件原始内容
 }
 
+// IsRuleFileName matches the top-level, visible Markdown files read as rules.
+func IsRuleFileName(name string) bool {
+	return name != "" && filepath.Base(name) == name && !strings.HasPrefix(name, ".") && strings.EqualFold(filepath.Ext(name), ".md")
+}
+
 // RawFileSources enumerates project → story rules; legacy global inputs are ignored.
 //
 // 与 readDirFromDisk 同样的扫描约定（顶层 .md、字典序、跳过隐藏文件），但不解析 YAML，
@@ -70,7 +75,7 @@ func rawDir(dir string, kind SourceKind) []RawSource {
 	}
 	var names []string
 	for _, e := range entries {
-		if e.IsDir() || strings.HasPrefix(e.Name(), ".") || !strings.EqualFold(filepath.Ext(e.Name()), ".md") {
+		if e.IsDir() || !IsRuleFileName(e.Name()) {
 			continue
 		}
 		names = append(names, e.Name())

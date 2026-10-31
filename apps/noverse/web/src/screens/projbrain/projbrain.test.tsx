@@ -57,6 +57,28 @@ async function mount(hash: string, project = 'kenh') {
 }
 
 describe('Não dự án — sổ cái', () => {
+  it('opens the matching stories from a phone frequency value', async () => {
+    const original = window.matchMedia
+    window.matchMedia = vi.fn(query => ({
+      matches: query === '(max-width: 759px)', media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }))
+    try {
+      const el = await mount('#/p/kenh/brain?tab=ledger')
+      const value = [...el.querySelectorAll('button')].find(button => button.textContent?.startsWith('Thợ may'))
+      expect(value).toBeDefined()
+      await act(() => value!.click())
+      const dialog = document.querySelector('[role=dialog]')!
+      expect(dialog.textContent).toContain(ledgers.kenh.candidate!.title)
+      for (const story of ledgers.kenh.stories.filter(story => story.values[2] === 'Thợ may').slice(0, 10)) {
+        expect(dialog.textContent).toContain(story.title)
+      }
+      expect(el.querySelector('[data-story]')).toBeNull()
+    } finally {
+      window.matchMedia = original
+    }
+  })
+
   it('does not expose a hidden story in ledger, universe or search', () => {
     const data = mockLedger('kenh', canView)
     const uni = mockUniverse('kenh', canView)

@@ -46,6 +46,7 @@ type ProgressPayload struct {
 	Attempt    int                 `json:"attempt,omitempty"`
 	MaxRetries int                 `json:"max_retries,omitempty"`
 	IsError    bool                `json:"is_error,omitempty"`
+	ErrorKind  string              `json:"error_kind,omitempty"`
 	Args       json.RawMessage     `json:"args,omitempty"`
 	Meta       json.RawMessage     `json:"meta,omitempty"`
 	// DeltaKind distinguishes what kind of content Delta carries when Kind is

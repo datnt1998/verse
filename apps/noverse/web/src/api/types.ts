@@ -6,6 +6,17 @@
 // của API. Sinh lại: go generate ./internal/entry/web
 import type { CharacterKind, LessonScope, ProjectUniverseEntity, ReviewItem } from './types.gen'
 export * from './types.gen'
+export type LiveHistoryOperation = {
+  id: string; role: string; round: number; roundId?: string; startedAt: string; durationMs: number
+  status: 'done' | 'running' | 'error'; error: string
+  key: string; params: string; result: string
+}
+export type LiveHistoryRound = {
+  round: number; roundId: string; role: string; title?: string; startedAt: string
+  operations: LiveHistoryOperation[]
+}
+export type LiveHistory = { rounds: LiveHistoryRound[]; nextBeforeRound: number | null }
+
 
 // ─── §3 Thư viện & dự án ────────────────────────────────────────────────
 
@@ -27,6 +38,7 @@ export type LibraryConfig = {
 export type ProjectSummary = {
   id: string; name: string; description: string
   version?: string
+  ruleCount: number; style: string
   legacy: boolean; storyCount: number; runningCount: number; updatedAt: string | null
 }
 export type ProjectFile = {
@@ -272,6 +284,10 @@ export type HostEvent = {
   sessionId: string
   /** G4: true = lượt chờ backoff đánh thức được bằng POST …/retry (agentcore mid-stream → false) */
   canRetryNow: boolean
+  /** Round pinning (GAP-AQ2): DISPATCH/TOOL events of a dispatch share roundId; DISPATCH id == roundId. */
+  role?: string; roundId?: string; roundStartedAt?: string; roundTitle?: string
+  /** Thao tác trực tiếp: khóa công cụ, tham số/kết quả thô, trạng thái và thời lượng. */
+  tool?: string; args?: string; result?: string; status?: 'running' | 'ok' | 'error'; durationMs?: number; error?: string
   /** GAP-31: chỉ có ở đầu vào/lệnh của người dùng. */
   username?: string
   /** User action audit data, separate from its Vietnamese presentation. */

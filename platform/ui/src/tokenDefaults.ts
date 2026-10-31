@@ -44,6 +44,10 @@ export const TOKEN_GROUPS: Record<string, Record<string, string>> = {
     "--toc-hov": "rgba(255,255,255,0.05)",
     "--toc-head": "#0E0E10"
   },
+  "role": {
+    "--role-accomplice-fg": "#E8A3AA",
+    "--role-accomplice-bg": "rgba(255,154,162,.06)"
+  },
   "scale": {
     "--scale-primary-50": "#F5EEFF",
     "--scale-primary-100": "#E9D9FF",
@@ -658,6 +662,8 @@ export const TOKEN_DEFAULTS: Record<string, string> = {
   "--nav-sel": "rgba(201,166,245,0.1)",
   "--toc-hov": "rgba(255,255,255,0.05)",
   "--toc-head": "#0E0E10",
+  "--role-accomplice-fg": "#E8A3AA",
+  "--role-accomplice-bg": "rgba(255,154,162,.06)",
   "--scale-primary-50": "#F5EEFF",
   "--scale-primary-100": "#E9D9FF",
   "--scale-primary-200": "#D6BDF8",

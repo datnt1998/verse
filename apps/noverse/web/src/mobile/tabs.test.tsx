@@ -171,7 +171,7 @@ describe('route → pane', () => {
     // Mọi hash mà điện thoại có thể đang mở (kể cả hash cũ do bản máy tính ghi lại).
     for (const hash of [
       '#/settings', '#/settings/providers', '#/settings/roles', '#/settings/writing', '#/settings/voice', '#/settings/library',
-      '#/p/a/brain', '#/p/a/new', '#/p/a/s/b/quality', '#/system/brain', '#/khong-co', '#/notifications',
+      '#/p/a/new', '#/p/a/s/b/quality', '#/system/brain', '#/khong-co', '#/notifications',
     ]) {
       const key = paneKeyOf(parseHash(hash))
       if (hash === '#/notifications') { expect(key, hash).toBeNull(); continue }
@@ -182,7 +182,6 @@ describe('route → pane', () => {
   it('route máy tính được thay bằng URL điện thoại ngay (replace), không để URL lạ nằm lại', () => {
     expect(phoneRedirect(parseHash('#/settings'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/settings/providers'))).toBe('/settings/mobile')
-    expect(phoneRedirect(parseHash('#/p/a/brain'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/p/a/new'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/system/brain'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/khong-co'))).toBe('/settings/mobile')
@@ -190,6 +189,14 @@ describe('route → pane', () => {
     // Route điện thoại thật thì không chuyển.
     for (const hash of ['#/settings/mobile', '#/settings/mobile?page=devices', '#/settings/rules', '#/settings/notify', '#/p/a/s/b/work', '#/p/a/s/b/read/2', '#/p/a/s/b/audio/listen', '#/p/a/s/b/brain', '#/p/a/s/b/activity', '#/help/commands/export', '#/']) {
       expect(phoneRedirect(parseHash(hash)), hash).toBeNull()
+    }
+  })
+
+  it('giữ trang truyện có tab và Não dự án trên điện thoại', () => {
+    for (const hash of ['#/p/a/s/b?tab=info', '#/p/a/s/b?tab=premise', '#/p/a/brain']) {
+      const parsed = parseHash(hash)
+      expect(phoneRedirect(parsed), hash).toBeNull()
+      expect(paneKeyOf(parsed), hash).toBeNull()
     }
   })
 

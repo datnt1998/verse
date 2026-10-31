@@ -168,11 +168,17 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           <div className="mm-group"><button className="mm-row" type="button" onClick={() => push('projects')}>
             <Icon name="folder-open" size={22} className="mm-muted" /><span className="mm-copy"><span>{story ? (currentStory ? storyLabel(currentStory) : '…') : 'Chọn dự án & truyện'}</span><span className="mm-sub">{project ? `${projectLabel(library.data?.projects.find((item) => item.id === project), project)}${currentStory ? ` · ${currentStory.volumes} tập` : ''}` : 'Mở một truyện để theo dõi và điều khiển'}</span></span><span className="mm-muted">Đổi</span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
           </button>
+          <button className="mm-row" type="button" disabled={!hasStory} onClick={() => navigate(`${paths.story(project!, story!)}?tab=info`)}>
+            <Icon name="document-text" size={22} className="mm-muted" /><span className="mm-copy"><span>Truyện</span><span className="mm-sub">Thông tin, tiền đề, thế giới, dàn ý</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
+          </button>
           <button className="mm-row" type="button" disabled={!hasStory} onClick={() => push('rules')}>
             <Icon name="brush-2" size={22} className="mm-muted" /><span className="mm-copy"><span>Cách viết</span><span className="mm-sub">{hasStory ? `${styleDisplayName(presets.data, config.data?.effective.style)} · ${rulesSub(ruleCount)}` : 'Chọn một truyện trước'}</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
           </button>
           <button className="mm-row" type="button" disabled={!canWrite} onClick={() => push('storyset')}>
             <Icon name="note-text" size={22} className="mm-muted" /><span className="mm-copy"><span>Tuỳ chỉnh truyện</span><span className="mm-sub">{!hasStory ? 'Chọn một truyện trước' : !canWrite ? 'Chỉ người có quyền viết mới đổi được' : `${review ? 'Duyệt từng chương' : 'Viết liền'}${config.data?.effective.budget?.book_usd ? ` · ${usd(config.data.effective.budget.book_usd)}/truyện` : ''}`}</span></span>{canWrite && <Icon name="arrow-right-2" size={16} className="mm-chevron" />}
+          </button>
+          <button className="mm-row" type="button" disabled={!project} onClick={() => navigate(paths.projectBrain(project!))}>
+            <Icon name="category" size={22} className="mm-muted" /><span className="mm-copy"><span>Não dự án</span><span className="mm-sub">Sổ cái 10 trục · vũ trụ chung · tìm</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
           </button>
           {/* M8 · Não truyện — ngay sau “Tuỳ chỉnh truyện” (MBrain.dc.html) */}
           <button className="mm-row" type="button" disabled={!hasStory} onClick={() => navigate(paths.brain(project!, story!))}>

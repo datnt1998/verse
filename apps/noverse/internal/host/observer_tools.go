@@ -44,6 +44,11 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			call.setTool(ev.Progress.Tool, ev.Progress.Args)
 		}
 		if _, ok := o.toolStarts[ev.Progress.Agent]; ok {
+			call := o.toolStarts[ev.Progress.Agent]
+			call.summary = toolName
+			startEv := Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Tool: call.tool, Args: call.args, Chapter: call.chapter, Status: "running", Summary: call.summary, Depth: call.depth}
+			o.annotateRound(&startEv)
+			o.persistEvent(startEv)
 			o.updateToolCallSummary(ev.Progress.Agent, ev.Progress.Tool, toolName)
 			o.updateAgent(ev.Progress.Agent, func(a *agentState) {
 				a.state = "working"
@@ -57,7 +62,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		o.toolStarts[ev.Progress.Agent] = &activeCall{id: id, start: time.Now(), summary: toolName, depth: 1}
 		o.toolStarts[ev.Progress.Agent].setTool(ev.Progress.Tool, ev.Progress.Args)
 		o.emitAndLog(Event{
-			Tool: ev.Progress.Tool, Args: EventText(string(ev.Progress.Args), 400), Status: "running",
+			Tool: ev.Progress.Tool, Args: string(ev.Progress.Args), Status: "running",
 			ID:       id,
 			Time:     time.Now(),
 			Category: "TOOL",
@@ -98,8 +103,9 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			Duration:   time.Since(call.start),
 		}
 		call.fillToolEvent(&finishEv, true)
-		o.emitEv(finishEv)
+		o.annotateRound(&finishEv)
 		o.persistEvent(finishEv)
+		o.emitEv(finishEv)
 	case agentcore.ProgressThinking:
 		o.handleThinkingProgress(ev)
 	case agentcore.ProgressRetry:
@@ -138,12 +144,15 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		if msg == "" {
 			msg = "unknown error"
 		}
+		kind := ev.Progress.ErrorKind
+		if kind == "" { kind = errorKind(nil, msg) }
 		// 如果有进行中的 TOOL 行，原地标记为失败并把完整错误放进 Detail。
 		// 同一次失败只生成一个 ERROR 级事件，避免 TOOL 失败态与附加 ERROR
 		// 详情在 tui.log 中被误读成两次独立故障。
 		if call, ok := o.toolStarts[ev.Progress.Agent]; ok {
 			delete(o.toolStarts, ev.Progress.Agent)
 			if ev.Progress.Tool == "edit_chapter" && call.chapter > 0 {
+				call.errorKind = kind
 				call.result = msg
 				call.retries = append(call.retries, EventRetry{AtSec: time.Since(call.start).Seconds(), Error: EventText(msg, 800)})
 				if o.polishAttempts == nil {
@@ -153,8 +162,9 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 				pending := Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Summary: call.summary, Detail: fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg), Level: "info", Depth: call.depth}
 				call.fillToolEvent(&pending, true)
 				pending.Result = "" // diagnostics stay in Detail/Retries, not the user-facing result
-				o.emitEv(pending)
+				o.annotateRound(&pending)
 				o.persistEvent(pending)
+				o.emitEv(pending)
 				return
 			}
 			detail := fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg)
@@ -167,15 +177,16 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 				Agent:      ev.Progress.Agent,
 				Summary:    fmt.Sprintf("%s lỗi: %s", call.summary, truncate(msg, 100)),
 				Detail:     detail,
-				Kind:       errorKind(nil, msg),
+				Kind:       kind,
 				Level:      "error",
 				Depth:      call.depth,
 				Duration:   time.Since(call.start),
 			}
 			call.result = msg
 			call.fillToolEvent(&finishEv, false)
-			o.emitEv(finishEv)
+			o.annotateRound(&finishEv)
 			o.persistEvent(finishEv)
+			o.emitEv(finishEv)
 			return
 		}
 		// 极少数缺失 start 的进度流无法原地更新，保留独立 ERROR 事件暴露故障。
@@ -185,7 +196,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			Agent:    ev.Progress.Agent,
 			Summary:  fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, truncate(msg, 100)),
 			Detail:   fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg),
-			Kind:     errorKind(nil, msg),
+			Kind:     kind,
 			Level:    "error",
 			Depth:    1,
 		}
@@ -375,6 +386,7 @@ func (o *observer) emitCallFinish(call *activeCall, category, agentName string, 
 		Category:   category,
 		Agent:      agentName,
 		Summary:    summary,
+		RoundTitle: call.title,
 		Detail:     detail,
 		Kind:       kind,
 		Level:      level,
@@ -385,8 +397,9 @@ func (o *observer) emitCallFinish(call *activeCall, category, agentName string, 
 	if question != nil {
 		finishEv.Status = "attention"
 	}
-	o.emitEv(finishEv)
+	o.annotateRound(&finishEv)
 	o.persistEvent(finishEv)
+	o.emitEv(finishEv)
 }
 
 func displayToolName(tool string, args json.RawMessage) string {
