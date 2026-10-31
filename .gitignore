@@ -11,3 +11,5 @@ release-notes.md
 node_modules/
 platform/ui/dist/
 platform/ui/*.tgz
+# Playwright run state from `npm run test:sso`.
+/test-results/
