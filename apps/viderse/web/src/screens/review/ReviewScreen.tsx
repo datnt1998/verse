@@ -60,7 +60,13 @@ export function ReviewScreen() {
     for (const image of next ? review.images[next.id]?.items ?? [] : []) { const url = imageURL(next!.id, image); if (url) { const preload = new Image(); preload.src = url } }
   }, [job, jobs, review.images])
   const redraw = () => { if (job && item && !drawing(item) && !busy && online) { void review.mutate(job.id, item, 'regenerate', feedback).then(ok => { if (ok) setFeedback('') }) } }
-  const approve = () => { if (job && images && items.length && !locked && online) void review.mutate(job.id, null, 'approveAll') }
+  const approve = () => {
+    if (!job || !images || !items.length || locked || !online) return
+    const at = jobs.findIndex(j => j.id === job.id)
+    const next = jobs[at + 1] ?? jobs[at - 1]
+    if (next) selectJob(next.id)
+    void review.mutate(job.id, null, 'approveAll').then(ok => { if (!ok) selectJob(job.id) })
+  }
   const moveJob = (delta: number) => { if (!job) return; const next = jobs[Math.max(0, Math.min(jobs.length - 1, jobs.findIndex(j => j.id === job.id) + delta))]; if (next) selectJob(next.id) }
   const moveImage = (delta: number) => { if (items.length) { setIndex((selected + delta + items.length) % items.length); setView('full') } }
   useReviewKeys({ nextJob: () => moveJob(1), previousJob: () => moveJob(-1), nextImage: () => moveImage(1), previousImage: () => moveImage(-1), redraw, approve }, !allOpen)
