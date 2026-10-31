@@ -79,6 +79,20 @@ CREATE VIEW storage_live_refs AS
  UNION
  SELECT banner_path, 'image/jpeg', 'library' FROM owner_channels WHERE banner_path IS NOT NULL AND banner_path <> '';
 
+-- Domain writes by viderse_app fire storage_record_mutation, whose INSERT
+-- draws from storage_journal's bigserial. Default privileges from 00001 cover
+-- tables only, so the sequence needs an explicit grant (same guard as 00001).
+-- +goose StatementBegin
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'viderse_app') THEN
+        GRANT USAGE, SELECT ON SEQUENCE storage_journal_seq_seq TO viderse_app;
+        ALTER DEFAULT PRIVILEGES FOR ROLE CURRENT_USER
+            GRANT USAGE, SELECT ON SEQUENCES TO viderse_app;
+    END IF;
+END $$;
+-- +goose StatementEnd
+
 -- +goose Down
 -- +goose StatementBegin
 DO $$ BEGIN
