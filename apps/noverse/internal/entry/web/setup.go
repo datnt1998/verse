@@ -17,16 +17,17 @@ const (
 	setupNoCode       = "Chưa tạo được mã thiết lập — khởi động lại Noverse"
 )
 
-// setupStatusResponse 是 GET /api/setup 的响应；已不需要时只有 needed=false。
+// setupStatusResponse includes the public account mode for anonymous login copy.
 // version 只在 needed=true 时出现（A0 页脚 "· Noverse 0.9.3"）：已有管理员时不再向
 // 未登录请求泄露版本号。Câu 1: mã hết hạn vẫn giữ expiresAt cũ và thêm expired=true.
 type setupStatusResponse struct {
-	Needed       bool       `json:"needed"`
-	Version      string     `json:"version,omitempty"`
-	ExpiresAt    *time.Time `json:"expiresAt,omitempty"`
-	Expired      bool       `json:"expired,omitempty"`
-	AttemptsLeft int        `json:"attemptsLeft"`
-	LockedUntil  *time.Time `json:"lockedUntil,omitempty"`
+	Needed         bool       `json:"needed"`
+	SharedAccounts bool       `json:"sharedAccounts"`
+	Version        string     `json:"version,omitempty"`
+	ExpiresAt      *time.Time `json:"expiresAt,omitempty"`
+	Expired        bool       `json:"expired,omitempty"`
+	AttemptsLeft   int        `json:"attemptsLeft"`
+	LockedUntil    *time.Time `json:"lockedUntil,omitempty"`
 }
 
 // SetupCodeOnce 返回首次设置码的明文，只给 serve 在启动时打印一次；随后从内存清除。
@@ -72,7 +73,7 @@ func (g *Gateway) setupStatus(w http.ResponseWriter) {
 		return
 	}
 	if has {
-		writeJSON(w, http.StatusOK, setupStatusResponse{Needed: false})
+		writeJSON(w, http.StatusOK, setupStatusResponse{Needed: false, SharedAccounts: g.backend == backendPostgres})
 		return
 	}
 	state := g.setup
@@ -82,10 +83,11 @@ func (g *Gateway) setupStatus(w http.ResponseWriter) {
 	}
 	st := state.Status()
 	resp := setupStatusResponse{
-		Needed:       true,
-		Version:      g.build.Version,
-		AttemptsLeft: st.AttemptsLeft,
-		Expired:      st.Expired,
+		Needed:         true,
+		SharedAccounts: g.backend == backendPostgres,
+		Version:        g.build.Version,
+		AttemptsLeft:   st.AttemptsLeft,
+		Expired:        st.Expired,
 	}
 	if !st.ExpiresAt.IsZero() {
 		resp.ExpiresAt = &st.ExpiresAt

@@ -8,6 +8,10 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsScreen } from './SettingsScreen'
 import { parseHash } from '../../router'
+import type { User, AppLink } from '../../api/types'
+
+const session = vi.hoisted(() => ({ user: null as User | null, apps: [] as AppLink[] }))
+vi.mock('../../api/session', () => ({ useSession: () => session }))
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -52,6 +56,8 @@ async function render(section?: string) {
 beforeEach(() => {
   void invalidate()
   mobile = false
+  session.user = null
+  session.apps = []
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation((q: string) => ({
     matches: q.includes('767px') ? mobile : false, addEventListener: () => {}, removeEventListener: () => {},
   })))
@@ -120,5 +126,14 @@ describe('khung Cài đặt', () => {
     expect(value('Kết nối AI')).toBe('1 nhà cung cấp')
     expect(value('Trợ lý AI')).toBe('Vẽ bằng ChatGPT')
     expect(value('Tài khoản nền tảng')).toBe('3 nền tảng')
+  })
+
+  it.each(['admin', 'member'] as const)('chỉ quản trị viên thấy lối Thành viên: %s', async (role) => {
+    session.user = { username: 'linh', name: 'Linh', role }
+    session.apps = [{ id: 'noverse', name: 'Noverse', origin: 'https://nov.example.test' }]
+    const el = await render()
+    const link = el.querySelector<HTMLAnchorElement>('a[href="https://nov.example.test/#/settings/members"]')
+    expect(Boolean(link)).toBe(role === 'admin')
+    if (link) expect(link.target).toBe('_blank')
   })
 })

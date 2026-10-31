@@ -259,8 +259,8 @@ func TestADDeviceSignOutAndOptionalReasons(t *testing.T) {
 	if rec := authReq(g, "POST", "/api/me/sessions/revoke-all", `{}`, two); rec.Code != 200 {
 		t.Fatal(rec.Body)
 	}
-	if rec := authReq(g, "GET", "/api/me", "", two); rec.Code != 401 {
-		t.Fatal("self revoke-all must revoke the current device too")
+	if rec := authReq(g, "GET", "/api/me", "", two); rec.Code != 200 {
+		t.Fatal("signing out other devices revoked the current device")
 	}
 	for _, body := range []string{`{"disabled":true}`, `{"disabled":false}`} {
 		if rec := authReq(g, "POST", "/api/users/writer", body, admin); rec.Code != 200 {

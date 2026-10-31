@@ -23,6 +23,8 @@ const sx = stylex.create({
   padded: { paddingRight: 44 },
   area: { height: 'auto', paddingTop: 10, paddingBottom: 10, paddingInline: 12, borderRadius: 10, lineHeight: 1.55, resize: 'none' },
   wrap: { position: 'relative' },
+  framed: { display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 },
+  plain: { flexGrow: 1, minWidth: 0, width: 0, padding: 0, borderWidth: 0, borderRadius: 0, backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', color: color['--color-fg'] },
   eye: {
     position: 'absolute', right: 4, top: 4, width: 32, height: 28, borderRadius: 8,
     borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: color['--color-fg-3'],
@@ -72,24 +74,24 @@ export function FieldLabel({ htmlFor, children, right, style, size }: { htmlFor?
 }
 
 export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function Field({ invalid, style, ...rest }, ref) {
+  function Field({ invalid, style, className, ...rest }, ref) {
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk)
-    return <input ref={ref} aria-invalid={invalid || undefined} className={p.className} style={{ ...p.style, ...style }} {...rest} />
+    return <input ref={ref} aria-invalid={invalid || undefined} className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
   },
 )
 
-export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function PasswordField({ invalid, style, ...rest }, ref) {
+export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; toggleStyle?: CSSProperties; frameStyle?: CSSProperties; toggleIcon?: ReactNode }>(
+  function PasswordField({ invalid, style, className, toggleStyle, frameStyle, toggleIcon, ...rest }, ref) {
     const [show, setShow] = useState(false)
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, sx.padded)
     return (
-      <div {...stylex.props(sx.wrap)}>
+      <div {...stylex.props(sx.wrap, frameStyle && sx.field, frameStyle && sx.framed, frameStyle && inputFrame({ invalid, disabled: rest.disabled }))} style={frameStyle}>
         <input ref={ref} type={show ? 'text' : 'password'} aria-invalid={invalid || undefined}
-          className={p.className} style={{ ...p.style, ...style }} {...rest} />
+          className={[(frameStyle ? stylex.props(sx.plain).className : p.className), className].filter(Boolean).join(' ')} style={{ ...p.style, ...style, ...(frameStyle ? { height: '100%', padding: 0, borderRadius: 0 } : {}) }} {...rest} />
         <button type="button" onClick={() => setShow((v) => !v)}
           aria-label={show ? getKitLabels().inputs.hidePassword : getKitLabels().inputs.showPassword}
-          {...stylex.props(sx.eye)}>
-          <Icon name={show ? 'eye' : 'eye-slash'} size={17} />
+          className={stylex.props(sx.eye).className} style={toggleStyle}>
+          {toggleIcon ?? <Icon name={show ? 'eye' : 'eye-slash'} size={17} />}
         </button>
       </div>
     )
@@ -151,10 +153,10 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   },
 )
 
-export function FieldError({ children, id }: { children: ReactNode; id?: string }) {
+export function FieldError({ children, id, showIcon = true, style }: { children: ReactNode; id?: string; showIcon?: boolean; style?: CSSProperties }) {
   return (
-    <span id={id} role="alert" {...stylex.props(sx.err)}>
-      <Icon name="warning-2" size={14} />
+    <span id={id} role="alert" {...stylex.props(sx.err)} style={style}>
+      {showIcon && <Icon name="warning-2" size={14} />}
       {children}
     </span>
   )

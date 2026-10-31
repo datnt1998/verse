@@ -10,6 +10,7 @@ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const mocks = vi.hoisted(() => ({
   changePassword: vi.fn(), endSession: vi.fn(), refresh: vi.fn(async () => 'user' as const),
   toast: vi.fn(), navigate: vi.fn(),
+  shared: false, mustChange: true,
 }))
 vi.mock('../../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/client')>()),
@@ -17,7 +18,7 @@ vi.mock('../../api/client', async (importOriginal) => ({
 }))
 vi.mock('../../api/session', () => ({
   useSession: () => ({
-    user: { username: 'linh', name: 'Linh', role: 'member', onboardedAt: null, mustChangePassword: true, projects: {} },
+    user: { username: 'linh', name: 'Linh', role: 'member', onboardedAt: null, mustChangePassword: mocks.mustChange, projects: {}, grants: mocks.shared ? { noverse: 'member' } : null },
     session: null, refresh: mocks.refresh, endSession: mocks.endSession, setUser: vi.fn(), pendingLessons: 0,
   }),
 }))
@@ -55,6 +56,7 @@ const fill = async (id: string, value: string) => {
 
 beforeEach(async () => {
   vi.clearAllMocks()
+  mocks.shared = false; mocks.mustChange = true
   mocks.changePassword.mockResolvedValue({ ok: true, reauthenticate: true })
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
   await act(async () => root.render(<OnboardScreen step="password" />))
@@ -74,4 +76,20 @@ describe('thiết lập lần đầu · đổi mật khẩu', () => {
     expect(mocks.endSession).toHaveBeenCalled()
     expect(mocks.refresh).not.toHaveBeenCalled()
   })
+})
+
+it.each([false, true])('đổi mật khẩu riêng tuân theo kho tài khoản, shared=%s', async (shared) => {
+  mocks.shared = shared; mocks.mustChange = false
+  await act(async () => root.render(<OnboardScreen step="password" />))
+  expect(host.textContent).toContain(shared
+    ? 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.'
+    : 'máy này giữ nguyên phiên')
+  await fill('ob-pw-cur', 'mat-khau-cu')
+  await fill('ob-pw-new', 'mat-khau-moi')
+  await fill('ob-pw-re', 'mat-khau-moi')
+  await act(async () => [...host.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent?.includes('Tiếp tục'))!.click())
+  expect(mocks.changePassword).toHaveBeenCalled()
+  if (shared) expect(mocks.endSession).toHaveBeenCalledWith('password')
+  else expect(mocks.endSession).toHaveBeenCalledWith()
+  expect(mocks.refresh).not.toHaveBeenCalled()
 })

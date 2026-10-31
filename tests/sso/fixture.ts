@@ -23,12 +23,15 @@ export interface UserView {
   disabled?: boolean;
   mustChangePassword?: boolean;
 }
-export interface MeBody { user?: UserView; session?: { id?: string } }
+export interface AppLink { id: 'noverse' | 'viderse'; name: string; origin: string }
+export interface MeBody { user?: UserView; session?: { expiresAt: string }; apps: AppLink[] }
 export interface GateBody {
   code?: string;
   app?: string;
   error?: string;
   user?: UserView;
+  apps?: AppLink[];
+  reason?: 'logout' | 'password_changed' | 'admin_changed' | 'locked' | 'expired' | 'unknown';
   mustChangePassword?: boolean;
 }
 export interface ApiResult {

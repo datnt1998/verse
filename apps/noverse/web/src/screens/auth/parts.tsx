@@ -76,7 +76,7 @@ export function nextRouteLabel(): string | null {
   const path = safeHashPath(raw)?.split('?')[0]
   if (!path) return null
   const seg = path.split('/').filter(Boolean)
-  if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'work') return 'Workspace'
+  if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'work') return 'Bàn viết'
   if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'read') return 'Trình đọc'
   if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'activity') return 'Nhật ký tiến độ'
   if (seg[0] === 'p' && seg[1]) return 'Dự án'
@@ -150,8 +150,12 @@ export function AuthShell({ children }: { children: ReactNode }) {
 /** TextField dùng chung, giữ chiều cao và chữ 40px của artboard A1/A2/A3. */
 export const AuthInput = forwardRef<HTMLInputElement, TextFieldProps & { invalid?: boolean; mono?: boolean }>(
   function AuthInput({ invalid, mono, style, ...rest }, ref) {
+    const { sharedAccounts } = useSession()
+    const height = style?.height ?? 38
+    // TextField bọc input bằng viền 1px; board đo khung ngoài, không phải input bên trong.
+    const inputHeight = sharedAccounts && typeof height === 'number' ? height - 2 : height
     return <TextField {...rest} ref={ref} aria-invalid={invalid || rest['aria-invalid']} className={mono ? 'mono' : undefined}
-      style={{ height: 38, fontSize: 14, fontFamily: mono ? 'var(--font-mono)' : undefined, ...style }} />
+      style={{ fontSize: 14, fontFamily: mono ? 'var(--font-mono)' : undefined, ...style, height: inputHeight }} />
   },
 )
 

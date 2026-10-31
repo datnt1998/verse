@@ -15,7 +15,7 @@ func envConfig(t *testing.T, vars map[string]string) (*Config, error) {
 	t.Helper()
 	for _, key := range []string{
 		"TRUSTED_PROXIES", "PUBLIC_URL", "SECURE_COOKIES",
-		"VERSE_COOKIE_DOMAIN", "VERSE_APP_ORIGINS",
+		"VERSE_COOKIE_DOMAIN", "VERSE_APP_ORIGINS", "VERSE_APP_LINKS",
 	} {
 		t.Setenv(key, "")
 	}

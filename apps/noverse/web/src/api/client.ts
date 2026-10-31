@@ -6,7 +6,7 @@ import type {
   DiagReport, ExportResult, ExportsResponse, ForeshadowEntry, Idea, ImportRequest, JobEvent,
   FsFolder, FsMkdirResult, FsPlace, LibraryConfig, LibraryInspect, LibraryResponse, ModelsResponse, OAuthStart, OAuthStatus, Outline,
   Pairing, Project, ProjectDetail, ReviewDecision, ReviewEntry, RevisionEntry, Role, RuleFile, RulesResponse,
-  Session, Snapshot, StoryFile, StorySummary, SyncChanged, SystemInfo, User, ValidateResult, AppId,
+  Session, Snapshot, StoryFile, StorySummary, SyncChanged, SystemInfo, User, ValidateResult, AppId, AppLink,
   ChaptersResponse, ImportPreview, ProjectCoCreateReply, ProjectCoCreateState, RevealPath, RevealRequest, RevealResult,
   CommandResult, RetryResult, CommandSpec, ExportOnExists, SyncDiff,
   ConfigTestResult, LibraryRootResult, PickFolderResult, ProviderModelList,
@@ -50,8 +50,8 @@ export class ConflictError<T = unknown> extends ApiError {
 }
 
 // Đăng ký handler 401 toàn cục (App gọi setUnauthorizedHandler lúc mount).
-let onUnauthorized: (() => void | boolean | Promise<boolean>) | null = null
-export function setUnauthorizedHandler(fn: (() => void | boolean | Promise<boolean>) | null) { onUnauthorized = fn }
+let onUnauthorized: ((error: ApiError) => void | boolean | Promise<boolean>) | null = null
+export function setUnauthorizedHandler(fn: ((error: ApiError) => void | boolean | Promise<boolean>) | null) { onUnauthorized = fn }
 
 /**
  * 403 `{code:"app_access_denied"}` — phiên hợp lệ nhưng tài khoản chưa được cấp
@@ -85,7 +85,7 @@ async function request<T>(path: string, options?: { method?: 'GET' | 'POST' | 'P
     }
     const error = new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, retry, payload)
     if (response.status === 401 && !retried && path !== '/api/login' && path !== '/api/pair' && path !== '/api/logout' && path !== '/api/recover') {
-      if (await onUnauthorized?.() === true && !options?.signal?.aborted) return request<T>(path, options, true)
+      if (await onUnauthorized?.(error) === true && !options?.signal?.aborted) return request<T>(path, options, true)
     }
     throw error
   }
@@ -103,7 +103,7 @@ export const login = (username: string, password: string) => request<{ user: Use
 export const pair = (code: string) => request<{ user: User }>('/api/pair', { body: { code } })
 export const logout = () => request<{ ok: boolean }>('/api/logout', { body: {} })
 /** `pendingLessons` (D15) chỉ có khi người gọi là quản trị. */
-export const me = () => request<{ user: User; session: Session; pendingLessons?: number }>('/api/me')
+export const me = () => request<{ user: User; session: Session; apps?: AppLink[]; pendingLessons?: number }>('/api/me')
 export const updateMe = (name: string, version?: string) => request<{ user: User }>('/api/me', { body: { name }, version })
 export const markOnboarded = () => request<{ user: User }>('/api/me/onboarded', { body: {} })
 /**
@@ -116,6 +116,7 @@ export const changePassword = (current: string, next: string, version?: string) 
 export const mySessions = () => request<{ sessions: Session[] }>('/api/me/sessions')
 export const myPairing = () => request<Pairing>('/api/me/pairings', { body: {} })
 export const revokeSession = (id: string) => request<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}/revoke`, { body: {} })
+export const revokeOtherSessions = () => request<{ ok: boolean }>('/api/me/sessions/revoke-all', { body: {} })
 /** Cấp quyền vào một app của kho tài khoản chung (chỉ quản trị; backend file trả 501). */
 export const grantAppAccess = (username: string, app: AppId, reason?: string) =>
   request<User>(`/api/users/${encodeURIComponent(username)}/grants/${app}`, { method: 'PUT', body: { role: 'member', ...(reason ? { reason } : {}) } })
@@ -260,8 +261,8 @@ async function download(path: string, fallbackName: string, onProgress?: (done: 
   try { response = await fetch(path, { credentials: 'same-origin' }) } catch { throw new ApiError(0, OFFLINE_MSG) }
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as { error?: string } | null
-    const error = new ApiError(response.status, payload?.error || response.statusText || `Lỗi HTTP ${response.status}`)
-    if (response.status === 401) onUnauthorized?.()
+    const error = new ApiError(response.status, payload?.error || response.statusText || `Lỗi HTTP ${response.status}`, undefined, payload)
+    if (response.status === 401) await onUnauthorized?.(error)
     throw error
   }
   let blob: Blob
@@ -529,8 +530,9 @@ async function uploadVoice(url: string, name: string, file: File, gender = ''): 
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null)
     const message = payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string' ? payload.error : 'Không tải được mẫu giọng. Hãy thử lại.'
-    if (response.status === 401) onUnauthorized?.()
-    throw new ApiError(response.status, message || 'Không tải được mẫu giọng. Hãy thử lại.')
+    const error = new ApiError(response.status, message || 'Không tải được mẫu giọng. Hãy thử lại.', undefined, payload)
+    if (response.status === 401) await onUnauthorized?.(error)
+    throw error
   }
   return response.json() as Promise<AudioVoice>
 }
@@ -552,8 +554,9 @@ export async function uploadProjectAsset(p: string, kind: 'cover' | 'music', fil
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null)
     const message = payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string' ? payload.error : response.statusText
-    if (response.status === 401) onUnauthorized?.()
-    throw new ApiError(response.status, message || `Lỗi HTTP ${response.status}`)
+    const error = new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, undefined, payload)
+    if (response.status === 401) await onUnauthorized?.(error)
+    throw error
   }
   return response.json() as Promise<Asset>
 }
@@ -566,8 +569,9 @@ export async function getPronunciationResource(p: string, signal?: AbortSignal):
   catch (error) { if (signal?.aborted) throw error; throw new ApiError(0, OFFLINE_MSG) }
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as { error?: string } | null
-    if (response.status === 401) onUnauthorized?.()
-    throw new ApiError(response.status, payload?.error ?? response.statusText)
+    const error = new ApiError(response.status, payload?.error ?? response.statusText, undefined, payload)
+    if (response.status === 401) await onUnauthorized?.(error)
+    throw error
   }
   return { entries: await response.json() as AudioPronunciation[], version: response.headers.get('ETag') ?? '' }
 }
@@ -691,8 +695,9 @@ export async function previewTtsVoice(voiceId: string, text: string, tone?: stri
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null)
     const message = payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string' ? payload.error : response.statusText
-    if (response.status === 401) onUnauthorized?.()
-    throw new ApiError(response.status, message || `Lỗi HTTP ${response.status}`)
+    const error = new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, undefined, payload)
+    if (response.status === 401) await onUnauthorized?.(error)
+    throw error
   }
   const blob = await response.blob()
   return URL.createObjectURL(blob)

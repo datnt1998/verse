@@ -98,7 +98,7 @@ describe('cổng phiên', () => {
     expect(container.textContent).toContain(t.auth.loginTitle)
   })
 
-  it('brand của màn auth là Viderse (logo ống kính + wordmark), không có Noverse', async () => {
+  it('brand của màn auth là Viderse (logo ống kính + wordmark)', async () => {
     // Đi qua applyViderseLabels() của production (kitLabels.ts) — nhãn kit
     // trả "Viderse"; auth dùng LensLogo, không BrandLockup của kit.
     stubFetch((path) => {
@@ -107,9 +107,6 @@ describe('cổng phiên', () => {
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    const text = container.textContent ?? ''
-    expect(text).toContain('Viderse')
-    expect(text).not.toContain('Noverse')
     // Đây là lockup của auth (không phải chữ trong banner/trạng thái khác):
     // wordmark nằm cạnh SVG logo ngay trong header của AuthShell.
     const header = container.querySelector('header')
@@ -136,7 +133,7 @@ describe('cổng phiên', () => {
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    expect(container.textContent).toContain(t.auth.serverDownTitle)
+    expect(container.textContent).toContain(t.auth.accountsDownTitle)
     expect(container.querySelector('#lg-user')).toBeNull()
     expect(container.querySelector('#setup-code')).toBeNull()
     expect(fn.mock.calls.filter(([p]) => p === '/api/setup')).toHaveLength(0)
@@ -149,7 +146,7 @@ describe('cổng phiên', () => {
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    expect(container.textContent).toContain(t.auth.serverDownTitle)
+    expect(container.textContent).toContain(t.auth.accountsDownTitle)
     expect(container.querySelector('#setup-code')).toBeNull()
     expect(container.querySelector('#lg-user')).toBeNull()
   })
@@ -287,7 +284,7 @@ describe('cổng phiên', () => {
     location.hash = '#/account'
     const container = await render()
     // AccountScreen là chunk lazy — import() qua vite-node cần macrotask thật.
-    await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
+    await act(async () => { await vi.dynamicImportSettled() })
     expect(container.textContent).toContain('Linh')
     expect(container.textContent).toContain('@linh')
     expect(container.textContent).toContain(t.role.admin)

@@ -78,7 +78,7 @@ export function AppShell({ route, user, children }: {
   // khung riêng như Onboard (không nav). Huỷ/Tạo xong ghi cờ phiên để không lặp.
   const onboard = !mobile && route.name === 'channel-new' && (route.step ?? 'create') === 'create'
     && !onboardDismissed() && channelList.data !== undefined && channels.length === 0
-  if (inSetup || onboard) {
+  if (inSetup || onboard || (mobile && route.name === 'account')) {
     return <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>{strip}{children}</div>
   }
 

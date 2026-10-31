@@ -104,10 +104,10 @@ func runServe(args []string) error {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}
 	// The shared-cookie contract only exists on the shared account store:
-	// VERSE_COOKIE_DOMAIN / VERSE_APP_ORIGINS under the file backend is a
+	// Cookie domain, origin allowlist and navigation links under file mode are a
 	// misconfiguration, not something to silently ignore.
-	if storageCfg.Driver != bootstrap.StoreDriverPostgres && (proxyCfg.CookieDomain != "" || len(proxyCfg.AppOrigins) > 0) {
-		return fmt.Errorf("VERSE_COOKIE_DOMAIN/VERSE_APP_ORIGINS chỉ có nghĩa khi STORE_DRIVER=postgres")
+	if storageCfg.Driver != bootstrap.StoreDriverPostgres && (proxyCfg.CookieDomain != "" || len(proxyCfg.AppOrigins) > 0 || len(proxyCfg.AppLinks) > 0) {
+		return fmt.Errorf("VERSE_COOKIE_DOMAIN/VERSE_APP_ORIGINS/VERSE_APP_LINKS chỉ có nghĩa khi STORE_DRIVER=postgres")
 	}
 	listener, err := net.Listen("tcp", *addr)
 	if err != nil {
@@ -363,6 +363,8 @@ Biến môi trường chính (bảng đầy đủ: apps/noverse/deploy/README.md
                                local thì phải bind loopback
   VERSE_COOKIE_DOMAIN          domain cha của cookie verse_session khi hosted
                                (cần SECURE_COOKIES và PUBLIC_URL https)
+  VERSE_APP_LINKS               noverse=<origin>,viderse=<origin> để chuyển app;
+                               mỗi origin phải đã được phép
   PUBLIC_URL, SECURE_COOKIES, TRUSTED_PROXIES  chạy sau reverse proxy
 Tài khoản web và quyền vào app: ainovel-cli serve user
 `

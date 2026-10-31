@@ -453,8 +453,9 @@ export async function provision(): Promise<Stack> {
       SECURE_COOKIES: '1',
       VERSE_COOKIE_DOMAIN: 'verse.test',
       VERSE_APP_ORIGINS: hostedOrigins,
+      VERSE_APP_LINKS: `noverse=${hostedNoverseURL},viderse=${hostedViderseURL}`,
       TRUSTED_PROXIES: '127.0.0.1/32',
-    } : { VERSE_APP_ORIGINS: localOrigins }),
+    } : { VERSE_APP_ORIGINS: localOrigins, VERSE_APP_LINKS: `noverse=${stack.urls.noverse},viderse=${stack.urls.viderse}` }),
   });
   const viderseEnv = (port: number, hosted: boolean): NodeJS.ProcessEnv => ({
     HOME: path.join(dir, hosted ? 'home-viderse-h' : 'home-viderse'),
@@ -467,8 +468,9 @@ export async function provision(): Promise<Stack> {
       SECURE_COOKIES: '1',
       VERSE_COOKIE_DOMAIN: 'verse.test',
       VERSE_APP_ORIGINS: hostedOrigins,
+      VERSE_APP_LINKS: `noverse=${hostedNoverseURL},viderse=${hostedViderseURL}`,
       TRUSTED_PROXIES: '127.0.0.1/32',
-    } : { VERSE_APP_ORIGINS: localOrigins }),
+    } : { VERSE_APP_ORIGINS: localOrigins, VERSE_APP_LINKS: `noverse=${stack.urls.noverse},viderse=${stack.urls.viderse}` }),
   });
 
   stack.noverse = startServer('noverse', stack.binNoverse, ['serve'], noverseEnv(noversePort, false));

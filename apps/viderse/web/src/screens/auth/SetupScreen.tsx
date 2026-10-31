@@ -7,9 +7,12 @@ import { useState, type FormEvent } from 'react'
 import { ApiError, createSetupAdmin, verifySetup } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
-import { Button, FieldError, FieldLabel, Icon, PasswordField, TextField } from '@noverse/ui'
+import { Banner, Button, Checkbox, Field, FieldError, Icon } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
-import { AuthShell, HintLine } from './parts'
+import { AuthLabel, AuthPassword, AuthShell } from './parts'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import * as stylex from '@stylexjs/stylex'
+import { authStyles as sx } from './auth.stylex'
 
 const USERNAME_RE = /^[a-z0-9._-]{2,32}$/
 const MIN_PASSWORD = 8
@@ -23,16 +26,24 @@ const attemptsLeft = (payload: unknown): number | null =>
     : null
 
 function StepBar({ index }: { index: number }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  if (mobile) return <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
+    <div role="progressbar" aria-label={t.setup.progress(index + 1)} aria-valuemin={1} aria-valuemax={3} aria-valuenow={index + 1} style={{ display: 'flex', gap: 'var(--vv-s-6)', width: '100%' }}>
+      {t.setup.steps.map((label, i) => <span key={label} style={{ flex: 1, height: 4, borderRadius: 'var(--vv-r-pill)', background: i <= index ? 'var(--color-fg)' : 'var(--color-surface-6)' }} />)}
+    </div>
+    <span className="num" style={{ alignSelf: 'flex-start', fontSize: 12.5, color: 'var(--vv-fg-note)' }}>{t.setup.progress(index + 1)} · {t.setup.steps[index]}</span>
+  </div>
   return (
-    <ol aria-label={t.setup.stepsAria} style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--vv-s-10)' }}>
+    <ol aria-label={t.setup.stepsAria} style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--vv-s-8)' }}>
       {t.setup.steps.map((label, i) => (
-        <li key={label} aria-current={i === index ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-6)', fontSize: 12, color: i === index ? 'var(--color-fg)' : 'var(--color-fg-4)', fontWeight: i === index ? 600 : 400 }}>
+        <li key={label} aria-current={i === index ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontSize: 12.5, color: i === index ? 'var(--color-fg)' : 'var(--kit-fg-sub)' }}>
           <span aria-hidden="true" style={{
-            width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, background: i <= index ? 'var(--color-accent)' : 'var(--color-surface-2)',
-            color: i <= index ? 'var(--color-bg)' : 'var(--color-fg-4)',
-          }}>{i + 1}</span>
+            width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11.5, fontWeight: 600, background: i < index ? 'var(--audio-tl-ok-14)' : i === index ? 'var(--color-fg)' : 'var(--color-surface-6)',
+            color: i < index ? 'var(--color-ok)' : i === index ? 'var(--color-bg)' : 'var(--color-fg-3)',
+          }}>{i < index ? '✓' : i + 1}</span>
           {label}
+          {i < 2 && <span aria-hidden="true" style={{ width: 18, height: 1, background: 'var(--kit-wash-14)' }} />}
         </li>
       ))}
     </ol>
@@ -40,7 +51,8 @@ function StepBar({ index }: { index: number }) {
 }
 
 export function SetupScreen() {
-  const { setUser, setSetupNeeded } = useSession()
+  const { setUser, setSetupNeeded, refresh } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const [step, setStep] = useState<Step>('code')
   const [code, setCode] = useState('')
   const [token, setToken] = useState('')
@@ -50,6 +62,8 @@ export function SetupScreen() {
   const [recovery, setRecovery] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const verify = async (event: FormEvent) => {
     event.preventDefault()
@@ -67,7 +81,7 @@ export function SetupScreen() {
         if (e.status === 409) { setSetupNeeded(false); return }
         setError(left !== null ? `${e.message} ${t.setup.attemptsLeft(left)}` : e.message)
       } else {
-        setError('Không kiểm được mã thiết lập')
+        setError(t.setup.verifyFailed)
       }
     } finally {
       setBusy(false)
@@ -92,7 +106,7 @@ export function SetupScreen() {
         if (e.status === 410) { setStep('code'); setToken('') }
         setError(e.message)
       } else {
-        setError('Không tạo được quản trị viên')
+        setError(t.setup.createFailed)
       }
     } finally {
       setBusy(false)
@@ -100,87 +114,87 @@ export function SetupScreen() {
   }
 
   return (
-    <AuthShell>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--vv-s-14)', textAlign: 'center' }}>
-        <LensLogo size={64} halo />
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{t.setup.title}</h1>
-        <StepBar index={step === 'code' ? 0 : step === 'account' ? 1 : 2} />
+    <AuthShell footer={mobile ? undefined : 'setup'}>
+      <div {...stylex.props(sx.intro)}>
+        <LensLogo size={mobile ? 48 : 56} halo />
+        <h1 {...stylex.props(sx.title)}>{t.setup.title}</h1>
+        <p {...stylex.props(sx.body)}>{mobile ? t.setup.bodyMobile : t.setup.body}</p>
       </div>
+      <StepBar index={step === 'code' ? 0 : step === 'account' ? 1 : 2} />
 
       {step === 'code' && (
-        <form onSubmit={(event) => void verify(event)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+        <form onSubmit={(event) => void verify(event)} style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-            <FieldLabel htmlFor="setup-code">{t.setup.codeLabel}</FieldLabel>
-            <TextField id="setup-code" autoComplete="off" autoCapitalize="characters" spellCheck={false}
-              placeholder={t.setup.codePlaceholder} hint={t.setup.codeHint}
-              value={code} onChange={setCode} style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }} />
+            <AuthLabel htmlFor="setup-code">{t.setup.codeLabel}</AuthLabel>
+            <Field id="setup-code" autoComplete="one-time-code" autoCapitalize="characters" spellCheck={false}
+              value={code} onChange={(event) => setCode(event.currentTarget.value)} {...stylex.props(sx.input)}
+              style={{ height: mobile ? 52 : 44, borderRadius: 'var(--vv-r-10)', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: mobile ? 20 : 18, letterSpacing: '0.18em' }} />
+            <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{mobile ? t.setup.codeHintMobile : t.setup.codeHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
           <Button type="submit" variant="primary" pending={busy} disabled={busy || !code.trim()}
-            style={{ height: 42, justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
+            {...stylex.props(sx.submit)}>
             {busy ? t.setup.verifying : t.common.continue}
           </Button>
         </form>
       )}
 
       {step === 'account' && (
-        <form onSubmit={(event) => void create(event)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+        <form onSubmit={(event) => void create(event)} style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-            <FieldLabel htmlFor="setup-name">{t.setup.nameLabel}</FieldLabel>
-            <TextField id="setup-name" autoComplete="name" value={name} onChange={setName} />
+            <AuthLabel htmlFor="setup-name">{t.setup.nameLabel}</AuthLabel>
+            <Field id="setup-name" autoComplete="name" value={name} onChange={(event) => setName(event.currentTarget.value)} {...stylex.props(sx.input)} style={{ borderRadius: 'var(--vv-r-10)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-            <FieldLabel htmlFor="setup-user">{t.setup.usernameLabel}</FieldLabel>
-            <TextField id="setup-user" autoComplete="username" autoCapitalize="none" spellCheck={false}
-              placeholder={t.auth.usernamePlaceholder} hint={t.auth.usernameHint}
-              value={username} onChange={(value) => setUsername(value.trim().toLowerCase())}
-              style={{ fontFamily: 'var(--font-mono)' }} />
+            <AuthLabel htmlFor="setup-user">{t.setup.usernameLabel}</AuthLabel>
+            <Field id="setup-user" autoComplete="username" autoCapitalize="none" spellCheck={false}
+              value={username} onChange={(event) => setUsername(event.currentTarget.value.trim().toLowerCase())}
+              {...stylex.props(sx.input)} style={{ fontFamily: 'var(--font-mono)', borderRadius: 'var(--vv-r-10)' }} />
+            {!mobile && <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.auth.usernameHint}</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
-            <FieldLabel htmlFor="setup-pass">{t.setup.passwordLabel}</FieldLabel>
-            <PasswordField id="setup-pass" autoComplete="new-password" placeholder={t.setup.passwordHint}
+            <AuthLabel htmlFor="setup-pass">{t.setup.passwordLabel}</AuthLabel>
+            <AuthPassword id="setup-pass" autoComplete="new-password"
               value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
+            <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.setup.passwordHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
           <Button type="submit" variant="primary" pending={busy}
             disabled={busy || !name.trim() || !USERNAME_RE.test(username) || password.length < MIN_PASSWORD}
-            style={{ height: 42, justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
+            {...stylex.props(sx.submit)}>
             {busy ? t.setup.creating : t.setup.createAdmin}
           </Button>
         </form>
       )}
 
       {step === 'recovery' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
-          <div className="card" role="alert" style={{
-            borderRadius: 'var(--radius-tile)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-10)',
-            borderColor: 'rgba(246,203,140,0.3)',
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 600 }}>
-              <Icon name="key" size={16} style={{ color: 'var(--color-warn)' }} />{t.setup.recoveryTitle}
-            </span>
-            {recovery !== null ? (
-              <>
-                <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryWarning}</span>
-                <div>
-                  <span className="lbl">{t.setup.recoveryLabel}</span>
-                  <p className="mono num" style={{ margin: 'var(--vv-s-6) 0 0', fontSize: 18, letterSpacing: '0.06em', color: 'var(--color-fg)' }}>{recovery}</p>
-                </div>
-              </>
-            ) : (
-              // Server đã tạo admin + đặt phiên nhưng chưa cấp được mã khôi phục:
-              // vẫn vào app bình thường, cấp lại mã qua luồng khôi phục của Noverse.
-              <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryUnavailable}</span>
-            )}
-          </div>
-          <Button type="button" variant="primary" onClick={() => setSetupNeeded(false)}
-            style={{ height: 42, justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}>
+          <Banner tone="success" title={`${t.setup.recoveryTitle} ${name}.${mobile ? '' : ` ${t.setup.signedIn}`}`} icon="tick-b" iconSize={16} titleStyle={{ fontSize: 14, lineHeight: mobile ? 1.5 : 1.55 }} />
+          {recovery !== null ? <div style={{ display: mobile ? 'contents' : 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
+            {!mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
+            <div className="card" style={{ borderRadius: mobile ? 'var(--vv-r-14)' : 'var(--vv-r-12)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', gap: mobile ? 10 : 12 }}>
+              {mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
+              <span className="mono num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
+              <Button size={mobile ? 'md' : 'sm'} style={{ height: mobile ? 44 : 30, ...(mobile ? { fontSize: 14, borderRadius: 'var(--vv-r-12)', paddingInline: 16 } : {}) }} onClick={() => {
+                void navigator.clipboard.writeText(recovery).then(() => setCopied(true), () => setError(t.auth.copyFailed))
+              }}><Icon name="copy" size={mobile ? 16 : 14} />{copied ? t.auth.copied : mobile ? t.setup.copyRecoveryMobile : t.setup.copyRecovery}</Button>
+            </div>
+            <span style={{ fontSize: mobile ? 13 : 12.5, color: 'var(--vv-note-ink)', lineHeight: 1.55 }}>{mobile ? t.setup.recoveryWarningMobile : t.setup.recoveryWarning}</span>
+          </div> : <span style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>{t.setup.recoveryUnavailable}</span>}
+          {error && <FieldError>{error}</FieldError>}
+          {recovery !== null && <Checkbox checked={saved} onChange={setSaved} label={t.setup.saved} size={mobile ? 18 : 16} style={{ minHeight: 0, height: mobile ? 44 : 'auto', margin: 0, padding: 0, gap: mobile ? 12 : 10, fontSize: mobile ? 15 : 13.5, color: 'var(--color-fg)' }} />}
+          <Button type="button" variant="primary" pending={busy} disabled={busy || (recovery !== null && !saved)} onClick={async () => {
+            setBusy(true)
+            await refresh()
+            setSetupNeeded(false)
+            setBusy(false)
+          }}
+            {...stylex.props(sx.submit)}>
             {t.setup.enter}
           </Button>
         </div>
       )}
 
-      {step !== 'recovery' && <HintLine icon="shield-security">{t.auth.sessionNote}</HintLine>}
     </AuthShell>
   )
 }

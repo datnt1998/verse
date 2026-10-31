@@ -101,6 +101,21 @@ Cả hai app đọc **một** cookie `verse_session`:
   `VERSE_APP_ORIGINS` = danh sách origin allowlist chính xác của cả hai app.
 - `TRUSTED_PROXIES` quyết định tin `X-Forwarded-For`/`Proto`: chỉ đặt CIDR của
   proxy thật; để trống khi chạy trực tiếp.
+- Chuyển app: đặt cùng
+  `VERSE_APP_LINKS=noverse=https://nov.example.com,viderse=https://vid.example.com`
+  ở cả hai app. Chỉ hai id này, không trùng; origin phải là `PUBLIC_URL` hoặc
+  thuộc `VERSE_APP_ORIGINS` (cùng quy tắc HTTPS/cookie domain). Cấu hình sai làm
+  khởi động thất bại; không đặt thì chỉ có app hiện tại, không hiện bộ chuyển app.
+  `GET /api/me` và `403 app_access_denied` trả `apps: [{id,name,origin}]` đã lọc
+  theo grant; quản trị viên nhận mọi app đã cấu hình.
+- Áp migration identity `00019` trước binary mới: phiên bị thu hồi giữ
+  `revoked_reason`/`revoked_app`. Cả hai app trả `401 {code:"session_ended",error,reason,app?}`;
+  chỉ cookie có bí mật đúng mới đọc được lý do. Cookie thiếu/sai nhận `unknown`,
+  không có `app` hoặc thông tin người dùng; lỗi DB vẫn 503, giữ cookie.
+  Đăng xuất chung và 401 nhận diện được phiên cũ không xoá/gia hạn cookie đã
+  thu hồi: chỉ giữ đến hạn cũ để app kia đọc lý do. Lần đăng nhập sau ghi đè.
+- Đăng xuất trả 204; đổi mật khẩu thu hồi mọi phiên. Thiết bị › đăng xuất các
+  thiết bị khác giữ phiên đang dùng (`POST /api/me/sessions/revoke-all`).
 
 ## Lệnh liên quan
 

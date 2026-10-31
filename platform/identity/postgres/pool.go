@@ -128,7 +128,7 @@ var identityContract = map[string][]string{
 	"users":               {"id", "username", "display_name", "global_role", "status", "must_change_password", "onboarded_at", "disabled_at", "disabled_by", "disabled_reason", "deleted_at", "created_at", "updated_at", "version"},
 	"user_credentials":    {"user_id", "password_hash", "password_changed_at"},
 	"devices":             {"id", "user_id", "name", "last_ip", "last_seen_at"},
-	"sessions":            {"id", "user_id", "device_id", "token_hash", "credential_kind", "temporary_password_id", "last_seen_at", "expires_at", "revoked_at"},
+	"sessions":            {"id", "user_id", "device_id", "token_hash", "credential_kind", "temporary_password_id", "last_seen_at", "expires_at", "revoked_at", "revoked_reason", "revoked_app"},
 	"temporary_passwords": {"id", "user_id", "password_hash", "expires_at", "used_at", "revoked_at", "created_by"},
 	"recovery_codes":      {"id", "user_id", "code_hash", "mask", "used_at", "revoked_at"},
 	"device_pairings":     {"id", "user_id", "token_hash", "created_by", "expires_at", "used_at", "revoked_at"},

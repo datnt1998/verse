@@ -72,6 +72,9 @@ test('SSOLocalCookiePortScope', async ({ stack, context, uiLogin }) => {
   const jar = context.request;
   const nMe = meBody((await me(jar, stack.urls.noverse)).body);
   expect(nMe.user?.username).toBe('both');
+  expect(nMe.apps.map(app => app.id)).toEqual(['noverse', 'viderse']);
+  expect(nMe.apps.find(app => app.id === 'viderse')?.origin).toBe(stack.urls.viderse);
+  expect(Date.parse(nMe.session!.expiresAt)).toBeGreaterThan(Date.now());
 
   // the jar holds exactly one host-only verse_session for 127.0.0.1
   const cookie = await sessionCookie(context, stack.urls.noverse);
@@ -194,6 +197,7 @@ test('SSONoverseOnlyMember', async ({ stack, playwright, apiLogin }) => {
   expect(denied.user?.username).toBe('novonly');
   expect(denied.user?.grants?.noverse).toBe('member');
   expect(denied.user?.grants?.viderse).toBeUndefined();
+  expect(denied.apps).toEqual([{ id: 'noverse', name: 'Noverse', origin: stack.urls.noverse }]);
 
   // the cookie stays: the session is still valid on its granted app
   expect((await me(jar, stack.urls.noverse)).status).toBe(200);
@@ -218,6 +222,7 @@ test('SSOViderseOnlyMember', async ({ stack, playwright, apiLogin }) => {
   const nMe = await me(jar, stack.urls.noverse);
   expect(nMe.status).toBe(403);
   deniedBody(nMe.body);
+  expect(deniedBody(nMe.body).apps).toEqual([{ id: 'viderse', name: 'Viderse', origin: stack.urls.viderse }]);
   const lib = await get(jar, stack.urls.noverse, '/api/library');
   expect(lib.status).toBe(403);
   deniedBody(lib.body); // grant gate wins over project membership
@@ -253,7 +258,9 @@ test('SSOGlobalAdminAndGrantMutation', async ({ stack, playwright, apiLogin, gra
   const grant = await req(admin, 'put', stack.urls.noverse, '/api/users/muttarget/grants/viderse', { role: 'member' });
   expect(grant.status).toBe(200);
   expect((await me(target, stack.urls.noverse)).status).toBe(401);
-  expect((await me(targetV, stack.urls.viderse)).status).toBe(401);
+  const grantEnded = await me(targetV, stack.urls.viderse);
+  expect(grantEnded.status).toBe(401);
+  expect(grantEnded.body).toMatchObject({ code: 'session_ended', reason: 'admin_changed', app: 'noverse' });
   expect((await apiLogin(targetV, stack.urls.viderse, 'muttarget', stack.users['muttarget'].password)).status).toBe(200);
 
   // CLI grant (already granted → no audit, no revocation)
@@ -306,22 +313,28 @@ test('SSOLogoutEverywhere', async ({ stack, playwright, apiLogin }) => {
   // logout current session from Viderse → that session dies on both apps
   const one = await playwright.request.newContext();
   expect((await apiLogin(one, stack.urls.noverse, 'revtarget', stack.users['revtarget'].password)).status).toBe(200);
-  expect((await post(one, stack.urls.viderse, '/api/logout')).status).toBe(200);
+  const observer = await playwright.request.newContext({ storageState: await one.storageState() });
+  expect((await post(one, stack.urls.viderse, '/api/logout')).status).toBe(204);
+  const endedLogout = await me(observer, stack.urls.noverse);
+  expect(endedLogout.status).toBe(401);
+  expect(endedLogout.body).toMatchObject({ code: 'session_ended', reason: 'logout', app: 'viderse' });
+  await observer.dispose();
   expect((await me(one, stack.urls.noverse)).status).toBe(401);
   expect((await me(one, stack.urls.viderse)).status).toBe(401);
 
-  // two devices: revoke-all from Noverse kills both on both apps
+  // Two devices: signing out other devices from Noverse preserves d1.
   const d1 = await playwright.request.newContext();
   const d2 = await playwright.request.newContext();
   expect((await apiLogin(d1, stack.urls.noverse, 'revtarget', stack.users['revtarget'].password)).status).toBe(200);
   expect((await apiLogin(d2, stack.urls.viderse, 'revtarget', stack.users['revtarget'].password)).status).toBe(403);
   const kill = await post(d1, stack.urls.noverse, '/api/me/sessions/revoke-all');
   expect(kill.status).toBe(200);
-  expect((kill.body as { reauthenticate?: boolean })?.reauthenticate).toBe(true);
-  for (const jar of [d1, d2]) {
-    expect((await me(jar, stack.urls.noverse)).status).toBe(401);
-    expect((await me(jar, stack.urls.viderse)).status).toBe(401);
-  }
+  expect(kill.body).not.toHaveProperty('reauthenticate');
+  expect((await me(d1, stack.urls.noverse)).status).toBe(200);
+  expect((await me(d1, stack.urls.viderse)).status).toBe(403);
+  const endedD2 = await me(d2, stack.urls.viderse);
+  expect(endedD2.status).toBe(401);
+  expect(endedD2.body).toMatchObject({ code: 'session_ended', reason: 'logout', app: 'noverse' });
 
   // and again initiated from Viderse
   const e1 = await playwright.request.newContext();
@@ -329,10 +342,11 @@ test('SSOLogoutEverywhere', async ({ stack, playwright, apiLogin }) => {
   expect((await apiLogin(e1, stack.urls.noverse, 'revtarget', stack.users['revtarget'].password)).status).toBe(200);
   expect((await apiLogin(e2, stack.urls.viderse, 'revtarget', stack.users['revtarget'].password)).status).toBe(403);
   expect((await post(e2, stack.urls.viderse, '/api/me/sessions/revoke-all')).status).toBe(200);
-  for (const jar of [e1, e2]) {
-    expect((await me(jar, stack.urls.noverse)).status).toBe(401);
-    expect((await me(jar, stack.urls.viderse)).status).toBe(401);
-  }
+  expect((await me(e2, stack.urls.viderse)).status).toBe(403);
+  expect((await me(e2, stack.urls.noverse)).status).toBe(200);
+  const endedE1 = await me(e1, stack.urls.noverse);
+  expect(endedE1.status).toBe(401);
+  expect(endedE1.body).toMatchObject({ code: 'session_ended', reason: 'logout', app: 'viderse' });
   await one.dispose(); await d1.dispose(); await d2.dispose(); await e1.dispose(); await e2.dispose();
 });
 
@@ -347,6 +361,9 @@ test('SSOPasswordChangeRevokesAll', async ({ stack, playwright, apiLogin }) => {
   const ch = await post(dev1, stack.urls.noverse, '/api/me/password', { current: pw, new: next });
   expect(ch.status).toBe(200);
   expect((ch.body as { reauthenticate?: boolean })?.reauthenticate).toBe(true);
+  const endedPassword = await me(dev2, stack.urls.viderse);
+  expect(endedPassword.status).toBe(401);
+  expect(endedPassword.body).toMatchObject({ code: 'session_ended', reason: 'password_changed', app: 'noverse' });
   for (const jar of [dev1, dev2]) {
     expect((await me(jar, stack.urls.noverse)).status).toBe(401);
     expect((await me(jar, stack.urls.viderse)).status).toBe(401);
@@ -377,8 +394,10 @@ test('SSOAdminResetAndDisable', async ({ stack, playwright, apiLogin }) => {
 
   // admin reset → all sessions die on both apps; temp password forces a change
   expect((await post(admin, stack.urls.noverse, '/api/users/resetme', { password: 'reset-tmp-pass-9' })).status).toBe(200);
+  const resetEnded = await me(victim, stack.urls.viderse);
+  expect(resetEnded.status).toBe(401);
+  expect(resetEnded.body).toMatchObject({ code: 'session_ended', reason: 'admin_changed', app: 'noverse' });
   expect((await me(victim, stack.urls.noverse)).status).toBe(401);
-  expect((await me(victim, stack.urls.viderse)).status).toBe(401);
   expect((await apiLogin(victim, stack.urls.noverse, 'resetme', 'reset-tmp-pass-9')).status).toBe(200);
   expect(meBody((await me(victim, stack.urls.noverse)).body).user?.mustChangePassword).toBe(true);
   forcedBody((await get(victim, stack.urls.viderse, '/api/status')).body);
@@ -387,8 +406,10 @@ test('SSOAdminResetAndDisable', async ({ stack, playwright, apiLogin }) => {
 
   // disable → sessions die and stay dead; re-enable never resurrects them
   expect((await post(admin, stack.urls.noverse, '/api/users/resetme', { disabled: true, reason: 'kiểm thử' })).status).toBe(200);
+  const lockedEnded = await me(victim, stack.urls.viderse);
+  expect(lockedEnded.status).toBe(401);
+  expect(lockedEnded.body).toMatchObject({ code: 'session_ended', reason: 'locked', app: 'noverse' });
   expect((await me(victim, stack.urls.noverse)).status).toBe(401);
-  expect((await me(victim, stack.urls.viderse)).status).toBe(401);
   expect((await apiLogin(victim, stack.urls.noverse, 'resetme', 'resetme-final-pw')).status).toBe(401);
   expect((await post(admin, stack.urls.noverse, '/api/users/resetme', { disabled: false })).status).toBe(200);
   expect((await me(victim, stack.urls.noverse)).status).toBe(401);

@@ -1,37 +1,40 @@
-// Màn lỗi khi không kiểm được phiên: mất kết nối (status 0) hoặc kho tài
-// khoản/máy chủ trả 5xx. Đứng ở cổng THAY CHO Login/Setup — không bao giờ
-// đoán "store trống" hay "chưa đăng nhập" khi server không trả lời được.
-// Nút Thử lại gọi lại /api/me qua refresh().
-import { useState } from 'react'
-import { Button, EmptyState, Icon } from '@noverse/ui'
+import { useEffect, useState } from 'react'
+import * as stylex from '@stylexjs/stylex'
+import { Button, FieldError, Icon } from '@noverse/ui'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
-import { AuthShell } from './parts'
+import { AuthShell, HintLine } from './parts'
+import { authStyles as sx } from './auth.stylex'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 export function ServerDownScreen() {
-  const { refresh } = useSession()
+  const { refresh, outage } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
   const [busy, setBusy] = useState(false)
-
+  const [error, setError] = useState('')
+  const [remaining, setRemaining] = useState(12)
   const retry = async () => {
     if (busy) return
-    setBusy(true)
-    try { await refresh() } finally { setBusy(false) }
+    setBusy(true); setError('')
+    try { await refresh() } catch { setError(t.auth.serverDownTitle) } finally { setBusy(false); setRemaining(12) }
   }
-
-  return (
-    <AuthShell>
-      <EmptyState
-        variant="frame"
-        icon="cloud-connection"
-        title={t.auth.serverDownTitle}
-        hint={t.auth.serverDownBody}
-        action={
-          <Button variant="primary" onClick={() => void retry()} pending={busy} disabled={busy}
-            style={{ minHeight: 'var(--vv-s-44)', justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
-            <Icon name="refresh-2" size={17} />{t.common.retry}
-          </Button>
-        }
-      />
-    </AuthShell>
-  )
+  useEffect(() => {
+    if (busy) return
+    const timer = setTimeout(() => remaining > 1 ? setRemaining(remaining - 1) : void retry(), 1000)
+    return () => clearTimeout(timer)
+  }, [remaining, busy])
+  const accounts = outage === 'accounts'
+  return <AuthShell centered>
+    <div {...stylex.props(sx.intro)}>
+      <span {...stylex.props(sx.icon)}><Icon name="danger" size={26} /></span>
+      <h1 {...stylex.props(sx.title)}>{accounts ? t.auth.accountsDownTitle : mobile ? t.auth.serverDownTitleMobile : t.auth.serverDownTitle}</h1>
+      <p {...stylex.props(sx.body)}>{accounts ? (mobile ? t.auth.accountsDownBodyMobile : t.auth.accountsDownBody) : (mobile ? t.auth.serverDownBodyMobile : t.auth.serverDownBody)}</p>
+    </div>
+    <div {...stylex.props(sx.col)}>
+      <Button variant="primary" onClick={() => void retry()} pending={busy} disabled={busy} {...stylex.props(sx.submit)}><Icon name="refresh" size={mobile ? 17 : 16} />{t.common.retry}</Button>
+      <span className="num" style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--kit-fg-sub)' }}>{t.auth.retryIn(remaining)}</span>
+    </div>
+    {error && <FieldError>{error}</FieldError>}
+    <HintLine icon="info">{accounts ? t.auth.accountsDownHint : t.auth.serverDownHint}</HintLine>
+  </AuthShell>
 }

@@ -89,7 +89,7 @@ export function AppHeader({ route, mobile = false }: { route: Route; mobile?: bo
   const isSettings = route.name === 'settings'
   // Não hệ thống nằm trong Tuỳ chỉnh: nút Tuỳ chỉnh sáng (SysBrain.dc.html), không chấm.
   const settingsOn = isSettings || route.name === 'sysbrain'
-  const { pendingLessons } = useSession()
+  const { pendingLessons, user } = useSession()
   const lessonsDot = !settingsOn && pendingLessons > 0
   const settingsLabel = lessonsDot ? t.sysbrain.settingsDot(pendingLessons) : t.nav.settings
   const isHelp = route.name === 'help'
@@ -107,7 +107,7 @@ export function AppHeader({ route, mobile = false }: { route: Route; mobile?: bo
       // Chiều cao 54 + 1 px kẻ dưới; lề ngang 16. Không `flex-wrap`: thanh trên không bao giờ cao thêm.
       display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
       alignItems: 'center', columnGap: 16,
-      height: 54, padding: '0 16px', borderBottom: '1px solid var(--line-1)',
+      height: user?.grants != null && isWorkspace ? 55 : 54, padding: '0 16px', borderBottom: '1px solid var(--line-1)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: switcher ? 6 : 10, minWidth: 0, overflow: 'hidden' }}>
         {isWorkspace && (

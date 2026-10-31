@@ -52,6 +52,8 @@ type Config struct {
 	// the deployment's own origin or is listed here exactly — never by
 	// suffix, wildcard or subdomain inference.
 	AppOrigins []string
+	// AppLinks are explicit navigation destinations, each also an allowed origin.
+	AppLinks []AppLink
 }
 
 type contextKey struct{}
@@ -148,6 +150,35 @@ func ConfigFromEnv() (*Config, error) {
 			}
 		}
 		cfg.AppOrigins = origins
+	}
+	if raw := get("VERSE_APP_LINKS"); raw != "" {
+		seen := map[string]bool{}
+		for _, entry := range strings.Split(raw, ",") {
+			id, rawOrigin, ok := strings.Cut(strings.TrimSpace(entry), "=")
+			if !ok || (id != "noverse" && id != "viderse") || seen[id] {
+				return nil, fmt.Errorf("VERSE_APP_LINKS mục %q không hợp lệ: %w", entry, ErrConfig)
+			}
+			origin, err := canonicalOrigin(rawOrigin)
+			if err != nil {
+				return nil, err
+			}
+			allowed := false
+			if cfg.PublicURL != nil {
+				own, err := canonicalOrigin(cfg.PublicURL.Scheme + "://" + cfg.PublicURL.Host)
+				if err != nil {
+					return nil, err
+				}
+				allowed = origin == own
+			}
+			for _, candidate := range cfg.AppOrigins {
+				allowed = allowed || candidate == origin
+			}
+			if !allowed {
+				return nil, fmt.Errorf("VERSE_APP_LINKS mục %q không thuộc origin được phép: %w", entry, ErrConfig)
+			}
+			seen[id] = true
+			cfg.AppLinks = append(cfg.AppLinks, AppLink{ID: id, Name: appName(id), Origin: origin})
+		}
 	}
 	return cfg, nil
 }

@@ -2,13 +2,13 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { User } from '../../api/types'
-const fixture = vi.hoisted(() => ({ role: 'admin', created: vi.fn(), updated: vi.fn(), deleted: vi.fn(), audit: vi.fn(), grant: vi.fn(), revokeApp: vi.fn(), resource: { data: { sessions: [], items: [], next: '' }, refresh: vi.fn() } }))
+import type { Session, User } from '../../api/types'
+const fixture = vi.hoisted(() => ({ role: 'admin', created: vi.fn(), updated: vi.fn(), deleted: vi.fn(), audit: vi.fn(), grant: vi.fn(), revokeApp: vi.fn(), revokeOthers: vi.fn(), revokeAll: vi.fn(), resource: { data: { sessions: [] as Session[], items: [], next: '' }, refresh: vi.fn() } }))
 vi.mock('../../api/session', () => ({ useSession: () => ({ user: { username: 'dat', name: 'Dat', role: fixture.role, projects: {} } }) }))
 vi.mock('../../api/library', () => ({ useLibrary: () => ({ library: { projects: [{ id: 'p', name: 'Kênh truyện audio', storyCount: 2 }] }, reload: vi.fn() }) }))
 vi.mock('../../api/client', () => ({
   createUser: (...args: unknown[]) => fixture.created(...args), updateUser: (...args: unknown[]) => fixture.updated(...args), deleteUser: (...args: unknown[]) => fixture.deleted(...args), getAdminAudit: (...args: unknown[]) => fixture.audit(...args),
-  listUsers: vi.fn(), mySessions: vi.fn(), userSessions: vi.fn(), revokeSession: vi.fn(), revokeUserSessions: vi.fn(),
+  listUsers: vi.fn(), mySessions: vi.fn(), userSessions: vi.fn(), revokeSession: vi.fn(), revokeOtherSessions: (...args: unknown[]) => fixture.revokeOthers(...args), revokeUserSessions: (...args: unknown[]) => fixture.revokeAll(...args),
   grantAppAccess: (...args: unknown[]) => fixture.grant(...args), revokeAppAccess: (...args: unknown[]) => fixture.revokeApp(...args),
 }))
 vi.mock('../../data', () => ({
@@ -30,14 +30,16 @@ const fill = async (label: string, value: string) => {
   await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, value); input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })) })
 }
 beforeEach(async () => {
+  window.history.replaceState(null, '', '#/settings/members')
   fixture.role = 'admin'; vi.clearAllMocks()
+  fixture.resource.data.sessions = []
   fixture.created.mockResolvedValue(account('ngoc')); fixture.updated.mockResolvedValue(account('linh')); fixture.deleted.mockResolvedValue({ ok: true })
   fixture.grant.mockResolvedValue(account('linh')); fixture.revokeApp.mockResolvedValue(account('linh'))
   window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
   await act(async () => root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />))
 })
-afterEach(async () => { await act(async () => root.unmount()); document.body.replaceChildren() })
+afterEach(async () => { await act(async () => root.unmount()); document.body.replaceChildren(); vi.restoreAllMocks() })
 describe('Thành viên §AD', () => {
   it('không render nội dung quản trị cho thành viên kể cả mở liên kết trực tiếp', async () => {
     fixture.role = 'member'
@@ -144,4 +146,82 @@ describe('Quyền vào ứng dụng', () => {
     expect(fixture.revokeApp).toHaveBeenCalledWith('ngoc', 'noverse')
     expect(fixture.grant).toHaveBeenCalledWith('ngoc', 'viderse')
   })
+})
+
+describe('liên kết thẳng tới thành viên', () => {
+  it('chọn đúng tài khoản theo user thay vì thành viên mặc định', async () => {
+    window.location.hash = '#/settings/members?user=dat'
+    await act(async () => { root.unmount(); root = createRoot(host); root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />) })
+    expect(host.querySelector('[aria-label="Chi tiết thành viên"]')?.textContent).toContain('@dat')
+  })
+  it('tên không tồn tại quay về danh sách, không mở nhầm người', async () => {
+    window.location.hash = '#/settings/members?user=khong-co'
+    await act(async () => { root.unmount(); root = createRoot(host); root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />) })
+    expect(host.querySelector('[aria-label="Danh sách thành viên"]')).not.toBeNull()
+    expect(host.querySelector('[aria-label="Chi tiết thành viên"]')).toBeNull()
+  })
+})
+
+it('đăng xuất thiết bị khác của chính mình giữ phiên này, quản trị người khác dùng thu hồi mọi phiên', async () => {
+  fixture.resource.data.sessions = [{ id: 'other', username: 'dat', device: 'Điện thoại', ip: '', createdAt: '', lastSeen: '', expiresAt: '2026-12-01', current: false }]
+  window.location.hash = '#/settings/members?user=dat'
+  await act(async () => { root.unmount(); root = createRoot(host); root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />) })
+  await click('Đăng xuất các thiết bị khác')
+  expect(fixture.revokeOthers).toHaveBeenCalledOnce()
+  expect(fixture.revokeAll).not.toHaveBeenCalled()
+  await act(async () => { [...host.querySelectorAll('button')].find((button) => button.textContent?.includes('Linh'))!.click() })
+  await click('Đăng xuất mọi thiết bị')
+  expect(fixture.revokeAll).toHaveBeenCalledWith('linh')
+})
+
+describe('Gói AO · hệ quả của quyền ứng dụng', () => {
+  it('chưa bấm thì không có khung thu hồi phiên; lưu thành công mới thông báo cả hai app', async () => {
+    await mountSso()
+    expect(host.querySelector('[role="status"]')).toBeNull()
+    fixture.grant.mockResolvedValue(granted('linh', 'member', { noverse: 'member', viderse: 'member' }))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Linh sẽ bị đăng xuất khỏi mọi thiết bị ở cả Noverse và Viderse')
+    expect(fixture.grant).toHaveBeenCalledWith('linh', 'viderse')
+  })
+  it('tắt Viderse nói rõ quyền Noverse còn lại; tắt nốt Noverse đổi sang khung không có app', async () => {
+    const users = [granted('dat', 'admin', {}), granted('linh', 'member', { noverse: 'member', viderse: 'member' })]
+    await act(async () => root.render(<MembersScreen users={users} refresh={() => {}} />))
+    fixture.revokeApp.mockResolvedValueOnce(granted('linh', 'member', { noverse: 'member' })).mockResolvedValueOnce(granted('linh', 'member', {}))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Linh vẫn vào Noverse được; mở Viderse sẽ thấy thông báo chưa được cấp quyền.')
+    users[1] = granted('linh', 'member', { noverse: 'member' })
+    await act(async () => root.render(<MembersScreen users={users} refresh={() => {}} />))
+    await act(async () => checkbox('Cho Linh vào Noverse').click())
+    const notice = host.querySelector('[role="status"]')
+    expect(notice?.textContent).toContain('Chưa cho vào ứng dụng nào')
+    expect(notice?.textContent).toContain('ở cả Noverse và Viderse')
+    expect(notice?.textContent).not.toContain('vẫn vào Noverse được')
+  })
+  it('lỗi lưu không hiện khung thành công hoặc thay quyền cũ', async () => {
+    await mountSso()
+    fixture.grant.mockRejectedValue(new Error('Không lưu được quyền'))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')).toBeNull()
+    expect(checkbox('Cho Linh vào Viderse').getAttribute('aria-checked')).toBe('false')
+  })
+})
+
+it('hồ sơ dùng dữ liệu thật; quyền ứng dụng đứng sau dự án đúng artboard', async () => {
+  vi.spyOn(Date, 'now').mockReturnValue(new Date('2021-06-21T12:05:00Z').getTime())
+  const member = { ...granted('thao', 'member', { noverse: 'member' }), name: 'Thảo', createdAt: '2020-04-17T12:00:00Z', lastSeenAt: '2021-06-21T12:00:00Z' }
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), member]} refresh={() => {}} />))
+  const detail = host.querySelector('[aria-label="Chi tiết thành viên"]')!
+  const header = detail.firstElementChild!
+  expect(header.textContent).toContain('Thảo')
+  expect(header.textContent).toContain('@thao')
+  expect(header.textContent).toContain('17/4/2020')
+  expect(header.textContent).toContain('hoạt động 5 phút trước')
+  const sections = [...detail.querySelectorAll(':scope > section')].map((section) => section.firstElementChild?.textContent)
+  expect(sections.findIndex((title) => title?.startsWith('Dự án'))).toBeLessThan(sections.findIndex((title) => title?.startsWith('Quyền vào ứng dụng')))
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), { ...member, lastSeenAt: '2021-06-21T10:05:00Z' }]} refresh={() => {}} />))
+  expect(header.textContent).toContain('hoạt động 2 giờ trước')
+  expect(header.textContent).not.toContain('hoạt động 5 phút trước')
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), { ...member, lastSeenAt: null }]} refresh={() => {}} />))
+  expect(header.textContent).toContain('chưa đăng nhập lại')
+  expect(header.textContent).not.toContain('hoạt động 2 giờ trước')
 })

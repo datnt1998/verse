@@ -41,6 +41,7 @@ và hỏi đáp với design ghi ở [`docs/design/v1/11-hoi-dap.md`](docs/desig
 | `VIDERSE_ADDR` | Địa chỉ lắng nghe, mặc định `127.0.0.1:8789` (`-addr` ghi đè). Local SSO chỉ cho phép loopback |
 | `TRUSTED_PROXIES` / `PUBLIC_URL` / `SECURE_COOKIES` | Ranh giới trusted-proxy (xem `platform/webguard`) |
 | `VERSE_COOKIE_DOMAIN` / `VERSE_APP_ORIGINS` | Cookie chung `verse_session` + allowlist origin của SSO (xem `apps/viderse/deploy/README.md`) |
+| `VERSE_APP_LINKS` | Liên kết chuyển app `noverse=<origin>,viderse=<origin>`; origin phải đã được phép. Không đặt: chỉ app hiện tại; xem deploy README |
 | `VIDERSE_CLAUDE_CODE_VERSION` | Ghi đè wire version Claude Code cho anthropic-oauth |
 | `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3`; cùng parser với Noverse, không có alias `disk` trong env |
 | `S3_PROVIDER` / `S3_ENDPOINT` / `S3_REGION` / `S3_BUCKET` | Nhà cung cấp và bucket **riêng của Viderse**; Garage dùng vùng `garage` |
@@ -75,6 +76,10 @@ DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
   chỉ `/api/me`, `/api/me/password`, `/api/me/sessions*` và `/api/logout` còn
   vào được. Đổi mật khẩu thu hồi **mọi** phiên của tài khoản (cả app kia) và
   trả `{ok:true,reauthenticate:true}` + xoá cookie.
+- `GET /api/me` có `session.expiresAt` và `apps: [{id,name,origin}]`; màn thiếu
+  quyền cũng nhận `apps` đã lọc theo grant. `401 session_ended` có lý do và app
+  thu hồi nếu cookie có bí mật đúng; cookie sai không lộ thông tin phiên.
+  Đăng xuất trả 204; đăng xuất các thiết bị khác giữ phiên hiện tại.
 - `GET /api/setup` chỉ báo `needed` khi kho đọc được và trống — lỗi kho trả
   503, không phát mã ảo. Sau thiết lập lần đầu, Viderse không tạo được tài
   khoản mới: thêm thành viên ở Noverse (Tuỳ chỉnh › Thành viên).

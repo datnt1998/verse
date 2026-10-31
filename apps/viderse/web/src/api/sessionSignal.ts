@@ -9,18 +9,18 @@
 //     listener đưa về màn đổi mật khẩu. Không coi mọi 403 nghiệp vụ là mất
 //     quyền app — chỉ đúng hai mã này mới đổi cổng.
 // Listener chỉ đổi trạng thái, không phát request mới → không vòng lặp.
-import type { User } from './types'
+import type { AppLink, SessionEnded, User } from './types'
 
-const expired = new Set<() => void>()
-const denied = new Set<(user: User | null) => void>()
+const expired = new Set<(ended?: SessionEnded) => void>()
+const denied = new Set<(user: User | null, apps?: AppLink[]) => void>()
 const passwordRequired = new Set<() => void>()
 
-export function onSessionExpired(fn: () => void): () => void {
+export function onSessionExpired(fn: (ended?: SessionEnded) => void): () => void {
   expired.add(fn)
   return () => expired.delete(fn)
 }
 
-export function onAccessDenied(fn: (user: User | null) => void): () => void {
+export function onAccessDenied(fn: (user: User | null, apps?: AppLink[]) => void): () => void {
   denied.add(fn)
   return () => denied.delete(fn)
 }
@@ -30,12 +30,12 @@ export function onPasswordChangeRequired(fn: () => void): () => void {
   return () => passwordRequired.delete(fn)
 }
 
-export function notifySessionExpired(): void {
-  for (const fn of [...expired]) fn()
+export function notifySessionExpired(ended?: SessionEnded): void {
+  for (const fn of [...expired]) fn(ended)
 }
 
-export function notifyAccessDenied(user: User | null): void {
-  for (const fn of [...denied]) fn(user)
+export function notifyAccessDenied(user: User | null, apps?: AppLink[]): void {
+  for (const fn of [...denied]) fn(user, apps)
 }
 
 export function notifyPasswordChangeRequired(): void {

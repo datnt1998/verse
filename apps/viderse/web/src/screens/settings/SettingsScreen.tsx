@@ -25,6 +25,8 @@ import { listPlatforms } from '../../api/platforms'
 import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
 import './settings.css'
+import { membersUrl } from '../../api/sso'
+import { MembersLink } from '../../components/AppLinks'
 
 const ToolsSection = lazy(() => import('./tools/ToolsSection'))
 const StorageSection = lazy(() => import('./storage/StorageSection'))
@@ -146,6 +148,8 @@ function NavList({ section, dots, facts, onPick }: {
   facts: FrameFacts
   onPick: (id: SettingsSection) => void
 }) {
+  const { user, apps } = useSession()
+  const memberHref = membersUrl(apps)
   const machine: NavItem[] = [
     { id: 'tools', icon: 'cpu', label: t.settings.nav.tools, count: facts.toolsCount },
     { id: 'connect', icon: 'key', label: t.settings.nav.connect },
@@ -184,6 +188,7 @@ function NavList({ section, dots, facts, onPick }: {
         <span className="vv-set__nav-label">{t.settings.nav.queue}</span>
         <Icon name="arrow-r" size={13} className="vv-ic" />
       </a>
+      {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
     </>
   )
 }
@@ -245,7 +250,8 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
 /** MSettings — thẻ tổng, danh sách mục kèm giá trị, thẻ Hàng chờ, chân bản. */
 function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, 'warn' | 'err'>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
-  const { user } = useSession()
+  const { user, apps } = useSession()
+  const memberHref = membersUrl(apps)
   const status = useStatus()
   const strip = user ? <AdminStorageStrip user={user} status={status.data} /> : null
   // Câu phụ của thẻ “Máy sẵn sàng” — theo việc nặng nhất đang có.
@@ -338,6 +344,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
           </span>
           <Icon name="arrow-r" size={15} className="vv-ic" />
         </a>
+        {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
         <span className="vv-mset__foot">{fill(t.settings.m.foot, { version: facts.version })}</span>
       </div>
     </div>

@@ -79,6 +79,23 @@ func TestSSOLocalBindRequiresLoopback(t *testing.T) {
 	}
 }
 
+func TestSSOAppLinksRefusedByFileBackend(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("STORE_DRIVER", "file")
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("PUBLIC_URL", "https://noverse.example.com")
+	t.Setenv("SECURE_COOKIES", "true")
+	t.Setenv("TRUSTED_PROXIES", "")
+	t.Setenv("VERSE_COOKIE_DOMAIN", "")
+	t.Setenv("VERSE_APP_ORIGINS", "")
+	t.Setenv("VERSE_APP_LINKS", "noverse=https://noverse.example.com")
+	// Invalid port prevents a regressed guard from actually starting a server.
+	err := runServe([]string{"-addr", "127.0.0.1:invalid"})
+	if err == nil || !strings.Contains(err.Error(), "STORE_DRIVER=postgres") {
+		t.Fatalf("file mode accepted app links: %v", err)
+	}
+}
+
 // TestHostedAppHTTPPortIsNotPublished keeps the deploy invariant: the app
 // container exposes 8080 only on the private network — Traefik is the only
 // public door — and nothing publishes the app port on a wildcard host

@@ -167,14 +167,17 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie, err := r.Cookie(s.cookiePolicy().Name)
 	if err != nil {
-		Error(w, http.StatusUnauthorized, identity.ErrUnauthenticated.Error())
+		WriteJSON(w, http.StatusUnauthorized, identity.EndedBody(identity.ErrUnauthenticated))
 		return
 	}
 	user, current, err := s.accounts.Authenticate(cookie.Value)
 	if err != nil {
 		if errors.Is(err, identity.ErrUnauthenticated) {
-			s.clearSession(w, r)
-			Error(w, http.StatusUnauthorized, identity.ErrUnauthenticated.Error())
+			var ended *identity.SessionEnded
+			if !errors.As(err, &ended) {
+				s.clearSession(w, r)
+			}
+			WriteJSON(w, http.StatusUnauthorized, identity.EndedBody(err))
 			return
 		}
 		s.writeAccountError(w, err)
@@ -195,7 +198,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// GET /api/me là đường duy nhất còn đọc được khi bắt đổi mật khẩu: màn
 	// đổi mật khẩu cần biết đang đăng nhập ai.
 	if r.URL.Path == "/api/me" && r.Method == http.MethodGet {
-		WriteJSON(w, http.StatusOK, map[string]any{"user": user.View()})
+		WriteJSON(w, http.StatusOK, map[string]any{
+			"user": user.View(), "session": map[string]any{"expiresAt": current.ExpiresAt},
+			"apps": s.appLinks(user.View()),
+		})
 		return
 	}
 	// Forced-password gate chạy trước mọi dispatch: upload multipart, SSE và
@@ -304,6 +310,13 @@ func (s *Server) writeAppAccessDenied(w http.ResponseWriter, user identity.UserV
 		"app":   string(s.opts.App),
 		"error": "Tài khoản của bạn chưa được cấp quyền dùng " + s.opts.AppName + ". Vui lòng liên hệ quản trị viên.",
 		"user":  user,
+		"apps":  s.appLinks(user),
+	})
+}
+
+func (s *Server) appLinks(user identity.UserView) []webguard.AppLink {
+	return s.proxy.LinksFor(string(s.opts.App), func(id string) bool {
+		return !user.Disabled && (user.Role == identity.RoleAdmin || user.Grants[identity.App(id)] != "")
 	})
 }
 
@@ -378,7 +391,7 @@ func (s *Server) serveAuthNeutral(w http.ResponseWriter, r *http.Request, user i
 	case path == "/api/me/sessions" && r.Method == http.MethodGet:
 		s.listSessions(w, user.Username, current.ID)
 	case path == "/api/me/sessions/revoke-all" && r.Method == http.MethodPost:
-		s.doRevokeAll(w, r, user)
+		s.doRevokeAll(w, r, user, current)
 	case r.Method == http.MethodPost && strings.HasPrefix(path, "/api/sessions/") && strings.HasSuffix(path, "/revoke"):
 		s.doRevokeSession(w, r, user, current,
 			strings.TrimSuffix(strings.TrimPrefix(path, "/api/sessions/"), "/revoke"))
@@ -388,32 +401,26 @@ func (s *Server) serveAuthNeutral(w http.ResponseWriter, r *http.Request, user i
 	return true
 }
 
-// doLogout thu hồi dòng session trước khi xoá cookie: trình duyệt giữ một
-// cookie không còn xác thực được, không bao giờ ngược lại. Lỗi kho trả lỗi
-// thật và giữ cookie — client không được nghe "đã đăng xuất" khi dòng
-// session vẫn sống.
+// doLogout invalidates the token but retains its original cookie lifetime.
+// Sibling apps can then read the end reason; the token grants no API access.
 func (s *Server) doLogout(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
-	if err := s.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
+	if err := s.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: s.accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
 		s.writeAccountError(w, err)
 		return
 	}
-	s.clearSession(w, r)
-	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true})
+	w.WriteHeader(http.StatusNoContent)
 }
 
-// doRevokeAll thu hồi mọi phiên của tài khoản — kể cả phiên đang dùng, nên
-// response xoá cookie và bảo client đăng nhập lại thay vì ngầm ý thiết bị
-// này còn sống.
-func (s *Server) doRevokeAll(w http.ResponseWriter, r *http.Request, user identity.User) {
+// doRevokeAll signs out other devices and preserves this session.
+func (s *Server) doRevokeAll(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
 	if !emptyBody(w, r) {
 		return
 	}
-	if err := s.accounts.RevokeAll(user.Username, identity.AuditContext{Actor: accountActor(user)}); err != nil {
+	if err := s.accounts.RevokeOtherSessions(user.Username, current.ID, identity.AuditContext{Actor: s.accountActor(user)}); err != nil {
 		s.writeAccountError(w, err)
 		return
 	}
-	s.clearSession(w, r)
-	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 
 // doRevokeSession thu hồi một phiên — chỉ của chính caller; revoke phiên
@@ -422,7 +429,7 @@ func (s *Server) doRevokeSession(w http.ResponseWriter, r *http.Request, user id
 	if !emptyBody(w, r) {
 		return
 	}
-	err := s.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username }, identity.AuditContext{Actor: accountActor(user)})
+	err := s.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username }, identity.AuditContext{Actor: s.accountActor(user)})
 	if err != nil {
 		s.writeAccountError(w, err)
 		return
@@ -450,7 +457,7 @@ func (s *Server) doPasswordChange(w http.ResponseWriter, r *http.Request, user i
 		tooMany(w, wait)
 		return
 	}
-	if err := s.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
+	if err := s.accounts.ChangePassword(user.Username, req.Current, req.New, identity.AuditContext{Actor: s.accountActor(user)}); err != nil {
 		if errors.Is(err, identity.ErrForbidden) {
 			s.limiter.Fail(key)
 			Error(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
@@ -480,8 +487,8 @@ func emptyBody(w http.ResponseWriter, r *http.Request) bool {
 	return DecodeJSON(w, r, &v)
 }
 
-func accountActor(user identity.User) *identity.AuditActor {
-	return &identity.AuditActor{Username: user.Username, Name: user.Name}
+func (s *Server) accountActor(user identity.User) *identity.AuditActor {
+	return &identity.AuditActor{Username: user.Username, Name: user.Name, App: s.opts.App}
 }
 
 // ── setup lần đầu ───────────────────────────────────────────────────────────

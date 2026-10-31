@@ -230,6 +230,7 @@ Bản mẫu có chú thích: `deploy/.env.example`. Tóm tắt khóa binary th�
 | | `SECURE_COOKIES` | `true` bắt buộc hosted |
 | | `VERSE_COOKIE_DOMAIN` | domain cha cho `verse_session` dùng chung (SSO Noverse↔Viderse); chỉ `STORE_DRIVER=postgres`, bắt buộc `SECURE_COOKIES` và DNS-label chứa host của `PUBLIC_URL`; từ chối public suffix/IP/wildcard/single label |
 | | `VERSE_APP_ORIGINS` | origin sibling được phép cho request ghi (match canonical chính xác): hosted chỉ `https` nằm trong cookie domain; local chỉ loopback và bắt buộc bind loopback |
+| | `VERSE_APP_LINKS` | danh sách `noverse=https://nov.example.com,viderse=https://vid.example.com`; chỉ hai id đã biết, mỗi id một lần, origin phải là `PUBLIC_URL` hoặc nằm trong `VERSE_APP_ORIGINS`; sai thì từ chối khởi động. Không đặt: chỉ app hiện tại, ẩn bộ chuyển app |
 | | `NOVERSE_WORKER_DATABASE_URL` | DSN role `noverse_engine_worker` (facts/lease thôi) cho worker hosted; thiếu là fail closed, không bao giờ fallback `DATABASE_URL` |
 | Worker | `WORKER_LISTEN_ADDR` | bind của mux worker (private) |
 | | `TTS_WORKER_API_URL`, `TTS_WORKER_TOKEN` | **phía Mac**, không đặt trên VPS |
@@ -274,6 +275,19 @@ yêu cầu, nhưng giá trị cuối cùng do máy chủ quyết định.
   app đến từ hàng `app_grants` đọc lại mỗi request (admin hệ thống luôn qua,
   member thiếu grant nhận `403 app_access_denied`). File backend giữ
   `ainovel_session` độc lập và đặt các biến SSO ở file mode là lỗi khởi động.
+- `GET /api/me` và `403 app_access_denied` trả `apps: [{id,name,origin}]`,
+  lọc theo grant hiệu lực (quản trị viên: mọi app đã cấu hình). Hai app nên đặt
+  cùng `VERSE_APP_LINKS`; cấu hình này không tự cấp thêm quyền hoặc mở rộng CSRF.
+  Migration identity `00019` lưu lý do và app thu hồi; `401 session_ended` trả
+  `reason` (`logout`, `password_changed`, `admin_changed`, `locked`, `expired`,
+  `unknown`) và `app` nếu xác định được. Cookie thiếu/sai bí mật không lộ metadata.
+  Khi đăng xuất chung và khi 401 nhận diện được phiên cũ, cookie đã thu hồi được
+  giữ nguyên hạn (không gia hạn) để app kia đọc lý do; token không còn quyền vào
+  API, lần đăng nhập sau ghi đè. Cookie thiếu/sai vẫn được dọn; file mode giữ cách xoá cũ.
+  Đăng xuất trả 204; đổi mật khẩu thu hồi mọi phiên và yêu cầu đăng nhập lại.
+  `POST /api/me/sessions/revoke-all` chỉ đăng xuất các thiết bị khác, giữ phiên
+  đang dùng; đường quản trị `/api/users/:name/sessions/revoke-all` vẫn thu hồi tất cả.
+  `GET /api/setup` có `sharedAccounts` để màn đăng nhập phân biệt Postgres/file.
 - `/healthz` và `/readyz` được xử lý **trước** static SPA (nếu không sẽ trả
   index.html 200 giả).
 

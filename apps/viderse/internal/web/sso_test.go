@@ -242,13 +242,13 @@ func TestSharedLogoutRevokesBeforeClear(t *testing.T) {
 		t.Fatalf("me sau logout-lỗi = %d, muốn 200 (phiên chưa chết)", w.Code)
 	}
 
-	// Logout thật: revoke trước, cookie xoá sau, phiên chết khỏi DB.
+	// Shared logout revokes the token while retaining its original cookie.
 	w = p.do(http.MethodPost, "/api/logout", cookie, `{}`)
-	if w.Code != http.StatusOK {
+	if w.Code != http.StatusNoContent {
 		t.Fatalf("logout status %d", w.Code)
 	}
-	if !expiredCookie(t, w, testCookie) {
-		t.Fatal("logout không xoá cookie")
+	if expiredCookie(t, w, testCookie) {
+		t.Fatal("logout deleted the shared cookie")
 	}
 	if n := p.fx.SessionCount(t, "linh"); n != 0 {
 		t.Fatalf("phiên còn sống sau logout: %d", n)
@@ -291,7 +291,7 @@ func TestViderse403IsNotSessionExpired(t *testing.T) {
 		t.Fatalf("events no-grant = %d, muốn 403", w.Code)
 	}
 	// Auth-neutral: logout vẫn đi được (revoke phiên thật).
-	if w := p.do(http.MethodPost, "/api/logout", cookie, `{}`); w.Code != http.StatusOK {
+	if w := p.do(http.MethodPost, "/api/logout", cookie, `{}`); w.Code != http.StatusNoContent {
 		t.Fatalf("logout no-grant = %d", w.Code)
 	}
 

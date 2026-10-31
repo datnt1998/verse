@@ -54,7 +54,7 @@ describe('màn bị chặn quyền app', () => {
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    expect(container.textContent).toContain('Tài khoản của bạn chưa được cấp quyền dùng Viderse. Vui lòng liên hệ quản trị viên.')
+    expect(container.textContent).toContain(t.auth.accessDenied)
     expect(container.textContent).toContain('@linh')
     expect(container.textContent).toContain(t.account.sharedLogoutNote)
     // Có Thử lại + Đăng xuất; KHÔNG có nút đổi tài khoản/bỏ qua.

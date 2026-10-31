@@ -4,8 +4,9 @@
 // 403 app_access_denied ≠ 401: phiên thật nhưng chưa được cấp quyền app → `deniedUser`
 // (giữ người đang đăng nhập, KHÔNG set user — để không mount dữ liệu/SSE).
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { accessDeniedUser, getSetup, logout, me } from './client'
-import type { Session, User } from './types'
+import { ApiError, accessDeniedUser, getSetup, logout, me } from './client'
+import type { AppLink, Session, User } from './types'
+import { deniedAppLinks, kickedReason, readAppLinks, type KickedReason } from './sso'
 import { navigate } from '../router'
 
 /** Kết quả kiểm tra phiên qua /api/me. */
@@ -31,11 +32,15 @@ export type SessionState = {
    * null — các provider dữ liệu/SSE chỉ gắn khi có user, nên chúng không chạy.
    */
   deniedUser: User | null
-  setDeniedUser: (user: User | null) => void
+  setDeniedUser: (user: User | null, apps?: AppLink[]) => void
+  apps: AppLink[]
+  kicked: KickedReason | null
+  setKicked: (reason: KickedReason | null) => void
+  sharedAccounts: boolean
   /** Xoá phiên phía máy chủ rồi dọn phiên UI về #/login (Đăng xuất). */
   signOut: () => Promise<void>
   /** Dọn phiên UI về #/login khi máy chủ đã thu hồi phiên (đổi mật khẩu, revoke-all). */
-  endSession: () => void
+  endSession: (reason?: KickedReason) => void
 }
 
 const SessionContext = createContext<SessionState>({
@@ -43,7 +48,7 @@ const SessionContext = createContext<SessionState>({
   setUser: () => {}, refresh: async () => 'anon',
   setupNeeded: false, setSetupNeeded: () => {},
   pendingLessons: 0, setPendingLessons: () => {},
-  deniedUser: null, setDeniedUser: () => {},
+  deniedUser: null, setDeniedUser: () => {}, apps: [], kicked: null, setKicked: () => {}, sharedAccounts: false,
   signOut: async () => {}, endSession: () => {},
 })
 
@@ -54,12 +59,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [setupNeeded, setSetupNeeded] = useState(false)
   const [pendingLessons, setPendingLessons] = useState(0)
   const [deniedUser, setDeniedUser] = useState<User | null>(null)
+  const [apps, setApps] = useState<AppLink[]>([])
+  const [kicked, setKicked] = useState<KickedReason | null>(null)
+  const [sharedAccounts, setSharedAccounts] = useState(false)
 
   const refresh = async (): Promise<SessionRefresh> => {
     try {
       const result = await me()
       setUserState(result.user); setSession(result.session); setDeniedUser(null)
       setPendingLessons(result.pendingLessons ?? 0)
+      setApps(readAppLinks(result.apps)); setSharedAccounts(result.user.grants != null); setKicked(null)
       setSetupNeeded(false)
       return 'user'
     } catch (error) {
@@ -67,10 +76,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // Giữ người đăng nhập ở deniedUser — KHÔNG set user, KHÔNG đăng xuất:
       // dữ liệu/SSE không mount, nhưng Thử lại/Đăng xuất đều dùng cookie này.
       const denied = accessDeniedUser(error)
-      if (denied) { setUserState(null); setSession(null); setDeniedUser(denied); setPendingLessons(0); return 'denied' }
+      if (denied) { setUserState(null); setSession(null); setDeniedUser(denied); setApps(deniedAppLinks(error)); setSharedAccounts(denied.grants != null); setPendingLessons(0); return 'denied' }
+      if (error instanceof ApiError && error.status === 401 && error.payload && typeof error.payload === 'object' && 'code' in error.payload && error.payload.code === 'session_ended') {
+        const reason = kickedReason(error.payload)
+        // Unknown without a previous session is also a clean browser: do not invent a kicked notice.
+        if (reason !== 'unknown' || user || deniedUser) setKicked(reason)
+      }
       // 401 = chưa có phiên. Hỏi luôn /api/setup: máy chủ chưa có tài khoản nào thì mở A0.
       // Lỗi khác (mất kết nối) đã xử lý qua handler 401 / banner — giữ nguyên trạng thái.
-      try { setSetupNeeded((await getSetup()).needed) } catch { /* banner mất kết nối lo phần này */ }
+      try { const setup = await getSetup(); setSetupNeeded(setup.needed); if (setup.sharedAccounts !== undefined) setSharedAccounts(setup.sharedAccounts) } catch { /* banner mất kết nối lo phần này */ }
       return 'anon'
     }
   }
@@ -79,20 +93,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const endSession = () => { setUserState(null); setSession(null); setDeniedUser(null); navigate('/login', true) }
+  const endSession = (reason?: KickedReason) => { setUserState(null); setSession(null); setDeniedUser(null); setApps([]); if (reason) setKicked(reason); navigate('/login', true) }
 
   const value: SessionState = {
     checked, user, session, setupNeeded, setSetupNeeded, pendingLessons, setPendingLessons,
-    deniedUser, setDeniedUser,
+    deniedUser, apps, kicked, setKicked, sharedAccounts,
+    setDeniedUser: (next, links = []) => { setDeniedUser(next); setApps(links); if (next) setSharedAccounts(next.grants != null) },
     setUser: (next, nextSession) => {
       setUserState(next); setSession(nextSession === undefined ? null : nextSession); setDeniedUser(null)
+      if (next) { setSharedAccounts(next.grants != null); setKicked(null) }
       // Đăng nhập không đi qua /api/me: quản trị hỏi lại để có số bài học chờ duyệt (D15).
       setPendingLessons(0)
-      if (next?.role === 'admin') void me().then((result) => setPendingLessons(result.pendingLessons ?? 0), () => {})
+      if (next) void me().then((result) => { setPendingLessons(result.pendingLessons ?? 0); setApps(readAppLinks(result.apps)) }, () => {})
     },
-    // Máy chủ xoá cookie TRƯỚC khi trả kết quả ở nhánh revoke-phiên, nên logout
-    // lỗi vẫn để phiên UI được dọn: không kẹt người dùng ở màn bị chặn.
-    signOut: async () => { try { await logout() } catch { /* revoke thất bại — phiên UI vẫn dọn */ } endSession() },
+    signOut: async () => { await logout(); endSession(sharedAccounts ? 'self' : undefined) },
     endSession,
     refresh,
   }

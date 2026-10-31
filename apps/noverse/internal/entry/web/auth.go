@@ -77,6 +77,13 @@ func (g *Gateway) writeAppAccessDenied(w http.ResponseWriter, user identity.User
 		"app":   string(identity.AppNoverse),
 		"error": "Tài khoản của bạn chưa được cấp quyền dùng Noverse. Vui lòng liên hệ quản trị viên.",
 		"user":  user,
+		"apps":  g.appLinks(user),
+	})
+}
+
+func (g *Gateway) appLinks(user identity.UserView) []webguard.AppLink {
+	return g.proxy.LinksFor(string(identity.AppNoverse), func(id string) bool {
+		return !user.Disabled && (user.Role == identity.RoleAdmin || user.Grants[identity.App(id)] != "")
 	})
 }
 
@@ -114,7 +121,7 @@ func (g *Gateway) serveSessionOnly(w http.ResponseWriter, r *http.Request, user 
 	case path == "/api/me/sessions" && r.Method == http.MethodGet:
 		g.listSessions(w, user.Username, current.ID)
 	case path == "/api/me/sessions/revoke-all" && r.Method == http.MethodPost:
-		g.doRevokeAll(w, r, user.Username, accountActor(user))
+		g.doRevokeOthers(w, r, user, current)
 	case strings.HasPrefix(path, "/api/sessions/") && strings.HasSuffix(path, "/revoke") && r.Method == http.MethodPost:
 		if !g.emptyBody(w, r) {
 			return
@@ -134,17 +141,17 @@ func (g *Gateway) serveSessionOnly(w http.ResponseWriter, r *http.Request, user 
 	}
 }
 
-// doLogout revokes the session row before clearing the cookie: a browser
-// keeps a cookie that no longer authenticates, never the reverse. A storage
-// failure reports the error and leaves the cookie in place — the client must
-// not be told the logout succeeded when the session row still lives.
+// doLogout revokes before returning success. Shared cookies keep their original
+// lifetime so sibling apps can read the reason; file-mode cookies are cleared.
 func (g *Gateway) doLogout(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
 	if err := g.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
 		accountError(w, err)
 		return
 	}
-	g.clearSession(w, r)
-	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+	if g.backend != backendPostgres {
+		g.clearSession(w, r)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // doRevokeAll revokes every session of the account — including the one in
@@ -160,6 +167,17 @@ func (g *Gateway) doRevokeAll(w http.ResponseWriter, r *http.Request, username s
 	}
 	g.clearSession(w, r)
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+}
+
+func (g *Gateway) doRevokeOthers(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
+	if !g.emptyBody(w, r) {
+		return
+	}
+	if err := g.accounts.RevokeOtherSessions(user.Username, current.ID, identity.AuditContext{Actor: accountActor(user)}); err != nil {
+		accountError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 
 // doPasswordChange runs a self-service password change. Success revokes every
@@ -179,7 +197,7 @@ func (g *Gateway) doPasswordChange(w http.ResponseWriter, r *http.Request, user 
 		tooMany(w, wait)
 		return
 	}
-	if err := g.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
+	if err := g.accounts.ChangePassword(user.Username, req.Current, req.New, identity.AuditContext{Actor: accountActor(user)}); err != nil {
 		if errors.Is(err, identity.ErrForbidden) {
 			g.limiter.Fail(key)
 			jsonError(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
@@ -434,7 +452,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 	case path == "/api/logout" && post:
 		g.doLogout(w, r, user, current)
 	case path == "/api/me" && get:
-		extra := map[string]any{"session": current}
+		extra := map[string]any{"session": map[string]any{"expiresAt": current.ExpiresAt}, "apps": g.appLinks(user.View())}
 		// Business data, even a count, waits for the forced password change.
 		if isAdmin(user) && !user.MustChangePassword {
 			count, err := g.pendingLessons(user)
@@ -473,7 +491,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 	case path == "/api/me/sessions" && get:
 		g.listSessions(w, user.Username, current.ID)
 	case path == "/api/me/sessions/revoke-all" && post:
-		g.doRevokeAll(w, r, user.Username, accountActor(user))
+		g.doRevokeOthers(w, r, user, current)
 	case path == "/api/me/pairings" && post:
 		if !g.emptyBody(w, r) {
 			return true
@@ -763,7 +781,7 @@ func (g *Gateway) userViewByName(username string) (identity.UserView, error) {
 }
 
 func accountActor(user identity.User) *identity.AuditActor {
-	return &identity.AuditActor{Username: user.Username, Name: user.Name}
+	return &identity.AuditActor{Username: user.Username, Name: user.Name, App: identity.AppNoverse}
 }
 func (g *Gateway) duplicateUsername(w http.ResponseWriter, username string) {
 	users, err := g.accounts.Users()

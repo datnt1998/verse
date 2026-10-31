@@ -448,7 +448,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
       // báo đổi thành công rồi đưa về đăng nhập; không refresh /api/me (sẽ 401).
       if (result.reauthenticate) {
         toast('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')
-        endSession()
+        if (user?.grants != null) endSession('password'); else endSession()
         return true
       }
       await refresh()

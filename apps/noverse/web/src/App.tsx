@@ -36,6 +36,8 @@ import { accountTransition, sessionGate } from './mobile/session'
 import { DeepLink } from './mobile/deepLinks'
 import { CommandDeepLink } from './mobile/commandRoute'
 import { NotifyPage } from './screens/notify/NotifyPage'
+import { kickedReason } from './api/sso'
+import type { ApiError } from './api/client'
 
 export function Screen({ parsed }: { parsed: Parsed }) {
   const { route } = parsed
@@ -63,26 +65,27 @@ function Root() {
   const layout = useLayoutMode()
   const { route } = parsed
   const publicRoute = isPublicRoute(route)
-  const { checked, user, deniedUser, setUser, setupNeeded } = useSession()
+  const { checked, user, deniedUser, setUser, setupNeeded, setKicked } = useSession()
   // Trình duyệt này đã có phiên thành công trong vòng đời app chưa (/api/me OK hoặc vừa login)
   const hadSession = useRef(false)
   useEffect(() => { if (user) hadSession.current = true }, [user])
 
   // 401 ở bất cứ request nào → lưu route hiện tại, về màn đăng nhập. Chỉ báo "hết hạn"
   // khi trình duyệt này từng có phiên; 401 lần đầu ở trình duyệt sạch = chưa đăng nhập.
-  const onUnauthorized = useCallback(() => {
+  const onUnauthorized = useCallback((error: ApiError) => {
     if (accountTransition.isActive()) return accountTransition.wait()
     if (publicRoute) { setUser(null); return }
     // Lần kiểm phiên đầu tiên: 401 của /api/me chỉ nghĩa "chưa đăng nhập" — hiệu ứng bên dưới
     // chọn #/setup (máy chủ chưa có tài khoản) hay #/login, nên không điều hướng ở đây.
     if (!checked) return
+    if (error.payload && typeof error.payload === 'object' && 'reason' in error.payload) setKicked(kickedReason(error.payload))
     if (layout !== 'desktop' && user) return sessionGate.request()
     if (!location.hash.startsWith('#/login')) {
       setNextRoute(location.hash || '#/')
       setUser(null)
       navigate(loginPath(sessionExpired(hadSession.current)), true)
     }
-  }, [setUser, publicRoute, layout, checked, user])
+  }, [setUser, publicRoute, layout, checked, user, setKicked])
   useEffect(() => {
     setUnauthorizedHandler(onUnauthorized)
     return () => setUnauthorizedHandler(null)

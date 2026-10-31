@@ -16,6 +16,7 @@ import (
 type AuditActor struct {
 	Username string `json:"username"`
 	Name     string `json:"name"`
+	App      App    `json:"-"`
 }
 type AuditContext struct {
 	Actor  *AuditActor

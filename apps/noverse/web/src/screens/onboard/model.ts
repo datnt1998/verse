@@ -274,17 +274,17 @@ export const libraryStoryCount = (library: Pick<LibraryResponse, 'projects'> | n
  * Bước Mật khẩu riêng: chỉ nói “mật khẩu tạm” khi server còn đánh dấu `mustChangePassword`
  * (admin vừa tạo/đặt lại). Đã có mật khẩu riêng ⇒ đổi tuỳ chọn với mật khẩu hiện tại.
  */
-export function passwordStepCopy(mustChange: boolean): { title: string; lead: string; currentLabel: string; missingCurrent: string } {
+export function passwordStepCopy(mustChange: boolean, shared = false): { title: string; lead: string; currentLabel: string; missingCurrent: string } {
   return mustChange
     ? {
         title: 'Đặt mật khẩu của riêng bạn',
-        lead: 'Quản trị viên đã tạo tài khoản với mật khẩu tạm. Đổi ngay để chỉ mình bạn biết — các thiết bị khác đang dùng mật khẩu tạm sẽ bị đăng xuất.',
+        lead: shared ? 'Quản trị viên đã tạo tài khoản với mật khẩu tạm. Đổi ngay để chỉ mình bạn biết. Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.' : 'Quản trị viên đã tạo tài khoản với mật khẩu tạm. Đổi ngay để chỉ mình bạn biết — các thiết bị khác đang dùng mật khẩu tạm sẽ bị đăng xuất.',
         currentLabel: 'Mật khẩu tạm',
         missingCurrent: 'Nhập mật khẩu tạm đang dùng',
       }
     : {
         title: 'Mật khẩu riêng',
-        lead: 'Bạn đã có mật khẩu của riêng mình. Đổi tại đây nếu muốn — các thiết bị khác sẽ bị đăng xuất, máy này giữ nguyên phiên.',
+        lead: shared ? 'Bạn đã có mật khẩu của riêng mình. Đổi tại đây nếu muốn. Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.' : 'Bạn đã có mật khẩu của riêng mình. Đổi tại đây nếu muốn — các thiết bị khác sẽ bị đăng xuất, máy này giữ nguyên phiên.',
         currentLabel: 'Mật khẩu hiện tại',
         missingCurrent: 'Nhập mật khẩu hiện tại',
       }

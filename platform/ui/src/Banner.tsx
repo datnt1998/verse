@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button, type ButtonProps } from './Button'
 import { Icon } from './Icon'
@@ -18,6 +18,8 @@ export type BannerProps = {
   actions?: { label: string; onClick: () => void; variant?: ButtonProps['variant']; icon?: ReactNode; size?: ButtonProps['size'] }[]
   /** Đè biểu tượng của tông (vd băng “Tạm chặn” dùng i-clock trên nền cam). */
   icon?: IconName
+  iconSize?: number
+  titleStyle?: CSSProperties
   /** Vai trò a11y của băng; mặc định status, riêng tone="error" là alert. */
   role?: 'status' | 'alert'
   /** `top` = icon căn dòng đầu thay vì giữa khối (băng sự cố trên điện thoại,
@@ -55,7 +57,7 @@ const styles = stylex.create({
   text: { fontSize: 12, color: 'var(--color-fg-3)' },
 })
 
-export function Banner({ tone, title, children, action, actions, agent = 'writer', icon, role, align = 'center' }: BannerProps) {
+export function Banner({ tone, title, children, action, actions, agent = 'writer', icon, iconSize = 17, titleStyle, role, align = 'center' }: BannerProps) {
   const look = tone === 'agent' ? AGENT_LOOK[agent] : tones[tone]
   const glyph: IconName = icon ?? (tone === 'agent' ? 'info-circle' : tones[tone].icon)
   const ariaRole = role ?? (tone === 'error' ? 'alert' : 'status')
@@ -63,5 +65,5 @@ export function Banner({ tone, title, children, action, actions, agent = 'writer
   const row = actions && actions.length > 0
     ? <span {...stylex.props(styles.actions)}>{actions.map((a) => <Button key={a.label} size={a.size ?? 'sm'} variant={a.variant ?? 'ghost'} icon={a.icon} onClick={a.onClick}>{a.label}</Button>)}</span>
     : null
-  return <div role={ariaRole} className={sx.className} style={sx.style}>{tone === 'agent' ? <AgentOrb agent={agent} size={17} /> : <Icon name={glyph} size={17} style={{ color: look.color, marginTop: align === 'top' ? 2 : undefined }} />}<span {...stylex.props(styles.body)}><span {...stylex.props(styles.title)}>{title}</span>{children && <span {...stylex.props(styles.text)}>{children}</span>}{row}</span>{action && <Button size={action.size ?? 'sm'} onClick={action.onClick}>{action.label}</Button>}</div>
+  return <div role={ariaRole} className={sx.className} style={sx.style}>{tone === 'agent' ? <AgentOrb agent={agent} size={iconSize} /> : <Icon name={glyph} size={iconSize} style={{ color: look.color, marginTop: align === 'top' ? 2 : undefined }} />}<span {...stylex.props(styles.body)}><span {...stylex.props(styles.title)} style={titleStyle}>{title}</span>{children && <span {...stylex.props(styles.text)}>{children}</span>}{row}</span>{action && <Button size={action.size ?? 'sm'} onClick={action.onClick}>{action.label}</Button>}</div>
 }

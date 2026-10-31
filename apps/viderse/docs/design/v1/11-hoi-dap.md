@@ -313,9 +313,40 @@ Mẫu:
   5. Không cần nút xoá phần đã chép: tệp đặt tên theo nội dung, lần chuyển sau dùng lại, không chép lại. Muốn dọn thì dùng lệnh bảo trì, như Noverse AN.
 - Design đã sửa (đợt 29b): khối “Chi tiết cho người quản trị máy chủ” ghi đúng tên biến; khối chi tiết của `s3nokey` ghi đường dẫn tệp khoá và cách cấp quyền ghi; Dung lượng theo nhóm có nhãn phụ “lớp phủ, video nền, ảnh kênh” và tweak `usage=partial` (nhóm `null` ghi “chưa có số”); câu huỷ chuyển nói tệp đã chép được dùng lại; Chỗ cũ dọn bằng lệnh bảo trì (bỏ gợi ý xoá tay). Data-contract §23.1 và Gói V25 sửa theo.
 
-### #50 · Gói V26: lý do phải đăng nhập lại và địa chỉ app kia — Mở <!-- r30-sso -->
+### #50 · Gói V26: lý do phải đăng nhập lại và địa chỉ app kia — Đã trả lời (dev, 31/10) <!-- r30-sso -->
 - Artboard: `Auth` · `screen=login`, `kicked=self|other|password|admin|expired|unknown`; `screen=menu|denied`.
 - Hỏi dev:
   1. Máy chủ có biết vì sao phiên bị thu hồi không (đăng xuất, đổi mật khẩu, quản trị viên đổi quyền/đặt lại/khoá, hết hạn), và ở app nào? Nếu có thì trả `reason`, `app` trong 401 (§25). Nếu không thì giao diện chỉ dùng câu chung, trừ hai trường hợp client tự biết (`?bye=1`, `?pw=1`).
   2. `apps: AppLink[]` (id, tên, địa chỉ gốc) trả trong `GET /api/me` và 403 `app_access_denied` được không? Địa chỉ lấy từ `VERSE_APP_ORIGINS` hay cấu hình riêng?
   3. Noverse có nhận `#/settings/members?user=<tên>` để mở thẳng người cần cấp quyền không?
+- Dev trả lời (đã làm):
+  1. Có. Phiên chung ghi `revoked_reason` và `revoked_app`. 401 trả `{ code: "session_ended", reason, app? }`:
+     - `reason` là `logout | password_changed | admin_changed | locked | expired | unknown`;
+     - `logout` đi kèm `app`, nên giao diện tự so với app đang mở để chọn câu `self` hoặc `other`;
+     - cookie lạ hoặc hỏng thì trả `unknown` và không có `app`.
+     Thêm hai hành vi:
+     - Đăng xuất chung giữ lại cookie đã thu hồi tới lần đăng nhập sau (không gia hạn), để app kia đọc được lý do. Cookie đó không còn xác thực được gì.
+     - Đổi mật khẩu thu hồi mọi phiên, kể cả máy đang dùng. Đăng xuất "thiết bị khác" thì giữ phiên máy này.
+  2. Có. `AppLink` là `{ id, name, origin }`, không phải `{ label, url }` như §25 đang ghi, nhờ design sửa §25 theo.
+     - `apps` có trong `GET /api/me` và 403 `app_access_denied`, chỉ gồm app được cấp quyền (quản trị viên thấy mọi app đã cấu hình).
+     - Địa chỉ lấy từ biến riêng `VERSE_APP_LINKS` (`noverse=…,viderse=…`), kiểm cùng luật với `VERSE_APP_ORIGINS`. Không đặt biến thì chỉ có app hiện tại, nên phần chuyển app tự ẩn.
+  3. Có. Noverse nhận `#/settings/members?user=<tên>`. Tên không có thì về danh sách.
+- Câu hỏi lại cho design:
+  - Logo menu: artboard dùng `#18181B`, token gần nhất là `--color-surface-3` = `#18181A`. Code dùng token; nhờ sửa artboard về token.
+  - Thẻ app ở Thành viên khi chưa cấu hình `VERSE_APP_LINKS`: code ẩn địa chỉ app kia. Cần chốt cách hiển thị dự phòng.
+  - `MAuth` vẽ thanh trạng thái và thanh home của hệ điều hành. Bản web không vẽ hai thanh này, nên toạ độ dọc lệch đúng bằng chiều cao của chúng.
+
+### #51 · Gói V26: đối chiếu Auth/MAuth và phần artboard còn thiếu — Cần design chốt
+- Nguồn chuẩn: `artboards/Auth.dc.html`, `artboards/MAuth.dc.html`, chỉ `app=viderse`; không lấy bản Noverse cũ làm mẫu.
+- Sai khác chủ đích đã nêu ở #50:
+  - Web không vẽ thanh trạng thái 44px và thanh home 26px của hệ điều hành. Khi so cùng viewport, phần neo trên của MAuth có `y(web) = y(board) - 44px`; phần căn giữa có `y(web) = y(board) - 9px`; phần neo đáy có `y(web) = y(board) + 26px`. Không cộng một độ lệch duy nhất cho cả trang.
+  - Ô logo menu dùng `--color-surface-3` thay literal của artboard. Nền toàn menu vẫn dùng `--color-surface-4`.
+  - Không tự đoán địa chỉ app kia khi thiếu AppLink. Đây là sai khác cấu hình đã ghi ở #50, không phải quyền mới.
+- GAP cần bổ sung, không tự vẽ reference:
+  - `MAuth` chỉ có `sheet=none|password`, không có tấm thiết bị; app cần danh sách và thao tác thu hồi phiên thực.
+  - Dữ liệu mẫu về tên người, ngày tạo, tên thiết bị, hạn phiên, số phiên và domain trong board không phải fixture của backend thực. Không đổi dữ liệu thực thành dữ liệu giả chỉ để khớp ảnh.
+  - Lần vào chưa có cookie cũng được backend trả `session_ended/unknown`; chưa có response riêng để phân biệt với cookie lạ/hỏng. Vì vậy `kicked=none` chưa có cặp đo trực tiếp với backend hiện tại.
+  - Cổng mật khẩu tạm trên điện thoại cần đường đăng xuất; board không có nút đó. Các lỗi mạng, sao chép thất bại, mã khôi phục không được trả và các thao tác đang chờ cũng chưa có state tương ứng đầy đủ.
+- Màu chữ badge nhấn của board chưa có token trùng chính xác: hiện dùng `--vv-tabbar-on`, không thêm literal màu. **Badge ink #FFD3DA chờ design cấp token.** Icon băng thông tin dùng `--kit-info-fg` (sau `defineBrand`: #9AB0D6), trong khi board là #9DB0F7; cũng chờ token được duyệt. Đây **chưa phải xác nhận 1:1**; không thêm token hay màu thô để lách giới hạn màu.
+- Đã chốt giữ vùng chạm 48px của nút đổi mật khẩu trên web (31/10). Ở `MAuth screen=password, pwerr=mismatch|wrong`, status/home bar giả chiếm 70px làm flex co nút khai báo 48px xuống **40,844px**. Web không vẽ OS chrome và giữ nút **48px**; residual cao **7,156px**, dòng gợi ý sau nút lệch tương ứng. Không cố co vùng chạm của web để bắt chước lỗi co chiều cao này của board.
+- Bằng chứng đo và sai khác còn lại nằm trong báo cáo QA được yêu cầu riêng; mục này không miễn tiêu chí 0,5px hay tự phê duyệt các sai khác chưa chốt.

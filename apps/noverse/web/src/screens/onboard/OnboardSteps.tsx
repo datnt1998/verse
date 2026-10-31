@@ -82,7 +82,7 @@ function ProfileStep({ model }: { model: OnboardModel }) {
 
 function PasswordStep({ model }: { model: OnboardModel }) {
   const mismatch = Boolean(model.pwRepeat && model.pwNext !== model.pwRepeat)
-  const copy = passwordStepCopy(model.mustChangePassword)
+  const copy = passwordStepCopy(model.mustChangePassword, model.user.grants != null)
   return <><Heading title={copy.title}>{copy.lead}</Heading><Card style={{ padding: 18, gap: 14, maxWidth: 460 }}><div style={fieldStyle}><label htmlFor="ob-pw-cur" className="lbl">{copy.currentLabel}</label><AuthInput id="ob-pw-cur" type="password" autoComplete="current-password" value={model.pwCurrent} onChange={model.setPwCurrent} invalid={Boolean(model.pwCurrentError)} aria-describedby={model.pwCurrentError ? 'ob-pw-cur-err' : undefined} />{model.pwCurrentError && <span id="ob-pw-cur-err" role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-err)' }}><Icon name="warning-2" size={14} />{model.pwCurrentError}</span>}</div><div style={fieldStyle}><label htmlFor="ob-pw-new" className="lbl">Mật khẩu mới</label><AuthInput id="ob-pw-new" type="password" autoComplete="new-password" placeholder="Ít nhất 8 ký tự" value={model.pwNext} onChange={model.setPwNext} /><StrengthMeter value={model.pwNext} /></div><div style={fieldStyle}><label htmlFor="ob-pw-re" className="lbl">Nhập lại</label><AuthInput id="ob-pw-re" type="password" autoComplete="new-password" value={model.pwRepeat} onChange={model.setPwRepeat} invalid={mismatch} />{mismatch && <span role="alert" style={{ fontSize: 12, color: 'var(--color-err)' }}>Hai lần nhập chưa khớp</span>}</div></Card></>
 }
 

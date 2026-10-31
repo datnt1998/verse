@@ -824,3 +824,35 @@ Việc kỹ thuật, không đổi giao diện. Ghi lại vì có đổi hành v
 - **GAP-AN-FE3 (khung và số liệu minh hoạ):** artboard điện thoại mô phỏng status bar; giữ safe-area/header của app thật, không thêm status bar giả. Dữ liệu/tên kho/dung lượng/tốc độ, giờ, môi trường, kết quả thử và tệp lỗi lấy từ máy chủ, không chép số minh hoạ. Thẻ desktop rộng 820px, thẻ điện thoại rộng 358px ở viewport 390; dùng StyleX/token hiện có, không thêm màu hex.
 
 - **Gói AN · rà soát giữ khoá và số liệu:** ngay khi lưu kho thành công, xoá bản nháp và kết quả thử khỏi state, đóng form/hộp xác nhận trước khi chờ bắt đầu chuyển. Nếu bước bắt đầu lỗi, thử lại bằng phiên bản kho đã lưu, không giữ hay gửi lại khoá. Thống kê “Tạo link” gom đúng phép ký link tải mà máy chủ ghi, gồm số lần, lỗi và độ trễ; có kiểm thử component với dữ liệu thật của hợp đồng API.
+
+---
+
+## Gói AO — Đăng nhập chung với Viderse
+
+Đã khép phần web Noverse của Gói AO:
+
+- Menu tài khoản trên máy tính và tab **Thêm** trên điện thoại có nhóm **Ứng dụng**, lấy địa chỉ từ `apps` của `/api/me`. Nhóm ẩn hoàn toàn nếu không có quyền Viderse hoặc chưa cấu hình app kia; kho tệp giữ giao diện cũ. App đang dùng đứng trước, app kia mở thẻ mới.
+- Màn hình chưa được cấp quyền dùng `apps` của lỗi 403 để mở Viderse, có lời nhờ quản trị viên có thể chép và nút thử lại.
+- Đăng xuất, đổi mật khẩu, thu hồi phiên và các xác nhận đặt lại mật khẩu/khoá nói rõ hệ quả ở cả hai app. Thu hồi các thiết bị khác của chính mình giữ phiên hiện tại.
+- Màn đăng nhập giải thích lý do kết thúc phiên theo lỗi 401 `reason`/`app`: tự đăng xuất, đăng xuất ở Viderse, đổi mật khẩu, quản trị thay đổi/khoá tài khoản hoặc không rõ nguyên nhân. Hết hạn giữ khung A1 cũ, không thêm khối lý do AO; trình duyệt sạch không hiện thông báo phiên bị kết thúc. `sharedAccounts` từ `/api/setup` quyết định dòng phụ cho kho tài khoản chung.
+- `#/settings/members?user=<tên>` mở đúng tài khoản; tên không tồn tại quay về danh sách, không chọn nhầm người.
+
+Đối chiếu **canvas 130**: dùng `Login`, `Members`, `MMore`, `Phone` trong chính monorepo verse. Mục **Quyền vào ứng dụng** đứng sau **Dự án**; chỉ hiện khung hệ quả sau khi lưu thành công, đủ các trạng thái đổi quyền, tắt Viderse và không còn app nào. Hồ sơ dùng tên, tên đăng nhập, ngày tạo và lần hoạt động từ máy chủ; không thay thời điểm chưa có bằng số liệu minh hoạ. Đổi mật khẩu PostgreSQL thu hồi mọi phiên, kể cả máy hiện tại (`platform/identity/postgres/passwords.go`); kho tệp giữ câu cũ. Menu neo theo trigger với khoảng dọc 9px, lệch phải 4px; header Bàn viết ở chế độ chung cao 55px theo `Login`, kho tệp giữ 54px.
+
+### Ngoại lệ đã chốt với Main
+
+- **(a) Nền vòng tròn logo:** board ghi `#18181B` nhưng chưa có token tương ứng; dùng `--color-surface-3` (`#18181A`) theo Main, không thêm mã màu hay sửa `platform/ui`. Design sẽ quy về token.
+- **(b) Địa chỉ app chưa cấu hình:** khi `apps[]` không có app tương ứng, bỏ dòng địa chỉ và giữ thẻ trung tính; không viết cứng hoặc bịa địa chỉ Viderse.
+- **(c) Điều hướng trong menu:** chế độ chung ẩn riêng **Tuỳ chỉnh** và **Hướng dẫn lệnh** để khớp `Login.state=menu`; hai mục vẫn mở được từ header/sidebar. Kho tệp giữ nguyên menu cũ.
+- **(d) Huy hiệu quản trị:** menu chế độ chung dùng huy hiệu gọn **Quản trị**; board ghi `#CBB992` và nền vàng `.12` nhưng chưa có token. Theo Main dùng tạm `--members-admin-fg` / `--members-admin-bg` (`.14`); kho tệp và các chỗ dùng `RoleBadge` khác giữ nguyên.
+- **(e) Status bar điện thoại:** theo **GAP-AN-FE3**, giữ safe-area của máy thật, không vẽ lại `9:41` hay các biểu tượng hệ điều hành trong app. Với `MMore`, so vị trí tương đối từ content top; khung Ứng dụng có cùng toạ độ tương đối, kích thước và khoảng cách với board. Màn đăng nhập chung dùng safe-area thực, không cộng thêm khoảng dự phòng 8px.
+
+Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông báo quyền, denied dùng app từ máy chủ, bảo toàn kho tệp, thứ tự Dự án/Ứng dụng và menu chung. Đo bằng `getComputedStyle`/`getBoundingClientRect` ở cùng viewport với board; bằng chứng và bảng đo trong báo cáo SsoNoverseWeb. Lượt trước đã kiểm tra backend thật với phiên dùng chung. Không thêm mã màu trực tiếp hay sửa `platform/ui`.
+
+## Gói AP — Thành viên · Quyền vào ứng dụng (canvas 132)
+
+- Phần Thành viên của nhánh đăng nhập chung dùng `Checkbox` chuẩn kit với màu nhấn mặc định; bỏ biến thể đơn sắc. Giữ nguyên luồng lưu quyền, trạng thái chờ/lỗi và quyền kế thừa; không sửa bộ thành phần dùng chung.
+- Lưới ứng dụng dùng `repeat(auto-fit,minmax(210px,1fr))`, khoảng cách 10px, tự về một cột khi khung hẹp hơn 430px. Tên miền dùng chữ giao diện 12px, không đơn cách, cắt bằng dấu ba chấm và giữ địa chỉ đầy đủ trong chú giải.
+- Hồ sơ hiển thị thời điểm hoạt động tương đối từ `lastSeenAt` bằng bộ định dạng đang dùng ở Tài khoản. Giá trị chưa có vẫn giữ trạng thái chưa đăng nhập; không dùng thời gian minh hoạ. Sai lệch 17.546875px ở viewport 1120px đã được truy tới dòng thông tin này và sửa, không ghi nhận là ngoại lệ.
+- Đo đối chiếu với `Members.dc.html` của `9b3214fd`: ở 1440px, hai thẻ rộng 342px/cao 62.390625px, Y=709.328125; ở 1120px, một cột rộng 374px, Y=924.328125 và 996.71875. Ở 1176px, hai cột 210px, tên miền rộng 108px và có cắt tràn. Các kích thước và vị trí đều trùng board; không thêm mã màu trực tiếp.
+

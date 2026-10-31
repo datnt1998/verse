@@ -6,6 +6,11 @@ import type { MouseEvent } from 'react'
 import { navSection, paths, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { Icon, type IconName } from '@noverse/ui'
+import * as stylex from '@stylexjs/stylex'
+const sx = stylex.create({
+  item: { paddingLeft: 'var(--vv-s-10)', paddingRight: 'var(--vv-s-12)', gap: 'var(--vv-s-8)' },
+  review: { paddingRight: 'var(--vv-s-10)' },
+})
 
 const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', path: paths.workbench() },
@@ -35,9 +40,9 @@ export function MainNav({ route, reviewCount, channelHref, onNavigate }: {
             href={`#${path}`}
             aria-current={active ? 'page' : undefined}
             onClick={onNavigate ? (e) => onNavigate(path, e) : undefined}
-            className={active ? 'vv-nav__item vv-nav__item--active' : 'vv-nav__item'}
+            className={`${active ? 'vv-nav__item vv-nav__item--active' : 'vv-nav__item'} ${stylex.props(sx.item, item.badge === 'review' && sx.review).className}`}
           >
-            <Icon name={item.icon} size={17} />
+            <Icon name={item.icon} size={16} />
             {item.label}
             {item.badge === 'review' && reviewCount > 0 && (
               <span className="vv-nav__badge num" aria-label={`${reviewCount}`}>

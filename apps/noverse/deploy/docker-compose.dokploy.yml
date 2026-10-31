@@ -80,6 +80,9 @@ x-app-env: &app-env
   PUBLIC_URL: ${PUBLIC_URL:-https://noverse.localhost:8443}
   TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172.16.0.0/12}
   SECURE_COOKIES: "true"
+  VERSE_COOKIE_DOMAIN: ${VERSE_COOKIE_DOMAIN:-}
+  VERSE_APP_ORIGINS: ${VERSE_APP_ORIGINS:-}
+  VERSE_APP_LINKS: ${VERSE_APP_LINKS:-}
 
   # Private worker listener (Mac over Tailscale). [DOKPLOY] WORKER_LISTEN_ADDR
   # stays 0.0.0.0:8081 in the container and the host publishes it on the

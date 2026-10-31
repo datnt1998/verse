@@ -9,20 +9,20 @@
 //   GET  /api/me            → { user } · 401 · 403 {code:"app_access_denied", user}
 //   POST /api/me/password   → { ok, reauthenticate } · 403 sai mật khẩu hiện tại · 503 kho tài khoản lỗi
 //   GET  /api/me/sessions   → { sessions }
-//   POST /api/me/sessions/revoke-all      → { ok } — thu hồi MỌI phiên của chính mình
+//   POST /api/me/sessions/revoke-all      → { ok } — thu hồi mọi thiết bị khác, giữ phiên hiện tại
 //   POST /api/sessions/{id}/revoke        → { ok } — chỉ phiên của chính mình
 // Route nghiệp vụ khi phiên bắt buộc đổi mật khẩu → 403
 // {code:"password_change_required", mustChangePassword:true}; route auth-neutral
 // trên vẫn đi qua. Lỗi server luôn là {"error": "<tiếng Việt>"}; request kèm
 // cookie phiên same-origin (verse_session chung của cả hai app).
 import { ApiError, request } from './request'
-import type { Session, SetupState, SetupVerifyResult, SetupAdminResult, User } from './types'
+import type { AppLink, Session, SetupState, SetupVerifyResult, SetupAdminResult, User } from './types'
 
 export { ApiError }
 
 export const login = (username: string, password: string) => request<{ user: User }>('/api/login', { body: { username, password } })
-export const logout = () => request<{ ok: boolean }>('/api/logout', { body: {} })
-export const me = () => request<{ user: User }>('/api/me')
+export const logout = () => request<void>('/api/logout', { body: {} })
+export const me = () => request<{ user: User; session: { expiresAt: string }; apps: AppLink[] }>('/api/me')
 
 /**
  * Đổi mật khẩu của chính mình. Thành công thì máy chủ thu hồi MỌI phiên kể cả

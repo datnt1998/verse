@@ -17,6 +17,18 @@ internally: do **not** wrap the entire command in that same lock.
 The first run builds both web bundles and the three Go binaries, so expect a
 few minutes; later runs reuse nothing (each run starts from an empty temp dir).
 
+For a held fixture during manual UI checks, after `npm ci` run:
+
+```sh
+node_modules/.bin/jiti tests/sso/serve-fixture.ts
+```
+
+Wait for `SSO_FIXTURE_READY <path>/state.json`; that private file contains
+`urls.noverse`, `urls.viderse` and disposable `users.admin` credentials. Point Vite's
+`VITE_API_TARGET` at the relevant backend. Keep credentials out of logs and
+screenshots. Ctrl-C stops the fixture and runs the same teardown. This command
+provisions its own throwaway cluster; it does not run or claim the smoke tests.
+
 ## What it provisions
 
 Everything is throwaway and named with a random suffix:
@@ -74,6 +86,15 @@ run dir are the crash fallback: run `cleanup.sh` if the runner is killed.
 `SSOCSRFRealBrowserForm`, `SSOReturnTargetBoundary`,
 `SSOAlternatingLoginRateLimit`, `SSORoleAndWorkerBoundary`,
 `SSOImportedAccountsAndRollback`.
+
+V26/AO assertions cover `apps: [{id,name,origin}]` in successful `/api/me` and
+denied-grant responses, session expiry metadata, cross-app end reasons after
+logout, password/reset/grant/lock changes, and other-device revocation that
+preserves the initiating session. Logout retains the already-revoked cookie
+without extending its lifetime, so both app tabs can read the reason; the token
+never grants API access and a subsequent login replaces it. The focused Go
+regressions additionally cover expired, foreign-secret and garbage cookies and
+fail-closed `VERSE_APP_LINKS` configuration.
 
 The cutover scenario drives the real `ainovel-cli storage sso-import` against a
 second, freshly migrated identity DB: colliding and clean dry-runs, the
