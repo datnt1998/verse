@@ -43,6 +43,14 @@ describe('headless scoped transport', () => {
     expect(client.mediaUrl('media 1', 'sha256:value')).toBe('/api/measure/request-1/media/media%201?token=scoped-token&v=sha256%3Avalue')
     expect(fetcher.mock.calls.map(([url]) => String(url))).toEqual(['/api/measure/request-1', '/api/measure/request-1/claim'])
   })
+  it('default fetcher binds the real global fetch (browser receiver regression)', async () => {
+    const realFetch = globalThis.fetch
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json(snapshot()))
+    const client = new HeadlessClient('render', 'request-1', 'scoped-token')
+    await client.snapshot()
+    expect(spy).toHaveBeenCalled()
+    globalThis.fetch = realFetch
+  })
 
   it('rejects malformed, mismatched and stale snapshot responses', async () => {
     for (const response of [{ ...snapshot(), revision: '' }, { ...snapshot(), project: { ...snapshot().project, id: 'other-project' } }, { ...snapshot(), request: { ...snapshot().request, binding: { projectRevision: 'old-revision' } } }, { ...snapshot(), media: [{ id: 'incomplete' }] }]) {

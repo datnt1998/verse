@@ -60,7 +60,7 @@ export function parseHeadlessCredential(requestId: string, token: string | undef
 export class HeadlessClient {
   readonly baseUrl: string
   fence: string | null = null
-  constructor(readonly kind: HeadlessKind, readonly requestId: string, readonly token: string, private readonly fetcher: typeof fetch = fetch) {
+  constructor(readonly kind: HeadlessKind, readonly requestId: string, readonly token: string, private readonly fetcher: typeof fetch = (input, init) => globalThis.fetch(input, init)) {
     identifier.parse(requestId)
     this.baseUrl = `/api/${kind}/${encodeURIComponent(requestId)}`
   }
