@@ -149,7 +149,7 @@ func TestEffectiveFatigueDoesNotGuessAmbiguousHistoricalSource(t *testing.T) {
 
 func TestEffectiveFatigueResetBaselineKeepsZeroOnWire(t *testing.T) {
 	baseline := BuildSnapshot([]Candidate{SystemDefaults(), {
-		Source: "project:quy-tac.md",
+		Source:     "project:quy-tac.md",
 		Structured: Structured{FatigueWords: map[string]FatiguePer1000{"im lặng": 0}},
 	}})
 	current := OverlaySnapshot(baseline, Candidate{Source: "story:quy-tac.md", Structured: Structured{FatigueWords: map[string]FatiguePer1000{"im lặng": 4.67}}})

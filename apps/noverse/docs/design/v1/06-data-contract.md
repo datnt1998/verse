@@ -324,3 +324,38 @@ Con trỏ khi đang stream: chu kỳ `· ✢ ✳ ✶ ✻ ✽` (màu `round-star`
 
 - Bài học **Não hệ thống** đã duyệt với `scope=all` không phải quy tắc global do người dùng viết: vẫn được chốt cho truyện mới như mặc định Noverse, nguồn **`default:lessons`** (nguồn cũ `global:lessons` được đổi nhãn khi đọc, không đổi nội dung). Không sinh mục/nhóm “Mọi truyện” trong phản hồi hiệu lực. Bài học riêng gói giữ nguồn `pack:*`; truyện cũ không tự nhận các bài học duyệt sau khi bắt đầu.
 - Dự án **tạo mới sau nâng cấp** bắt đầu với quy tắc trống, không chép lại các tệp global đã nghỉ dùng. `shareGlobal` chỉ còn chọn kế thừa/chốt cấu hình trợ lý AI; không kéo theo quy tắc hoặc văn phong global.
+
+### AP2 — ngưỡng chống giọng văn máy
+
+`GET S/rules/effective` và `GET /api/rules/effective?scope=project|story&project={p}&story={s}` thêm:
+
+```ts
+fatigueWords: Array<{
+  word: string;
+  per1000: number;       // nguồn hiệu lực, tính theo 1.000 tiếng
+  perChapter: number;    // round(per1000 * 1.5), chương tham chiếu 1.500 tiếng
+  source?: "default" | "pack" | "project" | "story" | "learned";
+  basePerChapter?: number; // ngưỡng ↺ nếu bỏ ghi đè ở cấp đang sửa (kể cả 0)
+  baseSource?: "default" | "pack" | "project";
+}>;
+forbiddenDefaults: string[]; // bốn cụm cấm mặc định Noverse, không sửa/xoá
+```
+
+Mảng luôn chứa đủ 16 từ/cụm nhạy mặc định, cộng từ riêng hiệu lực nếu có; ngưỡng **0** là cấm xuất hiện, không phải “chưa đặt”. Lưu/apply vẫn qua quy tắc chữ tự do và bộ chuẩn hoá hiện có, không có kho cài đặt riêng. Xoá ghi đè trả về ngưỡng gói/mặc định. Thứ tự ưu tiên số liệu cùng checker: mặc định → gói → dự án → truyện → điều chỉnh đã học. Nguồn được lưu theo từng từ tại `snapshot.fatigue_sources`, kể cả ghi đè có giá trị bằng mặc định.
+
+**Tương thích dữ liệu cũ:** snapshot trước AP không lưu nguồn thắng theo từng từ. Chỉ suy nguồn nếu các nguồn đã chốt chứng minh được; nếu mơ hồ thì **không có `source`**, UI không hiện nhãn nguồn. Số liệu vẫn đúng; lần Apply kế tiếp sẽ ghi đủ provenance. Không đoán từ các tệp hiện tại vì chúng có thể đã sửa sau lần Apply cũ.
+
+Mốc ↺ cấp dự án gồm mặc định + gói; cấp truyện gồm mặc định + gói + quy tắc dự án, bỏ qua lời dặn/ghi đè truyện và điều chỉnh đã học. UI dùng `basePerChapter`, không đoán mốc gói từ mặc định Noverse khi từ đang có ghi đè riêng.
+
+### AP4/AP5/AP6 — nền truyện và tuyến còn mở
+
+| API / khóa | Kiểu và nguồn |
+|---|---|
+| `GET S/premise` | `{sections: [{heading: string, text: string}], missing: string[], updatedAt: string \| null}`. Tách bằng cùng `parsePremiseSections` của engine, thiếu mục tính bằng `requiredPremiseHeadings(planningTier)`. `text` giữ toàn bộ nội dung đã lưu, không tóm tắt hay sinh mục trống. Giữ cả mục `##` riêng; mục chuẩn theo thứ tự mẫu, mục riêng theo tên. `updatedAt` là RFC3339 của mtime `premise.md` ở file mode hoặc `outline_documents.updated_at` ở PG; chưa có tệp là `null`. |
+| `GET S/world-rules` | `Array<{category: string, rule: string, boundary: string}>` từ `world_rules.json`, giữ đủ trường. Category gốc: `magic`, `technology`, `geography`, `society`, `other`; UI dùng bản dịch tương ứng. Chưa có dữ liệu trả `[]`. |
+| `snapshot.openThreads` | `string[]` từ compass `open_threads`, mặc định `[]`, không suy từ số chương. |
+| `snapshot.planningTier` | `"short" \| "mid" \| "long" \| ""` từ `run.json.planning_tier`; dữ liệu cũ chưa có giữ `""`, không đoán bậc theo số chương. |
+| `GET S/brain` → rule entity `category` | Trường phân loại quy tắc thế giới; entity khác không thay đổi. |
+
+Hosted: hai API nền truyện đọc kho fact PG theo quyền dự án trước nhánh proxy; snapshot đi qua gateway → worker như cũ và có đủ hai khóa mới. File mode dùng cùng DTO và parser; lỗi đọc/giải mã là lỗi API, không giả thành dữ liệu rỗng. Hai API đọc bổ sung không thay đổi công cụ ghi nền truyện hiện có.
+

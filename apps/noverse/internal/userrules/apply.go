@@ -82,10 +82,10 @@ type ChapterTiming struct {
 // Snapshot là bản đã áp dụng (cái trợ lý thật sự nhận); Items đọc thẳng từ các tệp quy-tac.md
 // hiện tại nên có thể đi trước Snapshot cho tới khi bấm Áp dụng.
 type Effective struct {
-	Snapshot *rules.Snapshot `json:"snapshot"`
-	Items    []RuleItem      `json:"items"`
-	Runtime  []RuntimeView   `json:"runtime"`
-	Timing   ChapterTiming   `json:"timing"`
+	Snapshot          *rules.Snapshot     `json:"snapshot"`
+	Items             []RuleItem          `json:"items"`
+	Runtime           []RuntimeView       `json:"runtime"`
+	Timing            ChapterTiming       `json:"timing"`
 	FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
 	ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 }
@@ -180,7 +180,7 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	baseline := rules.BuildSnapshot(baselineCandidates)
 	return &Effective{
 		Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing(),
-		FatigueWords: rules.EffectiveFatigue(snap, s.pack, &baseline),
+		FatigueWords:      rules.EffectiveFatigue(snap, s.pack, &baseline),
 		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
 	}, nil
 }

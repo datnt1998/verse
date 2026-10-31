@@ -129,7 +129,7 @@ func TestFileEffectiveFatigueAndForbiddenDefaults(t *testing.T) {
 	}
 	var wire struct {
 		FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
-		ForbiddenDefaults []string           `json:"forbiddenDefaults"`
+		ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 	}
 	if err := json.Unmarshal(data, &wire); err != nil || len(wire.FatigueWords) != 16 || len(wire.ForbiddenDefaults) != 4 {
 		t.Fatalf("missing response contract: %s, %v", data, err)

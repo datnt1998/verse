@@ -38,8 +38,8 @@ func NewFileRules(model llmtypes.ChatModel, opts rules.LoadOptions, cachePath st
 // Snapshot = system_defaults + mọi tệp .md của các cấp trong opts (tính tại chỗ, không lưu);
 // Items = từng dòng của quy-tac.md ở các cấp đó.
 type FileEffective struct {
-	Snapshot *rules.Snapshot `json:"snapshot"`
-	Items    []RuleItem      `json:"items"`
+	Snapshot          *rules.Snapshot     `json:"snapshot"`
+	Items             []RuleItem          `json:"items"`
 	FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
 	ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 }

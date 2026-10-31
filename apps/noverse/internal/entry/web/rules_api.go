@@ -174,7 +174,22 @@ func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Reque
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), applyTimeout)
 	defer cancel()
-	eff, err := userrules.NewFileRules(model, opts, cachePath).Effective(ctx)
+	cfg, _, err := g.loadTargetConfig(ctx, t, user)
+	if err != nil {
+		scopeError(w, err)
+		return
+	}
+	bundle := assets.Load(cfg.Style, assets.LoadOptions{})
+	if bundle.Err != nil {
+		jsonError(w, http.StatusInternalServerError, "Không đọc được gói quy tắc: "+bundle.Err.Error())
+		return
+	}
+	pack, err := rules.PackDefaults(bundle.Pack)
+	if err != nil {
+		jsonError(w, http.StatusInternalServerError, "Không đọc được gói quy tắc: "+err.Error())
+		return
+	}
+	eff, err := userrules.NewFileRules(model, opts, cachePath, pack).Effective(ctx)
 	if err != nil {
 		if r.Context().Err() == nil {
 			jsonError(w, http.StatusInternalServerError, "Không đọc được quy tắc: "+err.Error())

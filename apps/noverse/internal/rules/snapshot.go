@@ -49,12 +49,12 @@ const SnapshotVersion = 2
 // 来源按优先级低→高排列后交给 BuildSnapshot 确定性合并。LLM 只负责把单一来源的
 // 自然语言变成候选 Structured/Preferences；优先级与字段覆盖由 BuildSnapshot（Go）裁定。
 type Candidate struct {
-	Source      string     `json:"source"`                // 可读来源标签，进入 Snapshot.Sources（如 system_defaults / startup_prompt / global:my.md）
-	Structured  Structured `json:"structured"`            // 该来源候选结构化字段
+	Source     string     `json:"source"`     // 可读来源标签，进入 Snapshot.Sources（如 system_defaults / startup_prompt / global:my.md）
+	Structured Structured `json:"structured"` // 该来源候选结构化字段
 	// FatigueSources phân biệt từ gói khai rõ với từ kế thừa từ system_defaults.
 	FatigueSources map[string]string `json:"fatigue_sources,omitempty"`
-	Preferences string     `json:"preferences,omitempty"` // 该来源的自然语言偏好正文
-	Uncertain   []string   `json:"uncertain,omitempty"`   // 该来源故意未提升到 structured 的项 + 原因（诊断）
+	Preferences    string            `json:"preferences,omitempty"` // 该来源的自然语言偏好正文
+	Uncertain      []string          `json:"uncertain,omitempty"`   // 该来源故意未提升到 structured 的项 + 原因（诊断）
 	// UncertainNote 给用户看的一行“还没把握懂对”（Câu 26a）；空 = 模型已确定。
 	UncertainNote string   `json:"uncertain_note,omitempty"`
 	UncertainFlag bool     `json:"is_uncertain,omitempty"`

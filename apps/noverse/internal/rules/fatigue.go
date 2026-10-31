@@ -101,7 +101,7 @@ func EffectiveFatigue(snapshot *Snapshot, pack Candidate, baseline ...*Snapshot)
 		out = append(out, FatigueWord{
 			Word: word, Per1000: limit.Per1000(),
 			PerChapter: int(math.Round(limit.Per1000() * FatigueRefChapterTieng / 1000)),
-			Source: fatigueSource(source),
+			Source:     fatigueSource(source),
 		})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Word < out[j].Word })

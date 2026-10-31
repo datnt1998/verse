@@ -59,8 +59,8 @@ type PremiseSection struct {
 
 type StoryPremise struct {
 	Sections  []PremiseSection `json:"sections"`
-	Missing   []string        `json:"missing"`
-	UpdatedAt *time.Time      `json:"updatedAt"`
+	Missing   []string         `json:"missing"`
+	UpdatedAt *time.Time       `json:"updatedAt"`
 }
 
 // Premise uses the same parser and tier-specific requirements as the engine.
