@@ -1,24 +1,22 @@
-// Thanh chọn nhiều của Khám phá — sticky đáy cột giữa (artboard .card region
-// "Thao tác với video đã chọn"): "Đã chọn N" · Top 10/20 · Bỏ chọn ·
-// Sao chép link · nút chính "Làm N video" (khoá, vẫn focus được: chưa có kênh
-// của bạn) · nút ✕.
-import { Icon, toast } from '@noverse/ui'
+// Thanh chọn nhiều: chọn kênh đích trước khi xếp các video đã chọn.
+import { Icon, toast, usePopup } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { copyText } from './VideoGrid'
 
-export function BulkBar({ count, selected, onTop, onClear, onExit, hasChannel }: {
+export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onMake, busy = false }: {
   count: number
-  /** video đang được tích — "Sao chép link" gom URL của chúng */
   selected: readonly Video[]
   onTop: (n: number) => void
   onClear: () => void
   onExit: () => void
-  /** có kênh rồi thì nút làm video khoá vì hàng chờ chưa mở */
-  hasChannel: boolean
+  channels: readonly { id: string; name: string }[]
+  onMake: (channelId: string) => void
+  busy?: boolean
 }) {
   const tt = t.screens.explore
+  const { root, open, setOpen } = usePopup()
   const copyLinks = async () => {
     const urls = selected.map((v) => v.url)
     const ok = await copyText(urls.join('\n'))
@@ -35,15 +33,23 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, hasChannel }:
           <button type="button" onClick={onClear}>{tt.deselect}</button>
         </span>
         <ActionButton size="md" icon={<Icon name="copy" size={15} />} onClick={copyLinks}>{tt.copyLink}</ActionButton>
-        <ActionButton
-          variant="primary"
-          size="md"
-          lockedReason={hasChannel ? tt.queueReason : tt.lockedReason}
-          icon={<Icon name="clock" size={15} />}
-        >
-          {tt.bulkMake(count)}
-          <Icon name="arrow-d" size={13} aria-hidden />
-        </ActionButton>
+        <div ref={root} className="vv-switcher-root">
+          <ActionButton variant="primary" size="md"
+            lockedReason={channels.length ? undefined : tt.lockedReason}
+            disabled={busy}
+            aria-haspopup="menu" aria-expanded={open}
+            icon={<Icon name="clock" size={15} />}
+            onClick={() => setOpen(!open)}>
+            {channels[0] ? tt.bulkMakeFor(count, channels[0].name) : tt.bulkMake(count)}
+            <Icon name="arrow-d" size={13} aria-hidden />
+          </ActionButton>
+          {open && <div role="menu" aria-label={tt.makeChannel} className="vv-switcher__menu vx-bulk__menu">
+            {channels.map((channel) => <button type="button" role="menuitem" className="vv-switcher__item" key={channel.id}
+              onClick={() => { setOpen(false); onMake(channel.id) }}>
+              {tt.bulkMakeFor(count, channel.name)}
+            </button>)}
+          </div>}
+        </div>
         <button type="button" className="vx-iconbtn" aria-label={tt.exitSelect} onClick={onExit}
           style={{ width: 'var(--vv-s-34)', height: 'var(--vv-s-34)' }}>
           <Icon name="close" size={16} />

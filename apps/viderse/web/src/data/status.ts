@@ -1,13 +1,12 @@
 // Trạng thái đầu trang và kết nối máy chủ.
 // useStatus: đọc khoá 'status' (GET /api/status) — SSE `status`/`reset` invalidate
-// khoá này; khi luồng mất thì vòng poll 3 s trong data/events.ts làm mới.
-// useOnline: false ngay khi trình duyệt báo offline HOẶC luồng sự kiện không
-// còn "open" → dải mất kết nối + khoá nút ghi trong ≤5 s sau khi mất nối.
+// khoá này; khi luồng mất thì vòng poll 2,5 s trong data/events.ts làm mới.
+// Kết nối API vẫn hợp lệ khi SSE hỏng nhưng poll thành công; chỉ offline
+// khi trình duyệt mất mạng hoặc status API thất bại.
 import { useSyncExternalStore } from 'react'
 import { useResource } from './useResource'
 import { keys } from './keys'
 import { status as fetchStatus } from '../api/status'
-import { useEventsStatus } from './events'
 
 export function useStatus() {
   return useResource(keys.status(), ({ signal }) => fetchStatus(signal), { staleTime: POLL_STALE_MS })
@@ -27,5 +26,6 @@ const subscribeNet = (listener: () => void) => {
 
 export function useOnline(): boolean {
   const netDown = useSyncExternalStore(subscribeNet, () => !navigator.onLine)
-  return !netDown && useEventsStatus().state === 'open'
+  const status = useStatus()
+  return !netDown && status.status !== 'error'
 }

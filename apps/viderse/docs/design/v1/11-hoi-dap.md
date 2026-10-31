@@ -326,6 +326,7 @@ Mẫu:
   1. `GET /api/queue` trả thêm `pausedAt` (giờ bấm Tạm dừng, cho câu “Đã tạm dừng lúc 00:04”) và mỗi dòng chờ có `waitReason` ngoài `pace_full|no_template` còn `queue_paused|workers_busy|rotation|paused_channel`.
   2. `paused_channel` được hiểu là **Tự lấy tắt** (`owner_channels.auto_pick = false`): chỉ khoá các mục `batch` có `origin = auto` của kênh đó; mục `pick`/`bulk` người dùng chủ động xếp vẫn chạy. Không có cột “tạm dừng kênh” nào khác.
   3. `POST /api/clone/plan` trả thêm `imageCalls` (số ảnh tính theo recipe thật, cộng 10% vẽ lại theo `yt-factory 2c201e6:src/server/clone/queue.ts:72,898`) và `priceUSD` — `null` vì chưa có bảng giá theo ảnh của model nào. `accepted[]` thêm `imageEstimate`, `imageCalls`, `priceUSD`, `viewCount`, `publishedAt`; `duplicates[]` thêm `title` (tên job/video trùng) và nhận cả bản `state: "queued"` với `jobId: null`.
+     `accepted[]` còn trả `sourceChannelId` và `rivalLinked` theo liên kết thật của kênh đích. `duplicates[]` có `thumbnailUrl`, `durationSec`, `viewCount`, `hasCaptions`, `sourceChannelTitle`, `publishedAt`, `outlier`: ưu tiên source snapshot của job/hàng chờ, chỉ bổ sung trường lịch sử còn thiếu từ video đối thủ; không gọi lại nguồn ngoài cho preview đã lưu.
   4. `PATCH /api/queue` theo hợp đồng v2: `{paused}`, `{workers, imageWorkers, rescanHours}`, `{id, position}` (vị trí số thực), `{id, action: "front"|"remove"}`. `front` chuyển mục sang `pick` và đặt trước mọi mục `pick` hiện có; nhịp chỉ tính khi mục bắt đầu với ưu tiên `batch`. `items[]` trả `position` thật để kéo thả tính midpoint, `sourceUrl` và `thumbnailUrl` khi có dữ liệu.
   5. `imageQuota[]` lấy số ảnh đã tính hôm nay từ `image_receipts`, giới hạn và giờ reset từ nguồn vẽ thật (không có số thì `null`). `doneToday[]` lấy job `stage_group` `ready|posted|review` cập nhật sau 00:00 giờ máy (`at` = `updated_at` vì chưa có cột giờ xong riêng, `posted` hiện như `ready`).
   6. SSE: một sự kiện `queue.updated` cho mọi thay đổi hàng chờ (xếp, xếp lại, bỏ, tạm dừng, drain bắt đầu/xong) + `clone.job.*` hiện hữu để invalidate; không bắn mỗi lần ETA đổi.
@@ -342,4 +343,26 @@ Mẫu:
 - Artboard: `VideoDetail` · luồng tạo video tới `awaiting_review`; backend Phase 05.
 - Dev: Phase 05 dựng project editor schema 15 bằng ảnh đã chọn, hoặc ứng viên hợp lệ mới nhất nếu chủ kênh chưa chọn. Đây chỉ là **bản nháp để duyệt**: không tự ghi thao tác duyệt ảnh, không xuất MP4, không chạy bước kiểm định/xuất.
 - Khác yt-factory `build.ts` (chặn trước khi dựng khi ảnh chưa duyệt): điểm chờ được đặt **sau** khi dựng project, đúng yêu cầu Phase 05 “dựng rồi chờ duyệt”. Project và artifact được publish trước khi job đỗ `awaiting_review`, không có `retryAt`; chỉ thao tác duyệt mới mở bước tiếp.
+
+### #55 · Hàng chờ: không suy đoán sức máy — Đã chốt
+- Artboard: `Queue` · mọi trạng thái, cột Quy tắc chạy: “Máy này chạy ổn 2 luồng”.
+- Backend chưa có phép đo sức máy. Không hiện dòng này; số luồng đã cấu hình vẫn đọc từ `workers.total`, không phải kết quả đo. Không dùng giá trị cấu hình để khẳng định máy chạy ổn.
+
+### #56 · Viên Hàng chờ khi tạm dừng — Đã chốt
+- Artboard: `Main`, `Queue` dùng “Tạm dừng”; tiêu chí nghiệm thu yêu cầu “Đã tạm dừng”.
+- Code dùng “Đã tạm dừng”, kể cả khi bước đang làm được chạy nốt. Không hiện chấm đang chạy trong trạng thái này. Chiều rộng viên thay đổi theo câu thật, không ép bằng chiều rộng câu trên artboard.
+
+### #57 · Điện thoại: không vẽ giả thanh hệ điều hành — Đã chốt
+- Artboard: `MNew`, `MMain` có thanh trạng thái 44px và vùng home indicator 26px.
+- Web không dựng giờ, sóng, pin hoặc home indicator giả. Dùng `env(safe-area-inset-top|bottom)` của thiết bị. Đo phần nội dung theo gốc dưới thanh trạng thái: trên Chromium 390×844 không inset, y của nội dung bằng y artboard trừ 44px; phần dính đáy so theo mép trên vùng home indicator, không thêm 26px giả.
+- Quy ước đo tương đối theo safe area giống Noverse; chiều rộng, chiều cao, font, padding và gap của nội dung không được tự đổi.
+
+### #58 · Video mới: tuỳ chọn không cần ảnh — Đã chốt
+- Gói V2 yêu cầu chip Ảnh và API hỗ trợ `noImages`, nhưng `NewVideo` / `MNew` chưa vẽ điều khiển này.
+- Giữ tuỳ chọn “Không cần ảnh” dùng dữ liệu thật. Trên máy tính cùng hàng Kênh/Template; trên điện thoại thêm một hàng 52px trong nhóm tuỳ chọn. Không mặc định bật hoặc sửa recipe gốc của template.
+- Khác biệt có chủ ý: nhóm tuỳ chọn điện thoại cao thêm 52px so với artboard; không giấu tính năng chỉ để khớp ảnh.
+
+### #59 · Điện thoại: chỉnh Quy tắc chạy từ hàng chờ — Đã chốt
+- Artboard `MMain`, sheet Hàng chờ có “Chỉnh” trỏ tới `Queue`; chưa có artboard Queue điện thoại riêng.
+- “Chỉnh” mở Dialog của kit, dùng lại chính các control Quy tắc chạy của Queue và cùng PATCH thật. Không thêm tuỳ chọn hoặc lời mới. Đóng Dialog trở về sheet đang xem.
 

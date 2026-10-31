@@ -19,6 +19,8 @@ import {
   type PostingZone, type Rival, type Video, type VideoSort,
 } from '../../api/rivals'
 import { listChannels } from '../../api/channels'
+import { enqueueClone } from '../../api/clone'
+import { toast } from '@noverse/ui'
 import { RivalSidebar, rivalColor } from './RivalSidebar'
 import { AddRivalForm } from './AddRivalForm'
 import { FilterBar, WITHIN } from './FilterBar'
@@ -185,6 +187,19 @@ export function ExploreScreen({ route }: { route: Route }) {
 
   const selectedVideos = useMemo(() => items.filter((v) => checkedIds.has(v.id)), [items, checkedIds])
 
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const bulkEnqueue = useCallback(async (channelId: string) => {
+    if (bulkBusy || !channels.some((channel) => channel.id === channelId) || selectedVideos.length === 0) return
+    setBulkBusy(true)
+    try {
+      await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
+      toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
+      exitSelect()
+    } catch {
+      toast.err(t.screens.new.toasts.failed)
+    } finally { setBulkBusy(false) }
+  }, [bulkBusy, channels, selectedVideos, exitSelect])
+
   // ─── Trạng thái trống: chưa theo dõi đối thủ nào ───
   // Artboard vẫn giữ cột đối thủ 252 px (nhóm "Đối thủ 0" + câu hướng dẫn)
   // và bỏ rail; chỉ cột giữa đổi thành khối giới thiệu. Ô thêm đối thủ chỉ có
@@ -281,7 +296,9 @@ export function ExploreScreen({ route }: { route: Route }) {
             onTop={selectTop}
             onClear={() => setCheckedIds(new Set())}
             onExit={exitSelect}
-            hasChannel={channels.length > 0}
+            channels={channelRefs}
+            busy={bulkBusy}
+            onMake={bulkEnqueue}
           />
         )}
       </main>

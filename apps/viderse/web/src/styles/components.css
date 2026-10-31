@@ -55,8 +55,8 @@
 /* ─── JobsPill ─── */
 .vv-jobs {
   position: relative; height: 30px; padding: 0 var(--vv-s-10);
-  display: flex; align-items: center; gap: var(--vv-s-8); border-radius: var(--radius-control);
-  border: 1px solid transparent; background: transparent;
+  display: flex; align-items: center; gap: var(--vv-s-8); border-radius: 8px;
+  border: none; background: transparent;
   color: var(--color-fg-3); font-size: 12.5px; white-space: nowrap; text-decoration: none;
 }
 .vv-jobs:hover { background: var(--color-surface-1); border-color: var(--line-1) }
@@ -132,32 +132,39 @@
 }
 
 /* ─── MobileShell / MobileTabBar ─── */
+.vv-mobile-shell { height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); }
 .vv-mbar {
-  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: var(--vv-s-10);
-  height: var(--vv-m-bar); padding: 0 var(--vv-s-12); background: var(--color-bg); border-bottom: var(--vv-s-1) solid var(--line-1);
+  position: relative; z-index: 30; flex: 0 0 52px; display: flex; align-items: center; gap: 10px;
+  height: 52px; padding: 0 12px 0 16px; background: var(--color-bg);
 }
+.vv-mbar--new { padding: 0 6px; gap: 0; }
+.vv-mclose { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 0; background: transparent; color: var(--color-fg-2); cursor: pointer; }
+.vv-mnew-title { flex: 1; min-width: 0; padding-left: 2px; font-size: 16px; font-weight: 600; }
+.vv-mbar .vv-switcher { height: 36px; padding: 0 8px 0 4px; border-radius: 999px; gap: 7px; font-size: 13.5px; }
+.vv-mbar .vv-jobs { height: 36px; padding: 0 11px; gap: 7px; border-radius: 999px; border: 1px solid var(--line-1); background: var(--color-surface-1); color: var(--color-fg-2); }
+.vv-mbar .vv-jobs__dot { width: 7px; height: 7px; }
 .vv-mavatar {
-  width: 30px; height: 30px; border-radius: 50%; flex: 0 0 auto;
-  display: inline-flex; align-items: center; justify-content: center;
-  border: 1px solid var(--line-2); color: var(--color-fg-2);
+  width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600;
+  border: 1px solid var(--line-2); color: var(--color-fg); background: var(--color-surface-6);
 }
 .vv-tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: var(--vv-m-tabbar);
-  display: flex; align-items: stretch; justify-content: space-around;
-  background: var(--vv-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-top: var(--vv-s-1) solid var(--line-1); padding-bottom: env(safe-area-inset-bottom);
+  position: fixed; left: 14px; right: 14px; bottom: calc(30px + env(safe-area-inset-bottom)); z-index: 30; height: 64px;
+  display: flex; align-items: stretch; justify-content: space-around; padding: 5px; border-radius: 32px;
+  background: var(--vv-glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid var(--line-1); box-shadow: var(--vv-shadow-pop);
 }
 .vv-tabbar__item {
   flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--vv-s-3); text-decoration: none; min-width: 0;
+  gap: 2px; text-decoration: none; min-width: 0; border-radius: 27px;
 }
 .vv-tabbar__pill {
   position: relative; display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 30px; border-radius: var(--radius-row);
-  color: var(--color-fg-4); border: 1px solid transparent;
+  width: 44px; height: 22px; color: var(--vv-st-neutral);
 }
-.vv-tabbar__item--active .vv-tabbar__pill { background: var(--vv-tabbar-ind-bg); border-color: var(--vv-tabbar-ind-bd); color: var(--vv-tabbar-on) }
-.vv-tabbar__label { font-size: 10px; font-weight: 500; color: var(--color-fg-4) }
+.vv-tabbar__item--active { background: var(--vv-tabbar-ind-bg); border: 1px solid var(--vv-tabbar-ind-bd); }
+.vv-tabbar__item--active .vv-tabbar__pill { color: var(--color-accent); }
+.vv-tabbar__label { font-size: 10.5px; line-height: 16px; font-weight: 500; color: var(--vv-st-neutral); }
 .vv-tabbar__item--active .vv-tabbar__label { font-weight: 600; color: var(--vv-tabbar-on) }
 .vv-tabbar__badge {
   position: absolute; top: calc(-1 * var(--vv-s-4)); right: calc(-1 * var(--vv-s-6)); min-width: 16px; height: 16px; padding: 0 var(--vv-s-4);
@@ -166,7 +173,7 @@
   box-shadow: 0 0 0 2px var(--color-bg);
 }
 .vv-tabbar__new {
-  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   background: var(--vv-red-button); color: var(--vv-red-ink);
   box-shadow: var(--vv-shadow-fab);
 }

@@ -86,7 +86,7 @@ export function AppShell({ route, user, children }: {
     return (
       <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
         {strip}
-        <div inert={offline || undefined} style={{ flex: '1 1 auto', minWidth: 0, paddingBottom: 'var(--vv-tabbar-pad)', ...(offline ? { opacity: 0.42 } : {}) }}>
+        <div inert={offline || undefined} style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingBottom: route.name === 'new' ? 0 : 'var(--vv-tabbar-pad)', ...(offline ? { opacity: 0.42 } : {}) }}>
           {children}
         </div>
       </MobileShell>

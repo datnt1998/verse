@@ -67,4 +67,8 @@ export const keys = {
   backdropVideos: () => ['backdrop', 'videos'] as const satisfies Key,
   /** GET /api/templates/:id/backdrop/mix — ước lượng phần nền của một video 42 phút. */
   backdropMix: (templateId: string, lengthSec: number) => ['backdrop', 'mix', templateId, String(lengthSec)] as const satisfies Key,
+  /** GET /api/queue — hàng chờ §3 (đang chạy + chờ lượt + quy tắc), làm mới
+      bởi sự kiện clone.job.* / queue.updated và status. */
+  queue: () => ['queue'] as const satisfies Key,
 } as const
+

@@ -72,17 +72,33 @@ export function MobileShell({ route, status, online, userName, channels, channel
   const running = status?.running ?? 0
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
+  const isNew = route.name === 'new'
+  // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
+  if (isNew) {
+    return (
+      <div className="vv-mobile-shell vv-mobile-shell--new">
+        <header role="banner" className="vv-mbar vv-mbar--new">
+          <button type="button" aria-label={t.common.close} className="vv-mclose"
+            onClick={() => navigate(paths.workbench())}>
+            <Icon name="close" size={18} />
+          </button>
+          <span className="vv-mnew-title">{t.screens.new.title}</span>
+        </header>
+        {children}
+      </div>
+    )
+  }
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    <div className="vv-mobile-shell">
       <header role="banner" className="vv-mbar">
         <a href={`#${paths.workbench()}`} aria-label={t.brand.name} style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
           <LensLogo size={24} spinning={online && running > 0} />
         </a>
         {showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
         <span style={{ flex: 1 }} />
-        <JobsPill status={status} online={online} unread={(status?.attention.length ?? 0) > 0} />
+        <JobsPill status={status} online={online} compact unread={(status?.attention.length ?? 0) > 0} />
         <a href={`#${paths.account()}`} aria-label={userName ?? t.shell.account} className="vv-mavatar">
-          <Icon name="user" size={15} />
+          {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
         </a>
       </header>
       {children}

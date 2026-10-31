@@ -1,6 +1,7 @@
 // Chuỗi giao diện tiếng Việt — mọi chữ hiển thị của app đi qua `t`.
 // Thuật ngữ, mẫu câu và câu lỗi theo design 06-copy.md; không lộ kỹ thuật
 // (tên công cụ, đường dẫn, mã lỗi) ngoài “Chi tiết”.
+import { newScreenCopy, queueScreenCopy } from './newScreen'
 import { accountsCopy } from './accounts'
 import { aiCopy } from './ai'
 import { backdropCopy } from './backdrop'
@@ -66,6 +67,7 @@ export const vi = {
   shell: {
     jobsIdle: (queued: number) => `Máy rảnh · ${queued} chờ lượt`,
     jobsRunning: (running: number, queued: number) => `${running} đang chạy · ${queued} chờ lượt`,
+    jobsCompact: (running: number, queued: number) => `${running} · ${queued}`,
     jobsPaused: (queued: number) => `Đã tạm dừng · ${queued} chờ lượt`,
     jobsOffline: 'Mất kết nối',
     jobsAriaLabel: 'Việc nền',
@@ -168,12 +170,7 @@ export const vi = {
       emptyHint: 'Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.',
       emptyAction: 'Về Bàn dựng',
     },
-    queue: {
-      title: 'Hàng chờ',
-      emptyTitle: 'Hàng chờ trống',
-      emptyHint: 'Thêm video từ Khám phá hoặc dán link ở Video mới.',
-      emptyAction: 'Làm video',
-    },
+    queue: queueScreenCopy,
     explore: {
       title: 'Khám phá',
       emptyTitle: 'Chưa theo dõi đối thủ nào',
@@ -257,6 +254,7 @@ export const vi = {
       pickVideo: (title: string) => `Chọn ${title}`,
       bulkRegion: 'Thao tác với video đã chọn',
       bulkMake: (n: number) => `Làm ${n} video`,
+      bulkMakeFor: (n: number, channel: string) => `Làm ${n} video cho ${channel}`,
       lockedReason: 'Cần một kênh của bạn để làm video. Tạo kênh ở mục Kênh.',
       /** đã có kênh nhưng hàng chờ chưa mở — đổi lý do khoá, không bịa nút chạy */
       queueReason: 'Cần hàng chờ để làm video. Hàng chờ chưa mở.',
@@ -279,6 +277,13 @@ export const vi = {
       hasSubs: 'Có phụ đề do kênh đăng',
       openYouTube: 'Mở trên YouTube',
       queuePlan: 'Lên đầu hàng chờ khi bấm Làm video.',
+      queuePlanLoading: 'Đang kiểm kế hoạch…',
+      queuePlanEta: (time: string) => `Lên đầu hàng chờ · dự kiến bắt đầu ${time}.`,
+      queuePlanDup: 'Video này đã được làm cho kênh này.',
+      queuePlanOpen: 'Mở video',
+      queueNote: 'Video chọn tay lên đầu hàng chờ, không chiếm nhịp ngày của kênh.',
+      queuedLabel: 'Đã vào hàng chờ',
+      queuedDone: 'Video đã xếp vào hàng chờ.',
       makeChannel: 'Làm cho kênh',
       makeVideo: 'Làm video',
       rivalActions: (name: string) => `Thao tác với ${name}`,
@@ -355,11 +360,7 @@ export const vi = {
       postingNoSlots: (n: number) => `${n} video gần nhất đăng lệch giờ nhau, chưa có khung nào lặp ít nhất 3 lần.`,
       weekdays: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
     },
-    new: {
-      title: 'Video mới',
-      emptyTitle: 'Dán link video đối thủ',
-      emptyHint: 'Luồng Làm video sẽ dựng ở đây.',
-    },
+    new: newScreenCopy,
     editor: {
       title: 'Editor',
       emptyTitle: 'Chưa mở project nào',

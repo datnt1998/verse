@@ -1,7 +1,6 @@
 // Luồng sự kiện Viderse: GET /api/events (SSE, resume bằng Last-Event-ID).
-// Sự kiện → prefix khoá theo eventKeys; `status` còn điều khiển vòng poll
-// dự phòng 3 s của GET /api/status — chỉ chạy khi tab đang nhìn và luồng
-// không còn "open".
+// Sự kiện → prefix khoá theo eventKeys; status và queue có vòng poll dự
+// phòng 2,5 s — chỉ chạy khi tab đang nhìn và luồng không còn "open".
 // Mất kết nối phải lộ trong ≤5 s (design 07 §5): server ping 2 s nên luồng
 // không byte nào sau 3,5 s coi như chết (kể cả read() treo), headers không
 // về sau 3,5 s cũng là mất kết nối; trình duyệt báo offline nối lại ngay.
@@ -31,9 +30,9 @@ export const events = createEventsClient({
 export const subscribeEvents = (type: ServerEventType | readonly ServerEventType[] | '*', handler: (data: unknown, meta: { type: string; id: string }) => void) =>
   events.subscribe(type, handler)
 
-export const POLL_MS = 3000
+export const POLL_MS = 2500
 
-/** Poll /api/status chỉ khi: tab đang hiện VÀ luồng SSE không open. */
+/** Poll bộ đếm và hàng chờ đang được theo dõi khi tab hiện + SSE xuống. */
 const pollWanted = () => events.status().state !== 'open' && document.visibilityState === 'visible'
 
 /**
@@ -54,11 +53,15 @@ export function startDataEvents() {
   }
   const reset = () => { clearTimeout(timer); timer = undefined; pending.clear(); void invalidate() }
 
+  const refreshQueueStatus = () => {
+    void cache.refresh(keys.status()).catch(() => {})
+    void cache.refresh(keys.queue()).catch(() => {})
+  }
   const syncPoll = () => {
     if (pollWanted()) {
       if (pollTimer === undefined) {
-        void cache.refresh(keys.status()).catch(() => {})
-        pollTimer = setInterval(() => { void cache.refresh(keys.status()).catch(() => {}) }, POLL_MS)
+        refreshQueueStatus()
+        pollTimer = setInterval(refreshQueueStatus, POLL_MS)
       }
     } else if (pollTimer !== undefined) {
       clearInterval(pollTimer)

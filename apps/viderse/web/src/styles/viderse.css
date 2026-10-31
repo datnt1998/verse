@@ -120,6 +120,10 @@
   --vv-tile-idle: #1A1A1D;
   /* Nền tile icon công cụ (artboard .ibox bg #1B1B1E). */
   --vv-ibox-bg: #1B1B1E;
+  /* NewVideo/Queue: nền card mềm và phím Enter từ canonical artboard. */
+  --vv-clone-card-bg: #161618;
+  --vv-kbd-bg: rgba(127, 127, 127, .12);
+  --vv-kbd-line: rgba(127, 127, 127, .32);
 
   /* Bo góc app ngoài thang của kit (kit có chip 6 → dock 18): skeleton mờ,
      menu bộ đổi kênh, sân khấu trống, khung điện thoại ở dev kit. */

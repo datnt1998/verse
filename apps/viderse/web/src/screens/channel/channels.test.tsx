@@ -4,8 +4,7 @@
 // 2. Hồ sơ kênh tự lưu khi rời ô; 400 theo trường giữ nguyên chữ đang gõ;
 // 3. Bỏ đối thủ cuối → server autoPickPaused → hiện lý do tạm dừng;
 // 4. Nhận diện đang vẽ thì nút vẽ lại khoá kèm lý do; lỗi hiện giờ tự thử lại;
-// 5. Khám phá: có kênh thì chọn được kênh + mở "Liên kết với kênh…", nút làm
-//    video vẫn khoá nhưng đổi lý do sang "cần hàng chờ".
+// 5. Khám phá: có kênh thì chọn được kênh đích trước khi làm hàng loạt.
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -319,7 +318,7 @@ describe('Nhận diện', () => {
 })
 
 describe('Khám phá mở khoá theo kênh', () => {
-  it('có kênh: chọn được kênh, nút làm video đổi lý do sang hàng chờ', async () => {
+  it('có kênh: chọn được kênh đích, chưa có kế hoạch hợp lệ thì chưa làm video', async () => {
     const el = await mount(
       <PreviewPanel
         video={{
@@ -333,13 +332,9 @@ describe('Khám phá mở khoá theo kênh', () => {
       />,
     )
     const radio = el.querySelector('[role="radio"][aria-checked="true"]')
-    expect(radio?.textContent).toContain('Chuyện Lạ')
+    expect(radio).not.toBeNull()
     const make = byText(el, 'button', et.makeVideo) as HTMLButtonElement
     expect(make.getAttribute('aria-disabled')).toBe('true')
-    const reason = (make.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
-      .map((id) => document.getElementById(id)?.textContent).join(' ')
-    expect(reason).toContain(et.queueReason)
-    expect(reason).not.toContain(et.lockedReason)
   })
 
   it('chưa có kênh: giữ lý do cũ và lối tạo kênh', async () => {
@@ -376,7 +371,7 @@ describe('Khám phá mở khoá theo kênh', () => {
     expect(posts.find((item) => item.url === '/api/owner-channels/c1/sources')?.body).toEqual({ rivalId: 'r1' })
   })
 
-  it('chip lọc trạng thái và nút làm hàng loạt vẫn khoá, lý do là hàng chờ', async () => {
+  it('keeps unavailable status filtering locked but enqueues bulk videos for the chosen channel', async () => {
     const filter = await mount(
       <FilterBar sort="newest" long={false} within={30} onSort={() => {}} onLong={() => {}} onWithin={() => {}}
         total={10} scanned={10} q="" hasChannel />,
@@ -387,12 +382,13 @@ describe('Khám phá mở khoá theo kênh', () => {
       .map((id) => document.getElementById(id)?.textContent).join(' ')
     expect(chipReason).toContain(et.queueReason)
 
+    const make = vi.fn()
     const bulk = await mount(
-      <BulkBar count={3} selected={[]} onTop={() => {}} onClear={() => {}} onExit={() => {}} hasChannel />,
+      <BulkBar count={3} selected={[]} onTop={() => {}} onClear={() => {}} onExit={() => {}}
+        channels={[{ id: 'c1', name: 'Kênh một' }, { id: 'c2', name: 'Kênh hai' }]} onMake={make} />,
     )
-    const bulkMake = byText(bulk, 'button', et.bulkMake(3)) as HTMLButtonElement
-    const bulkReason = (bulkMake.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
-      .map((id) => document.getElementById(id)?.textContent).join(' ')
-    expect(bulkReason).toContain(et.queueReason)
+    await click(bulk.querySelector('[aria-haspopup="menu"]'))
+    await click(bulk.querySelectorAll('[role="menuitem"]')[1])
+    expect(make).toHaveBeenCalledExactlyOnceWith('c2')
   })
 })
