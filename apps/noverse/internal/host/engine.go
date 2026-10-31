@@ -574,7 +574,11 @@ func (e *engine) trackDeadlock(ctx context.Context, inst **flow.Instruction) (st
 
 // runWorker 直接运行一次子代理:DISPATCH 事件 + 进度中继 + 结果解析。
 func (e *engine) runWorker(ctx context.Context, inst *flow.Instruction) error {
-	e.observer.dispatchStart(inst.Agent, inst.Task, inst.Reason)
+	title := ""
+	if state, err := flow.LoadState(e.store); err == nil {
+		title = roundTitle(inst, state)
+	}
+	e.observer.dispatchStart(inst.Agent, inst.Task, inst.Reason, title)
 	// Writer 任务预标进行中(与旧 Dispatcher 一致:UI 大纲立即反映"▸ 进行中")。
 	if inst.Agent == "writer" && inst.Chapter > 0 {
 		if err := e.store.Progress.ValidateChapterWork(inst.Chapter); err != nil {

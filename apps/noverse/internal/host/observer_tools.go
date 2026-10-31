@@ -45,6 +45,8 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		}
 		if _, ok := o.toolStarts[ev.Progress.Agent]; ok {
 			o.updateToolCallSummary(ev.Progress.Agent, ev.Progress.Tool, toolName)
+			call := o.toolStarts[ev.Progress.Agent]
+			o.persistEvent(Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Tool: call.tool, Args: call.args, Chapter: call.chapter, Status: "running", Summary: call.summary, Depth: call.depth})
 			o.updateAgent(ev.Progress.Agent, func(a *agentState) {
 				a.state = "working"
 				a.tool = ev.Progress.Tool
@@ -57,7 +59,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 		o.toolStarts[ev.Progress.Agent] = &activeCall{id: id, start: time.Now(), summary: toolName, depth: 1}
 		o.toolStarts[ev.Progress.Agent].setTool(ev.Progress.Tool, ev.Progress.Args)
 		o.emitAndLog(Event{
-			Tool: ev.Progress.Tool, Args: EventText(string(ev.Progress.Args), 400), Status: "running",
+			Tool: ev.Progress.Tool, Args: string(ev.Progress.Args), Status: "running",
 			ID:       id,
 			Time:     time.Now(),
 			Category: "TOOL",
@@ -375,6 +377,7 @@ func (o *observer) emitCallFinish(call *activeCall, category, agentName string, 
 		Category:   category,
 		Agent:      agentName,
 		Summary:    summary,
+		RoundTitle: call.title,
 		Detail:     detail,
 		Kind:       kind,
 		Level:      level,

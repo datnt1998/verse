@@ -20,6 +20,7 @@ import type {
 import type { ExportFormat } from './types'
 import type { ParagraphComment, ParagraphCommentInput, ParagraphCommentPatch } from './types'
 import type { ActivityHistory, ActivityHistoryQuery } from './types'
+import type { LiveHistory, ProjectSummary } from './types'
 import type { CoCreateReply, CoCreateCommit, ReopenChecks, ImportState, JobDetail, JobsResponse } from './types'
 import type { AddressTermInput, AddressTerms, Brain, RelationInput } from './types'
 import type { Frame, FrameInput, Retention } from './types'
@@ -171,9 +172,17 @@ export const canManageProject = (user: User, p: string) => projectRole(user, p) 
 // ─── §3 Thư viện & dự án ────────────────────────────────────────────────
 
 export const getLibrary = () => request<LibraryResponse>('/api/library')
+export const listProjects = () => request<{ projects: ProjectSummary[] }>('/api/projects')
+export const getLiveHistory = (p: string, s: string, options: { beforeRound?: number; limit?: number } = {}, signal?: AbortSignal) => {
+  const query = new URLSearchParams()
+  if (options.beforeRound !== undefined) query.set('beforeRound', String(options.beforeRound))
+  if (options.limit !== undefined) query.set('limit', String(options.limit))
+  const suffix = query.toString()
+  return request<LiveHistory>(`${storyPath(p, s)}/live-history${suffix ? `?${suffix}` : ''}`, { signal })
+}
 export type LibraryWriteResult = { ok: boolean; config: LibraryConfig; version: string }
 export const putLibrary = (config: LibraryConfig, version?: string) => request<LibraryWriteResult>('/api/library', { method: 'PUT', body: config, version })
-export const createProject = (input: { slug?: string; name: string; description?: string; notes?: string; shareGlobal?: boolean }) =>
+export const createProject = (input: { slug?: string; name: string; description?: string; notes?: string; shareGlobal?: boolean; copyRulesFrom?: string }) =>
   request<Project>('/api/projects', { body: input })
 export const adoptProject = (dir: string, name?: string) => request<Project>('/api/projects/adopt', { body: { dir, name } })
 export const getProject = (p: string) => request<ProjectDetail>(`/api/projects/${encodeURIComponent(p)}`)

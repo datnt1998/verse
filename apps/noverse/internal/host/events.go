@@ -46,6 +46,7 @@ type Event struct {
 	Command     string `json:"command,omitempty"`
 	Input       string `json:"input,omitempty"`
 	Tool        string `json:"tool,omitempty"`
+	RoundTitle string `json:"roundTitle,omitempty"`
 	Args        string `json:"args,omitempty"`
 	Result      string `json:"result,omitempty"`
 	// ResultHint giữ vài con số người đọc cần (số chữ, số vấn đề) từ kết quả gốc — `Result`

@@ -932,3 +932,7 @@ Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông 
 | AP–khung | Cột trái board tràn 279,94 px | **Sửa board**: `min-width:0`, đúng 264 px như app. | `Outline` |
 | AP–quy tắc | Năm loại thật ban/chr/max/genre/pref; không suy Nhân vật/Giọng văn/Cốt truyện | **Xác nhận** — nhãn ngoài 5 loại trên board chỉ là minh hoạ; app hiện theo dữ liệu. Ngưỡng 0 là Giới hạn 0 (đúng). | `Outline` `tab=style` |
 | AP–độ dài thật | Dữ liệu thật dài hơn mẫu | **Xác nhận** — không co dữ liệu để khớp chiều cao board; so bố cục tương đối. | — |
+
+### Gói AQ — lệch khi triển khai
+
+- Luồng viết › tiêu đề vòng: vòng cũ chưa lưu metadata công việc nên không có `title`; chỉ hiển thị số vòng, vai và giờ (“Vòng N · {vai} · hh:mm”). Vòng mới lấy `title` từ trạng thái của host lúc giao việc, không suy từ chữ tự do của điều phối.

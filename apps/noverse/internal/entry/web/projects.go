@@ -36,6 +36,8 @@ type projectSummary struct {
 	Description  string     `json:"description"`
 	Legacy       bool       `json:"legacy"`
 	StoryCount   int        `json:"storyCount"`
+	RuleCount    int        `json:"ruleCount"`
+	Style        string     `json:"style"`
 	RunningCount int        `json:"runningCount"`
 	UpdatedAt    *time.Time `json:"updatedAt"`
 }
@@ -419,6 +421,18 @@ func (g *Gateway) serveProjects(w http.ResponseWriter, r *http.Request, user ide
 	}
 	rest := strings.TrimPrefix(path, "/api/projects")
 	if rest == "" || rest == "/" {
+		if r.Method == "GET" {
+			lib, err := g.lib(r.Context(), actorOf(user))
+			if err != nil { libError(w, err); return true }
+			scan, err := lib.Scan(r.Context(), actorOf(user))
+			if err != nil { libError(w, err); return true }
+			projects := []projectSummary{}
+			for _, p := range scan.Projects {
+				if user.CanReadProject(p.ID) { projects = append(projects, g.projectSummary(r.Context(), lib, user, p)) }
+			}
+			writeJSON(w, 200, map[string]any{"projects": projects})
+			return true
+		}
 		if r.Method != "POST" {
 			jsonError(w, 404, "không tìm thấy")
 			return true
@@ -540,6 +554,7 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		Notes       string `json:"notes"`
+		CopyRulesFrom string `json:"copyRulesFrom"`
 		// ShareGlobal controls shared model/role configuration only.
 		// Rules and style always belong to a project or story.
 		ShareGlobal *bool `json:"shareGlobal"`
@@ -565,6 +580,20 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		jsonError(w, 409, "Đã có dự án cùng tên — đặt tên khác nhé")
 		return
 	}
+	var snapshot projectRulesSnapshot
+	if req.CopyRulesFrom != "" {
+		source := strings.TrimSpace(req.CopyRulesFrom)
+		if !library.ValidDirName(source) {
+			jsonError(w, 400, "Dự án nguồn không hợp lệ")
+			return
+		}
+		if !user.CanReadProject(source) { jsonError(w, 404, "không tìm thấy dự án"); return }
+		ref, ok := lib.ResolveProject(r.Context(), actorOf(user), source)
+		if !ok { jsonError(w, 400, "Không tìm thấy dự án nguồn"); return }
+		if !g.requireProject(w, lib, r.Context(), actorOf(user), user, source) { return }
+		snapshot, err = g.readProjectRules(r.Context(), user, ref)
+		if err != nil { libError(w, err); return }
+	}
 	f := library.ProjectFile{Name: name, Description: req.Description, Notes: req.Notes}
 	var dir string
 	if slug == "" {
@@ -581,6 +610,11 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		if err := copyGlobalConfig(ref.Dir); err != nil {
 			slog.Warn("chép cấu hình mô hình vào dự án thất bại", "module", "web", "dir", ref.Dir, "err", err)
 		}
+	}
+	if req.CopyRulesFrom != "" {
+		ref, ok := lib.ResolveProject(r.Context(), actorOf(user), filepath.Base(dir))
+		if !ok { jsonError(w, 500, "Không tìm thấy dự án vừa tạo"); return }
+		if err := g.writeProjectRules(r.Context(), user, ref, snapshot); err != nil { libError(w, err); return }
 	}
 	writeJSON(w, 201, g.projectDetailFor(r.Context(), lib, user, filepath.Base(dir)))
 }
@@ -853,6 +887,9 @@ func (g *Gateway) serveStories(w http.ResponseWriter, r *http.Request, lib libra
 	}
 	// 网关自有子路由先于直读/worker 转发。
 	switch rest {
+	case "/live-history":
+		g.serveLiveHistory(w, r, user, st)
+		return
 	case "":
 		if r.Method == http.MethodDelete {
 			g.deleteStory(w, r, lib, user, st)
@@ -1350,6 +1387,13 @@ func (g *Gateway) projectSummary(ctx context.Context, lib library.Repository, us
 		sum.Name = "_"
 	}
 	actor := actorOf(user)
+	if !ref.Legacy {
+		if snapshot, err := g.readProjectRules(ctx, user, ref); err == nil {
+			sum.RuleCount, sum.Style = len(snapshot.files), snapshot.style
+		} else {
+			slog.Warn("đọc quy tắc dự án thất bại", "project_slug", ref.ID, "err", err)
+		}
+	}
 	var pf *library.ProjectFile
 	if !ref.Legacy {
 		var err error

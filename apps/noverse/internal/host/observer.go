@@ -57,6 +57,7 @@ type activeCall struct {
 	id      string
 	start   time.Time
 	summary string
+	title   string
 	depth   int
 	tool    string
 	args    string
@@ -149,7 +150,7 @@ func newObserver(s *storepkg.Store, emitEv func(Event), emitD func(string), emit
 //     (TOOL 行/流式正文/thinking/retry/context)。
 
 // dispatchStart 记录一次 Worker 派发开始并发 DISPATCH 行。
-func (o *observer) dispatchStart(agent, task, reason string) {
+func (o *observer) dispatchStart(agent, task, reason string, titles ...string) {
 	summary := dispatchSummary(agent, task)
 	o.updateAgent(agent, func(a *agentState) {
 		a.state = "working"
@@ -157,13 +158,16 @@ func (o *observer) dispatchStart(agent, task, reason string) {
 		a.summary = fmt.Sprintf("engine → %s", summary)
 	})
 	id := nextEventID()
-	o.dispatchStarts[agent] = &activeCall{id: id, start: time.Now(), summary: summary}
+	title := ""
+	if len(titles) > 0 { title = titles[0] }
+	o.dispatchStarts[agent] = &activeCall{id: id, start: time.Now(), summary: summary, title: title}
 	o.emitAndLog(Event{
 		ID:       id,
 		Time:     time.Now(),
 		Category: "DISPATCH",
 		Agent:    agent,
 		Summary:  summary,
+		RoundTitle: title,
 		Detail:   dispatchDetail(task, reason),
 		Level:    "info",
 	})
@@ -225,10 +229,13 @@ func (o *observer) retryEventID(scope string, attempt int) string {
 	return o.retryEvents[scope]
 }
 
-// emitAndLog 用于调用类事件的"开始"态：发给 TUI 但不写入 runtime queue，
-// 避免 replay 时"开始一行、完成又一行"重复。slog 由 host.emitEvent 统一记录。
+// Keep start and finish in the existing durable queue so live history can
+// reconstruct in-flight calls and dispatch boundaries after a restart.
 func (o *observer) emitAndLog(ev Event) {
 	o.emitEv(ev)
+	if ev.Category == "DISPATCH" || ev.Category == "TOOL" {
+		o.persistEvent(ev)
+	}
 }
 
 // persistEvent 把事件写入 runtime queue（slog 由 host.emitEvent 统一记录）。
