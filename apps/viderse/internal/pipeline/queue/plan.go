@@ -134,12 +134,15 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 		return out, meta, err
 	}
 	duplicates := map[string]domain.ClonePlanDuplicate{}
+	duplicateSources := map[string]domain.CloneSourceSnapshot{}
 	for _, q := range queued {
 		duplicates[q.SourceVideoID] = domain.ClonePlanDuplicate{JobID: q.JobID, State: string(q.State), Title: q.Source.Title}
+		duplicateSources[q.SourceVideoID] = q.Source
 	}
 	for _, j := range jobs {
 		id := j.ID
 		duplicates[domain.CloneSourceVideoID(j.SourceKey)] = domain.ClonePlanDuplicate{JobID: &id, State: j.StageGroup, Title: j.Source.Title}
+		duplicateSources[domain.CloneSourceVideoID(j.SourceKey)] = j.Source
 	}
 	videos, err := s.store.ListVideosByIDs(ctx, ids)
 	if err != nil {
@@ -153,6 +156,14 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	if err != nil {
 		return out, meta, err
 	}
+	sources, err := s.store.ListSourcesWithChannels(ctx, in.ChannelID)
+	if err != nil {
+		return out, meta, err
+	}
+	linked := make(map[string]bool, len(sources))
+	for _, source := range sources {
+		linked[source.RivalID] = true
+	}
 	requestSeen := map[string]bool{}
 	for _, rawURL := range in.URLs {
 		id, reason := ParseVideoURL(rawURL)
@@ -161,6 +172,38 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 			continue
 		}
 		if d, found := duplicates[id]; found {
+			source := duplicateSources[id]
+			d.ThumbnailURL, d.DurationSec, d.ViewCount, d.SourceChannelTitle, d.PublishedAt, d.Outlier = source.ThumbnailURL, source.DurationSec, source.ViewCount, source.ChannelTitle, source.PublishedAt, source.Outlier
+			if source.HasCaptions != nil {
+				d.HasCaptions = *source.HasCaptions
+			}
+			if v, ok := videos[id]; ok {
+				ch := channels[v.ChannelID]
+				if d.ThumbnailURL == nil {
+					thumb := "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg"
+					d.ThumbnailURL = &thumb
+				}
+				if d.DurationSec == nil && v.DurationSec != nil {
+					seconds := float64(*v.DurationSec)
+					d.DurationSec = &seconds
+				}
+				if d.ViewCount == nil {
+					d.ViewCount = v.ViewCount
+				}
+				if source.HasCaptions == nil && v.HasCaptions != nil {
+					d.HasCaptions = *v.HasCaptions
+				}
+				if d.SourceChannelTitle == nil {
+					d.SourceChannelTitle = &ch.Title
+				}
+				if d.PublishedAt == nil {
+					d.PublishedAt = v.PublishedAt
+				}
+				if d.Outlier == nil && v.ViewCount != nil && ch.MedianViews != nil && *ch.MedianViews > 0 {
+					o := float64(*v.ViewCount) / float64(*ch.MedianViews)
+					d.Outlier = &o
+				}
+			}
 			d.URL = rawURL
 			out.Duplicates = append(out.Duplicates, d)
 			continue
@@ -210,9 +253,13 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 		if m.Source.URL == "" {
 			m.Source.URL = watchURL(id)
 		}
+		m.Source.ViewCount, m.Source.PublishedAt, m.Source.Outlier = m.ViewCount, m.PublishedAt, m.Outlier
+		hasCaptions := m.HasCaptions
+		m.Source.HasCaptions = &hasCaptions
+		rivalLinked := m.Source.ChannelID != nil && linked[*m.Source.ChannelID]
 		meta[id] = m
 		estimate, calls := estimateImages(recipe, m.Source.DurationSec, in.NoImages)
-		out.Accepted = append(out.Accepted, domain.ClonePlanAccepted{URL: rawURL, VideoID: id, Title: m.Source.Title, DurationSec: m.Source.DurationSec, Outlier: m.Outlier, HasCaptions: m.HasCaptions, ThumbnailURL: m.Source.ThumbnailURL, SourceChannelTitle: m.Source.ChannelTitle, ViewCount: m.ViewCount, PublishedAt: m.PublishedAt, ImageEstimate: estimate, ImageCalls: calls})
+		out.Accepted = append(out.Accepted, domain.ClonePlanAccepted{URL: rawURL, VideoID: id, Title: m.Source.Title, DurationSec: m.Source.DurationSec, Outlier: m.Outlier, HasCaptions: m.HasCaptions, ThumbnailURL: m.Source.ThumbnailURL, SourceChannelTitle: m.Source.ChannelTitle, SourceChannelID: m.Source.ChannelID, RivalLinked: rivalLinked, ViewCount: m.ViewCount, PublishedAt: m.PublishedAt, ImageEstimate: estimate, ImageCalls: calls})
 		if calls != nil {
 			out.ImageCalls += *calls
 		}

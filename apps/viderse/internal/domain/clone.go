@@ -126,7 +126,6 @@ const (
 	OriginAuto   CloneOrigin = "auto"
 )
 
-
 // Trạng thái một mục hàng chờ: đang chờ, đã thành job, hoặc bỏ qua.
 type CloneQueueState string
 
@@ -135,6 +134,7 @@ const (
 	QueueStarted CloneQueueState = "started"
 	QueueSkipped CloneQueueState = "skipped"
 )
+
 // Mã lỗi ổn định của pipeline, lưu trên clone_steps.error.code. Mọi mã trong
 // retryableCloneCodes được runner coi là việc đang đỗ (step → `waiting`);
 // `awaiting_review` là cổng chờ người duyệt: không retryAt và không tự thử lại.
@@ -247,14 +247,18 @@ type CloneError struct {
 func (e *CloneError) Error() string { return e.Message }
 
 type CloneSourceSnapshot struct {
-	ID           string    `json:"id"`
-	URL          string    `json:"url"`
-	Title        string    `json:"title"`
-	ChannelID    *string   `json:"channelId"`
-	ChannelTitle *string   `json:"channelTitle"`
-	ThumbnailURL *string   `json:"thumbnailUrl"`
-	DurationSec  *float64  `json:"durationSec"`
-	ScannedAt    time.Time `json:"scannedAt"`
+	ID           string     `json:"id"`
+	URL          string     `json:"url"`
+	Title        string     `json:"title"`
+	ChannelID    *string    `json:"channelId"`
+	ChannelTitle *string    `json:"channelTitle"`
+	ThumbnailURL *string    `json:"thumbnailUrl"`
+	DurationSec  *float64   `json:"durationSec"`
+	ViewCount    *int64     `json:"viewCount,omitempty"`
+	HasCaptions  *bool      `json:"hasCaptions,omitempty"`
+	PublishedAt  *time.Time `json:"publishedAt,omitempty"`
+	Outlier      *float64   `json:"outlier,omitempty"`
+	ScannedAt    time.Time  `json:"scannedAt"`
 }
 type CloneProgress struct {
 	UnitsDone  int64  `json:"unitsDone"`
@@ -321,9 +325,9 @@ type CloneQueueItem struct {
 	SourceKey     string              `json:"sourceKey"`
 	Source        CloneSourceSnapshot `json:"source"`
 	Priority      ClonePriority       `json:"priority"`
-	Origin        CloneOrigin       `json:"origin"`
-	Position      float64           `json:"position"`
-	State         CloneQueueState   `json:"state"`
+	Origin        CloneOrigin         `json:"origin"`
+	Position      float64             `json:"position"`
+	State         CloneQueueState     `json:"state"`
 	NoImages      bool                `json:"noImages"`
 	TemplateID    *string             `json:"templateId,omitempty"`
 	JobID         *string             `json:"jobId"`

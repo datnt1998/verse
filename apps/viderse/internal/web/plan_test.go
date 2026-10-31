@@ -101,3 +101,39 @@ func TestPlanEndpointDedupesSameVideoWithinNewRequest(t *testing.T) {
 		t.Fatalf("accepted repeated source twice: %+v", p)
 	}
 }
+
+func TestPlanSourceLinkFlagTracksTargetChannel(t *testing.T) {
+	svc, pool := planFixture(t)
+	p := postPlan(t, svc, []string{"https://youtu.be/aaaaaaaaaaa"})
+	if len(p.Accepted) != 1 || p.Accepted[0].SourceChannelID == nil || *p.Accepted[0].SourceChannelID != "UCaaaaaaaaaaaaaaaaaaaaaa" || !p.Accepted[0].RivalLinked {
+		t.Fatalf("linked source missing: %+v", p.Accepted)
+	}
+	if _, err := pool.Exec(context.Background(), `DELETE FROM owner_channel_sources`); err != nil {
+		t.Fatal(err)
+	}
+	p = postPlan(t, svc, []string{"https://youtu.be/aaaaaaaaaaa"})
+	if len(p.Accepted) != 1 || p.Accepted[0].RivalLinked || p.Accepted[0].SourceChannelID == nil {
+		t.Fatalf("unlinked source misreported: %+v", p.Accepted)
+	}
+}
+
+func TestPlanDuplicatePreviewUsesSnapshotThenRivalFallback(t *testing.T) {
+	svc, pool := planFixture(t)
+	_, err := pool.Exec(context.Background(), `INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,stage_group,status) VALUES
+ ('22222222-2222-4222-8222-222222222222','11111111-1111-4111-8111-111111111111','channel:11111111-1111-4111-8111-111111111111:video:aaaaaaaaaaa','{"id":"aaaaaaaaaaa","title":"Frozen source","thumbnailUrl":"https://snapshot/image.jpg","durationSec":17,"viewCount":42,"hasCaptions":false}','ready','succeeded'),
+ ('33333333-3333-4333-8333-333333333333','11111111-1111-4111-8111-111111111111','channel:11111111-1111-4111-8111-111111111111:video:bbbbbbbbbbb','{"id":"bbbbbbbbbbb","title":"Historical source"}','ready','succeeded')`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := postPlan(t, svc, []string{"https://youtu.be/aaaaaaaaaaa", "https://youtu.be/bbbbbbbbbbb"})
+	if len(p.Duplicates) != 2 {
+		t.Fatal(p)
+	}
+	a, b := p.Duplicates[0], p.Duplicates[1]
+	if a.ThumbnailURL == nil || *a.ThumbnailURL != "https://snapshot/image.jpg" || a.DurationSec == nil || *a.DurationSec != 17 || a.ViewCount == nil || *a.ViewCount != 42 || a.HasCaptions {
+		t.Fatalf("snapshot preview changed: %+v", a)
+	}
+	if b.ThumbnailURL == nil || b.DurationSec == nil || *b.DurationSec != 180 || b.ViewCount == nil || *b.ViewCount != 300 || b.HasCaptions {
+		t.Fatalf("historical preview not hydrated: %+v", b)
+	}
+}
