@@ -219,7 +219,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
             const current = item.current || item.id === session?.id
             return <div className="mm-row" key={item.id}>
               <span className="mm-device-icon"><Icon name={sessionIcon(item.device)} size={20} /></span>
-              <span className="mm-copy"><span>{item.device}{current ? ' này' : ''}</span><span className={`mm-sub${current ? ' mm-current' : ''}`}>{current ? 'Đang dùng' : `Hoạt động ${relativeTime(item.lastSeen)}`}{item.ip ? ` · ${item.ip}` : ''}</span></span>
+              <span className="mm-copy"><span>{item.device}{current ? ' này' : item.browser ? ` · ${item.browser}` : ''}</span><span className={`mm-sub${current ? ' mm-current' : ''}`}>{current ? 'Đang dùng' : `Hoạt động ${relativeTime(item.lastActiveAt)}`}</span></span>
               {!current && <button className="mm-revoke" type="button" disabled={!online || revokeAction.busy || !!devices.error} onClick={() => setConfirm(item)} aria-label={`Đăng xuất ${item.device}`}>Đăng xuất</button>}
             </div>
           })}{sessions.length === 0 && <p className="mm-empty">Không có thiết bị đang đăng nhập.</p>}</div>}
