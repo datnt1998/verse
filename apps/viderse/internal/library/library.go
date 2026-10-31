@@ -288,6 +288,12 @@ func (s *Service) List(ctx context.Context) ([]Summary, error) {
 	}
 	out := make([]Summary, 0, len(rows))
 	for _, row := range rows {
+		if len(row.Project) > 0 {
+			row.Recipe, err = s.projectTemplateRecipe(ctx, row.Project, row.Recipe)
+			if err != nil {
+				return nil, err
+			}
+		}
 		out = append(out, summarize(row, names))
 	}
 	return out, nil
@@ -422,7 +428,7 @@ func (s *Service) insert(ctx context.Context, name string) (*domain.Template, er
 		ID: s.newID(), Name: name, Recipe: recipe,
 		Revision: 1, CreatedAt: now, UpdatedAt: now,
 	}
-	project, err := standardProject(tpl.ID, tpl.Name, tpl.CreatedAt, tpl.Recipe)
+	project, err := s.standardProject(ctx, tpl.ID, tpl.Name, tpl.CreatedAt, tpl.Recipe)
 	if err != nil {
 		return nil, err
 	}
@@ -476,7 +482,7 @@ func (s *Service) Duplicate(ctx context.Context, fromID, name string) (*domain.T
 type Patch struct {
 	Revision int64
 	Name     *string
-	Recipe   []byte // nil = không đổi recipe
+	Recipe   []byte          // nil = không đổi recipe
 	Project  json.RawMessage // nil preserves the authored project
 }
 
@@ -500,27 +506,37 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 			return nil, err
 		}
 	}
+	project := current.Project
 	recipe := current.Recipe
+	if patch.Project != nil {
+		project, err = validateTemplateProject(patch.Project, id, current.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		recipe, err = s.projectTemplateRecipe(ctx, project, recipe)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if patch.Recipe != nil {
-		recipe, err = ParseRecipe(patch.Recipe, current.Recipe)
+		recipe, err = ParseRecipe(patch.Recipe, recipe)
 		if err != nil {
 			return nil, err
 		}
 		if err := ValidateRecipe(recipe); err != nil {
 			return nil, err
 		}
+	}
+	if patch.Recipe != nil || patch.Project != nil {
 		if err := CheckRefs(ctx, refChecker{store: s.store}, recipe); err != nil {
 			return nil, err
 		}
 	}
-	project := current.Project
-	if patch.Project != nil {
-		project, err = validateTemplateProject(patch.Project, id, current.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
+	cover, err := s.resolvePrompt(ctx, recipe.Scenes.CoverPromptID, BuiltinCoverClean, "scenes.coverPromptId")
+	if err != nil {
+		return nil, err
 	}
-	project, err = updateTemplateProject(project, name, recipe, patch.Recipe != nil, s.now().UTC())
+	project, err = updateTemplateProject(project, name, recipe, cover.Composition, patch.Recipe != nil, s.now().UTC())
 	if err != nil {
 		return nil, err
 	}

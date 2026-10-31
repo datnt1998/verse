@@ -147,6 +147,22 @@ func (s *Service) SnapshotTemplate(ctx context.Context, id string) (*Snapshot, e
 	if scene.BuiltIn {
 		snap.ImagePromptMode = "blend"
 	}
+	// The editor stores owner direction on the scenes track, independently of
+	// the library's selected prompt reference. Honour that authored override.
+	if tracks, ok := project.Timeline()["tracks"].([]any); ok {
+		for _, value := range tracks {
+			track, ok := value.(map[string]any)
+			if !ok || track["templateSlot"] != "scenes" {
+				continue
+			}
+			if settings, ok := track["templateScenes"].(map[string]any); ok {
+				if prompt, ok := settings["imagePrompt"].(string); ok {
+					snap.ImagePrompt = prompt
+				}
+			}
+			break
+		}
+	}
 	snap.Thumbnail = cover.Composition
 	return snap, nil
 }

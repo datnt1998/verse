@@ -333,7 +333,7 @@ func TestListSummaryPromptText(t *testing.T) {
 		t.Fatalf("list = %+v %v", items, err)
 	}
 	item := items[0]
-	if item.ScenePromptName != "Theo nhận diện kênh" || item.CoverPromptName != "Chữ hook" {
+	if item.ScenePromptName != "Theo nhận diện kênh" || item.CoverPromptName != "Ảnh sạch" {
 		t.Fatalf("tên prompt = %+v", item)
 	}
 	if !item.ImageCountKnown || item.ImageCount != 5 || len(item.Channels) != 1 {

@@ -11,6 +11,7 @@ import (
 // assets are immutable, including the voice envelope; generation is recorded
 // by testdata/generate-standard.mjs. Keeping the engine-authored payload avoids
 // a second implementation of Subscribe's keyframes or track defaults.
+//
 //go:embed testdata/standard-project.json
 var standardLayout []byte
 

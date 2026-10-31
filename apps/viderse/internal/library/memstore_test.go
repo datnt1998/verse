@@ -162,7 +162,9 @@ func (m *memStore) UpdateTemplate(_ context.Context, id string, name *string, re
 		return 0, false, nil
 	}
 	tpl.Recipe = recipe
-	if project != nil { tpl.Project = append(json.RawMessage(nil), project...) }
+	if project != nil {
+		tpl.Project = append(json.RawMessage(nil), project...)
+	}
 	if name != nil {
 		tpl.Name = *name
 	}
@@ -176,7 +178,9 @@ func (m *memStore) InitializeTemplateProject(_ context.Context, id string, proje
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	tpl, ok := m.templates[id]
-	if !ok || tpl.Revision != expectRevision || len(tpl.Project) > 0 { return false, nil }
+	if !ok || tpl.Revision != expectRevision || len(tpl.Project) > 0 {
+		return false, nil
+	}
 	tpl.Project = append(json.RawMessage(nil), project...)
 	m.templates[id] = tpl
 	return true, nil
@@ -192,10 +196,14 @@ func (m *memStore) RenameTemplate(_ context.Context, id, name string, expectRevi
 	tpl.Name = name
 	if len(tpl.Project) > 0 {
 		project, err := editor.Parse(tpl.Project)
-		if err != nil { return false, err }
+		if err != nil {
+			return false, err
+		}
 		project["name"] = name
 		tpl.Project, err = editor.Marshal(project)
-		if err != nil { return false, err }
+		if err != nil {
+			return false, err
+		}
 	}
 	m.templates[id] = tpl
 	return true, nil

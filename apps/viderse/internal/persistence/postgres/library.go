@@ -64,13 +64,13 @@ func (s *LibraryStore) GetTemplate(ctx context.Context, id string) (*domain.Temp
 		return nil, library.ErrNotFound
 	}
 	var row struct {
-		ID pgtype.UUID
-		Name string
-		Recipe []byte
-		Revision int64
-		PreviewRevision pgtype.Int8
+		ID                                   pgtype.UUID
+		Name                                 string
+		Recipe                               []byte
+		Revision                             int64
+		PreviewRevision                      pgtype.Int8
 		PreviewBuiltAt, CreatedAt, UpdatedAt pgtype.Timestamptz
-		Project []byte
+		Project                              []byte
 	}
 	err = s.projectDB(ctx).QueryRow(ctx, `SELECT id,name,recipe,revision,preview_revision,preview_built_at,created_at,updated_at,project FROM templates WHERE id=$1`, uid).Scan(&row.ID, &row.Name, &row.Recipe, &row.Revision, &row.PreviewRevision, &row.PreviewBuiltAt, &row.CreatedAt, &row.UpdatedAt, &row.Project)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -148,13 +148,17 @@ func (s *LibraryStore) UpdateTemplate(ctx context.Context, id string, name *stri
 // projectDB joins media.Publish so asset bindings and project visibility commit
 // together. Metadata-only callers use the ordinary pool.
 func (s *LibraryStore) projectDB(ctx context.Context) gen.DBTX {
-	if tx, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); ok { return tx }
+	if tx, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); ok {
+		return tx
+	}
 	return s.db
 }
 
 func (s *LibraryStore) InitializeTemplateProject(ctx context.Context, id string, project json.RawMessage, expectRevision int64) (bool, error) {
 	uid, err := libUUIDArg(id)
-	if err != nil { return false, err }
+	if err != nil {
+		return false, err
+	}
 	tag, err := s.projectDB(ctx).Exec(ctx, `UPDATE templates SET project=$2::jsonb WHERE id=$1 AND project IS NULL AND revision=$3`, uid, project, expectRevision)
 	return tag.RowsAffected() == 1, mapLibraryErr(err)
 }
@@ -322,12 +326,16 @@ func (s *LibraryStore) NameChannelStandardTemplates(ctx context.Context, channel
 		return nil, nil
 	}
 	rows, err := s.projectDB(ctx).Query(ctx, `UPDATE templates t SET name=$3, updated_at=now(), project=CASE WHEN project IS NULL THEN NULL ELSE jsonb_set(jsonb_set(project,'{name}',to_jsonb($3::text)),'{updatedAt}',to_jsonb((extract(epoch FROM now())*1000)::bigint)) END WHERE name=$2 AND EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id=$1) AND NOT EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id<>$1) RETURNING t.id`, uid, plain, name)
-	if err != nil { return nil, mapLibraryErr(err) }
+	if err != nil {
+		return nil, mapLibraryErr(err)
+	}
 	defer rows.Close()
 	ids := []string{}
 	for rows.Next() {
 		var id pgtype.UUID
-		if err := rows.Scan(&id); err != nil { return nil, err }
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
 		ids = append(ids, uuidText(id))
 	}
 	return ids, rows.Err()
