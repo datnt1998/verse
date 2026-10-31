@@ -464,3 +464,31 @@ Mẫu:
 - Vùng cần sửa chỉ chứa từ có độ lệch tuyệt đối **lớn hơn 120 ms**, theo ngưỡng median của nguồn; từ khớp chính xác hoặc trong ngưỡng không được gắn là lỗi. Quyết định chung vẫn dùng đủ điều kiện nguồn: khớp ít nhất 60%, median ≤120 ms và p95 ≤250 ms. Không dùng ngưỡng minh hoạ 300 ms để bỏ sót lỗi median.
 - Giữ nguyên bố cục/copy V13; số điểm, số vùng và offset hiển thị theo kết quả đo thật. Điểm đo cũ sau sửa phụ đề vẫn đóng cổng xuất cho tới khi đo lại hoặc người dùng chọn “Vẫn xuất” theo chính sách đã chốt.
 - Lúc xuất, bỏ lời nhắc giữ tab và khẳng định đang dựng ngay trong trình duyệt: Chrome được server quản lý tiếp tục chạy khi tab editor đóng. Chỉ giữ câu “Bạn vẫn xem được timeline nhưng không sửa được.” Không bịa ETA hoặc thời lượng trên thẻ; nhờ design chốt câu thay thế phù hợp với luồng xuất nền thật.
+
+### #67 · Cơ sở điểm nổi trội trong Vì sao? — Đã chốt
+- Board `Explore` minh hoạ lượt xem mỗi giờ so với trung vị 30 video; điểm hiện tại được tính bằng tổng lượt xem so với trung vị 150 video gần nhất.
+- Main duyệt giữ bố cục thẻ và hiển thị đúng phép tính, nguồn số thật; không dựng số lượt xem mỗi giờ hay trung vị 30 video. Không hiện liên kết Vì sao? khi thiếu dữ kiện.
+
+### #68 · Trạng thái hệ thống của màn Duyệt — Đã chốt
+- Board `Review` không vẽ trạng thái đang tải, lỗi hoặc mất kết nối. Main duyệt dùng mẫu trạng thái hệ thống V12 trong vùng nội dung Duyệt, giữ nguyên khung ứng dụng và dải mất kết nối dùng chung; không thay bằng trạng thái duyệt hết khi chưa tải được dữ liệu.
+
+### #69 · Trạng thái hệ thống của bảng bên phải — Đã chốt
+- Board `Main` không vẽ trạng thái đang tải, rỗng, lỗi hoặc mất kết nối riêng cho Nguồn và Nền.
+- Main duyệt dùng mẫu trạng thái V12 trong nội dung bảng, giữ khung và dải mất kết nối chung; không coi lỗi tải Nền là danh sách clip rỗng.
+
+### #70 · Trạng thái hệ thống của Việc nền và thông báo — Đã chốt
+- Board `Activity` không vẽ trạng thái đang tải, lỗi hoặc mất kết nối cho popover và cài đặt. Main duyệt dùng mẫu hệ thống V12 trong nội dung tương ứng, giữ khung ứng dụng và dải mất kết nối dùng chung; không coi lỗi tải là danh sách rỗng.
+
+### #71 · Trạng thái hệ thống của Bàn dựng — Đã chốt
+- Board `Main` không vẽ trạng thái đang tải, rỗng, lỗi hoặc mất kết nối cho dữ liệu Bàn dựng.
+- Main duyệt dùng mẫu hệ thống V12 trong vùng nội dung, giữ khung ứng dụng và dải mất kết nối chung; không coi lỗi tải là danh sách video rỗng.
+
+### #72 · Trạng thái hệ thống của Bản tin — Đã chốt
+- Board `Main` không vẽ trạng thái đang tải, rỗng, lỗi hoặc mất kết nối riêng cho Bản tin.
+- Main duyệt dùng mẫu V12 trong vùng nội dung, giữ khung ứng dụng và dải mất kết nối dùng chung; không coi lỗi tải là Bản tin rỗng.
+
+### #73 · Bật lại ảnh khi template không vẽ ảnh — Cần design xác nhận
+- Hợp đồng cho phép tắt «Không cần ảnh» riêng cho video, nhưng chưa nêu số ảnh cảnh khi template chọn «Không vẽ ảnh».
+- App dùng tối thiểu một ảnh cảnh khi bật lại trong trường hợp này; không sửa template. Các template có số ảnh hoặc nhịp ảnh vẫn giữ cấu hình của template.
+- Hỏi design: xác nhận mặc định một ảnh cảnh hay chọn số khác cho trường hợp template không có nhịp ảnh?
+
