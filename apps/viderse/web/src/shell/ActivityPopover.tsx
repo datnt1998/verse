@@ -58,16 +58,24 @@ const s = stylex.create({
   footer: { display: 'flex', justifyContent: 'space-between', padding: 'var(--vv-s-10) var(--vv-s-12)', borderTop: '1px solid var(--line-1)' },
 })
 
+export function taskOperation(task: BackgroundTask) {
+  const op = task.action.op
+  const ref = task.objectRef
+  if (!op) return null
+  if (ref.type === 'tool' && (op === 'cancel' || op === 'retry')) return { path: `/api/tools/${encodeURIComponent(ref.id)}/${op === 'retry' ? 'install' : 'cancel'}`, body: {} }
+  if (ref.type === 'setup_step' && op === 'retry') return { path: '/api/setup/retry', body: { id: ref.id } }
+  if (ref.type === 'storage_move' && op === 'cancel') return { path: `/api/storage/move/${encodeURIComponent(task.id)}/cancel`, body: {} }
+  if (ref.type === 'rival') return { path: `/api/rivals/${encodeURIComponent(ref.id)}/scan`, body: { action: op === 'retry' ? 'resume' : op } }
+  return null
+}
+
 function Task({ task, refresh }: { task: BackgroundTask; refresh: () => void }) {
   const [error, setError] = useState('')
   const act = async () => {
     try {
-      const op = task.action.op
-      if (!op) return
-      const ref = task.objectRef
-      const path = ref.type === 'tool' ? `/api/tools/${encodeURIComponent(ref.id)}/${op}` : ref.type === 'setup_step' ? '/api/setup/retry' : ref.type === 'storage_move' ? `/api/storage/move/${encodeURIComponent(task.id)}/cancel` : ref.type === 'rival' ? `/api/rivals/${encodeURIComponent(ref.id)}/scan` : ''
-      if (!path) throw new Error('Không thể thực hiện thao tác này.')
-      await request(path, { body: ref.type === 'rival' ? { action: op === 'retry' ? 'resume' : op } : {} })
+      const operation = taskOperation(task)
+      if (!operation) throw new Error('Không thể thực hiện thao tác này.')
+      await request(operation.path, { body: operation.body })
       refresh()
     } catch (e) { setError(e instanceof Error ? e.message : 'Không thực hiện được.') }
   }
@@ -102,8 +110,8 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
   const [pageError, setPageError] = useState('')
   const [paging, setPaging] = useState(false)
   const history = useResource(['activity', 'history'], ({ signal }) => getNotificationHistory(signal), { enabled: tab === 'inbox' || (tab === 'running' && !!activity && activity.running.length === 0 && activity.queued === 0) })
-  const queue = useResource(['activity', 'queue'], ({ signal }) => getQueue(signal), { enabled: tab === 'running' && !!activity?.queued })
-  const channels = useResource(['channels'], ({ signal }) => listChannels(signal), { enabled: tab === 'running' && !!activity?.queued })
+  const queue = useResource(keys.queue(), ({ signal }) => getQueue(signal), { enabled: tab === 'running' && !!activity?.queued })
+  const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal), { enabled: tab === 'running' && !!activity?.queued })
   useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey) }, [close])
   const refresh = () => { setOlder([]); setCursor(null); invalidate(keys.activity()); void history.refresh() }
   const mark = async () => { await markNotificationsRead('all'); refresh() }

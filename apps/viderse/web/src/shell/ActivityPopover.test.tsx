@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { AppNotification } from '../api/activity'
-import { orderNotifications } from './ActivityPopover'
+import type { AppNotification, BackgroundTask } from '../api/activity'
+import { orderNotifications, taskOperation } from './ActivityPopover'
 import { isQuiet } from './ActivityBridge'
 
 function note(id: string, kind: AppNotification['kind'], readAt: string | null = null): AppNotification {
@@ -17,4 +17,12 @@ describe('activity priorities', () => {
     expect(isQuiet(settings, new Date(2026, 10, 2, 6, 59))).toBe(true)
     expect(isQuiet(settings, new Date(2026, 10, 2, 7, 0))).toBe(false)
   })
+})
+
+it('routes real task operations to their existing endpoints and request bodies', () => {
+  const task: BackgroundTask = { id: 'task', kind: 'tool_install', title: 'Cài', objectRef: { type: 'tool', id: 'chrome', label: 'Chrome' }, phase: '', progress: null, etaSec: null, state: 'failed', action: { label: 'Thử lại', op: 'retry' } }
+  expect(taskOperation(task)).toEqual({ path: '/api/tools/chrome/install', body: {} })
+  expect(taskOperation({ ...task, objectRef: { type: 'setup_step', id: 'chrome', label: 'Chrome' } })).toEqual({ path: '/api/setup/retry', body: { id: 'chrome' } })
+  expect(taskOperation({ ...task, objectRef: { type: 'storage_move', id: 'other', label: 'Ổ' }, action: { label: 'Huỷ', op: 'cancel' } })).toEqual({ path: '/api/storage/move/task/cancel', body: {} })
+  expect(taskOperation({ ...task, objectRef: { type: 'rival', id: 'UC/test', label: 'Kênh' } })).toEqual({ path: '/api/rivals/UC%2Ftest/scan', body: { action: 'resume' } })
 })
