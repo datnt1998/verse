@@ -7,6 +7,7 @@ import * as stylex from '@stylexjs/stylex'
 import { accountStyles } from '../../components/AppLinks'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { accountStyles as layout } from './account.stylex'
+import { authStyles } from '../auth/auth.stylex'
 import { ApiError } from '../../api/client'
 import { Banner } from '@noverse/ui'
 const sx = stylex.create({
@@ -55,7 +56,7 @@ export function Devices() {
   }
   return <>
     {!mobile && <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--vv-s-10)' }}><h2 style={{ flex: 1, margin: 0, fontSize: 14, fontWeight: 600 }}>{t.account.devices}</h2><span {...stylex.props(accountStyles.fieldHelp)} style={{ color: 'var(--kit-fg-sub)' }}>{t.account.deviceNote}</span></div>}
-    {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
+    {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={authStyles.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
     {error && <FieldError>{error}</FieldError>}
     {!sessions && (error || networkError ? <Button onClick={() => void load()}>{t.common.retry}</Button> : <Spinner size={16} />)}
     <div role="list" {...(mobile ? stylex.props(sx.mobileList) : {})}>{sessions?.map((session) => <div key={session.id} role="listitem" style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', minHeight: mobile ? 64 : 48, padding: mobile ? '0 14px' : 0, borderTop: '1px solid var(--vv-hairline)' }}>

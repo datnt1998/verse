@@ -78,7 +78,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false, onNetwo
       {next.length > 0 && next.length < MIN_PASSWORD && <AuthError>{t.auth.passwordForm.short}</AuthError>}
       {confirm.length > 0 && next !== confirm && <AuthError id="pw-mismatch">{t.auth.passwordForm.mismatch}</AuthError>}
       {error && <AuthError id="pw-error">{error}</AuthError>}
-      {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
+      {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant={horizontal ? 'ghost' : 'primary'} pending={busy}
         disabled={busy || !current || next.length < MIN_PASSWORD || next !== confirm}
         className={horizontal ? undefined : stylex.props(sx.submit).className}

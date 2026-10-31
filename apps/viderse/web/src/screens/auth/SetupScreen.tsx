@@ -137,7 +137,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{mobile ? t.setup.codeHintMobile : t.setup.codeHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
-          {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
+          {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy} disabled={busy || !code.trim()}
             {...stylex.props(sx.submit)}>
             {busy ? t.setup.verifying : t.common.continue}
@@ -165,7 +165,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.setup.passwordHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
-          {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
+          {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy}
             disabled={busy || !name.trim() || !USERNAME_RE.test(username) || password.length < MIN_PASSWORD}
             {...stylex.props(sx.submit)}>

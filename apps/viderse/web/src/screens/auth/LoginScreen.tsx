@@ -71,7 +71,7 @@ export function LoginScreen() {
           value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
       </div>
       {(error || remaining > 0) && <AuthError>{remaining ? t.auth.limited(time) : error}</AuthError>}
-      {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
+      {networkError && <Banner tone="warning" title={t.account.networkFailed} titleStyle={sx.networkTitle} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant="primary" pending={busy} disabled={busy || remaining > 0 || !username.trim() || !password} {...button}>
         {remaining ? t.auth.wait(time) : busy ? t.auth.loggingIn : t.auth.login}
       </Button>
