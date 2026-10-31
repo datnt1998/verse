@@ -59,7 +59,10 @@ button:disabled{cursor:not-allowed}
 .i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
 .i-flash{-webkit-mask-image:url(../icons/flash.svg);mask-image:url(../icons/flash.svg)}
 .i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
 .i-login{-webkit-mask-image:url(../icons/login.svg);mask-image:url(../icons/login.svg)}
+.i-logout{-webkit-mask-image:url(../icons/logout.svg);mask-image:url(../icons/logout.svg)}
 .i-mobile{-webkit-mask-image:url(../icons/mobile.svg);mask-image:url(../icons/mobile.svg)}
 .i-monitor{-webkit-mask-image:url(../icons/monitor.svg);mask-image:url(../icons/monitor.svg)}
 .i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
@@ -212,6 +215,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <div>
 <h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1>
 <p style="margin: 8px 0 0; font-size: 14px; color: #A0A0AB">{{sub}}</p>
+<sc-if value="{{isLogin}}" hint-placeholder-val="{{ false }}"><p style="margin: 4px 0 0; font-size: 13px; color: #7E7E8A">Một tài khoản dùng cho Noverse và Viderse</p></sc-if>
 </div>
 </div>
 
@@ -242,6 +246,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </div>
 </sc-if>
 
+<sc-if value="{{pkOn}}" hint-placeholder-val="{{ false }}"><div role="status" class="card" style="border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; border-color: rgba(157,176,247,0.3)"><span class="ic {{pkIcon}}" aria-hidden="true" style="width: 18px; height: 18px; color: #9DB0F7; margin-top: 2px; flex: 0 0 auto"></span><span style="display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; line-height: 1.5"><span style="font-weight: 500">{{pkT}}</span><span style="color: #A0A0AB">{{pkD}}</span></span></div></sc-if>
 <sc-if value="{{isLogin}}" hint-placeholder-val="{{ false }}">
 <button class="card" type="button" onClick="{{toScan}}" style="border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center; color: #EDEDEF; text-align: left; border-color: rgba(201,166,245,0.3)">
 <span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(201,166,245,0.12); display: flex; align-items: center; justify-content: center; color: #C9A6F5"><span class="ic i-scan" style="width: 22px; height: 22px"></span></span>
@@ -318,7 +323,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["scan","scanFound","scanWrong","cameraBlocked","confirm","pairing","invalid","login","home"],"default":"scan","section":"Màn"},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["scan","scanFound","scanWrong","cameraBlocked","confirm","pairing","invalid","login","home"],"default":"scan","section":"Màn"},"kicked":{"editor":"enum","options":["none","self","other","password","admin","unknown"],"default":"none","section":"Vì sao phải đăng nhập lại (Gói AO · state=login)"},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { local: null, forProp: null, torch: false }; }
   renderVals() {
@@ -344,7 +349,7 @@ class Component extends DCLogic {
       torch: s.torch, toggleTorch: () => this.setState({ torch: !s.torch }), torchBg: s.torch ? '#EDEDEF' : 'rgba(20,20,24,0.7)', torchFg: s.torch ? '#0B0B0D' : '#EDEDEF',
       toLogin: () => go('login'), toPassword: () => go('login'), toScan: () => { go('scan'); setTimeout(() => this.setState({ local: 'scanFound', forProp: prop }), 2600); setTimeout(() => this.setState({ local: 'confirm', forProp: prop }), 3800); },
       camSteps: [{ n: 1, t: 'Mở ứng dụng Camera của điện thoại' }, { n: 2, t: 'Hướng vào mã QR trên máy tính' }, { n: 3, t: 'Chạm vào đường liên kết Noverse hiện ra' }],
-      isGate: ['home', 'scan', 'scanFound', 'scanWrong', 'cameraBlocked'].indexOf(view) < 0, isHome: view === 'home', isConfirm, isInvalid: view === 'invalid', isLogin: view === 'login', showOrbs: view !== 'invalid',
+      isGate: ['home', 'scan', 'scanFound', 'scanWrong', 'cameraBlocked'].indexOf(view) < 0, isHome: view === 'home', isConfirm, isInvalid: view === 'invalid', isLogin: view === 'login', ...(() => { const K = { self: ['i-logout', 'Đã đăng xuất', 'Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.'], other: ['i-logout', 'Bạn vừa đăng xuất ở Viderse', 'Hai app dùng chung một lần đăng nhập, nên Noverse cũng cần đăng nhập lại.'], password: ['i-key', 'Mật khẩu vừa được đổi', 'Mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse. Dùng mật khẩu mới.'], admin: ['i-shield', 'Quản trị viên vừa thay đổi tài khoản này', 'Có thể là quyền vào ứng dụng hoặc mật khẩu đã được đặt lại. Đăng nhập lại để tiếp tục.'], unknown: ['i-info', 'Phiên đăng nhập đã kết thúc', 'Có thể bạn vừa đăng xuất hoặc đổi mật khẩu ở Noverse hay Viderse. Đăng nhập lại để tiếp tục.'] }[this.props.kicked || 'none']; return { pkOn: !!K && view === 'login', pkIcon: K ? K[0] : 'i-info', pkT: K ? K[1] : '', pkD: K ? K[2] : '' }; })(), showOrbs: view !== 'invalid',
       h1, sub, facts, busy,
       pLabel: busy ? 'Đang đăng nhập…' : view === 'invalid' ? 'Đăng nhập bằng mật khẩu' : 'Đăng nhập', pIcon: !busy && view !== 'invalid',
       pBg: busy ? '#2A2A2E' : '#EDEDEF', pFg: busy ? '#A0A0AB' : '#0B0B0D',

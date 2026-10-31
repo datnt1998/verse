@@ -31,6 +31,7 @@ Canvas thiết kế gốc (xem tương tác, bấm Play): Claude Design artifact
 | `21-dev-prompt.md` | **Prompt cho Dev**: danh sách việc đợt 24–25/10 (gói A–G, GAP-30…33, nghiệm thu) — dán cho Claude Code để bổ sung đầy đủ |
 | `22-brief-2510.md` | **Trả lời brief design 25/10**: D1–D12 (phiên bản, gói thể loại, bản đọc TTS, thẻ thẩm duyệt có §, bản đồ giữ chân, số đo bằng máy, trang nhân vật & xưng hô, Não truyện, audio theo gói), trả lời câu hỏi treo §E, gói L cho dev; bổ sung lần chạy đầu trên web (A0), Não truyện điện thoại (M8), Chất lượng truyện, Não dự án, Não hệ thống (D13–D15) cho gói M |
 | `23-brand.md` + `brand/` | **Thương hiệu Noverse**: biểu tượng 4 quả cầu, logo dài và đứng, app icon, favicon, màu, chữ (Plus Jakarta Sans), cách gắn vào web, phạm vi đổi tên |
+| `24-changelog.md` | **Lịch sử thiết kế**: mỗi đợt một mục (ngày, gói, artboard, tài liệu, bản canvas), mới nhất ở trên <!-- ao-cl --> |
 | `icons/` | 142 icon Iconsax (Linear + Bulk, MIT) dạng SVG + `index.json` |
 | `artboards/` | Mã nguồn `.dc.html` của 41 artboard + `canvas.json` (tham chiếu, không chạy trực tiếp) |
 

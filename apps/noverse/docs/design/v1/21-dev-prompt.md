@@ -1432,6 +1432,8 @@ Spec: `20-settings-rules.md` §8; câu chữ `07-copy.md` › *Lưu trữ tệp*
 
 **Vì sao:** Noverse và Viderse dùng chung kho tài khoản và một phiên (`STORE_DRIVER=postgres`). Người dùng chưa có lối sang app kia, và các câu đăng xuất, đổi mật khẩu, cấp quyền chưa nói rằng thao tác ảnh hưởng cả hai app. Phía Viderse là Gói V26.
 
+Artboard Noverse: `Login` (`kicked`, `viderse`, `state=denied`, `state=menu`, `state=devices`), `Members` (`app`), `MMore` (`viderse`), `Phone` (`kicked`). <!-- ao-ab -->
+
 Spec: `09-auth-onboard.md` §12; câu chữ `07-copy.md` › *Đăng nhập chung với Viderse*; artboard tham chiếu ở Viderse `apps/viderse/docs/design/v1/artboards/Auth.dc.html` (`screen=menu`, `app=noverse`; `screen=login`, `kicked=…`; `screen=denied`) và `MAuth.dc.html` (`screen=account`, `app=noverse`).
 
 ### Việc FE
