@@ -563,7 +563,9 @@ func (s *CloneStore) refreshDerived(ctx context.Context, jobID pgtype.UUID, acti
 		return err
 	}
 	group := domain.StageGroupOf(job, steps)
-	if err := recordStageNotification(ctx, job, group); err != nil { return err }
+	if err := recordStageNotification(ctx, job, group); err != nil {
+		return err
+	}
 	return q.SetJobDerived(ctx, gen.SetJobDerivedParams{
 		ID: jobID, Column2: nowTz(), StageGroup: group,
 		ActiveStep: pstr((*string)(activeStep)),
@@ -676,7 +678,9 @@ func (s *CloneStore) ClaimNextStep(ctx context.Context, jobID, workerID string) 
 			return err
 		}
 		if candidate.Status == "waiting" {
-			if err := recordStepAutoRetry(txctx, u, candidate.Step); err != nil { return err }
+			if err := recordStepAutoRetry(txctx, u, candidate.Step); err != nil {
+				return err
+			}
 		}
 		stepName := domain.CloneStep(candidate.Step)
 		if err := s.refreshDerived(txctx, u, &stepName); err != nil {

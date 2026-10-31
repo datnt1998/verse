@@ -59,8 +59,8 @@ type Snapshot struct {
 	VideoJobs int            // việc kind video đang state=running
 	Queued    int            // việc kind video đang state=waiting (tới khi có hàng chờ thật)
 	Unread    []Notification // thông báo chưa đọc
-	Badge int
-	NextScan *NextScan
+	Badge     int
+	NextScan  *NextScan
 }
 
 // Store là phần lưu trữ service cần. Mọi thao tác nguyên tử theo dòng; luật
@@ -107,10 +107,10 @@ const NotifyMergeWindow = 10 * time.Second
 // Service quản lý việc nền và thông báo. Tất cả phương thức an toàn cho
 // goroutine; notify được gọi ngoài mọi khoá và không được chặn.
 type Service struct {
-	store     Store
-	notify    func(ref string)
+	store        Store
+	notify       func(ref string)
 	scanSchedule func(context.Context) ([]time.Time, error)
-	startLock sync.Mutex // chống hai Start cùng đối tượng đua nhau trong process
+	startLock    sync.Mutex // chống hai Start cùng đối tượng đua nhau trong process
 }
 
 // New dựng service. notify nhận ref (id việc vừa đổi, id thông báo, hoặc "");
@@ -241,9 +241,13 @@ func (s *Service) NotifyScoped(ctx context.Context, spec NotificationSpec) (stri
 		return "", fmt.Errorf("thông báo cần kind")
 	}
 	prefs, err := s.NotificationSettings(ctx)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 	window := NotifyMergeWindow
-	if !prefs.Merge { window = 0 }
+	if !prefs.Merge {
+		window = 0
+	}
 	n, err := s.store.UpsertScopedNotification(ctx, spec, window)
 	if err != nil {
 		return "", err
@@ -308,9 +312,13 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	if err != nil {
 		return Snapshot{}, err
 	}
-	if source, ok := s.store.(interface { ListRunningVideos(context.Context) ([]Task, error) }); ok {
+	if source, ok := s.store.(interface {
+		ListRunningVideos(context.Context) ([]Task, error)
+	}); ok {
 		active, err := source.ListRunningVideos(ctx)
-		if err != nil { return Snapshot{}, err }
+		if err != nil {
+			return Snapshot{}, err
+		}
 		tasks = append(tasks, active...)
 		video += int64(len(active))
 	}
@@ -323,14 +331,20 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 		return Snapshot{}, err
 	}
 	badge := 0
-	if store, ok := s.store.(interface { CountWaitingVideos(context.Context) (int, error) }); ok {
+	if store, ok := s.store.(interface {
+		CountWaitingVideos(context.Context) (int, error)
+	}); ok {
 		badge, err = store.CountWaitingVideos(ctx)
-		if err != nil { return Snapshot{}, err }
+		if err != nil {
+			return Snapshot{}, err
+		}
 	}
 	var nextScan *NextScan
 	if s.scanSchedule != nil {
 		times, err := s.scanSchedule(ctx)
-		if err != nil { return Snapshot{}, err }
+		if err != nil {
+			return Snapshot{}, err
+		}
 		nextScan = NextScanFromTimes(times)
 	}
 	return Snapshot{Tasks: tasks, VideoJobs: int(video), Queued: int(queued), Unread: unread, Badge: badge, NextScan: nextScan}, nil

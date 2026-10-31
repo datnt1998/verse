@@ -5,9 +5,9 @@
 package logs
 
 import (
-	"context"
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -81,8 +81,8 @@ var redactPatterns = []struct {
 
 // Store ghi và đọc nhật ký công cụ trong <dir>/<tool>.log.
 type Store struct {
-	dir  string
-	home string // gốc thư mục nhà để che tên người dùng trong đường dẫn
+	dir   string
+	home  string // gốc thư mục nhà để che tên người dùng trong đường dẫn
 	tasks interface {
 		Start(context.Context, domain.TaskSpec) (string, error)
 		Finish(context.Context, string) error
@@ -103,7 +103,9 @@ func New(dir, home string) *Store {
 func (s *Store) SetTasks(tasks interface {
 	Start(context.Context, domain.TaskSpec) (string, error)
 	Finish(context.Context, string) error
-}) { s.tasks = tasks }
+}) {
+	s.tasks = tasks
+}
 
 // Close là điểm kết thúc của store (mọi tệp đã đóng ngay sau mỗi lần ghi);
 // giữ để composition gọi khi tắt và tương lai thêm buffer.

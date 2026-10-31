@@ -34,11 +34,11 @@ const (
 
 // Output là nội dung metadata/metadata.json — cloneMetadataSchema.
 type Output struct {
-	Version     int      `json:"version"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-	BasedOn     *BasedOn `json:"basedOn,omitempty"`
+	Version     int                       `json:"version"`
+	Title       string                    `json:"title"`
+	Description string                    `json:"description"`
+	Tags        []string                  `json:"tags"`
+	BasedOn     *BasedOn                  `json:"basedOn,omitempty"`
 	Reason      map[string]insight.Reason `json:"reason,omitempty"`
 }
 
@@ -238,7 +238,7 @@ var metadataContract = map[string]any{
 		"title":       map[string]any{"type": "string"},
 		"description": map[string]any{"type": "string"},
 		"tags":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}},
-		"basedOn": map[string]any{"type":"object","additionalProperties":false,"required":[]string{"sourceTitle","rules"},"properties":map[string]any{"sourceTitle":map[string]any{"type":"string"},"rules":map[string]any{"type":"array","items":map[string]any{"type":"string"}}}},
+		"basedOn":     map[string]any{"type": "object", "additionalProperties": false, "required": []string{"sourceTitle", "rules"}, "properties": map[string]any{"sourceTitle": map[string]any{"type": "string"}, "rules": map[string]any{"type": "array", "items": map[string]any{"type": "string"}}}},
 	},
 }
 
@@ -293,7 +293,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		Validate: func(o *modelOutput) error {
 			cleaned := Output{Version: 1, Title: strings.TrimSpace(o.Title), Description: o.Description, Tags: SanitizeTags(o.Tags)}
 			err := validate(&cleaned)
-			*o = modelOutput{Title: cleaned.Title, Description: cleaned.Description, Tags: cleaned.Tags, BasedOn:o.BasedOn}
+			*o = modelOutput{Title: cleaned.Title, Description: cleaned.Description, Tags: cleaned.Tags, BasedOn: o.BasedOn}
 			return err
 		},
 	})
@@ -310,8 +310,10 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		return pipeline.StepResult{}, pipeline.ErrPaused
 	}
 
-	result := Output{Version: 1, Title: out.Title, Description: out.Description, Tags: out.Tags, Reason:metadataReasons(out.BasedOn,title,channelName)}
-	if result.Reason != nil { result.BasedOn = &BasedOn{SourceTitle:title, Rules:[]string{}} }
+	result := Output{Version: 1, Title: out.Title, Description: out.Description, Tags: out.Tags, Reason: metadataReasons(out.BasedOn, title, channelName)}
+	if result.Reason != nil {
+		result.BasedOn = &BasedOn{SourceTitle: title, Rules: []string{}}
+	}
 	if footer != "" {
 		separator := "\n\n"
 		available := DescriptionMaxChr - utf8.RuneCountInString(separator+footer)
@@ -352,7 +354,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	}
 	return pipeline.StepResult{
 		Artifacts: []media.Artifact{{Path: "metadata/metadata.json", File: file}},
-		Data:      map[string]any{"metadata": map[string]any{"title": result.Title, "description": result.Description, "tags": result.Tags, "reason":result.Reason}},
+		Data:      map[string]any{"metadata": map[string]any{"title": result.Title, "description": result.Description, "tags": result.Tags, "reason": result.Reason}},
 	}, nil
 }
 

@@ -83,7 +83,9 @@ func (s *Service) enrichSource(ctx context.Context, job *domain.CloneJob, steps 
 					job.Source.ChapterCount = &n
 				}
 			} else {
-				var cues []struct { Text string `json:"text"` }
+				var cues []struct {
+					Text string `json:"text"`
+				}
 				if err := json.Unmarshal(raw["cues"], &cues); err != nil {
 					return err
 				}

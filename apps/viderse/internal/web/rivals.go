@@ -92,18 +92,18 @@ type rivalListWire struct {
 }
 
 type videoWire struct {
-	ID           string     `json:"id"`
-	ChannelID    string     `json:"channelId"`
-	Title        string     `json:"title"`
-	DurationSec  *int       `json:"durationSec"`
-	ViewCount    *int64     `json:"viewCount"`
-	PublishedAt  *time.Time `json:"publishedAt"`
-	ExactTime    bool       `json:"exactTime"`
-	Score        *float64   `json:"score"`
+	ID           string          `json:"id"`
+	ChannelID    string          `json:"channelId"`
+	Title        string          `json:"title"`
+	DurationSec  *int            `json:"durationSec"`
+	ViewCount    *int64          `json:"viewCount"`
+	PublishedAt  *time.Time      `json:"publishedAt"`
+	ExactTime    bool            `json:"exactTime"`
+	Score        *float64        `json:"score"`
 	ScoreReason  *insight.Reason `json:"scoreReason,omitempty"`
-	HasCaptions  *bool      `json:"hasCaptions"`
-	ThumbnailURL string     `json:"thumbnailUrl"`
-	URL          string     `json:"url"`
+	HasCaptions  *bool           `json:"hasCaptions"`
+	ThumbnailURL string          `json:"thumbnailUrl"`
+	URL          string          `json:"url"`
 }
 
 type videoPageWire struct {
@@ -423,10 +423,16 @@ func getRivalVideos(w http.ResponseWriter, r *http.Request, reads RivalReads, di
 		return
 	}
 	byID := make(map[string]domain.RivalChannel)
-	if channels != nil { for _, entry := range channels.Rivals { byID[entry.Channel.ID] = entry.Channel } }
+	if channels != nil {
+		for _, entry := range channels.Rivals {
+			byID[entry.Channel.ID] = entry.Channel
+		}
+	}
 	for _, v := range page.Videos {
 		item := VideoToWire(v)
-		if channel, ok := byID[v.ChannelID]; ok { item.ScoreReason = insight.ScoreReason(v, channel) }
+		if channel, ok := byID[v.ChannelID]; ok {
+			item.ScoreReason = insight.ScoreReason(v, channel)
+		}
 		out.Videos = append(out.Videos, item)
 	}
 	if page.NextCursor != "" {

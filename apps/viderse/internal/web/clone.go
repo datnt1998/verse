@@ -276,7 +276,7 @@ func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files clone
 func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id string) {
 	var request struct {
 		Action string `json:"action"`
-		DryRun bool `json:"dryRun"`
+		DryRun bool   `json:"dryRun"`
 	}
 	if !webapp.DecodeJSONCode(w, r, &request, domain.CloneErrInvalidRequest) {
 		return
@@ -298,10 +298,18 @@ func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id st
 		job, err = svc.Cancel(r.Context(), id)
 	case "restart":
 		if request.DryRun {
-			planner, ok := svc.(interface { RestartPlan(context.Context, string) (*domain.CloneRestartPlan, error) })
-			if !ok { cloneAvailable(w, false); return }
+			planner, ok := svc.(interface {
+				RestartPlan(context.Context, string) (*domain.CloneRestartPlan, error)
+			})
+			if !ok {
+				cloneAvailable(w, false)
+				return
+			}
 			plan, err := planner.RestartPlan(r.Context(), id)
-			if err != nil { WriteCloneError(w, err); return }
+			if err != nil {
+				WriteCloneError(w, err)
+				return
+			}
 			webapp.WriteJSON(w, http.StatusOK, plan)
 			return
 		}

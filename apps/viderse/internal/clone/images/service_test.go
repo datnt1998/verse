@@ -165,10 +165,14 @@ func TestImageViewExposesEffectivePrompt(t *testing.T) {
 	s, store := testService()
 	store.template = json.RawMessage(`{"scenePrompt":{"id":"template","name":"Template Scene"},"coverPrompt":{"id":"cover","name":"Template Cover"}}`)
 	view, err := s.Read(context.Background(), "job")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	raw, _ := json.Marshal(view.Manifest)
 	var wire map[string]any
-	if err := json.Unmarshal(raw, &wire); err != nil { t.Fatal(err) }
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		t.Fatal(err)
+	}
 	scene, ok := wire["scenePrompt"].(map[string]any)
 	if !ok || scene["id"] != "template" || scene["name"] != "Template Scene" || scene["overridden"] != false {
 		t.Fatalf("missing effective prompt: %s", raw)
@@ -181,7 +185,9 @@ func TestOverridePlanDoesNotPromiseRebuildBeforeBuild(t *testing.T) {
 	s.QuotaLeft = func(context.Context) (int, error) { return 10, nil }
 	id := "scene-custom"
 	plan, err := s.PlanOverrides(context.Background(), "job", OverrideInput{ScenePromptID: OptionalString{Set: true, Value: &id}})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if plan.Redraw.Scenes != 1 || plan.Cost.Images != 1 || plan.Rebuild {
 		t.Fatalf("wrong in-progress plan: %+v", plan)
 	}

@@ -33,13 +33,13 @@ type Supervisor struct {
 	DeleteStaged                               func(context.Context, string, string) error
 	Remeasure                                  func(context.Context, string, string) (bool, []string, error)
 	MeasurementPublished                       func(context.Context, MeasurementRequest) (bool, error)
-	Tasks interface {
+	Tasks                                      interface {
 		Start(context.Context, domain.TaskSpec) (string, error)
 		Update(context.Context, string, domain.TaskUpdate) error
 		Finish(context.Context, string) error
 	}
-	lane                                       chan struct{}
-	init                                       sync.Once
+	lane chan struct{}
+	init sync.Once
 }
 type wallClock struct{}
 

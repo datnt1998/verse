@@ -28,11 +28,11 @@ type Probe struct {
 	VariableFPS   bool
 }
 type Deps struct {
-	Ffmpeg, FFprobe string
-	Now             func() time.Time
-	Probe           func(context.Context, *pipeline.StepContext, string) (Probe, error)
-	Detect          func(context.Context, *pipeline.StepContext, string, float64) ([]DetectFrame, error)
-	Extract         func(context.Context, *pipeline.StepContext, string, string, int, int, float64) (float64, error)
+	Ffmpeg, FFprobe      string
+	Now                  func() time.Time
+	Probe                func(context.Context, *pipeline.StepContext, string) (Probe, error)
+	Detect               func(context.Context, *pipeline.StepContext, string, float64) ([]DetectFrame, error)
+	Extract              func(context.Context, *pipeline.StepContext, string, string, int, int, float64) (float64, error)
 	ReadNoImagesOverride func(context.Context, domain.CloneJob) (*bool, error)
 }
 type Handler struct{ Deps Deps }

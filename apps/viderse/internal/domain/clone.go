@@ -322,27 +322,27 @@ type CloneStepRecord struct {
 	UpdatedAt    time.Time        `json:"updatedAt"`
 }
 type CloneQueueItem struct {
-	ID            string              `json:"id"`
-	ChannelID     string              `json:"channelId"`
-	SourceVideoID string              `json:"sourceVideoId"`
-	SourceKey     string              `json:"sourceKey"`
-	Source        CloneSourceSnapshot `json:"source"`
-	Priority      ClonePriority       `json:"priority"`
-	Origin        CloneOrigin         `json:"origin"`
-	Position      float64             `json:"position"`
-	State         CloneQueueState     `json:"state"`
-	NoImages      bool                `json:"noImages"`
-	ScenePromptID    *string `json:"scenePromptId"`
-	CoverPromptID    *string `json:"coverPromptId"`
-	NoImagesOverride *bool   `json:"noImagesOverride,omitempty"`
-	OverrideRevision int64   `json:"overrideRevision"`
-	TemplateID    *string             `json:"templateId,omitempty"`
-	JobID         *string             `json:"jobId"`
-	RestartOf     *string             `json:"previousJobId,omitempty"`
-	Reason        *string             `json:"reason"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	StartedAt     *time.Time          `json:"startedAt"`
-	RemovedAt     *time.Time          `json:"-"`
+	ID               string              `json:"id"`
+	ChannelID        string              `json:"channelId"`
+	SourceVideoID    string              `json:"sourceVideoId"`
+	SourceKey        string              `json:"sourceKey"`
+	Source           CloneSourceSnapshot `json:"source"`
+	Priority         ClonePriority       `json:"priority"`
+	Origin           CloneOrigin         `json:"origin"`
+	Position         float64             `json:"position"`
+	State            CloneQueueState     `json:"state"`
+	NoImages         bool                `json:"noImages"`
+	ScenePromptID    *string             `json:"scenePromptId"`
+	CoverPromptID    *string             `json:"coverPromptId"`
+	NoImagesOverride *bool               `json:"noImagesOverride,omitempty"`
+	OverrideRevision int64               `json:"overrideRevision"`
+	TemplateID       *string             `json:"templateId,omitempty"`
+	JobID            *string             `json:"jobId"`
+	RestartOf        *string             `json:"previousJobId,omitempty"`
+	Reason           *string             `json:"reason"`
+	CreatedAt        time.Time           `json:"createdAt"`
+	StartedAt        *time.Time          `json:"startedAt"`
+	RemovedAt        *time.Time          `json:"-"`
 }
 type CloneAgentView struct {
 	ID     string            `json:"id"`
@@ -356,11 +356,11 @@ type CloneAgentMetric struct {
 }
 type CloneJobView struct {
 	CloneJob
-	Subline   string            `json:"subline"`
-	AgentView []CloneAgentView  `json:"agentView"`
-	Steps     []CloneStepRecord `json:"steps"`
-	PreviousJobID *string `json:"previousJobId"`
-	ExportBytes *int64          `json:"exportBytes"`
+	Subline       string            `json:"subline"`
+	AgentView     []CloneAgentView  `json:"agentView"`
+	Steps         []CloneStepRecord `json:"steps"`
+	PreviousJobID *string           `json:"previousJobId"`
+	ExportBytes   *int64            `json:"exportBytes"`
 	// QueueItem mang mục hàng chờ gốc khi hàng này là mục chưa có job
 	// (StageGroup "queued"); nil cho job thật.
 	QueueItem *CloneQueueItem `json:"queueItem,omitempty"`

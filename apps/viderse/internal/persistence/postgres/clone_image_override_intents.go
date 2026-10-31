@@ -18,7 +18,9 @@ func applyImageOverride(m *images.Manifest, desired images.Manifest) {
 	if desired.ImageMode == "none" && m.ImageMode != "none" {
 		items := m.Items[:0]
 		for _, item := range m.Items {
-			if item.Kind != "scene" { items = append(items, item) }
+			if item.Kind != "scene" {
+				items = append(items, item)
+			}
 		}
 		m.Items = items
 		m.QueueOnly = nil
@@ -33,7 +35,9 @@ func applyImageOverride(m *images.Manifest, desired images.Manifest) {
 					break
 				}
 			}
-			if !found { items = append(items, wanted) }
+			if !found {
+				items = append(items, wanted)
+			}
 		}
 		m.Items = items
 		m.QueueOnly = nil
@@ -65,8 +69,15 @@ func applyImageOverride(m *images.Manifest, desired images.Manifest) {
 			item.Error = ""
 			item.PromptVersion++
 			found := false
-			for _, queued := range m.QueueOnly { if queued == id { found = true; break } }
-			if !found { m.QueueOnly = append(m.QueueOnly, id) }
+			for _, queued := range m.QueueOnly {
+				if queued == id {
+					found = true
+					break
+				}
+			}
+			if !found {
+				m.QueueOnly = append(m.QueueOnly, id)
+			}
 			break
 		}
 	}
@@ -76,37 +87,59 @@ func applyImageOverride(m *images.Manifest, desired images.Manifest) {
 func overlayImageOverride(ctx context.Context, tx pgx.Tx, id any, m *images.Manifest, safe bool) (bool, error) {
 	var raw []byte
 	err := tx.QueryRow(ctx, `SELECT manifest FROM clone_image_override_intents WHERE job_id=$1`, id).Scan(&raw)
-	if errors.Is(err, pgx.ErrNoRows) { return false, nil }
-	if err != nil { return false, err }
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
 	if safe {
-		for _, item := range m.Items { if item.InFlight != nil { return false, nil } }
+		for _, item := range m.Items {
+			if item.InFlight != nil {
+				return false, nil
+			}
+		}
 	}
 	var desired images.Manifest
-	if err := json.Unmarshal(raw, &desired); err != nil { return false, err }
+	if err := json.Unmarshal(raw, &desired); err != nil {
+		return false, err
+	}
 	applyImageOverride(m, desired)
 	return true, nil
 }
 
 func enqueueImageOverride(ctx context.Context, tx pgx.Tx, id any, revision int, raw json.RawMessage) error {
 	result, err := tx.Exec(ctx, `INSERT INTO clone_image_override_intents(job_id,expected_revision,manifest) VALUES($1,$2,$3::jsonb) ON CONFLICT DO NOTHING`, id, revision, raw)
-	if err != nil { return err }
-	if result.RowsAffected() != 1 { return jobedit.Conflict("Đang chờ áp dụng prompt ảnh trước đó") }
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() != 1 {
+		return jobedit.Conflict("Đang chờ áp dụng prompt ảnh trước đó")
+	}
 	return nil
 }
 
 func clearReviewOrigin(raw json.RawMessage) (json.RawMessage, error) {
 	var fields map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &fields); err != nil { return nil, err }
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return nil, err
+	}
 	delete(fields, "reviewOrigin")
 	return json.Marshal(fields)
 }
 
 func startsImageFlight(previous, next json.RawMessage) bool {
 	var old, current images.Manifest
-	if json.Unmarshal(previous, &old) != nil || json.Unmarshal(next, &current) != nil { return false }
+	if json.Unmarshal(previous, &old) != nil || json.Unmarshal(next, &current) != nil {
+		return false
+	}
 	for i, item := range current.Items {
-		if item.InFlight == nil { continue }
-		if i >= len(old.Items) || old.Items[i].ID != item.ID || old.Items[i].InFlight == nil { return true }
+		if item.InFlight == nil {
+			continue
+		}
+		if i >= len(old.Items) || old.Items[i].ID != item.ID || old.Items[i].InFlight == nil {
+			return true
+		}
 	}
 	return false
 }

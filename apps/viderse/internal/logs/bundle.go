@@ -45,10 +45,12 @@ func (s *Store) BuildBundle(ctx context.Context, opts BundleOptions) (*Bundle, e
 	if s.tasks != nil {
 		id, err := s.tasks.Start(ctx, domain.TaskSpec{
 			Kind: domain.TaskLogs, Title: "Xuất nhật ký",
-			Object: domain.ObjectRef{Type:"logs", ID:fmt.Sprint(s.sequence.Add(1)), Label:"Nhật ký"},
-			Phase:"Đang tạo gói báo lỗi",
+			Object: domain.ObjectRef{Type: "logs", ID: fmt.Sprint(s.sequence.Add(1)), Label: "Nhật ký"},
+			Phase:  "Đang tạo gói báo lỗi",
 		})
-		if err == nil { defer s.tasks.Finish(context.WithoutCancel(ctx), id) }
+		if err == nil {
+			defer s.tasks.Finish(context.WithoutCancel(ctx), id)
+		}
 	}
 	now := opts.Now
 	if now.IsZero() {

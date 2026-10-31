@@ -12,18 +12,26 @@ import (
 )
 
 type redrawItem struct {
-	ID string `json:"id"`
-	Modest bool `json:"modest"`
-	Status string `json:"status"`
-	InFlight *struct { GenerationID string `json:"generationId"` } `json:"inFlight"`
+	ID       string `json:"id"`
+	Modest   bool   `json:"modest"`
+	Status   string `json:"status"`
+	InFlight *struct {
+		GenerationID string `json:"generationId"`
+	} `json:"inFlight"`
 }
-type redrawCheckpoint struct { Items []redrawItem `json:"items"` }
+type redrawCheckpoint struct {
+	Items []redrawItem `json:"items"`
+}
 
 func imageRedrawTransitions(previous, current json.RawMessage) []string {
 	var old, next redrawCheckpoint
-	if json.Unmarshal(previous, &old) != nil || json.Unmarshal(current, &next) != nil { return nil }
+	if json.Unmarshal(previous, &old) != nil || json.Unmarshal(current, &next) != nil {
+		return nil
+	}
 	byID := make(map[string]redrawItem, len(old.Items))
-	for _, item := range old.Items { byID[item.ID] = item }
+	for _, item := range old.Items {
+		byID[item.ID] = item
+	}
 	var ids []string
 	for _, item := range next.Items {
 		before, ok := byID[item.ID]
@@ -36,9 +44,13 @@ func imageRedrawTransitions(previous, current json.RawMessage) []string {
 
 func insertAutoAction(ctx context.Context, jobID pgtype.UUID, kind, text string, reason insight.Reason) error {
 	tx, ok := ctx.Value(mediaTxKey{}).(pgx.Tx)
-	if !ok { return fmt.Errorf("ghi hành động tự động cần giao dịch") }
+	if !ok {
+		return fmt.Errorf("ghi hành động tự động cần giao dịch")
+	}
 	raw, err := json.Marshal(reason)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	_, err = tx.Exec(ctx, `INSERT INTO clone_auto_actions(job_id,kind,text,reason) VALUES($1,$2,$3,$4::jsonb)`, jobID, kind, text, raw)
 	return err
 }
@@ -49,7 +61,9 @@ func recordImageAutoActions(ctx context.Context, jobID pgtype.UUID, previous, cu
 			{Label: "Ảnh", Value: id, Source: "Bước Ảnh"},
 			{Label: "Kết quả", Value: "Bị từ chối", Source: "Bộ tạo ảnh"},
 		}}
-		if err := insertAutoAction(ctx, jobID, "safety_redraw", "Tự điều chỉnh và vẽ lại ảnh", reason); err != nil { return err }
+		if err := insertAutoAction(ctx, jobID, "safety_redraw", "Tự điều chỉnh và vẽ lại ảnh", reason); err != nil {
+			return err
+		}
 	}
 	return nil
 }

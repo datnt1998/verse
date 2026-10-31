@@ -55,9 +55,14 @@ func (s *ActivityStore) ListNotificationsBefore(ctx context.Context, before *act
 func (s *ActivityStore) listNotificationPage(ctx context.Context, before *activity.NotificationCursor, limit int, unreadOnly bool) ([]activity.Notification, error) {
 	var at *time.Time
 	var id any
-	if before != nil { at = &before.CreatedAt; id = before.ID }
+	if before != nil {
+		at = &before.CreatedAt
+		id = before.ID
+	}
 	rows, err := s.db.Query(ctx, `SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref, detail FROM notifications WHERE ($1 OR audience = 'all') AND ($2::timestamptz IS NULL OR (created_at,id) < ($2::timestamptz,$3::uuid)) AND (NOT $5 OR read_at IS NULL) ORDER BY created_at DESC, id DESC LIMIT $4`, activity.IsAdminViewer(ctx), at, id, limit, unreadOnly)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	out := make([]activity.Notification, 0)
 	for rows.Next() {
@@ -65,11 +70,27 @@ func (s *ActivityStore) listNotificationPage(ctx context.Context, before *activi
 		var id pgtype.UUID
 		var readAt pgtype.Timestamptz
 		var object, detail []byte
-		if err := rows.Scan(&id, &n.Kind, &n.Count, &n.Text, &n.Href, &n.ActionLabel, &n.CreatedAt, &readAt, &n.Audience, &object, &detail); err != nil { return nil, err }
+		if err := rows.Scan(&id, &n.Kind, &n.Count, &n.Text, &n.Href, &n.ActionLabel, &n.CreatedAt, &readAt, &n.Audience, &object, &detail); err != nil {
+			return nil, err
+		}
 		n.ID = uuidText(id)
-		if readAt.Valid { at := readAt.Time; n.ReadAt = &at }
-		if len(object) > 0 { var ref domain.ObjectRef; if json.Unmarshal(object, &ref) == nil { n.Object = &ref } }
-		if len(detail) > 0 { var value activity.NotificationDetail; if err := json.Unmarshal(detail, &value); err != nil { return nil, err }; n.Detail = &value }
+		if readAt.Valid {
+			at := readAt.Time
+			n.ReadAt = &at
+		}
+		if len(object) > 0 {
+			var ref domain.ObjectRef
+			if json.Unmarshal(object, &ref) == nil {
+				n.Object = &ref
+			}
+		}
+		if len(detail) > 0 {
+			var value activity.NotificationDetail
+			if err := json.Unmarshal(detail, &value); err != nil {
+				return nil, err
+			}
+			n.Detail = &value
+		}
 		out = append(out, n)
 	}
 	return out, rows.Err()
@@ -85,7 +106,9 @@ func (s *ActivityStore) CountWaitingVideos(ctx context.Context) (int, error) {
 // background_tasks, which is reserved for non-video work.
 func (s *ActivityStore) ListRunningVideos(ctx context.Context) ([]activity.Task, error) {
 	rows, err := s.db.Query(ctx, `SELECT j.id::text, COALESCE(j.source_snapshot->>'title',''), COALESCE(s.progress_phase,''), COALESCE(s.progress_done,0), s.progress_total, j.created_at, j.updated_at FROM clone_jobs j LEFT JOIN clone_steps s ON s.job_id=j.id AND s.step=j.active_step WHERE j.superseded_at IS NULL AND j.stage_group='working' AND j.status='running' ORDER BY j.created_at,j.id`)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	out := make([]activity.Task, 0)
 	for rows.Next() {
@@ -93,12 +116,16 @@ func (s *ActivityStore) ListRunningVideos(ctx context.Context) ([]activity.Task,
 		var title string
 		var done int64
 		var total *int64
-		if err := rows.Scan(&t.ID,&title,&t.Phase,&done,&total,&t.CreatedAt,&t.UpdatedAt); err != nil { return nil,err }
+		if err := rows.Scan(&t.ID, &title, &t.Phase, &done, &total, &t.CreatedAt, &t.UpdatedAt); err != nil {
+			return nil, err
+		}
 		t.Kind, t.Title, t.State = domain.TaskVideo, title, domain.TaskRunning
-		t.Object = domain.ObjectRef{Type:"video", ID:t.ID, Label:title}
-		t.Action = domain.TaskAction{Label:"Mở", Href:"#/?video="+t.ID}
-		if total != nil { t.Progress = &domain.TaskProgress{Done:done, Total:*total} }
-		out = append(out,t)
+		t.Object = domain.ObjectRef{Type: "video", ID: t.ID, Label: title}
+		t.Action = domain.TaskAction{Label: "Mở", Href: "#/?video=" + t.ID}
+		if total != nil {
+			t.Progress = &domain.TaskProgress{Done: done, Total: *total}
+		}
+		out = append(out, t)
 	}
 	return out, rows.Err()
 }

@@ -175,8 +175,8 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	out.Manifest.Overrides = m.Overrides
 	if m.Overrides != nil {
 		for _, selection := range []struct {
-			set bool
-			id string
+			set    bool
+			id     string
 			target *EffectivePrompt
 		}{{m.Overrides.ScenePromptSet, m.Overrides.ScenePromptID, &out.Manifest.ScenePrompt}, {m.Overrides.CoverPromptSet, m.Overrides.CoverPromptID, &out.Manifest.CoverPrompt}} {
 			if !selection.set {

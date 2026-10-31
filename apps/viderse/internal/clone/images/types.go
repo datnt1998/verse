@@ -89,9 +89,9 @@ type ManifestView struct {
 	SceneRevision   int                `json:"sceneRevision"`
 	Waiting         *domain.CloneError `json:"waiting"`
 	ImageMode       *string            `json:"imageMode"`
-	ScenePrompt EffectivePrompt `json:"scenePrompt"`
-	CoverPrompt EffectivePrompt `json:"coverPrompt"`
-	Overrides *model.Overrides `json:"overrides"`
+	ScenePrompt     EffectivePrompt    `json:"scenePrompt"`
+	CoverPrompt     EffectivePrompt    `json:"coverPrompt"`
+	Overrides       *model.Overrides   `json:"overrides"`
 }
 type VersionView struct {
 	Version           int             `json:"version"`
@@ -135,11 +135,11 @@ type ItemView struct {
 	MediaID        string        `json:"mediaId,omitempty"`
 }
 type View struct {
-	Manifest *ManifestView `json:"manifest"`
-	Items    []ItemView    `json:"items"`
-	Approved bool          `json:"approved"`
+	Manifest      *ManifestView `json:"manifest"`
+	Items         []ItemView    `json:"items"`
+	Approved      bool          `json:"approved"`
 	ApprovedToday *int          `json:"approvedToday"`
-	Reason   string        `json:"reason,omitempty"`
+	Reason        string        `json:"reason,omitempty"`
 }
 
 // OptionalString distinguishes omission (retain override) from null (template).

@@ -11,19 +11,19 @@ import (
 )
 
 type StartJobInput struct {
-	ChannelID        string
-	SourceKey        string
-	Source           domain.CloneSourceSnapshot
-	TemplateID       string
-	TemplateSnapshot json.RawMessage
-	ModelRefs        json.RawMessage
-	NoImages         bool
-	Priority         domain.ClonePriority
-	Origin           domain.CloneOrigin
-	Replaces         string
-	QueueItemID      string
+	ChannelID             string
+	SourceKey             string
+	Source                domain.CloneSourceSnapshot
+	TemplateID            string
+	TemplateSnapshot      json.RawMessage
+	ModelRefs             json.RawMessage
+	NoImages              bool
+	Priority              domain.ClonePriority
+	Origin                domain.CloneOrigin
+	Replaces              string
+	QueueItemID           string
 	QueueOverrideRevision int64
-	ImageCheckpoint json.RawMessage
+	ImageCheckpoint       json.RawMessage
 }
 type StartJobResult struct {
 	Job     *domain.CloneJob
@@ -55,16 +55,16 @@ type QueueReadModel interface {
 type TemplateResolver func(context.Context, domain.CloneQueueItem) (templateID string, recipe json.RawMessage, models json.RawMessage, err error)
 
 type Service struct {
-	Store           ServiceStore
-	Worker          *Worker
-	Media           *media.Service
-	Publish         Publisher
-	ResolveTemplate TemplateResolver
-	PlanRestart func(context.Context, *domain.CloneJob) (*domain.CloneRestartPlan, error)
-	EnqueueRestart func(context.Context, *domain.CloneJob) (*domain.CloneQueueItem, error)
+	Store                       ServiceStore
+	Worker                      *Worker
+	Media                       *media.Service
+	Publish                     Publisher
+	ResolveTemplate             TemplateResolver
+	PlanRestart                 func(context.Context, *domain.CloneJob) (*domain.CloneRestartPlan, error)
+	EnqueueRestart              func(context.Context, *domain.CloneJob) (*domain.CloneQueueItem, error)
 	ResolveQueuedImageOverrides func(context.Context, domain.CloneQueueItem) (json.RawMessage, error)
-	Queue           QueueReadModel
-	Now             func() time.Time
+	Queue                       QueueReadModel
+	Now                         func() time.Time
 }
 
 func (s *Service) now() time.Time {
@@ -113,26 +113,38 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 // Restart places a new generation at the head of the normal queue.
 func (s *Service) Restart(ctx context.Context, id string) (*domain.CloneQueueItem, error) {
 	job, err := s.Store.GetJob(ctx, id)
-	if err != nil { return nil, err }
-	if job == nil { return nil, ErrNotFound }
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, ErrNotFound
+	}
 	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
 		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 	}
 	if job.ChannelID == "" || job.Source.ID == "" {
 		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Không xác định được kênh hoặc video nguồn để làm lại"}
 	}
-	if s.EnqueueRestart == nil { return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Hàng chờ chưa sẵn sàng"} }
+	if s.EnqueueRestart == nil {
+		return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Hàng chờ chưa sẵn sàng"}
+	}
 	return s.EnqueueRestart(ctx, job)
 }
 
 func (s *Service) RestartPlan(ctx context.Context, id string) (*domain.CloneRestartPlan, error) {
 	job, err := s.Store.GetJob(ctx, id)
-	if err != nil { return nil, err }
-	if job == nil { return nil, ErrNotFound }
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, ErrNotFound
+	}
 	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
 		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 	}
-	if s.PlanRestart == nil { return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Chưa có kế hoạch làm lại"} }
+	if s.PlanRestart == nil {
+		return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Chưa có kế hoạch làm lại"}
+	}
 	return s.PlanRestart(ctx, job)
 }
 func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, error) {
@@ -149,9 +161,13 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 		return nil, err
 	}
 	view := s.view(*job, steps)
-	if previous, ok := s.Store.(interface { PreviousCloneJobID(context.Context, string, int) (*string, error) }); ok {
+	if previous, ok := s.Store.(interface {
+		PreviousCloneJobID(context.Context, string, int) (*string, error)
+	}); ok {
 		view.PreviousJobID, err = previous.PreviousCloneJobID(ctx, job.SourceKey, job.Generation)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &view, nil
 }

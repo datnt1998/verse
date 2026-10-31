@@ -13,8 +13,8 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
+	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
@@ -191,13 +191,21 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	tr := tools.NewTranscription(toolDeps, toolKit.Uv, nil)
 	metadataRun := func(ctx context.Context, s *pipeline.StepContext, parts []string, direction string) (pipeline.StepResult, error) {
 		model, err := generator(s)
-		if err != nil { return pipeline.StepResult{}, err }
+		if err != nil {
+			return pipeline.StepResult{}, err
+		}
 		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
 			owner, err := queueStore.Owner(ctx, job.ChannelID)
-			if err != nil || owner == nil { return nil, err }
+			if err != nil || owner == nil {
+				return nil, err
+			}
 			note, footer := "", ""
-			if owner.StyleNote != nil { note = *owner.StyleNote }
-			if owner.DescriptionFooter != nil { footer = *owner.DescriptionFooter }
+			if owner.StyleNote != nil {
+				note = *owner.StyleNote
+			}
+			if owner.DescriptionFooter != nil {
+				footer = *owner.DescriptionFooter
+			}
 			return &metadata.ChannelView{ID: owner.ID, Name: owner.Name, StyleNote: note, Language: owner.Language, Footer: footer, AlwaysTags: owner.AlwaysTags}, nil
 		}}}).Run(ctx, s)
 	}
@@ -338,16 +346,23 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
-	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Narrate:recapNarrator(ai), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
+	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Narrate: recapNarrator(ai), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
 		view, err := q.List(ctx)
-		if err != nil { return 0, nil, err }
+		if err != nil {
+			return 0, nil, err
+		}
 		end := queue.LocalMidnight(now).AddDate(0, 0, 1)
 		count := 0
 		var last *time.Time
 		for _, item := range view.Items {
-			if item.ETADone == nil || !item.ETADone.Before(end) { continue }
+			if item.ETADone == nil || !item.ETADone.Before(end) {
+				continue
+			}
 			count++
-			if last == nil || item.ETADone.After(*last) { at := *item.ETADone; last = &at }
+			if last == nil || item.ETADone.After(*last) {
+				at := *item.ETADone
+				last = &at
+			}
 		}
 		return count, last, nil
 	}})

@@ -53,16 +53,16 @@ type StepContext struct {
 	Job  domain.CloneJob
 	Step domain.CloneStepRecord
 	// StagingDir is stable across retries of a generation; paid output paths must not change.
-	StagingDir      string
-	Upstream        map[domain.CloneStep]domain.CloneStepOutput
-	Checkpoint      json.RawMessage
-	Media           Media
-	ReportProgress  func(context.Context, domain.CloneProgress) error
-	WriteCheckpoint func(context.Context, json.RawMessage) error
+	StagingDir        string
+	Upstream          map[domain.CloneStep]domain.CloneStepOutput
+	Checkpoint        json.RawMessage
+	Media             Media
+	ReportProgress    func(context.Context, domain.CloneProgress) error
+	WriteCheckpoint   func(context.Context, json.RawMessage) error
 	DrainImageIntents func(context.Context, json.RawMessage) (json.RawMessage, error)
-	ProcessRunner   ProcessRunner
-	ImageSlot       func(context.Context, func(context.Context) error) error
-	IsPaused        func() bool
+	ProcessRunner     ProcessRunner
+	ImageSlot         func(context.Context, func(context.Context) error) error
+	IsPaused          func() bool
 }
 
 func (s *StepContext) Progress(ctx context.Context, p domain.CloneProgress) error {

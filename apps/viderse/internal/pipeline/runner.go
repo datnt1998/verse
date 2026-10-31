@@ -167,7 +167,12 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 				var waiting *domain.CloneStepRecord
 				if status == domain.CloneWaiting {
 					steps, _ := r.Store.ListSteps(ctx, jobID)
-					for i := range steps { if steps[i].Status == domain.CloneWaiting { waiting = &steps[i]; break } }
+					for i := range steps {
+						if steps[i].Status == domain.CloneWaiting {
+							waiting = &steps[i]
+							break
+						}
+					}
 				}
 				r.humanState(ctx, job, status, waiting)
 				return status, nil
@@ -183,7 +188,7 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 			}
 			_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
 			_ = r.Store.SetJobStatus(ctx, jobID, domain.CloneFailed)
-		r.humanState(ctx, job, domain.CloneFailed, nil)
+			r.humanState(ctx, job, domain.CloneFailed, nil)
 			return domain.CloneFailed, nil
 		}
 

@@ -58,6 +58,7 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 	}
 	return StageWorking
 }
+
 // reviewRedraw reads only the stable checkpoint fields shared with the image
 // step, avoiding a dependency on the pipeline's image implementation.
 func reviewRedraw(steps []CloneStepRecord) (bool, int) {
@@ -66,10 +67,10 @@ func reviewRedraw(steps []CloneStepRecord) (bool, int) {
 			continue
 		}
 		var checkpoint struct {
-			ReviewOrigin bool `json:"reviewOrigin"`
-			QueueOnly []string `json:"queueOnly"`
-			Items []struct {
-				ID string `json:"id"`
+			ReviewOrigin bool     `json:"reviewOrigin"`
+			QueueOnly    []string `json:"queueOnly"`
+			Items        []struct {
+				ID     string `json:"id"`
 				Status string `json:"status"`
 			} `json:"items"`
 		}
@@ -110,7 +111,6 @@ func RedrawingCount(steps []CloneStepRecord) int {
 	_, count := reviewRedraw(steps)
 	return count
 }
-
 
 // ID của bốn trợ lý hiển thị trên thẻ video.
 const (
@@ -329,6 +329,7 @@ func intField(out *CloneStepOutput, key string) (int, bool) {
 	}
 	return 0, false
 }
+
 // CloneExportBytes returns the recorded MP4 size while that export exists.
 func CloneExportBytes(steps []CloneStepRecord) *int64 {
 	for _, step := range steps {
@@ -356,7 +357,6 @@ func CloneExportBytes(steps []CloneStepRecord) *int64 {
 	}
 	return nil
 }
-
 
 // Subline tính dòng phụ của mọi trạng thái (§2) từ job + steps + giờ hiện
 // tại: câu việc đang làm, giờ hết chờ hạn mức, hoặc tóm tắt xong.
@@ -503,6 +503,7 @@ func PickDefaultJob(jobs []CloneJobView) string {
 	}
 	return jobs[best].ID
 }
+
 type CloneBulkEligibility struct {
 	Retry      []string `json:"retry"`
 	Approve    []string `json:"approve"`
@@ -557,11 +558,10 @@ func BulkEligibility(jobs []CloneJobView) CloneBulkEligibility {
 	return out
 }
 
-
 type CloneJobList struct {
-	Jobs        []CloneJobView `json:"jobs"`
-	QueuedTotal int            `json:"queuedTotal"`
-	DefaultJobID *string       `json:"defaultJobId"`
+	Jobs            []CloneJobView       `json:"jobs"`
+	QueuedTotal     int                  `json:"queuedTotal"`
+	DefaultJobID    *string              `json:"defaultJobId"`
 	BulkEligibility CloneBulkEligibility `json:"bulkEligibility"`
 }
 
@@ -579,7 +579,7 @@ type CloneBucketCounts struct {
 
 // CloneCounts: tổng toàn app cùng từng kênh; khoá "none" giữ job chưa gán kênh.
 type CloneCounts struct {
-	Totals  CloneBucketCounts            `json:"totals"`
-	ByOwner map[string]CloneBucketCounts `json:"byOwner"`
-	ApprovedToday *int                   `json:"approvedToday"`
+	Totals        CloneBucketCounts            `json:"totals"`
+	ByOwner       map[string]CloneBucketCounts `json:"byOwner"`
+	ApprovedToday *int                         `json:"approvedToday"`
 }
