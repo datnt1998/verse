@@ -7,7 +7,7 @@ import { review3Blocking } from '../../../mock/data'
 import { GateBody, LiveStream } from './LiveStream'
 
 const stream = (mobile: boolean) => renderToStaticMarkup(
-  <LiveStream streamText="" isRunning={false} snapshot={null} loading={false}
+  <LiveStream project="p" story="s" streamText="" isRunning={false} snapshot={null}
     gate review={review3Blocking} gateChapter={3} mobile={mobile} />,
 )
 
