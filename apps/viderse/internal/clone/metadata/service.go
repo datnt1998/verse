@@ -56,7 +56,9 @@ func (s *Service) load(ctx context.Context, id string) (loaded, error) {
 		if e = json.Unmarshal(raw, &l.state.Current); e != nil {
 			return l, e
 		}
-		l.view.Status = "ai"
+		if l.view.Status == "pending" {
+			l.view.Status = "ai"
+		}
 		if len(l.snapshot.Step.Checkpoint) > 0 {
 			var state State
 			if json.Unmarshal(l.snapshot.Step.Checkpoint, &state) == nil && state.Revision > 0 {
