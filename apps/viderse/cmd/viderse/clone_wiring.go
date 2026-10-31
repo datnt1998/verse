@@ -111,7 +111,7 @@ func (g cloneText) Generate(ctx context.Context, m []llm.Message, t []llm.ToolSp
 	return nil, last
 }
 
-func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string) (func() error, error) {
+func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string, seams *assistantSeams) (func() error, error) {
 	store := postgres.NewCloneStore(pool)
 	queueStore := postgres.NewQueueStore(pool)
 	rules := cloneSettings{settings}
@@ -194,7 +194,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		if err != nil {
 			return pipeline.StepResult{}, err
 		}
-		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
+		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, LearnedRules: seams.Learn.MetadataRules, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
 			owner, err := queueStore.Owner(ctx, job.ChannelID)
 			if err != nil || owner == nil {
 				return nil, err
@@ -261,7 +261,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			limit := ai.Executors.limit
 			fallback := refs.Artist.FallbackOn
 			drawer := imagegen.NewService(imagegen.Options{Providers: providers, Fallback: &fallback, Journal: ai.Executors.journal, DailyPaidImageLimit: &limit})
-			return (images.Handler{Deps: images.Deps{Drawer: drawer, Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
+			return (images.Handler{Deps: images.Deps{Notes: seams.Learn.ImageNotes, Drawer: drawer, Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
 				owner, err := queueStore.Owner(ctx, job.ChannelID)
 				if err != nil || owner == nil {
 					return "", err
@@ -333,7 +333,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		}
 		registry[step] = handler
 	}
-	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
+	autonomySvc := newAutonomyService(pool, publish, func(err string) { fmt.Fprintln(os.Stderr, "Mức tự chủ:", err) })
+	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q, AutoFix: autonomySvc}
 	runner.OnHumanState = func(_ context.Context, _ *domain.CloneJob, _ string) {
 		activityService.Changed("")
 	}
@@ -367,10 +368,14 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		return count, last, nil
 	}})
 	web.MountClone(g, service, q, service.Media)
-	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService)
+	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner, Learner: metadataLearner{rt: seams.Learn}}
+	seams.Jobs, seams.Queue, seams.Autonomy = service, q, autonomySvc
+	seams.Learn.Queue = q
+	seams.Learn.BindAutonomy(autonomySvc)
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, seams)
 	workerCtx, stop := context.WithCancel(ctx)
-	_, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
+	performanceSvc, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
+	seams.Learn.BindPerformance(performanceSvc)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()
 	var once sync.Once
