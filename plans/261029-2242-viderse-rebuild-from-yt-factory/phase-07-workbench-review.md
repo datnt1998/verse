@@ -1,7 +1,7 @@
 ---
 phase: 7
 title: "Bàn dựng, Duyệt, Việc nền và thông báo, Vì sao? và Bản tin"
-status: in-progress
+status: done
 priority: P1
 effort: 60h
 dependsOn: [5, 6]
