@@ -30,6 +30,15 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			break
 		}
 		o.recoverRetry(ev.Progress.Agent)
+		// Some providers deliver complete arguments without tool deltas.
+		// Render them through the same extractor instead of an empty header.
+		if _, streamed := o.streamExtractors[ev.Progress.Agent]; !streamed {
+			extractor := newToolExtractor(ev.Progress.Tool)
+			if text := extractor.Feed(string(ev.Progress.Args)); text != "" {
+				o.streamClear()
+				o.emitStreamDelta(text, false)
+			}
+		}
 		toolName := displayToolName(ev.Progress.Tool, ev.Progress.Args)
 		if call := o.toolStarts[ev.Progress.Agent]; call != nil {
 			call.setTool(ev.Progress.Tool, ev.Progress.Args)
@@ -43,10 +52,7 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			})
 			break
 		}
-		// 未提前发过 → 正常流程
-		// （非流式 tool args 的模型不会触发 ensureSubagentToolStarted，
-		// fallback header 必须在这条路径上补一次，否则 read_chapter 这类
-		// 无 extractor 的工具流式面板上就没有 ✻ 头部，紧贴前面思考一段。）
+		// Non-streaming calls emit the same lifecycle once, after rendering args.
 		id := nextEventID()
 		o.toolStarts[ev.Progress.Agent] = &activeCall{id: id, start: time.Now(), summary: toolName, depth: 1}
 		o.toolStarts[ev.Progress.Agent].setTool(ev.Progress.Tool, ev.Progress.Args)
@@ -65,7 +71,6 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			a.tool = ev.Progress.Tool
 			a.summary = fmt.Sprintf("%s → %s", ev.Progress.Agent, toolName)
 		})
-		o.emitFallbackStreamHeader(ev.Progress.Tool)
 	case agentcore.ProgressToolEnd:
 		delete(o.streamExtractors, ev.Progress.Agent)
 		if ev.Progress.Agent == "" {

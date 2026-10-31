@@ -205,6 +205,16 @@ describe('matchRoundEvents — vòng ✻ ↔ dòng Nhật ký cùng lần gọi'
     const matched = matchRoundEvents([rounds[1]], [event({ id: 'x', tool: 'novel_context', result: '{"ok":true}' })])
     expect(matched.size).toBe(0)
   })
+
+  it('lịch sử cũ hơn bản ghi luồng không lấy nhầm trợ lý hay kết quả', () => {
+    const current = round('new', 'chapter: 1\nsource: draft')
+    const matched = matchRoundEvents([current], [
+      event({ id: 'old', agent: 'architect', tool: 'read_chapter', args: '{"chapter":1,"source":"draft"}', result: '{"content":"Nội dung cũ"}' }),
+      event({ id: 'current', agent: 'writer', tool: 'read_chapter', args: '{"chapter":1,"source":"draft"}', result: '{"content":"Nội dung mới"}' }),
+    ])
+    expect(matched.get('new')?.id).toBe('current')
+    expect(matched.get('new')?.agent).toBe('writer')
+  })
 })
 
 describe('roundAgentOf — trợ lý sở hữu công cụ', () => {

@@ -93,12 +93,12 @@ describe('parseStream — văn xuôi & suy nghĩ', () => {
 })
 
 describe('parseStream — giới hạn & định dạng lạ', () => {
-  it('giữ 32 round gần nhất', () => {
+  it('giữ toàn bộ round thay vì cắt mất lịch sử sau vòng 32', () => {
     const many = Array.from({ length: 40 }, (_, i) => `✻ Đọc chương\nchapter: ${i + 1}`).join('\n')
     const rounds = parseStream(many, true).rounds
-    expect(rounds).toHaveLength(32)
-    expect(fieldValue(rounds[0].nodes, 'chapter')).toBe('9')
-    expect(rounds[31].live).toBe(true)
+    expect(rounds).toHaveLength(40)
+    expect(fieldValue(rounds[0].nodes, 'chapter')).toBe('1')
+    expect(rounds[39].live).toBe(true)
   })
 
   it('header lạ → nhãn nguyên văn, kind raw', () => {
@@ -128,11 +128,19 @@ describe('parseStream — giới hạn & định dạng lạ', () => {
     expect(fieldValue(round.nodes, 'chapter')).toBe('5')
   })
 
-  it('items giữ văn xuôi đầu luồng và bỏ round đã bị cắt', () => {
+  it('items giữ văn xuôi đầu luồng và toàn bộ vòng đã xong', () => {
     const many = Array.from({ length: 40 }, (_, i) => `✻ Đọc chương\nchapter: ${i + 1}`).join('\n')
     const parsed = parseStream(`Mở đầu.\n${many}`, true)
     expect(parsed.items[0]).toEqual({ kind: 'prose', text: 'Mở đầu.' })
-    expect(parsed.items.filter((item) => item.kind === 'round')).toHaveLength(32)
+    expect(parsed.items.filter((item) => item.kind === 'round')).toHaveLength(40)
     expect(parsed.items[1].kind).toBe('round')
+  })
+
+  it('ranh giới round giữ suy nghĩ, bước cũ và đoạn văn sau cùng', () => {
+    const boundary = '\n\x1e\n'
+    const parsed = parseStream(`\x02Cân nhắc\x02${boundary}✻ Đọc chương\nchapter: 1${boundary}Đã đọc đầy đủ.`, false)
+    expect(parsed.thinking).toBe('Cân nhắc')
+    expect(parsed.rounds).toHaveLength(1)
+    expect(parsed.items.at(-1)).toEqual({ kind: 'prose', text: 'Đã đọc đầy đủ.' })
   })
 })

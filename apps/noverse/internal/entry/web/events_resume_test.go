@@ -193,7 +193,7 @@ func TestLiveFramesRespectVisibilityAndStayOutOfResumeRing(t *testing.T) {
 		kinds = append(kinds, frame.Kind)
 	}
 	want := strings.Join(kinds, ",")
-	if want != "events,clear,delta" {
+	if want != "events,stream" {
 		t.Fatalf("backlog = %s", want)
 	}
 	// 瞬时帧不占全局序号：新连接从 lastID=0 开始拿不到任何“历史”。
@@ -215,7 +215,7 @@ func TestSetWatchBackfillsLiveTail(t *testing.T) {
 		t.Fatal("SetWatch must accept the live subscriber")
 	}
 	var kinds []string
-	for len(kinds) < 3 {
+	for len(kinds) < 2 {
 		ev := readFrame(t, sub.C)
 		frame, ok := ev.Data.(liveFrame)
 		if !ok {
@@ -223,7 +223,7 @@ func TestSetWatchBackfillsLiveTail(t *testing.T) {
 		}
 		kinds = append(kinds, frame.Kind)
 	}
-	if got := strings.Join(kinds, ","); got != "events,clear,delta" {
+	if got := strings.Join(kinds, ","); got != "events,stream" {
 		t.Fatalf("backfill = %s", got)
 	}
 }
@@ -308,18 +308,17 @@ func TestSetWatchBackfillAndLiveDeltaReconstructInOrder(t *testing.T) {
 		}
 		<-live
 
-		// Đúng 3 frame tới: clear + delta(backfill) + delta(live), thứ tự tuỳ
-		// 交错 —— mô phỏng client append/clear để kiểm thứ tự hợp lệ.
+		// The authoritative transcript is one atomic stream frame, plus live B.
 		var text string
-		for range 3 {
+		for range 2 {
 			ev := readFrame(t, sub.C)
 			frame, ok := ev.Data.(liveFrame)
 			if !ok {
 				t.Fatalf("lần %d: frame %T", attempt, ev.Data)
 			}
 			switch frame.Kind {
-			case "clear":
-				text = ""
+			case "stream":
+				text = frameText(frame.Data)
 			case "delta":
 				text += frameText(frame.Data)
 			}

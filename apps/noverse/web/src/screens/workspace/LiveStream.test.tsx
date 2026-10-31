@@ -5,6 +5,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { ToolEvent } from '../../lib/roundSummary'
+import type { Snapshot } from '../../api/types'
 import { LiveStream } from './LiveStream'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -145,5 +146,25 @@ describe('thẻ bước › lời cuối của trợ lý', () => {
     expect(host.querySelector('strong')?.textContent).toBe('Kết quả')
     expect(host.querySelectorAll('li')).toHaveLength(2)
     expect(host.querySelector('code')?.textContent).toBe('Tóm tắt cung')
+  })
+})
+
+describe('lịch sử luồng viết liên tục', () => {
+  it('thẻ cấu trúc hiện đủ trường lồng nhau và kết quả, không chỉ đầu mục', async () => {
+    const event = { ...readEvent, tool: 'save_foundation', args: JSON.stringify({ type: 'premise', axes: { conflict: 'Mâu thuẫn thật', resolution: 'Kết thúc đầy đủ' } }), result: JSON.stringify({ content: 'Nội dung lưu không bị cắt' }) }
+    const host = await mount([event], undefined, '✻ save_foundation\n')
+    const card = host.querySelector('button[aria-expanded]') as HTMLButtonElement
+    if (card.getAttribute('aria-expanded') !== 'true') await act(async () => { card.click() })
+    expect(host.textContent).toContain('Mâu thuẫn thật')
+    expect(host.textContent).toContain('Kết thúc đầy đủ')
+    expect(host.textContent).toContain('Nội dung lưu không bị cắt')
+  })
+
+  it('dừng viết không thay toàn bộ lịch sử bằng thẻ gợi ý', async () => {
+    const host = await mount([], undefined, 'Đoạn văn vẫn còn sau khi tạm dừng.')
+    await act(async () => {
+      root?.render(<LiveStream streamText="Đoạn văn vẫn còn sau khi tạm dừng." isRunning={false} snapshot={{ statusLabel: 'READY', totalChapters: 3, currentChapter: 1 } as Snapshot} idleActions={{ onStart() {}, onPlan() {}, onBrain() {}, onRead() {}, onAudio() {}, onExport() {}, onReply() {} }} loading={false} />)
+    })
+    expect(host.textContent).toContain('Đoạn văn vẫn còn sau khi tạm dừng.')
   })
 })

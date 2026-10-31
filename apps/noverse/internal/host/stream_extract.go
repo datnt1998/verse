@@ -77,7 +77,7 @@ const (
 func newToolExtractor(tool string) *jsonFieldExtractor {
 	cfg, ok := toolDisplays[tool]
 	if !ok {
-		return nil
+		cfg = toolDisplay{header: streamHeaderFallback(tool)}
 	}
 	return &jsonFieldExtractor{cfg: cfg}
 }

@@ -1325,10 +1325,23 @@ func (h *Host) runEndBody(title, summary string) string {
 // 不再用独立 clearCh —— 双通道无序导致 ✻ header 时常落到上一个 round 末尾。
 const StreamClearSentinel = "\x00\x00CLEAR\x00\x00"
 
+// StreamRoundBoundary separates durable transcript segments without NUL bytes,
+// which PostgreSQL JSONB cannot store.
+const StreamRoundBoundary = "\n\x1e\n"
+
 func (h *Host) Events() <-chan Event  { return h.events }
 func (h *Host) Stream() <-chan string { return h.streamCh }
 func (h *Host) Done() <-chan struct{} { return h.done }
 func (h *Host) Dir() string           { return h.store.Dir() }
+
+// RuntimeHistory is the same durable backend used by the activity history.
+// Hosted workers must never put their transcript in the disposable cwd.
+func (h *Host) RuntimeHistory() storepkg.RuntimeStore {
+	if h == nil || h.store == nil {
+		return nil
+	}
+	return h.store.Runtime
+}
 
 // Documents exposes hosted worker documents; file workers retain their cwd layout.
 func (h *Host) Documents() *storepkg.IO {

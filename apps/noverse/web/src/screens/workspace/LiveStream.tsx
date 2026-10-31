@@ -11,7 +11,7 @@ import { paths, useRoute } from '../../router'
 import { translateHost } from '../../i18n/hostStrings'
 import { activeToolDoing, activeToolLabel, agentLabel, fieldLabel, fieldValueLabel, foreshadowActionLabel, severityLabel, toolIcon, toolLabel, verdictLabel } from '../../lib/labels'
 import { formatTimer } from '../../lib/format'
-import { parseStream, displayValue, fieldChildren, fieldValue, looseText, plainFields, type StreamNode, type StreamRound } from '../../lib/streamRounds'
+import { parseStream, displayValue, fieldChildren, fieldValue, looseText, type StreamNode, type StreamRound } from '../../lib/streamRounds'
 import { matchRoundEvents, nodesFromArgs, roundAgentOf, toolResultLine, toolSummary, type ToolEvent } from '../../lib/roundSummary'
 import { wireTime } from './events'
 import { AgentOrb } from '@noverse/ui'
@@ -97,25 +97,16 @@ function RoundResultLine({ text, failed = false }: { text: string; failed?: bool
   )
 }
 
-function FieldGrid({ nodes }: { nodes: StreamNode[] }) {
-  const contract = nodes.find((node) => !node.item && node.value === null && node.key === 'contract')
-  const all = [...plainFields(nodes), ...(contract ? plainFields(contract.children) : [])]
-    .flatMap((row) => {
-      const label = fieldLabel(row.key)
-      const value = fieldValueLabel(row.key, row.value)
-      return label && value !== null ? [{ key: row.key, label, value }] : []
-    })
-  if (all.length === 0) return null
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {all.map((row) => (
-        <div key={row.key} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
-          <span style={{ ...labelText, flex: '0 0 108px' }}>{row.label}</span>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: 'var(--color-fg-2)' }}>{translateHost(displayValue(row.value))}</span>
-        </div>
-      ))}
-    </div>
-  )
+
+/** Reuse the card's field pattern for structured actions without a dedicated board. */
+function ActionFields({ nodes }: { nodes: StreamNode[] }) {
+  return <div style={{ display: 'flex', flexDirection: 'column', gap: 8, overflowWrap: 'anywhere', whiteSpace: 'pre-wrap', fontSize: 13 }}>
+    {nodes.map((node, index) => <div key={index}>
+      {node.key && fieldLabel(node.key) && <span style={labelText}>{fieldLabel(node.key)}{' · '}</span>}
+      {node.value !== null && <span>{translateHost(node.value)}</span>}
+      {node.children.length > 0 && <div style={{ paddingLeft: 12 }}><ActionFields nodes={node.children} /></div>}
+    </div>)}
+  </div>
 }
 
 const FORESHADOW_TONE: Record<string, { bg: string; fg: string }> = {
@@ -298,11 +289,11 @@ function ProseStream({ text, live }: { text: string; live: boolean }) {
  * Thân thẻ một vòng ✻ (Main.dc.html › round): dòng tóm tắt lời thường trước, phần chi tiết
  * theo loại (diff/commit/kế hoạch/thẩm duyệt) sau, rồi dòng kết quả khi lần gọi đã xong.
  */
-function RoundBody({ round, summary, result, failed, attention, dev }: { round: StreamRound; summary: string; result: string; failed: boolean; attention: boolean; dev: boolean }) {
+function RoundBody({ round, summary, result, detailsResult, failed, attention, dev }: { round: StreamRound; summary: string; result: string; detailsResult?: string; failed: boolean; attention: boolean; dev: boolean }) {
   const body = ((): ReactNode => {
     switch (round.kind) {
       // `kv` (đọc chương/bối cảnh/soát) chỉ còn một dòng tóm tắt — không lưới chip tham số.
-      case 'kv': return null
+      case 'kv': return <ActionFields nodes={round.nodes} />
       case 'diff': return (
         <>
           <DiffInline oldText={fieldValue(round.nodes, 'old_string')} newText={fieldValue(round.nodes, 'new_string')} />
@@ -312,16 +303,18 @@ function RoundBody({ round, summary, result, failed, attention, dev }: { round: 
         </>
       )
       case 'commit': return <CommitBody round={round} />
-      case 'plan': return <FieldGrid nodes={round.nodes} />
+      case 'plan': return <ActionFields nodes={round.nodes} />
       case 'review': return <ReviewBody round={round} />
       case 'text': {
+        if (round.tool !== 'draft_chapter' && round.tool !== '') return <ActionFields nodes={round.nodes} />
         const text = textOf(round)
         return text === '' ? null : <StreamMarkdown text={text} />
       }
-      default: return null
+      default: return <ActionFields nodes={round.nodes} />
     }
   })()
   const loose = looseText(round.nodes)
+  const resultNodes = nodesFromArgs(detailsResult)
   return (
     <div style={{ padding: '2px 14px 12px 38px', display: 'flex', flexDirection: 'column', gap: 10 }}>
       {round.thinking && (
@@ -334,6 +327,7 @@ function RoundBody({ round, summary, result, failed, attention, dev }: { round: 
           <StreamMarkdown text={loose} />
         </div>
       )}
+      {!failed && detailsResult && (resultNodes.length > 0 ? <ActionFields nodes={resultNodes} /> : <StreamMarkdown text={detailsResult} />)}
       {attention
         ? <p role="status" style={{ margin: 0, fontSize: 12, color: 'var(--color-warn)', lineHeight: 1.45 }}><Icon name="warning-2" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} />{t.stream.attention}</p>
         : result !== '' && <RoundResultLine text={result} failed={failed} />}
@@ -472,7 +466,7 @@ export function LiveStream({ streamText, isRunning, snapshot, events = [], mobil
             </span>
           )}
         </div>
-        {idle && idleActions && snapshot
+        {idle && idleActions && snapshot && !hasContent
           ? (
             <div className={stylex.props(s.center).className}>
               <IdleCard model={idle} snapshot={snapshot} actions={idleActions} mobile={mobile} />
@@ -506,6 +500,8 @@ export function LiveStream({ streamText, isRunning, snapshot, events = [], mobil
               // trợ lý lấy từ dòng Nhật ký của đúng lần gọi (công cụ dùng chung) hoặc bảng công cụ riêng.
               const stepLabel = round.tool ? toolLabel(round.tool, round.tool === 'save_foundation' ? fieldValue(round.nodes, 'type') ?? '' : '') : round.labelVi
               const matched = roundEvents.get(round.id)
+              const completeNodes = nodesFromArgs(matched?.args)
+              const detailRound = completeNodes.length > 0 ? { ...round, nodes: [...completeNodes, ...round.nodes.filter((node) => node.key === '')] } : round
               const assistant = agentLabel(matched?.agent || roundAgentOf(round.tool))
               const summary = toolSummary(round.tool, round.nodes.length > 0 ? round.nodes : nodesFromArgs(matched?.args), snapshot?.totalChapters)
               const toolDone = matched != null && (matched.status === 'ok' || matched.status === 'error' || wireTime(matched.finishedAt) !== '')
@@ -545,7 +541,7 @@ export function LiveStream({ streamText, isRunning, snapshot, events = [], mobil
                       transition: 'transform .15s var(--ease-out)',
                     }} />
                   </button>
-                  {open && <RoundBody round={round} summary={summary} result={result} failed={failed} attention={attention} dev={dev} />}
+                  {open && <RoundBody round={detailRound} summary={summary} result={result} detailsResult={matched?.result} failed={failed} attention={attention} dev={dev} />}
                 </div>
               )
             })}

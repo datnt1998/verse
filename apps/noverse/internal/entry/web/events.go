@@ -161,10 +161,7 @@ func (h *EventHub) Backlog(keys []string) []Event {
 			frame("events", liveJSON(list))
 		}
 		if text, seen := h.streams[key]; seen {
-			frame("clear", liveJSON(map[string]any{}))
-			if text != "" {
-				frame("delta", liveJSON(map[string]string{"text": text}))
-			}
+			frame("stream", liveJSON(map[string]string{"text": text}))
 		}
 	}
 	return out
@@ -181,10 +178,6 @@ func (h *EventHub) SetLiveStream(key, text string) {
 	h.liveMu.Unlock()
 }
 
-// liveEventCap 是每故事为“新连接补发”保留的实况事件条数（与旧 worker 直连流的
-// ring 语义一致，只是不进全局续传环）。
-const liveEventCap = 200
-
 // AppendLiveEvent 记录一条实况 event 帧，供新标签页/重连补发。
 func (h *EventHub) AppendLiveEvent(key string, frame json.RawMessage) {
 	h.liveMu.Lock()
@@ -192,9 +185,6 @@ func (h *EventHub) AppendLiveEvent(key string, frame json.RawMessage) {
 		h.liveEvents = map[string][]json.RawMessage{}
 	}
 	list := append(h.liveEvents[key], frame)
-	if len(list) > liveEventCap {
-		list = list[len(list)-liveEventCap:]
-	}
 	h.liveEvents[key] = list
 	h.liveMu.Unlock()
 }
@@ -216,8 +206,6 @@ func (h *EventHub) ResetLiveEvents(key string) {
 
 // liveCoalesce 把逐 token 的 delta 合并成 ≥80 ms 一帧，防止高频帧挤爆慢订阅者。
 const liveCoalesce = 80 * time.Millisecond
-
-const liveStreamCap = 64 * 1024
 
 type liveMux struct {
 	g         *Gateway
@@ -245,15 +233,16 @@ func (m *liveMux) frame(kind string, data []byte) {
 	case "cocreate":
 		m.cocreate.WriteString(frameText(data))
 		m.flush(false)
+	case "stream":
+		m.delta.Reset()
+		m.stream.Reset()
+		m.stream.WriteString(frameText(data))
+		m.g.events().SetLiveStream(m.key, m.stream.String())
+		m.send(kind, data)
 	default:
 		m.flush(true)
 		switch kind {
-		case "clear":
-			m.stream.Reset()
-			m.g.events().SetLiveStream(m.key, "")
 		case "reset":
-			m.stream.Reset()
-			m.g.events().SetLiveStream(m.key, "")
 			m.g.events().ResetLiveEvents(m.key)
 		case "event":
 			m.g.events().AppendLiveEvent(m.key, json.RawMessage(data))
@@ -281,11 +270,7 @@ func (m *liveMux) flush(force bool) {
 
 func (m *liveMux) appendStream(text string) {
 	m.stream.WriteString(text)
-	if m.stream.Len() > liveStreamCap {
-		trimmed := m.stream.String()[m.stream.Len()-liveStreamCap:]
-		m.stream.Reset()
-		m.stream.WriteString(trimmed)
-	}
+	// No tail truncation: history is a durable story document.
 	m.g.events().SetLiveStream(m.key, m.stream.String())
 }
 

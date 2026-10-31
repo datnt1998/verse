@@ -4,7 +4,7 @@
 // Giá trị chuỗi nhiều dòng nối tiếp trên dòng không có `key:` và không thụt lề.
 // `\x02` (ThinkingSep) bao đoạn suy nghĩ: tách theo dấu, đoạn lẻ là suy nghĩ.
 // 06-data-contract.md › Luồng viết (`streamText`) → StreamRound.
-import { MAX_ROUNDS, ROUND_MARKER, THINKING_MARK, roundSpecFor, type RoundKind } from '../i18n/hostStrings'
+import { ROUND_MARKER, THINKING_MARK, roundSpecFor, type RoundKind } from '../i18n/hostStrings'
 
 /** Một dòng `key: value` hoặc phần tử mảng `- …` đã parse. */
 export type StreamNode = {
@@ -135,7 +135,13 @@ type RawRound = { header: string; body: string; thinking: string }
 const splitSections = (source: string): RawSection[] => {
   const sections: RawSection[] = [{ kind: 'text', lines: [] }]
   let current = sections[0] as RawSection
+  // The host's clear sentinel starts a round; it never deletes history.
   for (const line of source.split('\n')) {
+    if (line === '\x1e') {
+      current = { kind: 'text', lines: [] }
+      sections.push(current)
+      continue
+    }
     if (line.trimStart().startsWith(MARK)) {
       const header = line.trimStart().slice(MARK.length).trim()
       current = { kind: 'round', header, lines: [] }
@@ -149,7 +155,7 @@ const splitSections = (source: string): RawSection[] => {
 
 /**
  * Parse `streamText` thành round + văn xuôi. `isRunning` quyết định round cuối là `live`.
- * Giữ tối đa MAX_ROUNDS round gần nhất (06-data-contract.md).
+ * Host round boundaries preserve every completed item in the transcript.
  */
 export function parseStream(text: string, isRunning: boolean): ParsedStream {
   const source = text.replace(/\r\n?/g, '\n')
@@ -169,7 +175,7 @@ export function parseStream(text: string, isRunning: boolean): ParsedStream {
     rawItems.push({ type: 'round', round })
   }
 
-  const kept = rawRounds.slice(-MAX_ROUNDS)
+  const kept = rawRounds
   const built = new Map<RawRound, StreamRound>()
   kept.forEach((round, index) => {
     const spec = roundSpecFor(round.header)

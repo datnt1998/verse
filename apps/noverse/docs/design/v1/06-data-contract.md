@@ -36,11 +36,12 @@ Mã lỗi: 401 → `#/login` (phiên hết hạn, xem `09-auth-onboard.md`); 403
 
 | Event | Data | Xử lý |
 |---|---|---|
-| `reset` | `{}` | Xóa nhật ký & luồng viết (khi reconnect) |
+| `reset` | `{}` | Đánh dấu nối lại; giữ lịch sử đang hiển thị đến bản phục hồi nguyên tử |
 | `snapshot` | `Snapshot` | Thay snapshot (so sánh nông) |
-| `event` | `HostEvent` | Upsert theo `id`; giữ ≤1000 |
+| `event` | `HostEvent` | Upsert theo `id`; giữ chi tiết đầy đủ của các bước trong luồng |
 | `delta` | `{text}` | Nối vào `streamText` (gom theo rAF) |
-| `clear` | `{}` | Xóa `streamText` (round mới của agent) |
+| `stream` | `{text}` | Thay toàn bộ bản ghi nguyên tử khi nối lại, không xoá rồi nối từng mảnh |
+| `clear` | `{}` | Thông báo ranh giới cũ; không xoá lịch sử |
 | `done` | `{}` | Tăng `revision` → refetch chapters |
 
 Reconnect: backoff `min(1000·2^n, 15000)` ms → `ConnectionBanner` đếm ngược.
@@ -127,7 +128,7 @@ Không khớp mẫu → hiển thị nguyên văn (không ẩn).
 2. Ký tự `\x02` bao đoạn **suy nghĩ** → `ThinkingBlock` (chữ fg-4 nghiêng).
 3. Thân round là YAML-like: `key: value`, thụt 2 dấu cách cho lồng, `- ` cho phần tử mảng. Parse thành cây `{key, value|children}`.
 4. Round cuối là `live` khi `isRunning`; round cũ mặc định thu gọn, trừ `edit_chapter` và `commit_chapter`.
-5. Giữ 32 round gần nhất.
+5. Giữ đầy đủ các round. Ranh giới `\\n\\u001e\\n` chỉ tách vòng; không xoá nội dung. Nguồn phục hồi bền vững: [stream_history.go](../../../internal/entry/web/stream_history.go), không phải thư mục tạm của worker hosted.
 
 | Header (hiện tại · cũ) | Nhãn vi | Tool | Render |
 |---|---|---|---|

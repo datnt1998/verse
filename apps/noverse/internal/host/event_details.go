@@ -27,7 +27,7 @@ func EventText(text string, limit int) string {
 }
 
 func (c *activeCall) setTool(tool string, args json.RawMessage) {
-	c.tool, c.args = tool, EventText(string(args), 400)
+	c.tool, c.args = tool, string(args)
 	var p struct {
 		Chapter int    `json:"chapter"`
 		Scope   string `json:"scope"`
@@ -44,7 +44,7 @@ func (c *activeCall) fillToolEvent(ev *Event, ok bool) {
 	if c.tool == "" && ev.Category != "TOOL" {
 		return
 	}
-	ev.Tool, ev.Args, ev.Result, ev.Chapter = c.tool, c.args, EventText(c.result, 800), c.chapter
+	ev.Tool, ev.Args, ev.Result, ev.Chapter = c.tool, c.args, c.result, c.chapter
 	ev.Scope, ev.Volume, ev.Arc = c.scope, c.volume, c.arc
 	ev.ResultHint = c.hint
 	ev.DurationMs = ev.Duration.Milliseconds()
@@ -69,7 +69,7 @@ func (o *observer) captureToolResult(meta subagent.RunMeta, ev agentcore.Event) 
 	case agentcore.EventToolExecEnd:
 		if c := o.toolStarts[meta.Agent]; c != nil {
 			c.hint = resultHint(ev.Result)
-			c.result = EventText(string(ev.Result), 800)
+			c.result = string(ev.Result)
 		}
 	case agentcore.EventModelResponse:
 		o.refreshContextUsage(meta.Agent, ev.Message)

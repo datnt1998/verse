@@ -110,27 +110,12 @@ func (o *observer) ensureSubagentToolStarted(agent, tool string) {
 		a.state = "working"
 		a.tool = tool
 	})
-	o.emitFallbackStreamHeader(tool)
 }
 
 func (o *observer) resetStreamArgLabel(agent, tool string) {
 	key := streamArgKey(agent, tool)
 	delete(o.streamArgPrefixes, key)
 	delete(o.streamArgLabels, key)
-}
-
-// emitFallbackStreamHeader 给未配置 extractor 的工具补一行 ✻ 标题到流面板。
-// 两条路径都要调用以保证一致：
-//  1. ensureSubagentToolStarted —— subagent 流式 tool args（DeltaToolCall）
-//  2. handleToolUpdate ProgressToolStart —— subagent 非流式 tool args
-//
-// 缺任何一条，流式与非流式模型的工具标题就会表现不一致。
-func (o *observer) emitFallbackStreamHeader(tool string) {
-	if _, has := toolDisplays[tool]; has {
-		return // 有 extractor，header 由 extractor 自行输出
-	}
-	o.streamClear()
-	o.emitStreamDelta(streamHeaderFallback(tool)+"\n", false)
 }
 
 // streamHeaderFallback 为未配置 extractor 的工具生成流式 header 文本，
