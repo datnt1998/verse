@@ -25,6 +25,7 @@ function installFetch() {
       })
     }
     if (url.startsWith('/api/tools')) return respond({ tools: [], checkedAt: '2026-10-30T09:00:00Z' })
+    if (url === '/api/storage/server') return respond({}, 404)
     if (url.startsWith('/api/storage')) return respond({ projects: { path: '/Users/dat/Viderse Projects', volume: { name: 'Macintosh HD', kind: 'internal', fs: 'apfs', freeBytes: 5e11 }, usedBytes: 8.6e10, online: true }, stayBytes: 5.3e9, suggestions: [], usage: [], clean: { lastRunAt: null } })
     if (url.startsWith('/api/activity')) return respond({ running: [], videoJobs: 0, queued: 0, unread: [] })
     if (url.startsWith('/api/errors')) return respond({ items: [], count7d: 0 })

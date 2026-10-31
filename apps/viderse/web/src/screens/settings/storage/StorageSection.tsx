@@ -18,14 +18,17 @@ import { useDebounced } from '../../../lib/useDebounced'
 import { vi as t } from '../../../i18n/vi'
 import {
   browseStorage, cancelStorageMove, checkStoragePath, deletePreviousStorage, dismissStorageMove,
-  getStorage, getStorageReclaim, moveStorage, openStorageInFinder, previewCleanup, recheckStorage,
-  reclaimStorage, retryStorageMove, runCleanup, useDefaultForNew,
-  type CleanupPreview, type ReclaimItem, type StorageCheckResult, type StorageMoveFailure, type StorageStatus, type StorageVolume,
+  getStorage, getStorageReclaim, moveStorage, openStorageInFinder, recheckStorage,
+  reclaimStorage, retryStorageMove, useDefaultForNew,
+  type ReclaimItem, type StorageCheckResult, type StorageMoveFailure, type StorageStatus, type StorageVolume,
 } from '../../../api/storage'
 import { getActivity, type BackgroundTask } from '../../../api/activity'
 import { ActionButton } from '../../../components/ActionButton'
 import { fill, fmtBytes, fmtDay, fmtEta, fmtGB, fmtTime, midTrunc } from '../fmt'
 import './storage.css'
+import { getServerStorage } from '../../../api/storageServer'
+import { ServerStorageSection } from './ServerStorageSection'
+import { CleanupCard } from './CleanupCard'
 
 // Lỗi có `code` của Storage (volume_gone, preview_required, not_found…) nằm
 // trong payload của ApiError; mã khác/không có thì trả null.
@@ -456,79 +459,6 @@ const DoneNewBanner = ({ data }: { data: StorageStatus }) => {
   )
 }
 
-/** Thẻ “Tệp tạm và thứ không ai dùng” — xem trước rồi dọn (hai bước previewId). */
-function CleanupCard({ data }: { data: StorageStatus }) {
-  const [preview, setPreview] = useState<CleanupPreview | null>(null)
-  const [done, setDone] = useState<{ bytes: number; at: string } | null>(null)
-  const [stale, setStale] = useState(false)
-  const previewAct = useAsyncAction(async () => { setStale(false); setPreview(await previewCleanup() ?? null) })
-  const runAct = useAsyncAction(async () => {
-    if (!preview) return
-    try {
-      const res = await runCleanup(preview.previewId)
-      if (res) { setDone({ bytes: res.freedBytes, at: new Date().toISOString() }); setPreview(null); invalidate(keys.storage()) }
-    } catch (err) {
-      // 409 preview_required: bản xem trước cũ (quá 15 phút hoặc đã đổi) —
-      // xem lại ngay, người dùng chỉ cần bấm Dọn lần nữa.
-      if (errorCode(err) !== 'preview_required') throw err
-      setPreview(await previewCleanup())
-      setStale(true)
-    }
-  })
-  return (
-    <section className="card vv-sto__card" aria-labelledby="h-tmp">
-      <div className="vv-sto__cardHead">
-        <div className="vv-sto__cardText">
-          <h2 id="h-tmp" className="vv-sto__h2">{t.storage.cleanup.title}</h2>
-          <span className="vv-sto__sub">
-            {data.clean.lastRunAt ? fill(t.storage.cleanup.sub, { when: fmtTime(data.clean.lastRunAt) }) : t.storage.cleanup.subNever}
-          </span>
-          {stale ? <span className="vv-err">{t.storage.cleanup.stale}</span> : null}
-        </div>
-        {!preview && !done ? (
-          <Button variant="ghost" size="compact" pending={previewAct.pending}
-            icon={<Icon name="eye" size={14} />} onClick={() => void previewAct.run()}>
-            {t.storage.cleanup.preview}
-          </Button>
-        ) : null}
-      </div>
-      {preview ? (
-        <>
-          <div role="list" className="vv-cleanlist">
-            {preview.items.length === 0 ? <span><span className="vv-lb">{t.storage.cleanup.empty}</span></span> : null}
-            {preview.items.map((it) => (
-              <span key={it.kind} role="listitem">
-                <span className="vv-lb">
-                  {it.bytes === 0 && it.count > 0
-                    ? fill(t.storage.cleanup.stoppedCount, { n: it.count, label: it.label })
-                    : it.kind === 'media' && it.count > 1
-                      ? `${it.label} · ${fill(t.storage.cleanup.files, { n: it.count })}`
-                      : it.label}
-                </span>
-                <span className={`vv-num${it.bytes > 0 ? '' : ' is-muted'}`}>{it.bytes > 0 ? fmtBytes(it.bytes) : t.storage.cleanup.stopped}</span>
-              </span>
-            ))}
-          </div>
-          <div className="vv-sto__go">
-            <span className="vv-sto__previewNote">{t.storage.cleanup.previewNote}</span>
-            <Button variant="quiet" size="compact" onClick={() => setPreview(null)}>{t.storage.cleanup.later}</Button>
-            <Button variant="primary" size="compact" pending={runAct.pending}
-              disabled={preview.freedBytes <= 0 && preview.stoppedProcesses <= 0}
-              title={preview.freedBytes <= 0 && preview.stoppedProcesses <= 0 ? t.storage.cleanup.empty : undefined}
-              onClick={() => void runAct.run()}>
-              {fill(t.storage.cleanup.run, { bytes: fmtBytes(preview.freedBytes) })}
-            </Button>
-          </div>
-        </>
-      ) : null}
-      {done ? (
-        <span role="status" className="vv-sto__doneLine">
-          <Icon name="tick-b" size={16} />{fill(t.storage.cleanup.ran, { bytes: fmtBytes(done.bytes), time: fmtTime(done.at) })}
-        </span>
-      ) : null}
-    </section>
-  )
-}
 
 /** Thẻ xoá một nhóm lớn (video gốc / MP4 đã đăng) với xác nhận cam inline. */
 function ReclaimCard({ item }: { item: ReclaimItem }) {
@@ -661,6 +591,14 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
 }
 
 export default function StorageSection() {
+  const server = useResource(['storage', 'server'], ({ signal }) => getServerStorage(signal))
+  if (server.data === undefined) return server.error
+    ? <Banner tone="error" title={(server.error as Error).message} actions={[{ label: t.common.retry, onClick: () => void server.refresh() }]} />
+    : <Spinner size={16} />
+  return server.data ? <ServerStorageSection data={server.data} /> : <LocalStorageSection />
+}
+
+function LocalStorageSection() {
   const mobile = useMediaQuery('(max-width: 767px)')
   const res = useResource(keys.storage(), ({ signal }) => getStorage(signal))
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))

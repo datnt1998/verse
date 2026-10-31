@@ -20,6 +20,7 @@ import type { User } from '../api/types'
 import { navigate } from '../router'
 import { getSetup } from '../api/setup'
 import { vi as t } from '../i18n/vi'
+import { AdminStorageStrip } from './AdminStorageStrip'
 
 export function AppShell({ route, user, children }: {
   route: Route
@@ -47,7 +48,7 @@ export function AppShell({ route, user, children }: {
 
   const inSetup = route.name === 'setup'
   const offline = !online && !connecting
-  const strip = offline ? <OfflineStrip /> : undefined
+  const strip = <>{offline ? <OfflineStrip /> : null}{!mobile || route.name !== 'settings' ? <AdminStorageStrip user={user} status={status.data} /> : null}</>
 
   // Máy chưa chuẩn bị xong thì mở #/setup một lần mỗi phiên (desktop); vào
   // thẳng từ sau khi đăng nhập, không bắt người dùng đã bỏ qua quay lại.
