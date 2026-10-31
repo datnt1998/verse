@@ -87,6 +87,7 @@
   --vv-s-80: 80px;
   --vv-s-9: 9px;
   --vv-s-34: 34px;
+  --vv-s-232: 232px;
   --vv-s-240: 240px;
   --vv-s-250: 250px;
   --vv-s-160: 160px;
@@ -100,6 +101,8 @@
   --vv-s-30: 30px;
   --vv-s-32: 32px;
   --vv-s-36: 36px;
+  --vv-s-17: 17px;
+  --vv-s-45: 45px;
   /* Bo góc 7px của mục nav trong nhóm header (artboard: .navl radius 7). */
   --vv-r-7: 7px;
   /* Orb trợ lý (artboard .o-*): Trinh sát xanh dương, Đạo diễn tím,
@@ -158,6 +161,23 @@
   --vv-rav-3: #255E4B;
   --vv-rav-4: #6E3324;
   --vv-rav-5: #3E4659;
+  /* Màu nền tảng lấy nguồn nền (artboard Library › Video nền): chấm nhỏ trên
+     cột nguồn và phần màu của kênh trên thanh Nền của một video. */
+  --vv-plat-twitch: #B9A3FF;
+  --vv-plat-bilibili: #7FC8F8;
+  /* Vàng "Luôn có" của clip cố định (video lẻ) trên thẻ nguồn và thanh mix. */
+  --vv-fixed: #F6CB8C;
+  --vv-fixed-10: rgba(246, 203, 140, .1);
+  --vv-fixed-28: rgba(246, 203, 140, .28);
+  --vv-fixed-5: rgba(246, 203, 140, .05);
+  /* Xám phần nền phải lặp lại trên thanh mix. */
+  --vv-loop-bg: #3A3A40;
+  /* Xanh đánh dấu đang đọc/chọn ngẫu nhiên (artboard dùng #B9D0F7). */
+  --vv-reading: #B9D0F7;
+  --vv-reading-10: rgba(185, 208, 247, .1);
+  /* Mờ tối phủ trên ảnh thu nhỏ video và lớp chắn hộp thoại Gắn nguồn nền. */
+  --vv-scrim: rgba(0, 0, 0, .45);
+  --vv-scrim-60: rgba(0, 0, 0, .6);
   /* Màu nền/mực riêng của khung QR đăng nhập và ảnh chờ (không có trong kit).
      --vv-qr-done/--vv-qr-reject là vòng 48 px đè lên mã: xong (xanh đậm) và
      Bilibili từ chối (cam cháy) — chữ trắng luôn đủ tương phản. */

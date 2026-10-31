@@ -14,6 +14,7 @@ const (
 	TaskIdentity         TaskKind = "identity"
 	TaskChannelScan      TaskKind = "channel_scan"
 	TaskBackdropScan     TaskKind = "backdrop_scan"
+	TaskBackdropDownload TaskKind = "backdrop_download"
 	TaskThumbnailPreview TaskKind = "thumbnail_preview"
 	TaskTemplatePreview  TaskKind = "template_preview"
 	TaskEditorExport     TaskKind = "editor_export"

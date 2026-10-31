@@ -14,6 +14,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
 )
 
 func TestPlatformStateEscalatesAndClears(t *testing.T) {
@@ -229,5 +230,137 @@ func TestPlatformErrorRoundTrip(t *testing.T) {
 	cur, _, _ = store.One(ctx, domain.PlatformYouTube)
 	if cur.LastErrorCode != "" || cur.LastErrorAt != nil || cur.LastErrorJobID != nil {
 		t.Fatalf("sau clear = %+v", cur)
+	}
+}
+
+// ReserveWeighted kiểm giờ chờ + hạn mức cuộn + ghi lịch sử trong một
+// transaction: lần thứ 21 trong 10 phút bị từ chối và KHÔNG ghi thêm lịch sử.
+func TestPlatformReserveWeightedBudgetAndPause(t *testing.T) {
+	ctx := context.Background()
+	store := postgres.NewPlatformStateStore(provision(t))
+	now := time.Date(2026, 10, 29, 8, 0, 0, 0, time.UTC)
+	req := platforms.SlotRequest{Spacing: 15 * time.Second, Cost: 1, Windows: platforms.BilibiliWindows}
+
+	for i := range 20 {
+		at := now.Add(time.Duration(i) * 15 * time.Second)
+		decision, err := store.ReserveWeighted(ctx, domain.PlatformBilibili, at, req)
+		if err != nil {
+			t.Fatalf("lần %d: %v", i+1, err)
+		}
+		if decision.PausedUntil != nil || decision.BudgetAt != nil {
+			t.Fatalf("lần %d bị từ chối: %+v", i+1, decision)
+		}
+		if !decision.StartAt.Equal(at) {
+			t.Fatalf("start lần %d = %v, muốn %v", i+1, decision.StartAt, at)
+		}
+	}
+	cur, _, _ := store.One(ctx, domain.PlatformBilibili)
+	if len(cur.RequestHistory) != 20 {
+		t.Fatalf("lịch sử = %d, muốn 20", len(cur.RequestHistory))
+	}
+	decision, err := store.ReserveWeighted(ctx, domain.PlatformBilibili, now.Add(5*time.Minute), req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if decision.BudgetAt == nil {
+		t.Fatalf("lần 21 phải hết hạn mức: %+v", decision)
+	}
+	if !decision.BudgetAt.Equal(now.Add(10 * time.Minute)) {
+		t.Fatalf("availableAt = %v, muốn %v", decision.BudgetAt, now.Add(10*time.Minute))
+	}
+	cur, _, _ = store.One(ctx, domain.PlatformBilibili)
+	if len(cur.RequestHistory) != 20 {
+		t.Fatalf("từ chối không được ghi lịch sử, được %d", len(cur.RequestHistory))
+	}
+
+	// Đang chờ bị chặn: từ chối với giờ chờ, không ghi gì.
+	blockedAt := now.Add(time.Hour)
+	if _, err := store.RecordBlocked(ctx, domain.PlatformBilibili, blockedAt, "chặn", 0); err != nil {
+		t.Fatal(err)
+	}
+	decision, err = store.ReserveWeighted(ctx, domain.PlatformBilibili, blockedAt, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if decision.PausedUntil == nil || !decision.PausedUntil.Equal(blockedAt.Add(15*time.Minute)) {
+		t.Fatalf("chặn lần 1 = %+v, muốn nghỉ 15 phút", decision)
+	}
+	cur, _, _ = store.One(ctx, domain.PlatformBilibili)
+	if len(cur.RequestHistory) != 20 {
+		t.Fatalf("đang chờ không được ghi lịch sử, được %d", len(cur.RequestHistory))
+	}
+
+	// Chặn liên tiếp: 15 → 30 → 60 → 120 phút rồi trần 120.
+	for i, want := range []time.Duration{30 * time.Minute, time.Hour, 2 * time.Hour, 2 * time.Hour} {
+		at := blockedAt.Add(time.Duration(i+1) * time.Hour)
+		state, err := store.RecordBlocked(ctx, domain.PlatformBilibili, at, "chặn", 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if state.PausedUntil == nil || !state.PausedUntil.Equal(at.Add(want)) {
+			t.Fatalf("chặn liên tiếp %d = %v, muốn %v", i+2, state.PausedUntil, at.Add(want))
+		}
+	}
+	// Hết chặn thì đếm về 0 để lần sau lại bắt đầu từ 15 phút.
+	if err := store.ClearPause(ctx, domain.PlatformBilibili); err != nil {
+		t.Fatal(err)
+	}
+	state, err := store.RecordBlocked(ctx, domain.PlatformBilibili, blockedAt.Add(6*time.Hour), "chặn", 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.PausedUntil == nil || !state.PausedUntil.Equal(blockedAt.Add(6*time.Hour+15*time.Minute)) {
+		t.Fatalf("sau khi hết chặn = %v, muốn 15 phút", state.PausedUntil)
+	}
+}
+
+func TestPlatformYtDlpLeaseIsExclusive(t *testing.T) {
+	ctx := context.Background()
+	store := postgres.NewPlatformStateStore(provision(t))
+	now := time.Date(2026, 10, 29, 8, 0, 0, 0, time.UTC)
+
+	ok, err := store.AcquireYtDlp(ctx, domain.PlatformBilibili, "p1", now, now.Add(5*time.Minute))
+	if err != nil || !ok {
+		t.Fatalf("acquire đầu = %v %v", ok, err)
+	}
+	ok, err = store.AcquireYtDlp(ctx, domain.PlatformBilibili, "p2", now.Add(time.Minute), now.Add(6*time.Minute))
+	if err != nil || ok {
+		t.Fatalf("process thứ hai phải bị từ chối, được %v %v", ok, err)
+	}
+	if err := store.ReleaseYtDlp(ctx, domain.PlatformBilibili, "p2"); err != nil {
+		t.Fatal(err)
+	}
+	ok, err = store.AcquireYtDlp(ctx, domain.PlatformBilibili, "p2", now.Add(2*time.Minute), now.Add(7*time.Minute))
+	if err != nil || ok {
+		t.Fatalf("nhả sai owner không được mất lease, được %v %v", ok, err)
+	}
+	later := now.Add(6 * time.Minute)
+	ok, err = store.AcquireYtDlp(ctx, domain.PlatformBilibili, "p2", later, later.Add(5*time.Minute))
+	if err != nil || !ok {
+		t.Fatalf("lease hết hạn phải lấy được, được %v %v", ok, err)
+	}
+	if err := store.ReleaseYtDlp(ctx, domain.PlatformBilibili, "p2"); err != nil {
+		t.Fatal(err)
+	}
+	cur, _, _ := store.One(ctx, domain.PlatformBilibili)
+	if cur.YtdlpOwner != nil || cur.YtdlpLeaseUntil != nil {
+		t.Fatalf("sau release = %+v", cur)
+	}
+}
+
+func TestPlatformNextTrickleRoundTrip(t *testing.T) {
+	ctx := context.Background()
+	store := postgres.NewPlatformStateStore(provision(t))
+	at := time.Date(2026, 10, 29, 8, 4, 30, 0, time.UTC)
+
+	if err := store.SetNextTrickle(ctx, domain.PlatformBilibili, at); err != nil {
+		t.Fatal(err)
+	}
+	cur, found, err := store.One(ctx, domain.PlatformBilibili)
+	if err != nil || !found {
+		t.Fatalf("one: %v %v", found, err)
+	}
+	if !cur.NextTrickleAt.Equal(at) {
+		t.Fatalf("next trickle = %v, muốn %v", cur.NextTrickleAt, at)
 	}
 }

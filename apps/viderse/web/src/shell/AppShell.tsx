@@ -10,6 +10,12 @@ import { AppHeader } from './AppHeader'
 import { MobileShell } from './MobileShell'
 import { OfflineStrip } from './OfflineStrip'
 import type { SwitcherChannel } from './ChannelSwitcher'
+import { useResource } from '../data/useResource'
+import { keys } from '../data/keys'
+import { listChannels } from '../api/channels'
+import { onboardDismissed } from '../lib/onboard'
+import { channelsHref } from '../lib/lastChannel'
+import { channelTint } from '../lib/channelTint'
 import type { User } from '../api/types'
 import { navigate } from '../router'
 import { getSetup } from '../api/setup'
@@ -24,6 +30,20 @@ export function AppShell({ route, user, children }: {
   const status = useStatus()
   const online = useOnline()
   const connecting = useEventsStatus().state === 'connecting'
+
+  // Kênh của tôi cho Bộ đổi kênh + luật Onboard. Lỗi/không có gì → danh sách
+  // rỗng, không chặn khung (test shell và máy chưa có kênh vẫn chạy).
+  const channelList = useResource(
+    keys.channels(),
+    ({ signal }) => listChannels(signal).catch(() => ({ channels: [] })),
+  )
+  const channelHref = channelsHref(channelList.data?.channels ?? [])
+  const channels: SwitcherChannel[] = (channelList.data?.channels ?? []).map((channel) => ({
+    id: channel.id,
+    name: channel.name || t.channels.page.noName,
+    src: channel.avatarUrl ?? undefined,
+    color: { bg: channelTint(channel.id), ring: channelTint(channel.id) },
+  }))
 
   const inSetup = route.name === 'setup'
   const offline = !online && !connecting
@@ -53,13 +73,17 @@ export function AppShell({ route, user, children }: {
 
   // Chuẩn bị máy là màn riêng thời điểm mở app (W1): không header, không tab
   // dưới — Onboard chỉ có một việc là cài máy.
-  if (inSetup) {
+  // Lần đầu mở: máy đã cài xong, chưa có kênh nào, đang ở bước Tạo kênh — mở
+  // khung riêng như Onboard (không nav). Huỷ/Tạo xong ghi cờ phiên để không lặp.
+  const onboard = !mobile && route.name === 'channel-new' && (route.step ?? 'create') === 'create'
+    && !onboardDismissed() && channelList.data !== undefined && channels.length === 0
+  if (inSetup || onboard) {
     return <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>{strip}{children}</div>
   }
 
   if (mobile) {
     return (
-      <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username}>
+      <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
         {strip}
         <div inert={offline || undefined} style={{ flex: '1 1 auto', minWidth: 0, paddingBottom: 'var(--vv-tabbar-pad)', ...(offline ? { opacity: 0.42 } : {}) }}>
           {children}
@@ -72,7 +96,7 @@ export function AppShell({ route, user, children }: {
     // nội dung nhận phần còn lại và tự cuộn — màn có cột cố định (Cài đặt)
     // không bị đẩy xuống khi dải offline/chưa-sẵn-sàng hiện.
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      <AppHeader route={route} status={status.data} online={online} userName={user.name || user.username} />
+      <AppHeader route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref} />
       {setupSkipped && !inSetup ? (
         // Cảnh báo bền "máy chưa sẵn sàng" — có thể làm việc tiếp, không chặn.
         <button type="button" onClick={() => navigate('/setup')}

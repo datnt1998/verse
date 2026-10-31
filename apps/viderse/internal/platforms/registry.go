@@ -10,7 +10,8 @@ package platforms
 import "github.com/datnt1998/verse/apps/viderse/internal/domain"
 
 // Descriptor mô tả một nền tảng trong registry (§24): danh tính, việc app
-// dùng cho, loại video lấy được, độ cao clip mục tiêu và cách đăng nhập.
+// dùng cho, loại video lấy được, độ cao clip mục tiêu, cách đăng nhập và hạn
+// mức cuộn (rỗng = nền tảng không đặt hạn mức, chỉ có khoảng cách tối thiểu).
 type Descriptor struct {
 	ID           domain.PlatformID
 	Label        string
@@ -18,6 +19,7 @@ type Descriptor struct {
 	Kinds        []domain.PlatformKind
 	TargetHeight int
 	Login        domain.PlatformLoginType
+	Budget       []BudgetWindow
 }
 
 // registry là danh sách nền tảng theo thứ tự hiển thị. Bất biến; Registry()
@@ -46,6 +48,9 @@ var registry = []Descriptor{
 		Kinds:        []domain.PlatformKind{domain.PlatformKindVideo},
 		TargetHeight: 1080,
 		Login:        domain.LoginQR,
+		// 20 yêu cầu mỗi 10 phút và 200 mỗi 24 giờ: hạn mức an toàn để đọc
+		// danh mục mà không bị chặn tài khoản (chuyển từ pacing.ts).
+		Budget: BilibiliWindows,
 	},
 }
 

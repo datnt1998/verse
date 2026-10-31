@@ -14,6 +14,8 @@ export type SwitcherChannel = {
   id: string
   name: string
   initials?: string
+  /** ảnh avatar nhận diện của kênh (chưa có thì chữ cái đầu) */
+  src?: string
   color?: { bg: string; ring?: string }
   /** “Hôm nay 3/5” */
   pace?: string
@@ -39,7 +41,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
   const stack = (size: number, fontSize: number) => (
     <span aria-hidden="true" className="vv-stack">
       {(channels.length ? channels.slice(0, 3) : [{ id: '_', name: '', initials: '·' }]).map((c) => (
-        <ChannelAvatar key={c.id} name={c.name || '·'} initials={c.initials ?? '·'} color={c.color} size={size} stacked
+        <ChannelAvatar key={c.id} name={c.name || '·'} initials={c.initials ?? '·'} src={c.src} color={c.color} size={size} stacked
           style={{ fontSize }} />
       ))}
     </span>
@@ -54,7 +56,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
   )
 
   return (
-    <div ref={root} style={{ position: 'relative', flex: '0 0 auto' }}>
+    <div ref={root} className="vv-switcher-root">
       <button
         type="button"
         aria-haspopup="menu"
@@ -64,8 +66,8 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
         onClick={() => setOpen(!open)}
         className="vv-switcher"
       >
-        {isAll ? stack(20, 7.5) : <ChannelAvatar name={selected?.name ?? ''} initials={selected?.initials} color={selected?.color} size={20} style={{ fontSize: 8 }} />}
-        {isAll ? t.nav.allChannels : selected?.name ?? '…'}
+        {isAll ? stack(20, 7.5) : <ChannelAvatar name={selected?.name ?? ''} initials={selected?.initials} src={selected?.src} color={selected?.color} size={20} style={{ fontSize: 8 }} />}
+        <span className="vv-switcher__label">{isAll ? t.nav.allChannels : selected?.name ?? '…'}</span>
         <Icon name="arrow-d" size={13} style={{ color: 'var(--color-fg-4)' }} />
       </button>
       {open && (
@@ -83,7 +85,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
           {channels.map((c) =>
             option(c.id, current === c.id, () => pick(c.id), (
               <>
-                <ChannelAvatar name={c.name} initials={c.initials} color={c.color} size={30} style={{ fontSize: 10.5 }} />
+                <ChannelAvatar name={c.name} initials={c.initials} src={c.src} color={c.color} size={30} style={{ fontSize: 10.5 }} />
                 <span className="vv-switcher__main">
                   <span className="vv-switcher__name">{c.name}</span>
                   {c.pace && <span className="vv-switcher__sub num">{c.pace}</span>}

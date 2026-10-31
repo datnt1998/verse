@@ -20,9 +20,11 @@ const TAB_ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: Icon
   { key: 'explore', label: t.nav.explore, icon: 'radar', iconActive: 'radar-b', path: paths.explore() },
 ]
 
-export function MobileTabBar({ route, reviewCount, fixed = true }: {
+export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: {
   route: Route
   reviewCount: number
+  /** đích tab Kênh (kênh gần nhất / tạo kênh khi chưa có) */
+  channelHref?: string
   /** false khi nhúng trong khung demo (dev kit) — đứng cuối khung thay vì dán màn hình */
   fixed?: boolean
 }) {
@@ -30,9 +32,10 @@ export function MobileTabBar({ route, reviewCount, fixed = true }: {
   return (
     <nav role="navigation" aria-label={t.nav.bottom} className="vv-tabbar" style={fixed ? undefined : { position: 'absolute' }}>
       {TAB_ITEMS.map((item) => {
+        const path = item.key === 'channels' ? channelHref ?? item.path : item.path
         if (item.key === 'new') {
           return (
-            <a key="new" href={`#${item.path}`} aria-label={t.nav.new} title={t.nav.new}
+            <a key="new" href={`#${path}`} aria-label={t.nav.new} title={t.nav.new}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 56 }}>
               <span className="vv-tabbar__new"><Icon name="add" size={22} /></span>
             </a>
@@ -40,7 +43,7 @@ export function MobileTabBar({ route, reviewCount, fixed = true }: {
         }
         const active = item.key === section
         return (
-          <a key={item.key} href={`#${item.path}`} aria-current={active ? 'page' : undefined}
+          <a key={item.key} href={`#${path}`} aria-current={active ? 'page' : undefined}
             className={active ? 'vv-tabbar__item vv-tabbar__item--active' : 'vv-tabbar__item'}>
             <span className="vv-tabbar__pill">
               <Icon name={active ? item.iconActive : item.icon} size={20} />
@@ -56,12 +59,14 @@ export function MobileTabBar({ route, reviewCount, fixed = true }: {
   )
 }
 
-export function MobileShell({ route, status, online, userName, channels, children }: {
+export function MobileShell({ route, status, online, userName, channels, channelHref, children }: {
   route: Route
   status: Status | undefined
   online: boolean
   userName?: string
   channels?: SwitcherChannel[]
+  /** đích tab Kênh (kênh gần nhất / tạo kênh khi chưa có) */
+  channelHref?: string
   children: ReactNode
 }) {
   const running = status?.running ?? 0
@@ -81,7 +86,7 @@ export function MobileShell({ route, status, online, userName, channels, childre
         </a>
       </header>
       {children}
-      <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} />
+      <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
     </div>
   )
 }

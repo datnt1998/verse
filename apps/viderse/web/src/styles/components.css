@@ -72,12 +72,15 @@
 .vv-jobs__dot { background: var(--vv-jobs-dot) }
 
 /* ─── ChannelSwitcher ─── */
+.vv-switcher-root { position: relative; flex: 0 0 auto }
 .vv-switcher {
   height: 30px; padding: 0 var(--vv-s-8) 0 var(--vv-s-5); display: flex; align-items: center; gap: var(--vv-s-7);
   border-radius: var(--radius-control); border: 1px solid var(--line-1); background: var(--color-surface-1);
   color: var(--color-fg); font-size: 13px; font-weight: 500; white-space: nowrap;
 }
 .vv-switcher:hover { background: var(--color-surface-2) }
+/* Nhãn kênh co được: tên dài ở thanh hẹp thì cắt ba chấm thay vì đẩy tràn trang. */
+.vv-switcher__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .vv-switcher__menu {
   position: absolute; left: 0; top: var(--vv-s-38); z-index: 40; width: 312px;
   border-radius: var(--vv-r-14); background: var(--color-surface-2); border: 1px solid var(--line-2);
@@ -238,3 +241,34 @@
 
 /* Giãn phần còn lại của hàng flex (nhãn trái, nút phải) */
 .vv-grow { flex: 1; min-width: 0; }
+
+/* ─── Thanh trên điện thoại: đủ chỗ cho logo + kênh + việc + avatar ───
+   Không ép tràn ngang: nhãn kênh co/cắt ba chấm, viên việc bỏ chữ khi quá hẹp
+   (aria-label vẫn đọc đủ). Đo ở 390: trước đây header rộng 476 → trang cuộn ngang. */
+@media (max-width: 767px) {
+  .vv-mbar { gap: var(--vv-s-8) }
+  /* Trần đặt ở gốc (con trực tiếp của thanh): % trên nút sẽ tính theo gốc
+     co theo nội dung và ép nhãn kênh còn một chữ. */
+  .vv-mbar .vv-switcher-root { flex: 0 1 auto; min-width: 0; max-width: 44% }
+  .vv-mbar .vv-switcher { min-width: 0; max-width: 100%; overflow: hidden }
+  .vv-mbar .vv-jobs { flex: 0 1 auto; min-width: 0; overflow: hidden }
+  .vv-mbar .vv-jobs .num { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+}
+@media (max-width: 430px) {
+  .vv-mbar .vv-switcher-root { max-width: 48% }
+  .vv-mbar .vv-jobs { padding: 0 var(--vv-s-6) }
+  .vv-mbar .vv-jobs .num { display: none }
+}
+/* Màn chạm: viên kênh/việc/avatar giữ 30 px như artboard nhưng vùng chạm
+   giãn ra đủ 44 px bằng lớp giả trong suốt (nhãn tự cắt ba chấm nên bỏ
+   overflow của nút để lớp giả không bị xén). */
+@media (max-width: 767px) and (pointer: coarse) {
+  .vv-mbar :is(.vv-switcher, .vv-jobs, .vv-mavatar) { position: relative; overflow: visible }
+  .vv-mbar :is(.vv-switcher, .vv-jobs)::after {
+    content: ''; position: absolute; inset: calc((var(--vv-s-44) - 100%) / -2) 0;
+  }
+  .vv-mbar > a:first-child { position: relative }
+  :is(.vv-mbar .vv-mavatar, .vv-mbar > a:first-child)::after {
+    content: ''; position: absolute; inset: calc((var(--vv-s-44) - 100%) / -2);
+  }
+}

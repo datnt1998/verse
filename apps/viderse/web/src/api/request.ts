@@ -44,6 +44,11 @@ async function call<T>(method: Method, path: string, body?: object, signal?: Abo
     if (signal?.aborted) throw error
     throw new ApiError(0, OFFLINE_MSG)
   }
+  return settle<T>(response)
+}
+
+/** Đọc phản hồi theo đúng hợp đồng lỗi của webapp (401 → hết phiên). */
+async function settle<T>(response: Response): Promise<T> {
   if (!response.ok) {
     if (response.status === 401) notifySessionExpired()
     const payload: unknown = await response.json().catch(() => null)
@@ -69,4 +74,20 @@ export function request<T>(path: string, options?: { body?: object; signal?: Abo
 /** Mutation có method POST/PUT/PATCH/DELETE — cùng hợp đồng lỗi với request(). */
 export function mutate<T>(method: Method, path: string, body?: object, signal?: AbortSignal): Promise<T> {
   return call(method, path, body, signal)
+}
+
+/**
+ * POST `multipart/form-data` — chỉ hai route tải tệp của webapp chấp nhận
+ * (lớp phủ, nhập prompt). Không đặt `Content-Type` tay: trình duyệt tự thêm
+ * boundary. Mọi route khác vẫn phải đi qua JSON của `request`/`mutate`.
+ */
+export async function upload<T>(path: string, form: FormData, signal?: AbortSignal): Promise<T> {
+  let response: Response
+  try {
+    response = await fetch(path, { credentials: 'same-origin', method: 'POST', body: form, signal })
+  } catch (error) {
+    if (signal?.aborted) throw error
+    throw new ApiError(0, OFFLINE_MSG)
+  }
+  return settle<T>(response)
 }

@@ -56,9 +56,13 @@ describe('parseHash', () => {
   it('#/new', () => {
     expect(parseHash('#/new').route).toEqual({ name: 'new' })
   })
-  it('#/library?tab=', () => {
-    expect(parseHash('#/library').route).toEqual({ name: 'library', tab: undefined })
-    expect(parseHash('#/library?tab=prompts').route).toEqual({ name: 'library', tab: 'prompts' })
+  it('#/library?tab=&prompt=&nguon=&kenh=', () => {
+    expect(parseHash('#/library').route).toEqual({ name: 'library', tab: undefined, prompt: undefined, nguon: undefined, kenh: undefined })
+    expect(parseHash('#/library?tab=prompts').route).toEqual({ name: 'library', tab: 'prompts', prompt: undefined, nguon: undefined, kenh: undefined })
+    expect(parseHash('#/library?tab=prompts&prompt=new').route).toEqual({ name: 'library', tab: 'prompts', prompt: 'new', nguon: undefined, kenh: undefined })
+    expect(parseHash('#/library?tab=backdrops&nguon=videos').route).toEqual({ name: 'library', tab: 'backdrops', prompt: undefined, nguon: 'videos', kenh: undefined })
+    expect(parseHash('#/library?tab=backdrops&kenh=twitch%3Aslowroads').route).toEqual({ name: 'library', tab: 'backdrops', prompt: undefined, nguon: undefined, kenh: 'twitch:slowroads' })
+    expect(routePath({ name: 'library', tab: 'backdrops', nguon: 'channels', kenh: 'twitch:slowroads' })).toBe('/library?tab=backdrops&nguon=channels&kenh=twitch%3Aslowroads')
   })
   it('#/templates/<id>?section=', () => {
     expect(parseHash('#/templates/t1').route).toEqual({ name: 'template', templateId: 't1', section: undefined })

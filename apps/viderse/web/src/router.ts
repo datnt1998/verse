@@ -10,7 +10,7 @@ export type Route =
   | { name: 'channel-new'; step?: ChannelNewStep }                     // '#/channels/new'
   | { name: 'explore'; rival?: string; video?: string }                // '#/explore'
   | { name: 'new' }                                                    // '#/new'
-  | { name: 'library'; tab?: LibraryTab }                              // '#/library'
+  | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; nguon?: BackdropSource; kenh?: string } // '#/library'
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
   | { name: 'editor'; projectId: string }                              // '#/editor/<projectId>'
   | { name: 'settings'; section?: SettingsSection }                    // '#/settings'
@@ -27,8 +27,17 @@ export type ChannelNewStep = (typeof CHANNEL_NEW_STEPS)[number]
 export const LIBRARY_TABS = ['templates', 'prompts', 'backdrops', 'overlays'] as const
 export type LibraryTab = (typeof LIBRARY_TABS)[number]
 
+/** Màn con của tab Prompt ảnh: danh sách, hoặc mở sẵn một prompt. */
+export const PROMPT_VIEWS = ['list', 'mine', 'builtin', 'new'] as const
+export type PromptView = (typeof PROMPT_VIEWS)[number]
+
 export const TEMPLATE_SECTIONS = ['images', 'cover', 'backdrop', 'output'] as const
 export type TemplateSection = (typeof TEMPLATE_SECTIONS)[number]
+
+/** Nguồn đang mở của tab Video nền (?nguon=): 'videos' = trang Video lẻ,
+ *  'channels'/vắng = trang kênh `kenh` (id kênh nền, vd "twitch:nightdrivefm"). */
+export const BACKDROP_SOURCES = ['channels', 'videos'] as const
+export type BackdropSource = (typeof BACKDROP_SOURCES)[number]
 
 export const SETTINGS_SECTIONS = ['tools', 'connect', 'agents', 'accounts', 'storage', 'logs'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
@@ -73,7 +82,13 @@ export function parseHash(hash: string): Parsed {
   } else if (seg[0] === 'new' && seg.length === 1) {
     route = { name: 'new' }
   } else if (seg[0] === 'library' && seg.length === 1) {
-    route = { name: 'library', tab: oneOf(search.get('tab'), LIBRARY_TABS) }
+    route = {
+      name: 'library',
+      tab: oneOf(search.get('tab'), LIBRARY_TABS),
+      prompt: oneOf(search.get('prompt'), PROMPT_VIEWS),
+      nguon: oneOf(search.get('nguon'), BACKDROP_SOURCES),
+      kenh: text(search.get('kenh')),
+    }
   } else if (seg[0] === 'templates' && seg.length === 2 && seg[1]) {
     route = { name: 'template', templateId: seg[1], section: oneOf(search.get('section'), TEMPLATE_SECTIONS) }
   } else if (seg[0] === 'editor' && seg.length === 2 && seg[1]) {
@@ -108,7 +123,7 @@ export function routePath(route: Route): string {
     case 'channel-new': return `/channels/new${q([['step', route.step]])}`
     case 'explore': return `/explore${q([['rival', route.rival], ['video', route.video]])}`
     case 'new': return '/new'
-    case 'library': return `/library${q([['tab', route.tab]])}`
+    case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['nguon', route.nguon], ['kenh', route.kenh]])}`
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
     case 'editor': return `/editor/${encodeURIComponent(route.projectId)}`
     case 'settings': return `/settings${q([['section', route.section]])}`
@@ -126,7 +141,8 @@ export const paths = {
   channelNew: (step?: ChannelNewStep) => routePath({ name: 'channel-new', step }),
   explore: (opts?: { rival?: string; video?: string }) => routePath({ name: 'explore', ...opts }),
   new: () => '/new',
-  library: (tab?: LibraryTab) => routePath({ name: 'library', tab }),
+  library: (tab?: LibraryTab, prompt?: PromptView, backdrop?: { nguon?: BackdropSource; kenh?: string }) =>
+    routePath({ name: 'library', tab, prompt, nguon: backdrop?.nguon, kenh: backdrop?.kenh }),
   template: (templateId: string, section?: TemplateSection) => routePath({ name: 'template', templateId, section }),
   editor: (projectId: string) => routePath({ name: 'editor', projectId }),
   settings: (section?: SettingsSection) => routePath({ name: 'settings', section }),

@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
+	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
@@ -30,7 +31,7 @@ import (
 
 // mountMachine dựng mảng "máy" trên pool/hub/status, dùng chung bộ binary
 // (kit/managed) mà serve.go đã dựng để khối AIConn cũng thấy đúng một bản.
-func mountMachine(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, ctx context.Context, dir string, logStore *logs.Store, deps tools.Deps, kit *tools.Tools, managed *tools.Managed, chatGPT toolsvc.ChatGPTSession, activities *activity.Service, notifyActivity func(ref string)) (*machineRuntime, error) {
+func mountMachine(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, ctx context.Context, dir string, logStore *logs.Store, deps tools.Deps, kit *tools.Tools, managed *tools.Managed, chatGPT toolsvc.ChatGPTSession, activities *activity.Service, notifyActivity func(ref string), platformRequests func(context.Context) ([]backdrop.PlatformRequestRecord, error)) (*machineRuntime, error) {
 
 	notifyTools := web.Notifier(hub, "tools")
 
@@ -75,6 +76,7 @@ func mountMachine(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.Setting
 	version := logs.NewVersionChecker(appVersion(), logs.NewGitHubVersion("datnt1998", "verse"))
 	web.MountLogs(g, machineLogs{
 		store: logStore, version: version, tools: toolSvc, activity: activities, settings: settings,
+		requests: platformRequests,
 	}, version)
 
 	statusSvc.RegisterSource(machineStatus{activity: activities, tools: toolSvc})
@@ -111,6 +113,9 @@ type machineLogs struct {
 	tools    *toolsvc.Service
 	activity *activity.Service
 	settings *postgres.SettingsStore
+	// requests đọc yêu cầu hỗ trợ nền tảng đã ghi (mảng Video nền); nil = bỏ
+	// qua tệp phụ.
+	requests func(ctx context.Context) ([]backdrop.PlatformRequestRecord, error)
 }
 
 func (m machineLogs) Read(tool string, minLevel string, limit int, before time.Time) ([]logs.Entry, *time.Time, error) {
@@ -156,11 +161,43 @@ func (m machineLogs) Bundle(ctx context.Context) (*logs.Bundle, error) {
 			})
 			return "activity.json", raw, err
 		},
+		platformRequestsExtra(m.requests),
 	}
 	return m.store.BuildBundle(ctx, logs.BundleOptions{
 		Version: m.version.Get(ctx).Version,
 		Extras:  extras,
 	})
+}
+
+// platformRequestsExtra dựng tệp phụ "platform-requests.json" từ yêu cầu hỗ
+// trợ nền tảng đã ghi; không có bộ đọc thì gói bỏ qua tệp này.
+func platformRequestsExtra(read func(ctx context.Context) ([]backdrop.PlatformRequestRecord, error)) logs.ExtraFile {
+	return func(ctx context.Context) (string, []byte, error) {
+		if read == nil {
+			return "", nil, nil
+		}
+		rows, err := read(ctx)
+		if err != nil {
+			return "", nil, err
+		}
+		type row struct {
+			Host    string `json:"host"`
+			Label   string `json:"label"`
+			Count   int    `json:"count"`
+			FirstAt string `json:"firstAt"`
+			LastAt  string `json:"lastAt"`
+		}
+		out := make([]row, 0, len(rows))
+		for _, r := range rows {
+			out = append(out, row{
+				Host: r.Host, Label: r.Label, Count: r.Count,
+				FirstAt: r.FirstAt.UTC().Format(time.RFC3339),
+				LastAt:  r.LastAt.UTC().Format(time.RFC3339),
+			})
+		}
+		raw, err := json.Marshal(map[string]any{"requests": out})
+		return "platform-requests.json", raw, err
+	}
 }
 
 // machineStatus cộng số video chạy/chờ và mục cần xử lý của máy vào snapshot

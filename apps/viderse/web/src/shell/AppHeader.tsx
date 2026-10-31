@@ -14,13 +14,15 @@ import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
 import type { Status } from '../api/status'
 
-export function AppHeader({ route, status, online, userName, channels }: {
+export function AppHeader({ route, status, online, userName, channels, channelHref }: {
   route: Route
   status: Status | undefined
   online: boolean
   userName?: string
   /** kênh của tôi để hiện trong bộ đổi kênh (chưa có dữ liệu → []) */
   channels?: SwitcherChannel[]
+  /** đích mục nav Kênh (kênh gần nhất / tạo kênh khi chưa có) */
+  channelHref?: string
 }) {
   const running = status?.running ?? 0
   const attention = status?.attention ?? []
@@ -48,7 +50,7 @@ export function AppHeader({ route, status, online, userName, channels }: {
             ? <ExploreCrumb scope={route.rival} />
             : showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
       </div>
-      <MainNav route={route} reviewCount={status?.reviewCount ?? 0} />
+      <MainNav route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
       <div className="vv-header__zone vv-header__zone--right">
         <JobsPill status={status} online={online} unread={attention.length > 0} style={{ flex: '0 0 auto' }} />
         <a

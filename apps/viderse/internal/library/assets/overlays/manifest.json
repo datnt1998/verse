@@ -1,0 +1,90 @@
+{
+  "generatorVersion": "1.0.0",
+  "ffmpegVersion": "v-6.0-ffmpeg-static-b6.1.1",
+  "effects": [
+    {
+      "id": "snow",
+      "name": "Tuyết.mp4",
+      "file": "standard-template/snow-loop.mp4",
+      "size": 294554,
+      "sha256": "eead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+    },
+    {
+      "id": "rain",
+      "name": "Mưa.mp4",
+      "file": "overlays/rain-loop.mp4",
+      "size": 2798371,
+      "sha256": "14f22ce50bf5805272f8b0671bb67bc1f6fc01282befb587e3d4f5f230ad20f1"
+    },
+    {
+      "id": "dust",
+      "name": "Bụi.mp4",
+      "file": "overlays/dust-loop.mp4",
+      "size": 383768,
+      "sha256": "9cd7cf181c25c1794cbf1f6c9389fe4ecac1e513401bb5abb99bf8ec22f0f29f"
+    },
+    {
+      "id": "film",
+      "name": "Phim cũ.mp4",
+      "file": "overlays/film-loop.mp4",
+      "size": 704151,
+      "sha256": "91955531d0ee05d8f4be4db6eb87a463294fdbeae9a9068fc952fcdf4a313a3d"
+    },
+    {
+      "id": "leak",
+      "name": "Loé sáng.mp4",
+      "file": "overlays/leak-loop.mp4",
+      "size": 823593,
+      "sha256": "5824b0f0206a53c1c78365271a1616eac527a0a9b8c745130635dc3fd7494717"
+    },
+    {
+      "id": "bokeh",
+      "name": "Bokeh.mp4",
+      "file": "overlays/bokeh-loop.mp4",
+      "size": 711631,
+      "sha256": "19b3b08c00a1bc83e41a9b58a887af9d891c9f38038af7da13f8e9f7da326994"
+    },
+    {
+      "id": "embers",
+      "name": "Tàn lửa.mp4",
+      "file": "overlays/embers-loop.mp4",
+      "size": 745460,
+      "sha256": "3fc8dac04885070b5b7939c73ce96f63dbe8563e4a09c7253be34821d5bf2d2c"
+    },
+    {
+      "id": "fog",
+      "name": "Sương mù.mp4",
+      "file": "overlays/fog-loop.mp4",
+      "size": 1731162,
+      "sha256": "6406bda08ef40da664d97d735d12d108526dec3c77388c9702aaf9603b1b8d1b"
+    },
+    {
+      "id": "fireflies",
+      "name": "Đom đóm.mp4",
+      "file": "overlays/fireflies-loop.mp4",
+      "size": 340872,
+      "sha256": "af7dd5185a2aebfbda13b7900dfe90cdd67f68157a751afa3c7debcc949fa9cc"
+    },
+    {
+      "id": "leaves",
+      "name": "Lá rơi.mp4",
+      "file": "overlays/leaves-loop.mp4",
+      "size": 639926,
+      "sha256": "c4e1ec1366e803e2dce6010e31e30f940ade170e6a8641d03b9da2c100ace7bb"
+    },
+    {
+      "id": "sakura",
+      "name": "Hoa anh đào.mp4",
+      "file": "overlays/sakura-loop.mp4",
+      "size": 701751,
+      "sha256": "99885c0eaf5b1ebb3c6d0a5044c67e5fd8dc5942bdb8fb4aca0a0048d840c805"
+    },
+    {
+      "id": "stars",
+      "name": "Sao.mp4",
+      "file": "overlays/stars-loop.mp4",
+      "size": 254281,
+      "sha256": "78ed7db9a8037591091bf065a2f4fd3af6789da4a2ee697baf6dee1f27109d38"
+    }
+  ]
+}

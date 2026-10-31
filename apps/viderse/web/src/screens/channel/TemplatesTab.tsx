@@ -1,0 +1,169 @@
+// Tab Template luân phiên (artboard Channel › tab=templates): danh sách có thứ
+// tự, đánh dấu "Video tiếp theo" theo con trỏ luân phiên của kênh; đổi thứ tự
+// bằng Lên/Xuống (desktop), bỏ khỏi danh sách, thêm từ thư viện, tạo Mẫu chuẩn.
+// Mỗi hàng mở trang cài đặt template. Thẻ "sức khoẻ" của artboard cần dữ liệu
+// kiểm định template — chưa có nên chỉ hiện recipe thật (tên + dòng phụ).
+import { useState } from 'react'
+import { Dialog, Icon, toast } from '@noverse/ui'
+import { invalidate, setData } from '@noverse/ui/data'
+import { ActionButton } from '../../components'
+import { t } from '../../i18n/vi'
+import { paths } from '../../router'
+import { keys } from '../../data/keys'
+import { useResource } from '../../data/useResource'
+import { listTemplates } from '../../api/library'
+import { setChannelTemplates, type Channel } from '../../api/channels'
+import { templateLine } from './templateLine'
+
+export function TemplatesTab({ channel }: { channel: Channel }) {
+  const tt = t.channels.templates
+  const library = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const apply = async (action: Parameters<typeof setChannelTemplates>[1], done?: string) => {
+    setError(null)
+    try {
+      const { templates } = await setChannelTemplates(channel.id, action)
+      setData(keys.channel(channel.id), (prev) => (prev ? { ...prev, templates } : prev))
+      void invalidate(keys.channels())
+      if (done) toast.ok(done)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : tt.saveError)
+    }
+  }
+
+  const nextId = channel.templates.find((template) => template.position === channel.templateCursor)?.id
+    ?? channel.templates[0]?.id
+  const summaries = new Map((library.data?.items ?? []).map((item) => [item.id, item]))
+
+  return (
+    <section className="vch-card vch-card--flush" aria-label={t.channels.page.tabs.templates}>
+      <p className="vch-hint" style={{ padding: 'var(--vv-s-10) var(--vv-s-14) 0' }}>{tt.banner}</p>
+      {channel.templates.length === 0 && (
+        <p className="vch-hint" style={{ padding: 'var(--vv-s-10) var(--vv-s-14)' }}>{tt.empty}</p>
+      )}
+      {channel.templates.map((template, index) => (
+        <div className="vch-tpl" key={template.id}>
+          <span className="vch-tpl__n num" aria-hidden="true">{index + 1}</span>
+          <span className="vch-tpl__text">
+            <span className="vch-tpl__name">
+              <span title={template.name}>{template.name}</span>
+              {template.id === nextId && <span className="vch-refbadge">{tt.next}</span>}
+            </span>
+            <span className="vch-tpl__sub">
+              {summaries.get(template.id) ? templateLine(summaries.get(template.id)!) : t.channels.page.tabs.templates}
+            </span>
+          </span>
+          <div className="vch-tpl__actions">
+            <ActionButton
+              size="sm"
+              aria-label={`${tt.moveUp}: ${template.name}`}
+              disabled={index === 0}
+              onClick={() => void apply({ action: 'move', templateId: template.id, position: index - 1 })}
+              icon={<Icon name="arrow-up" size={14} />}
+            >
+              {tt.moveUp}
+            </ActionButton>
+            <ActionButton
+              size="sm"
+              aria-label={`${tt.moveDown}: ${template.name}`}
+              disabled={index === channel.templates.length - 1}
+              onClick={() => void apply({ action: 'move', templateId: template.id, position: index + 1 })}
+              icon={<Icon name="arrow-down" size={14} />}
+            >
+              {tt.moveDown}
+            </ActionButton>
+            <a className="vch-chip" href={`#${paths.template(template.id)}`}>{tt.settings}</a>
+            <button
+              type="button"
+              className="vch-chip"
+              title={tt.remove}
+              aria-label={`${tt.remove}: ${template.name}`}
+              onClick={() => void apply({ action: 'remove', templateId: template.id }, tt.removed)}
+            >
+              <Icon name="trash" size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+      {error && <p className="vch-field__error" role="alert" style={{ padding: '0 var(--vv-s-14) var(--vv-s-8)' }}>{error}</p>}
+      <div className="vch-actions" style={{ padding: 'var(--vv-s-10) var(--vv-s-14) var(--vv-s-14)' }}>
+        <ActionButton size="sm" onClick={() => setOpen(true)} icon={<Icon name="layer" size={14} />}>
+          {tt.add}
+        </ActionButton>
+        <ActionButton
+          size="sm"
+          onClick={() => void apply({ action: 'standard' }, tt.standardDone)}
+          icon={<Icon name="add" size={14} />}
+        >
+          {tt.standard}
+        </ActionButton>
+        <span className="vch-hint">{tt.standardHint}</span>
+      </div>
+
+      {open && (
+        <TemplatePicker
+          channel={channel}
+          onClose={() => setOpen(false)}
+          onAdd={(templateId) => { void apply({ action: 'add', templateId }, tt.picker.added); setOpen(false) }}
+          library={library.data?.items ?? []}
+          loading={library.initialLoading}
+        />
+      )}
+    </section>
+  )
+}
+
+function TemplatePicker({ channel, library, loading, onAdd, onClose }: {
+  channel: Channel
+  library: { id: string; name: string }[]
+  loading: boolean
+  onAdd: (templateId: string) => void
+  onClose: () => void
+}) {
+  const tt = t.channels.templates.picker
+  const used = new Set(channel.templates.map((template) => template.id))
+  return (
+    <Dialog
+      title={tt.title}
+      width={520}
+      onClose={onClose}
+      footer={(
+        <>
+          <a href={`#${paths.library('templates')}`} style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>{tt.openLibrary}</a>
+          <span style={{ flex: 1 }} />
+          <ActionButton size="md" onClick={onClose}>{t.common.close}</ActionButton>
+        </>
+      )}
+    >
+      <p className="vch-hint" style={{ marginBottom: 'var(--vv-s-8)' }}>{tt.hint}</p>
+      {loading ? (
+        <p className="vch-hint">{t.common.loading}</p>
+      ) : library.length === 0 ? (
+        <p className="vch-hint">{tt.empty}</p>
+      ) : (
+        <div className="vch-pickerlist">
+          {library.map((template) => {
+            const inList = used.has(template.id)
+            return (
+              <button
+                key={template.id}
+                type="button"
+                className="vch-pickerrow"
+                aria-disabled={inList || undefined}
+                onClick={() => { if (!inList) onAdd(template.id) }}
+              >
+                <span className="vch-pickerrow__text">
+                  <span className="vch-pickerrow__name">{template.name}</span>
+                  <span className="vch-pickerrow__sub">{inList ? tt.inList : t.channels.page.tabs.templates}</span>
+                </span>
+                {!inList && <Icon name="add" size={15} />}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </Dialog>
+  )
+}

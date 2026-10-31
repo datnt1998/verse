@@ -1,0 +1,1 @@
+import{j as t,t as e}from"./index-CW5Lk5Ay.js";import{S as n}from"./ScreenEmpty-COR7B1FC.js";function o(){return t.jsx(n,{icon:"video-add",title:e.screens.new.emptyTitle,hint:e.screens.new.emptyHint})}export{o as NewScreen};

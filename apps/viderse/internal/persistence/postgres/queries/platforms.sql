@@ -1,13 +1,9 @@
 -- name: ListPlatformStates :many
-SELECT platform, next_request_at, paused_until, pause_reason, failure_count,
-       scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id
-FROM platform_state
+SELECT * FROM platform_state
 ORDER BY platform;
 
 -- name: GetPlatformState :one
-SELECT platform, next_request_at, paused_until, pause_reason, failure_count,
-       scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id
-FROM platform_state
+SELECT * FROM platform_state
 WHERE platform = $1;
 
 -- name: EnsurePlatformState :exec
@@ -58,7 +54,9 @@ WHERE platform = $1;
 
 -- name: ReservePlatformSlot :one
 -- Đặt chỗ gọi kế tiếp: start = max(now, next cũ); next mới = start + spacing.
--- Trả start để caller ngủ đúng khoảng. Bilibili gọi với spacing ~5 giây.
+-- Trả start để caller ngủ đúng khoảng. Nền tảng không đặt hạn mức cuộn dùng
+-- lời gọi này; Bilibili đi qua ReserveWeighted để kiểm hạn mức trong cùng
+-- transaction.
 INSERT INTO platform_state (platform, next_request_at)
 VALUES (
     sqlc.arg(platform),
@@ -84,3 +82,45 @@ RETURNING true AS acquired;
 UPDATE platform_state
 SET scanner_owner = NULL, scanner_lease_until = NULL
 WHERE platform = $1 AND scanner_owner = $2;
+
+-- name: LockPlatformState :one
+-- Đọc dòng trạng thái và giữ khoá hàng tới hết transaction: dùng trong
+-- ReserveWeighted để kiểm giờ chờ + hạn mức cuộn + ghi lịch sử là một khối.
+SELECT * FROM platform_state
+WHERE platform = $1
+FOR UPDATE;
+
+-- name: UpdatePlatformRequestState :one
+-- Ghi kết quả đặt chỗ có trọng số: mốc gọi kế tiếp và lịch sử đã cắt tỉa.
+UPDATE platform_state
+SET next_request_at = sqlc.arg(next_request_at)::timestamptz,
+    request_history = sqlc.arg(request_history)::jsonb
+WHERE platform = sqlc.arg(platform)
+RETURNING *;
+
+-- name: SetPlatformNextTrickle :exec
+-- Mốc sớm nhất được đọc trang danh sách kế tiếp (bộ lập lịch ngủ tới đây).
+UPDATE platform_state
+SET next_trickle_at = sqlc.arg(next_trickle_at)::timestamptz
+WHERE platform = sqlc.arg(platform);
+
+-- name: AcquirePlatformYtDlp :one
+-- Lease yt-dlp chéo process: chỉ thành công khi chưa có lease hoặc lease đã
+-- hết hạn (không có dòng trả về = process khác còn giữ).
+INSERT INTO platform_state (platform, ytdlp_owner, ytdlp_lease_until)
+VALUES (sqlc.arg(platform), sqlc.arg(owner), sqlc.arg(until)::timestamptz)
+ON CONFLICT (platform) DO UPDATE SET
+    ytdlp_owner = sqlc.arg(owner), ytdlp_lease_until = sqlc.arg(until)::timestamptz
+WHERE platform_state.ytdlp_lease_until IS NULL
+   OR platform_state.ytdlp_lease_until <= sqlc.arg(now)::timestamptz
+RETURNING true AS acquired;
+
+-- name: ReleasePlatformYtDlp :exec
+UPDATE platform_state
+SET ytdlp_owner = NULL, ytdlp_lease_until = NULL
+WHERE platform = $1 AND ytdlp_owner = $2;
+
+-- name: ExtendPlatformYtDlpLease :execrows
+UPDATE platform_state
+SET ytdlp_lease_until = sqlc.arg(lease_until)::timestamptz
+WHERE platform = sqlc.arg(platform) AND ytdlp_owner = sqlc.arg(owner);

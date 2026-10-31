@@ -15,10 +15,12 @@ const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName
   { key: 'new', label: t.nav.new, icon: 'video-add', path: paths.new() },
 ]
 
-export function MainNav({ route, reviewCount, onNavigate }: {
+export function MainNav({ route, reviewCount, channelHref, onNavigate }: {
   route: Route
   /** số video chờ duyệt → badge vàng trên Duyệt */
   reviewCount: number
+  /** đích mục Kênh: kênh đang xem gần nhất, hoặc '#/channels/new' khi chưa có kênh */
+  channelHref?: string
   onNavigate?: (path: string, e: MouseEvent) => void
 }) {
   const section = navSection(route) // null ở trang ngoài nav → không mục nào sáng
@@ -26,12 +28,13 @@ export function MainNav({ route, reviewCount, onNavigate }: {
     <nav role="navigation" aria-label={t.nav.main} className="vv-nav">
       {ITEMS.map((item) => {
         const active = item.key === section
+        const path = item.key === 'channels' ? channelHref ?? item.path : item.path
         return (
           <a
             key={item.key}
-            href={`#${item.path}`}
+            href={`#${path}`}
             aria-current={active ? 'page' : undefined}
-            onClick={onNavigate ? (e) => onNavigate(item.path, e) : undefined}
+            onClick={onNavigate ? (e) => onNavigate(path, e) : undefined}
             className={active ? 'vv-nav__item vv-nav__item--active' : 'vv-nav__item'}
           >
             <Icon name={item.icon} size={17} />

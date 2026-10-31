@@ -14,6 +14,12 @@ const usage = `Cách dùng:
   viderse migrate up|status|version   Quản lý schema Postgres (VIDERSE_DATABASE_URL)
   viderse login [provider] [--device] Đăng nhập gói thuê bao (mặc định: openai-codex)
   viderse rival add|list|scan|videos|posting-slots|remove  Đối thủ YouTube (VIDERSE_DATABASE_URL)
+  viderse channel list|show|create|update|delete|link|unlink|template|identity  Kênh của bạn
+  viderse template list|show|create|duplicate|rename|set|delete  Template của Thư viện
+  viderse overlay list|add|remove                Lớp phủ dùng chung của Thư viện
+  viderse backdrop list|add|show|videos|refresh|remove  Video nền (kênh Twitch/Bilibili, video lẻ)
+  viderse backdrop video add|list|remove         Video lẻ của Video nền
+  viderse backdrop parse <link>                  Phân loại link nền tảng
   viderse logout [provider]           Xoá phiên đăng nhập
   viderse login --status              Xem trạng thái đăng nhập
   viderse version                     In phiên bản
@@ -48,6 +54,14 @@ func main() {
 		err = runMigrate(args[1:])
 	case "rival":
 		code = runRivalCommand(args[1:], os.Stdout, os.Stderr)
+	case "channel":
+		code = runChannelCommand(args[1:], os.Stdout, os.Stderr)
+	case "template":
+		code = runTemplateCommand(args[1:], os.Stdout, os.Stderr)
+	case "overlay":
+		code = runOverlayCommand(args[1:], os.Stdout, os.Stderr)
+	case "backdrop":
+		code = runBackdropCommand(args[1:], os.Stdout, os.Stderr)
 	case "login":
 		code = runLoginCommand(args[1:], os.Stdout, os.Stderr)
 	case "logout":

@@ -1,0 +1,269 @@
+// @vitest-environment happy-dom
+// Thư viện + cài đặt template trên fetch giả (đúng wire của API thư viện):
+//  · tự lưu: rời ô tên → PATCH kèm revision; 400 giữ chữ đã gõ + lỗi dưới ô;
+//    409 giữ bản đang sửa và đưa nút Tải lại; hai lần rời ô liên tiếp → PATCH
+//    tuần tự, revision tăng 1 → 2.
+//  · xem thử: none/fresh/stale đúng nhãn, chỉ stale có nút "Dựng lại bản xem
+//    thử" và mọi nút dựng đều khoá kèm lý do.
+//  · xoá prompt 409 in_use hiện tên template đang dùng; xoá template bị khoá
+//    trong menu khi kênh còn dùng.
+import { act } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cache } from '@noverse/ui/data'
+import { TemplateScreen } from './TemplateScreen'
+import { LibraryScreen } from './LibraryScreen'
+import type { ImagePrompt, TemplateDetail, TemplateSummary } from '../../api/library'
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+
+const roots: Root[] = []
+const respond = (body: unknown, status = 200) => Promise.resolve(Response.json(body, { status }))
+const calls: { url: string; method: string; body?: string }[] = []
+let patchers: ((value: Response) => void)[] = []
+let usedBy: { id: string; name: string }[] = [{ id: 'tpl-a', name: 'Template A' }]
+let detailBody: TemplateDetail
+let patchOk: (revision: number) => TemplateDetail
+
+const summary = (over: Partial<TemplateSummary> = {}): TemplateSummary => ({
+  id: 't1',
+  name: 'Truyện kể đêm',
+  revision: 1,
+  style: 'cutout',
+  images: { mode: 'fixed', count: 6, minutes: 4, perVideo: 6, known: true },
+  prompts: { sceneId: 'builtin:scene', sceneName: 'Tả thực điện ảnh', coverId: 'builtin:cover-hook', coverName: 'Chữ hook đậm', summary: 'Tả thực điện ảnh · Tách nền · bìa Chữ hook đậm' },
+  backdrop: { channelCount: 1, videoCount: 0, clipCount: null, clipSec: 8, enabled: true },
+  overlayCount: 2,
+  channels: [{ id: 'ch1', name: 'Kênh Một', position: 1 }],
+  preview: { state: 'none', builtAt: null },
+  createdAt: '2026-10-29T03:00:00Z',
+  updatedAt: '2026-10-31T03:00:00Z',
+  ...over,
+})
+
+const recipe = () => ({
+  scenes: {
+    style: 'cutout' as const,
+    framing: 'close' as const,
+    images: { mode: 'fixed' as const, count: 6, minutes: 4 },
+    motion: { kind: 'ken-burns' as const, intensity: 0.35, speed: 1 },
+    scenePromptId: 'builtin:scene',
+    coverPromptId: 'builtin:cover-hook',
+    coverSource: 'ai' as const,
+    referenceImages: false,
+    referenceStyle: 'composition' as const,
+    sceneOpacity: 0.7,
+  },
+  backdrop: { channels: [{ channelId: 'ch1', kinds: ['video'], pinned: [] }], clipCount: null, clipSec: 8, fixedVideoIds: [] },
+  overlays: [],
+  appearance: { opacity: 1, blurRadius: 0, brightness: 1, contrast: 1, saturation: 1, hueShift: 0, speed: 1, zoom: 1, flipX: false, flipY: false },
+  output: { compressExport: true },
+})
+
+const detail = (over: Partial<TemplateDetail> = {}): TemplateDetail => ({
+  ...summary(over),
+  recipe: recipe(),
+  price: { perImage: 0.04, known: true, imagesPerVideo: 6, includesCover: true, mode: 'fixed', totalUSD: 0.28 },
+  savedAt: '2026-10-31T03:00:00Z',
+  ...over,
+})
+
+const prompt = (over: Partial<ImagePrompt> = {}): ImagePrompt => ({
+  id: 'p1', name: 'Sương mù đồi thông', kind: 'scene', builtIn: false,
+  prompt: 'Chất liệu phim 35 mm, sương mù, ánh sáng dịu',
+  updatedAt: '2026-10-31T02:00:00Z', usedBy: [{ id: 'tpl-a', name: 'Template A' }], samples: [],
+  ...over,
+})
+
+function installFetch() {
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    const method = init?.method ?? 'GET'
+    calls.push({ url, method, body: typeof init?.body === 'string' ? init.body : undefined })
+    if (url === '/api/templates/t1' && method === 'GET') return respond(detailBody)
+    if (url === '/api/templates/t1' && method === 'PATCH') {
+      // lib của web chưa có Promise.withResolvers — dùng executor để giữ resolver.
+      return new Promise<Response>((resolve) => { patchers.push(resolve) })
+    }
+    if (url === '/api/templates') return respond({ items: [summary(), summary({ id: 't2', name: 'Đêm mưa', channels: [] })] })
+    if (url === '/api/image-prompts/p1' && method === 'DELETE') {
+      return respond({ error: 'Prompt đang dùng ở Template A', code: 'in_use', usedBy: ['tpl-a'] }, 409)
+    }
+    if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt({ usedBy }), prompt({ id: 'b1', name: 'Có sẵn', builtIn: true, usedBy: [] })] })
+    if (url === '/api/overlays') return respond({ items: [] })
+    if (url === '/api/owner-channels') return respond({ channels: [{ id: 'ch1', name: 'Kênh Một' }] })
+    return respond({}, 404)
+  }))
+}
+
+async function render(node: React.ReactNode) {
+  const container = document.createElement('div')
+  document.body.append(container)
+  const root = createRoot(container)
+  roots.push(root)
+  await act(async () => { root.render(node) })
+  await flush()
+  return container
+}
+
+const flush = async (rounds = 6) => {
+  for (let i = 0; i < rounds; i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)) })
+}
+
+const setValue = async (input: HTMLInputElement, value: string) => {
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
+
+const blur = async (input: HTMLInputElement) => {
+  await act(async () => { input.dispatchEvent(new FocusEvent('focusout', { bubbles: true })); input.blur() })
+  await flush()
+}
+
+const click = async (el: Element | null | undefined) => {
+  expect(el).toBeTruthy()
+  await act(async () => { (el as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true })) })
+  await flush()
+}
+
+const byText = (root: ParentNode, sel: string, text: string) =>
+  [...root.querySelectorAll(sel)].find((el) => el.textContent?.includes(text))
+
+beforeEach(async () => {
+  cache.clear()
+  calls.length = 0
+  patchers = []
+  usedBy = [{ id: 'tpl-a', name: 'Template A' }]
+  vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} })))
+  detailBody = detail()
+  patchOk = (revision) => detail({ revision, name: 'Mới', savedAt: '2026-10-31T04:05:00Z' })
+  installFetch()
+})
+
+afterEach(() => {
+  for (const root of roots.splice(0)) act(() => root.unmount())
+  document.body.innerHTML = ''
+})
+
+const templateRoute = { name: 'template' as const, templateId: 't1' }
+
+describe('cài đặt template — tự lưu', () => {
+  it('rời ô tên thì PATCH kèm revision và cập nhật mốc đã lưu', async () => {
+    patchers = []
+  usedBy = [{ id: 'tpl-a', name: 'Template A' }]
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const input = page.querySelector<HTMLInputElement>('.vt-name')!
+    await setValue(input, 'Mới')
+    await blur(input)
+    expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1)
+    expect(JSON.parse(calls.find((c) => c.method === 'PATCH')!.body!)).toEqual({ revision: 1, name: 'Mới' })
+    await act(async () => patchers.shift()!(Response.json(patchOk(2))))
+    await flush()
+    expect(page.querySelector('.vt-saved')!.textContent).toContain('Đã lưu ·')
+  })
+
+  it('400 theo trường: giữ chữ đã gõ và hiện lỗi dưới ô', async () => {
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const input = page.querySelector<HTMLInputElement>('.vt-name')!
+    await setValue(input, 'Tên rất dài')
+    await blur(input)
+    await act(async () => patchers.shift()!(Response.json({ error: 'Tên template quá dài', code: 'invalid_input', fields: [{ field: 'name', message: 'Tên template quá dài' }] }, { status: 400 })))
+    await flush()
+    expect(page.querySelector<HTMLInputElement>('.vt-name')!.value).toBe('Tên rất dài')
+    expect(page.textContent).toContain('Tên template quá dài')
+  })
+
+  it('409: giữ bản đang sửa và đưa nút Tải lại', async () => {
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const input = page.querySelector<HTMLInputElement>('.vt-name')!
+    await setValue(input, 'Bản của tôi')
+    await blur(input)
+    await act(async () => patchers.shift()!(Response.json({ error: 'Template vừa được sửa ở nơi khác', code: 'conflict' }, { status: 409 })))
+    await flush()
+    expect(page.querySelector<HTMLInputElement>('.vt-name')!.value).toBe('Bản của tôi')
+    expect(byText(page, 'button', 'Tải lại')).toBeTruthy()
+  })
+
+  it('hai lần rời ô liên tiếp → PATCH tuần tự, revision 1 rồi 2', async () => {
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const input = page.querySelector<HTMLInputElement>('.vt-name')!
+    await setValue(input, 'A')
+    await blur(input)
+    await setValue(input, 'B')
+    await blur(input)
+    const sent = calls.filter((c) => c.method === 'PATCH')
+    expect(sent).toHaveLength(1)
+    await act(async () => patchers.shift()!(Response.json(detail({ revision: 2 }))))
+    await flush()
+    const both = calls.filter((c) => c.method === 'PATCH')
+    expect(both).toHaveLength(2)
+    expect(JSON.parse(both[1].body!).revision).toBe(2)
+    expect(JSON.parse(both[1].body!).name).toBe('B')
+  })
+})
+
+describe('cài đặt template — xem thử', () => {
+  const cases = [
+    { state: 'none' as const, badge: 'Chưa có bản xem thử', stale: false },
+    { state: 'fresh' as const, badge: 'Khớp cài đặt', stale: false },
+    { state: 'stale' as const, badge: 'Cần dựng lại', stale: true },
+  ]
+  for (const item of cases) {
+    it(`trạng thái ${item.state}`, async () => {
+      detailBody = detail({ preview: { state: item.state, builtAt: item.state === 'none' ? null : '2026-10-31T03:20:00Z' } })
+      const page = await render(<TemplateScreen route={templateRoute} />)
+      expect(page.textContent).toContain(item.badge)
+      const stale = byText(page, 'button', 'Dựng lại bản xem thử')
+      if (item.stale) {
+        expect(stale).toBeTruthy()
+        expect(stale!.getAttribute('aria-disabled')).toBe('true')
+        expect(page.textContent).toContain('Cần một video đã làm xong')
+      } else {
+        expect(stale).toBeFalsy()
+        const plain = byText(page, 'button', 'Dựng lại')
+        expect(plain!.getAttribute('aria-disabled')).toBe('true')
+      }
+    })
+  }
+})
+
+describe('thư viện — xoá', () => {
+  it('xoá prompt 409 in_use hiện tên template đang dùng', async () => {
+    usedBy = []
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
+    const card = [...page.querySelectorAll('.vlb-pcard')].find((el) => el.textContent?.includes('Sương mù đồi thông'))!
+    await click(card.querySelector('.vlb-pcard-open'))
+    await click(byText(page, 'button', 'Xoá'))
+    const dialog = document.querySelector('[role="dialog"], [role="alertdialog"]') as HTMLElement
+    const danger = [...dialog.querySelectorAll('button')].find((el) => el.textContent?.trim() === 'Xoá')
+    await click(danger)
+    await flush(10)
+    expect(document.body.textContent).toContain('Template A')
+    expect(calls.some((c) => c.url === '/api/image-prompts/p1' && c.method === 'DELETE')).toBe(true)
+  })
+
+  it('xoá template bị khoá trong menu khi kênh còn dùng', async () => {
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
+    await click(page.querySelector('[aria-label="Thêm thao tác cho Truyện kể đêm"]'))
+    const menu = document.querySelector('[role="menu"]')!
+    const remove = [...menu.querySelectorAll('button')].find((el) => el.textContent?.includes('Xoá template'))!
+    expect(remove.getAttribute('aria-disabled')).toBe('true')
+    expect(menu.textContent).toContain('Đang dùng ở Kênh Một')
+  })
+})
+
+describe('thư viện — liên kết', () => {
+  it('mọi liên kết nội bộ render href bắt đầu bằng "#/"', async () => {
+    const lib = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
+    const hrefs = [...lib.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')!)
+    expect(hrefs.length).toBeGreaterThan(3)
+    expect(hrefs.filter((href) => !href.startsWith('#/'))).toEqual([])
+
+    const tpl = await render(<TemplateScreen route={templateRoute} />)
+    const navHrefs = [...tpl.querySelectorAll('.vt-nav a[href]')].map((a) => a.getAttribute('href')!)
+    expect(navHrefs.length).toBeGreaterThan(2)
+    expect(navHrefs.filter((href) => !href.startsWith('#/'))).toEqual([])
+  })
+})

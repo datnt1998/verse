@@ -21,7 +21,7 @@ export const WITHIN: { id: string; value: 0 | 7 | 30 | 90; label: string }[] = [
 
 const num = new Intl.NumberFormat('vi-VN')
 
-export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total, scanned, q }: {
+export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total, scanned, q, hasChannel }: {
   sort: VideoSort
   long: boolean
   within: 0 | 7 | 30 | 90
@@ -34,8 +34,11 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
   scanned: number
   /** chuỗi tìm của dữ liệu đang hiện (đã cắt khoảng trắng); rỗng = không tìm */
   q: string
+  /** đã có kênh của bạn → lý do khoá đổi sang "cần hàng chờ" */
+  hasChannel: boolean
 }) {
   const tt = t.screens.explore
+  const lockReason = hasChannel ? tt.queueReason : tt.lockedReason
   const lockId = useId()
   const touch = useMediaQuery(TOUCH_COLUMN)
   const withinLabel = WITHIN.find((w) => w.value === within)?.label ?? tt.withinDays.d30
@@ -78,14 +81,14 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
       </label>
       {/* Khoá: chỉ "Tất cả" có nghĩa khi chưa có kênh của bạn. Nút vẫn nhận focus,
           bấm không mở gì; lý do đọc được bằng trình đọc màn hình. */}
-      <Tooltip content={tt.lockedReason} asChild>
+      <Tooltip content={lockReason} asChild>
         <button type="button" className="vx-chip vx-chip--locked" aria-disabled="true" aria-describedby={lockId}>
           <Icon name="filter" size={14} />
           {tt.filterStatus} <b>{tt.statusAll}</b>
           <Icon name="arrow-d" size={12} aria-hidden />
         </button>
       </Tooltip>
-      <span id={lockId} className="sr-only">{tt.lockedReason}</span>
+      <span id={lockId} className="sr-only">{lockReason}</span>
       <span className="vx-grow" />
       <span className="vx-count num">{count}</span>
     </div>

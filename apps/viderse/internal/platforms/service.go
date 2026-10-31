@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -68,6 +69,7 @@ type Deps struct {
 // điều phối đăng nhập theo registry. An toàn cho goroutine.
 type Service struct {
 	d      Deps
+	mu     sync.RWMutex // bảo vệ usage (SetUsage chạy lúc ráp, Status chạy nền)
 	usage  UsageCounter
 	now    func() time.Time
 	notify func(string)
@@ -103,7 +105,7 @@ func (s *Service) Status(ctx context.Context) ([]domain.PlatformStatus, error) {
 	for _, st := range states {
 		byID[st.Platform] = st
 	}
-	usage, err := s.usage.Usage(ctx)
+	usage, err := s.usageCounter().Usage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +182,7 @@ func (s *Service) RecordBlocked(ctx context.Context, id domain.PlatformID, retry
 	return nil
 }
 
-// pauseReason là câu lý do của lần tạm chặn (W13): "<Nền tảng> đang giới hạn
+// pauseReason là câu lý do của lần tạm chặn : "<Nền tảng> đang giới hạn
 // yêu cầu" — trùng nguyên văn của yt-factory cho Bilibili.
 func pauseReason(d Descriptor) string {
 	return d.Label + " đang giới hạn yêu cầu"
@@ -242,6 +244,109 @@ func (s *Service) ClearError(ctx context.Context, id domain.PlatformID) error {
 	return nil
 }
 
+// State đọc trạng thái bền của một nền tảng theo đồng hồ tiêm, chuẩn hoá giờ
+// chờ đã qua (không ghi ngược). found=false khi chưa có dòng.
+func (s *Service) State(ctx context.Context, id domain.PlatformID) (domain.PlatformState, bool, error) {
+	if _, ok := Lookup(id); !ok {
+		return domain.PlatformState{}, false, ErrPlatformUnknown
+	}
+	st, found, err := s.d.Store.One(ctx, id)
+	if err != nil {
+		return st, found, err
+	}
+	if st.PausedUntil != nil && !st.PausedUntil.After(s.now()) {
+		st.PausedUntil, st.PauseReason = nil, nil
+	}
+	return st, found, nil
+}
+
+// Budget trả hạn mức cuộn của một nền tảng (rỗng với nền tảng không đặt hạn
+// mức) để caller quyết định chờ tới khi nào thay vì gọi rồi bị từ chối.
+func (s *Service) Budget(ctx context.Context, id domain.PlatformID) (BudgetReport, error) {
+	d, ok := Lookup(id)
+	if !ok {
+		return BudgetReport{}, ErrPlatformUnknown
+	}
+	if len(d.Budget) == 0 {
+		return BudgetReport{AvailableAt: s.now()}, nil
+	}
+	st, _, err := s.d.Store.One(ctx, id)
+	if err != nil {
+		return BudgetReport{}, err
+	}
+	return BudgetOf(st.RequestHistory, s.now(), d.Budget, 1), nil
+}
+
+// SetNextTrickle ghi mốc sớm nhất được đọc trang danh sách kế tiếp của một
+// nền tảng; bộ lập lịch ngủ tới đúng mốc này.
+func (s *Service) SetNextTrickle(ctx context.Context, id domain.PlatformID, at time.Time) error {
+	if _, ok := Lookup(id); !ok {
+		return ErrPlatformUnknown
+	}
+	return s.d.Store.SetNextTrickle(ctx, id, at)
+}
+
+// Now trả giờ theo đồng hồ đã tiêm (test bơm được).
+func (s *Service) Now() time.Time { return s.now() }
+
+// SetUsage thay bộ đếm số nguồn đang dùng sau khi ráp (mảng Khám phá và mảng
+// Video nền cùng đóng góp số đếm). Gọi được lúc chạy; nil → về 0.
+func (s *Service) SetUsage(u UsageCounter) {
+	if u == nil {
+		u = zeroUsage{}
+	}
+	s.mu.Lock()
+	s.usage = u
+	s.mu.Unlock()
+}
+
+func (s *Service) usageCounter() UsageCounter {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.usage == nil {
+		return zeroUsage{}
+	}
+	return s.usage
+}
+
+// ComposeUsage cộng số đếm của nhiều bộ đếm theo nền tảng, một lời gọi mỗi
+// bộ đếm (không N+1). Bộ đếm nil bị bỏ qua.
+func ComposeUsage(counters ...UsageCounter) UsageCounter {
+	live := make([]UsageCounter, 0, len(counters))
+	for _, c := range counters {
+		if c != nil {
+			live = append(live, c)
+		}
+	}
+	return compositeUsage(live)
+}
+
+type compositeUsage []UsageCounter
+
+func (c compositeUsage) Usage(ctx context.Context) (map[domain.PlatformID]domain.PlatformUsage, error) {
+	out := make(map[domain.PlatformID]domain.PlatformUsage, len(c)*2)
+	for _, counter := range c {
+		part, err := counter.Usage(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for id, u := range part {
+			cur := out[id]
+			cur.Channels += u.Channels
+			cur.Videos += u.Videos
+			if u.Rivals != nil {
+				n := *u.Rivals
+				if cur.Rivals != nil {
+					n += *cur.Rivals
+				}
+				cur.Rivals = &n
+			}
+			out[id] = cur
+		}
+	}
+	return out, nil
+}
+
 // Attention liệt kê các mục cần xử lý của mảng nền tảng cho chấm bánh răng:
 // đăng nhập Bilibili hết hạn tự gia hạn, hoặc YouTube báo cookies_failed —
 // cả hai dẫn về mục Tài khoản nền tảng.
@@ -256,7 +361,7 @@ func (s *Service) Attention(ctx context.Context) ([]AttentionItem, error) {
 		case st.Login.RefreshError != nil:
 			items = append(items, AttentionItem{
 				Kind: domain.AttentionLoginExpired,
-				Text: "Đăng nhập Bilibili đã hết hạn",
+				Text: "Đăng nhập " + st.Label + " đã hết hạn",
 				Href: "#/settings?section=accounts",
 			})
 		case st.LastError != nil && st.LastError.Code == "cookies_failed":

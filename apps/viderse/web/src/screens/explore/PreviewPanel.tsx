@@ -13,13 +13,16 @@ import type { Rival, Video } from '../../api/rivals'
 import { fmtDateTime, fmtDuration, fmtScore, fmtSubs, fmtViews, scoreText, videoMeta } from './fmt'
 import { hideBrokenImage } from './VideoGrid'
 
-export function PreviewPanel({ video, rival, onClose }: {
+export function PreviewPanel({ video, rival, channels, onClose }: {
   video: Video
   rival: Rival | undefined
+  /** kênh của tôi — có kênh thì chọn được kênh, nút làm video đổi lý do khoá */
+  channels: { id: string; name: string }[]
   onClose: () => void
 }) {
   const tt = t.screens.explore
   const [whyOpen, setWhyOpen] = useState(false)
+  const [channelId, setChannelId] = useState<string | undefined>(channels[0]?.id)
   useEscapeLayer(whyOpen, () => setWhyOpen(false))
   const reasonId = useId()
 
@@ -80,25 +83,42 @@ export function PreviewPanel({ video, rival, onClose }: {
       </div>
       <div className="vx-makegroup" role="radiogroup" aria-label={tt.makeChannel}>
         <span className="vx-makehead"><Icon name="channel" size={14} />{tt.makeChannel}</span>
-        <div className="vx-makeopt" role="radio" aria-checked="false" aria-disabled="true" tabIndex={0} aria-describedby={reasonId}>
-          <span className="vx-makeopt__text">
-            <span className="vx-makeopt__name">{tt.notLinked}</span>
-          </span>
-        </div>
+        {channels.length === 0 ? (
+          <div className="vx-makeopt" role="radio" aria-checked="false" aria-disabled="true" tabIndex={0} aria-describedby={reasonId}>
+            <span className="vx-makeopt__text">
+              <span className="vx-makeopt__name">{tt.notLinked}</span>
+            </span>
+          </div>
+        ) : channels.map((channel) => (
+          <button
+            key={channel.id}
+            type="button"
+            role="radio"
+            aria-checked={channelId === channel.id}
+            tabIndex={0}
+            className="vx-makeopt"
+            onClick={() => setChannelId(channel.id)}
+          >
+            <span className="vx-makeopt__text">
+              <span className="vx-makeopt__name">{channel.name}</span>
+            </span>
+            {channelId === channel.id && <Icon name="tick" size={14} />}
+          </button>
+        ))}
       </div>
       <span className="vx-queuehint"><Icon name="clock" size={14} />{tt.queuePlan}</span>
       <ActionButton
         variant="primary"
         size="lg"
-        lockedReason={tt.lockedReason}
+        lockedReason={channels.length > 0 ? tt.queueReason : tt.lockedReason}
         aria-describedby={reasonId}
         icon={<Icon name="video-add" size={18} />}
       >
         {tt.makeVideo}
       </ActionButton>
       <p className="vx-locknote">
-        <span id={reasonId}>{tt.lockedReason}</span>{' '}
-        <a href={`#${paths.channelNew()}`}>{tt.createChannel}</a>
+        <span id={reasonId}>{channels.length > 0 ? tt.queueReason : tt.lockedReason}</span>
+        {channels.length === 0 && <> <a href={`#${paths.channelNew()}`}>{tt.createChannel}</a></>}
       </p>
       <a href={video.url} target="_blank" rel="noreferrer" className="vx-linkbtn">
         <Icon name="link" size={14} />

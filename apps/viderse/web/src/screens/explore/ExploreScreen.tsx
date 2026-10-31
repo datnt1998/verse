@@ -18,6 +18,7 @@ import {
   getPostingSlots, getRivalScan, listRivals,
   type PostingZone, type Rival, type Video, type VideoSort,
 } from '../../api/rivals'
+import { listChannels } from '../../api/channels'
 import { RivalSidebar, rivalColor } from './RivalSidebar'
 import { AddRivalForm } from './AddRivalForm'
 import { FilterBar, WITHIN } from './FilterBar'
@@ -29,7 +30,7 @@ import { ScanCard } from './ScanCard'
 import { PostingCard } from './PostingCard'
 import { PreviewPanel } from './PreviewPanel'
 import { useRivalVideos, type VideosFilter } from './useRivalVideos'
-import { GRID_GAP_Y, useVirtualGrid } from './useVirtualGrid'
+import { GRID_GAP_Y, useVirtualGrid } from '../../lib/useVirtualGrid'
 import './explore.css'
 
 type Scope = 'all' | string
@@ -51,6 +52,18 @@ export function ExploreScreen({ route }: { route: Route }) {
 
   const list = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = useMemo(() => list.data?.rivals ?? [], [list.data])
+  // Kênh của tôi: có ≥ 1 kênh thì mở khoá các điều khiển chỉ cần kênh (chọn
+  // kênh, liên kết đối thủ); nút xếp hàng vẫn khoá nhưng đổi lý do.
+  const channelList = useResource(keys.channels(), ({ signal }) => listChannels(signal))
+  const channels = useMemo(
+    () => (channelList.data?.channels ?? []).map((channel) => ({
+      id: channel.id,
+      name: channel.name || t.channels.page.noName,
+      sources: channel.sources,
+    })),
+    [channelList.data],
+  )
+  const channelRefs = useMemo(() => channels.map((channel) => ({ id: channel.id, name: channel.name })), [channels])
 
   // Phạm vi lưới từ route (?rival= là handle); rail giữ kênh cuối cùng được
   // chọn để "Tất cả" vẫn còn ngữ cảnh đối thủ (kênh đầu danh sách khi chưa
@@ -232,6 +245,7 @@ export function ExploreScreen({ route }: { route: Route }) {
           total={videos.total}
           scanned={scanned}
           q={videos.shownQ}
+          hasChannel={channels.length > 0}
         />
         {videos.error != null && items.length === 0 ? (
           <p className="vx-side-empty">{tt.videosError}</p>
@@ -257,6 +271,7 @@ export function ExploreScreen({ route }: { route: Route }) {
             checkedIds={checkedIds}
             onOpen={(v) => setPickedId(v.id)}
             onToggle={toggleChecked}
+            hasChannel={channels.length > 0}
           />
         )}
         {selectMode && checkedIds.size > 0 && (
@@ -266,6 +281,7 @@ export function ExploreScreen({ route }: { route: Route }) {
             onTop={selectTop}
             onClear={() => setCheckedIds(new Set())}
             onExit={exitSelect}
+            hasChannel={channels.length > 0}
           />
         )}
       </main>
@@ -274,6 +290,7 @@ export function ExploreScreen({ route }: { route: Route }) {
           <PreviewPanel
             video={picked}
             rival={rivals.find((r) => r.id === picked.channelId) ?? railRival}
+            channels={channelRefs}
             onClose={() => setPickedId(null)}
           />
         ) : (
@@ -284,6 +301,8 @@ export function ExploreScreen({ route }: { route: Route }) {
                 color={rivalColor(railIndex)}
                 rescanHours={railScan.data?.rescanHours ?? 6}
                 perWeek={railPosting.data?.perWeek}
+                channels={channelRefs}
+                linkedChannelName={channels.find((channel) => channel.sources.some((source) => source.rivalId === railRival.id))?.name}
                 onRemoved={() => {
                   setRailId(null)
                   pickRival('all')

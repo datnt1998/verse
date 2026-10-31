@@ -3,6 +3,9 @@
 // (tên công cụ, đường dẫn, mã lỗi) ngoài “Chi tiết”.
 import { accountsCopy } from './accounts'
 import { aiCopy } from './ai'
+import { backdropCopy } from './backdrop'
+import { channelsCopy } from './channels'
+import { libraryCopy } from './library'
 import { logs } from './logs'
 import { settings } from './settings'
 import { setup } from './setup'
@@ -150,17 +153,6 @@ export const vi = {
       emptyHint: 'Thêm video từ Khám phá hoặc dán link ở Video mới.',
       emptyAction: 'Làm video',
     },
-    channel: {
-      title: 'Kênh',
-      emptyTitle: 'Chưa có video nào',
-      emptyHint: 'Video của kênh sẽ hiện ở đây. Liên kết đối thủ để máy tự lấy video mới.',
-      emptyAction: 'Làm video',
-    },
-    channelNew: {
-      title: 'Tạo kênh',
-      emptyTitle: 'Kênh mới',
-      emptyHint: 'Luồng tạo kênh sẽ dựng ở đây.',
-    },
     explore: {
       title: 'Khám phá',
       emptyTitle: 'Chưa theo dõi đối thủ nào',
@@ -245,6 +237,8 @@ export const vi = {
       bulkRegion: 'Thao tác với video đã chọn',
       bulkMake: (n: number) => `Làm ${n} video`,
       lockedReason: 'Cần một kênh của bạn để làm video. Tạo kênh ở mục Kênh.',
+      /** đã có kênh nhưng hàng chờ chưa mở — đổi lý do khoá, không bịa nút chạy */
+      queueReason: 'Cần hàng chờ để làm video. Hàng chờ chưa mở.',
       createChannel: 'Tạo kênh',
       scoreTitle: (score: string) => `Lượt xem gấp ${score} lần mức thường của kênh`,
       scoreTimes: (score: string) => `lượt xem gấp ${score} lần mức thường`,
@@ -270,6 +264,7 @@ export const vi = {
       menuCheck: 'Kiểm tra video mới',
       menuCheckHint: (hours: number) => `Trinh sát xem lại kênh ngay, không đợi chu kỳ ${hours} giờ`,
       menuLink: 'Liên kết với kênh…',
+      menuLinkHint: 'Chọn một kênh của bạn để dùng đối thủ này làm nguồn video.',
       menuUnfollow: 'Bỏ theo dõi',
       menuUnfollowHint: 'Gỡ kênh này khỏi Khám phá; video đã quét bị xoá cùng, video đã làm giữ nguyên.',
       statBaseline: 'Mức thường',
@@ -279,6 +274,13 @@ export const vi = {
       statPending: '—',
       linkedChannel: 'Liên kết với',
       notLinked: 'Chưa liên kết kênh nào',
+      linkedTo: (channel: string) => `Đã liên kết với ${channel}`,
+      linkDialogTitle: (name: string) => `Liên kết ${name} với kênh nào?`,
+      linkDialogHint: 'Đối thủ đã liên kết với kênh đó thì khoá, kèm tên kênh.',
+      linkPick: 'Liên kết',
+      linkDone: 'Đã liên kết đối thủ với kênh.',
+      linkFailed: 'Chưa liên kết được. Thử lại.',
+      linkEmpty: 'Chưa có kênh nào. Tạo kênh trước.',
       unfollowTitle: (name: string) => `Bỏ theo dõi ${name}?`,
       unfollowBody: 'Kênh này rời khỏi Khám phá và không còn được kiểm tra video mới.',
       unfollowItem: (n: string) => `${n} video đã quét bị xoá cùng.`,
@@ -336,16 +338,6 @@ export const vi = {
       title: 'Video mới',
       emptyTitle: 'Dán link video đối thủ',
       emptyHint: 'Luồng Làm video sẽ dựng ở đây.',
-    },
-    library: {
-      title: 'Thư viện',
-      emptyTitle: 'Thư viện dùng chung',
-      emptyHint: 'Template, prompt ảnh, video nền và lớp phủ sẽ nằm ở đây.',
-    },
-    template: {
-      title: 'Cài đặt template',
-      emptyTitle: 'Template',
-      emptyHint: 'Cài đặt template sẽ dựng ở đây.',
     },
     editor: {
       title: 'Editor',
@@ -455,6 +447,9 @@ export const vi = {
   storage,
   logs,
   prep: setup,
+  library: libraryCopy,
+  backdrop: backdropCopy,
+  channels: channelsCopy,
 
   // Mã lỗi → câu (06-copy.md › Từ mã lỗi tới câu). Trả null khi mã không nên
   // hiện lỗi (vd rate_limited chỉ là dòng phụ).

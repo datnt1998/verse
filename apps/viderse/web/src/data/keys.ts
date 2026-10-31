@@ -41,4 +41,30 @@ export const keys = {
   rivalScan: (id: string) => ['rivals', id, 'scan'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots — thẻ Lịch đăng theo múi giờ. */
   rivalPosting: (id: string, zone: string) => ['rivals', id, 'posting', zone] as const satisfies Key,
+  /** GET /api/templates — lưới thẻ template của Thư viện. */
+  templates: () => ['library', 'templates'] as const satisfies Key,
+  /** GET /api/templates/:id — trang cài đặt template (kèm recipe + giá). */
+  template: (id: string) => ['library', 'templates', id] as const satisfies Key,
+  /** GET /api/image-prompts?kind&q — kho prompt ảnh theo bộ lọc + chuỗi tìm. */
+  prompts: (kind: string, q: string) => ['library', 'prompts', kind, q] as const satisfies Key,
+  /** GET /api/overlays — thư viện lớp phủ dùng chung. */
+  overlays: () => ['library', 'overlays'] as const satisfies Key,
+  /** GET /api/owner-channels — tên kênh của bạn (cột trái Thư viện + gắn template vào kênh). */
+  ownerChannels: () => ['channels', 'refs'] as const satisfies Key,
+  /** GET /api/owner-channels — hình đầy đủ cho cột trái/Bộ đổi kênh và danh sách. */
+  channels: () => ['channels', 'list'] as const satisfies Key,
+  /** GET /api/owner-channels/:id — một kênh cho trang Kênh (tab, nhận diện, nguồn). */
+  channel: (id: string) => ['channels', 'one', id] as const satisfies Key,
+  /** GET /api/rivals/:id/posting-slots gộp mọi đối thủ liên kết của kênh theo múi giờ. */
+  channelSchedule: (id: string, zone: string) => ['channels', 'schedule', id, zone] as const satisfies Key,
+  /** GET /api/backdrop/channels — cột nguồn của tab Video nền + hộp chọn nguồn. */
+  backdropChannels: () => ['backdrop', 'channels'] as const satisfies Key,
+  /** GET /api/backdrop/channels/:id — trang một kênh nền. */
+  backdropChannel: (id: string) => ['backdrop', 'channels', id] as const satisfies Key,
+  /** GET /api/backdrop/channels/:id/videos — trang đầu lưới theo bộ lọc kind; trang sau qua cursor tay. */
+  backdropChannelVideos: (id: string, kinds: string) => ['backdrop', 'channels', id, 'videos', kinds] as const satisfies Key,
+  /** GET /api/backdrop/videos — mọi video lẻ (kèm trạng thái tải). */
+  backdropVideos: () => ['backdrop', 'videos'] as const satisfies Key,
+  /** GET /api/templates/:id/backdrop/mix — ước lượng phần nền của một video 42 phút. */
+  backdropMix: (templateId: string, lengthSec: number) => ['backdrop', 'mix', templateId, String(lengthSec)] as const satisfies Key,
 } as const

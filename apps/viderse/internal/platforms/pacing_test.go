@@ -1,6 +1,7 @@
 // Ca test chuyển từ src/server/backdrop/pacing.test.ts của yt-factory: khoảng
-// cách 5 giây ± jitter cho Bilibili, chờ tăng dần, từ chối khi đang chờ,
-// Retry-After kéo dài, các lỗi khác không tạo chờ, lease quét.
+// cách 10–20 giây cho lời gọi API Bilibili, 5–10 giây cho lượt trích yt-dlp,
+// chờ tăng dần, từ chối khi đang chờ, Retry-After kéo dài, hạn mức cuộn, các
+// lỗi khác không tạo chờ, lease quét và lease yt-dlp.
 package platforms_test
 
 import (
@@ -120,6 +121,76 @@ func (m *memStore) ReserveSlot(_ context.Context, id domain.PlatformID, now time
 	return start, nil
 }
 
+func (m *memStore) ReserveWeighted(_ context.Context, id domain.PlatformID, now time.Time, req platforms.SlotRequest) (platforms.SlotDecision, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	st := m.get(id)
+	if st.PausedUntil != nil && st.PausedUntil.After(now) {
+		return platforms.SlotDecision{PausedUntil: st.PausedUntil, PauseReason: st.PauseReason}, nil
+	}
+	budget := platforms.BudgetOf(st.RequestHistory, now, req.Windows, req.Cost)
+	if budget.AvailableAt.After(now) {
+		at := budget.AvailableAt
+		return platforms.SlotDecision{BudgetAt: &at}, nil
+	}
+	start := now
+	if st.NextRequestAt.After(start) {
+		start = st.NextRequestAt
+	}
+	cost := req.Cost
+	if cost < 1 {
+		cost = 1
+	}
+	st.RequestHistory = append(st.RequestHistory, domain.PlatformRequest{At: start, Cost: cost})
+	st.NextRequestAt = start.Add(req.Spacing)
+	m.states[id] = st
+	return platforms.SlotDecision{StartAt: start}, nil
+}
+
+func (m *memStore) AcquireYtDlp(_ context.Context, id domain.PlatformID, owner string, now, until time.Time) (bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	st := m.get(id)
+	if st.YtdlpLeaseUntil != nil && st.YtdlpLeaseUntil.After(now) {
+		return false, nil
+	}
+	st.YtdlpOwner, st.YtdlpLeaseUntil = &owner, &until
+	m.states[id] = st
+	return true, nil
+}
+
+func (m *memStore) ExtendYtDlp(_ context.Context, id domain.PlatformID, owner string, until time.Time) (bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	st := m.get(id)
+	if st.YtdlpOwner == nil || *st.YtdlpOwner != owner {
+		return false, nil
+	}
+	st.YtdlpLeaseUntil = &until
+	m.states[id] = st
+	return true, nil
+}
+
+func (m *memStore) ReleaseYtDlp(_ context.Context, id domain.PlatformID, owner string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	st := m.get(id)
+	if st.YtdlpOwner != nil && *st.YtdlpOwner == owner {
+		st.YtdlpOwner, st.YtdlpLeaseUntil = nil, nil
+		m.states[id] = st
+	}
+	return nil
+}
+
+func (m *memStore) SetNextTrickle(_ context.Context, id domain.PlatformID, at time.Time) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	st := m.get(id)
+	st.NextTrickleAt = at
+	m.states[id] = st
+	return nil
+}
+
 func (m *memStore) AcquireScanner(_ context.Context, id domain.PlatformID, owner string, now, until time.Time) (bool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +288,8 @@ func TestBilibiliSpacingAndTwitchUnchanged(t *testing.T) {
 			t.Fatalf("bilibili: %v", err)
 		}
 	}
-	want := []time.Duration{5500 * time.Millisecond, 5500 * time.Millisecond}
+	// 10 giây + jitter 10 giây × random 0.5 = 15 giây mỗi lời gọi API.
+	want := []time.Duration{15 * time.Second, 15 * time.Second}
 	if len(h.sleeps) != len(want) {
 		t.Fatalf("sleeps = %v", h.sleeps)
 	}
@@ -234,6 +306,83 @@ func TestBilibiliSpacingAndTwitchUnchanged(t *testing.T) {
 	}
 	if len(h.sleeps) != 0 {
 		t.Fatalf("twitch phải không chờ, sleeps = %v", h.sleeps)
+	}
+}
+
+func TestYtDlpRunUsesLeaseAndNarrowerSpacing(t *testing.T) {
+	h := newHarness(t)
+	ctx := context.Background()
+	for range 2 {
+		if err := h.pacer.RunYtDlp(ctx, domain.PlatformBilibili, 4, 30*time.Second, func(context.Context) error {
+			if st, _, _ := h.store.One(ctx, domain.PlatformBilibili); st.YtdlpOwner == nil {
+				t.Fatal("trong lệnh yt-dlp phải đang giữ lease")
+			}
+			return nil
+		}); err != nil {
+			t.Fatalf("yt-dlp: %v", err)
+		}
+	}
+	// 5 giây + jitter 5 giây × 0.5 = 7,5 giây giữa hai lượt trích.
+	if len(h.sleeps) != 1 || h.sleeps[0] != 7500*time.Millisecond {
+		t.Fatalf("sleeps = %v, muốn [7.5s]", h.sleeps)
+	}
+	st, _, _ := h.store.One(ctx, domain.PlatformBilibili)
+	if st.YtdlpOwner != nil || st.YtdlpLeaseUntil != nil {
+		t.Fatal("lease yt-dlp phải được nhả sau lệnh")
+	}
+	if len(st.RequestHistory) != 2 || st.RequestHistory[0].Cost != 4 {
+		t.Fatalf("lịch sử đặt chỗ = %+v, muốn hai lần cost 4", st.RequestHistory)
+	}
+}
+
+func TestBudgetRefusesWhenExhaustedAndNoHistoryOnRefusal(t *testing.T) {
+	h := newHarness(t)
+	ctx := context.Background()
+	for i := range 20 {
+		if err := h.pacer.Request(ctx, domain.PlatformBilibili, true, func(context.Context) error { return nil }); err != nil {
+			t.Fatalf("lần %d: %v", i+1, err)
+		}
+	}
+	calls := 0
+	err := h.pacer.Request(ctx, domain.PlatformBilibili, true, func(context.Context) error { calls++; return nil })
+	var budget *platforms.BudgetError
+	if !errors.As(err, &budget) {
+		t.Fatalf("muốn BudgetError, được %v", err)
+	}
+	if calls != 0 {
+		t.Fatalf("calls = %d, muốn 0 (không chạm mạng khi hết hạn mức)", calls)
+	}
+	first := h.store.get(domain.PlatformBilibili).RequestHistory[0].At
+	if !budget.AvailableAt.Equal(first.Add(10 * time.Minute)) {
+		t.Fatalf("availableAt = %v, muốn lần đặt chỗ cũ nhất +10 phút (%v)", budget.AvailableAt, first.Add(10*time.Minute))
+	}
+	before := len(h.store.get(domain.PlatformBilibili).RequestHistory)
+	if before != 20 {
+		t.Fatalf("lịch sử = %d, muốn 20 (từ chối không ghi)", before)
+	}
+	// Cửa sổ 10 phút nhả chỗ thì gọi lại được.
+	h.now = budget.AvailableAt
+	if err := h.pacer.Request(ctx, domain.PlatformBilibili, true, func(context.Context) error { calls++; return nil }); err != nil {
+		t.Fatalf("sau cửa sổ: %v", err)
+	}
+}
+
+func TestBudgetDailyWindowCapsAtTwoHundred(t *testing.T) {
+	now := time.Date(2026, 10, 16, 12, 0, 0, 0, time.UTC)
+	history := make([]domain.PlatformRequest, 0, 201)
+	for i := range 200 {
+		history = append(history, domain.PlatformRequest{At: now.Add(-time.Duration(i%30) * time.Minute), Cost: 1})
+	}
+	report := platforms.BudgetOf(history, now, platforms.BilibiliWindows, 1)
+	if !report.AvailableAt.After(now) {
+		t.Fatalf("200 lần/24 giờ phải hết hạn mức, availableAt = %v", report.AvailableAt)
+	}
+	if len(report.Windows) != 2 || report.Windows[1].Used != 200 || report.Windows[1].Limit != 200 {
+		t.Fatalf("windows = %+v", report.Windows)
+	}
+	freed := platforms.BudgetOf(history, now.Add(24*time.Hour), platforms.BilibiliWindows, 1)
+	if freed.AvailableAt.After(now.Add(24 * time.Hour)) {
+		t.Fatalf("sau 24 giờ hạn mức phải nhả, availableAt = %v", freed.AvailableAt)
 	}
 }
 
@@ -395,5 +544,69 @@ func TestOneScannerPerPlatformAndLeaseReleasedOnFailure(t *testing.T) {
 	st, _, _ := h.store.One(ctx, domain.PlatformBilibili)
 	if st.ScannerOwner != nil {
 		t.Fatal("lease phải được nhả sau lượt quét")
+	}
+}
+
+// codedRetryError mang Retry-After nhưng mã lỗi KHÔNG phải rate_limited.
+type codedRetryError struct{}
+
+func (codedRetryError) Error() string             { return "lỗi 500" }
+func (codedRetryError) ErrorCode() string         { return "failed" }
+func (codedRetryError) RetryAfter() time.Duration { return 30 * time.Minute }
+
+// TestRetryAfterOnlyCountsForRateLimited: Retry-After trên lỗi khác không được
+// biến thành giờ chờ.
+func TestRetryAfterOnlyCountsForRateLimited(t *testing.T) {
+	h := newHarness(t)
+	err := h.pacer.Request(context.Background(), domain.PlatformBilibili, true, func(context.Context) error {
+		return codedRetryError{}
+	})
+	var paused *platforms.PausedError
+	if errors.As(err, &paused) {
+		t.Fatalf("không được tạo PausedError từ lỗi không phải rate limit: %v", err)
+	}
+	if !errors.As(err, new(codedRetryError)) {
+		t.Fatalf("phải trả nguyên lỗi gốc, được %v", err)
+	}
+	until, _, _ := h.store.Pause(context.Background(), domain.PlatformBilibili, h.now)
+	if until != nil {
+		t.Fatalf("không được ghi giờ chờ, được %v", until)
+	}
+}
+
+// TestScannerLeaseBoundsRun: lượt quét chạy dưới deadline của lease.
+func TestScannerLeaseBoundsRun(t *testing.T) {
+	h := newHarness(t)
+	var deadline time.Time
+	err := h.pacer.WithScannerLease(context.Background(), domain.PlatformBilibili, 5*time.Minute, func(scanCtx context.Context) error {
+		if d, ok := scanCtx.Deadline(); ok {
+			deadline = d
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deadline.IsZero() || deadline.Sub(h.now) > 5*time.Minute+time.Second {
+		t.Fatalf("deadline = %v (now %v), muốn ~5 phút", deadline, h.now)
+	}
+}
+
+// TestYtDlpRunsUnderLeaseDeadline: lệnh yt-dlp nhận ctx có deadline phủ
+// timeout + đệm lease, kể cả khi phải chờ tới lượt.
+func TestYtDlpRunsUnderLeaseDeadline(t *testing.T) {
+	h := newHarness(t)
+	var deadline time.Time
+	err := h.pacer.RunYtDlp(context.Background(), domain.PlatformBilibili, 4, 30*time.Second, func(runCtx context.Context) error {
+		if d, ok := runCtx.Deadline(); ok {
+			deadline = d
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deadline.IsZero() || deadline.Sub(h.now) < 30*time.Second {
+		t.Fatalf("deadline = %v (now %v), phải phủ timeout", deadline, h.now)
 	}
 }

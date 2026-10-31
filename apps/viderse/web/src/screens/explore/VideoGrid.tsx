@@ -40,7 +40,7 @@ export function hideBrokenImage(e: SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.style.visibility = 'hidden'
 }
 
-export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle, channelLabel }: {
+export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle, channelLabel, hasChannel }: {
   video: Video
   picked: boolean
   selectMode: boolean
@@ -49,6 +49,8 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
   onToggle: (video: Video) => void
   /** "chưa có kênh của bạn" → nút Làm cho khoá kèm lý do */
   channelLabel: string | null
+  /** có kênh rồi → lý do khoá là hàng chờ */
+  hasChannel: boolean
 }) {
   const tt = t.screens.explore
   const hot = (video.score ?? 0) >= 3
@@ -89,7 +91,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
       <div className="vx-actions">
         <ActionButton
           size="sm"
-          lockedReason={channelLabel === null ? tt.lockedReason : undefined}
+          lockedReason={channelLabel === null ? (hasChannel ? tt.queueReason : tt.lockedReason) : undefined}
           icon={<Icon name="video-add" size={14} />}
         >
           {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
@@ -103,7 +105,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
   )
 }
 
-export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId, selectMode, checkedIds, onOpen, onToggle }: {
+export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId, selectMode, checkedIds, onOpen, onToggle, hasChannel }: {
   items: Video[]
   cols: number
   /** khoảng item render (đã cắt theo hàng) */
@@ -116,6 +118,7 @@ export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId
   checkedIds: ReadonlySet<string>
   onOpen: (video: Video) => void
   onToggle: (video: Video) => void
+  hasChannel: boolean
 }) {
   const visible = items.slice(start, end)
   const rows: Video[][] = []
@@ -136,6 +139,7 @@ export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId
               onOpen={onOpen}
               onToggle={onToggle}
               channelLabel={null}
+              hasChannel={hasChannel}
             />
           ))}
         </div>

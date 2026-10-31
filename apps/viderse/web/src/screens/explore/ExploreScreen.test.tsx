@@ -9,7 +9,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ExploreScreen } from './ExploreScreen'
-import { useVirtualGrid } from './useVirtualGrid'
+import { useVirtualGrid } from '../../lib/useVirtualGrid'
 import { useRivalVideos, type RivalVideos } from './useRivalVideos'
 import { VideoGrid } from './VideoGrid'
 import { keys } from '../../data/keys'
@@ -183,7 +183,7 @@ describe('lưới video ảo hoá', () => {
         <div ref={grid.ref} onScroll={grid.onScroll} style={{ height: 880, overflowY: 'auto' }}>
           <VideoGrid items={big} cols={grid.cols} start={grid.itemStart} end={grid.itemEnd}
             padTop={grid.padTop} padBottom={grid.padBottom} pickedId={null} selectMode={false}
-            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} />
+            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} hasChannel={false} />
         </div>
       )
     }
@@ -209,7 +209,7 @@ describe('lưới video ảo hoá', () => {
         <div ref={grid.ref} onScroll={grid.onScroll} style={{ height: 844, overflowY: 'auto' }}>
           <VideoGrid items={big} cols={grid.cols} start={grid.itemStart} end={grid.itemEnd}
             padTop={grid.padTop} padBottom={grid.padBottom} pickedId={null} selectMode={false}
-            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} />
+            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} hasChannel={false} />
         </div>
       )
     }

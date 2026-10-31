@@ -187,6 +187,9 @@
 .vx-makehead { margin: 0; display: flex; align-items: center; gap: var(--vv-s-8); font-size: 12.5px; font-weight: 500; color: var(--color-fg-3) }
 .vx-makeopt { display: flex; align-items: center; gap: var(--vv-s-10); padding: var(--vv-s-7) var(--vv-s-10); border-radius: var(--vv-r-10); border: 1px solid var(--line-2); background: var(--color-surface-1) }
 .vx-makeopt[aria-disabled="true"] { opacity: .7 }
+.vx-makeopt { width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer }
+.vx-makeopt[aria-checked="true"] { border-color: var(--vv-line-30); background: var(--color-surface-6) }
+.vx-makeopt[aria-checked="true"] .vx-makeopt__name { color: var(--color-fg) }
 .vx-makeopt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column }
 .vx-makeopt__name { font-size: 13px; font-weight: 500; color: var(--color-fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .vx-makeopt__sub { font-size: 11.5px; color: var(--vv-fg-note); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }

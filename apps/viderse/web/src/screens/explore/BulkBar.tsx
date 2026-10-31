@@ -8,13 +8,15 @@ import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { copyText } from './VideoGrid'
 
-export function BulkBar({ count, selected, onTop, onClear, onExit }: {
+export function BulkBar({ count, selected, onTop, onClear, onExit, hasChannel }: {
   count: number
   /** video đang được tích — "Sao chép link" gom URL của chúng */
   selected: readonly Video[]
   onTop: (n: number) => void
   onClear: () => void
   onExit: () => void
+  /** có kênh rồi thì nút làm video khoá vì hàng chờ chưa mở */
+  hasChannel: boolean
 }) {
   const tt = t.screens.explore
   const copyLinks = async () => {
@@ -36,7 +38,7 @@ export function BulkBar({ count, selected, onTop, onClear, onExit }: {
         <ActionButton
           variant="primary"
           size="md"
-          lockedReason={tt.lockedReason}
+          lockedReason={hasChannel ? tt.queueReason : tt.lockedReason}
           icon={<Icon name="clock" size={15} />}
         >
           {tt.bulkMake(count)}

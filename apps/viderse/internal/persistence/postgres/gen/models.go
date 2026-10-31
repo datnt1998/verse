@@ -35,6 +35,61 @@ type AiProvider struct {
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
+type BackdropChannel struct {
+	ID            string             `json:"id"`
+	Platform      string             `json:"platform"`
+	Handle        string             `json:"handle"`
+	Url           string             `json:"url"`
+	Title         pgtype.Text        `json:"title"`
+	AvatarUrl     pgtype.Text        `json:"avatar_url"`
+	AddedAt       pgtype.Timestamptz `json:"added_at"`
+	ListedAt      pgtype.Timestamptz `json:"listed_at"`
+	ListErrorCode pgtype.Text        `json:"list_error_code"`
+	ListError     pgtype.Text        `json:"list_error"`
+	ScanNextPage  pgtype.Int4        `json:"scan_next_page"`
+	ScanTotal     int32              `json:"scan_total"`
+	ScanStopKnown bool               `json:"scan_stop_known"`
+}
+
+type BackdropChannelVideo struct {
+	ChannelID         string             `json:"channel_id"`
+	VideoID           string             `json:"video_id"`
+	Kind              string             `json:"kind"`
+	Url               string             `json:"url"`
+	Title             string             `json:"title"`
+	DurationSec       pgtype.Float4      `json:"duration_sec"`
+	ThumbnailUrl      pgtype.Text        `json:"thumbnail_url"`
+	PublishedAt       pgtype.Timestamptz `json:"published_at"`
+	Position          int32              `json:"position"`
+	ListedAt          pgtype.Timestamptz `json:"listed_at"`
+	ProbedAt          pgtype.Timestamptz `json:"probed_at"`
+	ProbeInfo         []byte             `json:"probe_info"`
+	UnavailableAt     pgtype.Timestamptz `json:"unavailable_at"`
+	UnavailableReason pgtype.Text        `json:"unavailable_reason"`
+}
+
+type BackdropVideo struct {
+	ID                 string             `json:"id"`
+	Platform           string             `json:"platform"`
+	Url                string             `json:"url"`
+	Title              string             `json:"title"`
+	DurationSec        pgtype.Float4      `json:"duration_sec"`
+	SegmentFromSec     float32            `json:"segment_from_sec"`
+	SegmentToSec       float32            `json:"segment_to_sec"`
+	FilePath           pgtype.Text        `json:"file_path"`
+	FileHeight         pgtype.Int4        `json:"file_height"`
+	FileBytes          pgtype.Int8        `json:"file_bytes"`
+	State              string             `json:"state"`
+	Progress           pgtype.Float4      `json:"progress"`
+	ErrorCode          pgtype.Text        `json:"error_code"`
+	Error              pgtype.Text        `json:"error"`
+	DownloadGeneration int64              `json:"download_generation"`
+	DownloadOwner      pgtype.Text        `json:"download_owner"`
+	DownloadLeaseUntil pgtype.Timestamptz `json:"download_lease_until"`
+	AddedAt            pgtype.Timestamptz `json:"added_at"`
+	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+}
+
 type BackgroundTask struct {
 	ID        pgtype.UUID        `json:"id"`
 	Kind      string             `json:"kind"`
@@ -61,6 +116,16 @@ type ErrorEvent struct {
 	ActionLabel string             `json:"action_label"`
 	Op          string             `json:"op"`
 	ObjectRef   []byte             `json:"object_ref"`
+}
+
+type ImagePrompt struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Kind        string             `json:"kind"`
+	Composition pgtype.Text        `json:"composition"`
+	Prompt      string             `json:"prompt"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type ImageReceipt struct {
@@ -90,6 +155,72 @@ type Notification struct {
 	ReadAt      pgtype.Timestamptz `json:"read_at"`
 }
 
+type Overlay struct {
+	ID          pgtype.UUID        `json:"id"`
+	Sha256      string             `json:"sha256"`
+	Name        string             `json:"name"`
+	FilePath    string             `json:"file_path"`
+	Mime        string             `json:"mime"`
+	Bytes       int64              `json:"bytes"`
+	DurationSec pgtype.Float4      `json:"duration_sec"`
+	Width       pgtype.Int4        `json:"width"`
+	Height      pgtype.Int4        `json:"height"`
+	Background  string             `json:"background"`
+	Builtin     pgtype.Text        `json:"builtin"`
+	RemovedAt   pgtype.Timestamptz `json:"removed_at"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
+type OwnerChannel struct {
+	ID                 pgtype.UUID        `json:"id"`
+	Name               string             `json:"name"`
+	YoutubeUrl         pgtype.Text        `json:"youtube_url"`
+	Language           string             `json:"language"`
+	StyleNote          pgtype.Text        `json:"style_note"`
+	DescriptionFooter  pgtype.Text        `json:"description_footer"`
+	AlwaysTags         []string           `json:"always_tags"`
+	AutoPick           bool               `json:"auto_pick"`
+	PacePerDay         int32              `json:"pace_per_day"`
+	TemplateCursor     int32              `json:"template_cursor"`
+	Branding           []byte             `json:"branding"`
+	AvatarPath         pgtype.Text        `json:"avatar_path"`
+	BannerPath         pgtype.Text        `json:"banner_path"`
+	IdentityState      string             `json:"identity_state"`
+	IdentityPart       pgtype.Text        `json:"identity_part"`
+	IdentityTaskID     pgtype.Text        `json:"identity_task_id"`
+	IdentityErrorCode  pgtype.Text        `json:"identity_error_code"`
+	IdentityError      pgtype.Text        `json:"identity_error"`
+	IdentityFailedStep pgtype.Text        `json:"identity_failed_step"`
+	IdentityRetryAt    pgtype.Timestamptz `json:"identity_retry_at"`
+	IdentityStartedAt  pgtype.Timestamptz `json:"identity_started_at"`
+	IdentityLeaseOwner pgtype.Text        `json:"identity_lease_owner"`
+	IdentityLeaseToken pgtype.UUID        `json:"identity_lease_token"`
+	IdentityLeaseUntil pgtype.Timestamptz `json:"identity_lease_until"`
+	CreatedAt          pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+}
+
+type OwnerChannelSource struct {
+	OwnerChannelID pgtype.UUID        `json:"owner_channel_id"`
+	RivalID        string             `json:"rival_id"`
+	LinkedAt       pgtype.Timestamptz `json:"linked_at"`
+	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
+}
+
+type OwnerChannelTemplate struct {
+	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
+	TemplateID     pgtype.UUID `json:"template_id"`
+	Position       int32       `json:"position"`
+}
+
+type PlatformRequest struct {
+	Host    string             `json:"host"`
+	Label   string             `json:"label"`
+	Count   int32              `json:"count"`
+	FirstAt pgtype.Timestamptz `json:"first_at"`
+	LastAt  pgtype.Timestamptz `json:"last_at"`
+}
+
 type PlatformState struct {
 	Platform          string             `json:"platform"`
 	NextRequestAt     pgtype.Timestamptz `json:"next_request_at"`
@@ -101,6 +232,10 @@ type PlatformState struct {
 	LastErrorCode     string             `json:"last_error_code"`
 	LastErrorAt       pgtype.Timestamptz `json:"last_error_at"`
 	LastErrorJobID    pgtype.Text        `json:"last_error_job_id"`
+	RequestHistory    []byte             `json:"request_history"`
+	NextTrickleAt     pgtype.Timestamptz `json:"next_trickle_at"`
+	YtdlpOwner        pgtype.Text        `json:"ytdlp_owner"`
+	YtdlpLeaseUntil   pgtype.Timestamptz `json:"ytdlp_lease_until"`
 }
 
 type RivalChannel struct {
@@ -196,4 +331,15 @@ type Setting struct {
 	Key       string             `json:"key"`
 	Value     []byte             `json:"value"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Template struct {
+	ID              pgtype.UUID        `json:"id"`
+	Name            string             `json:"name"`
+	Recipe          []byte             `json:"recipe"`
+	Revision        int64              `json:"revision"`
+	PreviewRevision pgtype.Int8        `json:"preview_revision"`
+	PreviewBuiltAt  pgtype.Timestamptz `json:"preview_built_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }

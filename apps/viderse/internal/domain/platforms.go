@@ -58,7 +58,8 @@ const (
 
 // PlatformState là bản ghi trạng thái bền của một nền tảng (chuyển từ
 // backdrop_platform_state): nhịp gọi, giờ chờ bị chặn tăng dần, số lần chặn
-// liên tiếp, lease của luồng quét và lỗi gần nhất cần người xử lý.
+// liên tiếp, lease của luồng quét, lịch sử yêu cầu trong một ngày (hạn mức
+// cuộn), mốc đọc dần trang kế tiếp, lease yt-dlp và lỗi gần nhất cần người xử lý.
 type PlatformState struct {
 	Platform          PlatformID
 	NextRequestAt     time.Time
@@ -70,6 +71,22 @@ type PlatformState struct {
 	LastErrorCode     string
 	LastErrorAt       *time.Time
 	LastErrorJobID    *string
+	// RequestHistory là các lần đặt chỗ trong 24 giờ gần nhất, mỗi phần tử
+	// {At, Cost} — hạn mức cuộn của Bilibili tính trên đây.
+	RequestHistory []PlatformRequest
+	// NextTrickleAt là mốc sớm nhất được đọc trang danh sách kế tiếp (Bilibili).
+	NextTrickleAt time.Time
+	// YtdlpOwner/YtdlpLeaseUntil là lease chéo process cho lệnh yt-dlp trên
+	// nền tảng đó (một lệnh mỗi lúc).
+	YtdlpOwner      *string
+	YtdlpLeaseUntil *time.Time
+}
+
+// PlatformRequest là một lần đặt chỗ gọi nền tảng: thời điểm bắt đầu và trọng
+// số (một trang = 1, một lượt trích yt-dlp = 4, đọc lại info đã lưu = 1).
+type PlatformRequest struct {
+	At   time.Time
+	Cost int
 }
 
 // PlatformLastError là lỗi nền tảng gần nhất cần người xử lý (§24): hiện giờ

@@ -42,6 +42,37 @@ func (q *Queries) AcquirePlatformScanner(ctx context.Context, arg AcquirePlatfor
 	return acquired, err
 }
 
+const acquirePlatformYtDlp = `-- name: AcquirePlatformYtDlp :one
+INSERT INTO platform_state (platform, ytdlp_owner, ytdlp_lease_until)
+VALUES ($1, $2, $3::timestamptz)
+ON CONFLICT (platform) DO UPDATE SET
+    ytdlp_owner = $2, ytdlp_lease_until = $3::timestamptz
+WHERE platform_state.ytdlp_lease_until IS NULL
+   OR platform_state.ytdlp_lease_until <= $4::timestamptz
+RETURNING true AS acquired
+`
+
+type AcquirePlatformYtDlpParams struct {
+	Platform string             `json:"platform"`
+	Owner    pgtype.Text        `json:"owner"`
+	Until    pgtype.Timestamptz `json:"until"`
+	Now      pgtype.Timestamptz `json:"now"`
+}
+
+// Lease yt-dlp chéo process: chỉ thành công khi chưa có lease hoặc lease đã
+// hết hạn (không có dòng trả về = process khác còn giữ).
+func (q *Queries) AcquirePlatformYtDlp(ctx context.Context, arg AcquirePlatformYtDlpParams) (bool, error) {
+	row := q.db.QueryRow(ctx, acquirePlatformYtDlp,
+		arg.Platform,
+		arg.Owner,
+		arg.Until,
+		arg.Now,
+	)
+	var acquired bool
+	err := row.Scan(&acquired)
+	return acquired, err
+}
+
 const clearExpiredPlatformPause = `-- name: ClearExpiredPlatformPause :exec
 UPDATE platform_state
 SET paused_until = NULL, pause_reason = NULL
@@ -92,10 +123,28 @@ func (q *Queries) EnsurePlatformState(ctx context.Context, platform string) erro
 	return err
 }
 
+const extendPlatformYtDlpLease = `-- name: ExtendPlatformYtDlpLease :execrows
+UPDATE platform_state
+SET ytdlp_lease_until = $1::timestamptz
+WHERE platform = $2 AND ytdlp_owner = $3
+`
+
+type ExtendPlatformYtDlpLeaseParams struct {
+	LeaseUntil pgtype.Timestamptz `json:"lease_until"`
+	Platform   string             `json:"platform"`
+	Owner      pgtype.Text        `json:"owner"`
+}
+
+func (q *Queries) ExtendPlatformYtDlpLease(ctx context.Context, arg ExtendPlatformYtDlpLeaseParams) (int64, error) {
+	result, err := q.db.Exec(ctx, extendPlatformYtDlpLease, arg.LeaseUntil, arg.Platform, arg.Owner)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getPlatformState = `-- name: GetPlatformState :one
-SELECT platform, next_request_at, paused_until, pause_reason, failure_count,
-       scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id
-FROM platform_state
+SELECT platform, next_request_at, paused_until, pause_reason, failure_count, scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id, request_history, next_trickle_at, ytdlp_owner, ytdlp_lease_until FROM platform_state
 WHERE platform = $1
 `
 
@@ -113,14 +162,16 @@ func (q *Queries) GetPlatformState(ctx context.Context, platform string) (Platfo
 		&i.LastErrorCode,
 		&i.LastErrorAt,
 		&i.LastErrorJobID,
+		&i.RequestHistory,
+		&i.NextTrickleAt,
+		&i.YtdlpOwner,
+		&i.YtdlpLeaseUntil,
 	)
 	return i, err
 }
 
 const listPlatformStates = `-- name: ListPlatformStates :many
-SELECT platform, next_request_at, paused_until, pause_reason, failure_count,
-       scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id
-FROM platform_state
+SELECT platform, next_request_at, paused_until, pause_reason, failure_count, scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id, request_history, next_trickle_at, ytdlp_owner, ytdlp_lease_until FROM platform_state
 ORDER BY platform
 `
 
@@ -144,6 +195,10 @@ func (q *Queries) ListPlatformStates(ctx context.Context) ([]PlatformState, erro
 			&i.LastErrorCode,
 			&i.LastErrorAt,
 			&i.LastErrorJobID,
+			&i.RequestHistory,
+			&i.NextTrickleAt,
+			&i.YtdlpOwner,
+			&i.YtdlpLeaseUntil,
 		); err != nil {
 			return nil, err
 		}
@@ -153,6 +208,36 @@ func (q *Queries) ListPlatformStates(ctx context.Context) ([]PlatformState, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockPlatformState = `-- name: LockPlatformState :one
+SELECT platform, next_request_at, paused_until, pause_reason, failure_count, scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id, request_history, next_trickle_at, ytdlp_owner, ytdlp_lease_until FROM platform_state
+WHERE platform = $1
+FOR UPDATE
+`
+
+// Đọc dòng trạng thái và giữ khoá hàng tới hết transaction: dùng trong
+// ReserveWeighted để kiểm giờ chờ + hạn mức cuộn + ghi lịch sử là một khối.
+func (q *Queries) LockPlatformState(ctx context.Context, platform string) (PlatformState, error) {
+	row := q.db.QueryRow(ctx, lockPlatformState, platform)
+	var i PlatformState
+	err := row.Scan(
+		&i.Platform,
+		&i.NextRequestAt,
+		&i.PausedUntil,
+		&i.PauseReason,
+		&i.FailureCount,
+		&i.ScannerOwner,
+		&i.ScannerLeaseUntil,
+		&i.LastErrorCode,
+		&i.LastErrorAt,
+		&i.LastErrorJobID,
+		&i.RequestHistory,
+		&i.NextTrickleAt,
+		&i.YtdlpOwner,
+		&i.YtdlpLeaseUntil,
+	)
+	return i, err
 }
 
 const recordPlatformBlocked = `-- name: RecordPlatformBlocked :one
@@ -240,6 +325,22 @@ func (q *Queries) ReleasePlatformScanner(ctx context.Context, arg ReleasePlatfor
 	return err
 }
 
+const releasePlatformYtDlp = `-- name: ReleasePlatformYtDlp :exec
+UPDATE platform_state
+SET ytdlp_owner = NULL, ytdlp_lease_until = NULL
+WHERE platform = $1 AND ytdlp_owner = $2
+`
+
+type ReleasePlatformYtDlpParams struct {
+	Platform   string      `json:"platform"`
+	YtdlpOwner pgtype.Text `json:"ytdlp_owner"`
+}
+
+func (q *Queries) ReleasePlatformYtDlp(ctx context.Context, arg ReleasePlatformYtDlpParams) error {
+	_, err := q.db.Exec(ctx, releasePlatformYtDlp, arg.Platform, arg.YtdlpOwner)
+	return err
+}
+
 const reservePlatformSlot = `-- name: ReservePlatformSlot :one
 INSERT INTO platform_state (platform, next_request_at)
 VALUES (
@@ -259,10 +360,66 @@ type ReservePlatformSlotParams struct {
 }
 
 // Đặt chỗ gọi kế tiếp: start = max(now, next cũ); next mới = start + spacing.
-// Trả start để caller ngủ đúng khoảng. Bilibili gọi với spacing ~5 giây.
+// Trả start để caller ngủ đúng khoảng. Nền tảng không đặt hạn mức cuộn dùng
+// lời gọi này; Bilibili đi qua ReserveWeighted để kiểm hạn mức trong cùng
+// transaction.
 func (q *Queries) ReservePlatformSlot(ctx context.Context, arg ReservePlatformSlotParams) (pgtype.Timestamptz, error) {
 	row := q.db.QueryRow(ctx, reservePlatformSlot, arg.Platform, arg.Now, arg.SpacingMs)
 	var start_at pgtype.Timestamptz
 	err := row.Scan(&start_at)
 	return start_at, err
+}
+
+const setPlatformNextTrickle = `-- name: SetPlatformNextTrickle :exec
+UPDATE platform_state
+SET next_trickle_at = $1::timestamptz
+WHERE platform = $2
+`
+
+type SetPlatformNextTrickleParams struct {
+	NextTrickleAt pgtype.Timestamptz `json:"next_trickle_at"`
+	Platform      string             `json:"platform"`
+}
+
+// Mốc sớm nhất được đọc trang danh sách kế tiếp (bộ lập lịch ngủ tới đây).
+func (q *Queries) SetPlatformNextTrickle(ctx context.Context, arg SetPlatformNextTrickleParams) error {
+	_, err := q.db.Exec(ctx, setPlatformNextTrickle, arg.NextTrickleAt, arg.Platform)
+	return err
+}
+
+const updatePlatformRequestState = `-- name: UpdatePlatformRequestState :one
+UPDATE platform_state
+SET next_request_at = $1::timestamptz,
+    request_history = $2::jsonb
+WHERE platform = $3
+RETURNING platform, next_request_at, paused_until, pause_reason, failure_count, scanner_owner, scanner_lease_until, last_error_code, last_error_at, last_error_job_id, request_history, next_trickle_at, ytdlp_owner, ytdlp_lease_until
+`
+
+type UpdatePlatformRequestStateParams struct {
+	NextRequestAt  pgtype.Timestamptz `json:"next_request_at"`
+	RequestHistory []byte             `json:"request_history"`
+	Platform       string             `json:"platform"`
+}
+
+// Ghi kết quả đặt chỗ có trọng số: mốc gọi kế tiếp và lịch sử đã cắt tỉa.
+func (q *Queries) UpdatePlatformRequestState(ctx context.Context, arg UpdatePlatformRequestStateParams) (PlatformState, error) {
+	row := q.db.QueryRow(ctx, updatePlatformRequestState, arg.NextRequestAt, arg.RequestHistory, arg.Platform)
+	var i PlatformState
+	err := row.Scan(
+		&i.Platform,
+		&i.NextRequestAt,
+		&i.PausedUntil,
+		&i.PauseReason,
+		&i.FailureCount,
+		&i.ScannerOwner,
+		&i.ScannerLeaseUntil,
+		&i.LastErrorCode,
+		&i.LastErrorAt,
+		&i.LastErrorJobID,
+		&i.RequestHistory,
+		&i.NextTrickleAt,
+		&i.YtdlpOwner,
+		&i.YtdlpLeaseUntil,
+	)
+	return i, err
 }

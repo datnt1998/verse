@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"mime"
 	"net/http"
 	"strings"
 	"time"
@@ -42,9 +43,10 @@ func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) 
 	}
 	g := &Gateway{
 		Server: webapp.New(accounts, webapp.Options{
-			AppName:    "Viderse",
-			CookieName: "viderse_session",
-			UI:         dist,
+			AppName:      "Viderse",
+			CookieName:   "viderse_session",
+			UI:           dist,
+			AllowNonJSON: allowFileUpload,
 		}),
 		accounts: accounts,
 		hub:      hub,
@@ -53,6 +55,24 @@ func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) 
 	g.Handle(http.MethodGet, "/api/events", g.serveEvents)
 	g.Handle(http.MethodGet, "/api/status", g.getStatus)
 	return g
+}
+
+// allowFileUpload miễn kiểm application/json cho đúng hai route nhận tệp:
+// tải lớp phủ và nhập tệp prompt. Kiểm multipart + trần kích thước nằm trong
+// handler tương ứng (internal/web/library.go).
+func allowFileUpload(r *http.Request) bool {
+	if r.Method != http.MethodPost {
+		return false
+	}
+	typ, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || typ != "multipart/form-data" {
+		return false
+	}
+	switch r.URL.Path {
+	case "/api/overlays", "/api/image-prompts/import":
+		return true
+	}
+	return false
 }
 
 // statusWire và attentionWire là wire DTO của GET /api/status theo hợp đồng —

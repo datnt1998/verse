@@ -119,10 +119,15 @@ func runServe(args []string) error {
 	}
 	toolKit := tools.New(toolDeps)
 	toolManaged := tools.NewManaged(toolDeps, nil, toolKit)
+	// Video nền ráp TRƯỚC mảng nền tảng: route chính xác
+	// POST /api/platforms/requests phải thắng tiền tố /api/platforms/.
+	backdropRuntime := mountBackdrop(gateway, pool, cfgDir, hub, activities, storageSvc, logStore, toolKit.YtDlp)
+	defer backdropRuntime.Close() // dọn lần hai (idempotent) nếu thoát sớm trước khối shutdown
 	platformSvc, err := mountPlatforms(gateway, pool, settings, hub, statusSvc, cfgDir, toolKit.YtDlp)
 	if err != nil {
 		return err
 	}
+	backdropRuntime.Bind(platformSvc)
 	// Trinh sát: worker quét đối thủ chạy theo vòng đời serve (ctx riêng, dừng
 	// trước khi pool đóng). Service của nó là mutations của mảng đối thủ.
 	scanCtx, scanStop := context.WithCancel(context.Background())
@@ -137,10 +142,16 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
-	machine, err := mountMachine(gateway, pool, settings, hub, statusSvc, machineCtx, cfgDir, logStore, toolDeps, toolKit, toolManaged, ai.Service, activities, notifyActivity)
+	channelSvc, err := mountChannels(gateway, pool, logStore, activities, ai.Executors, storageSvc, hub)
 	if err != nil {
 		return err
 	}
+	machine, err := mountMachine(gateway, pool, settings, hub, statusSvc, machineCtx, cfgDir, logStore, toolDeps, toolKit, toolManaged, ai.Service, activities, notifyActivity, backdropRuntime.svc.PlatformRequests)
+	if err != nil {
+		return err
+	}
+	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
+	go seedLibraryBuiltins(bg, librarySvc, logStore)
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
 
@@ -188,6 +199,13 @@ func runServe(args []string) error {
 	scanSvc.Stop()
 	machineStop()
 	bgStop()
+	// Huỷ và join bộ lập lịch + tải video trước khi storage/log/pool đóng.
+	backdropRuntime.Close()
+	// Run nhận diện đang chạy phải join trước khi pool đóng (chúng tự ghi
+	// "interrupted" qua ctx riêng nếu còn giữ lease).
+	if err := channelSvc.Close(shutdown); err != nil && first == nil {
+		first = err
+	}
 	// Luồng đăng nhập/danh mục nền của Kết nối AI bám machineCtx đã huỷ ở
 	// machineStop — join chúng trước khi đóng pool.
 	ai.Service.Close()
