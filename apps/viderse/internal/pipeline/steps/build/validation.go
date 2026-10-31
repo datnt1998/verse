@@ -209,10 +209,18 @@ func buildImageVersions(manifest images.Manifest, sceneDoc scenes.Manifest, titl
 	if manifest.Version != 1 || manifest.Revision < 1 {
 		return stale("Manifest ảnh không hợp lệ")
 	}
-	if manifest.SceneRevision != sceneDoc.Revision || manifest.Style != sceneDoc.Recipe.Style || manifest.Thumbnail != sceneDoc.Recipe.Thumbnail || manifest.TemplatePrompt != sceneDoc.Recipe.ImagePrompt {
+	sceneOverride := manifest.Overrides != nil && manifest.Overrides.ScenePromptSet
+	coverOverride := manifest.Overrides != nil && manifest.Overrides.CoverPromptSet
+	if manifest.SceneRevision != sceneDoc.Revision || manifest.Style != sceneDoc.Recipe.Style || !coverOverride && manifest.Thumbnail != sceneDoc.Recipe.Thumbnail || !sceneOverride && manifest.TemplatePrompt != sceneDoc.Recipe.ImagePrompt {
 		return stale("Ảnh không thuộc bản cảnh và kiểu ảnh hiện tại")
 	}
 	none := sceneDoc.Recipe.ImagesMode == library.ImagesNone
+	if manifest.Overrides != nil && manifest.Overrides.NoImages != nil {
+		none = *manifest.Overrides.NoImages
+	}
+	if none != (manifest.ImageMode == "none") && manifest.Overrides != nil && manifest.Overrides.NoImages != nil {
+		return stale("Ngoại lệ ảnh không khớp chế độ tạo ảnh của video")
+	}
 	expected := make(map[string]scenes.Scene, len(sceneDoc.Scenes))
 	for _, scene := range sceneDoc.Scenes {
 		expected[scene.SceneID] = scene

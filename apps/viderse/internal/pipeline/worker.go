@@ -31,6 +31,7 @@ type Worker struct {
 	ID        string
 	OnPrimary func(context.Context) error
 	OnStopped func() error
+	OnPoll    func(context.Context) error
 	mu        sync.Mutex
 	running   map[string]bool
 	wake      chan struct{}
@@ -109,6 +110,11 @@ func (w *Worker) Run(ctx context.Context) error {
 		}
 		if err := recoverJobs(); err != nil {
 			return err
+		}
+		if w.OnPoll != nil {
+			if err := w.OnPoll(ctx); err != nil {
+				return err
+			}
 		}
 		limit := domain.JobConcurrencyDefault
 		if w.Settings != nil {

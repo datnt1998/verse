@@ -41,7 +41,7 @@ type Deps struct {
 	Encode          func(context.Context, *pipeline.StepContext, string, string, int, int) (Encoded, error)
 	Cutout          func(context.Context, *pipeline.StepContext, string, string) error
 	Now             func() time.Time
- ReadManifest func(context.Context,domain.CloneJob)(*Manifest,error)
+	ReadManifest    func(context.Context, domain.CloneJob) (*Manifest, error)
 }
 type Handler struct{ Deps Deps }
 
@@ -71,37 +71,55 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if thumb.Path == "" {
 		return pipeline.StepResult{}, steps.CloneError(domain.CloneErrInternal, "Thiếu ảnh bìa tham chiếu", "Chạy lại bước download")
 	}
- var previous *Manifest
- if len(s.Checkpoint)==0&&h.Deps.ReadManifest!=nil{
-  previous,err=h.Deps.ReadManifest(ctx,s.Job)
-  if err!=nil{return pipeline.StepResult{},err}
-  if previous!=nil&&previous.Overrides!=nil&&previous.Overrides.NoImages!=nil{
-   doc.Recipe.ImagesMode="auto";if *previous.Overrides.NoImages{doc.Recipe.ImagesMode="none"}
-  }
- }
- if len(s.Checkpoint)>0{
-  var saved Manifest
-  if err=json.Unmarshal(s.Checkpoint,&saved);err!=nil{return pipeline.StepResult{},err}
-  if saved.Overrides!=nil&&saved.Overrides.NoImages!=nil{
-   doc.Recipe.ImagesMode="auto";if *saved.Overrides.NoImages{doc.Recipe.ImagesMode="none"}
-  }
-  previous=&saved
- }
- fresh:=CreateManifest(doc,thumb,s.Job.Source.Title)
- fresh.SceneGeneration=s.Job.Generation
- m:=fresh
- if previous!=nil{
-  m=*previous
-  if m.SceneGeneration!=0&&m.SceneGeneration!=s.Job.Generation{return pipeline.StepResult{},steps.CloneError(domain.CloneErrStale,"Manifest ảnh thuộc generation cũ","Chạy lại bước images")}
-  if m.SceneRevision!=doc.Revision{m=Reconcile(m,fresh)}
- }
- if !generationPending(m){
-  m.QueueOnly=nil
-  file:=filepath.Join(s.StagingDir,"images","manifest.json")
-  if err=steps.WriteJSONAtomic(file,m);err!=nil{return pipeline.StepResult{},err}
-  return pipeline.StepResult{Artifacts:[]media.Artifact{{Path:"images/manifest.json",File:file,ContentType:"application/json"}},Data:map[string]any{"images":len(m.Items),"manifest":"images/manifest.json"}},nil
- }
- if h.Deps.Drawer==nil{return pipeline.StepResult{},steps.CloneError(domain.CloneErrToolMissing,"Thiếu nguồn vẽ ảnh","Kiểm tra Kết nối AI trong Cài đặt")}
+	var previous *Manifest
+	if len(s.Checkpoint) == 0 && h.Deps.ReadManifest != nil {
+		previous, err = h.Deps.ReadManifest(ctx, s.Job)
+		if err != nil {
+			return pipeline.StepResult{}, err
+		}
+		if previous != nil && previous.Overrides != nil && previous.Overrides.NoImages != nil {
+			doc.Recipe.ImagesMode = "auto"
+			if *previous.Overrides.NoImages {
+				doc.Recipe.ImagesMode = "none"
+			}
+		}
+	}
+	if len(s.Checkpoint) > 0 {
+		var saved Manifest
+		if err = json.Unmarshal(s.Checkpoint, &saved); err != nil {
+			return pipeline.StepResult{}, err
+		}
+		if saved.Overrides != nil && saved.Overrides.NoImages != nil {
+			doc.Recipe.ImagesMode = "auto"
+			if *saved.Overrides.NoImages {
+				doc.Recipe.ImagesMode = "none"
+			}
+		}
+		previous = &saved
+	}
+	fresh := CreateManifest(doc, thumb, s.Job.Source.Title)
+	fresh.SceneGeneration = s.Job.Generation
+	m := fresh
+	if previous != nil {
+		m = *previous
+		if m.SceneGeneration != 0 && m.SceneGeneration != s.Job.Generation {
+			return pipeline.StepResult{}, steps.CloneError(domain.CloneErrStale, "Manifest ảnh thuộc generation cũ", "Chạy lại bước images")
+		}
+		if m.SceneRevision != doc.Revision {
+			m = Reconcile(m, fresh)
+		}
+	}
+	if !generationPending(m) {
+		m.QueueOnly = nil
+		file := filepath.Join(s.StagingDir, "images", "manifest.json")
+		if err = steps.WriteJSONAtomic(file, m); err != nil {
+			return pipeline.StepResult{}, err
+		}
+		return pipeline.StepResult{Artifacts: []media.Artifact{{Path: "images/manifest.json", File: file, ContentType: "application/json"}}, Data: map[string]any{"images": len(m.Items), "manifest": "images/manifest.json"}}, nil
+	}
+	if h.Deps.Drawer == nil {
+		return pipeline.StepResult{}, steps.CloneError(domain.CloneErrToolMissing, "Thiếu nguồn vẽ ảnh", "Kiểm tra Kết nối AI trong Cài đặt")
+	}
 	// Stage acquired references one at a time: retaining a DB read lease for
 	// every image would exhaust a small connection pool before paid work starts.
 	refs := make([]string, 0, len(m.Items))
@@ -136,9 +154,9 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 			return pipeline.StepResult{}, err
 		}
 	}
- fingerprint := steps.InputFingerprint(map[string]any{"version": PromptVersion, "title": s.Job.Source.Title, "items": fresh.Items, "look": look, "style": m.Style, "thumbnail": m.Thumbnail, "templatePrompt": m.TemplatePrompt,"coverPrompt":m.CoverPrompt,"imagePromptMode":m.ImagePromptMode})
+	fingerprint := steps.InputFingerprint(map[string]any{"version": PromptVersion, "title": s.Job.Source.Title, "items": fresh.Items, "look": look, "style": m.Style, "thumbnail": m.Thumbnail, "templatePrompt": m.TemplatePrompt, "coverPrompt": m.CoverPrompt, "imagePromptMode": m.ImagePromptMode})
 	if m.Story == nil || m.Story.Fingerprint != fingerprint {
- prompt := BuildManifestStoryPrompt(s.Job.Source.Title,m,look)
+		prompt := BuildManifestStoryPrompt(s.Job.Source.Title, m, look)
 		analyse := h.Deps.Analyse
 		if analyse == nil {
 			analyse = h.analyse
@@ -152,8 +170,11 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 			return pipeline.StepResult{}, err
 		}
 	}
- err = h.runQueue(ctx, s, &m)
- if err==nil{m.QueueOnly=nil;m.Waiting=nil}
+	err = h.runQueue(ctx, s, &m)
+	if err == nil {
+		m.QueueOnly = nil
+		m.Waiting = nil
+	}
 	manifestFile := filepath.Join(s.StagingDir, "images", "manifest.json")
 	if writeErr := steps.WriteJSONAtomic(manifestFile, m); writeErr != nil {
 		return pipeline.StepResult{}, writeErr
@@ -181,9 +202,13 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 				e.RetryAtSource = domain.RetryAtProvider
 			}
 			result.Waiting = e
-   m.Waiting=e
-   if writeErr:=steps.WriteJSONAtomic(manifestFile,m);writeErr!=nil{return pipeline.StepResult{},writeErr}
-   if saveErr:=s.SaveCheckpoint(ctx,m);saveErr!=nil{return pipeline.StepResult{},saveErr}
+			m.Waiting = e
+			if writeErr := steps.WriteJSONAtomic(manifestFile, m); writeErr != nil {
+				return pipeline.StepResult{}, writeErr
+			}
+			if saveErr := s.SaveCheckpoint(ctx, m); saveErr != nil {
+				return pipeline.StepResult{}, saveErr
+			}
 			// D7 exhaustion is a parked step, not a failed/Cần xử lý step.
 			return result, nil
 		}
@@ -217,8 +242,17 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 	save := func() error { m.Revision++; return s.SaveCheckpoint(ctx, *m) }
 	for index := range m.Items {
 		mu.Lock()
- pending := m.ImageMode!="none"&&(m.Items[index].Status == "pending" || m.Items[index].Status == "running")
- if len(m.QueueOnly)>0{selected:=false;for _,id:=range m.QueueOnly{if m.Items[index].ID==id{selected=true;break}};pending=pending&&selected}
+		pending := m.ImageMode != "none" && (m.Items[index].Status == "pending" || m.Items[index].Status == "running")
+		if len(m.QueueOnly) > 0 {
+			selected := false
+			for _, id := range m.QueueOnly {
+				if m.Items[index].ID == id {
+					selected = true
+					break
+				}
+			}
+			pending = pending && selected
+		}
 		mu.Unlock()
 		if !pending {
 			continue
@@ -250,7 +284,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				}
 				item := &m.Items[index]
 				if item.InFlight == nil {
- prompt, err := BuildManifestImagePrompt(*m,*item)
+					prompt, err := BuildManifestImagePrompt(*m, *item)
 					if err != nil {
 						mu.Unlock()
 						return err
@@ -281,8 +315,11 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					mu.Lock()
 					m.Items[index].Modest = true
 					localItem.Modest = true
- flight.Prompt, err = BuildManifestImagePrompt(*m,localItem)
- if err!=nil{mu.Unlock();return err}
+					flight.Prompt, err = BuildManifestImagePrompt(*m, localItem)
+					if err != nil {
+						mu.Unlock()
+						return err
+					}
 					m.Items[index].InFlight.Prompt = flight.Prompt
 					if e := save(); e != nil {
 						mu.Unlock()
@@ -333,7 +370,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				if err != nil {
 					return err
 				}
- version := Version{Version: flight.Version, GenerationID: flight.GenerationID, CreatedAt: now().UTC().Format(time.RFC3339Nano), Prompt: flight.Prompt, PromptVersion: flight.PromptVersion, RefHash: localItem.Reference.SHA256, SourceFingerprint: flight.SourceFingerprint, Path: relative, SHA256: encoded.SHA256, Width: encoded.Width, Height: encoded.Height, Bytes: encoded.Bytes, Mime: "image/webp", Receipt: &receipt}
+				version := Version{Version: flight.Version, GenerationID: flight.GenerationID, CreatedAt: now().UTC().Format(time.RFC3339Nano), Prompt: flight.Prompt, PromptVersion: flight.PromptVersion, RefHash: localItem.Reference.SHA256, SourceFingerprint: flight.SourceFingerprint, Path: relative, SHA256: encoded.SHA256, Width: encoded.Width, Height: encoded.Height, Bytes: encoded.Bytes, Mime: "image/webp", Receipt: &receipt}
 				artifacts := []media.Artifact{{Path: relative, File: webp, ContentType: "image/webp"}, {Path: flight.PNG, File: png, ContentType: "image/png"}}
 				if localItem.Kind == "scene" && strings.HasPrefix(m.Style, "cutout") {
 					cut := strings.TrimSuffix(relative, ".webp") + ".cutout.png"

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -80,7 +81,11 @@ func (s *Service) Read(ctx context.Context, id string) (*EvidenceView, error) {
 	input := pipelineBackdrop.EvidenceInput{TemplateSnapshot: snapshot.Job.TemplateSnapshot, VideoSec: videoSec(snapshot), Busy: jobedit.Busy(snapshot, domain.CloneBackdrop)}
 	if stored != nil {
 		input.Manifest = &stored.Manifest
-		return pipelineBackdrop.Evidence(ctx, s.Deps.Store, input)
+		view, err := pipelineBackdrop.Evidence(ctx, s.Deps.Store, input)
+		if err == nil && view != nil {
+			decorateEvidence(view, snapshot)
+		}
+		return view, err
 	}
 	view, err := pipelineBackdrop.Evidence(ctx, s.Deps.Store, input)
 	if err != nil || view == nil {
@@ -93,7 +98,34 @@ func (s *Service) Read(ctx context.Context, id string) (*EvidenceView, error) {
 	initial, _ := pipelineBackdrop.InitialManifest(template, input.VideoSec)
 	view.Revision = initial.Revision
 	view.WantedCount = initial.WantedCount
+	decorateEvidence(view, snapshot)
 	return view, nil
+}
+
+func decorateEvidence(view *EvidenceView, snapshot jobedit.Snapshot) {
+	for _, step := range snapshot.Steps {
+		if step.Step != domain.CloneBuild {
+			continue
+		}
+		view.Rebuilding = step.Status == domain.ClonePending || step.Status == domain.CloneStale || step.Status == domain.CloneRunning
+		if step.Output != nil {
+			if revision, ok := step.Output.Data["projectRevision"].(string); ok && revision != "" {
+				view.ProjectRevision = &revision
+			}
+		}
+	}
+	for i := range view.Items {
+		item := &view.Items[i]
+		if item.MediaID == nil {
+			continue
+		}
+		for _, artifact := range snapshot.Artifacts {
+			if (artifact.Path == *item.MediaID || strings.HasSuffix(artifact.Path, "/"+*item.MediaID)) && len(artifact.SHA256) >= 32 {
+				item.EditorMediaID = "media-" + artifact.SHA256[:32]
+				break
+			}
+		}
+	}
 }
 
 // Edit computes catalogue selection outside the transaction. Commit compares the
