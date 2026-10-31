@@ -10,7 +10,7 @@ import { paths } from '../router'
 import NotificationSettings from '../screens/settings/NotificationSettings'
 
 const s = stylex.create({
-  pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 65px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-14)', backgroundColor: 'var(--color-surface-4)', border: '1px solid var(--line-2)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)' },
+  pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 66px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--kit-surface-15)', border: '1px solid var(--line-2)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)' },
   head: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-14) var(--vv-s-12) var(--vv-s-10) var(--vv-s-16)', borderBottom: '1px solid var(--line-1)', fontSize: 15, fontWeight: 600 },
   tabs: { display: 'flex', gap: 'var(--vv-s-4)', margin: '0 var(--vv-s-12) var(--vv-s-8)', padding: 'var(--vv-s-3)', borderRadius: 'var(--vv-r-9)', backgroundColor: 'var(--color-surface-1)' },
   tab: { flex: 1, border: 0, borderRadius: 'var(--vv-r-7)', padding: 'var(--vv-s-8) var(--vv-s-10)', backgroundColor: 'transparent', color: 'var(--color-fg-3)', cursor: 'pointer' },
