@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex'
 // Slider giữ giá trị tại chỗ khi kéo, chỉ gọi onChange lúc nhả tay/phím — thanh
 // trượt không bắn một PATCH mỗi pixel, điều khiển rời rạc khác vẫn lưu ngay.
 import { useEffect, useRef, useState } from 'react'
@@ -14,8 +15,12 @@ export function SliderField({ value, onChange, ...rest }: ComponentProps<typeof 
     dragging.current = false
     if (local !== value) onChange(local)
   }
-  return <Slider {...rest} value={local} onChange={(next) => {
+  return <Slider inputStyle={sx.touchTarget} {...rest} value={local} onChange={(next) => {
     dragging.current = true
     setLocal(next)
   }} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
 }
+
+const sx = stylex.create({
+  touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+})

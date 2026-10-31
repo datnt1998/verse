@@ -1,3 +1,6 @@
+import * as stylex from '@stylexjs/stylex'
+import { color } from '@noverse/ui/tokens.stylex'
+import { libraryVars } from '../libraryTokens.stylex'
 // Chọn đoạn của một video (SegmentPicker): điểm bắt đầu bằng slider (khi biết
 // độ dài video) + bước độ dài đoạn — trần 600 giây (10 phút) khớp backend.
 // Chưa biết độ dài thì nhập giây bắt đầu, máy chủ kiểm lại khi tải.
@@ -26,10 +29,10 @@ export function SegmentPicker({ value, videoSec, onChange }: {
   }
 
   return (
-    <div className="vbd-segpick">
-      <div className="vbd-seghead">
-        <span className="vbd-segtitle">{copy.segmentTitle}</span>
-        <span className="num vbd-segval">
+    <div className={`vbd-segpick ${stylex.props(sx.segpick).className}`}>
+      <div className={`vbd-seghead ${stylex.props(sx.seghead).className}`}>
+        <span className={`vbd-segtitle ${stylex.props(sx.segtitle).className}`}>{copy.segmentTitle}</span>
+        <span className={`num vbd-segval ${stylex.props(sx.numSegval).className}`}>
           {copy.segmentLen(timeRange(len))} · {timeRange(from)}–{timeRange(from + len)}
         </span>
       </div>
@@ -45,7 +48,7 @@ export function SegmentPicker({ value, videoSec, onChange }: {
           onChange={(next) => commit(Math.round(next), len)}
         />
       ) : (
-        <NumberStepper
+        <NumberStepper buttonStyle={sx.touchTarget}
           value={from}
           min={0}
           max={36000}
@@ -55,7 +58,7 @@ export function SegmentPicker({ value, videoSec, onChange }: {
           onChange={(next) => commit(Math.round(next), len)}
         />
       )}
-      <NumberStepper
+      <NumberStepper buttonStyle={sx.touchTarget}
         value={len}
         min={1}
         max={maxLen}
@@ -64,9 +67,18 @@ export function SegmentPicker({ value, videoSec, onChange }: {
         hint={copy.secondsUnit}
         onChange={(next) => commit(from, Math.round(next))}
       />
-      <p className="vbd-segnote">
+      <p className={`vbd-segnote ${stylex.props(sx.segnote).className}`}>
         {duration ? copy.segmentMaxNote(timeRange(duration)) : copy.segmentUnknownNote}
       </p>
     </div>
   )
 }
+
+const sx = stylex.create({
+  segpick: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)" },
+  seghead: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+  segtitle: { fontSize: "var(--vv-s-12)", fontWeight: libraryVars.headingWeight },
+  numSegval: { fontSize: "var(--vv-s-11)", color: color["--color-fg-2"] },
+  touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  segnote: { fontSize: libraryVars.microFontSize, color: color["--color-fg-3"], marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0 },
+})

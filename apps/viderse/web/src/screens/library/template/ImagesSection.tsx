@@ -1,3 +1,6 @@
+import * as stylex from '@stylexjs/stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
+import { libraryVars } from '../libraryTokens.stylex'
 // Mục Ảnh cảnh (Template.dc.html › lib=images): cách ghép ảnh, prompt ảnh cảnh,
 // số ảnh + giá, chuyển động, độ trong suốt, ảnh đối thủ. Mọi điều khiển lưu
 // ngay qua `onSave` với khối `scenes` đầy đủ (PATCH thay cả recipe).
@@ -34,35 +37,35 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
         : copy.priceKnown(num(scenes.images.count), usd(price.totalUSD))
 
   return (
-    <section className="vt-sec" aria-labelledby="vt-images-title">
-      <div className="vt-sec-head">
-        <h2 id="vt-images-title">{copy.title}</h2>
-        <p className="vt-help">{copy.help}</p>
+    <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-images-title">
+      <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
+        <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-images-title">{copy.title}</h2>
+        <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
-      <div className="vt-card">
-        <span className="vt-label">{copy.placeTitle}</span>
-        <div role="radiogroup" aria-label={copy.placeAria} className="vt-places">
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.placeTitle}</span>
+        <div role="radiogroup" aria-label={copy.placeAria} className={`vt-places ${stylex.props(sx.places).className}`}>
           {(['full', 'cutout', 'close'] as const).map((place) => (
-            <RadioCard
+            <RadioCard xstyle={[sx.vtPlacesRadioCard]}
               key={place}
               checked={placement === place}
               onChange={() => setScenes({ style: place === 'full' ? 'full' : 'cutout', framing: place === 'close' ? 'close' : '' })}
-              label={<span className="vt-place" data-place={place}><span className="vt-place-art" aria-hidden="true" /><span>{copy.places[place]}</span></span>}
+              label={<span className={`vt-place ${stylex.props(sx.place).className}`} data-place={place}><span className={`vt-place-art ${stylex.props(sx.placeArt, ((place) === "cutout") && sx.placeArtDataPlaceCutout, ((place) === "close") && sx.placeArtDataPlaceClose).className}`} aria-hidden="true" /><span>{copy.places[place]}</span></span>}
               description={copy.placeHelp[place]}
             />
           ))}
         </div>
-        <p className="vt-hint">{copy.placeHelpTail}</p>
-        {errors['scenes.style'] && <p className="vt-fielderr" role="alert">{errors['scenes.style']}</p>}
-        {errors['scenes.framing'] && <p className="vt-fielderr" role="alert">{errors['scenes.framing']}</p>}
+        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.placeHelpTail}</p>
+        {errors['scenes.style'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.style']}</p>}
+        {errors['scenes.framing'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.framing']}</p>}
       </div>
 
-      <div className="vt-card">
-        <div className="vt-card-head">
-          <span className="vt-label">{copy.promptTitle}</span>
-          <span className="vt-links">
-            <a className="vt-link" href="#/library?tab=prompts">{copy.promptLibrary}</a>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
+          <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.promptTitle}</span>
+          <span className={`vt-links ${stylex.props(sx.links).className}`}>
+            <a className={`vt-link ${stylex.props(sx.link).className}`} href="#/library?tab=prompts">{copy.promptLibrary}</a>
           </span>
         </div>
         <PromptPicker
@@ -71,12 +74,12 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
           onSelect={(id) => setScenes({ scenePromptId: id })}
           usedLabel={copy.promptNote}
         />
-        {errors['scenes.scenePromptId'] && <p className="vt-fielderr" role="alert">{errors['scenes.scenePromptId']}</p>}
+        {errors['scenes.scenePromptId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.scenePromptId']}</p>}
       </div>
 
-      <div className="vt-card">
-        <span className="vt-label" id="vt-count">{copy.countTitle}</span>
-        <Segmented
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <span className={`vt-label ${stylex.props(sx.label).className}`} id="vt-count">{copy.countTitle}</span>
+        <Segmented buttonStyle={sx.touchTarget}
           label={copy.countAria}
           fit="content"
           value={scenes.images.mode}
@@ -88,9 +91,9 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
           ]}
         />
         {scenes.images.mode !== 'none' && (
-          <div className="vt-row">
-            <span className="vt-row-note">{scenes.images.mode === 'fixed' ? copy.countPreFixed : copy.countPrePer}</span>
-            <NumberStepper
+          <div className={`vt-row ${stylex.props(sx.row).className}`}>
+            <span className={`vt-row-note ${stylex.props(sx.rowNote).className}`}>{scenes.images.mode === 'fixed' ? copy.countPreFixed : copy.countPrePer}</span>
+            <NumberStepper buttonStyle={sx.touchTarget} inputStyle={sx.touchTarget}
               aria-label={copy.countTitle}
               value={scenes.images.mode === 'fixed' ? scenes.images.count : scenes.images.minutes}
               min={1}
@@ -101,18 +104,18 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
                   : { ...scenes.images, minutes: value },
               })}
             />
-            <span className="vt-row-note">{scenes.images.mode === 'fixed' ? copy.countPostFixed : copy.countPostPer}</span>
+            <span className={`vt-row-note ${stylex.props(sx.rowNote).className}`}>{scenes.images.mode === 'fixed' ? copy.countPostFixed : copy.countPostPer}</span>
           </div>
         )}
-        <p className="vt-help vt-help--small">{countText}</p>
-        <p className="vt-help vt-help--small">{priceText}</p>
-        {errors['scenes.images.count'] && <p className="vt-fielderr" role="alert">{errors['scenes.images.count']}</p>}
-        {errors['scenes.images.minutes'] && <p className="vt-fielderr" role="alert">{errors['scenes.images.minutes']}</p>}
+        <p className={`vt-help vt-help--small ${stylex.props(sx.help).className}`}>{countText}</p>
+        <p className={`vt-help vt-help--small ${stylex.props(sx.help).className}`}>{priceText}</p>
+        {errors['scenes.images.count'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.images.count']}</p>}
+        {errors['scenes.images.minutes'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.images.minutes']}</p>}
       </div>
 
-      <div className="vt-card">
-        <span className="vt-label">{copy.motionTitle}</span>
-        <Segmented
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.motionTitle}</span>
+        <Segmented buttonStyle={sx.touchTarget}
           label={copy.motionAria}
           fit="content"
           value={scenes.motion.kind}
@@ -140,10 +143,10 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
           formatValue={(value) => `${Number(value.toFixed(2))}×`}
           onChange={(value) => setScenes({ motion: { ...scenes.motion, speed: value } })}
         />
-        {errors['scenes.motion'] && <p className="vt-fielderr" role="alert">{errors['scenes.motion']}</p>}
+        {errors['scenes.motion'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.motion']}</p>}
       </div>
 
-      <div className="vt-card">
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <SliderField
           label={copy.opacityTitle}
           value={scenes.sceneOpacity}
@@ -153,20 +156,44 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
           formatValue={(value) => (value >= 0.999 ? copy.opacityFull : copy.opacityPct(String(Math.round(value * 100))))}
           onChange={(value) => setScenes({ sceneOpacity: value })}
         />
-        <p className="vt-help vt-help--small">{copy.opacityHelp}</p>
-        {errors['scenes.sceneOpacity'] && <p className="vt-fielderr" role="alert">{errors['scenes.sceneOpacity']}</p>}
+        <p className={`vt-help vt-help--small ${stylex.props(sx.help).className}`}>{copy.opacityHelp}</p>
+        {errors['scenes.sceneOpacity'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.sceneOpacity']}</p>}
       </div>
 
-      <div className="vt-card">
-        <div className="vt-switch-row">
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <div className={`vt-switch-row ${stylex.props(sx.switchRow).className}`}>
           <div>
-            <span className="vt-label">{copy.referenceTitle}</span>
-            <p className="vt-help vt-help--small">{copy.referenceHelp}</p>
+            <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.referenceTitle}</span>
+            <p className={`vt-help vt-help--small ${stylex.props(sx.help).className}`}>{copy.referenceHelp}</p>
           </div>
-          <Switch label={copy.referenceTitle} checked={scenes.referenceImages}
+          <Switch xstyle={[sx.vtPlacesRadioCard]} label={copy.referenceTitle} checked={scenes.referenceImages}
             onChange={(on) => setScenes({ referenceImages: on })} />
         </div>
       </div>
     </section>
   )
 }
+
+const sx = stylex.create({
+  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
+  secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
+  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
+  help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
+  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
+  label: { fontSize: "var(--vv-s-14)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
+  places: { display: "grid", gridTemplateColumns: { default: libraryVars.templateImagesSectionPlacesGridTemplateColumns, "@media (max-width: 767px)": libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns3 }, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
+  vtPlacesRadioCard: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  place: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: libraryVars.bodySmallFontSize },
+  placeArt: { display: "block", height: libraryVars.templateCoverSectionCoverThumbWidth, borderTopLeftRadius: "var(--vv-r-6)", borderTopRightRadius: "var(--vv-r-6)", borderBottomRightRadius: "var(--vv-r-6)", borderBottomLeftRadius: "var(--vv-r-6)", backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
+  placeArtDataPlaceCutout: { backgroundColor: "transparent", backgroundImage: libraryVars.templateImagesSectionPlaceArtDataPlaceCutoutBackgroundImage },
+  placeArtDataPlaceClose: { backgroundColor: "transparent", backgroundImage: libraryVars.templateImagesSectionPlaceArtDataPlaceCloseBackgroundImage },
+  hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
+  fielderr: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-err"] },
+  cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
+  links: { display: "inline-flex", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)" },
+  link: { color: color["--color-link"], fontSize: "var(--vv-s-12)", textDecoration: { default: "none", ":hover": "underline" }, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  row: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
+  rowNote: { fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"] },
+  switchRow: { display: "flex", alignItems: "center", justifyContent: "space-between", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", flexWrap: "wrap" },
+})

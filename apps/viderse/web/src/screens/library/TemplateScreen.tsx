@@ -1,3 +1,6 @@
+import * as stylex from '@stylexjs/stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
+import { libraryVars } from './libraryTokens.stylex'
 // Cài đặt template (artboard Template): cột mục + khung xem thử/sức
 // khoẻ, 4 mục. Mọi thay đổi tự lưu: ô chữ khi rời ô, điều khiển rời rạc khi
 // đổi; một lần lưu đang chạy thì gộp lần sau (useTemplateDraft). Mục Nền & hiệu
@@ -23,7 +26,7 @@ import { TemplateNav } from './template/TemplateNav'
 import { useTemplateDraft } from './template/useTemplateDraft'
 import { AttachChannelDialog } from './AttachChannelDialog'
 import { clock, editedLabel, num } from './fmt'
-import './template.css'
+
 
 /** Cảnh báo sức khoẻ dùng chung cho chip trên đầu trang và thẻ ở cột trái. */
 export function healthWarn(detail: TemplateDetail) {
@@ -52,17 +55,17 @@ export function TemplateScreen({ route }: { route: Extract<Route, { name: 'templ
 
   if (detail.initialLoading) {
     return (
-      <div className="vt-shell vt-shell--center" role="status" aria-label={copy.loadFail}>
+      <div className={`vt-shell vt-shell--center ${stylex.props(sx.shellShellCenter).className}`} role="status" aria-label={copy.loadFail}>
         <Spinner />
       </div>
     )
   }
   if (!detail.data) {
     return (
-      <div className="vt-shell vt-shell--center">
+      <div className={`vt-shell vt-shell--center ${stylex.props(sx.shellShellCenter).className}`}>
         <EmptyState variant="frame" icon="warning-2" title={copy.notFound}
           hint={detail.error ? String(detail.error) : undefined}
-          action={<ActionButton variant="outline" onClick={() => navigate(paths.library('templates'))}>{copy.backToLibrary}</ActionButton>} />
+          action={<ActionButton xstyle={[sx.vtShellActionButton]} variant="outline" onClick={() => navigate(paths.library('templates'))}>{copy.backToLibrary}</ActionButton>} />
       </div>
     )
   }
@@ -132,15 +135,15 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
   }
 
   return (
-    <div className="vt-shell">
+    <div className={`vt-shell ${stylex.props(sx.shell).className}`}>
       <TemplateNav detail={detail} active={section}
         overlayNames={(overlays.data?.items ?? []).filter((item) => recipe.overlays.includes(item.id)).map((item) => item.name)} />
-      <main className="vt-main">
-        <header className="vt-head">
-          <div className="vt-head-main">
-            <div className="vt-title-row">
+      <main className={`vt-main ${stylex.props(sx.main).className}`}>
+        <header className={`vt-head ${stylex.props(sx.head).className}`}>
+          <div className={`vt-head-main ${stylex.props(sx.headMain).className}`}>
+            <div className={`vt-title-row ${stylex.props(sx.titleRow).className}`}>
             <input
-              className="vt-name"
+              className={`vt-name ${stylex.props(sx.name, (Boolean((nameError ? true : undefined))) && sx.nameAriaInvalid).className}`}
               value={name}
               aria-label={copy.nameLabel}
               aria-invalid={nameError ? true : undefined}
@@ -153,27 +156,27 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
                 if (event.key === 'Escape') { setName(detail.name); event.currentTarget.blur() }
               }}
             />
-            <div className="vt-chips">
-              <span className="vt-chip" data-tone={healthWarn(detail) ? 'warn' : 'ok'}>
-                <span className="vt-dot" data-tone={healthWarn(detail) ? 'warn' : 'ok'} aria-hidden="true" />
+            <div className={`vt-chips ${stylex.props(sx.chips).className}`}>
+              <span className={`vt-chip ${stylex.props(sx.chip, ((healthWarn(detail) ? 'warn' : 'ok') === "ok") && sx.chipDataToneOk, ((healthWarn(detail) ? 'warn' : 'ok') === "warn") && sx.chipDataToneWarn).className}`} data-tone={healthWarn(detail) ? 'warn' : 'ok'}>
+                <span className={`vt-dot ${stylex.props(sx.dot, ((healthWarn(detail) ? 'warn' : 'ok') === "warn") && sx.dotDataToneWarn).className}`} data-tone={healthWarn(detail) ? 'warn' : 'ok'} aria-hidden="true" />
                 {healthWarn(detail) ? copy.healthWarnChip : copy.healthOkChip}
               </span>
-              <span className="vt-chip">{detail.channels.length ? copy.channelsChip(detail.channels.length) : copy.noChannelsChip}</span>
+              <span className={`vt-chip ${stylex.props(sx.chip).className}`}>{detail.channels.length ? copy.channelsChip(detail.channels.length) : copy.noChannelsChip}</span>
             </div>
             </div>
-            {nameError && <p id="vt-name-error" className="vt-fielderr" role="alert">{nameError}</p>}
+            {nameError && <p id="vt-name-error" className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{nameError}</p>}
           </div>
-          <div className="vt-head-actions" aria-live="polite">
-            <span className="vt-saved" data-state={draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved'} aria-live="polite">
+          <div className={`vt-head-actions ${stylex.props(sx.headActions).className}`} aria-live="polite">
+            <span className={`vt-saved ${stylex.props(sx.saved, ((draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved') === "saving") && sx.savedDataStateSaving, ((draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved') === "conflict") && sx.savedDataStateConflict).className}`} data-state={draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved'} aria-live="polite">
               {draft.saving ? copy.saving : t.library.saved(clock(detail.savedAt))}
             </span>
-            <ActionButton variant="outline" lockedReason={copy.openEditorLocked}>{copy.openEditor}</ActionButton>
-            <ActionMenu
+            <ActionButton xstyle={[sx.vtShellActionButton]} variant="outline" lockedReason={copy.openEditorLocked}>{copy.openEditor}</ActionButton>
+            <ActionMenu triggerStyle={sx.touchTarget}
               label={copy.moreAria}
               items={[
                 { id: 'duplicate', label: t.library.duplicate, icon: <Icon name="copy" size={16} />, onSelect: () => void duplicate() },
               ]}
-              trigger={<button type="button" className="vt-iconbtn" aria-label={copy.moreAria} aria-haspopup="menu"><Icon name="more" size={16} /></button>}
+              trigger={<button type="button" className={`vt-iconbtn ${stylex.props(sx.iconbtn).className}`} aria-label={copy.moreAria} aria-haspopup="menu"><Icon name="more" size={16} /></button>}
             />
           </div>
         </header>
@@ -187,15 +190,15 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
         {unmatched.length > 0 && (
           <Banner tone="error" title={copy.saveFail}>
             {unmatched.map(([field, message]) => (
-              <span key={field} className="vt-field-line">
+              <span key={field} className={`vt-field-line ${stylex.props(sx.fieldLine).className}`}>
                 {copy.fieldError(copy.fieldLabels[field] ?? field, message)}
               </span>
             ))}
           </Banner>
         )}
 
-        <div className="vt-row2">
-          <div className="vt-settings">
+        <div className={`vt-row2 ${stylex.props(sx.row2).className}`}>
+          <div className={`vt-settings ${stylex.props(sx.settings).className}`}>
             {section === 'images' && (
               <ImagesSection recipe={recipe} price={detail.price} prompts={scenePrompts.data?.items ?? []}
                 errors={draft.fieldErrors} onSave={save} />
@@ -212,12 +215,41 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
                 onAttach={() => setAttach(true)} />
             )}
           </div>
-          <aside className="vt-aside">
+          <aside className={`vt-aside ${stylex.props(sx.aside).className}`}>
             <PreviewPane detail={detail} dirty={draft.dirty} />
           </aside>
         </div>
       </main>
-      {attach && <AttachChannelDialog channels={channels.data?.channels ?? []} onClose={() => setAttach(false)} />}
+      {attach && <AttachChannelDialog inLibrary={false} channels={channels.data?.channels ?? []} onClose={() => setAttach(false)} />}
     </div>
   )
 }
+
+const sx = stylex.create({
+  shellShellCenter: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0, color: color["--color-fg"], alignItems: "center", justifyContent: "center", paddingTop: "var(--vv-s-24)", paddingRight: "var(--vv-s-24)", paddingBottom: "var(--vv-s-24)", paddingLeft: "var(--vv-s-24)" },
+  vtShellActionButton: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  shell: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0, color: color["--color-fg"] },
+  main: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", flexDirection: "column", minWidth: 0, minHeight: 0, overflowY: "auto" },
+  head: { display: "flex", alignItems: { default: "flex-start", "@media (max-width: 767px)": "stretch" }, justifyContent: "space-between", rowGap: { default: "var(--vv-s-16)", "@media (max-width: 767px)": "var(--vv-s-8)" }, columnGap: { default: "var(--vv-s-16)", "@media (max-width: 767px)": "var(--vv-s-8)" }, paddingTop: { default: "var(--vv-s-22)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-12)", "@media (max-width: 767px)": "var(--vv-s-10)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, flexDirection: { default: null, "@media (max-width: 767px)": "column" } },
+  headMain: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-3)", columnGap: "var(--vv-s-3)", minWidth: 0 },
+  titleRow: { display: { default: "flex", "@media (max-width: 767px)": "flex" }, alignItems: { default: "center", "@media (max-width: 767px)": "center" }, rowGap: { default: "var(--vv-s-10)", "@media (max-width: 767px)": "var(--vv-s-10)" }, columnGap: { default: "var(--vv-s-10)", "@media (max-width: 767px)": "var(--vv-s-10)" }, flexWrap: { default: "wrap", "@media (max-width: 767px)": "wrap" } },
+  name: { minWidth: 0, fieldSizing: "content", maxWidth: { default: libraryVars.templateScreenNameMaxWidth, "@media (max-width: 767px)": "none" }, paddingTop: "var(--vv-s-2)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-2)", paddingLeft: "var(--vv-s-6)", marginLeft: libraryVars.templateScreenNameMarginLeft, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: { default: "transparent", ":hover": line["--line-2"], ":focus": "var(--vv-accent-45)" }, borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: { default: "transparent", ":hover": line["--line-2"], ":focus": "var(--vv-accent-45)" }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: { default: "transparent", ":hover": line["--line-2"], ":focus": "var(--vv-accent-45)" }, borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: { default: "transparent", ":hover": line["--line-2"], ":focus": "var(--vv-accent-45)" }, borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: { default: "transparent", ":focus": color["--color-surface-0"] }, backgroundImage: { default: "none", ":focus": "none" }, color: color["--color-fg"], fontFamily: "inherit", fontSize: { default: libraryVars.templateScreenNameFontSize, "@media (max-width: 767px)": "var(--vv-s-18)" }, fontWeight: libraryVars.headingWeight, letterSpacing: libraryVars.libraryScreenVlbHeadMainH1LetterSpacing, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, outlineWidth: { default: null, ":focus": "medium" }, outlineStyle: { default: null, ":focus": "none" }, outlineColor: { default: null, ":focus": "currentColor" } },
+  nameAriaInvalid: { borderTopColor: color["--color-err"], borderRightColor: color["--color-err"], borderBottomColor: color["--color-err"], borderLeftColor: color["--color-err"] },
+  chips: { display: "flex", flexWrap: "wrap", rowGap: "var(--vv-s-5)", columnGap: "var(--vv-s-5)" },
+  chip: { paddingTop: "var(--vv-s-2)", paddingRight: "var(--vv-s-7)", paddingBottom: "var(--vv-s-2)", paddingLeft: "var(--vv-s-7)", borderTopLeftRadius: "var(--vv-r-pill)", borderTopRightRadius: "var(--vv-r-pill)", borderBottomRightRadius: "var(--vv-r-pill)", borderBottomLeftRadius: "var(--vv-r-pill)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], fontSize: libraryVars.captionFontSize, color: color["--color-fg-3"], whiteSpace: "nowrap" },
+  chipDataToneOk: { color: color["--color-ok"], borderTopColor: "var(--vv-ok-20)", borderRightColor: "var(--vv-ok-20)", borderBottomColor: "var(--vv-ok-20)", borderLeftColor: "var(--vv-ok-20)" },
+  chipDataToneWarn: { color: color["--color-warn"], borderTopColor: "var(--vv-warn-bd)", borderRightColor: "var(--vv-warn-bd)", borderBottomColor: "var(--vv-warn-bd)", borderLeftColor: "var(--vv-warn-bd)" },
+  dot: { width: "var(--vv-s-6)", height: "var(--vv-s-6)", borderTopLeftRadius: "50%", borderTopRightRadius: "50%", borderBottomRightRadius: "50%", borderBottomLeftRadius: "50%", backgroundColor: color["--color-ok"], backgroundImage: "none" },
+  dotDataToneWarn: { backgroundColor: color["--color-warn"], backgroundImage: "none" },
+  fielderr: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-err"] },
+  headActions: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexGrow: 0, flexShrink: 0, flexBasis: "auto", flexWrap: "wrap", justifyContent: { default: "flex-end", "@media (max-width: 767px)": "space-between" } },
+  saved: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", minWidth: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  savedDataStateSaving: { color: color["--color-fg-2"] },
+  savedDataStateConflict: { color: color["--color-warn"] },
+  iconbtn: { display: { default: "inline-flex", "@media (max-width: 767px)": "inline-flex" }, alignItems: { default: "center", "@media (max-width: 767px)": "center" }, justifyContent: { default: "center", "@media (max-width: 767px)": "center" }, width: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-28)" }, height: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-28)" }, borderTopWidth: { default: "var(--vv-s-1)", "@media (max-width: 767px)": "var(--vv-s-1)" }, borderTopStyle: { default: "solid", "@media (max-width: 767px)": "solid" }, borderTopColor: { default: "transparent", "@media (max-width: 767px)": "transparent" }, borderRightWidth: { default: "var(--vv-s-1)", "@media (max-width: 767px)": "var(--vv-s-1)" }, borderRightStyle: { default: "solid", "@media (max-width: 767px)": "solid" }, borderRightColor: { default: "transparent", "@media (max-width: 767px)": "transparent" }, borderBottomWidth: { default: "var(--vv-s-1)", "@media (max-width: 767px)": "var(--vv-s-1)" }, borderBottomStyle: { default: "solid", "@media (max-width: 767px)": "solid" }, borderBottomColor: { default: "transparent", "@media (max-width: 767px)": "transparent" }, borderLeftWidth: { default: "var(--vv-s-1)", "@media (max-width: 767px)": "var(--vv-s-1)" }, borderLeftStyle: { default: "solid", "@media (max-width: 767px)": "solid" }, borderLeftColor: { default: "transparent", "@media (max-width: 767px)": "transparent" }, borderTopLeftRadius: { default: "var(--vv-r-7)", "@media (max-width: 767px)": "var(--vv-r-7)" }, borderTopRightRadius: { default: "var(--vv-r-7)", "@media (max-width: 767px)": "var(--vv-r-7)" }, borderBottomRightRadius: { default: "var(--vv-r-7)", "@media (max-width: 767px)": "var(--vv-r-7)" }, borderBottomLeftRadius: { default: "var(--vv-r-7)", "@media (max-width: 767px)": "var(--vv-r-7)" }, backgroundColor: { default: "transparent", "@media (max-width: 767px)": { default: null, ":hover": "var(--vv-hover)" }, ":hover": "var(--vv-hover)" }, backgroundImage: { default: "none", "@media (max-width: 767px)": { default: null, ":hover": "none" }, ":hover": "none" }, color: { default: color["--color-fg-4"], "@media (max-width: 767px)": { default: null, ":hover": color["--color-fg"] }, ":hover": color["--color-fg"] }, cursor: { default: "pointer", "@media (max-width: 767px)": "pointer" }, outlineWidth: { default: null, "@media (max-width: 767px)": { default: null, ":focus-visible": "var(--vv-s-2)" }, ":focus-visible": "var(--vv-s-2)" }, outlineStyle: { default: null, "@media (max-width: 767px)": { default: null, ":focus-visible": "solid" }, ":focus-visible": "solid" }, outlineColor: { default: null, "@media (max-width: 767px)": { default: null, ":focus-visible": color["--color-accent"] }, ":focus-visible": color["--color-accent"] }, outlineOffset: { default: null, "@media (max-width: 767px)": { default: null, ":focus-visible": "var(--vv-s-1)" }, ":focus-visible": "var(--vv-s-1)" }, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, minWidth: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  fieldLine: { display: "block" },
+  row2: { display: "grid", gridTemplateColumns: { default: libraryVars.templateScreenRow2GridTemplateColumns, "@media (max-width: 1099px)": libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns3 }, rowGap: { default: "var(--vv-s-24)", "@media (max-width: 767px)": "var(--vv-s-14)" }, columnGap: { default: "var(--vv-s-24)", "@media (max-width: 767px)": "var(--vv-s-14)" }, paddingTop: { default: 0, "@media (max-width: 767px)": 0 }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-40)", "@media (max-width: 767px)": "var(--vv-s-32)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, alignItems: "start" },
+  settings: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-16)", columnGap: "var(--vv-s-16)", minWidth: 0 },
+  aside: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-14)", columnGap: "var(--vv-s-14)", minWidth: 0, position: { default: "sticky", "@media (max-width: 1099px)": "static" }, top: "var(--vv-s-12)", order: { default: null, "@media (max-width: 1099px)": libraryVars.templateScreenAsideOrder } },
+  touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+})
