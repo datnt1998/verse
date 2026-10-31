@@ -204,6 +204,8 @@ type CloneJob struct {
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 	ImageApprovedAt   pgtype.Timestamptz `json:"image_approved_at"`
+	AutoFix           []byte             `json:"auto_fix"`
+	AutoReview        []byte             `json:"auto_review"`
 }
 
 type CloneMetadataState struct {
@@ -337,6 +339,41 @@ type ImageReceipt struct {
 	FinishedAt pgtype.Timestamptz `json:"finished_at"`
 }
 
+type LearnEdit struct {
+	JobID      pgtype.UUID        `json:"job_id"`
+	ChannelID  pgtype.UUID        `json:"channel_id"`
+	Part       string             `json:"part"`
+	Key        string             `json:"key"`
+	BeforeText string             `json:"before_text"`
+	AfterText  string             `json:"after_text"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
+type LearnFeedback struct {
+	ID            pgtype.UUID        `json:"id"`
+	JobID         pgtype.UUID        `json:"job_id"`
+	ChannelID     pgtype.UUID        `json:"channel_id"`
+	ImagePromptID string             `json:"image_prompt_id"`
+	Text          string             `json:"text"`
+	Norm          string             `json:"norm"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
+type LearnedRule struct {
+	ID            pgtype.UUID        `json:"id"`
+	ChannelID     pgtype.UUID        `json:"channel_id"`
+	ImagePromptID pgtype.Text        `json:"image_prompt_id"`
+	Agent         string             `json:"agent"`
+	Text          string             `json:"text"`
+	PatternKey    pgtype.Text        `json:"pattern_key"`
+	Source        string             `json:"source"`
+	SourceLabel   string             `json:"source_label"`
+	LearnedFrom   []byte             `json:"learned_from"`
+	Enabled       bool               `json:"enabled"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Notification struct {
 	ID          pgtype.UUID        `json:"id"`
 	Kind        string             `json:"kind"`
@@ -394,6 +431,8 @@ type OwnerChannel struct {
 	IdentityLeaseUntil pgtype.Timestamptz `json:"identity_lease_until"`
 	CreatedAt          pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+	Autonomy           []byte             `json:"autonomy"`
+	Priority           string             `json:"priority"`
 }
 
 type OwnerChannelSource struct {
@@ -401,6 +440,7 @@ type OwnerChannelSource struct {
 	RivalID        string             `json:"rival_id"`
 	LinkedAt       pgtype.Timestamptz `json:"linked_at"`
 	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
+	MinDurationSec pgtype.Int4        `json:"min_duration_sec"`
 }
 
 type OwnerChannelTemplate struct {
@@ -598,6 +638,23 @@ type StorageStore struct {
 	Config      []byte             `json:"config"`
 	Credentials []byte             `json:"credentials"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
+type Suggestion struct {
+	ID            pgtype.UUID        `json:"id"`
+	Kind          string             `json:"kind"`
+	Agent         string             `json:"agent"`
+	ChannelID     pgtype.UUID        `json:"channel_id"`
+	Object        string             `json:"object"`
+	Title         string             `json:"title"`
+	Reason        []byte             `json:"reason"`
+	PrimaryAction []byte             `json:"primary_action"`
+	Value         int32              `json:"value"`
+	State         string             `json:"state"`
+	CooldownUntil pgtype.Timestamptz `json:"cooldown_until"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	ExpiresAt     pgtype.Timestamptz `json:"expires_at"`
+	ResolvedAt    pgtype.Timestamptz `json:"resolved_at"`
 }
 
 type Template struct {

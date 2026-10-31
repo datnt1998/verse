@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/autonomy"
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
@@ -18,12 +19,24 @@ type PromptCatalog interface {
 type FfmpegResolver interface {
 	Resolve(context.Context) *tools.FfmpegResolved
 }
+
+// Learner nhận góp ý vẽ lại của chủ kênh để Hoạ sĩ học (07 §19). Cả hai hàm
+// trả đề xuất learn_rule hoặc nil; lỗi của Learner không làm hỏng lần vẽ lại.
+type Learner interface {
+	ObserveRedraw(ctx context.Context, jobID, channelID, imagePromptID, promptName, feedback string) (any, error)
+	OpenFor(ctx context.Context, jobID string) (any, error)
+}
 type Service struct {
+	Learner   Learner
 	Edits     *jobedit.Service
 	Prompts   PromptCatalog
 	QuotaLeft func(context.Context) (int, error)
 	Ffmpeg    FfmpegResolver
 	Runner    tools.Runner
+	// Autonomy đọc Mức tự chủ của kênh để tóm tắt điểm; nil → không tóm tắt.
+	Autonomy interface {
+		JobAutonomy(ctx context.Context, jobID string) (domain.Autonomy, bool, error)
+	}
 }
 type RevisionInput struct {
 	ExpectedRevision *int `json:"expectedRevision"`
@@ -67,6 +80,8 @@ type GenerateResult struct {
 	Pending  []string `json:"pending"`
 	Count    int      `json:"count,omitempty"`
 	ItemID   string   `json:"itemId,omitempty"`
+	// Learn là đề xuất “Thêm vào Ghi chú đã học” khi góp ý vừa lặp lần thứ 2.
+	Learn any `json:"learn"`
 }
 type ReviewResult struct {
 	Manifest struct {
@@ -108,6 +123,8 @@ type VersionView struct {
 	OriginalURL       string          `json:"originalUrl,omitempty"`
 	CutoutURL         string          `json:"cutoutUrl,omitempty"`
 	CutoutState       string          `json:"cutoutState"`
+	// Score là điểm Kiểm định của version này (nil khi chưa chấm được).
+	Score *domain.ImageScore `json:"score"`
 }
 type ItemView struct {
 	ID             string        `json:"id"`
@@ -133,13 +150,30 @@ type ItemView struct {
 	Narration      string        `json:"narration,omitempty"`
 	Direction      string        `json:"direction,omitempty"`
 	MediaID        string        `json:"mediaId,omitempty"`
+	// Score là điểm của ảnh đang hiển thị (đề cử đang xét hoặc ảnh đã chọn).
+	Score *domain.ImageScore `json:"score"`
+}
+
+// AutonomyView tóm tắt điểm so với ngưỡng Duyệt theo điểm của kênh — dòng
+// "cảnh 4 được 72" của Chờ duyệt. Luôn có khi video có ảnh.
+type AutonomyView struct {
+	Mode    string               `json:"mode"`
+	Min     int                  `json:"min"`
+	Total   int                  `json:"total"`
+	Passed  int                  `json:"passed"`
+	Pending int                  `json:"pending"`
+	Below   []autonomy.BelowItem `json:"below"`
+	Summary string               `json:"summary"`
 }
 type View struct {
+	Autonomy      *AutonomyView `json:"autonomy"`
 	Manifest      *ManifestView `json:"manifest"`
 	Items         []ItemView    `json:"items"`
 	Approved      bool          `json:"approved"`
 	ApprovedToday *int          `json:"approvedToday"`
 	Reason        string        `json:"reason,omitempty"`
+	// Learn: đề xuất “Thêm vào Ghi chú đã học” đang mở mà video này góp phần.
+	Learn any `json:"learn"`
 }
 
 // OptionalString distinguishes omission (retain override) from null (template).

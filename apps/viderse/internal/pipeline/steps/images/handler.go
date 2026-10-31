@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/autonomy"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
@@ -42,6 +43,11 @@ type Deps struct {
 	Cutout          func(context.Context, *pipeline.StepContext, string, string) error
 	Now             func() time.Time
 	ReadManifest    func(context.Context, domain.CloneJob) (*Manifest, error)
+	// Scorer chấm điểm từng ảnh sau khi vẽ; nil → chấm bằng Model (thị giác).
+	Scorer autonomy.Scorer
+	// Notes trả "Ghi chú đã học" của prompt cảnh và prompt bìa đang dùng cho
+	// video này; nối vào cuối prompt lúc chốt mỗi lần vẽ. Nil → không có ghi chú.
+	Notes func(context.Context, domain.CloneJob, *Overrides) (LearnedNotes, error)
 }
 type Handler struct{ Deps Deps }
 
@@ -267,6 +273,13 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	var notes LearnedNotes
+	if h.Deps.Notes != nil {
+		var err error
+		if notes, err = h.Deps.Notes(ctx, s.Job, m.Overrides); err != nil {
+			return err
+		}
+	}
 	now := time.Now
 	if h.Deps.Now != nil {
 		now = h.Deps.Now
@@ -279,6 +292,11 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 	if cutout == nil {
 		cutout = h.cutout
 	}
+	scorer := h.Deps.Scorer
+	if scorer == nil && h.Deps.Model != nil {
+		scorer = autonomy.NewVisionScorer(h.Deps.Model)
+	}
+	var drawn []string // PNG vừa vẽ trong lượt này, để chấm mục "trùng ảnh"
 	var mu sync.Mutex
 	var first error
 	var wg sync.WaitGroup
@@ -329,7 +347,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				beforeFlight := *item
 				previousRevision := m.Revision
 				if item.InFlight == nil {
-					prompt, err := BuildManifestImagePrompt(*m, *item)
+					prompt, err := BuildManifestImagePrompt(notes.Apply(*m), *item)
 					if err != nil {
 						mu.Unlock()
 						return err
@@ -362,7 +380,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					mu.Lock()
 					m.Items[index].Modest = true
 					localItem.Modest = true
-					flight.Prompt, err = BuildManifestImagePrompt(*m, localItem)
+					flight.Prompt, err = BuildManifestImagePrompt(notes.Apply(*m), localItem)
 					if err != nil {
 						mu.Unlock()
 						return err
@@ -432,8 +450,18 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					version.Cutout = &scenes.FileRef{Path: cut, SHA256: hash}
 					artifacts = append(artifacts, media.Artifact{Path: cut, File: cutfile, ContentType: "image/png"})
 				}
+				if scorer != nil {
+					mu.Lock()
+					siblings := append([]string(nil), drawn[max(0, len(drawn)-2):]...)
+					mu.Unlock()
+					// Chấm hỏng không làm hỏng step: ảnh chưa có điểm thì không tự duyệt.
+					if score, scoreErr := scorer.Score(slotctx, autonomy.ScoreInput{ItemID: localItem.ID, Kind: localItem.Kind, Narration: localItem.Narration, Image: png, Reference: stagedReference(s.StagingDir, localItem), Siblings: siblings}); scoreErr == nil {
+						version.Score = score
+					}
+				}
 				mu.Lock()
 				defer mu.Unlock()
+				drawn = append(drawn, png)
 				// Publish and manifest checkpoint share the media transaction. A crash
 				// cannot expose a selected version without its immutable bytes.
 				previous := m.Items[index]
@@ -513,4 +541,13 @@ func (h Handler) analyse(ctx context.Context, prompt string, refs, ids []string,
 		return err
 	}})
 	return parsed, err
+}
+
+// stagedReference trả khung hình tham chiếu đã chép vào staging của step.
+func stagedReference(stagingDir string, i Item) string {
+	matches, _ := filepath.Glob(filepath.Join(stagingDir, "references", i.ID+".*"))
+	if len(matches) == 0 {
+		return ""
+	}
+	return matches[0]
 }

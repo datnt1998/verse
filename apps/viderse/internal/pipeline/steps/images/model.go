@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
+	"github.com/datnt1998/verse/apps/viderse/internal/learn"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	"strings"
@@ -43,6 +44,8 @@ type Version struct {
 	Receipt           *imagegen.Receipt `json:"receipt,omitempty"`
 	Source            string            `json:"source,omitempty"`
 	Cutout            *scenes.FileRef   `json:"cutout,omitempty"`
+	// Score là điểm Kiểm định của ảnh này (07 §20); nil khi chưa chấm được.
+	Score *domain.ImageScore `json:"score,omitempty"`
 }
 type Flight struct {
 	GenerationID      string `json:"generationId"`
@@ -311,6 +314,19 @@ func CloneManifest(m Manifest) (Manifest, error) {
 	var result Manifest
 	err = json.Unmarshal(raw, &result)
 	return result, err
+}
+
+// LearnedNotes là Ghi chú đã học của prompt cảnh và prompt bìa (07 §19).
+type LearnedNotes struct{ Scene, Cover []string }
+
+// Apply nối "Ghi chú đã học" vào cuối nội dung prompt cảnh và prompt bìa. Ảnh
+// bìa không có prompt riêng thì dùng prompt cảnh, nên không có ghi chú bìa.
+func (n LearnedNotes) Apply(m Manifest) Manifest {
+	m.TemplatePrompt = learn.AppendNotes(m.TemplatePrompt, n.Scene)
+	if m.CoverPrompt != "" {
+		m.CoverPrompt = learn.AppendNotes(m.CoverPrompt, n.Cover)
+	}
+	return m
 }
 func ItemPrompt(m Manifest, i Item) string {
 	if i.Kind == "thumbnail" && m.CoverPrompt != "" {

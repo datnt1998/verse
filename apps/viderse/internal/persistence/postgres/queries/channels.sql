@@ -20,8 +20,8 @@ SELECT EXISTS(SELECT 1 FROM rival_channels WHERE id = $1)::bool AS exists;
 SELECT EXISTS(SELECT 1 FROM templates WHERE id = $1)::bool AS exists;
 
 -- name: InsertOwnerChannel :exec
-INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day)
-VALUES ($1, $2, $3, $4, $5, $6);
+INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day, autonomy, priority)
+VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8);
 
 -- name: UnlinkSource :execrows
 DELETE FROM owner_channel_sources
@@ -40,11 +40,16 @@ ON CONFLICT (owner_channel_id, rival_id) DO NOTHING;
 -- name: ListChannelSources :many
 -- Đối thủ của nhiều kênh trong một truy vấn, thứ tự liên kết (linked_at);
 -- dòng đầu mỗi kênh là đối thủ tham chiếu nhận diện.
-SELECT s.owner_channel_id, s.rival_id, s.linked_at, r.title, r.handle
+SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.min_duration_sec, r.title, r.handle
 FROM owner_channel_sources s
 JOIN rival_channels r ON r.id = s.rival_id
 WHERE s.owner_channel_id = ANY($1::uuid[])
 ORDER BY s.owner_channel_id, s.linked_at, s.rival_id;
+
+-- name: SetSourceMinDuration :execrows
+-- Bộ lọc Tự lấy theo đối thủ (giây; NULL = không lọc).
+UPDATE owner_channel_sources SET min_duration_sec = sqlc.narg(min_duration_sec)::int
+WHERE owner_channel_id = sqlc.arg(owner_channel_id)::uuid AND rival_id = sqlc.arg(rival_id)::text;
 
 -- name: ListChannelTemplates :many
 -- Template luân phiên của nhiều kênh trong một truy vấn, theo position.
@@ -91,6 +96,8 @@ UPDATE owner_channels SET
     always_tags        = CASE WHEN sqlc.arg(tags_set)::bool        THEN sqlc.arg(tags)::text[]       ELSE always_tags END,
     auto_pick          = CASE WHEN sqlc.arg(auto_pick_set)::bool   THEN sqlc.arg(auto_pick)::bool    ELSE auto_pick END,
     pace_per_day       = CASE WHEN sqlc.arg(pace_set)::bool        THEN sqlc.arg(pace)::int          ELSE pace_per_day END,
+    autonomy           = CASE WHEN sqlc.arg(autonomy_set)::bool    THEN sqlc.arg(autonomy)::jsonb    ELSE autonomy END,
+    priority           = CASE WHEN sqlc.arg(priority_set)::bool    THEN sqlc.arg(priority)::text     ELSE priority END,
     branding           = CASE WHEN sqlc.arg(branding_set)::bool
                               THEN jsonb_set(branding, '{brief}', to_jsonb(sqlc.arg(brief)::text), true)
                               ELSE branding END,

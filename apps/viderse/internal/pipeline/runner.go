@@ -51,6 +51,13 @@ type Store interface {
 	SetJobStatus(ctx context.Context, jobID string, status domain.CloneStatus) error
 }
 
+// AutoFixer là Mức tự chủ của kênh nhìn từ runner: step vừa hỏng hẳn có được
+// tự thử lại một lần không, và attempt nào đã xong thì đánh dấu đã phục hồi.
+type AutoFixer interface {
+	AutoFix(ctx context.Context, jobID string, step domain.CloneStep, cerr *domain.CloneError) bool
+	AttemptSettled(ctx context.Context, jobID string, step domain.CloneStep, status domain.CloneStatus)
+}
+
 // Publisher phát sự kiện ra hub SSE. Nil → không phát.
 type Publisher func(eventType string, data any)
 
@@ -82,8 +89,10 @@ type Runner struct {
 	ResolveInput StepInputResolver
 	Queue        QueueDrain
 	OnHumanState func(context.Context, *domain.CloneJob, string)
-	progressMu   sync.Mutex
-	progressAt   map[string]time.Time
+	// AutoFix nil → không tự thử lại (Mức tự chủ không áp dụng).
+	AutoFix    AutoFixer
+	progressMu sync.Mutex
+	progressAt map[string]time.Time
 	// OnAttemptSettled (test hook): gọi sau mỗi attempt kết thúc.
 	OnAttemptSettled func(step domain.CloneStep)
 }
@@ -195,6 +204,11 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 		r.runAttempt(jobCtx, job, handler, claimed, workerID, jobID)
 		if r.OnAttemptSettled != nil {
 			r.OnAttemptSettled(claimed.Step.Step)
+		}
+		if r.AutoFix != nil {
+			if done, _ := r.Store.GetStep(jobCtx, jobID, claimed.Step.Step); done != nil {
+				r.AutoFix.AttemptSettled(jobCtx, jobID, claimed.Step.Step, done.Status)
+			}
 		}
 
 		// Đỗ: đọc lại step — waiting có retryAt không tự retry thì job đỗ
@@ -420,6 +434,12 @@ func (r *Runner) settleAttemptError(ctx context.Context, jobID string, claimed *
 	if cerr.Code == domain.CloneErrCancelled {
 		_ = r.Store.ReportStepCancelled(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt)
 		_ = r.Store.SetJobStatus(ctx, jobID, domain.CloneCancelled)
+		return
+	}
+	// Lỗi hỏng hẳn: kênh cho thử lại một lần thì step về pending ngay (không
+	// qua failed, không báo "Cần xử lý") và vòng RunJob claim lại; không thì
+	// lỗi ở lại cho chủ kênh như thường.
+	if r.AutoFix != nil && !domain.CloneErrRetryable(cerr.Code) && r.AutoFix.AutoFix(ctx, jobID, claimed.Step.Step, cerr) {
 		return
 	}
 	_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)

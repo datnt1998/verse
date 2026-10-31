@@ -188,7 +188,7 @@ func (q *Queries) FailIdentity(ctx context.Context, arg FailIdentityParams) (int
 }
 
 const getOwnerChannel = `-- name: GetOwnerChannel :one
-SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at FROM owner_channels WHERE id = $1
+SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, autonomy, priority FROM owner_channels WHERE id = $1
 `
 
 func (q *Queries) GetOwnerChannel(ctx context.Context, id pgtype.UUID) (OwnerChannel, error) {
@@ -221,6 +221,8 @@ func (q *Queries) GetOwnerChannel(ctx context.Context, id pgtype.UUID) (OwnerCha
 		&i.IdentityLeaseUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Autonomy,
+		&i.Priority,
 	)
 	return i, err
 }
@@ -268,8 +270,8 @@ func (q *Queries) InsertChannelTemplate(ctx context.Context, arg InsertChannelTe
 }
 
 const insertOwnerChannel = `-- name: InsertOwnerChannel :exec
-INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day, autonomy, priority)
+VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8)
 `
 
 type InsertOwnerChannelParams struct {
@@ -279,6 +281,8 @@ type InsertOwnerChannelParams struct {
 	Language   string      `json:"language"`
 	AutoPick   bool        `json:"auto_pick"`
 	PacePerDay int32       `json:"pace_per_day"`
+	Column7    []byte      `json:"column_7"`
+	Priority   string      `json:"priority"`
 }
 
 func (q *Queries) InsertOwnerChannel(ctx context.Context, arg InsertOwnerChannelParams) error {
@@ -289,6 +293,8 @@ func (q *Queries) InsertOwnerChannel(ctx context.Context, arg InsertOwnerChannel
 		arg.Language,
 		arg.AutoPick,
 		arg.PacePerDay,
+		arg.Column7,
+		arg.Priority,
 	)
 	return err
 }
@@ -328,7 +334,7 @@ func (q *Queries) LinkSource(ctx context.Context, arg LinkSourceParams) (int64, 
 }
 
 const listChannelSources = `-- name: ListChannelSources :many
-SELECT s.owner_channel_id, s.rival_id, s.linked_at, r.title, r.handle
+SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.min_duration_sec, r.title, r.handle
 FROM owner_channel_sources s
 JOIN rival_channels r ON r.id = s.rival_id
 WHERE s.owner_channel_id = ANY($1::uuid[])
@@ -339,6 +345,7 @@ type ListChannelSourcesRow struct {
 	OwnerChannelID pgtype.UUID        `json:"owner_channel_id"`
 	RivalID        string             `json:"rival_id"`
 	LinkedAt       pgtype.Timestamptz `json:"linked_at"`
+	MinDurationSec pgtype.Int4        `json:"min_duration_sec"`
 	Title          string             `json:"title"`
 	Handle         pgtype.Text        `json:"handle"`
 }
@@ -358,6 +365,7 @@ func (q *Queries) ListChannelSources(ctx context.Context, dollar_1 []pgtype.UUID
 			&i.OwnerChannelID,
 			&i.RivalID,
 			&i.LinkedAt,
+			&i.MinDurationSec,
 			&i.Title,
 			&i.Handle,
 		); err != nil {
@@ -489,7 +497,7 @@ func (q *Queries) ListCompetitors(ctx context.Context, ownerChannelID pgtype.UUI
 
 const listOwnerChannels = `-- name: ListOwnerChannels :many
 
-SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at FROM owner_channels
+SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, autonomy, priority FROM owner_channels
 ORDER BY (name = ''), lower(name), id
 `
 
@@ -533,6 +541,8 @@ func (q *Queries) ListOwnerChannels(ctx context.Context) ([]OwnerChannel, error)
 			&i.IdentityLeaseUntil,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Autonomy,
+			&i.Priority,
 		); err != nil {
 			return nil, err
 		}
@@ -623,7 +633,7 @@ func (q *Queries) NextIdentityLeaseExpiry(ctx context.Context) (pgtype.Timestamp
 const patchChannel = `-- name: PatchChannel :execrows
 WITH reset_auto_baselines AS (
     UPDATE owner_channel_sources SET auto_baseline_at = NULL
-    WHERE owner_channel_id = $19::uuid
+    WHERE owner_channel_id = $23::uuid
       AND $13::bool AND NOT $14::bool
 )
 UPDATE owner_channels SET
@@ -635,11 +645,13 @@ UPDATE owner_channels SET
     always_tags        = CASE WHEN $11::bool        THEN $12::text[]       ELSE always_tags END,
     auto_pick          = CASE WHEN $13::bool   THEN $14::bool    ELSE auto_pick END,
     pace_per_day       = CASE WHEN $15::bool        THEN $16::int          ELSE pace_per_day END,
-    branding           = CASE WHEN $17::bool
-                              THEN jsonb_set(branding, '{brief}', to_jsonb($18::text), true)
+    autonomy           = CASE WHEN $17::bool    THEN $18::jsonb    ELSE autonomy END,
+    priority           = CASE WHEN $19::bool    THEN $20::text     ELSE priority END,
+    branding           = CASE WHEN $21::bool
+                              THEN jsonb_set(branding, '{brief}', to_jsonb($22::text), true)
                               ELSE branding END,
     updated_at         = clock_timestamp()
-WHERE id = $19::uuid
+WHERE id = $23::uuid
 `
 
 type PatchChannelParams struct {
@@ -659,6 +671,10 @@ type PatchChannelParams struct {
 	AutoPick      bool        `json:"auto_pick"`
 	PaceSet       bool        `json:"pace_set"`
 	Pace          int32       `json:"pace"`
+	AutonomySet   bool        `json:"autonomy_set"`
+	Autonomy      []byte      `json:"autonomy"`
+	PrioritySet   bool        `json:"priority_set"`
+	Priority      string      `json:"priority"`
 	BrandingSet   bool        `json:"branding_set"`
 	Brief         string      `json:"brief"`
 	ID            pgtype.UUID `json:"id"`
@@ -684,6 +700,10 @@ func (q *Queries) PatchChannel(ctx context.Context, arg PatchChannelParams) (int
 		arg.AutoPick,
 		arg.PaceSet,
 		arg.Pace,
+		arg.AutonomySet,
+		arg.Autonomy,
+		arg.PrioritySet,
+		arg.Priority,
 		arg.BrandingSet,
 		arg.Brief,
 		arg.ID,
@@ -894,6 +914,26 @@ type SetChannelTemplatePositionParams struct {
 func (q *Queries) SetChannelTemplatePosition(ctx context.Context, arg SetChannelTemplatePositionParams) error {
 	_, err := q.db.Exec(ctx, setChannelTemplatePosition, arg.OwnerChannelID, arg.TemplateID, arg.Position)
 	return err
+}
+
+const setSourceMinDuration = `-- name: SetSourceMinDuration :execrows
+UPDATE owner_channel_sources SET min_duration_sec = $1::int
+WHERE owner_channel_id = $2::uuid AND rival_id = $3::text
+`
+
+type SetSourceMinDurationParams struct {
+	MinDurationSec pgtype.Int4 `json:"min_duration_sec"`
+	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
+	RivalID        string      `json:"rival_id"`
+}
+
+// Bộ lọc Tự lấy theo đối thủ (giây; NULL = không lọc).
+func (q *Queries) SetSourceMinDuration(ctx context.Context, arg SetSourceMinDurationParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setSourceMinDuration, arg.MinDurationSec, arg.OwnerChannelID, arg.RivalID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const templateExistsForChannels = `-- name: TemplateExistsForChannels :one

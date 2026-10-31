@@ -107,6 +107,8 @@ func ownerChannelFromRow(r gen.OwnerChannel) domain.Channel {
 		DescriptionFooter:  strPtr(r.DescriptionFooter),
 		AlwaysTags:         tags,
 		AutoPick:           r.AutoPick,
+		Autonomy:           domain.ParseAutonomy(r.Autonomy),
+		Priority:           r.Priority,
 		PacePerDay:         int(r.PacePerDay),
 		TemplateCursor:     int(r.TemplateCursor),
 		Branding:           branding,
@@ -203,11 +205,12 @@ func (s *ChannelStore) attachLinks(ctx context.Context, q *gen.Queries, views []
 			continue
 		}
 		v.Sources = append(v.Sources, domain.ChannelSource{
-			RivalID:   r.RivalID,
-			Title:     r.Title,
-			Handle:    strPtr(r.Handle),
-			LinkedAt:  r.LinkedAt.Time,
-			Reference: !seen[v.ID],
+			RivalID:        r.RivalID,
+			Title:          r.Title,
+			Handle:         strPtr(r.Handle),
+			LinkedAt:       r.LinkedAt.Time,
+			Reference:      !seen[v.ID],
+			MinDurationSec: int4Ptr(r.MinDurationSec),
 		})
 		seen[v.ID] = true
 	}
@@ -281,6 +284,8 @@ func (s *ChannelStore) CreateChannel(ctx context.Context, in channels.CreateInpu
 			Language:   in.Language,
 			AutoPick:   in.AutoPick,
 			PacePerDay: int32(in.PacePerDay),
+			Column7:    autonomyJSON(in.Autonomy),
+			Priority:   orPriority(in.Priority),
 		}); err != nil {
 			return err
 		}
@@ -337,6 +342,10 @@ func (s *ChannelStore) PatchChannel(ctx context.Context, id string, p channels.P
 		AutoPick:      p.AutoPick.Value,
 		PaceSet:       p.PacePerDay.Set,
 		Pace:          int32(p.PacePerDay.Value),
+		AutonomySet:   p.Autonomy.Set,
+		Autonomy:      autonomyJSON(p.Autonomy.Value),
+		PrioritySet:   p.Priority.Set,
+		Priority:      orPriority(p.Priority.Value),
 		BrandingSet:   p.Brief.Set,
 		Brief:         p.Brief.Value,
 		ID:            uid,
@@ -378,6 +387,16 @@ func (s *ChannelStore) LinkSource(ctx context.Context, id, rivalID string) (inse
 		inserted = n > 0
 		if !inserted {
 			return nil
+		}
+		// Đối thủ đầu tiên (kênh vừa bỏ hết nguồn nên đã tạm dừng Tự lấy) bật lại
+		// Tự lấy: cách lấy video do Mức tự chủ quyết định, không còn công tắc riêng.
+		count, err := q.CountSources(ctx, uid)
+		if err != nil {
+			return err
+		}
+		if count == 1 {
+			_, err = q.SetAutoPick(ctx, gen.SetAutoPickParams{ID: uid, AutoPick: true})
+			return err
 		}
 		_, err = q.SetAutoPickTouch(ctx, uid)
 		return err
@@ -421,6 +440,34 @@ func (s *ChannelStore) UnlinkSource(ctx context.Context, id, rivalID string) (re
 		return err
 	})
 	return removed, paused, err
+}
+
+// SetSourceMinDuration đặt (hoặc xoá, khi minDurationSec nil) bộ lọc thời lượng
+// Tự lấy của một đối thủ. found=false khi kênh chưa liên kết đối thủ đó.
+func (s *ChannelStore) SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (found bool, err error) {
+	uid, err := uuidArg(id)
+	if err != nil {
+		return false, nil
+	}
+	value := pgtype.Int4{}
+	if minDurationSec != nil {
+		value = int4Scan(*minDurationSec)
+	}
+	err = s.withTx(ctx, func(q *gen.Queries) error {
+		if _, err := q.LockOwnerChannel(ctx, uid); err != nil {
+			return err
+		}
+		n, err := q.SetSourceMinDuration(ctx, gen.SetSourceMinDurationParams{MinDurationSec: value, OwnerChannelID: uid, RivalID: rivalID})
+		if err != nil {
+			return err
+		}
+		if found = n > 0; !found {
+			return nil
+		}
+		_, err = q.SetAutoPickTouch(ctx, uid)
+		return err
+	})
+	return found, err
 }
 
 // ── template luân phiên ────────────────────────────────────────────────────
