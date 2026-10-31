@@ -62,7 +62,7 @@ export function runCardModel(key: string, params: string, result: string): RunCa
   switch (key) {
     case 'novel_context': {
       name = 'Đọc bối cảnh'; role = 'Người viết'
-      const parts = [r.premise && 'tiền đề', r.outline && 'dàn ý', Array.isArray(r.characters) && `${r.characters.length} nhân vật`, Array.isArray(r.foreshadow) && `${r.foreshadow.length} cài cắm`].filter(Boolean)
+      const parts = [r.premise && 'tiền đề', r.outline && 'dàn ý', Array.isArray(r.characters) && `${r.characters.length} nhân vật`, Array.isArray(r.foreshadow) && `${r.foreshadow.length} cài cắm`].filter((part): part is string => typeof part === 'string' && part.length > 0)
       summary = join(chapter, parts.join(', '))
       kv(['Chương', s('chapter')])
       if (parts.length) add({ kind: 'list', label: 'Đã nạp cho Người viết', items: parts.map(x => x === 'tiền đề' ? 'tiền đề và khung truyện' : x === 'dàn ý' ? `dàn ý ${chapter || 'chương'}` : x) })
@@ -163,9 +163,10 @@ export function runCardModel(key: string, params: string, result: string): RunCa
         if (late.length) kv(['Lộ vai muộn', late.join('; ')])
       } else if (kind === 'world_rules') {
         name = 'Lưu quy tắc thế giới'; const rules = list(contents)
-        const categories = [...new Set(rules.map(rule => WORLD_CATEGORIES[text(object(rule).category)]).filter(Boolean))]
+        const categoryLabel = (value: unknown) => WORLD_CATEGORIES.find(category => category.category === text(value))?.label
+        const categories = [...new Set(rules.map(rule => categoryLabel(object(rule).category)).filter((category): category is NonNullable<typeof category> => category !== undefined))]
         summary = join(`${rules.length} quy tắc`, categories.map(category => category.toLocaleLowerCase('vi')).join(', '))
-        const examples = rules.slice(0, 3).map(rule => { const o = object(rule); const category = WORLD_CATEGORIES[text(o.category)]; const description = label(o.rule ?? rule); return category && description ? `${category}: ${description}` : description }).filter(Boolean)
+        const examples = rules.slice(0, 3).map(rule => { const o = object(rule); const category = categoryLabel(o.category); const description = label(o.rule ?? rule); return category && description ? `${category}: ${description}` : description }).filter(Boolean)
         listBlock('Quy tắc', examples.concat(rules.length > 3 ? [`… và ${rules.length - 3} quy tắc khác`] : []))
       } else if (['outline', 'layered_outline', 'expand_arc', 'append_volume'].includes(kind)) {
         name = 'Lưu dàn ý'

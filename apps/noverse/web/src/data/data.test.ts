@@ -19,6 +19,12 @@ it('ánh xạ sự kiện sang prefix, kế thừa cấu hình và danh sách th
   expect(watchListOf([['story', 'p', 's', 'chapter', 1], ['story', 'p', 's', 'reviews'], ['project', 'p', 'meta']])).toEqual(['p', 'p/s'])
 })
 
+it('làm mới lịch sử khi thao tác live cập nhật hoặc lượt chạy kết thúc', () => {
+  expect(keysForEvent({ type: 'live', data: { project: 'p', story: 's', kind: 'event', data: { category: 'TOOL' } } })).toEqual([['story', 'p', 's', 'live-history']])
+  expect(keysForEvent({ type: 'live', data: { project: 'p', story: 's', kind: 'event', data: { category: 'TEXT' } } })).toEqual([])
+  expect(keysForEvent({ type: 'live', data: { project: 'p', story: 's', kind: 'done' } })).toContainEqual(['story', 'p', 's', 'live-history'])
+})
+
 it('gộp prefix trùng do một story.changed có nhiều phần', async () => {
   const cache = createCache()
   const fetcher = vi.fn().mockResolvedValue(1)

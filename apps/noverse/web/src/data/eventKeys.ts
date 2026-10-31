@@ -62,8 +62,10 @@ export function keysForEvent(event: { type: string; data: unknown }, me?: string
     case 'reset':
       return '*'
     case 'live': {
-      if (!project || !story || data.kind !== 'done') return []
-      return ['snapshot', 'chapters', 'outline', 'reviews'].map(part => keys.story(project, story, part as StoryPart))
+      if (!project || !story) return []
+      if (data.kind === 'event' && record(data.data).category === 'TOOL') return [keys.story(project, story, 'live-history')]
+      if (data.kind !== 'done') return []
+      return (['snapshot', 'chapters', 'outline', 'reviews', 'live-history'] as const).map(part => keys.story(project, story, part))
     }
     case 'library.changed':
       return [keys.library()]

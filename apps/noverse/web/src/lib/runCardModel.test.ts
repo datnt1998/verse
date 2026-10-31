@@ -24,6 +24,15 @@ describe('thẻ luồng viết', () => {
     expect(runCardModel('read_chapter', '{"chapter":4,"source":"draft","character":"An"}', '{}').summary).toBe('chương 4 · bản nháp · lời thoại của An')
     expect(runCardModel('unknown_operation', '{}', '{}').summary).toBe('loại thao tác mới · xem chi tiết kỹ thuật')
   })
+  it('dịch nhóm quy tắc thế giới đã biết, bỏ qua nhóm lạ', () => {
+    const model = runCardModel('save_foundation', JSON.stringify({ type: 'world_rules', content: [
+      { category: 'society', rule: 'Luật A' },
+      { category: 'technology', rule: 'Luật B' },
+      { category: 'unrecognized', rule: 'Luật C' },
+    ] }), '{}')
+    expect(model.summary).toBe('3 quy tắc · xã hội, công nghệ')
+    expect(model.blocks).toContainEqual({ kind: 'list', label: 'Quy tắc', items: ['Xã hội: Luật A', 'Công nghệ: Luật B', 'Luật C'] })
+  })
   it.each([
     ['novel_context', { chapter: 4 }, { premise: 'x', outline: {}, characters: [1,2], foreshadow: [1] }, 'chương 4 · tiền đề, dàn ý, 2 nhân vật, 1 cài cắm'],
     ['plan_chapter', { chapter: 4, title: 'Tên chương' }, {}, 'chương 4 · Tên chương'],
