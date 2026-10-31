@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles } from './explore.stylex'
 // Form thêm đối thủ — POST /api/rivals { input }. Lỗi theo `code` hiện ngay
 // dưới ô nhập, câu và nút theo 06-copy › Khám phá: exists → Mở đối thủ đó ·
 // blocked → Mở Tài khoản nền tảng · unexpected_page và lỗi khác → Thử lại
@@ -69,22 +71,22 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
   }
 
   const err = error && (
-    <span className={compact ? 'vx-add-err' : 'vx-empty__err'} role="alert">
+    <span className={`${compact ? 'vx-add-err' : 'vx-empty__err'} ${stylex.props(compact ? exploreStyles.addErr : exploreStyles.emptyErr).className}`} role="alert">
       {error.message}
       {error.action === 'open' && error.rivalId && (
-        <a href="#" onClick={(e) => { e.preventDefault(); error.rivalId && onOpen(error.rivalId) }}>{tt.addErrors.existsOpen}</a>
+        <a {...stylex.props(exploreStyles.errorLink)} href="#" onClick={(e) => { e.preventDefault(); error.rivalId && onOpen(error.rivalId) }}>{tt.addErrors.existsOpen}</a>
       )}
-      {error.action === 'accounts' && <a href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>}
-      {error.action === 'retry' && <button type="submit" className="vx-errbtn">{tt.addErrors.retry}</button>}
+      {error.action === 'accounts' && <a {...stylex.props(exploreStyles.errorLink)} href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>}
+      {error.action === 'retry' && <button type="submit" className={`vx-errbtn ${stylex.props(exploreStyles.errbtn).className}`}>{tt.addErrors.retry}</button>}
     </span>
   )
 
   if (compact) {
     return (
-      <form aria-label={tt.addRival} onSubmit={submit} className="vx-add" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 'var(--vv-s-6)' }}>
-        <span className={`vx-addbox${error ? ' is-error' : ''}`}>
-          <Icon name="add" size={15} />
-          <input
+      <form aria-label={tt.addRival} onSubmit={submit} className={`vx-add ${stylex.props(exploreStyles.add).className}`} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 'var(--vv-s-6)' }}>
+        <span className={`vx-addbox${error ? ' is-error' : ''} ${stylex.props(exploreStyles.addbox, error && exploreStyles.addboxError).className}`}>
+          <Icon {...stylex.props(exploreStyles.addIcon)} name="add" size={15} />
+          <input {...stylex.props(exploreStyles.addInput, !compact && exploreStyles.emptyInput)}
             type="text"
             value={value}
             onChange={(e) => { setValue(e.target.value); setError(null) }}
@@ -99,11 +101,11 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
     )
   }
   return (
-    <form aria-label={tt.addRival} onSubmit={submit} className="vx-empty__form" style={{ flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
+    <form aria-label={tt.addRival} onSubmit={submit} className={`vx-empty__form ${stylex.props(exploreStyles.emptyForm).className}`} style={{ flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
       <span style={{ display: 'flex', gap: 'var(--vv-s-8)', width: '100%' }}>
-        <span className={`vx-addbox${error ? ' is-error' : ''}`} style={{ height: 'var(--vv-s-36)' }}>
-          <Icon name="add" size={15} />
-          <input
+        <span className={`vx-addbox${error ? ' is-error' : ''} ${stylex.props(exploreStyles.addbox, error && exploreStyles.addboxError).className}`} style={{ height: 'var(--vv-s-36)' }}>
+          <Icon {...stylex.props(exploreStyles.addIcon)} name="add" size={15} />
+          <input {...stylex.props(exploreStyles.addInput, !compact && exploreStyles.emptyInput)}
             type="text"
             value={value}
             onChange={(e) => { setValue(e.target.value); setError(null) }}
@@ -114,7 +116,7 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
             autoFocus
           />
         </span>
-        <ActionButton variant="primary" type="submit" disabled={pending || !value.trim()} pending={pending}
+        <ActionButton className={stylex.props(exploreStyles.touchTarget).className} variant="primary" type="submit" disabled={pending || !value.trim()} pending={pending}
           style={{ flex: '0 0 auto' }}>
           {pending ? tt.addRivalPending : tt.addRival}
         </ActionButton>

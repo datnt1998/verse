@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles } from './explore.stylex'
 // Thẻ "Quét lịch sử" ở cột phải: orb Trinh sát (nhấp khi đang chạy), thanh
 // tiến độ n/cap, câu trạng thái (scanView), nút hành động chính (Tạm dừng ·
 // Tiếp tục · Quét lại · Quét lịch sử) và listbox Giới hạn (150 · 500 · 1.000 ·
@@ -39,10 +41,10 @@ export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: str
   }
 
   return (
-    <div className="vx-cardbox" style={{ gap: 'var(--vv-s-10)' }}>
-      <div className="vx-scanhead">
-        <span className="vx-h3"><Orb of="scout" size={14} live={view.live} />{tt.scanTitle}</span>
-        <span className="vx-scancount">{view.count}</span>
+    <div className={`vx-cardbox ${stylex.props(exploreStyles.cardbox).className}`} style={{ gap: 'var(--vv-s-10)' }}>
+      <div className={`vx-scanhead ${stylex.props(exploreStyles.scanhead).className}`}>
+        <span className={`vx-h3 ${stylex.props(exploreStyles.h3).className}`}><Orb of="scout" size={14} live={view.live} />{tt.scanTitle}</span>
+        <span className={`vx-scancount ${stylex.props(exploreStyles.scancount).className}`}>{view.count}</span>
       </div>
       <div
         role="progressbar"
@@ -50,16 +52,16 @@ export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: str
         aria-valuemin={0}
         aria-valuemax={view.max}
         aria-valuenow={view.now}
-        className="vx-progress"
+        className={`vx-progress ${stylex.props(exploreStyles.progress).className}`}
       >
-        <div style={{ width: `${Math.round(view.pct * 100)}%` }} />
+        <div {...stylex.props(exploreStyles.progressFill)} style={{ width: `${Math.round(view.pct * 100)}%` }} />
       </div>
-      <span className="vx-scantext">{view.text}</span>
-      <div className="vx-scanrow">
+      <span className={`vx-scantext ${stylex.props(exploreStyles.scantext).className}`}>{view.text}</span>
+      <div className={`vx-scanrow ${stylex.props(exploreStyles.scanrow).className}`}>
         {view.button && (
           <button
             type="button"
-            className="vx-chip"
+            className={`vx-chip ${stylex.props(exploreStyles.chip).className}`}
             style={{ height: 'var(--vv-s-30)' }}
             disabled={busy}
             onClick={() => view.button && act(view.button.action)}
@@ -68,7 +70,7 @@ export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: str
             {view.button.label}
           </button>
         )}
-        <label className="vx-chip" style={{ border: 'none', position: 'relative', height: 'var(--vv-s-30)' }} aria-label={tt.scanCapLabel}>
+        <label className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} style={{ border: 'none', position: 'relative', height: 'var(--vv-s-30)' }} aria-label={tt.scanCapLabel}>
           {tt.scanCap} {num.format(status.historyCap)}
           <select
             value={status.historyCap}

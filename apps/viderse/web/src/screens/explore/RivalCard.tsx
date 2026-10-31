@@ -1,3 +1,6 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles } from './explore.stylex'
+import { previewStyles } from './PreviewPanel'
 // Thẻ đối thủ ở cột phải: avatar, tên, người theo dõi, menu ⋯ (Kiểm tra video
 // mới → POST scan check · Mở trên YouTube · Liên kết với kênh của tôi — khoá,
 // vẫn focus được, lý do là dòng phụ ·
@@ -77,30 +80,30 @@ export function RivalCard({ rival, color, rescanHours, perWeek, channels, linked
     : (rival.handle ?? '')
 
   return (
-    <div className="vx-cardbox">
-      <div className="vx-rivalhead">
+    <div className={`vx-cardbox ${stylex.props(exploreStyles.cardbox).className}`}>
+      <div className={`vx-rivalhead ${stylex.props(exploreStyles.rivalhead).className}`}>
         <ChannelAvatar name={rival.title} src={rival.avatarUrl ?? undefined} color={{ bg: color }} size={40} style={{ fontSize: 13, fontWeight: 700 }} />
-        <div className="vx-rivalhead__text">
-          <span className="vx-rivalhead__name">{rival.title}</span>
-          <span className="vx-rivalhead__sub" title={[rival.handle, subs].filter(Boolean).join(' · ')}>{subs}</span>
+        <div className={`vx-rivalhead__text ${stylex.props(exploreStyles.rivalheadText).className}`}>
+          <span className={`vx-rivalhead__name ${stylex.props(exploreStyles.rivalheadName).className}`}>{rival.title}</span>
+          <span className={`vx-rivalhead__sub ${stylex.props(exploreStyles.rivalheadSub).className}`} title={[rival.handle, subs].filter(Boolean).join(' · ')}>{subs}</span>
         </div>
         <div style={{ position: 'relative' }}>
-          <ActionMenu
+          <ActionMenu triggerStyle={exploreStyles.touchMenuTrigger}
             label={tt.rivalActions(rival.title)}
             items={items}
             width={272}
-            trigger={<button type="button" className="vx-iconbtn" aria-label={tt.rivalActions(rival.title)} aria-haspopup="menu"><Icon name="more" size={16} /></button>}
+            trigger={<button type="button" className={`vx-iconbtn ${stylex.props(exploreStyles.iconbtn).className}`} aria-label={tt.rivalActions(rival.title)} aria-haspopup="menu"><Icon name="more" size={16} /></button>}
           />
         </div>
       </div>
-      <div className="vx-stats">
-        <div className="vx-stat"><span>{tt.statBaseline}</span><b className="num">{rival.medianViews != null ? fmtSubs(rival.medianViews) : tt.statPending}</b></div>
-        <div className="vx-stat"><span>{tt.statPerWeek}</span><b className="num">{perWeek != null ? tt.perWeekValue(fmtPerWeek(perWeek)) : tt.statPending}</b></div>
-        <div className="vx-stat vx-stat--hot"><span>{tt.statOutliers}</span><b className="num">{num.format(rival.outliers)}</b></div>
+      <div className={`vx-stats ${stylex.props(exploreStyles.stats).className}`}>
+        <div className={`vx-stat ${stylex.props(exploreStyles.stat).className}`}><span {...stylex.props(exploreStyles.statLabel)}>{tt.statBaseline}</span><b className={`num ${stylex.props(exploreStyles.statValue).className}`}>{rival.medianViews != null ? fmtSubs(rival.medianViews) : tt.statPending}</b></div>
+        <div className={`vx-stat ${stylex.props(exploreStyles.stat).className}`}><span {...stylex.props(exploreStyles.statLabel)}>{tt.statPerWeek}</span><b className={`num ${stylex.props(exploreStyles.statValue).className}`}>{perWeek != null ? tt.perWeekValue(fmtPerWeek(perWeek)) : tt.statPending}</b></div>
+        <div className={`vx-stat vx-stat--hot ${stylex.props(exploreStyles.stat).className}`}><span {...stylex.props(exploreStyles.statLabel)}>{tt.statOutliers}</span><b className={`num ${stylex.props(exploreStyles.statValue, exploreStyles.statHotValue).className}`}>{num.format(rival.outliers)}</b></div>
       </div>
-      <div className="vx-linkrow">
-        <Icon name="channel" size={15} />
-        <span title={linkedChannelName ?? tt.lockedReason}>
+      <div className={`vx-linkrow ${stylex.props(exploreStyles.linkrow).className}`}>
+        <Icon xstyle={exploreStyles.linkrowText} name="channel" size={15} />
+        <span {...stylex.props(exploreStyles.linkrowText)} title={linkedChannelName ?? tt.lockedReason}>
           {linkedChannelName ? tt.linkedTo(linkedChannelName) : tt.notLinked}
         </span>
       </div>
@@ -149,14 +152,14 @@ function LinkChannelDialog({ rival, channels, onClose }: {
       footer={(
         <>
           <span style={{ flex: 1 }} />
-          <ActionButton size="md" onClick={onClose}>{t.common.cancel}</ActionButton>
-          <ActionButton variant="primary" size="md" disabled={!picked} pending={pending} onClick={() => void link()}>
+          <ActionButton className={stylex.props(exploreStyles.touchTarget).className} size="md" onClick={onClose}>{t.common.cancel}</ActionButton>
+          <ActionButton className={stylex.props(exploreStyles.touchTarget).className} variant="primary" size="md" disabled={!picked} pending={pending} onClick={() => void link()}>
             {tt.linkPick}
           </ActionButton>
         </>
       )}
     >
-      {channels.length === 0 ? <p className="vx-side-empty">{tt.linkEmpty}</p> : (
+      {channels.length === 0 ? <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.linkEmpty}</p> : (
         <div role="radiogroup" aria-label={tt.linkDialogTitle(rival.title)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-4)' }}>
           {channels.map((channel) => (
             <button
@@ -164,16 +167,16 @@ function LinkChannelDialog({ rival, channels, onClose }: {
               type="button"
               role="radio"
               aria-checked={picked === channel.id}
-              className="vx-makeopt"
+              className={`vx-makeopt ${stylex.props(previewStyles.makeopt, picked === channel.id && previewStyles.makeoptSelected).className}`}
               onClick={() => setPicked(channel.id)}
             >
-              <span className="vx-makeopt__text"><span className="vx-makeopt__name">{channel.name}</span></span>
+              <span className={`vx-makeopt__text ${stylex.props(previewStyles.makeoptText).className}`}><span className={`vx-makeopt__name ${stylex.props(previewStyles.makeoptName, picked === channel.id && previewStyles.makeoptNameSelected).className}`}>{channel.name}</span></span>
               {picked === channel.id && <Icon name="tick" size={14} />}
             </button>
           ))}
         </div>
       )}
-      {error && <p className="vx-side-empty" role="alert" style={{ marginTop: 'var(--vv-s-8)' }}>{error}</p>}
+      {error && <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`} role="alert" style={{ marginTop: 'var(--vv-s-8)' }}>{error}</p>}
     </Dialog>
   )
 }

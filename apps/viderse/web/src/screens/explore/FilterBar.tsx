@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles } from './explore.stylex'
 // Hàng lọc của lưới Khám phá: radiogroup Sắp xếp (Nổi trội · Mới nhất · Lượt
 // xem) rồi ba chip — "Dài ≥ 8 phút" (toggle long=1), "Đăng trong N ngày"
 // (listbox 0/7/30/90 → within), "Trạng thái" khoá ở "Tất cả" (lọc theo kênh của
@@ -46,8 +48,8 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
     : !q ? tt.videoCount(num.format(total), num.format(scanned))
       : total > 0 ? tt.searchCount(num.format(total), q, num.format(scanned)) : tt.searchCountNone(q)
   return (
-    <div className="vx-filters">
-      <Segmented
+    <div className={`vx-filters ${stylex.props(exploreStyles.filters).className}`}>
+      <Segmented xstyle={exploreStyles.segmented} buttonStyle={exploreStyles.segmentedButton}
         label={tt.sortLabel}
         size={touch ? TOUCH_TARGET : 'sm'}
         fit="content"
@@ -61,14 +63,14 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
           { id: 'views', label: tt.sorts.views },
         ]}
       />
-      <button type="button" className="vx-chip" aria-pressed={long} onClick={() => onLong(!long)}>
+      <button type="button" className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} aria-pressed={long} onClick={() => onLong(!long)}>
         <Icon name="clock" size={14} />
-        {tt.filterLong} <b>{tt.filterLongValue}</b>
+        {tt.filterLong} <b {...stylex.props(exploreStyles.chipValue)}>{tt.filterLongValue}</b>
         <Icon name="arrow-d" size={12} aria-hidden />
       </button>
-      <label className="vx-chip vx-chip--select">
+      <label className={`vx-chip vx-chip--select ${stylex.props(exploreStyles.chip).className}`}>
         <Icon name="calendar" size={14} />
-        {tt.filterWithin} <b>{withinLabel}</b>
+        {tt.filterWithin} <b {...stylex.props(exploreStyles.chipValue)}>{withinLabel}</b>
         <select
           value={within}
           aria-label={tt.withinLabel}
@@ -82,15 +84,15 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
       {/* Khoá: chỉ "Tất cả" có nghĩa khi chưa có kênh của bạn. Nút vẫn nhận focus,
           bấm không mở gì; lý do đọc được bằng trình đọc màn hình. */}
       <Tooltip content={lockReason} asChild>
-        <button type="button" className="vx-chip vx-chip--locked" aria-disabled="true" aria-describedby={lockId}>
+        <button type="button" className={`vx-chip vx-chip--locked ${stylex.props(exploreStyles.chip, exploreStyles.chipLocked).className}`} aria-disabled="true" aria-describedby={lockId}>
           <Icon name="filter" size={14} />
-          {tt.filterStatus} <b>{tt.statusAll}</b>
+          {tt.filterStatus} <b {...stylex.props(exploreStyles.chipValue)}>{tt.statusAll}</b>
           <Icon name="arrow-d" size={12} aria-hidden />
         </button>
       </Tooltip>
       <span id={lockId} className="sr-only">{lockReason}</span>
-      <span className="vx-grow" />
-      <span className="vx-count num">{count}</span>
+      <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
+      <span className={`vx-count num ${stylex.props(exploreStyles.count).className}`}>{count}</span>
     </div>
   )
 }

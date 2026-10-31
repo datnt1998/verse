@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles } from './explore.stylex'
 // Ô "Tìm tiêu đề" của Khám phá (artboard Explore · search=none|match|nomatch):
 // 240px ngay trước "Chọn nhiều". Phím "/" (ngoài ô nhập khác) đưa focus vào ô;
 // Esc trong ô xoá chữ. Có chữ → nút ✕ cuối ô; trống → gợi ý phím "/".
@@ -24,10 +26,10 @@ export function SearchBox({ value, onChange }: { value: string; onChange: (value
   }, [])
 
   return (
-    <div role="search" className="vx-search">
+    <div role="search" className={`vx-search ${stylex.props(exploreStyles.search).className}`}>
       <label htmlFor={id} className="sr-only">{tt.searchLabel}</label>
-      <Icon name="search" size={14} className="vx-search__ic" aria-hidden />
-      <input
+      <Icon name="search" size={14} className={`vx-search__ic ${stylex.props(exploreStyles.searchIc).className}`} aria-hidden />
+      <input {...stylex.props(exploreStyles.searchInput)}
         id={id}
         ref={input}
         type="text"
@@ -46,12 +48,12 @@ export function SearchBox({ value, onChange }: { value: string; onChange: (value
         }}
       />
       {value ? (
-        <button type="button" className="vx-search__clear" aria-label={tt.searchClear}
+        <button type="button" className={`vx-search__clear ${stylex.props(exploreStyles.searchClear).className}`} aria-label={tt.searchClear}
           onClick={() => { onChange(''); input.current?.focus() }}>
           <Icon name="close" size={13} />
         </button>
       ) : (
-        <span className="vx-search__kbd" aria-hidden="true">/</span>
+        <span className={`vx-search__kbd ${stylex.props(exploreStyles.searchKbd).className}`} aria-hidden="true">/</span>
       )}
     </div>
   )

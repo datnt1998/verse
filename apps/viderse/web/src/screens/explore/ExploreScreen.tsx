@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles, exploreRootMarker } from './explore.stylex'
 // Khám phá (artboard Explore, gói V5): đối thủ → lưới video nổi trội → panel
 // đối thủ/video + Quét lịch sử + Lịch đăng. Phạm vi "Tất cả" hoặc một kênh.
 // Lưới ảo hoá thủ công (≤ ~120 thẻ DOM cho 20.000 video), SSE `rivals` làm mới
@@ -33,7 +35,6 @@ import { PostingCard } from './PostingCard'
 import { PreviewPanel } from './PreviewPanel'
 import { useRivalVideos, type VideosFilter } from './useRivalVideos'
 import { GRID_GAP_Y, useVirtualGrid } from '../../lib/useVirtualGrid'
-import './explore.css'
 
 type Scope = 'all' | string
 
@@ -208,17 +209,17 @@ export function ExploreScreen({ route }: { route: Route }) {
   const empty = !list.initialLoading && rivals.length === 0 && list.error == null
   if (empty) {
     return (
-      <div className="vx-shell vx-shell--empty">
+      <div className={`vx-shell vx-shell--empty ${stylex.props(exploreStyles.shell, exploreStyles.shellEmpty, exploreRootMarker).className}`}>
         <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
-        <main className="vx-empty" aria-label={tt.title}>
-          <div className="vx-empty__box">
+        <main className={`vx-empty ${stylex.props(exploreStyles.empty).className}`} aria-label={tt.title}>
+          <div className={`vx-empty__box ${stylex.props(exploreStyles.emptyBox).className}`}>
             <Orb of="scout" size={40} live={false} />
-            <h1 className="vx-empty__title">{tt.emptyTitle}</h1>
-            <p className="vx-empty__body">{tt.emptyBody}</p>
+            <h1 className={`vx-empty__title ${stylex.props(exploreStyles.emptyTitle).className}`}>{tt.emptyTitle}</h1>
+            <p className={`vx-empty__body ${stylex.props(exploreStyles.emptyBody).className}`}>{tt.emptyBody}</p>
             <AddRivalForm onAdded={(rival) => pickRival(rival.id)} onOpen={pickRival} />
-            <div className="vx-empty__ex" aria-label={tt.example}>
+            <div className={`vx-empty__ex ${stylex.props(exploreStyles.emptyEx).className}`} aria-label={tt.example}>
               <span>{tt.example}</span>
-              {tt.emptyExamples.map((example) => <code className="vx-tag" key={example}>{example}</code>)}
+              {tt.emptyExamples.map((example) => <code className={`vx-tag ${stylex.props(exploreStyles.tag).className}`} key={example}>{example}</code>)}
             </div>
           </div>
         </main>
@@ -227,20 +228,20 @@ export function ExploreScreen({ route }: { route: Route }) {
   }
 
   return (
-    <div className="vx-shell">
+    <div className={`vx-shell ${stylex.props(exploreStyles.shell, exploreRootMarker).className}`}>
       <RivalSidebar
         list={list.data}
         selected={scope}
         onPick={pickRival}
         onAdded={(rival) => pickRival(rival.id)}
       />
-      <main className="vx-center" ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
-        <div className="vx-head">
-          <h1 className="vx-title">{tt.outlierTitle}</h1>
-          <span className="vx-sub">{tt.outlierHint}</span>
-          <span className="vx-grow" />
+      <main className={`vx-center ${stylex.props(exploreStyles.center).className}`} ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
+        <div className={`vx-head ${stylex.props(exploreStyles.head).className}`}>
+          <h1 className={`vx-title ${stylex.props(exploreStyles.title).className}`}>{tt.outlierTitle}</h1>
+          <span className={`vx-sub ${stylex.props(exploreStyles.sub).className}`}>{tt.outlierHint}</span>
+          <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
           <SearchBox value={query} onChange={setQuery} />
-          <ActionButton
+          <ActionButton className={stylex.props(exploreStyles.touchTarget).className}
             variant="outline"
             size="compact"
             icon={<Icon name="tick" size={15} style={{ color: selectMode ? 'var(--color-fg)' : 'var(--color-fg-3)' }} />}
@@ -264,16 +265,16 @@ export function ExploreScreen({ route }: { route: Route }) {
           hasChannel={channels.length > 0}
         />
         {videos.error != null && items.length === 0 ? (
-          <p className="vx-side-empty">{tt.videosError}</p>
+          <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.videosError}</p>
         ) : items.length === 0 && !videos.initialLoading && videos.shownQ ? (
-          <div className="vx-nomatch" role="status">
-            <Icon name="search" size={22} className="vx-nomatch__ic" />
-            <span className="vx-nomatch__title">{tt.noMatchTitle(videos.shownQ)}</span>
-            <span className="vx-nomatch__sub">{tt.noMatchWhere(num.format(scanned), scopeRival?.title ?? tt.noMatchAll, activeFilters)}</span>
-            <ActionButton size="sm" onClick={() => setQuery('')}>{tt.searchClear}</ActionButton>
+          <div className={`vx-nomatch ${stylex.props(exploreStyles.nomatch).className}`} role="status">
+            <Icon name="search" size={22} className={`vx-nomatch__ic ${stylex.props(exploreStyles.nomatchIc).className}`} />
+            <span className={`vx-nomatch__title ${stylex.props(exploreStyles.nomatchTitle).className}`}>{tt.noMatchTitle(videos.shownQ)}</span>
+            <span className={`vx-nomatch__sub ${stylex.props(exploreStyles.nomatchSub).className}`}>{tt.noMatchWhere(num.format(scanned), scopeRival?.title ?? tt.noMatchAll, activeFilters)}</span>
+            <ActionButton className={stylex.props(exploreStyles.touchTarget).className} size="sm" onClick={() => setQuery('')}>{tt.searchClear}</ActionButton>
           </div>
         ) : items.length === 0 && !videos.initialLoading ? (
-          <p className="vx-side-empty">{tt.videosEmpty}</p>
+          <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.videosEmpty}</p>
         ) : (
           <VideoGrid
             items={items}
@@ -303,7 +304,7 @@ export function ExploreScreen({ route }: { route: Route }) {
           />
         )}
       </main>
-      <aside className="vx-rail" aria-label={picked && !selectMode ? tt.previewLabel : tt.rivalDetail}>
+      <aside className={`vx-rail ${stylex.props(exploreStyles.rail).className}`} aria-label={picked && !selectMode ? tt.previewLabel : tt.rivalDetail}>
         {picked && !selectMode ? (
           <PreviewPanel
             video={picked}

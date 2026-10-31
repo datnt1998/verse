@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { exploreStyles, videoCardMarker } from './explore.stylex'
 // Lưới video ảo hoá + thẻ video của Khám phá. Mỗi thẻ: ảnh mqdefault
 // (loading=lazy, width/height giữ khung — không layout shift), huy hiệu điểm ×
 // (vàng ≥3), phụ đề + thời lượng, checkbox ở chế độ chọn nhiều, nút "Làm cho
@@ -61,43 +63,43 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
     else toast.err(tt.copyFailed)
   }
   return (
-    <article className="vx-card" data-picked={picked || undefined} data-checked={selectMode && checked || undefined}>
-      <div className="vx-thumb">
-        <button type="button" className="vx-thumb__btn" aria-label={`${tt.preview} ${video.title}`} aria-pressed={picked} onClick={() => onOpen(video)}>
-          <img className="vx-thumb__img" src={video.thumbnailUrl} width={320} height={180} loading="lazy" decoding="async" alt="" onError={hideBrokenImage} />
+    <article className={`vx-card ${stylex.props(exploreStyles.card, videoCardMarker).className}`} data-picked={picked || undefined} data-checked={selectMode && checked || undefined}>
+      <div className={`vx-thumb ${stylex.props(exploreStyles.thumb, picked && exploreStyles.thumbPicked, selectMode && checked && exploreStyles.thumbChecked).className}`}>
+        <button type="button" className={`vx-thumb__btn ${stylex.props(exploreStyles.thumbBtn).className}`} aria-label={`${tt.preview} ${video.title}`} aria-pressed={picked} onClick={() => onOpen(video)}>
+          <img className={`vx-thumb__img ${stylex.props(exploreStyles.thumbImg).className}`} src={video.thumbnailUrl} width={320} height={180} loading="lazy" decoding="async" alt="" onError={hideBrokenImage} />
         </button>
-        <span className={`vx-score ${hot ? 'vx-score--hot' : 'vx-score--low'}`} title={tt.scoreTitle(scoreText(video.score))}>
+        <span className={`vx-score ${hot ? 'vx-score--hot' : 'vx-score--low'} ${stylex.props(exploreStyles.score, hot ? exploreStyles.scoreHot : exploreStyles.scoreLow).className}`} title={tt.scoreTitle(scoreText(video.score))}>
           {fmtScore(video.score)}
         </span>
-        <span className="vx-thumb__br">
+        <span className={`vx-thumb__br ${stylex.props(exploreStyles.thumbBr).className}`}>
           {video.hasCaptions === true && (
-            <span className="vx-subs" role="img" aria-label={tt.hasSubs} title={tt.hasSubs}>
+            <span className={`vx-subs ${stylex.props(exploreStyles.subs).className}`} role="img" aria-label={tt.hasSubs} title={tt.hasSubs}>
               <Icon name="subtitle" size={13} />
             </span>
           )}
-          {dur && <span className="vx-dur">{dur}</span>}
+          {dur && <span className={`vx-dur ${stylex.props(exploreStyles.dur).className}`}>{dur}</span>}
         </span>
         {selectMode && (
-          <label className="vx-check">
+          <label className={`vx-check ${stylex.props(exploreStyles.check).className}`}>
             <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{tt.pickVideo(video.title)}</span>
-            <input type="checkbox" checked={checked} onChange={() => onToggle(video)} />
+            <input {...stylex.props(exploreStyles.checkInput)} type="checkbox" checked={checked} onChange={() => onToggle(video)} />
           </label>
         )}
       </div>
-      <div className="vx-vtext">
-        <button type="button" className="vx-vtitle" title={video.title} onClick={() => onOpen(video)}>{video.title}</button>
-        <span className="vx-vmeta">{videoMeta(video.viewCount, video.publishedAt)}</span>
+      <div className={`vx-vtext ${stylex.props(exploreStyles.vtext).className}`}>
+        <button type="button" className={`vx-vtitle ${stylex.props(exploreStyles.vtitle).className}`} title={video.title} onClick={() => onOpen(video)}>{video.title}</button>
+        <span className={`vx-vmeta ${stylex.props(exploreStyles.vmeta).className}`}>{videoMeta(video.viewCount, video.publishedAt)}</span>
       </div>
-      <div className="vx-actions">
-        <ActionButton
+      <div className={`vx-actions ${stylex.props(exploreStyles.actions).className}`}>
+        <ActionButton className={stylex.props(exploreStyles.touchTarget).className}
           size="sm"
           lockedReason={channelLabel === null ? (hasChannel ? tt.queueReason : tt.lockedReason) : undefined}
           icon={<Icon name="video-add" size={14} />}
         >
           {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
         </ActionButton>
-        <span className="vx-grow" />
-        <button type="button" className="vx-iconbtn" aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}>
+        <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
+        <button type="button" className={`vx-iconbtn ${stylex.props(exploreStyles.iconbtn).className}`} aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}>
           <Icon name="copy" size={15} />
         </button>
       </div>
@@ -124,10 +126,10 @@ export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId
   const rows: Video[][] = []
   for (let i = 0; i < visible.length; i += cols) rows.push(visible.slice(i, i + cols))
   return (
-    <div className="vx-grid">
+    <div className={`vx-grid ${stylex.props(exploreStyles.grid).className}`}>
       {padTop > 0 && <div aria-hidden="true" style={{ height: padTop }} />}
       {rows.map((row, i) => (
-        <div className="vx-row" data-vrow={start + i * cols} key={start + i * cols}
+        <div className={`vx-row ${stylex.props(exploreStyles.row).className}`} data-vrow={start + i * cols} key={start + i * cols}
           style={{ '--cols': cols } as React.CSSProperties}>
           {row.map((video) => (
             <VideoCard
