@@ -12,7 +12,7 @@ import { ApiError } from '../../api/client'
 import { Banner } from '@noverse/ui'
 const sx = stylex.create({
   mobileList: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-hairline)', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--color-surface-0)', overflow: 'hidden' },
-  mobileAction: { flex: '1 1 0', minWidth: 0, height: 48, justifyContent: 'center' },
+  mobileAction: { flex: '1 1 0', height: 48, justifyContent: 'center' },
 })
 
 function deviceActivity(session: Session): string {
