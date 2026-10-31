@@ -8,13 +8,13 @@ SELECT oct.owner_channel_id, t.id, t.name
 FROM owner_channel_templates oct JOIN templates t ON t.id=oct.template_id
 WHERE t.recipe->'backdrop' IS NOT NULL AND t.recipe->'backdrop' <> 'null'::jsonb
 AND NOT EXISTS (
- SELECT 1 FROM jsonb_array_elements_text(COALESCE(t.recipe->'backdrop'->'fixedVideoIds','[]'::jsonb)) AS f(id)
+ SELECT 1 FROM jsonb_array_elements_text(COALESCE(NULLIF(t.recipe->'backdrop'->'fixedVideoIds','null'::jsonb),'[]'::jsonb)) AS f(id)
  JOIN backdrop_videos v ON v.id=f.id AND v.state='ready'
 )
 AND NOT EXISTS (
- SELECT 1 FROM jsonb_array_elements(COALESCE(t.recipe->'backdrop'->'channels','[]'::jsonb)) AS l(link)
+ SELECT 1 FROM jsonb_array_elements(COALESCE(NULLIF(t.recipe->'backdrop'->'channels','null'::jsonb),'[]'::jsonb)) AS l(link)
  JOIN backdrop_channel_videos v ON v.channel_id=l.link->>'channelId' AND v.unavailable_at IS NULL
- WHERE (jsonb_array_length(COALESCE(l.link->'kinds','[]'::jsonb))=0 OR l.link->'kinds' ? v.kind)
- AND (jsonb_array_length(COALESCE(l.link->'pinned','[]'::jsonb))=0 OR l.link->'pinned' ? v.video_id)
+ WHERE (jsonb_array_length(COALESCE(NULLIF(l.link->'kinds','null'::jsonb),'[]'::jsonb))=0 OR l.link->'kinds' ? v.kind)
+ AND (jsonb_array_length(COALESCE(NULLIF(l.link->'pinned','null'::jsonb),'[]'::jsonb))=0 OR l.link->'pinned' ? v.video_id)
 )
 ORDER BY oct.owner_channel_id, oct.position;
