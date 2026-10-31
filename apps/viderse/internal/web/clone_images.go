@@ -16,6 +16,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -251,9 +252,10 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 			}
 			var path string
 			var err error
-			if generator, ok := ops.Images.(interface {
+			generator, derived := ops.Images.(interface {
 				Cutout(context.Context, string, string, int) (string, error)
-			}); ok {
+			})
+			if derived {
 				path, err = generator.Cutout(r.Context(), id, imageID, version)
 			} else if version == 0 {
 				path, err = ops.Images.DisplayedCutout(r.Context(), id, imageID)
@@ -265,15 +267,19 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 				WriteCloneError(w, err)
 				return
 			}
-			if !cloneAvailable(w, ops.Edits != nil) {
+			if !cloneAvailable(w, ops.Edits != nil && ops.Edits.Media != nil) {
 				return
 			}
-			snapshot, err := ops.Edits.Read(r.Context(), id, domain.CloneImages)
-			if err != nil {
-				WriteCloneError(w, err)
-				return
+			var handle *media.Handle
+			if derived {
+				handle, err = ops.Edits.Media.Acquire(r.Context(), path)
+			} else {
+				var snapshot jobedit.Snapshot
+				snapshot, err = ops.Edits.Read(r.Context(), id, domain.CloneImages)
+				if err == nil {
+					handle, err = ops.Edits.Acquire(r.Context(), snapshot, path)
+				}
 			}
-			handle, err := ops.Edits.Acquire(r.Context(), snapshot, path)
 			if err != nil {
 				WriteCloneError(w, err)
 				return

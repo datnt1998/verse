@@ -1101,7 +1101,12 @@ func (s *CloneStore) DeleteJob(ctx context.Context, jobID string) error {
 	if err != nil {
 		return ErrNotFound
 	}
-	return s.q(ctx).DeleteCloneJob(ctx, u)
+	return s.inTx(ctx, func(tx context.Context) error {
+		if err := s.deleteCutouts(tx, jobID); err != nil {
+			return err
+		}
+		return s.q(tx).DeleteCloneJob(tx, u)
+	})
 }
 
 func (s *CloneStore) RemoveArtifacts(ctx context.Context, jobID string, ids []string) error {

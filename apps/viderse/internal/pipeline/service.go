@@ -156,7 +156,7 @@ func (s *Service) List(ctx context.Context, channelID *string, limit int) (domai
 		}
 		result.QueuedTotal = len(items)
 		for _, item := range items {
-			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
+			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
 		}
 	}
 	return result, nil
@@ -294,8 +294,19 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if s.Media == nil {
 		return errors.New("media service unavailable")
 	}
-	err = s.Media.Unbind(ctx, paths, func(txctx context.Context) error { return s.Store.DeleteJob(txctx, id) })
+	var cutouts []string
+	err = s.Media.Unbind(ctx, paths, func(txctx context.Context) error {
+		if store, ok := s.Store.(interface {
+			DeleteJobWithCutouts(context.Context, string) ([]string, error)
+		}); ok {
+			var err error
+			cutouts, err = store.DeleteJobWithCutouts(txctx, id)
+			return err
+		}
+		return s.Store.DeleteJob(txctx, id)
+	})
 	if err == nil {
+		retireLocalCutouts(ctx, s.Media, cutouts)
 		s.event(domain.CloneEventDeleted, id)
 	}
 	return err

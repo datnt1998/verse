@@ -221,10 +221,19 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
 				version.CutoutState = "available"
 				version.CutoutURL = "/api/clone/" + url.PathEscape(id) + "/images/" + url.PathEscape(i.ID) + "?variant=cutout&version=" + strconv.Itoa(v.Version)
+				if index, ok := s.Edits.Store.(cutoutIndex); ok && v.SHA256 != "" {
+					path, err := index.FindCutout(ctx, v.SHA256)
+					if err != nil {
+						return View{}, err
+					}
+					if path != "" {
+						version.CutoutState = "ready"
+					}
+				}
 			}
 			if v.Cutout != nil {
-				version.CutoutURL = artifactURL(l.snapshot, v.Cutout.Path, v.Cutout.SHA256)
-				if version.CutoutURL != "" {
+				if legacyURL := artifactURL(l.snapshot, v.Cutout.Path, v.Cutout.SHA256); legacyURL != "" {
+					version.CutoutURL = legacyURL
 					version.CutoutState = "ready"
 				}
 			}
