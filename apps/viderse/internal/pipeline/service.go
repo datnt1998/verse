@@ -117,6 +117,9 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 		return nil, err
 	}
 	steps = domain.InChainOrder(steps)
+	if err := s.enrichSource(ctx, job, steps); err != nil {
+		return nil, err
+	}
 	return new(s.view(*job, steps)), nil
 }
 func (s *Service) view(job domain.CloneJob, steps []domain.CloneStepRecord) domain.CloneJobView {

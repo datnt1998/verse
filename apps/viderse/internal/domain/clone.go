@@ -247,18 +247,21 @@ type CloneError struct {
 func (e *CloneError) Error() string { return e.Message }
 
 type CloneSourceSnapshot struct {
-	ID           string     `json:"id"`
-	URL          string     `json:"url"`
-	Title        string     `json:"title"`
-	ChannelID    *string    `json:"channelId"`
-	ChannelTitle *string    `json:"channelTitle"`
-	ThumbnailURL *string    `json:"thumbnailUrl"`
-	DurationSec  *float64   `json:"durationSec"`
-	ViewCount    *int64     `json:"viewCount,omitempty"`
-	HasCaptions  *bool      `json:"hasCaptions,omitempty"`
-	PublishedAt  *time.Time `json:"publishedAt,omitempty"`
-	Outlier      *float64   `json:"outlier,omitempty"`
-	ScannedAt    time.Time  `json:"scannedAt"`
+	ID                string     `json:"id"`
+	URL               string     `json:"url"`
+	Title             string     `json:"title"`
+	ChannelID         *string    `json:"channelId"`
+	ChannelTitle      *string    `json:"channelTitle"`
+	ThumbnailURL      *string    `json:"thumbnailUrl"`
+	DurationSec       *float64   `json:"durationSec"`
+	ViewCount         *int64     `json:"viewCount,omitempty"`
+	HasCaptions       *bool      `json:"hasCaptions,omitempty"`
+	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
+	Outlier           *float64   `json:"outlier,omitempty"`
+	CaptionLanguage   *string    `json:"captionLanguage,omitempty"`
+	ChapterCount      *int       `json:"chapterCount,omitempty"`
+	TranscriptExcerpt *string    `json:"transcriptExcerpt,omitempty"`
+	ScannedAt         time.Time  `json:"scannedAt"`
 }
 type CloneProgress struct {
 	UnitsDone  int64  `json:"unitsDone"`
