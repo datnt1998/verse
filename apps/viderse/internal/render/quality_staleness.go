@@ -36,6 +36,7 @@ func captionTimingOnlyChange(before, after editor.Project) bool {
 			case map[string]any:
 				if value["type"] == "subtitle" {
 					delete(value, "words")
+					delete(value, "wordsEstimated")
 					for _, cue := range scoreObjects(value["cues"]) {
 						delete(cue, "startSeconds")
 						delete(cue, "endSeconds")

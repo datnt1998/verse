@@ -1145,6 +1145,11 @@ func scoreAlignmentRanges(metric transcript.AlignmentMetric, project scoreProjec
 		byID[scoreString(item, "id")] = item
 	}
 	for _, worst := range metric.Worst {
+		// Worst also contains exact/passing matches. Only offsets beyond the
+		// source median limit contribute actionable alignment failure ranges.
+		if math.Abs(worst.DeltaMs) <= 120 {
+			continue
+		}
 		item := byID[worst.ItemID]
 		if item == nil {
 			continue

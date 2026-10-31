@@ -53,3 +53,20 @@ func TestQualityStalenessConservativelyHandlesUnknownAndNonCaptionChanges(t *tes
 		}
 	}
 }
+
+func TestQualityWordAlignmentMetadataKeepsOtherChecksFresh(t *testing.T) {
+	f := newScorerFixture(t)
+	baseline := editor.Clone(f.input.Project)
+	score := f.score()
+	item := scorerEntry(f.input.Project, "caption")
+	item["words"] = []editor.Object{{"text": "one", "startFrame": 0, "endFrame": 30, "estimated": false}}
+	item["wordsEstimated"] = false
+	f.input.Project["updatedAt"] = 12345
+	stale := qualityStaleItems(score, baseline, f.input.Project, false)
+	for _, id := range quality.IDs {
+		want := id == "captionAlignment" || id == "captionKaraoke"
+		if stale[id] != want {
+			t.Errorf("check %s stale=%v want%v", id, stale[id], want)
+		}
+	}
+}
