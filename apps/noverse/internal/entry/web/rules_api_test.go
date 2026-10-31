@@ -249,6 +249,19 @@ func TestRulesAPI_NeedsModelAndPermissions(t *testing.T) {
 	if w = tg.do("GET", rulesStoryBase+"/effective", reader, ""); w.Code != 200 {
 		t.Fatalf("reader effective: %d", w.Code)
 	}
+	// The project named only in the body is what gets authorized: its owner
+	// reaches the model check, and a non-member's refusal reads the same
+	// whether that project exists or not.
+	writer := tg.login("writer", "writer-pass")
+	if w = tg.do("POST", "/api/rules/understand", writer, `{"text":"x","scope":"project","project":"proj"}`); w.Code != 409 {
+		t.Fatalf("owner understand on own project: %d %s", w.Code, w.Body)
+	}
+	outsider := tg.login("outsider", "outsider-pass")
+	real := tg.do("POST", "/api/rules/understand?scope=project", outsider, `{"text":"x","scope":"project","project":"proj"}`)
+	missing := tg.do("POST", "/api/rules/understand?scope=project", outsider, `{"text":"x","scope":"project","project":"ghost"}`)
+	if real.Code != 403 || missing.Code != real.Code || missing.Body.String() != real.Body.String() {
+		t.Fatalf("understand refusal depends on existence: %d %s vs %d %s", real.Code, real.Body, missing.Code, missing.Body)
+	}
 	if w = tg.do("POST", "/api/rules/understand", admin, `{"text":"  "}`); w.Code != 400 {
 		t.Fatalf("understand rỗng: %d", w.Code)
 	}

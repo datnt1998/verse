@@ -81,7 +81,7 @@ func (g *Gateway) publishMutation(r *http.Request, user identity.User, current i
 	switch {
 	case path == "api/library":
 		g.events().Publish(Event{Type: "library.changed", Data: map[string]any{}})
-	case path == "api/config" || path == "api/config/oauth/logout" || strings.HasPrefix(path, "api/rules/"):
+	case path == "api/config" || path == "api/config/oauth/logout" || (strings.HasPrefix(path, "api/rules/") && path != "api/rules/understand"):
 		q := r.URL.Query()
 		scope := q.Get("scope")
 		p, s := q.Get("project"), q.Get("story")

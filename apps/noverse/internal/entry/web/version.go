@@ -114,17 +114,35 @@ func checkIfMatchV(w http.ResponseWriter, r *http.Request, token string, resourc
 	return true
 }
 
-func (g *Gateway) resourceFor(r *http.Request, user identity.User, body map[string]json.RawMessage) *versionResource {
+// requestedConfigScope returns the scope a config or rules request names, or
+// nil for other routes. Rules-file writes and rule understanding carry it in
+// the JSON body, decoded with the same field matching their handlers use, so
+// authorization and the handler always see one target.
+func requestedConfigScope(r *http.Request, body []byte) url.Values {
 	path := strings.TrimSuffix(r.URL.Path, "/")
+	if path != "/api/config" && path != "/api/rules/file" && path != "/api/rules/file/delete" && path != "/api/rules/understand" {
+		return nil
+	}
 	q := r.URL.Query()
-	if strings.HasPrefix(path, "/api/rules/file") {
-		for _, key := range []string{"scope", "project", "story", "name"} {
-			var s string
-			if json.Unmarshal(body[key], &s) == nil {
-				q.Set(key, s)
-			}
+	if path != "/api/config" && body != nil {
+		var target struct {
+			Scope   string `json:"scope"`
+			Project string `json:"project"`
+			Story   string `json:"story"`
+			Name    string `json:"name"`
+		}
+		if json.Unmarshal(body, &target) == nil {
+			q.Set("scope", target.Scope)
+			q.Set("project", target.Project)
+			q.Set("story", target.Story)
+			q.Set("name", target.Name)
 		}
 	}
+	return q
+}
+
+func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values) *versionResource {
+	path := strings.TrimSuffix(r.URL.Path, "/")
 	switch path {
 	case "/api/config", "/api/rules/file", "/api/rules/file/delete":
 		t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
@@ -277,21 +295,31 @@ func (g *Gateway) versionLock(res *versionResource) *sync.Mutex {
 	return lock.(*sync.Mutex)
 }
 
-// beginFeedback keeps version compare/write atomic for the same resource only.
-// Network response writes and event publication happen after releasing its lock.
-func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) (http.ResponseWriter, func(), bool) {
-	mutating := r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete || r.Method == http.MethodPatch
-	var body map[string]json.RawMessage
+func mutatingMethod(method string) bool {
+	return method == http.MethodPost || method == http.MethodPut || method == http.MethodDelete || method == http.MethodPatch
+}
+
+// prepareFeedback buffers a versioned JSON body, moves its version into
+// If-Match and resolves the resource it addresses. The scope the caller names
+// goes on the request whether or not it exists, so authorization sees a
+// project named only in the body and its refusal never depends on existence.
+// It takes no lock and reads no resource content, so it is safe before
+// authorization.
+func (g *Gateway) prepareFeedback(w http.ResponseWriter, r *http.Request, user identity.User) (*versionResource, bool) {
+	mutating := mutatingMethod(r.Method)
+	var data []byte
 	// Only versioned JSON resources need their body inspected; uploads and worker
 	// streams retain their original reader and flushing semantics.
-	candidate := r.URL.Path == "/api/library" || r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, "/api/rules/file") || r.URL.Path == "/api/me" || strings.HasPrefix(r.URL.Path, "/api/me/") || strings.HasPrefix(r.URL.Path, "/api/users") || r.Method == http.MethodPut
+	candidate := r.URL.Path == "/api/library" || r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, "/api/rules/file") || r.URL.Path == "/api/rules/understand" || r.URL.Path == "/api/me" || strings.HasPrefix(r.URL.Path, "/api/me/") || strings.HasPrefix(r.URL.Path, "/api/users") || r.Method == http.MethodPut
 	if mutating && candidate && webguard.JSONContent(r) {
-		data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
+		var err error
+		data, err = io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
 		if err != nil {
 			jsonError(w, 400, "JSON không hợp lệ")
-			return w, func() {}, false
+			return nil, false
 		}
 		r.Body = io.NopCloser(bytes.NewReader(data))
+		var body map[string]json.RawMessage
 		if json.Unmarshal(data, &body) == nil {
 			var version string
 			if len(body["version"]) > 0 && json.Unmarshal(body["version"], &version) == nil {
@@ -299,16 +327,25 @@ func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user ide
 					r.Header.Set("If-Match", version)
 				}
 				delete(body, "version")
-				clean, _ := json.Marshal(body)
-				r.Body = io.NopCloser(bytes.NewReader(clean))
-				r.ContentLength = int64(len(clean))
+				data, _ = json.Marshal(body)
+				r.Body = io.NopCloser(bytes.NewReader(data))
+				r.ContentLength = int64(len(data))
 			}
 		}
 	}
-	res := g.resourceFor(r, user, body)
-	if res != nil && res.query != nil {
-		*r = *r.WithContext(context.WithValue(r.Context(), mutationScopeKey{}, mutationScope{res.query.Get("scope"), res.query.Get("project"), res.query.Get("story")}))
+	scope := requestedConfigScope(r, data)
+	if scope != nil {
+		*r = *r.WithContext(context.WithValue(r.Context(), mutationScopeKey{}, mutationScope{scope.Get("scope"), scope.Get("project"), scope.Get("story")}))
 	}
+	return g.resourceFor(r, user, scope), true
+}
+
+// beginFeedback keeps version compare/write atomic for the same resource only.
+// Network response writes and event publication happen after releasing its lock.
+// It runs after authorization: a stale If-Match answers 409 with the current
+// resource.
+func (g *Gateway) beginFeedback(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session, res *versionResource) (http.ResponseWriter, func(), bool) {
+	mutating := mutatingMethod(r.Method)
 	if mutating && strings.HasPrefix(r.URL.Path, "/api/sessions/") {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/sessions/"), "/revoke")
 		sessions, _ := g.accounts.Sessions("", current.ID)

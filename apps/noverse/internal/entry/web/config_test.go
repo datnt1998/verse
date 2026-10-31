@@ -51,6 +51,7 @@ func newConfigTestGateway(t *testing.T) *configTestGateway {
 		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
 		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectOwner}, Password: "writer-pass"},
 		{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectView}, Password: "reader-pass"},
+		{Username: "outsider", Role: identity.RoleMember, Password: "outsider-pass"},
 	} {
 		if _, err := accounts.CreateUser(u); err != nil {
 			t.Fatal(err)
@@ -382,6 +383,26 @@ func TestRulesEndpoints(t *testing.T) {
 	w = tg.do("PUT", "/api/rules/file", reader, `{"scope":"story","project":"proj","story":"01-story","name":"x.md","text":"x"}`)
 	if w.Code != 403 {
 		t.Fatalf("reader PUT rule phải trả 403, nhận được %d", w.Code)
+	}
+	// A stale version must not turn the refusal into a 409 carrying the file.
+	w = tg.do("PUT", "/api/rules/file", reader, `{"scope":"story","project":"proj","story":"01-story","name":"tone.md","text":"x","version":"stale"}`)
+	if w.Code != 403 || strings.Contains(w.Body.String(), "story tone") {
+		t.Fatalf("reader stale PUT rule = %d %s; want 403 without the file", w.Code, w.Body)
+	}
+
+	// A refusal reads the same whether the named project or story exists.
+	outsider := tg.login("outsider", "outsider-pass")
+	for _, probe := range []struct {
+		cookie, real, missing string
+	}{
+		{outsider, `{"scope":"project","project":"proj","name":"x.md","text":"x"}`, `{"scope":"project","project":"ghost","name":"x.md","text":"x"}`},
+		{reader, `{"scope":"story","project":"proj","story":"01-story","name":"x.md","text":"x"}`, `{"scope":"story","project":"proj","story":"ghost","name":"x.md","text":"x"}`},
+	} {
+		real := tg.do("PUT", "/api/rules/file", probe.cookie, probe.real)
+		missing := tg.do("PUT", "/api/rules/file", probe.cookie, probe.missing)
+		if real.Code != 403 || missing.Code != real.Code || missing.Body.String() != real.Body.String() {
+			t.Fatalf("refusal depends on existence: %d %s vs %d %s", real.Code, real.Body, missing.Code, missing.Body)
+		}
 	}
 
 	// 删除。

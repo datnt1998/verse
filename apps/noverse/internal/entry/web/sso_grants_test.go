@@ -465,10 +465,11 @@ func TestForcedPasswordGateEveryBusinessRoute(t *testing.T) {
 			t.Fatalf("%s %s (must-change) = %d, want 403: %s", method, path, w.Code, w.Body)
 		}
 		var b struct {
-			Flag bool `json:"mustChangePassword"`
+			Code string `json:"code"`
+			Flag bool   `json:"mustChangePassword"`
 		}
-		if err := json.Unmarshal(w.Body.Bytes(), &b); err != nil || !b.Flag {
-			t.Fatalf("%s %s body missing mustChangePassword flag: %s", method, path, w.Body)
+		if err := json.Unmarshal(w.Body.Bytes(), &b); err != nil || !b.Flag || b.Code != "password_change_required" {
+			t.Fatalf("%s %s body is not the forced-password contract: %s", method, path, w.Body)
 		}
 	}
 	mustReach := func(method, path, body string) {
@@ -543,6 +544,42 @@ func TestForcedPasswordGateEveryBusinessRoute(t *testing.T) {
 		if w := authDo(t, f.g, route.method, route.path, cookie, route.body); w.Code != 200 {
 			t.Fatalf("%s %s (must-change neutral) = %d: %s", route.method, route.path, w.Code, w.Body)
 		}
+	}
+}
+
+// TestForcedPasswordAdminKeepsOnlyOwnPowers: an admin still on a temporary
+// password must not read data through a stale-version conflict (409 carries
+// the current resource) nor revoke another account's session through the
+// neutral session route.
+func TestForcedPasswordAdminKeepsOnlyOwnPowers(t *testing.T) {
+	f := newSSOFixture(t)
+	if _, err := f.accounts.CreateUser(identity.NewUser{
+		Username: "tempadmin", Role: identity.RoleAdmin,
+		Password: "temp-pass", MustChangePassword: true,
+	}); err != nil {
+		t.Fatalf("create must-change admin: %v", err)
+	}
+	temp := f.login(t, "tempadmin", "temp-pass")
+	member := f.login(t, "member", "member-pass")
+
+	w := authDo(t, f.g, http.MethodPost, "/api/users/member", temp, `{"version":"stale","name":"Đổi tên"}`)
+	if w.Code != http.StatusForbidden || strings.Contains(w.Body.String(), `"current"`) ||
+		!strings.Contains(w.Body.String(), `"code":"password_change_required"`) {
+		t.Fatalf("stale-version write by a must-change admin = %d %s", w.Code, w.Body)
+	}
+
+	sessions, err := f.accounts.Sessions("member", "")
+	if err != nil || len(sessions) == 0 {
+		t.Fatalf("member sessions: %v", err)
+	}
+	if w := authDo(t, f.g, http.MethodPost, "/api/sessions/"+sessions[0].ID+"/revoke", temp, `{}`); w.Code == http.StatusOK {
+		t.Fatalf("must-change admin revoked another account's session: %s", w.Body)
+	}
+	if w := authDo(t, f.g, http.MethodGet, "/api/me", member, ""); w.Code != http.StatusOK {
+		t.Fatalf("member session after the refused revoke = %d", w.Code)
+	}
+	if w := authDo(t, f.g, http.MethodGet, "/api/me", temp, ""); w.Code != http.StatusOK || strings.Contains(w.Body.String(), "pendingLessons") {
+		t.Fatalf("must-change admin /api/me = %d %s; want profile without business counts", w.Code, w.Body)
 	}
 }
 

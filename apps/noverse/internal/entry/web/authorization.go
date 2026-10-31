@@ -50,7 +50,7 @@ func routePermission(r *http.Request) (project string, minimum identity.ProjectR
 		if resolved, ok := r.Context().Value(mutationScopeKey{}).(mutationScope); ok {
 			scope, projectID = resolved.scope, resolved.project
 		}
-		if scope == "project" || scope == "story" {
+		if (scope == "project" || scope == "story") && projectID != "" {
 			project = projectID
 			minimum = identity.ProjectView
 			if !read {
@@ -115,7 +115,7 @@ func requestAllowed(user identity.User, r *http.Request) bool {
 }
 func authorizeRequest(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	if user.MustChangePassword && !passwordNeutralRoute(r.Method, r.URL.Path) {
-		writeJSON(w, 403, map[string]any{"error": "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.", "mustChangePassword": true})
+		writeJSON(w, 403, map[string]any{"code": "password_change_required", "error": "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.", "mustChangePassword": true})
 		return false
 	}
 	if requestAllowed(user, r) {

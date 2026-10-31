@@ -42,7 +42,7 @@ func TestADMembersContract(t *testing.T) {
 		t.Fatalf("temporary password was not stored hashed: %v", err)
 	}
 	cookie := authLogin(t, g, "linh", "temporary-pass")
-	if rec := authReq(g, "GET", "/api/library", "", cookie); rec.Code != 403 || !strings.Contains(rec.Body.String(), `"mustChangePassword":true`) {
+	if rec := authReq(g, "GET", "/api/library", "", cookie); rec.Code != 403 || !strings.Contains(rec.Body.String(), `"mustChangePassword":true`) || !strings.Contains(rec.Body.String(), `"code":"password_change_required"`) {
 		t.Fatalf("temporary account bypassed password change: %d %s", rec.Code, rec.Body)
 	}
 	changed := authReq(g, "POST", "/api/me/password", `{"current":"temporary-pass","new":"permanent-pass"}`, cookie)

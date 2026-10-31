@@ -435,7 +435,8 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 		g.doLogout(w, r, user, current)
 	case path == "/api/me" && get:
 		extra := map[string]any{"session": current}
-		if isAdmin(user) {
+		// Business data, even a count, waits for the forced password change.
+		if isAdmin(user) && !user.MustChangePassword {
 			count, err := g.pendingLessons(user)
 			if err != nil {
 				jsonError(w, http.StatusInternalServerError, "Không đọc được bài học: "+err.Error())
@@ -483,7 +484,11 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 			return true
 		}
 		id := strings.TrimSuffix(strings.TrimPrefix(path, "/api/sessions/"), "/revoke")
-		err := g.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username || user.Role == identity.RoleAdmin }, identity.AuditContext{Actor: accountActor(user)})
+		// An admin still on a temporary password keeps only own-session
+		// powers until the change, like every other forced-change route.
+		err := g.accounts.RevokeSession(id, func(owner string) bool {
+			return owner == user.Username || (user.Role == identity.RoleAdmin && !user.MustChangePassword)
+		}, identity.AuditContext{Actor: accountActor(user)})
 		if err != nil {
 			accountError(w, err)
 			return true

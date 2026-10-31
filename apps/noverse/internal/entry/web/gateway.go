@@ -696,16 +696,25 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		g.serveSessionOnly(w, r, user, current)
 		return
 	}
+	// Order matters: the body may name the project (rules files), so it is
+	// read first; authorization then runs before the version layer, because a
+	// stale If-Match answers 409 with the current resource and a request that
+	// is not allowed — forced password change, missing project role — must
+	// stop first.
+	res, ok := g.prepareFeedback(w, r, user)
+	if !ok {
+		return
+	}
+	if !authorizeRequest(w, r, user) {
+		return
+	}
 	var finish func()
 	var proceed bool
-	w, finish, proceed = g.beginFeedback(w, r, user, current)
+	w, finish, proceed = g.beginFeedback(w, r, user, current, res)
 	if !proceed {
 		return
 	}
 	defer finish()
-	if !authorizeRequest(w, r, user) {
-		return
-	}
 	if g.serveNotify(w, r, user, current) {
 		return
 	}
