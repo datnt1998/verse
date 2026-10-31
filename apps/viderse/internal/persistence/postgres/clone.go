@@ -727,7 +727,18 @@ func (s *CloneStore) WriteStepCheckpoint(ctx context.Context, jobID string, step
 			if err := tx.QueryRow(txctx, `SELECT checkpoint FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&previous); err != nil {
 				return err
 			}
-			checkpoint, err = preserveReviewOrigin(previous, checkpoint)
+			var pendingOverride bool
+			if err := tx.QueryRow(txctx, `SELECT EXISTS (SELECT 1 FROM clone_image_override_intents WHERE job_id=$1)`, u).Scan(&pendingOverride); err != nil {
+				return err
+			}
+			if pendingOverride && startsImageFlight(previous, checkpoint) {
+				return pipeline.ErrImageOverridePending
+			}
+			if pendingOverride {
+				checkpoint, err = clearReviewOrigin(checkpoint)
+			} else {
+				checkpoint, err = preserveReviewOrigin(previous, checkpoint)
+			}
 			if err != nil {
 				return err
 			}
@@ -791,7 +802,7 @@ func (s *CloneStore) ApplyStepSuccess(ctx context.Context, jobID string, step do
 				return err
 			}
 			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
-			if err := tx.QueryRow(txctx, `SELECT checkpoint, EXISTS (SELECT 1 FROM clone_image_review_intents WHERE job_id=$1) FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&checkpoint, &pending); err != nil {
+			if err := tx.QueryRow(txctx, `SELECT checkpoint, EXISTS (SELECT 1 FROM clone_image_review_intents WHERE job_id=$1 UNION ALL SELECT 1 FROM clone_image_override_intents WHERE job_id=$1) FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&checkpoint, &pending); err != nil {
 				return err
 			}
 		}

@@ -103,10 +103,17 @@ func (s *CloneStore) DrainImageIntents(ctx context.Context, jobID string, fence 
 		checkpoint, err = preserveReviewOrigin(previous, checkpoint); if err != nil { return err }
 		var m images.Manifest
 		if err := json.Unmarshal(checkpoint, &m); err != nil { return err }
-		count, err := overlayImageIntents(txctx, tx, u, &m); if err != nil || count == 0 { return err }
+		count, err := overlayImageIntents(txctx, tx, u, &m); if err != nil { return err }
+		override, err := overlayImageOverride(txctx, tx, u, &m, true); if err != nil { return err }
+		if count == 0 && !override { return nil }
 		result, err = json.Marshal(m); if err != nil { return err }
 		if err = s.WriteStepCheckpoint(txctx, jobID, domain.CloneImages, fence, attempt, result); err != nil { return err }
-		_, err = tx.Exec(txctx, `DELETE FROM clone_image_review_intents WHERE job_id=$1`, u)
+		if count > 0 {
+			if _, err = tx.Exec(txctx, `DELETE FROM clone_image_review_intents WHERE job_id=$1`, u); err != nil { return err }
+		}
+		if override {
+			_, err = tx.Exec(txctx, `DELETE FROM clone_image_override_intents WHERE job_id=$1`, u)
+		}
 		return err
 	})
 	if errors.Is(err, pgx.ErrNoRows) { return nil, pipeline.ErrFence }

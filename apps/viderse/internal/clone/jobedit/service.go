@@ -35,6 +35,7 @@ type Change struct {
 	ApproveExport  bool
 	ImageReview    bool
 	ImageIDs       []string
+	ImageOverride  bool
 }
 type Store interface {
 	Read(context.Context, string, domain.CloneStep) (Snapshot, error)
@@ -180,6 +181,22 @@ func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkp
 		return nil
 	}
 	return s.commit(ctx, before, checkpoint, from, rerun, nil, false, imageIDs)
+}
+func (s *Service) CommitImageOverride(ctx context.Context, before Snapshot, checkpoint any) error {
+	raw, err := json.Marshal(checkpoint)
+	if err != nil {
+		return err
+	}
+	if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, InvalidateFrom: domain.CloneImages, Rerun: true, ImageOverride: true}); err != nil {
+		return err
+	}
+	if s.Publish != nil {
+		s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+	}
+	if s.Wake != nil {
+		s.Wake()
+	}
+	return nil
 }
 func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool, imageIDs []string) error {
 	raw, err := json.Marshal(checkpoint)

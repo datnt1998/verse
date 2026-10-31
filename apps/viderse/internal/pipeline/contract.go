@@ -15,6 +15,7 @@ var ErrFence = errors.New("lượt chạy đã được thay thế")
 var ErrPaused = errors.New("đã tạm dừng")
 var ErrNotFound = errors.New("không tìm thấy video")
 var ErrConflict = errors.New("video đang được xử lý")
+var ErrImageOverridePending = errors.New("prompt ảnh đang chờ áp dụng")
 
 type StepHandler interface {
 	Run(context.Context, *StepContext) (StepResult, error)

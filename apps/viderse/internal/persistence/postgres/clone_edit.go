@@ -60,7 +60,11 @@ func (s *CloneStore) Read(ctx context.Context, id string, step domain.CloneStep)
 			if err != nil {
 				return err
 			}
-			if count > 0 {
+			override, err := overlayImageOverride(txctx, tx, u, &manifest, false)
+			if err != nil {
+				return err
+			}
+			if count > 0 || override {
 				snapshot.Manifest, err = json.Marshal(manifest)
 				if err != nil {
 					return err
@@ -140,7 +144,7 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		if !found {
 			return ErrNotFound
 		}
-		if change.ImageReview && before.Step.Step == domain.CloneImages && current.Step.Status == domain.CloneRunning {
+		if (change.ImageReview || change.ImageOverride) && before.Step.Step == domain.CloneImages && current.Step.Status == domain.CloneRunning {
 			if job.Fence != before.Job.Fence || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
 				return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
 			}
@@ -158,13 +162,23 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			if _, err := overlayImageIntents(txctx, tx, u, &manifest); err != nil {
 				return err
 			}
+			if _, err := overlayImageOverride(txctx, tx, u, &manifest, false); err != nil {
+				return err
+			}
 			if err := json.Unmarshal(before.Manifest, &expected); err != nil {
 				return err
 			}
 			if manifest.Revision != expected.Revision {
 				return jobedit.Conflict("Danh sách ảnh đã thay đổi; tải lại trước khi sửa")
 			}
-			if err := enqueueImageIntents(txctx, tx, u, before.Manifest, change.Checkpoint, change.ImageIDs); err != nil {
+			if change.ImageOverride {
+				if err := enqueueImageOverride(txctx, tx, u, expected.Revision, change.Checkpoint); err != nil {
+					return err
+				}
+				if _, err := tx.Exec(txctx, `UPDATE clone_steps SET checkpoint=checkpoint-'reviewOrigin' WHERE job_id=$1 AND step='images'`, u); err != nil {
+					return err
+				}
+			} else if err := enqueueImageIntents(txctx, tx, u, before.Manifest, change.Checkpoint, change.ImageIDs); err != nil {
 				return err
 			}
 			var requested images.Manifest

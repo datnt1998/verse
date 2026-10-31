@@ -179,11 +179,16 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		}
 	}
 	for {
-		if err = h.runQueue(ctx, s, &m); err != nil {
+		queueErr := h.runQueue(ctx, s, &m)
+		if queueErr != nil && !errors.Is(queueErr, pipeline.ErrImageOverridePending) {
+			err = queueErr
 			break
 		}
 		var drained bool
 		drained, err = drainIntents(ctx, s, &m)
+		if queueErr != nil && !drained && err == nil {
+			err = queueErr
+		}
 		if err != nil || !drained {
 			break
 		}
@@ -304,14 +309,14 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				defer func() {
 					if slotErr != nil {
 						mu.Lock()
-						if first == nil {
+						if first == nil || (errors.Is(first, pipeline.ErrImageOverridePending) && !errors.Is(slotErr, pipeline.ErrImageOverridePending)) {
 							first = slotErr
 						}
 						mu.Unlock()
 					}
 				}()
 				mu.Lock()
-				if first != nil {
+				if first != nil && !(errors.Is(first, pipeline.ErrImageOverridePending) && m.Items[index].InFlight != nil) {
 					mu.Unlock()
 					return nil
 				}
@@ -321,6 +326,8 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					return pipeline.ErrPaused
 				}
 				item := &m.Items[index]
+				beforeFlight := *item
+				previousRevision := m.Revision
 				if item.InFlight == nil {
 					prompt, err := BuildManifestImagePrompt(*m, *item)
 					if err != nil {
@@ -337,6 +344,8 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				item.Status = "running"
 				item.Error = ""
 				if err := save(); err != nil {
+					*item = beforeFlight
+					m.Revision = previousRevision
 					mu.Unlock()
 					return err
 				}

@@ -24,7 +24,13 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	if err != nil {
 		return OverridePlan{}, err
 	}
-	if err = s.mutable(l); err != nil {
+	running := l.snapshot.Step.Status == domain.CloneRunning
+	if running {
+		err = s.mutableReview(l)
+	} else {
+		err = s.mutable(l)
+	}
+	if err != nil {
 		return OverridePlan{}, err
 	}
 	next, plan, err := s.prepareOverrides(ctx, l, input)
@@ -33,6 +39,23 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	}
 	if plan.Cost.Images > 0 && (input.ConfirmCount == nil || *input.ConfirmCount != plan.Cost.Images) {
 		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Số ảnh xác nhận không khớp kế hoạch vẽ lại")
+	}
+	if running {
+		// The worker owns every item and any paid flight. Persist the prompt
+		// and redraw selection without replacing its live item snapshots.
+		for i := range next.Items {
+			for _, item := range l.manifest.Items {
+				if next.Items[i].ID == item.ID {
+					next.Items[i] = item
+					break
+				}
+			}
+		}
+		next.Story = l.manifest.Story
+		if err = s.Edits.CommitImageOverride(ctx, l.snapshot, next); err != nil {
+			return OverridePlan{}, err
+		}
+		return plan, nil
 	}
 	from := domain.CloneStep("")
 	rerun := len(next.QueueOnly) > 0
