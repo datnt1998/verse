@@ -2,6 +2,15 @@
 
 Mỗi đợt ghi: ngày, gói, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Các gói trước Gói AO ghi trong `21-dev-prompt.md` và `19-gap-closure.md`.
 
+## 01/11/2026 — Gói AQ: lấp chỗ thiếu sau AO, AP, Luồng viết <!-- r-aq -->
+
+- Mới: `MOutline` (M9 tab truyện điện thoại), `MProjBrain` (M10 Não dự án điện thoại), `RunCards` (01c thẻ theo loại thao tác), `MRun` (M1b lịch sử luồng viết điện thoại).
+- `Dialogs` newProject: bỏ “Mọi truyện” khỏi quy tắc; *Bắt đầu trống* / *Chép từ dự án khác*; ô chọn kit; sửa biểu tượng thiếu ở cột “Dự án mới có sẵn”.
+- `Main`: lối *Lịch sử ›* ở khung Luồng viết trực tiếp. `MWork`: nút Truyện, *Luồng viết ›*. `MMore`: hàng Truyện, Não dự án.
+- `Login`: huy hiệu Quản trị theo token mới, tên miền không mono; `Login`/`MMore`/`Members`: nền logo `#18181A`. `Outline`: cột trái đúng 264 px.
+- Tài liệu: `21-dev-prompt.md` Gói AQ; `20-settings-rules.md` §10–11; `19-gap-closure.md` Gói AQ; `06-data-contract.md` §AQ; `07-copy.md`; `18-mobile.md`; `artboards/README.md`; `tokens.css`.
+- Canvas bản 133.
+
 ## 31/10/2026 — Gói AP: quy tắc hai cấp, chống giọng văn máy, nền móng truyện, Não dự án <!-- r-ap -->
 
 - `Settings`: bỏ Quy tắc chung và Cách viết; mở ở Trợ lý AI; thẻ Cách chạy; Thông tin dự án luôn hiện; Não hệ thống ghi “4 bài học chờ duyệt” ở dòng phụ thay huy hiệu.

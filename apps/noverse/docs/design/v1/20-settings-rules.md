@@ -513,3 +513,43 @@ Bỏ cấp Mọi truyện. Nhóm quy tắc “Của truyện này” / “Học 
 | GAP-AP6 | Định hướng kết đủ trường | Snapshot đã có `compassDirection`, `compassScale`; thêm `openThreads[]`. |
 | GAP-AP7 | Tóm tắt sửa tay | `book.json.synopsis` chưa có PUT — UI chỉ *Nhờ sửa*. Không bắt buộc. |
 | — | Não dự án | Không đổi API: bỏ Ngày 7, tần suất/lọc/soi đều tính ở client. |
+
+## 10. Luồng viết — thẻ theo loại thao tác (01/11, Gói AQ) <!-- aq-ops -->
+
+Artboard `RunCards` (máy tính) và `MRun` (điện thoại); dữ liệu mẫu dùng chung `src/_rundata.html` của canvas. Mỗi thẻ: biểu tượng loại, **tên tiếng Việt**, **một dòng tóm tắt** (cắt dấu ba chấm), thời lượng, trạng thái; mở ra là tham số chính + kết quả theo khung cố định của loại. Khối **Chi tiết kỹ thuật** đóng sẵn ở cuối thẻ là chỗ duy nhất có khoá thao tác, tham số và kết quả thô (font mono, không có chữ tiếng Việt trong JSON mẫu).
+
+| Thao tác (chỉ ở Chi tiết kỹ thuật) | Tên trên thẻ | Vai | Dòng tóm tắt khi thu gọn | Nội dung khi mở |
+|---|---|---|---|---|
+| `novel_context` | Đọc bối cảnh | Người viết | chương N · tiền đề, dàn ý, n nhân vật, n cài cắm | Chương; danh sách “Đã nạp cho Người viết” (tóm theo khoá kết quả) |
+| `read_chapter` | Đọc chương | mọi vai | chương N · bản cuối/bản nháp · [đoạn a–b] [· lời thoại của X] | Chương, bản, đoạn/nhân vật, độ dài; trích 1–2 câu (Literata); *Mở chương N trong Trình đọc ›* |
+| `plan_chapter` | Lập kế hoạch chương | Người viết | chương N · tên chương | Mục tiêu, móc cuối, cảm xúc (chip); Xung đột; Bắt buộc có; Tránh; Kiểm liên tục (`required_beats`, `forbidden_moves`, `continuity_checks`) |
+| `draft_chapter` | Viết bản nháp | Người viết | chương N · viết mới/viết tiếp · n chữ | Cách ghi (`mode=write` → viết mới, thay bản cũ; `append` → viết tiếp +n chữ), số chữ, trích câu đầu; *Mở bản nháp ›* |
+| `edit_chapter` | Gọt giũa | Người viết | chương N · sửa 1 đoạn / thay n chỗ | So sánh −/+ (`old_string`/`new_string`), phạm vi (một chỗ / mọi chỗ) |
+| `check_consistency` | Soát nhất quán | Người viết | chương N · nạp n nguồn đối chiếu | Danh sách nguồn đã nạp (quy tắc thế giới, cài cắm, quan hệ, biệt danh, tóm tắt); câu “Người viết tự đối chiếu…” — thao tác này **không** trả kết luận |
+| `commit_chapter` | Lưu chương | Người viết | chương N · n chữ · n cài cắm · n xưng hô | Chip chương/số chữ/kiểu móc/góp ý đã sửa; nhân vật; cài cắm (Đã gieo/Đẩy tiếp); xưng hô mới; sự kiện chính |
+| `audit_foundation` | Soát nền truyện | Kiến trúc sư | sẵn sàng/chưa sẵn sàng · n lưu ý | Kết luận, tóm tắt, từng vấn đề (mục: Tiền đề/Dàn ý/…, mô tả, gợi ý) |
+| `revise_outline` | Sửa dàn ý | Kiến trúc sư | từ chương N · đổi n chương | Lý do; chương, móc mới; so sánh sự kiện chính cũ/mới |
+| `resolve_outline_feedback` | Giữ dàn ý | Kiến trúc sư | không cần đổi | Lý do giữ |
+| `save_book` | Lưu thông tin truyện | Kiến trúc sư | tên + giới thiệu | Tên; giới thiệu |
+| `save_foundation` · premise | Lưu tiền đề | Kiến trúc sư | n mục · người nghe … | Các mục (5 đầu + “… và n mục khác”), người nghe, điểm khác; *Xem ở tab Tiền đề ›* |
+| `save_foundation` · characters | Lưu nhân vật | Kiến trúc sư | n nhân vật · n chính | Chip nhân vật; lộ vai muộn |
+| `save_foundation` · world_rules | Lưu quy tắc thế giới | Kiến trúc sư | n quy tắc · nhóm | 3 quy tắc đầu + “… và n quy tắc khác” |
+| `save_foundation` · outline / layered_outline / expand_arc / append_volume | Lưu dàn ý | Kiến trúc sư | n chương · n tập | Danh sách chương hai cột |
+| `save_foundation` · update_compass | Cập nhật hướng đi | Kiến trúc sư | n tuyến còn mở | Hướng kết; tuyến còn mở |
+| `save_foundation` · complete_book | Hoàn tất truyện | Kiến trúc sư | n chương · đã khép mọi tuyến | Lý do |
+| `save_review` | Lưu thẩm duyệt | Biên tập viên | chương N · Đạt/Gọt thêm/Viết lại · n cảnh báo | Kết luận (`verdict` accept → Đạt, polish → Gọt thêm, rewrite → Viết lại), chấm theo gói; điểm theo tiêu chí (`dimensions`); vấn đề (mức, mục luật, câu, gợi ý) |
+| `save_arc_summary` | Tóm tắt cung | Biên tập viên | tập N · cung M · n sự kiện | Tóm tắt; sự kiện chính; ảnh chụp nhân vật |
+| `save_volume_summary` | Tóm tắt tập | Biên tập viên | tập N · n chương | Tóm tắt |
+| loại chưa biết | Thao tác khác | — | loại thao tác mới · xem chi tiết kỹ thuật | Câu “Noverse chưa có thẻ riêng…”; chỉ Chi tiết kỹ thuật |
+
+- **Đang chạy:** tên ánh chạy, tóm tắt “đang …”, vòng quay; mở ra chỉ có “Bắt đầu lúc hh:mm. Thẻ tự cập nhật khi xong”. Luôn là thẻ cuối, khung bám đáy.
+- **Lỗi:** viền đỏ nhạt, tóm tắt “không thực hiện được · …”, mở ra là câu lỗi tiếng Việt + việc trợ lý làm tiếp (vd. “Không tìm thấy đoạn cần sửa trong bản nháp. Người viết đọc lại chương rồi sửa tiếp — không cần bạn làm gì.”). Không chặn thẻ sau.
+- **Vòng:** tiêu đề “Vòng N · {vai} · {việc} · hh:mm”, chấm màu vai. Lọc theo vai ở đầu khung.
+- **Lịch sử:** lưu bền, không giới hạn 32 vòng. Tải 20 vòng gần nhất; *Tải thêm vòng cũ hơn* ở đầu (điện thoại có trạng thái đang tải). Mở/đóng thẻ không gọi lại máy chủ.
+- **Điện thoại (`MRun`):** hàng 58 px (tên + tóm tắt + thời lượng), chạm mở ngăn dưới cao tối đa 760 px với cùng khung nội dung; *Đang chạy · về mới nhất* nổi ở đáy khi người dùng cuộn lên trong lúc chạy.
+- **Không có** token hay chi phí theo thao tác (máy chủ không đo) — chi phí vẫn ở thẻ trợ lý cột phải Bàn viết.
+
+## 11. Điện thoại: tab truyện và Não dự án (01/11, Gói AQ) <!-- aq-mobile -->
+
+- **M9 `MOutline`** — thanh chip cuộn ngang: Thông tin · Tiền đề · Nhân vật · Thế giới · Dàn ý · Cài cắm · *Cách viết ›* (sang M4). Thông tin: lưới Nền móng 2×2, nhóm Thông tin truyện / Khung truyện / Định hướng kết / 10 trục (+ *So với các truyện khác ở Não dự án*). Nhân vật: danh sách, chạm sang Não truyện M8. Dàn ý: chương bấm mở sự kiện chính + móc + *Đọc chương ›*. Sửa = ngăn dưới; *Nhờ…* = ngăn **Nhờ Kiến trúc sư** điền sẵn.
+- **M10 `MProjBrain`** — ba phần Sổ cái · Vũ trụ · Tìm. Bảng 10 cột không vẽ trên 390 px; thay bằng Tần suất theo trục (chạm giá trị → ngăn truyện đã dùng) và thẻ truyện (tổ hợp 1·3·4·6, chạm → ngăn 10 trục, giá trị trùng truyện mới tô tím).

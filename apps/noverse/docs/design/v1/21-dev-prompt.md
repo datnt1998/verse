@@ -1486,6 +1486,32 @@ Spec: `20-settings-rules.md` §9 (đủ trạng thái, nguồn dữ liệu, GAP-
 - Não dự án không có cột Ngày 7; bấm “Thợ may” → mọi ô Thợ may viền tím, dải đếm 2 lần.
 - Ghi “Gói AP” vào `19-gap-closure.md`.
 
+## Gói AQ — Lấp chỗ thiếu artboard sau AO, AP và Luồng viết trực tiếp (01/11 · P1) <!-- goi-aq -->
+
+Canvas bản 133. Artboard mới: `MOutline` (M9), `MProjBrain` (M10), `RunCards` (01c), `MRun` (M1b). Sửa: `Dialogs` (newProject), `Main`, `MWork`, `MMore`, `Login`, `Members`, `Outline`. Trả lời từng GAP AO/AP ở `19-gap-closure.md` › *Gói AQ*.
+
+### Việc FE
+1. **Dự án mới** (`Dialogs.state=newProject`, tweak `npcopy`: none · pick · picked): bỏ mọi chữ “chép từ Mọi truyện”. Mục **Quy tắc & văn phong ban đầu**: *Bắt đầu trống* (mặc định) · *Chép từ dự án khác* → ô chọn dự án (dự án không có quy tắc thì mờ, không chọn được). Ô chọn **Dùng chung trợ lý AI và ngân sách với “Mọi truyện”** (đúng nghĩa `shareGlobal`: chỉ model/ngân sách) dùng `.cb` của bộ thành phần. Cột phải đổi theo: Quy tắc viết “trống” / “chép n quy tắc”, Văn phong “Chung · mặc định” / tên văn phong dự án gốc, Trợ lý AI “theo Mọi truyện” / “bản riêng”.
+2. **Tab truyện trên điện thoại** (`MOutline`, tweak `tab`: info · premise · cast · world · outline · fs; `found`; `sheet`: none · edit · ask). Vào từ nút Truyện (biểu tượng tài liệu) trên thanh đầu `MWork` và hàng **Truyện** ở `MMore` › Đang mở. Router 390 px không còn đưa URL truyện về MWork khi có `?tab=`. Tab *Cách viết* là lối sang trang Cách viết đã có ở M4; *Bản xuất* giữ ở M3 Nghe. Sửa tại chỗ = ngăn dưới; mọi *Nhờ…* mở ngăn **Nhờ Kiến trúc sư** có câu điền sẵn, gửi như ô chat tab Viết.
+3. **Não dự án trên điện thoại** (`MProjBrain`, tweak `tab`, `lview`: freq · stories · only, `sheet`: none · value · story, `check`, `uni`). Không vẽ bảng 10 cột: khối kiểm (kết luận + 4 phép xếp dọc) → **Tần suất theo trục** (chạm giá trị = ngăn “truyện nào đã dùng”, thay cho “bấm ô để soi”) hoặc **Truyện** (thẻ hiện tổ hợp 1·3·4·6, chạm = ngăn đủ 10 trục) · *Chỉ truyện trùng*. Vũ trụ: lọc Tất cả/Nhân vật/Địa điểm/Cần xem. Tìm: lọc loại. Vào từ `MMore` › Đang mở › **Não dự án**.
+4. **Thẻ theo loại thao tác** (`RunCards`, tweak `open` = khoá thao tác hoặc all, `status`: done · running · error, `tech`, `role`; điện thoại `MRun`, tweak `state`: list · sheet · sheetError · live · older · filtered, `op`). Bảng tên/tóm tắt/nội dung ở `20-settings-rules.md` §10. Khung Luồng viết trực tiếp ở Bàn viết có lối **Lịch sử ›**; MWork có **Luồng viết ›** cạnh dòng bước. Lịch sử gom theo vòng, tải 20 vòng gần nhất, *Tải thêm vòng cũ hơn* ở đầu; điện thoại chạm thẻ = ngăn dưới; khi cuộn lên lúc đang chạy có nút *Đang chạy · về mới nhất*. **Không** hiện token/chi phí theo thẻ.
+5. **Token Quản trị**: chốt `--members-admin-fg #E3C99E`, `--members-admin-bg rgba(184,154,110,.14)` cho mọi huy hiệu Quản trị (Thành viên, menu tài khoản, điện thoại). Bỏ `#CBB992`.
+6. **Menu tài khoản**: xác nhận cách dev làm — không có *Tuỳ chỉnh* và *Hướng dẫn lệnh* trong menu (đã có ở header/thanh bên), **áp cho cả kho tệp** để hai chế độ một menu.
+7. **Không có danh sách app**: xác nhận — ẩn cả nhóm Ứng dụng, không đoán địa chỉ (giống `viderse=no`).
+8. **Thành viên/Ứng dụng điện thoại**: xác nhận `--color-surface-3` (#18181A) cho vòng logo — board đã đổi literal #18181B → #18181A; giữ safe-area thật, khoảng trống 40 px đầu board chỉ là chỗ status bar minh hoạ (GAP-AN-FE3).
+9. `Outline`: cột trái board thêm `min-width:0` → đúng 264 px như app (đóng ngoại lệ AP–khung).
+
+### Việc backend
+- GAP-AQ1: `POST /api/projects` nhận `copyRulesFrom: "<slug dự án>"` — chép tệp quy tắc dự án + `config.style` của dự án gốc một lần (không liên kết). Chưa có thì ẩn nút *Chép từ dự án khác*.
+- GAP-AQ2: lịch sử luồng viết có phân trang theo vòng (`?beforeRound=&limit=20`) và trả `role`, `round`, `startedAt`, `durationMs`, `status` (`done|running|error`), `error` (câu tiếng Việt) cho mỗi thao tác. Nếu đã có, ghi khoá vào `06-data-contract.md`.
+
+### Nghiệm thu
+- Tạo dự án “Bắt đầu trống” → trang dự án › Quy tắc “Chưa có quy tắc nào”, văn phong “Chung · mặc định Noverse”. Chép từ “Truyện ngắn đô thị” → 5 quy tắc + văn phong của dự án gốc; sửa ở dự án mới không đổi dự án gốc.
+- 390×844: MWork › nút Truyện mở M9 tab Thông tin; đủ 6 tab, không cuộn ngang; *Nhờ bổ sung* mở ngăn có câu “Bổ sung mục “…” cho tiền đề: ”.
+- 390×844: MMore › Não dự án mở M10; chạm “Thợ may” ở Tần suất → ngăn liệt kê truyện mới + 2 truyện cũ.
+- Mỗi khoá trong bảng §10 có thẻ đúng tên/tóm tắt; thao tác lạ hiện “Thao tác khác”. Không chuỗi nào là tên thao tác gốc ngoài Chi tiết kỹ thuật.
+- Ghi “Gói AQ” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |

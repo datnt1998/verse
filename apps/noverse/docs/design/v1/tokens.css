@@ -28,6 +28,9 @@
   --color-accent-soft: #D9CCF7; /* chữ trên nền accent mờ */
   --color-ok: #A6EDC1;
   --color-warn: #F6CB8C;
+  /* Huy hiệu Quản trị (Gói AQ, 01/11) — Thành viên, menu tài khoản, điện thoại */
+  --members-admin-fg: #E3C99E;
+  --members-admin-bg: rgba(184,154,110,.14);
   --color-err: #FF9AA2;
   --color-info: #B9D0F7;
   --color-user: #5DC1B0;        /* icon sự kiện người dùng */

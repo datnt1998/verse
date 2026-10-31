@@ -35,17 +35,34 @@ button{cursor:pointer}
 .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.cb{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.cb.on{background:#C9A6F5;border-color:#C9A6F5}
+.npseg{display:flex;padding:3px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.08)}
+.npseg button{flex:1 1 0;height:30px;border:none;border-radius:7px;background:transparent;color:#A0A0AB;font-size:13px;white-space:nowrap}
+.npseg button[aria-checked=true]{background:#232326;color:#EDEDEF;font-weight:500}
+.npsel{height:auto;min-height:44px;display:flex;align-items:center;gap:10px;padding:7px 10px;text-align:left;cursor:pointer}
+.npopt{width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:none;border-radius:8px;background:transparent;color:#EDEDEF;text-align:left;font:inherit}
+.npopt:hover:not(:disabled){background:rgba(255,255,255,.05)}
+.npopt[aria-selected=true]{background:rgba(255,255,255,.08)}
+.npopt:disabled{opacity:.5;cursor:not-allowed}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
+.i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
+.i-brush{-webkit-mask-image:url(../icons/brush-2.svg);mask-image:url(../icons/brush-2.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
 .i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-edit-r{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
 .i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
 .i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
 .i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
-.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
-.i-cloud{-webkit-mask-image:url(../icons/cloud-connection.svg);mask-image:url(../icons/cloud-connection.svg)}
-.i-key{-webkit-mask-image:url(../icons/key.svg);mask-image:url(../icons/key.svg)}
-.i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
-.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
-.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
-.i-lock{-webkit-mask-image:url(../icons/shield-tick.svg);mask-image:url(../icons/shield-tick.svg)}
 @media (prefers-reduced-motion:reduce){*{animation:none !important}}
 /* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
 [role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
@@ -135,7 +152,15 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="np-title" class="lbl">Tên dự án</label><input id="np-title" class="field" type="text" value="{{npTitle}}" onInput="{{onNpTitle}}" placeholder="vd: Kênh truyện audio"></div>
 <sc-if value="{{npClash}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #FF9AA2; display: flex; align-items: center; gap: 6px"><span class="ic i-warning" aria-hidden="true" style="width: 14px; height: 14px"></span>Đã có dự án cùng tên — đặt tên khác nhé</span></sc-if>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="np-desc" class="lbl">Mô tả</label><textarea id="np-desc" class="field" rows="2" placeholder="Kênh / series này nói về gì" style="height: auto; padding: 8px 10px; resize: none"></textarea></div>
-<button type="button" role="checkbox" aria-checked="true" style="display: flex; align-items: center; gap: 10px; min-height: 32px; padding: 0; border: none; background: transparent; color: #C9C9D1; font-size: 13px; text-align: left"><span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; background: #EDEDEF"><span class="ic i-tick-b" style="width: 14px; height: 14px; color: #0B0B0D"></span></span>Dùng chung trợ lý AI và quy tắc với “Mọi truyện”</button>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl" id="np-rules">Quy tắc &amp; văn phong ban đầu</span>
+<div class="npseg" role="radiogroup" aria-labelledby="np-rules"><button type="button" role="radio" aria-checked="{{npEmptyA}}" onClick="{{npEmpty}}">Bắt đầu trống</button><button type="button" role="radio" aria-checked="{{npCopyA}}" onClick="{{npCopy}}">Chép từ dự án khác</button></div>
+<sc-if value="{{npCopyOn}}" hint-placeholder-val="{{ false }}"><div style="position: relative">
+<button type="button" class="field npsel" aria-haspopup="listbox" aria-expanded="{{npPickA}}" aria-label="Chọn dự án để chép" onClick="{{npTogglePick}}" style="border-color: {{npSelBd}}"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px; color: #9DB0F7"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13.5px; color: {{npSrcFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{npSrcName}}</span><sc-if value="{{npSrcHas}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #8E8E99">{{npSrcSub}}</span></sc-if></span><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A"></span></button>
+<sc-if value="{{npPickOpen}}" hint-placeholder-val="{{ false }}"><div role="listbox" aria-label="Dự án" style="position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; padding: 4px; border-radius: 12px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 18px 40px -12px rgba(0,0,0,0.85)"><sc-for list="{{npSrcs}}" as="o" hint-placeholder-count="3"><button type="button" class="npopt" role="option" aria-selected="{{o.sel}}" disabled="{{o.dis}}" onClick="{{o.pick}}"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px; color: #8E8E99"></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13px">{{o.name}}</span><span style="font-size: 12px; color: #8E8E99">{{o.sub}}</span></span><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; color: #C9A6F5"></span></sc-if></button></sc-for></div></sc-if>
+</div></sc-if>
+<span style="font-size: 12px; color: #8E8E99; line-height: 1.5">{{npRulesNote}}</span>
+</div>
+<button type="button" role="checkbox" aria-checked="{{npShareA}}" onClick="{{npToggleShare}}" style="display: flex; align-items: flex-start; gap: 10px; min-height: 32px; padding: 2px 0 0; border: none; background: transparent; color: #C9C9D1; font-size: 13px; text-align: left; font-family: inherit"><span class="cb {{npShareCls}}" aria-hidden="true" style="margin-top: 1px"><sc-if value="{{npShare}}" hint-placeholder-val="{{ true }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0B0B0D" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if></span><span style="display: flex; flex-direction: column; gap: 2px; line-height: 1.45"><span>Dùng chung trợ lý AI và ngân sách với “Mọi truyện”</span><span style="font-size: 12px; color: #8E8E99">Model, mức suy nghĩ, ngân sách mỗi truyện. Tắt thì dự án giữ một bản riêng, đổi ở Tuỳ chỉnh.</span></span></button>
 </div>
 <div style="display: flex; flex-direction: column; gap: 10px">
 <span class="lbl">Dự án mới có sẵn</span>
@@ -239,12 +264,14 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["palette","newProject","reopen","import","offline","locked","recovery"],"default":"palette","section":"Hộp thoại"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["palette","newProject","reopen","import","offline","locked","recovery"],"default":"palette","section":"Hộp thoại"},"npcopy":{"editor":"enum","options":["none","pick","picked"],"default":"none","section":"Dự án mới · quy tắc ban đầu (Gói AQ)"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { q: '', npTitle: 'Kênh truyện audio' };
+    const nc = props.npcopy || 'none';
+    this.state = { q: '', npTitle: 'Kênh truyện audio', npMode: nc === 'none' ? 'empty' : 'copy', npSrc: nc === 'picked' ? 'p1' : null, npPick: nc === 'pick', npShare: true };
   }
+  componentDidUpdate(prev) { if (prev.npcopy !== this.props.npcopy) { const nc = this.props.npcopy || 'none'; this.setState({ npMode: nc === 'none' ? 'empty' : 'copy', npSrc: nc === 'picked' ? 'p1' : null, npPick: nc === 'pick' }); } }
   renderVals() {
     const s = this.state;
     const st = this.props.state || 'palette';
@@ -259,6 +286,8 @@ class Component extends DCLogic {
     const groups = cmds.map(([title, list]) => ({ title, items: list.filter(([c, d]) => !q || c.toLowerCase().indexOf(q) >= 0 || d.toLowerCase().indexOf(q) >= 0).map(([cmd, desc, idle, gap]) => { const sel = first; first = false; return { cmd, desc, idle, gap, bg: sel ? '#222225' : 'transparent', cmdColor: gap ? '#A0A0AB' : '#EDEDEF' }; }) })).filter((g) => g.items.length);
     const slug = s.npTitle.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').trim().split(/\s+/).filter(Boolean).join('-');
     const exists = slug === 'kenh-truyen-audio';
+    const NPSRC = [['p1', 'Truyện ngắn đô thị', 5, 'Gói Nữ tần báo thù'], ['p2', 'Ngôn tình cổ trang', 3, 'Ngôn tình'], ['p3', 'Kênh thử nghiệm', 0, '']];
+    const SRC = s.npMode === 'copy' ? NPSRC.find((o) => o[0] === s.npSrc) || null : null;
     const valid = /^[a-z0-9][a-z0-9_-]*$/.test(slug);
     return {
       isPalette: st === 'palette', isNewProject: st === 'newProject', isReopen: st === 'reopen', isImport: st === 'import', isOffline: st === 'offline', isLocked: st === 'locked', isRecovery: st === 'recovery',
@@ -268,7 +297,13 @@ class Component extends DCLogic {
       npSlug: slug || '[ten-thu-muc]',
       npMsg: !valid ? 'Tên thư mục chỉ gồm chữ thường không dấu, số, “-”, “_”' : exists ? 'Đã có dự án trùng tên trong thư viện' : 'Hợp lệ · tạo tự động từ tên hiển thị',
       npIcon: !valid || exists ? 'i-warning' : 'i-tick-b', npColor: !valid || exists ? '#FF9AA2' : '#A6EDC1', npBd: !valid || exists ? 'rgba(255,154,162,0.6)' : 'rgba(255,255,255,0.1)',
-      npClash: exists, npTree: [['i-lamp', 'Ý tưởng', 'trống', '#F6CB8C'], ['i-box', 'Tư liệu', 'bìa · nhạc · giọng', '#9DB0F7'], ['i-book', 'Truyện', 'chưa có', '#C9A6F5'], ['i-edit-r', 'Quy tắc viết', 'chép từ “Mọi truyện”', '#A6EDC1'], ['i-cpu', 'Trợ lý AI', 'theo “Mọi truyện”', '#A0A0AB']].map(([icon, name, note, c]) => ({ icon, name, note, c })),
+      npClash: exists, npTree: [['i-lamp', 'Ý tưởng', 'trống', '#F6CB8C'], ['i-box', 'Tư liệu', 'bìa · nhạc · giọng', '#9DB0F7'], ['i-book', 'Truyện', 'chưa có', '#C9A6F5'], ['i-edit-r', 'Quy tắc viết', SRC ? 'chép ' + SRC[2] + ' quy tắc' : 'trống', '#A6EDC1'], ['i-brush', 'Văn phong', SRC ? SRC[3] : 'Chung · mặc định', '#C9A6F5'], ['i-cpu', 'Trợ lý AI', s.npShare ? 'theo “Mọi truyện”' : 'bản riêng', '#A0A0AB']].map(([icon, name, note, c]) => ({ icon, name, note, c })),
+      npEmptyA: s.npMode === 'empty' ? 'true' : 'false', npCopyA: s.npMode === 'copy' ? 'true' : 'false', npEmpty: () => this.setState({ npMode: 'empty', npPick: false }), npCopy: () => this.setState({ npMode: 'copy', npPick: !s.npSrc }),
+      npCopyOn: s.npMode === 'copy', npPickOpen: s.npMode === 'copy' && s.npPick, npPickA: s.npPick ? 'true' : 'false', npTogglePick: () => this.setState({ npPick: !s.npPick }), npSelBd: s.npPick ? 'rgba(201,166,245,0.5)' : 'rgba(255,255,255,0.1)',
+      npSrcName: SRC ? SRC[1] : 'Chọn dự án…', npSrcFg: SRC ? '#EDEDEF' : '#8E8E99', npSrcHas: !!SRC, npSrcSub: SRC ? SRC[2] + ' quy tắc · ' + SRC[3] : '',
+      npSrcs: NPSRC.map((o) => ({ name: o[1], sub: o[2] ? o[2] + ' quy tắc · ' + o[3] : 'Chưa có quy tắc riêng — không có gì để chép', sel: s.npSrc === o[0] ? 'true' : 'false', on: s.npSrc === o[0], dis: !o[2], pick: () => { if (o[2]) this.setState({ npSrc: o[0], npPick: false }); } })),
+      npRulesNote: s.npMode === 'empty' ? 'Dự án mới chưa có quy tắc nào; văn phong dùng “Chung” của Noverse. Thêm sau ở trang dự án › Cách viết.' : (SRC ? 'Chép một lần quy tắc và văn phong của “' + SRC[1] + '”. Sửa ở dự án mới không ảnh hưởng dự án gốc.' : 'Chọn dự án có quy tắc để chép.'),
+      npShare: s.npShare, npShareA: s.npShare ? 'true' : 'false', npShareCls: s.npShare ? 'on' : '', npToggleShare: () => this.setState({ npShare: !s.npShare }),
       stages: [['ingesting', 'Đọc tệp'], ['segmenting', 'Chia đoạn'], ['awaiting_confirmation', 'Chờ xác nhận chia chương'], ['analyzing', 'Phân tích'], ['synthesizing', 'Tổng hợp thiết lập'], ['awaiting_story_status', 'Chờ chọn truyện mở / đã kết'], ['validating', 'Kiểm tra'], ['publishing', 'Ghi vào truyện'], ['done', 'Hoàn tất']].map(([k, label], i) => ({ label, done: i < 2, cur: i === 2, todo: i > 2, color: i <= 2 ? '#EDEDEF' : '#7E7E8A' }))
     };
   }

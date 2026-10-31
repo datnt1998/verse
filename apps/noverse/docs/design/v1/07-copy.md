@@ -261,3 +261,20 @@ Câu “vì sao phải đăng nhập lại” ở `09-auth-onboard.md` §12.3.
 | Não dự án · kết luận | Chưa đạt · {n} lỗi phải sửa, {m} cảnh báo · Đạt · {m} cảnh báo nên xem · Đạt cả 4 phép kiểm |
 | Não dự án · công cụ | Bảng truyện · Tần suất theo trục · Chỉ truyện có ô trùng truyện mới · Bỏ chọn |
 | Vũ trụ · chưa kiểm | Chưa kiểm · Chưa có kết quả kiểm |
+
+## Bảng từ: Gói AQ (01/11) <!-- aq-copy -->
+
+| Chỗ | Câu |
+|---|---|
+| Dự án mới | Quy tắc & văn phong ban đầu · Bắt đầu trống · Chép từ dự án khác · Chọn dự án… |
+| … ghi chú trống | Dự án mới chưa có quy tắc nào; văn phong dùng “Chung” của Noverse. Thêm sau ở trang dự án › Cách viết. |
+| … ghi chú chép | Chép một lần quy tắc và văn phong của “{dự án}”. Sửa ở dự án mới không ảnh hưởng dự án gốc. |
+| … dự án không chép được | Chưa có quy tắc riêng — không có gì để chép |
+| … ô chọn | Dùng chung trợ lý AI và ngân sách với “Mọi truyện” · Model, mức suy nghĩ, ngân sách mỗi truyện. Tắt thì dự án giữ một bản riêng, đổi ở Tuỳ chỉnh. |
+| Luồng viết | Luồng viết · Lịch sử › · Luồng viết › · Tải thêm vòng cũ hơn · Vòng {n} · Đang chạy · về mới nhất · Chi tiết kỹ thuật |
+| Thẻ đang chạy | Bắt đầu lúc {hh:mm}. Thẻ tự cập nhật khi xong; không cần tải lại. |
+| Thẻ lỗi | không thực hiện được · {tóm tắt} |
+| Thẻ lạ | Thao tác khác · Noverse chưa có thẻ riêng cho thao tác này. Tham số và kết quả nằm ở Chi tiết kỹ thuật. |
+| Tên thẻ | xem `20-settings-rules.md` §10 |
+| M9 | Truyện · Nhờ Kiến trúc sư · Gửi cho Kiến trúc sư · trả lời ở tab Viết · Nhờ Kiến trúc sư đổi định hướng · So với các truyện khác ở Não dự án |
+| M10 | Sổ cái · Vũ trụ · Tìm · Tần suất theo trục · Truyện · Chỉ truyện trùng · Chạm một giá trị để xem truyện nào đã dùng. |

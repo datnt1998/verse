@@ -917,3 +917,18 @@ Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông 
 - Khác biệt có thật trong board cũ: Activity dùng nav 40px và lề dọc 10px nên 61px; Kit gallery cũng 61px; Nav so sánh đặt cố định 54px. Giữ một quy luật chung của app, không thêm nhánh theo tên màn để tái tạo các biến thể minh hoạ này. Bằng chứng đầy đủ `/tmp/ap-header-measurements.json`.
 - Máy chủ thật kho tệp và PostgreSQL riêng: đo 17 route ở mỗi chế độ đều 55px, ba vùng con lần lượt tối đa 32/38/32px; mở menu tài khoản không đổi. Trước có tài khoản và sau đăng xuất, khung công khai vẫn 58px. Tăng tạm mục nav từ 30 lên 52px trong browser làm header tự tăng 55→77px, trả mục về 30px thì header về 55px ở cả hai chế độ. Ba ca hồi quy không tài khoản/kho tệp/hosted đỏ trước bản sửa; 15 kiểm thử AppHeader/AccountMenu/AppSwitcher đạt sau sửa.
 
+## Gói AQ — trả lời các chỗ dev đang làm tạm (01/11/2026, canvas 133) <!-- aq-gap-closure -->
+
+| # | Chỗ tạm của dev | Quyết định design | Artboard |
+|---|---|---|---|
+| 1 | Hộp Dự án mới còn “chép từ Mọi truyện” | **Đổi.** Mặc định *Bắt đầu trống*; tuỳ chọn *Chép từ dự án khác* (cần GAP-AQ1; chưa có thì ẩn). Ô chọn chỉ còn nghĩa model/ngân sách (`shareGlobal`). | `Dialogs` `npcopy` |
+| 2 | GAP AP–tab truyện điện thoại: URL truyện ở 390 px mở MWork | **Vẽ M9.** Thôi chuyển hướng khi URL có tab truyện; MWork có nút Truyện. | `MOutline` |
+| 3 | GAP AP–Não dự án điện thoại: router chuyển sang MMore | **Vẽ M10** (không bảng 10 cột). | `MProjBrain` |
+| 4 | Luồng viết chỉ có mẫu thẻ vòng chung | **Vẽ đủ thẻ theo loại** + lịch sử điện thoại. Bảng `20-settings-rules.md` §10. | `RunCards`, `MRun` |
+| 5 / AO (d) | Huy hiệu Quản trị `#CBB992`/.12 chưa có token | **Chốt token** `--members-admin-fg #E3C99E` / `--members-admin-bg rgba(184,154,110,.14)` (đã thêm `tokens.css`); board Login đổi theo. | `Login` `state=menu`, `Members` |
+| 6 / AO (c) | Menu chung ẩn Tuỳ chỉnh, Hướng dẫn lệnh | **Xác nhận**, và áp cho cả kho tệp (một menu cho hai chế độ). | `Login` `state=menu` |
+| 7 / AO (b) | Không có `apps[]` → bỏ nhóm Ứng dụng | **Xác nhận** (như `viderse=no`). | `Login`, `MMore` |
+| 8 / AO (a), (e) | Logo dùng `surface-3`; giữ safe-area thật | **Xác nhận cả hai.** Board đổi `#18181B` → `#18181A` (= `--color-surface-3`); 40 px đầu board điện thoại chỉ là chỗ status bar minh hoạ. | `Login`, `MMore`, `Members` |
+| AP–khung | Cột trái board tràn 279,94 px | **Sửa board**: `min-width:0`, đúng 264 px như app. | `Outline` |
+| AP–quy tắc | Năm loại thật ban/chr/max/genre/pref; không suy Nhân vật/Giọng văn/Cốt truyện | **Xác nhận** — nhãn ngoài 5 loại trên board chỉ là minh hoạ; app hiện theo dữ liệu. Ngưỡng 0 là Giới hạn 0 (đúng). | `Outline` `tab=style` |
+| AP–độ dài thật | Dữ liệu thật dài hơn mẫu | **Xác nhận** — không co dữ liệu để khớp chiều cao board; so bố cục tương đối. | — |

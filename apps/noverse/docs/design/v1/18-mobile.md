@@ -485,3 +485,10 @@ html[data-standalone]{--m-edge:40px} /* dự phòng: đặt khi navigator.standa
 - **M3 Nghe** (`MAudio.voice=pack`): “~2 giờ 41 phút · một giọng kể” + badge “theo gói”.
 - **Não truyện trên điện thoại:** chỉ danh sách (mẫu `Brain.view=list` + thanh chương dạng nấc + bottom sheet chi tiết), không vẽ đồ thị ở 390 px. Đã vẽ 25/10: **M8** (`MBrain.dc.html`), xem mục M8.
 - **Câu hỏi treo:** khung “chưa chắc” dùng lại mẫu bản máy tính (viền cam, hai nút xếp dọc full width); cocreate trống = icon Kiến trúc sư + “Chưa bàn gì · Gõ ý tưởng để bắt đầu bàn với Kiến trúc sư”; dòng hệ thống cocreate có `HH:MM` ở dòng đầu mỗi phút; danh sách push ghi “iPhone · Safari” / “Android · Chrome” / “Máy tính · Chrome” / “Thiết bị khác”; máy tính bảng giữ mốc 641–1099 px, 760 px chỉ là mốc phụ thu cột phụ thành ngăn kéo.
+
+## M9 · Truyện (`MOutline.dc.html`) · M10 · Não dự án (`MProjBrain.dc.html`) · M1b · Luồng viết (`MRun.dc.html`) — Gói AQ, 01/11 <!-- aq-m -->
+
+- **M9** vào từ nút Truyện trên thanh đầu M1 và hàng *Truyện* ở M4 › Đang mở. Tab bar sáng ở Viết. Tweak `tab`, `found`, `sheet`. Chi tiết `20-settings-rules.md` §11.
+- **M10** vào từ M4 › Đang mở › *Não dự án*. Không tab bar (trang đẩy). Tweak `tab`, `lview`, `sheet`, `check`, `uni`.
+- **M1b** vào từ dòng bước của thẻ Đang viết ở M1 (*Luồng viết ›*). Tweak `state`, `op`. Chi tiết `20-settings-rules.md` §10.
+- Khoảng 40 px đầu mọi board điện thoại là chỗ status bar minh hoạ; app dùng safe-area thật (GAP-AN-FE3).
