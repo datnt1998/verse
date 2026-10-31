@@ -17,14 +17,27 @@ type ClonePlanAccepted struct {
 	HasCaptions        bool     `json:"hasCaptions"`
 	ThumbnailURL       *string  `json:"thumbnailUrl"`
 	SourceChannelTitle *string  `json:"sourceChannelTitle"`
+	ViewCount          *int64   `json:"viewCount"`
+	PublishedAt        *time.Time `json:"publishedAt"`
+	// ImageEstimate là số ảnh trả phí dự kiến sẽ vẽ (nguyên tắc "nói trước
+	// khi tốn"); nil khi chưa ước lượng được (thiếu recipe/duration).
+	ImageEstimate      *int      `json:"imageEstimate"`
+	// ImageCalls là số lần gọi vẽ trả phí dự kiến (gồm vẽ lại dự phòng).
+	ImageCalls         *int      `json:"imageCalls"`
+	// PriceUSD là giá ước tính của lượt vẽ; nil — hầu hết provider không báo giá.
+	PriceUSD           *float64  `json:"priceUSD"`
 }
 type ClonePlanDuplicate struct {
 	URL   string `json:"url"`
-	JobID string `json:"jobId"`
-	State string `json:"state"`
+	// JobID là job đang hoạt động của video này; null khi video mới chỉ nằm
+	// trong hàng chờ (state "queued").
+	JobID *string `json:"jobId"`
+	State string  `json:"state"`
+	Title string  `json:"title,omitempty"`
 }
 type ClonePlanInvalid struct {
 	URL    string `json:"url"`
+	// Reason ∈ "unreadable" | "private" | "not_youtube".
 	Reason string `json:"reason"`
 }
 type ClonePlanTemplate struct {

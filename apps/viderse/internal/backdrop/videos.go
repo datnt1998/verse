@@ -85,6 +85,19 @@ type probeInfo struct {
 // việc nền. Thêm lại cùng một video trả dòng đã có (tải lại khi lần trước
 // hỏng).
 func (s *Service) AddVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment) (VideoView, error) {
+	return s.registerVideo(ctx, rawURL, segment, false)
+}
+
+// EnsureVideo đăng ký (nếu cần) rồi ĐỢI đoạn dùng tải xong trong ctx của
+// caller — khác AddVideo chỉ lên lịch tải nền. Khi lượt tải thuộc process
+// khác, EnsureVideo chờ tới khi video ready/failed thay vì tải trùng. Dùng
+// trong pipeline clone (bước nền cần clip ngay); ctx của step quyết định
+// thời hạn và khả năng huỷ.
+func (s *Service) EnsureVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment) (VideoView, error) {
+	return s.registerVideo(ctx, rawURL, segment, true)
+}
+
+func (s *Service) registerVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment, wait bool) (VideoView, error) {
 	resolved, err := s.resolveVideoLink(ctx, rawURL)
 	if err != nil {
 		return VideoView{}, err
@@ -94,53 +107,94 @@ func (s *Service) AddVideo(ctx context.Context, rawURL string, segment *domain.B
 	if err != nil {
 		return VideoView{}, err
 	}
-	if found {
-		switch existing.State {
+	if found && existing.State == domain.BackdropReady {
+		return s.Video(ctx, id)
+	}
+	if found && existing.State == domain.BackdropDownloading && !wait {
+		// Process khác còn lease thì nhường; lease hết thì giành tải lại.
+		s.startDownload(id, false)
+		return s.Video(ctx, id)
+	}
+	if !found || found && existing.State != domain.BackdropDownloading {
+		info, err := s.probeVideo(ctx, resolved)
+		if err != nil {
+			if found {
+				code := errorCode(err)
+				message := asError(err).Message
+				_ = s.d.Store.UpdateVideo(ctx, id, VideoPatch{State: new(domain.BackdropFailed), ErrorCode: &code, Error: &message, ClearProgress: true})
+				s.notify(id)
+			}
+			return VideoView{}, err
+		}
+		chosen, err := segmentFor(info.Duration, segment)
+		if err != nil {
+			return VideoView{}, err
+		}
+		now := s.now()
+		if found {
+			patch := VideoPatch{
+				State: new(domain.BackdropDownloading), Progress: new(0.0), Segment: &chosen,
+				Title: info.Title, DurationSec: info.Duration, ErrorCode: new(""), Error: new(""),
+			}
+			if err := s.d.Store.UpdateVideo(ctx, id, patch); err != nil {
+				return VideoView{}, err
+			}
+		} else {
+			title := valueOr(info.Title, id)
+			row := domain.BackdropVideo{
+				ID: id, Platform: resolved.Platform, URL: resolved.URL, Title: title,
+				DurationSec: info.Duration, Segment: chosen,
+				State: domain.BackdropDownloading, Progress: new(0.0),
+				AddedAt: now, UpdatedAt: now,
+			}
+			if _, err := s.d.Store.InsertVideo(ctx, row); err != nil {
+				return VideoView{}, err
+			}
+		}
+	}
+	if !wait {
+		s.startDownload(id, false)
+		return s.Video(ctx, id)
+	}
+	// Giành lượt tải: thắng thì tải inline trên ctx; thua (lease còn hạn của
+	// process khác) thì chờ chủ lượt báo xong.
+	now := s.now()
+	generation, claimed, err := s.d.Store.ClaimDownload(ctx, id, s.owner, now.Add(downloadLease), now, false)
+	if err != nil {
+		return VideoView{}, err
+	}
+	if claimed {
+		s.download(ctx, id, generation)
+		return s.Video(ctx, id)
+	}
+	return s.waitVideoReady(ctx, id)
+}
+
+// waitVideoReady chờ một lượt tải của chủ khác kết thúc (ready → trả view,
+// failed → trả lỗi của lượt đó); poll mỗi giây và tôn trọng ctx.
+func (s *Service) waitVideoReady(ctx context.Context, id string) (VideoView, error) {
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	for {
+		row, found, err := s.d.Store.Video(ctx, id)
+		if err != nil {
+			return VideoView{}, err
+		}
+		if !found {
+			return VideoView{}, notFoundVideo()
+		}
+		switch row.State {
 		case domain.BackdropReady:
 			return s.Video(ctx, id)
-		case domain.BackdropDownloading:
-			// Process khác còn lease thì nhường; lease hết thì giành tải lại.
-			s.startDownload(id, false)
-			return s.Video(ctx, id)
+		case domain.BackdropFailed:
+			return VideoView{}, ErrorfRecovery(CodeConflict, "Video nền tải không xong", "Thử lại sau khi lượt tải hiện tại kết thúc")
+		}
+		select {
+		case <-ctx.Done():
+			return VideoView{}, ctx.Err()
+		case <-tick.C:
 		}
 	}
-	info, err := s.probeVideo(ctx, resolved)
-	if err != nil {
-		if found {
-			code := errorCode(err)
-			message := asError(err).Message
-			_ = s.d.Store.UpdateVideo(ctx, id, VideoPatch{State: new(domain.BackdropFailed), ErrorCode: &code, Error: &message, ClearProgress: true})
-			s.notify(id)
-		}
-		return VideoView{}, err
-	}
-	chosen, err := segmentFor(info.Duration, segment)
-	if err != nil {
-		return VideoView{}, err
-	}
-	now := s.now()
-	if found {
-		patch := VideoPatch{
-			State: new(domain.BackdropDownloading), Progress: new(0.0), Segment: &chosen,
-			Title: info.Title, DurationSec: info.Duration, ErrorCode: new(""), Error: new(""),
-		}
-		if err := s.d.Store.UpdateVideo(ctx, id, patch); err != nil {
-			return VideoView{}, err
-		}
-	} else {
-		title := valueOr(info.Title, id)
-		row := domain.BackdropVideo{
-			ID: id, Platform: resolved.Platform, URL: resolved.URL, Title: title,
-			DurationSec: info.Duration, Segment: chosen,
-			State: domain.BackdropDownloading, Progress: new(0.0),
-			AddedAt: now, UpdatedAt: now,
-		}
-		if _, err := s.d.Store.InsertVideo(ctx, row); err != nil {
-			return VideoView{}, err
-		}
-	}
-	s.startDownload(id, false)
-	return s.Video(ctx, id)
 }
 
 // resolveVideoLink đọc link người dùng dán, gỡ một lần chuyển hướng b23.

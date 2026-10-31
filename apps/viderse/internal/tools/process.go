@@ -97,6 +97,10 @@ type Spec struct {
 	// Match/Label ghi nhận nhóm con vào Registry (nếu Runner có gắn).
 	Match string
 	Label string
+	// OnStart được gọi một lần ngay sau khi spawn, với pid của nhóm process
+	// con (leader = pgid). Dùng để ghi nhóm vào nơi khác (vd. process_group
+	// của step) trước khi con chạy tiếp.
+	OnStart func(pid int)
 }
 
 // Runner là điểm gọi duy nhất để chạy một binary; gói khác inject bản giả
@@ -262,6 +266,9 @@ func (r *ExecRunner) Run(ctx context.Context, file string, args []string, spec S
 	pid := cmd.Process.Pid
 	if spec.Background {
 		setBackgroundPriority(pid, BackgroundNice)
+	}
+	if spec.OnStart != nil {
+		spec.OnStart(pid)
 	}
 	if r.Registry != nil {
 		match := spec.Match

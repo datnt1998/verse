@@ -5,10 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 )
 
 var ErrFence = errors.New("lượt chạy đã được thay thế")
@@ -25,15 +25,14 @@ func (f HandlerFunc) Run(ctx context.Context, s *StepContext) (StepResult, error
 
 type Registry map[domain.CloneStep]StepHandler
 
-type ProcessSpec struct {
-	Executable string
-	Args       []string
-	Dir        string
-	Env        []string
-	Stdin      io.Reader
-	Stdout     io.Writer
-	Stderr     io.Writer
-}
+// ProcessResult là kết quả một lần chạy process con (đuôi stdout/stderr có trần).
+type ProcessResult = tools.Result
+
+// ProcessRunner chạy process con trong nhóm riêng: huỷ ctx giết cả nhóm.
+// Runner ghi pgid lên clone_steps.process_group khi spec.OnStart được đặt.
+// Steps dùng trực tiếp cho argv thô, hoặc truyền làm tools.Runner khi dựng
+// tools.YtDlp/tools.Ffmpeg để giữ phân loại lỗi + OnLine.
+type ProcessRunner func(ctx context.Context, file string, args []string, spec tools.Spec) (tools.Result, error)
 type StepResult struct {
 	Artifacts []media.Artifact
 	// Step-specific structured manifests have intentionally heterogeneous values.
@@ -54,7 +53,7 @@ type StepContext struct {
 	Media           Media
 	ReportProgress  func(context.Context, domain.CloneProgress) error
 	WriteCheckpoint func(context.Context, json.RawMessage) error
-	ProcessRunner   func(context.Context, ProcessSpec) error
+	ProcessRunner   ProcessRunner
 	ImageSlot       func(context.Context, func(context.Context) error) error
 	IsPaused        func() bool
 }
@@ -83,10 +82,36 @@ func (s *StepContext) Acquire(ctx context.Context, path string) (*media.Handle, 
 func (s *StepContext) Publish(ctx context.Context, a []media.Artifact, commit func(context.Context) error) error {
 	return s.Media.Publish(ctx, a, commit)
 }
-func (s *StepContext) RunProcess(ctx context.Context, p ProcessSpec) error {
-	return s.ProcessRunner(ctx, p)
+// RunProcess chạy một process con theo ctx của step: huỷ step giết cả nhóm
+// process. Khi spec.OnStart được đặt, pgid của nhóm được ghi lên
+// clone_steps.process_group để recovery dọn nhóm mồ côi.
+func (s *StepContext) RunProcess(ctx context.Context, file string, args []string, spec tools.Spec) (tools.Result, error) {
+	return s.ProcessRunner(ctx, file, args, spec)
 }
 func (s *StepContext) WithImageSlot(ctx context.Context, run func(context.Context) error) error {
 	return s.ImageSlot(ctx, run)
 }
 func (s *StepContext) PauseRequested() bool { return s.IsPaused != nil && s.IsPaused() }
+
+// QueueDrain là điểm gọi của pipeline vào hàng chờ (internal/pipeline/queue):
+// RequestDrain xếp lịch một vòng drain (debounce bên trong queue), gọi sau khi
+// job đỗ/settle và khi mục mới vào hàng. Impl do serve wire.
+type QueueDrain interface {
+	RequestDrain()
+}
+
+// JobRunner là điểm gọi của hàng chờ vào worker: Start tạo/ghi nhận job cho
+// một mục (đã qua kiểm của drain) rồi báo worker có việc mới — job chạy ngay
+// nếu còn lane. Impl do serve wire.
+type JobRunner interface {
+	Start(ctx context.Context, item domain.CloneQueueItem) (*domain.CloneJob, error)
+	Wake()
+}
+
+// Scheduler là vòng điều phối của hàng chờ trong serve: drain tick (safety
+// net ~60s) + discovery tick (~15 phút) chạy trong process giữ advisory lock.
+// Queue implement; serve khởi động/dừng cùng worker.
+type Scheduler interface {
+	Start(ctx context.Context) error
+	Stop() error
+}
