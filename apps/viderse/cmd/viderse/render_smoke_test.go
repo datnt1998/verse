@@ -47,8 +47,8 @@ import (
 //
 // Run from apps/viderse, without printing the sourced credentials:
 //
-//   set -a; . /tmp/vs3.env; set +a
-//   VIDERSE_RENDER_SMOKE=1 GOWORK=off go test -p 1 -count=1 -run '^TestRenderPhase05SmokeFixture$' -timeout 0 -v ./cmd/viderse
+//	set -a; . /tmp/vs3.env; set +a
+//	VIDERSE_RENDER_SMOKE=1 GOWORK=off go test -p 1 -count=1 -run '^TestRenderPhase05SmokeFixture$' -timeout 0 -v ./cmd/viderse
 //
 // Once fixture.json appears, source /tmp/p06-editor-smoke.env in the serving
 // process. The consumer must stop its server before creating the release marker
@@ -70,7 +70,10 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal("resolve the consumer's existing Go caches before isolating HOME")
 	}
-	var goEnv struct { ModuleCache string `json:"GOMODCACHE"`; BuildCache string `json:"GOCACHE"` }
+	var goEnv struct {
+		ModuleCache string `json:"GOMODCACHE"`
+		BuildCache  string `json:"GOCACHE"`
+	}
 	if err := json.Unmarshal([]byte(goResult.Stdout), &goEnv); err != nil || !filepath.IsAbs(goEnv.ModuleCache) || !filepath.IsAbs(goEnv.BuildCache) {
 		t.Fatal("Go did not return absolute module and build cache paths")
 	}
@@ -104,8 +107,12 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 		// Go creates read-only module directories if a consumer overrides its
 		// cache settings. They are still fixture-owned and must be removable.
 		if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
-			if err != nil { return err }
-			if entry.IsDir() { return os.Chmod(path, 0700) }
+			if err != nil {
+				return err
+			}
+			if entry.IsDir() {
+				return os.Chmod(path, 0700)
+			}
 			return nil
 		}); err != nil && !os.IsNotExist(err) {
 			t.Errorf("make fixture directories removable: %v", err)
@@ -196,7 +203,7 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 	artifacts := renderSmokeInputs(t, ctx, runner, ffmpeg, inputs, source, *snapshot)
 	registry := pipeline.Registry{
 		domain.CloneBackdrop: stepbackdrop.New(stepbackdrop.Deps{Store: postgres.NewBackdropStore(pool)}),
-		domain.CloneBuild: build.Handler{Deps: build.Deps{Ffmpeg: ffmpeg, FFprobe: ffprobe}},
+		domain.CloneBuild:    build.Handler{Deps: build.Deps{Ffmpeg: ffmpeg, FFprobe: ffprobe}},
 	}
 	for step, inputs := range artifacts {
 		// These are deliberately authored provider-free fixture inputs, not
@@ -242,12 +249,18 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 	queueStore := postgres.NewQueueStore(pool)
 	runtime := &render.Service{Store: &render.Store{Root: filepath.Join(cfgDir, "render")}, Editor: edits, Jobs: store, Media: files, ChannelName: func(ctx context.Context, id string) (string, error) {
 		owner, err := queueStore.Owner(ctx, id)
-		if err != nil { return "", err }
-		if owner == nil { return "", fmt.Errorf("fixture owner channel is missing: %s", id) }
+		if err != nil {
+			return "", err
+		}
+		if owner == nil {
+			return "", fmt.Errorf("fixture owner channel is missing: %s", id)
+		}
 		return owner.Name, nil
 	}}
 	quality, err := runtime.Quality(ctx, projectID)
-	if err != nil { t.Fatalf("real render.Service.Quality before fixture readiness: %v", err) }
+	if err != nil {
+		t.Fatalf("real render.Service.Quality before fixture readiness: %v", err)
+	}
 	if quality["jobId"] != job.ID || quality["channelName"] != "Kênh kiểm tra xuất video" {
 		t.Fatalf("quality did not resolve the real fixture job and owner: %+v", quality)
 	}
@@ -318,12 +331,12 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 		t.Fatal(closeErr)
 	}
 	fixture := struct {
-		ProjectID string `json:"projectId"`
-		JobID string `json:"jobId"`
-		ChannelID string `json:"channelId"`
-		TemplateID string `json:"templateId"`
-		ConfigDir string `json:"cfgDir"`
-		EnvFile string `json:"envFile"`
+		ProjectID   string `json:"projectId"`
+		JobID       string `json:"jobId"`
+		ChannelID   string `json:"channelId"`
+		TemplateID  string `json:"templateId"`
+		ConfigDir   string `json:"cfgDir"`
+		EnvFile     string `json:"envFile"`
 		ReleaseFile string `json:"releaseFile"`
 	}{projectID, job.ID, channelID, template.ID, cfgDir, envFile, releaseFile}
 	if err := os.WriteFile(filepath.Join(root, "fixture.json"), renderSmokeJSON(t, fixture), 0644); err != nil {
@@ -373,9 +386,17 @@ func TestRenderSmokePublishGoldenAnchors(t *testing.T) {
 		t.Skip("set P06_SMOKE_PUBLISH_ANCHORS=1 to publish independent golden timing")
 	}
 	raw, err := os.ReadFile("/tmp/p06-editor-smoke/fixture.json")
-	if err != nil { t.Fatal(err) }
-	var fixture struct { JobID string `json:"jobId"`; ProjectID string `json:"projectId"`; ConfigDir string `json:"cfgDir"` }
-	if err := json.Unmarshal(raw, &fixture); err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		JobID     string `json:"jobId"`
+		ProjectID string `json:"projectId"`
+		ConfigDir string `json:"cfgDir"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
 	if fixture.ConfigDir != "/tmp/p06-editor-smoke/home/.viderse" || os.Getenv("P06_SMOKE_CONFIG_DIR") != fixture.ConfigDir || editor.ValidateID(fixture.JobID) != nil || editor.ValidateID(fixture.ProjectID) != nil {
 		t.Fatal("source the active smoke environment before publishing golden timing")
 	}
@@ -386,7 +407,9 @@ func TestRenderSmokePublishGoldenAnchors(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	pool, err := postgres.OpenPool(ctx, dsn)
-	if err != nil { t.Fatal("open isolated smoke publication pool") }
+	if err != nil {
+		t.Fatal("open isolated smoke publication pool")
+	}
 	defer pool.Close()
 	store := postgres.NewCloneStore(pool)
 	if os.Getenv("P06_SMOKE_RECOVER_INTERRUPTED") == "1" {
@@ -394,17 +417,29 @@ func TestRenderSmokePublishGoldenAnchors(t *testing.T) {
 		// worker's public expired-lease selection and fenced reconciliation;
 		// never rewrite running statuses or bypass owner-edit admission.
 		interrupted, err := store.ListInterruptedJobs(ctx, 1000)
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+			t.Fatal(err)
+		}
 		found := false
-		for _, candidate := range interrupted { found = found || candidate.ID == fixture.JobID }
-		if !found { t.Fatal("fixture is not an interrupted job with an expired lease; refusing recovery") }
+		for _, candidate := range interrupted {
+			found = found || candidate.ID == fixture.JobID
+		}
+		if !found {
+			t.Fatal("fixture is not an interrupted job with an expired lease; refusing recovery")
+		}
 		recovery := &pipeline.Runner{Store: store}
-		if err := recovery.ReconcileInterrupted(ctx, fixture.JobID); err != nil { t.Fatal(err) }
+		if err := recovery.ReconcileInterrupted(ctx, fixture.JobID); err != nil {
+			t.Fatal(err)
+		}
 	}
 	job, err := store.GetJob(ctx, fixture.JobID)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	records, err := store.ListSteps(ctx, fixture.JobID)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	t.Logf("SMOKE_JOB_STATE status=%s fence=%d paused=%t cancelRequested=%t", job.Status, job.Fence, job.PausedAt != nil, job.CancelRequestedAt != nil)
 	for _, record := range records {
 		t.Logf("SMOKE_STEP_STATE step=%s status=%s fence=%d attempt=%d", record.Step, record.Status, record.Fence, record.Attempt)
@@ -419,20 +454,34 @@ func renderSmokePublishGoldenAnchors(t *testing.T, ctx context.Context, files *m
 	t.Helper()
 	edits := &jobedit.Service{Store: store, Media: files}
 	built, err := edits.Read(ctx, jobID, domain.CloneBuild)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	handle, err := edits.Acquire(ctx, built, "build/manifest.json")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	manifest, err := steps.DecodeJSONFile[build.Manifest](handle.Path, "build evidence")
 	handle.Release()
-	if err != nil { t.Fatal(err) }
-	if len(manifest.Audio.SHA256) != 64 { t.Fatal("built source audio has no content digest") }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(manifest.Audio.SHA256) != 64 {
+		t.Fatal("built source audio has no content digest")
+	}
 	before, err := edits.Read(ctx, jobID, domain.CloneTranscript)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	handle, err = edits.Acquire(ctx, before, "transcript/captions.json")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	captions, err := steps.DecodeJSONFile[transcript.CaptionManifest](handle.Path, "authored fixture captions")
 	handle.Release()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Same raw-anchor schema and independent-onset mechanism as the scorer's
 	// golden alignment fixture. These are AUTHOR-DEFINED reference timings,
 	// not ASR output: a 440 Hz sine contains no speech. In particular, never
@@ -447,28 +496,38 @@ func renderSmokePublishGoldenAnchors(t *testing.T, ctx context.Context, files *m
 			{Text: "kết", StartMs: 4000, EndMs: 5000},
 			{Text: "thúc", StartMs: 5000, EndMs: 6000},
 		},
-		Model: transcript.AnchorModel{Name: "authored-golden-not-asr", Version: "1", Size: "synthetic-fixture", ComputeType: "none", Device: "none"},
+		Model:       transcript.AnchorModel{Name: "authored-golden-not-asr", Version: "1", Size: "synthetic-fixture", ComputeType: "none", Device: "none"},
 		GeneratedAt: time.Unix(1, 0).UTC().Format(time.RFC3339),
 	}
 	file := filepath.Join(cfgDir, "staging", "smoke-golden-anchors.json")
-	if err := steps.WriteJSONAtomic(file, anchors); err != nil { t.Fatal(err) }
+	if err := steps.WriteJSONAtomic(file, anchors); err != nil {
+		t.Fatal(err)
+	}
 	defer os.Remove(file)
 	hash, err := steps.SHA256File(file)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := edits.Commit(ctx, before, captions, "", false, []media.Artifact{{Path: "transcript/asr-anchors.json", File: file, ContentType: "application/json", Filename: "asr-anchors.json"}}); err != nil {
 		t.Fatalf("publish independent golden timing through owner-edit transaction: %v", err)
 	}
 	resolved, err := editorService.Anchors(ctx, projectID)
-	if err != nil { t.Fatalf("resolve published golden timing through the real editor repository: %v", err) }
+	if err != nil {
+		t.Fatalf("resolve published golden timing through the real editor repository: %v", err)
+	}
 	resolvedBytes := renderSmokeJSON(t, resolved)
 	var checked transcript.AsrAnchors
 	if err := json.Unmarshal(resolvedBytes, &checked); err != nil || checked.Model.Name != "authored-golden-not-asr" || len(checked.Words) != 5 || checked.SourceAudioSHA256 != manifest.Audio.SHA256 {
 		t.Fatal("editor anchor resolution did not select the independent golden timing artifact")
 	}
 	published, err := edits.Read(ctx, jobID, domain.CloneTranscript)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	handle, err = edits.Acquire(ctx, published, "transcript/asr-anchors.json")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	path := handle.Ref.Path
 	handle.Release()
 	if path != "clone/"+jobID+"/"+hash+"/transcript/asr-anchors.json" {
@@ -482,7 +541,7 @@ func renderSmokeInstallChrome(t *testing.T, cfgDir string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
 	defer cancel()
 	kit := tools.New(tools.Deps{BaseDir: cfgDir, Runner: &tools.ExecRunner{}})
-	installer := &tools.Installer{BaseDir: cfgDir, DownloadTimeout: 3*time.Minute}
+	installer := &tools.Installer{BaseDir: cfgDir, DownloadTimeout: 3 * time.Minute}
 	if _, err := installer.Install(ctx, kit.Chrome.InstallSpec()); err != nil {
 		t.Fatalf("install real pinned Chrome for Testing: %v", err)
 	}

@@ -85,8 +85,7 @@ func TestStoreProjectPointerRevisions(t *testing.T) {
 	if pointer.Revision != revision || pointer.Version != 1 || pointer.Path == "editor/projects/revision/project.json" {
 		t.Fatalf("first pointer: %+v", pointer)
 	}
-	oldBytes, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(pointer.Path)))
-	if err != nil {
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(pointer.Path))); err != nil {
 		t.Fatal(err)
 	}
 	loaded, loadedRevision, err := store.Read(ctx, "revision")
@@ -126,9 +125,10 @@ func TestStoreProjectPointerRevisions(t *testing.T) {
 	if loaded["id"] != "wrong" || loaded["createdAt"] != float64(99) {
 		t.Fatal("save mutated caller project")
 	}
-	retained, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(pointer.Path)))
-	if err != nil || string(retained) != string(oldBytes) {
-		t.Fatalf("immutable old object changed: %v", err)
+	// The new revision lives at a new path; the released old object is never
+	// rewritten in place and is discarded after the publication commit.
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(pointer.Path))); !os.IsNotExist(err) {
+		t.Fatalf("released old object still on disk: %v", err)
 	}
 	var oldBindings int
 	if err = pool.QueryRow(ctx, "SELECT count(*) FROM blob_refs WHERE logical_path=$1", pointer.Path).Scan(&oldBindings); err != nil || oldBindings != 0 {
@@ -187,7 +187,7 @@ func TestStoreConcurrentSavesSameRevisionExactlyOneWins(t *testing.T) {
 	}
 }
 
-func TestStoreLegacyProjectCutoverLeavesCanonicalBytesUntouched(t *testing.T) {
+func TestStoreLegacyProjectCutoverReleasesCanonicalBytes(t *testing.T) {
 	store, repo, transport, pool, root := editorPersistenceStore(t)
 	ctx := context.Background()
 	p := persistenceProject(t, "legacy")
@@ -201,8 +201,7 @@ func TestStoreLegacyProjectCutoverLeavesCanonicalBytesUntouched(t *testing.T) {
 	if err = transport.Publish(ctx, []media.Artifact{artifact}, nil); err != nil {
 		t.Fatal(err)
 	}
-	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(artifact.Path)))
-	if err != nil {
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(artifact.Path))); err != nil {
 		t.Fatal(err)
 	}
 	loaded, gotRevision, err := store.Read(ctx, "legacy")
@@ -217,9 +216,10 @@ func TestStoreLegacyProjectCutoverLeavesCanonicalBytesUntouched(t *testing.T) {
 	if err != nil || pointer.Version != 1 || pointer.Path == artifact.Path {
 		t.Fatalf("cutover pointer=%+v err=%v", pointer, err)
 	}
-	after, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(artifact.Path)))
-	if err != nil || string(after) != string(before) {
-		t.Fatalf("legacy bytes overwritten: %v", err)
+	// The legacy canonical file is never overwritten: the cutover writes a new
+	// revision path and discards the released legacy bytes after commit.
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(artifact.Path))); !os.IsNotExist(err) {
+		t.Fatalf("released legacy object still on disk: %v", err)
 	}
 	var count int
 	if err = pool.QueryRow(ctx, "SELECT count(*) FROM blob_refs WHERE logical_path=$1", artifact.Path).Scan(&count); err != nil || count != 0 {
