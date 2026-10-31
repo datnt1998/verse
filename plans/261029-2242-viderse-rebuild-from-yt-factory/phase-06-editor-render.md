@@ -26,7 +26,7 @@ Gói design: **V13** Editor theo Viderse; bước `score` và `export`.
 | `src/app/editor/[projectId]/{editor-client,render/render-client,measure/measure-client}.tsx` | Trang editor, trang render, trang đo |
 | `src/server/editor/*` (4.8k dòng): `projects`, `workspace`, `media-import`, `media-probe`, `media-background`, `media-from-link`, `media-gc`, `apply-commands`, `clone-export-policy`, `http` | `internal/editor` |
 | `src/server/clone/{score.ts 1003, loudness.ts, measurements.ts 485, measurement-launcher.ts, export-launcher.ts 445, export-requests.ts 415, export-gate.ts, export-regions.ts, export-compress.ts, headless-app-server.ts}` | `steps/score`, `internal/render` |
-| `src/lib/clone-quality.ts` | `internal/domain/quality`: trọng số, `CLONE_EXPORT_MIN_SCORE=90`, sai lệch thời lượng ±10%, độ lớn âm thanh ±1 LUFS, lệch cắt ≤ 2 khung, 1920×1080 @ 30 fps |
+| `src/lib/clone-quality.ts` | `internal/domain/quality`: trọng số, `CLONE_EXPORT_MIN_SCORE=90`, sai lệch thời lượng ±10%, độ lớn âm thanh ±1 LUFS, lệch cắt ≤ max(2 khung, 100 ms) (3 khung ở 30 fps, như `score.ts`), 1920×1080 @ 30 fps |
 
 Design: 08 V13; artboard `Editor` (`state=editing|exporting|export-done|conflict|narrow`); 01-ia-flows (vòng Chưa đạt → sửa → xuất lại).
 
