@@ -123,7 +123,7 @@ flowchart LR
 | [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h | chưa |
 | [07 · Bàn dựng, Duyệt, Việc nền](phase-07-workbench-review.md) | V1, V3, V14, V16, V18 | 05, 06 | 60h | chưa |
 | [08 · Trợ lý chủ động](phase-08-assistant-autonomy.md) | V11, V19, V20, V21 | 07 | 40h | chưa |
-| [09 · Điện thoại qua LAN](phase-09-mobile-lan.md) | V10, D1 | 07 | 20h | chưa |
+| [09 · Điện thoại qua LAN](phase-09-mobile-lan.md) | V10, D1 | 07 | 20h | tạm hoãn theo lời anh; phase 10 không nghiệm thu V10 cho tới khi mở lại |
 | [10 · Nghiệm thu, chạy live, thôi dùng yt-factory](phase-10-acceptance-cutover.md) | toàn bộ | 01–09 | 16h | chưa |
 
 Mỗi phase là một lát cắt dọc gồm backend, web và test. Phase chỉ xong khi đủ cả 4 việc:

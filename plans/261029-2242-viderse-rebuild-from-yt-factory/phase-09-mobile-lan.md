@@ -1,7 +1,7 @@
 ---
 phase: 9
 title: "Điện thoại qua LAN và các màn điện thoại"
-status: pending
+status: paused
 priority: P2
 effort: 20h
 dependsOn: [7]
