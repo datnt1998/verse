@@ -1,10 +1,11 @@
 import { z } from 'zod'
 import { mutate, request } from './request'
+import { suggestionSchema } from './suggestions'
 import { cloneBackdropEvidenceSchema } from '@/lib/clone-view'
 
 const reason = z.object({ agent: z.enum(['scout', 'director', 'artist', 'qa']), text: z.string(), facts: z.array(z.object({ label: z.string(), value: z.string(), source: z.string() })), fix: z.object({ label: z.string(), href: z.string() }).optional() })
 const content = z.object({ title: z.string(), description: z.string(), tags: z.array(z.string()), editedBy: z.string().optional(), editedAt: z.string().optional(), edited: z.object({ title: z.boolean().optional(), description: z.boolean().optional(), tags: z.boolean().optional() }).optional(), reason: z.object({ title: reason.optional(), description: reason.optional(), tags: reason.optional() }).optional() })
-const metadataView = z.object({ status: z.enum(['pending', 'writing', 'failed', 'ai']), metadata: content.nullable(), revision: z.number().int(), descriptionFooter: z.string().nullable().optional(), alwaysTags: z.array(z.string()).nullable().optional() })
+const metadataView = z.object({ status: z.enum(['pending', 'writing', 'failed', 'ai']), metadata: content.nullable(), revision: z.number().int(), descriptionFooter: z.string().nullable().optional(), alwaysTags: z.array(z.string()).nullable().optional(), learn: suggestionSchema.nullish().transform(value => value ?? null) })
 const historyView = z.object({ history: z.array(content.extend({ at: z.string(), by: z.enum(['director', 'owner']), parts: z.array(z.enum(['title', 'description', 'tags'])) })).nullable() })
 const backdropView = cloneBackdropEvidenceSchema.extend({ warnings: z.array(z.string()).nullable().transform(value => value ?? []), playbackSpeed: z.number().positive(), fixedItems: z.array(z.object({ id: z.string(), title: z.string().nullable(), startSec: z.number(), endSec: z.number(), playbackSec: z.number() })), sources: z.array(z.object({ channelId: z.string(), platform: z.string(), handle: z.string(), title: z.string().nullable() })) })
 export type Metadata = z.infer<typeof content>

@@ -15,6 +15,7 @@ import { keys } from '../../data/keys'
 import { navigate, paths } from '../../router'
 import { channelFieldErrors, patchChannel, deleteChannel, type Channel, type ChannelLanguage } from '../../api/channels'
 import { IdentityBlock } from './IdentityBlock'
+import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -268,6 +269,8 @@ export function SettingsTab({ channel }: { channel: Channel }) {
             {tagError ? <FieldError>{tagError}</FieldError> : null}
             <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.writingHint}</p>
           </div>
+
+          <LearnedRulesList scope={{ channelId: channel.id }} />
         </div>
       </section>
 

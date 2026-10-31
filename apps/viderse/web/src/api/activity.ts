@@ -5,6 +5,7 @@
 // /api/rivals/{id}/scan với action = op, riêng retry → resume).
 import { z } from 'zod'
 import { mutate, request } from './request'
+import { suggestionSettingsSchema } from './suggestions'
 
 export type TaskKind =
   | 'video' | 'identity' | 'channel_scan' | 'backdrop_scan' | 'thumbnail_preview'
@@ -67,6 +68,7 @@ export const notificationSettingsSchema = z.object({
   badge: z.boolean(),
   merge: z.boolean(),
   recapOnReturn: z.boolean(),
+  suggestions: suggestionSettingsSchema,
 })
 export type NotificationSettings = z.infer<typeof notificationSettingsSchema>
 const notificationSchema = z.object({
