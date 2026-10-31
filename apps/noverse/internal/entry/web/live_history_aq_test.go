@@ -29,3 +29,9 @@ func TestLiveHistoryPagesDispatchRounds(t *testing.T) {
  last:=rounds[19].(map[string]any)["operations"].([]any)[0].(map[string]any); if last["status"]!="error" || last["error"]=="" { t.Fatalf("error: %v",last) }
  rec=tg.do(http.MethodGet,path+"?beforeRound=6&limit=20",cookie,""); if rec.Code!=200 { t.Fatal(rec.Body.String()) }; second:=decodeJSONBody(t,rec); older:=second["rounds"].([]any); if len(older)!=5 { t.Fatalf("older: %v",second) }; for i,item:=range older { if item.(map[string]any)["round"]!=float64(i+1) { t.Fatalf("older order: %v", older) } }
 }
+
+func TestLiveHistoryArchitectRole(t *testing.T) {
+ at:=time.Now()
+ rounds,err:=liveHistoryRounds([]domain.RuntimeQueueItem{{Payload:host.Event{ID:"d",Category:"DISPATCH",Agent:"architect_long",Time:at}}, {Payload:host.Event{ID:"t",Category:"TOOL",Agent:"architect_long",Time:at.Add(time.Second),Tool:"save_book"}}})
+ if err!=nil || len(rounds)!=1 || rounds[0].Role!="architect" || len(rounds[0].Operations)!=1 || rounds[0].Operations[0].Role!="architect" { t.Fatalf("architect role: %+v %v",rounds,err) }
+}

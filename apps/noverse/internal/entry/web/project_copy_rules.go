@@ -6,11 +6,19 @@ import (
  "path/filepath"
  "strings"
 
+ "github.com/datnt1998/verse/apps/noverse/internal/rules"
  "github.com/datnt1998/verse/apps/noverse/internal/library"
  "github.com/datnt1998/verse/platform/identity"
 )
 
 type projectRulesSnapshot struct { style string; files map[string]string }
+func (s projectRulesSnapshot) count() int {
+ n:=0
+ for name,text:=range s.files {
+  if name==rules.ManagedRulesFile { n+=len(rules.ParseRuleLines(text)) } else if strings.TrimSpace(text)!="" { n++ }
+ }
+ return n
+}
 
 func projectConfigTarget(ref library.ProjectRef) configTarget {
  return configTarget{scope:"project", project:ref.ID, dir:ref.Dir, path:configFileIn(ref.Dir), hosted:ref.Dir == ""}

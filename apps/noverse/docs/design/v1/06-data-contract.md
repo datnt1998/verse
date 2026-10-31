@@ -366,7 +366,7 @@ Hosted: hai API nền truyện đọc kho fact PG theo quyền dự án trước
 
 ## Sao chép quy tắc và lịch sử luồng viết
 
-- `POST /api/projects` nhận `copyRulesFrom?: string` là slug dự án có quyền đọc. Sao chép một lần các tệp quy tắc dự án và `config.style`, không liên kết hai dự án. `shareGlobal` vẫn chỉ điều khiển cấu hình trợ lý. `GET /api/library` và `GET /api/projects` trả mỗi dự án thêm `ruleCount: number` và `style: string` (rỗng là mặc định).
+- `POST /api/projects` nhận `copyRulesFrom?: string` là slug dự án có quyền đọc. Sao chép một lần các tệp quy tắc dự án và `config.style`, không liên kết hai dự án. `shareGlobal` vẫn chỉ điều khiển cấu hình trợ lý. `GET /api/library` và `GET /api/projects` trả mỗi dự án thêm `ruleCount: number` và `style: string` (rỗng là mặc định). `ruleCount` đếm từng dòng quy tắc trong `quy-tac.md`, cộng một cho mỗi tệp quy tắc khác có nội dung; tệp trống không tính.
 - `GET S/live-history?beforeRound=&limit=20` trả `{rounds, nextBeforeRound}`; `beforeRound` là mốc loại trừ, mặc định tải 20 vòng mới nhất, từng trang sắp theo vòng tăng dần, `nextBeforeRound: number | null`.
 - Mỗi vòng: `{round: number, role: string, title?: string, startedAt: string, operations: []}`. `title` chỉ có khi dữ kiện điều phối có cấu trúc đủ xác định; vòng cũ không có thì bỏ qua.
 - Mỗi thao tác: `{id, role, round, startedAt, durationMs, status, error, key, params, result}`; `status` là `done | running | error`, `error` là câu tiếng Việt khi lỗi, các chuỗi `params` và `result` giữ dữ liệu thô. Lịch sử dùng hàng đợi runtime bền sẵn có, không thêm kho thứ hai.

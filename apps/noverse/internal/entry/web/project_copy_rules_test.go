@@ -31,3 +31,13 @@ func TestProjectCopyRulesSnapshot(t *testing.T) {
  if got:=tg.do("POST", "/api/projects", reader, `{"slug":"forbidden","copyRulesFrom":"proj"}`); got.Code!=403 && got.Code!=404 { t.Fatalf("forbidden: %d %s", got.Code, got.Body) }
  b, _ = os.ReadFile(filepath.Join(source, "rules", "a.md")); if string(b) != "Luật gốc" { t.Fatalf("source changed: %q", b) }
 }
+
+func TestProjectRuleCountUsesManagedLines(t *testing.T) {
+ tg:=newTestGateway(t); admin:=tg.login("admin","admin-pass")
+ dir:=filepath.Join(tg.root,"proj",".ainovel","rules"); if err:=os.MkdirAll(dir,0755); err!=nil { t.Fatal(err) }
+ if err:=os.WriteFile(filepath.Join(dir,"quy-tac.md"),[]byte("# Quy tắc\n- một\n- hai\n- ba\n- bốn\n- năm\n"),0644); err!=nil { t.Fatal(err) }
+ if err:=os.WriteFile(filepath.Join(dir,"rong.md"),[]byte("\n"),0644); err!=nil { t.Fatal(err) }
+ projects:=decodeJSONBody(t,tg.do("GET","/api/projects",admin,""))["projects"].([]any)
+ for _,item:=range projects { p:=item.(map[string]any); if p["id"]=="proj" { if p["ruleCount"]!=float64(5) { t.Fatalf("rule count: %v",p["ruleCount"]) }; return } }
+ t.Fatal("project missing")
+}

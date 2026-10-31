@@ -1389,7 +1389,7 @@ func (g *Gateway) projectSummary(ctx context.Context, lib library.Repository, us
 	actor := actorOf(user)
 	if !ref.Legacy {
 		if snapshot, err := g.readProjectRules(ctx, user, ref); err == nil {
-			sum.RuleCount, sum.Style = len(snapshot.files), snapshot.style
+			sum.RuleCount, sum.Style = snapshot.count(), snapshot.style
 		} else {
 			slog.Warn("đọc quy tắc dự án thất bại", "project_slug", ref.ID, "err", err)
 		}

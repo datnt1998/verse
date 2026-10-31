@@ -18,6 +18,10 @@ type liveOperation struct {
 }
 type liveRound struct { Round int `json:"round"`; Role string `json:"role"`; Title string `json:"title,omitempty"`; StartedAt time.Time `json:"startedAt"`; Operations []liveOperation `json:"operations"` }
 
+func liveRole(role string) string {
+ if role == "architect_long" || role == "architect_short" { return "architect" }
+ return role
+}
 func liveHistoryRounds(queue []domain.RuntimeQueueItem) ([]liveRound,error) {
  rounds:=[]liveRound{}; active:=map[string]int{}; events:=[]host.Event{}; indexes:=map[string]int{}
  for _, item := range queue {
@@ -29,14 +33,14 @@ func liveHistoryRounds(queue []domain.RuntimeQueueItem) ([]liveRound,error) {
  for _,ev:=range events {
   if ev.Category=="DISPATCH" {
    idx:=len(rounds); active[ev.Agent]=idx+1
-   rounds=append(rounds,liveRound{Round:idx+1,Role:ev.Agent,Title:ev.RoundTitle,StartedAt:ev.Time,Operations:[]liveOperation{}}); continue
+   rounds=append(rounds,liveRound{Round:idx+1,Role:liveRole(ev.Agent),Title:ev.RoundTitle,StartedAt:ev.Time,Operations:[]liveOperation{}}); continue
   }
   if ev.Tool=="" { continue }
   r:=active[ev.Agent]-1; if r<0 || r>=len(rounds) { continue }
   status:="running"; if ev.Failed || ev.Status=="error" { status="error" } else if !ev.FinishedAt.IsZero() || ev.Status=="ok" || ev.Status=="done" { status="done" }
   message:=""; if status=="error" { message="Không thực hiện được thao tác." }
   duration:=ev.DurationMs; if duration==0 { duration=ev.Duration.Milliseconds() }
-  rounds[r].Operations=append(rounds[r].Operations,liveOperation{ID:ev.ID,Role:ev.Agent,Round:r+1,StartedAt:ev.Time,DurationMs:duration,Status:status,Error:message,Key:ev.Tool,Params:ev.Args,Result:ev.Result})
+  rounds[r].Operations=append(rounds[r].Operations,liveOperation{ID:ev.ID,Role:liveRole(ev.Agent),Round:r+1,StartedAt:ev.Time,DurationMs:duration,Status:status,Error:message,Key:ev.Tool,Params:ev.Args,Result:ev.Result})
  }
  return rounds,nil
 }
