@@ -95,8 +95,8 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <FieldLabel htmlFor="np-desc">Mô tả</FieldLabel>
-            <TextArea id="np-desc" rows={2} value={description} onChange={(event) => setDescription(event.target.value)}
-              placeholder="Kênh / series này nói về gì" />
+            <TextArea id="np-desc" rows={2} showCount={false} value={description} onChange={(event) => setDescription(event.target.value)}
+              style={{ height: 'auto', padding: '8px 10px', resize: 'none' }} placeholder="Kênh / series này nói về gì" />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span className="lbl" id="np-rules">Quy tắc &amp; văn phong ban đầu</span>
@@ -109,7 +109,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
             </div>
             {mode === 'copy' && <div style={{ position: 'relative' }}>
               <button type="button" className="field" aria-haspopup="listbox" aria-expanded={pickerOpen} aria-label="Chọn dự án để chép" onClick={() => setPickerOpen(!pickerOpen)}
-                style={{ width: '100%', height: 'auto', minHeight: 44, display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', textAlign: 'left' }}>
+                style={{ width: '100%', height: 'auto', minHeight: selected ? 50 : 44, display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', textAlign: 'left' }}>
                 <Icon name="folder-open" size={16} style={{ color: 'var(--kit-info-fg)' }} />
                 <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}>
                   <span style={{ fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selected?.name ?? 'Chọn dự án…'}</span>
