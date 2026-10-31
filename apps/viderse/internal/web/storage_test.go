@@ -5,13 +5,17 @@ import (
 	"encoding/json"
 	"io/fs"
 	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/retention"
+	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Nguồn: 07-data-contract §23 + 01-ia-flows W13 — hình JSON của /api/storage*.
@@ -451,6 +455,56 @@ func TestServerStorageRefusesPathOperationsBeforeIO(t *testing.T) {
 			}
 			if filesystem.calls != 0 {
 				t.Fatalf("filesystem accessed %d times", filesystem.calls)
+			}
+		})
+	}
+}
+
+type cleanupViewerSpy struct {
+	fakeCleanup
+	viewer  retention.CleanupViewer
+	present bool
+	runErr  error
+}
+
+func (s *cleanupViewerSpy) PreviewCleanup(ctx context.Context) (*retention.Preview, error) {
+	s.viewer, s.present = retention.Viewer(ctx)
+	return &retention.Preview{ID: "preview"}, nil
+}
+
+func (s *cleanupViewerSpy) RunCleanup(ctx context.Context, _ string) (retention.RunResult, error) {
+	s.viewer, s.present = retention.Viewer(ctx)
+	return retention.RunResult{}, s.runErr
+}
+
+func TestCleanupHandlersForwardAuthenticatedViewerAndForbidden(t *testing.T) {
+	for _, role := range []identity.Role{identity.RoleAdmin, identity.RoleMember} {
+		t.Run(string(role), func(t *testing.T) {
+			clean := &cleanupViewerSpy{}
+			h := storageHandlers{clean: clean}
+			user := identity.User{Username: "actor", Role: role}
+			preview := httptest.NewRecorder()
+			h.preview(preview, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/preview", nil), user)
+			if preview.Code != http.StatusOK {
+				t.Fatalf("preview: %d %s", preview.Code, preview.Body)
+			}
+			if !clean.present || clean.viewer.Actor != "actor" || clean.viewer.Admin != (role == identity.RoleAdmin) {
+				t.Fatalf("preview lost authenticated cleanup viewer: present=%v viewer=%+v", clean.present, clean.viewer)
+			}
+			clean.present = false
+			run := httptest.NewRecorder()
+			h.run(run, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/run", strings.NewReader(`{"previewId":"preview"}`)), user)
+			if run.Code != http.StatusOK {
+				t.Fatalf("run: %d %s", run.Code, run.Body)
+			}
+			if !clean.present || clean.viewer.Actor != "actor" || clean.viewer.Admin != (role == identity.RoleAdmin) {
+				t.Fatalf("run lost authenticated cleanup viewer: present=%v viewer=%+v", clean.present, clean.viewer)
+			}
+			clean.runErr = &serverstorage.Error{Status: http.StatusForbidden, Message: "Chỉ quản trị viên được dọn bộ đệm"}
+			forbidden := httptest.NewRecorder()
+			h.run(forbidden, httptest.NewRequest(http.MethodPost, "/api/storage/cleanup/run", strings.NewReader(`{"previewId":"preview"}`)), user)
+			if forbidden.Code != http.StatusForbidden {
+				t.Fatalf("cleanup denial not preserved: %d %s", forbidden.Code, forbidden.Body)
 			}
 		})
 	}

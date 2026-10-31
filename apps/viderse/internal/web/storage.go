@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/retention"
+	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
@@ -453,8 +454,9 @@ func reclaimWire(it retention.ReclaimItem) reclaimItemWire {
 	return reclaimItemWire{ID: it.ID, Title: it.Title, Bytes: it.Bytes, Count: it.Count, Desc: it.Desc}
 }
 
-func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, _ identity.User) {
-	preview, err := h.clean.PreviewCleanup(r.Context())
+func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, user identity.User) {
+	ctx := retention.WithCleanupViewer(r.Context(), user.Username, storageAdmin(user))
+	preview, err := h.clean.PreviewCleanup(ctx)
 	if err != nil {
 		storageError(w, err)
 		return
@@ -468,14 +470,15 @@ func (h *storageHandlers) preview(w http.ResponseWriter, r *http.Request, _ iden
 	webapp.WriteJSON(w, http.StatusOK, out)
 }
 
-func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, _ identity.User) {
+func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, user identity.User) {
 	var body struct {
 		PreviewID string `json:"previewId"`
 	}
 	if !webapp.DecodeJSON(w, r, &body) {
 		return
 	}
-	result, err := h.clean.RunCleanup(r.Context(), body.PreviewID)
+	ctx := retention.WithCleanupViewer(r.Context(), user.Username, storageAdmin(user))
+	result, err := h.clean.RunCleanup(ctx, body.PreviewID)
 	if err != nil {
 		storageError(w, err)
 		return
@@ -488,6 +491,11 @@ func (h *storageHandlers) run(w http.ResponseWriter, r *http.Request, _ identity
 
 // storageError đổi lỗi nghiệp vụ sang HTTP ở đúng một chỗ.
 func storageError(w http.ResponseWriter, err error) {
+	var serverErr *serverstorage.Error
+	if errors.As(err, &serverErr) {
+		serverStorageError(w, err)
+		return
+	}
 	var re *retention.Error
 	if errors.As(err, &re) {
 		webapp.WriteJSON(w, storageStatus(re.Code), map[string]any{
