@@ -142,6 +142,38 @@ func TestResponsesAcceptsPromptOnlyRequest(t *testing.T) {
 	}
 }
 
+func TestResponsesEncodesUserImageURLAsString(t *testing.T) {
+	provider := mustProvider(t)
+	wire, err := provider.buildResponsesRequest(&ResponsesRequest{
+		Model: "gpt-5.1",
+		Messages: []litellm.Message{
+			litellm.User(litellm.Text("describe"), litellm.ImageBlock{URL: "data:image/png;base64,AAAA", Detail: "low"}),
+		},
+	}, false)
+	if err != nil {
+		t.Fatalf("buildResponsesRequest: %v", err)
+	}
+	raw, err := json.Marshal(wire)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var body struct {
+		Input []struct {
+			Content []map[string]any `json:"content"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal(raw, &body); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if len(body.Input) != 1 || len(body.Input[0].Content) != 2 {
+		t.Fatalf("input = %s", raw)
+	}
+	image := body.Input[0].Content[1]
+	if image["type"] != "input_image" || image["image_url"] != "data:image/png;base64,AAAA" || image["detail"] != "low" {
+		t.Fatalf("image part = %#v", image)
+	}
+}
+
 func TestResponsesRejectsInputWithNonSystemMessages(t *testing.T) {
 	provider := mustProvider(t)
 	_, err := provider.buildResponsesRequest(&ResponsesRequest{

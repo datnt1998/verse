@@ -221,19 +221,17 @@ func (i responsesInputItem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(alias(i))
 }
 
+// Responses input_image takes image_url as a string with detail as a sibling
+// field; the Chat Completions object form is rejected with 400 invalid_type.
 type responsesContentItem struct {
 	Type                  string                 `json:"type"`
 	Text                  string                 `json:"text,omitempty"`
 	Refusal               string                 `json:"refusal,omitempty"`
-	ImageURL              *responsesImageURL     `json:"image_url,omitempty"`
+	ImageURL              string                 `json:"image_url,omitempty"`
+	Detail                string                 `json:"detail,omitempty"`
 	PromptCacheBreakpoint *promptCacheBreakpoint `json:"prompt_cache_breakpoint,omitempty"`
 	Annotations           []map[string]any       `json:"annotations,omitempty"`
 	Logprobs              []map[string]any       `json:"logprobs,omitempty"`
-}
-
-type responsesImageURL struct {
-	URL    string `json:"url"`
-	Detail string `json:"detail,omitempty"`
 }
 
 type responsesResponse struct {
@@ -813,7 +811,7 @@ func responsesContent(blocks []litellm.Block, textType string) ([]responsesConte
 			if err != nil {
 				return nil, err
 			}
-			items = append(items, responsesContentItem{Type: "input_image", ImageURL: &responsesImageURL{URL: url, Detail: b.Detail}, PromptCacheBreakpoint: breakpoint})
+			items = append(items, responsesContentItem{Type: "input_image", ImageURL: url, Detail: b.Detail, PromptCacheBreakpoint: breakpoint})
 		case litellm.ToolUseBlock:
 			continue
 		case litellm.ReasoningBlock:
@@ -1436,9 +1434,9 @@ func responsesOutputBlocks(items []responsesContentItem) ([]litellm.Block, error
 				}
 				blocks = append(blocks, litellm.TextBlock{Text: item.Text, Annotations: annotations, Logprobs: logprobs})
 			}
-		case "image", "image_url", "output_image":
-			if item.ImageURL != nil && item.ImageURL.URL != "" {
-				blocks = append(blocks, litellm.ImageBlock{URL: item.ImageURL.URL, Detail: item.ImageURL.Detail})
+		case "image", "image_url", "input_image", "output_image":
+			if item.ImageURL != "" {
+				blocks = append(blocks, litellm.ImageBlock{URL: item.ImageURL, Detail: item.Detail})
 			}
 		case "refusal":
 			refusal := item.Refusal

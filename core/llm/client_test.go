@@ -1,7 +1,9 @@
 package llm
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -54,6 +56,21 @@ func (p *captureStreamProvider) Stream(_ context.Context, req *litellm.Request) 
 	return &staticStream{
 		events: events,
 	}, nil
+}
+
+func TestConvertMessagesSendsDecodedImageBytes(t *testing.T) {
+	raw := []byte{0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a}
+	msgs := convertMessages([]Message{{
+		Role:    RoleUser,
+		Content: []ContentBlock{TextBlock("look"), ImageBlock(base64.StdEncoding.EncodeToString(raw), "image/png")},
+	}})
+	if len(msgs) != 1 || len(msgs[0].Blocks) != 2 {
+		t.Fatalf("messages = %#v", msgs)
+	}
+	image, ok := msgs[0].Blocks[1].(litellm.ImageBlock)
+	if !ok || !bytes.Equal(image.Data, raw) || image.MIME != "image/png" || image.URL != "" {
+		t.Fatalf("image block = %#v", msgs[0].Blocks[1])
+	}
 }
 
 type staticStream struct {

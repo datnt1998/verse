@@ -6,6 +6,7 @@ package llm
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/datnt1998/verse/core/models"
@@ -675,11 +676,19 @@ func sanitizeOutgoingToolCall(tc ToolCall) ToolCall {
 	return tc
 }
 
+// convertImageBlock maps ImageData (base64 Data, see ImageData) to a wire block
+// carrying raw bytes; providers base64-encode wire bytes exactly once.
+// Undecodable data is forwarded as a data URL so the provider rejects it with
+// its own error rather than receiving double-encoded garbage.
 func convertImageBlock(img ImageData) litellm.ImageBlock {
 	if img.URL != "" {
 		return litellm.ImageBlock{URL: img.URL, MIME: img.MimeType}
 	}
-	return litellm.ImageBlock{Data: []byte(img.Data), MIME: img.MimeType}
+	raw, err := base64.StdEncoding.DecodeString(img.Data)
+	if err != nil {
+		return litellm.ImageBlock{URL: "data:" + img.MimeType + ";base64," + img.Data, MIME: img.MimeType}
+	}
+	return litellm.ImageBlock{Data: raw, MIME: img.MimeType}
 }
 
 // convertResponse converts litellm.Response to Message with content blocks.
