@@ -14,7 +14,7 @@ export const learnStyles = stylex.create({
     backgroundColor: 'var(--vv-director-notice-fill)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-director-notice-line)',
     color: 'var(--vv-director-notice-ink)',
   },
-  learnArtist: { backgroundColor: 'rgba(255,208,138,.07)', borderColor: 'rgba(255,208,138,.22)', color: 'rgb(255, 226, 181)' },
+  learnArtist: { backgroundColor: 'var(--vv-artist-notice-fill)', borderColor: 'var(--vv-artist-notice-line)', color: 'var(--vv-artist-notice-ink)' },
   orb: { marginTop: s['--vv-s-2'] },
   text: { minWidth: 0, overflowWrap: 'anywhere' },
   actions: { gridColumn: 2, display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'] },
@@ -30,7 +30,7 @@ export const learnStyles = stylex.create({
   examples: { gridColumn: 2, margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'] },
   example: {
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'], padding: `${s['--vv-s-6']} ${s['--vv-s-8']}`, borderRadius: r['--vv-r-8'],
-    backgroundColor: 'rgba(255,255,255,.04)', color: color['--color-fg-2'],
+    backgroundColor: 'var(--vv-hover-row)', color: color['--color-fg-2'],
   },
   exampleRow: { display: 'flex', gap: s['--vv-s-8'], alignItems: 'baseline', overflowWrap: 'anywhere' },
   exampleTag: { flex: '0 0 auto', minWidth: 28, fontSize: 11, color: color['--color-fg-3'] },
@@ -56,7 +56,7 @@ export const learnStyles = stylex.create({
   ruleSwitchOn: { backgroundColor: color['--color-accent'] },
   knob: {
     position: 'absolute', top: s['--vv-s-3'], left: s['--vv-s-3'], width: 16, height: 16, borderRadius: '50%', backgroundColor: color['--color-fg'],
-    boxShadow: '0 1px 3px rgba(0,0,0,.4)', transition: { default: 'left .3s ease', [NO_MOTION]: 'none' },
+    boxShadow: 'var(--vv-knob-shadow)', transition: { default: 'left .3s ease', [NO_MOTION]: 'none' },
   },
   linkBtn: {
     borderWidth: 0, padding: 0, backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 'inherit',

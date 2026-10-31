@@ -29,7 +29,7 @@ export const suggestStyles = stylex.create({
     display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-4'], height: 22, padding: `0 ${s['--vv-s-2']}`,
     borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 12,
     whiteSpace: 'nowrap', textDecorationLine: 'underline', textDecorationStyle: 'dotted',
-    textDecorationColor: 'rgba(255,255,255,.35)', textUnderlineOffset: 3, cursor: 'pointer',
+    textDecorationColor: 'var(--vv-why-line)', textUnderlineOffset: 3, cursor: 'pointer',
     ':hover': { color: color['--color-fg'] },
   },
   whyOpen: { color: color['--color-fg'] },
@@ -61,7 +61,7 @@ export const suggestStyles = stylex.create({
   orbStack: { marginLeft: -3 },
   count: {
     minWidth: 18, height: 18, padding: `0 ${s['--vv-s-5']}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: r['--vv-r-pill'], backgroundColor: 'rgba(246,203,140,.16)', color: 'var(--vv-warn-ink)', fontSize: 11,
+    borderRadius: r['--vv-r-pill'], backgroundColor: 'var(--vv-amber-16)', color: 'var(--vv-warn-ink)', fontSize: 11,
     fontWeight: 600, fontVariantNumeric: 'tabular-nums',
   },
   // Bản tin: nhóm "Đề xuất · 3 trong 5"
@@ -76,6 +76,6 @@ export const suggestStyles = stylex.create({
   autoText: { flex: 1, minWidth: 0, overflowWrap: 'anywhere' },
   autoTag: {
     height: 22, padding: `0 ${s['--vv-s-8']}`, display: 'inline-flex', alignItems: 'center', borderRadius: r['--vv-r-6'],
-    backgroundColor: 'rgba(157,236,201,.08)', color: 'var(--vv-qa-ink)', fontSize: 11.5, whiteSpace: 'nowrap',
+    backgroundColor: 'var(--vv-qa-tint)', color: 'var(--vv-qa-ink)', fontSize: 11.5, whiteSpace: 'nowrap',
   },
 })
