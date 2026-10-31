@@ -231,6 +231,7 @@ export type OutlineItem = { chapter: number; title: string; coreEvent: string }
 export type AskOption = { label: string; reply?: string; isDefault?: boolean }
 export type PendingAsk = { question: string; options?: AskOption[]; chapter?: number }
 export type Snapshot = {
+  streamText?: string
   readOnlyReason?: string
   provider: string; bookTitle: string; modelName: string; modelContextWindow: number
   thinkingLevel: string; style: string

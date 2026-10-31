@@ -193,8 +193,6 @@ export const ROUND_MARKER = '✻ '
 export const THINKING_MARK = '\x02'
 // Con trỏ đang stream: chu kỳ glyph 200ms/khung
 export const STREAM_CURSOR_GLYPHS = ['·', '✢', '✳', '✶', '✻', '✽']
-// Giữ tối đa số round gần nhất
-export const MAX_ROUNDS = 32
 
 /**
  * Header ✻ → spec: khớp header hiện tại hoặc header Trung cũ. Host cũng phát `✻ <tên công cụ>` cho

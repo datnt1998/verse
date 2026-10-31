@@ -456,6 +456,7 @@ ainovel-cli serve --root DIR --addr 127.0.0.1:9000
 - Mỗi truyện viết trong một tiến trình riêng, mở khi cần. Truyện đang mở ở TUI vẫn **đọc, duyệt, xuất** được trên web; chỉ các thao tác viết bị khoá (báo lỗi 409) cho tới khi đóng TUI.
 - Mở truyện không tự viết tiếp; bấm "Tiếp tục" khi có phiên dang dở.
 - **Dữ liệu luôn mới**: mọi màn hình nghe một luồng sự kiện chung (`/api/events`); sửa tệp truyện/cấu hình từ bên ngoài (TUI, trình soạn thảo) hiện lên web sau ~2 giây. Hai nơi cùng sửa một cấu hình thì nơi lưu sau nhận thanh "Đã có thay đổi từ nơi khác" (xem bản mới / ghi đè) thay vì âm thầm ghi đè.
+- **Luồng viết trực tiếp** là lịch sử sáng tác, không phải bộ đệm của tiến trình worker: tạm dừng, đổi thẻ và khởi động lại worker không được xoá nội dung đã hiện. Xem [lưu trữ và phục hồi luồng](internal/entry/web/stream_history.go) và [kiểm thử với PostgreSQL](internal/entry/web/stream_history_test.go); thư mục tạm của worker hosted không phải nơi lưu lịch sử.
 - **Việc chạy nền**: viết, xuất, tạo audio, nhập, đồng bộ, chẩn đoán hiện ở dock góc dưới phải (`⌥J`), có tạm dừng / tiếp / huỷ / thử lại và "Báo khi xong".
 - **Máy đọc TTS ở nhà (worker Mac, phase 07)**: VPS không nạp model giọng đọc. Cấp token trên máy chủ (`STORE_DRIVER=postgres`) rồi chạy worker trên Mac — worker chỉ gửi yêu cầu ra ngoài (không mở cổng, không kết nối Postgres) qua Tailscale tới listener riêng của máy chủ:
   ```bash

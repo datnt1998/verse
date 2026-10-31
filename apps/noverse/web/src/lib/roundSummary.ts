@@ -45,11 +45,7 @@ function listCount(nodes: StreamNode[], key: string): number {
 /** Dòng stream rút gọn không có `content:` — các phần tử mảng nằm ngay dưới `type:`. */
 const rootItemCount = (nodes: StreamNode[]): number => nodes.filter((node) => node.item).length
 
-/**
- * Dựng lại cây tham số từ `args` JSON của dòng Nhật ký, cho các công cụ mà host không phát
- * extractor (chỉ có `✻ tên_công_cụ`, không có thân) — `save_book` cần `title`, `reopen_book`
- * cần danh sách chương… Giá trị 0 / rỗng / false bị bỏ, y như `arg()`.
- */
+/** Rebuild full structured action data, including nested objects and arrays. */
 export function nodesFromArgs(raw: string | undefined): StreamNode[] {
   if (!raw) return []
   let parsed: unknown
@@ -58,26 +54,19 @@ export function nodesFromArgs(raw: string | undefined): StreamNode[] {
   } catch {
     return []
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return []
-  const nodes: StreamNode[] = []
-  for (const [key, value] of Object.entries(parsed)) {
-    if (value === null || value === undefined || value === '' || value === 0 || value === false) continue
+  if (!parsed || typeof parsed !== 'object') return []
+  const convert = (key: string, value: unknown, item = false): StreamNode => {
     if (Array.isArray(value)) {
-      if (value.length === 0) continue
-      nodes.push({
-        key, value: null, item: false,
-        children: value.map((item) => ({
-          key: item && typeof item === 'object' && 'name' in item && typeof item.name === 'string' ? 'name' : '',
-          value: item && typeof item === 'object' ? null : String(item),
-          item: true, children: [],
-        })),
-      })
-      continue
+      return { key, value: null, item, children: value.map((entry) => convert('', entry, true)) }
     }
-    // `content` lồng nhau: host đã phát thân stream cho các công cụ đó, không cần ở đây.
-    if (typeof value === 'object') continue
-    nodes.push({ key, value: String(value), children: [], item: false })
+    if (value !== null && typeof value === 'object') {
+      return { key, value: null, item, children: Object.entries(value).map(([name, entry]) => convert(name, entry)) }
+    }
+    return { key, value: value === null ? null : String(value), item, children: [] }
   }
+  const nodes = Object.entries(parsed)
+    .filter(([, value]) => value !== null && value !== undefined && value !== '' && value !== 0 && value !== false)
+    .map(([key, value]) => convert(key, value))
   return nodes
 }
 
@@ -152,8 +141,15 @@ export function toolSummary(tool: string, nodes: StreamNode[], total = 0): strin
       const chapters = fieldChildren(nodes, 'chapters').length || listCount(nodes, 'chapters')
       return chapters > 0 ? `Mở lại truyện · ${chapters} chương` : 'Mở lại truyện'
     }
-    default:
+    default: {
+      const pending = [...nodes]
+      while (pending.length > 0) {
+        const node = pending.shift()!
+        if (node.value !== null && node.value.trim() !== '') return translateHost(node.value)
+        pending.push(...node.children)
+      }
       return ''
+    }
   }
 }
 
@@ -272,7 +268,7 @@ const sameArgs = (round: StreamRound, event: ToolEvent): boolean => {
 
 /**
  * Ghép từng vòng ✻ với dòng Nhật ký của cùng lần gọi. Cùng một công cụ gọi nhiều lần thì so
- * tham số (chương/khoảng/loại); không so được thì lấy lần gọi sớm nhất chưa dùng.
+ * tham số (chương/khoảng/loại), ghép từ mới về cũ để không lấy lần gọi trước khi có bản ghi luồng.
  * Trả về map `round.id` → sự kiện; thiếu thì thẻ chỉ hiện tóm tắt.
  */
 export function matchRoundEvents(rounds: StreamRound[], events: ToolEvent[]): Map<string, ToolEvent> {
@@ -287,11 +283,12 @@ export function matchRoundEvents(rounds: StreamRound[], events: ToolEvent[]): Ma
     queues.set(event.tool, list)
   }
   const matched = new Map<string, ToolEvent>()
-  for (const round of rounds) {
+  for (const round of [...rounds].reverse()) {
     const list = queues.get(round.tool)
     if (!list || list.length === 0) continue
-    const index = list.findIndex((event) => sameArgs(round, event))
-    matched.set(round.id, list.splice(index >= 0 ? index : 0, 1)[0])
+    let index = list.length - 1
+    while (index >= 0 && !sameArgs(round, list[index])) index--
+    matched.set(round.id, list.splice(index >= 0 ? index : list.length - 1, 1)[0])
   }
   return matched
 }

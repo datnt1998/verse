@@ -16,7 +16,6 @@ import { enqueueInput, useInputOutbox } from '../../../mobile/outbox'
 import { useNotificationInbox } from '../../notify/useNotify'
 import { Icon } from '@noverse/ui'
 import { toast } from '@noverse/ui'
-import { ThinkingOrb } from '@noverse/ui'
 import { ProgressRing } from '@noverse/ui'
 import { useActiveJobs } from '../../../shell/jobs/useJobs'
 import { isIndeterminate, kindIcon, ringColor } from '../../../shell/jobs/logic'
@@ -26,11 +25,10 @@ import { latestGateChapter } from '../GateCard'
 import { CommandSheet } from './CommandSheet'
 import { JobsSheet } from './JobsSheet'
 import { PauseSheet } from './PauseSheet'
-import { fieldValue, looseText, parseStream } from '../../../lib/streamRounds'
+import { LiveStream } from '../LiveStream'
 import { agentStatus, hasMobileResult, resultHref, retryText, reviewScore, WRITING_STEPS, writingPercent, workState, workspaceActions, type AgentRole } from './logic'
 import { withExportFlag } from '../../cmdresults/logic'
 import { idleModel, PendingQuestionCard } from '../IdleCard'
-import { StreamMarkdown } from '../../../lib/StreamMarkdown'
 import './workspace.css'
 import { WorkspaceComposer } from './WorkspaceComposer'
 import { PanelRefreshBar } from '../../../ui/PanelRefreshBar'
@@ -107,10 +105,6 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
   const score = reviewScore(reviews.data?.chapter?.dimensions)
   const step = STEPS[snapshot?.flow ?? ''] ?? { number: 1, label: snapshot ? enumLabel('phase', snapshot.phase) : 'Đang kết nối' }
   const title = snapshot?.outline?.find((item) => item.chapter === chapter)?.title
-  const liveText = useMemo(() => {
-    const parsed = parseStream(streamText, running && !stale)
-    return parsed.prose || parsed.rounds.map((round) => looseText(round.nodes) || fieldValue(round.nodes, 'new_string') || fieldValue(round.nodes, 'text') || '').filter(Boolean).at(-1) || ''
-  }, [streamText, running, stale])
   useEffect(() => { if (!running) setPauseRequested(false) }, [running])
   const send = useAction(async (message: string) => {
     if (stale) await enqueueInput({ project, story, text: message })
@@ -195,7 +189,6 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
         {tablet && <span className={`m-orb writer mw-large-orb${!stale ? ' live' : ''}`} aria-hidden="true" />}
         <div className="mw-titles"><h1>{tablet ? `Người viết · chương ${chapter}` : `Chương ${chapter}${title ? ` · ${title}` : ''}`}</h1><p className="m-muted">{tablet ? `${step.label} · bước ${step.number}/5` : `Bước ${step.number}/5 · ${step.label}`}</p></div>
         <div className="m-progress"><span style={{ width: `${percent}%` }} /></div>
-        <div className={`m-stream${liveText ? '' : ' mw-stream-empty'}`} aria-live="off">{liveText ? <StreamMarkdown text={liveText} /> : 'Người viết đang chuẩn bị những dòng tiếp theo…'}{!stale && <ThinkingOrb size={22} />}</div>
         <div className="mw-actions">{permitted && <button className="m-chip" disabled={!writable || pauseRequested || snapshot.runtimeState === 'pausing'} onClick={() => setSheet('pause')}><Icon name="pause" size={14} />{pauseRequested || snapshot.runtimeState === 'pausing' ? 'Đã hẹn tạm dừng' : 'Tạm dừng'}</button>}<button type="button" className="m-chip" onClick={() => navigate(paths.reader(project, story, chapter || undefined))}><Icon name="book-1" size={14} />Xem bản nháp</button></div>
       </>}
       {state === 'gate' && <>
@@ -212,6 +205,9 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
       {state === 'done' && <><div className="mw-done-orbs" aria-hidden="true">{ROLES.map((role) => <span className={`m-orb ${role.key}`} key={role.key} />)}</div><h1>Truyện đã hoàn thành</h1><p className="m-muted num">{snapshot.completedCount.toLocaleString('vi')} chương · {snapshot.totalWordCount.toLocaleString('vi')} chữ{events.length > 0 && ` · xong lúc ${formatShortClock(events[events.length - 1].time)}`}</p><div className="m-inline-actions">{actions.export && <button className="m-button" disabled={!exportable} onClick={() => openCommand(`/export exports/${story}.epub`)}><Icon name="export-square" size={16} />Xuất EPUB</button>}<button type="button" className="m-button secondary" onClick={() => navigate(paths.audio(project, story, undefined, 'listen'))}><Icon name="headphone" size={16} />Nghe</button></div>{permitted && <button className="mw-text-link" disabled={!writable} onClick={() => navigate(resultHref(project, story, '/reopen'))}>Viết tiếp tập mới ›</button>}</>}
       {state === 'error' && <><div className="mw-card-heading"><span className="mw-hero-icon"><Icon name="warning-2" size={20} /></span><span className="mw-ct"><h1>Người viết dừng lại</h1><small>Chương {chapter} · bước {step.number}/5</small></span></div><p>{latestError ? translateHost(latestError.summary).replace(/[.。]?\s*$/, '.') : 'Trợ lý gặp lỗi khi viết. Bạn có thể đổi model hoặc thử lại.'} Phần đã viết được giữ nguyên.</p>{permitted && <div className="m-inline-actions"><button type="button" className="m-button secondary" onClick={() => navigate(moreHref('model'))}>Đổi model</button><button className="m-button" disabled={!writable || retry.busy} aria-busy={retry.pending} onClick={() => void retry.run()}>{retry.pending ? 'Đang thử lại…' : <><Icon name="refresh-2" size={16} />Thử lại</>}</button></div>}</>}
     </section>}
+    {streamText !== '' && <div className="mw-pad" style={{ height: 480, display: 'flex', flexDirection: 'column' }}>
+      <LiveStream streamText={streamText} isRunning={running && !stale} snapshot={snapshot} events={events} mobile loading={live.loading} />
+    </div>}
     {tablet && <div className="mw-compact-agents">{ROLES.filter((role) => role.key !== 'writer').map((role) => { const agent = snapshot?.agents?.find((item) => item.name.toLowerCase().includes(role.key)); return <div key={role.key} className="m-agent"><span className={`m-orb ${role.key}`} /><span><strong>{role.key === 'editor' ? 'Biên tập viên' : role.label}</strong><small>{tabletAgentStatus(role.key, state, score, stale, agent?.state)}</small></span></div> })}</div>}
     {queued.map((item) => <div className="mw-queued" role="status" key={item.id}><Icon name="clock" size={17} /><span><small>Chờ gửi · sẽ tự gửi khi có mạng</small><p>“{item.text}”</p></span></div>)}
     <div className={`m-section-label mw-recent-heading${stale ? ' mw-dim' : ''}`}><span>{tablet ? 'Vừa xảy ra' : 'Vừa xong'}</span><button type="button" className="mw-recent-link" onClick={() => navigate(logHref(project, story))}>{tablet ? 'Nhật ký' : 'Xem tất cả'}</button></div>

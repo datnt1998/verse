@@ -14,7 +14,7 @@ import (
 	"github.com/datnt1998/verse/core/agentcore/subagent"
 )
 
-func TestActivityToolTruncationAndResult(t *testing.T) {
+func TestActivityToolKeepsCompleteArgumentsAndResult(t *testing.T) {
 	var events []Event
 	o := newObserver(nil, func(ev Event) { events = append(events, ev) }, func(string) {}, func() {}, nil)
 	args := json.RawMessage(`{"chapter":3,"text":"` + strings.Repeat("ế", 500) + `"}`)
@@ -23,8 +23,8 @@ func TestActivityToolTruncationAndResult(t *testing.T) {
 	o.captureToolResult(subagent.RunMeta{Agent: "writer"}, agentcore.Event{Type: agentcore.EventToolExecEnd, Result: result})
 	o.workerProgress(agentcore.ProgressPayload{Kind: agentcore.ProgressToolEnd, Agent: "writer", Tool: "draft_chapter"})
 	got := events[len(events)-1]
-	if got.Tool != "draft_chapter" || got.Chapter != 3 || got.Status != "ok" || !utf8.ValidString(got.Args) || len([]rune(got.Args)) != 401 || len([]rune(got.Result)) != 801 || !strings.HasSuffix(got.Result, "…") {
-		t.Fatalf("truncated tool detail: %+v", got)
+	if got.Tool != "draft_chapter" || got.Chapter != 3 || got.Status != "ok" || !utf8.ValidString(got.Args) || got.Args != string(args) || got.Result != string(result) {
+		t.Fatalf("lost complete tool detail: %+v", got)
 	}
 	if got.FinishedAt.IsZero() || got.Duration <= 0 || got.Failed {
 		t.Fatalf("lifecycle: %+v", got)

@@ -145,9 +145,8 @@ func TestSSEReconnectReplayAndLive(t *testing.T) {
 	h.stream <- "old"
 	w.until(t, `"text":"old"`)
 	h.stream <- host.StreamClearSentinel
-	w.until(t, "event: clear")
 	h.stream <- "current"
-	w.until(t, `"text":"current"`)
+	w.until(t, `"text":"\n\u001e\ncurrent"`)
 	if strings.Index(first, "event: reset") > strings.Index(first, "event: snapshot") {
 		t.Fatalf("initial SSE: %q", first)
 	}
@@ -159,8 +158,8 @@ func TestSSEReconnectReplayAndLive(t *testing.T) {
 	r2 := r.Clone(ctx2)
 	finished2 := make(chan struct{})
 	go func() { handler.ServeHTTP(w2, r2); close(finished2) }()
-	replay := w2.until(t, `"text":"current"`)
-	indices := []int{strings.Index(replay, "event: reset"), strings.Index(replay, "event: snapshot"), strings.Index(replay, "event: event"), strings.Index(replay, "event: clear"), strings.LastIndex(replay, "event: delta")}
+	replay := w2.until(t, `"text":"old\n\u001e\ncurrent"`)
+	indices := []int{strings.Index(replay, "event: reset"), strings.Index(replay, "event: snapshot"), strings.Index(replay, "event: event"), strings.Index(replay, "event: stream")}
 	for i := 1; i < len(indices); i++ {
 		if indices[i] <= indices[i-1] {
 			t.Fatalf("replay order: %q", replay)

@@ -48,4 +48,15 @@ describe('khung thực thể (live) khi nối lại', () => {
     applyLiveToCache('p', 's', { project: 'p', story: 's', kind: 'event', data: { ...internal, id: 'new-internal' } })
     expect(ids()).toEqual(['answer'])
   })
+
+  it('khôi phục bản đầy đủ nguyên tử và giữ nguyên khi refetch/reset', () => {
+    const key = ['story', 'p', 's', 'streamText']
+    const text = 'Đoạn đầu.\n\x1e\n✻ Đọc chương\nchapter: 1\nĐoạn cuối.'
+    applyLiveToCache('p', 's', { project: 'p', story: 's', kind: 'stream', data: { text } })
+    expect(cache.get<string>(key).data).toBe(text)
+    for (const kind of ['clear', 'reset', 'snapshot', 'stream']) {
+      applyLiveToCache('p', 's', { project: 'p', story: 's', kind, data: kind === 'stream' ? { text } : {} })
+      expect(cache.get<string>(key).data).toBe(text)
+    }
+  })
 })

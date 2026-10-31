@@ -98,6 +98,7 @@ type workerServer struct {
 	syncFixMu  sync.Mutex
 	actionMu   sync.Mutex
 	actionBusy bool
+	historyErr error
 }
 
 type message struct {
@@ -109,7 +110,7 @@ type broadcaster struct {
 	mu     sync.Mutex
 	seq    uint64
 	events []message
-	stream string
+	stream strings.Builder
 	subs   map[chan message]struct{}
 }
 
@@ -125,16 +126,11 @@ func (b *broadcaster) emit(m message) {
 		b.seq++
 		m.seq = b.seq
 		b.events = append(b.events, m)
-		if len(b.events) > 500 {
-			b.events = b.events[len(b.events)-500:]
-		}
+		// The durable transcript references all calls, not only the last 500.
 	case "clear":
-		b.stream = ""
+		b.stream.WriteString(host.StreamRoundBoundary)
 	case "delta":
-		b.stream += m.data.(string)
-		if len(b.stream) > 65536 {
-			b.stream = b.stream[len(b.stream)-65536:]
-		}
+		b.stream.WriteString(m.data.(string))
 	}
 	for ch := range b.subs {
 		select {
@@ -175,7 +171,7 @@ func (b *broadcaster) subscribeAt(lastID uint64) (replay []message, stream strin
 	}
 	ch = make(chan message, 128)
 	b.subs[ch] = struct{}{}
-	return replay, b.stream, ch, resumable
+	return replay, b.stream.String(), ch, resumable
 }
 func (b *broadcaster) unsubscribe(ch chan message) {
 	b.mu.Lock()
@@ -194,6 +190,7 @@ func NewWorkerHandler(h workerHost, token string) http.Handler {
 func newWorkerHandler(h workerHost, token string, shutdown <-chan struct{}) http.Handler {
 	b := newBroadcaster()
 	s := newWorkerServer(h, token, shutdown, b)
+	s.historyErr = restoreStreamHistory(h, b)
 	go s.pump()
 	return s
 }
@@ -208,6 +205,21 @@ func (s *workerServer) pump() {
 	refresh := time.NewTicker(5 * time.Second)
 	defer refresh.Stop()
 	dirty := false
+	var pending strings.Builder
+	flushStream := func() {
+		if pending.Len() == 0 {
+			return
+		}
+		text := pending.String()
+		if !s.persistStream(text) {
+			return
+		}
+		pending.Reset()
+		b.emit(message{kind: "delta", data: text})
+	}
+	streamPulse := time.NewTicker(80 * time.Millisecond)
+	defer streamPulse.Stop()
+	defer flushStream()
 	for {
 		select {
 		case e, ok := <-events:
@@ -223,9 +235,9 @@ func (s *workerServer) pump() {
 				break
 			}
 			if str == host.StreamClearSentinel {
-				b.emit(message{kind: "clear", data: map[string]any{}})
+				pending.WriteString(host.StreamRoundBoundary)
 			} else {
-				b.emit(message{kind: "delta", data: str})
+				pending.WriteString(str)
 			}
 			dirty = true
 		case _, ok := <-done:
@@ -233,9 +245,11 @@ func (s *workerServer) pump() {
 				done = nil
 				break
 			}
+			flushStream()
 			b.emit(message{kind: "done", data: map[string]any{}})
 			dirty = true
 		case <-pulse.C:
+			flushStream()
 			if dirty {
 				b.emit(message{kind: "snapshot", data: s.snapshot()})
 				dirty = false
@@ -243,6 +257,8 @@ func (s *workerServer) pump() {
 		case <-refresh.C:
 			b.emit(message{kind: "snapshot", data: s.snapshot()})
 			dirty = false
+		case <-streamPulse.C:
+			flushStream()
 		case <-shutdown:
 			return
 		}
@@ -271,6 +287,9 @@ func newWorkerServer(h workerHost, token string, shutdown <-chan struct{}, b *br
 // 共创会话进行中 → cocreate；导入停在待确认 → confirm。
 func (s *workerServer) snapshot() host.UISnapshot {
 	snap := s.h.Snapshot()
+	s.b.mu.Lock()
+	snap.StreamText = s.b.stream.String()
+	s.b.mu.Unlock()
 	switch {
 	case s.co.active():
 		snap.WaitingFor = "cocreate"
@@ -302,6 +321,10 @@ func (s *workerServer) handle(w http.ResponseWriter, r *http.Request) {
 	h, token, b, shutdown := s.h, s.token, s.b, s.shutdown
 	if token == "" || r.Header.Get("X-Ainovel-Worker-Token") != token {
 		jsonError(w, 401, "Mã truy cập worker không hợp lệ")
+		return
+	}
+	if s.historyErr != nil {
+		jsonError(w, 500, "Không đọc được lịch sử luồng viết")
 		return
 	}
 	if r.Method == http.MethodPost && !webguard.JSONContent(r) {
@@ -372,10 +395,7 @@ func (s *workerServer) handle(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		if !send(message{kind: "clear", data: map[string]any{}}) {
-			return
-		}
-		if stream != "" && !send(message{kind: "delta", data: stream}) {
+		if !send(message{kind: "stream", data: map[string]string{"text": stream}}) {
 			return
 		}
 		for _, m := range s.jobs.replays() {

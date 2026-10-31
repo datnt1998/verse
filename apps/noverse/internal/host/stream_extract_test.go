@@ -229,9 +229,11 @@ func TestExtract_DraftChapterIgnoresOtherFields(t *testing.T) {
 // ── 行为不变量 ──
 
 func TestExtract_UnknownTool(t *testing.T) {
-	if e := newToolExtractor("nonexistent_tool"); e != nil {
-		t.Errorf("expected nil for unknown tool")
-	}
+	e := newToolExtractor("nonexistent_tool")
+	out := e.Feed(`{"message":"Nội dung thật","nested":{"title":"Không bỏ sót"}}`)
+	mustContain(t, out, "✻ nonexistent_tool")
+	mustContain(t, out, "Nội dung thật")
+	mustContain(t, out, "Không bỏ sót")
 }
 
 func TestExtract_DoneAfterClose(t *testing.T) {

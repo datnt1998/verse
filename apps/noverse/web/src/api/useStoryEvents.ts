@@ -35,8 +35,6 @@ export type StoryEvents = {
   refresh: () => Promise<unknown>
 }
 
-const MAX_EVENTS = 1000
-
 /** `delta`/`cocreate` mang `{text}`; giá trị lạ (khung hỏng) coi như rỗng. */
 const streamTextOf = (data: unknown): string => {
   if (!data || typeof data !== 'object' || !('text' in data)) return ''
@@ -59,14 +57,14 @@ export const readLive = (payload: unknown): LiveFrame | null => {
  * đã có: nối lại chỉ hợp nhất theo id, nên danh sách không trắng rồi mới đầy lại.
  * Trả về 'stream-clear'/'done' để hook xử lý phần state cục bộ.
  */
-export function applyLiveToCache(p: string, s: string, frame: LiveFrame): 'stream-clear' | 'done' | null {
+export function applyLiveToCache(p: string, s: string, frame: LiveFrame): 'done' | null {
   const eventKey = ['story', p, s, 'events']
   const merge = (batch: HostEvent[]) => {
     if (!batch.length) return
     setData<HostEvent[]>(eventKey, (cached) => {
       const byID = new Map((cached ?? []).map((item) => [item.id, item]))
       batch.forEach((item) => byID.set(item.id, item))
-      return deduplicateUserEvents([...byID.values()].filter((item) => !isInternalEvent(item))).slice(-MAX_EVENTS)
+      return deduplicateUserEvents([...byID.values()].filter((item) => !isInternalEvent(item)))
     })
   }
   switch (frame.kind) {
@@ -82,9 +80,13 @@ export function applyLiveToCache(p: string, s: string, frame: LiveFrame): 'strea
         !!item && typeof item === 'object' && 'id' in item && typeof item.id === 'string'))
       return null
     }
+    case 'stream':
+      setData<string>(['story', p, s, 'streamText'], streamTextOf(frame.data))
+      return null
     case 'clear':
+      return null
     case 'reset':
-      return 'stream-clear'
+      return null
     case 'done':
       return 'done'
     default:
@@ -99,7 +101,11 @@ export function useStoryEvents(p: string, s: string, _onUnauthorized: () => void
     cache.get<HostEvent[]>(['story', p, s, 'events']).data ?? [])
   const events = eventResource.data ?? []
   const connection = useConnection()
-  const [streamText, setStreamText] = useState('')
+  const streamKey = ['story', p, s, 'streamText']
+  const streamResource = useResource<string>(streamKey, async () => cache.get<string>(streamKey).data ?? '')
+  const streamText = streamResource.data ?? ''
+  const setStreamText = (update: string | ((previous: string) => string)) =>
+    setData<string>(['story', p, s, 'streamText'], (previous) => typeof update === 'function' ? update(previous === undefined ? '' : previous) : update)
   const [cocreateText, setCoCreateText] = useState('')
   const [jobs, setJobs] = useState<Map<string, JobEvent>>(() => new Map())
   const [revision, setRevision] = useState(0)
@@ -124,6 +130,10 @@ export function useStoryEvents(p: string, s: string, _onUnauthorized: () => void
         case 'delta':
           queueDelta(streamTextOf(frame.data), false)
           break
+        case 'stream':
+          pendingDelta = ''
+          applyLiveToCache(p, s, frame)
+          break
         case 'cocreate':
           queueDelta(streamTextOf(frame.data), true)
           break
@@ -141,10 +151,7 @@ export function useStoryEvents(p: string, s: string, _onUnauthorized: () => void
           break
         default: {
           const effect = applyLiveToCache(p, s, frame)
-          if (effect === 'stream-clear') {
-            pendingDelta = ''
-            setStreamText('')
-          } else if (effect === 'done') {
+          if (effect === 'done') {
             setRevision((value) => value + 1)
           }
         }
@@ -155,18 +162,17 @@ export function useStoryEvents(p: string, s: string, _onUnauthorized: () => void
       if (!frame || frame.project !== p || frame.story !== s) return
       apply(frame)
     })
-    // Máy chủ bỏ qua một đoạn lịch sử (ring đã cuốn) → bỏ phần văn bản đang stream,
-    // danh sách sự kiện vẫn giữ bản cuối và tự làm mới qua cache.
+    // A global ring reset invalidates resource freshness, not story history.
+    // The authoritative `stream` frame replaces the transcript atomically.
     const offReset = subscribeEvents('reset', () => {
-      pendingDelta = ''
       pendingCo = ''
-      setStreamText('')
       setCoCreateText('')
     })
     return () => {
       offLive()
       offReset()
       if (raf !== undefined) cancelAnimationFrame(raf)
+      flush()
     }
   }, [p, s])
 

@@ -31,6 +31,7 @@ type liveFrame struct {
 	Story   string          `json:"story"`
 	Kind    string          `json:"kind"`
 	Data    json.RawMessage `json:"data"`
+	Seq     uint64          `json:"seq,omitempty"`
 }
 
 func liveJSON(v any) json.RawMessage {
@@ -101,6 +102,7 @@ type EventHub struct {
 
 	liveMu     sync.Mutex
 	streams    map[string]string            // "p/s" → 流式正文尾巴（瞬时，不进 ring）
+	streamSeq  map[string]uint64            // Monotonic per story, including worker replacements.
 	liveEvents map[string][]json.RawMessage // "p/s" → 最近实况 event 帧（补发用）
 }
 
@@ -142,8 +144,8 @@ func (h *EventHub) OnPublish(fn func(Event)) {
 	h.inner.OnPublish(func(pe events.Event) { fn(fromWire(pe)) })
 }
 
-// Backlog 返回关注故事的实况补发帧（最近事件 · clear · 正文尾巴），与旧
-// worker 直连流的 reset→replay→clear→delta 等价：只补不擦，客户端按 id 合并。
+// Backlog captures activity and a complete flushed transcript together with its
+// sequence. The SSE writer suppresses queued batches covered by that snapshot.
 func (h *EventHub) Backlog(keys []string) []Event {
 	h.liveMu.Lock()
 	defer h.liveMu.Unlock()
@@ -161,29 +163,28 @@ func (h *EventHub) Backlog(keys []string) []Event {
 			frame("events", liveJSON(list))
 		}
 		if text, seen := h.streams[key]; seen {
-			frame("clear", liveJSON(map[string]any{}))
-			if text != "" {
-				frame("delta", liveJSON(map[string]string{"text": text}))
-			}
+			out = append(out, Event{Type: liveDataType, Project: project, Story: story,
+				Data: liveFrame{Project: project, Story: story, Kind: "stream", Seq: h.streamSeq[key], Data: liveJSON(map[string]string{"text": text})}})
 		}
 	}
 	return out
 }
 
-// SetLiveStream 记录某故事当前的流式正文尾巴，供新连接/重连时重建；
-// 空串表示已 clear。仅 worker 泵写入，续传时由 Backlog 读出。
-func (h *EventHub) SetLiveStream(key, text string) {
+// SetLiveStream publishes one complete flushed batch and its sequence together.
+// Pending coalesced deltas must not appear in reconnect/watch snapshots.
+func (h *EventHub) SetLiveStream(key, text string) uint64 {
 	h.liveMu.Lock()
+	defer h.liveMu.Unlock()
 	if h.streams == nil {
 		h.streams = map[string]string{}
 	}
+	if h.streamSeq == nil {
+		h.streamSeq = map[string]uint64{}
+	}
 	h.streams[key] = text
-	h.liveMu.Unlock()
+	h.streamSeq[key]++
+	return h.streamSeq[key]
 }
-
-// liveEventCap 是每故事为“新连接补发”保留的实况事件条数（与旧 worker 直连流的
-// ring 语义一致，只是不进全局续传环）。
-const liveEventCap = 200
 
 // AppendLiveEvent 记录一条实况 event 帧，供新标签页/重连补发。
 func (h *EventHub) AppendLiveEvent(key string, frame json.RawMessage) {
@@ -192,9 +193,6 @@ func (h *EventHub) AppendLiveEvent(key string, frame json.RawMessage) {
 		h.liveEvents = map[string][]json.RawMessage{}
 	}
 	list := append(h.liveEvents[key], frame)
-	if len(list) > liveEventCap {
-		list = list[len(list)-liveEventCap:]
-	}
 	h.liveEvents[key] = list
 	h.liveMu.Unlock()
 }
@@ -217,8 +215,6 @@ func (h *EventHub) ResetLiveEvents(key string) {
 // liveCoalesce 把逐 token 的 delta 合并成 ≥80 ms 一帧，防止高频帧挤爆慢订阅者。
 const liveCoalesce = 80 * time.Millisecond
 
-const liveStreamCap = 64 * 1024
-
 type liveMux struct {
 	g         *Gateway
 	key       string
@@ -228,6 +224,9 @@ type liveMux struct {
 	cocreate  strings.Builder
 	lastFlush time.Time
 	stream    strings.Builder
+	streamSeq uint64
+	// Test barrier at the snapshot-publication/live-broadcast boundary.
+	beforeStreamBroadcast func()
 }
 
 func newLiveMux(g *Gateway, project, story string) *liveMux {
@@ -240,20 +239,21 @@ func (m *liveMux) frame(kind string, data []byte) {
 	case "delta":
 		text := frameText(data)
 		m.delta.WriteString(text)
-		m.appendStream(text)
+		m.stream.WriteString(text)
 		m.flush(false)
 	case "cocreate":
 		m.cocreate.WriteString(frameText(data))
 		m.flush(false)
+	case "stream":
+		m.delta.Reset()
+		m.stream.Reset()
+		m.stream.WriteString(frameText(data))
+		m.streamSeq = m.g.events().SetLiveStream(m.key, m.stream.String())
+		m.send(kind, data)
 	default:
 		m.flush(true)
 		switch kind {
-		case "clear":
-			m.stream.Reset()
-			m.g.events().SetLiveStream(m.key, "")
 		case "reset":
-			m.stream.Reset()
-			m.g.events().SetLiveStream(m.key, "")
 			m.g.events().ResetLiveEvents(m.key)
 		case "event":
 			m.g.events().AppendLiveEvent(m.key, json.RawMessage(data))
@@ -270,6 +270,10 @@ func (m *liveMux) flush(force bool) {
 	if m.delta.Len() > 0 {
 		text := m.delta.String()
 		m.delta.Reset()
+		m.streamSeq = m.g.events().SetLiveStream(m.key, m.stream.String())
+		if m.beforeStreamBroadcast != nil {
+			m.beforeStreamBroadcast()
+		}
 		m.send("delta", liveJSON(map[string]string{"text": text}))
 	}
 	if m.cocreate.Len() > 0 {
@@ -279,18 +283,12 @@ func (m *liveMux) flush(force bool) {
 	}
 }
 
-func (m *liveMux) appendStream(text string) {
-	m.stream.WriteString(text)
-	if m.stream.Len() > liveStreamCap {
-		trimmed := m.stream.String()[m.stream.Len()-liveStreamCap:]
-		m.stream.Reset()
-		m.stream.WriteString(trimmed)
-	}
-	m.g.events().SetLiveStream(m.key, m.stream.String())
-}
-
 func (m *liveMux) send(kind string, data json.RawMessage) {
-	m.g.events().Broadcast(Event{Type: liveDataType, Project: m.project, Story: m.story, Data: liveFrame{Project: m.project, Story: m.story, Kind: kind, Data: data}})
+	seq := uint64(0)
+	if kind == "stream" || kind == "delta" {
+		seq = m.streamSeq
+	}
+	m.g.events().Broadcast(Event{Type: liveDataType, Project: m.project, Story: m.story, Data: liveFrame{Project: m.project, Story: m.story, Kind: kind, Seq: seq, Data: data}})
 }
 
 // frameText 提取 delta/cocreate 帧里的正文；坏帧当空串。
@@ -302,6 +300,24 @@ func frameText(data []byte) string {
 		return ""
 	}
 	return v.Text
+}
+
+// liveCursor is local to one SSE writer, so preamble, SetWatch snapshots and
+// queued live frames share exactly the same replay boundary. A batch included
+// in a snapshot is never appended a second time after that snapshot.
+type liveCursor map[string]uint64
+
+func (cursor liveCursor) accept(ev events.Event) bool {
+	frame, ok := ev.Data.(liveFrame)
+	if ev.Type != liveDataType || !ok || (frame.Kind != "stream" && frame.Kind != "delta") || frame.Seq == 0 {
+		return true
+	}
+	key := frame.Project + "/" + frame.Story
+	if frame.Seq <= cursor[key] {
+		return false
+	}
+	cursor[key] = frame.Seq
+	return true
 }
 
 // subWatch 读订阅者的关注集（Tag 里存 map[string]bool，未声明时是 nil）。
@@ -487,7 +503,9 @@ func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user ident
 	for _, ev := range replay {
 		wire = append(wire, toWire(ev))
 	}
+	cursor := liveCursor{}
 	hooks := events.Hooks{
+		FilterFrame: cursor.accept,
 		// 实况帧不进 ring，重连后由这里重建关注故事的实况状态（只补不擦）。快照由
 		// 客户端自己重取。
 		Preamble: func(write func(events.Event) bool) {
