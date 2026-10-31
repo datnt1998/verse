@@ -26,6 +26,7 @@ export type BackgroundTask = {
   agent?: 'scout' | 'director' | 'artist' | 'qa'
   title: string
   objectRef: ObjectRef
+  createdAt?: string
   phase: string
   progress: TaskProgress
   etaSec: number | null
@@ -38,11 +39,11 @@ export type AppNotification = {
   kind: 'review_ready' | 'needs_attention' | 'ready_to_post' | 'task_done' | 'action_result'
   count: number
   text: string
-  href: string
-  actionLabel: string
+  actions: { label: string; href: string }[]
   createdAt: string
   readAt: string | null
   objectRef?: ObjectRef
+  detail?: { channels?: { channelId: string; name: string; count: number }[]; cause?: string; mp4?: { durationSec?: number; bytes?: number } }
   systemAllowed?: boolean
 }
 
@@ -51,6 +52,7 @@ export type Activity = {
   videoJobs: number
   queued: number
   badge?: number
+  nextScan?: { at: string; rivalChannels: number } | null
   unread: AppNotification[]
 }
 
@@ -68,20 +70,21 @@ export const notificationSettingsSchema = z.object({
 })
 export type NotificationSettings = z.infer<typeof notificationSettingsSchema>
 const notificationSchema = z.object({
-  id: z.string(), kind: z.enum(kinds), count: z.number(), text: z.string(), href: z.string(),
-  actionLabel: z.string(), createdAt: z.string(), readAt: z.string().nullable(),
+  id: z.string(), kind: z.enum(kinds), count: z.number(), text: z.string(),
+  actions: z.array(z.object({ label: z.string(), href: z.string() })), createdAt: z.string(), readAt: z.string().nullable(),
   objectRef: z.object({ type: z.string(), id: z.string(), label: z.string() }).optional(),
+  detail: z.object({ channels: z.array(z.object({ channelId: z.string(), name: z.string(), count: z.number() })).optional(), cause: z.string().optional(), mp4: z.object({ durationSec: z.number().optional(), bytes: z.number().optional() }).optional() }).optional(),
   systemAllowed: z.boolean().optional(),
 })
 const activitySchema = z.object({
   running: z.array(z.object({
     id: z.string(), kind: z.string(), agent: z.enum(['scout', 'director', 'artist', 'qa']).optional(),
-    title: z.string(), objectRef: z.object({ type: z.string(), id: z.string(), label: z.string() }),
+    title: z.string(), createdAt: z.string().optional(), objectRef: z.object({ type: z.string(), id: z.string(), label: z.string() }),
     phase: z.string(), progress: z.object({ done: z.number(), total: z.number(), groups: z.array(z.object({ group: z.string(), done: z.number(), total: z.number() })).optional() }).nullable(),
     etaSec: z.number().nullable(), state: z.enum(['running', 'paused', 'waiting', 'failed']),
     action: z.object({ label: z.string(), href: z.string().optional(), op: z.enum(['cancel', 'resume', 'retry']).optional() }),
   })),
-  videoJobs: z.number(), queued: z.number(), badge: z.number().optional(), unread: z.array(notificationSchema),
+  videoJobs: z.number(), queued: z.number(), badge: z.number().optional(), nextScan: z.object({ at: z.string(), rivalChannels: z.number() }).nullable().optional(), unread: z.array(notificationSchema),
 })
 export const getNotificationHistory = async (signal?: AbortSignal, before?: string) =>
   z.object({ notifications: z.array(notificationSchema), nextCursor: z.string().optional() }).parse(await request(`/api/notifications${before ? `?before=${encodeURIComponent(before)}` : ''}`, { signal }))

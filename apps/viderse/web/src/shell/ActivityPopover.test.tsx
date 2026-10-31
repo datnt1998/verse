@@ -4,7 +4,7 @@ import { orderNotifications } from './ActivityPopover'
 import { isQuiet } from './ActivityBridge'
 
 function note(id: string, kind: AppNotification['kind'], readAt: string | null = null): AppNotification {
-  return { id, kind, readAt, count: 1, text: id, href: '#/', actionLabel: 'Xem', createdAt: '2026-11-01T12:00:00Z' }
+  return { id, kind, readAt, count: 1, text: id, actions: [{ href: '#/', label: 'Xem' }], createdAt: '2026-11-01T12:00:00Z' }
 }
 describe('activity priorities', () => {
   it('places unread review, attention and ready before completed or read entries', () => {

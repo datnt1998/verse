@@ -37,10 +37,15 @@ const sx = stylex.create({
     borderWidth: 1, borderStyle: 'solid',
     boxShadow: kit['--kit-shadow-toast'], fontSize: 13, color: color['--color-fg'],
   },
+  activityCard: { borderRadius: 12, paddingBottom: 13 },
+  activityIcon: { width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  activityIndented: { paddingLeft: 36 },
+  activityActions: { justifyContent: 'flex-start', paddingLeft: 36 },
   cardHead: { display: 'flex', alignItems: 'flex-start', gap: 8 },
   cardTitle: { flex: '1 1 auto', minWidth: 0, fontSize: 13, fontWeight: 600, overflowWrap: 'anywhere' },
   cardText: { fontSize: 12, color: color['--color-fg-3'] },
-  cardActions: { display: 'flex', justifyContent: 'flex-end', marginTop: 2 },
+  cardMeta: { fontSize: 11, color: color['--color-fg-3'] },
+  cardActions: { display: 'flex', justifyContent: 'flex-end', gap: 6, marginTop: 2 },
   back: { transform: 'translateY(4px) scale(.955)', opacity: .6, filter: 'saturate(.7)' },
   backHeld: { transform: 'none', opacity: 1, filter: 'none' },
   toast: {
@@ -72,10 +77,10 @@ const sx = stylex.create({
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     width: 'min(640px, calc(100% - 28px))', pointerEvents: 'none',
   }),
-  activityHost: { left: 'auto', right: 18, transform: 'none', width: 300, alignItems: 'stretch', flexDirection: 'column-reverse' },
+  activityHost: { left: 'auto', right: 12, bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', transform: 'none', width: 300, alignItems: 'stretch', flexDirection: 'column-reverse' },
 })
 
-export type ToastItem = { id: number; key?: string; tone: Tone; text: string; /** nội dung dạng thẻ (toast.card) — không hết hạn */ card?: { title: string; text?: string }; action?: { label: string; onClick: () => void | Promise<void> }; expiresAt: number; duration: number; undo?: boolean; leaving: boolean; /** đang dừng đếm ngược (rê chuột vào chồng toast) — `remaining` là thời gian còn lại */ paused?: boolean; remaining?: number }
+export type ToastItem = { id: number; key?: string; tone: Tone; text: string; /** nội dung dạng thẻ (toast.card) — mặc định không hết hạn */ card?: { title: string; text?: string; meta?: string; secondaryAction?: { label: string; onClick: () => void | Promise<void> } }; action?: { label: string; onClick: () => void | Promise<void> }; expiresAt: number; duration: number; undo?: boolean; leaving: boolean; /** đang dừng đếm ngược (rê chuột vào chồng toast) — `remaining` là thời gian còn lại */ paused?: boolean; remaining?: number }
 export type ToastOptions = { key?: string; duration?: number; undo?: boolean }
 let seq = 0
 let items: ToastItem[] = []
@@ -123,10 +128,11 @@ export function toast(text: string, tone: Tone = 'neutral', action?: ToastItem['
   const item: ToastItem = { id: ++seq, key: options.key, tone, text, action, expiresAt: Date.now() + duration, duration, undo: options.undo, leaving: false, paused: held || undefined, remaining: held ? duration : undefined }
   return push(item)
 }
-/** Toast dạng thẻ 300px (Cần bạn / Cần xử lý): tiêu đề + một câu + đúng một nút việc, `role="alert"`, ở lại tới khi người dùng đóng. */
-export type ToastCard = { title: string; text?: string; action: NonNullable<ToastItem['action']>; tone?: Tone; key?: string }
+/** Thẻ thông báo mặc định ở lại tới khi đóng; có thể cung cấp hạn dùng và thao tác thứ hai. */
+export type ToastCard = { title: string; text?: string; meta?: string; action: NonNullable<ToastItem['action']>; secondaryAction?: NonNullable<ToastItem['action']>; tone?: Tone; key?: string; duration?: number }
 toast.card = (card: ToastCard) => {
-  const item: ToastItem = { id: ++seq, key: card.key, tone: card.tone ?? 'err', text: '', card: { title: card.title, text: card.text }, action: card.action, expiresAt: Infinity, duration: Infinity, leaving: false, paused: held || undefined, remaining: held ? Infinity : undefined }
+  const duration = card.duration ?? Infinity
+  const item: ToastItem = { id: ++seq, key: card.key, tone: card.tone ?? 'err', text: '', card: { title: card.title, text: card.text, meta: card.meta, secondaryAction: card.secondaryAction }, action: card.action, expiresAt: Date.now() + duration, duration, leaving: false, paused: held || undefined, remaining: held ? duration : undefined }
   return push(item)
 }
 toast.ok = (text: string) => toast(text, 'ok')
@@ -139,7 +145,7 @@ const snapshot = () => items
 const TONE_ICON: Partial<Record<Tone, string>> = { ok: 'tick-circle', warn: 'info-circle', err: 'warning-2', info: 'info-circle', accent: 'magic-star' }
 const CIRCUMFERENCE = 2 * Math.PI * 12
 
-function Notification({ item, front, held }: { item: ToastItem; front: boolean; held: boolean }) {
+function Notification({ item, front, held, activity }: { item: ToastItem; front: boolean; held: boolean; activity: boolean }) {
   const [now, setNow] = useState(Date.now)
   const [busy, setBusy] = useState(false)
   useEffect(() => {
@@ -150,23 +156,28 @@ function Notification({ item, front, held }: { item: ToastItem; front: boolean; 
   const left = item.paused ? item.remaining ?? item.duration : Math.max(0, item.expiresAt - now)
   const wrap = stylex.props(sx.wrap, item.leaving && sx.wrapLeaving)
   const box = item.card
-    ? stylex.props(sx.toastCard, sx.toastTone(item.tone === 'neutral' ? line['--line-4'] : c.bd))
+    ? stylex.props(sx.toastCard, activity && sx.activityCard, sx.toastTone(item.tone === 'neutral' ? line['--line-4'] : c.bd))
     : stylex.props(sx.toast, item.tone === 'ok' ? sx.toastOk : item.tone === 'neutral' ? sx.toastNeutral : sx.toastTone(c.bd))
-  const card = stylex.props(sx.card, !front && (held ? sx.backHeld : sx.back))
+  const card = stylex.props(sx.card, !activity && !front && (held ? sx.backHeld : sx.back))
   const ring = stylex.props(sx.countdown)
   const anim = stylex.props(item.leaving ? sx.out : sx.in)
-  return <div className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} onMouseEnter={() => holdToasts(true)} onMouseLeave={() => holdToasts(false)}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={item.card || item.tone === 'err' ? 'alert' : 'status'} aria-live={item.card || item.tone === 'err' ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
+  const urgent = item.tone === 'err' || (!!item.card && !activity)
+  return <div className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} onMouseEnter={() => holdToasts(true)} onMouseLeave={() => holdToasts(false)}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
     {item.card ? <>
-      <span {...stylex.props(sx.cardHead)}>{TONE_ICON[item.tone] && <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />}<span {...stylex.props(sx.cardTitle)}>{item.card.title}</span>
+      <span {...stylex.props(sx.cardHead)}>{TONE_ICON[item.tone] && (activity ? <span {...stylex.props(sx.activityIcon)} style={{ color: c.fg, backgroundColor: c.bg }}><Icon name={item.tone === 'warn' ? 'flag' : item.tone === 'err' ? 'danger' : TONE_ICON[item.tone]!} size={17} /></span> : <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />)}<span {...stylex.props(sx.cardTitle)}>{item.card.title}</span>
         <button type="button" className={`hov-ghost ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} disabled={item.leaving} onClick={() => dismissToast(item.id)}>
           <Icon name="add" size={14} style={{ transform: 'rotate(45deg)' }} />
         </button>
       </span>
-      {item.card.text && <span {...stylex.props(sx.cardText)}>{item.card.text}</span>}
-      <span {...stylex.props(sx.cardActions)}><button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
+      {item.card.text && <span {...stylex.props(sx.cardText, activity && sx.activityIndented)}>{item.card.text}</span>}
+      <span {...stylex.props(sx.cardActions, activity && sx.activityActions)}><button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
         setBusy(true)
         void Promise.resolve().then(() => item.action!.onClick()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : getKitLabels().toast.actionFailed) })
-      }}>{item.action!.label}</button></span>
+      }}>{item.action!.label}</button>{item.card.secondaryAction && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
+        setBusy(true)
+        void Promise.resolve().then(() => item.card!.secondaryAction!.onClick()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : getKitLabels().toast.actionFailed) })
+      }}>{item.card.secondaryAction.label}</button>}</span>
+      {item.card.meta && <span {...stylex.props(sx.cardMeta, activity && sx.activityIndented)}>{item.card.meta}</span>}
     </> : <>
       {TONE_ICON[item.tone] && <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />}
       <span {...stylex.props(sx.text)}>{item.text}</span>
@@ -211,6 +222,6 @@ export function ToastHost({ style, activity = false }: { style?: CSSProperties; 
   const held = notices.some((notice) => notice.paused)
   const host = stylex.props(sx.host(`var(--m-toast-bottom,calc(${mobile ? 96 : 18}px + env(safe-area-inset-bottom, 0px)))`), activity && !mobile && sx.activityHost)
   return <div aria-label={getKitLabels().toast.notifications} className={host.className} style={{ ...host.style, ...style }}>
-    {(activity ? notices.slice(-3) : notices).map((item, index, visible) => <Notification key={item.id} item={item} held={held} front={index === visible.length - 1} />)}
+    {(activity ? notices.slice(-3) : notices).map((item, index, visible) => <Notification key={item.id} item={item} held={held} front={index === visible.length - 1} activity={activity} />)}
   </div>
 }
