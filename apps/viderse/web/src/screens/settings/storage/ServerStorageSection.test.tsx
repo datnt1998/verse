@@ -10,6 +10,7 @@ let root: Root
 let el: HTMLDivElement
 let role = 'admin'
 let locked = false
+let deliveryFromEnv = false
 let issue: string | undefined
 let direct = false
 let mobile = false
@@ -34,12 +35,12 @@ async function form() {
   }
 }
 beforeEach(async () => {
-  await invalidate(); calls.length = 0; role = 'admin'; locked = false; issue = undefined; direct = false; mobile = false
+  await invalidate(); calls.length = 0; role = 'admin'; locked = false; deliveryFromEnv = false; issue = undefined; direct = false; mobile = false
   vi.stubGlobal('matchMedia', vi.fn(() => ({ get matches() { return mobile }, addEventListener() {}, removeEventListener() {} })))
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input); calls.push({ url, init })
     if (url === '/api/storage/server') return Response.json({ role, storage: {
-      kind: 'disk', delivery: 'proxy', sources: locked ? { provider: 'env' } : {}, encryptionKey: { ok: !issue, path: '/data/config/secret.key', issue }, online: true, checkedAt: '2026-10-31T21:31:00Z', disk: { path: '/data/projects', freeBytes: 100e9 },
+      kind: 'disk', delivery: 'proxy', sources: locked ? { provider: 'env' } : deliveryFromEnv ? { delivery: 'env', cache: 'env' } : {}, encryptionKey: { ok: !issue, path: '/data/config/secret.key', issue }, online: true, checkedAt: '2026-10-31T21:31:00Z', disk: { path: '/data/projects', freeBytes: 100e9 },
     }, usage: ['images', 'editor', 'library', 'sources', 'exports'].map(group => ({ group, files: group === 'library' ? 22 : null, bytes: group === 'library' ? 400e6 : null })), workCache: { usedBytes: 0, limitBytes: 20e9 }, ops: [] })
     if (url === '/api/storage/server/test') return Response.json({ testId: 'test1', steps: steps(direct), ...(direct ? { probeUrl: 'https://storage.example/probe' } : {}) })
     if (url === 'https://storage.example/probe') return new Response(new Uint8Array(1024), { status: 206 })
@@ -83,6 +84,14 @@ it('makes environment configuration read-only with no provider mutation', async 
   expect(button('Chọn kho S3')).toBeUndefined()
   expect(button('Đổi kho')).toBeUndefined()
   expect(el.querySelector('input')).toBeNull()
+})
+it('allows tested storage changes when only delivery and cache come from the environment', async () => {
+  deliveryFromEnv = true
+  await form()
+  await click('Kiểm tra kết nối')
+  expect(button('Lưu…').disabled).toBe(false)
+  await click('Lưu…')
+  expect(document.querySelector('[role="alertdialog"]')).toBeTruthy()
 })
 it('renders null groups as unknown instead of zero and totals only counted data', async () => {
   await render()
