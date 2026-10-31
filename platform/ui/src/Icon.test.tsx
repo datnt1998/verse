@@ -56,7 +56,8 @@ describe('mọi tên biểu tượng trong mã của kit và các app đều có
     const missing: string[] = []
     for (const [path, source] of Object.entries(sources)) {
       // noverse/commands/model.ts dùng bí danh ngắn (timer, swap…) do SlashPopover/Detail đổi sang tên file, không phải tên file.
-      if (/\.test\.tsx?$/.test(path) || /^[^/]+\/assets\//.test(path) || path === 'noverse/commands/model.ts') continue
+      // viderse/editor/vendor là mã shadcn chép nguyên (`icon: "size-9"` là biến thể cva), không dùng <Icon> của kit.
+      if (/\.test\.tsx?$/.test(path) || /^[^/]+\/assets\//.test(path) || path === 'noverse/commands/model.ts' || path.startsWith('viderse/editor/vendor/')) continue
       for (const name of literalIconNames(source)) if (!files.has(name)) missing.push(`${path}: ${name}`)
     }
     expect(missing).toEqual([])

@@ -14,6 +14,7 @@ const allowedWrites: Record<string,string> = {
   'features/timeline/stores/actions/edit/freeze-frame-mutations.ts':'Command-owned split/freeze compound mutation.',
   'features/timeline/stores/actions/edit/join-mutations.ts':'Command-owned join cascade helper.',
   'features/export/workers/audio-measurement.worker.ts':'Worker-local hydration boundary: the measurement worker owns a separate module instance and loads a saved project snapshot read-only.',
+  'features/export/workers/export-render.worker.ts':'Worker-local hydration boundary: the export worker owns a separate module instance and loads the posted composition snapshot read-only.',
 }
 function files(directory:string):string[] {
   return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(join(directory,entry.name)):[join(directory,entry.name)])

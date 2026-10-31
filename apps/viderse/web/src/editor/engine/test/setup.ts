@@ -29,6 +29,16 @@ if (typeof testGlobal.ImageData === 'undefined') {
   testGlobal.ImageData = MockImageData as unknown as typeof ImageData
 }
 
+// jsdom omits Blob URLs. Components create/revoke them in effects (revoke can
+// run on unmount after a test restored its spy), so the defaults stay inert.
+if (typeof URL.createObjectURL !== 'function') {
+  let next = 0
+  Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: () => `blob:jsdom/${++next}` })
+}
+if (typeof URL.revokeObjectURL !== 'function') {
+  Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, writable: true, value: () => undefined })
+}
+
 // Mock ResizeObserver — jsdom omits it; components that measure natural height
 // (e.g. the shortcuts dialog command list) construct one on mount.
 type TestGlobalWithResizeObserver = typeof globalThis & { ResizeObserver?: typeof ResizeObserver }
