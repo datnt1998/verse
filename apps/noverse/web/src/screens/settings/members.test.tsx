@@ -39,7 +39,7 @@ beforeEach(async () => {
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
   await act(async () => root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />))
 })
-afterEach(async () => { await act(async () => root.unmount()); document.body.replaceChildren() })
+afterEach(async () => { await act(async () => root.unmount()); document.body.replaceChildren(); vi.restoreAllMocks() })
 describe('Thành viên §AD', () => {
   it('không render nội dung quản trị cho thành viên kể cả mở liên kết trực tiếp', async () => {
     fixture.role = 'member'
@@ -207,6 +207,7 @@ describe('Gói AO · hệ quả của quyền ứng dụng', () => {
 })
 
 it('hồ sơ dùng dữ liệu thật; quyền ứng dụng đứng sau dự án đúng artboard', async () => {
+  vi.spyOn(Date, 'now').mockReturnValue(new Date('2021-06-21T12:05:00Z').getTime())
   const member = { ...granted('thao', 'member', { noverse: 'member' }), name: 'Thảo', createdAt: '2020-04-17T12:00:00Z', lastSeenAt: '2021-06-21T12:00:00Z' }
   await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), member]} refresh={() => {}} />))
   const detail = host.querySelector('[aria-label="Chi tiết thành viên"]')!
@@ -214,10 +215,13 @@ it('hồ sơ dùng dữ liệu thật; quyền ứng dụng đứng sau dự án
   expect(header.textContent).toContain('Thảo')
   expect(header.textContent).toContain('@thao')
   expect(header.textContent).toContain('17/4/2020')
-  expect(header.textContent).toContain('21/6/2021')
+  expect(header.textContent).toContain('hoạt động 5 phút trước')
   const sections = [...detail.querySelectorAll(':scope > section')].map((section) => section.firstElementChild?.textContent)
   expect(sections.findIndex((title) => title?.startsWith('Dự án'))).toBeLessThan(sections.findIndex((title) => title?.startsWith('Quyền vào ứng dụng')))
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), { ...member, lastSeenAt: '2021-06-21T10:05:00Z' }]} refresh={() => {}} />))
+  expect(header.textContent).toContain('hoạt động 2 giờ trước')
+  expect(header.textContent).not.toContain('hoạt động 5 phút trước')
   await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), { ...member, lastSeenAt: null }]} refresh={() => {}} />))
   expect(header.textContent).toContain('chưa đăng nhập lại')
-  expect(header.textContent).not.toContain('21/6/2021')
+  expect(header.textContent).not.toContain('hoạt động 2 giờ trước')
 })

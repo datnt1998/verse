@@ -848,3 +848,11 @@ Việc kỹ thuật, không đổi giao diện. Ghi lại vì có đổi hành v
 - **(e) Status bar điện thoại:** theo **GAP-AN-FE3**, giữ safe-area của máy thật, không vẽ lại `9:41` hay các biểu tượng hệ điều hành trong app. Với `MMore`, so vị trí tương đối từ content top; khung Ứng dụng có cùng toạ độ tương đối, kích thước và khoảng cách với board. Màn đăng nhập chung dùng safe-area thực, không cộng thêm khoảng dự phòng 8px.
 
 Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông báo quyền, denied dùng app từ máy chủ, bảo toàn kho tệp, thứ tự Dự án/Ứng dụng và menu chung. Đo bằng `getComputedStyle`/`getBoundingClientRect` ở cùng viewport với board; bằng chứng và bảng đo trong báo cáo SsoNoverseWeb. Lượt trước đã kiểm tra backend thật với phiên dùng chung. Không thêm mã màu trực tiếp hay sửa `platform/ui`.
+
+## Gói AP — Thành viên · Quyền vào ứng dụng (canvas 132)
+
+- Phần Thành viên của nhánh đăng nhập chung dùng `Checkbox` chuẩn kit với màu nhấn mặc định; bỏ biến thể đơn sắc. Giữ nguyên luồng lưu quyền, trạng thái chờ/lỗi và quyền kế thừa; không sửa bộ thành phần dùng chung.
+- Lưới ứng dụng dùng `repeat(auto-fit,minmax(210px,1fr))`, khoảng cách 10px, tự về một cột khi khung hẹp hơn 430px. Tên miền dùng chữ giao diện 12px, không đơn cách, cắt bằng dấu ba chấm và giữ địa chỉ đầy đủ trong chú giải.
+- Hồ sơ hiển thị thời điểm hoạt động tương đối từ `lastSeenAt` bằng bộ định dạng đang dùng ở Tài khoản. Giá trị chưa có vẫn giữ trạng thái chưa đăng nhập; không dùng thời gian minh hoạ. Sai lệch 17.546875px ở viewport 1120px đã được truy tới dòng thông tin này và sửa, không ghi nhận là ngoại lệ.
+- Đo đối chiếu với `Members.dc.html` của `9b3214fd`: ở 1440px, hai thẻ rộng 342px/cao 62.390625px, Y=709.328125; ở 1120px, một cột rộng 374px, Y=924.328125 và 996.71875. Ở 1176px, hai cột 210px, tên miền rộng 108px và có cắt tràn. Các kích thước và vị trí đều trùng board; không thêm mã màu trực tiếp.
+
