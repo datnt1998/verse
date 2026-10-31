@@ -2,6 +2,14 @@
 
 Mỗi đợt ghi: ngày, vấn đề, quyết định, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Đợt 1–2 và 10–14 không có mục riêng (ghi trong phần Trạng thái ban đầu và trong các đợt kế tiếp).
 
+## Đợt 29b (31/10/2026) — Chốt hỏi đáp #49 của Gói V25 <!-- r29b -->
+
+- Tên biến đúng như Noverse (`STORAGE_DRIVER`, `S3_*`, `S3_PRESIGN_ENDPOINT` cho ô Địa chỉ kho cho trình duyệt, `BLOB_DELIVERY`, `BLOB_CACHE_*`); bỏ tiền tố `VIDERSE_` tạm.
+- `s3nokey`: khối chi tiết ghi đường dẫn `secret.key` và cách cấp quyền ghi thư mục cấu hình; câu banner “…sửa quyền thư mục cấu hình”.
+- Dung lượng theo nhóm: Thư viện có nhãn phụ “lớp phủ, video nền, ảnh kênh”; tweak mới `usage=partial` (máy tính và điện thoại) cho bản tạm khi bốn nhóm còn lại trả `null`.
+- Huỷ chuyển: câu mới “…lần chuyển sau dùng lại, không phải chép lại”, không có nút xoá phần đã chép. Chỗ cũ: dọn bằng lệnh bảo trì, bỏ gợi ý `rm -rf` trong khối chi tiết.
+- Data-contract §23.1 (`presignEndpoint`, `encryptionKey { ok, path, issue }`, `UsageGroup` có `null`, bảng biến môi trường), Gói V25, copy, ia-flows sửa theo. Canvas phiên bản 56.
+
 ## Đợt 29 (31/10/2026) — Gói V25: Lưu trữ khi chạy trên máy chủ (kho S3 dùng chung Garage) <!-- r29-s3 -->
 
 - Theo prompt `goi-v25-design-prompt.md` của dev. Luồng, thuật ngữ và cách hiện lỗi giống Noverse Gói AN (đã đối chiếu canvas Noverse › Tuỳ chỉnh › Lưu trữ tệp).

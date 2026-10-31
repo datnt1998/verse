@@ -683,7 +683,7 @@ Nguồn sự thật:
 ## Gói V25 — Lưu trữ khi chạy trên máy chủ: kho S3 dùng chung Garage (P2, phụ thuộc V22, Noverse Gói AN) <!-- r29-s3 --> <a id="goi-v25"></a>
 
 **Vì sao:** Viderse chạy trên Mac mini (`vid.aarverse.studio`), đăng nhập chung với Noverse. Tệp dự án đang nằm trên ổ máy chủ (V22). Gói này thêm Kho S3; Viderse và Noverse dùng chung máy chủ Garage nhưng mỗi app một kho và một khoá. Màn phải giống Noverse Gói AN để người quản trị cả hai app thấy cùng một kiểu.
-- Artboard: `Settings` (`section=storage`, `store=server|s3pick|s3form|s3testing|s3testok|s3testfail|s3envlocked|s3nokey|s3confirm|s3moving|s3moveerr|s3active|s3down`, `sprov=garage|r2|aws|other`, `sfail=key|bucket|perm|net|clock|cors|reach`, `skey=new|saved`, `role=admin|member`; `clean=preview` với `store=s3active` là Dọn khi dùng kho S3) · `MSettings` (`screen=storage`, `store=server|s3active|s3moving|s3down`). Các giá trị V22 giữ nguyên.
+- Artboard: `Settings` (`section=storage`, `store=server|s3pick|s3form|s3testing|s3testok|s3testfail|s3envlocked|s3nokey|s3confirm|s3moving|s3moveerr|s3active|s3down`, `sprov=garage|r2|aws|other`, `sfail=key|bucket|perm|net|clock|cors|reach`, `skey=new|saved`, `role=admin|member`, `usage=full|partial`; `clean=preview` với `store=s3active` là Dọn khi dùng kho S3) · `MSettings` (`screen=storage`, `store=server|s3active|s3moving|s3down`, `usage`). `usage=partial` là bản tạm khi chỉ Thư viện có số. Các giá trị V22 giữ nguyên.
 - Spec: ia-flows W13 › Lưu trữ › Chạy trên máy chủ; data-contract §23.1; components › Lưu trữ trên máy chủ; copy › Lưu trữ trên máy chủ.
 
 ### Trả lời câu hỏi mở của prompt
@@ -701,8 +701,9 @@ Nguồn sự thật:
 
 ### Việc backend
 - Lớp lưu trữ chung cho ổ máy chủ và S3 (đọc theo đoạn để tua MP4 ở cả hai cách gửi). Có thể dùng chung `blobstore` của Noverse (`apps/noverse/internal/blobstore/s3.go`, `bootstrap/storage.go`).
-- Biến môi trường theo §23.1; giá trị nào đặt bằng biến thì `sources[k] = "env"` và không cho sửa. Tên biến trên artboard là tạm (`VIDERSE_STORAGE_DRIVER`, `VIDERSE_S3_*`, `VIDERSE_BLOB_DELIVERY`), dev chốt ở hỏi đáp #49.
-- Khoá bí mật mã hoá bằng `secretbox` như khoá API; `encryptionKey = false` khi không có hoặc không tạo được khoá máy (hỏi đáp #49).
+- Biến môi trường đúng tên Noverse (§23.1, hỏi đáp #49), dùng chung bộ đọc cấu hình lưu trữ; giá trị nào đặt bằng biến thì `sources[k] = "env"` và không cho sửa. Ô Địa chỉ kho cho trình duyệt = `S3_PRESIGN_ENDPOINT`.
+- Khoá bí mật mã hoá bằng `secretbox` như khoá API (`<thư mục cấu hình>/secret.key`, 0600). `encryptionKey.ok = false` khi thư mục cấu hình chỉ đọc, tệp sai quyền hoặc tệp hỏng; trả `path` và `issue` để FE ghi khối chi tiết.
+- Dung lượng: Thư viện (lớp phủ, video nền, ảnh kênh) đếm ngay; bốn nhóm còn lại trả `null` tới khi có luồng dựng video.
 - Bộ nhớ đệm làm việc: dựng video thì tải tệp cần dùng từ kho về, dựng xong đẩy kết quả lên kho; giới hạn dung lượng, bỏ tệp cũ nhất trước, không bỏ tệp của video đang dựng.
 - Đếm `OpStat` trong bộ nhớ từ lần khởi động. Chuyển dữ liệu chạy nền, chép rồi đọc lại từng tệp (so kích thước và hash), tạm dừng/tiếp tục/huỷ/thử lại; chỗ cũ không xoá.
 - Thông báo và `storageDown` theo §23.1; tự thử lại kết nối mỗi phút, kết nối lại thì bỏ hold.
@@ -716,6 +717,9 @@ Nguồn sự thật:
 - Đặt kho bằng biến môi trường → mọi giá trị chỉ đọc, không có Đổi kho, *Kiểm tra kết nối* vẫn chạy.
 - Dừng Garage → trong ≤ 1 phút: banner mục Lưu trữ, dòng đầu trang cho quản trị viên, thông báo Cần xử lý; video đang làm tạm dừng; bật lại thì tự chạy tiếp. Thành viên chỉ thấy dòng thông tin.
 - Thành viên mở Lưu trữ → không thấy nơi lưu, bộ nhớ đệm, hoạt động; `GET /api/storage/server` không trả `storage`.
+- Chưa có luồng dựng video → Dung lượng theo nhóm: Thư viện có số, bốn nhóm còn lại ghi “chưa có số”, tổng ghi “Đã đếm …” (như `usage=partial`).
+- Huỷ chuyển giữa chừng rồi chuyển lại → tệp đã chép không chép lại (tốc độ ở đầu lần sau tăng vọt, số “Đã chép” nhảy ngay).
+- Thư mục cấu hình chỉ đọc → `s3nokey`, khối chi tiết ghi đúng đường dẫn `secret.key`; cấp quyền ghi, khởi động lại → lưu được.
 - Không màn nào hiện `key=value`, tên biến hay mã lỗi thô ngoài khối chi tiết.
 - Ghi “Gói V25” vào `10-gap-closure.md`.
 

@@ -136,7 +136,7 @@
       "h": 900,
       "expand": "fill",
       "page": "desktop",
-      "title": "G3 · Cài đặt — công cụ, Kết nối AI (nhà cung cấp, model lấy từ nhà cung cấp, thêm, lỗi khoá), Trợ lý AI (model từng trợ lý, nguồn vẽ, dự phòng), Tài khoản nền tảng (YouTube, Twitch, Bilibili: trạng thái, bị chặn, đăng nhập bằng mã QR, cookie dán tay, hết hạn), Lưu trữ (máy tính: thư mục lưu dự án, chọn thư mục, chuyển, ổ bị rút · máy chủ, Gói V25: ổ máy chủ hoặc kho S3 Garage/R2…, chọn kho, kiểm tra kết nối, chuyển dữ liệu, mất kết nối, chỉ đọc khi do máy chủ đặt; dọn dẹp), báo lỗi (tweak: Mục, Kết nối AI, Grok, Chọn model, Công cụ, Bilibili, Mã QR, YouTube, Dọn, Lưu trữ, Nhà cung cấp ở form, Lỗi kiểm tra, Khoá đã lưu, Người xem)",
+      "title": "G3 · Cài đặt — công cụ, Kết nối AI (nhà cung cấp, model lấy từ nhà cung cấp, thêm, lỗi khoá), Trợ lý AI (model từng trợ lý, nguồn vẽ, dự phòng), Tài khoản nền tảng (YouTube, Twitch, Bilibili: trạng thái, bị chặn, đăng nhập bằng mã QR, cookie dán tay, hết hạn), Lưu trữ (máy tính: thư mục lưu dự án, chọn thư mục, chuyển, ổ bị rút · máy chủ, Gói V25: ổ máy chủ hoặc kho S3 Garage/R2…, chọn kho, kiểm tra kết nối, chuyển dữ liệu, mất kết nối, chỉ đọc khi do máy chủ đặt; dọn dẹp), báo lỗi (tweak: Mục, Kết nối AI, Grok, Chọn model, Công cụ, Bilibili, Mã QR, YouTube, Dọn, Lưu trữ, Nhà cung cấp ở form, Lỗi kiểm tra, Khoá đã lưu, Người xem, Dung lượng)",
       "is_interactive": true
     },
     "Dialogs.dc.html": {
@@ -236,7 +236,7 @@
       "expand": "fill",
       "is_interactive": true,
       "page": "mobile",
-      "title": "G3 · Cài đặt — mục, công cụ, Kết nối AI, Trợ lý AI, Tài khoản nền tảng (đăng nhập Bilibili bằng mã QR), Lưu trữ (thư mục lưu dự án, đổi sang ổ đang cắm, dọn dẹp · máy chủ: chỉ đọc, kho S3, đang chuyển, mất kết nối) (tweak: Màn hình, Lưu trữ, Sheet, Bilibili, Mã QR)"
+      "title": "G3 · Cài đặt — mục, công cụ, Kết nối AI, Trợ lý AI, Tài khoản nền tảng (đăng nhập Bilibili bằng mã QR), Lưu trữ (thư mục lưu dự án, đổi sang ổ đang cắm, dọn dẹp · máy chủ: chỉ đọc, kho S3, đang chuyển, mất kết nối) (tweak: Màn hình, Lưu trữ, Sheet, Bilibili, Mã QR, Dung lượng)"
     },
     "CreateChannel.dc.html": {
       "x": 4600,

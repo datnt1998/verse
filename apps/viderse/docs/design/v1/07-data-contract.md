@@ -546,23 +546,23 @@ interface ServerStorage {
   kind: StorageKind;
   provider?: S3Provider;
   endpointHost?: string;           // chỉ host[:cổng], ví dụ "garage:3900"
-  publicBaseUrl?: string;          // Địa chỉ kho cho trình duyệt (redirect + địa chỉ nội bộ)
+  presignEndpoint?: string;        // Địa chỉ kho cho trình duyệt (redirect + địa chỉ nội bộ) — S3_PRESIGN_ENDPOINT
   delivery: Delivery;
   region?: string; bucket?: string; forcePathStyle?: boolean; allowInsecure?: boolean;
   accessKeyLast4?: string;         // "c41d"; khoá bí mật không bao giờ trả về
-  sources: Partial<Record<"endpoint" | "region" | "bucket" | "keys" | "delivery" | "publicBaseUrl" | "forcePathStyle" | "allowInsecure", ValueSource>>;
-  encryptionKey: boolean;          // máy chủ có khoá mã hoá để lưu khoá bí mật chưa (s3nokey khi false)
+  sources: Partial<Record<"provider" | "endpoint" | "region" | "bucket" | "keys" | "delivery" | "presignEndpoint" | "forcePathStyle" | "allowInsecure" | "cache", ValueSource>>;
+  encryptionKey: { ok: boolean; path: string; issue?: "readonly_dir" | "bad_permissions" | "corrupt" };   // <thư mục cấu hình>/secret.key, 0600; ok false → s3nokey
   online: boolean; checkedAt: string; lastError?: StorageErrorCode;
   disk?: { path: string; freeBytes: number };                          // khi kind = "disk"
   previous?: { kind: StorageKind; label: string; path?: string; files: number; bytes: number };   // chỗ cũ sau khi chuyển; không tự xoá
 }
-interface UsageGroup { group: "images" | "editor" | "library" | "sources" | "exports"; files: number; bytes: number }   // danh sách cuối do dev chốt; nhóm chưa có số → GAP
+interface UsageGroup { group: "images" | "editor" | "library" | "sources" | "exports"; files: number | null; bytes: number | null }   // library = lớp phủ, video nền, ảnh kênh; nhóm khác null tới khi có luồng dựng video → “chưa có số”
 interface OpStat { op: "put" | "get" | "presign" | "delete"; count: number; errors: number; bytes: number; avgMs: number; maxMs: number }   // từ lần khởi động
 GET  /api/storage/server → { role: "admin" | "member"; storage?: ServerStorage; usage: UsageGroup[]; workCache?: { usedBytes: number; limitBytes: number }; ops?: OpStat[]; migration?: Migration }
 
 interface S3Config { provider: S3Provider; endpoint?: string; accountId?: string; region?: string; bucket: string;
   accessKeyId?: string; secretAccessKey?: string;   // bỏ trống cả hai = giữ khoá đã lưu
-  forcePathStyle?: boolean; allowInsecure?: boolean; delivery: Delivery; publicBaseUrl?: string }
+  forcePathStyle?: boolean; allowInsecure?: boolean; delivery: Delivery; presignEndpoint?: string }
 POST /api/storage/server/test { config: S3Config }
   → { testId; steps: { id: "write" | "read" | "range" | "presign" | "cors_probe" | "app_range" | "delete"; status: "ok" | "fail" | "skip" | "na" | "pending"; ms?: number }[];
       probeUrl?: string;           // redirect: link ký để TRÌNH DUYỆT tải thử Range bytes=0-1023
@@ -583,6 +583,8 @@ interface Migration {
   errors: { group: UsageGroup["group"]; jobId?: string; title: string; detail?: string; code: MigrationErrorCode }[];   // FE dịch code (06-copy)
 }
 ```
+- **Biến môi trường** (đúng tên Noverse, tệp cấu hình riêng của Viderse; hỏi đáp #49): `STORAGE_DRIVER` (`disk|s3`) · `S3_PROVIDER` · `S3_ENDPOINT` · `S3_REGION` · `S3_BUCKET` · `S3_ACCESS_KEY_ID` · `S3_SECRET_ACCESS_KEY` · `S3_FORCE_PATH_STYLE` · `S3_ALLOW_INSECURE_ENDPOINT` · `S3_PRESIGN_ENDPOINT` · `BLOB_DELIVERY=proxy|redirect` · `BLOB_CACHE_DIR`, `BLOB_CACHE_MAX_BYTES` (bộ nhớ đệm làm việc → `workCache`). Giá trị đặt bằng biến thì `sources[k] = "env"`. Không có biến cho khoá mã hoá; chỉ một bản chạy. <!-- r29b -->
+- Huỷ chuyển: tệp đã chép nằm lại kho mới; tệp đặt tên theo nội dung nên lần chuyển sau dùng lại, không chép lại. Dọn bằng lệnh bảo trì.
 - Thời gian còn lại = (bytes.total − bytes.done) ÷ `rateBps` (trung bình trượt 30 giây). Chưa đủ 10 giây dữ liệu thì không hiện.
 - Trong lúc chuyển: đọc ở chỗ cũ, ghi mới vào chỗ cũ, cuối cùng chép nốt phần ghi mới rồi đổi `kind` trong một bước. Còn `errors` thì không đổi.
 - `online` false → `Notification.kind = "needs_attention"`, `objectRef.type = "storage"` (chỉ gửi cho quản trị viên) và `GET /api/status` trả `storageDown: { label: string; since: string }` để vẽ dòng cảnh báo đầu trang. Hold dùng lại `HoldOffline` của V22.

@@ -297,7 +297,7 @@ Mẫu:
 - yt-factory coi mọi lần lưu là làm cũ bản xem thử. Tên không ảnh hưởng bản dựng nên code giữ nguyên `revision` khi chỉ đổi tên.
 - Hỏi design: duyệt.
 
-### #49 · Gói V25: những điểm design cần dev chốt — Mở <!-- r29-s3 -->
+### #49 · Gói V25: những điểm design cần dev chốt — Đã chốt <!-- r29-s3 --> <!-- r29b -->
 - Artboard: `Settings` · `section=storage`, `store=s3envlocked|s3nokey|s3moving`.
 - Hỏi dev:
   1. **Tên biến môi trường.** Artboard ghi tạm `VIDERSE_STORAGE_DRIVER`, `VIDERSE_S3_ENDPOINT|REGION|BUCKET|FORCE_PATH_STYLE|ALLOW_INSECURE_ENDPOINT|PUBLIC_BASE_URL|ACCESS_KEY_ID|SECRET_ACCESS_KEY`, `VIDERSE_BLOB_DELIVERY=proxy|redirect` (theo Noverse, thêm tiền tố như `VIDERSE_DATABASE_URL`). Chốt tên để sửa khối “Chi tiết cho người quản trị máy chủ”.
@@ -305,3 +305,10 @@ Mẫu:
   3. **Danh sách nhóm dung lượng.** Artboard dùng 5 nhóm: ảnh đã vẽ, project editor, thư viện, video nguồn, bản xuất MP4. Video nền và lớp phủ nằm trong “Thư viện”? Nhóm nào chưa đếm được thì trả `null` để FE ghi GAP.
   4. **Kiểm tra CORS chạy ở trình duyệt** (`probeUrl` + `probe`, §23.1). Đồng ý cách này hay có cách khác?
   5. **Huỷ chuyển:** tệp đã chép nằm lại kho mới (như Noverse AN), quản trị viên tự xoá. Có cần nút xoá phần đã chép không?
+- Trả lời (dev, 31/10/2026):
+  1. Không thêm tiền tố, dùng đúng tên của Noverse: hai app đọc chung một bộ đọc cấu hình lưu trữ, mỗi app một tệp cấu hình riêng. Danh sách: `STORAGE_DRIVER`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE`, `S3_ALLOW_INSECURE_ENDPOINT`, `S3_PROVIDER`, `BLOB_DELIVERY=proxy|redirect`, `BLOB_CACHE_DIR`, `BLOB_CACHE_MAX_BYTES`. Không có `S3_PUBLIC_BASE_URL`; ô “Địa chỉ kho cho trình duyệt” ứng với `S3_PRESIGN_ENDPOINT`.
+  2. Viderse tự tạo khoá máy ở `<thư mục cấu hình>/secret.key` (0600). `encryptionKey = false` chỉ khi không đọc hoặc không tạo được tệp: thư mục cấu hình chỉ đọc, tệp sai quyền, tệp hỏng. Không có biến môi trường đặt khoá; chỉ hỗ trợ một bản chạy.
+  3. Thư viện gồm lớp phủ, video nền và ảnh kênh (ảnh đại diện, ảnh bìa), đếm được ngay. Ảnh đã vẽ, project editor, video nguồn, bản xuất MP4 trả `null` tới khi có luồng dựng video.
+  4. Đồng ý kiểm tra CORS ở trình duyệt qua `probeUrl`; chỉ trình duyệt mới chứng minh được CORS.
+  5. Không cần nút xoá phần đã chép: tệp đặt tên theo nội dung, lần chuyển sau dùng lại, không chép lại. Muốn dọn thì dùng lệnh bảo trì, như Noverse AN.
+- Design đã sửa (đợt 29b): khối “Chi tiết cho người quản trị máy chủ” ghi đúng tên biến; khối chi tiết của `s3nokey` ghi đường dẫn tệp khoá và cách cấp quyền ghi; Dung lượng theo nhóm có nhãn phụ “lớp phủ, video nền, ảnh kênh” và tweak `usage=partial` (nhóm `null` ghi “chưa có số”); câu huỷ chuyển nói tệp đã chép được dùng lại; Chỗ cũ dọn bằng lệnh bảo trì (bỏ gợi ý xoá tay). Data-contract §23.1 và Gói V25 sửa theo.
