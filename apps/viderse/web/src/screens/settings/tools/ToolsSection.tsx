@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, toolsListMarker, toolsAdvMarker, toolsIboxMarker, isWarnMarker } from '../settings.stylex'
 // Cài đặt › Công cụ trên máy — Settings.dc.html (tools=ok|update|failed|
 // installing) và MSettings.dc.html (screen=tools). Thẻ tổng “Máy sẵn sàng …”
 // với Kiểm tra lại; mỗi hàng một nhãn trạng thái, dung lượng + câu mô tả
@@ -13,7 +15,6 @@ import { vi as t } from '../../../i18n/vi'
 import { checkTools, getTools, installTool, type ToolId, type ToolRow, type ToolState } from '../../../api/tools'
 import { ActionButton } from '../../../components/ActionButton'
 import { fill, fmtBytes, fmtEta, fmtTime } from '../fmt'
-import './tools.css'
 
 const TOOL_ICONS: Record<string, string> = {
   'yt-dlp': 'download',
@@ -134,42 +135,42 @@ function ToolRowView({ tool, mobile, queued = false }: { tool: ToolRow; mobile: 
     : ''
 
   return (
-    <div className="vv-tools__row" role="listitem">
-      <span className={`vv-tools__ibox${tone ? ` is-${tone}` : ''}`} aria-hidden="true">
+    <div className={`vv-tools__row ${stylex.props(settingsStyles.toolsRow).className}`} role="listitem">
+      <span className={`vv-tools__ibox ${stylex.props(toolsIboxMarker, settingsStyles.toolsIbox, tone === 'err' && settingsStyles.toolsIboxIsErr, tone === 'info' && settingsStyles.toolsIboxIsInfo, tone === 'muted' && settingsStyles.toolsIboxIsMuted, tone === 'warn' && settingsStyles.toolsIboxIsWarn).className}`} aria-hidden="true">
         <Icon name={TOOL_ICONS[tool.id] ?? 'cpu'} size={17} />
       </span>
-      <div className="vv-tools__main">
-        <span className="vv-tools__title-line">
-          <span className="vv-tools__title">{t.tools.jobNames[tool.id] ?? tool.id}</span>
-          {size ? <span className="vv-tools__size">{size}</span> : null}
+      <div className={`vv-tools__main ${stylex.props(settingsStyles.toolsMain).className}`}>
+        <span className={`vv-tools__title-line ${stylex.props(settingsStyles.toolsTitleLine).className}`}>
+          <span className={`vv-tools__title ${stylex.props(settingsStyles.toolsTitle).className}`}>{t.tools.jobNames[tool.id] ?? tool.id}</span>
+          {size ? <span className={`vv-tools__size ${stylex.props(settingsStyles.toolsSize).className}`}>{size}</span> : null}
         </span>
-        <span className={`vv-tools__hint${hint.tone ? ` is-${hint.tone}` : ''}`}>{hint.text}</span>
+        <span className={`vv-tools__hint ${stylex.props(settingsStyles.toolsHint, hint.tone === 'err' && settingsStyles.toolsHintIsErr, hint.tone === 'note' && settingsStyles.toolsHintIsNote).className}`}>{hint.text}</span>
         {running ? (
-          <div className="vv-tools__prog" aria-live="polite">
+          <div className={`vv-tools__prog ${stylex.props(settingsStyles.toolsProg).className}`} aria-live="polite">
             {pct != null ? <ProgressBar value={pct} tone="info" height={4} /> : null}
-            <span className="vv-tools__prog-line">
-              <span className="vv-tools__shimmer">{tool.progress?.phaseLabel || tool.progress?.phase || t.tools.pills.installing}</span>
+            <span className={`vv-tools__prog-line ${stylex.props(settingsStyles.toolsProgLine).className}`}>
+              <span className={`vv-tools__shimmer ${stylex.props(settingsStyles.toolsShimmer).className}`}>{tool.progress?.phaseLabel || tool.progress?.phase || t.tools.pills.installing}</span>
               <span>{bytes || (pct != null ? `${pct}%` : '')}</span>
             </span>
           </div>
         ) : null}
       </div>
-      <span className="vv-tools__side">
-        <span className={`vv-tools__pill${pill.tone ? ` is-${pill.tone}` : ''}`}>
-          {pill.spin ? <span className="vv-tools__spin" aria-hidden="true" /> : null}
+      <span className={`vv-tools__side ${stylex.props(settingsStyles.toolsSide).className}`}>
+        <span className={`vv-tools__pill ${stylex.props(settingsStyles.toolsPill, pill.tone === 'warn' && settingsStyles.toolsPillIsWarn, pill.tone === 'info' && settingsStyles.toolsPillIsInfo, pill.tone === 'err' && settingsStyles.toolsPillIsErr, pill.tone === 'muted' && settingsStyles.toolsPillIsMuted).className}`}>
+          {pill.spin ? <span className={`vv-tools__spin ${stylex.props(settingsStyles.toolsSpin).className}`} aria-hidden="true" /> : null}
           {pill.label}
         </span>
         {act ? (
           <ActionButton
-            className={`vv-tools__act${act.warn ? ' is-warn' : ''}`}
+            className={`vv-tools__act ${stylex.props((act.warn) && isWarnMarker).className}`} xstyle={[settingsStyles.toolsAct, (act.warn) && settingsStyles.toolsActIsWarn]}
             variant={mobile && tool.state === 'update' ? 'primary' : 'outline'}
             size={mobile ? 'lg' : 'compact'}
             pending={run.pending}
-            icon={<Icon name="download" size={14} className="vv-tools__act-ic" />}
+            icon={<Icon name="download" size={14} className="vv-tools__act-ic" xstyle={[settingsStyles.toolsActIc]} />}
             onClick={onClick}
           >
             {act.label}
-            {size && tool.state === 'update' ? <span className="vv-tools__act-size"> · {size}</span> : null}
+            {size && tool.state === 'update' ? <span className={`vv-tools__act-size ${stylex.props(settingsStyles.toolsActSize).className}`}> · {size}</span> : null}
           </ActionButton>
         ) : null}
       </span>
@@ -217,11 +218,11 @@ function Summary({ tools, checkedAt }: { tools: ToolRow[]; checkedAt: string }) 
   }
 
   return (
-    <section className={`card vv-tools__sum${tone === 'err' ? ' is-err' : ''}`} role="status">
-      <Icon name={icon} size={20} className={`vv-tools__sum-ic${tone ? ` is-${tone}` : ''}`} />
-      <div className="vv-tools__sum-main">
-        <span className={`vv-tools__sum-title${tone === 'err' ? ' is-warn' : ''}`}>{title}</span>
-        <span className="vv-tools__sum-sub">{sub}</span>
+    <section className={`vv-tools__sum ${stylex.props(settingsStyles.card, settingsStyles.toolsSum, (tone === 'err') && settingsStyles.toolsSumIsErr).className}`} role="status">
+      <Icon name={icon} size={20} className="vv-tools__sum-ic" xstyle={[settingsStyles.toolsSumIc, tone === 'warn' && settingsStyles.toolsSumIcIsWarn, tone === 'info' && settingsStyles.toolsSumIcIsInfo, tone === 'err' && settingsStyles.toolsSumIcIsErr]} />
+      <div className={`vv-tools__sum-main ${stylex.props(settingsStyles.toolsSumMain).className}`}>
+        <span className={`vv-tools__sum-title ${stylex.props((tone === 'err') && isWarnMarker, settingsStyles.toolsSumTitle, (tone === 'err') && settingsStyles.toolsSumTitleIsWarn).className}`}>{title}</span>
+        <span className={`vv-tools__sum-sub ${stylex.props(settingsStyles.toolsSumSub).className}`}>{sub}</span>
       </div>
       <RecheckButton />
     </section>
@@ -252,24 +253,24 @@ function Advanced({ tools, dataDir }: { tools: ToolRow[]; dataDir?: string }) {
       value: x.version || t.tools.advanced.none,
     }))
   return (
-    <details className="card vv-tools__adv">
-      <summary className="vv-tools__adv-sum">
-        <Icon name="info" size={16} className="vv-tools__adv-ic-m vv-ic" />
-        <span className="vv-tools__adv-label vv-tools__adv-label-d">{t.tools.advanced.title}</span>
-        <span className="vv-tools__adv-label vv-tools__adv-label-m">{t.tools.advanced.mobileTitle}</span>
-        <Icon name="arrow-d" size={14} className="vv-tools__adv-ic-d vv-ic vv-tools__adv-caret" />
+    <details className={`vv-tools__adv ${stylex.props(settingsStyles.card, toolsAdvMarker, settingsStyles.toolsAdv).className}`}>
+      <summary className={`vv-tools__adv-sum ${stylex.props(settingsStyles.toolsAdvSum).className}`}>
+        <Icon name="info" size={16} className="vv-tools__adv-ic-m vv-ic" xstyle={[settingsStyles.ic, settingsStyles.toolsAdvIcM]} />
+        <span className={`vv-tools__adv-label vv-tools__adv-label-d ${stylex.props(settingsStyles.toolsAdvLabelD).className}`}>{t.tools.advanced.title}</span>
+        <span className={`vv-tools__adv-label vv-tools__adv-label-m ${stylex.props(settingsStyles.toolsAdvLabelM).className}`}>{t.tools.advanced.mobileTitle}</span>
+        <Icon name="arrow-d" size={14} className="vv-tools__adv-ic-d vv-ic vv-tools__adv-caret" xstyle={[settingsStyles.ic, settingsStyles.toolsAdvCaret]} />
       </summary>
-      <div className="vv-tools__adv-body">
+      <div className={`vv-tools__adv-body ${stylex.props(settingsStyles.toolsAdvBody).className}`}>
         {dataDir ? (
-          <span className="vv-tools__adv-pair">
-            <span className="vv-tools__adv-k">{t.tools.advanced.dataDir}</span>
-            <span className="vv-tools__adv-v" title={dataDir}>{dataDir}</span>
+          <span className={`vv-tools__adv-pair ${stylex.props(settingsStyles.toolsAdvPair).className}`}>
+            <span className={`vv-tools__adv-k ${stylex.props(settingsStyles.toolsAdvK).className}`}>{t.tools.advanced.dataDir}</span>
+            <span className={`vv-tools__adv-v ${stylex.props(settingsStyles.toolsAdvV).className}`} title={dataDir}>{dataDir}</span>
           </span>
         ) : null}
         {pairs.map((p) => (
-          <span key={p.key} className="vv-tools__adv-pair">
-            <span className="vv-tools__adv-k">{p.label}</span>
-            <span className="vv-tools__adv-v">{p.value}</span>
+          <span key={p.key} className={`vv-tools__adv-pair ${stylex.props(settingsStyles.toolsAdvPair).className}`}>
+            <span className={`vv-tools__adv-k ${stylex.props(settingsStyles.toolsAdvK).className}`}>{p.label}</span>
+            <span className={`vv-tools__adv-v ${stylex.props(settingsStyles.toolsAdvV).className}`}>{p.value}</span>
           </span>
         ))}
       </div>
@@ -284,7 +285,7 @@ export default function ToolsSection() {
   if (res.status === 'loading' && !res.data) return <Spinner size={16} />
   if (res.status === 'error' && !res.data) {
     return (
-      <section className="card vv-tools__card">
+      <section className={`vv-tools__card ${stylex.props(settingsStyles.card, settingsStyles.toolsCard).className}`}>
         <span className="vv-errline">
           <span className="vv-grow">{(res.error as Error | undefined)?.message ?? ''}</span>
           <ActionButton variant="outline" size={mobile ? 'lg' : 'compact'} onClick={() => void res.refresh()}>{t.common.retry}</ActionButton>
@@ -304,8 +305,8 @@ export default function ToolsSection() {
   return (
     <>
       <Summary tools={tools} checkedAt={res.data?.checkedAt ?? ''} />
-      <p className="vv-tools__lead-m">{t.tools.lead}</p>
-      <section className="card vv-tools__list" role="list" aria-label={t.settings.nav.tools}>
+      <p className={`vv-tools__lead-m ${stylex.props(settingsStyles.toolsLeadM).className}`}>{t.tools.lead}</p>
+      <section className={`vv-tools__list ${stylex.props(settingsStyles.card, toolsListMarker, settingsStyles.toolsList).className}`} role="list" aria-label={t.settings.nav.tools}>
         {rows}
         {/* Desktop: vùng Nâng cao là hàng cuối của chính thẻ danh sách
             (artboard: nút 42px nối liền dưới hàng ChatGPT). Mobile tách thẻ
