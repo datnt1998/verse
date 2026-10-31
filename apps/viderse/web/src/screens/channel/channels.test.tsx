@@ -2,7 +2,7 @@
 // Màn Kênh — hành vi khoá/lưu/lỗi:
 // 1. Tạo kênh cần ≥ 1 đối thủ: nút aria-disabled + lý do, chọn xong mở khoá;
 // 2. Hồ sơ kênh tự lưu khi rời ô; 400 theo trường giữ nguyên chữ đang gõ;
-// 3. Bỏ đối thủ cuối → server autoPickPaused → hiện lý do tạm dừng;
+// 3. Bỏ đối thủ cuối → gọi DELETE nguồn;
 // 4. Nhận diện đang vẽ thì nút vẽ lại khoá kèm lý do; lỗi hiện giờ tự thử lại;
 // 5. Khám phá: có kênh thì chọn được kênh đích trước khi làm hàng loạt.
 import { act } from 'react'
@@ -39,6 +39,7 @@ const channel = (patch: Partial<Channel> = {}): Channel => ({
   id: 'c1', name: 'Chuyện Lạ', youtubeUrl: null, language: 'vi',
   styleNote: null, descriptionFooter: null, alwaysTags: [],
   autoPick: true, pacePerDay: 5, templateCursor: 0,
+  autonomy: { preset: 'balanced', pick: 'all', approve: { mode: 'ask', min: 85 }, onError: 'retry_once', belowQuality: 'ask' }, priority: 'steady',
   branding: { brief: '', summary: '', look: '', avatar: '', banner: '' },
   avatarUrl: null, bannerUrl: null,
   sources: [{ rivalId: 'r1', title: 'Một Phim', handle: '@motphim', linkedAt: '2026-10-20T00:00:00Z', reference: true }],
@@ -196,7 +197,7 @@ describe('Hồ sơ kênh', () => {
 })
 
 describe('Nguồn & tự động', () => {
-  it('bỏ đối thủ cuối: server trả autoPickPaused → hiện lý do tạm dừng', async () => {
+  it('bỏ đối thủ cuối: hỏi xác nhận rồi gọi DELETE nguồn', async () => {
     stubFetch({
       '/api/rivals': () => respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList),
       '/api/owner-channels/c3/sources/r1': () => respond({ autoPickPaused: true }),
@@ -211,7 +212,7 @@ describe('Nguồn & tự động', () => {
     expect(dialog?.textContent).toContain(tt.sources.unlinkTitle('Một Phim'))
 
     await click([...(dialog?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.trim() === tt.sources.unlinkOk))
-    await until(() => el.textContent?.includes(tt.sources.pausedReason) === true)
+    await until(() => posts.some((item) => item.method === 'DELETE' && item.url.includes('/sources/r1')))
     expect(posts.some((item) => item.method === 'DELETE' && item.url.includes('/sources/r1'))).toBe(true)
     // chờ hộp xác nhận của kit tự đóng + gỡ root trước khi dọn DOM của test
     await until(() => document.querySelector('[role="alertdialog"]') === null)
