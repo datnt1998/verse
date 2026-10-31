@@ -77,6 +77,11 @@ WHERE owner_channel_id = $1 AND template_id = $2;
 -- name: PatchChannel :execrows
 -- Cập nhật đúng các trường được đưa (mỗi trường một cờ *_set); branding chỉ
 -- đổi khi cần sửa brief của nhận diện.
+WITH reset_auto_baselines AS (
+    UPDATE owner_channel_sources SET auto_baseline_at = NULL
+    WHERE owner_channel_id = sqlc.arg(id)::uuid
+      AND sqlc.arg(auto_pick_set)::bool AND NOT sqlc.arg(auto_pick)::bool
+)
 UPDATE owner_channels SET
     name               = CASE WHEN sqlc.arg(name_set)::bool        THEN sqlc.narg(name)::text        ELSE name END,
     youtube_url        = CASE WHEN sqlc.arg(youtube_url_set)::bool THEN sqlc.narg(youtube_url)::text ELSE youtube_url END,
@@ -102,9 +107,13 @@ SELECT id FROM owner_channels WHERE id = $1 FOR UPDATE;
 
 -- name: SetAutoPick :execrows
 -- Bật/tắt Tự lấy; tắt khi bỏ liên kết đối thủ cuối cùng.
+WITH reset_auto_baselines AS (
+    UPDATE owner_channel_sources SET auto_baseline_at = NULL
+    WHERE owner_channel_id = sqlc.arg(id)::uuid AND NOT sqlc.arg(auto_pick)::bool
+)
 UPDATE owner_channels
-SET auto_pick = $2, updated_at = clock_timestamp()
-WHERE id = $1;
+SET auto_pick = sqlc.arg(auto_pick)::bool, updated_at = clock_timestamp()
+WHERE id = sqlc.arg(id)::uuid;
 
 -- name: SetAutoPickTouch :execrows
 -- Bump updated_at sau một thay đổi link/template (mọi trang đọc lại theo mốc).
