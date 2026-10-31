@@ -224,7 +224,13 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			if err != nil {
 				return pipeline.StepResult{}, err
 			}
-			return (scenes.Handler{Deps: scenes.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe}}).Run(ctx, s)
+			return (scenes.Handler{Deps: scenes.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadNoImagesOverride: func(ctx context.Context, job domain.CloneJob) (*bool, error) {
+				manifest, err := cloneReadImageManifest(edits)(ctx, job)
+				if err != nil || manifest == nil || manifest.Overrides == nil {
+					return nil, err
+				}
+				return manifest.Overrides.NoImages, nil
+			}}}).Run(ctx, s)
 		}),
 		domain.CloneImages: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			resolved, err := ff(ctx)
