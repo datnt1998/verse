@@ -1,5 +1,11 @@
 # Viderse — Lịch sử thiết kế
 
+## 01/11/2026 — Clone pipeline: chuyển StyleX, giữ hình học
+
+- Kiểu của Video mới, Hàng chờ, PreviewPanel/BulkBar và khung điện thoại chuyển về component StyleX; bỏ các stylesheet thay thế. Thang khoảng cách/bo góc Viderse giữ nguyên tên biến CSS tại `web/src/styles/viderse.stylex.ts`.
+- Các trị số ngoài thang của artboard được đặt tên theo vai trò, không làm tròn để vừa token. `Button.xstyle` là điểm ghép kiểu ứng dụng sau kiểu kit, tránh tranh thứ tự giữa các lớp atomic.
+- Đối chiếu renderer gốc và StyleX trong cùng shell đang chạy: 52 hình chữ nhật ở Video mới rỗng, Hàng chờ đang chạy (1440×900) và Main điện thoại (390×844) không sai khác.
+
 ## Đợt 31 (01/11/2026) — Gói V27: lấp chỗ thiếu artboard <!-- r31-v27 -->
 
 - Viên việc nền 4 trạng thái (đang chạy · máy rảnh · đã tạm dừng lúc · mất kết nối) ở `Main`, `MMain` (`jobs`); sheet Hàng chờ của `MMain` đổi theo và dẫn tới `MQueue`.

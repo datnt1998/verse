@@ -3,6 +3,7 @@
 // của app + kit, không phải bản chụp. Chọn bảng/nhóm bằng query
 // ?board=&section= để link đến đúng chỗ.
 import { useMemo, useState, type ReactNode } from 'react'
+import * as stylex from '@stylexjs/stylex'
 import {
   ActionMenu, Banner, Card, Chip, Combobox, EmptyState, KitSelect,
   InfoPopover, NumberStepper, Segmented, Sheet, Switch, TextField, Tooltip, toast, Icon,
@@ -20,7 +21,7 @@ import { AppHeader } from '../../shell/AppHeader'
 import { JobsPill } from '../../shell/JobsPill'
 import { ChannelSwitcher } from '../../shell/ChannelSwitcher'
 import { OfflineStrip } from '../../shell/OfflineStrip'
-import { MobileTabBar } from '../../shell/MobileShell'
+import { MobileTabBar, mobileShellStyles } from '../../shell/MobileShell'
 import { useOnline } from '../../data/status'
 import type { Status } from '../../api/status'
 import { TokenSheet } from './TokenSheet'
@@ -467,12 +468,12 @@ function KitAgents() {
 
 function MHeader({ title }: { title: string }) {
   return (
-    <header role="banner" className="vv-mbar" style={{ position: 'relative' }}>
+    <header role="banner" className={`vv-mbar ${stylex.props(mobileShellStyles.bar).className}`}>
       <LensLogo size={24} spinning />
       <span style={{ fontWeight: 600, fontSize: 15 }}>{title}</span>
       <span style={{ flex: 1 }} />
-      <JobsPill status={DEMO_STATUS} online />
-      <a className="vv-mavatar" aria-label={t.shell.account}><Icon name="user" size={15} /></a>
+      <JobsPill mobileBar status={DEMO_STATUS} online />
+      <a className={`vv-mavatar ${stylex.props(mobileShellStyles.avatar).className}`} aria-label={t.shell.account}><Icon name="user" size={15} /></a>
     </header>
   )
 }

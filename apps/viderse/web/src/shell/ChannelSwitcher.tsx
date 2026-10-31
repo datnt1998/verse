@@ -9,6 +9,9 @@ import { t } from '../i18n/vi'
 import { paths } from '../router'
 import { ChannelAvatar } from '../components/ChannelAvatar'
 import { Icon } from '@noverse/ui'
+import * as stylex from '@stylexjs/stylex'
+import { color, line, radius } from '@noverse/ui/tokens.stylex'
+import { space as s, corners as r } from '../styles/viderse.stylex'
 
 export type SwitcherChannel = {
   id: string
@@ -23,12 +26,13 @@ export type SwitcherChannel = {
   waiting?: boolean
 }
 
-export function ChannelSwitcher({ channels, current, sub, onPick }: {
+export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = false }: {
   channels: SwitcherChannel[]
   /** id kênh đang xem; undefined = Mọi kênh */
   current?: string
   /** dòng phụ “Hôm nay …” của mục Mọi kênh */
   sub?: string
+  mobileBar?: boolean
   /** bắt buộc: điều hướng theo route có kiểu — shell truyền pickChannelRoute */
   onPick: (channelId: string | undefined) => void
 }) {
@@ -56,7 +60,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
   )
 
   return (
-    <div ref={root} className="vv-switcher-root">
+    <div ref={root} className={`vv-switcher-root ${stylex.props(styles.root, mobileBar && styles.mobileRoot).className}`}>
       <button
         type="button"
         aria-haspopup="menu"
@@ -64,11 +68,12 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
         aria-label={`${t.shell.channelSwitcher} · ${t.shell.viewingAllChannels}`}
         title={t.shell.channelSwitcher}
         onClick={() => setOpen(!open)}
-        className="vv-switcher"
+        className={`vv-switcher ${stylex.props(styles.button, mobileBar && styles.mobileButton).className}`}
       >
         {isAll ? stack(20, 7.5) : <ChannelAvatar name={selected?.name ?? ''} initials={selected?.initials} src={selected?.src} color={selected?.color} size={20} style={{ fontSize: 8 }} />}
         <span className="vv-switcher__label">{isAll ? t.nav.allChannels : selected?.name ?? '…'}</span>
         <Icon name="arrow-d" size={13} style={{ color: 'var(--color-fg-4)' }} />
+        {mobileBar && <span aria-hidden="true" {...stylex.props(styles.touchHalo)} />}
       </button>
       {open && (
         <div role="menu" aria-label={t.shell.channelSwitcher} className="vv-switcher__menu">
@@ -103,3 +108,14 @@ export function ChannelSwitcher({ channels, current, sub, onPick }: {
     </div>
   )
 }
+
+const MOBILE = '@media (max-width: 767px)'
+const NARROW = '@media (max-width: 430px)'
+const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
+const styles = stylex.create({
+  root: { position: 'relative', flex: '0 0 auto' },
+  button: { height: 30, padding: `0 ${s['--vv-s-8']} 0 ${s['--vv-s-5']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-7'], borderRadius: radius['--radius-control'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-1'], backgroundColor: { default: color['--color-surface-1'], ':hover': color['--color-surface-2'] }, color: color['--color-fg'], fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' },
+  mobileRoot: { flex: { default: null, [MOBILE]: '0 1 auto' }, minWidth: { default: null, [MOBILE]: 0 }, maxWidth: { default: null, [MOBILE]: '44%', [NARROW]: '48%' } },
+  mobileButton: { height: 36, padding: `0 ${s['--vv-s-8']} 0 ${s['--vv-s-4']}`, borderRadius: r['--vv-r-pill'], gap: s['--vv-s-7'], fontSize: 13.5, minWidth: { default: null, [MOBILE]: 0 }, maxWidth: { default: null, [MOBILE]: '100%' }, overflow: { default: null, [MOBILE]: 'hidden', [TOUCH]: 'visible' }, position: { default: null, [TOUCH]: 'relative' } },
+  touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2) 0` },
+})

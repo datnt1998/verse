@@ -5,6 +5,10 @@
 // ngay dưới nút kèm link "Tạo kênh" (06-copy › Khám phá), cả hai điều khiển trỏ
 // aria-describedby tới câu lý do. Link "Mở trên YouTube", nút "← Thông tin đối thủ".
 import { useEffect, useId, useState } from 'react'
+import * as stylex from '@stylexjs/stylex'
+import { color, line, kit } from '@noverse/ui/tokens.stylex'
+import { space as s, corners as r } from '../../styles/viderse.stylex'
+import { exploreStyles } from './explore.stylex'
 import { Icon, toast, useEscapeLayer } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import { paths } from '../../router'
@@ -101,51 +105,51 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
 
   return (
     <>
-      <button type="button" className="vx-back" onClick={onClose}>
-        <Icon name="arrow-r" size={14} />
+      <button type="button" className={`vx-back ${stylex.props(previewStyles.back, exploreStyles.touchTarget).className}`} onClick={onClose}>
+        <Icon name="arrow-r" size={14} xstyle={previewStyles.backIcon} />
         {tt.rivalInfo}
       </button>
-      <div className="vx-pv">
-        <div className="vx-pvthumb">
-          <img key={video.id} src={video.thumbnailUrl} width={320} height={180} alt="" onError={hideBrokenImage} />
-          <span className={`vx-score ${hot ? 'vx-score--hot' : 'vx-score--low'}`}>{fmtScore(video.score)}</span>
-          {dur && <span className="vx-dur" style={{ position: 'absolute', right: 'var(--vv-s-8)', bottom: 'var(--vv-s-7)' }}>{dur}</span>}
+      <div className={`vx-pv ${stylex.props(previewStyles.pv).className}`}>
+        <div className={`vx-pvthumb ${stylex.props(previewStyles.pvthumb).className}`}>
+          <img {...stylex.props(previewStyles.image)} key={video.id} src={video.thumbnailUrl} width={320} height={180} alt="" onError={hideBrokenImage} />
+          <span className={`vx-score ${stylex.props(exploreStyles.score, hot ? exploreStyles.scoreHot : exploreStyles.scoreLow).className}`}>{fmtScore(video.score)}</span>
+          {dur && <span className={`vx-dur ${stylex.props(exploreStyles.dur, previewStyles.duration).className}`} >{dur}</span>}
         </div>
-        <h2 className="vx-pvtitle">{video.title}</h2>
-        <span className="vx-pvsub">{rival ? `${rival.title} · ${meta}` : meta}</span>
-        <div className="vx-pvscore">
-          <span className={`vx-score ${hot ? 'vx-score--hot' : 'vx-score--low'}`}>{fmtScore(video.score)}</span>
-          <span className="vx-pvscore__text">{tt.scoreTimes(score)}</span>
+        <h2 className={`vx-pvtitle ${stylex.props(previewStyles.pvtitle).className}`}>{video.title}</h2>
+        <span className={`vx-pvsub ${stylex.props(previewStyles.pvsub).className}`}>{rival ? `${rival.title} · ${meta}` : meta}</span>
+        <div className={`vx-pvscore ${stylex.props(previewStyles.pvscore).className}`}>
+          <span className={`vx-score ${stylex.props(exploreStyles.score, hot ? exploreStyles.scoreHot : exploreStyles.scoreLow, previewStyles.scoreStatic).className}`}>{fmtScore(video.score)}</span>
+          <span className={`vx-pvscore__text ${stylex.props(previewStyles.pvscoreText).className}`}>{tt.scoreTimes(score)}</span>
           {facts && (
-            <button type="button" className="vx-why" aria-haspopup="dialog" aria-expanded={whyOpen} onClick={() => setWhyOpen(!whyOpen)}>
+            <button type="button" className={`vx-why ${stylex.props(previewStyles.why, whyOpen && previewStyles.whyExpanded, exploreStyles.touchTarget).className}`} aria-haspopup="dialog" aria-expanded={whyOpen} onClick={() => setWhyOpen(!whyOpen)}>
               <Icon name="info" size={13} />
               {tt.why}
             </button>
           )}
         </div>
         {whyOpen && facts && (
-          <div className="vx-reason" role="region" aria-label={tt.whyTitle}>
-            <div className="vx-reason__head"><Orb of="scout" size={16} /><span>{tt.whyHead}</span></div>
-            <div className="vx-reason__text">{tt.whyText(score, rival?.title ?? '')}</div>
-            <div className="vx-reason__facts">
+          <div className={`vx-reason ${stylex.props(previewStyles.reason).className}`} role="region" aria-label={tt.whyTitle}>
+            <div className={`vx-reason__head ${stylex.props(previewStyles.reasonHead).className}`}><Orb of="scout" size={16} /><span>{tt.whyHead}</span></div>
+            <div className={`vx-reason__text ${stylex.props(previewStyles.reasonText).className}`}>{tt.whyText(score, rival?.title ?? '')}</div>
+            <div className={`vx-reason__facts ${stylex.props(previewStyles.reasonFacts).className}`}>
               {facts.map((f) => (
-                <div className="vx-reason__fact" key={f.l}>
-                  <span>{f.l}</span><b>{f.v}</b><span className="vx-reason__src">{f.s}</span>
+                <div className={`vx-reason__fact ${stylex.props(previewStyles.reasonFact).className}`} key={f.l}>
+                  <span>{f.l}</span><b {...stylex.props(previewStyles.factValue)}>{f.v}</b><span className={`vx-reason__src ${stylex.props(previewStyles.reasonSrc).className}`}>{f.s}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
         {video.hasCaptions === true && (
-          <span className="vx-subsbadge"><Icon name="subtitle" size={13} />{tt.hasSubs}</span>
+          <span className={`vx-subsbadge ${stylex.props(previewStyles.subsbadge).className}`}><Icon name="subtitle" size={13} />{tt.hasSubs}</span>
         )}
       </div>
-      <div className="vx-makegroup" role="radiogroup" aria-label={tt.makeChannel}>
-        <span className="vx-makehead"><Icon name="channel" size={14} />{tt.makeChannel}</span>
+      <div className={`vx-makegroup ${stylex.props(previewStyles.makegroup).className}`} role="radiogroup" aria-label={tt.makeChannel}>
+        <span className={`vx-makehead ${stylex.props(previewStyles.makehead).className}`}><Icon name="channel" size={14} />{tt.makeChannel}</span>
         {channels.length === 0 ? (
-          <div className="vx-makeopt" role="radio" aria-checked="false" aria-disabled="true" tabIndex={0} aria-describedby={reasonId}>
-            <span className="vx-makeopt__text">
-              <span className="vx-makeopt__name">{tt.notLinked}</span>
+          <div className={`vx-makeopt ${stylex.props(previewStyles.makeopt, previewStyles.makeoptDisabled, exploreStyles.touchTarget).className}`} role="radio" aria-checked="false" aria-disabled="true" tabIndex={0} aria-describedby={reasonId}>
+            <span className={`vx-makeopt__text ${stylex.props(previewStyles.makeoptText).className}`}>
+              <span className={`vx-makeopt__name ${stylex.props(previewStyles.makeoptName).className}`}>{tt.notLinked}</span>
             </span>
           </div>
         ) : channels.map((channel) => (
@@ -155,44 +159,90 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
             role="radio"
             aria-checked={effChannel === channel.id}
             tabIndex={0}
-            className="vx-makeopt"
+            className={`vx-makeopt ${stylex.props(previewStyles.makeopt, effChannel === channel.id && previewStyles.makeoptSelected, exploreStyles.touchTarget).className}`}
             onClick={() => setChannelId(channel.id)}
           >
             <ChannelAvatar name={channel.name} size={26} color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }} style={{ fontSize: 10 }} />
-            <span className="vx-makeopt__text">
-              <span className="vx-makeopt__name">{channel.name}</span>
-              {channel.templateName && <span className="vx-makeopt__sub">{channel.templateName}</span>}
+            <span className={`vx-makeopt__text ${stylex.props(previewStyles.makeoptText).className}`}>
+              <span className={`vx-makeopt__name ${stylex.props(previewStyles.makeoptName, effChannel === channel.id && previewStyles.makeoptNameSelected).className}`}>{channel.name}</span>
+              {channel.templateName && <span className={`vx-makeopt__sub ${stylex.props(previewStyles.makeoptSub).className}`}>{channel.templateName}</span>}
             </span>
-            <span className="vx-makeopt__radio" aria-hidden="true"><span /></span>
+            <span className={`vx-makeopt__radio ${stylex.props(previewStyles.makeoptRadio, effChannel === channel.id && previewStyles.radioSelected).className}`} aria-hidden="true"><span {...stylex.props(previewStyles.radioDot, effChannel === channel.id && previewStyles.radioDotSelected)} /></span>
           </button>
         ))}
       </div>
-      <span className="vx-queuehint"><Icon name="clock" size={14} />{hint.text}
+      <span className={`vx-queuehint ${stylex.props(previewStyles.queuehint).className}`}><Icon name="clock" size={14} xstyle={previewStyles.queueIcon} />{hint.text}
         {dupJob && <> <a href={`#${paths.workbench({ video: dupJob })}`}>{tt.queuePlanOpen}</a></>}
       </span>
       <ActionButton
         variant="primary"
-        className="vx-preview-make"
+        className="vx-preview-make" xstyle={[previewStyles.make, exploreStyles.touchTarget]}
         size="lg"
         disabled={busy}
         lockedReason={lockedReason}
         aria-describedby={lockedReason ? reasonId : undefined}
-        icon={<Icon name="video-add" size={18} />}
         onClick={make}
       >
-        <span className="vx-preview-make__text">
-          <span>{queued ? tt.queuedLabel : tt.makeVideo}</span>
-          {selectedChannel && <span>{tt.makeSubtitle(selectedChannel.name)}</span>}
-        </span>
+        <span {...stylex.props(previewStyles.makeLabel)}><Icon name="video-add" size={18} /><span className={`vx-preview-make__text ${stylex.props(previewStyles.previewMakeText).className}`}>
+          <span {...stylex.props(previewStyles.makeTitle)}>{queued ? tt.queuedLabel : tt.makeVideo}</span>
+          {selectedChannel && <span {...stylex.props(previewStyles.makeSubtitle)}>{tt.makeSubtitle(selectedChannel.name)}</span>}
+        </span></span>
       </ActionButton>
-      {lockedReason && <p className="vx-locknote">
+      {lockedReason && <p className={`vx-locknote ${stylex.props(previewStyles.locknote).className}`}>
         <span id={reasonId}>{lockedReason}</span>
-        {channels.length === 0 && <> <a href={`#${paths.channelNew()}`}>{tt.createChannel}</a></>}
+        {channels.length === 0 && <> <a {...stylex.props(previewStyles.lockLink)} href={`#${paths.channelNew()}`}>{tt.createChannel}</a></>}
       </p>}
-      <a href={video.url} target="_blank" rel="noreferrer" className="vx-linkbtn">
+      <a href={video.url} target="_blank" rel="noreferrer" className={`vx-linkbtn ${stylex.props(previewStyles.linkbtn, exploreStyles.touchTarget).className}`}>
         <Icon name="link" size={14} />
         {tt.openYouTube}
       </a>
     </>
   )
 }
+
+export const previewStyles = stylex.create({
+  "back": { alignSelf: "flex-start", height: "30px", flexShrink: 0, padding: `0 ${s["--vv-s-8"]}`, display: "inline-flex", alignItems: "center", gap: s["--vv-s-6"], borderRadius: r["--vv-r-8"], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: { default: "transparent", ":hover": "var(--vv-hover)" }, color: color["--color-fg-3"], fontFamily: "inherit", fontSize: "12.5px", fontWeight: "inherit", lineHeight: 1.55, fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", cursor: "pointer" },
+  "backIcon": { "transform": "rotate(180deg)" },
+  "pv": { "display": "flex", "flexDirection": "column", "gap": s["--vv-s-10"] },
+  "pvthumb": { position: "relative", aspectRatio: "16 / 9", borderRadius: r["--vv-r-12"], overflow: "hidden", borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-3"], backgroundColor: color["--color-card"] },
+  "image": { "width": "100%", "height": "100%", "objectFit": "cover", "display": "block" },
+  "pvtitle": { "margin": 0, "fontSize": "15px", "fontWeight": 600, "lineHeight": 1.4 },
+  "pvsub": { "fontSize": "12px", "color": "var(--vv-fg-note)", "lineHeight": 1.5 },
+  "pvscore": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "flexWrap": "wrap" },
+  "scoreStatic": { "position": "static" },
+  "pvscoreText": { "fontSize": "12px", "color": color["--color-fg-3"] },
+  "why": { display: "inline-flex", alignItems: "center", gap: s["--vv-s-4"], height: s["--vv-s-22"], padding: `0 ${s["--vv-s-2"]}`, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, fontFamily: "inherit", fontSize: "12px", fontWeight: "inherit", lineHeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", whiteSpace: "nowrap", textDecoration: "underline dotted var(--vv-line-35)", textUnderlineOffset: "3px", cursor: "pointer" },
+  "whyExpanded": { "color": color["--color-fg"] },
+  "reason": { padding: s["--vv-s-14"], display: "flex", flexDirection: "column", gap: s["--vv-s-10"], borderRadius: r["--vv-r-14"], backgroundColor: color["--color-surface-4"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-4"], boxShadow: kit["--kit-shadow-pop"], fontSize: "13px", lineHeight: 1.5, color: "var(--vv-fg-soft)" },
+  "reasonHead": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "fontSize": "12px", "color": "var(--vv-scout-ink)", "fontWeight": 600 },
+  "reasonText": { "color": color["--color-fg"], "fontSize": "13.5px" },
+  "reasonFacts": { display: "flex", flexDirection: "column", borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: line["--line-1"] },
+  "reasonFact": { display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: `${s["--vv-s-2"]} ${s["--vv-s-10"]}`, padding: `${s["--vv-s-7"]} 0`, borderBottomWidth: { default: "1px", ":lastChild": 0 }, borderBottomStyle: { default: "solid", ":lastChild": "none" }, borderBottomColor: { default: line["--line-1"], ":lastChild": "currentColor" } },
+  "factValue": { "fontWeight": 600, "color": color["--color-fg"], "fontVariantNumeric": "tabular-nums", "textAlign": "right", "lineHeight": 1.45 },
+  "reasonSrc": { "gridColumn": "1 / -1", "fontSize": "11.5px", "color": "var(--vv-fg-note)" },
+  "subsbadge": { alignSelf: "flex-start", height: s["--vv-s-22"], padding: `0 ${s["--vv-s-8"]}`, display: "inline-flex", alignItems: "center", gap: s["--vv-s-5"], borderRadius: r["--vv-r-6"], backgroundColor: "var(--vv-ok-7)", color: color["--color-ok"], fontSize: "11.5px" },
+  "makegroup": { "display": "flex", "flexDirection": "column", "gap": s["--vv-s-6"] },
+  "makehead": { "margin": 0, "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "fontSize": "12.5px", "fontWeight": 500, "color": color["--color-fg-3"] },
+  "makeopt": { display: "flex", alignItems: "center", gap: s["--vv-s-10"], padding: `${s["--vv-s-7"]} ${s["--vv-s-10"]}`, borderRadius: r["--vv-r-10"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-2"], backgroundColor: color["--color-surface-1"], width: "100%", fontFamily: "inherit", fontSize: "inherit", fontWeight: "inherit", lineHeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", color: "inherit", textAlign: "left", cursor: "pointer" },
+  "makeoptDisabled": { "opacity": 0.7 },
+  "makeoptSelected": { borderColor: "var(--vv-line-30)", backgroundColor: color["--color-surface-6"] },
+  "makeoptNameSelected": { "color": color["--color-fg"] },
+  "makeoptText": { "flex": "1 1 auto", "minWidth": 0, "display": "flex", "flexDirection": "column" },
+  "makeoptName": { "fontSize": "13px", "fontWeight": 500, "color": color["--color-fg-3"], "whiteSpace": "nowrap", "overflow": "hidden", "textOverflow": "ellipsis" },
+  "makeoptSub": { "fontSize": "11.5px", "color": "var(--vv-fg-note)", "whiteSpace": "nowrap", "overflow": "hidden", "textOverflow": "ellipsis" },
+  "makeoptRadio": { width: "16px", height: "16px", flex: "0 0 auto", borderWidth: "1.5px", borderStyle: "solid", borderColor: line["--line-5"], borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" },
+  "radioDot": { "width": "8px", "height": "8px", "borderRadius": "50%" },
+  "radioSelected": { "borderColor": color["--color-fg"] },
+  "radioDotSelected": { backgroundColor: color["--color-fg"] },
+  "make": { flexShrink: 0, height: "auto", minHeight: "46px", paddingBlock: s["--vv-s-6"], paddingInline: s["--vv-s-12"], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", borderRadius: r["--vv-r-10"] },
+  "makeLabel": { "gap": s["--vv-s-10"], "display": "inline-flex", "alignItems": "center" },
+  "previewMakeText": { "minWidth": 0, "display": "flex", "flexDirection": "column", "alignItems": "flex-start", "lineHeight": 1.3 },
+  "makeTitle": { "fontSize": "13.5px", "fontWeight": 600 },
+  "makeSubtitle": { "maxWidth": "100%", "fontSize": "12px", "fontWeight": 400, "color": `color-mix(in srgb, ${color["--color-bg"]} 82%, transparent)`, "overflow": "hidden", "textOverflow": "ellipsis", "whiteSpace": "nowrap" },
+  "queuehint": { "display": "flex", "gap": s["--vv-s-8"], "fontSize": "12px", "color": color["--color-fg-3"], "lineHeight": 1.5 },
+  "queueIcon": { "marginTop": s["--vv-s-2"], "color": "var(--vv-fg-note)", "flex": "0 0 auto" },
+  "locknote": { "margin": 0, "fontSize": "12px", "lineHeight": 1.5, "color": "var(--vv-fg-note)" },
+  "lockLink": { "color": color["--color-accent"], "whiteSpace": "nowrap" },
+  "linkbtn": { height: "34px", flexShrink: 0, borderRadius: r["--vv-r-10"], fontSize: "13px", fontWeight: 400, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: s["--vv-s-7"], color: color["--color-fg"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-4"], backgroundColor: { default: "transparent", ":hover": "var(--vv-hover)" }, textDecoration: "none", whiteSpace: "nowrap" },
+  "duration": { "position": "absolute", "right": s["--vv-s-8"], "bottom": s["--vv-s-7"] },
+})

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@noverse/ui/tokens.stylex'
+import './styles/viderse.stylex'
 import { applyViderseLabels } from './kitLabels'
 import { applyViderseBrand } from './brand'
 import './styles/tokens.css'

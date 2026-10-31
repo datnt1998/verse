@@ -53,58 +53,7 @@
   --vv-m-tabbar: 60px;
   --vv-hit: 30px;
 
-  /* Khoảng cách bước nhỏ của layout Viderse (padding/gap/vị trí) — mọi giá trị
-     khoảng cách trong components.css/JSX đi qua thang này, không số cứng. */
-  --vv-s-1: 1px;
-  --vv-s-2: 2px;
-  --vv-s-3: 3px;
-  --vv-s-4: 4px;
-  --vv-s-5: 5px;
-  --vv-s-6: 6px;
-  --vv-s-7: 7px;
-  --vv-s-8: 8px;
-  --vv-s-10: 10px;
-  --vv-s-12: 12px;
-  --vv-s-13: 13px;
-  --vv-s-14: 14px;
-  --vv-s-15: 15px;
-  --vv-s-16: 16px;
-  --vv-s-18: 18px;
-  --vv-s-20: 20px;
-  --vv-s-22: 22px;
-  --vv-s-24: 24px;
-  --vv-s-26: 26px;
-  --vv-s-40: 40px;
-  --vv-s-38: 38px;
-  --vv-s-42: 42px;
-  --vv-s-44: 44px;
-  --vv-s-46: 46px;
-  --vv-s-48: 48px;
-  --vv-s-56: 56px;
-  --vv-s-58: 58px;
-  --vv-s-60: 60px;
-  --vv-s-64: 64px;
-  --vv-s-80: 80px;
-  --vv-s-9: 9px;
-  --vv-s-34: 34px;
-  --vv-s-232: 232px;
-  --vv-s-240: 240px;
-  --vv-s-250: 250px;
-  --vv-s-160: 160px;
-  --vv-s-11: 11px;
-  --vv-s-76: 76px;
-  --vv-s-132: 132px;
-  --vv-s-400: 400px;
-  --vv-r-4: 4px;
-  --vv-r-6: 6px;
-  --vv-s-28: 28px;
-  --vv-s-30: 30px;
-  --vv-s-32: 32px;
-  --vv-s-36: 36px;
-  --vv-s-17: 17px;
-  --vv-s-45: 45px;
-  /* Bo góc 7px của mục nav trong nhóm header (artboard: .navl radius 7). */
-  --vv-r-7: 7px;
+  /* Khoảng cách và bo góc của app: styles/viderse.stylex.ts. */
   /* Orb trợ lý (artboard .o-*): Trinh sát xanh dương, Đạo diễn tím,
      Hoạ sĩ vàng ấm, Kiểm định xanh ngọc. */
   --vv-orb-scout: radial-gradient(circle at 32% 26%, #EAF3FF 0%, #A9C8FF 28%, #5E86F2 62%, #3049C9 100%);
@@ -125,22 +74,6 @@
   --vv-kbd-bg: rgba(127, 127, 127, .12);
   --vv-kbd-line: rgba(127, 127, 127, .32);
 
-  /* Bo góc app ngoài thang của kit (kit có chip 6 → dock 18): skeleton mờ,
-     menu bộ đổi kênh, sân khấu trống, khung điện thoại ở dev kit. */
-  --vv-r-5: 5px;
-  --vv-r-14: 14px;
-  --vv-r-16: 16px;
-  --vv-r-22: 22px;
-  --vv-r-26: 26px;
-  /* Viên thuốc đầy đủ (pill) — kit không có bước này. */
-  --vv-r-pill: 999px;
-  /* Bo góc nhỏ cho mục Cài đặt (chip chú thích, ô câu hỏi xác nhận). */
-  --vv-r-2: 2px;
-  /* Bo góc 8/9/10/12 px cho thẻ, hàng danh mục model và ô chọn (Cài đặt). */
-  --vv-r-8: 8px;
-  --vv-r-9: 9px;
-  --vv-r-10: 10px;
-  --vv-r-12: 12px;
   /* Khám phá (artboard Explore): mảng tối của nhãn trên ảnh thu nhỏ, nền ô
      lịch đăng trống, viền ô tick thẻ video, màu avatar đối thủ, bóng thanh
      chọn nhiều và nền khung đăng đang chọn. */
@@ -159,7 +92,6 @@
   --vv-hover: rgba(255, 255, 255, .07);
   --vv-hover-row: rgba(255, 255, 255, .04);
   --vv-shadow-bulk: 0 18px 40px -12px rgba(0, 0, 0, .85);
-  --vv-r-3: 3px;
   --vv-rav-1: #34407A;
   --vv-rav-2: #6E4F25;
   --vv-rav-3: #255E4B;
@@ -266,8 +198,6 @@
   --vv-line-14: rgba(255, 255, 255, .14);
   /* Ô nhà cung cấp đang chọn ở “Thêm nhà cung cấp” (Settings artboard .55). */
   --vv-line-55: rgba(255, 255, 255, .55);
-  /* Bán kính ô nhà cung cấp máy tính (artboard 11). */
-  --vv-r-11: 11px;
 
   /* Khung Cài đặt: cột mục trái và cột giải thích phải (Settings artboard). */
   --vv-set-side-w: 248px;

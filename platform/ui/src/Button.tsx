@@ -82,6 +82,8 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tooltip?: string
   /** phím tắt hiện trong tooltip (vd '⌘ ,') */
   tooltipKbd?: ReactNode
+  /** App styles compose after the built-in variant and interaction styles. */
+  xstyle?: stylex.StyleXStyles
 }
 
 /** Nút khoá bằng `aria-disabled` vẫn nhận focus (đọc được lý do qua `aria-describedby`)
@@ -89,7 +91,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 const blockLocked = (event: { preventDefault: () => void }) => event.preventDefault()
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'ghost', size = 'md', kbd, icon, active, pending, success, pendingLabel, successLabel, tooltip, tooltipKbd, style, className, children, disabled, title, ...rest }, ref,
+  { variant = 'ghost', size = 'md', kbd, icon, active, pending, success, pendingLabel, successLabel, tooltip, tooltipKbd, style, className, xstyle, children, disabled, title, ...rest }, ref,
 ) {
   const iconOnly = variant === 'icon' || variant === 'icon-only'
   // Spinner của nút đang chạy theo Kit: nút sáng → vòng đen mờ; đỏ → vòng trắng; ghost → theo chữ.
@@ -122,6 +124,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       kind === 'dsoft' && styles.dsoftHover,
       kind === 'warnGhost' && styles.warnGhostHover,
     ],
+    xstyle,
   )
   const button = <button ref={ref} type="button" {...rest} disabled={off} onClick={locked ? blockLocked : rest.onClick} aria-busy={pending || undefined}
     aria-label={rest['aria-label'] ?? (iconOnly ? label : undefined)}

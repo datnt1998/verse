@@ -52,33 +52,7 @@
   background: var(--color-err); box-shadow: 0 0 0 1.5px var(--color-bg);
 }
 
-/* ─── JobsPill ─── */
-.vv-jobs {
-  position: relative; height: 30px; padding: 0 var(--vv-s-10);
-  display: flex; align-items: center; gap: var(--vv-s-8); border-radius: 8px;
-  border: none; background: transparent;
-  color: var(--color-fg-3); font-size: 12.5px; white-space: nowrap; text-decoration: none;
-}
-.vv-jobs:hover { background: var(--color-surface-1); border-color: var(--line-1) }
-.vv-jobs__dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 3px var(--vv-jobs-halo, transparent) }
-.vv-jobs__unread {
-  position: absolute; top: var(--vv-s-3); right: var(--vv-s-3); width: 7px; height: 7px; border-radius: 50%;
-  background: var(--color-warn); box-shadow: 0 0 0 2px var(--color-bg);
-}
-.vv-jobs--run { --vv-jobs-dot: var(--vv-red); --vv-jobs-halo: var(--vv-red-18) }
-.vv-jobs--idle { --vv-jobs-dot: var(--vv-st-neutral); --vv-jobs-halo: var(--vv-st-neutral-15) }
-.vv-jobs--paused { --vv-jobs-dot: var(--vv-st-neutral); --vv-jobs-halo: var(--vv-st-neutral-15) }
-.vv-jobs--offline { --vv-jobs-dot: var(--color-err); --vv-jobs-halo: var(--vv-err-18) }
-.vv-jobs__dot { background: var(--vv-jobs-dot) }
-
 /* ─── ChannelSwitcher ─── */
-.vv-switcher-root { position: relative; flex: 0 0 auto }
-.vv-switcher {
-  height: 30px; padding: 0 var(--vv-s-8) 0 var(--vv-s-5); display: flex; align-items: center; gap: var(--vv-s-7);
-  border-radius: var(--radius-control); border: 1px solid var(--line-1); background: var(--color-surface-1);
-  color: var(--color-fg); font-size: 13px; font-weight: 500; white-space: nowrap;
-}
-.vv-switcher:hover { background: var(--color-surface-2) }
 /* Nhãn kênh co được: tên dài ở thanh hẹp thì cắt ba chấm thay vì đẩy tràn trang. */
 .vv-switcher__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .vv-switcher__menu {
@@ -131,56 +105,6 @@
   animation: vv-spin .9s linear infinite;
 }
 
-/* ─── MobileShell / MobileTabBar ─── */
-.vv-mobile-shell { height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); line-height: 1.5; }
-.vv-mbar {
-  position: relative; z-index: 30; flex: 0 0 52px; display: flex; align-items: center; gap: 10px;
-  height: 52px; padding: 0 12px 0 16px; background: var(--color-bg);
-}
-.vv-mbar--new { padding: 0 6px; gap: 0; }
-.vv-mclose { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 0; background: transparent; color: var(--color-fg-2); cursor: pointer; }
-.vv-mnew-title { flex: 1; min-width: 0; padding-left: 2px; font-size: 16px; font-weight: 600; }
-.vv-mbar .vv-switcher { height: 36px; padding: 0 8px 0 4px; border-radius: 999px; gap: 7px; font-size: 13.5px; }
-.vv-mbar .vv-jobs { height: 36px; padding: 0 11px; gap: 7px; border-radius: 999px; border: 1px solid var(--line-4); background: var(--color-surface-1); color: var(--color-fg-2); }
-.vv-mbar .vv-jobs__dot { width: 7px; height: 7px; }
-.vv-mavatar {
-  width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto;
-  display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600;
-  border: 1px solid var(--line-3); color: var(--color-fg); background: var(--color-surface-6);
-}
-.vv-tabbar {
-  position: fixed; left: 14px; right: 14px; bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 30; height: 64px;
-  display: flex; align-items: stretch; justify-content: space-around; padding: 5px; border-radius: 32px;
-  background: var(--vv-glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid var(--line-4); box-shadow: 0 22px 44px -14px rgb(from var(--vv-thumb-veil) r g b / .85), 0 2px 8px rgb(from var(--vv-thumb-veil) r g b / .35), inset 0 1px 0 color-mix(in srgb, var(--line-3), var(--line-4));
-}
-.vv-tabbar::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(180deg, var(--line-2), transparent 45%); }
-.vv-tabbar__item {
-  position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; text-decoration: none; min-width: 0; border-radius: 27px; font-size: 10.5px; font-weight: 500; color: var(--vv-st-neutral);
-}
-.vv-tabbar__pill {
-  display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 24px; color: var(--vv-st-neutral);
-}
-.vv-tabbar__item--active { isolation: isolate; color: var(--vv-tabbar-on); font-weight: 600; }
-.vv-tabbar__item--active::before { content: ''; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: var(--vv-tabbar-ind-bg); border: 1px solid var(--vv-tabbar-ind-bd); box-shadow: inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45); }
-.vv-tabbar__item--active .vv-tabbar__pill { color: var(--color-accent); transform: translateY(-1px) scale(1.06); }
-.vv-tabbar__label { font-size: 10.5px; line-height: 16px; font-weight: 500; color: var(--vv-st-neutral); }
-.vv-tabbar__item--active .vv-tabbar__label { font-weight: 600; color: var(--vv-tabbar-on) }
-.vv-tabbar__badge {
-  position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 var(--vv-s-4);
-  border-radius: var(--vv-r-pill); display: inline-flex; align-items: center; justify-content: center;
-  font-size: 10.5px; font-weight: 700; background: var(--color-warn); color: var(--color-bg);
-  box-shadow: 0 0 0 2px var(--color-surface-4);
-}
-.vv-tabbar__new {
-  width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  background: var(--vv-red-button); color: var(--vv-red-ink);
-  box-shadow: var(--vv-shadow-fab);
-}
-.vv-tabbar__new:active { transform: scale(.94) }
-
 /* ─── Trạng thái hệ thống ─── */
 .vv-page-empty { display: flex; align-items: center; justify-content: center; min-height: 50vh; padding: var(--vv-s-26) }
 .vv-loading { display: flex; flex-direction: column; gap: var(--vv-s-16); padding: var(--vv-s-24) var(--vv-s-26) }
@@ -222,7 +146,6 @@
   background: var(--color-bg); overflow: hidden; box-shadow: var(--vv-shadow-device);
   width: 390px; min-height: 760px; margin: 0 auto; position: relative;
 }
-.vv-dev__mobile .vv-tabbar { position: absolute }
 .vv-dev__mobile-body { flex: 1 1 auto; padding-bottom: var(--vv-s-80); overflow-y: auto }
 
 /* Avatar tài khoản ở cuối AppHeader — vòng chữ cái đầu như artboard Main */
@@ -251,31 +174,3 @@
 /* Giãn phần còn lại của hàng flex (nhãn trái, nút phải) */
 .vv-grow { flex: 1; min-width: 0; }
 
-/* ─── Thanh trên điện thoại: đủ chỗ cho logo + kênh + việc + avatar ───
-   Không ép tràn ngang: nhãn kênh co/cắt ba chấm, viên việc bỏ chữ khi quá hẹp
-   (aria-label vẫn đọc đủ). Đo ở 390: trước đây header rộng 476 → trang cuộn ngang. */
-@media (max-width: 767px) {
-  .vv-mbar { gap: var(--vv-s-10) }
-  /* Trần đặt ở gốc (con trực tiếp của thanh): % trên nút sẽ tính theo gốc
-     co theo nội dung và ép nhãn kênh còn một chữ. */
-  .vv-mbar .vv-switcher-root { flex: 0 1 auto; min-width: 0; max-width: 44% }
-  .vv-mbar .vv-switcher { min-width: 0; max-width: 100%; overflow: hidden }
-  .vv-mbar .vv-jobs { flex: 0 1 auto; min-width: 0; overflow: hidden }
-  .vv-mbar .vv-jobs .num { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-}
-@media (max-width: 430px) {
-  .vv-mbar .vv-switcher-root { max-width: 48% }
-}
-/* Màn chạm: viên kênh/việc/avatar giữ 30 px như artboard nhưng vùng chạm
-   giãn ra đủ 44 px bằng lớp giả trong suốt (nhãn tự cắt ba chấm nên bỏ
-   overflow của nút để lớp giả không bị xén). */
-@media (max-width: 767px) and (pointer: coarse) {
-  .vv-mbar :is(.vv-switcher, .vv-jobs, .vv-mavatar) { position: relative; overflow: visible }
-  .vv-mbar :is(.vv-switcher, .vv-jobs)::after {
-    content: ''; position: absolute; inset: calc((var(--vv-s-44) - 100%) / -2) 0;
-  }
-  .vv-mbar > a:first-child { position: relative }
-  :is(.vv-mbar .vv-mavatar, .vv-mbar > a:first-child)::after {
-    content: ''; position: absolute; inset: calc((var(--vv-s-44) - 100%) / -2);
-  }
-}
