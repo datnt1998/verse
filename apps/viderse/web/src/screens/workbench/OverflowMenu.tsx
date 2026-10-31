@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex'
 import { confirm } from '@noverse/ui'
-import { jobAction, previewRestart, restartJob, type CloneJobView } from '../../api/workbench'
+import { getWorkbench, jobAction, previewRestart, restartJob, type CloneJobView } from '../../api/workbench'
 import { confirmDeleteVideo } from '../../components'
 import { navigate, routePath } from '../../router'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
-import { editorProjectId, markPosted } from './workbench-actions'
+import { editorProjectId, markPosted, restartTarget } from './workbench-actions'
 
 export function OverflowMenu({ job, onClose, onRefresh, onError }: { job: CloneJobView; onClose: () => void; onRefresh: () => void; onError: (message: string) => void }) {
   const project = editorProjectId(job)
@@ -16,7 +16,12 @@ export function OverflowMenu({ job, onClose, onRefresh, onError }: { job: CloneJ
       body: <><p>Tạo lượt mới cho cùng video nguồn và kênh, theo template tiếp theo trong luân phiên: <b>{preview.template.name}</b>.</p><p>Lượt cũ và ảnh của nó được giữ nguyên. {preview.imageEstimate === null ? 'Chưa ước lượng được số ảnh cho lượt mới.' : `Lượt mới dùng khoảng ${preview.imageEstimate} ảnh trong hạn mức.`}</p><p>Đưa lên đầu hàng chờ. {preview.etaStart ? `Dự kiến bắt đầu ${new Date(preview.etaStart).toLocaleString('vi-VN')}.` : 'Chưa có giờ bắt đầu dự kiến.'}</p></>,
       cancelLabel: 'Huỷ',
       confirmLabel: 'Làm lại từ đầu',
-      onConfirm: async () => { const result = await restartJob(job.id); onRefresh(); navigate(routePath({ name: 'workbench', channel: job.channelId, video: result.queueItem.id })) },
+      onConfirm: async () => {
+        const result = await restartJob(job.id)
+        const list = await getWorkbench(job.channelId)
+        onRefresh()
+        navigate(routePath({ name: 'workbench', channel: job.channelId, video: restartTarget(list.jobs ?? [], result.queueItem.id, job) }))
+      },
     })).catch(report)
   }
   const remove = () => {

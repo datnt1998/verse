@@ -8,7 +8,7 @@ import { useResource } from '../../data/useResource'
 import { subscribeEvents } from '../../data/events'
 import { navigate, routePath, type Route } from '../../router'
 import { EmptyWorkbench, SystemLoading, SystemNotFound } from '../../components'
-import { groupJobs, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, groupJobs, scheduleScopeRestore } from './workbench-logic'
 import { WorkbenchPanels } from './panels/WorkbenchPanels'
 import { PromptMenu } from './PromptMenu'
 import { LiveStudio } from './LiveStudio'
@@ -35,6 +35,13 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
   const recapSettings = useResource(['activity', 'settings'], ({ signal }) => getNotificationSettings(signal))
   const autoRecapChecked = useRef(false)
   const job = queuedJob || detail.data
+  const followed = useRef<{ id: string; sourceKey: string } | null>(null)
+  useEffect(() => {
+    if (queuedJob) { followed.current = { id: queuedJob.id, sourceKey: queuedJob.sourceKey }; return }
+    if (followed.current?.id !== selectedId) { followed.current = null; return }
+    const next = followAdmitted(list.data?.jobs ?? [], followed.current)
+    if (next) navigate(routePath({ name: 'workbench', channel: route.channel, scope: route.scope, video: next }), true)
+  }, [queuedJob, selectedId, list.data, route.channel, route.scope])
   useEffect(() => {
     if (!recap.data || !recapSettings.data || autoRecapChecked.current) return
     autoRecapChecked.current = true

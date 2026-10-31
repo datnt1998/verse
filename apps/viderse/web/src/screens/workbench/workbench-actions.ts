@@ -6,6 +6,12 @@ export function editorProjectId(job: CloneJobView) {
   return typeof value === 'string' && value ? value : undefined
 }
 
+// Lượt làm lại vào hàng chờ trước; khi được nhận nó thành job mới cùng nguồn, thế hệ kế tiếp.
+export function restartTarget(jobs: CloneJobView[], queueItemId: string, previous: CloneJobView) {
+  return jobs.find(item => item.id === queueItemId)?.id
+    ?? jobs.find(item => item.sourceKey === previous.sourceKey && item.generation === previous.generation + 1)?.id
+}
+
 export async function markPosted(job: CloneJobView, onRefresh: () => void) {
   await jobBulkAction(job.id, 'posted')
   onRefresh()

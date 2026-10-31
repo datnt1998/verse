@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { groupJobs, readScope, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, groupJobs, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
+  it('đi theo job mới khi mục hàng chờ đang chọn được nhận', () => {
+    const followed = { id: 'item', sourceKey: 'src' }
+    expect(followAdmitted([{ id: 'item', sourceKey: 'src', generation: 0 }], followed)).toBeUndefined()
+    expect(followAdmitted([{ id: 'a', sourceKey: 'src', generation: 1 }, { id: 'b', sourceKey: 'src', generation: 2 }, { id: 'c', sourceKey: 'x', generation: 3 }], followed)).toBe('b')
+    expect(followAdmitted([{ id: 'b', sourceKey: 'src', generation: 2 }], { id: 'item', sourceKey: '' })).toBeUndefined()
+  })
   it('gộp việc cần người, giới hạn hàng chờ và ẩn đã đăng ở mọi kênh', () => {
     const jobs = ['review', 'paused', 'attention', 'working', 'queued', 'queued', 'queued', 'queued', 'posted'].map((stageGroup, i) => ({ id: String(i), stageGroup }))
     const groups = groupJobs(jobs, true)
