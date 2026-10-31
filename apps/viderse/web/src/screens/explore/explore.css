@@ -101,20 +101,23 @@
 .vx-iconbtn:hover { background: var(--vv-hover) }
 
 /* Thanh chọn nhiều — sticky đáy cột giữa, một nút primary của màn. */
-.vx-bulk { position: sticky; bottom: var(--vv-s-14); margin-top: calc(-1 * var(--vv-s-80)); display: flex; justify-content: center; pointer-events: none; z-index: 5 }
+.vx-bulk { position: sticky; bottom: var(--vv-s-14); margin-top: calc(-1 * var(--vv-s-76)); display: flex; justify-content: center; pointer-events: none; z-index: 5 }
 .vx-bulk__bar { pointer-events: auto; border-radius: var(--vv-r-16); padding: var(--vv-s-8) var(--vv-s-8) var(--vv-s-8) var(--vv-s-16); display: flex; flex-wrap: wrap; align-items: center; gap: var(--vv-s-8); background: var(--color-surface-4); border: 1px solid var(--line-2); box-shadow: var(--vv-shadow-bulk) }
 .vx-bulk__count { font-size: 13.5px; font-weight: 500; font-variant-numeric: tabular-nums }
 .vx-bulk__quick { display: flex; gap: var(--vv-s-2); padding: 0 var(--vv-s-4) }
 .vx-bulk__quick button { height: var(--vv-s-26); padding: 0 var(--vv-s-8); border-radius: var(--vv-r-7); border: none; background: transparent; color: var(--color-fg-3); font: inherit; font-size: 12px; cursor: pointer }
 .vx-bulk__quick button:hover { background: var(--vv-hover); color: var(--color-fg) }
+.vx-bulk__bar .vx-bulk__copy, .vx-bulk__bar .vx-bulk__make { height: 36px; padding: 0 12px; gap: 7px; border-radius: 10px; font-size: 13px; }
+.vx-bulk__bar .vx-bulk__copy { font-weight: 400; border-color: var(--line-4); }
+.vx-bulk__bar .vx-bulk__make { font-weight: 600; }
+.vx-bulk__bar .vx-iconbtn { border-radius: 9px; }
 
 /* ─── Cột phải: thông tin đối thủ / video đã chọn ─── */
-.vx-rail { flex: 0 0 316px; max-width: 316px; min-height: 0; overflow-y: auto; padding: var(--vv-s-16); display: flex; flex-direction: column; gap: var(--vv-s-14); box-shadow: inset 1px 0 0 var(--line-1) }
-/* Nút quay lại là chữ trần 19,4 px như artboard (không phải control 30 px) —
-   cả khối xem trước vì thế nằm đúng chỗ. */
-.vx-back { align-self: flex-start; padding: 0 var(--vv-s-8); display: inline-flex; align-items: center; gap: var(--vv-s-6); border-radius: var(--vv-r-8); border: none; background: transparent; color: var(--color-fg-3); font: inherit; font-size: 12.5px; line-height: 1.55; cursor: pointer }
+.vx-rail { flex: 0 0 316px; max-width: 316px; min-height: 0; overflow-y: auto; padding: 16px 16px 16px 17px; display: flex; flex-direction: column; gap: var(--vv-s-14); box-shadow: inset 1px 0 0 var(--line-1) }
+/* Viền inset chừa thêm 1px bên trái để phần nội dung vẫn rộng 283px. */
+.vx-back { align-self: flex-start; height: 30px; flex-shrink: 0; padding: 0 var(--vv-s-8); display: inline-flex; align-items: center; gap: var(--vv-s-6); border-radius: var(--vv-r-8); border: none; background: transparent; color: var(--color-fg-3); font: inherit; font-size: 12.5px; line-height: 1.55; cursor: pointer }
 .vx-back:hover { background: var(--vv-hover) }
-.vx-back svg { transform: rotate(180deg) }
+.vx-back > [aria-hidden] { transform: rotate(180deg) }
 .vx-cardbox { border-radius: var(--vv-r-16); padding: var(--vv-s-14); display: flex; flex-direction: column; gap: var(--vv-s-12); background: var(--card-bg); border: 1px solid var(--line-2); box-shadow: var(--card-shadow) }
 .vx-rivalhead { display: flex; align-items: center; gap: var(--vv-s-10) }
 .vx-rivalhead__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column }
@@ -193,13 +196,22 @@
 .vx-makeopt__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column }
 .vx-makeopt__name { font-size: 13px; font-weight: 500; color: var(--color-fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .vx-makeopt__sub { font-size: 11.5px; color: var(--vv-fg-note); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.vx-makeopt__radio { width: 16px; height: 16px; flex: 0 0 auto; border: 1.5px solid var(--line-5); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.vx-makeopt__radio > span { width: 8px; height: 8px; border-radius: 50%; }
+.vx-makeopt[aria-checked=true] .vx-makeopt__radio { border-color: var(--color-fg); }
+.vx-makeopt[aria-checked=true] .vx-makeopt__radio > span { background: var(--color-fg); }
+.vx-rail .vx-preview-make { flex-shrink: 0; height: auto; min-height: 46px; padding: 6px 12px; border: 0; border-radius: 10px; }
+.vx-preview-make > span > span { gap: 10px; }
+.vx-preview-make__text { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.3; }
+.vx-preview-make__text > span:first-child { font-size: 13.5px; font-weight: 600; }
+.vx-preview-make__text > span:last-child:not(:first-child) { max-width: 100%; font-size: 12px; font-weight: 400; color: color-mix(in srgb, var(--color-bg) 82%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vx-queuehint { display: flex; gap: var(--vv-s-8); font-size: 12px; color: var(--color-fg-3); line-height: 1.5 }
-.vx-queuehint svg { margin-top: var(--vv-s-2); color: var(--vv-fg-note); flex: 0 0 auto }
+.vx-queuehint > [aria-hidden] { margin-top: var(--vv-s-2); color: var(--vv-fg-note); flex: 0 0 auto }
 .vx-locknote { margin: 0; font-size: 12px; line-height: 1.5; color: var(--vv-fg-note) }
 .vx-locknote a { color: var(--color-accent); white-space: nowrap }
 
 /* Link "Mở trên YouTube" dáng nút — a.href, không phải <button>. */
-.vx-linkbtn { height: var(--vv-s-36); padding: 0 var(--vv-s-14); border-radius: var(--vv-r-10); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: var(--vv-s-7); color: var(--color-fg); border: 1px solid var(--line-3); background: transparent; text-decoration: none; white-space: nowrap }
+.vx-linkbtn { height: 34px; flex-shrink: 0; border-radius: var(--vv-r-10); font-size: 13px; font-weight: 400; display: inline-flex; align-items: center; justify-content: center; gap: var(--vv-s-7); color: var(--color-fg); border: 1px solid var(--line-4); background: transparent; text-decoration: none; white-space: nowrap }
 .vx-linkbtn:hover { background: var(--vv-hover) }
 
 /* Trạng thái trống (empty=true) */

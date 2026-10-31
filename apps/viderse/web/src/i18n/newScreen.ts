@@ -22,6 +22,7 @@ export const newScreenCopy = {
   duplicateTitle: (title: string) => `Video này đã làm cho kênh này. ${title}`,
   priority: (n: number) => `Ưu tiên cả ${n}`,
   priorityTurn: 'Ưu tiên lượt này',
+  mobileSuggestions: 'Hoặc chọn video nổi trội của đối thủ',
   suggestions: 'Video nổi trội của đối thủ, chưa làm cho kênh này',
   openExplore: 'Mở Khám phá',
   whatNext: 'Điều sẽ diễn ra',

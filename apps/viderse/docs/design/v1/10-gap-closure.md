@@ -45,3 +45,11 @@ Dev ghi mỗi gói khi xong: ngày, PR/commit, chỗ lệch so với artboard (n
 - Khớp chip đếm luồng, đoạn tiến độ 4px, lưới cột chờ lượt, stepper, nút dừng/chạy tiếp và viền cột quy tắc. Trạng thái hết hạn mức chỉ dùng DTO Go thật có sửa số hạn mức trong phiên trình duyệt: hai provider thật chưa đăng nhập, không có API hợp lệ để dùng hết hạn mức.
 - Sheet Hàng chờ nằm trên cả header/thanh dưới, có Bàn dựng thật phía sau, giữ hàng 52px và thẻ đang làm 60,25px. Khung điện thoại không giấu số việc nền ở 390px; năm tab chia đều, avatar mở Cài đặt và phần dính đáy chuẩn hoá theo #57. Khác biệt cầu đỏ ghi #62.
 - Kiểm tra: TypeScript thành công; QueueScreen và shell 22 kiểm thử thành công. Kiểm thử offline cũ được đổi sang sự kiện mạng thật của hook, thay giả định SSE chưa chạy đồng nghĩa offline.
+
+## Đối chiếu Khám phá và chốt Video mới điện thoại
+
+- Khớp cột preview 316px, phần nội dung 283px, nút quay lại 30px, thumbnail đúng 16:9, hàng kênh 53,95px với avatar/template thật, nút Làm video hai dòng 46px và liên kết YouTube 34px. Phụ đề tối trên nút sáng đã được duyệt ở #63.
+- Thanh chọn nhiều cao 54px, nút chọn nhanh 26px, nút hành động 36px. Chế độ chọn nhiều đóng preview như board; mở thumbnail thoát chế độ chọn nhiều và mở lại preview.
+- `MNew` rỗng không hiện nhóm tuỳ chọn hoặc dòng kế hoạch; footer còn 63px. Gợi ý và ô nhập khớp sau chuẩn hoá native safe-area #57. Không ẩn textarea nhiều link.
+- Kiểm tra cuối: `npx tsc --noEmit -p .` thành công; năm file Vitest tập trung chạy với `--pool=threads --maxWorkers=2`, 43 kiểm thử thành công. Cảnh báo môi trường React `act(...)` đã có vẫn còn, không bị tắt.
+- Bằng chứng hình học/kiểu tính được và DTO hạn mức nằm ở `/tmp/p05visual-measurements.json`, `/tmp/p05visual-limited.json`; bảng từng trạng thái được ghi trong mục P05VisualQA của báo cáo bàn giao.

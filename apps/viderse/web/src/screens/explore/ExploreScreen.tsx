@@ -62,10 +62,11 @@ export function ExploreScreen({ route }: { route: Route }) {
       id: channel.id,
       name: channel.name || t.channels.page.noName,
       sources: channel.sources,
+      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
     })),
     [channelList.data],
   )
-  const channelRefs = useMemo(() => channels.map((channel) => ({ id: channel.id, name: channel.name })), [channels])
+  const channelRefs = useMemo(() => channels.map(({ id, name, templateName }) => ({ id, name, templateName })), [channels])
 
   // Phạm vi lưới từ route (?rival= là handle); rail giữ kênh cuối cùng được
   // chọn để "Tất cả" vẫn còn ngữ cảnh đối thủ (kênh đầu danh sách khi chưa
@@ -284,7 +285,7 @@ export function ExploreScreen({ route }: { route: Route }) {
             pickedId={pickedId}
             selectMode={selectMode}
             checkedIds={checkedIds}
-            onOpen={(v) => setPickedId(v.id)}
+            onOpen={(v) => { setSelectMode(false); setPickedId(v.id) }}
             onToggle={toggleChecked}
             hasChannel={channels.length > 0}
           />
@@ -302,8 +303,8 @@ export function ExploreScreen({ route }: { route: Route }) {
           />
         )}
       </main>
-      <aside className="vx-rail" aria-label={picked ? tt.previewLabel : tt.rivalDetail}>
-        {picked ? (
+      <aside className="vx-rail" aria-label={picked && !selectMode ? tt.previewLabel : tt.rivalDetail}>
+        {picked && !selectMode ? (
           <PreviewPanel
             video={picked}
             rival={rivals.find((r) => r.id === picked.channelId) ?? railRival}

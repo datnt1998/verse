@@ -8,11 +8,12 @@ import { useEffect, useId, useState } from 'react'
 import { Icon, toast, useEscapeLayer } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import { paths } from '../../router'
-import { ActionButton, Orb } from '../../components'
+import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import type { Rival, Video } from '../../api/rivals'
 import { enqueueClone, planClone, type ClonePlan } from '../../api/clone'
 import { fmtDateTime, fmtDuration, fmtScore, fmtSubs, fmtViews, scoreText, videoMeta } from './fmt'
 import { hideBrokenImage } from './VideoGrid'
+import { channelTint } from '../../lib/channelTint'
 
 /** Dòng "vào hàng chờ" dưới nhóm chọn kênh — kết quả plan §4 (ETA, trùng). */
 function queueHintText(plan: ClonePlan | null, phase: 'loading' | 'ready' | 'failed'): { text: string; dupJob: string | null } {
@@ -33,7 +34,7 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
   video: Video
   rival: Rival | undefined
   /** kênh của tôi — có kênh thì chọn được kênh, nút làm video đổi lý do khoá */
-  channels: { id: string; name: string }[]
+  channels: { id: string; name: string; templateName?: string }[]
   onClose: () => void
 }) {
   const tt = t.screens.explore
@@ -64,6 +65,12 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
   const dupJob = hint.dupJob
   const duplicate = !!plan?.duplicates.length
   const canMake = planPhase === 'ready' && !!plan?.accepted.length && !duplicate && !!plan.template.id
+  const selectedChannel = channels.find((channel) => channel.id === effChannel)
+  const lockedReason = channels.length === 0 ? tt.lockedReason
+    : queued ? tt.queuedDone
+    : duplicate ? tt.queuePlanDup
+    : plan && !plan.template.id ? t.screens.new.plan.blockedNoTemplate
+    : !canMake ? tt.queuePlanLoading : undefined
   const make = async () => {
     if (!effChannel || busy || queued || !canMake) return
     setBusy(true)
@@ -146,15 +153,17 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
             key={channel.id}
             type="button"
             role="radio"
-            aria-checked={channelId === channel.id}
+            aria-checked={effChannel === channel.id}
             tabIndex={0}
             className="vx-makeopt"
             onClick={() => setChannelId(channel.id)}
           >
+            <ChannelAvatar name={channel.name} size={26} color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }} style={{ fontSize: 10 }} />
             <span className="vx-makeopt__text">
               <span className="vx-makeopt__name">{channel.name}</span>
+              {channel.templateName && <span className="vx-makeopt__sub">{channel.templateName}</span>}
             </span>
-            {channelId === channel.id && <Icon name="tick" size={14} />}
+            <span className="vx-makeopt__radio" aria-hidden="true"><span /></span>
           </button>
         ))}
       </div>
@@ -163,31 +172,23 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
       </span>
       <ActionButton
         variant="primary"
+        className="vx-preview-make"
         size="lg"
         disabled={busy}
-        lockedReason={
-          channels.length === 0 ? tt.lockedReason
-            : queued ? tt.queuedDone
-            : duplicate ? tt.queuePlanDup
-            : plan && !plan.template.id ? t.screens.new.plan.blockedNoTemplate
-            : !canMake ? tt.queuePlanLoading : undefined
-        }
-        aria-describedby={reasonId}
+        lockedReason={lockedReason}
+        aria-describedby={lockedReason ? reasonId : undefined}
         icon={<Icon name="video-add" size={18} />}
         onClick={make}
       >
-        {queued ? tt.queuedLabel : tt.makeVideo}
-      </ActionButton>
-      <p className="vx-locknote">
-        <span id={reasonId}>
-          {channels.length === 0 ? tt.lockedReason
-            : queued ? tt.queuedDone
-            : duplicate ? tt.queuePlanDup
-            : plan && !plan.template.id ? t.screens.new.plan.blockedNoTemplate
-            : tt.queueNote}
+        <span className="vx-preview-make__text">
+          <span>{queued ? tt.queuedLabel : tt.makeVideo}</span>
+          {selectedChannel && <span>{tt.makeSubtitle(selectedChannel.name)}</span>}
         </span>
+      </ActionButton>
+      {lockedReason && <p className="vx-locknote">
+        <span id={reasonId}>{lockedReason}</span>
         {channels.length === 0 && <> <a href={`#${paths.channelNew()}`}>{tt.createChannel}</a></>}
-      </p>
+      </p>}
       <a href={video.url} target="_blank" rel="noreferrer" className="vx-linkbtn">
         <Icon name="link" size={14} />
         {tt.openYouTube}

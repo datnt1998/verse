@@ -79,6 +79,8 @@
 .nv-shortcuts kbd { padding: 1px 5px; border: 1px solid var(--line-4); border-radius: 4px; background: var(--vv-wash-5); font: 11px/1.55 "JetBrains Mono", monospace; }
 @media(max-width:767px) {
   .nv { padding: 4px 16px 16px; gap: 16px; min-height: 0; overflow-y: auto; margin-bottom: 93.75px; line-height: 1.5; }
+  .nv[data-input=empty] { margin-bottom: 63px; }
+  .nv[data-input=empty] .nv-options, .nv[data-input=empty] .nv-plantext { display: none; }
   .nv-hero { padding-top: 4px; gap: 10px; }
   .nv-hero h1 { font-size: 22px; line-height: 1.5; }
   .nv-hero p, .nv-lens, .nv-workflow, .nv-alts { display: none; }
@@ -116,6 +118,7 @@
   .nv-picks { margin: 0; width: 100%; }
   .nv:not([data-input=empty]) .nv-picks { display: none; }
   .nv-pickhead a { display: none; }
+  .nv-pickhead { padding: 0; }
   .nv-ideas { display: flex; flex-direction: column; }
   .nv-idea { display: grid; grid-template-columns: 104px 1fr; column-gap: 12px; row-gap: 3px; padding: var(--vv-s-8); border-radius: var(--vv-r-14); border: 1px solid var(--line-2); }
   .nv-ideaimg { grid-row: span 2; height: 58px; }

@@ -124,7 +124,7 @@ export function NewScreen() {
         </div>
       </form>
       <section className="nv-picks">
-        <div className="nv-pickhead"><span>{tt.suggestions}</span><a href={`#${paths.explore()}`}>{tt.openExplore}<Icon name="arrow-r" size={13} /></a></div>
+        <div className="nv-pickhead"><span>{mobile ? tt.mobileSuggestions : tt.suggestions}</span><a href={`#${paths.explore()}`}>{tt.openExplore}<Icon name="arrow-r" size={13} /></a></div>
         <div className="nv-ideas">{(suggestions.data?.videos ?? []).map((v) => <button key={v.id} type="button" className="nv-idea" onClick={() => setText(v.url)}><span className="nv-ideaimg"><img src={v.thumbnailUrl} alt="" /><span className="nv-score num">{fmtScore(v.score)}</span><span className="nv-dur mono">{fmtDuration(v.durationSec)}</span></span><b>{v.title}</b><span>{videoMeta(v.viewCount, v.publishedAt)}</span></button>)}</div>
       </section>
       <div className="nv-workflow"><span>{tt.whatNext}</span>{agents.map((a, i) => <span className="nv-workchip" key={a}><Orb of={a} size={14} />{tt.steps[i]}</span>)}</div>

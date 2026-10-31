@@ -286,6 +286,7 @@ export const vi = {
       queuedDone: 'Video đã xếp vào hàng chờ.',
       makeChannel: 'Làm cho kênh',
       makeVideo: 'Làm video',
+      makeSubtitle: (channel: string) => `cho ${channel}`,
       rivalActions: (name: string) => `Thao tác với ${name}`,
       menuCheck: 'Kiểm tra video mới',
       menuCheckHint: (hours: number) => `Trinh sát xem lại kênh ngay, không đợi chu kỳ ${hours} giờ`,

@@ -381,3 +381,8 @@ Mẫu:
 - `MMain` vẽ cầu đỏ với ba stop `#FF6A80`, `#FF1F45`, `#C80028`; ba stop này chưa có trong token UI đang dùng.
 - Theo yêu cầu không thêm màu ở đợt đối chiếu này, giữ màu đỏ nút `--vv-red-button` và bóng hiện có. Kích thước 46px, icon 22px, vị trí giữa năm tab và vùng chạm vẫn khớp artboard.
 - Hỏi design: dùng màu nút V0 hiện có hoặc duyệt một token gradient riêng trong đợt bổ sung token; không tăng ratchet.
+
+### #63 · Phụ đề nút Làm video ở Khám phá: chữ tối trên nền sáng — Đã chốt
+- `Explore` vẽ phụ đề “cho …” bằng trắng trong suốt trên nút primary hiện có nền trắng. Phụ đề không đủ tương phản; đây là lỗi của board, không phải nội dung dữ liệu.
+- Main đã duyệt dùng chữ tối theo token: phụ đề lấy `--color-bg` với độ phủ 82%, giữ cỡ 12px, line-height 1,3 và bố cục hai dòng trong nút 46px. Không thêm màu hoặc tăng ratchet.
+- Main chuyển lỗi tương phản của board cho design; bản chạy giữ cách hiển thị đã duyệt.

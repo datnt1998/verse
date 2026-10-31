@@ -32,9 +32,9 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
           <button type="button" onClick={() => onTop(20)}>{tt.top20}</button>
           <button type="button" onClick={onClear}>{tt.deselect}</button>
         </span>
-        <ActionButton size="md" icon={<Icon name="copy" size={15} />} onClick={copyLinks}>{tt.copyLink}</ActionButton>
+        <ActionButton className="vx-bulk__copy" size="md" icon={<Icon name="copy" size={15} />} onClick={copyLinks}>{tt.copyLink}</ActionButton>
         <div ref={root} className="vv-switcher-root">
-          <ActionButton variant="primary" size="md"
+          <ActionButton className="vx-bulk__make" variant="primary" size="md"
             lockedReason={channels.length ? undefined : tt.lockedReason}
             disabled={busy}
             aria-haspopup="menu" aria-expanded={open}
