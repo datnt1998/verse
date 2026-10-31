@@ -336,7 +336,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
-	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
+	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Narrate:recapNarrator(ai), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
 		view, err := q.List(ctx)
 		if err != nil { return 0, nil, err }
 		end := queue.LocalMidnight(now).AddDate(0, 0, 1)
