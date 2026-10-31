@@ -189,7 +189,8 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			active := domain.CloneImages
 			return s.refreshDerived(txctx, u, &active)
 		}
-		if row.LeaseExpiresAt.Valid && row.LeaseExpiresAt.Time.After(time.Now()) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
+		leaseActive := row.LeaseExpiresAt.Valid && row.LeaseExpiresAt.Time.After(time.Now())
+		if (leaseActive && before.Step.Step != domain.CloneMetadata) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
 			return jobedit.Conflict("Video đang xử lý — chờ xong rồi thử lại")
 		}
 		if job.Fence != before.Job.Fence || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || current.Step.Status != before.Step.Status || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
@@ -282,6 +283,12 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 					return err
 				}
 			}
+		}
+		// Metadata has no downstream consumers in the pipeline. When a
+		// different step owns the lease, preserve its running status and active
+		// step; the checkpoint CAS still fences concurrent metadata edits.
+		if before.Step.Step == domain.CloneMetadata && leaseActive {
+			return s.refreshDerived(txctx, u, job.ActiveStep)
 		}
 		if change.InvalidateFrom == "" {
 			return s.refreshDerived(txctx, u, nil)

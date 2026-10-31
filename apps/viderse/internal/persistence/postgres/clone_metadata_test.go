@@ -51,3 +51,43 @@ func TestCloneMetadataFailedRetryPersistsAndRequeues(t *testing.T) {
 	}
 	editConflict(t, store.Commit(ctx, before, jobedit.Change{Checkpoint: cp, InvalidateFrom: domain.CloneMetadata}))
 }
+
+func TestCloneMetadataEditWithActiveBuildAndMetadataWrite(t *testing.T) {
+	ctx := context.Background()
+	pool := provision(t)
+	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','Metadata')`); err != nil {
+		t.Fatal(err)
+	}
+	store := postgres.NewCloneStore(pool)
+	job := cloneTestJob(t, store, "metadata-active")
+	if _, err := pool.Exec(ctx, `UPDATE clone_jobs SET status='running',active_step='build',lease_owner='worker',lease_expires_at=now()+interval '5 minutes' WHERE id=$1`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `UPDATE clone_steps SET status=CASE step WHEN 'build' THEN 'running' ELSE 'succeeded' END WHERE job_id=$1 AND step IN ('build','metadata')`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	before, err := store.Read(ctx, job.ID, domain.CloneMetadata)
+	if err != nil {
+		t.Fatal(err)
+	}
+	change := jobedit.Change{Checkpoint: json.RawMessage(`{"revision":1,"current":{"title":"edited","description":"text","tags":[]},"history":[]}`)}
+	if err = store.Commit(ctx, before, change); err != nil {
+		t.Fatalf("metadata edit while build active: %v", err)
+	}
+	after, err := store.Read(ctx, job.ID, domain.CloneMetadata)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after.Job.Status != domain.CloneRunning || after.Job.ActiveStep == nil || *after.Job.ActiveStep != domain.CloneBuild {
+		t.Fatalf("running build lost: %+v", after.Job)
+	}
+	editConflict(t, store.Commit(ctx, before, change))
+	if _, err := pool.Exec(ctx, `UPDATE clone_steps SET status='running' WHERE job_id=$1 AND step='metadata'`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	writing, err := store.Read(ctx, job.ID, domain.CloneMetadata)
+	if err != nil {
+		t.Fatal(err)
+	}
+	editConflict(t, store.Commit(ctx, writing, change))
+}
