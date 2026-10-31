@@ -13,6 +13,7 @@ import { ExploreCrumb } from './ExploreCrumb'
 import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
 import type { Status } from '../api/status'
+import { AccountMenu } from './AccountMenu'
 
 export function AppHeader({ route, status, online, userName, channels, channelHref }: {
   route: Route
@@ -64,9 +65,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
           <Icon name="setting" size={17} />
           {attention.length > 0 && <span role="img" aria-label={`${attention.length}`} className="vv-gear__dot" />}
         </a>
-        <a href={`#${paths.account()}`} aria-label={userName ?? t.shell.account} title={t.shell.account} className="vv-avatar">
-          {(userName?.trim()[0] ?? '?').toLocaleUpperCase('vi')}
-        </a>
+        <AccountMenu fallbackName={userName} />
       </div>
     </header>
   )

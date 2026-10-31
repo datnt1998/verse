@@ -72,20 +72,20 @@ export function FieldLabel({ htmlFor, children, right, style, size }: { htmlFor?
 }
 
 export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function Field({ invalid, style, ...rest }, ref) {
+  function Field({ invalid, style, className, ...rest }, ref) {
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk)
-    return <input ref={ref} aria-invalid={invalid || undefined} className={p.className} style={{ ...p.style, ...style }} {...rest} />
+    return <input ref={ref} aria-invalid={invalid || undefined} className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
   },
 )
 
 export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function PasswordField({ invalid, style, ...rest }, ref) {
+  function PasswordField({ invalid, style, className, ...rest }, ref) {
     const [show, setShow] = useState(false)
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, sx.padded)
     return (
       <div {...stylex.props(sx.wrap)}>
         <input ref={ref} type={show ? 'text' : 'password'} aria-invalid={invalid || undefined}
-          className={p.className} style={{ ...p.style, ...style }} {...rest} />
+          className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
         <button type="button" onClick={() => setShow((v) => !v)}
           aria-label={show ? getKitLabels().inputs.hidePassword : getKitLabels().inputs.showPassword}
           {...stylex.props(sx.eye)}>

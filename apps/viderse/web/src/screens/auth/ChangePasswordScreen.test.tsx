@@ -90,7 +90,7 @@ describe('đổi mật khẩu', () => {
       fillForm(container, 'sai-pass-1', 'matkhau-moi-1', 'matkhau-moi-1')
       container.querySelector('form')!.requestSubmit()
     })
-    expect(container.textContent).toContain(t.auth.passwordForm.wrongCurrent)
+    expect(container.textContent).toContain(t.auth.passwordForm.wrongTemp)
     expect(latest.user?.username).toBe('linh')
     expect(container.querySelector('#pw-current')).toBeTruthy()
   })
@@ -103,8 +103,8 @@ describe('đổi mật khẩu', () => {
       container.querySelector('form')!.requestSubmit()
     })
     const text = container.textContent ?? ''
-    expect(text).toContain('Máy chủ tạm thời không sẵn sàng')
-    expect(text).not.toContain(t.auth.passwordForm.wrongCurrent)
+    expect(text).toContain(t.auth.passwordForm.failed)
+    expect(text).not.toContain(t.auth.passwordForm.wrongTemp)
     expect(latest.user?.username).toBe('linh')
   })
 
@@ -125,7 +125,15 @@ describe('đổi mật khẩu', () => {
     const container = await render()
     const buttons = [...container.querySelectorAll('button')].map((b) => b.textContent ?? '')
     expect(buttons.some((label) => label.includes(t.auth.passwordForm.submit))).toBe(true)
-    // Không Đăng xuất / Bỏ qua / Để sau — đường duy nhất qua cổng là đổi mật khẩu.
-    expect(buttons.some((label) => /bỏ qua|để sau|đăng xuất|tài khoản khác/i.test(label))).toBe(false)
+    // Đăng xuất được phép; không thể đi vào app mà bỏ qua mật khẩu tạm.
+    expect(buttons.some((label) => /bỏ qua|để sau|tài khoản khác/i.test(label))).toBe(false)
+  })
+  it('mật khẩu quá ngắn đánh dấu ô lỗi và chặn gửi', async () => {
+    const fn = stubFetch(passwordFlow(() => respond({ ok: true })))
+    const container = await render()
+    await act(() => fillForm(container, 'tam-pass', 'short', 'short'))
+    expect(container.querySelector('#pw-next')?.getAttribute('aria-invalid')).toBe('true')
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true)
+    expect(fn.mock.calls.some(([path]) => path === '/api/me/password')).toBe(false)
   })
 })

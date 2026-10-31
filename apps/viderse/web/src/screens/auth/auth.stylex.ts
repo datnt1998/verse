@@ -1,0 +1,22 @@
+import * as stylex from '@stylexjs/stylex'
+import { color, line, kit } from '@noverse/ui/tokens.stylex'
+const MOBILE = '@media (max-width: 767px)'
+export const authStyles = stylex.create({
+  shell: { minHeight: '100dvh', height: '100dvh', display: 'flex', flexDirection: 'column', backgroundColor: color['--color-bg'], color: color['--color-fg'] },
+  header: { flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingBlock: { default: 14, [MOBILE]: 6 }, paddingInline: { default: 20, [MOBILE]: 16 } },
+  main: { flexGrow: 1, minHeight: 0, overflowY: 'auto', display: 'flex', alignItems: { default: 'center', [MOBILE]: 'flex-start' }, justifyContent: 'center', padding: { default: 16, [MOBILE]: '18px 20px 20px' } },
+  content: { width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: { default: 22, [MOBILE]: 20 }, paddingBlock: { default: 12, [MOBILE]: 0 } },
+  intro: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { default: 12, [MOBILE]: 10 }, textAlign: 'center' },
+  title: { margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-.015em' },
+  body: { margin: 0, fontSize: 14, color: color['--color-fg-3'], lineHeight: 1.55 },
+  footer: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 28px', padding: '14px 20px 18px', fontSize: 12.5, color: color['--color-fg-4'], textAlign: 'center' },
+  form: { display: 'flex', flexDirection: 'column', gap: { default: 14, [MOBILE]: 20 } },
+  input: { height: { default: 40, [MOBILE]: 48 }, fontSize: { default: 13, [MOBILE]: 16 } },
+  submit: { height: { default: 42, [MOBILE]: 48 }, justifyContent: 'center', fontSize: { default: 14, [MOBILE]: 15 }, fontWeight: 600 },
+  icon: { width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', backgroundColor: 'var(--vv-err-12)', color: color['--color-err'] },
+  warning: { backgroundColor: kit['--kit-warn-12'], color: color['--color-warn'] },
+  row: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12 },
+  col: { display: 'flex', flexDirection: 'column', gap: 10 },
+  divider: { borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-2'], paddingTop: 14 },
+  centered: { alignItems: 'center' },
+})

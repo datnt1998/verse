@@ -6,6 +6,9 @@
 export type AppId = 'noverse' | 'viderse'
 export type AppGrants = Partial<Record<AppId, Role>>
 
+export type AppLink = { id: AppId; name: string; origin: string }
+export type SessionEnded = { reason: string; app?: AppId }
+
 export type Role = 'admin' | 'member'
 
 export type User = {

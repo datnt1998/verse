@@ -67,9 +67,9 @@ function Root() {
   const parsed = useRoute()
   const { checked, user, setupNeeded, accessDenied, mustChangePassword, serverReachable } = useSession()
 
-  // Phiên dùng đầy đủ = có user, không bị chặn quyền app, không bị ép đổi
-  // mật khẩu. Cả shell lẫn luồng dữ liệu đều treo trên cờ này.
-  const full = !!user && !accessDenied && !mustChangePassword
+  // Chỉ mở shell và dữ liệu sau khi đã lưu mã khôi phục, có quyền vào app
+  // và hoàn tất đổi mật khẩu tạm.
+  const full = !!user && !setupNeeded && !accessDenied && !mustChangePassword
 
   // Hash không hợp lệ đã parse về Bàn dựng — chuẩn hoá luôn thanh địa chỉ
   // (replace, không đẩy entry lịch sử thừa). Không chạm hash khi đang ở một
@@ -94,10 +94,10 @@ function Root() {
       </div>
     )
   }
+  if (!serverReachable) return <ServerDownScreen />
+  if (setupNeeded) return <SetupScreen />
   if (accessDenied) return <AccessDeniedScreen />
   if (mustChangePassword) return <ChangePasswordScreen />
-  if (!serverReachable && !user) return <ServerDownScreen />
-  if (setupNeeded) return <SetupScreen />
   if (!user) return <LoginScreen />
   return (
     <AppShell route={parsed.route} user={user}>

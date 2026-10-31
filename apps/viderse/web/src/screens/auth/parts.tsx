@@ -5,15 +5,21 @@ import { t } from '../../i18n/vi'
 import { useSession } from '../../api/session'
 import { Icon } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
+import * as stylex from '@stylexjs/stylex'
+import { authStyles as sx } from './auth.stylex'
+import { Avatar } from '@noverse/ui'
+import type { User } from '../../api/types'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 /** Khung trang auth: brand trên cùng · nội dung căn giữa · chip máy chủ. Không có nav.
  *  Chip theo lần kiểm phiên gần nhất: chỉ báo "đang hoạt động" khi máy chủ đã trả lời. */
-export function AuthShell({ children }: { children: ReactNode }) {
-  const { serverReachable } = useSession()
-  const chip = serverReachable ? t.auth.serverOnline : t.auth.serverOffline
+export function AuthShell({ children, footer, centered = false }: { children: ReactNode; footer?: 'login' | 'setup'; centered?: boolean }) {
+  const { serverReachable, outage } = useSession()
+  const mobile = useMediaQuery('(max-width: 767px)')
+  const chip = serverReachable ? (mobile ? t.auth.serverOnlineMobile : t.auth.serverOnline) : outage === 'accounts' ? t.auth.accountsDownTitle : t.auth.serverOffline
   return (
-    <div style={{ minHeight: '100vh', height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', color: 'var(--color-fg)' }}>
-      <header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--vv-s-12)', padding: 'var(--vv-s-14) var(--vv-s-20)' }}>
+    <div {...stylex.props(sx.shell)}>
+      <header {...stylex.props(sx.header)}>
         {/* Lockup Viderse (12-brand): ống kính + chữ "Viderse" — không dùng BrandLockup của kit (orb Noverse). */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 700, fontSize: 14, letterSpacing: '-0.02em' }}>
           <LensLogo size={24} />
@@ -32,9 +38,12 @@ export function AuthShell({ children }: { children: ReactNode }) {
           {chip}
         </div>
       </header>
-      <main className="scroll" style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--vv-s-16)' }}>
-        <div style={{ width: 'min(400px, 100%)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-22)' }}>{children}</div>
+      <main {...stylex.props(sx.main, centered && sx.centered)}>
+        <div {...stylex.props(sx.content)}>{children}</div>
       </main>
+      {footer && <footer {...stylex.props(sx.footer)}>
+        {footer === 'login' ? (mobile ? <span>{t.auth.footerMobile}</span> : <><span>{t.auth.footerForgot}</span><span>{t.auth.footerNew}</span></>) : <span>{t.setup.codeHint}</span>}
+      </footer>}
     </div>
   )
 }
@@ -48,3 +57,15 @@ export function HintLine({ icon, children, style }: { icon: string; children: Re
     </span>
   )
 }
+
+export function AuthUser({ user }: { user: User }) {
+  return <div className={`card ${stylex.props(sx.row).className}`}>
+    <Avatar name={user.name || user.username} size={38} />
+    <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <span style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }} title={user.name}>{user.name || user.username}</span>
+      <span style={{ fontSize: 12, color: 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span> · {t.role[user.role]}</span>
+    </span>
+  </div>
+}
+
+export const authLabelStyle: CSSProperties = { textTransform: 'none', fontWeight: 400, letterSpacing: 0, color: 'var(--color-fg-3)' }

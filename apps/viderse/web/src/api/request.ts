@@ -13,6 +13,7 @@
 //  - {body: undefined} ở `request()` nghĩa là GET; có body nghĩa là POST.
 import { notifyAccessDenied, notifyPasswordChangeRequired, notifySessionExpired } from './sessionSignal'
 import type { User } from './types'
+import { readAppLinks, readSessionEnded } from './sso'
 export class ApiError extends Error {
   retryAfter?: number
   /** thân JSON lỗi gốc — vd 400 setup/verify mang `attemptsLeft`/`format`, 423 mang `lockedUntil`, 403 cổng mang `code`/`user` */
@@ -49,22 +50,23 @@ async function call<T>(method: Method, path: string, body?: object, signal?: Abo
     if (signal?.aborted) throw error
     throw new ApiError(0, OFFLINE_MSG)
   }
-  return settle<T>(response)
+  return settle<T>(response, path)
 }
 
 /** Đọc phản hồi theo đúng hợp đồng lỗi của webapp (401 → hết phiên). */
-async function settle<T>(response: Response): Promise<T> {
+async function settle<T>(response: Response, path: string): Promise<T> {
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null)
     const body = payload && typeof payload === 'object' ? payload : null
     if (response.status === 401) {
-      notifySessionExpired()
+      // An invalid login must not overwrite a previously supplied session reason.
+      if (path !== '/api/login') notifySessionExpired(readSessionEnded(body))
     } else if (response.status === 403 && body && 'code' in body) {
       // 403 app_access_denied mang user an toàn trong body (giữ phiên, không
       // phải hết phiên); 403 password_change_required chỉ đổi cổng. Hai tín
       // hiệu này không đụng vào cookie hay trạng thái của app kia.
       if (body.code === 'app_access_denied') {
-        notifyAccessDenied('user' in body && body.user && typeof body.user === 'object' ? (body.user as User) : null)
+        notifyAccessDenied('user' in body && body.user && typeof body.user === 'object' ? (body.user as User) : null, readAppLinks(body))
       } else if (body.code === 'password_change_required') {
         notifyPasswordChangeRequired()
       }
@@ -101,5 +103,5 @@ export async function upload<T>(path: string, form: FormData, signal?: AbortSign
     if (signal?.aborted) throw error
     throw new ApiError(0, OFFLINE_MSG)
   }
-  return settle<T>(response)
+  return settle<T>(response, path)
 }

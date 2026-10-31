@@ -19,7 +19,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { ApiError, accessDeniedUser, getSetup, login as loginApi, logout, me, passwordChangeRequired } from './client'
 import { onAccessDenied, onPasswordChangeRequired, onSessionExpired } from './sessionSignal'
-import type { User } from './types'
+import type { AppLink, SessionEnded, User } from './types'
+import { readAppLinks, readSessionEnded } from './sso'
 
 /** Kết quả một lần kiểm phiên qua /api/me. */
 export type SessionRefresh = 'user' | 'denied' | 'password' | 'anon' | 'down'
@@ -28,6 +29,9 @@ export type SessionState = {
   /** đã gọi xong /api/me lần đầu (dù có hay không có phiên) */
   checked: boolean
   user: User | null
+  apps: AppLink[]
+  ended: SessionEnded | null
+  outage: 'server' | 'accounts' | null
   setUser: (user: User | null) => void
   /** gọi lại /api/me + /api/setup khi cần; trả trạng thái cổng mới. */
   refresh: () => Promise<SessionRefresh>
@@ -50,12 +54,15 @@ export type SessionState = {
   /** Revoke phiên trên máy chủ rồi dọn phiên UI (Đăng xuất — thoát cả hai app). */
   signOut: () => Promise<void>
   /** Dọn phiên UI về Đăng nhập khi máy chủ đã thu hồi phiên (đổi mật khẩu, revoke-all, 401). */
-  endSession: () => void
+  endSession: (ended?: SessionEnded) => void
 }
 
 const SessionContext = createContext<SessionState>({
   checked: false,
   user: null,
+  apps: [],
+  ended: null,
+  outage: null,
   setUser: () => {},
   refresh: async () => 'anon',
   setupNeeded: false,
@@ -76,18 +83,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [accessDenied, setAccessDeniedState] = useState<User | null>(null)
   const [mustChangePassword, setMustChangePassword] = useState(false)
   const [serverReachable, setServerReachable] = useState(true)
+  const [apps, setApps] = useState<AppLink[]>([])
+  const [ended, setEnded] = useState<SessionEnded | null>(() => {
+    const query = new URLSearchParams(location.hash.split('?')[1])
+    return query.has('pw') ? { reason: 'password_changed' } : query.has('bye') ? { reason: 'logout', app: 'viderse' } : null
+  })
+  const [outage, setOutage] = useState<'server' | 'accounts' | null>(null)
 
   const applyUser = (next: User | null) => {
     setUserState(next)
     setMustChangePassword(next?.mustChangePassword === true)
     if (next) setAccessDeniedState(null)
   }
-  const endSession = () => {
+  const endSession = (reason?: SessionEnded) => {
+    if (reason) {
+      const query = new URLSearchParams(location.hash.split('?')[1])
+      setEnded(query.has('pw') ? { reason: 'password_changed' } : query.has('bye') ? { reason: 'logout', app: 'viderse' } : reason)
+    }
+    setApps([])
     setUserState(null)
     setAccessDeniedState(null)
     setMustChangePassword(false)
   }
-  const setAccessDenied = (denied: User | null) => {
+  const setAccessDenied = (denied: User | null, links?: AppLink[]) => {
+    if (links) setApps(links)
     if (denied) {
       // Giữ người đang đăng nhập trong user để màn bị chặn hiển thị và các
       // route auth-neutral (logout, /api/me/sessions, đổi mật khẩu) vẫn đi
@@ -103,6 +122,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const refresh = async (): Promise<SessionRefresh> => {
     try {
       const result = await me()
+      setApps(readAppLinks(result))
+      setEnded(null)
+      setOutage(null)
       applyUser(result.user)
       setSetupNeeded(false)
       setServerReachable(true)
@@ -110,7 +132,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       const denied = accessDeniedUser(error)
       if (denied) {
-        setAccessDenied(denied)
+        setAccessDenied(denied, readAppLinks(error instanceof ApiError ? error.payload : null))
         setSetupNeeded(false)
         setServerReachable(true)
         return 'denied'
@@ -127,11 +149,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         // Mất kết nối hoặc kho tài khoản 503: không suy ra "chưa đăng nhập"
         // hay "store trống" — chỉ báo không kiểm được và giữ nguyên phiên UI.
         setServerReachable(false)
+        setOutage(error.status === 0 ? 'server' : 'accounts')
         return 'down'
       }
       // 401 (và mọi lỗi 4xx còn lại — coi như không có phiên): dọn phiên UI
       // rồi hỏi /api/setup để phân biệt "store trống" với "chưa đăng nhập".
       endSession()
+      if (error instanceof ApiError && error.status === 401) setEnded((previous) => previous ?? readSessionEnded(error.payload))
       try {
         setSetupNeeded((await getSetup()).needed)
         setServerReachable(true)
@@ -140,6 +164,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           // getSetup 503 ≠ "trống": không hiện màn Setup/Login giả.
           setSetupNeeded(false)
           setServerReachable(false)
+          setOutage(setupError.status === 0 ? 'server' : 'accounts')
           return 'down'
         }
         setSetupNeeded(false)
@@ -152,7 +177,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     void (async () => { await refresh(); setChecked(true) })()
     // 401 ở bất kỳ request nào (kể cả luồng SSE) → hết phiên: dọn UI về cổng.
     // Hai tín hiệu 403 cập nhật cổng từ mọi request chứ không chỉ /api/me.
-    const offExpired = onSessionExpired(endSession)
+    const offExpired = onSessionExpired((reason) => endSession(reason ?? { reason: 'unknown' }))
     const offDenied = onAccessDenied(setAccessDenied)
     const offPassword = onPasswordChangeRequired(() => setMustChangePassword(true))
     return () => { offExpired(); offDenied(); offPassword() }
@@ -161,16 +186,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const value: SessionState = {
     checked, user, refresh, setupNeeded, setSetupNeeded,
+    apps, ended, outage,
     accessDenied, setAccessDenied, mustChangePassword, serverReachable,
     setUser: applyUser,
     signIn: async (username, password) => {
       // login() đã phát access-denied qua transport; vẫn xử lý tại đây để
       // không phụ thuộc listener khi provider chưa sẵn sàng trong test.
       try {
-        applyUser((await loginApi(username, password)).user)
+        const result = await loginApi(username, password)
+        applyUser(result.user)
+        setEnded(null)
+        // /api/login need not return app links; /api/me owns the switcher contract.
+        if (!result.user.mustChangePassword) await refresh()
       } catch (error) {
         const denied = accessDeniedUser(error)
-        if (denied) { setAccessDenied(denied); return }
+        if (denied) { setAccessDenied(denied, readAppLinks(error instanceof ApiError ? error.payload : null)); return }
         throw error
       }
     },
@@ -180,7 +210,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       try { await logout() } catch (error) {
         if (!(error instanceof ApiError && error.status === 401)) throw error
       }
-      endSession()
+      endSession({ reason: 'logout', app: 'viderse' })
+      window.location.hash = '/login?bye=1'
     },
     endSession,
   }
