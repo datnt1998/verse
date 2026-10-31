@@ -100,7 +100,7 @@ func runServe(args []string) error {
 	// Lưu trữ: watch ổ dự án và tự dọn chạy theo vòng đời của serve.
 	bg, bgStop := context.WithCancel(context.Background())
 	defer bgStop()
-	storageSvc, err := mountStorage(gateway, pool, settings, hub, statusSvc, activities, bg)
+	storageSvc, serverCleanup, err := mountStorage(gateway, pool, settings, hub, statusSvc, activities, bg)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func runServe(args []string) error {
 		return err
 	}
 	defer func() { _ = mediaManager.Close(context.Background()) }()
-	mountServerStorage(gateway, mediaManager, activities, hub, statusSvc)
+	mountServerStorage(gateway, mediaManager, activities, hub, statusSvc, serverCleanup)
 	// Máy: việc nền, công cụ, nhật ký và bước Chuẩn bị máy. Probe nền và
 	// lượt cài đi theo vòng đời serve — dừng khi serve tắt.
 	machineCtx, machineStop := context.WithCancel(context.Background())
