@@ -37,7 +37,7 @@ func provisionLibrary(t *testing.T, projectSlug string) libraryFixture {
 	pool := openPool(t, dsn)
 	ctx := context.Background()
 	repo := postgres.NewLibraryRepository(pool)
-	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	accounts := identity.NewFromRepository(identityRepo(pool), library.IdentityOptions())
 
 	for _, u := range []struct {
 		name string

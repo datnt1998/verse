@@ -13,10 +13,12 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
 	"github.com/datnt1998/verse/apps/noverse/internal/storageimport"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 )
 
 // runStorage is the storage administration command. Schema changes are owned
@@ -247,7 +249,9 @@ func runStoragePurgeAudit(args []string) error {
 	}
 	defer pool.Close()
 	cutoff := time.Now().UTC().AddDate(0, 0, -*days)
-	n, err := postgres.NewAccounts(pool).PurgeAuditBefore(ctx, cutoff)
+	n, err := identitypg.NewAccounts(pool.Pool(), identitypg.Options{
+		ProjectAccess: true, ValidProjectID: library.ValidProjectID,
+	}).PurgeAuditBefore(ctx, cutoff)
 	if err != nil {
 		return fmt.Errorf("xoá audit cũ: %w", err)
 	}

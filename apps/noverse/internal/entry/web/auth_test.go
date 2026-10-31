@@ -208,8 +208,8 @@ func TestMustChangePasswordViaAPI(t *testing.T) {
 	if err != nil || u.User.MustChangePassword {
 		t.Fatalf("flag must be cleared: %v %+v", err, u.User)
 	}
-	// 改密不吊销当前会话。
-	if code := authDo(t, g, "GET", "/api/me", cookie, "").Code; code != 200 {
-		t.Fatalf("current session revoked: %d", code)
+	// Đổi mật khẩu thu hồi mọi phiên, kể cả phiên đang dùng.
+	if code := authDo(t, g, "GET", "/api/me", cookie, "").Code; code != 401 {
+		t.Fatalf("current session must be revoked after password change: %d", code)
 	}
 }

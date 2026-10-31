@@ -12,8 +12,18 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/identity/identitytest"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
+
+// identityRepo builds the shared account repository with the Noverse project
+// surface enabled. Tests that exercise project APIs use this; the least-
+// privilege Viderse role tests build their own project-less instance.
+func identityRepo(pool *postgres.Pool) *identitypg.Accounts {
+	return identitypg.NewAccounts(pool.Pool(), identitypg.Options{
+		ProjectAccess: true, ValidProjectID: library.ValidProjectID,
+	})
+}
 
 // provisionAccounts migrates an isolated schema and returns a Store facade
 // over the postgres repository + the raw pool for storage-level assertions.
@@ -22,7 +32,7 @@ func provisionAccounts(t *testing.T) (*identity.Store, *postgres.Pool) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	return identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions()), pool
+	return identity.NewFromRepository(identityRepo(pool), library.IdentityOptions()), pool
 }
 
 // TestAccountContractPostgresBackend chạy đúng contract suite của file
@@ -91,16 +101,19 @@ func TestAccountsNoFileAccess(t *testing.T) {
 	}
 }
 
-// TestAccountsSetClockExpiry dùng SetClock để chứng minh TTL mật khẩu tạm:
-// hết hạn → login hỏng; phiên restricted đã có vẫn đổi được mật khẩu (contract
-// đã kiểm ở suite qua consume; TTL chỉ test được khi điều khiển được đồng hồ).
-func TestAccountsSetClockExpiry(t *testing.T) {
+// TestAccountsInjectedClockExpiry dùng đồng hồ tiêm qua Options.Now để chứng
+// minh TTL mật khẩu tạm: hết hạn → login hỏng; phiên restricted đã có vẫn đổi
+// được mật khẩu (contract đã kiểm ở suite qua consume; TTL chỉ test được khi
+// điều khiển được đồng hồ).
+func TestAccountsInjectedClockExpiry(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	repo := postgres.NewAccounts(pool)
 	now := time.Now()
-	repo.SetClock(func() time.Time { return now })
+	repo := identitypg.NewAccounts(pool.Pool(), identitypg.Options{
+		ProjectAccess: true, ValidProjectID: library.ValidProjectID,
+		Now: func() time.Time { return now },
+	})
 	s := identity.NewFromRepository(repo, library.IdentityOptions())
 	if _, err := s.CreateUser(identity.NewUser{Username: "moi", Role: identity.RoleMember,
 		Password: "temp-pass-111", MustChangePassword: true}); err != nil {
@@ -119,7 +132,7 @@ func TestAccountsSetClockExpiry(t *testing.T) {
 	if _, _, err := s.Authenticate(ns.Cookie); err != nil {
 		t.Fatalf("restricted session must survive temp expiry: %v", err)
 	}
-	if err := s.ChangePassword("moi", "temp-pass-111", "mat-khau-moi-999", strings.Split(ns.Cookie, ".")[0]); err != nil {
+	if err := s.ChangePassword("moi", "temp-pass-111", "mat-khau-moi-999"); err != nil {
 		t.Fatalf("change after temp expiry: %v", err)
 	}
 	if _, err := s.Login("moi", "mat-khau-moi-999", "", ""); err != nil {
@@ -133,8 +146,8 @@ func TestAuthLimiterShared(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	one := postgres.NewAccounts(pool).LoginLimiter()
-	two := postgres.NewAccounts(pool).LoginLimiter()
+	one := identityRepo(pool).LoginLimiter()
+	two := identityRepo(pool).LoginLimiter()
 	for range 4 {
 		one.Fail("ip:shared")
 	}
@@ -146,8 +159,8 @@ func TestAuthLimiterShared(t *testing.T) {
 		t.Fatalf("clear on one instance must clear the shared bucket: %s", wait)
 	}
 	// Recovery window limiter: N tries per window shared too.
-	r1 := postgres.NewAccounts(pool).RecoveryLimiter(5, time.Hour)
-	r2 := postgres.NewAccounts(pool).RecoveryLimiter(5, time.Hour)
+	r1 := identityRepo(pool).RecoveryLimiter(5, time.Hour)
+	r2 := identityRepo(pool).RecoveryLimiter(5, time.Hour)
 	for range 5 {
 		r1.Fail("ip:recover")
 	}
@@ -163,7 +176,7 @@ func TestAuthLimiterShared(t *testing.T) {
 func TestAuthLimiterBacksOffAcrossBlocks(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
-	limiter := postgres.NewAccounts(openPool(t, dsn)).LoginLimiter()
+	limiter := identityRepo(openPool(t, dsn)).LoginLimiter()
 	for range 4 {
 		limiter.Fail("user:backoff")
 	}

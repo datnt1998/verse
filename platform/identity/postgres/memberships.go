@@ -9,13 +9,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
 // projectBySlug resolves (or lazily anchors when create=true) a projects row.
-// Story content arrives in phase 05; phase 04 rows are membership/blob anchors.
+// This is the Noverse project surface; it is never executed by a project-less
+// backend.
 func projectBySlug(ctx context.Context, q *gen.Queries, slug string, create bool) (gen.Project, error) {
 	p, err := q.GetProjectBySlug(ctx, slug)
 	if err == nil {
@@ -55,7 +55,7 @@ func projectID(ctx context.Context, q *gen.Queries, slug string) (pgtype.UUID, e
 	return p.ID, nil
 }
 
-// checkOwnerInvariants enforces "đúng một owner active mỗi project" for a
+// checkOwnerInvariants enforces "exactly one active owner per project" for a
 // user patch: every project in before∪after must not drop to 0 or grow past
 // 1 active owner. membershipMemberRows are locked per project.
 func (a *Accounts) checkOwnerInvariants(ctx context.Context, q *gen.Queries, user gen.User, disabling bool, before, after map[string]identity.ProjectRole) error {
@@ -118,8 +118,8 @@ func memberActive(ctx context.Context, q *gen.Queries, userID pgtype.UUID) (bool
 }
 
 // replaceMemberships diffs a user's project grants inside the tx: creates
-// project anchors lazily, upserts/removes member rows and enforces the
-// owner invariants. One summary audit line per patch (file parity).
+// project anchors lazily, upserts/removes member rows and enforces the owner
+// invariants. One summary audit line per patch (file parity).
 func (a *Accounts) replaceMemberships(ctx context.Context, q *gen.Queries, user gen.User, before, after map[string]identity.ProjectRole, actor *identity.AuditActor, reason string) error {
 	slugs := map[string]bool{}
 	for s := range before {
@@ -164,9 +164,12 @@ func projectSummary(projects map[string]identity.ProjectRole) string {
 	return "{" + strings.Join(parts, ",") + "}"
 }
 
-// --- scoped member APIs (owner/admin qua /api/projects/:p/members*) ---------
+// --- scoped member APIs (owner/admin via /api/projects/:p/members*) ---------
 
 func (a *Accounts) ProjectMembers(project string) ([]identity.ProjectMember, error) {
+	if err := a.requireProjectAccess(); err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	q := a.qp()
 	p, err := q.GetProjectBySlug(ctx, project)
@@ -191,10 +194,13 @@ func (a *Accounts) ProjectMembers(project string) ([]identity.ProjectMember, err
 }
 
 func (a *Accounts) SetProjectMember(project, username string, role identity.ProjectRole, actor *identity.AuditActor) (identity.UserView, error) {
+	if err := a.requireProjectAccess(); err != nil {
+		return identity.UserView{}, err
+	}
 	if role != identity.ProjectCollab && role != identity.ProjectView {
 		return identity.UserView{}, fmt.Errorf("%w: vai trò dự án phải là collab hoặc view", identity.ErrInvalidInput)
 	}
-	if !library.ValidProjectID(project) {
+	if !a.project(project) {
 		return identity.UserView{}, fmt.Errorf("%w: dự án không hợp lệ", identity.ErrInvalidInput)
 	}
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
@@ -257,6 +263,9 @@ func (a *Accounts) SetProjectMember(project, username string, role identity.Proj
 }
 
 func (a *Accounts) RemoveProjectMember(project, username string, actor *identity.AuditActor) error {
+	if err := a.requireProjectAccess(); err != nil {
+		return err
+	}
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
@@ -307,6 +316,9 @@ func (a *Accounts) RemoveProjectMember(project, username string, actor *identity
 // grants owner to the target user — serialized by member row locks, the
 // partial-unique index additionally rejects a second owner at commit.
 func (a *Accounts) TransferProjectOwner(project, username string, actor *identity.AuditActor) error {
+	if err := a.requireProjectAccess(); err != nil {
+		return err
+	}
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)

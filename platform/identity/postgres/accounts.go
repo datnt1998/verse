@@ -6,51 +6,60 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"net/netip"
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/errs"
-	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
-// Accounts là identity.Repository trên Postgres: cùng ngữ nghĩa quan sát được
-// với file backend — generic credential errors, mật khẩu tạm một lần + TTL,
-// đúng một owner active mỗi project, tối thiểu một admin active, audit ghi
-// trong cùng transaction với mutation. Định danh public vẫn là username;
-// UUID chỉ là khóa nội bộ.
+// Accounts is identity.Repository on Postgres: the same observable semantics
+// as the file backend — generic credential errors, one-time temporary
+// passwords with a TTL, exactly one active owner per project, at least one
+// active admin, audit in the same transaction as the mutation. The public
+// identifier stays the username; the UUID is an internal key.
+//
+// The instance is process-scoped and immutable: options are fixed at
+// construction, actors arrive as arguments. It never carries a current user,
+// app or grant between requests.
 type Accounts struct {
-	pool   *pgxpool.Pool
-	pgpool *Pool
-	now    func() time.Time
+	pool    *pgxpool.Pool
+	now     func() time.Time
+	opts    Options
+	project func(string) bool
 }
 
-// NewAccounts builds the identity repository on the app-role pool. The pool
-// is process-scoped; actors arrive as arguments — no session state here.
-func NewAccounts(pool *Pool) *Accounts {
-	return &Accounts{pool: pool.Pool(), pgpool: pool, now: time.Now}
+// NewAccounts builds the identity repository over the caller-owned pool.
+func NewAccounts(pool *pgxpool.Pool, opts Options) *Accounts {
+	now := opts.Now
+	if now == nil {
+		now = time.Now
+	}
+	valid := opts.ValidProjectID
+	if valid == nil {
+		valid = func(string) bool { return true }
+	}
+	return &Accounts{pool: pool, now: now, opts: opts, project: valid}
 }
-
-// SetClock overrides the time source (integration tests only).
-func (a *Accounts) SetClock(now func() time.Time) { a.now = now }
 
 var _ identity.Repository = (*Accounts)(nil)
 
-// LoginLimiter trả limiter login/pairing dùng bảng login_rate_limits — chia
-// sẻ giữa các process và sống sót restart (khác limiter RAM của file mode).
+// LoginLimiter returns the login/pairing limiter backed by login_rate_limits —
+// shared between processes and surviving restarts (unlike the RAM limiter of
+// file mode). Both apps use the same buckets.
 func (a *Accounts) LoginLimiter() identity.LoginLimiter {
-	return NewAuthLimiter(a.pgpool)
+	return NewAuthLimiter(a.pool)
 }
 
-// RecoveryLimiter trả limiter cửa sổ trên cùng bảng cho recovery codes.
+// RecoveryLimiter returns the sliding-window limiter on the same table.
 func (a *Accounts) RecoveryLimiter(maxFails int, window time.Duration) identity.RecoveryLimiter {
-	return NewWindowLimiter(a.pgpool, "recover", maxFails, window)
+	return NewWindowLimiter(a.pool, "recover", maxFails, window)
 }
 
 var _ identity.LoginLimiterProvider = (*Accounts)(nil)
@@ -68,8 +77,7 @@ const (
 // nibble/variant bits for compatibility with rows already written. Do not
 // swap it for a standards-compliant v5 (SHA-1 namespace) implementation or
 // change the salt: that would silently re-key existing projects/devices.
-// Fresh ordinary entities use randomUUID (v4). A new standards-compliant v5
-// mapping needs its own explicit mapping-version boundary.
+// Fresh ordinary entities use randomUUID (v4).
 func deterministicUUID(ns, name string) pgtype.UUID {
 	sum := sha256.Sum256([]byte("ainovel|v1|" + ns + "|" + name))
 	var id pgtype.UUID
@@ -111,8 +119,8 @@ func pgTimestamptz(t time.Time) pgtype.Timestamptz {
 
 func noRows(err error) bool { return errors.Is(err, pgx.ErrNoRows) }
 
-// constraintErr maps Postgres unique violations to the repository contract's
-// domain errors so callers never see raw SQLSTATEs.
+// constraintErr maps Postgres unique violations to identity sentinels so
+// callers never see raw SQLSTATEs and the HTTP layer keeps its 409 mapping.
 func constraintErr(err error) error {
 	if err == nil {
 		return nil
@@ -125,11 +133,12 @@ func constraintErr(err error) error {
 		case strings.Contains(pgErr.ConstraintName, "username") || strings.Contains(pgErr.ConstraintName, "users"):
 			return identity.ErrExists
 		default:
-			return fmt.Errorf("ràng buộc duy nhất %s: %w", pgErr.ConstraintName, errs.ErrStorageConflict)
+			return fmt.Errorf("ràng buộc duy nhất %s: %w", pgErr.ConstraintName, identity.ErrConflict)
 		}
 	}
 	return sanitizeErr(err)
 }
+
 func digestBytes(secret string) []byte {
 	sum := sha256.Sum256([]byte(secret))
 	return sum[:]
@@ -155,11 +164,22 @@ func (a *Accounts) q(tx pgx.Tx) *gen.Queries { return gen.New(tx) }
 
 func (a *Accounts) qp() *gen.Queries { return gen.New(a.pool) }
 
+// requireProjectAccess rejects the Noverse project surface before any SQL when
+// the backend was built for a project-less app. Denial is typed, never a fake
+// success and never a weakened invariant.
+func (a *Accounts) requireProjectAccess() error {
+	if !a.opts.ProjectAccess {
+		return fmt.Errorf("%w: thao tác dự án không có trên backend này", identity.ErrUnsupported)
+	}
+	return nil
+}
+
 // --- row → domain mapping ------------------------------------------------
 
 // userFromRow assembles identity.User: base row + credential + temp password
-// (open or last consumed-for-restricted-session) + memberships + latest
-// recovery code.
+// (open or last consumed-for-restricted-session) + active app grants + latest
+// recovery code. Project memberships are queried only when the backend serves
+// project access; the Viderse role must never touch project tables.
 func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User) (identity.User, error) {
 	u := identity.User{
 		Username:           row.Username,
@@ -196,12 +216,23 @@ func (a *Accounts) userFromRow(ctx context.Context, q *gen.Queries, row gen.User
 	} else if !noRows(err) {
 		return u, fmt.Errorf("đọc mã khôi phục: %w", sanitizeErr(err))
 	}
-	members, err := q.ListMembershipsByUser(ctx, row.ID)
+	grants, err := q.ListAppGrants(ctx, row.ID)
 	if err != nil {
-		return u, fmt.Errorf("đọc quyền dự án: %w", sanitizeErr(err))
+		return u, fmt.Errorf("đọc quyền ứng dụng: %w", sanitizeErr(err))
 	}
-	for _, m := range members {
-		u.Projects[m.Slug] = identity.ProjectRole(m.Role)
+	explicit := make(map[identity.App]identity.Role, len(grants))
+	for _, g := range grants {
+		explicit[identity.App(g.App)] = identity.Role(g.Role)
+	}
+	u.Grants = identity.EffectiveGrants(u.Role, explicit)
+	if a.opts.ProjectAccess {
+		members, err := q.ListMembershipsByUser(ctx, row.ID)
+		if err != nil {
+			return u, fmt.Errorf("đọc quyền dự án: %w", sanitizeErr(err))
+		}
+		for _, m := range members {
+			u.Projects[m.Slug] = identity.ProjectRole(m.Role)
+		}
 	}
 	return u, nil
 }
@@ -261,7 +292,9 @@ func (a *Accounts) Users() ([]identity.UserListView, error) {
 	return out, nil
 }
 
-func validateNewUser(in *identity.NewUser) (map[string]identity.ProjectRole, error) {
+// validateNewUser normalizes and validates account input. Project grants are
+// rejected outright when this backend has no project surface.
+func (a *Accounts) validateNewUser(in *identity.NewUser) (map[string]identity.ProjectRole, error) {
 	in.Username = strings.TrimSpace(in.Username)
 	if !identity.ValidUsername(in.Username) {
 		return nil, fmt.Errorf("%w: tên đăng nhập chỉ gồm a-z, 0-9, . _ - (2–32 ký tự)", identity.ErrInvalidInput)
@@ -276,14 +309,40 @@ func validateNewUser(in *identity.NewUser) (map[string]identity.ProjectRole, err
 	if in.Role != identity.RoleAdmin && in.Role != identity.RoleMember {
 		return nil, fmt.Errorf("%w: vai trò %q", identity.ErrInvalidInput, in.Role)
 	}
+	if len(in.Projects) > 0 && !a.opts.ProjectAccess {
+		return nil, fmt.Errorf("%w: tài khoản backend này không nhận quyền dự án", identity.ErrUnsupported)
+	}
 	projects := map[string]identity.ProjectRole{}
 	for id, level := range in.Projects {
-		if !library.ValidProjectID(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
+		if !a.project(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
 			return nil, fmt.Errorf("%w: quyền dự án không hợp lệ", identity.ErrInvalidInput)
 		}
 		projects[id] = level
 	}
 	return projects, nil
+}
+
+// requestedApps resolves the explicit app grants of a new account: the
+// server-side choice wins; with none, the Noverse backend keeps the historical
+// Noverse access while a project-less backend grants nothing.
+func (a *Accounts) requestedApps(in identity.NewUser) ([]identity.App, error) {
+	apps := in.Apps
+	if len(apps) == 0 && a.opts.ProjectAccess {
+		apps = []identity.App{identity.AppNoverse}
+	}
+	seen := make(map[identity.App]bool, len(apps))
+	out := make([]identity.App, 0, len(apps))
+	for _, app := range apps {
+		if !app.Valid() {
+			return nil, identity.ErrUnknownApp
+		}
+		if seen[app] {
+			continue
+		}
+		seen[app] = true
+		out = append(out, app)
+	}
+	return out, nil
 }
 
 func validatePasswordInput(p string) error {
@@ -294,14 +353,18 @@ func validatePasswordInput(p string) error {
 }
 
 func (a *Accounts) CreateUser(in identity.NewUser) (identity.UserView, error) {
-	projects, err := validateNewUser(&in)
+	projects, err := a.validateNewUser(&in)
+	if err != nil {
+		return identity.UserView{}, err
+	}
+	apps, err := a.requestedApps(in)
 	if err != nil {
 		return identity.UserView{}, err
 	}
 	if err := validatePasswordInput(in.Password); err != nil {
 		return identity.UserView{}, err
 	}
-	// Argon2 ở ngoài transaction: hash chậm không giữ lock/connection.
+	// Argon2 outside the transaction: the slow hash must not hold a connection.
 	hash, err := identity.HashPasswordForBackend(in.Password)
 	if err != nil {
 		return identity.UserView{}, err
@@ -331,20 +394,20 @@ func (a *Accounts) CreateUser(in identity.NewUser) (identity.UserView, error) {
 		if err != nil {
 			return constraintErr(err)
 		}
+		actorID := pgtype.UUID{}
+		if in.Actor != nil && strings.TrimSpace(in.Actor.Username) != "" {
+			if actor, err := q.GetUserByUsername(ctx, in.Actor.Username); err == nil {
+				actorID = actor.ID
+			}
+		}
 		if in.MustChangePassword {
 			tempID, err := randomUUID()
 			if err != nil {
 				return err
 			}
-			var createdBy pgtype.UUID
-			if in.Actor != nil {
-				if actor, err := q.GetUserByUsername(ctx, in.Actor.Username); err == nil {
-					createdBy = actor.ID
-				}
-			}
 			if err := q.InsertTempPassword(ctx, gen.InsertTempPasswordParams{
 				ID: tempID, UserID: userID, PasswordHash: hash,
-				ExpiresAt: ts(now.Add(identity.TempPasswordTTL)), CreatedBy: createdBy,
+				ExpiresAt: ts(now.Add(identity.TempPasswordTTL)), CreatedBy: actorID,
 			}); err != nil {
 				return sanitizeErr(err)
 			}
@@ -356,8 +419,18 @@ func (a *Accounts) CreateUser(in identity.NewUser) (identity.UserView, error) {
 		}); err != nil {
 			return sanitizeErr(err)
 		}
-		if err := a.replaceMemberships(ctx, q, created, map[string]identity.ProjectRole{}, projects, in.Actor, ""); err != nil {
-			return err
+		if a.opts.ProjectAccess {
+			if err := a.replaceMemberships(ctx, q, created, map[string]identity.ProjectRole{}, projects, in.Actor, ""); err != nil {
+				return err
+			}
+		}
+		for _, app := range apps {
+			if err := q.InsertAppGrant(ctx, gen.InsertAppGrantParams{
+				UserID: userID, App: string(app), Role: string(identity.RoleMember),
+				GrantedBy: actorID, GrantedAt: ts(now),
+			}); err != nil {
+				return sanitizeErr(err)
+			}
 		}
 		if err := a.addAudit(ctx, q, in.Actor, "", "acct", "Tạo tài khoản", in.Username, "", "", ""); err != nil {
 			return err
@@ -378,7 +451,11 @@ func (a *Accounts) CreateUser(in identity.NewUser) (identity.UserView, error) {
 }
 
 func (a *Accounts) CreateFirstAdmin(in identity.NewUser, device, ip string) (identity.NewSession, error) {
-	if _, err := validateNewUser(&in); err != nil {
+	if _, err := a.validateNewUser(&in); err != nil {
+		return identity.NewSession{}, err
+	}
+	apps, err := a.requestedApps(in)
+	if err != nil {
 		return identity.NewSession{}, err
 	}
 	if err := validatePasswordInput(in.Password); err != nil {
@@ -420,6 +497,14 @@ func (a *Accounts) CreateFirstAdmin(in identity.NewUser, device, ip string) (ide
 		}); err != nil {
 			return sanitizeErr(err)
 		}
+		for _, app := range apps {
+			if err := q.InsertAppGrant(ctx, gen.InsertAppGrantParams{
+				UserID: userID, App: string(app), Role: string(identity.RoleMember),
+				GrantedAt: ts(now),
+			}); err != nil {
+				return sanitizeErr(err)
+			}
+		}
 		if err := a.addAudit(ctx, q, nil, "", "acct", "Tạo tài khoản quản trị đầu tiên", in.Username, "", "", ""); err != nil {
 			return err
 		}
@@ -445,11 +530,14 @@ func (a *Accounts) FirstUserCreatedAt() (time.Time, bool, error) {
 }
 
 func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identity.UserView, error) {
+	if !a.opts.ProjectAccess && (patch.Role != nil || patch.Projects != nil || patch.Disabled != nil) {
+		return identity.UserView{}, fmt.Errorf("%w: thao tác quyền hệ thống/dự án không có trên backend này", identity.ErrUnsupported)
+	}
 	var projects map[string]identity.ProjectRole
 	if patch.Projects != nil {
 		projects = map[string]identity.ProjectRole{}
 		for id, level := range *patch.Projects {
-			if !library.ValidProjectID(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
+			if !a.project(id) || (level != identity.ProjectOwner && level != identity.ProjectCollab && level != identity.ProjectView) {
 				return identity.UserView{}, fmt.Errorf("%w: quyền dự án không hợp lệ", identity.ErrInvalidInput)
 			}
 			projects[id] = level
@@ -467,7 +555,7 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 			return identity.UserView{}, err
 		}
 		var err error
-		// Argon2 ngoài transaction.
+		// Argon2 outside the transaction.
 		if hash, err = identity.HashPasswordForBackend(*patch.Password); err != nil {
 			return identity.UserView{}, err
 		}
@@ -531,8 +619,10 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 		if patch.Projects != nil {
 			newProjects = projects
 		}
-		if err := a.checkOwnerInvariants(ctx, q, row, status == "locked", before.Projects, newProjects); err != nil {
-			return err
+		if a.opts.ProjectAccess {
+			if err := a.checkOwnerInvariants(ctx, q, row, status == "locked", before.Projects, newProjects); err != nil {
+				return err
+			}
 		}
 		row, err = q.UpdateUserAfterPatch(ctx, gen.UpdateUserAfterPatchParams{
 			ID:                 row.ID,
@@ -558,7 +648,8 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 		}
 		if hash != "" {
 			if mustChange {
-				// 管理员重置/签发 → mật khẩu tạm một lần; mật khẩu cũ vô hiệu.
+				// Admin reset/issue → one-time temporary password; the old
+				// password stops working.
 				if err := q.RevokeAllTempPasswords(ctx, gen.RevokeAllTempPasswordsParams{UserID: row.ID, RevokedAt: ts(now)}); err != nil {
 					return sanitizeErr(err)
 				}
@@ -608,6 +699,9 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 			}
 		}
 		if patch.Role != nil && before.Role != identity.Role(role) {
+			// A privilege change invalidates every existing session: the next
+			// login issues a new session id with the new effective grants.
+			revoke = true
 			if err := a.addAudit(ctx, q, patch.Actor, "", "perm", "Đổi quyền hệ thống", username, string(before.Role), role, patch.Reason); err != nil {
 				return err
 			}
@@ -632,7 +726,7 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 			}
 		}
 		if revoke {
-			if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, pgtype.UUID{}); err != nil {
+			if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
 				return err
 			}
 		}
@@ -649,6 +743,9 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 }
 
 func (a *Accounts) DeleteUser(username string, auditCtxs ...identity.AuditContext) error {
+	if err := a.requireProjectAccess(); err != nil {
+		return err
+	}
 	ctx_ := auditContextOf(auditCtxs)
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
@@ -667,7 +764,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...identity.AuditContex
 		if err != nil {
 			return err
 		}
-		// Không xoá owner cuối: phải transfer/delete project trong cùng tx.
+		// Do not delete the last owner: transfer/delete the project first.
 		for p, role := range u.Projects {
 			if role == identity.ProjectOwner && !u.Disabled {
 				pid, err := projectID(ctx, q, p)
@@ -699,7 +796,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...identity.AuditContex
 				return identity.ErrLastAdmin
 			}
 		}
-		_, err = a.revokeUserAuth(ctx, q, tx, row.ID, pgtype.UUID{})
+		_, err = a.revokeUserAuth(ctx, q, tx, row.ID)
 		return err
 	})
 }
@@ -711,10 +808,11 @@ func auditContextOf(context []identity.AuditContext) identity.AuditContext {
 	return identity.AuditContext{}
 }
 
-// revokeUserAuth revokes every session except keep plus all pairings; the
-// revoked session IDs come back for callers that broadcast them (Recover).
-func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx, userID pgtype.UUID, keep pgtype.UUID) ([]string, error) {
-	revoked, err := revokeUserSessionsExcept(ctx, tx, userID, a.now(), keep)
+// revokeUserAuth revokes every session (current one included) and all pairings
+// of the account; the revoked session IDs come back for callers that broadcast
+// them (Recover).
+func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx, userID pgtype.UUID) ([]string, error) {
+	revoked, err := revokeAllUserSessions(ctx, tx, userID, a.now())
 	if err != nil {
 		return nil, err
 	}

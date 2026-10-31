@@ -49,6 +49,10 @@ func TestADMembersContract(t *testing.T) {
 	if changed.Code != 200 {
 		t.Fatalf("change password: %d %s", changed.Code, changed.Body)
 	}
+	if rec := authReq(g, "GET", "/api/me", "", cookie); rec.Code != 401 {
+		t.Fatalf("password change must revoke the current session: %d %s", rec.Code, rec.Body)
+	}
+	cookie = authLogin(t, g, "linh", "permanent-pass")
 	list := authReq(g, "GET", "/api/users", "", admin)
 	if strings.Contains(list.Body.String(), "temporary-pass") || strings.Contains(list.Body.String(), "passwordHash") || strings.Contains(list.Body.String(), `"books"`) {
 		t.Fatalf("member list leaked legacy or secret data: %s", list.Body)
@@ -255,8 +259,8 @@ func TestADDeviceSignOutAndOptionalReasons(t *testing.T) {
 	if rec := authReq(g, "POST", "/api/me/sessions/revoke-all", `{}`, two); rec.Code != 200 {
 		t.Fatal(rec.Body)
 	}
-	if rec := authReq(g, "GET", "/api/me", "", two); rec.Code != 200 {
-		t.Fatal("self revoke-all must keep current device")
+	if rec := authReq(g, "GET", "/api/me", "", two); rec.Code != 401 {
+		t.Fatal("self revoke-all must revoke the current device too")
 	}
 	for _, body := range []string{`{"disabled":true}`, `{"disabled":false}`} {
 		if rec := authReq(g, "POST", "/api/users/writer", body, admin); rec.Code != 200 {

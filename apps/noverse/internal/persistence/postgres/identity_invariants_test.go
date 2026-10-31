@@ -6,49 +6,9 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
-
-// TestConcurrentFirstAdmin races N first-admin requests on an empty schema:
-// đúng một người thắng qua auth_invariant_lock + check-trong-tx; còn lại
-// ErrExists. Hai process (hai Accounts instance, cùng pool) cũng ra kết quả
-// nối tiếp chứ không race.
-func TestConcurrentFirstAdmin(t *testing.T) {
-	dsn := pgtest.Provision(t)
-	migrateSchema(t, dsn)
-	pool := openPool(t, dsn)
-	const n = 4
-	stores := make([]*identity.Store, n)
-	for i := range stores {
-		stores[i] = identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
-	}
-	var wg sync.WaitGroup
-	errs := make([]error, n)
-	for i := range n {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			_, errs[i] = stores[i].CreateFirstAdmin(identity.NewUser{
-				Username: "admin-race", Password: "mat-khau-12345"}, "Mac", "")
-		}()
-	}
-	wg.Wait()
-	wins := 0
-	for _, err := range errs {
-		switch {
-		case err == nil:
-			wins++
-		case errors.Is(err, identity.ErrExists):
-		default:
-			t.Fatalf("unexpected error: %v", err)
-		}
-	}
-	if wins != 1 {
-		t.Fatalf("first-admin race must have exactly one winner, got %d", wins)
-	}
-}
 
 // TestConcurrentLastAdmin races demote-last-admin mutations: một bên thắng,
 // bên kia ErrLastAdmin, và không bao giờ về 0 admin.
@@ -57,8 +17,8 @@ func TestConcurrentLastAdmin(t *testing.T) {
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
 	member := identity.RoleMember
-	s1 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
-	s2 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	s1 := identity.NewFromRepository(identityRepo(pool), library.IdentityOptions())
+	s2 := identity.NewFromRepository(identityRepo(pool), library.IdentityOptions())
 	for _, u := range []identity.NewUser{
 		{Username: "a1", Role: identity.RoleAdmin, Password: "mat-khau-12345"},
 		{Username: "a2", Role: identity.RoleAdmin, Password: "mat-khau-12345"},
@@ -105,8 +65,8 @@ func TestConcurrentOwner(t *testing.T) {
 	dsn := pgtest.Provision(t)
 	migrateSchema(t, dsn)
 	pool := openPool(t, dsn)
-	s1 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
-	s2 := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	s1 := identity.NewFromRepository(identityRepo(pool), library.IdentityOptions())
+	s2 := identity.NewFromRepository(identityRepo(pool), library.IdentityOptions())
 	for _, u := range []identity.NewUser{
 		{Username: "old", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"da": identity.ProjectOwner}, Password: "mat-khau-12345"},
 		{Username: "new1", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"da": identity.ProjectCollab}, Password: "mat-khau-12345"},

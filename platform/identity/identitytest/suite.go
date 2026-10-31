@@ -167,15 +167,17 @@ func Run(t *testing.T, factory Factory) {
 		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(two.Cookie); return err }), identity.ErrUnauthenticated, "revoked session")
 		// allowed=false must deny.
 		isErr(t, s.RevokeSession(sessionIDOf(t, one.Cookie), func(string) bool { return false }), identity.ErrForbidden, "revoke denied")
-		// RevokeAll keeps the named session only.
+		// RevokeAll revokes every session of the account, including the one
+		// that asked for it — shared-session SSO contract.
 		three, err := s.Login("chu", pass1, "Tablet", "10.0.0.3")
 		if err != nil {
 			t.Fatal(err)
 		}
-		isErr(t, s.RevokeAll("chu", sessionIDOf(t, three.Cookie), identity.AuditContext{}), nil, "revoke all")
+		isErr(t, s.RevokeAll("chu", identity.AuditContext{}), nil, "revoke all")
 		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(one.Cookie); return err }), identity.ErrUnauthenticated, "revoke-all dropped old")
-		if _, _, err := s.Authenticate(three.Cookie); err != nil {
-			t.Fatalf("kept session: %v", err)
+		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(three.Cookie); return err }), identity.ErrUnauthenticated, "revoke-all dropped the current session")
+		if _, err := s.Login("chu", pass1, "Mac", ""); err != nil {
+			t.Fatalf("login after revoke-all: %v", err)
 		}
 	})
 
@@ -186,11 +188,10 @@ func Run(t *testing.T, factory Factory) {
 		}
 		one, _ := s.Login("chu", pass1, "Mac", "")
 		two, _ := s.Login("chu", pass1, "Phone", "")
-		isErr(t, s.ChangePassword("chu", "sai-hien-tai", pass2, sessionIDOf(t, one.Cookie)), identity.ErrForbidden, "wrong current")
-		isErr(t, s.ChangePassword("chu", pass1, pass2, sessionIDOf(t, one.Cookie)), nil, "change")
-		if _, _, err := s.Authenticate(one.Cookie); err != nil {
-			t.Fatalf("current session must survive password change: %v", err)
-		}
+		isErr(t, s.ChangePassword("chu", "sai-hien-tai", pass2), identity.ErrForbidden, "wrong current")
+		isErr(t, s.ChangePassword("chu", pass1, pass2), nil, "change")
+		// A password change revokes every session — the calling one included.
+		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(one.Cookie); return err }), identity.ErrUnauthenticated, "current session must be revoked on password change")
 		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(two.Cookie); return err }), identity.ErrUnauthenticated, "other session revoked")
 		isErr(t, errorCheck(func() error { _, err := s.Login("chu", pass1, "", ""); return err }), identity.ErrInvalidCredentials, "old password")
 		if _, err := s.Login("chu", pass2, "", ""); err != nil {
@@ -226,16 +227,18 @@ func Run(t *testing.T, factory Factory) {
 		}
 		// Mã một lần: login thứ hai bằng cùng mật khẩu tạm phải hỏng.
 		isErr(t, errorCheck(func() error { _, err := s.Login("moi", "temp-pass-111", "Mac2", ""); return err }), identity.ErrInvalidCredentials, "temp reuse")
-		// Phiên restricted đổi được mật khẩu dù mã đã đốt.
-		isErr(t, s.ChangePassword("moi", "temp-pass-111", pass1, sessionIDOf(t, ns.Cookie)), nil, "restricted change")
-		u, _, err := s.Authenticate(ns.Cookie)
-		if err != nil || u.MustChangePassword {
-			t.Fatalf("change must clear restriction and keep session: %v %+v", err, u)
-		}
-		isErr(t, errorCheck(func() error { _, err := s.Login("moi", "temp-pass-111", "", ""); return err }), identity.ErrInvalidCredentials, "temp after change")
-		if _, err := s.Login("moi", pass1, "", ""); err != nil {
+		// Phiên restricted đổi được mật khẩu dù mã đã đốt; đổi xong phiên đó
+		// cũng bị thu hồi nên phải đăng nhập lại bằng mật khẩu mới.
+		isErr(t, s.ChangePassword("moi", "temp-pass-111", pass1), nil, "restricted change")
+		isErr(t, errorCheck(func() error { _, _, err := s.Authenticate(ns.Cookie); return err }), identity.ErrUnauthenticated, "change revokes the restricted session too")
+		fresh, err := s.Login("moi", pass1, "", "")
+		if err != nil {
 			t.Fatalf("permanent login: %v", err)
 		}
+		if fresh.User.MustChangePassword {
+			t.Fatal("change must clear the must-change restriction")
+		}
+		isErr(t, errorCheck(func() error { _, err := s.Login("moi", "temp-pass-111", "", ""); return err }), identity.ErrInvalidCredentials, "temp after change")
 	})
 
 	t.Run("pairing", func(t *testing.T) {

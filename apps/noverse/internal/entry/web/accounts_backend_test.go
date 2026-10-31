@@ -13,11 +13,12 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/platform/identity"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
 
 // pgAccountsGateway migrates an isolated Postgres schema and returns a Gateway
-// whose accounts facade is backed by postgres.NewAccounts. The account routes
+// whose accounts facade is backed by the shared identity repository. The account routes
 // exercise the Repository facade end-to-end over HTTP.
 func pgAccountsGateway(t *testing.T) *Gateway {
 	t.Helper()
@@ -48,7 +49,7 @@ func pgAccountsGateway(t *testing.T) *Gateway {
 	must(os.WriteFile(filepath.Join(mkdirAll(t, root, "proj"), "project.json"), []byte(`{"name":"Proj"}`), 0o644))
 	mkdirAll(t, root, "proj", "kich_ban")
 
-	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	accounts := identity.NewFromRepository(identitypg.NewAccounts(pool.Pool(), identitypg.Options{ProjectAccess: true, ValidProjectID: library.ValidProjectID}), library.IdentityOptions())
 	for _, u := range []identity.NewUser{
 		{Username: "admin", Role: identity.RoleAdmin, Password: "admin-pass"},
 		{Username: "writer", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"proj": identity.ProjectOwner}, Password: "writer-pass"},

@@ -88,6 +88,8 @@ var httpErrorRules = []httpErrorRule{
 	{identity.ErrLastOwner, http.StatusConflict, "", true},
 	{identity.ErrOwnerTaken, http.StatusConflict, "", true},
 	{identity.ErrRecoveryExists, http.StatusConflict, "", true},
+	{identity.ErrConflict, http.StatusConflict, "", true},
+	{identity.ErrUnsupported, http.StatusNotImplemented, "", true},
 
 	// Library / project selection.
 	{library.ErrInvalidName, http.StatusBadRequest, "", true},

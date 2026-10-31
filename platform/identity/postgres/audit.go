@@ -10,12 +10,16 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
 // addAudit appends one audit entry inside the caller's transaction — the log
 // is part of the same atomic write as the mutation it records.
+//
+// Account/grant entries use the project-less INSERT, which never returns
+// columns: the least-privilege identity role holds INSERT on that column list
+// only. Project-scoped entries (Noverse membership operations) keep project_id.
 func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *identity.AuditActor, project, typ, action, target, from, to, reason string) error {
 	id, err := randomUUID()
 	if err != nil {
@@ -44,15 +48,30 @@ func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *identity
 	if err != nil {
 		return err
 	}
-	var projectID pgtype.UUID
 	if project != "" {
-		if p, err := q.GetProjectBySlug(ctx, project); err == nil {
-			projectID = p.ID
+		p, err := q.GetProjectBySlug(ctx, project)
+		if err == nil {
+			err = q.InsertProjectAudit(ctx, gen.InsertProjectAuditParams{
+				ID:          id,
+				ProjectID:   p.ID,
+				ActorUserID: actorID,
+				ActorKind:   kind,
+				Action:      action,
+				TargetKind:  typ,
+				TargetID:    target,
+				Details:     payload,
+				OccurredAt:  ts(a.now()),
+			})
+			return sanitizeErr(err)
 		}
+		if !noRows(err) {
+			return sanitizeErr(err)
+		}
+		// A missing project anchor degrades to an account entry (NULL project)
+		// instead of inventing a project row.
 	}
-	_, err = q.InsertAudit(ctx, gen.InsertAuditParams{
+	err = q.InsertAccountAudit(ctx, gen.InsertAccountAuditParams{
 		ID:          id,
-		ProjectID:   projectID,
 		ActorUserID: actorID,
 		ActorKind:   kind,
 		Action:      action,
@@ -68,6 +87,9 @@ func (a *Accounts) addAudit(ctx context.Context, q *gen.Queries, actor *identity
 // the file backend: cursor is the zero-padded entry id, Next is the id of
 // the last returned item when a full page was emitted.
 func (a *Accounts) Audit(query identity.AuditQuery) (identity.AuditPage, error) {
+	if err := a.requireProjectAccess(); err != nil {
+		return identity.AuditPage{}, err
+	}
 	if query.Type != "" && query.Type != "acct" && query.Type != "perm" && query.Type != "sec" {
 		return identity.AuditPage{}, fmt.Errorf("%w: loại nhật ký không hợp lệ", identity.ErrInvalidInput)
 	}
@@ -148,6 +170,9 @@ func listAuditRows(ctx context.Context, db gen.DBTX, typ, actor string, beforeSe
 // requires that privilege plus the maintenance marker, so this method fails
 // with the app DSN and works with the maintenance DSN (`storage purge-audit`).
 func (a *Accounts) PurgeAuditBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	if err := a.requireProjectAccess(); err != nil {
+		return 0, err
+	}
 	var n int64
 	err := RunInTx(ctx, a.pool, func(tx pgx.Tx) error {
 		if _, err := tx.Exec(ctx, `SET LOCAL noverse.allow_immutable_write = 'on'`); err != nil {

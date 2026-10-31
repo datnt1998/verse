@@ -10,7 +10,6 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/platform/identity"
 )
 
@@ -92,9 +91,10 @@ func TestSessionTouchBumpsVersion(t *testing.T) {
 		sessionID, userID, deviceID, make([]byte, 32)); err != nil {
 		t.Fatalf("insert session: %v", err)
 	}
-	if err := gen.New(f.pool.Pool()).TouchSessionLastSeen(ctx, gen.TouchSessionLastSeenParams{
-		ID: sessionID, LastSeenAt: pgtype.Timestamptz{Time: time.Now().UTC(), Valid: true},
-	}); err != nil {
+	if _, err := f.pool.Pool().Exec(ctx, `UPDATE sessions
+		SET last_seen_at = $2, updated_at = clock_timestamp(), version = version + 1
+		WHERE id = $1 AND revoked_at IS NULL`,
+		sessionID, pgtype.Timestamptz{Time: time.Now().UTC(), Valid: true}); err != nil {
 		t.Fatalf("touch session: %v", err)
 	}
 	var version int64
@@ -113,7 +113,7 @@ func TestSessionTouchBumpsVersion(t *testing.T) {
 func TestAuditRetentionIsNotAReadSideEffect(t *testing.T) {
 	f := provisionNarrative(t, "audit-proj", "audit-story")
 	ctx := context.Background()
-	accounts := postgres.NewAccounts(f.pool)
+	accounts := identityRepo(f.pool)
 	id := deterministicUUID("audit", "old-entry")
 	if _, err := f.pool.Pool().Exec(ctx, `INSERT INTO audit_logs
 		(id, actor_kind, action, target_kind, target_id, occurred_at)

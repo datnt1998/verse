@@ -354,15 +354,15 @@ func (s *Store) RecordSecurityFailure(username string) error {
 		return nil
 	})
 }
-func (s *Store) RevokeAll(username, keep string, context AuditContext) error {
+func (s *Store) RevokeAll(username string, context AuditContext) error {
 	if s.repo != nil {
-		return s.repo.RevokeAll(username, keep, context)
+		return s.repo.RevokeAll(username, context)
 	}
 	return s.update(func(d *data) error {
 		if d.user(username) == nil {
 			return ErrNotFound
 		}
-		d.dropSessions(func(x session) bool { return x.Username != username || x.ID == keep })
+		d.dropSessions(func(x session) bool { return x.Username != username })
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(x pairing) bool { return x.Username == username })
 		s.addAudit(d, context.Actor, "sec", "Đăng xuất mọi thiết bị", username, "", "", context.Reason)
 		return nil

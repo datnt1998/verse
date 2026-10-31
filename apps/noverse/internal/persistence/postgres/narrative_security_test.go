@@ -32,7 +32,7 @@ func provisionMembers(t *testing.T) memberFixture {
 	t.Helper()
 	f := provisionNarrative(t, "project-a", "truyen-a")
 	ctx := context.Background()
-	accounts := identity.NewFromRepository(postgres.NewAccounts(f.pool), library.IdentityOptions())
+	accounts := identity.NewFromRepository(identityRepo(f.pool), library.IdentityOptions())
 	q := gen.New(f.pool.Pool())
 
 	project, err := q.GetProjectBySlug(ctx, "project-a")

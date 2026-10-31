@@ -28,6 +28,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	"github.com/datnt1998/verse/platform/identity"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
@@ -267,7 +268,9 @@ func openAccounts(cfg bootstrap.StorageConfig) (*identity.Store, func(), error) 
 		if err != nil {
 			return nil, nil, fmt.Errorf("mở postgres cho tài khoản: %w", err)
 		}
-		return identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions()), pool.Close, nil
+		return identity.NewFromRepository(identitypg.NewAccounts(pool.Pool(), identitypg.Options{
+			ProjectAccess: true, ValidProjectID: library.ValidProjectID,
+		}), library.IdentityOptions()), pool.Close, nil
 	}
 	path, err := identity.DefaultPath(bootstrap.DefaultConfigDir())
 	if err != nil {

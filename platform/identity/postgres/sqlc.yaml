@@ -1,0 +1,19 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # The account schema stays owned by the Noverse goose migrations; sqlc only
+    # reads them at generation time. No DDL is copied or embedded here.
+    schema: "../../../apps/noverse/internal/persistence/migrations/"
+    # hand-written identity queries (no ORM, no scattered strings in repos).
+    queries: "queries/"
+    gen:
+      go:
+        package: "gen"
+        out: "gen"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: false
+        emit_interface: false
+        emit_exact_table_names: false
+        emit_empty_slices: true
+        overrides: []

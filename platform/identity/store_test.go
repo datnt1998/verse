@@ -131,15 +131,14 @@ func TestDisablingOrResettingPasswordRevokesSessions(t *testing.T) {
 
 	keep, _ := s.Login("admin", "admin-pass", "Mac", "")
 	other, _ := s.Login("admin", "admin-pass", "iPhone", "")
-	if err := s.ChangePassword("admin", "wrong", "new-admin-pass", ""); !errors.Is(err, ErrForbidden) {
+	if err := s.ChangePassword("admin", "wrong", "new-admin-pass"); !errors.Is(err, ErrForbidden) {
 		t.Fatalf("wrong current password: %v", err)
 	}
-	_, current, _ := s.Authenticate(keep.Cookie)
-	if err := s.ChangePassword("admin", "admin-pass", "new-admin-pass", current.ID); err != nil {
+	if err := s.ChangePassword("admin", "admin-pass", "new-admin-pass"); err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := s.Authenticate(keep.Cookie); err != nil {
-		t.Fatalf("current session must survive own password change: %v", err)
+	if _, _, err := s.Authenticate(keep.Cookie); !errors.Is(err, ErrUnauthenticated) {
+		t.Fatalf("current session must be revoked on own password change: %v", err)
 	}
 	if _, _, err := s.Authenticate(other.Cookie); !errors.Is(err, ErrUnauthenticated) {
 		t.Fatalf("other session survived password change: %v", err)
@@ -288,7 +287,7 @@ func TestMustChangePasswordLifecycle(t *testing.T) {
 	if _, err := s.Login("cli", "reset-pass-1", "Mac", ""); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.ChangePassword("cli", "reset-pass-1", "final-pass-1", ""); err != nil {
+	if err := s.ChangePassword("cli", "reset-pass-1", "final-pass-1"); err != nil {
 		t.Fatal(err)
 	}
 	c.t = c.t.Add(time.Second)

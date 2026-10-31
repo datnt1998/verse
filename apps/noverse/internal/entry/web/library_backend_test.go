@@ -21,6 +21,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/platform/identity"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
 
@@ -63,7 +64,7 @@ func provisionHostedGateway(t *testing.T, projectSlug, storySlug string) *hosted
 
 	ctx := context.Background()
 	repo := postgres.NewLibraryRepository(pool)
-	accounts := identity.NewFromRepository(postgres.NewAccounts(pool), library.IdentityOptions())
+	accounts := identity.NewFromRepository(identitypg.NewAccounts(pool.Pool(), identitypg.Options{ProjectAccess: true, ValidProjectID: library.ValidProjectID}), library.IdentityOptions())
 	for _, u := range []struct {
 		name string
 		role identity.Role

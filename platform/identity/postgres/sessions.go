@@ -10,8 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
 // --- sessions: inet/nullable-uuid parameters live in queries/accounts.sql ---
@@ -54,8 +54,8 @@ func upsertDevice(ctx context.Context, tx pgx.Tx, a *Accounts, userID pgtype.UUI
 	return row.ID, nil
 }
 
-// listSessions fetches active sessions; username "" lists every active
-// session (admin view). Returns session + owner username + device label.
+// listSessions fetches active sessions; userID zero lists every active session
+// (admin view). Returns session + owner username + device label.
 type pgSessionRow struct {
 	Session  gen.Session
 	Username string
@@ -84,11 +84,13 @@ func listSessions(ctx context.Context, db gen.DBTX, userID pgtype.UUID) ([]pgSes
 	return out, nil
 }
 
-// revokeUserSessionsExcept revokes every live session of a user except keep
-// and returns the revoked session IDs (Recover reports them for broadcast).
-func revokeUserSessionsExcept(ctx context.Context, tx pgx.Tx, userID pgtype.UUID, now time.Time, keep pgtype.UUID) ([]string, error) {
-	ids, err := gen.New(tx).RevokeUserSessionsExcept(ctx, gen.RevokeUserSessionsExceptParams{
-		UserID: userID, RevokedAt: ts(now), KeepID: keep,
+// revokeAllUserSessions revokes every live session of a user and returns the
+// revoked session IDs (callers that broadcast them). There is no keep
+// exception: password, disable, privilege and revoke-all flows invalidate
+// every session, including the one making the request.
+func revokeAllUserSessions(ctx context.Context, tx pgx.Tx, userID pgtype.UUID, now time.Time) ([]string, error) {
+	ids, err := gen.New(tx).RevokeAllUserSessions(ctx, gen.RevokeAllUserSessionsParams{
+		UserID: userID, RevokedAt: ts(now),
 	})
 	if err != nil {
 		return nil, sanitizeErr(err)
@@ -455,7 +457,9 @@ func (a *Accounts) RevokeSession(id string, allowed func(owner string) bool, aud
 	})
 }
 
-func (a *Accounts) RevokeAll(username, keep string, auditCtx identity.AuditContext) error {
+// RevokeAll revokes every session of the account, including the session that
+// asked for it: both apps must get 401 on the next request.
+func (a *Accounts) RevokeAll(username string, auditCtx identity.AuditContext) error {
 	return RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		q := a.q(tx)
@@ -466,13 +470,7 @@ func (a *Accounts) RevokeAll(username, keep string, auditCtx identity.AuditConte
 			}
 			return sanitizeErr(err)
 		}
-		var keepID pgtype.UUID
-		if keep != "" {
-			if parsed, err := parseUUID(strings.ToLower(keep)); err == nil {
-				keepID = parsed
-			}
-		}
-		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, keepID); err != nil {
+		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
 			return err
 		}
 		return a.addAudit(ctx, q, auditCtx.Actor, "", "sec", "Thu hồi mọi phiên", username, "", "", auditCtx.Reason)

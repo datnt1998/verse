@@ -293,7 +293,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 			tooMany(w, wait)
 			return true
 		}
-		if err := g.accounts.ChangePassword(user.Username, req.Current, req.New, current.ID); err != nil {
+		if err := g.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
 			if errors.Is(err, identity.ErrForbidden) {
 				g.limiter.Fail(key)
 				jsonError(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
@@ -310,7 +310,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 		if !g.emptyBody(w, r) {
 			return true
 		}
-		if err := g.accounts.RevokeAll(user.Username, current.ID, identity.AuditContext{Actor: accountActor(user)}); err != nil {
+		if err := g.accounts.RevokeAll(user.Username, identity.AuditContext{Actor: accountActor(user)}); err != nil {
 			accountError(w, err)
 			return true
 		}
@@ -498,11 +498,7 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin ident
 		if !g.emptyBody(w, r) {
 			return
 		}
-		keep := ""
-		if name == admin.Username {
-			keep = current.ID
-		}
-		if err := g.accounts.RevokeAll(name, keep, identity.AuditContext{Actor: accountActor(admin)}); err != nil {
+		if err := g.accounts.RevokeAll(name, identity.AuditContext{Actor: accountActor(admin)}); err != nil {
 			accountError(w, err)
 			return
 		}

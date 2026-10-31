@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -48,6 +49,13 @@ var (
 	ErrLastAdmin          = errors.New("Phải còn ít nhất một quản trị viên đang hoạt động.")
 	ErrInvalidInput       = errors.New("Dữ liệu không hợp lệ")
 	ErrForbidden          = errors.New("Bạn không có quyền thực hiện thao tác này.")
+	// ErrUnsupported reports an operation the selected backend cannot serve.
+	// File mode has no cross-app grants; Postgres with project access disabled
+	// refuses project reads/writes instead of pretending success.
+	ErrUnsupported = errors.New("backend không hỗ trợ thao tác này")
+	// ErrConflict reports a concurrent write that changed the expected state
+	// between the caller's read and its mutation.
+	ErrConflict = errors.New("dữ liệu vừa thay đổi bởi thao tác khác")
 )
 
 var usernamePattern = regexp.MustCompile(`^[a-z0-9._-]{2,32}$`)
@@ -63,6 +71,7 @@ type User struct {
 	Name               string                 `json:"name"`
 	Role               Role                   `json:"role"`
 	Projects           map[string]ProjectRole `json:"projects"`
+	Grants             map[App]Role           `json:"grants"`
 	Disabled           bool                   `json:"disabled"`
 	PasswordHash       string                 `json:"passwordHash"`
 	OnboardedAt        *time.Time             `json:"onboardedAt"`
@@ -99,6 +108,7 @@ type UserView struct {
 	Name               string                 `json:"name"`
 	Role               Role                   `json:"role"`
 	Projects           map[string]ProjectRole `json:"projects"`
+	Grants             map[App]Role           `json:"grants"`
 	Disabled           bool                   `json:"disabled"`
 	OnboardedAt        *time.Time             `json:"onboardedAt"`
 	MustChangePassword bool                   `json:"mustChangePassword"`
@@ -121,8 +131,16 @@ func (u User) View() UserView {
 	projects := u.Projects
 	if projects == nil {
 		projects = map[string]ProjectRole{}
+	} else {
+		projects = maps.Clone(projects)
 	}
-	return UserView{Username: u.Username, Name: u.Name, Role: u.Role, Projects: projects, Disabled: u.Disabled, OnboardedAt: u.OnboardedAt, MustChangePassword: u.MustChangePassword, CreatedAt: u.CreatedAt, UpdatedAt: u.UpdatedAt, DisabledAt: u.DisabledAt, DisabledBy: u.DisabledBy, DisabledReason: u.DisabledReason, PasswordChangedAt: u.PasswordChangedAt}
+	grants := u.Grants
+	if grants == nil {
+		// A file-mode account predates grant rows: its Noverse-only store
+		// carries effective Noverse access, admins inherit both apps.
+		grants = fileGrants(&u)
+	}
+	return UserView{Username: u.Username, Name: u.Name, Role: u.Role, Projects: projects, Grants: cloneGrants(grants), Disabled: u.Disabled, OnboardedAt: u.OnboardedAt, MustChangePassword: u.MustChangePassword, CreatedAt: u.CreatedAt, UpdatedAt: u.UpdatedAt, DisabledAt: u.DisabledAt, DisabledBy: u.DisabledBy, DisabledReason: u.DisabledReason, PasswordChangedAt: u.PasswordChangedAt}
 }
 
 // UserFromView xây User quyền-hạn từ một UserView và gắn legacyProject của
@@ -132,11 +150,22 @@ func (u User) View() UserView {
 // Chỉ mang theo trường có trong view — credential (PasswordHash, TempPassword,
 // Recovery) không bao giờ rời store qua đường này.
 func (s *Store) UserFromView(v UserView) User {
+	projects := v.Projects
+	if projects == nil {
+		projects = map[string]ProjectRole{}
+	} else {
+		projects = maps.Clone(projects)
+	}
+	grants := v.Grants
+	if grants == nil {
+		grants = fileGrants(&User{Role: v.Role})
+	}
 	return User{
 		Username:           v.Username,
 		Name:               v.Name,
 		Role:               v.Role,
-		Projects:           v.Projects,
+		Projects:           projects,
+		Grants:             cloneGrants(grants),
 		Disabled:           v.Disabled,
 		OnboardedAt:        v.OnboardedAt,
 		MustChangePassword: v.MustChangePassword,
@@ -555,8 +584,11 @@ type NewUser struct {
 	Projects map[string]ProjectRole `json:"projects"`
 	Password string                 `json:"password"`
 	// MustChangePassword 为 true 时新用户首次登录必须改密；仅服务端设置（网管建号），不接受 JSON 输入。
-	MustChangePassword bool        `json:"-"`
-	Actor              *AuditActor `json:"-"`
+	MustChangePassword bool `json:"-"`
+	// Apps 是服务端选择的显式 app grant；nil → backend dùng mặc định của nó.
+	// Không nhận JSON: client không được tự cấp quyền app.
+	Apps  []App       `json:"-"`
+	Actor *AuditActor `json:"-"`
 }
 
 func (s *Store) CreateUser(in NewUser) (UserView, error) {
@@ -583,6 +615,16 @@ func (s *Store) CreateUser(in NewUser) (UserView, error) {
 	}
 	if err := validatePassword(in.Password); err != nil {
 		return UserView{}, err
+	}
+	// File mode is the single-app Noverse store: it conveys Noverse access
+	// through the role, so a Viderse grant request cannot be honoured here.
+	for _, app := range in.Apps {
+		if !app.Valid() {
+			return UserView{}, ErrUnknownApp
+		}
+		if app != AppNoverse {
+			return UserView{}, fmt.Errorf("%w: backend file không cấp quyền %s", ErrUnsupported, app)
+		}
 	}
 	hash, err := hashPassword(in.Password)
 	if err != nil {
@@ -1075,6 +1117,10 @@ func (s *Store) Authenticate(cookie string) (User, Session, error) {
 	}
 	user := *u
 	user.legacyProject = s.opts.LegacyProjectID
+	user.Grants = cloneGrants(fileGrants(u))
+	if user.Projects != nil {
+		user.Projects = maps.Clone(user.Projects)
+	}
 	if now.Sub(x.LastSeen) > touchInterval {
 		_ = s.update(func(d *data) error {
 			for j := range d.Sessions {
@@ -1129,10 +1175,11 @@ func (s *Store) RevokeSession(id string, allowed func(owner string) bool, contex
 	})
 }
 
-// ChangePassword 校验旧密码后修改，并吊销该账号除 keepSession 外的所有会话。
-func (s *Store) ChangePassword(username, current, next, keepSession string) error {
+// ChangePassword 校验旧密码后修改，并吊销该账号的全部会话 —— 改密成功必须
+// 重新登录，包括正在使用的会话（两台 app 共享同一行会话）。
+func (s *Store) ChangePassword(username, current, next string) error {
 	if s.repo != nil {
-		return s.repo.ChangePassword(username, current, next, keepSession)
+		return s.repo.ChangePassword(username, current, next)
 	}
 	d, err := s.snapshot()
 	if err != nil {
@@ -1170,7 +1217,7 @@ func (s *Store) ChangePassword(username, current, next, keepSession string) erro
 		// 自己成功改密后解除“必须改密”标记。
 		u.MustChangePassword = false
 		u.UpdatedAt = s.now()
-		d.dropSessions(func(x session) bool { return x.Username != username || x.ID == keepSession })
+		d.dropSessions(func(x session) bool { return x.Username != username })
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return p.Username == username })
 		s.addAudit(d, &AuditActor{Username: u.Username, Name: u.Name}, "sec", "Đổi mật khẩu", username, "", "", "")
 		return nil

@@ -65,6 +65,13 @@ jobs:
           GOWORK: "off"
         run: go tool sqlc diff
 
+      - name: Generated SQL code is current (shared identity)
+        if: runner.os == 'Linux'
+        working-directory: platform/identity/postgres
+        env:
+          GOWORK: "off"
+        run: go tool sqlc diff
+
       - name: Start Postgres and MinIO
         if: runner.os == 'Linux'
         run: docker compose -f apps/noverse/deploy/compose.test.yml up -d --wait postgres minio

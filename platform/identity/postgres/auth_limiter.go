@@ -6,21 +6,22 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
-// AuthLimiter là backoff limiter login/pairing trên login_rate_limits:
-// cùng mô hình retryAfter/base/cap như identity.Limiter nhưng state sống trong
-// DB nên hạn chế chia sẻ giữa các process/serve và sống sót restart.
-// Bucket key = sha256(prefix + "|" + key) — không lưu IP/username thô.
+// AuthLimiter is the login/pairing backoff limiter on login_rate_limits: the
+// same retryAfter/base/cap shape as identity.Limiter, but the state lives in
+// the database so two app processes share one budget and a restart does not
+// reset it. Bucket key = sha256("auth|" + key) — no raw IP/username stored.
 type AuthLimiter struct {
-	pool *Pool
+	pool *pgxpool.Pool
 	now  func() time.Time
 }
 
-// NewAuthLimiter builds the shared login/pairing limiter on the app pool.
-func NewAuthLimiter(pool *Pool) *AuthLimiter {
+// NewAuthLimiter builds the shared login/pairing limiter on the identity pool.
+func NewAuthLimiter(pool *pgxpool.Pool) *AuthLimiter {
 	return &AuthLimiter{pool: pool, now: time.Now}
 }
 
@@ -42,7 +43,7 @@ func (l *AuthLimiter) Wait(keys ...string) time.Duration {
 	now := l.now()
 	for _, k := range keys {
 		bucket := bucketKey("auth", k)
-		row, err := gen.New(l.pool.Pool()).GetLimitBucket(context.Background(), bucket)
+		row, err := gen.New(l.pool).GetLimitBucket(context.Background(), bucket)
 		if err != nil {
 			continue // missing bucket or read failure: fail open, Fail records
 		}
@@ -66,7 +67,7 @@ func (l *AuthLimiter) Fail(keys ...string) {
 
 // Succeed clears the buckets after a successful credential check.
 func (l *AuthLimiter) Succeed(keys ...string) {
-	q := gen.New(l.pool.Pool())
+	q := gen.New(l.pool)
 	for _, k := range keys {
 		_ = q.DeleteLimitBucket(context.Background(), bucketKey("auth", k))
 	}
@@ -76,7 +77,7 @@ func (l *AuthLimiter) Succeed(keys ...string) {
 // the count keeps growing across expired blocks and each block doubles, like
 // the memory limiter; a bucket idle past expires_at starts over.
 func (l *AuthLimiter) bump(bucket []byte, now time.Time) {
-	_ = RunInTx(context.Background(), l.pool.Pool(), func(tx pgx.Tx) error {
+	_ = RunInTx(context.Background(), l.pool, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		row, err := q.GetLimitBucketForUpdate(context.Background(), bucket)
 		fails := int32(0)
@@ -115,11 +116,12 @@ func (l *AuthLimiter) backoff(fails int32) time.Duration {
 
 // --- recovery window limiter -------------------------------------------------
 
-// WindowLimiter là limiter cửa sổ trượt N lần/window trên cùng bảng — dùng
-// cho recovery (5 lần/giờ). Khác backoff: Wait chỉ nhìn failures trong
-// window hiện tại; bucket reset khi window_started_at cũ hết hạn.
+// WindowLimiter is the sliding-window N tries/window limiter on the same
+// table — used for recovery codes. Unlike the backoff limiter, Wait only looks
+// at failures inside the current window; the bucket resets when
+// window_started_at falls out of it.
 type WindowLimiter struct {
-	pool   *Pool
+	pool   *pgxpool.Pool
 	now    func() time.Time
 	kind   string
 	limit  int
@@ -127,7 +129,7 @@ type WindowLimiter struct {
 }
 
 // NewWindowLimiter builds a DB sliding-window limiter (recovery codes).
-func NewWindowLimiter(pool *Pool, kind string, limit int, window time.Duration) *WindowLimiter {
+func NewWindowLimiter(pool *pgxpool.Pool, kind string, limit int, window time.Duration) *WindowLimiter {
 	return &WindowLimiter{pool: pool, now: time.Now, kind: kind, limit: limit, window: window}
 }
 
@@ -135,7 +137,7 @@ func NewWindowLimiter(pool *Pool, kind string, limit int, window time.Duration) 
 // charged by Fail, matching identity.WindowLimiter semantics exactly.
 func (l *WindowLimiter) Wait(key string) time.Duration {
 	bucket := bucketKey(l.kind, key)
-	row, err := gen.New(l.pool.Pool()).GetLimitBucket(context.Background(), bucket)
+	row, err := gen.New(l.pool).GetLimitBucket(context.Background(), bucket)
 	if err != nil {
 		return 0 // read failure fails open; Fail still records the attempt
 	}
@@ -159,7 +161,7 @@ func (l *WindowLimiter) Wait(key string) time.Duration {
 func (l *WindowLimiter) Fail(key string) {
 	bucket := bucketKey(l.kind, key)
 	now := l.now()
-	_ = RunInTx(context.Background(), l.pool.Pool(), func(tx pgx.Tx) error {
+	_ = RunInTx(context.Background(), l.pool, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		row, err := q.GetLimitBucketForUpdate(context.Background(), bucket)
 		fails := int32(0)
@@ -185,6 +187,6 @@ func (l *WindowLimiter) Fail(key string) {
 
 // Succeed clears the bucket after a valid code.
 func (l *WindowLimiter) Succeed(key string) {
-	q := gen.New(l.pool.Pool())
+	q := gen.New(l.pool)
 	_ = q.DeleteLimitBucket(context.Background(), bucketKey(l.kind, key))
 }

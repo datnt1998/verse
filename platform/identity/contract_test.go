@@ -94,11 +94,12 @@ func TestAccountContractFile(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := s.ChangePassword("quan-tri", "mat-khau-quan-tri-1", "mat-khau-moi-12345", sessionIDOf(t, ns.Cookie)); err != nil {
+		if err := s.ChangePassword("quan-tri", "mat-khau-quan-tri-1", "mat-khau-moi-12345"); err != nil {
 			t.Fatal(err)
 		}
-		if _, _, err := s.Authenticate(ns.Cookie); err != nil {
-			t.Fatalf("kept session must survive password change: %v", err)
+		// Password change revokes every session, the current one included.
+		if _, _, err := s.Authenticate(ns.Cookie); !errors.Is(err, ErrUnauthenticated) {
+			t.Fatalf("current session must be revoked on password change: %v", err)
 		}
 		if _, _, err := s.Authenticate(ns2.Cookie); !errors.Is(err, ErrUnauthenticated) {
 			t.Fatalf("other session must be revoked on password change: %v", err)
@@ -111,8 +112,12 @@ func TestAccountContractFile(t *testing.T) {
 		if _, err := s.UpdateUser("quan-tri", UserPatch{MustChangePassword: &tru}); err != nil {
 			t.Fatal(err)
 		}
-		if u, _, err := s.Authenticate(ns.Cookie); err != nil || !u.MustChangePassword {
-			t.Fatalf("mustChangePassword flag must persist: %v %+v", err, u)
+		fresh, err := s.Login("quan-tri", "mat-khau-moi-12345", "Mac", "")
+		if err != nil {
+			t.Fatalf("login after reset: %v", err)
+		}
+		if !fresh.User.MustChangePassword {
+			t.Fatalf("mustChangePassword flag must persist: %+v", fresh.User)
 		}
 	})
 
@@ -242,13 +247,4 @@ func TestAccountContractFile(t *testing.T) {
 			t.Fatalf("migration must keep the original bytes: %v", err)
 		}
 	})
-}
-
-func sessionIDOf(t *testing.T, cookie string) string {
-	t.Helper()
-	id, _, ok := strings.Cut(cookie, ".")
-	if !ok || id == "" {
-		t.Fatalf("cookie shape must be id.secret: %q", cookie)
-	}
-	return id
 }

@@ -22,6 +22,14 @@ type AgentSession struct {
 	Version   int64              `json:"version"`
 }
 
+type AppGrant struct {
+	UserID    pgtype.UUID        `json:"user_id"`
+	App       string             `json:"app"`
+	Role      string             `json:"role"`
+	GrantedBy pgtype.UUID        `json:"granted_by"`
+	GrantedAt pgtype.Timestamptz `json:"granted_at"`
+}
+
 type AudioCast struct {
 	ProjectID pgtype.UUID        `json:"project_id"`
 	StoryID   pgtype.UUID        `json:"story_id"`

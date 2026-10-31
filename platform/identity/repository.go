@@ -16,6 +16,9 @@ import (
 //     argon2 đầy đủ (không enumeration qua thời gian).
 //   - Temporary password một lần, TTL TempPasswordTTL; phiên restricted chỉ
 //     được /api/me*, /api/logout cho đến khi ChangePassword thành công.
+//   - Đổi/reset mật khẩu, khoá tài khoản và RevokeAll thu hồi MỌI phiên của
+//     tài khoản, kể cả phiên đang dùng; phiên hợp lệ kế tiếp chỉ có sau khi
+//     đăng nhập lại.
 //   - Tối thiểu một admin active và đúng một owner active mỗi project:
 //     mutation để lại 0 admin → ErrLastAdmin; 0 owner → ErrLastOwner; mở
 //     thêm owner thứ hai → ErrOwnerTaken. Chuyển owner chỉ qua
@@ -36,8 +39,8 @@ type Repository interface {
 	Authenticate(cookie string) (User, Session, error)
 	Sessions(username, currentID string) ([]Session, error)
 	RevokeSession(id string, allowed func(owner string) bool, context ...AuditContext) error
-	RevokeAll(username, keep string, context AuditContext) error
-	ChangePassword(username, current, next, keepSession string) error
+	RevokeAll(username string, context AuditContext) error
+	ChangePassword(username, current, next string) error
 	IssueRecovery(username string, rotate bool) (string, time.Time, error)
 	RecoveryStatus(username string) (RecoveryStatus, error)
 	Recover(username, code, newPassword, device, ip string) (NewSession, []string, error)

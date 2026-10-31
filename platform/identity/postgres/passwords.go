@@ -3,27 +3,29 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/datnt1998/verse/apps/noverse/internal/errs"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/postgres/gen"
 )
 
 // --- change password --------------------------------------------------------
 
-func (a *Accounts) ChangePassword(username, current, next, keepSession string) error {
+// ChangePassword verifies the current password, stores the new hash and
+// revokes EVERY session of the account — including the calling one. Both apps
+// must sign in again with the new credential.
+func (a *Accounts) ChangePassword(username, current, next string) error {
 	ctx := context.Background()
 	u, _, err := a.userByUsername(ctx, a.qp(), username)
 	if err != nil {
 		return err
 	}
-	// Phiên restricted (must_change) xác thực "mật khẩu hiện tại" bằng mật
-	// khẩu tạm — kể cả khi mã đã đốt/hết hạn, miễn phiên còn hiệu lực.
+	// A restricted session (must_change) authenticates "current password" with
+	// the temporary password — even after it was consumed/expired, as long as
+	// the session itself is still valid.
 	currentHash := u.PasswordHash
 	if u.MustChangePassword && u.TempPassword != nil {
 		currentHash = u.TempPassword.CodeHash
@@ -59,7 +61,7 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 			return sanitizeErr(err)
 		}
 		if cred.PasswordHash.String != u.PasswordHash {
-			return fmt.Errorf("%w: tài khoản vừa được thay đổi, hãy đăng nhập lại", errConflict())
+			return fmt.Errorf("%w: tài khoản vừa được thay đổi, hãy đăng nhập lại", identity.ErrConflict)
 		}
 		if err := q.SetCredentialHash(ctx, gen.SetCredentialHashParams{
 			UserID: row.ID, PasswordHash: pgtype.Text{String: hash, Valid: true}, PasswordChangedAt: ts(now),
@@ -69,28 +71,17 @@ func (a *Accounts) ChangePassword(username, current, next, keepSession string) e
 		if err := q.RevokeAllTempPasswords(ctx, gen.RevokeAllTempPasswordsParams{UserID: row.ID, RevokedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
-		// Clear must_change: the user chose their own permanent password.
-		if _, err := q.UpdateUserAfterPatch(ctx, gen.UpdateUserAfterPatchParams{
-			ID: row.ID, DisplayName: row.DisplayName, GlobalRole: row.GlobalRole,
-			Status: row.Status, MustChangePassword: false, DisabledAt: row.DisabledAt,
-			DisabledBy: row.DisabledBy, DisabledReason: row.DisabledReason, UpdatedAt: ts(now),
-		}); err != nil {
+		// Clear must_change with the column-minimal statement: the
+		// least-privilege identity role may UPDATE only these columns.
+		if err := q.ClearMustChangePassword(ctx, gen.ClearMustChangePasswordParams{ID: row.ID, UpdatedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
-		var keepID pgtype.UUID
-		if keepSession != "" {
-			if parsed, err := parseUUID(strings.ToLower(keepSession)); err == nil {
-				keepID = parsed
-			}
-		}
-		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, keepID); err != nil {
+		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
 			return err
 		}
 		return a.addAudit(ctx, q, &identity.AuditActor{Username: u.Username, Name: u.Name}, "", "sec", "Đổi mật khẩu", username, "", "", "")
 	})
 }
-
-func errConflict() error { return errs.ErrStorageConflict }
 
 // --- recovery codes -----------------------------------------------------------
 
@@ -231,15 +222,11 @@ func (a *Accounts) Recover(username, code, newPassword, device, ip string) (iden
 		if err := q.RevokeAllTempPasswords(ctx, gen.RevokeAllTempPasswordsParams{UserID: cur.ID, RevokedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
-		if _, err := q.UpdateUserAfterPatch(ctx, gen.UpdateUserAfterPatchParams{
-			ID: cur.ID, DisplayName: cur.DisplayName, GlobalRole: cur.GlobalRole,
-			Status: cur.Status, MustChangePassword: false, DisabledAt: cur.DisabledAt,
-			DisabledBy: cur.DisabledBy, DisabledReason: cur.DisabledReason, UpdatedAt: ts(now),
-		}); err != nil {
+		if err := q.ClearMustChangePassword(ctx, gen.ClearMustChangePasswordParams{ID: cur.ID, UpdatedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
 		var revokeErr error
-		revoked, revokeErr = a.revokeUserAuth(ctx, q, tx, cur.ID, pgtype.UUID{})
+		revoked, revokeErr = a.revokeUserAuth(ctx, q, tx, cur.ID)
 		if revokeErr != nil {
 			return revokeErr
 		}
