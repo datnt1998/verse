@@ -7,6 +7,7 @@ type CloneEnqueueRequest struct {
 	URLs      []string      `json:"urls"`
 	Priority  ClonePriority `json:"priority,omitempty"`
 	NoImages  bool          `json:"noImages,omitempty"`
+	TemplateID *string      `json:"templateId,omitempty"`
 }
 type ClonePlanAccepted struct {
 	URL                string   `json:"url"`

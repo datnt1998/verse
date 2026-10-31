@@ -32,6 +32,7 @@ type QueueRunningJob struct {
 	TemplateName string     `json:"templateName,omitempty"`
 	DurationSec  *float64   `json:"durationSec,omitempty"`
 	StartedAt    *time.Time `json:"startedAt,omitempty"`
+	PausedAt     *time.Time `json:"pausedAt,omitempty"`
 }
 
 
@@ -76,6 +77,9 @@ type CloneQueueItemView struct {
 	Priority     ClonePriority `json:"priority"`
 	ETAStart     *time.Time    `json:"etaStart"`
 	WaitReason   string        `json:"waitReason,omitempty"`
+	Position     float64   `json:"position"`
+	ThumbnailURL *string   `json:"thumbnailUrl,omitempty"`
+	SourceURL    string    `json:"sourceUrl,omitempty"`
 }
 
 // QueuePace là nhịp hôm nay của một kênh; chỉ đếm job xuất phát từ batch.

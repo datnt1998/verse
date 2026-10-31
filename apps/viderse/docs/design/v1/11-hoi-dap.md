@@ -319,3 +319,21 @@ Mẫu:
   1. Máy chủ có biết vì sao phiên bị thu hồi không (đăng xuất, đổi mật khẩu, quản trị viên đổi quyền/đặt lại/khoá, hết hạn), và ở app nào? Nếu có thì trả `reason`, `app` trong 401 (§25). Nếu không thì giao diện chỉ dùng câu chung, trừ hai trường hợp client tự biết (`?bye=1`, `?pw=1`).
   2. `apps: AppLink[]` (id, tên, địa chỉ gốc) trả trong `GET /api/me` và 403 `app_access_denied` được không? Địa chỉ lấy từ `VERSE_APP_ORIGINS` hay cấu hình riêng?
   3. Noverse có nhận `#/settings/members?user=<tên>` để mở thẳng người cần cấp quyền không?
+
+### #52 · Hàng chờ + Kế hoạch (Gói V6/V2): mã lý do chưa chạy, giá, khoá xếp lại — Mở
+- Artboard: `Queue` · `state=running|paused|limited|empty`, `NewVideo`.
+- Chốt dev:
+  1. `GET /api/queue` trả thêm `pausedAt` (giờ bấm Tạm dừng, cho câu “Đã tạm dừng lúc 00:04”) và mỗi dòng chờ có `waitReason` ngoài `pace_full|no_template` còn `queue_paused|workers_busy|rotation|paused_channel`; `rotation.skipped[]` cũng nhận `workers_busy` khi toàn bộ luồng bận.
+  2. `paused_channel` được hiểu là **Tự lấy tắt** (`owner_channels.auto_pick = false`): chỉ khoá các mục `origin = auto` của kênh đó; mục `pick`/`bulk` người dùng chủ động xếp vẫn chạy. Không có cột “tạm dừng kênh” nào khác.
+  3. `POST /api/clone/plan` trả thêm `imageCalls` (ước số lần vẽ, cùng công thức nhịp cũ + 10% vẽ lại) và `priceUSD` — `null` vì chưa có bảng giá theo ảnh của model nào. `accepted[]` thêm `viewCount`, `publishedAt`; `duplicates[]` thêm `title` (tên job/video trùng) và nhận cả bản `state: "queued"` với `jobId: null`.
+  4. `PATCH /api/queue` nhận `{paused}`, `{id, beforeId}` (đổi vị trí theo neo, `beforeId: null` = lên đầu, vắng mặt = xuống cuối), `{id, action: "remove"}`. Không PATCH trực tiếp `position` (số thực tách đôi do server tính).
+  5. `imageQuota[]` lấy từ `image_receipts` (ảnh đã tính hôm nay theo provider, trần = hạn mức ảnh trả phí mỗi ngày của nhà cung cấp trả theo ảnh; `resetsAt = null` khi nhà cung cấp không báo). `doneToday[]` lấy job `stage_group` `ready|review` cập nhật sau 00:00 giờ máy (`at` = `updated_at` vì chưa có cột giờ xong riêng).
+  6. SSE: một sự kiện `queue.updated` cho mọi thay đổi hàng chờ (xếp, xếp lại, bỏ, tạm dừng, drain bắt đầu/xong) + `clone.job.*` hiện hữu để invalidate; không bắn mỗi lần ETA đổi.
+- Hỏi design: duyệt.
+
+### #53 · Làm video: chọn template riêng và dữ liệu thẻ hàng chờ — Đã chốt
+- Artboard: `NewVideo` · `input=pasted|multi`, `Queue` · `state=running|paused|limited`.
+- Dropdown ở chip template cho phép chọn khác vòng luân phiên. Bổ sung `templateId?` vào `CloneEnqueueRequest` (lệch §4 `07-data-contract.md`): khi có, kiểm template hợp lệ của kênh và chụp đúng recipe đó; khi vắng, giữ luân phiên hiện hữu. Kế hoạch đọc cùng override.
+- Dòng chờ trả `position`, `thumbnailUrl`, `sourceUrl`; thẻ đang chạy trả `pausedAt`. Đây là dữ liệu thực để kéo-thả và mở nguồn, không suy ra số hoặc ảnh ở trình duyệt.
+- Dòng “Máy này chạy ổn 2 luồng” thiếu cơ sở đo máy: giữ trống tới khi design chốt; không dùng số tự suy đoán.
+
