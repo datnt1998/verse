@@ -210,3 +210,31 @@ Thuật ngữ y như Noverse Gói AN. Tiếng Anh chỉ hiện nhỏ trong hư�
 | `browser_unreachable` | cors_probe | Trình duyệt không tới được địa chỉ kho | Địa chỉ {H} chỉ dùng được bên trong mạng của máy chủ. Trình duyệt của bạn không mở được nó, nên không tải thẳng từ kho được. | “Điền Địa chỉ kho cho trình duyệt (tên miền mở ra internet, có https).” · “Hoặc chuyển sang gửi qua máy chủ Viderse, không cần mở kho ra ngoài.” |
 
 **Lỗi chuyển** (`MigrationErrorCode`): `content_mismatch` “Chép xong nhưng đọc lại không khớp. Thường do mạng chập chờn, thử lại là được.” · `unreachable_endpoint` “Mất kết nối tới kho giữa chừng. Thử lại khi mạng ổn định.” · `storage_error` “Kho chưa nhận tệp này. Kiểm tra quyền của khoá và kết nối, rồi thử lại.” · `wrong_key` “Kho mới từ chối khoá. Khoá vừa bị thu hồi hoặc đổi.” Mã khác: “Chưa chép được tệp này. Thử lại; vẫn lỗi thì xuất log ở Báo lỗi.”
+
+## Đăng nhập và tài khoản <a id="copy-auth"></a> <!-- r30-sso -->
+
+Câu nào nói về đăng xuất, đổi mật khẩu hay quyền thì nói rõ ảnh hưởng **cả Noverse và Viderse**. Không hiện cookie, mã lỗi hay tên biến.
+
+| Chỗ | Trạng thái | Câu | Nút |
+|---|---|---|---|
+| Đăng nhập | — | “Đăng nhập” · “Một tài khoản dùng cho Noverse và Viderse” · “Phiên giữ 30 ngày trên trình duyệt này, dùng chung cho Noverse và Viderse.” | Đăng nhập |
+| | sai | “Sai tên đăng nhập hoặc mật khẩu.” | — |
+| | thử sai nhiều | “Thử sai quá nhiều lần. Thử lại sau 0:28.” | Đợi 0:28 (khoá) |
+| | chân trang | “Quên mật khẩu? Nhờ quản trị viên đặt lại ở Noverse › Thành viên” · “Chưa có tài khoản? Nhờ quản trị viên tạo” | — |
+| Vì sao đăng nhập lại | `logout` (chính mình) | **Đã đăng xuất** “Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.” | — |
+| | `logout` ở app kia | **Bạn vừa đăng xuất ở Noverse** “Hai app dùng chung một lần đăng nhập, nên Viderse cũng cần đăng nhập lại.” (ở Noverse: đổi tên hai app) | — |
+| | `password_changed` | **Mật khẩu vừa được đổi** “Mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse. Dùng mật khẩu mới.” | — |
+| | `admin_changed` | **Quản trị viên vừa thay đổi tài khoản này** “Có thể là quyền vào ứng dụng hoặc mật khẩu đã được đặt lại. Đăng nhập lại để tiếp tục.” | — |
+| | `expired` | **Phiên đăng nhập đã hết hạn** “Phiên giữ 30 ngày. Đăng nhập lại để tiếp tục; video đang chạy trên máy chủ không bị dừng.” | — |
+| | không rõ | **Phiên đăng nhập đã kết thúc** “Có thể bạn vừa đăng xuất hoặc đổi mật khẩu ở Noverse hay Viderse. Đăng nhập lại để tiếp tục.” | — |
+| Chưa được cấp quyền | — | **Chưa được cấp quyền vào Viderse** “Tài khoản này đăng nhập đúng nhưng chưa được cấp quyền dùng Viderse. Nhờ quản trị viên bật ô Viderse cho bạn ở Noverse › Thành viên, rồi bấm Thử lại.” | Mở Noverse · Thử lại · Chép lời nhờ quản trị viên cấp quyền · Đăng xuất |
+| | lời nhờ (chép) | “Nhờ bạn cấp quyền Viderse cho tài khoản @linh: Noverse › Thành viên › Linh › Quyền vào ứng dụng › bật Viderse.” | — |
+| Đặt mật khẩu tạm | — | **Đặt mật khẩu của bạn** “Bạn đang đăng nhập bằng mật khẩu tạm quản trị viên gửi. Đặt mật khẩu riêng để bắt đầu dùng. Mật khẩu mới dùng cho cả Noverse và Viderse.” · “Đổi xong, bạn đăng nhập lại một lần bằng mật khẩu mới. Thiết bị khác cũng phải đăng nhập lại.” | Đổi mật khẩu |
+| | lỗi | “Mật khẩu tạm không đúng.” · “Mật khẩu nhập lại chưa khớp.” | — |
+| Thiết lập | — | **Thiết lập Viderse** “Tạo tài khoản quản trị đầu tiên. Tài khoản này dùng được cho cả Noverse và Viderse.” · mã: “Mã in trong nhật ký máy chủ khi Viderse chạy lần đầu. Ai có quyền vào máy chủ mới xem được.” · mã khôi phục: “Mã chỉ hiện một lần này. Mất cả mật khẩu lẫn mã này là mất quyền quản trị cả Noverse và Viderse. Lưu ở nơi an toàn, không lưu chung với mật khẩu.” · “Tôi đã lưu mã khôi phục” | Tiếp tục · Tạo quản trị viên · Chép · Vào Viderse |
+| Máy chủ | không trả lời | **Không kết nối được máy chủ Viderse** “Máy chủ không trả lời hoặc đang khởi động lại. Video đang chạy trên máy chủ không bị dừng.” · “Noverse chạy trên máy chủ riêng nên có thể vẫn dùng được.” · “Tự thử lại sau 12 giây” | Thử lại |
+| | kho tài khoản lỗi | **Chưa đọc được tài khoản** “Máy chủ Viderse đang chạy nhưng chưa đọc được kho tài khoản dùng chung, nên chưa kiểm được đăng nhập. Bạn vẫn đang đăng nhập; không cần nhập lại mật khẩu.” · “Kho tài khoản dùng chung với Noverse, nên Noverse có thể cũng đang báo lỗi này.” | Thử lại |
+| Menu tài khoản | — | nhóm “Ứng dụng” · “Đang mở” · *Tài khoản* “mật khẩu, thiết bị” · *Quản lý thành viên* “Mở Noverse › Thành viên” · *Đăng xuất* “Khỏi cả Noverse và Viderse trên trình duyệt này” | — |
+| Trang Tài khoản | — | “Một tài khoản dùng cho Noverse và Viderse. Đổi mật khẩu hay đăng xuất ở đây là cho cả hai ứng dụng.” · Ứng dụng: “Quản trị viên luôn vào được cả hai ứng dụng.” / “Quản trị viên cấp quyền từng ứng dụng ở Noverse › Thành viên.” / “Cần dùng Noverse? Nhờ quản trị viên cấp quyền ở Noverse › Thành viên.” · Thành viên: “Thêm người, cấp quyền vào Noverse và Viderse, đặt lại mật khẩu ở một chỗ duy nhất: Noverse › Thành viên.” · Đổi mật khẩu: “Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả trình duyệt này.” · Thiết bị: “Mỗi thiết bị một phiên chung cho cả hai app” · “Thiết bị bị đăng xuất phải đăng nhập lại ở cả Noverse và Viderse.” | Quản lý thành viên · Đổi mật khẩu · Đăng xuất · Đăng xuất mọi thiết bị khác |
+
+Thay câu cũ trong `i18n/vi.ts`: `loginSub` “Dùng tài khoản quản trị viên đã tạo lúc thiết lập” (sai với thành viên) → “Một tài khoản dùng cho Noverse và Viderse”; `accessDenied` → câu ở bảng; `sharedLogoutNote` → “Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.”; `setup.codeHint` bỏ tên lệnh; `serverDownBody` bỏ dấu “—”.

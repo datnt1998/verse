@@ -216,3 +216,19 @@ Tên vai/người lập kế hoạch và lời gọi công cụ nằm trong câu
 **Mã lỗi chuyển tệp → lời (bảng lỗi):** `content_mismatch` Chép xong nhưng đọc lại không khớp — thường do mạng chập chờn, thử lại là được · `unreachable_endpoint` Mất kết nối tới kho mới giữa chừng — thử lại khi mạng ổn định · `storage_error` Kho mới chưa nhận tệp này — kiểm tra quyền của khoá và kết nối, rồi thử lại · `wrong_key` Kho mới từ chối khoá — khoá vừa bị thu hồi hoặc đổi · `no_read_permission` Khoá của kho mới thiếu quyền · `clock_skew` Đồng hồ máy chủ lệch giờ · `no_bucket` Không còn thấy kho mới — kho bị xoá hoặc đổi tên.
 
 **Câu cố định:** “Chưa đổi gì cho tới khi bạn kiểm tra kết nối, lưu và xác nhận chuyển tệp.” · “Kiểm tra kết nối đạt rồi mới lưu được” · “Chuyển {n} tệp · {dung lượng} sang {nhà cung cấp}?” · “App vẫn chạy bình thường trong lúc chuyển. Tệp mới vẫn ghi vào kho cũ cho tới khi chuyển xong, rồi được chép nốt.” · “Còn tệp lỗi thì chưa đổi kho — app vẫn dùng ổ máy chủ, không mất gì.” · “Kho cũ ({nơi}) vẫn giữ {dung lượng}” · “Kho tệp do máy chủ đặt sẵn. Ở đây chỉ xem và kiểm tra kết nối được.” · “Máy chủ chưa có khoá mã hoá nên chưa lưu được khoá bí mật” · “Đổi kho trên máy tính.”
+
+## Bảng từ: Đăng nhập chung với Viderse (Gói AO, 31/10) <!-- goi-ao -->
+
+| Chỗ | Dùng | Không dùng |
+|---|---|---|
+| Nhóm trong menu tài khoản, tab Thêm | Ứng dụng · Đang mở | Apps, Chuyển app, Workspace |
+| Dòng app | Viderse · `vid.aarverse.studio` (mở ở thẻ mới) | “Sang Viderse”, link trần |
+| Đăng nhập (dòng phụ) | Một tài khoản dùng cho Noverse và Viderse | SSO, đăng nhập một lần |
+| Đăng xuất | Khỏi cả Noverse và Viderse trên trình duyệt này | Đăng xuất toàn hệ thống, revoke |
+| Chuyển tài khoản | Đăng xuất cả hai app rồi nhập mật khẩu của … | — |
+| Đổi mật khẩu | Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này. | thu hồi phiên |
+| Thiết bị | Mỗi thiết bị một phiên chung cho cả hai app. · Thiết bị bị đăng xuất phải đăng nhập lại ở cả Noverse và Viderse. | session |
+| Thành viên › Quyền vào ứng dụng | … sẽ bị đăng xuất khỏi mọi thiết bị ở cả Noverse và Viderse và phải đăng nhập lại. · … vẫn vào Noverse được; mở Viderse sẽ thấy thông báo chưa được cấp quyền. | grant, revoke, app_access |
+| Chưa được cấp quyền | Chưa được cấp quyền vào Noverse · Nhờ quản trị viên bật ô Noverse cho bạn ở Thành viên, rồi bấm Thử lại. · Chép lời nhờ quản trị viên cấp quyền | 403, access denied |
+
+Câu “vì sao phải đăng nhập lại” ở `09-auth-onboard.md` §12.3.

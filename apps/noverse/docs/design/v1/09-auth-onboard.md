@@ -87,6 +87,8 @@ Máy tính (đã đăng nhập): ảnh đại diện → **Đăng nhập điện
 - Phía máy tính có artboard riêng **A2a** (= A1 › qr) để xem cặp với điện thoại.
 
 ### F3. Menu tài khoản (A1 › menu)
+> Bổ sung Gói AO (31/10): nhóm **Ứng dụng** (mở Viderse) và câu “cả Noverse và Viderse” ở Đăng xuất, Chuyển tài khoản. Xem §12. <!-- goi-ao -->
+
 Ảnh đại diện ở header → menu: tên, vai trò, “Phiên trên Mac · Chrome · còn N ngày” + thanh còn lại (đổi sang cam khi ≤ 3 ngày) · Đăng nhập điện thoại bằng QR · Thiết bị đang đăng nhập (số) · Đổi mật khẩu · Quản lý tài khoản (chỉ admin) · Chuyển tài khoản (danh sách nhớ trên máy → đăng xuất rồi tới A1 › password) · Đăng xuất (đỏ).
 
 ### F4. Thiết bị & bảo mật (A1 › devices)
@@ -317,3 +319,39 @@ Tuỳ chỉnh › Nâng cao › “Vị trí lưu trên máy chủ”:
   - 8 ô là một input duy nhất, `aria-label="Mã thiết lập, 8 ký tự"`.
   - Lỗi và số lần thử còn lại đọc qua `aria-live="polite"`.
   - Khi bị khoá, giờ mở lại ghi bằng chữ.
+
+## 12. Đăng nhập chung với Viderse: chuyển app và câu chữ (Gói AO, 31/10) <!-- goi-ao -->
+
+Chỉ khi `STORE_DRIVER=postgres` (có `grants`). Noverse (`nov.aarverse.studio`) và Viderse (`vid.aarverse.studio`) dùng chung kho tài khoản và một phiên. Phía Viderse là Gói V26 (`apps/viderse/docs/design/v1/08-dev-prompt.md`); artboard vẽ cả hai app nằm ở Viderse: `Auth.dc.html` (`screen=menu`, `app=noverse` là menu của Noverse) và `MAuth.dc.html` (`screen=account`, `app=noverse` là tab Thêm). Canvas Noverse chưa vẽ lại các màn này.
+
+### 12.1 Chuyển app (menu tài khoản, F3)
+- Thêm nhóm **Ứng dụng** sau các mục tài khoản, trước *Chuyển tài khoản*: dòng Noverse (app đang mở, nhãn *Đang mở*) và dòng **Viderse** (logo ống kính đỏ trong vòng tròn, tên, địa chỉ `vid.aarverse.studio` chữ mono, biểu tượng mở ở thẻ mới). Bấm → mở Viderse ở thẻ mới, đã đăng nhập sẵn.
+- Chỉ hiện khi người dùng có quyền Viderse (`grants.viderse`). Không có quyền thì bỏ cả nhóm, không vẽ dòng khoá. Quản trị viên luôn có.
+- Không thêm nút chuyển app ở đầu trang: menu tài khoản là chỗ duy nhất, giống Viderse.
+- **Điện thoại** (tab Thêm): thêm nhóm **Ứng dụng** trên nhóm Tài khoản, cùng hai dòng.
+- Địa chỉ app lấy từ `apps: AppLink[]` của `GET /api/me` (GAP: máy chủ biết nhưng chưa trả, xem Viderse hỏi đáp #50).
+
+### 12.2 Câu chữ ảnh hưởng cả hai app
+- **Đăng xuất** (menu, tab Thêm): dòng phụ “Khỏi cả Noverse và Viderse trên trình duyệt này”.
+- **Chuyển tài khoản**: dòng phụ của từng tài khoản “Đăng xuất cả hai app rồi nhập mật khẩu của Linh”.
+- **Đổi mật khẩu** (hộp thoại, Thiết bị & bảo mật): “Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.”
+- **Thiết bị đang đăng nhập**: “Mỗi thiết bị một phiên chung cho cả hai app.” · *Đăng xuất mọi thiết bị khác*: “Thiết bị bị đăng xuất phải đăng nhập lại ở cả Noverse và Viderse.”
+- **Thành viên › Quyền vào ứng dụng** (F5b mục 3): bật hoặc tắt một ô → câu ngay dưới hai ô “Linh sẽ bị đăng xuất khỏi mọi thiết bị ở cả Noverse và Viderse và phải đăng nhập lại.” Tắt ô Viderse: “Linh vẫn vào Noverse được; mở Viderse sẽ thấy thông báo chưa được cấp quyền.” Tắt cả hai: giữ câu đã có.
+- **Thành viên › Đặt lại mật khẩu, Khoá**: hệ quả trong hộp xác nhận ghi “đăng xuất khỏi mọi thiết bị ở cả Noverse và Viderse”.
+
+### 12.3 Màn đăng nhập: vì sao phải đăng nhập lại
+Một khối ngắn trên form (A1 › login, password), theo lý do máy chủ trả trong 401 (`reason`, `app`):
+
+| Lý do | Câu |
+|---|---|
+| tự đăng xuất | **Đã đăng xuất** · Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này. |
+| đăng xuất ở Viderse | **Bạn vừa đăng xuất ở Viderse** · Hai app dùng chung một lần đăng nhập, nên Noverse cũng cần đăng nhập lại. |
+| đổi mật khẩu | **Mật khẩu vừa được đổi** · Mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse. Dùng mật khẩu mới. |
+| quản trị viên đổi | **Quản trị viên vừa thay đổi tài khoản này** · Có thể là quyền vào ứng dụng hoặc mật khẩu đã được đặt lại. Đăng nhập lại để tiếp tục. |
+| hết hạn | giữ A1 › expired như cũ |
+| không rõ | **Phiên đăng nhập đã kết thúc** · Có thể bạn vừa đăng xuất hoặc đổi mật khẩu ở Noverse hay Viderse. Đăng nhập lại để tiếp tục. |
+
+Dòng phụ dưới tiêu đề đăng nhập thêm “Một tài khoản dùng cho Noverse và Viderse”.
+
+### 12.4 Chưa được cấp quyền vào Noverse
+Đối xứng với Viderse: thành viên chỉ có quyền Viderse đăng nhập Noverse → màn “Chưa được cấp quyền vào Noverse” (giữ phiên), thẻ tài khoản, *Mở Viderse* (khi có quyền Viderse), *Thử lại*, *Chép lời nhờ quản trị viên cấp quyền*, *Đăng xuất* + “Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.” Bố cục như Viderse `Auth` · `screen=denied`, đổi logo và màu theo Noverse.

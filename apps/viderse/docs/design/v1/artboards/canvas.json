@@ -277,9 +277,31 @@
       "page": "mobile",
       "is_interactive": true,
       "title": "H4 · UI Kit điện thoại — theme Noverse đổi màu: đầu trang, điều khiển, hàng, sheet, trợ lý chủ động (tweak: Nhóm)"
+    },
+    "Auth.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "A0 · Đăng nhập & tài khoản (một tài khoản cho Noverse và Viderse, Gói V26) — đăng nhập, vì sao phải đăng nhập lại, chưa được cấp quyền, đặt mật khẩu tạm, thiết lập lần đầu, máy chủ không phản hồi, trang Tài khoản, menu tài khoản chuyển app (Viderse và Noverse) (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu)",
+      "w": 1440,
+      "x": 6160,
+      "y": 0,
+      "page": "desktop"
+    },
+    "MAuth.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "A0 · Đăng nhập & tài khoản — cùng các màn, trang Tài khoản (Viderse) và tab Thêm (Noverse) có mục Ứng dụng (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu, Sheet)",
+      "w": 390,
+      "x": 4230,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
     }
   },
   "order": [
+    "Auth.dc.html",
     "Onboard.dc.html",
     "CreateChannel.dc.html",
     "Explore.dc.html",
@@ -297,6 +319,7 @@
     "System.dc.html",
     "Brand.dc.html",
     "Kit.dc.html",
+    "MAuth.dc.html",
     "MCreate.dc.html",
     "MExplore.dc.html",
     "MCompVideo.dc.html",

@@ -312,3 +312,10 @@ Mẫu:
   4. Đồng ý kiểm tra CORS ở trình duyệt qua `probeUrl`; chỉ trình duyệt mới chứng minh được CORS.
   5. Không cần nút xoá phần đã chép: tệp đặt tên theo nội dung, lần chuyển sau dùng lại, không chép lại. Muốn dọn thì dùng lệnh bảo trì, như Noverse AN.
 - Design đã sửa (đợt 29b): khối “Chi tiết cho người quản trị máy chủ” ghi đúng tên biến; khối chi tiết của `s3nokey` ghi đường dẫn tệp khoá và cách cấp quyền ghi; Dung lượng theo nhóm có nhãn phụ “lớp phủ, video nền, ảnh kênh” và tweak `usage=partial` (nhóm `null` ghi “chưa có số”); câu huỷ chuyển nói tệp đã chép được dùng lại; Chỗ cũ dọn bằng lệnh bảo trì (bỏ gợi ý xoá tay). Data-contract §23.1 và Gói V25 sửa theo.
+
+### #50 · Gói V26: lý do phải đăng nhập lại và địa chỉ app kia — Mở <!-- r30-sso -->
+- Artboard: `Auth` · `screen=login`, `kicked=self|other|password|admin|expired|unknown`; `screen=menu|denied`.
+- Hỏi dev:
+  1. Máy chủ có biết vì sao phiên bị thu hồi không (đăng xuất, đổi mật khẩu, quản trị viên đổi quyền/đặt lại/khoá, hết hạn), và ở app nào? Nếu có thì trả `reason`, `app` trong 401 (§25). Nếu không thì giao diện chỉ dùng câu chung, trừ hai trường hợp client tự biết (`?bye=1`, `?pw=1`).
+  2. `apps: AppLink[]` (id, tên, địa chỉ gốc) trả trong `GET /api/me` và 403 `app_access_denied` được không? Địa chỉ lấy từ `VERSE_APP_ORIGINS` hay cấu hình riêng?
+  3. Noverse có nhận `#/settings/members?user=<tên>` để mở thẳng người cần cấp quyền không?

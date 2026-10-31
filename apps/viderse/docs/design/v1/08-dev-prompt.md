@@ -723,6 +723,35 @@ Nguồn sự thật:
 - Không màn nào hiện `key=value`, tên biến hay mã lỗi thô ngoài khối chi tiết.
 - Ghi “Gói V25” vào `10-gap-closure.md`.
 
+## Gói V26 — Một tài khoản cho Noverse và Viderse (P1, phụ thuộc đăng nhập chung của Noverse) <!-- r30-sso --> <a id="goi-v26"></a>
+
+**Vì sao:** hai app dùng chung kho tài khoản và một phiên. Code Viderse đã có các màn xác thực và `#/account` nhưng chưa có thiết kế; câu chữ hiện tại nói sai (đăng nhập ghi “tài khoản quản trị viên đã tạo lúc thiết lập”), chưa có lối sang app kia, quản trị viên không biết cấp quyền ở đâu.
+- Artboard: `Auth` (`screen=login|denied|password|setup|down|account|menu`, `kicked`, `err`, `role`, `other`, `app`, `step`, `down`, `pwerr`) · `MAuth` (cùng tweak, `screen=account`, `app=noverse`, `sheet=password`) · `Settings` (cột trái › Ở trang khác › *Thành viên · ở Noverse*).
+- Spec: ia-flows W0; data-contract §25; components › AccountMenu; copy › Đăng nhập và tài khoản. Phía Noverse: `apps/noverse/docs/design/v1/09-auth-onboard.md` §12, `07-copy.md`, `21-dev-prompt.md` › Gói AO.
+
+### Việc FE
+- `AuthShell`, `LoginScreen`, `AccessDeniedScreen`, `ChangePasswordScreen`, `SetupScreen`, `ServerDownScreen`, `AccountScreen` theo artboard; câu theo 06-copy (thay `loginSub`, `accessDenied`, `sharedLogoutNote`, `setup.codeHint`).
+- Đăng nhập: khối lý do theo `reason`/`app` của 401 hoặc `?bye=1`, `?pw=1`; ẩn khi không có.
+- Chưa được cấp quyền: *Mở Noverse* khi `apps` có Noverse (nút sáng), không thì *Thử lại* sáng; *Chép lời nhờ quản trị viên cấp quyền*.
+- Đầu trang: avatar mở `AccountMenu` thay vì đi thẳng `#/account`. Điện thoại: avatar vẫn mở `#/account`, trang có nhóm Ứng dụng.
+- `AccountScreen`: thêm Ứng dụng của bạn, Thành viên (quản trị viên), Thiết bị đang đăng nhập, Đăng xuất có câu nói cả hai app.
+- Cài đặt › Ở trang khác: *Thành viên · ở Noverse* (chỉ quản trị viên).
+- Nhóm Ứng dụng và *Mở Noverse* chỉ có khi có quyền; không vẽ trạng thái khoá.
+
+### Việc backend
+- GAP-V26a: `apps: AppLink[]` trong `GET /api/me` và 403 `app_access_denied` (địa chỉ gốc từng app máy chủ đã biết).
+- GAP-V26b: 401 trả `reason` và `app` của lần thu hồi phiên (đăng xuất, đổi mật khẩu, quản trị viên đổi, hết hạn). Xem hỏi đáp #50.
+
+### Nghiệm thu
+- Đăng nhập ở Noverse rồi mở `vid.aarverse.studio` → vào thẳng, không hỏi lại. Menu tài khoản ở Viderse có dòng Noverse; bấm → Noverse mở ở thẻ mới, đã đăng nhập.
+- Đăng xuất ở Viderse → màn đăng nhập ghi “Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.”; tải lại tab Noverse → màn đăng nhập Noverse ghi “Bạn vừa đăng xuất ở Viderse…”.
+- Thành viên chỉ có Noverse đăng nhập Viderse → màn Chưa được cấp quyền có *Mở Noverse*; quản trị viên bật ô Viderse → bấm *Thử lại* → vào app. Không có quyền Noverse → không có nút *Mở Noverse*, menu không có nhóm Ứng dụng.
+- Mật khẩu tạm → màn Đặt mật khẩu, không bỏ qua được; đổi xong → đăng nhập lại với khối “Mật khẩu vừa được đổi”.
+- Quản trị viên: menu và trang Tài khoản có *Quản lý thành viên* mở `Noverse › Thành viên` ở thẻ mới; thành viên không thấy.
+- Dừng máy chủ tài khoản (503) → màn “Chưa đọc được tài khoản”, không mất phiên khi máy chủ trở lại.
+- Không màn nào hiện cookie, mã lỗi, tên biến.
+- Ghi “Gói V26” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -750,6 +779,7 @@ Nguồn sự thật:
 | V23 | registry `platforms/`, `backdrop_videos`, template `fixedVideoIds` + migration clip cố định, `POST /api/sources/parse`, `GET /api/platforms`, `platform_requests` | <!-- r22-sources -->
 | V24 | `POST/GET /api/platforms/:id/login/qr`, `POST …/login/refresh`, `PUT/DELETE …/login`; lưu cookie + refresh token; tự gia hạn trước khi quét; đăng nhập xong xoá giờ chờ bị chặn | <!-- r24-biliqr -->
 | V25 | `GET /api/storage/server`, `POST …/test` (+ `probe` từ trình duyệt), `PUT …/config`, `POST …/migrate` (+ pause/resume/cancel/retry); BackgroundTask `storage_migrate`; khoá bí mật qua `secretbox`; bộ nhớ đệm làm việc; `OpStat` từ lần khởi động; `storageDown` trong `/api/status` | <!-- r29-s3 -->
+| V26 | `apps: AppLink[]` trong `GET /api/me` và 403 `app_access_denied`; 401 `session_ended` có `reason`, `app` | <!-- r30-sso -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

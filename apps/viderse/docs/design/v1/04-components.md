@@ -276,6 +276,11 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 ## Menu <!-- r28-explore -->
 - Mọi menu ⋯ dùng `ActionMenu` của kit: đệm hàng 6/10, cách hàng 0, bo 8; chỉ đổi `width` (menu đối thủ 272px). Hàng có dòng phụ giữ đệm này, không tăng riêng.
 
+## AccountMenu · AppSwitcherRow · AuthShell <a id="c-account"></a> <!-- r30-sso -->
+- **AccountMenu:** popover 336px dưới avatar đầu trang (`aria-haspopup="menu"`), đóng khi bấm ngoài hoặc Esc. Thứ tự: thẻ người dùng · Ứng dụng · Tài khoản · Quản lý thành viên (quản trị viên) · Đăng xuất (cam, có dòng phụ). Điện thoại không có popover: avatar mở trang Tài khoản.
+- **AppSwitcherRow:** logo app trong vòng tròn 32px, tên, địa chỉ (mono), bên phải nhãn *Đang mở* hoặc biểu tượng mở ở thẻ mới. Dòng đang mở có nền chọn `rgba(255,255,255,.08)`, không viền màu một bên. Không có quyền thì không có dòng.
+- **AuthShell:** đầu trang có logo + chip trạng thái máy chủ (xanh: đang hoạt động · cam: không kết nối được / chưa đọc được tài khoản), nội dung một cột 400px giữa màn, chân trang chỉ ở Đăng nhập và Thiết lập. Một nút sáng mỗi màn.
+
 ## Icon <!-- r8-icons -->
 - Mọi icon trong nút dùng bộ icon (mask) của Viderse, không dùng ký tự (↶ ↷ − +). Thêm `i-undo`, `i-redo` (Editor Hoàn tác / Làm lại), `i-minus` (nút giảm), `i-key` (Kết nối AI, khoá API). Nút tăng dùng `i-add`.
 

@@ -2,6 +2,14 @@
 
 Mỗi đợt ghi: ngày, vấn đề, quyết định, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Đợt 1–2 và 10–14 không có mục riêng (ghi trong phần Trạng thái ban đầu và trong các đợt kế tiếp).
 
+## Đợt 30 (31/10/2026) — Gói V26: một tài khoản cho Noverse và Viderse <!-- r30-sso -->
+
+- Artboard mới `Auth` (máy tính) và `MAuth` (điện thoại): đăng nhập (dòng “Một tài khoản dùng cho Noverse và Viderse”, 6 lý do phải đăng nhập lại, sai, thử sai nhiều), chưa được cấp quyền (Mở Noverse khi có quyền, Thử lại, chép lời nhờ, Đăng xuất), đặt mật khẩu tạm, thiết lập 3 bước, máy chủ không phản hồi (máy chủ / kho tài khoản), trang Tài khoản, menu tài khoản có nhóm Ứng dụng. `app=noverse` vẽ menu và tab Thêm của Noverse có dòng Viderse.
+- `Settings`: cột trái › Ở trang khác › *Thành viên · ở Noverse* (quản trị viên).
+- Quyết định: chuyển app nằm trong menu tài khoản (không thêm nút ở đầu trang); mở ở thẻ mới; không có quyền thì ẩn hẳn. Không làm màn thành viên thứ hai, mọi lối đều mở Noverse › Thành viên.
+- Tài liệu: ia-flows W0; data-contract §25; components › AccountMenu; copy › Đăng nhập và tài khoản; dev-prompt Gói V26; hỏi đáp #50. Phía Noverse: 09-auth-onboard §12, 07-copy, 21-dev-prompt Gói AO.
+- Canvas phiên bản 57.
+
 ## Đợt 29b (31/10/2026) — Chốt hỏi đáp #49 của Gói V25 <!-- r29b -->
 
 - Tên biến đúng như Noverse (`STORAGE_DRIVER`, `S3_*`, `S3_PRESIGN_ENDPOINT` cho ô Địa chỉ kho cho trình duyệt, `BLOB_DELIVERY`, `BLOB_CACHE_*`); bỏ tiền tố `VIDERSE_` tạm.

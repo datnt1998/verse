@@ -590,6 +590,25 @@ interface Migration {
 - `online` false → `Notification.kind = "needs_attention"`, `objectRef.type = "storage"` (chỉ gửi cho quản trị viên) và `GET /api/status` trả `storageDown: { label: string; since: string }` để vẽ dòng cảnh báo đầu trang. Hold dùng lại `HoldOffline` của V22.
 - Dọn (§23) có thêm nhóm: `orphan_objects` (tệp trên kho của video đã xoá), `work_cache` (chỉ quản trị viên; giữ tệp của video đang dựng).
 
+## §25 · Đăng nhập dùng chung với Noverse (Gói V26) <a id="sso"></a> <!-- r30-sso -->
+
+Hợp đồng gốc ở Noverse `11-api-contract.md` › *Đăng nhập chung với Viderse* (cookie `verse_session`, `User.grants`, 401/403/503). Phần dưới là chỗ giao diện cần thêm.
+
+```ts
+type AppId = "noverse" | "viderse";
+interface AppLink { id: AppId; label: string; url: string }      // GAP-V26a: máy chủ đã biết địa chỉ app kia, API chưa trả
+GET /api/me → { user: User; session: { expiresAt: string }; apps: AppLink[] }
+// apps = các app người dùng vào được (kể cả app hiện tại), theo grants hiệu lực; quản trị viên luôn đủ hai
+403 { code: "app_access_denied", app: "viderse", user: User, apps: AppLink[] }   // apps để màn chưa cấp quyền hiện Mở Noverse
+401 { code: "session_ended", reason?: "logout" | "password_changed" | "admin_changed" | "expired", app?: AppId }   // GAP-V26b
+POST /api/logout → 204; client về #/login?bye=1 để hiện “Đã đăng xuất”
+POST /api/me/password → { ok: true, reauthenticate: true }; client về #/login?pw=1
+```
+- **Mở app kia:** `window.open(app.url, "_blank", "noopener")` — mở ở thẻ mới để không mất việc đang dở. Quản lý thành viên: `<url Noverse>/#/settings/members` (thêm `?user=<tên>` nếu Noverse nhận).
+- **Lý do đăng nhập lại** (`reason`, `app`): `logout` + `app` khác app hiện tại → “Bạn vừa đăng xuất ở …”; `password_changed`; `admin_changed` (đổi quyền app, đặt lại mật khẩu, khoá); `expired`. Thiếu `reason` → câu chung. `?bye=1` và `?pw=1` do chính client đặt, không cần máy chủ.
+- `apps` rỗng hoặc chỉ có app hiện tại → không hiện nhóm Ứng dụng, không hiện *Mở Noverse*.
+- Thiết bị: `GET /api/me/sessions` (§ Noverse) — một phiên mỗi thiết bị, chung cho hai app; `POST /api/sessions/:id/revoke`, `POST /api/me/sessions/revoke-all` (đăng xuất mọi thiết bị khác).
+
 ## §24 · Video nền và nền tảng nguồn (mới, Gói V23) <a id="sources"></a> <!-- r22-sources -->
 
 ```ts

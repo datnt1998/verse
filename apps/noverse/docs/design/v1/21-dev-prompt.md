@@ -1428,6 +1428,31 @@ Spec: `20-settings-rules.md` §8; câu chữ `07-copy.md` › *Lưu trữ tệp*
 - Điện thoại (quản trị): hàng Lưu trữ tệp đúng trạng thái; trang chỉ xem; không có nút đổi kho.
 - Ghi “Gói AN” vào `19-gap-closure.md`.
 
+## Gói AO — Đăng nhập chung với Viderse: chuyển app và câu chữ (31/10 · P1) <!-- goi-ao -->
+
+**Vì sao:** Noverse và Viderse dùng chung kho tài khoản và một phiên (`STORE_DRIVER=postgres`). Người dùng chưa có lối sang app kia, và các câu đăng xuất, đổi mật khẩu, cấp quyền chưa nói rằng thao tác ảnh hưởng cả hai app. Phía Viderse là Gói V26.
+
+Spec: `09-auth-onboard.md` §12; câu chữ `07-copy.md` › *Đăng nhập chung với Viderse*; artboard tham chiếu ở Viderse `apps/viderse/docs/design/v1/artboards/Auth.dc.html` (`screen=menu`, `app=noverse`; `screen=login`, `kicked=…`; `screen=denied`) và `MAuth.dc.html` (`screen=account`, `app=noverse`).
+
+### Việc FE
+- `AccountMenu`: nhóm **Ứng dụng** (Noverse đang mở + Viderse mở ở thẻ mới) khi `grants.viderse`; dòng phụ cho *Đăng xuất* và *Chuyển tài khoản*.
+- Tab Thêm (điện thoại): nhóm **Ứng dụng** trên nhóm Tài khoản; dòng phụ cho *Đăng xuất*.
+- Màn đăng nhập: dòng phụ “Một tài khoản dùng cho Noverse và Viderse”; khối lý do theo `reason`/`app` của 401 (§12.3), hoặc cờ client tự đặt sau đăng xuất / đổi mật khẩu.
+- Màn chưa được cấp quyền vào Noverse (§12.4) có *Mở Viderse* khi có quyền.
+- Thành viên › Quyền vào ứng dụng, Đặt lại mật khẩu, Khoá; Đổi mật khẩu; Thiết bị: câu theo `07-copy.md`.
+- Chỉ áp dụng khi có `grants`; `STORE_DRIVER=file` giữ nguyên câu cũ.
+
+### Việc backend (GAP)
+- `apps: AppLink[]` (id, tên, địa chỉ gốc) trong `GET /api/me` và 403 `app_access_denied`.
+- 401 `session_ended` có `reason` (`logout` · `password_changed` · `admin_changed` · `expired`) và `app`. Xem Viderse hỏi đáp #50.
+
+### Nghiệm thu
+- Quản trị viên mở menu tài khoản → nhóm Ứng dụng có Viderse; bấm → Viderse mở ở thẻ mới, không hỏi đăng nhập.
+- Thành viên không có quyền Viderse → không có nhóm Ứng dụng (máy tính và điện thoại).
+- Đăng xuất ở Viderse → tải lại Noverse: màn đăng nhập ghi “Bạn vừa đăng xuất ở Viderse…”.
+- Tắt ô Viderse của Linh ở Thành viên → câu ngay dưới hai ô nói Linh bị đăng xuất ở cả hai app; Linh mở Viderse thấy màn chưa được cấp quyền, có *Mở Noverse*.
+- Ghi “Gói AO” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |
