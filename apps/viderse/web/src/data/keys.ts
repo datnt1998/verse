@@ -55,6 +55,12 @@ export const keys = {
   channels: () => ['channels', 'list'] as const satisfies Key,
   /** GET /api/owner-channels/:id — một kênh cho trang Kênh (tab, nhận diện, nguồn). */
   channel: (id: string) => ['channels', 'one', id] as const satisfies Key,
+  /** GET /api/channels/:id/performance — số liệu sau đăng + nhận xét của Trợ lý (Kênh › Video). */
+  channelPerformance: (id: string) => ['channels', 'performance', id] as const satisfies Key,
+  /** GET /api/clone?channel=<id> — danh sách video của kênh (Kênh › Video: bảng, bộ lọc, số liệu đầu kênh). */
+  channelJobs: (id: string) => ['channels', 'jobs', id] as const satisfies Key,
+  /** GET /api/youtube/data-key — khoá YouTube Data API (Cài đặt › Kết nối AI). */
+  youtubeDataKey: () => ['youtube', 'data-key'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots gộp mọi đối thủ liên kết của kênh theo múi giờ. */
   channelSchedule: (id: string, zone: string) => ['channels', 'schedule', id, zone] as const satisfies Key,
   /** GET /api/backdrop/channels — cột nguồn của tab Video nền + hộp chọn nguồn. */
