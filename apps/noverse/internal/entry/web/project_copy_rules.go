@@ -31,12 +31,12 @@ func (g *Gateway) readProjectRules(ctx context.Context, user identity.User, ref 
  cfg, _, err := g.loadTargetConfig(ctx, target, user); if err != nil { return out, err }; out.style = cfg.Style
  if target.hosted {
   rows, err := g.hostedRuleFiles(ctx, user, target); if err != nil { return out, err }
-  for _, row := range rows { if validRuleName(row.Name) && !strings.HasPrefix(row.Name, ".") { out.files[row.Name] = row.Text } }
+  for _, row := range rows { if rules.IsRuleFileName(row.Name) { out.files[row.Name] = row.Text } }
   return out, nil
  }
  entries, err := os.ReadDir(rulesDirIn(ref.Dir)); if os.IsNotExist(err) { return out,nil }; if err != nil { return out,err }
  for _, entry := range entries {
-  if entry.IsDir() || entry.Type()&os.ModeSymlink != 0 || !validRuleName(entry.Name()) || strings.HasPrefix(entry.Name(), ".") { continue }
+  if entry.IsDir() || entry.Type()&os.ModeSymlink != 0 || !rules.IsRuleFileName(entry.Name()) { continue }
   data, err := os.ReadFile(filepath.Join(rulesDirIn(ref.Dir),entry.Name())); if err != nil { return out,err }; out.files[entry.Name()] = string(data)
  }
  return out,nil
