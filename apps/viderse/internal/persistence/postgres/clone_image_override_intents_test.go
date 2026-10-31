@@ -40,7 +40,7 @@ func TestLivePromptOverrideSurvivesRestartAndFencesNewFlights(t *testing.T) {
 	before, err := edits.Read(ctx, job.ID, domain.CloneImages); if err != nil { t.Fatal(err) }
 	desired := m
 	desired.TemplatePrompt = "new visual style"
-	desired.QueueOnly = []string{"scene-0", "scene-1", "scene-2", "scene-3"}
+	desired.QueueOnly = []string{"scene-0", "scene-1", "scene-2", "scene-3", "scene-4"}
 	desired.Revision++
 	changed, _ := json.Marshal(desired)
 	if err := store.Commit(ctx, before, jobedit.Change{Checkpoint:changed, InvalidateFrom:domain.CloneImages, Rerun:true, ImageOverride:true}); err != nil { t.Fatal(err) }
@@ -64,7 +64,7 @@ func TestLivePromptOverrideSurvivesRestartAndFencesNewFlights(t *testing.T) {
 	restarted, err := store.ClaimNextStep(ctx, job.ID, "worker"); if err != nil || restarted == nil || restarted.Step.Step != domain.CloneImages { t.Fatalf("restart: %+v %v", restarted, err) }
 	merged, err := store.DrainImageIntents(ctx, job.ID, restarted.Fence, restarted.Step.Attempt, restarted.Step.Checkpoint); if err != nil { t.Fatal(err) }
 	if err := json.Unmarshal(merged, &m); err != nil { t.Fatal(err) }
-	if m.TemplatePrompt != "new visual style" || m.Items[4].Status != "review" || m.Items[5].Status != "pending" { t.Fatalf("lost active result or pending work: %+v", m) }
+	if m.TemplatePrompt != "new visual style" || m.Items[4].Status != "pending" || len(m.Items[4].Versions) != 1 || m.Items[4].Versions[0].Prompt != "old" || m.Items[5].Status != "pending" { t.Fatalf("lost active result or pending work: %+v", m) }
 	for i := range 4 {
 		if m.Items[i].Status != "pending" || len(m.Items[i].Versions) != 1 || m.Items[i].Versions[0].Prompt != "old" { t.Fatalf("wrong redraw %d: %+v", i, m.Items[i]) }
 	}

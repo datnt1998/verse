@@ -204,7 +204,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		}
 		affected := (item.Kind == "scene" && (sceneChanged || modeChanged)) || (item.Kind == "thumbnail" && coverChanged)
 		if affected {
-			redraw := len(item.Versions) > 0 || modeChanged && !none && item.Kind == "scene"
+			redraw := len(item.Versions) > 0 || item.InFlight != nil || modeChanged && !none && item.Kind == "scene"
 			if redraw && (!none || item.Kind == "thumbnail") {
 				if item.Kind == "scene" {
 					plan.Redraw.Scenes++

@@ -59,7 +59,7 @@ func TestWorkerAppliesOverrideBeforeStartingRemainingImages(t *testing.T) {
 		if err := json.Unmarshal(raw, &next); err != nil { return nil, err }
 		next.TemplatePrompt = "new visual style"
 		for i := range next.Items {
-			if next.Items[i].ID == "drawn" { next.Items[i].Status = "pending" }
+			if next.Items[i].Status == "review" { next.Items[i].Status = "pending" }
 		}
 		next.Revision++
 		merged = true
@@ -70,10 +70,11 @@ func TestWorkerAppliesOverrideBeforeStartingRemainingImages(t *testing.T) {
 	}
 	h := Handler{Deps: Deps{Drawer:drawer, Analyse:analyse, Encode:encode}}
 	if _, err := h.Run(context.Background(), s); err != nil { t.Fatal(err) }
-	if len(drawer.prompts) != 3 || !strings.Contains(drawer.prompts[0], "old visual style") { t.Fatalf("unexpected initial draws: %+v", drawer.prompts) }
+	if len(drawer.prompts) != 4 || !strings.Contains(drawer.prompts[0], "old visual style") { t.Fatalf("unexpected initial draws: %+v", drawer.prompts) }
 	for _, prompt := range drawer.prompts[1:] {
 		if !strings.Contains(prompt, "new visual style") { t.Fatalf("remaining image used stale prompt: %s", prompt) }
 	}
 	if err := json.Unmarshal(s.Checkpoint, &m); err != nil { t.Fatal(err) }
 	if len(m.Items[2].Versions) != 2 || m.Items[2].Versions[0].Prompt != "original prompt" { t.Fatalf("prior drawn version changed: %+v", m.Items[2].Versions) }
+	if len(m.Items[0].Versions)+len(m.Items[1].Versions) != 3 { t.Fatalf("in-flight original or redraw missing: %+v", m.Items) }
 }
