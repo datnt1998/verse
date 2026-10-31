@@ -45,7 +45,10 @@ describe('headless scoped transport', () => {
   })
   it('default fetcher binds the real global fetch (browser receiver regression)', async () => {
     const realFetch = globalThis.fetch
-    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json(snapshot()))
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async function (this: unknown) {
+      expect(this).toBe(globalThis)
+      return Response.json(snapshot())
+    })
     const client = new HeadlessClient('render', 'request-1', 'scoped-token')
     await client.snapshot()
     expect(spy).toHaveBeenCalled()
