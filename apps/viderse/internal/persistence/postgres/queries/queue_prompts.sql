@@ -6,3 +6,7 @@ WHERE id = $1 AND override_revision = $2 AND state = 'queued' AND removed_at IS 
 
 -- name: LockQueueItemForAdmission :one
 SELECT * FROM clone_queue WHERE id = $1 FOR UPDATE;
+
+-- name: SetInitialImageOverrides :exec
+UPDATE clone_steps SET checkpoint = $2::jsonb
+WHERE job_id = $1 AND step = 'images';

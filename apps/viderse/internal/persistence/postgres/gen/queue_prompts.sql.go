@@ -43,6 +43,21 @@ func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID)
 	return i, err
 }
 
+const setInitialImageOverrides = `-- name: SetInitialImageOverrides :exec
+UPDATE clone_steps SET checkpoint = $2::jsonb
+WHERE job_id = $1 AND step = 'images'
+`
+
+type SetInitialImageOverridesParams struct {
+	JobID   pgtype.UUID `json:"job_id"`
+	Column2 []byte      `json:"column_2"`
+}
+
+func (q *Queries) SetInitialImageOverrides(ctx context.Context, arg SetInitialImageOverridesParams) error {
+	_, err := q.db.Exec(ctx, setInitialImageOverrides, arg.JobID, arg.Column2)
+	return err
+}
+
 const updateQueueOverrides = `-- name: UpdateQueueOverrides :execrows
 UPDATE clone_queue
 SET scene_prompt_id = $3, cover_prompt_id = $4, no_images = $5, no_images_override = $6,
