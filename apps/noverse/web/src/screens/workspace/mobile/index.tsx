@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { ApiError, abortStory, getChapter, getOutline, getReviews, nextChapter, postCommand, resumeStory, sendInput } from '../../../api/client'
+import { ApiError, abortStory, getChapter, getLiveHistory, getOutline, getReviews, nextChapter, postCommand, resumeStory, sendInput } from '../../../api/client'
 import type { ExportConflict } from '../../../api/types'
 import { useSession } from '../../../api/session'
 import { useStoryEvents } from '../../../api/useStoryEvents'
@@ -7,6 +7,8 @@ import { invalidate, keys, useAction, useResource } from '../../../data'
 import { translateHost } from '../../../i18n/hostStrings'
 import { toolLabel, saneChapter } from '../../../lib/labels'
 import { activityText, deduplicateUserEvents, isInternalEvent, isUserEvent, userEventActor } from '../../../lib/activity'
+import { latestRunProse, mergeRunEvents } from '../../../lib/runHistoryMerge'
+import { StreamMarkdown } from '../../../lib/StreamMarkdown'
 import { enumLabel } from '../../../i18n/enums'
 import { navigate, paths } from '../../../router'
 import { ActionSheet, useMobileToast } from '../../../mobile/primitives'
@@ -16,7 +18,7 @@ import { enqueueInput, useInputOutbox } from '../../../mobile/outbox'
 import { useNotificationInbox } from '../../notify/useNotify'
 import { Icon } from '@noverse/ui'
 import { toast } from '@noverse/ui'
-import { ProgressRing } from '@noverse/ui'
+import { ProgressRing, ThinkingOrb } from '@noverse/ui'
 import { useActiveJobs } from '../../../shell/jobs/useJobs'
 import { isIndeterminate, kindIcon, ringColor } from '../../../shell/jobs/logic'
 import { useStoryName } from '../../../shell/useNames'
@@ -25,7 +27,6 @@ import { latestGateChapter } from '../GateCard'
 import { CommandSheet } from './CommandSheet'
 import { JobsSheet } from './JobsSheet'
 import { PauseSheet } from './PauseSheet'
-import { LiveStream } from '../LiveStream'
 import { agentStatus, hasMobileResult, resultHref, retryText, reviewScore, WRITING_STEPS, writingPercent, workState, workspaceActions, type AgentRole } from './logic'
 import { withExportFlag } from '../../cmdresults/logic'
 import { idleModel, PendingQuestionCard } from '../IdleCard'
@@ -65,7 +66,7 @@ function EmptyWorkspace() {
 function StoryWorkspace({ project, story, tablet = false }: { project: string; story: string; tablet?: boolean }) {
   const { user } = useSession()
   const live = useStoryEvents(project, story, NOOP)
-  const { snapshot, streamText, connected, blocked } = live
+  const { snapshot, connected, blocked } = live
   const events = useMemo(() => deduplicateUserEvents(live.events.filter((event) => !isInternalEvent(event))), [live.events])
   useStoryConnection(live)
   const background = useActiveJobs()
@@ -91,6 +92,8 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
   const exportable = actions.export && !blocked && !stale
   const state = snapshot ? workState(snapshot, events) : null
   const running = state === 'running'
+  const history = useResource(keys.story(project, story, 'live-history'), ({ signal }) => getLiveHistory(project, story, { limit: 20 }, signal), { enabled: running })
+  const prose = useMemo(() => latestRunProse(mergeRunEvents(history.data?.rounds ?? [], live.events)), [history.data, live.events])
   const gate = state === 'gate'
   const outline = useResource(keys.story(project, story, 'outline'), ({ signal }) => getOutline(project, story, signal))
   const total = snapshot?.totalChapters
@@ -189,6 +192,7 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
         {tablet && <span className={`m-orb writer mw-large-orb${!stale ? ' live' : ''}`} aria-hidden="true" />}
         <div className="mw-titles"><h1>{tablet ? `Người viết · chương ${chapter}` : `Chương ${chapter}${title ? ` · ${title}` : ''}`}</h1><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><p className="m-muted" style={{ flex: '1 1 auto', minWidth: 0 }}>{tablet ? `${step.label} · bước ${step.number}/5` : `Bước ${step.number}/5 · ${step.label}`}</p><button type="button" onClick={() => navigate(`${paths.workspace(project, story)}?view=run`)} style={{ flex: '0 0 auto', fontSize: 13.5, color: 'var(--color-accent)', whiteSpace: 'nowrap', border: 0, padding: 0, background: 'transparent' }}>Luồng viết ›</button></div></div>
         <div className="m-progress"><span style={{ width: `${percent}%` }} /></div>
+        <div className={`m-stream${prose ? '' : ' mw-stream-empty'}`} aria-live="off">{prose ? <StreamMarkdown text={prose} /> : <>Người viết đang chuẩn bị những dòng tiếp theo… <ThinkingOrb size={22} label="Người viết đang viết" /></>}</div>
         <div className="mw-actions">{permitted && <button className="m-chip" disabled={!writable || pauseRequested || snapshot.runtimeState === 'pausing'} onClick={() => setSheet('pause')}><Icon name="pause" size={14} />{pauseRequested || snapshot.runtimeState === 'pausing' ? 'Đã hẹn tạm dừng' : 'Tạm dừng'}</button>}<button type="button" className="m-chip" onClick={() => navigate(paths.reader(project, story, chapter || undefined))}><Icon name="book-1" size={14} />Xem bản nháp</button></div>
       </>}
       {state === 'gate' && <>
@@ -205,9 +209,6 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
       {state === 'done' && <><div className="mw-done-orbs" aria-hidden="true">{ROLES.map((role) => <span className={`m-orb ${role.key}`} key={role.key} />)}</div><h1>Truyện đã hoàn thành</h1><p className="m-muted num">{snapshot.completedCount.toLocaleString('vi')} chương · {snapshot.totalWordCount.toLocaleString('vi')} chữ{events.length > 0 && ` · xong lúc ${formatShortClock(events[events.length - 1].time)}`}</p><div className="m-inline-actions">{actions.export && <button className="m-button" disabled={!exportable} onClick={() => openCommand(`/export exports/${story}.epub`)}><Icon name="export-square" size={16} />Xuất EPUB</button>}<button type="button" className="m-button secondary" onClick={() => navigate(paths.audio(project, story, undefined, 'listen'))}><Icon name="headphone" size={16} />Nghe</button></div>{permitted && <button className="mw-text-link" disabled={!writable} onClick={() => navigate(resultHref(project, story, '/reopen'))}>Viết tiếp tập mới ›</button>}</>}
       {state === 'error' && <><div className="mw-card-heading"><span className="mw-hero-icon"><Icon name="warning-2" size={20} /></span><span className="mw-ct"><h1>Người viết dừng lại</h1><small>Chương {chapter} · bước {step.number}/5</small></span></div><p>{latestError ? translateHost(latestError.summary).replace(/[.。]?\s*$/, '.') : 'Trợ lý gặp lỗi khi viết. Bạn có thể đổi model hoặc thử lại.'} Phần đã viết được giữ nguyên.</p>{permitted && <div className="m-inline-actions"><button type="button" className="m-button secondary" onClick={() => navigate(moreHref('model'))}>Đổi model</button><button className="m-button" disabled={!writable || retry.busy} aria-busy={retry.pending} onClick={() => void retry.run()}>{retry.pending ? 'Đang thử lại…' : <><Icon name="refresh-2" size={16} />Thử lại</>}</button></div>}</>}
     </section>}
-    {streamText !== '' && <div className="mw-pad" style={{ height: 480, display: 'flex', flexDirection: 'column' }}>
-      <LiveStream project={project} story={story} streamText={streamText} isRunning={running && !stale} snapshot={snapshot} mobile />
-    </div>}
     {tablet && <div className="mw-compact-agents">{ROLES.filter((role) => role.key !== 'writer').map((role) => { const agent = snapshot?.agents?.find((item) => item.name.toLowerCase().includes(role.key)); return <div key={role.key} className="m-agent"><span className={`m-orb ${role.key}`} /><span><strong>{role.key === 'editor' ? 'Biên tập viên' : role.label}</strong><small>{tabletAgentStatus(role.key, state, score, stale, agent?.state)}</small></span></div> })}</div>}
     {queued.map((item) => <div className="mw-queued" role="status" key={item.id}><Icon name="clock" size={17} /><span><small>Chờ gửi · sẽ tự gửi khi có mạng</small><p>“{item.text}”</p></span></div>)}
     <div className={`m-section-label mw-recent-heading${stale ? ' mw-dim' : ''}`}><span>{tablet ? 'Vừa xảy ra' : 'Vừa xong'}</span><button type="button" className="mw-recent-link" onClick={() => navigate(logHref(project, story))}>{tablet ? 'Nhật ký' : 'Xem tất cả'}</button></div>

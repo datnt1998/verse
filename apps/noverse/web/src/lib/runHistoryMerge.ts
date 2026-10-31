@@ -1,4 +1,5 @@
 import type { HostEvent, LiveHistoryOperation, LiveHistoryRound } from '../api/types'
+import { runCardModel } from './runCardModel'
 
 /** Snapshot và SSE cùng định danh vòng/thao tác; trạng thái đã kết thúc không lùi về bắt đầu. */
 export function mergeRunHistory(current: LiveHistoryRound[], incoming: LiveHistoryRound[]): LiveHistoryRound[] {
@@ -26,9 +27,23 @@ export function mergeRunEvents(current: LiveHistoryRound[], events: HostEvent[])
     if (!existing && newest && event.roundStartedAt < newest.startedAt) continue
     const number = existing?.round ?? (newest?.round ?? 0) + 1
     const failed = event.failed || event.status === 'error'
-    const operation: LiveHistoryOperation = { id: event.id, round: number, roundId: event.roundId, role: event.role || event.agent, startedAt: event.time, durationMs: event.durationMs ?? Math.floor(event.durationNs / 1_000_000), status: failed ? 'error' : event.status === 'ok' ? 'done' : 'running', error: failed ? event.result || event.summary : '', key: event.tool, params: event.args || '', result: event.result || '' }
+    const operation: LiveHistoryOperation = { id: event.id, round: number, roundId: event.roundId, role: event.role || event.agent, startedAt: event.time, durationMs: event.durationMs ?? Math.floor(event.durationNs / 1_000_000), status: failed ? 'error' : event.status === 'ok' ? 'done' : 'running', error: failed ? event.error || 'Thao tác không thành công. Trợ lý tự xem lỗi và chạy lại ở thẻ kế tiếp.' : '', key: event.tool, params: event.args || '', result: event.result || '' }
     const round: LiveHistoryRound = { round: number, roundId: event.roundId, role: event.role || event.agent, title: event.roundTitle, startedAt: event.roundStartedAt, operations: [operation] }
     result = mergeRunHistory(result, [round]); newest = result.at(-1)
   }
   return result
+}
+
+/** Đoạn văn mới nhất từ chính dữ liệu bản nháp đã hợp nhất, không đọc tham số thô trên giao diện. */
+export function latestRunProse(rounds: LiveHistoryRound[]): string {
+  for (let i = rounds.length - 1; i >= 0; i--) {
+    const operations = rounds[i].operations
+    for (let j = operations.length - 1; j >= 0; j--) {
+      const op = operations[j]
+      if (op.key !== 'draft_chapter' || op.status === 'error') continue
+      const quote = runCardModel(op.key, op.params, op.result).blocks.find(block => block.kind === 'quote')
+      if (quote?.kind === 'quote') return quote.text.split(/\n\s*\n/).filter(Boolean).at(-1)?.trim() ?? ''
+    }
+  }
+  return ''
 }
