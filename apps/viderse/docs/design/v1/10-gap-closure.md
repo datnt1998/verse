@@ -17,7 +17,7 @@ Dev ghi mỗi gói khi xong: ngày, PR/commit, chỗ lệch so với artboard (n
 | V10 — Điện thoại | | | | |
 | V11 — Nhắn trợ lý | | | | |
 | V12 — Hộp thoại + trạng thái hệ thống | | | Dải mất kết nối trong Cài đặt đẩy nội dung xuống thay vì che (#30). | Đang làm. Đã có: 7 loại `ConfirmDialog` (khoá kèm lý do, cỡ `size` cho hộp thoại rộng), dải mất kết nối (hiện ~0,1 giây sau khi tắt máy chủ, nội dung khoá `inert`, tự tắt khi nối lại), trang Không tìm thấy, Bàn dựng trống. Tắt máy chủ khi còn tab mở thoát ngay, mã 0. Còn: khoá Xoá video đang chạy trên menu ⋯ (cần Bàn dựng có job). |
-| Gói V13 — Editor theo Viderse | | Nhánh `feat/viderse-p06` | Dữ liệu dự án và số đo là dữ liệu thật, không cố định theo video minh hoạ trên artboard. Chưa xác nhận bảng đo app/artboard và smoke xuất thật. | Đã port engine/UI MIT từ yt-factory `2c201e6`, router hash lazy, project TypeScript riêng, ngân sách bundle có nguồn gốc module, V13 StyleX (Cần sửa, inspector theo chọn, timeline, cổng xuất, tiến độ/xong, ba cách xử lý xung đột, màn hình hẹp). Kiểm thử hồi quy hẹp route/navigation/quality: 16 đạt, có chứng cứ fail-trước cho chín điểm bỏ Next và timing/undo. Baseline DOM artboard 21 trạng thái tại 1440×900 và narrow 1000×900 đã đo; phần app, engine toàn suite và smoke render/measure do Main chốt sau khi tích hợp backend/fixture. Chưa đánh dấu gói đã xong. | <!-- r2-gap -->
+| Gói V13 — Editor theo Viderse | Runtime đã đối chiếu; chờ gate tích hợp | Nhánh `feat/viderse-p06` | Dữ liệu thật của fixture phase 05, không cố định điểm, thời lượng hay số đoạn theo video minh hoạ. Các khác biệt dữ liệu/copy được ghi chung tại #66 trong `11-hoi-dap.md`. | Đã port engine/UI MIT `2c201e6`, tách project TypeScript, lazy hash routes editor/render/measure và kiểm tra ngân sách entry theo manifest. Đã đo 21 trạng thái desktop và nhánh hẹp 1000px bằng serve 8823/Vite 5323 thật; bảng bên dưới. Đã chạy thật mở lỗi, khớp/⌘Z, khớp tất cả → hai mục cần đo lại, ba hành động xung đột, xuất có xác nhận và xuất khi đủ điều kiện. Bản cuối chờ nén xong mới báo hoàn tất; kích thước UI và MP4 tải về cùng 573436 byte. Test hẹp đã xanh; typecheck/engine suite/budget và design-rules sau ghép các gói phase 05 do Main chạy một lần. | <!-- r2-gap -->
 | V14 — Việc nền & thông báo | | | | |
 | V15 — Kho prompt ảnh | | | Nhập prompt trùng tên (#45). | Đang làm. Đã có: 7 prompt có sẵn (không Lưu/Xoá), prompt của bạn: tạo, sửa, nhân bản, xoá (đang dùng thì chặn kèm tên template), lọc theo loại, tìm, xuất/nhập JSON; template chọn prompt ảnh cảnh và bìa, `imagePromptMode` tự suy ra. Còn: video đang chạy giữ nội dung cũ, video mới dùng nội dung mới, ảnh tách nền và bìa “Chữ hook” trong video (cần pipeline, V6); Ảnh mẫu/Vẽ thử. |
 | V17 — Kết nối AI và Trợ lý AI | | | Dữ liệu artboard chưa có nguồn (#26); thứ tự thẻ, thẻ trùng loại (#27); giá mỗi video = 7 ảnh, lưới 4 nguồn vẽ (#28). | Đang làm. Đã có: §15 đủ API; ChatGPT (một credential trong `core/auth`), Grok mã thiết bị, khoá API niêm phong AES-GCM, Ollama; danh mục model phân trang, thêm model tay; Đạo diễn/Hoạ sĩ chọn model và nguồn vẽ dự phòng; trần ảnh trả phí mỗi ngày (D7). QA ảnh cặp 5 vòng xong 30/10/2026, còn 0 lỗi lớn / 0 lỗi nhỏ. Còn: chủ máy thử đăng nhập Grok và thêm khoá API thật. |
@@ -53,3 +53,99 @@ Dev ghi mỗi gói khi xong: ngày, PR/commit, chỗ lệch so với artboard (n
 - `MNew` rỗng không hiện nhóm tuỳ chọn hoặc dòng kế hoạch; footer còn 63px. Gợi ý và ô nhập khớp sau chuẩn hoá native safe-area #57. Không ẩn textarea nhiều link.
 - Kiểm tra cuối: `npx tsc --noEmit -p .` thành công; năm file Vitest tập trung chạy với `--pool=threads --maxWorkers=2`, 43 kiểm thử thành công. Cảnh báo môi trường React `act(...)` đã có vẫn còn, không bị tắt.
 - Bằng chứng hình học/kiểu tính được và DTO hạn mức nằm ở `/tmp/p05visual-measurements.json`, `/tmp/p05visual-limited.json`; bảng từng trạng thái được ghi trong mục P05VisualQA của báo cáo bàn giao.
+
+## Gói V13 — bảng đối chiếu runtime Editor
+
+Đo DOM và `getComputedStyle` bằng một session agent-browser riêng, dùng Viderse serve thật tại 8823 và Vite tại 5323. Dự án schema 15 được build bởi phase 05, media thật được nhập qua API/domain. Fixture sáu giây dùng âm sin; mốc lời độc lập là **authored golden, không phải kết quả ASR thật**. Không gán điểm/range giả vào app, không seed nội dung trực tiếp vào DB. Browser/Vite đã đóng; fixture và serve đã được owner thu dọn; tài khoản thử đã xoá.
+
+### Khung chung tại 1440 × 900
+
+| Thành phần | Board | App |
+|---|---:|---:|
+| Thanh trên | 1440 × 52 | 1440 × 52 |
+| Thanh trái có nhãn | 68 × 562 | 68 × 562 |
+| Nút trên thanh trái | 56 × 54 | 56 × 54 |
+| Bảng trái | 316 × 562 | 316 × 562 |
+| Vùng xem | 740 × 562 | 740 × 562 |
+| Bảng phải | 316 × 562 | 316 × 562 |
+| Timeline | 1440 × 286 | 1440 × 286 |
+| Toolbar / ruler / một track | 40 / 24 / 30 | 40 / 24 / 30 |
+
+Các vị trí chung: bảng trái `(68,52)`, bảng phải `(1124,52)`, timeline `(0,614)`. Font UI là Be Vietnam Pro; số thời gian dùng font mono. Border của rail/bảng trái chiếm đúng một pixel, không thay bằng inset shadow.
+
+### Cặp đo cho đủ 21 trạng thái
+
+Giá trị là `rộng × cao`, đơn vị CSS px. Với fix/panel đo bảng trái; focus và nâng cao đo bảng phải; safe-off đo vùng xem; các trạng thái xuất/xung đột đo dialog.
+
+| Trạng thái | Board | App |
+|---|---:|---:|
+| `fix:todo` | 316 × 562 | 316 × 562 |
+| `fix:partial` | 316 × 562 | 316 × 562 |
+| `fix:done` | 316 × 562 | 316 × 562 |
+| `fix:measuring` | 316 × 562 | 316 × 562 |
+| `fix:passed` | 316 × 562 | 316 × 562 |
+| `panel:fix` | 316 × 562 | 316 × 562 |
+| `panel:scenes` | 316 × 562 | 316 × 562 |
+| `panel:subs` | 316 × 562 | 316 × 562 |
+| `panel:bg` | 316 × 562 | 316 × 562 |
+| `panel:audio` | 316 × 562 | 316 × 562 |
+| `panel:media` | 316 × 562 | 316 × 562 |
+| `focus:caption` | 316 × 562 | 316 × 562 |
+| `focus:scene` | 316 × 562 | 316 × 562 |
+| `focus:bg` | 316 × 562 | 316 × 562 |
+| `focus:none` | 316 × 562 | 316 × 562 |
+| `state:export-gate` | 460 × 263.359375 | 460 × 238.984375 |
+| `state:exporting` | 520 × 342 | 520 × 322.625 |
+| `state:export-done` | 520 × 479.625 | 520 × 479.625 |
+| `state:conflict` | 520 × 344.890625 | 520 × 324.09375 |
+| `tweak:advanced` | 316 × 562 | 316 × 562 |
+| `tweak:safe-off` | 740 × 562 | 740 × 562 |
+
+Không ép chiều cao dialog bằng khoảng trống giả: gate đo với điểm thật 100 và trạng thái cần đo lại, không phải ví dụ 84 với ba range; exporting bỏ đúng một dòng 19.375px theo quyết định copy của Main; conflict dùng mô tả 409 thật thay vì bịa tác nhân, giờ và số thay đổi, ít hơn một dòng 20.796875px. Các quyết định này nằm trong mục hỏi đáp chung #66, không mở mục hỏi đáp V13 thứ hai.
+
+| Chi tiết kiểm tra | Board | App |
+|---|---|---|
+| Dòng range | rộng 265, cao 40, padding 5px 8px, gap 8, radius 8 | cùng các giá trị |
+| Khớp tất cả | cao 30, padding 0 10px, gap 7, radius 8 | cùng các giá trị; rộng 211.063px với N=2 so với 211.203px với N=3 |
+| Gate: icon / gap đầu | 42 × 42 / 14 | 42 × 42 / 14 |
+| Gate: mô tả | 13.5px, line-height 20.925px, màu `rgb(180,180,190)` | cùng các giá trị |
+| Gate: list | padding 10px 12px 10px 30px, radius 11, nền trắng alpha .03 | cùng các giá trị |
+| Nội dung dialog | padding 20, gap 16, font 13 | cùng các giá trị |
+| Toast | nền `rgb(28,28,31)`, cao 40, padding 0 8px 0 14px, gap 10, radius 999 | cùng các giá trị, dùng `--kit-surface-toast`, không dùng `--color-surface-1` |
+
+### Nhánh hẹp tại 1000 × 900
+
+Nhánh này thay Editor bằng thông báo màn hình hẹp; không giả lập 21 panel bị ẩn thành 21 bề mặt hẹp khác nhau.
+
+| Thành phần | Board | App |
+|---|---:|---:|
+| Header | 1000 × 48 | 1000 × 48 |
+| Khối thông báo | 420 × 200.28125 | 420 × 200.28125 |
+| Nút quay lại trong header | cao 44, radius 8, padding 0 10px 0 6px, gap 6 | cùng các giá trị |
+| Nút chính | 153.0625 × 44, radius 11 | 153.0625 × 44, radius 11 |
+| Chữ nút chính | 13.5px / 400 | 13.5px / 400 |
+| Vị trí thông báo / nút chính | y=373.859375 / 530.140625 | cùng các giá trị |
+
+### Chứng cứ từng tiêu chí V13
+
+| Tiêu chí | Kết quả thực tế |
+|---|---|
+| Mở từ Chưa đạt | Hash `?fix=1` mở Cần sửa, chọn cue đầu `Xin chào`, playhead frame 12 tại 30fps; chip timeline ghi `Đoạn lệch 1/2`. |
+| Khớp theo giọng + ⌘Z | POST thật chỉ gửi `cueIds:['c1']`; response offset `-0.4`; cue/word được ghi về server. ⌘Z khôi phục mốc `.4 → 2.9`, bộ đếm trở lại hai đoạn; redo hoạt động. |
+| Khớp cả N đoạn | Hai range authored độc lập, không chồng nhau; khớp tất cả chuyển sang `Đã khớp cả 2 đoạn`, đúng hai check `captionAlignment` và `captionKaraoke` cần đo lại, chín check còn lại không bị đánh stale giả. |
+| Xuất ở 84 | Test rendered `ExportGateDialog` kiểm tra 84/100 bị chặn. Runtime không sửa điểm 100 thật thành 84: lỗi timing có weight 0 theo upstream nhưng vẫn là blocker; export thật mở gate và cần xác nhận. |
+| Thanh trái với screen reader | Sáu tab có tên, `aria-selected`, `aria-controls`, roving tabindex; ArrowDown, Home, End đổi focus/panel đúng. Axe phạm vi tablist: 19 rule passed, 0 violation. |
+| Ba cách giải quyết xung đột | 409 được tạo bằng hai lần ghi CAS thật. Tiếp tục giữ local và tắt tự lưu, revision server không đổi; tải lại bỏ local; lưu bản sao giữ local trong project mới, không ghi đè bản gốc. Copy thử đã xoá bằng API. |
+| Đo và xuất thật | Mốc authored golden được đo bằng pipeline thật; đã sửa end-card sáu giây bằng ba item canonical của template qua engine commands, không đổi template hoặc score. Kết quả cuối 100, passed=true, blockers=[], changed=false. |
+| Hoàn tất xuất | Poll quan sát `queued → running/claim → running/rendering → running/compressing → done`; không báo xong ở bước upload. Request `8140febf-2520-4e92-867f-0a77bc191668`, MP4 `2a3cc4fb-e307-4265-bf6d-1beaf810ed62`: HTTP 200, UI và tệp cùng **573436 byte**. Owner probe: sáu giây, 1920×1080, H264 30fps, AAC 48kHz stereo, −14 LUFS; pipeline SUCCEEDED. |
+
+### Kiểm thử và phạm vi giữ nguyên upstream
+
+- Các lần chạy hẹp cuối: `quality.test.ts` 7 đạt; `ExportGateDialog.test.tsx` 3 đạt; `ExportDialogs.test.tsx` 5 đạt; `ui/library/library-actions.test.tsx` 12 đạt. Có fail-trước cho thiếu bước xuất thứ ba, nhãn giai đoạn nén, và hai nhánh chèn video không có audio. Video-only không tạo linked-audio và được đánh `embeddedAudioMuted`; audio AAC vẫn giữ nhánh audio thật.
+- Route/navigation đã có chín regression fail-trước rồi xanh; headless client đã được chạy với receiver của native fetch và snapshot subtitle thật. Không chạy lại toàn bộ app/engine để tránh tranh CPU với các owner.
+- Lượt typecheck app cuối của worker phát hiện token toast không tồn tại; đã thay bằng token toast đúng và đo màu so với board. Không chạy lại tsc sau sửa; Main sở hữu lượt typecheck/gate tích hợp cuối.
+- Lượt `design-rules.test.ts` cuối: 10 đạt, 4 lỗi chỉ ở CSS phase 05 (`screens/explore`, `screens/new`, `screens/queue`, gồm `--vv-row-sep`); **không có offender `editor/`**. Không sửa queue ngoài phạm vi được giao. Main ghép các gói StyleX phase 05 trước gate tổng.
+- `engine/**` và `vendor/**` giữ nguồn MIT. Các miễn trừ UI là danh sách file cụ thể trong test, không miễn glob `ui/**`: `controls/index.tsx` (control cũ không dùng cho V13); `inspector/canvas.tsx` (bảng canvas cũ); `inspector/text.tsx` (rich text cũ); `inspector/effect-preview.ts` (pixel ảnh mẫu); `library/library-actions.ts` (màu pixel nội dung được tạo); `preview/use-preview-composition.ts` (màu nền nội dung render); `timeline/timeline.css` (CSS NLE upstream). V13 mới dùng StyleX; timeline chrome và track tokens V13 không miễn kiểm tra.
+
+Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp/p06-editor-app-states.json`, `/tmp/p06-editor-{board,app}-1000-final.json`, `/tmp/p06-editor-{board,app}-toast.json`, `/tmp/p06-editor-gate-controls-final.json`, `/tmp/p06-editor-actual-alignment-diff.json`, `/tmp/p06-editor-cmd-z-final.json`, `/tmp/p06-editor-all-aligned-final.json`, `/tmp/p06-editor-conflict-{continue,reload,copy}.json`, `/tmp/p06-editor-finalization-polls.json`, `/tmp/p06-editor-final-export-evidence.json`. MP4 cuối được giữ tại `/tmp/p06-render-smoke-finalized.mp4`.
+
