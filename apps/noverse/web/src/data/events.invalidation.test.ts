@@ -20,6 +20,8 @@ it('coalesces exact invalidations and applies snapshot payloads without refetchi
     expect(invalidate).not.toHaveBeenCalled()
     await vi.advanceTimersByTimeAsync(1)
     expect(invalidate.mock.calls).toEqual([
+      [keys.story('p', 's', 'premise')],
+      [keys.story('p', 's', 'world-rules')],
       [keys.story('p', 's', 'audio', 'script')],
       [keys.project('p', 'stories')],
     ])

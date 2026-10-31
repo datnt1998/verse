@@ -18,7 +18,7 @@ vi.mock('../../../api/client', async (original) => ({ ...(await original<typeof 
 vi.mock('../../../api/session', () => ({
   useSession: () => ({ user: { username: 'dat', name: 'Dat', role: 'admin', projects: {} }, setUser: () => {}, checked: true }),
 }))
-vi.mock('../../settings/sections/rules', () => ({ RulesEditor: () => null }))
+vi.mock('../../settings/sections/rules', () => ({ RulesPanel: () => null }))
 const toasts = vi.hoisted(() => [] as string[])
 
 vi.mock('@noverse/ui', async (original) => {

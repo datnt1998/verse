@@ -1530,6 +1530,7 @@ func (h *Host) Snapshot() UISnapshot {
 		CachePerAgent:          cacheStats,
 		CachePerModel:          modelStats,
 		MissingAssistantUsage:  h.usage.MissingAssistantUsage(),
+		OpenThreads:            []string{},
 	}
 
 	// 单指令运行结果:engine 存在时才可能有;正常 run 恒为 nil。
@@ -1558,6 +1559,7 @@ func (h *Host) Snapshot() UISnapshot {
 		}
 	}
 	if meta, _ := h.store.RunMeta.Load(); meta != nil {
+		snap.PlanningTier = meta.PlanningTier
 		snap.PendingSteer = meta.PendingSteer
 		snap.AdvanceMode = string(meta.AdvanceMode)
 		snap.AdvancePermitChapter = meta.AdvancePermitChapter
@@ -1621,11 +1623,12 @@ func (h *Host) fillDetails(snap *UISnapshot, progress *domain.Progress) {
 		}
 	}
 	h.fillPlan(snap, progress)
+	if compass, _ := h.store.Outline.LoadCompass(); compass != nil {
+		snap.CompassDirection = compass.EndingDirection
+		snap.CompassScale = compass.EstimatedScale
+		snap.OpenThreads = append(snap.OpenThreads, compass.OpenThreads...)
+	}
 	if progress != nil && progress.Layered {
-		if compass, _ := h.store.Outline.LoadCompass(); compass != nil {
-			snap.CompassDirection = compass.EndingDirection
-			snap.CompassScale = compass.EstimatedScale
-		}
 		if volumes, _ := h.store.Outline.LoadLayeredOutline(); len(volumes) > 0 {
 			for _, v := range volumes {
 				if v.Index > progress.CurrentVolume {

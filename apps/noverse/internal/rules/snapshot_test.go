@@ -182,8 +182,8 @@ func TestRawFileSources_ManagedFileAccumulatesAcrossLevels(t *testing.T) {
 			other++
 		}
 	}
-	if managed != 3 || other != 1 {
-		t.Fatalf("quy-tac.md phải cộng dồn 3 cấp, tệp khác vẫn gần-thắng: managed=%d other=%d", managed, other)
+	if managed != 2 || other != 1 {
+		t.Fatalf("managed rules accumulate project/story only: managed=%d other=%d", managed, other)
 	}
 }
 
@@ -231,8 +231,8 @@ func TestFatiguePer1000_Per1000WinsAndRoundTrip(t *testing.T) {
 	if entry["per_1000"] != 2.5 {
 		t.Errorf("wire per_1000=%v, want 2.5", entry["per_1000"])
 	}
-	if entry["max_per_chapter"] != 3.0 {
-		t.Errorf("wire max_per_chapter=%v, want 3 (tương đương ở chương 1.500 tiếng)", entry["max_per_chapter"])
+	if entry["max_per_chapter"] != 4.0 {
+		t.Errorf("wire max_per_chapter=%v, want 4", entry["max_per_chapter"])
 	}
 	// Đọc lại output chính nó phải giữ nguyên per_1000 (round-trip ổn định).
 	var s2 Structured

@@ -555,24 +555,24 @@ func TestFileRules_EffectiveByScopeWithDiskCache(t *testing.T) {
 	model := &lineModel{phrases: map[string]string{"cấm đột nhiên": "đột nhiên"}, options: map[string][]string{ambiguousRule: ambiguousOptions}}
 	cache := filepath.Join(t.TempDir(), "rules-cache.json")
 
-	// Cấp toàn cục: chỉ thấy dòng của global.
+	// Đường dẫn global cũ không còn là một cấp quy tắc.
 	eff, err := NewFileRules(model, rules.LoadOptions{HomeRulesDir: home}, cache).Effective(t.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(eff.Items) != 1 || eff.Items[0].Scope != "global" || eff.Items[0].Chips[0].Kind != rules.ChipBan {
-		t.Fatalf("global items: %+v", eff.Items)
+	if len(eff.Items) != 0 {
+		t.Fatalf("global rules must be ignored: %+v", eff.Items)
 	}
-	if !hasPhrase(eff.Snapshot, "đột nhiên") || !hasPhrase(eff.Snapshot, "theo một nghĩa nào đó") {
-		t.Fatalf("snapshot = defaults + file: %v", eff.Snapshot.Structured.ForbiddenPhrases)
+	if hasPhrase(eff.Snapshot, "đột nhiên") || !hasPhrase(eff.Snapshot, "theo một nghĩa nào đó") {
+		t.Fatalf("snapshot must contain defaults, not global rules: %v", eff.Snapshot.Structured.ForbiddenPhrases)
 	}
-	// Cấp dự án: global + project, theo thứ tự cấp; options của dòng mơ hồ.
+	// Cấp dự án chỉ đọc project; vẫn giữ options của dòng mơ hồ.
 	opts := rules.LoadOptions{HomeRulesDir: home, ProjectRulesDir: project}
 	eff, err = NewFileRules(model, opts, cache).Effective(t.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(eff.Items) != 2 || eff.Items[0].Scope != "global" || eff.Items[1].Scope != "project" || len(eff.Items[1].Options) != 2 {
+	if len(eff.Items) != 1 || eff.Items[0].Scope != "project" || len(eff.Items[0].Options) != 2 {
 		t.Fatalf("project items: %+v", eff.Items)
 	}
 	// Đệm ghi ra đĩa: bộ đọc mới (như lần GET sau) không gọi model nữa.

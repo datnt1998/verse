@@ -14,6 +14,7 @@ import {
   visibleRuntime,
   type Baseline, type EditState, type RuleEntry, type RuleRetry, type SummaryRow,
 } from './logic'
+import { fatigueLimit, fatigueRule } from './fatigue'
 
 const ackKey = 'ainovel.rules.ack'
 const readAcks = (): string[] => { try { return JSON.parse(localStorage.getItem(ackKey) ?? '[]') as string[] } catch { return [] } }
@@ -52,6 +53,9 @@ type Understood = Pick<RuleEntry, 'chips' | 'uncertain' | 'note' | 'options' | '
 /** Giao diện của bộ điều khiển — màn hình máy tính và điện thoại cùng dùng. */
 export interface RulesEditor {
   scope: ConfigScope
+  project: string
+  story: string
+  setFatigue: (word: string, limit: number, baseline: number) => void
   canEdit: boolean
   enabled: boolean
   resource: Resource<RulesEffective>
@@ -128,7 +132,7 @@ export function useRulesEditor({ scope, project, story, recheckDefault = true }:
 
   // Số hiệu lực ở menu trái.
   const effectiveEntries = useMemo(() => {
-    const own = scope === 'story' ? [...lists.story, ...runtime, ...lists.project, ...lists.global] : scope === 'project' ? [...lists.project, ...lists.global] : lists.global
+    const own = scope === 'story' ? [...lists.story, ...runtime, ...lists.project] : scope === 'project' ? lists.project : []
     return own
   }, [scope, lists, runtime])
   useEffect(() => {
@@ -248,6 +252,21 @@ export function useRulesEditor({ scope, project, story, recheckDefault = true }:
   }
   const dropLearned = (entry: RuleEntry) => { if (entry.fromRuntime) update((old) => ({ ...old, ops: old.ops + 1, dropped: [...old.dropped, entry.fromRuntime!] })) }
 
+  /** Same managed rule file and apply flow as manually entered rules; no separate preferences store. */
+  const setFatigue = (word: string, limit: number, baseline: number) => {
+    if (!canEdit || scope === 'global') return
+    update((old) => {
+      const entries = listOf(base, old, scope).filter((entry) => fatigueLimit(entry, word) === undefined)
+      const learned = scope === 'story' ? visibleRuntime(base, old).filter((entry) => fatigueLimit(entry, word) !== undefined) : []
+      const next: RuleEntry[] = limit === baseline ? entries : [{
+        key: nextKey('fatigue'), text: fatigueRule(word, limit),
+        chips: [{ kind: 'max', text: word, limit }],
+        uncertain: false, note: '', options: [], status: 'ready', fresh: true,
+      }, ...entries]
+      return { ...old, lists: { ...old.lists, [scope]: next }, dropped: [...new Set([...old.dropped, ...learned.map((entry) => entry.fromRuntime!)])], ops: old.ops + 1 }
+    })
+  }
+
   /** Khung cam: chọn một cách hiểu → viết lại quy tắc và chuẩn hoá lại; `null` = “Giữ như lời dặn”. */
   const resolve = async (level: ConfigScope, key: string, option: string | null): Promise<string | undefined> => {
     if (level !== scope || !canEdit) return undefined
@@ -294,7 +313,7 @@ export function useRulesEditor({ scope, project, story, recheckDefault = true }:
   const refresh = useCallback(() => { void resource.refresh() }, [resource.refresh])
 
   return {
-    scope, canEdit, enabled, resource, base, lists, runtime, edits, count, summary,
+    scope, project, story, setFatigue, canEdit, enabled, resource, base, lists, runtime, edits, count, summary,
     timing: resource.data?.timing, thinking, resolving, recheck, setRecheck, draftSeed,
     retry, saveRaw: () => saveRaw(), cancelRetry,
     add, remove, edit, move, keepLearned, dropLearned, resolve, cancel, apply, refresh,

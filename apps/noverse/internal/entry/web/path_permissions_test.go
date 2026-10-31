@@ -75,7 +75,6 @@ func TestNonAdminPathEndpointAudit(t *testing.T) {
 			"/api/config?scope=global",
 			"/api/config?scope=project&project=proj",
 			"/api/config?scope=story&project=proj&story=01-story",
-			"/api/rules?scope=global",
 			"/api/rules?scope=project&project=proj",
 			"/api/rules?scope=story&project=proj&story=01-story",
 			"/api/projects/proj/stories/01-story/exports",
@@ -104,7 +103,7 @@ func TestNonAdminConfigPathsInsideHomeStayRootRelative(t *testing.T) {
 		t.Errorf("config target leaks home-relative server path: %v", target["path"])
 	}
 	rules := decodeResp(t, tg.do(http.MethodGet, "/api/rules?scope=story&project=proj&story=01-story", reader, ""))
-	want := []string{"~/.ainovel/rules", "proj/.ainovel/rules", "proj/kich_ban/01-story/.ainovel/rules"}
+	want := []string{"proj/.ainovel/rules", "proj/kich_ban/01-story/.ainovel/rules"}
 	for i, level := range rules["chain"].([]any) {
 		if dir := level.(map[string]any)["dir"]; dir != want[i] {
 			t.Errorf("rules level %d leaks server path: %v", i, dir)

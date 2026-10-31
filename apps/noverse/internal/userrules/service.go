@@ -42,7 +42,7 @@ func NewService(st *store.Store, model llmtypes.ChatModel, opts rules.LoadOption
 }
 
 // normalizerCacheVersion 随归一化提示词/契约的语义变化而加一，使旧缓存整体失效。
-const normalizerCacheVersion = "v2" // v2: kết quả chuẩn hoá có thêm options
+const normalizerCacheVersion = "v3" // v3: ngưỡng fatigue 0 là giới hạn tường minh
 
 // normConcurrency 是同一个规则文件逐条归一化时的并发上限。
 const normConcurrency = 4
@@ -67,7 +67,7 @@ type normBatch struct {
 	fresh map[string]store.NormCacheEntry
 }
 
-// normCache là nơi lưu bộ nhớ đệm chuẩn hoá: của truyện (store) hoặc của cấp toàn cục/dự án (tệp).
+// normCache là nơi lưu bộ nhớ đệm chuẩn hoá: của truyện (store) hoặc dự án (tệp).
 type normCache interface {
 	NormCache() map[string]store.NormCacheEntry
 	PutNormCache(map[string]store.NormCacheEntry) error
@@ -185,8 +185,8 @@ func (b *normBatch) runtimeCandidates(ctx context.Context, list []store.RuntimeR
 	return cands, updated
 }
 
-// staticCandidates 按优先级（低→高）列出全部来源候选：system_defaults → 规则文件
-// （全局→项目→故事）→ 启动 prompt → 运行时候选。items 是 quy-tac.md 逐条的理解。
+// staticCandidates xếp nguồn từ thấp đến cao: system_defaults → dự án → truyện
+// → startup_prompt → runtime. items là từng dòng trong quy-tac.md.
 func (b *normBatch) staticCandidates(ctx context.Context, startupPrompt string, runtime []store.RuntimeRule) (cands []rules.Candidate, items []RuleItem, updatedRuntime []store.RuntimeRule) {
 	cands = []rules.Candidate{rules.SystemDefaults()}
 	for _, rs := range rules.RawFileSources(b.opts) {
@@ -231,7 +231,7 @@ func (s *Service) GetOrBuild(ctx context.Context) (*rules.Snapshot, error) {
 		return nil, err
 	}
 	if cur != nil {
-		return cur, nil
+		return migratedRuleSources(cur), nil
 	}
 	return s.Build(ctx, "")
 }
@@ -252,6 +252,7 @@ func (s *Service) AddRuntimeRule(ctx context.Context, text string) (*rules.Snaps
 			return nil, rules.Candidate{}, err
 		}
 	}
+	cur = migratedRuleSources(cur)
 	b := s.newBatch()
 	cand := b.normalize(ctx, store.RuntimeRuleSource, text)
 	b.flush()
@@ -272,7 +273,7 @@ func (s *Service) AddRuntimeRule(ctx context.Context, text string) (*rules.Snaps
 	// Chương đang viết (nếu đã bị ghim bởi một lần Áp dụng) cũng nhận luật Trọng tài vừa học,
 	// đúng như trước khi có tính năng ghim: luật học từ chat có hiệu lực ngay.
 	if err := s.store.UserRules.UpdatePin(func(pinned rules.Snapshot) rules.Snapshot {
-		return rules.OverlaySnapshot(pinned, cand)
+		return rules.OverlaySnapshot(*migratedRuleSources(&pinned), cand)
 	}); err != nil {
 		return nil, cand, err
 	}

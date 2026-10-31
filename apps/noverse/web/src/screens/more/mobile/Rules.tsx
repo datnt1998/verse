@@ -17,7 +17,8 @@ import { Spinner } from '@noverse/ui'
 import {
   GROUP_ORDER, groupMeta, isOwnLevel, learnedMeta, moveTarget, type Level, type RuleEntry,
 } from '../../settings/sections/rules/logic'
-import { UChips, UnsureFrame } from '../../settings/sections/rules/parts'
+import { UnsureFrame } from '../../settings/sections/rules/parts'
+import { AntiAiCard, RuleKind } from '../../settings/sections/rules'
 import { useRulesEditor } from '../../settings/sections/rules/useRulesEditor'
 import type { ScopeTarget } from '../../settings/scope/model'
 import { ApplyBar } from './StorySet'
@@ -43,7 +44,7 @@ export function MobileRules({ project, story, online, toast }: {
   online: boolean; toast: (text: string) => void
 }) {
   const [view, setView] = useState<ScopeTarget>({
-    scope: story ? 'story' : project ? 'project' : 'global', project: project ?? '', story: story ?? '',
+    scope: story ? 'story' : 'project', project: project ?? '', story: story ?? '',
   })
   const editor = useRulesEditor({ scope: view.scope, project: view.project, story: view.story })
   const storyName = useStoryName(view.project || null, view.story || null)
@@ -88,7 +89,7 @@ export function MobileRules({ project, story, online, toast }: {
     setDraft('')
     void editor.add(text)
   }
-  const note = scope === 'story' ? amWritingCopy.intro : scope === 'project' ? `Mọi truyện trong dự án “${projectLabel}”.` : 'Mặc định cho mọi dự án và truyện.'
+  const note = scope === 'story' ? amWritingCopy.intro : `Áp dụng cho các truyện trong dự án “${projectLabel}”.`
   const when = scope === 'story' && editor.timing ? `Quy tắc mới có hiệu lực từ chương ${editor.timing.effectiveFrom}. Chương đã viết không bị sửa.` : scope === 'story' ? 'Quy tắc mới có hiệu lực từ chương kế tiếp. Chương đã viết không bị sửa.' : 'Áp dụng cho truyện mới và từ chương kế tiếp của truyện đang viết.'
   const entriesOf = (level: Level): RuleEntry[] => level === 'learned' ? editor.runtime : editor.lists[level]
 
@@ -98,7 +99,7 @@ export function MobileRules({ project, story, online, toast }: {
     ? [{ label: 'Giữ làm quy tắc của truyện', run: () => editor.keepLearned(target) }, { label: 'Bỏ quy tắc này', red: true, run: () => editor.dropLearned(target) }]
     : [
       { label: 'Sửa', run: () => editor.edit(open.level as ConfigScope, target.key) },
-      { label: open.level === 'story' ? 'Chuyển lên dự án' : 'Chuyển lên “Mọi truyện”', run: () => { editor.move(open.level as ConfigScope, target.key) } },
+      { label: 'Chuyển lên dự án', run: () => { editor.move(open.level as ConfigScope, target.key) } },
       { label: 'Xoá quy tắc', red: true, run: () => { editor.remove(open.level as ConfigScope, target.key) } },
     ]
   // “Chuyển lên” không có ở cấp cao nhất
@@ -106,7 +107,7 @@ export function MobileRules({ project, story, online, toast }: {
 
   const apply = async () => {
     setBusy(true)
-    try { toast(await editor.apply(scope === 'story' ? `truyện “${storyName}”` : scope === 'project' ? `dự án “${projectLabel}”` : 'mọi truyện')) }
+    try { toast(await editor.apply(scope === 'story' ? `truyện “${storyName}”` : `dự án “${projectLabel}”`)) }
     catch (error) { toast(error instanceof Error ? error.message : 'Không áp dụng được. Vui lòng thử lại.') }
     finally { setBusy(false) }
   }
@@ -167,8 +168,8 @@ export function MobileRules({ project, story, online, toast }: {
       if (!list.length && level !== scope) return null
       const own = isOwnLevel(level, scope)
       return <div key={level}>
-        <div className="rm-ghead"><Icon name={meta.icon} size={14} style={{ color: meta.color }} /><span style={{ flex: '1 1 auto' }}>{level === scope ? 'Bạn đã dặn' : meta.label}</span>{!own && <button type="button" className="rm-text-btn" onClick={() => changeLevel(level as ConfigScope)}>{level === 'project' ? 'Sửa ở dự án ›' : 'Sửa ở Mọi truyện ›'}</button>}</div>
-        {!own && <div className="rm-list">{list.map((entry) => <div key={entry.key} className="rm-rule" style={{ borderStyle: 'dashed', background: 'transparent', textAlign: 'left', alignItems: 'stretch' }}><span style={{ fontSize: 15, lineHeight: 1.5 }}>{entry.text}</span><span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}><UChips entry={entry} className="rm-uch" /></span></div>)}</div>}
+        <div className="rm-ghead"><Icon name={meta.icon} size={14} style={{ color: meta.color }} /><span style={{ flex: '1 1 auto' }}>{level === scope ? scope === 'story' ? 'Của truyện này' : 'Của dự án' : meta.label}</span><span className="num">{list.length}</span></div>
+        {!own && <div className="mm-group"><button type="button" className="rm-grow" onClick={() => changeLevel('project')}><span className="rm-preview"><span title={list.map((entry) => entry.text).join(' · ')}>{list.map((entry) => entry.text).join(' · ')}</span><span>Kế thừa · chạm để sửa ở cấp này</span></span><Icon name="arrow-right-2" size={16} /></button></div>}
         {own && <div className="rm-list">{list.map((entry) => {
           const learned = level === 'learned'
           const rule = learned ? editor.resource.data?.runtime?.find((item) => item.id === entry.fromRuntime) : undefined
@@ -178,7 +179,7 @@ export function MobileRules({ project, story, online, toast }: {
                 {learned && <span className="rl-orb" aria-hidden="true" style={{ width: 13, height: 13, marginTop: 4 }} />}
                 <span style={{ fontSize: 15, lineHeight: 1.5 }}>{entry.text}</span>
               </span>
-              <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}><UChips entry={entry} className="rm-uch" /></span>
+              <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}><RuleKind entry={entry} /></span>
               {rule && <span style={{ fontSize: 12.5, color: '#8E8E99' }}>{learnedMeta(rule, true)}</span>}
             </button>
             <UnsureFrame entry={entry} busy={!!editor.resolving} onPick={(option) => { void editor.resolve(level as ConfigScope, entry.key, option) }} />
@@ -186,16 +187,7 @@ export function MobileRules({ project, story, online, toast }: {
         })}</div>}
       </div>
     })}
-    <div className="mm-group" style={{ marginTop: 16 }}>
-      <div className="rm-grow" style={{ alignItems: 'flex-start', padding: '12px 14px' }}>
-        <Icon name="shield-security" size={20} style={{ color: '#9DB0F7', marginTop: 2 }} />
-        <span style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
-          <span>Mặc định của Noverse · chống giọng văn máy</span>
-          <span style={{ fontSize: 12.5, color: 'var(--color-fg-4)' }}>Luôn bật</span>
-        </span>
-      </div>
-    </div>
-    <div className="mm-heading">Khi nào có hiệu lực</div>
+    <AntiAiCard editor={editor} mobile disabled={!online} onAddPhrase={() => { setDraft('Không dùng cụm “”'); setFocused(true); area.current?.focus(); area.current?.scrollIntoView({ block: 'center' }) }} />
     <p className="rm-note" style={{ margin: '12px 30px 0', lineHeight: 1.5 }}>{when}</p>
     {editor.count > 0 && <ApplyBar text={barText} busy={busy} onCancel={() => { editor.cancel(); setDraft('') }} onApply={() => { void apply() }} />}
     <BottomSheet open={!!target} onClose={close} height="auto" grab={false} label="Quy tắc" style={{ background: 'transparent', border: 0, boxShadow: 'none', padding: '0 10px 30px', gap: 10 }}>

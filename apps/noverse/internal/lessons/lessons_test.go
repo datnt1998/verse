@@ -236,3 +236,29 @@ func TestPreambleSharedRefUsesCrossPackCount(t *testing.T) {
 		}
 	}
 }
+
+func TestApprovedSystemLessonsRemainDefaultsWithoutGlobalRuleScope(t *testing.T) {
+	s := NewStore(t.TempDir())
+	if _, err := s.Sync([]Lesson{
+		{ID: "system", Scope: "all", State: "kept", Text: "Kiểm tra mở đầu", Refs: []string{"Master §7"}},
+		{ID: "pack", Scope: "pack", PackID: "pack-a", State: "kept", Text: "Kiểm tra hồi đáp", Refs: []string{"Bộ A §4.3"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	for _, pack := range []string{"", "pack-a", "pack-b"} {
+		candidates, err := s.Rules(pack)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := 1
+		if pack == "pack-a" {
+			want = 2
+		}
+		if len(candidates) != want || candidates[0].Source != "default:lessons" || candidates[0].Preferences != "Kiểm tra mở đầu" {
+			t.Fatalf("system default must apply without a global rules scope for %q: %+v", pack, candidates)
+		}
+		if pack == "pack-a" && candidates[1].Source != "pack:pack-a:lessons" {
+			t.Fatalf("pack lesson scope changed: %+v", candidates)
+		}
+	}
+}

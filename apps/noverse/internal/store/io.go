@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 )
 
 // DirEntry mirrors os.DirEntry without the fs package surface so the
@@ -77,6 +78,20 @@ func (io *IO) ReadFile(rel string) ([]byte, error) {
 
 func (io *IO) ReadFileUnlocked(rel string) ([]byte, error) {
 	return io.ops.Read(rel)
+}
+
+// ModifiedAt returns the persisted document timestamp, never the time of a read.
+// Backends without document metadata must report the missing capability.
+func (io *IO) ModifiedAt(rel string) (time.Time, error) {
+	io.mu.RLock()
+	defer io.mu.RUnlock()
+	source, ok := io.ops.(interface {
+		ModifiedAt(string) (time.Time, error)
+	})
+	if !ok {
+		return time.Time{}, fmt.Errorf("document modification time is unsupported")
+	}
+	return source.ModifiedAt(rel)
 }
 
 func (io *IO) WriteFileUnlocked(rel string, data []byte) error {
@@ -213,6 +228,14 @@ func (f fileOps) path(rel string) string { return filepath.Join(f.dir, rel) }
 
 func (f fileOps) Read(rel string) ([]byte, error) {
 	return os.ReadFile(f.path(rel))
+}
+
+func (f fileOps) ModifiedAt(rel string) (time.Time, error) {
+	info, err := os.Stat(f.path(rel))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return info.ModTime(), nil
 }
 
 func (f fileOps) Write(rel string, data []byte) error {

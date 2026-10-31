@@ -129,6 +129,7 @@ func LoadConfigChain(dir string) ([]ConfigLevel, Config, error) {
 		case found:
 			lvl.Exists, lvl.Config = true, global
 			cfg = global
+			cfg.Style = ""
 		}
 		levels = append(levels, lvl)
 	}

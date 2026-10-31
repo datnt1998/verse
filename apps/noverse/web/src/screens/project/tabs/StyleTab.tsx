@@ -9,7 +9,7 @@ import { keys, useAction, useResource } from '../../../data'
 import { effectiveFromChapter } from '../../settings/lib/labels'
 import { findPack, packBadge, packDesc, packInfoMeta } from '../../settings/lib/packs'
 import { BUILT_IN, PackSummaryCard, saveStyle, styleDisplayName, StylePicker } from '../../settings/sections/style'
-import { RulesEditor } from '../../settings/sections/rules'
+import { RulesPanel } from '../../settings/sections/rules'
 import { amWritingCopy } from '../../../i18n/vi'
 import { paths } from '../../../router'
 import { Icon, Skeleton, toast } from '@noverse/ui'
@@ -17,9 +17,9 @@ import { StyleSamples } from './StyleSamples'
 import '../../settings/style.css'
 
 export const writingStyles = stylex.create({
-  root: { maxWidth: 860, display: 'flex', flexDirection: 'column', gap: 14 },
+  root: { maxWidth: 860, display: 'flex', flexDirection: 'column', gap: 14, lineHeight: 1.5 },
   intro: { margin: 0, fontSize: 13.5, color: color['--color-fg-3'], lineHeight: 1.55 },
-  heading: { margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 },
+  heading: { margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, lineHeight: 1.5 },
   card: { borderRadius: 16, overflow: 'hidden' },
   top: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' },
   copy: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, lineHeight: 1.4 },
@@ -30,6 +30,7 @@ export const writingStyles = stylex.create({
   button: { height: 32, padding: '0 12px', borderRadius: 9, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: 'transparent', color: color['--color-fg'], fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', cursor: 'pointer' },
   grid: { padding: '0 16px 16px' },
   inheritRow: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', marginBottom: 12 },
+  rules: { marginTop: 8 },
 })
 
 export function StyleTab({ project, summary }: { project: string; summary: StorySummary }) {
@@ -69,6 +70,6 @@ export function StyleTab({ project, summary }: { project: string; summary: Story
       <StyleSamples project={project} story={story} canEdit={canEdit} />
     </section>
     {open && pack && <PackSummaryCard pack={pack} qualityHref={`#${paths.quality(project, story)}`} />}
-    <RulesEditor scope="story" project={project} story={story} />
+    <div {...stylex.props(writingStyles.rules)}><RulesPanel scope="story" project={project} story={story} /></div>
   </div>
 }

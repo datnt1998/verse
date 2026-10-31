@@ -8,7 +8,7 @@ import type { Key, KeyPart } from '@noverse/ui/data'
 export type StoryPart =
   | 'snapshot' | 'chapters' | 'chapter' | 'outline' | 'reviews' | 'exports' | 'meta' | 'audio' | 'rules' | 'comments'
   | 'plan' | 'facts' | 'revisions' | 'foreshadow' | 'characters' | 'address' | 'brain' | 'style-samples'
-  | 'frame' | 'retention'
+  | 'frame' | 'retention' | 'premise' | 'world-rules'
 
 /** Phần dữ liệu của một dự án — trùng `parts` của sự kiện `project.changed`. */
 export type ProjectPart = 'meta' | 'stories' | 'ideas' | 'assets' | 'voices' | 'pronunciations'

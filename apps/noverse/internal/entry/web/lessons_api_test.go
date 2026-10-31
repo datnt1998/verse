@@ -270,12 +270,12 @@ func TestSystemLessonsAggregationPrivacyAndLifecycle(t *testing.T) {
 		t.Fatalf("keep all: %d %s", res.Code, res.Body.String())
 	}
 	all, err := ls.Rules("nguoc-hon-nhan")
-	if err != nil || len(all) != 1 || all[0].Source != "global:lessons" {
-		t.Fatalf("Mọi truyện layer: %+v %v", all, err)
+	if err != nil || len(all) != 1 || all[0].Source != "default:lessons" {
+		t.Fatalf("system default lesson: %+v %v", all, err)
 	}
 	effective, err := userrules.NewFileRules(nil, rules.LoadOptions{HomeRulesDir: filepath.Join(tg.home, ".ainovel", "rules")}, "").Effective(context.Background())
 	if err != nil || !strings.Contains(effective.Snapshot.Preferences, l.Text) {
-		t.Fatalf("Mọi truyện effective layer missing kept lesson: %+v %v", effective, err)
+		t.Fatalf("system default layer missing kept lesson: %+v %v", effective, err)
 	}
 	if res := tg.do("POST", base, admin, `{"action":"undo"}`); res.Code != 200 {
 		t.Fatal(res.Body.String())

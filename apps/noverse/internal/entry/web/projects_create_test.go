@@ -78,28 +78,22 @@ func TestCreateProjectShareGlobal(t *testing.T) {
 	mustWriteFile(filepath.Join(home, ".ainovel", "rules", "van-phong.md"), "Câu ngắn.\n")
 	mustWriteFile(filepath.Join(home, ".ainovel", "rules", "README.txt"), "không phải quy tắc\n")
 
-	// Mặc định (không gửi shareGlobal) = dùng chung: chép quy tắc, không chép roles/style.
+	// Shared model configuration must not reintroduce retired global rules.
 	for _, body := range []string{`{"name":"Dùng chung"}`, `{"name":"Dùng chung rõ","shareGlobal":true}`} {
 		w := tg.do("POST", "/api/projects", admin, body)
 		if w.Code != 201 {
 			t.Fatalf("create %s -> %d %s", body, w.Code, w.Body.String())
 		}
 		dir := filepath.Join(tg.root, decodeJSONBody(t, w)["id"].(string))
-		for name, want := range map[string]string{"quy-tac.md": "- Không dùng từ cổ\n", "van-phong.md": "Câu ngắn.\n"} {
-			got, err := os.ReadFile(filepath.Join(dir, ".ainovel", "rules", name))
-			if err != nil || string(got) != want {
-				t.Fatalf("%s: %q %v", name, got, err)
-			}
-		}
-		if _, err := os.Stat(filepath.Join(dir, ".ainovel", "rules", "README.txt")); err == nil {
-			t.Fatal("README.txt must not be copied")
+		if entries, _ := os.ReadDir(filepath.Join(dir, ".ainovel", "rules")); len(entries) != 0 {
+			t.Fatalf("new projects must not import retired rules: %v", entries)
 		}
 		if cfg, err := os.ReadFile(filepath.Join(dir, ".ainovel", "config.json")); err == nil && strings.Contains(string(cfg), "roles") {
 			t.Fatalf("shared project must not own roles: %s", cfg)
 		}
 	}
 
-	// Bỏ chọn: không chép quy tắc, ghi ảnh chụp roles/style của “Mọi truyện”.
+	// An unshared model configuration snapshots roles, never global style/rules.
 	w := tg.do("POST", "/api/projects", admin, `{"name":"Riêng","shareGlobal":false}`)
 	if w.Code != 201 {
 		t.Fatalf("create unshared -> %d %s", w.Code, w.Body.String())
@@ -109,7 +103,7 @@ func TestCreateProjectShareGlobal(t *testing.T) {
 		t.Fatalf("unshared project must start with no rules, got %d files", len(entries))
 	}
 	cfg, err := os.ReadFile(filepath.Join(dir, ".ainovel", "config.json"))
-	if err != nil || !strings.Contains(string(cfg), `"model": "m1"`) && !strings.Contains(string(cfg), `"model":"m1"`) || !strings.Contains(string(cfg), "kịch tính") {
+	if err != nil || !strings.Contains(string(cfg), `"model": "m1"`) && !strings.Contains(string(cfg), `"model":"m1"`) || strings.Contains(string(cfg), "kịch tính") {
 		t.Fatalf("unshared project config: %s %v", cfg, err)
 	}
 }

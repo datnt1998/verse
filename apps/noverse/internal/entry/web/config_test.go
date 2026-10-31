@@ -349,12 +349,11 @@ func TestRulesEndpoints(t *testing.T) {
 		t.Fatalf("GET rules -> %d: %s", w.Code, w.Body.String())
 	}
 	chain := decodeResp(t, w)["chain"].([]any)
-	if len(chain) != 3 {
-		t.Fatalf("chuỗi quy tắc phải có ba lớp global/project/story, nhận được %v", chain)
+	if len(chain) != 2 {
+		t.Fatalf("want project/story rules, got %v", chain)
 	}
-	globalDoc := chain[0].(map[string]any)
-	if globalDoc["scope"] != "global" || globalDoc["exists"] != true {
-		t.Fatalf("lớp global phải tồn tại: %v", globalDoc)
+	if chain[0].(map[string]any)["scope"] != "project" || chain[1].(map[string]any)["scope"] != "story" {
+		t.Fatalf("global rules must not be exposed: %v", chain)
 	}
 
 	// PUT 故事层规则文件。

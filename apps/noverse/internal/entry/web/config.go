@@ -45,6 +45,10 @@ import (
 // serveConfig 处理配置与规则接口；返回 false 表示路径不归它管。
 func (g *Gateway) serveConfig(w http.ResponseWriter, r *http.Request, user identity.User) bool {
 	path, get, post, put := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost, r.Method == http.MethodPut
+	if strings.HasPrefix(path, "/api/rules") && r.URL.Query().Get("scope") == "global" {
+		jsonError(w, http.StatusBadRequest, retiredGlobalRulesMessage)
+		return true
+	}
 	switch {
 	case path == "/api/system" && get:
 		g.serveSystem(w, r, user)
@@ -112,6 +116,25 @@ func configFileIn(dir string) string {
 }
 
 func rulesDirIn(dir string) string { return filepath.Join(dir, ".ainovel", "rules") }
+
+const retiredGlobalRulesMessage = "Quy tắc viết chỉ áp dụng cho dự án hoặc truyện, không còn cấp toàn cục"
+
+func (g *Gateway) resolveRulesScope(scope, project, story string) (configTarget, error) {
+	if scope == "" {
+		switch {
+		case story != "":
+			scope = "story"
+		case project != "":
+			scope = "project"
+		default:
+			scope = "global"
+		}
+	}
+	if scope == "global" {
+		return configTarget{}, errors.New(retiredGlobalRulesMessage)
+	}
+	return g.resolveConfigScope(scope, project, story)
+}
 
 // resolveConfigScope 把 scope/project/story 参数解析为磁盘位置。
 // project/story 是书库内 id（story scope 需要两者）。
@@ -334,6 +357,9 @@ func configSources(levels []bootstrap.ConfigLevel) map[string]string {
 		if err != nil || raw == nil {
 			continue
 		}
+		if lvl.Scope == "global" {
+			delete(raw, "style")
+		}
 		walk("", raw, lvl.Scope)
 	}
 	return sources
@@ -351,6 +377,9 @@ func (g *Gateway) chainDocs(levels []bootstrap.ConfigLevel, keepScopes map[strin
 			raw, err := bootstrap.ConfigLevelJSON(lvl)
 			if err != nil {
 				return nil, err
+			}
+			if lvl.Scope == "global" {
+				delete(raw, "style")
 			}
 			doc.Config = sanitizeConfigMap(raw, admin)
 		} else {
@@ -397,6 +426,9 @@ func (g *Gateway) buildConfigResponse(ctx context.Context, t configTarget, user 
 			return nil, err
 		}
 	}
+	if t.scope == "global" {
+		effective.Style = ""
+	}
 
 	keep := map[string]bool{"global": true, "project": t.scope != "global", "story": t.scope == "story"}
 	docs, err := g.chainDocs(levels, keep, admin)
@@ -421,6 +453,9 @@ func (g *Gateway) buildConfigResponse(ctx context.Context, t configTarget, user 
 	effRaw, err := configToMap(effective)
 	if err != nil {
 		return nil, err
+	}
+	if t.scope == "global" {
+		delete(effRaw, "style")
 	}
 	providerErrors := map[string]string{}
 	for name, pc := range effective.Providers {
@@ -495,6 +530,12 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 	}
 	if body == nil {
 		body = map[string]any{}
+	}
+	if t.scope == "global" {
+		if _, has := body["style"]; has {
+			jsonError(w, 400, "Văn phong chỉ đặt ở dự án hoặc truyện")
+			return
+		}
 	}
 	providers, _ := body["providers"].(map[string]any)
 	for _, pv := range providers {
@@ -1559,8 +1600,7 @@ type rulesChainDoc struct {
 	Files  []ruleFileInfo `json:"files"`
 }
 
-// rulesScopeDirs 返回规则链各层目录（global → project → story），与运行时
-// rules.OptionsForDir 的扫描链一致；匿名项目没有 project 层。
+// rulesScopeDirs exposes project → story rules, matching the runtime loader.
 func (g *Gateway) rulesScopeDirs(t configTarget, admin bool) ([]rulesChainDoc, error) {
 	var dirs []rulesChainDoc
 	var firstErr error
@@ -1596,7 +1636,6 @@ func (g *Gateway) rulesScopeDirs(t configTarget, admin bool) ([]rulesChainDoc, e
 		dirs = append(dirs, doc)
 	}
 
-	addLevel("global", rulesHomeDir())
 	switch t.scope {
 	case "project":
 		addLevel("project", rulesDirIn(t.dir))
@@ -1620,8 +1659,6 @@ func rulesHomeDir() string {
 // rulesTargetDir 返回 PUT/DELETE/GET file 的目标层目录。
 func (t configTarget) rulesTargetDir() string {
 	switch t.scope {
-	case "global":
-		return rulesHomeDir()
 	case "project", "story":
 		return rulesDirIn(t.dir)
 	}
@@ -1636,7 +1673,7 @@ func validRuleName(name string) bool {
 
 func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
-	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
+	t, err := g.resolveRulesScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -1664,7 +1701,7 @@ func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user identity
 
 func (g *Gateway) getRuleFile(w http.ResponseWriter, r *http.Request, user identity.User) {
 	q := r.URL.Query()
-	t, err := g.resolveConfigScope(q.Get("scope"), q.Get("project"), q.Get("story"))
+	t, err := g.resolveRulesScope(q.Get("scope"), q.Get("project"), q.Get("story"))
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -1705,7 +1742,7 @@ func (g *Gateway) putRuleFile(w http.ResponseWriter, r *http.Request, user ident
 	if !decodeJSON(w, r, &req) {
 		return
 	}
-	t, err := g.resolveConfigScope(req.Scope, req.Project, req.Story)
+	t, err := g.resolveRulesScope(req.Scope, req.Project, req.Story)
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -1753,7 +1790,7 @@ func (g *Gateway) deleteRuleFile(w http.ResponseWriter, r *http.Request, user id
 	if !decodeJSON(w, r, &req) {
 		return
 	}
-	t, err := g.resolveConfigScope(req.Scope, req.Project, req.Story)
+	t, err := g.resolveRulesScope(req.Scope, req.Project, req.Story)
 	if err != nil {
 		scopeError(w, err)
 		return

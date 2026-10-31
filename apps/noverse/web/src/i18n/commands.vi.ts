@@ -290,7 +290,7 @@ export const CMD_COPY: Record<string, CmdCopy> = {
   },
   simulate: {
     title: 'Học văn phong từ văn mẫu',
-    lead: 'Thêm vài đoạn văn bạn thích vào Văn mẫu (Tuỳ chỉnh › Cách viết › Văn phong của bạn). Noverse đọc chúng rồi tạo hoặc cập nhật hồ sơ văn phong để các chương sau viết theo giọng đó.',
+    lead: 'Thêm vài đoạn văn bạn thích vào Văn mẫu (truyện › Cách viết › Văn phong của bạn). Noverse đọc chúng rồi tạo hoặc cập nhật hồ sơ văn phong để các chương sau viết theo giọng đó.',
     when: ['Muốn truyện mang giọng văn riêng', 'Vừa thêm văn mẫu mới'],
     avoid: ['Chưa có văn mẫu nào', 'Trợ lý đang viết — lệnh sẽ bị từ chối'],
     params: {},

@@ -23,7 +23,6 @@ func TestRulesChangesCarryScopeAndSection(t *testing.T) {
 	watcher := &fileWatcher{g: g, previous: map[string]string{}, stop: make(chan struct{})}
 	watcher.scan(false)
 	for _, tc := range []struct{ scope, project, story, dir string }{
-		{"global", "", "", rulesHomeDir()},
 		{"project", "proj", "", rulesDirIn(tg.project)},
 		{"story", "proj", "01-story", rulesDirIn(tg.story)},
 	} {

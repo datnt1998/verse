@@ -254,6 +254,8 @@ export type Snapshot = {
   synopsis: string; premise: string; outline: OutlineItem[] | null; characters: string[] | null
   supportingCount: number; recentSupporting: string[] | null; layered: boolean
   currentVolumeArc: string; nextVolumeTitle: string; compassDirection: string; compassScale: string
+  openThreads?: string[]
+  planningTier?: 'short' | 'mid' | 'long' | ''
   lastCommitSummary: string; lastReviewSummary: string; lastCheckpointName: string; recentSummaries: string[] | null
   /** Gói P · P1: khung “Kế hoạch truyện”; chỉ có khi truyện đang lập kế hoạch. */
   plan?: PlanSnapshot | null
@@ -1238,8 +1240,17 @@ export type RuntimeRule = {
 export type RuleStructured = { genre?: string; forbidden_chars?: string[]; forbidden_phrases?: string[]; fatigue_words?: Record<string, number> }
 export type RuleSnapshot = { version: number; status: RuleStatus; structured: RuleStructured; preferences: string; sources: string[]; uncertain: string[] }
 export type RulesTiming = { effectiveFrom: number; inProgress: number; completed: number }
-/** `GET S/rules/effective` (cấp truyện) và `GET /api/rules/effective?scope=&project=` (dự án / toàn cục: `runtime` rỗng). */
-export type RulesEffective = { snapshot: RuleSnapshot | null; items: RuleItem[]; runtime?: RuntimeRule[]; timing?: RulesTiming }
+/** Effective project/story rules. Historical snapshots may omit unprovable word provenance. */
+export type FatigueWord = {
+  word: string; per1000: number; perChapter: number
+  source?: 'default' | 'pack' | 'project' | 'story' | 'learned'
+  basePerChapter?: number
+  baseSource?: 'default' | 'pack' | 'project'
+}
+export type RulesEffective = {
+  snapshot: RuleSnapshot | null; items: RuleItem[]; runtime?: RuntimeRule[]; timing?: RulesTiming
+  fatigueWords?: FatigueWord[]; forbiddenDefaults?: string[]
+}
 export type RuleUnderstanding = {
   structured: RuleStructured; preferences: string; uncertain: string[]
   /** Câu đầu của `uncertain` (Câu 26a) — chữ của khung cam. */
@@ -1293,6 +1304,8 @@ export type BrainEdgeType = 'enemy' | 'ally' | 'work' | 'own' | 'secret' | 'rel'
 export type BrainEntity = {
   id: string; type: BrainEntityType; name: string; role: string; desc: string
   fromChapter: number; appears: number[]
+  /** Quy tắc thế giới giữ nguyên nhóm lưu trong nền móng. */
+  category?: string
   /** Chữ viết tắt avatar người dùng tự đặt (04 › Avatar nhân vật). */
   ini?: string
   /** Loại vai của nhân vật (Gói S) — màu avatar/nút đồ thị; thực thể khác bỏ trống. */

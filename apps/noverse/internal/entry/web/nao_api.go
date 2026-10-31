@@ -114,10 +114,11 @@ type naoBrainMoment struct {
 }
 
 type naoBrainEntity struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	Role string `json:"role"`
+	ID       string `json:"id"`
+	Type     string `json:"type"`
+	Name     string `json:"name"`
+	Role     string `json:"role"`
+	Category string `json:"category,omitempty"`
 	// Ini là chữ viết tắt avatar người dùng tự đặt (04 › Avatar nhân vật); Kind/RevealAt
 	// chỉ có nghĩa với type "char" (06-data-contract › Bổ sung §S).
 	Ini         string `json:"ini,omitempty"`
@@ -1308,7 +1309,7 @@ func naoBrainEntities(chars []domain.Character, cast []domain.CastEntry, ledger 
 	}
 	for i, rule := range rules {
 		entities = append(entities, naoBrainEntity{
-			ID: fmt.Sprintf("rule:%d", i), Type: "rule", Name: rule.Rule, Desc: rule.Boundary,
+			ID: fmt.Sprintf("rule:%d", i), Type: "rule", Name: rule.Rule, Desc: rule.Boundary, Category: rule.Category,
 			// Luật thế giới thuộc phần thiết lập, có trước chương 1; không có dữ kiện theo chương.
 			FromChapter: 1, Appears: []int{},
 		})

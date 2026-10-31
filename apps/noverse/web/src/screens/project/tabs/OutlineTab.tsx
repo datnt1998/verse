@@ -1,4 +1,4 @@
-// Tab Dàn ý — thẻ Khung truyện, nút chuyển “Danh sách chương | Bản đồ giữ chân”, thẻ theo tập +
+// Tab Dàn ý — nút chuyển “Danh sách chương | Bản đồ giữ chân”, thẻ theo tập +
 // hàng chương mở rộng (Outline.dc.html › view story › tab outline).
 // Kế hoạch/hợp đồng lấy từ GET /chapters/:n/plan khi mở hàng; bản đồ giữ chân từ GET /retention (không bịa dữ liệu).
 import { useEffect, useState, type CSSProperties } from 'react'
@@ -12,7 +12,6 @@ import { EmptyState, Skeleton, Spinner } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { chapterStatusLabel, formatWords, isRewriteFlow, volumeLabel } from '../format'
 import { Chip } from '../bits'
-import { FrameCard } from '../retention/FrameCard'
 import { RetentionMap } from '../retention/RetentionMap'
 import { mapSummary } from '../retention/logic'
 
@@ -105,7 +104,6 @@ export function OutlineTab({ project, story, bookTitle, outline, onSteer }: {
 
   return (
     <>
-      <FrameCard project={project} story={story} />
       {chapters.length === 0 || outline.volumes.length === 0
         ? empty
         : (

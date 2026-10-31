@@ -74,7 +74,7 @@ describe('Não dự án — sổ cái', () => {
     const rows = [...el.querySelectorAll<HTMLElement>('[data-ledger-check]')]
     expect(rows.map(row => row.dataset.ledgerCheck)).toEqual(['combination', 'distance', 'overuse', 'opening'])
     // Câu 1: phép đạt cũng hiện, ghi “Đạt”. Mock: combination Bắt sửa, distance + opening Đạt, overuse Cảnh báo.
-    expect(rows.map(row => row.firstElementChild?.textContent)).toEqual(['Bắt sửa', 'Đạt', 'Cảnh báo', 'Đạt'])
+    expect(rows.map(row => row.children[1]?.textContent)).toEqual(['Bắt sửa', 'Đạt', 'Cảnh báo', 'Đạt'])
   })
 
   it('switches ProjBrain sections with tablist/tab/tabpanel semantics', async () => {
@@ -99,13 +99,13 @@ describe('Não dự án — sổ cái', () => {
     // 1 cột tên + 10 trục, không còn ô Ngày 7.
     expect(el.querySelector<HTMLElement>('[data-story]')!.children.length).toBe(11)
 
-    // Có nguồn (một dòng có số) → cột và chú thích trở lại.
+    // AP removes the column even if an older API happens to send a measurement.
     const empty = mockLedger('kenh2', canView)
     ledgers.kenh2 = { ...empty, stories: empty.stories.map((story, index) => index === 0 ? { ...story, day7: 31_400 } : story), channelMedianDay7: 18_200 }
     const withData = await mount('#/p/kenh2/brain?tab=ledger', 'kenh2')
-    expect(withData.textContent).toContain('Ngày 7')
-    expect(withData.textContent).toContain('trung vị kênh 18,2')
-    expect(withData.querySelector<HTMLElement>('[data-story]')!.children.length).toBe(12)
+    expect(withData.textContent).not.toContain('Ngày 7')
+    expect(withData.textContent).not.toContain('trung vị kênh')
+    expect(withData.querySelector<HTMLElement>('[data-story]')!.children.length).toBe(11)
   })
 
   it('dòng phụ dưới tên truyện: ngày thêm từ createdAt, truyện mới ghi “Truyện mới · brief”', async () => {
@@ -137,6 +137,56 @@ describe('Não dự án — sổ cái', () => {
     expect(html).toContain('🎧 Bản ')
     expect(html).toMatch(/<mark[^>]*>ghi âm<\/mark> gốc/)
   })
+
+  it('inspects all matching cells, counts only prior stories, switches frequency and filters shared rows', async () => {
+    const el = await mount('#/p/kenh/brain?tab=ledger')
+    const cells = [...el.querySelectorAll<HTMLButtonElement>('[data-story] button')]
+    const tailor = cells.filter(cell => cell.querySelector('[data-cell-text]')?.firstChild?.textContent === 'Thợ may')
+    expect(tailor).toHaveLength(3)
+    await act(async () => { tailor[0].click() })
+    expect(el.querySelectorAll('[data-picked=true]')).toHaveLength(3)
+    expect(el.textContent).toContain('dùng 2 lần trong 10 truyện gần nhất')
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'Bỏ chọn')!.click() })
+    expect(el.querySelectorAll('[data-picked=true]')).toHaveLength(0)
+    const before = el.querySelectorAll('[data-story]').length
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'Chỉ truyện có ô trùng truyện mới')!.click() })
+    expect(el.querySelectorAll('[data-story]').length).toBeLessThan(before)
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('[role=radio]')].find(button => button.textContent === 'Tần suất theo trục')!.click() })
+    const frequencies = el.querySelector<HTMLElement>('section[aria-label="Tần suất theo trục"]')!
+    expect(frequencies.children).toHaveLength(10)
+    expect([...frequencies.children[2].querySelectorAll('span')].some(span => span.textContent === 'Thợ may2')).toBe(true)
+  })
+
+  it('filters universe by entity type, needs-review, name and handles unchecked results', async () => {
+    const el = await mount('#/p/kenh/brain?tab=universe')
+    expect(el.querySelectorAll('[data-entity]')).toHaveLength(6)
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('[role=radio]')].find(button => button.textContent?.startsWith('Địa điểm'))!.click() })
+    expect([...el.querySelectorAll<HTMLElement>('[data-entity]')].every(row => row.dataset.entity?.startsWith('place:'))).toBe(true)
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('[role=radio]')].find(button => button.textContent?.startsWith('Tất cả'))!.click(); [...el.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent?.startsWith('Chỉ mục cần xem'))!.click() })
+    expect(el.querySelectorAll('[data-entity]')).toHaveLength(2)
+    expect(el.querySelector('[data-entity]')?.textContent).toContain('Bà Tư bán xôi')
+    universes.unchecked = { ...mockUniverse('unchecked', canView), checks: null, kept: [], keptCount: 0 }
+    ledgers.unchecked = mockLedger('unchecked', canView)
+    const unknown = await mount('#/p/unchecked/brain?tab=universe', 'unchecked')
+    expect(unknown.querySelectorAll('[data-entity]')).toHaveLength(6)
+    expect(unknown.textContent).toContain('Chưa có kết quả kiểm')
+    expect(unknown.textContent).not.toContain('Chỉ mục cần xem')
+    expect([...unknown.querySelectorAll('[data-entity]')].every(row => row.textContent?.includes('Chưa kiểm'))).toBe(true)
+  })
+
+  it('filters returned search results by kind and story without another request', async () => {
+    const el = await mount('#/p/kenh/brain?tab=search&q=ghi%20am')
+    const passages = () => el.querySelectorAll('section[aria-label="Đoạn văn khớp"] a')
+    expect(passages()).toHaveLength(5)
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('button')].find(button => button.title === 'Mẹ Chồng Đuổi Tôi Đi')!.click() })
+    expect(passages()).toHaveLength(1)
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('[role=radio]')].find(button => button.textContent?.startsWith('Thực thể'))!.click() })
+    expect(el.querySelector('section[aria-label="Đoạn văn khớp"]')).toBeNull()
+    expect(el.querySelector('section[aria-label="Thực thể khớp"]')).not.toBeNull()
+    await act(async () => { [...el.querySelectorAll<HTMLButtonElement>('[role=radio]')].find(button => button.textContent?.startsWith('Đoạn văn'))!.click() })
+    expect(el.querySelector('section[aria-label="Thực thể khớp"]')).toBeNull()
+    expect(passages()).toHaveLength(1)
+  })
 })
 
 describe('Não dự án — vũ trụ chung', () => {
@@ -145,8 +195,7 @@ describe('Não dự án — vũ trụ chung', () => {
     const unknown = mockUniverse('kenh', id => !id.endsWith('/dam-gio') && !id.endsWith('/me-chong') && !id.endsWith('/ganh-xoi') && !id.endsWith('/ban-than') && !id.endsWith('/01-tra-xanh-cuop-kich-ban'))
     expect(unknown.checks).toBeNull()
     const unknownHtml = renderToStaticMarkup(<UniverseCheck checks={unknown.checks} stories={unknown.entities[0].stories} />)
-    expect(unknownHtml).toContain('title="Chưa kiểm được"')
-    expect(unknownHtml).toContain('>—</span>')
+    expect(unknownHtml).toContain('Chưa kiểm')
 
     const clean = mockUniverse('kenh', id => !id.endsWith('/dam-gio') && !id.endsWith('/01-tra-xanh-cuop-kich-ban'))
     expect(clean.checks).toEqual([])

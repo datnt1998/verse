@@ -21,6 +21,7 @@ func LoadHostedConfigChain(ctx context.Context, docs *postgres.ConfigDocuments, 
 			slog.Warn("phân tích cấu hình toàn cục thất bại, đã bỏ qua (có thể bị cấp dự án/truyện ghi đè)", "module", "config", "path", path, "err", err)
 		} else if found {
 			level.Exists, level.Config, effective = true, cfg, cfg
+			effective.Style = ""
 		}
 		levels = append(levels, level)
 	}

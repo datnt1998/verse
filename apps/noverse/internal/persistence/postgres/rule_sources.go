@@ -8,7 +8,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
 )
 
-// RuleOptions loads the same global → project → story chain as file mode.
+// RuleOptions loads the same project → story chain as file mode.
 // Sources keep their layer and filename so RawFileSources applies the existing
 // nearer-wins rule (with the managed file's additive exception) unchanged.
 func (r *TextDocuments) RuleOptions(ctx context.Context, actor *Actor, project, story string) (rules.LoadOptions, error) {

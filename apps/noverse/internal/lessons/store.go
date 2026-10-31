@@ -20,8 +20,8 @@ var (
 	ErrAction   = errors.New("Thao tác bài học không hợp lệ")
 )
 
-// The additive file is the rule layer's source of truth: kept entries are rules,
-// partitioned by scope (Mọi truyện) or packId. No pack asset is modified.
+// The additive file is the rule layer's source of truth: approved system defaults
+// and pack lessons. Neither creates a user-editable global rules scope.
 type catalog struct {
 	Schema    int       `json:"schema,omitempty"`
 	Lessons   []Lesson  `json:"lessons"`
@@ -246,7 +246,7 @@ func (s *Store) Rules(packID string) ([]rules.Candidate, error) {
 		if l.State != "kept" || (l.Scope != "all" && l.PackID != packID) {
 			continue
 		}
-		source := "global:lessons"
+		source := "default:lessons"
 		if l.Scope == "pack" {
 			source = "pack:" + l.PackID + ":lessons"
 		}

@@ -23,7 +23,7 @@ func TestParsePremiseSectionsLegacyChineseHeadings(t *testing.T) {
 旧有修炼路线失效，必须转向禁术体系。
 `
 
-	sections := parsePremiseSections(premise)
+	sections := ParsePremiseSections(premise)
 	if sections["Thể loại và giọng điệu"] == "" {
 		t.Fatalf("expected Thể loại và giọng điệu section, got %+v", sections)
 	}
@@ -51,12 +51,22 @@ Dòng tu luyện thăng cấp, hướng tới độc giả thích khoái cảm v
 Nhân vật chính phải chọn giữa luật tông môn và lương tri.
 `
 
-	sections := parsePremiseSections(premise)
+	sections := ParsePremiseSections(premise)
 	if len(sections) != 3 {
 		t.Fatalf("expected 3 sections, got %+v", sections)
 	}
 	if sections["Định vị thể loại"] == "" || sections["Xung đột cốt lõi"] == "" {
 		t.Fatalf("expected Vietnamese headings parsed, got %+v", sections)
+	}
+}
+
+func TestParsePremiseSectionsPreservesCustomSections(t *testing.T) {
+	sections := ParsePremiseSections("# Tiền đề\n## Xung đột cốt lõi\nGiữ lời hứa.\n## Phong tục địa phương\nĐổi tên vào mùa mưa.\n### Chi tiết\nTên cũ được giữ kín.\n")
+	if sections["Xung đột cốt lõi"] != "Giữ lời hứa." {
+		t.Fatalf("custom section leaked into canonical body: %+v", sections)
+	}
+	if sections["Phong tục địa phương"] != "Đổi tên vào mùa mưa.\n### Chi tiết\nTên cũ được giữ kín." || len(sections) != 2 {
+		t.Fatalf("custom section content was lost: %+v", sections)
 	}
 }
 

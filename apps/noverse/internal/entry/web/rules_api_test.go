@@ -123,7 +123,7 @@ func TestRulesAPI_UnderstandApplyEffectiveKeep(t *testing.T) {
 	if w.Code != 200 {
 		t.Fatalf("PUT quy-tac.md: %d %s", w.Code, w.Body)
 	}
-	w = tg.do("PUT", "/api/rules/file", admin, `{"scope":"global","name":"quy-tac.md","text":"- cấm chữ lạ\n"}`)
+	w = tg.do("PUT", "/api/rules/file", admin, `{"scope":"project","project":"proj","name":"quy-tac.md","text":"- cấm chữ lạ\n"}`)
 	if w.Code != 200 {
 		t.Fatalf("PUT global quy-tac.md: %d %s", w.Code, w.Body)
 	}
@@ -145,7 +145,7 @@ func TestRulesAPI_UnderstandApplyEffectiveKeep(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &eff); err != nil {
 		t.Fatal(err)
 	}
-	if len(eff.Items) != 3 || eff.Items[0].Scope != "global" || eff.Items[0].Text != "cấm chữ lạ" || eff.Items[1].Scope != "story" {
+	if len(eff.Items) != 3 || eff.Items[0].Scope != "project" || eff.Items[0].Text != "cấm chữ lạ" || eff.Items[1].Scope != "story" {
 		t.Fatalf("items: %+v", eff.Items)
 	}
 	if c := eff.Items[1].Chips; len(c) != 1 || c[0]["kind"] != "ban" || c[0]["text"] != "đột nhiên" {
@@ -397,7 +397,6 @@ func TestRulesAPI_EffectiveWithoutStory(t *testing.T) {
 	tg.useStub(t, stub)
 	admin := tg.login("admin", "admin-pass")
 	reader := tg.login("reader", "reader-pass")
-	tg.do("PUT", "/api/rules/file", admin, `{"scope":"global","name":"quy-tac.md","text":"- cấm chữ lạ\n"}`)
 	tg.do("PUT", "/api/rules/file", admin, `{"scope":"project","project":"proj","name":"quy-tac.md","text":"- chương đừng quá dài\n"}`)
 	tg.do("PUT", "/api/rules/file", admin, `{"scope":"story","project":"proj","story":"01-story","name":"quy-tac.md","text":"- cấm riêng truyện\n"}`)
 
@@ -420,21 +419,18 @@ func TestRulesAPI_EffectiveWithoutStory(t *testing.T) {
 	}
 
 	code, r, raw := get(admin, "/api/rules/effective?scope=global")
-	if code != 200 || len(r.Items) != 1 || r.Items[0].Scope != "global" || r.Items[0].Text != "cấm chữ lạ" {
-		t.Fatalf("global: %d %+v", code, r)
+	if code != 400 || raw["error"] != retiredGlobalRulesMessage {
+		t.Fatalf("retired global: %d %+v", code, raw)
 	}
-	if _, has := raw["runtime"]; has {
-		t.Fatalf("không có runtime: %v", raw)
-	}
-	if code, r, _ = get(admin, "/api/rules/effective"); code != 200 || len(r.Items) != 1 {
-		t.Fatalf("scope mặc định = global: %d %+v", code, r)
+	if code, _, _ = get(admin, "/api/rules/effective"); code != 400 {
+		t.Fatalf("scope required without project: %d", code)
 	}
 	code, r, _ = get(admin, "/api/rules/effective?scope=project&project=proj")
-	if code != 200 || len(r.Items) != 2 || r.Items[0].Scope != "global" || r.Items[1].Scope != "project" || len(r.Items[1].Options) != 2 {
-		t.Fatalf("project (global + project, không có cấp truyện): %d %+v", code, r)
+	if code != 200 || len(r.Items) != 1 || r.Items[0].Scope != "project" || len(r.Items[0].Options) != 2 {
+		t.Fatalf("project only: %d %+v", code, r)
 	}
-	if phrases := r.Snapshot["structured"].(map[string]any)["forbidden_phrases"].([]any); len(phrases) != 5 {
-		t.Fatalf("snapshot = 4 mặc định + chữ lạ (không có cụm của truyện): %v", phrases)
+	if phrases := r.Snapshot["structured"].(map[string]any)["forbidden_phrases"].([]any); len(phrases) != 4 {
+		t.Fatalf("snapshot = four defaults, no story phrases: %v", phrases)
 	}
 	if code, _, _ = get(admin, "/api/rules/effective?scope=story"); code != 400 {
 		t.Fatalf("scope story không hỗ trợ: %d", code)
@@ -459,8 +455,8 @@ func TestRulesAPI_EffectiveWithoutStory(t *testing.T) {
 	}
 	// Không model: 200 + degraded, không 409.
 	tg.globalConfig(t, `{}`)
-	tg.do("PUT", "/api/rules/file", admin, `{"scope":"global","name":"quy-tac.md","text":"- dòng mới chưa có đệm\n"}`)
-	w := tg.do("GET", "/api/rules/effective?scope=global", admin, "")
+	tg.do("PUT", "/api/rules/file", admin, `{"scope":"project","project":"proj","name":"quy-tac.md","text":"- dòng mới chưa có đệm\n"}`)
+	w := tg.do("GET", "/api/rules/effective?scope=project&project=proj", admin, "")
 	if w.Code != 200 || !strings.Contains(w.Body.String(), `"status":"degraded"`) {
 		t.Fatalf("không model: %d %s", w.Code, w.Body)
 	}

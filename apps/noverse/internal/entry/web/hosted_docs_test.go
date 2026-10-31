@@ -72,7 +72,7 @@ func TestDocumentsRulesSharedHTTP(t *testing.T) {
 	for _, backend := range []string{"file", "postgres"} {
 		t.Run(backend, func(t *testing.T) {
 			f := newDocsFixture(t, backend)
-			for _, scope := range []string{"global", "project", "story"} {
+			for _, scope := range []string{"project", "story"} {
 				t.Run(scope, func(t *testing.T) {
 					body := func(text string) string {
 						b, _ := json.Marshal(map[string]string{"scope": scope, "project": f.project, "story": f.story, "name": "tone.md", "text": text})
@@ -109,17 +109,17 @@ func TestDocumentsRulesSharedHTTP(t *testing.T) {
 			chain := f.request("GET", "/api/rules?"+f.query("story"), f.admin, "", "")
 			docsStatus(t, chain, 200)
 			levels := decodeResp(t, chain)["chain"].([]any)
-			if len(levels) != 3 {
+			if len(levels) != 2 {
 				t.Fatalf("inheritance chain: %s", chain.Body.String())
 			}
-			for i, scope := range []string{"global", "project", "story"} {
+			for i, scope := range []string{"project", "story"} {
 				level := levels[i].(map[string]any)
 				files := level["files"].([]any)
 				if level["scope"] != scope || level["exists"] != true || len(files) != 1 {
 					t.Fatalf("bad level: %v", level)
 				}
 			}
-			for _, scope := range []string{"global", "project", "story"} {
+			for _, scope := range []string{"project", "story"} {
 				b, _ := json.Marshal(map[string]string{"scope": scope, "project": f.project, "story": f.story, "name": "tone.md"})
 				path := "/api/rules/file?" + f.query(scope) + "&name=tone.md"
 				etag := f.request("GET", path, f.admin, "", "").Header().Get("ETag")

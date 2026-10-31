@@ -27,13 +27,13 @@ const record = (value: unknown): Record<string, unknown> => (value && typeof val
 
 /** Phần của `story.changed` → các khoá con. `chapters` kéo theo từng chương và dữ liệu phụ của chương. */
 const STORY_PART_KEYS: Record<string, StoryPart[]> = {
-  snapshot: ['snapshot'],
+  snapshot: ['snapshot', 'premise', 'world-rules'],
   // Gói S: sửa nhân vật (loại vai/lộ vai) ghi characters.json — Não truyện đọc cùng tệp.
   characters: ['characters', 'brain'],
   chapters: ['chapters', 'chapter', 'plan', 'facts', 'reviews', 'revisions', 'foreshadow', 'characters', 'retention'],
   // D5: bản đồ giữ chân là dẫn xuất của đại cương, khung truyện nằm trong story_retention.json
   // mà Kiến trúc sư ghi khi lập dàn ý — cả hai làm mới theo `outline`.
-  outline: ['outline', 'plan', 'frame', 'retention'],
+  outline: ['outline', 'plan', 'frame', 'retention', 'premise'],
   reviews: ['reviews'],
   exports: ['exports'],
   meta: ['meta'],
@@ -44,6 +44,9 @@ const STORY_PART_KEYS: Record<string, StoryPart[]> = {
   style: ['style-samples'],
   frame: ['frame'],
   retention: ['retention'],
+  brain: ['brain', 'world-rules'],
+  premise: ['premise'],
+  'world-rules': ['world-rules'],
 }
 
 /**

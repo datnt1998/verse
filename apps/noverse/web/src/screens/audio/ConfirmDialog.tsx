@@ -138,7 +138,7 @@ export function ConfirmExportDialog({ project, story, volume, chapters, cast, vo
             <button type="button" style={{ textAlign: 'left', padding: 0, fontSize: 12, color: 'var(--color-fg-3)' }}
               onClick={() => {
                 onClose()
-                navigate(pack ? paths.settings('writing') : paths.audio(project, story, volume, 'review'))
+                navigate(pack ? `${paths.story(project, story)}?tab=style` : paths.audio(project, story, volume, 'review'))
               }}>
               {pack ? t.audio.pack.goiChonSan : single ? 'Đổi giọng' : 'Sửa phân vai'}
             </button>

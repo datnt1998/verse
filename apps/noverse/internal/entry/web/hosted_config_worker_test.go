@@ -65,7 +65,7 @@ func TestHostedWorkerConfigChainAndReadOnlyRecovery(t *testing.T) {
 		t.Fatal("expected initial read-only worker")
 	}
 	model := newCutoverModelServer(t)
-	config := map[string]any{"provider": "cutover", "model": "scripted", "style": "default", "advance_mode": "review",
+	config := map[string]any{"provider": "cutover", "model": "scripted", "advance_mode": "review",
 		"providers": map[string]any{"cutover": map[string]any{"type": "openai", "base_url": model.URL, "api_key": "test-only"}}}
 	data, err := json.Marshal(config)
 	if err != nil {

@@ -20,7 +20,7 @@ var ErrRuntimeRuleNotFound = errors.New("Không tìm thấy quy tắc này")
 // RuleItem là một quy tắc (một dòng trong quy-tac.md) kèm cách Noverse hiểu nó.
 type RuleItem struct {
 	Text    string       `json:"text"`
-	Scope   string       `json:"scope"` // global | project | story
+	Scope   string       `json:"scope"` // project | story | pack
 	Chips   []rules.Chip `json:"chips"`
 	Options []string     `json:"options"` // 0–3 cách hiểu (quy tắc viết lại); [] khi không có điều chưa chắc hoặc đã hạ cấp
 	Status  rules.Status `json:"status"`  // ready | degraded
@@ -82,10 +82,12 @@ type ChapterTiming struct {
 // Snapshot là bản đã áp dụng (cái trợ lý thật sự nhận); Items đọc thẳng từ các tệp quy-tac.md
 // hiện tại nên có thể đi trước Snapshot cho tới khi bấm Áp dụng.
 type Effective struct {
-	Snapshot *rules.Snapshot `json:"snapshot"`
-	Items    []RuleItem      `json:"items"`
-	Runtime  []RuntimeView   `json:"runtime"`
-	Timing   ChapterTiming   `json:"timing"`
+	Snapshot          *rules.Snapshot     `json:"snapshot"`
+	Items             []RuleItem          `json:"items"`
+	Runtime           []RuntimeView       `json:"runtime"`
+	Timing            ChapterTiming       `json:"timing"`
+	FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
+	ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 }
 
 // Timing tính mốc hiệu lực từ tiến độ hiện tại.
@@ -122,14 +124,26 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	if snap.Uncertain == nil { // snapshot cũ lưu null
 		snap.Uncertain = []string{}
 	}
+	snap = migratedRuleSources(snap)
 	runtime, err := s.store.UserRules.Runtime()
 	if err != nil {
 		return nil, err
 	}
 	b := s.newBatch()
 	items := []RuleItem{}
+	baselineCandidates := []rules.Candidate{rules.SystemDefaults()}
+	projectOpts := s.rulesOpts
+	projectOpts.StoryRulesDir = ""
+	for _, rs := range rules.RawFileSources(projectOpts) {
+		if rs.Kind != rules.SourceProject {
+			continue
+		}
+		candidate, fileItems := b.fileCandidate(ctx, rs)
+		baselineCandidates = append(baselineCandidates, candidate)
+		items = append(items, fileItems...)
+	}
 	for _, rs := range rules.RawFileSources(s.rulesOpts) {
-		if rs.Name != rules.ManagedRulesFile {
+		if rs.Kind == rules.SourceProject || rs.Name != rules.ManagedRulesFile {
 			continue
 		}
 		_, fileItems := b.fileCandidate(ctx, rs)
@@ -140,11 +154,10 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 		return nil, err
 	}
 	for _, candidate := range lessonRules {
-		scope := "global"
-		if strings.HasPrefix(candidate.Source, "pack:") {
-			scope = "pack"
+		if !strings.HasPrefix(candidate.Source, "pack:") {
+			continue
 		}
-		items = append(items, newRuleItem(candidate.Preferences, scope, candidate))
+		items = append(items, newRuleItem(candidate.Preferences, "pack", candidate))
 	}
 	views := make([]RuntimeView, 0, len(runtime))
 	for _, r := range runtime {
@@ -164,7 +177,12 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return &Effective{Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing()}, nil
+	baseline := rules.BuildSnapshot(baselineCandidates)
+	return &Effective{
+		Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing(),
+		FatigueWords:      rules.EffectiveFatigue(snap, s.pack, &baseline),
+		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
+	}, nil
 }
 
 // ApplyResult là kết quả Apply: snapshot mới và chương đầu tiên dùng nó. PinnedChapter > 0 là
@@ -192,7 +210,7 @@ func (s *Service) Apply(ctx context.Context, startupPrompt string) (*ApplyResult
 	if err != nil {
 		return nil, err
 	}
-	cands = append(cands, lessonRules...)
+	cands = append(cands, defaultLessonCandidates(lessonRules)...)
 	b.flush()
 	if err := ctx.Err(); err != nil {
 		return nil, err

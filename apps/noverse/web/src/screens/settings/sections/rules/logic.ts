@@ -134,19 +134,19 @@ export const visibleRuntime = (base: Baseline, edits: EditState): RuleEntry[] =>
 // ─── Nhóm theo nguồn ─────────────────────────────────────────────────────
 
 export const GROUP_ORDER: Record<ConfigScope, Level[]> = {
-  story: ['story', 'learned', 'project', 'global'],
-  project: ['project', 'global'],
-  global: ['global'],
+  story: ['story', 'learned', 'project'],
+  project: ['project'],
+  global: [],
 }
 
 export type GroupMeta = { label: string; icon: string; color: string }
 /** Icon = tệp: i-book→book-1 · i-messages→messages-2 · i-folder→folder-open · i-global→global. */
 export function groupMeta(level: Level, projectName?: string): GroupMeta {
   switch (level) {
-    case 'story': return { label: 'Bạn đã dặn', icon: 'edit-2', color: '#C9A6F5' }
-    case 'learned': return { label: 'Học từ góp ý', icon: 'messages-2', color: '#A6EDC1' }
-    case 'project': return { label: projectName ? `Từ dự án “${projectName}”` : 'Từ dự án', icon: 'folder-open', color: '#9DB0F7' }
-    case 'global': return { label: 'Chung cho mọi truyện', icon: 'global', color: '#9DB0F7' }
+    case 'story': return { label: 'Của truyện này', icon: 'edit-2', color: 'var(--color-accent)' }
+    case 'learned': return { label: 'Học từ góp ý · đang áp dụng', icon: 'messages-2', color: 'var(--color-ok)' }
+    case 'project': return { label: projectName ? `Từ dự án “${projectName}”` : 'Từ dự án', icon: 'folder-open', color: 'var(--kit-info-fg)' }
+    case 'global': return { label: '', icon: 'folder-open', color: 'var(--kit-info-fg)' }
   }
 }
 
@@ -174,18 +174,19 @@ export const learnedMeta = (rule: Pick<RuntimeRule, 'chapter' | 'createdAt'>, mo
   return `Từ góp ý của bạn ở chương ${rule.chapter}${date ? ` · ${date}` : ''}`
 }
 
-export const moveLabel = (scope: ConfigScope): string => scope === 'story' ? 'Chuyển lên dự án (mọi truyện trong dự án)' : 'Chuyển lên “Mọi truyện”'
-export const moveTarget = (scope: ConfigScope): ConfigScope | null => scope === 'story' ? 'project' : scope === 'project' ? 'global' : null
+export const moveLabel = (_scope: ConfigScope): string => 'Chuyển lên dự án'
+export const moveTarget = (scope: ConfigScope): ConfigScope | null => scope === 'story' ? 'project' : null
 
 // ─── Mặc định của Noverse ────────────────────────────────────────────────
 
 /** Gương quy tắc mặc định của engine: 4 cụm không dùng và 16 từ dễ lặp. */
 export const DEFAULT_BAN = ['theo một nghĩa nào đó', 'đáng chú ý là', 'không rõ vì sao', 'không nói thành lời']
-/** Giữ đủ 16 từ thật; artboard Gói AC chỉ vẽ 12 (chờ design chốt). */
+/** Order and per-chapter limits mirror SystemDefaults at the 1.500-tiếng reference length. */
 export const DEFAULT_FATIGUE: [string, number][] = [
-  ['bỗng nhiên', 1], ['dường như', 2], ['tuy nhiên', 2], ['một chút', 2], ['tựa như', 1], ['như một', 3], ['im lặng', 2], ['một thoáng', 3],
-  ['chốc lát', 3], ['trong chớp mắt', 2], ['không kìm được', 1], ['không khỏi', 1],
-  ['chẳng biết từ đâu', 1], ['một vệt', 2], ['một sợi', 2], ['không nói gì', 2],
+  ['không khỏi', 1], ['bỗng nhiên', 1], ['dường như', 2], ['chẳng biết từ đâu', 1],
+  ['tuy nhiên', 2], ['một chút', 2], ['một vệt', 2], ['một sợi', 2], ['tựa như', 1],
+  ['không kìm được', 1], ['như một', 3], ['im lặng', 2], ['không nói gì', 2],
+  ['một thoáng', 3], ['chốc lát', 3], ['trong chớp mắt', 2],
 ]
 
 // ─── “Noverse hiểu thế nào?” ─────────────────────────────────────────────

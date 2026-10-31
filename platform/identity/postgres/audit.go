@@ -237,3 +237,24 @@ func (a *Accounts) RecordSecurityFailure(username string) error {
 		return a.addAudit(ctx, q, nil, "", "sec", "Đăng nhập sai nhiều lần", username, "", "", "")
 	})
 }
+
+// RecordSystemAudit implements the optional idempotent maintenance audit capability.
+func (a *Accounts) RecordSystemAudit(action, target, reason string) error {
+	if err := a.requireProjectAccess(); err != nil {
+		return err
+	}
+	ctx := context.Background()
+	return RunInTx(ctx, a.pool, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`, action+"\n"+target); err != nil {
+			return sanitizeErr(err)
+		}
+		var exists bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM audit_logs WHERE actor_kind='system' AND action=$1 AND target_id=$2)`, action, target).Scan(&exists); err != nil {
+			return sanitizeErr(err)
+		}
+		if exists {
+			return nil
+		}
+		return a.addAudit(ctx, a.q(tx), nil, "", "perm", action, target, "", "", reason)
+	})
+}

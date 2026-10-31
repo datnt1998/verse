@@ -38,7 +38,7 @@ async function mount() {
   const root = createRoot(container)
   roots.push(root)
   const ctx = { project: 'kenh', story: '', canEdit: true, registerExtra: () => {} } as unknown as SettingsContext
-  await act(async () => { root.render(<InfoSection ctx={ctx} scope="project" />) })
+  await act(async () => { root.render(<InfoSection ctx={ctx} />) })
   await act(async () => { await Promise.resolve() })
   return container
 }

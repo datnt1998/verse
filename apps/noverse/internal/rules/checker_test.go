@@ -137,14 +137,16 @@ func TestCheck_MultipleRulesAtOnce(t *testing.T) {
 	}
 }
 
-func TestCheck_FatigueZeroLimitSkipped(t *testing.T) {
-	// limit=0 是非法值，应跳过整条规则（parser 也会过滤，这里防御）
-	text := "không khỏi không khỏi không khỏi"
-	vs := Check(text, Structured{
+func TestCheck_FatigueZeroLimitRejectsAnyUse(t *testing.T) {
+	vs := Check("Anh không khỏi bật cười.", Structured{
 		FatigueWords: map[string]FatiguePer1000{"không khỏi": 0},
 	})
-	if len(vs) != 0 {
-		t.Errorf("limit=0 should be skipped, got %+v", vs)
+	v := findViolation(vs, "fatigue_words", "không khỏi")
+	if v == nil || v.Limit != 0 || v.Actual != 1 || v.Severity != SeverityWarning {
+		t.Fatalf("zero must reject even one use: %+v", vs)
+	}
+	if clean := Check("Anh bật cười.", Structured{FatigueWords: map[string]FatiguePer1000{"không khỏi": 0}}); len(clean) != 0 {
+		t.Fatalf("unused word must pass: %+v", clean)
 	}
 }
 

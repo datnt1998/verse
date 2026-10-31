@@ -9,7 +9,6 @@ import { storyLabel } from '../../shell/labels'
 import { confirmDeleteStory } from '../../ui/confirmPresets'
 import { Icon } from '@noverse/ui'
 import { ActionMenu, type ActionMenuItem, type MenuPoint } from '@noverse/ui'
-import { settingsLink } from './links'
 import { useCanReveal } from './useProject'
 
 export const CHIP_PURPLE = { background: 'rgba(201,166,245,0.12)', color: '#DCC8F8' } as const
@@ -21,7 +20,7 @@ export function Chip({ tone, style, title, children }: { tone: { background: str
 }
 
 /** Ô nhập neo đáy cột giữa (card bo 14): “Ghi nhanh một ý tưởng…” và “Dặn hướng cốt truyện…”. */
-export function Dock({ maxWidth, icon, iconColor, label, placeholder, sendLabel, value, onChange, onSubmit, buttonStyle, extra, inputRef }: {
+export function Dock({ maxWidth, icon, iconColor, label, placeholder, sendLabel, value, onChange, onSubmit, buttonStyle, extra, inputRef, inputId }: {
   maxWidth: number
   icon: string
   iconColor: string
@@ -34,6 +33,7 @@ export function Dock({ maxWidth, icon, iconColor, label, placeholder, sendLabel,
   buttonStyle?: CSSProperties
   extra?: ReactNode
   inputRef?: RefObject<HTMLInputElement | null>
+  inputId?: string
 }) {
   const submit = (event: FormEvent) => { event.preventDefault(); onSubmit() }
   return (
@@ -46,7 +46,7 @@ export function Dock({ maxWidth, icon, iconColor, label, placeholder, sendLabel,
         padding: '6px 6px 6px 14px', borderRadius: 14,
       }}>
         <Icon name={icon} size={17} style={{ color: iconColor }} />
-        <input ref={inputRef} className="pj-bare" type="text" value={value} onChange={(event) => onChange(event.target.value)}
+        <input id={inputId} ref={inputRef} className="pj-bare" type="text" value={value} onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder} aria-label={label} />
         {extra}
         <button className="hov-primary" type="submit" aria-label={sendLabel} style={{
@@ -76,7 +76,7 @@ export function StoryContextMenu({ project, story, children }: { project: string
     { id: 'open', label: 'Mở truyện', icon: <Icon name="book-1" size={16} />, onSelect: () => navigate(paths.story(project, story.story)) },
     ...(canReveal ? [{ id: 'reveal', label: 'Mở thư mục', icon: <Icon name="folder-open" size={16} />, disabled: reveal.busy, onSelect: () => { void reveal.run() } }] : []),
     { id: 'export', label: 'Bản xuất', icon: <Icon name="export-square" size={16} />, onSelect: () => navigate(`${paths.story(project, story.story)}?tab=export`) },
-    { id: 'rename', label: 'Đổi tên', icon: <Icon name="edit-2" size={16} />, disabled: blocked || !user || !canWriteStory(user, `${project}/${story.story}`), onSelect: () => navigate(settingsLink('info', { project, story: story.story })) },
+    { id: 'rename', label: 'Đổi tên', icon: <Icon name="edit-2" size={16} />, disabled: blocked || !user || !canWriteStory(user, `${project}/${story.story}`), onSelect: () => navigate(`${paths.story(project, story.story)}?tab=info&edit=title`) },
     {
       id: 'delete', label: 'Xoá truyện', icon: <Icon name="trash" size={16} />, danger: true,
       disabled: !!deleteReason, tooltip: deleteReason, description: deleteReason,

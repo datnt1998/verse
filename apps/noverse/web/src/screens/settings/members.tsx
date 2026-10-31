@@ -54,7 +54,7 @@ export function MembersSettings() {
   const { user } = useSession()
   const accounts = useResource(keys.users(), listUsers, { enabled: user?.role === 'admin' })
   if (user?.role !== 'admin') return null
-  return <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5, borderTop: '1px solid var(--line-1)' }}><SettingsNav current="members" scope="global" admin rulesCount={1} membersCount={accounts.data?.users.length} dots={{}} onPick={(id) => navigate(paths.settings(id))} /><MembersScreen users={accounts.data?.users} error={accounts.error} refresh={accounts.refresh} /></div>
+  return <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5 }}><SettingsNav current="members" scope="global" admin membersCount={accounts.data?.users.length} dots={{}} onPick={(id) => navigate(id === 'info' ? `${paths.settings(id)}?scope=project` : paths.settings(id))} /><MembersScreen users={accounts.data?.users} error={accounts.error} refresh={accounts.refresh} /></div>
 }
 export function MembersScreen({ users, error: loadError, refresh }: { users?: User[]; error?: unknown; refresh: () => unknown }) {
   const { user: me, apps = [] } = useSession()

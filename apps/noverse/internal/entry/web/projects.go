@@ -355,6 +355,10 @@ func (g *Gateway) switchLibraryRoot(w http.ResponseWriter, root string) {
 		jsonError(w, 400, err.Error())
 		return
 	}
+	if err := g.migrateFileRules(abs); err != nil {
+		jsonError(w, 500, "Không chuyển được quy tắc vào thư viện mới: "+err.Error())
+		return
+	}
 	if abs == g.RootPath() {
 		cfg, err := library.LoadConfig(abs)
 		if err != nil {
@@ -536,8 +540,8 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		Notes       string `json:"notes"`
-		// ShareGlobal: true (mặc định) = chép quy tắc “Mọi truyện” vào dự án, trợ lý AI kế thừa qua lớp cấu hình;
-		// false = dự án không có quy tắc riêng và giữ ảnh chụp roles/style/budget hiện tại của “Mọi truyện”.
+		// ShareGlobal controls shared model/role configuration only.
+		// Rules and style always belong to a project or story.
 		ShareGlobal *bool `json:"shareGlobal"`
 		// LegacyLanguage 只为容忍旧客户端（14 §B.4 已删 language）：解码后丢弃，
 		// 否则 decodeJSON 的 DisallowUnknownFields 会把旧请求打成 400。
@@ -572,57 +576,17 @@ func (g *Gateway) createProject(w http.ResponseWriter, r *http.Request, user ide
 		libError(w, err)
 		return
 	}
-	// Hosted projects have no directory: global rules/config are not mirrored
-	// into a row store (inheritance stays in the config layer), and writing to
-	// a relative path would litter the process cwd. filepath.Base maps both
-	// backends onto the project id (dir path on file, slug on hosted).
-	if ref, ok := lib.ResolveProject(r.Context(), actorOf(user), filepath.Base(dir)); ok && ref.Dir != "" {
-		if req.ShareGlobal == nil || *req.ShareGlobal {
-			if err := copyGlobalRules(ref.Dir); err != nil {
-				slog.Warn("chép quy tắc toàn cục vào dự án thất bại", "module", "web", "dir", ref.Dir, "err", err)
-			}
-		} else if err := copyGlobalConfig(ref.Dir); err != nil {
-			slog.Warn("chép cấu hình toàn cục vào dự án thất bại", "module", "web", "dir", ref.Dir, "err", err)
+	// Hosted project configuration inherits server model settings without paths.
+	if ref, ok := lib.ResolveProject(r.Context(), actorOf(user), filepath.Base(dir)); ok && ref.Dir != "" && req.ShareGlobal != nil && !*req.ShareGlobal {
+		if err := copyGlobalConfig(ref.Dir); err != nil {
+			slog.Warn("chép cấu hình mô hình vào dự án thất bại", "module", "web", "dir", ref.Dir, "err", err)
 		}
 	}
 	writeJSON(w, 201, g.projectDetailFor(r.Context(), lib, user, filepath.Base(dir)))
 }
 
-// copyGlobalRules 把 ~/.ainovel/rules/*.md（含 quy-tac.md）复制进项目的 .ainovel/rules/；
-// 不复制 roles/style/budget，AI 设置经正常的配置分层继承“Mọi truyện”。
-func copyGlobalRules(projectDir string) error {
-	src := rulesHomeDir()
-	if src == "" {
-		return nil
-	}
-	entries, err := os.ReadDir(src)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return err
-	}
-	dst := rulesDirIn(projectDir)
-	if err := os.MkdirAll(dst, 0o755); err != nil {
-		return err
-	}
-	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".md") {
-			continue
-		}
-		data, err := os.ReadFile(filepath.Join(src, e.Name()))
-		if err != nil {
-			return err
-		}
-		if err := os.WriteFile(filepath.Join(dst, e.Name()), data, 0o644); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// copyGlobalConfig 把全局 config.json 中的 roles/style/budget 复制到项目级
-// （不复制 providers 与 api_key）。
+// copyGlobalConfig snapshots shared role/budget configuration without rules,
+// style, provider definitions, or API keys.
 func copyGlobalConfig(projectDir string) error {
 	global, err := bootstrap.LoadConfigFile(bootstrap.DefaultConfigPath())
 	if err != nil {
@@ -630,7 +594,6 @@ func copyGlobalConfig(projectDir string) error {
 	}
 	cfg := bootstrap.Config{
 		Roles:  global.Roles,
-		Style:  global.Style,
 		Budget: global.Budget,
 	}
 	return bootstrap.SaveConfig(filepath.Join(projectDir, ".ainovel", "config.json"), cfg)

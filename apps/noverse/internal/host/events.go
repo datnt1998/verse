@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 )
 
 // Event 是 TUI 消费的结构化事件。
@@ -153,6 +155,8 @@ type UISnapshot struct {
 	NextVolumeTitle        string              `json:"nextVolumeTitle"`
 	CompassDirection       string              `json:"compassDirection"`
 	CompassScale           string              `json:"compassScale"`
+	OpenThreads            []string            `json:"openThreads"`
+	PlanningTier           domain.PlanningTier `json:"planningTier"`
 	LastCommitSummary      string              `json:"lastCommitSummary"`
 	LastReviewSummary      string              `json:"lastReviewSummary"`
 	LastCheckpointName     string              `json:"lastCheckpointName"`

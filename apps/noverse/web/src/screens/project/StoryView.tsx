@@ -1,5 +1,4 @@
-// StoryView — màn truyện trong dự án (Outline.dc.html › view story): chip + tên truyện, 4 tab, nội dung cuộn,
-// ô “Dặn hướng cốt truyện…” neo đáy.
+// StoryView — nền móng, nội dung và cách viết của truyện; ô Dặn hướng neo đáy.
 import { Activity, useRef, useState } from 'react'
 import { ApiError, getSnapshot, sendInput } from '../../api/client'
 import type { Outline, StorySummary } from '../../api/types'
@@ -23,15 +22,21 @@ import { ScrollTopButton } from '@noverse/ui'
 import { styleCopy } from '../../i18n/vi'
 import { StyleTab } from './tabs/StyleTab'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
+import { InfoTab } from './tabs/InfoTab'
+import { PremiseTab, WorldTab } from './tabs/FoundationTabs'
+import { useFoundation } from './tabs/useFoundation'
 
-export type TabId = 'outline' | 'cast' | 'fs' | 'style' | 'export'
+export type TabId = 'info' | 'premise' | 'cast' | 'world' | 'outline' | 'fs' | 'style' | 'export'
 
-const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'outline', label: 'Dàn ý', icon: 'note-text' },
-  { id: 'cast', label: 'Nhân vật', icon: 'profile-2user' },
-  { id: 'fs', label: 'Chi tiết cài cắm', icon: 'flag' },
-  { id: 'style', label: styleCopy.tab, icon: 'brush-2' },
-  { id: 'export', label: 'Bản xuất', icon: 'export-square' },
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'info', label: 'Thông tin' },
+  { id: 'premise', label: 'Tiền đề' },
+  { id: 'cast', label: 'Nhân vật' },
+  { id: 'world', label: 'Thế giới' },
+  { id: 'outline', label: 'Dàn ý' },
+  { id: 'fs', label: 'Cài cắm' },
+  { id: 'style', label: styleCopy.tab },
+  { id: 'export', label: 'Bản xuất' },
 ]
 
 export const STORY_TABS = TABS.map((tab) => tab.id)
@@ -42,7 +47,7 @@ export function resolveStoryTab(raw: string | null): TabId {
 
 function StoryTabs({ tab, onTab, counts }: { tab: TabId; onTab: (id: TabId) => void; counts: Partial<Record<TabId, number>> }) {
   return (
-    <div role="tablist" aria-label="Truyện" style={{ display: 'flex', gap: 2, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <div role="tablist" aria-label="Truyện" style={{ display: 'flex', gap: 2, paddingBottom: 12, overflowX: 'auto', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
       {TABS.map((item) => {
         const on = item.id === tab
         const count = counts[item.id]
@@ -50,7 +55,6 @@ function StoryTabs({ tab, onTab, counts }: { tab: TabId; onTab: (id: TabId) => v
           <button key={item.id} className="pj-tab" type="button" role="tab" aria-selected={on} aria-controls={`story-panel-${item.id}`}
             onClick={() => onTab(item.id)}
             style={{ background: on ? '#222225' : 'transparent', color: on ? '#EDEDEF' : '#A0A0AB', fontWeight: on ? 500 : 400 }}>
-            <Icon name={item.icon} size={16} style={{ color: on ? '#C9A6F5' : 'currentColor' }} />
             {item.label}
             {count !== undefined && count > 0 && <span className="num" style={{ fontSize: 11.5, color: '#7E7E8A' }}>{count}</span>}
           </button>
@@ -77,10 +81,17 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
   const scrollRef = useRef<HTMLDivElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   /** D5 — “Sửa” một dòng bản đồ giữ chân: điền sẵn ô chat rồi để người dùng bấm gửi (02-ia-flows). */
-  const prefillSteer = (text: string) => { setDraft(text); dockRef.current?.focus() }
+  const prefillSteer = (text: string) => {
+    setDraft(text)
+    requestAnimationFrame(() => {
+      dockRef.current?.focus()
+      dockRef.current?.setSelectionRange(text.length, text.length)
+    })
+  }
   const snapshot = useResource(keys.story(project, summary.story, 'snapshot'), ({ signal }) => getSnapshot(project, summary.story, signal))
   const characters = useCharacters(project, summary.story)
   const foreshadow = useForeshadow(project, summary.story)
+  const foundation = useFoundation(project, summary.story)
   const steerAction = useAction(async (text: string) => {
     try {
       const result = await sendInput(project, summary.story, text)
@@ -105,8 +116,13 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
     ? `${rewriting ? 'Đang viết lại' : 'Đang viết'}${current > 0 ? ` · chương ${current}` : ''}`
     : STORY_STATUS_LABEL[summary.status]
 
-  const body = () => {
-    if (tab === 'outline') {
+  const body = (panel: TabId) => {
+    if (panel === 'info') return <InfoTab key={summary.story} project={project} summary={summary} snapshot={snapshot.data} outline={outline} foundation={foundation}
+      castCount={characters.data?.characters.length ?? 0} mainCount={characters.data?.characters.filter((character) => character.kind === 'lead').length ?? 0}
+      onTab={onTab} onSteer={prefillSteer} />
+    if (panel === 'premise') return <PremiseTab foundation={foundation} onSteer={prefillSteer} />
+    if (panel === 'world') return <WorldTab foundation={foundation} project={project} completed={summary.completedChapters} onSteer={prefillSteer} />
+    if (panel === 'outline') {
       if (outlineLoading && !outline) return <Skeleton height={260} radius={16} />
       if (outlineError) {
         return (
@@ -123,9 +139,9 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
         ? <OutlineTab key={summary.story} project={project} story={summary.story} bookTitle={storyTitle(summary)} outline={outline} onSteer={prefillSteer} />
         : <Skeleton height={260} radius={16} />
     }
-    if (tab === 'cast') return <CastTab key={summary.story} project={project} story={summary.story} />
-    if (tab === 'fs') return <ForeshadowTab key={summary.story} project={project} story={summary.story} />
-    if (tab === 'style') return null
+    if (panel === 'cast') return <CastTab key={summary.story} project={project} story={summary.story} />
+    if (panel === 'fs') return <ForeshadowTab key={summary.story} project={project} story={summary.story} />
+    if (panel === 'style') return <StyleTab key={summary.story} project={project} summary={summary} />
     return <ExportTab key={summary.story} project={project} story={summary.story} bookTitle={storyTitle(summary)} />
   }
 
@@ -167,19 +183,16 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
             </a>
           </span>
         </div>
-        <StoryTabs tab={tab} onTab={onTab} counts={{ cast: characters.data?.characters.length, fs: foreshadow.data?.entries.length }} />
+        <StoryTabs tab={tab} onTab={onTab} counts={{ cast: characters.data?.characters.length, world: foundation.world.data?.length, fs: foreshadow.data?.entries.length }} />
       </div>
 
       <div ref={scrollRef} id={`story-panel-${tab}`} role="tabpanel" aria-label={TABS.find((item) => item.id === tab)?.label}
         className="scroll" style={{ flex: '1 1 auto', minHeight: 0, padding: narrow ? '16px 14px 110px' : '16px 28px 110px' }}>
-        {body()}
-        <Activity mode={tab === 'style' ? 'visible' : 'hidden'}>
-          <StyleTab key={summary.story} project={project} summary={summary} />
-        </Activity>
+        {TABS.map((item) => <Activity key={`${summary.story}-${item.id}`} mode={tab === item.id ? 'visible' : 'hidden'}>{body(item.id)}</Activity>)}
       </div>
       <ScrollTopButton target={scrollRef} focusTarget={headingRef} label={t.scrollTop.page} size="md" style={{ right: 48, bottom: 92 }} />
 
-      <Dock maxWidth={760} icon="magic-star" iconColor="#C9A6F5" label="Dặn hướng cốt truyện"
+      <Dock inputId="steer" maxWidth={760} icon="magic-star" iconColor="#C9A6F5" label="Dặn hướng cốt truyện"
         placeholder="Dặn hướng cốt truyện, ví dụ: đẩy tuyến tình cảm lên chương 4" sendLabel="Gửi"
         value={draft} onChange={setDraft} onSubmit={send} inputRef={dockRef}
         extra={

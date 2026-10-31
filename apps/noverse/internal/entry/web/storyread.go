@@ -42,7 +42,7 @@ func (g *Gateway) openStoryReader(user identity.User, st library.Story) (*host.S
 }
 
 // serveStoryRead 处理 "/api/projects/:p/stories/:s" 之后的直读端点（契约 §4）。
-// 全部经 StoryReader 从磁盘读，不经过 worker，故事被 TUI 持锁时也能读。
+// Đọc từ store của truyện (file hoặc hosted), không giữ lease của worker.
 // rest = 故事前缀后的剩余路径（以 "/" 开头，或为 ""）。
 // 返回 false 表示路径不属于本钩子，调用方继续转 worker 代理。
 func (g *Gateway) serveStoryRead(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, rest string) bool {
@@ -75,6 +75,26 @@ func (g *Gateway) serveStoryRead(w http.ResponseWriter, r *http.Request, user id
 			return false
 		}
 		g.serveOutline(w, r, sr)
+	case head == "premise" && tail == "":
+		if r.Method != http.MethodGet {
+			return false
+		}
+		premise, err := sr.Premise()
+		if err != nil {
+			jsonMappedError(w, err)
+			break
+		}
+		writeJSON(w, http.StatusOK, premise)
+	case head == "world-rules" && tail == "":
+		if r.Method != http.MethodGet {
+			return false
+		}
+		rules, err := sr.WorldRules()
+		if err != nil {
+			jsonMappedError(w, err)
+			break
+		}
+		writeJSON(w, http.StatusOK, rules)
 	case head == "characters" && tail == "":
 		switch r.Method {
 		case http.MethodGet:

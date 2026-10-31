@@ -11,7 +11,7 @@ import (
 //
 // 目录不存在不算错误，扫描时静默跳过。
 type LoadOptions struct {
-	// HomeRulesDir 是 ~/.ainovel/rules/ 目录；扫描其下所有顶层 .md（文件名字典序合并）。空表示跳过。
+	// HomeRulesDir locates the system lesson catalog; global .md files are ignored.
 	HomeRulesDir string
 
 	// ProjectRulesDir 是 <项目>/.ainovel/rules/ 目录（项目 = 书目录最近的含 project.json
@@ -22,7 +22,7 @@ type LoadOptions struct {
 	// 书目录即项目目录时应留空（避免同名文件被算成两层覆盖）。
 	StoryRulesDir string
 	// Sources holds scoped documents supplied by a non-filesystem backend.
-	// They follow the home layer and participate in the same nearer-wins merge.
+	// Only project and story sources participate in the nearer-wins merge.
 	Sources []RawSource
 }
 
@@ -51,29 +51,12 @@ func DefaultHomeRulesDir() string {
 
 // homeRulesReadme 是首次引导时写入 ~/.ainovel/rules/README.txt 的说明。
 // 刻意用 .txt 后缀而非 .md——扫描只认 .md，这份说明不会被当成规则归一化。
-const homeRulesReadme = `Đây là nơi đặt sở thích viết toàn cục, áp dụng cho mọi truyện.
+const homeRulesReadme = `Quy tắc viết chỉ còn hai cấp: dự án và truyện.
 
-Tạo một tệp .md (ví dụ my-style.md), viết yêu cầu bằng lời lẽ bình thường —
-không cần định dạng nào, không cần YAML:
-
-    # Nhân vật
-    - Đừng viết nhân chính Lâm Trần thành thánh mẫu, lạnh ngoài nóng trong là được
-    # Văn phong
-    - Dùng cảm giác cơ thể (đốt ngón tay trắng bệch) thay cho nhãn cảm xúc (căng thẳng)
-    - Đối thoại đừng quá sách vở, mỗi chương khoảng 3000 chữ
-    - Đừng để lọt những câu sáo kiểu "theo một nghĩa nào đó"
-
-Viết xong không cần bận tâm định dạng: hệ thống dùng model chuẩn hoá các yêu cầu ngôn ngữ
-tự nhiên này thành ràng buộc có cấu trúc (phạm vi số chữ, từ cấm, ngưỡng lặp từ…),
-khi viết tự động tuân theo, khi nộp chương tự động tự kiểm.
-
-Nhiều tệp .md được gộp theo thứ tự từ điển tên tệp; tệp ẩn bắt đầu bằng dấu chấm và
-tệp không phải .md đều bị bỏ qua (nên README.txt này không bị coi là luật).
-
-Các câu sáo AI thường gặp và ngưỡng lặp từ cơ học đã có sẵn, dùng được ngay,
-không viết gì cũng không sao.
-
-Thứ tự ưu tiên khi nạp (cao → thấp): ./.ainovel/rules/*.md (truyện này) > ~/.ainovel/rules/*.md (thư mục này) > mặc định tích hợp
+Các tệp .md toàn cục cũ được chuyển vào từng dự án một lần khi mở thư viện.
+Thư mục này không còn được nạp làm quy tắc.
+Hãy đặt yêu cầu cần chuẩn hoá trong <dự án>/.ainovel/rules/*.md
+hoặc <truyện>/.ainovel/rules/*.md; quy tắc truyện được ưu tiên.
 `
 
 // EnsureHomeRulesDir 尽力创建 ~/.ainovel/rules/ 目录并写入 README.txt 引导，
@@ -100,18 +83,13 @@ func ensureRulesDirAt(dir string) error {
 // 适合 Host 启动时调用一次，让用户规则服务复用同一份来源配置。
 // 解析 cwd 失败时 ProjectRulesDir/StoryRulesDir 留空（扫描会跳过该来源）。
 //
-// 继承链（GAP-10）：~/.ainovel/rules → <项目>/.ainovel/rules → <书目录>/.ainovel/rules，
-// 同名文件更近的层覆盖。项目 = cwd 最近的含 project.json 的祖先目录。
-//
-// 路径语义：近层目录绑定 **当前工作目录（cwd）** 而非 outputDir。
-// 用户 cd 到不同目录启动写不同的书，./.ainovel/rules/ 自然跟着 cwd 走；如需跨书共享，
-// 放项目层或 ~/.ainovel/rules/ 全局目录即可（其下所有 .md 都会被加载）。
+// Rule inheritance is project → story. The retired home directory is not read.
 func DefaultOptions() LoadOptions {
 	cwd, _ := os.Getwd()
 	return OptionsForDir(cwd)
 }
 
-// OptionsForDir 以 dir 为书目录构造三级继承来源，供 cwd 之外的场景（worker、测试、网关）。
+// OptionsForDir constructs project/story sources for workers and gateways.
 func OptionsForDir(dir string) LoadOptions {
 	var opts LoadOptions
 	opts.HomeRulesDir = DefaultHomeRulesDir()

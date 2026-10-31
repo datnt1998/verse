@@ -204,7 +204,7 @@ func (t *ContextTool) buildBaseContext(result map[string]any, reads *contextRead
 	}
 	if premise, err := t.store.Outline.LoadPremise(); err == nil && premise != "" {
 		result["premise"] = premise
-		if sections := parsePremiseSections(premise); len(sections) > 0 {
+		if sections := ParsePremiseSections(premise); len(sections) > 0 {
 			result["premise_sections"] = sections
 		}
 		tier := domain.PlanningTier("")
@@ -900,7 +900,7 @@ func (t *ContextTool) buildArchitectFoundation(envelope *architectContextEnvelop
 	}
 	if premise, err := t.store.Outline.LoadPremise(); err == nil && premise != "" {
 		envelope.Foundation["premise"] = premise
-		if sections := parsePremiseSections(premise); len(sections) > 0 {
+		if sections := ParsePremiseSections(premise); len(sections) > 0 {
 			envelope.Foundation["premise_sections"] = sections
 		}
 		tier := domain.PlanningTier("")

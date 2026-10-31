@@ -477,7 +477,7 @@ export function SimulateDoneCard({ result, project, story }: StoryRef & { result
       )}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <OutlineBtn icon="document-download" height={32} onClick={() => void saveAction.run()} disabled={saveAction.busy} pending={saveAction.pending}>Tải hồ sơ văn phong</OutlineBtn>
-        <OutlineBtn icon="setting-2" height={32} onClick={() => navigate(paths.settings('writing'))}>Quản lý hồ sơ văn phong</OutlineBtn>
+        <OutlineBtn icon="setting-2" height={32} onClick={() => navigate(`${paths.story(project, story)}?tab=style`)}>Quản lý hồ sơ văn phong</OutlineBtn>
       </div>
     </ResultCard>
   )
@@ -497,7 +497,7 @@ export function JobFailedCard({ kind, error, onRetry }: { kind: string; error: s
       </CardHead>
       {kind === 'simulate' && (
         <span style={{ fontSize: 12.5, color: 'var(--color-fg-2)' }}>
-          Thêm vài đoạn văn bạn thích vào Văn mẫu (Tuỳ chỉnh › Cách viết › Văn phong của bạn) rồi chạy lại.
+          Thêm vài đoạn văn bạn thích vào Văn mẫu (truyện › Cách viết › Văn phong của bạn) rồi chạy lại.
         </span>
       )}
       <div style={{ display: 'flex', gap: 8 }}>

@@ -1201,7 +1201,7 @@ export const vi = {
     pack: {
       motGiongKe: 'Một giọng kể',
       badge: 'theo gói',
-      doiGoi: 'Đổi gói trong Tuỳ chỉnh ›',
+      doiGoi: 'Đổi gói ở tab Cách viết ›',
       goiChonSan: 'Gói chọn sẵn · đổi gói trong Cách viết',
       giongKeCuaGoi: 'Giọng kể của gói',
       goiDeXuat: 'Giọng có sẵn · gói đề xuất',

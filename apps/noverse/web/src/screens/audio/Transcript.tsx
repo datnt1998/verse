@@ -674,7 +674,7 @@ export function TranscriptScreen({ project, story, volume }: { project: string; 
 
         <RightPanel tab={tab} onTab={setTab} issues={issueCount} model={data.ready?.engine.model || t.audio.panels.boDocChuaRo}>
           {tab === 'cast' && (
-            <CastPanel cast={data.cast} voices={data.voices} lineCounts={lineCounts} pack={pack} writable={writable && !data.savePending && !data.conflict}
+            <CastPanel cast={data.cast} voices={data.voices} lineCounts={lineCounts} pack={pack} styleHref={`${paths.story(project, story)}?tab=style`} writable={writable && !data.savePending && !data.conflict}
               onCast={(next) => {
                 if (next.mode !== data.cast?.mode && chapters.some((item) => (item.audio?.segmentsDone ?? 0) > 0)) setCastChange(next)
                 else void data.saveCast(next)
