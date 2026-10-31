@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Tab Hồ sơ kênh (artboard Channel › tab=settings): khối nhận diện, "Thông tin
 // kênh" (tên, link YouTube — tự lưu khi rời ô), "Khi viết tiêu đề, mô tả, tag"
 // (ngôn ngữ, giọng văn, đoạn cuối mô tả đếm ≤1.000, tag luôn thêm ≤10), hai lối
@@ -55,7 +57,7 @@ const stateLabel = (state: SaveState): string | null => {
 function SaveHint({ state }: { state: SaveState }) {
   const label = stateLabel(state)
   return (
-    <span className="vch-saveline" aria-live="polite">
+    <span className={`vch-saveline ${stylex.props(channelStyles.saveline).className}`} aria-live="polite">
       <Icon name={state === 'saved' ? 'tick-b' : 'clock'} size={12} />
       {label ?? t.channels.settings.autosave}
     </span>
@@ -135,14 +137,14 @@ export function SettingsTab({ channel }: { channel: Channel }) {
     <>
       <IdentityBlock channel={channel} />
 
-      <section className="vch-card" aria-label={tt.infoTitle}>
-        <div className="vch-cardhead" style={{ padding: 0 }}>
-          <h2><Icon name="user" size={16} />{tt.infoTitle}</h2>
+      <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={tt.infoTitle}>
+        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
+          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="user" size={16} />{tt.infoTitle}</h2>
         </div>
-        <div className="vch-form" style={{ padding: 0 }}>
-          <div className="vch-field">
+        <div className={`vch-form ${stylex.props(channelStyles.form).className}`} style={{ padding: 0 }}>
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
             <FieldRow label={tt.name} htmlFor="vch-name" right={<SaveHint state={name.state} />}>
-              <Field
+              <Field className={stylex.props(channelStyles.touchTarget).className}
                 id="vch-name"
                 value={name.draft}
                 placeholder={tt.namePlaceholder}
@@ -153,12 +155,12 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur() }}
               />
             </FieldRow>
-            {name.error ? <FieldError>{name.error}</FieldError> : <p className="vch-field__hint">{tt.noNameHint}</p>}
+            {name.error ? <FieldError>{name.error}</FieldError> : <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.noNameHint}</p>}
           </div>
 
-          <div className="vch-field">
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
             <FieldRow label={tt.url} htmlFor="vch-url" right={<SaveHint state={url.state} />}>
-              <Field
+              <Field className={stylex.props(channelStyles.touchTarget).className}
                 id="vch-url"
                 type="url"
                 value={url.draft}
@@ -170,19 +172,19 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur() }}
               />
             </FieldRow>
-            {url.error ? <FieldError>{url.error}</FieldError> : <p className="vch-field__hint">{tt.urlHint}</p>}
+            {url.error ? <FieldError>{url.error}</FieldError> : <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.urlHint}</p>}
           </div>
         </div>
       </section>
 
-      <section className="vch-card" aria-label={tt.writingTitle}>
-        <div className="vch-cardhead" style={{ padding: 0 }}>
-          <h2><Icon name="magicpen" size={16} />{tt.writingTitle}</h2>
+      <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={tt.writingTitle}>
+        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
+          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="magicpen" size={16} />{tt.writingTitle}</h2>
         </div>
-        <div className="vch-form" style={{ padding: 0 }}>
-          <div className="vch-field">
-            <span className="vch-field__label">{tt.language}</span>
-            <Segmented
+        <div className={`vch-form ${stylex.props(channelStyles.form).className}`} style={{ padding: 0 }}>
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
+            <span className={`vch-field__label ${stylex.props(channelStyles.fieldLabel).className}`}>{tt.language}</span>
+            <Segmented buttonStyle={channelStyles.touchTarget}
               label={tt.language}
               size="sm"
               fit="content"
@@ -198,10 +200,10 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 void save({ language: next }, 'language').catch(() => setLanguage(channel.language))
               }}
             />
-            <p className="vch-field__hint">{tt.languageHint}</p>
+            <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.languageHint}</p>
           </div>
 
-          <div className="vch-field">
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
             <FieldRow label={tt.styleNote} htmlFor="vch-style" right={<SaveHint state={styleNote.state} />}>
               <TextArea
                 id="vch-style"
@@ -217,7 +219,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
             {styleNote.error && <FieldError>{styleNote.error}</FieldError>}
           </div>
 
-          <div className="vch-field">
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
             <FieldRow label={tt.footer} htmlFor="vch-footer" right={<SaveHint state={footer.state} />}>
               <TextArea
                 id="vch-footer"
@@ -229,19 +231,19 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 onBlur={() => void footer.commit()}
               />
             </FieldRow>
-            {footer.error ? <FieldError>{footer.error}</FieldError> : <p className="vch-field__hint">{tt.footerBadge} · {tt.footerHint}</p>}
+            {footer.error ? <FieldError>{footer.error}</FieldError> : <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.footerBadge} · {tt.footerHint}</p>}
           </div>
 
-          <div className="vch-field">
-            <span className="vch-field__row">
-              <span className="vch-field__label">{tt.tags} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.tagsBadge}</span></span>
-              <span className="vch-counter num">{tt.tagsCount(tags.length, 10)}</span>
+          <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
+            <span className={`vch-field__row ${stylex.props(channelStyles.fieldRow).className}`}>
+              <span className={`vch-field__label ${stylex.props(channelStyles.fieldLabel).className}`}>{tt.tags} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.tagsBadge}</span></span>
+              <span className={`vch-counter num ${stylex.props(channelStyles.counter).className}`}>{tt.tagsCount(tags.length, 10)}</span>
             </span>
-            <div className="vch-tags">
+            <div className={`vch-tags ${stylex.props(channelStyles.tags).className}`}>
               {tags.map((tag) => (
-                <span className="vch-tag" key={tag}>
+                <span className={`vch-tag ${stylex.props(channelStyles.tag).className}`} key={tag}>
                   {tag}
-                  <button
+                  <button {...stylex.props(channelStyles.tagButton)}
                     type="button"
                     aria-label={tt.removeTag(tag)}
                     onClick={() => void saveTags(tags.filter((item) => item !== tag))}
@@ -251,7 +253,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 </span>
               ))}
               <input
-                className="vch-taginput"
+                className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}
                 value={tagDraft}
                 placeholder={tt.tagPlaceholder}
                 aria-label={tt.addTag}
@@ -264,35 +266,35 @@ export function SettingsTab({ channel }: { channel: Channel }) {
               />
             </div>
             {tagError ? <FieldError>{tagError}</FieldError> : null}
-            <p className="vch-field__hint">{tt.writingHint}</p>
+            <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.writingHint}</p>
           </div>
         </div>
       </section>
 
-      <nav className="vch-navrows" aria-label={tt.infoTitle}>
-        <a className="vch-navrow" href={`#${paths.channel(channel.id, 'sources')}`}>
+      <nav className={`vch-navrows ${stylex.props(channelStyles.navrows).className}`} aria-label={tt.infoTitle}>
+        <a className={`vch-navrow ${stylex.props(channelStyles.navrow).className}`} href={`#${paths.channel(channel.id, 'sources')}`}>
           <Icon name="radar" size={16} />
-          <span className="vch-navrow__text">
+          <span className={`vch-navrow__text ${stylex.props(channelStyles.navrowText).className}`}>
             <span>{tt.linkSources}</span>
-            <span className="vch-navrow__sub">{tt.linkSourcesSub(channel.sources.length, channel.pacePerDay)}</span>
+            <span className={`vch-navrow__sub ${stylex.props(channelStyles.navrowSub).className}`}>{tt.linkSourcesSub(channel.sources.length, channel.pacePerDay)}</span>
           </span>
           <Icon name="arrow-r" size={14} />
         </a>
-        <a className="vch-navrow" href={`#${paths.channel(channel.id, 'templates')}`}>
+        <a className={`vch-navrow ${stylex.props(channelStyles.navrow).className}`} href={`#${paths.channel(channel.id, 'templates')}`}>
           <Icon name="layer" size={16} />
-          <span className="vch-navrow__text">
+          <span className={`vch-navrow__text ${stylex.props(channelStyles.navrowText).className}`}>
             <span>{tt.linkTemplates}</span>
-            <span className="vch-navrow__sub">{tt.linkTemplatesSub(channel.templates.length)}</span>
+            <span className={`vch-navrow__sub ${stylex.props(channelStyles.navrowSub).className}`}>{tt.linkTemplatesSub(channel.templates.length)}</span>
           </span>
           <Icon name="arrow-r" size={14} />
         </a>
       </nav>
 
-      <section className="vch-delete" aria-label={tt.deleteTitle}>
-        <h2>{tt.deleteTitle}</h2>
-        <p>{tt.deleteBody}</p>
-        <div className="vch-actions">
-          <ActionButton variant="danger-soft" size="sm" onClick={onDelete} icon={<Icon name="trash" size={14} />}>
+      <section className={`vch-delete ${stylex.props(channelStyles.delete).className}`} aria-label={tt.deleteTitle}>
+        <h2 {...stylex.props(channelStyles.deleteTitle)}>{tt.deleteTitle}</h2>
+        <p {...stylex.props(channelStyles.deleteBody)}>{tt.deleteBody}</p>
+        <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
+          <ActionButton className={stylex.props(channelStyles.touchTarget).className} variant="danger-soft" size="sm" onClick={onDelete} icon={<Icon name="trash" size={14} />}>
             {tt.deleteButton}
           </ActionButton>
         </div>
@@ -310,8 +312,8 @@ function FieldRow({ label, htmlFor, right, children }: {
 }) {
   return (
     <>
-      <span className="vch-field__row">
-        <label className="vch-field__label" htmlFor={htmlFor}>{label}</label>
+      <span className={`vch-field__row ${stylex.props(channelStyles.fieldRow).className}`}>
+        <label className={`vch-field__label ${stylex.props(channelStyles.fieldLabel).className}`} htmlFor={htmlFor}>{label}</label>
         {right}
       </span>
       {children}

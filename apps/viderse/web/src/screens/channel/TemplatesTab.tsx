@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Tab Template luân phiên (artboard Channel › tab=templates): danh sách có thứ
 // tự, đánh dấu "Video tiếp theo" theo con trỏ luân phiên của kênh; đổi thứ tự
 // bằng Lên/Xuống (desktop), bỏ khỏi danh sách, thêm từ thư viện, tạo Mẫu chuẩn.
@@ -38,25 +40,25 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
   const summaries = new Map((library.data?.items ?? []).map((item) => [item.id, item]))
 
   return (
-    <section className="vch-card vch-card--flush" aria-label={t.channels.page.tabs.templates}>
-      <p className="vch-hint" style={{ padding: 'var(--vv-s-10) var(--vv-s-14) 0' }}>{tt.banner}</p>
+    <section className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`} aria-label={t.channels.page.tabs.templates}>
+      <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: 'var(--vv-s-10) var(--vv-s-14) 0' }}>{tt.banner}</p>
       {channel.templates.length === 0 && (
-        <p className="vch-hint" style={{ padding: 'var(--vv-s-10) var(--vv-s-14)' }}>{tt.empty}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: 'var(--vv-s-10) var(--vv-s-14)' }}>{tt.empty}</p>
       )}
       {channel.templates.map((template, index) => (
-        <div className="vch-tpl" key={template.id}>
-          <span className="vch-tpl__n num" aria-hidden="true">{index + 1}</span>
-          <span className="vch-tpl__text">
-            <span className="vch-tpl__name">
-              <span title={template.name}>{template.name}</span>
-              {template.id === nextId && <span className="vch-refbadge">{tt.next}</span>}
+        <div className={`vch-tpl ${stylex.props(channelStyles.tpl).className}`} key={template.id}>
+          <span className={`vch-tpl__n num ${stylex.props(channelStyles.tplN).className}`} aria-hidden="true">{index + 1}</span>
+          <span className={`vch-tpl__text ${stylex.props(channelStyles.tplText).className}`}>
+            <span className={`vch-tpl__name ${stylex.props(channelStyles.tplName).className}`}>
+              <span {...stylex.props(channelStyles.tplNameText)} title={template.name}>{template.name}</span>
+              {template.id === nextId && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge, channelStyles.tplNameText).className}`}>{tt.next}</span>}
             </span>
-            <span className="vch-tpl__sub">
+            <span className={`vch-tpl__sub ${stylex.props(channelStyles.tplSub).className}`}>
               {summaries.get(template.id) ? templateLine(summaries.get(template.id)!) : t.channels.page.tabs.templates}
             </span>
           </span>
-          <div className="vch-tpl__actions">
-            <ActionButton
+          <div className={`vch-tpl__actions ${stylex.props(channelStyles.tplActions).className}`}>
+            <ActionButton className={stylex.props(channelStyles.touchTarget, channelStyles.touchButtonWidth).className}
               size="sm"
               aria-label={`${tt.moveUp}: ${template.name}`}
               disabled={index === 0}
@@ -65,7 +67,7 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
             >
               {tt.moveUp}
             </ActionButton>
-            <ActionButton
+            <ActionButton className={stylex.props(channelStyles.touchTarget, channelStyles.touchButtonWidth).className}
               size="sm"
               aria-label={`${tt.moveDown}: ${template.name}`}
               disabled={index === channel.templates.length - 1}
@@ -74,10 +76,10 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
             >
               {tt.moveDown}
             </ActionButton>
-            <a className="vch-chip" href={`#${paths.template(template.id)}`}>{tt.settings}</a>
+            <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.template(template.id)}`}>{tt.settings}</a>
             <button
               type="button"
-              className="vch-chip"
+              className={`vch-chip ${stylex.props(channelStyles.chip, channelStyles.touchButtonWidth).className}`}
               title={tt.remove}
               aria-label={`${tt.remove}: ${template.name}`}
               onClick={() => void apply({ action: 'remove', templateId: template.id }, tt.removed)}
@@ -87,19 +89,19 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
           </div>
         </div>
       ))}
-      {error && <p className="vch-field__error" role="alert" style={{ padding: '0 var(--vv-s-14) var(--vv-s-8)' }}>{error}</p>}
-      <div className="vch-actions" style={{ padding: 'var(--vv-s-10) var(--vv-s-14) var(--vv-s-14)' }}>
-        <ActionButton size="sm" onClick={() => setOpen(true)} icon={<Icon name="layer" size={14} />}>
+      {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: '0 var(--vv-s-14) var(--vv-s-8)' }}>{error}</p>}
+      <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`} style={{ padding: 'var(--vv-s-10) var(--vv-s-14) var(--vv-s-14)' }}>
+        <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" onClick={() => setOpen(true)} icon={<Icon name="layer" size={14} />}>
           {tt.add}
         </ActionButton>
-        <ActionButton
+        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           size="sm"
           onClick={() => void apply({ action: 'standard' }, tt.standardDone)}
           icon={<Icon name="add" size={14} />}
         >
           {tt.standard}
         </ActionButton>
-        <span className="vch-hint">{tt.standardHint}</span>
+        <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.standardHint}</span>
       </div>
 
       {open && (
@@ -133,30 +135,30 @@ function TemplatePicker({ channel, library, loading, onAdd, onClose }: {
         <>
           <a href={`#${paths.library('templates')}`} style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>{tt.openLibrary}</a>
           <span style={{ flex: 1 }} />
-          <ActionButton size="md" onClick={onClose}>{t.common.close}</ActionButton>
+          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={onClose}>{t.common.close}</ActionButton>
         </>
       )}
     >
-      <p className="vch-hint" style={{ marginBottom: 'var(--vv-s-8)' }}>{tt.hint}</p>
+      <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ marginBottom: 'var(--vv-s-8)' }}>{tt.hint}</p>
       {loading ? (
-        <p className="vch-hint">{t.common.loading}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{t.common.loading}</p>
       ) : library.length === 0 ? (
-        <p className="vch-hint">{tt.empty}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.empty}</p>
       ) : (
-        <div className="vch-pickerlist">
+        <div className={`vch-pickerlist ${stylex.props(channelStyles.pickerlist).className}`}>
           {library.map((template) => {
             const inList = used.has(template.id)
             return (
               <button
                 key={template.id}
                 type="button"
-                className="vch-pickerrow"
+                className={`vch-pickerrow ${stylex.props(channelStyles.pickerrow).className}`}
                 aria-disabled={inList || undefined}
                 onClick={() => { if (!inList) onAdd(template.id) }}
               >
-                <span className="vch-pickerrow__text">
-                  <span className="vch-pickerrow__name">{template.name}</span>
-                  <span className="vch-pickerrow__sub">{inList ? tt.inList : t.channels.page.tabs.templates}</span>
+                <span className={`vch-pickerrow__text ${stylex.props(channelStyles.pickerrowText).className}`}>
+                  <span className={`vch-pickerrow__name ${stylex.props(channelStyles.pickerrowName).className}`}>{template.name}</span>
+                  <span className={`vch-pickerrow__sub ${stylex.props(channelStyles.pickerrowSub).className}`}>{inList ? tt.inList : t.channels.page.tabs.templates}</span>
                 </span>
                 {!inList && <Icon name="add" size={15} />}
               </button>

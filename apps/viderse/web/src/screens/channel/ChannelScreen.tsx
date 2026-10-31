@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles, channelRootMarker } from './channel.stylex'
 // Trang Kênh '#/channels/<id>?tab=videos|sources|templates|settings' (artboard
 // Channel): cột trái "Kênh và thư viện", đầu kênh (avatar nhận diện, ngôn ngữ,
 // tên, hành động), tab dưới gạch 38 px rồi nội dung tab, cột phải "Đang áp
@@ -24,7 +26,6 @@ import { VideosTab } from './VideosTab'
 import { SourcesTab } from './SourcesTab'
 import { TemplatesTab } from './TemplatesTab'
 import { SettingsTab } from './SettingsTab'
-import './channel.css'
 
 const TABS: ChannelTab[] = ['videos', 'sources', 'templates', 'settings']
 
@@ -65,9 +66,9 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
         title={tt.page.notFound}
         hint={tt.page.notFoundHint}
         action={(
-          <div className="vch-actions">
-            <ActionButton onClick={() => void channel.refresh()}>{t.common.retry}</ActionButton>
-            <ActionButton variant="primary" onClick={() => navigate(paths.workbench())}>{tt.page.backToChannels}</ActionButton>
+          <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className} onClick={() => void channel.refresh()}>{t.common.retry}</ActionButton>
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className} variant="primary" onClick={() => navigate(paths.workbench())}>{tt.page.backToChannels}</ActionButton>
           </div>
         )}
       />
@@ -87,7 +88,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
   const pickTab = (next: ChannelTab) => navigate(paths.channel(data.id, next), true)
 
   return (
-    <div className="vch-shell">
+    <div className={`vch-shell ${stylex.props(channelStyles.shell, channelRootMarker).className}`}>
       <ChannelSideRail
         channels={list}
         currentId={data.id}
@@ -102,12 +103,12 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
             : undefined,
         }}
       />
-      <main className="vch-center" aria-label={tt.page.title}>
+      <main className={`vch-center ${stylex.props(channelStyles.center).className}`} aria-label={tt.page.title}>
         <ChannelHeader channel={data} />
         <div
           role="tablist"
           aria-label={tt.page.tablist}
-          className="vch-tabs"
+          className={`vch-tabs ${stylex.props(channelStyles.tabs).className}`}
           onKeyDown={(event) => {
             if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
             event.preventDefault()
@@ -126,11 +127,11 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
               role="tab"
               aria-selected={tab === id}
               tabIndex={tab === id ? 0 : -1}
-              className="vch-tab"
+              className={`vch-tab ${stylex.props(channelStyles.tab).className}`}
               onClick={() => pickTab(id)}
             >
               {tabLabels[id]}
-              {counts[id] && <span className="vch-tab__count num">{counts[id]}</span>}
+              {counts[id] && <span className={`vch-tab__count num ${stylex.props(channelStyles.tabCount).className}`}>{counts[id]}</span>}
             </button>
           ))}
         </div>

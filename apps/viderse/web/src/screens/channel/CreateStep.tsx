@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles, channelRootMarker } from './channel.stylex'
 // Bước Tạo kênh (artboard CreateChannel/Onboard › step=create): chọn ≥ 1 đối
 // thủ đang theo dõi làm nguồn (bắt buộc), theo dõi & chọn đối thủ mới ngay tại
 // đây, tên/link YouTube tuỳ chọn, ngôn ngữ đoán từ đối thủ tham chiếu, thẻ
@@ -66,33 +68,33 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
   }
 
   return (
-    <div className="vch-new">
-      <div className="vch-new__main">
-        <div className="vch-crumb">
-          <a href={`#${paths.workbench()}`} onClick={(event) => { event.preventDefault(); onCancel() }}>
+    <div className={`vch-new ${stylex.props(channelStyles.new, channelRootMarker).className}`}>
+      <div className={`vch-new__main ${stylex.props(channelStyles.newMain).className}`}>
+        <div className={`vch-crumb ${stylex.props(channelStyles.crumb).className}`}>
+          <a {...stylex.props(channelStyles.crumbLink)} href={`#${paths.workbench()}`} onClick={(event) => { event.preventDefault(); onCancel() }}>
             <Icon name="arrow-r" size={13} style={{ transform: 'rotate(180deg)' }} />
             {tt.breadcrumbHome}
           </a>
           <span aria-hidden="true">/</span>
           <span>{tt.title}</span>
         </div>
-        <h1>{firstRun ? t.channels.onboard.title : tt.title}</h1>
-        <p className="vch-intro">{firstRun ? t.channels.onboard.intro : tt.intro}</p>
+        <h1 {...stylex.props(channelStyles.newTitle)}>{firstRun ? t.channels.onboard.title : tt.title}</h1>
+        <p className={`vch-intro ${stylex.props(channelStyles.intro).className}`}>{firstRun ? t.channels.onboard.intro : tt.intro}</p>
 
-        <section className="vch-card vch-card--flush" aria-label={tt.rivalsTitle}>
-          <div className="vch-cardhead">
-            <h2><Icon name="radar" size={16} />{tt.rivalsTitle} <span style={{ color: 'var(--vv-warn-ink)', fontWeight: 400, fontSize: 12.5 }}>{tt.required}</span></h2>
-            <span className="vch-row__count num">
+        <section className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`} aria-label={tt.rivalsTitle}>
+          <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
+            <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="radar" size={16} />{tt.rivalsTitle} <span style={{ color: 'var(--vv-warn-ink)', fontWeight: 400, fontSize: 12.5 }}>{tt.required}</span></h2>
+            <span className={`vch-row__count num ${stylex.props(channelStyles.rowCount).className}`}>
               {rivals.length === 0 ? tt.noFollowed : tt.pickedLine(picked.length, rivals.length)}
             </span>
           </div>
           {rivals.length === 0 && (
-            <div className="vch-empty" style={{ margin: '0 var(--vv-s-14) var(--vv-s-10)' }} role="status">
-              <b>{tt.noFollowed}</b>
-              <span className="vch-hint">{tt.noFollowedBody}</span>
+            <div className={`vch-empty ${stylex.props(channelStyles.empty).className}`} style={{ margin: '0 var(--vv-s-14) var(--vv-s-10)' }} role="status">
+              <b {...stylex.props(channelStyles.emptyTitle)}>{tt.noFollowed}</b>
+              <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.noFollowedBody}</span>
             </div>
           )}
-          <div className="vch-picklist" role="group" aria-label={tt.rivalsTitle}>
+          <div className={`vch-picklist ${stylex.props(channelStyles.picklist).className}`} role="group" aria-label={tt.rivalsTitle}>
             {rivals.map((rival) => {
               const checked = picked.includes(rival.id)
               const isRef = picked[0] === rival.id
@@ -102,10 +104,10 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                   type="button"
                   role="checkbox"
                   aria-checked={checked}
-                  className="vch-pick"
+                  className={`vch-pick ${stylex.props(channelStyles.pick).className}`}
                   onClick={() => toggle(rival.id)}
                 >
-                  <span className="vch-pickbox" data-on={checked || undefined} aria-hidden="true">
+                  <span className={`vch-pickbox ${stylex.props(channelStyles.pickbox).className}`} data-on={checked || undefined} aria-hidden="true">
                     {checked && <Icon name="tick" size={12} />}
                   </span>
                   <ChannelAvatar
@@ -115,12 +117,12 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                     size={32}
                     style={{ fontSize: 11, fontWeight: 700 }}
                   />
-                  <span className="vch-pick__text">
-                    <span className="vch-pick__name">
-                      <span title={rival.title}>{rival.title}</span>
-                      {isRef && <span className="vch-refbadge" title={tt.refTitle}>{tt.refBadge}</span>}
+                  <span className={`vch-pick__text ${stylex.props(channelStyles.pickText).className}`}>
+                    <span className={`vch-pick__name ${stylex.props(channelStyles.pickName).className}`}>
+                      <span {...stylex.props(channelStyles.pickNameText)} title={rival.title}>{rival.title}</span>
+                      {isRef && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge, channelStyles.pickNameText).className}`} title={tt.refTitle}>{tt.refBadge}</span>}
                     </span>
-                    <span className="vch-pick__meta">
+                    <span className={`vch-pick__meta ${stylex.props(channelStyles.pickMeta).className}`}>
                       {rival.subscriberCount != null ? `${fmtSubs(rival.subscriberCount)} người theo dõi · ` : ''}
                       {num.format(rival.videoCount)} video đã quét
                     </span>
@@ -129,27 +131,27 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               )
             })}
           </div>
-          <div className="vch-addrow">
+          <div className={`vch-addrow ${stylex.props(channelStyles.addrow).className}`}>
             <AddRivalPicked
               onAdded={(rival) => {
                 setPicked((prev) => prev.includes(rival.id) ? prev : [...prev, rival.id])
                 void invalidate(keys.rivals())
               }}
             />
-            <a href={`#${paths.explore()}`}>{tt.exploreLink}</a>
+            <a {...stylex.props(channelStyles.addrowLink)} href={`#${paths.explore()}`}>{tt.exploreLink}</a>
           </div>
         </section>
 
-        <div className="vch-grid2">
-          <section className="vch-card" aria-label={tt.infoTitle}>
-            <div className="vch-cardhead" style={{ padding: 0 }}>
-              <h2><Icon name="channel" size={16} />{tt.infoTitle}</h2>
+        <div className={`vch-grid2 ${stylex.props(channelStyles.grid2).className}`}>
+          <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={tt.infoTitle}>
+            <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
+              <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="channel" size={16} />{tt.infoTitle}</h2>
             </div>
-            <div className="vch-field">
-              <span className="vch-field__row">
-                <label className="vch-field__label" htmlFor="vch-new-name">{tt.name} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.optional}</span></label>
+            <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
+              <span className={`vch-field__row ${stylex.props(channelStyles.fieldRow).className}`}>
+                <label className={`vch-field__label ${stylex.props(channelStyles.fieldLabel).className}`} htmlFor="vch-new-name">{tt.name} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.optional}</span></label>
               </span>
-              <Field
+              <Field className={stylex.props(channelStyles.touchTarget).className}
                 id="vch-new-name"
                 value={name}
                 placeholder={tt.namePlaceholder}
@@ -157,11 +159,11 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                 onChange={(event) => setName(event.target.value)}
               />
             </div>
-            <div className="vch-field">
-              <span className="vch-field__row">
-                <label className="vch-field__label" htmlFor="vch-new-url">{tt.url} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.optional}</span></label>
+            <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
+              <span className={`vch-field__row ${stylex.props(channelStyles.fieldRow).className}`}>
+                <label className={`vch-field__label ${stylex.props(channelStyles.fieldLabel).className}`} htmlFor="vch-new-url">{tt.url} <span style={{ color: 'var(--vv-fg-note)' }}>{tt.optional}</span></label>
               </span>
-              <Field
+              <Field className={stylex.props(channelStyles.touchTarget).className}
                 id="vch-new-url"
                 type="url"
                 value={url}
@@ -170,52 +172,52 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                 onChange={(event) => setUrl(event.target.value)}
               />
             </div>
-            <div className="vch-field">
-              <span className="vch-reading">
-                <Icon name="global" size={15} className="vch-ic" />
-                <span className="vch-row__text">{tt.language}</span>
+            <div className={`vch-field ${stylex.props(channelStyles.field).className}`}>
+              <span className={`vch-reading ${stylex.props(channelStyles.reading).className}`}>
+                <Icon name="global" size={15} className={`vch-ic ${stylex.props(channelStyles.ic).className}`} />
+                <span className={`vch-row__text ${stylex.props(channelStyles.rowText).className}`}>{tt.language}</span>
                 <b style={{ fontSize: 13, fontWeight: 500 }}>{reference ? guessLanguage(reference) : '—'}</b>
               </span>
-              <p className="vch-field__hint">{tt.languageHint}</p>
+              <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{tt.languageHint}</p>
             </div>
           </section>
 
-          <section className="vch-card" aria-label={tt.runTitle}>
-            <div className="vch-cardhead" style={{ padding: 0 }}>
-              <h2><Icon name="layer" size={16} />{tt.runTitle}</h2>
+          <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={tt.runTitle}>
+            <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
+              <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="layer" size={16} />{tt.runTitle}</h2>
             </div>
-            <div className="vch-runrow">
-              <span className="vch-runrow__text">
-                <span className="vch-runrow__label">{tt.template}</span>
-                <span className="vch-runrow__sub">{tt.templateSub}</span>
+            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
+              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
+                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{tt.template}</span>
+                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{tt.templateSub}</span>
               </span>
-              <span className="vch-runrow__sub" title={tt.templateTitle}>
+              <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`} title={tt.templateTitle}>
                 {templates.data?.items.find((template) => template.name.toLowerCase().includes('mẫu chuẩn'))?.name ?? tt.template}
               </span>
             </div>
-            <div className="vch-runrow">
-              <a className="vch-chip" href={`#${paths.library('templates')}`}>{tt.chooseTemplate}</a>
+            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
+              <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.library('templates')}`}>{tt.chooseTemplate}</a>
             </div>
-            <div className="vch-runrow">
-              <span className="vch-runrow__text">
-                <span className="vch-runrow__label">{tt.pace}</span>
-                <span className="vch-runrow__sub">{tt.paceSub}</span>
+            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
+              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
+                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{tt.pace}</span>
+                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{tt.paceSub}</span>
               </span>
               <PaceStepper value={pace} onSave={setPace} label={tt.pace} />
             </div>
           </section>
         </div>
 
-        {error && <p className="vch-field__error" role="alert">{error}</p>}
+        {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert">{error}</p>}
       </div>
 
-      <div className="vch-foot">
-        <span className={canCreate ? 'vch-foot__note' : 'vch-foot__note vch-foot__note--blocked'} aria-live="polite">
+      <div className={`vch-foot ${stylex.props(channelStyles.foot).className}`}>
+        <span className={`vch-foot__note${canCreate ? '' : ' vch-foot__note--blocked'} ${stylex.props(channelStyles.footNote, !canCreate && channelStyles.footNoteBlocked).className}`} aria-live="polite">
           <Icon name={canCreate ? 'info' : 'danger'} size={15} />
           {canCreate ? tt.noteReady : tt.noteBlocked}
         </span>
-        <ActionButton size="md" onClick={onCancel}>{tt.cancel}</ActionButton>
-        <ActionButton
+        <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={onCancel}>{tt.cancel}</ActionButton>
+        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
           size="md"
           lockedReason={canCreate ? undefined : tt.blockedTitle}
@@ -271,16 +273,16 @@ function AddRivalPicked({ onAdded }: { onAdded: (rival: Rival) => void }) {
       <span className="sr-only"><label htmlFor="vch-new-rival">{tt.addLabel}</label></span>
       <input
         id="vch-new-rival"
-        className="vch-taginput"
+        className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}
         style={{ flex: '1 1 200px', width: 'auto', height: 'var(--vv-s-34)' }}
         value={value}
         placeholder={tt.addPlaceholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      <ActionButton size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
+      <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
         {tt.addSubmit}
       </ActionButton>
-      {error && <span className="vch-field__error" role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
+      {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )
 }

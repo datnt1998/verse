@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Khối “Lịch đăng” ở cột phải trang Kênh (artboard Channel › aside) và ở tab
 // Nguồn khi màn hẹp không có cột phải:
 // toggle VN / New York, câu "N video gần nhất của k đối thủ · m khung lặp lại",
@@ -46,17 +48,17 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
   const totals = scheduleTotals(inputs)
 
   return (
-    <section className={variant === 'aside' ? 'vch-card vch-schedule' : 'vch-card vch-schedule vch-schedule--tab'} aria-label={tt.title}>
-      <div className="vch-cardhead" style={{ padding: 0 }}>
-        <h2><Icon name="calendar" size={16} />{variant === 'aside' ? tt.titleShort : tt.title}</h2>
-        <div role="radiogroup" aria-label={tt.zone} className="vch-zone">
+    <section className={`vch-card vch-schedule${variant === 'aside' ? '' : ' vch-schedule--tab'} ${stylex.props(channelStyles.card, variant !== 'aside' && channelStyles.scheduleTab).className}`} aria-label={tt.title}>
+      <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
+        <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="calendar" size={16} />{variant === 'aside' ? tt.titleShort : tt.title}</h2>
+        <div role="radiogroup" aria-label={tt.zone} className={`vch-zone ${stylex.props(channelStyles.zone).className}`}>
           {ZONES.map((id) => (
             <button
               key={id}
               type="button"
               role="radio"
               aria-checked={zone === id}
-              className="vch-zone__btn"
+              className={`vch-zone__btn ${stylex.props(channelStyles.zoneBtn).className}`}
               onClick={() => setZone(id)}
             >
               {tt.zones[id]}
@@ -66,30 +68,30 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
       </div>
 
       {sources.length === 0 ? (
-        <p className="vch-hint">{tt.none}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.none}</p>
       ) : data.initialLoading && !data.data ? (
-        <p className="vch-hint">{tt.loading}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.loading}</p>
       ) : (
         <>
-          <span className="vch-schedule__sum num">{tt.summary(totals.videos, totals.rivals, slots.length)}</span>
+          <span className={`vch-schedule__sum num ${stylex.props(channelStyles.scheduleSum).className}`}>{tt.summary(totals.videos, totals.rivals, slots.length)}</span>
           {slots.length === 0 ? (
-            <p className="vch-hint">{tt.empty}</p>
+            <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.empty}</p>
           ) : (
-            <ul className="vch-slots" aria-label={tt.rowsLabel}>
+            <ul className={`vch-slots ${stylex.props(channelStyles.slots).className}`} aria-label={tt.rowsLabel}>
               {slots.map((slot) => (
-                <li key={slot.key} className="vch-slot">
-                  <span className="vch-slot__when">
-                    <span className="vch-slot__days">{slot.weekdays.map((day) => t.screens.explore.weekdays[day]).join(' · ')}</span>
-                    <span className="vch-slot__time num">{slot.start}–{slot.end}</span>
+                <li key={slot.key} className={`vch-slot ${stylex.props(channelStyles.slot).className}`}>
+                  <span className={`vch-slot__when ${stylex.props(channelStyles.slotWhen).className}`}>
+                    <span className={`vch-slot__days ${stylex.props(channelStyles.slotDays).className}`}>{slot.weekdays.map((day) => t.screens.explore.weekdays[day]).join(' · ')}</span>
+                    <span className={`vch-slot__time num ${stylex.props(channelStyles.slotTime).className}`}>{slot.start}–{slot.end}</span>
                   </span>
-                  <span className="vch-slot__count num">{tt.slotVideos(slot.count)}</span>
-                  <span className="vch-slot__rivals">
-                    <span className="vch-stack" aria-hidden="true">
+                  <span className={`vch-slot__count num ${stylex.props(channelStyles.slotCount).className}`}>{tt.slotVideos(slot.count)}</span>
+                  <span className={`vch-slot__rivals ${stylex.props(channelStyles.slotRivals).className}`}>
+                    <span className={`vch-stack ${stylex.props(channelStyles.stack).className}`} aria-hidden="true">
                       {slot.rivals.slice(0, 3).map((rival) => (
-                        <ChannelAvatar key={rival.id} name={rival.title} size={16} stacked style={{ fontSize: 7 }} />
+                        <ChannelAvatar {...stylex.props(channelStyles.stackItem)} key={rival.id} name={rival.title} size={16} stacked style={{ fontSize: 7 }} />
                       ))}
                     </span>
-                    <span className="vch-slot__names" title={slot.rivals.map((rival) => rival.title).join(' · ')}>
+                    <span className={`vch-slot__names ${stylex.props(channelStyles.slotNames).className}`} title={slot.rivals.map((rival) => rival.title).join(' · ')}>
                       {slot.rivals.map((rival) => rival.title).join(' · ')}
                     </span>
                   </span>
@@ -101,7 +103,7 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
       )}
 
       {sources.length > 0 && (
-        <a className="vch-schedule__more" href={`#${paths.explore()}`}>{tt.explore}</a>
+        <a className={`vch-schedule__more ${stylex.props(channelStyles.scheduleMore).className}`} href={`#${paths.explore()}`}>{tt.explore}</a>
       )}
     </section>
   )

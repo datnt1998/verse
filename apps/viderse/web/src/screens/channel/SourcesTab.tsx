@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Tab Nguồn & tự động (artboard Channel › tab=sources): danh sách đối thủ đã
 // liên kết (avatar, huy hiệu "Tham chiếu nhận diện"), dòng phụ đúng artboard
 // (`1,24 Tr người theo dõi · 3 video/tuần · đang quét lịch sử 1.284/2.000` +
@@ -91,15 +93,15 @@ export function SourcesTab({ channel, channels }: {
     channels.filter((other) => other.id !== channel.id && other.sources.some((source) => source.rivalId === rivalId))
 
   return (
-    <section className="vch-sources" aria-label={t.channels.page.tabs.sources}>
-      <div className="vch-card vch-card--flush">
-        <div className="vch-cardhead">
-          <h2><Icon name="radar" size={16} />{tt.rivalsTitle} <span className="vch-row__count num">{channel.sources.length}</span></h2>
-          <div className="vch-linkslot">
+    <section className={`vch-sources ${stylex.props(channelStyles.sources).className}`} aria-label={t.channels.page.tabs.sources}>
+      <div className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`}>
+        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
+          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="radar" size={16} />{tt.rivalsTitle} <span className={`vch-row__count num ${stylex.props(channelStyles.rowCount).className}`}>{channel.sources.length}</span></h2>
+          <div className={`vch-linkslot ${stylex.props(channelStyles.linkslot).className}`}>
             <button
               ref={triggerRef}
               type="button"
-              className="vch-linkbtn"
+              className={`vch-linkbtn ${stylex.props(channelStyles.linkbtn).className}`}
               aria-haspopup="dialog"
               aria-expanded={pickerOpen}
               onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
@@ -119,10 +121,10 @@ export function SourcesTab({ channel, channels }: {
           </div>
         </div>
         {channel.sources.length === 0 ? (
-          <div className="vch-empty" style={{ margin: '0 var(--vv-s-14) var(--vv-s-12)' }} role="status">
-            <b>{tt.emptyTitle}</b>
-            <span className="vch-hint">{tt.emptyBody}</span>
-            <ActionButton size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
+          <div className={`vch-empty ${stylex.props(channelStyles.empty).className}`} style={{ margin: '0 var(--vv-s-14) var(--vv-s-12)' }} role="status">
+            <b {...stylex.props(channelStyles.emptyTitle)}>{tt.emptyTitle}</b>
+            <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.emptyBody}</span>
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
           </div>
         ) : channel.sources.map((source) => (
           <SourceRow
@@ -134,36 +136,36 @@ export function SourcesTab({ channel, channels }: {
         ))}
       </div>
 
-      <div className="vch-card vch-card--flush">
-        <div className="vch-cardhead">
-          <h2><Icon name="refresh" size={16} />{tt.pacingTitle}</h2>
+      <div className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`}>
+        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
+          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="refresh" size={16} />{tt.pacingTitle}</h2>
         </div>
-        <p className="vch-hint" style={{ padding: '0 var(--vv-s-14)' }}>{tt.pacingHint}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: '0 var(--vv-s-14)' }}>{tt.pacingHint}</p>
         {paused && (
-          <p className="vch-alert" role="status" style={{ margin: 'var(--vv-s-8) var(--vv-s-14) 0' }}>
+          <p className={`vch-alert ${stylex.props(channelStyles.alert).className}`} role="status" style={{ margin: 'var(--vv-s-8) var(--vv-s-14) 0' }}>
             {channel.sources.length === 0 ? tt.emptyBody : tt.pausedReason}
           </p>
         )}
-        <div className="vch-settingrow">
-          <span className="vch-settingrow__text">
-            <span className="vch-settingrow__label">{tt.autoPick}</span>
-            <span className="vch-settingrow__sub">{tt.autoPickHint}</span>
+        <div className={`vch-settingrow ${stylex.props(channelStyles.settingrow).className}`}>
+          <span className={`vch-settingrow__text ${stylex.props(channelStyles.settingrowText).className}`}>
+            <span className={`vch-settingrow__label ${stylex.props(channelStyles.settingrowLabel).className}`}>{tt.autoPick}</span>
+            <span className={`vch-settingrow__sub ${stylex.props(channelStyles.settingrowSub).className}`}>{tt.autoPickHint}</span>
           </span>
-          <Switch
+          <Switch className={stylex.props(channelStyles.touchTarget).className}
             checked={channel.autoPick}
             onChange={(on) => { setPaused(!on || channel.sources.length === 0); void save({ autoPick: on }) }}
             label={tt.autoPick}
             size="sm"
           />
         </div>
-        <div className="vch-settingrow">
-          <span className="vch-settingrow__text">
-            <span className="vch-settingrow__label">{tt.pace}</span>
-            <span className="vch-settingrow__sub">{tt.paceRange} · {tt.paceUnit}</span>
+        <div className={`vch-settingrow ${stylex.props(channelStyles.settingrow).className}`}>
+          <span className={`vch-settingrow__text ${stylex.props(channelStyles.settingrowText).className}`}>
+            <span className={`vch-settingrow__label ${stylex.props(channelStyles.settingrowLabel).className}`}>{tt.pace}</span>
+            <span className={`vch-settingrow__sub ${stylex.props(channelStyles.settingrowSub).className}`}>{tt.paceRange} · {tt.paceUnit}</span>
           </span>
           <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
         </div>
-        {error && <p className="vch-field__error" role="alert" style={{ padding: 'var(--vv-s-8) var(--vv-s-14)' }}>{error}</p>}
+        {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: 'var(--vv-s-8) var(--vv-s-14)' }}>{error}</p>}
         <div style={{ padding: 'var(--vv-s-8) var(--vv-s-14) var(--vv-s-12)' }}>
           <AddRivalRow
             channelId={channel.id}
@@ -201,7 +203,7 @@ function SourceRow({ source, rival, onUnlink }: {
   ].filter(Boolean).join(' · ')
 
   return (
-    <div className="vch-rival">
+    <div className={`vch-rival ${stylex.props(channelStyles.rival).className}`}>
       <ChannelAvatar
         name={source.title}
         src={rival?.avatarUrl ?? undefined}
@@ -209,29 +211,29 @@ function SourceRow({ source, rival, onUnlink }: {
         size={32}
         style={{ fontSize: 11, fontWeight: 700 }}
       />
-      <div className="vch-rival__text">
-        <span className="vch-rival__name">
+      <div className={`vch-rival__text ${stylex.props(channelStyles.rivalText).className}`}>
+        <span className={`vch-rival__name ${stylex.props(channelStyles.rivalName).className}`}>
           {source.title}
-          {source.reference && <span className="vch-refbadge">{tt.linkedBadge}</span>}
-          {scanning && <span className="vch-chip vch-chip--warn">{tt.scanChip}</span>}
+          {source.reference && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge).className}`}>{tt.linkedBadge}</span>}
+          {scanning && <span className={`vch-chip vch-chip--warn ${stylex.props(channelStyles.chip, channelStyles.chipWarn).className}`}>{tt.scanChip}</span>}
         </span>
-        <span className="vch-rival__meta">{meta}</span>
-        <div className="vch-rival__actions">
-          <ActionButton size="sm" lockedReason={t.channels.queueLock} icon={<Icon name="video-add" size={14} />}>
+        <span className={`vch-rival__meta ${stylex.props(channelStyles.rivalMeta).className}`}>{meta}</span>
+        <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
+          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" lockedReason={t.channels.queueLock} icon={<Icon name="video-add" size={14} />}>
             {tt.makeLatest}
           </ActionButton>
-          <a className="vch-chip" href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
+          <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
             {tt.topVideos}
           </a>
-          <a className="vch-chip" href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
+          <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
             {tt.openExplore}
           </a>
         </div>
       </div>
-      <div className="vch-rival__actions">
+      <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
         <button
           type="button"
-          className="vch-chip"
+          className={`vch-chip ${stylex.props(channelStyles.chip).className}`}
           title={tt.unlinkTip}
           onClick={onUnlink}
           style={{ color: 'var(--color-fg-3)' }}
@@ -277,16 +279,16 @@ function AddRivalRow({ channelId, onLinked }: { channelId: string; onLinked: () 
       <span className="sr-only"><label htmlFor="vch-add-rival">{tt.label}</label></span>
       <input
         id="vch-add-rival"
-        className="vch-taginput"
+        className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}
         style={{ flex: '1 1 220px', width: 'auto', height: 'var(--vv-s-34)' }}
         value={value}
         placeholder={tt.placeholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      <ActionButton size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
+      <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
         {tt.submit}
       </ActionButton>
-      {error && <span className="vch-field__error" role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
+      {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )
 }
@@ -371,20 +373,20 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
 
   return (
     <div
-      className="vch-linkpop"
+      className={`vch-linkpop ${stylex.props(channelStyles.linkpop).className}`}
       role="dialog"
       aria-label={tt.title(channel.name || t.channels.page.noName)}
       ref={panel}
       style={{ maxHeight: placement.maxHeight, ...(placement.up ? { top: 'auto', bottom: 'calc(100% + var(--vv-s-6))' } : null) }}
     >
-      <div className="vch-linkpop__head">
-        <span className="vch-linkpop__title">{tt.title(channel.name || t.channels.page.noName)}</span>
-        <span className="vch-linkpop__hint">{t.channels.sources.linkHint}</span>
+      <div className={`vch-linkpop__head ${stylex.props(channelStyles.linkpopHead).className}`}>
+        <span className={`vch-linkpop__title ${stylex.props(channelStyles.linkpopTitle).className}`}>{tt.title(channel.name || t.channels.page.noName)}</span>
+        <span className={`vch-linkpop__hint ${stylex.props(channelStyles.linkpopHint).className}`}>{t.channels.sources.linkHint}</span>
       </div>
       {rivals.length === 0 ? (
-        <p className="vch-hint" style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{tt.empty}</p>
+        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{tt.empty}</p>
       ) : (
-        <div role="group" aria-label={t.channels.sources.rivalsTitle} className="vch-pickerlist">
+        <div role="group" aria-label={t.channels.sources.rivalsTitle} className={`vch-pickerlist ${stylex.props(channelStyles.pickerlist).className}`}>
           {rivals.map((rival) => {
             const linked = inChannel.has(rival.id)
             const others = linkedElsewhere(rival.id)
@@ -398,10 +400,10 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
                 aria-checked={picked.has(rival.id) || linked}
                 aria-disabled={blocked || undefined}
                 title={reason || undefined}
-                className="vch-pickerrow"
+                className={`vch-pickerrow ${stylex.props(channelStyles.pickerrow).className}`}
                 onClick={() => { if (!blocked) toggle(rival.id) }}
               >
-                <span aria-hidden="true" className="vch-pickbox" data-on={picked.has(rival.id) || linked || undefined}>
+                <span aria-hidden="true" className={`vch-pickbox ${stylex.props(channelStyles.pickbox).className}`} data-on={picked.has(rival.id) || linked || undefined}>
                   {(picked.has(rival.id) || linked) && <Icon name="tick" size={12} />}
                 </span>
                 <ChannelAvatar
@@ -411,9 +413,9 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
                   size={28}
                   style={{ fontSize: 10.5 }}
                 />
-                <span className="vch-pickerrow__text">
-                  <span className="vch-pickerrow__name">{rival.title}</span>
-                  <span className="vch-pickerrow__sub">
+                <span className={`vch-pickerrow__text ${stylex.props(channelStyles.pickerrowText).className}`}>
+                  <span className={`vch-pickerrow__name ${stylex.props(channelStyles.pickerrowName).className}`}>{rival.title}</span>
+                  <span className={`vch-pickerrow__sub ${stylex.props(channelStyles.pickerrowSub).className}`}>
                     {reason || (rival.subscriberCount != null
                       ? `${fmtSubs(rival.subscriberCount)} người theo dõi`
                       : rival.handle ?? '')}
@@ -424,13 +426,13 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
           })}
         </div>
       )}
-      {error && <p className="vch-field__error" role="alert" style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{error}</p>}
-      <div className="vch-linkpop__foot">
-        <a href={`#${paths.explore()}`} className="vch-linkpop__more">
+      {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{error}</p>}
+      <div className={`vch-linkpop__foot ${stylex.props(channelStyles.linkpopFoot).className}`}>
+        <a href={`#${paths.explore()}`} className={`vch-linkpop__more ${stylex.props(channelStyles.linkpopMore).className}`}>
           <Icon name="radar" size={13} />
           {tt.followNew}
         </a>
-        <ActionButton
+        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
           size="sm"
           disabled={picked.size === 0}

@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Tab Video của trang Kênh. Chưa có clone job/hàng chờ nên luôn là
 // trạng thái "kênh mới" của artboard (`fresh`): lời dẫn + hai thẻ dẫn — video
 // mới nhất của đối thủ tham chiếu (số liệu thật từ API video) và "Tự lấy video"
@@ -33,52 +35,52 @@ export function VideosTab({ channel, rival }: {
     : ''
 
   return (
-    <section className="vch-card vch-fresh" aria-label={tt.page.tabs.videos}>
-      <h2>{tt.videos.freshTitle}</h2>
-      <p>{tt.videos.freshBody}</p>
-      <div className="vch-leads">
-        <div className="vch-lead">
-          <div className="vch-lead__head">
+    <section className={`vch-card vch-fresh ${stylex.props(channelStyles.card, channelStyles.fresh).className}`} aria-label={tt.page.tabs.videos}>
+      <h2 {...stylex.props(channelStyles.freshTitle)}>{tt.videos.freshTitle}</h2>
+      <p {...stylex.props(channelStyles.freshBody)}>{tt.videos.freshBody}</p>
+      <div className={`vch-leads ${stylex.props(channelStyles.leads).className}`}>
+        <div className={`vch-lead ${stylex.props(channelStyles.lead).className}`}>
+          <div className={`vch-lead__head ${stylex.props(channelStyles.leadHead).className}`}>
             <span>{tt.videos.latestTitle}</span>
             {video?.score != null && <span className="num">{fmtScore(video.score)}</span>}
           </div>
           {video ? (
             <>
-              <span className="vch-lead__title" title={video.title}>{video.title}</span>
-              <span className="vch-lead__meta">{meta}</span>
+              <span className={`vch-lead__title ${stylex.props(channelStyles.leadTitle).className}`} title={video.title}>{video.title}</span>
+              <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>{meta}</span>
             </>
           ) : (
-            <span className="vch-lead__meta">{reference ? tt.videos.latestEmpty : tt.videos.noRivals}</span>
+            <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>{reference ? tt.videos.latestEmpty : tt.videos.noRivals}</span>
           )}
-          <div className="vch-lead__foot">
-            <ActionButton
+          <div className={`vch-lead__foot ${stylex.props(channelStyles.leadFoot).className}`}>
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className}
               size="sm"
               lockedReason={tt.queueLock}
               icon={<Icon name="video-add" size={14} />}
             >
               {tt.videos.make}
             </ActionButton>
-            <a className="vch-chip" href={`#${paths.explore({ rival: rival?.handle ?? rival?.id })}`}>
+            <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? rival?.id })}`}>
               <Icon name="radar" size={14} />
               {tt.videos.explore}
             </a>
           </div>
         </div>
-        <div className="vch-lead">
-          <div className="vch-lead__head">
+        <div className={`vch-lead ${stylex.props(channelStyles.lead).className}`}>
+          <div className={`vch-lead__head ${stylex.props(channelStyles.leadHead).className}`}>
             <span>{tt.videos.autoTitle}</span>
-            <span className={channel.autoPick ? 'vch-chip vch-chip--auto' : 'vch-chip'}>
+            <span className={`vch-chip${channel.autoPick ? ' vch-chip--auto' : ''} ${stylex.props(channelStyles.chip, channel.autoPick && channelStyles.chipAuto).className}`}>
               {channel.autoPick ? tt.videos.autoOn : tt.videos.autoOff}
             </span>
           </div>
-          <span className="vch-lead__meta">
+          <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>
             {channel.sources.length > 0 ? tt.videos.pace(channel.pacePerDay) : tt.videos.autoPaused}
           </span>
-          <span className="vch-lead__meta">
+          <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>
             {channel.sources.length > 0 ? null : tt.videos.noRivals}
           </span>
-          <div className="vch-lead__foot">
-            <a className="vch-chip" href={`#${paths.channel(channel.id, 'sources')}`}>
+          <div className={`vch-lead__foot ${stylex.props(channelStyles.leadFoot).className}`}>
+            <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.channel(channel.id, 'sources')}`}>
               <Icon name="calendar" size={14} />
               {tt.videos.paceLink}
             </a>

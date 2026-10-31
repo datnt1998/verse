@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { channelStyles } from './channel.stylex'
 // Cột trái trang Kênh (artboard Channel › aside "Kênh và thư viện"): "Mọi video
 // của N kênh", danh sách kênh của tôi (avatar nhận diện hoặc chữ cái), "Tạo
 // kênh", nhóm "Thư viện dùng chung" với số thật từ API, chân "Máy sẵn sàng".
@@ -28,16 +30,16 @@ export function ChannelSideRail({ channels, currentId, tab, counts }: {
     { key: 'overlays', label: tt.library.overlays, icon: 'magic', count: counts.overlays, href: paths.library('overlays') },
   ]
   return (
-    <aside className="vch-side" aria-label={tt.rail}>
-      <a className="vch-row" href={`#${paths.workbench()}`} style={{ marginBottom: 'var(--vv-s-4)' }}>
-        <Icon name="video-play" size={16} className="vch-ic" />
-        <span className="vch-row__text">{channels.length > 0 ? tt.allVideos(channels.length) : tt.allVideosEmpty}</span>
+    <aside className={`vch-side ${stylex.props(channelStyles.side).className}`} aria-label={tt.rail}>
+      <a className={`vch-row ${stylex.props(channelStyles.row).className}`} href={`#${paths.workbench()}`} style={{ marginBottom: 'var(--vv-s-4)' }}>
+        <Icon name="video-play" size={16} className={`vch-ic ${stylex.props(channelStyles.ic).className}`} />
+        <span className={`vch-row__text ${stylex.props(channelStyles.rowText).className}`}>{channels.length > 0 ? tt.allVideos(channels.length) : tt.allVideosEmpty}</span>
       </a>
-      <div className="vch-grp vch-grp--top"><span>{tt.mine}</span><span className="num">{channels.length}</span></div>
+      <div className={`vch-grp vch-grp--top ${stylex.props(channelStyles.grp, channelStyles.grpTop).className}`}><span>{tt.mine}</span><span className="num">{channels.length}</span></div>
       {channels.map((channel) => (
         <a
           key={channel.id}
-          className="vch-row"
+          className={`vch-row ${stylex.props(channelStyles.row).className}`}
           href={`#${paths.channel(channel.id, tab)}`}
           aria-current={channel.id === currentId ? 'page' : undefined}
         >
@@ -48,25 +50,25 @@ export function ChannelSideRail({ channels, currentId, tab, counts }: {
             size={30}
             style={{ fontSize: 10.5, fontWeight: 700 }}
           />
-          <span className="vch-row__text">
-            <span className="vch-row__name">{channel.name || tt.noName}</span>
-            <span className="vch-row__sub">{tt.created(fmtDay(channel.createdAt))}</span>
+          <span className={`vch-row__text ${stylex.props(channelStyles.rowText).className}`}>
+            <span className={`vch-row__name ${stylex.props(channelStyles.rowName).className}`}>{channel.name || tt.noName}</span>
+            <span className={`vch-row__sub ${stylex.props(channelStyles.rowSub).className}`}>{tt.created(fmtDay(channel.createdAt))}</span>
           </span>
         </a>
       ))}
-      <a className="vch-row" href={`#${paths.channelNew()}`}>
+      <a className={`vch-row ${stylex.props(channelStyles.row).className}`} href={`#${paths.channelNew()}`}>
         <Icon name="add-square" size={16} />
-        <span className="vch-row__text">{tt.create}</span>
+        <span className={`vch-row__text ${stylex.props(channelStyles.rowText).className}`}>{tt.create}</span>
       </a>
-      <div className="vch-grp"><span>{tt.shared}</span></div>
+      <div className={`vch-grp ${stylex.props(channelStyles.grp).className}`}><span>{tt.shared}</span></div>
       {library.map((item) => (
-        <a key={item.key} className="vch-row vch-librow" href={`#${item.href}`}>
-          <Icon name={item.icon} size={16} className="vch-ic" />
-          <span className="vch-row__text">{item.label}</span>
-          {item.count !== undefined && <span className="vch-row__count num">{item.count}</span>}
+        <a key={item.key} className={`vch-row vch-librow ${stylex.props(channelStyles.row, channelStyles.librow).className}`} href={`#${item.href}`}>
+          <Icon name={item.icon} size={16} className={`vch-ic ${stylex.props(channelStyles.ic).className}`} />
+          <span className={`vch-row__text ${stylex.props(channelStyles.rowText).className}`}>{item.label}</span>
+          {item.count !== undefined && <span className={`vch-row__count num ${stylex.props(channelStyles.rowCount).className}`}>{item.count}</span>}
         </a>
       ))}
-      <div className="vch-ready">
+      <div className={`vch-ready ${stylex.props(channelStyles.ready).className}`}>
         <Icon name="tick-b" size={15} />
         {tt.ready}
       </div>
