@@ -521,4 +521,5 @@ type CloneBucketCounts struct {
 type CloneCounts struct {
 	Totals  CloneBucketCounts            `json:"totals"`
 	ByOwner map[string]CloneBucketCounts `json:"byOwner"`
+	ApprovedToday *int                   `json:"approvedToday"`
 }

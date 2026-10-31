@@ -160,6 +160,15 @@ func (s *Service) List(ctx context.Context, channelID *string, limit int) (domai
 }
 func (s *Service) Counts(ctx context.Context) (domain.CloneCounts, error) {
 	counts := domain.CloneCounts{ByOwner: map[string]domain.CloneBucketCounts{}}
+	if counter, ok := s.Store.(interface {
+		ApprovedToday(context.Context, string) (int, error)
+	}); ok {
+		count, err := counter.ApprovedToday(ctx, "")
+		if err != nil {
+			return counts, err
+		}
+		counts.ApprovedToday = &count
+	}
 	groups, err := s.Store.CountBoardGroups(ctx)
 	if err != nil {
 		return counts, err
