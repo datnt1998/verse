@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/autonomy"
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
 	clonebackdrop "github.com/datnt1998/verse/apps/viderse/internal/clone/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/bulk"
@@ -44,7 +45,7 @@ func cloneReadImageManifest(edits *jobedit.Service) func(context.Context, domain
 		return &manifest, nil
 	}
 }
-func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service) func(context.Context) error {
+func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service) func(context.Context) error {
 	images := &cloneimages.Service{Edits: edits, Prompts: librarySvc, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, QuotaLeft: func(ctx context.Context) (int, error) {
 		artist, err := ai.Service.ResolveArtist(ctx)
 		if err != nil {
@@ -71,10 +72,19 @@ func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedi
 		}
 		return left, nil
 	}}
+	// Mức tự chủ duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
+	images.Autonomy = autonomySvc.Store
+	autonomySvc.Reviewer = cloneimages.AutoReviewer{Service: images}
 	backdrops := &clonebackdrop.Service{Edits: edits, Deps: stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)}
 	bundles := &bundle.Service{Edits: edits, Exports: editorService, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, OwnerName: ownerName}
 	store := edits.Store.(*postgres.CloneStore)
 	bulkOps := &bulk.Service{Jobs: jobs, Images: images, Store: store, Exports: editorService, Publish: edits.Publish, Approvals: store, ApproveProject: store.PrepareCloneExport}
 	web.MountCloneOperations(g, web.CloneOperations{Images: &queuedPromptOperations{Service: images, queue: postgres.NewQueueStore(pool), publish: edits.Publish}, Backdrops: backdrops, Edits: edits, Bundles: bundles, Bulk: bulkOps, Metadata: metadata})
-	return bulkOps.DispatchReviews
+	return func(ctx context.Context) error {
+		err := bulkOps.DispatchReviews(ctx)
+		if autoErr := autonomySvc.DispatchReviews(ctx); err == nil {
+			err = autoErr
+		}
+		return err
+	}
 }

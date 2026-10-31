@@ -333,7 +333,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		}
 		registry[step] = handler
 	}
-	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
+	autonomySvc := newAutonomyService(pool, publish, func(err string) { fmt.Fprintln(os.Stderr, "Mức tự chủ:", err) })
+	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q, AutoFix: autonomySvc}
 	runner.OnHumanState = func(_ context.Context, _ *domain.CloneJob, _ string) {
 		activityService.Changed("")
 	}
@@ -368,7 +369,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	}})
 	web.MountClone(g, service, q, service.Media)
 	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService)
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc)
 	workerCtx, stop := context.WithCancel(ctx)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()
