@@ -12,7 +12,7 @@ Backend tham chiếu: `platform/identity/*`, `internal/entry/web/auth.go`, `cmd/
 | Quyền truyện | `books[]`, `"*"` = tất cả; admin luôn thấy tất cả | `User.CanRead/CanWrite` |
 | Tên đăng nhập | `^[a-z0-9._-]{2,32}$` | `usernamePattern` |
 | Mật khẩu | ≥ 8 ký tự | `MinPasswordLen` |
-| Phiên | cookie `ainovel_session`, HttpOnly, SameSite=Strict, **30 ngày cố định từ lúc đăng nhập** (`SessionTTL`), `lastSeen` cập nhật mỗi 10 phút | `store.go` |
+| Phiên | `STORE_DRIVER=file`: cookie `ainovel_session`. `STORE_DRIVER=postgres`: cookie `verse_session` dùng chung với Viderse (host-only khi chạy loopback, `Domain=VERSE_COOKIE_DOMAIN` + Secure khi hosted). Cả hai HttpOnly, SameSite=Strict, **30 ngày cố định từ lúc đăng nhập** (`SessionTTL`), `lastSeen` cập nhật mỗi 10 phút | `store.go`, `platform/webguard` |
 | Mã QR | mã một lần, **5 phút** (`PairingTTL`), link `<base>/#/pair/<code>`, server trả sẵn SVG | `createPairing` |
 | Nhãn thiết bị | `iPhone · Safari`, `Mac · Chrome`… từ User-Agent | `DeviceLabel` |
 | Giới hạn thử | Theo từng IP và từng tên đăng nhập: 5 lần sai liên tiếp vẫn trả 401; lần sai thứ 5 bắt đầu khoá 30 giây nên lần thử **thứ 6** (kể cả đúng mật khẩu) trả 429 + `Retry-After`, `retryAfter` (giây): “Thử sai quá nhiều lần, vui lòng đợi rồi thử lại”. Mỗi lần sai tiếp theo nhân đôi thời gian khoá, tối đa 15 phút; đăng nhập đúng xoá bộ đếm; khởi động lại `serve` cũng xoá | `limiter.go`, `tooMany` |
@@ -28,11 +28,12 @@ Web **không** có màn đăng ký. Tài khoản do quản trị viên tạo (we
 | Đăng nhập bằng QR (điện thoại) | `POST /api/pair {code}` → `{user}` + cookie | 401 “mã QR không hợp lệ, đã dùng hoặc đã hết hạn” · 429 |
 | Ai đang đăng nhập | `GET /api/me` → `{user, session}` (`session.expiresAt` → “còn N ngày”) | 401 → màn Đăng nhập |
 | Đăng xuất | `POST /api/logout {}` | — |
-| Đổi mật khẩu | `POST /api/me/password {current,new}` (giữ phiên hiện tại, đăng xuất phiên khác) | 403 “Mật khẩu hiện tại không đúng” · 400 <8 ký tự · 429 |
+| Đổi mật khẩu | `POST /api/me/password {current,new}` → `{ok:true, reauthenticate:true}`: thu hồi **mọi** phiên kể cả phiên hiện tại, xoá cookie; client báo “Đã đổi mật khẩu. Vui lòng đăng nhập lại.” rồi về đăng nhập | 403 “Mật khẩu hiện tại không đúng” · 400 <8 ký tự · 429 |
 | Thiết bị của tôi | `GET /api/me/sessions` → `[{id,device,ip,createdAt,lastSeen,expiresAt,current}]` | — |
 | Đăng xuất 1 thiết bị | `POST /api/sessions/:id/revoke {}` (của mình; admin: của bất kỳ ai) | 404 |
 | Tạo mã QR cho mình | `POST /api/me/pairings {}` → `{code,username,expiresAt,links:[{label,url,svg}]}` | `links` rỗng → trạng thái “Chưa có địa chỉ cho điện thoại” |
 | Quản lý tài khoản (admin) | `GET/POST /api/users` · `POST /api/users/:u` (patch name/role/books/disabled/password) · `POST /api/users/:u/delete` · `GET /api/users/:u/sessions` · `POST /api/users/:u/pairings` | 409 “phải còn ít nhất một quản trị viên đang hoạt động” · 409 “tài khoản đã tồn tại” · 403 |
+| Quyền vào app (admin, chỉ postgres) | `PUT /api/users/:u/grants/:app {role:"member", reason?}` · `DELETE /api/users/:u/grants/:app {reason?}` → `User` (có `grants` mới); `app` = `noverse`·`viderse`. Đổi thật thì ghi nhật ký và thu hồi mọi phiên của người đó; không đổi gì thì không ghi, không thu hồi | 400 app lạ hoặc `role` khác `member` · 404 · 403 |
 
 Phát hiện điện thoại đã vào (A1 › qr, `paired`): khi hộp thoại QR mở, gọi `GET /api/me/sessions` (hoặc `/api/users/:u/sessions`) mỗi 3 giây; phiên mới có `createdAt > lúc tạo mã` ⇒ hiện “Đã đăng nhập trên iPhone · Safari” và dừng dò. Không cần API mới.
 
@@ -126,10 +127,11 @@ Lưu ý id truyện: hiện `books[]` là tên thư mục con của `--root`. Kh
 - **Chi tiết** (phải): đầu thẻ (tên, @tên đăng nhập, ngày tạo, lần hoạt động, nút *Đăng nhập điện thoại cho X* → QR “Cho tài khoản”). Bị khoá → băng đỏ “Đã khoá {ngày} bởi {ai}” + lý do + *Mở khoá*.
   1. **Quyền hệ thống**: 2 thẻ radio. Đổi sang Quản trị → cảnh báo cam (vai trò dự án được giữ để dùng khi bỏ quản trị). Quản trị cuối cùng → khoá cả hai thẻ, câu giải thích.
   2. **Dự án**: mỗi dòng tên + số truyện + ô chọn vai trò (menu 4 mục, có mô tả một dòng, chấm màu). Dòng đã đổi có chip *Đã đổi*. Nút *Mỗi vai trò làm được gì?* mở bảng quyền ở trên. Quản trị: mọi dòng *Chủ dự án · theo quyền quản trị*, khoá.
-  3. **Thiết bị đang đăng nhập**: thiết bị, lần hoạt động, còn N ngày, *Đăng xuất* từng cái; *Đăng xuất mọi thiết bị* (của mình: *các thiết bị khác*; thiết bị đang dùng có chip *Thiết bị này*).
-  4. **Mật khẩu**: lần đổi cuối / “Đang dùng mật khẩu tạm”; *Đặt lại mật khẩu* (tắt với chính mình — tự đổi ở menu).
-  5. **Khoá hoặc xoá**: *Khoá* (đăng xuất mọi thiết bị, giữ vai trò, mở lại được) · *Xoá* (đỏ; truyện, chương, nhật ký giữ, ghi “X (đã xoá)”). Tắt với chính mình và quản trị cuối cùng, kèm lý do.
-- **Lưu**: đổi quyền gom vào thanh nổi “N thay đổi cho Linh · có hiệu lực ngay khi lưu” · *Huỷ* · **Lưu**. Có hiệu lực ngay, không bắt đăng nhập lại.
+  3. **Quyền vào ứng dụng** (chỉ `STORE_DRIVER=postgres`): ô *Noverse* · *Viderse*, lưu ngay khi bấm (không qua thanh lưu). Quản trị: cả hai khoá ở trạng thái bật, “Được vào theo quyền quản trị”. Bỏ hết → nhắc “đăng nhập được nhưng sẽ thấy thông báo chưa được cấp quyền”. Cấp hay thu đều đăng xuất người đó khỏi mọi thiết bị. Hộp *Thêm thành viên* có cùng hai ô, mặc định chỉ Noverse.
+  4. **Thiết bị đang đăng nhập**: thiết bị, lần hoạt động, còn N ngày, *Đăng xuất* từng cái; *Đăng xuất mọi thiết bị* (của mình: *các thiết bị khác*; thiết bị đang dùng có chip *Thiết bị này*).
+  5. **Mật khẩu**: lần đổi cuối / “Đang dùng mật khẩu tạm”; *Đặt lại mật khẩu* (tắt với chính mình — tự đổi ở menu).
+  6. **Khoá hoặc xoá**: *Khoá* (đăng xuất mọi thiết bị, giữ vai trò, mở lại được) · *Xoá* (đỏ; truyện, chương, nhật ký giữ, ghi “X (đã xoá)”). Tắt với chính mình và quản trị cuối cùng, kèm lý do.
+- **Lưu**: đổi quyền dự án gom vào thanh nổi “N thay đổi cho Linh · có hiệu lực ngay khi lưu” · *Huỷ* · **Lưu**. Quyền dự án có hiệu lực ngay, không bắt đăng nhập lại.
 - **Thêm thành viên** (hộp thoại): Tên hiển thị → tự gợi ý tên đăng nhập bỏ dấu (`Ngọc` → `ngoc`, sửa tay thì thôi tự gợi ý); lỗi trùng “Tên đăng nhập ‘linh’ đã có. Thử ‘linh.2’…”; Quyền hệ thống; *Dự án được vào* (mỗi dự án một nhóm nút 4 vai trò, chưa giao gì → nhắc cam); Mật khẩu tạm sinh sẵn (*Sao chép*, *Tạo khác*). Nút *Tạo tài khoản* mờ khi thiếu / sai.
 - **Đã tạo** / **Đã đặt lại**: tên đăng nhập, mật khẩu tạm (*Chép*), cách vào; cảnh báo “Mật khẩu tạm chỉ hiện lần này”; *Chép lời nhắn gửi X* (tên đăng nhập + mật khẩu + cách vào), *Đăng nhập điện thoại*, *Xong*.
 - **Xác nhận** (Đặt lại · Khoá · Xoá): liệt kê hệ quả bằng lời thường; Khoá/Xoá có ô *Lý do* (ghi nhật ký, không bắt buộc); hộp Xoá có lối *Khoá thay vì xoá*.

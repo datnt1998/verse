@@ -7,9 +7,10 @@ Hoạ sĩ, Kiểm định). App đang được dựng lại từ yt-factory theo
 bảng phase trong plan cho biết phần nào đã chạy.
 
 Một binary `viderse` gồm máy chủ web (Go + Postgres) và giao diện React nhúng
-sẵn, dựng trên kit `@noverse/ui` ở `platform/ui`. Tách biệt hoàn toàn khỏi
-Noverse: dữ liệu ở `~/.viderse`, database `viderse_go`, cookie
-`viderse_session`, không chia sẻ credential hay lịch sử.
+sẵn, dựng trên kit `@noverse/ui` ở `platform/ui`. Dữ liệu riêng với Noverse:
+thư mục `~/.viderse`, database `viderse_go`, credential nhà cung cấp AI và lịch
+sử. Chỉ tài khoản web là dùng chung: đăng nhập một lần bằng cookie
+`verse_session` là vào được cả hai app (xem [Tài khoản và phiên](#tài-khoản-và-phiên)).
 
 ## Thiết kế
 
@@ -66,7 +67,10 @@ DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
   vào được. Đổi mật khẩu thu hồi **mọi** phiên của tài khoản (cả app kia) và
   trả `{ok:true,reauthenticate:true}` + xoá cookie.
 - `GET /api/setup` chỉ báo `needed` khi kho đọc được và trống — lỗi kho trả
-  503, không phát mã ảo.
+  503, không phát mã ảo. Sau thiết lập lần đầu, Viderse không tạo được tài
+  khoản mới: thêm thành viên ở Noverse (Tuỳ chỉnh › Thành viên).
+- Chuyển `~/.viderse/web-accounts.json` cũ vào kho chung:
+  [apps/noverse/deploy/sso-cutover.md](../noverse/deploy/sso-cutover.md).
 
 ## Lệnh
 

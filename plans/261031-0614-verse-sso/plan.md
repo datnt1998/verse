@@ -1,7 +1,7 @@
 ---
 title: "SSO Noverse và Viderse trên một kho tài khoản Postgres"
 description: "Dùng chung verse_session, kiểm quyền từng app ở mỗi request, di trú tài khoản an toàn và cutover do chủ máy thực hiện."
-status: pending
+status: done
 priority: P1
 effort: 144h
 branch: main
@@ -13,7 +13,7 @@ created: 2026-10-31
 
 Đăng nhập bằng giao diện của một app, mở app còn lại trong cùng trình duyệt mà không đăng nhập lại. Hai app dùng **một kho tài khoản Postgres của Noverse và cookie `verse_session`**. Đăng xuất, thu hồi phiên, khoá tài khoản và đổi mật khẩu được hai app đọc lại từ DB ở request kế tiếp. Admin nền tảng quản trị cả hai app; thành viên cần grant riêng `noverse` và `viderse`.
 
-Đây là **kế hoạch, chưa triển khai**. Các trích dẫn là mã nguồn đã đọc ngày 2026-10-31, không phải bằng chứng test đã chạy. Tên tệp/symbol mới ghi “mới/đề xuất” chưa tồn tại. Không chạy build, test, server, migration hay thao tác live trong lần lập kế hoạch này.
+Phần dưới là kế hoạch gốc; trích dẫn file:dòng là mã nguồn đã đọc ngày 2026-10-31, trước khi triển khai. Tiến độ và bằng chứng test thật nằm ở cột Trạng thái và các báo cáo trong `reports/`.
 
 Kế hoạch này tiếp nối §4d từng hoãn ở `plans/261029-1138-verse-monorepo/phase-04-security-identity-viderse.md:137-153`. Thay lựa chọn kho/file grants còn mở ở ghi chú cũ bằng quyết định đã chốt: Postgres hiện có + app_grants trong DB; không tạo apps.json/grants.json.
 
@@ -31,11 +31,11 @@ Kế hoạch này tiếp nối §4d từng hoãn ở `plans/261029-1138-verse-mo
 
 | Phase | Kết quả | Chặn bởi | Ước lượng | Trạng thái |
 |---|---|---|---:|---|
-| [01 · Repository chung và grant schema](phase-01-shared-identity-and-grants.md) | Repository, limiter, quyền app, SQL role | — | 32h | pending |
-| [02 · Noverse, cookie, CSRF và quản trị grant](phase-02-noverse-cookie-and-authorization.md) | HTTP/UI Noverse, worker không nhận credential tài khoản | 01 | 28h | pending |
-| [03 · Viderse dùng kho chung](phase-03-viderse-shared-store.md) | Hai pool riêng, setup nguyên tử, grant/đổi mật khẩu bắt buộc, UI | 01, 02 | 28h | pending |
-| [04 · Lệnh nhập và runbook cutover](phase-04-migration-and-cutover.md) | v4 Noverse + file Viderse, báo trùng, backup, phục hồi | 01–03 | 40h | pending |
-| [05 · Nghiệm thu hai app và tài liệu](phase-05-smoke-and-documentation.md) | Test thật hai server/một browser, docs/env/deploy | 01–04 | 16h | pending |
+| [01 · Repository chung và grant schema](phase-01-shared-identity-and-grants.md) | Repository, limiter, quyền app, SQL role | — | 32h | done ([báo cáo](reports/phase-01-shared-identity-and-grants.md)) |
+| [02 · Noverse, cookie, CSRF và quản trị grant](phase-02-noverse-cookie-and-authorization.md) | HTTP/UI Noverse, worker không nhận credential tài khoản | 01 | 28h | done ([server](reports/phase-02-noverse-cookie-and-authorization.md), [web](reports/phase-02-noverse-web.md)) |
+| [03 · Viderse dùng kho chung](phase-03-viderse-shared-store.md) | Hai pool riêng, setup nguyên tử, grant/đổi mật khẩu bắt buộc, UI | 01, 02 | 28h | done ([web](reports/phase-03-viderse-web.md); server: commit `5c8792c`) |
+| [04 · Lệnh nhập và runbook cutover](phase-04-migration-and-cutover.md) | v4 Noverse + file Viderse, báo trùng, backup, phục hồi | 01–03 | 40h | done ([báo cáo](reports/phase-04-migration-and-cutover.md), [runbook](../../apps/noverse/deploy/sso-cutover.md)) |
+| [05 · Nghiệm thu hai app và tài liệu](phase-05-smoke-and-documentation.md) | Test thật hai server/một browser, docs/env/deploy | 01–04 | 16h | done ([báo cáo](reports/phase-05-e2e-runner.md); `npm run test:sso` 19/19; review bảo mật độc lập lặp tới 0 blocker/major) |
 
 **Tổng 144h**, gồm triển khai, test và review từng phase; không gồm thời gian chủ máy chọn cửa sổ bảo trì hay DNS thực tế. Thực hiện tuần tự 01 → 02 → 03 → 04 → 05. Không có hai phase sửa tệp đồng thời; mỗi phase bàn giao ownership trước khi phase kế tiếp nhận các tệp lặp lại. Không triển khai riêng phase 02 hoặc 03 ra live.
 

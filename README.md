@@ -25,6 +25,7 @@ go test ./...                                   # Postgres/MinIO suites skip unl
 (cd apps/viderse && go tool sqlc diff)
 npm ci && npm run typecheck --workspaces && npm test --workspaces   # web kit + web apps
 npm run build -w apps/noverse/web               # rebuild an app's embedded dist
+npm run test:sso                                # two-app shared-login E2E, see tests/sso/README.md
 docker build -f apps/noverse/Dockerfile .       # hosted image; context is the repository root
 ```
 
@@ -37,19 +38,19 @@ Postgres and MinIO for the full suite: `apps/noverse/deploy/compose.test.yml`
 
 1. **Layout.** Put the code in `apps/<name>/` with `cmd/<binary>/`, `internal/` and a `README.md`. Add `apps/<name>/.gitignore` only if the app writes local artifacts. Everything stays in this Go module; there is no `go.work`.
 2. **Imports.** An app may import the standard library, third-party modules, `core/**`, `platform/**` and itself. `archtest` classifies every `apps/<name>` automatically, so `go test ./archtest` covers a new app with no registration.
-3. **Isolated runtime state.** Nothing is shared with other apps:
+3. **Runtime state.** Each app keeps its own:
    - config dir: `~/.ainovel`, `~/.viderse`;
    - credentials: `core/auth` configured per app, see `apps/viderse/internal/bootstrap`;
-   - session cookie name: `ainovel_session`, `viderse_session`;
-   - Postgres database and roles: `noverse_*`; `viderse_go` with `viderse_app`/`viderse_migrate`;
+   - Postgres data database and roles: `noverse_*`; `viderse_go` with `viderse_app`/`viderse_migrate`;
    - fixed default port: Noverse live 8790, Viderse 8789.
 
-   Browsers share cookies across ports of the same host, so cookie names must differ.
-4. **Web server.** Build the HTTP side on `platform/webapp`: `webapp.New(accounts, webapp.Options{AppName, CookieName, UI})`. Accounts come from `platform/identity` (`identity.NewStore`), and proxy rules from `webguard.ConfigFromEnv()` through `SetProxyConfig`. The package provides:
+   Web accounts are the one shared thing. Noverse owns the account store (`users`, `sessions`, `app_grants` in its Postgres database, accessed through `platform/identity/postgres`). Every app reads it with its own least-privilege role, such as `viderse_identity` from `apps/noverse/deploy/postgres-init/02-identity-role.sql`, and the same `verse_session` cookie. A member opens an app only with an `app_grants` row for it; global admins open every app. Noverse with `STORE_DRIVER=file` stays standalone on `ainovel_session`.
+4. **Web server.** Build the HTTP side on `platform/webapp`: `webapp.New(accounts, webapp.Options{AppName, App, UI})`. `accounts` wraps `identitypg.NewAccounts(pool, identitypg.Options{ProjectAccess: false})` over the shared store; proxy, cookie domain and sibling origins come from `webguard.ConfigFromEnv()` through `SetProxyConfig`. The package provides:
    - the SPA, health probes and the same-origin guard;
-   - first-run setup with a one-time code and login/logout/me.
+   - first-run setup with a one-time code and login/logout/me;
+   - the app-grant and forced-password gates, and the user's own password and session routes.
 
-   App routes register with `Handle`. Reference: `apps/viderse/internal/web/gateway.go`.
+   App routes register with `Handle`. Reference: `apps/viderse/internal/web/gateway.go` and `openAccounts` in `apps/viderse/cmd/viderse/serve.go`. A new app also needs its own `identity.App` value in `platform/identity/app-grants.go`, a migration widening the `app_grants.app` CHECK, a checkbox in Noverse's Members screen (`appIds`), and its own identity role.
 5. **Web UI.** Put the SPA in `apps/<name>/web/`, add it to the root `package.json` workspaces, and depend on `@noverse/ui`. Copy from `apps/viderse/web`:
    - `vite.config.ts`: kit aliases and the StyleX plugin; `build.outDir` is the directory the Go side embeds;
    - `tsconfig.json` paths;

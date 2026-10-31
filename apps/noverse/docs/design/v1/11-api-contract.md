@@ -487,6 +487,27 @@ Ghi chú:
 - Frontend tài khoản dùng cache `users`, `sessions`, `me`: `account.changed` cập nhật danh sách tài khoản và thiết bị; `session.revoked {username,session}` làm mới phiên, đưa đúng phiên bị thu hồi về đăng nhập cùng thông báo. QR nhận phiên mới qua cùng luồng sự kiện, không dò thiết bị định kỳ.
 - Các lệnh sửa hồ sơ, đổi mật khẩu và sửa tài khoản nhận phiên bản gốc qua `If-Match`; bản nháp chưa lưu không bị sự kiện ghi đè. Xung đột giữ nguyên bản nháp, cho xem/tải bản mới hoặc ghi đè bằng phiên bản mới. Xoá tài khoản/thu hồi thiết bị dùng xác nhận của kit; đăng xuất mọi thiết bị khác yêu cầu giữ nút xác nhận.
 
+### Đăng nhập chung với Viderse (`STORE_DRIVER=postgres`)
+
+Noverse và Viderse đọc cùng kho tài khoản (bảng `users`/`sessions`/`app_grants` của Noverse) và cùng cookie `verse_session`. Hợp đồng dưới đây giống hệt ở hai app; `STORE_DRIVER=file` giữ `ainovel_session` và không có `grants`.
+
+- `User.grants: {noverse?: 'admin'|'member', viderse?: 'admin'|'member'}` là quyền **hiệu lực**: quản trị hệ thống luôn `admin` ở cả hai; thành viên chỉ có app được cấp. Mỗi request đọc lại từ DB, không cache trong phiên.
+- Phân loại sau khi đọc cookie:
+
+| Tình huống | Trả về | Client |
+|---|---|---|
+| Không có cookie, phiên hết hạn hoặc bị thu hồi | 401 | về đăng nhập |
+| Phiên hợp lệ nhưng thiếu quyền app | 403 `{code:"app_access_denied", app, error:"Tài khoản của bạn chưa được cấp quyền dùng <App>. Vui lòng liên hệ quản trị viên.", user}` — giữ cookie | màn “chưa được cấp quyền” (Thử lại · Đăng xuất), không mở dữ liệu/SSE |
+| Đang dùng mật khẩu tạm | 403 `{code:"password_change_required", mustChangePassword:true, error:"Bạn cần đổi mật khẩu tạm trước khi tiếp tục."}` cho mọi route nghiệp vụ, cả upload và SSE | cổng đổi mật khẩu, không có nút bỏ qua |
+| Kho tài khoản không đọc được | 503, giữ cookie | báo lỗi + Thử lại, không giả đăng xuất/thiết lập |
+
+- Thiếu quyền app vẫn dùng được đúng các route của chính mình: `POST /api/logout`, `POST /api/me/password`, `GET /api/me/sessions`, `POST /api/me/sessions/revoke-all`, `POST /api/sessions/:id/revoke` (chỉ phiên của mình, kể cả với admin). `GET /api/me` trả 403 `app_access_denied` kèm `user`.
+- `POST /api/login` đúng mật khẩu nhưng thiếu quyền app: vẫn đặt cookie (để vào app được cấp) rồi trả 403 `app_access_denied`; không tính là lần sai.
+- `POST /api/me/password` và `POST /api/me/sessions/revoke-all` → `{ok:true, reauthenticate:true}`: thu hồi **mọi** phiên của tài khoản ở cả hai app, kể cả phiên đang dùng, và xoá cookie. Admin đặt lại mật khẩu, khoá tài khoản hay đổi quyền app cũng thu hồi mọi phiên của người đó. Đăng xuất ở app nào thì app kia cũng 401 ở request kế tiếp.
+- Quyền app (admin, chỉ ở Noverse): `PUT /api/users/:u/grants/:app {role:"member", reason?}` · `DELETE /api/users/:u/grants/:app {reason?}` → `User`. `role` khác `member` hoặc `app` lạ → 400. Không đổi gì → 200, không ghi nhật ký, không thu hồi phiên. Viderse không có HTTP sửa tài khoản; operator dùng `ainovel-cli serve user grant|revoke <tên> --app noverse|viderse` hoặc `viderse user grant|revoke`.
+- `POST /api/users` (admin) luôn tạo kèm quyền `noverse`; hộp *Thêm thành viên* gọi tiếp `PUT`/`DELETE …/grants/:app` theo ô Noverse/Viderse đã chọn (mặc định chỉ Noverse).
+- Request ghi (POST/PUT/PATCH/DELETE) bị 403 trước handler khi `Sec-Fetch-Site: cross-site`, hoặc khi `Origin` không phải origin của chính app hay một origin trong `VERSE_APP_ORIGINS` (so khớp chính xác; `null`, lookalike, khác scheme/cổng đều bị chặn). Request không có cả `Origin` lẫn `Sec-Fetch-Site` (CLI, curl) đi qua như trước.
+
 ### Khôi phục quản trị & mạng nội bộ (GAP-33)
 
 Không còn câu lệnh nào bắt người dùng mở cửa sổ dòng lệnh (`serve user passwd`, `serve --lan` chỉ còn trong `HUONG_DAN_SU_DUNG.md`).
