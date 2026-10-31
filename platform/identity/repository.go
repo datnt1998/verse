@@ -40,7 +40,8 @@ type Repository interface {
 	Sessions(username, currentID string) ([]Session, error)
 	RevokeSession(id string, allowed func(owner string) bool, context ...AuditContext) error
 	RevokeAll(username string, context AuditContext) error
-	ChangePassword(username, current, next string) error
+	RevokeOtherSessions(username, currentID string, context AuditContext) error
+	ChangePassword(username, current, next string, context ...AuditContext) error
 	IssueRecovery(username string, rotate bool) (string, time.Time, error)
 	RecoveryStatus(username string) (RecoveryStatus, error)
 	Recover(username, code, newPassword, device, ip string) (NewSession, []string, error)

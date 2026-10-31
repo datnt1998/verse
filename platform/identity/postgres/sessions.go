@@ -88,9 +88,10 @@ func listSessions(ctx context.Context, db gen.DBTX, userID pgtype.UUID) ([]pgSes
 // revoked session IDs (callers that broadcast them). There is no keep
 // exception: password, disable, privilege and revoke-all flows invalidate
 // every session, including the one making the request.
-func revokeAllUserSessions(ctx context.Context, tx pgx.Tx, userID pgtype.UUID, now time.Time) ([]string, error) {
+func revokeAllUserSessions(ctx context.Context, tx pgx.Tx, userID pgtype.UUID, now time.Time, reason string, app identity.App) ([]string, error) {
 	ids, err := gen.New(tx).RevokeAllUserSessions(ctx, gen.RevokeAllUserSessionsParams{
-		UserID: userID, RevokedAt: ts(now),
+		UserID: userID, RevokedAt: ts(now), RevokedReason: reason,
+		RevokedApp: pgtype.Text{String: string(app), Valid: app.Valid()},
 	})
 	if err != nil {
 		return nil, sanitizeErr(err)
@@ -312,6 +313,16 @@ func (a *Accounts) Authenticate(cookie string) (identity.User, identity.Session,
 		}
 		return identity.User{}, identity.Session{}, sanitizeErr(err)
 	}
+	// Compare the full secret before inspecting any revocation metadata.
+	if !equalBytes(sess.TokenHash, digestBytes(secret)) {
+		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
+	}
+	if sess.RevokedAt.Valid {
+		return identity.User{}, identity.Session{}, &identity.SessionEnded{Reason: sess.RevokedReason, App: identity.App(sess.RevokedApp.String)}
+	}
+	if !sess.ExpiresAt.Time.After(a.now()) {
+		return identity.User{}, identity.Session{}, &identity.SessionEnded{Reason: "expired"}
+	}
 	row, err := q.GetUserByID(ctx, sess.UserID)
 	if err != nil {
 		if noRows(err) {
@@ -320,11 +331,8 @@ func (a *Accounts) Authenticate(cookie string) (identity.User, identity.Session,
 		return identity.User{}, identity.Session{}, sanitizeErr(err)
 	}
 	now := a.now()
-	if row.Status == "locked" || !sess.ExpiresAt.Time.After(now) || sess.RevokedAt.Valid {
-		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
-	}
-	if !equalBytes(sess.TokenHash, digestBytes(secret)) {
-		return identity.User{}, identity.Session{}, identity.ErrUnauthenticated
+	if row.Status == "locked" {
+		return identity.User{}, identity.Session{}, &identity.SessionEnded{Reason: "locked"}
 	}
 	if now.Sub(sess.LastSeenAt.Time) >= pgTouchGap {
 		// last_seen touch is opportunistic: a failed write must NOT be
@@ -450,7 +458,11 @@ func (a *Accounts) RevokeSession(id string, allowed func(owner string) bool, aud
 		if sess.RevokedAt.Valid {
 			return nil // no-op: don't add audit (file parity)
 		}
-		if err := q.RevokeSession(ctx, gen.RevokeSessionParams{ID: sess.ID, RevokedAt: ts(a.now())}); err != nil {
+		reason := "logout"
+		if ctx_.Actor != nil && ctx_.Actor.Username != row.Username {
+			reason = "admin_changed"
+		}
+		if err := q.RevokeSession(ctx, gen.RevokeSessionParams{ID: sess.ID, RevokedAt: ts(a.now()), RevokedReason: reason, RevokedApp: pgtype.Text{String: string(identity.ActorApp(ctx_.Actor)), Valid: identity.ActorApp(ctx_.Actor).Valid()}}); err != nil {
 			return sanitizeErr(err)
 		}
 		return a.addAudit(ctx, q, ctx_.Actor, "", "sec", "Thu hồi phiên", row.Username, "", "", ctx_.Reason)
@@ -470,7 +482,11 @@ func (a *Accounts) RevokeAll(username string, auditCtx identity.AuditContext) er
 			}
 			return sanitizeErr(err)
 		}
-		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
+		reason := "logout"
+		if auditCtx.Actor != nil && auditCtx.Actor.Username != username {
+			reason = "admin_changed"
+		}
+		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, reason, identity.ActorApp(auditCtx.Actor)); err != nil {
 			return err
 		}
 		return a.addAudit(ctx, q, auditCtx.Actor, "", "sec", "Thu hồi mọi phiên", username, "", "", auditCtx.Reason)

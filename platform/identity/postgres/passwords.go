@@ -17,7 +17,7 @@ import (
 // ChangePassword verifies the current password, stores the new hash and
 // revokes EVERY session of the account — including the calling one. Both apps
 // must sign in again with the new credential.
-func (a *Accounts) ChangePassword(username, current, next string) error {
+func (a *Accounts) ChangePassword(username, current, next string, auditCtxs ...identity.AuditContext) error {
 	ctx := context.Background()
 	u, _, err := a.userByUsername(ctx, a.qp(), username)
 	if err != nil {
@@ -76,7 +76,7 @@ func (a *Accounts) ChangePassword(username, current, next string) error {
 		if err := q.ClearMustChangePassword(ctx, gen.ClearMustChangePasswordParams{ID: row.ID, UpdatedAt: ts(now)}); err != nil {
 			return sanitizeErr(err)
 		}
-		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
+		if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, "password_changed", identity.ActorApp(auditContextOf(auditCtxs).Actor)); err != nil {
 			return err
 		}
 		return a.addAudit(ctx, q, &identity.AuditActor{Username: u.Username, Name: u.Name}, "", "sec", "Đổi mật khẩu", username, "", "", "")
@@ -226,7 +226,7 @@ func (a *Accounts) Recover(username, code, newPassword, device, ip string) (iden
 			return sanitizeErr(err)
 		}
 		var revokeErr error
-		revoked, revokeErr = a.revokeUserAuth(ctx, q, tx, cur.ID)
+		revoked, revokeErr = a.revokeUserAuth(ctx, q, tx, cur.ID, "password_changed", "")
 		if revokeErr != nil {
 			return revokeErr
 		}

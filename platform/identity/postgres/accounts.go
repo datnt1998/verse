@@ -726,7 +726,11 @@ func (a *Accounts) UpdateUser(username string, patch identity.UserPatch) (identi
 			}
 		}
 		if revoke {
-			if _, err := a.revokeUserAuth(ctx, q, tx, row.ID); err != nil {
+			reason := "admin_changed"
+			if status == "locked" {
+				reason = "locked"
+			}
+			if _, err := a.revokeUserAuth(ctx, q, tx, row.ID, reason, identity.ActorApp(patch.Actor)); err != nil {
 				return err
 			}
 		}
@@ -796,7 +800,7 @@ func (a *Accounts) DeleteUser(username string, auditCtxs ...identity.AuditContex
 				return identity.ErrLastAdmin
 			}
 		}
-		_, err = a.revokeUserAuth(ctx, q, tx, row.ID)
+		_, err = a.revokeUserAuth(ctx, q, tx, row.ID, "admin_changed", identity.ActorApp(ctx_.Actor))
 		return err
 	})
 }
@@ -811,8 +815,8 @@ func auditContextOf(context []identity.AuditContext) identity.AuditContext {
 // revokeUserAuth revokes every session (current one included) and all pairings
 // of the account; the revoked session IDs come back for callers that broadcast
 // them (Recover).
-func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx, userID pgtype.UUID) ([]string, error) {
-	revoked, err := revokeAllUserSessions(ctx, tx, userID, a.now())
+func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx, userID pgtype.UUID, reason string, app identity.App) ([]string, error) {
+	revoked, err := revokeAllUserSessions(ctx, tx, userID, a.now(), reason, app)
 	if err != nil {
 		return nil, err
 	}

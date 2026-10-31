@@ -301,7 +301,7 @@ func (q *Queries) GetPairingByTokenHash(ctx context.Context, tokenHash []byte) (
 }
 
 const getSessionByID = `-- name: GetSessionByID :one
-SELECT id, user_id, device_id, token_hash, credential_kind, temporary_password_id, last_ip, user_agent, last_seen_at, expires_at, revoked_at, created_at, updated_at, version FROM sessions WHERE id = $1
+SELECT id, user_id, device_id, token_hash, credential_kind, temporary_password_id, last_ip, user_agent, last_seen_at, expires_at, revoked_at, created_at, updated_at, version, revoked_reason, revoked_app FROM sessions WHERE id = $1
 `
 
 func (q *Queries) GetSessionByID(ctx context.Context, id pgtype.UUID) (Session, error) {
@@ -322,6 +322,8 @@ func (q *Queries) GetSessionByID(ctx context.Context, id pgtype.UUID) (Session, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.RevokedReason,
+		&i.RevokedApp,
 	)
 	return i, err
 }
@@ -823,21 +825,68 @@ func (q *Queries) RevokeAllTempPasswords(ctx context.Context, arg RevokeAllTempP
 
 const revokeAllUserSessions = `-- name: RevokeAllUserSessions :many
 UPDATE sessions SET revoked_at = $2, updated_at = clock_timestamp(),
-    version = version + 1
+    revoked_reason = $3, revoked_app = $4::text, version = version + 1
 WHERE user_id = $1 AND revoked_at IS NULL
 RETURNING id
 `
 
 type RevokeAllUserSessionsParams struct {
-	UserID    pgtype.UUID        `json:"user_id"`
-	RevokedAt pgtype.Timestamptz `json:"revoked_at"`
+	UserID        pgtype.UUID        `json:"user_id"`
+	RevokedAt     pgtype.Timestamptz `json:"revoked_at"`
+	RevokedReason string             `json:"revoked_reason"`
+	RevokedApp    pgtype.Text        `json:"revoked_app"`
 }
 
 // Revokes every live session of one account, current one included. There is
 // deliberately no keep/except parameter: credential, privilege and status
 // changes must force a fresh login on both apps.
 func (q *Queries) RevokeAllUserSessions(ctx context.Context, arg RevokeAllUserSessionsParams) ([]pgtype.UUID, error) {
-	rows, err := q.db.Query(ctx, revokeAllUserSessions, arg.UserID, arg.RevokedAt)
+	rows, err := q.db.Query(ctx, revokeAllUserSessions,
+		arg.UserID,
+		arg.RevokedAt,
+		arg.RevokedReason,
+		arg.RevokedApp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.UUID{}
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const revokeOtherUserSessions = `-- name: RevokeOtherUserSessions :many
+UPDATE sessions SET revoked_at = $2, updated_at = clock_timestamp(),
+    revoked_reason = 'logout', revoked_app = $3::text,
+    version = version + 1
+WHERE user_id = $1 AND revoked_at IS NULL AND id <> $4::uuid
+RETURNING id
+`
+
+type RevokeOtherUserSessionsParams struct {
+	UserID     pgtype.UUID        `json:"user_id"`
+	RevokedAt  pgtype.Timestamptz `json:"revoked_at"`
+	RevokedApp pgtype.Text        `json:"revoked_app"`
+	CurrentID  pgtype.UUID        `json:"current_id"`
+}
+
+func (q *Queries) RevokeOtherUserSessions(ctx context.Context, arg RevokeOtherUserSessionsParams) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, revokeOtherUserSessions,
+		arg.UserID,
+		arg.RevokedAt,
+		arg.RevokedApp,
+		arg.CurrentID,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -872,17 +921,25 @@ func (q *Queries) RevokeRecoveryCode(ctx context.Context, arg RevokeRecoveryCode
 }
 
 const revokeSession = `-- name: RevokeSession :exec
-UPDATE sessions SET revoked_at = $2, updated_at = $2, version = version + 1
+UPDATE sessions SET revoked_at = $2, updated_at = $2, version = version + 1,
+    revoked_reason = $3, revoked_app = $4::text
 WHERE id = $1 AND revoked_at IS NULL
 `
 
 type RevokeSessionParams struct {
-	ID        pgtype.UUID        `json:"id"`
-	RevokedAt pgtype.Timestamptz `json:"revoked_at"`
+	ID            pgtype.UUID        `json:"id"`
+	RevokedAt     pgtype.Timestamptz `json:"revoked_at"`
+	RevokedReason string             `json:"revoked_reason"`
+	RevokedApp    pgtype.Text        `json:"revoked_app"`
 }
 
 func (q *Queries) RevokeSession(ctx context.Context, arg RevokeSessionParams) error {
-	_, err := q.db.Exec(ctx, revokeSession, arg.ID, arg.RevokedAt)
+	_, err := q.db.Exec(ctx, revokeSession,
+		arg.ID,
+		arg.RevokedAt,
+		arg.RevokedReason,
+		arg.RevokedApp,
+	)
 	return err
 }
 

@@ -235,6 +235,11 @@ chưa nhập xong thì **không** đổi `STORE_DRIVER`.
      `SECURE_COOKIES=true`, cùng `VERSE_COOKIE_DOMAIN` (domain cha),
      `TRUSTED_PROXIES` đúng Traefik; cổng HTTP của app không publish ra
      host, chỉ Traefik ra ngoài.
+   - Đặt cùng `VERSE_APP_LINKS=noverse=https://nov.aarverse.studio,viderse=https://vid.aarverse.studio`
+     ở hai app để bật chuyển app. Mỗi origin phải được phép theo `PUBLIC_URL`
+     hoặc `VERSE_APP_ORIGINS`, HTTPS và nằm trong cookie domain khi hosted.
+     Chỉ `noverse`/`viderse`, không trùng id; không đặt thì chỉ hiện app hiện tại.
+     Trước khi bật binary mới, áp migration identity `00019` (lý do/app thu hồi).
 2. Khởi động hai app, chưa mở cho người dùng. Kiểm bằng tài khoản thật của bạn:
    đăng nhập ở app này rồi mở app kia không phải đăng nhập lại; tài khoản thiếu
    quyền thấy màn "chưa được cấp quyền"; đăng xuất/đổi mật khẩu ở một app thì

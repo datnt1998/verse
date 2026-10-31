@@ -194,16 +194,16 @@ func TestSharedLogoutRevokesBeforeClear(t *testing.T) {
 		t.Fatalf("phiên sau logout-lỗi status %d, muốn 200", w.Code)
 	}
 
-	// Đường bình thường: revoke trước, clear sau, session chết thật.
+	// Shared logout invalidates the session without changing cookie lifetime.
 	ts2 := newTestServer(t, true)
 	cookie2 := ts2.sessionCookie()
 	w = ts2.do(http.MethodPost, "/api/logout", cookie2, `{}`)
-	if w.Code != http.StatusOK {
+	if w.Code != http.StatusNoContent {
 		t.Fatalf("logout status %d", w.Code)
 	}
 	_, expired = setCookies(w, "verse_session")
-	if !expired {
-		t.Fatal("logout thành công không xoá cookie")
+	if expired {
+		t.Fatal("logout deleted the shared cookie")
 	}
 	if w := ts2.do(http.MethodGet, "/api/me", cookie2, ""); w.Code != http.StatusUnauthorized {
 		t.Fatalf("me sau logout status %d, muốn 401", w.Code)
@@ -468,16 +468,16 @@ func TestSelfServiceRoutesOwnSessionsOnly(t *testing.T) {
 		t.Fatalf("me sau tự revoke status %d, muốn 401", w.Code)
 	}
 
-	// Phiên mới → revoke-all → 200 reauthenticate + phiên chết.
+	// Revoke other devices preserves this session without reauthentication.
 	cookie = ts.sessionCookie()
 	w = ts.do(http.MethodPost, "/api/me/sessions/revoke-all", cookie, `{}`)
 	if w.Code != http.StatusOK {
 		t.Fatalf("revoke-all status %d", w.Code)
 	}
-	if m := decode(t, w); m["reauthenticate"] != true {
+	if m := decode(t, w); m["reauthenticate"] != nil {
 		t.Fatalf("revoke-all body %v", m)
 	}
-	if w := ts.do(http.MethodGet, "/api/me", cookie, ""); w.Code != http.StatusUnauthorized {
+	if w := ts.do(http.MethodGet, "/api/me", cookie, ""); w.Code != http.StatusOK {
 		t.Fatalf("me sau revoke-all status %d", w.Code)
 	}
 }

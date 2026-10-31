@@ -309,7 +309,7 @@ func TestLoginLogoutMe(t *testing.T) {
 
 	// Logout: session chết thật, /api/me sau đó 401.
 	w = ts.do(http.MethodPost, "/api/logout", cookie, `{}`)
-	if w.Code != http.StatusOK {
+	if w.Code != http.StatusNoContent {
 		t.Fatalf("logout status %d", w.Code)
 	}
 	w = ts.do(http.MethodGet, "/api/me", cookie, "")

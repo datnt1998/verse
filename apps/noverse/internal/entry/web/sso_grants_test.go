@@ -196,7 +196,7 @@ func TestNoverseGrantGateMatrix(t *testing.T) {
 	// Logout without a grant still revokes the session row — the shared
 	// store contract — then clears the cookie.
 	w = authDo(t, f.g, http.MethodPost, "/api/logout", sibling, "")
-	if w.Code != 200 {
+	if w.Code != http.StatusNoContent {
 		t.Fatalf("no-grant logout = %d: %s", w.Code, w.Body)
 	}
 	if _, _, err := f.accounts.Authenticate(sibling); err == nil {
@@ -347,15 +347,14 @@ func TestAppGrantHTTPRequiresGlobalAdmin(t *testing.T) {
 	}
 }
 
-// TestSharedLogoutRevokesBeforeClear pins the order: logout revokes the
-// session row first, then expires the cookie; a storage failure reports the
-// error and must not tell the client the logout succeeded.
+// Shared logout invalidates the session without changing cookie lifetime;
+// storage failures never report success.
 func TestSharedLogoutRevokesBeforeClear(t *testing.T) {
 	f := newSSOFixture(t)
 	member := f.login(t, "member", "member-pass")
 
 	w := authDo(t, f.g, http.MethodPost, "/api/logout", member, "")
-	if w.Code != 200 {
+	if w.Code != http.StatusNoContent {
 		t.Fatalf("logout = %d: %s", w.Code, w.Body)
 	}
 	var expired bool
@@ -364,8 +363,8 @@ func TestSharedLogoutRevokesBeforeClear(t *testing.T) {
 			expired = true
 		}
 	}
-	if !expired {
-		t.Fatal("logout did not expire the shared cookie")
+	if expired {
+		t.Fatal("logout deleted the shared cookie")
 	}
 	if _, _, err := f.accounts.Authenticate(member); err == nil {
 		t.Fatal("logout left the session row valid")
@@ -525,9 +524,8 @@ func TestForcedPasswordGateEveryBusinessRoute(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &meBody); err != nil || meBody.User.Flag {
 		t.Fatalf("must-change flag not cleared: %s", w.Body)
 	}
-	// revoke-all and logout are also neutral: reachable on a must-change
-	// session. Each kills the session it used and the temp password is
-	// single-use, so every leg gets a fresh must-change account.
+	// Both routes are auth-neutral on a must-change session; logout ends this
+	// session, while signing out other devices preserves it.
 	for i, route := range []struct{ method, path, body string }{
 		{http.MethodPost, "/api/me/sessions/revoke-all", `{}`},
 		{http.MethodPost, "/api/logout", `{}`},
@@ -541,7 +539,12 @@ func TestForcedPasswordGateEveryBusinessRoute(t *testing.T) {
 			t.Fatalf("create %s: %v", username, err)
 		}
 		cookie := f.login(t, username, "temp-pass")
-		if w := authDo(t, f.g, route.method, route.path, cookie, route.body); w.Code != 200 {
+		w := authDo(t, f.g, route.method, route.path, cookie, route.body)
+		want := http.StatusOK
+		if route.path == "/api/logout" {
+			want = http.StatusNoContent
+		}
+		if w.Code != want {
 			t.Fatalf("%s %s (must-change neutral) = %d: %s", route.method, route.path, w.Code, w.Body)
 		}
 	}

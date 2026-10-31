@@ -1175,11 +1175,34 @@ func (s *Store) RevokeSession(id string, allowed func(owner string) bool, contex
 	})
 }
 
+// RevokeOtherSessions signs out other devices without ending the current one.
+func (s *Store) RevokeOtherSessions(username, currentID string, context AuditContext) error {
+	if s.repo != nil {
+		return s.repo.RevokeOtherSessions(username, currentID, context)
+	}
+	return s.update(func(d *data) error {
+		current := slices.IndexFunc(d.Sessions, func(x session) bool {
+			return x.ID == currentID && x.Username == username && x.ExpiresAt.After(s.now())
+		})
+		if current < 0 {
+			return ErrUnauthenticated
+		}
+		before := len(d.Sessions)
+		d.Sessions = slices.DeleteFunc(d.Sessions, func(x session) bool {
+			return x.Username == username && x.ID != currentID
+		})
+		if len(d.Sessions) != before {
+			s.addAudit(d, context.Actor, "sec", "Đăng xuất các thiết bị khác", username, "", "", context.Reason)
+		}
+		return nil
+	})
+}
+
 // ChangePassword 校验旧密码后修改，并吊销该账号的全部会话 —— 改密成功必须
 // 重新登录，包括正在使用的会话（两台 app 共享同一行会话）。
-func (s *Store) ChangePassword(username, current, next string) error {
+func (s *Store) ChangePassword(username, current, next string, context ...AuditContext) error {
 	if s.repo != nil {
-		return s.repo.ChangePassword(username, current, next)
+		return s.repo.ChangePassword(username, current, next, context...)
 	}
 	d, err := s.snapshot()
 	if err != nil {

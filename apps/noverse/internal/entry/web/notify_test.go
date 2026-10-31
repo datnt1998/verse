@@ -75,7 +75,7 @@ func TestNotificationPrefsConflictAndSessionCleanup(t *testing.T) {
 		t.Fatalf("subscribe: %d %s", w.Code, w.Body.String())
 	}
 	w = authDo(t, g, "POST", "/api/logout", cookie, `{}`)
-	if w.Code != 200 {
+	if w.Code != http.StatusNoContent {
 		t.Fatal(w.Body.String())
 	}
 	if len(g.notifications.store.Subscriptions("writer")) != 0 {

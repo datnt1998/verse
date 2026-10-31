@@ -687,13 +687,18 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie, err := r.Cookie(g.cookiePolicy().Name)
 	if err != nil {
-		jsonError(w, 401, identity.ErrUnauthenticated.Error())
+		writeJSON(w, http.StatusUnauthorized, identity.EndedBody(identity.ErrUnauthenticated))
 		return
 	}
 	user, current, err := g.accounts.Authenticate(cookie.Value)
 	if err != nil {
 		if errors.Is(err, identity.ErrUnauthenticated) {
-			g.clearSession(w, r)
+			var ended *identity.SessionEnded
+			if g.backend != backendPostgres || !errors.As(err, &ended) {
+				g.clearSession(w, r)
+			}
+			writeJSON(w, http.StatusUnauthorized, identity.EndedBody(err))
+			return
 		}
 		accountError(w, err)
 		return

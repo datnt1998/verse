@@ -153,7 +153,7 @@ func (a *Accounts) mutateAppGrant(username string, app identity.App, role identi
 		if err := a.addAudit(ctx, q, auditActor, "", "perm", action, username, from, to, reason); err != nil {
 			return err
 		}
-		if _, err := a.revokeUserAuth(ctx, q, tx, target.ID); err != nil {
+		if _, err := a.revokeUserAuth(ctx, q, tx, target.ID, "admin_changed", identity.ActorApp(actor)); err != nil {
 			return err
 		}
 		return nil

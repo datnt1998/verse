@@ -129,8 +129,15 @@ ORDER BY s.last_seen_at DESC;
 -- deliberately no keep/except parameter: credential, privilege and status
 -- changes must force a fresh login on both apps.
 UPDATE sessions SET revoked_at = $2, updated_at = clock_timestamp(),
-    version = version + 1
+    revoked_reason = $3, revoked_app = sqlc.narg(revoked_app)::text, version = version + 1
 WHERE user_id = $1 AND revoked_at IS NULL
+RETURNING id;
+
+-- name: RevokeOtherUserSessions :many
+UPDATE sessions SET revoked_at = $2, updated_at = clock_timestamp(),
+    revoked_reason = 'logout', revoked_app = sqlc.narg(revoked_app)::text,
+    version = version + 1
+WHERE user_id = $1 AND revoked_at IS NULL AND id <> sqlc.arg(current_id)::uuid
 RETURNING id;
 
 -- name: SessionStatsByUser :many
@@ -140,7 +147,8 @@ WHERE revoked_at IS NULL AND expires_at > now()
 GROUP BY user_id;
 
 -- name: RevokeSession :exec
-UPDATE sessions SET revoked_at = $2, updated_at = $2, version = version + 1
+UPDATE sessions SET revoked_at = $2, updated_at = $2, version = version + 1,
+    revoked_reason = $3, revoked_app = sqlc.narg(revoked_app)::text
 WHERE id = $1 AND revoked_at IS NULL;
 
 -- name: TouchSessionLastSeen :exec
