@@ -2,6 +2,7 @@
 // Lớp CSS .m-overlay/.m-scrim/.m-sheet nằm trong kit.css; app giữ nguyên tên lớp cho CSS bổ sung.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import * as stylex from '@stylexjs/stylex'
 import { useEscapeLayer } from './Overlays'
 import { getKitLabels } from './labels'
 
@@ -21,6 +22,8 @@ export type SheetProps = {
   children: ReactNode
   height?: number | string
   style?: CSSProperties
+  xstyle?: stylex.StyleXStyles
+  bodyStyle?: stylex.StyleXStyles
   /** thanh kéo đóng (mặc định có) */
   grab?: boolean
   role?: 'dialog' | 'alertdialog'
@@ -33,7 +36,7 @@ export type SheetProps = {
   homeIndicator?: boolean
 }
 
-export function Sheet({ open, onClose, title, label, children, height = 640, style, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator }: SheetProps) {
+export function Sheet({ open, onClose, title, label, children, height = 640, style, xstyle, bodyStyle, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator }: SheetProps) {
   const [mounted, setMounted] = useState(open)
   const [distance, setDistance] = useState(0)
   const ref = useRef<HTMLElement>(null)
@@ -75,8 +78,8 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
   if (!mounted) return null
   return createPortal(<div className={`m-overlay${!open ? ' m-out' : ''}`}>
     <div className="m-scrim" onClick={onClose} />
-    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
-      style={{ height, ...(distance ? { transform: `translateY(${distance}px)`, animation: open ? 'none' : undefined } : {}), ...style }}>
+    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''} ${stylex.props(xstyle).className ?? ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
+      style={{ ...stylex.props(xstyle).style, height, ...(distance ? { transform: `translateY(${distance}px)`, animation: open ? 'none' : undefined } : {}), ...style }}>
       {grab && <div className="m-drag" aria-label={t.sheet.grabHandle}
         onPointerDown={(event) => { start.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId) }}
         onPointerMove={(event) => { if (start.current !== null) setDistance(Math.max(0, event.clientY - start.current)) }}
@@ -88,7 +91,7 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
         }}
         onPointerCancel={() => { start.current = null; setDistance(0) }}><span /></div>}
       {title && <div className="m-sheet-title"><h2 id={titleId}>{title}</h2>{subtitle != null && <span className="m-sheet-sub">{subtitle}</span>}</div>}
-      <div className="m-sheet-body">{children}</div>
+      <div className={`m-sheet-body ${stylex.props(bodyStyle).className ?? ''}`} style={stylex.props(bodyStyle).style}>{children}</div>
       {homeIndicator && <div className="m-sheet-home" aria-hidden="true"><span /></div>}
     </section>
   </div>, document.body)

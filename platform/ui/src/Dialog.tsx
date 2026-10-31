@@ -76,7 +76,7 @@ export function playDialogExit(overlay: HTMLElement) {
   window.setTimeout(() => overlay.remove(), DIALOG_EXIT_MS)
 }
 
-export function Dialog({ title, label, icon, meta, onClose, footer, children, width = 560, alertDialog, style, padX = 18, scrim = 'default' }: {
+export function Dialog({ title, label, icon, meta, onClose, footer, children, width = 560, alertDialog, style, padX = 18, scrim = 'default', scrimStyle: scrimOverride }: {
   title?: ReactNode; label?: string; icon?: ReactNode
   /** Lệnh mono cạnh tiêu đề, vd "/reopen" (Dialogs.dc.html) */
   meta?: ReactNode
@@ -87,6 +87,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
   padX?: number
   /** 'default' = --kit-scrim; 'strong' = --kit-scrim-strong (Onboard.dc.html › lib=browse). Animation không đổi. */
   scrim?: 'default' | 'strong'
+  scrimStyle?: stylex.StyleXStyles
 }) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -151,7 +152,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
     }
   }, [onClose])
 
-  const scrimStyle = stylex.props(sx.scrim, scrim === 'strong' && sx.scrimStrong)
+  const scrimStyle = stylex.props(sx.scrim, scrim === 'strong' && sx.scrimStrong, scrimOverride)
   const dlg = stylex.props(sx.dlg, sx.box)
   const head = stylex.props(sx.head(`${padX}px`))
   const foot = stylex.props(sx.foot(`${padX}px`))

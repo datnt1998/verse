@@ -4,6 +4,7 @@
 import { act, useState, type ReactElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
+import * as stylex from '@stylexjs/stylex'
 import { Checkbox, Radio, RadioCard, Switch } from './controls'
 import { Segmented } from './Tabs'
 import { Button } from './Button'
@@ -105,16 +106,28 @@ it('Segmented fit="content": mỗi mục rộng theo nhãn, không chia đều; 
     <Segmented fit="content" label="Múi giờ" value="vn" onChange={() => {}} options={options} size={24} />,
   )
   const radios = [...container.querySelectorAll<HTMLElement>('[role=radio]')]
-  // Rộng theo nhãn: không co, không stretch; nhãn dài không bị cắt.
-  expect(radios.map((r) => r.style.flex)).toEqual(['0 0 auto', '0 0 auto'])
+  // Vitest compiles atoms but does not inject CSS into happy-dom; compare the
+  // semantic atom contracts, as kitAdditions.test.tsx does.
+  const contract = stylex.create({
+    content: { flex: '0 0 auto' },
+    equal: { flex: 1 },
+    padding: { paddingInline: 12 },
+    group: { display: 'flex' },
+  })
+  const hasStyles = (node: HTMLElement, style: stylex.StyleXStyles) => {
+    const atoms = stylex.props(style).className!.split(' ').filter(Boolean)
+    expect(atoms.length).toBeGreaterThan(0)
+    for (const atom of atoms) expect(node.classList.contains(atom)).toBe(true)
+  }
+  for (const radio of radios) hasStyles(radio, contract.content)
   expect(radios[0].style.paddingInline).toBe('8px')
-  expect(radios[1].style.paddingInline).toBe('12px')
-  expect(container.querySelector<HTMLElement>('[role=radiogroup]')!.style.display).toBe('flex')
+  hasStyles(radios[1], contract.padding)
+  hasStyles(container.querySelector<HTMLElement>('[role=radiogroup]')!, contract.group)
 
   const { container: equal } = await mount(
     <Segmented label="Múi giờ" value="vn" onChange={() => {}} options={options} />,
   )
-  expect([...equal.querySelectorAll<HTMLElement>('[role=radio]')].map((r) => r.style.flex)).toEqual(['1 1 0%', '1 1 0%'])
+  for (const radio of equal.querySelectorAll<HTMLElement>('[role=radio]')) hasStyles(radio, contract.equal)
 })
 
 it('re-render cùng props: giữ DOM node, không animation mới', async () => {

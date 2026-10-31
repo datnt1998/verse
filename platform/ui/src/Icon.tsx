@@ -22,6 +22,7 @@ export type IconProps = {
   label?: string
   style?: CSSProperties
   className?: string
+  xstyle?: stylex.StyleXStyles
 }
 
 const sx = stylex.create({
@@ -42,7 +43,7 @@ function reportMissing(name: string) {
   console.error(`[Icon] Missing icon "${name}" — add the SVG to src/icons (docs/design/v1/icons) or fix the name.`)
 }
 
-export function Icon({ name, variant, size = 18, label, style, className }: IconProps) {
+export function Icon({ name, variant, size = 18, label, style, className, xstyle }: IconProps) {
   const file = variant === 'bulk' && !name.endsWith('-bulk') ? `${name}-bulk` : name
   const url = byName.get(file) ?? byName.get(name)
   if (!url) reportMissing(name)
@@ -50,7 +51,7 @@ export function Icon({ name, variant, size = 18, label, style, className }: Icon
   const missing: CSSProperties = import.meta.env.DEV
     ? { background: 'var(--kit-dev-miss-bg)', borderRadius: 4, border: '1px dashed var(--kit-dev-miss)' }
     : { background: 'transparent', borderRadius: '50%', border: '1px dashed currentColor' }
-  const p = stylex.props(sx.base(`${size}px`))
+  const p = stylex.props(sx.base(`${size}px`), xstyle)
   const cls = [p.className, className].filter(Boolean).join(' ')
   const merged = {
     ...p.style,

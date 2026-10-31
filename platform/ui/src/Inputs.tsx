@@ -96,12 +96,15 @@ export type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'value'
   editLabel?: string
   /** Vẽ sẵn trạng thái đang chọn (viền + vòng tím) — dùng cho bản trình diễn trạng thái. */
   focused?: boolean
+  xstyle?: stylex.StyleXStyles
+  frameStyle?: stylex.StyleXStyles
+  inputStyle?: stylex.StyleXStyles
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField({
   value, defaultValue = '', onChange, label, hint, error, prefix, suffix, clearable,
   onClear, validate, onEdit, editLabel, focused, id, disabled, readOnly,
-  style, className, 'aria-describedby': describedBy, 'aria-invalid': ariaInvalid, ...rest
+  style, className, xstyle, frameStyle, inputStyle, 'aria-describedby': describedBy, 'aria-invalid': ariaInvalid, ...rest
 }, ref) {
   const generatedId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -122,11 +125,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
     plain ? sx.frameGapPlain : sx.frameGapAdorn,
     plain ? (clearable ? sx.framePadClear : sx.framePadPlain) : sx.framePadAdorn,
     ...inputFrame({ invalid, focused, disabled }),
+    frameStyle,
   )
-  const input = stylex.props(sx.input, plain ? sx.inputPlain : sx.inputAdorn)
+  const input = stylex.props(sx.input, plain ? sx.inputPlain : sx.inputAdorn, inputStyle)
   const clear = stylex.props(sx.clear, sx.ghostHover)
   return (
-    <div {...stylex.props(sx.col)}>
+    <div {...stylex.props(sx.col, xstyle)}>
       {label && <label htmlFor={inputId} {...stylex.props(sx.label)}>{label}</label>}
       <div className={`kit-frame ${frame.className}`} data-invalid={invalid} data-focus={focused || undefined} data-disabled={disabled || undefined} style={frame.style}>
         {prefix && <span className={`mono ${stylex.props(sx.prefix).className}`}>{prefix}</span>}
@@ -168,10 +172,14 @@ export type NumberStepperProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'ty
   step?: number
   label?: ReactNode
   hint?: ReactNode
+  xstyle?: stylex.StyleXStyles
+  frameStyle?: stylex.StyleXStyles
+  inputStyle?: stylex.StyleXStyles
+  buttonStyle?: stylex.StyleXStyles
 }
 
 export function NumberStepper({ value, onChange, min = 1, max = 24, step = 1, label, hint,
-  id, disabled, readOnly, style, onBlur, onKeyDown, 'aria-describedby': describedBy, ...rest }: NumberStepperProps) {
+  id, disabled, readOnly, style, xstyle, frameStyle, inputStyle, buttonStyle, onBlur, onKeyDown, 'aria-describedby': describedBy, ...rest }: NumberStepperProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
   const helpId = `${inputId}-range`
@@ -184,11 +192,11 @@ export function NumberStepper({ value, onChange, min = 1, max = 24, step = 1, la
   }
   const downDisabled = disabled || readOnly || value <= min
   const upDisabled = disabled || readOnly || value >= max
-  const box = stylex.props(sx.stepper, disabled && sx.dim)
-  const input = stylex.props(sx.stepperInput)
-  const down = stylex.props(sx.stepperBtn, sx.ghostHover, downDisabled && sx.stepperOff)
-  const up = stylex.props(sx.stepperBtn, sx.ghostHover, upDisabled && sx.stepperOff)
-  return <div {...stylex.props(sx.col6)}>
+  const box = stylex.props(sx.stepper, disabled && sx.dim, frameStyle)
+  const input = stylex.props(sx.stepperInput, inputStyle)
+  const down = stylex.props(sx.stepperBtn, sx.ghostHover, downDisabled && sx.stepperOff, buttonStyle)
+  const up = stylex.props(sx.stepperBtn, sx.ghostHover, upDisabled && sx.stepperOff, buttonStyle)
+  return <div {...stylex.props(sx.col6, xstyle)}>
     {label && <FieldLabel htmlFor={inputId} size={10.5}>{label}</FieldLabel>}
     <div className={`kit-frame ${box.className}`} style={box.style}>
       <button type="button" aria-label={getKitLabels().inputs.decrease} title={getKitLabels().inputs.decrease} disabled={downDisabled}
@@ -230,24 +238,26 @@ export type SliderProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | '
   label?: ReactNode
   ticks?: SliderTick[]
   formatValue?: (value: number) => string
+  inputStyle?: stylex.StyleXStyles
 }
 
 export function Slider({ value, onChange, min = .8, max = 1.5, step = .05, label, ticks,
-  formatValue = (next) => `${Number(next.toFixed(2))}×`, id, disabled, style, className, ...rest }: SliderProps) {
+  formatValue = (next) => `${Number(next.toFixed(2))}×`, id, disabled, style, className, inputStyle, ...rest }: SliderProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
   const percent = max > min ? Math.min(100, Math.max(0, (value - min) / (max - min) * 100)) : 0
   const marks: SliderTick[] = (ticks ?? [{ value: min }, { value: max }]).filter((tick) => tick.value >= min && tick.value <= max)
   const root = stylex.props(sx.col8, disabled && sx.dim)
   const bubble = stylex.props(sx.bubble, sx.bubbleLeft(`calc(${percent.toFixed(1)}% + ${(8 - percent * .16).toFixed(1)}px)`))
+  const input = stylex.props(inputStyle)
   return <div className={root.className} style={root.style}>
     {label && <FieldLabel htmlFor={inputId} size={10.5} style={{ alignItems: 'stretch' }} right={<span className={`mono num ${stylex.props(sx.sliderValue).className}`}>{formatValue(value)}</span>}>{label}</FieldLabel>}
     <div {...stylex.props(sx.sliderWrap)}>
       <span className={`mono num ${bubble.className}`} aria-hidden="true" style={bubble.style}>{formatValue(value)}</span>
-      <input {...rest} id={inputId} className={['kit-range', className].filter(Boolean).join(' ')} type="range" value={value} min={min} max={max} step={step} disabled={disabled}
+      <input {...rest} id={inputId} className={['kit-range', input.className, className].filter(Boolean).join(' ')} type="range" value={value} min={min} max={max} step={step} disabled={disabled}
         aria-label={rest['aria-label'] ?? (typeof label === 'string' ? label : getKitLabels().inputs.value)}
         aria-valuetext={formatValue(value)} onChange={(event) => onChange(event.currentTarget.valueAsNumber)}
-        style={{ ['--p' as string]: `${percent.toFixed(1)}%`, ...(disabled ? { cursor: 'not-allowed' } : {}), ...style }} />
+        style={{ ...input.style, ['--p' as string]: `${percent.toFixed(1)}%`, ...(disabled ? { cursor: 'not-allowed' } : {}), ...style }} />
     </div>
     <div aria-hidden="true" className={`mono ${stylex.props(sx.marks).className}`}>
       {marks.map((tick) => <span key={tick.value}>{tick.label ?? formatValue(tick.value)}</span>)}

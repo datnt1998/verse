@@ -38,6 +38,17 @@ const sx = stylex.create({
   panelOff: { backgroundColor: 'transparent', color: FG3, fontWeight: 400 },
   iconWrap: { display: 'inline-flex' },
   iconOn: { color: color['--color-accent'] },
+  segmentRoot: { position: 'relative', display: 'flex', gap: 3, padding: 3, borderRadius: 10, backgroundColor: color['--color-surface-0'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'] },
+  segmentGrid: (columns: number) => ({ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }),
+  segmentHintRoot: { gap: 2, backgroundColor: color['--color-surface-1'], borderColor: line['--line-1'] },
+  segmentButton: (radius: number) => ({ position: 'relative', zIndex: 1, borderWidth: 0, borderStyle: 'none', borderRadius: radius, backgroundColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }),
+  segmentSimpleButton: { fontSize: 12.5, whiteSpace: 'nowrap' },
+  segmentFill: { flex: 1, minWidth: 0 },
+  segmentContent: { flex: '0 0 auto', paddingInline: 12 },
+  segmentHintButton: { minWidth: 0, minHeight: 40, padding: '6px 8px' },
+  segmentHeight: (height: number) => ({ height }),
+  segmentOn: { color: color['--color-fg'] },
+  segmentOff: { color: color['--color-fg-3'] },
 })
 
 export type TabItem = { id: string; label: ReactNode; icon?: ReactNode; dot?: ReactNode; disabled?: boolean }
@@ -79,9 +90,11 @@ export type Segment = { id: string; label: ReactNode; icon?: ReactNode; hint?: R
 
 type SegRect = { x: number; y: number; w: number; h: number }
 
-export function Segmented({ options, value, onChange, label, style, columns, size = 'md', radius, thumbStyle, tabs, fit = 'equal' }: {
+export function Segmented({ options, value, onChange, label, style, xstyle, buttonStyle, columns, size = 'md', radius, thumbStyle, tabs, fit = 'equal' }: {
   options: Segment[]; value: string; onChange: (id: string) => void
   label: string; style?: CSSProperties; columns?: number
+  xstyle?: stylex.StyleXStyles
+  buttonStyle?: stylex.StyleXStyles
   /**
    * 'equal' (mặc định) chia đều bề rộng nhóm; 'content' để mỗi mục rộng đúng nhãn
    * (nhóm lọc ngắn cỡ nút "Sắp xếp" của artboard — không cắt bằng dấu ba chấm).
@@ -132,6 +145,7 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
     group.querySelectorAll(`[role=${itemRole}]`).forEach((button) => observer.observe(button))
     return () => observer.disconnect()
   }, [value, options, columns, itemRole])
+  const root = stylex.props(sx.segmentRoot, !simple && sx.segmentHintRoot, !simple ? sx.segmentGrid(columns ?? options.length) : columns && !contentFit ? sx.segmentGrid(columns) : null, xstyle)
   return (
     <div ref={groupRef} role={tabs ? 'tablist' : 'radiogroup'} aria-label={label} onKeyDown={(event) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
@@ -140,15 +154,7 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
       const index = enabled.findIndex((option) => option.id === value)
       const next = enabled[event.key === 'Home' ? 0 : event.key === 'End' ? enabled.length - 1 : (index + (event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length]
       if (next) { onChange(next.id); event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')[enabled.indexOf(next)]?.focus() }
-    }} style={simple ? {
-      position: 'relative', display: columns && !contentFit ? 'grid' : 'flex',
-      gridTemplateColumns: columns && !contentFit ? `repeat(${columns}, minmax(0, 1fr))` : undefined,
-      gap: 3, padding: 3, borderRadius: 10, background: 'var(--color-surface-0)', border: '1px solid var(--line-3)', ...style,
-    } : {
-      position: 'relative', display: 'grid', gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))`,
-      gap: 2, padding: 3, borderRadius: 10, background: 'var(--color-surface-1)',
-      border: '1px solid var(--line-1)', ...style,
-    }}>
+    }} className={root.className} style={{ ...root.style, ...style }}>
       <span aria-hidden="true" className="kit-seg-thumb" style={{
         width: thumb?.w ?? 0, height: thumb?.h ?? 0, borderRadius: btnR, visibility: thumb ? 'visible' : 'hidden',
         background: simple ? 'var(--color-surface-7)' : 'var(--color-surface-6)',
@@ -158,24 +164,14 @@ export function Segmented({ options, value, onChange, label, style, columns, siz
       }} />
       {options.map((option) => {
         const on = option.id === value
+        const button = stylex.props(sx.segmentButton(btnR), simple ? [sx.segmentSimpleButton, contentFit ? sx.segmentContent : sx.segmentFill] : sx.segmentHintButton, (simple || typeof size === 'number' || size !== 'md') && sx.segmentHeight(btnH), on ? sx.segmentOn : sx.segmentOff, buttonStyle)
         return (
           <button key={option.id} type="button" role={itemRole}
             {...(tabs
               ? { id: `${tabs.id}-${option.id}`, 'aria-selected': on, 'aria-controls': tabs.panel }
               : { 'aria-checked': on })}
             tabIndex={on ? 0 : -1} disabled={option.disabled}
-            onClick={() => onChange(option.id)} style={simple ? {
-              position: 'relative', zIndex: 1, ...(contentFit ? { flex: '0 0 auto', paddingInline: 12 } : { flex: 1, minWidth: 0 }),
-              height: btnH, border: 'none', borderRadius: btnR,
-              background: 'transparent', color: on ? 'var(--color-fg)' : 'var(--color-fg-3)',
-              fontSize: 12.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, whiteSpace: 'nowrap', ...option.style,
-            } : {
-              position: 'relative', zIndex: 1, minWidth: 0, minHeight: 40, height: typeof size === 'number' || size !== 'md' ? btnH : undefined, padding: '6px 8px', border: 'none', borderRadius: btnR,
-              background: 'transparent',
-              color: on ? 'var(--color-fg)' : 'var(--color-fg-3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: 6, ...option.style,
-            }}>
+            className={button.className} onClick={() => onChange(option.id)} style={{ ...button.style, ...option.style }}>
             {option.icon && <span style={{ display: 'inline-flex', flex: '0 0 auto' }}>{option.icon}</span>}
             {simple
               ? <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, maxWidth: '100%' }}>{option.label}</span>

@@ -85,7 +85,7 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
  * Menu thao tác ⋯. Đặt `data-menu-anchor` lên dòng chứa nút để menu mở ngay dưới dòng (4 px) như artboard;
  * không có thì mở dưới nút (6 px). `defaultOpen`/`defaultSubmenu` cho gallery mở sẵn; `onOpen` báo khi người dùng mở.
  */
-export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null, width = 264 }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null; /** bề rộng popover (mặc định 264); menu có dòng phụ dài dùng rộng hơn. */ width?: number }) {
+export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, triggerStyle, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null, width = 264 }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; triggerStyle?: stylex.StyleXStyles; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null; /** bề rộng popover (mặc định 264); menu có dòng phụ dài dùng rộng hơn. */ width?: number }) {
   const [open, setOpen] = useState(defaultOpen)
   const [position, setPosition] = useState<MenuPoint>({ x: 0, y: 0 })
   const button = useRef<HTMLButtonElement>(null)
@@ -122,13 +122,13 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
   }, [point])
   // Menu là một lớp: Esc đóng menu trước, không đóng hộp thoại bên dưới (17-kit, chốt 25/10).
   useEscapeLayer(isOpen, close)
-  const trig = stylex.props(sx.trigger, isOpen ? sx.triggerOpen : sx.triggerIdle)
+  const trig = stylex.props(sx.trigger, isOpen ? sx.triggerOpen : sx.triggerIdle, triggerStyle)
   const trigger_ = <button ref={button} type="button" className={`hov-ghost${alwaysVisible ? '' : ' kit-action-trigger'} ${trig.className}`} aria-label={label} aria-haspopup="menu" aria-expanded={isOpen} onClick={(event) => { if (open) close(); else openMenu(event.detail === 0) }} onKeyDown={(event) => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); openMenu(true) } }} style={trig.style}>{trigger ?? <Icon name="more" size={17} />}</button>
   const pos = stylex.props(sx.menuPos(`${position.x}px`, `${position.y}px`, width))
   return <><Tooltip content={label} asChild>{trigger_}</Tooltip>{isOpen && createPortal(<div ref={menu} className={`kit-pop ${pos.className}`} style={pos.style}><MenuList items={items} close={close} initialSubmenu={initialSubmenu.current} /></div>, document.body)}</>
 }
 
-type ActionMenuOptions = Pick<Parameters<typeof ActionMenu>[0], 'label' | 'defaultOpen' | 'defaultSubmenu' | 'onOpen' | 'alwaysVisible'>
+type ActionMenuOptions = Pick<Parameters<typeof ActionMenu>[0], 'label' | 'defaultOpen' | 'defaultSubmenu' | 'onOpen' | 'alwaysVisible' | 'triggerStyle'>
 
 /** Dòng có menu thao tác: chuột phải mở tại con trỏ, nút ⋯ hiện khi rê chuột. `anchorToRow`: menu ⋯ mở ngay dưới dòng (artboard). */
 export function ContextMenu({ items, children, style, className, anchorToRow = false, actionProps }: { items: ActionMenuItem[]; children: ReactNode; style?: CSSProperties; className?: string; anchorToRow?: boolean; actionProps?: ActionMenuOptions }) {

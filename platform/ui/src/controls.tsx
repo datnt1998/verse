@@ -3,6 +3,7 @@
 // nên đổi trạng thái từ chuột, phím hay SSE đều ra cùng chuyển động; re-render giữ nguyên
 // aria-checked không chạy lại animation (DOM node được giữ, animation gắn theo thuộc tính).
 import { useLayoutEffect, useRef, type ButtonHTMLAttributes, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import * as stylex from '@stylexjs/stylex'
 import { Spinner } from './feedback'
 import { Icon } from './Icon'
 import './kit.css'
@@ -24,19 +25,36 @@ export function radioGroupKeys(event: KeyboardEvent<HTMLElement>) {
   next?.click()
 }
 
+const radioStyles = stylex.create({
+  dot: (diameter: number, border: string) => ({
+    width: diameter, height: diameter, boxSizing: 'border-box', borderRadius: '50%', flex: '0 0 auto',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderStyle: 'solid',
+    borderColor: border, transition: 'border-color .2s ease',
+  }),
+  largeDot: { borderWidth: 2 },
+  dotFill: (diameter: number) => ({ width: diameter, height: diameter, borderRadius: '50%', backgroundColor: 'var(--color-accent)' }),
+  dotOff: { transform: 'scale(0)' },
+  card: { display: 'flex', gap: 10, alignItems: 'flex-start', padding: '8px 10px', borderRadius: 10, borderWidth: 1, borderStyle: 'solid', color: 'var(--color-fg)', textAlign: 'left', cursor: 'pointer', opacity: 1 },
+  largeCard: { gap: 12, padding: 14, borderRadius: 16 },
+  cardTone: (border: string, background: string) => ({ borderColor: border, backgroundColor: background }),
+  disabled: { cursor: 'not-allowed', opacity: .4 },
+  copy: { display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0 },
+  largeCopy: { lineHeight: 1.45 },
+  label: { fontSize: 13 },
+  largeLabel: { fontSize: 15, fontWeight: 500 },
+  description: { fontSize: 11.5, color: 'var(--kit-fg-icon)' },
+  largeDescription: { fontSize: 13 },
+})
+
 /** Vòng radio của Kit (.rd): mặc định 18 px viền 1,5 px · size=lg 22 px viền 2 px, chấm 10 (MCmd .rdot). */
-export function RadioDot({ checked, style, size = 'md' }: { checked: boolean; style?: CSSProperties; size?: 'md' | 'lg' | number }) {
+export function RadioDot({ checked, style, size = 'md', xstyle }: { checked: boolean; style?: CSSProperties; size?: 'md' | 'lg' | number; xstyle?: stylex.StyleXStyles }) {
   const d = typeof size === 'number' ? size : size === 'lg' ? 22 : 18
   const lg = d >= 20
   const dot = lg ? 10 : 8
+  const root = stylex.props(radioStyles.dot(d, checked ? 'var(--color-accent)' : lg ? 'var(--kit-wash-22)' : 'var(--kit-wash-28)'), lg && radioStyles.largeDot, xstyle)
   return (
-    <span aria-hidden="true" className="kit-rdot" data-checked={checked} style={{
-      width: d, height: d, boxSizing: 'border-box', borderRadius: '50%', flex: '0 0 auto',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      border: `${lg ? 2 : 1.5}px solid ${checked ? 'var(--color-accent)' : lg ? 'var(--kit-wash-22)' : 'var(--kit-wash-28)'}`,
-      transition: 'border-color .2s ease', ...style,
-    }}>
-      <span style={{ width: dot, height: dot, borderRadius: '50%', background: 'var(--color-accent)', transform: checked ? undefined : 'scale(0)' }} />
+    <span aria-hidden="true" className={`kit-rdot ${root.className}`} data-checked={checked} style={{ ...root.style, ...style }}>
+      <span {...stylex.props(radioStyles.dotFill(dot), !checked && radioStyles.dotOff)} />
     </span>
   )
 }
@@ -44,6 +62,14 @@ export function RadioDot({ checked, style, size = 'md' }: { checked: boolean; st
 /** Kích thước rãnh công tắc theo artboard: sm 36×20 (Onboard/AudioExport) · md 36×22 (Kit) · lg 38×22 (Settings) · tuple [w,h] tuỳ ý (51×31 mobile .msw). */
 export type SwitchSize = 'sm' | 'md' | 'lg' | readonly [number, number]
 const SWITCH_TRACK: Record<'sm' | 'md' | 'lg', readonly [number, number]> = { sm: [36, 20], md: [36, 22], lg: [38, 22] }
+const switchStyles = stylex.create({
+  button: (width: number, height: number, marginBlock: number) => ({
+    width, height, marginBlock, marginInline: -6, padding: 0, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', opacity: 1, cursor: 'pointer',
+  }),
+  disabled: { opacity: .4 },
+  locked: { cursor: 'not-allowed' },
+})
 
 export type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> & {
   checked: boolean
@@ -56,9 +82,10 @@ export type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChang
   tone?: 'accent' | 'mono'
   trackStyle?: CSSProperties
   thumbStyle?: CSSProperties
+  xstyle?: stylex.StyleXStyles
 }
 
-export function Switch({ checked, onChange, label, disabled, pending = false, loading = false, size = 'md', tone = 'accent', trackStyle, thumbStyle, style, onClick, ...rest }: SwitchProps) {
+export function Switch({ checked, onChange, label, disabled, pending = false, loading = false, size = 'md', tone = 'accent', trackStyle, thumbStyle, style, xstyle, onClick, ...rest }: SwitchProps) {
   const busy = pending || loading
   const settled = useRef(checked)
   useLayoutEffect(() => { if (!busy) settled.current = checked }, [busy, checked])
@@ -67,6 +94,7 @@ export function Switch({ checked, onChange, label, disabled, pending = false, lo
   const pad = size === 'md' ? 3 : 2
   const knob = h - pad * 2
   const tx = displayed ? w - pad * 2 - knob : 0
+  const button = stylex.props(switchStyles.button(Math.max(48, w + 12), Math.max(44, h), -(Math.max(44, h) - h) / 2), disabled && switchStyles.disabled, (disabled || busy) && switchStyles.locked, xstyle)
   const trackBg = tone === 'mono'
     ? (displayed ? 'var(--color-fg)' : 'var(--color-surface-7)')
     : (displayed ? 'var(--kit-switch-on)' : 'var(--color-surface-7)')
@@ -76,13 +104,9 @@ export function Switch({ checked, onChange, label, disabled, pending = false, lo
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
       {/* Vùng bấm 48×44; lề âm giữ ô bố cục đúng rãnh như artboard. */}
-      <button {...rest} type="button" role="switch" className={['kit-switch', rest.className].filter(Boolean).join(' ')} aria-checked={displayed} aria-label={rest['aria-label'] ?? label}
+      <button {...rest} type="button" role="switch" className={['kit-switch', button.className, rest.className].filter(Boolean).join(' ')} aria-checked={displayed} aria-label={rest['aria-label'] ?? label}
         aria-busy={busy || undefined} disabled={disabled || busy}
-        onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(!checked) }} style={{
-          width: Math.max(48, w + 12), height: Math.max(44, h), margin: `${-(Math.max(44, h) - h) / 2}px -6px`, padding: 0, border: 'none', background: 'transparent',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          opacity: disabled ? .4 : 1, cursor: disabled || busy ? 'not-allowed' : 'pointer', ...style,
-        }}>
+        onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(!checked) }} style={{ ...button.style, ...style }}>
         <span className="kit-switch-track" aria-hidden="true" style={{
           width: w, height: h, borderRadius: 999, position: 'relative', display: 'block', flexShrink: 0,
           background: trackBg, ...trackStyle,
@@ -213,27 +237,30 @@ export type RadioCardProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onCh
   size?: 'md' | 'lg'
   mark?: 'dot' | 'none'
   dotSize?: number
+  xstyle?: stylex.StyleXStyles
+  labelStyle?: stylex.StyleXStyles
+  descriptionStyle?: stylex.StyleXStyles
+  dotStyle?: stylex.StyleXStyles
   /** children thay cột nhãn/phụ (thẻ riêng: provider, ngôn ngữ, chế độ); dấu radio vẫn giữ bên trái. */
   children?: ReactNode
 }
 
-export function RadioCard({ checked, onChange, label, description, disabled, id, size = 'md', mark = 'dot', dotSize, children, style, className, onClick, onKeyDown, ...rest }: RadioCardProps) {
+export function RadioCard({ checked, onChange, label, description, disabled, id, size = 'md', mark = 'dot', dotSize, children, style, className, xstyle, labelStyle, descriptionStyle, dotStyle, onClick, onKeyDown, ...rest }: RadioCardProps) {
   const lg = size === 'lg'
+  const root = stylex.props(radioStyles.card, lg && radioStyles.largeCard, radioStyles.cardTone(
+    checked ? lg ? 'var(--kit-acc-50)' : 'var(--kit-acc-40)' : lg ? 'var(--line-3)' : 'var(--line-2)',
+    checked ? lg ? 'var(--kit-acc-7)' : 'var(--kit-acc-6)' : lg ? 'var(--color-card)' : 'transparent',
+  ), disabled && radioStyles.disabled, xstyle)
   return (
     <button {...rest} id={id} type="button" role="radio" aria-checked={checked} tabIndex={rest.tabIndex ?? (checked ? 0 : -1)} disabled={disabled}
-      className={['kit-rcard', className].filter(Boolean).join(' ')}
+      className={['kit-rcard', root.className, className].filter(Boolean).join(' ')}
       onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(true) }}
-      onKeyDown={(event) => { onKeyDown?.(event); if (!event.defaultPrevented) radioGroupKeys(event) }} style={{
-        display: 'flex', gap: lg ? 12 : 10, alignItems: 'flex-start', padding: lg ? 14 : '8px 10px', borderRadius: lg ? 16 : 10,
-        border: `1px solid ${checked ? lg ? 'var(--kit-acc-50)' : 'var(--kit-acc-40)' : lg ? 'var(--line-3)' : 'var(--line-2)'}`,
-        background: checked ? lg ? 'var(--kit-acc-7)' : 'var(--kit-acc-6)' : lg ? 'var(--color-card)' : 'transparent', color: 'var(--color-fg)',
-        textAlign: 'left', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? .4 : 1, ...style,
-      }}>
-      {mark === 'dot' && <RadioDot checked={checked} size={dotSize ?? size} style={{ marginTop: 1 }} />}
+      onKeyDown={(event) => { onKeyDown?.(event); if (!event.defaultPrevented) radioGroupKeys(event) }} style={{ ...root.style, ...style }}>
+      {mark === 'dot' && <RadioDot checked={checked} size={dotSize ?? size} xstyle={dotStyle} style={{ marginTop: 1 }} />}
       {children ?? (
-        <span style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0, lineHeight: lg ? 1.45 : undefined }}>
-          <span style={{ fontSize: lg ? 15 : 13, fontWeight: lg ? 500 : undefined }}>{label}</span>
-          {description && <span style={{ fontSize: lg ? 13 : 11.5, color: 'var(--kit-fg-icon)' }}>{description}</span>}
+        <span {...stylex.props(radioStyles.copy, lg && radioStyles.largeCopy)}>
+          <span {...stylex.props(radioStyles.label, lg && radioStyles.largeLabel, labelStyle)}>{label}</span>
+          {description && <span {...stylex.props(radioStyles.description, lg && radioStyles.largeDescription, descriptionStyle)}>{description}</span>}
         </span>
       )}
     </button>

@@ -73,9 +73,9 @@ export function FieldLabel({ htmlFor, children, right, style, size }: { htmlFor?
   )
 }
 
-export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function Field({ invalid, style, className, ...rest }, ref) {
-    const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk)
+export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; xstyle?: stylex.StyleXStyles }>(
+  function Field({ invalid, style, className, xstyle, ...rest }, ref) {
+    const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, xstyle)
     return <input ref={ref} aria-invalid={invalid || undefined} className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
   },
 )
