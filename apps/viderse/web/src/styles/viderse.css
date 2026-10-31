@@ -214,6 +214,7 @@
   --vv-set-help-w: 320px;
   /* Dòng/banner cam “cần sửa” và nền tiến độ xanh (đang chuyển thư mục). */
   --vv-warn-bg: rgba(255, 154, 92, .07);
+  --vv-notification-unread: rgba(255, 215, 100, .045);
   --vv-warn-bd: rgba(255, 154, 92, .3);
   --vv-warn-ink: #FFC09A;
   --vv-warn-btn-ink: #1A0E06;
