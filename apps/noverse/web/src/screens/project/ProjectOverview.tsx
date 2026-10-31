@@ -15,7 +15,7 @@ import { STORY_STATUS_LABEL, formatWords } from './format'
 import { settingsLink } from './links'
 import { ScrollTopButton } from '@noverse/ui'
 import { t } from '../../i18n/vi'
-import { RulesEditor } from '../settings/sections/rules'
+import { RulesPanel } from '../settings/sections/rules'
 import { ProjectStyleSection } from './tabs/ProjectStyleSection'
 
 function StoryTile({ project, story }: { project: string; story: StorySummary }) {
@@ -174,7 +174,7 @@ export function ProjectOverview({ project, detail }: { project: string; detail: 
         </section>
         <section id="pstyle" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <ProjectStyleSection project={project} detail={detail} />
-          <div id="prules"><RulesEditor key={project} scope="project" project={project} /></div>
+          <div id="prules"><RulesPanel key={project} scope="project" project={project} /></div>
         </section>
         <section id="ideas" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>

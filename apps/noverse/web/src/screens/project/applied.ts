@@ -55,14 +55,14 @@ export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, s
   const styleValue = pack ? `Gói ${packLabel(pack)} · có chấm` : effective.style || 'Chung'
   const rulesValue = !counts ? '…'
     : story
-      ? `${(counts.story ?? 0) + (counts.project ?? 0) + (counts.global ?? 0)} quy tắc`
-      : `${counts.project ?? 0} quy tắc của dự án + ${counts.global ?? 0} chung`
+      ? `${(counts.story ?? 0) + (counts.project ?? 0)} quy tắc`
+      : `${counts.project ?? 0} quy tắc của dự án`
   if (story) {
     return [
       { icon: 'edit-2', label: 'Quy tắc', value: rulesValue, own: false, section: 'rules' },
       { icon: 'note-text', label: 'Văn phong', value: styleValue, own: own('style'), section: 'style' },
       { icon: 'book-1', label: 'Duyệt từng chương', value: review ? 'Bật' : 'Tắt', own: own('advance_mode'), section: 'writing' },
-      { icon: 'cpu', label: 'Người viết', value: model ? `${model} · ${thinkingText(level)}` : 'Theo “Mọi truyện”', own: own('roles.writer') || own('model'), section: 'roles' },
+      { icon: 'cpu', label: 'Người viết', value: model ? `${model} · ${thinkingText(level)}` : 'Theo dự án', own: own('roles.writer') || own('model'), section: 'roles' },
     ]
   }
   const assistantOwn = own('roles.writer') || own('model')
@@ -70,7 +70,7 @@ export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, s
     { icon: 'edit-2', label: 'Quy tắc', value: rulesValue, own: false, section: 'rules' },
     { icon: 'note-text', label: 'Văn phong', value: own('style') ? styleValue : 'Chung', own: own('style'), section: 'style' },
     { icon: 'book-1', label: 'Duyệt từng chương', value: review ? 'Bật cho truyện mới' : 'Tắt cho truyện mới', own: own('advance_mode'), section: 'writing' },
-    { icon: 'cpu', label: 'Trợ lý AI', value: assistantOwn && model ? `${model} · ${thinkingText(level)}` : 'Theo “Mọi truyện”', own: assistantOwn, section: 'roles' },
+    { icon: 'cpu', label: 'Trợ lý AI', value: assistantOwn && model ? `${model} · ${thinkingText(level)}` : 'Theo Tuỳ chỉnh', own: assistantOwn, section: 'roles' },
     { icon: 'coin-1', label: 'Ngân sách mỗi truyện', value: limit > 0 ? usd(limit) : '—', own: own('budget.book_usd'), section: 'budget' },
   ]
 }

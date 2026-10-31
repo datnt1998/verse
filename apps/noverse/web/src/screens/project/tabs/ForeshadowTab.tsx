@@ -58,7 +58,7 @@ export function ForeshadowTab({ project, story }: { project: string; story: stri
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <PanelRefreshBar resourceKeys={[keys.story(project, story, 'foreshadow')]} updatedAt={resource.updatedAt} />
       <StaleBanner error={entries && resource.error} onRetry={resource.refresh} />
-      <p style={{ margin: '0 0 4px', fontSize: 13, color: '#8E8E99' }}>
+      <p style={{ margin: '0 0 4px', fontSize: 13, lineHeight: 1.5, color: '#8E8E99' }}>
         Những chi tiết đã gieo và cần được nhắc lại hoặc giải đáp ở chương sau. Kiến trúc sư theo dõi và xếp lịch.
       </p>
       {entries.length === 0 && <EmptyState icon="flag" title="Chưa có chi tiết cài cắm" hint="Chi tiết cài cắm được ghi lại khi truyện được viết." />}

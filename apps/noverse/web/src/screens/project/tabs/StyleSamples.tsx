@@ -49,9 +49,12 @@ export function StyleSamples({ project, story, canEdit }: { project: string; sto
   return (
     <section aria-label="Văn mẫu" style={{ borderTop: '1px solid var(--line-1)', padding: '12px 16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} style={{ flex: 1, border: 'none', background: 'transparent', color: 'var(--color-fg)', textAlign: 'left', fontSize: 13.5, padding: '4px 2px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Icon name="arrow-down-2" size={14} style={{ transform: expanded ? undefined : 'rotate(-90deg)' }} />
-          Văn mẫu · {total?.count ?? 0} đoạn · {chars(total?.chars ?? 0)}
+        <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} style={{ flex: 1, minWidth: 0, border: 'none', borderRadius: 9, background: 'transparent', color: 'var(--color-fg)', textAlign: 'left', fontSize: 13.5, padding: '4px 6px 4px 2px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Icon name="arrow-down-2" size={14} style={{ flexShrink: 0, color: 'var(--kit-fg-icon)', transform: expanded ? undefined : 'rotate(-90deg)' }} />
+          <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
+            <span style={{ fontSize: 13.5, fontWeight: 500 }}>Văn mẫu <span className="num" style={{ fontWeight: 400, color: 'var(--kit-fg-icon)' }}>· {total?.count ?? 0} đoạn · {chars(total?.chars ?? 0)}</span></span>
+            <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)' }}>Đoạn bạn tự viết để trợ lý học giọng văn — dùng cho kiểu “Văn phong của bạn”.</span>
+          </span>
         </button>
         {canEdit && (
           <button type="button" className="hov-ghost" aria-expanded={adding} onClick={() => { setAdding((open) => !open); setExpanded(true) }}

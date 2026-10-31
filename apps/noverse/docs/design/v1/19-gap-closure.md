@@ -842,3 +842,26 @@ Việc kỹ thuật, không đổi giao diện. Ghi lại vì có đổi hành v
 - **GAP AP–Não dự án (khung dùng chung):** thanh đầu app hiện cao 54 px, artboard 55 px; các vị trí nội dung lệch −1 px, kích thước/bố cục tương đối khớp. Main xử lý thanh đầu trên nhánh SSO, không bù bằng đệm sai trong màn.
 - **GAP AP–Não dự án (điện thoại):** không có artboard ProjBrain điện thoại; router hiện chuyển URL này sang MMore ở 390×844. Đã đo `document.scrollWidth=390`, không cuộn ngang; không dựng một luồng điện thoại mới ngoài thiết kế.
 
+
+### Gói AP · Tab truyện — Thông tin, Tiền đề, Thế giới
+
+- Tab theo thứ tự Thông tin · Tiền đề · Nhân vật · Thế giới · Dàn ý · Cài cắm · Cách viết · Bản xuất, không biểu tượng. Khung truyện chuyển khỏi Dàn ý sang Thông tin; ô sửa sách dùng GET/PUT `S/meta`, giữ phiên bản sau mỗi lần lưu. Menu Đổi tên mở `?tab=info&edit=title`, lấy tiêu điểm ô tên. Các tab dùng Activity để không mất trạng thái khi chuyển qua lại.
+- Tiền đề đọc `GET S/premise`, hợp nhất mục trong tệp với `missing[]` của máy chủ, không suy tầng lập truyện từ số chương; giữ cả mục tuỳ biến. Mục bắt buộc bị xoá hiện dòng vàng và Nhờ bổ sung. Thế giới đọc `GET S/world-rules`, nhóm Xã hội/Công nghệ/Địa lý/Phép thuật/Khác, hiển thị giới hạn. Không còn nhánh snapshot/brain tạm sau khi AP4/AP5 có thật.
+- Đã chạy trình duyệt với máy chủ tệp thật tại `8834`, Vite `5338`, tài khoản và bản sao thư viện riêng dưới `/tmp/APStoryTabsWeb` (không sửa thư viện gốc). Xoá thực mục Vùng cấm sáng tác trong premise.md: hiện thiếu 1/10 và nút bổ sung. Xoá thực world_rules.json: thẻ trống Thế giới và dải Nền móng vàng, chữ đo được `rgb(243,217,174)`. Nhờ bổ sung điền đúng tên mục; Nhờ Kiến trúc sư lập điền “Lập quy tắc thế giới từ 8 chương đã viết”; cả hai lấy tiêu điểm `id=steer`. Đã khôi phục các tệp sau đo. Hai lần lưu inline liên tiếp thành công, GET sau lưu vẫn có version/builds.
+- Cách viết gắn RulesPanel dùng chung (bao gồm AntiAiCard và thời điểm chạy); sửa cỡ tiêu đề 15px/1,5, bổ sung dòng giải thích văn mẫu còn thiếu, khoảng cách tới Quy tắc đúng 22px. Dòng Đang áp dụng không còn “Mọi truyện”.
+- Đo đủ 14 cặp `Outline: tab=info|premise|cast|world|outline|fs|export × found=full|partial` tại 1440×900 bằng canonical canvas 132 của worktree này; JSON chi tiết `/tmp/APStoryTabsWeb/measurements.json`. Bảng dưới là vị trí Y thẻ đầu, tương đối với đầu vùng nội dung; thứ tự số là board/app, full rồi partial:
+
+  | Tab | Full | Partial |
+  | --- | --- | --- |
+  | Thông tin | 16 / 16 | 16 / 16 |
+  | Tiền đề | 74 / 74 | 74 / 74 |
+  | Nhân vật | 16 / 16 | 16 / 16 |
+  | Thế giới | 93,5 / 93,5 | 74 / 74 |
+  | Dàn ý | 62 / 62 | 62 / 62 |
+  | Cài cắm | 47,5 / 47,5 | 47,5 / 47,5 |
+  | Bản xuất | 16 / 16 | 16 / 16 |
+
+- Tab 34px, chữ 13px/19,5px, đệm ngang 12px, khoảng cách 2px, bo 9px khớp; thẻ Thông tin/Tiền đề/Thế giới bo 16px, Cài cắm 14px. Dải Nền móng cao 68,41px ở cả full/partial, khớp board. Độ dài nội dung của thư viện thật khác mẫu ngắn trên board: 11 quy tắc thay vì 5; 17 cài cắm thay vì 3; tiểu sử/tiền đề đầy đủ dài hơn; danh sách chương và bản xuất thực cũng khác. Không co nội dung thật hay chế dữ liệu để ép chiều cao thẻ khớp.
+- **Ngoại lệ đã chốt AP–khung:** board khai báo cột trái 264px nhưng tràn thành 279,94px do min-width:auto; app cố ý giữ 264px/min-width:0. Nội dung vì vậy x=292, rộng 800px thay vì x=307,94, rộng 784,06px; cùng tên truyện vẫn có thể xuống 2 dòng thay vì 3. So geometry tương đối trong cột, không bù bằng số cứng mô phỏng lỗi tràn.
+- **GAP AP–tab truyện điện thoại:** chưa có board điện thoại cho Thông tin/Tiền đề/Thế giới (cũng không có bảy biến thể tab truyện). Theo quyết định giữ thiết kế hiện tại, URL truyện tại 390×844 tiếp tục mở MWork, không dựng màn mới. Đã đo scrollWidth=390, không cuộn ngang; không tuyên bố có cặp đo tab điện thoại khi tab không được mount.
+- Kiểm tra: `tsc --noEmit` thành công; 11 bài kiểm tra thuộc 5 tệp tab/applied thành công. Đã chứng minh kiểm tra bắt lỗi bằng đột biến mất cờ missing (3 bài thất bại đúng hành vi) và trước khi thêm invalidation (mapping event thiếu premise/world-rules thất bại). Ratchet màu chỉ báo giảm literal, không tăng; Main chốt lại baseline chung sau khi các phần AP nhập xong.

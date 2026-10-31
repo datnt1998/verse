@@ -183,7 +183,7 @@ export const createStory = (p: string, input: { name?: string; idea?: string }) 
   request<StorySummary>(`/api/projects/${encodeURIComponent(p)}/stories`, { body: input })
 export const getStoryMeta = (p: string, s: string, signal?: AbortSignal) => request<StoryFile>(`${storyPath(p, s)}/meta`, { signal })
 export const putStoryMeta = (p: string, s: string, meta: Omit<StoryFile, 'createdAt'>, version?: string) =>
-  request<StoryFile>(`${storyPath(p, s)}/meta`, { method: 'PUT', body: meta, version })
+  request<StoryFile>(`${storyPath(p, s)}/meta`, { method: 'PUT', body: { title: meta.title, shortTitle: meta.shortTitle, status: meta.status, tags: meta.tags, idea: meta.idea }, version })
 export const renameStory = (p: string, s: string, slug: string) =>
   request<StorySummary>(`${storyPath(p, s)}/rename`, { body: { slug } })
 export const closeStory = (p: string, s: string) => request<{ ok: boolean }>(`${storyPath(p, s)}/close`, { body: {} })
@@ -229,6 +229,11 @@ export const getBrain = (p: string, s: string, signal?: AbortSignal) => request<
 /** M8 — xem nhanh trong Trình đọc: máy chủ cắt bỏ mọi thứ sau chương đang đọc (không lộ chương sau). */
 export const getBrainUpTo = (p: string, s: string, upTo: number, signal?: AbortSignal) =>
   request<Brain>(`${storyPath(p, s)}/brain?upTo=${Math.max(1, Math.trunc(upTo))}`, { signal })
+
+export type PremiseSections = { sections: { heading: string; text: string }[]; missing: string[]; updatedAt: string | null }
+export type WorldRule = { category: string; rule: string; boundary: string }
+export const getPremise = (p: string, s: string, signal?: AbortSignal) => request<PremiseSections>(`${storyPath(p, s)}/premise`, { signal })
+export const getWorldRules = (p: string, s: string, signal?: AbortSignal) => request<WorldRule[]>(`${storyPath(p, s)}/world-rules`, { signal })
 
 // GAP-37 — khung truyện & bản đồ giữ chân (D5). PUT cần quyền viết (403), 400 khi nhóm ngoài
 // 0..4 hoặc ô chữ nhiều dòng/quá 200 ký tự; cả hai trả cùng dạng GET.
