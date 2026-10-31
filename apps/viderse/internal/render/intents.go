@@ -35,6 +35,18 @@ func (s *Service) BeginCloneExport(ctx context.Context, jobID string, accept boo
 	}
 	for _, r := range requests {
 		if r.JobID == jobID && r.ProjectID == pid && !r.Terminal() {
+			job, err := s.Jobs.GetJob(ctx, jobID)
+			if err != nil {
+				return ExportRequest{}, err
+			}
+			if job == nil {
+				return ExportRequest{}, pipeline.ErrNotFound
+			}
+			if job.Status == domain.CloneFailed && s.Resume != nil {
+				if err = s.Resume(ctx, jobID); err != nil {
+					return ExportRequest{}, err
+				}
+			}
 			return r, nil
 		}
 	}
@@ -71,6 +83,34 @@ func (s *Service) PendingMeasurement(jobID, pid string, binding quality.Binding)
 func (s *Service) Recover(ctx context.Context) error {
 	if err := s.Supervisor.Sweep(ctx, true); err != nil {
 		return err
+	}
+	exports, err := s.Store.ListExports()
+	if err != nil {
+		return err
+	}
+	for _, request := range exports {
+		if request.Status != "queued" || request.JobID == "" {
+			continue
+		}
+		job, err := s.Jobs.GetJob(ctx, request.JobID)
+		if err != nil {
+			return err
+		}
+		if job == nil || job.SupersededAt != nil {
+			if _, err = s.Store.CancelExport(request.ID, request.Nonce); err != nil {
+				return err
+			}
+			continue
+		}
+		if s.Resume == nil {
+			return pipeline.ErrConflict
+		}
+		// The existing durable intent is the owner's prior approval. After
+		// kill -9 the worker reconciles its interrupted step to failed; renew
+		// that pipeline, preserving the request ID and its rotated credential.
+		if err = s.Resume(ctx, request.JobID); err != nil {
+			return err
+		}
 	}
 	requests, err := s.Store.AllMeasurements()
 	if err != nil {
