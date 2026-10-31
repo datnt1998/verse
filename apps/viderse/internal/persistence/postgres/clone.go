@@ -411,7 +411,7 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			if err != nil {
 				return err
 			}
-			item, err := q.GetQueueItem(txctx, queueID)
+			item, err := q.LockQueueItemForAdmission(txctx, queueID)
 			if errors.Is(err, pgx.ErrNoRows) {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ không còn tồn tại"}
 			}
@@ -420,6 +420,28 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			}
 			if item.State != "queued" || item.RemovedAt.Valid {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã bị bỏ hoặc đã chạy"}
+			}
+			if in.QueueOverrideRevision != 0 && item.OverrideRevision != in.QueueOverrideRevision {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã thay đổi, vui lòng tải lại"}
+			}
+			if item.RestartOf.Valid {
+				in.Replaces = uuidStr(item.RestartOf)
+			}
+		}
+		if in.Replaces != "" {
+			id, err := cloneUUIDOf(in.Replaces)
+			if err != nil {
+				return pipeline.ErrNotFound
+			}
+			old, err := q.GetCloneJobForUpdate(txctx, id)
+			if errors.Is(err, pgx.ErrNoRows) {
+				return pipeline.ErrNotFound
+			}
+			if err != nil {
+				return err
+			}
+			if old.SupersededAt.Valid || old.SourceKey != in.SourceKey || old.Status == "pending" || old.Status == "running" || (old.LeaseExpiresAt.Valid && old.LeaseExpiresAt.Time.After(time.Now())) {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 			}
 		}
 		existing, err := q.GetCloneJobBySourceKey(txctx, in.SourceKey)
@@ -449,14 +471,14 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			res.Job, res.Created = &j, false
 			return nil
 		}
-		if haveExisting && in.Replaces != "" && in.Replaces != uuidStr(existing.ID) {
-			return fmt.Errorf("video đã có bản làm lại hoặc đang chạy")
+		if in.Replaces != "" && (!haveExisting || in.Replaces != uuidStr(existing.ID)) {
+			return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã có bản làm lại"}
 		}
 		gen_ := int32(1)
 		if haveExisting {
 			live := existing.LeaseExpiresAt.Valid && existing.LeaseExpiresAt.Time.After(time.Now())
 			if live || existing.Status == "running" || existing.Status == "pending" {
-				return fmt.Errorf("video vẫn đang làm")
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm"}
 			}
 			gen_ = existing.Generation + 1
 			if err := q.SupersedeCloneJob(txctx, gen.SupersedeCloneJobParams{ID: existing.ID, Column2: now}); err != nil {
@@ -484,6 +506,11 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 		for _, step := range domain.CloneSteps {
 			if err := q.InsertCloneStep(txctx, gen.InsertCloneStepParams{
 				JobID: row.ID, Step: string(step), Column3: now}); err != nil {
+				return err
+			}
+		}
+		if len(in.ImageCheckpoint) > 0 {
+			if err := q.SetInitialImageOverrides(txctx, gen.SetInitialImageOverridesParams{JobID: row.ID, Column2: in.ImageCheckpoint}); err != nil {
 				return err
 			}
 		}
@@ -536,6 +563,9 @@ func (s *CloneStore) refreshDerived(ctx context.Context, jobID pgtype.UUID, acti
 		return err
 	}
 	group := domain.StageGroupOf(job, steps)
+	if err := recordStageNotification(ctx, job, group); err != nil {
+		return err
+	}
 	return q.SetJobDerived(ctx, gen.SetJobDerivedParams{
 		ID: jobID, Column2: nowTz(), StageGroup: group,
 		ActiveStep: pstr((*string)(activeStep)),
@@ -647,6 +677,11 @@ func (s *CloneStore) ClaimNextStep(ctx context.Context, jobID, workerID string) 
 			}
 			return err
 		}
+		if candidate.Status == "waiting" {
+			if err := recordStepAutoRetry(txctx, u, candidate.Step); err != nil {
+				return err
+			}
+		}
 		stepName := domain.CloneStep(candidate.Step)
 		if err := s.refreshDerived(txctx, u, &stepName); err != nil {
 			return err
@@ -687,6 +722,44 @@ func (s *CloneStore) WriteStepCheckpoint(ctx context.Context, jobID string, step
 	u, err := cloneUUIDOf(jobID)
 	if err != nil {
 		return ErrNotFound
+	}
+	if step == domain.CloneImages {
+		return s.inTx(ctx, func(txctx context.Context) error {
+			q := s.q(txctx)
+			if _, err := q.GetCloneJobForUpdate(txctx, u); err != nil {
+				return err
+			}
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			var previous json.RawMessage
+			if err := tx.QueryRow(txctx, `SELECT checkpoint FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&previous); err != nil {
+				return err
+			}
+			var pendingOverride bool
+			if err := tx.QueryRow(txctx, `SELECT EXISTS (SELECT 1 FROM clone_image_override_intents WHERE job_id=$1)`, u).Scan(&pendingOverride); err != nil {
+				return err
+			}
+			if pendingOverride && startsImageFlight(previous, checkpoint) {
+				return pipeline.ErrImageOverridePending
+			}
+			if pendingOverride {
+				checkpoint, err = clearReviewOrigin(checkpoint)
+			} else {
+				checkpoint, err = preserveReviewOrigin(previous, checkpoint)
+			}
+			if err != nil {
+				return err
+			}
+			n, err := q.WriteStepCheckpoint(txctx, gen.WriteStepCheckpointParams{
+				JobID: u, Step: string(step), Column3: fence,
+				Column4: checkpoint, Column5: nowTz(), Column6: int32(attempt)})
+			if err := fenceGuard(n, err); err != nil {
+				return err
+			}
+			if err := recordImageAutoActions(txctx, u, previous, checkpoint); err != nil {
+				return err
+			}
+			return recordImageApproval(txctx, tx, u, previous, checkpoint)
+		})
 	}
 	n, err := s.q(ctx).WriteStepCheckpoint(ctx, gen.WriteStepCheckpointParams{
 		JobID: u, Step: string(step), Column3: fence,
@@ -729,6 +802,17 @@ func (s *CloneStore) ApplyStepSuccess(ctx context.Context, jobID string, step do
 	manifest, _ := json.Marshal(output)
 	return s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
+		var pending bool
+		var checkpoint json.RawMessage
+		if step == domain.CloneImages {
+			if _, err := q.GetCloneJobForUpdate(txctx, u); err != nil {
+				return err
+			}
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			if err := tx.QueryRow(txctx, `SELECT checkpoint, EXISTS (SELECT 1 FROM clone_image_review_intents WHERE job_id=$1 UNION ALL SELECT 1 FROM clone_image_override_intents WHERE job_id=$1) FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&checkpoint, &pending); err != nil {
+				return err
+			}
+		}
 		for _, a := range output.Artifacts {
 			if _, err := q.InsertCloneArtifact(txctx, gen.InsertCloneArtifactParams{
 				ID: a.ID, JobID: u, Step: string(step), Path: a.Path,
@@ -742,6 +826,15 @@ func (s *CloneStore) ApplyStepSuccess(ctx context.Context, jobID string, step do
 			Column4: manifest, Column5: nowTz(), Column6: int32(attempt)})
 		if err := fenceGuard(n, err); err != nil {
 			return err
+		}
+		if pending {
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			if _, err := tx.Exec(txctx, `UPDATE clone_steps SET status='pending',checkpoint=$2::jsonb,input_fingerprint='',finished_at=NULL WHERE job_id=$1 AND step='images'`, u, checkpoint); err != nil {
+				return err
+			}
+			if err := q.SetJobStatus(txctx, gen.SetJobStatusParams{ID: u, Status: "pending", Column3: nowTz()}); err != nil {
+				return err
+			}
 		}
 		return s.refreshDerived(txctx, u, nil)
 	})
@@ -1045,7 +1138,12 @@ func (s *CloneStore) DeleteJob(ctx context.Context, jobID string) error {
 	if err != nil {
 		return ErrNotFound
 	}
-	return s.q(ctx).DeleteCloneJob(ctx, u)
+	return s.inTx(ctx, func(tx context.Context) error {
+		if err := s.deleteCutouts(tx, jobID); err != nil {
+			return err
+		}
+		return s.q(tx).DeleteCloneJob(tx, u)
+	})
 }
 
 func (s *CloneStore) RemoveArtifacts(ctx context.Context, jobID string, ids []string) error {

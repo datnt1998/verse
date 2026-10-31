@@ -142,10 +142,40 @@ type CloneArtifact struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type CloneAutoAction struct {
+	ID        pgtype.UUID        `json:"id"`
+	JobID     pgtype.UUID        `json:"job_id"`
+	Kind      string             `json:"kind"`
+	Text      string             `json:"text"`
+	Reason    []byte             `json:"reason"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 type CloneBulkReviewIntent struct {
 	JobID         pgtype.UUID        `json:"job_id"`
 	ImageRevision int32              `json:"image_revision"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
+type CloneCutout struct {
+	JobID          pgtype.UUID `json:"job_id"`
+	OriginalSha256 string      `json:"original_sha256"`
+	LogicalPath    string      `json:"logical_path"`
+}
+
+type CloneImageOverrideIntent struct {
+	JobID            pgtype.UUID        `json:"job_id"`
+	ExpectedRevision int32              `json:"expected_revision"`
+	Manifest         []byte             `json:"manifest"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+}
+
+type CloneImageReviewIntent struct {
+	JobID            pgtype.UUID        `json:"job_id"`
+	ImageID          string             `json:"image_id"`
+	Item             []byte             `json:"item"`
+	ExpectedRevision int32              `json:"expected_revision"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 }
 
 type CloneJob struct {
@@ -173,25 +203,37 @@ type CloneJob struct {
 	PostedAt          pgtype.Timestamptz `json:"posted_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	ImageApprovedAt   pgtype.Timestamptz `json:"image_approved_at"`
+}
+
+type CloneMetadataState struct {
+	JobID     pgtype.UUID        `json:"job_id"`
+	State     []byte             `json:"state"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type CloneQueue struct {
-	ID             pgtype.UUID        `json:"id"`
-	ChannelID      pgtype.UUID        `json:"channel_id"`
-	SourceVideoID  string             `json:"source_video_id"`
-	SourceKey      string             `json:"source_key"`
-	SourceSnapshot []byte             `json:"source_snapshot"`
-	Priority       string             `json:"priority"`
-	Origin         string             `json:"origin"`
-	Position       float64            `json:"position"`
-	State          string             `json:"state"`
-	NoImages       bool               `json:"no_images"`
-	TemplateID     pgtype.UUID        `json:"template_id"`
-	JobID          pgtype.UUID        `json:"job_id"`
-	Reason         pgtype.Text        `json:"reason"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	StartedAt      pgtype.Timestamptz `json:"started_at"`
-	RemovedAt      pgtype.Timestamptz `json:"removed_at"`
+	ID               pgtype.UUID        `json:"id"`
+	ChannelID        pgtype.UUID        `json:"channel_id"`
+	SourceVideoID    string             `json:"source_video_id"`
+	SourceKey        string             `json:"source_key"`
+	SourceSnapshot   []byte             `json:"source_snapshot"`
+	Priority         string             `json:"priority"`
+	Origin           string             `json:"origin"`
+	Position         float64            `json:"position"`
+	State            string             `json:"state"`
+	NoImages         bool               `json:"no_images"`
+	TemplateID       pgtype.UUID        `json:"template_id"`
+	JobID            pgtype.UUID        `json:"job_id"`
+	Reason           pgtype.Text        `json:"reason"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	StartedAt        pgtype.Timestamptz `json:"started_at"`
+	RemovedAt        pgtype.Timestamptz `json:"removed_at"`
+	ScenePromptID    pgtype.Text        `json:"scene_prompt_id"`
+	CoverPromptID    pgtype.Text        `json:"cover_prompt_id"`
+	NoImagesOverride pgtype.Bool        `json:"no_images_override"`
+	OverrideRevision int64              `json:"override_revision"`
+	RestartOf        pgtype.UUID        `json:"restart_of"`
 }
 
 type CloneStep struct {
@@ -284,6 +326,7 @@ type Notification struct {
 	ReadAt      pgtype.Timestamptz `json:"read_at"`
 	Audience    string             `json:"audience"`
 	ObjectRef   []byte             `json:"object_ref"`
+	Detail      []byte             `json:"detail"`
 }
 
 type Overlay struct {

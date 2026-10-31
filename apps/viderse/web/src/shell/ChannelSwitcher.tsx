@@ -40,7 +40,10 @@ export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = fa
 
   const isAll = current === undefined
   const selected = channels.find((c) => c.id === current)
-  const pick = (id: string | undefined) => { onPick(id); setOpen(false) }
+  const pick = (id: string | undefined) => {
+    try { localStorage.setItem('viderse:workbench-scope', id ?? 'all') } catch { /* storage unavailable */ }
+    onPick(id); setOpen(false)
+  }
 
   const stack = (size: number, fontSize: number) => (
     <span aria-hidden="true" className="vv-stack">
@@ -65,7 +68,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = fa
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`${t.shell.channelSwitcher} · ${t.shell.viewingAllChannels}`}
+        aria-label={`${t.shell.channelSwitcher} · ${isAll ? t.shell.viewingAllChannels : selected?.name ?? ''}`}
         title={t.shell.channelSwitcher}
         onClick={() => setOpen(!open)}
         className={`vv-switcher ${stylex.props(styles.button, mobileBar && styles.mobileButton).className}`}

@@ -47,6 +47,7 @@ type ResetInput struct {
 	ExpectedRevision *int   `json:"expectedRevision"`
 	ConfirmCount     int    `json:"confirmCount"`
 	Kind             string `json:"kind,omitempty"`
+	Feedback         string `json:"feedback,omitempty"`
 }
 type MutationResult struct {
 	JobID    string  `json:"jobId"`
@@ -77,12 +78,20 @@ type ReviewResult struct {
 	Kicked        bool            `json:"kicked"`
 	Generation    *GenerateResult `json:"generation"`
 }
+type EffectivePrompt struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Overridden bool   `json:"overridden"`
+}
 type ManifestView struct {
 	Revision        int                `json:"revision"`
 	SceneGeneration int                `json:"sceneGeneration"`
 	SceneRevision   int                `json:"sceneRevision"`
 	Waiting         *domain.CloneError `json:"waiting"`
 	ImageMode       *string            `json:"imageMode"`
+	ScenePrompt     EffectivePrompt    `json:"scenePrompt"`
+	CoverPrompt     EffectivePrompt    `json:"coverPrompt"`
+	Overrides       *model.Overrides   `json:"overrides"`
 }
 type VersionView struct {
 	Version           int             `json:"version"`
@@ -96,6 +105,9 @@ type VersionView struct {
 	SourceFingerprint string          `json:"sourceFingerprint"`
 	Source            string          `json:"source"`
 	Cutout            *scenes.FileRef `json:"cutout"`
+	OriginalURL       string          `json:"originalUrl,omitempty"`
+	CutoutURL         string          `json:"cutoutUrl,omitempty"`
+	CutoutState       string          `json:"cutoutState"`
 }
 type ItemView struct {
 	ID             string        `json:"id"`
@@ -108,21 +120,26 @@ type ItemView struct {
 	ReviewVersion  *int          `json:"reviewVersion"`
 	QueuePosition  *int          `json:"queuePosition"`
 	Reference      string        `json:"reference"`
+	ReferenceURL   string        `json:"referenceUrl,omitempty"`
 	Width          int           `json:"width"`
 	Height         int           `json:"height"`
 	Versions       []VersionView `json:"versions"`
 	SceneID        string        `json:"sceneId,omitempty"`
 	StartFrame     int           `json:"startFrame,omitempty"`
 	EndFrame       int           `json:"endFrame,omitempty"`
+	StartSec       *float64      `json:"startSec,omitempty"`
+	EndSec         *float64      `json:"endSec,omitempty"`
+	DurationSec    *float64      `json:"durationSec,omitempty"`
 	Narration      string        `json:"narration,omitempty"`
 	Direction      string        `json:"direction,omitempty"`
 	MediaID        string        `json:"mediaId,omitempty"`
 }
 type View struct {
-	Manifest *ManifestView `json:"manifest"`
-	Items    []ItemView    `json:"items"`
-	Approved bool          `json:"approved"`
-	Reason   string        `json:"reason,omitempty"`
+	Manifest      *ManifestView `json:"manifest"`
+	Items         []ItemView    `json:"items"`
+	Approved      bool          `json:"approved"`
+	ApprovedToday *int          `json:"approvedToday"`
+	Reason        string        `json:"reason,omitempty"`
 }
 
 // OptionalString distinguishes omission (retain override) from null (template).

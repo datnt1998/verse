@@ -11,6 +11,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/platform/blobhttp"
 	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/identity"
@@ -122,7 +123,7 @@ func listClone(w http.ResponseWriter, r *http.Request, svc CloneService) {
 		}
 		channelID = &channel
 	}
-	limit := 50
+	limit := 10000
 	if values, ok := query["limit"]; ok {
 		var err error
 		limit, err = strconv.Atoi(values[0])
@@ -138,6 +139,27 @@ func listClone(w http.ResponseWriter, r *http.Request, svc CloneService) {
 	if err != nil {
 		WriteCloneError(w, err)
 		return
+	}
+	list.BulkEligibility = domain.BulkEligibility(list.Jobs)
+	if id := domain.PickDefaultJob(list.Jobs); id != "" {
+		list.DefaultJobID = &id
+	}
+	if channelID == nil {
+		visible := list.Jobs[:0]
+		queued := 0
+		for _, job := range list.Jobs {
+			if job.StageGroup == domain.StagePosted {
+				continue
+			}
+			if job.StageGroup == domain.StageQueued {
+				queued++
+				if queued > 3 {
+					continue
+				}
+			}
+			visible = append(visible, job)
+		}
+		list.Jobs = visible
 	}
 	webapp.WriteJSON(w, http.StatusOK, list)
 }
@@ -254,8 +276,13 @@ func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files clone
 func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id string) {
 	var request struct {
 		Action string `json:"action"`
+		DryRun bool   `json:"dryRun"`
 	}
 	if !webapp.DecodeJSONCode(w, r, &request, domain.CloneErrInvalidRequest) {
+		return
+	}
+	if request.DryRun && request.Action != "restart" {
+		invalidClone(w, "Chỉ xem trước được thao tác làm lại.")
 		return
 	}
 	var job *domain.CloneJob
@@ -269,6 +296,37 @@ func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id st
 		job, err = svc.Resume(r.Context(), id)
 	case "cancel":
 		job, err = svc.Cancel(r.Context(), id)
+	case "restart":
+		if request.DryRun {
+			planner, ok := svc.(interface {
+				RestartPlan(context.Context, string) (*domain.CloneRestartPlan, error)
+			})
+			if !ok {
+				cloneAvailable(w, false)
+				return
+			}
+			plan, err := planner.RestartPlan(r.Context(), id)
+			if err != nil {
+				WriteCloneError(w, err)
+				return
+			}
+			webapp.WriteJSON(w, http.StatusOK, plan)
+			return
+		}
+		restarter, ok := svc.(interface {
+			Restart(context.Context, string) (*domain.CloneQueueItem, error)
+		})
+		if !ok {
+			cloneAvailable(w, false)
+			return
+		}
+		result, restartErr := restarter.Restart(r.Context(), id)
+		if restartErr != nil {
+			WriteCloneError(w, restartErr)
+			return
+		}
+		webapp.WriteJSON(w, http.StatusAccepted, map[string]any{"restartedFrom": id, "queueItem": result})
+		return
 	default:
 		invalidClone(w, "Thao tác làm video không hợp lệ.")
 		return
@@ -388,6 +446,10 @@ func WriteCloneError(w http.ResponseWriter, err error) {
 			})
 			return
 		}
+	}
+	if errors.Is(err, pipeline.ErrNotFound) {
+		webapp.WriteJSON(w, http.StatusNotFound, cloneErrorWire{Error: "Không tìm thấy video.", Code: domain.CloneErrNotFound})
+		return
 	}
 	switch {
 	case errors.Is(err, blobstore.ErrNotFound):

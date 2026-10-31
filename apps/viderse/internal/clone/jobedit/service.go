@@ -33,6 +33,9 @@ type Change struct {
 	Rerun          bool
 	Artifacts      []domain.CloneArtifact
 	ApproveExport  bool
+	ImageReview    bool
+	ImageIDs       []string
+	ImageOverride  bool
 }
 type Store interface {
 	Read(context.Context, string, domain.CloneStep) (Snapshot, error)
@@ -71,6 +74,9 @@ func (s *Service) Read(ctx context.Context, id string, step domain.CloneStep) (S
 	snapshot, err := s.Store.Read(ctx, id, step)
 	if err != nil {
 		return Snapshot{}, err
+	}
+	if hasManifest(snapshot.Manifest) {
+		return snapshot, nil
 	}
 	if hasManifest(snapshot.Step.Checkpoint) {
 		snapshot.Manifest = append(json.RawMessage(nil), snapshot.Step.Checkpoint...)
@@ -152,12 +158,47 @@ func (s *Service) Acquire(ctx context.Context, snapshot Snapshot, path string) (
 }
 
 func (s *Service) Commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact) error {
-	return s.commit(ctx, before, checkpoint, from, rerun, artifacts, false)
+	return s.commit(ctx, before, checkpoint, from, rerun, artifacts, false, nil)
 }
 func (s *Service) CommitOwnerApproval(ctx context.Context, before Snapshot, checkpoint any) error {
-	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true)
+	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true, nil)
 }
-func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool) error {
+func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, imageIDs []string) error {
+	if before.Step.Status == domain.CloneRunning {
+		raw, err := json.Marshal(checkpoint)
+		if err != nil {
+			return err
+		}
+		if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, ImageReview: true, ImageIDs: imageIDs}); err != nil {
+			return err
+		}
+		if s.Publish != nil {
+			s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+		}
+		if from != "" && s.Wake != nil {
+			s.Wake()
+		}
+		return nil
+	}
+	return s.commit(ctx, before, checkpoint, from, rerun, nil, false, imageIDs)
+}
+func (s *Service) CommitImageOverride(ctx context.Context, before Snapshot, checkpoint any) error {
+	raw, err := json.Marshal(checkpoint)
+	if err != nil {
+		return err
+	}
+	if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, InvalidateFrom: domain.CloneImages, Rerun: true, ImageOverride: true}); err != nil {
+		return err
+	}
+	if s.Publish != nil {
+		s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+	}
+	if s.Wake != nil {
+		s.Wake()
+	}
+	return nil
+}
+func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool, imageIDs []string) error {
 	raw, err := json.Marshal(checkpoint)
 	if err != nil {
 		return err
@@ -215,7 +256,7 @@ func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, f
 		published = append(published, artifact)
 	}
 	err = s.Media.Publish(ctx, published, func(txctx context.Context) error {
-		return s.Store.Commit(txctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, Artifacts: entries, ApproveExport: approveExport})
+		return s.Store.Commit(txctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, Artifacts: entries, ApproveExport: approveExport, ImageReview: imageIDs != nil, ImageIDs: imageIDs})
 	})
 	if err != nil {
 		return err

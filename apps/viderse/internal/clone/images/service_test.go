@@ -22,6 +22,10 @@ type editStore struct {
 	change        jobedit.Change
 	sceneRevision int
 	sceneStatus   domain.CloneStatus
+	artifacts     []domain.CloneArtifact
+	noImages      bool
+	template      json.RawMessage
+	steps         []domain.CloneStepRecord
 }
 
 func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (jobedit.Snapshot, error) {
@@ -43,11 +47,12 @@ func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (j
 		}
 		return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1}, Step: domain.CloneStepRecord{Step: step, Status: s.sceneStatus, Checkpoint: raw}, Manifest: raw}, nil
 	}
-	return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1}, Step: domain.CloneStepRecord{Step: step, Checkpoint: raw}, Manifest: raw}, nil
+	return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1, NoImages: s.noImages, TemplateSnapshot: s.template}, Step: domain.CloneStepRecord{Step: step, Checkpoint: raw}, Steps: s.steps, Manifest: raw, Artifacts: s.artifacts}, nil
 }
 func (s *editStore) Commit(_ context.Context, _ jobedit.Snapshot, c jobedit.Change) error {
 	s.commits++
 	s.change = c
+	s.artifacts = append(s.artifacts, c.Artifacts...)
 	return json.Unmarshal(c.Checkpoint, &s.m)
 }
 func testService() (*Service, *editStore) {
@@ -84,6 +89,107 @@ func TestRedrawAllConfirmationMatchesEligibleCount(t *testing.T) {
 	requireCode(t, err, domain.CloneErrConflict)
 	if store.commits != 0 {
 		t.Fatal("charged without confirmation")
+	}
+}
+
+func TestRedrawAllAppliesSharedFeedback(t *testing.T) {
+	s, store := testService()
+	s.Edits.Media = &stepstest.FakeMedia{Root: t.TempDir()}
+	var input ResetInput
+	if err := json.Unmarshal([]byte(`{"expectedRevision":3,"confirmCount":2,"feedback":"Use warmer light"}`), &input); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.RedrawAll(context.Background(), "job", input); err != nil {
+		t.Fatal(err)
+	}
+	for _, item := range store.m.Items {
+		if item.Direction != "Use warmer light" {
+			t.Fatalf("%s direction = %q", item.ID, item.Direction)
+		}
+	}
+}
+
+func TestImageViewsExposeAuthorizedArtifactURLs(t *testing.T) {
+	s, store := testService()
+	store.m.Items[0].Versions[0].Path = "images/a.webp"
+	store.m.Items[0].Versions[0].SHA256 = "hash"
+	store.m.Items[0].Reference.Path = "scenes/reference.jpg"
+	store.artifacts = []domain.CloneArtifact{
+		{ID: "image-artifact", Path: "clone/job/hash/images/a.webp", SHA256: "hash"},
+		{ID: "reference-artifact", Path: "clone/job/ref/scenes/reference.jpg"},
+	}
+	view, err := s.Read(context.Background(), "job")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := json.Marshal(view.Items[0])
+	var wire map[string]any
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		t.Fatal(err)
+	}
+	version := wire["versions"].([]any)[0].(map[string]any)
+	if version["originalUrl"] != "/api/clone/job/artifacts/image-artifact" || wire["referenceUrl"] != "/api/clone/job/artifacts/reference-artifact" {
+		t.Fatalf("missing authorized URLs: %s", raw)
+	}
+}
+
+func TestCutoutUnavailableWithoutRunner(t *testing.T) {
+	s, _ := testService()
+	_, err := s.Cutout(context.Background(), "job", "scene-1", 1)
+	requireCode(t, err, domain.CloneErrToolMissing)
+}
+
+type coverPromptCatalog struct{}
+
+func (coverPromptCatalog) GetPrompt(_ context.Context, id string) (*domain.ImagePrompt, error) {
+	return &domain.ImagePrompt{ID: id, Kind: domain.PromptCover, Prompt: "new cover"}, nil
+}
+
+func TestCoverOverrideChargesEvenWithoutSceneImages(t *testing.T) {
+	s, store := testService()
+	store.m.ImageMode = "none"
+	store.noImages = true
+	s.Prompts = coverPromptCatalog{}
+	s.QuotaLeft = func(context.Context) (int, error) { return 10, nil }
+	id := "cover"
+	plan, err := s.PlanOverrides(context.Background(), "job", OverrideInput{CoverPromptID: OptionalString{Set: true, Value: &id}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !plan.Redraw.Cover || plan.Cost.Images != 1 || plan.Redraw.Scenes != 0 {
+		t.Fatalf("wrong cover-only plan: %+v", plan)
+	}
+}
+
+func TestImageViewExposesEffectivePrompt(t *testing.T) {
+	s, store := testService()
+	store.template = json.RawMessage(`{"scenePrompt":{"id":"template","name":"Template Scene"},"coverPrompt":{"id":"cover","name":"Template Cover"}}`)
+	view, err := s.Read(context.Background(), "job")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := json.Marshal(view.Manifest)
+	var wire map[string]any
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		t.Fatal(err)
+	}
+	scene, ok := wire["scenePrompt"].(map[string]any)
+	if !ok || scene["id"] != "template" || scene["name"] != "Template Scene" || scene["overridden"] != false {
+		t.Fatalf("missing effective prompt: %s", raw)
+	}
+}
+
+func TestOverridePlanDoesNotPromiseRebuildBeforeBuild(t *testing.T) {
+	s, _ := testService()
+	s.Prompts = promptCatalog{}
+	s.QuotaLeft = func(context.Context) (int, error) { return 10, nil }
+	id := "scene-custom"
+	plan, err := s.PlanOverrides(context.Background(), "job", OverrideInput{ScenePromptID: OptionalString{Set: true, Value: &id}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.Redraw.Scenes != 1 || plan.Cost.Images != 1 || plan.Rebuild {
+		t.Fatalf("wrong in-progress plan: %+v", plan)
 	}
 }
 func TestCoverRejectsMagicOnlyAndNonImagesBeforeEncoding(t *testing.T) {
@@ -178,6 +284,7 @@ func TestApproveAllCommitsBuildInvalidation(t *testing.T) {
 }
 func TestSceneOverridePersistsWithoutResettingCover(t *testing.T) {
 	s, store := testService()
+	store.steps = []domain.CloneStepRecord{{Step: domain.CloneBuild, Status: domain.CloneSucceeded}}
 	s.Edits.Media = &stepstest.FakeMedia{Root: t.TempDir()}
 	s.Prompts = promptCatalog{}
 	s.QuotaLeft = func(context.Context) (int, error) { return 9, nil }

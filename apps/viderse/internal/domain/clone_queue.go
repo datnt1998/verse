@@ -76,6 +76,7 @@ type CloneQueueItemView struct {
 	DurationSec  *float64      `json:"durationSec"`
 	Priority     ClonePriority `json:"priority"`
 	ETAStart     *time.Time    `json:"etaStart"`
+	ETADone      *time.Time    `json:"etaDone"`
 	WaitReason   string        `json:"waitReason,omitempty"`
 	Position     float64       `json:"position"`
 	ThumbnailURL *string       `json:"thumbnailUrl,omitempty"`

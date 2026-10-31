@@ -247,18 +247,21 @@ type CloneError struct {
 func (e *CloneError) Error() string { return e.Message }
 
 type CloneSourceSnapshot struct {
-	ID           string     `json:"id"`
-	URL          string     `json:"url"`
-	Title        string     `json:"title"`
-	ChannelID    *string    `json:"channelId"`
-	ChannelTitle *string    `json:"channelTitle"`
-	ThumbnailURL *string    `json:"thumbnailUrl"`
-	DurationSec  *float64   `json:"durationSec"`
-	ViewCount    *int64     `json:"viewCount,omitempty"`
-	HasCaptions  *bool      `json:"hasCaptions,omitempty"`
-	PublishedAt  *time.Time `json:"publishedAt,omitempty"`
-	Outlier      *float64   `json:"outlier,omitempty"`
-	ScannedAt    time.Time  `json:"scannedAt"`
+	ID                string     `json:"id"`
+	URL               string     `json:"url"`
+	Title             string     `json:"title"`
+	ChannelID         *string    `json:"channelId"`
+	ChannelTitle      *string    `json:"channelTitle"`
+	ThumbnailURL      *string    `json:"thumbnailUrl"`
+	DurationSec       *float64   `json:"durationSec"`
+	ViewCount         *int64     `json:"viewCount,omitempty"`
+	HasCaptions       *bool      `json:"hasCaptions,omitempty"`
+	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
+	Outlier           *float64   `json:"outlier,omitempty"`
+	CaptionLanguage   *string    `json:"captionLanguage,omitempty"`
+	ChapterCount      *int       `json:"chapterCount,omitempty"`
+	TranscriptExcerpt *string    `json:"transcriptExcerpt,omitempty"`
+	ScannedAt         time.Time  `json:"scannedAt"`
 }
 type CloneProgress struct {
 	UnitsDone  int64  `json:"unitsDone"`
@@ -319,22 +322,27 @@ type CloneStepRecord struct {
 	UpdatedAt    time.Time        `json:"updatedAt"`
 }
 type CloneQueueItem struct {
-	ID            string              `json:"id"`
-	ChannelID     string              `json:"channelId"`
-	SourceVideoID string              `json:"sourceVideoId"`
-	SourceKey     string              `json:"sourceKey"`
-	Source        CloneSourceSnapshot `json:"source"`
-	Priority      ClonePriority       `json:"priority"`
-	Origin        CloneOrigin         `json:"origin"`
-	Position      float64             `json:"position"`
-	State         CloneQueueState     `json:"state"`
-	NoImages      bool                `json:"noImages"`
-	TemplateID    *string             `json:"templateId,omitempty"`
-	JobID         *string             `json:"jobId"`
-	Reason        *string             `json:"reason"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	StartedAt     *time.Time          `json:"startedAt"`
-	RemovedAt     *time.Time          `json:"-"`
+	ID               string              `json:"id"`
+	ChannelID        string              `json:"channelId"`
+	SourceVideoID    string              `json:"sourceVideoId"`
+	SourceKey        string              `json:"sourceKey"`
+	Source           CloneSourceSnapshot `json:"source"`
+	Priority         ClonePriority       `json:"priority"`
+	Origin           CloneOrigin         `json:"origin"`
+	Position         float64             `json:"position"`
+	State            CloneQueueState     `json:"state"`
+	NoImages         bool                `json:"noImages"`
+	ScenePromptID    *string             `json:"scenePromptId"`
+	CoverPromptID    *string             `json:"coverPromptId"`
+	NoImagesOverride *bool               `json:"noImagesOverride,omitempty"`
+	OverrideRevision int64               `json:"overrideRevision"`
+	TemplateID       *string             `json:"templateId,omitempty"`
+	JobID            *string             `json:"jobId"`
+	RestartOf        *string             `json:"previousJobId,omitempty"`
+	Reason           *string             `json:"reason"`
+	CreatedAt        time.Time           `json:"createdAt"`
+	StartedAt        *time.Time          `json:"startedAt"`
+	RemovedAt        *time.Time          `json:"-"`
 }
 type CloneAgentView struct {
 	ID     string            `json:"id"`
@@ -348,9 +356,11 @@ type CloneAgentMetric struct {
 }
 type CloneJobView struct {
 	CloneJob
-	Subline   string            `json:"subline"`
-	AgentView []CloneAgentView  `json:"agentView"`
-	Steps     []CloneStepRecord `json:"steps"`
+	Subline       string            `json:"subline"`
+	AgentView     []CloneAgentView  `json:"agentView"`
+	Steps         []CloneStepRecord `json:"steps"`
+	PreviousJobID *string           `json:"previousJobId"`
+	ExportBytes   *int64            `json:"exportBytes"`
 	// QueueItem mang mục hàng chờ gốc khi hàng này là mục chưa có job
 	// (StageGroup "queued"); nil cho job thật.
 	QueueItem *CloneQueueItem `json:"queueItem,omitempty"`

@@ -13,7 +13,7 @@ import { LoginScreen } from './screens/auth/LoginScreen'
 import { AccessDeniedScreen } from './screens/auth/AccessDeniedScreen'
 import { ChangePasswordScreen } from './screens/auth/ChangePasswordScreen'
 import { ServerDownScreen } from './screens/auth/ServerDownScreen'
-import { HomeScreen } from './screens/home/HomeScreen'
+import { WorkbenchScreen as HomeScreen } from './screens/workbench/WorkbenchScreen'
 import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
 import { navigate, routePath, useRoute, type Route } from './router'
@@ -118,7 +118,7 @@ export default function App() {
   return (
     <SessionProvider>
       <Root />
-      <ToastHost />
+      <ToastHost activity />
     </SessionProvider>
   )
 }

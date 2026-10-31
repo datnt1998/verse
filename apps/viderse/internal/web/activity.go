@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -27,8 +28,76 @@ func MountActivity(g *Gateway, svc Activity) {
 			webapp.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		webapp.WriteJSON(w, http.StatusOK, activityToWire(snap))
+		out := activityToWire(snap)
+		if preferences, ok := svc.(interface {
+			NotificationSettings(context.Context) (activity.NotificationSettings, error)
+		}); ok {
+			prefs, err := preferences.NotificationSettings(r.Context())
+			if err != nil {
+				webapp.Error(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			for i, n := range snap.Unread {
+				out.Unread[i].SystemAllowed = prefs.SystemAllowed(n.Kind, n.CreatedAt.In(time.Local))
+			}
+		}
+		webapp.WriteJSON(w, http.StatusOK, out)
 	})
+	if preferences, ok := svc.(interface {
+		NotificationSettings(context.Context) (activity.NotificationSettings, error)
+		SetNotificationSettings(context.Context, activity.NotificationSettings) error
+		NotificationPage(context.Context, string) ([]activity.Notification, string, error)
+	}); ok {
+		g.Handle(http.MethodGet, "/api/notifications/settings", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			prefs, err := preferences.NotificationSettings(r.Context())
+			if err != nil {
+				webapp.Error(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			w.Header().Set("Cache-Control", "private, no-store")
+			webapp.WriteJSON(w, http.StatusOK, prefs)
+		})
+		g.Handle(http.MethodPut, "/api/notifications/settings", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			var prefs activity.NotificationSettings
+			if !webapp.DecodeJSON(w, r, &prefs) {
+				return
+			}
+			if err := prefs.Validate(); err != nil {
+				webapp.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			if err := preferences.SetNotificationSettings(r.Context(), prefs); err != nil {
+				webapp.Error(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			webapp.WriteJSON(w, http.StatusOK, prefs)
+		})
+		g.Handle(http.MethodGet, "/api/notifications", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			ctx := activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin)
+			notes, next, err := preferences.NotificationPage(ctx, r.URL.Query().Get("before"))
+			if err == activity.ErrInvalidCursor {
+				webapp.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			if err != nil {
+				webapp.Error(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			prefs, err := preferences.NotificationSettings(ctx)
+			if err != nil {
+				webapp.Error(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			out := make([]notificationWire, 0, len(notes))
+			for _, n := range notes {
+				item := notificationToWire(n)
+				item.SystemAllowed = prefs.SystemAllowed(n.Kind, n.CreatedAt.In(time.Local))
+				out = append(out, item)
+			}
+			w.Header().Set("Cache-Control", "private, no-store")
+			webapp.WriteJSON(w, http.StatusOK, map[string]any{"notifications": out, "nextCursor": next})
+		})
+	}
 	g.Handle(http.MethodPost, "/api/notifications/read", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		var req struct {
 			IDs []string `json:"ids"`
@@ -74,19 +143,22 @@ type activityWire struct {
 	VideoJobs int                `json:"videoJobs"`
 	Queued    int                `json:"queued"`
 	Unread    []notificationWire `json:"unread"`
+	Badge     int                `json:"badge"`
+	NextScan  *activity.NextScan `json:"nextScan"`
 }
 
 type taskWire struct {
-	ID       string        `json:"id"`
-	Kind     string        `json:"kind"`
-	Agent    string        `json:"agent,omitempty"`
-	Title    string        `json:"title"`
-	Object   objectWire    `json:"objectRef"`
-	Phase    string        `json:"phase"`
-	Progress *progressWire `json:"progress"`
-	ETASec   *int          `json:"etaSec"`
-	State    string        `json:"state"`
-	Action   actionWire    `json:"action"`
+	ID        string        `json:"id"`
+	Kind      string        `json:"kind"`
+	Agent     string        `json:"agent,omitempty"`
+	Title     string        `json:"title"`
+	Object    objectWire    `json:"objectRef"`
+	Phase     string        `json:"phase"`
+	Progress  *progressWire `json:"progress"`
+	CreatedAt *time.Time    `json:"createdAt,omitempty"`
+	ETASec    *int          `json:"etaSec"`
+	State     string        `json:"state"`
+	Action    actionWire    `json:"action"`
 }
 
 type objectWire struct {
@@ -114,15 +186,16 @@ type actionWire struct {
 }
 
 type notificationWire struct {
-	ID          string      `json:"id"`
-	Kind        string      `json:"kind"`
-	Count       int         `json:"count"`
-	Text        string      `json:"text"`
-	Href        string      `json:"href"`
-	ActionLabel string      `json:"actionLabel"`
-	CreatedAt   string      `json:"createdAt"`
-	ReadAt      *string     `json:"readAt"`
-	Object      *objectWire `json:"objectRef,omitempty"`
+	ID            string                        `json:"id"`
+	Kind          string                        `json:"kind"`
+	Count         int                           `json:"count"`
+	Text          string                        `json:"text"`
+	Detail        *activity.NotificationDetail  `json:"detail,omitempty"`
+	Actions       []activity.NotificationAction `json:"actions"`
+	CreatedAt     string                        `json:"createdAt"`
+	ReadAt        *string                       `json:"readAt"`
+	Object        *objectWire                   `json:"objectRef,omitempty"`
+	SystemAllowed bool                          `json:"systemAllowed"`
 }
 
 func activityToWire(snap activity.Snapshot) activityWire {
@@ -131,6 +204,8 @@ func activityToWire(snap activity.Snapshot) activityWire {
 		VideoJobs: snap.VideoJobs,
 		Queued:    snap.Queued,
 		Unread:    make([]notificationWire, 0, len(snap.Unread)),
+		Badge:     snap.Badge,
+		NextScan:  snap.NextScan,
 	}
 	for _, t := range snap.Tasks {
 		out.Running = append(out.Running, taskToWire(t))
@@ -148,6 +223,10 @@ func taskToWire(t activity.Task) taskWire {
 		Phase:  t.Phase, ETASec: t.ETASec, State: t.State,
 		Action: actionWire{Label: t.Action.Label, Href: t.Action.Href, Op: t.Action.Op},
 	}
+	if !t.CreatedAt.IsZero() {
+		at := t.CreatedAt
+		tw.CreatedAt = &at
+	}
 	if t.Progress != nil {
 		pw := &progressWire{Done: t.Progress.Done, Total: t.Progress.Total}
 		for _, g := range t.Progress.Groups {
@@ -161,8 +240,26 @@ func taskToWire(t activity.Task) taskWire {
 func notificationToWire(n activity.Notification) notificationWire {
 	nw := notificationWire{
 		ID: n.ID, Kind: n.Kind, Count: n.Count, Text: n.Text,
-		Href: n.Href, ActionLabel: n.ActionLabel,
+		Actions:   make([]activity.NotificationAction, 0, 2),
 		CreatedAt: n.CreatedAt.UTC().Format(time.RFC3339),
+		Detail:    n.Detail,
+	}
+	href, label := n.Href, n.ActionLabel
+	if label == "" {
+		label = "Mở"
+	}
+	if n.Kind == "review_ready" && n.Count > 1 {
+		nw.Text = fmt.Sprintf("%d video chờ duyệt", n.Count)
+		href = "#/review"
+	}
+	if n.Kind == "needs_attention" {
+		label = "Mở video"
+		if n.Detail != nil && n.Detail.Recovery != nil {
+			nw.Actions = append(nw.Actions, *n.Detail.Recovery)
+		}
+	}
+	if href != "" {
+		nw.Actions = append(nw.Actions, activity.NotificationAction{Label: label, Href: href})
 	}
 	if n.Object != nil {
 		nw.Object = &objectWire{Type: n.Object.Type, ID: n.Object.ID, Label: n.Object.Label}

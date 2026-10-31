@@ -23,6 +23,7 @@ const video = (i: number, patch: Partial<Video> = {}): Video => ({
   id: `v${i}`, channelId: 'r1', title: `Video số ${i}`, durationSec: 2391,
   viewCount: 1_200_000, publishedAt: '2026-10-28T04:00:00Z', exactTime: true,
   score: i === 0 ? 4.2 : 2.1, hasCaptions: i % 3 === 0 ? true : null,
+  scoreReason: i === 0 ? { agent: 'scout', text: 'Tổng lượt xem gấp 4,2 lần trung vị.', facts: [{ label: 'Trung vị kênh', value: '285 N', source: '150 video gần nhất' }] } : undefined,
   thumbnailUrl: `https://i.ytimg.com/vi/v${i}/mqdefault.jpg`, url: `https://youtu.be/v${i}`,
   ...patch,
 })
@@ -328,7 +329,7 @@ describe('màn Khám phá', () => {
     await click(byText(el, 'button', 'Video số 0'))
     await until(() => !!byText(el, 'button', tt.rivalInfo))
     await click(byText(el, 'button', tt.why))
-    expect(byText(el, '*', tt.whyFacts.median)).toBeTruthy()
+    expect(byText(el, '*', 'Trung vị kênh')).toBeTruthy()
     // Chọn kênh + nút chính khoá, cùng trỏ tới câu lý do hiện dưới nút (kèm link Tạo kênh).
     const make = byText(el.querySelector('.vx-rail')!, 'button', tt.makeVideo)! as HTMLButtonElement
     expectLocked(make)

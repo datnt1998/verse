@@ -33,8 +33,13 @@ type Supervisor struct {
 	DeleteStaged                               func(context.Context, string, string) error
 	Remeasure                                  func(context.Context, string, string) (bool, []string, error)
 	MeasurementPublished                       func(context.Context, MeasurementRequest) (bool, error)
-	lane                                       chan struct{}
-	init                                       sync.Once
+	Tasks                                      interface {
+		Start(context.Context, domain.TaskSpec) (string, error)
+		Update(context.Context, string, domain.TaskUpdate) error
+		Finish(context.Context, string) error
+	}
+	lane chan struct{}
+	init sync.Once
 }
 type wallClock struct{}
 
@@ -173,7 +178,7 @@ type ExportLaunchResult struct {
 	RequestID  string `json:"requestId"`
 }
 
-func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, onProgress func(ExportProgress, bool)) (ExportLaunchResult, error) {
+func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, onProgress func(ExportProgress, bool)) (result ExportLaunchResult, resultErr error) {
 	s.defaults()
 	select {
 	case s.lane <- struct{}{}:
@@ -183,6 +188,8 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 	}
 	ctx, cancel := context.WithTimeout(ctx, ExportTimeout)
 	defer cancel()
+	finishTask := s.beginActivity(ctx, "editor_export", projectID, "Xuất từ editor")
+	defer func() { finishTask(resultErr) }()
 	started := s.Clock.Now()
 	driftRecovered := false
 	retryID := ""
@@ -348,10 +355,12 @@ func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, reru
 
 // LaunchMeasurement gives the PCM page the same process ownership and bounded
 // crash recovery as export. Measurement completion itself runs ebur128 server-side.
-func (s *Supervisor) LaunchMeasurement(ctx context.Context, request MeasurementRequest) (MeasurementRequest, error) {
+func (s *Supervisor) LaunchMeasurement(ctx context.Context, request MeasurementRequest) (result MeasurementRequest, resultErr error) {
 	s.defaults()
 	ctx, cancel := context.WithTimeout(ctx, MeasurementTimeout)
 	defer cancel()
+	finishTask := s.beginActivity(ctx, "editor_measure", request.ID, "Đo video")
+	defer func() { finishTask(resultErr) }()
 	for restart := 0; ; restart++ {
 		r, crash, err := s.runMeasurementAttempt(ctx, request)
 		if err == nil {

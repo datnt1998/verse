@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -395,7 +396,7 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 		seen[key] = true
 		position++
 		source := meta[a.VideoID].Source
-		item := domain.CloneQueueItem{ID: newID(), ChannelID: in.ChannelID, SourceVideoID: a.VideoID, SourceKey: key, Source: source, Priority: priority, Origin: domain.OriginBulk, Position: position, State: domain.QueueQueued, NoImages: in.NoImages, CreatedAt: s.d.Now()}
+		item := domain.CloneQueueItem{ID: newID(), ChannelID: in.ChannelID, SourceVideoID: a.VideoID, SourceKey: key, Source: source, Priority: priority, Origin: domain.OriginBulk, Position: position, State: domain.QueueQueued, NoImages: in.NoImages, OverrideRevision: 1, CreatedAt: s.d.Now()}
 		if priority == domain.ClonePick {
 			item.Origin = domain.OriginManual
 		}
@@ -419,11 +420,11 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 // Drain is serialized by a session-scoped PostgreSQL advisory lock. The
 // runner owns the atomic item->job transaction and independently rechecks it.
 func (s *Service) Drain(ctx context.Context) (int, error) {
-	conn, err := s.d.Pool.Acquire(ctx)
+	conn, err := pgx.ConnectConfig(ctx, s.d.Pool.Config().ConnConfig.Copy())
 	if err != nil {
 		return 0, err
 	}
-	defer conn.Release()
+	defer conn.Close(context.Background())
 	lockRepo := s.store.With(conn)
 	held, err := lockRepo.TryAdvisoryLock(ctx, queueLock)
 	if err != nil || !held {

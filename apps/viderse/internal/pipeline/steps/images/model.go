@@ -99,6 +99,7 @@ type Manifest struct {
 	CoverPrompt     string             `json:"coverPrompt,omitempty"`
 	Overrides       *Overrides         `json:"overrides,omitempty"`
 	QueueOnly       []string           `json:"queueOnly,omitempty"`
+	ReviewOrigin    bool               `json:"reviewOrigin,omitempty"`
 	Waiting         *domain.CloneError `json:"waiting,omitempty"`
 }
 
@@ -235,6 +236,9 @@ func Review(m Manifest, id, op, prompt string, version *int) (Manifest, error) {
 	i := &m.Items[index]
 	if i.Status == "running" || i.InFlight != nil {
 		return m, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang tạo hoặc cần phục hồi output đã lưu"}
+	}
+	if i.Status == "pending" {
+		return m, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang chờ vẽ lại"}
 	}
 	if m.ImageMode == "none" && op != "approve" && op != "select" {
 		return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Template này không tạo ảnh — đổi ảnh bìa bằng tải lên"}

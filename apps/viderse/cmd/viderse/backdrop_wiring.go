@@ -16,6 +16,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/accounts"
@@ -169,7 +170,7 @@ func runBackdropWakeListener(ctx context.Context, pool *pgxpool.Pool, wake func(
 		if ctx.Err() != nil {
 			return
 		}
-		conn, err := pool.Acquire(ctx)
+		conn, err := pgx.ConnectConfig(ctx, pool.Config().ConnConfig.Copy())
 		if err != nil {
 			if !sleepBrief(ctx) {
 				return
@@ -177,7 +178,7 @@ func runBackdropWakeListener(ctx context.Context, pool *pgxpool.Pool, wake func(
 			continue
 		}
 		if _, err := conn.Exec(ctx, "LISTEN backdrop_changed"); err != nil {
-			conn.Release()
+			_ = conn.Close(context.Background())
 			if logf != nil {
 				logf(err.Error())
 			}
@@ -188,12 +189,12 @@ func runBackdropWakeListener(ctx context.Context, pool *pgxpool.Pool, wake func(
 		}
 		wake()
 		for {
-			if _, err := conn.Conn().WaitForNotification(ctx); err != nil {
+			if _, err := conn.WaitForNotification(ctx); err != nil {
 				break
 			}
 			wake()
 		}
-		conn.Release()
+		_ = conn.Close(context.Background())
 		if ctx.Err() != nil {
 			return
 		}

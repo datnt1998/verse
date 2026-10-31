@@ -9,9 +9,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
+	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
+	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
@@ -114,6 +117,9 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	rules := cloneSettings{settings}
 	publish := func(name string, data any) { hub.Publish(events.Event{Type: name, Data: data}); statusSvc.Bump() }
 	service := &pipeline.Service{Store: store, Media: files, Publish: publish, Queue: cloneQueueBoard{queueStore}}
+	service.ResolveQueuedImageOverrides = func(ctx context.Context, item domain.CloneQueueItem) (json.RawMessage, error) {
+		return queuedImageCheckpoint(ctx, librarySvc, item)
+	}
 	edits := cloneOwnerEdits(store, files, publish, service.Wake)
 	service.ResolveTemplate = func(ctx context.Context, item domain.CloneQueueItem) (string, json.RawMessage, json.RawMessage, error) {
 		owner, err := queueStore.Owner(ctx, item.ChannelID)
@@ -173,7 +179,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	}
 	editorService := newEditorService(pool, files, cfgDir, toolKit, toolDeps)
 	editorService.Store.Templates = librarySvc
-	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps)
+	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
+	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps, activityService)
 	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {
 		owner, err := queueStore.Owner(ctx, id)
 		if err != nil || owner == nil {
@@ -182,6 +189,26 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		return owner.Name, nil
 	}
 	tr := tools.NewTranscription(toolDeps, toolKit.Uv, nil)
+	metadataRun := func(ctx context.Context, s *pipeline.StepContext, parts []string, direction string) (pipeline.StepResult, error) {
+		model, err := generator(s)
+		if err != nil {
+			return pipeline.StepResult{}, err
+		}
+		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
+			owner, err := queueStore.Owner(ctx, job.ChannelID)
+			if err != nil || owner == nil {
+				return nil, err
+			}
+			note, footer := "", ""
+			if owner.StyleNote != nil {
+				note = *owner.StyleNote
+			}
+			if owner.DescriptionFooter != nil {
+				footer = *owner.DescriptionFooter
+			}
+			return &metadata.ChannelView{ID: owner.ID, Name: owner.Name, StyleNote: note, Language: owner.Language, Footer: footer, AlwaysTags: owner.AlwaysTags}, nil
+		}}}).Run(ctx, s)
+	}
 	registry := pipeline.Registry{
 		domain.CloneScore: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			result, err := (stepscore.Handler{Deps: stepscore.Deps{Measure: renderRuntime.ScoreForPipeline, Accepted: func(ctx context.Context, id string) (bool, error) {
@@ -198,28 +225,20 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		domain.CloneBackdrop:   stepbackdrop.New(stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)),
 		domain.CloneTranscript: transcript.New(&transcript.Deps{ResolveFfmpeg: toolKit.Ffmpeg.Resolve, ResolveUv: toolKit.Uv.Resolve, TranscriptionStatus: tr.Status, RunEnv: tr.RunEnv()}),
 		domain.CloneMetadata: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
-			model, err := generator(s)
-			if err != nil {
-				return pipeline.StepResult{}, err
-			}
-			return (metadata.Handler{Deps: metadata.Deps{Model: model, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
-				owner, err := queueStore.Owner(ctx, job.ChannelID)
-				if err != nil || owner == nil {
-					return nil, err
-				}
-				note := ""
-				if owner.StyleNote != nil {
-					note = *owner.StyleNote
-				}
-				return &metadata.ChannelView{ID: owner.ID, Name: owner.Name, StyleNote: note}, nil
-			}}}).Run(ctx, s)
+			return metadataRun(ctx, s, nil, "")
 		}),
 		domain.CloneScenes: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			resolved, err := ff(ctx)
 			if err != nil {
 				return pipeline.StepResult{}, err
 			}
-			return (scenes.Handler{Deps: scenes.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe}}).Run(ctx, s)
+			return (scenes.Handler{Deps: scenes.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadNoImagesOverride: func(ctx context.Context, job domain.CloneJob) (*bool, error) {
+				manifest, err := cloneReadImageManifest(edits)(ctx, job)
+				if err != nil || manifest == nil || manifest.Overrides == nil {
+					return nil, err
+				}
+				return manifest.Overrides.NoImages, nil
+			}}}).Run(ctx, s)
 		}),
 		domain.CloneImages: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			resolved, err := ff(ctx)
@@ -301,6 +320,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			}
 			return quotas, nil
 		}, Notify: func(name string) { publish(name, map[string]any{}) }, Diag: func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) }})
+	service.PlanRestart = q.RestartPlan
+	service.EnqueueRestart = q.EnqueueRestart
 	for step, handler := range registry {
 		handler = slots.Wrap(step, handler)
 		if step == domain.CloneImages {
@@ -313,6 +334,9 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		registry[step] = handler
 	}
 	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
+	runner.OnHumanState = func(_ context.Context, _ *domain.CloneJob, _ string) {
+		activityService.Changed("")
+	}
 	worker := &pipeline.Worker{Store: store, Runner: runner, Settings: rules, ID: fmt.Sprintf("%d", os.Getpid()), OnPrimary: func(ctx context.Context) error {
 		if err := renderRuntime.Recover(ctx); err != nil {
 			return err
@@ -322,8 +346,29 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
+	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Narrate: recapNarrator(ai), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
+		view, err := q.List(ctx)
+		if err != nil {
+			return 0, nil, err
+		}
+		end := queue.LocalMidnight(now).AddDate(0, 0, 1)
+		count := 0
+		var last *time.Time
+		for _, item := range view.Items {
+			if item.ETADone == nil || !item.ETADone.Before(end) {
+				continue
+			}
+			count++
+			if last == nil || item.ETADone.After(*last) {
+				at := *item.ETADone
+				last = &at
+			}
+		}
+		return count, last, nil
+	}})
 	web.MountClone(g, service, q, service.Media)
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName)
+	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService)
 	workerCtx, stop := context.WithCancel(ctx)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()

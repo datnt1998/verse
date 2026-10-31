@@ -126,6 +126,7 @@ func runServe(args []string) error {
 	// Kho nhật ký dùng chung: mọi tiến trình con ghi vào đây, và Settings ›
 	// Nhật ký/Báo lỗi đọc cùng nguồn.
 	logStore := logs.New(filepath.Join(cfgDir, "logs"), home)
+	logStore.SetTasks(activities)
 	runner := toolsvc.NewLoggingRunner(&tools.ExecRunner{Registry: toolRegistry}, func(tool, level string) toolsvc.LineWriter {
 		return logStore.Writer(tool, level)
 	})
@@ -155,6 +156,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
+	activities.SetScanScheduleSource(activityScanSchedule(pool, scanSvc))
 	scanWorkerDone := runScanWorker(scanCtx, scanWorker)
 	mountRivals(gateway, pool, logStore, scanSvc)
 	ai, err := wireAI(machineCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps.Runner)

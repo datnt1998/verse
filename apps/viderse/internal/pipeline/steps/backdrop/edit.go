@@ -128,6 +128,25 @@ func probeRecovery(code string) string {
 	}
 }
 
+func fixedExcluded(ids []string, id string) bool {
+	for _, excluded := range ids {
+		if excluded == id {
+			return true
+		}
+	}
+	return false
+}
+
+func fixedBuildClips(t Template, excluded []string) []FixedClip {
+	var clips []FixedClip
+	for _, video := range t.FixedVideos {
+		if !fixedExcluded(excluded, video.ID) && video.State == domain.BackdropReady && video.FilePath != "" {
+			clips = append(clips, FixedClip{VideoID: video.ID, Path: video.FilePath, FromSec: video.Segment.FromSec, ToSec: video.Segment.ToSec})
+		}
+	}
+	return clips
+}
+
 // Edit computes one edit. The caller MUST atomically compare Revision again,
 // store the returned checkpoint, invalidate from InvalidateFrom and launch.
 // No manifest or queue state is mutated before that transaction commits.
@@ -149,6 +168,25 @@ func (e Editor) Edit(ctx context.Context, state EditState, input EditRequest) (E
 	}
 	if input.Revision != "" && input.Revision != m.Revision {
 		return EditResult{}, conflict("Danh sách clip nền đã thay đổi — tải lại rồi thử lại")
+	}
+	for _, video := range state.Template.FixedVideos {
+		if input.ItemID != "fixed:"+video.ID || fixedExcluded(m.ExcludedFixed, video.ID) {
+			continue
+		}
+		if input.Action != "remove" {
+			return EditResult{}, requestError("Clip cố định không thể lấy lại hoặc thay thế")
+		}
+		m.ExcludedFixed = append(append([]string{}, m.ExcludedFixed...), video.ID)
+		m.FixedClips = fixedBuildClips(state.Template, m.ExcludedFixed)
+		invalidate := domain.CloneBuild
+		for _, item := range m.Items {
+			if item.Status == "pending" {
+				invalidate = domain.CloneBackdrop
+				break
+			}
+		}
+		m = Seal(m)
+		return EditResult{Manifest: m, InvalidateFrom: invalidate}, nil
 	}
 	index := -1
 	for i, v := range m.Items {
@@ -281,6 +319,7 @@ func (e Editor) Edit(ctx context.Context, state EditState, input EditRequest) (E
 		m.Fallback = "none"
 	}
 	m.Warnings = ShortfallWarnings(m.Warnings, m.Items, m.WantedCount, m.TargetSec)
+	m.FixedClips = fixedBuildClips(state.Template, m.ExcludedFixed)
 	m = Seal(m)
 	invalidate := domain.CloneBuild
 	for _, v := range m.Items {
@@ -307,18 +346,38 @@ type EvidenceItem struct {
 	ThumbnailURL     *string            `json:"thumbnailUrl"`
 	VideoDurationSec *float64           `json:"videoDurationSec"`
 }
+type FixedEvidenceItem struct {
+	ID          string  `json:"id"`
+	VideoID     string  `json:"videoId"`
+	Kind        string  `json:"kind"`
+	Source      string  `json:"source"`
+	Title       string  `json:"title"`
+	URL         string  `json:"url"`
+	StartSec    float64 `json:"startSec"`
+	EndSec      float64 `json:"endSec"`
+	PlaybackSec float64 `json:"playbackSec"`
+}
+type EvidenceSource struct {
+	ChannelID string            `json:"channelId"`
+	Platform  domain.PlatformID `json:"platform"`
+	Handle    string            `json:"handle"`
+	Title     *string           `json:"title"`
+}
 type EvidenceView struct {
-	Revision        string         `json:"revision"`
-	WantedCount     int            `json:"wantedCount"`
-	ReadyCount      int            `json:"readyCount"`
-	Fallback        string         `json:"fallback"`
-	Warnings        []string       `json:"warnings"`
-	RandomPicks     bool           `json:"randomPicks"`
-	Busy            bool           `json:"busy"`
-	Coverage        Coverage       `json:"coverage"`
-	Items           []EvidenceItem `json:"items"`
-	Rebuilding      bool           `json:"rebuilding"`
-	ProjectRevision *string        `json:"projectRevision"`
+	Revision        string              `json:"revision"`
+	WantedCount     int                 `json:"wantedCount"`
+	ReadyCount      int                 `json:"readyCount"`
+	Fallback        string              `json:"fallback"`
+	Warnings        []string            `json:"warnings"`
+	RandomPicks     bool                `json:"randomPicks"`
+	Busy            bool                `json:"busy"`
+	Coverage        Coverage            `json:"coverage"`
+	Items           []EvidenceItem      `json:"items"`
+	FixedItems      []FixedEvidenceItem `json:"fixedItems"`
+	PlaybackSpeed   float64             `json:"playbackSpeed"`
+	Sources         []EvidenceSource    `json:"sources"`
+	Rebuilding      bool                `json:"rebuilding"`
+	ProjectRevision *string             `json:"projectRevision"`
 }
 type EvidenceInput struct {
 	Manifest         *Manifest
@@ -338,20 +397,41 @@ func Evidence(ctx context.Context, store Store, input EvidenceInput) (*EvidenceV
 		}
 		t = Template{PlaybackSpeed: 1}
 	}
-	if input.Manifest == nil && t.Backdrop == nil {
+	if input.Manifest == nil && t.Backdrop == nil && len(t.FixedVideos) == 0 {
 		return nil, nil
 	}
 	m := Empty(0, nil)
 	if input.Manifest != nil {
 		m = *input.Manifest
-	} else if t.Backdrop.ClipCount != nil {
+	} else if t.Backdrop != nil && t.Backdrop.ClipCount != nil {
 		m = Empty(*t.Backdrop.ClipCount, nil)
 	}
 	mode := "count"
 	if input.Manifest != nil && m.TargetSec != nil || input.Manifest == nil && t.Backdrop != nil && t.Backdrop.ClipCount == nil {
 		mode = "fill"
 	}
-	view := &EvidenceView{Revision: m.Revision, WantedCount: m.WantedCount, ReadyCount: len(ReadyItems(m)), Fallback: m.Fallback, Warnings: m.Warnings, RandomPicks: t.Backdrop != nil, Busy: input.Busy, Coverage: Coverage{Mode: mode, VideoSec: input.VideoSec, FixedSec: t.FixedSec}, Items: []EvidenceItem{}}
+	view := &EvidenceView{Revision: m.Revision, WantedCount: m.WantedCount, ReadyCount: len(ReadyItems(m)), Fallback: m.Fallback, Warnings: m.Warnings, RandomPicks: t.Backdrop != nil, Busy: input.Busy, Coverage: Coverage{Mode: mode, VideoSec: input.VideoSec}, Items: []EvidenceItem{}, FixedItems: []FixedEvidenceItem{}, PlaybackSpeed: t.PlaybackSpeed, Sources: []EvidenceSource{}}
+	for _, video := range t.FixedVideos {
+		if fixedExcluded(m.ExcludedFixed, video.ID) {
+			continue
+		}
+		seconds := video.Segment.Duration() / t.PlaybackSpeed
+		view.FixedItems = append(view.FixedItems, FixedEvidenceItem{ID: "fixed:" + video.ID, VideoID: video.ID, Kind: "video", Source: "fixed", Title: video.Title, URL: video.URL, StartSec: video.Segment.FromSec, EndSec: video.Segment.ToSec, PlaybackSec: seconds})
+		view.Coverage.FixedSec += seconds
+	}
+	if t.Backdrop != nil {
+		for _, link := range t.Backdrop.Channels {
+			row, found, err := store.Channel(ctx, link.ChannelID)
+			if err != nil {
+				return nil, err
+			}
+			if found {
+				view.Sources = append(view.Sources, EvidenceSource{ChannelID: row.ID, Platform: row.Platform, Handle: row.Handle, Title: row.Title})
+			} else {
+				view.Sources = append(view.Sources, EvidenceSource{ChannelID: link.ChannelID, Platform: PlatformOf(link.ChannelID)})
+			}
+		}
+	}
 	channels := map[string]domain.BackdropChannel{}
 	loaded := map[string]bool{}
 	for _, v := range m.Items {

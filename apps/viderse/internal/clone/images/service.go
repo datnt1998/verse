@@ -4,10 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/url"
+	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 )
@@ -50,8 +54,24 @@ func (s *Service) mutable(l loaded) error {
 		return cloneError(domain.CloneErrConflict, "Ảnh hoặc bước phụ thuộc đang chạy")
 	}
 	for _, i := range l.manifest.Items {
-		if i.Status == "running" || i.InFlight != nil {
+		if i.Status == "pending" || i.Status == "running" || i.InFlight != nil {
 			return cloneError(domain.CloneErrConflict, "Ảnh đang tạo hoặc cần phục hồi output đã lưu")
+		}
+	}
+	return nil
+}
+func (s *Service) mutableReview(l loaded) error {
+	if l.snapshot.Job.SupersededAt != nil {
+		return cloneError(domain.CloneErrNotFound, "Job đã bị thay thế bởi generation mới")
+	}
+	if l.snapshot.Step.Status != domain.CloneRunning {
+		return s.mutable(l)
+	}
+	for _, dependent := range domain.DependentsOf(domain.CloneImages) {
+		for _, step := range l.snapshot.Steps {
+			if step.Step == dependent && step.Status == domain.CloneRunning {
+				return cloneError(domain.CloneErrConflict, "Bước phụ thuộc đang chạy")
+			}
 		}
 	}
 	return nil
@@ -88,17 +108,89 @@ func hasPending(m model.Manifest) bool {
 	}
 	return false
 }
+func artifactURL(snapshot jobedit.Snapshot, path, hash string) string {
+	if path == "" {
+		return ""
+	}
+	found := ""
+	for _, artifact := range snapshot.Artifacts {
+		if artifact.Path != path && !strings.HasSuffix(artifact.Path, "/"+path) {
+			continue
+		}
+		if hash != "" && artifact.SHA256 != hash {
+			continue
+		}
+		if found != "" && found != artifact.ID {
+			return ""
+		}
+		found = artifact.ID
+	}
+	if found == "" {
+		return ""
+	}
+	return "/api/clone/" + url.PathEscape(snapshot.Job.ID) + "/artifacts/" + url.PathEscape(found)
+}
+
+func (s *Service) approvedToday(ctx context.Context) (*int, error) {
+	if s.Edits == nil || s.Edits.Store == nil {
+		return nil, nil
+	}
+	counter, ok := s.Edits.Store.(interface {
+		ApprovedToday(context.Context, string) (int, error)
+	})
+	if !ok {
+		return nil, nil
+	}
+	n, err := counter.ApprovedToday(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+	return &n, nil
+}
+
 func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	l, err := s.load(ctx, id, nil, false)
 	if err != nil {
 		var ce *domain.CloneError
 		if errors.As(err, &ce) && ce.Code == domain.CloneErrNotFound && l.snapshot.Job.ID != "" {
-			return View{Items: []ItemView{}, Reason: ce.Message}, nil
+			count, countErr := s.approvedToday(ctx)
+			return View{Items: []ItemView{}, Reason: ce.Message, ApprovedToday: count}, countErr
 		}
 		return View{}, err
 	}
 	m := l.manifest
 	out := View{Manifest: &ManifestView{Revision: m.Revision, SceneRevision: m.SceneRevision, SceneGeneration: m.SceneGeneration, Waiting: m.Waiting}, Items: make([]ItemView, 0, len(m.Items)), Approved: model.ImagesApproved(m)}
+	out.ApprovedToday, err = s.approvedToday(ctx)
+	if err != nil {
+		return View{}, err
+	}
+	var template library.Snapshot
+	if len(l.snapshot.Job.TemplateSnapshot) > 0 {
+		if err := json.Unmarshal(l.snapshot.Job.TemplateSnapshot, &template); err != nil {
+			return View{}, cloneError(domain.CloneErrInternal, "Template snapshot không đọc được")
+		}
+	}
+	out.Manifest.ScenePrompt = EffectivePrompt{ID: template.ScenePrompt.ID, Name: template.ScenePrompt.Name}
+	out.Manifest.CoverPrompt = EffectivePrompt{ID: template.CoverPrompt.ID, Name: template.CoverPrompt.Name}
+	out.Manifest.Overrides = m.Overrides
+	if m.Overrides != nil {
+		for _, selection := range []struct {
+			set    bool
+			id     string
+			target *EffectivePrompt
+		}{{m.Overrides.ScenePromptSet, m.Overrides.ScenePromptID, &out.Manifest.ScenePrompt}, {m.Overrides.CoverPromptSet, m.Overrides.CoverPromptID, &out.Manifest.CoverPrompt}} {
+			if !selection.set {
+				continue
+			}
+			*selection.target = EffectivePrompt{ID: selection.id, Overridden: true}
+			if s.Prompts != nil {
+				prompt, err := s.Prompts.GetPrompt(ctx, selection.id)
+				if err == nil && prompt != nil {
+					selection.target.Name = prompt.Name
+				}
+			}
+		}
+	}
 	if m.ImageMode != "" {
 		mode := m.ImageMode
 		out.Manifest.ImageMode = &mode
@@ -106,6 +198,7 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	queue := 0
 	for _, i := range m.Items {
 		item := ItemView{ID: i.ID, Kind: i.Kind, Status: i.Status, SkipReason: i.SkipReason, Prompt: i.Prompt, PromptVersion: i.PromptVersion, CurrentVersion: i.CurrentVersion, ReviewVersion: i.ReviewVersion, Reference: i.Reference.Path, Width: i.Width, Height: i.Height, Versions: make([]VersionView, 0, len(i.Versions))}
+		item.ReferenceURL = artifactURL(l.snapshot, i.Reference.Path, i.Reference.SHA256)
 		if i.InFlight != nil {
 			item.Status = "running"
 		}
@@ -122,11 +215,39 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			if source == "" {
 				source = "codex"
 			}
-			item.Versions = append(item.Versions, VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout})
+			version := VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
+			version.CutoutState = "unavailable"
+			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
+				version.CutoutState = "available"
+				version.CutoutURL = "/api/clone/" + url.PathEscape(id) + "/images/" + url.PathEscape(i.ID) + "?variant=cutout&version=" + strconv.Itoa(v.Version)
+				if index, ok := s.Edits.Store.(cutoutIndex); ok && v.SHA256 != "" {
+					path, err := index.FindCutout(ctx, v.SHA256)
+					if err != nil {
+						return View{}, err
+					}
+					if path != "" {
+						version.CutoutState = "ready"
+					}
+				}
+			}
+			if v.Cutout != nil {
+				if legacyURL := artifactURL(l.snapshot, v.Cutout.Path, v.Cutout.SHA256); legacyURL != "" {
+					version.CutoutURL = legacyURL
+					version.CutoutState = "ready"
+				}
+			}
+			item.Versions = append(item.Versions, version)
 		}
 		item.SceneID = i.SceneID
 		item.StartFrame = i.StartFrame
 		item.EndFrame = i.EndFrame
+		if i.Kind == "scene" && i.StartFrame >= 0 && i.EndFrame > i.StartFrame {
+			start := float64(i.StartFrame) / scenes.DefaultFPS
+			end := float64(i.EndFrame) / scenes.DefaultFPS
+			duration := end - start
+			item.StartSec, item.EndSec, item.DurationSec = &start, &end, &duration
+		}
 		item.Narration = i.Narration
 		item.Direction = i.Direction
 		if v := model.Displayed(i); v != nil {
@@ -147,7 +268,7 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	if err != nil {
 		return ReviewResult{}, err
 	}
-	if err = s.mutable(l); err != nil {
+	if err = s.mutableReview(l); err != nil {
 		return ReviewResult{}, err
 	}
 	if err = s.currentScenes(ctx, l); err != nil {
@@ -160,7 +281,14 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	changed, sceneChanged := false, false
 	pending := []string{}
 	seen := map[string]bool{}
+	actionIDs := make([]string, 0, len(input.Actions))
+	actionSeen := make(map[string]bool, len(input.Actions))
 	for _, a := range input.Actions {
+		if actionSeen[a.ID] {
+			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Mỗi ảnh chỉ được sửa một lần trong yêu cầu")
+		}
+		actionSeen[a.ID] = true
+		actionIDs = append(actionIDs, a.ID)
 		if a.Prompt != nil && strings.TrimSpace(*a.Prompt) == "" {
 			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Prompt không được để trống")
 		}
@@ -199,13 +327,19 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	if rerun {
 		from = domain.CloneImages
 		l.manifest.QueueOnly = pending
+		if l.snapshot.Job.StageGroup == domain.StageReview {
+			l.manifest.ReviewOrigin = true
+		}
 	} else if sceneChanged {
 		from = domain.CloneBuild
+	}
+	if model.ImagesApproved(l.manifest) {
+		l.manifest.ReviewOrigin = false
 	}
 	if !rerun && from == "" && firstReviewCompleted(l.snapshot, wasApproved, l.manifest) {
 		from = domain.CloneBuild
 	}
-	err = s.Edits.Commit(ctx, l.snapshot, l.manifest, from, rerun, nil)
+	err = s.Edits.CommitImageReview(ctx, l.snapshot, l.manifest, from, rerun, actionIDs)
 	if err != nil {
 		return ReviewResult{}, err
 	}
@@ -248,13 +382,20 @@ func (s *Service) RedrawAll(ctx context.Context, id string, input ResetInput) (G
 	if input.Kind != "" && input.Kind != "scene" && input.Kind != "thumbnail" {
 		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "kind phải là scene hoặc thumbnail")
 	}
+	if len([]rune(input.Feedback)) > 8000 {
+		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "Góp ý quá dài")
+	}
+	var feedback *string
+	if strings.TrimSpace(input.Feedback) != "" {
+		feedback = &input.Feedback
+	}
 	if l.manifest.ImageMode == "none" {
 		return GenerateResult{}, cloneError(domain.CloneErrInvalidRequest, "Template này không tạo ảnh — đổi ảnh bìa bằng tải lên")
 	}
 	actions := []Action{}
 	for _, i := range l.manifest.Items {
 		if input.Kind == "" || input.Kind == i.Kind {
-			actions = append(actions, Action{ID: i.ID, Op: "regenerate"})
+			actions = append(actions, Action{ID: i.ID, Op: "regenerate", Prompt: feedback})
 		}
 	}
 	if input.ConfirmCount != len(actions) {
@@ -294,6 +435,7 @@ func (s *Service) ApproveAll(ctx context.Context, id string, input RevisionInput
 	if !model.ImagesApproved(l.manifest) {
 		return MutationResult{}, cloneError(domain.CloneErrInvalidRequest, "Chưa có đủ ảnh để duyệt")
 	}
+	l.manifest.ReviewOrigin = false
 	if input.ApproveExport {
 		err = s.Edits.CommitOwnerApproval(ctx, l.snapshot, l.manifest)
 	} else {

@@ -118,10 +118,12 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		wait := eta.Wait
 		if row.Priority == domain.CloneBatch && row.Origin == domain.OriginAuto && !owners[row.ChannelID].AutoPick {
 			eta.Start = nil
+			eta.Done = nil
 			wait = domain.WaitPausedChannel
 		}
 		if rules.Paused {
 			eta.Start = nil
+			eta.Done = nil
 			wait = domain.WaitQueuePaused
 		}
 		if wait == "" {
@@ -151,7 +153,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		if row.Source.ChannelTitle != nil {
 			source = *row.Source.ChannelTitle
 		}
-		out.Items = append(out.Items, domain.CloneQueueItemView{ID: row.ID, ChannelID: row.ChannelID, Title: row.Source.Title, Source: source, SourceURL: row.Source.URL, ThumbnailURL: row.Source.ThumbnailURL, TemplateName: tplName, DurationSec: row.Source.DurationSec, Priority: row.Priority, Position: row.Position, ETAStart: eta.Start, WaitReason: wait})
+		out.Items = append(out.Items, domain.CloneQueueItemView{ID: row.ID, ChannelID: row.ChannelID, Title: row.Source.Title, Source: source, SourceURL: row.Source.URL, ThumbnailURL: row.Source.ThumbnailURL, TemplateName: tplName, DurationSec: row.Source.DurationSec, Priority: row.Priority, Position: row.Position, ETAStart: eta.Start, ETADone: eta.Done, WaitReason: wait})
 	}
 	done, err := s.store.ListDoneTodayJobs(ctx, LocalMidnight(s.d.Now()))
 	if err != nil {

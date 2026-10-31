@@ -81,6 +81,7 @@ type Runner struct {
 	Settings     Settings
 	ResolveInput StepInputResolver
 	Queue        QueueDrain
+	OnHumanState func(context.Context, *domain.CloneJob, string)
 	progressMu   sync.Mutex
 	progressAt   map[string]time.Time
 	// OnAttemptSettled (test hook): gọi sau mỗi attempt kết thúc.
@@ -162,6 +163,18 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 				return "", err
 			}
 			if done {
+				job, _ := r.Store.GetJob(ctx, jobID)
+				var waiting *domain.CloneStepRecord
+				if status == domain.CloneWaiting {
+					steps, _ := r.Store.ListSteps(ctx, jobID)
+					for i := range steps {
+						if steps[i].Status == domain.CloneWaiting {
+							waiting = &steps[i]
+							break
+						}
+					}
+				}
+				r.humanState(ctx, job, status, waiting)
 				return status, nil
 			}
 			continue
@@ -175,6 +188,7 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 			}
 			_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
 			_ = r.Store.SetJobStatus(ctx, jobID, domain.CloneFailed)
+			r.humanState(ctx, job, domain.CloneFailed, nil)
 			return domain.CloneFailed, nil
 		}
 
@@ -189,6 +203,7 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 		if settled != nil && settled.Status == domain.CloneWaiting && settled.Error != nil {
 			if domain.AutoRetryAt(*settled, time.Now()) == nil {
 				_ = r.Store.SetJobStatus(ctx, jobID, domain.CloneWaiting)
+				r.humanState(ctx, job, domain.CloneWaiting, settled)
 				return domain.CloneWaiting, nil
 			}
 		}
@@ -361,6 +376,13 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 			}
 		},
 		IsPaused: isPaused,
+	}
+	if store, ok := r.Store.(interface {
+		DrainImageIntents(context.Context, string, int64, int, json.RawMessage) (json.RawMessage, error)
+	}); ok && claimed.Step.Step == domain.CloneImages {
+		sctx.DrainImageIntents = func(c context.Context, checkpoint json.RawMessage) (json.RawMessage, error) {
+			return store.DrainImageIntents(c, jobID, claimed.Fence, claimed.Step.Attempt, checkpoint)
+		}
 	}
 
 	result, err := handler.Run(ctx, sctx)

@@ -35,6 +35,7 @@ const LogsSection = lazy(() => import('./logs/LogsSection'))
 const ConnectSection = lazy(() => import('./connect/ConnectSection'))
 const AgentsSection = lazy(() => import('./agents/AgentsSection'))
 const AccountsSection = lazy(() => import('./accounts/AccountsSection'))
+const NotificationSettings = lazy(() => import('./NotificationSettings'))
 
 type NavItem = {
   id: SettingsSection
@@ -69,6 +70,7 @@ const SECTIONS: Record<SettingsSection, React.ComponentType> = {
   connect: ConnectSection,
   agents: AgentsSection,
   accounts: AccountsSection,
+  notifications: NotificationSettings,
 }
 
 /** Số liệu khung cần cho cột mục + danh sách mobile (dung lượng, lỗi, công cụ, bản). */
@@ -156,6 +158,7 @@ function NavList({ section, dots, facts, onPick }: {
     { id: 'connect', icon: 'key', label: t.settings.nav.connect },
     { id: 'agents', icon: 'magic', label: t.settings.nav.agents },
     { id: 'accounts', icon: 'global', label: t.settings.nav.accounts },
+    { id: 'notifications', icon: 'notification', label: 'Thông báo' },
   ]
   const data: NavItem[] = [
     { id: 'storage', icon: 'folder', label: t.settings.nav.storage, count: facts.storageCount },
@@ -205,8 +208,8 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
   const dots = useSectionDots()
   const facts = useFrameFacts()
   const active: SettingsSection = section ?? 'tools'
-  const meta = t.settings.meta[active] ?? t.settings.meta.tools
-  const help = facts.server && active === 'storage' ? serverCopy.help : t.settings.help[active] ?? t.settings.help.tools
+  const meta = active === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[active] ?? t.settings.meta.tools
+  const help = facts.server && active === 'storage' ? serverCopy.help : active === 'notifications' ? t.settings.help.tools : t.settings.help[active] ?? t.settings.help.tools
   const go = (id: SettingsSection) => navigate(routePath({ name: 'settings', section: id }))
 
   if (mobile) return <MobileSettings section={section} dots={dots} facts={facts} go={go} />
@@ -278,7 +281,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
   ]
 
   if (section) {
-    const meta = t.settings.meta[section] ?? t.settings.meta.tools
+    const meta = section === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[section] ?? t.settings.meta.tools
     const Body = SECTIONS[section]
     return (
       <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>

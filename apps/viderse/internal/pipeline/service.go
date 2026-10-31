@@ -11,17 +11,19 @@ import (
 )
 
 type StartJobInput struct {
-	ChannelID        string
-	SourceKey        string
-	Source           domain.CloneSourceSnapshot
-	TemplateID       string
-	TemplateSnapshot json.RawMessage
-	ModelRefs        json.RawMessage
-	NoImages         bool
-	Priority         domain.ClonePriority
-	Origin           domain.CloneOrigin
-	Replaces         string
-	QueueItemID      string
+	ChannelID             string
+	SourceKey             string
+	Source                domain.CloneSourceSnapshot
+	TemplateID            string
+	TemplateSnapshot      json.RawMessage
+	ModelRefs             json.RawMessage
+	NoImages              bool
+	Priority              domain.ClonePriority
+	Origin                domain.CloneOrigin
+	Replaces              string
+	QueueItemID           string
+	QueueOverrideRevision int64
+	ImageCheckpoint       json.RawMessage
 }
 type StartJobResult struct {
 	Job     *domain.CloneJob
@@ -53,13 +55,16 @@ type QueueReadModel interface {
 type TemplateResolver func(context.Context, domain.CloneQueueItem) (templateID string, recipe json.RawMessage, models json.RawMessage, err error)
 
 type Service struct {
-	Store           ServiceStore
-	Worker          *Worker
-	Media           *media.Service
-	Publish         Publisher
-	ResolveTemplate TemplateResolver
-	Queue           QueueReadModel
-	Now             func() time.Time
+	Store                       ServiceStore
+	Worker                      *Worker
+	Media                       *media.Service
+	Publish                     Publisher
+	ResolveTemplate             TemplateResolver
+	PlanRestart                 func(context.Context, *domain.CloneJob) (*domain.CloneRestartPlan, error)
+	EnqueueRestart              func(context.Context, *domain.CloneJob) (*domain.CloneQueueItem, error)
+	ResolveQueuedImageOverrides func(context.Context, domain.CloneQueueItem) (json.RawMessage, error)
+	Queue                       QueueReadModel
+	Now                         func() time.Time
 }
 
 func (s *Service) now() time.Time {
@@ -87,7 +92,14 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	if err != nil {
 		return nil, err
 	}
-	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateSnapshot: recipe, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID})
+	var checkpoint json.RawMessage
+	if s.ResolveQueuedImageOverrides != nil {
+		checkpoint, err = s.ResolveQueuedImageOverrides(ctx, item)
+		if err != nil {
+			return nil, err
+		}
+	}
+	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateSnapshot: recipe, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID, QueueOverrideRevision: item.OverrideRevision, ImageCheckpoint: checkpoint})
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +108,44 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	}
 	s.Wake()
 	return result.Job, nil
+}
+
+// Restart places a new generation at the head of the normal queue.
+func (s *Service) Restart(ctx context.Context, id string) (*domain.CloneQueueItem, error) {
+	job, err := s.Store.GetJob(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, ErrNotFound
+	}
+	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
+	}
+	if job.ChannelID == "" || job.Source.ID == "" {
+		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Không xác định được kênh hoặc video nguồn để làm lại"}
+	}
+	if s.EnqueueRestart == nil {
+		return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Hàng chờ chưa sẵn sàng"}
+	}
+	return s.EnqueueRestart(ctx, job)
+}
+
+func (s *Service) RestartPlan(ctx context.Context, id string) (*domain.CloneRestartPlan, error) {
+	job, err := s.Store.GetJob(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, ErrNotFound
+	}
+	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
+	}
+	if s.PlanRestart == nil {
+		return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Chưa có kế hoạch làm lại"}
+	}
+	return s.PlanRestart(ctx, job)
 }
 func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, error) {
 	job, err := s.Store.GetJob(ctx, id)
@@ -107,11 +157,23 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 		return nil, err
 	}
 	steps = domain.InChainOrder(steps)
-	return new(s.view(*job, steps)), nil
+	if err := s.enrichSource(ctx, job, steps); err != nil {
+		return nil, err
+	}
+	view := s.view(*job, steps)
+	if previous, ok := s.Store.(interface {
+		PreviousCloneJobID(context.Context, string, int) (*string, error)
+	}); ok {
+		view.PreviousJobID, err = previous.PreviousCloneJobID(ctx, job.SourceKey, job.Generation)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &view, nil
 }
 func (s *Service) view(job domain.CloneJob, steps []domain.CloneStepRecord) domain.CloneJobView {
 	job.StageGroup = domain.StageGroupOf(job, steps)
-	return domain.CloneJobView{CloneJob: job, Steps: steps, AgentView: domain.AgentViews(job, steps), Subline: domain.Subline(job, steps, s.now())}
+	return domain.CloneJobView{CloneJob: job, Steps: steps, AgentView: domain.AgentViews(job, steps), Subline: domain.Subline(job, steps, s.now()), ExportBytes: domain.CloneExportBytes(steps)}
 }
 func (s *Service) List(ctx context.Context, channelID *string, limit int) (domain.CloneJobList, error) {
 	if limit <= 0 {
@@ -143,13 +205,22 @@ func (s *Service) List(ctx context.Context, channelID *string, limit int) (domai
 		}
 		result.QueuedTotal = len(items)
 		for _, item := range items {
-			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
+			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), PreviousJobID: item.RestartOf, Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
 		}
 	}
 	return result, nil
 }
 func (s *Service) Counts(ctx context.Context) (domain.CloneCounts, error) {
 	counts := domain.CloneCounts{ByOwner: map[string]domain.CloneBucketCounts{}}
+	if counter, ok := s.Store.(interface {
+		ApprovedToday(context.Context, string) (int, error)
+	}); ok {
+		count, err := counter.ApprovedToday(ctx, "")
+		if err != nil {
+			return counts, err
+		}
+		counts.ApprovedToday = &count
+	}
 	groups, err := s.Store.CountBoardGroups(ctx)
 	if err != nil {
 		return counts, err
@@ -272,8 +343,19 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if s.Media == nil {
 		return errors.New("media service unavailable")
 	}
-	err = s.Media.Unbind(ctx, paths, func(txctx context.Context) error { return s.Store.DeleteJob(txctx, id) })
+	var cutouts []string
+	err = s.Media.Unbind(ctx, paths, func(txctx context.Context) error {
+		if store, ok := s.Store.(interface {
+			DeleteJobWithCutouts(context.Context, string) ([]string, error)
+		}); ok {
+			var err error
+			cutouts, err = store.DeleteJobWithCutouts(txctx, id)
+			return err
+		}
+		return s.Store.DeleteJob(txctx, id)
+	})
 	if err == nil {
+		retireLocalCutouts(ctx, s.Media, cutouts)
 		s.event(domain.CloneEventDeleted, id)
 	}
 	return err

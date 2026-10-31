@@ -24,7 +24,13 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	if err != nil {
 		return OverridePlan{}, err
 	}
-	if err = s.mutable(l); err != nil {
+	running := l.snapshot.Step.Status == domain.CloneRunning
+	if running {
+		err = s.mutableReview(l)
+	} else {
+		err = s.mutable(l)
+	}
+	if err != nil {
 		return OverridePlan{}, err
 	}
 	next, plan, err := s.prepareOverrides(ctx, l, input)
@@ -33,6 +39,23 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	}
 	if plan.Cost.Images > 0 && (input.ConfirmCount == nil || *input.ConfirmCount != plan.Cost.Images) {
 		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Số ảnh xác nhận không khớp kế hoạch vẽ lại")
+	}
+	if running {
+		// The worker owns every item and any paid flight. Persist the prompt
+		// and redraw selection without replacing its live item snapshots.
+		for i := range next.Items {
+			for _, item := range l.manifest.Items {
+				if next.Items[i].ID == item.ID {
+					next.Items[i] = item
+					break
+				}
+			}
+		}
+		next.Story = l.manifest.Story
+		if err = s.Edits.CommitImageOverride(ctx, l.snapshot, next); err != nil {
+			return OverridePlan{}, err
+		}
+		return plan, nil
 	}
 	from := domain.CloneStep("")
 	rerun := len(next.QueueOnly) > 0
@@ -173,6 +196,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		next.Items = sceneItems
 	}
 	next.QueueOnly = nil
+	next.ReviewOrigin = false
 	kept := make([]model.Item, 0, len(next.Items))
 	for _, item := range next.Items {
 		if item.Kind == "scene" && none {
@@ -180,8 +204,8 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		}
 		affected := (item.Kind == "scene" && (sceneChanged || modeChanged)) || (item.Kind == "thumbnail" && coverChanged)
 		if affected {
-			redraw := len(item.Versions) > 0 || modeChanged && !none && item.Kind == "scene"
-			if redraw && !none {
+			redraw := len(item.Versions) > 0 || item.InFlight != nil || modeChanged && !none && item.Kind == "scene"
+			if redraw && (!none || item.Kind == "thumbnail") {
 				if item.Kind == "scene" {
 					plan.Redraw.Scenes++
 				} else {
@@ -195,7 +219,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 			item.PromptVersion++
 			// A new video recipe retracts old approvals; unlike feedback redraws, they no longer express the selected recipe.
 			item.CurrentVersion = nil
-			if !none && redraw {
+			if (!none || item.Kind == "thumbnail") && redraw {
 				next.QueueOnly = append(next.QueueOnly, item.ID)
 			}
 		}
@@ -206,7 +230,12 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 	if plan.Redraw.Cover {
 		plan.Cost.Images++
 	}
-	plan.Rebuild = modeChanged || sceneChanged && next.ImageMode != "none"
+	for _, step := range l.snapshot.Steps {
+		if step.Step == domain.CloneBuild && step.Status == domain.CloneSucceeded {
+			plan.Rebuild = modeChanged || sceneChanged && next.ImageMode != "none"
+			break
+		}
+	}
 	if sceneChanged || coverChanged || modeChanged {
 		next.Story = nil
 	}

@@ -28,11 +28,12 @@ type Probe struct {
 	VariableFPS   bool
 }
 type Deps struct {
-	Ffmpeg, FFprobe string
-	Now             func() time.Time
-	Probe           func(context.Context, *pipeline.StepContext, string) (Probe, error)
-	Detect          func(context.Context, *pipeline.StepContext, string, float64) ([]DetectFrame, error)
-	Extract         func(context.Context, *pipeline.StepContext, string, string, int, int, float64) (float64, error)
+	Ffmpeg, FFprobe      string
+	Now                  func() time.Time
+	Probe                func(context.Context, *pipeline.StepContext, string) (Probe, error)
+	Detect               func(context.Context, *pipeline.StepContext, string, float64) ([]DetectFrame, error)
+	Extract              func(context.Context, *pipeline.StepContext, string, string, int, int, float64) (float64, error)
+	ReadNoImagesOverride func(context.Context, domain.CloneJob) (*bool, error)
 }
 type Handler struct{ Deps Deps }
 
@@ -41,11 +42,22 @@ var _ pipeline.StepHandler = Handler{}
 // ResolveRecipe consumes the immutable library snapshot, never the mutable
 // template row. NoImages only changes the mode, not the retained cover asset.
 func ResolveRecipe(raw json.RawMessage, noImages bool, duration float64) (Recipe, error) {
+	return ResolveRecipeWithOverride(raw, noImages, nil, duration)
+}
+
+// ResolveRecipeWithOverride overlays a video-level image choice without changing its template.
+func ResolveRecipeWithOverride(raw json.RawMessage, noImages bool, override *bool, duration float64) (Recipe, error) {
 	var snap library.Snapshot
 	if err := json.Unmarshal(raw, &snap); err != nil {
 		return Recipe{}, err
 	}
 	mode := snap.Images.Mode
+	if override != nil {
+		noImages = *override
+		if !noImages && mode == library.ImagesNone {
+			mode = "auto"
+		}
+	}
 	if noImages {
 		mode = library.ImagesNone
 	}
@@ -94,7 +106,14 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if !finite(p.DurationSec) || p.DurationSec <= 0 {
 		return pipeline.StepResult{}, steps.CloneError(domain.CloneErrInternal, "Video nguồn không có thời lượng hợp lệ", "Chạy lại bước download")
 	}
-	recipe, err := ResolveRecipe(s.Job.TemplateSnapshot, s.Job.NoImages, p.DurationSec)
+	var override *bool
+	if h.Deps.ReadNoImagesOverride != nil {
+		override, err = h.Deps.ReadNoImagesOverride(ctx, s.Job)
+		if err != nil {
+			return pipeline.StepResult{}, err
+		}
+	}
+	recipe, err := ResolveRecipeWithOverride(s.Job.TemplateSnapshot, s.Job.NoImages, override, p.DurationSec)
 	if err != nil {
 		return pipeline.StepResult{}, err
 	}

@@ -14,6 +14,7 @@ import App from './App'
 // Brand Viderse ghi đè token nền sáng lên nền tối của kit (design 02 §2).
 applyViderseLabels()
 applyViderseBrand()
+if ('serviceWorker' in navigator) void navigator.serviceWorker.register('/sw.js')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

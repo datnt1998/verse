@@ -91,6 +91,20 @@ func (s *QueueStore) GetQueueItem(ctx context.Context, id string) (*domain.Clone
 	return &item, nil
 }
 
+// UpdateQueueOverrides atomically rejects stale or already-started queue rows.
+func (s *QueueStore) UpdateQueueOverrides(ctx context.Context, item domain.CloneQueueItem, expected int64) (bool, error) {
+	var override pgtype.Bool
+	if item.NoImagesOverride != nil {
+		override = pgtype.Bool{Bool: *item.NoImagesOverride, Valid: true}
+	}
+	n, err := s.q.UpdateQueueOverrides(ctx, gen.UpdateQueueOverridesParams{
+		ID: queueUUID(item.ID), OverrideRevision: expected,
+		ScenePromptID: pstr(item.ScenePromptID), CoverPromptID: pstr(item.CoverPromptID),
+		NoImages: item.NoImages, NoImagesOverride: override,
+	})
+	return n == 1, err
+}
+
 // ListQueuedItems trả mọi mục đang chờ (trần 2000 như bản TS).
 func (s *QueueStore) ListQueuedItems(ctx context.Context) ([]domain.CloneQueueItem, error) {
 	rows, err := s.q.ListQueuedItems(ctx)
@@ -564,22 +578,27 @@ func queueItemOf(row gen.CloneQueue) (domain.CloneQueueItem, error) {
 		reason = &row.Reason.String
 	}
 	return domain.CloneQueueItem{
-		ID:            uuidString(row.ID),
-		ChannelID:     uuidString(row.ChannelID),
-		SourceVideoID: row.SourceVideoID,
-		SourceKey:     row.SourceKey,
-		Source:        snap,
-		Priority:      domain.ClonePriority(row.Priority),
-		Origin:        domain.CloneOrigin(row.Origin),
-		Position:      row.Position,
-		State:         domain.CloneQueueState(row.State),
-		NoImages:      row.NoImages,
-		TemplateID:    queueUUIDPtr(row.TemplateID),
-		JobID:         jobID,
-		Reason:        reason,
-		CreatedAt:     row.CreatedAt.Time,
-		StartedAt:     tsPtr(row.StartedAt),
-		RemovedAt:     tsPtr(row.RemovedAt),
+		ID:               uuidString(row.ID),
+		ChannelID:        uuidString(row.ChannelID),
+		SourceVideoID:    row.SourceVideoID,
+		SourceKey:        row.SourceKey,
+		Source:           snap,
+		Priority:         domain.ClonePriority(row.Priority),
+		Origin:           domain.CloneOrigin(row.Origin),
+		Position:         row.Position,
+		State:            domain.CloneQueueState(row.State),
+		NoImages:         row.NoImages,
+		ScenePromptID:    strPtr(row.ScenePromptID),
+		CoverPromptID:    strPtr(row.CoverPromptID),
+		NoImagesOverride: boolPtr(row.NoImagesOverride),
+		OverrideRevision: row.OverrideRevision,
+		TemplateID:       queueUUIDPtr(row.TemplateID),
+		RestartOf:        queueUUIDPtr(row.RestartOf),
+		JobID:            jobID,
+		Reason:           reason,
+		CreatedAt:        row.CreatedAt.Time,
+		StartedAt:        tsPtr(row.StartedAt),
+		RemovedAt:        tsPtr(row.RemovedAt),
 	}, nil
 }
 

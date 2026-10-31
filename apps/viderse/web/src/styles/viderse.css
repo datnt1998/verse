@@ -19,6 +19,9 @@
   /* Chữ của bốn trợ lý (03-tokens.md › Trợ lý) */
   --vv-scout-ink: #B7CEFF;
   --vv-director-ink: #CDB5FF;
+  --vv-director-notice-ink: #D6C9FF;
+  --vv-director-notice-fill: rgba(184, 156, 255, .07);
+  --vv-director-notice-line: rgba(184, 156, 255, .22);
   --vv-artist-ink: #FFD08A;
   --vv-qa-ink: #9DECC9;
 
@@ -211,6 +214,7 @@
   --vv-set-help-w: 320px;
   /* Dòng/banner cam “cần sửa” và nền tiến độ xanh (đang chuyển thư mục). */
   --vv-warn-bg: rgba(255, 154, 92, .07);
+  --vv-notification-unread: rgba(255, 215, 100, .045);
   --vv-warn-bd: rgba(255, 154, 92, .3);
   --vv-warn-ink: #FFC09A;
   --vv-warn-btn-ink: #1A0E06;

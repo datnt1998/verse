@@ -131,8 +131,8 @@ func TestCloneListFiltersAndPreservesViewModel(t *testing.T) {
 		channel string
 		limit   int
 	}{
-		{"", "", 50},
-		{"?channel=all", "", 50},
+		{"", "", 10000},
+		{"?channel=all", "", 10000},
 		{"?channelId=channel-1&limit=10", "channel-1", 10},
 		{"?channel=channel-2&limit=100", "channel-2", 100},
 	} {
@@ -146,7 +146,9 @@ func TestCloneListFiltersAndPreservesViewModel(t *testing.T) {
 			}
 			// Compare the wire representation: a nil RawMessage is JSON null,
 			// which unmarshals into a non-nil RawMessage containing "null".
-			want, err := json.Marshal(svc.list)
+			expected := svc.list
+			expected.BulkEligibility = domain.BulkEligibility(expected.Jobs)
+			want, err := json.Marshal(expected)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -244,7 +246,7 @@ func TestCloneJobActionsReadsAndDelete(t *testing.T) {
 		t.Fatalf("delete: status %d: %s", w.Code, w.Body.String())
 	}
 	before := len(svc.calls)
-	for _, body := range []string{`{}`, `{"action":"restart"}`, `{"action":"pause","extra":true}`, `{"action":"pause"}{}`, `null`} {
+	for _, body := range []string{`{}`, `{"action":"rewind"}`, `{"action":"pause","extra":true}`, `{"action":"pause"}{}`, `null`} {
 		w = tg.do(http.MethodPost, "/api/clone/job-1", cookie, body)
 		if w.Code != http.StatusBadRequest {
 			t.Fatalf("invalid action: status %d: %s", w.Code, w.Body.String())

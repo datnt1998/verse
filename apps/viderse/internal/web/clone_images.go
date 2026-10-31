@@ -14,7 +14,9 @@ import (
 	clonebackdrop "github.com/datnt1998/verse/apps/viderse/internal/clone/backdrop"
 	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
+	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -36,6 +38,7 @@ type CloneBackdropOperations interface {
 type CloneOperations struct {
 	Images    CloneImageOperations
 	Backdrops CloneBackdropOperations
+	Metadata  *clonemetadata.Service
 	Edits     *jobedit.Service
 	Bundles   *CloneBundles
 	Bulk      *CloneBulk
@@ -71,7 +74,7 @@ func (ops CloneOperations) route(g *Gateway, w http.ResponseWriter, r *http.Requ
 		return false
 	}
 	switch parts[1] {
-	case "images", "backdrop", "cover", "thumbnail", "prompts":
+	case "images", "backdrop", "cover", "thumbnail", "prompts", "metadata":
 	default:
 		return false
 	}
@@ -85,6 +88,8 @@ func (ops CloneOperations) route(g *Gateway, w http.ResponseWriter, r *http.Requ
 	}
 	id := parts[0]
 	switch parts[1] {
+	case "metadata":
+		ops.metadata(w, r, id, parts[2:])
 	case "images":
 		if !cloneAvailable(w, ops.Images != nil) {
 			return true
@@ -204,6 +209,7 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 			ExpectedRevision *int                 `json:"expectedRevision"`
 			ConfirmCount     int                  `json:"confirmCount"`
 			Kind             string               `json:"kind,omitempty"`
+			Feedback         string               `json:"feedback,omitempty"`
 			Actions          []cloneimages.Action `json:"actions,omitempty"`
 		}
 		if !webapp.DecodeJSONCode(w, r, &input, domain.CloneErrInvalidRequest) {
@@ -214,7 +220,7 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 			out, err := ops.Images.ApproveAll(r.Context(), id, cloneimages.RevisionInput{ExpectedRevision: input.ExpectedRevision})
 			cloneOperationJSON(w, out, err)
 		case "regenerateAll":
-			out, err := ops.Images.RedrawAll(r.Context(), id, cloneimages.ResetInput{ExpectedRevision: input.ExpectedRevision, ConfirmCount: input.ConfirmCount, Kind: input.Kind})
+			out, err := ops.Images.RedrawAll(r.Context(), id, cloneimages.ResetInput{ExpectedRevision: input.ExpectedRevision, ConfirmCount: input.ConfirmCount, Kind: input.Kind, Feedback: input.Feedback})
 			cloneOperationJSON(w, out, err)
 		case "review":
 			out, err := ops.Images.Review(r.Context(), id, cloneimages.ReviewInput{ExpectedRevision: input.ExpectedRevision, Actions: input.Actions})
@@ -235,20 +241,45 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 				invalidClone(w, "Biến thể ảnh không hợp lệ.")
 				return
 			}
-			path, err := ops.Images.DisplayedCutout(r.Context(), id, imageID)
+			version := 0
+			if raw := r.URL.Query().Get("version"); raw != "" {
+				var err error
+				version, err = strconv.Atoi(raw)
+				if err != nil || version < 1 {
+					invalidClone(w, "Phiên bản ảnh không hợp lệ.")
+					return
+				}
+			}
+			var path string
+			var err error
+			generator, derived := ops.Images.(interface {
+				Cutout(context.Context, string, string, int) (string, error)
+			})
+			if derived {
+				path, err = generator.Cutout(r.Context(), id, imageID, version)
+			} else if version == 0 {
+				path, err = ops.Images.DisplayedCutout(r.Context(), id, imageID)
+			} else {
+				cloneNotFound(w)
+				return
+			}
 			if err != nil {
 				WriteCloneError(w, err)
 				return
 			}
-			if !cloneAvailable(w, ops.Edits != nil) {
+			if !cloneAvailable(w, ops.Edits != nil && ops.Edits.Media != nil) {
 				return
 			}
-			snapshot, err := ops.Edits.Read(r.Context(), id, domain.CloneImages)
-			if err != nil {
-				WriteCloneError(w, err)
-				return
+			var handle *media.Handle
+			if derived {
+				handle, err = ops.Edits.Media.Acquire(r.Context(), path)
+			} else {
+				var snapshot jobedit.Snapshot
+				snapshot, err = ops.Edits.Read(r.Context(), id, domain.CloneImages)
+				if err == nil {
+					handle, err = ops.Edits.Acquire(r.Context(), snapshot, path)
+				}
 			}
-			handle, err := ops.Edits.Acquire(r.Context(), snapshot, path)
 			if err != nil {
 				WriteCloneError(w, err)
 				return

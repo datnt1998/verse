@@ -134,6 +134,7 @@ func mountChannels(
 	web.MountChannelsDiag(g, svc, func(msg string) {
 		logStore.Append("channels", logs.LevelError, logStore.Redact(msg))
 	})
+	web.MountChannelSummary(g, svc, postgres.NewChannelSummaryStore(pool))
 	if err := svc.Start(context.Background()); err != nil {
 		return nil, err
 	}

@@ -37,6 +37,17 @@ func TestReviewRejectsBusyAndStaleVersions(t *testing.T) {
 		})
 	}
 }
+
+func TestReviewRejectsQueuedRedraw(t *testing.T) {
+	m := reviewFixture()
+	m.Items[0].Status = "pending"
+	m.QueueOnly = []string{"scene-1"}
+	_, err := Review(m, "scene-1", "regenerate", "new direction", nil)
+	var ce *domain.CloneError
+	if !errors.As(err, &ce) || ce.Code != domain.CloneErrConflict {
+		t.Fatalf("queued redraw must conflict, got %v", err)
+	}
+}
 func TestCutoutApprovalRequiresSubjectButNotForCover(t *testing.T) {
 	m := reviewFixture()
 	m.Style = "cutout"

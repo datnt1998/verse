@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -32,6 +33,9 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 	if job.PausedAt != nil {
 		return StagePaused
 	}
+	if job.Status != CloneFailed && job.Status != CloneCancelled && reviewRedrawActive(steps) {
+		return StageReview
+	}
 	for _, s := range steps {
 		if (s.Step == CloneBuild || s.Step == CloneImages) && s.Status == CloneWaiting && s.Error != nil && s.Error.Code == CloneErrAwaitingReview {
 			return StageReview
@@ -53,6 +57,59 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 		return StageAttention
 	}
 	return StageWorking
+}
+
+// reviewRedraw reads only the stable checkpoint fields shared with the image
+// step, avoiding a dependency on the pipeline's image implementation.
+func reviewRedraw(steps []CloneStepRecord) (bool, int) {
+	for _, step := range steps {
+		if step.Step != CloneImages || (step.Status != ClonePending && step.Status != CloneRunning && step.Status != CloneWaiting) {
+			continue
+		}
+		var checkpoint struct {
+			ReviewOrigin bool     `json:"reviewOrigin"`
+			QueueOnly    []string `json:"queueOnly"`
+			Items        []struct {
+				ID     string `json:"id"`
+				Status string `json:"status"`
+			} `json:"items"`
+		}
+		if json.Unmarshal(step.Checkpoint, &checkpoint) != nil || !checkpoint.ReviewOrigin {
+			continue
+		}
+		count := 0
+		for _, item := range checkpoint.Items {
+			if item.Status != "pending" && item.Status != "running" {
+				continue
+			}
+			if len(checkpoint.QueueOnly) != 0 {
+				selected := false
+				for _, id := range checkpoint.QueueOnly {
+					if id == item.ID {
+						selected = true
+						break
+					}
+				}
+				if !selected {
+					continue
+				}
+			}
+			count++
+		}
+		return true, count
+	}
+	return false, 0
+}
+
+func reviewRedrawActive(steps []CloneStepRecord) bool {
+	active, _ := reviewRedraw(steps)
+	return active
+}
+
+// RedrawingCount is the number of explicitly queued/running review redraws.
+func RedrawingCount(steps []CloneStepRecord) int {
+	_, count := reviewRedraw(steps)
+	return count
 }
 
 // ID của bốn trợ lý hiển thị trên thẻ video.
@@ -273,6 +330,34 @@ func intField(out *CloneStepOutput, key string) (int, bool) {
 	return 0, false
 }
 
+// CloneExportBytes returns the recorded MP4 size while that export exists.
+func CloneExportBytes(steps []CloneStepRecord) *int64 {
+	for _, step := range steps {
+		if step.Step != CloneExport || step.Status != CloneSucceeded || step.Output == nil {
+			continue
+		}
+		if removed, _ := step.Output.Data["removedAt"].(string); removed != "" {
+			return nil
+		}
+		var size int64
+		switch value := step.Output.Data["size"].(type) {
+		case int64:
+			size = value
+		case int:
+			size = int64(value)
+		case float64:
+			size = int64(value)
+		default:
+			return nil
+		}
+		if size < 0 {
+			return nil
+		}
+		return &size
+	}
+	return nil
+}
+
 // Subline tính dòng phụ của mọi trạng thái (§2) từ job + steps + giờ hiện
 // tại: câu việc đang làm, giờ hết chờ hạn mức, hoặc tóm tắt xong.
 func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
@@ -281,6 +366,9 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 	case StagePaused:
 		return "Đã tạm dừng"
 	case StageReview:
+		if n := RedrawingCount(steps); n > 0 {
+			return fmt.Sprintf("Đang vẽ lại %d ảnh", n)
+		}
 		return "Chờ bạn duyệt ảnh"
 	case StageReady:
 		return summarizeDone(steps, now)
@@ -382,9 +470,99 @@ func agoText(d time.Duration) string {
 // CloneJobView đầy đủ của một hàng Bàn dựng: job + subline + agentView + steps.
 // Mục hàng chờ chưa có job trở thành CloneJobView với StageGroup "queued" và
 // QueueItem mang mục hàng gốc.
+// PickDefaultJob chooses the highest-priority actionable job in the scope.
+func PickDefaultJob(jobs []CloneJobView) string {
+	best := -1
+	rank := func(group string) int {
+		switch group {
+		case StageAttention:
+			return 0
+		case StageReview:
+			return 1
+		case StageWorking:
+			return 2
+		case StageReady:
+			return 3
+		default:
+			return 4
+		}
+	}
+	for i := range jobs {
+		r := rank(jobs[i].StageGroup)
+		if r == 4 {
+			continue
+		}
+		if best < 0 || r < rank(jobs[best].StageGroup) ||
+			(r == rank(jobs[best].StageGroup) && ((r < 2 && jobs[i].CreatedAt.Before(jobs[best].CreatedAt)) ||
+				(r >= 2 && jobs[i].CreatedAt.After(jobs[best].CreatedAt)))) {
+			best = i
+		}
+	}
+	if best < 0 {
+		return ""
+	}
+	return jobs[best].ID
+}
+
+type CloneBulkEligibility struct {
+	Retry      []string `json:"retry"`
+	Approve    []string `json:"approve"`
+	Bundle     []string `json:"bundle"`
+	MarkPosted []string `json:"markPosted"`
+	Cancel     []string `json:"cancel"`
+	Delete     []string `json:"delete"`
+}
+
+// BulkEligibility mirrors the actions available to each persisted job.
+func BulkEligibility(jobs []CloneJobView) CloneBulkEligibility {
+	out := CloneBulkEligibility{[]string{}, []string{}, []string{}, []string{}, []string{}, []string{}}
+	for _, job := range jobs {
+		if job.QueueItem != nil || job.StageGroup == StageQueued || job.StageGroup == "" {
+			continue
+		}
+		switch job.StageGroup {
+		case StageAttention:
+			out.Retry = append(out.Retry, job.ID)
+		case StageReview:
+			out.Approve = append(out.Approve, job.ID)
+		case StageWorking:
+			out.Cancel = append(out.Cancel, job.ID)
+		case StageReady:
+			out.MarkPosted = append(out.MarkPosted, job.ID)
+			var project, export string
+			for _, step := range job.Steps {
+				if step.Output == nil {
+					continue
+				}
+				if step.Step == CloneBuild {
+					project, _ = step.Output.Data["projectId"].(string)
+				}
+				if step.Step == CloneExport && step.Status == CloneSucceeded {
+					if value, _ := step.Output.Data["projectId"].(string); value != "" {
+						project = value
+					}
+					export, _ = step.Output.Data["exportId"].(string)
+					if removed, _ := step.Output.Data["removedAt"].(string); removed != "" {
+						export = ""
+					}
+				}
+			}
+			if job.Status == CloneSucceeded && project != "" && export != "" {
+				out.Bundle = append(out.Bundle, job.ID)
+			}
+		}
+		if job.StageGroup != StageWorking {
+			out.Delete = append(out.Delete, job.ID)
+		}
+	}
+	return out
+}
+
 type CloneJobList struct {
-	Jobs        []CloneJobView `json:"jobs"`
-	QueuedTotal int            `json:"queuedTotal"`
+	Jobs            []CloneJobView       `json:"jobs"`
+	QueuedTotal     int                  `json:"queuedTotal"`
+	DefaultJobID    *string              `json:"defaultJobId"`
+	BulkEligibility CloneBulkEligibility `json:"bulkEligibility"`
 }
 
 // CloneBucketCounts đếm job theo nhóm cho badge và tổng quan.
@@ -401,6 +579,7 @@ type CloneBucketCounts struct {
 
 // CloneCounts: tổng toàn app cùng từng kênh; khoá "none" giữ job chưa gán kênh.
 type CloneCounts struct {
-	Totals  CloneBucketCounts            `json:"totals"`
-	ByOwner map[string]CloneBucketCounts `json:"byOwner"`
+	Totals        CloneBucketCounts            `json:"totals"`
+	ByOwner       map[string]CloneBucketCounts `json:"byOwner"`
+	ApprovedToday *int                         `json:"approvedToday"`
 }

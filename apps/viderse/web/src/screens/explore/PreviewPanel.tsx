@@ -4,20 +4,21 @@
 // (aria-disabled, vẫn focus được) vì chưa có kênh của bạn; lý do hiện một lần
 // ngay dưới nút kèm link "Tạo kênh" (06-copy › Khám phá), cả hai điều khiển trỏ
 // aria-describedby tới câu lý do. Link "Mở trên YouTube", nút "← Thông tin đối thủ".
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { color, line, kit } from '@noverse/ui/tokens.stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { exploreStyles } from './explore.stylex'
 import { Icon, toast, useEscapeLayer } from '@noverse/ui'
 import { vi as t } from '../../i18n/vi'
 import { paths } from '../../router'
-import { ActionButton, ChannelAvatar, Orb } from '../../components'
+import { ActionButton, ChannelAvatar } from '../../components'
 import type { Rival, Video } from '../../api/rivals'
 import { enqueueClone, planClone, type ClonePlan } from '../../api/clone'
-import { fmtDateTime, fmtDuration, fmtScore, fmtSubs, fmtViews, scoreText, videoMeta } from './fmt'
+import { fmtDuration, fmtScore, fmtSubs, scoreText, videoMeta } from './fmt'
 import { hideBrokenImage } from './VideoGrid'
 import { channelTint } from '../../lib/channelTint'
+import { ReasonPopover } from '../../components/reason/ReasonPopover'
 
 /** Dòng "vào hàng chờ" dưới nhóm chọn kênh — kết quả plan §4 (ETA, trùng). */
 function queueHintText(plan: ClonePlan | null, phase: 'loading' | 'ready' | 'failed'): { text: string; dupJob: string | null } {
@@ -43,6 +44,13 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
 }) {
   const tt = t.screens.explore
   const [whyOpen, setWhyOpen] = useState(false)
+  const reasonAnchor = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!whyOpen) return
+    const dismiss = (event: PointerEvent) => { if (!reasonAnchor.current?.contains(event.target as Node)) setWhyOpen(false) }
+    document.addEventListener('pointerdown', dismiss)
+    return () => document.removeEventListener('pointerdown', dismiss)
+  }, [whyOpen])
   const [channelId, setChannelId] = useState<string | undefined>(channels[0]?.id)
   const [plan, setPlan] = useState<ClonePlan | null>(null)
   const [planPhase, setPlanPhase] = useState<'loading' | 'ready' | 'failed'>('loading')
@@ -94,14 +102,6 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
   const meta = videoMeta(video.viewCount, video.publishedAt)
   const score = scoreText(video.score)
 
-  // "Vì sao?" chỉ kể khi có số (06-copy: không có số thì không viết lý do).
-  // Ba dòng bằng chứng như artboard (hợp đồng §17 cho 2–4): lượt xem · mức
-  // thường · tuổi video. Ngưỡng ×3 đã nằm trong câu lý do nên không lặp lại.
-  const facts = video.score != null ? [
-    { l: tt.whyFacts.views, v: video.viewCount != null ? fmtViews(video.viewCount) : '—', s: tt.whyFacts.youtubeSrc },
-    { l: tt.whyFacts.median, v: rival?.medianViews != null ? fmtViews(rival.medianViews) : '—', s: tt.whyFacts.medianSrc },
-    { l: tt.whyFacts.age, v: video.publishedAt ? fmtDateTime(video.publishedAt) : '—', s: video.exactTime ? tt.whyFacts.ageSrc : tt.whyFacts.ageEst },
-  ] : null
 
   return (
     <>
@@ -117,29 +117,17 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
         </div>
         <h2 className={`vx-pvtitle ${stylex.props(previewStyles.pvtitle).className}`}>{video.title}</h2>
         <span className={`vx-pvsub ${stylex.props(previewStyles.pvsub).className}`}>{rival ? `${rival.title} · ${meta}` : meta}</span>
-        <div className={`vx-pvscore ${stylex.props(previewStyles.pvscore).className}`}>
+        <div ref={reasonAnchor} className={`vx-pvscore ${stylex.props(previewStyles.pvscore).className}`}>
           <span className={`vx-score ${stylex.props(exploreStyles.score, hot ? exploreStyles.scoreHot : exploreStyles.scoreLow, previewStyles.scoreStatic).className}`}>{fmtScore(video.score)}</span>
           <span className={`vx-pvscore__text ${stylex.props(previewStyles.pvscoreText).className}`}>{tt.scoreTimes(score)}</span>
-          {facts && (
+          {video.scoreReason && (
             <button type="button" className={`vx-why ${stylex.props(previewStyles.why, whyOpen && previewStyles.whyExpanded, exploreStyles.touchTarget).className}`} aria-haspopup="dialog" aria-expanded={whyOpen} onClick={() => setWhyOpen(!whyOpen)}>
               <Icon name="info" size={13} />
               {tt.why}
             </button>
           )}
+          {whyOpen && video.scoreReason && <div {...stylex.props(previewStyles.reasonPopover)}><ReasonPopover label={tt.whyTitle} reason={video.scoreReason} /></div>}
         </div>
-        {whyOpen && facts && (
-          <div className={`vx-reason ${stylex.props(previewStyles.reason).className}`} role="region" aria-label={tt.whyTitle}>
-            <div className={`vx-reason__head ${stylex.props(previewStyles.reasonHead).className}`}><Orb of="scout" size={16} /><span>{tt.whyHead}</span></div>
-            <div className={`vx-reason__text ${stylex.props(previewStyles.reasonText).className}`}>{tt.whyText(score, rival?.title ?? '')}</div>
-            <div className={`vx-reason__facts ${stylex.props(previewStyles.reasonFacts).className}`}>
-              {facts.map((f) => (
-                <div className={`vx-reason__fact ${stylex.props(previewStyles.reasonFact).className}`} key={f.l}>
-                  <span>{f.l}</span><b {...stylex.props(previewStyles.factValue)}>{f.v}</b><span className={`vx-reason__src ${stylex.props(previewStyles.reasonSrc).className}`}>{f.s}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
         {video.hasCaptions === true && (
           <span className={`vx-subsbadge ${stylex.props(previewStyles.subsbadge).className}`}><Icon name="subtitle" size={13} />{tt.hasSubs}</span>
         )}
@@ -208,18 +196,12 @@ export const previewStyles = stylex.create({
   "image": { "width": "100%", "height": "100%", "objectFit": "cover", "display": "block" },
   "pvtitle": { "margin": 0, "fontSize": "15px", "fontWeight": 600, "lineHeight": 1.4 },
   "pvsub": { "fontSize": "12px", "color": "var(--vv-fg-note)", "lineHeight": 1.5 },
-  "pvscore": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "flexWrap": "wrap" },
+  "pvscore": { "position": "relative", "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "flexWrap": "wrap" },
   "scoreStatic": { "position": "static" },
   "pvscoreText": { "fontSize": "12px", "color": color["--color-fg-3"] },
   "why": { display: "inline-flex", alignItems: "center", gap: s["--vv-s-4"], height: s["--vv-s-22"], padding: `0 ${s["--vv-s-2"]}`, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, fontFamily: "inherit", fontSize: "12px", fontWeight: "inherit", lineHeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", whiteSpace: "nowrap", textDecoration: "underline dotted var(--vv-line-35)", textUnderlineOffset: "3px", cursor: "pointer" },
   "whyExpanded": { "color": color["--color-fg"] },
-  "reason": { padding: s["--vv-s-14"], display: "flex", flexDirection: "column", gap: s["--vv-s-10"], borderRadius: r["--vv-r-14"], backgroundColor: color["--color-surface-4"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-4"], boxShadow: kit["--kit-shadow-pop"], fontSize: "13px", lineHeight: 1.5, color: "var(--vv-fg-soft)" },
-  "reasonHead": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "fontSize": "12px", "color": "var(--vv-scout-ink)", "fontWeight": 600 },
-  "reasonText": { "color": color["--color-fg"], "fontSize": "13.5px" },
-  "reasonFacts": { display: "flex", flexDirection: "column", borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: line["--line-1"] },
-  "reasonFact": { display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: `${s["--vv-s-2"]} ${s["--vv-s-10"]}`, padding: `${s["--vv-s-7"]} 0`, borderBottomWidth: { default: "1px", ":lastChild": 0 }, borderBottomStyle: { default: "solid", ":lastChild": "none" }, borderBottomColor: { default: line["--line-1"], ":lastChild": "currentColor" } },
-  "factValue": { "fontWeight": 600, "color": color["--color-fg"], "fontVariantNumeric": "tabular-nums", "textAlign": "right", "lineHeight": 1.45 },
-  "reasonSrc": { "gridColumn": "1 / -1", "fontSize": "11.5px", "color": "var(--vv-fg-note)" },
+  "reasonPopover": { position: "absolute", top: "100%", right: 0, width: "320px", maxWidth: "100%", zIndex: 4, paddingTop: s["--vv-s-6"] },
   "subsbadge": { alignSelf: "flex-start", height: s["--vv-s-22"], padding: `0 ${s["--vv-s-8"]}`, display: "inline-flex", alignItems: "center", gap: s["--vv-s-5"], borderRadius: r["--vv-r-6"], backgroundColor: "var(--vv-ok-7)", color: color["--color-ok"], fontSize: "11.5px" },
   "makegroup": { "display": "flex", "flexDirection": "column", "gap": s["--vv-s-6"] },
   "makehead": { "margin": 0, "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "fontSize": "12.5px", "fontWeight": 500, "color": color["--color-fg-3"] },

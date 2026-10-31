@@ -91,6 +91,44 @@ func TestEditRevisionBusyAndSupersededRefusal(t *testing.T) {
 		t.Fatal("refused edit mutated state")
 	}
 }
+func TestFixedClipRemovalPersists(t *testing.T) {
+	h, e, state := editFixture(t, false, nil)
+	h.speed(2, true)
+	h.store.fixed["fixed"] = domain.BackdropVideo{ID: "fixed", Segment: domain.BackdropSegment{ToSec: 10}, State: domain.BackdropReady, FilePath: "library/backdrops/fixed.mp4"}
+	template, err := ResolveTemplate(context.Background(), h.s.Job.TemplateSnapshot, h.store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.Template = template
+	if clips := fixedBuildClips(template, nil); len(clips) != 1 || clips[0].Path != "library/backdrops/fixed.mp4" {
+		t.Fatalf("fixed build input before removal: %+v", clips)
+	}
+	before, err := Evidence(context.Background(), h.store, EvidenceInput{Manifest: state.Manifest, TemplateSnapshot: h.s.Job.TemplateSnapshot})
+	if err != nil || before.Coverage.FixedSec != 5 {
+		t.Fatalf("before: %+v %v", before, err)
+	}
+	_, err = e.Edit(context.Background(), state, EditRequest{Action: "reroll", ItemID: "fixed:fixed"})
+	assertCode(t, err, domain.CloneErrInvalidRequest)
+	r := mustEdit(t, e, state, EditRequest{Action: "remove", ItemID: "fixed:fixed", Revision: state.Manifest.Revision})
+	raw, err := json.Marshal(r.Manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	restored, err := Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(restored.FixedClips) != 0 || len(restored.ExcludedFixed) != 1 || restored.ExcludedFixed[0] != "fixed" {
+		t.Fatalf("fixed build input after removal: %+v", restored)
+	}
+	after, err := Evidence(context.Background(), h.store, EvidenceInput{Manifest: &restored, TemplateSnapshot: h.s.Job.TemplateSnapshot})
+	if err != nil || after.Coverage.FixedSec != 0 || after.Revision == before.Revision {
+		t.Fatalf("after: %+v %v", after, err)
+	}
+	state.Busy = true
+	_, err = e.Edit(context.Background(), state, EditRequest{Action: "remove", ItemID: "fixed:fixed"})
+	assertCode(t, err, domain.CloneErrConflict)
+}
 func TestRemoveOnlyRebuildsAndLowersCount(t *testing.T) {
 	_, e, state := editFixture(t, false, []Item{testItem("b1", "twitch:a-v0", "random", "ready"), testItem("b2", "twitch:a-v1", "random", "ready")})
 	r := mustEdit(t, e, state, EditRequest{Action: "remove", ItemID: "b1"})

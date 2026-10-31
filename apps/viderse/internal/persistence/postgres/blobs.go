@@ -36,6 +36,8 @@ type BlobRepository struct {
 }
 
 func NewBlobRepository(pool *pgxpool.Pool) *BlobRepository {
+	// Bound dedicated reader sessions independently of the query pool; each
+	// reader can now leave all query connections available to its body.
 	limit := int(pool.Config().MaxConns / 2)
 	if limit < 1 {
 		limit = 1
@@ -278,9 +280,6 @@ func (s *BlobRepository) Protect(ctx context.Context, store, key string, until t
 	return err
 }
 func (s *BlobRepository) ReadLease(ctx context.Context, store, key string) (func(), error) {
-	if s.pool.Config().MaxConns < 2 {
-		return nil, errors.New("blob readers require at least two database connections")
-	}
 	select {
 	case s.readSlots <- struct{}{}:
 	case <-ctx.Done():
@@ -292,23 +291,20 @@ func (s *BlobRepository) ReadLease(ctx context.Context, store, key string) (func
 			<-s.readSlots
 		}
 	}()
-	conn, err := s.pool.Acquire(ctx)
+	conn, err := pgx.ConnectConfig(ctx, s.pool.Config().ConnConfig.Copy())
 	if err != nil {
 		return nil, err
 	}
 	if _, err = conn.Exec(ctx, "SELECT pg_advisory_lock_shared(hashtextextended($1,253025))", store+"/"+key); err != nil {
-		conn.Release()
+		_ = conn.Close(context.Background())
 		return nil, err
 	}
 	var exists bool
 	if err = conn.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM blob_locations WHERE store_id=$1 AND object_key=$2)", store, key).Scan(&exists); err != nil || !exists {
 		cleanup, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		_, unlockErr := conn.Exec(cleanup, "SELECT pg_advisory_unlock_shared(hashtextextended($1,253025))", store+"/"+key)
-		if unlockErr != nil {
-			_ = conn.Conn().Close(cleanup)
-		}
+		_, _ = conn.Exec(cleanup, "SELECT pg_advisory_unlock_shared(hashtextextended($1,253025))", store+"/"+key)
+		_ = conn.Close(cleanup)
 		cancel()
-		conn.Release()
 		if err == nil {
 			err = blobstore.ErrNotFound
 		}
@@ -320,11 +316,8 @@ func (s *BlobRepository) ReadLease(ctx context.Context, store, key string) (func
 		once.Do(func() {
 			cleanup, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			_, err := conn.Exec(cleanup, "SELECT pg_advisory_unlock_shared(hashtextextended($1,253025))", store+"/"+key)
-			if err != nil {
-				_ = conn.Conn().Close(cleanup)
-			}
-			conn.Release()
+			_, _ = conn.Exec(cleanup, "SELECT pg_advisory_unlock_shared(hashtextextended($1,253025))", store+"/"+key)
+			_ = conn.Close(cleanup)
 			<-s.readSlots
 		})
 	}, nil

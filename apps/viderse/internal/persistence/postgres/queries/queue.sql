@@ -32,11 +32,11 @@ UPDATE clone_queue q SET removed_at = NULL
 WHERE q.id = $1 AND q.state = 'queued' AND q.job_id IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM clone_jobs j
-    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL)
+    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL AND j.id IS DISTINCT FROM q.restart_of)
   AND NOT EXISTS (
     SELECT 1 FROM clone_queue active
     WHERE active.source_key = q.source_key AND active.id <> q.id
-      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL);
+      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL AND active.job_id IS DISTINCT FROM q.restart_of);
 
 -- name: PruneQueueHistory :exec
 -- Lịch sử giữ 30 ngày; mục đã bỏ giữ 24 giờ kể từ removed_at.
