@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 )
@@ -103,5 +104,34 @@ func TestSnapshotEmptyAttentionIsEmptySlice(t *testing.T) {
 	}
 	if snap.Attention == nil {
 		t.Fatal("Attention phải là slice rỗng, không nil")
+	}
+}
+
+type healthSource struct{ down bool }
+
+func (h *healthSource) StorageDown() (string, time.Time, bool) {
+	return "Garage", time.Date(2026, 10, 31, 12, 0, 0, 0, time.UTC), h.down
+}
+
+func TestStorageDownSurvivesSourceFailureAndClearsOnRecovery(t *testing.T) {
+	svc := New(staticSettings{}, nil)
+	svc.sourceErr = func(string, error) {}
+	svc.RegisterSource(staticSource{err: errors.New("aggregate unavailable")})
+	health := &healthSource{down: true}
+	svc.SetStorageHealthSource(health)
+	snap, err := svc.Snapshot(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if snap.StorageDown == nil || snap.StorageDown.Label != "Garage" || snap.StorageDown.Since.IsZero() {
+		t.Fatalf("storage outage missing despite failing source: %+v", snap.StorageDown)
+	}
+	health.down = false
+	snap, err = svc.Snapshot(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if snap.StorageDown != nil {
+		t.Fatalf("recovery retained outage: %+v", snap.StorageDown)
 	}
 }

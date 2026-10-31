@@ -26,9 +26,10 @@ var ui embed.FS
 // Gateway phục vụ toàn bộ HTTP của app.
 type Gateway struct {
 	*webapp.Server
-	accounts *identity.Store
-	hub      *events.Hub
-	status   *status.Service
+	accounts          *identity.Store
+	hub               *events.Hub
+	status            *status.Service
+	serverStorageMode func() bool
 }
 
 // NewGateway dựng handler: accounts là kho identity chung (Postgres); khi
@@ -57,6 +58,12 @@ func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) 
 	return g
 }
 
+// SetServerStorageMode supplies the live runtime capability; desktop callers
+// leave it unset. The callback must not perform filesystem or network I/O.
+func (g *Gateway) SetServerStorageMode(mode func() bool) {
+	g.serverStorageMode = mode
+}
+
 // allowFileUpload miễn kiểm application/json cho đúng hai route nhận tệp:
 // tải lớp phủ và nhập tệp prompt. Kiểm multipart + trần kích thước nằm trong
 // handler tương ứng (internal/web/library.go).
@@ -78,11 +85,12 @@ func allowFileUpload(r *http.Request) bool {
 // statusWire và attentionWire là wire DTO của GET /api/status theo hợp đồng —
 // giữ ở tầng web để status.Service tiến hoá không ngầm đổi hợp đồng bên ngoài.
 type statusWire struct {
-	Running     int             `json:"running"`
-	Queued      int             `json:"queued"`
-	Paused      bool            `json:"paused"`
-	ReviewCount int             `json:"reviewCount"`
-	Attention   []attentionWire `json:"attention"`
+	Running     int              `json:"running"`
+	Queued      int              `json:"queued"`
+	Paused      bool             `json:"paused"`
+	ReviewCount int              `json:"reviewCount"`
+	Attention   []attentionWire  `json:"attention"`
+	StorageDown *storageDownWire `json:"storageDown,omitempty"`
 }
 
 type attentionWire struct {
@@ -91,18 +99,32 @@ type attentionWire struct {
 	Href string `json:"href"`
 }
 
-func statusToWire(s status.Snapshot) statusWire {
+type storageDownWire struct {
+	Label string `json:"label"`
+	Since string `json:"since"`
+}
+
+func statusToWire(s status.Snapshot, admin bool) statusWire {
 	att := make([]attentionWire, 0, len(s.Attention))
 	for _, a := range s.Attention {
+		if !admin && (a.AdminOnly || strings.Contains(a.Href, "section=storage")) {
+			continue
+		}
 		att = append(att, attentionWire{Kind: a.Kind, Text: a.Text, Href: a.Href})
 	}
-	return statusWire{
+	out := statusWire{
 		Running:     s.Running,
 		Queued:      s.Queued,
 		Paused:      s.Paused,
 		ReviewCount: s.ReviewCount,
 		Attention:   att,
 	}
+	if s.StorageDown != nil {
+		out.StorageDown = &storageDownWire{
+			Label: s.StorageDown.Label, Since: s.StorageDown.Since.UTC().Format(time.RFC3339),
+		}
+	}
+	return out
 }
 
 // getStatus trả trạng thái đầu trang. ETag suy từ chính bytes của body đã mã
@@ -111,18 +133,19 @@ func statusToWire(s status.Snapshot) statusWire {
 // dùng revision làm ETag sẽ trả 304 với body cũ trong cache trình duyệt. Băm
 // nội dung cũng tự đúng khi một trường (vd cờ tạm dừng) đổi mà không Bump.
 // Revision vẫn cần cho sự kiện SSE.
-func (g *Gateway) getStatus(w http.ResponseWriter, r *http.Request, _ identity.User) {
+func (g *Gateway) getStatus(w http.ResponseWriter, r *http.Request, user identity.User) {
 	snap, err := g.status.Snapshot(r.Context())
 	if err != nil {
 		webapp.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	body, err := json.Marshal(statusToWire(snap))
+	body, err := json.Marshal(statusToWire(snap, user.Role == identity.RoleAdmin))
 	if err != nil {
 		webapp.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	etag := statusETag(body)
+	w.Header().Set("Cache-Control", "private, no-cache")
 	w.Header().Set("ETag", etag)
 	if etagMatches(r.Header.Get("If-None-Match"), etag) {
 		w.WriteHeader(http.StatusNotModified)

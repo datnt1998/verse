@@ -313,3 +313,115 @@ func TestActivityStoreFindTaskByObjectNotFound(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestActivityMemberCannotReadOrConsumeAdminStorageNotifications(t *testing.T) {
+	pool := provision(t)
+	store := postgres.NewActivityStore(pool)
+	svc := activity.New(store, nil)
+	ctx := context.Background()
+	publicID, err := svc.Notify(ctx, "action_result", "public", "#/library", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// More administrative entries than either page limit: filtering after
+	// LIMIT would hide the legitimate member notice and corrupt count7d.
+	for range 55 {
+		if _, err := pool.Exec(ctx, `INSERT INTO notifications(id,kind,text,audience,object_ref)
+			VALUES(gen_random_uuid(),'needs_attention','private storage','admin','{"type":"storage","id":"active"}')`); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := pool.Exec(ctx, `INSERT INTO error_events(kind,what,audience,object_ref)
+			VALUES('needs_attention','private storage','admin','{"type":"storage"}')`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	member, err := svc.Snapshot(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(member.Unread) != 1 || member.Unread[0].ID != publicID {
+		t.Fatalf("member saw admin notifications or lost public page: %d entries", len(member.Unread))
+	}
+	items, err := svc.Errors(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	count, err := svc.ErrorsCount(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || count != 1 {
+		t.Fatalf("member errors leaked: page=%d count=%d", len(items), count)
+	}
+	adminCtx := activity.WithViewer(ctx, true)
+	admin, err := svc.Snapshot(adminCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	adminID := admin.Unread[0].ID
+	for _, n := range admin.Unread {
+		if n.ID != publicID {
+			adminID = n.ID
+			break
+		}
+	}
+	if err := svc.MarkRead(ctx, []string{adminID}); err != nil {
+		t.Fatal(err)
+	}
+	if err := svc.MarkRead(ctx, nil); err != nil {
+		t.Fatal(err)
+	}
+	var remaining int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM notifications WHERE audience='admin' AND read_at IS NULL`).Scan(&remaining); err != nil {
+		t.Fatal(err)
+	}
+	if remaining != 55 {
+		t.Fatalf("member consumed admin notices: remaining=%d", remaining)
+	}
+	if err := svc.MarkRead(adminCtx, nil); err != nil {
+		t.Fatal(err)
+	}
+	spec := activity.NotificationSpec{
+		Kind: "needs_attention", Text: "scoped storage failure", Audience: activity.AudienceAll,
+		Object: &domain.ObjectRef{Type: "storage", ID: "a"},
+	}
+	first, err := svc.NotifyScoped(ctx, spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	spec.Object = &domain.ObjectRef{Type: "storage", ID: "b"}
+	second, err := svc.NotifyScoped(ctx, spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	spec.Object = &domain.ObjectRef{Type: "storage", ID: "a"}
+	repeated, err := svc.NotifyScoped(ctx, spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first == second || repeated != first {
+		t.Fatalf("merge key ignored storage object: %s %s %s", first, second, repeated)
+	}
+	member, err = svc.Snapshot(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(member.Unread) != 0 {
+		t.Fatalf("storage object was not forced admin-only: %+v", member.Unread)
+	}
+	admin, err = svc.Snapshot(adminCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(admin.Unread) != 2 {
+		t.Fatalf("admin scoped notices: %+v", admin.Unread)
+	}
+	for _, n := range admin.Unread {
+		if n.Object == nil || n.Audience != activity.AudienceAdmin {
+			t.Fatalf("scope metadata missing: %+v", n)
+		}
+		if n.ID == first && n.Count != 2 {
+			t.Fatalf("repeat count=%d", n.Count)
+		}
+	}
+}

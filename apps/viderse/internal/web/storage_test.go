@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
 	"net/http"
 	"os"
 	"testing"
@@ -356,5 +357,101 @@ func TestTildePath(t *testing.T) {
 		if got := tildePath(c.in); got != c.want {
 			t.Fatalf("tildePath(%q) = %q, want %q", c.in, got, c.want)
 		}
+	}
+}
+
+type spyFilesystem struct{ calls int }
+
+func (f *spyFilesystem) Open(string) (fs.File, error) {
+	f.calls++
+	return nil, fs.ErrPermission
+}
+
+type untouchedStorage struct {
+	StorageService
+	fs *spyFilesystem
+}
+
+func (s untouchedStorage) Snapshot(context.Context) (storage.Snapshot, error) {
+	_, err := s.fs.Open("/")
+	return storage.Snapshot{}, err
+}
+func (s untouchedStorage) Check(context.Context, string, string) (storage.CheckResult, error) {
+	_, err := s.fs.Open("/")
+	return storage.CheckResult{}, err
+}
+func (s untouchedStorage) Move(context.Context, string, string) (string, bool, error) {
+	_, err := s.fs.Open("/")
+	return "", false, err
+}
+func (s untouchedStorage) CancelMove(context.Context, string) error {
+	_, err := s.fs.Open("/")
+	return err
+}
+func (s untouchedStorage) RetryMove(context.Context) (string, bool, error) {
+	_, err := s.fs.Open("/")
+	return "", false, err
+}
+func (s untouchedStorage) DismissMove(context.Context) error    { _, err := s.fs.Open("/"); return err }
+func (s untouchedStorage) DeletePrevious(context.Context) error { _, err := s.fs.Open("/"); return err }
+func (s untouchedStorage) UseDefaultForNew(context.Context) error {
+	_, err := s.fs.Open("/")
+	return err
+}
+func (s untouchedStorage) Recheck(context.Context) (bool, error) {
+	_, err := s.fs.Open("/")
+	return false, err
+}
+func (s untouchedStorage) Browse(context.Context, string) (storage.BrowseResult, error) {
+	_, err := s.fs.Open("/")
+	return storage.BrowseResult{}, err
+}
+func (s untouchedStorage) Open(context.Context) error { _, err := s.fs.Open("/"); return err }
+
+type untouchedCleanup struct {
+	CleanupService
+	fs *spyFilesystem
+}
+
+func (s untouchedCleanup) ReclaimList(context.Context) ([]retention.ReclaimItem, error) {
+	_, err := s.fs.Open("/")
+	return nil, err
+}
+func (s untouchedCleanup) Reclaim(context.Context, string) (retention.ReclaimItem, error) {
+	_, err := s.fs.Open("/")
+	return retention.ReclaimItem{}, err
+}
+
+func TestServerStorageRefusesPathOperationsBeforeIO(t *testing.T) {
+	tg := newTestGateway(t)
+	filesystem := &spyFilesystem{}
+	MountStorage(tg.g, untouchedStorage{fs: filesystem}, untouchedCleanup{fs: filesystem})
+	tg.g.SetServerStorageMode(func() bool { return true })
+	cookie := tg.sessionCookie()
+	for _, route := range []struct{ method, path string }{
+		{"GET", "/api/storage"}, {"GET", "/api/storage/browse?path=/"},
+		{"POST", "/api/storage/open"}, {"POST", "/api/storage/check"},
+		{"POST", "/api/storage/recheck"}, {"POST", "/api/storage/move"},
+		{"POST", "/api/storage/move/retry"}, {"POST", "/api/storage/move/dismiss"},
+		{"POST", "/api/storage/move/task/cancel"},
+		{"POST", "/api/storage/previous/delete"}, {"POST", "/api/storage/use-default-for-new"},
+		{"GET", "/api/storage/reclaim"}, {"POST", "/api/storage/reclaim/location"},
+	} {
+		t.Run(route.path, func(t *testing.T) {
+			w := tg.do(route.method, route.path, cookie, "{}")
+			if w.Code != http.StatusForbidden {
+				t.Fatalf("path operation not refused: status=%d body=%s", w.Code, w.Body)
+			}
+			var body struct {
+				Code string `json:"code"`
+			}
+			decodeJSON(t, w.Body.Bytes(), &body)
+			if body.Code != "storage_path_unavailable" {
+				t.Fatalf("unexpected error: %s", w.Body)
+			}
+			if filesystem.calls != 0 {
+				t.Fatalf("filesystem accessed %d times", filesystem.calls)
+			}
+		})
 	}
 }

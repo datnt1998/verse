@@ -154,11 +154,12 @@ func (m *memStore) FailTasksByIDs(_ context.Context, ids []string) ([]Task, erro
 	return out, nil
 }
 
-func (m *memStore) UpsertNotification(_ context.Context, kind, text, href, actionLabel string, window time.Duration) (*Notification, error) {
+func (m *memStore) UpsertScopedNotification(_ context.Context, spec NotificationSpec, window time.Duration) (*Notification, error) {
+	kind, text, href, actionLabel := spec.Kind, spec.Text, spec.Href, spec.ActionLabel
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for i := len(m.notes) - 1; i >= 0; i-- {
-		if m.notes[i].Kind != kind {
+		if m.notes[i].Kind != kind || m.notes[i].Audience != spec.Audience || !sameObject(m.notes[i].Object, spec.Object) {
 			continue
 		}
 		if time.Since(m.notes[i].CreatedAt) <= window {
@@ -173,30 +174,37 @@ func (m *memStore) UpsertNotification(_ context.Context, kind, text, href, actio
 	n := Notification{
 		ID: string(rune('A' + m.nextID)), Kind: kind, Count: 1,
 		Text: text, Href: href, ActionLabel: actionLabel, CreatedAt: time.Now(),
+		Audience: spec.Audience, Object: spec.Object,
 	}
 	m.notes = append(m.notes, n)
 	copied := n
 	return &copied, nil
 }
 
-func (m *memStore) ListUnreadNotifications(context.Context, int) ([]Notification, error) {
+func (m *memStore) ListUnreadNotifications(ctx context.Context, limit int) ([]Notification, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	out := make([]Notification, 0, len(m.notes))
 	for _, n := range m.notes {
-		if n.ReadAt == nil {
+		if n.ReadAt == nil && (IsAdminViewer(ctx) || EffectiveAudience(n.Audience, n.Object) == AudienceAll) {
 			out = append(out, n)
 		}
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
+	if len(out) > limit {
+		out = out[:limit]
+	}
 	return out, nil
 }
 
-func (m *memStore) MarkRead(_ context.Context, ids []string) error {
+func (m *memStore) MarkRead(ctx context.Context, ids []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	now := time.Now()
 	for i := range m.notes {
+		if !IsAdminViewer(ctx) && EffectiveAudience(m.notes[i].Audience, m.notes[i].Object) != AudienceAll {
+			continue
+		}
 		if len(ids) == 0 || contains(ids, m.notes[i].ID) {
 			if m.notes[i].ReadAt == nil {
 				m.notes[i].ReadAt = &now
@@ -466,12 +474,12 @@ func (m *memStore) InsertErrorEvent(_ context.Context, e ErrorEvent) error {
 	return nil
 }
 
-func (m *memStore) ListErrorEvents(_ context.Context, since time.Time, limit int) ([]ErrorEvent, error) {
+func (m *memStore) ListErrorEvents(ctx context.Context, since time.Time, limit int) ([]ErrorEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	var out []ErrorEvent
 	for i := len(m.errors) - 1; i >= 0; i-- {
-		if !m.errors[i].At.Before(since) {
+		if !m.errors[i].At.Before(since) && (IsAdminViewer(ctx) || EffectiveAudience(m.errors[i].Audience, m.errors[i].Object) == AudienceAll) {
 			out = append(out, m.errors[i])
 		}
 	}
@@ -481,12 +489,12 @@ func (m *memStore) ListErrorEvents(_ context.Context, since time.Time, limit int
 	return out, nil
 }
 
-func (m *memStore) CountErrorEvents(_ context.Context, since time.Time) (int, error) {
+func (m *memStore) CountErrorEvents(ctx context.Context, since time.Time) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	n := 0
 	for _, e := range m.errors {
-		if !e.At.Before(since) {
+		if !e.At.Before(since) && (IsAdminViewer(ctx) || EffectiveAudience(e.Audience, e.Object) == AudienceAll) {
 			n++
 		}
 	}
@@ -554,5 +562,58 @@ func TestChangedPublishesWithoutMutating(t *testing.T) {
 	tasks, err := store.ListTasks(context.Background())
 	if err != nil || len(tasks) != 0 {
 		t.Fatalf("Changed đã sửa dữ liệu: tasks=%v err=%v", tasks, err)
+	}
+}
+
+func sameObject(a, b *domain.ObjectRef) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
+}
+
+func TestStorageActivityIsAdminOnly(t *testing.T) {
+	store := newMemStore()
+	store.tasks["storage"] = Task{Kind: "storage_migrate", Object: domain.ObjectRef{Type: "storage"}}
+	store.tasks["other"] = Task{Kind: domain.TaskSetup, Object: domain.ObjectRef{Type: "tool"}}
+	svc := New(store, nil)
+	ctx := context.Background()
+	adminCtx := WithViewer(ctx, true)
+	privateID, err := svc.NotifyScoped(ctx, NotificationSpec{
+		Kind: "needs_attention", Text: "private", Object: &domain.ObjectRef{Type: "storage", ID: "active"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	publicID, err := svc.Notify(ctx, "needs_attention", "public", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if privateID == publicID {
+		t.Fatal("different objects/audiences merged")
+	}
+	member, err := svc.Snapshot(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(member.Tasks) != 1 || len(member.Unread) != 1 || member.Unread[0].ID != publicID {
+		t.Fatalf("member visibility: %+v", member)
+	}
+	if err := svc.MarkRead(ctx, nil); err != nil {
+		t.Fatal(err)
+	}
+	admin, err := svc.Snapshot(adminCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(admin.Tasks) != 2 || len(admin.Unread) != 1 || admin.Unread[0].ID != privateID {
+		t.Fatalf("admin visibility or member consumed private notification: %+v", admin)
+	}
+	items, err := svc.Errors(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || items[0].What != "public" {
+		t.Fatalf("private errors leaked: %+v", items)
 	}
 }

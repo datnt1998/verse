@@ -12,6 +12,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 )
@@ -20,6 +21,17 @@ import (
 // tools…). Report được gọi mỗi lần render snapshot, trên ctx của request.
 type Source interface {
 	Report(ctx context.Context) (Report, error)
+}
+
+// StorageHealthSource exposes the active store's last-known health without
+// making a request-time probe or depending on fallible aggregate sources.
+type StorageHealthSource interface {
+	StorageDown() (label string, since time.Time, down bool)
+}
+
+type StorageDown struct {
+	Label string
+	Since time.Time
 }
 
 // Report là phần đóng góp của một nguồn vào snapshot tổng.
@@ -33,9 +45,10 @@ type Report struct {
 // Attention là một mục cần xử lý (chấm trên bánh răng); Kind thuộc tập cố định
 // domain.Attention*. Kiểu thuần domain — tầng web tự map sang wire DTO của nó.
 type Attention struct {
-	Kind domain.AttentionKind
-	Text string
-	Href string
+	Kind      domain.AttentionKind
+	Text      string
+	Href      string
+	AdminOnly bool
 }
 
 // Settings là phần store status cần: đọc cờ tạm dừng hàng chờ đã lưu.
@@ -52,6 +65,7 @@ type Snapshot struct {
 	Paused      bool
 	ReviewCount int
 	Attention   []Attention
+	StorageDown *StorageDown
 }
 
 // Service giữ revision và danh sách nguồn; tất cả phương thức an toàn cho
@@ -63,6 +77,7 @@ type Service struct {
 	rev       uint64
 	sources   []Source
 	sourceErr func(name string, err error) // điểm log khi một nguồn lỗi
+	health    StorageHealthSource
 }
 
 // New dựng service. publish được gọi với rev mới sau mỗi Bump (nil = không
@@ -84,6 +99,13 @@ func New(store Settings, publish func(rev uint64)) *Service {
 func (s *Service) RegisterSource(src Source) {
 	s.mu.Lock()
 	s.sources = append(s.sources, src)
+	s.mu.Unlock()
+}
+
+// SetStorageHealthSource is called once during bootstrap.
+func (s *Service) SetStorageHealthSource(src StorageHealthSource) {
+	s.mu.Lock()
+	s.health = src
 	s.mu.Unlock()
 }
 
@@ -112,9 +134,15 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	s.mu.RLock()
 	rev := s.rev
 	sources := append([]Source{}, s.sources...)
+	health := s.health
 	s.mu.RUnlock()
 
 	snap := Snapshot{Rev: rev, Attention: []Attention{}}
+	if health != nil {
+		if label, since, down := health.StorageDown(); down {
+			snap.StorageDown = &StorageDown{Label: label, Since: since}
+		}
+	}
 	for _, src := range sources {
 		rep, err := src.Report(ctx)
 		if err != nil {

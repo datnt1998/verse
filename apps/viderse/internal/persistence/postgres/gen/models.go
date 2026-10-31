@@ -106,6 +106,30 @@ type BackgroundTask struct {
 	OwnerPid  int32              `json:"owner_pid"`
 }
 
+type Blob struct {
+	ObjectKey string             `json:"object_key"`
+	Sha256    string             `json:"sha256"`
+	Bytes     int64              `json:"bytes"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type BlobLocation struct {
+	StoreID        string             `json:"store_id"`
+	ObjectKey      string             `json:"object_key"`
+	SourcePath     pgtype.Text        `json:"source_path"`
+	VerifiedAt     pgtype.Timestamptz `json:"verified_at"`
+	ProtectedUntil pgtype.Timestamptz `json:"protected_until"`
+	UnreferencedAt pgtype.Timestamptz `json:"unreferenced_at"`
+}
+
+type BlobRef struct {
+	LogicalPath string             `json:"logical_path"`
+	ObjectKey   string             `json:"object_key"`
+	ContentType string             `json:"content_type"`
+	Filename    string             `json:"filename"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type ErrorEvent struct {
 	ID          pgtype.UUID        `json:"id"`
 	At          pgtype.Timestamptz `json:"at"`
@@ -116,6 +140,7 @@ type ErrorEvent struct {
 	ActionLabel string             `json:"action_label"`
 	Op          string             `json:"op"`
 	ObjectRef   []byte             `json:"object_ref"`
+	Audience    string             `json:"audience"`
 }
 
 type ImagePrompt struct {
@@ -153,6 +178,8 @@ type Notification struct {
 	ActionLabel string             `json:"action_label"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	ReadAt      pgtype.Timestamptz `json:"read_at"`
+	Audience    string             `json:"audience"`
+	ObjectRef   []byte             `json:"object_ref"`
 }
 
 type Overlay struct {
@@ -331,6 +358,68 @@ type Setting struct {
 	Key       string             `json:"key"`
 	Value     []byte             `json:"value"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type StorageHealth struct {
+	Singleton bool               `json:"singleton"`
+	StoreID   string             `json:"store_id"`
+	Online    bool               `json:"online"`
+	CheckedAt pgtype.Timestamptz `json:"checked_at"`
+	Since     pgtype.Timestamptz `json:"since"`
+	ErrorCode pgtype.Text        `json:"error_code"`
+}
+
+type StorageJournal struct {
+	Seq          int64              `json:"seq"`
+	RelationName string             `json:"relation_name"`
+	Operation    string             `json:"operation"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+}
+
+type StorageLiveRef struct {
+	LogicalPath string `json:"logical_path"`
+	ContentType string `json:"content_type"`
+	UsageGroup  string `json:"usage_group"`
+}
+
+type StorageMigration struct {
+	TaskID     string             `json:"task_id"`
+	FromStore  string             `json:"from_store"`
+	ToStore    string             `json:"to_store"`
+	State      string             `json:"state"`
+	Revision   int64              `json:"revision"`
+	JournalSeq int64              `json:"journal_seq"`
+	StartedAt  pgtype.Timestamptz `json:"started_at"`
+	FinishedAt pgtype.Timestamptz `json:"finished_at"`
+	Progress   []byte             `json:"progress"`
+}
+
+type StorageMigrationItem struct {
+	TaskID      string             `json:"task_id"`
+	LogicalPath string             `json:"logical_path"`
+	ObjectKey   string             `json:"object_key"`
+	UsageGroup  string             `json:"usage_group"`
+	State       string             `json:"state"`
+	ErrorCode   pgtype.Text        `json:"error_code"`
+	Detail      pgtype.Text        `json:"detail"`
+	VerifiedAt  pgtype.Timestamptz `json:"verified_at"`
+}
+
+type StorageSetting struct {
+	Singleton     bool        `json:"singleton"`
+	ActiveStore   string      `json:"active_store"`
+	PendingStore  pgtype.Text `json:"pending_store"`
+	PreviousStore pgtype.Text `json:"previous_store"`
+	Revision      int64       `json:"revision"`
+	Generation    int64       `json:"generation"`
+}
+
+type StorageStore struct {
+	ID          string             `json:"id"`
+	Driver      string             `json:"driver"`
+	Config      []byte             `json:"config"`
+	Credentials []byte             `json:"credentials"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
 type Template struct {

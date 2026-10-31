@@ -83,11 +83,18 @@ func (q *Queries) BumpNotification(ctx context.Context, arg BumpNotificationPara
 }
 
 const countErrorEvents = `-- name: CountErrorEvents :one
-SELECT COUNT(*)::bigint FROM error_events WHERE at >= $1
+SELECT COUNT(*)::bigint FROM error_events
+WHERE at >= $1
+  AND ($2::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
 `
 
-func (q *Queries) CountErrorEvents(ctx context.Context, since pgtype.Timestamptz) (int64, error) {
-	row := q.db.QueryRow(ctx, countErrorEvents, since)
+type CountErrorEventsParams struct {
+	Since pgtype.Timestamptz `json:"since"`
+	Admin bool               `json:"admin"`
+}
+
+func (q *Queries) CountErrorEvents(ctx context.Context, arg CountErrorEventsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countErrorEvents, arg.Since, arg.Admin)
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
@@ -229,8 +236,8 @@ func (q *Queries) GetTask(ctx context.Context, id pgtype.UUID) (BackgroundTask, 
 }
 
 const insertErrorEvent = `-- name: InsertErrorEvent :exec
-INSERT INTO error_events (kind, what, why, href, action_label, op, object_ref)
-VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+INSERT INTO error_events (kind, what, why, href, action_label, op, object_ref, audience)
+VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8)
 `
 
 type InsertErrorEventParams struct {
@@ -241,6 +248,7 @@ type InsertErrorEventParams struct {
 	ActionLabel string `json:"action_label"`
 	Op          string `json:"op"`
 	ObjectRef   []byte `json:"object_ref"`
+	Audience    string `json:"audience"`
 }
 
 func (q *Queries) InsertErrorEvent(ctx context.Context, arg InsertErrorEventParams) error {
@@ -252,14 +260,15 @@ func (q *Queries) InsertErrorEvent(ctx context.Context, arg InsertErrorEventPara
 		arg.ActionLabel,
 		arg.Op,
 		arg.ObjectRef,
+		arg.Audience,
 	)
 	return err
 }
 
 const insertNotification = `-- name: InsertNotification :one
-INSERT INTO notifications (id, kind, count, text, href, action_label)
-VALUES (gen_random_uuid(), $1, 1, $2, $3, $4)
-RETURNING id, kind, count, text, href, action_label, created_at, read_at
+INSERT INTO notifications (id, kind, count, text, href, action_label, audience, object_ref)
+VALUES (gen_random_uuid(), $1, 1, $2, $3, $4, $5, $6::jsonb)
+RETURNING id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref
 `
 
 type InsertNotificationParams struct {
@@ -267,6 +276,8 @@ type InsertNotificationParams struct {
 	Text        string `json:"text"`
 	Href        string `json:"href"`
 	ActionLabel string `json:"action_label"`
+	Audience    string `json:"audience"`
+	ObjectRef   []byte `json:"object_ref"`
 }
 
 func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotificationParams) (Notification, error) {
@@ -275,6 +286,8 @@ func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotification
 		arg.Text,
 		arg.Href,
 		arg.ActionLabel,
+		arg.Audience,
+		arg.ObjectRef,
 	)
 	var i Notification
 	err := row.Scan(
@@ -286,6 +299,8 @@ func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotification
 		&i.ActionLabel,
 		&i.CreatedAt,
 		&i.ReadAt,
+		&i.Audience,
+		&i.ObjectRef,
 	)
 	return i, err
 }
@@ -342,15 +357,22 @@ func (q *Queries) InsertTask(ctx context.Context, arg InsertTaskParams) (Backgro
 }
 
 const latestNotification = `-- name: LatestNotification :one
-SELECT id, kind, count, text, href, action_label, created_at, read_at FROM notifications
-WHERE kind = $1
+SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications
+WHERE kind = $1 AND audience = $2
+  AND object_ref IS NOT DISTINCT FROM $3::jsonb
 ORDER BY created_at DESC
 LIMIT 1
 `
 
+type LatestNotificationParams struct {
+	Kind      string `json:"kind"`
+	Audience  string `json:"audience"`
+	ObjectRef []byte `json:"object_ref"`
+}
+
 // Thông báo mới nhất của một kind để áp luật gộp 10 giây của §11.
-func (q *Queries) LatestNotification(ctx context.Context, kind string) (Notification, error) {
-	row := q.db.QueryRow(ctx, latestNotification, kind)
+func (q *Queries) LatestNotification(ctx context.Context, arg LatestNotificationParams) (Notification, error) {
+	row := q.db.QueryRow(ctx, latestNotification, arg.Kind, arg.Audience, arg.ObjectRef)
 	var i Notification
 	err := row.Scan(
 		&i.ID,
@@ -361,21 +383,27 @@ func (q *Queries) LatestNotification(ctx context.Context, kind string) (Notifica
 		&i.ActionLabel,
 		&i.CreatedAt,
 		&i.ReadAt,
+		&i.Audience,
+		&i.ObjectRef,
 	)
 	return i, err
 }
 
 const listErrorEvents = `-- name: ListErrorEvents :many
-SELECT id, at, kind, what, why, href, action_label, op, object_ref FROM error_events WHERE at >= $1 ORDER BY at DESC LIMIT $2
+SELECT id, at, kind, what, why, href, action_label, op, object_ref, audience FROM error_events
+WHERE at >= $1
+  AND ($2::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
+ORDER BY at DESC LIMIT $3
 `
 
 type ListErrorEventsParams struct {
 	Since    pgtype.Timestamptz `json:"since"`
+	Admin    bool               `json:"admin"`
 	RowLimit int32              `json:"row_limit"`
 }
 
 func (q *Queries) ListErrorEvents(ctx context.Context, arg ListErrorEventsParams) ([]ErrorEvent, error) {
-	rows, err := q.db.Query(ctx, listErrorEvents, arg.Since, arg.RowLimit)
+	rows, err := q.db.Query(ctx, listErrorEvents, arg.Since, arg.Admin, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -393,6 +421,7 @@ func (q *Queries) ListErrorEvents(ctx context.Context, arg ListErrorEventsParams
 			&i.ActionLabel,
 			&i.Op,
 			&i.ObjectRef,
+			&i.Audience,
 		); err != nil {
 			return nil, err
 		}
@@ -443,14 +472,20 @@ func (q *Queries) ListTasks(ctx context.Context) ([]BackgroundTask, error) {
 }
 
 const listUnreadNotifications = `-- name: ListUnreadNotifications :many
-SELECT id, kind, count, text, href, action_label, created_at, read_at FROM notifications
+SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications
 WHERE read_at IS NULL
+  AND ($1::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
 ORDER BY created_at DESC
-LIMIT 50
+LIMIT $2
 `
 
-func (q *Queries) ListUnreadNotifications(ctx context.Context) ([]Notification, error) {
-	rows, err := q.db.Query(ctx, listUnreadNotifications)
+type ListUnreadNotificationsParams struct {
+	Admin    bool  `json:"admin"`
+	RowLimit int32 `json:"row_limit"`
+}
+
+func (q *Queries) ListUnreadNotifications(ctx context.Context, arg ListUnreadNotificationsParams) ([]Notification, error) {
+	rows, err := q.db.Query(ctx, listUnreadNotifications, arg.Admin, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -467,6 +502,8 @@ func (q *Queries) ListUnreadNotifications(ctx context.Context) ([]Notification, 
 			&i.ActionLabel,
 			&i.CreatedAt,
 			&i.ReadAt,
+			&i.Audience,
+			&i.ObjectRef,
 		); err != nil {
 			return nil, err
 		}
@@ -482,13 +519,19 @@ const markNotificationsRead = `-- name: MarkNotificationsRead :exec
 UPDATE notifications
 SET read_at = now()
 WHERE read_at IS NULL
-  AND ($1::jsonb = '[]'::jsonb
-       OR id::text IN (SELECT jsonb_array_elements_text($1::jsonb)))
+  AND ($1::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
+  AND ($2::jsonb = '[]'::jsonb
+       OR id::text IN (SELECT jsonb_array_elements_text($2::jsonb)))
 `
 
+type MarkNotificationsReadParams struct {
+	Admin bool   `json:"admin"`
+	Ids   []byte `json:"ids"`
+}
+
 // Đánh dấu đã đọc; danh sách rỗng (jsonb '[]') nghĩa là "tất cả".
-func (q *Queries) MarkNotificationsRead(ctx context.Context, ids []byte) error {
-	_, err := q.db.Exec(ctx, markNotificationsRead, ids)
+func (q *Queries) MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error {
+	_, err := q.db.Exec(ctx, markNotificationsRead, arg.Admin, arg.Ids)
 	return err
 }
 
