@@ -75,6 +75,6 @@ func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedi
 	bundles := &bundle.Service{Edits: edits, Exports: editorService, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, OwnerName: ownerName}
 	store := edits.Store.(*postgres.CloneStore)
 	bulkOps := &bulk.Service{Jobs: jobs, Images: images, Store: store, Exports: editorService, Publish: edits.Publish, Approvals: store, ApproveProject: store.PrepareCloneExport}
-	web.MountCloneOperations(g, web.CloneOperations{Images: images, Backdrops: backdrops, Edits: edits, Bundles: bundles, Bulk: bulkOps, Metadata: metadata})
+	web.MountCloneOperations(g, web.CloneOperations{Images: &queuedPromptOperations{Service: images, queue: postgres.NewQueueStore(pool), publish: edits.Publish}, Backdrops: backdrops, Edits: edits, Bundles: bundles, Bulk: bulkOps, Metadata: metadata})
 	return bulkOps.DispatchReviews
 }
