@@ -232,10 +232,10 @@ func (o *observer) retryEventID(scope string, attempt int) string {
 // Keep start and finish in the existing durable queue so live history can
 // reconstruct in-flight calls and dispatch boundaries after a restart.
 func (o *observer) emitAndLog(ev Event) {
-	o.emitEv(ev)
 	if ev.Category == "DISPATCH" || ev.Category == "TOOL" {
 		o.persistEvent(ev)
 	}
+	o.emitEv(ev)
 }
 
 // persistEvent 把事件写入 runtime queue（slog 由 host.emitEvent 统一记录）。

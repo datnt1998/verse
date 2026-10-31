@@ -44,9 +44,10 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			call.setTool(ev.Progress.Tool, ev.Progress.Args)
 		}
 		if _, ok := o.toolStarts[ev.Progress.Agent]; ok {
-			o.updateToolCallSummary(ev.Progress.Agent, ev.Progress.Tool, toolName)
 			call := o.toolStarts[ev.Progress.Agent]
+			call.summary = toolName
 			o.persistEvent(Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Tool: call.tool, Args: call.args, Chapter: call.chapter, Status: "running", Summary: call.summary, Depth: call.depth})
+			o.updateToolCallSummary(ev.Progress.Agent, ev.Progress.Tool, toolName)
 			o.updateAgent(ev.Progress.Agent, func(a *agentState) {
 				a.state = "working"
 				a.tool = ev.Progress.Tool
@@ -100,8 +101,8 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			Duration:   time.Since(call.start),
 		}
 		call.fillToolEvent(&finishEv, true)
-		o.emitEv(finishEv)
 		o.persistEvent(finishEv)
+		o.emitEv(finishEv)
 	case agentcore.ProgressThinking:
 		o.handleThinkingProgress(ev)
 	case agentcore.ProgressRetry:
@@ -155,8 +156,8 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 				pending := Event{ID: call.id, Time: call.start, Category: "TOOL", Agent: ev.Progress.Agent, Summary: call.summary, Detail: fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg), Level: "info", Depth: call.depth}
 				call.fillToolEvent(&pending, true)
 				pending.Result = "" // diagnostics stay in Detail/Retries, not the user-facing result
-				o.emitEv(pending)
 				o.persistEvent(pending)
+				o.emitEv(pending)
 				return
 			}
 			detail := fmt.Sprintf("%s lỗi: %s", ev.Progress.Tool, msg)
@@ -176,8 +177,8 @@ func (o *observer) handleToolUpdate(ev agentcore.Event) {
 			}
 			call.result = msg
 			call.fillToolEvent(&finishEv, false)
-			o.emitEv(finishEv)
 			o.persistEvent(finishEv)
+			o.emitEv(finishEv)
 			return
 		}
 		// 极少数缺失 start 的进度流无法原地更新，保留独立 ERROR 事件暴露故障。
@@ -388,8 +389,8 @@ func (o *observer) emitCallFinish(call *activeCall, category, agentName string, 
 	if question != nil {
 		finishEv.Status = "attention"
 	}
-	o.emitEv(finishEv)
 	o.persistEvent(finishEv)
+	o.emitEv(finishEv)
 }
 
 func displayToolName(tool string, args json.RawMessage) string {
