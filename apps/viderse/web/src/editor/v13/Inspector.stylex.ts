@@ -29,7 +29,7 @@ export const inspectorStyles = stylex.create({
   peak: (left: number, height: number) => ({ position: 'absolute', left: `${left}%`, top: '50%', transform: 'translateY(-50%)', width: 2, height, borderRadius: 1, backgroundColor: color['--color-user-fg'] }),
   ticks: { display: 'flex', justifyContent: 'space-between', paddingLeft: 42, fontSize: 10, color: color['--color-fg-4'], fontVariantNumeric: 'tabular-nums' },
   fullButton: { width: '100%' },
-  smallIcon: { width: 30, paddingInline: 0 },
+  smallIcon: { width: 30, height: 30, flexShrink: 0, padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderRadius: 8, color: color['--color-fg-3'], backgroundColor: { default: 'transparent', ':hover': line['--line-1'] }, opacity: { default: 1, ':disabled': 0.42 }, cursor: { default: 'pointer', ':disabled': 'not-allowed' } },
   quietButton: { alignSelf: 'flex-start', minWidth: 0, maxWidth: '100%', paddingInline: 2, whiteSpace: 'normal', textAlign: 'left' },
   twoColumns: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 },
   thumbnail: { aspectRatio: '16 / 9', width: '100%', borderRadius: 10, overflow: 'hidden', backgroundColor: color['--color-surface-2'], display: 'flex', alignItems: 'center', justifyContent: 'center' },

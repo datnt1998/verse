@@ -10,7 +10,7 @@ export const contentStyles = stylex.create({
   backgroundList: { display: 'flex', flexDirection: 'column', gap: 2, margin: '-4px -6px 0' },
   backgroundRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '5px 6px', borderRadius: 9, backgroundColor: { default: 'transparent', ':hover': line['--line-1'] } },
   backgroundPick: { display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1, padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
-  smallIcon: { width: 30, paddingInline: 0 },
+  smallIcon: { width: 30, height: 30, flexShrink: 0, padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderRadius: 8, color: color['--color-fg-3'], backgroundColor: { default: 'transparent', ':hover': line['--line-1'] }, opacity: { default: 1, ':disabled': 0.42 }, cursor: { default: 'pointer', ':disabled': 'not-allowed' } },
   row: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: 6, borderWidth: 0, borderRadius: 10, backgroundColor: { default: 'transparent', ':hover': line['--line-1'] }, color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
   selected: { backgroundColor: color['--color-surface-4'] },
   thumbnail: { position: 'relative', width: 84, flexShrink: 0, aspectRatio: '16 / 9', borderRadius: 7, overflow: 'hidden', backgroundColor: color['--color-surface-2'], display: 'flex', alignItems: 'center', justifyContent: 'center', color: color['--color-fg-4'] },

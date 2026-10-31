@@ -315,7 +315,7 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
               <span {...stylex.props(sx.meta)}>{source ? source.source === 'owner' ? 'Cố định' : 'Từ kênh' : ''} · {panelTime(item.from / fps)} · {panelTime(item.durationInFrames / fps)}</span>
             </span>
           </button>
-          <Button {...stylex.props(sx.smallIcon)} variant="icon" size="sm" title="Đổi ngẫu nhiên" aria-label={`Đổi ngẫu nhiên ${item.label}`} disabled={!source || !actions.backdrop?.randomPicks || actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }}><Icon name="refresh" size={14} /></Button>
+          <button type="button" {...stylex.props(sx.smallIcon)} title="Đổi ngẫu nhiên" aria-label={`Đổi ngẫu nhiên ${item.label}`} disabled={!source || !actions.backdrop?.randomPicks || actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }}><Icon name="refresh" size={14} /></button>
         </div>
       })}
     </div>

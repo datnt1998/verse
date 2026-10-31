@@ -40,7 +40,14 @@ export interface InspectorProps {
 }
 
 type CaptionItem = TextItem | SubtitleSegmentItem
-const reviewItemSchema = z.object({ id: z.string(), kind: z.string(), sceneId: z.string().optional(), startFrame: z.number(), endFrame: z.number(), status: z.string(), prompt: z.string(), direction: z.string().optional(), currentVersion: z.number().nullable(), reviewVersion: z.number().nullable() }).passthrough()
+const reviewItemSchema = z.object({
+  id: z.string(), kind: z.enum(['scene', 'thumbnail']), sceneId: z.string().optional(),
+  // Go omits a zero startFrame and omits scene timing entirely for the cover.
+  startFrame: z.number().nonnegative().default(0),
+  endFrame: z.number().nonnegative().optional(),
+  status: z.string(), prompt: z.string(), direction: z.string().optional(),
+  currentVersion: z.number().nullable(), reviewVersion: z.number().nullable(),
+}).passthrough()
 const reviewListSchema = z.object({ items: z.array(reviewItemSchema) }).passthrough()
 const reviewDetailSchema = z.object({ item: reviewItemSchema, revision: z.number().int().nonnegative(), approved: z.boolean() }).passthrough()
 type ReviewDetail = z.infer<typeof reviewDetailSchema>
@@ -203,8 +210,8 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
       <div {...stylex.props(sx.row)}>
         <h2 {...stylex.props(sx.heading)}><span {...stylex.props(sx.captionIcon)}><Icon name="subtitle" size={15} /></span>Phụ đề</h2>
         <span {...stylex.props(sx.meta)}>Đoạn lệch {driftIndex >= 0 ? driftIndex + 1 : 0}/{drift.length}</span>
-        <Button {...stylex.props(sx.smallIcon)} variant="icon" size="sm" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" disabled={!drift.length} onClick={() => navigate(-1)}><Icon name="arrow-left-2" size={14} /></Button>
-        <Button {...stylex.props(sx.smallIcon)} variant="icon" size="sm" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" disabled={!drift.length} onClick={() => navigate(1)}><Icon name="arrow-r" size={14} /></Button>
+        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" disabled={!drift.length} onClick={() => navigate(-1)}><Icon name="arrow-left-2" size={14} /></button>
+        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" disabled={!drift.length} onClick={() => navigate(1)}><Icon name="arrow-r" size={14} /></button>
       </div>
       <span {...stylex.props(sx.meta)}>{panelTime(start / fps)}–{panelTime(end / fps)}</span>
       <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : matching ? passed ? 'Khớp với giọng' : 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
@@ -266,7 +273,7 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
             imageId = matches[0]!.id
           }
           const detail = reviewDetailSchema.parse(await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/images/${encodeURIComponent(imageId)}`, { signal: controller.signal }))
-          if (!controller.signal.aborted) setReview(detail)
+          if (!controller.signal.aborted) { setReview(detail); setError('') }
         } while (queued && !controller.signal.aborted)
       } catch (error) { if (!controller.signal.aborted) setError(panelError(error)) }
       finally { loading = false }
