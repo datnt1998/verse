@@ -32,6 +32,11 @@ type Options struct {
 	// UI là gốc SPA đã build (index.html + assets/ ở root). Caller thường
 	// truyền fs.Sub(embed, "dist").
 	UI fs.FS
+	// AllowNonJSON miễn kiểm Content-Type application/json cho những request
+	// tải tệp (multipart) mà app tự khai. nil = mọi body phải JSON. Chỉ dùng
+	// cho route nhận tệp: ranh giới CSRF vẫn là webguard.CrossSiteRequest +
+	// cookie SameSite chạy trước đó.
+	AllowNonJSON func(*http.Request) bool
 }
 
 // HandlerFunc là route nghiệp vụ của app: chỉ chạy sau khi session cookie đã
@@ -126,7 +131,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.serveStatic(w, r)
 		return
 	}
-	if webguard.JSONBodyRequired(r) && !webguard.JSONContent(r) {
+	if webguard.JSONBodyRequired(r) && !webguard.JSONContent(r) &&
+		(s.opts.AllowNonJSON == nil || !s.opts.AllowNonJSON(r)) {
 		Error(w, http.StatusBadRequest, "Content-Type phải là application/json")
 		return
 	}
