@@ -258,7 +258,7 @@ func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, reru
 	childCtx, stop := context.WithCancel(ctx)
 	exited := make(chan error, 1)
 	go func() {
-		_, e := s.Runner.Run(childCtx, chrome, []string{"--headless=new", "--no-first-run", "--no-default-browser-check", "--autoplay-policy=no-user-gesture-required", "--mute-audio", "--window-size=1920,1080", "--user-data-dir=" + profile, s.Origin + "/#/render/" + url.PathEscape(requestID) + "?token=" + url.QueryEscape(token)}, tools.Spec{Match: profile, Label: "export-chrome", OnStart: func(pid int) {
+		_, e := s.Runner.Run(childCtx, chrome, []string{"--headless=new", "--use-mock-keychain", "--password-store=basic", "--no-first-run", "--no-default-browser-check", "--autoplay-policy=no-user-gesture-required", "--mute-audio", "--window-size=1920,1080", "--user-data-dir=" + profile, s.Origin + "/#/render/" + url.PathEscape(requestID) + "?token=" + url.QueryEscape(token)}, tools.Spec{Match: profile, Label: "export-chrome", OnStart: func(pid int) {
 			_, e := s.Store.AttachChrome(requestID, nonce, ChromeProcess{PID: pid, PGID: pid, ProfileDir: profile})
 			if e != nil {
 				stop()
@@ -384,7 +384,7 @@ func (s *Supervisor) runMeasurementAttempt(ctx context.Context, r MeasurementReq
 	childCtx, stop := context.WithCancel(ctx)
 	exited := make(chan error, 1)
 	go func() {
-		_, e := s.Runner.Run(childCtx, chrome, []string{"--headless=new", "--disable-gpu", "--disable-blink-features=WebGPU", "--no-first-run", "--no-default-browser-check", "--autoplay-policy=no-user-gesture-required", "--mute-audio", "--user-data-dir=" + profile, s.Origin + "/#/measure/" + url.PathEscape(requestID) + "?token=" + url.QueryEscape(token)}, tools.Spec{Match: profile, Label: "measure-chrome", OnStart: func(pid int) {
+		_, e := s.Runner.Run(childCtx, chrome, []string{"--headless=new", "--use-mock-keychain", "--password-store=basic", "--disable-gpu", "--disable-blink-features=WebGPU", "--no-first-run", "--no-default-browser-check", "--autoplay-policy=no-user-gesture-required", "--mute-audio", "--user-data-dir=" + profile, s.Origin + "/#/measure/" + url.PathEscape(requestID) + "?token=" + url.QueryEscape(token)}, tools.Spec{Match: profile, Label: "measure-chrome", OnStart: func(pid int) {
 			_, e := s.Store.AttachMeasurementChrome(requestID, nonce, ChromeProcess{PID: pid, PGID: pid, ProfileDir: profile})
 			if e != nil {
 				stop()
