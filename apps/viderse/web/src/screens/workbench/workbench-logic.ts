@@ -18,3 +18,8 @@ export function groupJobs<T extends StageJob>(jobs: T[], all: boolean) {
 export function readScope(search: URLSearchParams, saved: string | null) {
   return search.get('channel') || (search.get('scope') === 'all' ? 'all' : saved || 'all')
 }
+export function scheduleScopeRestore(saved: string, readHash: () => string, restore: (scope: string) => void) {
+  queueMicrotask(() => {
+    if (readHash() === '#/') restore(saved)
+  })
+}

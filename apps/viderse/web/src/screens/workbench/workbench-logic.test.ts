@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { groupJobs, readScope } from './workbench-logic'
+import { describe, expect, it, vi } from 'vitest'
+import { groupJobs, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
   it('gộp việc cần người, giới hạn hàng chờ và ẩn đã đăng ở mọi kênh', () => {
@@ -14,5 +14,18 @@ describe('Bàn dựng', () => {
     expect(readScope(new URLSearchParams('scope=all'), 'b')).toBe('all')
     expect(readScope(new URLSearchParams(), 'b')).toBe('b')
     expect(readScope(new URLSearchParams(), null)).toBe('all')
+  })
+  it('khôi phục phạm vi sau chuẩn hoá route mà không ghi đè điều hướng mới', async () => {
+    let hash = '#/'
+    const restore = vi.fn()
+    scheduleScopeRestore('kenh-a', () => hash, restore)
+    expect(restore).not.toHaveBeenCalled()
+    await Promise.resolve()
+    expect(restore).toHaveBeenCalledWith('kenh-a')
+    restore.mockClear()
+    scheduleScopeRestore('kenh-a', () => hash, restore)
+    hash = '#/review'
+    await Promise.resolve()
+    expect(restore).not.toHaveBeenCalled()
   })
 })

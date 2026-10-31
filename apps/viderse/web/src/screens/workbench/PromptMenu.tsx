@@ -47,9 +47,9 @@ export function PromptMenu({ job, onClose, onRefresh }: { job: CloneJobView; onC
   </div>
 }
 const styles = stylex.create({
-  menu: { position: 'absolute', zIndex: 40, left: 0, top: '100%', width: 344, padding: s['--vv-s-10'], borderRadius: r['--vv-r-14'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)', boxShadow: 'var(--dialog-shadow)' },
+  menu: { position: 'absolute', zIndex: 40, left: s['--vv-s-18'], top: 116, width: 344, height: 498, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', padding: s['--vv-s-10'], borderRadius: r['--vv-r-14'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)', boxShadow: 'var(--dialog-shadow)' },
   heading: { fontSize: 14, margin: 0 }, hint: { fontSize: 12, color: 'var(--color-fg-4)', margin: `${s['--vv-s-4']} 0 ${s['--vv-s-8']}` },
   tabs: { display: 'flex', padding: s['--vv-s-3'], backgroundColor: 'var(--color-surface-1)', borderRadius: r['--vv-r-9'] }, tab: { flex: 1, padding: s['--vv-s-8'], border: 0, borderRadius: r['--vv-r-6'], color: 'var(--color-fg-3)', backgroundColor: 'transparent', cursor: 'pointer' }, active: { backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)' },
-  list: { maxHeight: 292, overflowY: 'auto', display: 'flex', flexDirection: 'column' }, row: { textAlign: 'left', padding: s['--vv-s-10'], border: 0, borderRadius: r['--vv-r-8'], backgroundColor: 'transparent', color: 'var(--color-fg)', cursor: 'pointer' },
+  list: { flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }, row: { textAlign: 'left', padding: s['--vv-s-10'], border: 0, borderRadius: r['--vv-r-8'], backgroundColor: 'transparent', color: 'var(--color-fg)', cursor: 'pointer' },
   cost: { padding: s['--vv-s-10'], border: '1px solid var(--line-2)', borderRadius: r['--vv-r-10'], color: 'var(--color-fg-2)', fontSize: 12 }, actions: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: s['--vv-s-8'], fontSize: 12 },
 })

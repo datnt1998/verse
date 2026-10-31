@@ -8,7 +8,7 @@ import { useResource } from '../../data/useResource'
 import { subscribeEvents } from '../../data/events'
 import { navigate, routePath, type Route } from '../../router'
 import { EmptyWorkbench, SystemLoading, SystemNotFound } from '../../components'
-import { groupJobs } from './workbench-logic'
+import { groupJobs, scheduleScopeRestore } from './workbench-logic'
 import { WorkbenchPanels } from './panels/WorkbenchPanels'
 import { PromptMenu } from './PromptMenu'
 import { LiveStudio } from './LiveStudio'
@@ -48,7 +48,10 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
     if (route.channel || route.scope === 'all') {
       try { localStorage.setItem(SCOPE_KEY, route.channel || 'all') } catch { /* storage unavailable */ }
     } else if (!route.video && location.hash === '#/') {
-      try { const saved = localStorage.getItem(SCOPE_KEY); if (saved && saved !== 'all') navigate(routePath({ name: 'workbench', channel: saved }), true) } catch { /* storage unavailable */ }
+      try {
+        const saved = localStorage.getItem(SCOPE_KEY)
+        if (saved && saved !== 'all') scheduleScopeRestore(saved, () => location.hash, channel => navigate(routePath({ name: 'workbench', channel }), true))
+      } catch { /* storage unavailable */ }
     }
   }, [route.channel, route.scope, route.video])
   const pickScope = (channel?: string) => {
@@ -89,11 +92,12 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
     </aside>
     <main {...stylex.props(styles.center)}>
       {recapOpen ? <Recap data={recap.data} loading={recap.initialLoading} error={recap.error} waitingCount={groups.find(group => group.key === 'waiting')?.count || 0} readyCount={groups.find(group => group.key === 'ready')?.count || 0} channelNames={Object.fromEntries(channelRows.map(c => [c.channelId, c.name]))} onRetry={() => void recap.refresh()} onEnter={closeRecap} onSelectJob={id => { closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, video: id })) }} /> : !selectedId ? <EmptyWorkbench /> : detail.initialLoading ? <SystemLoading /> : !job ? <SystemNotFound /> : <>
-        <header><div {...stylex.props(styles.heading)}><h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>{job.stageGroup === 'working' && <button {...stylex.props(styles.button)} onClick={() => void action('pause')}>Tạm dừng <kbd>Esc</kbd></button>}{job.stageGroup === 'paused' && <button {...stylex.props(styles.button)} onClick={() => void action('resume')}>Chạy tiếp</button>}<div {...stylex.props(styles.relative)}><button {...stylex.props(styles.button)} aria-label="Thêm thao tác cho video" aria-expanded={more} onClick={() => setMore(!more)}>⋯</button>{more && <div role="menu" {...stylex.props(styles.popup)}><button role="menuitem" {...stylex.props(styles.row)} onClick={() => { setMore(false); void action('cancel') }}>Dừng hẳn</button></div>}</div></div>
-          <div {...stylex.props(styles.chips)}><span {...stylex.props(styles.chip)}>{label[job.stageGroup] || job.stageGroup}</span><span {...stylex.props(styles.chip)}>Nguồn <b>{job.source.channelTitle}</b></span><span {...stylex.props(styles.chip)}>Template <b>{job.templateId}</b></span><div {...stylex.props(styles.relative)}><button {...stylex.props(styles.chip)} onClick={() => setPromptOpen(!promptOpen)} aria-expanded={promptOpen}>Ảnh <b>{images.data?.manifest?.scenePrompt.name}</b> {images.data?.manifest?.scenePrompt.overridden && 'riêng video này'} ▾</button>{promptOpen && <PromptMenu job={job} onClose={() => setPromptOpen(false)} onRefresh={refresh} />}</div></div>
+        <header {...stylex.props(styles.header, job.stageGroup === 'review' && styles.headerNotice, job.stageGroup === 'attention' && job.activeStep === 'score' && styles.headerNotice, (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTall, promptOpen && styles.headerOpen, promptOpen && (job.stageGroup === 'review' || (job.stageGroup === 'attention' && job.activeStep === 'score')) && styles.headerNoticeOpen, promptOpen && (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTallOpen)}><div {...stylex.props(styles.heading)}><h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>{job.stageGroup === 'working' && <button {...stylex.props(styles.button)} onClick={() => void action('pause')}>Tạm dừng <kbd>Esc</kbd></button>}{job.stageGroup === 'paused' && <button {...stylex.props(styles.button)} onClick={() => void action('resume')}>Chạy tiếp</button>}<div {...stylex.props(styles.relative)}><button {...stylex.props(styles.button)} aria-label="Thêm thao tác cho video" aria-expanded={more} onClick={() => setMore(!more)}>⋯</button>{more && <div role="menu" {...stylex.props(styles.popup)}><button role="menuitem" {...stylex.props(styles.row)} onClick={() => { setMore(false); void action('cancel') }}>Dừng hẳn</button></div>}</div></div>
+          <div {...stylex.props(styles.chips)}><span {...stylex.props(styles.chip)}>{label[job.stageGroup] || job.stageGroup}</span><span {...stylex.props(styles.chip)}>Nguồn <b>{job.source.channelTitle}</b></span><span {...stylex.props(styles.chip)}>Template <b>{job.templateId}</b></span><div><button {...stylex.props(styles.chip)} onClick={() => setPromptOpen(!promptOpen)} aria-expanded={promptOpen}>Ảnh <b>{images.data?.manifest?.scenePrompt.name}</b> {images.data?.manifest?.scenePrompt.overridden && 'riêng video này'} ▾</button>{promptOpen && <PromptMenu job={job} onClose={() => setPromptOpen(false)} onRefresh={refresh} />}</div></div>
+          <div {...stylex.props(styles.headerSub)}>{job.subline}</div>
           {job.stageGroup === 'review' && <div {...stylex.props(styles.banner)}>Ảnh đã sẵn sàng để bạn duyệt. <a href={`#/review?video=${encodeURIComponent(job.id)}`}>Duyệt ảnh</a></div>}{job.stageGroup === 'paused' && <div {...stylex.props(styles.banner)}>Video đang tạm dừng. Bạn có thể góp ý trước khi chạy tiếp.</div>}{job.stageGroup === 'attention' && <div {...stylex.props(styles.banner)}>Video cần bạn xử lý. {job.subline}</div>}
         </header>
-        <section {...stylex.props(styles.card, styles.log, ['review', 'attention', 'paused'].includes(job.stageGroup) && styles.logBanner)} aria-label="Nhật ký tiến độ"><h2 {...stylex.props(styles.h2)}>Nhật ký tiến độ</h2>{job.steps?.map(step => <div key={step.step} {...stylex.props(styles.logRow)}><span>{step.startedAt ? new Date(step.startedAt).toLocaleTimeString('vi-VN') : ''}</span><span>{step.progress.phase || step.step}</span><span>{step.error?.message}</span></div>)}</section>
+        <section {...stylex.props(styles.card, styles.log, ['review', 'attention'].includes(job.stageGroup) && styles.logBanner)} aria-label="Nhật ký tiến độ"><h2 {...stylex.props(styles.h2)}>Nhật ký tiến độ</h2>{job.steps?.map(step => <div key={step.step} {...stylex.props(styles.logRow)}><span>{step.startedAt ? new Date(step.startedAt).toLocaleTimeString('vi-VN') : ''}</span><span>{step.progress.phase || step.step}</span><span>{step.error?.message}</span></div>)}</section>
         {queuedJob ? <section {...stylex.props(styles.card, styles.recap)}>Video đang chờ lượt. <a href="#/queue">Mở Hàng chờ</a></section> : <LiveStudio job={job} onChangePrompt={() => setPromptOpen(true)} onRefresh={refresh} />}
         <form {...stylex.props(styles.composer)} onSubmit={event => { event.preventDefault(); setNotice('Sắp có') }}><input aria-label="Nhắn trợ lý" placeholder="Nhắn trợ lý…" value={draft} onChange={event => setDraft(event.target.value)} {...stylex.props(styles.input)} /><button {...stylex.props(styles.button)} type="submit">Gửi</button></form>{notice && <div role="status">{notice}</div>}
       </>}
@@ -113,10 +117,17 @@ const styles = stylex.create({
   avatar: { flexShrink: 0, width: 26, height: 26, display: 'grid', placeItems: 'center', borderRadius: '50%', backgroundColor: 'var(--color-surface-3)', fontSize: 10 },
   link: { display: 'block', padding: `${s['--vv-s-5']} ${s['--vv-s-8']}`, color: 'var(--color-fg-3)', fontSize: 12 },
   footer: { marginTop: 'auto', padding: `${s['--vv-s-10']} ${s['--vv-s-8']} 0`, borderTop: '1px solid var(--line-1)', color: 'var(--color-fg-4)', fontSize: 12, lineHeight: 1.8 },
-  center: { flex: '1 1 520px', minWidth: 0, minHeight: 0, overflow: 'hidden', padding: `${s['--vv-s-12']} ${s['--vv-s-18']} ${s['--vv-s-10']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'] },
+  center: { position: 'relative', flex: '1 1 520px', minWidth: 0, minHeight: 0, overflow: 'hidden', padding: `${s['--vv-s-12']} ${s['--vv-s-18']} ${s['--vv-s-10']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'] },
   panels: { flex: '0 0 340px', width: 340, minHeight: 0, overflowY: 'auto', boxShadow: 'inset 1px 0 0 var(--line-1)' },
+  header: { flex: '0 0 98px' },
+  headerNotice: { flexBasis: 148 },
+  headerTall: { flexBasis: 168 },
+  headerOpen: { flexBasis: 106 },
+  headerNoticeOpen: { flexBasis: 156 },
+  headerTallOpen: { flexBasis: 176 },
   heading: { display: 'flex', gap: s['--vv-s-6'], alignItems: 'center' },
   title: { flex: 1, minWidth: 0, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 17 },
+  headerSub: { marginTop: s['--vv-s-6'], color: 'var(--color-fg-3)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chips: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'], marginTop: s['--vv-s-8'] },
   chip: { border: '1px solid var(--line-1)', borderRadius: r['--vv-r-7'], backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg-3)', fontSize: 12, padding: `${s['--vv-s-5']} ${s['--vv-s-8']}` },
   button: { border: '1px solid var(--line-2)', borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-surface-2)', color: 'var(--color-fg)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer', fontSize: 13 },
@@ -126,7 +137,7 @@ const styles = stylex.create({
   logBanner: { flexBasis: 96 },
   h2: { margin: `0 0 ${s['--vv-s-8']}`, color: 'var(--color-fg-3)', fontSize: 13, fontWeight: 500 },
   logRow: { display: 'flex', gap: s['--vv-s-10'], padding: `${s['--vv-s-3']} 0`, color: 'var(--color-fg-3)', fontSize: 13 },
-  composer: { display: 'flex', gap: s['--vv-s-8'], padding: s['--vv-s-8'], borderRadius: r['--vv-r-14'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-2)' },
+  composer: { boxSizing: 'border-box', flex: '0 0 81px', display: 'flex', gap: s['--vv-s-8'], padding: s['--vv-s-8'], borderRadius: r['--vv-r-14'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-2)' },
   input: { flex: 1, minWidth: 0, border: 0, outline: 'none', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 13 },
   relative: { position: 'relative' },
   popup: { position: 'absolute', zIndex: 20, right: 0, top: '100%', width: 220, padding: s['--vv-s-6'], border: '1px solid var(--line-2)', borderRadius: r['--vv-r-12'], backgroundColor: 'var(--color-surface-3)' },
