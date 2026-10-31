@@ -141,7 +141,7 @@ func (s *Service) classifyError(ctx context.Context, err error) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
-	if errors.Is(err, errNoModel) {
+	if errors.Is(err, errNoModel) || errors.Is(err, context.DeadlineExceeded) {
 		return fail(CodeModelUnavailable, "Trợ lý cần model Đạo diễn. Đăng nhập ChatGPT ở Cài đặt › Kết nối AI rồi nhắn lại.")
 	}
 	var f *llmcontract.Failure

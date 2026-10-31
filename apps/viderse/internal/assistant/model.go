@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/datnt1998/verse/core/llmcontract"
@@ -179,10 +180,16 @@ type classifier struct {
 
 var errNoModel = errors.New("chưa có model Đạo diễn")
 
+// classifyTimeout chặn một câu treo mãi khi model không trả lời; hết giờ là lỗi
+// thật (model_unavailable), không đoán intent.
+const classifyTimeout = 45 * time.Second
+
 func (c classifier) classify(ctx context.Context, payload classifyPayload) (modelPlan, error) {
 	if c.model == nil {
 		return modelPlan{}, errNoModel
 	}
+	ctx, cancel := context.WithTimeout(ctx, classifyTimeout)
+	defer cancel()
 	gen, err := c.model(ctx)
 	if err != nil {
 		return modelPlan{}, fmt.Errorf("%w: %v", errNoModel, err)
