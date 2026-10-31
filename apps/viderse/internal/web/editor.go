@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -74,6 +75,11 @@ func writeEditorError(w http.ResponseWriter, err error) {
 		status = 422
 	case "locked":
 		status = 503
+	}
+	if status == http.StatusInternalServerError {
+		// Upstream http.ts logs unexpected failures without exposing internals
+		// in the response. Preserve that diagnostic boundary.
+		slog.Error("editor request failed", "error", err)
 	}
 	extra["code"] = code
 	extra["error"] = message
