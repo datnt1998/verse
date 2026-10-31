@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
@@ -118,10 +119,10 @@ func cloneFixture(t *testing.T, svc *fakeCloneService, queue *fakeCloneEnqueuer,
 
 func TestCloneListFiltersAndPreservesViewModel(t *testing.T) {
 	view := domain.CloneJobView{
-		CloneJob: domain.CloneJob{ID: "job-1", ChannelID: "channel-1", StageGroup: domain.StagePaused},
-		Subline: "Đã tạm dừng",
+		CloneJob:  domain.CloneJob{ID: "job-1", ChannelID: "channel-1", StageGroup: domain.StagePaused},
+		Subline:   "Đã tạm dừng",
 		AgentView: []domain.CloneAgentView{{ID: domain.AgentArtist, State: domain.AgentStopped}},
-		Steps: []domain.CloneStepRecord{},
+		Steps:     []domain.CloneStepRecord{},
 	}
 	svc := &fakeCloneService{list: domain.CloneJobList{Jobs: []domain.CloneJobView{view}, QueuedTotal: 3}}
 	tg, cookie := cloneFixture(t, svc, &fakeCloneEnqueuer{}, nil)
@@ -143,12 +144,14 @@ func TestCloneListFiltersAndPreservesViewModel(t *testing.T) {
 			if svc.limit != tc.limit || (tc.channel == "" && svc.channelID != nil) || (tc.channel != "" && (svc.channelID == nil || *svc.channelID != tc.channel)) {
 				t.Fatalf("filter = %v, limit = %d", svc.channelID, svc.limit)
 			}
-			var got domain.CloneJobList
-			if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+			// Compare the wire representation: a nil RawMessage is JSON null,
+			// which unmarshals into a non-nil RawMessage containing "null".
+			want, err := json.Marshal(svc.list)
+			if err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, svc.list) {
-				t.Fatalf("view changed: %#v", got)
+			if !bytes.Equal(bytes.TrimSpace(w.Body.Bytes()), want) {
+				t.Fatalf("view changed: got %s, want %s", w.Body.Bytes(), want)
 			}
 		})
 	}
@@ -166,7 +169,7 @@ func TestCloneListFiltersAndPreservesViewModel(t *testing.T) {
 
 func TestCloneEnqueueUsesQueueAndPreservesResult(t *testing.T) {
 	queue := &fakeCloneEnqueuer{result: domain.CloneEnqueueResult{
-		Items: []domain.CloneQueueItem{{ID: "queued-1", ChannelID: "channel-1", State: domain.QueueQueued}},
+		Items:      []domain.CloneQueueItem{{ID: "queued-1", ChannelID: "channel-1", State: domain.QueueQueued}},
 		Duplicates: []domain.ClonePlanDuplicate{{URL: "https://youtu.be/duplicate01", State: "queued"}},
 	}}
 	svc := &fakeCloneService{}
@@ -212,9 +215,9 @@ func TestCloneEnqueueUsesQueueAndPreservesResult(t *testing.T) {
 
 func TestCloneJobActionsReadsAndDelete(t *testing.T) {
 	svc := &fakeCloneService{
-		job: &domain.CloneJob{ID: "job-1", ChannelID: "channel-1", Status: domain.CloneRunning},
-		view: &domain.CloneJobView{CloneJob: domain.CloneJob{ID: "job-1"}, Subline: "Đang vẽ ảnh"},
-		step: &domain.CloneStepRecord{JobID: "job-1", Step: domain.CloneImages, Status: domain.CloneWaiting},
+		job:    &domain.CloneJob{ID: "job-1", ChannelID: "channel-1", Status: domain.CloneRunning},
+		view:   &domain.CloneJobView{CloneJob: domain.CloneJob{ID: "job-1"}, Subline: "Đang vẽ ảnh"},
+		step:   &domain.CloneStepRecord{JobID: "job-1", Step: domain.CloneImages, Status: domain.CloneWaiting},
 		counts: domain.CloneCounts{Totals: domain.CloneBucketCounts{Paused: 2}, ByOwner: map[string]domain.CloneBucketCounts{"channel-1": {Working: 1}}},
 	}
 	tg, cookie := cloneFixture(t, svc, &fakeCloneEnqueuer{}, nil)
@@ -416,7 +419,7 @@ func TestCloneArtifactRangesAndImmutableContentIdentity(t *testing.T) {
 	etag := `"` + svc.artifact.SHA256 + `"`
 	for _, tc := range []struct {
 		name, method, requestedRange, ifRange, body, contentRange string
-		status int
+		status                                                    int
 	}{
 		{"full", http.MethodGet, "", "", "0123456789", "", 200},
 		{"partial", http.MethodGet, "bytes=2-5", "", "2345", "bytes 2-5/10", 206},
@@ -466,9 +469,9 @@ func TestCloneArtifactFencesManifestAndMediaBinding(t *testing.T) {
 	ref := files.ref
 	path := "/api/clone/job-1/artifacts/" + url.PathEscape(original.ID)
 	for _, tc := range []struct {
-		name   string
-		mutate func()
-		status int
+		name    string
+		mutate  func()
+		status  int
 		resolve bool
 	}{
 		{"unpublished", func() { svc.artifact = nil }, 404, false},
@@ -537,9 +540,18 @@ func TestCloneRoutesRequireSessionAndSameOrigin(t *testing.T) {
 			t.Fatalf("unauthenticated %s: status %d", route, w.Code)
 		}
 	}
-	w := cloneArtifactRequest(tg, cookie, http.MethodGet, path, map[string]string{"Origin": "https://example.com", "Sec-Fetch-Site": "cross-site"})
-	if w.Code != http.StatusForbidden || len(svc.calls) != 0 || files.calls != 0 {
-		t.Fatalf("cross-site request reached artifact: status %d", w.Code)
+	for _, method := range []string{http.MethodGet, http.MethodHead} {
+		for _, headers := range []map[string]string{
+			{"Origin": "https://example.com", "Sec-Fetch-Site": "cross-site"},
+			{"Sec-Fetch-Site": "cross-site"},
+			{"Origin": "http://127.0.0.1:8790", "Sec-Fetch-Site": "same-site"},
+			{"Origin": "null"},
+		} {
+			w := cloneArtifactRequest(tg, cookie, method, path, headers)
+			if w.Code != http.StatusForbidden || len(svc.calls) != 0 || files.calls != 0 {
+				t.Fatalf("%s with %v reached artifact: status %d", method, headers, w.Code)
+			}
+		}
 	}
 	for _, route := range []string{"/api/clone/job-1/artifacts/..%2Fprivate", "/api/clone/job-1/artifacts/%252e%252e", "/api/clone/%2e%2e"} {
 		w := cloneArtifactRequest(tg, cookie, http.MethodGet, route, nil)
@@ -549,6 +561,14 @@ func TestCloneRoutesRequireSessionAndSameOrigin(t *testing.T) {
 	}
 	if len(svc.calls) != 0 || files.calls != 0 {
 		t.Fatal("traversal reached pipeline or media")
+	}
+	for _, method := range []string{http.MethodGet, http.MethodHead} {
+		w := cloneArtifactRequest(tg, cookie, method, path, map[string]string{
+			"Origin": "http://127.0.0.1:8789", "Sec-Fetch-Site": "same-origin",
+		})
+		if w.Code != http.StatusOK {
+			t.Fatalf("same-origin %s: status %d: %s", method, w.Code, w.Body.String())
+		}
 	}
 }
 

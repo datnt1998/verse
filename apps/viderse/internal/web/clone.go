@@ -76,7 +76,7 @@ func (g *Gateway) registerCloneRoutes(enqueuer CloneEnqueuer, files cloneMedia) 
 	for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodPost, http.MethodDelete} {
 		g.Handle(method, "/api/clone/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 			w.Header().Set("Cache-Control", "no-store")
-			routeClone(w, r, g.Clone, files)
+			g.routeClone(w, r, files)
 		})
 	}
 }
@@ -172,7 +172,8 @@ func enqueueClone(w http.ResponseWriter, r *http.Request, svc CloneEnqueuer) {
 	webapp.WriteJSON(w, http.StatusCreated, result)
 }
 
-func routeClone(w http.ResponseWriter, r *http.Request, svc CloneService, files cloneMedia) {
+func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files cloneMedia) {
+	svc := g.Clone
 	parts := strings.SplitN(strings.TrimPrefix(r.URL.Path, "/api/clone/"), "/", 4)
 	if !cloneSegment(parts[0]) {
 		invalidClone(w, "Mã video không hợp lệ.")
@@ -180,6 +181,9 @@ func routeClone(w http.ResponseWriter, r *http.Request, svc CloneService, files 
 	}
 	id := parts[0]
 	if len(parts) == 3 && parts[1] == "artifacts" && (r.Method == http.MethodGet || r.Method == http.MethodHead) {
+		if !g.RequireSameOrigin(w, r) {
+			return
+		}
 		if !cloneSegment(parts[2]) {
 			invalidClone(w, "Mã tệp không hợp lệ.")
 			return

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -250,6 +251,80 @@ func TestCrossSiteRequestRejected(t *testing.T) {
 	ts.s.ServeHTTP(w2, r2)
 	if w2.Code != http.StatusOK {
 		t.Fatalf("same-origin status %d body %s", w2.Code, w2.Body.String())
+	}
+}
+
+func TestSensitiveReadsRequireConfiguredOrigin(t *testing.T) {
+	for _, mode := range []struct {
+		name string
+		cfg  *webguard.Config
+	}{
+		{"local", nil},
+		{"hosted", &webguard.Config{
+			PublicURL:  &url.URL{Scheme: "https", Host: "viderse.example.com"},
+			AppOrigins: []string{"https://noverse.example.com"},
+		}},
+	} {
+		t.Run(mode.name, func(t *testing.T) {
+			ts := newTestServer(t, true)
+			cookie := ts.sessionCookie()
+			ts.s.SetProxyConfig(mode.cfg)
+			reached := 0
+			for _, method := range []string{http.MethodGet, http.MethodHead} {
+				ts.s.Handle(method, "/api/private-artifact", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+					if !ts.s.RequireSameOrigin(w, r) {
+						return
+					}
+					reached++
+					w.WriteHeader(http.StatusNoContent)
+				})
+			}
+			for _, tc := range []struct {
+				name, origin, site string
+				local, hosted      bool
+			}{
+				{"non-browser", "", "", true, true},
+				{"local origin", "http://127.0.0.1:8799", "same-origin", true, false},
+				{"sibling port", "http://127.0.0.1:8790", "same-site", false, false},
+				{"public origin", "https://viderse.example.com", "same-origin", false, true},
+				{"listed sibling", "https://noverse.example.com", "same-site", false, true},
+				{"lookalike", "https://viderse.example.com.evil.test", "same-site", false, false},
+				{"downgrade", "http://viderse.example.com", "same-site", false, false},
+				{"opaque origin", "null", "", false, false},
+				{"cross-site", "", "cross-site", false, false},
+				{"cross-site listed", "https://noverse.example.com", "cross-site", false, false},
+			} {
+				for _, method := range []string{http.MethodGet, http.MethodHead} {
+					t.Run(tc.name+"/"+method, func(t *testing.T) {
+						r := httptest.NewRequest(method, "/api/private-artifact", nil)
+						r.RemoteAddr, r.Host = "192.0.2.1:1234", "127.0.0.1:8799"
+						r.Header.Set("Origin", tc.origin)
+						r.Header.Set("Sec-Fetch-Site", tc.site)
+						r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+						w := httptest.NewRecorder()
+						before := reached
+						ts.s.ServeHTTP(w, r)
+						allowed := tc.local
+						if mode.name == "hosted" {
+							allowed = tc.hosted
+						}
+						wantStatus, wantCalls := http.StatusForbidden, 0
+						if allowed {
+							wantStatus, wantCalls = http.StatusNoContent, 1
+						}
+						if w.Code != wantStatus || reached-before != wantCalls {
+							t.Fatalf("status %d, resource calls %d; want %d, %d", w.Code, reached-before, wantStatus, wantCalls)
+						}
+						if r.Method != method {
+							t.Fatalf("origin guard changed request method to %s", r.Method)
+						}
+						if !allowed && decode(t, w)["error"] != "yêu cầu khác origin bị từ chối" {
+							t.Fatalf("unexpected rejection: %s", w.Body.String())
+						}
+					})
+				}
+			}
+		})
 	}
 }
 
