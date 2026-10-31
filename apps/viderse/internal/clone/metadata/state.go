@@ -13,6 +13,7 @@ type Content struct {
 	Title       string                     `json:"title"`
 	Description string                     `json:"description"`
 	Tags        []string                   `json:"tags"`
+	BasedOn     json.RawMessage            `json:"basedOn,omitempty"`
 	Reason      map[string]json.RawMessage `json:"reason,omitempty"`
 	Edited      map[string]bool            `json:"edited,omitempty"`
 	EditedBy    string                     `json:"editedBy,omitempty"`
@@ -94,6 +95,9 @@ func merge(old, next Content, parts []string) Content {
 		reasons[part] = reason
 	}
 	old.Reason = reasons
+	if len(parts) == 3 {
+		old.BasedOn = next.BasedOn
+	}
 	for _, p := range parts {
 		switch p {
 		case "title":
