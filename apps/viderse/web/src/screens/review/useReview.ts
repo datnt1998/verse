@@ -66,7 +66,7 @@ export function useReview() {
       const result = await request<{ manifest?: { revision: number }; revision?: number }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
       const nextRevision = result.manifest?.revision ?? result.revision
       if (nextRevision) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, manifest: { revision: nextRevision } } } : old })
-      if (op === 'approveAll') { void invalidate(keys.status()); window.dispatchEvent(new Event('activity:refresh')) }
+      if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
       else void loadImages(job)
       return true
     } catch (err) {

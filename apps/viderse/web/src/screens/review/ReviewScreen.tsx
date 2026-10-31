@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Icon } from '@noverse/ui'
 import { listChannels } from '../../api/channels'
+import { request } from '../../api/request'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { Orb, SystemLoading } from '../../components'
@@ -20,6 +21,7 @@ export function ReviewScreen() {
   const review = useReview()
   const online = useOnline()
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
+  const counts = useResource(['review', 'counts'], ({ signal }) => request<{ approvedToday: number | null }>('/api/clone/counts', { signal }))
   const [jobId, setJobId] = useState<string | null>(() => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('video'))
   const [index, setIndex] = useState(0)
   const [view, setView] = useState<'full' | 'cutout'>('full')
@@ -69,7 +71,7 @@ export function ReviewScreen() {
       <div {...stylex.props(sx.group)}><span>Chờ bạn duyệt</span><span>{jobs.length}</span></div>
       {jobs.map(j => <button key={j.id} type="button" aria-pressed={j.id === job?.id} onClick={() => selectJob(j.id)} {...stylex.props(sx.row, j.id === job?.id && sx.selectedRow)}>{j.source.thumbnailUrl ? <img alt="" src={j.source.thumbnailUrl} {...stylex.props(sx.thumb)} /> : <span {...stylex.props(sx.thumb)} /> }<span {...stylex.props(sx.rowText)}><span title={j.source.title} {...stylex.props(sx.truncate)}>{j.source.title}</span><span {...stylex.props(sx.small, sx.truncate)}>{channels.data?.channels.find(c => c.id === j.channelId)?.name} · {j.subline}</span></span></button>)}
       {review.jobs && !jobs.length && <span {...stylex.props(sx.small)}>Không còn video nào chờ duyệt.</span>}
-      {images?.approvedToday != null && <div {...stylex.props(sx.footer)}><span>Duyệt xong hôm nay</span><span>{images.approvedToday} video</span></div>}
+      {counts.data?.approvedToday != null && <div {...stylex.props(sx.footer)}><span>Duyệt xong hôm nay</span><span>{counts.data.approvedToday} video</span></div>}
     </aside>
     {!review.jobs ? <main {...stylex.props(sx.empty)}>{review.error ? <div role="alert"><span>Chưa tải được video chờ duyệt. </span><button type="button" {...stylex.props(sx.button)} onClick={() => void review.loadJobs()}>Thử lại</button></div> : <SystemLoading label="Đang tải video chờ duyệt…" />}</main> : !job ? <main {...stylex.props(sx.empty)}><div role="status" {...stylex.props(sx.emptyInner)}><Orb of="artist" size={30} /><strong>Đã duyệt hết</strong><span {...stylex.props(sx.small)}>Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.</span><a href={`#${paths.workbench()}`} {...stylex.props(sx.button)}>Xem tiến độ trên Bàn dựng</a></div></main> : <>
       <main {...stylex.props(sx.main)}>
