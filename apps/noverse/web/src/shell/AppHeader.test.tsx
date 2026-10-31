@@ -1,25 +1,27 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { Route } from '../router'
 import { t } from '../i18n/vi'
 import { AppHeader } from './AppHeader'
 
 const target = vi.hoisted(() => ({ value: null as { project: string; story: string } | null }))
+const session = vi.hoisted(() => ({ user: null as null | { username: string; role: 'admin'; grants?: Record<string, unknown> | null } }))
 vi.mock('../commands/target', () => ({ helpTarget: () => target.value, rememberHelpTarget: () => {} }))
 
 const library = { projects: [{ id: 'dit-dang-audio', name: 'Dít đăng audio', legacy: false }], candidates: [] }
 vi.mock('../api/library', () => ({
   useLibrary: () => ({ library, storyOf: () => null, ensureProject: () => {}, projectDetail: () => null }),
 }))
-vi.mock('../api/session', () => ({ useSession: () => ({ user: { username: 'admin', role: 'admin' } }) }))
+vi.mock('../api/session', () => ({ useSession: () => ({ user: session.user }) }))
 // Menu/kho có kiểm thử riêng; bài định tuyến header không khởi động truy vấn nền của chúng.
 vi.mock('./AccountMenu', () => ({ AccountMenu: () => null }))
 vi.mock('../screens/settings/storage/indicators', () => ({ StoragePill: () => null }))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
-afterEach(async () => { for (const root of roots.splice(0)) await act(() => root.unmount()); document.body.replaceChildren(); target.value = null })
+afterEach(async () => { for (const root of roots.splice(0)) await act(() => root.unmount()); document.body.replaceChildren(); target.value = null; session.user = null })
 
 async function navOn(route: Route) {
   const container = document.createElement('div')
@@ -92,4 +94,34 @@ it('Bàn viết: hai nút panel đúng 32×32 bo 8, không co giãn, và biểu 
   expect(mark.querySelectorAll('radialGradient stop')).toHaveLength(12)
   expect(mark.querySelectorAll('g[filter]')).toHaveLength(0)
   expect(mark.querySelector('feDropShadow')).toBeNull()
+})
+
+it.each([
+  ['không có tài khoản', null],
+  ['tài khoản thư mục', { username: 'admin', role: 'admin', grants: null }],
+  ['tài khoản hosted', { username: 'admin', role: 'admin', grants: {} }],
+] as const)('header lấy chiều cao từ nội dung, không từ màn hay quyền: %s', async (_label, user) => {
+  session.user = user
+  const routes: Route[] = [
+    { name: 'workspace', project: 'p', story: 's' },
+    { name: 'project', project: 'p' },
+    { name: 'settings', section: null },
+    { name: 'sysbrain' },
+    { name: 'projbrain', project: 'p' },
+    { name: 'brain', project: 'p', story: 's' },
+    { name: 'activity', project: 'p', story: 's' },
+    { name: 'reader', project: 'p', story: 's', chapter: null },
+    { name: 'quality', project: 'p', story: 's' },
+  ]
+  for (const route of routes) {
+    await navOn(route)
+    const header = document.querySelectorAll('header').item(document.querySelectorAll('header').length - 1)
+    // 30px item + 2×3px padding + 2×1px border = nav 38px.
+    // Header adds 2×8px padding and 1px border, with no clipping if a child grows.
+    expect(header.style.height).toBe('')
+    expect(header.style.padding).toBe('8px 16px')
+    // happy-dom misparses var() in border shorthands; inspect React's actual serialization.
+    expect(renderToStaticMarkup(<AppHeader route={route} />)).toContain('border-bottom:1px solid var(--line-1)')
+    expect(header.style.flex).toBe('0 0 auto')
+  }
 })
