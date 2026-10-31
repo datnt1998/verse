@@ -39,7 +39,7 @@ func MountActivity(g *Gateway, svc Activity) {
 	if preferences, ok := svc.(interface {
 		NotificationSettings(context.Context) (activity.NotificationSettings, error)
 		SetNotificationSettings(context.Context, activity.NotificationSettings) error
-		Notifications(context.Context) ([]activity.Notification, error)
+		NotificationPage(context.Context, string) ([]activity.Notification, string, error)
 	}); ok {
 		g.Handle(http.MethodGet, "/api/notifications/settings", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 			prefs, err := preferences.NotificationSettings(r.Context())
@@ -56,14 +56,15 @@ func MountActivity(g *Gateway, svc Activity) {
 		})
 		g.Handle(http.MethodGet, "/api/notifications", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 			ctx := activity.WithViewer(r.Context(), user.Role == identity.RoleAdmin)
-			notes, err := preferences.Notifications(ctx)
+			notes, next, err := preferences.NotificationPage(ctx, r.URL.Query().Get("before"))
+			if err == activity.ErrInvalidCursor { webapp.Error(w, http.StatusBadRequest, err.Error()); return }
 			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
 			prefs, err := preferences.NotificationSettings(ctx)
 			if err != nil { webapp.Error(w, http.StatusInternalServerError, err.Error()); return }
 			out := make([]notificationWire, 0, len(notes))
 			for _, n := range notes { item := notificationToWire(n); item.SystemAllowed = prefs.SystemAllowed(n.Kind, n.CreatedAt.In(time.Local)); out = append(out, item) }
 			w.Header().Set("Cache-Control", "private, no-store")
-			webapp.WriteJSON(w, http.StatusOK, map[string]any{"notifications": out})
+			webapp.WriteJSON(w, http.StatusOK, map[string]any{"notifications": out, "nextCursor": next})
 		})
 	}
 	g.Handle(http.MethodPost, "/api/notifications/read", func(w http.ResponseWriter, r *http.Request, user identity.User) {
@@ -122,6 +123,7 @@ type taskWire struct {
 	Object   objectWire    `json:"objectRef"`
 	Phase    string        `json:"phase"`
 	Progress *progressWire `json:"progress"`
+	CreatedAt *time.Time   `json:"createdAt,omitempty"`
 	ETASec   *int          `json:"etaSec"`
 	State    string        `json:"state"`
 	Action   actionWire    `json:"action"`
@@ -188,6 +190,7 @@ func taskToWire(t activity.Task) taskWire {
 		Phase:  t.Phase, ETASec: t.ETASec, State: t.State,
 		Action: actionWire{Label: t.Action.Label, Href: t.Action.Href, Op: t.Action.Op},
 	}
+	if !t.CreatedAt.IsZero() { at := t.CreatedAt; tw.CreatedAt = &at }
 	if t.Progress != nil {
 		pw := &progressWire{Done: t.Progress.Done, Total: t.Progress.Total}
 		for _, g := range t.Progress.Groups {

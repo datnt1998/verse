@@ -656,6 +656,9 @@ func (s *CloneStore) ClaimNextStep(ctx context.Context, jobID, workerID string) 
 			}
 			return err
 		}
+		if candidate.Status == "waiting" {
+			if err := recordStepAutoRetry(txctx, u, candidate.Step); err != nil { return err }
+		}
 		stepName := domain.CloneStep(candidate.Step)
 		if err := s.refreshDerived(txctx, u, &stepName); err != nil {
 			return err

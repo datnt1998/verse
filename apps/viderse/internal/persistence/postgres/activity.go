@@ -45,7 +45,14 @@ func (s *ActivityStore) Set(ctx context.Context, key string, value any) error {
 }
 
 func (s *ActivityStore) ListNotifications(ctx context.Context, limit int) ([]activity.Notification, error) {
-	rows, err := s.db.Query(ctx, `SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications WHERE ($1 OR audience = 'all') ORDER BY created_at DESC, id DESC LIMIT $2`, activity.IsAdminViewer(ctx), limit)
+	return s.ListNotificationsBefore(ctx, nil, limit)
+}
+
+func (s *ActivityStore) ListNotificationsBefore(ctx context.Context, before *activity.NotificationCursor, limit int) ([]activity.Notification, error) {
+	var at *time.Time
+	var id any
+	if before != nil { at = &before.CreatedAt; id = before.ID }
+	rows, err := s.db.Query(ctx, `SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications WHERE ($1 OR audience = 'all') AND ($2::timestamptz IS NULL OR (created_at,id) < ($2::timestamptz,$3::uuid)) ORDER BY created_at DESC, id DESC LIMIT $4`, activity.IsAdminViewer(ctx), at, id, limit)
 	if err != nil { return nil, err }
 	defer rows.Close()
 	out := make([]activity.Notification, 0)
