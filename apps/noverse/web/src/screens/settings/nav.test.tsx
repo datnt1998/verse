@@ -6,8 +6,8 @@ vi.mock('@noverse/ui', async (importOriginal) => ({ ...(await importOriginal<obj
 const session = vi.hoisted(() => ({ pendingLessons: 0 }))
 vi.mock('../../api/session', () => ({ useSession: () => session }))
 
-const render = (admin: boolean, dots: Parameters<typeof SettingsNav>[0]['dots'] = {}, rulesCount?: number) =>
-  renderToStaticMarkup(<SettingsNav current="rules" scope="story" admin={admin} rulesCount={rulesCount} dots={dots} onPick={() => {}} />)
+const render = (admin: boolean, dots: Parameters<typeof SettingsNav>[0]['dots'] = {}) =>
+  renderToStaticMarkup(<SettingsNav current="models" scope="story" admin={admin} dots={dots} onPick={() => {}} />)
 
 describe('menu trái Tuỳ chỉnh', () => {
   it('người không phải quản trị không thấy nhóm HỆ THỐNG · QUẢN TRỊ lẫn các mục của nó', () => {
@@ -19,7 +19,7 @@ describe('menu trái Tuỳ chỉnh', () => {
     const html = render(true)
     expect(html).toContain('HỆ THỐNG · QUẢN TRỊ')
     expect(html).toContain('data-icon="crown"')
-    const order = ['Não hệ thống', 'Thành viên', 'Kết nối AI', 'Xuất tự động', 'Báo động máy chủ', 'Giao diện', 'Nâng cao'].map((label) => html.indexOf(label))
+    const order = ['Não hệ thống', 'Thành viên', 'Lưu trữ tệp', 'Kết nối AI', 'Xuất tự động', 'Báo động máy chủ', 'Giao diện', 'Nâng cao'].map((label) => html.indexOf(label))
     expect(order.every((at) => at > 0)).toBe(true)
     expect([...order].sort((a, b) => a - b)).toEqual(order)
   })
@@ -33,17 +33,17 @@ describe('menu trái Tuỳ chỉnh', () => {
     session.pendingLessons = 4
     const four = render(true)
     expect(four).toContain('title="Bài học rút ra từ mọi truyện · 4 bài học chờ bạn duyệt"')
-    expect(four).toMatch(/var\(--sysbrain-count-bg\)[^>]*>4</)
+    expect(four).toContain('4 bài học chờ duyệt</span>')
+    expect(four).not.toContain('var(--sysbrain-count-bg)')
     expect(render(false)).not.toContain('Não hệ thống')
     session.pendingLessons = 0
   })
-  it('chấm tím chỉ ở mục có ghi đè và không đè lên số của Quy tắc viết', () => {
-    const dotted = render(false, { writing: true, rules: true }, 7)
+  it('chấm tím ở mục có ghi đè', () => {
+    const dotted = render(false, { models: true })
     expect(dotted.match(/border-radius:50%/g)).toHaveLength(1)
-    expect(dotted).toContain('>7<')
   })
-  it('tên mục Thông tin đổi theo cấp', () => {
-    expect(render(false)).toContain('Thông tin truyện')
-    expect(renderToStaticMarkup(<SettingsNav current="rules" scope="project" admin={false} dots={{}} onPick={() => {}} />)).toContain('Thông tin dự án')
+  it('Thông tin dự án luôn hiện ở mọi cấp', () => {
+    expect(render(false)).toContain('Thông tin dự án')
+    expect(renderToStaticMarkup(<SettingsNav current="models" scope="project" admin={false} dots={{}} onPick={() => {}} />)).toContain('Thông tin dự án')
   })
 })

@@ -15,7 +15,7 @@ export const sx = stylex.create({
   lead: { padding: '0 10px 0 8px', fontSize: 12.5, color: color['--color-fg-4'], whiteSpace: 'nowrap' },
   box: {
     position: 'relative', display: 'flex', alignItems: 'stretch', borderRadius: 12,
-    backgroundColor: 'transparent', borderWidth: 1, borderStyle: 'solid', borderColor: 'transparent',
+    backgroundColor: 'transparent', borderWidth: 0,
     transitionProperty: 'background-color, border-color, box-shadow',
     transitionDuration: '.15s', transitionTimingFunction: 'ease', [NO_MOTION]: { transitionDuration: '0s' },
   },

@@ -824,3 +824,12 @@ Việc kỹ thuật, không đổi giao diện. Ghi lại vì có đổi hành v
 - **GAP-AN-FE3 (khung và số liệu minh hoạ):** artboard điện thoại mô phỏng status bar; giữ safe-area/header của app thật, không thêm status bar giả. Dữ liệu/tên kho/dung lượng/tốc độ, giờ, môi trường, kết quả thử và tệp lỗi lấy từ máy chủ, không chép số minh hoạ. Thẻ desktop rộng 820px, thẻ điện thoại rộng 358px ở viewport 390; dùng StyleX/token hiện có, không thêm màu hex.
 
 - **Gói AN · rà soát giữ khoá và số liệu:** ngay khi lưu kho thành công, xoá bản nháp và kết quả thử khỏi state, đóng form/hộp xác nhận trước khi chờ bắt đầu chuyển. Nếu bước bắt đầu lỗi, thử lại bằng phiên bản kho đã lưu, không giữ hay gửi lại khoá. Thống kê “Tạo link” gom đúng phép ký link tải mà máy chủ ghi, gồm số lần, lỗi và độ trễ; có kiểm thử component với dữ liệu thật của hợp đồng API.
+
+## Gói AP · Tuỳ chỉnh và thanh bên (31/10/2026)
+
+- Tuỳ chỉnh mặc định mở Trợ lý AI; bỏ mục, route, bản nháp và component Cách viết, cùng toàn bộ phần gắn Quy tắc chung vào màn Tuỳ chỉnh. Cách chạy nằm ngay dưới danh sách trợ lý: truyện giữ lệnh duyệt trực tiếp; dự án/mặc định dùng `advance_mode`, Trọng tài hỏi dùng `ask_user`, lưu qua luồng cấu hình có phiên bản hiện có.
+- Thông tin dự án luôn có trong thanh bên; bấm khi đang xem truyện chuyển sang cấp dự án và giữ ngữ cảnh trong URL. Thông tin truyện và lịch sử phiên bản không còn ở Tuỳ chỉnh. Các lối cũ từ audio/kết quả học văn phong chuyển sang tab Cách viết của truyện.
+- Thành viên dùng cùng SettingsNav, gồm Lưu trữ tệp, tổng số thành viên và phiên bản máy chủ; Não hệ thống hiển thị số bài học chờ duyệt trong dòng phụ tím nhạt thay vì huy hiệu số. Phần quyền ứng dụng do nhánh SSO thực hiện theo phân công của Main.
+- Đo 1440×900: Settings/models có danh sách trợ lý `(276,253,860,550)` và Cách chạy `(276,817,860,236.25)`; Settings/info có thẻ `(276,228.75,820,378)`; thanh bên Settings và Members `(0,55,248,845)`, dòng Não hệ thống `(10,242,227,36)`, phụ đề 11.5px/14.95px, màu `--kit-badge-run`. Các kích thước này khớp artboard canvas 132.
+- 390×844: Settings và Members desktop không được ép vào 142px còn lại như bản desktop artboard thu hẹp; app dùng MMore theo 18-mobile. Không có thanh bên ở điện thoại; chiều rộng nội dung bằng 390px. SysBrain.dc.html tự nó cũng không có thanh bên Tuỳ chỉnh — thay đổi hàng Não hệ thống được đo trong Settings/Members. MMore giữ safe-area thật, không dựng status bar minh hoạ.
+

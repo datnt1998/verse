@@ -130,7 +130,7 @@ const voiceDesc = (voice: AudioVoice, pack: PackVoice | null = null, recommended
   : t.audio.pack.banTaiLen(voice.durationSec ?? 0, voice.gender === 'nu' ? ' · nữ' : voice.gender === 'nam' ? ' · nam' : '')
 
 /** D11 — thẻ khoá “Một giọng kể · theo gói” thay hai thẻ Phân vai | Một giọng khi gói chọn một giọng. */
-function PackVoiceCard({ pack }: { pack: PackVoice }) {
+function PackVoiceCard({ pack, styleHref }: { pack: PackVoice; styleHref: string }) {
   return (
     <div className="card" style={{
       borderRadius: 14, padding: 12, display: 'flex', flexDirection: 'column', gap: 6, borderColor: 'var(--kit-ok-22)',
@@ -143,7 +143,7 @@ function PackVoiceCard({ pack }: { pack: PackVoice }) {
         }}>{t.audio.pack.badge}</span>
       </span>
       <span style={{ fontSize: 12, color: 'var(--color-fg-3)', lineHeight: 1.5 }}>{t.audio.pack.moTa(pack.ten, pack.gender)}</span>
-      <a href={`#${paths.settings('writing')}`} onClick={(event) => { event.preventDefault(); navigate(paths.settings('writing')) }}
+      <a href={`#${styleHref}`} onClick={(event) => { event.preventDefault(); navigate(styleHref) }}
         style={{ fontSize: 12, color: 'var(--color-accent)' }}>{t.audio.pack.doiGoi}</a>
     </div>
   )
@@ -188,13 +188,14 @@ function VoicePick({ voices, value, name, disabled, onPick, children }: {
   )
 }
 
-export function CastPanel({ cast, voices, lineCounts, writable, pack, onCast, onAddVoice }: {
+export function CastPanel({ cast, voices, lineCounts, writable, pack, styleHref, onCast, onAddVoice }: {
   cast: AudioCast | null; voices: AudioVoice[]
   /** số đoạn của từng người nói trong chương đang mở */
   lineCounts: Record<string, number>
   writable: boolean
   /** D11 — gói của truyện chọn một giọng kể: khoá hai thẻ cách giao giọng. */
   pack: PackVoice | null
+  styleHref: string
   onCast: (cast: AudioCast) => void
   onAddVoice: () => void
 }) {
@@ -234,7 +235,7 @@ export function CastPanel({ cast, voices, lineCounts, writable, pack, onCast, on
 
   return (
     <>
-      {pack ? <PackVoiceCard pack={pack} /> : (
+      {pack ? <PackVoiceCard pack={pack} styleHref={styleHref} /> : (
         <div role="radiogroup" aria-label={t.audio.panels.cachGiaoGiong} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 }}>
           <ModeCard on={!single} title={t.audio.panels.phanVai2} icon="profile-2user"
             desc={t.audio.panels.moiNhanVatMotGiong} disabled={!writable} onClick={() => setMode('cast')} />

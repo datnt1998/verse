@@ -36,9 +36,7 @@ import { InfoSection } from './sections/info'
 import { NotifySection } from './sections/notify'
 import { ProvidersSection } from './sections/providers'
 import { RolesSection } from './sections/roles'
-import { RulesEditor, useRulesCount } from './sections/rules/index'
 import { VoiceSection } from './sections/voice'
-import { WritingSection } from './sections/writing'
 import type { PendingExtra, SettingsContext } from './types'
 import { MembersSettings } from './members'
 import { StorageSection } from './storage'
@@ -50,12 +48,11 @@ import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 const EMPTY_STORIES: StorySummary[] = []
 
 /** Mục cần `GET /api/config` (các mục còn lại tự lấy dữ liệu hoặc lưu riêng). */
-const CONFIG_SECTIONS: readonly PageId[] = ['writing', 'models', 'budget', 'connect', 'notify', 'voice']
+const CONFIG_SECTIONS: readonly PageId[] = ['models', 'budget', 'connect', 'notify', 'voice']
 
 /** Khoá cấu hình thuộc từng mục — chấm tím ở menu khi cấp đang chọn có ghi đè. */
 const DOT_KEYS: Partial<Record<SectionId, string[]>> = {
-  writing: ['style', 'advance_mode'],
-  models: ['provider', 'model', 'reasoning_effort', 'roles'],
+  models: ['provider', 'model', 'reasoning_effort', 'roles', 'advance_mode', 'ask_user'],
   budget: ['budget'],
 }
 
@@ -74,7 +71,7 @@ function settingsHref(section: PageId | null, scope: ConfigScope, project: strin
   const query = new URLSearchParams()
   if (project) query.set('project', project)
   if (story) query.set('story', story)
-  if (scope === 'global') query.set('scope', 'global')
+  if (scope !== 'story') query.set('scope', scope)
   const qs = query.toString()
   return `${paths.settings(section ?? undefined)}${qs ? `?${qs}` : ''}`
 }
@@ -105,7 +102,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
   const [touched, setTouched] = useState(false)
   const [project, setProject] = useState(target.project || openRaw?.project || '')
   const [story, setStory] = useState(target.story || openRaw?.story || '')
-  const [scope, setScope] = useState<ConfigScope>(target.scope ?? (target.story || openRaw?.story ? 'story' : target.project || openRaw?.project ? 'project' : 'global'))
+  const [scope, setScope] = useState<ConfigScope>(current === 'info' ? 'project' : target.scope ?? (target.story || openRaw?.story ? 'story' : target.project || openRaw?.project ? 'project' : 'global'))
   const appliedTarget = useRef(`${target.scope ?? ''}/${target.project}/${target.story}`)
   useEffect(() => {
     // Liên kết mới trong lúc đã mở Tuỳ chỉnh (vd nút “Sửa” ở màn Dự án) đổi cấp + ngữ cảnh theo đường dẫn.
@@ -167,7 +164,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
   }, [project, detail, story, stories])
 
   // Cấp bắt buộc có ngữ cảnh: không có truyện thì rơi về dự án, không có dự án thì rơi về mọi truyện.
-  const effectiveScope: ConfigScope = scope === 'story' && !story ? (project ? 'project' : 'global') : scope === 'project' && !project ? 'global' : scope
+  const effectiveScope: ConfigScope = current === 'info' && project ? 'project' : scope === 'story' && !story ? (project ? 'project' : 'global') : scope === 'project' && !project ? 'global' : scope
   // Gói R — mở lại trang thì giữ lựa chọn: ghi chỗ đang xem vào đường dẫn (thay, không thêm lịch sử).
   // Đường dẫn đã có tham số là nguồn sự thật: chỉ ghi đè khi người dùng vừa đổi chỗ xem, tránh vòng
   // route → state → route khi máy chủ thư viện còn đang tải.
@@ -178,7 +175,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
     if (location.hash === next) return
     navigate(next.slice(1), true)
   }, [user, current, effectiveScope, project, story, touched, target])
-  const cfgScope: ConfigScope = system || current === 'rules' ? 'global' : effectiveScope
+  const cfgScope: ConfigScope = system ? 'global' : effectiveScope
   const needsStory = cfgScope === 'story'
   const cfgProject = cfgScope === 'global' ? undefined : project
   const cfgStory = needsStory ? story : undefined
@@ -328,7 +325,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
       }
       throw error
     }
-    toast.ok(message || (current === 'rules' ? 'Đã áp dụng' : 'Đã lưu'))
+    toast.ok(message || 'Đã lưu')
     return true
   })
   const saving = saveAction.pending
@@ -353,9 +350,10 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
 
   // ─── Chuyển mục / cấp / chỗ đang xem ─────────────────────────────────────────────────────
   const goSection = (id: SectionId | 'voice') => {
-    const nextCfgScope: ConfigScope = id !== 'voice' && isSystemSection(id) ? 'global' : effectiveScope
+    const nextScope = id === 'info' ? 'project' : effectiveScope
+    const nextCfgScope: ConfigScope = id !== 'voice' && isSystemSection(id) ? 'global' : nextScope
     if (nextCfgScope !== cfgScope && guardDirty()) return
-    navigate(settingsHref(id, effectiveScope, project, story))
+    navigate(settingsHref(id, nextScope, project, story))
   }
   /** Gói R — đổi chỗ xem (dự án/truyện): chỉ đổi ngữ cảnh Tuỳ chỉnh, không mở truyện khác ở Bàn viết. */
   const handleTarget = (next: ScopeTarget) => {
@@ -364,12 +362,12 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
     setProject(next.project)
     setStory(next.story)
     if (next.project) library.ensureProject(next.project)
+    if (current === 'info' && next.scope !== 'project') navigate(settingsHref('models', next.scope, next.project, next.story))
   }
   const [sectionHint, setSectionHint] = useState<{ id: string; open: string } | null>(null)
   const goAdvanced = (open?: string) => { goSection('adv'); setSectionHint(open ? { id: 'adv', open } : null) }
   const goConnect = (provider?: string) => { goSection('connect'); setSectionHint(provider ? { id: 'connect', open: provider } : null) }
 
-  const rulesCount = useRulesCount('global')
   const dots: Partial<Record<SectionId, boolean>> = {}
   if (effectiveScope !== 'global') for (const [id, list] of Object.entries(DOT_KEYS)) dots[id as SectionId] = hasOwn(draft, list)
 
@@ -388,7 +386,6 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
   // Mục đã mở một lần thì giữ nguyên (ẩn) để bản nháp của nó không mất khi sang mục khác — như artboard (dirty giữ qua mục).
   const [visited, setVisited] = useState<ReadonlySet<PageId>>(() => new Set([current]))
   useEffect(() => { setVisited((prev) => (prev.has(current) ? prev : new Set(prev).add(current))) }, [current])
-  const keepRules = visited.has('rules') && (current === 'rules' || !!extraMeta.rules)
   const keepInfo = visited.has('info') && (current === 'info' || !!extraMeta.info)
 
   const needsConfig = CONFIG_SECTIONS.includes(current)
@@ -401,7 +398,6 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
 
   const body = () => {
     switch (current) {
-      case 'writing': return <WritingSection ctx={ctx} />
       case 'models': return <RolesSection ctx={ctx} />
       case 'budget': return <BudgetSection ctx={ctx} />
       case 'connect': return <ProvidersSection ctx={ctx} open={sectionHint?.id === 'connect' ? sectionHint.open : undefined} />
@@ -417,13 +413,11 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
     }
   }
 
-  const applyLabel = current === 'rules' ? 'Áp dụng' : 'Lưu'
-  const hint = current === 'rules' ? extraMeta.rules?.hint : undefined
 
   return (
     // line-height 1.5 như khung gốc của Settings.dc.html (nền ứng dụng dùng 1.55 → mỗi dòng lệch ~0,7px, cộng dồn theo trang).
-    <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5 }}>
-      <SettingsNav current={current} scope={effectiveScope} admin={admin} rulesCount={rulesCount} dots={dots}
+    <div style={{ position: 'relative', display: 'flex', flex: 1, minWidth: 0, minHeight: 0, width: '100%', lineHeight: 1.5, borderTop: '1px solid var(--line-1)' }}>
+      <SettingsNav current={current} scope={effectiveScope} admin={admin} dots={dots}
         version={version} onWhatsNew={() => setWhatsNew(true)} onPick={goSection} />
       <main className="scroll" style={{ flex: '1 1 auto', minWidth: 0, padding: '18px 28px 120px' }}>
         {hasNewVersion(version) && !updateHidden && (
@@ -473,18 +467,12 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
         }} onOverwrite={() => saveAction.run(true)} />}
         {!canEdit && needsConfig && <div style={{ marginTop: 14 }}><ReadOnlyNotice>{readOnlyNotice}</ReadOnlyNotice></div>}
 
-        {keepRules && (
-          <div hidden={current !== 'rules'}>
-            <RulesEditor scope="global" project={openRaw?.project ?? project} story={openRaw?.story ?? story}
-              onDirty={(count, apply, cancel, hintText) => registerExtra('rules', count > 0 ? { count, apply, cancel, hint: hintText } : null)} />
-          </div>
-        )}
         {keepInfo && (
           <div hidden={current !== 'info'}>
-            <InfoSection key={`${effectiveScope}/${project}/${story}`} ctx={ctx} scope={effectiveScope} />
+            <InfoSection key={project} ctx={ctx} />
           </div>
         )}
-        {current !== 'rules' && current !== 'info' && (
+        {current !== 'info' && (
           needsConfig
             ? configError && !response ? <ErrorCard message={configError} onRetry={refreshConfig} />
               : !response || configLoading ? <LoadingRows rows={4} /> : body()
@@ -493,8 +481,8 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
       </main>
       {whatsNew && <WhatsNewDialog onClose={() => setWhatsNew(false)} />}
       {dirty && (
-        <SaveBar text={current === 'connect' ? `${dirtyCount} thay đổi ở Kết nối AI · dùng cho cả máy chủ` : dirtyText(dirtyCount, cfgScope, hint)}
-          applyLabel={applyLabel} saving={saving} disabled={saveAction.busy || !connection.writable} onApply={() => void save()} onCancel={discard} />
+        <SaveBar text={current === 'connect' ? `${dirtyCount} thay đổi ở Kết nối AI · dùng cho cả máy chủ` : dirtyText(dirtyCount, cfgScope)}
+          applyLabel="Lưu" saving={saving} disabled={saveAction.busy || !connection.writable} onApply={() => void save()} onCancel={discard} />
       )}
     </div>
   )

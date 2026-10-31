@@ -64,6 +64,24 @@ const chooseModel = async (container: HTMLElement, key: string, label: string) =
 }
 
 describe('Trợ lý AI ở cấp truyện', () => {
+  it('đổi cách chạy ở dự án giữ hai lựa chọn độc lập và bật tắt lại được', async () => {
+    const container = await mount({ scope: 'project' })
+    const review = container.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Duyệt từng chương (truyện mới)"]')!
+    const ask = container.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Trọng tài hỏi bạn khi phân vân"]')!
+    expect(review).not.toBeNull()
+    expect(ask).not.toBeNull()
+    expect(review.getAttribute('aria-checked')).toBe('false')
+    await act(async () => review.click())
+    expect(review.getAttribute('aria-checked')).toBe('true')
+    expect(ask.getAttribute('aria-checked')).toBe('false')
+    await act(async () => ask.click())
+    expect(ask.getAttribute('aria-checked')).toBe('true')
+    expect(review.getAttribute('aria-checked')).toBe('true')
+    await act(async () => review.click())
+    expect(review.getAttribute('aria-checked')).toBe('false')
+    expect(ask.getAttribute('aria-checked')).toBe('true')
+  })
+
   it('đổi model Người viết → nhãn “Riêng truyện này”; nút “Theo dự án” xoá khoá và nhãn về “Theo dự án”', async () => {
     const container = await mount()
     const writer = () => row(container, 'writer')

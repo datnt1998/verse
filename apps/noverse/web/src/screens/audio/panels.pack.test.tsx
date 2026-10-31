@@ -14,7 +14,7 @@ const voices: AudioVoice[] = [
   { id: 'nu-tre-am', name: 'Nữ trẻ, ấm', durationSec: 0, gender: 'nu', builtIn: true },
 ]
 const render = (pack: { ten: string; gender: 'nu' | 'nam' | '' } | null) => renderToStaticMarkup(
-  <CastPanel cast={cast} voices={voices} lineCounts={{}} writable pack={pack} onCast={() => {}} onAddVoice={() => {}} />,
+  <CastPanel cast={cast} voices={voices} lineCounts={{}} writable pack={pack} styleHref="/p/p/s/s?tab=style" onCast={() => {}} onAddVoice={() => {}} />,
 )
 
 it('gói một giọng kể: thẻ khoá “Một giọng kể · theo gói” thay hai thẻ cách giao giọng', () => {
@@ -22,7 +22,7 @@ it('gói một giọng kể: thẻ khoá “Một giọng kể · theo gói” t
   expect(html).toContain('Một giọng kể')
   expect(html).toContain('theo gói')
   expect(html).toContain('Gói Nữ tần báo thù dùng một giọng nữ trẻ cho cả truyện, kể cả lời thoại.')
-  expect(html).toContain('Đổi gói trong Tuỳ chỉnh ›')
+  expect(html).toContain('Đổi gói ở tab Cách viết ›')
   expect(html).not.toContain('Mỗi nhân vật một giọng')
   expect(html).not.toContain('Một người đọc tất cả')
   expect(html).not.toContain('Phân vai · cả truyện')

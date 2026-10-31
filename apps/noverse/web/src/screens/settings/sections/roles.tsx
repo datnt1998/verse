@@ -20,6 +20,7 @@ import { providerName } from './connectLogic'
 import { providerGroups } from './modelPick'
 import { OvrBadge, Page, SecCard, SectionHead, Segc } from '../parts'
 import type { SettingsContext } from '../types'
+import { RunCard } from './RunCard'
 
 type RoleKey = 'default' | 'architect' | 'writer' | 'editor'
 type RoleSpec = { key: RoleKey; name: string; does: string; orb: AgentKind | null }
@@ -174,6 +175,7 @@ export function RolesSection({ ctx }: { ctx: SettingsContext }) {
           )
         })}
       </SecCard>
+      <RunCard ctx={ctx} />
       <FallbackCard ctx={ctx} options={options} nameOf={nameOf} />
     </Page>
   )

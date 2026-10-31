@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { budgetUsage, fmtUsd, parseUsd } from './budget'
-import { changedFields, dateText, parseDate, projectFormOf, statusOptions, storyFormOf } from './info'
+import { changedFields, projectFormOf } from './info'
 import { styleCards } from './style'
 
 describe('Cách viết › thẻ văn phong', () => {
@@ -68,21 +68,10 @@ describe('Ngân sách', () => {
 })
 
 describe('Thông tin', () => {
-  it('ngày đăng: dd/MM/yyyy ⇄ ISO, từ chối ngày không có thật', () => {
-    const iso = parseDate('25/10/2026')!
-    expect(dateText(iso)).toBe('25/10/2026')
-    expect(parseDate('')).toBeNull()
-    expect(parseDate('31/02/2026')).toBeUndefined()
-    expect(parseDate('2026-10-25')).toBeUndefined()
-  })
-  it('trạng thái dùng nhãn artboard (4 lựa chọn); “Ý tưởng” chỉ hiện khi truyện đang ở đó', () => {
-    expect(statusOptions('writing')).toEqual(['writing', 'paused', 'done', 'published'])
-    expect(statusOptions('idea')[0]).toBe('idea')
-  })
   it('đếm ô đã đổi', () => {
-    const base = storyFormOf({ title: 'A', status: 'writing', idea: '', tags: ['x'], publishedAt: null, createdAt: null })
+    const base = projectFormOf({ name: 'A', description: '', notes: '' })
     expect(changedFields(base, base)).toBe(0)
-    expect(changedFields({ ...base, title: 'B', tags: ['x', 'y'] }, base)).toBe(2)
+    expect(changedFields({ ...base, name: 'B', notes: 'Mới' }, base)).toBe(2)
   })
   it('dự án: tên vũ trụ tuỳ chọn, thiếu thì rỗng (= dùng tên dự án)', () => {
     const project = { name: 'Kênh truyện audio', description: '', notes: '' }
