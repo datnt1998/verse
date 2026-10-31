@@ -115,7 +115,11 @@ func (s *Service) commit(ctx context.Context, l loaded) (View, error) {
 	if e = os.WriteFile(file, raw, 0600); e != nil {
 		return View{}, e
 	}
-	if e = s.Edits.Commit(ctx, l.snapshot, l.state, "", false, []media.Artifact{{Path: "metadata/metadata.json", File: file, ContentType: "application/json"}}); e != nil {
+	var retry domain.CloneStep
+	if l.snapshot.Step.Status == domain.CloneFailed || l.snapshot.Step.Status == domain.CloneWaiting {
+		retry = domain.CloneMetadata
+	}
+	if e = s.Edits.Commit(ctx, l.snapshot, l.state, retry, false, []media.Artifact{{Path: "metadata/metadata.json", File: file, ContentType: "application/json"}}); e != nil {
 		return View{}, e
 	}
 	l.view.Metadata = &l.state.Current
@@ -170,7 +174,12 @@ func (s *Service) Rewrite(ctx context.Context, id string, r Rewrite) (View, erro
 		delete(edited, p)
 	}
 	next.Edited = edited
-	l.state.save(next, "director", r.Parts)
+	if l.view.Metadata == nil {
+		l.state.Current = next
+		l.state.Revision++
+	} else {
+		l.state.save(next, "director", r.Parts)
+	}
 	return s.commit(ctx, l)
 }
 func (s *Service) Restore(ctx context.Context, id string, r Restore) (View, error) {
