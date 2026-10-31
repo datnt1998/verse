@@ -183,7 +183,7 @@ func (q *Queries) FindJobsBySourceKeys(ctx context.Context, dollar_1 []string) (
 }
 
 const findQueueRowsBySourceKeys = `-- name: FindQueueRowsBySourceKeys :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue
 WHERE source_key = ANY($1::text[]) AND state IN ('queued', 'started') AND removed_at IS NULL
 `
 
@@ -217,6 +217,7 @@ func (q *Queries) FindQueueRowsBySourceKeys(ctx context.Context, dollar_1 []stri
 			&i.CoverPromptID,
 			&i.NoImagesOverride,
 			&i.OverrideRevision,
+			&i.RestartOf,
 		); err != nil {
 			return nil, err
 		}
@@ -229,7 +230,7 @@ func (q *Queries) FindQueueRowsBySourceKeys(ctx context.Context, dollar_1 []stri
 }
 
 const getQueueItem = `-- name: GetQueueItem :one
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue WHERE id = $1
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue WHERE id = $1
 `
 
 func (q *Queries) GetQueueItem(ctx context.Context, id pgtype.UUID) (CloneQueue, error) {
@@ -256,6 +257,7 @@ func (q *Queries) GetQueueItem(ctx context.Context, id pgtype.UUID) (CloneQueue,
 		&i.CoverPromptID,
 		&i.NoImagesOverride,
 		&i.OverrideRevision,
+		&i.RestartOf,
 	)
 	return i, err
 }
@@ -645,7 +647,7 @@ func (q *Queries) ListJobSteps(ctx context.Context, jobID pgtype.UUID) ([]CloneS
 }
 
 const listLaneItems = `-- name: ListLaneItems :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue
 WHERE channel_id = $1 AND state = 'queued' AND removed_at IS NULL
 ORDER BY position, id
 `
@@ -680,6 +682,7 @@ func (q *Queries) ListLaneItems(ctx context.Context, channelID pgtype.UUID) ([]C
 			&i.CoverPromptID,
 			&i.NoImagesOverride,
 			&i.OverrideRevision,
+			&i.RestartOf,
 		); err != nil {
 			return nil, err
 		}
@@ -723,7 +726,7 @@ func (q *Queries) ListQueueCountsByChannel(ctx context.Context) ([]ListQueueCoun
 }
 
 const listQueuedItems = `-- name: ListQueuedItems :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 ORDER BY channel_id, position, id
 LIMIT 2000
 `
@@ -759,6 +762,7 @@ func (q *Queries) ListQueuedItems(ctx context.Context) ([]CloneQueue, error) {
 			&i.CoverPromptID,
 			&i.NoImagesOverride,
 			&i.OverrideRevision,
+			&i.RestartOf,
 		); err != nil {
 			return nil, err
 		}
@@ -1065,11 +1069,11 @@ UPDATE clone_queue q SET removed_at = NULL
 WHERE q.id = $1 AND q.state = 'queued' AND q.job_id IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM clone_jobs j
-    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL)
+    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL AND j.id IS DISTINCT FROM q.restart_of)
   AND NOT EXISTS (
     SELECT 1 FROM clone_queue active
     WHERE active.source_key = q.source_key AND active.id <> q.id
-      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL)
+      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL AND active.job_id IS DISTINCT FROM q.restart_of)
 `
 
 func (q *Queries) RestoreQueueItem(ctx context.Context, id pgtype.UUID) (int64, error) {

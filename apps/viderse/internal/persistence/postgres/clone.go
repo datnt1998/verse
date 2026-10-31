@@ -424,6 +424,9 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			if in.QueueOverrideRevision != 0 && item.OverrideRevision != in.QueueOverrideRevision {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã thay đổi, vui lòng tải lại"}
 			}
+			if item.RestartOf.Valid {
+				in.Replaces = uuidStr(item.RestartOf)
+			}
 		}
 		if in.Replaces != "" {
 			id, err := cloneUUIDOf(in.Replaces)

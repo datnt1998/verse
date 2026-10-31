@@ -338,6 +338,7 @@ type CloneQueueItem struct {
 	OverrideRevision int64   `json:"overrideRevision"`
 	TemplateID    *string             `json:"templateId,omitempty"`
 	JobID         *string             `json:"jobId"`
+	RestartOf     *string             `json:"previousJobId,omitempty"`
 	Reason        *string             `json:"reason"`
 	CreatedAt     time.Time           `json:"createdAt"`
 	StartedAt     *time.Time          `json:"startedAt"`
@@ -358,6 +359,7 @@ type CloneJobView struct {
 	Subline   string            `json:"subline"`
 	AgentView []CloneAgentView  `json:"agentView"`
 	Steps     []CloneStepRecord `json:"steps"`
+	PreviousJobID *string `json:"previousJobId"`
 	ExportBytes *int64          `json:"exportBytes"`
 	// QueueItem mang mục hàng chờ gốc khi hàng này là mục chưa có job
 	// (StageGroup "queued"); nil cho job thật.

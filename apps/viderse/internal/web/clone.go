@@ -276,8 +276,13 @@ func (g *Gateway) routeClone(w http.ResponseWriter, r *http.Request, files clone
 func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id string) {
 	var request struct {
 		Action string `json:"action"`
+		DryRun bool `json:"dryRun"`
 	}
 	if !webapp.DecodeJSONCode(w, r, &request, domain.CloneErrInvalidRequest) {
+		return
+	}
+	if request.DryRun && request.Action != "restart" {
+		invalidClone(w, "Chỉ xem trước được thao tác làm lại.")
 		return
 	}
 	var job *domain.CloneJob
@@ -292,8 +297,16 @@ func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id st
 	case "cancel":
 		job, err = svc.Cancel(r.Context(), id)
 	case "restart":
+		if request.DryRun {
+			planner, ok := svc.(interface { RestartPlan(context.Context, string) (*domain.CloneRestartPlan, error) })
+			if !ok { cloneAvailable(w, false); return }
+			plan, err := planner.RestartPlan(r.Context(), id)
+			if err != nil { WriteCloneError(w, err); return }
+			webapp.WriteJSON(w, http.StatusOK, plan)
+			return
+		}
 		restarter, ok := svc.(interface {
-			Restart(context.Context, string) (*pipeline.StartJobResult, error)
+			Restart(context.Context, string) (*domain.CloneQueueItem, error)
 		})
 		if !ok {
 			cloneAvailable(w, false)
@@ -304,16 +317,7 @@ func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id st
 			WriteCloneError(w, restartErr)
 			return
 		}
-		job := result.Job
-		steps := make([]map[string]any, 0, len(domain.CloneSteps))
-		for _, step := range domain.CloneSteps {
-			steps = append(steps, map[string]any{"step": step, "status": domain.ClonePending})
-		}
-		webapp.WriteJSON(w, http.StatusCreated, map[string]any{
-			"restartedFrom": id, "created": result.Created,
-			"job": map[string]any{"id": job.ID, "sourceKey": job.SourceKey, "status": job.Status, "generation": job.Generation, "projectId": nil, "ownerChannelId": job.ChannelID, "noImages": job.NoImages},
-			"source": job.Source, "steps": steps, "wizardUrl": "/clone/" + job.ID, "projectUrl": nil,
-		})
+		webapp.WriteJSON(w, http.StatusAccepted, map[string]any{"restartedFrom": id, "queueItem": result})
 		return
 	default:
 		invalidClone(w, "Thao tác làm video không hợp lệ.")

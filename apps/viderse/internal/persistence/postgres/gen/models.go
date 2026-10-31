@@ -210,6 +210,7 @@ type CloneQueue struct {
 	CoverPromptID    pgtype.Text        `json:"cover_prompt_id"`
 	NoImagesOverride pgtype.Bool        `json:"no_images_override"`
 	OverrideRevision int64              `json:"override_revision"`
+	RestartOf        pgtype.UUID        `json:"restart_of"`
 }
 
 type CloneStep struct {

@@ -312,6 +312,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			}
 			return quotas, nil
 		}, Notify: func(name string) { publish(name, map[string]any{}) }, Diag: func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) }})
+	service.PlanRestart = q.RestartPlan
+	service.EnqueueRestart = q.EnqueueRestart
 	for step, handler := range registry {
 		handler = slots.Wrap(step, handler)
 		if step == domain.CloneImages {

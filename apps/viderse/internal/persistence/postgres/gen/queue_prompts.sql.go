@@ -12,7 +12,7 @@ import (
 )
 
 const lockQueueItemForAdmission = `-- name: LockQueueItemForAdmission :one
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue WHERE id = $1 FOR UPDATE
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID) (CloneQueue, error) {
@@ -39,6 +39,7 @@ func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID)
 		&i.CoverPromptID,
 		&i.NoImagesOverride,
 		&i.OverrideRevision,
+		&i.RestartOf,
 	)
 	return i, err
 }

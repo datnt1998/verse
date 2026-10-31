@@ -60,6 +60,8 @@ type Service struct {
 	Media           *media.Service
 	Publish         Publisher
 	ResolveTemplate TemplateResolver
+	PlanRestart func(context.Context, *domain.CloneJob) (*domain.CloneRestartPlan, error)
+	EnqueueRestart func(context.Context, *domain.CloneJob) (*domain.CloneQueueItem, error)
 	ResolveQueuedImageOverrides func(context.Context, domain.CloneQueueItem) (json.RawMessage, error)
 	Queue           QueueReadModel
 	Now             func() time.Time
@@ -108,37 +110,30 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	return result.Job, nil
 }
 
-// Restart creates a new generation while retaining the superseded job's evidence.
-func (s *Service) Restart(ctx context.Context, id string) (*StartJobResult, error) {
+// Restart places a new generation at the head of the normal queue.
+func (s *Service) Restart(ctx context.Context, id string) (*domain.CloneQueueItem, error) {
 	job, err := s.Store.GetJob(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if job == nil {
-		return nil, ErrNotFound
-	}
+	if err != nil { return nil, err }
+	if job == nil { return nil, ErrNotFound }
 	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
 		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 	}
 	if job.ChannelID == "" || job.Source.ID == "" {
 		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Không xác định được kênh hoặc video nguồn để làm lại"}
 	}
-	if s.ResolveTemplate == nil {
-		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Chưa có template cho kênh"}
+	if s.EnqueueRestart == nil { return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Hàng chờ chưa sẵn sàng"} }
+	return s.EnqueueRestart(ctx, job)
+}
+
+func (s *Service) RestartPlan(ctx context.Context, id string) (*domain.CloneRestartPlan, error) {
+	job, err := s.Store.GetJob(ctx, id)
+	if err != nil { return nil, err }
+	if job == nil { return nil, ErrNotFound }
+	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 	}
-	item := domain.CloneQueueItem{ChannelID: job.ChannelID, SourceVideoID: job.Source.ID, SourceKey: job.SourceKey, Source: job.Source, NoImages: job.NoImages}
-	templateID, recipe, models, err := s.ResolveTemplate(ctx, item)
-	if err != nil {
-		return nil, err
-	}
-	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: job.ChannelID, SourceKey: job.SourceKey, Source: job.Source, TemplateID: templateID, TemplateSnapshot: recipe, ModelRefs: models, NoImages: job.NoImages, Priority: domain.ClonePick, Origin: domain.OriginManual, Replaces: id})
-	if err != nil {
-		return nil, err
-	}
-	s.event(domain.CloneEventCreated, result.Job.ID)
-	s.event(domain.CloneEventUpdated, id)
-	s.Wake()
-	return result, nil
+	if s.PlanRestart == nil { return nil, &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Chưa có kế hoạch làm lại"} }
+	return s.PlanRestart(ctx, job)
 }
 func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, error) {
 	job, err := s.Store.GetJob(ctx, id)
@@ -153,7 +148,12 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 	if err := s.enrichSource(ctx, job, steps); err != nil {
 		return nil, err
 	}
-	return new(s.view(*job, steps)), nil
+	view := s.view(*job, steps)
+	if previous, ok := s.Store.(interface { PreviousCloneJobID(context.Context, string, int) (*string, error) }); ok {
+		view.PreviousJobID, err = previous.PreviousCloneJobID(ctx, job.SourceKey, job.Generation)
+		if err != nil { return nil, err }
+	}
+	return &view, nil
 }
 func (s *Service) view(job domain.CloneJob, steps []domain.CloneStepRecord) domain.CloneJobView {
 	job.StageGroup = domain.StageGroupOf(job, steps)
@@ -189,7 +189,7 @@ func (s *Service) List(ctx context.Context, channelID *string, limit int) (domai
 		}
 		result.QueuedTotal = len(items)
 		for _, item := range items {
-			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
+			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), PreviousJobID: item.RestartOf, Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
 		}
 	}
 	return result, nil

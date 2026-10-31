@@ -593,6 +593,7 @@ func queueItemOf(row gen.CloneQueue) (domain.CloneQueueItem, error) {
 		NoImagesOverride: boolPtr(row.NoImagesOverride),
 		OverrideRevision: row.OverrideRevision,
 		TemplateID:    queueUUIDPtr(row.TemplateID),
+		RestartOf:     queueUUIDPtr(row.RestartOf),
 		JobID:         jobID,
 		Reason:        reason,
 		CreatedAt:     row.CreatedAt.Time,

@@ -246,7 +246,7 @@ func TestCloneJobActionsReadsAndDelete(t *testing.T) {
 		t.Fatalf("delete: status %d: %s", w.Code, w.Body.String())
 	}
 	before := len(svc.calls)
-	for _, body := range []string{`{}`, `{"action":"restart"}`, `{"action":"pause","extra":true}`, `{"action":"pause"}{}`, `null`} {
+	for _, body := range []string{`{}`, `{"action":"rewind"}`, `{"action":"pause","extra":true}`, `{"action":"pause"}{}`, `null`} {
 		w = tg.do(http.MethodPost, "/api/clone/job-1", cookie, body)
 		if w.Code != http.StatusBadRequest {
 			t.Fatalf("invalid action: status %d: %s", w.Code, w.Body.String())
