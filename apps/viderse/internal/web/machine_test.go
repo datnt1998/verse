@@ -160,7 +160,8 @@ func TestActivityWireShape(t *testing.T) {
 		t.Fatalf("action = %v", action)
 	}
 	unread := body["unread"].([]any)[0].(map[string]any)
-	if unread["count"].(float64) != 3 || unread["href"] != "#/settings?section=storage" {
+	actions := unread["actions"].([]any)
+	if unread["count"].(float64) != 3 || len(actions) != 1 || actions[0].(map[string]any)["href"] != "#/settings?section=storage" {
 		t.Fatalf("unread = %v", unread)
 	}
 	if _, ok := unread["readAt"]; !ok {
