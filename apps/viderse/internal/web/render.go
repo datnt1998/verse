@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -115,12 +116,12 @@ func (h renderHTTP) route(w http.ResponseWriter, r *http.Request) error {
 		jobID = request.JobID
 	}
 	if action == "media" && len(parts) == 4 && (r.Method == http.MethodGet || r.Method == http.MethodHead) {
-		ids, e := h.service.Editor.ProjectMediaIDs(ctx, pid)
+		p, _, e := h.service.Editor.LoadProject(ctx, pid)
 		if e != nil {
 			return e
 		}
 		allowed := false
-		for _, mid := range ids {
+		for _, mid := range scopedMediaIDs(p) {
 			if mid == parts[3] {
 				allowed = true
 				break
@@ -129,15 +130,15 @@ func (h renderHTTP) route(w http.ResponseWriter, r *http.Request) error {
 		if !allowed {
 			return &render.RequestError{Code: "unauthorized", Message: "Token không được đọc media ngoài project"}
 		}
-		record, e := h.service.Editor.GetMediaMetadata(ctx, parts[3])
-		if e != nil {
-			return e
+		mime := "application/octet-stream"
+		if record, e := h.service.Editor.GetMediaMetadata(ctx, parts[3]); e == nil {
+			mime = record.MIME
 		}
 		file, e := h.service.Editor.AcquireMedia(ctx, parts[3])
 		if e != nil {
 			return e
 		}
-		return editorStream(w, r, file, record.MIME)
+		return editorStream(w, r, file, mime)
 	}
 	if r.Method == http.MethodGet && (action == "" || action == "runtime") {
 		payload, e := h.snapshot(ctx, kind, id, pid, jobID, token)
@@ -282,16 +283,17 @@ func (h renderHTTP) snapshot(ctx context.Context, kind, id, pid, jobID, token st
 	if err != nil {
 		return nil, err
 	}
-	ids, err := h.service.Editor.ProjectMediaIDs(ctx, pid)
-	if err != nil {
-		return nil, err
-	}
+	// Scope is the project document itself: every mediaId it references plus
+	// its mediaItems entries. Build-imported IDs are `media-<hex>`, which the
+	// GC's UUID-shaped token scan cannot see, so ProjectMediaIDs is not usable
+	// here (it would deny this project's own media — observed 401/404).
+	ids := scopedMediaIDs(p)
 	records := []editor.Object{}
 	urls := map[string]string{}
 	for _, mid := range ids {
 		record, e := h.service.Editor.GetMediaMetadata(ctx, mid)
 		if e != nil {
-			return nil, e
+			record = editor.MediaRecord{ID: mid, MIME: "application/octet-stream"}
 		}
 		raw, _ := json.Marshal(record)
 		var m editor.Object
@@ -301,6 +303,7 @@ func (h renderHTTP) snapshot(ctx context.Context, kind, id, pid, jobID, token st
 		records = append(records, m)
 		urls[mid] = u
 	}
+
 	var visit func(any)
 	visit = func(v any) {
 		switch v := v.(type) {
@@ -361,6 +364,42 @@ func (h renderHTTP) snapshot(ctx context.Context, kind, id, pid, jobID, token st
 		out["clone"] = editor.Object{"jobId": jobID, "generation": job.Generation, "score": gate.Score, "gate": editor.Object{"allowed": gate.Allowed, "blockers": blockers}, "latestRequest": editor.Object{"id": id, "status": asObject(out["request"])["status"]}}
 	}
 	return out, nil
+}
+
+func scopedMediaIDs(p editor.Project) []string {
+	set := map[string]bool{}
+	if items, ok := p["mediaItems"].([]any); ok {
+		for _, v := range items {
+			if m, ok := v.(map[string]any); ok {
+				if id, ok := m["id"].(string); ok && editor.ValidateID(id) == nil {
+					set[id] = true
+				}
+			}
+		}
+	}
+	var walk func(any)
+	walk = func(v any) {
+		switch v := v.(type) {
+		case map[string]any:
+			if id, ok := v["mediaId"].(string); ok && editor.ValidateID(id) == nil {
+				set[id] = true
+			}
+			for _, c := range v {
+				walk(c)
+			}
+		case []any:
+			for _, c := range v {
+				walk(c)
+			}
+		}
+	}
+	walk(p.Timeline())
+	ids := make([]string, 0, len(set))
+	for id := range set {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	return ids
 }
 func (h renderHTTP) exportStorage(w http.ResponseWriter, r *http.Request, parts []string, id, pid string) error {
 	ctx := r.Context()
