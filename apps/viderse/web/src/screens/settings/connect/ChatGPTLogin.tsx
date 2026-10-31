@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles } from '../settings.stylex'
 // ChatGPTLogin — hành động đăng nhập ChatGPT dùng lại được ở Cài đặt › Kết nối
 // AI và màn Chuẩn bị máy (V9 codex-login): variant 'primary' (nút chính duy
 // nhất "Đăng nhập ChatGPT") hoặc 'ghost' (nhỏ "Đăng nhập ngay"). Phiên đăng nhập
@@ -17,12 +19,14 @@ import { aiCopy } from '../../../i18n/ai'
 /** Provider id của ChatGPT trong danh sách /api/ai/providers. */
 export const CHATGPT_PROVIDER_ID = 'chatgpt'
 
-export function ChatGPTLoginAction({ variant = 'primary', size = 'compact', onDone }: {
+export function ChatGPTLoginAction({ variant = 'primary', size = 'compact', onDone, waitStyle, linkStyle }: {
   variant?: 'primary' | 'ghost'
   /** Cỡ nút chính. Cài đặt › Kết nối là `compact` (artboard `.primary` 32);
    *  màn Chuẩn bị máy dùng `md` (artboard Onboard `primary` 36/r10/13.5). */
   size?: 'compact' | 'md'
   onDone?: () => void
+  waitStyle?: stylex.StyleXStyles
+  linkStyle?: stylex.StyleXStyles
 }) {
   const [pending, setPending] = useState(false)
   const [starting, setStarting] = useState(false)
@@ -84,11 +88,11 @@ export function ChatGPTLoginAction({ variant = 'primary', size = 'compact', onDo
   if (pending) {
     const url = login?.phase === 'authorize' ? login.authUrl : login?.phase === 'code' ? login.verifyUrl : undefined
     return (
-      <span className="conn-code__wait">
+      <span className={`conn-code__wait ${stylex.props(waitStyle ?? settingsStyles.connCodeWait).className}`}>
         <Spinner size={14} color="var(--color-fg-3)" />
         {aiCopy.connect.chatgptWait}
         {url && (
-          <a className="conn-link" href={url} target="_blank" rel="noopener noreferrer">
+          <a className={`conn-link ${stylex.props(linkStyle ?? settingsStyles.connLink).className}`} href={url} target="_blank" rel="noopener noreferrer">
             {aiCopy.connect.openAuth}
           </a>
         )}

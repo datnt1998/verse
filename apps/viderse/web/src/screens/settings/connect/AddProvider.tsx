@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, connAddRowMarker, connAddFieldMarker, connAddMMarker, connSheetPrimaryMarker } from '../settings.stylex'
 // AddProvider — thẻ/sheet "Thêm nhà cung cấp" (artboard Settings conn=add,
 // MSettings sheet=add): lưới 8 nhà cung cấp (4 cột máy tính, 2 cột điện thoại),
 // ô khoá API (Ollama: địa chỉ; Tương thích OpenAI: cả hai), nút "Kết nối và
@@ -99,17 +101,17 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
         aria-disabled={done || undefined}
         disabled={done}
         title={done ? c.alreadyConnected(k.label) : undefined}
-        className="conn-tile"
+        className={`conn-tile ${stylex.props(settingsStyles.connTile).className}`}
         onClick={() => setKind(k.kind)}
       >
-        <span className="conn-tile__name">{k.label}</span>
-        <span className="conn-tile__sub">{done ? c.connected : (mobile ? k.subMobile : k.sub)}</span>
+        <span className={`conn-tile__name ${stylex.props(settingsStyles.connTileName).className}`}>{k.label}</span>
+        <span className={`conn-tile__sub ${stylex.props(settingsStyles.connTileSub).className}`}>{done ? c.connected : (mobile ? k.subMobile : k.sub)}</span>
       </button>
     )
   })
 
   const submit = (
-    <Button size="compact" variant="primary" className="conn-act" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
+    <Button size="compact" variant="primary" className="conn-act" xstyle={[settingsStyles.connAct, settingsStyles.addProviderSubmit]} pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
       {c.connectFetch}
     </Button>
   )
@@ -119,13 +121,13 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
   const fields = (inlineSubmit: boolean) => (
     <>
       {needsKey && (
-        <div className="conn-add__row">
-          <label className="conn-add__field">
-            <span className="conn-add__label">{c.keyLabelOf(name)}</span>
+        <div className={`conn-add__row ${stylex.props(connAddRowMarker, settingsStyles.connAddRow).className}`}>
+          <label className={`conn-add__field ${stylex.props(connAddFieldMarker, settingsStyles.connAddField).className}`}>
+            <span className={`conn-add__label ${stylex.props(settingsStyles.connAddLabel).className}`}>{c.keyLabelOf(name)}</span>
             <Field
               type="password"
               autoComplete="off"
-              style={mobile ? { height: 48, fontSize: 15, paddingInline: 14 } : undefined}
+              xstyle={settingsStyles.providerInput}
               value={key}
               onChange={(e) => setKey(e.target.value)}
               placeholder="sk-…"
@@ -136,11 +138,11 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
         </div>
       )}
       {needsUrl && (
-        <div className="conn-add__row">
-          <label className="conn-add__field">
-            <span className="conn-add__label">{c.addressLabelOf(name)}</span>
+        <div className={`conn-add__row ${stylex.props(connAddRowMarker, settingsStyles.connAddRow).className}`}>
+          <label className={`conn-add__field ${stylex.props(connAddFieldMarker, settingsStyles.connAddField).className}`}>
+            <span className={`conn-add__label ${stylex.props(settingsStyles.connAddLabel).className}`}>{c.addressLabelOf(name)}</span>
             <Field
-              style={mobile ? { height: 48, fontSize: 15, paddingInline: 14 } : undefined}
+              xstyle={settingsStyles.providerInput}
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={c.addressPlaceholder}
@@ -156,13 +158,13 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
   if (mobile) {
     return (
       <>
-        <div className="conn-add conn-add--m">
-          <div className="conn-add__grid" role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
+        <div className={`conn-add conn-add--m ${stylex.props(connAddMMarker, settingsStyles.connAdd, settingsStyles.connAddM).className}`}>
+          <div className={`conn-add__grid ${stylex.props(settingsStyles.connAddGrid).className}`} role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
           {fields(false)}
-          <span className="conn-add__hint">{c.addHintMobile}</span>
+          <span className={`conn-add__hint ${stylex.props(settingsStyles.connAddHint).className}`}>{c.addHintMobile}</span>
         </div>
-        <div className="conn-sheet-primary">
-          <Button size="xl" variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
+        <div className={`conn-sheet-primary ${stylex.props(connSheetPrimaryMarker, settingsStyles.connSheetPrimary).className}`}>
+          <Button size="xl" variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit} xstyle={[settingsStyles.ConnSheetPrimary_]}>
             {c.connectFetch}
           </Button>
         </div>
@@ -171,16 +173,16 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
   }
 
   return (
-    <div className="conn-add">
-      <div className="conn-add__head">
-        <h2 className="conn-add__title">{c.addTitle}</h2>
+    <div className={`conn-add ${stylex.props(settingsStyles.connAdd).className}`}>
+      <div className={`conn-add__head ${stylex.props(settingsStyles.connAddHead).className}`}>
+        <h2 className={`conn-add__title ${stylex.props(settingsStyles.connAddTitle).className}`}>{c.addTitle}</h2>
         {onDone && (
           <Button size="compact" variant="icon" aria-label={c.close} onClick={onDone} icon={<Icon name="close" size={15} />} />
         )}
       </div>
-      <div className="conn-add__grid" role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
+      <div className={`conn-add__grid ${stylex.props(settingsStyles.connAddGrid).className}`} role="radiogroup" aria-label={c.addTitle}>{tiles}</div>
       {fields(true)}
-      <span className="conn-add__hint">
+      <span className={`conn-add__hint ${stylex.props(settingsStyles.connAddHint).className}`}>
         <Icon name="key" size={14} className="conn-ic" />
         {c.addHint}
       </span>

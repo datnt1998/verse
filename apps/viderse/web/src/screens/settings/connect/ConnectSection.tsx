@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, connDirtyMarker, connSecMarker, connMMarker } from '../settings.stylex'
 // Kết nối AI — mục Cài đặt (artboard Settings conn=list|add|added|models|manual|
 // failed + grok=*, MSettings screen=connect/sheet=add|models).
 //   • danh sách thẻ nhà cung cấp (avatar, pill loại + năng lực, dòng phụ, hạn
@@ -6,7 +8,6 @@
 //   • thanh chưa lưu dính đầu mục: chọn model là bản nháp cục bộ, Lưu PATCH
 //     selected từng provider đổi, Huỷ trả nháp về server.
 // SSE 'ai' → invalidate ['ai'] → danh sách tự làm mới.
-import './connect.css'
 import { useMemo, useState } from 'react'
 import { Button, Icon, Sheet, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
@@ -148,21 +149,21 @@ export function ConnectSection() {
   // Thanh chưa lưu dính đầu mục — artboard đặt nó TRƯỚC danh sách để luôn
   // thấy khi cuộn (desktop) và khi đóng sheet (điện thoại).
   const dirtyBar = dirty && (
-    <div className="conn-dirty" role="status">
+    <div className={`conn-dirty ${stylex.props(connDirtyMarker, settingsStyles.connDirty).className}`} role="status">
       <Icon name="info" size={15} style={{ color: 'var(--color-warn)', flex: '0 0 auto' }} />
-      <span className="conn-dirty__text">{c.dirty(changed)}</span>
-      <Button className="conn-act conn-act--quiet" size="compact" variant="quiet" onClick={cancel}>{c.cancel}</Button>
-      <Button className="conn-act" size="compact" variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
+      <span className={`conn-dirty__text ${stylex.props(settingsStyles.connDirtyText).className}`}>{c.dirty(changed)}</span>
+      <Button className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} size="compact" variant="quiet" onClick={cancel}>{c.cancel}</Button>
+      <Button className="conn-act" xstyle={[settingsStyles.connAct]} size="compact" variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
     </div>
   )
 
   if (mobile) {
     return (
-      <div className="conn-m">
-        <p className="conn-m__lede">{c.mobileLede}</p>
-        {offline && <div className="conn-fail" role="status">{c.offline}</div>}
-        {providers.error != null && !offline && <div className="conn-fail" role="alert">{c.loadFail}</div>}
-        {providers.data === undefined && !providers.error && <div className="conn-note-line">{c.loading}</div>}
+      <div className={`conn-m ${stylex.props(connMMarker, settingsStyles.connM).className}`}>
+        <p className={`conn-m__lede ${stylex.props(settingsStyles.connMLede).className}`}>{c.mobileLede}</p>
+        {offline && <div className={`conn-fail ${stylex.props(settingsStyles.connFail).className}`} role="status">{c.offline}</div>}
+        {providers.error != null && !offline && <div className={`conn-fail ${stylex.props(settingsStyles.connFail).className}`} role="alert">{c.loadFail}</div>}
+        {providers.data === undefined && !providers.error && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.loading}</div>}
         {ordered.map((p) => (
           <ProviderCard
             key={p.id}
@@ -175,11 +176,11 @@ export function ConnectSection() {
             onAssign={onAssign}
           />
         ))}
-        {providers.data && list.length === 0 && <div className="conn-note-line">{c.empty}</div>}
+        {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
 
         {dirtyBar}
 
-        <button type="button" className="conn-addbtn conn-m__addbtn" onClick={() => setAddSheet(true)}>
+        <button type="button" className={`conn-addbtn conn-m__addbtn ${stylex.props(settingsStyles.connAddbtn, settingsStyles.connMAddbtn).className}`} onClick={() => setAddSheet(true)}>
           <Icon name="add" size={15} />
           {c.addOpenShort}
         </button>
@@ -209,7 +210,7 @@ export function ConnectSection() {
                 variant="sheet"
                 onToggle={(id, on, meta) => toggleModel(sheetProvider, id, on, meta)}
               />
-              <div className="conn-sheet-foot">{c.sheetSum(sheetDraft.length)}</div>
+              <div className={`conn-sheet-foot ${stylex.props(settingsStyles.connSheetFoot).className}`}>{c.sheetSum(sheetDraft.length)}</div>
             </>
           )}
         </Sheet>
@@ -218,14 +219,14 @@ export function ConnectSection() {
   }
 
   return (
-    <div className="conn-sec">
-      {offline && <div className="conn-fail" role="status">{c.offline}</div>}
-      {providers.error != null && !offline && <div className="conn-fail" role="alert">{c.loadFail}</div>}
-      {providers.data === undefined && !providers.error && <div className="conn-note-line">{c.loading}</div>}
+    <div className={`conn-sec ${stylex.props(connSecMarker, settingsStyles.connSec).className}`}>
+      {offline && <div className={`conn-fail ${stylex.props(settingsStyles.connFail).className}`} role="status">{c.offline}</div>}
+      {providers.error != null && !offline && <div className={`conn-fail ${stylex.props(settingsStyles.connFail).className}`} role="alert">{c.loadFail}</div>}
+      {providers.data === undefined && !providers.error && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.loading}</div>}
 
       {dirtyBar}
 
-      <div className="conn-list">
+      <div className={`conn-list ${stylex.props(settingsStyles.connList).className}`}>
         {ordered.map((p) => (
           <ProviderCard
             key={p.id}
@@ -236,15 +237,15 @@ export function ConnectSection() {
             onAssign={onAssign}
           />
         ))}
-        {providers.data && list.length === 0 && <div className="conn-note-line">{c.empty}</div>}
+        {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
       </div>
 
       {addOpen ? (
-        <section className="card conn-card">
+        <section className={`conn-card ${stylex.props(settingsStyles.card, settingsStyles.connCard).className}`}>
           <AddProviderBody onAdded={onAdded} onDone={() => setAddOpen(false)} connected={takenKinds} />
         </section>
       ) : (
-        <button type="button" className="conn-addbtn" onClick={() => setAddOpen(true)}>
+        <button type="button" className={`conn-addbtn ${stylex.props(settingsStyles.connAddbtn).className}`} onClick={() => setAddOpen(true)}>
           <Icon name="add" size={15} />
           {c.addOpen}
         </button>

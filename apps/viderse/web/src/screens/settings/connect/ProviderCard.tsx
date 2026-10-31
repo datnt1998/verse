@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, connBarMarker, connErrTextMarker, connManualRowMarker, connMBarMarker, connMActsMarker } from '../settings.stylex'
 // ProviderCard — một thẻ nhà cung cấp trong Kết nối AI (artboard Settings
 // conn=list|added|models|manual|failed + grok=signed|code|out; MSettings
 // screen=connect). Wire: internal/web/ai.go
@@ -213,11 +215,11 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
 
   if (failed) {
     return (
-      <div className="conn-err" role="alert">
-        <span className="conn-err__text"><b>{c.grokFailed}</b> {c.grokFailedText}</span>
-        <div className="conn-err__acts">
-          <Button className="conn-act" size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={() => void restart()}>{c.restart}</Button>
-          <Button className="conn-act conn-act--quiet" size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.close}</Button>
+      <div className={`conn-err ${stylex.props(settingsStyles.connErr).className}`} role="alert">
+        <span className={`conn-err__text ${stylex.props(connErrTextMarker, settingsStyles.connErrText).className}`}><b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.grokFailed}</b> {c.grokFailedText}</span>
+        <div className={`conn-err__acts ${stylex.props(settingsStyles.connErrActs).className}`}>
+          <Button className="conn-act" xstyle={[settingsStyles.connAct]} size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={() => void restart()}>{c.restart}</Button>
+          <Button className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.close}</Button>
         </div>
       </div>
     )
@@ -225,29 +227,29 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
 
   if (kind === 'grok') {
     return (
-      <div className="conn-code">
-        <span className="conn-code__text">{c.grokIntro}</span>
+      <div className={`conn-code ${stylex.props(settingsStyles.connCode).className}`}>
+        <span className={`conn-code__text ${stylex.props(settingsStyles.connCodeText).className}`}>{c.grokIntro}</span>
         {showCode && (
-          <div className="conn-code__row">
-            <span className="conn-code__val conn-num" aria-label={login!.code!.split('').join(' ')}>{login!.code}</span>
-            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" icon={<Icon name="copy" size={14} />} onClick={() => void navigator.clipboard?.writeText(login!.code!)}>
+          <div className={`conn-code__row ${stylex.props(settingsStyles.connCodeRow).className}`}>
+            <span className={`conn-code__val conn-num ${stylex.props(settingsStyles.connNum, settingsStyles.connCodeVal).className}`} aria-label={login!.code!.split('').join(' ')}>{login!.code}</span>
+            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="copy" size={14} />} onClick={() => void navigator.clipboard?.writeText(login!.code!)}>
               {c.copy}
             </Button>
           </div>
         )}
-        <div className="conn-code__row">
+        <div className={`conn-code__row ${stylex.props(settingsStyles.connCodeRow).className}`}>
           {login?.verifyUrl && (
-            <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" icon={<Icon name="link" size={14} />} onClick={() => window.open(login.verifyUrl, '_blank', 'noopener')}>
+            <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="link" size={14} />} onClick={() => window.open(login.verifyUrl, '_blank', 'noopener')}>
               {c.grokOpen}
             </Button>
           )}
-          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" onClick={() => void cancel()}>{c.cancelLogin}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => void cancel()}>{c.cancelLogin}</Button>
           <span style={{ flex: 1 }} />
-          <span className="conn-code__wait" role="status">
+          <span className={`conn-code__wait ${stylex.props(settingsStyles.connCodeWait).className}`} role="status">
             {!netLost && <Spinner size={10} color="var(--color-fg-2)" />}
             {netLost ? c.loginReconnect : c.grokWait}
             {!netLost && login?.expiresAt && (
-              <span className="conn-num">· {countdown(login.expiresAt)}</span>
+              <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>· {countdown(login.expiresAt)}</span>
             )}
           </span>
         </div>
@@ -256,23 +258,23 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
   }
 
   return (
-    <div className="conn-code">
-      <div className="conn-code__row">
-        <span className="conn-code__wait" role="status">
+    <div className={`conn-code ${stylex.props(settingsStyles.connCode).className}`}>
+      <div className={`conn-code__row ${stylex.props(settingsStyles.connCodeRow).className}`}>
+        <span className={`conn-code__wait ${stylex.props(settingsStyles.connCodeWait).className}`} role="status">
           {waiting && !netLost && <Spinner size={10} color="var(--color-fg-2)" />}
           {netLost ? c.loginReconnect : c.chatgptWait}
         </span>
         <span style={{ flex: 1 }} />
-        <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" onClick={() => void cancel()}>{c.cancelLogin}</Button>
+        <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => void cancel()}>{c.cancelLogin}</Button>
       </div>
       {login?.phase === 'authorize' && login.authUrl && (
         // Fallback bắt buộc: popup bị chặn thì đây là đường duy nhất tới authorize.
-        <a className="conn-link" href={login.authUrl} target="_blank" rel="noopener noreferrer">{c.openAuth}</a>
+        <a className={`conn-link ${stylex.props(settingsStyles.connLink).className}`} href={login.authUrl} target="_blank" rel="noopener noreferrer">{c.openAuth}</a>
       )}
       {waiting && (pasteOpen ? (
-        <div className="conn-manual__row">
+        <div className={`conn-manual__row ${stylex.props(connManualRowMarker, settingsStyles.connManualRow).className}`}>
           <Field
-            className="conn-edit__grow"
+            className={`conn-edit__grow ${stylex.props(settingsStyles.connEditGrow).className}`}
             placeholder={c.codePlaceholder}
             value={codeInput}
             onChange={(e) => { setCodeInput(e.target.value); setCodeErr(false) }}
@@ -280,12 +282,12 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
             invalid={codeErr}
             aria-label={c.codePlaceholder}
           />
-          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" onClick={() => void pasteCode()} disabled={!codeInput.trim()}>{c.pasteCode}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void pasteCode()} disabled={!codeInput.trim()}>{c.pasteCode}</Button>
         </div>
       ) : (
-        <button type="button" className="conn-link" onClick={() => setPasteOpen(true)}>{c.pasteCodeHint}</button>
+        <button type="button" className={`conn-link ${stylex.props(settingsStyles.connLink).className}`} onClick={() => setPasteOpen(true)}>{c.pasteCodeHint}</button>
       ))}
-      {codeErr && <span className="conn-sub conn-sub--err">{c.codeInvalid}</span>}
+      {codeErr && <span className={`conn-sub conn-sub--err ${stylex.props(settingsStyles.connSub, settingsStyles.connSubErr).className}`}>{c.codeInvalid}</span>}
     </div>
   )
 }
@@ -405,53 +407,53 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
     setEditValue(kind === 'key' ? '' : (provider.baseUrl ?? ''))
   }
 
-  const modelsButton = (className: string) => (
+  const modelsButton = (buttonStyle?: stylex.StyleXStyles) => (
     draft.length
-      ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className={className} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
+      ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" xstyle={[buttonStyle, mobile && settingsStyles.ConnMActs_]} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
           {c.modelsCount(draft.length)}
           {!mobile && <Icon name="arrow-d" size={12} style={{ transform: open ? 'rotate(180deg)' : undefined }} />}
         </Button>
-      : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className={`${className} conn-act--empty`} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
+      : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act--empty" xstyle={[settingsStyles.connActEmpty, mobile && settingsStyles.ConnMActs_]} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
           {c.modelsPick}
           {!mobile && <Icon name="arrow-d" size={12} style={{ transform: open ? 'rotate(180deg)' : undefined }} />}
         </Button>
   )
 
   const authButton = loggedOut
-    ? <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" onClick={() => void startLogin()}>
+    ? <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void startLogin()}>
         {loginKind === 'grok' ? c.loginGrok : c.loginChatGPT}
       </Button>
-    : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={secondaryGo}>{secondary}</Button>
+    : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" xstyle={mobile && settingsStyles.ConnMActs_} onClick={secondaryGo}>{secondary}</Button>
 
   return (
     <section
       data-kind={provider.kind}
-      className={`card conn-card${failed ? ' conn-card--fail' : ''}${isNew ? ' conn-card--new' : ''}${pendingLogin ? ' conn-card--pending' : ''}`}
+      className={`conn-card ${stylex.props(settingsStyles.card, settingsStyles.connCard, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (isNew)) && (!(pendingLogin)))) || (((failed) && (!(isNew))) && (pendingLogin))) || (((failed) && (!(isNew))) && (!(pendingLogin)))) && settingsStyles.connCardFail, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (isNew)) && (!(pendingLogin)))) || (((!(failed)) && (isNew)) && (pendingLogin))) || (((!(failed)) && (isNew)) && (!(pendingLogin)))) && settingsStyles.connCardNew, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (!(isNew))) && (pendingLogin))) || (((!(failed)) && (isNew)) && (pendingLogin))) || (((!(failed)) && (!(isNew))) && (pendingLogin))) && settingsStyles.connCardPending).className}`}
       aria-label={provider.label}
     >
-      <div className="conn-head">
-        <span className={`conn-av conn-av--${provider.kind}`} aria-hidden="true">{provider.label.trim()[0]?.toUpperCase() ?? '?'}</span>
-        <div className="conn-id">
-          <div className="conn-title">
-            <span className="conn-name">{provider.label}</span>
-            <span className="conn-pill">{mobile ? c.kindShort[provider.auth] : c.kind[provider.auth]}</span>
-            {!mobile && <span className="conn-pill">{capsLine(caps)}</span>}
+      <div className={`conn-head ${stylex.props(settingsStyles.connHead).className}`}>
+        <span className={`conn-av ${stylex.props(settingsStyles.connAv, ((provider.kind) === "chatgpt") && settingsStyles.connAvChatgpt, ((provider.kind) === "grok") && settingsStyles.connAvGrok, ((provider.kind) === "gemini") && settingsStyles.connAvGemini, ((provider.kind) === "ollama") && settingsStyles.connAvOllama, ((provider.kind) === "openrouter") && settingsStyles.connAvOpenrouter, ((provider.kind) === "openai") && settingsStyles.connAvOpenai, ((provider.kind) === "deepseek") && settingsStyles.connAvDeepseek, ((provider.kind) === "xai") && settingsStyles.connAvXai, ((provider.kind) === "anthropic") && settingsStyles.connAvAnthropic, ((provider.kind) === "openai_compat") && settingsStyles.connAvOpenaiCompat).className}`} aria-hidden="true">{provider.label.trim()[0]?.toUpperCase() ?? '?'}</span>
+        <div className={`conn-id ${stylex.props(settingsStyles.connId).className}`}>
+          <div className={`conn-title ${stylex.props(settingsStyles.connTitle).className}`}>
+            <span className={`conn-name ${stylex.props(settingsStyles.connName).className}`}>{provider.label}</span>
+            <span className={`conn-pill ${stylex.props(settingsStyles.connPill).className}`}>{mobile ? c.kindShort[provider.auth] : c.kind[provider.auth]}</span>
+            {!mobile && <span className={`conn-pill ${stylex.props(settingsStyles.connPill).className}`}>{capsLine(caps)}</span>}
           </div>
-          <span className={`conn-sub${mobile ? mobileTone(provider) : sub.tone ? ` conn-sub--${sub.tone}` : ''}`}>
+          <span className={`conn-sub ${stylex.props(settingsStyles.connSub, mobile ? mobileTone(provider) : sub.tone === 'ok' ? settingsStyles.connSubOk : sub.tone === 'warn' ? settingsStyles.connSubWarn : sub.tone === 'err' ? settingsStyles.connSubErr : null).className}`}>
             {mobile ? mobileSub(provider, caps, draft.length) : sub.text}
           </span>
         </div>
         {!mobile && !loginOpen && (
-          <div className="conn-acts">
+          <div className={`conn-acts ${stylex.props(settingsStyles.connActs).className}`}>
             {loggedOut ? authButton : (
               <>
                 {/* Artboard conn=failed: header ẩn Model; nút test giữ câu
                     “Thử kết nối” — “Thử lại” sống trong hộp lỗi. */}
-                {!failed && modelsButton(`conn-act${open ? ' conn-act--open' : ''}`)}
-                <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" pending={testing} pendingLabel={c.testing} onClick={() => void runTest()}>
+                {!failed && modelsButton([settingsStyles.connAct, open && settingsStyles.connActOpen])}
+                <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} pending={testing} pendingLabel={c.testing} onClick={() => void runTest()}>
                   {c.test}
                 </Button>
-                <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" onClick={secondaryGo}>{secondary}</Button>
+                <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={secondaryGo}>{secondary}</Button>
               </>
             )}
           </div>
@@ -459,35 +461,35 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
       </div>
 
       {mobile && quota && (
-        <span className="conn-m__quota">
-          <span className="conn-m__bar" aria-hidden="true"><span style={{ width: `${quota.pct}%` }} /></span>
-          <span className="conn-m__quota-row">
-            <span className="conn-num" style={{ color: 'var(--color-fg-2)' }}>{quota.used}</span>
+        <span className={`conn-m__quota ${stylex.props(settingsStyles.connMQuota).className}`}>
+          <span className={`conn-m__bar ${stylex.props(connMBarMarker, settingsStyles.connMBar).className}`} aria-hidden="true"><span style={{ width: `${quota.pct}%` }} {...stylex.props(settingsStyles.ConnMBarSpan)} /></span>
+          <span className={`conn-m__quota-row ${stylex.props(settingsStyles.connMQuotaRow).className}`}>
+            <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`} style={{ color: 'var(--color-fg-2)' }}>{quota.used}</span>
             <span>{quota.reset}</span>
           </span>
         </span>
       )}
 
       {mobile && !loginOpen && !loggedOut && (
-        <div className="conn-m__acts">
-          {modelsButton('')}
+        <div className={`conn-m__acts ${stylex.props(connMActsMarker, settingsStyles.connMActs).className}`}>
+          {modelsButton()}
           {subscription
-            ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-m__sec" onClick={secondaryGo}>{secondary}</Button>
+            ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-m__sec" xstyle={[settingsStyles.ConnMActs_, settingsStyles.connMSec]} onClick={secondaryGo}>{secondary}</Button>
             : authButton}
         </div>
       )}
       {mobile && !loginOpen && loggedOut && authButton}
 
       {quota && !mobile && (
-        <div className="conn-quota">
-          <span className="conn-bar" aria-hidden="true"><span style={{ width: `${quota.pct}%` }} /></span>
-          <span className="conn-num" style={{ color: 'var(--color-fg-2)' }}>{quota.used}</span>
-          <span className="conn-num">{quota.reset}</span>
+        <div className={`conn-quota ${stylex.props(settingsStyles.connQuota).className}`}>
+          <span className={`conn-bar ${stylex.props(connBarMarker, settingsStyles.connBar).className}`} aria-hidden="true"><span style={{ width: `${quota.pct}%` }} {...stylex.props(settingsStyles.ConnBarSpan)} /></span>
+          <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`} style={{ color: 'var(--color-fg-2)' }}>{quota.used}</span>
+          <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>{quota.reset}</span>
         </div>
       )}
 
       {testResult && (
-        <span className={testResult.ok ? 'conn-sub conn-sub--ok' : 'conn-sub conn-sub--err'} role="status">
+        <span className={`conn-sub ${stylex.props(settingsStyles.connSub, (testResult.ok) && settingsStyles.connSubOk, (!(testResult.ok)) && settingsStyles.connSubErr).className}`} role="status">
           {testResult.ok ? c.testOk(testResult.ms) : (testResult.error || c.testFail)}
         </span>
       )}
@@ -499,19 +501,19 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
       )}
 
       {edit && (
-        <div className="conn-edit">
+        <div className={`conn-edit ${stylex.props(settingsStyles.connEdit).className}`}>
           {edit === 'key'
-            ? <PasswordField className="conn-edit__grow" placeholder={c.keyLabel} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.keyLabel} autoFocus />
-            : <Field className="conn-edit__grow" placeholder={c.addressPlaceholder} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.addressLabel} autoFocus />}
-          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
-          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" onClick={() => setEdit(null)}>{c.cancelEdit}</Button>
+            ? <PasswordField className={`conn-edit__grow ${stylex.props(settingsStyles.connEditGrow).className}`} placeholder={c.keyLabel} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.keyLabel} autoFocus />
+            : <Field className="conn-edit__grow" xstyle={[settingsStyles.connEditGrow]} placeholder={c.addressPlaceholder} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.addressLabel} autoFocus />}
+          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => setEdit(null)}>{c.cancelEdit}</Button>
           {!subscription && (
-            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act" onClick={() => void remove()}>{c.removeOk}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void remove()}>{c.removeOk}</Button>
           )}
         </div>
       )}
 
-      {isNew && !failed && <div className="conn-note">{c.addedNote(provider.label, provider.catalogCount)}</div>}
+      {isNew && !failed && <div className={`conn-note ${stylex.props(settingsStyles.connNote).className}`}>{c.addedNote(provider.label, provider.catalogCount)}</div>}
 
       {/* conn=failed: thẻ chỉ có hộp lỗi, không mở danh mục rỗng (artboard). */}
       {isNew && !failed && !mobile && (
@@ -525,14 +527,14 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
       )}
 
       {failed && (
-        <div className="conn-err" role="alert">
-          <span className="conn-err__text">
-            <b>{c.failedTitle}</b> {c.failedText(provider.label)}
+        <div className={`conn-err ${stylex.props(settingsStyles.connErr).className}`} role="alert">
+          <span className={`conn-err__text ${stylex.props(connErrTextMarker, settingsStyles.connErrText).className}`}>
+            <b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.failedTitle}</b> {c.failedText(provider.label)}
           </span>
-          <div className="conn-err__acts">
-            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" className="conn-act" onClick={secondaryGo}>{c.changeKey}</Button>
-            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" icon={<Icon name="refresh" size={14} />} pending={testing} onClick={() => void runTest()}>{c.retry}</Button>
-            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--text" onClick={() => { setOpen(true); onOpenModels?.(provider) }}>{c.addManualShort}</Button>
+          <div className={`conn-err__acts ${stylex.props(settingsStyles.connErrActs).className}`}>
+            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={secondaryGo}>{c.changeKey}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="refresh" size={14} />} pending={testing} onClick={() => void runTest()}>{c.retry}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--text" xstyle={[settingsStyles.connAct]} onClick={() => { setOpen(true); onOpenModels?.(provider) }}>{c.addManualShort}</Button>
           </div>
         </div>
       )}
@@ -551,10 +553,10 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
 
 /** Tông dòng phụ của thẻ điện thoại — artboard: ChatGPT đăng nhập gói xanh,
  *  Grok để mực phụ thường, lỗi/hết hạn cam. */
-function mobileTone(provider: AiProvider): string {
-  if (provider.status === 'auth_failed' || provider.status === 'unreachable') return ' conn-sub--err'
-  if (provider.auth === 'subscription' && provider.status !== 'logged_out' && provider.kind !== 'grok') return ' conn-sub--ok'
-  return ''
+function mobileTone(provider: AiProvider): stylex.StyleXStyles {
+  if (provider.status === 'auth_failed' || provider.status === 'unreachable') return settingsStyles.connSubErr
+  if (provider.auth === 'subscription' && provider.status !== 'logged_out' && provider.kind !== 'grok') return settingsStyles.connSubOk
+  return null
 }
 
 /** Dòng phụ bản điện thoại: chưa có “gói Plus” trong wire → trạng thái + năng lực. */

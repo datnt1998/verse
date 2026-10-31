@@ -10,6 +10,8 @@ import { createRoot, type Root } from 'react-dom/client'
 import { useEffect, useState } from 'react'
 import { invalidate } from '@noverse/ui/data'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as stylex from '@stylexjs/stylex'
+import { styles } from '../settings.stylex'
 import { ConnectSection } from './ConnectSection'
 import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, PAGE } from './ModelCatalog'
@@ -175,7 +177,8 @@ describe('Kết nối AI', () => {
 
     // conn=added: ghi chú vàng “Đã kết nối … chọn ít nhất một model”.
     expect(el.querySelector('.conn-note')?.textContent).toContain('Đã kết nối OpenRouter')
-    expect(el.querySelector('.conn-card--new')).toBeTruthy()
+    const newCardAtoms = stylex.props(styles.connCardNew).className!.split(' ')
+    expect([...el.querySelectorAll('.conn-card')].some(node => newCardAtoms.every(atom => node.classList.contains(atom)))).toBe(true)
 
     const rows = [...el.querySelectorAll('.conn-row input[type="checkbox"]')] as HTMLInputElement[]
     await click(rows[0])
@@ -246,8 +249,9 @@ describe('Kết nối AI', () => {
   it('key sai (auth_failed) → thẻ cam với Đổi khoá · Thử lại · Thêm theo tên', async () => {
     providerState = [chatgpt, { ...failedProvider }]
     const el = await render()
-    const card = el.querySelector('.conn-card--fail')
+    const card = [...el.querySelectorAll('.conn-card')].find((node) => node.textContent?.includes('Không lấy được danh sách model.'))
     expect(card).toBeTruthy()
+    for (const atom of stylex.props(styles.connCardFail).className!.split(' ')) expect(card?.classList.contains(atom)).toBe(true)
     expect(card!.textContent).toContain('Không lấy được danh sách model.')
     for (const action of ['Đổi khoá', 'Thử lại', 'Thêm theo tên']) {
       expect([...card!.querySelectorAll('button')].some((b) => b.textContent?.includes(action))).toBe(true)
