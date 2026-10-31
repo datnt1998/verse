@@ -14,6 +14,9 @@ import { PromptMenu } from './PromptMenu'
 import { LiveStudio } from './LiveStudio'
 import { OverflowMenu } from './OverflowMenu'
 import { Recap, shouldAutoOpenRecap } from './recap/Recap'
+import { workbenchPlaceholder } from '../../components/assistant/placeholders'
+import { assistantCopy } from '../../i18n/assistant'
+import { AssistantComposer } from '../../components/assistant/AssistantComposer'
 
 const SCOPE_KEY = 'viderse:workbench-scope'
 const label: Record<string, string> = { attention: 'Cần xử lý', review: 'Chờ duyệt', paused: 'Tạm dừng', working: 'Đang làm', queued: 'Chờ lượt', ready: 'Sẵn sàng đăng', posted: 'Đã đăng' }
@@ -21,7 +24,6 @@ const label: Record<string, string> = { attention: 'Cần xử lý', review: 'Ch
 export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'workbench' }> }) {
   const scope = route.channel || 'all'
   const [recapOpen, setRecapOpen] = useState(false)
-  const [draft, setDraft] = useState('')
   const [notice, setNotice] = useState('')
   // Menu mở gắn với video đang chọn: đổi video thì menu cũ tự đóng.
   const [openMenu, setOpenMenu] = useState<{ kind: 'prompt' | 'more'; id: string } | null>(null)
@@ -111,7 +113,7 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
         </header>
         <section {...stylex.props(styles.card, styles.log, ['review', 'attention'].includes(job.stageGroup) && styles.logBanner)} aria-label="Nhật ký tiến độ"><h2 {...stylex.props(styles.h2)}>Nhật ký tiến độ</h2>{job.steps?.map(step => <div key={step.step} {...stylex.props(styles.logRow)}><span>{step.startedAt ? new Date(step.startedAt).toLocaleTimeString('vi-VN') : ''}</span><span>{step.progress.phase || step.step}</span><span>{step.error?.message}</span></div>)}</section>
         {queuedJob ? <section {...stylex.props(styles.card, styles.recap)}>Video đang chờ lượt. <a href="#/queue">Mở Hàng chờ</a></section> : <LiveStudio job={job} onChangePrompt={() => setPromptOpen(true)} onRefresh={refresh} />}
-        <form {...stylex.props(styles.composer)} onSubmit={event => { event.preventDefault(); setNotice('Sắp có') }}><input aria-label="Nhắn trợ lý" placeholder="Nhắn trợ lý…" value={draft} onChange={event => setDraft(event.target.value)} {...stylex.props(styles.input)} /><button {...stylex.props(styles.button)} type="submit">Gửi</button></form>{notice && <div role="status">{notice}</div>}
+        <AssistantComposer scope={{ jobId: job.id }} label={assistantCopy.composer.workbench} placeholder={workbenchPlaceholder(job)} hints={{ esc: job.stageGroup === 'working' }} onSettled={refresh} />{notice && <div role="status">{notice}</div>}
       </>}
     </main>
     {job && !queuedJob && !recapOpen && <aside {...stylex.props(styles.panels)}><WorkbenchPanels job={job} onRefresh={refresh} /></aside>}
@@ -149,8 +151,6 @@ const styles = stylex.create({
   logBanner: { flexBasis: 96 },
   h2: { margin: `0 0 ${s['--vv-s-8']}`, color: 'var(--color-fg-3)', fontSize: 13, fontWeight: 500 },
   logRow: { display: 'flex', gap: s['--vv-s-10'], padding: `${s['--vv-s-3']} 0`, color: 'var(--color-fg-3)', fontSize: 13 },
-  composer: { boxSizing: 'border-box', flex: '0 0 81px', display: 'flex', gap: s['--vv-s-8'], padding: s['--vv-s-8'], borderRadius: r['--vv-r-14'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-2)' },
-  input: { flex: 1, minWidth: 0, border: 0, outline: 'none', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 13 },
   relative: { position: 'relative' },
   recap: { flex: 1, overflowY: 'auto' },
   error: { padding: s['--vv-s-24'], color: 'var(--color-fg)' },
