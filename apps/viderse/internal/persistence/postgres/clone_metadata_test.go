@@ -3,11 +3,14 @@ package postgres_test
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
+	metadataedit "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/stepstest"
 )
 
 func TestCloneMetadataFailedRetryPersistsAndRequeues(t *testing.T) {
@@ -95,4 +98,55 @@ func TestCloneMetadataEditWithActiveBuildAndMetadataWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 	editConflict(t, store.Commit(ctx, writing, change))
+}
+
+func TestCloneMetadataPatchAndRestoreWhileBuildRuns(t *testing.T) {
+	ctx := context.Background()
+	pool := provision(t)
+	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','Metadata')`); err != nil {
+		t.Fatal(err)
+	}
+	store := postgres.NewCloneStore(pool)
+	job := cloneTestJob(t, store, "metadata-patch-active")
+	files := &stepstest.FakeMedia{Root: t.TempDir()}
+	path := "clone/" + job.ID + "/seed/metadata/metadata.json"
+	files.Put(path, []byte(`{"version":1,"title":"before","description":"text","tags":[]}`))
+	artifact := domain.CloneArtifact{ID: "seed", Path: path, SHA256: strings.Repeat("a", 64), Step: domain.CloneMetadata, ContentType: "application/json"}
+	output, err := json.Marshal(domain.CloneStepOutput{Artifacts: []domain.CloneArtifact{artifact}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = pool.Exec(ctx, `INSERT INTO clone_artifacts(id,job_id,step,path,sha256,bytes,content_type) VALUES('seed',$1,'metadata',$2,$3,1,'application/json')`, job.ID, path, artifact.SHA256); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = pool.Exec(ctx, `UPDATE clone_steps SET status='succeeded',output_manifest=$2::jsonb WHERE job_id=$1 AND step='metadata'`, job.ID, output); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = pool.Exec(ctx, `UPDATE clone_steps SET status='running' WHERE job_id=$1 AND step='build'`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = pool.Exec(ctx, `UPDATE clone_jobs SET status='running',active_step='build',lease_owner='worker',lease_expires_at=now()+interval '5 minutes' WHERE id=$1`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	svc := &metadataedit.Service{Edits: &jobedit.Service{Store: store, Media: files}}
+	rev, title := 0, "after"
+	view, err := svc.Patch(ctx, job.ID, metadataedit.Patch{ExpectedRevision: &rev, Title: &title})
+	if err != nil || view.Metadata == nil || view.Metadata.Title != "after" {
+		t.Fatalf("patch while building: %+v %v", view, err)
+	}
+	history, err := svc.History(ctx, job.ID)
+	if err != nil || len(history) != 1 || history[0].Title != "before" {
+		t.Fatalf("history: %+v %v", history, err)
+	}
+	rev = 1
+	view, err = svc.Restore(ctx, job.ID, metadataedit.Restore{ExpectedRevision: &rev, At: history[0].At})
+	if err != nil || view.Metadata.Title != "before" {
+		t.Fatalf("restore while building: %+v %v", view, err)
+	}
+	rev = 2
+	if _, err = pool.Exec(ctx, `UPDATE clone_steps SET status='running' WHERE job_id=$1 AND step='metadata'`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	_, err = svc.Patch(ctx, job.ID, metadataedit.Patch{ExpectedRevision: &rev, Title: &title})
+	editConflict(t, err)
 }
