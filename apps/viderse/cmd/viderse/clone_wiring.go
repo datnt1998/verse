@@ -9,8 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
+	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
@@ -182,6 +185,18 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		return owner.Name, nil
 	}
 	tr := tools.NewTranscription(toolDeps, toolKit.Uv, nil)
+	metadataRun := func(ctx context.Context, s *pipeline.StepContext, parts []string, direction string) (pipeline.StepResult, error) {
+		model, err := generator(s)
+		if err != nil { return pipeline.StepResult{}, err }
+		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
+			owner, err := queueStore.Owner(ctx, job.ChannelID)
+			if err != nil || owner == nil { return nil, err }
+			note, footer := "", ""
+			if owner.StyleNote != nil { note = *owner.StyleNote }
+			if owner.DescriptionFooter != nil { footer = *owner.DescriptionFooter }
+			return &metadata.ChannelView{ID: owner.ID, Name: owner.Name, StyleNote: note, Language: owner.Language, Footer: footer, AlwaysTags: owner.AlwaysTags}, nil
+		}}}).Run(ctx, s)
+	}
 	registry := pipeline.Registry{
 		domain.CloneScore: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			result, err := (stepscore.Handler{Deps: stepscore.Deps{Measure: renderRuntime.ScoreForPipeline, Accepted: func(ctx context.Context, id string) (bool, error) {
@@ -198,21 +213,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		domain.CloneBackdrop:   stepbackdrop.New(stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)),
 		domain.CloneTranscript: transcript.New(&transcript.Deps{ResolveFfmpeg: toolKit.Ffmpeg.Resolve, ResolveUv: toolKit.Uv.Resolve, TranscriptionStatus: tr.Status, RunEnv: tr.RunEnv()}),
 		domain.CloneMetadata: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
-			model, err := generator(s)
-			if err != nil {
-				return pipeline.StepResult{}, err
-			}
-			return (metadata.Handler{Deps: metadata.Deps{Model: model, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
-				owner, err := queueStore.Owner(ctx, job.ChannelID)
-				if err != nil || owner == nil {
-					return nil, err
-				}
-				note := ""
-				if owner.StyleNote != nil {
-					note = *owner.StyleNote
-				}
-				return &metadata.ChannelView{ID: owner.ID, Name: owner.Name, StyleNote: note}, nil
-			}}}).Run(ctx, s)
+			return metadataRun(ctx, s, nil, "")
 		}),
 		domain.CloneScenes: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			resolved, err := ff(ctx)
@@ -313,6 +314,19 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		registry[step] = handler
 	}
 	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
+	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
+	runner.OnHumanState = func(ctx context.Context, job *domain.CloneJob, kind string) {
+		text, label := "", "Mở"
+		switch kind {
+		case "review_ready": text, label = "Video chờ duyệt", "Duyệt ảnh"
+		case "needs_attention": text = "Cần xử lý: " + job.Source.Title
+		case "ready_to_post": text = "Video sẵn sàng đăng"
+		default: return
+		}
+		spec := activity.NotificationSpec{Kind:kind, Text:text, Href:"#/?video="+job.ID, ActionLabel:label}
+		if kind != "review_ready" { spec.Object = &domain.ObjectRef{Type:"video", ID:job.ID, Label:job.Source.Title} }
+		if _, err := activityService.NotifyScoped(ctx, spec); err != nil { logStore := fmt.Sprintf("notification %s: %v", kind, err); fmt.Fprintln(os.Stderr, logStore) }
+	}
 	worker := &pipeline.Worker{Store: store, Runner: runner, Settings: rules, ID: fmt.Sprintf("%d", os.Getpid()), OnPrimary: func(ctx context.Context) error {
 		if err := renderRuntime.Recover(ctx); err != nil {
 			return err
@@ -322,8 +336,22 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
+	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
+		view, err := q.List(ctx)
+		if err != nil { return 0, nil, err }
+		end := queue.LocalMidnight(now).AddDate(0, 0, 1)
+		count := 0
+		var last *time.Time
+		for _, item := range view.Items {
+			if item.ETADone == nil || !item.ETADone.Before(end) { continue }
+			count++
+			if last == nil || item.ETADone.After(*last) { at := *item.ETADone; last = &at }
+		}
+		return count, last, nil
+	}})
 	web.MountClone(g, service, q, service.Media)
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName)
+	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService)
 	workerCtx, stop := context.WithCancel(ctx)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()

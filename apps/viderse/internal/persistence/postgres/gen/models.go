@@ -175,6 +175,12 @@ type CloneJob struct {
 	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 }
 
+type CloneMetadataState struct {
+	JobID     pgtype.UUID        `json:"job_id"`
+	State     []byte             `json:"state"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
 type CloneQueue struct {
 	ID             pgtype.UUID        `json:"id"`
 	ChannelID      pgtype.UUID        `json:"channel_id"`

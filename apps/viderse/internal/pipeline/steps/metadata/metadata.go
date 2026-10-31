@@ -132,6 +132,11 @@ type PromptInput struct {
 	Transcript  string
 	ChannelName string
 	StyleNote   string
+	Language    string
+	Direction   string
+	Selected    []string
+	Footer      string
+	AlwaysTags  []string
 }
 
 // BuildMetadataPrompt dựng prompt cho mô hình (port buildMetadataPrompt —
@@ -167,6 +172,18 @@ func BuildMetadataPrompt(in PromptInput) string {
 	if len(in.Tags) > 0 {
 		parts[11] = "Tags: " + clip(strings.Join(in.Tags, ", "), SourceFieldLimit)
 	}
+	if in.Language != "" && in.Language != "auto" {
+		parts = append(parts, "Output language: "+in.Language)
+	}
+	if len(in.Selected) > 0 {
+		parts = append(parts, "Rewrite these parts: "+strings.Join(in.Selected, ", ")+". Feedback: "+in.Direction)
+	}
+	if in.Footer != "" {
+		parts = append(parts, "The application appends this footer; do not repeat it: "+in.Footer)
+	}
+	if len(in.AlwaysTags) > 0 {
+		parts = append(parts, "The application adds these tags separately: "+strings.Join(in.AlwaysTags, ", "))
+	}
 	out := parts[:0]
 	for _, p := range parts {
 		if p != "" {
@@ -179,9 +196,12 @@ func BuildMetadataPrompt(in PromptInput) string {
 // ChannelView là dữ liệu kênh tối thiểu mà bước cần (port readOwnerChannel:
 // name + styleNote của owner channel).
 type ChannelView struct {
-	ID        string
-	Name      string
-	StyleNote string
+	ID         string
+	Name       string
+	StyleNote  string
+	Language   string
+	Footer     string
+	AlwaysTags []string
 }
 
 // Deps là các seam của bước metadata (kiểm thử = fake, production = bootstrap
@@ -193,6 +213,8 @@ type Deps struct {
 	// OwnerChannel trả kênh chủ job để đưa name + styleNote vào prompt.
 	// Nil = bỏ phần kênh khỏi prompt.
 	OwnerChannel func(ctx context.Context, job domain.CloneJob) (*ChannelView, error)
+	Direction    string
+	Selected     []string
 }
 
 // Handler thực thi bước metadata.
@@ -231,7 +253,8 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		return pipeline.StepResult{}, err
 	}
 
-	var channelName, styleNote string
+	var channelName, styleNote, language, footer string
+	var alwaysTags []string
 	if h.Deps.OwnerChannel != nil {
 		ch, err := h.Deps.OwnerChannel(ctx, s.Job)
 		if err != nil {
@@ -239,6 +262,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		}
 		if ch != nil {
 			channelName, styleNote = ch.Name, ch.StyleNote
+			language, footer, alwaysTags = ch.Language, ch.Footer, ch.AlwaysTags
 		}
 	}
 
@@ -253,6 +277,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	prompt := BuildMetadataPrompt(PromptInput{
 		Title: title, Description: description, Tags: source.Tags,
 		Transcript: transcript, ChannelName: channelName, StyleNote: styleNote,
+		Language: language, Footer: footer, AlwaysTags: alwaysTags, Direction: h.Deps.Direction, Selected: h.Deps.Selected,
 	})
 
 	out, err := llmcontract.Execute[modelOutput](ctx, h.Deps.Model, llmcontract.Request[modelOutput]{
@@ -281,6 +306,37 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	}
 
 	result := Output{Version: 1, Title: out.Title, Description: out.Description, Tags: out.Tags}
+	if footer != "" {
+		separator := "\n\n"
+		available := DescriptionMaxChr - utf8.RuneCountInString(separator+footer)
+		if available < 1 {
+			return pipeline.StepResult{}, fmt.Errorf("description footer too long")
+		}
+		runes := []rune(result.Description)
+		if len(runes) > available {
+			result.Description = string(runes[:available])
+		}
+		result.Description += separator + footer
+	}
+	result.Tags = append([]string{}, alwaysTags...)
+	seen := make(map[string]bool, len(result.Tags))
+	for _, tag := range result.Tags {
+		seen[strings.ToLower(tag)] = true
+	}
+	for _, tag := range out.Tags {
+		if seen[strings.ToLower(tag)] {
+			continue
+		}
+		candidate := append(result.Tags, tag)
+		if len(candidate) > TagsMaxCount || utf8.RuneCountInString(strings.Join(candidate, ",")) > TagsJoinedMaxChar {
+			continue
+		}
+		result.Tags = candidate
+		seen[strings.ToLower(tag)] = true
+	}
+	if err := validate(&result); err != nil {
+		return pipeline.StepResult{}, steps.CloneError(domain.CloneErrInvalidRequest, "Nội dung và tag của kênh vượt giới hạn", "Sửa tag luôn thêm của kênh")
+	}
 	if err := os.MkdirAll(s.StagingDir, 0o755); err != nil {
 		return pipeline.StepResult{}, err
 	}

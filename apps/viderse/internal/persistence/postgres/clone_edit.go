@@ -187,7 +187,7 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 					return err
 				}
 			}
-		} else {
+		} else if before.Step.Step != domain.CloneMetadata {
 			if _, err := tx.Exec(txctx, `DELETE FROM clone_bulk_review_intents WHERE job_id=$1`, u); err != nil {
 				return err
 			}
@@ -198,6 +198,11 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		}
 		if _, err := tx.Exec(txctx, `UPDATE clone_steps SET checkpoint=$3::jsonb,output_manifest=$4::jsonb,updated_at=now() WHERE job_id=$1 AND step=$2`, u, string(before.Step.Step), change.Checkpoint, raw); err != nil {
 			return err
+		}
+		if before.Step.Step == domain.CloneMetadata {
+			if err := s.saveCloneMetadataState(txctx, u, change.Checkpoint); err != nil {
+				return err
+			}
 		}
 		if change.InvalidateFrom == "" {
 			return s.refreshDerived(txctx, u, nil)
