@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -116,22 +117,36 @@ func (s *QueueStore) UpdateQueuePosition(ctx context.Context, id string, positio
 	return nil
 }
 
-// DeleteQueueItems xoá các mục còn queued/skipped; trả số dòng xoá được.
-func (s *QueueStore) DeleteQueueItems(ctx context.Context, ids []string) (int64, error) {
-	uuids := make([]pgtype.UUID, len(ids))
-	for i, id := range ids {
-		uuids[i] = queueUUID(id)
-	}
-	n, err := s.q.DeleteQueueItems(ctx, uuids)
+// RemoveQueueItem giữ nguyên mục chưa chạy để có thể Hoàn tác trong 24 giờ.
+func (s *QueueStore) RemoveQueueItem(ctx context.Context, id string, at time.Time) (bool, error) {
+	n, err := s.q.RemoveQueueItem(ctx, gen.RemoveQueueItemParams{
+		ID: queueUUID(id), RemovedAt: pgtype.Timestamptz{Time: at, Valid: true},
+	})
 	if err != nil {
-		return 0, fmt.Errorf("xoá mục hàng chờ: %w", err)
+		return false, fmt.Errorf("bỏ mục hàng chờ: %w", err)
 	}
-	return n, nil
+	return n > 0, nil
 }
 
-// PruneQueueHistory xoá mục đã chốt cũ hơn cutoff (30 ngày như bản TS).
-func (s *QueueStore) PruneQueueHistory(ctx context.Context, cutoff time.Time) error {
-	if err := s.q.PruneQueueHistory(ctx, pgtype.Timestamptz{Time: cutoff, Valid: true}); err != nil {
+// RestoreQueueItem khôi phục chính dòng cũ; nguồn đã được xếp/chạy là xung đột.
+func (s *QueueStore) RestoreQueueItem(ctx context.Context, id string) (bool, error) {
+	n, err := s.q.RestoreQueueItem(ctx, queueUUID(id))
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		return false, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã có trong hàng chờ"}
+	}
+	if err != nil {
+		return false, fmt.Errorf("khôi phục mục hàng chờ: %w", err)
+	}
+	return n > 0, nil
+}
+
+// PruneQueueHistory giữ lịch sử 30 ngày, mục đã bỏ 24 giờ kể từ lúc bỏ.
+func (s *QueueStore) PruneQueueHistory(ctx context.Context, now time.Time) error {
+	if err := s.q.PruneQueueHistory(ctx, gen.PruneQueueHistoryParams{
+		HistoryCutoff: pgtype.Timestamptz{Time: now.Add(-30 * 24 * time.Hour), Valid: true},
+		RemovedCutoff: pgtype.Timestamptz{Time: now.Add(-24 * time.Hour), Valid: true},
+	}); err != nil {
 		return fmt.Errorf("dọn lịch sử hàng chờ: %w", err)
 	}
 	return nil
@@ -564,6 +579,7 @@ func queueItemOf(row gen.CloneQueue) (domain.CloneQueueItem, error) {
 		Reason:        reason,
 		CreatedAt:     row.CreatedAt.Time,
 		StartedAt:     tsPtr(row.StartedAt),
+		RemovedAt:     tsPtr(row.RemovedAt),
 	}, nil
 }
 

@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -116,13 +117,16 @@ func (s *Service) Rules(ctx context.Context) (Rules, error) {
 
 func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.CloneQueueView, error) {
 	// Validate the entire request before any side effect.
-	if in.ID != nil && *in.ID == "" {
-		return domain.CloneQueueView{}, invalid("Thiếu mục hàng chờ")
+	if in.ID != nil {
+		var id pgtype.UUID
+		if err := id.Scan(*in.ID); err != nil || !id.Valid {
+			return domain.CloneQueueView{}, invalid("Mục hàng chờ không hợp lệ")
+		}
 	}
 	if in.Position != nil && (math.IsNaN(*in.Position) || math.IsInf(*in.Position, 0)) {
 		return domain.CloneQueueView{}, invalid("Vị trí hàng chờ không hợp lệ")
 	}
-	if in.Action != "" && in.Action != "remove" && in.Action != "front" {
+	if in.Action != "" && in.Action != "remove" && in.Action != "restore" && in.Action != "front" {
 		return domain.CloneQueueView{}, invalid("Thao tác hàng chờ không hợp lệ")
 	}
 	if (in.Position != nil || in.Action != "") && in.ID == nil {
@@ -153,6 +157,7 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 			}
 		}
 	}
+	var removed *domain.QueueRemovedReceipt
 	if in.ID != nil {
 		tx, err := s.d.Pool.Begin(ctx)
 		if err != nil {
@@ -164,14 +169,35 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 		if err != nil {
 			return domain.CloneQueueView{}, err
 		}
-		if item == nil || item.State != domain.QueueQueued {
+		if item == nil || item.State != domain.QueueQueued || item.JobID != nil {
+			if in.Action == "restore" {
+				return domain.CloneQueueView{}, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục đã bị dọn hoặc video đã chạy, không thể khôi phục"}
+			}
 			return domain.CloneQueueView{}, notFound("Mục hàng chờ không còn tồn tại")
 		}
 		if err = repo.LockOwnerChannel(ctx, item.ChannelID); err != nil {
 			return domain.CloneQueueView{}, err
 		}
-		if in.Action == "remove" {
-			_, err = repo.DeleteQueueItems(ctx, []string{item.ID})
+		// Other queue edits serialize on the channel. Re-read after taking the
+		// lock so the remove receipt captures the latest position and priority.
+		item, err = repo.GetQueueItem(ctx, *in.ID)
+		if err != nil {
+			return domain.CloneQueueView{}, err
+		}
+		if item == nil || item.State != domain.QueueQueued || item.JobID != nil || (item.RemovedAt != nil && in.Action != "restore") {
+			return domain.CloneQueueView{}, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã thay đổi"}
+		}
+		if in.Action == "remove" || in.Action == "restore" {
+			var changed bool
+			if in.Action == "remove" {
+				changed, err = repo.RemoveQueueItem(ctx, item.ID, s.d.Now())
+				removed = &domain.QueueRemovedReceipt{ID: item.ID, Position: item.Position, Priority: item.Priority}
+			} else {
+				changed, err = repo.RestoreQueueItem(ctx, item.ID)
+			}
+			if err == nil && !changed {
+				return domain.CloneQueueView{}, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã chạy hoặc đã được xếp lại, không thể đổi hàng chờ"}
+			}
 		} else if in.Action == "front" {
 			queued, e := repo.ListQueuedItems(ctx)
 			if e != nil {
@@ -199,7 +225,12 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 	if s.d.Runner != nil {
 		s.d.Runner.Wake()
 	}
-	return s.List(ctx)
+	view, err := s.List(ctx)
+	if err != nil {
+		return domain.CloneQueueView{}, err
+	}
+	view.Removed = removed
+	return view, nil
 }
 
 func (s *Service) loadLanes(ctx context.Context) ([]Lane, map[string]domain.CloneQueueItem, map[string]domain.Channel, map[string][]domain.ChannelTemplate, error) {
@@ -399,14 +430,16 @@ func (s *Service) Drain(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	defer lockRepo.UnlockAdvisory(context.WithoutCancel(ctx), queueLock)
-	if s.d.Runner == nil {
-		return 0, errors.New("chưa có worker cho hàng chờ")
-	}
-	s.d.Runner.Wake()
+	// Use the existing periodic drain sweep even while paused or fully busy.
+	s.diag(s.store.PruneQueueHistory(ctx, s.d.Now()))
 	rules, err := s.Rules(ctx)
 	if err != nil || rules.Paused {
 		return 0, err
 	}
+	if s.d.Runner == nil {
+		return 0, errors.New("chưa có worker cho hàng chờ")
+	}
+	s.d.Runner.Wake()
 	used, err := s.store.CountActiveJobs(ctx)
 	if err != nil {
 		return 0, err
@@ -469,7 +502,6 @@ func (s *Service) Drain(ctx context.Context) (int, error) {
 		s.emit()
 		s.d.Runner.Wake()
 	}
-	s.diag(s.store.PruneQueueHistory(ctx, s.d.Now().Add(-30*24*time.Hour)))
 	return started, nil
 }
 

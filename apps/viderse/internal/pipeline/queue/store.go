@@ -28,7 +28,8 @@ type Store interface {
 	InsertQueueItem(context.Context, domain.CloneQueueItem) error
 	ListQueuedItems(context.Context) ([]domain.CloneQueueItem, error)
 	ListLaneItems(context.Context, string) ([]domain.CloneQueueItem, error)
-	DeleteQueueItems(context.Context, []string) (int64, error)
+	RemoveQueueItem(context.Context, string, time.Time) (bool, error)
+	RestoreQueueItem(context.Context, string) (bool, error)
 	PromotePick(context.Context, string, float64) error
 	UpdateQueuePosition(context.Context, string, float64) error
 	LockOwnerChannel(context.Context, string) error

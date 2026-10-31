@@ -397,6 +397,31 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 	err := s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
 		now := nowTz()
+		if in.QueueItemID != "" {
+			// Queue edits and admission take the channel lock before touching
+			// the item. A stale scheduler snapshot must not create/adopt a job.
+			channelID, err := cloneUUIDOf(in.ChannelID)
+			if err != nil {
+				return err
+			}
+			if _, err := q.LockQueueOwner(txctx, channelID); err != nil {
+				return err
+			}
+			queueID, err := cloneUUIDOf(in.QueueItemID)
+			if err != nil {
+				return err
+			}
+			item, err := q.GetQueueItem(txctx, queueID)
+			if errors.Is(err, pgx.ErrNoRows) {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ không còn tồn tại"}
+			}
+			if err != nil {
+				return err
+			}
+			if item.State != "queued" || item.RemovedAt.Valid {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã bị bỏ hoặc đã chạy"}
+			}
+		}
 		existing, err := q.GetCloneJobBySourceKey(txctx, in.SourceKey)
 		var haveExisting bool
 		switch {
@@ -417,7 +442,7 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 					return err
 				}
 				if n == 0 {
-					return fmt.Errorf("mục hàng chờ đã được xử lý")
+					return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã được xử lý"}
 				}
 			}
 			j := jobFromGen(existing)
@@ -469,7 +494,7 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 				return err
 			}
 			if n == 0 {
-				return fmt.Errorf("mục hàng chờ đã được xử lý")
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã được xử lý"}
 			}
 		}
 		if ch.Valid {

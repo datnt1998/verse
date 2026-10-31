@@ -185,6 +185,7 @@ type CloneQueue struct {
 	Reason         pgtype.Text        `json:"reason"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	StartedAt      pgtype.Timestamptz `json:"started_at"`
+	RemovedAt      pgtype.Timestamptz `json:"removed_at"`
 }
 
 type CloneStep struct {

@@ -334,6 +334,7 @@ type CloneQueueItem struct {
 	Reason        *string             `json:"reason"`
 	CreatedAt     time.Time           `json:"createdAt"`
 	StartedAt     *time.Time          `json:"startedAt"`
+	RemovedAt     *time.Time          `json:"-"`
 }
 type CloneAgentView struct {
 	ID     string            `json:"id"`

@@ -108,7 +108,12 @@ Quy tắc trạng thái:
 **Hành động:**
 - Có sẵn: `pause`, `resume`, `move` (lên đầu, đổi vị trí), `remove`.
 - Mới: `PATCH settings { workers, imageWorkers, rescanHours }`. Các khoá này đang nằm ở Cài đặt → Clone video, chỉ đổi nơi gọi.
-- Theo dev (#52, đã duyệt): `PATCH /api/queue` nhận `{ paused }` · `{ workers (1–6), imageWorkers (1–8), rescanHours (1–24) }` · `{ id, position }` · `{ id, action: "front" | "remove" }`. `front` chuyển mục thành `pick`, đặt trước mọi `pick`. `paused_channel` = kênh tắt Tự lấy, chỉ khoá mục tự lấy của kênh đó. SSE `queue.updated`. <!-- r31-v27 -->
+- Theo dev (#52, #64, đã duyệt): hợp đồng v2 `PATCH /api/queue` nhận `{ paused }` · `{ workers (1–6), imageWorkers (1–8), rescanHours (1–24) }` · `{ id, position }` · `{ id, action: "front" | "remove" | "restore" }`. `id` là UUID. `front` chuyển mục thành `pick`, đặt trước mọi `pick`. `paused_channel` = kênh tắt Tự lấy, chỉ khoá mục tự lấy của kênh đó. SSE `queue.updated`. <!-- r31-v27 -->
+- `PATCH { id, action: "remove" }` trả `200` với toàn bộ `CloneQueueView` như GET, thêm `removed: { id: string, position: number, priority: "pick" | "batch" }`. Ghi `clone_queue.removed_at`, không xoá vật lý hoặc tạo job; mục biến mất ngay khỏi `items`, ETA, lượt luân phiên, bộ đếm và lựa chọn scheduler.
+- `PATCH { id, action: "restore" }` trả `200` với toàn bộ `CloneQueueView` (không có `removed`), xoá `removed_at` trên **chính dòng cũ**, giữ nguyên `id`, `position`, `priority`, nguồn, tuỳ chọn ảnh và `templateId`/recipe hiện hữu. Không gọi enqueue hoặc chọn lại template. Gọi lại restore trên mục vẫn chờ là an toàn.
+- Restore trả `409 { error: string, code: "conflict", recovery: null, retryAt: null }` nếu mục đã bị dọn, đã chạy, hoặc cùng nguồn đã được xếp/chạy thành một mục/job khác. UUID sai/thao tác sai → `400` (`invalid_request`); bỏ/di chuyển mục không còn tồn tại → `404` (`not_found`).
+- Mỗi lần remove/restore thành công phát `queue.updated`. GET không có trường `removed`; đó chỉ là biên nhận của remove để client giữ danh tính cho Hoàn tác. Mục đã bỏ không chặn khử trùng hoặc Tự lấy; nếu nguồn được xếp lại thì restore cũ xung đột, không tạo bản trùng.
+- Sweep drain định kỳ hiện có dọn vật lý mục có `removed_at` **cũ hơn 24 giờ**, kể cả lúc tạm dừng hoặc hết luồng. Tính tuổi từ lúc bỏ, không từ lúc tạo; mục chưa được sweep vẫn khôi phục được. Lịch sử mục đã chạy/bỏ qua không có `removed_at` tiếp tục giữ 30 ngày. Không thêm timer/goroutine.
 - Bớt `workers` không dừng job đang chạy; luồng thừa nghỉ khi job đó xong.
 - `GET /api/status` lỗi 2 lần liền hoặc SSE đứt quá 10 giây → viên việc nền “Mất kết nối”, giữ số cũ.
 

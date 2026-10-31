@@ -121,6 +121,14 @@ type CloneQueueView struct {
 	Pace         []QueuePace          `json:"pace"`
 	ImageQuota   []QueueImageQuota    `json:"imageQuota"`
 	DoneToday    []QueueDoneToday     `json:"doneToday"`
+	Removed      *QueueRemovedReceipt `json:"removed,omitempty"`
+}
+
+// QueueRemovedReceipt giữ định danh và thứ tự gốc để Hoàn tác bằng restore.
+type QueueRemovedReceipt struct {
+	ID       string        `json:"id"`
+	Position float64       `json:"position"`
+	Priority ClonePriority `json:"priority"`
 }
 
 // QueueWorkers đếm luồng đang dùng trên tổng số lane.
@@ -130,7 +138,7 @@ type QueueWorkers struct {
 }
 
 // QueuePatch là thân PATCH /api/queue: đổi Quy tắc chạy, tạm dừng/chạy tiếp,
-// dời một mục, hoặc xoá một mục. Trường nil/0 nghĩa "giữ nguyên".
+// dời, bỏ hoặc khôi phục một mục. Trường nil/0 nghĩa "giữ nguyên".
 type QueuePatch struct {
 	Paused       *bool `json:"paused,omitempty"`
 	Workers      *int  `json:"workers,omitempty"`
@@ -139,5 +147,5 @@ type QueuePatch struct {
 	// Thao tác trên một mục: đặt ID cùng Position (vị trí số mới) hoặc Action.
 	ID       *string  `json:"id,omitempty"`
 	Position *float64 `json:"position,omitempty"`
-	Action   string   `json:"action,omitempty"` // "remove" | "front"
+	Action   string   `json:"action,omitempty"` // "remove" | "restore" | "front"
 }

@@ -90,7 +90,7 @@ func (q *Queries) CountChargedImagesToday(ctx context.Context, startedAt pgtype.
 
 const countQueuedByChannel = `-- name: CountQueuedByChannel :many
 SELECT channel_id, count(*)::bigint AS queued
-FROM clone_queue WHERE state = 'queued' GROUP BY channel_id
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL GROUP BY channel_id
 `
 
 type CountQueuedByChannelRow struct {
@@ -119,7 +119,7 @@ func (q *Queries) CountQueuedByChannel(ctx context.Context) ([]CountQueuedByChan
 }
 
 const countTotalQueued = `-- name: CountTotalQueued :one
-SELECT count(*)::bigint FROM clone_queue WHERE state = 'queued'
+SELECT count(*)::bigint FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 `
 
 func (q *Queries) CountTotalQueued(ctx context.Context) (int64, error) {
@@ -127,18 +127,6 @@ func (q *Queries) CountTotalQueued(ctx context.Context) (int64, error) {
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const deleteQueueItems = `-- name: DeleteQueueItems :execrows
-DELETE FROM clone_queue WHERE id = ANY($1::uuid[]) AND state IN ('queued', 'skipped')
-`
-
-func (q *Queries) DeleteQueueItems(ctx context.Context, dollar_1 []pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteQueueItems, dollar_1)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }
 
 const findJobsBySourceKeys = `-- name: FindJobsBySourceKeys :many
@@ -195,8 +183,8 @@ func (q *Queries) FindJobsBySourceKeys(ctx context.Context, dollar_1 []string) (
 }
 
 const findQueueRowsBySourceKeys = `-- name: FindQueueRowsBySourceKeys :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at FROM clone_queue
-WHERE source_key = ANY($1::text[]) AND state IN ('queued', 'started')
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at FROM clone_queue
+WHERE source_key = ANY($1::text[]) AND state IN ('queued', 'started') AND removed_at IS NULL
 `
 
 func (q *Queries) FindQueueRowsBySourceKeys(ctx context.Context, dollar_1 []string) ([]CloneQueue, error) {
@@ -224,6 +212,7 @@ func (q *Queries) FindQueueRowsBySourceKeys(ctx context.Context, dollar_1 []stri
 			&i.Reason,
 			&i.CreatedAt,
 			&i.StartedAt,
+			&i.RemovedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -236,7 +225,7 @@ func (q *Queries) FindQueueRowsBySourceKeys(ctx context.Context, dollar_1 []stri
 }
 
 const getQueueItem = `-- name: GetQueueItem :one
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at FROM clone_queue WHERE id = $1
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at FROM clone_queue WHERE id = $1
 `
 
 func (q *Queries) GetQueueItem(ctx context.Context, id pgtype.UUID) (CloneQueue, error) {
@@ -258,6 +247,7 @@ func (q *Queries) GetQueueItem(ctx context.Context, id pgtype.UUID) (CloneQueue,
 		&i.Reason,
 		&i.CreatedAt,
 		&i.StartedAt,
+		&i.RemovedAt,
 	)
 	return i, err
 }
@@ -307,7 +297,7 @@ SELECT q.channel_id, max(q.started_at)::timestamptz AS last_start,
        max(j.created_at)::timestamptz AS last_sequence
 FROM clone_queue q
 LEFT JOIN clone_jobs j ON j.id = q.job_id
-WHERE q.state = 'started' AND q.started_at IS NOT NULL
+WHERE q.state = 'started' AND q.started_at IS NOT NULL AND q.removed_at IS NULL
 GROUP BY q.channel_id
 `
 
@@ -342,7 +332,7 @@ func (q *Queries) LaneLastStarts(ctx context.Context) ([]LaneLastStartsRow, erro
 const lastAutoQueuedChannel = `-- name: LastAutoQueuedChannel :one
 SELECT v.channel_id FROM clone_queue q
 JOIN rival_videos v ON v.id = q.source_video_id
-WHERE q.channel_id = $1 AND q.origin = 'auto'
+WHERE q.channel_id = $1 AND q.origin = 'auto' AND q.removed_at IS NULL
 ORDER BY q.created_at DESC, q.position DESC, q.id DESC
 LIMIT 1
 `
@@ -537,7 +527,7 @@ WHERE v.channel_id = $1
   AND NOT EXISTS (
     SELECT 1 FROM clone_queue q
     WHERE q.source_key = ('channel:' || $3::text || ':video:' || v.id)
-      AND q.state IN ('queued', 'started'))
+      AND q.state IN ('queued', 'started') AND q.removed_at IS NULL)
 ORDER BY v.position, v.id
 LIMIT 1000
 `
@@ -647,8 +637,8 @@ func (q *Queries) ListJobSteps(ctx context.Context, jobID pgtype.UUID) ([]CloneS
 }
 
 const listLaneItems = `-- name: ListLaneItems :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at FROM clone_queue
-WHERE channel_id = $1 AND state = 'queued'
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at FROM clone_queue
+WHERE channel_id = $1 AND state = 'queued' AND removed_at IS NULL
 ORDER BY position, id
 `
 
@@ -677,6 +667,7 @@ func (q *Queries) ListLaneItems(ctx context.Context, channelID pgtype.UUID) ([]C
 			&i.Reason,
 			&i.CreatedAt,
 			&i.StartedAt,
+			&i.RemovedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -690,7 +681,7 @@ func (q *Queries) ListLaneItems(ctx context.Context, channelID pgtype.UUID) ([]C
 
 const listQueueCountsByChannel = `-- name: ListQueueCountsByChannel :many
 SELECT channel_id, count(*)::bigint AS n
-FROM clone_queue WHERE state = 'queued'
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 GROUP BY channel_id
 `
 
@@ -720,7 +711,7 @@ func (q *Queries) ListQueueCountsByChannel(ctx context.Context) ([]ListQueueCoun
 }
 
 const listQueuedItems = `-- name: ListQueuedItems :many
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at FROM clone_queue WHERE state = 'queued'
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 ORDER BY channel_id, position, id
 LIMIT 2000
 `
@@ -751,6 +742,7 @@ func (q *Queries) ListQueuedItems(ctx context.Context) ([]CloneQueue, error) {
 			&i.Reason,
 			&i.CreatedAt,
 			&i.StartedAt,
+			&i.RemovedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -912,7 +904,7 @@ func (q *Queries) LockQueueOwner(ctx context.Context, id pgtype.UUID) (pgtype.UU
 
 const markQueueItemSkipped = `-- name: MarkQueueItemSkipped :exec
 UPDATE clone_queue SET state = 'skipped', reason = $2
-WHERE id = $1 AND state = 'queued'
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL
 `
 
 type MarkQueueItemSkippedParams struct {
@@ -927,7 +919,7 @@ func (q *Queries) MarkQueueItemSkipped(ctx context.Context, arg MarkQueueItemSki
 
 const markQueueItemStarted = `-- name: MarkQueueItemStarted :execrows
 UPDATE clone_queue SET state = 'started', job_id = $2, started_at = $3, reason = NULL
-WHERE id = $1 AND state = 'queued'
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL
 `
 
 type MarkQueueItemStartedParams struct {
@@ -948,7 +940,7 @@ func (q *Queries) MarkQueueItemStarted(ctx context.Context, arg MarkQueueItemSta
 const paceUsedToday = `-- name: PaceUsedToday :many
 SELECT channel_id, count(*)::bigint AS used
 FROM clone_queue
-WHERE state = 'started' AND priority = 'batch' AND started_at >= $1
+WHERE state = 'started' AND priority = 'batch' AND started_at >= $1 AND removed_at IS NULL
 GROUP BY channel_id
 `
 
@@ -980,7 +972,7 @@ func (q *Queries) PaceUsedToday(ctx context.Context, startedAt pgtype.Timestampt
 
 const promoteQueuePick = `-- name: PromoteQueuePick :exec
 UPDATE clone_queue SET priority = 'pick', position = $2
-WHERE id = $1 AND state = 'queued'
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL
 `
 
 type PromoteQueuePickParams struct {
@@ -995,17 +987,23 @@ func (q *Queries) PromoteQueuePick(ctx context.Context, arg PromoteQueuePickPara
 
 const pruneQueueHistory = `-- name: PruneQueueHistory :exec
 DELETE FROM clone_queue
-WHERE state IN ('started', 'skipped') AND created_at < $1
+WHERE (removed_at IS NULL AND state IN ('started', 'skipped') AND created_at < $1)
+   OR removed_at < $2
 `
 
-// Lịch sử mục đã chốt giữ 30 ngày.
-func (q *Queries) PruneQueueHistory(ctx context.Context, createdAt pgtype.Timestamptz) error {
-	_, err := q.db.Exec(ctx, pruneQueueHistory, createdAt)
+type PruneQueueHistoryParams struct {
+	HistoryCutoff pgtype.Timestamptz `json:"history_cutoff"`
+	RemovedCutoff pgtype.Timestamptz `json:"removed_cutoff"`
+}
+
+// Lịch sử giữ 30 ngày; mục đã bỏ giữ 24 giờ kể từ removed_at.
+func (q *Queries) PruneQueueHistory(ctx context.Context, arg PruneQueueHistoryParams) error {
+	_, err := q.db.Exec(ctx, pruneQueueHistory, arg.HistoryCutoff, arg.RemovedCutoff)
 	return err
 }
 
 const queuedSourceKeys = `-- name: QueuedSourceKeys :many
-SELECT source_key FROM clone_queue WHERE state = 'queued'
+SELECT source_key FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 `
 
 func (q *Queries) QueuedSourceKeys(ctx context.Context) ([]string, error) {
@@ -1026,6 +1024,44 @@ func (q *Queries) QueuedSourceKeys(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeQueueItem = `-- name: RemoveQueueItem :execrows
+UPDATE clone_queue SET removed_at = $2
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL
+`
+
+type RemoveQueueItemParams struct {
+	ID        pgtype.UUID        `json:"id"`
+	RemovedAt pgtype.Timestamptz `json:"removed_at"`
+}
+
+func (q *Queries) RemoveQueueItem(ctx context.Context, arg RemoveQueueItemParams) (int64, error) {
+	result, err := q.db.Exec(ctx, removeQueueItem, arg.ID, arg.RemovedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const restoreQueueItem = `-- name: RestoreQueueItem :execrows
+UPDATE clone_queue q SET removed_at = NULL
+WHERE q.id = $1 AND q.state = 'queued' AND q.job_id IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM clone_jobs j
+    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL)
+  AND NOT EXISTS (
+    SELECT 1 FROM clone_queue active
+    WHERE active.source_key = q.source_key AND active.id <> q.id
+      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL)
+`
+
+func (q *Queries) RestoreQueueItem(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, restoreQueueItem, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const setSourceBaseline = `-- name: SetSourceBaseline :exec
@@ -1066,7 +1102,7 @@ func (q *Queries) UnlockAdvisory(ctx context.Context, pgAdvisoryUnlock int64) er
 }
 
 const updateQueuePosition = `-- name: UpdateQueuePosition :exec
-UPDATE clone_queue SET position = $2 WHERE id = $1
+UPDATE clone_queue SET position = $2 WHERE id = $1 AND state = 'queued' AND removed_at IS NULL
 `
 
 type UpdateQueuePositionParams struct {

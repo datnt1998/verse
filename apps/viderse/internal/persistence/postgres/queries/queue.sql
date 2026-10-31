@@ -11,48 +11,61 @@ SELECT * FROM clone_queue WHERE id = $1;
 
 -- name: ListQueuedItems :many
 -- Toàn bộ mục đang chờ (lượt drain/ETA gom lại trong tầng nghiệp vụ).
-SELECT * FROM clone_queue WHERE state = 'queued'
+SELECT * FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 ORDER BY channel_id, position, id
 LIMIT 2000;
 
 -- name: ListLaneItems :many
 SELECT * FROM clone_queue
-WHERE channel_id = $1 AND state = 'queued'
+WHERE channel_id = $1 AND state = 'queued' AND removed_at IS NULL
 ORDER BY position, id;
 
 -- name: UpdateQueuePosition :exec
-UPDATE clone_queue SET position = $2 WHERE id = $1;
+UPDATE clone_queue SET position = $2 WHERE id = $1 AND state = 'queued' AND removed_at IS NULL;
 
--- name: DeleteQueueItems :execrows
-DELETE FROM clone_queue WHERE id = ANY($1::uuid[]) AND state IN ('queued', 'skipped');
+-- name: RemoveQueueItem :execrows
+UPDATE clone_queue SET removed_at = $2
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL;
+
+-- name: RestoreQueueItem :execrows
+UPDATE clone_queue q SET removed_at = NULL
+WHERE q.id = $1 AND q.state = 'queued' AND q.job_id IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM clone_jobs j
+    WHERE j.source_key = q.source_key AND j.superseded_at IS NULL)
+  AND NOT EXISTS (
+    SELECT 1 FROM clone_queue active
+    WHERE active.source_key = q.source_key AND active.id <> q.id
+      AND active.state IN ('queued', 'started') AND active.removed_at IS NULL);
 
 -- name: PruneQueueHistory :exec
--- Lịch sử mục đã chốt giữ 30 ngày.
+-- Lịch sử giữ 30 ngày; mục đã bỏ giữ 24 giờ kể từ removed_at.
 DELETE FROM clone_queue
-WHERE state IN ('started', 'skipped') AND created_at < $1;
+WHERE (removed_at IS NULL AND state IN ('started', 'skipped') AND created_at < sqlc.arg(history_cutoff))
+   OR removed_at < sqlc.arg(removed_cutoff);
 
 -- name: MarkQueueItemStarted :execrows
 -- Kiểm trạng thái trong câu lệnh: mục đã đổi tay chỗ khác thì execrows=0.
 UPDATE clone_queue SET state = 'started', job_id = $2, started_at = $3, reason = NULL
-WHERE id = $1 AND state = 'queued';
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL;
 
 -- name: MarkQueueItemSkipped :exec
 UPDATE clone_queue SET state = 'skipped', reason = $2
-WHERE id = $1 AND state = 'queued';
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL;
 
 -- name: ActiveSourceKeys :many
 -- Khoá job đang hoạt động (chưa bị thay thế) để khử trùng khi xếp hàng.
 SELECT source_key FROM clone_jobs WHERE superseded_at IS NULL;
 
 -- name: QueuedSourceKeys :many
-SELECT source_key FROM clone_queue WHERE state = 'queued';
+SELECT source_key FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL;
 
 -- name: CountQueuedByChannel :many
 SELECT channel_id, count(*)::bigint AS queued
-FROM clone_queue WHERE state = 'queued' GROUP BY channel_id;
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL GROUP BY channel_id;
 
 -- name: CountTotalQueued :one
-SELECT count(*)::bigint FROM clone_queue WHERE state = 'queued';
+SELECT count(*)::bigint FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL;
 
 -- name: LaneLastStarts :many
 -- Lượt cuối của mỗi kênh trong vòng luân phiên: giờ bắt đầu mục gần nhất và
@@ -61,14 +74,14 @@ SELECT q.channel_id, max(q.started_at)::timestamptz AS last_start,
        max(j.created_at)::timestamptz AS last_sequence
 FROM clone_queue q
 LEFT JOIN clone_jobs j ON j.id = q.job_id
-WHERE q.state = 'started' AND q.started_at IS NOT NULL
+WHERE q.state = 'started' AND q.started_at IS NOT NULL AND q.removed_at IS NULL
 GROUP BY q.channel_id;
 
 -- name: PaceUsedToday :many
 -- Nhịp hôm nay: chỉ mục `batch` đã bắt đầu từ 00:00 giờ máy ($1 = local midnight).
 SELECT channel_id, count(*)::bigint AS used
 FROM clone_queue
-WHERE state = 'started' AND priority = 'batch' AND started_at >= $1
+WHERE state = 'started' AND priority = 'batch' AND started_at >= $1 AND removed_at IS NULL
 GROUP BY channel_id;
 
 -- name: CountActiveJobs :one
@@ -116,7 +129,7 @@ ORDER BY created_at;
 
 -- name: FindQueueRowsBySourceKeys :many
 SELECT * FROM clone_queue
-WHERE source_key = ANY($1::text[]) AND state IN ('queued', 'started');
+WHERE source_key = ANY($1::text[]) AND state IN ('queued', 'started') AND removed_at IS NULL;
 
 -- name: ListVideosByIDs :many
 SELECT * FROM rival_videos WHERE id = ANY($1::text[]);
@@ -141,7 +154,7 @@ WHERE owner_channel_id = $1 AND rival_id = $2;
 -- Neo luân phiên đối thủ: kênh đối thủ của mục `auto` mới nhất.
 SELECT v.channel_id FROM clone_queue q
 JOIN rival_videos v ON v.id = q.source_video_id
-WHERE q.channel_id = $1 AND q.origin = 'auto'
+WHERE q.channel_id = $1 AND q.origin = 'auto' AND q.removed_at IS NULL
 ORDER BY q.created_at DESC, q.position DESC, q.id DESC
 LIMIT 1;
 
@@ -160,7 +173,7 @@ WHERE v.channel_id = $1
   AND NOT EXISTS (
     SELECT 1 FROM clone_queue q
     WHERE q.source_key = ('channel:' || $3::text || ':video:' || v.id)
-      AND q.state IN ('queued', 'started'))
+      AND q.state IN ('queued', 'started') AND q.removed_at IS NULL)
 ORDER BY v.position, v.id
 LIMIT 1000;
 
@@ -182,7 +195,7 @@ GROUP BY channel_id, stage_group;
 
 -- name: ListQueueCountsByChannel :many
 SELECT channel_id, count(*)::bigint AS n
-FROM clone_queue WHERE state = 'queued'
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
 GROUP BY channel_id;
 
 -- name: ListDoneTodayCounts :many
@@ -211,4 +224,4 @@ SELECT id FROM owner_channels WHERE id = $1 FOR UPDATE;
 
 -- name: PromoteQueuePick :exec
 UPDATE clone_queue SET priority = 'pick', position = $2
-WHERE id = $1 AND state = 'queued';
+WHERE id = $1 AND state = 'queued' AND removed_at IS NULL;
