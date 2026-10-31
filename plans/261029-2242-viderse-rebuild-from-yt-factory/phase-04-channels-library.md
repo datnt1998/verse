@@ -1,7 +1,7 @@
 ---
 phase: 4
 title: "Kênh của bạn, Tạo kênh, Thư viện, Cài đặt template"
-status: pending
+status: in-progress
 priority: P1
 effort: 52h
 dependsOn: [3]
@@ -96,6 +96,36 @@ Design:
   - tạo 1 kênh có 2 đối thủ, nhận diện chạy xong;
   - tạo template từ prompt dựng sẵn, xem thử 1 ảnh bìa (đúng 1 ảnh trả phí);
   - thêm 1 kênh video nền Twitch.
+
+## Quyết định triển khai (31/10/2026)
+
+- **Schema** (`00008_channels_library.sql`): ngoài các bảng đã nêu, `owner_channels.identity_failed_step` (`text|images`) cho biết nhận diện hỏng ở bước Đạo diễn hay Hoạ sĩ; máy chủ ghi, web không đoán.
+- **Mẫu chuẩn** chỉ là recipe (editor là V13). Kênh tạo không tên thì template tạm tên “Mẫu chuẩn”, đổi sang “Mẫu chuẩn · <tên kênh>” khi kênh có tên; template đã đổi tên tay hoặc kênh khác cũng dùng thì giữ nguyên, `revision` không đổi.
+- **Khoá kèm lý do** mọi thứ cần video đã làm, hàng chờ hoặc editor: dựng lại xem thử, vẽ thử bìa, Ảnh mẫu prompt, bảng video và `BulkBar`, số liệu đầu kênh, “Hôm nay x/y”, Dặn trợ lý. Không làm mức tự chủ và ưu tiên.
+- **Điện thoại**: cột trái Kênh ẩn dưới 768px như `MChannel` (đổi kênh ở viên kênh trên thanh đầu), tab tên ngắn và cuộn ngang; dưới 1100px cột trái xuống dưới nội dung.
+- **Ảnh thu nhỏ Twitch** lấy cỡ 640×360 thay vì 1920×1080 (khoảng 58 KB thay vì 216 KB mỗi ảnh).
+- **Lỗi chung tìm được khi smoke** (sửa ở `core/llm`, ảnh hưởng cả Noverse): Responses API cần `image_url` dạng chuỗi kèm `detail` riêng; ảnh đầu vào gửi byte đã giải base64 thay vì base64 hai lần.
+
+## Kiến trúc & hiệu năng (đo 31/10/2026, binary thật, DB smoke)
+
+| Chỉ số | Kết quả | Ngưỡng |
+|---|---|---|
+| GET p95 (300 lượt): `/api/owner-channels`, `/{id}`, `/api/templates`, `/{id}`, `/api/image-prompts`, `/api/overlays`, `/api/backdrop/channels`, `/videos`, trang video kênh nền 24 thẻ | 1,0–3,0 ms | ≤ 100 ms |
+| JS tải lần đầu (`npm run size`) | 146,1 kB gzip (phase 03: 129,4) | ≤ 250 kB |
+| Chunk lười: Kênh / Tạo kênh / Thư viện / Template | 10,5 / 4,5 / 11,8 + 3,4 CSS / 11,8 + 2,6 CSS kB gzip | — |
+| Rảnh 60 giây, có một trang mở | CPU 0,0 %, RSS 17,6 MB, 24 giao dịch DB, 4 dòng ghi | không poll khi rảnh |
+| Trang Template mở 20 giây | 0 yêu cầu HTTP | không poll khi rảnh |
+| Ảnh thu nhỏ Twitch, trang đầu 24 thẻ | ~1,4 MB thay vì ~5,2 MB | — |
+
+## Tiến độ (31/10/2026)
+
+- [x] Backend: `channels` (CRUD, nhận diện chạy nền, template luân phiên, nhịp), `library` (template theo `revision`, prompt ảnh, lớp phủ, giá ước tính), `backdrop` (Twitch, Bilibili WBI, điều tốc, đoạn ≤ 600 giây), store Postgres, migration 00008; CLI `viderse channel|template|backdrop|overlay`.
+- [x] Web: Kênh 4 tab, Tạo kênh `create|done`, Thư viện 4 tab, Cài đặt template 4 nhóm; Khám phá mở điều khiển cần Kênh.
+- [x] Review code backend 3 mảng; QA ảnh cặp 1440×900 và 390×844 cho Kênh, Tạo kênh, Thư viện, Template.
+- [x] Smoke trên binary thật: kênh 2 đối thủ thật, Đạo diễn đặt tên, nhận diện xong (đúng 2 ảnh trả phí: avatar PNG 800×800, ảnh bìa JPEG 2560×1440); kênh nền Twitch 212 video; template tự lưu, gắn nguồn nền.
+- [x] Ghi `10-gap-closure.md` (V4, V8, V9, V15, V23) và hỏi đáp #38–#48.
+- [ ] Vẽ thử 1 ảnh bìa trả phí: dời sang smoke phase 05 (cần video đã làm).
+- [ ] Mức tự chủ (phase 08); điều khiển cần hàng chờ (phase 05); `MChannel`/`MCreate` (phase 09).
 
 ## Nghiệm thu
 

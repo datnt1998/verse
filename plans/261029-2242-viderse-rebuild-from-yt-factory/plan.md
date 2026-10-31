@@ -117,8 +117,8 @@ flowchart LR
 |---|---|---|---|---|
 | [01 · Nền móng, dọn Writer, shell](phase-01-foundation.md) | V0, V12, hỏi đáp #1–#4 | — | 32h | xong |
 | [02 · Công cụ máy, kết nối, Cài đặt](phase-02-tools-settings.md) | V7, V17, V22, phần tài khoản của V23, V24, bước setup của V9 | 01 | 48h | xong code và QA ảnh (30/10/2026); còn chủ máy thử Grok, QR Bilibili, khoá API thật |
-| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | xong code, review và QA ảnh (30/10/2026); điều khiển cần Kênh/Hàng chờ để khoá tới phase 04/05, `MExplore` ở phase 09 |
-| [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h | chưa |
+| [03 · Trinh sát: đối thủ, Khám phá](phase-03-rivals-explore.md) | V5, §12 | 02 | 44h | xong code, review và QA ảnh (30/10/2026); điều khiển cần Kênh đã mở ở phase 04, cần Hàng chờ khoá tới phase 05, `MExplore` ở phase 09 |
+| [04 · Kênh và Thư viện](phase-04-channels-library.md) | V4, V8, V9, V15, V23 | 03 | 52h | xong code, review, QA ảnh cặp và smoke thật (31/10/2026); vẽ thử bìa và điều khiển cần video/hàng chờ khoá tới phase 05, mức tự chủ phase 08, `MChannel`/`MCreate` phase 09 |
 | [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h | chưa |
 | [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h | chưa |
 | [07 · Bàn dựng, Duyệt, Việc nền](phase-07-workbench-review.md) | V1, V3, V14, V16, V18 | 05, 06 | 60h | chưa |
@@ -159,6 +159,10 @@ Ghi thêm trong phase 02 (30/10/2026):
   - #25 mốc “từ HH:MM” và “một số video”; #26 dữ liệu Kết nối AI chưa có nguồn;
   - #27 thứ tự thẻ và thẻ trùng loại; #28 giá mỗi video = 7 ảnh, lưới 4 nguồn vẽ;
   - #29 state điện thoại chưa vẽ của Tài khoản, giãn dòng 1,5; #30 dải mất kết nối, tông chấm cảnh báo, nhãn pha cài.
+
+Ghi thêm trong phase 04 (31/10/2026):
+
+- **Chờ design:** #38 nút cần video đã làm; #39 bảng video, số liệu đầu kênh, Dặn trợ lý; #40 Mẫu chuẩn khi tạo kênh; #41 giá ước tính template; #42 định dạng ảnh nhận diện; #43 bỏ liên kết đối thủ trên máy tính; #44 thêm kênh nền chạy nền; #45 nhập prompt trùng tên; #46 không có nhập template, thẻ không ảnh; #47 Kênh và Tạo kênh trên điện thoại; #48 đổi tên template không làm cũ xem thử.
 
 # Rủi ro chính
 

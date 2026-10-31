@@ -236,3 +236,63 @@ Mẫu:
 - Artboard `MExplore`. Gói này chưa làm `MExplore`: dưới 768px, màn máy tính xếp thành một cột (đối thủ, lưới ảo hoá, cột phải), vẫn thêm/bỏ đối thủ, quét, xem lịch đăng được. Làm `MExplore` đúng artboard để gói Điện thoại (V10).
 - Hỏi design: đồng ý dời?
 - Trả lời (design, 30/10/2026): đồng ý dời `MExplore` sang V10. Trong lúc chờ, bản một cột dưới 768px phải: không cuộn ngang, nút ≥ 44px khi `pointer: coarse`, ô thêm đối thủ ở trên cùng, cột phải (thông tin, quét, lịch đăng) xuống dưới lưới. Không cần artboard cho bản tạm.
+
+### #38 · Template và Prompt ảnh: nút cần một video đã làm xong — Mở
+- Artboard: `Template` (`preview=fresh|stale|building`, “Vẽ thử ảnh bìa”), `Library` · `tab=prompts` (“Ảnh mẫu”, “Vẽ thử với…”).
+- Hàng chờ và pipeline làm video là gói V6, editor là V13. Chưa có video nào đã làm xong và chưa có câu chuyện đã phân tích, nên chưa dựng được bản xem thử, chưa vẽ thử bìa, chưa vẽ ảnh mẫu.
+- Code: trạng thái xem thử vẫn thật (`none|fresh|stale` theo `revision` của template). “Dựng lại bản xem thử”, “Vẽ thử ảnh bìa”, “Vẽ thử với…”, “Mở trong editor” hiện nhưng bị khoá (`aria-disabled`, nhận focus, đọc được lý do). Prompt ảnh hiện “Chưa có mẫu”. `preview=building` chưa xảy ra được.
+- Hỏi design: duyệt trạng thái khoá tới V6/V13, và câu lý do trong `i18n/library.ts`.
+
+### #39 · Kênh › Video, số liệu đầu kênh, “Hôm nay x/y”, Dặn trợ lý — Mở
+- Artboard: `Channel` · `tab=videos`, đầu kênh, cột phải.
+- Bảng video 4 cột cùng `BulkBar`, 4 số liệu đầu kênh, chấm “Chờ bạn”, thanh “Hôm nay x/y” và ô Dặn trợ lý cần job làm video (V6) và trợ lý (V11). Mức tự chủ và Ưu tiên kênh là phase sau (§20).
+- Code: tab Video luôn hiện trạng thái kênh mới (`fresh`: “Kênh chưa có video” và hai thẻ dẫn). Không bịa số. Cột phải “Đang áp dụng cho kênh” có Tự lấy video, Template luân phiên, Tiêu đề–mô tả–tag, Trợ lý AI; chưa có Mức tự chủ. Xoá kênh luôn với `runningCount = 0`.
+- Hỏi design: duyệt bản tạm này tới V6/V11.
+
+### #40 · Mẫu chuẩn khi tạo kênh — Mở
+- Artboard: `CreateChannel` · `step=done` (“Mẫu chuẩn chạy nền”), `Channel` · `tab=templates`.
+- yt-factory dựng Mẫu chuẩn là một project editor (3 cảnh, nút Subscribe, tuyết, sóng âm). Editor là V13.
+- Code: tạo kênh tạo ngay một template “Mẫu chuẩn · <tên kênh>” với recipe mặc định (Tách nền, prompt “Theo nhận diện kênh”, bìa “Chữ hook”, lớp phủ Tuyết) và gắn vào vòng luân phiên của kênh. Kênh tạo không tên (để Đạo diễn đặt) thì template tạm tên “Mẫu chuẩn”, rồi tự đổi sang “Mẫu chuẩn · <tên kênh>” khi kênh có tên (Đạo diễn đặt hoặc chủ tự đặt). Template đã đổi tên tay hoặc kênh khác cũng dùng thì giữ nguyên. Phần bố cục editor thêm ở V13.
+- Hỏi design: duyệt.
+
+### #41 · Giá ước tính của template — Mở
+- Artboard: `Template` (giá mỗi video), 07 §15 `price.perImage`, hỏi đáp #28 (giá = 7 ảnh).
+- Code tính theo số ảnh của chính template cộng 1 ảnh bìa: `(ảnh mỗi video + 1) × giá mỗi ảnh`. Template chọn “theo số phút” chưa biết số ảnh khi chưa có video nguồn, nên chỉ ghi cách tính, không ghi giá. Template không có ảnh vẫn tính 1 ảnh bìa. Không biết giá model vẽ thì chỉ ghi số ảnh.
+- Hỏi design: duyệt bỏ hằng 7 ở màn Template.
+
+### #42 · Nhận diện kênh: định dạng ảnh, lỗi và giờ tự thử — Mở
+- Artboard: `Channel` · `identity=ready|generating|failed`, `CreateChannel` · `step=done`.
+- Avatar 800 × 800 PNG, ảnh bìa 2560 × 1440 JPEG ≤ 6 MB (yt-factory dùng WebP qua ffmpeg + libwebp; ở đây mã hoá thuần Go, không cần libwebp).
+- Lỗi được lưu trên kênh, sống qua tải lại trang. Hết hạn mức ảnh thì ghi giờ tự thử từ nguồn vẽ. App tắt giữa chừng thì lần đó thành “Bị gián đoạn”, không tự vẽ lại (vẽ lại tốn tiền).
+- Code ghi “Tự thử lại lúc HH:MM” thay cho “Thử lại lúc HH:MM” của artboard, cho rõ là hệ thống tự thử.
+- Hỏi design: duyệt định dạng và câu.
+
+### #43 · Bỏ liên kết đối thủ trên máy tính chưa có hộp thoại — Mở
+- Artboard: `Channel` · `tab=sources` chỉ có sheet bỏ liên kết ở `MChannel`.
+- Code dùng `ConfirmDialog` của kit, tông cam nhạt (`dsoft`), lấy câu của sheet `MChannel`: “Bỏ liên kết <tên>?”, thân nêu hậu quả và đối thủ tham chiếu kế tiếp. Bỏ đối thủ cuối thì Tự lấy tắt, kèm lý do.
+- Hỏi design: vẽ hộp thoại cho máy tính, hoặc duyệt bản này.
+
+### #44 · Video nền: thêm kênh chạy nền, dán link không dò video — Mở
+- Artboard: `Library` · `tab=backdrops` (`nguon=adding|addvideo`).
+- Thêm kênh nền ghi kênh ngay rồi đọc danh mục trong việc nền; thẻ kênh hiện “Đang đọc” rồi số video (yt-factory đọc trong lúc bấm). Dán link chỉ phân tích link (và mở `b23.tv` một lần), không gọi yt-dlp, nên tên và thời lượng của video lẻ hiện sau khi thêm.
+- Chiều cao tải lấy theo nền tảng: Twitch 480, Bilibili 1080 (yt-factory cứng 720). Bilibili: lời gọi API cách nhau 10–20 giây, lượt tải yt-dlp 5–10 giây; hạn mức 20 lời gọi mỗi 10 phút và 200 mỗi ngày. Bị chặn thì chờ 15 → 30 → 60 → 120 phút như dải tạm chặn ở Tài khoản nền tảng.
+- Hỏi design: duyệt.
+
+### #45 · Prompt ảnh nhập trùng tên — Mở
+- Artboard: `Library` · `tab=prompts` (Nhập).
+- Design không nói khi nhập một prompt trùng tên. Code tự đổi tên thành “<tên> (nhập)” để nhập cùng tệp hai lần vẫn được, không báo lỗi.
+- Hỏi design: duyệt, hoặc chọn hỏi ghi đè.
+
+### #46 · Thư viện: không có nhập template, thẻ không có ảnh thu nhỏ — Mở
+- Artboard: `Library` · `tab=templates` (ô thả tệp template), thẻ template/prompt/lớp phủ có ảnh.
+- Chưa có định dạng tệp template (yt-factory nhập cả project editor), nên chưa có ô nhập template; nhập/xuất prompt ảnh thì có. Thẻ chưa có ảnh vì chưa có bản xem thử hay ảnh mẫu (#38): thẻ dùng khối màu trung tính và biểu tượng theo loại, không bịa ảnh. Lớp phủ hiện khung đầu của video.
+- Hỏi design: duyệt tới V13.
+
+### #47 · Kênh, Tạo kênh trên điện thoại — Mở
+- Artboard: `MChannel`, `MCreate` thuộc V10.
+- Dưới 1100px, cột trái của Kênh (danh sách kênh, thư viện) xuống dưới nội dung. Dưới 768px (khung điện thoại) cột trái ẩn như `MChannel`: đổi kênh ở viên kênh trên thanh đầu (menu có “Mọi kênh”, “Tạo kênh”), tab dùng tên ngắn (Video · Nguồn · Template · Hồ sơ) và hàng tab tự cuộn ngang. Lần đầu mở là bản máy tính một cột. Trang không cuộn ngang, nút ≥ 44px khi `pointer: coarse`.
+- Hỏi design: duyệt bản tạm tới V10.
+
+### #48 · Đổi tên template không làm cũ bản xem thử — Mở
+- yt-factory coi mọi lần lưu là làm cũ bản xem thử. Tên không ảnh hưởng bản dựng nên code giữ nguyên `revision` khi chỉ đổi tên.
+- Hỏi design: duyệt.

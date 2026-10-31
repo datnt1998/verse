@@ -96,7 +96,8 @@ Design: 01-ia-flows (Trinh sát, Khám phá), 07 §12, 08 V5; artboard `Explore`
 - [x] Review code: luồng quét 6 vòng, API đối thủ 3 vòng, còn 0 lỗi mở.
 - [x] Smoke trên binary thật với 2 kênh YouTube thật: thêm đối thủ, quét lịch sử, tạm dừng/tiếp tục/huỷ, `kill -9` rồi chạy lại, lịch đăng, đo lúc rảnh.
 - [x] Ghi `10-gap-closure.md` (V5) và hỏi đáp #31–#37.
-- [ ] Mở các điều khiển đang khoá khi có Kênh (phase 04) và Hàng chờ (phase 05); `MExplore` ở phase 09.
+- [x] Mở các điều khiển cần Kênh (phase 04, 31/10/2026): xem trước chọn kênh, menu ⋯ “Liên kết với kênh…”; lý do khoá còn lại đổi sang “cần hàng chờ”.
+- [ ] Mở các điều khiển cần Hàng chờ (phase 05); `MExplore` ở phase 09.
 
 ## Rủi ro
 
