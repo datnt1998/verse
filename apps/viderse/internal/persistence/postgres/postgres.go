@@ -10,11 +10,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// OpenPool mở pgxpool từ DSN (dùng chung cho serve/test).
+// OpenPool mở pgxpool từ DSN (dùng chung cho serve/test) và ping để lỗi
+// kết nối/DSN sai bùng ngay lúc khởi động thay vì lần query đầu.
 func OpenPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		return nil, fmt.Errorf("mở pool: %w", err)
+	}
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("kết nối postgres: %w", err)
 	}
 	return pool, nil
 }

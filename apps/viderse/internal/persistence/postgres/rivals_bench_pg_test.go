@@ -84,7 +84,7 @@ func newBenchGateway(t *testing.T, pool *pgxpool.Pool) *benchGateway {
 	}
 	var cookie string
 	for _, c := range w.Result().Cookies() {
-		if c.Name == "viderse_session" {
+		if c.Name == "verse_session" {
 			cookie = c.Value
 		}
 	}
@@ -99,7 +99,7 @@ func (bg *benchGateway) get(path string) (time.Duration, videoPageOut) {
 	r := httptest.NewRequest(http.MethodGet, path, nil)
 	r.RemoteAddr = "192.0.2.1:1234"
 	r.Host = "127.0.0.1:8789"
-	r.AddCookie(&http.Cookie{Name: "viderse_session", Value: bg.cookie})
+	r.AddCookie(&http.Cookie{Name: "verse_session", Value: bg.cookie})
 	w := httptest.NewRecorder()
 	start := time.Now()
 	bg.handler.ServeHTTP(w, r)

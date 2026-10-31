@@ -90,6 +90,8 @@ export const vi = {
   auth: {
     serverOnline: 'Máy chủ Viderse · đang hoạt động',
     serverOffline: 'Không kết nối được máy chủ Viderse',
+    serverDownTitle: 'Không kết nối được máy chủ',
+    serverDownBody: 'Viderse chưa kiểm được phiên đăng nhập — máy chủ không trả lời hoặc đang tạm lỗi. Thử lại sau khi máy chủ hoạt động trở lại.',
     loginTitle: 'Đăng nhập',
     loginSub: 'Dùng tài khoản quản trị viên đã tạo lúc thiết lập',
     username: 'Tên đăng nhập',
@@ -99,6 +101,24 @@ export const vi = {
     login: 'Đăng nhập',
     loggingIn: 'Đang đăng nhập…',
     sessionNote: 'Phiên giữ 30 ngày trên thiết bị này.',
+    accessDeniedTitle: 'Chưa được cấp quyền',
+    accessDenied: 'Tài khoản của bạn chưa được cấp quyền dùng Viderse. Vui lòng liên hệ quản trị viên.',
+    passwordForm: {
+      forceTitle: 'Đổi mật khẩu trước khi tiếp tục',
+      forceBody: 'Bạn đang đăng nhập bằng mật khẩu tạm. Đặt mật khẩu riêng để bắt đầu dùng Viderse.',
+      current: 'Mật khẩu hiện tại',
+      currentTemp: 'Mật khẩu tạm',
+      next: 'Mật khẩu mới',
+      confirm: 'Nhập lại mật khẩu mới',
+      hint: 'Ít nhất 8 ký tự',
+      mismatch: 'Mật khẩu nhập lại chưa khớp.',
+      wrongCurrent: 'Mật khẩu hiện tại không đúng.',
+      failed: 'Không đổi được mật khẩu. Vui lòng thử lại.',
+      submit: 'Đổi mật khẩu',
+      changing: 'Đang đổi…',
+      changed: 'Đã đổi mật khẩu. Vui lòng đăng nhập lại.',
+      reauthNote: 'Đổi mật khẩu xong bạn cần đăng nhập lại trên mọi thiết bị và cả hai ứng dụng.',
+    },
   },
 
   setup: {
@@ -120,6 +140,7 @@ export const vi = {
     recoveryWarning:
       'Đây là mã khôi phục duy nhất — Viderse chỉ hiện một lần này. Lưu lại ở nơi an toàn: mất cả mật khẩu lẫn mã này là mất quyền vào máy chủ.',
     recoveryLabel: 'Mã khôi phục',
+    recoveryUnavailable: 'Chưa cấp được mã khôi phục — tài khoản đã tạo và bạn đã đăng nhập. Sau khi vào ứng dụng, phát mã khôi phục qua Noverse.',
     enter: 'Vào Viderse',
   },
 
@@ -475,8 +496,10 @@ export const vi = {
     username: 'Tên đăng nhập',
     role: 'Vai trò',
     memberSince: 'Tạo lúc',
+    passwordTitle: 'Đổi mật khẩu',
     logout: 'Đăng xuất',
     logoutFailed: 'Không đăng xuất được. Vui lòng thử lại.',
+    sharedLogoutNote: 'Đăng xuất khỏi Viderse cũng đăng xuất khỏi Noverse — hai ứng dụng dùng chung một tài khoản.',
   },
 
   role: {

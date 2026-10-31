@@ -234,7 +234,11 @@ func openCLIStorage(settings *postgres.SettingsStore) (channels.Storage, error) 
 // openCLIAI dựng chuỗi Đạo diễn/Hoạ sĩ cho `viderse channel identity`. Dùng
 // đúng wireAI của serve với hub/status tạm — không mở cổng, không phục vụ gì.
 func openCLIAI(ctx context.Context, pool *pgxpool.Pool, settings *postgres.SettingsStore) (*aiExecutors, func(), error) {
-	accounts, err := openAccounts()
+	identityDSN := bootstrap.IdentityDSNFromEnv()
+	if identityDSN == "" {
+		return nil, nil, fmt.Errorf("thiếu VERSE_IDENTITY_DATABASE_URL (kho tài khoản chung, xem apps/viderse/deploy/README.md)")
+	}
+	accounts, closeAccounts, err := openAccounts(ctx, identityDSN)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -243,6 +247,8 @@ func openCLIAI(ctx context.Context, pool *pgxpool.Pool, settings *postgres.Setti
 	gateway := web.NewGateway(accounts, hub, statusSvc)
 	cfgDir, err := bootstrap.DefaultConfigDir()
 	if err != nil {
+		hub.Close()
+		closeAccounts()
 		return nil, nil, err
 	}
 	toolRegistry := tools.NewRegistry(cfgDir, nil)
@@ -258,10 +264,14 @@ func openCLIAI(ctx context.Context, pool *pgxpool.Pool, settings *postgres.Setti
 	wiring, err := wireAI(aiCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, runner)
 	if err != nil {
 		cancel()
+		hub.Close()
+		closeAccounts()
 		return nil, nil, err
 	}
 	return wiring.Executors, func() {
 		cancel()
 		wiring.Service.Close()
+		hub.Close()
+		closeAccounts()
 	}, nil
 }

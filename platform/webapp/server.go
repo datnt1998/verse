@@ -9,13 +9,18 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"log/slog"
 	"mime"
+	"net"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/puddle/v2"
 
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webguard"
@@ -24,11 +29,11 @@ import (
 // Options là định danh riêng của từng app mà Server cần.
 type Options struct {
 	// AppName đi vào các lỗi hiển thị cho người dùng trong luồng thiết lập
-	// (vd "Viderse đã có quản trị viên").
+	// và lỗi thiếu quyền (vd "Viderse đã có quản trị viên").
 	AppName string
-	// CookieName là tên session cookie — phải duy nhất giữa các app vì cookie
-	// scope theo host:port chung trên máy dev.
-	CookieName string
+	// App là định danh của app trong app_grants: session hợp lệ chỉ vào route
+	// nghiệp vụ khi grants hiệu lực chứa app này (admin toàn cục luôn có).
+	App identity.App
 	// UI là gốc SPA đã build (index.html + assets/ ở root). Caller thường
 	// truyền fs.Sub(embed, "dist").
 	UI fs.FS
@@ -39,8 +44,19 @@ type Options struct {
 	AllowNonJSON func(*http.Request) bool
 }
 
+// sessionCookieName là tên cookie chia sẻ của cả hai app trên kho tài khoản
+// chung: đăng nhập ở app này mở được app kia. Không có option đổi tên — hai
+// tên khác nhau sẽ làm vỡ contract "một phiên một cookie".
+const sessionCookieName = "verse_session"
+
+// legacySessionCookies là các tên cookie của các bản trước. Đăng nhập chung
+// expire chúng ở mọi scope deployment có thể đã đặt; không bao giờ đọc chúng
+// làm fallback.
+var legacySessionCookies = []string{"ainovel_session", "viderse_session"}
+
 // HandlerFunc là route nghiệp vụ của app: chỉ chạy sau khi session cookie đã
-// xác thực; user là tài khoản hiện tại từ Store.Authenticate.
+// xác thực, tài khoản có grant app và không bị bắt đổi mật khẩu; user là
+// tài khoản hiện tại từ Store.Authenticate của chính request đó.
 type HandlerFunc func(w http.ResponseWriter, r *http.Request, user identity.User)
 
 // route là một route /api do app đăng ký: exact khớp đúng path, prefix khớp mọi path bên dưới.
@@ -69,6 +85,11 @@ type Server struct {
 // server tạo một setup state (chỉ giữ hash) — caller in mã plaintext một lần
 // qua SetupCodeOnce.
 func New(accounts *identity.Store, opts Options) *Server {
+	if !opts.App.Valid() {
+		// App là hợp đồng bảo mật: sai định danh nghĩa là gate kiểm sai app,
+		// tốt hơn crash tại construction là chạy một gate vô nghĩa.
+		panic("webapp.Options.App phải là app đã đăng ký (noverse|viderse)")
+	}
 	s := &Server{
 		accounts: accounts,
 		opts:     opts,
@@ -144,7 +165,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// /api/setup* ngang hàng /api/login: chưa có tài khoản cũng phải vào được.
 		return
 	}
-	cookie, err := r.Cookie(s.opts.CookieName)
+	cookie, err := r.Cookie(s.cookiePolicy().Name)
 	if err != nil {
 		Error(w, http.StatusUnauthorized, identity.ErrUnauthenticated.Error())
 		return
@@ -153,27 +174,46 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, identity.ErrUnauthenticated) {
 			s.clearSession(w, r)
+			Error(w, http.StatusUnauthorized, identity.ErrUnauthenticated.Error())
+			return
 		}
-		Error(w, http.StatusUnauthorized, identity.ErrUnauthenticated.Error())
+		s.writeAccountError(w, err)
 		return
 	}
-	switch {
-	case r.URL.Path == "/api/logout" && r.Method == http.MethodPost:
-		s.logout(w, r, current)
-	case r.URL.Path == "/api/me" && r.Method == http.MethodGet:
-		WriteJSON(w, http.StatusOK, map[string]any{"user": user.View()})
-	default:
-		for _, rt := range s.routes {
-			if rt.method != r.Method {
-				continue
-			}
-			if (rt.exact != "" && r.URL.Path == rt.exact) || (rt.prefix != "" && strings.HasPrefix(r.URL.Path, rt.prefix)) {
-				rt.h(w, r, user)
-				return
-			}
-		}
-		Error(w, http.StatusNotFound, "không tìm thấy")
+	// Auth-neutral trước mọi gate: session hợp lệ — kể cả thiếu grant app hay
+	// đang bắt đổi mật khẩu — vẫn được logout, đổi mật khẩu và quản phiên của
+	// CHÍNH MÌNH. Không đường nào ở nhánh này đụng tài khoản người khác.
+	if s.serveAuthNeutral(w, r, user, current) {
+		return
 	}
+	// Grant gate: thiếu quyền app trả 403 app_access_denied kèm view an toàn —
+	// phiên vẫn sống (có thể mở được app kia), không phải hết hạn.
+	if !s.appAccessGranted(user.Grants) {
+		s.writeAppAccessDenied(w, user.View())
+		return
+	}
+	// GET /api/me là đường duy nhất còn đọc được khi bắt đổi mật khẩu: màn
+	// đổi mật khẩu cần biết đang đăng nhập ai.
+	if r.URL.Path == "/api/me" && r.Method == http.MethodGet {
+		WriteJSON(w, http.StatusOK, map[string]any{"user": user.View()})
+		return
+	}
+	// Forced-password gate chạy trước mọi dispatch: upload multipart, SSE và
+	// cả path chưa biết đều 403 password_change_required, không vào handler.
+	if user.MustChangePassword {
+		s.writePasswordChangeRequired(w)
+		return
+	}
+	for _, rt := range s.routes {
+		if rt.method != r.Method {
+			continue
+		}
+		if (rt.exact != "" && r.URL.Path == rt.exact) || (rt.prefix != "" && strings.HasPrefix(r.URL.Path, rt.prefix)) {
+			rt.h(w, r, user)
+			return
+		}
+	}
+	Error(w, http.StatusNotFound, "không tìm thấy")
 }
 
 // ── tĩnh (SPA nhúng) ────────────────────────────────────────────────────────
@@ -218,18 +258,62 @@ func (s *Server) serveStatic(w http.ResponseWriter, r *http.Request) {
 
 // ── session ─────────────────────────────────────────────────────────────────
 
+// cookiePolicy trả hợp đồng cookie bất biến của server này: tên cố định của
+// kho chung, domain lấy từ cấu hình proxy đã parse lúc khởi động.
+func (s *Server) cookiePolicy() webguard.SessionCookie {
+	return webguard.NewSessionCookie(sessionCookieName, s.proxy)
+}
+
+// SessionCookieName là tên cookie đọc-ghi của phiên chung — cho các luồng
+// bên ngoài dispatch (vd. recheck phiên của SSE) đọc đúng tên thay vì
+// hardcode một hằng riêng.
+func (s *Server) SessionCookieName() string { return s.cookiePolicy().Name }
+
+// appAccessGranted báo tài khoản có quyền hiệu lực dùng app này ngay bây giờ:
+// admin toàn cục luôn vào được; member cần grant row đọc lại từ kho chung
+// (Authenticate đọc mỗi request — không cache grant trên session).
+func (s *Server) appAccessGranted(grants map[identity.App]identity.Role) bool {
+	return grants[s.opts.App] != ""
+}
+
+// BusinessAllowed báo một user đã xác thực được phép vào route nghiệp vụ:
+// đủ grant app và không bị bắt đổi mật khẩu. ServeHTTP dùng cùng điều kiện;
+// caller ngoài (SSE recheck) gọi lại trên kết quả Authenticate mới.
+func (s *Server) BusinessAllowed(user identity.User) bool {
+	return s.appAccessGranted(user.Grants) && !user.MustChangePassword
+}
+
 func (s *Server) setSession(w http.ResponseWriter, r *http.Request, ns identity.NewSession) {
-	http.SetCookie(w, &http.Cookie{
-		Name: s.opts.CookieName, Value: ns.Cookie, Path: "/",
-		Expires: ns.ExpiresAt, MaxAge: int(time.Until(ns.ExpiresAt).Seconds()),
-		HttpOnly: true, Secure: webguard.SecureRequest(r), SameSite: http.SameSiteStrictMode,
-	})
+	policy := s.cookiePolicy()
+	for _, name := range legacySessionCookies {
+		policy.Expire(w, r, name)
+	}
+	policy.Set(w, r, ns.Cookie, ns.ExpiresAt)
 }
 
 func (s *Server) clearSession(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name: s.opts.CookieName, Value: "", Path: "/", MaxAge: -1,
-		HttpOnly: true, Secure: webguard.SecureRequest(r), SameSite: http.SameSiteStrictMode,
+	s.cookiePolicy().Clear(w, r)
+}
+
+// writeAppAccessDenied ghi hợp đồng 403 của phiên hợp lệ thiếu grant app:
+// khác 401 (phiên thật và còn sống), trường user là view an toàn — có cả
+// grants, không bao giờ chứa credential.
+func (s *Server) writeAppAccessDenied(w http.ResponseWriter, user identity.UserView) {
+	WriteJSON(w, http.StatusForbidden, map[string]any{
+		"code":  "app_access_denied",
+		"app":   string(s.opts.App),
+		"error": "Tài khoản của bạn chưa được cấp quyền dùng " + s.opts.AppName + ". Vui lòng liên hệ quản trị viên.",
+		"user":  user,
+	})
+}
+
+// writePasswordChangeRequired ghi 403 của tài khoản phải đổi mật khẩu tạm
+// trước khi tiếp tục — áp cho mọi route nghiệp vụ, kể cả admin.
+func (s *Server) writePasswordChangeRequired(w http.ResponseWriter) {
+	WriteJSON(w, http.StatusForbidden, map[string]any{
+		"code":               "password_change_required",
+		"mustChangePassword": true,
+		"error":              "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.",
 	})
 }
 
@@ -257,22 +341,147 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, identity.ErrInvalidCredentials) {
 			s.limiter.Fail(keys...)
+			if len(keys) > 1 && s.limiter.Wait(keys[1]) > 0 {
+				if auditErr := s.accounts.RecordSecurityFailure(username); auditErr != nil {
+					s.writeAccountError(w, auditErr)
+					return
+				}
+			}
 		}
-		Error(w, accountStatus(err), err.Error())
+		s.writeAccountError(w, err)
 		return
 	}
 	s.limiter.Succeed(keys...)
 	s.setSession(w, r, ns)
+	// Đúng credential mà thiếu grant app vẫn đặt cookie (phiên có thể mở app
+	// kia) nhưng trả 403, không giả thành công cũng không tính fail limiter.
+	if !s.appAccessGranted(ns.User.Grants) {
+		s.writeAppAccessDenied(w, ns.User)
+		return
+	}
 	WriteJSON(w, http.StatusOK, map[string]any{"user": ns.User})
 }
 
-func (s *Server) logout(w http.ResponseWriter, r *http.Request, current identity.Session) {
-	if err := s.accounts.RevokeSession(current.ID, func(string) bool { return true }); err != nil && !errors.Is(err, identity.ErrNotFound) {
-		Error(w, accountStatus(err), err.Error())
+// ── tự phục vụ phiên (auth-neutral) ─────────────────────────────────────────
+
+// serveAuthNeutral xử các endpoint mọi session hợp lệ đều được phép — trước
+// grant gate và forced-password gate: chỉ chạm tài khoản/phiên của chính
+// caller. Method+path phải khớp chính xác; sai method rơi xuống các gate
+// chung (thiếu grant → 403, không lộ diện route).
+func (s *Server) serveAuthNeutral(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) bool {
+	path := r.URL.Path
+	switch {
+	case path == "/api/logout" && r.Method == http.MethodPost:
+		s.doLogout(w, r, user, current)
+	case path == "/api/me/password" && r.Method == http.MethodPost:
+		s.doPasswordChange(w, r, user)
+	case path == "/api/me/sessions" && r.Method == http.MethodGet:
+		s.listSessions(w, user.Username, current.ID)
+	case path == "/api/me/sessions/revoke-all" && r.Method == http.MethodPost:
+		s.doRevokeAll(w, r, user)
+	case r.Method == http.MethodPost && strings.HasPrefix(path, "/api/sessions/") && strings.HasSuffix(path, "/revoke"):
+		s.doRevokeSession(w, r, user, current,
+			strings.TrimSuffix(strings.TrimPrefix(path, "/api/sessions/"), "/revoke"))
+	default:
+		return false
+	}
+	return true
+}
+
+// doLogout thu hồi dòng session trước khi xoá cookie: trình duyệt giữ một
+// cookie không còn xác thực được, không bao giờ ngược lại. Lỗi kho trả lỗi
+// thật và giữ cookie — client không được nghe "đã đăng xuất" khi dòng
+// session vẫn sống.
+func (s *Server) doLogout(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
+	if err := s.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
+		s.writeAccountError(w, err)
 		return
 	}
 	s.clearSession(w, r)
-	WriteJSON(w, http.StatusOK, map[string]any{"ok": true})
+	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+// doRevokeAll thu hồi mọi phiên của tài khoản — kể cả phiên đang dùng, nên
+// response xoá cookie và bảo client đăng nhập lại thay vì ngầm ý thiết bị
+// này còn sống.
+func (s *Server) doRevokeAll(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if !emptyBody(w, r) {
+		return
+	}
+	if err := s.accounts.RevokeAll(user.Username, identity.AuditContext{Actor: accountActor(user)}); err != nil {
+		s.writeAccountError(w, err)
+		return
+	}
+	s.clearSession(w, r)
+	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+}
+
+// doRevokeSession thu hồi một phiên — chỉ của chính caller; revoke phiên
+// đang dùng thì xoá luôn cookie.
+func (s *Server) doRevokeSession(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session, id string) {
+	if !emptyBody(w, r) {
+		return
+	}
+	err := s.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username }, identity.AuditContext{Actor: accountActor(user)})
+	if err != nil {
+		s.writeAccountError(w, err)
+		return
+	}
+	if id == current.ID {
+		s.clearSession(w, r)
+	}
+	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+// doPasswordChange đổi mật khẩu tự phục vụ. Thành công thu hồi mọi phiên
+// của tài khoản (hợp đồng kho chung, kể cả phiên này), nên response xoá
+// cookie và yêu cầu đăng nhập lại — gọi lại /api/me ở đây sẽ biến một đổi
+// mật khẩu thành công thành 401 giả.
+func (s *Server) doPasswordChange(w http.ResponseWriter, r *http.Request, user identity.User) {
+	var req struct {
+		Current string `json:"current"`
+		New     string `json:"new"`
+	}
+	if !DecodeJSON(w, r, &req) {
+		return
+	}
+	key := "password:" + user.Username
+	if wait := s.limiter.Wait(key); wait > 0 {
+		tooMany(w, wait)
+		return
+	}
+	if err := s.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
+		if errors.Is(err, identity.ErrForbidden) {
+			s.limiter.Fail(key)
+			Error(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
+			return
+		}
+		s.writeAccountError(w, err)
+		return
+	}
+	s.limiter.Succeed(key)
+	s.clearSession(w, r)
+	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+}
+
+func (s *Server) listSessions(w http.ResponseWriter, username, currentID string) {
+	sessions, err := s.accounts.Sessions(username, currentID)
+	if err != nil {
+		s.writeAccountError(w, err)
+		return
+	}
+	WriteJSON(w, http.StatusOK, map[string]any{"sessions": sessions})
+}
+
+// emptyBody đọc và bỏ body {} của một POST không tham số, giữ convention
+// "mọi POST đều là JSON".
+func emptyBody(w http.ResponseWriter, r *http.Request) bool {
+	var v struct{}
+	return DecodeJSON(w, r, &v)
+}
+
+func accountActor(user identity.User) *identity.AuditActor {
+	return &identity.AuditActor{Username: user.Username, Name: user.Name}
 }
 
 // ── setup lần đầu ───────────────────────────────────────────────────────────
@@ -315,7 +524,9 @@ func (s *Server) serveSetup(w http.ResponseWriter, r *http.Request) bool {
 func (s *Server) setupStatus(w http.ResponseWriter) {
 	_, has, err := s.accounts.FirstUserCreatedAt()
 	if err != nil {
-		Error(w, accountStatus(err), err.Error())
+		// Kho lỗi không được giả thành "trống": trả lỗi thật (503 khi mất
+		// kết nối), không phát mã hay hiện setup trên dữ liệu không đọc được.
+		s.writeAccountError(w, err)
 		return
 	}
 	if has {
@@ -342,7 +553,7 @@ func (s *Server) setupStatus(w http.ResponseWriter) {
 func (s *Server) setupTaken(w http.ResponseWriter) bool {
 	at, has, err := s.accounts.FirstUserCreatedAt()
 	if err != nil {
-		Error(w, accountStatus(err), err.Error())
+		s.writeAccountError(w, err)
 		return true
 	}
 	if !has {
@@ -422,23 +633,32 @@ func (s *Server) setupAdmin(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		if errors.Is(err, identity.ErrExists) {
+			// Kho chung quyết thắng-thua: app này thua race setup → token
+			// cục bộ vô hiệu ngay (UI rời màn setup), không tạo thêm user,
+			// session hay recovery mồ côi ở phía thua.
+			state.Invalidate()
 			if !s.setupTaken(w) {
 				Error(w, http.StatusConflict, s.opts.AppName+" đã có quản trị viên")
 			}
 			return
 		}
-		Error(w, accountStatus(err), err.Error())
+		s.writeAccountError(w, err)
 		return
 	}
 	// Tạo thành công mới vô hiệu mã và token (cả hai dùng một lần).
 	state.Invalidate()
-	code, _, err := s.accounts.IssueRecovery(ns.User.Username, false)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, err.Error())
-		return
+	var recoveryCode *string
+	if code, _, err := s.accounts.IssueRecovery(ns.User.Username, false); err != nil {
+		// User đã commit: không rollback giả và không bắt setup lại. Trả
+		// phiên + recoveryCode=null để UI báo "đã tạo tài khoản nhưng chưa
+		// có mã khôi phục"; admin đăng nhập lại và dùng luồng recovery có
+		// sẵn của app quản trị để phát mã.
+		slog.Error("phát mã khôi phục sau setup thất bại", "module", "webapp", "err", err)
+	} else {
+		recoveryCode = &code
 	}
 	s.setSession(w, r, ns)
-	WriteJSON(w, http.StatusOK, map[string]any{"user": ns.User, "recoveryCode": code})
+	WriteJSON(w, http.StatusOK, map[string]any{"user": ns.User, "recoveryCode": recoveryCode})
 }
 
 // ── tiện ích HTTP ───────────────────────────────────────────────────────────
@@ -500,6 +720,13 @@ func tooMany(w http.ResponseWriter, wait time.Duration) {
 		"error": "Thử sai quá nhiều lần, vui lòng đợi rồi thử lại", "retryAfter": seconds})
 }
 
+// errUnavailableMessage là body duy nhất của 503 phụ thuộc — kho tạm không
+// sẵn sàng không phải lỗi client, không bao giờ xoá cookie hay giả thành 401.
+const errUnavailableMessage = "Máy chủ tạm thời không sẵn sàng, vui lòng thử lại sau."
+
+// errInternalMessage là body duy nhất của một 500 từ boundary này.
+const errInternalMessage = "Máy chủ gặp lỗi, vui lòng thử lại sau."
+
 // accountStatus ánh lỗi identity sang status ổn định; không echo nguyên nhân
 // repository — chỉ trả text sentinel đã duyệt.
 func accountStatus(err error) int {
@@ -508,9 +735,49 @@ func accountStatus(err error) int {
 		return http.StatusUnauthorized
 	case errors.Is(err, identity.ErrInvalidCredentials):
 		return http.StatusUnauthorized
+	case errors.Is(err, identity.ErrForbidden):
+		return http.StatusForbidden
+	case errors.Is(err, identity.ErrNotFound):
+		return http.StatusNotFound
 	case errors.Is(err, identity.ErrExists):
 		return http.StatusConflict
-	default:
+	case errors.Is(err, identity.ErrLastAdmin):
+		return http.StatusConflict
+	case errors.Is(err, identity.ErrConflict):
+		return http.StatusConflict
+	case errors.Is(err, identity.ErrInvalidInput):
 		return http.StatusBadRequest
+	case errors.Is(err, identity.ErrUnsupported):
+		return http.StatusNotImplemented
+	case dependencyUnavailable(err):
+		return http.StatusServiceUnavailable
+	default:
+		return http.StatusInternalServerError
+	}
+}
+
+// dependencyUnavailable báo err là hỏng kho/mạng chứ không phải quyết định
+// nghiệp vụ. Lỗi repository đã được gỡ credential trước khi tới boundary này
+// (pool identity), nên khớp theo kiểu an toàn; text thô không rời log server.
+func dependencyUnavailable(err error) bool {
+	var pgErr *pgconn.PgError
+	var connErr *pgconn.ConnectError
+	var netErr net.Error
+	return errors.As(err, &pgErr) || errors.As(err, &connErr) || errors.As(err, &netErr) ||
+		errors.Is(err, puddle.ErrClosedPool)
+}
+
+// writeAccountError ghi lỗi tài khoản/phiên theo map chung: sentinel giữ
+// status/envelope, lỗi bất ngờ thành 500 generic với nguyên nhân chỉ log
+// phía server. Không bao giờ echo DSN, token hay credential vào response.
+func (s *Server) writeAccountError(w http.ResponseWriter, err error) {
+	switch status := accountStatus(err); {
+	case status == http.StatusServiceUnavailable:
+		Error(w, status, errUnavailableMessage)
+	case status == http.StatusInternalServerError:
+		slog.Error("yêu cầu tài khoản thất bại", "module", "webapp", "err", err)
+		Error(w, status, errInternalMessage)
+	default:
+		Error(w, status, err.Error())
 	}
 }

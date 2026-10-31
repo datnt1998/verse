@@ -1,7 +1,9 @@
-// Màn đăng nhập — POST /api/login → { user }; lỗi lấy nguyên message server
-// ({"error": "…"}), 401/429 vẫn chỉ là message của server trả về.
+// Màn đăng nhập — POST /api/login của Viderse (kho tài khoản chung): 2xx →
+// vào app, 403 app_access_denied (đúng mật khẩu nhưng chưa cấp quyền Viderse)
+// → màn bị chặn, 401/429 vẫn chỉ là message server trả về. Không bao giờ
+// chuyển hướng sang màn đăng nhập của app khác.
 import { useState, type FormEvent } from 'react'
-import { ApiError, login } from '../../api/client'
+import { ApiError } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { Button, FieldError, FieldLabel, PasswordField, TextField } from '@noverse/ui'
@@ -9,7 +11,7 @@ import { LensLogo } from '../../components/LensLogo'
 import { AuthShell, HintLine } from './parts'
 
 export function LoginScreen() {
-  const { setUser } = useSession()
+  const { signIn } = useSession()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,8 +23,8 @@ export function LoginScreen() {
     setBusy(true)
     setError('')
     try {
-      const result = await login(username.trim(), password)
-      setUser(result.user)
+      await signIn(username.trim(), password)
+      // Kết quả vào app hay màn bị chặn do session layer quyết theo response.
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Đăng nhập thất bại')
     } finally {

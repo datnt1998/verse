@@ -1,1 +1,0 @@
-import{j as t,t as e,A as n,n as r,p as i}from"./index-CW5Lk5Ay.js";import{S as s}from"./ScreenEmpty-COR7B1FC.js";function c(){return t.jsx(s,{title:e.screens.review.emptyTitle,hint:e.screens.review.emptyHint,action:t.jsx(n,{variant:"primary",onClick:()=>r(i.workbench()),children:e.screens.review.emptyAction})})}export{c as ReviewScreen};

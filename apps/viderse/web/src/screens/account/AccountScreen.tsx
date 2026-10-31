@@ -1,9 +1,10 @@
-// Tài khoản — thông tin người dùng hiện tại + Đăng xuất (POST /api/logout).
+// Tài khoản — thông tin người dùng hiện tại, đổi mật khẩu (cùng form của cổng
+// bắt buộc), Đăng xuất (POST /api/logout — revoke phiên, thoát cả hai app).
 import { useState } from 'react'
-import { logout } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
 import { Avatar, Button, FieldError, Icon } from '@noverse/ui'
+import { ChangePasswordForm } from '../auth/ChangePasswordScreen'
 
 const fmtDate = (iso: string | undefined) => {
   if (!iso) return null
@@ -12,7 +13,7 @@ const fmtDate = (iso: string | undefined) => {
 }
 
 export function AccountScreen() {
-  const { user, setUser } = useSession()
+  const { user, signOut } = useSession()
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   if (!user) return null
@@ -24,8 +25,7 @@ export function AccountScreen() {
     setBusy(true)
     setError('')
     try {
-      await logout()
-      setUser(null)
+      await signOut()
     } catch {
       setError(t.account.logoutFailed)
     } finally {
@@ -49,11 +49,27 @@ export function AccountScreen() {
           {since && <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{t.account.memberSince}: <span className="num">{since}</span></span>}
         </div>
       </div>
+
+      <section aria-label={t.account.passwordTitle} className="card" style={{
+        borderRadius: 'var(--radius-tile)', padding: 'var(--vv-s-16)',
+        display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)',
+      }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontSize: 14, fontWeight: 600 }}>
+          <Icon name="key" size={16} style={{ color: 'var(--color-fg-3)' }} />{t.account.passwordTitle}
+        </span>
+        <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.auth.passwordForm.reauthNote}</span>
+        <ChangePasswordForm />
+      </section>
+
       {error && <FieldError>{error}</FieldError>}
-      <div>
-        <Button variant="danger" pending={busy} onClick={() => void doLogout()} icon={<Icon name="logout" size={16} />}>
-          {busy ? t.common.loggingOut : t.account.logout}
-        </Button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
+        <div>
+          <Button variant="danger" pending={busy} onClick={() => void doLogout()} icon={<Icon name="logout" size={16} />}
+            style={{ minHeight: 'var(--vv-s-44)' }}>
+            {busy ? t.common.loggingOut : t.account.logout}
+          </Button>
+        </div>
+        <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{t.account.sharedLogoutNote}</span>
       </div>
     </div>
   )

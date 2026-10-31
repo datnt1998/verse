@@ -48,3 +48,11 @@ func DSNFromEnv() (appDSN, migrateDSN string) {
 	}
 	return appDSN, migrateDSN
 }
+
+// IdentityDSNFromEnv trả chuỗi kết nối Postgres của kho tài khoản dùng chung
+// (VERSE_IDENTITY_DATABASE_URL — role viderse_identity trên DB identity của
+// Noverse). Bắt buộc cho serve và `user grant|revoke`; trống nghĩa là chưa
+// cấu hình — caller báo lỗi, không fallback sang DSN nghiệp vụ hay file.
+func IdentityDSNFromEnv() string {
+	return strings.TrimSpace(os.Getenv("VERSE_IDENTITY_DATABASE_URL"))
+}

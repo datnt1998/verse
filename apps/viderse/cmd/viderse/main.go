@@ -12,6 +12,8 @@ import (
 const usage = `Cách dùng:
   viderse serve [-addr HOST:PORT]     Chạy web UI (mặc định 127.0.0.1:8789)
   viderse migrate up|status|version   Quản lý schema Postgres (VIDERSE_DATABASE_URL)
+  viderse user grant <tên> --app noverse|viderse   Cấp quyền dùng một app
+  viderse user revoke <tên> --app noverse|viderse  Thu hồi quyền một app
   viderse login [provider] [--device] Đăng nhập gói thuê bao (mặc định: openai-codex)
   viderse rival add|list|scan|videos|posting-slots|remove  Đối thủ YouTube (VIDERSE_DATABASE_URL)
   viderse channel list|show|create|update|delete|link|unlink|template|identity  Kênh của bạn
@@ -31,8 +33,11 @@ const usage = `Cách dùng:
 Biến môi trường:
   VIDERSE_DATABASE_URL           DSN Postgres của app (bắt buộc cho serve/migrate)
   VIDERSE_MIGRATION_DATABASE_URL DSN role migrate (mặc định dùng chung DSN app)
+  VERSE_IDENTITY_DATABASE_URL    DSN kho tài khoản chung, role viderse_identity
+                                 (bắt buộc cho serve và user grant|revoke)
   VIDERSE_ADDR                   Địa chỉ lắng nghe (ghi đè bởi -addr)
   TRUSTED_PROXIES / PUBLIC_URL / SECURE_COOKIES   Ranh giới proxy (platform/webguard)
+  VERSE_COOKIE_DOMAIN / VERSE_APP_ORIGINS         Cookie chung + allowlist origin
 `
 
 func main() {
@@ -50,6 +55,8 @@ func main() {
 	switch args[0] {
 	case "serve":
 		err = runServe(args[1:])
+	case "user":
+		err = runUser(args[1:])
 	case "migrate":
 		err = runMigrate(args[1:])
 	case "rival":

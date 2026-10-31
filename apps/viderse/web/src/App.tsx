@@ -1,14 +1,18 @@
-// Viderse — ứng dụng quản trị một máy chủ.
+// Viderse — ứng dụng quản trị một máy chủ, tài khoản trên kho chung.
 //   Boot: setKitLabels + applyViderseBrand ở main.tsx → SessionProvider hỏi
-//   /api/me; chưa đăng nhập → Login; máy chủ chưa có tài khoản → Setup.
-//   Có phiên → shell + route; mọi màn trừ Bàn dựng vào chunk riêng (React.lazy).
-// Luồng SSE /api/events chỉ gắn khi đã có phiên (gỡ luôn cache khi tháo).
+//   /api/me; cổng theo trạng thái phiên: chưa kiểm → chờ · store trống → Setup
+//   · không trả lời được → lỗi + Thử lại · chưa đăng nhập → Login
+//   · chưa cấp quyền Viderse → màn bị chặn · ép đổi mật khẩu → màn đổi mật khẩu
+//   · còn lại → shell + route; mọi màn trừ Bàn dựng vào chunk riêng (React.lazy).
 import { Suspense, lazy, useEffect, type ReactNode } from 'react'
 import { Spinner, ToastHost } from '@noverse/ui'
 import { SessionProvider, useSession } from './api/session'
 import { AppShell } from './shell/AppShell'
 import { SetupScreen } from './screens/auth/SetupScreen'
 import { LoginScreen } from './screens/auth/LoginScreen'
+import { AccessDeniedScreen } from './screens/auth/AccessDeniedScreen'
+import { ChangePasswordScreen } from './screens/auth/ChangePasswordScreen'
+import { ServerDownScreen } from './screens/auth/ServerDownScreen'
 import { HomeScreen } from './screens/home/HomeScreen'
 import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
@@ -61,21 +65,27 @@ function Screen({ route }: { route: Route }) {
 
 function Root() {
   const parsed = useRoute()
-  const { checked, user, setupNeeded } = useSession()
+  const { checked, user, setupNeeded, accessDenied, mustChangePassword, serverReachable } = useSession()
+
+  // Phiên dùng đầy đủ = có user, không bị chặn quyền app, không bị ép đổi
+  // mật khẩu. Cả shell lẫn luồng dữ liệu đều treo trên cờ này.
+  const full = !!user && !accessDenied && !mustChangePassword
 
   // Hash không hợp lệ đã parse về Bàn dựng — chuẩn hoá luôn thanh địa chỉ
-  // (replace, không đẩy entry lịch sử thừa).
+  // (replace, không đẩy entry lịch sử thừa). Không chạm hash khi đang ở một
+  // cổng phiên (đổi mật khẩu bắt buộc không cho hash route vượt qua).
   useEffect(() => {
-    if (!checked || !user) return
+    if (!checked || !full) return
     const target = `#${routePath(parsed.route)}`
     if (location.hash !== target) navigate(routePath(parsed.route), true)
-  }, [checked, user, parsed.route])
+  }, [checked, full, parsed.route])
 
-  // Gắn SSE + lớp dữ liệu chỉ khi đã có phiên.
+  // Gắn SSE + lớp dữ liệu chỉ khi phiên dùng đầy đủ — bị chặn quyền app hay
+  // bị ép đổi mật khẩu đều không mount (server cũng 403 mọi route nghiệp vụ).
   useEffect(() => {
-    if (!user) return
+    if (!full) return
     return startDataEvents()
-  }, [user])
+  }, [full])
 
   if (!checked) {
     return (
@@ -84,6 +94,9 @@ function Root() {
       </div>
     )
   }
+  if (accessDenied) return <AccessDeniedScreen />
+  if (mustChangePassword) return <ChangePasswordScreen />
+  if (!serverReachable && !user) return <ServerDownScreen />
   if (setupNeeded) return <SetupScreen />
   if (!user) return <LoginScreen />
   return (

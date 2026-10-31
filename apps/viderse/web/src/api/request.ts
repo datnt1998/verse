@@ -1,16 +1,21 @@
 // Request JSON bám sát platform/webapp: cookie phiên same-origin, body JSON,
 // lỗi server luôn là {"error": "<tiếng Việt>"} (ApiError.status 0 = không kết nối được).
-// 401 trên BẤT KỲ request nào → báo hết phiên cho app (sessionSignal) trước khi ném.
+// Chỉ 401 trên BẤT KỲ request nào mới báo hết phiên (sessionSignal). 403 mang
+// hai mã cổng của kho tài khoản chung — app_access_denied (chưa cấp quyền app)
+// và password_change_required (ép đổi mật khẩu tạm) — cũng báo lên session
+// layer để mọi caller kể cả không đọc payload được đưa về đúng màn; mọi 403
+// nghiệp vụ khác chỉ là lỗi của riêng request đó.
 //
 // Quy ước transport một chỗ (webguard chặn trước khi tới handler):
 //  - POST/PUT/PATCH luôn gửi body JSON — gửi `{}` khi caller không truyền body,
 //    vì middleware bắt buộc content-type JSON trên mọi POST/PUT.
 //  - GET/DELETE không gửi body (DELETE có body vẫn hợp lệ nhưng hiện không có route nào cần).
 //  - {body: undefined} ở `request()` nghĩa là GET; có body nghĩa là POST.
-import { notifySessionExpired } from './sessionSignal'
+import { notifyAccessDenied, notifyPasswordChangeRequired, notifySessionExpired } from './sessionSignal'
+import type { User } from './types'
 export class ApiError extends Error {
   retryAfter?: number
-  /** thân JSON lỗi gốc — vd 400 setup/verify mang `attemptsLeft`/`format`, 423 mang `lockedUntil` */
+  /** thân JSON lỗi gốc — vd 400 setup/verify mang `attemptsLeft`/`format`, 423 mang `lockedUntil`, 403 cổng mang `code`/`user` */
   payload?: unknown
   constructor(public status: number, message: string, retryAfter?: number, payload?: unknown) {
     // Lỗi lấy nguyên từ server, chỉ viết hoa chữ đầu khi hiển thị.
@@ -50,16 +55,23 @@ async function call<T>(method: Method, path: string, body?: object, signal?: Abo
 /** Đọc phản hồi theo đúng hợp đồng lỗi của webapp (401 → hết phiên). */
 async function settle<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    if (response.status === 401) notifySessionExpired()
     const payload: unknown = await response.json().catch(() => null)
+    const body = payload && typeof payload === 'object' ? payload : null
+    if (response.status === 401) {
+      notifySessionExpired()
+    } else if (response.status === 403 && body && 'code' in body) {
+      // 403 app_access_denied mang user an toàn trong body (giữ phiên, không
+      // phải hết phiên); 403 password_change_required chỉ đổi cổng. Hai tín
+      // hiệu này không đụng vào cookie hay trạng thái của app kia.
+      if (body.code === 'app_access_denied') {
+        notifyAccessDenied('user' in body && body.user && typeof body.user === 'object' ? (body.user as User) : null)
+      } else if (body.code === 'password_change_required') {
+        notifyPasswordChangeRequired()
+      }
+    }
     const message =
-      payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string'
-        ? payload.error
-        : response.statusText
-    const retry =
-      payload && typeof payload === 'object' && 'retryAfter' in payload && typeof payload.retryAfter === 'number'
-        ? payload.retryAfter
-        : undefined
+      body && 'error' in body && typeof body.error === 'string' ? body.error : response.statusText
+    const retry = body && 'retryAfter' in body && typeof body.retryAfter === 'number' ? body.retryAfter : undefined
     throw new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, retry, payload)
   }
   if (response.status === 204) return undefined as T

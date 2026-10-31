@@ -47,7 +47,7 @@ export function SetupScreen() {
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [recovery, setRecovery] = useState('')
+  const [recovery, setRecovery] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -159,11 +159,19 @@ export function SetupScreen() {
             <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontWeight: 600 }}>
               <Icon name="key" size={16} style={{ color: 'var(--color-warn)' }} />{t.setup.recoveryTitle}
             </span>
-            <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryWarning}</span>
-            <div>
-              <span className="lbl">{t.setup.recoveryLabel}</span>
-              <p className="mono num" style={{ margin: 'var(--vv-s-6) 0 0', fontSize: 18, letterSpacing: '0.06em', color: 'var(--color-fg)' }}>{recovery}</p>
-            </div>
+            {recovery !== null ? (
+              <>
+                <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryWarning}</span>
+                <div>
+                  <span className="lbl">{t.setup.recoveryLabel}</span>
+                  <p className="mono num" style={{ margin: 'var(--vv-s-6) 0 0', fontSize: 18, letterSpacing: '0.06em', color: 'var(--color-fg)' }}>{recovery}</p>
+                </div>
+              </>
+            ) : (
+              // Server đã tạo admin + đặt phiên nhưng chưa cấp được mã khôi phục:
+              // vẫn vào app bình thường, cấp lại mã qua luồng khôi phục của Noverse.
+              <span style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>{t.setup.recoveryUnavailable}</span>
+            )}
           </div>
           <Button type="button" variant="primary" onClick={() => setSetupNeeded(false)}
             style={{ height: 42, justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>

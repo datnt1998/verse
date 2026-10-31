@@ -15,7 +15,7 @@ import (
 	"github.com/datnt1998/verse/platform/identity"
 )
 
-const testCookie = "viderse_session"
+const testCookie = "verse_session"
 
 // fakeSettings là SettingsStore giả của status.Service cho test web.
 type fakeSettings struct {

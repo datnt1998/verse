@@ -24,6 +24,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/web"
 	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/identity"
+	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/webguard"
 )
@@ -39,6 +40,9 @@ func runServe(args []string) error {
 		return fmt.Errorf("tham số không hợp lệ: %v", flags.Args())
 	}
 
+	// ── Phân tích toàn bộ cấu hình trước mọi tác dụng phụ ────────────────
+	// DSN, proxy và địa chỉ lỗi phải fail trước khi mở pool, chiếm cổng hay
+	// tạo file nào; không fallback DSN identity sang DSN nghiệp vụ/file.
 	if *addr == "" {
 		*addr = strings.TrimSpace(os.Getenv("VIDERSE_ADDR"))
 	}
@@ -49,12 +53,10 @@ func runServe(args []string) error {
 	if appDSN == "" {
 		return fmt.Errorf("thiếu VIDERSE_DATABASE_URL (vd postgres://viderse_app@127.0.0.1:5432/viderse_go)")
 	}
-
-	accounts, err := openAccounts()
-	if err != nil {
-		return err
+	identityDSN := bootstrap.IdentityDSNFromEnv()
+	if identityDSN == "" {
+		return fmt.Errorf("thiếu VERSE_IDENTITY_DATABASE_URL (DSN role viderse_identity tới kho tài khoản chung; xem apps/viderse/deploy/README.md)")
 	}
-
 	// Cấu hình trusted-proxy phân tích trước nhất: CIDR xấu hoặc Secure cookie
 	// không có PUBLIC_URL https đều là lỗi khởi động, không lặng lẽ hạ cấp.
 	proxyCfg, err := webguard.ConfigFromEnv()
@@ -62,11 +64,29 @@ func runServe(args []string) error {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}
 
+	// Giữ cổng trước mọi tác dụng phụ còn lại: bản serve thứ hai (cổng đã
+	// bận) phải thoát mà không mở pool hay đụng việc nền của bản đầu.
+	listener, err := net.Listen("tcp", *addr)
+	if err != nil {
+		return err
+	}
+	defer listener.Close()
+	// Local SSO chia host-only cookie qua các cổng loopback; bind LAN/wildcard
+	// sẽ trao cookie cho hàng xóm không tin cậy nên bị từ chối ngay.
+	if proxyCfg.LocalSSO() && !ssoLoopbackOnly(listener.Addr().String()) {
+		return fmt.Errorf("VERSE_APP_ORIGINS local yêu cầu bind loopback (VIDERSE_ADDR=%q bị từ chối)", *addr)
+	}
+
 	pool, err := postgres.OpenPool(context.Background(), appDSN)
 	if err != nil {
 		return err
 	}
 	defer pool.Close()
+	accounts, closeAccounts, err := openAccounts(context.Background(), identityDSN)
+	if err != nil {
+		return err
+	}
+	defer closeAccounts()
 
 	hub := web.NewEventHub()
 	settings := postgres.NewSettingsStore(pool)
@@ -77,13 +97,6 @@ func runServe(args []string) error {
 
 	gateway := web.NewGateway(accounts, hub, statusSvc)
 	gateway.SetProxyConfig(proxyCfg)
-	// Giữ cổng trước mọi tác dụng phụ: bản serve thứ hai (cổng đã bận) phải
-	// thoát mà không đụng việc nền/phiên bản đang chạy của bản đầu.
-	listener, err := net.Listen("tcp", *addr)
-	if err != nil {
-		return err
-	}
-	defer listener.Close()
 	// Lưu trữ: watch ổ dự án và tự dọn chạy theo vòng đời của serve.
 	bg, bgStop := context.WithCancel(context.Background())
 	defer bgStop()
@@ -155,7 +168,7 @@ func runServe(args []string) error {
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
 
-	fmt.Printf("Tài khoản: %s\n", accounts.Path())
+	fmt.Printf("Tài khoản: kho chung (VERSE_IDENTITY_DATABASE_URL)\n")
 	if ip := net.ParseIP(bound); ip != nil && (ip.IsLoopback() || ip.IsUnspecified()) {
 		fmt.Printf("Mở trên máy này: %s\n", base("127.0.0.1"))
 	} else {
@@ -235,18 +248,35 @@ func stopHTTP(ctx context.Context, server *http.Server, hub *events.Hub) <-chan 
 	return done
 }
 
-// openAccounts mở kho identity file-backend ở ~/.viderse/web-accounts.json.
-func openAccounts() (*identity.Store, error) {
-	dir, err := bootstrap.DefaultConfigDir()
+// openAccounts mở kho tài khoản dùng chung qua pool identity riêng (role
+// viderse_identity, ProjectAccess=false: không đọc project/member Noverse).
+// Pool có closer riêng, tách hẳn pool nghiệp vụ; DSN đến từ
+// VERSE_IDENTITY_DATABASE_URL, không fallback sang DSN app hay file.
+func openAccounts(ctx context.Context, identityDSN string) (*identity.Store, func(), error) {
+	pool, err := identitypg.Open(ctx, identitypg.PoolConfig{DSN: identityDSN})
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("mở kho tài khoản chung: %w", err)
 	}
-	path, err := identity.DefaultPath(dir)
+	store := identity.NewFromRepository(
+		identitypg.NewAccounts(pool.Pool(), identitypg.Options{ProjectAccess: false}),
+		identity.Options{},
+	)
+	return store, pool.Close, nil
+}
+
+// ssoLoopbackOnly báo một địa chỉ lắng nghe đã resolve có nằm trong loopback
+// không. Khi local SSO bật, cookie chung đi tới mọi cổng trên host, nên bind
+// wildcard (0.0.0.0, [::]) hay LAN bị từ chối trực tiếp.
+func ssoLoopbackOnly(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
 	if err != nil {
-		return nil, err
+		return false
 	}
-	// Viderse không chia project: mọi project ID đều chấp nhận, không có legacy.
-	return identity.NewStore(path, identity.Options{}), nil
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 func runMigrate(args []string) error {

@@ -34,11 +34,39 @@ và hỏi đáp với design ghi ở [`docs/design/v1/11-hoi-dap.md`](docs/desig
 
 | Biến | Ý nghĩa |
 | --- | --- |
-| `VIDERSE_DATABASE_URL` | DSN của app (bắt buộc cho `serve`/`migrate`), vd `postgres://viderse_app@127.0.0.1:5432/viderse_go` |
-| `VIDERSE_MIGRATION_DATABASE_URL` | DSN role migrate; mặc định dùng chung DSN app |
-| `VIDERSE_ADDR` | Địa chỉ lắng nghe, mặc định `127.0.0.1:8789` (`-addr` ghi đè) |
+| `VIDERSE_DATABASE_URL` | Chuỗi kết nối Postgres (bắt buộc `serve`, `migrate`, `rival …`) |
+| `VIDERSE_MIGRATION_DATABASE_URL` | Chuỗi kết nối role migrate; mặc định dùng chung `VIDERSE_DATABASE_URL` |
+| `VERSE_IDENTITY_DATABASE_URL` | Chuỗi kết nối kho tài khoản **dùng chung** (role `viderse_identity` trên DB identity của Noverse) — bắt buộc `serve` và `user grant\|revoke`; không có fallback |
+| `VIDERSE_ADDR` | Địa chỉ lắng nghe, mặc định `127.0.0.1:8789` (`-addr` ghi đè). Local SSO chỉ cho phép loopback |
 | `TRUSTED_PROXIES` / `PUBLIC_URL` / `SECURE_COOKIES` | Ranh giới trusted-proxy (xem `platform/webguard`) |
+| `VERSE_COOKIE_DOMAIN` / `VERSE_APP_ORIGINS` | Cookie chung `verse_session` + allowlist origin của SSO (xem `apps/viderse/deploy/README.md`) |
 | `VIDERSE_CLAUDE_CODE_VERSION` | Ghi đè wire version Claude Code cho anthropic-oauth |
+
+Xem `apps/viderse/deploy/README.md` + `apps/viderse/deploy/.env.example` cho
+hai DB, role, cookie SSO và origin.
+
+## Tài khoản và phiên
+
+Tài khoản web sống trong **kho dùng chung** (`platform/identity/postgres`,
+DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
+`~/.viderse/web-accounts.json`:
+
+- Một tài khoản = một username + mật khẩu; đăng nhập ở app này mở được app kia
+  bằng đúng cookie `verse_session` (host-only ở local, `VERSE_COOKIE_DOMAIN`
+  khi hosted). `viderse_session`/`ainovel_session` là tên cũ: chỉ bị expire.
+- Quyền dùng từng app nằm trong `app_grants` (admin toàn cục luôn vào được):
+  phiên hợp lệ mà thiếu grant Viderse nhận `403 {code:"app_access_denied"}`
+  kèm `user`/`grants` — phiên vẫn sống (có thể mở được Noverse), cookie không
+  bị xoá. Cấp/thu hồi: `viderse user grant|revoke <tên> --app noverse|viderse`
+  (hoặc `ainovel-cli serve user grant|revoke`); grant mutation thu hồi mọi
+  phiên của tài khoản mục tiêu.
+- Tài khoản bị đặt mật khẩu tạm (`must_change_password`): mọi route nghiệp
+  vụ trả `403 {code:"password_change_required"}` cho tới khi đổi mật khẩu;
+  chỉ `/api/me`, `/api/me/password`, `/api/me/sessions*` và `/api/logout` còn
+  vào được. Đổi mật khẩu thu hồi **mọi** phiên của tài khoản (cả app kia) và
+  trả `{ok:true,reauthenticate:true}` + xoá cookie.
+- `GET /api/setup` chỉ báo `needed` khi kho đọc được và trống — lỗi kho trả
+  503, không phát mã ảo.
 
 ## Lệnh
 
@@ -49,6 +77,8 @@ go run ./apps/viderse/cmd/viderse migrate status
 go run ./apps/viderse/cmd/viderse login            # đăng nhập gói thuê bao (mặc định openai-codex)
 go run ./apps/viderse/cmd/viderse login --status
 go run ./apps/viderse/cmd/viderse logout
+go run ./apps/viderse/cmd/viderse user grant  linh --app viderse   # cấp quyền dùng Viderse (kho chung)
+go run ./apps/viderse/cmd/viderse user revoke linh --app viderse   # thu hồi + thu hồi phiên
 ```
 
 - Lần `serve` đầu (chưa có tài khoản): terminal in một **mã thiết lập** dùng một
@@ -66,7 +96,7 @@ go run ./apps/viderse/cmd/viderse logout
 | Đường dẫn | Nội dung |
 | --- | --- |
 | `~/.viderse/auth.json` | credential OAuth (do `viderse login` ghi) |
-| `~/.viderse/web-accounts.json` | tài khoản web + phiên (cookie `viderse_session`) |
+| tài khoản web + phiên | kho chung Postgres (`VERSE_IDENTITY_DATABASE_URL`), cookie `verse_session` |
 | database `viderse_go` | `settings`, `background_tasks`, `notifications`; các bảng nghiệp vụ thêm theo từng phần |
 
 ## Cấu trúc mã

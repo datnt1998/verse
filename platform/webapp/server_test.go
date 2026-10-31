@@ -14,7 +14,7 @@ import (
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
-const testCookie = "testapp_session"
+const testCookie = "verse_session"
 
 func testUI() fstest.MapFS {
 	return fstest.MapFS{
@@ -31,7 +31,8 @@ type testServer struct {
 }
 
 // newTestServer dựng Server trên một kho file-backend trống; withUser tạo
-// sẵn tài khoản để bỏ qua luồng thiết lập.
+// sẵn tài khoản admin để bỏ qua luồng thiết lập (admin file-mode có grant
+// hiệu lực cả hai app, xem identity.fileGrants).
 func newTestServer(t *testing.T, withUser bool) *testServer {
 	t.Helper()
 	accounts := identity.NewStore(filepath.Join(t.TempDir(), "web-accounts.json"), identity.Options{})
@@ -40,9 +41,15 @@ func newTestServer(t *testing.T, withUser bool) *testServer {
 		ts.createUser("admin", "admin-pass")
 	}
 	ts.s = webapp.New(accounts, webapp.Options{
-		AppName:    "TestApp",
-		CookieName: testCookie,
-		UI:         testUI(),
+		AppName: "TestApp",
+		App:     identity.AppViderse,
+		UI:      testUI(),
+		// Mirror allowlist upload của gateway thật: multipart chỉ đi qua ở
+		// đúng hai route nhận tệp, các gate auth vẫn chạy sau đó.
+		AllowNonJSON: func(r *http.Request) bool {
+			return r.Method == http.MethodPost &&
+				(r.URL.Path == "/api/overlays" || r.URL.Path == "/api/image-prompts/import")
+		},
 	})
 	return ts
 }

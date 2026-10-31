@@ -31,10 +31,10 @@ type Gateway struct {
 	status   *status.Service
 }
 
-// NewGateway dựng handler: accounts là kho identity file-backend; khi chưa có
-// tài khoản nào, server tạo một setup state (chỉ giữ hash) — serve in mã
-// plaintext một lần qua SetupCodeOnce. svc phải được dựng với publishStatus
-// của cùng hub (xem serve.go).
+// NewGateway dựng handler: accounts là kho identity chung (Postgres); khi
+// chưa có tài khoản nào, server tạo một setup state (chỉ giữ hash) — serve
+// in mã plaintext một lần qua SetupCodeOnce. svc phải được dựng với
+// publishStatus của cùng hub (xem serve.go).
 func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) *Gateway {
 	dist, err := fs.Sub(ui, "dist")
 	if err != nil {
@@ -44,7 +44,7 @@ func NewGateway(accounts *identity.Store, hub *events.Hub, svc *status.Service) 
 	g := &Gateway{
 		Server: webapp.New(accounts, webapp.Options{
 			AppName:      "Viderse",
-			CookieName:   "viderse_session",
+			App:          identity.AppViderse,
 			UI:           dist,
 			AllowNonJSON: allowFileUpload,
 		}),
@@ -191,11 +191,15 @@ func throttledCheck(every time.Duration, now func() time.Time, check func() bool
 	}
 }
 
+// eventSessionValid đọc cookie qua đúng tên của policy chung và kiểm lại cả
+// grant app lẫn cờ bắt đổi mật khẩu trên kết quả Authenticate mới — không
+// chỉ err==nil: phiên bị revoke grant hoặc bị khoá vào màn đổi mật khẩu
+// phải đóng luồng ở nhịp kiểm kế tiếp.
 func (g *Gateway) eventSessionValid(r *http.Request) bool {
-	cookie, err := r.Cookie("viderse_session")
+	cookie, err := r.Cookie(g.SessionCookieName())
 	if err != nil {
 		return false
 	}
-	_, _, err = g.accounts.Authenticate(cookie.Value)
-	return err == nil
+	user, _, err := g.accounts.Authenticate(cookie.Value)
+	return err == nil && g.BusinessAllowed(user)
 }

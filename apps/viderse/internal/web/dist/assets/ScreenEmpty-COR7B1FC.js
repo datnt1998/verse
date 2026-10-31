@@ -1,1 +1,0 @@
-import{j as a,a5 as m}from"./index-CW5Lk5Ay.js";function n({icon:t="magic-star",title:e,hint:r,action:s}){return a.jsx("div",{className:"vv-page-empty",children:a.jsx(m,{variant:"frame",icon:t,title:e,hint:r,action:s})})}export{n as S};
