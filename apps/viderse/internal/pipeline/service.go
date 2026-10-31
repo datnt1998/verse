@@ -189,7 +189,7 @@ func (s *Service) List(ctx context.Context, channelID *string, limit int) (domai
 		}
 		result.QueuedTotal = len(items)
 		for _, item := range items {
-			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), PreviousJobID: item.RestartOf, Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
+			result.Jobs = append(result.Jobs, domain.CloneJobView{CloneJob: domain.CloneJob{ID: item.ID, ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, NoImages: item.NoImages, StageGroup: domain.StageQueued, Status: domain.ClonePending, Priority: item.Priority, Origin: item.Origin, CreatedAt: item.CreatedAt, UpdatedAt: item.CreatedAt}, QueueItem: new(item), PreviousJobID: item.RestartOf, Steps: []domain.CloneStepRecord{}, AgentView: []domain.CloneAgentView{}})
 		}
 	}
 	return result, nil
