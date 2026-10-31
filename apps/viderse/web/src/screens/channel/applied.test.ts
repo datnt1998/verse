@@ -8,6 +8,7 @@ const base = (patch: Partial<Channel> = {}): Channel => ({
   id: 'c1', name: 'Chuyện Lạ', youtubeUrl: null, language: 'vi',
   styleNote: null, descriptionFooter: null, alwaysTags: [],
   autoPick: true, pacePerDay: 5, templateCursor: 0,
+  autonomy: { preset: 'balanced', pick: 'all', approve: { mode: 'ask', min: 85 }, onError: 'retry_once', belowQuality: 'ask' }, priority: 'steady',
   branding: { brief: '', summary: '', look: '', avatar: '', banner: '' },
   avatarUrl: null, bannerUrl: null,
   sources: [{ rivalId: 'r1', title: 'Một Phim', handle: '@motphim', linkedAt: '2026-10-20T00:00:00Z', reference: true }],

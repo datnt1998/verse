@@ -6,7 +6,7 @@ import type { Status } from '../../api/status'
 import { keys } from '../../data/keys'
 
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; source: { title: string; thumbnailUrl: string | null } }
-export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; currentVersion: number | null; reviewVersion: number | null; versions: { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string }[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string }
+export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; currentVersion: number | null; reviewVersion: number | null; versions: { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string }[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
 export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; approved: boolean; approvedToday?: number | null }
 const base = (id: string) => `/api/clone/${encodeURIComponent(id)}/images`
 export const imageURL = (job: string, image: ReviewImage, variant: 'full' | 'cutout' = 'full') => {

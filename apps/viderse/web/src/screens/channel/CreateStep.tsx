@@ -6,20 +6,22 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // "Cách kênh chạy" (Mẫu chuẩn + nhịp). Nút Tạo kênh khoá (aria-disabled + lý do)
 // tới khi chọn được một đối thủ. Mức tự chủ (§20) không có trong đợt này.
 import { useState } from 'react'
-import { Field, Icon, toast } from '@noverse/ui'
+import { Field, Icon, Segmented, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
-import { ActionButton, ChannelAvatar } from '../../components'
+import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import { t } from '../../i18n/vi'
 import { navigate, paths } from '../../router'
 import { keys } from '../../data/keys'
 import { useResource } from '../../data/useResource'
 import { addRival, listRivals, type Rival } from '../../api/rivals'
 import { createChannel } from '../../api/channels'
+import { DEFAULT_AUTONOMY, applyPreset, presetIds, type PresetId } from '../../api/autonomy'
 import { listTemplates } from '../../api/library'
 import { addRivalError } from '../explore/AddRivalForm'
 import { fmtSubs } from '../explore/fmt'
 import { channelTint } from '../../lib/channelTint'
 import { PaceStepper } from './PaceStepper'
+import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
 
 const num = new Intl.NumberFormat('vi-VN')
 
@@ -29,6 +31,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
   onCreated: (channelId: string) => void
 }) {
   const tt = t.channels.create
+  const ta = t.autonomy
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const rivals = rivalsRes.data?.rivals ?? []
@@ -36,6 +39,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [pace, setPace] = useState(5)
+  const [aut, setAut] = useState<PresetId>('balanced')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -56,6 +60,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
         youtubeUrl: url.trim() ? url.trim() : undefined,
         competitorIds: picked,
         pacePerDay: pace,
+        autonomy: applyPreset(DEFAULT_AUTONOMY, aut),
       })
       void invalidate(keys.channels())
       void invalidate(keys.rivals())
@@ -199,6 +204,23 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.library('templates')}`}>{tt.chooseTemplate}</a>
             </div>
             <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
+              <span {...stylex.props(autonomyStyles.orbsSm)} aria-hidden="true">
+                <Orb of="qa" size={11} className={stylex.props(autonomyStyles.orbQa).className} />
+                <Orb of="artist" size={11} className={stylex.props(autonomyStyles.orbArtist).className} />
+              </span>
+              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
+                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{ta.title}</span>
+                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{ta.createSub[aut]}</span>
+              </span>
+              <Segmented
+                size="sm"
+                label={ta.title}
+                value={aut}
+                options={presetIds.map((id) => ({ id, label: ta.presets[id] }))}
+                onChange={(id) => setAut(id as PresetId)}
+              />
+            </div>
+            <div className={`vch-runrow ${stylex.props(channelStyles.runrow, aut === 'careful' && autonomyStyles.dim).className}`}>
               <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
                 <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{tt.pace}</span>
                 <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{tt.paceSub}</span>
