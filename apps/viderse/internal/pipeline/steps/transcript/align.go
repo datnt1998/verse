@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"unicode"
+	"unicode/utf16"
 
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
@@ -69,7 +70,8 @@ func similarity(a, b string) float64 {
 	if a == b {
 		return 2
 	}
-	ra, rb := []rune(a), []rune(b)
+	// JavaScript indexes strings by UTF-16 code unit, including surrogate pairs.
+	ra, rb := utf16.Encode([]rune(a)), utf16.Encode([]rune(b))
 	previous := make([]int64, len(rb)+1)
 	for j := range previous {
 		previous[j] = int64(j)
