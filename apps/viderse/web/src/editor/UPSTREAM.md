@@ -162,3 +162,14 @@ Licenses for installed packages and embedded libraries are inventoried in
 - `scripts/size.mjs` follows static imports in Vite's build manifest and checks
   the emitted module-provenance manifest to reject any editor code in the
   initial application chunks. Run the app-local build before this check.
+- Required runtime assets are committed in `web/public/editor-engine/`, so a fresh
+  checkout does not depend on a donor checkout or a CDN. The two worklet bundles
+  are rebuilt from the yt-factory `2c201e6` sources; their corresponding sources
+  and SoundTouch LGPL license remain in this tree. Rebuild with the app-local
+  `npm run build:engine-worklet`; its owner is `scripts/build-editor-worklet.mjs`.
+- `public/editor-engine/dotlottie-player.wasm` is the matching
+  `@lottiefiles/dotlottie-web` 0.76.0 asset (MIT); its verbatim license is alongside
+  the asset at `public/editor-engine/LICENSE-dotlottie`.
+- The earlier references to donor `pnpm` commands, `THIRD_PARTY_NOTICES.md` and
+  `REVIEW.md` describe the pinned donor, not Viderse commands. Viderse's notice
+  owner is repository-root `third_party/NOTICE`.

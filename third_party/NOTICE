@@ -204,6 +204,8 @@ Attribution: ainovel-cli, agentcore v1.8.2 and litellm v1.8.10 by voocel (https:
 Modified by the Noverse contributors: libraries incorporated into this repository, imports renamed, unused packages removed, and agent/provider implementation improved.
 
 Attribution: Viderse editor engine (apps/viderse/web/src/editor/engine/**) is derived from FreeCut, Copyright (c) 2025 FreeCut, commit 4d62e808, MIT License; full text in apps/viderse/web/src/editor/LICENSE-freecut.
-Attribution: Viderse editor includes code from OpenReel, Copyright (c) 2024-2026 Augustus Otu and Contributors, MIT License; full text in apps/viderse/web/src/editor/LICENSE-openreel.
+Attribution: Viderse editor includes code from OpenReel, Copyright (c) 2024-2026 Augustus Otu and Contributors, commit c9340465e5d37e684cc25bdbe746c4ccd45e165c, MIT License; full text in apps/viderse/web/src/editor/LICENSE-openreel.
 Both were ported via yt-factory commit 2c201e6 and modified by the Viderse contributors: aliases rewritten, ML/i18n subtrees removed, product UI rebuilt; provenance in apps/viderse/web/src/editor/UPSTREAM.md.
 ffmpeg, Chrome for Testing and yt-dlp are external binaries downloaded by the user; they are not distributed with this repository.
+Attribution: SoundTouch JS 0.2.3, Copyright Olli Parviainen, Ryan Berdeen, Jakub Fiala and Steve 'Cutter' Blades, LGPL-2.1-or-later. Corresponding source and full license are apps/viderse/web/src/editor/engine/infrastructure/audio/time-stretch.ts and LICENSE-soundtouch. The public soundtouch-preview-processor.worklet.js retains the copyright/LGPL banner; rebuild and replacement materials are apps/viderse/web/scripts/build-editor-worklet.mjs and its imported sources.
+Attribution: dotLottie Web 0.76.0, Copyright (c) 2023 LottieFiles.com, MIT License. The matching WASM and verbatim license are apps/viderse/web/public/editor-engine/dotlottie-player.wasm and LICENSE-dotlottie.
