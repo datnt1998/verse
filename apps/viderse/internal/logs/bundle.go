@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 )
 
 // bundleTailBytes là phần đuôi tối đa mỗi log đưa vào gói — các dòng mới
@@ -40,6 +42,14 @@ type BundleOptions struct {
 
 // BuildBundle dựng gói trong bộ nhớ — log đã giới hạn nên gói vài MB.
 func (s *Store) BuildBundle(ctx context.Context, opts BundleOptions) (*Bundle, error) {
+	if s.tasks != nil {
+		id, err := s.tasks.Start(ctx, domain.TaskSpec{
+			Kind: domain.TaskLogs, Title: "Xuất nhật ký",
+			Object: domain.ObjectRef{Type:"logs", ID:fmt.Sprint(s.sequence.Add(1)), Label:"Nhật ký"},
+			Phase:"Đang tạo gói báo lỗi",
+		})
+		if err == nil { defer s.tasks.Finish(context.WithoutCancel(ctx), id) }
+	}
 	now := opts.Now
 	if now.IsZero() {
 		now = time.Now()

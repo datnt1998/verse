@@ -5,6 +5,7 @@
 package logs
 
 import (
+	"context"
 	"bufio"
 	"bytes"
 	"encoding/json"
@@ -16,7 +17,10 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
+
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 )
 
 // Level là mức nghiêm trọng của một dòng nhật ký (alias chuỗi để interface
@@ -79,6 +83,11 @@ var redactPatterns = []struct {
 type Store struct {
 	dir  string
 	home string // gốc thư mục nhà để che tên người dùng trong đường dẫn
+	tasks interface {
+		Start(context.Context, domain.TaskSpec) (string, error)
+		Finish(context.Context, string) error
+	}
+	sequence atomic.Uint64
 
 	mu sync.Mutex // tuần tự hoá append+rotate trên mọi tệp
 }
@@ -88,6 +97,13 @@ type Store struct {
 func New(dir, home string) *Store {
 	return &Store{dir: dir, home: home}
 }
+
+// SetTasks connects bundle generation to the shared background activity list.
+// Call before serving requests.
+func (s *Store) SetTasks(tasks interface {
+	Start(context.Context, domain.TaskSpec) (string, error)
+	Finish(context.Context, string) error
+}) { s.tasks = tasks }
 
 // Close là điểm kết thúc của store (mọi tệp đã đóng ngay sau mỗi lần ghi);
 // giữ để composition gọi khi tắt và tương lai thêm buffer.

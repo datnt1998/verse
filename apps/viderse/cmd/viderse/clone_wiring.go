@@ -176,7 +176,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	}
 	editorService := newEditorService(pool, files, cfgDir, toolKit, toolDeps)
 	editorService.Store.Templates = librarySvc
-	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps)
+	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
+	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps, activityService)
 	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {
 		owner, err := queueStore.Owner(ctx, id)
 		if err != nil || owner == nil {
@@ -314,7 +315,6 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		registry[step] = handler
 	}
 	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
-	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
 	runner.OnHumanState = func(ctx context.Context, job *domain.CloneJob, kind string) {
 		text, label := "", "Mở"
 		switch kind {
