@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, stoHeadMRowMarker, stoLocActMarker, stoPickMMarker, stoModeListMarker, stoDrivesMarker, stoPickBodyMarker, stoJobsMarker, stoPickMarker, stoBrowMarker, stoConfirmMarker, driveMarker, checksMarker, checkMarker, isFailMarker, isWarnMarker, moveMMarker, moveGroupsMarker, usageBarMarker, usageLegendMarker, stoBannerFixMarker, cleanlistMarker, pillMarker } from '../settings.stylex'
 // Cài đặt › Lưu trữ (V22 + MSettings store=*): thẻ thư mục dự án (ổ, đường dẫn
 // mono cắt giữa, Mở trong Finder, Đổi thư mục), khối chọn tại chỗ (store=pick:
 // thư mục mới + gợi ý ổ + hai lựa chọn dữ liệu + checklist + CTA), tiến độ
@@ -25,7 +27,6 @@ import {
 import { getActivity, type BackgroundTask } from '../../../api/activity'
 import { ActionButton } from '../../../components/ActionButton'
 import { fill, fmtBytes, fmtDay, fmtEta, fmtGB, fmtTime, midTrunc } from '../fmt'
-import './storage.css'
 import { getServerStorage } from '../../../api/storageServer'
 import { ServerStorageSection } from './ServerStorageSection'
 import { CleanupCard } from './CleanupCard'
@@ -56,11 +57,11 @@ const kindLabel = (v: StorageVolume): string => {
 /** Hàng checklist của bước kiểm tra thư mục mới. */
 function Checks({ checks }: { checks: StorageCheckResult['checks'] }) {
   return (
-    <div className="vv-checks">
+    <div className={`vv-checks ${stylex.props(checksMarker, settingsStyles.checks).className}`}>
       {checks.map((c) => (
-        <span key={c.kind} className={`vv-check${c.status !== 'ok' ? ` is-${c.status}` : ''}`}>
-          <Icon name={c.status === 'ok' ? 'tick-b' : c.status === 'warn' ? 'info' : 'danger'} size={15} className={`vv-ic is-${c.status === 'fail' ? 'fail' : c.status}`} />
-          <span className={c.status === 'ok' ? undefined : 'vv-check__t'}>{c.text}</span>
+        <span key={c.kind} className={`vv-check ${stylex.props(checkMarker, ((c.status !== 'ok') && ((c.status) === "warn")) && isWarnMarker, ((c.status !== 'ok') && ((c.status) === "fail")) && isFailMarker, settingsStyles.check).className}`}>
+          <Icon name={c.status === 'ok' ? 'tick-b' : c.status === 'warn' ? 'info' : 'danger'} size={15} className="vv-ic" xstyle={[settingsStyles.ic, c.status === 'ok' ? settingsStyles.icIsOk : c.status === 'warn' ? settingsStyles.icIsWarn : settingsStyles.icIsFail]} />
+          <span {...stylex.props((!(c.status === 'ok')) && settingsStyles.checkT)}>{c.text}</span>
         </span>
       ))}
     </div>
@@ -103,50 +104,50 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
   const safePage = Math.min(page, pageCount - 1)
   const visible = shownDirs.slice(safePage * BROWSE_PAGE, (safePage + 1) * BROWSE_PAGE)
   return (
-    <div className="vv-sto__browse">
-      <div className="vv-drives" role="group" aria-label={t.storage.picker.roots}>
+    <div className={`vv-sto__browse ${stylex.props(settingsStyles.stoBrowse).className}`}>
+      <div className={`vv-drives ${stylex.props(settingsStyles.drives).className}`} role="group" aria-label={t.storage.picker.roots}>
         {data?.roots.map((r) => (
-          <button key={r.path} type="button" className="vv-drive" aria-pressed={r.path === data.path}
+          <button key={r.path} type="button" className={`vv-drive ${stylex.props(driveMarker, settingsStyles.drive).className}`} aria-pressed={r.path === data.path}
             onClick={() => onPick(r.path)} title={r.path}>
             {r.name}
           </button>
         ))}
         {data?.path && data.path !== '/' ? (
-          <button type="button" className="vv-drive" onClick={() => onPick(data.path.replace(/\/[^/]*$/, '') || '/')}>
+          <button type="button" className={`vv-drive ${stylex.props(driveMarker, settingsStyles.drive).className}`} onClick={() => onPick(data.path.replace(/\/[^/]*$/, '') || '/')}>
             <Icon name="arrow-up" size={13} />{t.storage.picker.back}
           </button>
         ) : null}
       </div>
-      <div className="vv-fieldbox">
-        <Icon name="folder" size={16} className="vv-ic" />
-        <span className="vv-mono vv-ell" title={data?.path}>{data ? midTrunc(data.path, 34) : ''}</span>
+      <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
+        <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
+        <span className={`vv-mono vv-ell ${stylex.props(settingsStyles.mono, settingsStyles.ell).className}`} title={data?.path}>{data ? midTrunc(data.path, 34) : ''}</span>
       </div>
-      <label className="vv-fieldbox">
-        <Icon name="search" size={14} className="vv-ic" />
+      <label className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
+        <Icon name="search" size={14} className="vv-ic" xstyle={[settingsStyles.ic]} />
         <input
           type="search" value={filter} aria-label={t.storage.picker.filter}
           placeholder={t.storage.picker.filterPlaceholder}
           onChange={(e) => { setFilter(e.target.value); setPage(0) }}
-          className="vv-sto__search"
+          className={`vv-sto__search ${stylex.props(settingsStyles.stoSearch).className}`}
         />
       </label>
-      <div className="vv-cleanlist" role="list" style={{ maxHeight: 'var(--vv-s-80)', overflowY: 'auto' }}>
+      <div className={`vv-cleanlist ${stylex.props(cleanlistMarker, settingsStyles.cleanlist).className}`} role="list" style={{ maxHeight: 'var(--vv-s-80)', overflowY: 'auto' }}>
         {shownDirs.length === 0 ? (
-          <span><span className="vv-lb">{needle ? t.storage.picker.noMatch : t.storage.picker.empty}</span></span>
+          <span {...stylex.props(settingsStyles.VvCleanlistSpan)}><span className={`vv-lb ${stylex.props(settingsStyles.lb).className}`}>{needle ? t.storage.picker.noMatch : t.storage.picker.empty}</span></span>
         ) : visible.map((d) => (
-          <button key={d.path} type="button" className="vv-sto__brow" onClick={() => onPick(d.path)}>
-            <Icon name="folder" size={15} className="vv-ic" />
-            <span className="vv-sto__browName">{d.name}</span>
-            <Icon name="arrow-r" size={13} className="vv-ic" />
+          <button key={d.path} type="button" className={`vv-sto__brow ${stylex.props(stoBrowMarker, settingsStyles.stoBrow).className}`} onClick={() => onPick(d.path)}>
+            <Icon name="folder" size={15} className="vv-ic" xstyle={[settingsStyles.ic]} />
+            <span className={`vv-sto__browName ${stylex.props(settingsStyles.stoBrowName).className}`}>{d.name}</span>
+            <Icon name="arrow-r" size={13} className="vv-ic" xstyle={[settingsStyles.ic]} />
           </button>
         ))}
       </div>
       {pageCount > 1 ? (
-        <div className="vv-sto__pager">
+        <div className={`vv-sto__pager ${stylex.props(settingsStyles.stoPager).className}`}>
           <ActionButton variant="quiet" size="sm" disabled={safePage <= 0} onClick={() => setPage((p) => p - 1)}>
             {t.storage.picker.prevPage}
           </ActionButton>
-          <span className="vv-num vv-sto__page">
+          <span className={`vv-num vv-sto__page ${stylex.props(settingsStyles.stoPage, settingsStyles.num).className}`}>
             {fill(t.storage.picker.pageOf, { page: safePage + 1, pages: pageCount })}
           </span>
           <ActionButton variant="quiet" size="sm" disabled={safePage >= pageCount - 1} onClick={() => setPage((p) => p + 1)}>
@@ -155,7 +156,7 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
         </div>
       ) : null}
       {res.status === 'error' ? <span className="vv-errline">{(res.error as Error | undefined)?.message}</span> : null}
-      <div className="vv-sto__end">
+      <div className={`vv-sto__end ${stylex.props(settingsStyles.stoEnd).className}`}>
         <ActionButton variant="outline" size="sm" disabled={!data?.path} onClick={() => data && onPick(`use:${data.path}`)}>
           {t.storage.picker.useThis}
         </ActionButton>
@@ -244,11 +245,13 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
 
   if (mobile) {
     return (
-      <div className="vv-sto__pick vv-sto__pick--m">
-        <div className="vv-sto__pickBody">
-          <div role="radiogroup" aria-label={t.storage.picker.roots} className="vv-sto__drives">
+      <div className={`vv-sto__pick vv-sto__pick--m ${stylex.props(stoPickMarker, stoPickMMarker, settingsStyles.stoPick, settingsStyles.stoPickM).className}`}>
+        <div className={`vv-sto__pickBody ${stylex.props(stoPickBodyMarker, settingsStyles.stoPickBody).className}`}>
+          <div role="radiogroup" aria-label={t.storage.picker.roots} className={`vv-sto__drives ${stylex.props(stoDrivesMarker, settingsStyles.stoDrives).className}`}>
             {data.suggestions.map((s) => (
               <RadioCard key={s.path} checked={chosen === s.path} onChange={() => onChosen(s.path)} size="md" dotSize={22}
+                xstyle={settingsStyles.storageDriveCard} labelStyle={settingsStyles.storageDriveLabel}
+                descriptionStyle={settingsStyles.storageDriveDescription} dotStyle={settingsStyles.storageDriveDot}
                 label={s.volume.name}
                 description={s.volume.kind === 'cloud_sync'
                   ? t.storage.picker.cloudRow
@@ -256,7 +259,7 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
                 data-path={s.path} />
             ))}
           </div>
-          <span className="vv-help">{t.storage.picker.mobileAnyway}</span>
+          <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.mobileAnyway}</span>
           <Segmented label={t.storage.picker.modesLabel} value={mode} onChange={(v) => setMode(v as 'move' | 'new_only')} size={40} radius={10}
             options={[
               { id: 'move', label: fill(t.storage.picker.segMove, { size }) },
@@ -264,56 +267,57 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
             ]} />
           
           {check ? <Checks checks={artboardChecks(check.checks)} /> : checking ? <Spinner size={14} /> : null}
-          {checkError ? <span className="vv-err">{checkError}</span> : null}
+          {checkError ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{checkError}</span> : null}
         </div>
-        <div className="vv-sto__go vv-sto__go--m">
-          {hint ? <span className="vv-err">{hint}</span> : null}
-          <Button variant="primary" size="xl" className="vv-sto__goBtn" pending={go.pending} disabled={!check?.ok} onClick={() => void go.run()}>{submitLabel}</Button>
+        <div className={`vv-sto__go vv-sto__go--m ${stylex.props(settingsStyles.stoGoM, settingsStyles.stoGo).className}`}>
+          {hint ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{hint}</span> : null}
+          <Button variant="primary" size="xl" className="vv-sto__goBtn" xstyle={[settingsStyles.stoGoBtn]} pending={go.pending} disabled={!check?.ok} onClick={() => void go.run()}>{submitLabel}</Button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="vv-sto__pick">
-      <div className="vv-sto__newdir">
-        <span className="vv-label" id="lbl-newdir">{t.storage.picker.newDirLabel}</span>
-        <div className="vv-fieldbox" role="group" aria-labelledby="lbl-newdir">
-          <Icon name="folder" size={16} className="vv-ic" />
-          <span className={`vv-mono vv-ell vv-sto__pickPath${chosenCloud ? ' is-bad' : ''}`} title={chosen}>{chosen}</span>
+    <div className={`vv-sto__pick ${stylex.props(stoPickMarker, settingsStyles.stoPick).className}`}>
+      <div className={`vv-sto__newdir ${stylex.props(settingsStyles.stoNewdir).className}`}>
+        <span className={`vv-label ${stylex.props(settingsStyles.label).className}`} id="lbl-newdir">{t.storage.picker.newDirLabel}</span>
+        <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`} role="group" aria-labelledby="lbl-newdir">
+          <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
+          <span className={`vv-mono vv-ell vv-sto__pickPath ${stylex.props(settingsStyles.stoPickPath, settingsStyles.mono, settingsStyles.ell, (chosenCloud) && settingsStyles.stoPickPathIsBad).className}`} title={chosen}>{chosen}</span>
           <ActionButton variant="outline" size="sm" onClick={onBrowse}>{t.storage.picker.browse}</ActionButton>
         </div>
-        <span className="vv-help">{t.storage.picker.browseHelp}</span>
-        <div className="vv-sto__pills">
-          <span className="vv-help">{t.storage.picker.drivesLabel}</span>
+        <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.browseHelp}</span>
+        <div className={`vv-sto__pills ${stylex.props(settingsStyles.stoPills).className}`}>
+          <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.drivesLabel}</span>
           {data.suggestions.map((s) => (
-            <button key={s.path} type="button" className="vv-pill" aria-pressed={chosen === s.path}
+            <button key={s.path} type="button" className={`vv-pill ${stylex.props(pillMarker, settingsStyles.pill).className}`} aria-pressed={chosen === s.path}
               title={s.volume.kind === 'cloud_sync' ? undefined : `${s.volume.fs} · còn ${fmtSpace(s.volume.freeBytes)}`}
               onClick={() => onChosen(s.path)}>
-              {s.volume.name}{s.volume.kind === 'cloud_sync' ? null : <span className="vv-num vv-sto__pillFree">còn {fmtSpace(s.volume.freeBytes)}</span>}
+              {s.volume.name}{s.volume.kind === 'cloud_sync' ? null : <span className={`vv-num vv-sto__pillFree ${stylex.props(settingsStyles.stoPillFree, settingsStyles.num).className}`}>còn {fmtSpace(s.volume.freeBytes)}</span>}
             </button>
           ))}
         </div>
-        {chosenCloud ? <span className="vv-err">{t.storage.picker.cloudWarn}</span> : null}
+        {chosenCloud ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{t.storage.picker.cloudWarn}</span> : null}
       </div>
-      <div className="vv-sto__modes">
-        <span className="vv-label">{t.storage.picker.modesLabel}</span>
-        <div role="radiogroup" aria-label={t.storage.picker.modesLabel} className="vv-sto__modeList">
+      <div className={`vv-sto__modes ${stylex.props(settingsStyles.stoModes).className}`}>
+        <span className={`vv-label ${stylex.props(settingsStyles.label).className}`}>{t.storage.picker.modesLabel}</span>
+        <div role="radiogroup" aria-label={t.storage.picker.modesLabel} className={`vv-sto__modeList ${stylex.props(stoModeListMarker, settingsStyles.stoModeList).className}`}>
           {modes.map((m) => (
             <RadioCard key={m.id} checked={mode === m.id} onChange={() => setMode(m.id as 'move' | 'new_only')}
+              xstyle={settingsStyles.storageModeCard}
               label={m.label} description={m.hint} />
           ))}
         </div>
       </div>
       {check ? <Checks checks={artboardChecks(check.checks)} /> : checking ? <Spinner size={14} /> : null}
-      {checkError ? <span className="vv-err">{checkError}</span> : null}
+      {checkError ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{checkError}</span> : null}
       
-      <div className="vv-sto__jobs">
-        <Icon name="info" size={15} className="vv-ic" />
+      <div className={`vv-sto__jobs ${stylex.props(stoJobsMarker, settingsStyles.stoJobs).className}`}>
+        <Icon name="info" size={15} className="vv-ic" xstyle={[settingsStyles.ic]} />
         <span>{jobs > 0 ? fill(t.storage.picker.jobsNote, { n: jobs }) : t.storage.picker.jobsNoteZero}</span>
       </div>
-      <div className="vv-sto__go">
-        <span className={`vv-err vv-sto__reason${hint ? '' : ' is-empty'}`}>{hint}</span>
+      <div className={`vv-sto__go ${stylex.props(settingsStyles.stoGo).className}`}>
+        <span className={`vv-err vv-sto__reason ${stylex.props(settingsStyles.stoReason, settingsStyles.err, (!(hint)) && settingsStyles.stoReasonIsEmpty).className}`}>{hint}</span>
         <ActionButton variant="outline" onClick={onCancel}>{t.storage.picker.cancel}</ActionButton>
         <ActionButton variant="primary" pending={go.pending}
           disabled={!check?.ok} disabledReason={hint || t.common.loading}
@@ -333,26 +337,26 @@ function MoveProgress({ task, jobs, volume }: { task: BackgroundTask; jobs: numb
   const pct = task.progress && task.progress.total > 0 ? Math.round((task.progress.done / task.progress.total) * 100) : 0
   return (
     // role=status + aria-live: phần trăm/nhóm đổi liên tục khi chuyển.
-    <div role="status" aria-live="polite" className="vv-move">
-      <div className="vv-move__head">
-        <b className="vv-move__title">{task.title || fill(t.storage.moving.title, { volume })}</b>
-        <span className="vv-num vv-move__stats">
+    <div role="status" aria-live="polite" className={`vv-move ${stylex.props(settingsStyles.move).className}`}>
+      <div className={`vv-move__head ${stylex.props(settingsStyles.moveHead).className}`}>
+        <b className={`vv-move__title ${stylex.props(settingsStyles.moveTitle).className}`}>{task.title || fill(t.storage.moving.title, { volume })}</b>
+        <span className={`vv-num vv-move__stats ${stylex.props(settingsStyles.num, settingsStyles.moveStats).className}`}>
           {fill(t.storage.moving.stats, { done: gbOnly(task.progress?.done ?? 0), total: gbOnly(task.progress?.total ?? 0), eta: fmtEta(task.etaSec) })}
         </span>
       </div>
       <ProgressBar value={pct} tone="info" height={6} />
       {groups.length > 0 ? (
-        <div className="vv-move__groups">
+        <div className={`vv-move__groups ${stylex.props(moveGroupsMarker, settingsStyles.moveGroups).className}`}>
           {groups.map((g) => {
             const done = g.done >= g.total
             const running = !done && g.done > 0
             return (
-              <span key={g.group}>
-                {done ? <Icon name="tick-b" size={14} className="vv-ic is-ok" />
+              <span key={g.group} {...stylex.props(settingsStyles.VvMoveGroupsSpan)}>
+                {done ? <Icon name="tick-b" size={14} className="vv-ic is-ok" xstyle={[settingsStyles.ic, settingsStyles.icIsOk]} />
                   : running ? <Spinner size={12} />
-                    : <Icon name="clock" size={14} className="vv-ic is-wait" />}
-                <span className="vv-move__group">{t.storage.moving.groups[g.group] ?? g.group}</span>
-                <span className={`vv-num vv-move__groupN${done ? ' is-done' : running ? ' is-run' : ''}`}>
+                    : <Icon name="clock" size={14} className="vv-ic is-wait" xstyle={[settingsStyles.ic, settingsStyles.icIsWait]} />}
+                <span className={`vv-move__group ${stylex.props(settingsStyles.moveGroup).className}`}>{t.storage.moving.groups[g.group] ?? g.group}</span>
+                <span className={`vv-num vv-move__groupN ${stylex.props(settingsStyles.num, settingsStyles.moveGroupN, (done) && settingsStyles.moveGroupNIsDone, ((!(done)) && (running)) && settingsStyles.moveGroupNIsRun).className}`}>
                   {done || running ? `${fmtBytes(g.done)} / ${fmtBytes(g.total)}` : t.storage.moving.waiting}
                 </span>
               </span>
@@ -360,20 +364,20 @@ function MoveProgress({ task, jobs, volume }: { task: BackgroundTask; jobs: numb
           })}
         </div>
       ) : null}
-      <span className="vv-help">{jobs > 0 ? fill(t.storage.moving.note, { n: jobs }) : t.storage.moving.noteNoJobs}</span>
+      <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{jobs > 0 ? fill(t.storage.moving.note, { n: jobs }) : t.storage.moving.noteNoJobs}</span>
       {confirmCancel ? (
-        <div role="alertdialog" className="vv-sto__confirm">
-          <Icon name="warning" size={16} className="vv-ic" />
-          <span className="vv-sto__confirmQ">{t.storage.moving.cancelConfirm}</span>
+        <div role="alertdialog" className={`vv-sto__confirm ${stylex.props(stoConfirmMarker, settingsStyles.stoConfirm).className}`}>
+          <Icon name="warning" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
+          <span className={`vv-sto__confirmQ ${stylex.props(settingsStyles.stoConfirmQ).className}`}>{t.storage.moving.cancelConfirm}</span>
           <Button variant="quiet" size="compact" onClick={() => setConfirmCancel(false)}>{t.common.cancel}</Button>
           <Button variant="danger" size="compact" pending={cancel.busy} data-confirm="1" onClick={() => void cancel.run()}>{t.storage.moving.cancelShort}</Button>
         </div>
       ) : (
-        <div className="vv-move__foot">
+        <div className={`vv-move__foot ${stylex.props(settingsStyles.moveFoot).className}`}>
           <ActionButton variant="quiet" size="sm" onClick={() => setConfirmCancel(true)}>
             {fill(t.storage.moving.cancel, { volume })}
           </ActionButton>
-          <span className="vv-sto__spacer" />
+          <span className={`vv-sto__spacer ${stylex.props(settingsStyles.stoSpacer).className}`} />
         </div>
       )}
     </div>
@@ -418,6 +422,7 @@ function DoneBanner({ data, mobile }: { data: StorageStatus; mobile?: boolean })
   return (
     <>
       <Banner tone="success" title={mobile ? '' : title} icon="tick-b"
+        iconStyle={settingsStyles.storageBannerIcon} titleStyle={settingsStyles.storageBannerTitle} textStyle={settingsStyles.storageBannerText}
         actions={deletable ? [
           { label: mobile ? t.storage.done.deleteNowM : fill(t.storage.done.deleteNow, { size: fmtGB(prev.bytes) }), variant: 'dsoft', icon: <Icon name="trash" size={14} />, size: mobile ? ('lg' as const) : undefined, onClick: () => setConfirm('delete') },
           ...(mobile ? [] : [{ label: fill(t.storage.done.back, { volume: prevVolume }), variant: 'quiet' as const, onClick: () => setConfirm('back') }]),
@@ -425,9 +430,9 @@ function DoneBanner({ data, mobile }: { data: StorageStatus; mobile?: boolean })
         {mobile ? <span><b>{mLine}.</b> {mSub}</span> : sub}
       </Banner>
       {confirm ? (
-        <div role="alertdialog" className="vv-sto__confirm">
-          <Icon name="warning" size={16} className="vv-ic" />
-          <span className="vv-sto__confirmQ">
+        <div role="alertdialog" className={`vv-sto__confirm ${stylex.props(stoConfirmMarker, settingsStyles.stoConfirm).className}`}>
+          <Icon name="warning" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
+          <span className={`vv-sto__confirmQ ${stylex.props(settingsStyles.stoConfirmQ).className}`}>
             {confirm === 'delete'
               ? fill(t.storage.done.deleteConfirm, { bytes: gbOnly(prev.bytes), path: prev.path })
               : fill(t.storage.done.backConfirm, { path: prev.path })}
@@ -449,7 +454,7 @@ const DoneNewBanner = ({ data }: { data: StorageStatus }) => {
   // không xoá gì — chỉ báo video mới đã đổi chỗ.
   const prev = data.projects.previous?.mode === 'new_only' ? data.projects.previous : undefined
   return (
-    <Banner tone="success" title="" icon="tick-b" actions={[]}>
+    <Banner tone="success" title="" icon="tick-b" actions={[]} iconStyle={settingsStyles.storageBannerIcon} titleStyle={settingsStyles.storageBannerTitle} textStyle={settingsStyles.storageBannerText}>
       {fill(prev ? t.storage.done.doneNew : t.storage.done.doneNewNoPrev, {
         volume: data.projects.volume.name,
         bytes: prev ? gbOnly(prev.bytes) : '',
@@ -476,19 +481,19 @@ function ReclaimCard({ item }: { item: ReclaimItem }) {
   const empty = item.count <= 0
   if (gone !== null) {
     return (
-      <span role="status" className="vv-sto__gone">
+      <span role="status" className={`vv-sto__gone ${stylex.props(settingsStyles.stoGone).className}`}>
         <Icon name="tick-b" size={16} />{fill(t.storage.reclaim.gone, { bytes: fmtBytes(gone) })}
       </span>
     )
   }
   return (
-    <section className="card vv-sto__card">
-      <div className="vv-sto__cardHead">
-        <div className="vv-sto__cardText">
-          <h2 className="vv-sto__h2">
-            {item.title} <span className="vv-num vv-sto__h2Size">· {fmtBytes(item.bytes)}</span>
+    <section className={`vv-sto__card ${stylex.props(settingsStyles.card, settingsStyles.stoCard).className}`}>
+      <div className={`vv-sto__cardHead ${stylex.props(settingsStyles.stoCardHead).className}`}>
+        <div className={`vv-sto__cardText ${stylex.props(settingsStyles.stoCardText).className}`}>
+          <h2 className={`vv-sto__h2 ${stylex.props(settingsStyles.stoH2).className}`}>
+            {item.title} <span className={`vv-num vv-sto__h2Size ${stylex.props(settingsStyles.stoH2Size, settingsStyles.num).className}`}>· {fmtBytes(item.bytes)}</span>
           </h2>
-          <span className="vv-sto__sub">{empty ? t.storage.reclaim.nothing : item.desc}</span>
+          <span className={`vv-sto__sub ${stylex.props(settingsStyles.stoSub).className}`}>{empty ? t.storage.reclaim.nothing : item.desc}</span>
         </div>
         {!ask ? (
           <Button variant="warnGhost" size="compact" disabled={empty} title={empty ? t.storage.reclaim.nothing : undefined}
@@ -498,9 +503,9 @@ function ReclaimCard({ item }: { item: ReclaimItem }) {
         ) : null}
       </div>
       {ask ? (
-        <div role="alertdialog" className="vv-sto__confirm">
-          <Icon name="warning" size={16} className="vv-ic" />
-          <span className="vv-sto__confirmQ">
+        <div role="alertdialog" className={`vv-sto__confirm ${stylex.props(stoConfirmMarker, settingsStyles.stoConfirm).className}`}>
+          <Icon name="warning" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
+          <span className={`vv-sto__confirmQ ${stylex.props(settingsStyles.stoConfirmQ).className}`}>
             {fill(t.storage.reclaim.confirms[item.id] ?? t.storage.reclaim.confirmAction, { bytes: fmtBytes(item.bytes), n: item.count })}
           </span>
           <Button variant="quiet" size="compact" onClick={() => setAsk(false)}>{t.common.cancel}</Button>
@@ -518,12 +523,12 @@ function FailedMoveCard({ failed }: { failed: StorageMoveFailure }) {
   const retry = useAsyncAction(async () => { await retryStorageMove(); invalidate() })
   const dismiss = useAsyncAction(async () => { await dismissStorageMove(); invalidate(keys.storage()) })
   return (
-    <section className="card vv-sto__card vv-sto__card--warn">
-      <div className="vv-sto__cardText">
-        <h2 className="vv-sto__h2">{t.storage.moveFailed.title}</h2>
-        <span className="vv-sto__sub">{failed.phase}</span>
-        <span className="vv-num vv-sto__failPath" title={failed.target}>{midTrunc(failed.target, 40)}</span>
-        <div className="vv-sto__failActs">
+    <section className={`vv-sto__card vv-sto__card--warn ${stylex.props(settingsStyles.card, settingsStyles.stoCard, settingsStyles.stoCardWarn).className}`}>
+      <div className={`vv-sto__cardText ${stylex.props(settingsStyles.stoCardText).className}`}>
+        <h2 className={`vv-sto__h2 ${stylex.props(settingsStyles.stoH2).className}`}>{t.storage.moveFailed.title}</h2>
+        <span className={`vv-sto__sub ${stylex.props(settingsStyles.stoSub).className}`}>{failed.phase}</span>
+        <span className={`vv-num vv-sto__failPath ${stylex.props(settingsStyles.num, settingsStyles.stoFailPath).className}`} title={failed.target}>{midTrunc(failed.target, 40)}</span>
+        <div className={`vv-sto__failActs ${stylex.props(settingsStyles.stoFailActs).className}`}>
           <ActionButton variant="outline" size="sm" pending={retry.pending} onClick={() => void retry.run()}>{t.storage.moveFailed.retry}</ActionButton>
           <ActionButton variant="quiet" size="sm" pending={dismiss.pending} onClick={() => void dismiss.run()}>{t.storage.moveFailed.dismiss}</ActionButton>
         </div>
@@ -536,9 +541,9 @@ function FailedMoveCard({ failed }: { failed: StorageMoveFailure }) {
 function ProjectHead({ data, mobile }: { data: StorageStatus; mobile?: boolean }) {
   const bytes = fmtBytes(data.projects.usedBytes)
   return (
-    <div className={mobile ? 'vv-sto__headM' : 'vv-sto__head'}>
-      <h2 className={mobile ? 'vv-sto__h2M vv-sto__h2--project' : 'vv-sto__h2 vv-sto__h2--project'}>{t.storage.project.title}</h2>
-      <span className={mobile ? 'vv-help' : 'vv-help vv-sto__headNote'}>
+    <div {...stylex.props((!(mobile)) && settingsStyles.stoHead, (mobile) && settingsStyles.stoHeadM)}>
+      <h2 className={`vv-sto__h2--project ${stylex.props((mobile) && settingsStyles.stoH2M, (!(mobile)) && settingsStyles.stoH2, settingsStyles.stoH2Project).className}`}>{t.storage.project.title}</h2>
+      <span className={`vv-help ${stylex.props((!(mobile)) && settingsStyles.stoHeadNote, settingsStyles.help).className}`}>
         {fill(mobile ? t.storage.project.assetsM : t.storage.project.assets, { bytes })}
       </span>
     </div>
@@ -562,27 +567,27 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
     : fill(t.storage.project.kindFsFree, { kind, fs: loc.volume.fs, free })
   if (mobile) {
     return (
-      <div className="vv-sto__locM">
-        <span className="vv-sto__locIconM" aria-hidden="true"><Icon name="folder" size={20} /></span>
-        <span className="vv-sto__locTextM">
-          <span className="vv-sto__locNameM">{loc.volume.name}</span>
-          <span className="vv-sto__locKindM">{kindText}</span>
-          <span className="vv-mono vv-sto__locPathM">{loc.displayPath ?? loc.path}</span>
+      <div className={`vv-sto__locM ${stylex.props(settingsStyles.stoLocM).className}`}>
+        <span className={`vv-sto__locIconM ${stylex.props(settingsStyles.stoLocIconM).className}`} aria-hidden="true"><Icon name="folder" size={20} /></span>
+        <span className={`vv-sto__locTextM ${stylex.props(settingsStyles.stoLocTextM).className}`}>
+          <span className={`vv-sto__locNameM ${stylex.props(settingsStyles.stoLocNameM).className}`}>{loc.volume.name}</span>
+          <span className={`vv-sto__locKindM ${stylex.props(settingsStyles.stoLocKindM).className}`}>{kindText}</span>
+          <span className={`vv-mono vv-sto__locPathM ${stylex.props(settingsStyles.stoLocPathM, settingsStyles.mono).className}`}>{loc.displayPath ?? loc.path}</span>
         </span>
         {canChange ? (
-          <span className="vv-sto__locAct">
-            <ActionButton variant="outline" size="sm" icon={<Icon name="folder" size={16} />} onClick={onPick}>{t.storage.project.changeMobile}</ActionButton>
+          <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
+            <ActionButton variant="outline" size="sm" icon={<Icon name="folder" size={16} />} onClick={onPick} xstyle={[settingsStyles.VvStoLocAct_]}>{t.storage.project.changeMobile}</ActionButton>
           </span>
         ) : null}
       </div>
     )
   }
   return (
-    <div className="vv-loc">
-      <span className="vv-loc__icon" aria-hidden="true"><Icon name="folder" size={18} /></span>
-      <span className="vv-sto__grow">
-        <span className="vv-loc__name">{loc.volume.name} <span className="vv-loc__kind">· {kindText}</span></span>
-        <span className="vv-mono vv-ell vv-loc__path" title={loc.displayPath ?? loc.path}>{midTrunc(loc.displayPath ?? loc.path)}</span>
+    <div className={`vv-loc ${stylex.props(settingsStyles.loc).className}`}>
+      <span className={`vv-loc__icon ${stylex.props(settingsStyles.locIcon).className}`} aria-hidden="true"><Icon name="folder" size={18} /></span>
+      <span className={`vv-sto__grow ${stylex.props(settingsStyles.stoGrow).className}`}>
+        <span className={`vv-loc__name ${stylex.props(settingsStyles.locName).className}`}>{loc.volume.name} <span className={`vv-loc__kind ${stylex.props(settingsStyles.locKind).className}`}>· {kindText}</span></span>
+        <span className={`vv-mono vv-ell vv-loc__path ${stylex.props(settingsStyles.locPath, settingsStyles.mono, settingsStyles.ell).className}`} title={loc.displayPath ?? loc.path}>{midTrunc(loc.displayPath ?? loc.path)}</span>
       </span>
       <ActionButton variant="quiet" size="sm" pending={finderPending} onClick={onFinder}>{t.storage.project.finder}</ActionButton>
       {canChange ? <ActionButton variant="outline" size="sm" onClick={onPick}>{t.storage.project.change}</ActionButton> : null}
@@ -613,9 +618,9 @@ function LocalStorageSection() {
   if (res.status === 'loading' && !res.data) return <Spinner size={16} />
   if (res.status === 'error' && !res.data) {
     return (
-      <section className="card vv-sto__card">
+      <section className={`vv-sto__card ${stylex.props(settingsStyles.card, settingsStyles.stoCard).className}`}>
         <span className="vv-errline">
-          <span className="vv-sto__grow">{(res.error as Error | undefined)?.message ?? ''}</span>
+          <span className={`vv-sto__grow ${stylex.props(settingsStyles.stoGrow).className}`}>{(res.error as Error | undefined)?.message ?? ''}</span>
           <ActionButton variant="outline" size="sm" onClick={() => void res.refresh()}>{t.common.retry}</ActionButton>
         </span>
       </section>
@@ -680,6 +685,7 @@ function LocalStorageSection() {
     <Banner tone="error" title={loc.volume.kind === 'internal'
       ? t.storage.offline.titleFolder
       : fill(t.storage.offline.title, { name: loc.volume.name })}
+      iconStyle={settingsStyles.storageBannerIcon} titleStyle={settingsStyles.storageBannerTitle} textStyle={settingsStyles.storageBannerText}
       actions={[
         { label: t.storage.offline.retry, icon: <Icon name="refresh" size={14} />, variant: 'primary', size: mobile ? ('lg' as const) : undefined, onClick: () => void recheck.run() },
         { label: fill(t.storage.offline.fallback, { volume: 'Macintosh HD' }), variant: 'ghost', size: mobile ? ('lg' as const) : undefined, onClick: () => void fallback.run() },
@@ -691,45 +697,45 @@ function LocalStorageSection() {
   ) : null
 
   const bannerDone = loc.previous?.mode === 'new_only' || (!loc.previous && loc.lastSwitch?.mode === 'new_only')
-    ? <div className="vv-sto__bannerFix"><DoneNewBanner data={data} /></div>
-    : loc.previous ? <div className="vv-sto__bannerFix"><DoneBanner data={data} mobile={mobile} /></div> : null
+    ? <div className={`vv-sto__bannerFix ${stylex.props(stoBannerFixMarker).className}`}><DoneNewBanner data={data} /></div>
+    : loc.previous ? <div className={`vv-sto__bannerFix ${stylex.props(stoBannerFixMarker).className}`}><DoneBanner data={data} mobile={mobile} /></div> : null
 
   if (mobile) {
     return (
       <>
-        <p className="vv-sto__leadM">{t.storage.project.ledeM}</p>
-        <section className="card vv-sto__card vv-sto__card--m" aria-label={t.storage.project.title}>
+        <p className={`vv-sto__leadM ${stylex.props(settingsStyles.stoLeadM).className}`}>{t.storage.project.ledeM}</p>
+        <section className={`vv-sto__card vv-sto__card--m ${stylex.props(settingsStyles.card, settingsStyles.stoCard, settingsStyles.stoCardM).className}`} aria-label={t.storage.project.title}>
           <ProjectHead data={data} mobile />
-          {offline ? <div className="vv-sto__bannerFix">{offline}</div> : null}
+          {offline ? <div className={`vv-sto__bannerFix ${stylex.props(stoBannerFixMarker).className}`}>{offline}</div> : null}
           <LocationRow data={data} mobile finderPending={finder.pending} onFinder={() => void finder.run()}
             canChange={false} onPick={openPick} />
           {moving && moveTask ? (
-            <div role="status" className="vv-move vv-move--m">
-              <b className="vv-move__title">{moveTask.title || t.storage.moving.title}</b>
-              <span className="vv-num vv-move__stats">
+            <div role="status" className={`vv-move vv-move--m ${stylex.props(moveMMarker, settingsStyles.move, settingsStyles.moveM).className}`}>
+              <b className={`vv-move__title ${stylex.props(settingsStyles.moveTitle).className}`}>{moveTask.title || t.storage.moving.title}</b>
+              <span className={`vv-num vv-move__stats ${stylex.props(settingsStyles.num, settingsStyles.moveStats).className}`}>
                 {fill(t.storage.moving.stats, { done: gbOnly(moveTask.progress?.done ?? 0), total: gbOnly(moveTask.progress?.total ?? 0), eta: fmtEta(moveTask.etaSec) })}
               </span>
               <ProgressBar value={moveTask.progress && moveTask.progress.total > 0 ? Math.round((moveTask.progress.done / moveTask.progress.total) * 100) : 0} tone="info" height={6} />
-              <span className="vv-help">{t.storage.moving.noteM}</span>
+              <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.moving.noteM}</span>
               <ActionButton variant="quiet" size="lg" pending={cancelMove.pending} onClick={() => void cancelMove.run(moveTask.id)}>{t.storage.moving.cancelShort}</ActionButton>
             </div>
           ) : null}
-          {!moving && bannerDone ? <div className="vv-sto__mBanner">{bannerDone}</div> : null}
+          {!moving && bannerDone ? <div className={`vv-sto__mBanner ${stylex.props(settingsStyles.stoMBanner).className}`}>{bannerDone}</div> : null}
           {!moving && moveFailed ? <FailedMoveCard failed={moveFailed} /> : null}
           {/* “Đổi thư mục lưu” 44px nằm sau kết quả (MSettings: loc → banner → nút). */}
           {!moving && canChange && loc.online ? (
-            <span className="vv-sto__locAct">
-              <ActionButton variant="outline" size="lg" icon={<Icon name="folder" size={16} />} onClick={openPick}>{t.storage.project.changeMobile}</ActionButton>
+            <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
+              <ActionButton variant="outline" size="lg" icon={<Icon name="folder" size={16} />} onClick={openPick} xstyle={[settingsStyles.VvStoLocAct_]}>{t.storage.project.changeMobile}</ActionButton>
             </span>
           ) : null}
         </section>
-        <section className="card vv-sto__card vv-sto__card--m" aria-label={t.storage.usage.titleM}>
-          <div className="vv-sto__headM vv-sto__headM--row">
-            <span className="vv-sto__h2M">{fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })}</span>
-            <span className="vv-help">{fill(t.storage.usage.freeM, { free: fmtSpace(freeShown) })}</span>
+        <section className={`vv-sto__card vv-sto__card--m ${stylex.props(settingsStyles.card, settingsStyles.stoCard, settingsStyles.stoCardM).className}`} aria-label={t.storage.usage.titleM}>
+          <div className={`vv-sto__headM vv-sto__headM--row ${stylex.props(stoHeadMRowMarker, settingsStyles.stoHeadM, settingsStyles.stoHeadMRow).className}`}>
+            <span className={`vv-sto__h2M ${stylex.props(settingsStyles.stoH2M).className}`}>{fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })}</span>
+            <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{fill(t.storage.usage.freeM, { free: fmtSpace(freeShown) })}</span>
           </div>
-          <div role="img" aria-label={fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })} className="vv-usage__bar vv-usage__bar--m">
-            {usageGroups.map((g) => <span key={g.id} className={`vv-chip--g-${g.id}`} style={{ flex: `${g.bytes}` }} />)}
+          <div role="img" aria-label={fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })} className={`vv-usage__bar vv-usage__bar--m ${stylex.props(usageBarMarker, settingsStyles.usageBar, settingsStyles.usageBarM).className}`}>
+            {usageGroups.map((g) => <span key={g.id} {...stylex.props(settingsStyles.VvUsageBarSpan, ((g.id) === "sources") && settingsStyles.chipGSources, ((g.id) === "exports") && settingsStyles.chipGExports, ((g.id) === "editor") && settingsStyles.chipGEditor, ((g.id) === "images") && settingsStyles.chipGImages, ((g.id) === "stay") && settingsStyles.chipGStay, ((g.id) === "other") && settingsStyles.chipGOther)} style={{ flex: `${g.bytes}` }} />)}
           </div>
           {items.map((item) => (
             <MobileReclaim key={item.id} item={item} />
@@ -738,7 +744,7 @@ function LocalStorageSection() {
         {pick.open ? (
           <Sheet open onClose={() => setPick({ open: false, chosen: '', browse: false })} title={t.storage.picker.titleM}
             height="80dvh" style={{ background: 'var(--vv-sheet-bg)' }}>
-            <span className="vv-help vv-sto__hintLine">{t.storage.picker.titleMSub}</span>
+            <span className={`vv-help vv-sto__hintLine ${stylex.props(settingsStyles.help, settingsStyles.stoHintLine).className}`}>{t.storage.picker.titleMSub}</span>
             {pickPanel}
           </Sheet>
         ) : null}
@@ -749,9 +755,9 @@ function LocalStorageSection() {
 
   return (
     <>
-      <section className="card vv-sto__card" aria-labelledby="h-proj">
+      <section className={`vv-sto__card ${stylex.props(settingsStyles.card, settingsStyles.stoCard).className}`} aria-labelledby="h-proj">
         <ProjectHead data={data} />
-        {offline ? <div className="vv-sto__bannerFix">{offline}</div> : null}
+        {offline ? <div className={`vv-sto__bannerFix ${stylex.props(stoBannerFixMarker).className}`}>{offline}</div> : null}
         {/* store=pick thay hẳn dòng vị trí bằng khối chọn (artboard Settings). */}
         {!pick.open ? (
           <LocationRow data={data} finderPending={finder.pending} onFinder={() => void finder.run()}
@@ -763,27 +769,27 @@ function LocalStorageSection() {
         {/* Chú thích “Luôn ở máy này” chỉ ở store=here — không hiện lúc đang
             chuyển / vừa xong / đang chọn / ổ rút (artboard). */}
         {!pick.open && loc.online && !moving && !bannerDone ? (
-          <span className="vv-help vv-sto__stay">{fill(t.storage.project.stayNote, { bytes: gbOnly(data.stayBytes) })}</span>
+          <span className={`vv-help vv-sto__stay ${stylex.props(settingsStyles.stoStay, settingsStyles.help).className}`}>{fill(t.storage.project.stayNote, { bytes: gbOnly(data.stayBytes) })}</span>
         ) : null}
         {pickPanel}
       </section>
 
-      <section className="card vv-sto__card" aria-labelledby="h-use">
-        <div className="vv-sto__head">
-          <h2 id="h-use" className="vv-sto__h2">
+      <section className={`vv-sto__card ${stylex.props(settingsStyles.card, settingsStyles.stoCard).className}`} aria-labelledby="h-use">
+        <div className={`vv-sto__head ${stylex.props(settingsStyles.stoHead).className}`}>
+          <h2 id="h-use" className={`vv-sto__h2 ${stylex.props(settingsStyles.stoH2).className}`}>
             {fill(t.storage.usage.title, { total: fmtGB(totalUsed) })}
           </h2>
-          <span className="vv-num vv-sto__free">{fill(t.storage.usage.free, { free: fmtSpace(freeShown) })}</span>
+          <span className={`vv-num vv-sto__free ${stylex.props(settingsStyles.stoFree, settingsStyles.num).className}`}>{fill(t.storage.usage.free, { free: fmtSpace(freeShown) })}</span>
         </div>
-        <div role="img" aria-label={fill(t.storage.usage.title, { total: fmtGB(totalUsed) })} className="vv-usage__bar">
-          {usageGroups.map((g) => <span key={g.id} className={`vv-chip--g-${g.id}`} style={{ flex: `${g.bytes}` }} />)}
+        <div role="img" aria-label={fill(t.storage.usage.title, { total: fmtGB(totalUsed) })} className={`vv-usage__bar ${stylex.props(usageBarMarker, settingsStyles.usageBar).className}`}>
+          {usageGroups.map((g) => <span key={g.id} {...stylex.props(settingsStyles.VvUsageBarSpan, ((g.id) === "sources") && settingsStyles.chipGSources, ((g.id) === "exports") && settingsStyles.chipGExports, ((g.id) === "editor") && settingsStyles.chipGEditor, ((g.id) === "images") && settingsStyles.chipGImages, ((g.id) === "stay") && settingsStyles.chipGStay, ((g.id) === "other") && settingsStyles.chipGOther)} style={{ flex: `${g.bytes}` }} />)}
         </div>
-        <div className="vv-usage__legend">
+        <div className={`vv-usage__legend ${stylex.props(usageLegendMarker, settingsStyles.usageLegend).className}`}>
           {usageGroups.map((g) => (
-            <span key={g.id}>
-              <span className={`vv-chip vv-chip--g-${g.id}`} aria-hidden="true" />
-              <span className="vv-lb">{g.label}</span>
-              <span className="vv-num">{fmtGB(g.bytes)}</span>
+            <span key={g.id} {...stylex.props(settingsStyles.VvUsageLegendSpan)}>
+              <span className={`vv-chip ${stylex.props(((g.id) === "sources") && settingsStyles.chipGSources, ((g.id) === "exports") && settingsStyles.chipGExports, ((g.id) === "editor") && settingsStyles.chipGEditor, ((g.id) === "images") && settingsStyles.chipGImages, ((g.id) === "stay") && settingsStyles.chipGStay, ((g.id) === "other") && settingsStyles.chipGOther, settingsStyles.chip).className}`} aria-hidden="true" />
+              <span className={`vv-lb ${stylex.props(settingsStyles.lb).className}`}>{g.label}</span>
+              <span className={`vv-num ${stylex.props(settingsStyles.num).className}`}>{fmtGB(g.bytes)}</span>
             </span>
           ))}
         </div>
@@ -813,10 +819,10 @@ function MobileReclaim({ item }: { item: ReclaimItem }) {
     ? fill(t.storage.reclaim.gone, { bytes: fmtBytes(gone) })
     : fill(t.storage.reclaim.rowNotes[item.id] ?? '{bytes}', { bytes: fmtBytes(item.bytes) })
   return (
-    <div className="vv-sto__rowM">
-      <span className="vv-sto__rowTextM">
-        <span className="vv-sto__rowTitleM">{item.title}</span>
-        <span className={gone !== null ? 'vv-sto__rowNoteM is-gone' : 'vv-sto__rowNoteM'}>{empty && gone === null ? t.storage.reclaim.nothing : note}</span>
+    <div className={`vv-sto__rowM ${stylex.props(settingsStyles.stoRowM).className}`}>
+      <span className={`vv-sto__rowTextM ${stylex.props(settingsStyles.stoRowTextM).className}`}>
+        <span className={`vv-sto__rowTitleM ${stylex.props(settingsStyles.stoRowTitleM).className}`}>{item.title}</span>
+        <span className={`vv-sto__rowNoteM ${stylex.props(settingsStyles.stoRowNoteM, (gone !== null) && settingsStyles.stoRowNoteMIsGone).className}`}>{empty && gone === null ? t.storage.reclaim.nothing : note}</span>
       </span>
       {gone === null ? (
         <ActionButton variant="danger-soft" size="lg" pending={run.pending} disabled={empty} disabledReason={t.storage.reclaim.nothing}

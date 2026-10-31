@@ -1,3 +1,4 @@
+import { styles as settingsStyles } from '../settings.stylex'
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Banner, Button, Dialog, Icon, ProgressBar, useAsyncAction } from '@noverse/ui'
@@ -100,8 +101,8 @@ export function ServerStorageSection({ data }: { data: ServerStorageResponse }) 
   return <div {...stylex.props(s.stack)}>
     {!mobile ? <div>
       {storage && view !== 'overview' ? <Button variant="quiet" size="compact" disabled={save.pending} onClick={() => { change(config); setView(view === 'form' ? 'picker' : 'overview') }}>{view === 'form' ? t.backPick : t.back}</Button> : null}
-      <h1 className="vv-set__title">{view === 'picker' ? t.pick : view === 'form' ? fill(t.formTitle, { provider: t.providers[config.provider].name }) : t.title}</h1>
-      <p className="vv-set__lede">{data.role === 'member' ? t.memberLede : view === 'picker' ? t.pickerLede : view === 'form' ? fill(t.formLede, { hint: t.providers[config.provider].hint }) : t.lede}</p>
+      <h1 className={`vv-set__title ${stylex.props(settingsStyles.setTitle).className}`}>{view === 'picker' ? t.pick : view === 'form' ? fill(t.formTitle, { provider: t.providers[config.provider].name }) : t.title}</h1>
+      <p className={`vv-set__lede ${stylex.props(settingsStyles.setLede).className}`}>{data.role === 'member' ? t.memberLede : view === 'picker' ? t.pickerLede : view === 'form' ? fill(t.formLede, { hint: t.providers[config.provider].hint }) : t.lede}</p>
     </div> : <span {...stylex.props(s.hint)}>{data.role === 'admin' ? t.mobileLede : t.memberLede}</span>}
     {!storage && isDown ? <Banner tone="info" title="">{t.memberDown}</Banner> : null}
     {storage && view === 'overview' || mobile && storage ? <>
