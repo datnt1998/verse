@@ -43,6 +43,8 @@ Trang cuộn được (ngoại lệ duy nhất cùng Cài đặt), `max-width: 9
 
 > **Đã thiết kế lại** (bỏ cây thư mục, thêm “Đang áp dụng” và Tình trạng dự án): xem `20-settings-rules.md` §4. Phần dưới giữ để tham khảo dữ liệu.
 >
+> **Gói AP (31/10):** tab truyện thành Thông tin · Tiền đề · Nhân vật · Thế giới · Dàn ý · Cài cắm · Cách viết · Bản xuất; quy tắc gọn một dòng; thẻ Chống giọng văn máy chỉnh được. Xem `20-settings-rules.md` §9. <!-- ap-05 -->
+>
 > **Điều hướng (Gói AG, 28/10):** đổi dự án ở thanh trên, đổi truyện ở thẻ đầu cột trái, cột trái chỉ là mục lục của truyện đang mở. Xem `20-settings-rules.md` §4. <!-- ag-screens -->
 
 ```
@@ -114,6 +116,8 @@ Có. Góp ý được máy tự gắn sang đoạn khác (không phải người
 ## 04 · Cài đặt — `Settings.dc.html`
 
 > **Đã thiết kế lại thành “Tuỳ chỉnh”** (3 cấp áp dụng, Quy tắc viết, ngăn Nâng cao cho quản trị): xem `20-settings-rules.md` §2–3. Phần dưới đã cũ.
+>
+> **Gói AP (31/10):** Tuỳ chỉnh không còn Quy tắc chung và Cách viết. <!-- ap-05s -->
 
 Nav trái (anchor) + nội dung `max-width: 900px` cuộn nội bộ + `SaveBar` neo đáy. Mục: Thư viện & thư mục · Nhà cung cấp · Model & vai trò · Sáng tác · Ngân sách · Thông báo · Quy tắc viết · Hệ thống (chỉ đọc) · Giao diện ứng dụng (chỉ GUI). Giá trị và key: xem artboard + `06-data-contract.md` › Config.
 

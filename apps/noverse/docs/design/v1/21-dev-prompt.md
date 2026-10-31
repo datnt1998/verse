@@ -1455,6 +1455,37 @@ Spec: `09-auth-onboard.md` §12; câu chữ `07-copy.md` › *Đăng nhập chun
 - Tắt ô Viderse của Linh ở Thành viên → câu ngay dưới hai ô nói Linh bị đăng xuất ở cả hai app; Linh mở Viderse thấy màn chưa được cấp quyền, có *Mở Noverse*.
 - Ghi “Gói AO” vào `19-gap-closure.md`.
 
+## Gói AP — Quy tắc hai cấp, chống giọng văn máy chỉnh được, nền móng truyện, Não dự án (31/10 · P1) <!-- goi-ap -->
+
+**Vì sao:** Quy tắc viết đang ở ba nơi (Tuỳ chỉnh › Quy tắc chung, Tuỳ chỉnh › Cách viết, tab truyện) và mỗi quy tắc chiếm một thẻ lớn với chip lặp lại câu — khó quét, khó hiểu sửa ở đâu. Mặc định chống giọng văn máy chỉ xem được, không chỉnh được. Tab truyện thiếu Thông tin, Tiền đề, Thế giới dù dữ liệu đã có. Não dự án hiện cột Ngày 7 luôn trống.
+
+Artboard: `Settings` (`section` mặc định `models`), `Outline` (`tab`: info · premise · cast · world · outline · fs · style · export; `found`: full · partial; `aai`: closed · open · edited; `rules`; `view=project`), `MMore` (`state=rules` · `rulesAai`), `ProjBrain` (`lview`: table · freq · pick · only; `uni`: checked · unchecked; `sfilter`: all · ent · hits), `Members` (thanh bên, Quyền vào ứng dụng), `SysBrain`.
+
+Spec: `20-settings-rules.md` §9 (đủ trạng thái, nguồn dữ liệu, GAP-AP1…AP7).
+
+### Việc FE
+- Tuỳ chỉnh: xoá mục Quy tắc chung và Cách viết; mở mặc định ở Trợ lý AI; thẻ **Cách chạy** (Duyệt từng chương, Trọng tài hỏi) dưới danh sách trợ lý; *Thông tin dự án* luôn hiện và chuyển thanh Áp dụng cho sang Dự án. Thanh bên trang Thành viên phải giống hệt (có Lưu trữ tệp).
+- Não hệ thống trong thanh bên: bỏ huy hiệu số; dòng phụ “4 bài học chờ duyệt” màu tím nhạt (số ở cuối dòng chỉ dùng cho tổng, như Thành viên 4).
+- Quy tắc (truyện + dự án, `RulesPanel` dùng chung): ô thêm một dòng + hàng Mẫu; thẻ Học từ góp ý riêng; danh sách một dòng mỗi quy tắc + nhãn loại; nhóm Từ dự án chỉ xem; bỏ mọi chỗ “Mọi truyện” / “Chuyển lên Mọi truyện”.
+- Thẻ Chống giọng văn máy (`AntiAiCard`, dùng ở truyện, dự án, điện thoại): 16 từ với − / +, ↺, huy hiệu góp ý / dự án / vượt ở ch.N; 4 cụm khoá; mỗi lần chỉnh gọi luồng thêm/sửa/xoá quy tắc hiện có (không có API riêng).
+- Tab truyện: thêm Thông tin, Tiền đề, Thế giới; bỏ icon tab; chuyển Khung truyện từ Dàn ý sang Thông tin; nút *Nhờ…* điền sẵn ô Dặn hướng (`id=steer`) và focus.
+- Ô chọn (checkbox) dùng đúng `.cb` của bộ thành phần (`17-kit.md`): bật nền `#C9A6F5`, tắt viền `rgba(255,255,255,.28)`. Áp cho Thành viên › Quyền vào ứng dụng và “Kiểm tra lại n chương đã viết”. Thẻ ứng dụng tự xuống một cột khi hẹp; tên miền không mono, cắt bằng dấu ba chấm.
+- Não dự án: bỏ cột Ngày 7; khối kiểm có kết luận + bảng 4 phép; bảng/tần suất; ô bấm để soi; tiêu đề cột dính; lọc ở Vũ trụ chung và Tìm.
+
+### Việc backend
+- **GAP-AP1 (bắt buộc cùng đợt):** chuyển quy tắc global vào từng dự án rồi ngừng đọc/ghi cấp global.
+- GAP-AP2…AP7 theo `20-settings-rules.md` §9.7 (AP4, AP5 cần cho tab Tiền đề/Thế giới; trước khi có, FE tách `premise` từ snapshot và lấy world rules từ `S/brain`).
+
+### Nghiệm thu
+- Tuỳ chỉnh không còn chữ “Quy tắc chung”, “Cách viết”, “Văn phong chung”; Duyệt từng chương bật/tắt được ở Trợ lý AI › Cách chạy.
+- Truyện có 4 quy tắc riêng + 2 học từ góp ý + 2 từ dự án: tab Cách viết hiện “8 đang áp dụng”, không cuộn quá một màn 900 px để thấy hết danh sách.
+- Bấm + ở “như một” (mặc định 3) → danh sách có thêm ““như một” tối đa 4 lần mỗi chương.”; bấm ↺ → quy tắc biến mất, số về 3.
+- Chương 3 dùng “dường như” 2 lần, ngưỡng 1 → huy hiệu “vượt ở ch.3”; nới lên 2 → huy hiệu mất.
+- Tab Tiền đề hiện đủ mục theo `premise.md`; xoá một mục trong tệp → dòng vàng + *Nhờ bổ sung*.
+- Truyện chưa có `world_rules.json` → tab Thế giới hiện thẻ rỗng, dải Nền móng ở tab Thông tin báo vàng.
+- Não dự án không có cột Ngày 7; bấm “Thợ may” → mọi ô Thợ may viền tím, dải đếm 2 lần.
+- Ghi “Gói AP” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |
@@ -1475,6 +1506,7 @@ Spec: `09-auth-onboard.md` §12; câu chữ `07-copy.md` › *Đăng nhập chun
 - Đổi mật khẩu luôn thu hồi các phiên khác.
 - Mật khẩu tạm lần đầu: nhắc mạnh nhưng cho *Để sau*.
 - Quy tắc mới áp dụng **từ chương kế tiếp**, không sửa chương đã viết; kiểm tra lại chương cũ chỉ báo, không tự sửa.
+- Quy tắc viết và văn phong chỉ có **hai cấp: truyện và dự án** (Gói AP). Không thêm lại cấp “Mọi truyện”. <!-- ap-dec -->
 - Nhóm Hệ thống trong Tuỳ chỉnh và ngăn Nâng cao chỉ dành cho quản trị.
 - Không có lệnh `ainovel-cli` nào trên UI. Ngoại lệ duy nhất: trang OAuth `from=cli`.
 - Tên trợ lý AI luôn bằng tiếng Việt: Kiến trúc sư · Người viết · Biên tập viên · Trọng tài. Chữ tiếng Việt không dùng font mono.

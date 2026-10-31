@@ -33,7 +33,9 @@ Người dùng chỉ thấy **khái niệm đời thường**. Đường dẫn, 
 
 ## 2. Tuỳ chỉnh (`Settings.dc.html`)
 
-Tweak `section`: rules · writing · models · budget · info · connect · export · notify · app · adv; `scope`: story · project · global; `rules`: list · understood · adding · thinking · unsure · dirty.
+> **Gói AP (31/10):** Tuỳ chỉnh **bỏ hẳn** mục *Quy tắc chung* và *Cách viết*. Quy tắc viết và văn phong chỉ còn hai cấp — truyện và dự án — sửa ở `Outline` (xem §9). Hai công tắc *Duyệt từng chương* và *Trọng tài hỏi bạn khi phân vân* chuyển xuống thẻ **Cách chạy** trong mục Trợ lý AI. Mục *Thông tin dự án* luôn hiện; bấm khi đang chọn “Truyện này” thì thanh Áp dụng cho chuyển sang “Dự án”. Thông tin truyện sửa ở `Outline` › tab Thông tin. <!-- ap-set -->
+
+Tweak `section`: models · budget · info · connect · storage · export · notify · app · adv (mặc định `models`); `scope`: story · project · global (cấp “Mọi truyện” chỉ còn cho Trợ lý AI và Ngân sách).
 
 ### 2.1 Thanh “Áp dụng cho”
 
@@ -48,8 +50,8 @@ Có 3 viên chọn: **Truyện này** (tên truyện) · **Dự án** (tên dự
 
 | Mục | Truyện | Dự án | Mọi truyện | Ai sửa | Ghi vào |
 |---|---|---|---|---|---|
-| Quy tắc viết | ✓ | ✓ | ✓ | có quyền ghi | `PUT /api/rules/file` (§3.3) |
-| Văn phong (Chung · Ngôn tình · Hồi hộp · Huyền huyễn · Kiếm hiệp · Văn phong của bạn) | ✓ | ✓ | ✓ | có quyền ghi | `config.style` (`default · romance · suspense · fantasy · wuxia` + tên tệp tự tạo) |
+| Quy tắc viết | ✓ | ✓ | — (bỏ ở Gói AP) | có quyền ghi | `PUT /api/rules/file` (§3.3) · sửa ở `Outline` <!-- ap-mx --> |
+| Văn phong (Chung · Ngôn tình · Hồi hộp · Huyền huyễn · Kiếm hiệp · Văn phong của bạn) | ✓ | ✓ | — (Gói AP: dự án chưa chọn thì dùng “Chung” của Noverse) <!-- ap-mx2 --> | có quyền ghi | `config.style` (`default · romance · suspense · fantasy · wuxia` + tên tệp tự tạo) |
 | Duyệt từng chương | ✓ (đổi ngay = `/review on\|off`) | ✓ (cho truyện mới) | ✓ (cho truyện mới) | có quyền ghi | truyện: lệnh live; dự án/toàn cục: `config.advance_mode` (`review`/`auto`) |
 | Trợ lý AI: model + mức suy nghĩ (Tự động · Thấp · Vừa · Cao) | ✓ | ✓ | ✓ | có quyền ghi | `config.roles.<vai>.{provider,model,reasoning_effort}`; Mặc định = `provider/model/reasoning_effort` cấp trên |
 | Ngữ cảnh của model (Gói W): Tự nhận / Tự đặt (nghìn) | — | — | ✓ (theo model, mọi trợ lý) | quản trị | `providers.<p>.models[].context_window`; bỏ trống = theo danh mục model, không có thì mức dự phòng |
@@ -93,7 +95,7 @@ Quy tắc viết gắn với truyện, nên sửa ở chỗ người dùng làm 
 |---|---|---|
 | Truyện | **Dự án › truyện › tab Quy tắc viết** (cạnh Dàn ý · Nhân vật · Chi tiết cài cắm · Bản xuất; số trên tab = quy tắc riêng + học từ góp ý) | `Outline` · `tab=rules` · `rules`: list · understood · thinking · unsure |
 | Dự án | **Trang dự án › Quy tắc viết chung** (mục trong trang tổng quan, có lối tắt ở thanh trái “Quy tắc viết”) | `Outline` · `view=project` |
-| Mọi truyện | **Tuỳ chỉnh › Quy tắc chung** — mục này không còn thanh “Áp dụng cho”; đầu trang có thẻ chỉ dẫn “Quy tắc riêng của từng truyện và từng dự án nằm ở tab Dự án” | `Settings` · `section=rules` |
+| ~~Mọi truyện~~ | **Bỏ ở Gói AP (31/10).** Quy tắc chỉ còn cấp truyện và dự án. Quy tắc global đang có trên máy chủ phải được chuyển — xem §9.7 GAP-AP1 <!-- ap-lv --> | — |
 
 - Tab truyện dùng **cùng thành phần** với Tuỳ chỉnh (ô thêm + chip mẫu, thẻ quy tắc, *Noverse hiểu thế nào?*, học từ góp ý, mặc định chống giọng văn máy, *Khi nào có hiệu lực*). Nhóm kế thừa (dự án, Mọi truyện) hiện viền đứt, chỉ xem, có nút *Sửa ở trang dự án ›* / *Sửa ở Tuỳ chỉnh ›*.
 - Cột phải khi mở tab: thẻ **Kiểm tra 3 chương gần nhất** (thay vị trí trong Tuỳ chỉnh). Dòng *Quy tắc viết* trong thẻ “Đang áp dụng cho truyện” mở tab này thay vì sang Tuỳ chỉnh.
@@ -157,7 +159,7 @@ Văn phong (gói thể loại, kiểu viết) và văn mẫu gắn với truyệ
 |---|---|---|
 | Truyện | **Dự án › truyện › tab Cách viết** (sau Quy tắc viết): thanh kế thừa (“Riêng truyện này” + *Dùng theo dự án* / “Theo dự án …”), lưới Gói thể loại + Kiểu viết, thẻ “Gói … gồm”, **Văn phong của bạn · văn mẫu của truyện này** (danh sách + *Thêm văn mẫu*) | `Outline` · `tab=style` · `wstyle`: pack · builtin · inherit · samples |
 | Dự án | **Trang dự án › Cách viết mặc định của dự án** (lối tắt ở thanh trái “Cách viết”): văn phong đang dùng, truyện nào chọn riêng, *Đổi* mở cùng lưới | `Outline` · `wstyle=proj` |
-| Mọi truyện | **Tuỳ chỉnh › Cách viết › Văn phong chung** (chỉ hiện khi chọn “Mọi truyện”). Ở cấp truyện/dự án, Tuỳ chỉnh chỉ còn thẻ chỉ dẫn “Văn phong của truyện này: Gói … · riêng truyện này” + *Mở Cách viết của truyện* | `Settings` · `section=writing` · `scope` |
+| ~~Mọi truyện~~ | **Bỏ ở Gói AP** — dự án chưa chọn văn phong thì hiện “Chung · mặc định Noverse”. <!-- ap-lv2 --> Bản cũ: **Tuỳ chỉnh › Cách viết › Văn phong chung** (chỉ hiện khi chọn “Mọi truyện”). Ở cấp truyện/dự án, Tuỳ chỉnh chỉ còn thẻ chỉ dẫn “Văn phong của truyện này: Gói … · riêng truyện này” + *Mở Cách viết của truyện* | `Settings` · `section=writing` · `scope` |
 
 - Chọn một ô là lưu ngay (không qua thanh Lưu), toast “Đã đổi văn phong của truyện · áp dụng từ chương 5”; chương đã viết giữ nguyên.
 - “Văn phong của bạn” chỉ chọn được ở cấp truyện và khi truyện có văn mẫu (API văn mẫu theo truyện). Ở Tuỳ chỉnh “Mọi truyện” ô này mờ: “Văn mẫu thêm theo từng truyện ở Dự án & truyện”.
@@ -430,3 +432,84 @@ Nhóm mới **Quản trị** trên trang Thêm (chỉ quản trị): hàng **Lư
 - **GAP-AN6** Đổi khoá hoặc cách gửi của **cùng** kho (cùng địa chỉ + tên kho) hiện cũng thành “kho mới” → `needsMigration` và chép lại toàn bộ (đều `matched`). Nên nhận ra cùng kho và đổi tại chỗ, không chuyển.
 - **GAP-AN7** `Usage` xếp mọi khoá có tiền tố môi trường: ảnh đại diện (ảnh) rơi vào Bìa, bản sao lưu cơ sở dữ liệu rơi vào Bản thảo nhập. Cần loại avatar/backup khỏi 6 loại (hoặc thêm loại riêng, khi đó cập nhật thiết kế).
 - **GAP-AN8** Kiểm tra trên kho đang dùng (*Kiểm tra kết nối* ở thẻ trạng thái, cả khi `envlocked`): chưa có route kiểm tra cấu hình hiện hành không cần gửi khoá — `POST …/test` nhận ứng viên; với khoá rỗng thì giữ khoá đã lưu (`nil credentials retain`) nên FE gửi lại cấu hình hiện hành không kèm khoá. Với `envlocked` cần cho phép test (hiện Candidate dựa trên kho active — kiểm lại).
+
+## 9. Gói AP — Quy tắc gọn, chống giọng văn máy, nền móng truyện, Não dự án (31/10) <!-- ap-spec -->
+
+Canvas bản 132. Artboard: `Settings`, `Outline` (`tab`, `found`, `aai`, `rules`, `view=project`), `MMore` (`state=rules` · `rulesAai`), `ProjBrain` (`lview`, `uni`, `sfilter`), `Members` (thanh bên, ô chọn Quyền vào ứng dụng), `SysBrain` (câu chữ).
+
+### 9.1 Hai cấp, một chỗ sửa
+
+| Cấp | Sửa ở đâu | Ghi chú |
+|---|---|---|
+| Truyện | `Outline` › truyện › tab **Cách viết** › Quy tắc | Được ưu tiên hơn dự án |
+| Dự án | `Outline` › trang dự án › Cách viết của dự án › Quy tắc | Áp cho mọi truyện trong dự án, trừ chỗ truyện dặn khác |
+
+Không còn cấp “Mọi truyện” ở máy tính, điện thoại, cột phải “Đang áp dụng”, “Noverse hiểu thế nào?”. Thao tác *Chuyển lên* chỉ còn truyện → dự án.
+
+### 9.2 Danh sách quy tắc (máy tính)
+
+- Ô thêm **một dòng** + nút *Thêm* (Enter hoặc ⌘/Ctrl+Enter). Dưới ô là hàng **Mẫu** (Không dùng từ… · Giới hạn từ lặp… · Xưng hô… · Nhân vật… · Giọng văn…) chèn câu mẫu vào ô.
+- **Học từ góp ý của bạn** tách thành thẻ riêng ở trên (viền xanh lá nhạt, chỉ khi có). Mỗi dòng: câu, nguồn (“Từ góp ý của bạn ở chương 3 · hôm qua”), nhãn loại, *Giữ* · *Bỏ*. Ghi rõ “Đang áp dụng” — giữ là thành quy tắc của truyện, bỏ là Noverse không nhắc trợ lý nữa.
+- Một thẻ danh sách, chia nhóm bằng tiêu đề nhỏ: **Của truyện này · n** rồi **Từ dự án “…” · n** (chữ nhạt, chỉ xem, *Sửa ở trang dự án ›*). Ở trang dự án chỉ có **Của dự án · n**.
+- Mỗi quy tắc **một dòng** (cao ≥ 44 px): câu quy tắc + **một nhãn loại** ở cuối dòng. Bỏ các chip “Noverse hiểu” lặp lại câu. Nút Sửa · Chuyển lên dự án · Xoá hiện khi rê chuột hoặc focus (luôn giữ chỗ 90 px để nhãn thẳng cột).
+- Nhãn loại: Cấm từ · Cấm ký tự · Giới hạn · Thể loại · Giọng văn · Cốt truyện · Nhân vật · Lời dặn. Lấy từ kết quả `understand` (`ban`, `max`, `genre`… ; câu tự do = Lời dặn).
+- Quy tắc Noverse chưa chắc cách hiểu: khối vàng ngay dưới dòng, chọn một cách hiểu.
+- Tiêu đề: “Quy tắc · n đang áp dụng” (truyện = của truyện + học từ góp ý + từ dự án).
+
+### 9.3 Chống giọng văn máy — xem và chỉnh được
+
+Thẻ thu gọn: “Chống giọng văn máy · Mặc định của Noverse · luôn bật” + “4 cụm từ không dùng · 16 từ dễ lặp có giới hạn mỗi chương [· n từ đã chỉnh cho truyện này]” + nút *Xem & chỉnh*. Mở ra (`aai=open`; `edited` có sẵn một từ đã chỉnh):
+
+- **Từ dễ lặp** — lưới 2 cột, đủ 16 từ của `rules.SystemDefaults.FatigueWords`. Ngưỡng hiện **theo chương** = `per_1000 × 1,5` làm tròn (chương chuẩn 1.500 tiếng, `FatigueRefChapterTieng`): 0,67 → 1 lần · 1,33 → 2 · 2 → 3. Ghi chú “chương dài hơn khoảng 1.500 chữ được tăng theo tỉ lệ”.
+- Mỗi từ có nút **−** (Siết) và **+** (Nới), 0–9 lần. Mỗi lần bấm **tạo hoặc sửa một quy tắc** của cấp đang xem (““như một” tối đa 4 lần mỗi chương.”, nhãn Giới hạn) — quy tắc đó hiện ngay trong danh sách trên; về đúng mức nền thì quy tắc tự xoá. Không có kho thiết lập riêng.
+- Từ đã chỉnh: số màu tím + nút ↺ “Về mặc định · n lần” (hoặc “Về mức của dự án”). Nguồn khác hiện huy hiệu nhỏ: **góp ý** (đang theo quy tắc học từ góp ý), **dự án** (truyện đang theo quy tắc dự án).
+- **vượt ở ch.N** khi chương gần nhất dùng nhiều hơn ngưỡng đang áp (từ `S/rules/violations`); nới ngưỡng thì huy hiệu tự mất.
+- **Cụm từ không dùng** — 4 cụm của `ForbiddenPhrases`, có biểu tượng khoá, “gặp là Biên tập viên bắt sửa”. Không có nút tắt (backend chỉ cộng thêm danh sách cấm, xem GAP-AP3). *Thêm cụm của bạn* điền “Không dùng cụm “”” vào ô thêm quy tắc.
+- Câu cuối: cách chỉnh tạo quy tắc + “Gói Nữ tần báo thù dùng đúng các ngưỡng mặc định” (gói có `fatigue_words` trong `goi.json` thì ghi các từ gói đổi và huy hiệu **gói**).
+- Trang dự án dùng cùng thẻ; chỉnh ở đó tạo quy tắc của dự án.
+
+### 9.4 Tab truyện: Thông tin · Tiền đề · Nhân vật · Thế giới · Dàn ý · Cài cắm · Cách viết · Bản xuất
+
+Tab không còn biểu tượng (8 tab vừa cột giữa 1440 px). Mặc định vẫn mở **Dàn ý**. Tweak `found`: full · partial (tiền đề thiếu 2 mục, chưa có quy tắc thế giới).
+
+**Thông tin** (`tab=info`)
+- Dải **Nền móng**: Tiền đề (Đủ 10 mục / 8/10 · thiếu 2) · Nhân vật (6 · 2 chính) · Thế giới (n quy tắc / Chưa có) · Dàn ý (8/8 chương · 1 tập). Dấu tích xanh hoặc cảnh báo vàng; bấm là sang tab đó.
+- **Thông tin truyện** — Tên truyện · Tên ngắn (thanh bên, tên tệp xuất; ≤ 32 ký tự) · Trạng thái (Ý tưởng · Đang viết · Tạm ngưng · Hoàn thành · Đã đăng) · Thẻ · Ý tưởng ban đầu: sửa tại chỗ (*Sửa* → *Xong*), ghi `PUT S/meta`. **Tóm tắt** (Kiến trúc sư viết, `meta/book.json`): chỉ *Nhờ sửa*.
+- **Khung truyện** (chuyển từ đầu tab Dàn ý): Người nghe · Điểm khác · Hạt giống phần hai, sửa tại chỗ, `GET/PUT S/frame`.
+- **Định hướng kết** (compass): Hướng kết · Tuyến còn mở (phải khép hết trước khi hoàn tất) · Quy mô dự kiến — chỉ *Nhờ sửa*.
+- **10 trục của truyện** (giá trị của truyện trong sổ cái, *So với các truyện khác ›* sang Não dự án).
+- **Viết bằng phiên bản** (chuyển từ Tuỳ chỉnh) — `builds` của `GET S/meta`.
+- Menu ⋯ › *Đổi tên truyện* mở tab này ở ô Tên truyện.
+
+**Tiền đề** (`tab=premise`) — các mục cấp 2 của `premise.md` theo `requiredPremiseHeadings` (tầng ngắn: 9 mục chung + Tính phù hợp với truyện ngắn), bảng hai cột tên mục · nội dung. Huy hiệu “Đủ 10 mục” / “Thiếu 2/10 mục”. Mục thiếu: dòng vàng “Chưa có. Thiếu mục này, Biên tập viên không đối chiếu được khi chấm chương.” + *Nhờ bổ sung*.
+
+**Thế giới** (`tab=world`) — `world_rules.json` gom theo `category`: Xã hội · Công nghệ · Địa lý · Phép thuật · Khác, một thẻ, mỗi quy tắc hai dòng (quy tắc · “Giới hạn · {boundary}”). Câu cuối trỏ vũ trụ chung ở Não dự án. Rỗng (`found=partial`): thẻ viền đứt “Truyện này chưa có quy tắc thế giới” + *Nhờ Kiến trúc sư lập* (ẩn nút ở đầu trang).
+
+**Sửa nội dung nền móng:** tiền đề, thế giới, tóm tắt, định hướng **không sửa tay** — mọi nút *Nhờ…* điền sẵn câu vào ô **Dặn hướng cốt truyện** ở đáy (vd. “Bổ sung mục “Vùng cấm sáng tác” cho tiền đề: ”) và đặt con trỏ ở cuối; người dùng viết tiếp rồi gửi cho Kiến trúc sư (`save_foundation`). Đây là quyết định thiết kế để giữ dàn ý và tiền đề khớp nhau.
+
+### 9.5 Não dự án (`ProjBrain`)
+
+- **Bỏ cột Ngày 7** (dữ liệu `day7` luôn `null`, chưa có nguồn lượt nghe). Khi có nguồn thì thêm lại thành cột tuỳ chọn.
+- **Kiểm truyện mới**: dòng đầu “Kiểm truyện mới trước khi viết · so với 10 truyện gần nhất”, tên truyện + Brief; bên phải **kết luận** (Chưa đạt · n lỗi phải sửa, m cảnh báo / Đạt · m cảnh báo / Đạt cả 4 phép kiểm). Bốn phép kiểm thành bảng: tên phép (Tổ hợp trục 1 · 3 · 4 · 6 · Khác truyện liền trước · Giá trị dùng lại nhiều · Kiểu mở đầu) · mức · câu · gợi ý sửa.
+- Thanh công cụ: **Bảng truyện · Tần suất theo trục** (`lview`), *Chỉ truyện có ô trùng truyện mới* (`lview=only`), đếm “10 truyện đã viết · kiểm theo 10 truyện gần nhất”.
+- Bảng: tiêu đề cột dính khi cuộn; ô là nút — bấm một ô **soi** mọi truyện cùng giá trị ở trục đó (viền tím, dải “… dùng n lần trong 10 truyện gần nhất”, *Bỏ chọn*; `lview=pick`). Dòng truyện mới có số ×n cạnh mỗi giá trị.
+- **Tần suất theo trục**: mỗi trục một dòng, các giá trị xếp theo số truyện đã dùng; giá trị của truyện mới viền tím; trục có mức tối đa (Nghề · Phản diện · Sân khấu) tô vàng giá trị đã đủ 2/10. Ghi chú luật dưới tên trục. Tính ở client từ `GET /ledger`.
+- **Vũ trụ chung**: lọc Tất cả · Nhân vật · Địa điểm, *Chỉ mục cần xem · n*, ô lọc theo tên (client). `uni=unchecked` (`checks: null`): cột Kiểm “Chưa kiểm”, thẻ bên phải “Chưa có kết quả kiểm”.
+- **Tìm trong dự án**: lọc Tất cả · Thực thể · Đoạn văn và theo truyện (chip, client, trên kết quả `?q=`).
+
+### 9.6 Điện thoại (M4 › Cách viết)
+
+Bỏ cấp Mọi truyện. Nhóm quy tắc “Của truyện này” / “Học từ góp ý · đang áp dụng” / “Từ dự án …”. Mỗi quy tắc một nhãn loại (bỏ chip lặp). Thẻ **Chống giọng văn máy** mở ra danh sách 16 từ, mỗi dòng nút − / + 36 px; chỉnh tạo quy tắc như máy tính (`state=rulesAai`).
+
+### 9.7 GAP (dữ liệu chưa có — thiết kế không bịa)
+
+| ID | Việc | Ghi chú |
+|---|---|---|
+| GAP-AP1 | **Chuyển quy tắc global** khi bỏ cấp Mọi truyện | Lần chạy đầu sau bản này: chép các tệp `~/.ainovel/rules/*.md` vào quy tắc của **từng dự án** (ghi nhật ký quản trị), rồi ngừng đọc `SourceGlobal` trong `rules` loader và từ chối `scope=global` ở `/api/rules/*` (400). Không làm cùng đợt thì trợ lý vẫn theo quy tắc người dùng không còn thấy — **bắt buộc đi chung với FE**. |
+| GAP-AP2 | Ngưỡng từ dễ lặp hiệu lực theo cấp, có nguồn | `GET /api/rules/effective?scope=story|project` thêm `fatigueWords[{word, per1000, perChapter, source: default\|pack\|project\|story\|learned}]` và `forbiddenDefaults[]`. Nếu đã có trong snapshot thì ghi rõ khoá vào `06-data-contract.md`. |
+| GAP-AP3 | Tắt một cụm từ cấm mặc định | Hiện `mergeForbidden` chỉ cộng thêm. UI **không** có nút tắt; làm sau nếu cần. |
+| GAP-AP4 | Tiền đề theo mục | `GET S/premise` → `{sections[{heading, text}], missing[], updatedAt}` (dùng `parsePremiseSections` + `requiredPremiseHeadings`). Trước khi có: FE tự tách `snapshot.premise` theo `## `. |
+| GAP-AP5 | Quy tắc thế giới | `GET S/world-rules` → `[{category, rule, boundary}]` (hiện chỉ qua `S/brain` entities và plan detail `kind=worldRules`). |
+| GAP-AP6 | Định hướng kết đủ trường | Snapshot đã có `compassDirection`, `compassScale`; thêm `openThreads[]`. |
+| GAP-AP7 | Tóm tắt sửa tay | `book.json.synopsis` chưa có PUT — UI chỉ *Nhờ sửa*. Không bắt buộc. |
+| — | Não dự án | Không đổi API: bỏ Ngày 7, tần suất/lọc/soi đều tính ở client. |

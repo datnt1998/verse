@@ -232,3 +232,32 @@ Tên vai/người lập kế hoạch và lời gọi công cụ nằm trong câu
 | Chưa được cấp quyền | Chưa được cấp quyền vào Noverse · Nhờ quản trị viên bật ô Noverse cho bạn ở Thành viên, rồi bấm Thử lại. · Chép lời nhờ quản trị viên cấp quyền | 403, access denied |
 
 Câu “vì sao phải đăng nhập lại” ở `09-auth-onboard.md` §12.3.
+
+## Bảng từ: Gói AP (31/10) <!-- ap-copy -->
+
+| Chỗ | Câu |
+|---|---|
+| Quy tắc · tiêu đề | Quy tắc · {n} đang áp dụng |
+| Quy tắc · mô tả (truyện) | Dặn bằng lời thường, như dặn một biên tập viên. Quy tắc của truyện được ưu tiên hơn quy tắc của dự án. |
+| Quy tắc · mô tả (dự án) | Dặn bằng lời thường. Áp dụng cho mọi truyện trong dự án, trừ chỗ một truyện dặn khác. |
+| Ô thêm (truyện) | Thêm quy tắc cho truyện này, ví dụ: Tri Hạ luôn gọi Nhược Vy là “cô” |
+| Nhóm | Của truyện này · Của dự án · Từ dự án “{tên}” · Học từ góp ý của bạn |
+| Học từ góp ý | Đang áp dụng. Giữ để thành quy tắc của truyện, hoặc bỏ nếu Noverse hiểu sai. · Giữ · Bỏ |
+| Nhãn loại | Cấm từ · Cấm ký tự · Giới hạn · Thể loại · Giọng văn · Cốt truyện · Nhân vật · Lời dặn |
+| Rỗng | Chưa dặn riêng. Truyện đang theo quy tắc của dự án bên dưới. |
+| Chống giọng văn máy | Chống giọng văn máy · Mặc định của Noverse · luôn bật · Xem & chỉnh · Thu gọn |
+| … tóm tắt | 4 cụm từ không dùng · 16 từ dễ lặp có giới hạn mỗi chương · {n} từ đã chỉnh cho truyện này |
+| … từ dễ lặp | Từ dễ lặp — tối đa mỗi chương · chương dài hơn khoảng 1.500 chữ được tăng theo tỉ lệ |
+| … huy hiệu | góp ý · dự án · vượt ở ch.{n} |
+| … nút | Siết · Nới · Về mặc định · {n} lần · Về mức của dự án · {n} lần |
+| … cụm cấm | Cụm từ không dùng — gặp là Biên tập viên bắt sửa · Thêm cụm của bạn |
+| … toast | Đã thêm quy tắc của truyện · “{từ}” tối đa {n} lần · Đã về mặc định · “{từ}” tối đa {n} lần |
+| Nền móng | Tiền đề · Đủ 10 mục / {a}/10 mục · thiếu {b} · Thế giới · Chưa có quy tắc |
+| Tiền đề thiếu mục | Chưa có. Thiếu mục này, Biên tập viên không đối chiếu được khi chấm chương. · Nhờ bổ sung |
+| Thế giới rỗng | Truyện này chưa có quy tắc thế giới · Kiến trúc sư chưa lưu quy tắc thế giới cho truyện này. Người viết vẫn bám tiền đề và dàn ý; có quy tắc thì Biên tập viên kiểm chặt hơn. Kiến trúc sư có thể rút ra từ 3 chương đã viết. · Nhờ Kiến trúc sư lập |
+| Nút nhờ | Nhờ sửa · Nhờ Kiến trúc sư sửa · điền sẵn: “Sửa tiền đề: ” · “Bổ sung mục “{mục}” cho tiền đề: ” · “Đổi định hướng kết: ” |
+| Tuỳ chỉnh | Cách chạy · Thông tin dự án |
+| Thanh bên | Não hệ thống — 4 bài học chờ duyệt |
+| Não dự án · kết luận | Chưa đạt · {n} lỗi phải sửa, {m} cảnh báo · Đạt · {m} cảnh báo nên xem · Đạt cả 4 phép kiểm |
+| Não dự án · công cụ | Bảng truyện · Tần suất theo trục · Chỉ truyện có ô trùng truyện mới · Bỏ chọn |
+| Vũ trụ · chưa kiểm | Chưa kiểm · Chưa có kết quả kiểm |

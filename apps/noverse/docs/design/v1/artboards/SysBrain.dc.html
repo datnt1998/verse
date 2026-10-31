@@ -170,7 +170,7 @@ const LS = [
   ['k2', 'Từ góp ý của bạn', ['Master §11'], 'Kết cục phản diện phải được người khác chứng kiến, không chỉ là tự nhận trong phòng kín.', 'Rút từ 3 lần bạn sửa kết chương ở 3 truyện · 1 gói', ['Em Gái Nuôi… · ch.8', 'Trà Xanh… · ch.8', '+1'], 'pack', 'kept'],
   ['d1', 'Từ lần chấm', ['Master §15'], 'Luôn ngắt đoạn sau 60 tiếng.', 'Rút từ 4 Cảnh báo ở 2 truyện · 1 gói', ['Bạn Thân Giật Chồng… · ch.2', '+3'], 'all', 'dropped']
 ];
-const WHEN = { k1: 'Giữ ngày 20/10 · quy tắc cấp Mọi truyện', k2: 'Giữ ngày 18/10 · quy tắc của gói Nữ tần báo thù', d1: 'Bỏ ngày 19/10 · Noverse không đề xuất lại' };
+const WHEN = { k1: 'Giữ ngày 20/10 · bài học chung cho mọi gói', k2: 'Giữ ngày 18/10 · quy tắc của gói Nữ tần báo thù', d1: 'Bỏ ngày 19/10 · Noverse không đề xuất lại' };
 const VIO = {
   A: [['Master §7', 'Đầu chương và cuối chương', 5, 'e'], ['Master §13', 'Văn phong, thoại, hài', 4, 'w'], ['Bộ A §4.3', 'Trà xanh và phản diện', 4, 'w'], ['Master §11', 'Công lý và kết cục phản diện', 3, 'e'], ['Xưng hô', 'Bảng xưng hô của truyện', 3, 'e'], ['Master §5', 'Nhịp sóng và mật độ', 2, 'e']],
   B: [['Master §10', 'Ức chế và lòng thương', 3, 'e'], ['Master §8', 'Vùng giữa truyện', 2, 'e'], ['Master §13', 'Văn phong, thoại, hài', 2, 'w'], ['Master §7', 'Đầu chương và cuối chương', 1, 'e']],
@@ -188,7 +188,7 @@ class Component extends DCLogic {
     const shown = LS.filter((l) => s.tab === 'pending' ? (s.st[l[0]] === 'pending' || s.just[l[0]]) : s.st[l[0]] === s.tab);
     const lessons = shown.map(([id, kind, refs, t, src, ev]) => { const st = s.st[id]; const just = s.tab === 'pending' && st !== 'pending'; const editing = s.edit === id;
       return { kind, refs, t, src, ev, kBg: kind === 'Từ góp ý của bạn' ? 'rgba(166,237,193,0.1)' : 'rgba(201,166,245,0.12)', kFg: kind === 'Từ góp ý của bạn' ? '#BDF2D2' : '#DCC8F8', when: st === 'pending' ? 'mới · 25/10' : '', view: !editing, editing, pending: st === 'pending', done: st !== 'pending', cls: just ? 'rise' : '',
-        dText: st === 'kept' ? (just ? 'Đã giữ · thành quy tắc ' + (s.sc[id] === 'pack' ? 'của gói ' + PK.A[0] : 'cấp Mọi truyện') + ', áp dụng từ truyện mới tiếp theo' : (WHEN[id] || src)) : (just ? 'Đã bỏ · Noverse không đề xuất lại bài học này' : (WHEN[id] || src)), dFg: st === 'kept' ? '#A6EDC1' : '#A0A0AB', dIcon: st === 'kept' ? 'i-tick-b' : 'i-trash',
+        dText: st === 'kept' ? (just ? 'Đã giữ · thành quy tắc ' + (s.sc[id] === 'pack' ? 'của gói ' + PK.A[0] : 'chung cho mọi gói') + ', áp dụng từ truyện mới tiếp theo' : (WHEN[id] || src)) : (just ? 'Đã bỏ · Noverse không đề xuất lại bài học này' : (WHEN[id] || src)), dFg: st === 'kept' ? '#A6EDC1' : '#A0A0AB', dIcon: st === 'kept' ? 'i-tick-b' : 'i-trash',
         scopes: [['pack', 'Gói ' + PK.A[0]], ['all', 'Mọi gói']].map(([k, label]) => ({ label, on: s.sc[id] === k, pick: () => set({ sc: Object.assign({}, s.sc, { [id]: k }) }) })),
         keep: () => { setSt(id, 'kept'); this.setState({ edit: null }); }, drop: () => setSt(id, 'dropped'), edit: () => set({ edit: editing ? null : id }), editLabel: editing ? 'Xong' : 'Sửa câu chữ', undo: () => set({ st: Object.assign({}, s.st, { [id]: LS.find((l) => l[0] === id)[7] === 'pending' ? 'pending' : LS.find((l) => l[0] === id)[7] }), just: Object.assign({}, s.just, { [id]: null }) }) }; });
     const nPend = LS.filter((l) => s.st[l[0]] === 'pending').length, nKept = LS.filter((l) => s.st[l[0]] === 'kept').length, nDrop = LS.filter((l) => s.st[l[0]] === 'dropped').length;
