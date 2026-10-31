@@ -17,6 +17,7 @@ import { navigate, paths } from '../../router'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { channelTint } from '../../lib/channelTint'
 import { fmtDuration } from '../explore/fmt'
+import { HomeScreen } from '../home/HomeScreen'
 import './queue.css'
 import { fmtEta, movePosition, quotaLine, quotaName, quotaText, sortItems, sourceLabel, viewState, waitLine } from './queueView'
 
@@ -41,7 +42,7 @@ function Stepper({ aria, value, min, max, fmt, onChange }: {
   onChange: (v: number) => void
 }) {
   return (
-    <div role="group" aria-label={aria} className="vq-step">
+    <div role="group" aria-label={aria} className={`vq-step${fmt ? ' vq-step--wide' : ''}`}>
       <button type="button" className="vq-step__btn" aria-label={`${aria} giảm`} disabled={value <= min}
         onClick={() => onChange(value - 1)}><Icon name="minus" size={14} /></button>
       <span className="num mono" aria-live="polite">{fmt ? fmt(value) : value}</span>
@@ -124,11 +125,11 @@ export function QueueScreen() {
   const pauseBtn = view && (
     <ActionButton
       className="vq-pause"
-      variant={view.paused ? 'primary' : 'outline'}
+      variant={view.paused && !mobile ? 'primary' : 'outline'}
       onClick={() => void patch({ paused: !view.paused }, (v) => ({ ...v, paused: !v.paused }))}
       disabled={patchBusy.current > 0}
     >
-      <Icon name={view.paused ? 'play' : 'pause'} size={mobile ? 16 : 14} />
+      <Icon name={view.paused ? 'play' : 'pause'} size={16} />
       {view.paused ? tt.resume : mobile ? tt.pause : tt.pauseLong}
     </ActionButton>
   )
@@ -150,8 +151,9 @@ export function QueueScreen() {
   const runningCard = (j: QueueView['running'][number], i: number) => {
     const agent = agentOf(j.agent)
     const stepIdx = Math.max(0, Math.min(8, j.stepIndex))
+    const imageLimited = state === 'limited' && stepIdx === 5
     return (
-      <article key={j.jobId} className="vq-run card">
+      <article key={j.jobId} className="vq-run card" data-limited={imageLimited || undefined}>
         <div className="vq-run__top">
           <span className="vq-run__thumb" aria-hidden="true">
             {j.thumbnailUrl && <img src={j.thumbnailUrl} alt="" />}
@@ -163,7 +165,7 @@ export function QueueScreen() {
           </div>
         </div>
         <div className="vq-run__agent">
-          <Orb of={agent} size={20} live={!view?.paused} />
+          <Orb of={agent} size={20} live={!view?.paused && !imageLimited} />
           <span className="vq-run__doing"><b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b><span> · {j.now}</span></span>
           <span className="num vq-run__eta">{j.etaMinutes != null ? tt.etaLeft(Math.ceil(j.etaMinutes)) : ''}</span>
         </div>
@@ -333,6 +335,8 @@ export function QueueScreen() {
   )
 
   return (
+    <>
+    {mobile && <HomeScreen route={{ name: 'workbench' }} />}
     <div className="vq" data-state={state}>
       {/* Desktop */}
       <main className="vq-center">
@@ -468,6 +472,7 @@ export function QueueScreen() {
       {mobileSheet}
       {editRules && <Dialog title={tt.rulesTitle} onClose={() => setEditRules(false)} width={420}>{rulesPanel}</Dialog>}
     </div>
+    </>
   )
 }
 

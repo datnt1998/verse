@@ -68,3 +68,17 @@ it('shows limited only when every configured image source is exhausted', () => {
 it('renders the queued source thumbnail from the queue response', () => {
   expect(el.querySelector('.vq-thumb img')?.getAttribute('src')).toBe('/thumbnail.jpg')
 })
+it.each([0, 5])('marks only an image step as quota-blocked (step %s)', async (stepIndex) => {
+  const limited: QueueView = {
+    ...view,
+    running: [{ jobId: 'job1', channelId: 'mine', title: 'Video đang làm', agent: 'artist', now: 'Đang làm', stepIndex, etaMinutes: null }],
+    imageQuota: [{ provider: 'codex', used: 50, limit: 50, period: 'day', resetsAt: null, role: 'main' }],
+  }
+  await act(async () => root.unmount())
+  cache.clear()
+  vi.stubGlobal('fetch', vi.fn(async (path: string) => response(path === '/api/queue' ? limited : { channels: [{ id: 'mine', name: 'Kênh của tôi' }] })))
+  root = createRoot(el)
+  await act(async () => root.render(<QueueScreen />))
+  expect(el.querySelector('.vq')?.getAttribute('data-state')).toBe('limited')
+  expect(el.querySelector('.vq-run')?.hasAttribute('data-limited')).toBe(stepIndex === 5)
+})

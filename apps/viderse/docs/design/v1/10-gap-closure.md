@@ -38,3 +38,10 @@ Dev ghi mỗi gói khi xong: ngày, PR/commit, chỗ lệch so với artboard (n
 - Đo lại `NewVideo` đủ năm trạng thái và `MNew` đủ ba trạng thái bằng hình học DOM sau khi font và React ổn định, với kế hoạch và metadata thật từ máy chủ cô lập.
 - Sửa ô nhiều link bị ẩn bởi selector phần tử đầu; khớp thẻ gợi ý, nhóm trợ lý, thẻ lối đi khác, màu nút khoá, dải lỗi/trùng và nhãn chế độ điện thoại với artboard. Không thêm màu hoặc nâng ratchet.
 - Giữ chuẩn hoá safe-area #57, hàng Không cần ảnh #58 và ghi rõ hàng ưu tiên nhiều link điện thoại ở #61. Thiếu ba trạng thái viên việc nền của Main ghi #60; không tự vẽ thay design.
+
+## Đối chiếu Hàng chờ và khung điện thoại — 31/10/2026
+
+- Dùng PATCH thật để chỉnh 2 luồng video, 3 luồng ảnh, quét lại mỗi giờ và dấu giờ tạm dừng; xếp video YouTube thật vào các kênh thật của DB đo riêng. Đo được cả thumbnail đang tải, hai video chạy và hàng luân phiên giữ nguyên khi tạm dừng.
+- Khớp chip đếm luồng, đoạn tiến độ 4px, lưới cột chờ lượt, stepper, nút dừng/chạy tiếp và viền cột quy tắc. Trạng thái hết hạn mức chỉ dùng DTO Go thật có sửa số hạn mức trong phiên trình duyệt: hai provider thật chưa đăng nhập, không có API hợp lệ để dùng hết hạn mức.
+- Sheet Hàng chờ nằm trên cả header/thanh dưới, có Bàn dựng thật phía sau, giữ hàng 52px và thẻ đang làm 60,25px. Khung điện thoại không giấu số việc nền ở 390px; năm tab chia đều, avatar mở Cài đặt và phần dính đáy chuẩn hoá theo #57. Khác biệt cầu đỏ ghi #62.
+- Kiểm tra: TypeScript thành công; QueueScreen và shell 22 kiểm thử thành công. Kiểm thử offline cũ được đổi sang sự kiện mạng thật của hook, thay giả định SSE chưa chạy đồng nghĩa offline.

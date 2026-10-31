@@ -376,3 +376,8 @@ Mẫu:
 - `NewVideo` có công tắc “Ưu tiên cả N”, nhưng `MNew` · `input=multi` chỉ có hai hàng Kênh/Template và chưa vẽ công tắc tương ứng.
 - Giữ thao tác ưu tiên thật bằng hàng “Ưu tiên lượt này” 52px trong nhóm tuỳ chọn, dùng cùng trạng thái và kế hoạch của máy tính. Nhóm nhiều link cao thêm 104px: 52px cho Không cần ảnh (#58) và 52px cho Ưu tiên. Không coi hai hàng này là sai số bố cục.
 - Hỏi design: duyệt hàng công tắc hoặc bổ sung chỗ đặt khác trên `MNew`.
+
+### #62 · Nút thêm video của thanh dưới: giữ bảng màu đã có — Mở
+- `MMain` vẽ cầu đỏ với ba stop `#FF6A80`, `#FF1F45`, `#C80028`; ba stop này chưa có trong token UI đang dùng.
+- Theo yêu cầu không thêm màu ở đợt đối chiếu này, giữ màu đỏ nút `--vv-red-button` và bóng hiện có. Kích thước 46px, icon 22px, vị trí giữa năm tab và vùng chạm vẫn khớp artboard.
+- Hỏi design: dùng màu nút V0 hiện có hoặc duyệt một token gradient riêng trong đợt bổ sung token; không tăng ratchet.
