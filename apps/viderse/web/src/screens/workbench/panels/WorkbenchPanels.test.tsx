@@ -34,6 +34,7 @@ it('sends only selected rewrite parts and reuses the selected history revision',
   await click('Lịch sử'); await click('Dùng lại')
   expect(calls.find(x => x.path.endsWith('/restore'))?.body).toMatchObject({ at: '2026-01-01T00:00:00Z', expectedRevision: 4 })
   expect(el.textContent).toContain('bạn đã sửa')
+  expect([...el.querySelectorAll('span')].some(span => span.textContent === 'Bạn đã sửa')).toBe(true)
 })
 it('locks clips while building and updates coverage when removing one', async () => {
   await act(async () => root.render(<WorkbenchPanels job={{ ...job, activeStep: 'build' }} onRefresh={() => {}} />))
