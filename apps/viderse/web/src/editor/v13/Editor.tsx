@@ -158,14 +158,15 @@ function EditorBody({ projectId }: { projectId: string }) {
       const targets = all ? ranges.filter((range) => !fixedIds.has(range.cueId ?? `${range.start}`)) : [ranges[selectedRange]].filter(Boolean)
       const cueIds = targets.map((range) => range.cueId).filter((id): id is string => !!id)
       if (cueIds.length !== targets.length) throw new Error('Dữ liệu đo chưa có mã đoạn phụ đề. Đo lại rồi thử lại.')
-      await request(`/api/editor/${encodeURIComponent(projectId)}/captions/align`, { body: { cueIds: all ? 'all-drifting' : cueIds, revision: getProjectRevision(projectId) } })
+      const response = await request<{ cues: { cueId: string }[] }>(`/api/editor/${encodeURIComponent(projectId)}/captions/align`, { body: { cueIds: all ? 'all-drifting' : cueIds, revision: getProjectRevision(projectId) } })
+      if (!response.cues.length) throw new Error('Chưa khớp được theo giọng')
       // The server persists the edit; adopt its CAS revision without clearing the engine's history.
       const aligned = await loadProject(projectId)
       if (!aligned?.timeline) throw new Error('Chưa đọc được bản phụ đề vừa khớp.')
       const result = executeCommands([{ type: 'project.patch', params: { patch: { items: aligned.timeline.items } } }])
       if (!result.ok) throw new Error(result.issues.map((issue) => issue.message).join(' '))
       const next = new Map(alignedSnapshots)
-      for (const range of targets) next.set(range.cueId ?? `${range.start}`, captionSignature(range, useItemsStore.getState().items, fps))
+      for (const range of targets) if (response.cues.some(cue => cue.cueId === range.cueId)) next.set(range.cueId ?? `${range.start}`, captionSignature(range, useItemsStore.getState().items, fps))
       setAlignedSnapshots(next)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Chưa khớp được theo giọng') }
     finally { setAligning(false) }

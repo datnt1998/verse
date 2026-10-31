@@ -18,7 +18,7 @@ export const sx = stylex.create({
   narrowMessage: { maxWidth: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: metrics['--ed-space-12'], textAlign: 'center' },
   narrowTitle: { fontSize: 17, fontWeight: 600 },
   narrowCopy: { fontSize: 13.5, color: color['--color-fg-3'], lineHeight: 1.6 },
-  narrowAction: { height: 44, fontSize: 13.5, paddingInline: metrics['--ed-space-16'], borderRadius: v13.choiceRadius },
+  narrowAction: { height: 44, fontSize: 13.5, fontWeight: 400, paddingInline: metrics['--ed-space-16'], borderRadius: v13.choiceRadius },
   header: { height: 52, flexShrink: 0, paddingBlock: 0, paddingLeft: metrics['--ed-space-8'], paddingRight: metrics['--ed-space-10'], display: 'flex', alignItems: 'center', gap: metrics['--ed-space-8'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)' },
   separator: { width: 1, height: 20, backgroundColor: 'var(--vv-hairline)', flexShrink: 0 },
   heading: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.25, paddingInlineStart: metrics['--ed-space-4'] },
