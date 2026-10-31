@@ -17,7 +17,7 @@ import (
 // của Mẫu chuẩn (assets/standard-template/snow-loop.mp4). Nhúng thẳng vào
 // binary để `seedBuiltins` ghi ra thư mục dự án mà không cần mạng hay gói cài.
 //
-//go:embed assets/overlays/*.mp4 assets/overlays/manifest.json assets/standard-template/snow-loop.mp4
+//go:embed assets/overlays/*.mp4 assets/overlays/manifest.json assets/standard-template/*
 var builtinAssets embed.FS
 
 // builtinEffect là một hiệu ứng có sẵn.

@@ -40,7 +40,7 @@ func TestLibraryTemplateStoreRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "Template Một" || got.Revision != 1 || got.Recipe.Scenes.Style != library.StyleCutout {
+	if got.Name != "Template Một" || got.Revision != 1 || got.Recipe.Scenes.Style != library.StyleFull {
 		t.Fatalf("đọc lại = %+v", got)
 	}
 	if got.PreviewState() != domain.PreviewNone {
@@ -412,7 +412,7 @@ func TestLibraryPromptRefLockedOnTemplateWrite(t *testing.T) {
 	}
 	recipe := domain.Recipe{}
 	recipe.Scenes.ScenePromptID = prompt.ID
-	_, _, err = store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision)
+	_, _, err = store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision, nil)
 	if !errors.Is(err, library.ErrPromptRef) {
 		t.Fatalf("ghi với prompt đã xoá = %v", err)
 	}
@@ -427,7 +427,7 @@ func TestLibraryPromptRefLockedOnTemplateWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 	recipe.Scenes.CoverPromptID = p2.ID
-	_, _, err = store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision)
+	_, _, err = store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision, nil)
 	if !errors.Is(err, library.ErrPromptRef) {
 		t.Fatalf("ghi với prompt đổi loại = %v", err)
 	}
@@ -441,7 +441,7 @@ func TestLibraryPromptRefLockedOnTemplateWrite(t *testing.T) {
 	}
 	recipe = domain.Recipe{}
 	recipe.Scenes.ScenePromptID = p3.ID
-	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision); err != nil {
+	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision, nil); err != nil {
 		t.Fatal(err)
 	}
 	if err := store.DeletePrompt(ctx, p3.ID); !errors.Is(err, library.ErrInUse) {
@@ -484,14 +484,14 @@ func TestLibraryBackdropRefLockedOnTemplateWrite(t *testing.T) {
 		}},
 		FixedVideoIDs: []string{"twitch:vv"},
 	}}
-	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision); err != nil {
+	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, tpl.Revision, nil); err != nil {
 		t.Fatalf("ghi recipe nền hợp lệ: %v", err)
 	}
 	// Xoá kênh thẳng ở DB (mô phỏng xoá thắng lock) → ghi lại phải bị chặn.
 	if _, err := pool.Exec(ctx, `DELETE FROM backdrop_channels WHERE id='twitch:lockchan'`); err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, 2); !errors.Is(err, library.ErrBackdropRef) {
+	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe, 2, nil); !errors.Is(err, library.ErrBackdropRef) {
 		t.Fatalf("ghi với kênh đã xoá = %v", err)
 	}
 	// Video lẻ đã xoá → cũng bị chặn.
@@ -499,7 +499,7 @@ func TestLibraryBackdropRefLockedOnTemplateWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 	recipe2 := domain.Recipe{Backdrop: &domain.BackdropRecipe{ClipSec: 60, FixedVideoIDs: []string{"twitch:vv"}}}
-	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe2, 2); !errors.Is(err, library.ErrBackdropRef) {
+	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe2, 2, nil); !errors.Is(err, library.ErrBackdropRef) {
 		t.Fatalf("ghi với video lẻ đã xoá = %v", err)
 	}
 	// Video ghim thiếu trong kênh còn sống → chặn.
@@ -508,7 +508,7 @@ func TestLibraryBackdropRefLockedOnTemplateWrite(t *testing.T) {
 	}
 	recipe3 := domain.Recipe{Backdrop: &domain.BackdropRecipe{ClipSec: 60,
 		Channels: []domain.BackdropChannelLink{{ChannelID: "twitch:lockchan", Kinds: []string{"clip"}, Pinned: []string{"v1"}}}}}
-	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe3, 2); !errors.Is(err, library.ErrBackdropRef) {
+	if _, _, err := store.UpdateTemplate(ctx, tpl.ID, nil, recipe3, 2, nil); !errors.Is(err, library.ErrBackdropRef) {
 		t.Fatalf("ghi với video ghim thiếu = %v", err)
 	}
 }

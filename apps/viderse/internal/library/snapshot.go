@@ -2,8 +2,10 @@ package library
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 )
 
 // SnapshotTemplate là bước "thiết lập chốt lúc bắt đầu": phân giải recipe
@@ -41,6 +43,10 @@ type OverlaySnapshot struct {
 // Snapshot là đầu vào chốt của một job start.
 type Snapshot struct {
 	TemplateID      string                      `json:"templateId"`
+	Project         json.RawMessage             `json:"project"`
+	Binding         TemplateBinding             `json:"binding"`
+	MediaLinks      TemplateMediaLinks          `json:"mediaLinks"`
+	MediaFiles      map[string]string           `json:"mediaFiles"`
 	TemplateName    string                      `json:"templateName"`
 	Revision        int64                       `json:"revision"`
 	Style           string                      `json:"style"`
@@ -73,6 +79,22 @@ func (s *Service) SnapshotTemplate(ctx context.Context, id string) (*Snapshot, e
 	if tpl == nil {
 		return nil, notFound("Template")
 	}
+	tpl, err = s.ensureTemplateProject(ctx, tpl)
+	if err != nil {
+		return nil, err
+	}
+	project, err := editor.Parse(tpl.Project)
+	if err != nil {
+		return nil, err
+	}
+	projectBytes, err := editor.Marshal(project)
+	if err != nil {
+		return nil, err
+	}
+	binding, links, files, err := s.bindTemplateMedia(ctx, tpl, project, projectBytes)
+	if err != nil {
+		return nil, err
+	}
 	scene, err := s.resolvePrompt(ctx, tpl.Recipe.Scenes.ScenePromptID, BuiltinScene, "scenes.scenePromptId")
 	if err != nil {
 		return nil, err
@@ -96,6 +118,10 @@ func (s *Service) SnapshotTemplate(ctx context.Context, id string) (*Snapshot, e
 	}
 	snap := &Snapshot{
 		TemplateID:      tpl.ID,
+		Project:         append(json.RawMessage(nil), projectBytes...),
+		Binding:         binding,
+		MediaLinks:      links,
+		MediaFiles:      files,
 		TemplateName:    tpl.Name,
 		Revision:        tpl.Revision,
 		Style:           tpl.Recipe.Scenes.Style,

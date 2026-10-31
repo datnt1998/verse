@@ -63,7 +63,16 @@ func (s *LibraryStore) GetTemplate(ctx context.Context, id string) (*domain.Temp
 	if err != nil {
 		return nil, library.ErrNotFound
 	}
-	row, err := s.q.GetTemplate(ctx, uid)
+	var row struct {
+		ID pgtype.UUID
+		Name string
+		Recipe []byte
+		Revision int64
+		PreviewRevision pgtype.Int8
+		PreviewBuiltAt, CreatedAt, UpdatedAt pgtype.Timestamptz
+		Project []byte
+	}
+	err = s.projectDB(ctx).QueryRow(ctx, `SELECT id,name,recipe,revision,preview_revision,preview_built_at,created_at,updated_at,project FROM templates WHERE id=$1`, uid).Scan(&row.ID, &row.Name, &row.Recipe, &row.Revision, &row.PreviewRevision, &row.PreviewBuiltAt, &row.CreatedAt, &row.UpdatedAt, &row.Project)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -74,6 +83,7 @@ func (s *LibraryStore) GetTemplate(ctx context.Context, id string) (*domain.Temp
 	if err != nil {
 		return nil, err
 	}
+	tpl.Project = append(json.RawMessage(nil), row.Project...)
 	return &tpl, nil
 }
 
@@ -87,16 +97,14 @@ func (s *LibraryStore) InsertTemplate(ctx context.Context, t domain.Template) er
 	if err != nil {
 		return fmt.Errorf("mã hoá recipe: %w", err)
 	}
-	err = s.q.InsertTemplate(ctx, gen.InsertTemplateParams{
-		ID: uid, Name: t.Name, Recipe: recipe, Revision: t.Revision,
-	})
+	_, err = s.projectDB(ctx).Exec(ctx, `INSERT INTO templates(id,name,recipe,revision,project) VALUES($1,$2,$3::jsonb,$4,$5::jsonb)`, uid, t.Name, recipe, t.Revision, t.Project)
 	return mapLibraryErr(err)
 }
 
 // UpdateTemplate ghi recipe + tên với CAS revision. Tham chiếu prompt của
 // recipe được khoá lại trong cùng transaction và kiểm đúng loại, nên một
 // xoá/đổi loại prompt đua với lần ghi này bị chặn cả hai phía.
-func (s *LibraryStore) UpdateTemplate(ctx context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64) (int64, bool, error) {
+func (s *LibraryStore) UpdateTemplate(ctx context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64, project json.RawMessage) (int64, bool, error) {
 	uid, err := libUUIDArg(id)
 	if err != nil {
 		return 0, false, err
@@ -126,10 +134,29 @@ func (s *LibraryStore) UpdateTemplate(ctx context.Context, id string, name *stri
 	if err != nil {
 		return 0, false, mapLibraryErr(err)
 	}
+	if len(project) > 0 {
+		if _, err := tx.Exec(ctx, `UPDATE templates SET project=$2::jsonb WHERE id=$1`, uid, project); err != nil {
+			return 0, false, mapLibraryErr(err)
+		}
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, false, mapLibraryErr(err)
 	}
 	return revision, true, nil
+}
+
+// projectDB joins media.Publish so asset bindings and project visibility commit
+// together. Metadata-only callers use the ordinary pool.
+func (s *LibraryStore) projectDB(ctx context.Context) gen.DBTX {
+	if tx, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); ok { return tx }
+	return s.db
+}
+
+func (s *LibraryStore) InitializeTemplateProject(ctx context.Context, id string, project json.RawMessage, expectRevision int64) (bool, error) {
+	uid, err := libUUIDArg(id)
+	if err != nil { return false, err }
+	tag, err := s.projectDB(ctx).Exec(ctx, `UPDATE templates SET project=$2::jsonb WHERE id=$1 AND project IS NULL AND revision=$3`, uid, project, expectRevision)
+	return tag.RowsAffected() == 1, mapLibraryErr(err)
 }
 
 // lockSharedRefs khóa advisory các tài nguyên Video nền recipe trỏ tới (cùng
@@ -276,11 +303,8 @@ func (s *LibraryStore) RenameTemplate(ctx context.Context, id, name string, expe
 	if err != nil {
 		return false, nil
 	}
-	params := gen.RenameTemplateParams{Name: name, ID: uid}
-	if expectRevision != nil {
-		params.ExpectRevision = pgtype.Int8{Int64: *expectRevision, Valid: true}
-	}
-	_, err = s.q.RenameTemplate(ctx, params)
+	var revision int64
+	err = s.projectDB(ctx).QueryRow(ctx, `UPDATE templates SET name=$2, updated_at=now(), project=CASE WHEN project IS NULL THEN NULL ELSE jsonb_set(jsonb_set(project,'{name}',to_jsonb($2::text)),'{updatedAt}',to_jsonb((extract(epoch FROM now())*1000)::bigint)) END WHERE id=$1 AND ($3::bigint IS NULL OR revision=$3) RETURNING revision`, uid, name, expectRevision).Scan(&revision)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
@@ -297,17 +321,16 @@ func (s *LibraryStore) NameChannelStandardTemplates(ctx context.Context, channel
 	if err != nil {
 		return nil, nil
 	}
-	rows, err := s.q.NameChannelStandardTemplates(ctx, gen.NameChannelStandardTemplatesParams{
-		Name: name, PlainName: plain, ChannelID: uid,
-	})
-	if err != nil {
-		return nil, mapLibraryErr(err)
+	rows, err := s.projectDB(ctx).Query(ctx, `UPDATE templates t SET name=$3, updated_at=now(), project=CASE WHEN project IS NULL THEN NULL ELSE jsonb_set(jsonb_set(project,'{name}',to_jsonb($3::text)),'{updatedAt}',to_jsonb((extract(epoch FROM now())*1000)::bigint)) END WHERE name=$2 AND EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id=$1) AND NOT EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id<>$1) RETURNING t.id`, uid, plain, name)
+	if err != nil { return nil, mapLibraryErr(err) }
+	defer rows.Close()
+	ids := []string{}
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil { return nil, err }
+		ids = append(ids, uuidText(id))
 	}
-	ids := make([]string, len(rows))
-	for i, id := range rows {
-		ids[i] = uuidText(id)
-	}
-	return ids, nil
+	return ids, rows.Err()
 }
 
 // DeleteTemplate xoá một template; khoá ngoại RESTRICT là lưới đỡ cuối cùng.
