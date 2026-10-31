@@ -5,6 +5,7 @@ package editor
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -12,6 +13,7 @@ import (
 	"fmt"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/blobstore"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -23,7 +25,7 @@ import (
 const SchemaVersion = 15
 
 var ErrConflict = errors.New("project revision conflict")
-var portableID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+var portableID = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$`)
 
 type Object = map[string]any
 type Project map[string]any
@@ -51,7 +53,7 @@ func Marshal(p Project) ([]byte, error) {
 }
 func New(id, name string, width, height int, fps float64, now time.Time) (Project, error) {
 	name = strings.TrimSpace(name)
-	if !portableID.MatchString(id) || name == "" || width <= 0 || height <= 0 || fps <= 0 {
+	if !portableID.MatchString(id) || name == "" || width <= 0 || height <= 0 || fps <= 0 || math.IsNaN(fps) || math.IsInf(fps, 0) {
 		return nil, fmt.Errorf("invalid project id/name/resolution")
 	}
 	return Project{"id": id, "name": name, "description": "", "createdAt": now.UnixMilli(), "updatedAt": now.UnixMilli(), "duration": 0, "schemaVersion": SchemaVersion, "metadata": Object{"width": width, "height": height, "fps": fps}}, nil
@@ -63,6 +65,8 @@ type Media interface {
 }
 type Store struct {
 	Media      Media
+	Repository Repository
+	Templates  TemplateProjects
 	StagingDir string
 	Now        func() time.Time
 }
@@ -77,6 +81,34 @@ func (s Store) Read(ctx context.Context, id string) (Project, string, error) {
 	path, err := Path(id)
 	if err != nil {
 		return nil, "", err
+	}
+	if s.Templates != nil {
+		project, revision, err := s.Templates.ReadEditorProject(ctx, id)
+		if err == nil {
+			return project, revision, nil
+		}
+		if !errors.Is(err, blobstore.ErrNotFound) {
+			return nil, "", err
+		}
+	}
+	return s.readWorkspace(ctx, id, path)
+}
+
+func (s Store) readWorkspace(ctx context.Context, id, path string) (Project, string, error) {
+	if s.Repository != nil {
+		resource, err := s.Repository.Get(ctx, "projects/"+id)
+		if err == nil {
+			path = resource.Path
+		} else if !errors.Is(err, blobstore.ErrNotFound) {
+			return nil, "", err
+		}
+	}
+	if resolver, ok := s.Repository.(ResourcePathResolver); ok {
+		resolved, err := resolver.ResolvePath(ctx, path)
+		if err != nil {
+			return nil, "", err
+		}
+		path = resolved
 	}
 	h, err := s.Media.Acquire(ctx, path)
 	if err != nil {
@@ -116,9 +148,8 @@ func (s Store) Stage(p Project) (media.Artifact, string, error) {
 	return media.Artifact{Path: path, File: file, ContentType: "application/json"}, Revision(b), nil
 }
 
-// The serve process owns the exclusive pipeline lease. Project locks protect
-// its editor mutations and worker fills from each other, as workspace.withLock
-// does for the canonical server; media publication remains transactional.
+// The same project lock protects Store mutations and the Service wrappers.
+// Database CAS additionally fences writers in other serve/CLI processes.
 var projectLocks sync.Map
 
 func projectLock(id string) *sync.Mutex {
@@ -127,6 +158,12 @@ func projectLock(id string) *sync.Mutex {
 }
 func (s Store) Create(ctx context.Context, p Project) (string, error) {
 	id, _ := p["id"].(string)
+	if _, err := Path(id); err != nil {
+		return "", err
+	}
+	if s.Repository == nil {
+		return "", errors.New("editor project repository is required")
+	}
 	lock := projectLock(id)
 	lock.Lock()
 	defer lock.Unlock()
@@ -135,37 +172,97 @@ func (s Store) Create(ctx context.Context, p Project) (string, error) {
 	} else if !errors.Is(err, os.ErrNotExist) && !errors.Is(err, blobstore.ErrNotFound) {
 		return "", err
 	}
-	artifact, rev, err := s.Stage(p)
+	return s.publishProject(ctx, id, p, "")
+}
+
+func (s Store) Write(ctx context.Context, id string, p Project, expected string) (string, error) {
+	path, err := Path(id)
 	if err != nil {
 		return "", err
 	}
-	return rev, s.Media.Publish(ctx, []media.Artifact{artifact}, nil)
-}
-func (s Store) Write(ctx context.Context, id string, p Project, expected string) (string, error) {
+	if p == nil {
+		return "", errors.New("project must be a JSON object")
+	}
 	lock := projectLock(id)
 	lock.Lock()
 	defer lock.Unlock()
 	if expected == "" {
 		return "", ErrConflict
 	}
-	current, rev, err := s.Read(ctx, id)
+	if s.Templates != nil {
+		if _, _, err := s.Templates.ReadEditorProject(ctx, id); err == nil {
+			return s.Templates.WriteEditorProject(ctx, id, p, expected)
+		} else if !errors.Is(err, blobstore.ErrNotFound) {
+			return "", err
+		}
+	}
+	if s.Repository == nil {
+		return "", errors.New("editor project repository is required")
+	}
+	current, revision, err := s.readWorkspace(ctx, id, path)
 	if err != nil {
 		return "", err
 	}
-	if rev != expected {
+	if revision != expected {
 		return "", ErrConflict
 	}
-	next := Clone(p)
+	// Only these top-level fields change. Preserve caller-owned nested data and
+	// let Marshal reject non-JSON values rather than silently dropping them.
+	next := make(Project, len(p)+3)
+	for key, value := range p {
+		next[key] = value
+	}
 	next["id"] = id
 	next["createdAt"] = current["createdAt"]
 	now := time.Now
 	if s.Now != nil {
 		now = s.Now
 	}
-	next["updatedAt"] = now().UnixMilli()
-	artifact, newRev, err := s.Stage(next)
+	updatedAt := now().UnixMilli()
+	if previous, ok := current["updatedAt"].(float64); ok && previous >= float64(updatedAt) {
+		if previous >= float64(math.MaxInt64) {
+			return "", errors.New("stored project updatedAt is out of range")
+		}
+		updatedAt = int64(previous) + 1
+	}
+	next["updatedAt"] = updatedAt
+	return s.publishProject(ctx, id, next, expected)
+}
+
+// Stage deliberately retains the phase-05 build path. Interactive writes use a
+// unique path instead: media publication never overwrites local/S3 objects.
+func (s Store) publishProject(ctx context.Context, id string, p Project, expected string) (string, error) {
+	data, err := Marshal(p)
 	if err != nil {
 		return "", err
 	}
-	return newRev, s.Media.Publish(ctx, []media.Artifact{artifact}, nil)
+	if err = os.MkdirAll(s.StagingDir, 0755); err != nil {
+		return "", err
+	}
+	file, err := os.CreateTemp(s.StagingDir, "project-*.json")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(file.Name())
+	if _, err = file.Write(data); err != nil {
+		_ = file.Close()
+		return "", err
+	}
+	if err = file.Close(); err != nil {
+		return "", err
+	}
+	path := "editor/projects/" + id + "/revisions/" + rand.Text() + ".json"
+	revision := Revision(data)
+	now := time.Now
+	if s.Now != nil {
+		now = s.Now
+	}
+	next := Resource{Key: "projects/" + id, Path: path, Revision: revision, UpdatedAt: now()}
+	artifact := media.Artifact{Path: path, File: file.Name(), ContentType: "application/json"}
+	if err = s.Media.Publish(ctx, []media.Artifact{artifact}, func(txctx context.Context) error {
+		return s.Repository.CAS(txctx, next.Key, expected, next)
+	}); err != nil {
+		return "", err
+	}
+	return revision, nil
 }
