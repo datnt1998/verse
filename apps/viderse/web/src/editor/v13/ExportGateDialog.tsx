@@ -3,6 +3,7 @@ import { Dialog, Icon } from '@noverse/ui'
 import { extraBlockers, type EditorQuality, type QualityRange } from './quality'
 import { rangeTime } from './FixPanel'
 import { sx } from './editor.stylex'
+import { gateStyles as s } from './gate.stylex'
 
 export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClose }: {
   quality?: EditorQuality; ranges: readonly QualityRange[]
@@ -17,9 +18,8 @@ export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClos
         : 'Chưa có kết quả đo mới đủ điều kiện xuất.'
   return <Dialog label="Xuất khi chưa đạt độ hoàn thiện?" alertDialog width={460} onClose={onClose}>
     <div {...stylex.props(sx.dialogBody)}>
-      <div {...stylex.props(sx.row)}><Icon name="warning" size={20} /><h2 {...stylex.props(sx.dialogTitle)}>Xuất khi chưa đạt độ hoàn thiện?</h2></div>
-      <p {...stylex.props(sx.dialogCopy)}>{score ?? 'Chưa đo'}/100, cần 90. {explanation}</p>
-      <ul {...stylex.props(sx.dialogCopy)}>
+      <div {...stylex.props(s.head)}><span {...stylex.props(s.icon)}><Icon name="warning" size={20} /></span><div {...stylex.props(s.text)}><h2 {...stylex.props(s.title)}>Xuất khi chưa đạt độ hoàn thiện?</h2><p {...stylex.props(s.description)}>{score ?? 'Chưa đo'}/100, cần 90. {explanation}</p></div></div>
+      <ul {...stylex.props(s.list)}>
         {ranges.length > 0 && <li>Phụ đề khớp tiếng: {ranges.map(range => rangeTime(range.start)).join(', ')}</li>}
         {blockers.map(blocker => <li key={blocker.id}>{blocker.message}</li>)}
         <li>Vẫn xuất: video chuyển sang Sẵn sàng đăng, Kiểm định ghi bạn đã chọn bỏ qua mục này</li>

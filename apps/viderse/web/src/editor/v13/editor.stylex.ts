@@ -7,6 +7,7 @@ export const metrics = stylex.defineVars({
   '--ed-space-2': '2px', '--ed-space-4': '4px', '--ed-space-5': '5px', '--ed-space-6': '6px',
   '--ed-space-7': '7px', '--ed-space-8': '8px', '--ed-space-10': '10px', '--ed-space-12': '12px',
   '--ed-space-14': '14px', '--ed-space-16': '16px', '--ed-space-20': '20px', '--ed-space-24': '24px',
+  '--ed-space-30': '30px',
   '--ed-panel-width': '316px', '--ed-rail-width': '68px',
 })
 const measureSweep = stylex.keyframes({ from: { transform: 'translateX(-100%)' }, to: { transform: 'translateX(300%)' } })
@@ -21,6 +22,8 @@ export const sx = stylex.create({
   narrowTitle: { fontSize: 17, fontWeight: 600 },
   narrowCopy: { fontSize: 13.5, color: color['--color-fg-3'], lineHeight: 1.6 },
   narrowAction: { height: 44, fontSize: 13.5, fontWeight: 400, paddingInline: metrics['--ed-space-16'], borderRadius: v13.choiceRadius },
+  backArrow: { transform: 'rotate(180deg)' },
+  narrowBack: { height: 44, paddingLeft: metrics['--ed-space-6'], paddingRight: metrics['--ed-space-10'], display: 'flex', alignItems: 'center', gap: metrics['--ed-space-6'], borderRadius: radius['--radius-row'], borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': 'var(--vv-hover)' }, color: color['--color-fg-3'], fontSize: 13, fontWeight: 400, cursor: 'pointer' },
   header: { height: 52, flexShrink: 0, paddingBlock: 0, paddingLeft: metrics['--ed-space-8'], paddingRight: metrics['--ed-space-10'], display: 'flex', alignItems: 'center', gap: metrics['--ed-space-8'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)' },
   separator: { width: 1, height: 20, backgroundColor: 'var(--vv-hairline)', flexShrink: 0 },
   heading: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.25, paddingInlineStart: metrics['--ed-space-4'] },
