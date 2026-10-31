@@ -176,7 +176,7 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
       </span>
       <ActionButton
         variant="primary"
-        className="vx-preview-make" xstyle={[previewStyles.make, exploreStyles.touchTarget]}
+        className="vx-preview-make" xstyle={[exploreStyles.touchTarget, previewStyles.make]}
         size="lg"
         disabled={busy}
         lockedReason={lockedReason}

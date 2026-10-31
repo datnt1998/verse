@@ -5,6 +5,9 @@ import { afterEach, beforeEach, expect, it, vi, type Mock } from 'vitest'
 import { PreviewPanel } from './PreviewPanel'
 import type { Video } from '../../api/rivals'
 import type { ClonePlan } from '../../api/clone'
+import * as stylex from '@stylexjs/stylex'
+
+const layout = stylex.create({ previewButton: { minHeight: '46px' } })
 
 let root: Root, el: HTMLDivElement
 let enqueue: Mock
@@ -37,4 +40,11 @@ it('allows the next selected video after enqueueing the previous one', async () 
   expect(make().getAttribute('aria-disabled')).not.toBe('true')
   await act(async () => make().click())
   expect(enqueue).toHaveBeenCalledTimes(2)
+})
+
+it('retains the two-line CTA minimum height after merging responsive touch styles', async () => {
+  await render('one')
+  const minimumHeightAtoms = stylex.props(layout.previewButton).className!.split(/\s+/).filter((name) => !name.includes('__'))
+  expect(minimumHeightAtoms.length).toBeGreaterThan(0)
+  for (const atom of minimumHeightAtoms) expect(make().classList.contains(atom)).toBe(true)
 })

@@ -84,3 +84,78 @@ it('shows the linked-source badge only when the plan confirms the relationship',
   await input('https://youtu.be/abcdefghijk'); await tick(300)
   expect(el.querySelector('.nv-linked')).not.toBeNull()
 })
+
+const viewport = async (mobile: boolean) => {
+  vi.mocked(matchMedia).mockReturnValue({ matches: mobile, addEventListener() {}, removeEventListener() {} } as unknown as MediaQueryList)
+  await act(async () => { root.render(<NewScreen key={String(mobile)} />) })
+  await tick(0)
+}
+
+const multiInput = async (value: string) => {
+  await act(async () => el.querySelectorAll<HTMLButtonElement>('[role="radio"]')[1].click())
+  await input(value)
+}
+
+it.each([false, true])('uses the accepted count and priority plan before enqueueing (mobile=%s)', async (mobile) => {
+  await viewport(mobile)
+  plan = { ...plan, position: 'back', duplicates: [{ url: 'https://youtu.be/duplicate00', jobId: 'old', state: 'ready' }], invalid: [{ url: 'bad-link', reason: 'unreadable' }] }
+  await multiInput('https://youtu.be/abcdefghijk\nhttps://youtu.be/duplicate00\nbad-link')
+  await tick(300)
+  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!
+  expect(toggle.textContent).toContain('Ưu tiên cả 1')
+  expect(toggle.getAttribute('aria-checked')).toBe('false')
+  expect(calls.at(-1)?.body.priority).toBe('batch')
+  plan = { ...plan, position: 'front', etaStart: '2026-11-01T00:40:00Z' }
+  await act(async () => toggle.click())
+  await tick(0)
+  expect(toggle.getAttribute('aria-checked')).toBe('true')
+  expect(calls.at(-1)?.body.priority).toBe('pick')
+  expect(el.querySelector('.nv-plantext')?.textContent).toContain('Cả 1 lên đầu hàng chờ, không theo nhịp kênh')
+  expect(el.querySelector('.nv-summary')?.textContent).toContain('Ưu tiên: cả 1 chạy ngay khi có luồng trống.')
+  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  expect(calls.find((call) => call.path.endsWith('enqueue'))?.body).toEqual({
+    channelId: 'mine', urls: ['https://youtu.be/abcdefghijk'], priority: 'pick',
+  })
+})
+
+it.each([false, true])('keeps image choices in the selected template, not web plan/enqueue (mobile=%s)', async (mobile) => {
+  await viewport(mobile)
+  expect(el.querySelector('.nv-noimages')).toBeNull()
+  expect(el.querySelector('input[type="checkbox"]')).toBeNull()
+  await input('https://youtu.be/abcdefghijk')
+  await tick(300)
+  expect(calls[0].body).not.toHaveProperty('noImages')
+  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  const enqueued = calls.find((call) => call.path.endsWith('enqueue'))
+  expect(enqueued).toBeDefined()
+  expect(enqueued?.body).not.toHaveProperty('noImages')
+})
+
+it('returns to the batch plan when priority is unchecked and never counts rejected links', async () => {
+  await viewport(true)
+  plan = { ...plan, position: 'back' }
+  await multiInput('https://youtu.be/abcdefghijk\nbad-link')
+  await tick(300)
+  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!
+  plan = { ...plan, position: 'front' }
+  await act(async () => toggle.click())
+  await tick(0)
+  plan = { ...plan, position: 'back', accepted: [], invalid: [{ url: 'bad-link', reason: 'unreadable' }] }
+  await act(async () => toggle.click())
+  await tick(0)
+  expect(toggle.getAttribute('aria-checked')).toBe('false')
+  expect(toggle.textContent).toContain('Ưu tiên cả 0')
+  expect(calls.at(-1)?.body.priority).toBe('batch')
+  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  expect(calls.some((call) => call.path.endsWith('enqueue'))).toBe(false)
+})
+
+it('uses daily pace separately from remaining turns without repeating skipped links on mobile', async () => {
+  await viewport(true)
+  const accepted = plan.accepted as object[]
+  plan = { ...plan, position: 'back', paceLeftToday: 2, accepted: [...accepted, { ...accepted[0], url: 'https://youtu.be/lmnopqrstuv' }, { ...accepted[0], url: 'https://youtu.be/another0000' }], duplicates: [{ url: 'https://youtu.be/duplicate00', jobId: 'old', state: 'ready' }] }
+  await multiInput('https://youtu.be/abcdefghijk\nhttps://youtu.be/lmnopqrstuv\nhttps://youtu.be/another0000\nhttps://youtu.be/duplicate00')
+  await tick(300)
+  expect(el.querySelector('.nv-plantext')?.textContent).toContain('theo nhịp 5 video/ngày của Kênh của tôi. Hôm nay còn 2 lượt.')
+  expect(el.querySelector('.nv-summary')?.textContent).toBe('3 link đọc được1 đã làm cho kênh này · sẽ bỏ quaHôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.')
+})

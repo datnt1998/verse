@@ -26,7 +26,6 @@ export function NewScreen() {
   const [channelId, setChannelId] = useState('')
   const [templateId, setTemplateId] = useState('')
   const [priority, setPriority] = useState(false)
-  const [noImages, setNoImages] = useState(false)
   const [plan, setPlan] = useState<ClonePlan | null>(null)
   const [planKey, setPlanKey] = useState('')
   const [phase, setPhase] = useState<'idle' | 'loading' | 'failed'>('idle')
@@ -52,21 +51,30 @@ export function NewScreen() {
     if (!channel || pending.length === 0) { setPlan(null); setPhase('idle'); return }
     const ctrl = new AbortController()
     setPhase('loading')
-    planClone({ channelId: channel.id, urls: pending, priority: priority ? 'pick' : pickPriority(pending), noImages, ...(templateId ? { templateId } : {}) }, ctrl.signal)
-      .then((result) => { if (!ctrl.signal.aborted) { setPlan(result); setPlanKey(JSON.stringify([channel.id, pending, priority ? 'pick' : pickPriority(pending), templateId, noImages])); setPhase('idle') } })
+    planClone({ channelId: channel.id, urls: pending, priority: priority ? 'pick' : pickPriority(pending), ...(templateId ? { templateId } : {}) }, ctrl.signal)
+      .then((result) => { if (!ctrl.signal.aborted) { setPlan(result); setPlanKey(JSON.stringify([channel.id, pending, priority ? 'pick' : pickPriority(pending), templateId])); setPhase('idle') } })
       .catch(() => { if (!ctrl.signal.aborted) { setPlan(null); setPhase('failed') } })
     return () => ctrl.abort()
-  }, [debounced, channel?.id, priority, noImages, templateId, retry])
+  }, [debounced, channel?.id, priority, templateId, retry])
 
   // A result belongs only to the exact current input, never the previous paste.
-  const current = text === debounced && phase === 'idle' && planKey === JSON.stringify([channel?.id, urls, inputPriority, templateId, noImages]) ? plan : null
+  const current = text === debounced && phase === 'idle' && planKey === JSON.stringify([channel?.id, urls, inputPriority, templateId]) ? plan : null
   const duplicate = current?.duplicates[0]
   const onlyDuplicate = !!current && current.accepted.length === 0 && current.duplicates.length > 0
   const invalid = !!current && current.invalid.length > 0
   const disabled = !channel || !current || phase !== 'idle' || busy || current.accepted.length === 0 || !current.template.id
   const first = current?.accepted[0]
   const preview = first ?? (onlyDuplicate ? duplicate : undefined)
-  const line = planLine(current, { urls, running: status.data?.running ?? 0, channelName: channel?.name ?? null })
+  const plannedLine = planLine(current, { urls, running: status.data?.running ?? 0, channelName: channel?.name ?? null })
+  const acceptedCount = current?.accepted.length ?? 0
+  const prioritizedBatch = multi && priority && acceptedCount > 0 && !!current?.template.id && current.position === 'front'
+  const line = prioritizedBatch ? {
+    text: tt.plan.priorityHead(acceptedCount, current.etaStart ? new Date(current.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : null),
+    detail: tt.plan.priorityReady(acceptedCount),
+  } : mobile && multi && acceptedCount > 0 && current?.template.id && current.position === 'back' && channel ? {
+    text: tt.plan.mobileBatchTail(channel.pacePerDay, channel.name, current.paceLeftToday),
+    detail: tt.plan.mobileBatchDetail(current.paceLeftToday, acceptedCount),
+  } : plannedLine
   const state = urls.length === 0 ? 'empty' : multi ? 'multi' : onlyDuplicate ? 'duplicate' : invalid ? 'error' : 'pasted'
 
   const submit = async (event: FormEvent) => {
@@ -74,7 +82,7 @@ export function NewScreen() {
     if (disabled || !channel || !current) return
     setBusy(true)
     try {
-      await enqueueClone({ channelId: channel.id, urls: current.accepted.map((a) => a.url), priority: inputPriority, noImages, ...(templateId ? { templateId } : {}) })
+      await enqueueClone({ channelId: channel.id, urls: current.accepted.map((a) => a.url), priority: inputPriority, ...(templateId ? { templateId } : {}) })
       toast(tt.toasts.made, 'ok', { label: tt.toasts.openQueue, onClick: () => navigate(paths.queue()) })
       setText(''); setPlan(null)
     } catch { toast.err(tt.toasts.failed) }
@@ -116,12 +124,11 @@ export function NewScreen() {
         <div className={`nv-options ${stylex.props(styles.options, state === 'empty' && styles.emptyHidden).className}`}>
           <label className={`nv-option ${stylex.props(styles.option).className}`}><Icon name="channel" size={mobile ? 17 : 14} /><span {...stylex.props(styles.optionLabel)}>{tt.channel}</span><select {...stylex.props(styles.select)} aria-label={tt.channel} value={channel?.id ?? ''} onChange={(e) => { setChannelId(e.target.value); setTemplateId('') }}>{channels.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
           <label className={`nv-option ${stylex.props(styles.option).className}`}><Icon name="layer" size={mobile ? 17 : 14} /><span {...stylex.props(styles.optionLabel)}>{tt.template}</span><select {...stylex.props(styles.select)} aria-label={tt.template} value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">{tt.rotation}{current?.template?.name ? ` · ${current.template.name}` : ''}</option>{channel?.templates.map((tpl) => <option key={tpl.id} value={tpl.id}>{tpl.name}</option>)}</select></label>
-          <label className={`nv-noimages ${stylex.props(styles.noImages).className}`}><input type="checkbox" checked={noImages} onChange={(e) => setNoImages(e.target.checked)} />{tt.noImages}</label>
-          {mobile && multi && <button className={`nv-option nv-priority-row ${stylex.props(styles.option, styles.priorityRow).className}`} type="button" role="switch" aria-checked={priority} onClick={() => setPriority((value) => !value)}><span {...stylex.props(styles.optionLabel)}>{tt.priorityTurn}</span><span className={`nv-toggle ${stylex.props(styles.toggle, priority && styles.toggleOn).className}`} /></button>}
+          {mobile && multi && <button className={`nv-option nv-priority-row ${stylex.props(styles.option, styles.priorityRow).className}`} type="button" role="switch" aria-label={tt.priority(acceptedCount)} aria-checked={priority} onClick={() => setPriority((value) => !value)}><Icon name="arrow-up" size={17} xstyle={styles.priorityIcon} /><span {...stylex.props(styles.priorityText)}><span>{tt.priority(acceptedCount)}</span><span {...stylex.props(styles.prioritySubtitle)} title={tt.priorityHint}>{tt.priorityHint}</span></span><span className={`nv-toggle ${stylex.props(styles.toggle, priority && styles.toggleOn).className}`} aria-hidden="true"><span {...stylex.props(styles.toggleKnob)} /></span></button>}
         </div>
         <div className={`nv-plan ${stylex.props(styles.plan).className}`}>
           <span className={`nv-plantext ${stylex.props(styles.planText, state === 'empty' && styles.emptyHidden).className}`}><Icon xstyle={styles.noShrink} name="clock" size={15} /><span>{phase === 'failed' ? <button type="button" onClick={() => setRetry((v) => v + 1)}>{tt.plan.failed}</button> : phase === 'loading' ? tt.plan.fixing : line?.text || tt.empty.pickFirst}</span></span>
-          {!mobile && multi && <button className={`nv-priority ${stylex.props(styles.priority).className}`} type="button" role="switch" aria-checked={priority} onClick={() => setPriority((p) => !p)}><span className={`nv-priority-track ${stylex.props(styles.priorityTrack, priority && styles.priorityTrackOn).className}`} aria-hidden="true" />{tt.priority(current?.accepted.length ?? urls.length)}</button>}
+          {!mobile && multi && <button className={`nv-priority ${stylex.props(styles.priority).className}`} type="button" role="switch" aria-checked={priority} onClick={() => setPriority((p) => !p)}><span className={`nv-priority-track ${stylex.props(styles.priorityTrack, priority && styles.priorityTrackOn).className}`} aria-hidden="true" />{tt.priority(acceptedCount)}</button>}
           <ActionButton type="submit" variant="primary" className="nv-submit" xstyle={[styles.submit, disabled && styles.submitLocked]} disabled={busy} lockedReason={disabled ? !channel ? tt.noChannel : current && !current.template.id ? tt.plan.blockedNoTemplate : tt.needLink : undefined}><span {...stylex.props(styles.submitLabel)}>{multi && current?.accepted.length ? tt.makeMany(current.accepted.length) : tt.makeVideo}<span className={`nv-key ${stylex.props(styles.key).className}`}>Enter</span></span></ActionButton>
         </div>
       </form>
@@ -177,7 +184,6 @@ const styles = stylex.create({
   option: { display: 'flex', alignItems: 'center', gap: { default: s['--vv-s-6'], [MOBILE]: s['--vv-s-12'] }, height: 30, borderWidth: { default: "1px", [MOBILE]: 0 }, borderStyle: { default: "solid", [MOBILE]: "none" }, borderColor: { default: `color-mix(in srgb, ${line['--line-3']}, ${line['--line-4']})`, [MOBILE]: "currentColor" }, borderBottomWidth: { default: null, [MOBILE]: "1px" }, borderBottomStyle: { default: null, [MOBILE]: "solid" }, borderBottomColor: { default: null, [MOBILE]: line['--line-2'] }, borderRadius: { default: radius['--radius-control'], [MOBILE]: 0 }, padding: { default: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-8']}`, [MOBILE]: `0 ${s['--vv-s-14']}` }, fontSize: { default: 12.5, [MOBILE]: 14 }, color: color['--color-fg-3'], width: { default: null, [MOBILE]: '100%' }, minHeight: { default: null, [MOBILE]: 52 } },
   optionLabel: { display: 'inline', color: { default: null, [MOBILE]: color['--color-fg-3'] } },
   select: { maxWidth: { default: 250, [MOBILE]: 'none' }, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color['--color-fg'], fontFamily: "inherit", fontSize: { default: "inherit", [MOBILE]: 14 }, fontWeight: { default: 500, [MOBILE]: 400 }, lineHeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", flex: { default: null, [MOBILE]: 1 }, textAlign: { default: null, [MOBILE]: 'right' }, minWidth: { default: null, [MOBILE]: 0 } },
-  noImages: { display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], marginLeft: { default: 'auto', [MOBILE]: 0 }, color: color['--color-fg-3'], fontSize: 12.5, padding: { default: null, [MOBILE]: `0 ${s['--vv-s-14']}` }, width: { default: null, [MOBILE]: '100%' }, minHeight: { default: null, [MOBILE]: 52 } },
   plan: { display: 'flex', flexWrap: 'wrap', alignItems: { default: 'center', [MOBILE]: 'stretch' }, gap: { default: `${s['--vv-s-8']} ${s['--vv-s-12']}`, [MOBILE]: s['--vv-s-8'] }, marginTop: { default: `calc(-1 * ${s['--vv-s-2']})`, [MOBILE]: 0 }, position: { default: null, [MOBILE]: 'fixed' }, zIndex: { default: null, [MOBILE]: 20 }, left: { default: null, [MOBILE]: 0 }, right: { default: null, [MOBILE]: 0 }, bottom: { default: null, [MOBILE]: 'env(safe-area-inset-bottom)' }, width: { default: null, [MOBILE]: '100%' }, flexDirection: { default: null, [MOBILE]: 'column' }, padding: { default: null, [MOBILE]: `${s['--vv-s-10']} ${s['--vv-s-16']} ${s['--vv-s-4']}` }, borderTopWidth: { default: null, [MOBILE]: "1px" }, borderTopStyle: { default: null, [MOBILE]: "solid" }, borderTopColor: { default: null, [MOBILE]: line['--line-1'] }, backgroundColor: { default: null, [MOBILE]: `color-mix(in srgb, ${color['--color-bg']}, ${color['--color-surface-0']})` }, backgroundImage: { default: null } },
   planText: { flex: { default: '1 1 320px', [MOBILE]: '0 0 auto' }, minWidth: 0, display: 'flex', gap: s['--vv-s-8'], alignItems: { default: 'center', [MOBILE]: 'flex-start' }, fontSize: 12.5, color: color['--color-fg-3'], lineHeight: 1.5, padding: { default: null, [MOBILE]: `0 ${s['--vv-s-2']} ${s['--vv-s-4']}` } },
   noShrink: { flexShrink: 0 },
@@ -187,7 +193,7 @@ const styles = stylex.create({
   key: { fontFamily: font['--font-mono'], fontSize: 11, padding: `${s['--vv-s-1']} ${s['--vv-s-5']}`, borderWidth: "1px", borderStyle: "solid", borderColor: "var(--vv-kbd-line)", borderRadius: r['--vv-r-4'], backgroundColor: "var(--vv-kbd-bg)", lineHeight: 1.55, display: { default: null, [MOBILE]: 'none' } },
   priority: { height: 30, padding: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-8']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-3'], borderRadius: radius['--radius-control'], backgroundColor: "transparent", backgroundImage: "none", color: color['--color-fg-3'], fontSize: 12.5, cursor: 'pointer' },
   priorityTrack: { width: { default: 26, "::after": 11 }, height: { default: 15, "::after": 11 }, padding: s['--vv-s-2'], display: 'flex', borderRadius: { default: r['--vv-r-pill'], "::after": '50%' }, backgroundColor: { default: color['--color-surface-7'], "::after": color['--color-fg'] }, content: { default: null, "::after": "''" } },
-  priorityTrackOn: { justifyContent: 'flex-end', backgroundColor: color['--color-accent'] },
+  priorityTrackOn: { justifyContent: 'flex-end', backgroundColor: 'var(--vv-red-button)' },
   banner: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: s['--vv-s-10'], borderWidth: "1px", borderStyle: "solid", borderColor: `color-mix(in srgb, ${color['--color-err']} 30%, transparent)`, borderRadius: radius['--radius-tile'], backgroundColor: `color-mix(in srgb, ${color['--color-err']} 6%, transparent)`, padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, color: color['--color-err'], fontSize: 13, lineHeight: 1.55 },
   bannerText: { flex: '1 1 280px', minWidth: 0, color: 'var(--vv-warn-ink)' },
   bannerDuplicate: { borderColor: `color-mix(in srgb, ${color['--color-warn']} 30%, transparent)`, backgroundColor: `color-mix(in srgb, ${color['--color-warn']} 7%, transparent)`, color: color['--color-warn'] },
@@ -221,9 +227,13 @@ const styles = stylex.create({
   shortcuts: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${s['--vv-s-4']} ${s['--vv-s-16']}`, fontSize: 12, color: 'var(--vv-fg-note)' },
   shortcut: { display: 'flex', gap: s['--vv-s-6'], alignItems: 'center' },
   shortcutKey: { padding: `${s['--vv-s-1']} ${s['--vv-s-5']}`, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], borderRadius: r['--vv-r-4'], backgroundColor: "var(--vv-wash-5)", fontFamily: font['--font-mono'], fontSize: "11px", fontWeight: "normal", lineHeight: "1.55", fontStyle: "normal", fontVariant: "normal", fontStretch: "normal" },
-  priorityRow: { backgroundColor: "transparent", backgroundImage: "none", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", color: color['--color-fg-2'], fontSize: 14, justifyContent: 'space-between' },
-  toggle: { width: { default: 36, "::after": 14 }, height: { default: 22, "::after": 14 }, borderRadius: { default: r['--vv-r-pill'], "::after": '50%' }, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], backgroundColor: { default: color['--color-surface-4'], "::after": color['--color-fg-3'] }, position: { default: 'relative', "::after": 'absolute' }, content: { default: null, "::after": "''" }, top: { default: null, "::after": s['--vv-s-3'] }, left: { default: null, "::after": s['--vv-s-3'] } },
-  toggleOn: { backgroundColor: { default: color['--color-accent'], "::after": color['--color-bg'] }, left: { default: null, "::after": s['--vv-s-17'] } },
+  priorityRow: { backgroundColor: "transparent", backgroundImage: "none", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", color: color['--color-fg'], fontSize: 14, textAlign: 'left', cursor: 'pointer' },
+  priorityIcon: { flexShrink: 0, color: 'var(--vv-fg-note)' },
+  priorityText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' },
+  prioritySubtitle: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  toggle: { flex: '0 0 auto', width: 44, height: 26, borderRadius: r['--vv-r-pill'], padding: s['--vv-s-3'], backgroundColor: color['--color-fg-5'], display: 'flex', justifyContent: 'flex-start' },
+  toggleOn: { backgroundColor: 'var(--vv-red-button)', justifyContent: 'flex-end' },
+  toggleKnob: { width: 20, height: 20, borderRadius: '50%', backgroundColor: 'var(--vv-red-ink)' },
 })
 
 
