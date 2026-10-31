@@ -68,6 +68,27 @@ func enqueueImageIntents(ctx context.Context, tx pgx.Tx, id any, before, after j
 	return nil
 }
 
+// A review-origin marker is the only field an owner may add to a live
+// checkpoint. Preserve it when the worker saves an older in-memory snapshot.
+func preserveReviewOrigin(previous, next json.RawMessage) (json.RawMessage, error) {
+	var old, current images.Manifest
+	if err := json.Unmarshal(previous, &old); err != nil || !old.ReviewOrigin {
+		return next, nil
+	}
+	if err := json.Unmarshal(next, &current); err != nil {
+		return nil, err
+	}
+	if current.ReviewOrigin || images.ImagesApproved(current) {
+		return next, nil
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(next, &fields); err != nil {
+		return nil, err
+	}
+	fields["reviewOrigin"] = json.RawMessage("true")
+	return json.Marshal(fields)
+}
+
 // DrainImageIntents atomically merges accepted edits into the fenced worker
 // checkpoint. Deletion and checkpoint persistence commit together.
 func (s *CloneStore) DrainImageIntents(ctx context.Context, jobID string, fence int64, attempt int, checkpoint json.RawMessage) (json.RawMessage, error) {
@@ -77,6 +98,9 @@ func (s *CloneStore) DrainImageIntents(ctx context.Context, jobID string, fence 
 		q := s.q(txctx)
 		if _, err := q.GetCloneJobForUpdate(txctx, u); err != nil { return err }
 		tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+		var previous json.RawMessage
+		if err := tx.QueryRow(txctx, `SELECT checkpoint FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&previous); err != nil { return err }
+		checkpoint, err = preserveReviewOrigin(previous, checkpoint); if err != nil { return err }
 		var m images.Manifest
 		if err := json.Unmarshal(checkpoint, &m); err != nil { return err }
 		count, err := overlayImageIntents(txctx, tx, u, &m); if err != nil || count == 0 { return err }

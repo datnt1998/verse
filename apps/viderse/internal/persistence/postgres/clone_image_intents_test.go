@@ -36,9 +36,12 @@ func TestImageIntentSurvivesCompletionAndMergesWorkerResult(t *testing.T) {
 	before, err := edits.Read(ctx, job.ID, domain.CloneImages); if err != nil { t.Fatal(err) }
 	next, err := images.Review(m, "b", "regenerate", "warmer", nil); if err != nil { t.Fatal(err) }
 	next.QueueOnly = []string{"b"}
+	next.ReviewOrigin = true
 	change, _ := json.Marshal(next)
 	if err = store.Commit(ctx, before, jobedit.Change{Checkpoint: change, InvalidateFrom: domain.CloneImages, Rerun: true, ImageReview: true, ImageIDs: []string{"b"}}); err != nil { t.Fatal(err) }
 	visible, err := edits.Read(ctx, job.ID, domain.CloneImages); if err != nil { t.Fatal(err) }
+	var checkpoint images.Manifest
+	if err := json.Unmarshal(visible.Step.Checkpoint, &checkpoint); err != nil || !checkpoint.ReviewOrigin { t.Fatalf("review origin absent from durable checkpoint: %+v %v", checkpoint, err) }
 	var overlay images.Manifest
 	if err = json.Unmarshal(visible.Manifest, &overlay); err != nil { t.Fatal(err) }
 	if overlay.Revision != 2 || overlay.Items[1].Direction != "warmer" || overlay.Items[1].Status != "pending" { t.Fatalf("intent not visible: %+v", overlay) }
@@ -53,6 +56,8 @@ func TestImageIntentSurvivesCompletionAndMergesWorkerResult(t *testing.T) {
 	m.Revision++
 	raw, _ = json.Marshal(m)
 	if err = store.WriteStepCheckpoint(ctx, job.ID, domain.CloneImages, claim.Fence, claim.Step.Attempt, raw); err != nil { t.Fatal(err) }
+	current, err := store.GetStep(ctx, job.ID, domain.CloneImages); if err != nil { t.Fatal(err) }
+	if err := json.Unmarshal(current.Checkpoint, &checkpoint); err != nil || !checkpoint.ReviewOrigin { t.Fatalf("worker overwrote review origin: %+v %v", checkpoint, err) }
 	if err = store.ApplyStepSuccess(ctx, job.ID, domain.CloneImages, claim.Fence, claim.Step.Attempt, domain.CloneStepOutput{}); err != nil { t.Fatal(err) }
 	restarted, err := store.ClaimNextStep(ctx, job.ID, "worker"); if err != nil || restarted == nil || restarted.Step.Step != domain.CloneImages { t.Fatalf("restart: %+v %v", restarted, err) }
 	merged, err := store.DrainImageIntents(ctx, job.ID, restarted.Fence, restarted.Step.Attempt, restarted.Step.Checkpoint); if err != nil { t.Fatal(err) }

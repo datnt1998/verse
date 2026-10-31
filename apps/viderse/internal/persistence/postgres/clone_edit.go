@@ -167,6 +167,15 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			if err := enqueueImageIntents(txctx, tx, u, before.Manifest, change.Checkpoint, change.ImageIDs); err != nil {
 				return err
 			}
+			var requested images.Manifest
+			if err := json.Unmarshal(change.Checkpoint, &requested); err != nil {
+				return err
+			}
+			if requested.ReviewOrigin && !manifest.ReviewOrigin {
+				if _, err := tx.Exec(txctx, `UPDATE clone_steps SET checkpoint=jsonb_set(checkpoint,'{reviewOrigin}','true'::jsonb) WHERE job_id=$1 AND step='images'`, u); err != nil {
+					return err
+				}
+			}
 			names := make([]string, 0)
 			for _, step := range domain.DependentsOf(domain.CloneImages) {
 				names = append(names, string(step))
@@ -174,8 +183,11 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			if _, err := q.InvalidateStepRange(txctx, gen.InvalidateStepRangeParams{JobID: u, Column2: names, Column3: nowTz()}); err != nil {
 				return err
 			}
-			_, err := tx.Exec(txctx, `DELETE FROM clone_bulk_review_intents WHERE job_id=$1`, u)
-			return err
+			if _, err := tx.Exec(txctx, `DELETE FROM clone_bulk_review_intents WHERE job_id=$1`, u); err != nil {
+				return err
+			}
+			active := domain.CloneImages
+			return s.refreshDerived(txctx, u, &active)
 		}
 		if row.LeaseExpiresAt.Valid && row.LeaseExpiresAt.Time.After(time.Now()) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
 			return jobedit.Conflict("Video đang xử lý — chờ xong rồi thử lại")
@@ -223,6 +235,13 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			output.Data["manifest"] = string(before.Step.Step) + "/manifest.json"
 		}
 		if before.Step.Step == domain.CloneImages {
+			oldManifest := before.Manifest
+			if len(oldManifest) == 0 {
+				oldManifest = before.Step.Checkpoint
+			}
+			if err := recordImageApproval(txctx, tx, u, oldManifest, change.Checkpoint); err != nil {
+				return err
+			}
 			// The images service validates the full approval gate before
 			// CommitOwnerApproval; the checkpoint written here is that exact
 			// manifest under the step CAS, so storage only needs its revision.

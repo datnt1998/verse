@@ -99,6 +99,7 @@ type Manifest struct {
 	CoverPrompt     string             `json:"coverPrompt,omitempty"`
 	Overrides       *Overrides         `json:"overrides,omitempty"`
 	QueueOnly       []string           `json:"queueOnly,omitempty"`
+	ReviewOrigin    bool               `json:"reviewOrigin,omitempty"`
 	Waiting         *domain.CloneError `json:"waiting,omitempty"`
 }
 

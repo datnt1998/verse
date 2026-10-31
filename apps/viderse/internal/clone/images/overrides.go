@@ -173,6 +173,7 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		next.Items = sceneItems
 	}
 	next.QueueOnly = nil
+	next.ReviewOrigin = false
 	kept := make([]model.Item, 0, len(next.Items))
 	for _, item := range next.Items {
 		if item.Kind == "scene" && none {

@@ -697,6 +697,33 @@ func (s *CloneStore) WriteStepCheckpoint(ctx context.Context, jobID string, step
 	if err != nil {
 		return ErrNotFound
 	}
+	if step == domain.CloneImages {
+		return s.inTx(ctx, func(txctx context.Context) error {
+			q := s.q(txctx)
+			if _, err := q.GetCloneJobForUpdate(txctx, u); err != nil {
+				return err
+			}
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			var previous json.RawMessage
+			if err := tx.QueryRow(txctx, `SELECT checkpoint FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&previous); err != nil {
+				return err
+			}
+			checkpoint, err = preserveReviewOrigin(previous, checkpoint)
+			if err != nil {
+				return err
+			}
+			n, err := q.WriteStepCheckpoint(txctx, gen.WriteStepCheckpointParams{
+				JobID: u, Step: string(step), Column3: fence,
+				Column4: checkpoint, Column5: nowTz(), Column6: int32(attempt)})
+			if err := fenceGuard(n, err); err != nil {
+				return err
+			}
+			if err := recordImageAutoActions(txctx, u, previous, checkpoint); err != nil {
+				return err
+			}
+			return recordImageApproval(txctx, tx, u, previous, checkpoint)
+		})
+	}
 	n, err := s.q(ctx).WriteStepCheckpoint(ctx, gen.WriteStepCheckpointParams{
 		JobID: u, Step: string(step), Column3: fence,
 		Column4: checkpoint, Column5: nowTz(), Column6: int32(attempt)})

@@ -35,3 +35,22 @@ func TestSceneOverridePricesOnlyFourDrawnOfSix(t *testing.T) {
 		t.Fatalf("unexpected stale error: %v", err)
 	}
 }
+
+func TestPromptChangeClearsReviewOrigin(t *testing.T) {
+	s, store := testService()
+	store.m.ReviewOrigin = true
+	s.Prompts = promptCatalog{}
+	s.QuotaLeft = func(context.Context) (int, error) { return 10, nil }
+	id := "new-scene"
+	l, err := s.load(context.Background(), "job", nil, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, _, err := s.prepareOverrides(context.Background(), l, OverrideInput{ScenePromptID: OptionalString{Set: true, Value: &id}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next.ReviewOrigin {
+		t.Fatal("full prompt rerun retained review origin")
+	}
+}

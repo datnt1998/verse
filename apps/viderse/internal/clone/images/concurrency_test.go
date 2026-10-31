@@ -2,6 +2,7 @@ package images
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
@@ -15,6 +16,7 @@ type runningEditStore struct{ *editStore }
 func (s runningEditStore) Read(ctx context.Context, id string, step domain.CloneStep) (jobedit.Snapshot, error) {
 	snapshot, err := s.editStore.Read(ctx, id, step)
 	if step == domain.CloneImages {
+		snapshot.Job.StageGroup = domain.StageReview
 		snapshot.Step.Status = domain.CloneRunning
 		snapshot.Steps = []domain.CloneStepRecord{snapshot.Step}
 	}
@@ -32,6 +34,11 @@ func TestReviewOtherImageWhileRunningLocksDuplicateAndVideoApproval(t *testing.T
 	result, err := s.Redraw(context.Background(), "job", "thumbnail", RedrawInput{ExpectedRevision: &rev, Prompt: &prompt})
 	if err != nil || !result.Accepted { t.Fatalf("other image redraw: %+v %v", result, err) }
 	if store.m.Items[1].Direction != prompt || store.m.Revision != 4 { t.Fatalf("missing redraw: %+v", store.m) }
+	raw, _ := json.Marshal(store.m)
+	var wire map[string]any
+	if err := json.Unmarshal(raw, &wire); err != nil || wire["reviewOrigin"] != true {
+		t.Fatalf("review redraw origin not retained: %s (%v)", raw, err)
+	}
 	rev = 4
 	_, err = s.Redraw(context.Background(), "job", "thumbnail", RedrawInput{ExpectedRevision: &rev})
 	requireCode(t, err, domain.CloneErrConflict)

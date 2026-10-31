@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -32,6 +33,9 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 	if job.PausedAt != nil {
 		return StagePaused
 	}
+	if job.Status != CloneFailed && job.Status != CloneCancelled && reviewRedrawActive(steps) {
+		return StageReview
+	}
 	for _, s := range steps {
 		if (s.Step == CloneBuild || s.Step == CloneImages) && s.Status == CloneWaiting && s.Error != nil && s.Error.Code == CloneErrAwaitingReview {
 			return StageReview
@@ -54,6 +58,59 @@ func StageGroupOf(job CloneJob, steps []CloneStepRecord) string {
 	}
 	return StageWorking
 }
+// reviewRedraw reads only the stable checkpoint fields shared with the image
+// step, avoiding a dependency on the pipeline's image implementation.
+func reviewRedraw(steps []CloneStepRecord) (bool, int) {
+	for _, step := range steps {
+		if step.Step != CloneImages || (step.Status != ClonePending && step.Status != CloneRunning && step.Status != CloneWaiting) {
+			continue
+		}
+		var checkpoint struct {
+			ReviewOrigin bool `json:"reviewOrigin"`
+			QueueOnly []string `json:"queueOnly"`
+			Items []struct {
+				ID string `json:"id"`
+				Status string `json:"status"`
+			} `json:"items"`
+		}
+		if json.Unmarshal(step.Checkpoint, &checkpoint) != nil || !checkpoint.ReviewOrigin {
+			continue
+		}
+		count := 0
+		for _, item := range checkpoint.Items {
+			if item.Status != "pending" && item.Status != "running" {
+				continue
+			}
+			if len(checkpoint.QueueOnly) != 0 {
+				selected := false
+				for _, id := range checkpoint.QueueOnly {
+					if id == item.ID {
+						selected = true
+						break
+					}
+				}
+				if !selected {
+					continue
+				}
+			}
+			count++
+		}
+		return true, count
+	}
+	return false, 0
+}
+
+func reviewRedrawActive(steps []CloneStepRecord) bool {
+	active, _ := reviewRedraw(steps)
+	return active
+}
+
+// RedrawingCount is the number of explicitly queued/running review redraws.
+func RedrawingCount(steps []CloneStepRecord) int {
+	_, count := reviewRedraw(steps)
+	return count
+}
+
 
 // ID của bốn trợ lý hiển thị trên thẻ video.
 const (
@@ -309,6 +366,9 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 	case StagePaused:
 		return "Đã tạm dừng"
 	case StageReview:
+		if n := RedrawingCount(steps); n > 0 {
+			return fmt.Sprintf("Đang vẽ lại %d ảnh", n)
+		}
 		return "Chờ bạn duyệt ảnh"
 	case StageReady:
 		return summarizeDone(steps, now)

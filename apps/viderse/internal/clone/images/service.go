@@ -318,8 +318,14 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	if rerun {
 		from = domain.CloneImages
 		l.manifest.QueueOnly = pending
+		if l.snapshot.Job.StageGroup == domain.StageReview {
+			l.manifest.ReviewOrigin = true
+		}
 	} else if sceneChanged {
 		from = domain.CloneBuild
+	}
+	if model.ImagesApproved(l.manifest) {
+		l.manifest.ReviewOrigin = false
 	}
 	if !rerun && from == "" && firstReviewCompleted(l.snapshot, wasApproved, l.manifest) {
 		from = domain.CloneBuild
@@ -420,6 +426,7 @@ func (s *Service) ApproveAll(ctx context.Context, id string, input RevisionInput
 	if !model.ImagesApproved(l.manifest) {
 		return MutationResult{}, cloneError(domain.CloneErrInvalidRequest, "Chưa có đủ ảnh để duyệt")
 	}
+	l.manifest.ReviewOrigin = false
 	if input.ApproveExport {
 		err = s.Edits.CommitOwnerApproval(ctx, l.snapshot, l.manifest)
 	} else {

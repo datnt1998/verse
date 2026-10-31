@@ -114,6 +114,11 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	}
 	if !generationPending(m) {
 		m.QueueOnly = nil
+		if len(s.Checkpoint) == 0 && ImagesApproved(m) {
+			if err := s.SaveCheckpoint(ctx, m); err != nil {
+				return pipeline.StepResult{}, err
+			}
+		}
 		file := filepath.Join(s.StagingDir, "images", "manifest.json")
 		if err = steps.WriteJSONAtomic(file, m); err != nil {
 			return pipeline.StepResult{}, err
