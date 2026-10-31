@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/datnt1998/verse/apps/viderse/internal/media"
 )
 
 func mediaTestProject(t *testing.T, s *Service, id string) {
@@ -405,4 +407,260 @@ func TestMediaWireShapeHidesInternalFieldsAndPreservesEmptyMetadata(t *testing.T
 		t.Fatal(e)
 	}
 	h.Release()
+}
+
+func TestMediaImportPublishesBinaryRoot(t *testing.T) {
+	ctx := context.Background()
+	s := newMediaTestService(t)
+	s.Prober = mediaProberFunc(func(context.Context, string) (ProbeResult, error) {
+		return ProbeResult{Kind: "image", MIME: "image/png"}, nil
+	})
+	m, err := s.ImportMedia(ctx, ImportMediaOptions{FileName: "source.png", DeclaredMIME: "image/png", Body: strings.NewReader("source bytes")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	root, err := s.Repository.Get(ctx, "media/"+m.ID+"/source")
+	if err != nil {
+		t.Fatalf("imported source has no durable binary root: %v", err)
+	}
+	stored, _, err := s.readMedia(ctx, m.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if root.Path != "editor/media/"+m.ID+"/"+stored.SourceFile || root.Revision != m.ContentHash {
+		t.Fatalf("binary root does not match metadata: %+v, %+v", root, stored)
+	}
+	if _, err = s.UpdateMediaMetadata(ctx, m.ID, Object{"tags": []any{}}); err != nil {
+		t.Fatal(err)
+	}
+	after, err := s.Repository.Get(ctx, root.Key)
+	if err != nil || after != root {
+		t.Fatalf("metadata-only update changed binary root: %+v, %v", after, err)
+	}
+	ids, err := s.mediaIDs(ctx)
+	if err != nil || !reflect.DeepEqual(ids, []string{m.ID}) {
+		t.Fatalf("binary row leaked into media discovery: %v, %v", ids, err)
+	}
+}
+
+func newBinaryMediaTestService(t *testing.T) (*Service, *exportTestMedia, *exportTestRepository) {
+	t.Helper()
+	backend := &exportTestMedia{root: t.TempDir(), paths: map[string]string{}}
+	repo := &exportTestRepository{rows: map[string]Resource{}, media: backend}
+	backend.repo = repo
+	s := newMediaTestService(t)
+	s.Media, s.Repository = backend, repo
+	s.Store.Media, s.Store.Repository = backend, repo
+	s.Prober = mediaProberFunc(func(context.Context, string) (ProbeResult, error) {
+		return ProbeResult{Kind: "image", MIME: "image/png"}, nil
+	})
+	return s, backend, repo
+}
+
+func TestMediaImportBinaryAndMetadataPublishTogether(t *testing.T) {
+	for _, fromFile := range []bool{false, true} {
+		name := "stream"
+		if fromFile {
+			name = "file"
+		}
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			s, backend, repo := newBinaryMediaTestService(t)
+			content := []byte("independent source bytes")
+			var m MediaRecord
+			var err error
+			if fromFile {
+				file := filepath.Join(t.TempDir(), "source.png")
+				if err = os.WriteFile(file, content, 0600); err != nil {
+					t.Fatal(err)
+				}
+				m, err = s.ImportMediaFile(ctx, ImportMediaFileOptions{File: file, FileName: "source.png", DeclaredMIME: "image/png"})
+			} else {
+				m, err = s.ImportMedia(ctx, ImportMediaOptions{FileName: "source.png", DeclaredMIME: "image/png", Body: bytes.NewReader(content)})
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			binary, err := repo.Get(ctx, "media/"+m.ID+"/source")
+			if err != nil || binary.Revision != m.ContentHash {
+				t.Fatalf("missing matching source root: %+v, %v", binary, err)
+			}
+			head, err := repo.Get(ctx, "media/"+m.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(backend.published) == 0 || len(backend.published[0]) != 2 {
+				t.Fatalf("binary and metadata were not published together: %+v", backend.published)
+			}
+			batch := backend.published[0]
+			if batch[0].Path != binary.Path || batch[1].Path != head.Path {
+				t.Fatalf("publication does not match committed heads: %+v", batch)
+			}
+			h, err := s.AcquireMedia(ctx, m.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			actual, err := os.ReadFile(h.Path)
+			h.Release()
+			if err != nil || !bytes.Equal(actual, content) {
+				t.Fatalf("imported bytes differ: %q, %v", actual, err)
+			}
+		})
+	}
+}
+
+func TestMediaReplaceBinaryRollbackAndRelease(t *testing.T) {
+	for _, legacy := range []bool{false, true} {
+		name := "binary-head"
+		if legacy {
+			name = "phase05-source-fallback"
+		}
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			s, backend, repo := newBinaryMediaTestService(t)
+			oldBytes := []byte("old source bytes")
+			m, err := s.ImportMedia(ctx, ImportMediaOptions{FileName: "source.png", DeclaredMIME: "image/png", Body: bytes.NewReader(oldBytes)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err = s.UpdateMediaMetadata(ctx, m.ID, Object{"tags": []any{}}); err != nil {
+				t.Fatal(err)
+			}
+			binaryKey, metadataKey := "media/"+m.ID+"/source", "media/"+m.ID
+			binary, err := repo.Get(ctx, binaryKey)
+			if err != nil {
+				t.Fatal(err)
+			}
+			oldPath := binary.Path
+			if legacy {
+				delete(repo.rows, binaryKey)
+				oldPath = "editor/media/" + m.ID + "/" + m.FileName
+				backend.paths[oldPath] = backend.paths[binary.Path]
+				delete(backend.paths, binary.Path)
+				stored, rev, err := s.readMedia(ctx, m.ID)
+				if err != nil {
+					t.Fatal(err)
+				}
+				stored.SourceFile = ""
+				if err = s.saveMedia(ctx, stored, rev); err != nil {
+					t.Fatal(err)
+				}
+			}
+			oldHead, err := repo.Get(ctx, metadataKey)
+			if err != nil {
+				t.Fatal(err)
+			}
+			oldFile := backend.paths[oldPath]
+			sawMetadataCAS := false
+			repo.beforeCAS = func(key string, next Resource) {
+				if key != metadataKey {
+					return
+				}
+				sawMetadataCAS = true
+				if repo.rows[metadataKey] != oldHead {
+					t.Error("metadata head changed before its CAS")
+				}
+				contents, readErr := os.ReadFile(oldFile)
+				if readErr != nil || !bytes.Equal(contents, oldBytes) {
+					t.Errorf("old metadata points at unavailable bytes before commit: %q, %v", contents, readErr)
+				}
+			}
+			repo.failKey = metadataKey
+			replacement := []byte("replacement source bytes")
+			_, err = s.ReplaceMedia(ctx, m.ID, ImportMediaOptions{Body: bytes.NewReader(replacement), DeclaredMIME: "image/png"})
+			if err == nil {
+				t.Fatal("metadata CAS failure was ignored")
+			}
+			if head, getErr := repo.Get(ctx, metadataKey); getErr != nil || head != oldHead {
+				t.Fatalf("failed replacement changed metadata: %+v, %v", head, getErr)
+			}
+			if legacy {
+				if _, getErr := repo.Get(ctx, binaryKey); !mediaMissing(getErr) {
+					t.Fatalf("failed legacy replacement retained an adopted binary head: %v", getErr)
+				}
+			} else if root, getErr := repo.Get(ctx, binaryKey); getErr != nil || root != binary {
+				t.Fatalf("failed replacement changed binary head: %+v, %v", root, getErr)
+			}
+			h, err := s.AcquireMedia(ctx, m.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			contents, err := os.ReadFile(h.Path)
+			h.Release()
+			if err != nil || !bytes.Equal(contents, oldBytes) || backend.paths[oldPath] != oldFile {
+				t.Fatalf("failed replacement released old source: %q, %v", contents, err)
+			}
+			if len(backend.paths) != 3 {
+				t.Fatalf("failed replacement leaked bindings: %+v", backend.paths)
+			}
+			repo.failKey = ""
+			updated, err := s.ReplaceMedia(ctx, m.ID, ImportMediaOptions{Body: bytes.NewReader(replacement), DeclaredMIME: "image/png"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !sawMetadataCAS || updated.ContentHash == m.ContentHash || updated.Tags == nil || len(updated.Tags) != 0 {
+				t.Fatalf("replacement lost metadata or skipped CAS: %+v", updated)
+			}
+			if _, exists := backend.paths[oldPath]; exists {
+				t.Fatal("successful replacement retained old unowned source binding")
+			}
+			root, err := repo.Get(ctx, binaryKey)
+			if err != nil || root.Revision != updated.ContentHash || root.Path == oldPath {
+				t.Fatalf("replacement binary root disagrees with metadata: %+v, %v", root, err)
+			}
+		})
+	}
+}
+
+func TestMediaDeleteReleasesBinaryRootBeforeRawUnbind(t *testing.T) {
+	ctx := context.Background()
+	s, backend, repo := newBinaryMediaTestService(t)
+	m, err := s.ImportMedia(ctx, ImportMediaOptions{FileName: "source.png", DeclaredMIME: "image/png", Body: strings.NewReader("source bytes")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	root, err := repo.Get(ctx, "media/"+m.ID+"/source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A non-pointer legacy artifact still requires raw Unbind during deletion.
+	artifact, _, _, err := s.stageFile("editor/media/"+m.ID+"/thumbnail.jpg", strings.NewReader("thumbnail"), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(artifact.File)
+	if err = backend.Publish(ctx, []media.Artifact{artifact}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err = s.DeleteMedia(ctx, m.ID); err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{"media/" + m.ID, "media/" + m.ID + "/source"} {
+		if _, err = repo.Get(ctx, key); !mediaMissing(err) {
+			t.Fatalf("deleted media retained head %s: %v", key, err)
+		}
+	}
+	for _, p := range []string{root.Path, artifact.Path} {
+		if _, exists := backend.paths[p]; exists {
+			t.Fatalf("deleted media retained binding %s", p)
+		}
+	}
+}
+
+func TestMediaImportBinaryPublicationRollback(t *testing.T) {
+	ctx := context.Background()
+	s, backend, repo := newBinaryMediaTestService(t)
+	const id = "failed-import"
+	repo.failKey = "media/" + id
+	_, err := s.importMedia(ctx, id, ImportMediaOptions{FileName: "source.png", DeclaredMIME: "image/png", Body: strings.NewReader("source bytes")}, nil, "")
+	if err == nil {
+		t.Fatal("metadata CAS failure was ignored")
+	}
+	if len(repo.rows) != 0 || len(backend.paths) != 0 {
+		t.Fatalf("failed first import retained heads or source bindings: %+v, %+v", repo.rows, backend.paths)
+	}
+	entries, err := os.ReadDir(s.StagingDir)
+	if err != nil || len(entries) != 0 {
+		t.Fatalf("failed first import retained staged files: %v, %v", entries, err)
+	}
 }

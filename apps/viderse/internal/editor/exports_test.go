@@ -2,8 +2,10 @@ package editor
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,9 +21,11 @@ import (
 // This filesystem-backed seam exercises the actual editor service and shared
 // JSON CAS helpers without a database or external ffmpeg binary.
 type exportTestMedia struct {
-	mu    sync.Mutex
-	root  string
-	paths map[string]string
+	mu        sync.Mutex
+	root      string
+	paths     map[string]string
+	repo      *exportTestRepository
+	published [][]media.Artifact
 }
 
 func (m *exportTestMedia) Acquire(_ context.Context, path string) (*media.Handle, error) {
@@ -36,7 +40,32 @@ func (m *exportTestMedia) Acquire(_ context.Context, path string) (*media.Handle
 func (m *exportTestMedia) Publish(ctx context.Context, artifacts []media.Artifact, commit func(context.Context) error) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	pending := map[string]string{}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	paths := make(map[string]string, len(m.paths))
+	for path, file := range m.paths {
+		paths[path] = file
+	}
+	m.repo.mu.Lock()
+	rows := make(map[string]Resource, len(m.repo.rows))
+	for key, row := range m.repo.rows {
+		rows[key] = row
+	}
+	m.repo.mu.Unlock()
+	pending := []string{}
+	committed := false
+	defer func() {
+		if !committed {
+			m.paths = paths
+			m.repo.mu.Lock()
+			m.repo.rows = rows
+			m.repo.mu.Unlock()
+			for _, file := range pending {
+				_ = os.Remove(file)
+			}
+		}
+	}()
 	for _, a := range artifacts {
 		b, e := os.ReadFile(a.File)
 		if e != nil {
@@ -46,29 +75,39 @@ func (m *exportTestMedia) Publish(ctx context.Context, artifacts []media.Artifac
 		if e != nil {
 			return e
 		}
+		pending = append(pending, f.Name())
 		_, e = f.Write(b)
 		e = errors.Join(e, f.Close())
 		if e != nil {
 			return e
 		}
-		pending[a.Path] = f.Name()
+		m.paths[a.Path] = f.Name()
 	}
 	if commit != nil {
 		if e := commit(ctx); e != nil {
-			for _, file := range pending {
-				os.Remove(file)
-			}
 			return e
 		}
 	}
-	for path, file := range pending {
-		m.paths[path] = file
+	if err := ctx.Err(); err != nil {
+		return err
 	}
+	committed = true
+	m.published = append(m.published, append([]media.Artifact(nil), artifacts...))
 	return nil
 }
 func (m *exportTestMedia) Unbind(ctx context.Context, paths []string, commit func(context.Context) error) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.repo.mu.Lock()
+	for _, path := range paths {
+		for _, row := range m.repo.rows {
+			if row.Path == path {
+				m.repo.mu.Unlock()
+				return errors.New("cannot unbind a rooted resource")
+			}
+		}
+	}
+	m.repo.mu.Unlock()
 	if commit != nil {
 		if e := commit(ctx); e != nil {
 			return e
@@ -81,10 +120,12 @@ func (m *exportTestMedia) Unbind(ctx context.Context, paths []string, commit fun
 }
 
 type exportTestRepository struct {
-	mu      sync.Mutex
-	rows    map[string]Resource
-	media   *exportTestMedia
-	failKey string
+	mu            sync.Mutex
+	rows          map[string]Resource
+	media         *exportTestMedia
+	failKey       string
+	failDeleteKey string
+	beforeCAS     func(string, Resource)
 }
 
 func (r *exportTestRepository) Get(_ context.Context, key string) (Resource, error) {
@@ -110,27 +151,67 @@ func (r *exportTestRepository) List(_ context.Context, prefix string) ([]Resourc
 func (r *exportTestRepository) CAS(_ context.Context, key, expected string, next Resource) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.beforeCAS != nil {
+		r.beforeCAS(key, next)
+	}
 	if r.failKey == key {
 		return errors.New("injected metadata failure")
 	}
 	old, exists := r.rows[key]
-	if exists && old.Revision != expected || !exists && expected != "" {
+	if exists && old.Revision != expected {
 		return ErrConflict
+	}
+	if !exists && expected != "" {
+		bytes, err := os.ReadFile(r.media.paths[next.PreviousPath])
+		if err != nil || fmt.Sprintf("sha256:%x", sha256.Sum256(bytes)) != expected {
+			return ErrConflict
+		}
+	}
+	bytes, err := os.ReadFile(r.media.paths[next.Path])
+	if err != nil {
+		return err
+	}
+	if fmt.Sprintf("sha256:%x", sha256.Sum256(bytes)) != next.Revision {
+		return errors.New("resource revision does not match published bytes")
 	}
 	next.Key = key
 	next.Version = old.Version + 1
 	r.rows[key] = next
+	previous := old.Path
+	if !exists {
+		previous = next.PreviousPath
+	}
+	if previous != next.Path {
+		r.releasePath(previous)
+	}
 	return nil
 }
 func (r *exportTestRepository) Delete(_ context.Context, key, expected string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if old, ok := r.rows[key]; ok && old.Revision != expected {
+	if r.failDeleteKey == key {
+		return errors.New("injected resource deletion failure")
+	}
+	old, ok := r.rows[key]
+	if ok && old.Revision != expected {
 		return ErrConflict
 	}
 	delete(r.rows, key)
+	r.releasePath(old.Path)
 	return nil
 }
+
+// Mutations run inside Publish, which owns the media lock and rolls back both
+// rows and bindings if any later CAS/Delete in the callback fails.
+func (r *exportTestRepository) releasePath(path string) {
+	for _, row := range r.rows {
+		if row.Path == path {
+			return
+		}
+	}
+	delete(r.media.paths, path)
+}
+
 func (r *exportTestRepository) Paths(_ context.Context, prefix string) ([]string, error) {
 	r.media.mu.Lock()
 	defer r.media.mu.Unlock()
@@ -163,6 +244,7 @@ func newExportStorageFixture(t *testing.T, clone bool) (*Service, Project, strin
 	root := t.TempDir()
 	m := &exportTestMedia{root: root, paths: map[string]string{}}
 	repo := &exportTestRepository{rows: map[string]Resource{}, media: m}
+	m.repo = repo
 	s := &Service{Media: m, Repository: repo, StagingDir: filepath.Join(root, "staged"), Now: func() time.Time { return time.Unix(100, 0) }}
 	s.Store = Store{Media: m, Repository: repo, StagingDir: s.StagingDir, Now: s.Now}
 	p, err := New("project", "Export", 1920, 1080, 30, s.now())
@@ -654,4 +736,260 @@ func TestExportStorageCommitSerializesUploadWithoutBlockingProjectEdits(t *testi
 	}
 	_, _, e := s.AcquireExport(ctx, "project", eid)
 	requireExportCode(t, e, "not_found")
+}
+
+func TestExportStoragePublicationRootsBinaryAndMetadataAtomically(t *testing.T) {
+	ctx := context.Background()
+	s, p, rev := newExportStorageFixture(t, false)
+	eid := beginExportStorage(t, s, p, rev)
+	if err := s.UploadExport(ctx, "project", eid, strings.NewReader("durable render"), nil); err != nil {
+		t.Fatal(err)
+	}
+	m := s.Media.(*exportTestMedia)
+	before := len(m.published)
+	if _, err := s.CommitExport(ctx, "project", eid, nil); err != nil {
+		t.Fatal(err)
+	}
+	repo := s.Repository.(*exportTestRepository)
+	key := "exports/project/" + eid
+	binary, err := repo.Get(ctx, key+"/file")
+	if err != nil {
+		t.Fatalf("binary has no durable resource: %v", err)
+	}
+	meta, _, err := s.exportMeta(ctx, "project", eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if binary.Path != meta["filePath"] || binary.Revision != "sha256:"+exportString(meta["stagedSha256"]) {
+		t.Fatalf("binary root does not match metadata: %+v, %v", binary, meta)
+	}
+	jsonHead, err := repo.Get(ctx, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(m.published) != before+1 || len(m.published[before]) != 2 {
+		t.Fatalf("binary and JSON did not share one publication: %+v", m.published[before:])
+	}
+	paths := map[string]bool{}
+	for _, artifact := range m.published[before] {
+		paths[artifact.Path] = true
+	}
+	if !paths[binary.Path] || !paths[jsonHead.Path] {
+		t.Fatalf("publication omitted a durable head: %v", paths)
+	}
+}
+
+func TestExportStorageBinaryRootRollsBackOnMetadataFailure(t *testing.T) {
+	ctx := context.Background()
+	s, p, rev := newExportStorageFixture(t, true)
+	eid := beginExportStorage(t, s, p, rev)
+	if err := s.UploadExport(ctx, "project", eid, strings.NewReader("old durable render"), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CommitExport(ctx, "project", eid, nil); err != nil {
+		t.Fatal(err)
+	}
+	repo := s.Repository.(*exportTestRepository)
+	key := "exports/project/" + eid
+	oldBinary, err := repo.Get(ctx, key+"/file")
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldMeta, oldRevision, err := s.exportMeta(ctx, "project", eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := s.Media.(*exportTestMedia)
+	oldFile := m.paths[oldBinary.Path]
+	attempted := Resource{}
+	repo.beforeCAS = func(key string, next Resource) {
+		if key == oldBinary.Key {
+			attempted = next
+		}
+	}
+	repo.failKey = key
+	_, err = s.ReplaceCloneExportFile(ctx, "project", eid, func(_ context.Context, _, output string, _ Project, _ Object) error {
+		return os.WriteFile(output, []byte("new durable render"), 0600)
+	})
+	if err == nil {
+		t.Fatal("metadata failure accepted")
+	}
+	repo.failKey = ""
+	repo.beforeCAS = nil
+	if attempted.Path == "" || attempted.Path == oldBinary.Path {
+		t.Fatal("replacement did not attempt binary CAS before metadata failure")
+	}
+	current, err := repo.Get(ctx, key+"/file")
+	if err != nil || current != oldBinary {
+		t.Fatalf("failed metadata CAS changed binary root: %+v, %v", current, err)
+	}
+	meta, revision, err := s.exportMeta(ctx, "project", eid)
+	if err != nil || revision != oldRevision || meta["filePath"] != oldMeta["filePath"] {
+		t.Fatalf("failed publication changed JSON head: %v, %v", meta, err)
+	}
+	if _, exists := m.paths[attempted.Path]; exists {
+		t.Fatal("failed publication retained the new binary binding")
+	}
+	if bytes, err := os.ReadFile(oldFile); err != nil || string(bytes) != "old durable render" {
+		t.Fatalf("old bytes lost on rollback: %q, %v", bytes, err)
+	}
+	if string(exportReadBytes(t, s, eid)) != "old durable render" {
+		t.Fatal("rollback changed downloadable bytes")
+	}
+}
+
+func TestExportStorageLegacyReplacementUsesPersistedOldHash(t *testing.T) {
+	ctx := context.Background()
+	s, p, rev := newExportStorageFixture(t, true)
+	eid := beginExportStorage(t, s, p, rev)
+	if err := s.UploadExport(ctx, "project", eid, strings.NewReader("legacy bytes"), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CommitExport(ctx, "project", eid, nil); err != nil {
+		t.Fatal(err)
+	}
+	repo := s.Repository.(*exportTestRepository)
+	key := "exports/project/" + eid
+	// Model a pre-binary-root ready export without releasing its legacy binding.
+	repo.mu.Lock()
+	delete(repo.rows, key+"/file")
+	repo.mu.Unlock()
+	oldMeta, _, err := s.exportMeta(ctx, "project", eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldPath := exportString(oldMeta["filePath"])
+	m := s.Media.(*exportTestMedia)
+	oldFile := m.paths[oldPath]
+	observed := false
+	repo.beforeCAS = func(casKey string, next Resource) {
+		if casKey == key+"/file" {
+			observed = true
+			if next.PreviousPath != oldPath {
+				t.Errorf("legacy adoption lost prior path: %+v", next)
+			}
+		}
+		if casKey == key {
+			if bytes, err := os.ReadFile(oldFile); err != nil || string(bytes) != "legacy bytes" {
+				t.Errorf("old bytes reclaimed before commit: %q, %v", bytes, err)
+			}
+		}
+	}
+	if _, err := s.ReplaceCloneExportFile(ctx, "project", eid, func(_ context.Context, _, output string, _ Project, _ Object) error {
+		return os.WriteFile(output, []byte("different replacement bytes"), 0600)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	repo.beforeCAS = nil
+	if !observed {
+		t.Fatal("legacy replacement did not publish a binary root")
+	}
+	if _, exists := m.paths[oldPath]; exists {
+		t.Fatal("successful replacement retained obsolete binary binding")
+	}
+	if string(exportReadBytes(t, s, eid)) != "different replacement bytes" {
+		t.Fatal("replacement did not expose new bytes")
+	}
+}
+
+func TestExportStorageDeleteFailurePreservesBinaryRootAndBytes(t *testing.T) {
+	ctx := context.Background()
+	s, p, rev := newExportStorageFixture(t, false)
+	eid := beginExportStorage(t, s, p, rev)
+	if err := s.UploadExport(ctx, "project", eid, strings.NewReader("preserved export"), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CommitExport(ctx, "project", eid, nil); err != nil {
+		t.Fatal(err)
+	}
+	repo := s.Repository.(*exportTestRepository)
+	key := "exports/project/" + eid
+	binary, err := repo.Get(ctx, key+"/file")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, revision, err := s.exportMeta(ctx, "project", eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.failDeleteKey = key
+	if err := s.DeleteExport(ctx, "project", eid); err == nil {
+		t.Fatal("failed resource deletion accepted")
+	}
+	repo.failDeleteKey = ""
+	current, err := repo.Get(ctx, key+"/file")
+	if err != nil || current != binary {
+		t.Fatalf("failed deletion changed binary root: %+v, %v", current, err)
+	}
+	if _, after, err := s.exportMeta(ctx, "project", eid); err != nil || after != revision {
+		t.Fatalf("failed deletion changed metadata: %s, %v", after, err)
+	}
+	if string(exportReadBytes(t, s, eid)) != "preserved export" {
+		t.Fatal("failed deletion lost valid bytes")
+	}
+	if err := s.DeleteExport(ctx, "project", eid); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.Get(ctx, key+"/file"); !exportMissing(err) {
+		t.Fatalf("successful deletion retained binary root: %v", err)
+	}
+	if _, exists := s.Media.(*exportTestMedia).paths[binary.Path]; exists {
+		t.Fatal("successful deletion retained binary binding")
+	}
+}
+
+func TestExportStoragePublicationCancellationRetainsOldBinaryRoot(t *testing.T) {
+	ctx := context.Background()
+	s, p, rev := newExportStorageFixture(t, true)
+	eid := beginExportStorage(t, s, p, rev)
+	if err := s.UploadExport(ctx, "project", eid, strings.NewReader("old committed bytes"), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CommitExport(ctx, "project", eid, nil); err != nil {
+		t.Fatal(err)
+	}
+	repo := s.Repository.(*exportTestRepository)
+	key := "exports/project/" + eid
+	binary, err := repo.Get(ctx, key+"/file")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, revision, err := s.exportMeta(ctx, "project", eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cancelCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	attempted := Resource{}
+	repo.beforeCAS = func(casKey string, next Resource) {
+		if casKey == key+"/file" {
+			attempted = next
+		}
+		if casKey == key {
+			cancel()
+		}
+	}
+	_, err = s.ReplaceCloneExportFile(cancelCtx, "project", eid, func(_ context.Context, _, output string, _ Project, _ Object) error {
+		return os.WriteFile(output, []byte("uncommitted bytes"), 0600)
+	})
+	repo.beforeCAS = nil
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("publication cancellation = %v", err)
+	}
+	current, err := repo.Get(ctx, key+"/file")
+	if err != nil || current != binary {
+		t.Fatalf("cancellation changed binary root: %+v, %v", current, err)
+	}
+	if _, after, err := s.exportMeta(ctx, "project", eid); err != nil || after != revision {
+		t.Fatalf("cancellation changed metadata: %s, %v", after, err)
+	}
+	if attempted.Path == "" {
+		t.Fatal("cancellation did not reach binary publication")
+	}
+	if _, exists := s.Media.(*exportTestMedia).paths[attempted.Path]; exists {
+		t.Fatal("cancellation retained new binary binding")
+	}
+	if string(exportReadBytes(t, s, eid)) != "old committed bytes" {
+		t.Fatal("cancellation lost committed bytes")
+	}
 }

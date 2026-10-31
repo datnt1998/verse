@@ -487,35 +487,51 @@ func (s *Service) CommitExport(ctx context.Context, pid, eid string, metadata Ob
 // A fresh immutable path and a metadata CAS make file replacement atomic for
 // readers. The old path stays live until the new pointer is durable.
 func (s *Service) publishExportFile(ctx context.Context, pid, eid, file string, next Object, revision string) error {
-	logical := "editor/exports/" + pid + "/" + eid + "/files/" + ID() + "/" + SanitizeFileName(exportString(next["fileName"]))
-	if err := s.Media.Publish(ctx, []media.Artifact{{Path: logical, File: file, ContentType: exportString(next["mime"]), Filename: exportString(next["fileName"])}}, nil); err != nil {
+	key, err := exportKey(pid, eid)
+	if err != nil {
 		return err
 	}
-	old := exportString(next["filePath"])
+	repo := s.repository()
+	if repo == nil {
+		return errors.New("editor repository is required")
+	}
+	previous, err := repo.Get(ctx, key+"/file")
+	if exportMissing(err) {
+		// next already contains the replacement digest. Only persisted metadata
+		// can supply the old digest when adopting a pre-binary-root export.
+		meta, _, readErr := s.exportMeta(ctx, pid, eid)
+		if readErr != nil {
+			return readErr
+		}
+		old := exportString(meta["filePath"])
+		if old == "" && meta["status"] == "ready" {
+			old = "editor/projects/" + pid + "/exports/" + eid + "/" + SanitizeFileName(exportString(meta["fileName"]))
+		}
+		previous = Resource{}
+		if old != "" {
+			previous = Resource{Path: old, Revision: "sha256:" + exportString(meta["stagedSha256"])}
+		}
+	} else if err != nil {
+		return err
+	}
+	logical := "editor/exports/" + pid + "/" + eid + "/files/" + ID() + "/" + SanitizeFileName(exportString(next["fileName"]))
 	next["filePath"] = logical
-	// Only the short publication cutover is serialized with project writes.
+	// The revision gate and publication cutover are serialized with project writes.
 	lock := projectLock(pid)
 	lock.Lock()
-	var err error
+	defer lock.Unlock()
 	if session := exportObject(next["clone"]); session != nil && next["status"] == "ready" {
 		_, current, e := s.projectStore().Read(ctx, pid)
 		if e != nil {
-			err = e
-		} else if current != session["projectRevision"] && old == "" {
-			err = apiError("conflict", "Project changed while committing export")
+			return e
+		} else if current != session["projectRevision"] && previous.Path == "" {
+			return apiError("conflict", "Project changed while committing export")
 		}
 	}
-	if err == nil {
-		err = s.saveExportMeta(ctx, pid, eid, next, revision)
-	}
-	lock.Unlock()
-	if err != nil {
-		return errors.Join(err, s.Media.Unbind(context.WithoutCancel(ctx), []string{logical}, nil))
-	}
-	if old != "" && old != logical {
-		return s.Media.Unbind(context.WithoutCancel(ctx), []string{old}, nil)
-	}
-	return nil
+	_, err = s.publishJSONFile(ctx, key, exportLegacy(pid, eid), next, revision,
+		media.Artifact{Path: logical, File: file, ContentType: exportString(next["mime"]), Filename: exportString(next["fileName"])},
+		key+"/file", "sha256:"+exportString(next["stagedSha256"]), previous)
+	return err
 }
 
 func (s *Service) AcquireExport(ctx context.Context, pid, eid string) (*media.Handle, ExportRecord, error) {
@@ -637,13 +653,16 @@ func (s *Service) deleteExportLocked(ctx context.Context, pid, eid string) error
 		return err
 	}
 	owned := make([]Resource, 0, len(rows))
+	ownedPaths := make([]string, 0, len(rows))
+	rooted := make(map[string]bool, len(rows))
 	for _, row := range rows {
 		if row.Key == key || strings.HasPrefix(row.Key, key+"/") {
 			owned = append(owned, row)
-			paths = append(paths, row.Path)
+			ownedPaths = append(ownedPaths, row.Path)
+			rooted[row.Path] = true
 		}
 	}
-	if err = s.unbindPaths(ctx, paths, func(tx context.Context) error {
+	if err = s.Media.Publish(ctx, nil, func(tx context.Context) error {
 		for _, row := range owned {
 			if e := repo.Delete(tx, row.Key, row.Revision); e != nil {
 				return e
@@ -653,7 +672,17 @@ func (s *Service) deleteExportLocked(ctx context.Context, pid, eid string) error
 	}); err != nil {
 		return err
 	}
-	return os.RemoveAll(s.exportDir(pid, eid))
+	cleanupCtx := context.WithoutCancel(ctx)
+	discardReleasedLocal(cleanupCtx, s.Media, ownedPaths...)
+	// Resource deletion releases its own bindings transactionally. Only legacy
+	// paths without resource ownership may be unbound directly after commit.
+	unowned := make([]string, 0, len(paths))
+	for _, path := range paths {
+		if !rooted[path] {
+			unowned = append(unowned, path)
+		}
+	}
+	return errors.Join(s.unbindPaths(cleanupCtx, unowned, nil), os.RemoveAll(s.exportDir(pid, eid)))
 }
 func (s *Service) DeleteStagedExportsForRequest(ctx context.Context, pid, requestID string) ([]string, error) {
 	if err := ValidateID(pid); err != nil {
@@ -774,6 +803,10 @@ func (s *Service) ReplaceCloneExportFile(ctx context.Context, pid, eid string, t
 	if err = ctx.Err(); err != nil {
 		return ExportRecord{}, err
 	}
+	// The transform has finished reading the old bytes. Release its shared
+	// blob lease before CAS attempts to retire that content under an exclusive
+	// lease; retaining it through publication deadlocks against our own reader.
+	h.Release()
 	sum, size, err := exportFileHash(output)
 	if err != nil {
 		return ExportRecord{}, err

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/secretbox"
@@ -151,6 +152,15 @@ func newMediaRuntime(ctx context.Context, pool *pgxpool.Pool, root func() string
 		return nil, err
 	}
 	if importExisting {
+		editorRepository := postgres.NewEditorRepository(pool)
+		editorWorkspace := &editor.Service{
+			Store: editor.Store{Media: transport, Repository: editorRepository},
+			Media: transport, Repository: editorRepository,
+		}
+		if err := editorWorkspace.AdoptBinaryRoots(ctx); err != nil {
+			manager.Close(ctx)
+			return nil, fmt.Errorf("xác minh tham chiếu binary editor trước khi mở kho: %w", err)
+		}
 		if err := manager.ImportExisting(ctx); err != nil {
 			manager.Close(ctx)
 			return nil, err

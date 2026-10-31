@@ -214,10 +214,26 @@ func (s *Service) importMedia(ctx context.Context, id string, opts ImportMediaOp
 		m.Attribution = current.Attribution
 		m.Overlay = current.Overlay
 	}
-	if e = s.Media.Publish(ctx, []media.Artifact{a}, nil); e != nil {
+	o, e := mediaObject(m)
+	if e != nil {
 		return MediaRecord{}, e
 	}
-	if e = s.saveMedia(ctx, m, rev); e != nil {
+	var previous Resource
+	if current != nil {
+		oldPath, err := s.mediaSourcePath(ctx, id, *current)
+		if err != nil {
+			return MediaRecord{}, err
+		}
+		oldPath, err = s.resolvePath(ctx, oldPath)
+		if err != nil {
+			return MediaRecord{}, err
+		}
+		previous = Resource{Path: oldPath, Revision: current.ContentHash}
+	}
+	if _, e = s.publishJSONFile(ctx, "media/"+id, mediaMetadataPath(id), o, rev, a, "media/"+id+"/source", hash, previous); e != nil {
+		return MediaRecord{}, e
+	}
+	if e = s.setMediaIndex(ctx, id, &m.MediaRecord); e != nil {
 		if current == nil {
 			if cleanup := s.removeMediaResources(ctx, id); cleanup != nil {
 				return MediaRecord{}, errors.Join(e, cleanup)
@@ -445,6 +461,9 @@ func (s *Service) mediaIDs(ctx context.Context) ([]string, error) {
 			return nil, e
 		}
 		for _, r := range rs {
+			if strings.HasSuffix(r.Key, "/source") {
+				continue
+			}
 			if id := strings.TrimPrefix(r.Key, "media/"); portableID.MatchString(id) {
 				set[id] = true
 			}
@@ -629,27 +648,44 @@ func (s *Service) AcquireMedia(ctx context.Context, id string) (*media.Handle, e
 	if e != nil {
 		return nil, e
 	}
+	source, e := s.mediaSourcePath(ctx, id, m)
+	if e != nil {
+		return nil, e
+	}
+	return s.acquire(ctx, source)
+}
+
+// mediaSourcePath also discovers phase-05 records that predate sourceFile.
+func (s *Service) mediaSourcePath(ctx context.Context, id string, m storedMediaRecord) (string, error) {
 	prefix := "editor/media/" + id + "/"
 	if m.SourceFile != "" {
 		if path.IsAbs(m.SourceFile) || path.Clean(m.SourceFile) != m.SourceFile || strings.HasPrefix(m.SourceFile, "../") || strings.Contains(m.SourceFile, "\\") {
-			return nil, apiError("invalid_request", "Invalid source file path")
+			return "", apiError("invalid_request", "Invalid source file path")
 		}
-		return s.acquire(ctx, prefix+m.SourceFile)
+		return prefix + m.SourceFile, nil
 	}
 	ps, e := s.listPaths(ctx, prefix)
 	if e != nil {
-		return nil, e
+		return "", e
 	}
 	for _, p := range ps {
 		name := strings.TrimPrefix(p, prefix)
 		if strings.Contains(name, "/") || strings.HasPrefix(name, ".") || name == "metadata.json" || name == "thumbnail.jpg" || name == "cache" {
 			continue
 		}
-		return s.acquire(ctx, p)
+		return p, nil
 	}
-	return nil, apiError("not_found", fmt.Sprintf("Media %s has no source file", id))
+	return "", apiError("not_found", fmt.Sprintf("Media %s has no source file", id))
 }
 func (s *Service) removeMediaResources(ctx context.Context, id string) error {
+	repo := s.repository()
+	if repo == nil {
+		return errors.New("editor repository is required")
+	}
+	source, e := repo.Get(ctx, "media/"+id+"/source")
+	if e != nil && !mediaMissing(e) {
+		return e
+	}
 	ps, e := s.listPaths(ctx, "editor/media/"+id+"/")
 	if e != nil {
 		return e
@@ -660,10 +696,37 @@ func (s *Service) removeMediaResources(ctx context.Context, id string) error {
 		if err != nil {
 			return err
 		}
+		// Pointer deletion releases this path only if no clone artifact owns it.
+		// Never bypass that ownership check with the raw legacy cleanup below.
+		if actual == source.Path {
+			continue
+		}
 		resolved = append(resolved, actual)
 	}
 	if e = s.removeResource(ctx, "media/"+id, mediaMetadataPath(id)); e != nil {
 		return e
+	}
+	if e = s.removeResource(ctx, "media/"+id+"/source", ""); e != nil {
+		return e
+	}
+	// Legacy sources can also belong to clone artifacts without a binary head.
+	// Raw Unbind bypasses releaseBinding, so retain every remaining durable root.
+	if backend, ok := s.Media.(interface{ Repository() media.Repository }); ok {
+		roots, err := backend.Repository().Roots(ctx)
+		if err != nil {
+			return err
+		}
+		live := make(map[string]bool, len(roots))
+		for _, root := range roots {
+			live[root.Path] = true
+		}
+		unrooted := resolved[:0]
+		for _, p := range resolved {
+			if !live[p] {
+				unrooted = append(unrooted, p)
+			}
+		}
+		resolved = unrooted
 	}
 	if len(resolved) > 0 {
 		if e = s.unbindPaths(ctx, resolved); e != nil {
