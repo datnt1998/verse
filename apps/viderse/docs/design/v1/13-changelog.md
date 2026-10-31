@@ -1,5 +1,17 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 31 (01/11/2026) — Gói V27: lấp chỗ thiếu artboard <!-- r31-v27 -->
+
+- Viên việc nền 4 trạng thái (đang chạy · máy rảnh · đã tạm dừng lúc · mất kết nối) ở `Main`, `MMain` (`jobs`); sheet Hàng chờ của `MMain` đổi theo và dẫn tới `MQueue`.
+- Artboard mới `MQueue`: Hàng chờ trên điện thoại (running · paused · limited · empty), lý do chưa chạy từng dòng, sheet một dòng (Lên đầu, Xem video gốc, Bỏ + Hoàn tác), sheet Quy tắc chạy.
+- `Queue`: bỏ câu đo sức máy, “Đã tạm dừng lúc 00:04”, luồng tới 6.
+- `MNew` nhiều link: hàng công tắc Ưu tiên cả 3 (`prio`). Chốt bỏ “Không cần ảnh” khỏi Video mới (L14).
+- `Explore`: phụ đề nút Làm video chữ tối.
+- `MAuth`: sheet Thiết bị đang đăng nhập, Đăng xuất ở màn mật khẩu tạm, lỗi mạng / chép mã / thiếu mã khôi phục, nút đang chờ, giữ nút 48px; `Auth` cùng bộ trạng thái; badge và ô logo dùng token.
+- Token `--vv-red-button-fill` cho nút + ở thanh dưới.
+- Tài liệu: ia-flows L13, W4, W10; components › JobsPill; copy › Hàng chờ, Đăng nhập (bổ sung); data-contract §3, §4, §25; tokens › đợt 31; dev-prompt Gói V27 (sửa dòng chip Ảnh ở V2); hỏi đáp #38–#48, #50–#63.
+- Canvas phiên bản 58.
+
 ## Phase 05 · 31/10/2026 — pipeline core đang tích hợp, chưa nghiệm thu
 
 - Thêm contract clone (generation, checkpoint, fence, tạm dừng/chạy tiếp/huỷ), read-model phía server và sự kiện tiến độ giới hạn 4 Hz/job.

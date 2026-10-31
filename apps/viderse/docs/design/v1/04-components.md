@@ -70,10 +70,12 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 
 ## JobsPill <!-- c-jobs-pill -->
 - Hiện “N đang chạy · M chờ lượt”, có chấm đỏ `.vv-rec` khi N > 0.
-- Khi hàng chờ tạm dừng: “Đã tạm dừng · M chờ lượt” với chấm xám.
+- Khi hàng chờ tạm dừng: icon `i-pause` màu `--vv-st-queued` (#8E8E99, “Chờ lượt, Tạm dừng”) + “Đã tạm dừng lúc HH:MM · M chờ lượt” (`pausedAt`). <!-- r31-v27 -->
+- Mất kết nối: icon `i-danger` màu `--vv-danger` + “Mất kết nối · đang thử lại”, chữ `--vv-danger-text`. Tooltip: “Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối”.
+- Cùng khung mọi trạng thái: cao 30px, đệm ngang 10px, khe 8px, chữ 12,5px; chiều rộng theo câu. Điện thoại: viên 36px bo tròn, chữ gọn `2 · 12` · `Rảnh` · `⏸ 12` · `Mất kết nối` (viền cam nhạt); `aria-label` đọc câu đầy đủ.
 - Bấm mở **popover Việc nền** (desktop, 448px) hoặc sheet (điện thoại); cuối popover có “Mở Hàng chờ”.
 - Có thông báo cần bạn chưa đọc → chấm vàng trên viên.
-- Máy rảnh: “Máy rảnh · 0 chờ lượt”, chấm xám.
+- Máy rảnh: “Máy rảnh”, chấm xám #5E5E68, chữ mờ. <!-- r31-v27 -->
 - Tooltip ghi luồng: “Máy đang chạy 2/2 luồng”.
 
 ## Logo ống kính <!-- c-lens -->

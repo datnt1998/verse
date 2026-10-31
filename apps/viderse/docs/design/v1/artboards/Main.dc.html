@@ -786,7 +786,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <a class="navl" href="NewVideo.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
 </nav>
 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
-<a class="ghost" href="Activity.dc.html" title="Máy đang chạy 2/2 luồng · 12 video chờ lượt" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="rec" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 đang chạy · 12 chờ lượt</span></a>
+<!-- r31-v27: viên việc nền --><a class="ghost" href="Activity.dc.html" title="{{jp.title}}" aria-label="{{jp.title}}" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; color: {{jp.fg}}; font-size: 12.5px; white-space: nowrap"><sc-if value="{{jp.isDot}}" hint-placeholder-val="{{ true }}"><span class="{{jp.dotCls}}" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{jp.d}}; box-shadow: 0 0 0 3px {{jp.h}}"></span></sc-if><sc-if value="{{jp.isIc}}" hint-placeholder-val="{{ false }}"><span class="ic {{jp.ic}}" aria-hidden="true" style="width: 14px; height: 14px; color: {{jp.icC}}"></span></sc-if><span class="num">{{jp.t}}</span></a>
 <a class="ghost" href="Settings.dc.html" aria-label="Cài đặt · 1 việc cần xem" title="Cài đặt · tài khoản ChatGPT sắp hết hạn mức ảnh" style="position: relative; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #A0A0AB"><span class="ic i-setting" aria-hidden="true"></span><span aria-hidden="true" style="position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: #FF4D63; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
 <div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
 <button class="ghost" type="button" onClick="{{toggleRight}}" aria-pressed="{{rightOpen}}" aria-label="Ẩn hoặc hiện bảng bên phải" title="Bảng bên phải  ]" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: {{rightBtnBg}}; color: {{rightBtnFg}}; display: flex; align-items: center; justify-content: center"><span class="ic i-sb-right" aria-hidden="true"></span></button>
@@ -1257,7 +1257,7 @@ All stories are fiction. Names and places are changed.
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"stage": {"editor": "enum", "options": ["images", "review", "render", "issue", "quality", "done", "paused"], "default": "images", "section": "Trạng thái video"}, "panel": {"editor": "enum", "options": ["agents", "content", "source", "backdrop"], "default": "agents", "section": "Bảng bên phải"}, "backdropShort": {"editor": "boolean", "default": false, "section": "Nền chưa phủ đủ"}, "promptPop": {"editor": "enum", "options": ["none", "scene", "cover"], "default": "none", "section": "Ảnh của video"}, "meta": {"editor": "enum", "options": ["pending", "writing", "failed", "ai", "edited", "rewrite", "history"], "default": "ai", "section": "Nội dung đăng (panel=content)"}, "scope": {"editor": "enum", "options": ["all", "channel"], "default": "all", "section": "Phạm vi"}, "$preview": {"width": 1440, "height": 900}, "agent": {"editor": "enum", "options": ["off", "recap", "suggest", "plan", "learn", "why"], "default": "off", "section": "Trợ lý chủ động"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"stage": {"editor": "enum", "options": ["images", "review", "render", "issue", "quality", "done", "paused"], "default": "images", "section": "Trạng thái video"}, "panel": {"editor": "enum", "options": ["agents", "content", "source", "backdrop"], "default": "agents", "section": "Bảng bên phải"}, "backdropShort": {"editor": "boolean", "default": false, "section": "Nền chưa phủ đủ"}, "promptPop": {"editor": "enum", "options": ["none", "scene", "cover"], "default": "none", "section": "Ảnh của video"}, "meta": {"editor": "enum", "options": ["pending", "writing", "failed", "ai", "edited", "rewrite", "history"], "default": "ai", "section": "Nội dung đăng (panel=content)"}, "scope": {"editor": "enum", "options": ["all", "channel"], "default": "all", "section": "Phạm vi"}, "$preview": {"width": 1440, "height": 900}, "agent": {"editor": "enum", "options": ["off", "recap", "suggest", "plan", "learn", "why"], "default": "off", "section": "Trợ lý chủ động"}, "jobs": {"editor": "enum", "options": ["running", "idle", "paused", "offline"], "default": "running", "section": "Viên việc nền (đầu trang)"}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -1269,7 +1269,19 @@ class Component extends DCLogic {
     if (prev.agent !== this.props.agent) this.setState({ recap: null, sug: null, off: {}, learn: null, why: null, skip: {}, plan: null, tab: null, meta: null });
     if (prev.stage !== this.props.stage || prev.panel !== this.props.panel || prev.backdropShort !== this.props.backdropShort) this.setState({ stage: null, tab: null, posted: false, more: false, removed: null, rerolled: {} });
   }
-  renderVals() {
+
+  // r31-v27: viên việc nền — running · idle · paused (#56, có pausedAt) · offline; cùng khung 30px
+  jobsPill(j) {
+    const P = {
+      running: { isDot: true, isIc: false, dotCls: 'rec', d: '#FF0033', h: 'rgba(255,0,51,0.18)', t: '2 đang chạy · 12 chờ lượt', fg: '#A0A0AB', title: 'Máy đang chạy 2/2 luồng · 12 video chờ lượt' },
+      idle: { isDot: true, isIc: false, dotCls: '', d: '#5E5E68', h: 'rgba(255,255,255,0.06)', t: 'Máy rảnh', fg: '#8B8B97', title: 'Không video nào đang chạy hay chờ lượt' },
+      paused: { isDot: false, isIc: true, ic: 'i-pause', icC: '#8E8E99', t: 'Đã tạm dừng lúc 00:04 · 12 chờ lượt', fg: '#A0A0AB', title: 'Bạn tạm dừng hàng chờ lúc 00:04 · video đang chạy làm nốt bước hiện tại' },
+      offline: { isDot: false, isIc: true, ic: 'i-danger', icC: '#FF9A5C', t: 'Mất kết nối · đang thử lại', fg: '#FFC09A', title: 'Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối' }
+    };
+    return Object.assign({ dotCls: '', d: '', h: '', ic: '', icC: '' }, P[j] || P.running);
+  }
+  renderVals() { const r = this.__rvJobs(); r.jp = this.jobsPill(this.props.jobs || 'running'); return r; }
+  __rvJobs() {
     const stageRaw = this.state.stage || this.props.stage || 'images';
     const pausedV = stageRaw === 'paused';
     const stage = pausedV ? 'images' : stageRaw;

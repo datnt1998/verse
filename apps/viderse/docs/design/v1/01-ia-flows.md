@@ -215,7 +215,9 @@ Thanh trên: **Bàn dựng · Duyệt · Kênh · Khám phá · Video mới**.
 Bên trái thanh trên: logo và **bộ đổi kênh** (“Mọi kênh” với 3 avatar chồng nhau, hoặc tên một kênh). Menu gồm Mọi kênh (nhịp hôm nay và số Chờ bạn của cả 3 kênh), từng kênh (nhịp hôm nay, chấm vàng khi có việc chờ bạn), Tạo kênh. Bộ đổi kênh chỉ có ở **Bàn dựng** (đổi phạm vi danh sách). Kênh và Khám phá dùng breadcrumb (“Kênh của tôi”, “Khám phá / <đối thủ>”); đổi kênh ở cột trái trang Kênh. <!-- r5-scope --> <!-- r11-audit -->
 
 Bên phải thanh trên:
-- Viên **“2 đang chạy · 12 chờ lượt”** mở popover **Việc nền** (Đang chạy · Thông báo); cuối popover có “Mở Hàng chờ”. Khi tạm dừng, viên đổi thành “Đã tạm dừng”; có thông báo cần bạn thì viên có chấm vàng.
+- Viên **“2 đang chạy · 12 chờ lượt”** mở popover **Việc nền** (Đang chạy · Thông báo); cuối popover có “Mở Hàng chờ”. Có thông báo cần bạn thì viên có chấm vàng. <!-- r31-v27 -->
+  - Bốn trạng thái, cùng khung 30px (điện thoại 36px, chữ gọn): **đang chạy** chấm đỏ “2 đang chạy · 12 chờ lượt” (`2 · 12`) · **máy rảnh** chấm xám “Máy rảnh” (`Rảnh`) · **đã tạm dừng** icon tạm dừng “Đã tạm dừng lúc 00:04 · 12 chờ lượt” (`⏸ 12`) · **mất kết nối** icon cam “Mất kết nối · đang thử lại” (`Mất kết nối`). Artboard `Main` / `MMain` · `jobs=running|idle|paused|offline`.
+  - Mất kết nối = `GET /api/status` lỗi 2 lần liền (hoặc SSE đứt quá 10 giây). Giữ số cũ trong popover kèm giờ cập nhật cuối; nút Tạm dừng khoá tới khi có kết nối.
 - Bánh răng mở **Cài đặt**, có chấm khi có việc cần xem.
 - Avatar.
 
@@ -230,7 +232,7 @@ Thanh dưới: **Bàn dựng · Duyệt · [+] Video mới · Kênh · Khám ph�
   - **Màn gốc** (5 mục của thanh dưới: Bàn dựng, Duyệt, Kênh, Khám phá; Video mới là nút giữa): thanh trên = logo · bộ đổi kênh (chỉ Bàn dựng và Kênh) · viên Việc nền · avatar; dưới đó là tiêu đề lớn 24px. Có thanh dưới.
   - **Màn con** (chi tiết video, video đối thủ, Video mới, Tạo kênh, Cài đặt và các mục con): đầu trang 52px = nút Quay lại (‹) hoặc Đóng (×, cho luồng tạo mới) · tiêu đề 16px căn trái (có thể thêm dòng phụ) · thao tác bên phải. Không có thanh dưới.
 - Khám phá và Duyệt không có bộ đổi kênh (giống máy tính: chỉ Bàn dựng đổi phạm vi, Kênh đổi kênh đang mở).
-- Viên **Việc nền** ở mọi màn gốc mở cùng một sheet (đang chạy + “Mở hàng chờ đầy đủ ở Bàn dựng”); ở Bàn dựng là sheet Hàng chờ đầy đủ có Tạm dừng.
+- Viên **Việc nền** ở mọi màn gốc mở cùng một sheet (đang chạy + “Mở hàng chờ”); ở Bàn dựng là sheet Hàng chờ có Tạm dừng, “Mở cả hàng chờ” và “Quy tắc chạy”. Cả hai dẫn tới màn **Hàng chờ** (`MQueue`). <!-- r31-v27 -->
 - Cài đặt mở từ avatar, là màn con (không có thanh dưới).
 - Editor, Thư viện, Cài đặt template, Lần đầu mở chỉ có trên máy tính. Link tới các trang đó trên điện thoại hiện “Mở trên máy tính”.
 - **Tạo kênh** có trên điện thoại (`MCreate`), mở từ sheet Đổi kênh: cùng trường, cùng mặc định với máy tính; nhận diện vẽ sau khi tạo nên không cần màn lớn. <!-- r13-create -->
@@ -295,10 +297,12 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
   - Dán **một link** hoặc **nhiều link** (chọn từ video nổi trội làm ở Khám phá; gợi ý ở dưới dẫn sang đó).
   - Hai chip đã điền sẵn: **Kênh** (kênh đang mở) và **Template** (“Luân phiên · <template tiếp theo>”). Mọi thứ khác lấy từ template; ngoại lệ cho riêng video đặt ở Bàn dựng (L14). <!-- r9-assets -->
   - Một dòng **kế hoạch** nói trước video sẽ chạy khi nào: “Lên đầu hàng chờ · bắt đầu khoảng 00:40” hoặc “Vào cuối hàng chờ, theo nhịp 5 video/ngày”.
+  - Nhiều link: công tắc **Ưu tiên cả N** (“Lên đầu hàng chờ, không theo nhịp kênh”). Máy tính là chip công tắc cạnh dòng kế hoạch; điện thoại là hàng 52px cuối nhóm Kênh/Template. <!-- r31-v27 -->
   - Một nút chính **Làm video** / **Làm N video** (Enter).
+  - **Không có** tuỳ chọn ảnh ở Video mới (L14): video không ảnh → chọn template không ảnh ở chip Template, hoặc chip **Ảnh** ở Bàn dựng sau khi video vào hàng. <!-- r31-v27 -->
 - **Chặn:** link đã làm cho kênh này → dẫn tới video đó. Link lỗi → câu giải thích màu cam. Nhiều link: tự bỏ link trùng và ghi rõ số đã bỏ.
 - **Luật:** L1, L2, L4.
-- **Artboard:** `NewVideo` · `input=empty|pasted|duplicate|error|multi` · `MNew` · `input=empty|pasted|multi`.
+- **Artboard:** `NewVideo` · `input=empty|pasted|duplicate|error|multi` · `MNew` · `input=empty|pasted|multi`, `prio=off|on`.
 
 ### W5 · Theo dõi video đang làm (Bàn dựng)
 - **Mục tiêu:** một màn trả lời “việc gì đang chờ tôi ở mọi kênh” và “video này đang ở đâu, ai đang làm, còn bao lâu”.
@@ -386,13 +390,16 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 - **Nội dung:**
   - **Đang chạy:** trợ lý + thanh 9 đoạn.
   - **Luân phiên giữa các kênh:** kênh kế tiếp và lý do bỏ lượt.
-  - **Chờ lượt:** video bạn chọn ghi “Ưu tiên · bạn chọn” ở đầu. Mỗi dòng có giờ bắt đầu dự kiến, lọc theo kênh, kéo thả, Lên đầu, ⋯ (Mở kênh, Xem video gốc, Bỏ khỏi hàng chờ).
+  - **Chờ lượt:** video bạn chọn ghi “Ưu tiên · bạn chọn” ở đầu. Mỗi dòng có giờ bắt đầu dự kiến và **vì sao chưa chạy** (`waitReason`, câu ở 06-copy › Hàng chờ), lọc theo kênh, kéo thả, Lên đầu, ⋯ (Mở kênh, Xem video gốc, Bỏ khỏi hàng chờ). <!-- r31-v27 -->
   - **Quy tắc chạy:** luồng video, luồng ảnh, chu kỳ xem đối thủ, nhịp từng kênh (chỉ xem), hạn mức ảnh, xong hôm nay.
 - **Tạm dừng:**
   - **Tạm dừng hàng chờ** là nút trung tính. Video đang chạy làm xong bước hiện tại rồi dừng, và không video mới nào bắt đầu.
   - Khi đã tạm dừng, **Chạy tiếp** là nút chính.
 - **Luật:** L1–L6.
 - **Việc nền & thông báo:** popover từ viên đầu trang (L13).
+- **Điện thoại** (`MQueue`, mở từ sheet Hàng chờ ở Bàn dựng hoặc sheet Việc nền): đầu trang có viên trạng thái + Tạm dừng/Chạy tiếp; Đang chạy (thẻ có thanh 9 đoạn) · Tiếp theo (lọc kênh, mỗi dòng: ảnh, kênh · template · thời lượng, giờ + lý do chờ, ⋯ mở sheet Lên đầu / Xem video gốc / Bỏ khỏi hàng chờ, có Hoàn tác) · thẻ **Quy tắc chạy** mở bottom sheet (luồng video 1–6, ảnh cùng lúc 1–8, xem đối thủ mỗi 1–24 giờ; áp dụng ngay, bớt luồng không dừng video đang chạy) · Hạn mức vẽ ảnh · Nhịp kênh (chỉ xem, “Sửa ở trang kênh”) · Xong hôm nay. Không kéo thả trên điện thoại. <!-- r31-v27 -->
+- **Không hiện** câu đo sức máy (“Máy này chạy ổn 2 luồng”): chưa có phép đo (#55).
+- **Artboard:** `Queue` · `state=running|paused|limited|empty` · `MQueue` · `state=…`, `sheet=none|rules|row`.
 - **Artboard:** `Queue` · `state=running|paused|limited|empty` · `Activity` · `view=running|inbox|toasts|system|settings|empty` · `MMain` · `screen=jobs`.
 
 ### W11 · Thiết lập kênh <!-- r10-channel --> <!-- r11-audit -->

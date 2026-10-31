@@ -104,7 +104,7 @@ Nguồn sự thật:
 - Spec: ia-flows L1, L2, L4, W4; data-contract §3, §4; copy › Kế hoạch.
 
 ### Việc FE
-- Hai chế độ **Một link · Nhiều link** (đã cắt “Chọn video nổi trội”, trùng Khám phá). Chip Kênh / Template / Ảnh đã điền sẵn; thẻ gợi ý video ở dưới điền link hoặc dẫn sang Khám phá.
+- Hai chế độ **Một link · Nhiều link** (đã cắt “Chọn video nổi trội”, trùng Khám phá). Chip Kênh / Template đã điền sẵn (không có chip Ảnh ở đây — L14, Gói V16; sửa đợt 31); thẻ gợi ý video ở dưới điền link hoặc dẫn sang Khám phá.
 - Dòng **kế hoạch** lấy từ `POST /api/clone/plan` (debounce 300ms sau khi dán).
 - Nút chính duy nhất “Làm video” / “Làm N video” (Enter). Nhiều link có công tắc “Ưu tiên cả N”.
 - Trùng link → khối vàng + “Mở video đang làm”. Link lỗi → khối cam.
@@ -752,6 +752,39 @@ Nguồn sự thật:
 - Không màn nào hiện cookie, mã lỗi, tên biến.
 - Ghi “Gói V26” vào `10-gap-closure.md`.
 
+## Gói V27 — Lấp chỗ thiếu artboard sau V25, V26 và đợt Làm video (P1, phụ thuộc V2, V6, V26) <!-- r31-v27 --> <a id="goi-v27"></a>
+
+**Vì sao:** dev đo 1:1 và gặp chỗ không có board hoặc board tự mâu thuẫn (hỏi đáp #51, #55–#63). Gói này thay các phương án tạm bằng thiết kế đã chốt.
+- Artboard: `Main` / `MMain` (`jobs=running|idle|paused|offline`) · `Queue` · **`MQueue` mới** (`state=running|paused|limited|empty`, `sheet=none|rules|row`) · `MNew` (`input=multi`, `prio=off|on`) · `Explore` (xem trước › nút Làm video) · `MAuth` (`sheet=devices`, `fail=none|network|copy|norecovery`, `busy=no|yes`, `screen=password`) · `Auth` (cùng `fail`, `busy`).
+- Spec: ia-flows L13 (viên việc nền), W4, W10; components › JobsPill; copy › Hàng chờ và viên việc nền, Đăng nhập › trạng thái bổ sung; data-contract §3, §4, §25; tokens › Token chốt ở đợt 31.
+
+### Việc FE
+1. **Viên việc nền** (#60): 4 trạng thái cùng khung 30px; điện thoại chữ gọn. Đã tạm dừng dùng `pausedAt`. Mất kết nối theo luật ở data-contract §3.
+2. **Hàng chờ điện thoại** (#59): màn `MQueue` thay Dialog tạm. Sheet Hàng chờ ở `MMain` có *Mở cả hàng chờ* và *Quy tắc chạy* dẫn tới `MQueue`; sheet Việc nền ở màn gốc khác có *Mở hàng chờ*. Quy tắc chạy là bottom sheet (stepper 44px), áp dụng ngay, nút *Xong* chỉ đóng.
+3. **Ưu tiên cả N** (#61): duyệt hàng công tắc 52px cuối nhóm Kênh/Template của `MNew`; công tắc đỏ `--vv-red-button` như chip máy tính.
+4. **Không cần ảnh** (#58): **bỏ** khỏi Video mới cả hai bản (L14 · Gói V16 “Không làm: chip ảnh ở Video mới”). Dòng “Chip Kênh / Template / Ảnh” cũ ở Gói V2 đã sửa. Video không ảnh: template không ảnh, hoặc chip Ảnh ở Bàn dựng.
+5. **Nút + ở thanh dưới** (#62): dùng token mới `--vv-red-button-fill` (gradient 3 stop của artboard).
+6. **Xem trước ở Khám phá** (#63): phụ đề “cho <kênh>” chữ tối `--vv-bg` 82% trên nút sáng; board đã sửa.
+7. **Tài khoản điện thoại** (#51): sheet *Thiết bị đang đăng nhập* (thiết bị này không có nút, mỗi máy khác *Đăng xuất*, *Đăng xuất mọi thiết bị khác* có xác nhận tại chỗ, câu nhắc cả hai app); màn mật khẩu tạm có *Đăng xuất*; lỗi mạng, chép mã thất bại, máy chủ không trả mã khôi phục, nút đang chờ; `kicked=none` theo cờ `vv.signedInBefore`. Máy tính cùng bộ trạng thái.
+8. **Token** (#51): chữ huy hiệu `--vv-accent-soft` (thay `--vv-tabbar-on`); icon băng thông tin `--vv-info` (thay `--kit-info-fg`, map trong `defineBrand`); ô logo app `--vv-surface-3`.
+9. **48px** (#51): giữ nút 48px; board `MAuth` đã cho con của cột cuộn `flex-shrink: 0`, không còn 40,8px.
+10. **Hàng chờ máy tính** (#55, #56): bỏ câu đo sức máy, thay câu trung tính; viên “Đã tạm dừng lúc 00:04 · N chờ lượt”; luồng 1–6.
+
+### Việc backend
+- Đã có theo #50, #52, #53: `pausedAt`, `waitReason` 6 giá trị, `position`, `thumbnailUrl`, `sourceUrl`, `PATCH /api/queue` v2, `imageCalls`, `priceUSD: null`, `templateId`, `AppLink { id, name, origin }`, 401 `reason`. Gói này không thêm API mới.
+- `GET /api/me/sessions` cần trả `{ id, device, browser, lastActiveAt, expiresAt, current }`; `POST /api/sessions/:id/revoke`, `POST /api/me/sessions/revoke-all` (giữ phiên hiện tại).
+
+### Nghiệm thu
+- Tạm dừng ở `MQueue` → viên đầu trang mọi màn đổi “Đã tạm dừng lúc HH:MM · N chờ lượt” (điện thoại `⏸ N`), mọi dòng chờ ghi “Hàng chờ đang tạm dừng”; Chạy tiếp → về chấm đỏ.
+- Tắt máy chủ → sau 2 lần poll viên ghi “Mất kết nối · đang thử lại”, sheet giữ danh sách cũ có giờ cập nhật, Tạm dừng khoá; bật lại → tự về đúng trạng thái.
+- Hàng chờ trống và không job nào chạy → viên “Máy rảnh”, `MQueue` hiện khối Máy rảnh + *Video mới*.
+- `MQueue` › ⋯ › *Lên đầu hàng chờ* → mục thành `pick`, đứng đầu; *Bỏ khỏi hàng chờ* → có *Hoàn tác*.
+- Quy tắc chạy: luồng dừng ở 1 và 6, ảnh ở 1 và 8, đối thủ ở 1 và 24 giờ (nút giảm/tăng khoá ở biên); đổi trên điện thoại thấy ngay ở `Queue` máy tính.
+- Video mới nhiều link: bật Ưu tiên cả 3 → kế hoạch đổi câu, enqueue `priority: "pick"`. Không có tuỳ chọn Không cần ảnh ở cả hai bản.
+- Tài khoản điện thoại › Thiết bị: đăng xuất Mac · Chrome → máy đó gặp màn đăng nhập ở cả hai app; *Đăng xuất mọi thiết bị khác* hỏi lại trước khi làm.
+- Rút mạng ở màn đăng nhập → băng cam, chip đầu trang cam; không hiện mã lỗi.
+- Ghi “Gói V27” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -780,6 +813,7 @@ Nguồn sự thật:
 | V24 | `POST/GET /api/platforms/:id/login/qr`, `POST …/login/refresh`, `PUT/DELETE …/login`; lưu cookie + refresh token; tự gia hạn trước khi quét; đăng nhập xong xoá giờ chờ bị chặn | <!-- r24-biliqr -->
 | V25 | `GET /api/storage/server`, `POST …/test` (+ `probe` từ trình duyệt), `PUT …/config`, `POST …/migrate` (+ pause/resume/cancel/retry); BackgroundTask `storage_migrate`; khoá bí mật qua `secretbox`; bộ nhớ đệm làm việc; `OpStat` từ lần khởi động; `storageDown` trong `/api/status` | <!-- r29-s3 -->
 | V26 | `apps: AppLink[]` trong `GET /api/me` và 403 `app_access_denied`; 401 `session_ended` có `reason`, `app` | <!-- r30-sso -->
+| V27 | Không API mới; dùng `pausedAt`, `waitReason`, `PATCH /api/queue` v2 (#52) và phiên thiết bị `GET /api/me/sessions` | <!-- r31-v27 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

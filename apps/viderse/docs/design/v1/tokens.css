@@ -43,6 +43,7 @@
   --vv-red-deep: #A3001C;
   --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
   --vv-red-button-hover: #FF1F4B;
+  --vv-red-button-fill: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); /* r31-v27 #62: cầu nút + ở thanh dưới điện thoại (thay màu phẳng --vv-red-button ở đúng nút này) */
 
   /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */
   --vv-danger: #FF9A5C;               /* nút xoá vĩnh viễn (nền), icon lỗi */

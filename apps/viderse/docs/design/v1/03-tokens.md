@@ -101,3 +101,14 @@ Thêm ở đợt 15 để `kit.css` không phải viết cứng giá trị nào.
 | Thông tin | `--vv-info`, `--vv-info-bg`, `--vv-info-border`, `--vv-st-*-tint`, `--vv-st-*-border` | Banner |
 | Cỡ | `--vv-h-btn` 36 · `--vv-h-btn-sm` 30 · `--vv-h-field` 36 · `--vv-h-opt` 34 · `--vv-fs-dialog` 16 · `--vv-fs-card` 14 · `--vv-fs-small` 11,5 · `--vv-r-*` | Theo Kit Noverse |
 | Chuyển động | `--vv-ease`, `--vv-ease-spring`, `--vv-dur` 150ms, `--vv-dur-pop` 170ms, `--vv-dur-dialog` 300ms | Menu mở, công tắc nảy, hộp thoại |
+
+## Token chốt ở đợt 31 (Gói V27) <!-- r31-v27 -->
+
+| Token | Giá trị | Dùng cho | Thay chỗ dev đang dùng |
+|---|---|---|---|
+| `--vv-red-button-fill` (mới) | `radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%)` | **Chỉ** cầu nút + giữa thanh dưới điện thoại (`.vv-tabbar__new`). Bóng giữ như kit. Nút thường vẫn không đỏ | `--vv-red-button` phẳng (#62) |
+| `--vv-accent-soft` (có sẵn) | `#FFD3DA` | Chữ huy hiệu nhấn: “Quản trị viên”, “Đang mở” ở Tài khoản Viderse, nền `--vv-accent-bg` | `--vv-tabbar-on` (#51) |
+| `--vv-info` (có sẵn) | `#9DB0F7` | Icon và viền chữ của băng thông tin (`.vv-banner--info`) | `--kit-info-fg` #9AB0D6 (#51) |
+| `--vv-surface-3` (có sẵn) | `#18181A` | Ô tròn chứa logo app ở danh sách Ứng dụng | `#18181B` viết cứng |
+
+Huy hiệu tím “Quản trị” ở tab Thêm của Noverse dùng token của Noverse, không phải token Viderse.

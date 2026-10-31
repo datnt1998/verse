@@ -237,65 +237,76 @@ Mẫu:
 - Hỏi design: đồng ý dời?
 - Trả lời (design, 30/10/2026): đồng ý dời `MExplore` sang V10. Trong lúc chờ, bản một cột dưới 768px phải: không cuộn ngang, nút ≥ 44px khi `pointer: coarse`, ô thêm đối thủ ở trên cùng, cột phải (thông tin, quét, lịch đăng) xuống dưới lưới. Không cần artboard cho bản tạm.
 
-### #38 · Template và Prompt ảnh: nút cần một video đã làm xong — Mở
+### #38 · Template và Prompt ảnh: nút cần một video đã làm xong — Đã chốt
 - Artboard: `Template` (`preview=fresh|stale|building`, “Vẽ thử ảnh bìa”), `Library` · `tab=prompts` (“Ảnh mẫu”, “Vẽ thử với…”).
 - Hàng chờ và pipeline làm video là gói V6, editor là V13. Chưa có video nào đã làm xong và chưa có câu chuyện đã phân tích, nên chưa dựng được bản xem thử, chưa vẽ thử bìa, chưa vẽ ảnh mẫu.
 - Code: trạng thái xem thử vẫn thật (`none|fresh|stale` theo `revision` của template). “Dựng lại bản xem thử”, “Vẽ thử ảnh bìa”, “Vẽ thử với…”, “Mở trong editor” hiện nhưng bị khoá (`aria-disabled`, nhận focus, đọc được lý do). Prompt ảnh hiện “Chưa có mẫu”. `preview=building` chưa xảy ra được.
 - Hỏi design: duyệt trạng thái khoá tới V6/V13, và câu lý do trong `i18n/library.ts`.
+- Trả lời (design, 01/11/2026): Duyệt khoá tới V6/V13. Câu lý do: Template “Cần ít nhất một video đã làm xong để dựng bản xem thử.”; Prompt ảnh “Cần ít nhất một video đã làm xong để vẽ thử.” Prompt ảnh ghi “Chưa có mẫu”. Không cần artboard thêm. <!-- r31-v27 -->
 
-### #39 · Kênh › Video, số liệu đầu kênh, “Hôm nay x/y”, Dặn trợ lý — Mở
+### #39 · Kênh › Video, số liệu đầu kênh, “Hôm nay x/y”, Dặn trợ lý — Đã chốt
 - Artboard: `Channel` · `tab=videos`, đầu kênh, cột phải.
 - Bảng video 4 cột cùng `BulkBar`, 4 số liệu đầu kênh, chấm “Chờ bạn”, thanh “Hôm nay x/y” và ô Dặn trợ lý cần job làm video (V6) và trợ lý (V11). Mức tự chủ và Ưu tiên kênh là phase sau (§20).
 - Code: tab Video luôn hiện trạng thái kênh mới (`fresh`: “Kênh chưa có video” và hai thẻ dẫn). Không bịa số. Cột phải “Đang áp dụng cho kênh” có Tự lấy video, Template luân phiên, Tiêu đề–mô tả–tag, Trợ lý AI; chưa có Mức tự chủ. Xoá kênh luôn với `runningCount = 0`.
 - Hỏi design: duyệt bản tạm này tới V6/V11.
+- Trả lời (design, 01/11/2026): Duyệt bản tạm tới V6/V11: tab Video ở trạng thái `fresh`, không bịa số; ẩn số liệu đầu kênh, “Hôm nay x/y” và ô Dặn trợ lý tới khi có dữ liệu. Mức tự chủ, Ưu tiên kênh theo §20. <!-- r31-v27 -->
 
-### #40 · Mẫu chuẩn khi tạo kênh — Mở
+### #40 · Mẫu chuẩn khi tạo kênh — Đã chốt
 - Artboard: `CreateChannel` · `step=done` (“Mẫu chuẩn chạy nền”), `Channel` · `tab=templates`.
 - yt-factory dựng Mẫu chuẩn là một project editor (3 cảnh, nút Subscribe, tuyết, sóng âm). Editor là V13.
 - Code: tạo kênh tạo ngay một template “Mẫu chuẩn · <tên kênh>” với recipe mặc định (Tách nền, prompt “Theo nhận diện kênh”, bìa “Chữ hook”, lớp phủ Tuyết) và gắn vào vòng luân phiên của kênh. Kênh tạo không tên (để Đạo diễn đặt) thì template tạm tên “Mẫu chuẩn”, rồi tự đổi sang “Mẫu chuẩn · <tên kênh>” khi kênh có tên (Đạo diễn đặt hoặc chủ tự đặt). Template đã đổi tên tay hoặc kênh khác cũng dùng thì giữ nguyên. Phần bố cục editor thêm ở V13.
 - Hỏi design: duyệt.
+- Trả lời (design, 01/11/2026): Duyệt, kể cả tự đổi tên “Mẫu chuẩn · <tên kênh>” và giữ tên đã đổi tay. <!-- r31-v27 -->
 
-### #41 · Giá ước tính của template — Mở
+### #41 · Giá ước tính của template — Đã chốt
 - Artboard: `Template` (giá mỗi video), 07 §15 `price.perImage`, hỏi đáp #28 (giá = 7 ảnh).
 - Code tính theo số ảnh của chính template cộng 1 ảnh bìa: `(ảnh mỗi video + 1) × giá mỗi ảnh`. Template chọn “theo số phút” chưa biết số ảnh khi chưa có video nguồn, nên chỉ ghi cách tính, không ghi giá. Template không có ảnh vẫn tính 1 ảnh bìa. Không biết giá model vẽ thì chỉ ghi số ảnh.
 - Hỏi design: duyệt bỏ hằng 7 ở màn Template.
+- Trả lời (design, 01/11/2026): Duyệt bỏ hằng 7. Template theo số phút ghi “Số ảnh theo độ dài video nguồn”, không ghi giá. Không biết giá ảnh (`priceUSD: null`) thì chỉ ghi số ảnh. <!-- r31-v27 -->
 
-### #42 · Nhận diện kênh: định dạng ảnh, lỗi và giờ tự thử — Mở
+### #42 · Nhận diện kênh: định dạng ảnh, lỗi và giờ tự thử — Đã chốt
 - Artboard: `Channel` · `identity=ready|generating|failed`, `CreateChannel` · `step=done`.
 - Avatar 800 × 800 PNG, ảnh bìa 2560 × 1440 JPEG ≤ 6 MB (yt-factory dùng WebP qua ffmpeg + libwebp; ở đây mã hoá thuần Go, không cần libwebp).
 - Lỗi được lưu trên kênh, sống qua tải lại trang. Hết hạn mức ảnh thì ghi giờ tự thử từ nguồn vẽ. App tắt giữa chừng thì lần đó thành “Bị gián đoạn”, không tự vẽ lại (vẽ lại tốn tiền).
 - Code ghi “Tự thử lại lúc HH:MM” thay cho “Thử lại lúc HH:MM” của artboard, cho rõ là hệ thống tự thử.
 - Hỏi design: duyệt định dạng và câu.
+- Trả lời (design, 01/11/2026): Duyệt PNG 800 × 800 và JPEG 2560 × 1440 ≤ 6 MB; duyệt “Tự thử lại lúc HH:MM” và “Bị gián đoạn” (kèm *Vẽ lại*, không tự vẽ). 06-copy dùng hai câu này. <!-- r31-v27 -->
 
-### #43 · Bỏ liên kết đối thủ trên máy tính chưa có hộp thoại — Mở
+### #43 · Bỏ liên kết đối thủ trên máy tính chưa có hộp thoại — Đã chốt
 - Artboard: `Channel` · `tab=sources` chỉ có sheet bỏ liên kết ở `MChannel`.
 - Code dùng `ConfirmDialog` của kit, tông cam nhạt (`dsoft`), lấy câu của sheet `MChannel`: “Bỏ liên kết <tên>?”, thân nêu hậu quả và đối thủ tham chiếu kế tiếp. Bỏ đối thủ cuối thì Tự lấy tắt, kèm lý do.
 - Hỏi design: vẽ hộp thoại cho máy tính, hoặc duyệt bản này.
+- Trả lời (design, 01/11/2026): Duyệt `ConfirmDialog` của kit, tông cam nhạt, câu của sheet `MChannel`. Không cần artboard riêng. <!-- r31-v27 -->
 
-### #44 · Video nền: thêm kênh chạy nền, dán link không dò video — Mở
+### #44 · Video nền: thêm kênh chạy nền, dán link không dò video — Đã chốt
 - Artboard: `Library` · `tab=backdrops` (`nguon=adding|addvideo`).
 - Thêm kênh nền ghi kênh ngay rồi đọc danh mục trong việc nền; thẻ kênh hiện “Đang đọc” rồi số video (yt-factory đọc trong lúc bấm). Dán link chỉ phân tích link (và mở `b23.tv` một lần), không gọi yt-dlp, nên tên và thời lượng của video lẻ hiện sau khi thêm.
 - Chiều cao tải lấy theo nền tảng: Twitch 480, Bilibili 1080 (yt-factory cứng 720). Bilibili: lời gọi API cách nhau 10–20 giây, lượt tải yt-dlp 5–10 giây; hạn mức 20 lời gọi mỗi 10 phút và 200 mỗi ngày. Bị chặn thì chờ 15 → 30 → 60 → 120 phút như dải tạm chặn ở Tài khoản nền tảng.
 - Hỏi design: duyệt.
+- Trả lời (design, 01/11/2026): Duyệt (đọc danh mục trong việc nền, “Đang đọc” rồi số video; chiều cao tải theo nền tảng; nhịp Bilibili). <!-- r31-v27 -->
 
-### #45 · Prompt ảnh nhập trùng tên — Mở
+### #45 · Prompt ảnh nhập trùng tên — Đã chốt
 - Artboard: `Library` · `tab=prompts` (Nhập).
 - Design không nói khi nhập một prompt trùng tên. Code tự đổi tên thành “<tên> (nhập)” để nhập cùng tệp hai lần vẫn được, không báo lỗi.
 - Hỏi design: duyệt, hoặc chọn hỏi ghi đè.
+- Trả lời (design, 01/11/2026): Duyệt tự đổi tên “<tên> (nhập)”, thêm toast “Đã nhập N prompt · 1 trùng tên, đã đặt tên mới”. Không hỏi ghi đè. <!-- r31-v27 -->
 
-### #46 · Thư viện: không có nhập template, thẻ không có ảnh thu nhỏ — Mở
+### #46 · Thư viện: không có nhập template, thẻ không có ảnh thu nhỏ — Đã chốt
 - Artboard: `Library` · `tab=templates` (ô thả tệp template), thẻ template/prompt/lớp phủ có ảnh.
 - Chưa có định dạng tệp template (yt-factory nhập cả project editor), nên chưa có ô nhập template; nhập/xuất prompt ảnh thì có. Thẻ chưa có ảnh vì chưa có bản xem thử hay ảnh mẫu (#38): thẻ dùng khối màu trung tính và biểu tượng theo loại, không bịa ảnh. Lớp phủ hiện khung đầu của video.
 - Hỏi design: duyệt tới V13.
+- Trả lời (design, 01/11/2026): Duyệt tới V13: không ô nhập template, thẻ dùng khối màu trung tính + icon theo loại; lớp phủ dùng khung đầu. <!-- r31-v27 -->
 
-### #47 · Kênh, Tạo kênh trên điện thoại — Mở
+### #47 · Kênh, Tạo kênh trên điện thoại — Đã chốt
 - Artboard: `MChannel`, `MCreate` thuộc V10.
 - Dưới 1100px, cột trái của Kênh (danh sách kênh, thư viện) xuống dưới nội dung. Dưới 768px (khung điện thoại) cột trái ẩn như `MChannel`: đổi kênh ở viên kênh trên thanh đầu (menu có “Mọi kênh”, “Tạo kênh”), tab dùng tên ngắn (Video · Nguồn · Template · Hồ sơ) và hàng tab tự cuộn ngang. Lần đầu mở là bản máy tính một cột. Trang không cuộn ngang, nút ≥ 44px khi `pointer: coarse`.
 - Hỏi design: duyệt bản tạm tới V10.
+- Trả lời (design, 01/11/2026): Duyệt bản tạm tới V10. <!-- r31-v27 -->
 
-### #48 · Đổi tên template không làm cũ bản xem thử — Mở
+### #48 · Đổi tên template không làm cũ bản xem thử — Đã chốt
 - yt-factory coi mọi lần lưu là làm cũ bản xem thử. Tên không ảnh hưởng bản dựng nên code giữ nguyên `revision` khi chỉ đổi tên.
 - Hỏi design: duyệt.
+- Trả lời (design, 01/11/2026): Duyệt: chỉ đổi tên không làm cũ bản xem thử. <!-- r31-v27 -->
 
 ### #49 · Gói V25: những điểm design cần dev chốt — Đã chốt <!-- r29-s3 --> <!-- r29b -->
 - Artboard: `Settings` · `section=storage`, `store=s3envlocked|s3nokey|s3moving`.
@@ -335,8 +346,9 @@ Mẫu:
   - Logo menu: artboard dùng `#18181B`, token gần nhất là `--color-surface-3` = `#18181A`. Code dùng token; nhờ sửa artboard về token.
   - Thẻ app ở Thành viên khi chưa cấu hình `VERSE_APP_LINKS`: code ẩn địa chỉ app kia. Cần chốt cách hiển thị dự phòng.
   - `MAuth` vẽ thanh trạng thái và thanh home của hệ điều hành. Bản web không vẽ hai thanh này, nên toạ độ dọc lệch đúng bằng chiều cao của chúng.
+- Trả lời (design, 01/11/2026): ô logo dùng `--vv-surface-3`, board `Auth`/`MAuth` đã sửa. Thiếu `VERSE_APP_LINKS` → ẩn nhóm Ứng dụng và *Mở Noverse*; thẻ quyền app ở Noverse › Thành viên giữ tên + ô quyền, ẩn địa chỉ và biểu tượng mở. Thanh hệ điều hành: theo #57. §25 đã sửa `AppLink { id, name, origin }`, `reason` đủ 6 giá trị. <!-- r31-v27 -->
 
-### #51 · Gói V26: đối chiếu Auth/MAuth và phần artboard còn thiếu — Cần design chốt
+### #51 · Gói V26: đối chiếu Auth/MAuth và phần artboard còn thiếu — Đã chốt
 - Nguồn chuẩn: `artboards/Auth.dc.html`, `artboards/MAuth.dc.html`, chỉ `app=viderse`; không lấy bản Noverse cũ làm mẫu.
 - Sai khác chủ đích đã nêu ở #50:
   - Web không vẽ thanh trạng thái 44px và thanh home 26px của hệ điều hành. Khi so cùng viewport, phần neo trên của MAuth có `y(web) = y(board) - 44px`; phần căn giữa có `y(web) = y(board) - 9px`; phần neo đáy có `y(web) = y(board) + 26px`. Không cộng một độ lệch duy nhất cho cả trang.
@@ -350,8 +362,15 @@ Mẫu:
 - Màu chữ badge nhấn của board chưa có token trùng chính xác: hiện dùng `--vv-tabbar-on`, không thêm literal màu. **Badge ink #FFD3DA chờ design cấp token.** Icon băng thông tin dùng `--kit-info-fg` (sau `defineBrand`: #9AB0D6), trong khi board là #9DB0F7; cũng chờ token được duyệt. Đây **chưa phải xác nhận 1:1**; không thêm token hay màu thô để lách giới hạn màu.
 - Đã chốt giữ vùng chạm 48px của nút đổi mật khẩu trên web (31/10). Ở `MAuth screen=password, pwerr=mismatch|wrong`, status/home bar giả chiếm 70px làm flex co nút khai báo 48px xuống **40,844px**. Web không vẽ OS chrome và giữ nút **48px**; residual cao **7,156px**, dòng gợi ý sau nút lệch tương ứng. Không cố co vùng chạm của web để bắt chước lỗi co chiều cao này của board.
 - Bằng chứng đo và sai khác còn lại nằm trong báo cáo QA được yêu cầu riêng; mục này không miễn tiêu chí 0,5px hay tự phê duyệt các sai khác chưa chốt.
+- Trả lời (design, 01/11/2026): <!-- r31-v27 -->
+  - `MAuth` · `sheet=devices`: thiết bị này (nhãn, không nút), *Đăng xuất* từng máy, *Đăng xuất mọi thiết bị khác* có xác nhận tại chỗ, câu “phải đăng nhập lại ở cả Noverse và Viderse”. Dữ liệu thiết bị dùng chung với `Auth` (3 máy).
+  - `screen=password` có *Đăng xuất* ở chân màn. `fail=network|copy|norecovery`, `busy=yes` cho cả `MAuth` và `Auth`; câu ở 06-copy › Đăng nhập › trạng thái bổ sung.
+  - `kicked=none`: không khối lý do. Máy chủ giữ `unknown`; client phân biệt bằng cờ `vv.signedInBefore` (localStorage) — chưa từng đăng nhập trên trình duyệt này thì không hiện “Phiên đăng nhập đã kết thúc”.
+  - Token: chữ huy hiệu `--vv-accent-soft` (#FFD3DA, đã có trong tokens.css), nền `--vv-accent-bg`; icon băng thông tin `--vv-info` (#9DB0F7) — map vào `defineBrand` thay `--kit-info-fg`. Không thêm màu mới.
+  - Giữ 48px: board đã cho con của cột cuộn `flex-shrink: 0`; nút không còn co.
+  - Tên người, ngày, thiết bị trên board là dữ liệu mẫu; web dùng dữ liệu thật, không đổi cho khớp ảnh.
 
-### #52 · Hàng chờ + Kế hoạch (Gói V6/V2): mã lý do chưa chạy, giá, khoá xếp lại — Mở
+### #52 · Hàng chờ + Kế hoạch (Gói V6/V2): mã lý do chưa chạy, giá, khoá xếp lại — Đã chốt
 - Artboard: `Queue` · `state=running|paused|limited|empty`, `NewVideo`.
 - Chốt dev:
   1. `GET /api/queue` trả thêm `pausedAt` (giờ bấm Tạm dừng, cho câu “Đã tạm dừng lúc 00:04”) và mỗi dòng chờ có `waitReason` ngoài `pace_full|no_template` còn `queue_paused|workers_busy|rotation|paused_channel`.
@@ -362,58 +381,68 @@ Mẫu:
   5. `imageQuota[]` lấy số ảnh đã tính hôm nay từ `image_receipts`, giới hạn và giờ reset từ nguồn vẽ thật (không có số thì `null`). `doneToday[]` lấy job `stage_group` `ready|posted|review` cập nhật sau 00:00 giờ máy (`at` = `updated_at` vì chưa có cột giờ xong riêng, `posted` hiện như `ready`).
   6. SSE: một sự kiện `queue.updated` cho mọi thay đổi hàng chờ (xếp, xếp lại, bỏ, tạm dừng, drain bắt đầu/xong) + `clone.job.*` hiện hữu để invalidate; không bắn mỗi lần ETA đổi.
 - Hỏi design: duyệt.
+- Trả lời (design, 01/11/2026): Duyệt cả 6 điểm. Câu cho từng `waitReason` ở 06-copy › Hàng chờ; `pausedAt` dùng ở viên và băng tạm dừng; `priceUSD: null` → chỉ ghi số ảnh. Data-contract §3, §4 đã ghi theo. <!-- r31-v27 -->
 
 ### #53 · Làm video: chọn template riêng và dữ liệu thẻ hàng chờ — Đã chốt
 - Artboard: `NewVideo` · `input=pasted|multi`, `Queue` · `state=running|paused|limited`.
 - Dropdown ở chip template cho phép chọn khác vòng luân phiên. Bổ sung `templateId?` vào `CloneEnqueueRequest` (lệch §4 `07-data-contract.md`): khi có, kiểm template hợp lệ của kênh và chụp đúng recipe đó; khi vắng, giữ luân phiên hiện hữu. Kế hoạch đọc cùng override.
 - Dòng chờ trả `position`, `thumbnailUrl`, `sourceUrl`; thẻ đang chạy trả `pausedAt`. Đây là dữ liệu thực để kéo-thả và mở nguồn, không suy ra số hoặc ảnh ở trình duyệt.
 - Dòng “Máy này chạy ổn 2 luồng” thiếu cơ sở đo máy: giữ trống tới khi design chốt; không dùng số tự suy đoán.
-
+- Trả lời (design, 01/11/2026): Duyệt `templateId?`; data-contract §4 đã thêm. Câu đo sức máy bỏ hẳn (#55). <!-- r31-v27 -->
 
 ### #54 · Dựng bản nháp trước khi chờ duyệt — Đã chốt
 - Artboard: `VideoDetail` · luồng tạo video tới `awaiting_review`; backend Phase 05.
 - Dev: Phase 05 dựng project editor schema 15 bằng ảnh đã chọn, hoặc ứng viên hợp lệ mới nhất nếu chủ kênh chưa chọn. Đây chỉ là **bản nháp để duyệt**: không tự ghi thao tác duyệt ảnh, không xuất MP4, không chạy bước kiểm định/xuất.
 - Khác yt-factory `build.ts` (chặn trước khi dựng khi ảnh chưa duyệt): điểm chờ được đặt **sau** khi dựng project, đúng yêu cầu Phase 05 “dựng rồi chờ duyệt”. Project và artifact được publish trước khi job đỗ `awaiting_review`, không có `retryAt`; chỉ thao tác duyệt mới mở bước tiếp.
+- Trả lời (design, 01/11/2026): Duyệt. <!-- r31-v27 -->
 
 ### #55 · Hàng chờ: không suy đoán sức máy — Đã chốt
 - Artboard: `Queue` · mọi trạng thái, cột Quy tắc chạy: “Máy này chạy ổn 2 luồng”.
 - Backend chưa có phép đo sức máy. Không hiện dòng này; số luồng đã cấu hình vẫn đọc từ `workers.total`, không phải kết quả đo. Không dùng giá trị cấu hình để khẳng định máy chạy ổn.
+- Trả lời (design, 01/11/2026): Duyệt. `Queue` đã bỏ câu, thay “Mỗi luồng là một video chạy cùng lúc, từ 1 tới 6. Thêm luồng thì mỗi video chậm hơn và hết hạn mức ảnh sớm hơn.” `MQueue` dùng cùng câu. <!-- r31-v27 -->
 
 ### #56 · Viên Hàng chờ khi tạm dừng — Đã chốt
 - Artboard: `Main`, `Queue` dùng “Tạm dừng”; tiêu chí nghiệm thu yêu cầu “Đã tạm dừng”.
 - Code dùng “Đã tạm dừng”, kể cả khi bước đang làm được chạy nốt. Không hiện chấm đang chạy trong trạng thái này. Chiều rộng viên thay đổi theo câu thật, không ép bằng chiều rộng câu trên artboard.
+- Trả lời (design, 01/11/2026): Duyệt. `Main`, `MMain`, `Queue`, `MQueue` đã vẽ “Đã tạm dừng lúc 00:04 · N chờ lượt” với icon tạm dừng. <!-- r31-v27 -->
 
 ### #57 · Điện thoại: không vẽ giả thanh hệ điều hành — Đã chốt
 - Artboard: `MNew`, `MMain` có thanh trạng thái 44px và vùng home indicator 26px.
 - Web không dựng giờ, sóng, pin hoặc home indicator giả. Dùng `env(safe-area-inset-top|bottom)` của thiết bị. Đo phần nội dung theo gốc dưới thanh trạng thái: trên Chromium 390×844 không inset, y của nội dung bằng y artboard trừ 44px; phần dính đáy so theo mép trên vùng home indicator, không thêm 26px giả.
 - Quy ước đo tương đối theo safe area giống Noverse; chiều rộng, chiều cao, font, padding và gap của nội dung không được tự đổi.
+- Trả lời (design, 01/11/2026): Duyệt; cùng quy ước với #51 (đo theo safe area, không vẽ thanh hệ điều hành). <!-- r31-v27 -->
 
-### #58 · Video mới: tuỳ chọn không cần ảnh — Đã chốt
+### #58 · Video mới: tuỳ chọn không cần ảnh — Đã chốt lại (design)
 - Gói V2 yêu cầu chip Ảnh và API hỗ trợ `noImages`, nhưng `NewVideo` / `MNew` chưa vẽ điều khiển này.
 - Giữ tuỳ chọn “Không cần ảnh” dùng dữ liệu thật. Trên máy tính cùng hàng Kênh/Template; trên điện thoại thêm một hàng 52px trong nhóm tuỳ chọn. Không mặc định bật hoặc sửa recipe gốc của template.
 - Khác biệt có chủ ý: nhóm tuỳ chọn điện thoại cao thêm 52px so với artboard; không giấu tính năng chỉ để khớp ảnh.
+- Trả lời (design, 01/11/2026): Không giữ phương án tạm: **bỏ “Không cần ảnh” khỏi Video mới cả máy tính và điện thoại**. L14: ngoại lệ ảnh của một video chỉ đặt ở chip Ảnh của Bàn dựng; Gói V16 ghi “Không làm: chip ảnh ở Video mới”. Dòng “Chip Kênh / Template / Ảnh” ở Gói V2 là sót, đã sửa. Video không ảnh: chọn template không ảnh ở chip Template (#53), hoặc chip Ảnh ở Bàn dựng. `noImages` giữ cho CLI. <!-- r31-v27 -->
 
-### #59 · Điện thoại: chỉnh Quy tắc chạy từ hàng chờ — Đã chốt
+### #59 · Điện thoại: chỉnh Quy tắc chạy từ hàng chờ — Đã chốt lại (design)
 - Artboard `MMain`, sheet Hàng chờ có “Chỉnh” trỏ tới `Queue`; chưa có artboard Queue điện thoại riêng.
 - “Chỉnh” mở Dialog của kit, dùng lại chính các control Quy tắc chạy của Queue và cùng PATCH thật. Không thêm tuỳ chọn hoặc lời mới. Đóng Dialog trở về sheet đang xem.
+- Trả lời (design, 01/11/2026): Thay Dialog tạm bằng màn `MQueue` (artboard mới) và bottom sheet *Quy tắc chạy* (`MQueue` · `sheet=rules`). Sheet Hàng chờ ở `MMain` dẫn tới `MQueue` qua *Mở cả hàng chờ* và *Quy tắc chạy*. <!-- r31-v27 -->
 
-
-### #60 · Viên việc nền: thiếu artboard cho máy rảnh, tạm dừng, mất kết nối — Mở
+### #60 · Viên việc nền: thiếu artboard cho máy rảnh, tạm dừng, mất kết nối — Đã chốt
 - `Main.dc.html` chỉ vẽ viên “2 đang chạy · 12 chờ lượt”; đổi `stage=paused` chỉ đổi video, không đổi viên. Không có tweak cho `idle|paused|offline`.
 - Đối chiếu viên đang chạy trực tiếp với `Main`; ba trạng thái còn lại giữ cùng chiều cao 30px, padding 10px, gap 8px, chữ 12,5px và dùng trạng thái/câu của Gói V0. Không sửa artboard hoặc dựng trạng thái giả để gọi là chứng cứ cặp.
 - Hỏi design: bổ sung ba trạng thái trên. Câu “Đã tạm dừng” tiếp tục theo #56.
+- Trả lời (design, 01/11/2026): Đã vẽ: `Main` / `MMain` · `jobs=running|idle|paused|offline`. Câu ở 06-copy › Hàng chờ, quy tắc ở components › JobsPill, luật mất kết nối ở data-contract §3. <!-- r31-v27 -->
 
-### #61 · Video mới nhiều link: ưu tiên trên điện thoại — Mở
+### #61 · Video mới nhiều link: ưu tiên trên điện thoại — Đã chốt
 - `NewVideo` có công tắc “Ưu tiên cả N”, nhưng `MNew` · `input=multi` chỉ có hai hàng Kênh/Template và chưa vẽ công tắc tương ứng.
 - Giữ thao tác ưu tiên thật bằng hàng “Ưu tiên lượt này” 52px trong nhóm tuỳ chọn, dùng cùng trạng thái và kế hoạch của máy tính. Nhóm nhiều link cao thêm 104px: 52px cho Không cần ảnh (#58) và 52px cho Ưu tiên. Không coi hai hàng này là sai số bố cục.
 - Hỏi design: duyệt hàng công tắc hoặc bổ sung chỗ đặt khác trên `MNew`.
+- Trả lời (design, 01/11/2026): Duyệt hàng công tắc 52px “Ưu tiên cả 3” · “Lên đầu hàng chờ, không theo nhịp kênh”, cuối nhóm Kênh/Template (`MNew` · `input=multi`, `prio=on`). Nhóm chỉ cao thêm 52px vì không còn hàng Không cần ảnh (#58). <!-- r31-v27 -->
 
-### #62 · Nút thêm video của thanh dưới: giữ bảng màu đã có — Mở
+### #62 · Nút thêm video của thanh dưới: giữ bảng màu đã có — Đã chốt
 - `MMain` vẽ cầu đỏ với ba stop `#FF6A80`, `#FF1F45`, `#C80028`; ba stop này chưa có trong token UI đang dùng.
 - Theo yêu cầu không thêm màu ở đợt đối chiếu này, giữ màu đỏ nút `--vv-red-button` và bóng hiện có. Kích thước 46px, icon 22px, vị trí giữa năm tab và vùng chạm vẫn khớp artboard.
 - Hỏi design: dùng màu nút V0 hiện có hoặc duyệt một token gradient riêng trong đợt bổ sung token; không tăng ratchet.
+- Trả lời (design, 01/11/2026): Duyệt token mới `--vv-red-button-fill` (gradient 3 stop của artboard), chỉ cho cầu nút + ở thanh dưới. Đã thêm vào tokens.css, kit.css (`.vv-tabbar__new`) và 03-tokens. <!-- r31-v27 -->
 
 ### #63 · Phụ đề nút Làm video ở Khám phá: chữ tối trên nền sáng — Đã chốt
 - `Explore` vẽ phụ đề “cho …” bằng trắng trong suốt trên nút primary hiện có nền trắng. Phụ đề không đủ tương phản; đây là lỗi của board, không phải nội dung dữ liệu.
 - Main đã duyệt dùng chữ tối theo token: phụ đề lấy `--color-bg` với độ phủ 82%, giữ cỡ 12px, line-height 1,3 và bố cục hai dòng trong nút 46px. Không thêm màu hoặc tăng ratchet.
 - Main chuyển lỗi tương phản của board cho design; bản chạy giữ cách hiển thị đã duyệt.
+- Trả lời (design, 01/11/2026): Board `Explore` đã sửa phụ đề sang chữ tối `--vv-bg` 82%. <!-- r31-v27 -->

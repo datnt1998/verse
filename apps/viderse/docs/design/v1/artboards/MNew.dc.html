@@ -89,6 +89,7 @@ textarea,select{font:inherit}
 .press:active{transform:scale(.98)}
 
 .i-arrow-d{-webkit-mask-image:url(../icons/arrow-d.svg);mask-image:url(../icons/arrow-d.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
 .i-channel{-webkit-mask-image:url(../icons/channel.svg);mask-image:url(../icons/channel.svg)}
 .i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
 .i-close{-webkit-mask-image:url(../icons/close.svg);mask-image:url(../icons/close.svg)}
@@ -152,7 +153,7 @@ textarea,select{font:inherit}
 <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px">
 <span style="display: flex; align-items: center; gap: 8px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>3 link đọc được</span>
 <span style="display: flex; align-items: center; gap: 8px; color: #F6CB8C"><span class="ic i-flag" aria-hidden="true" style="width: 15px; height: 15px"></span>1 đã làm cho kênh này · sẽ bỏ qua</span>
-<span style="color: #8B8B97; line-height: 1.5">Video thứ 3 chạy ngày mai.</span>
+<span style="color: #8B8B97; line-height: 1.5">{{multiPace}}</span>
 </div>
 </sc-if>
 
@@ -166,6 +167,14 @@ textarea,select{font:inherit}
 <span class="ic {{o.end}}" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97"></span>
 </button>
 </sc-for>
+<!-- r31-v27: Ưu tiên cả N (#61) -->
+<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
+<button class="ghost" type="button" role="switch" aria-checked="{{prioOn}}" onClick="{{togglePrio}}" style="min-height: 52px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; background: transparent; color: #EDEDEF; text-align: left">
+<span class="ic i-arrow-up" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px">Ưu tiên cả 3</span><span class="ell" style="font-size: 12px; color: #8B8B97">Lên đầu hàng chờ, không theo nhịp kênh</span></span>
+<span aria-hidden="true" style="flex: 0 0 auto; width: 44px; height: 26px; border-radius: 999px; padding: 3px; background: {{prioBg}}; display: flex; justify-content: {{prioJ}}"><span style="width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF"></span></span>
+</button>
+</sc-if>
 </div>
 </sc-if>
 
@@ -188,19 +197,20 @@ textarea,select{font:inherit}
 <div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"input": {"editor": "enum", "options": ["empty", "pasted", "multi"], "default": "pasted", "section": "Ô nhập"}, "$preview": {"width": 390, "height": 844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"input": {"editor": "enum", "options": ["empty", "pasted", "multi"], "default": "pasted", "section": "Ô nhập"}, "prio": {"editor": "enum", "options": ["off", "on"], "default": "off", "section": "Nhiều link · Ưu tiên cả 3"}, "$preview": {"width": 390, "height": 844}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.state = { input: null, imagesOn: true };
   }
   componentDidUpdate(prev) {
-    if (prev.input !== this.props.input) this.setState({ input: null, imagesOn: true });
+    if (prev.input !== this.props.input || prev.prio !== this.props.prio) this.setState({ input: null, imagesOn: true, prio: null });
   }
   renderVals() {
     const input = this.state.input || this.props.input || 'pasted';
     const multi = input === 'multi';
     const has = input === 'pasted';
+    const prio = this.state.prio !== null && this.state.prio !== undefined ? this.state.prio : this.props.prio === 'on';
     const modes = [['link', 'Dán link', 'i-link'], ['multi', 'Nhiều video', 'i-video-add']].map((m) => {
       const on = (m[0] === 'multi') === multi;
       return { label: m[1], icon: m[2], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', fw: on ? '500' : '400',
@@ -209,7 +219,7 @@ class Component extends DCLogic {
     const opts = [
       { icon: 'i-channel', k: 'Kênh', v: 'Midnight Tales', end: 'i-arrow-d', tap: () => {} },
       { icon: 'i-layer', k: 'Template', v: 'Luân phiên · Phim tài liệu', end: 'i-arrow-d', tap: () => {} }
-    ].map((o, i) => Object.assign(o, { line: i < 1 ? 'rgba(255,255,255,0.06)' : 'transparent' }));
+    ].map((o, i) => Object.assign(o, { line: i < 1 || multi ? 'rgba(255,255,255,0.06)' : 'transparent' }));
     const TH = [
       'url(../img/k_nurse.jpg) center / cover no-repeat',
       'url(../img/k_radio.jpg) center / cover no-repeat',
@@ -229,7 +239,9 @@ class Component extends DCLogic {
       clear: () => this.setState({ input: 'empty' }), paste: () => this.setState({ input: 'pasted' }),
       startLabel: multi ? 'Làm 3 video' : 'Làm video', startDisabled: can ? 'false' : 'true',
       startBg: can ? '#EDEDEF' : '#2A2A2E', startFg: can ? '#0B0B0D' : '#8B8B97',
-      planText: multi ? 'Vào cuối hàng chờ, theo nhịp 5 video/ngày của kênh. Hôm nay còn 2 lượt.' : 'Lên đầu hàng chờ · bắt đầu khoảng 00:40'
+      prioOn: prio ? 'true' : 'false', prioBg: prio ? '#E6002E' : '#3A3A40', prioJ: prio ? 'flex-end' : 'flex-start', togglePrio: () => this.setState({ prio: !prio }),
+      multiPace: prio ? 'Ưu tiên: cả 3 chạy ngay khi có luồng trống.' : 'Hôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.',
+      planText: multi ? (prio ? 'Cả 3 lên đầu hàng chờ, không theo nhịp kênh · bắt đầu từ khoảng 00:40' : 'Vào cuối hàng chờ, theo nhịp 5 video/ngày của Midnight Tales. Hôm nay còn 2 lượt.') : 'Lên đầu hàng chờ · bắt đầu khoảng 00:40'
     };
   }
 }

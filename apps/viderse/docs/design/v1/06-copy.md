@@ -238,3 +238,48 @@ Câu nào nói về đăng xuất, đổi mật khẩu hay quyền thì nói rõ
 | Trang Tài khoản | — | “Một tài khoản dùng cho Noverse và Viderse. Đổi mật khẩu hay đăng xuất ở đây là cho cả hai ứng dụng.” · Ứng dụng: “Quản trị viên luôn vào được cả hai ứng dụng.” / “Quản trị viên cấp quyền từng ứng dụng ở Noverse › Thành viên.” / “Cần dùng Noverse? Nhờ quản trị viên cấp quyền ở Noverse › Thành viên.” · Thành viên: “Thêm người, cấp quyền vào Noverse và Viderse, đặt lại mật khẩu ở một chỗ duy nhất: Noverse › Thành viên.” · Đổi mật khẩu: “Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả trình duyệt này.” · Thiết bị: “Mỗi thiết bị một phiên chung cho cả hai app” · “Thiết bị bị đăng xuất phải đăng nhập lại ở cả Noverse và Viderse.” | Quản lý thành viên · Đổi mật khẩu · Đăng xuất · Đăng xuất mọi thiết bị khác |
 
 Thay câu cũ trong `i18n/vi.ts`: `loginSub` “Dùng tài khoản quản trị viên đã tạo lúc thiết lập” (sai với thành viên) → “Một tài khoản dùng cho Noverse và Viderse”; `accessDenied` → câu ở bảng; `sharedLogoutNote` → “Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.”; `setup.codeHint` bỏ tên lệnh; `serverDownBody` bỏ dấu “—”.
+
+## Hàng chờ và viên việc nền <a id="copy-queue"></a> <!-- r31-v27 -->
+
+**Viên việc nền** (máy tính · điện thoại):
+
+| Trạng thái | Máy tính | Điện thoại | Tooltip / đọc màn hình |
+|---|---|---|---|
+| Đang chạy | “2 đang chạy · 12 chờ lượt” | “2 · 12” | “Máy đang chạy 2/2 luồng · 12 video chờ lượt” |
+| Máy rảnh | “Máy rảnh” | “Rảnh” | “Không video nào đang chạy hay chờ lượt” |
+| Đã tạm dừng | “Đã tạm dừng lúc 00:04 · 12 chờ lượt” | “⏸ 12” | “Bạn tạm dừng hàng chờ lúc 00:04 · video đang chạy làm nốt bước hiện tại” |
+| Mất kết nối | “Mất kết nối · đang thử lại” | “Mất kết nối” | “Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối” |
+
+Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Video đang chạy làm nốt bước hiện tại rồi dừng; chưa video nào mới được bắt đầu.” · mất kết nối “Không kết nối được máy chủ Viderse. Đang thử lại; danh sách dưới đây là lần cập nhật lúc 00:12.” · hết ảnh “Hết hạn mức vẽ ảnh của cả ChatGPT và Grok. Bước không cần vẽ ảnh vẫn chạy; vẽ ảnh tiếp lúc 07:00.” · máy rảnh “Máy rảnh” + “Không video nào đang chạy hay chờ lượt. Video bạn dán link chạy ngay khi có luồng trống; kênh bật Tự lấy video sẽ thêm vào đây theo nhịp ngày.” + nút *Video mới*.
+
+**Vì sao chưa chạy** (`waitReason`, dòng phụ của từng video chờ; điện thoại ghép sau giờ dự kiến: “00:30 · Chờ tới lượt kênh này”):
+
+| `waitReason` | Câu |
+|---|---|
+| `workers_busy` | Chờ luồng trống |
+| `rotation` | Chờ tới lượt kênh này |
+| `pace_full` | Kênh đủ nhịp hôm nay · chạy từ 00:00 |
+| `no_template` | Kênh chưa có template dùng được |
+| `queue_paused` | Hàng chờ đang tạm dừng |
+| `paused_channel` | Tự lấy của kênh đang tắt |
+| (template cần sửa, dùng template kế tiếp) | Template cần sửa (màu cam) |
+
+**Quy tắc chạy:** “Luồng chạy cùng lúc” · “Số video chạy cùng lúc · 1 tới 6” · “Mỗi luồng là một video chạy cùng lúc. Thêm luồng thì mỗi video chậm hơn và hết hạn mức ảnh sớm hơn.” · “Ảnh vẽ cùng lúc” · “Dùng chung cho mọi video · 1 tới 8” · “Trinh sát xem đối thủ” · “Cho kênh bật Tự lấy video · 1 tới 24 giờ” · “Bớt luồng không dừng video đang chạy: luồng thừa nghỉ khi video của nó xong. Nhịp từng kênh sửa ở trang kênh.” · thẻ tóm tắt “2 luồng · 3 ảnh · đối thủ mỗi 1 giờ”. Không dùng “Máy này chạy ổn N luồng” (#55).
+
+**Một dòng (⋯):** *Lên đầu hàng chờ* “Chạy khi có luồng trống, trước video tự lấy” (ở đầu rồi: “Đang ở đầu hàng chờ”, khoá) · *Xem video gốc* · *Bỏ khỏi hàng chờ* “Video gốc vẫn ở Khám phá; thêm lại lúc nào cũng được” → “Đã bỏ 1 video khỏi hàng chờ” + *Hoàn tác*.
+
+**Video mới, nhiều link:** công tắc “Ưu tiên cả 3” · “Lên đầu hàng chờ, không theo nhịp kênh”. Bật: kế hoạch “Cả 3 lên đầu hàng chờ, không theo nhịp kênh · bắt đầu từ khoảng 00:40”, dòng phụ “Ưu tiên: cả 3 chạy ngay khi có luồng trống.” Tắt: “Vào cuối hàng chờ, theo nhịp 5 video/ngày của Midnight Tales. Hôm nay còn 2 lượt.” · “Hôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.” Giá (`priceUSD`) là `null` → chỉ ghi số ảnh, không ghi tiền.
+
+## Đăng nhập và tài khoản: trạng thái bổ sung <a id="copy-auth-v27"></a> <!-- r31-v27 -->
+
+| Chỗ | Trạng thái | Câu |
+|---|---|---|
+| Mọi form (đăng nhập, mật khẩu tạm, thiết lập, đổi mật khẩu, thiết bị) | mất mạng / không gọi được máy chủ | băng cam “Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.”; chip đầu trang “Không kết nối được” |
+| Nút chính | đang chờ máy chủ | spinner + “Đang đăng nhập…” · “Đang đổi mật khẩu…” · “Đang kiểm tra mã…” · “Đang tạo…” · “Đang đăng xuất…”; nút khoá (`aria-busy`) |
+| Mã khôi phục | chép thất bại | “Không chép được. Chạm giữ vào mã để chọn rồi chép.” (máy tính: “Bấm đúp vào mã để chọn rồi chép bằng Ctrl/⌘ + C.”); mã chọn được cả khối |
+| | máy chủ không trả mã | **Chưa nhận được mã khôi phục** “Tài khoản quản trị đã tạo xong nhưng máy chủ không trả mã khôi phục. Vào Viderse rồi tạo mã mới ở Noverse › Tuỳ chỉnh › Nâng cao › Truy cập & khôi phục.” — *Vào Viderse* mở, không có ô “Tôi đã lưu” |
+| Mật khẩu tạm | lối ra | *Đăng xuất* (chân màn) + “Không phải tài khoản của bạn? Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.” |
+| Thiết bị đang đăng nhập | — | “Mỗi thiết bị một phiên chung cho cả Noverse và Viderse.” · dòng: tên máy · trình duyệt, nhãn *Thiết bị này*, “Đang dùng · còn 27 ngày” / “Hoạt động 2 giờ trước · còn 30 ngày” (còn ≤ 3 ngày: chữ vàng) · *Đăng xuất* từng máy · “Đăng xuất điện thoại này bằng nút Đăng xuất ở trang Tài khoản.” |
+| | đăng xuất mọi thiết bị khác | xác nhận tại chỗ: “Đăng xuất 2 thiết bị khác? Các thiết bị đó phải đăng nhập lại ở cả Noverse và Viderse.” · *Huỷ* · *Đăng xuất 2 thiết bị* → “Đã đăng xuất mọi thiết bị khác.” |
+| | đăng xuất một máy | “Đã đăng xuất Mac · Chrome.” |
+| Đăng nhập | `kicked=none` | không có khối lý do. Máy chủ trả `session_ended/unknown` cho cả lần đầu (chưa cookie) và cookie hỏng; client chỉ hiện “Phiên đăng nhập đã kết thúc” khi trình duyệt này đã từng đăng nhập (cờ `vv.signedInBefore` trong localStorage, đặt sau lần đăng nhập thành công, xoá khi bấm Đăng xuất). |

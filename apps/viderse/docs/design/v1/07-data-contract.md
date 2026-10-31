@@ -85,6 +85,7 @@ Quy tắc trạng thái:
 ```ts
 {
   paused: boolean;
+  pausedAt: string | null;                             // r31-v27: giờ bấm Tạm dừng → “Đã tạm dừng lúc 00:04”
   workers: { used: number; total: number };
   imageWorkers: number;
   rescanHours: number;
@@ -94,7 +95,8 @@ Quy tắc trạng thái:
     next: string | null;
     skipped: Array<{ channelId; reason: "pace_full" | "no_template" | "paused_channel"; until?: string }>;
   };
-  items: Array<{ id; channelId; title; source; templateName; durationSec; priority: "pick" | "batch"; etaStart: string | null; waitReason?: "pace_full" | "no_template" }>;
+  items: Array<{ id; channelId; title; source; sourceUrl: string | null; thumbnailUrl: string | null; templateName; durationSec; priority: "pick" | "batch"; position: number; etaStart: string | null;
+    waitReason?: "workers_busy" | "rotation" | "pace_full" | "no_template" | "queue_paused" | "paused_channel" }>;   // r31-v27 (#52); câu ở 06-copy › Hàng chờ
   pace: Array<{ channelId; used: number; limit: number }>;
   imageQuota: Array<{ provider: "chatgpt" | "grok"; used: number; limit: number | null; period: "day" | "week"; resetsAt: string | null; role: "main" | "fallback" }>;
   doneToday: Array<{ jobId; title; at: string; state: "ready" | "review" }>;
@@ -106,10 +108,15 @@ Quy tắc trạng thái:
 **Hành động:**
 - Có sẵn: `pause`, `resume`, `move` (lên đầu, đổi vị trí), `remove`.
 - Mới: `PATCH settings { workers, imageWorkers, rescanHours }`. Các khoá này đang nằm ở Cài đặt → Clone video, chỉ đổi nơi gọi.
+- Theo dev (#52, đã duyệt): `PATCH /api/queue` nhận `{ paused }` · `{ workers (1–6), imageWorkers (1–8), rescanHours (1–24) }` · `{ id, position }` · `{ id, action: "front" | "remove" }`. `front` chuyển mục thành `pick`, đặt trước mọi `pick`. `paused_channel` = kênh tắt Tự lấy, chỉ khoá mục tự lấy của kênh đó. SSE `queue.updated`. <!-- r31-v27 -->
+- Bớt `workers` không dừng job đang chạy; luồng thừa nghỉ khi job đó xong.
+- `GET /api/status` lỗi 2 lần liền hoặc SSE đứt quá 10 giây → viên việc nền “Mất kết nối”, giữ số cũ.
 
 ## §4 · Kế hoạch trước khi làm video (mới)
 
-`POST /api/clone/plan` với `{ channelId, urls: string[], priority?: "pick" | "batch", noImages?: boolean }`. Mặc định `priority` là `pick` khi có 1 link, `batch` khi nhiều hơn.
+`POST /api/clone/plan` với `{ channelId, urls: string[], priority?: "pick" | "batch", templateId?: string, noImages?: boolean }`. Mặc định `priority` là `pick` khi có 1 link, `batch` khi nhiều hơn. Công tắc “Ưu tiên cả N” gửi `priority: "pick"`.
+
+<!-- r31-v27 --> `templateId` khi chọn khác vòng luân phiên ở chip Template (#53). `noImages` **không** gửi từ Video mới (L14, #58): giữ cho CLI; ngoại lệ ảnh của một video đặt ở Bàn dựng (§14). Trả thêm (#52): `accepted[].imageCalls`, `accepted[].priceUSD` (`null` khi chưa có bảng giá → UI chỉ ghi số ảnh), `viewCount`, `publishedAt`, `rivalLinked`; `duplicates[]` có `title`, `thumbnailUrl`, `durationSec`, `state` (kể cả `"queued"`, `jobId: null`).
 
 Trả:
 
@@ -596,17 +603,18 @@ Hợp đồng gốc ở Noverse `11-api-contract.md` › *Đăng nhập chung v�
 
 ```ts
 type AppId = "noverse" | "viderse";
-interface AppLink { id: AppId; label: string; url: string }      // GAP-V26a: máy chủ đã biết địa chỉ app kia, API chưa trả
+interface AppLink { id: AppId; name: string; origin: string }    // r31-v27: theo dev (#50); nguồn biến VERSE_APP_LINKS
 GET /api/me → { user: User; session: { expiresAt: string }; apps: AppLink[] }
 // apps = các app người dùng vào được (kể cả app hiện tại), theo grants hiệu lực; quản trị viên luôn đủ hai
 403 { code: "app_access_denied", app: "viderse", user: User, apps: AppLink[] }   // apps để màn chưa cấp quyền hiện Mở Noverse
-401 { code: "session_ended", reason?: "logout" | "password_changed" | "admin_changed" | "expired", app?: AppId }   // GAP-V26b
+401 { code: "session_ended", reason: "logout" | "password_changed" | "admin_changed" | "locked" | "expired" | "unknown", app?: AppId }   // đã có (#50); locked → câu admin_changed
 POST /api/logout → 204; client về #/login?bye=1 để hiện “Đã đăng xuất”
 POST /api/me/password → { ok: true, reauthenticate: true }; client về #/login?pw=1
 ```
-- **Mở app kia:** `window.open(app.url, "_blank", "noopener")` — mở ở thẻ mới để không mất việc đang dở. Quản lý thành viên: `<url Noverse>/#/settings/members` (thêm `?user=<tên>` nếu Noverse nhận).
+- **Mở app kia:** `window.open(app.origin, "_blank", "noopener")` — mở ở thẻ mới để không mất việc đang dở. Quản lý thành viên: `<url Noverse>/#/settings/members` (thêm `?user=<tên>` nếu Noverse nhận).
 - **Lý do đăng nhập lại** (`reason`, `app`): `logout` + `app` khác app hiện tại → “Bạn vừa đăng xuất ở …”; `password_changed`; `admin_changed` (đổi quyền app, đặt lại mật khẩu, khoá); `expired`. Thiếu `reason` → câu chung. `?bye=1` và `?pw=1` do chính client đặt, không cần máy chủ.
-- `apps` rỗng hoặc chỉ có app hiện tại → không hiện nhóm Ứng dụng, không hiện *Mở Noverse*.
+- `apps` rỗng hoặc chỉ có app hiện tại (chưa đặt `VERSE_APP_LINKS`) → không hiện nhóm Ứng dụng, không hiện *Mở Noverse*. Ở Thành viên (Noverse), thẻ quyền app vẫn hiện tên app và ô quyền, ẩn dòng địa chỉ và biểu tượng mở; không đoán địa chỉ. <!-- r31-v27 -->
+- `reason: "unknown"` không có cờ `vv.signedInBefore` trên trình duyệt → coi như lần đầu, không hiện khối lý do (06-copy).
 - Thiết bị: `GET /api/me/sessions` (§ Noverse) — một phiên mỗi thiết bị, chung cho hai app; `POST /api/sessions/:id/revoke`, `POST /api/me/sessions/revoke-all` (đăng xuất mọi thiết bị khác).
 
 ## §24 · Video nền và nền tảng nguồn (mới, Gói V23) <a id="sources"></a> <!-- r22-sources -->

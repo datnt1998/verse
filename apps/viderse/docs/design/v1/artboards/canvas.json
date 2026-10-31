@@ -56,7 +56,7 @@
       "h": 900,
       "expand": "fill",
       "page": "desktop",
-      "title": "D1 · Bàn dựng — mở ở Mọi kênh: thẻ từng kênh, việc chờ bạn của cả 3 kênh; trợ lý làm video, nhật ký, phòng vẽ, nền video, chip Ảnh là chỗ ngoại lệ duy nhất của video, tạm dừng, sự cố, xuất xong · nội dung đăng sửa được, trạng thái viết, lịch sử · trợ lý chủ động: Bản tin, Đề xuất, Kế hoạch, Lưu thành quy tắc, Vì sao? (tweak: Phạm vi, Trạng thái video, Bảng bên phải, Nền chưa phủ đủ, Ảnh của video, Nội dung đăng, Trợ lý chủ động)",
+      "title": "D1 · Bàn dựng — mở ở Mọi kênh: thẻ từng kênh, việc chờ bạn của cả 3 kênh; trợ lý làm video, nhật ký, phòng vẽ, nền video, chip Ảnh là chỗ ngoại lệ duy nhất của video, tạm dừng, sự cố, xuất xong · nội dung đăng sửa được, trạng thái viết, lịch sử · trợ lý chủ động: Bản tin, Đề xuất, Kế hoạch, Lưu thành quy tắc, Vì sao? (tweak: Phạm vi, Trạng thái video, Bảng bên phải, Nền chưa phủ đủ, Ảnh của video, Nội dung đăng, Trợ lý chủ động, Viên việc nền)",
       "is_interactive": true
     },
     "Queue.dc.html": {
@@ -196,7 +196,7 @@
       "expand": "fill",
       "is_interactive": true,
       "page": "mobile",
-      "title": "C1 · Video mới — một link, nhiều link, Kênh + Template (tweak: Ô nhập)"
+      "title": "C1 · Video mới — một link, nhiều link, Kênh + Template, Ưu tiên cả 3 khi nhiều link (tweak: Ô nhập, Ưu tiên)"
     },
     "MMain.dc.html": {
       "x": 1410,
@@ -206,10 +206,10 @@
       "expand": "fill",
       "is_interactive": true,
       "page": "mobile",
-      "title": "D1 · Bàn dựng — Mọi kênh hoặc một kênh, chi tiết video, Ảnh của video (ngoại lệ), Nội dung đăng (chưa viết / đang viết / lỗi, viết lại, lịch sử), việc nền và đổi kênh dạng sheet · thẻ Bản tin, đề xuất cuộn ngang, màn Bản tin, sheet Kế hoạch, Vì sao?, Lưu quy tắc (tweak: Phạm vi, Màn hình, Trạng thái video, Ảnh của video, Nội dung đăng, Trợ lý chủ động)"
+      "title": "D1 · Bàn dựng — Mọi kênh hoặc một kênh, chi tiết video, Ảnh của video (ngoại lệ), Nội dung đăng (chưa viết / đang viết / lỗi, viết lại, lịch sử), việc nền và đổi kênh dạng sheet · thẻ Bản tin, đề xuất cuộn ngang, màn Bản tin, sheet Kế hoạch, Vì sao?, Lưu quy tắc (tweak: Phạm vi, Màn hình, Trạng thái video, Ảnh của video, Nội dung đăng, Trợ lý chủ động, Viên việc nền)"
     },
     "MReview.dc.html": {
-      "x": 1880,
+      "x": 2350,
       "y": 0,
       "w": 390,
       "h": 844,
@@ -219,7 +219,7 @@
       "title": "E1 · Duyệt — chạm đổi ảnh, góp ý vẽ lại, duyệt cả video, điểm ảnh, gợi ý học từ góp ý (tweak: Trạng thái, Trợ lý chủ động)"
     },
     "MChannel.dc.html": {
-      "x": 2350,
+      "x": 2820,
       "y": 0,
       "w": 390,
       "h": 844,
@@ -229,7 +229,7 @@
       "title": "F1 · Kênh — video (tải gói đăng), nguồn & tự động (sheet ⋯ đối thủ, bỏ liên kết có xác nhận, nhịp & ưu tiên, Mức tự chủ với sheet chọn, lịch đăng), template luân phiên, hồ sơ kênh (nhận diện đang vẽ / lỗi, Quy tắc đã học), Trợ lý nhận ra (tweak: Tab, Nhận diện, Mức tự chủ, Sheet)"
     },
     "MSettings.dc.html": {
-      "x": 2820,
+      "x": 3290,
       "y": 0,
       "w": 390,
       "h": 844,
@@ -249,7 +249,7 @@
       "title": "A2 · Tạo kênh — mở từ Kênh › Tạo kênh hoặc bộ đổi kênh: chọn đối thủ (theo dõi mới ngay tại đây), cách kênh chạy mặc định (Mức tự chủ), xong thì nhận diện chạy nền (tweak: Bước, Đối thủ, Nhận diện)"
     },
     "MCreate.dc.html": {
-      "x": 3290,
+      "x": 3760,
       "y": 0,
       "w": 390,
       "h": 844,
@@ -269,7 +269,7 @@
       "title": "H4 · UI Kit — lấy nguyên Kit Noverse, chỉ đổi theme màu (tím → đỏ, đỏ xoá → cam): nền tảng, xác nhận (7 tình huống), menu tài khoản & ⋯, select & combobox, ô nhập & nút, gợi ý & trạng thái, video & thẻ, trợ lý chủ động; dựng bằng kit.css (tweak: Nhóm, Hộp xác nhận, Select đang mở)"
     },
     "MKit.dc.html": {
-      "x": 3760,
+      "x": 4230,
       "y": 0,
       "w": 390,
       "h": 844,
@@ -282,7 +282,7 @@
       "expand": "fill",
       "h": 900,
       "is_interactive": true,
-      "title": "A0 · Đăng nhập & tài khoản (một tài khoản cho Noverse và Viderse, Gói V26) — đăng nhập, vì sao phải đăng nhập lại, chưa được cấp quyền, đặt mật khẩu tạm, thiết lập lần đầu, máy chủ không phản hồi, trang Tài khoản, menu tài khoản chuyển app (Viderse và Noverse) (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu)",
+      "title": "A0 · Đăng nhập & tài khoản (một tài khoản cho Noverse và Viderse, Gói V26) — đăng nhập, vì sao phải đăng nhập lại, chưa được cấp quyền, đặt mật khẩu tạm, thiết lập lần đầu, máy chủ không phản hồi, trang Tài khoản, menu tài khoản chuyển app (Viderse và Noverse) (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu, Lỗi mạng/chép mã/thiếu mã khôi phục, Nút đang chờ)",
       "w": 1440,
       "x": 6160,
       "y": 0,
@@ -292,12 +292,22 @@
       "expand": "fill",
       "h": 844,
       "is_interactive": true,
-      "title": "A0 · Đăng nhập & tài khoản — cùng các màn, trang Tài khoản (Viderse) và tab Thêm (Noverse) có mục Ứng dụng (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu, Sheet)",
+      "title": "A0 · Đăng nhập & tài khoản — cùng các màn, trang Tài khoản (Viderse) và tab Thêm (Noverse) có mục Ứng dụng, sheet Thiết bị đang đăng nhập (tweak: Màn, Vì sao đăng nhập lại, Lỗi, Người dùng, Có quyền app kia, App, Bước, Loại lỗi máy chủ, Lỗi mật khẩu, Sheet, Lỗi mạng/chép mã/thiếu mã khôi phục, Nút đang chờ)",
       "w": 390,
-      "x": 4230,
+      "x": 4700,
       "y": 0,
       "page": "mobile",
       "radius": 44
+    },
+    "MQueue.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "expand": "fill",
+      "is_interactive": true,
+      "page": "mobile",
+      "title": "D2 · Hàng chờ — đang chạy, tiếp theo (vì sao chưa chạy), lên đầu / bỏ khỏi hàng chờ, hạn mức ảnh, nhịp kênh, xong hôm nay, Quy tắc chạy dạng sheet (tweak: Trạng thái hàng chờ, Sheet)"
     }
   },
   "order": [
@@ -325,6 +335,7 @@
     "MCompVideo.dc.html",
     "MNew.dc.html",
     "MMain.dc.html",
+    "MQueue.dc.html",
     "MReview.dc.html",
     "MChannel.dc.html",
     "MSettings.dc.html",
