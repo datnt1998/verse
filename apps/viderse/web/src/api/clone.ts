@@ -4,7 +4,7 @@ import { keys } from '../data/keys'
 import { mutate, request } from './request'
 
 /** request body chung: đặt kênh đích (bắt buộc) + danh sách URL + tuỳ chọn. */
-export type CloneInput = { channelId: string; urls: string[]; priority?: 'pick' | 'batch'; noImages?: boolean; templateId?: string }
+export type CloneInput = { channelId: string; urls: string[]; priority?: 'pick' | 'batch'; templateId?: string }
 
 export type ClonePlanAccepted = {
   url: string
