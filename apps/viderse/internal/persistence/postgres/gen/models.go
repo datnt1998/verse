@@ -148,6 +148,14 @@ type CloneBulkReviewIntent struct {
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
+type CloneImageReviewIntent struct {
+	JobID            pgtype.UUID        `json:"job_id"`
+	ImageID          string             `json:"image_id"`
+	Item             []byte             `json:"item"`
+	ExpectedRevision int32              `json:"expected_revision"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+}
+
 type CloneJob struct {
 	ID                pgtype.UUID        `json:"id"`
 	ChannelID         pgtype.UUID        `json:"channel_id"`
@@ -182,22 +190,25 @@ type CloneMetadataState struct {
 }
 
 type CloneQueue struct {
-	ID             pgtype.UUID        `json:"id"`
-	ChannelID      pgtype.UUID        `json:"channel_id"`
-	SourceVideoID  string             `json:"source_video_id"`
-	SourceKey      string             `json:"source_key"`
-	SourceSnapshot []byte             `json:"source_snapshot"`
-	Priority       string             `json:"priority"`
-	Origin         string             `json:"origin"`
-	Position       float64            `json:"position"`
-	State          string             `json:"state"`
-	NoImages       bool               `json:"no_images"`
-	TemplateID     pgtype.UUID        `json:"template_id"`
-	JobID          pgtype.UUID        `json:"job_id"`
-	Reason         pgtype.Text        `json:"reason"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	StartedAt      pgtype.Timestamptz `json:"started_at"`
-	RemovedAt      pgtype.Timestamptz `json:"removed_at"`
+	ID               pgtype.UUID        `json:"id"`
+	ChannelID        pgtype.UUID        `json:"channel_id"`
+	SourceVideoID    string             `json:"source_video_id"`
+	SourceKey        string             `json:"source_key"`
+	SourceSnapshot   []byte             `json:"source_snapshot"`
+	Priority         string             `json:"priority"`
+	Origin           string             `json:"origin"`
+	Position         float64            `json:"position"`
+	State            string             `json:"state"`
+	NoImages         bool               `json:"no_images"`
+	TemplateID       pgtype.UUID        `json:"template_id"`
+	JobID            pgtype.UUID        `json:"job_id"`
+	Reason           pgtype.Text        `json:"reason"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	StartedAt        pgtype.Timestamptz `json:"started_at"`
+	RemovedAt        pgtype.Timestamptz `json:"removed_at"`
+	ScenePromptID    pgtype.Text        `json:"scene_prompt_id"`
+	CoverPromptID    pgtype.Text        `json:"cover_prompt_id"`
+	OverrideRevision int64              `json:"override_revision"`
 }
 
 type CloneStep struct {
