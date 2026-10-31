@@ -38,8 +38,16 @@ func (g *Gateway) uploadAsset(w http.ResponseWriter, r *http.Request, lib librar
 		return
 	}
 	ref, ok := lib.ResolveProject(r.Context(), actorOf(user), p)
-	if !ok || ref.Dir == "" {
+	if !ok {
 		jsonError(w, http.StatusNotFound, "không tìm thấy dự án")
+		return
+	}
+	// Hosted: same upload goes to blobs + project_documents (kind='asset').
+	if ref.Dir == "" {
+		if g.uploadHostedAsset(w, r, p) {
+			return
+		}
+		jsonError(w, http.StatusInternalServerError, "kho đối tượng chưa cấu hình")
 		return
 	}
 	layout, err := projectAudioLayout(g.RootPath(), ref.Dir)

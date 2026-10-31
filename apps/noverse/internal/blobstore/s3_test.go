@@ -3,42 +3,38 @@ package blobstore
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/datnt1998/verse/apps/noverse/internal/s3test"
 )
 
-// minioConfig builds the S3Config for the disposable MinIO from
-// deploy/compose.test.yml (ports 59000/59001). Like pgtest, absence is a skip
-// unless REQUIRE_MINIO_TEST=1 makes it a hard failure, so acceptance runs
-// cannot pass on a skipped suite.
+// minioConfig is the shared S3 configuration for the disposable Garage.
+// Missing infrastructure is a skip unless REQUIRE_S3_TEST=1.
 func minioConfig(t *testing.T) S3Config {
 	t.Helper()
-	endpoint := strings.TrimSpace(os.Getenv("MINIO_TEST_ENDPOINT"))
+	endpoint := strings.TrimSpace(os.Getenv("S3_TEST_ENDPOINT"))
 	if endpoint == "" {
-		if os.Getenv("REQUIRE_MINIO_TEST") == "1" {
-			t.Fatal("REQUIRE_MINIO_TEST=1 but MINIO_TEST_ENDPOINT is unset")
+		if os.Getenv("REQUIRE_S3_TEST") == "1" {
+			t.Fatal("REQUIRE_S3_TEST=1 but S3_TEST_ENDPOINT is unset")
 		}
-		t.Skip("MINIO_TEST_ENDPOINT unset — skipping MinIO suite")
+		t.Skip("S3_TEST_ENDPOINT unset — skipping S3 suite")
 	}
 	return S3Config{
 		Endpoint:        endpoint,
-		Region:          envOr("MINIO_TEST_REGION", "us-east-1"),
-		Bucket:          envOr("MINIO_TEST_BUCKET", "blobstore-test"),
-		AccessKeyID:     envOr("MINIO_TEST_ACCESS_KEY", "minioadmin"),
-		SecretAccessKey: envOr("MINIO_TEST_SECRET_KEY", "minioadmin123"),
+		Region:          envOr("S3_TEST_REGION", "garage"),
+		Bucket:          envOr("S3_TEST_BUCKET", "blobstore-test"),
+		AccessKeyID:     envOr("S3_TEST_ACCESS_KEY", ""),
+		SecretAccessKey: envOr("S3_TEST_SECRET_KEY", ""),
 		ForcePathStyle:  true,
-		AllowPlainHTTP:  true, // MinIO test container on the private docker net
+		AllowPlainHTTP:  true, // Private disposable test endpoint.
 	}
 }
 
@@ -49,37 +45,21 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 
-// newMinioStore builds the store and ensures a fresh bucket exists. Buckets
-// are per-test-run unique so reruns never collide.
+// newMinioStore provisions an isolated bucket via Garage's admin API.
 func newMinioStore(t *testing.T) *S3 {
 	t.Helper()
 	cfg := minioConfig(t)
-	cfg.Bucket = fmt.Sprintf("%s-%d", cfg.Bucket, time.Now().UnixNano()%1_000_000_000)
+	seed, err := NewS3(cfg)
+	if err != nil {
+		t.Fatalf("NewS3: %v", err)
+	}
+	cfg.Bucket = s3test.Bucket(t, seed.Client(), cfg.AccessKeyID, cfg.Bucket)
 	st, err := NewS3(cfg)
 	if err != nil {
 		t.Fatalf("NewS3: %v", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	// Wait for MinIO readiness (compose has no guaranteed ordering).
-	deadline := time.Now().Add(20 * time.Second)
-	for {
-		_, err := st.Client().CreateBucket(ctx, &s3.CreateBucketInput{Bucket: aws.String(cfg.Bucket)})
-		if err == nil {
-			break
-		}
-		var bae *s3types.BucketAlreadyOwnedByYou
-		var ba *s3types.BucketAlreadyExists
-		if errors.As(err, &bae) || errors.As(err, &ba) {
-			break
-		}
-		if time.Now().After(deadline) {
-			t.Fatalf("CreateBucket (minio ready?): %v", err)
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
 	t.Cleanup(func() {
-		// Best-effort teardown: empty then drop the bucket.
+		// Empty objects before the provisioning helper deletes the bucket.
 		ctx := context.Background()
 		cursor := ""
 		for {
@@ -95,30 +75,48 @@ func newMinioStore(t *testing.T) *S3 {
 			}
 			cursor = page.NextCursor
 		}
-		_, _ = st.Client().DeleteBucket(ctx, &s3.DeleteBucketInput{Bucket: aws.String(cfg.Bucket)})
 	})
 	return st
 }
 
-// TestConformanceMinIO runs the identical suite as local against real MinIO —
-// real SDK, real network, no skip under REQUIRE_MINIO_TEST.
+// TestConformanceMinIO runs the identical suite against the real S3 service.
+// Real SDK and network; REQUIRE_S3_TEST prevents a skipped acceptance run.
 func TestConformanceMinIO(t *testing.T) {
-	newMinioStore(t) // fails/skips before subtests if MinIO absent
+	newMinioStore(t)
 	runConformance(t, func(t *testing.T) BlobStore { return newMinioStore(t) })
 }
 
-// TestMultipartAbort: a source that errors mid-upload must trigger the
+// TestMultipartAbort: a part failure after a verified spool must trigger the
 // uploader's abort — no committed object and no orphaned multipart upload.
 func TestMultipartAbort(t *testing.T) {
 	st := newMinioStore(t)
 	ctx := context.Background()
-	// 12 MiB across three 5 MiB parts, then the reader dies.
-	_, err := st.Put(ctx, "abort/victim", io.MultiReader(
-		io.LimitReader(rand.Reader, 12<<20),
-		failReader{},
-	), PutOptions{})
+	var aborts atomic.Int32
+	cfg := st.cfg
+	cfg.HTTPClient = &http.Client{Transport: s3TestTransport(func(r *http.Request) (*http.Response, error) {
+		if r.URL.Query().Has("partNumber") {
+			return &http.Response{
+				StatusCode: http.StatusBadRequest, Status: "400 Bad Request",
+				Header:  http.Header{"Content-Type": []string{"application/xml"}},
+				Body:    io.NopCloser(strings.NewReader("<Error><Code>InvalidRequest</Code><Message>injected part failure</Message></Error>")),
+				Request: r,
+			}, nil
+		}
+		if r.Method == http.MethodDelete && r.URL.Query().Has("uploadId") {
+			aborts.Add(1)
+		}
+		return http.DefaultTransport.RoundTrip(r)
+	})}
+	failing, err := NewS3(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = failing.Put(ctx, "abort/victim", io.LimitReader(zeroReader{}, 12<<20), PutOptions{})
 	if err == nil {
-		t.Fatal("Put of failing reader must fail")
+		t.Fatal("Put of failing multipart upload must fail")
+	}
+	if aborts.Load() != 1 {
+		t.Fatalf("multipart abort requests = %d, want 1", aborts.Load())
 	}
 	if _, err := st.Stat(ctx, "abort/victim"); !errors.Is(err, ErrNotFound) {
 		t.Fatalf("aborted object must not exist, stat err = %v", err)
@@ -133,6 +131,10 @@ func TestMultipartAbort(t *testing.T) {
 		t.Fatalf("orphaned multipart uploads: %+v", out.Uploads)
 	}
 }
+
+type s3TestTransport func(*http.Request) (*http.Response, error)
+
+func (f s3TestTransport) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
 
 // corruptBody round-trips every response body with the first byte flipped —
 // simulating a corrupted transport. Our own SHA-256 (never the ETag) must
@@ -159,20 +161,9 @@ func (c corruptBody) RoundTrip(req *http.Request) (*http.Response, error) {
 // canonical SHA-256 comparison, proving integrity does not rest on ETag or
 // provider checksums.
 func TestCorruptTransportDetection(t *testing.T) {
-	cfg := minioConfig(t)
-	cfg.Bucket = fmt.Sprintf("%s-corrupt-%d", cfg.Bucket, time.Now().UnixNano()%1_000_000_000)
-	clean, err := NewS3(cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
+	clean := newMinioStore(t)
+	cfg := clean.cfg
 	ctx := context.Background()
-	if _, err := clean.Client().CreateBucket(ctx, &s3.CreateBucketInput{Bucket: aws.String(cfg.Bucket)}); err != nil {
-		t.Fatalf("CreateBucket: %v", err)
-	}
-	defer func() {
-		_ = clean.Delete(ctx, "corrupt/victim")
-		_, _ = clean.Client().DeleteBucket(ctx, &s3.DeleteBucketInput{Bucket: aws.String(cfg.Bucket)})
-	}()
 	payload := []byte("integrity-payload-" + strings.Repeat("x", 512))
 	put, err := clean.Put(ctx, "corrupt/victim", bytes.NewReader(payload), PutOptions{})
 	if err != nil {

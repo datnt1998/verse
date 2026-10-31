@@ -237,12 +237,14 @@ func (g *Gateway) serveLibrary(w http.ResponseWriter, r *http.Request, user iden
 			candidates = scan.Candidates
 		}
 		writeJSON(w, 200, map[string]any{
-			"configured":  true,
-			"rootDisplay": library.DiscoverPlaces().Display(lib.RootPath()),
-			"rootPath":    g.responsePath(lib.RootPath(), isAdmin(user)),
-			"config":      lib.Config(),
-			"projects":    projects,
-			"candidates":  candidates,
+			"configured":     true,
+			"storageMode":    g.libraryStorageMode(),
+			"storageWarning": library.LibraryMountWarning(lib.RootPath()),
+			"rootDisplay":    library.DiscoverPlaces().Display(lib.RootPath()),
+			"rootPath":       g.responsePath(lib.RootPath(), isAdmin(user)),
+			"config":         lib.Config(),
+			"projects":       projects,
+			"candidates":     candidates,
 		})
 	case "PUT":
 		if !isAdmin(user) {
@@ -336,6 +338,14 @@ func (g *Gateway) serveLibrary(w http.ResponseWriter, r *http.Request, user iden
 // switchLibraryRoot 实现 PUT /api/library {root}（14 §G2）：换书库根、停空闲 worker、
 // 持久化到 ~/.ainovel/serve.json；有引擎在跑时拒绝（409）。
 func (g *Gateway) switchLibraryRoot(w http.ResponseWriter, root string) {
+	if library.LibraryRootsRestricted() && g.libRepo == nil {
+		real, err := library.DiscoverPlaces().Confine(root)
+		if err != nil {
+			fsError(w, err)
+			return
+		}
+		root = real
+	}
 	if running := g.runningWorkers(); len(running) > 0 {
 		jsonError(w, 409, "Đang có truyện chạy — hãy đóng tất cả trước khi đổi thư viện")
 		return
@@ -365,6 +375,9 @@ func (g *Gateway) switchLibraryRoot(w http.ResponseWriter, root string) {
 	if err != nil {
 		jsonError(w, 500, err.Error())
 		return
+	}
+	if warning := library.LibraryMountWarning(abs); warning != "" {
+		slog.Warn(warning)
 	}
 	writeJSON(w, 200, map[string]any{"ok": true, "root": abs, "rootDisplay": library.DiscoverPlaces().Display(abs), "config": cfg})
 }
@@ -794,8 +807,14 @@ func (g *Gateway) updateProject(w http.ResponseWriter, r *http.Request, lib libr
 	pf.Description = req.Description
 	pf.Notes = req.Notes
 	pf.UniverseName = strings.TrimSpace(req.UniverseName)
-	if err := lib.UpdateProject(r.Context(), actor, p, *pf); err != nil {
-		libError(w, err)
+	var saveErr error
+	if repo, ok := lib.(metadataRepository); ok {
+		saveErr = repo.UpdateProjectCAS(r.Context(), actor, p, *pf, strings.Trim(r.Header.Get("If-Match"), "\""))
+	} else {
+		saveErr = lib.UpdateProject(r.Context(), actor, p, *pf)
+	}
+	if saveErr != nil {
+		g.metadataWriteError(w, r, user, saveErr)
 		return
 	}
 	writeJSON(w, 200, g.projectDetailFor(r.Context(), lib, user, p))
@@ -1048,9 +1067,15 @@ func (g *Gateway) serveStoryMeta(w http.ResponseWriter, r *http.Request, lib lib
 		// là đổi tay; lưu tên trùng book (hoặc xoá trắng) thì truyện tiếp tục đồng bộ tự động.
 		newTitle := strings.TrimSpace(f.Title)
 		f.TitleRenamed = newTitle != "" && newTitle != strings.TrimSpace(g.engineBookTitle(st, &user))
-		if err := lib.WriteStoryFile(r.Context(), actor, st, f); err != nil {
+		var saveErr error
+		if repo, ok := lib.(metadataRepository); ok {
+			saveErr = repo.WriteStoryFileCAS(r.Context(), actor, st, f, strings.Trim(r.Header.Get("If-Match"), "\""))
+		} else {
+			saveErr = lib.WriteStoryFile(r.Context(), actor, st, f)
+		}
+		if saveErr != nil {
 			storyTitleMu.Unlock()
-			libError(w, err)
+			g.metadataWriteError(w, r, user, saveErr)
 			return
 		}
 		storyTitleMu.Unlock()
@@ -1258,7 +1283,6 @@ func (g *Gateway) storySummary(lib library.Repository, st library.Story, user *i
 		sum.Idea = sf.Idea
 		sum.ShortTitle = strings.TrimSpace(sf.ShortTitle)
 	}
-	output := g.storyOutputDir(st)
 	// Một store cho cả thẻ truyện: PeekBook, số quyển và badge lỗi đều đọc từ
 	// cùng một lần mở (mỗi store.NewStore đọc lại meta/checkpoints.jsonl).
 	// PG factory failure is reported, never papered over with a directory read;
@@ -1322,17 +1346,25 @@ func (g *Gateway) storySummary(lib library.Repository, st library.Story, user *i
 		t := updated
 		sum.UpdatedAt = &t
 	}
-	sum.ExportsCount = countExportFiles(lib, st)
+	sum.ExportsCount = g.countExportFiles(lib, st)
 	sum.Open, sum.Running = g.workerState(st.ID)
-	if !sum.Open {
-		sum.Locked = library.Locked(output)
+	if !sum.Open && st.Dir != "" {
+		sum.Locked = library.Locked(g.storyOutputDir(st))
 	}
 	return sum
 }
 
-func countExportFiles(lib library.Repository, st library.Story) int {
+func (g *Gateway) countExportFiles(lib library.Repository, st library.Story) int {
 	if st.Dir == "" {
-		return 0
+		if !g.pgMediaOK() || g.pgAudio.Cache == nil {
+			return 0
+		}
+		files, err := g.pgHostedExportFiles(context.Background(), st, false)
+		if err != nil {
+			slog.Warn("đọc danh sách bản xuất thất bại", "module", "web", "story_slug", st.ID, "err", err)
+			return 0
+		}
+		return len(files)
 	}
 	base := filepath.Join(st.Dir, lib.Config().Dirs.Exports)
 	count := 0

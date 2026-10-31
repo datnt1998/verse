@@ -19,6 +19,13 @@
 //	00009 audio_scripts status/source_sha256 CHECKs                      ← audit S8
 //	00010 history mutability matrix + privilege-gated escape hatch       ← audit S13
 //	00011 staged-upload job ownership + maintenance-only blob/cache DELETE ← GC fix
+//	00012 shared identity per-app grants                                 ← verse SSO
+//	00013 shared identity first-setup insert guard                        ← verse SSO
+//	00014 hosted co-create drafts                                        ← old 00012
+//	00015 deleting blob claims and publication fence                      ← old 00013
+//	00016 admin storage settings and online store migration               ← old 00014
+//	00017 resumable source purge progress                                 ← old 00015
+//	00018 expired storage probe configuration cleanup                     ← old 00016
 //
 // Applied migration numbers are never renamed or edited. New work appends the
 // next free number; postgres.RequiredMigrations derives the required set from

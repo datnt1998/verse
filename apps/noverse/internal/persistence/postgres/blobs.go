@@ -15,19 +15,11 @@ import (
 // BlobGC is the storage-garbage-collection repository: the only place that
 // reads GC candidates and the only place that may delete a blob registry row.
 //
-// Two invariants make deletes safe without stopping writers:
-//
-//   - Every delete decision is re-taken inside a transaction that first locks
-//     the blob row (LockBlobForDelete). A concurrent attachment takes a KEY
-//     SHARE lock through its foreign key, so it either commits before the lock
-//     (and BlobReferenced sees it) or waits and fails its FK check once the row
-//     is gone — a reference can never point at a deleted blob.
-//   - A blob row is deleted inside the transaction and its object afterwards,
-//     so a crash between the two leaves an orphan object (harmless, collected
-//     by the next run) and never a row pointing at missing bytes.
-//
-// Stale staged rows first become tombstones under the same row lock. The
-// associated job is locked first, matching job completion's lock order.
+// A decision locks the blob and rechecks references, then commits a deleting
+// claim. Physical deletion happens while that unique-key row still exists;
+// FinishBlob removes it only after storage confirms success. Attachment
+// triggers reject deleting rows, and publishers serialize on the same row.
+// Crashes before or after storage deletion leave a recoverable claim.
 type BlobGC struct {
 	pool *pgxpool.Pool
 }
@@ -81,14 +73,15 @@ type GCExportCacheEntry struct {
 // (not a message shown to users) so reports and tests can assert on it.
 type GCReapResult struct {
 	ObjectKey string
-	// Deleted reports that the registry row was removed by this call.
+	// Deleted means this call claimed the object for physical deletion.
+	// The registry row remains until FinishBlob succeeds.
 	Deleted bool
 	Reason  string
 }
 
 // GC reasons.
 const (
-	GCReasonDeleted    = "deleted"    // row removed by this decision
+	GCReasonDeleted    = "deleted"    // durable deletion claim acquired
 	GCReasonAbsent     = "absent"     // row already gone (another run won)
 	GCReasonAttaching  = "attaching"  // state = 'staged': an upload owns it
 	GCReasonDeleting   = "deleting"   // tombstoned, not eligible in this pass
@@ -97,38 +90,11 @@ const (
 	GCReasonRenewed    = "renewed"    // export-cache entry was renewed meanwhile
 )
 
-// Deleting lists every tombstoned blob, oldest first (bounded by the caller's
-// page through the whole table: the set is expected to be tiny).
-func (g *BlobGC) Deleting(ctx context.Context) ([]GCBlob, error) {
-	rows, err := gen.New(g.pool).ListDeletingBlobs(ctx)
-	if err != nil {
-		return nil, sanitizeErr(err)
-	}
-	out := make([]GCBlob, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, gcBlob(r))
-	}
-	return out, nil
-}
-
-// Unreferenced lists blobs no owner table points at and that were created
-// before cutoff. The listing is advisory: Reap decides again under a lock.
-func (g *BlobGC) Unreferenced(ctx context.Context, cutoff time.Time) ([]GCBlob, error) {
-	rows, err := gen.New(g.pool).ListUnreferencedBlobs(ctx, pgtype.Timestamptz{Time: cutoff, Valid: true})
-	if err != nil {
-		return nil, sanitizeErr(err)
-	}
-	out := make([]GCBlob, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, gcBlob(r))
-	}
-	return out, nil
-}
-
-// StaleStaged lists abandoned staged uploads by their original stage time.
-// Live leases and queued/paused/waiting jobs are excluded even after grace.
-func (g *BlobGC) StaleStaged(ctx context.Context, cutoff time.Time) ([]GCBlob, error) {
-	rows, err := gen.New(g.pool).ListStaleStagedBlobs(ctx, pgtype.Timestamptz{Time: cutoff, Valid: true})
+// ScanBlobs returns one keyset page confined to the active environment.
+func (g *BlobGC) ScanBlobs(ctx context.Context, prefix, after, state string, cutoff time.Time, limit int) ([]GCBlob, error) {
+	rows, err := gen.New(g.pool).GCScanBlobs(ctx, gen.GCScanBlobsParams{
+		Prefix: prefix, AfterKey: after, State: state, Cutoff: ts(cutoff), PageSize: int32(min(max(limit, 1), 1000)),
+	})
 	if err != nil {
 		return nil, sanitizeErr(err)
 	}
@@ -183,36 +149,87 @@ func (g *BlobGC) TombstoneStaged(ctx context.Context, id pgtype.UUID, cutoff tim
 	return moved, err
 }
 
-// ObjectKeys returns every registered object key (the orphan-object ledger).
-func (g *BlobGC) ObjectKeys(ctx context.Context) ([]string, error) {
-	keys, err := gen.New(g.pool).ListBlobObjectKeys(ctx)
-	if err != nil {
-		return nil, sanitizeErr(err)
-	}
-	return keys, nil
+// RegisteredKeys reconciles a bounded provider page, not the entire registry.
+func (g *BlobGC) RegisteredKeys(ctx context.Context, keys []string) ([]string, error) {
+	out, err := gen.New(g.pool).GCRegisteredKeys(ctx, keys)
+	return out, sanitizeErr(err)
 }
 
-// ExpiredExportCache lists cache entries past their expiry.
-func (g *BlobGC) ExpiredExportCache(ctx context.Context) ([]GCExportCacheEntry, error) {
-	rows, err := gen.New(g.pool).ListExpiredExportCache(ctx)
+// ExpiredExportCachePage uses the last entry's composite primary key as cursor.
+func (g *BlobGC) ExpiredExportCachePage(ctx context.Context, prefix string, after GCExportCacheEntry, limit int) ([]GCExportCacheEntry, error) {
+	if !after.ProjectID.Valid {
+		after.ProjectID = pgtype.UUID{Valid: true}
+	}
+	if !after.StoryID.Valid {
+		after.StoryID = pgtype.UUID{Valid: true}
+	}
+	rows, err := gen.New(g.pool).GCExpiredCachePage(ctx, gen.GCExpiredCachePageParams{
+		Prefix: prefix, AfterProject: after.ProjectID, AfterStory: after.StoryID,
+		AfterCacheKey: after.CacheKey, AfterKind: after.Kind, PageSize: int32(min(max(limit, 1), 1000)),
+	})
 	if err != nil {
 		return nil, sanitizeErr(err)
 	}
 	out := make([]GCExportCacheEntry, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, GCExportCacheEntry{
-			ProjectID: r.ProjectID, StoryID: r.StoryID,
-			CacheKey: r.CacheKey, Kind: r.Kind, BlobID: r.BlobID,
-		})
+	for _, row := range rows {
+		out = append(out, GCExportCacheEntry{ProjectID: row.ProjectID, StoryID: row.StoryID, CacheKey: row.CacheKey, Kind: row.Kind, BlobID: row.BlobID})
 	}
 	return out, nil
 }
 
-// ReapBlob decides one blob row under a row lock and deletes it when it is
-// still unreachable. allowDeleting admits tombstoned rows (the 'deleting'
-// pass); every other pass only reaps live rows older than cutoff.
-//
-// The caller deletes the returned object key after this returns Deleted.
+// FinishBlob releases a deletion claim after an idempotent object delete.
+func (g *BlobGC) FinishBlob(ctx context.Context, id pgtype.UUID) error {
+	_, err := gen.New(g.pool).GCFinishBlob(ctx, id)
+	return sanitizeErr(err)
+}
+
+// ClaimOrphan reserves an absent registry key before its bytes are deleted.
+// If publication won the insertion race, the caller must leave bytes alone.
+func (g *BlobGC) ClaimOrphan(ctx context.Context, key, driver string) (GCBlob, bool, error) {
+	id, err := randomUUID()
+	if err != nil {
+		return GCBlob{}, false, err
+	}
+	claimed, err := gen.New(g.pool).GCClaimOrphan(ctx, gen.GCClaimOrphanParams{ID: id, ObjectKey: key, StorageDriver: driver})
+	if noRows(err) {
+		return GCBlob{}, false, nil
+	}
+	if err != nil {
+		return GCBlob{}, false, sanitizeErr(err)
+	}
+	return GCBlob{ID: claimed, ObjectKey: key, State: "deleting"}, true, nil
+}
+
+// LockRun prevents overlapping collectors from acting on stale claims after
+// another collector has finished and a publisher has reused the key. The lock
+// lives on its own connection; process death automatically releases it.
+func (g *BlobGC) LockRun(ctx context.Context) (func(), error) {
+	conn, err := g.pool.Acquire(ctx)
+	if err != nil {
+		return nil, sanitizeErr(err)
+	}
+	var acquired bool
+	err = conn.QueryRow(ctx, `SELECT pg_try_advisory_lock(726976442711::bigint)`).Scan(&acquired)
+	if err != nil || !acquired {
+		conn.Release()
+		if err != nil {
+			return nil, sanitizeErr(err)
+		}
+		return nil, fmt.Errorf("storage gc: another collection is running")
+	}
+	return func() {
+		cleanup, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_, err := conn.Exec(cleanup, `SELECT pg_advisory_unlock(726976442711::bigint)`)
+		if err != nil {
+			_ = conn.Conn().Close(cleanup)
+		}
+		conn.Release()
+	}, nil
+}
+
+// ReapBlob rechecks reachability under a row lock and commits a deleting claim.
+// The caller must delete bytes before calling FinishBlob.
 func (g *BlobGC) ReapBlob(ctx context.Context, id pgtype.UUID, cutoff time.Time, allowDeleting bool) (GCReapResult, error) {
 	var out GCReapResult
 	err := g.tx(ctx, func(tx pgx.Tx) error {
@@ -250,7 +267,7 @@ func (g *BlobGC) ReapBlob(ctx context.Context, id pgtype.UUID, cutoff time.Time,
 			out.Reason = GCReasonReferenced
 			return nil
 		}
-		n, err := q.DeleteBlobRow(ctx, id)
+		n, err := q.GCClaimBlob(ctx, id)
 		if err != nil {
 			return sanitizeErr(err)
 		}
@@ -265,12 +282,9 @@ func (g *BlobGC) ReapBlob(ctx context.Context, id pgtype.UUID, cutoff time.Time,
 	return out, err
 }
 
-// ReapExpiredCacheEntry deletes one expired export-cache row and, in the same
-// transaction, its blob row when nothing else references it. Expiry is
-// re-checked at delete time, so an entry renewed between the listing and this
-// call survives untouched.
-//
-// The caller deletes ObjectKey after this returns BlobDeleted.
+// ReapExpiredCacheEntry rechecks expiry and removes the expired reference,
+// then claims its blob if no other owner remains. Bytes and the claim are
+// removed separately by the caller.
 func (g *BlobGC) ReapExpiredCacheEntry(ctx context.Context, e GCExportCacheEntry) (GCReapResult, bool, error) {
 	var (
 		out          GCReapResult
@@ -314,7 +328,7 @@ func (g *BlobGC) ReapExpiredCacheEntry(ctx context.Context, e GCExportCacheEntry
 			out.Reason = GCReasonReferenced
 			return nil
 		}
-		removed, err := q.DeleteBlobRow(ctx, e.BlobID)
+		removed, err := q.GCClaimBlob(ctx, e.BlobID)
 		if err != nil {
 			return sanitizeErr(err)
 		}

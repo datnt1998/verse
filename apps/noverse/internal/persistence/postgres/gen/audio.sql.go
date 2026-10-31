@@ -214,18 +214,6 @@ func (q *Queries) DeleteAudioVoice(ctx context.Context, arg DeleteAudioVoicePara
 	return result.RowsAffected(), nil
 }
 
-const deleteBlobRow = `-- name: DeleteBlobRow :execrows
-DELETE FROM blobs WHERE id = $1
-`
-
-func (q *Queries) DeleteBlobRow(ctx context.Context, id pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteBlobRow, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const deleteExportCacheEntryIfExpired = `-- name: DeleteExportCacheEntryIfExpired :execrows
 DELETE FROM export_cache
 WHERE project_id = $1 AND story_id = $2 AND cache_key = $3 AND kind = $4
@@ -454,7 +442,8 @@ func (q *Queries) GetAudioVoiceByLegacy(ctx context.Context, arg GetAudioVoiceBy
 }
 
 const getBlob = `-- name: GetBlob :one
-SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id FROM blobs WHERE project_id = $1 AND id = $2
+
+SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id, store_id, usage_kind FROM blobs WHERE project_id = $1 AND id = $2 AND state = 'ready'
 `
 
 type GetBlobParams struct {
@@ -462,6 +451,7 @@ type GetBlobParams struct {
 	ID        pgtype.UUID `json:"id"`
 }
 
+// ── blobs (shared registry) ──────────────────────────────────────────────────
 func (q *Queries) GetBlob(ctx context.Context, arg GetBlobParams) (Blob, error) {
 	row := q.db.QueryRow(ctx, getBlob, arg.ProjectID, arg.ID)
 	var i Blob
@@ -480,12 +470,14 @@ func (q *Queries) GetBlob(ctx context.Context, arg GetBlobParams) (Blob, error) 
 		&i.UpdatedAt,
 		&i.Version,
 		&i.UploadJobID,
+		&i.StoreID,
+		&i.UsageKind,
 	)
 	return i, err
 }
 
 const getBlobByKey = `-- name: GetBlobByKey :one
-SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id FROM blobs WHERE project_id = $1 AND object_key = $2
+SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id, store_id, usage_kind FROM blobs WHERE project_id = $1 AND object_key = $2 AND state = 'ready'
 `
 
 type GetBlobByKeyParams struct {
@@ -511,6 +503,8 @@ func (q *Queries) GetBlobByKey(ctx context.Context, arg GetBlobByKeyParams) (Blo
 		&i.UpdatedAt,
 		&i.Version,
 		&i.UploadJobID,
+		&i.StoreID,
+		&i.UsageKind,
 	)
 	return i, err
 }
@@ -551,6 +545,36 @@ func (q *Queries) GetExportCache(ctx context.Context, arg GetExportCacheParams) 
 		&i.Version,
 	)
 	return i, err
+}
+
+const insertAssetDocIfAbsent = `-- name: InsertAssetDocIfAbsent :execrows
+INSERT INTO project_documents (project_id, id, kind, logical_name, payload, blob_id)
+VALUES ($1, $2, 'asset', $3, $4, $5)
+ON CONFLICT (project_id, kind, logical_name) DO NOTHING
+`
+
+type InsertAssetDocIfAbsentParams struct {
+	ProjectID   pgtype.UUID `json:"project_id"`
+	ID          pgtype.UUID `json:"id"`
+	LogicalName string      `json:"logical_name"`
+	Payload     []byte      `json:"payload"`
+	BlobID      pgtype.UUID `json:"blob_id"`
+}
+
+// Create-only claim for a freshly allocated asset logical name; same conflict
+// arbiter semantics as InsertExportCacheIfAbsent.
+func (q *Queries) InsertAssetDocIfAbsent(ctx context.Context, arg InsertAssetDocIfAbsentParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertAssetDocIfAbsent,
+		arg.ProjectID,
+		arg.ID,
+		arg.LogicalName,
+		arg.Payload,
+		arg.BlobID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const insertAudioRender = `-- name: InsertAudioRender :one
@@ -656,6 +680,41 @@ func (q *Queries) InsertAudioScript(ctx context.Context, arg InsertAudioScriptPa
 		&i.Version,
 	)
 	return i, err
+}
+
+const insertExportCacheIfAbsent = `-- name: InsertExportCacheIfAbsent :execrows
+INSERT INTO export_cache (project_id, story_id, cache_key, blob_id, kind, input_manifest, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (project_id, story_id, cache_key, kind) DO NOTHING
+`
+
+type InsertExportCacheIfAbsentParams struct {
+	ProjectID     pgtype.UUID        `json:"project_id"`
+	StoryID       pgtype.UUID        `json:"story_id"`
+	CacheKey      string             `json:"cache_key"`
+	BlobID        pgtype.UUID        `json:"blob_id"`
+	Kind          string             `json:"kind"`
+	InputManifest []byte             `json:"input_manifest"`
+	ExpiresAt     pgtype.Timestamptz `json:"expires_at"`
+}
+
+// Create-only claim for a freshly allocated logical export name. The unique
+// primary key is the single writer arbiter: a conflict means another request
+// won this name between the caller's existence check and the insert.
+func (q *Queries) InsertExportCacheIfAbsent(ctx context.Context, arg InsertExportCacheIfAbsentParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertExportCacheIfAbsent,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.CacheKey,
+		arg.BlobID,
+		arg.Kind,
+		arg.InputManifest,
+		arg.ExpiresAt,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const latestAudioScript = `-- name: LatestAudioScript :one
@@ -885,116 +944,6 @@ func (q *Queries) ListAudioVoices(ctx context.Context, projectID pgtype.UUID) ([
 	return items, nil
 }
 
-const listBlobObjectKeys = `-- name: ListBlobObjectKeys :many
-SELECT object_key FROM blobs
-`
-
-func (q *Queries) ListBlobObjectKeys(ctx context.Context) ([]string, error) {
-	rows, err := q.db.Query(ctx, listBlobObjectKeys)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []string{}
-	for rows.Next() {
-		var object_key string
-		if err := rows.Scan(&object_key); err != nil {
-			return nil, err
-		}
-		items = append(items, object_key)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listDeletingBlobs = `-- name: ListDeletingBlobs :many
-
-SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id FROM blobs WHERE state = 'deleting' ORDER BY created_at
-`
-
-// ── storage gc (admin command: `ainovel-cli storage gc`) ─────────────────────
-//
-// GC is idempotent: every state transition/delete is re-checked under
-// a row lock, and the caller removes the registry row inside the transaction,
-// then the object after commit. A row without an object would be a dangling
-// reference; an object without a row is an orphan the next run collects.
-func (q *Queries) ListDeletingBlobs(ctx context.Context) ([]Blob, error) {
-	rows, err := q.db.Query(ctx, listDeletingBlobs)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Blob{}
-	for rows.Next() {
-		var i Blob
-		if err := rows.Scan(
-			&i.ID,
-			&i.ProjectID,
-			&i.ObjectKey,
-			&i.StorageDriver,
-			&i.Sha256,
-			&i.SizeBytes,
-			&i.ContentType,
-			&i.Visibility,
-			&i.State,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Version,
-			&i.UploadJobID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listExpiredExportCache = `-- name: ListExpiredExportCache :many
-SELECT project_id, story_id, cache_key, kind, blob_id FROM export_cache
-WHERE expires_at IS NOT NULL AND expires_at < now()
-ORDER BY expires_at
-`
-
-type ListExpiredExportCacheRow struct {
-	ProjectID pgtype.UUID `json:"project_id"`
-	StoryID   pgtype.UUID `json:"story_id"`
-	CacheKey  string      `json:"cache_key"`
-	Kind      string      `json:"kind"`
-	BlobID    pgtype.UUID `json:"blob_id"`
-}
-
-func (q *Queries) ListExpiredExportCache(ctx context.Context) ([]ListExpiredExportCacheRow, error) {
-	rows, err := q.db.Query(ctx, listExpiredExportCache)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListExpiredExportCacheRow{}
-	for rows.Next() {
-		var i ListExpiredExportCacheRow
-		if err := rows.Scan(
-			&i.ProjectID,
-			&i.StoryID,
-			&i.CacheKey,
-			&i.Kind,
-			&i.BlobID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listExportCache = `-- name: ListExportCache :many
 SELECT project_id, story_id, cache_key, blob_id, kind, input_manifest, expires_at, created_at, updated_at, version FROM export_cache
 WHERE project_id = $1 AND story_id = $2
@@ -1089,116 +1038,13 @@ func (q *Queries) ListSegmentRenders(ctx context.Context, arg ListSegmentRenders
 	return items, nil
 }
 
-const listStaleStagedBlobs = `-- name: ListStaleStagedBlobs :many
-SELECT b.id, b.project_id, b.object_key, b.storage_driver, b.sha256, b.size_bytes, b.content_type, b.visibility, b.state, b.created_by, b.created_at, b.updated_at, b.version, b.upload_job_id FROM blobs b
-WHERE b.state = 'staged' AND b.created_at < $1
-  AND NOT EXISTS (
-      SELECT 1 FROM jobs j WHERE j.project_id = b.project_id
-        AND (b.upload_job_id IS NULL OR j.id = b.upload_job_id)
-        AND (j.state IN ('queued','paused','waiting')
-             OR (j.state = 'running' AND j.lease_until IS NULL)
-             OR j.lease_until > now()))
-  AND NOT EXISTS (SELECT 1 FROM export_cache c WHERE c.project_id = b.project_id AND c.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_renders r WHERE r.project_id = b.project_id AND r.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_voices v WHERE v.project_id = b.project_id AND v.sample_blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.project_id = b.project_id AND d.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM story_artifacts a WHERE a.project_id = b.project_id AND a.blob_id = b.id)
-ORDER BY b.created_at
-`
-
-func (q *Queries) ListStaleStagedBlobs(ctx context.Context, createdAt pgtype.Timestamptz) ([]Blob, error) {
-	rows, err := q.db.Query(ctx, listStaleStagedBlobs, createdAt)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Blob{}
-	for rows.Next() {
-		var i Blob
-		if err := rows.Scan(
-			&i.ID,
-			&i.ProjectID,
-			&i.ObjectKey,
-			&i.StorageDriver,
-			&i.Sha256,
-			&i.SizeBytes,
-			&i.ContentType,
-			&i.Visibility,
-			&i.State,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Version,
-			&i.UploadJobID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listUnreferencedBlobs = `-- name: ListUnreferencedBlobs :many
-SELECT b.id, b.project_id, b.object_key, b.storage_driver, b.sha256, b.size_bytes, b.content_type, b.visibility, b.state, b.created_by, b.created_at, b.updated_at, b.version, b.upload_job_id FROM blobs b
-WHERE b.state = 'ready' AND b.created_at < $1 AND b.updated_at < $1
-  AND NOT EXISTS (SELECT 1 FROM export_cache c WHERE c.project_id = b.project_id AND c.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_renders r WHERE r.project_id = b.project_id AND r.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_voices v WHERE v.project_id = b.project_id AND v.sample_blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.project_id = b.project_id AND d.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM story_artifacts a WHERE a.project_id = b.project_id AND a.blob_id = b.id)
-ORDER BY b.created_at
-`
-
-// Blobs no owner table points at, older than the grace window. A blob is
-// referenced by the export cache, a render, a voice sample, a project
-// document or a story artifact — everything else is unreachable bytes.
-func (q *Queries) ListUnreferencedBlobs(ctx context.Context, createdAt pgtype.Timestamptz) ([]Blob, error) {
-	rows, err := q.db.Query(ctx, listUnreferencedBlobs, createdAt)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Blob{}
-	for rows.Next() {
-		var i Blob
-		if err := rows.Scan(
-			&i.ID,
-			&i.ProjectID,
-			&i.ObjectKey,
-			&i.StorageDriver,
-			&i.Sha256,
-			&i.SizeBytes,
-			&i.ContentType,
-			&i.Visibility,
-			&i.State,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Version,
-			&i.UploadJobID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const lockBlobForDelete = `-- name: LockBlobForDelete :one
-SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id FROM blobs WHERE id = $1 FOR UPDATE
+SELECT id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id, store_id, usage_kind FROM blobs WHERE id = $1 FOR UPDATE
 `
 
-// Row lock for one GC decision; only valid inside a transaction. A concurrent
-// attachment takes a KEY SHARE lock through its foreign key, so it either
-// commits before this lock (and BlobReferenced then sees it) or waits and
-// fails its FK check after the row is gone — no reference can point at a blob
-// this transaction deleted.
+// ── storage gc (admin command: `ainovel-cli storage gc`) ─────────────────────
+//
+// Row lock for a GC deletion claim; attachment triggers refuse deleting rows.
 func (q *Queries) LockBlobForDelete(ctx context.Context, id pgtype.UUID) (Blob, error) {
 	row := q.db.QueryRow(ctx, lockBlobForDelete, id)
 	var i Blob
@@ -1217,6 +1063,8 @@ func (q *Queries) LockBlobForDelete(ctx context.Context, id pgtype.UUID) (Blob, 
 		&i.UpdatedAt,
 		&i.Version,
 		&i.UploadJobID,
+		&i.StoreID,
+		&i.UsageKind,
 	)
 	return i, err
 }
@@ -1252,51 +1100,6 @@ func (q *Queries) LockBlobUploadJobs(ctx context.Context, id pgtype.UUID) ([]boo
 		return nil, err
 	}
 	return items, nil
-}
-
-const markBlobReady = `-- name: MarkBlobReady :one
-UPDATE blobs
-SET state = 'ready',
-    sha256 = $3,
-    size_bytes = $4,
-    updated_at = clock_timestamp(),
-    version = version + 1
-WHERE project_id = $1 AND id = $2 AND state = 'staged'
-RETURNING id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id
-`
-
-type MarkBlobReadyParams struct {
-	ProjectID pgtype.UUID `json:"project_id"`
-	ID        pgtype.UUID `json:"id"`
-	Sha256    string      `json:"sha256"`
-	SizeBytes int64       `json:"size_bytes"`
-}
-
-func (q *Queries) MarkBlobReady(ctx context.Context, arg MarkBlobReadyParams) (Blob, error) {
-	row := q.db.QueryRow(ctx, markBlobReady,
-		arg.ProjectID,
-		arg.ID,
-		arg.Sha256,
-		arg.SizeBytes,
-	)
-	var i Blob
-	err := row.Scan(
-		&i.ID,
-		&i.ProjectID,
-		&i.ObjectKey,
-		&i.StorageDriver,
-		&i.Sha256,
-		&i.SizeBytes,
-		&i.ContentType,
-		&i.Visibility,
-		&i.State,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Version,
-		&i.UploadJobID,
-	)
-	return i, err
 }
 
 const selectAudioRender = `-- name: SelectAudioRender :one
@@ -1377,59 +1180,6 @@ func (q *Queries) SelectedAudioRender(ctx context.Context, arg SelectedAudioRend
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
-	)
-	return i, err
-}
-
-const stageBlob = `-- name: StageBlob :one
-
-INSERT INTO blobs (id, project_id, object_key, storage_driver, sha256,
-    size_bytes, content_type, state, created_by, upload_job_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'staged', $8, $9)
-RETURNING id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, visibility, state, created_by, created_at, updated_at, version, upload_job_id
-`
-
-type StageBlobParams struct {
-	ID            pgtype.UUID `json:"id"`
-	ProjectID     pgtype.UUID `json:"project_id"`
-	ObjectKey     string      `json:"object_key"`
-	StorageDriver string      `json:"storage_driver"`
-	Sha256        string      `json:"sha256"`
-	SizeBytes     int64       `json:"size_bytes"`
-	ContentType   string      `json:"content_type"`
-	CreatedBy     pgtype.UUID `json:"created_by"`
-	UploadJobID   pgtype.UUID `json:"upload_job_id"`
-}
-
-// ── blobs (shared registry) ──────────────────────────────────────────────────
-func (q *Queries) StageBlob(ctx context.Context, arg StageBlobParams) (Blob, error) {
-	row := q.db.QueryRow(ctx, stageBlob,
-		arg.ID,
-		arg.ProjectID,
-		arg.ObjectKey,
-		arg.StorageDriver,
-		arg.Sha256,
-		arg.SizeBytes,
-		arg.ContentType,
-		arg.CreatedBy,
-		arg.UploadJobID,
-	)
-	var i Blob
-	err := row.Scan(
-		&i.ID,
-		&i.ProjectID,
-		&i.ObjectKey,
-		&i.StorageDriver,
-		&i.Sha256,
-		&i.SizeBytes,
-		&i.ContentType,
-		&i.Visibility,
-		&i.State,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Version,
-		&i.UploadJobID,
 	)
 	return i, err
 }

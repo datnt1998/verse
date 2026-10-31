@@ -11,6 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
@@ -367,7 +368,15 @@ func DecodeFile(ctx *DecodeContext, ref StoryRef, role, rel string, data []byte,
 	case "export_meta":
 		return decodeArtifact(ctx, ref, "export_manifest", rel, data)
 	case "story_config":
-		return decodeArtifact(ctx, ref, "config", rel, data)
+		_, raw, err := bootstrap.ParseConfigDocument(data)
+		if err != nil {
+			return nil, fmt.Errorf("cấu hình truyện: %w", err)
+		}
+		canonical, err := json.Marshal(raw)
+		if err != nil {
+			return nil, err
+		}
+		return decodeState(ctx, ref, "config", canonical)
 	case "engine_book":
 		return decodeState(ctx, ref, "book", data)
 	case "engine_format":

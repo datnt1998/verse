@@ -67,6 +67,23 @@ func (s *PGService) Ready(ctx context.Context) ReadyView {
 	return out
 }
 
+// Peaks reuses verified source bytes and a versioned, content-addressed waveform.
+// A warm result needs neither a storage GET nor an ffmpeg decode.
+func (s *PGService) Peaks(ctx context.Context, volume, chapter int) ([]float64, float64, error) {
+	obj, err := s.OpenChapterAudio(ctx, volume, chapter)
+	if err != nil {
+		return nil, 0, err
+	}
+	if obj.Store == nil {
+		return nil, 0, ErrNotFound
+	}
+	cache, err := configuredBlobCache()
+	if err != nil {
+		return nil, 0, err
+	}
+	return cache.peaks(ctx, obj, 500*time.Millisecond, toPCM)
+}
+
 // objectFor wraps a blob registry row as a playable Object.
 func (s *PGService) objectFor(blob postgres.Blob, name string) Object {
 	return Object{
@@ -190,12 +207,6 @@ func (s *PGService) OpenChapterAudio(ctx context.Context, volume, chapter int) (
 		return Object{}, pgErr(err)
 	}
 	return s.blobObject(ctx, blob, fmt.Sprintf("%02d.mp3", chapter))
-}
-
-// Peaks needs the chapter audio file locally; on hosted the waveform needs a
-// decoded blob pass that is not implemented yet.
-func (s *PGService) Peaks(ctx context.Context, volume, chapter int) ([]float64, float64, error) {
-	return nil, 0, pgUnsupported("dạng sóng âm")
 }
 
 // Preview synthesizes on demand; there is no local engine on hosted.

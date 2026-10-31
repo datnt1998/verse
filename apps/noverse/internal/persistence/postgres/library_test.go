@@ -180,9 +180,9 @@ func TestLibraryRepositoryProjectScope(t *testing.T) {
 		t.Fatalf("creator must own the new project: role=%q err=%v", role, err)
 	}
 
-	// File-only capabilities stay honest on the hosted backend.
-	if _, err := f.repo.Assets(ctx, f.owner, "du-an-a"); !errors.Is(err, errs.ErrStorageUnsupported) {
-		t.Fatalf("assets must be unsupported: %v", err)
+	// Assets list project_documents kind='asset' rows — the hosted Tư liệu.
+	if assets, err := f.repo.Assets(ctx, f.owner, "du-an-a"); err != nil || assets == nil {
+		t.Fatalf("assets must list registry rows: %v %v", assets, err)
 	}
 	if _, err := f.repo.Validate(ctx, f.owner, "du-an-a"); !errors.Is(err, errs.ErrStorageUnsupported) {
 		t.Fatalf("validate must be unsupported: %v", err)

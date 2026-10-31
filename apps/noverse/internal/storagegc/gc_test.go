@@ -4,16 +4,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/datnt1998/verse/apps/noverse/internal/s3test"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
@@ -23,8 +19,8 @@ import (
 	"github.com/datnt1998/verse/platform/pgtest"
 )
 
-// The suite needs the disposable MinIO and Postgres from deploy/compose.test.yml
-// (see deploy/README.md). Absence is a skip; REQUIRE_MINIO_TEST=1 /
+// The suite needs disposable Garage and Postgres from deploy/compose.test.yml.
+// Missing infrastructure skips unless REQUIRE_S3_TEST=1 /
 // REQUIRE_POSTGRES_TEST=1 turn it into a hard failure so acceptance runs cannot
 // pass on a skipped suite.
 
@@ -79,23 +75,22 @@ func newFixture(t *testing.T, env blobkey.Env) *fixture {
 	return &fixture{pool: pool, store: newMinioStore(t), keys: keys}
 }
 
-// newMinioStore builds the S3 driver against the disposable MinIO and creates a
-// per-run bucket (removed with its objects on cleanup).
+// newMinioStore creates an isolated S3 bucket through Garage's admin API.
 func newMinioStore(t *testing.T) *blobstore.S3 {
 	t.Helper()
-	endpoint := strings.TrimSpace(os.Getenv("MINIO_TEST_ENDPOINT"))
+	endpoint := strings.TrimSpace(os.Getenv("S3_TEST_ENDPOINT"))
 	if endpoint == "" {
-		if os.Getenv("REQUIRE_MINIO_TEST") == "1" {
-			t.Fatal("REQUIRE_MINIO_TEST=1 but MINIO_TEST_ENDPOINT is unset")
+		if os.Getenv("REQUIRE_S3_TEST") == "1" {
+			t.Fatal("REQUIRE_S3_TEST=1 but S3_TEST_ENDPOINT is unset")
 		}
-		t.Skip("MINIO_TEST_ENDPOINT unset — skipping MinIO suite")
+		t.Skip("S3_TEST_ENDPOINT unset — skipping S3 suite")
 	}
 	cfg := blobstore.S3Config{
 		Endpoint:        endpoint,
-		Region:          minioEnv("MINIO_TEST_REGION", "us-east-1"),
-		Bucket:          fmt.Sprintf("%s-%d", minioEnv("MINIO_TEST_BUCKET", "blobstore-test"), time.Now().UnixNano()%1_000_000_000),
-		AccessKeyID:     minioEnv("MINIO_TEST_ACCESS_KEY", "minioadmin"),
-		SecretAccessKey: minioEnv("MINIO_TEST_SECRET_KEY", "minioadmin123"),
+		Region:          minioEnv("S3_TEST_REGION", "garage"),
+		Bucket:          minioEnv("S3_TEST_BUCKET", "blobstore-test"),
+		AccessKeyID:     minioEnv("S3_TEST_ACCESS_KEY", ""),
+		SecretAccessKey: minioEnv("S3_TEST_SECRET_KEY", ""),
 		ForcePathStyle:  true,
 		AllowPlainHTTP:  true,
 	}
@@ -103,23 +98,10 @@ func newMinioStore(t *testing.T) *blobstore.S3 {
 	if err != nil {
 		t.Fatalf("NewS3: %v", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	deadline := time.Now().Add(20 * time.Second)
-	for {
-		_, err := store.Client().CreateBucket(ctx, &s3.CreateBucketInput{Bucket: aws.String(cfg.Bucket)})
-		if err == nil {
-			break
-		}
-		var owned *s3types.BucketAlreadyOwnedByYou
-		var exists *s3types.BucketAlreadyExists
-		if errors.As(err, &owned) || errors.As(err, &exists) {
-			break
-		}
-		if time.Now().After(deadline) {
-			t.Fatalf("CreateBucket (minio ready?): %v", err)
-		}
-		time.Sleep(500 * time.Millisecond)
+	cfg.Bucket = s3test.Bucket(t, store.Client(), cfg.AccessKeyID, cfg.Bucket)
+	store, err = blobstore.NewS3(cfg)
+	if err != nil {
+		t.Fatalf("NewS3: %v", err)
 	}
 	t.Cleanup(func() {
 		ctx := context.Background()
@@ -137,7 +119,6 @@ func newMinioStore(t *testing.T) *blobstore.S3 {
 			}
 			cursor = page.NextCursor
 		}
-		_, _ = store.Client().DeleteBucket(ctx, &s3.DeleteBucketInput{Bucket: aws.String(cfg.Bucket)})
 	})
 	return store
 }

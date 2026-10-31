@@ -1,6 +1,7 @@
 package storageimport
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -715,7 +716,7 @@ func (im *importer) importBlob(ctx context.Context, pool *postgres.Pool, f Manif
 		ProjectID: scope.ProjectID, StoryID: scope.StoryID, ObjectKey: objectKey, Role: f.Role,
 	}
 	blobID := DeterministicUUID(im.scan.SourceID, "blob", objectKey)
-	inserted, conflict, err := im.writeBlob(ctx, pool, spec, blobID)
+	blobID, inserted, conflict, err := im.writeBlob(ctx, pool, spec, blobID)
 	if err != nil {
 		return err
 	}
@@ -742,69 +743,48 @@ func (im *importer) importBlob(ctx context.Context, pool *postgres.Pool, f Manif
 	return nil
 }
 
-// writeBlob uploads the bytes (verifying the digest) and, in the same
-// transaction, records the blobs row with state='ready'. An existing row with
-// the same key/hash/size skips the upload; a different hash is a conflict.
-func (im *importer) writeBlob(ctx context.Context, pool *postgres.Pool, spec *BlobSpec, blobID string) (bool, string, error) {
+// writeBlob uses the shared verified publication/deletion protocol. New
+// imports retain their deterministic UUID; exact duplicates retain the stored
+// identity, which the caller records in the import ledger.
+func (im *importer) writeBlob(ctx context.Context, pool *postgres.Pool, spec *BlobSpec, blobID string) (string, bool, string, error) {
 	if im.opts.DryRun {
-		return true, "", nil
+		return blobID, true, "", nil
 	}
-	var existing struct {
-		sha  string
-		size int64
+	var alreadyReady bool
+	if err := pool.Pool().QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM blobs WHERE object_key=$1 AND state='ready')`, spec.ObjectKey).Scan(&alreadyReady); err != nil {
+		return "", false, "", fmt.Errorf("kiểm tra blob %s: %w", spec.Path, err)
 	}
-	err := pool.Pool().QueryRow(ctx,
-		`SELECT sha256, size_bytes FROM blobs WHERE object_key = $1`, spec.ObjectKey).
-		Scan(&existing.sha, &existing.size)
-	if err == nil {
-		if existing.sha != spec.SHA256 || existing.size != spec.Size {
-			return false, fmt.Sprintf("blob %s đã tồn tại với nội dung khác (nguồn đã đổi) — không ghi đè", spec.Path), nil
-		}
-		return false, "", nil
-	}
-	if !errors.Is(err, pgx.ErrNoRows) {
-		return false, "", fmt.Errorf("kiểm tra blob %s: %w", spec.Path, err)
-	}
-
 	data, err := readFileFS(rootFS{root: im.root}, spec.Path)
 	if err != nil {
-		return false, "", fmt.Errorf("đọc blob %s: %w", spec.Path, err)
+		return "", false, "", fmt.Errorf("đọc blob %s: %w", spec.Path, err)
 	}
 	if RawDigest(data) != spec.SHA256 {
-		return false, "", fmt.Errorf("blob %s: nội dung đổi giữa lúc quét và lúc nhập (snapshot không đóng băng)", spec.Path)
+		return "", false, "", fmt.Errorf("blob %s: nội dung đổi giữa lúc quét và lúc nhập (snapshot không đóng băng)", spec.Path)
 	}
 	if im.opts.Blobs == nil {
-		return false, "", errors.New("thiếu BlobStore")
+		return "", false, "", errors.New("thiếu BlobStore")
 	}
-	info, err := im.opts.Blobs.Put(ctx, spec.ObjectKey, strings.NewReader(string(data)),
-		blobstore.PutOptions{ContentType: spec.ContentType, ExpectedSHA256: spec.SHA256})
+	id, err := postgres.ParseUUID(blobID)
 	if err != nil {
-		return false, "", fmt.Errorf("tải blob %s: %w", spec.Path, err)
+		return "", false, "", err
 	}
-	if info.SHA256 != "" && info.SHA256 != spec.SHA256 {
-		return false, "", fmt.Errorf("blob %s: driver trả hash khác sau khi tải", spec.Path)
-	}
-	if info.Size != spec.Size {
-		return false, "", fmt.Errorf("blob %s: kích thước lưu (%d) khác nguồn (%d)", spec.Path, info.Size, spec.Size)
-	}
-	err = postgres.RunInTx(ctx, pool.Pool(), func(tx pgx.Tx) error {
-		tag, err := tx.Exec(ctx, `
-INSERT INTO blobs (id, project_id, object_key, storage_driver, sha256, size_bytes, content_type, state)
-VALUES ($1,$2,$3,$4,$5,$6,$7,'ready') ON CONFLICT DO NOTHING`,
-			uuidArg(blobID), uuidArg(spec.ProjectID), spec.ObjectKey, im.opts.Driver,
-			spec.SHA256, spec.Size, spec.ContentType)
-		if err != nil {
-			return err
-		}
-		if tag.RowsAffected() == 0 {
-			return fmt.Errorf("blob %s: khoá đối tượng đã tồn tại", spec.ObjectKey)
-		}
-		return im.flush(ctx, tx)
-	})
+	project, err := postgres.ParseUUID(spec.ProjectID)
 	if err != nil {
-		return false, "", err
+		return "", false, "", err
 	}
-	return true, "", nil
+	published, err := postgres.UploadAndPublishBlob(ctx, postgres.NewAudio(pool), im.opts.Blobs, postgres.PublishInput{
+		ID: id, ProjectID: project, Key: spec.ObjectKey, Driver: im.opts.Driver, ContentType: spec.ContentType, SHA256: spec.SHA256, Size: spec.Size,
+	}, bytes.NewReader(data))
+	if errors.Is(err, postgres.ErrBlobContentMismatch) {
+		return "", false, fmt.Sprintf("blob %s đã tồn tại với nội dung khác (nguồn đã đổi) — không ghi đè", spec.Path), nil
+	}
+	if err != nil {
+		return "", false, "", fmt.Errorf("tải blob %s: %w", spec.Path, err)
+	}
+	if err := postgres.RunInTx(ctx, pool.Pool(), func(tx pgx.Tx) error { return im.flush(ctx, tx) }); err != nil {
+		return "", false, "", err
+	}
+	return postgres.UUIDString(published.ID), !alreadyReady, "", nil
 }
 
 // applyMemberships creates exactly one owner row per project from the explicit

@@ -4,8 +4,9 @@
 // pretends a database is a filesystem.
 //
 // The pool is process-scoped and never carries actor/session state — actors
-// are request-scoped parameters to repositories, and connections are never
-// held across SSE/LLM/S3 operations.
+// are request-scoped parameters to repositories. Blob publication retains one
+// connection across upload to hold its activation fence through registry commit;
+// it must reuse that connection, never acquire another while holding the fence.
 package postgres
 
 import (

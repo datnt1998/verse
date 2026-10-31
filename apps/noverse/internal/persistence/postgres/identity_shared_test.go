@@ -626,7 +626,7 @@ func TestProjectAccessFalseSkipsProjectQueries(t *testing.T) {
 	unsupported("DeleteUser", repo.DeleteUser("mem"))
 	unsupported("Audit", func() error { _, err := repo.Audit(identity.AuditQuery{}); return err }())
 	unsupported("PurgeAuditBefore", func() error {
-		_, err := repo.PurgeAuditBefore(ctx, time.Now())
+		_, err := repo.PurgeAuditBefore(ctx, time.Now(), false)
 		return err
 	}())
 	role := identity.RoleAdmin

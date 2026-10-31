@@ -25,7 +25,16 @@ type Prompts struct {
 }
 
 type Options struct {
-	SourceDir string
+	SourceDir   string
+	LoadSources func(context.Context) ([]Source, error)
+}
+
+// Source is one backend-neutral sample; bytes retain their original encoding
+// so fingerprints and decoding match the filesystem scanner.
+type Source struct {
+	Name      string
+	Data      []byte
+	UpdatedAt time.Time
 }
 
 type Stage string

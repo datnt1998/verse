@@ -144,6 +144,16 @@ type Blob struct {
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 	Version       int64              `json:"version"`
 	UploadJobID   pgtype.UUID        `json:"upload_job_id"`
+	StoreID       pgtype.Text        `json:"store_id"`
+	UsageKind     string             `json:"usage_kind"`
+}
+
+type BlobStore struct {
+	ID          string             `json:"id"`
+	Config      []byte             `json:"config"`
+	Credentials []byte             `json:"credentials"`
+	KeyID       string             `json:"key_id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
 type Chapter struct {
@@ -500,6 +510,45 @@ type Session struct {
 	CreatedAt           pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 	Version             int64              `json:"version"`
+}
+
+type StorageMigration struct {
+	ID          string             `json:"id"`
+	SourceStore string             `json:"source_store"`
+	TargetStore string             `json:"target_store"`
+	State       string             `json:"state"`
+	ErrorCode   string             `json:"error_code"`
+	StartedAt   pgtype.Timestamptz `json:"started_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
+	CopiedCount int64              `json:"copied_count"`
+	CopiedBytes int64              `json:"copied_bytes"`
+	TotalCount  int64              `json:"total_count"`
+	TotalBytes  int64              `json:"total_bytes"`
+	PurgedAt    pgtype.Timestamptz `json:"purged_at"`
+}
+
+type StorageMigrationItem struct {
+	MigrationID    string             `json:"migration_id"`
+	ObjectKey      string             `json:"object_key"`
+	Sha256         string             `json:"sha256"`
+	SizeBytes      int64              `json:"size_bytes"`
+	Verified       bool               `json:"verified"`
+	ErrorCode      string             `json:"error_code"`
+	SourcePurgedAt pgtype.Timestamptz `json:"source_purged_at"`
+}
+
+type StorageProbe struct {
+	StoreID   string             `json:"store_id"`
+	ObjectKey string             `json:"object_key"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+}
+
+type StorageSetting struct {
+	Singleton    bool        `json:"singleton"`
+	ActiveStore  pgtype.Text `json:"active_store"`
+	PendingStore pgtype.Text `json:"pending_store"`
+	Version      int64       `json:"version"`
 }
 
 type Story struct {

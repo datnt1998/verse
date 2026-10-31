@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/charmbracelet/x/term"
 	"github.com/datnt1998/verse/apps/noverse/assets"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/entry/headless"
@@ -23,6 +24,50 @@ var (
 	commit  = "unknown"
 	date    = "unknown"
 )
+
+const cliUsage = `Cách dùng:
+  ainovel-cli                              Mở giao diện viết truyện trong terminal
+  ainovel-cli serve [--root DIR] [--addr HOST:PORT] [--lan]
+                                           Mở giao diện web
+  ainovel-cli serve user add|list|passwd|rm  Quản lý tài khoản web
+  ainovel-cli login [provider] [--device]    Đăng nhập gói thuê bao AI
+  ainovel-cli login --status                Xem trạng thái đăng nhập
+  ainovel-cli logout [provider]             Xoá phiên đăng nhập
+
+Quản trị lưu trữ:
+  ainovel-cli storage migrate up|status|version
+                                           Cập nhật hoặc xem trạng thái cơ sở dữ liệu
+  ainovel-cli storage copy --from-config A --to-config B --manifest M
+                                           Sao chép và đối soát dữ liệu nhị phân
+  ainovel-cli storage import --root R --accounts A --source-id U --owner-map S=U --manifest M
+                                           Nhập thư viện tệp vào cơ sở dữ liệu
+  ainovel-cli storage reconcile --manifest M [--verify-blobs] [--json]
+                                           Đối soát thư viện đã nhập
+  ainovel-cli storage export-files --destination DIR [--revoke-sessions]
+                                           Xuất cơ sở dữ liệu về thư viện tệp
+  ainovel-cli storage gc [--dry-run] [--json]
+                                           Dọn dữ liệu lưu trữ không còn dùng
+  ainovel-cli storage purge-audit [--days N] Xoá nhật ký quản trị cũ
+
+Máy đọc chạy nền:
+  ainovel-cli worker tts --api URL [--project SLUG]
+                                           Nhận việc đọc truyện (cần TTS_WORKER_TOKEN)
+  ainovel-cli worker token create [--cap tts] NAME
+                                           Cấp mã truy cập cho máy đọc
+  ainovel-cli worker token list             Liệt kê máy đọc
+  ainovel-cli worker token revoke ID_OR_NAME
+                                           Thu hồi mã truy cập
+
+Lệnh khác:
+  ainovel-cli version | --version | -v       Xem phiên bản
+  ainovel-cli update [VERSION]              Cập nhật chương trình
+  ainovel-cli voice install|status|voices|say
+                                           Cài đặt, kiểm tra hoặc dùng giọng đọc
+  ainovel-cli eval --cases PATH             Chạy bộ đánh giá
+  ainovel-cli --headless [--prompt TEXT | --prompt-file PATH]
+                                           Chạy không có giao diện (PATH là - để đọc stdin)
+  ainovel-cli --help | -h | help            Xem hướng dẫn này
+`
 
 // headlessMode ghi nhận chế độ khởi động headless.
 var headlessMode bool
@@ -69,7 +114,12 @@ func main() {
 
 	opts, args, err := parseCLIOptions(os.Args[1:])
 	if err != nil {
-		die("Lỗi tham số: %v", err)
+		fmt.Fprintf(os.Stderr, "Lỗi tham số: %v\n", err)
+		os.Exit(2)
+	}
+	if opts.Help {
+		fmt.Fprint(os.Stdout, cliUsage)
+		return
 	}
 	if opts.Version {
 		buildversion.Print(os.Stdout, versionInfo())
@@ -121,11 +171,7 @@ func die(format string, args ...any) {
 }
 
 func stdinIsTerminal() bool {
-	fi, err := os.Stdin.Stat()
-	if err != nil {
-		return false
-	}
-	return fi.Mode()&os.ModeCharDevice != 0
+	return term.IsTerminal(os.Stdin.Fd())
 }
 
 func runWithConfig(cfg bootstrap.Config, opts cliOptions, args []string) {
@@ -159,6 +205,7 @@ func runWithConfig(cfg bootstrap.Config, opts cliOptions, args []string) {
 }
 
 type cliOptions struct {
+	Help          bool
 	Headless      bool
 	Prompt        string
 	PromptFile    string
@@ -172,6 +219,8 @@ func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 	var args []string
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
+		case "--help", "-h", "help":
+			opts.Help = true
 		case "--version", "-v":
 			opts.Version = true
 		case "version":
@@ -209,6 +258,9 @@ func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 			opts.PromptFile = argv[i+1]
 			i++
 		default:
+			if strings.HasPrefix(argv[i], "-") {
+				return opts, nil, fmt.Errorf("không nhận diện cờ %q; dùng --help để xem hướng dẫn", argv[i])
+			}
 			args = append(args, argv[i])
 		}
 	}

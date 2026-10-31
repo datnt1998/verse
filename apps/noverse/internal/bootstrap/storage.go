@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -94,6 +95,9 @@ const (
 // A database URL without STORE_DRIVER=postgres stays inert — file mode never
 // silently activates postgres, and postgres never falls back to file.
 func StorageConfigFromEnv() (StorageConfig, error) {
+	if err := ValidateConfigEncryptionKey(); err != nil {
+		return StorageConfig{}, err
+	}
 	get := func(key string) string { return strings.TrimSpace(os.Getenv(key)) }
 
 	cfg := StorageConfig{Driver: StoreDriverFile}
@@ -184,7 +188,9 @@ const (
 // BlobConfig is the validated blob environment. Secrets stay in memory and
 // are never rendered into logs or errors.
 type BlobConfig struct {
-	Driver BlobDriver
+	Driver   BlobDriver
+	Delivery string
+	Provider string
 	// local driver
 	LocalRoot string
 	// s3 driver — verbatim recipe fields (see research provider matrix)
@@ -195,9 +201,12 @@ type BlobConfig struct {
 // SafeSummary renders a credential-free one-line description.
 func (c BlobConfig) SafeSummary() string {
 	if c.Driver == BlobDriverS3 {
-		ep := c.S3.Endpoint
-		if ep == "" {
-			ep = "aws-default"
+		ep := "aws-default"
+		if c.S3.Endpoint != "" {
+			ep = "invalid-endpoint"
+			if u, err := url.Parse(c.S3.Endpoint); err == nil && u.Host != "" && (u.Scheme == "http" || u.Scheme == "https") {
+				ep = u.Scheme + "://" + u.Host
+			}
 		}
 		return fmt.Sprintf("driver=s3 bucket=%s region=%s endpoint=%s path_style=%t",
 			c.S3.Bucket, c.S3.Region, ep, c.S3.ForcePathStyle)
@@ -216,7 +225,6 @@ func (c BlobConfig) SafeSummary() string {
 //	S3_ACCESS_KEY_ID           required (GCS: HMAC access id)
 //	S3_SECRET_ACCESS_KEY       required (GCS: HMAC secret)
 //	S3_FORCE_PATH_STYLE        true|false strict (required by MinIO/GCS)
-//	S3_PUBLIC_BASE_URL         optional, public-marked assets only
 //	S3_ALLOW_INSECURE_ENDPOINT true|false strict; only enables http:// endpoints
 //	                           for private/test networks (MinIO). Never for AWS.
 //
@@ -241,6 +249,11 @@ func BlobConfigFromEnv() (BlobConfig, error) {
 		cfg.insecureHTTP = b
 	}
 
+	cfg.Delivery = get("BLOB_DELIVERY")
+	if cfg.Delivery != "" && cfg.Delivery != "redirect" && cfg.Delivery != "proxy" {
+		return cfg, fmt.Errorf("BLOB_DELIVERY phải là redirect hoặc proxy: %w", errs.ErrConfig)
+	}
+	cfg.Provider = get("S3_PROVIDER")
 	if cfg.Driver == BlobDriverLocal {
 		cfg.LocalRoot = get("BLOB_LOCAL_ROOT")
 		if cfg.LocalRoot == "" {
@@ -251,11 +264,11 @@ func BlobConfigFromEnv() (BlobConfig, error) {
 
 	s3cfg := blobstore.S3Config{
 		Endpoint:        get("S3_ENDPOINT"),
+		PresignEndpoint: get("S3_PRESIGN_ENDPOINT"),
 		Region:          get("S3_REGION"),
 		Bucket:          get("S3_BUCKET"),
 		AccessKeyID:     get("S3_ACCESS_KEY_ID"),
 		SecretAccessKey: get("S3_SECRET_ACCESS_KEY"),
-		PublicBaseURL:   get("S3_PUBLIC_BASE_URL"),
 		AllowPlainHTTP:  cfg.insecureHTTP,
 	}
 	if v := get("S3_FORCE_PATH_STYLE"); v != "" {
@@ -264,6 +277,12 @@ func BlobConfigFromEnv() (BlobConfig, error) {
 			return cfg, err
 		}
 		s3cfg.ForcePathStyle = b
+	}
+	if cfg.Provider == "garage" {
+		if s3cfg.Region == "" {
+			s3cfg.Region = "garage"
+		}
+		s3cfg.ForcePathStyle = true
 	}
 	if s3cfg.Region == "" || s3cfg.Bucket == "" || s3cfg.AccessKeyID == "" || s3cfg.SecretAccessKey == "" {
 		return cfg, fmt.Errorf("STORAGE_DRIVER=s3 yêu cầu S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY: %w", errs.ErrConfig)
@@ -297,7 +316,6 @@ func BlobConfigFromFile(path string) (BlobConfig, error) {
 		AccessKeyID           string `json:"s3AccessKeyId"`
 		SecretAccessKey       string `json:"s3SecretAccessKey"`
 		ForcePathStyle        bool   `json:"s3ForcePathStyle"`
-		PublicBaseURL         string `json:"s3PublicBaseUrl"`
 		AllowInsecureEndpoint bool   `json:"s3AllowInsecureEndpoint"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -319,7 +337,6 @@ func BlobConfigFromFile(path string) (BlobConfig, error) {
 			AccessKeyID:     raw.AccessKeyID,
 			SecretAccessKey: raw.SecretAccessKey,
 			ForcePathStyle:  raw.ForcePathStyle,
-			PublicBaseURL:   raw.PublicBaseURL,
 			AllowPlainHTTP:  raw.AllowInsecureEndpoint,
 		}
 	default:

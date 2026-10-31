@@ -80,6 +80,9 @@ func (g *Gateway) draftDirOf(w http.ResponseWriter, ctx context.Context, lib lib
 		libError(w, err)
 		return "", false
 	}
+	if dir == "" {
+		return "", true // Hosted DraftDir validates membership/existence in SQL.
+	}
 	if st, err := os.Stat(dir); err != nil || !st.IsDir() {
 		jsonError(w, http.StatusNotFound, "không tìm thấy bản nháp")
 		return "", false

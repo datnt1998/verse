@@ -85,7 +85,15 @@ func (g *Gateway) restartUnconfiguredWorkers(scope, project, story string) {
 			continue
 		}
 		slot.worker, slot.running = nil, false
+		// Keep replacement launches behind shutdown: a hosted read-only
+		// worker still owns its PG lease until stopWorker has completed.
+		pending := make(chan struct{})
+		slot.starting = pending
 		slot.mu.Unlock()
 		stopWorker(worker)
+		slot.mu.Lock()
+		close(pending)
+		slot.starting = nil
+		slot.mu.Unlock()
 	}
 }

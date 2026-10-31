@@ -94,6 +94,8 @@ func (l *Library) CommitDraft(project, id, name string) (Story, bool, error) {
 		slug = strings.TrimRight(string([]rune(slug)[:96]), "-")
 	}
 	tempName := slug == "truyen-moi"
+	createStoryMu.Lock()
+	defer createStoryMu.Unlock()
 	n := nextStoryNumber(parent) + 1
 	var dirName, target string
 	for {

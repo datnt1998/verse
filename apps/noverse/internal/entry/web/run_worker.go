@@ -28,17 +28,22 @@ import (
 // the story directory the process was started in; hosted mode (AINOVEL_STORY_SCOPE
 // set) resolves the env-scoped store instead — there is no story directory.
 func RunWorker(build buildversion.Info) error {
-	cfg, err := bootstrap.LoadConfig()
-	if err != nil {
-		slog.Warn("Không đọc được cấu hình; mở truyện ở chế độ đọc", "module", "web_worker", "err", err)
-		cfg = bootstrap.Config{}
+	var cfg bootstrap.Config
+	var bundle assets.Bundle
+	if strings.TrimSpace(os.Getenv(workerScopeEnv)) == "" {
+		var err error
+		cfg, err = bootstrap.LoadConfig()
+		if err != nil {
+			slog.Warn("Không đọc được cấu hình; mở truyện ở chế độ đọc", "module", "web_worker", "err", err)
+			cfg = bootstrap.Config{}
+		}
+		cfg.FillDefaults()
+		bundle = assets.Load(cfg.Style, assets.DefaultLoadOptions(cfg.OutputDir))
+		if bundle.Err != nil {
+			return bundle.Err
+		}
 	}
-	cfg.FillDefaults()
 	rules.EnsureHomeRulesDir()
-	bundle := assets.Load(cfg.Style, assets.DefaultLoadOptions(cfg.OutputDir))
-	if bundle.Err != nil {
-		return bundle.Err
-	}
 	h, closeStore, err := openWorkerHost(cfg, bundle, build)
 	if err != nil {
 		return err
@@ -109,7 +114,31 @@ func openWorkerHost(cfg bootstrap.Config, bundle assets.Bundle, build buildversi
 		}
 		pool.Close()
 	}
-	h, err := host.New(cfg, bundle, host.WithUnconfiguredReads(), host.WithStorage(host.Storage{Store: st, Lease: lease}))
+	project, story, _ := strings.Cut(scope, "/") // openWorkerStorage validates scope
+	if strings.HasPrefix(story, "draft/") {
+		story = "" // Before promotion only global/project config and rules exist.
+	}
+	docs := postgres.NewConfigDocuments(pool)
+	loadConfig := func() (bootstrap.Config, error) {
+		return bootstrap.LoadHostedConfig(context.Background(), docs, project, story)
+	}
+	cfg, err = loadConfig()
+	if err != nil {
+		closeStore()
+		return nil, nil, err
+	}
+	cfg.FillDefaults()
+	bundle = assets.Load(cfg.Style, assets.DefaultLoadOptions(""))
+	if bundle.Err != nil {
+		closeStore()
+		return nil, nil, bundle.Err
+	}
+	documentSources, err := hostedDocumentSources(context.Background(), pool, project, story)
+	if err != nil {
+		closeStore()
+		return nil, nil, err
+	}
+	h, err := host.New(cfg, bundle, host.WithUnconfiguredReads(), host.WithStorage(host.Storage{Store: st, Lease: lease}), host.WithConfigLoader(loadConfig), documentSources)
 	if err != nil {
 		closeStore()
 		return nil, nil, err
@@ -141,7 +170,12 @@ func openWorkerStorage(ctx context.Context) (*store.Store, *postgres.StoryLease,
 	// The worker is a service process: scope resolves without membership —
 	// exclusivity is the lease, and the gateway only launches scopes the
 	// requester was already authorized for.
-	resolved, err := nar.Resolve(ctx, project, story, nil, false)
+	var resolved postgres.ScopeRef
+	if id, draft := strings.CutPrefix(story, "draft/"); draft {
+		resolved, err = nar.ResolveDraft(ctx, project, id, nil, true)
+	} else {
+		resolved, err = nar.Resolve(ctx, project, story, nil, false)
+	}
 	if err != nil {
 		pool.Close()
 		return nil, nil, nil, err

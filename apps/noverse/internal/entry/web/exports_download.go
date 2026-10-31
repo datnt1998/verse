@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"mime"
 	"net/http"
@@ -8,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
 
 // serveExportDownloadFile 对应 GET /exports/download?file=<相对导出目录的路径>：
@@ -18,7 +21,7 @@ import (
 // 授权已在 serveStories 完成（GET 需可读）；路径只能落在本故事的导出目录内。
 func (g *Gateway) serveExportDownloadFile(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
 	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "xuất bản chưa hỗ trợ trên kho dữ liệu Postgres")
+		g.serveExportDownloadFileHosted(w, r, st, sr)
 		return
 	}
 	_, exportsDir, err := libraryExports(st)
@@ -75,6 +78,51 @@ func (g *Gateway) serveExportDownloadFile(w http.ResponseWriter, r *http.Request
 		w.Header().Set("Content-Type", "application/octet-stream")
 	}
 	http.ServeContent(w, r, info.Name(), info.ModTime(), file)
+}
+
+// serveExportDownloadFileHosted is the hosted twin: the same `file=<rel|key>`
+// lookup resolves against the export registry instead of a directory. The
+// friendly txt/epub name is identical to the file-mode rule.
+func (g *Gateway) serveExportDownloadFileHosted(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
+	if !g.pgMediaOK() {
+		jsonError(w, http.StatusInternalServerError, "kho đối tượng chưa cấu hình")
+		return
+	}
+	ident := r.URL.Query().Get("file")
+	blob, m, err := g.pgHostedExportResolve(r.Context(), st, ident)
+	if err != nil {
+		if errors.Is(err, errs.ErrStorageNotFound) || errors.Is(err, postgres.ErrJobNotFound) {
+			jsonError(w, http.StatusNotFound, "không tìm thấy tệp")
+			return
+		}
+		jsonMappedError(w, err)
+		return
+	}
+	name := m.Name
+	if name == "" {
+		name = fileNameOf(blob.ObjectKey, r)
+	}
+	if format := exportFormatOf(name); format == "txt" || format == "epub" {
+		volume := m.Volume
+		if volume == nil {
+			volume = inferExportVolume(m.Rel)
+		}
+		if volume == nil {
+			if ranges, err := sr.VolumeRanges(); err == nil && len(ranges) <= 1 {
+				one := 1
+				volume = &one
+			}
+		}
+		title, _ := g.storyNamesFor(r.Context(), st, sr)
+		if title == "" {
+			title = "Truyện"
+		}
+		name = friendlyExportName(title, volume, filepath.Ext(name))
+	}
+	if ct := mime.TypeByExtension(filepath.Ext(name)); ct != "" {
+		blob.ContentType = ct
+	}
+	g.serveHostedBlob(w, r, blob, "private, max-age=60", name)
 }
 
 // exportStoryTitle: tên hiển thị = story.json.title → tên sách của engine → "Truyện".

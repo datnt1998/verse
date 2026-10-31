@@ -80,11 +80,61 @@ func SaveServeLAN(lan bool) error {
 // cài mới không còn tự tạo hay mặc định vào đó (09 §10 · GAP-34).
 const LegacyDefaultDirName = "Truyen"
 
-// ResolveServeRoot chọn thư viện lúc khởi động serve: cờ --root thắng, rồi serve.json,
-// rồi ~/Truyen nếu đã có. Không có gì → "" (chưa chọn nơi lưu; bước Thư viện của web sẽ chọn).
-// Không bao giờ dùng thư mục hiện tại.
+// ContainerLibraryRoot is an explicit image/runtime contract, not a heuristic
+// based on request addresses. Native installs leave this environment unset.
+func ContainerLibraryRoot() string {
+	root := strings.TrimSpace(os.Getenv("NOVERSE_LIBRARY_ROOT"))
+	if root == "" && IsContainer() {
+		return "/var/lib/noverse/library"
+	}
+	return root
+}
+
+// ResolveServeRoot selects --root, the image-managed volume, saved config, then
+// the existing legacy library. Native first runs still return an empty root.
 func ResolveServeRoot(flagRoot string) (string, error) {
 	pick := strings.TrimSpace(flagRoot)
+	if BrowseRootsConfigured() {
+		places, err := BrowsePlacesFromEnv()
+		if err != nil {
+			return "", err
+		}
+		if pick == "" {
+			pick, _ = LoadServeRoot()
+		}
+		if pick == "" {
+			pick = places[0].Path
+		}
+		real, err := places.Confine(pick)
+		if err != nil {
+			return "", err
+		}
+		return CheckRoot(real)
+	}
+	if IsContainer() && pick != "" {
+		real, err := ResolvePath(pick)
+		if err != nil {
+			return "", err
+		}
+		base, err := ResolvePath(ContainerLibraryRoot())
+		if err != nil {
+			return "", err
+		}
+		if real != base && !strings.HasPrefix(real, base+string(filepath.Separator)) {
+			return "", ErrOutsidePlaces
+		}
+	}
+	if pick == "" {
+		if volume := ContainerLibraryRoot(); volume != "" {
+			if !filepath.IsAbs(volume) {
+				return "", fmt.Errorf("NOVERSE_LIBRARY_ROOT phải là đường dẫn tuyệt đối")
+			}
+			if err := os.MkdirAll(volume, 0o755); err != nil {
+				return "", err
+			}
+			return CheckRoot(volume)
+		}
+	}
 	if pick == "" {
 		if saved, err := LoadServeRoot(); err == nil && saved != "" {
 			pick = saved

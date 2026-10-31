@@ -73,7 +73,7 @@ func applyIdentityRoleScript(t *testing.T, adminDSN, schema string) {
 // negatives directly in SQL: no project/story/audit reads, no role/status
 // promotion, no temporary-password issuing, no DDL, no SET ROLE.
 func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
-	dsn := pgtest.Provision(t)
+	dsn := roleTestCluster(t)
 	migrateSchema(t, dsn)
 	schema := pgtest.SchemaOf(dsn)
 	adminPool := openPool(t, dsn)
@@ -297,6 +297,23 @@ func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
 		}
 		if got != c.expect {
 			t.Fatalf("%s privilege = %v, want %v", c.what, got, c.expect)
+		}
+	}
+
+	// Hosted storage tables remain app-private after all imported migrations.
+	// Identity roles receive no table or column privileges through defaults.
+	for _, table := range []string{"blob_stores", "storage_settings", "storage_migrations", "storage_migration_items", "storage_probes"} {
+		for _, role := range []string{"viderse_identity"} {
+			for _, privilege := range []string{"SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER"} {
+				var granted bool
+				if err := adminPool.Pool().QueryRow(ctx,
+					`SELECT has_table_privilege($1, $2, $3)`, role, schema+"."+table, privilege).Scan(&granted); err != nil {
+					t.Fatalf("%s %s %s: %v", role, table, privilege, err)
+				}
+				if granted {
+					t.Fatalf("%s unexpectedly has %s on %s", role, privilege, table)
+				}
+			}
 		}
 	}
 

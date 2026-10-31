@@ -93,11 +93,15 @@ func cutoverWriterStep(chapter, toolResults int) (string, map[string]any) {
 }
 
 // newCutoverModelServer serves an OpenAI-compatible chat endpoint that scripts
-// the writer. Requests whose tool set has no plan_chapter (any non-writer role)
+// the writer. Requests whose tool set has no draft_chapter (any non-writer role)
 // get a plain text answer so unrelated agents terminate instead of looping on
 // unknown tools.
-func newCutoverModelServer(t *testing.T) *httptest.Server {
+func newCutoverModelServer(t *testing.T, replies ...string) *httptest.Server {
 	t.Helper()
+	reply := "ok"
+	if len(replies) > 0 {
+		reply = replies[0]
+	}
 	var calls int
 	var mu sync.Mutex
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +125,11 @@ func newCutoverModelServer(t *testing.T) *httptest.Server {
 					Name string `json:"name"`
 				} `json:"function"`
 			} `json:"tools"`
+			ResponseFormat struct {
+				JSONSchema struct {
+					Name string `json:"name"`
+				} `json:"json_schema"`
+			} `json:"response_format"`
 		}
 		if err := json.Unmarshal(body, &req); err != nil {
 			jsonError(w, http.StatusBadRequest, err.Error())
@@ -130,9 +139,18 @@ func newCutoverModelServer(t *testing.T) *httptest.Server {
 		calls++
 		mu.Unlock()
 
+		answer := reply
+		for _, message := range req.Messages {
+			if strings.Contains(cutoverModelText(message.Content), `"requirement"`) {
+				answer = `{"planner":"architect_short","task":"Lập kế hoạch truyện trinh thám.","reason":"Truyện ngắn"}`
+			}
+		}
+		if req.ResponseFormat.JSONSchema.Name == "arbiter_plan_start" {
+			answer = `{"planner":"architect_short","task":"Lập kế hoạch truyện trinh thám.","reason":"Truyện ngắn"}`
+		}
 		chapter, toolResults, writer := 0, 0, false
 		for _, tool := range req.Tools {
-			if tool.Function.Name == "plan_chapter" {
+			if tool.Function.Name == "draft_chapter" {
 				writer = true
 			}
 		}
@@ -167,7 +185,9 @@ func newCutoverModelServer(t *testing.T) *httptest.Server {
 			// answer with the same script in chat.completion shape.
 			w.Header().Set("Content-Type", "application/json")
 			var message map[string]any
+			finishReason := "stop"
 			if writer {
+				finishReason = "tool_calls"
 				name, args := cutoverWriterStep(chapter, toolResults)
 				data, _ := json.Marshal(args)
 				message = map[string]any{
@@ -178,11 +198,11 @@ func newCutoverModelServer(t *testing.T) *httptest.Server {
 					}},
 				}
 			} else {
-				message = map[string]any{"role": "assistant", "content": "ok"}
+				message = map[string]any{"role": "assistant", "content": answer}
 			}
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"model": "scripted", "choices": []any{map[string]any{
-					"index": 0, "message": message, "finish_reason": "tool_calls",
+					"index": 0, "message": message, "finish_reason": finishReason,
 				}},
 				"usage": map[string]any{"prompt_tokens": 12, "completion_tokens": 8, "total_tokens": 20},
 			})
@@ -211,7 +231,7 @@ func newCutoverModelServer(t *testing.T) *httptest.Server {
 			finish = "stop"
 			chunk = map[string]any{
 				"model":   "scripted",
-				"choices": []any{map[string]any{"index": 0, "delta": map[string]any{"role": "assistant", "content": "ok"}}},
+				"choices": []any{map[string]any{"index": 0, "delta": map[string]any{"role": "assistant", "content": answer}}},
 			}
 		}
 		payload, err := json.Marshal(chunk)
@@ -288,6 +308,9 @@ func installCutoverLauncher(t *testing.T, g *Gateway, pool *postgres.Pool, model
 		ctx := context.Background()
 		nar := postgres.NewNarrative(pool)
 		scope, err := nar.Resolve(ctx, project, story, nil, false)
+		if id, draft := strings.CutPrefix(story, "draft/"); draft {
+			scope, err = nar.ResolveDraft(ctx, project, id, nil, true)
+		}
 		if err != nil {
 			return nil, err
 		}

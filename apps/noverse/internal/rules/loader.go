@@ -21,6 +21,9 @@ type LoadOptions struct {
 	// StoryRulesDir 是 <书目录>/.ainovel/rules/ 目录，优先级最高。空表示跳过。
 	// 书目录即项目目录时应留空（避免同名文件被算成两层覆盖）。
 	StoryRulesDir string
+	// Sources holds scoped documents supplied by a non-filesystem backend.
+	// They follow the home layer and participate in the same nearer-wins merge.
+	Sources []RawSource
 }
 
 // ainovelDirName 是 ainovel 在 user / project 两级共用的 dotdir 名。

@@ -1,6 +1,13 @@
 package host
 
-import "log/slog"
+import (
+	"context"
+	"log/slog"
+
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
+	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+)
 
 type newOptions struct {
 	logFile                string
@@ -9,6 +16,9 @@ type newOptions struct {
 	allowUnconfiguredReads bool
 	recordToolResults      []string
 	storage                *Storage
+	ruleOptions            *rules.LoadOptions
+	simulationSources      func(context.Context) ([]sim.Source, error)
+	configLoader           func() (bootstrap.Config, error)
 }
 
 // NewOption 配置 Host 构造过程，运行时资源仍由 Host 持有。
@@ -36,4 +46,18 @@ func WithUnconfiguredReads() NewOption {
 // 落盘只为 measurement，不是持久化配置项。
 func WithToolResultRecording(names ...string) NewOption {
 	return func(opts *newOptions) { opts.recordToolResults = append(opts.recordToolResults, names...) }
+}
+
+// WithDocumentSources binds user documents without a worker filesystem.
+func WithDocumentSources(opts rules.LoadOptions, samples func(context.Context) ([]sim.Source, error)) NewOption {
+	return func(o *newOptions) {
+		o.ruleOptions = &opts
+		o.simulationSources = samples
+	}
+}
+
+// WithConfigLoader binds runtime config reloads to the same scoped source as
+// startup. File hosts keep their existing filesystem chain.
+func WithConfigLoader(load func() (bootstrap.Config, error)) NewOption {
+	return func(o *newOptions) { o.configLoader = load }
 }

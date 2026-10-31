@@ -18,7 +18,7 @@ func TestBlobConfig(t *testing.T) {
 		for _, key := range []string{
 			"STORAGE_DRIVER", "BLOB_LOCAL_ROOT", "S3_ENDPOINT", "S3_REGION",
 			"S3_BUCKET", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY",
-			"S3_FORCE_PATH_STYLE", "S3_PUBLIC_BASE_URL", "S3_ALLOW_INSECURE_ENDPOINT",
+			"S3_FORCE_PATH_STYLE", "S3_ALLOW_INSECURE_ENDPOINT",
 		} {
 			t.Setenv(key, "")
 		}
@@ -109,6 +109,19 @@ func TestBlobConfig(t *testing.T) {
 		cfg := mustBlobCfg(t)
 		if strings.Contains(cfg.SafeSummary(), "Sup3rSecret") || strings.Contains(cfg.SafeSummary(), "akid") {
 			t.Fatalf("SafeSummary leaked credentials: %s", cfg.SafeSummary())
+		}
+		// Summaries must also remain safe before configuration validation.
+		for _, endpoint := range []string{
+			"https://user:EndpointSecret@s3.example.com/path?token=QuerySecret#FragmentSecret",
+			"not a URL:EndpointSecret",
+		} {
+			cfg.S3.Endpoint = endpoint
+			summary := cfg.SafeSummary()
+			for _, secret := range []string{"EndpointSecret", "QuerySecret", "FragmentSecret", "/path"} {
+				if strings.Contains(summary, secret) {
+					t.Fatalf("SafeSummary leaked endpoint content: %s", summary)
+				}
+			}
 		}
 	})
 

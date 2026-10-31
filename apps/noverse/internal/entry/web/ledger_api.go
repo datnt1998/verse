@@ -68,8 +68,24 @@ func (g *Gateway) ledgerStories(ctx context.Context, lib library.Repository, use
 	}
 	return rows, candidate, nil
 }
-func ledgerArchitectModel(dir string) (llmtypes.ChatModel, error) {
-	cfg, err := bootstrap.LoadConfigAt(dir)
+func (g *Gateway) ledgerArchitectModel(ctx context.Context, lib library.Repository, user identity.User, p string) (llmtypes.ChatModel, error) {
+	ref, ok := lib.ResolveProject(ctx, actorOf(user), p)
+	if !ok {
+		return nil, library.ErrNotFound
+	}
+	var cfg bootstrap.Config
+	var err error
+	if ref.Dir == "" {
+		docs, docsErr := g.hostedConfigDocuments()
+		if docsErr != nil {
+			return nil, docsErr
+		}
+		// The ledger belongs to the project, not an individual story. Load
+		// the same global/project chain as the hosted engine, with no cwd fallback.
+		_, cfg, err = bootstrap.LoadHostedConfigChain(ctx, docs, configActor(user), p, "")
+	} else {
+		cfg, err = bootstrap.LoadConfigAt(ref.Dir)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +103,7 @@ func (g *Gateway) analyzeLedger(ctx context.Context, lib library.Repository, use
 	if err != nil {
 		return ledger.Proposal{}, ledger.Result{}, err
 	}
-	ref, _ := lib.ResolveProject(ctx, actorOf(user), p)
-	dir := ref.Dir
-	model, err := ledgerArchitectModel(dir)
+	model, err := g.ledgerArchitectModel(ctx, lib, user, p)
 	if err != nil {
 		return ledger.Proposal{}, ledger.Result{}, err
 	}

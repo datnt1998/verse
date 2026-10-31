@@ -588,54 +588,7 @@ func blobFromRow(r gen.Blob) Blob {
 	}
 }
 
-// StageBlob reserves a row before publishing its references. created_at is the
-// stage time; uploadJobID ties asynchronous uploads to the job whose live lease
-// GC must respect. Non-job uploads pass an invalid UUID.
-func (a *Audio) StageBlob(ctx context.Context, projectID pgtype.UUID, objectKey, driver, contentType string, createdBy, uploadJobID pgtype.UUID) (Blob, error) {
-	id, err := randomUUID()
-	if err != nil {
-		return Blob{}, fmt.Errorf("blob id: %w", errInvalidJobInput)
-	}
-	row, err := gen.New(a.pool).StageBlob(ctx, gen.StageBlobParams{
-		ID:            id,
-		ProjectID:     projectID,
-		ObjectKey:     objectKey,
-		StorageDriver: driver,
-		Sha256:        zeroSHA, // replaced by MarkBlobReady after the stream is hashed
-		SizeBytes:     0,
-		ContentType:   contentType,
-		CreatedBy:     createdBy,
-		UploadJobID:   uploadJobID,
-	})
-	if err != nil {
-		return Blob{}, sanitizeErr(err)
-	}
-	return blobFromRow(row), nil
-}
-
-const zeroSHA = "0000000000000000000000000000000000000000000000000000000000000000"
-
-// MarkBlobReady advances a staged row to 'ready' with the verified hash/size.
-func (a *Audio) MarkBlobReady(ctx context.Context, projectID, blobID pgtype.UUID, sha256Hex string, size int64) (Blob, error) {
-	if !sha256Re.MatchString(sha256Hex) {
-		return Blob{}, fmt.Errorf("sha256 %q không hợp lệ: %w", sha256Hex, errInvalidJobInput)
-	}
-	row, err := gen.New(a.pool).MarkBlobReady(ctx, gen.MarkBlobReadyParams{
-		ProjectID: projectID,
-		ID:        blobID,
-		Sha256:    sha256Hex,
-		SizeBytes: size,
-	})
-	if err != nil {
-		if noRows(err) {
-			return Blob{}, ErrJobState
-		}
-		return Blob{}, sanitizeErr(err)
-	}
-	return blobFromRow(row), nil
-}
-
-// BlobByKey returns a ready blob by object key (for export cache lookups).
+// BlobByKey returns the registry row by tenant-scoped object key.
 func (a *Audio) BlobByKey(ctx context.Context, projectID pgtype.UUID, objectKey string) (Blob, error) {
 	row, err := gen.New(a.pool).GetBlobByKey(ctx, gen.GetBlobByKeyParams{ProjectID: projectID, ObjectKey: objectKey})
 	if err != nil {
@@ -733,6 +686,35 @@ func (c *ExportCache) Put(ctx context.Context, scope ScopeRef, entry ExportCache
 	return exportCacheFromRow(row), nil
 }
 
+// ErrExportCacheExists means the logical export name was claimed between the
+// caller's existence check and its create-only insert.
+var ErrExportCacheExists = errors.New("tên tệp xuất vừa được sử dụng")
+
+// Create insert-claims a fresh export logical name. Callers that must not
+// overwrite (onExists fail/keep) use this instead of Put; the unique row is
+// the arbiter so two concurrent writers can never replace one another.
+func (c *ExportCache) Create(ctx context.Context, scope ScopeRef, entry ExportCacheEntry) (ExportCacheEntry, error) {
+	manifest := entry.InputManifest
+	if len(manifest) == 0 {
+		manifest = []byte("{}")
+	}
+	n, err := gen.New(c.pool).InsertExportCacheIfAbsent(ctx, gen.InsertExportCacheIfAbsentParams{
+		ProjectID:     scope.ProjectID,
+		StoryID:       scope.StoryID,
+		CacheKey:      entry.CacheKey,
+		BlobID:        entry.BlobID,
+		Kind:          entry.Kind,
+		InputManifest: manifest,
+	})
+	if err != nil {
+		return ExportCacheEntry{}, sanitizeErr(err)
+	}
+	if n == 0 {
+		return ExportCacheEntry{}, ErrExportCacheExists
+	}
+	return c.Get(ctx, scope, entry.CacheKey, entry.Kind)
+}
+
 // Expire invalidates live manifests without deleting rows or bytes. Only the
 // maintenance GC removes expired entries and their exclusively owned blobs.
 func (c *ExportCache) Expire(ctx context.Context, scope ScopeRef) (int64, error) {
@@ -803,6 +785,138 @@ func (a *Audio) BlobByKeyTx(ctx context.Context, tx pgx.Tx, projectID pgtype.UUI
 	return blobFromRow(row), nil
 }
 
+// ── project asset documents (Tư liệu: bìa / nhạc nền) ────────────────────────
+
+// AssetDoc is one project_documents row of kind 'asset' — the hosted twin of
+// a file under <project>/<dirs.assets>. LogicalName keeps the file-mode
+// relative path ("bia/<name>", "nhac/<name>") so every consumer stays
+// prefix-compatible; BlobID points at the content-addressed object.
+type AssetDoc struct {
+	ID          pgtype.UUID
+	LogicalName string
+	Payload     []byte
+	BlobID      pgtype.UUID
+	UpdatedAt   time.Time
+	Version     int64
+}
+
+func assetDocFromRow(r gen.ProjectDocument) AssetDoc {
+	return AssetDoc{
+		ID: r.ID, LogicalName: r.LogicalName, Payload: r.Payload,
+		BlobID: r.BlobID, UpdatedAt: r.UpdatedAt.Time, Version: r.Version,
+	}
+}
+
+// ListAssetDocs returns the project's asset documents ordered by logical name.
+func (a *Audio) ListAssetDocs(ctx context.Context, projectID pgtype.UUID) ([]AssetDoc, error) {
+	rows, err := gen.New(a.pool).ListProjectDocumentsByKind(ctx, gen.ListProjectDocumentsByKindParams{
+		ProjectID: projectID,
+		Kind:      "asset",
+	})
+	if err != nil {
+		return nil, sanitizeErr(err)
+	}
+	out := make([]AssetDoc, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, assetDocFromRow(r))
+	}
+	return out, nil
+}
+
+// ErrAssetDocNotFound is a missing project asset document inside the
+// caller's scope — distinct from job errors so callers don't conflate
+// registry misses with queue state.
+var ErrAssetDocNotFound = errors.New("không tìm thấy tư liệu này")
+
+// AssetDocByName resolves one asset document by logical name.
+func (a *Audio) AssetDocByName(ctx context.Context, projectID pgtype.UUID, name string) (AssetDoc, error) {
+	row, err := gen.New(a.pool).GetProjectDocumentByName(ctx, gen.GetProjectDocumentByNameParams{
+		ProjectID:   projectID,
+		Kind:        "asset",
+		LogicalName: name,
+	})
+	if err != nil {
+		if noRows(err) {
+			return AssetDoc{}, ErrAssetDocNotFound
+		}
+		return AssetDoc{}, sanitizeErr(err)
+	}
+	return assetDocFromRow(row), nil
+}
+
+// PutAssetDoc upserts one asset document and returns the stored row.
+func (a *Audio) PutAssetDoc(ctx context.Context, projectID pgtype.UUID, name string, payload any, blobID pgtype.UUID) (AssetDoc, error) {
+	docID, err := randomUUID()
+	if err != nil {
+		return AssetDoc{}, err
+	}
+	body, err := marshalPayload(payload)
+	if err != nil {
+		return AssetDoc{}, err
+	}
+	row, err := gen.New(a.pool).UpsertProjectBlobDocument(ctx, gen.UpsertProjectBlobDocumentParams{
+		ProjectID:   projectID,
+		ID:          docID,
+		Kind:        "asset",
+		LogicalName: name,
+		Payload:     body,
+		BlobID:      blobID,
+	})
+	if err != nil {
+		return AssetDoc{}, sanitizeErr(err)
+	}
+	return assetDocFromRow(row), nil
+}
+
+// ErrAssetDocExists means the logical asset name was claimed between the
+// caller's existence check and its create-only insert.
+var ErrAssetDocExists = errors.New("tên tư liệu vừa được sử dụng")
+
+// CreateAssetDoc insert-claims one freshly allocated asset logical name and
+// returns the stored row. A unique-conflict loses to the concurrent winner —
+// unlike PutAssetDoc it never replaces an existing document.
+func (a *Audio) CreateAssetDoc(ctx context.Context, projectID pgtype.UUID, name string, payload any, blobID pgtype.UUID) (AssetDoc, error) {
+	docID, err := randomUUID()
+	if err != nil {
+		return AssetDoc{}, err
+	}
+	body, err := marshalPayload(payload)
+	if err != nil {
+		return AssetDoc{}, err
+	}
+	n, err := gen.New(a.pool).InsertAssetDocIfAbsent(ctx, gen.InsertAssetDocIfAbsentParams{
+		ProjectID:   projectID,
+		ID:          docID,
+		LogicalName: name,
+		Payload:     body,
+		BlobID:      blobID,
+	})
+	if err != nil {
+		return AssetDoc{}, sanitizeErr(err)
+	}
+	if n == 0 {
+		return AssetDoc{}, ErrAssetDocExists
+	}
+	return a.AssetDocByName(ctx, projectID, name)
+}
+
+// DeleteAssetDoc removes one asset document. The blob row/object stay behind
+// for the maintenance GC — the app never deletes bytes inline.
+func (a *Audio) DeleteAssetDoc(ctx context.Context, projectID pgtype.UUID, name string) error {
+	n, err := gen.New(a.pool).DeleteProjectDocumentByName(ctx, gen.DeleteProjectDocumentByNameParams{
+		ProjectID:   projectID,
+		Kind:        "asset",
+		LogicalName: name,
+	})
+	if err != nil {
+		return sanitizeErr(err)
+	}
+	if n == 0 {
+		return ErrAssetDocNotFound
+	}
+	return nil
+}
+
 // AddRenderTx records a candidate inside tx.
 func (a *Audio) AddRenderTx(ctx context.Context, tx pgx.Tx, projectID, chapterID pgtype.UUID, scriptRevision int32, r Render) (Render, error) {
 	return addRender(ctx, gen.New(tx), projectID, chapterID, scriptRevision, r)
@@ -835,12 +949,24 @@ func (a *Audio) SelectRenderTx(ctx context.Context, tx pgx.Tx, projectID, chapte
 	return renderFromRow(row), nil
 }
 
+// BlobProject resolves a ready blob's object key to its project slug — the
+// web BlobDelivery authorizer needs the slug for permission checks.
+func (a *Audio) BlobProject(ctx context.Context, key string) (string, error) {
+	slug, err := gen.New(a.pool).GetReadyBlobProject(ctx, key)
+	if err != nil {
+		if noRows(err) {
+			return "", ErrJobNotFound
+		}
+		return "", sanitizeErr(err)
+	}
+	return slug, nil
+}
+
 // SaveScriptBundle writes one script revision and its segment rows in a
 // single transaction, mirroring the file backend's atomic WriteScript.
 // expectedVersion is the row version the caller read (0 = create): the
 // script row is written with UPDATE ... WHERE version = expected, so a
 // concurrent edit is a conflict instead of a silent overwrite.
-//
 //   - segments that disappeared are deleted together with their renders (the
 //     FK on audio_renders forbids orphaning them);
 //   - segments whose audible text changed keep their row but lose the

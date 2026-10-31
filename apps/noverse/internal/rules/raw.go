@@ -29,6 +29,7 @@ func RawFileSources(opts LoadOptions) []RawSource {
 	out = append(out, rawDir(opts.HomeRulesDir, SourceGlobal)...)
 	out = append(out, rawDir(opts.ProjectRulesDir, SourceProject)...)
 	out = append(out, rawDir(opts.StoryRulesDir, SourceStory)...)
+	out = append(out, opts.Sources...)
 	// 同名文件就近覆盖：靠后的层（更近）胜出，保序输出仍按 全局→项目→故事。
 	best := make(map[string]int, len(out))
 	for i, s := range out {

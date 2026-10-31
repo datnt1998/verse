@@ -19,7 +19,10 @@ func (h *Host) SimulateSource(ctx context.Context, dir string) (<-chan sim.Event
 	h.exclusiveCancel = cancel
 	h.mu.Unlock()
 
-	if !filepath.IsAbs(dir) {
+	if h.simulationSources != nil {
+		// Hosted samples are scoped documents, never a caller-selected host path.
+		dir = "simulate"
+	} else if !filepath.IsAbs(dir) {
 		wd, err := os.Getwd()
 		if err != nil {
 			h.releaseExclusive()
@@ -38,7 +41,7 @@ func (h *Host) SimulateSource(ctx context.Context, dir string) (<-chan sim.Event
 			Merge:  h.bundle.Prompts.SimulationMerge,
 		},
 	}
-	ch, err := sim.Run(ctx, deps, sim.Options{SourceDir: dir})
+	ch, err := sim.Run(ctx, deps, sim.Options{SourceDir: dir, LoadSources: h.simulationSources})
 	if err != nil {
 		h.releaseExclusive()
 		return nil, err

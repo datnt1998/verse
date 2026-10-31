@@ -359,7 +359,7 @@ func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user i
 	case "volumes":
 		return g.serveAudioVolume(w, r, st, svc, sr, segs[1:])
 	case "voices":
-		return g.serveStoryVoices(w, r, st, svc, segs[1:])
+		return g.serveStoryVoices(w, r, user, st, svc, segs[1:])
 	case "cast":
 		if len(segs) == 2 && r.Method == http.MethodPut {
 			g.serveAudioRoleVoice(w, r, svc, segs[1])
@@ -1022,19 +1022,51 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 		return
 	}
 	ref, ok := lib.ResolveProject(r.Context(), actorOf(user), p)
-	if !ok || ref.Dir == "" {
+	if !ok {
 		jsonError(w, http.StatusNotFound, "không tìm thấy dự án")
 		return
 	}
-	layout, err := projectAudioLayout(g.RootPath(), ref.Dir)
+	files, err := g.openProjectAudioFiles(r.Context(), user, p, ref, lib.Config())
 	if err != nil {
 		audioError(w, err)
 		return
 	}
-	if _, tail, found := strings.Cut(r.URL.Path, "/voices/"); found {
+	defer files.cleanup()
+	layout := files.layout
+	tail := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/projects/"+url.PathEscape(p)+"/voices"), "/")
+	if tail != "" {
 		parts := strings.Split(tail, "/")
 		if len(parts) == 2 && parts[1] == "sample" && r.Method == http.MethodGet {
-			serveVoiceSample(w, r, layout, parts[0])
+			if files.projectID.Valid {
+				g.serveHostedProjectVoiceSample(w, r, layout, files.projectID, parts[0])
+			} else {
+				serveVoiceSample(w, r, layout, parts[0])
+			}
+			return
+		}
+		if len(parts) == 1 && r.Method == http.MethodDelete {
+			if !user.CanCollaborateProject(p) {
+				jsonError(w, http.StatusForbidden, "Không có quyền")
+				return
+			}
+			if err := audio.DeleteVoice(layout, parts[0]); err != nil {
+				audioError(w, err)
+				return
+			}
+			if files.projectID.Valid {
+				if err := g.deleteHostedProjectVoice(r.Context(), files.projectID, parts[0]); err != nil {
+					audioError(w, err)
+					return
+				}
+			}
+			g.projectChanged(p)
+			list, err := audio.ReadProjectVoices(layout)
+			if err != nil {
+				audioError(w, err)
+				return
+			}
+			projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
+			writeJSON(w, http.StatusOK, list)
 			return
 		}
 		jsonError(w, http.StatusNotFound, "Không tìm thấy mẫu giọng.")
@@ -1055,7 +1087,13 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 			return
 		}
 		rec := &audioStatusRecorder{ResponseWriter: w, status: http.StatusOK}
-		g.uploadProjectVoice(rec, r, layout)
+		if files.projectID.Valid {
+			g.uploadProjectVoice(rec, r, layout, func(v audio.ProjectVoice) error {
+				return g.publishProjectVoice(r.Context(), files, v)
+			})
+		} else {
+			g.uploadProjectVoice(rec, r, layout)
+		}
 		if rec.status < 300 {
 			g.events().Publish(Event{Type: "story.changed", Project: p, Data: map[string]any{"parts": []string{"audio"}}})
 		}
@@ -1065,7 +1103,7 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 }
 
 // uploadProjectVoice 接收 multipart（file + name + gender），校验 10–30 秒后入库。
-func (g *Gateway) uploadProjectVoice(w http.ResponseWriter, r *http.Request, layout audio.Layout) {
+func (g *Gateway) uploadProjectVoice(w http.ResponseWriter, r *http.Request, layout audio.Layout, publish ...func(audio.ProjectVoice) error) {
 	if !audio.FFmpegAvailable() {
 		jsonError(w, http.StatusServiceUnavailable, audio.ErrFFmpegMissing.Error())
 		return
@@ -1134,6 +1172,12 @@ func (g *Gateway) uploadProjectVoice(w http.ResponseWriter, r *http.Request, lay
 		audioError(w, err)
 		return
 	}
+	if len(publish) > 0 {
+		if err := publish[0](v); err != nil {
+			audioError(w, err)
+			return
+		}
+	}
 	v.SampleURL = strings.TrimSuffix(r.URL.Path, "/") + "/" + url.PathEscape(v.ID) + "/sample"
 	writeJSON(w, http.StatusOK, v)
 }
@@ -1149,8 +1193,12 @@ func (g *Gateway) serveProjectPronunciations(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	ref, ok := lib.ResolveProject(r.Context(), actorOf(user), p)
-	if !ok || ref.Dir == "" {
+	if !ok {
 		jsonError(w, http.StatusNotFound, "không tìm thấy dự án")
+		return
+	}
+	if ref.Dir == "" {
+		g.serveHostedProjectPronunciations(w, r, user, p)
 		return
 	}
 	layout, err := projectAudioLayout(g.RootPath(), ref.Dir)

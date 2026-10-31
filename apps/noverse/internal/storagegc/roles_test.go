@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
@@ -60,11 +59,9 @@ func TestGCApplicationRoleCannotDelete(t *testing.T) {
 	key, _ := keys.Export(testProject, testStory, hexOf("app-export"), "roles.txt")
 	f.put(t, key, "app-export")
 	audio := postgres.NewAudio(app)
-	staged, err := audio.StageBlob(ctx, project, key, "s3", "text/plain", pgtype.UUID{}, pgtype.UUID{})
-	if err != nil {
-		t.Fatalf("app stage upload: %v", err)
-	}
-	ready, err := audio.MarkBlobReady(ctx, project, staged.ID, hexOf("app-export"), 10)
+	ready, err := audio.PublishBlob(ctx, postgres.PublishInput{
+		ProjectID: project, Key: key, Driver: "s3", ContentType: "text/plain", SHA256: hexOf("app-export"), Size: 10,
+	})
 	if err != nil {
 		t.Fatalf("app publish ready: %v", err)
 	}

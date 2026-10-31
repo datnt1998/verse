@@ -84,9 +84,16 @@ type PutOptions struct {
 	// ContentType is stored as the object's declared type; empty means
 	// application/octet-stream.
 	ContentType string
+	// CacheControl is the stored response policy; empty means private, no-store.
+	// Public caching is always an explicit caller decision.
+	CacheControl string
+	// ContentDisposition is an optional HTTP disposition value. Use
+	// ContentDisposition(kind, filename) for a sanitized UTF-8 filename.
+	// Empty means inline, so audio playback is not forced into a download.
+	ContentDisposition string
 	// ExpectedSHA256, when set (lowercase hex, 64 chars), is verified against
-	// the computed digest of the streamed bytes; mismatch fails the put and
-	// leaves no committed object.
+	// the computed digest before publishing bytes. A mismatch leaves any
+	// existing object untouched.
 	ExpectedSHA256 string
 }
 
@@ -95,12 +102,15 @@ type DownloadOptions struct {
 	// Filename sets Content-Disposition on the signed response (download name
 	// only — never part of the object key). Sanitized by the driver.
 	Filename string
+	// Disposition selects "inline" or "attachment". Empty keeps attachment
+	// when Filename is supplied, and otherwise uses the stored disposition.
+	Disposition string
 }
 
 // BlobInfo describes one object. SHA256 is the canonical content digest:
 // always populated by Put; populated by Stat/Open only when the driver can
-// read it cheaply (S3 objects uploaded with ExpectedSHA256 carry it as
-// user metadata). ETag is provider bookkeeping and is NEVER the digest —
+// read it cheaply (all S3 Put calls store it as user metadata).
+// ETag is provider bookkeeping and is NEVER the digest —
 // multipart ETags are not MD5 and must not be treated as content hashes.
 type BlobInfo struct {
 	Key         string

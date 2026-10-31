@@ -121,7 +121,10 @@ func (q *Queries) AppendStoryEvent(ctx context.Context, arg AppendStoryEventPara
 
 const claimStoryLease = `-- name: ClaimStoryLease :execrows
 INSERT INTO story_leases (project_id, story_id, holder_id, fencing_token, lease_until)
-VALUES ($1, $2, $3, 1, $4)
+SELECT s.project_id, s.id, $3, 1, $4
+FROM stories s
+WHERE s.project_id = $1 AND s.id = $2 AND s.deleted_at IS NULL
+    AND (s.status = 'draft') = $5::boolean
 ON CONFLICT (project_id, story_id)
 DO UPDATE SET holder_id = EXCLUDED.holder_id,
     lease_until = EXCLUDED.lease_until,
@@ -132,17 +135,19 @@ WHERE story_leases.lease_until IS NULL OR story_leases.lease_until < now()
 
 type ClaimStoryLeaseParams struct {
 	ProjectID  pgtype.UUID        `json:"project_id"`
-	StoryID    pgtype.UUID        `json:"story_id"`
+	ID         pgtype.UUID        `json:"id"`
 	HolderID   pgtype.UUID        `json:"holder_id"`
 	LeaseUntil pgtype.Timestamptz `json:"lease_until"`
+	Draft      bool               `json:"draft"`
 }
 
 func (q *Queries) ClaimStoryLease(ctx context.Context, arg ClaimStoryLeaseParams) (int64, error) {
 	result, err := q.db.Exec(ctx, claimStoryLease,
 		arg.ProjectID,
-		arg.StoryID,
+		arg.ID,
 		arg.HolderID,
 		arg.LeaseUntil,
+		arg.Draft,
 	)
 	if err != nil {
 		return 0, err
@@ -227,6 +232,25 @@ type DeleteOutlineParams struct {
 func (q *Queries) DeleteOutline(ctx context.Context, arg DeleteOutlineParams) error {
 	_, err := q.db.Exec(ctx, deleteOutline, arg.ProjectID, arg.StoryID, arg.Kind)
 	return err
+}
+
+const deleteProjectDocumentByName = `-- name: DeleteProjectDocumentByName :execrows
+DELETE FROM project_documents
+WHERE project_id = $1 AND kind = $2 AND logical_name = $3
+`
+
+type DeleteProjectDocumentByNameParams struct {
+	ProjectID   pgtype.UUID `json:"project_id"`
+	Kind        string      `json:"kind"`
+	LogicalName string      `json:"logical_name"`
+}
+
+func (q *Queries) DeleteProjectDocumentByName(ctx context.Context, arg DeleteProjectDocumentByNameParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProjectDocumentByName, arg.ProjectID, arg.Kind, arg.LogicalName)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const deleteReviewDecision = `-- name: DeleteReviewDecision :execrows
@@ -456,6 +480,39 @@ func (q *Queries) GetCheckpointByTuple(ctx context.Context, arg GetCheckpointByT
 	return i, err
 }
 
+const getDraftBySlug = `-- name: GetDraftBySlug :one
+SELECT project_id, id, slug, title, short_title, synopsis, title_renamed, status, tags, published_at, deleted_at, idea_document_id, created_at, updated_at, version FROM stories
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status = 'draft'
+`
+
+type GetDraftBySlugParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	Slug      string      `json:"slug"`
+}
+
+func (q *Queries) GetDraftBySlug(ctx context.Context, arg GetDraftBySlugParams) (Story, error) {
+	row := q.db.QueryRow(ctx, getDraftBySlug, arg.ProjectID, arg.Slug)
+	var i Story
+	err := row.Scan(
+		&i.ProjectID,
+		&i.ID,
+		&i.Slug,
+		&i.Title,
+		&i.ShortTitle,
+		&i.Synopsis,
+		&i.TitleRenamed,
+		&i.Status,
+		&i.Tags,
+		&i.PublishedAt,
+		&i.DeletedAt,
+		&i.IdeaDocumentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
 const getMemberRole = `-- name: GetMemberRole :one
 
 
@@ -641,7 +698,7 @@ func (q *Queries) GetStoryByID(ctx context.Context, arg GetStoryByIDParams) (Sto
 
 const getStoryBySlug = `-- name: GetStoryBySlug :one
 SELECT project_id, id, slug, title, short_title, synopsis, title_renamed, status, tags, published_at, deleted_at, idea_document_id, created_at, updated_at, version FROM stories
-WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status <> 'draft'
 `
 
 type GetStoryBySlugParams struct {
@@ -1755,7 +1812,7 @@ func (q *Queries) ListReviewRounds(ctx context.Context, arg ListReviewRoundsPara
 
 const listStoriesByProject = `-- name: ListStoriesByProject :many
 SELECT project_id, id, slug, title, short_title, synopsis, title_renamed, status, tags, published_at, deleted_at, idea_document_id, created_at, updated_at, version FROM stories
-WHERE project_id = $1 AND deleted_at IS NULL
+WHERE project_id = $1 AND deleted_at IS NULL AND status <> 'draft'
 ORDER BY slug
 `
 
@@ -1851,7 +1908,7 @@ SELECT s.slug, d.logical_name AS idea_name
 FROM stories s
 JOIN project_documents d ON d.project_id = s.project_id
   AND d.id = s.idea_document_id
-WHERE s.project_id = $1 AND s.deleted_at IS NULL
+WHERE s.project_id = $1 AND s.deleted_at IS NULL AND s.status <> 'draft'
 ORDER BY s.slug
 `
 
@@ -2047,6 +2104,40 @@ func (q *Queries) LockCommentsByChapter(ctx context.Context, arg LockCommentsByC
 	return items, nil
 }
 
+const lockDraftBySlug = `-- name: LockDraftBySlug :one
+SELECT project_id, id, slug, title, short_title, synopsis, title_renamed, status, tags, published_at, deleted_at, idea_document_id, created_at, updated_at, version FROM stories
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status = 'draft'
+FOR NO KEY UPDATE
+`
+
+type LockDraftBySlugParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	Slug      string      `json:"slug"`
+}
+
+func (q *Queries) LockDraftBySlug(ctx context.Context, arg LockDraftBySlugParams) (Story, error) {
+	row := q.db.QueryRow(ctx, lockDraftBySlug, arg.ProjectID, arg.Slug)
+	var i Story
+	err := row.Scan(
+		&i.ProjectID,
+		&i.ID,
+		&i.Slug,
+		&i.Title,
+		&i.ShortTitle,
+		&i.Synopsis,
+		&i.TitleRenamed,
+		&i.Status,
+		&i.Tags,
+		&i.PublishedAt,
+		&i.DeletedAt,
+		&i.IdeaDocumentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
 const lockProjectRow = `-- name: LockProjectRow :one
 SELECT id FROM projects WHERE id = $1 AND deleted_at IS NULL FOR UPDATE
 `
@@ -2099,6 +2190,48 @@ func (q *Queries) LockStoryByID(ctx context.Context, arg LockStoryByIDParams) (L
 		&i.Tags,
 		&i.PublishedAt,
 		&i.IdeaDocumentID,
+		&i.Version,
+	)
+	return i, err
+}
+
+const promoteDraft = `-- name: PromoteDraft :one
+UPDATE stories SET slug = $3, title = $4, status = 'idea',
+    updated_at = clock_timestamp(), version = version + 1
+WHERE project_id = $1 AND id = $2 AND status = 'draft' AND deleted_at IS NULL
+RETURNING project_id, id, slug, title, short_title, synopsis, title_renamed, status, tags, published_at, deleted_at, idea_document_id, created_at, updated_at, version
+`
+
+type PromoteDraftParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	ID        pgtype.UUID `json:"id"`
+	Slug      string      `json:"slug"`
+	Title     string      `json:"title"`
+}
+
+func (q *Queries) PromoteDraft(ctx context.Context, arg PromoteDraftParams) (Story, error) {
+	row := q.db.QueryRow(ctx, promoteDraft,
+		arg.ProjectID,
+		arg.ID,
+		arg.Slug,
+		arg.Title,
+	)
+	var i Story
+	err := row.Scan(
+		&i.ProjectID,
+		&i.ID,
+		&i.Slug,
+		&i.Title,
+		&i.ShortTitle,
+		&i.Synopsis,
+		&i.TitleRenamed,
+		&i.Status,
+		&i.Tags,
+		&i.PublishedAt,
+		&i.DeletedAt,
+		&i.IdeaDocumentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.Version,
 	)
 	return i, err
@@ -2357,7 +2490,7 @@ func (q *Queries) SearchCharacters(ctx context.Context, arg SearchCharactersPara
 const searchStoryTitles = `-- name: SearchStoryTitles :many
 
 SELECT s.slug, s.title, similarity(s.title, $2) AS score FROM stories s
-WHERE s.project_id = $1 AND s.deleted_at IS NULL
+WHERE s.project_id = $1 AND s.deleted_at IS NULL AND s.status <> 'draft'
   AND (s.title ILIKE '%' || $2::text || '%' OR s.title % $2::text)
 ORDER BY score DESC, s.slug
 LIMIT $3
@@ -2670,6 +2803,51 @@ func (q *Queries) UpsertOutline(ctx context.Context, arg UpsertOutlineParams) er
 		arg.TextContent,
 	)
 	return err
+}
+
+const upsertProjectBlobDocument = `-- name: UpsertProjectBlobDocument :one
+INSERT INTO project_documents (project_id, id, kind, logical_name, payload, blob_id)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (project_id, kind, logical_name)
+DO UPDATE SET payload = EXCLUDED.payload, blob_id = EXCLUDED.blob_id,
+    updated_at = clock_timestamp(), version = project_documents.version + 1
+RETURNING project_id, id, kind, logical_name, text_content, payload, blob_id, created_at, updated_at, version
+`
+
+type UpsertProjectBlobDocumentParams struct {
+	ProjectID   pgtype.UUID `json:"project_id"`
+	ID          pgtype.UUID `json:"id"`
+	Kind        string      `json:"kind"`
+	LogicalName string      `json:"logical_name"`
+	Payload     []byte      `json:"payload"`
+	BlobID      pgtype.UUID `json:"blob_id"`
+}
+
+// Binary project documents (asset uploads): the row carries payload metadata
+// and a blobs FK; the bytes live on the BlobStore object key.
+func (q *Queries) UpsertProjectBlobDocument(ctx context.Context, arg UpsertProjectBlobDocumentParams) (ProjectDocument, error) {
+	row := q.db.QueryRow(ctx, upsertProjectBlobDocument,
+		arg.ProjectID,
+		arg.ID,
+		arg.Kind,
+		arg.LogicalName,
+		arg.Payload,
+		arg.BlobID,
+	)
+	var i ProjectDocument
+	err := row.Scan(
+		&i.ProjectID,
+		&i.ID,
+		&i.Kind,
+		&i.LogicalName,
+		&i.TextContent,
+		&i.Payload,
+		&i.BlobID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
 }
 
 const upsertProjectDocument = `-- name: UpsertProjectDocument :one

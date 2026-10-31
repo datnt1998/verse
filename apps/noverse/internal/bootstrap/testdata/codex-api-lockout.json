@@ -1,0 +1,25 @@
+{
+  "provider": "xai-oauth",
+  "model": "grok-4.7",
+  "reasoning_effort": "high",
+  "providers": {
+    "openai-codex": {
+      "type": "openai-codex",
+      "api": "responses",
+      "models": [
+        {
+          "name": "gpt-6.1-sol",
+          "context_window": 500000
+        }
+      ]
+    },
+    "xai-oauth": {
+      "type": "xai-oauth",
+      "models": [
+        {
+          "name": "grok-4.7"
+        }
+      ]
+    }
+  }
+}

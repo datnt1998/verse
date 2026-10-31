@@ -30,8 +30,8 @@ func TestMigrateFoundationUpIsIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first migrate up: %v", err)
 	}
-	if len(res) == 0 {
-		t.Fatal("first migrate up applied no migrations")
+	if len(res) != 18 {
+		t.Fatalf("fresh migration applied %d migrations, want 18", len(res))
 	}
 
 	res2, err := migrate.Up(ctx, db)
@@ -76,8 +76,8 @@ func TestMigrateVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("version after up: %v", err)
 	}
-	if v < 1 {
-		t.Fatalf("version after up = %d, want >= 1", v)
+	if v != 18 {
+		t.Fatalf("version after up = %d, want 18", v)
 	}
 }
 

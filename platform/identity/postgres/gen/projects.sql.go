@@ -351,18 +351,6 @@ func (q *Queries) LockProjectMembers(ctx context.Context, projectID pgtype.UUID)
 	return items, nil
 }
 
-const purgeAuditBefore = `-- name: PurgeAuditBefore :execrows
-DELETE FROM audit_logs WHERE occurred_at < $1
-`
-
-func (q *Queries) PurgeAuditBefore(ctx context.Context, occurredAt pgtype.Timestamptz) (int64, error) {
-	result, err := q.db.Exec(ctx, purgeAuditBefore, occurredAt)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const removeMember = `-- name: RemoveMember :exec
 UPDATE project_members SET removed_at = $3, updated_at = $3, version = version + 1
 WHERE project_id = $1 AND user_id = $2 AND removed_at IS NULL

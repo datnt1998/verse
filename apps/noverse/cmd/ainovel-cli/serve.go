@@ -53,17 +53,24 @@ func runServe(args []string) error {
 	if flags.NArg() != 0 {
 		return fmt.Errorf("tham số không hợp lệ: %v", flags.Args())
 	}
-	// 14 §G2 + 09 §10: --root thắng, rồi serve.json, rồi ~/Truyen nếu đã có; còn lại là chưa chọn
-	// nơi lưu truyện (absolute == ""), web sẽ hỏi ở bước hướng dẫn.
-	absolute, err := library.ResolveServeRoot(*root)
-	if err != nil {
-		return err
-	}
-	// 存储环境严格校验：坏的 STORE_DRIVER/DATABASE_URL 在启动期失败，
-	// 绝不静默回落 file。
 	storageCfg, err := bootstrap.StorageConfigFromEnv()
 	if err != nil {
 		return fmt.Errorf("cấu hình lưu trữ: %w", err)
+	}
+	// Hosted libraries have no filesystem root. The image provisions a data
+	// volume for file mode; native installs retain the existing folder picker.
+	absolute := ""
+	if storageCfg.Driver == bootstrap.StoreDriverFile {
+		absolute, err = library.ResolveServeRoot(*root)
+		if err != nil {
+			if warning := library.LibraryMountWarning(*root); warning != "" {
+				fmt.Fprintln(os.Stderr, "CẢNH BÁO:", warning)
+			}
+			return err
+		}
+		if warning := library.LibraryMountWarning(absolute); warning != "" {
+			fmt.Fprintln(os.Stderr, "CẢNH BÁO:", warning)
+		}
 	}
 	// STORAGE_ENV là tiền tố môi trường của mọi khoá blob; giá trị lạ là lỗi
 	// khởi động, không bao giờ đoán (trống = dev).
@@ -143,21 +150,25 @@ func runServe(args []string) error {
 			return bootstrap.OpenStoryStore(ctx, pool, st.Project, st.Story, actor)
 		})
 		nar := postgres.NewNarrative(pool)
-		blobCfg, err := bootstrap.BlobConfigFromEnv()
-		if err != nil {
-			return fmt.Errorf("đọc cấu hình blob: %w", err)
-		}
-		blobs, err := bootstrap.OpenBlobStore(blobCfg)
+		blobs, err := bootstrap.NewManagedBlobs(ctx, pool, keys)
 		if err != nil {
 			return fmt.Errorf("mở blob store: %w", err)
 		}
+		storageContext, stopStorage := context.WithCancel(ctx)
+		defer stopStorage()
+		go func() {
+			if err := blobs.Run(storageContext); err != nil && !errors.Is(err, context.Canceled) {
+				slog.Error("chuyển kho tệp dừng", "module", "storage")
+			}
+		}()
 		gateway.SetAudioStore(&web.PGAudioDeps{
-			Jobs:  postgres.NewJobs(pool),
-			Audio: postgres.NewAudio(pool),
-			Cache: postgres.NewExportCache(pool),
-			Nar:   nar,
-			Blobs: blobs,
-			Keys:  keys,
+			Jobs:    postgres.NewJobs(pool),
+			Audio:   postgres.NewAudio(pool),
+			Cache:   postgres.NewExportCache(pool),
+			Nar:     nar,
+			Blobs:   blobs,
+			Storage: blobs,
+			Keys:    keys,
 		})
 		// /readyz：schema 版本 + 连接（CheckSchema 查询数据库）和 BlobStore
 		// 可达性。TTS worker 不在探针里 —— 家里 Mac 掉线是队列退化，不是
@@ -175,14 +186,14 @@ func runServe(args []string) error {
 				return pool.SchemaVersion(ctx)
 			},
 			BlobReachable: func(ctx context.Context) error {
-				return bootstrap.CheckBlobStore(ctx, blobs, blobCfg)
+				return blobs.CheckHealth(ctx)
 			},
 		})
 		// Worker API listener: a separate bind (WORKER_LISTEN_ADDR, e.g. the
 		// Tailscale IP) so worker tokens never share the UI listener's ACLs.
 		// Unset means the API stays off — no implicit exposure.
 		if addr := strings.TrimSpace(os.Getenv("WORKER_LISTEN_ADDR")); addr != "" {
-			if err := runWorkerListener(addr, pool, blobs, blobCfg, keys); err != nil {
+			if err := runWorkerListener(addr, pool, blobs, keys); err != nil {
 				return fmt.Errorf("worker listener: %w", err)
 			}
 		}
@@ -215,7 +226,9 @@ func runServe(args []string) error {
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
 	ip := net.ParseIP(bound)
-	if absolute == "" {
+	if storageCfg.Driver == bootstrap.StoreDriverPostgres {
+		fmt.Printf("Truyện được lưu trong cơ sở dữ liệu của máy chủ.\nTài khoản: %s\n", accounts.Path())
+	} else if absolute == "" {
 		fmt.Printf("Chưa chọn nơi lưu truyện — chọn ở bước hướng dẫn trên web.\nTài khoản: %s\n", accounts.Path())
 	} else {
 		fmt.Printf("Thư mục sách: %s\nTài khoản: %s\n", absolute, accounts.Path())
@@ -501,7 +514,7 @@ func runServeUser(args []string) error {
 // (WORKER_LISTEN_ADDR — typically the server's Tailscale IP). Tokens are
 // checked against the durable jobs table; hosted workers claim PG jobs only,
 // so the file-dir claim path is a no-op here.
-func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobStore, blobCfg bootstrap.BlobConfig, keys blobkey.Keys) error {
+func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobStore, keys blobkey.Keys) error {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("không nghe được %s: %w", addr, err)
@@ -511,7 +524,7 @@ func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobSto
 	}
 	api := &web.WorkerAPI{
 		Queue: queue, Blobs: blobs, Registry: &web.PGAudioBlobs{Audio: postgres.NewAudio(pool)},
-		BlobDriver: string(blobCfg.Driver),
+		BlobDriver: blobstore.DriverName(blobs),
 		Keys:       keys,
 	}
 	server := &http.Server{Handler: api.Handler()}

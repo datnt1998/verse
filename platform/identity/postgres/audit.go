@@ -164,25 +164,43 @@ func listAuditRows(ctx context.Context, db gen.DBTX, typ, actor string, beforeSe
 	return out, nil
 }
 
-// PurgeAuditBefore removes audit rows older than cutoff. It is deliberately
-// NOT called from reads: audit_logs is append-only to the application role,
-// and only the migration/maintenance principal may run retention. The trigger
-// requires that privilege plus the maintenance marker, so this method fails
-// with the app DSN and works with the maintenance DSN (`storage purge-audit`).
-func (a *Accounts) PurgeAuditBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+// PurgeAuditBefore previews or deletes audit history under the maintenance
+// principal. A dry-run performs only SELECTs; real retention commits at most
+// 1000 rows per transaction and returns already committed progress on failure.
+func (a *Accounts) PurgeAuditBefore(ctx context.Context, cutoff time.Time, dryRun bool) (int64, error) {
 	if err := a.requireProjectAccess(); err != nil {
 		return 0, err
 	}
-	var n int64
-	err := RunInTx(ctx, a.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, `SET LOCAL noverse.allow_immutable_write = 'on'`); err != nil {
+	var allowed bool
+	if err := a.pool.QueryRow(ctx, `SELECT noverse_is_maintenance()`).Scan(&allowed); err != nil {
+		return 0, sanitizeErr(err)
+	}
+	if !allowed {
+		return 0, fmt.Errorf("storage purge-audit yêu cầu vai trò bảo trì noverse_migrate qua MIGRATION_DATABASE_URL")
+	}
+	if dryRun {
+		n, err := gen.New(a.pool).CountAuditBefore(ctx, ts(cutoff))
+		return n, sanitizeErr(err)
+	}
+	var total int64
+	for {
+		var n int64
+		err := RunInTx(ctx, a.pool, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(ctx, `SET LOCAL noverse.allow_immutable_write = 'on'`); err != nil {
+				return sanitizeErr(err)
+			}
+			var err error
+			n, err = a.q(tx).DeleteAuditRetentionBatch(ctx, gen.DeleteAuditRetentionBatchParams{Cutoff: ts(cutoff), BatchSize: 1000})
 			return sanitizeErr(err)
+		})
+		if err != nil {
+			return total, err
 		}
-		var err error
-		n, err = a.q(tx).PurgeAuditBefore(ctx, ts(cutoff))
-		return sanitizeErr(err)
-	})
-	return n, err
+		total += n
+		if n < 1000 {
+			return total, nil
+		}
+	}
 }
 
 // seqBefore parses "audit-00000042" (or bare digits) back to a sequence.

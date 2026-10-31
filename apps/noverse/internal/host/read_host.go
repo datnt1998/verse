@@ -9,6 +9,9 @@ import (
 // reading host deliberately has no ChatModel, runner, or engine to invoke.
 func (h *Host) ModelReady() bool { return h.models != nil }
 
+// ReadOnlyReason preserves the validation/construction error for the UI.
+func (h *Host) ReadOnlyReason() string { return h.readOnlyReason }
+
 // newReadHost builds a reading host over the file backend at cfg.OutputDir.
 func newReadHost(cfg bootstrap.Config, lease *bookLease) *Host {
 	return newReadHostWithStore(cfg, storepkg.NewStore(cfg.OutputDir), lease)

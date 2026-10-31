@@ -86,6 +86,7 @@ var (
 
 // stateKinds maps meta/*.json singletons onto story_state kinds.
 var stateKinds = map[string]string{
+	".ainovel/config.json":                  "config",
 	"meta/book.json":                        "book",
 	"meta/progress.json":                    "progress",
 	"meta/run.json":                         "run_meta",
@@ -107,6 +108,7 @@ var stateKinds = map[string]string{
 	"meta/style_rules.json":                 "style_rules",
 	"meta/cast_ledger.json":                 "cast",
 	"meta/outline_feedback_resolution.json": "outline_feedback_resolution",
+	".ainovel/cocreate/session.json":        "cocreate_session",
 	"world_rules.json":                      "world_rules",
 	"foreshadow_ledger.json":                "foreshadow",
 	"relationship_state.json":               "relationships",
