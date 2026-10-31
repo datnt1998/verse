@@ -2,6 +2,16 @@
 
 Mỗi đợt ghi: ngày, vấn đề, quyết định, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Đợt 1–2 và 10–14 không có mục riêng (ghi trong phần Trạng thái ban đầu và trong các đợt kế tiếp).
 
+## Đợt 29 (31/10/2026) — Gói V25: Lưu trữ khi chạy trên máy chủ (kho S3 dùng chung Garage) <!-- r29-s3 -->
+
+- Theo prompt `goi-v25-design-prompt.md` của dev. Luồng, thuật ngữ và cách hiện lỗi giống Noverse Gói AN (đã đối chiếu canvas Noverse › Tuỳ chỉnh › Lưu trữ tệp).
+- `Settings`: 13 giá trị `store` mới (`server` … `s3down`) cùng `sprov`, `sfail`, `skey`, `role`. Ổ máy chủ, chọn kho, form theo nhà cung cấp, kiểm tra 6 bước, 7 lỗi kèm cách sửa, xác nhận, đang chuyển (tạm dừng, huỷ hỏi lại tại chỗ), lỗi chuyển, kho đang dùng, do máy chủ đặt, chưa có khoá mã hoá, mất kết nối (banner, dòng đầu trang cho quản trị viên), dọn khi dùng kho S3, màn của thành viên. Bản máy tính (V22) không đổi.
+- `MSettings`: `store=server|s3active|s3moving|s3down`; hàng Lưu trữ ghi “Garage · 18,6 GB”; trang chỉ đọc.
+- Câu hỏi mở: (1) đang chuyển vẫn cho sửa video; (2) bỏ dòng “Dùng chung máy chủ lưu trữ với Noverse”, ghi GAP.
+- Lệch có chủ đích so với prompt: lỗi dùng cam của Viderse (không thêm đỏ); chỗ cũ không tự xoá (khác V22, giống AN).
+- Tài liệu: ia-flows W13 › Chạy trên máy chủ; data-contract §23.1; components › Lưu trữ trên máy chủ; copy › Lưu trữ trên máy chủ; dev-prompt Gói V25; hỏi đáp #49 (design hỏi dev).
+- Canvas phiên bản 54.
+
 ## Đợt 28 (30/10/2026) — Duyệt hỏi đáp Khám phá #31–#37 <!-- r28-explore -->
 
 - #31 khoá kèm một câu lý do tới V4/V6, câu hàng chờ không số: đồng ý. #37 `MExplore` dời V10: đồng ý, kèm yêu cầu cho bản một cột tạm.

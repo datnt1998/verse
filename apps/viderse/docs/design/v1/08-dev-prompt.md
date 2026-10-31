@@ -680,6 +680,45 @@ Nguồn sự thật:
 - Dán cookie bilibili.tv → báo không đăng nhập được, không lưu.
 - Ghi “Gói V24” vào `10-gap-closure.md`.
 
+## Gói V25 — Lưu trữ khi chạy trên máy chủ: kho S3 dùng chung Garage (P2, phụ thuộc V22, Noverse Gói AN) <!-- r29-s3 --> <a id="goi-v25"></a>
+
+**Vì sao:** Viderse chạy trên Mac mini (`vid.aarverse.studio`), đăng nhập chung với Noverse. Tệp dự án đang nằm trên ổ máy chủ (V22). Gói này thêm Kho S3; Viderse và Noverse dùng chung máy chủ Garage nhưng mỗi app một kho và một khoá. Màn phải giống Noverse Gói AN để người quản trị cả hai app thấy cùng một kiểu.
+- Artboard: `Settings` (`section=storage`, `store=server|s3pick|s3form|s3testing|s3testok|s3testfail|s3envlocked|s3nokey|s3confirm|s3moving|s3moveerr|s3active|s3down`, `sprov=garage|r2|aws|other`, `sfail=key|bucket|perm|net|clock|cors|reach`, `skey=new|saved`, `role=admin|member`; `clean=preview` với `store=s3active` là Dọn khi dùng kho S3) · `MSettings` (`screen=storage`, `store=server|s3active|s3moving|s3down`). Các giá trị V22 giữ nguyên.
+- Spec: ia-flows W13 › Lưu trữ › Chạy trên máy chủ; data-contract §23.1; components › Lưu trữ trên máy chủ; copy › Lưu trữ trên máy chủ.
+
+### Trả lời câu hỏi mở của prompt
+1. **Đang chuyển sang S3 có cho sửa video không?** Có. Video đang làm vẫn chạy, Bàn dựng và Duyệt sửa bình thường; tệp mới ghi vào chỗ cũ tới khi chuyển xong rồi được chép nốt. Hộp xác nhận và thẻ đang chuyển nói rõ điều này. Khác V22 (phải khoá vì đổi thư mục gốc trên máy).
+2. **Dòng “Dùng chung máy chủ lưu trữ với Noverse”:** bỏ, ghi GAP. App không biết kho của app kia; ghi chú tay dễ sai mà không ai sửa. Thay bằng một dòng ở form Garage: “Nên dùng kho và khoá riêng, không dùng chung kho với Noverse.” và một mẹo ở cột phải.
+
+### Việc FE
+- Mục Lưu trữ khi `GET /api/storage/server` có dữ liệu: đầu trang “Cài đặt · máy chủ”; quản trị viên thấy thẻ nơi lưu, mời chuyển (khi `kind = disk`), Dung lượng theo nhóm, Bộ nhớ đệm làm việc, Hoạt động từ lần khởi động, Chỗ cũ; thành viên chỉ thấy Dung lượng theo nhóm và Dọn.
+- `StorageProviderPicker` → `S3ConfigForm` (ô theo nhà cung cấp, *Lấy ở đâu?*, công tắc http, Cách gửi tệp, Địa chỉ kho cho trình duyệt) → `ConnectionTest` → thanh lưu → hộp xác nhận → `MigrationCard`. Sửa ô nào thì xoá kết quả kiểm tra. Một nút sáng mỗi lúc.
+- Kiểm tra với `delivery = redirect`: sau khi server trả `probeUrl`, trình duyệt `fetch(probeUrl, { headers: { Range: "bytes=0-1023" } })`; lỗi CORS hay lỗi mạng → gửi `probe` để server dịch thành `cors_blocked` / `browser_unreachable`.
+- `s3envlocked`: mọi giá trị chỉ đọc, không có Đổi kho; `s3nokey`: banner vàng, Lưu khoá. Khối “Chi tiết cho người quản trị máy chủ” gập sẵn là chỗ duy nhất có tên biến, tệp hay `key=value`.
+- Mất kết nối: banner ở mục Lưu trữ, `AdminStorageStrip` ở đầu mọi trang (quản trị viên), thông báo Cần xử lý; thành viên thấy một dòng thông tin.
+- Điện thoại: hàng Lưu trữ theo trạng thái; trang chỉ đọc + Kiểm tra kết nối; đổi kho chỉ trên máy tính.
+- Màu: lỗi dùng cam `#FF9A5C` của Viderse (prompt ghi “đỏ”, nhưng Viderse không có đỏ cho lỗi); không thêm màu mới. Biểu tượng mới `i-cloud`, `i-drive`, `i-lock` nằm trong CSS riêng của board (data-URI nét 1.5) cho tới khi vào bộ icon.
+
+### Việc backend
+- Lớp lưu trữ chung cho ổ máy chủ và S3 (đọc theo đoạn để tua MP4 ở cả hai cách gửi). Có thể dùng chung `blobstore` của Noverse (`apps/noverse/internal/blobstore/s3.go`, `bootstrap/storage.go`).
+- Biến môi trường theo §23.1; giá trị nào đặt bằng biến thì `sources[k] = "env"` và không cho sửa. Tên biến trên artboard là tạm (`VIDERSE_STORAGE_DRIVER`, `VIDERSE_S3_*`, `VIDERSE_BLOB_DELIVERY`), dev chốt ở hỏi đáp #49.
+- Khoá bí mật mã hoá bằng `secretbox` như khoá API; `encryptionKey = false` khi không có hoặc không tạo được khoá máy (hỏi đáp #49).
+- Bộ nhớ đệm làm việc: dựng video thì tải tệp cần dùng từ kho về, dựng xong đẩy kết quả lên kho; giới hạn dung lượng, bỏ tệp cũ nhất trước, không bỏ tệp của video đang dựng.
+- Đếm `OpStat` trong bộ nhớ từ lần khởi động. Chuyển dữ liệu chạy nền, chép rồi đọc lại từng tệp (so kích thước và hash), tạm dừng/tiếp tục/huỷ/thử lại; chỗ cũ không xoá.
+- Thông báo và `storageDown` theo §23.1; tự thử lại kết nối mỗi phút, kết nối lại thì bỏ hold.
+
+### Nghiệm thu
+- Ổ máy chủ → *Chọn kho S3* → Garage → điền `http://garage:3900`, `viderse-media`, khoá → *Kiểm tra kết nối*: 6 bước đạt, “Tạo link ký” ghi “không cần” (qua máy chủ) → *Lưu…* → hộp “Chuyển 412 tệp · 18,6 GB sang Garage?” → *Bắt đầu chuyển*: việc nền chạy, mở Bàn dựng vẫn sửa được video và lưu được.
+- Tắt mạng giữa chừng → thẻ chuyển “3 tệp lỗi”, bảng Nhóm · Video · Lý do; app vẫn dùng ổ máy chủ; *Thử lại 3 tệp lỗi* xong thì đổi kho, thẻ Chỗ cũ ghi đúng số tệp và dung lượng.
+- R2, Trực tiếp từ kho, chưa có CORS → bước “Trình duyệt tải được (CORS)” lỗi, khối lỗi có đoạn JSON điền sẵn `https://vid.aarverse.studio`; dán vào R2 rồi *Kiểm tra lại* → đạt. *Chuyển sang gửi qua máy chủ* → kiểm tra lại đạt mà không cần CORS.
+- Garage, Trực tiếp, địa chỉ nội bộ, không điền Địa chỉ kho cho trình duyệt → “Trình duyệt không tới được địa chỉ kho”.
+- Tua một MP4 30 phút ở cả hai cách gửi: nhảy tới phút 25 trong ≤ 2 giây (đọc theo đoạn).
+- Đặt kho bằng biến môi trường → mọi giá trị chỉ đọc, không có Đổi kho, *Kiểm tra kết nối* vẫn chạy.
+- Dừng Garage → trong ≤ 1 phút: banner mục Lưu trữ, dòng đầu trang cho quản trị viên, thông báo Cần xử lý; video đang làm tạm dừng; bật lại thì tự chạy tiếp. Thành viên chỉ thấy dòng thông tin.
+- Thành viên mở Lưu trữ → không thấy nơi lưu, bộ nhớ đệm, hoạt động; `GET /api/storage/server` không trả `storage`.
+- Không màn nào hiện `key=value`, tên biến hay mã lỗi thô ngoài khối chi tiết.
+- Ghi “Gói V25” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -706,6 +745,7 @@ Nguồn sự thật:
 | V21 | `posted_stats`, `insights`, `POST /api/clone/:id/posted { youtubeUrl }` |
 | V23 | registry `platforms/`, `backdrop_videos`, template `fixedVideoIds` + migration clip cố định, `POST /api/sources/parse`, `GET /api/platforms`, `platform_requests` | <!-- r22-sources -->
 | V24 | `POST/GET /api/platforms/:id/login/qr`, `POST …/login/refresh`, `PUT/DELETE …/login`; lưu cookie + refresh token; tự gia hạn trước khi quét; đăng nhập xong xoá giờ chờ bị chặn | <!-- r24-biliqr -->
+| V25 | `GET /api/storage/server`, `POST …/test` (+ `probe` từ trình duyệt), `PUT …/config`, `POST …/migrate` (+ pause/resume/cancel/retry); BackgroundTask `storage_migrate`; khoá bí mật qua `secretbox`; bộ nhớ đệm làm việc; `OpStat` từ lần khởi động; `storageDown` trong `/api/status` | <!-- r29-s3 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

@@ -296,3 +296,12 @@ Mẫu:
 ### #48 · Đổi tên template không làm cũ bản xem thử — Mở
 - yt-factory coi mọi lần lưu là làm cũ bản xem thử. Tên không ảnh hưởng bản dựng nên code giữ nguyên `revision` khi chỉ đổi tên.
 - Hỏi design: duyệt.
+
+### #49 · Gói V25: những điểm design cần dev chốt — Mở <!-- r29-s3 -->
+- Artboard: `Settings` · `section=storage`, `store=s3envlocked|s3nokey|s3moving`.
+- Hỏi dev:
+  1. **Tên biến môi trường.** Artboard ghi tạm `VIDERSE_STORAGE_DRIVER`, `VIDERSE_S3_ENDPOINT|REGION|BUCKET|FORCE_PATH_STYLE|ALLOW_INSECURE_ENDPOINT|PUBLIC_BASE_URL|ACCESS_KEY_ID|SECRET_ACCESS_KEY`, `VIDERSE_BLOB_DELIVERY=proxy|redirect` (theo Noverse, thêm tiền tố như `VIDERSE_DATABASE_URL`). Chốt tên để sửa khối “Chi tiết cho người quản trị máy chủ”.
+  2. **Khoá mã hoá trên máy chủ.** `secretbox` tự tạo `secret.key` khi ghi được thư mục cấu hình. Khi nào thì `encryptionKey = false` (thư mục chỉ đọc, nhiều bản chạy chung, khoá đặt bằng biến)? Nội dung khối chi tiết của `s3nokey` sửa theo câu trả lời.
+  3. **Danh sách nhóm dung lượng.** Artboard dùng 5 nhóm: ảnh đã vẽ, project editor, thư viện, video nguồn, bản xuất MP4. Video nền và lớp phủ nằm trong “Thư viện”? Nhóm nào chưa đếm được thì trả `null` để FE ghi GAP.
+  4. **Kiểm tra CORS chạy ở trình duyệt** (`probeUrl` + `probe`, §23.1). Đồng ý cách này hay có cách khác?
+  5. **Huỷ chuyển:** tệp đã chép nằm lại kho mới (như Noverse AN), quản trị viên tự xoá. Có cần nút xoá phần đã chép không?

@@ -531,6 +531,63 @@ POST /api/storage/use-default-for-new                   // khi ổ bị rút: vi
 - `kind: "storage_move"` thêm vào `BackgroundTask.kind`; tiến độ theo nhóm `{ group: "images" | "editor" | "sources" | "exports", done, total }`.
 - `Notification.kind = "needs_attention"` với `objectRef.type = "storage"` khi `online` chuyển sang `false`.
 
+## §23.1 · Lưu trữ khi chạy trên máy chủ (mới, Gói V25) <a id="storage-server"></a> <!-- r29-s3 -->
+
+Chỉ có khi Viderse chạy trên máy chủ. Bản desktop vẫn dùng §23. Phần cấu hình chỉ trả cho quản trị viên; thành viên nhận `usage` và phần dọn của §23.
+
+```ts
+type StorageKind = "disk" | "s3";
+type S3Provider = "garage" | "r2" | "aws" | "gcs" | "wasabi" | "b2" | "do" | "other";
+type Delivery = "proxy" | "redirect";            // Qua máy chủ Viderse | Trực tiếp từ kho (link ký)
+type ValueSource = "env" | "app" | "default";    // biến môi trường · lưu trong app · mặc định
+type StorageErrorCode = "wrong_key" | "no_bucket" | "no_write_permission" | "no_delete_permission" | "unreachable_endpoint"
+  | "clock_skew" | "cors_blocked" | "browser_unreachable" | "storage_error";
+interface ServerStorage {
+  kind: StorageKind;
+  provider?: S3Provider;
+  endpointHost?: string;           // chỉ host[:cổng], ví dụ "garage:3900"
+  publicBaseUrl?: string;          // Địa chỉ kho cho trình duyệt (redirect + địa chỉ nội bộ)
+  delivery: Delivery;
+  region?: string; bucket?: string; forcePathStyle?: boolean; allowInsecure?: boolean;
+  accessKeyLast4?: string;         // "c41d"; khoá bí mật không bao giờ trả về
+  sources: Partial<Record<"endpoint" | "region" | "bucket" | "keys" | "delivery" | "publicBaseUrl" | "forcePathStyle" | "allowInsecure", ValueSource>>;
+  encryptionKey: boolean;          // máy chủ có khoá mã hoá để lưu khoá bí mật chưa (s3nokey khi false)
+  online: boolean; checkedAt: string; lastError?: StorageErrorCode;
+  disk?: { path: string; freeBytes: number };                          // khi kind = "disk"
+  previous?: { kind: StorageKind; label: string; path?: string; files: number; bytes: number };   // chỗ cũ sau khi chuyển; không tự xoá
+}
+interface UsageGroup { group: "images" | "editor" | "library" | "sources" | "exports"; files: number; bytes: number }   // danh sách cuối do dev chốt; nhóm chưa có số → GAP
+interface OpStat { op: "put" | "get" | "presign" | "delete"; count: number; errors: number; bytes: number; avgMs: number; maxMs: number }   // từ lần khởi động
+GET  /api/storage/server → { role: "admin" | "member"; storage?: ServerStorage; usage: UsageGroup[]; workCache?: { usedBytes: number; limitBytes: number }; ops?: OpStat[]; migration?: Migration }
+
+interface S3Config { provider: S3Provider; endpoint?: string; accountId?: string; region?: string; bucket: string;
+  accessKeyId?: string; secretAccessKey?: string;   // bỏ trống cả hai = giữ khoá đã lưu
+  forcePathStyle?: boolean; allowInsecure?: boolean; delivery: Delivery; publicBaseUrl?: string }
+POST /api/storage/server/test { config: S3Config }
+  → { testId; steps: { id: "write" | "read" | "range" | "presign" | "cors_probe" | "app_range" | "delete"; status: "ok" | "fail" | "skip" | "na" | "pending"; ms?: number }[];
+      probeUrl?: string;           // redirect: link ký để TRÌNH DUYỆT tải thử Range bytes=0-1023
+      error?: { code: StorageErrorCode; step: string } }
+POST /api/storage/server/test/:testId/probe { ok: boolean; reason?: "cors" | "network" } → kết quả đủ 6 bước (server chạy nốt delete)
+PUT  /api/storage/server/config { config: S3Config; testId } → { needsMigration: { files: number; bytes: number; groups: UsageGroup[] } | null }
+     // 409 khi testId chưa đạt hoặc config khác lúc test; 423 khi encryptionKey = false; 403 khi giá trị do máy chủ đặt
+POST /api/storage/server/migrate → { taskId }                      // BackgroundTask kind "storage_migrate" (§11)
+POST /api/storage/server/migrate/:taskId/pause | resume | cancel | retry
+
+type MigrationErrorCode = "content_mismatch" | "unreachable_endpoint" | "storage_error" | "wrong_key";
+interface Migration {
+  taskId: string; state: "running" | "paused" | "error" | "done" | "cancelled";
+  from: { kind: StorageKind; label: string }; to: { kind: StorageKind; label: string };
+  files: { done: number; total: number }; bytes: { done: number; total: number }; checked: number;
+  rateBps: number; startedAt: string; finishedAt?: string;
+  groups: { group: UsageGroup["group"]; files: { done: number; total: number }; bytes: { done: number; total: number }; state: "done" | "running" | "waiting" | "error" }[];
+  errors: { group: UsageGroup["group"]; jobId?: string; title: string; detail?: string; code: MigrationErrorCode }[];   // FE dịch code (06-copy)
+}
+```
+- Thời gian còn lại = (bytes.total − bytes.done) ÷ `rateBps` (trung bình trượt 30 giây). Chưa đủ 10 giây dữ liệu thì không hiện.
+- Trong lúc chuyển: đọc ở chỗ cũ, ghi mới vào chỗ cũ, cuối cùng chép nốt phần ghi mới rồi đổi `kind` trong một bước. Còn `errors` thì không đổi.
+- `online` false → `Notification.kind = "needs_attention"`, `objectRef.type = "storage"` (chỉ gửi cho quản trị viên) và `GET /api/status` trả `storageDown: { label: string; since: string }` để vẽ dòng cảnh báo đầu trang. Hold dùng lại `HoldOffline` của V22.
+- Dọn (§23) có thêm nhóm: `orphan_objects` (tệp trên kho của video đã xoá), `work_cache` (chỉ quản trị viên; giữ tệp của video đang dựng).
+
 ## §24 · Video nền và nền tảng nguồn (mới, Gói V23) <a id="sources"></a> <!-- r22-sources -->
 
 ```ts

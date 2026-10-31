@@ -266,6 +266,13 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - **ExportGateDialog:** `.vv-dialog` `role=alertdialog`, icon cảnh báo, liệt kê mục còn lại; **Sửa tiếp** (chính) · **Vẫn xuất**.
 - Một nút chính mỗi lúc: còn lệch → Khớp theo giọng; sửa xong → Đo lại; đạt → Xuất.
 
+## Lưu trữ trên máy chủ: StorageProviderPicker · S3ConfigForm · ConnectionTest · MigrationCard · AdminStorageStrip <a id="c-storage-server"></a> <!-- r29-s3 -->
+- **StorageProviderPicker:** lưới 2 cột, mỗi thẻ là một nút: logo đơn sắc (chữ viết tắt trong vòng tròn 40px), tên, một dòng gợi ý, cách gửi gợi ý, mũi tên. Kho đang dùng có nhãn Đang dùng và nền chọn `rgba(255,255,255,.08)`, không viền màu một bên.
+- **S3ConfigForm:** lưới 2 cột; địa chỉ và Account ID chiếm cả hàng. Ô khoá, địa chỉ, tên kho dùng chữ mono. Khoá đã lưu là `FieldBox` chỉ đọc (`••••c41d` · Đã lưu · *Đổi khoá*). Công tắc dùng `vv-switch`. *Lấy ở đâu?* là nút chữ ở đầu thẻ, mở một vùng hướng dẫn tại chỗ. Cách gửi tệp là `vv-choice--lg` dạng radio, hai dòng +/− màu xanh/vàng.
+- **ConnectionTest:** danh sách bước, mỗi hàng: biểu tượng trạng thái (chờ: vòng rỗng · chạy: spinner · đạt: tick xanh · không cần: gạch · lỗi: tam giác cam), tên, mô tả, thời gian. Kết quả là một khối dưới danh sách: xanh khi đạt, cam khi lỗi (lý do, Cách sửa, đoạn mã có *Chép*, nút sửa).
+- **MigrationCard:** cũng là một dòng trong Việc nền. Hai `vv-progress` (số tệp, dung lượng), bảng nhóm, dòng tốc độ và Đã chép · Đã kiểm tra · Lỗi; khi lỗi thì có bảng Nhóm · Video · Lý do. Huỷ hỏi lại tại chỗ, không mở hộp thoại.
+- **AdminStorageStrip:** dải cam nhạt dưới thanh trên cùng, chỉ quản trị viên thấy, ở mọi trang khi kho mất kết nối; một câu + *Mở Lưu trữ*.
+
 ## Menu <!-- r28-explore -->
 - Mọi menu ⋯ dùng `ActionMenu` của kit: đệm hàng 6/10, cách hàng 0, bo 8; chỉ đổi `width` (menu đối thủ 272px). Hàng có dòng phụ giữ đệm này, không tăng riêng.
 

@@ -156,3 +156,55 @@ Câu chuẩn cho các trạng thái không vẽ frame riêng (hỏi đáp #31, #
 | | không có | “Không có video nào có “basement” trong tiêu đề” + dòng phụ nói đang tìm ở đâu, lọc gì | Xoá tìm |
 
 <!-- r3 -->
+
+## Lưu trữ trên máy chủ <a id="copy-storage-server"></a> <!-- r29-s3 -->
+
+Thuật ngữ y như Noverse Gói AN. Tiếng Anh chỉ hiện nhỏ trong hướng dẫn “Lấy ở đâu?” khi cần đối chiếu với trang nhà cung cấp.
+
+| Dùng | Không dùng |
+|---|---|
+| tên kho | bucket |
+| địa chỉ máy chủ lưu trữ (Garage: địa chỉ máy chủ nội bộ) | endpoint |
+| mã khoá truy cập · khoá bí mật | access key · secret key |
+| link ký | presigned URL |
+| Trực tiếp từ kho · Qua máy chủ Viderse | redirect · proxy |
+| kiểu đường dẫn máy-chủ/tên-kho | path-style |
+| bộ nhớ đệm làm việc | cache, work dir |
+| chuyển dữ liệu · chuyển kho | migrate, migration |
+| ổ đĩa máy chủ | local disk, filesystem |
+
+| Chỗ | Trạng thái / mã | Câu | Nút |
+|---|---|---|---|
+| Thẻ nơi lưu | `online` | Nhãn “Hoạt động tốt” · “Kho đang dùng · kiểm tra lúc 21:31” | Kiểm tra kết nối · Đổi kho… |
+| | kiểm tra lại đạt | “Kết nối đạt · 6 bước · tổng 0,4 giây · 21:33” | — |
+| | `env` | Nhãn “do máy chủ đặt · chỉ đọc”. “Kho tệp do máy chủ đặt sẵn. Ở đây chỉ xem và kiểm tra kết nối được. Muốn đổi kho, đổi khoá hay cách gửi tệp thì sửa cấu hình máy chủ rồi khởi động lại Viderse.” | Chi tiết cho người quản trị máy chủ |
+| Mời chuyển | `kind = disk` | “Ổ máy chủ đầy hoặc hỏng là mất tệp. Kho S3 (Garage đang chạy trên Mac mini, hoặc đám mây như Cloudflare R2) bền hơn và dễ mở rộng. Viderse chép đủ tệp, đọc lại từng tệp rồi mới đổi.” | Chọn kho S3 |
+| Mất kết nối | `online = false` | “Không kết nối được kho Garage” · “Máy chủ Viderse không mở được kết nối tới garage:3900 (hết thời gian chờ). 2 video đang làm đã tạm dừng, hàng chờ chưa chạy; xem và tải video trong app đang lỗi. Kết nối lại thì tự chạy tiếp, không mất gì.” · “Lần thử gần nhất 21:42 · 40 giây trước · tự thử lại mỗi phút” | Kiểm tra lại |
+| | dòng đầu trang (quản trị viên) | “**Không kết nối được kho tệp Garage.** 2 video đang làm đã tạm dừng, hàng chờ chưa chạy. Kết nối lại thì tự chạy tiếp.” | Mở Lưu trữ |
+| | thành viên | “Kho tệp đang mất kết nối nên video của bạn tạm dừng. Quản trị viên đã được báo; kết nối lại thì video tự chạy tiếp.” | — |
+| Form | chưa có khoá mã hoá | “Máy chủ chưa có khoá mã hoá nên chưa lưu được khoá bí mật” · “Khoá bí mật của kho luôn được mã hoá trước khi lưu, để ai đọc được cơ sở dữ liệu cũng không lấy được khoá. Bạn vẫn kiểm tra kết nối được; lưu thì phải chờ người quản trị máy chủ thêm khoá mã hoá.” | Chi tiết cho người quản trị máy chủ |
+| | http bật | “Đang bật: chỉ an toàn khi Viderse và kho nằm cùng một máy hoặc cùng mạng nội bộ, không đi qua internet.” | — |
+| | địa chỉ cho trình duyệt trống | “Để trống thì trình duyệt không tải được tệp, xem video sẽ lỗi. Không có tên miền thì chọn “Qua máy chủ Viderse”.” | — |
+| Thanh lưu | idle · run · ok · fail · nokey | “Kiểm tra kết nối đạt rồi mới lưu được” · “Đang kiểm tra kết nối…” · “Kết nối đạt · lưu rồi xác nhận chuyển 412 tệp · 18,6 GB sang Garage” · “Kết nối chưa đạt · sửa rồi kiểm tra lại” · “Máy chủ chưa có khoá mã hoá nên chưa lưu được” | Huỷ · Lưu… |
+| Xác nhận | — | “Chuyển 412 tệp · 18,6 GB sang Garage?” · “Từ ổ đĩa máy chủ · kết nối đã kiểm tra đạt · theo dõi trong Việc nền” | Huỷ · Bắt đầu chuyển |
+| Đang chuyển | `running` · `paused` | Nhãn “Đang chạy” / “Tạm dừng”. “Bắt đầu lúc 21:06. Video đang làm vẫn chạy, Bàn dựng và Duyệt vẫn sửa được. Tệp mới vẫn ghi vào ổ máy chủ cho tới khi chuyển xong, rồi được chép nốt. Ổ máy chủ không bị xoá.” · “42 MB/giây · còn khoảng 4 phút” | Tạm dừng / Tiếp tục · Huỷ chuyển |
+| | hỏi huỷ | “**Huỷ chuyển?** Viderse vẫn dùng ổ máy chủ, không mất tệp nào. 340 tệp đã chép sang Garage vẫn nằm trong kho viderse-media, bạn tự xoá nếu muốn.” | Tiếp tục chuyển · Huỷ chuyển |
+| | `error` | Tiêu đề “Chuyển sang Garage chưa xong”, nhãn “3 tệp lỗi”. “Còn tệp lỗi thì chưa đổi kho. Viderse vẫn dùng ổ máy chủ, không mất gì.” | Thử lại 3 tệp lỗi |
+| Chỗ cũ | `previous` | “Chỗ cũ: ổ đĩa máy chủ vẫn giữ 18,6 GB” · “Viderse đã thôi đọc từ ổ máy chủ. Khi đã yên tâm (mở vài project trong Bàn dựng, xem vài bản xuất), người quản trị máy chủ xoá thư mục cũ để lấy lại chỗ. Viderse không tự xoá.” | Chi tiết cho người quản trị máy chủ |
+| Điện thoại | dòng cuối | “Đổi kho, đổi khoá và chuyển dữ liệu làm trên máy tính: Cài đặt › Lưu trữ › Đổi kho…” (ổ máy chủ: “Chuyển sang kho S3 làm trên máy tính: Cài đặt › Lưu trữ › Chọn kho S3.”) | — |
+
+**Bước kiểm tra kết nối** (`step`): `write` Ghi thử · Ghi một tệp nhỏ vào kho · `read` Đọc lại · Đọc đúng tệp vừa ghi · `range` Đọc một đoạn · Dùng khi tua video · `presign` Tạo link ký · Link tải ngắn hạn cho trình duyệt (qua máy chủ: “Không cần khi gửi qua máy chủ”, cột thời gian “không cần”) · `cors_probe` Trình duyệt tải được (CORS) · Trình duyệt của bạn tải thử một đoạn bằng link ký · `app_range` Máy chủ gửi được một đoạn cho trình duyệt · Máy chủ đọc từ kho rồi gửi tiếp · `delete` Xoá tệp thử · Dọn tệp thử khỏi kho. Bước chưa chạy vì bước trước lỗi ghi “bỏ qua”.
+
+**Lỗi kiểm tra** (`StorageErrorCode` → tiêu đề · lý do · cách sửa; {P} nhà cung cấp, {B} tên kho, {H} địa chỉ, {A} địa chỉ app):
+
+| Mã | Bước | Tiêu đề | Lý do | Cách sửa |
+|---|---|---|---|---|
+| `wrong_key` | write | Kho từ chối khoá truy cập | Mã khoá truy cập hoặc khoá bí mật không đúng, hoặc khoá đã bị thu hồi. | Garage: “Chạy “garage key info viderse-app --show-secret” trên máy có Garage rồi chép lại cả hai khoá.” Khác: “Mở trang khoá của {P} và chép lại cả hai ô.” · “Khoá bí mật chỉ hiện một lần lúc tạo. Mất thì tạo khoá mới.” |
+| `no_bucket` | write | Không có kho tên “{B}” | Không có kho nào tên như vậy, hoặc khoá này chưa được cấp quyền vào kho. | “Kiểm tra chính tả: chữ thường, không dấu cách.” · Garage: “Tạo kho và cấp quyền bằng lệnh trong “Lấy ở đâu?”, rồi kiểm tra lại.” Khác: “Hoặc tạo kho trên trang của {P} rồi kiểm tra lại.” |
+| `no_delete_permission` | delete | Khoá chưa có quyền xoá tệp | Ghi và đọc được, nhưng khoá này không được xoá. Viderse cần xoá để dọn tệp của video đã xoá và tệp thử. | “Cấp quyền đọc, ghi và xoá trong kho này cho khoá.” · “Tệp thử còn trong kho sẽ tự dọn ở lần kiểm tra đạt sau.” |
+| `unreachable_endpoint` | write | Không kết nối được địa chỉ kho | Máy chủ Viderse không mở được kết nối tới {H} (hết thời gian chờ). | Garage: “Kiểm tra lại địa chỉ và cổng (thường 3900).” · “Viderse và Garage phải chung mạng Docker, hoặc dùng IP nội bộ của Mac mini.” · “Xem tường lửa có chặn cổng này không.” |
+| `clock_skew` | write | Đồng hồ máy chủ bị lệch | Kho từ chối chữ ký vì giờ trên máy chủ Viderse lệch quá xa giờ thật (thường quá 15 phút). | “Bật đồng bộ giờ tự động trên máy chủ, rồi kiểm tra lại.” |
+| `cors_blocked` | cors_probe | Trình duyệt bị kho chặn (thiếu CORS) | Máy chủ ghi và đọc được, nhưng kho chưa cho trang {A} tải tệp. Xem video, tua và tải bản xuất trên trình duyệt sẽ lỗi. | Đoạn cấu hình theo nhà cung cấp (R2, AWS: JSON; Garage: `cors.json` + lệnh `aws s3api put-bucket-cors`), câu “Dán xong, chờ chừng một phút rồi bấm Kiểm tra lại.”; nút Kiểm tra lại · Chuyển sang gửi qua máy chủ |
+| `browser_unreachable` | cors_probe | Trình duyệt không tới được địa chỉ kho | Địa chỉ {H} chỉ dùng được bên trong mạng của máy chủ. Trình duyệt của bạn không mở được nó, nên không tải thẳng từ kho được. | “Điền Địa chỉ kho cho trình duyệt (tên miền mở ra internet, có https).” · “Hoặc chuyển sang gửi qua máy chủ Viderse, không cần mở kho ra ngoài.” |
+
+**Lỗi chuyển** (`MigrationErrorCode`): `content_mismatch` “Chép xong nhưng đọc lại không khớp. Thường do mạng chập chờn, thử lại là được.” · `unreachable_endpoint` “Mất kết nối tới kho giữa chừng. Thử lại khi mạng ổn định.” · `storage_error` “Kho chưa nhận tệp này. Kiểm tra quyền của khoá và kết nối, rồi thử lại.” · `wrong_key` “Kho mới từ chối khoá. Khoá vừa bị thu hồi hoặc đổi.” Mã khác: “Chưa chép được tệp này. Thử lại; vẫn lỗi thì xuất log ở Báo lỗi.”
