@@ -20,7 +20,7 @@ describe('activity priorities', () => {
 })
 
 it('routes real task operations to their existing endpoints and request bodies', () => {
-  const task: BackgroundTask = { id: 'task', kind: 'tool_install', title: 'Cài', objectRef: { type: 'tool', id: 'chrome', label: 'Chrome' }, phase: '', progress: null, etaSec: null, state: 'failed', action: { label: 'Thử lại', op: 'retry' } }
+  const task: BackgroundTask = { id: 'task', kind: 'setup', title: 'Cài', objectRef: { type: 'tool', id: 'chrome', label: 'Chrome' }, phase: '', progress: null, etaSec: null, state: 'failed', action: { label: 'Thử lại', op: 'retry' } }
   expect(taskOperation(task)).toEqual({ path: '/api/tools/chrome/install', body: {} })
   expect(taskOperation({ ...task, objectRef: { type: 'setup_step', id: 'chrome', label: 'Chrome' } })).toEqual({ path: '/api/setup/retry', body: { id: 'chrome' } })
   expect(taskOperation({ ...task, objectRef: { type: 'storage_move', id: 'other', label: 'Ổ' }, action: { label: 'Huỷ', op: 'cancel' } })).toEqual({ path: '/api/storage/move/task/cancel', body: {} })

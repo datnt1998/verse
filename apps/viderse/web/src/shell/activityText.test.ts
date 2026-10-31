@@ -10,3 +10,8 @@ it('renders only stored channel, cause and media details', () => {
   expect(notificationDetail(n)).toContain('172 MB')
   expect(notificationDetail({ ...n, detail: undefined })).toBe('')
 })
+
+it('omits the per-channel count when a single notification names one channel', () => {
+  const n: AppNotification = { id: 'n', kind: 'ready_to_post', count: 1, text: 'Video sẵn sàng đăng', actions: [], createdAt: '2026-10-28T00:00:00Z', readAt: null, detail: { channels: [{ channelId: 'a', name: 'Midnight Tales', count: 1 }], mp4: { durationSec: 2292 } } }
+  expect(notificationDetail(n)).toBe('Midnight Tales · MP4 38:12')
+})

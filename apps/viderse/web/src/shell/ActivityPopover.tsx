@@ -21,13 +21,14 @@ const s = stylex.create({
   active: { backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg)', fontWeight: 600 },
   tabCount: { minWidth: 18, height: 18, padding: '0 var(--vv-s-5)', borderRadius: 'var(--vv-r-pill)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg-3)', fontSize: 11, fontWeight: 600 },
   activeCount: { backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)' },
-  scroll: { overflowY: 'auto', minHeight: 100 },
+  scroll: { overflowY: 'auto', minHeight: 100, paddingBottom: 'var(--vv-s-6)' },
   group: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'var(--vv-s-12) var(--vv-s-16) var(--vv-s-6)', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--color-fg-3)' },
   markRead: { height: 26, padding: '0 var(--vv-s-8)', display: 'inline-flex', alignItems: 'center', borderWidth: 0, borderRadius: 'var(--vv-r-7)', backgroundColor: 'transparent', color: 'var(--color-fg-3)', cursor: 'pointer', fontSize: 12 },
   row: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-10) var(--vv-s-16)' },
   content: { minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-4)' },
   title: { fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' },
-  sub: { fontSize: 12, color: 'var(--color-fg-3)', lineHeight: 1.5, overflowWrap: 'anywhere' },
+  sub: { fontSize: 12, color: 'var(--color-fg-3)', lineHeight: 1.55, overflowWrap: 'anywhere' },
+  taskStep: { fontSize: 11.5, color: 'var(--vv-fg-note)' },
   dot: { width: 7, height: 7, borderRadius: '50%', marginTop: 'var(--vv-s-6)', flexShrink: 0, backgroundColor: 'var(--color-warn)' },
   taskIcon: { width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg-3)', flexShrink: 0 },
   button: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'transparent', color: 'var(--color-fg)', borderRadius: 'var(--vv-r-8)', padding: 'var(--vv-s-6) var(--vv-s-9)', fontSize: 12, cursor: 'pointer', textDecoration: 'none', whiteSpace: 'nowrap' },
@@ -36,8 +37,8 @@ const s = stylex.create({
   noteRow: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-10) var(--vv-s-16) var(--vv-s-10) var(--vv-s-12)' },
   noteContent: { gap: 'var(--vv-s-2)' },
   noteTitle: { lineHeight: 1.4 },
-  noteDetail: { lineHeight: 1.45 },
-  noteTime: { fontSize: 11.5 },
+  noteDetail: { lineHeight: 1.45, color: 'var(--vv-fg-note)' },
+  noteTime: { fontSize: 11.5, lineHeight: 1.55, color: 'var(--vv-fg-note)' },
   noteDot: { marginTop: 'var(--vv-s-12)' },
   noteAction: { height: 28, boxSizing: 'border-box', padding: '0 var(--vv-s-10)', display: 'flex', alignItems: 'center', fontSize: 12.5 },
   footerAction: { display: 'inline-flex', alignItems: 'center', gap: 'var(--vv-s-6)', fontSize: 12.5 },
@@ -60,8 +61,7 @@ const s = stylex.create({
   segmentArtist: { backgroundColor: 'var(--vv-artist-ink)' },
   segmentQa: { backgroundColor: 'var(--vv-qa-ink)' },
   empty: { padding: 'var(--vv-s-28) var(--vv-s-24)', textAlign: 'center', color: 'var(--color-fg-3)', fontSize: 13, lineHeight: 1.6 },
-  emptyBody: { minHeight: 190, boxSizing: 'border-box', padding: 'var(--vv-s-28) var(--vv-s-24) var(--vv-s-22)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--vv-s-10)', textAlign: 'center' },
-  emptyRow: { padding: 'var(--vv-s-4) var(--vv-s-16)' },
+  emptyBody: { boxSizing: 'border-box', padding: 'var(--vv-s-28) var(--vv-s-24) var(--vv-s-22)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--vv-s-10)', textAlign: 'center' },
   emptyOrbs: { display: 'flex', gap: 'var(--vv-s-6)', opacity: 0.55 },
   emptyOrb: { width: 16, height: 16, borderRadius: '50%' },
   emptyTitle: { fontSize: 15, fontWeight: 600 },
@@ -102,7 +102,7 @@ function Task({ task, refresh }: { task: BackgroundTask; refresh: () => void }) 
       <span {...stylex.props(s.sub)}>{task.phase}</span>
       {progress && progress.total > 0 && <>
         {segments ? <span aria-hidden="true" {...stylex.props(s.segments)}>{Array.from({ length: progress.total }, (_, index) => <span key={index} {...stylex.props(s.segment, index < progress.done && (task.agent === 'scout' ? s.segmentScout : task.agent === 'director' ? s.segmentDirector : task.agent === 'artist' ? s.segmentArtist : s.segmentQa))} />)}</span> : <progress {...stylex.props(s.progress)} value={progress.done} max={progress.total} />}
-        <span {...stylex.props(s.sub)}>{task.kind === 'video' ? 'Bước ' : ''}{progress.done.toLocaleString('vi-VN')} / {progress.total.toLocaleString('vi-VN')}{elapsed != null && Number.isFinite(elapsed) ? ` · đã chạy ${elapsed} phút` : ''}{task.etaSec != null ? ` · còn khoảng ${Math.max(1, Math.ceil(task.etaSec / 60))} phút` : ''}</span>
+        <span {...stylex.props(s.sub, s.taskStep)}>{task.kind === 'video' ? 'Bước ' : ''}{progress.done.toLocaleString('vi-VN')} / {progress.total.toLocaleString('vi-VN')}{elapsed != null && Number.isFinite(elapsed) ? ` · đã chạy ${elapsed} phút` : ''}{task.etaSec != null ? ` · còn khoảng ${Math.max(1, Math.ceil(task.etaSec / 60))} phút` : ''}</span>
         {progress.groups?.map((group) => <span key={group.group} {...stylex.props(s.sub)}>{group.group}: {group.done.toLocaleString('vi-VN')} / {group.total.toLocaleString('vi-VN')}</span>)}
       </>}
       {error && <span role="alert" {...stylex.props(s.sub)}>{error}</span>}
@@ -168,11 +168,10 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
         </> : <>
           <div {...stylex.props(s.emptyBody)}>
             <span aria-hidden="true" {...stylex.props(s.emptyOrbs)}><span {...stylex.props(s.emptyOrb, s.scout)} /><span {...stylex.props(s.emptyOrb, s.director)} /><span {...stylex.props(s.emptyOrb, s.artist)} /><span {...stylex.props(s.emptyOrb, s.qa)} /></span>
-            <span {...stylex.props(s.emptyTitle)}>Máy đang rảnh</span><span {...stylex.props(s.emptyDescription)}>Không có video nào đang chạy hay chờ lượt.</span>
-            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} {...stylex.props(s.button)}>Làm video</a><a href="#/explore" {...stylex.props(s.button)}>Mở Khám phá</a></div>
+            <span {...stylex.props(s.emptyTitle)}>Máy đang rảnh</span><span {...stylex.props(s.emptyDescription)}>Không có video nào đang chạy hay chờ lượt.{activity.nextScan && <> Tự lấy video kiểm tra đối thủ lần tới lúc {new Date(activity.nextScan.at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}.</>}</span>
+            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} {...stylex.props(s.button, s.noteAction)}>Làm video</a><a href="#/explore" {...stylex.props(s.button, s.noteAction)}>Mở Khám phá</a></div>
           </div>
-          {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <div key={n.id} {...stylex.props(s.row, s.emptyRow)}><span {...stylex.props(s.taskIcon)}><Icon name="tick" size={15} /></span><div {...stylex.props(s.content)}><span {...stylex.props(s.title)}>{n.text}</span><span {...stylex.props(s.sub)}>{new Date(n.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>{n.actions.at(-1) && <a {...stylex.props(s.button)} href={n.actions.at(-1)!.href} onClick={close}>{n.actions.at(-1)!.label}</a>}</div>)}</>}
-          {activity.nextScan && <div {...stylex.props(s.row, s.emptyRow)}><span {...stylex.props(s.taskIcon)}><Icon name="clock" size={15} /></span><div {...stylex.props(s.content)}><span {...stylex.props(s.title)}>Lượt quét tự động kế tiếp</span><span {...stylex.props(s.sub)}>{new Date(activity.nextScan.at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} · {activity.nextScan.rivalChannels} kênh đối thủ</span></div></div>}
+          {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <div key={n.id} {...stylex.props(s.noteRow)}><span aria-hidden="true" {...stylex.props(s.dot, s.noteDot, s.hiddenDot)} /><span {...stylex.props(s.noteTile)}><Icon name="tick" size={15} /></span><div {...stylex.props(s.content, s.noteContent)}><span {...stylex.props(s.title, s.noteTitle)}>{n.text}</span>{notificationDetail(n) && <span {...stylex.props(s.sub, s.noteDetail)}>{notificationDetail(n)}</span>}<span {...stylex.props(s.sub, s.noteTime)}>{new Date(n.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>{n.actions.at(-1) && <a {...stylex.props(s.button, s.noteAction)} href={n.actions.at(-1)!.href} onClick={close}>{n.actions.at(-1)!.label}</a>}</div>)}</>}
         </>
           : history.error ? <div role="alert" {...stylex.props(s.empty)}>Không tải được thông báo. <button {...stylex.props(s.plain)} onClick={() => void history.refresh()}>Thử lại</button></div>
           : history.initialLoading ? <div {...stylex.props(s.empty)}>Đang tải…</div>
