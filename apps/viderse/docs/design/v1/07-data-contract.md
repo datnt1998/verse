@@ -615,7 +615,7 @@ POST /api/me/password → { ok: true, reauthenticate: true }; client về #/logi
 - **Lý do đăng nhập lại** (`reason`, `app`): `logout` + `app` khác app hiện tại → “Bạn vừa đăng xuất ở …”; `password_changed`; `admin_changed` (đổi quyền app, đặt lại mật khẩu, khoá); `expired`. Thiếu `reason` → câu chung. `?bye=1` và `?pw=1` do chính client đặt, không cần máy chủ.
 - `apps` rỗng hoặc chỉ có app hiện tại (chưa đặt `VERSE_APP_LINKS`) → không hiện nhóm Ứng dụng, không hiện *Mở Noverse*. Ở Thành viên (Noverse), thẻ quyền app vẫn hiện tên app và ô quyền, ẩn dòng địa chỉ và biểu tượng mở; không đoán địa chỉ. <!-- r31-v27 -->
 - `reason: "unknown"` không có cờ `vv.signedInBefore` trên trình duyệt → coi như lần đầu, không hiện khối lý do (06-copy).
-- Thiết bị: `GET /api/me/sessions` (§ Noverse) — một phiên mỗi thiết bị, chung cho hai app; `POST /api/sessions/:id/revoke`, `POST /api/me/sessions/revoke-all` (đăng xuất mọi thiết bị khác).
+- Thiết bị: `GET /api/me/sessions` → `{ sessions: [{ id, device, browser, lastActiveAt, expiresAt, current }] }` — một phiên mỗi thiết bị, chung cho hai app; `POST /api/sessions/:id/revoke`, `POST /api/me/sessions/revoke-all` (đăng xuất mọi thiết bị khác).
 
 ## §24 · Video nền và nền tảng nguồn (mới, Gói V23) <a id="sources"></a> <!-- r22-sources -->
 

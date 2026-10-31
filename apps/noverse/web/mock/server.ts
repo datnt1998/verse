@@ -345,6 +345,10 @@ const sessionJson = (s: MockSession, reqToken: string) => ({
   id: s.id, username: s.username, device: s.device, ip: s.ip,
   createdAt: s.createdAt, lastSeen: s.createdAt, expiresAt: s.expiresAt, current: s.token === reqToken,
 })
+const sessionListJson = (s: MockSession, reqToken: string) => {
+  const [device, browser = ''] = s.device.split(' · ')
+  return { id: s.id, device, browser, lastActiveAt: s.createdAt, expiresAt: s.expiresAt, current: s.token === reqToken }
+}
 
 // §AD · permissions are resolved from the current account on every request.
 const canRead = (u: User, sid: string) => !u.disabled && (u.role === 'admin' || !!u.projects[sid.split('/')[0]])
@@ -1254,7 +1258,7 @@ export function mockApiPlugin(): Plugin {
               }
             }
             if (sub === 'sessions') {
-              return json(res, 200, { sessions: Array.from(sessions.values()).filter((s) => s.username === user.username).map((s) => sessionJson(s, session.token)) })
+              return json(res, 200, { sessions: Array.from(sessions.values()).filter((s) => s.username === user.username).map((s) => sessionListJson(s, session.token)) })
             }
             if (sub === 'pairings' && req.method === 'POST') {
               const code = crypto.randomUUID().replaceAll('-', '')
@@ -1337,7 +1341,7 @@ export function mockApiPlugin(): Plugin {
                 emitGlobalEvent('account.changed', { username: target.user.username })
                 return json(res, 200, { ok: true })
               }
-              return json(res, 200, { sessions: Array.from(sessions.values()).filter((s) => s.username === target.user.username).map((s) => sessionJson(s, session?.token ?? '')) })
+              return json(res, 200, { sessions: Array.from(sessions.values()).filter((s) => s.username === target.user.username).map((s) => sessionListJson(s, session?.token ?? '')) })
             }
             if (seg[2] === 'pairings' && req.method === 'POST') {
               const code = crypto.randomUUID().replaceAll('-', '')

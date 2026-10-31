@@ -26,6 +26,7 @@ export function LoginScreen() {
   const mobile = useMediaQuery('(max-width: 767px)')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [networkError, setNetworkError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [remaining, setRemaining] = useState(0)
   useEffect(() => {
@@ -37,17 +38,18 @@ export function LoginScreen() {
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (busy || remaining || !username.trim() || !password) return
-    setBusy(true); setError('')
+    setBusy(true); setError(''); setNetworkError(false)
     try { await signIn(username.trim(), password) }
     catch (e) {
-      if (e instanceof ApiError && e.status === 429) setRemaining(Math.max(1, Math.ceil(e.retryAfter ?? 30)))
+      if (e instanceof ApiError && e.status === 0) setNetworkError(true)
+      else if (e instanceof ApiError && e.status === 429) setRemaining(Math.max(1, Math.ceil(e.retryAfter ?? 30)))
       else setError(e instanceof ApiError && e.status === 401 ? t.auth.wrongLogin : t.auth.loginFailed)
     } finally { setBusy(false) }
   }
-  const explanation = ended ? sessionExplanation(ended) : null
+  const explanation = ended && (ended.reason !== 'unknown' || localStorage.getItem('vv.signedInBefore')) ? sessionExplanation(ended) : null
   const input = stylex.props(sx.input)
   const button = stylex.props(sx.submit)
-  return <AuthShell footer="login">
+  return <AuthShell footer="login" offline={networkError}>
     <div {...stylex.props(sx.intro)}>
       <LensLogo size={mobile ? 56 : 64} halo />
       <h1 {...stylex.props(sx.title)}>{t.auth.loginTitle}</h1>
@@ -69,6 +71,7 @@ export function LoginScreen() {
           value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
       </div>
       {(error || remaining > 0) && <AuthError>{remaining ? t.auth.limited(time) : error}</AuthError>}
+      {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant="primary" pending={busy} disabled={busy || remaining > 0 || !username.trim() || !password} {...button}>
         {remaining ? t.auth.wait(time) : busy ? t.auth.loggingIn : t.auth.login}
       </Button>

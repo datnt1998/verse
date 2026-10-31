@@ -26,9 +26,8 @@ export type User = {
 export type Session = {
   id: string
   device: string
-  ip?: string
-  createdAt: string
-  lastSeen: string
+  browser: string
+  lastActiveAt: string
   expiresAt: string
   current: boolean
 }

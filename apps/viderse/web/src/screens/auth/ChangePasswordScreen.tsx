@@ -10,7 +10,7 @@ import { useState, type FormEvent } from 'react'
 import { ApiError, changePassword } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/vi'
-import { Button, FieldError, Icon, toast } from '@noverse/ui'
+import { Banner, Button, FieldError, Icon, toast } from '@noverse/ui'
 import { AuthError, AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
@@ -23,13 +23,14 @@ const MIN_PASSWORD = 8
  * Form đổi mật khẩu của chính mình. Thành công → toast + endSession (máy chủ
  * đã thu hồi mọi phiên). `forced` chỉ đổi nhãn trường hiện tại + dòng dẫn.
  */
-export function ChangePasswordForm({ forced = false, horizontal = false }: { forced?: boolean; horizontal?: boolean }) {
+export function ChangePasswordForm({ forced = false, horizontal = false, onNetworkChange }: { forced?: boolean; horizontal?: boolean; onNetworkChange?: (offline: boolean) => void }) {
   const mobile = useMediaQuery('(max-width: 767px)')
   const { endSession } = useSession()
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
+  const [networkError, setNetworkError] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const submit = async (event: FormEvent) => {
@@ -37,6 +38,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
     if (busy || !current || next.length < MIN_PASSWORD || next !== confirm) return
     setBusy(true)
     setError('')
+    setNetworkError(false); onNetworkChange?.(false)
     try {
       await changePassword(current, next)
       // Phiên đã bị thu hồi phía máy chủ — dọn UI về Đăng nhập, không gọi lại me.
@@ -44,6 +46,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
       window.location.hash = '/login?pw=1'
       endSession({ reason: 'password_changed' })
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) { setNetworkError(true); onNetworkChange?.(true); return }
       // 403 = sai mật khẩu hiện tại — thông báo riêng, không trôi chung với
       // 503 kho tài khoản hay mất kết nối.
       setError(e instanceof ApiError ? (e.status === 403 ? (forced ? t.auth.passwordForm.wrongTemp : t.auth.passwordForm.wrongCurrent) : t.auth.passwordForm.failed) : t.auth.passwordForm.failed)
@@ -75,6 +78,7 @@ export function ChangePasswordForm({ forced = false, horizontal = false }: { for
       {next.length > 0 && next.length < MIN_PASSWORD && <AuthError>{t.auth.passwordForm.short}</AuthError>}
       {confirm.length > 0 && next !== confirm && <AuthError id="pw-mismatch">{t.auth.passwordForm.mismatch}</AuthError>}
       {error && <AuthError id="pw-error">{error}</AuthError>}
+      {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
       <Button type="submit" variant={horizontal ? 'ghost' : 'primary'} pending={busy}
         disabled={busy || !current || next.length < MIN_PASSWORD || next !== confirm}
         className={horizontal ? undefined : stylex.props(sx.submit).className}
@@ -90,11 +94,12 @@ export function ChangePasswordScreen() {
   const { user, signOut } = useSession()
   const mobile = useMediaQuery('(max-width: 767px)')
   const [error, setError] = useState('')
+  const [networkError, setNetworkError] = useState(false)
   const leave = async () => {
     try { await signOut() } catch { setError(t.account.logoutFailed) }
   }
   return (
-    <AuthShell>
+    <AuthShell offline={networkError}>
       <div {...stylex.props(sx.intro)}>
         <span aria-hidden="true" style={{
           width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center',
@@ -106,10 +111,13 @@ export function ChangePasswordScreen() {
         <p {...stylex.props(sx.body)}>{mobile ? t.auth.passwordForm.forceBodyMobile : t.auth.passwordForm.forceBody}</p>
       </div>
       {user && <AuthUser user={user} />}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}><ChangePasswordForm forced />
-      <HintLine icon="info">{mobile ? t.auth.passwordForm.forceNoteMobile : t.auth.passwordForm.forceNote}</HintLine></div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}><ChangePasswordForm forced onNetworkChange={setNetworkError} />
+      <HintLine icon="info">{t.auth.passwordForm.forceNote}</HintLine></div>
       {error && <FieldError>{error}</FieldError>}
-      <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'center', height: 34 }}><Icon name="logout" size={15} />{t.account.logout}</Button>
+      <div {...stylex.props(sx.divider, sx.deniedLogout)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
+        <Button variant="quiet" onClick={() => void leave()} style={{ alignSelf: 'flex-start', height: mobile ? 48 : 34, color: 'var(--vv-warn-ink)' }}><Icon name="logout" size={16} />{t.account.logout}</Button>
+        <HintLine icon="info">{t.auth.otherAccountLogout}</HintLine>
+      </div>
     </AuthShell>
   )
 }

@@ -457,6 +457,14 @@ func TestSelfServiceRoutesOwnSessionsOnly(t *testing.T) {
 		t.Fatalf("sessions body %v", m)
 	}
 	current, _ := sessions[0].(map[string]any)
+	for _, key := range []string{"id", "device", "browser", "lastActiveAt", "expiresAt", "current"} {
+		if _, ok := current[key]; !ok {
+			t.Fatalf("session missing %s: %v", key, current)
+		}
+	}
+	if len(current) != 6 {
+		t.Fatalf("unexpected session fields: %v", current)
+	}
 	id, _ := current["id"].(string)
 
 	// Revoke chính phiên mình → 200 và phiên chết.

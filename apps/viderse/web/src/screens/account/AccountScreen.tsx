@@ -80,6 +80,7 @@ export function AccountScreen() {
       </section>
       <Sheet open={sheet !== null} onClose={() => setSheet(null)} label={sheet === 'password' ? t.account.passwordTitle : t.account.devices} title={sheet === 'devices' ? t.account.devices : undefined} size="md" height="auto" homeIndicator style={{ paddingBottom: 0, background: 'var(--color-surface-3)', fontSize: 14, lineHeight: 1.5 }}>
         {sheet === 'password' && <div {...stylex.props(layout.sheetHeader)}><span {...stylex.props(layout.sheetTitle)}>{t.account.passwordTitle}</span><span {...stylex.props(layout.sheetSubtitle)}>{t.auth.passwordForm.reauthNoteMobile}</span></div>}
+        {sheet === 'devices' && <div {...stylex.props(layout.sheetHeader)}><span {...stylex.props(layout.sheetSubtitle)}>{t.account.deviceNote}</span></div>}
         <div {...stylex.props(layout.sheetBody)}>
           {sheet === 'password' ? <ChangePasswordForm /> : sheet === 'devices' ? <Devices /> : null}
         </div>

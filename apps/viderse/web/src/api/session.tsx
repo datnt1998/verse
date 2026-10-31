@@ -122,6 +122,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const refresh = async (): Promise<SessionRefresh> => {
     try {
       const result = await me()
+      localStorage.setItem('vv.signedInBefore', '1')
       setApps(readAppLinks(result))
       setEnded(null)
       setOutage(null)
@@ -194,6 +195,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // không phụ thuộc listener khi provider chưa sẵn sàng trong test.
       try {
         const result = await loginApi(username, password)
+        localStorage.setItem('vv.signedInBefore', '1')
         applyUser(result.user)
         setEnded(null)
         // /api/login need not return app links; /api/me owns the switcher contract.
@@ -210,6 +212,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       try { await logout() } catch (error) {
         if (!(error instanceof ApiError && error.status === 401)) throw error
       }
+      localStorage.removeItem('vv.signedInBefore')
       endSession({ reason: 'logout', app: 'viderse' })
       window.location.hash = '/login?bye=1'
     },

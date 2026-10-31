@@ -53,6 +53,14 @@ it.each([
   const el = await mount(<LoginScreen />)
   expect(el.querySelector('[data-session-ended]')?.textContent).toContain(title)
 })
+it.each([false, true])('unknown session reason is shown only after a prior sign-in: %s', async (signedInBefore) => {
+  localStorage.clear()
+  if (signedInBefore) localStorage.setItem('vv.signedInBefore', '1')
+  api({ code: 'session_ended', reason: 'unknown' }, 401)
+  const el = await mount(<LoginScreen />)
+  expect(Boolean(el.querySelector('[data-session-ended]'))).toBe(signedInBefore)
+  localStorage.clear()
+})
 it.each([false, true])('denied screen offers only granted other app: %s', async (other) => {
   api({ code: 'app_access_denied', user: member, apps: other ? links.slice(1) : [] }, 403)
   const el = await mount(<AccessDeniedScreen />)

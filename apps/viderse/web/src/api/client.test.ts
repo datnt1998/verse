@@ -69,7 +69,7 @@ describe('ánh xạ lỗi server', () => {
   })
 
   it('GET /api/me/sessions và POST /api/sessions/{id}/revoke theo hợp đồng', async () => {
-    const sessions = [{ id: 's1', device: 'Mac', createdAt: '2026-10-29T00:00:00Z', lastSeen: '2026-10-29T01:00:00Z', expiresAt: '2026-11-28T00:00:00Z', current: true }]
+    const sessions = [{ id: 's1', device: 'Mac', browser: 'Chrome', lastActiveAt: '2026-10-29T01:00:00Z', expiresAt: '2026-11-28T00:00:00Z', current: true }]
     const fn = stubFetch((path) => Promise.resolve(
       path === '/api/me/sessions' ? Response.json({ sessions }) : Response.json({ ok: true }),
     ))

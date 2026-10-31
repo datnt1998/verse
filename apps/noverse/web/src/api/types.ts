@@ -620,8 +620,8 @@ export type User = {
   disabledAt?: string; disabledBy?: string; disabledReason?: string; passwordChangedAt?: string
 }
 export type Session = {
-  id: string; username: string; device: string; ip: string
-  createdAt: string; lastSeen: string; expiresAt: string; current: boolean
+  id: string; device: string; browser: string
+  lastActiveAt: string; expiresAt: string; current: boolean
 }
 export type Pairing = {
   code: string; username: string; expiresAt: string

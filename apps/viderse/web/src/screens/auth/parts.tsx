@@ -13,10 +13,11 @@ import { useMediaQuery } from '../../lib/useMediaQuery'
 
 /** Khung trang auth: brand trên cùng · nội dung căn giữa · chip máy chủ. Không có nav.
  *  Chip theo lần kiểm phiên gần nhất: chỉ báo "đang hoạt động" khi máy chủ đã trả lời. */
-export function AuthShell({ children, footer, centered = false, fill = false }: { children: ReactNode; footer?: 'login' | 'setup'; centered?: boolean; fill?: boolean }) {
+export function AuthShell({ children, footer, centered = false, fill = false, offline = false }: { children: ReactNode; footer?: 'login' | 'setup'; centered?: boolean; fill?: boolean; offline?: boolean }) {
   const { serverReachable, outage } = useSession()
   const mobile = useMediaQuery('(max-width: 767px)')
-  const chip = serverReachable ? (mobile ? t.auth.serverOnlineMobile : t.auth.serverOnline) : mobile ? t.auth.serverOfflineMobile : outage === 'accounts' ? t.auth.accountsDownChip : t.auth.serverOffline
+  const reachable = serverReachable && !offline
+  const chip = reachable ? (mobile ? t.auth.serverOnlineMobile : t.auth.serverOnline) : mobile ? t.auth.serverOfflineMobile : outage === 'accounts' && !offline ? t.auth.accountsDownChip : t.auth.serverOffline
   return (
     <div {...stylex.props(sx.shell)}>
       <header {...stylex.props(sx.header)}>
@@ -32,8 +33,8 @@ export function AuthShell({ children, footer, centered = false, fill = false }: 
         }}>
           <span aria-hidden="true" style={{
             width: 7, height: 7, borderRadius: '50%', flex: '0 0 auto',
-            background: serverReachable ? 'var(--color-ok)' : 'var(--color-err)',
-            boxShadow: `0 0 0 3px ${serverReachable ? 'var(--tint-ok)' : 'var(--tint-err)'}`,
+            background: reachable ? 'var(--color-ok)' : 'var(--color-warn)',
+            boxShadow: `0 0 0 3px ${reachable ? 'var(--tint-ok)' : 'var(--kit-warn-12)'}`,
           }} />
           {chip}
         </div>

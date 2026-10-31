@@ -490,7 +490,7 @@ func (s *Server) listSessions(w http.ResponseWriter, username, currentID string)
 		s.writeAccountError(w, err)
 		return
 	}
-	WriteJSON(w, http.StatusOK, map[string]any{"sessions": sessions})
+	WriteJSON(w, http.StatusOK, map[string]any{"sessions": identity.SessionList(sessions)})
 }
 
 // emptyBody đọc và bỏ body {} của một POST không tham số, giữ convention

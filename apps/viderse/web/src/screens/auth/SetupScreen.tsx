@@ -61,6 +61,7 @@ export function SetupScreen() {
   const [password, setPassword] = useState('')
   const [recovery, setRecovery] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [networkError, setNetworkError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -70,11 +71,13 @@ export function SetupScreen() {
     if (busy || !code.trim()) return
     setBusy(true)
     setError('')
+    setNetworkError(false)
     try {
       const result = await verifySetup(code.trim())
       setToken(result.setupToken)
       setStep('account')
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) { setNetworkError(true); return }
       if (e instanceof ApiError) {
         const left = attemptsLeft(e.payload)
         // 409 = đã có quản trị (tab khác hoàn tất trước): quay về cổng → Đăng nhập.
@@ -93,6 +96,7 @@ export function SetupScreen() {
     if (busy || !name.trim() || !USERNAME_RE.test(username) || password.length < MIN_PASSWORD) return
     setBusy(true)
     setError('')
+    setNetworkError(false)
     try {
       const result = await createSetupAdmin({ setupToken: token, name: name.trim(), username, password })
       setRecovery(result.recoveryCode)
@@ -100,6 +104,7 @@ export function SetupScreen() {
       // Giữ user để bước recovery xong là vào app luôn (server đã đặt cookie phiên).
       setUser(result.user)
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) { setNetworkError(true); return }
       if (e instanceof ApiError) {
         if (e.status === 409) { setSetupNeeded(false); return }
         // 410 = token hết hạn/dùng rồi: quay lại nhập mã, mã mới (nếu còn) vẫn dùng được.
@@ -114,7 +119,7 @@ export function SetupScreen() {
   }
 
   return (
-    <AuthShell footer={mobile ? undefined : 'setup'}>
+    <AuthShell footer={mobile ? undefined : 'setup'} offline={networkError}>
       <div {...stylex.props(sx.intro)}>
         <LensLogo size={mobile ? 48 : 56} halo />
         <h1 {...stylex.props(sx.title)}>{t.setup.title}</h1>
@@ -132,6 +137,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{mobile ? t.setup.codeHintMobile : t.setup.codeHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
+          {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy} disabled={busy || !code.trim()}
             {...stylex.props(sx.submit)}>
             {busy ? t.setup.verifying : t.common.continue}
@@ -159,6 +165,7 @@ export function SetupScreen() {
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.setup.passwordHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
+          {networkError && <Banner tone="warning" title={t.account.networkFailed} icon="danger" iconSize={16} role="alert" align="top" />}
           <Button type="submit" variant="primary" pending={busy}
             disabled={busy || !name.trim() || !USERNAME_RE.test(username) || password.length < MIN_PASSWORD}
             {...stylex.props(sx.submit)}>
@@ -169,18 +176,21 @@ export function SetupScreen() {
 
       {step === 'recovery' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? 20 : 14 }}>
-          <Banner tone="success" title={`${t.setup.recoveryTitle} ${name}.${mobile ? '' : ` ${t.setup.signedIn}`}`} icon="tick-b" iconSize={16} titleStyle={{ fontSize: 14, lineHeight: mobile ? 1.5 : 1.55 }} />
+          <Banner tone="success" title={`${t.setup.recoveryTitle} ${name}.${mobile ? '' : ` ${t.setup.signedIn}`}`} icon="tick-b" iconSize={16} titleStyle={sx.recoveryTitle} />
           {recovery !== null ? <div style={{ display: mobile ? 'contents' : 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
             {!mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
             <div className="card" style={{ borderRadius: mobile ? 'var(--vv-r-14)' : 'var(--vv-r-12)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', gap: mobile ? 10 : 12 }}>
               {mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
-              <span className="mono num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
+              <span className="mono num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', userSelect: 'all', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
               <Button size={mobile ? 'md' : 'sm'} style={{ height: mobile ? 44 : 30, ...(mobile ? { fontSize: 14, borderRadius: 'var(--vv-r-12)', paddingInline: 16 } : {}) }} onClick={() => {
-                void navigator.clipboard.writeText(recovery).then(() => setCopied(true), () => setError(t.auth.copyFailed))
+                void (async () => {
+                  try { await navigator.clipboard.writeText(recovery); setCopied(true); setError('') }
+                  catch { setError(mobile ? t.auth.copyRecoveryFailedMobile : t.auth.copyRecoveryFailedDesktop) }
+                })()
               }}><Icon name="copy" size={mobile ? 16 : 14} />{copied ? t.auth.copied : mobile ? t.setup.copyRecoveryMobile : t.setup.copyRecovery}</Button>
             </div>
             <span style={{ fontSize: mobile ? 13 : 12.5, color: 'var(--vv-note-ink)', lineHeight: 1.55 }}>{mobile ? t.setup.recoveryWarningMobile : t.setup.recoveryWarning}</span>
-          </div> : <span style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>{t.setup.recoveryUnavailable}</span>}
+          </div> : <Banner tone="warning" title={t.setup.recoveryUnavailableTitle} icon="danger" iconSize={16} align="top">{t.setup.recoveryUnavailable}</Banner>}
           {error && <FieldError>{error}</FieldError>}
           {recovery !== null && <Checkbox checked={saved} onChange={setSaved} label={t.setup.saved} size={mobile ? 18 : 16} style={{ minHeight: 0, height: mobile ? 44 : 'auto', margin: 0, padding: 0, gap: mobile ? 12 : 10, fontSize: mobile ? 15 : 13.5, color: 'var(--color-fg)' }} />}
           <Button type="button" variant="primary" pending={busy} disabled={busy || (recovery !== null && !saved)} onClick={async () => {

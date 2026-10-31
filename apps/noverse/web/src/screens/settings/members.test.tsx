@@ -163,7 +163,7 @@ describe('liên kết thẳng tới thành viên', () => {
 })
 
 it('đăng xuất thiết bị khác của chính mình giữ phiên này, quản trị người khác dùng thu hồi mọi phiên', async () => {
-  fixture.resource.data.sessions = [{ id: 'other', username: 'dat', device: 'Điện thoại', ip: '', createdAt: '', lastSeen: '', expiresAt: '2026-12-01', current: false }]
+  fixture.resource.data.sessions = [{ id: 'other', device: 'Điện thoại', browser: '', lastActiveAt: '', expiresAt: '2026-12-01', current: false }]
   window.location.hash = '#/settings/members?user=dat'
   await act(async () => { root.unmount(); root = createRoot(host); root.render(<MembersScreen users={[account('dat', 'admin'), account('linh')]} refresh={() => {}} />) })
   await click('Đăng xuất các thiết bị khác')

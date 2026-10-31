@@ -59,11 +59,11 @@ export function SessionList({ sessions, loading, error, variant = 'compact', fre
               }}><Icon name={sessionIcon(session.device)} size={18} /></span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: 13.5, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {session.device}
+                  {session.device}{session.browser && ` · ${session.browser}`}
                   {session.current && <Tag tone="ok">Thiết bị này</Tag>}
                 </span>
                 <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>
-                  {relativeTime(session.lastSeen)} · đăng nhập {fmtShort(session.createdAt)}
+                  {relativeTime(session.lastActiveAt)}
                 </span>
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
@@ -88,11 +88,11 @@ export function SessionList({ sessions, loading, error, variant = 'compact', fre
             <Icon name={sessionIcon(session.device)} size={17} style={{ color: 'var(--color-fg-3)' }} />
             <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                {session.device}
+                {session.device}{session.browser && ` · ${session.browser}`}
                 {session.current && <Tag tone="ok">Thiết bị này</Tag>}
                 {fresh && <Tag tone="accent">Vừa đăng nhập</Tag>}
               </span>
-              <span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{relativeTime(session.lastSeen)}</span>
+              <span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{relativeTime(session.lastActiveAt)}</span>
             </span>
             <span className="num" style={{ fontSize: 11.5, color: expiry.warn ? 'var(--color-warn)' : 'var(--color-fg-4)' }}>{expiry.text}</span>
           </div>

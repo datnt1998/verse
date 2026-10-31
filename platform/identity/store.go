@@ -249,6 +249,30 @@ func (s session) view(currentID string) Session {
 	return Session{ID: s.ID, Username: s.Username, Device: s.Device, IP: s.IP, CreatedAt: s.CreatedAt, LastSeen: s.LastSeen, ExpiresAt: s.ExpiresAt, Current: s.ID == currentID}
 }
 
+// SessionListItem is the shared public device-list contract.
+type SessionListItem struct {
+	ID           string    `json:"id"`
+	Device       string    `json:"device"`
+	Browser      string    `json:"browser"`
+	LastActiveAt time.Time `json:"lastActiveAt"`
+	ExpiresAt    time.Time `json:"expiresAt"`
+	Current      bool      `json:"current"`
+}
+
+// SessionList converts stored device labels, including existing labels created
+// before the device and browser were exposed separately.
+func SessionList(sessions []Session) []SessionListItem {
+	result := make([]SessionListItem, 0, len(sessions))
+	for _, session := range sessions {
+		device, browser, _ := strings.Cut(session.Device, " · ")
+		result = append(result, SessionListItem{
+			ID: session.ID, Device: device, Browser: browser,
+			LastActiveAt: session.LastSeen, ExpiresAt: session.ExpiresAt, Current: session.Current,
+		})
+	}
+	return result
+}
+
 type pairing struct {
 	CodeHash  string    `json:"codeHash"`
 	Username  string    `json:"username"`

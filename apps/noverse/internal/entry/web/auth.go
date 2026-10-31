@@ -563,7 +563,7 @@ func (g *Gateway) listSessions(w http.ResponseWriter, username, currentID string
 		accountError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"sessions": sessions})
+	writeJSON(w, http.StatusOK, map[string]any{"sessions": identity.SessionList(sessions)})
 }
 
 func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin identity.User, current identity.Session) {

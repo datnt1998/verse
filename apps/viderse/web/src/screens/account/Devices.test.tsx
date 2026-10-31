@@ -6,8 +6,8 @@ import { Devices } from './Devices'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 let root: Root | undefined
 const sessions = [
-  { id: 'current', device: 'Máy này', current: true, lastSeen: '2026-10-31T09:00:00Z' },
-  { id: 'other', device: 'Điện thoại', current: false, lastSeen: '2026-10-31T08:00:00Z' },
+  { id: 'current', device: 'Máy này', browser: 'Safari', current: true, lastActiveAt: '2026-10-31T09:00:00Z', expiresAt: '2026-11-30T09:00:00Z' },
+  { id: 'other', device: 'Điện thoại', browser: 'Chrome', current: false, lastActiveAt: '2026-10-31T08:00:00Z', expiresAt: '2026-11-30T08:00:00Z' },
 ]
 async function mount(fail: boolean) {
   const fetcher = vi.fn(async (path: string) => {
@@ -24,6 +24,9 @@ it.each([false, true])('other-device revocation preserves this device, error=%s'
   const { el, fetcher } = await mount(fail)
   const button = [...el.querySelectorAll('button')].find((item) => item.textContent?.includes('Đăng xuất mọi thiết bị khác'))!
   await act(async () => button.click())
+  expect(fetcher.mock.calls.some(([path]) => path === '/api/me/sessions/revoke-all')).toBe(false)
+  const confirm = [...el.querySelectorAll('button')].find((item) => item.textContent?.includes('Đăng xuất 1 thiết bị'))!
+  await act(async () => confirm.click())
   expect(fetcher.mock.calls.some(([path]) => path === '/api/me/sessions/revoke-all')).toBe(true)
   expect(el.textContent).toContain('Máy này')
   expect(el.textContent?.includes('Điện thoại')).toBe(fail)
@@ -36,5 +39,6 @@ it('individual revoke leaves the current session untouched', async () => {
   expect(fetcher.mock.calls.some(([path]) => path === '/api/sessions/other/revoke')).toBe(true)
   expect(fetcher.mock.calls.some(([path]) => path === '/api/sessions/current/revoke')).toBe(false)
   expect(el.textContent).toContain('Máy này')
-  expect(el.textContent).not.toContain('Điện thoại')
+  expect(el.querySelector('[role="list"]')?.textContent).not.toContain('Điện thoại')
+  expect(el.textContent).toContain('Đã đăng xuất Điện thoại · Chrome.')
 })
