@@ -138,6 +138,7 @@ type View struct {
 	Manifest *ManifestView `json:"manifest"`
 	Items    []ItemView    `json:"items"`
 	Approved bool          `json:"approved"`
+	ApprovedToday *int          `json:"approvedToday"`
 	Reason   string        `json:"reason,omitempty"`
 }
 

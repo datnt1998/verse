@@ -131,17 +131,39 @@ func artifactURL(snapshot jobedit.Snapshot, path, hash string) string {
 	return "/api/clone/" + url.PathEscape(snapshot.Job.ID) + "/artifacts/" + url.PathEscape(found)
 }
 
+func (s *Service) approvedToday(ctx context.Context) (*int, error) {
+	if s.Edits == nil || s.Edits.Store == nil {
+		return nil, nil
+	}
+	counter, ok := s.Edits.Store.(interface {
+		ApprovedToday(context.Context, string) (int, error)
+	})
+	if !ok {
+		return nil, nil
+	}
+	n, err := counter.ApprovedToday(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+	return &n, nil
+}
+
 func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	l, err := s.load(ctx, id, nil, false)
 	if err != nil {
 		var ce *domain.CloneError
 		if errors.As(err, &ce) && ce.Code == domain.CloneErrNotFound && l.snapshot.Job.ID != "" {
-			return View{Items: []ItemView{}, Reason: ce.Message}, nil
+			count, countErr := s.approvedToday(ctx)
+			return View{Items: []ItemView{}, Reason: ce.Message, ApprovedToday: count}, countErr
 		}
 		return View{}, err
 	}
 	m := l.manifest
 	out := View{Manifest: &ManifestView{Revision: m.Revision, SceneRevision: m.SceneRevision, SceneGeneration: m.SceneGeneration, Waiting: m.Waiting}, Items: make([]ItemView, 0, len(m.Items)), Approved: model.ImagesApproved(m)}
+	out.ApprovedToday, err = s.approvedToday(ctx)
+	if err != nil {
+		return View{}, err
+	}
 	var template library.Snapshot
 	if len(l.snapshot.Job.TemplateSnapshot) > 0 {
 		if err := json.Unmarshal(l.snapshot.Job.TemplateSnapshot, &template); err != nil {

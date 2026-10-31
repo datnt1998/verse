@@ -89,7 +89,6 @@ func (s *Service) Cutout(ctx context.Context, id, itemID string, number int) (st
 	hash := hex.EncodeToString(digest[:])
 	path := "images/cutouts/" + hash + ".png"
 	v.Cutout = &scenes.FileRef{Path: path, SHA256: hash}
-	l.manifest.Revision++
 	err = s.Edits.Commit(ctx, l.snapshot, l.manifest, "", false, []media.Artifact{{Path: path, File: output, ContentType: "image/png", Filename: "subject.png"}})
 	if err != nil {
 		return "", err

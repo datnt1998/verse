@@ -37,6 +37,7 @@ func TestCutoutPublishesAndReusesVersion(t *testing.T) {
  path, err := s.Cutout(context.Background(), "job", "scene-1", 1)
  if err != nil { t.Fatal(err) }
  if store.m.Items[0].Versions[0].Cutout == nil || store.m.Items[0].Versions[0].Cutout.Path != path || store.commits != 1 { t.Fatalf("cutout not committed: %+v", store.m.Items[0]) }
+ if store.m.Revision != 3 { t.Fatalf("preview changed review revision: %d", store.m.Revision) }
  again, err := s.Cutout(context.Background(), "job", "scene-1", 1)
  if err != nil || again != path || runner.calls != 1 { t.Fatalf("cache miss: %q %v calls=%d", again, err, runner.calls) }
 }
