@@ -12,7 +12,7 @@ import (
 )
 
 const lockQueueItemForAdmission = `-- name: LockQueueItemForAdmission :one
-SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, override_revision FROM clone_queue WHERE id = $1 FOR UPDATE
+SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision FROM clone_queue WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID) (CloneQueue, error) {
@@ -37,6 +37,7 @@ func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID)
 		&i.RemovedAt,
 		&i.ScenePromptID,
 		&i.CoverPromptID,
+		&i.NoImagesOverride,
 		&i.OverrideRevision,
 	)
 	return i, err
@@ -44,7 +45,7 @@ func (q *Queries) LockQueueItemForAdmission(ctx context.Context, id pgtype.UUID)
 
 const updateQueueOverrides = `-- name: UpdateQueueOverrides :execrows
 UPDATE clone_queue
-SET scene_prompt_id = $3, cover_prompt_id = $4, no_images = $5,
+SET scene_prompt_id = $3, cover_prompt_id = $4, no_images = $5, no_images_override = $6,
     override_revision = override_revision + 1
 WHERE id = $1 AND override_revision = $2 AND state = 'queued' AND removed_at IS NULL
 `
@@ -55,6 +56,7 @@ type UpdateQueueOverridesParams struct {
 	ScenePromptID    pgtype.Text `json:"scene_prompt_id"`
 	CoverPromptID    pgtype.Text `json:"cover_prompt_id"`
 	NoImages         bool        `json:"no_images"`
+	NoImagesOverride pgtype.Bool `json:"no_images_override"`
 }
 
 func (q *Queries) UpdateQueueOverrides(ctx context.Context, arg UpdateQueueOverridesParams) (int64, error) {
@@ -64,6 +66,7 @@ func (q *Queries) UpdateQueueOverrides(ctx context.Context, arg UpdateQueueOverr
 		arg.ScenePromptID,
 		arg.CoverPromptID,
 		arg.NoImages,
+		arg.NoImagesOverride,
 	)
 	if err != nil {
 		return 0, err
