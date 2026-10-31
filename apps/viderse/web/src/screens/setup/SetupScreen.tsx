@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { setupStyles } from './setup.stylex'
 // Chuẩn bị máy #/setup (W1, Onboard · step=setup): khung riêng không nav —
 // header “Viderse · Lần đầu mở” + Cài đặt nâng cao; hero orb bên trái tiêu đề;
 // 4 chip trợ lý; thẻ tiến độ riêng rồi thẻ 6 bước riêng; câu chân. Bước ChatGPT
@@ -19,7 +21,6 @@ import { LensLogo } from '../../components/LensLogo'
 import { Orb } from '../../components/Orb'
 import { fill, fmtBytes, fmtEta } from '../settings/fmt'
 import { ChatGPTLoginAction } from '../settings/connect/ChatGPTLogin'
-import './setup.css'
 
 /** ETA của bước đang cài, tính từ byte đã tải và giây đã trôi (null = chưa đo được). */
 function runningEta(step: SetupStep | undefined): number | null {
@@ -82,33 +83,33 @@ function StepRow({ step, index, focus }: { step: SetupStep; index: number; focus
 
   const glyph = done ? 'tick-b' : failed ? 'danger' : needsUser ? 'flag' : 'download'
   return (
-    <li className={`vv-setup__row is-${state}${needsUser && focus ? ' is-focus' : ''}`}>
-      <span className="vv-setup__state" aria-hidden="true">
-        {running ? <span className="vv-setup__spin" /> : pending ? <span className="num">{index + 1}</span> : <Icon name={glyph} size={15} />}
+    <li className={`vv-setup__row is-${state}${needsUser && focus ? ' is-focus' : ''} ${stylex.props(setupStyles.row, running && setupStyles.rowRunning, failed && setupStyles.rowFailed, needsUser && focus && setupStyles.rowFocus).className}`}>
+      <span className={`vv-setup__state ${stylex.props(setupStyles.state, done && setupStyles.stateDone, running && setupStyles.stateRunning, failed && setupStyles.stateFailed, needsUser && focus && setupStyles.stateFocus).className}`} aria-hidden="true">
+        {running ? <span className={`vv-setup__spin ${stylex.props(setupStyles.spin).className}`} /> : pending ? <span className="num">{index + 1}</span> : <Icon name={glyph} size={15} />}
       </span>
-      <div className="vv-setup__row-main">
-        <span className="vv-setup__row-title">
+      <div className={`vv-setup__row-main ${stylex.props(setupStyles.rowMain).className}`}>
+        <span className={`vv-setup__row-title ${stylex.props(setupStyles.rowTitle).className}`}>
           {copy.title}
           <span role="img" aria-label={copy.agent === 'artist' && needsUser ? `Hoạ sĩ và Đạo diễn` : undefined} title={copy.agent === 'artist' && needsUser ? 'Dùng cho Hoạ sĩ và Đạo diễn' : undefined}>
             <Orb of={copy.agent as 'scout' | 'director' | 'artist' | 'qa'} size={10} />
           </span>
         </span>
-        <span className="vv-setup__row-hint" title={failed && step.error ? step.error : undefined}>{hint}</span>
+        <span className={`vv-setup__row-hint ${stylex.props(setupStyles.rowHint, running && setupStyles.hintRunning, failed && setupStyles.hintFailed).className}`} title={failed && step.error ? step.error : undefined}>{hint}</span>
         {running && pct != null ? (
-          <span className="vv-setup__bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-            <span className="vv-setup__bar-fill" style={{ width: `${pct}%` }} />
+          <span className={`vv-setup__bar ${stylex.props(setupStyles.bar).className}`} role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+            <span className={`vv-setup__bar-fill ${stylex.props(setupStyles.barFill).className}`} style={{ width: `${pct}%` }} />
           </span>
         ) : null}
       </div>
-      {done ? <span className="vv-setup__row-side">{step.provided ? t.prep.states.provided : size ? fill(t.prep.states.done, { size }) : t.prep.states.doneNoSize}</span> : null}
-      {running && pct != null ? <span className="vv-setup__row-side is-info num">{pct}%</span> : null}
-      {pending ? <span className="vv-setup__row-side">{size ? fill(t.prep.states.waiting, { size }) : t.prep.states.waitingNoSize}</span> : null}
+      {done ? <span className={`vv-setup__row-side ${stylex.props(setupStyles.rowSide).className}`}>{step.provided ? t.prep.states.provided : size ? fill(t.prep.states.done, { size }) : t.prep.states.doneNoSize}</span> : null}
+      {running && pct != null ? <span className={`vv-setup__row-side num ${stylex.props(setupStyles.rowSide, setupStyles.rowSideInfo).className}`}>{pct}%</span> : null}
+      {pending ? <span className={`vv-setup__row-side ${stylex.props(setupStyles.rowSide).className}`}>{size ? fill(t.prep.states.waiting, { size }) : t.prep.states.waitingNoSize}</span> : null}
       {failed ? (
         <ActionButton variant="outline" size="compact" pending={retry.pending} onClick={() => void retry.run()}>{t.prep.actions.retry}</ActionButton>
       ) : null}
       {/* Onboard dùng `primary` 36/r10/13.5 của artboard, còn ghost “Đăng nhập ngay” là
           `.ghost` 32 — hai cỡ khác nhau trong cùng một hàng, nên truyền cỡ theo variant. */}
-      {needsUser ? <ChatGPTLoginAction variant={focus ? 'primary' : 'ghost'} size={focus ? 'md' : 'compact'} onDone={() => invalidate(keys.setup())} /> : null}
+      {needsUser ? <ChatGPTLoginAction waitStyle={setupStyles.loginWait} linkStyle={setupStyles.loginLink} variant={focus ? 'primary' : 'ghost'} size={focus ? 'md' : 'compact'} onDone={() => invalidate(keys.setup())} /> : null}
     </li>
   )
 }
@@ -144,15 +145,15 @@ function ProgressCard({ data, rows, startPending, startError }: {
   } else if (data.state === 'login') { headline = t.prep.card.login; sub = t.prep.card.sub.login }
   else if (eta) headline = fill(t.prep.card.runningEta, { eta: fmtEta(eta) })
   return (
-    <section className="card vv-setup__card" aria-live="polite">
-      <div className="vv-setup__card-head">
-        <b>{headline}</b>
-        <span className="num">{fill(t.prep.card.count, { done, total })}</span>
+    <section className={`card vv-setup__card ${stylex.props(setupStyles.card).className}`} aria-live="polite">
+      <div className={`vv-setup__card-head ${stylex.props(setupStyles.cardHead).className}`}>
+        <b {...stylex.props(setupStyles.cardHeading)}>{headline}</b>
+        <span className={`num ${stylex.props(setupStyles.cardCount).className}`}>{fill(t.prep.card.count, { done, total })}</span>
       </div>
-      <div className={`vv-setup__track${tone === 'warn' ? ' is-fail' : ''}`} role="progressbar" aria-valuenow={total ? Math.round((done / total) * 100) : 0} aria-valuemin={0} aria-valuemax={100}>
-        <span className="vv-setup__track-fill" style={{ width: `${total ? Math.round((done / total) * 100) : 0}%` }} />
+      <div className={`vv-setup__track${tone === 'warn' ? ' is-fail' : ''} ${stylex.props(setupStyles.track).className}`} role="progressbar" aria-valuenow={total ? Math.round((done / total) * 100) : 0} aria-valuemin={0} aria-valuemax={100}>
+        <span className={`vv-setup__track-fill ${stylex.props(setupStyles.trackFill, tone === 'warn' && setupStyles.trackFillFailed).className}`} style={{ width: `${total ? Math.round((done / total) * 100) : 0}%` }} />
       </div>
-      <p className="vv-setup__card-sub">{sub}</p>
+      <p className={`vv-setup__card-sub ${stylex.props(setupStyles.cardSub).className}`}>{sub}</p>
     </section>
   )
 }
@@ -185,11 +186,11 @@ export default function SetupScreen() {
 
   if (mobile) {
     return (
-      <div className="vv-setup">
-        <div className="vv-setup__mob">
+      <div className={`vv-setup ${stylex.props(setupStyles.page).className}`}>
+        <div className={`vv-setup__mob ${stylex.props(setupStyles.mob).className}`}>
           <Icon name="cpu" size={28} />
-          <h1>{t.prep.mobile.title}</h1>
-          <p>{t.prep.mobile.body}</p>
+          <h1 {...stylex.props(setupStyles.mobileTitle)}>{t.prep.mobile.title}</h1>
+          <p {...stylex.props(setupStyles.mobileBody)}>{t.prep.mobile.body}</p>
           <span>{t.prep.mobile.noSkip}</span>
           <ActionButton variant="quiet" size="compact" onClick={() => navigate(paths.workbench())}>{t.prep.back}</ActionButton>
         </div>
@@ -197,10 +198,10 @@ export default function SetupScreen() {
     )
   }
 
-  if (res.status === 'loading' && !data) return <div className="vv-setup"><Spinner size={20} /></div>
+  if (res.status === 'loading' && !data) return <div className={`vv-setup ${stylex.props(setupStyles.page).className}`}><Spinner size={20} /></div>
   if (!data) {
     return (
-      <div className="vv-setup">
+      <div className={`vv-setup ${stylex.props(setupStyles.page).className}`}>
         <span className="vv-errline"><span className="vv-grow">{(res.error as Error | undefined)?.message ?? ''}</span><ActionButton variant="outline" size="compact" onClick={() => void res.refresh()}>{t.common.retry}</ActionButton></span>
       </div>
     )
@@ -212,44 +213,44 @@ export default function SetupScreen() {
   const sizeLine = data.disk.approxBytes > 0 ? fill(t.prep.hero.size, { size: fmtBytes(data.disk.approxBytes) }) : t.prep.hero.noSize
   const loginFocus = loginFocusOf(rows) // bước đăng nhập thành focus khi không còn bước trước
   return (
-    <div className="vv-setup">
-      <header className="vv-setup__head">
+    <div className={`vv-setup ${stylex.props(setupStyles.page).className}`}>
+      <header className={`vv-setup__head ${stylex.props(setupStyles.head).className}`}>
         <LensLogo size={26} />
-        <span className="vv-setup__brand">
-          <b>{t.prep.brand}</b>
-          <span className="vv-setup__first">{t.prep.firstRun}</span>
+        <span className={`vv-setup__brand ${stylex.props(setupStyles.brand).className}`}>
+          <b {...stylex.props(setupStyles.brandName)}>{t.prep.brand}</b>
+          <span className={`vv-setup__first ${stylex.props(setupStyles.first).className}`}>{t.prep.firstRun}</span>
         </span>
-        <a className="vv-setup__adv" href="#/settings">
+        <a className={`vv-setup__adv ${stylex.props(setupStyles.adv).className}`} href="#/settings">
           <Icon name="setting" size={15} className="vv-ic" />
           {t.prep.actions.settingsLink}
         </a>
       </header>
-      <main className="vv-setup__main">
-        <div className="vv-setup__col">
-          <div className="vv-setup__hero">
+      <main className={`vv-setup__main ${stylex.props(setupStyles.main).className}`}>
+        <div className={`vv-setup__col ${stylex.props(setupStyles.col).className}`}>
+          <div className={`vv-setup__hero ${stylex.props(setupStyles.hero).className}`}>
             <LensLogo size={64} hero />
-            <div className="vv-setup__hero-text">
-              <h1>{t.prep.hero.title}</h1>
-              <p>{sizeLine}</p>
+            <div className={`vv-setup__hero-text ${stylex.props(setupStyles.heroText).className}`}>
+              <h1 {...stylex.props(setupStyles.heroTitle)}>{t.prep.hero.title}</h1>
+              <p {...stylex.props(setupStyles.heroBody)}>{sizeLine}</p>
             </div>
           </div>
-          <div className="vv-setup__chips">
+          <div className={`vv-setup__chips ${stylex.props(setupStyles.chips).className}`}>
             {t.prep.chips.map((c) => (
-              <span key={c.key} className="vv-setup__chip">
+              <span key={c.key} className={`vv-setup__chip ${stylex.props(setupStyles.chip).className}`}>
                 <Orb of={c.key as 'scout' | 'director' | 'artist' | 'qa'} size={12} />
-                <b>{c.name}</b>
+                <b {...stylex.props(setupStyles.chipName)}>{c.name}</b>
                 <span>{c.role}</span>
               </span>
             ))}
           </div>
           {!data.disk.enough ? (
-            <p className="vv-setup__warn" role="alert">
+            <p className={`vv-setup__warn ${stylex.props(setupStyles.warn).className}`} role="alert">
               <Icon name="warning" size={15} className="vv-ic" />
               {fill(t.prep.disk.low, { free: fmtBytes(data.disk.freeBytes), need: fmtBytes(data.disk.requiredBytes) })}
             </p>
           ) : null}
           <ProgressCard data={data} rows={rows} startPending={start.pending} startError={start.error ? (start.error as Error).message : null} />
-          <ol className="card vv-setup__steps" aria-label={t.prep.hero.title}>
+          <ol className={`card vv-setup__steps ${stylex.props(setupStyles.steps).className}`} aria-label={t.prep.hero.title}>
             {rows.map((s, i) => <StepRow key={s.id} step={s} index={i} focus={loginFocus} />)}
           </ol>
           {data.complete ? (
@@ -257,8 +258,8 @@ export default function SetupScreen() {
               {t.prep.card.doneAction}
             </ActionButton>
           ) : null}
-          <p className="vv-setup__note">
-            <Icon name="info" size={15} className="vv-ic" />
+          <p className={`vv-setup__note ${stylex.props(setupStyles.note).className}`}>
+            <Icon name="info" size={15} className={`vv-ic ${stylex.props(setupStyles.noteIcon).className}`} />
             <span>{t.prep.footnote}</span>
           </p>
         </div>
