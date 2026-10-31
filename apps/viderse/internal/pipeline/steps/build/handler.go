@@ -390,6 +390,28 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 			if err != nil {
 				return pipeline.StepResult{}, err
 			}
+			for _, fixed := range manifest.FixedClips {
+				file, err := acquire(fixed.Path, "")
+				if err != nil {
+					return pipeline.StepResult{}, err
+				}
+				hash, err := steps.SHA256File(file.Path)
+				if err != nil {
+					return pipeline.StepResult{}, err
+				}
+				facts, err := h.probe(ctx, s, file.Path)
+				if err != nil {
+					return pipeline.StepResult{}, err
+				}
+				id, src, err := importFile(file.Path, filepath.Base(fixed.Path), "video/mp4", hash, facts.Width, facts.Height, facts.Duration, []string{"clone-backdrop"})
+				if err != nil {
+					return pipeline.StepResult{}, err
+				}
+				// Library files already contain the selected source segment.
+				clip := canonicalBackdrop(id, src, facts, int(math.Round(facts.Duration*30)))
+				clip["cloneBackdropId"] = "fixed:" + fixed.VideoID
+				backdrops = append(backdrops, clip)
+			}
 			for _, item := range backdrop.ReadyItems(manifest) {
 				if item.MediaID == nil {
 					continue

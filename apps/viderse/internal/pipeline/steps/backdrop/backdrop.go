@@ -77,6 +77,7 @@ func (r stepRunner) Run(ctx context.Context, file string, args []string, spec to
 type Template struct {
 	Backdrop      *domain.BackdropRecipe
 	FixedSec      float64
+	FixedVideos   []domain.BackdropVideo
 	PlaybackSpeed float64
 }
 
@@ -120,6 +121,8 @@ func ResolveTemplate(ctx context.Context, raw json.RawMessage, store Store) (Tem
 			return t, err
 		}
 		if found {
+			row.ID = id
+			t.FixedVideos = append(t.FixedVideos, row)
 			t.FixedSec += row.Segment.Duration() / speed
 		}
 	}
@@ -382,6 +385,12 @@ func (h *Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.St
 		m = c.Manifest
 		artifacts = c.Artifacts
 		note = ""
+	}
+	m.FixedClips = fixedBuildClips(t, m.ExcludedFixed)
+	for _, video := range t.FixedVideos {
+		if fixedExcluded(m.ExcludedFixed, video.ID) {
+			t.FixedSec -= video.Segment.Duration() / t.PlaybackSpeed
+		}
 	}
 	r := &runState{h: h, jobID: s.Job.ID, skipped: map[domain.PlatformID]bool{}}
 	if note != "" {

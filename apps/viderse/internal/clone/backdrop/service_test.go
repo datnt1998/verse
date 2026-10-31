@@ -51,6 +51,7 @@ func (s *editStore) Commit(_ context.Context, old jobedit.Snapshot, change jobed
 type catalogueStore struct {
 	pipelineBackdrop.Store
 	videos []domain.BackdropChannelVideo
+	fixed  map[string]domain.BackdropVideo
 }
 
 func (s *catalogueStore) Channel(_ context.Context, id string) (domain.BackdropChannel, bool, error) {
@@ -67,8 +68,9 @@ func (s *catalogueStore) ChannelVideo(_ context.Context, channel, id string) (do
 	}
 	return domain.BackdropChannelVideo{}, false, nil
 }
-func (s *catalogueStore) Video(context.Context, string) (domain.BackdropVideo, bool, error) {
-	return domain.BackdropVideo{}, false, nil
+func (s *catalogueStore) Video(_ context.Context, id string) (domain.BackdropVideo, bool, error) {
+	video, found := s.fixed[id]
+	return video, found, nil
 }
 
 type mediaRepo struct {
@@ -159,6 +161,38 @@ func storedManifest(t *testing.T, f *fixture) pipelineBackdrop.Manifest {
 		t.Fatal(err)
 	}
 	return checkpoint.Manifest
+}
+
+func TestFixedRemovalSurvivesServiceRestart(t *testing.T) {
+	f := newFixture(t)
+	var snapshot library.Snapshot
+	if err := json.Unmarshal(f.store.snapshot.Job.TemplateSnapshot, &snapshot); err != nil {
+		t.Fatal(err)
+	}
+	snapshot.Backdrop.FixedVideoIDs = []string{"twitch:fixed"}
+	f.store.snapshot.Job.TemplateSnapshot, _ = json.Marshal(snapshot)
+	f.catalogue.fixed = map[string]domain.BackdropVideo{"twitch:fixed": {ID: "twitch:fixed", Title: "Fixed", State: domain.BackdropReady, FilePath: "library/backdrops/fixed.mp4", Segment: domain.BackdropSegment{FromSec: 10, ToSec: 70}}}
+	before, err := f.service.Read(context.Background(), "job-1")
+	if err != nil || len(before.FixedItems) != 1 || before.Coverage.FixedSec != 30 {
+		t.Fatalf("before: %+v %v", before, err)
+	}
+	_, err = f.service.Edit(context.Background(), "job-1", EditRequest{Op: "reroll", ItemID: "fixed:twitch:fixed", Revision: before.Revision})
+	assertCode(t, err, domain.CloneErrInvalidRequest)
+	_, err = f.service.Edit(context.Background(), "job-1", EditRequest{Op: "remove", ItemID: "fixed:twitch:fixed", Revision: before.Revision})
+	if err != nil {
+		t.Fatal(err)
+	}
+	restarted := &Service{Edits: f.service.Edits, Deps: f.service.Deps}
+	after, err := restarted.Read(context.Background(), "job-1")
+	if err != nil || len(after.FixedItems) != 0 || after.Coverage.FixedSec != 0 || after.Revision == before.Revision {
+		t.Fatalf("after restart: %+v %v", after, err)
+	}
+	if manifest := storedManifest(t, f); len(manifest.FixedClips) != 0 || len(manifest.ExcludedFixed) != 1 {
+		t.Fatalf("build input: %+v", manifest)
+	}
+	f.store.snapshot.Steps = append(f.store.snapshot.Steps, domain.CloneStepRecord{Step: domain.CloneBuild, Status: domain.CloneRunning})
+	_, err = restarted.Edit(context.Background(), "job-1", EditRequest{Op: "remove", ItemID: "b1", Revision: after.Revision})
+	assertCode(t, err, domain.CloneErrConflict)
 }
 
 func TestRemovePersistsAndPublishesManifestWithoutRequeueingBackdrop(t *testing.T) {

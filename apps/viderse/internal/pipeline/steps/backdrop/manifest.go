@@ -34,15 +34,24 @@ type Item struct {
 	MediaID   *string    `json:"mediaId"`
 	Error     *ItemError `json:"error"`
 }
+type FixedClip struct {
+	VideoID string  `json:"videoId"`
+	Path    string  `json:"path"`
+	FromSec float64 `json:"fromSec"`
+	ToSec   float64 `json:"toSec"`
+}
+
 type Manifest struct {
-	Version     int      `json:"version"`
-	Revision    string   `json:"revision"`
-	Salt        uint32   `json:"salt"`
-	WantedCount int      `json:"wantedCount"`
-	TargetSec   *int     `json:"targetSec"`
-	Fallback    string   `json:"fallback"`
-	Warnings    []string `json:"warnings"`
-	Items       []Item   `json:"items"`
+	Version       int         `json:"version"`
+	Revision      string      `json:"revision"`
+	Salt          uint32      `json:"salt"`
+	WantedCount   int         `json:"wantedCount"`
+	TargetSec     *int        `json:"targetSec"`
+	Fallback      string      `json:"fallback"`
+	Warnings      []string    `json:"warnings"`
+	Items         []Item      `json:"items"`
+	ExcludedFixed []string    `json:"excludedFixed,omitempty"`
+	FixedClips    []FixedClip `json:"fixedClips,omitempty"`
 }
 
 // Checkpoint includes unpublished local files so a retry need not fetch them again.

@@ -9,6 +9,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/backdrop"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/stepstest"
@@ -76,6 +77,21 @@ func fixture(t *testing.T) (Handler, *pipeline.StepContext, *stepstest.FakeMedia
 		return editor.Object{"sourceHash": "sha256:" + strings.Repeat("b", 64), "samplesPerSecond": 50, "durationSeconds": 6, "envelopeBase64": base64.StdEncoding.EncodeToString(make([]byte, 300)), "normalization": .4}, nil
 	}}}
 	return h, s, m
+}
+func TestBuildUsesPersistedFixedBackdropInput(t *testing.T) {
+	h, s, _ := fixture(t)
+	manifest := backdrop.Seal(backdrop.Manifest{Fallback: "none", FixedClips: []backdrop.FixedClip{{VideoID: "fixed", Path: "library/backdrops/missing.mp4", FromSec: 10, ToSec: 20}}})
+	s.Upstream[domain.CloneBackdrop] = domain.CloneStepOutput{Data: map[string]any{"manifest": manifest}}
+	if _, err := h.Run(context.Background(), s); err == nil {
+		t.Fatal("build did not acquire fixed backdrop input")
+	}
+	manifest.FixedClips = nil
+	manifest.ExcludedFixed = []string{"fixed"}
+	manifest = backdrop.Seal(manifest)
+	s.Upstream[domain.CloneBackdrop] = domain.CloneStepOutput{Data: map[string]any{"manifest": manifest}}
+	if _, err := h.Run(context.Background(), s); err != nil {
+		t.Fatalf("excluded fixed backdrop still used: %v", err)
+	}
 }
 func TestBuildProducesSchema15DraftThenWaitsWithoutApprovingImages(t *testing.T) {
 	h, s, m := fixture(t)
