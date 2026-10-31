@@ -12,9 +12,18 @@ describe('parseHash', () => {
     expect(parseHash('#/?channel=kenh-thuc-te&video=v123').route)
       .toEqual({ name: 'workbench', channel: 'kenh-thuc-te', video: 'v123' })
   })
+  it('giữ phạm vi Mọi kênh được chỉ định trong URL', () => {
+    expect(routePath(parseHash('#/?scope=all&video=v').route)).toBe('/?scope=all&video=v')
+  })
+  it('chuyển đường clone cũ sang video trên Bàn dựng', () => {
+    expect(routePath(parseHash('#/clone').route)).toBe('/')
+    expect(routePath(parseHash('#/clone/a%20b').route)).toBe('/?video=a+b')
+  })
   it('#/review', () => {
     expect(parseHash('#/review').route).toEqual({ name: 'review', channel: undefined })
     expect(parseHash('#/review?channel=a').route).toEqual({ name: 'review', channel: 'a' })
+    expect(parseHash('#/review?channel=a&video=v').route).toEqual({ name: 'review', channel: 'a', video: 'v' })
+    expect(routePath({ name: 'review', channel: 'a', video: 'v' })).toBe('/review?channel=a&video=v')
   })
   it('#/queue', () => {
     expect(parseHash('#/queue').route).toEqual({ name: 'queue' })
