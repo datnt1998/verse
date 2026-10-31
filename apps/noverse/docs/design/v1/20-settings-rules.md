@@ -102,6 +102,53 @@ Quy tắc viết gắn với truyện, nên sửa ở chỗ người dùng làm 
 - Các mục khác của Tuỳ chỉnh (Trợ lý AI, Ngân sách, và trong Cách viết: Duyệt từng chương, Trọng tài hỏi) vẫn giữ thanh “Áp dụng cho” 3 cấp. **Văn phong** đã chuyển theo cùng cách với quy tắc viết — xem *Cách viết — vị trí* bên dưới (Gói AL). <!-- al-note -->
 - Số từ dễ lặp mặc định là **12** (đúng danh sách đang hiện), không phải 16.
 
+**Cách viết gọn lại, chốt 31/10 (Gói AM — thay phần chia tab của Gói AL bên dưới)** <!-- am-gon -->
+
+Người dùng không phân biệt được “Quy tắc viết” và “Cách viết”, và bấm *Văn phong* ở thẻ “Đang áp dụng” lại bị đưa sang chỗ khác. Gọn lại theo ba ý:
+
+**Nguyên tắc nhãn nguồn (sửa 31/10):** đang đứng ở truyện thì mọi thứ trên màn đều là *của truyện* — **không** ghi “riêng truyện này”. Chỉ đánh dấu khi giá trị **lấy từ cấp trên**: nhãn xanh “theo dự án” (ở truyện) / “chung mọi truyện” (ở trang dự án); nhóm quy tắc kế thừa ghi “Từ dự án …” / “Chung cho mọi truyện” · chỉ xem. Quy tắc tự dặn ghi “Bạn đã dặn”. Tab Cách viết không có số đếm (dễ hiểu nhầm). <!-- am-label -->
+
+1. **Một tab “Cách viết”** cho truyện (bỏ tab “Quy tắc viết” riêng). Hai mục cùng kiểu tiêu đề, trên xuống:
+   - **Văn phong** — một thẻ: tên + “Có chấm” (nếu là gói) + “theo dự án” (nếu kế thừa), một dòng mô tả, nút **Đổi** mở lưới ngay trong thẻ (dòng đầu lưới: **Theo dự án · …** để quay về kế thừa; *Xong* để thu lại). Cuối thẻ là dòng **Văn mẫu · n đoạn · x ký tự** (thu gọn, *Thêm*). Thẻ “Gói … gồm” chỉ hiện khi lưới đang mở.
+   - **Quy tắc** — tiêu đề + *Noverse hiểu thế nào?* cùng hàng, một dòng mô tả bên dưới, ô dặn, rồi các nhóm: Bạn đã dặn · Học từ góp ý · Từ dự án · Chung cho mọi truyện · Mặc định của Noverse.
+   - Cuối tab: **Khi nào có hiệu lực** (áp cho cả văn phong và quy tắc).
+2. **Chọn nhanh ngay ở thẻ “Đang áp dụng”** (cột phải), không chuyển trang:
+   - *Văn phong* → bảng chọn nhỏ: Theo dự án · các gói · các kiểu viết. Chọn là lưu, toast “Đã đổi văn phong · áp dụng từ chương 5”.
+   - *Người viết* → bảng chọn model (cùng danh sách Trợ lý AI).
+   - *Duyệt từng chương* → công tắc ngay trên dòng.
+   - *Quy tắc* → mở tab Cách viết (quy tắc cần gõ chữ, không chọn nhanh được). Dòng Văn phong chỉ có nhãn “theo dự án” khi kế thừa; Người viết không gắn nhãn. <!-- am-rail -->
+   - Thẻ dự án: *Văn phong* (bảng chọn), *Duyệt cho truyện mới* (công tắc); *Trợ lý AI*, *Ngân sách* vẫn mở Tuỳ chỉnh.
+   - Tiêu đề thẻ: “Đang áp dụng” + *Tuỳ chỉnh ›*.
+3. **Trang dự án:** một mục **Cách viết của dự án**, bên trong cùng hai phần như tab truyện: **Văn phong** (thẻ + “chung mọi truyện” khi kế thừa Tuỳ chỉnh; cuối thẻ liệt kê *truyện chọn văn phong khác*, hoặc “Mọi truyện trong dự án đang dùng văn phong này”) và **Quy tắc**. Thanh trái chỉ còn một lối tắt “Cách viết”. <!-- am-proj -->
+
+Điện thoại (M4): dòng “Quy tắc viết” đổi thành **Cách viết** (“Nữ tần bảo thù · 9 quy tắc”). Trang Cách viết: một dòng mô tả (không còn tiêu đề “Riêng truyện …”), dòng *Văn phong* (nhãn “theo dự án” khi kế thừa) bấm mở danh sách chọn tại chỗ — dòng đầu **Theo dự án · …** — bên dưới là **Quy tắc** với nhóm “Bạn đã dặn”. <!-- am-m4b --> “Tuỳ chỉnh truyện” chỉ còn Cách chạy (Duyệt từng chương, Người viết) và Ngân sách.
+
+Artboard: `Outline` · `tab=style` · `wstyle` · `quick`: none · style · writer; `MMore` · `state`: rules · rulesStyle · storyset.
+
+**Màn Tạo truyện mới — chọn nhanh văn phong & người viết (Gói AM, 31/10)** <!-- am-new -->
+
+Lỗi bản thật: bấm thẻ *Văn phong* (hoặc tên model) dưới ô nhập yêu cầu thì bị chuyển sang Tuỳ chỉnh, mất mạch đang gõ.
+
+- Hai thẻ dưới ô nhập thành **nút mở bảng chọn tại chỗ** (mũi tên ▾), không còn là liên kết.
+- *Văn phong* → bảng “Văn phong cho truyện này”: **Theo dự án** (mặc định, ghi tên văn phong của dự án) · Gói thể loại (kèm nhãn “có chấm”) · Kiểu viết. Không có “Văn phong của bạn” vì truyện chưa có văn mẫu. Chân bảng: *Đổi mặc định của dự án ›* (mở trang dự án › Cách viết của dự án).
+- *Người viết* (tên model) → bảng model theo nhà cung cấp, dòng đầu **Theo dự án**. Chân bảng: *Thêm model ở Kết nối AI ›*.
+- Thẻ chỉ hiện tên đang chọn, không gắn nhãn nguồn (dấu ✓ trong bảng cho biết đang “Theo dự án” hay chọn khác). <!-- am-ns-tag -->
+- Lựa chọn chỉ giữ trên màn này (chưa có truyện để lưu); áp vào truyện lúc bấm *Bắt đầu viết*. Bấm ra ngoài hoặc Esc để đóng bảng.
+- Artboard: `NewStory` · `quick`: none · style · writer · picked.
+
+**Xoá truyện (Gói AM, 31/10)** <!-- am-del -->
+
+- Lối vào: nút **⋯** ở đầu trang truyện (Đổi tên truyện · Xuất truyện… · **Xoá truyện…**), cùng các mục với menu ⋯ / chuột phải của thẻ truyện ở trang dự án (đã có trong bản thật).
+- Chỉ **chủ dự án** (quản trị tính là chủ) xoá được. Người khác thấy mục mờ + “Chỉ chủ dự án hoặc quản trị xoá được truyện.”
+- Hộp xác nhận nói rõ:
+  - **Mất**: số chương, số chữ, bản viết lại; dàn ý, nhân vật, quy tắc, văn mẫu, góp ý; sách nói và bản xuất.
+  - **Giữ**: ý tưởng, tư liệu, các truyện khác của dự án.
+  - Lối *Xuất trước*.
+  - Ô gõ **tên ngắn của truyện** (không phân biệt hoa thường) để mở nút đỏ **Xoá vĩnh viễn**. Không bắt gõ tên thư mục.
+- **Truyện đang chạy:** máy chủ từ chối xoá (“Truyện đang chạy — dừng trước khi xoá”). Hộp hiện dải vàng “Người viết đang viết lại chương 4. Cần dừng trước khi xoá.” + *Tạm dừng*; nút Xoá vĩnh viễn khoá cho tới khi dừng xong.
+- Xoá xong → về trang dự án, thẻ truyện biến mất, số liệu dự án cập nhật, toast “Đã xoá truyện …”.
+- Artboard: `Outline` · `del`: none · menu · confirm · typed · running · noPerm · done.
+
 **Cách viết — vị trí, chốt 29/10 (Gói AL)** <!-- cach-viet-vi-tri -->
 
 Văn phong (gói thể loại, kiểu viết) và văn mẫu gắn với truyện, nên chọn ở Dự án & truyện, cạnh Quy tắc viết.
@@ -298,3 +345,88 @@ Dòng lệnh vẫn dùng được cho ai chạy Noverse không có giao diện, 
 - **Quy tắc viết — lỗi 500 khi hiểu quy tắc** (`rules=retry`): thử lại tối đa 3 lần trong ~20 giây (thẻ chờ viền cam, “Máy chủ đang bận, Noverse thử lại lần 2/3…”, nút “Lưu nguyên văn ngay” / “Huỷ”); hết lượt thì lưu nguyên văn, gắn “chưa chắc”, tự thử hiểu lại khi máy chủ ổn. Không chờ 2 phút.
 - **Nâng cao:** nhóm “Phiên bản Noverse” (D1) và “Não truyện” với “Mở bằng Obsidian” ×2, không hiện đường dẫn (D12).
 - **Dự án & truyện (`Outline`):** tab Dàn ý có thẻ “Khung truyện” và chế độ “Bản đồ giữ chân” (D5); tab Nhân vật có trang nhân vật với bảng xưng hô, lịch sử quan hệ, khoá/sửa/xác nhận (D7–D8); nút “Não truyện” mở màn `Brain` (D10); tab Bản xuất thêm cột “Bản đọc TTS” (D3).
+
+## 8. Lưu trữ tệp — kho S3 (31/10, Gói AN) <!-- an-spec -->
+
+Artboard: `Settings` · `section=storage` · `storage` (14 trạng thái) · `sprov`: r2 · aws · garage · other (nhà cung cấp ở form) · `sfail`: key · bucket · perm · net · clock · cors · reach (khi `storage=testfail`). Điện thoại: `MMore` · `state=storage` · `storage`: active · migrating · down · local.
+
+Đối chiếu bản thật (31/10): `GET/PUT /api/system/storage`, `POST …/test`, `POST …/migration{,/pause,/resume,/cancel}` đã có trong `internal/entry/web/storage_metrics.go` + `internal/bootstrap/blob_*.go`. Bước kiểm tra, mã lỗi, dữ liệu chuyển kho trong thiết kế lấy đúng theo đó. Chỗ thiếu ghi GAP ở cuối mục.
+
+### 8.1 Vị trí
+
+- Tuỳ chỉnh › nhóm **Hệ thống · Quản trị** › **Lưu trữ tệp**, ngay dưới Thành viên. Chỉ quản trị thấy. Dòng phụ ở thanh trái tóm tắt: “Cloudflare R2 · 3,4 GB” / “Ổ máy chủ · 3,4 GB” / “Đang chuyển · 37%” / “Không kết nối được”. Chấm màu: xanh dương khi đang chuyển, vàng khi chuyển có lỗi, đỏ khi mất kết nối.
+- Đầu app (chỉ quản trị): khi đang chuyển có **viên nhỏ cạnh nút Tuỳ chỉnh** — vòng tiến độ + “Chuyển kho tệp · 37%” (tạm dừng: xám; có lỗi: vàng “Chuyển kho: 3 tệp lỗi”). Khi mất kết nối: viên đỏ “Kho tệp lỗi” **và** một dòng đỏ dưới thanh trên cùng “Kho tệp không kết nối được — nghe audio, tải bản xuất và ảnh bìa đang lỗi” + *Xem Lưu trữ tệp*. Bấm đều mở mục này.
+
+### 8.2 Trạng thái
+
+| `storage` | Thấy gì |
+|---|---|
+| `filemode` | Máy chủ chạy chế độ thư mục (GET trả `mode: "file"`). Chỉ một thẻ thông tin: tệp nằm trong thư mục từng truyện; muốn dùng S3 thì người quản trị máy chủ chuyển sang chế độ cơ sở dữ liệu. Không nút. |
+| `local` | Thẻ kho đang dùng “Ổ đĩa máy chủ” + Hoạt động tốt + *Kiểm tra kết nối*; thẻ mời **Chuyển sang kho S3** (*Chọn kho S3*); Dung lượng theo loại; Hoạt động từ lần khởi động (không có dòng Tạo link vì gửi qua máy chủ). |
+| `pick` | Lưới 8 thẻ: Garage · Cloudflare R2 · Amazon S3 · Google Cloud Storage · Wasabi · Backblaze B2 · DigitalOcean Spaces · Khác, tương thích S3. Mỗi thẻ: chữ viết tắt đơn sắc, tên, một dòng gợi ý, “Gợi ý: gửi qua máy chủ / gửi trực tiếp”. Kho đang dùng có nhãn “Đang dùng”. Không có MinIO. |
+| `form` | “Kết nối {nhà cung cấp}”: thẻ **Thông tin kho** (ô theo nhà cung cấp — 8.3), thẻ **Cách gửi tệp tới trình duyệt**, thẻ **Kiểm tra kết nối** (6 bước, chưa chạy), thanh lưu dưới đáy “Kiểm tra kết nối đạt rồi mới lưu được” + *Huỷ* · *Lưu…* (mờ). |
+| `testing` | Đang chạy: 2 bước đạt kèm ms, bước 3 quay, còn lại chấm xám; nút thành “Đang kiểm tra…”. |
+| `testok` | Đủ 6 bước xanh + ms; dải xanh “Đạt cả 6 bước · tổng 657 ms · trình duyệt tải thẳng từ kho”; thanh lưu “Kết nối đạt · lưu để dùng Cloudflare R2”, *Lưu…* sáng. |
+| `testfail` | Bước lỗi đỏ “lỗi”, các bước sau “bỏ qua” (riêng *Xoá tệp thử* vẫn đạt nếu lỗi ở Tạo link ký / Trình duyệt — máy chủ vẫn chạy bước xoá). Khung đỏ: tiêu đề + lý do bằng lời + “Cách sửa”. Bảy lỗi ở 8.4. |
+| `envlocked` | Thẻ kho đang dùng (Garage, Qua máy chủ) — mọi dòng có nhãn “do máy chủ đặt”; khung giải thích + *Chi tiết cho người quản trị máy chủ* (tên biến). Còn *Kiểm tra kết nối*; không *Đổi kho…*, không Kho cũ. |
+| `nokey` | Form + khung vàng “Máy chủ chưa có khoá mã hoá nên chưa lưu được khoá bí mật” (giải thích ngắn; lệnh tạo khoá chỉ nằm trong *Chi tiết cho người quản trị máy chủ*). Vẫn kiểm tra được; chọn Trực tiếp thì bước Trình duyệt “chưa chạy được” (bản thật cần lưu tạm cấu hình để tạo link thử) → dải vàng “chưa đạt đủ bước”. *Lưu…* luôn mờ. |
+| `migrate-confirm` | Hộp “Chuyển 1.248 tệp · 3,4 GB sang Cloudflare R2?” · “Từ ổ đĩa máy chủ · kết nối đã kiểm tra đạt” · 4 dòng: app vẫn chạy, tệp mới vẫn ghi kho cũ tới khi xong rồi chép nốt · mỗi tệp chép rồi đọc lại, còn lỗi thì chưa đổi · kho cũ không bị xoá · tạm dừng/huỷ lúc nào cũng được. *Huỷ* · *Bắt đầu chuyển*. |
+| `migrating` | Thẻ xanh dương đầu mục: “Đang chuyển sang Cloudflare R2” + Đang chạy; “Bắt đầu lúc 14:02…”; hai thanh Số tệp (474 / 1.248 · 37%) và Dung lượng (1,3 / 3,4 GB); “Tốc độ trung bình 18 MB/giây · còn khoảng 2 phút”; “Đã chép và kiểm tra 474 · Lỗi 0”; *Tạm dừng / Tiếp tục* · *Huỷ chuyển* (hỏi lại tại chỗ: “App vẫn dùng ổ máy chủ, không mất tệp nào. 474 tệp đã chép sang Cloudflare R2 vẫn nằm ở đó”). Bên dưới vẫn là thẻ “Ổ đĩa máy chủ · Kho đang dùng”. |
+| `migrate-errors` | Thẻ “Chuyển sang Cloudflare R2 · còn 3 tệp lỗi” + Có lỗi, thanh vàng 99%, bảng Loại tệp · Truyện · Lý do, “Còn tệp lỗi thì chưa đổi kho — app vẫn dùng ổ máy chủ, không mất gì.”, *Thử lại các tệp lỗi* · *Huỷ chuyển*. |
+| `active` | Thẻ “Cloudflare R2 · Hoạt động tốt · Kiểm tra gần nhất lúc 14:31” + *Kiểm tra kết nối* · *Đổi kho…*; lưới: Tên kho, Vùng, Địa chỉ (chỉ tên miền), Cách gửi tệp, Môi trường (Thử nghiệm/Chạy thử/Chính thức), Khoá truy cập ••••7f3a, Cấu hình (lưu trong app · đã mã hoá / do máy chủ đặt). Dung lượng theo loại (6 loại + tổng), Bộ nhớ đệm trên máy chủ (1,2 / 5,0 GB), Hoạt động từ lần khởi động (Ghi/Đọc/Tạo link/Xoá: số lần, lỗi, dữ liệu, trung bình, chậm nhất; lỗi > 0 tô cam cả dòng), **Kho cũ (ổ máy chủ) vẫn giữ 3,4 GB** + cách dọn. |
+| `down` | Khung đỏ đầu mục “Không kết nối được kho tệp Cloudflare R2” + lý do (`health.error`) + “Lần thử gần nhất 14:32 · 40 giây trước” + *Kiểm tra lại*; thẻ kho đổi nhãn “Không kết nối được”; dòng đỏ đầu app + viên đỏ. |
+
+### 8.3 Ô theo nhà cung cấp
+
+| Nhà cung cấp | Ô riêng | Ghi chú |
+|---|---|---|
+| Cloudflare R2 | Account ID | App dựng địa chỉ `<id>.r2.cloudflarestorage.com`, hiện ngay dưới ô. Vùng cố định `auto`, không hiện. |
+| Amazon S3 | Vùng (danh sách) | |
+| Wasabi · Backblaze B2 · DigitalOcean Spaces | Vùng (danh sách) | App dựng địa chỉ theo vùng. |
+| Google Cloud Storage | — | Địa chỉ cố định. Khoá là khoá HMAC. |
+| Garage | Địa chỉ máy chủ nội bộ (`http://garage:3900`), Vùng điền sẵn “garage” (sửa được, khớp `s3_region`) | Kiểu đường dẫn luôn bật (không hiện). Công tắc “Cho phép http (chỉ mạng nội bộ)” bật sẵn + cảnh báo vàng. Khối thu gọn “Lệnh Garage” có 3 lệnh + *Chép*. |
+| Khác | Địa chỉ máy chủ, Vùng, công tắc Kiểu đường dẫn, công tắc Cho phép http + cảnh báo | |
+
+Ô chung: Tên kho, Mã khoá truy cập, Khoá bí mật. Mỗi ô có một dòng hướng dẫn và *Lấy ở đâu?* — mở khung “Lấy thông tin ở {nhà cung cấp}” ngay đầu thẻ (4 bước, bước của ô vừa bấm được tô). Thiếu ô bắt buộc → nút kiểm tra mờ + “Điền đủ n ô còn trống rồi kiểm tra”. Khoá đã lưu (chọn lại đúng kho đang dùng ở *Đổi kho…*): Mã khoá hiện “••••7f3a · Đã lưu” + *Đổi khoá*; Khoá bí mật “•••••••• · Đã lưu · đã mã hoá”. *Đổi khoá* xoá trắng cả hai ô.
+
+**Cách gửi tệp tới trình duyệt** — hai lựa chọn, mỗi cái một dòng ưu (xanh) và nhược (vàng), nhãn “Gợi ý” theo nhà cung cấp (Garage → Qua máy chủ; đám mây → Trực tiếp). Chọn Trực tiếp mà địa chỉ kho là nội bộ (http, tên không có dấu chấm, IP riêng — cùng luật `privateEndpoint` của máy chủ) → hiện ô **Địa chỉ kho cho trình duyệt** (`https://s3.aarverse.studio`) + cảnh báo vàng khi trống. Đổi bất kỳ ô nào/cách gửi → kết quả kiểm tra cũ bị xoá, phải kiểm tra lại.
+
+### 8.4 Kiểm tra kết nối — bước và lỗi
+
+Bước (đúng thứ tự máy chủ): Ghi thử (`write`) · Đọc lại (`read`) · Đọc một đoạn — dùng khi tua audio (`range`) · Tạo link ký (`presign`; khi Qua máy chủ hiện “không cần”) · **Trình duyệt tải được (CORS)** (`cors_probe` + trình duyệt tự tải link thử) *hoặc* **Máy chủ gửi được một đoạn cho trình duyệt** (`app_range`, khi Qua máy chủ) · Xoá tệp thử (`delete`).
+
+| `sfail` | Bước | Mã máy chủ | Tiêu đề · cách sửa |
+|---|---|---|---|
+| key | Ghi thử | `wrong_key` | Kho từ chối khoá truy cập · chép lại cả hai ô; khoá bí mật chỉ hiện một lần lúc tạo |
+| bucket | Ghi thử | `no_bucket` | Không có kho tên “noverse-media” · kiểm tra chính tả hoặc tạo kho |
+| perm | Xoá tệp thử | `no_delete_permission` (tương tự `no_write_permission`, `no_read_permission` ở bước tương ứng) | Khoá chưa có quyền xoá tệp · đổi quyền thành Đọc và Ghi; tệp thử tự dọn ở lần đạt sau |
+| net | Ghi thử | `unreachable_endpoint` | Không kết nối được địa chỉ kho · kiểm tra địa chỉ, cổng, tường lửa; với Garage/Khác thêm dòng “chung mạng Docker hoặc IP nội bộ” |
+| clock | Ghi thử | `clock_skew` | Đồng hồ máy chủ bị lệch · bật đồng bộ giờ tự động |
+| cors | Trình duyệt tải được | (trình duyệt) | Trình duyệt bị kho chặn (thiếu CORS) · đoạn cấu hình CORS **điền sẵn địa chỉ app** với 3 thẻ Cloudflare R2 / Amazon S3 / Garage (mỗi thẻ ghi dán vào đâu) + *Chép* · “chờ chừng một phút” · *Kiểm tra lại* · *Chuyển sang gửi qua máy chủ* |
+| reach | Tạo link ký | `browser_endpoint_required` | Trình duyệt không tới được địa chỉ kho · *Điền địa chỉ cho trình duyệt* (cuộn tới ô) · *Chuyển sang gửi qua máy chủ* |
+
+Trình duyệt tự phân biệt *thiếu CORS* và *không tới được*: tải `corsProbeUrl` (header `Range: bytes=0-1`); lỗi thì tải lại với `mode: "no-cors"` — được (phản hồi kín) ⇒ thiếu CORS; vẫn lỗi ⇒ địa chỉ cho trình duyệt không mở được (dùng tiêu đề “reach”, lý do “Trình duyệt của bạn không mở được {địa chỉ cho trình duyệt}”). Mã `content_mismatch` (“Nội dung đọc lại không khớp”) và `storage_error` dùng câu `reason` máy chủ trả. Kiểm tra quá dày → 429: “Bạn đã kiểm tra nhiều lần; hãy chờ một phút rồi thử lại.”
+
+### 8.5 Lưu và chuyển kho
+
+1. *Lưu…* chỉ sáng khi: đủ ô · kiểm tra đạt đủ bước · máy chủ có khoá mã hoá · không do máy chủ đặt.
+2. Kho cũ còn tệp (lấy `total` của GET) → hộp xác nhận ghi rõ **số tệp và dung lượng**. Không còn tệp → lưu luôn, toast “Đã chuyển sang {nhà cung cấp}”.
+3. *Bắt đầu chuyển* → `PUT` (máy chủ kiểm tra lại, trả `needsMigration` + số tệp/dung lượng chuẩn) → `POST …/migration`. *Huỷ* trong hộp **không gọi PUT**, nên không để lại kho chờ.
+4. Trong lúc chuyển: hỏi lại GET mỗi 5 giây khi mục đang mở (30 giây cho viên ở đầu app). *Tạm dừng* = `/pause`, *Tiếp tục* và *Thử lại các tệp lỗi* = `/resume`, *Huỷ chuyển* = `/cancel` (hỏi lại tại chỗ).
+5. Máy chủ tự đổi kho khi mọi tệp đã chép và kiểm tra → trạng thái `active`, có thẻ Kho cũ. Noverse không tự xoá kho cũ.
+6. Mọi lỗi 409 “cấu hình lưu trữ đã thay đổi; vui lòng tải lại” → toast + tải lại mục.
+
+### 8.6 Điện thoại (M4)
+
+Nhóm mới **Quản trị** trên trang Thêm (chỉ quản trị): hàng **Lưu trữ tệp** — “Cloudflare R2 · 3,4 GB” / “Đang chuyển sang Cloudflare R2 · 37%” (chấm xanh) / “Không kết nối được kho” (chữ đỏ, chấm đỏ). Trang chỉ xem: khung đỏ khi mất kết nối · thẻ tiến độ khi đang chuyển (“Tạm dừng hoặc huỷ trên máy tính”) · Kho đang dùng (tên, trạng thái, Tên kho, Cách gửi tệp, Môi trường) · *Kiểm tra kết nối* (kết quả một dòng ngay dưới) · Dung lượng 6 loại + tổng · “Đổi kho trên máy tính.” Mất kết nối thì đầu app trên điện thoại dùng lại dải cảnh báo trên cùng (như dải mất mạng), chữ “Kho tệp không kết nối được”.
+
+### 8.7 GAP (dữ liệu chưa có — thiết kế không bịa)
+
+- **GAP-AN1** GET chưa trả kho chờ (`pending_store`): thẻ chuyển cần tên nhà cung cấp/kho mới (“sang Cloudflare R2”). Thêm `pending: {provider, bucket, endpointHost}` vào View hoặc vào `migration`.
+- **GAP-AN2** `bytesPerSecond` là trung bình từ lúc bắt đầu, chưa có tốc độ hiện tại → thiết kế ghi “Tốc độ trung bình”; thời gian còn lại ước từ đó.
+- **GAP-AN3** Không có số “đã kiểm tra” riêng: `copiedCount` chỉ đếm tệp đã chép **và** đã xác minh → hiện một số “Đã chép và kiểm tra”.
+- **GAP-AN4** `MigrationError.reason` là một câu chung; FE dịch theo `code` (bảng ở `07-copy.md`). `story` là mã truyện → cần `storyTitle` (tệp dùng chung dự án: story rỗng → “Dùng chung của dự án”).
+- **GAP-AN5** Sau khi chuyển xong không có thông tin kho cũ riêng → lấy `migration` gần nhất (`completed`: `totalCount`, `totalBytes`). Chưa có lệnh dọn kho cũ (`storage gc` chỉ dọn tệp mồ côi) → cần lệnh bảo trì dọn kho nguồn của một lần chuyển đã xong. Chưa có giờ xong chuyển → không hiện.
+- **GAP-AN6** Đổi khoá hoặc cách gửi của **cùng** kho (cùng địa chỉ + tên kho) hiện cũng thành “kho mới” → `needsMigration` và chép lại toàn bộ (đều `matched`). Nên nhận ra cùng kho và đổi tại chỗ, không chuyển.
+- **GAP-AN7** `Usage` xếp mọi khoá có tiền tố môi trường: ảnh đại diện (ảnh) rơi vào Bìa, bản sao lưu cơ sở dữ liệu rơi vào Bản thảo nhập. Cần loại avatar/backup khỏi 6 loại (hoặc thêm loại riêng, khi đó cập nhật thiết kế).
+- **GAP-AN8** Kiểm tra trên kho đang dùng (*Kiểm tra kết nối* ở thẻ trạng thái, cả khi `envlocked`): chưa có route kiểm tra cấu hình hiện hành không cần gửi khoá — `POST …/test` nhận ứng viên; với khoá rỗng thì giữ khoá đã lưu (`nil credentials retain`) nên FE gửi lại cấu hình hiện hành không kèm khoá. Với `envlocked` cần cho phép test (hiện Candidate dựa trên kho active — kiểm lại).

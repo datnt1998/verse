@@ -39,6 +39,7 @@ button{cursor:pointer}
 @keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
 .ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .i-add-square-b{-webkit-mask-image:url(../icons/add-square-bulk.svg);mask-image:url(../icons/add-square-bulk.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
 .i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
 .i-arrow-right-2{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
 .i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
@@ -92,6 +93,14 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 .btn2:hover{background:rgba(255,255,255,.05)}
 @keyframes sk{0%{background-position:100% 0}100%{background-position:-100% 0}}
 @media (prefers-reduced-motion: reduce){[style*="animation: sk"]{animation:none!important}}
+.chipb{height:30px;padding:0 8px 0 8px;display:flex;align-items:center;gap:6px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:transparent;font:inherit;font-size:12px;color:#A0A0AB;cursor:pointer;white-space:nowrap}
+.chipb[aria-expanded="true"]{border-color:rgba(201,166,245,.45);background:rgba(201,166,245,.06)}
+.qpop{position:absolute;z-index:60;left:0;top:calc(100% + 6px);width:320px;max-height:400px;overflow:auto;padding:6px;border-radius:14px;background:#1A1A1D;border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 60px -16px rgba(0,0,0,.9);scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.qh{padding:8px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E78}
+.qo{width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;border:none;border-radius:9px;background:transparent;color:#EDEDEF;font:inherit;text-align:left;cursor:pointer}
+.qo:hover{background:rgba(255,255,255,.06)}
+.qo .qd{font-size:12px;color:#8E8E99}
+.qf{display:block;margin-top:4px;padding:9px 10px 5px;border:0;border-top:1px solid rgba(255,255,255,.06);font:inherit;font-size:12.5px;color:#C9A6F5;text-decoration:none;cursor:pointer;background:none;width:100%;text-align:left}
 </style>
 </helmet>
 <div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
@@ -140,12 +149,13 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </sc-for>
 </div>
 
+<sc-if value="{{anyQ}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" onClick="{{qClose}}" style="position: fixed; inset: 0; z-index: 40"></div></sc-if>
 <form class="card" aria-label="Yêu cầu sáng tác" style="width: 100%; border-radius: 20px; padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 10px; background: #18181A">
 <label for="prompt" class="sr-only">Yêu cầu sáng tác truyện</label>
 <textarea id="prompt" rows="4" maxlength="5000" value="{{prompt}}" onInput="{{onPrompt}}" placeholder="Nhập yêu cầu sáng tác truyện, Enter để bắt đầu viết ngay" style="resize: none; width: 100%; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 15px; line-height: 1.65; padding: 2px 4px"></textarea>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
-<a class="ghost" href="Settings.dc.html" style="height: 30px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: #A0A0AB"><span class="ic i-brush" aria-hidden="true" style="width: 15px; height: 15px"></span>Văn phong <span style="color: #EDEDEF">Nữ tần báo thù</span><span style="height: 18px; padding: 0 6px; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 11px; display: inline-flex; align-items: center">có chấm</span></a>
-<a class="ghost mono" href="Settings.dc.html" style="height: 30px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: #A0A0AB"><span class="ic i-cpu" aria-hidden="true" style="width: 15px; height: 15px"></span>gpt-6.1-sol</a>
+<span style="position: relative; display: flex"><button class="chipb ghost" type="button" aria-haspopup="listbox" aria-expanded="{{stOpenA}}" onClick="{{stToggle}}"><span class="ic i-brush" aria-hidden="true" style="width: 15px; height: 15px"></span>Văn phong <span style="color: #EDEDEF">{{stName}}</span><sc-if value="{{stPack}}" hint-placeholder-val="{{ true }}"><span style="height: 18px; padding: 0 6px; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 11px; display: inline-flex; align-items: center">có chấm</span></sc-if><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #7E7E8A"></span></button><sc-if value="{{stOpen}}" hint-placeholder-val="{{ false }}"><div class="qpop" role="listbox" aria-label="Văn phong cho truyện này"><sc-for list="{{stOpts}}" as="o" hint-placeholder-count="6"><sc-if value="{{o.hdr}}" hint-placeholder-val="{{ false }}"><div class="qh">{{o.t}}</div></sc-if><sc-if value="{{o.item}}" hint-placeholder-val="{{ true }}"><button class="qo" type="button" role="option" aria-selected="{{o.selA}}" onClick="{{o.pick}}"><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span class="{{o.mono}}" style="font-size: 13.5px">{{o.t}}<sc-if value="{{o.badge}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 6px; height: 17px; padding: 0 6px; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 10.5px; font-family: Inter, system-ui, sans-serif; display: inline-flex; align-items: center; vertical-align: 1px">có chấm</span></sc-if></span><span class="qd">{{o.d}}</span></span><span style="width: 16px; display: flex; flex: 0 0 auto"><sc-if value="{{o.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span></sc-if></span></button></sc-if></sc-for><a class="qf" href="Outline.dc.html">Đổi mặc định của dự án ›</a></div></sc-if></span>
+<span style="position: relative; display: flex"><button class="chipb ghost" type="button" aria-haspopup="listbox" aria-expanded="{{wrOpenA}}" onClick="{{wrToggle}}" aria-label="Người viết: {{wrName}}"><span class="ic i-cpu" aria-hidden="true" style="width: 15px; height: 15px"></span><span class="mono" style="color: #EDEDEF">{{wrName}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #7E7E8A"></span></button><sc-if value="{{wrOpen}}" hint-placeholder-val="{{ false }}"><div class="qpop" role="listbox" aria-label="Người viết cho truyện này" style="width: 300px"><sc-for list="{{wrOpts}}" as="o" hint-placeholder-count="6"><sc-if value="{{o.hdr}}" hint-placeholder-val="{{ false }}"><div class="qh">{{o.t}}</div></sc-if><sc-if value="{{o.item}}" hint-placeholder-val="{{ true }}"><button class="qo" type="button" role="option" aria-selected="{{o.selA}}" onClick="{{o.pick}}"><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span class="{{o.mono}}" style="font-size: 13.5px">{{o.t}}<sc-if value="{{o.badge}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 6px; height: 17px; padding: 0 6px; border-radius: 5px; background: rgba(166,237,193,0.1); color: #A6EDC1; font-size: 10.5px; font-family: Inter, system-ui, sans-serif; display: inline-flex; align-items: center; vertical-align: 1px">có chấm</span></sc-if></span><span class="qd">{{o.d}}</span></span><span style="width: 16px; display: flex; flex: 0 0 auto"><sc-if value="{{o.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px; color: #C9A6F5"></span></sc-if></span></button></sc-if></sc-for><a class="qf" href="Settings.dc.html">Thêm model ở Kết nối AI ›</a></div></sc-if></span>
 <span title="Truyện mới nằm trong dự án này" style="height: 30px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.12); font-size: 12px; color: #A0A0AB"><span class="ic i-folder" aria-hidden="true" style="width: 15px; height: 15px"></span>Lưu vào <span style="color: #EDEDEF">Kênh truyện audio</span></span>
 <span style="flex: 1"></span>
 <span class="num mono" style="font-size: 11px; color: #7E7E8A">{{count}}/5000</span>
@@ -285,13 +295,14 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </main>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["quick","cocreate"],"default":"quick","section":"Chế độ"},"check":{"editor":"enum","options":["none","checking","conflict","fixed"],"default":"none","section":"So với truyện trước"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["quick","cocreate"],"default":"quick","section":"Chế độ"},"check":{"editor":"enum","options":["none","checking","conflict","fixed"],"default":"none","section":"So với truyện trước"},"quick":{"editor":"enum","options":["none","style","writer","picked"],"default":"none","section":"Chọn nhanh văn phong / người viết (Gói AM)"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { mode: null, prompt: '', coText: '', ready: false, ck: null };
+    this.state = { mode: null, prompt: '', coText: '', ready: false, ck: null, nsQuick: this.qInit(props.quick) };
   }
-  componentDidUpdate(prev) { if (prev.check !== this.props.check) this.setState({ ck: null }); }
+  qInit(q) { return { qp: q === 'style' || q === 'writer' ? q : null, st: q === 'picked' ? 'suspense' : null, wr: q === 'picked' ? 'gpt-6-luna' : null }; }
+  componentDidUpdate(prev) { if (prev.check !== this.props.check) this.setState({ ck: null }); if (prev.quick !== this.props.quick) this.setState({ nsQuick: this.qInit(this.props.quick) }); }
   renderVals() {
     const s = this.state;
     const mode = s.mode || this.props.mode || 'quick';
@@ -326,8 +337,27 @@ class Component extends DCLogic {
       'Cô giáo làng bị trưởng thôn cướp suất học bổng cho con mình, lật lại bằng sổ điểm viết tay trước cả làng',
       'Thập niên 90, cô gái sửa xe đầu ngõ bị hôn phu bỏ ngay trước đám hỏi, mở tiệm riêng nuôi mẹ'
     ];
+    // Gói AM — chọn nhanh văn phong / người viết cho truyện sắp tạo (không sang Tuỳ chỉnh)
+    const nq = s.nsQuick, setQ = (o) => this.setState({ nsQuick: Object.assign({}, nq, o) });
+    const PJ_ST = 'packA', PJ_WR = 'gpt-6.1-sol';
+    const PACKS = [['packA', 'Nữ tần báo thù', 'Trọng sinh, vả mặt, lấy lại từng thứ trước đám đông'], ['packB', 'Ngược hôn nhân', 'Ly hôn, mang con, người kia hối hận muộn'], ['packC', 'Niên đại văn', 'Trọng sinh thập niên, làm giàu từ hai bàn tay']];
+    const STY = [['default', 'Chung', 'Nhịp hài hoà, thoại tự nhiên'], ['romance', 'Ngôn tình', 'Cảm xúc tinh tế, chú trọng nội tâm'], ['suspense', 'Hồi hộp', 'Cài manh mối, nhịp dồn, kết chương bỏ ngỏ'], ['fantasy', 'Huyền huyễn', 'Thế giới rộng, hệ thống sức mạnh rõ'], ['wuxia', 'Kiếm hiệp', 'Giang hồ, chiêu thức, khí khái']];
+    const stName = (k) => (PACKS.concat(STY).find((x) => x[0] === k) || [])[1];
+    const curSt = nq.st || PJ_ST, curWr = nq.wr || PJ_WR;
+    const it = (t, d, sel, pick, extra) => Object.assign({ item: true, hdr: false, t, d, sel, selA: sel ? 'true' : 'false', mono: '', badge: false, pick }, extra || {});
+    const stOpts = [it('Theo dự án', stName(PJ_ST) + ' · mặc định của dự án', !nq.st, () => setQ({ st: null, qp: null }))]
+      .concat([{ hdr: true, item: false, t: 'Gói thể loại' }], PACKS.map(([k, n, d]) => it(n, d, nq.st === k, () => setQ({ st: k === PJ_ST ? null : k, qp: null }), { badge: true })))
+      .concat([{ hdr: true, item: false, t: 'Kiểu viết' }], STY.map(([k, n, d]) => it(n, d, nq.st === k, () => setQ({ st: k, qp: null }))));
+    const MODELS = [['ChatGPT', [['gpt-6.1-sol', 'Viết tốt nhất, chậm hơn'], ['gpt-6-luna', 'Cân bằng chất lượng và tốc độ'], ['gpt-5.6-terra', 'Nhanh, tiết kiệm']]], ['Gemini · DeepSeek', [['gemini-2.5-pro', 'Ngữ cảnh dài'], ['deepseek-chat', 'Rẻ']]]];
+    const wrOpts = [it('Theo dự án', PJ_WR + ' · mặc định của dự án', !nq.wr, () => setQ({ wr: null, qp: null }))];
+    MODELS.forEach(([g, ms]) => { wrOpts.push({ hdr: true, item: false, t: g }); ms.forEach(([m, d]) => wrOpts.push(it(m, d, nq.wr === m, () => setQ({ wr: m === PJ_WR ? null : m, qp: null }), { mono: 'mono' }))); });
     const sg = ['[Gợi ý 1 từ AI]', '[Gợi ý 2 từ AI]', '[Gợi ý 3 từ AI]'];
     return {
+      stName: stName(curSt), stPack: curSt.indexOf('pack') === 0, stOwn: !!nq.st, stOpen: nq.qp === 'style', stOpenA: nq.qp === 'style' ? 'true' : 'false', stOpts,
+      stToggle: () => setQ({ qp: nq.qp === 'style' ? null : 'style' }),
+      wrName: curWr, wrOwn: !!nq.wr, wrOpen: nq.qp === 'writer', wrOpenA: nq.qp === 'writer' ? 'true' : 'false', wrOpts,
+      wrToggle: () => setQ({ qp: nq.qp === 'writer' ? null : 'writer' }),
+      anyQ: !!nq.qp, qClose: () => setQ({ qp: null }),
       quick: mode === 'quick',
       cocreate: mode === 'cocreate',
       modes: [['quick', 'Bắt đầu nhanh', 'i-flash'], ['cocreate', 'Đồng sáng tác', 'i-msg']].map(([id, label, icon]) => ({ label, icon, on: mode === id, bg: mode === id ? '#2A2A2E' : 'transparent', fg: mode === id ? '#EDEDEF' : '#A0A0AB', weight: mode === id ? 500 : 400, pick: () => this.setState({ mode: id }) })),
