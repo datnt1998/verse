@@ -174,6 +174,11 @@ func (c *Copier) Run(ctx context.Context, opts CopyOptions) (CopyReport, error) 
 	return rep, firstErr
 }
 
+// CopyKey verifies one immutable object using the same protocol as storage copy.
+func (c *Copier) CopyKey(ctx context.Context, key string) (LedgerEntry, error) {
+	return c.copyOne(ctx, key)
+}
+
 // copyOne transfers one immutable key. It returns the ledger entry; a non-nil
 // error means the entry could not be classified (transport/API failure) and
 // the key must be retried — it is recorded as an error, never as copied.
@@ -184,7 +189,7 @@ func (c *Copier) copyOne(ctx context.Context, key string) (LedgerEntry, error) {
 		// Target exists: compare, never overwrite.
 		srcSHA, srcSize, err := hashOf(ctx, c.src, key)
 		if err != nil {
-			return LedgerEntry{Key: key}, fmt.Errorf("đọc nguồn để đối soát: %w", err)
+			return LedgerEntry{Key: key}, fmt.Errorf("đọc nguồn để đối soát: %w", &CopySourceError{Err: err})
 		}
 		dstSHA, dstSize, err := hashOf(ctx, c.dst, key)
 		if err != nil {
@@ -205,8 +210,12 @@ func (c *Copier) copyOne(ctx context.Context, key string) (LedgerEntry, error) {
 
 	rc, srcHead, err := c.src.Open(ctx, key, FullRange)
 	if err != nil {
-		return LedgerEntry{Key: key}, fmt.Errorf("mở nguồn: %w", err)
+		return LedgerEntry{Key: key}, fmt.Errorf("mở nguồn: %w", &CopySourceError{Err: err})
 	}
+	// Hosted source keys include their SHA-256 (probe/staging keys are not
+	// migration inputs). Without provider conditions, concurrent copies can
+	// therefore only replace identical bytes; verify size/hash below and stop
+	// on conflict. Arbitrary mutable-key callers must serialize their writers.
 	putInfo, err := c.dst.Put(ctx, key, rc, PutOptions{ContentType: srcHead.ContentType})
 	rc.Close()
 	if err != nil {

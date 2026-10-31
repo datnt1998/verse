@@ -36,12 +36,6 @@ const (
 
 // serveStoryCover 处理 GET S/cover?size=[&volume=]。
 func (g *Gateway) serveStoryCover(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
-	// Bìa dựng từ thư mục xuất bản/audio của truyện — năng lực thuần file;
-	// hosted trả 501 (cùng phân loại với âm thanh, phase 07).
-	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "bìa chưa hỗ trợ trên kho dữ liệu Postgres")
-		return
-	}
 	size := coverMaxSize
 	if raw := strings.TrimSpace(r.URL.Query().Get("size")); raw != "" {
 		v, err := strconv.Atoi(raw)
@@ -59,6 +53,12 @@ func (g *Gateway) serveStoryCover(w http.ResponseWriter, r *http.Request, st lib
 			return
 		}
 		volume = v
+	}
+	// Hosted trả cùng hình dạng: bìa upload (project_documents kind=asset) hoặc
+	// bìa tự tạo, PNG kết xuất cache trong BlobStore + export_cache.
+	if st.Dir == "" {
+		g.hostedCover(w, r, st, sr, size, volume)
+		return
 	}
 	layout, err := audio.ResolveLayout(st)
 	if err != nil {

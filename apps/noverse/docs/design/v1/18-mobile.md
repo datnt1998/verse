@@ -267,6 +267,10 @@ Dữ liệu giọng khớp bản máy tính (Audio › Phân vai):
 
 ## M4 · Thêm (`MMore.dc.html`)
 
+> **Lưu trữ tệp (Gói AN, 31/10):** nhóm Quản trị › hàng *Lưu trữ tệp* (chỉ quản trị) mở trang chỉ xem: trạng thái, đang chuyển, mất kết nối, Kiểm tra kết nối, dung lượng 6 loại, “Đổi kho trên máy tính.” Xem `20-settings-rules.md` §8.6. <!-- an-m4 -->
+
+> **Cách viết (Gói AM, 31/10):** dòng “Quy tắc viết” → **Cách viết** (văn phong + quy tắc). Trang Cách viết: dòng *Văn phong* mở danh sách chọn tại chỗ (`rulesStyle`), dưới là Quy tắc của truyện. “Tuỳ chỉnh truyện” chỉ còn Duyệt từng chương, Người viết, Ngân sách. Xem `20-settings-rules.md` › *Cách viết gọn lại*. <!-- am-m4 -->
+
 - **Quy tắc viết** (`rules`, `rulesAdd`, `rulesThinking`) và **Tuỳ chỉnh truyện** (`storyset`): hai dòng mới trong nhóm “Đang mở”. Chi tiết ở `20-settings-rules.md` §3.2. Công tắc *Duyệt từng chương* chuyển từ trang Thêm vào Tuỳ chỉnh truyện.
 
 - **Trang Thêm:**

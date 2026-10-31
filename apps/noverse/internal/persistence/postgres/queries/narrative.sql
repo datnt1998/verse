@@ -18,11 +18,26 @@ SELECT id FROM projects WHERE id = $1 AND deleted_at IS NULL FOR UPDATE;
 
 -- name: GetStoryBySlug :one
 SELECT * FROM stories
-WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL;
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status <> 'draft';
 
 -- name: GetStoryByID :one
 SELECT * FROM stories
 WHERE project_id = $1 AND id = $2 AND deleted_at IS NULL;
+
+-- name: GetDraftBySlug :one
+SELECT * FROM stories
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status = 'draft';
+
+-- name: LockDraftBySlug :one
+SELECT * FROM stories
+WHERE project_id = $1 AND slug = $2 AND deleted_at IS NULL AND status = 'draft'
+FOR NO KEY UPDATE;
+
+-- name: PromoteDraft :one
+UPDATE stories SET slug = $3, title = $4, status = 'idea',
+    updated_at = clock_timestamp(), version = version + 1
+WHERE project_id = $1 AND id = $2 AND status = 'draft' AND deleted_at IS NULL
+RETURNING *;
 
 -- name: LockStoryByID :one
 SELECT id, slug, title, short_title, synopsis, title_renamed, status, tags,
@@ -41,7 +56,7 @@ RETURNING *;
 
 -- name: ListStoriesByProject :many
 SELECT * FROM stories
-WHERE project_id = $1 AND deleted_at IS NULL
+WHERE project_id = $1 AND deleted_at IS NULL AND status <> 'draft'
 ORDER BY slug;
 
 -- name: UpdateStoryCAS :one
@@ -85,12 +100,26 @@ SELECT * FROM project_documents
 WHERE project_id = $1 AND kind = $2
 ORDER BY logical_name;
 
+-- name: UpsertProjectBlobDocument :one
+-- Binary project documents (asset uploads): the row carries payload metadata
+-- and a blobs FK; the bytes live on the BlobStore object key.
+INSERT INTO project_documents (project_id, id, kind, logical_name, payload, blob_id)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (project_id, kind, logical_name)
+DO UPDATE SET payload = EXCLUDED.payload, blob_id = EXCLUDED.blob_id,
+    updated_at = clock_timestamp(), version = project_documents.version + 1
+RETURNING *;
+
+-- name: DeleteProjectDocumentByName :execrows
+DELETE FROM project_documents
+WHERE project_id = $1 AND kind = $2 AND logical_name = $3;
+
 -- name: ListStoryIdeaRefs :many
 SELECT s.slug, d.logical_name AS idea_name
 FROM stories s
 JOIN project_documents d ON d.project_id = s.project_id
   AND d.id = s.idea_document_id
-WHERE s.project_id = $1 AND s.deleted_at IS NULL
+WHERE s.project_id = $1 AND s.deleted_at IS NULL AND s.status <> 'draft'
 ORDER BY s.slug;
 
 -- ── volumes / chapters ───────────────────────────────────────────────────────
@@ -449,7 +478,10 @@ FOR SHARE;
 
 -- name: ClaimStoryLease :execrows
 INSERT INTO story_leases (project_id, story_id, holder_id, fencing_token, lease_until)
-VALUES ($1, $2, $3, 1, $4)
+SELECT s.project_id, s.id, $3, 1, $4
+FROM stories s
+WHERE s.project_id = $1 AND s.id = $2 AND s.deleted_at IS NULL
+    AND (s.status = 'draft') = sqlc.arg(draft)::boolean
 ON CONFLICT (project_id, story_id)
 DO UPDATE SET holder_id = EXCLUDED.holder_id,
     lease_until = EXCLUDED.lease_until,
@@ -475,7 +507,7 @@ WHERE project_id = $1 AND story_id = $2 AND holder_id = $3;
 
 -- name: SearchStoryTitles :many
 SELECT s.slug, s.title, similarity(s.title, $2) AS score FROM stories s
-WHERE s.project_id = $1 AND s.deleted_at IS NULL
+WHERE s.project_id = $1 AND s.deleted_at IS NULL AND s.status <> 'draft'
   AND (s.title ILIKE '%' || $2::text || '%' OR s.title % $2::text)
 ORDER BY score DESC, s.slug
 LIMIT $3;

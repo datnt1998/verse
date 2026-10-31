@@ -1,0 +1,44 @@
+# File-backed deployment for Docker Desktop / Colima. The host directory must
+# exist and be writable by PUID:PGID. Set these with `id -u` and `id -g`.
+# See README.md, “File mode + bind mount / Colima trên macOS”.
+services:
+  config-init:
+    image: alpine:3.22
+    user: "0:0"
+    environment:
+      PUID: ${PUID:-10001}
+      PGID: ${PGID:-10001}
+    volumes:
+      - config:/config
+    command: ["sh", "-c", "chown \"$$PUID:$$PGID\" /config && chmod 700 /config"]
+    restart: "no"
+  app:
+    image: noverse:file
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    user: "${PUID:-10001}:${PGID:-10001}"
+    command: [serve]
+    environment:
+      HOME: /home/noverse
+      STORE_DRIVER: file
+      HTTP_ADDR: 0.0.0.0:8080
+      LIBRARY_BROWSE_ROOTS: /library
+      # Plain HTTP on a trusted LAN works without PUBLIC_URL. For public use,
+      # terminate HTTPS at a proxy and configure these values together.
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      SECURE_COOKIES: ${SECURE_COOKIES:-false}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+    ports:
+      - "${HTTP_PORT:-8861}:8080"
+    volumes:
+      - ${LIBRARY_HOST_ROOT:?Set LIBRARY_HOST_ROOT to an existing writable host directory}:/library
+      - config:/home/noverse/.ainovel
+      # To expose another mount, add its container path to LIBRARY_BROWSE_ROOTS:
+      # - /absolute/host/other-stories:/mnt/truyen
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+volumes:
+  config:

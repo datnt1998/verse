@@ -17,6 +17,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/platform/identity"
 	"golang.org/x/text/unicode/norm"
@@ -207,28 +208,11 @@ func readActivity(path string, size int64, storyDir, libRoot string) ([]host.Eve
 			ev.SessionID = fields["session"]
 			ev.Username = fields["username"]
 		}
-		if ev.Internal() {
+		var visible bool
+		ev, visible = normalizeActivityEvent(ev, fixPaths, &chapter)
+		if !visible {
 			continue
 		}
-		if ev.Category == "USER" {
-			// Lời người dùng gõ giữ nguyên; chỉ tiền tố hệ thống cũ ([继续]/[干预]) được đổi.
-			ev.Summary, ev.Detail = host.LegacyUserText(ev.Summary), host.LegacyUserText(ev.Detail)
-		} else {
-			ev = host.LegacyEvent(ev)
-		}
-		ev = host.MapEventText(ev, fixPaths)
-		if ev.Chapter == 0 {
-			if m := activityChapterPattern.FindStringSubmatch(ev.Summary); len(m) > 1 {
-				ev.Chapter, _ = strconv.Atoi(m[1])
-			}
-		}
-		if ev.Chapter > 0 {
-			chapter = ev.Chapter
-		} else {
-			ev.Chapter = chapter
-		}
-		ev.Args, ev.Result = host.EventText(ev.Args, 400), host.EventText(ev.Result, 800)
-		ev.DurationMs = ev.Duration.Milliseconds()
 		key := fields["session"] + "/" + ev.SessionID + "/" + ev.ID
 		if ev.ID == "" {
 			key = fmt.Sprintf("line-%d", start)
@@ -248,13 +232,89 @@ func readActivity(path string, size int64, storyDir, libRoot string) ([]host.Eve
 	return events, nil
 }
 
-func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, user identity.User, sr *host.StoryReader) {
-	// Nhật ký hoạt động đọc tui.log bên cạnh tài liệu engine — năng lực thuần
-	// file; hosted không có thư mục engine nên trả 501 thay vì đọc cwd.
-	if sr.EngineDir() == "" {
-		jsonError(w, http.StatusNotImplemented, "nhật ký hoạt động chưa hỗ trợ trên kho dữ liệu Postgres")
-		return
+// normalizeActivityEvent applies the same legacy text, path privacy and chapter
+// context rules to both the desktop log and the durable hosted runtime queue.
+func normalizeActivityEvent(ev host.Event, fixPaths func(string) string, chapter *int) (host.Event, bool) {
+	if ev.Internal() {
+		return ev, false
 	}
+	if ev.Category == "USER" {
+		ev.Summary, ev.Detail = host.LegacyUserText(ev.Summary), host.LegacyUserText(ev.Detail)
+	} else {
+		ev = host.LegacyEvent(ev)
+	}
+	ev = host.MapEventText(ev, fixPaths)
+	if ev.Chapter == 0 {
+		if m := activityChapterPattern.FindStringSubmatch(ev.Summary); len(m) > 1 {
+			ev.Chapter, _ = strconv.Atoi(m[1])
+		}
+	}
+	if ev.Chapter > 0 {
+		*chapter = ev.Chapter
+	} else {
+		ev.Chapter = *chapter
+	}
+	ev.Args, ev.Result = host.EventText(ev.Args, 400), host.EventText(ev.Result, 800)
+	ev.DurationMs = ev.Duration.Milliseconds()
+	return ev, true
+}
+
+// readRuntimeActivity reads the observer's persisted Event payload, rather than
+// returning an empty placeholder for hosted stories. Seq pins pagination to a
+// stable snapshot while the engine continues appending.
+func readRuntimeActivity(queue []domain.RuntimeQueueItem, through int64) ([]host.Event, error) {
+	events := []host.Event{}
+	indexes := map[string]int{}
+	chapter := 0
+	fixPaths := activityPathFixer("", "")
+	for _, item := range queue {
+		if item.Seq > through {
+			continue
+		}
+		var ev host.Event
+		if item.Payload != nil {
+			data, err := json.Marshal(item.Payload)
+			if err != nil {
+				return nil, err
+			}
+			if err := json.Unmarshal(data, &ev); err != nil {
+				return nil, err
+			}
+		}
+		if ev.Time.IsZero() {
+			ev.Time = item.Time
+		}
+		if ev.Summary == "" {
+			ev.Summary = item.Summary
+		}
+		if ev.Agent == "" {
+			ev.Agent = item.Agent
+		}
+		if ev.Category == "" {
+			ev.Category = item.Category
+		}
+		var visible bool
+		ev, visible = normalizeActivityEvent(ev, fixPaths, &chapter)
+		if !visible {
+			continue
+		}
+		if ev.ID == "" {
+			ev.ID = fmt.Sprintf("queue-%d", item.Seq)
+		}
+		key := ev.SessionID + "/" + ev.ID
+		if i, ok := indexes[key]; ok {
+			events[i] = ev
+		} else {
+			indexes[key] = len(events)
+			events = append(events, ev)
+		}
+	}
+	events = host.DeduplicateUserEvents(events)
+	sort.SliceStable(events, func(i, j int) bool { return events[i].Time.After(events[j].Time) })
+	return events, nil
+}
+
+func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, user identity.User, sr *host.StoryReader) {
 	q := r.URL.Query()
 	limit := 100
 	if v := q.Get("limit"); v != "" {
@@ -278,14 +338,29 @@ func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, u
 		jsonError(w, 400, "Mức nhật ký không hợp lệ")
 		return
 	}
-	path := filepath.Join(sr.EngineDir(), "logs", "tui.log")
-	stat, err := os.Stat(path)
+	path, storyDir := "", ""
+	var queue []domain.RuntimeQueueItem
 	size := int64(0)
-	if err == nil {
-		size = stat.Size()
-	} else if !errors.Is(err, os.ErrNotExist) {
-		jsonError(w, 500, "Không đọc được nhật ký")
-		return
+	if sr.EngineDir() == "" {
+		var err error
+		queue, err = sr.Store().Runtime.LoadQueue()
+		if err != nil {
+			jsonError(w, 500, "Không đọc được nhật ký")
+			return
+		}
+		for _, item := range queue {
+			size = max(size, item.Seq)
+		}
+	} else {
+		path = filepath.Join(sr.EngineDir(), "logs", "tui.log")
+		storyDir = filepath.Dir(filepath.Dir(sr.EngineDir()))
+		stat, err := os.Stat(path)
+		if err == nil {
+			size = stat.Size()
+		} else if !errors.Is(err, os.ErrNotExist) {
+			jsonError(w, 500, "Không đọc được nhật ký")
+			return
+		}
 	}
 	filter := fmt.Sprintf("%s|%s|%s|%s|%s|%s", q.Get("chapter"), q.Get("agent"), q.Get("level"), q.Get("mine"), q.Get("q"), user.Username)
 	cursor := activityCursor{Size: size, Before: -1, Filter: filter}
@@ -296,8 +371,13 @@ func (g *Gateway) serveActivityHistory(w http.ResponseWriter, r *http.Request, u
 			return
 		}
 	}
-	storyDir := filepath.Dir(filepath.Dir(sr.EngineDir()))
-	events, err := readActivity(path, cursor.Size, storyDir, g.RootPath())
+	var events []host.Event
+	var err error
+	if sr.EngineDir() == "" {
+		events, err = readRuntimeActivity(queue, cursor.Size)
+	} else {
+		events, err = readActivity(path, cursor.Size, storyDir, g.RootPath())
+	}
 	if err != nil {
 		jsonError(w, 500, "Không đọc được nhật ký")
 		return

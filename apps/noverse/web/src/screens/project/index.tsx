@@ -2,7 +2,7 @@
 // ProjectScreen (#/ · #/p/:p) và StoryScreen (#/p/:p/s/:s) — cây dự án · nội dung · cây thư mục.
 import { ApiError } from '../../api/client'
 import { useLibrary } from '../../api/library'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import type { LibraryConfig, Outline, ProjectDetail, StorySummary } from '../../api/types'
 import { navigate, paths, setDialog, useRoute } from '../../router'
 import { useMediaQuery } from '../../shell/AppShell'
@@ -15,7 +15,7 @@ import { useHealth } from './health'
 import './project.css'
 import { ProjectOverview } from './ProjectOverview'
 import { ProjectTree } from './ProjectTree'
-import { StoryView, STORY_TABS, type TabId } from './StoryView'
+import { StoryView, resolveStoryTab, type TabId } from './StoryView'
 import { useOutline, useProjectDetail } from './useProject'
 import { StaleBanner } from '@noverse/ui'
 import { useConnection } from '../../data'
@@ -120,7 +120,14 @@ export function StoryScreen({ project, story }: { project: string; story: string
     useOutline(project, summary ? story : null)
 
   const rawTab = parsed.search.get('tab')
-  const tab: TabId = STORY_TABS.includes(rawTab as TabId) ? (rawTab as TabId) : 'outline'
+  const tab = resolveStoryTab(rawTab)
+  useEffect(() => {
+    if (rawTab === 'rules') {
+      const search = new URLSearchParams(parsed.search)
+      search.set('tab', 'style')
+      navigate(`${paths.story(project, story)}?${search}`, true)
+    }
+  }, [rawTab, project, story, parsed.search])
 
   if (resource.candidate) return <CandidateProjectNotice project={project} error={error} />
   if (loading && !detail) return <ScreenSkeleton />

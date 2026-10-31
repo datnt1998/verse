@@ -298,10 +298,10 @@ func TestLibraryBackendIDOROverHTTP(t *testing.T) {
 		}
 	})
 
-	t.Run("file_only_capability_is_501", func(t *testing.T) {
+	t.Run("assets_list_backed_by_registry", func(t *testing.T) {
 		w := callProjects(f.g, f.owner, http.MethodGet, "/api/projects/"+f.project+"/assets", "")
-		if w.Code != http.StatusNotImplemented {
-			t.Fatalf("assets on hosted backend must be 501: %d %s", w.Code, w.Body.String())
+		if w.Code != http.StatusOK {
+			t.Fatalf("assets on hosted backend must list the registry: %d %s", w.Code, w.Body.String())
 		}
 	})
 

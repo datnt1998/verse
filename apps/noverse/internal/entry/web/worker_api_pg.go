@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/datnt1998/verse/apps/noverse/internal/blobstore"
+	"io"
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
@@ -278,7 +280,7 @@ type PGAudioBlobs struct {
 	Audio *postgres.Audio
 }
 
-// RegisterBlob stages then marks ready one uploaded object.
+// RegisterBlob atomically publishes verified uploaded bytes.
 func (b *PGAudioBlobs) RegisterBlob(ctx context.Context, projectID, jobID, key, driver, contentType, sha256Hex string, size int64) error {
 	if b == nil || b.Audio == nil {
 		return fmt.Errorf("blob registry chưa cấu hình: %w", errWorkerBadRequest)
@@ -291,28 +293,25 @@ func (b *PGAudioBlobs) RegisterBlob(ctx context.Context, projectID, jobID, key, 
 	if err != nil {
 		return errWorkerBadRequest
 	}
-	existing, err := b.Audio.BlobByKey(ctx, project, key)
-	switch {
-	case err == nil:
-		if existing.State == "ready" && existing.SHA256 == sha256Hex && existing.SizeBytes == size {
-			return nil
-		}
-		return fmt.Errorf("blob %s đã tồn tại với nội dung khác: %w", key, errWorkerBadRequest)
-	case !errors.Is(err, postgres.ErrJobNotFound):
-		return err
-	}
-	staged, err := b.Audio.StageBlob(ctx, project, key, driver, contentType, pgtype.UUID{}, job)
-	if err != nil {
-		// A concurrent upload of identical content may have created the row
-		// between the lookup and the insert; accept only an exact match.
-		if again, gerr := b.Audio.BlobByKey(ctx, project, key); gerr == nil &&
-			again.SHA256 == sha256Hex && again.SizeBytes == size {
-			return nil
-		}
-		return err
-	}
-	_, err = b.Audio.MarkBlobReady(ctx, project, staged.ID, sha256Hex, size)
+	_, err = b.Audio.PublishBlob(ctx, postgres.PublishInput{ProjectID: project, JobID: job, Key: key, Driver: driver, ContentType: contentType, SHA256: sha256Hex, Size: size})
 	return err
+}
+
+// UploadBlob owns the retryable source so deletion retries always re-upload.
+func (b *PGAudioBlobs) UploadBlob(ctx context.Context, store blobstore.BlobStore, projectID, jobID, key, driver, contentType, sha string, source io.Reader) (blobstore.BlobInfo, error) {
+	project, err := postgres.ParseUUID(projectID)
+	if err != nil {
+		return blobstore.BlobInfo{}, errWorkerBadRequest
+	}
+	job, err := postgres.ParseUUID(jobID)
+	if err != nil {
+		return blobstore.BlobInfo{}, errWorkerBadRequest
+	}
+	blob, err := postgres.UploadAndPublishBlob(ctx, b.Audio, store, postgres.PublishInput{ProjectID: project, JobID: job, Key: key, Driver: driver, ContentType: contentType, SHA256: sha, Size: -1}, source)
+	if err != nil {
+		return blobstore.BlobInfo{}, err
+	}
+	return blobstore.BlobInfo{Key: blob.ObjectKey, Size: blob.SizeBytes, SHA256: blob.SHA256, ContentType: blob.ContentType}, nil
 }
 
 // ReadyBlobSize answers "is this exact content already committed under this

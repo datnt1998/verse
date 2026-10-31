@@ -13,6 +13,7 @@ import { useDocumentTitle } from './useNames'
 import { endNav, useNavPhase } from './navTransition'
 import { restoreScroll, setScrollRouteKey, startScrollMemory } from './scrollMemory'
 import { RouteStage } from './RouteStage'
+import { StorageBanner } from '../screens/settings/storage/indicators'
 
 
 /** Khoá nhớ vị trí cuộn: tên route + phần định danh nội dung (dự án/truyện/chương/tập). */
@@ -138,6 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Gói Q: vạch tiến độ 2 px chỉ hiện khi trang mới quá 300 ms chưa có nội dung. */}
         {phase.slow && !mobile && <div className="navprog" aria-hidden="true"><i /></div>}
       </div>
+      <StorageBanner mobile={mobile} />
       <RouteStage routeKey={stageKey}>{children}</RouteStage>
       {mobile && <MobileTabBar route={route} />}
       {!mobile && <JobsDock />}

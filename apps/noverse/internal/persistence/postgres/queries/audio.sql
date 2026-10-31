@@ -219,27 +219,11 @@ RETURNING *;
 
 -- ── blobs (shared registry) ──────────────────────────────────────────────────
 
--- name: StageBlob :one
-INSERT INTO blobs (id, project_id, object_key, storage_driver, sha256,
-    size_bytes, content_type, state, created_by, upload_job_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'staged', $8, $9)
-RETURNING *;
-
--- name: MarkBlobReady :one
-UPDATE blobs
-SET state = 'ready',
-    sha256 = $3,
-    size_bytes = $4,
-    updated_at = clock_timestamp(),
-    version = version + 1
-WHERE project_id = $1 AND id = $2 AND state = 'staged'
-RETURNING *;
-
 -- name: GetBlob :one
-SELECT * FROM blobs WHERE project_id = $1 AND id = $2;
+SELECT * FROM blobs WHERE project_id = $1 AND id = $2 AND state = 'ready';
 
 -- name: GetBlobByKey :one
-SELECT * FROM blobs WHERE project_id = $1 AND object_key = $2;
+SELECT * FROM blobs WHERE project_id = $1 AND object_key = $2 AND state = 'ready';
 
 -- ── export cache ─────────────────────────────────────────────────────────────
 
@@ -247,6 +231,21 @@ SELECT * FROM blobs WHERE project_id = $1 AND object_key = $2;
 SELECT * FROM export_cache
 WHERE project_id = $1 AND story_id = $2 AND cache_key = $3 AND kind = $4
   AND (expires_at IS NULL OR expires_at > now());
+
+-- name: InsertExportCacheIfAbsent :execrows
+-- Create-only claim for a freshly allocated logical export name. The unique
+-- primary key is the single writer arbiter: a conflict means another request
+-- won this name between the caller's existence check and the insert.
+INSERT INTO export_cache (project_id, story_id, cache_key, blob_id, kind, input_manifest, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (project_id, story_id, cache_key, kind) DO NOTHING;
+
+-- name: InsertAssetDocIfAbsent :execrows
+-- Create-only claim for a freshly allocated asset logical name; same conflict
+-- arbiter semantics as InsertExportCacheIfAbsent.
+INSERT INTO project_documents (project_id, id, kind, logical_name, payload, blob_id)
+VALUES ($1, $2, 'asset', $3, $4, $5)
+ON CONFLICT (project_id, kind, logical_name) DO NOTHING;
 
 -- name: UpsertExportCache :one
 INSERT INTO export_cache (project_id, story_id, cache_key, blob_id, kind, input_manifest, expires_at)
@@ -272,36 +271,8 @@ ORDER BY kind, cache_key;
 
 -- ── storage gc (admin command: `ainovel-cli storage gc`) ─────────────────────
 --
--- GC is idempotent: every state transition/delete is re-checked under
--- a row lock, and the caller removes the registry row inside the transaction,
--- then the object after commit. A row without an object would be a dangling
--- reference; an object without a row is an orphan the next run collects.
-
--- name: ListDeletingBlobs :many
-SELECT * FROM blobs WHERE state = 'deleting' ORDER BY created_at;
-
--- name: ListUnreferencedBlobs :many
--- Blobs no owner table points at, older than the grace window. A blob is
--- referenced by the export cache, a render, a voice sample, a project
--- document or a story artifact — everything else is unreachable bytes.
-SELECT b.* FROM blobs b
-WHERE b.state = 'ready' AND b.created_at < $1 AND b.updated_at < $1
-  AND NOT EXISTS (SELECT 1 FROM export_cache c WHERE c.project_id = b.project_id AND c.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_renders r WHERE r.project_id = b.project_id AND r.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_voices v WHERE v.project_id = b.project_id AND v.sample_blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.project_id = b.project_id AND d.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM story_artifacts a WHERE a.project_id = b.project_id AND a.blob_id = b.id)
-ORDER BY b.created_at;
-
--- name: ListBlobObjectKeys :many
-SELECT object_key FROM blobs;
-
 -- name: LockBlobForDelete :one
--- Row lock for one GC decision; only valid inside a transaction. A concurrent
--- attachment takes a KEY SHARE lock through its foreign key, so it either
--- commits before this lock (and BlobReferenced then sees it) or waits and
--- fails its FK check after the row is gone — no reference can point at a blob
--- this transaction deleted.
+-- Row lock for a GC deletion claim; attachment triggers refuse deleting rows.
 SELECT * FROM blobs WHERE id = $1 FOR UPDATE;
 
 -- name: BlobReferenced :one
@@ -312,15 +283,6 @@ SELECT EXISTS (SELECT 1 FROM export_cache c WHERE c.project_id = $1 AND c.blob_i
     OR EXISTS (SELECT 1 FROM story_artifacts a WHERE a.project_id = $1 AND a.blob_id = $2)
     AS referenced;
 
--- name: DeleteBlobRow :execrows
-DELETE FROM blobs WHERE id = $1;
-
--- name: ListExpiredExportCache :many
-SELECT project_id, story_id, cache_key, kind, blob_id FROM export_cache
-WHERE expires_at IS NOT NULL AND expires_at < now()
-ORDER BY expires_at;
-
-
 -- name: DeleteExportCacheEntryIfExpired :execrows
 -- Expiry is re-checked at delete time: a concurrent UpsertExportCache may have
 -- renewed the entry between the listing and this transaction, and a renewed
@@ -328,22 +290,6 @@ ORDER BY expires_at;
 DELETE FROM export_cache
 WHERE project_id = $1 AND story_id = $2 AND cache_key = $3 AND kind = $4
   AND expires_at IS NOT NULL AND expires_at < now();
-
--- name: ListStaleStagedBlobs :many
-SELECT b.* FROM blobs b
-WHERE b.state = 'staged' AND b.created_at < $1
-  AND NOT EXISTS (
-      SELECT 1 FROM jobs j WHERE j.project_id = b.project_id
-        AND (b.upload_job_id IS NULL OR j.id = b.upload_job_id)
-        AND (j.state IN ('queued','paused','waiting')
-             OR (j.state = 'running' AND j.lease_until IS NULL)
-             OR j.lease_until > now()))
-  AND NOT EXISTS (SELECT 1 FROM export_cache c WHERE c.project_id = b.project_id AND c.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_renders r WHERE r.project_id = b.project_id AND r.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM audio_voices v WHERE v.project_id = b.project_id AND v.sample_blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.project_id = b.project_id AND d.blob_id = b.id)
-  AND NOT EXISTS (SELECT 1 FROM story_artifacts a WHERE a.project_id = b.project_id AND a.blob_id = b.id)
-ORDER BY b.created_at;
 
 -- name: LockBlobUploadJobs :many
 -- Match completion's lock order (job, then blob). Unlinked legacy/synchronous

@@ -7,7 +7,6 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/noverse/internal/storagegc"
 )
 
@@ -171,7 +170,7 @@ func TestGCStagedReadyRaceKeepsBlob(t *testing.T) {
 	projectID, _ := postgres.ParseUUID(testProject)
 	repo := postgres.NewBlobGC(f.pool)
 	// Capture the advisory candidate before the worker starts publishing it.
-	candidates, err := repo.StaleStaged(ctx, f.now.Add(-24*time.Hour))
+	candidates, err := repo.ScanBlobs(ctx, f.keys.Prefix(), "", "staged", f.now.Add(-24*time.Hour), 1000)
 	if err != nil || len(candidates) != 1 {
 		t.Fatalf("staged candidates: %v %v", candidates, err)
 	}
@@ -180,8 +179,8 @@ func TestGCStagedReadyRaceKeepsBlob(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer tx.Rollback(context.Background())
-	if _, err := gen.New(tx).MarkBlobReady(ctx, gen.MarkBlobReadyParams{
-		ProjectID: projectID, ID: blobID, Sha256: hexOf("ready-race"), SizeBytes: 10,
+	if _, err := postgres.PublishBlob(ctx, tx, postgres.PublishInput{
+		ProjectID: projectID, Key: key, Driver: "s3", ContentType: "application/octet-stream", SHA256: hexOf(id), Size: int64(len(key)),
 	}); err != nil {
 		t.Fatal(err)
 	}

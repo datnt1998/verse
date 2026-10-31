@@ -26,7 +26,8 @@ type Inspection struct {
 	Display  string `json:"display"`
 	Name     string `json:"name"`
 	// ProjectName là tên dự án đầu tiên khi kind = found.
-	ProjectName string `json:"projectName,omitempty"`
+	ProjectName    string `json:"projectName,omitempty"`
+	StorageWarning string `json:"storageWarning,omitempty"`
 }
 
 // visibleEntries đếm mục không bắt đầu bằng "." (tệp hệ thống như .DS_Store không tính).
@@ -71,7 +72,7 @@ func LibraryCounts(dir string) (projects, stories int, firstName string, ok bool
 // Inspect phân loại path. Thử ghi bằng CheckRoot (tạo rồi xoá thư mục tạm), nên chỉ gọi cho thư mục
 // người dùng thực sự định dùng, không gọi hàng loạt khi duyệt.
 func Inspect(path string, places Places) Inspection {
-	res := Inspection{Display: places.Display(path), Place: places.PlaceLabel(path), Name: filepath.Base(path)}
+	res := Inspection{Display: places.Display(path), Place: places.PlaceLabel(path), Name: filepath.Base(path), StorageWarning: LibraryMountWarning(path)}
 	st, err := os.Stat(path)
 	if err != nil || !st.IsDir() {
 		res.Kind = InspectMissing

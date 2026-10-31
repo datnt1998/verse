@@ -362,7 +362,7 @@ SELECT s.id::text, s.slug, s.title, s.short_title, s.status, s.tags, s.published
        s.title_renamed, COALESCE(d.text_content,'')
 FROM stories s
 LEFT JOIN project_documents d ON d.project_id = s.project_id AND d.id = s.idea_document_id
-WHERE s.project_id=$1 AND s.deleted_at IS NULL ORDER BY s.slug`, uuidArg(projectID))
+WHERE s.project_id=$1 AND s.deleted_at IS NULL AND s.status <> 'draft' ORDER BY s.slug`, uuidArg(projectID))
 	if err != nil {
 		return nil, err
 	}

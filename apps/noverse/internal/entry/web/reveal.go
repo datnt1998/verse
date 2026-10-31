@@ -271,6 +271,9 @@ func (g *Gateway) revealConfigFile(user identity.User, req revealRequest) (path 
 	if scope == "story" && !user.CanRead(t.story.ID) {
 		return "", http.StatusNotFound, "không tìm thấy truyện"
 	}
+	if t.hosted {
+		return "", http.StatusNotImplemented, "Kho dữ liệu hosted không có tệp cấu hình để mở"
+	}
 	if err := os.MkdirAll(filepath.Dir(t.path), 0o755); err != nil {
 		return "", http.StatusInternalServerError, err.Error()
 	}

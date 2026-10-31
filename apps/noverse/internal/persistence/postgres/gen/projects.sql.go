@@ -93,6 +93,19 @@ func (q *Queries) GetProjectBySlug(ctx context.Context, slug string) (Project, e
 	return i, err
 }
 
+const getReadyBlobProject = `-- name: GetReadyBlobProject :one
+SELECT p.slug FROM blobs b
+JOIN projects p ON p.id = b.project_id AND p.deleted_at IS NULL
+WHERE b.object_key = $1 AND b.state = 'ready'
+`
+
+func (q *Queries) GetReadyBlobProject(ctx context.Context, objectKey string) (string, error) {
+	row := q.db.QueryRow(ctx, getReadyBlobProject, objectKey)
+	var slug string
+	err := row.Scan(&slug)
+	return slug, err
+}
+
 const insertProject = `-- name: InsertProject :one
 INSERT INTO projects (id, slug, name, description, notes, universe_name)
 VALUES ($1, $2, $3, $4, $5, $6)

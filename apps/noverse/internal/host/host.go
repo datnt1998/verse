@@ -63,6 +63,7 @@ type Host struct {
 	configPath         string              // 配置写盘目标：/config、/model 就近写当前生效的那份（项目级存在则写它，否则全局）
 	logCleanup         func()
 	fileLogErr         error
+	configLoader       func() (bootstrap.Config, error)
 
 	events   chan Event
 	streamCh chan string
@@ -83,6 +84,7 @@ type Host struct {
 	asyncWG         sync.WaitGroup
 	closing         bool
 	readOnly        bool
+	readOnlyReason  string
 
 	// actionCancels: bounded host-side model calls of user actions (rules,
 	// Arbiter); Abort cancels them before the engine loop exists.
@@ -105,8 +107,10 @@ type Host struct {
 
 	// runCtx 约束宿主侧的 LLM 裁定调用(启动裁定/干预分诊);Close 取消,
 	// 避免退出时仍有裁定在途且无法中断。
-	runCtx    context.Context
-	runCancel context.CancelFunc
+	runCtx            context.Context
+	runCancel         context.CancelFunc
+	ruleOptions       rules.LoadOptions
+	simulationSources func(context.Context) ([]sim.Source, error)
 }
 
 type lifecycle string
@@ -131,24 +135,32 @@ func New(cfg bootstrap.Config, bundle assets.Bundle, options ...NewOption) (*Hos
 			option(&opts)
 		}
 	}
+	ruleOptions := rules.DefaultOptions()
+	if opts.ruleOptions != nil {
+		ruleOptions = *opts.ruleOptions
+	}
 	injected := opts.storage
 	if injected != nil {
 		if err := injected.Validate(); err != nil {
 			return nil, err
 		}
 	}
-	if err := cfg.ValidateBase(); err != nil {
+	if err := cfg.ValidateModelReady(); err != nil {
 		if !opts.allowUnconfiguredReads {
 			return nil, err
 		}
 		if injected != nil {
-			return newReadHostWithStore(cfg, injected.Store, injected.Lease), nil
+			h := newReadHostWithStore(cfg, injected.Store, injected.Lease)
+			h.readOnlyReason = err.Error()
+			return h, nil
 		}
 		lease, leaseErr := acquireBookLease(cfg.OutputDir)
 		if leaseErr != nil {
 			return nil, leaseErr
 		}
-		return newReadHost(cfg, lease), nil
+		h := newReadHost(cfg, lease)
+		h.readOnlyReason = err.Error()
+		return h, nil
 	}
 
 	// Hosted runs receive their store and lease from the composition root: no
@@ -235,6 +247,7 @@ func New(cfg bootstrap.Config, bundle assets.Bundle, options ...NewOption) (*Hos
 				h = newReadHostWithStore(cfg, storepkg.NewStore(cfg.OutputDir), bookLease)
 			}
 			h.logCleanup, h.fileLogErr = logCleanup, fileLogErr
+			h.readOnlyReason = err.Error()
 			keepBookLease = true
 			return h, nil
 		}
@@ -285,26 +298,29 @@ func New(cfg bootstrap.Config, bundle assets.Bundle, options ...NewOption) (*Hos
 	store.Signals.ClearStaleSignals()
 
 	h := &Host{
-		cfg:             cfg,
-		bundle:          bundle,
-		packRules:       packRules,
-		store:           store,
-		bookLease:       bookLease,
-		styleStats:      styleStats,
-		models:          models,
-		thinkingApplier: applyThinking,
-		writerRestore:   restore,
-		userRules:       userrules.NewService(store, models.Default, rules.DefaultOptions(), packRules),
-		usage:           usage,
-		usageCancel:     usageCancel,
-		configPath:      bootstrap.EffectiveConfigPath(),
-		logCleanup:      logCleanup,
-		fileLogErr:      fileLogErr,
-		events:          make(chan Event, 100),
-		streamCh:        make(chan string, 256),
-		done:            make(chan struct{}, 4),
-		lifecycle:       lifecycleIdle,
-		retryGate:       retryGate,
+		cfg:               cfg,
+		configLoader:      opts.configLoader,
+		bundle:            bundle,
+		packRules:         packRules,
+		store:             store,
+		bookLease:         bookLease,
+		styleStats:        styleStats,
+		models:            models,
+		thinkingApplier:   applyThinking,
+		writerRestore:     restore,
+		userRules:         userrules.NewService(store, models.Default, ruleOptions, packRules),
+		ruleOptions:       ruleOptions,
+		simulationSources: opts.simulationSources,
+		usage:             usage,
+		usageCancel:       usageCancel,
+		configPath:        bootstrap.EffectiveConfigPath(),
+		logCleanup:        logCleanup,
+		fileLogErr:        fileLogErr,
+		events:            make(chan Event, 100),
+		streamCh:          make(chan string, 256),
+		done:              make(chan struct{}, 4),
+		lifecycle:         lifecycleIdle,
+		retryGate:         retryGate,
 		// ask_user tắt (mặc định) → hợp đồng can thiệp không còn luật `ask`.
 		interventionPrompt: askRulePrompt(bundle.Prompts.ArbiterIntervention, cfg.ArbiterAskUser()),
 	}
@@ -420,7 +436,7 @@ func (h *Host) PrepareUserRules(rawPrompt string) error {
 	// provider is unreachable (normalization then degrades as designed).
 	ctx, cancel := h.actionContext()
 	defer cancel()
-	svc := userrules.NewService(h.store, interactiveModel{ChatModel: h.models.Default}, rules.DefaultOptions(), h.packRules)
+	svc := userrules.NewService(h.store, interactiveModel{ChatModel: h.models.Default}, h.ruleOptions, h.packRules)
 	snap, err := svc.Build(ctx, rawPrompt)
 	if err != nil {
 		return fmt.Errorf("Ghi snapshot quy tắc người dùng ra đĩa thất bại, không thể tiếp tục: %w", err)
@@ -432,7 +448,7 @@ func (h *Host) PrepareUserRules(rawPrompt string) error {
 // ensureUserRules 在恢复路径确保快照存在；缺失时按
 // system_defaults + rules 文件生成。
 func (h *Host) ensureUserRules() {
-	svc := userrules.NewService(h.store, h.models.Default, rules.DefaultOptions(), h.packRules)
+	svc := userrules.NewService(h.store, h.models.Default, h.ruleOptions, h.packRules)
 	snap, err := svc.GetOrBuild(context.Background())
 	if err != nil {
 		slog.Warn("Đọc/tạo snapshot quy tắc người dùng thất bại, runtime sẽ lùi về mặc định tích hợp", "module", "rules", "err", err)
@@ -1314,6 +1330,14 @@ func (h *Host) Stream() <-chan string { return h.streamCh }
 func (h *Host) Done() <-chan struct{} { return h.done }
 func (h *Host) Dir() string           { return h.store.Dir() }
 
+// Documents exposes hosted worker documents; file workers retain their cwd layout.
+func (h *Host) Documents() *storepkg.IO {
+	if _, file := h.store.FileRoot(); file {
+		return nil
+	}
+	return h.store.Docs()
+}
+
 // CommentStore exposes the backend-bound comment lifecycle (file rows under
 // the story directory, scoped rows on hosted) so worker endpoints never
 // derive a directory from Dir() == "".
@@ -1483,6 +1507,7 @@ func (h *Host) Snapshot() UISnapshot {
 	}
 
 	snap := UISnapshot{
+		ReadOnlyReason:         h.readOnlyReason,
 		Provider:               provider,
 		ModelName:              model,
 		ModelContextWindow:     modelWindow,
@@ -2201,7 +2226,7 @@ func (h *Host) Simulate(ctx context.Context) (<-chan sim.Event, error) {
 			Merge:  h.bundle.Prompts.SimulationMerge,
 		},
 	}
-	ch, err := sim.Run(ctx, deps, sim.Options{SourceDir: filepath.Join(wd, "simulate")})
+	ch, err := sim.Run(ctx, deps, sim.Options{SourceDir: filepath.Join(wd, "simulate"), LoadSources: h.simulationSources})
 	if err != nil {
 		h.releaseExclusive()
 		return nil, err

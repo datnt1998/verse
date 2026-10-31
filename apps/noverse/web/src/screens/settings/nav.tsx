@@ -6,6 +6,7 @@ import { Icon } from '@noverse/ui'
 import type { ConfigScope, SystemInfo } from '../../api/types'
 import { buildStamp, hasNewVersion, versionText } from '../../shell/version'
 import type { PageId, SectionId } from './lib/target'
+import { StorageNavSummary } from './storage/indicators'
 
 type Item = { id: SectionId; label: string; icon: string }
 
@@ -19,6 +20,7 @@ const CREATIVE: Item[] = [
 
 const SYSTEM: Item[] = [
   { id: 'members', label: membersCopy.title, icon: 'profile-2user' },
+  { id: 'storage', label: 'Lưu trữ tệp', icon: 'box' },
   { id: 'connect', label: 'Kết nối AI', icon: 'cloud-connection' },
   { id: 'export', label: 'Xuất tự động', icon: 'export-square' },
   { id: 'notify', label: 'Báo động máy chủ', icon: 'notification' },
@@ -34,7 +36,7 @@ function NavButton({ item, current, scope, dot, count, onPick }: {
   return (
     <button type="button" className={`st-nav${on ? ' on' : ''}`} aria-current={on ? 'page' : 'false'} onClick={() => onPick(item.id)}>
       <Icon name={item.icon} size={17} style={{ color: on ? '#C9A6F5' : 'currentColor' }} />
-      <span style={{ flex: '1 1 auto' }}>{label}</span>
+      <span style={{ flex: '1 1 auto', minWidth: 0 }}>{label}{item.id === 'storage' && <StorageNavSummary />}</span>
       {dot && count === undefined && <span title="Có chỉnh riêng ở cấp này" style={{ width: 6, height: 6, borderRadius: '50%', background: '#C9A6F5' }} />}
       {count !== undefined && <span className="num" style={{ fontSize: 12, color: '#7E7E8A' }}>{count}</span>}
     </button>

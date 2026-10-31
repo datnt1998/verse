@@ -10,7 +10,7 @@ import { Icon } from '@noverse/ui'
 import { Checkbox } from '@noverse/ui'
 import { toast } from '@noverse/ui'
 import {
-  CHIP_STYLE, DEFAULT_BAN, DEFAULT_FATIGUE, GROUP_ORDER, effectiveHint, groupMeta, groupSub, isOwnLevel, learnedMeta, moveLabel, moveTarget, whenText,
+  CHIP_STYLE, DEFAULT_BAN, DEFAULT_FATIGUE, GROUP_ORDER, effectiveHint, groupMeta, isOwnLevel, learnedMeta, moveLabel, moveTarget, whenText,
   type Level, type RuleEntry,
 } from './logic'
 import { GroupHead, RetryCard, ThinkingCard, UChips, UnsureFrame } from './parts'
@@ -104,14 +104,14 @@ export function RulesEditor({ scope, project = '', story = '', onDirty }: RulesE
       <div style={{ display: 'flex', alignItems: scope === 'global' ? 'flex-end' : 'flex-start', gap: 16 }}>
         <div style={{ flex: '1 1 auto' }}>
           {scope === 'global' && <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.01em' }}>{copy.globalTitle}</h1>}
-          {scope === 'project' && <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="edit-2" size={17} style={{ color: 'var(--color-accent)' }} />{copy.projectTitle}<span className="num" style={{ fontSize: 12.5, color: 'var(--color-fg-4)', fontWeight: 400 }}>{editor.lists.project.length}</span></h2>}
-          <p style={{ margin: scope === 'story' ? 0 : scope === 'project' ? '6px 0 0' : '4px 0 0', fontSize: scope === 'project' ? 13 : 13.5, color: scope === 'project' ? 'var(--color-fg-4)' : 'var(--color-fg-3)', lineHeight: scope === 'story' ? 1.55 : 1.5 }}>{scope === 'story' ? copy.storyIntro : scope === 'project' ? copy.projectIntro(projectName) : copy.globalIntro}</p>
+          {scope !== 'global' && <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="edit-2" size={17} style={{ color: 'var(--color-accent)' }} />Quy tắc</h2>}
         </div>
-        {scope !== 'project' && <button type="button" className="rl-btn-ghost" onClick={() => setUnder((open) => !open)} aria-expanded={under}
+        <button type="button" className="rl-btn-ghost" onClick={() => setUnder((open) => !open)} aria-expanded={under}
           style={{ height: 32, padding: '0 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#C9C9D1', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: '0 0 auto' }}>
           <Icon name="magic-star" size={15} style={{ color: '#C9A6F5' }} />{under ? 'Ẩn bản tổng hợp' : 'Noverse hiểu thế nào?'}
-        </button>}
+        </button>
       </div>
+      <p style={{ margin: '-6px 2px 0', fontSize: 13, color: 'var(--color-fg-4)', lineHeight: 1.55 }}>{scope === 'story' ? copy.storyIntro : scope === 'project' ? copy.projectIntro(projectName) : copy.globalIntro}</p>
 
       {under && <section className="card rl-drawer" aria-label="Noverse đang hiểu" style={{ borderRadius: 16, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <span style={{ fontSize: 13, color: '#A0A0AB' }}>Tổng hợp mọi quy tắc đang áp dụng cho {object} — đây là thứ trợ lý thật sự nhận được.</span>
@@ -132,7 +132,7 @@ export function RulesEditor({ scope, project = '', story = '', onDirty }: RulesE
           <span style={{ fontSize: 13.5, fontWeight: 500 }}>{copy.guideTitle}</span>
           <span style={{ fontSize: 12.5, color: 'var(--color-fg-4)' }}>{copy.guideText}</span>
         </span>
-        <a className="rl-btn-ghost" href={`#${project && story ? `${paths.story(project, story)}?tab=rules` : project ? `${paths.project(project)}?section=prules` : '/'}`}
+        <a className="rl-btn-ghost" href={`#${project && story ? `${paths.story(project, story)}?tab=style` : project ? `${paths.project(project)}?section=pstyle` : '/'}`}
           style={{ height: 32, padding: '0 12px', borderRadius: 9, border: '1px solid var(--kit-line-12)', color: 'var(--color-fg)', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: '0 0 auto' }}>{copy.guideLink}<Icon name="arrow-right-2" size={13} /></a>
       </Card>}
       <div className={`kit-frame rl-addbox${focused ? ' f' : ''}`}>
@@ -161,13 +161,13 @@ export function RulesEditor({ scope, project = '', story = '', onDirty }: RulesE
         if (!list.length && level !== scope) return null
         const rowEditable = editable && isOwnLevel(level, scope) && level !== 'learned'
         return <div key={level} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <GroupHead icon={meta.icon} color={meta.color} label={level === scope && scope !== 'story' ? scope === 'project' ? copy.ownProject : copy.nav : meta.label} sub={groupSub(list.length, level, scope) + (inherited ? copy.readOnly : '')}
+          <GroupHead icon={meta.icon} color={meta.color} label={level === scope && scope !== 'story' ? copy.ownProject : meta.label} sub={inherited ? copy.readOnly : level === 'learned' ? 'ghi lại khi bạn dặn trong chat, giữ hoặc bỏ' : ''}
             link={inherited ? (level === 'project' ? copy.editProject : copy.editGlobal) : undefined}
             onLink={() => editParent(level as ConfigScope)} />
           {list.map((entry) => {
             const learned = level === 'learned'
             const rule = learned ? editor.resource.data?.runtime?.find((item) => item.id === entry.fromRuntime) : undefined
-            return <div key={entry.key} className={`rl-rule${inherited ? ' inh' : ''}${entry.fresh ? ' new' : ''}`} aria-busy={editor.resolving === entry.key}>
+            return <div key={entry.key} className={`rl-rule${inherited ? ' rl-inherited' : ''}${entry.fresh ? ' new' : ''}`} aria-busy={editor.resolving === entry.key} style={inherited ? { borderStyle: 'dashed', textAlign: 'left', alignItems: 'stretch' } : undefined}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', paddingRight: rowEditable ? 96 : 0 }}>
                 {learned && <span className="rl-orb" aria-hidden="true" style={{ width: 14, height: 14, marginTop: 4 }} />}
                 <span style={{ fontSize: 14.5, lineHeight: 1.55, color: fg(inherited) }}>{entry.text}</span>
@@ -193,13 +193,13 @@ export function RulesEditor({ scope, project = '', story = '', onDirty }: RulesE
         </div>
       })}
 
-      {scope !== 'project' && <Card radius={14} padding={0} style={{ overflow: 'hidden' }}>
+      <Card radius={14} padding={0} style={{ overflow: 'hidden' }}>
         <button type="button" className="rl-row" onClick={() => setDefaults((open) => !open)} aria-expanded={defaults}
           style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', border: 'none', background: 'transparent', color: '#EDEDEF', textAlign: 'left' }}>
           <Icon name="shield-security" size={17} style={{ color: '#9DB0F7' }} />
           <span style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
             <span style={{ fontSize: 14, fontWeight: 500 }}>Mặc định của Noverse · chống giọng văn máy</span>
-            <span style={{ fontSize: 12.5, color: '#8E8E99' }}>{DEFAULT_BAN.length} cụm từ không dùng · {DEFAULT_FATIGUE.length} từ dễ lặp có giới hạn mỗi chương · luôn bật</span>
+            <span style={{ fontSize: 12.5, color: '#8E8E99' }}>Luôn bật</span>
           </span>
           <Icon name="arrow-down-2" size={15} style={{ color: '#7E7E8A', transform: `rotate(${defaults ? 180 : 0}deg)`, transition: 'transform .25s' }} />
         </button>
@@ -208,8 +208,8 @@ export function RulesEditor({ scope, project = '', story = '', onDirty }: RulesE
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{DEFAULT_FATIGUE.map(([word, limit]) => <span key={word} className="rl-uchip" style={{ background: 'rgba(246,203,140,0.08)', color: '#F3D9AE' }}>“{word}” ≤ {limit}</span>)}</div>
           <span style={{ fontSize: 12.5, color: '#8E8E99' }}>Muốn nới một từ? Thêm quy tắc như “cho phép ‘dường như’ tới 4 lần mỗi chương” — quy tắc của bạn được ưu tiên.</span>
         </div>}
-      </Card>}
-      {scope === 'story' && timing}
+      </Card>
+      {scope !== 'global' && timing}
     </div>
 
     {scope === 'global' && <aside style={{ flex: '0 0 300px', display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 0 }}>

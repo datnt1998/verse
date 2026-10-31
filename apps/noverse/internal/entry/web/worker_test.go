@@ -15,6 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/imp"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
 type fakeHost struct {
@@ -45,6 +46,7 @@ func (h *fakeHost) RetryNow() bool {
 func (h *fakeHost) Continue(string, string) error { h.call("continue"); return nil }
 func (h *fakeHost) call(s string)                 { h.mu.Lock(); defer h.mu.Unlock(); h.calls = append(h.calls, s) }
 func (h *fakeHost) CommentStore() *comments.Store { return nil }
+func (h *fakeHost) Documents() *store.IO          { return nil }
 func newFakeHost() *fakeHost {
 	return &fakeHost{events: make(chan host.Event, 100), stream: make(chan string, 100), done: make(chan struct{}, 1)}
 }

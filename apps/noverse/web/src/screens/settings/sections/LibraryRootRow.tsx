@@ -9,6 +9,7 @@ import { toast } from '@noverse/ui'
 import { useFolderPicker } from '../../dialogs/FolderBrowserDialog'
 import { inspectView } from '../../dialogs/libraryInspect'
 import { AdvButton, AdvRow } from '../advanced/AdvGroup'
+import { t } from '../../../i18n/vi'
 
 /** “Tài liệu › Truyện Noverse · 3 dự án” — chỉ dùng chuỗi hiển thị, đường dẫn tuyệt đối chỉ nằm trong tooltip (quản trị). */
 export const libraryRootValue = (library: LibraryResponse | null): string => {
@@ -62,10 +63,13 @@ export function LibraryRootRows({ library, canReveal, onChanged }: {
     }
   }
 
+  if (library?.storageMode === 'postgres' || library?.storageMode === 'container') return <AdvRow label={t.libraryStorage.title}
+    value={library.storageMode === 'postgres' ? t.libraryStorage.hosted : t.libraryStorage.container}
+    below={library.storageWarning ? <span role="alert">{library.storageWarning}</span> : undefined} />
   return <>
     <AdvRow label="Nơi lưu truyện" value={libraryRootValue(library)} valueTitle={library?.rootPath || undefined}
-      below={(error || picker.error) ? <span role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 8px', fontSize: 12, color: 'var(--color-err)' }}>
-        <Icon name="warning-2" size={13} />{error || picker.error}
+      below={(error || picker.error || library?.storageWarning) ? <span role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0 8px', fontSize: 12, color: 'var(--color-err)' }}>
+        <Icon name="warning-2" size={13} />{error || picker.error || library?.storageWarning}
       </span> : undefined}>
       <AdvButton pending={picker.picking} disabled={!library} onClick={() => void picker.pick()}>Đổi thư mục…</AdvButton>
     </AdvRow>

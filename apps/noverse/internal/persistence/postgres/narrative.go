@@ -41,6 +41,7 @@ type ScopeRef struct {
 	ProjectID pgtype.UUID
 	StoryID   pgtype.UUID
 	StorySlug string
+	Draft     bool
 }
 
 // Narrative là repository miền truyện trên Postgres: story/chapter/version/
@@ -133,6 +134,42 @@ func (n *Narrative) Resolve(ctx context.Context, projectSlug, storySlug string, 
 		return err
 	})
 	return scope, err
+}
+
+// ProjectID resolves a project slug to its row id with the same membership
+// rules as resolveStory (admin bypass, non-admin needs a member row; absent
+// rows are ErrStorageNotFound — never an existence leak). Story-less call
+// sites (project assets, blob authorization) use it instead of Resolve.
+func (n *Narrative) ProjectID(ctx context.Context, projectSlug string, actor *Actor) (pgtype.UUID, error) {
+	var id pgtype.UUID
+	err := n.tx(ctx, func(tx pgx.Tx) error {
+		q := n.q(tx)
+		project, err := q.GetProjectBySlug(ctx, projectSlug)
+		if err != nil {
+			if noRows(err) {
+				return fmt.Errorf("dự án %s: %w", projectSlug, errs.ErrStorageNotFound)
+			}
+			return sanitizeErr(err)
+		}
+		if actor != nil && !actor.isAdmin() {
+			user, err := q.GetUserByUsername(ctx, actor.Username)
+			if err != nil {
+				if noRows(err) {
+					return fmt.Errorf("dự án %s: %w", projectSlug, errs.ErrStorageNotFound)
+				}
+				return sanitizeErr(err)
+			}
+			if _, err := q.GetMemberRole(ctx, gen.GetMemberRoleParams{ProjectID: project.ID, UserID: user.ID}); err != nil {
+				if noRows(err) {
+					return fmt.Errorf("dự án %s: %w", projectSlug, errs.ErrStorageNotFound)
+				}
+				return sanitizeErr(err)
+			}
+		}
+		id = project.ID
+		return nil
+	})
+	return id, err
 }
 
 // authorUser resolves a display author (username, "" or free text) to either a

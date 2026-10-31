@@ -1371,6 +1371,63 @@ Spec: `20-settings-rules.md` › *Cách viết — vị trí*; `06-data-contract
 - Tuỳ chỉnh “Mọi truyện” vẫn đổi được văn phong chung.
 - Ghi “Gói AL” vào `19-gap-closure.md`.
 
+## Gói AM — Cách viết gọn một chỗ, chọn nhanh, xoá truyện (31/10 · P1) <!-- goi-am -->
+
+**Vì sao:** “Quy tắc viết” và “Cách viết” là hai tab cạnh nhau làm người dùng phân vân; bấm *Văn phong* ở thẻ Đang áp dụng lại chuyển trang; xoá truyện chỉ có ở menu chuột phải trang dự án và bắt gõ tên thư mục. Artboard: `Outline` (`tab=style`, `wstyle`, `quick`, `del`), `MMore` (`rules`, `rulesStyle`, `storyset`), `Settings` (chỉ sửa chữ).
+
+Spec: `20-settings-rules.md` › *Cách viết gọn lại* và *Xoá truyện*; `06-data-contract.md` › *Bổ sung §AM*.
+
+### Việc FE
+- **Nhãn nguồn:** trong truyện không ghi “riêng truyện này”; chỉ gắn “theo dự án” / “chung mọi truyện” cho giá trị kế thừa (xem *Nguyên tắc nhãn nguồn*). Lưu ý CSS: đừng đặt class trùng tên với `.rule.inh` (bản mẫu từng bị thẻ quy tắc kế thừa căn giữa vì trùng class). <!-- am-label-fe -->
+- Gộp tab Quy tắc viết + Cách viết thành **Cách viết**: thẻ Văn phong gọn (Đổi văn phong mở lưới tại chỗ) → Quy tắc của truyện → Văn mẫu thu gọn. `?tab=rules` cũ chuyển sang `style`.
+- Thẻ “Đang áp dụng”: bảng chọn nhanh Văn phong + Người viết, công tắc Duyệt từng chương; Quy tắc viết mở tab. Thẻ dự án: Văn phong (bảng chọn), Duyệt cho truyện mới (công tắc).
+- Trang dự án: gộp “Cách viết mặc định” + “Quy tắc của dự án” thành một mục **Cách viết của dự án**; một lối tắt ở thanh trái.
+- Nút ⋯ ở đầu trang truyện (Đổi tên · Xuất · Xoá). Hộp xoá: danh sách mất/giữ, *Xuất trước*, ô gõ tên ngắn của truyện, dải “cần dừng trước khi xoá” + *Tạm dừng* khi đang chạy. Dùng lại `confirmDeleteStory`, nhưng đổi `phrase` từ mã thư mục sang tên ngắn hiển thị (nguyên tắc #7). Áp cùng hộp cho menu ở thẻ truyện trang dự án.
+- Điện thoại: M4 “Cách viết” gộp văn phong + quy tắc; Tuỳ chỉnh truyện bỏ phần văn phong.
+- Tuỳ chỉnh: sửa câu chỉ dẫn (“Mở truyện › tab Cách viết, hoặc trang dự án › Cách viết của dự án”).
+- **Màn Tạo truyện mới (`QuickMode.tsx`, lỗi bản thật):** `ConfigChip` *Văn phong* và *model* đang là `<a href=settings…>` → đổi thành nút mở bảng chọn tại chỗ (Theo dự án · Gói thể loại · Kiểu viết; model theo nhà cung cấp), nhãn “riêng” khi khác dự án; lúc bắt đầu thì `createStory` → `putConfig` cấp truyện → chạy (§AM · màn Tạo truyện). Artboard `NewStory` · `quick`. <!-- am-new-fe -->
+
+### Việc backend
+- Không có (xem §AM).
+
+### Nghiệm thu
+- Truyện có một tab Cách viết; liên kết cũ `?tab=rules` vẫn mở đúng.
+- Thẻ Đang áp dụng: đổi văn phong, người viết, duyệt từng chương mà không rời trang; toast đúng.
+- Chủ dự án: ⋯ › Xoá truyện → gõ sai tên thì nút khoá, gõ đúng (hoa thường tuỳ ý) → xoá, về trang dự án. Truyện đang chạy → dải vàng, bấm Tạm dừng rồi mới xoá được. Thành viên khác: mục mờ + lý do.
+- Điện thoại: Thêm › Cách viết đổi văn phong tại chỗ.
+- Màn Tạo truyện mới: bấm thẻ Văn phong không rời trang; chọn Hồi hộp + gpt-6-luna → bắt đầu → truyện mới có văn phong Hồi hộp, người viết gpt-6-luna (Đang áp dụng ghi “riêng”); chọn “Theo dự án” → truyện theo dự án. <!-- am-new-ok -->
+- Ghi “Gói AM” vào `19-gap-closure.md`.
+
+## Gói AN — Tuỳ chỉnh › Lưu trữ tệp (S3) (31/10 · P1) <!-- goi-an -->
+
+**Vì sao:** kho tệp chỉ đặt được bằng biến môi trường; quản trị cần chọn kho S3 (Garage trên Mac mini, R2, AWS…), kiểm tra, chuyển tệp an toàn và theo dõi ngay trong app. Lỗi dễ gặp nhất là gửi trực tiếp mà thiếu CORS hoặc địa chỉ kho chỉ dùng trong mạng nội bộ. Artboard: `Settings` (`section=storage`, `storage`, `sprov`, `sfail`), `MMore` (`state=storage`, `storage`).
+
+Spec: `20-settings-rules.md` §8; câu chữ `07-copy.md` › *Lưu trữ tệp*; dữ liệu `06-data-contract.md` › *Bổ sung §AN*.
+
+### Việc FE
+- Mục **Lưu trữ tệp** (sau Thành viên) với 14 trạng thái ở §8.2; viên ở đầu app + dòng đỏ khi mất kết nối (§8.1).
+- Lưới nhà cung cấp → form theo nhà cung cấp (§8.3), *Lấy ở đâu?* từng bước, khối lệnh Garage, ô Địa chỉ kho cho trình duyệt khi Trực tiếp + địa chỉ nội bộ (cùng luật `privateEndpoint`).
+- Kiểm tra 6 bước theo `steps` máy chủ; bước trình duyệt tự tải `corsProbeUrl` rồi phân biệt thiếu CORS / không tới được bằng `no-cors` (§8.4). Đoạn CORS điền sẵn origin hiện tại, 3 thẻ R2/AWS/Garage, *Chép*.
+- Lưu → xác nhận số tệp/dung lượng → `PUT` → `POST …/migration` (§8.5); thẻ chuyển với tạm dừng/tiếp tục/huỷ/thử lại; hỏi lại 5 giây khi đang chuyển.
+- `envlocked` chỉ đọc + nhãn; `nokey` chặn lưu, lệnh tạo khoá chỉ trong khối chi tiết.
+- Điện thoại: nhóm Quản trị + trang chỉ xem (§8.6).
+- Không hiện tên biến, mã lỗi hay `key=value` ngoài khối “Chi tiết cho người quản trị máy chủ” và đoạn cấu hình để dán.
+
+### Việc backend (GAP)
+- GAP-AN1 trả kho chờ; GAP-AN4 `storyTitle`; GAP-AN5 lệnh dọn kho cũ sau chuyển; GAP-AN6 đổi khoá/cách gửi cùng kho không chuyển; GAP-AN7 loại avatar/backup khỏi Usage; GAP-AN8 kiểm tra kho đang dùng (kể cả `envlocked`). GAP-AN2/AN3 thiết kế đã theo dữ liệu hiện có.
+
+### Nghiệm thu
+- Ổ máy chủ → *Chọn kho S3* → Cloudflare R2 → điền → Kiểm tra: đủ 6 bước có ms → *Lưu…* → hộp “Chuyển 1.248 tệp · 3,4 GB sang Cloudflare R2?” → *Bắt đầu chuyển* → thẻ tiến độ + viên ở đầu app; tạm dừng/tiếp tục được; xong → R2 Hoạt động tốt + thẻ Kho cũ.
+- R2 chưa đặt CORS → bước Trình duyệt lỗi, đoạn CORS có đúng địa chỉ app; dán, chờ, *Kiểm tra lại* → đạt. *Chuyển sang gửi qua máy chủ* → bước đổi thành “Máy chủ gửi được một đoạn…”.
+- Garage `http://garage:3900` + Trực tiếp, để trống Địa chỉ cho trình duyệt → lỗi ở Tạo link ký với hai lối sửa; chọn Qua máy chủ → đạt.
+- Sai khoá / sai tên kho / khoá thiếu quyền xoá / sai địa chỉ / lệch giờ → đúng tiêu đề và cách sửa ở §8.4, không lộ mã lỗi.
+- Cấu hình bằng biến môi trường → chỉ đọc, nhãn “do máy chủ đặt”, vẫn kiểm tra được, không *Đổi kho…*.
+- Thiếu khoá mã hoá → không lưu được, giải thích ngắn, lệnh chỉ trong khối chi tiết.
+- Một tệp lỗi khi chuyển → bảng lỗi, chưa đổi kho, *Thử lại các tệp lỗi* chạy tiếp.
+- Ngắt kho → khung đỏ + dòng đỏ đầu app (máy tính và điện thoại).
+- Điện thoại (quản trị): hàng Lưu trữ tệp đúng trạng thái; trang chỉ xem; không có nút đổi kho.
+- Ghi “Gói AN” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |

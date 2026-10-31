@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"strings"
@@ -18,6 +19,18 @@ import (
 // Small pgtype/time helpers shared by the Noverse domain repositories. The
 // account repository moved to platform/identity/postgres and keeps its own
 // copies; only helpers that non-identity code really uses live here.
+
+// deterministicUUID pins singleton documents and project audio metadata to the
+// same stable namespace used by the imported hosted storage format.
+func deterministicUUID(namespace, name string) pgtype.UUID {
+	sum := sha256.Sum256([]byte("ainovel|v1|" + namespace + "|" + name))
+	var id pgtype.UUID
+	copy(id.Bytes[:], sum[:16])
+	id.Bytes[6] = id.Bytes[6]&0x0f | 0x50
+	id.Bytes[8] = id.Bytes[8]&0x3f | 0x80
+	id.Valid = true
+	return id
+}
 
 func randomUUID() (pgtype.UUID, error) {
 	var id pgtype.UUID

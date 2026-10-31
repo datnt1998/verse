@@ -39,6 +39,11 @@ func pgAnchorUUID(t *testing.T, ns, name string) pgtype.UUID {
 // lease and returns the scoped facade plus the lease. Every write through the
 // facade is fenced on the lease, exactly like a hosted engine run.
 func pgEngineStore(t *testing.T, chapters int) (*storepkg.Store, *postgres.StoryLease) {
+	st, lease, _ := pgEngineStoreDocuments(t, chapters)
+	return st, lease
+}
+
+func pgEngineStoreDocuments(t *testing.T, chapters int) (*storepkg.Store, *postgres.StoryLease, *postgres.Pool) {
 	t.Helper()
 	dsn := pgtest.Provision(t)
 	db, err := migrate.OpenDB(dsn)
@@ -100,7 +105,7 @@ func pgEngineStore(t *testing.T, chapters int) (*storepkg.Store, *postgres.Story
 	if err := st.Outline.SaveOutline(outline); err != nil {
 		t.Fatalf("outline: %v", err)
 	}
-	return st, lease
+	return st, lease, pool
 }
 
 // isolateCwd moves the process into an empty directory for the duration of the

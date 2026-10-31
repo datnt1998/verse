@@ -52,6 +52,10 @@ func rulesModel(chainDir string) (llmtypes.ChatModel, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w (%v)", errRulesNoModel, err)
 	}
+	return rulesModelForConfig(cfg)
+}
+
+func rulesModelForConfig(cfg bootstrap.Config) (llmtypes.ChatModel, error) {
 	if strings.TrimSpace(cfg.Provider) == "" || strings.TrimSpace(cfg.ModelName) == "" {
 		return nil, errRulesNoModel
 	}
@@ -96,7 +100,7 @@ func (g *Gateway) serveRulesUnderstand(w http.ResponseWriter, r *http.Request, u
 		scopeError(w, err)
 		return
 	}
-	model, err := rulesModel(t.chainTo)
+	model, err := g.rulesModelTarget(r.Context(), t)
 	if err != nil {
 		writeRulesNoModel(w)
 		return
@@ -141,7 +145,18 @@ func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	opts := rules.LoadOptions{HomeRulesDir: rulesHomeDir()}
-	if scope == "project" {
+	if t.hosted {
+		repo := g.hostedTextDocuments()
+		if repo == nil {
+			scopeError(w, library.ErrStorageUnsupported)
+			return
+		}
+		opts, err = repo.RuleOptions(r.Context(), textActor(user), t.project, "")
+		if err != nil {
+			scopeError(w, err)
+			return
+		}
+	} else if scope == "project" {
 		opts.ProjectRulesDir = rulesDirIn(t.dir)
 	}
 	cachePath := ""
@@ -149,7 +164,7 @@ func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Reque
 		cachePath = filepath.Join(filepath.Dir(home), "rules-cache.json")
 	}
 	var model llmtypes.ChatModel
-	if m, err := rulesModel(t.chainTo); err == nil {
+	if m, err := g.rulesModelTarget(r.Context(), t); err == nil {
 		model = m
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), applyTimeout)
@@ -166,11 +181,8 @@ func (g *Gateway) serveRulesEffectiveScoped(w http.ResponseWriter, r *http.Reque
 
 // rulesService dựng dịch vụ quy tắc cho một truyện. model có thể nil (không có cấu hình):
 // khi đó mọi dòng chưa có trong bộ nhớ đệm sẽ hạ cấp thành lời dặn nguyên văn.
-func rulesService(st library.Story, sr *host.StoryReader, model llmtypes.ChatModel) (*userrules.Service, error) {
+func (g *Gateway) rulesService(st library.Story, sr *host.StoryReader, model llmtypes.ChatModel) (*userrules.Service, error) {
 	if st.Dir == "" {
-		// Hosted: không có cấu hình theo truyện trên đĩa — style lấy từ run
-		// meta (như reviewReader), quy tắc người dùng tầng truyện/dự án chưa
-		// có kho (phase 07); chỉ tầng toàn cục của server còn đọc.
 		style := ""
 		if s := sr.Store(); s != nil {
 			if meta, err := s.RunMeta.Load(); err == nil && meta != nil {
@@ -185,7 +197,15 @@ func rulesService(st library.Story, sr *host.StoryReader, model llmtypes.ChatMod
 		if err != nil {
 			return nil, err
 		}
-		return userrules.NewService(sr.Store(), model, rules.LoadOptions{HomeRulesDir: rulesHomeDir()}, pack), nil
+		repo := g.hostedTextDocuments()
+		if repo == nil {
+			return nil, library.ErrStorageUnsupported
+		}
+		opts, err := repo.RuleOptions(context.Background(), nil, st.Project, st.Story)
+		if err != nil {
+			return nil, err
+		}
+		return userrules.NewService(sr.Store(), model, opts, pack), nil
 	}
 	cfg, err := bootstrap.LoadConfigAt(st.Dir)
 	if err != nil {
@@ -223,8 +243,8 @@ func (g *Gateway) serveStoryRules(w http.ResponseWriter, r *http.Request, st lib
 }
 
 // storyModelOrNil: model của truyện, nil khi chưa cấu hình.
-func storyModelOrNil(st library.Story) llmtypes.ChatModel {
-	m, err := rulesModel(st.Dir)
+func (g *Gateway) storyModelOrNil(st library.Story) llmtypes.ChatModel {
+	m, err := g.rulesModelTarget(context.Background(), configTarget{hosted: st.Dir == "", project: st.Project, scope: "story", story: st, chainTo: st.Dir})
 	if err != nil {
 		return nil
 	}
@@ -234,7 +254,7 @@ func storyModelOrNil(st library.Story) llmtypes.ChatModel {
 func (g *Gateway) serveRulesEffective(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
 	ctx, cancel := context.WithTimeout(r.Context(), applyTimeout)
 	defer cancel()
-	svc, err := rulesService(st, sr, storyModelOrNil(st))
+	svc, err := g.rulesService(st, sr, g.storyModelOrNil(st))
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, "Không đọc được gói quy tắc: "+err.Error())
 		return
@@ -286,7 +306,7 @@ func (g *Gateway) serveRulesApply(w http.ResponseWriter, r *http.Request, st lib
 			return
 		}
 	}
-	model := storyModelOrNil(st)
+	model := g.storyModelOrNil(st)
 	if model == nil {
 		writeRulesNoModel(w)
 		return
@@ -297,7 +317,7 @@ func (g *Gateway) serveRulesApply(w http.ResponseWriter, r *http.Request, st lib
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), applyTimeout)
 	defer cancel()
-	svc, err := rulesService(st, sr, model)
+	svc, err := g.rulesService(st, sr, model)
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, "Không đọc được gói quy tắc: "+err.Error())
 		return
@@ -385,7 +405,7 @@ func (g *Gateway) serveRulesRuntimeKeep(w http.ResponseWriter, st library.Story,
 		jsonError(w, http.StatusBadRequest, "id không hợp lệ")
 		return
 	}
-	svc, err := rulesService(st, sr, nil)
+	svc, err := g.rulesService(st, sr, nil)
 	if err != nil {
 		writeRuntimeRuleError(w, err)
 		return
@@ -405,7 +425,7 @@ func (g *Gateway) serveRulesRuntimeDelete(w http.ResponseWriter, st library.Stor
 		jsonError(w, http.StatusBadRequest, "id không hợp lệ")
 		return
 	}
-	svc, err := rulesService(st, sr, nil)
+	svc, err := g.rulesService(st, sr, nil)
 	if err != nil {
 		writeRuntimeRuleError(w, err)
 		return

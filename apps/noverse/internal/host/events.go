@@ -94,6 +94,7 @@ func (e Event) hasLifecycle() bool {
 
 // UISnapshot 是 TUI 渲染所需的聚合状态快照。
 type UISnapshot struct {
+	ReadOnlyReason     string `json:"readOnlyReason,omitempty"`
 	Provider           string `json:"provider"`
 	BookTitle          string `json:"bookTitle"`
 	ModelName          string `json:"modelName"`

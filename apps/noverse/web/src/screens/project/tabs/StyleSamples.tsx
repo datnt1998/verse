@@ -8,7 +8,7 @@ import { keys, useAction, useResource } from '../../../data'
 import { Icon, toast } from '@noverse/ui'
 import '../../settings/style.css'
 
-const chars = (n: number) => `${n.toLocaleString('vi-VN')} chữ`
+const chars = (n: number) => `${n.toLocaleString('vi-VN')} ký tự`
 // Hàng mẫu theo artboard: “N chữ · d/m” (bỏ năm — mẫu gần đây).
 const sampleDate = (iso: string) => {
   const d = new Date(iso)
@@ -19,6 +19,7 @@ export function StyleSamples({ project, story, canEdit }: { project: string; sto
   const key = keys.story(project, story, 'style-samples')
   const resource = useResource(key, ({ signal }) => getStyleSamples(project, story, signal))
   const [adding, setAdding] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
 
@@ -46,23 +47,20 @@ export function StyleSamples({ project, story, canEdit }: { project: string; sto
   }
 
   return (
-    <section className="card" aria-label="Văn phong của bạn" style={{ borderRadius: 16, overflow: 'hidden', padding: '14px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingBottom: 10 }}>
-        <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
-          <b style={{ fontSize: 14, fontWeight: 600 }}>Văn phong của bạn · văn mẫu của truyện này</b>
-          <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)' }}>
-            Dán đoạn bạn tự viết, trợ lý học giọng văn. Đủ văn mẫu thì chọn được kiểu “Văn phong của bạn” ở trên.
-            {total && total.count > 0 ? ` Đã có ${total.count} văn mẫu · ${chars(total.chars)}.` : ''}
-          </span>
-        </span>
+    <section aria-label="Văn mẫu" style={{ borderTop: '1px solid var(--line-1)', padding: '12px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} style={{ flex: 1, border: 'none', background: 'transparent', color: 'var(--color-fg)', textAlign: 'left', fontSize: 13.5, padding: '4px 2px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Icon name="arrow-down-2" size={14} style={{ transform: expanded ? undefined : 'rotate(-90deg)' }} />
+          Văn mẫu · {total?.count ?? 0} đoạn · {chars(total?.chars ?? 0)}
+        </button>
         {canEdit && (
-          <button type="button" className="hov-ghost" aria-expanded={adding} onClick={() => setAdding((open) => !open)}
+          <button type="button" className="hov-ghost" aria-expanded={adding} onClick={() => { setAdding((open) => !open); setExpanded(true) }}
             style={{
               height: 32, padding: '0 12px', borderRadius: 9, border: '1px solid var(--kit-line-12)',
               background: 'transparent', color: 'var(--color-fg)', fontSize: 12.5, whiteSpace: 'nowrap',
               display: 'flex', alignItems: 'center', gap: 6, flex: '0 0 auto',
             }}>
-            <Icon name="add" size={14} />Thêm văn mẫu
+            <Icon name="add" size={14} />Thêm
           </button>
         )}
       </div>
@@ -95,11 +93,11 @@ export function StyleSamples({ project, story, canEdit }: { project: string; sto
         <span style={{ fontSize: 12.5, color: 'var(--color-err)', paddingBottom: 2 }}>
           Không đọc được văn mẫu: {String((resource.error as Error)?.message ?? resource.error)}
         </span>
-      ) : samples.length === 0 && !adding ? (
+      ) : expanded && samples.length === 0 && !adding ? (
         <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)', lineHeight: 1.5, paddingBottom: 2 }}>
           Chưa có văn mẫu nào. Dán một đoạn bạn muốn máy chủ học giọng văn.
         </span>
-      ) : samples.length > 0 ? (
+      ) : expanded && samples.length > 0 ? (
         <div style={{ borderTop: '1px solid var(--line-1)', margin: '0 -16px -14px' }}>
           {samples.map((sample) => (
             <div key={sample.id} className="st-smp">

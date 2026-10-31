@@ -9,6 +9,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/notify"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/core/auth/anthropicoauth"
+	"github.com/datnt1998/verse/core/auth/codex"
+	"github.com/datnt1998/verse/core/auth/xai"
+	"github.com/datnt1998/verse/core/llm"
 	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/models"
 	"github.com/datnt1998/verse/core/roles"
@@ -214,13 +218,7 @@ func (c *Config) ValidateBase() error {
 		return err
 	}
 	for name, provider := range c.Providers {
-		if err := validateConfigText("tên provider", name); err != nil {
-			return err
-		}
-		if err := validateProviderConfigText(name, provider); err != nil {
-			return err
-		}
-		if err := c.validateProviderAPI(fmt.Sprintf("provider %q", name), name, provider); err != nil {
+		if err := ValidateProvider(name, provider); err != nil {
 			return err
 		}
 	}
@@ -285,9 +283,43 @@ func (c *Config) ValidateBase() error {
 	return nil
 }
 
+// ValidateModelReady checks only providers reachable by the default, roles and
+// fallbacks. ValidateBase remains strict for full configuration validation.
+func (c Config) ValidateModelReady() error {
+	providers := make(map[string]llmconfig.ProviderConfig)
+	add := func(name string) {
+		if pc, ok := c.Providers[name]; ok {
+			providers[name] = pc
+		}
+	}
+	add(c.Provider)
+	for _, role := range c.Roles {
+		add(role.Provider)
+		for _, fallback := range role.Fallbacks {
+			add(fallback.Provider)
+		}
+	}
+	c.Providers = providers
+	return c.ValidateBase()
+}
+
 // ValidateProvider 只校验单个 provider 的结构（models、api、stream_idle_timeout、控制字符），
 // 不要求它是默认 provider，也不检查 key——供网关“Thử kết nối”在建模型前给出越南语错误。
 func ValidateProvider(name string, pc llmconfig.ProviderConfig) error {
+	if err := validateConfigText("tên provider", name); err != nil {
+		return err
+	}
+	typ, err := pc.ProviderType(name)
+	if err != nil {
+		return err
+	}
+	switch typ {
+	case codex.ProviderName, xai.ProviderName, anthropicoauth.ProviderName:
+	default:
+		if !llm.IsProviderRegistered(typ) {
+			return fmt.Errorf("provider %q: giao thức %q không được hỗ trợ: %w", name, typ, errs.ErrConfig)
+		}
+	}
 	if err := validateProviderConfigText(name, pc); err != nil {
 		return err
 	}
@@ -498,6 +530,12 @@ func (c Config) validateProviderAPI(owner, providerName string, pc llmconfig.Pro
 	providerType, err := pc.ProviderType(providerName)
 	if err != nil {
 		return fmt.Errorf("%s provider %q: không phân tích được loại giao thức từ cấu hình api: %w", owner, providerName, err)
+	}
+	if providerType == codex.ProviderName {
+		if pc.API == "responses" {
+			return nil
+		}
+		return fmt.Errorf("%s provider %q: luôn dùng giao thức Responses, api chỉ có thể là \"responses\" hoặc để trống: %w", owner, providerName, errs.ErrConfig)
 	}
 	if strings.ToLower(strings.TrimSpace(providerType)) != "openai" {
 		return fmt.Errorf("%s provider %q: cấu hình api chỉ hỗ trợ provider giao thức OpenAI: %w", owner, providerName, errs.ErrConfig)

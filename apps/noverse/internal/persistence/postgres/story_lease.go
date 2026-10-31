@@ -70,14 +70,26 @@ func (l *StoryLease) claim(ctx context.Context) error {
 	var token int64
 	err := l.nar.tx(ctx, func(tx pgx.Tx) error {
 		n, err := gen.New(tx).ClaimStoryLease(ctx, gen.ClaimStoryLeaseParams{
-			ProjectID: l.scope.ProjectID, StoryID: l.scope.StoryID,
-			HolderID: l.holder, LeaseUntil: until,
+			ProjectID: l.scope.ProjectID, ID: l.scope.StoryID,
+			HolderID: l.holder, LeaseUntil: until, Draft: l.scope.Draft,
 		})
 		if err != nil {
 			return sanitizeErr(err)
 		}
 		if n == 0 {
 			return ErrLeaseLost
+		}
+		// Promotion/removal must lock the lease we now hold. Recheck the row
+		// after claiming in case it changed while the INSERT was waiting.
+		var draft bool
+		err = tx.QueryRow(ctx, `SELECT status = 'draft' FROM stories
+			WHERE project_id=$1 AND id=$2 AND deleted_at IS NULL`,
+			l.scope.ProjectID, l.scope.StoryID).Scan(&draft)
+		if noRows(err) || (err == nil && draft != l.scope.Draft) {
+			return ErrLeaseLost
+		}
+		if err != nil {
+			return sanitizeErr(err)
 		}
 		row, err := gen.New(tx).GetStoryLease(ctx, gen.GetStoryLeaseParams{
 			ProjectID: l.scope.ProjectID, StoryID: l.scope.StoryID})

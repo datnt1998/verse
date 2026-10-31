@@ -38,6 +38,7 @@ export function NamesRows({ ctx }: { ctx: SettingsContext }) {
   const lib = ctx.libDraft
   const [editing, setEditing] = useState<'dirs' | 'slug' | 'pattern' | null>(null)
   const toggle = (id: 'dirs' | 'slug' | 'pattern') => setEditing((current) => (current === id ? null : id))
+  if (ctx.library?.storageMode === 'postgres') return null
   if (!lib) {
     return <AdvRow label="Tên thư mục & tên tệp xuất" value={<Skeleton width={220} height={14} />} />
   }

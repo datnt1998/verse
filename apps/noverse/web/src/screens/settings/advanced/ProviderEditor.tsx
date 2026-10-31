@@ -29,7 +29,9 @@ export function ProviderEditor({ ctx, id, removable }: { ctx: SettingsContext; i
       {!preset && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={caption}>Giao thức</span>
-          <KitSelect aria-label={`Giao thức của ${id}`} value={provider.type ?? ''} disabled={!canEdit} onChange={(value) => set('type', value || undefined)}
+          <KitSelect aria-label={`Giao thức của ${id}`} value={provider.type ?? ''} disabled={!canEdit} onChange={(value) => {
+            ctx.setField(`providers.${id}`, { ...provider, type: value || undefined, ...((value || id) !== 'openai' ? { api: undefined } : {}) })
+          }}
             options={[{ value: '', label: 'Theo tên provider' }, ...providerTypeOptions(provider.type ?? '', (ctx.presets?.providers ?? []).map((entry) => entry.type)).map((value) => ({ value, label: value }))]}
             style={{ width: 200 }} />
         </div>

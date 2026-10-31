@@ -1,101 +1,74 @@
-// Gói AL — tab “Cách viết” của truyện (Outline.dc.html › tab=style · wstyle: pack · builtin · inherit · samples).
-// Văn phong + văn mẫu là của truyện: chọn một ô là lưu ngay `config.style` ở cấp truyện (không đổi
-// API), “Dùng theo dự án” xoá ghi đè. “Văn phong của bạn” chỉ chọn được khi truyện đã có văn mẫu.
-import { canWriteStory, getConfig, getConfigPresets, getProject, getSnapshot, getStyleSamples } from '../../../api/client'
+// Cách viết của truyện: văn phong, văn mẫu và quy tắc trong cùng một tab.
+import { useState } from 'react'
+import * as stylex from '@stylexjs/stylex'
+import { color, kit, line } from '@noverse/ui/tokens.stylex'
+import { canWriteStory, getConfig, getConfigPresets, getSnapshot, getStyleSamples } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import type { StorySummary } from '../../../api/types'
 import { keys, useAction, useResource } from '../../../data'
 import { effectiveFromChapter } from '../../settings/lib/labels'
-import { findPack } from '../../settings/lib/packs'
-import { PackSummaryCard, saveStyle, styleDisplayName, StylePicker } from '../../settings/sections/style'
+import { findPack, packBadge, packDesc, packInfoMeta } from '../../settings/lib/packs'
+import { BUILT_IN, PackSummaryCard, saveStyle, styleDisplayName, StylePicker } from '../../settings/sections/style'
+import { RulesEditor } from '../../settings/sections/rules'
+import { amWritingCopy } from '../../../i18n/vi'
 import { paths } from '../../../router'
 import { Icon, Skeleton, toast } from '@noverse/ui'
 import { StyleSamples } from './StyleSamples'
 import '../../settings/style.css'
 
+export const writingStyles = stylex.create({
+  root: { maxWidth: 860, display: 'flex', flexDirection: 'column', gap: 14 },
+  intro: { margin: 0, fontSize: 13.5, color: color['--color-fg-3'], lineHeight: 1.55 },
+  heading: { margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 },
+  card: { borderRadius: 16, overflow: 'hidden' },
+  top: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' },
+  copy: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, lineHeight: 1.4 },
+  name: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, fontSize: 15, fontWeight: 600 },
+  desc: { fontSize: 12.5, color: kit['--kit-fg-meta'], lineHeight: 1.5 },
+  badge: { padding: '2px 7px', borderRadius: 6, fontSize: 11.5, fontWeight: 400, color: color['--color-ok'], backgroundColor: kit['--kit-ok-8'] },
+  inherited: { padding: '2px 7px', borderRadius: 6, fontSize: 11.5, fontWeight: 400, color: kit['--kit-info-fg'], backgroundColor: kit['--kit-acc-8'] },
+  button: { height: 32, padding: '0 12px', borderRadius: 9, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: 'transparent', color: color['--color-fg'], fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', cursor: 'pointer' },
+  grid: { padding: '0 16px 16px' },
+  inheritRow: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', marginBottom: 12 },
+})
+
 export function StyleTab({ project, summary }: { project: string; summary: StorySummary }) {
   const story = summary.story
   const { user } = useSession()
   const canEdit = !!user && canWriteStory(user, `${project}/${story}`)
+  const [open, setOpen] = useState(false)
   const config = useResource(keys.config('story', project, story), ({ signal }) => getConfig('story', project, story, signal))
   const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal), { staleTime: 60000 })
-  const detail = useResource(keys.project(project), () => getProject(project), { staleTime: 60000 })
   const snapshot = useResource(keys.story(project, story, 'snapshot'), ({ signal }) => getSnapshot(project, story, signal))
   const samples = useResource(keys.story(project, story, 'style-samples'), ({ signal }) => getStyleSamples(project, story, signal))
-
   const own = config.data?.sources?.style === 'story'
   const effectiveStyle = config.data?.effective.style ?? 'default'
-  // Văn phong của dự án = tệp cấp dự án (chưa ghi thì lấy “Mọi truyện”).
-  const projectStyle = config.data
-    ? config.data.chain.find((doc) => doc.scope === 'project')?.config.style ?? config.data.chain.find((doc) => doc.scope === 'global')?.config.style ?? 'default'
-    : 'default'
-
-  const pick = useAction(async (id: string) => {
+  const projectStyle = config.data?.chain.find((doc) => doc.scope === 'project')?.config.style ?? config.data?.chain.find((doc) => doc.scope === 'global')?.config.style ?? 'default'
+  const pick = useAction(async (id: string | undefined) => {
     if (!config.data) return
     const next = await saveStyle('story', project, story, id, config.data)
-    toast.ok(`Đã đổi văn phong của truyện · áp dụng từ chương ${effectiveFromChapter(snapshot.data)}`)
+    toast.ok(`Đã đổi văn phong · áp dụng từ chương ${effectiveFromChapter(snapshot.data)}`)
     return next
   }, { invalidate: [['project', project, 'style-by']] })
-
-  const useProject = useAction(async () => {
-    if (!config.data) return
-    const next = await saveStyle('story', project, story, undefined, config.data)
-    toast.ok(`Truyện dùng lại văn phong của dự án · từ chương ${effectiveFromChapter(snapshot.data)}`)
-    return next
-  }, { invalidate: [['project', project, 'style-by']] })
-
   if (config.initialLoading) return <Skeleton height={300} radius={16} />
-  if (config.error || !config.data) {
-    return (
-      <section className="card st-sec" aria-label="Cách viết">
-        <span style={{ fontSize: 13, color: 'var(--color-err)' }}>Không tải được cách viết của truyện.</span>
-        <button type="button" className="hov-ghost" onClick={() => void config.refresh()}
-          style={{ alignSelf: 'flex-start', height: 30, padding: '0 12px', borderRadius: 8, border: '1px solid var(--line-4)', background: 'transparent', color: 'var(--color-fg)', fontSize: 12.5 }}>
-          Thử lại
-        </button>
-      </section>
-    )
-  }
-
+  if (!config.data) return <section className="card st-sec"><span>Không tải được cách viết của truyện.</span><button type="button" {...stylex.props(writingStyles.button)} onClick={() => void config.refresh()}>Thử lại</button></section>
   const pack = findPack(presets.data?.packs, effectiveStyle)
-  const projectName = detail.data?.project.name ?? project
-  // Icon màu của thanh kế thừa theo artboard: riêng → book tím, kế thừa → folder xanh.
-  const inhIconColor = own ? 'var(--color-accent)' : 'var(--kit-info-fg)'
-
-  return (
-    <div style={{ maxWidth: 860, display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <p style={{ margin: 0, fontSize: 13.5, color: 'var(--color-fg-3)', lineHeight: 1.55 }}>
-        Văn phong của truyện này. Đổi ở đây áp dụng từ chương tiếp theo; chương đã viết giữ nguyên.
-      </p>
-      <div className={`st-inh${own ? ' own' : ''}`}>
-        <Icon name={own ? 'book-1' : 'folder-open'} size={18} style={{ color: inhIconColor, flex: '0 0 auto' }} />
-        <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
-          <b style={{ fontSize: 14, fontWeight: 600 }}>{styleDisplayName(presets.data, effectiveStyle)}</b>
-          <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)' }}>
-            {own
-              ? `Riêng truyện này · dự án đang dùng “${styleDisplayName(presets.data, projectStyle)}”`
-              : `Theo dự án “${projectName}” · chọn một kiểu bên dưới để dùng riêng`}
-          </span>
-        </span>
-        {own && canEdit && (
-          <button type="button" className="hov-ghost" disabled={useProject.busy} onClick={() => void useProject.run()}
-            style={{
-              height: 30, padding: '0 12px', borderRadius: 8, border: '1px solid var(--kit-line-12)',
-              background: 'transparent', color: 'var(--color-fg)', fontSize: 12.5, whiteSpace: 'nowrap', flex: '0 0 auto',
-            }}>
-            Dùng theo dự án
-          </button>
-        )}
-      </div>
-      <section className="card" style={{ borderRadius: 16, padding: '16px 18px' }}>
-        <StylePicker value={effectiveStyle} presets={presets.data ?? null}
-          custom="story" story
-          samples={samples.data?.total ?? null}
-          disabled={!canEdit || pick.busy || useProject.busy}
-          onPick={(id) => { if (!pick.busy) void pick.run(id) }} />
-      </section>
-      {pack && <PackSummaryCard pack={pack} qualityHref={`#${paths.quality(project, story)}`} />}
+  const desc = pack ? [packDesc(pack), packInfoMeta(pack)].filter(Boolean).join(' · ') : effectiveStyle === 'giong-tre' && samples.data ? `Học từ ${samples.data.total.count} văn mẫu của truyện này` : BUILT_IN.find((s) => s.id === effectiveStyle)?.desc
+  return <div {...stylex.props(writingStyles.root)}>
+    <p {...stylex.props(writingStyles.intro)}>{amWritingCopy.intro}</p>
+    <h2 {...stylex.props(writingStyles.heading)}><Icon name="brush-2" size={17} />Văn phong</h2>
+    <section className={`card ${stylex.props(writingStyles.card).className}`} aria-label="Văn phong">
+      <div {...stylex.props(writingStyles.top)}><span {...stylex.props(writingStyles.copy)}>
+        <span {...stylex.props(writingStyles.name)}>{styleDisplayName(presets.data, effectiveStyle)}{pack && packBadge(pack).ok && <span {...stylex.props(writingStyles.badge)}><Icon name="shield-tick" size={12} />Có chấm</span>}{!own && <span {...stylex.props(writingStyles.inherited)}>theo dự án</span>}</span>
+        {desc && <span {...stylex.props(writingStyles.desc)}>{desc}</span>}
+      </span><button type="button" {...stylex.props(writingStyles.button)} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Xong' : 'Đổi'}<Icon name="arrow-down-2" size={13} /></button></div>
+      {open && <div {...stylex.props(writingStyles.grid)}>
+        <button type="button" role="radio" aria-checked={!own} className={`st-style${!own ? ' on' : ''} ${stylex.props(writingStyles.inheritRow).className}`} disabled={!canEdit || pick.busy} onClick={() => void pick.run(undefined)}><Icon name="folder-open" size={17} /><span {...stylex.props(writingStyles.copy)}><b>Theo dự án · {styleDisplayName(presets.data, projectStyle)}</b><span {...stylex.props(writingStyles.desc)}>Dùng văn phong mặc định của dự án, đổi theo khi dự án đổi</span></span></button>
+        <StylePicker value={own ? effectiveStyle : ''} presets={presets.data ?? null} custom="story" story samples={samples.data?.total ?? null} disabled={!canEdit || pick.busy} onPick={(id) => void pick.run(id)} />
+      </div>}
       <StyleSamples project={project} story={story} canEdit={canEdit} />
-    </div>
-  )
+    </section>
+    {open && pack && <PackSummaryCard pack={pack} qualityHref={`#${paths.quality(project, story)}`} />}
+    <RulesEditor scope="story" project={project} story={story} />
+  </div>
 }

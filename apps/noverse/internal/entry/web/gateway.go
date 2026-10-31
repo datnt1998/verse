@@ -127,6 +127,7 @@ type Gateway struct {
 	watcher       *fileWatcher
 	notifications *gatewayNotifications
 	closeOnce     sync.Once
+	storageTests  map[string][]time.Time
 	// recoverLimiter 限制 POST /api/recover（每 IP 每小时 5 次，recovery.go）；
 	// network 控制运行时的局域网监听（network.go），未启用时为 nil。
 	recoverLimiter identity.RecoveryLimiter
@@ -188,11 +189,12 @@ func (g *Gateway) setTransport(rt http.RoundTripper) {
 
 // PGAudioDeps 是 Postgres 音频后端的所有依赖（serve 注入一次）。
 type PGAudioDeps struct {
-	Jobs  *postgres.Jobs
-	Audio *postgres.Audio
-	Cache *postgres.ExportCache
-	Nar   *postgres.Narrative
-	Blobs blobstore.BlobStore
+	Jobs    *postgres.Jobs
+	Audio   *postgres.Audio
+	Cache   *postgres.ExportCache
+	Nar     *postgres.Narrative
+	Blobs   blobstore.BlobStore
+	Storage *bootstrap.ManagedBlobs
 	// Keys builds BlobStore object keys for the process STORAGE_ENV; serve
 	// passes blobkey.FromEnv(). The zero value is the dev environment.
 	Keys   blobkey.Keys
@@ -419,7 +421,12 @@ func (g *Gateway) startDir(key, dir string) (*launchedWorker, error) {
 			// Hosted story: no engine directory exists. The child gets the
 			// env-scoped store and claims its own lease; the slot key carries
 			// the "project/story" scope it resolves after connecting.
-			if project, story, ok := splitStoryKey(key); !ok {
+			project, story, ok := splitStoryKey(key)
+			if strings.HasPrefix(key, "draft//") {
+				project, story, ok = strings.Cut(strings.TrimPrefix(key, "draft//"), "/")
+				story = "draft/" + story
+			}
+			if !ok {
 				err = os.ErrNotExist
 			} else {
 				worker, err = g.launchHosted(key, project, story)
@@ -612,7 +619,7 @@ func (g *Gateway) Close() {
 	})
 }
 
-// projectUpload 只放行 POST /api/projects/<p>/voices|assets 的 multipart 上传（GAP-18 giọng mẫu · Tư liệu）；
+// projectUpload permits only the documented project and story multipart upload routes.
 // cookie là SameSite=Strict nên ngoại lệ hẹp này không mở CSRF.
 func projectUpload(r *http.Request) bool {
 	if r.Method != "POST" {
@@ -623,6 +630,9 @@ func projectUpload(r *http.Request) bool {
 		return false
 	}
 	segs := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(segs) == 6 && segs[0] == "api" && segs[1] == "projects" && segs[2] != "" && segs[3] == "stories" && segs[4] != "" && segs[5] == "style-samples" {
+		return true
+	}
 	return len(segs) == 4 && segs[0] == "api" && segs[1] == "projects" && segs[2] != "" && (segs[3] == "voices" || segs[3] == "assets")
 }
 
@@ -724,7 +734,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if g.serveRecovery(w, r, user) || g.serveNetwork(w, r, user) {
 		return
 	}
-	if g.serveLessons(w, r, user) {
+	if g.serveStorageMetrics(w, r, user) || g.serveLessons(w, r, user) {
 		return
 	}
 	if g.serveConfig(w, r, user) {
@@ -763,6 +773,9 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if g.serveTTS(w, r, user) {
+		return
+	}
+	if g.serveBlobDelivery(w, r, user) {
 		return
 	}
 	jsonError(w, 404, "không tìm thấy")
@@ -960,7 +973,7 @@ func (g *Gateway) launchHostedWorker(key, project, story string) (*launchedWorke
 	if err != nil {
 		return nil, err
 	}
-	scratch, err := os.MkdirTemp("", "ainovel-worker-"+story+"-")
+	scratch, err := os.MkdirTemp("", "ainovel-worker-")
 	if err != nil {
 		return nil, err
 	}

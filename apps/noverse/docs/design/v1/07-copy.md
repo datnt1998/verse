@@ -193,3 +193,26 @@ Tên vai/người lập kế hoạch và lời gọi công cụ nằm trong câu
 | Hành động với cảnh báo | Nhờ sửa ở chương này · Giữ nguyên… | fix, ignore, bỏ qua |
 | Kiểm trùng khi tạo truyện | So với truyện trước · Truyện này giống một truyện bạn đã đăng · Nhờ Kiến trúc sư đổi trục · Được bắt đầu | duplicate, conflict, trùng lặp |
 | Mức trong Não dự án / hệ thống | Bắt sửa · Cảnh báo · Đạt | [LỖI], [CẢNH BÁO] |
+
+## Bảng từ: Lưu trữ tệp (Gói AN, 31/10) <!-- an-copy -->
+
+| Chỗ | Dùng | Không dùng |
+|---|---|---|
+| Tên mục | Lưu trữ tệp | Blob storage, Object storage |
+| Nhóm nhà cung cấp | Kho S3 · Ổ đĩa máy chủ | bucket provider, local driver |
+| Tên ô | Tên kho · Mã khoá truy cập · Khoá bí mật · Địa chỉ máy chủ · Địa chỉ máy chủ nội bộ · Vùng · Account ID (R2) · Địa chỉ kho cho trình duyệt | bucket, access key id, secret, endpoint, presign endpoint, region |
+| Cách gửi | Trực tiếp từ kho · Qua máy chủ Noverse | redirect, proxy, presigned URL |
+| Công tắc | Kiểu đường dẫn · Cho phép http (chỉ mạng nội bộ) | force path style, allow insecure endpoint |
+| Môi trường | Thử nghiệm · Chạy thử · Chính thức | dev, staging, prod |
+| Nguồn cấu hình | Lưu trong app · khoá đã mã hoá · do máy chủ đặt | env, database |
+| Bước kiểm tra | Ghi thử · Đọc lại · Đọc một đoạn · Tạo link ký · Trình duyệt tải được (CORS) · Máy chủ gửi được một đoạn cho trình duyệt · Xoá tệp thử | PUT, GET, Range, presign, cors_probe, app_range, DELETE |
+| Kết quả bước | đạt (ms) · lỗi · bỏ qua · không cần · chưa chạy | OK, FAIL, skipped, N/A |
+| Hoạt động | Ghi · Đọc · Tạo link · Xoá — Số lần · Lỗi · Dữ liệu · Trung bình · Chậm nhất | put, open, presign, delete, p50, max |
+| Dung lượng | Âm thanh · Bản xuất · Bìa · Nhạc nền · Giọng mẫu · Bản thảo nhập | audio, export, cover, music, voiceSample, import |
+| Chuyển kho | Đang chuyển sang … · Tạm dừng · Có lỗi · Đã chép và kiểm tra · Thử lại các tệp lỗi · Huỷ chuyển · Kho cũ | migration, copied, verified, pending store |
+
+**Mã lỗi kiểm tra → lời:** `wrong_key` Kho từ chối khoá truy cập · `no_bucket` Không có kho tên “…” · `no_write_permission` Khoá chưa có quyền ghi tệp · `no_read_permission` Khoá chưa có quyền đọc tệp · `no_delete_permission` Khoá chưa có quyền xoá tệp · `unreachable_endpoint` Không kết nối được địa chỉ kho · `clock_skew` Đồng hồ máy chủ bị lệch · `browser_endpoint_required` Trình duyệt không tới được địa chỉ kho · (trình duyệt) Trình duyệt bị kho chặn (thiếu CORS) · `content_mismatch` Nội dung đọc lại không khớp · `storage_error` Kho chưa hoàn thành được bước kiểm tra · 429 Bạn đã kiểm tra nhiều lần; hãy chờ một phút rồi thử lại.
+
+**Mã lỗi chuyển tệp → lời (bảng lỗi):** `content_mismatch` Chép xong nhưng đọc lại không khớp — thường do mạng chập chờn, thử lại là được · `unreachable_endpoint` Mất kết nối tới kho mới giữa chừng — thử lại khi mạng ổn định · `storage_error` Kho mới chưa nhận tệp này — kiểm tra quyền của khoá và kết nối, rồi thử lại · `wrong_key` Kho mới từ chối khoá — khoá vừa bị thu hồi hoặc đổi · `no_read_permission` Khoá của kho mới thiếu quyền · `clock_skew` Đồng hồ máy chủ lệch giờ · `no_bucket` Không còn thấy kho mới — kho bị xoá hoặc đổi tên.
+
+**Câu cố định:** “Chưa đổi gì cho tới khi bạn kiểm tra kết nối, lưu và xác nhận chuyển tệp.” · “Kiểm tra kết nối đạt rồi mới lưu được” · “Chuyển {n} tệp · {dung lượng} sang {nhà cung cấp}?” · “App vẫn chạy bình thường trong lúc chuyển. Tệp mới vẫn ghi vào kho cũ cho tới khi chuyển xong, rồi được chép nốt.” · “Còn tệp lỗi thì chưa đổi kho — app vẫn dùng ổ máy chủ, không mất gì.” · “Kho cũ ({nơi}) vẫn giữ {dung lượng}” · “Kho tệp do máy chủ đặt sẵn. Ở đây chỉ xem và kiểm tra kết nối được.” · “Máy chủ chưa có khoá mã hoá nên chưa lưu được khoá bí mật” · “Đổi kho trên máy tính.”

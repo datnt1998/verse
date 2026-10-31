@@ -39,6 +39,11 @@ beforeEach(() => {
   vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(playMock as unknown as HTMLMediaElement['play'])
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
   vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => {})
+  // Browser media events arrive after assigning src, not synchronously as in
+  // happy-dom. Tests dispatch metadata/canplay at their real async cutpoints.
+  vi.spyOn(HTMLMediaElement.prototype, 'src', 'set').mockImplementation(function (this: HTMLMediaElement, value: string) {
+    this.setAttribute('src', value)
+  })
 })
 afterEach(async () => {
   for (const root of roots.splice(0)) await act(() => root.unmount())
@@ -119,6 +124,7 @@ describe('usePlayer phát trong cử chỉ chạm', () => {
     expect(playMock).toHaveBeenCalledTimes(1)
     const element = playMock.mock.instances[0] as HTMLMediaElement
     expect(element.src).toContain('/api/b.mp3')
+    expect(new URL(element.src).searchParams.get('inline')).toBe('1')
     expect(api.error).toBe('')
   })
 
@@ -163,6 +169,67 @@ describe('usePlayer phát trong cử chỉ chạm', () => {
     await act(() => { root.unmount() })
     roots.splice(roots.indexOf(root), 1)
     expect(frames.size).toBe(0)
+  })
+
+  it('renews an expired redirect through same-origin authorization and restores the seek position', async () => {
+    let api!: Player
+    await mount(<PlayerPlayer src="/api/chapter.mp3" expose={(value) => { api = value }} />)
+    await act(async () => { await api.play() })
+    const audio = playMock.mock.instances[0] as HTMLAudioElement
+    audio.currentTime = 43
+    Object.defineProperty(audio, 'error', { configurable: true, value: { code: 2 } })
+    const calls = vi.mocked(HTMLMediaElement.prototype.load).mock.calls.length
+    await act(() => { audio.dispatchEvent(new Event('error')) })
+    expect(vi.mocked(HTMLMediaElement.prototype.load).mock.calls.length).toBe(calls + 1)
+    expect(new URL(audio.src).pathname).toBe('/api/chapter.mp3')
+    expect(new URL(audio.src).searchParams.has('_media')).toBe(true)
+    audio.currentTime = 0
+    await act(() => { audio.dispatchEvent(new Event('loadedmetadata')) })
+    expect(audio.currentTime).toBe(43)
+    expect(playMock).toHaveBeenCalledTimes(2)
+    await act(() => { audio.dispatchEvent(new Event('error')) })
+    expect(vi.mocked(HTMLMediaElement.prototype.load).mock.calls.length).toBe(calls + 1)
+    expect(api.error).not.toBe('')
+  })
+
+  it('refreshes stale same-origin media on seek and resume, preserving the requested time', async () => {
+    let now = 1_000
+    vi.spyOn(Date, 'now').mockImplementation(() => now)
+    let api!: Player
+    await mount(<PlayerPlayer src="/api/chapter.mp3" expose={(value) => { api = value }} />)
+    await act(async () => { await api.play() })
+    const audio = playMock.mock.instances[0] as HTMLAudioElement
+    now += 241_000
+    await act(() => { api.seek(67) })
+    expect(new URL(audio.src).searchParams.get('_media')).toBe(String(now))
+    await act(() => { audio.dispatchEvent(new Event('loadedmetadata')) })
+    expect(audio.currentTime).toBe(67)
+    await act(() => { api.pause() })
+    now += 241_000
+    await act(async () => { await api.play() })
+    expect(new URL(audio.src).searchParams.get('_media')).toBe(String(now))
+    audio.currentTime = 0
+    await act(() => { audio.dispatchEvent(new Event('loadedmetadata')) })
+    expect(audio.currentTime).toBe(67)
+  })
+
+  it('does not restart playback when a stale seek refreshes the source after natural end', async () => {
+    let now = 1_000
+    vi.spyOn(Date, 'now').mockImplementation(() => now)
+    let api!: Player
+    await mount(<PlayerPlayer src="/api/chapter.mp3" expose={(value) => { api = value }} />)
+    await act(async () => { await api.play() })
+    const audio = playMock.mock.instances[0] as HTMLAudioElement
+    const calls = playMock.mock.calls.length
+    await act(() => { audio.dispatchEvent(new Event('ended')) })
+    now += 241_000
+    await act(() => { api.seek(30) })
+    await act(() => { audio.dispatchEvent(new Event('loadedmetadata')) })
+    expect(audio.currentTime).toBe(30)
+    expect(playMock.mock.calls.length).toBe(calls)
+    await act(() => { audio.dispatchEvent(new Event('error')) })
+    await act(() => { audio.dispatchEvent(new Event('loadedmetadata')) })
+    expect(playMock.mock.calls.length).toBe(calls)
   })
 })
 

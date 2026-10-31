@@ -16,6 +16,7 @@ services:
     volumes:
       - ./config:/home/noverse/.ainovel
       - ./workspace:/workspace
+      - library:/var/lib/noverse/library
     working_dir: /workspace
     # Image CMD is `serve` (hosted default); the offline sandbox runs the TUI
     # (no arguments) instead.
@@ -23,3 +24,6 @@ services:
     command: ["exec ainovel-cli"]
     stdin_open: true
     tty: true
+
+volumes:
+  library:

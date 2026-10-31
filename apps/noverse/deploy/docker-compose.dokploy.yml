@@ -1,5 +1,5 @@
 # Self-contained stack that mirrors the Dokploy topology locally:
-#   Internet → Traefik (TLS) → app:8080 → Postgres + S3 (MinIO)
+#   Internet → Traefik (TLS) → app:8080 → Postgres + S3 (Garage)
 # plus the one-shot migration job, certificate generator and bucket init.
 #
 # This file is the LOCAL/DEV recipe (self-signed certificate, test passwords,
@@ -49,21 +49,30 @@ x-app-env: &app-env
   DB_MAX_CONNS: ${DB_MAX_CONNS:-8}
   DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-10s}
 
-  # BlobStore: S3-compatible (MinIO here). [DOKPLOY] point at R2/AWS/GCS:
-  #   STORAGE_DRIVER=s3, S3_ENDPOINT=https://<account>.r2.cloudflarestorage.com,
-  #   S3_REGION=auto (R2) | us-east-1 (GCS) | bucket region (AWS),
-  #   S3_FORCE_PATH_STYLE=false (AWS/R2) | true (GCS/MinIO).
+  # BlobStore: S3-compatible (Garage here). [DOKPLOY] external provider recipe:
+  #   S3_REGION=garage (Garage) | auto (R2) | us-east-1 (GCS) | bucket region (AWS).
+  #   S3_FORCE_PATH_STYLE=true (Garage/GCS), false (AWS/R2).
   # Local durable volume alternative: STORAGE_DRIVER=local, BLOB_LOCAL_ROOT=/var/lib/noverse/blobs
   STORAGE_DRIVER: ${STORAGE_DRIVER:-s3}
   BLOB_LOCAL_ROOT: /var/lib/noverse/blobs
-  S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
-  S3_REGION: ${S3_REGION:-us-east-1}
+  S3_ENDPOINT: ${S3_ENDPOINT:-http://garage:3900}
+  S3_REGION: ${S3_REGION:-garage}
   S3_BUCKET: ${S3_BUCKET:-noverse}
-  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-local-minio}
-  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set a Garage access key ID}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set a Garage key secret}
   S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
   S3_ALLOW_INSECURE_ENDPOINT: ${S3_ALLOW_INSECURE_ENDPOINT:-true}
-  # [DOKPLOY] S3_PUBLIC_BASE_URL optional, public-marked assets only.
+  # Preset shown in Tuỳ chỉnh › Lưu trữ tệp; proxy = the app streams media,
+  # so the internal Garage needs no public address or CORS. For redirect set
+  # BLOB_DELIVERY=redirect plus S3_PRESIGN_ENDPOINT=<browser-reachable https URL>.
+  # Any S3_* here makes the storage settings page read-only (env wins).
+  S3_PROVIDER: ${S3_PROVIDER:-garage}
+  BLOB_DELIVERY: ${BLOB_DELIVERY:-proxy}
+  S3_PRESIGN_ENDPOINT: ${S3_PRESIGN_ENDPOINT:-}
+  # CONFIG_ENCRYPTION_KEY is deliberately NOT forwarded: an empty value fails
+  # startup. When storage is configured from the app instead of env, add
+  # CONFIG_ENCRYPTION_KEY=<openssl rand -base64 32> in the Dokploy Environment
+  # tab (or an override file) for the app and maintenance jobs only.
 
   # Server / proxy contract. [DOKPLOY] PUBLIC_URL=https://<domain>,
   # TRUSTED_PROXIES=<actual Traefik source CIDR(s)> from `docker network inspect`.
@@ -98,50 +107,38 @@ services:
     networks: [internal]
     # [DOKPLOY] no published 5432 — the app reaches Postgres on the platform network.
 
-  minio:
-    # minio/minio was deleted from Docker Hub in September 2026 and quay.io now
-    # requires an account. Chainguard publishes the same server anonymously
-    # (entrypoint /usr/bin/minio, ships mc and sh), latest tag only. It runs as
-    # uid 65532: a miniodata volume created by the old root image needs
-    # `chown -R 65532:65532` before the first start.
-    image: cgr.dev/chainguard/minio:latest
+  garage:
+    image: dxflrs/garage:v2.5.0
     restart: unless-stopped
-    command: server /data
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-local-minio}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
+    command: ["/garage", "server"]
+    environment: &garage-env
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Set a 32-byte hex RPC secret}
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN:?Set a Garage admin token}
     volumes:
-      - miniodata:/data
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "/garage", "status"]
       interval: 3s
       timeout: 3s
       retries: 30
     networks: [internal]
 
-  # Creates the private bucket once. [DOKPLOY] use the provider's private
-  # bucket + HMAC credentials instead; nothing is public here.
-  minio-init:
-    # The MinIO server image already ships the `mc` CLI; no separate mc image.
-    image: cgr.dev/chainguard/minio:latest
+  # Private bucket/key/layout provisioning; no S3/admin/RPC ports are published.
+  garage-init:
+    build: ./garage
     depends_on:
-      minio:
+      garage:
         condition: service_healthy
-    # Credentials travel as environment variables, never interpolated into the
-    # shell command: a secret containing ' " $ or \ must reach mc verbatim and
-    # must not be parsed by the container shell (single-quote interpolation
-    # broke on any apostrophe).
     environment:
-      MC_ACCESS_KEY: ${S3_ACCESS_KEY_ID:-local-minio}
-      MC_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:-local-minio-secret}
-      MC_BUCKET: ${S3_BUCKET:-noverse}
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - >
-        mc alias set local http://minio:9000 "$$MC_ACCESS_KEY" "$$MC_SECRET_KEY" &&
-        mc mb --ignore-existing "local/$$MC_BUCKET" &&
-        mc anonymous set none "local/$$MC_BUCKET" &&
-        echo "bucket ready"
+      <<: *garage-env
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set a Garage access key ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set a Garage key secret}
+      S3_BUCKET: ${S3_BUCKET:-noverse}
+    volumes:
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta:ro
     restart: "no"
     networks: [internal]
 
@@ -180,10 +177,12 @@ services:
       - blobdata:/var/lib/noverse/blobs
       - scratch:/var/cache/noverse
       - config:/home/noverse/.ainovel
+      # Persistent file-mode fallback; unused by the default Postgres library.
+      - library:/var/lib/noverse/library
     depends_on:
       migrate:
         condition: service_completed_successfully
-      minio-init:
+      garage-init:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$${HTTP_CHECK_PORT:-8080}/healthz"]
@@ -249,10 +248,12 @@ services:
 
 volumes:
   pgdata:
-  miniodata:
+  garage-meta:
+  garage-data:
   blobdata:
   scratch:
   config:
+  library:
   certs:
 
 networks:

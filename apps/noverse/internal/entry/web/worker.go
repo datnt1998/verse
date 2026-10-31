@@ -22,6 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/host/sim"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/revision"
+	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/platform/events"
 	"github.com/datnt1998/verse/platform/webguard"
 )
@@ -30,6 +31,7 @@ type workerHost interface {
 	// CommentStore is the backend-bound comment lifecycle (file rows or scoped
 	// postgres rows); endpoints must never build it from the process cwd.
 	CommentStore() *comments.Store
+	Documents() *store.IO
 	Snapshot() host.UISnapshot
 	ModelReady() bool
 	Events() <-chan host.Event
@@ -311,10 +313,14 @@ func (s *workerServer) handle(w http.ResponseWriter, r *http.Request) {
 	}
 	p := strings.TrimPrefix(r.URL.Path, "/api/")
 	if !h.ModelReady() && actionNeedsModel(r, p) {
-		if recorder, ok := h.(interface{ RecordActionError(string, string) }); ok {
-			recorder.RecordActionError(r.Header.Get("X-Ainovel-Username"), needsModelMessage)
+		message := needsModelMessage
+		if source, ok := h.(interface{ ReadOnlyReason() string }); ok && source.ReadOnlyReason() != "" {
+			message = "Chưa thể dùng mô hình: " + source.ReadOnlyReason() + " — kiểm tra ở Cài đặt › Nhà cung cấp"
 		}
-		writeJSON(w, http.StatusConflict, map[string]any{"error": needsModelMessage, "needsConfig": true})
+		if recorder, ok := h.(interface{ RecordActionError(string, string) }); ok {
+			recorder.RecordActionError(r.Header.Get("X-Ainovel-Username"), message)
+		}
+		writeJSON(w, http.StatusConflict, map[string]any{"error": message, "needsConfig": true})
 		return
 	}
 	s.recordActivityInput(r, p)

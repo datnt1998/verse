@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { cancelOAuth, completeOAuth, getOAuthStatus, logoutOAuth, startOAuth, testConfig } from '../../../api/client'
 import { PASTE_CODE_EMPTY_ERROR, PASTE_CODE_PLACEHOLDER, parseAuthCode } from '../../../lib/authCode'
 import type { ConfigAccount, ConfigTestResult, OAuthStart, ProviderConfig, ProviderPreset } from '../../../api/types'
+import { vi } from '../../../i18n/vi'
 import { invalidate, keys, useAction, useResource } from '../../../data'
 import { Button } from '@noverse/ui'
 import { Card } from '@noverse/ui'
@@ -62,7 +63,7 @@ export function ProvidersSection({ ctx, open }: { ctx: SettingsContext; open?: s
     ctx.setField(`providers.${id}`, {
       ...(preset.type ? { type: preset.type } : { type: 'openai' }),
       ...(preset.baseURL ? { base_url: preset.baseURL } : {}),
-      ...(preset.api ? { api: preset.api } : {}),
+      ...(preset.type === 'openai' && preset.api ? { api: preset.api } : {}),
       models: [],
     })
     setAdded((prev) => [...prev, id])
@@ -117,6 +118,7 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
   const [pasteError, setPasteError] = useState('')
   const [testResult, setTestResult] = useState<ConfigTestResult | null>(null)
   const account = accountOverride ? accountOverride.account : ctx.response?.accounts?.[id] ?? null
+  const validationError = ctx.response?.providerErrors?.[id]
   const models = provider.models ?? []
   const canKey = ctx.canEdit && ctx.scope === 'global'
   const keySet = !own.clear_api_key && (own.api_key_set ?? inherited.api_key_set)
@@ -216,7 +218,7 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
         <span aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 12, background: avatar.bg, color: '#0B0B0D', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>{avatar.ini}</span>
         <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
           <span style={{ fontSize: 14.5, fontWeight: 500 }}>{name}</span>
-          <span style={{ fontSize: 12.5, color: SUB_COLOR[sub.tone] }}>{sub.text}</span>
+          <span style={{ fontSize: 12.5, color: validationError ? 'var(--color-err)' : SUB_COLOR[sub.tone] }}>{validationError ? vi.providerValidation.invalid : sub.text}</span>
         </span>
         {/* “Model · n” mở bảng chọn model; 0 model → nút sáng “Chọn model”. */}
         <CardButton kind={models.length === 0 && !pickerOpen ? 'solid' : 'outline'} expanded={pickerOpen}
@@ -240,6 +242,10 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
           <CardButton kind="text" label={`Đổi khoá ${name}`} onClick={() => setEditingKey(!editingKey)}>Đổi khoá</CardButton>
         )}
       </div>
+      {validationError && <details style={{ paddingLeft: 54, fontSize: 12, color: 'var(--color-err)' }}>
+        <summary>{vi.providerValidation.details}</summary>
+        <p role="alert">{validationError}</p>
+      </details>}
       {actionError instanceof Error && <div role="alert" style={{ paddingLeft: 54, color: 'var(--color-err)', fontSize: 12 }}>{actionError.message}</div>}
       {keyPanel && (
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingLeft: 54 }}>

@@ -8,6 +8,18 @@ import (
 	"github.com/datnt1998/verse/platform/identity"
 )
 
+// libraryStorageMode describes the user-facing location capability, not the
+// independent BlobStore driver. Container roots are provisioned by the image.
+func (g *Gateway) libraryStorageMode() string {
+	if g.libRepo != nil {
+		return "postgres"
+	}
+	if library.ContainerLibraryRoot() != "" && !library.BrowseRootsConfigured() {
+		return "container"
+	}
+	return "file"
+}
+
 // GAP-34 · 09 §10.4: GET /api/library/inspect?path= → library.Inspection.
 // Chỉ quản trị. Không giới hạn trong các Nơi: hộp chọn của máy có thể trả thư mục bất kỳ,
 // và kết quả chỉ gồm loại + số đếm + chuỗi "Nơi › Thư mục" (không lộ đường dẫn tuyệt đối).
@@ -31,6 +43,14 @@ func (g *Gateway) serveLibraryInspect(w http.ResponseWriter, r *http.Request, us
 		jsonError(w, http.StatusBadRequest, "thiếu tham số path")
 		return
 	}
+	if library.LibraryRootsRestricted() {
+		real, err := library.DiscoverPlaces().ConfineCandidate(path)
+		if err != nil {
+			fsError(w, err)
+			return
+		}
+		path = real
+	}
 	writeJSON(w, http.StatusOK, library.Inspect(path, library.DiscoverPlaces()))
 }
 
@@ -48,6 +68,7 @@ func (g *Gateway) rootDisplay() string {
 func (g *Gateway) writeUnconfiguredLibrary(w http.ResponseWriter, _ identity.User) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"configured":  false,
+		"storageMode": "file",
 		"rootDisplay": "",
 		"rootPath":    "",
 		"config":      library.DefaultConfig(),

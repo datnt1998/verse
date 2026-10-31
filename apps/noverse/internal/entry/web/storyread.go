@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,9 +18,11 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/host"
 	"github.com/datnt1998/verse/apps/noverse/internal/host/exp"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/platform/identity"
 )
 
@@ -133,7 +136,7 @@ func (g *Gateway) serveStoryRead(w http.ResponseWriter, r *http.Request, user id
 	case head == "rules":
 		g.serveStoryRules(w, r, st, sr, tail)
 	case head == "style-samples":
-		g.serveStyleSamples(w, r, st, tail)
+		g.serveStyleSamples(w, r, user, st, tail)
 	case head == "frame" && tail == "":
 		g.serveStoryFrame(w, r, st, sr)
 	case head == "retention" && tail == "":
@@ -500,10 +503,8 @@ func libraryExports(st library.Story) (library.AutoExport, string, error) {
 // serveExportDownload 对应 GET /export?format=&from=&to=：直接在内存导出到
 // 临时文件并流回客户端（契约："như cũ, thêm khoảng chương"）。
 func (g *Gateway) serveExportDownload(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
-	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "xuất bản chưa hỗ trợ trên kho dữ liệu Postgres")
-		return
-	}
+	// Hosted cũng xuất qua cùng exp pipeline: chương đọc từ store, tệp ghi vào
+	// thư mục tạm (không phải BlobStore — tải thẳng, không lưu trữ).
 	q := r.URL.Query()
 	format := q.Get("format")
 	if format != "txt" && format != "epub" && format != "narration" {
@@ -704,27 +705,42 @@ func listExportFiles(exportsDir string, singleVolume bool) ([]ExportFileAPI, err
 
 // serveExportsList 对应 GET /exports：目录列表 + 每卷导出矩阵。
 func (g *Gateway) serveExportsList(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
-	// Export artifacts live under <story>/<dirs.exports> — a file-only
-	// capability until the artifact repository exists (phase 07). Hosted
-	// answers 501 instead of listing a directory under the process cwd.
-	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "xuất bản chưa hỗ trợ trên kho dữ liệu Postgres")
-		return
-	}
-	autoExport, exportsDir, err := libraryExports(st)
-	if err != nil {
-		jsonError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
 	ranges, err := sr.VolumeRanges()
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	files, err := listExportFiles(exportsDir, len(ranges) <= 1)
-	if err != nil {
-		jsonError(w, http.StatusInternalServerError, err.Error())
-		return
+	var autoExport library.AutoExport
+	var files []ExportFileAPI
+	dir := ""
+	if st.Dir == "" {
+		// Hosted: tạo tác xuất bản sống trong export_cache (blob + manifest),
+		// không có thư mục xuất bản trên đĩa.
+		if !g.pgMediaOK() {
+			jsonError(w, http.StatusInternalServerError, "kho đối tượng chưa cấu hình")
+			return
+		}
+		if lib, lerr := g.lib(r.Context(), nil); lerr == nil {
+			autoExport = lib.Config().AutoExport
+		}
+		if files, err = g.pgHostedExportFiles(r.Context(), st, len(ranges) <= 1); err != nil {
+			jsonMappedError(w, err)
+			return
+		}
+	} else {
+		var exportsDir string
+		autoExport, exportsDir, err = libraryExports(st)
+		if err != nil {
+			jsonError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if files, err = listExportFiles(exportsDir, len(ranges) <= 1); err != nil {
+			jsonError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if rel, rerr := filepath.Rel(st.Dir, exportsDir); rerr == nil {
+			dir = filepath.ToSlash(rel)
+		}
 	}
 	completed, err := sr.CompletedSet()
 	if err != nil {
@@ -777,10 +793,6 @@ func (g *Gateway) serveExportsList(w http.ResponseWriter, r *http.Request, st li
 		rows = []ExportRowAPI{}
 	}
 
-	dir := ""
-	if rel, err := filepath.Rel(st.Dir, exportsDir); err == nil {
-		dir = filepath.ToSlash(rel)
-	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"dir":        dir,
 		"files":      files,
@@ -816,10 +828,7 @@ func pickExport(cur, next *ExportFileAPI) *ExportFileAPI {
 
 // serveExportCreate 对应 POST /exports：按 pattern 生成导出文件（授权在 serveStories 完成）。
 func (g *Gateway) serveExportCreate(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
-	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "xuất bản chưa hỗ trợ trên kho dữ liệu Postgres")
-		return
-	}
+	hosted := st.Dir == ""
 	var body struct {
 		Format      string `json:"format"`
 		From        int    `json:"from"`
@@ -835,10 +844,25 @@ func (g *Gateway) serveExportCreate(w http.ResponseWriter, r *http.Request, st l
 		jsonError(w, http.StatusBadRequest, "format phải là txt, epub hoặc narration")
 		return
 	}
-	autoExport, exportsDir, err := libraryExports(st)
-	if err != nil {
-		jsonError(w, http.StatusInternalServerError, err.Error())
-		return
+	autoExport := library.DefaultConfig().AutoExport
+	// Hosted không có thư mục xuất bản: chuỗi mẫu {truyen}/{tap}/… resolve
+	// trên một gốc ảo, đường dẫn logic giữ nguyên hình dạng thư mục file.
+	exportsDir := "hosted-export-root"
+	if hosted {
+		if !g.pgMediaOK() {
+			jsonError(w, http.StatusInternalServerError, "kho đối tượng chưa cấu hình")
+			return
+		}
+		if lib, lerr := g.lib(r.Context(), nil); lerr == nil {
+			autoExport = lib.Config().AutoExport
+		}
+	} else {
+		var err error
+		autoExport, exportsDir, err = libraryExports(st)
+		if err != nil {
+			jsonError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 	ranges, err := sr.VolumeRanges()
 	if err != nil {
@@ -918,20 +942,34 @@ func (g *Gateway) serveExportCreate(w http.ResponseWriter, r *http.Request, st l
 		OnExists:    onExists,
 		ReadNumbers: body.ReadNumbers,
 	}
-	res, jobID, err := g.runGatewayExport(r.Context(), st, sr, opts, exportsDir)
+	var res *exp.Result
+	var jobID string
+	if hosted {
+		// Đường dẫn logic của artefact (như file mode: exportsDir-địa phương).
+		rel, relErr := filepath.Rel(exportsDir, outPath)
+		if relErr != nil || strings.HasPrefix(rel, "..") || filepath.IsAbs(rel) {
+			jsonError(w, http.StatusBadRequest, "đường dẫn xuất không hợp lệ")
+			return
+		}
+		res, jobID, err = g.pgHostedExport(r.Context(), st, sr, opts, filepath.ToSlash(rel))
+	} else {
+		res, jobID, err = g.runGatewayExport(r.Context(), st, sr, opts, exportsDir)
+	}
 	if err != nil {
 		writeCommandError(w, err)
 		return
 	}
-	rel, relErr := filepath.Rel(exportsDir, res.Path)
-	if relErr != nil || strings.HasPrefix(rel, "..") {
-		rel = res.Path
+	path := res.Path
+	if !hosted {
+		if rel, relErr := filepath.Rel(exportsDir, res.Path); relErr == nil && !strings.HasPrefix(rel, "..") {
+			path = filepath.ToSlash(rel)
+		}
 	}
 	if res.Skipped == nil {
 		res.Skipped = []int{}
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"path":     filepath.ToSlash(rel),
+		"path":     path,
 		"bytes":    res.Bytes,
 		"chapters": res.Chapters,
 		"skipped":  res.Skipped,
@@ -942,7 +980,7 @@ func (g *Gateway) serveExportCreate(w http.ResponseWriter, r *http.Request, st l
 // serveExportFile 对应 GET /exports/file?path=：下载导出目录内文件（拦截 ..）。
 func (g *Gateway) serveExportFile(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
 	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "xuất bản chưa hỗ trợ trên kho dữ liệu Postgres")
+		g.serveExportFileHosted(w, r, st, sr)
 		return
 	}
 	_, exportsDir, err := libraryExports(st)
@@ -971,6 +1009,43 @@ func (g *Gateway) serveExportFile(w http.ResponseWriter, r *http.Request, st lib
 	// ServeContent tự lo Range/206 + sniff Content-Type: iOS Safari bắt buộc
 	// Range khi stream audio từ trình phát trong app (audioExportFileURL).
 	http.ServeContent(w, r, info.Name(), info.ModTime(), file)
+}
+
+// serveExportFileHosted is the hosted twin of /exports/file: `path` is either
+// the produced blob's object key (files[].path / job results) or the logical
+// registry path (export-file/<rel>). Same 404 contract as the file handler.
+func (g *Gateway) serveExportFileHosted(w http.ResponseWriter, r *http.Request, st library.Story, sr *host.StoryReader) {
+	if !g.pgMediaOK() {
+		jsonError(w, http.StatusInternalServerError, "kho đối tượng chưa cấu hình")
+		return
+	}
+	blob, m, err := g.pgHostedExportResolve(r.Context(), st, r.URL.Query().Get("path"))
+	if err != nil {
+		if errors.Is(err, errs.ErrStorageNotFound) || errors.Is(err, postgres.ErrJobNotFound) {
+			jsonError(w, http.StatusNotFound, "không tìm thấy tệp")
+			return
+		}
+		jsonMappedError(w, err)
+		return
+	}
+	name := g.downloadHostedName(m, blob)
+	if base := filepath.Base(name); base != "" && base != "." {
+		name = base
+	}
+	if ct := mime.TypeByExtension(filepath.Ext(name)); ct != "" {
+		blob.ContentType = ct
+	}
+	g.serveHostedBlob(w, r, blob, "private, max-age=60", name)
+}
+
+// downloadHostedName mirrors downloadFileName: story title · volume when the
+// produced name has no " · " title prefix, else the produced name itself.
+func (g *Gateway) downloadHostedName(m pgExportFileManifest, blob postgres.Blob) string {
+	name := m.Name
+	if name == "" {
+		name = fileNameOf(blob.ObjectKey, nil)
+	}
+	return name
 }
 
 // safeExportPath 把相对路径解析到导出目录内：拒绝绝对路径与任何 .. 段，

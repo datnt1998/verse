@@ -41,7 +41,7 @@ export function paneKeyOf(parsed: Parsed): string | null {
     case 'settings': {
       if (route.section === 'notify') return null
       const page = search.get('page') ?? ''
-      return route.section === 'rules' ? `more:rules:${page}` : `more:mobile:${page}`
+      return route.section === 'rules' ? `more:rules:${page}` : route.section === 'storage' ? 'more:storage' : `more:mobile:${page}`
     }
     // Route chỉ có ở bản máy tính (Chất lượng, Não dự án, Truyện mới, Não hệ thống, 404…):
     // vẫn thuộc tab Thêm; `phoneRedirect` thay URL ngay sau khung hình đầu.
@@ -60,7 +60,7 @@ export function phoneRedirect(parsed: Parsed): string | null {
   switch (route.name) {
     case 'settings': {
       const section = route.section
-      return section === 'mobile' || section === 'rules' || section === 'notify' ? null : PHONE_MORE
+      return section === 'mobile' || section === 'rules' || section === 'notify' || section === 'storage' ? null : PHONE_MORE
     }
     // Chất lượng truyện có nghĩa nhất khi quay về màn Viết của chính truyện đó.
     case 'quality': return paths.workspace(route.project, route.story)
@@ -91,10 +91,10 @@ export function keepPane(panes: Map<string, PaneSnapshot>, id: string, parsed: P
 }
 
 /** Trang đầu của pane “Thêm” theo route lúc mở (giữ nguyên hành vi cũ của MMore). */
-export function moreStart(view: Parsed): { initialPage?: 'home' | 'projects' | 'model' | 'devices' | 'password' | 'guide' | 'storyset' | 'rules'; initialCommand?: string } {
+export function moreStart(view: Parsed): { initialPage?: 'home' | 'projects' | 'model' | 'devices' | 'password' | 'guide' | 'storyset' | 'rules' | 'storage'; initialCommand?: string } {
   const { route, search } = view
   const page = search.get('page')
-  const initialPage = route.name === 'help' ? 'guide' : route.name === 'settings' && route.section === 'rules' ? 'rules' : page === 'projects' || page === 'devices' || page === 'model' || page === 'password' || page === 'guide' || page === 'storyset' || page === 'rules' ? page : route.name === 'project' ? 'projects' : undefined
+  const initialPage = route.name === 'help' ? 'guide' : route.name === 'settings' && route.section === 'storage' ? 'storage' : route.name === 'settings' && route.section === 'rules' ? 'rules' : page === 'projects' || page === 'devices' || page === 'model' || page === 'password' || page === 'guide' || page === 'storyset' || page === 'rules' ? page : route.name === 'project' ? 'projects' : undefined
   return { initialPage, initialCommand: route.name === 'help' ? route.cmd ?? undefined : search.get('cmd') ?? undefined }
 }
 

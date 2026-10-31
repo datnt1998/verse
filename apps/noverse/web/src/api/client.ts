@@ -25,12 +25,14 @@ import type { AddressTermInput, AddressTerms, Brain, RelationInput } from './typ
 import type { Frame, FrameInput, Retention } from './types'
 import type { MetricsScope, StoryMetrics } from './types'
 import type { AdminAuditItem, ProjectPermissions, ProjectRole } from './types'
+import { engineErrorLabel } from '../lib/labels'
 
 export class ApiError extends Error {
   retryAfter?: number
   /** thân JSON lỗi gốc — vd 409 `/export` mang `result.exists` (GAP-27) */
   payload?: unknown
   constructor(public status: number, message: string, retryAfter?: number, payload?: unknown) {
+    message = engineErrorLabel(message) || message
     // 09 §5: lỗi lấy nguyên từ server, viết hoa chữ đầu khi hiển thị (mọi nơi: toast, dòng lỗi).
     super(message.charAt(0).toLocaleUpperCase('vi') + message.slice(1))
     this.name = 'ApiError'
@@ -64,14 +66,13 @@ export const accessDeniedUser = (error: unknown): User | null => {
 
 const OFFLINE_MSG = 'Không kết nối được máy chủ. Vui lòng thử lại.'
 
-
-async function request<T>(path: string, options?: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: object; version?: string; signal?: AbortSignal }, retried = false): Promise<T> {
+async function request<T>(path: string, options?: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: object; version?: string; signal?: AbortSignal; accept?: string; decode?: (response: Response) => Promise<T> }, retried = false): Promise<T> {
   const method = options?.method ?? (options?.body === undefined ? 'GET' : 'POST')
   let response: Response
   try {
     response = await fetch(path, {
       credentials: 'same-origin', method, signal: options?.signal,
-      headers: { ...(options?.body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(options?.version ? { 'If-Match': options.version } : {}) },
+      headers: { ...(options?.body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(options?.version ? { 'If-Match': options.version } : {}), ...(options?.accept ? { Accept: options.accept } : {}) },
       ...(options?.body === undefined ? {} : { body: JSON.stringify(options.body) }),
     })
   } catch (error) { if (options?.signal?.aborted) throw error; throw new ApiError(0, OFFLINE_MSG) }
@@ -90,6 +91,7 @@ async function request<T>(path: string, options?: { method?: 'GET' | 'POST' | 'P
   }
   // 204 = xong, không có thân (vd DELETE …/review/items/{id}/keep).
   if (response.status === 204) return undefined as T
+  if (options?.decode) return options.decode(response)
   return response.json() as Promise<T>
 }
 
@@ -282,8 +284,17 @@ async function download(path: string, fallbackName: string, onProgress?: (done: 
       blob = new Blob(chunks, { type: response.headers.get('content-type') ?? undefined })
     }
   } else blob = await response.blob()
-  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(response.headers.get('content-disposition') || '')?.[1]
-  const file = encoded ? decodeURIComponent(encoded) : fallbackName
+  const disposition = response.headers.get('content-disposition') || ''
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1]
+  // A malformed filename* (e.g. a truncated UTF-8 sequence) must not abort the
+  // download: fall back to the ASCII filename, then to the caller's name.
+  let file = fallbackName
+  if (encoded) {
+    try { file = decodeURIComponent(encoded) } catch { /* fall through */ }
+  }
+  if (file === fallbackName) {
+    file = /filename="([^"]*)"/i.exec(disposition)?.[1] || fallbackName
+  }
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = file
@@ -812,3 +823,17 @@ export const getViolations = (pack: string, signal?: AbortSignal) =>
 import type { Quality } from './types'
 export const getQuality = (p: string, s: string, signal?: AbortSignal) =>
   request<Quality>(`${storyPath(p, s)}/quality`, { signal })
+
+// Gói AN · Quản trị kho tệp (secrets never returned by GET).
+import type { StorageCandidate, StorageSave, StorageStep, StorageTest, StorageView } from './storage-settings'
+import { readStorageTest } from './storage-stream'
+export const getStorage = (signal?: AbortSignal) => request<StorageView>('/api/system/storage', { signal })
+export const testStorage = (candidate: StorageCandidate | { current: true }, signal?: AbortSignal, onStep?: (step: StorageStep) => void) =>
+  request<StorageTest>('/api/system/storage/test', { body: candidate, signal, accept: 'application/x-ndjson', decode: (response) => {
+    if (!response.body || !response.headers.get('Content-Type')?.includes('application/x-ndjson')) throw new Error('Máy chủ chưa trả được tiến độ kiểm tra. Vui lòng kiểm tra lại.')
+    return readStorageTest(response.body, onStep, signal)
+  } })
+export const putStorage = (candidate: StorageCandidate) =>
+  request<StorageSave>('/api/system/storage', { method: 'PUT', body: candidate })
+export const controlStorageMigration = (action: 'start' | 'pause' | 'resume' | 'cancel', version: number) =>
+  request<StorageView>(`/api/system/storage/migration${action === 'start' ? '' : `/${action}`}`, { body: { version } })

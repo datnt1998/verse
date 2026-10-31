@@ -212,8 +212,8 @@ func NewModel(providerKey, model string, pc ProviderConfig, cache map[string]llm
 // newCodexModel 创建 ChatGPT 订阅（Codex 后端）模型：凭证取自 app 的 auth.json
 // （由 `<app> login openai-codex` 写入，auth.Options.StoreDir 决定目录），请求时按需刷新。
 func newCodexModel(model string, pc ProviderConfig, extra map[string]any, streamIdle time.Duration) (llmtypes.ChatModel, error) {
-	if pc.API != "" {
-		return nil, fmt.Errorf("openai-codex luôn dùng giao thức Responses, không hỗ trợ cấu hình api")
+	if pc.API != "" && pc.API != "responses" {
+		return nil, fmt.Errorf("openai-codex luôn dùng giao thức Responses, api chỉ có thể là \"responses\" hoặc để trống")
 	}
 	manager, err := auth.DefaultManager()
 	if err != nil {

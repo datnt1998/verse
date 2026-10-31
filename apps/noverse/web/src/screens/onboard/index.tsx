@@ -378,6 +378,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
 
   const saveLibrary = async (version = libraryBaseline.current?.version) => {
     if (!library) throw new Error('Chưa đọc được cấu hình thư viện')
+    if (library.storageMode === 'postgres' || library.storageMode === 'container') return
     const result = await putLibrary({
       ...(libraryBaseline.current?.config ?? library.config),
       autoExport: { ...(libraryBaseline.current?.config.autoExport ?? library.config.autoExport), onVolume: autoExport, formats },
@@ -599,6 +600,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
     projectName: projectReady ? serverProject?.name || serverProject?.id || '' : projName,
     projectSlug: projectReady ? serverProject?.id ?? '' : projSlug,
     adopt: !projectReady && projMode === 'adopt', projectExists: projectReady, candidate,
+    storageMode: library?.storageMode,
     libraryDisplay: libChoice.display,
     inviteUsername: inviteUsername || invited?.username || '',
     invitePassword: invited?.password ?? invitePassword,
@@ -769,7 +771,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
             flex: '0 0 340px', padding: '18px 16px', borderLeft: '1px solid rgba(255,255,255,0.06)',
             display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto',
           }}>
-            <WritePreview preview={preview} showTech={isAdmin} />
+            <WritePreview preview={preview} showTech={isAdmin && !!preview.file} />
           </aside>
         )}
       </div>
@@ -781,7 +783,8 @@ export function OnboardScreen({ step }: { step: string | null }) {
     if (key === 'password') return pwChanged ? 'đã đổi' : user?.mustChangePassword ? 'nên đổi mật khẩu tạm' : 'đã đặt mật khẩu riêng'
     if (key === 'provider') return configuredProvider ? providerLabel : 'chưa có'
     if (key === 'model') return `${model || '—'}${shared ? ' · dùng chung' : ' · riêng từng trợ lý'}`
-    if (key === 'library') return `${libChoice.display || '—'} · tự xuất bản ${autoExport ? 'bật' : 'tắt'}`
+    if (key === 'library') return library?.storageMode && library.storageMode !== 'file'
+      ? libChoice.display : `${libChoice.display || '—'} · tự xuất bản ${autoExport ? 'bật' : 'tắt'}`
     if (key === 'project') return serverProject ? serverProject.name || serverProject.id : 'chưa tạo'
     if (key === 'mobile') return isAdmin ? (invited ? 'QR · mời 1 người' : 'QR') : 'QR'
     return ''

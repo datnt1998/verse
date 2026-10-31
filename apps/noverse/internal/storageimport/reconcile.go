@@ -1098,11 +1098,12 @@ WHERE i.source_id=$1 AND i.target_kind='project'`, uuidArg(sourceID))
 	return scopes, nil
 }
 
-// verifyBlobKeys re-parses every registry key and compares it with the row
-// (environment, project, content digest). Staged rows carry the zero digest
-// until MarkBlobReady, so the digest check applies to ready rows only.
+// verifyBlobKeys re-parses registry keys and compares tenant/environment
+// ownership. Published ready rows also have verified content digests. Deleting
+// rows, including NULL-project orphan claims with sentinel metadata, are
+// transient maintenance state and must never be reconciled as tenant content.
 func verifyBlobKeys(ctx context.Context, q querier, keys blobkey.Keys, report *Report) error {
-	rows, err := q.Query(ctx, `SELECT object_key, project_id::text, sha256, state FROM blobs`)
+	rows, err := q.Query(ctx, `SELECT object_key, project_id::text, sha256, state FROM blobs WHERE state <> 'deleting'`)
 	if err != nil {
 		return fmt.Errorf("đọc khoá blob: %w", err)
 	}

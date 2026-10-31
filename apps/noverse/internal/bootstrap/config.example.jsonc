@@ -12,6 +12,8 @@
   // Danh mục cấu hình nhà cung cấp AI (Provider).
   // Các provider được hỗ trợ sẵn: openai, anthropic, gemini, openrouter, opencode-go, deepseek, qwen, glm, grok, mimo, ollama, bedrock, openai-codex, xai-oauth, anthropic-oauth.
   // Đối với proxy tùy chỉnh, bạn cần chỉ định thêm trường "type" (openai/anthropic/gemini/openai-codex/xai-oauth/anthropic-oauth).
+  // Khi mở truyện, chỉ nhà cung cấp mặc định, theo vai và dự phòng được kiểm để bật viết.
+  // Mục chưa dùng bị sai vẫn hiện cảnh báo tại Tuỳ chỉnh › Kết nối AI; lưu cấu hình sẽ từ chối mục sai.
   "providers": {
     // 1. Ollama Cục bộ (Chạy offline trên máy tính, hoàn toàn miễn phí)
     "ollama": {
@@ -60,6 +62,8 @@
     // Đăng nhập trước: `ainovel-cli login` (SSH/headless: `ainovel-cli login --device`).
     // Credential lưu ở ~/.ainovel/auth.json và tự làm mới. Xem model khả dụng: `ainovel-cli login --status`.
     // Backend Codex không nhận temperature/top_p/max tokens: các tham số này bị tự động bỏ qua.
+    // Codex luôn dùng Responses (kể cả type: "openai-codex" với tên tuỳ chỉnh).
+    // "api": "responses" từ cấu hình cũ vẫn hợp lệ; web bỏ trường thừa này khi lưu. Giá trị khác bị từ chối.
     "openai-codex": {
       "models": [
         { "name": "gpt-5.6-terra", "context_window": 272000 }

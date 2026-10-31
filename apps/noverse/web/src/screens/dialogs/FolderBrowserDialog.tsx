@@ -36,7 +36,7 @@ export function placeOf(places: FsPlace[], path: string): FsPlace | null {
 
 /** Đường dẫn gợi ý “Tài liệu › Truyện Noverse”; rơi về Thư mục nhà nếu máy không có Tài liệu. */
 export function suggestedPath(places: FsPlace[] | null): { parent: FsPlace; path: string } | null {
-  const parent = places?.find((place) => place.id === 'documents') ?? places?.find((place) => place.id === 'home') ?? null
+  const parent = places?.find((place) => place.id === 'documents') ?? places?.find((place) => place.id === 'home') ?? places?.[0] ?? null
   return parent ? { parent, path: joinPath(parent.path, SUGGESTED_FOLDER) } : null
 }
 

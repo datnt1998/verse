@@ -46,3 +46,9 @@ VALUES ($1, $2, $3)
 ON CONFLICT (project_id, user_id) DO UPDATE SET role = EXCLUDED.role,
     removed_at = NULL, updated_at = clock_timestamp(),
     version = project_members.version + 1;
+
+
+-- name: GetReadyBlobProject :one
+SELECT p.slug FROM blobs b
+JOIN projects p ON p.id = b.project_id AND p.deleted_at IS NULL
+WHERE b.object_key = $1 AND b.state = 'ready';

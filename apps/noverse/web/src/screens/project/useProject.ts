@@ -23,9 +23,10 @@ export function useProjectDetail(project: string | null) {
 export function useValidation(project: string | null) {
   const { library } = useLibrary()
   const candidate = !!project && !!library?.candidates.includes(project)
+  const supported = !!library && library.storageMode !== 'postgres'
   const key = keys.project(project ?? '', 'meta', 'validation')
-  const resource = useResource(key, () => validateProject(project!), { enabled: !!project && !candidate })
-  return { result: resource.data ?? null, error: resource.error, loading: resource.initialLoading, refresh: resource.refresh, setResult: (result: ValidateResult | null) => { if (result) cache.setData(key, result) } }
+  const resource = useResource(key, () => validateProject(project!), { enabled: supported && !!project && !candidate })
+  return { supported, result: resource.data ?? null, error: resource.error, loading: supported && resource.initialLoading, refresh: resource.refresh, setResult: (result: ValidateResult | null) => { if (result) cache.setData(key, result) } }
 }
 export function useSseUnauthorized() {
   return useCallback(() => {

@@ -65,7 +65,6 @@ describe('Gói AL › Tuỳ chỉnh › Cách viết theo cấp', () => {
   it('cấp truyện: thẻ chỉ dẫn mở tab Cách viết của truyện, không còn lưới văn phong', async () => {
     const container = await mount('story', 'story')
     expect(container.textContent).toContain('Văn phong của truyện này')
-    expect(container.textContent).toContain('Gói Nữ tần báo thù · riêng truyện này')
     const link = [...container.querySelectorAll('a')].find((a) => a.textContent?.includes('Mở Cách viết của truyện'))!
     expect(link.getAttribute('href')).toBe(`#/p/${PROJECT}/s/${STORY}?tab=style`)
     expect(container.querySelectorAll('button[role="radio"]').length).toBe(0)

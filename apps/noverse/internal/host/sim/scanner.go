@@ -21,6 +21,27 @@ type scannedSource struct {
 	content string
 }
 
+func scanDocuments(documents []Source) []scannedSource {
+	out := make([]scannedSource, 0, len(documents))
+	for _, doc := range documents {
+		if !isSupportedSource(doc.Name) {
+			continue
+		}
+		sum := sha256.Sum256(doc.Data)
+		sha := hex.EncodeToString(sum[:])
+		out = append(out, scannedSource{
+			SimulationSource: domain.SimulationSource{
+				RelativePath: doc.Name, SHA256: sha,
+				Fingerprint: domain.SimulationSourceFingerprint(doc.Name, sha),
+				SizeBytes:   int64(len(doc.Data)), ModTime: doc.UpdatedAt.Format(time.RFC3339),
+			},
+			content: utils.DecodeText(doc.Data),
+		})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].RelativePath < out[j].RelativePath })
+	return out
+}
+
 func scanSources(root string) ([]scannedSource, error) {
 	root = strings.TrimSpace(root)
 	if root == "" {

@@ -3,7 +3,6 @@ package web
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -173,35 +172,52 @@ type reviewFileRef struct {
 	Scope   store.ReviewScope
 }
 
-// files liệt kê các bài thẩm duyệt đã lưu của truyện: chương cũ trước, trong cùng
-// chương thì bài chương trước bài tổng hợp — thứ tự mọi màn đọc dùng. Chỉ đọc tên
-// tệp trong reviews/, không mở tệp nào và không nhìn tới reviews/rounds/.
+// files liệt kê các vị trí bài thẩm duyệt: chương cũ trước, bài chương trước bài
+// tổng hợp. Kho tệp chỉ đọc tên trong reviews/; kho không có tệp lấy mốc chương
+// từ backend rồi để load bỏ qua scope chưa có. Không đọc vòng lưu trữ ở đây.
 func (r *reviewReader) files() ([]reviewFileRef, error) {
-	entries, err := os.ReadDir(filepath.Join(r.sr.EngineDir(), "reviews"))
-	if errors.Is(err, os.ErrNotExist) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	refs := make([]reviewFileRef, 0, len(entries))
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
+	var refs []reviewFileRef
+	if r.sr.EngineDir() == "" {
+		// Reviews are typed rows in hosted storage; Docs.ListDir("reviews")
+		// deliberately has no file projection. Chapter markers enumerate the
+		// live review rows, while World resolves each scope and its rounds.
+		chapters, err := r.sr.Store().ReviewChapters()
+		if err != nil {
+			return nil, err
 		}
-		m := reviewFileName.FindStringSubmatch(entry.Name())
-		if m == nil {
-			continue
+		refs = make([]reviewFileRef, 0, 2*len(chapters))
+		for _, chapter := range chapters {
+			refs = append(refs,
+				reviewFileRef{Chapter: chapter, Scope: store.ReviewScopeChapter},
+				reviewFileRef{Chapter: chapter, Scope: store.ReviewScopeGlobal})
 		}
-		chapter, err := strconv.Atoi(m[1])
-		if err != nil || chapter < 1 {
-			continue
+	} else {
+		entries, err := r.sr.Store().Docs().ListDir("reviews")
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, nil
 		}
-		scope := store.ReviewScopeChapter
-		if m[2] != "" {
-			scope = store.ReviewScopeGlobal
+		if err != nil {
+			return nil, err
 		}
-		refs = append(refs, reviewFileRef{Chapter: chapter, Scope: scope})
+		refs = make([]reviewFileRef, 0, len(entries))
+		for _, entry := range entries {
+			if entry.IsDir {
+				continue
+			}
+			m := reviewFileName.FindStringSubmatch(entry.Name)
+			if m == nil {
+				continue
+			}
+			chapter, err := strconv.Atoi(m[1])
+			if err != nil || chapter < 1 {
+				continue
+			}
+			scope := store.ReviewScopeChapter
+			if m[2] != "" {
+				scope = store.ReviewScopeGlobal
+			}
+			refs = append(refs, reviewFileRef{Chapter: chapter, Scope: scope})
+		}
 	}
 	sort.SliceStable(refs, func(i, j int) bool {
 		if refs[i].Chapter != refs[j].Chapter {

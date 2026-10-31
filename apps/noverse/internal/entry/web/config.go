@@ -104,6 +104,7 @@ type configTarget struct {
 	path    string // 目标 config.json 绝对路径
 	story   library.Story
 	chainTo string // 传给 LoadConfigChain 的目录（""=只取全局层）
+	hosted  bool   // repository document; never build a path from an empty Dir
 }
 
 func configFileIn(dir string) string {
@@ -146,17 +147,16 @@ func (g *Gateway) resolveConfigScope(scope, project, story string) (configTarget
 	if !ok {
 		return t, library.ErrNotFound
 	}
-	if pdir == "" {
-		// Hosted backend: project/story config files are a file capability —
-		// explicit capability error (501 via scopeError), never a path built
-		// on "" inside the server cwd.
-		return t, fmt.Errorf("cấu hình dự án/truyện không đổi được trên backend hosted: %w", errs.ErrStorageUnsupported)
-	}
-	if st, err := os.Stat(filepath.Join(pdir, library.ProjectFileName)); err != nil || st.IsDir() {
-		return t, library.ErrNotFound
+	t.hosted = pdir == ""
+	if !t.hosted {
+		if st, err := os.Stat(filepath.Join(pdir, library.ProjectFileName)); err != nil || st.IsDir() {
+			return t, library.ErrNotFound
+		}
 	}
 	if scope == "project" {
-		t.dir, t.path, t.chainTo = pdir, configFileIn(pdir), pdir
+		if !t.hosted {
+			t.dir, t.path, t.chainTo = pdir, configFileIn(pdir), pdir
+		}
 		return t, nil
 	}
 	if story == "" {
@@ -167,7 +167,9 @@ func (g *Gateway) resolveConfigScope(scope, project, story string) (configTarget
 		return t, library.ErrNotFound
 	}
 	t.story = st
-	t.dir, t.path, t.chainTo = st.Dir, configFileIn(st.Dir), st.Dir
+	if !t.hosted {
+		t.dir, t.path, t.chainTo = st.Dir, configFileIn(st.Dir), st.Dir
+	}
 	return t, nil
 }
 
@@ -328,7 +330,7 @@ func configSources(levels []bootstrap.ConfigLevel) map[string]string {
 		if !lvl.Exists {
 			continue
 		}
-		raw, err := bootstrap.ReadConfigJSON(lvl.Path)
+		raw, err := bootstrap.ConfigLevelJSON(lvl)
 		if err != nil || raw == nil {
 			continue
 		}
@@ -346,7 +348,7 @@ func (g *Gateway) chainDocs(levels []bootstrap.ConfigLevel, keepScopes map[strin
 		}
 		doc := configDoc{Scope: lvl.Scope, Path: g.configDisplayPath(lvl.Path, lvl.Scope, admin), Exists: lvl.Exists}
 		if lvl.Exists {
-			raw, err := bootstrap.ReadConfigJSON(lvl.Path)
+			raw, err := bootstrap.ConfigLevelJSON(lvl)
 			if err != nil {
 				return nil, err
 			}
@@ -361,10 +363,21 @@ func (g *Gateway) chainDocs(levels []bootstrap.ConfigLevel, keepScopes map[strin
 
 // buildConfigResponse 组装 ConfigResponse：target 文档、合并后的 effective、链、键来源，
 // 以及 G7 的已连接 OAuth 账户（仅 admin 可见）。
-func (g *Gateway) buildConfigResponse(t configTarget, admin bool) (map[string]any, error) {
+func (g *Gateway) buildConfigResponse(ctx context.Context, t configTarget, user identity.User) (map[string]any, error) {
+	admin := isAdmin(user)
 	var levels []bootstrap.ConfigLevel
 	var effective bootstrap.Config
-	if t.chainTo == "" {
+	if t.hosted {
+		docs, err := g.hostedConfigDocuments()
+		if err != nil {
+			return nil, err
+		}
+		var loadErr error
+		levels, effective, loadErr = bootstrap.LoadHostedConfigChain(ctx, docs, configActor(user), t.project, t.story.Story)
+		if loadErr != nil {
+			return nil, loadErr
+		}
+	} else if t.chainTo == "" {
 		path := bootstrap.DefaultConfigPath()
 		lvl := bootstrap.ConfigLevel{Scope: "global", Path: path}
 		if raw, err := bootstrap.ReadConfigJSON(path); err != nil {
@@ -409,12 +422,19 @@ func (g *Gateway) buildConfigResponse(t configTarget, admin bool) (map[string]an
 	if err != nil {
 		return nil, err
 	}
+	providerErrors := map[string]string{}
+	for name, pc := range effective.Providers {
+		if err := bootstrap.ValidateProvider(name, pc); err != nil {
+			providerErrors[name] = err.Error()
+		}
+	}
 	return map[string]any{
-		"target":    target,
-		"effective": sanitizeConfigMap(effRaw, admin),
-		"chain":     docs,
-		"sources":   configSources(levels),
-		"accounts":  g.configAccounts(admin),
+		"target":         target,
+		"effective":      sanitizeConfigMap(effRaw, admin),
+		"chain":          docs,
+		"sources":        configSources(levels),
+		"accounts":       g.configAccounts(admin),
+		"providerErrors": providerErrors,
 	}, nil
 }
 
@@ -441,7 +461,7 @@ func (g *Gateway) getConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 404, "không tìm thấy")
 		return
 	}
-	resp, err := g.buildConfigResponse(t, user.Role == identity.RoleAdmin)
+	resp, err := g.buildConfigResponse(r.Context(), t, user)
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -514,19 +534,16 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 	// 旧文件损坏时拒绝静默覆盖（与 SaveProviderConfig 同一约定）。
 	existingKeys := map[string]string{}
 	existingTTSKey := ""
-	var saved bootstrap.Config
-	hasSaved := false
-	if _, statErr := os.Stat(t.path); statErr == nil {
-		old, lerr := bootstrap.LoadConfigFile(t.path)
-		if lerr != nil {
-			jsonError(w, 400, fmt.Sprintf("tệp cấu hình hiện tại hỏng, không ghi đè: %v", lerr))
-			return
-		}
-		saved, hasSaved = old, true
-		for name, pc := range old.Providers {
+	saved, hasSaved, loadErr := g.loadTargetConfig(r.Context(), t, user)
+	if loadErr != nil {
+		scopeError(w, loadErr)
+		return
+	}
+	if hasSaved {
+		for name, pc := range saved.Providers {
 			existingKeys[name] = pc.APIKey
 		}
-		existingTTSKey = old.TTS.APIKey
+		existingTTSKey = saved.TTS.APIKey
 	}
 	// tts.api_key 与 providers.api_key 同语义：GET 只回 *_set/*_hint，写回时忽略这些派生键；
 	// api_key rỗng ở cấp toàn cục = giữ khoá cũ。
@@ -587,7 +604,23 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 400, "Hiện chỉ hỗ trợ viết tiếng Việt")
 		return
 	}
-	for _, pc := range cfg.Providers {
+	validationConfig, err := g.providerValidationConfig(r.Context(), t, user, cfg)
+	if err != nil {
+		scopeError(w, err)
+		return
+	}
+	for name, pc := range cfg.Providers {
+		resolved := validationConfig.Providers[name]
+		if err := bootstrap.ValidateProvider(name, resolved); err != nil {
+			jsonError(w, 400, err.Error())
+			return
+		}
+		// Codex has a fixed Responses protocol. Accept old clients' redundant
+		// value, but never write it back as a configurable endpoint.
+		if resolved.OAuthID(name) == codex.ProviderName {
+			pc.API = ""
+			cfg.Providers[name] = pc
+		}
 		for _, model := range pc.Models {
 			if model.ContextWindow != 0 && (model.ContextWindow < 8000 || model.ContextWindow > 2000000) {
 				jsonError(w, 400, "Ngữ cảnh phải từ 8.000 đến 2.000.000")
@@ -617,7 +650,20 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 			return
 		}
 	}
-	if err := bootstrap.SaveConfig(t.path, cfg); err != nil {
+	if err := g.saveTargetConfig(r.Context(), t, user, cfg, strings.Trim(r.Header.Get("If-Match"), "\"")); err != nil {
+		if errors.Is(err, errs.ErrStorageConflict) {
+			res := g.resourceFor(r, user, nil)
+			version := g.resourceVersion(res)
+			current, loadErr := g.buildConfigResponse(r.Context(), t, user)
+			if loadErr != nil {
+				scopeError(w, loadErr)
+				return
+			}
+			current["version"] = version
+			writeVersionToken(w, version)
+			writeJSON(w, http.StatusConflict, map[string]any{"error": "Đã có thay đổi từ nơi khác", "conflict": true, "version": version, "current": current})
+			return
+		}
 		jsonError(w, 500, err.Error())
 		return
 	}
@@ -626,7 +672,7 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 502, "Đã lưu thiết lập nhưng chưa cập nhật được ngữ cảnh của trợ lý đang chạy")
 		return
 	}
-	resp, err := g.buildConfigResponse(t, user.Role == identity.RoleAdmin)
+	resp, err := g.buildConfigResponse(r.Context(), t, user)
 	if err != nil {
 		scopeError(w, err)
 		return
@@ -680,17 +726,13 @@ func (g *Gateway) servePresets(w http.ResponseWriter, r *http.Request) {
 	}
 	out := []preset{}
 	for _, p := range bootstrap.ProviderPresets() {
-		api := ""
-		if p.Name == codex.ProviderName {
-			api = "responses"
-		}
 		typ := p.Name
 		if p.Name == "custom" {
 			typ = ""
 		}
 		out = append(out, preset{
 			ID: p.Name, Label: p.Label, Type: typ, BaseURL: p.BaseURL,
-			KeyRequired: !p.APIKeyOptional, OAuth: p.OAuth, DeviceOnly: auth.DeviceOnly(p.Name), PasteCode: auth.PasteCode(p.Name), API: api,
+			KeyRequired: !p.APIKeyOptional, OAuth: p.OAuth, DeviceOnly: auth.DeviceOnly(p.Name), PasteCode: auth.PasteCode(p.Name),
 			DefaultModel: defaultModelFor(p.Name, typ),
 		})
 	}
@@ -776,6 +818,10 @@ func (g *Gateway) testConfig(w http.ResponseWriter, r *http.Request, user identi
 	pc := cfg.Providers[req.Provider]
 	if presetNeedsAPIKey(req.Provider) && strings.TrimSpace(pc.APIKey) == "" {
 		fail(start, missingAPIKeyMessage(req.Provider), "")
+		return
+	}
+	if _, err := pc.ProviderType(req.Provider); err != nil {
+		fail(start, "Cấu hình chưa hợp lệ: model mặc định: phân tích loại provider thất bại: "+err.Error(), "")
 		return
 	}
 	if err := bootstrap.ValidateProvider(req.Provider, pc); err != nil {
@@ -1599,6 +1645,15 @@ func (g *Gateway) getRules(w http.ResponseWriter, r *http.Request, user identity
 		jsonError(w, 404, "không tìm thấy")
 		return
 	}
+	if t.hosted {
+		dirs, err := g.hostedRulesChain(r.Context(), user, t)
+		if err != nil {
+			scopeError(w, err)
+			return
+		}
+		writeJSON(w, 200, map[string]any{"chain": dirs})
+		return
+	}
 	dirs, err := g.rulesScopeDirs(t, isAdmin(user))
 	if err != nil {
 		jsonError(w, 500, err.Error())
@@ -1621,6 +1676,10 @@ func (g *Gateway) getRuleFile(w http.ResponseWriter, r *http.Request, user ident
 	name := q.Get("name")
 	if !validRuleName(name) {
 		jsonError(w, 400, "tên tệp không hợp lệ")
+		return
+	}
+	if t.hosted {
+		g.hostedRuleFile(w, r, user, t, name, "", false)
 		return
 	}
 	data, err := os.ReadFile(filepath.Join(t.rulesTargetDir(), name))
@@ -1657,6 +1716,10 @@ func (g *Gateway) putRuleFile(w http.ResponseWriter, r *http.Request, user ident
 	}
 	if !validRuleName(req.Name) {
 		jsonError(w, 400, "tên tệp không hợp lệ")
+		return
+	}
+	if t.hosted {
+		g.hostedRuleFile(w, r, user, t, req.Name, req.Text, false)
 		return
 	}
 	dir := t.rulesTargetDir()
@@ -1703,6 +1766,10 @@ func (g *Gateway) deleteRuleFile(w http.ResponseWriter, r *http.Request, user id
 		jsonError(w, 400, "tên tệp không hợp lệ")
 		return
 	}
+	if t.hosted {
+		g.hostedRuleFile(w, r, user, t, req.Name, "", true)
+		return
+	}
 	if err := os.Remove(filepath.Join(t.rulesTargetDir(), req.Name)); err != nil {
 		if os.IsNotExist(err) {
 			jsonError(w, 404, "không tìm thấy")
@@ -1741,7 +1808,7 @@ func (g *Gateway) serveSystem(w http.ResponseWriter, r *http.Request, user ident
 		"outputDir":            "./output/novel",
 		"defaultContextWindow": bootstrap.DefaultContextWindow,
 		// Only administrators connected directly from loopback may open server folders.
-		"canReveal": isAdmin(user) && isDirectLoopback(r),
+		"canReveal": g.libRepo == nil && isAdmin(user) && isDirectLoopback(r),
 		// Điện thoại có vào được không (listener mạng nội bộ đang mở); đổi bằng PUT /api/system/network.
 		"lan": g.lanEnabled(),
 	})

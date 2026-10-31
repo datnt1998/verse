@@ -130,7 +130,7 @@ func TestAuditRetentionIsNotAReadSideEffect(t *testing.T) {
 		t.Fatal("audit read returned no rows")
 	}
 
-	purged, err := accounts.PurgeAuditBefore(ctx, time.Now().UTC().Add(-365*24*time.Hour))
+	purged, err := accounts.PurgeAuditBefore(ctx, time.Now().UTC().Add(-365*24*time.Hour), false)
 	if err != nil {
 		t.Fatalf("maintenance purge: %v", err)
 	}

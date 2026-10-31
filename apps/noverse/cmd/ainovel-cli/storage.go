@@ -102,8 +102,12 @@ DSN không bao giờ được in ra.
 		return runStorageGC(args[1:])
 	case "sso-import":
 		return runStorageSSOImport(args[1:])
+	case "settings":
+		return runStorageSettings(args[1:])
+	case "migration":
+		return runStorageMigration(args[1:])
 	default:
-		return fmt.Errorf("lệnh con không hợp lệ %q (migrate|copy|import|sso-import|reconcile|export-files|purge-audit|gc)", args[0])
+		return fmt.Errorf("lệnh con không hợp lệ %q (migrate|copy|import|sso-import|reconcile|export-files|purge-audit|gc|settings|migration)", args[0])
 	}
 }
 
@@ -248,6 +252,7 @@ func runStoragePurgeAudit(args []string) error {
 	flags := flag.NewFlagSet("storage purge-audit", flag.ContinueOnError)
 	flags.SetOutput(os.Stderr)
 	days := flags.Int("days", 365, "xoá audit cũ hơn N ngày")
+	dryRun := flags.Bool("dry-run", false, "chỉ đếm audit hết hạn, không ghi hoặc xoá")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -271,12 +276,24 @@ func runStoragePurgeAudit(args []string) error {
 		return fmt.Errorf("mở pool bảo trì: %w", err)
 	}
 	defer pool.Close()
+	if _, err := bootstrap.ResolveBlobConfig(ctx, pool); err != nil {
+		return fmt.Errorf("đọc cấu hình kho tệp bảo trì: %w", err)
+	}
 	cutoff := time.Now().UTC().AddDate(0, 0, -*days)
-	n, err := identitypg.NewAccounts(pool.Pool(), identitypg.Options{
+	retention := identitypg.NewAccounts(pool.Pool(), identitypg.Options{
 		ProjectAccess: true, ValidProjectID: library.ValidProjectID,
-	}).PurgeAuditBefore(ctx, cutoff)
+	})
+	count, err := retention.PurgeAuditBefore(ctx, cutoff, true)
 	if err != nil {
-		return fmt.Errorf("xoá audit cũ: %w", err)
+		return fmt.Errorf("đếm audit cũ: %w", err)
+	}
+	fmt.Printf("Có %d mục audit trước %s.\n", count, cutoff.Format(time.RFC3339))
+	if *dryRun {
+		return nil
+	}
+	n, err := retention.PurgeAuditBefore(ctx, cutoff, false)
+	if err != nil {
+		return fmt.Errorf("đã xoá %d mục audit; xoá tiếp thất bại: %w", n, err)
 	}
 	fmt.Printf("Đã xoá %d mục audit trước %s.\n", n, cutoff.Format(time.RFC3339))
 	return nil
@@ -301,12 +318,17 @@ func openImportTargets(ctx context.Context) (*postgres.Pool, blobstore.BlobStore
 	if err != nil {
 		return nil, nil, "", err
 	}
-	blobCfg, err := bootstrap.BlobConfigFromEnv()
+	blobCfg, err := bootstrap.ResolveBlobConfig(ctx, pool)
 	if err != nil {
 		pool.Close()
 		return nil, nil, "", err
 	}
-	blobs, err := bootstrap.OpenBlobStore(blobCfg)
+	keys, err := activeKeys()
+	if err != nil {
+		pool.Close()
+		return nil, nil, "", err
+	}
+	blobs, err := bootstrap.OpenMaintenanceBlobs(ctx, pool, keys)
 	if err != nil {
 		pool.Close()
 		return nil, nil, "", fmt.Errorf("mở BlobStore: %w", err)

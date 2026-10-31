@@ -8,6 +8,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 // writeSum fans writes out to the sink and a running SHA-256. Digest() is the
@@ -81,10 +82,41 @@ func safeFilename(name string) string {
 	if name == "" {
 		name = "download"
 	}
-	if len(name) > 128 {
-		name = name[:128]
+	return truncateFilename(name, 128)
+}
+
+// truncateFilename caps name at limit bytes on a UTF-8 boundary so filename*
+// is never malformed. The final extension is preserved whenever it fits
+// beside at least one stem rune.
+func truncateFilename(name string, limit int) string {
+	if len(name) <= limit {
+		return name
 	}
-	return name
+	stem, ext := name, ""
+	if i := strings.LastIndexByte(name, '.'); i > 0 {
+		if e := name[i:]; utf8.ValidString(e) && len(e) <= limit-1 {
+			stem, ext = name[:i], e
+		}
+	}
+	stem = cutUTF8(stem, limit-len(ext))
+	if stem == "" {
+		// No room for even one stem rune: the extension is not worth keeping.
+		stem, ext = cutUTF8("download", limit), ""
+	}
+	return stem + ext
+}
+
+// cutUTF8 returns the longest prefix of s that fits in limit bytes without
+// splitting a rune.
+func cutUTF8(s string, limit int) string {
+	if len(s) <= limit {
+		return s
+	}
+	i := limit
+	for i > 0 && !utf8.ValidString(s[:i]) {
+		i--
+	}
+	return s[:i]
 }
 
 // ContentDisposition builds an attachment/inline header value that is safe for

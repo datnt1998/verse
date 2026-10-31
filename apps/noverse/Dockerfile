@@ -67,19 +67,22 @@ FROM alpine:3.22
 RUN apk add --no-cache ca-certificates tzdata ffmpeg \
     && addgroup -S -g 10001 noverse \
     && adduser -S -u 10001 -G noverse -h /home/noverse noverse \
-    && mkdir -p /var/lib/noverse/blobs /var/cache/noverse /home/noverse/.ainovel \
+    && mkdir -p /var/lib/noverse/blobs /var/lib/noverse/library /var/cache/noverse /home/noverse/.ainovel \
     && chown -R noverse:noverse /var/lib/noverse /var/cache/noverse /home/noverse
 
 COPY --from=builder /out/ainovel-cli /usr/local/bin/ainovel-cli
 
 ENV HOME=/home/noverse \
     HTTP_ADDR=0.0.0.0:8080 \
-    TMPDIR=/var/cache/noverse
+    TMPDIR=/var/cache/noverse \
+    NOVERSE_LIBRARY_ROOT=/var/lib/noverse/library \
+    NOVERSE_CONTAINER=1
 
 WORKDIR /home/noverse
 USER 10001:10001
 
 EXPOSE 8080
+VOLUME ["/var/lib/noverse/library"]
 
 # wget is BusyBox's, installed with Alpine — no curl to add, no probe that can
 # silently be absent. Liveness only; readiness stays behind /readyz.

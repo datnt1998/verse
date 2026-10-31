@@ -22,6 +22,13 @@ export const errText = (error: unknown) => {
   return error instanceof Error ? error.message : t.audio.data.khongKetNoiDuoc
 }
 
+function playbackSource(source: string): string {
+  const url = new URL(source, window.location.href)
+  if (url.origin !== window.location.origin || !url.pathname.startsWith('/api/')) return source
+  url.searchParams.set('inline', '1')
+  return url.href
+}
+
 /** WAV im lặng 2 ms — phát ngay trong cử chỉ để iOS mở khoá thẻ audio. */
 const SILENT_WAV = 'data:audio/wav;base64,UklGRlYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgATElTVBoAAABJTkZPSVNGVA0AAABMYXZmNjMuMS4xMDIAAGRhdGEQAAAAgICAgICAgICAgICAgICAgA=='
 
@@ -441,6 +448,24 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
   const latest = useRef(options)
   const rateRef = useRef(rate)
   const frame = useRef<number | null>(null)
+  const loadedAt = useRef(0)
+  const retrying = useRef(false)
+  const resumeAt = useRef<number | null>(null)
+  const wantsPlay = useRef(false)
+  const refreshSource = (audio: HTMLAudioElement, at = audio.currentTime) => {
+    const source = loaded.current
+    if (!source) return false
+    const url = new URL(source, window.location.href)
+    // Always return through same-origin authorization, never reuse a signed URL.
+    if (url.origin !== window.location.origin || !url.pathname.startsWith('/api/')) return false
+    url.searchParams.set('inline', '1')
+    url.searchParams.set('_media', String(Date.now()))
+    resumeAt.current = at
+    loadedAt.current = Date.now()
+    audio.src = url.href
+    audio.load()
+    return true
+  }
   const stopClock = () => {
     if (frame.current !== null) cancelAnimationFrame(frame.current)
     frame.current = null
@@ -453,7 +478,14 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
     audio.setAttribute('playsinline', '')
     audio.playbackRate = rateRef.current
     const onTime = () => setTime(audio.currentTime)
-    const onMeta = () => setDuration(Number.isFinite(audio.duration) ? audio.duration : 0)
+    const onMeta = () => {
+      setDuration(Number.isFinite(audio.duration) ? audio.duration : 0)
+      if (resumeAt.current !== null) {
+        audio.currentTime = resumeAt.current
+        resumeAt.current = null
+        if (wantsPlay.current) void audio.play().catch((cause) => setError(playError(cause)))
+      }
+    }
     // rAF chỉ lấy mẫu đồng hồ media, không cộng thời gian thực: đứng tiếng,
     // tải chậm và đổi tốc độ đều phải giữ nguyên vị trí của tiếng đang phát.
     const sampleClock = () => {
@@ -466,8 +498,18 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
       sampleClock()
     }
     const onPause = () => { stopClock(); onTime(); setPlaying(false) }
-    const onEnd = () => { onPause(); latest.current.onEnded?.() }
-    const onError = () => { onPause(); setError(mediaErrorText(audio)) }
+    const onEnd = () => { wantsPlay.current = false; onPause(); latest.current.onEnded?.() }
+    const onError = () => {
+      // HTMLMediaElement hides HTTP status (including an expired S3 403).
+      // One fresh authenticated request recovers; a second failure is visible.
+      if (!retrying.current && audio.error?.code !== 1) {
+        retrying.current = true
+        if (refreshSource(audio)) return
+      }
+      onPause()
+      setError(mediaErrorText(audio))
+    }
+    audio.addEventListener('canplay', () => { retrying.current = false; setError('') })
     audio.addEventListener('timeupdate', onTime)
     audio.addEventListener('loadedmetadata', onMeta)
     audio.addEventListener('durationchange', onMeta)
@@ -478,11 +520,14 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
     element.current = audio
     return audio
   }
-  const applySrc = (audio: HTMLAudioElement, next: string) => {
+  const applySrc = (audio: HTMLAudioElement, next: string, keepIntent = false) => {
     if (loaded.current === next) return
-    stopClock()
+    if (!keepIntent) wantsPlay.current = false
     loaded.current = next
-    audio.src = next
+    loadedAt.current = Date.now()
+    retrying.current = false
+    resumeAt.current = null
+    audio.src = playbackSource(next)
     audio.load()
   }
   // play() chạy đồng bộ trong handler chạm: KHÔNG await trước audio.play(), src
@@ -492,7 +537,9 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
     const audio = element.current ?? make()
     const url = next ?? loaded.current
     if (!url) throw new Error('Chương này chưa có tệp audio để nghe.')
-    applySrc(audio, url)
+    wantsPlay.current = true
+    applySrc(audio, url, true)
+    if (!next && Date.now() - loadedAt.current > 4 * 60_000) refreshSource(audio)
     try { await audio.play(); setError('') }
     catch (cause) { setError(playError(cause)); throw cause }
   }, [])
@@ -516,7 +563,7 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
     setError('')
     const audio = element.current
     if (!audio) return
-    if (src) applySrc(audio, src)
+    if (src) applySrc(audio, src, !!latest.current.autoplay)
     else if (loaded.current !== null) { stopClock(); loaded.current = null; audio.removeAttribute('src'); audio.load() }
     if (src && latest.current.autoplay && audio.paused) void play().catch(() => {})
   }, [src, play])
@@ -528,19 +575,23 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
       const text = playError(cause)
       if (text) toast(text, 'err', { label: 'Thử lại', onClick: () => { void play().catch((error) => { const retry = playError(error); if (retry) toast.err(retry) }) } })
     })
-    else audio.pause()
+    else { wantsPlay.current = false; audio.pause() }
   }, [play])
-  const pause = useCallback(() => element.current?.pause(), [])
+  const pause = useCallback(() => { wantsPlay.current = false; element.current?.pause() }, [])
   const seek = useCallback((seconds: number) => {
     const audio = element.current
     if (!audio) return
-    audio.currentTime = Math.max(0, Math.min(audio.duration || seconds, seconds))
+    const target = Math.max(0, Math.min(audio.duration || seconds, seconds))
+    if (Date.now() - loadedAt.current > 4 * 60_000 && refreshSource(audio, target)) return
+    audio.currentTime = target
     setTime(audio.currentTime)
   }, [])
   const skip = useCallback((delta: number) => {
     const audio = element.current
     if (!audio) return
-    audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + delta))
+    const target = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + delta))
+    if (Date.now() - loadedAt.current > 4 * 60_000 && refreshSource(audio, target)) return
+    audio.currentTime = target
     setTime(audio.currentTime)
   }, [])
   return { playing, time, duration, rate, setRate, play, error, toggle, pause, seek, skip }
@@ -584,7 +635,7 @@ export function usePreviewAudio(): PreviewAudio {
     try {
       const url = await resolve()
       if (url.startsWith('blob:')) urls.current.push(url)
-      element.src = url
+      element.src = playbackSource(url)
       await element.play()
       setPlayingId(id)
     } catch (cause) {

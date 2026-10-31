@@ -91,7 +91,8 @@ const providerEntries = (config: JsonObject): [string, JsonObject][] => {
 export function configForSave(config: Config): Config {
   const next = clone(config) as JsonObject
   const entries = providerEntries(next)
-  for (const [, provider] of entries) {
+  for (const [name, provider] of entries) {
+    if ((provider.type || name) !== 'openai') delete provider.api
     delete provider.api_key_set
     delete provider.api_key_hint
     if (provider.api_key === '') delete provider.api_key

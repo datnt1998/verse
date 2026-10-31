@@ -99,6 +99,9 @@ export type LibraryResponse = {
   version?: string
   /** GAP-34 — false khi cài mới chưa chọn nơi lưu truyện (không có thư viện nào). */
   configured: boolean
+  /** Native folder picker, hosted database, or an image-managed data volume. */
+  storageMode?: 'file' | 'postgres' | 'container'
+  storageWarning?: string
   /** “Nơi › … › Thư mục” đã dịch sẵn; "" khi chưa chọn. Chỉ chuỗi này được hiện trên UI. */
   rootDisplay: string
   /** Đường dẫn tuyệt đối — chỉ quản trị nhận được, chỉ dùng cho tooltip / sao chép. */
@@ -228,6 +231,7 @@ export type OutlineItem = { chapter: number; title: string; coreEvent: string }
 export type AskOption = { label: string; reply?: string; isDefault?: boolean }
 export type PendingAsk = { question: string; options?: AskOption[]; chapter?: number }
 export type Snapshot = {
+  readOnlyReason?: string
   provider: string; bookTitle: string; modelName: string; modelContextWindow: number
   thinkingLevel: string; style: string
   runtimeState: 'idle' | 'running' | 'pausing' | 'paused' | 'completed' | string
@@ -450,6 +454,8 @@ export type ConfigResponse = {
   chain: ConfigDoc[]; sources: Record<string, ConfigScope>
   /** G7 — tài khoản OAuth đã kết nối theo provider (đọc từ auth.json); chỉ admin nhận dữ liệu thật. */
   accounts?: Record<string, ConfigAccount>
+  /** Cảnh báo cấu hình theo nhà cung cấp; không chặn các nhà cung cấp khác. */
+  providerErrors?: Record<string, string>
 }
 export type ProviderPreset = {
   id: string; label: string; type: string; baseURL: string
@@ -1202,6 +1208,7 @@ export type LibraryInspect = {
   place: string; display: string; name: string
   /** Tên dự án đầu tiên khi kind = found. */
   projectName?: string
+  storageWarning?: string
 }
 
 // ─── Quy tắc viết (GAP-32, 11-api-contract.md · “Quy tắc của truyện”) ────

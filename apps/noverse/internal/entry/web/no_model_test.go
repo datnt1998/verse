@@ -127,7 +127,7 @@ func TestNoModelActionsAreGuardedButLocalReadsWork(t *testing.T) {
 			t.Fatalf("%s must return 409: %d %s", action.path, response.Code, response.Body.String())
 		}
 		body := decodeLiveBody(t, response)
-		if body["needsConfig"] != true || body["error"] != needsModelMessage {
+		if body["needsConfig"] != true || !strings.Contains(body["error"].(string), "Chưa thể dùng mô hình") || !strings.Contains(body["error"].(string), "thiếu provider") {
 			t.Fatalf("%s returned wrong configuration error: %+v", action.path, body)
 		}
 	}
@@ -154,7 +154,7 @@ func TestNoModelRejectedActionAppearsInActivity(t *testing.T) {
 	}
 	select {
 	case event := <-h.Events():
-		if event.Category != "ERROR" || !event.Failed || event.Summary != needsModelMessage || event.FinishedAt.IsZero() {
+		if event.Category != "ERROR" || !event.Failed || !strings.Contains(event.Summary, "Chưa thể dùng mô hình") || !strings.Contains(event.Summary, "thiếu provider") || event.FinishedAt.IsZero() {
 			t.Fatalf("rejected action missing completed error event: %+v", event)
 		}
 	default:

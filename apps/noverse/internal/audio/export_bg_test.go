@@ -188,23 +188,23 @@ func seedExportableChapters(t *testing.T, svc *Service, volume int, chapters []i
 	}
 }
 
-// awaitExport 轮询持久化导出请求到终态。
+// awaitExport joins the worker started synchronously by StartExport/kick.
+// Export duration includes child-process startup and durable filesystem writes,
+// neither of which has a 15-second bound on a loaded machine. Joining also waits
+// for the final persistence/event publication before a test starts another job
+// or restores the fake ffmpeg globals. The go test deadline still bounds hangs.
 func awaitExport(t *testing.T, svc *Service, volume int) ExportRequest {
 	t.Helper()
-	deadline := time.Now().Add(15 * time.Second)
-	for time.Now().Before(deadline) {
-		for _, r := range svc.ExportRequests() {
-			if r.Volume != volume {
-				continue
+	svc.runWG.Wait()
+	for _, r := range svc.ExportRequests() {
+		if r.Volume == volume {
+			if r.State != JobDone && r.State != JobError && r.State != JobCanceled {
+				t.Fatalf("export worker stopped without a terminal result: %+v", r)
 			}
-			if r.State == JobDone || r.State == JobError || r.State == JobCanceled {
-				return r
-			}
+			return r
 		}
-		time.Sleep(15 * time.Millisecond)
 	}
-	requests := svc.ExportRequests()
-	t.Fatalf("export never finished: %+v", requests)
+	t.Fatalf("export worker stopped without a request for volume %d", volume)
 	return ExportRequest{}
 }
 

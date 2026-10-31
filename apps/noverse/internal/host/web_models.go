@@ -56,7 +56,13 @@ func (h *Host) ModelCatalog() []CatalogProvider {
 // RefreshModelContexts reloads context metadata without changing active model
 // selections or interrupting an in-flight request.
 func (h *Host) RefreshModelContexts() error {
-	cfg, err := bootstrap.LoadConfigAt(h.Dir())
+	var cfg bootstrap.Config
+	var err error
+	if h.configLoader != nil {
+		cfg, err = h.configLoader()
+	} else {
+		cfg, err = bootstrap.LoadConfigAt(h.Dir())
+	}
 	if err != nil {
 		return err
 	}

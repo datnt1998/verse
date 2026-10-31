@@ -89,14 +89,11 @@ async function mount() {
 }
 
 describe('Gói AL › Cách viết mặc định của dự án', () => {
-  it('liệt kê truyện chọn riêng (chip tên văn phong) và truyện theo dự án', async () => {
+  it('chỉ liệt kê truyện chọn văn phong khác', async () => {
     const container = await mount()
-    expect(container.textContent).toContain('Cách viết mặc định của dự án')
     const rows = [...container.querySelectorAll<HTMLElement>('.st-smp')]
     const own = rows.find((row) => row.textContent?.includes(OWN.title))!
-    const inherit = rows.find((row) => row.textContent?.includes(INHERIT.title))!
-    expect(own.textContent).toContain('Gói Nữ tần báo thù')
-    expect(inherit.textContent).toContain('Theo dự án')
+    expect(rows.some((row) => row.textContent?.includes(INHERIT.title))).toBe(false)
     expect(own.getAttribute('href')).toBe(`#/p/${PROJECT}/s/${OWN.story}?tab=style`)
   })
 

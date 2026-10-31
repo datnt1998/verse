@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -24,8 +25,8 @@ import (
 // (id = slug thư mục, story id = "NN-slug", idea id = tên tài liệu) để URL và
 // UI giữ nguyên. Không có thư mục: Dir/ProjectDir/Root luôn rỗng.
 //
-// File-only capabilities (browse ứng viên, draft cộng tác, assets, validate/
-// fix) trả errs.ErrStorageUnsupported thay vì giả dữ liệu rỗng.
+// File-only capabilities (browse candidates and validate/fix) return
+// ErrStorageUnsupported; co-create drafts are hidden, fenced story rows.
 type LibraryRepository struct {
 	pool *pgxpool.Pool
 }
@@ -75,35 +76,48 @@ func libConstraintErr(err error) error {
 // write=true requires owner|collab. The role check lives in the same
 // transaction as the mutation, so handlers cannot check-then-use.
 func (r *LibraryRepository) memberProject(ctx context.Context, q *gen.Queries, actor *Actor, slug string, write bool) (gen.Project, error) {
+	p, role, err := r.memberProjectRole(ctx, q, actor, slug)
+	if err != nil {
+		return gen.Project{}, err
+	}
+	if write && role != "owner" && role != "collab" {
+		return gen.Project{}, fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageForbidden)
+	}
+	return p, nil
+}
+
+// memberProjectRole is memberProject without the write gate: it returns the
+// actor's effective role ("owner"|"collab"|"view") so repositories whose write
+// floor is stricter than collab (scoped config: owner for project, collab for
+// story) can apply their own rule inside the same transaction. admin and nil
+// internal actors report "owner".
+func (r *LibraryRepository) memberProjectRole(ctx context.Context, q *gen.Queries, actor *Actor, slug string) (gen.Project, string, error) {
 	var project gen.Project
 	p, err := q.GetProjectBySlug(ctx, slug)
 	if err != nil {
 		if noRows(err) {
-			return project, fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
+			return project, "", fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
 		}
-		return project, sanitizeErr(err)
+		return project, "", sanitizeErr(err)
 	}
 	if actor == nil || actor.isAdmin() {
-		return p, nil
+		return p, "owner", nil
 	}
 	user, err := q.GetUserByUsername(ctx, actor.Username)
 	if err != nil {
 		if noRows(err) {
-			return project, fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
+			return project, "", fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
 		}
-		return project, sanitizeErr(err)
+		return project, "", sanitizeErr(err)
 	}
 	role, err := q.GetMemberRole(ctx, gen.GetMemberRoleParams{ProjectID: p.ID, UserID: user.ID})
 	if err != nil {
 		if noRows(err) {
-			return project, fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
+			return project, "", fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageNotFound)
 		}
-		return project, sanitizeErr(err)
+		return project, "", sanitizeErr(err)
 	}
-	if write && role != "owner" && role != "collab" {
-		return project, fmt.Errorf("dự án %s: %w", slug, errs.ErrStorageForbidden)
-	}
-	return p, nil
+	return p, role, nil
 }
 
 // ── list & resolve ───────────────────────────────────────────────────────────
@@ -300,31 +314,6 @@ func (r *LibraryRepository) ProjectFile(ctx context.Context, actor *library.Acto
 		return nil, err
 	}
 	return out, nil
-}
-
-// UpdateProject writes the project.json fields with owner|collab write scope.
-func (r *LibraryRepository) UpdateProject(ctx context.Context, actor *library.Actor, project string, f library.ProjectFile) error {
-	return r.tx(ctx, func(tx pgx.Tx) error {
-		q := r.q(tx)
-		p, err := r.memberProject(ctx, q, libActs(actor), project, true)
-		if err != nil {
-			return err
-		}
-		n, err := q.UpdateProjectFile(ctx, gen.UpdateProjectFileParams{
-			ID:           p.ID,
-			Name:         f.Name,
-			Description:  f.Description,
-			Notes:        f.Notes,
-			UniverseName: f.UniverseName,
-		})
-		if err != nil {
-			return sanitizeErr(err)
-		}
-		if n == 0 {
-			return fmt.Errorf("dự án %s: %w", project, errs.ErrStorageNotFound)
-		}
-		return nil
-	})
 }
 
 // ── story CRUD ───────────────────────────────────────────────────────────────
@@ -571,75 +560,6 @@ func (r *LibraryRepository) LoadStoryFile(ctx context.Context, actor *library.Ac
 	return out, nil
 }
 
-// WriteStoryFile writes the story.json fields under the row lock. Idea is the
-// idea document's logical name: "" clears the link (the file backend also
-// rewrites the whole story.json), a name that does not exist is
-// ErrIdeaNotFound. The synopsis column keeps its value (story.json has no such
-// field, so the request body cannot carry one).
-func (r *LibraryRepository) WriteStoryFile(ctx context.Context, actor *library.Actor, st library.Story, f library.StoryFile) error {
-	return r.tx(ctx, func(tx pgx.Tx) error {
-		q := r.q(tx)
-		p, err := r.memberProject(ctx, q, libActs(actor), st.Project, true)
-		if err != nil {
-			return err
-		}
-		row, err := q.GetStoryBySlug(ctx, gen.GetStoryBySlugParams{ProjectID: p.ID, Slug: st.Story})
-		if err != nil {
-			if noRows(err) {
-				return fmt.Errorf("truyện %s/%s: %w", st.Project, st.Story, errs.ErrStorageNotFound)
-			}
-			return sanitizeErr(err)
-		}
-		locked, err := q.LockStoryByID(ctx, gen.LockStoryByIDParams{ProjectID: p.ID, ID: row.ID})
-		if err != nil {
-			if noRows(err) {
-				return fmt.Errorf("truyện %s/%s: %w", st.Project, st.Story, errs.ErrStorageNotFound)
-			}
-			return sanitizeErr(err)
-		}
-		ideaDoc := pgtype.UUID{}
-		if name := strings.TrimSpace(f.Idea); name != "" {
-			doc, err := q.GetProjectDocumentByName(ctx, gen.GetProjectDocumentByNameParams{ProjectID: p.ID, Kind: "idea", LogicalName: name})
-			if err != nil {
-				if noRows(err) {
-					return fmt.Errorf("ý tưởng %s: %w", name, library.ErrIdeaNotFound)
-				}
-				return sanitizeErr(err)
-			}
-			ideaDoc = doc.ID
-		}
-		status := f.Status
-		if status == "" {
-			status = "idea"
-		}
-		tags := f.Tags
-		if tags == nil {
-			tags = []string{}
-		}
-		_, err = q.UpdateStoryCAS(ctx, gen.UpdateStoryCASParams{
-			ProjectID:      p.ID,
-			ID:             locked.ID,
-			Slug:           st.Story,
-			Title:          f.Title,
-			ShortTitle:     f.ShortTitle,
-			Synopsis:       locked.Synopsis,
-			TitleRenamed:   f.TitleRenamed,
-			Status:         status,
-			Tags:           tags,
-			PublishedAt:    pgTimestamptzPtr(f.PublishedAt),
-			IdeaDocumentID: ideaDoc,
-			Version:        locked.Version,
-		})
-		if err != nil {
-			if noRows(err) {
-				return fmt.Errorf("ghi truyện %s: %w", st.Story, errs.ErrStorageConflict)
-			}
-			return libConstraintErr(err)
-		}
-		return nil
-	})
-}
-
 // ── ideas (project_documents kind=idea) ──────────────────────────────────────
 
 func validIdeaID(id string) bool {
@@ -833,10 +753,42 @@ func (r *LibraryRepository) CreateIdea(ctx context.Context, actor *library.Actor
 	return out, nil
 }
 
-// ── file-only capabilities ───────────────────────────────────────────────────
-
-func (r *LibraryRepository) Assets(context.Context, *library.Actor, string) ([]library.Asset, error) {
-	return nil, errUnsupported()
+// Assets lists the project's asset documents (kind='asset'): the hosted twin
+// of <project>/<dirs.assets>. Logical names keep the file-mode relative path
+// ("bia/<name>", "nhac/<name>") and the payload records the stored size, so
+// the listing answers the same Asset shape without touching the BlobStore.
+func (r *LibraryRepository) Assets(ctx context.Context, actor *library.Actor, project string) ([]library.Asset, error) {
+	out := []library.Asset{}
+	err := r.tx(ctx, func(tx pgx.Tx) error {
+		q := r.q(tx)
+		p, err := r.memberProject(ctx, q, libActs(actor), project, false)
+		if err != nil {
+			return err
+		}
+		rows, err := q.ListProjectDocumentsByKind(ctx, gen.ListProjectDocumentsByKindParams{
+			ProjectID: p.ID,
+			Kind:      "asset",
+		})
+		if err != nil {
+			return sanitizeErr(err)
+		}
+		for _, row := range rows {
+			mt := row.UpdatedAt.Time
+			a := library.Asset{Path: row.LogicalName, Kind: "file", UpdatedAt: &mt}
+			var meta struct {
+				Size int64 `json:"size"`
+			}
+			if err := json.Unmarshal(row.Payload, &meta); err == nil {
+				a.Size = meta.Size
+			}
+			out = append(out, a)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (r *LibraryRepository) Validate(context.Context, *library.Actor, string) (*library.Validation, error) {
@@ -845,24 +797,4 @@ func (r *LibraryRepository) Validate(context.Context, *library.Actor, string) (*
 
 func (r *LibraryRepository) Fix(context.Context, *library.Actor, string, []string) (*library.Validation, error) {
 	return nil, errUnsupported()
-}
-
-func (r *LibraryRepository) DraftDir(context.Context, *library.Actor, string, string) (string, error) {
-	return "", errUnsupported()
-}
-
-func (r *LibraryRepository) CreateDraft(context.Context, *library.Actor, string, string) (string, error) {
-	return "", errUnsupported()
-}
-
-func (r *LibraryRepository) RemoveDraft(context.Context, *library.Actor, string, string) error {
-	return errUnsupported()
-}
-
-func (r *LibraryRepository) CommitDraft(context.Context, *library.Actor, string, string, string) (library.Story, bool, error) {
-	return library.Story{}, false, errUnsupported()
-}
-
-func (r *LibraryRepository) CleanupDrafts(context.Context, *library.Actor, time.Duration) (int, error) {
-	return 0, errUnsupported()
 }

@@ -82,6 +82,3 @@ WHERE ($1::text = '' OR al.target_kind = $1)
   AND ($3::bigint = 0 OR al.sequence < $3)
 ORDER BY al.sequence DESC
 LIMIT $4;
-
--- name: PurgeAuditBefore :execrows
-DELETE FROM audit_logs WHERE occurred_at < $1;

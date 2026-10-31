@@ -1,6 +1,6 @@
 // M4 › Tuỳ chỉnh truyện (MMore.dc.html · storyset): văn phong, cách chạy, ngân sách theo 3 cấp.
 import { useEffect, useState } from 'react'
-import { getConfig, getConfigPresets, getSnapshot, putConfig, setReview } from '../../../api/client'
+import { getConfig, getSnapshot, putConfig, setReview } from '../../../api/client'
 import { useLibrary } from '../../../api/library'
 import { useSession } from '../../../api/session'
 import { cache } from '@noverse/ui/data'
@@ -9,13 +9,12 @@ import { useAction } from '../../../data/useAction'
 import { useResource } from '../../../data/useResource'
 import { projectLabel, storyLabel } from '../../../shell/labels'
 import { Icon } from '@noverse/ui'
-import { Switch, Radio } from '@noverse/ui'
+import { Switch } from '@noverse/ui'
 import { configForSave } from '../../settings/lib/config'
-import { findPack, packCards, packInfoMeta, packRuleSummary } from '../../settings/lib/packs'
 import type { OpenTarget, ScopeTarget } from '../../settings/scope/model'
 import { canEditTarget, MobileScopeRow, MobileScopeSheet } from './ScopeSheet'
 import { ResourceNotice } from './parts'
-import { budgetPercent, stepBudget, storySetChangedKeys, storySetConfig, storySetValues, styleDesc, styleLabel, usd, type StorySetDraft } from './storySetLogic'
+import { budgetPercent, stepBudget, storySetChangedKeys, storySetConfig, storySetValues, usd, type StorySetDraft } from './storySetLogic'
 
 /** Thanh “N thay đổi · Huỷ · Áp dụng” nổi trên thanh tab. */
 export function ApplyBar({ text, onCancel, onApply, busy }: { text: string; onCancel: () => void; onApply: () => void; busy?: boolean }) {
@@ -41,7 +40,6 @@ export function MobileStorySet({ project, story, nextChapter, online, toast, onM
   const [draft, setDraft] = useState<StorySetDraft>({})
   const key = keys.config(target.scope, target.project, target.story)
   const config = useResource(key, () => getConfig(target.scope, target.project || undefined, target.story || undefined), { enabled: target.scope === 'global' || !!target.project && (target.scope === 'project' || !!target.story) })
-  const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal))
   const snapshot = useResource(keys.story(target.project, target.story, 'snapshot'), ({ signal }) => getSnapshot(target.project, target.story, signal), { enabled: target.scope === 'story' && !!target.project && !!target.story })
   useEffect(() => { setDraft({}) }, [target.scope, target.project, target.story])
 
@@ -62,11 +60,6 @@ export function MobileStorySet({ project, story, nextChapter, online, toast, onM
   const effective = config.data?.effective ?? {}
   const values = storySetValues(effective, draft)
   const changed = storySetChangedKeys(effective, draft)
-  const styles = presets.data?.styles ?? []
-  const styleOptions = values.style && !styles.includes(values.style) ? [values.style, ...styles] : styles
-  // D2 — gói thể loại đứng trước kiểu viết, cùng ghi vào `style`.
-  const packOptions = packCards(presets.data?.packs)
-  const activePack = findPack(presets.data?.packs, values.style)
   const spent = snapshot.data?.totalCostUSD ?? 0
 
   const review = useAction(async (on: boolean) => {
@@ -118,85 +111,12 @@ export function MobileStorySet({ project, story, nextChapter, online, toast, onM
     <ResourceNotice resource={config} label="tuỳ chỉnh truyện" />
     {config.data && <>
       {!canEdit && <p className="mm-note">Chỉ người có quyền {scope === 'global' ? 'quản trị' : 'viết'} mới đổi được.</p>}
-      {packOptions.length > 0 && <>
-        <div className="mm-heading">Gói thể loại · có bộ luật, chấm từng chương</div>
-        <div className="mm-group" role="radiogroup" aria-label="Gói thể loại">
-          {packOptions.map((option) => {
-            const on = values.style === option.id
-            return <button key={option.id} type="button" role="radio" aria-checked={on} className="mm-row" disabled={!canEdit}
-              onClick={() => setDraft((old) => ({ ...old, style: option.id }))}
-              style={{ textAlign: 'left', background: 'transparent', border: 'none', width: '100%' }}>
-              <span className="mm-copy">
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15 }}>
-                  {option.label}
-                  <span style={{
-                    height: 20, padding: '0 7px', borderRadius: 6, fontSize: 11.5, display: 'inline-flex',
-                    alignItems: 'center', background: 'var(--tint-ok)', color: 'var(--color-ok)',
-                  }}>Có chấm</span>
-                </span>
-                <span className="mm-sub">{option.meta}</span>
-              </span>
-              {on && <Icon name="tick-circle" size={20} style={{ color: 'var(--color-accent)' }} />}
-            </button>
-          })}
-        </div>
-        {activePack && (() => {
-          // MMore.dc.html › khối dưới thẻ gói: “Trợ lý đọc đủ Master + Bộ A · 65 mục bắt sửa, 61 mục cảnh báo”.
-          // Tên tầng luật và hai con số đều từ `layers` của máy chủ (Câu 10) — không số phiên bản, không số viết tay.
-          const rules = packRuleSummary(activePack)
-          // Dòng 2 của artboard chèn độ dài chương vào giữa: “8 chương · 1.400–1.600 tiếng · thoại 40–55%” (Câu 1).
-          const meta = packInfoMeta(activePack)
-          return (
-            <div style={{
-              margin: '8px 16px 0', padding: '12px 14px', borderRadius: 14, background: 'var(--color-card)',
-              border: '1px solid var(--line-1)', display: 'flex', flexDirection: 'column', gap: 6,
-              fontSize: 13, color: 'var(--color-fg-2)', lineHeight: 1.5,
-            }}>
-              {rules.layers && (
-                <span style={{ display: 'flex', gap: 8 }}>
-                  <Icon name="shield-tick" size={15} style={{ color: 'var(--color-ok)', marginTop: 2 }} />
-                  <span>
-                    Trợ lý đọc đủ <b style={{ fontWeight: 500 }}>{rules.layers}</b>
-                    {rules.counts && ` · ${rules.counts}`}
-                  </span>
-                </span>
-              )}
-              {meta && (
-                <span style={{ display: 'flex', gap: 8 }}>
-                  <Icon name="chart-2" size={15} style={{ color: 'var(--color-fg-3)', marginTop: 2 }} />
-                  <span>{meta}</span>
-                </span>
-              )}
-              {activePack.voice && (
-                <span style={{ display: 'flex', gap: 8 }}>
-                  <Icon name="headphone" size={15} style={{ color: 'var(--color-fg-3)', marginTop: 2 }} />
-                  <span>{activePack.voice}</span>
-                </span>
-              )}
-              <span style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>
-                Quy tắc bạn tự dặn được thay mục cảnh báo của gói, không thay mục bắt sửa.
-              </span>
-            </div>
-          )
-        })()}
-      </>}
-      <div className="mm-heading">Kiểu viết · không chấm theo bộ luật</div>
-      <div className="mm-group" role="radiogroup" aria-label="Kiểu viết">
-        {styleOptions.map((name) => {
-          const on = values.style === name
-          return <Radio key={name} className="mm-row" mark="tick" markPosition="end" checked={on} disabled={!canEdit} onChange={() => setDraft((old) => ({ ...old, style: name }))}
-            label={<span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.35, fontSize: 15 }}>{styleLabel(name)}
-              {styleDesc(name) && <span style={{ fontSize: 12.5, color: 'var(--color-fg-3)' }}>{styleDesc(name)}</span>}</span>}
-            style={{ padding: '8px 14px', margin: 0, gap: 12, minHeight: 54, fontSize: 15, lineHeight: 1.35 }} />
-        })}
-        {styleOptions.length === 0 && <p className="mm-empty">Chưa có văn phong nào trong danh sách.</p>}
-      </div>
       <div className="mm-heading">Cách chạy</div>
       <div className="mm-group">
         <div className="mm-row"><span className="mm-copy"><span>Duyệt từng chương</span><span className="mm-sub">{scope === 'story' ? 'Dừng sau mỗi chương chờ bạn duyệt · đổi ngay' : 'Cho truyện mới tạo'}</span></span>
           <Switch size={[51, 31]} checked={values.advance === 'review'} label="Duyệt từng chương" pending={review.busy} disabled={!canEdit} onChange={toggleReview} />
         </div>
-        <button className="mm-row" type="button" disabled={!story} onClick={onModel}><span className="mm-copy"><span>Trợ lý AI</span><span className="mm-sub">Người viết · {writerModel}</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" /></button>
+        <button className="mm-row" type="button" disabled={!story} onClick={onModel}><span className="mm-copy"><span>Người viết</span><span className="mm-sub">{writerModel}</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" /></button>
       </div>
       <div className="mm-heading">Ngân sách</div>
       <div className="mm-group">

@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -412,10 +413,15 @@ func (a *WorkerAPI) handleUpload(w http.ResponseWriter, r *http.Request, worker 
 			return
 		}
 	}
-	info, err := a.Blobs.Put(r.Context(), key, body, blobstore.PutOptions{
-		ContentType:    contentType,
-		ExpectedSHA256: sha,
+	var info blobstore.BlobInfo
+	publisher, publishes := a.Registry.(interface {
+		UploadBlob(context.Context, blobstore.BlobStore, string, string, string, string, string, string, io.Reader) (blobstore.BlobInfo, error)
 	})
+	if publishes {
+		info, err = publisher.UploadBlob(r.Context(), a.Blobs, job.ProjectID, job.ID, key, a.BlobDriver, contentType, sha, body)
+	} else {
+		info, err = a.Blobs.Put(r.Context(), key, body, blobstore.PutOptions{ContentType: contentType, ExpectedSHA256: sha})
+	}
 	if err != nil {
 		if errors.Is(err, blobstore.ErrDigestMismatch) {
 			jsonError(w, http.StatusBadRequest, "sha256 không khớp nội dung")
@@ -424,9 +430,11 @@ func (a *WorkerAPI) handleUpload(w http.ResponseWriter, r *http.Request, worker 
 		writeWorkerError(w, err)
 		return
 	}
-	if err := a.Registry.RegisterBlob(r.Context(), job.ProjectID, job.ID, info.Key, a.BlobDriver, info.ContentType, info.SHA256, info.Size); err != nil {
-		writeWorkerError(w, err)
-		return
+	if !publishes {
+		if err := a.Registry.RegisterBlob(r.Context(), job.ProjectID, job.ID, info.Key, a.BlobDriver, info.ContentType, info.SHA256, info.Size); err != nil {
+			writeWorkerError(w, err)
+			return
+		}
 	}
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"key": info.Key, "sha256": info.SHA256, "size": info.Size, "contentType": info.ContentType,

@@ -3,9 +3,7 @@ package web
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
@@ -98,39 +96,7 @@ func serveAudioObject(w http.ResponseWriter, r *http.Request, obj audio.Object) 
 	case obj.Store == nil:
 		serveAudioFile(w, r, obj.Path)
 	default:
-		privateHeaders(w)
-		start, end, status, err := resolveHTTPRange(r.Header.Get("Range"), obj.Size)
-		if err != nil {
-			w.Header().Set("Content-Range", "bytes */"+strconv.FormatInt(obj.Size, 10))
-			jsonError(w, http.StatusRequestedRangeNotSatisfiable, "Khoảng byte không hợp lệ")
-			return
-		}
-		length := int64(0)
-		if end >= start {
-			length = end - start + 1
-		}
-		if status == http.StatusPartialContent {
-			w.Header().Set("Content-Range", "bytes "+strconv.FormatInt(start, 10)+"-"+strconv.FormatInt(end, 10)+"/"+strconv.FormatInt(obj.Size, 10))
-		}
-		w.Header().Set("Content-Type", orDefault(obj.ContentType, "application/octet-stream"))
-		w.Header().Set("Content-Length", strconv.FormatInt(length, 10))
-		if obj.SHA256 != "" {
-			w.Header().Set("X-Content-SHA256", obj.SHA256)
-		}
-		if obj.ETag != "" {
-			w.Header().Set("ETag", `"`+obj.ETag+`"`)
-		}
-		w.Header().Set("Content-Disposition", blobDisposition("inline", orDefault(obj.Name, fileNameOf(obj.Key, r))))
-		w.WriteHeader(status)
-		if r.Method == http.MethodHead || length == 0 {
-			return
-		}
-		rc, _, err := obj.Store.Open(r.Context(), obj.Key, blobstore.ByteRange{Offset: start, Length: length})
-		if err != nil {
-			return
-		}
-		defer rc.Close()
-		_, _ = io.Copy(w, rc)
+		serveStoredBlob(w, r, obj.Store, blobstore.BlobInfo{Key: obj.Key, Size: obj.Size, ContentType: obj.ContentType, SHA256: obj.SHA256}, "private, max-age=60", "inline", orDefault(obj.Name, fileNameOf(obj.Key, r)), 0)
 	}
 }
 

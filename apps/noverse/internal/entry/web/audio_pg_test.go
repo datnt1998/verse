@@ -321,9 +321,10 @@ func TestPGAudioQueuePlaybackHTTP(t *testing.T) {
 		t.Fatalf("delete flag: %d", res.Code)
 	}
 
-	// Hosted capability gaps answer 501, never a fake success.
+	// Dạng sóng âm hosted decode blob chương bằng ffmpeg — chỉ có sau khi xuất
+	// chương (giống file mode); trước đó là 404, không phải 501.
 	res = call("GET", "/audio/volumes/1/chapters/1/peaks", "", nil)
-	if res.Code != http.StatusNotImplemented {
+	if res.Code != http.StatusNotFound {
 		t.Fatalf("peaks: %d %s", res.Code, res.Body.String())
 	}
 }
@@ -389,11 +390,7 @@ func TestPGAudioExportCacheHTTP(t *testing.T) {
 	if _, err := blobs.Put(ctx, wavKey, bytes.NewReader(wav), blobstore.PutOptions{ContentType: "audio/wav"}); err != nil {
 		t.Fatalf("put wav: %v", err)
 	}
-	staged, err := audioRepo.StageBlob(ctx, scope.ProjectID, wavKey, "local", "audio/wav", pgtype.UUID{}, pgtype.UUID{})
-	if err != nil {
-		t.Fatalf("stage blob: %v", err)
-	}
-	blobRow, err := audioRepo.MarkBlobReady(ctx, scope.ProjectID, staged.ID, wavHex, int64(len(wav)))
+	blobRow, err := audioRepo.PublishBlob(ctx, postgres.PublishInput{ProjectID: scope.ProjectID, Key: wavKey, Driver: "local", ContentType: "audio/wav", SHA256: wavHex, Size: int64(len(wav))})
 	if err != nil {
 		t.Fatalf("mark blob: %v", err)
 	}

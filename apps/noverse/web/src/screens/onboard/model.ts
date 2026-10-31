@@ -6,6 +6,7 @@ import type {
 } from '../../api/types'
 import { slugifyOrEmpty } from '../../lib/slug'
 import type { LibraryChoice } from './libraryChoice'
+import { t } from '../../i18n/vi'
 
 export type StepKey = 'profile' | 'password' | 'provider' | 'model' | 'library' | 'project' | 'mobile' | 'done'
 
@@ -520,6 +521,7 @@ export type PreviewInput = {
   candidate: string
   /** “Nơi › … › Thư mục” — không bao giờ là tên thư mục trần hay đường dẫn tuyệt đối. */
   libraryDisplay: string
+  storageMode?: LibraryResponse['storageMode']
   inviteUsername: string
   /** Nhãn vai trò của người được mời (“Người viết” / “Người đọc”), không phải vai trò của quản trị. */
   inviteRole: string
@@ -541,6 +543,15 @@ export function buildPreview(input: PreviewInput): Preview {
   let note = ''
   const plain: { k: string; v: string }[] = []
 
+  if (input.storageMode && input.storageMode !== 'file' && (input.key === 'library' || input.key === 'project')) {
+    return {
+      title: input.key === 'library' ? t.libraryStorage.title : 'Thiết lập sẽ lưu',
+      file: '', fileNote: '', lines: [],
+      plain: input.key === 'library'
+        ? [{ k: t.libraryStorage.title, v: input.libraryDisplay }]
+        : [{ k: 'Dự án', v: input.projectName || '—' }, { k: t.libraryStorage.title, v: input.libraryDisplay }],
+    }
+  }
   if (input.key === 'profile') {
     file = '~/.ainovel/web-accounts.json'
     fileNote = 'users[]'

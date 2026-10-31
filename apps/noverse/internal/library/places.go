@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -44,8 +45,68 @@ type placeEnv struct {
 	XDGFile    string   // user-dirs.dirs (Linux)
 }
 
+// BrowseRootsConfigured restricts discovery to explicit container mounts.
+func BrowseRootsConfigured() bool {
+	return strings.TrimSpace(os.Getenv("LIBRARY_BROWSE_ROOTS")) != ""
+}
+
+// BrowsePlacesFromEnv validates the complete allowlist before serve starts.
+// Invalid or missing mounts never fall back to desktop discovery.
+func BrowsePlacesFromEnv() (Places, error) {
+	if !BrowseRootsConfigured() {
+		return nil, nil
+	}
+	var places Places
+	for i, raw := range strings.Split(os.Getenv("LIBRARY_BROWSE_ROOTS"), ",") {
+		path := strings.TrimSpace(raw)
+		if !filepath.IsAbs(path) || hasParentSegment(path) {
+			return nil, fmt.Errorf("LIBRARY_BROWSE_ROOTS: gốc %d phải là đường dẫn tuyệt đối không chứa ..", i+1)
+		}
+		real, err := filepath.EvalSymlinks(path)
+		if err != nil {
+			return nil, fmt.Errorf("LIBRARY_BROWSE_ROOTS: gốc %d không truy cập được: %w", i+1, err)
+		}
+		if st, err := os.Stat(real); err != nil || !st.IsDir() {
+			return nil, fmt.Errorf("LIBRARY_BROWSE_ROOTS: gốc %d không phải thư mục", i+1)
+		}
+		dir, err := os.Open(real)
+		if err != nil {
+			return nil, fmt.Errorf("LIBRARY_BROWSE_ROOTS: không đọc được gốc %d: %w", i+1, err)
+		}
+		_, readErr := dir.ReadDir(1)
+		_ = dir.Close()
+		if readErr != nil && !errors.Is(readErr, io.EOF) {
+			return nil, fmt.Errorf("LIBRARY_BROWSE_ROOTS: không đọc được gốc %d: %w", i+1, readErr)
+		}
+		places = append(places, Place{ID: fmt.Sprintf("mount:%d", i+1), Label: fmt.Sprintf("Kho truyện %d", i+1),
+			Path: filepath.Clean(path), Icon: "folder-open", real: real})
+	}
+	return places, nil
+}
+
+func hasParentSegment(path string) bool {
+	for part := range strings.SplitSeq(filepath.ToSlash(path), "/") {
+		if part == ".." {
+			return true
+		}
+	}
+	return false
+}
+
 // DiscoverPlaces liệt kê các Nơi hiện có trên máy chủ này; Nơi không tồn tại bị bỏ.
 func DiscoverPlaces() Places {
+	if BrowseRootsConfigured() {
+		places, _ := BrowsePlacesFromEnv() // startup validates; errors remain fail-closed
+		return places
+	}
+	if IsContainer() {
+		root := ContainerLibraryRoot()
+		real, err := filepath.EvalSymlinks(root)
+		if err != nil {
+			return nil
+		}
+		return Places{{ID: "volume:library", Label: "Vùng dữ liệu Noverse", Path: root, Icon: "folder-open", real: real}}
+	}
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		return nil
@@ -228,6 +289,9 @@ func (ps Places) best(real string) (Place, string, bool) {
 // Confine xác thực path nằm trong một Nơi sau khi theo symlink (không có đường vòng bằng "..")
 // và trả đường dẫn thật. Thư mục không tồn tại trả lỗi os.ErrNotExist.
 func (ps Places) Confine(path string) (string, error) {
+	if BrowseRootsConfigured() && hasParentSegment(path) {
+		return "", ErrOutsidePlaces
+	}
 	if strings.TrimSpace(path) == "" {
 		return "", fmt.Errorf("%w: thiếu đường dẫn", ErrInvalidRoot)
 	}
@@ -240,6 +304,22 @@ func (ps Places) Confine(path string) (string, error) {
 		if errors.Is(err, os.ErrNotExist) {
 			return "", os.ErrNotExist
 		}
+		return "", err
+	}
+	if _, _, ok := ps.best(real); !ok {
+		return "", ErrOutsidePlaces
+	}
+	return real, nil
+}
+
+// ConfineCandidate permits a missing last directory for onboarding suggestions,
+// resolving existing ancestors before checking the configured boundary.
+func (ps Places) ConfineCandidate(path string) (string, error) {
+	if !filepath.IsAbs(path) || hasParentSegment(path) {
+		return "", ErrOutsidePlaces
+	}
+	real, err := ResolvePath(path)
+	if err != nil {
 		return "", err
 	}
 	if _, _, ok := ps.best(real); !ok {

@@ -1,6 +1,6 @@
 // M4 · Thêm — các trang độc lập trên điện thoại (18-mobile.md / MMore.dc.html).
 import { useEffect, useState } from 'react'
-import { canReadProject, canReadStory, canWriteStory, getConfig, getLibrary, getModels, getProject, logout, mySessions, revokeSession } from '../../../api/client'
+import { canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, logout, mySessions, revokeSession } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import type { ModelRoleKey, ProjectSummary, Session, StorySummary } from '../../../api/types'
 import { cache, invalidate } from '@noverse/ui/data'
@@ -17,7 +17,7 @@ import { ROLE_META } from '../../cmdresults/logic'
 import { Models, modelsKey } from './Models'
 import { ResourceNotice } from './parts'
 import { MobileStorySet } from './StorySet'
-import { rulesSub, storySetSub } from './rulesSummary'
+import { rulesSub } from './rulesSummary'
 import { MobileRules } from './Rules'
 import { useRulesCount } from '../../settings/sections/rules'
 import { useNotifyPrefs } from '../../notify/useNotify'
@@ -26,11 +26,16 @@ import { AccountsSheet, AccountAvatar, RoleBadge } from './Accounts'
 import { MobilePassword } from './Password'
 import { MobileGuide, desktopCommand } from './Guide'
 import { useTabMode } from '../../../mobile/runtime'
+import { styleDisplayName } from '../../settings/sections/style'
+import { usd } from './storySetLogic'
 export { MobileFirstPassword } from './Password'
 import './more.css'
 import { projectLabel, storyLabel } from '../../../shell/labels'
+import { storageCopy } from '../../../i18n/vi'
+import { StorageSection } from '../../settings/storage'
+import { StorageNavSummary } from '../../settings/storage/indicators'
 
-type Page = 'home' | 'projects' | 'model' | 'pick' | 'devices' | 'password' | 'guide' | 'guideCmd' | 'storyset' | 'rules'
+type Page = 'home' | 'projects' | 'model' | 'pick' | 'devices' | 'password' | 'guide' | 'guideCmd' | 'storyset' | 'rules' | 'storage'
 const STATUS: Record<StorySummary['status'], string> = { idea: 'Nháp', writing: 'Đang viết', paused: 'Tạm dừng', done: 'Đã xong', published: 'Đã xuất bản' }
 
 function remaining(expiresAt: string | undefined) {
@@ -63,7 +68,7 @@ function ProjectStories({ project, currentProject, currentStory, onChoose, offli
   </section>
 }
 
-export function MobileMore({ project, story, initialPage, initialCommand, onStoryChange }: { project: string | null; story: string | null; initialPage?: 'home' | 'projects' | 'model' | 'devices' | 'password' | 'guide' | 'storyset' | 'rules'; initialCommand?: string; onStoryChange?: (target: { project: string; story: string }) => void }) {
+export function MobileMore({ project, story, initialPage, initialCommand, onStoryChange }: { project: string | null; story: string | null; initialPage?: 'home' | 'projects' | 'model' | 'devices' | 'password' | 'guide' | 'storyset' | 'rules' | 'storage'; initialCommand?: string; onStoryChange?: (target: { project: string; story: string }) => void }) {
   const { user, session, setUser } = useSession()
   const toast = useMobileToast()
   const firstPage = initialPage ?? (story ? 'home' : 'projects')
@@ -90,6 +95,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
   const others = sessions.filter((item) => !item.current && item.id !== session?.id)
   const review = config.data?.effective.advance_mode === 'review'
   const ruleCount = useRulesCount('story', project ?? undefined, story ?? undefined)
+  const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal), { staleTime: 60000 })
   const notifyPrefs = useNotifyPrefs()
   const notifyCount = notifyPrefs.data ? (notifyPrefs.data.enabled ? Object.values(notifyPrefs.data.types).filter(Boolean).length : 0) : undefined
   const commandCount = useCommands().specs.length
@@ -134,7 +140,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
       throw error
     } finally { void invalidate(keys.sessions()) }
   })
-  const title = page === 'pick' ? ROLE_META[role].label : { home: 'Thêm', projects: 'Dự án & truyện', model: 'Model trợ lý', devices: 'Thiết bị', password: 'Đổi mật khẩu', guide: 'Hướng dẫn lệnh', guideCmd: 'Lệnh', storyset: 'Tuỳ chỉnh truyện', rules: 'Quy tắc viết' }[page]
+  const title = page === 'pick' ? ROLE_META[role].label : { home: 'Thêm', projects: 'Dự án & truyện', model: 'Model trợ lý', devices: 'Thiết bị', password: 'Đổi mật khẩu', guide: 'Hướng dẫn lệnh', guideCmd: 'Lệnh', storyset: 'Tuỳ chỉnh truyện', rules: 'Cách viết', storage: storageCopy.title }[page]
   const choose = (item: StorySummary) => {
     setStack(['home'])
     toast(`Đã mở “${storyLabel(item)}”`)
@@ -163,10 +169,10 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
             <Icon name="folder-open" size={22} className="mm-muted" /><span className="mm-copy"><span>{story ? (currentStory ? storyLabel(currentStory) : '…') : 'Chọn dự án & truyện'}</span><span className="mm-sub">{project ? `${projectLabel(library.data?.projects.find((item) => item.id === project), project)}${currentStory ? ` · ${currentStory.volumes} tập` : ''}` : 'Mở một truyện để theo dõi và điều khiển'}</span></span><span className="mm-muted">Đổi</span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
           </button>
           <button className="mm-row" type="button" disabled={!hasStory} onClick={() => push('rules')}>
-            <Icon name="edit-2" size={22} className="mm-muted" /><span className="mm-copy"><span>Quy tắc viết</span><span className="mm-sub">{hasStory ? rulesSub(ruleCount) : 'Chọn một truyện trước'}</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
+            <Icon name="brush-2" size={22} className="mm-muted" /><span className="mm-copy"><span>Cách viết</span><span className="mm-sub">{hasStory ? `${styleDisplayName(presets.data, config.data?.effective.style)} · ${rulesSub(ruleCount)}` : 'Chọn một truyện trước'}</span></span><Icon name="arrow-right-2" size={16} className="mm-chevron" />
           </button>
           <button className="mm-row" type="button" disabled={!canWrite} onClick={() => push('storyset')}>
-            <Icon name="note-text" size={22} className="mm-muted" /><span className="mm-copy"><span>Tuỳ chỉnh truyện</span><span className="mm-sub">{!hasStory ? 'Chọn một truyện trước' : !canWrite ? 'Chỉ người có quyền viết mới đổi được' : storySetSub(config.data?.effective.style, review)}</span></span>{canWrite && <Icon name="arrow-right-2" size={16} className="mm-chevron" />}
+            <Icon name="note-text" size={22} className="mm-muted" /><span className="mm-copy"><span>Tuỳ chỉnh truyện</span><span className="mm-sub">{!hasStory ? 'Chọn một truyện trước' : !canWrite ? 'Chỉ người có quyền viết mới đổi được' : `${review ? 'Duyệt từng chương' : 'Viết liền'}${config.data?.effective.budget?.book_usd ? ` · ${usd(config.data.effective.budget.book_usd)}/truyện` : ''}`}</span></span>{canWrite && <Icon name="arrow-right-2" size={16} className="mm-chevron" />}
           </button>
           {/* M8 · Não truyện — ngay sau “Tuỳ chỉnh truyện” (MBrain.dc.html) */}
           <button className="mm-row" type="button" disabled={!hasStory} onClick={() => navigate(paths.brain(project!, story!))}>
@@ -189,11 +195,13 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
             <button className="mm-row" type="button" onClick={() => navigate('/notifications?view=settings')}><Icon name="notification" size={22} className="mm-muted" /><span className="mm-fill">Thông báo</span>{notifyCount !== undefined && <span className="mm-muted">{notifyCount} loại</span>}<Icon name="arrow-right-2" size={16} className="mm-chevron" /></button>
           </div>
           {devices.error != null && <ResourceNotice resource={devices} label="thiết bị" />}
+          {user?.role === 'admin' && <><div className="mm-heading">{storageCopy.admin}</div><div className="mm-group"><button className="mm-row" type="button" onClick={() => push('storage')}><Icon name="box" size={22} className="mm-muted" /><span className="mm-copy"><span>{storageCopy.title}</span><StorageNavSummary /></span><Icon name="arrow-right-2" size={16} className="mm-chevron" /></button></div></>}
           <div className="mm-heading">Trợ giúp</div><div className="mm-group"><button className="mm-row" type="button" onClick={() => push('guide')}><Icon name="message-question" size={22} className="mm-muted" /><span className="mm-fill">Hướng dẫn lệnh</span>{commandCount > 0 && <span className="mm-muted">{commandCount} lệnh</span>}<Icon name="arrow-right-2" size={16} className="mm-chevron" /></button></div>
           <div className="mm-group mm-spaced"><button className="mm-row mm-danger mm-center" type="button" disabled={!online || logoutAction.busy} aria-busy={logoutAction.pending} onClick={() => { void logoutAction.run() }}>{logoutAction.pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></div>
           <p className="mm-note mm-center">Kết nối AI, xuất tự động và quản lý tài khoản nằm trong Tuỳ chỉnh trên máy tính.</p>
         </>}
         {page === 'rules' && <MobileRules project={project} story={story} online={online} toast={toast} />}
+        {page === 'storage' && user?.role === 'admin' && <StorageSection mobile />}
         {page === 'storyset' && <MobileStorySet project={project} story={story} nextChapter={(currentStory?.completedChapters ?? 0) + 1} online={online} toast={toast} onModel={() => push('model')} writerModel={modelLabel} />}
         {(page === 'guide' || page === 'guideCmd') && <MobileGuide command={page === 'guideCmd' ? command : null} onPick={(name) => { setCommand(name); setCommandHistory((old) => [...old, name]); push('guideCmd') }} onUse={useCommand} />}
         {page === 'projects' && <>

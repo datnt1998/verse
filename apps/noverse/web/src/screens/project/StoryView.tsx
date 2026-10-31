@@ -20,23 +20,25 @@ import { ExportTab } from './tabs/ExportTab'
 import { ForeshadowTab, useForeshadow } from './tabs/ForeshadowTab'
 import { OutlineTab } from './tabs/OutlineTab'
 import { ScrollTopButton } from '@noverse/ui'
-import { RulesEditor, useRulesCount } from '../settings/sections/rules'
-import { rulesCopy, styleCopy } from '../../i18n/vi'
+import { styleCopy } from '../../i18n/vi'
 import { StyleTab } from './tabs/StyleTab'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 
-export type TabId = 'outline' | 'cast' | 'fs' | 'rules' | 'style' | 'export'
+export type TabId = 'outline' | 'cast' | 'fs' | 'style' | 'export'
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'outline', label: 'Dàn ý', icon: 'note-text' },
   { id: 'cast', label: 'Nhân vật', icon: 'profile-2user' },
   { id: 'fs', label: 'Chi tiết cài cắm', icon: 'flag' },
-  { id: 'rules', label: rulesCopy.tab, icon: 'edit-2' },
   { id: 'style', label: styleCopy.tab, icon: 'brush-2' },
   { id: 'export', label: 'Bản xuất', icon: 'export-square' },
 ]
 
 export const STORY_TABS = TABS.map((tab) => tab.id)
+export function resolveStoryTab(raw: string | null): TabId {
+  if (raw === 'rules') return 'style'
+  return STORY_TABS.includes(raw as TabId) ? raw as TabId : 'outline'
+}
 
 function StoryTabs({ tab, onTab, counts }: { tab: TabId; onTab: (id: TabId) => void; counts: Partial<Record<TabId, number>> }) {
   return (
@@ -79,7 +81,6 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
   const snapshot = useResource(keys.story(project, summary.story, 'snapshot'), ({ signal }) => getSnapshot(project, summary.story, signal))
   const characters = useCharacters(project, summary.story)
   const foreshadow = useForeshadow(project, summary.story)
-  const rulesCount = useRulesCount('story', project, summary.story)
   const steerAction = useAction(async (text: string) => {
     try {
       const result = await sendInput(project, summary.story, text)
@@ -124,7 +125,6 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
     }
     if (tab === 'cast') return <CastTab key={summary.story} project={project} story={summary.story} />
     if (tab === 'fs') return <ForeshadowTab key={summary.story} project={project} story={summary.story} />
-    if (tab === 'rules') return null
     if (tab === 'style') return null
     return <ExportTab key={summary.story} project={project} story={summary.story} bookTitle={storyTitle(summary)} />
   }
@@ -167,15 +167,12 @@ export function StoryView({ project, summary, narrow, tab, onTab, outline, outli
             </a>
           </span>
         </div>
-        <StoryTabs tab={tab} onTab={onTab} counts={{ cast: characters.data?.characters.length, fs: foreshadow.data?.entries.length, rules: rulesCount }} />
+        <StoryTabs tab={tab} onTab={onTab} counts={{ cast: characters.data?.characters.length, fs: foreshadow.data?.entries.length }} />
       </div>
 
       <div ref={scrollRef} id={`story-panel-${tab}`} role="tabpanel" aria-label={TABS.find((item) => item.id === tab)?.label}
         className="scroll" style={{ flex: '1 1 auto', minHeight: 0, padding: narrow ? '16px 14px 110px' : '16px 28px 110px' }}>
         {body()}
-        <Activity mode={tab === 'rules' ? 'visible' : 'hidden'}>
-          <RulesEditor key={summary.story} scope="story" project={project} story={summary.story} />
-        </Activity>
         <Activity mode={tab === 'style' ? 'visible' : 'hidden'}>
           <StyleTab key={summary.story} project={project} summary={summary} />
         </Activity>

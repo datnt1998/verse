@@ -15,6 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // styleSamplesDir 是 /simulate 读取语料的目录（Host.Simulate 的默认源目录）。
@@ -51,11 +52,9 @@ type StyleSampleTotals struct {
 // 仅故事的写者可用（连 GET 也要求可写，语料喂给 /simulate）——这条特例写在
 // serveStories 的 storyAccessAllowed 里，未授权一律 404。不再在此重复检查。
 // 语料与 /simulate 共用同一目录，所以网页加进来的 văn mẫu立刻能被 /simulate 读到。
-func (g *Gateway) serveStyleSamples(w http.ResponseWriter, r *http.Request, st library.Story, tail string) {
-	// Văn mẫu là tệp bên cạnh thư mục truyện — năng lực thuần file; hosted
-	// trả 501 cho tới khi có kho document cho mẫu văn.
+func (g *Gateway) serveStyleSamples(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, tail string) {
 	if st.Dir == "" {
-		jsonError(w, http.StatusNotImplemented, "văn mẫu chưa hỗ trợ trên kho dữ liệu Postgres")
+		g.serveHostedStyleSamples(w, r, user, st, tail)
 		return
 	}
 	dir := filepath.Join(st.Dir, styleSamplesDir)

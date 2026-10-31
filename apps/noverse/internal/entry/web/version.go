@@ -53,6 +53,8 @@ type versionResource struct {
 	users          bool
 	writable       bool
 	query          url.Values
+	lockKey        string
+	versionFn      func() string
 }
 
 // writeVersionToken 把已算好的 ETag 写到响应头并返回 token。
@@ -149,6 +151,26 @@ func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values)
 		if err != nil {
 			return nil
 		}
+		if t.hosted {
+			if path != "/api/config" {
+				return nil // hosted rule handlers own document CAS
+			}
+			docs, err := g.hostedConfigDocuments()
+			if err != nil {
+				return nil
+			}
+			return &versionResource{
+				lockKey:  "config/" + t.scope + "/" + t.project + "/" + t.story.Story,
+				writable: checkConfigWrite(user, t) == nil, query: q,
+				versionFn: func() string {
+					token, err := docs.Version(r.Context(), configActor(user), t.project, t.story.Story)
+					if err != nil {
+						return ""
+					}
+					return token
+				},
+			}
+		}
 		p := t.path
 		if path != "/api/config" {
 			if !validRuleName(q.Get("name")) {
@@ -184,15 +206,21 @@ func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values)
 	p := segs[2]
 	if len(segs) == 3 && user.CanReadProject(p) {
 		ref, ok := lib.ResolveProject(r.Context(), actorOf(user), p)
-		if !ok || ref.Dir == "" {
+		if !ok {
 			return nil
+		}
+		if ref.Dir == "" {
+			return hostedMetadataResource(r.Context(), lib, user, p, "", user.CanManageProject(p))
 		}
 		return &versionResource{path: filepath.Join(ref.Dir, "project.json"), writable: user.CanManageProject(p)}
 	}
 	if len(segs) == 6 && segs[3] == "stories" && segs[5] == "meta" && user.CanRead(p+"/"+segs[4]) {
 		st, ok := lib.ResolveStory(r.Context(), actorOf(user), p, segs[4])
-		if !ok || st.Dir == "" {
+		if !ok {
 			return nil
+		}
+		if st.Dir == "" {
+			return hostedMetadataResource(r.Context(), lib, user, p, st.Story, user.CanWrite(st.ID))
 		}
 		return &versionResource{path: filepath.Join(st.Dir, "story.json"), writable: user.CanWrite(st.ID)}
 	}
@@ -200,6 +228,9 @@ func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values)
 }
 
 func (g *Gateway) resourceVersion(res *versionResource) string {
+	if res.versionFn != nil {
+		return res.versionFn()
+	}
 	if res.path != "" {
 		return fileVersion(res.path)
 	}
@@ -287,7 +318,10 @@ func (g *Gateway) currentResource(r *http.Request, user identity.User, current i
 // versionLock serializes only one persisted resource. Worker actions have no
 // versioned resource and never acquire one of these locks.
 func (g *Gateway) versionLock(res *versionResource) *sync.Mutex {
-	key := res.path
+	key := res.lockKey
+	if key == "" {
+		key = res.path
+	}
 	if key == "" {
 		key = "accounts"
 	}

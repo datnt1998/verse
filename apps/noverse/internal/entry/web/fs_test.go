@@ -318,6 +318,67 @@ func TestHostedRepositorySkipsLibraryGuard(t *testing.T) {
 	}
 }
 
+func TestLibraryStorageMode(t *testing.T) {
+	tg := newUnconfiguredGateway(t)
+	admin := tg.login("admin", "admin-pass")
+	if body := decodeResp(t, tg.do("GET", "/api/library", admin, "")); body["storageMode"] != "file" {
+		t.Fatalf("unconfigured file mode = %v, want file", body["storageMode"])
+	}
+	root := t.TempDir()
+	t.Setenv("NOVERSE_LIBRARY_ROOT", root)
+	tg.g.Root = root
+	if body := decodeResp(t, tg.do("GET", "/api/library", admin, "")); body["storageMode"] != "container" {
+		t.Fatalf("container mode = %v, want container", body["storageMode"])
+	}
+	lib, err := library.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	tg.g.SetLibraryRepository(library.FileRepository(lib))
+	if body := decodeResp(t, tg.do("GET", "/api/library", admin, "")); body["storageMode"] != "postgres" {
+		t.Fatalf("hosted mode = %v, want postgres", body["storageMode"])
+	}
+}
+
+func TestConfiguredBrowseRootsBoundaries(t *testing.T) {
+	tg := newUnconfiguredGateway(t)
+	admin := tg.login("admin", "admin-pass")
+	first, second, outside := t.TempDir(), t.TempDir(), t.TempDir()
+	t.Setenv("LIBRARY_BROWSE_ROOTS", first+","+second)
+	t.Setenv("NOVERSE_LIBRARY_ROOT", t.TempDir())
+	tg.g.Root = first
+	if body := decodeResp(t, tg.do("GET", "/api/library", admin, "")); body["storageMode"] != "file" {
+		t.Fatalf("explicit mounts must retain file picker: %v", body)
+	}
+	places := decodeList(t, tg.do("GET", "/api/fs/places", admin, ""))
+	if len(places) != 2 || places[0]["path"] != first || places[1]["path"] != second {
+		t.Fatalf("places: %v", places)
+	}
+	link := filepath.Join(first, "escape")
+	if err := os.Symlink(outside, link); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{outside, link, first + "/../" + filepath.Base(first)} {
+		for _, endpoint := range []string{"/api/fs/list?path=", "/api/library/inspect?path="} {
+			if w := tg.do("GET", endpoint+url.QueryEscape(path), admin, ""); w.Code != 403 {
+				t.Fatalf("%s%s = %d %s; want 403", endpoint, path, w.Code, w.Body.String())
+			}
+		}
+		if w := tg.do("PUT", "/api/library", admin, fmt.Sprintf(`{"root":%q}`, path)); w.Code != 403 {
+			t.Fatalf("switch %s = %d %s; want 403", path, w.Code, w.Body.String())
+		}
+		if w := tg.do("POST", "/api/fs/mkdir", admin, fmt.Sprintf(`{"parent":%q,"name":"blocked"}`, path)); w.Code != 403 {
+			t.Fatalf("mkdir %s = %d %s; want 403", path, w.Code, w.Body.String())
+		}
+	}
+	if w := tg.do("GET", "/api/fs/list?path="+url.QueryEscape(second), admin, ""); w.Code != 200 || strings.Contains(w.Body.String(), "escape") {
+		t.Fatalf("allowed mount list: %d %s", w.Code, w.Body.String())
+	}
+	if w := tg.do("PUT", "/api/library", admin, fmt.Sprintf(`{"root":%q}`, second)); w.Code != 200 {
+		t.Fatalf("allowed switch: %d %s", w.Code, w.Body.String())
+	}
+}
+
 func TestServeJSONWrittenOnlyOnSuccessfulPut(t *testing.T) {
 	tg := newUnconfiguredGateway(t)
 	home := fsHome(t)

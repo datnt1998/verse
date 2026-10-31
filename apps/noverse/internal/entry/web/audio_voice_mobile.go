@@ -9,6 +9,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func projectVoiceSamples(voices []audio.ProjectVoice, base string) {
@@ -30,7 +31,7 @@ func serveVoiceSample(w http.ResponseWriter, r *http.Request, layout audio.Layou
 	http.ServeContent(w, r, "mau-giong.wav", time.Time{}, bytes.NewReader(wav))
 }
 
-func (g *Gateway) serveStoryVoices(w http.ResponseWriter, r *http.Request, st library.Story, svc audioBackend, segs []string) bool {
+func (g *Gateway) serveStoryVoices(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, svc audioBackend, segs []string) bool {
 	if len(segs) == 2 && segs[1] == "sample" && r.Method == http.MethodGet {
 		obj, err := svc.VoiceSample(r.Context(), segs[0])
 		if err != nil {
@@ -53,11 +54,15 @@ func (g *Gateway) serveStoryVoices(w http.ResponseWriter, r *http.Request, st li
 		projectVoiceSamples(voices, "/api/projects/"+url.PathEscape(st.Project)+"/voices")
 		writeJSON(w, http.StatusOK, voices)
 	case http.MethodPost:
-		if fb, ok := svc.(*fileAudioBackend); ok {
-			g.uploadProjectVoice(w, r, fb.svc.Layout())
-			return true
-		}
-		audioError(w, errAudioUnsupportedPG("tải mẫu giọng"))
+		// Both URLs address project voices. Reuse the project handler so hosted
+		// uploads persist audio_voices/blob samples and retain the same authz,
+		// conversion and validation as file mode.
+		projectRequest := r.Clone(r.Context())
+		projectURL := *r.URL
+		projectURL.Path = "/api/projects/" + url.PathEscape(st.Project) + "/voices"
+		projectURL.RawPath = ""
+		projectRequest.URL = &projectURL
+		g.serveProjectVoices(w, projectRequest, user, st.Project)
 	default:
 		return false
 	}

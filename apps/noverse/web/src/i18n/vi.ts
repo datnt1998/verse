@@ -5,6 +5,18 @@ import type { Lesson } from '../api/types'
 
 export const vi = {
   brand: { name: 'Noverse', suffix: 'Studio' },
+  providerValidation: {
+    invalid: 'Bắt sửa · Thiết lập nhà cung cấp chưa hợp lệ',
+    details: 'Chi tiết kỹ thuật',
+  },
+  libraryStorage: {
+    title: 'Nơi lưu truyện',
+    hosted: 'Truyện được lưu trong cơ sở dữ liệu của máy chủ',
+    hostedHint: 'Noverse quản lý nơi lưu dự án, truyện và bản xuất. Bạn không cần chọn thư mục.',
+    hostedDisplay: 'Cơ sở dữ liệu của máy chủ',
+    container: 'Truyện được lưu trong vùng dữ liệu của Noverse',
+    containerHint: 'Noverse dùng vùng dữ liệu đã gắn vào ứng dụng. Bạn không cần duyệt thư mục trên máy chủ.',
+  },
   audioTimeline: {
     title: 'Tiến độ theo chương',
     volume: (volume: number, count: number) => `Tập ${volume} · ${count} chương`,
@@ -1647,15 +1659,15 @@ export const rulesCopy = {
   globalTitle: 'Quy tắc chung cho mọi truyện',
   projectTitle: 'Quy tắc viết chung của dự án',
   globalIntro: 'Áp dụng cho mọi dự án và truyện trong thư viện. Dặn bằng lời thường, như dặn một biên tập viên.',
-  storyIntro: 'Quy tắc riêng của truyện này. Dặn bằng lời thường, như dặn một biên tập viên — Noverse tự hiểu, nhắc trợ lý và kiểm từng chương.',
-  projectIntro: (name: string) => `Áp dụng cho mọi truyện trong “${name}”. Truyện nào cần khác thì thêm ở tab Quy tắc viết của truyện đó — quy tắc của truyện được ưu tiên.`,
-  guideTitle: 'Quy tắc riêng của từng truyện và từng dự án nằm ở tab Dự án',
-  guideText: 'Mở truyện › tab Quy tắc viết, hoặc trang dự án › Quy tắc viết chung. Quy tắc riêng được ưu tiên hơn quy tắc ở đây.',
+  storyIntro: 'Dặn bằng lời thường, như dặn một biên tập viên. Noverse tự hiểu, nhắc trợ lý và kiểm từng chương.',
+  projectIntro: (_name: string) => 'Dặn bằng lời thường, như dặn một biên tập viên. Áp dụng cho mọi truyện trong dự án.',
+  guideTitle: 'Cách viết của từng truyện và từng dự án',
+  guideText: 'Mở truyện › tab Cách viết, hoặc trang dự án › Cách viết của dự án',
   guideLink: 'Quy tắc của truyện đang mở',
   editProject: 'Sửa ở trang dự án ›', editGlobal: 'Sửa ở Tuỳ chỉnh ›',
   returnStory: 'Về quy tắc của truyện',
   storyNote: 'Quy tắc dự án và “Mọi truyện” được kế thừa ở dưới, chạm để sửa ở cấp đó.',
-  ownProject: 'Của dự án', readOnly: ', chỉ xem',
+  ownProject: 'Bạn đã dặn', readOnly: 'chỉ xem',
   changeLevel: 'Áp dụng hoặc Huỷ thay đổi trước khi chuyển cấp.',
   mobileTitle: (scope: string, story: string, project: string) => scope === 'story' ? `Riêng truyện “${story}”` : scope === 'project' ? `Quy tắc chung của dự án “${project}”` : 'Quy tắc chung cho mọi truyện',
   placeholder: 'Thêm quy tắc… ví dụ: “Không dùng từ ‘bỗng nhiên’” hoặc “Tri Hạ luôn gọi Nhược Vy là ‘em gái’”',
@@ -1670,6 +1682,17 @@ export const styleCopy = {
   tab: 'Cách viết',
 } as const
 
+export const amWritingCopy = {
+  intro: 'Văn phong và những điều bạn dặn trợ lý khi viết truyện này.',
+  projectTitle: 'Cách viết của dự án',
+  projectIntro: 'Văn phong và quy tắc dùng chung cho mọi truyện trong dự án. Truyện nào cần khác thì đổi trong tab Cách viết của truyện đó.',
+  styleTitle: 'Văn phong cho truyện này',
+  writerTitle: 'Người viết cho truyện này',
+  projectFooter: 'Đổi mặc định của dự án ›',
+  modelFooter: 'Thêm model ở Kết nối AI ›',
+  configSaveFailed: 'Chưa lưu được văn phong hoặc người viết. Truyện chưa bắt đầu; hãy thử lại.',
+} as const
+
 export const storyFrameCopy = {
   noPrevious: 'Chưa có truyện trước để so sánh.',
   chooseAudience: 'Chọn nhóm người nghe',
@@ -1677,3 +1700,4 @@ export const storyFrameCopy = {
 } as const
 
 export { membersCopy } from './members'
+export { storageCopy, storageProviders, storageRegions, storageGuides } from './storage'

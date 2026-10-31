@@ -36,16 +36,12 @@ func acceptTestChapter(t *testing.T, f pgFixture) (pgtype.UUID, *domain.ChapterR
 	return chapterID, rec
 }
 
-// readyTestBlob registers a staged→ready blob row for the fixture project.
+// readyTestBlob registers verified bytes as one ready registry row.
 func readyTestBlob(t *testing.T, repo *postgres.Audio, f pgFixture, key, body string) postgres.Blob {
 	t.Helper()
 	ctx := context.Background()
-	blob, err := repo.StageBlob(ctx, f.scope.ProjectID, key, "local", "audio/mpeg", pgtype.UUID{}, pgtype.UUID{})
-	if err != nil {
-		t.Fatalf("stage blob: %v", err)
-	}
 	sum := sha256.Sum256([]byte(body))
-	ready, err := repo.MarkBlobReady(ctx, f.scope.ProjectID, blob.ID, hex.EncodeToString(sum[:]), int64(len(body)))
+	ready, err := repo.PublishBlob(ctx, postgres.PublishInput{ProjectID: f.scope.ProjectID, Key: key, Driver: "local", ContentType: "audio/mpeg", SHA256: hex.EncodeToString(sum[:]), Size: int64(len(body))})
 	if err != nil {
 		t.Fatalf("mark blob ready: %v", err)
 	}

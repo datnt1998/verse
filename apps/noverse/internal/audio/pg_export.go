@@ -9,10 +9,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -148,6 +150,9 @@ func (s *PGService) exportContentKey(ctx context.Context, scope postgres.ScopeRe
 		sort.Strings(ids)
 		w(ids...)
 	}
+	// Tư liệu (bìa/nhạc) feed the same engine paths on scratch — a changed
+	// cover or music bed must produce a different content key.
+	w(hex.EncodeToString(s.assetDocsFingerprint(ctx, scope.ProjectID)))
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
@@ -282,6 +287,9 @@ type PGExportRunner struct {
 // and returns the runner. The worker row carries a random token hash — it is
 // never used to authenticate, the job claim is internal.
 func NewPGExportRunner(ctx context.Context, deps PGDeps) (*PGExportRunner, error) {
+	if _, err := configuredBlobCache(); err != nil {
+		return nil, err
+	}
 	workers, err := deps.Jobs.ListWorkers(ctx)
 	if err != nil {
 		return nil, pgErr(err)
@@ -321,7 +329,16 @@ func (r *PGExportRunner) RunOnce(ctx context.Context) (bool, error) {
 		Fence:    job.FencingToken,
 	}
 	svc := NewPGService(r.deps)
+	defer svc.Close()
 	if err := svc.processExportJob(ctx, job); err != nil {
+		if errors.Is(err, postgres.ErrJobLeaseLost) {
+			// Fence moved between the last heartbeat and completion; the job
+			// is gone from this worker either way — abandoned, not failed.
+			return true, nil
+		}
+		if ctx.Err() != nil {
+			return true, ctx.Err()
+		}
 		if _, ferr := r.deps.Jobs.Fail(ctx, lease, map[string]any{"error": err.Error()}, nil); ferr != nil {
 			return true, fmt.Errorf("job failed (%v) and fail-report failed: %w", err, ferr)
 		}
@@ -344,7 +361,19 @@ func (r *PGExportRunner) Run(ctx context.Context, idle time.Duration) error {
 		}
 		ran, err := r.RunOnce(ctx)
 		if err != nil {
-			return err
+			// Real runner failures (claim/DB/reporting) are logged and
+			// retried after the idle backoff; only parent-context
+			// cancellation stops the loop permanently.
+			if errors.Is(err, context.Canceled) && ctx.Err() != nil {
+				return ctx.Err()
+			}
+			slog.Error("export runner lỗi — thử lại sau backoff", "module", "audio-export", "err", err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(idle):
+				continue
+			}
 		}
 		if !ran {
 			select {
@@ -356,8 +385,19 @@ func (r *PGExportRunner) Run(ctx context.Context, idle time.Duration) error {
 	}
 }
 
+// exportHeartbeatInterval is the runner's lease-renewal cadence — a var only
+// so runner-level tests can shorten it without waiting the real 30 seconds.
+var exportHeartbeatInterval = postgres.DefaultHeartbeat
+
+// exportHeartbeat renews the claimed lease — a var so tests can gate each
+// beat deterministically instead of racing a real 30-second ticker.
+var exportHeartbeat = func(ctx context.Context, deps PGDeps, lease postgres.WorkerLease) error {
+	_, err := deps.Jobs.Heartbeat(ctx, lease, postgres.DefaultLease)
+	return err
+}
+
 // processExportJob executes one claimed audio_export job.
-func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) error {
+func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (resultErr error) {
 	var in pgExportInput
 	if err := json.Unmarshal(job.Input, &in); err != nil {
 		return fmt.Errorf("audio_export input hỏng: %w", err)
@@ -368,6 +408,32 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) erro
 		WorkerID: s.deps.WorkerID,
 		Fence:    job.FencingToken,
 	}
+	completionCtx := ctx
+	ctx, stopHeartbeat := maintainExportLease(ctx, exportHeartbeatInterval, func(heartbeatCtx context.Context) error {
+		return exportHeartbeat(heartbeatCtx, s.deps, lease)
+	}, nil)
+	defer func() {
+		// A heartbeat error (lease loss included) takes precedence over the
+		// error the aborted work returned — completing or failing under a
+		// lost lease is never correct.
+		if err := stopHeartbeat(); err != nil {
+			resultErr = err
+		}
+		// Losing the lease is a per-job outcome, not a runner error: the
+		// heartbeat already stopped and cancelled every in-flight
+		// operation, so the stale claim is abandoned without Fail/Complete
+		// and the runner continues with the next job.
+		if errors.Is(resultErr, postgres.ErrJobLeaseLost) {
+			slog.Info("export mất lease — bỏ job đã claim, tiếp tục claim job khác", "module", "audio-export", "job", postgres.UUIDString(job.ID))
+			resultErr = nil
+		}
+	}()
+
+	// A heartbeat that already reported lease loss cancelled this context;
+	// never start materialization or ffmpeg for a job we no longer own.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	// Cache hit: identical inputs were exported before — attach nothing new,
 	// report the manifest, ffmpeg never runs.
@@ -375,8 +441,15 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) erro
 		result := map[string]any{
 			"cacheHit": true, "cacheKey": in.CacheKey, "files": files,
 		}
-		_, err = s.deps.Jobs.Complete(ctx, lease, result, int32(len(files)), nil)
+		if err := stopHeartbeat(); err != nil {
+			return err
+		}
+		_, err = s.deps.Jobs.Complete(completionCtx, lease, result, int32(len(files)), nil)
 		return pgErr(err)
+	}
+
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 
 	// Materialize the locked inputs into a private scratch layout so the
@@ -385,7 +458,7 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) erro
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(scratch.root)
+	defer scratch.cleanup()
 
 	fileSvc, err := NewService(scratch.layout, NullSynth{Reason: "hosted"})
 	if err != nil {
@@ -457,7 +530,13 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) erro
 		"cacheHit": false, "cacheKey": in.CacheKey,
 		"files": manifest.Files, "durationSec": result.DurationSec,
 	}
-	_, err = s.deps.Jobs.CompleteWith(ctx, lease, result2, int32(len(uploads)),
+	// Stop and join renewals before fenced completion. A failed heartbeat
+	// cannot race successful attachment, and a completed job is not mistaken
+	// for a lost lease by an in-flight renewal.
+	if err := stopHeartbeat(); err != nil {
+		return err
+	}
+	_, err = s.deps.Jobs.CompleteWith(completionCtx, lease, result2, int32(len(uploads)),
 		func(ctx context.Context, tx pgx.Tx, _ postgres.Job) error {
 			entry := postgres.ExportCacheEntry{
 				CacheKey: in.CacheKey, Kind: exportCacheKind(in.Options),
@@ -471,9 +550,26 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) erro
 			for _, u := range chapterAudio {
 				ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(u.file.Name)), ".")
 				if err := s.deps.Audio.PutExportCacheTx(ctx, tx, scope, postgres.ExportCacheEntry{
-					CacheKey: ChapterAudioCacheKey(in.Volume, u.chapter),
-					Kind:     ext,
-					BlobID:   u.blob.ID,
+					CacheKey:      ChapterAudioCacheKey(in.Volume, u.chapter),
+					Kind:          ext,
+					BlobID:        u.blob.ID,
+					InputManifest: exportFileManifestJSON(u, in.Volume),
+				}, nil); err != nil {
+					return err
+				}
+			}
+			// Every produced file also registers under the logical export
+			// path (export-file/<rel>) so the hosted /exports list and
+			// /exports/file download resolve them like the file backend's
+			// directory walk.
+			for _, u := range uploads {
+				ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(u.file.Name)), ".")
+				rel := strings.TrimPrefix(filepath.ToSlash(u.file.Path), "/")
+				if err := s.deps.Audio.PutExportCacheTx(ctx, tx, scope, postgres.ExportCacheEntry{
+					CacheKey:      "export-file/" + rel,
+					Kind:          ext,
+					BlobID:        u.blob.ID,
+					InputManifest: exportFileManifestJSON(u, in.Volume),
 				}, nil); err != nil {
 					return err
 				}
@@ -508,20 +604,25 @@ func (s *PGService) exportCacheHit(ctx context.Context, scope postgres.ScopeRef,
 
 // pgExportScratch is the temporary file layout one export runs in.
 type pgExportScratch struct {
-	root   string
-	layout Layout
+	root    string
+	layout  Layout
+	cleanup func()
 }
 
 // materializeExport builds the scratch layout: scripts JSON with selected
 // renders filled in, render WAVs at their content-key paths, settings/cast/
 // voices at the file backend's locations.
 func (s *PGService) materializeExport(ctx context.Context, scope postgres.ScopeRef, in pgExportInput) (*pgExportScratch, error) {
-	root, err := os.MkdirTemp("", "ainovel-pg-export-*")
+	cache, err := configuredBlobCache()
+	if err != nil {
+		return nil, err
+	}
+	root, cleanup, err := cache.workDir()
 	if err != nil {
 		return nil, err
 	}
 	fail := func(err error) (*pgExportScratch, error) {
-		os.RemoveAll(root)
+		cleanup()
 		return nil, err
 	}
 	storyDir := filepath.Join(root, "story")
@@ -542,6 +643,7 @@ func (s *PGService) materializeExport(ctx context.Context, scope postgres.ScopeR
 	for _, c := range in.Chapters {
 		chapters[c] = true
 	}
+	var downloads []blobMaterialization
 	for _, sc := range in.Source {
 		if len(chapters) > 0 && !chapters[sc.Chapter] {
 			continue
@@ -585,9 +687,7 @@ func (s *PGService) materializeExport(ctx context.Context, scope postgres.ScopeR
 			if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 				return fail(err)
 			}
-			if err := s.downloadBlob(ctx, blob, dest); err != nil {
-				return fail(err)
-			}
+			downloads = append(downloads, blobMaterialization{blob: blob, dest: dest})
 			now := time.Now()
 			seg.Rendered = &SegmentAudio{
 				Key: r.SynthKey, DurationSec: r.DurationSec, RenderedAt: &now,
@@ -629,36 +729,212 @@ func (s *PGService) materializeExport(ctx context.Context, scope postgres.ScopeR
 	if err := WriteProjectVoices(layout, list); err != nil {
 		return fail(err)
 	}
-	return &pgExportScratch{root: root, layout: layout}, nil
+
+	// Tư liệu (bìa, nhạc nền): file mode reads them off the assets dir
+	// (Layout.CoverPNG for m4b embed, pickMusic for withMusic). Hosted keeps
+	// them as project_documents blobs; download into the scratch layout so
+	// the untouched engine paths consume them.
+	if err := s.materializeBlobs(ctx, downloads); err != nil {
+		return fail(err)
+	}
+	if err := s.materializeAssets(ctx, scope, layout, in.Options); err != nil {
+		return fail(err)
+	}
+	return &pgExportScratch{root: root, layout: layout, cleanup: cleanup}, nil
+}
+
+// materializeAssets downloads project asset documents (kind='asset') into
+// the scratch layout's assets dir: nhac/<name> → MusicDir, bia/<name> →
+// CoverDir. Logical names already carry the file-mode relative path.
+func (s *PGService) materializeAssets(ctx context.Context, scope postgres.ScopeRef, layout Layout, opts ExportOptions) error {
+	docs, err := s.deps.Audio.ListAssetDocs(ctx, scope.ProjectID)
+	if err != nil {
+		return pgErr(err)
+	}
+	var cover *postgres.AssetDoc
+	music := map[string]postgres.AssetDoc{}
+	for i := range docs {
+		d := &docs[i]
+		name := filepath.Base(d.LogicalName)
+		switch {
+		case strings.HasPrefix(d.LogicalName, "nhac/") && opts.Intro && !opts.Split:
+			if !isAudioFile(name) || strings.HasPrefix(name, ".") {
+				continue
+			}
+			// Let the file pipeline's existing selector choose intro/outro
+			// from names, without downloading unused project music.
+			if err := os.MkdirAll(layout.MusicDir(), 0700); err != nil {
+				return err
+			}
+			path := filepath.Join(layout.MusicDir(), name)
+			if err := os.WriteFile(path, nil, 0600); err != nil {
+				return err
+			}
+			music[path] = *d
+		case strings.HasPrefix(d.LogicalName, "bia/"):
+			switch strings.ToLower(filepath.Ext(name)) {
+			case ".jpg", ".jpeg", ".png", ".webp":
+				if cover == nil || d.UpdatedAt.After(cover.UpdatedAt) {
+					cover = d
+				}
+			}
+		}
+	}
+	intro, outro, err := pickMusic(layout.MusicDir())
+	if err != nil {
+		return err
+	}
+	var selected []postgres.AssetDoc
+	for path, d := range music {
+		if err := os.Remove(path); err != nil {
+			return err
+		}
+		if path == intro || path == outro {
+			selected = append(selected, d)
+		}
+	}
+	if cover != nil {
+		selected = append(selected, *cover)
+	}
+	var downloads []blobMaterialization
+	for _, d := range selected {
+		blob, err := s.deps.Audio.BlobByID(ctx, scope.ProjectID, d.BlobID)
+		if err != nil {
+			return pgErr(err)
+		}
+		if blob.State != "ready" {
+			return errors.New("project asset is not ready")
+		}
+		dir := layout.CoverDir()
+		if strings.HasPrefix(d.LogicalName, "nhac/") {
+			dir = layout.MusicDir()
+		}
+		downloads = append(downloads, blobMaterialization{blob: blob,
+			dest: filepath.Join(dir, filepath.Base(d.LogicalName))})
+	}
+	return s.materializeBlobs(ctx, downloads)
+}
+
+// assetDocsFingerprint hashes the project's asset documents into the export
+// content key: a changed cover or music bed must not hit a stale cache row.
+func (s *PGService) assetDocsFingerprint(ctx context.Context, projectID pgtype.UUID) []byte {
+	docs, err := s.deps.Audio.ListAssetDocs(ctx, projectID)
+	if err != nil {
+		return nil
+	}
+	h := sha256.New()
+	for _, d := range docs {
+		fmt.Fprintf(h, "%s=%s@%d\n", d.LogicalName, postgres.UUIDString(d.BlobID), d.Version)
+	}
+	return h.Sum(nil)
 }
 
 // downloadBlob streams one blob object to a scratch file, verifying the
 // recorded hash.
 func (s *PGService) downloadBlob(ctx context.Context, blob postgres.Blob, dest string) error {
-	rc, info, err := s.deps.Blobs.Open(ctx, blob.ObjectKey, blobstore.FullRange)
+	cache, err := configuredBlobCache()
 	if err != nil {
 		return err
 	}
-	defer rc.Close()
-	if info.SHA256 != "" && !strings.EqualFold(info.SHA256, blob.SHA256) {
-		return fmt.Errorf("blob %s hash không khớp đăng ký", blob.ObjectKey)
+	return cache.materialize(ctx, s.deps.Blobs, blob.StorageDriver, blob.ObjectKey, blob.SHA256, blob.SizeBytes, dest)
+}
+
+type blobMaterialization struct {
+	blob postgres.Blob
+	dest string
+}
+
+func (s *PGService) materializeBlobs(ctx context.Context, items []blobMaterialization) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	work := make(chan blobMaterialization)
+	var workers sync.WaitGroup
+	var firstErr error
+	var once sync.Once
+	for range 4 {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			for item := range work {
+				if err := s.downloadBlob(ctx, item.blob, item.dest); err != nil {
+					once.Do(func() { firstErr = err; cancel() })
+				}
+			}
+		}()
 	}
-	f, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
-	if err != nil {
-		return err
+send:
+	for _, item := range items {
+		select {
+		case work <- item:
+		case <-ctx.Done():
+			break send
+		}
 	}
-	h := sha256.New()
-	if _, err := io.Copy(f, io.TeeReader(rc, h)); err != nil {
-		f.Close()
-		return err
+	close(work)
+	workers.Wait()
+	if firstErr != nil {
+		return firstErr
 	}
-	if err := f.Close(); err != nil {
-		return err
+	return ctx.Err()
+}
+
+// ticks is injectable so tests can cross the 120-second lease without sleeping.
+// The real ticker runs throughout all I/O and ffmpeg. A failed or stuck renewal
+// cancels the context shared by copies, CommandContext, and fenced completion.
+func maintainExportLease(parent context.Context, interval time.Duration, heartbeat func(context.Context) error, ticks <-chan time.Time) (context.Context, func() error) {
+	ctx, cancel := context.WithCancelCause(parent)
+	var ticker *time.Ticker
+	if ticks == nil {
+		ticker = time.NewTicker(interval)
+		ticks = ticker.C
 	}
-	if got := hex.EncodeToString(h.Sum(nil)); !strings.EqualFold(got, blob.SHA256) {
-		return fmt.Errorf("blob %s sai nội dung", blob.ObjectKey)
+	// stopCh signals the heartbeater to exit instead of cancelling the work
+	// context: an in-flight renewal must report the real lease verdict (lease
+	// lost vs renewed), not a derived context error from stop itself.
+	stopCh := make(chan struct{})
+	done := make(chan struct{})
+	var hbErr error
+	go func() {
+		defer close(done)
+		if ticker != nil {
+			defer ticker.Stop()
+		}
+		for {
+			renewCtx, renewCancel := context.WithTimeout(ctx, interval)
+			err := heartbeat(renewCtx)
+			renewCancel()
+			if err != nil {
+				// A failure on an already-cancelled work context is derived
+				// (stop or the caller cancelled) — the real failure is the
+				// cancellation itself, so don't record a bogus heartbeat loss.
+				if ctx.Err() == nil {
+					cancel(fmt.Errorf("export heartbeat: %w", err))
+					hbErr = err
+				}
+				return
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-stopCh:
+				return
+			case <-ticks:
+			}
+		}
+	}()
+	var stopOnce sync.Once
+	var stopErr error
+	// hbErr is written only while the work context is live and read after
+	// done closes — the channel close orders them.
+	return ctx, func() error {
+		stopOnce.Do(func() {
+			close(stopCh)
+			<-done
+			cancel(context.Canceled)
+			stopErr = hbErr
+		})
+		return stopErr
 	}
-	return nil
 }
 
 // pgExportUpload is one published export artifact.
@@ -666,6 +942,33 @@ type pgExportUpload struct {
 	file    ExportFile
 	blob    postgres.Blob
 	chapter int // 0 = volume-level artifact
+}
+
+// exportFileManifestJSON builds the per-file registry manifest consumed by
+// the web layer's hosted /exports list and /exports/file resolver. The
+// shape mirrors the web package's pgExportFileManifest (rel/name/size/
+// sha256/key/volume/format/exportedAt) — keep both in sync.
+func exportFileManifestJSON(u pgExportUpload, volume int) []byte {
+	rel := strings.TrimPrefix(filepath.ToSlash(u.file.Path), "/")
+	format := "other"
+	switch strings.ToLower(filepath.Ext(u.file.Name)) {
+	case ".mp3", ".m4b", ".wav", ".ogg", ".flac", ".zip":
+		format = "audio"
+	case ".txt":
+		format = "txt"
+	case ".epub":
+		format = "epub"
+	case ".srt":
+		format = "other"
+	}
+	vol := volume
+	body, _ := json.Marshal(map[string]any{
+		"rel": rel, "name": u.file.Name, "size": u.blob.SizeBytes,
+		"sha256": u.blob.SHA256, "key": u.blob.ObjectKey,
+		"volume": vol, "format": format,
+		"exportedAt": time.Now().UTC(),
+	})
+	return body
 }
 
 // uploadExportFile publishes one produced file: blob object first (key from
@@ -700,27 +1003,14 @@ func (s *PGService) uploadExportFile(ctx context.Context, scope postgres.ScopeRe
 	if driver == "" {
 		return zero, errors.New("BlobStore không khai báo driver — không ghi được blobs.storage_driver")
 	}
-	// Content-addressed: an identical re-export (cache expired/pruned) finds
-	// the object already registered — reuse it instead of inserting a second
-	// registry row (object_key is unique per project) or rewriting the bytes.
-	if existing, err := s.deps.Audio.BlobByKey(ctx, scope.ProjectID, key); err == nil &&
-		existing.State == "ready" && strings.EqualFold(existing.SHA256, sha) {
-		return pgExportUpload{file: f, blob: existing, chapter: chapter}, nil
-	}
 	if _, err := data.Seek(0, io.SeekStart); err != nil {
 		return zero, err
 	}
-	if _, err := s.deps.Blobs.Put(ctx, key, data, blobstore.PutOptions{
-		ContentType:    exportContentType(f.Name),
-		ExpectedSHA256: sha,
-	}); err != nil {
-		return zero, err
-	}
-	blob, err := s.deps.Audio.StageBlob(ctx, scope.ProjectID, key, driver, exportContentType(f.Name), pgtype.UUID{}, jobID)
-	if err != nil {
-		return zero, pgErr(err)
-	}
-	blob, err = s.deps.Audio.MarkBlobReady(ctx, scope.ProjectID, blob.ID, sha, size)
+	blob, err := postgres.UploadAndPublishBlob(ctx, s.deps.Audio, s.deps.Blobs, postgres.PublishInput{
+		ProjectID: scope.ProjectID, Key: key, Driver: driver,
+		ContentType: exportContentType(f.Name), SHA256: sha, Size: size,
+		JobID: jobID,
+	}, data)
 	if err != nil {
 		return zero, pgErr(err)
 	}

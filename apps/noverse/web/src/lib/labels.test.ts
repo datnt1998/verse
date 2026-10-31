@@ -12,6 +12,46 @@ import { eventView } from '../screens/workspace/events'
 import realActivity from './real-activity.fixture.json'
 import { activityText } from './activity'
 
+import { statusText } from '../screens/workspace/RunHeader'
+import { toolCode } from '../screens/workspace/events'
+
+describe('lỗi hợp đồng và vai trò không lộ mã nội bộ', () => {
+  const diagnostic = 'đầu ra vẫn lỗi sau 3 lần tự sửa: Không tìm thấy JSON object trong đầu ra'
+  const cases = [
+    ['arbiter_intervention', 'Trọng tài'],
+    ['arbiter_plan_start', 'Trọng tài'],
+    ['arbiter_failure', 'Trọng tài'],
+    ['architect_ledger', 'Kiến trúc sư'],
+    ['import_segment', 'Nhập truyện'],
+    ['import_chapter_analysis', 'Nhập truyện'],
+    ['import_range_digest', 'Nhập truyện'],
+    ['import_book_synthesis', 'Nhập truyện'],
+    ['simulation_source_report', 'Mô phỏng văn phong'],
+    ['simulation_synthesis', 'Mô phỏng văn phong'],
+    ['chapter_revision_analysis', 'Phân tích bản sửa'],
+    ['userrules_normalize', 'Chuẩn hoá luật viết'],
+    ['future_contract', 'Trợ lý'],
+  ] as const
+
+  it.each(cases)('%s được dịch ở nhật ký, trạng thái và bảng lỗi', (id, assistant) => {
+    const raw = `Phán định can thiệp thất bại: arbiter: ${id}: ${diagnostic} (chưa thay đổi gì)`
+    const event = { id: 'contract-error', time: '2026-10-31T09:00:00Z', summary: raw,
+      category: 'ERROR', agent: 'arbiter', level: 'error', failed: true, result: raw } as ActivityEvent
+    const view = eventView(event, Date.parse(event.time))
+    for (const visible of [errorLabel(raw), humanizeToolText(raw), translateHost(raw), activityText(event), view.text, view.title, statusText(raw, 'error')]) {
+      expect(visible).toContain(assistant)
+      expect(visible).not.toMatch(/\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b|\b(?:arbiter|architect|writer|editor)\b|JSON object/i)
+    }
+    expect(toolCode(event)).toContain(raw)
+    expect(event.summary).toBe(raw)
+  })
+
+  it.each(['arbiter', 'architect_long', 'architect_short', 'writer', 'editor'])('dịch tiền tố vai %s cả khi không có mã hợp đồng', (role) => {
+    const raw = `${role}: unknown provider error: key=value`
+    expect(errorLabel(raw)).toContain(agentLabel(role))
+    expect(humanizeToolText(raw)).not.toMatch(/\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b|unknown|provider|key=value/i)
+  })
+})
 describe('toolLabel — bảng §5', () => {
   it('công cụ có trong bảng → nhãn thường', () => {
     expect(toolLabel('commit_chapter')).toBe('Lưu chương')

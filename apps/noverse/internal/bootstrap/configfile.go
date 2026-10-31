@@ -89,6 +89,8 @@ type ConfigLevel struct {
 	Path   string
 	Exists bool
 	Config Config
+	// Raw is populated for repository-backed layers; nil keeps file reads.
+	Raw map[string]any
 }
 
 // LoadConfig 按优先级加载并合并配置（GAP-10 继承链）：
@@ -249,6 +251,37 @@ func ReadConfigJSON(path string) (map[string]any, error) {
 		return nil, fmt.Errorf("tệp %s không hợp lệ: %s", path, utils.DescribeJSONError(err))
 	}
 	return m, nil
+}
+
+// ConfigLevelJSON reads the original field declarations of a config layer.
+// Repository layers already carry them; file layers retain JSONC parsing.
+func ConfigLevelJSON(level ConfigLevel) (map[string]any, error) {
+	if level.Raw != nil {
+		data, err := json.Marshal(level.Raw)
+		if err != nil {
+			return nil, err
+		}
+		var raw map[string]any
+		err = json.Unmarshal(data, &raw)
+		return raw, err
+	}
+	return ReadConfigJSON(level.Path)
+}
+
+// ParseConfigDocument parses the same JSONC syntax as LoadConfigFile without
+// requiring a filesystem path.
+func ParseConfigDocument(data []byte) (Config, map[string]any, error) {
+	clean := stripJSONComments(data)
+	var cfg Config
+	if err := json.Unmarshal(clean, &cfg); err != nil {
+		return Config{}, nil, err
+	}
+	var raw map[string]any
+	if err := json.Unmarshal(clean, &raw); err != nil {
+		return Config{}, nil, err
+	}
+	warnLegacyLanguage(clean)
+	return cfg, raw, nil
 }
 
 // MergeConfig 将 overlay 合并到 base 上。非零值字段覆盖，map 按 key 合并。

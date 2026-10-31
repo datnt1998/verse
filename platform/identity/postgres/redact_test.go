@@ -12,20 +12,45 @@ import (
 
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/pgtest"
+	"github.com/jackc/pgx/v5"
 )
 
 const leakySecret = "leaky-secret-9f8e7d"
 
-// dsnWithPassword injects a fake password into a test DSN. Local auth is
-// trust, so the value is never verified; it exists only to prove errors and
-// logs never echo credentials.
+// dsnWithPassword provisions a dedicated login with the marker password, so
+// live redaction checks exercise real password authentication as well as trust.
 func dsnWithPassword(t *testing.T, dsn, password string) string {
 	t.Helper()
 	u, err := url.Parse(dsn)
 	if err != nil {
 		t.Fatalf("parse test DSN: %v", err)
 	}
-	u.User = url.UserPassword(u.User.Username(), password)
+	// Roles are cluster-global: use the test's unique schema for the login too.
+	role := pgtest.SchemaOf(dsn) + "_redact"
+	admin, err := pgx.Connect(context.Background(), dsn)
+	if err != nil {
+		t.Fatalf("open redaction fixture: %v", err)
+	}
+	defer admin.Close(context.Background())
+	var createSQL string
+	if err := admin.QueryRow(context.Background(), `SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', $1::text, $2::text)`, role, password).Scan(&createSQL); err != nil {
+		t.Fatalf("prepare redaction login: %v", err)
+	}
+	if _, err := admin.Exec(context.Background(), createSQL); err != nil {
+		t.Fatalf("create redaction login: %v", sanitizeErr(err))
+	}
+	t.Cleanup(func() {
+		conn, err := pgx.Connect(context.Background(), dsn)
+		if err != nil {
+			t.Errorf("open redaction cleanup: %v", err)
+			return
+		}
+		defer conn.Close(context.Background())
+		if _, err := conn.Exec(context.Background(), "DROP ROLE "+pgx.Identifier{role}.Sanitize()); err != nil {
+			t.Errorf("drop redaction login: %v", err)
+		}
+	})
+	u.User = url.UserPassword(role, password)
 	return u.String()
 }
 

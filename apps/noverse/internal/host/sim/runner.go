@@ -20,7 +20,7 @@ func Run(ctx context.Context, deps Deps, opts Options) (<-chan Event, error) {
 	if deps.Store == nil || deps.LLM == nil {
 		return nil, fmt.Errorf("thiếu phụ thuộc để mô phỏng")
 	}
-	if strings.TrimSpace(opts.SourceDir) == "" {
+	if strings.TrimSpace(opts.SourceDir) == "" && opts.LoadSources == nil {
 		return nil, fmt.Errorf("cần chọn thư mục văn mẫu")
 	}
 
@@ -36,7 +36,15 @@ func Run(ctx context.Context, deps Deps, opts Options) (<-chan Event, error) {
 		}
 
 		emit(StageScan, 0, 0, "Đang quét văn mẫu…", nil)
-		sources, err := scanSources(opts.SourceDir)
+		var sources []scannedSource
+		var err error
+		if opts.LoadSources != nil {
+			var documents []Source
+			documents, err = opts.LoadSources(ctx)
+			sources = scanDocuments(documents)
+		} else {
+			sources, err = scanSources(opts.SourceDir)
+		}
 		if err != nil {
 			emit(StageError, 0, 0, "Quét văn mẫu thất bại", err)
 			return

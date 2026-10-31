@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 
@@ -121,14 +120,25 @@ type savedCoCreateState struct {
 	Committed     bool                     `json:"committed"`
 }
 
+// File sessions retain their story-root path; hosted sessions use fenced rows.
+func (s *workerServer) coCreateDocuments() *store.IO {
+	if docs := s.h.Documents(); docs != nil {
+		return docs
+	}
+	if s.storyDir != "" {
+		return store.NewIO(s.storyDir)
+	}
+	return nil
+}
+
 // loadCoCreateLocked restores a session once, including the host's stage hold.
 func (s *workerServer) loadCoCreateLocked() error {
 	m := s.co
-	if m.loaded || s.storyDir == "" {
+	if m.loaded || s.coCreateDocuments() == nil {
 		return nil
 	}
 	var saved savedCoCreateState
-	err := store.NewIO(s.storyDir).ReadJSON(coCreateSessionPath, &saved)
+	err := s.coCreateDocuments().ReadJSON(coCreateSessionPath, &saved)
 	if os.IsNotExist(err) {
 		m.loaded = true
 		return nil
@@ -148,11 +158,11 @@ func (s *workerServer) loadCoCreateLocked() error {
 }
 
 func (s *workerServer) saveCoCreateLocked() error {
-	if s.storyDir == "" {
+	if s.coCreateDocuments() == nil {
 		return nil
 	}
 	m := s.co
-	if err := store.NewIO(s.storyDir).WriteJSON(coCreateSessionPath, savedCoCreateState{
+	if err := s.coCreateDocuments().WriteJSON(coCreateSessionPath, savedCoCreateState{
 		SchemaVersion: 1, Session: m.session, Stage: m.stage, Committed: m.committed,
 	}); err != nil {
 		return fmt.Errorf("Không thể lưu phiên đồng sáng tác: %w", err)
@@ -393,8 +403,8 @@ func (s *workerServer) postCoCreateCancel(w http.ResponseWriter, r *http.Request
 		jsonError(w, 500, err.Error())
 		return
 	}
-	if s.storyDir != "" {
-		if err := os.Remove(filepath.Join(s.storyDir, coCreateSessionPath)); err != nil && !os.IsNotExist(err) {
+	if docs := s.coCreateDocuments(); docs != nil {
+		if err := docs.RemoveFile(coCreateSessionPath); err != nil && !os.IsNotExist(err) {
 			m.mu.Unlock()
 			jsonError(w, 500, fmt.Sprintf("Không thể xoá phiên đồng sáng tác: %v", err))
 			return

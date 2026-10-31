@@ -20,17 +20,11 @@
 //     is confined to `Keys.Prefix()`. Backups (`{env}/backups/`) and staging
 //     are excluded from the orphan sweep, and a key from another environment
 //     is reported, never touched.
-//   - Attaching/referenced blobs are excluded transactionally: the row is
-//     locked before the decision and the registry delete happens in the same
-//     transaction (see postgres.BlobGC), so a concurrent attachment either
-//     wins the race and keeps the blob or fails its foreign key. Staged uploads
-//     remain protected while their job is active/leased or inside staged grace.
-//   - Grace: a blob younger than the grace window is never unreferenced-blob
-//     or orphan material, which covers an upload whose object landed before
-//     its registry row committed.
-//   - Crash safety: rows are deleted before objects; the worst outcome is an
-//     orphan object that the next run collects, never a row pointing at
-//     missing bytes.
+//   - Reference decisions lock and recheck the registry row. A persistent
+//     deleting claim excludes publication and attachments until storage deletion
+//     succeeds; only then is the row removed. Every crash boundary is resumable.
+//   - Grace covers bytes written before publication and asynchronous attachment.
+//   - Registry candidates and storage reconciliation use bounded keyset pages.
 //   - Idempotence: a second run over the same store deletes nothing and
 //     reports zeroes.
 package storagegc
@@ -55,7 +49,7 @@ const (
 	DefaultGrace      = 24 * time.Hour
 	DefaultStagingAge = 24 * time.Hour
 	DefaultStagedAge  = 24 * time.Hour
-	defaultPageSize   = 500
+	defaultPageSize   = 1000
 )
 
 // Options configures one GC run.
@@ -107,6 +101,8 @@ type Report struct {
 	OrphansDeleted   int      `json:"orphansDeleted"`
 	ObjectsDeleted   int      `json:"objectsDeleted"`
 	OutOfScope       int      `json:"outOfScope"`
+	MultipartSeen    int      `json:"multipartSeen"`
+	MultipartAborted int      `json:"multipartAborted"`
 	UnknownObjects   int      `json:"unknownObjects"`
 	Errors           []string `json:"errors,omitempty"`
 }
@@ -129,6 +125,7 @@ func (r Report) Format() string {
 		r.UnreferencedSeen, r.BlobsReaped, r.BlobsReferenced, r.BlobsSkipped)
 	fmt.Fprintf(&b, "  staging: %d thấy / %d xoá\n", r.StagingSeen, r.StagingDeleted)
 	fmt.Fprintf(&b, "  object mồ côi: %d thấy / %d xoá\n", r.OrphansSeen, r.OrphansDeleted)
+	fmt.Fprintf(&b, "  multipart quá hạn: %d thấy / %d huỷ\n", r.MultipartSeen, r.MultipartAborted)
 	fmt.Fprintf(&b, "  object đã xoá: %d | ngoài phạm vi: %d | không nhận dạng: %d | lỗi: %d\n",
 		r.ObjectsDeleted, r.OutOfScope, r.UnknownObjects, len(r.Errors))
 	return b.String()
@@ -174,8 +171,15 @@ func Run(ctx context.Context, opts Options) (Report, error) {
 	}
 	logger = logger.With("module", "storagegc", "env", string(opts.Keys.Env()), "dry_run", opts.DryRun)
 	pageSize := opts.PageSize
-	if pageSize <= 0 {
+	if pageSize <= 0 || pageSize > blobstore.DeleteBatchSize {
 		pageSize = defaultPageSize
+	}
+	if !opts.DryRun {
+		unlock, err := repo.LockRun(ctx)
+		if err != nil {
+			return rep, err
+		}
+		defer unlock()
 	}
 
 	started := now().UTC()
@@ -188,212 +192,206 @@ func Run(ctx context.Context, opts Options) (Report, error) {
 
 	r := &runner{
 		ctx: ctx, opts: opts, repo: repo, log: logger, pageSize: pageSize,
-		cutoff: cutoff, stagingCutoff: stagingCutoff,
-		deleted: map[string]bool{},
+		report: &rep,
 	}
 
-	// The registry snapshot is taken before any delete so the orphan sweep can
-	// tell "row exists" from "row was deleted by this run" without re-querying.
-	registeredKeys, err := repo.ObjectKeys(ctx)
-	if err != nil {
-		return rep, fmt.Errorf("đọc danh sách object đã đăng ký: %w", err)
-	}
-	registered := make(map[string]bool, len(registeredKeys))
-	for _, key := range registeredKeys {
-		registered[key] = true
-	}
-
-	// Abandoned staged rows enter the existing tombstone path. This is a
-	// separate pass so a concurrent ready transition is never treated as a
-	// stale staged candidate. Dry-run lists only; it takes no locks or writes.
+	// Staged rows retain their original age and active-job gate.
 	stagedCutoff := started.Add(-stagedAge)
-	staged, err := repo.StaleStaged(ctx, stagedCutoff)
-	if err != nil {
-		r.fail("staged", "", err)
-	} else {
-		for _, blob := range staged {
-			if !r.inScope(blob.ObjectKey) {
-				rep.OutOfScope++
-				continue
-			}
-			rep.StagedSeen++
-			if opts.DryRun {
-				rep.StagedTombstoned++
-				continue
-			}
-			moved, err := repo.TombstoneStaged(ctx, blob.ID, stagedCutoff)
-			if err != nil {
-				r.fail("staged", blob.ObjectKey, err)
-				continue
-			}
-			if moved {
-				rep.StagedTombstoned++
-			}
+	r.forEachBlob("staged", stagedCutoff, func(blob postgres.GCBlob) {
+		rep.StagedSeen++
+		if opts.DryRun {
+			rep.StagedTombstoned++
+			return
 		}
-	}
+		moved, err := repo.TombstoneStaged(ctx, blob.ID, stagedCutoff)
+		if err != nil {
+			r.fail("staged", blob.ObjectKey, err)
+			return
+		}
+		if moved {
+			rep.StagedTombstoned++
+		}
+	})
 
-	// 1. Tombstones: the application already declared these dead.
-	deleting, err := repo.Deleting(ctx)
-	if err != nil {
-		r.fail("deleting", "", err)
-	} else {
-		rep.DeletingFound = len(deleting)
-		for _, blob := range deleting {
-			if !r.inScope(blob.ObjectKey) {
-				rep.OutOfScope++
-				continue
-			}
-			if opts.DryRun {
-				rep.DeletingReaped++
-				continue
-			}
-			res, err := repo.ReapBlob(ctx, blob.ID, cutoff, true)
-			if err != nil {
-				r.fail("deleting", blob.ObjectKey, err)
-				continue
-			}
-			if !res.Deleted {
-				// Another run got there first (absent) or a reference appeared
-				// (referenced): the object's ownership is no longer proven by
-				// this listing, so never delete bytes from here.
-				r.log.Debug("bỏ qua tombstone", "key", blob.ObjectKey, "reason", res.Reason)
-				continue
-			}
+	// Previously interrupted deletes and this run's abandoned stages.
+	r.forEachBlob("deleting", cutoff, func(blob postgres.GCBlob) {
+		rep.DeletingFound++
+		if opts.DryRun {
 			rep.DeletingReaped++
-			delete(registered, blob.ObjectKey)
-			if r.deleteObject(blob.ObjectKey, "tombstone") {
-				rep.ObjectsDeleted++
-			}
+			return
 		}
-	}
+		res, err := repo.ReapBlob(ctx, blob.ID, cutoff, true)
+		if err != nil {
+			r.fail("deleting", blob.ObjectKey, err)
+			return
+		}
+		if !res.Deleted {
+			return
+		}
+		rep.DeletingReaped++
+		r.enqueue(deleteTask{blob: blob, reason: "tombstone"})
+	})
 
-	// 2. Expired export-cache entries and the blobs only they referenced.
-	expired, err := repo.ExpiredExportCache(ctx)
-	if err != nil {
-		r.fail("export_cache", "", err)
-	} else {
-		rep.CacheExpired = len(expired)
-		for _, entry := range expired {
+	// Expired references are removed only within the active environment.
+	var after postgres.GCExportCacheEntry
+	for {
+		page, err := repo.ExpiredExportCachePage(ctx, opts.Keys.Prefix(), after, pageSize)
+		if err != nil {
+			r.fail("export_cache", "", err)
+			break
+		}
+		if len(page) == 0 {
+			break
+		}
+		for _, entry := range page {
+			rep.CacheExpired++
 			if opts.DryRun {
 				rep.CacheDeleted++
 				continue
 			}
-			res, entryDeleted, err := repo.ReapExpiredCacheEntry(ctx, entry)
+			res, removed, err := repo.ReapExpiredCacheEntry(ctx, entry)
 			if err != nil {
 				r.fail("export_cache", "", err)
 				continue
 			}
-			if entryDeleted {
+			if removed {
 				rep.CacheDeleted++
 			}
-			if !res.Deleted {
-				r.log.Debug("giữ blob của export_cache", "key", res.ObjectKey, "reason", res.Reason)
-				continue
-			}
-			rep.CacheBlobsReaped++
-			delete(registered, res.ObjectKey)
-			if !r.inScope(res.ObjectKey) {
-				// A foreign-environment key in this registry is a defect; the
-				// row is gone but the object is left alone.
-				r.log.Error("blob đã xoá hàng nhưng object ngoài phạm vi môi trường", "key", res.ObjectKey)
-				rep.OutOfScope++
-				continue
-			}
-			if r.deleteObject(res.ObjectKey, "export_cache hết hạn") {
-				rep.ObjectsDeleted++
+			if res.Deleted {
+				rep.CacheBlobsReaped++
+				if !r.inScope(res.ObjectKey) {
+					rep.OutOfScope++
+					continue
+				}
+				r.enqueue(deleteTask{blob: postgres.GCBlob{ID: entry.BlobID, ObjectKey: res.ObjectKey}, reason: "export_cache hết hạn"})
 			}
 		}
+		r.flush()
+		after = page[len(page)-1]
 	}
 
-	// 3. Unreferenced blobs older than the grace window.
-	unreferenced, err := repo.Unreferenced(ctx, cutoff)
-	if err != nil {
-		r.fail("blob", "", err)
-	} else {
-		rep.UnreferencedSeen = len(unreferenced)
-		for _, blob := range unreferenced {
-			if !r.inScope(blob.ObjectKey) {
+	r.forEachBlob("ready", cutoff, func(blob postgres.GCBlob) {
+		rep.UnreferencedSeen++
+		if opts.DryRun {
+			rep.BlobsReaped++
+			return
+		}
+		res, err := repo.ReapBlob(ctx, blob.ID, cutoff, false)
+		if err != nil {
+			r.fail("blob", blob.ObjectKey, err)
+			return
+		}
+		switch res.Reason {
+		case postgres.GCReasonDeleted:
+			rep.BlobsReaped++
+			r.enqueue(deleteTask{blob: blob, reason: "không tham chiếu"})
+		case postgres.GCReasonReferenced:
+			rep.BlobsReferenced++
+		default:
+			rep.BlobsSkipped++
+		}
+	})
+
+	if err := r.forEachObjectPage(opts.Keys.StagingPrefix(), func(page []blobstore.BlobInfo) {
+		for _, info := range page {
+			if !r.inScope(info.Key) {
 				rep.OutOfScope++
+				continue
+			}
+			rep.StagingSeen++
+			if !info.ModTime.Before(stagingCutoff) {
 				continue
 			}
 			if opts.DryRun {
-				// This listing contains only ready rows. Staged rows have
-				// their own age/job-lease gate above.
-				rep.BlobsReaped++
+				rep.StagingDeleted++
 				continue
 			}
-			res, err := repo.ReapBlob(ctx, blob.ID, cutoff, false)
-			if err != nil {
-				r.fail("blob", blob.ObjectKey, err)
-				continue
-			}
-			switch res.Reason {
-			case postgres.GCReasonDeleted:
-				rep.BlobsReaped++
-				delete(registered, blob.ObjectKey)
-				if r.deleteObject(blob.ObjectKey, "không tham chiếu") {
-					rep.ObjectsDeleted++
-				}
-			case postgres.GCReasonReferenced:
-				rep.BlobsReferenced++
-			default:
-				rep.BlobsSkipped++
-			}
+			r.enqueue(deleteTask{blob: postgres.GCBlob{ObjectKey: info.Key}, reason: "staging quá hạn", done: func() { rep.StagingDeleted++ }})
 		}
-	}
-
-	// 4. Abandoned staging objects.
-	if err := r.forEachObject(opts.Keys.StagingPrefix(), func(info blobstore.BlobInfo) {
-		rep.StagingSeen++
-		if !info.ModTime.Before(stagingCutoff) {
-			return
-		}
-		if opts.DryRun {
-			rep.StagingDeleted++
-			return
-		}
-		if r.deleteObject(info.Key, "staging quá hạn") {
-			rep.StagingDeleted++
-			rep.ObjectsDeleted++
-		}
+		r.flush()
 	}); err != nil {
 		r.fail("staging", "", err)
 	}
 
-	// 5. Orphan objects: in the store, absent from the registry, old enough.
-	if err := r.forEachObject(opts.Keys.Prefix(), func(info blobstore.BlobInfo) {
-		key := info.Key
-		if strings.HasPrefix(key, opts.Keys.StagingPrefix()) || strings.HasPrefix(key, opts.Keys.BackupPrefix()) {
-			return // owned by rule 4 or by the backup retention policy
+	// Reconcile just the current object page. Deleting rows remain registered
+	// after failures, so the orphan pass never bypasses their durable claim.
+	if err := r.forEachObjectPage(opts.Keys.Prefix(), func(page []blobstore.BlobInfo) {
+		keys := make([]string, 0, len(page))
+		for _, info := range page {
+			keys = append(keys, info.Key)
 		}
-		if registered[key] || r.deleted[key] {
+		known, err := repo.RegisteredKeys(ctx, keys)
+		if err != nil {
+			r.fail("orphan", "", err)
 			return
 		}
-		if !info.ModTime.Before(cutoff) {
-			return
+		registered := make(map[string]bool, len(known))
+		for _, key := range known {
+			registered[key] = true
 		}
-		obj, err := blobkey.Parse(key)
-		if err != nil || obj.Env != opts.Keys.Env() {
-			// Never guess: an unparseable key may belong to a future kind or
-			// another environment, so it is reported instead of deleted.
-			rep.UnknownObjects++
-			r.log.Warn("bỏ qua object không nhận dạng", "key", key, "err", err)
-			return
+		for _, info := range page {
+			key := info.Key
+			if strings.HasPrefix(key, opts.Keys.StagingPrefix()) || strings.HasPrefix(key, opts.Keys.BackupPrefix()) || registered[key] || !info.ModTime.Before(cutoff) {
+				continue
+			}
+			obj, err := blobkey.Parse(key)
+			if err != nil || obj.Env != opts.Keys.Env() {
+				rep.UnknownObjects++
+				continue
+			}
+			if obj.Kind == blobkey.KindStaging || obj.Kind == blobkey.KindBackupPG {
+				continue
+			}
+			rep.OrphansSeen++
+			if opts.DryRun {
+				rep.OrphansDeleted++
+				continue
+			}
+			r.enqueue(deleteTask{blob: postgres.GCBlob{ObjectKey: key}, reason: "object mồ côi", done: func() { rep.OrphansDeleted++ }})
 		}
-		if obj.Kind == blobkey.KindStaging || obj.Kind == blobkey.KindBackupPG {
-			return
-		}
-		rep.OrphansSeen++
-		if opts.DryRun {
-			rep.OrphansDeleted++
-			return
-		}
-		if r.deleteObject(key, "object mồ côi") {
-			rep.OrphansDeleted++
-			rep.ObjectsDeleted++
-		}
+		r.flush()
 	}); err != nil {
 		r.fail("orphan", "", err)
+	}
+
+	// Multipart state is invisible to ListObjects. Scope to the complete env
+	// prefix, including final media keys, and never abort on a dry-run.
+	if multipart, ok := opts.Blobs.(blobstore.MultipartReaper); ok {
+		cursor := ""
+		for {
+			page, err := multipart.ListMultipartUploads(ctx, opts.Keys.Prefix(), cursor, pageSize)
+			if err != nil {
+				r.fail("multipart", "", err)
+				break
+			}
+			for _, upload := range page.Uploads {
+				if !strings.HasPrefix(upload.Key, opts.Keys.Prefix()) {
+					rep.OutOfScope++
+					continue
+				}
+				rep.MultipartSeen++
+				if upload.Initiated.IsZero() || !upload.Initiated.Before(cutoff) {
+					continue
+				}
+				if opts.DryRun {
+					rep.MultipartAborted++
+					continue
+				}
+				if err := multipart.AbortMultipartUpload(ctx, upload); err != nil {
+					r.fail("multipart", upload.Key, err)
+					continue
+				}
+				rep.MultipartAborted++
+			}
+			if page.NextCursor == "" {
+				break
+			}
+			if page.NextCursor == cursor {
+				r.fail("multipart", "", errors.New("multipart cursor did not advance"))
+				break
+			}
+			cursor = page.NextCursor
+		}
 	}
 
 	rep.Errors = r.errorMessages
@@ -418,9 +416,8 @@ type runner struct {
 	repo          *postgres.BlobGC
 	log           *slog.Logger
 	pageSize      int
-	cutoff        time.Time
-	stagingCutoff time.Time
-	deleted       map[string]bool
+	report        *Report
+	pending       []deleteTask
 	errorMessages []string
 }
 
@@ -439,16 +436,93 @@ func (r *runner) inScope(key string) bool {
 	return true
 }
 
-// deleteObject removes one object. Delete is idempotent, so a missing object is
-// a success. Every action is logged.
-func (r *runner) deleteObject(key, reason string) bool {
-	if err := r.opts.Blobs.Delete(r.ctx, key); err != nil {
-		r.fail(reason, key, err)
-		return false
+type deleteTask struct {
+	blob   postgres.GCBlob
+	reason string
+	done   func()
+}
+
+func (r *runner) enqueue(task deleteTask) {
+	if !task.blob.ID.Valid {
+		claim, claimed, err := r.repo.ClaimOrphan(r.ctx, task.blob.ObjectKey, blobstore.DriverName(r.opts.Blobs))
+		if err != nil {
+			r.fail("claim orphan", task.blob.ObjectKey, err)
+			return
+		}
+		if !claimed {
+			return
+		}
+		task.blob = claim
 	}
-	r.deleted[key] = true
-	r.log.Info("xoá object", "key", key, "reason", reason)
-	return true
+	r.pending = append(r.pending, task)
+	if len(r.pending) >= blobstore.DeleteBatchSize {
+		r.flush()
+	}
+}
+
+func (r *runner) flush() {
+	if len(r.pending) == 0 {
+		return
+	}
+	tasks := r.pending
+	r.pending = nil
+	keys := make([]string, len(tasks))
+	for i, task := range tasks {
+		keys[i] = task.blob.ObjectKey
+	}
+	results, err := blobstore.DeleteMany(r.ctx, r.opts.Blobs, keys)
+	if err != nil {
+		r.fail("batch delete", "", err)
+	}
+	for i, result := range results {
+		if i >= len(tasks) {
+			break
+		}
+		task := tasks[i]
+		if result.Err != nil {
+			r.fail(task.reason, result.Key, result.Err)
+			continue
+		}
+		if task.blob.ID.Valid {
+			if err := r.repo.FinishBlob(r.ctx, task.blob.ID); err != nil {
+				r.fail("finish delete", result.Key, err)
+				continue
+			}
+		}
+		r.report.ObjectsDeleted++
+		if task.done != nil {
+			task.done()
+		}
+		r.log.Info("xoá object", "key", result.Key, "reason", task.reason)
+	}
+}
+
+func (r *runner) forEachBlob(state string, cutoff time.Time, fn func(postgres.GCBlob)) {
+	cursor := ""
+	for {
+		page, err := r.repo.ScanBlobs(r.ctx, r.opts.Keys.Prefix(), cursor, state, cutoff, r.pageSize)
+		if err != nil {
+			r.fail(state, "", err)
+			return
+		}
+		if len(page) == 0 {
+			return
+		}
+		for _, blob := range page {
+			if !r.inScope(blob.ObjectKey) {
+				r.report.OutOfScope++
+				continue
+			}
+			fn(blob)
+		}
+		r.flush()
+		next := page[len(page)-1].ObjectKey
+		if next <= cursor {
+			r.fail(state, "", errors.New("registry cursor did not advance"))
+			return
+		}
+		cursor = next
+	}
 }
 
 // fail records one failure for the report and the returned error.
@@ -461,19 +535,15 @@ func (r *runner) fail(stage, key string, err error) {
 	r.log.Error("gc thất bại", "stage", stage, "key", key, "err", err)
 }
 
-// forEachObject pages through one provider listing. The cursor is the provider's
-// opaque continuation; a cursor that does not advance aborts instead of looping
-// forever on a misbehaving provider.
-func (r *runner) forEachObject(prefix string, fn func(blobstore.BlobInfo)) error {
+// forEachObjectPage keeps provider and registry reconciliation memory bounded.
+func (r *runner) forEachObjectPage(prefix string, fn func([]blobstore.BlobInfo)) error {
 	cursor := ""
 	for {
 		page, err := r.opts.Blobs.List(r.ctx, prefix, cursor, r.pageSize)
 		if err != nil {
 			return fmt.Errorf("liệt kê %q: %w", prefix, err)
 		}
-		for _, info := range page.Infos {
-			fn(info)
-		}
+		fn(page.Infos)
 		if page.NextCursor == "" {
 			return nil
 		}

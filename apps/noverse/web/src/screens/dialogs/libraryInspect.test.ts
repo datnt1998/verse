@@ -60,3 +60,9 @@ describe('thư viện cũ tên “Truyện ainovel”', () => {
     expect(footerView(legacy).text).toBe('Thư viện Noverse có sẵn — dùng luôn')
   })
 })
+
+it('warns about ephemeral container storage in both selection presentations', () => {
+  const info = { ...base, storageWarning: 'Thư mục này sẽ mất khi cập nhật container — hãy gắn volume.' }
+  expect(inspectView(info)).toMatchObject({ tone: 'warn', text: info.storageWarning })
+  expect(footerView(info).text).toBe(info.storageWarning)
+})

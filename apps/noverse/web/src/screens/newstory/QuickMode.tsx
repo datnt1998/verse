@@ -1,18 +1,24 @@
 // Bắt đầu nhanh (NewStory.dc.html): phần mở đầu và nội dung nằm trong shell chung
 // để ModeSwitch không bị tháo/lắp khi đổi giữa Nhanh và Đồng sáng tác.
-import type { CSSProperties } from 'react'
+import { useId, useLayoutEffect, useState, type ReactNode } from 'react'
+import * as stylex from '@stylexjs/stylex'
+import { color, kit, line, tint } from '@noverse/ui/tokens.stylex'
 import { getConfigPresets } from '../../api/client'
 import type { ConfigResponse } from '../../api/types'
 import { useResource } from '../../data'
 import { findPack, packLabel } from '../settings/lib/packs'
-import { t } from '../../i18n/vi'
+import { modelOptions } from '../settings/lib/config'
+import { styleDisplayName } from '../settings/sections/style'
+import { StyleQuickPicker, WriterQuickPicker } from '../settings/sections/quick-pickers'
+import type { QuickStoryChoices } from './creation'
+import { amWritingCopy, t } from '../../i18n/vi'
 import { paths } from '../../router'
 import { AgentOrb } from '@noverse/ui'
 import { Button, Kbd } from '@noverse/ui'
 import { TONE } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { TextArea } from '@noverse/ui'
-import { Spinner } from '@noverse/ui'
+import { Spinner, usePopup } from '@noverse/ui'
 import type { StoryMode } from './ModeSwitch'
 import { StoryCheckBlock } from './StoryCheck'
 import type { StoryCheck } from './useStoryCheck'
@@ -31,29 +37,73 @@ const FLOW = [
   { orb: 'editor', text: 'Biên tập viên thẩm duyệt cuối mỗi hồi' },
 ] as const
 
-const chipStyle: CSSProperties = {
-  height: 30, padding: '0 10px 0 8px', display: 'flex', alignItems: 'center', gap: 6,
-  borderRadius: 8, border: '1px solid var(--line-3)', fontSize: 12, color: 'var(--color-fg-3)',
-  background: 'transparent', textDecoration: 'none',
-}
+const sx = stylex.create({
+  chipRoot: { position: 'relative', display: 'flex', minWidth: 0, maxWidth: '100%' },
+  chip: {
+    height: 30, padding: '0 8px', display: 'flex', alignItems: 'center', gap: 6,
+    borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'],
+    fontSize: 12, color: color['--color-fg-3'], backgroundColor: 'transparent',
+    cursor: 'pointer', whiteSpace: 'nowrap', minWidth: 0, fontFamily: 'inherit',
+    ':hover': { backgroundColor: kit['--kit-acc-6'] },
+  },
+  chipOpen: { borderColor: kit['--kit-acc-45'], backgroundColor: kit['--kit-acc-6'] },
+  value: { color: color['--color-fg'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 },
+  badge: {
+    height: 18, padding: '0 6px', borderRadius: 5, fontSize: 11, display: 'inline-flex', alignItems: 'center',
+    backgroundColor: tint['--tint-ok'], color: color['--color-ok'], flexShrink: 0,
+  },
+  arrow: { color: color['--color-fg-4'], flexShrink: 0 },
+  popover: {
+    position: 'absolute', zIndex: 60, left: 0, top: 'calc(100% + 6px)', width: 320,
+    maxWidth: 'calc(100vw - 40px)', maxHeight: 400, overflowY: 'auto',
+    borderRadius: 14, backgroundColor: color['--color-surface-4'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
+    boxShadow: kit['--kit-shadow-pop'],
+    scrollbarWidth: 'thin',
+  },
+  writerPopover: { width: 300 },
+  popoverOffset: (left: number) => ({ left }),
+  footer: {
+    display: 'block', marginTop: 4, padding: '9px 10px 5px', borderTopWidth: 1, borderTopStyle: 'solid',
+    borderTopColor: line['--line-1'], fontSize: 12.5, color: color['--color-accent'], textDecoration: 'none',
+  },
+})
 
-function ConfigChip({ icon, label, value, href, mono, badge }: {
-  icon: string; label?: string; value: string; href: string; mono?: boolean
-  /** D2 — gói thể loại đang chọn: badge “có chấm” cạnh tên gói (NewStory.dc.html). */
-  badge?: string
+function ConfigChip({ icon, label, value, mono, badge, disabled, pickerLabel, children }: {
+  icon: string; label?: string; value: string; mono?: boolean; badge?: string
+  disabled: boolean; pickerLabel: string; children: (close: () => void) => ReactNode
 }) {
+  const popup = usePopup(disabled)
+  const id = useId()
+  const [left, setLeft] = useState(0)
+  useLayoutEffect(() => {
+    if (!popup.open) return
+    const align = () => {
+      const anchor = popup.root.current?.getBoundingClientRect()
+      if (!anchor) return
+      const width = Math.min(mono ? 300 : 320, window.innerWidth - 40)
+      setLeft(Math.max(20 - anchor.left, Math.min(0, window.innerWidth - 20 - anchor.left - width)))
+    }
+    align()
+    window.addEventListener('resize', align)
+    return () => window.removeEventListener('resize', align)
+  }, [popup.open, popup.root, mono])
   return (
-    <a className={`hov-ghost${mono ? ' mono' : ''}`} href={`#${href}`} style={chipStyle} title={label}>
-      <Icon name={icon} size={15} />
-      {label && <span>{label}</span>}
-      <span style={{ color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{value}</span>
-      {badge && (
-        <span style={{
-          height: 20, padding: '0 7px', borderRadius: 6, fontSize: 11, display: 'inline-flex', alignItems: 'center',
-          background: 'var(--tint-ok)', color: 'var(--color-ok)', whiteSpace: 'nowrap', flex: '0 0 auto',
-        }}>{badge}</span>
-      )}
-    </a>
+    <div ref={popup.root} {...stylex.props(sx.chipRoot)}>
+      <button type="button" {...stylex.props(sx.chip, popup.open && sx.chipOpen)}
+        aria-label={`${label || 'Người viết'}: ${value}`} aria-haspopup="listbox" aria-expanded={popup.open}
+        aria-controls={popup.open ? id : undefined} disabled={disabled} onClick={() => popup.setOpen(!popup.open)} title={value}>
+        <Icon name={icon} size={15} />
+        {label && <span>{label}</span>}
+        <span {...stylex.props(sx.value)}><span className={mono ? 'mono' : undefined}>{value}</span></span>
+        {badge && <span {...stylex.props(sx.badge)}>{badge}</span>}
+        <Icon name="arrow-down-2" size={13} {...stylex.props(sx.arrow)} />
+      </button>
+      {popup.open && <div id={id} aria-label={pickerLabel}
+        {...stylex.props(sx.popover, mono && sx.writerPopover, sx.popoverOffset(left))}>
+        {children(() => popup.setOpen(false))}
+      </div>}
+    </div>
   )
 }
 
@@ -76,10 +126,12 @@ function AltEntry({ icon, title, hint, onClick, busy, pending }: {
   )
 }
 
-export function QuickMode({ prompt, onPrompt, onStart, busy, pending, success, alternativePending, activeAlternative, error, projectName, offline, config, idea, onClearIdea, onStartFile, onImport, onSimulate, project, gate }: {
+export function QuickMode({ prompt, onPrompt, onStart, choices, onChoices, busy, pending, success, alternativePending, activeAlternative, error, projectName, offline, config, idea, onClearIdea, onStartFile, onImport, onSimulate, project, gate }: {
   prompt: string
   onPrompt: (value: string) => void
   onStart: () => void
+  choices: QuickStoryChoices
+  onChoices: (choices: QuickStoryChoices) => void
   busy: boolean
   pending: boolean
   success: boolean
@@ -99,10 +151,12 @@ export function QuickMode({ prompt, onPrompt, onStart, busy, pending, success, a
   gate: StoryCheck
 }) {
   const effective = config?.effective
-  const style = effective?.style || '—'
+  const projectStyle = effective?.style || 'default'
+  const style = choices.style || projectStyle
   const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal), { staleTime: 60000 })
-  const pack = findPack(presets.data?.packs, effective?.style ?? '')
-  const model = effective?.roles?.default?.model || effective?.model || '—'
+  const pack = findPack(presets.data?.packs, style)
+  const projectModel = effective?.roles?.writer?.model || effective?.roles?.default?.model || effective?.model || '—'
+  const model = choices.writer?.model || projectModel
   const disabledReason = offline
     ? 'Mất kết nối — chờ kết nối lại để bắt đầu.'
     : !prompt.trim()
@@ -165,9 +219,21 @@ export function QuickMode({ prompt, onPrompt, onStart, busy, pending, success, a
               color: 'var(--color-fg)', fontSize: 15, lineHeight: 1.65, padding: '2px 4px',
             }} />
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-            <ConfigChip icon="brush-2" label="Văn phong" value={pack ? packLabel(pack) : style}
-              badge={pack ? 'có chấm' : undefined} href={paths.settings('writing')} />
-            <ConfigChip icon="cpu" value={model} href={paths.settings('roles')} mono />
+            <ConfigChip icon="brush-2" label="Văn phong" value={pack ? packLabel(pack) : styleDisplayName(presets.data ?? null, style)}
+              badge={pack ? 'có chấm' : undefined} disabled={busy || !config} pickerLabel={amWritingCopy.styleTitle}>
+              {close => <StyleQuickPicker variant="newstory" value={choices.style} projectStyle={projectStyle} presets={presets.data ?? null}
+                onPick={value => { onChoices({ ...choices, style: value === projectStyle ? null : value }); close() }}
+                footer={<a {...stylex.props(sx.footer)} href={`#${paths.project(project)}?section=pstyle`}>{amWritingCopy.projectFooter}</a>} />}
+            </ConfigChip>
+            <ConfigChip icon="cpu" value={model} mono disabled={busy || !config} pickerLabel={amWritingCopy.writerTitle}>
+              {close => <WriterQuickPicker variant="newstory" value={choices.writer} projectModel={projectModel}
+                models={modelOptions(effective ?? {})} presets={presets.data ?? null}
+                onPick={value => {
+                  const inherited = value?.model === projectModel && value?.provider === (effective?.roles?.writer?.provider || effective?.roles?.default?.provider || effective?.provider)
+                  onChoices({ ...choices, writer: inherited ? null : value }); close()
+                }}
+                footer={<a {...stylex.props(sx.footer)} href={`#${paths.settings('connect')}`}>{amWritingCopy.modelFooter}</a>} />}
+            </ConfigChip>
             <span title="Truyện mới nằm trong dự án này" style={{
               height: 30, padding: '0 10px 0 8px', display: 'flex', alignItems: 'center', gap: 6,
               borderRadius: 8, border: '1px dashed rgba(255,255,255,0.12)', fontSize: 12, color: 'var(--color-fg-3)',
