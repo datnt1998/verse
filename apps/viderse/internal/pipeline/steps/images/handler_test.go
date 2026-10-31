@@ -72,6 +72,11 @@ func fixture(t *testing.T) (*pipeline.StepContext, *stepstest.FakeMedia) {
 	b, _ := json.Marshal(doc)
 	m.Put("scenes/manifest.json", b)
 	s.Upstream[domain.CloneDownload] = domain.CloneStepOutput{Data: map[string]any{"thumbnail": scenes.FileRef{Path: "reference.jpg", SHA256: hash}}}
+ // Receipt recovery tests exercise the legacy cover-only generation queue,
+ // not a no-image recipe (whose cover is supplied by template/upload).
+ manifest:=CreateManifest(doc,scenes.FileRef{Path:"reference.jpg",SHA256:hash},"")
+ manifest.ImageMode=""
+ if err:=s.SaveCheckpoint(context.Background(),manifest);err!=nil{t.Fatal(err)}
 	return s, m
 }
 func analysis(_ context.Context, _ string, _ []string, ids []string, fingerprint, look, thumbnail string) (Story, error) {

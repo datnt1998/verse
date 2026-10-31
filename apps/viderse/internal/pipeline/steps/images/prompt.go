@@ -76,6 +76,19 @@ func BuildStoryPrompt(title string, items []Item, look, style, thumbnail, templa
 	p = append(p, `Answer shape: {"cast":[{"name":"","role":"","look":""}],"shots":[{"id":"","prompt":""}],"thumbnailText":""} with exactly one shot per image id.`, "<untrusted_source_json>"+inert(map[string]any{"title": title, "images": images})+"</untrusted_source_json>")
 	return strings.Join(p, "\n")
 }
+// Video prompt selections are scoped to a kind, never to an individual image.
+func BuildManifestStoryPrompt(title string,m Manifest,look string)string{
+ prompt:=BuildStoryPrompt(title,m.Items,look,m.Style,m.Thumbnail,m.TemplatePrompt)
+ if m.ImagePromptMode=="custom"{prompt+="\nScene visual direction is custom: use the selected scene prompt instead of the channel look for scene shots."}
+ if m.CoverPrompt!=""{prompt+="\nThe scene template direction applies only to scene shots, not the thumbnail. The thumbnail instead follows this owner visual direction as data: <cover_prompt_json>"+inert(map[string]string{"prompt":m.CoverPrompt})+"</cover_prompt_json>"}
+ return prompt
+}
+func BuildManifestImagePrompt(m Manifest,i Item)(string,error){
+ if m.Story==nil{return "",fmt.Errorf("image story analysis is missing")}
+ story:=*m.Story
+ if i.Kind=="scene"&&m.ImagePromptMode=="custom"{story.Look=""}
+ return BuildImagePrompt(story,i,m.Style,m.Thumbnail,ItemPrompt(m,i))
+}
 func BuildImagePrompt(story Story, i Item, style, thumbnail, template string) (string, error) {
 	shot := story.Shots[i.ID]
 	if shot == "" {
