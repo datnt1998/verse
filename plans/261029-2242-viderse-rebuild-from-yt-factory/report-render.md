@@ -54,6 +54,28 @@ The decoded video was H.264 High, progressive yuv420p bt709; audio AAC LC stereo
 
 The initial short-lived fixture expired while a consumer was still using it; it was replaced by a fixture held until explicit `/tmp/p06-fixture.release` or SIGTERM. The replacement's actual `Service.Quality` preflight and authenticated GET quality returned successfully. The old GET 500 did not retain a diagnostic proving its precise cause; attributing that historical response solely to the expired fixture schema is an **inference**, not a claimed proven provider fix.
 
+For subsequent V13 caption-range/alignment acceptance, the fixture owner published an independent **authored golden timing** artifact through the real guarded job-edit/media publication APIs. Its SHA-256 is `461cc59192f66ef5b8103d1a28bb9130fdf552ee1ea62813089c9a4ac94b7b17`; source AAC SHA-256 is `7a695f5074553cfae69f0f8f34a04b55c19866c87b00ee1aa650389378084b90`. The source is a synthetic sine and captions are authored fixture data: this is explicitly **not** a claim of ASR transcribing speech. The helper verified the actual `editor.Anchors` artifact resolver, after normal public fenced recovery of an expired interrupted export. It did not rewrite scores or database rows.
+
+The original real output also exposed a separate post-render pipeline issue: the ready MP4 and render request were complete, but the pipeline export step remained running because replacement retained an input blob read lease while retiring that binding. EditorApi fixed the deadlock and binary durable-resource ownership in `06362ec6`. A real restart then failed closed on the historical original-upload binding; `112bb936` added verified same-export original SHA-state lineage recovery rather than a prefix exception or deletion bypass. The next actual server startup succeeded, preserved the valid compressed MP4 and safely retired the proven superseded binding. This distinguishes the proven original MP4/request completion from the later terminal pipeline acceptance.
+
+EditorWeb's subsequent real V13 interaction used a newly measured, non-overlapping authored-cue baseline. A single actual `cueIds:["c1"]` alignment returned −0.4 seconds; its captured project diff contained only cue/word timings, estimated-word provenance and updatedAt. The UI correctly showed 1/2 fixed, two stale caption checks and nine unaffected passed checks; global export freshness stayed closed. Evidence: `/tmp/p06-editor-actual-alignment-diff.json`. A measured/aligned word is deliberately immutable in the source alignment contract, so authored fixture timings were honestly marked estimated before requesting alignment; no measured anchor or score was fabricated.
+
+### Terminal pipeline smoke after the fixes
+
+The actual later UI export `de9fd69b-b4a1-4809-b423-29a293b7a115` completed the entire pipeline. A read-only owner-side status query observed job **succeeded**, fence 15, with **score succeeded** and **export succeeded**, both attempt 4; the output manifest names this same export. Its ready metadata has accepted=true, score 100, captionAlignment/captionKaraoke passing, and only the independent Subscribe blocker retained. The UI downloaded it with HTTP 200 and decoded a six-second preview.
+
+This terminal-pipeline MP4 is separately preserved at **`/tmp/p06-render-smoke-final.mp4`**:
+
+```text
+SHA-256: 92c9941228225f232d98b242c6b7bbad98b96ef0371cbcfb15af26a3ad1f0766
+ffprobe video: h264, 1920x1080, r_frame_rate=30/1
+ffprobe audio: aac, sample_rate=48000, channels=2
+ffprobe format: duration=6.000000, size=576799
+ffmpeg ebur128 final AAC decode: I=-14.0 LUFS, threshold=-24.0 LUFS, LRA=0.0 LU
+```
+
+These probe/hash/loudness values were measured directly on the preserved final bytes, not inferred from timeline settings or copied from the first output.
+
 ## Exercised verification
 
 Only narrow checks were run; no full-app Go suite, full-app race run or repeated tsc was run by this worker.
@@ -70,6 +92,8 @@ Only narrow checks were run; no full-app Go suite, full-app race run or repeated
 - Scoped HTTP token tests passed for wrong/expired/other-request tokens and path isolation.
 - App-local Vite build succeeded after EditorWeb fixed the real worker chunk format failure, native fetch receiver failure, and missing subtitle schema enum. These frontend changes belong to EditorWeb's commits, not this worker's implementation.
 - `TestQualityCaptionOnlyEditInvalidatesOnlyCaptionTiming` first failed because all nine unrelated checks were stale; it and `TestQualityStalenessConservativelyHandlesUnknownAndNonCaptionChanges` then passed with targeted `-race`. Score persistence now retains the actual measured project. Cue-time/word-only subtitle edits invalidate alignment and karaoke together; other edits, settings/artifact changes and old records without a measured document remain conservatively stale. The global revision-bound gate is unchanged.
+- `TestAlignmentRangesExcludePassingAnchorsAndKeepMedianFailures` failed first with four ranges instead of two, then passed targeted `-race`; `TestScoreRangesFiltersPersistedPassingAnchors` independently failed first on stored JSON ranges and passed after the same outbound filtering. Exact matches and offsets ≤120 ms are not falsely exposed as failures; 150 ms median-failure contributors and signed early/late evidence remain actionable. Main approved source parity over the illustrative V13 84-point/300 ms data; design Q&A #66 records that decision.
+- `TestQualityWordAlignmentMetadataKeepsOtherChecksFresh` failed first with nine unrelated stale checks, then passed targeted `-race`; actual alignment's `wordsEstimated` metadata is part of caption timing evidence rather than an unrelated project edit.
 
 Main owns integration-wide checks. Recommended single integration commands, from `apps/viderse`, when its test lane is free:
 
@@ -89,5 +113,7 @@ No credentials, request capabilities or database connection strings are included
 - `64678901` — stable HTTP tracking across Chrome crash retries.
 - `7160862e` — actual measured document baseline and caption-only presentation invalidation.
 - `cbc92d5f` — persistent real-media smoke fixture, committed by the fixture owner.
+- `fe65b7e9` — guarded independent golden caption timing fixture publication.
+- `e2b7dfa2`, `b4621bb8` — actionable current/persisted caption ranges, measured-word metadata freshness and approved design Q&A #66.
 
 Editor API and headless frontend companion fixes were coordinated with their owners. Fixture teardown waits for EditorWeb's explicit release so its real V13 interaction acceptance can finish against the same fixture.
