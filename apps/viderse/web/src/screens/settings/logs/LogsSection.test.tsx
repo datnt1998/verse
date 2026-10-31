@@ -7,6 +7,8 @@ import { invalidate } from '@noverse/ui/data'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import LogsSection from './LogsSection'
+import * as stylex from '@stylexjs/stylex'
+import { styles } from '../settings.stylex'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -84,11 +86,11 @@ describe('Báo lỗi', () => {
   it('lỗi chưa xử lý dùng chấm cam lỗi và nhãn cam (artboard logs), không phải vàng', async () => {
     const el = await render()
     const warnRow = [...el.querySelectorAll('.vv-logs__err-it')].find((r) => r.textContent?.includes('Đang chờ'))
-    expect(warnRow?.querySelector('.vv-dot--err')).toBeTruthy()
-    expect(warnRow?.querySelector('.vv-logs__err-st.is-err')).toBeTruthy()
+    for (const atom of stylex.props(styles.dotErr).className!.split(' ')) expect(warnRow?.querySelector('.vv-dot')?.classList.contains(atom)).toBe(true)
+    for (const atom of stylex.props(styles.logsErrStIsErr).className!.split(' ')) expect(warnRow?.querySelector('.vv-logs__err-st')?.classList.contains(atom)).toBe(true)
     const mutedRow = [...el.querySelectorAll('.vv-logs__err-it')].find((r) => r.textContent?.includes('App đã xử lý'))
-    expect(mutedRow?.querySelector('.vv-dot--muted')).toBeTruthy()
-    expect(mutedRow?.querySelector('.vv-logs__err-st.is-muted')).toBeTruthy()
+    for (const atom of stylex.props(styles.dotMuted).className!.split(' ')) expect(mutedRow?.querySelector('.vv-dot')?.classList.contains(atom)).toBe(true)
+    for (const atom of stylex.props(styles.logsErrStIsMuted).className!.split(' ')) expect(mutedRow?.querySelector('.vv-logs__err-st')?.classList.contains(atom)).toBe(true)
   })
 
   it('không có lỗi thì hiện câu trống thay vì bảng rỗng', async () => {
