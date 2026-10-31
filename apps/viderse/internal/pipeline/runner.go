@@ -372,6 +372,13 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 		},
 		IsPaused: isPaused,
 	}
+	if store, ok := r.Store.(interface {
+		DrainImageIntents(context.Context, string, int64, int, json.RawMessage) (json.RawMessage, error)
+	}); ok && claimed.Step.Step == domain.CloneImages {
+		sctx.DrainImageIntents = func(c context.Context, checkpoint json.RawMessage) (json.RawMessage, error) {
+			return store.DrainImageIntents(c, jobID, claimed.Fence, claimed.Step.Attempt, checkpoint)
+		}
+	}
 
 	result, err := handler.Run(ctx, sctx)
 	if err != nil {

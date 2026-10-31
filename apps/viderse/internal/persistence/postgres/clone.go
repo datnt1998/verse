@@ -729,6 +729,17 @@ func (s *CloneStore) ApplyStepSuccess(ctx context.Context, jobID string, step do
 	manifest, _ := json.Marshal(output)
 	return s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
+		var pending bool
+		var checkpoint json.RawMessage
+		if step == domain.CloneImages {
+			if _, err := q.GetCloneJobForUpdate(txctx, u); err != nil {
+				return err
+			}
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			if err := tx.QueryRow(txctx, `SELECT checkpoint, EXISTS (SELECT 1 FROM clone_image_review_intents WHERE job_id=$1) FROM clone_steps WHERE job_id=$1 AND step='images' FOR UPDATE`, u).Scan(&checkpoint, &pending); err != nil {
+				return err
+			}
+		}
 		for _, a := range output.Artifacts {
 			if _, err := q.InsertCloneArtifact(txctx, gen.InsertCloneArtifactParams{
 				ID: a.ID, JobID: u, Step: string(step), Path: a.Path,
@@ -742,6 +753,15 @@ func (s *CloneStore) ApplyStepSuccess(ctx context.Context, jobID string, step do
 			Column4: manifest, Column5: nowTz(), Column6: int32(attempt)})
 		if err := fenceGuard(n, err); err != nil {
 			return err
+		}
+		if pending {
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			if _, err := tx.Exec(txctx, `UPDATE clone_steps SET status='pending',checkpoint=$2::jsonb,input_fingerprint='',finished_at=NULL WHERE job_id=$1 AND step='images'`, u, checkpoint); err != nil {
+				return err
+			}
+			if err := q.SetJobStatus(txctx, gen.SetJobStatusParams{ID: u, Status: "pending", Column3: nowTz()}); err != nil {
+				return err
+			}
 		}
 		return s.refreshDerived(txctx, u, nil)
 	})

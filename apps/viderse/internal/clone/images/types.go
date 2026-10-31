@@ -127,6 +127,9 @@ type ItemView struct {
 	SceneID        string        `json:"sceneId,omitempty"`
 	StartFrame     int           `json:"startFrame,omitempty"`
 	EndFrame       int           `json:"endFrame,omitempty"`
+	StartSec       *float64      `json:"startSec,omitempty"`
+	EndSec         *float64      `json:"endSec,omitempty"`
+	DurationSec    *float64      `json:"durationSec,omitempty"`
 	Narration      string        `json:"narration,omitempty"`
 	Direction      string        `json:"direction,omitempty"`
 	MediaID        string        `json:"mediaId,omitempty"`

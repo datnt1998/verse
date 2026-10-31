@@ -13,6 +13,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
+	images "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 )
 
 var _ jobedit.Store = (*CloneStore)(nil)
@@ -48,6 +49,23 @@ func (s *CloneStore) Read(ctx context.Context, id string, step domain.CloneStep)
 		}
 		if !found {
 			return ErrNotFound
+		}
+		if step == domain.CloneImages && len(snapshot.Step.Checkpoint) != 0 {
+			var manifest images.Manifest
+			if err := json.Unmarshal(snapshot.Step.Checkpoint, &manifest); err != nil {
+				return err
+			}
+			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
+			count, err := overlayImageIntents(txctx, tx, u, &manifest)
+			if err != nil {
+				return err
+			}
+			if count > 0 {
+				snapshot.Manifest, err = json.Marshal(manifest)
+				if err != nil {
+					return err
+				}
+			}
 		}
 		snapshot.Artifacts, err = s.ListArtifacts(txctx, id)
 		return err
@@ -121,6 +139,43 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		}
 		if !found {
 			return ErrNotFound
+		}
+		if change.ImageReview && before.Step.Step == domain.CloneImages && current.Step.Status == domain.CloneRunning {
+			if job.Fence != before.Job.Fence || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
+				return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
+			}
+			for _, dependent := range domain.DependentsOf(domain.CloneImages) {
+				for _, record := range records {
+					if record.Step == dependent && record.Status == domain.CloneRunning {
+						return jobedit.Conflict("Bước phụ thuộc đang chạy — chờ xong rồi thử lại")
+					}
+				}
+			}
+			var manifest, expected images.Manifest
+			if err := json.Unmarshal(current.Step.Checkpoint, &manifest); err != nil {
+				return err
+			}
+			if _, err := overlayImageIntents(txctx, tx, u, &manifest); err != nil {
+				return err
+			}
+			if err := json.Unmarshal(before.Manifest, &expected); err != nil {
+				return err
+			}
+			if manifest.Revision != expected.Revision {
+				return jobedit.Conflict("Danh sách ảnh đã thay đổi; tải lại trước khi sửa")
+			}
+			if err := enqueueImageIntents(txctx, tx, u, before.Manifest, change.Checkpoint, change.ImageIDs); err != nil {
+				return err
+			}
+			names := make([]string, 0)
+			for _, step := range domain.DependentsOf(domain.CloneImages) {
+				names = append(names, string(step))
+			}
+			if _, err := q.InvalidateStepRange(txctx, gen.InvalidateStepRangeParams{JobID: u, Column2: names, Column3: nowTz()}); err != nil {
+				return err
+			}
+			_, err := tx.Exec(txctx, `DELETE FROM clone_bulk_review_intents WHERE job_id=$1`, u)
+			return err
 		}
 		if row.LeaseExpiresAt.Valid && row.LeaseExpiresAt.Time.After(time.Now()) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
 			return jobedit.Conflict("Video đang xử lý — chờ xong rồi thử lại")
@@ -202,6 +257,11 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		if before.Step.Step == domain.CloneMetadata {
 			if err := s.saveCloneMetadataState(txctx, u, change.Checkpoint); err != nil {
 				return err
+			}
+			if before.Step.Status == domain.CloneFailed || before.Step.Status == domain.CloneWaiting {
+				if _, err := tx.Exec(txctx, `UPDATE clone_steps SET status='succeeded',error=NULL,finished_at=now() WHERE job_id=$1 AND step=$2`, u, string(before.Step.Step)); err != nil {
+					return err
+				}
 			}
 		}
 		if change.InvalidateFrom == "" {

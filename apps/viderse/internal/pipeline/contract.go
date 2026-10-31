@@ -58,6 +58,7 @@ type StepContext struct {
 	Media           Media
 	ReportProgress  func(context.Context, domain.CloneProgress) error
 	WriteCheckpoint func(context.Context, json.RawMessage) error
+	DrainImageIntents func(context.Context, json.RawMessage) (json.RawMessage, error)
 	ProcessRunner   ProcessRunner
 	ImageSlot       func(context.Context, func(context.Context) error) error
 	IsPaused        func() bool

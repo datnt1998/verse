@@ -37,6 +37,12 @@ func (p *provider) Draw(_ context.Context, r imagegen.Request, _ imagegen.Journa
 func (p *provider) Reconcile(context.Context, json.RawMessage, imagegen.Request) (imagegen.Receipt, bool, error) {
 	return imagegen.Receipt{}, false, nil
 }
+
+type directDrawer struct{ p *provider }
+
+func (d directDrawer) Draw(ctx context.Context, r imagegen.Request) (imagegen.Receipt, error) {
+	return d.p.Draw(ctx, r, nil)
+}
 func fixture(t *testing.T) (*pipeline.StepContext, *stepstest.FakeMedia) {
 	t.Helper()
 	s, m := stepstest.Ctx(t, domain.CloneImages, stepstest.Job("job-1"))
@@ -68,6 +74,52 @@ func encode(_ context.Context, _ *pipeline.StepContext, _ string, out string, w,
 	}
 	hash, err := steps.SHA256File(out)
 	return Encoded{Width: w, Height: h, SHA256: hash, Bytes: 10}, err
+}
+
+func TestImageWorkerDrainsRedrawAfterCurrentImage(t *testing.T) {
+	s, _ := fixture(t)
+	var manifest Manifest
+	if err := json.Unmarshal(s.Checkpoint, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	second := manifest.Items[0]
+	second.ID = "second"
+	second.Status = "review"
+	manifest.Items = append(manifest.Items, second)
+	manifest.QueueOnly = []string{"thumbnail"}
+	if err := s.SaveCheckpoint(context.Background(), manifest); err != nil {
+		t.Fatal(err)
+	}
+	drains := 0
+	s.DrainImageIntents = func(_ context.Context, raw json.RawMessage) (json.RawMessage, error) {
+		drains++
+		if drains != 2 {
+			return raw, nil
+		}
+		var current Manifest
+		if err := json.Unmarshal(raw, &current); err != nil {
+			return nil, err
+		}
+		current.Items[1].Status = "pending"
+		current.Items[1].Direction = "warmer"
+		current.QueueOnly = append(current.QueueOnly, "second")
+		current.Revision++
+		return json.Marshal(current)
+	}
+	p := &provider{}
+	h := Handler{Deps: Deps{Drawer: directDrawer{p}, Analyse: analysis, Encode: encode}}
+	if _, err := h.Run(context.Background(), s); err != nil {
+		t.Fatal(err)
+	}
+	if p.calls != 2 {
+		t.Fatalf("redraw was not executed: calls=%d", p.calls)
+	}
+	if err := json.Unmarshal(s.Checkpoint, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	if len(manifest.Items[0].Versions) != 1 || len(manifest.Items[1].Versions) != 1 || manifest.Items[1].Direction != "warmer" {
+		t.Fatalf("lost image results: %+v", manifest.Items)
+	}
 }
 func TestCancellationNeverInvokesGeneration(t *testing.T) {
 	s, _ := fixture(t)

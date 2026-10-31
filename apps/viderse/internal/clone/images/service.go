@@ -54,8 +54,24 @@ func (s *Service) mutable(l loaded) error {
 		return cloneError(domain.CloneErrConflict, "Ảnh hoặc bước phụ thuộc đang chạy")
 	}
 	for _, i := range l.manifest.Items {
-		if i.Status == "running" || i.InFlight != nil {
+		if i.Status == "pending" || i.Status == "running" || i.InFlight != nil {
 			return cloneError(domain.CloneErrConflict, "Ảnh đang tạo hoặc cần phục hồi output đã lưu")
+		}
+	}
+	return nil
+}
+func (s *Service) mutableReview(l loaded) error {
+	if l.snapshot.Job.SupersededAt != nil {
+		return cloneError(domain.CloneErrNotFound, "Job đã bị thay thế bởi generation mới")
+	}
+	if l.snapshot.Step.Status != domain.CloneRunning {
+		return s.mutable(l)
+	}
+	for _, dependent := range domain.DependentsOf(domain.CloneImages) {
+		for _, step := range l.snapshot.Steps {
+			if step.Step == dependent && step.Status == domain.CloneRunning {
+				return cloneError(domain.CloneErrConflict, "Bước phụ thuộc đang chạy")
+			}
 		}
 	}
 	return nil
@@ -195,6 +211,12 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		item.SceneID = i.SceneID
 		item.StartFrame = i.StartFrame
 		item.EndFrame = i.EndFrame
+		if i.Kind == "scene" && i.StartFrame >= 0 && i.EndFrame > i.StartFrame {
+			start := float64(i.StartFrame) / scenes.DefaultFPS
+			end := float64(i.EndFrame) / scenes.DefaultFPS
+			duration := end - start
+			item.StartSec, item.EndSec, item.DurationSec = &start, &end, &duration
+		}
 		item.Narration = i.Narration
 		item.Direction = i.Direction
 		if v := model.Displayed(i); v != nil {
@@ -215,7 +237,7 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	if err != nil {
 		return ReviewResult{}, err
 	}
-	if err = s.mutable(l); err != nil {
+	if err = s.mutableReview(l); err != nil {
 		return ReviewResult{}, err
 	}
 	if err = s.currentScenes(ctx, l); err != nil {
@@ -228,7 +250,14 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	changed, sceneChanged := false, false
 	pending := []string{}
 	seen := map[string]bool{}
+	actionIDs := make([]string, 0, len(input.Actions))
+	actionSeen := make(map[string]bool, len(input.Actions))
 	for _, a := range input.Actions {
+		if actionSeen[a.ID] {
+			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Mỗi ảnh chỉ được sửa một lần trong yêu cầu")
+		}
+		actionSeen[a.ID] = true
+		actionIDs = append(actionIDs, a.ID)
 		if a.Prompt != nil && strings.TrimSpace(*a.Prompt) == "" {
 			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Prompt không được để trống")
 		}
@@ -273,7 +302,7 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	if !rerun && from == "" && firstReviewCompleted(l.snapshot, wasApproved, l.manifest) {
 		from = domain.CloneBuild
 	}
-	err = s.Edits.Commit(ctx, l.snapshot, l.manifest, from, rerun, nil)
+	err = s.Edits.CommitImageReview(ctx, l.snapshot, l.manifest, from, rerun, actionIDs)
 	if err != nil {
 		return ReviewResult{}, err
 	}

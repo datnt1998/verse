@@ -109,6 +109,9 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 			m = Reconcile(m, fresh)
 		}
 	}
+	if _, err = drainIntents(ctx, s, &m); err != nil {
+		return pipeline.StepResult{}, err
+	}
 	if !generationPending(m) {
 		m.QueueOnly = nil
 		file := filepath.Join(s.StagingDir, "images", "manifest.json")
@@ -170,7 +173,16 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 			return pipeline.StepResult{}, err
 		}
 	}
-	err = h.runQueue(ctx, s, &m)
+	for {
+		if err = h.runQueue(ctx, s, &m); err != nil {
+			break
+		}
+		var drained bool
+		drained, err = drainIntents(ctx, s, &m)
+		if err != nil || !drained {
+			break
+		}
+	}
 	if err == nil {
 		m.QueueOnly = nil
 		m.Waiting = nil
@@ -215,6 +227,27 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		return pipeline.StepResult{}, err
 	}
 	return result, nil
+}
+
+func drainIntents(ctx context.Context, s *pipeline.StepContext, m *Manifest) (bool, error) {
+	if s.DrainImageIntents == nil {
+		return false, nil
+	}
+	raw, err := json.Marshal(m)
+	if err != nil {
+		return false, err
+	}
+	result, err := s.DrainImageIntents(ctx, raw)
+	if err != nil {
+		return false, err
+	}
+	var next Manifest
+	if err := json.Unmarshal(result, &next); err != nil {
+		return false, err
+	}
+	changed := next.Revision != m.Revision
+	*m = next
+	return changed, nil
 }
 
 func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manifest) error {
