@@ -130,7 +130,7 @@ func (q *Queries) CountTotalQueued(ctx context.Context) (int64, error) {
 }
 
 const findJobsBySourceKeys = `-- name: FindJobsBySourceKeys :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at FROM clone_jobs
 WHERE source_key = ANY($1::text[]) AND superseded_at IS NULL
 ORDER BY created_at
 `
@@ -171,6 +171,7 @@ func (q *Queries) FindJobsBySourceKeys(ctx context.Context, dollar_1 []string) (
 			&i.PostedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ImageApprovedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -356,7 +357,7 @@ func (q *Queries) LastAutoQueuedChannel(ctx context.Context, channelID pgtype.UU
 }
 
 const listActiveJobs = `-- name: ListActiveJobs :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at FROM clone_jobs
 WHERE status IN ('pending', 'running')
   AND (paused_at IS NULL OR status = 'running')
   AND NOT EXISTS (
@@ -400,6 +401,7 @@ func (q *Queries) ListActiveJobs(ctx context.Context) ([]CloneJob, error) {
 			&i.PostedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ImageApprovedAt,
 		); err != nil {
 			return nil, err
 		}

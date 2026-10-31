@@ -142,10 +142,32 @@ type CloneArtifact struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type CloneAutoAction struct {
+	ID        pgtype.UUID        `json:"id"`
+	JobID     pgtype.UUID        `json:"job_id"`
+	Kind      string             `json:"kind"`
+	Text      string             `json:"text"`
+	Reason    []byte             `json:"reason"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 type CloneBulkReviewIntent struct {
 	JobID         pgtype.UUID        `json:"job_id"`
 	ImageRevision int32              `json:"image_revision"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
+type CloneCutout struct {
+	JobID          pgtype.UUID `json:"job_id"`
+	OriginalSha256 string      `json:"original_sha256"`
+	LogicalPath    string      `json:"logical_path"`
+}
+
+type CloneImageOverrideIntent struct {
+	JobID            pgtype.UUID        `json:"job_id"`
+	ExpectedRevision int32              `json:"expected_revision"`
+	Manifest         []byte             `json:"manifest"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 }
 
 type CloneImageReviewIntent struct {
@@ -181,6 +203,7 @@ type CloneJob struct {
 	PostedAt          pgtype.Timestamptz `json:"posted_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	ImageApprovedAt   pgtype.Timestamptz `json:"image_approved_at"`
 }
 
 type CloneMetadataState struct {
@@ -303,6 +326,7 @@ type Notification struct {
 	ReadAt      pgtype.Timestamptz `json:"read_at"`
 	Audience    string             `json:"audience"`
 	ObjectRef   []byte             `json:"object_ref"`
+	Detail      []byte             `json:"detail"`
 }
 
 type Overlay struct {

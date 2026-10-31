@@ -268,7 +268,7 @@ func (q *Queries) InsertErrorEvent(ctx context.Context, arg InsertErrorEventPara
 const insertNotification = `-- name: InsertNotification :one
 INSERT INTO notifications (id, kind, count, text, href, action_label, audience, object_ref)
 VALUES (gen_random_uuid(), $1, 1, $2, $3, $4, $5, $6::jsonb)
-RETURNING id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref
+RETURNING id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref, detail
 `
 
 type InsertNotificationParams struct {
@@ -301,6 +301,7 @@ func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotification
 		&i.ReadAt,
 		&i.Audience,
 		&i.ObjectRef,
+		&i.Detail,
 	)
 	return i, err
 }
@@ -357,7 +358,7 @@ func (q *Queries) InsertTask(ctx context.Context, arg InsertTaskParams) (Backgro
 }
 
 const latestNotification = `-- name: LatestNotification :one
-SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications
+SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref, detail FROM notifications
 WHERE kind = $1 AND audience = $2
   AND object_ref IS NOT DISTINCT FROM $3::jsonb
 ORDER BY created_at DESC
@@ -385,6 +386,7 @@ func (q *Queries) LatestNotification(ctx context.Context, arg LatestNotification
 		&i.ReadAt,
 		&i.Audience,
 		&i.ObjectRef,
+		&i.Detail,
 	)
 	return i, err
 }
@@ -472,7 +474,7 @@ func (q *Queries) ListTasks(ctx context.Context) ([]BackgroundTask, error) {
 }
 
 const listUnreadNotifications = `-- name: ListUnreadNotifications :many
-SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref FROM notifications
+SELECT id, kind, count, text, href, action_label, created_at, read_at, audience, object_ref, detail FROM notifications
 WHERE read_at IS NULL
   AND ($1::boolean OR (audience = 'all' AND COALESCE(object_ref->>'type', '') <> 'storage'))
 ORDER BY created_at DESC
@@ -504,6 +506,7 @@ func (q *Queries) ListUnreadNotifications(ctx context.Context, arg ListUnreadNot
 			&i.ReadAt,
 			&i.Audience,
 			&i.ObjectRef,
+			&i.Detail,
 		); err != nil {
 			return nil, err
 		}
