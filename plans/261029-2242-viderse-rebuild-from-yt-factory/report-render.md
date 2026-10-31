@@ -76,6 +76,28 @@ ffmpeg ebur128 final AAC decode: I=-14.0 LUFS, threshold=-24.0 LUFS, LRA=0.0 LU
 
 These probe/hash/loudness values were measured directly on the preserved final bytes, not inferred from timeline settings or copied from the first output.
 
+### Genuinely passing checklist export
+
+EditorWeb subsequently restored all three canonical signed-template end-card items through normal engine commands and measured again. The score was genuinely **100, passed=true, blockers=[]**, with all eleven checks fresh and passing. A subsequent actual export `f2ef53ff-2506-47d7-9c57-7c130e18aecf` completed: the read-only owner query observed job succeeded at fence 17, score/export succeeded at attempt 5, and the matching output manifest. The POST body contained no new acceptance; however, metadata still records accepted=true from the earlier durable owner decision. This is not presented as proof that prior acceptance was cleared: the checklist itself independently passes.
+
+Preserved file: **`/tmp/p06-render-smoke-passed.mp4`**. Direct ffprobe: H.264, 1920×1080, 30/1 fps; AAC stereo at 48 kHz; duration **6.000000 s**, size **621,793 bytes**. Direct final AAC ebur128: **−14.0 LUFS**, LRA 0. SHA-256: **`adf7bc39f38d827867739044bed0e3377a1fe62bad502a9216e888a72f6feb9c`**.
+
+### Final HTTP lifecycle and byte-count acceptance
+
+After the finalization fix, real request `8140febf-2520-4e92-867f-0a77bc191668` progressed queued → running/claim → running/rendering → running/compressing with **no export record** → done. Only the final done response exposed the MP4, and its **573,436-byte** record exactly matched the HTTP 200 download. Export ID: `2a3cc4fb-e307-4265-bf6d-1beaf810ed62`. The owner-side query independently confirmed job succeeded at fence 21, score/export succeeded at attempt 7 and the matching output manifest. Final quality: total 100, passed=true, blockers=[], durable prior acceptance still recorded.
+
+Final recommended smoke artifact: **`/tmp/p06-render-smoke-finalized.mp4`**.
+
+```text
+SHA-256: 55619efc2ece9501f5b1176b04cf662df0eef2bc5647864bb495b7e6b2a71461
+ffprobe video: h264, 1920x1080, r_frame_rate=30/1
+ffprobe audio: aac, sample_rate=48000, channels=2
+ffprobe format: duration=6.000000, size=573436
+ffmpeg ebur128: I=-14.0 LUFS, threshold=-24.0 LUFS, LRA=0.0 LU
+```
+
+Evidence: `/tmp/p06-editor-finalization-polls.json` and `/tmp/p06-editor-final-export-evidence.json`. The final restart also exercised EditorApi's tombstone-proven reclamation of a deleted conflict-copy revision (`1bf2e962`); no manual file deletion or inventory bypass was used.
+
 ## Exercised verification
 
 Only narrow checks were run; no full-app Go suite, full-app race run or repeated tsc was run by this worker.
@@ -94,6 +116,7 @@ Only narrow checks were run; no full-app Go suite, full-app race run or repeated
 - `TestQualityCaptionOnlyEditInvalidatesOnlyCaptionTiming` first failed because all nine unrelated checks were stale; it and `TestQualityStalenessConservativelyHandlesUnknownAndNonCaptionChanges` then passed with targeted `-race`. Score persistence now retains the actual measured project. Cue-time/word-only subtitle edits invalidate alignment and karaoke together; other edits, settings/artifact changes and old records without a measured document remain conservatively stale. The global revision-bound gate is unchanged.
 - `TestAlignmentRangesExcludePassingAnchorsAndKeepMedianFailures` failed first with four ranges instead of two, then passed targeted `-race`; `TestScoreRangesFiltersPersistedPassingAnchors` independently failed first on stored JSON ranges and passed after the same outbound filtering. Exact matches and offsets ≤120 ms are not falsely exposed as failures; 150 ms median-failure contributors and signed early/late evidence remain actionable. Main approved source parity over the illustrative V13 84-point/300 ms data; design Q&A #66 records that decision.
 - `TestQualityWordAlignmentMetadataKeepsOtherChecksFresh` failed first with nine unrelated stale checks, then passed targeted `-race`; actual alignment's `wordsEstimated` metadata is part of caption timing evidence rather than an unrelated project edit.
+- `TestExportStateWaitsForMatchingPipelineFinalization` and `TestExportStateFinalizationFailureIsTerminal` failed first when browser upload completion was incorrectly exposed as final ready output; targeted `-race` passed after owner-facing request state was bound to the matching succeeded pipeline export manifest. Until then the owner sees running/compressing, not the pre-compression record. Finalization failures become terminal failures. Runtime token expiry is unchanged: the token store remains terminal when the browser ends, and the owner-only polling adapter does not reactivate capabilities.
 
 Main owns integration-wide checks. Recommended single integration commands, from `apps/viderse`, when its test lane is free:
 
@@ -115,5 +138,6 @@ No credentials, request capabilities or database connection strings are included
 - `cbc92d5f` — persistent real-media smoke fixture, committed by the fixture owner.
 - `fe65b7e9` — guarded independent golden caption timing fixture publication.
 - `e2b7dfa2`, `b4621bb8` — actionable current/persisted caption ranges, measured-word metadata freshness and approved design Q&A #66.
+- `4d4d2e1a` — owner-visible export completion waits for the matching post-compression pipeline output.
 
-Editor API and headless frontend companion fixes were coordinated with their owners. Fixture teardown waits for EditorWeb's explicit release so its real V13 interaction acceptance can finish against the same fixture.
+Editor API and headless frontend companion fixes were coordinated with their owners. EditorWeb explicitly released the shared fixture after its final successful lifecycle/byte-count check. The shared server exited, both worker browser sessions were closed and the owned smoke executable was removed. The held `TestRenderPhase05SmokeFixture` then **passed** after explicit release (10041.71 s); its registered teardown removed the isolated schema, temporary HOME/fixture directory, private environment handoff and release marker without reported errors. `TestRenderSmokeInstallChrome` and `TestRenderSmokePublishGoldenAnchors` also passed. MP4 evidence is preserved outside that cleanup.
