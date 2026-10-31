@@ -2,7 +2,7 @@
 // Trạng thái A1: login (chọn tài khoản nhớ trên máy) · password · other · expired;
 // lỗi none/wrong/limited (429 + đếm ngược); phiên 30 ngày; “Máy dùng chung”.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { ApiError, login } from '../../api/client'
+import { ApiError, accessDeniedUser, login } from '../../api/client'
 import { useSession } from '../../api/session'
 import { forgetAccount, getRemembered, rememberAccount } from '../../api/storage'
 import type { RememberedAccount, User } from '../../api/types'
@@ -29,7 +29,7 @@ export { PairScreen } from './PairScreen'
 
 /** Màn đăng nhập. expired=true → thẻ "Phiên đăng nhập đã hết hạn" (hash ?expired=1). */
 export function AuthScreen({ expired = false }: { expired?: boolean }) {
-  const { setUser, refresh } = useSession()
+  const { setUser, setDeniedUser, refresh } = useSession()
   const narrow = useMediaQuery('(max-width: 640px)')
   const remembered = useMemo(() => getRemembered(), [])
   const initialAccount = remembered[0] ?? null
@@ -111,6 +111,10 @@ export function AuthScreen({ expired = false }: { expired?: boolean }) {
   useEffect(() => {
     if (!loginAction.error) return
     const err = loginAction.error instanceof ApiError ? loginAction.error : new ApiError(0, 'Không kết nối được máy chủ. Vui lòng thử lại.')
+    // Đăng nhập đúng nhưng chưa được cấp quyền app: cookie đã được đặt — chuyển
+    // sang màn chặn (giữ phiên), không đếm là sai mật khẩu, không quay form.
+    const denied = accessDeniedUser(err)
+    if (denied) { setDeniedUser(denied); return }
     if (err.status === 429) { setErrorKind('limited'); setRetryLeft(err.retryAfter ?? 60) }
     else if (err.status === 401) setErrorKind('wrong')
     else { setErrorKind('msg'); setErrorMsg(err.message) }

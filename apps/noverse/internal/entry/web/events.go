@@ -521,10 +521,12 @@ func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user ident
 }
 
 func (g *Gateway) eventSessionValid(r *http.Request) bool {
-	cookie, err := r.Cookie(sessionCookie)
+	cookie, err := r.Cookie(g.cookiePolicy().Name)
 	if err != nil {
 		return false
 	}
-	_, _, err = g.accounts.Authenticate(cookie.Value)
-	return err == nil
+	user, _, err := g.accounts.Authenticate(cookie.Value)
+	// The recheck enforces the same boundary as the request path: the
+	// session must still authenticate AND still carry the Noverse grant.
+	return err == nil && appAccessGranted(user.Grants)
 }

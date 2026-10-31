@@ -472,7 +472,7 @@ func TestAudioScriptLockRenderAndChapterFile(t *testing.T) {
 	}
 	r := httptest.NewRequest("GET", f.path("/audio/volumes/1/chapters/1.mp3"), nil)
 	r.Header.Set("Range", "bytes=0-99")
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 	rw := httptest.NewRecorder()
 	f.tg.g.ServeHTTP(rw, r)
 	if rw.Code != http.StatusPartialContent {
@@ -544,7 +544,7 @@ func TestAudioSegmentPreviewRerenderAccept(t *testing.T) {
 
 	// 段音频地址可直接播放（返回的就是可请求的 /api 路径）。
 	r := httptest.NewRequest("GET", prev.URL, nil)
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 	rw := httptest.NewRecorder()
 	f.tg.g.ServeHTTP(rw, r)
 	if rw.Code != http.StatusOK || !strings.Contains(rw.Header().Get("Content-Type"), "audio") {
@@ -564,7 +564,7 @@ func TestAudioSegmentPreviewRerenderAccept(t *testing.T) {
 		t.Fatalf("candidate = %+v", cand)
 	}
 	r = httptest.NewRequest("GET", cand.URL, nil)
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 	rw = httptest.NewRecorder()
 	f.tg.g.ServeHTTP(rw, r)
 	if rw.Code != http.StatusOK {
@@ -584,7 +584,7 @@ func TestAudioSegmentPreviewRerenderAccept(t *testing.T) {
 	}
 	// 候选文件已清理。
 	r = httptest.NewRequest("GET", cand.URL, nil)
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 	rw = httptest.NewRecorder()
 	f.tg.g.ServeHTTP(rw, r)
 	if rw.Code != http.StatusNotFound {
@@ -667,7 +667,7 @@ func TestAudioSettingsCastAndFlags(t *testing.T) {
 	reader := f.tg.login("reader", "reader-pass")
 	r := httptest.NewRequest("PUT", f.path("/audio/settings"), strings.NewReader(`{"quality":"fast","autoOnLock":true}`))
 	r.Header.Set("Content-Type", "application/json")
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: reader})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: reader})
 	rw := httptest.NewRecorder()
 	f.tg.g.ServeHTTP(rw, r)
 	if rw.Code != http.StatusForbidden {
@@ -706,7 +706,7 @@ func TestAudioProjectVoicesAndPronunciations(t *testing.T) {
 		_ = mw.Close()
 		r := httptest.NewRequest("POST", "/api/projects/proj/voices", &body)
 		r.Header.Set("Content-Type", mw.FormDataContentType())
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+		r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 		rw := httptest.NewRecorder()
 		f.tg.g.ServeHTTP(rw, r)
 		return rw
@@ -848,7 +848,7 @@ func TestAudioExportVolume(t *testing.T) {
 		}
 		req := httptest.NewRequest("GET", f.path("/exports/file?path="+url.QueryEscape(file.Path)), nil)
 		req.Header.Set("Range", "bytes=0-3")
-		req.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+		req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 		res := httptest.NewRecorder()
 		f.tg.g.ServeHTTP(res, req)
 		if res.Code != http.StatusPartialContent || res.Header().Get("Accept-Ranges") != "bytes" || res.Body.Len() != 4 {
@@ -930,7 +930,7 @@ func TestAudioEventsStream(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	r := httptest.NewRequest("GET", f.path("/audio/events"), nil).WithContext(ctx)
-	r.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 	w := &sseRecorder{}
 	done := make(chan struct{})
 	go func() {
@@ -980,7 +980,7 @@ func TestAudioCastVersionConflictAndChangeEvent(t *testing.T) {
 	put := func(ifMatch string) *httptest.ResponseRecorder {
 		req := httptest.NewRequest("PUT", f.path("/audio/cast"), strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
-		req.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+		req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 		if ifMatch != "" {
 			req.Header.Set("If-Match", ifMatch)
 		}

@@ -1,8 +1,9 @@
 // Form “Dùng mã khôi phục” trong khung Quên mật khẩu (Login.dc.html › recoverOpen), chỉ cho quản trị viên.
 // Nằm trong <form> đăng nhập nên dùng nút type=button; Enter trong ô nhập chạy khôi phục, không đăng nhập.
 import { useEffect, useState, type KeyboardEvent } from 'react'
-import { recoverAdmin } from '../../api/client'
+import { accessDeniedUser, recoverAdmin } from '../../api/client'
 import type { User } from '../../api/types'
+import { useSession } from '../../api/session'
 import { useAction } from '../../data'
 import { t } from '../../i18n/vi'
 import { Icon } from '@noverse/ui'
@@ -16,6 +17,7 @@ export function RecoveryForm({ username, usernameOk, onRecovered }: {
   usernameOk: boolean
   onRecovered: (user: User) => void
 }) {
+  const { setDeniedUser } = useSession()
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [failure, setFailure] = useState<RecoveryFailure | null>(null)
@@ -31,6 +33,9 @@ export function RecoveryForm({ username, usernameOk, onRecovered }: {
 
   useEffect(() => {
     if (!action.error) return
+    // Mã đúng + mật khẩu đặt xong nhưng chưa được cấp quyền app → màn chặn.
+    const denied = accessDeniedUser(action.error)
+    if (denied) { setDeniedUser(denied); return }
     const next = recoveryFailure(action.error)
     setFailure(next)
     if (next.kind === 'limited') setRetryLeft(next.retryAfter)

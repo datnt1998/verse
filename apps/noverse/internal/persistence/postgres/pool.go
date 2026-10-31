@@ -243,6 +243,17 @@ func (p *Pool) CheckMigrations(ctx context.Context) error {
 // sanitizeErr strips any credential material a driver error may embed.
 // pgx wraps the normalized conn config (which contains the DSN) in some
 // error paths; error text must never carry passwords or full DSNs.
+// sanitizedError keeps the sanitized text but still unwraps to the original
+// error, so callers can classify dependency failures (pgconn/net/closed pool)
+// with errors.Is/As while no credential ever reaches the message.
+type sanitizedError struct {
+	msg string
+	err error
+}
+
+func (e sanitizedError) Error() string { return e.msg }
+func (e sanitizedError) Unwrap() error { return e.err }
+
 func sanitizeErr(err error) error {
 	if err == nil {
 		return nil
@@ -251,7 +262,7 @@ func sanitizeErr(err error) error {
 	for _, frag := range []string{"password=", "sslcert=", "sslkey="} {
 		if idx := strings.Index(msg, frag); idx >= 0 {
 			// truncate at the first credential fragment
-			return errors.New(msg[:idx] + "[credentials redacted]")
+			return sanitizedError{msg[:idx] + "[credentials redacted]", err}
 		}
 	}
 	// driver messages may embed "postgres://user:secret@host"; strip the
@@ -264,5 +275,5 @@ func sanitizeErr(err error) error {
 			}
 		}
 	}
-	return errors.New(msg)
+	return sanitizedError{msg, err}
 }

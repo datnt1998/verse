@@ -26,7 +26,7 @@ import {
 } from './model'
 import { slugifyOrEmpty } from '../../lib/slug'
 import { keys, useAction, useConnection, useResource } from '../../data'
-import { Button } from '@noverse/ui'
+import { Button, toast } from '@noverse/ui'
 import { useLibraryChoice } from './libraryChoice'
 import { ConflictBar } from '@noverse/ui'
 import { StaleBanner } from '@noverse/ui'
@@ -35,7 +35,7 @@ import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 
 export function OnboardScreen({ step }: { step: string | null }) {
-  const { user, session, refresh } = useSession()
+  const { user, session, refresh, endSession } = useSession()
   const libraryResource = useResource(keys.library(), getLibrary)
   const library = libraryResource.data ?? null
   const libraryLoading = !library && libraryResource.initialLoading
@@ -442,7 +442,14 @@ export function OnboardScreen({ step }: { step: string | null }) {
       if (!pwCurrent) throw new Error(passwordStepCopy(user?.mustChangePassword === true && !pwChanged).missingCurrent)
       if (pwNext.length < 8) throw new Error('Mật khẩu mới cần ít nhất 8 ký tự')
       if (pwNext !== pwRepeat) throw new Error('Hai lần nhập mật khẩu chưa khớp')
-      await changePassword(pwCurrent, pwNext, version ?? profileBaseline.current?.version)
+      const result = await changePassword(pwCurrent, pwNext, version ?? profileBaseline.current?.version)
+      // Đổi xong: máy chủ thu hồi mọi phiên kể cả phiên đang chạy onboard này —
+      // báo đổi thành công rồi đưa về đăng nhập; không refresh /api/me (sẽ 401).
+      if (result.reauthenticate) {
+        toast('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')
+        endSession()
+        return true
+      }
       await refresh()
       setPwChanged(true); setPwCurrent(''); setPwNext(''); setPwRepeat('')
     } else if (stepKey === 'provider') {

@@ -126,7 +126,7 @@ func (tg *testGateway) doWith(method, path, cookie, body string, tweak func(*htt
 		req = httptest.NewRequest(method, path, nil)
 	}
 	if cookie != "" {
-		req.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 	}
 	if tweak != nil {
 		tweak(req)

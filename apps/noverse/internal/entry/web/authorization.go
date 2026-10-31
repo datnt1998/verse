@@ -114,7 +114,7 @@ func requestAllowed(user identity.User, r *http.Request) bool {
 	}
 }
 func authorizeRequest(w http.ResponseWriter, r *http.Request, user identity.User) bool {
-	if user.MustChangePassword && r.URL.Path != "/api/me" && r.URL.Path != "/api/me/password" && r.URL.Path != "/api/logout" && !strings.HasPrefix(r.URL.Path, "/api/me/sessions") {
+	if user.MustChangePassword && !passwordNeutralRoute(r.Method, r.URL.Path) {
 		writeJSON(w, 403, map[string]any{"error": "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.", "mustChangePassword": true})
 		return false
 	}
@@ -137,11 +137,28 @@ func authorizeRequest(w http.ResponseWriter, r *http.Request, user identity.User
 	return false
 }
 
+// passwordNeutralRoute enumerates — method and path exactly — the only
+// requests an account that must change its temporary password may make.
+// This mirrors the no-grant auth-neutral set plus the profile/status reads
+// the forced-change screens need; anything else, including SSE, uploads and
+// unknown writes, is refused before any handler runs.
+func passwordNeutralRoute(method, path string) bool {
+	switch path {
+	case "/api/me":
+		return method == http.MethodGet || method == http.MethodPost || method == http.MethodPut
+	case "/api/me/onboarded":
+		return method == http.MethodPost
+	case "/api/me/sessions":
+		return method == http.MethodGet
+	}
+	return sessionOnlyRoute(method, path)
+}
+
 // Keep long-lived story responses tied to current stored permissions and sessions,
 // including changes made by another CLI/server process which cannot notify this hub.
 func (g *Gateway) authenticatedStoryStream(r *http.Request, story string) (*http.Request, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(r.Context())
-	cookie, err := r.Cookie(sessionCookie)
+	cookie, err := r.Cookie(g.cookiePolicy().Name)
 	if err != nil {
 		cancel()
 		return r.WithContext(ctx), cancel
@@ -155,7 +172,7 @@ func (g *Gateway) authenticatedStoryStream(r *http.Request, story string) (*http
 				return
 			case <-ticker.C:
 				user, _, err := g.accounts.Authenticate(cookie.Value)
-				if err != nil || !user.CanRead(story) {
+				if err != nil || !user.CanRead(story) || !appAccessGranted(user.Grants) {
 					cancel()
 					return
 				}

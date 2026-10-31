@@ -71,7 +71,7 @@ func (h *setupHarness) do(method, path, cookie, body string) *httptest.ResponseR
 	r.RemoteAddr = "192.0.2.1:1234"
 	r.Host = "127.0.0.1:8686"
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 	}
 	if method == "POST" || method == "PUT" || body != "" {
 		r.Header.Set("Content-Type", "application/json")

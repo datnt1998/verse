@@ -51,7 +51,11 @@ func (g *Gateway) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.recoverLimiter.Succeed(key)
-	setSession(w, r, s)
+	g.setSession(w, r, s)
+	if !appAccessGranted(s.User.Grants) {
+		g.writeAppAccessDenied(w, s.User)
+		return
+	}
 	for _, id := range revoked {
 		g.revokeEvent(s.User.Username, id)
 	}

@@ -192,7 +192,7 @@ func (g *Gateway) setupAdmin(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	setSession(w, r, s)
+	g.setSession(w, r, s)
 	g.accountChanged(s.User.Username)
 	g.notifyLogin(r, s)
 	g.writeAccountUser(w, http.StatusOK, s.User, map[string]any{"recoveryCode": code})

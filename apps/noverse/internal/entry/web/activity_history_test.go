@@ -201,7 +201,7 @@ func TestActivityHistoryRealLogCurl(t *testing.T) {
 	cookie := tg.login("reader", "reader-pass")
 	server := httptest.NewServer(tg.g)
 	defer server.Close()
-	command := exec.Command("curl", "--fail-with-body", "--silent", "--show-error", "--cookie", sessionCookie+"="+cookie, server.URL+"/api/projects/_/stories/oldbook/events?limit=3")
+	command := exec.Command("curl", "--fail-with-body", "--silent", "--show-error", "--cookie", fileSessionCookie+"="+cookie, server.URL+"/api/projects/_/stories/oldbook/events?limit=3")
 	body, err := command.CombinedOutput()
 	if err != nil {
 		t.Fatalf("curl: %v %s", err, body)

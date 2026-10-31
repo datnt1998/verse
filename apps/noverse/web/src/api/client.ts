@@ -6,7 +6,7 @@ import type {
   DiagReport, ExportResult, ExportsResponse, ForeshadowEntry, Idea, ImportRequest, JobEvent,
   FsFolder, FsMkdirResult, FsPlace, LibraryConfig, LibraryInspect, LibraryResponse, ModelsResponse, OAuthStart, OAuthStatus, Outline,
   Pairing, Project, ProjectDetail, ReviewDecision, ReviewEntry, RevisionEntry, Role, RuleFile, RulesResponse,
-  Session, Snapshot, StoryFile, StorySummary, SyncChanged, SystemInfo, User, ValidateResult,
+  Session, Snapshot, StoryFile, StorySummary, SyncChanged, SystemInfo, User, ValidateResult, AppId,
   ChaptersResponse, ImportPreview, ProjectCoCreateReply, ProjectCoCreateState, RevealPath, RevealRequest, RevealResult,
   CommandResult, RetryResult, CommandSpec, ExportOnExists, SyncDiff,
   ConfigTestResult, LibraryRootResult, PickFolderResult, ProviderModelList,
@@ -51,7 +51,19 @@ export class ConflictError<T = unknown> extends ApiError {
 let onUnauthorized: (() => void | boolean | Promise<boolean>) | null = null
 export function setUnauthorizedHandler(fn: (() => void | boolean | Promise<boolean>) | null) { onUnauthorized = fn }
 
+/**
+ * 403 `{code:"app_access_denied"}` — phiên hợp lệ nhưng tài khoản chưa được cấp
+ * quyền vào app này: trả view user an toàn đi kèm (grants kèm trong), khác hẳn
+ * 401 phiên hết hạn. UI giữ người đang đăng nhập, không quay vòng màn login.
+ */
+export const accessDeniedUser = (error: unknown): User | null => {
+  const payload = error instanceof ApiError && error.status === 403 ? error.payload : null
+  return payload && typeof payload === 'object' && 'code' in payload && payload.code === 'app_access_denied' &&
+    'user' in payload && payload.user && typeof payload.user === 'object' ? payload.user as User : null
+}
+
 const OFFLINE_MSG = 'Không kết nối được máy chủ. Vui lòng thử lại.'
+
 
 async function request<T>(path: string, options?: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: object; version?: string; signal?: AbortSignal }, retried = false): Promise<T> {
   const method = options?.method ?? (options?.body === undefined ? 'GET' : 'POST')
@@ -92,10 +104,22 @@ export const logout = () => request<{ ok: boolean }>('/api/logout', { body: {} }
 export const me = () => request<{ user: User; session: Session; pendingLessons?: number }>('/api/me')
 export const updateMe = (name: string, version?: string) => request<{ user: User }>('/api/me', { body: { name }, version })
 export const markOnboarded = () => request<{ user: User }>('/api/me/onboarded', { body: {} })
-export const changePassword = (current: string, next: string, version?: string) => request<{ ok: boolean }>('/api/me/password', { body: { current, new: next }, version })
+/**
+ * Đổi mật khẩu của chính mình. Thành công thì máy chủ thu hồi MỌI phiên kể cả
+ * phiên đang dùng và xoá cookie — `reauthenticate` báo UI phải xoá phiên cục bộ
+ * và mời đăng nhập lại, không refresh /api/me (sẽ 401 như thể đổi thất bại).
+ */
+export const changePassword = (current: string, next: string, version?: string) =>
+  request<{ ok: boolean; reauthenticate?: boolean }>('/api/me/password', { body: { current, new: next }, version })
 export const mySessions = () => request<{ sessions: Session[] }>('/api/me/sessions')
 export const myPairing = () => request<Pairing>('/api/me/pairings', { body: {} })
 export const revokeSession = (id: string) => request<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}/revoke`, { body: {} })
+/** Cấp quyền vào một app của kho tài khoản chung (chỉ quản trị; backend file trả 501). */
+export const grantAppAccess = (username: string, app: AppId, reason?: string) =>
+  request<User>(`/api/users/${encodeURIComponent(username)}/grants/${app}`, { method: 'PUT', body: { role: 'member', ...(reason ? { reason } : {}) } })
+/** Thu hồi quyền vào một app — hiệu lực ngay, phiên của tài khoản đó bị thu hồi. */
+export const revokeAppAccess = (username: string, app: AppId, reason?: string) =>
+  request<User>(`/api/users/${encodeURIComponent(username)}/grants/${app}`, { method: 'DELETE', body: reason ? { reason } : {} })
 export const listUsers = () => request<{ users: User[] }>('/api/users')
 export const createUser = (username: string, name: string, role: Role, projects: ProjectPermissions, password: string) =>
   request<User>('/api/users', { body: { username, name, role, projects, password } })

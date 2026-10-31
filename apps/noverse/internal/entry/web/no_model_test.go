@@ -79,7 +79,7 @@ func TestNoModelSnapshotReadsForEveryRoleAndConfigRestartsWorker(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	request := httptest.NewRequest(http.MethodGet, "/api/projects/_/stories/oldbook/events/live", nil).WithContext(ctx)
-	request.AddCookie(&http.Cookie{Name: sessionCookie, Value: sessions["reader"]})
+	request.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: sessions["reader"]})
 	writer := &streamWriter{signal: make(chan struct{}, 1), header: make(http.Header)}
 	done := make(chan struct{})
 	go func() { tg.g.ServeHTTP(writer, request); close(done) }()

@@ -59,7 +59,7 @@ func pgAccountsGateway(t *testing.T) *Gateway {
 			t.Fatal(err)
 		}
 	}
-	g := NewGateway(root, accounts, version.Info{})
+	g := NewPostgresGateway(root, accounts, version.Info{})
 	t.Cleanup(g.Close)
 	return g
 }

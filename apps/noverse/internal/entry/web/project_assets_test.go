@@ -29,7 +29,7 @@ func (tg *testGateway) uploadAsset(cookie, project, kind, filename string, data 
 	r.Host = "127.0.0.1:8686"
 	r.Header.Set("Content-Type", mw.FormDataContentType())
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 	}
 	w := httptest.NewRecorder()
 	tg.g.ServeHTTP(w, r)

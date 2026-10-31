@@ -59,7 +59,7 @@ func TestReviewStoryStreamsCloseAfterStoredRevocation(t *testing.T) {
 				ctx, cancel := context.WithCancel(context.Background())
 				defer cancel()
 				r := httptest.NewRequest("GET", "/api/projects/_/stories/oldbook/"+stream, nil).WithContext(ctx)
-				r.AddCookie(&http.Cookie{Name: sessionCookie, Value: reader})
+				r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: reader})
 				w := &streamWriter{signal: make(chan struct{}, 1), header: make(http.Header)}
 				done := make(chan struct{})
 				go func() { tg.g.ServeHTTP(w, r); close(done) }()

@@ -58,6 +58,12 @@ case "$targets" in
             export MIGRATION_DATABASE_URL
         fi
         ;;
+    *,worker,*)
+        if [ -z "${NOVERSE_WORKER_DATABASE_URL:-}" ]; then
+            NOVERSE_WORKER_DATABASE_URL=$(dsn "${POSTGRES_WORKER_USER:-noverse_engine_worker}" "${POSTGRES_WORKER_PASSWORD:?POSTGRES_WORKER_PASSWORD is required}")
+            export NOVERSE_WORKER_DATABASE_URL
+        fi
+        ;;
 esac
 
 exec ainovel-cli "$@"

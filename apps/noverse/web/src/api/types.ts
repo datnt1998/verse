@@ -584,6 +584,14 @@ export type SystemInfo = {
 // ─── §7 Tài khoản (webauth) ─────────────────────────────────────────────
 
 export type Role = 'admin' | 'member'
+/** Kho tài khoản chung: tên app là giá trị lưu trữ, không phải nhãn hiển thị. */
+export type AppId = 'noverse' | 'viderse'
+/**
+ * Quyền vào từng app của tài khoản (map app → vai trò hiệu lực).
+ * Kho chung Postgres luôn trả object — `{}` = thành viên chưa được cấp app nào;
+ * backend file độc lập trả `null` (không có khái niệm grant liên app).
+ */
+export type AppGrants = Partial<Record<AppId, Role>>
 export type ProjectRole = 'owner' | 'collab' | 'view'
 export type ProjectPermissions = Record<string, ProjectRole>
 export type AdminAuditItem = {
@@ -594,6 +602,8 @@ export type AdminAuditItem = {
 export type User = {
   version?: string
   username: string; name: string; role: Role; projects: ProjectPermissions
+  /** Quyền vào từng app trên kho tài khoản chung; `null` = backend file độc lập. */
+  grants?: AppGrants | null
   disabled: boolean; createdAt: string; updatedAt: string
   onboardedAt: string | null; mustChangePassword: boolean
   lastSeenAt: string | null; sessionCount?: number

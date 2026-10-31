@@ -77,13 +77,29 @@ func (b *storyWorker) endOperation() {
 	b.mu.Unlock()
 }
 
+// accountBackend selects which session contract the Gateway runs. It is
+// declared at construction — never guessed from a file path — because cookie
+// name and app-grant enforcement differ per backend:
+//
+//	backendFile     → `ainovel_session`, Noverse grants always effective
+//	backendPostgres → `verse_session`, per-app grants enforced per request
+type accountBackend int
+
+const (
+	backendFile accountBackend = iota
+	backendPostgres
+)
+
 // Gateway owns one serialized launcher per story, without holding the registry lock during startup.
 type Gateway struct {
 	// Root 是书库根；运行时可用 PUT /api/library 换，读写一律走 RootPath。
 	// 为空表示尚未选择（全新安装）：依赖书库的接口一律回 409 errNoLibrary，不会落到当前目录。
 	Root string
 	// PublicURLs 是手机可访问的基础地址（局域网 / Tailscale），用于生成扫码登录链接。
-	PublicURLs  []string
+	PublicURLs []string
+	// backend 是账号后端选择（serve 传 STORE_DRIVER）：决定 session cookie
+	// 名与 app-grant gate。构造后不可变，不受请求影响。
+	backend     accountBackend
 	accounts    *identity.Store
 	limiter     identity.LoginLimiter
 	workerToken string
@@ -242,10 +258,20 @@ var checkLatestRelease = version.CheckLatest
 // NewGateway 创建网关；workerToken 每次启动随机生成，只在网关与本机 worker 之间使用。
 // build 为 ldflags 构建身份（serve 传入 versionInfo()）；正式版本会在后台跑一次
 // 被动检查新版本，结果经 /api/system 的 latestVersion/hasUpdate 暴露。
+// 文件后端契约（独立 ainovel_session）；共享 Postgres 部署用 NewPostgresGateway。
 func NewGateway(root string, accounts *identity.Store, build version.Info) *Gateway {
-	// Backend-aware limiters: postgres → shared DB buckets (login_rate_limits),
-	// file → in-memory (unchanged CLI behavior).
-	g := &Gateway{Root: root, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build)}
+	return newGateway(root, accounts, backendFile, build)
+}
+
+// NewPostgresGateway is the constructor for the shared-account deployment:
+// the caller must declare the backend explicitly — the cookie name and the
+// app-grant gate are derived from it, never guessed from paths or env.
+func NewPostgresGateway(root string, accounts *identity.Store, build version.Info) *Gateway {
+	return newGateway(root, accounts, backendPostgres, build)
+}
+
+func newGateway(root string, accounts *identity.Store, backend accountBackend, build version.Info) *Gateway {
+	g := &Gateway{Root: root, backend: backend, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build)}
 	g.launchHosted = g.launchHostedWorker
 	accounts.SetProjectSource(func() ([]string, error) {
 		if g.libRepo == nil && g.RootPath() == "" {
@@ -649,7 +675,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// GAP-41：/api/setup* 与 /api/login 同层，不需要登录（还没有账号时也要能进）。
 		return
 	}
-	cookie, err := r.Cookie(sessionCookie)
+	cookie, err := r.Cookie(g.cookiePolicy().Name)
 	if err != nil {
 		jsonError(w, 401, identity.ErrUnauthenticated.Error())
 		return
@@ -657,9 +683,17 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, current, err := g.accounts.Authenticate(cookie.Value)
 	if err != nil {
 		if errors.Is(err, identity.ErrUnauthenticated) {
-			clearSession(w, r)
+			g.clearSession(w, r)
 		}
 		accountError(w, err)
+		return
+	}
+	// App-grant gate (shared Postgres store): a valid session without a
+	// Noverse grant gets 403 — never 401, never a cleared cookie — and only
+	// the exact auth-neutral endpoints (logout, own password, own sessions)
+	// still run. Everything else stops before feedback or any handler.
+	if !appAccessGranted(user.Grants) {
+		g.serveSessionOnly(w, r, user, current)
 		return
 	}
 	var finish func()
@@ -864,36 +898,62 @@ func (t *tailBuffer) add(s string) {
 }
 func (t *tailBuffer) text() string { t.mu.Lock(); defer t.mu.Unlock(); return t.s }
 
+// workerEnvPassthrough lists the only parent environment a worker child may
+// inherit. Anything else — database DSNs, API keys the operator exported,
+// migration credentials — is filtered out: the child must never receive an
+// account credential through the environment by accident.
+var workerEnvPassthrough = []string{
+	"HOME", "PATH", "TMPDIR", "TMP", "TEMP", "USER", "USERNAME", "LOGNAME", "SHELL",
+	"LANG", "LC_ALL", "LC_CTYPE", "TZ", "TERM",
+	// Connectivity the engine needs for outbound LLM/media calls.
+	"HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
+	"http_proxy", "https_proxy", "all_proxy", "no_proxy",
+	"SSL_CERT_FILE", "SSL_CERT_DIR",
+	// Runtime tuning, safe to inherit.
+	"GOMAXPROCS", "GOTRACEBACK", "GODEBUG",
+}
+
+// workerEnv builds the minimal environment for a worker child: only the
+// passthrough keys above plus the explicit additions the caller supplies.
+// An empty value in extra is skipped rather than exported empty, so optional
+// keys never shadow a meaningful default.
+func workerEnv(extra ...string) []string {
+	env := make([]string, 0, len(workerEnvPassthrough)+len(extra))
+	for _, key := range workerEnvPassthrough {
+		if value, ok := os.LookupEnv(key); ok {
+			env = append(env, key+"="+value)
+		}
+	}
+	for _, kv := range extra {
+		if _, value, found := strings.Cut(kv, "="); found && value != "" {
+			env = append(env, kv)
+		}
+	}
+	return env
+}
+
 // launchWorker 在故事目录内启动 worker 子进程；dir 即引擎的书目录（worker cwd）。
 // AINOVEL_LIBRARY_ROOT 让 worker 找到书库配置（自动导出等）。
 func launchWorker(id, dir, root, token string) (*launchedWorker, error) {
 	return spawnWorker(id, dir, "",
-		append(os.Environ(), "AINOVEL_WORKER_TOKEN="+token, library.RootEnv+"="+root))
+		workerEnv("AINOVEL_WORKER_TOKEN="+token, library.RootEnv+"="+root))
 }
 
 // launchHostedWorker 启动 hosted 故事的 worker 子进程：cwd 是一块私有
-// scratch（不存在的故事目录绝不伪造），scope/存储经 env 传入——DSN 等
-// secret 只在 env，不在 argv。子进程连库后用 scope 自领 story lease。
+// scratch（不存在的故事目录绝不伪造），scope/存储经 env 传入——worker 只拿到
+// NOVERSE_WORKER_DATABASE_URL 的受限角色，绝不拿 app DSN；secret 只在 env，不在 argv。
+// 子进程连库后用 scope 自领 story lease。
 func (g *Gateway) launchHostedWorker(key, project, story string) (*launchedWorker, error) {
 	if g.workerStore == nil || g.workerStore.Driver != bootstrap.StoreDriverPostgres {
 		return nil, fmt.Errorf("worker lưu trữ hosted chưa cấu hình: %w", errs.ErrStorageUnsupported)
 	}
-	scratch, err := os.MkdirTemp("", "ainovel-worker-"+story+"-")
+	env, err := hostedWorkerEnv(g.workerStore, g.workerToken, project, story)
 	if err != nil {
 		return nil, err
 	}
-	cfg := g.workerStore
-	env := append(os.Environ(),
-		"AINOVEL_WORKER_TOKEN="+g.workerToken,
-		workerScopeEnv+"="+project+"/"+story,
-		"STORE_DRIVER="+string(cfg.Driver),
-		"DATABASE_URL="+cfg.DatabaseURL,
-	)
-	if cfg.MaxConns > 0 {
-		env = append(env, "DB_MAX_CONNS="+strconv.FormatInt(int64(cfg.MaxConns), 10))
-	}
-	if cfg.ConnectTimeout > 0 {
-		env = append(env, "DB_CONNECT_TIMEOUT="+cfg.ConnectTimeout.String())
+	scratch, err := os.MkdirTemp("", "ainovel-worker-"+story+"-")
+	if err != nil {
+		return nil, err
 	}
 	worker, err := spawnWorker(key, scratch, scratch, env)
 	if err != nil {
@@ -901,6 +961,32 @@ func (g *Gateway) launchHostedWorker(key, project, story string) (*launchedWorke
 		return nil, err
 	}
 	return worker, nil
+}
+
+// hostedWorkerEnv builds the hosted child's environment from the parent
+// storage contract. It fails closed when WorkerURL is unset — a hosted
+// worker never inherits DATABASE_URL — and everything not on the passthrough
+// list is dropped, so no account/migration/app DSN or operator secret can
+// leak through the child's environment.
+func hostedWorkerEnv(cfg *bootstrap.StorageConfig, token, project, story string) ([]string, error) {
+	if cfg.WorkerURL == "" {
+		return nil, fmt.Errorf("NOVERSE_WORKER_DATABASE_URL chưa cấu hình — worker hosted không bao giờ nhận DATABASE_URL của app: %w", errs.ErrConfig)
+	}
+	env := workerEnv(
+		"AINOVEL_WORKER_TOKEN="+token,
+		workerScopeEnv+"="+project+"/"+story,
+		"STORE_DRIVER="+string(cfg.Driver),
+		// The child contract stays single-keyed: its DATABASE_URL is the
+		// scoped worker role, never the parent app DSN.
+		"DATABASE_URL="+cfg.WorkerURL,
+	)
+	if cfg.MaxConns > 0 {
+		env = append(env, "DB_MAX_CONNS="+strconv.FormatInt(int64(cfg.MaxConns), 10))
+	}
+	if cfg.ConnectTimeout > 0 {
+		env = append(env, "DB_CONNECT_TIMEOUT="+cfg.ConnectTimeout.String())
+	}
+	return env, nil
 }
 
 // spawnWorker 建 __web-worker 子进程并等它就绪。dir 是 worker 的 cwd

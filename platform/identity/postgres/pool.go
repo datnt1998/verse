@@ -211,6 +211,17 @@ func RunInTx(ctx context.Context, pool *pgxpool.Pool, fn func(tx pgx.Tx) error) 
 	return nil
 }
 
+// sanitizedError keeps the sanitized text but still unwraps to the original
+// error, so callers can classify dependency failures (pgconn/net/closed pool)
+// with errors.Is/As while no credential ever reaches the message.
+type sanitizedError struct {
+	msg string
+	err error
+}
+
+func (e sanitizedError) Error() string { return e.msg }
+func (e sanitizedError) Unwrap() error { return e.err }
+
 // sanitizeErr strips any credential material a driver error may embed. pgx
 // wraps the normalized conn config (which contains the DSN) in some error
 // paths; error text must never carry passwords or full DSNs.
@@ -221,7 +232,7 @@ func sanitizeErr(err error) error {
 	msg := err.Error()
 	for _, frag := range []string{"password=", "sslcert=", "sslkey="} {
 		if idx := strings.Index(msg, frag); idx >= 0 {
-			return errors.New(msg[:idx] + "[credentials redacted]")
+			return sanitizedError{msg[:idx] + "[credentials redacted]", err}
 		}
 	}
 	if idx := strings.Index(msg, "://"); idx >= 0 {
@@ -232,5 +243,5 @@ func sanitizeErr(err error) error {
 			}
 		}
 	}
-	return errors.New(msg)
+	return sanitizedError{msg, err}
 }

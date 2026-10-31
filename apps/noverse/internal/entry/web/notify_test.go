@@ -59,7 +59,7 @@ func TestNotificationPrefsConflictAndSessionCleanup(t *testing.T) {
 		r := httptest.NewRequest("PUT", "/api/notify/prefs", strings.NewReader(string(b)))
 		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("If-Match", version)
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 		w := httptest.NewRecorder()
 		g.ServeHTTP(w, r)
 		return w

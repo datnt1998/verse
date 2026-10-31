@@ -116,7 +116,7 @@ func (tg *testGateway) do(method, path, cookie, body string) *httptest.ResponseR
 	r.RemoteAddr = "192.0.2.1:1234"
 	r.Host = "127.0.0.1:8686"
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: tg.g.cookiePolicy().Name, Value: cookie})
 	}
 	if method == "POST" || method == "PUT" || body != "" {
 		r.Header.Set("Content-Type", "application/json")
@@ -129,7 +129,7 @@ func (tg *testGateway) do(method, path, cookie, body string) *httptest.ResponseR
 func sessionFrom(t *testing.T, w *httptest.ResponseRecorder) string {
 	t.Helper()
 	for _, c := range w.Result().Cookies() {
-		if c.Name == sessionCookie && c.Value != "" {
+		if (c.Name == fileSessionCookie || c.Name == sharedSessionCookie) && c.Value != "" {
 			if !c.HttpOnly || c.SameSite != http.SameSiteStrictMode {
 				t.Fatalf("session cookie flags: %+v", c)
 			}

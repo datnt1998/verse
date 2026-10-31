@@ -85,7 +85,7 @@ func TestMobileVoiceUploadValidation(t *testing.T) {
 			_ = form.Close()
 			req := httptest.NewRequest("POST", "/api/projects/proj/voices", &body)
 			req.Header.Set("Content-Type", form.FormDataContentType())
-			req.AddCookie(&http.Cookie{Name: sessionCookie, Value: f.admin})
+			req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: f.admin})
 			w := httptest.NewRecorder()
 			f.tg.g.ServeHTTP(w, req)
 			if w.Code != tc.status {

@@ -27,7 +27,11 @@ import (
 	"errors"
 	"io/fs"
 	"log/slog"
+	"net"
 	"net/http"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/puddle/v2"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
@@ -111,9 +115,10 @@ var httpErrorRules = []httpErrorRule{
 	{audio.ErrEngineMissing, http.StatusServiceUnavailable, "", true},
 }
 
-// mapHTTPError applies the shared table. ok=false means the error is
-// unexpected at the transport layer: the caller must answer with the generic
-// 500 after logging the cause.
+// mapHTTPError applies the shared table. A database/network dependency that
+// is not a domain sentinel reports 503 (temporarily unavailable, never a
+// fabricated client error); ok=false means the error is unexpected at the
+// transport layer and the caller answers the generic 500 after logging it.
 func mapHTTPError(err error) (status int, message string, ok bool) {
 	if err == nil {
 		return 0, "", false
@@ -127,7 +132,23 @@ func mapHTTPError(err error) (status int, message string, ok bool) {
 			return rule.status, msg, true
 		}
 	}
+	if dependencyUnavailable(err) {
+		return http.StatusServiceUnavailable, "Máy chủ tạm thời không sẵn sàng, vui lòng thử lại sau.", true
+	}
 	return 0, "", false
+}
+
+// dependencyUnavailable reports whether err is a storage/network dependency
+// failure rather than a domain decision. Repository errors are already
+// credential-sanitized before they reach this boundary (see the identity
+// pool), so matching by type is safe; the raw text still never leaves the
+// server log.
+func dependencyUnavailable(err error) bool {
+	var pgErr *pgconn.PgError
+	var connErr *pgconn.ConnectError
+	var netErr net.Error
+	return errors.As(err, &pgErr) || errors.As(err, &connErr) || errors.As(err, &netErr) ||
+		errors.Is(err, puddle.ErrClosedPool)
 }
 
 // jsonMappedError is the single entry point handlers use for a caught error:

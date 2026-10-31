@@ -17,7 +17,7 @@ func authReq(g *Gateway, method, path, body, cookie string) *httptest.ResponseRe
 	r := httptest.NewRequest(method, path, strings.NewReader(body))
 	r.Header.Set("Content-Type", "application/json")
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: g.cookiePolicy().Name, Value: cookie})
 	}
 	w := httptest.NewRecorder()
 	g.ServeHTTP(w, r)

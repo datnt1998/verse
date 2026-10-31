@@ -8,6 +8,7 @@ import { loginPath, sessionExpired, setNextRoute } from './api/storage'
 import { navigate, paths, useRoute, type Parsed, isPublicRoute, needsWelcomeRedirect } from './router'
 import { AppShell } from './shell/AppShell'
 import { AuthScreen, PairScreen } from './screens/auth'
+import { AccessDeniedScreen } from './screens/auth/AccessDenied'
 import { SetupScreen } from './screens/auth/setup'
 import { OnboardScreen } from './screens/onboard'
 import { ProjectScreen, StoryScreen } from './screens/project'
@@ -62,7 +63,7 @@ function Root() {
   const layout = useLayoutMode()
   const { route } = parsed
   const publicRoute = isPublicRoute(route)
-  const { checked, user, setUser, setupNeeded } = useSession()
+  const { checked, user, deniedUser, setUser, setupNeeded } = useSession()
   // Trình duyệt này đã có phiên thành công trong vòng đời app chưa (/api/me OK hoặc vừa login)
   const hadSession = useRef(false)
   useEffect(() => { if (user) hadSession.current = true }, [user])
@@ -109,6 +110,10 @@ function Root() {
   if (!checked) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Spinner size={22} /></div>
   }
+  // Phiên hợp lệ nhưng chưa được cấp quyền app: màn chặn giữ người đang đăng
+  // nhập — không render route/screen nào khác (user vẫn null nên dữ liệu/SSE
+  // của DataProvider không mount, library không tải).
+  if (deniedUser) return <AccessDeniedScreen />
 
   if (route.name === 'setup') return <SetupScreen />
   if (route.name === 'login') return layout === 'phone' ? <MobileAuth scan={parsed.search.get('scan') === '1'} /> : <AuthScreen expired={parsed.search.get('expired') === '1'} />

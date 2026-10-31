@@ -28,9 +28,14 @@ const (
 // StorageConfig is the validated result of the storage env contract. Fields
 // are parsed once at startup; bad input is a startup error, never a guess.
 type StorageConfig struct {
-	Driver         StoreDriver
-	DatabaseURL    string        // app-role DSN (never printed)
-	MigrationURL   string        // migration-role DSN (never printed)
+	Driver       StoreDriver
+	DatabaseURL  string // app-role DSN (never printed)
+	MigrationURL string // migration-role DSN (never printed)
+	// WorkerURL is the dedicated DSN for hosted engine-worker child processes
+	// (NOVERSE_WORKER_DATABASE_URL): a role scoped to facts/lease tables only.
+	// The parent hands it to the child as DATABASE_URL so the child contract
+	// stays single-keyed; the child's env never carries the app DSN.
+	WorkerURL      string        // engine-worker DSN (never printed)
 	MaxConns       int32         // DB_MAX_CONNS, bounded for one VPS
 	ConnectTimeout time.Duration // DB_CONNECT_TIMEOUT
 }
@@ -66,11 +71,15 @@ const (
 
 // StorageConfigFromEnv parses the storage environment strictly:
 //
-//	STORE_DRIVER           file|postgres (empty = file; anything else is an error)
-//	DATABASE_URL           required when driver=postgres
-//	MIGRATION_DATABASE_URL optional migration-role DSN; falls back to DATABASE_URL
-//	DB_MAX_CONNS           optional pool bound, integer 1..100 (default 8)
-//	DB_CONNECT_TIMEOUT     optional duration 1s..2m (e.g. 10s, default 10s)
+//	STORE_DRIVER                file|postgres (empty = file; anything else is an error)
+//	DATABASE_URL                required when driver=postgres
+//	MIGRATION_DATABASE_URL      optional migration-role DSN; falls back to DATABASE_URL
+//	NOVERSE_WORKER_DATABASE_URL engine-worker-role DSN for hosted worker
+//	                            children; postgres-only, validated when set.
+//	                            Worker launch fails closed when it is absent —
+//	                            never falls back to the app DSN.
+//	DB_MAX_CONNS                optional pool bound, integer 1..100 (default 8)
+//	DB_CONNECT_TIMEOUT          optional duration 1s..2m (e.g. 10s, default 10s)
 //
 // Precedence (one documented contract, see README):
 //   - Runtime infrastructure comes from this validated env only.
@@ -99,6 +108,7 @@ func StorageConfigFromEnv() (StorageConfig, error) {
 
 	cfg.DatabaseURL = get("DATABASE_URL")
 	cfg.MigrationURL = get("MIGRATION_DATABASE_URL")
+	cfg.WorkerURL = get("NOVERSE_WORKER_DATABASE_URL")
 
 	if cfg.Driver == StoreDriverPostgres {
 		if cfg.DatabaseURL == "" {
@@ -112,6 +122,13 @@ func StorageConfigFromEnv() (StorageConfig, error) {
 				return cfg, err
 			}
 		}
+		if cfg.WorkerURL != "" {
+			if err := validateDSN(cfg.WorkerURL); err != nil {
+				return cfg, err
+			}
+		}
+	} else if cfg.WorkerURL != "" {
+		return cfg, fmt.Errorf("NOVERSE_WORKER_DATABASE_URL chỉ có nghĩa khi STORE_DRIVER=postgres: %w", errs.ErrConfig)
 	}
 
 	if v := get("DB_MAX_CONNS"); v != "" {
@@ -136,7 +153,7 @@ func StorageConfigFromEnv() (StorageConfig, error) {
 // so a malformed secret cannot leak into logs.
 func validateDSN(dsn string) error {
 	if !strings.Contains(dsn, "://") && !strings.Contains(dsn, "host=") {
-		return fmt.Errorf("DATABASE_URL/MIGRATION_DATABASE_URL không đúng dạng kết nối Postgres: %w", errs.ErrConfig)
+		return fmt.Errorf("DSN Postgres không đúng dạng kết nối: %w", errs.ErrConfig)
 	}
 	return nil
 }

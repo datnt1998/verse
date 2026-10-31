@@ -41,6 +41,11 @@ x-app-env: &app-env
   POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:-local-app-password}
   POSTGRES_MIGRATE_USER: noverse_migrate
   POSTGRES_MIGRATE_PASSWORD: ${POSTGRES_MIGRATE_PASSWORD:-local-migrate-password}
+  # Engine-worker children get their own scoped role — facts/lease tables
+  # only, never account tables. The app builds NOVERSE_WORKER_DATABASE_URL
+  # from these components the same way it builds DATABASE_URL.
+  POSTGRES_WORKER_USER: noverse_engine_worker
+  POSTGRES_WORKER_PASSWORD: ${POSTGRES_WORKER_PASSWORD:-local-worker-password}
   DB_MAX_CONNS: ${DB_MAX_CONNS:-8}
   DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-10s}
 
@@ -167,7 +172,9 @@ services:
     entrypoint: ["/bin/sh", "/opt/noverse/dsn-entrypoint.sh"]
     environment:
       <<: *app-env
-      DSN_TARGETS: app
+      # App builds its own DSN plus the worker DSN it hands to engine-worker
+      # children; it still never receives the migration DSN.
+      DSN_TARGETS: app,worker
     volumes:
       - ./dsn-entrypoint.sh:/opt/noverse/dsn-entrypoint.sh:ro
       - blobdata:/var/lib/noverse/blobs

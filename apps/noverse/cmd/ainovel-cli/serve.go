@@ -28,6 +28,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/identity/identitycli"
 	identitypg "github.com/datnt1998/verse/platform/identity/postgres"
 	"github.com/datnt1998/verse/platform/webguard"
 )
@@ -90,11 +91,29 @@ func runServe(args []string) error {
 	if err != nil {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}
+	// The shared-cookie contract only exists on the shared account store:
+	// VERSE_COOKIE_DOMAIN / VERSE_APP_ORIGINS under the file backend is a
+	// misconfiguration, not something to silently ignore.
+	if storageCfg.Driver != bootstrap.StoreDriverPostgres && (proxyCfg.CookieDomain != "" || len(proxyCfg.AppOrigins) > 0) {
+		return fmt.Errorf("VERSE_COOKIE_DOMAIN/VERSE_APP_ORIGINS chỉ có nghĩa khi STORE_DRIVER=postgres")
+	}
 	listener, err := net.Listen("tcp", *addr)
 	if err != nil {
 		return err
 	}
-	gateway := web.NewGateway(absolute, accounts, versionInfo())
+	// Local SSO shares a host-only cookie across loopback ports, so a LAN or
+	// wildcard bind would hand it to untrusted neighbours. Require loopback
+	// before the network listeners can open.
+	if proxyCfg.LocalSSO() && !ssoLoopbackOnly(listener.Addr().String()) {
+		_ = listener.Close()
+		return fmt.Errorf("VERSE_APP_ORIGINS local yêu cầu bind loopback (HTTP_ADDR=%q bị từ chối)", *addr)
+	}
+	var gateway *web.Gateway
+	if storageCfg.Driver == bootstrap.StoreDriverPostgres {
+		gateway = web.NewPostgresGateway(absolute, accounts, versionInfo())
+	} else {
+		gateway = web.NewGateway(absolute, accounts, versionInfo())
+	}
 	gateway.SetProxyConfig(proxyCfg)
 	// STORE_DRIVER=postgres: mọi truy cập dữ kiện truyện đi qua backend có
 	// scope (resolve project/story + capability gate) với actor của request —
@@ -202,14 +221,22 @@ func runServe(args []string) error {
 	var phoneURLs []string
 	switch {
 	case ip.IsLoopback():
-		network := gateway.EnableNetwork(web.NetworkOptions{Port: port})
-		saved, _ := library.LoadServeConfig()
-		if *lan || saved.LAN {
-			if err := network.Set(true); err != nil {
-				fmt.Printf("Không mở được kết nối cho điện thoại: %v\n", err)
+		// Local SSO never opens the LAN listener: the shared cookie travels
+		// to every port on the host, and a phone on Wi-Fi is an untrusted
+		// neighbour under that contract.
+		if !proxyCfg.LocalSSO() {
+			network := gateway.EnableNetwork(web.NetworkOptions{Port: port})
+			saved, _ := library.LoadServeConfig()
+			if *lan || saved.LAN {
+				if err := network.Set(true); err != nil {
+					fmt.Printf("Không mở được kết nối cho điện thoại: %v\n", err)
+				}
 			}
+			phoneURLs = network.URLs()
 		}
-		phoneURLs = network.URLs()
+		if *lan && proxyCfg.LocalSSO() {
+			fmt.Println("Bỏ qua --lan: local SSO chỉ phục vụ trên loopback.")
+		}
 	case ip.IsUnspecified():
 		for _, address := range web.LANAddresses() {
 			gateway.PublicURLs = append(gateway.PublicURLs, base(address))
@@ -313,8 +340,11 @@ const serveUserUsage = `Quản lý tài khoản web:
   ainovel-cli serve user list
   ainovel-cli serve user passwd <tên>
   ainovel-cli serve user rm <tên>
+  ainovel-cli serve user grant <tên> --app noverse|viderse
+  ainovel-cli serve user revoke <tên> --app noverse|viderse
 Vai trò: admin (quản trị hệ thống) · member (thành viên).
---projects: "<dự án>=owner", "<dự án>=collab", "<dự án>=view", phân tách bằng dấu phẩy. Thành viên mặc định chưa được vào dự án nào.`
+--projects: "<dự án>=owner", "<dự án>=collab", "<dự án>=view", phân tách bằng dấu phẩy. Thành viên mặc định chưa được vào dự án nào.
+grant/revoke cần STORE_DRIVER=postgres: người chạy là operator cục bộ giữ DSN, không nhận --actor.`
 
 func runServeUser(args []string) error {
 	if len(args) == 0 {
@@ -429,6 +459,19 @@ func runServeUser(args []string) error {
 			return err
 		}
 		fmt.Printf("Đã xoá %q.\n", username)
+	case "grant", "revoke":
+		cmd, err := identitycli.ParseGrantArgs(append([]string{command}, rest...))
+		if err != nil {
+			return err
+		}
+		if err := identitycli.RunGrant(accounts, cmd); err != nil {
+			return err
+		}
+		verb := "cấp"
+		if cmd.Verb == identitycli.GrantVerbRevoke {
+			verb = "thu hồi"
+		}
+		fmt.Printf("Đã %s quyền dùng %s cho %q.\n", verb, cmd.App, cmd.Username)
 	default:
 		return fmt.Errorf("lệnh không hợp lệ: %s\n%s", command, serveUserUsage)
 	}
@@ -460,4 +503,20 @@ func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobSto
 		}
 	}()
 	return nil
+}
+
+// ssoLoopbackOnly reports whether a resolved listen address stays inside
+// loopback. Under local SSO the shared cookie travels to every port on the
+// host, so wildcard (0.0.0.0, [::]) and LAN binds are refused outright —
+// the same reason --lan is suppressed in runServe.
+func ssoLoopbackOnly(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }

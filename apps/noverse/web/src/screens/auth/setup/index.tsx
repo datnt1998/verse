@@ -2,7 +2,7 @@
 // Mã thiết lập chỉ in ở máy chủ; màn này không bao giờ nhận hay hiện lại mã.
 // 8 trạng thái: code · codeWrong · codeLocked · codeExpired · account · creating · tokenExpired · taken.
 import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent, type InputHTMLAttributes } from 'react'
-import { ApiError, createSetupAdmin, getSetup, verifySetup } from '../../../api/client'
+import { ApiError, accessDeniedUser, createSetupAdmin, getSetup, verifySetup } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import { t } from '../../../i18n/vi'
 import { navigate } from '../../../router'
@@ -71,7 +71,7 @@ function Field({ id, label, mono, style, ...rest }: {
 }
 
 export function SetupScreen() {
-  const { user, setUser, refresh, setSetupNeeded } = useSession()
+  const { user, setUser, setDeniedUser, refresh, setSetupNeeded } = useSession()
   const [ui, setUi] = useState<SetupUiState>('code')
   const [code, setCode] = useState('')
   const [attemptsLeft, setAttemptsLeft] = useState(ATTEMPT_LIMIT)
@@ -185,6 +185,10 @@ export function SetupScreen() {
       await refresh()
       navigate('/welcome/profile', true)
     } catch (cause) {
+      // Tài khoản đầu tiên là admin nên không rơi vào đây, nhưng nếu máy chủ trả
+      // denied thì phiên vừa tạo vẫn giữ — chuyển màn chặn, không báo lỗi tạo.
+      const denied = accessDeniedUser(cause)
+      if (denied) { setDeniedUser(denied); return }
       const failure = cause instanceof ApiError ? adminFailure(cause.status, cause.payload, cause.message) : null
       if (failure?.state === 'taken') { setTakenAt(failure.at); setUi('taken'); setSetupNeeded(false) }
       else if (failure?.state === 'tokenExpired') setUi('tokenExpired')

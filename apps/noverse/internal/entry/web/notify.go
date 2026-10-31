@@ -481,7 +481,7 @@ func (g *Gateway) serveNotify(w http.ResponseWriter, r *http.Request, user ident
 			_ = store.Revoke(user.Username, item.Session)
 			g.revokeEvent(user.Username, item.Session)
 			if item.Session == current.ID {
-				clearSession(w, r)
+				g.clearSession(w, r)
 			}
 		case "mute":
 			p := store.Prefs(user.Username)

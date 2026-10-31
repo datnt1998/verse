@@ -22,10 +22,30 @@ export const rememberAccount = ({ username, name, role, lastLoginAt }: Remembere
 export const forgetAccount = (username: string) =>
   write('ainovel.accounts', getRemembered().filter((item) => item.username !== username))
 
-// ainovel.next — route quay lại sau đăng nhập (sessionStorage)
+// ainovel.next — route quay lại sau đăng nhập (sessionStorage). Giá trị đọc ra
+// luôn qua safeHashPath: chỉ chấp nhận đường trong app, không bao giờ điều hướng
+// ra ngoài (router chỉ đổi location.hash, nhưng giá trị lạ vẫn bị loại).
 export const setNextRoute = (route: string) => { try { sessionStorage.setItem('ainovel.next', route) } catch { /* */ } }
 export const takeNextRoute = (): string | null => {
-  try { const v = sessionStorage.getItem('ainovel.next'); sessionStorage.removeItem('ainovel.next'); return v } catch { return null }
+  try { const v = safeHashPath(sessionStorage.getItem('ainovel.next')); sessionStorage.removeItem('ainovel.next'); return v } catch { return null }
+}
+
+/**
+ * Đường đích nội bộ hợp lệ để quay lại: bắt đầu bằng một `/` (tùy chọn `#` đứng
+ * trước), ký tự thứ hai không phải `/` hay `\`, và sau khi giải mã URL một lần
+ * vẫn giữ dạng đó. Loại `//evil`, `\\evil`, `javascript:` và mọi bypass đã mã
+ * hoá — chúng không phải route trong app. Trả path không có `#`, hoặc null.
+ */
+export function safeHashPath(value: string | null | undefined): string | null {
+  const raw = (value ?? '').trim().replace(/^#/, '')
+  if (!raw.startsWith('/') || raw[1] === '/' || raw[1] === '\\') return null
+  let decoded: string
+  try { decoded = decodeURIComponent(raw) } catch { return null }
+  if (!decoded.startsWith('/') || decoded[1] === '/' || decoded[1] === '\\') return null
+  // Segment mã hoá giấu ký tự điều hướng: %2f/%5c/%00 mở ra `//`, `\\`, null-byte —
+  // trình định tuyến decode khi match nên chặn ngay tại nguồn.
+  if (/%(2f|5c|00)/i.test(raw)) return null
+  return raw
 }
 
 // ─── Phiên hết hạn (09-auth-onboard.md › F1b) ───────────────────────────

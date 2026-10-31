@@ -29,7 +29,7 @@ func doFrom(t *testing.T, g *Gateway, method, path, cookie, body, remote string,
 	r.RemoteAddr = remote
 	r.Host = "127.0.0.1:8686"
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+		r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 	}
 	if method == "POST" || method == "PUT" || body != "" {
 		r.Header.Set("Content-Type", "application/json")

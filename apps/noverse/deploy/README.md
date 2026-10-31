@@ -98,6 +98,14 @@ docker compose -f docker-compose.dokploy.yml down -v
 3. Ghi lại DSN nội bộ cho hai role:
    - `DATABASE_URL` → app role
    - `MIGRATION_DATABASE_URL` → migrate role (chỉ job migrate giữ)
+4. Sau `storage migrate up`, tạo role engine-worker bằng script
+   `deploy/postgres-init/03-engine-worker-role.sql` (chạy bằng user quản trị):
+   `psql "$ADMIN_DSN" -v worker_password="$POSTGRES_WORKER_PASSWORD" -f .../03-engine-worker-role.sql`.
+   Role `noverse_engine_worker` chỉ đọc/ghi bảng facts + story lease; không
+   account/grant/audit/jobs/blobs, không DDL, không default privileges — bảng
+   mới worker cần phải được grant chủ động trong file đó. DSN của nó đặt ở
+   `NOVERSE_WORKER_DATABASE_URL`; worker hosted thiếu DSN này là fail closed,
+   không bao giờ dùng `DATABASE_URL` của app.
 
 Nếu cần TLS trong cụm, dùng `sslmode=require` + CA của Dokploy; `sslmode=disable`
 chỉ chấp nhận trong mạng nội bộ đã kiểm soát (bản compose local).
@@ -183,6 +191,9 @@ Bản mẫu có chú thích: `deploy/.env.example`. Tóm tắt khóa binary th�
 | | `PUBLIC_URL` | origin chuẩn; bắt buộc `https://` khi secure cookie |
 | | `TRUSTED_PROXIES` | CIDR của proxy được phép gắn X-Forwarded-*; một tên duy nhất (không alias), từ chối `0.0.0.0/0` |
 | | `SECURE_COOKIES` | `true` bắt buộc hosted |
+| | `VERSE_COOKIE_DOMAIN` | domain cha cho `verse_session` dùng chung (SSO Noverse↔Viderse); chỉ `STORE_DRIVER=postgres`, bắt buộc `SECURE_COOKIES` và DNS-label chứa host của `PUBLIC_URL`; từ chối public suffix/IP/wildcard/single label |
+| | `VERSE_APP_ORIGINS` | origin sibling được phép cho request ghi (match canonical chính xác): hosted chỉ `https` nằm trong cookie domain; local chỉ loopback và bắt buộc bind loopback |
+| | `NOVERSE_WORKER_DATABASE_URL` | DSN role `noverse_engine_worker` (facts/lease thôi) cho worker hosted; thiếu là fail closed, không bao giờ fallback `DATABASE_URL` |
 | Worker | `WORKER_LISTEN_ADDR` | bind của mux worker (private) |
 | | `TTS_WORKER_API_URL`, `TTS_WORKER_TOKEN` | **phía Mac**, không đặt trên VPS |
 
@@ -216,6 +227,16 @@ yêu cầu, nhưng giá trị cuối cùng do máy chủ quyết định.
   `PUBLIC_URL=https://<tên máy>…`, vì thiếu `PUBLIC_URL` https thì binary từ
   chối khởi động. Thêm `TRUSTED_PROXIES=127.0.0.1/32` nếu cần tin
   `X-Forwarded-*` (IP client cho limiter) từ proxy đó.
+- Với `STORE_DRIVER=postgres`, cookie phiên là `verse_session` dùng chung giữa
+  Noverse và Viderse: `VERSE_COOKIE_DOMAIN` (hosted, parent domain + Secure)
+  hoặc host-only (local, hai app loopback khác cổng). `VERSE_APP_ORIGINS` mở
+  thêm origin sibling **chính xác** cho request ghi ngoài own-origin — match
+  canonical byte-for-byte sau chuẩn hoá scheme/host/port, không suffix hay
+  wildcard, `Sec-Fetch-Site:cross-site` vẫn luôn bị chặn kể cả origin trong
+  allowlist, và origin được allowlist **không** tự cấp quyền nghiệp vụ: quyền
+  app đến từ hàng `app_grants` đọc lại mỗi request (admin hệ thống luôn qua,
+  member thiếu grant nhận `403 app_access_denied`). File backend giữ
+  `ainovel_session` độc lập và đặt các biến SSO ở file mode là lỗi khởi động.
 - `/healthz` và `/readyz` được xử lý **trước** static SPA (nếu không sẽ trả
   index.html 200 giả).
 

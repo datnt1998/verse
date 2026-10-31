@@ -12,13 +12,14 @@ import { keys, useAction, useConnection, useResource } from '../../data'
 import { Button } from '@noverse/ui'
 import { StaleBanner } from '@noverse/ui'
 import { confirmAllDevicesLogout, confirmDeviceLogout } from '../../ui/confirmPresets'
+import { toast } from '@noverse/ui'
 import { useSaveShortcut } from '@noverse/ui'
 import { ConflictBar } from '@noverse/ui'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 
 export function DevicesDialog({ onClose }: { onClose: () => void }) {
-  const { user, refresh } = useSession()
+  const { user, refresh, endSession } = useSession()
   const baselineVersion = useRef(user?.version)
   const [dismissedConflict, setDismissedConflict] = useState<unknown>(null)
   const resource = useResource(keys.sessions(), mySessions)
@@ -44,12 +45,15 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
       }
     } }, { count: others.length })
   }
+  // Đổi xong: máy chủ thu hồi MỌI phiên kể cả phiên này → báo đổi thành công rồi
+  // đưa về đăng nhập; không refresh /api/me (sẽ 401 như thể đổi thất bại).
   const passwordAction = useAction(async (version: string | undefined = baselineVersion.current) => {
-    await changePassword(current, next, version)
+    const result = await changePassword(current, next, version)
+    if (result.reauthenticate) { onClose(); toast(t.auth.passwordChanged, 'ok'); endSession(); return true }
     setCurrent(''); setNext(''); setRepeat('')
     await refresh()
     return true
-  }, { success: 'Đã đổi mật khẩu · các thiết bị khác đã bị đăng xuất', error: false, invalidate: [keys.sessions(), keys.users()] })
+  }, { error: false, invalidate: [keys.sessions(), keys.users()] })
   const conflict = passwordAction.error instanceof ConflictError && passwordAction.error !== dismissedConflict ? passwordAction.error : null
 
   const mismatch = repeat.length > 0 && next !== repeat
@@ -102,7 +106,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
             {mismatch && <span role="alert" style={{ fontSize: 12, color: 'var(--color-err)' }}>Hai lần nhập chưa khớp</span>}
           </div>
           <span style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--color-fg-3)' }}>
-            <Icon name="info-circle" size={14} style={{ marginTop: 2 }} />Các thiết bị khác sẽ bị đăng xuất; thiết bị này giữ nguyên phiên.
+            <Icon name="info-circle" size={14} style={{ marginTop: 2 }} />{t.account.passwordReauthNote}
           </span>
           {conflict && <ConflictBar pending={passwordAction.pending} onView={() => { baselineVersion.current = conflict.version; setCurrent(''); setNext(''); setRepeat(''); setDismissedConflict(conflict); void refresh() }} onOverwrite={() => { void passwordAction.run(conflict.version) }} />}
           {passwordAction.error instanceof Error && !conflict && passwordAction.error !== dismissedConflict && <span role="alert" style={{ fontSize: 12, color: 'var(--color-err)' }}>{passwordAction.error.message}</span>}

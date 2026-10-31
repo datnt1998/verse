@@ -5,7 +5,7 @@ import { getLibrary } from '../../api/client'
 import { useSession } from '../../api/session'
 import { keys, useResource } from '../../data'
 import { TextField, type TextFieldProps } from '@noverse/ui'
-import { getLastRoute, takeNextRoute } from '../../api/storage'
+import { getLastRoute, safeHashPath, takeNextRoute } from '../../api/storage'
 import { AgentOrb, type AgentKind } from '@noverse/ui'
 import { BrandLockup } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
@@ -64,16 +64,17 @@ export const daysUntil = (value: string | null | undefined) => {
 /** Route sau khi đăng nhập: ưu tiên #/welcome khi chưa thiết lập lần đầu. */
 export function authDestination(user: { username: string; onboardedAt?: string | null }): string {
   if (!user.onboardedAt) return '/welcome'
-  const raw = takeNextRoute() ?? getLastRoute(user.username) ?? '#/'
-  return raw.startsWith('#') ? raw.slice(1) : raw
+  // takeNextRoute đã lọc: chỉ đường nội bộ bắt đầu bằng một `/` mới được chấp
+  // nhận — `//evil`, `javascript:` hay bypass đã mã hoá rơi về thư viện.
+  return takeNextRoute() ?? safeHashPath(getLastRoute(user.username)) ?? '/'
 }
 
 /** Nhãn nơi sẽ quay lại sau khi đăng nhập (sessionStorage ainovel.next). */
 export function nextRouteLabel(): string | null {
   let raw: string | null = null
   try { raw = sessionStorage.getItem('ainovel.next') } catch { return null }
-  if (!raw) return null
-  const path = raw.replace(/^#/, '').split('?')[0]
+  const path = safeHashPath(raw)?.split('?')[0]
+  if (!path) return null
   const seg = path.split('/').filter(Boolean)
   if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'work') return 'Workspace'
   if (seg[0] === 'p' && seg[2] === 's' && seg[4] === 'read') return 'Trình đọc'

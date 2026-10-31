@@ -191,10 +191,14 @@ func (g *Gateway) resourceVersion(res *versionResource) string {
 	}
 	views := make([]identity.UserView, 0, len(users))
 	for _, u := range users {
+		// Versions must hash exactly the wire view (grants stripped on the
+		// file backend), or a token read from a response never matches.
+		view := u.UserView
+		g.stripFileGrants(&view)
 		if res.username != "" && u.Username == res.username {
-			return valueVersion(u.UserView)
+			return valueVersion(view)
 		}
-		views = append(views, u.UserView)
+		views = append(views, view)
 	}
 	if res.username != "" {
 		return valueVersion(nil)
@@ -229,10 +233,12 @@ func (g *Gateway) currentResource(r *http.Request, user identity.User, current i
 		users, _ := g.accounts.Users()
 		for _, u := range users {
 			if u.Username == res.username {
-				data, _ := json.Marshal(accountUserView{UserView: u.UserView, LastSeenAt: u.LastSeenAt})
+				wire := u.UserView
+				g.stripFileGrants(&wire)
+				data, _ := json.Marshal(accountUserView{UserView: wire, LastSeenAt: u.LastSeenAt})
 				var view map[string]any
 				_ = json.Unmarshal(data, &view)
-				view["version"] = valueVersion(u.UserView)
+				view["version"] = valueVersion(wire)
 				if strings.HasPrefix(r.URL.Path, "/api/me") {
 					return map[string]any{"user": view, "session": current}
 				}

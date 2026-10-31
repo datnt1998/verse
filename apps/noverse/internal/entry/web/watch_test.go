@@ -216,7 +216,7 @@ func TestFileWatcherSSEDetectsEditWithinThreeSeconds(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	req, _ := http.NewRequestWithContext(ctx, "GET", server.URL+"/api/events?watch=proj/01-story", nil)
-	req.AddCookie(&http.Cookie{Name: sessionCookie, Value: cookie})
+	req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)

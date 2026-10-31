@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { User } from '../../../api/types'
 import { useSession } from '../../../api/session'
-import { ApiError } from '../../../api/client'
+import { ApiError, accessDeniedUser } from '../../../api/client'
 import { Spinner } from '@noverse/ui'
 import { useAction } from '../../../data'
 import { PairScreen } from '../PairScreen'
@@ -9,13 +9,18 @@ import { loginPublic } from '../publicApi'
 import './phone.css'
 
 function CompactAuth({ initialUsername, onAuthenticated }: { initialUsername?: string; onAuthenticated?: (user: User) => void }) {
-  const { setUser, refresh } = useSession()
+  const { setUser, setDeniedUser, refresh } = useSession()
   const [username, setUsername] = useState(initialUsername ?? '')
   const [password, setPassword] = useState('')
   const [scan, setScan] = useState(false)
   const [retry, setRetry] = useState(0)
   const login = useAction(loginPublic, { error: false })
-  useEffect(() => { if (login.error instanceof ApiError && login.error.status === 429) setRetry(login.error.retryAfter ?? 60) }, [login.error])
+  useEffect(() => {
+    // 429 giữ đếm ngược; 403 app_access_denied → màn chặn giữ phiên, không báo lỗi form.
+    const denied = accessDeniedUser(login.error)
+    if (denied) setDeniedUser(denied)
+    else if (login.error instanceof ApiError && login.error.status === 429) setRetry(login.error.retryAfter ?? 60)
+  }, [login.error])
   useEffect(() => { if (!retry) return; const timer = setTimeout(() => setRetry((left) => left - 1), 1000); return () => clearTimeout(timer) }, [retry])
   if (scan) return <div className="phone-auth"><PairScreen initialView="scan" onAuthenticated={onAuthenticated} /></div>
   return <form className="m-reauth-form" onSubmit={async (event) => {

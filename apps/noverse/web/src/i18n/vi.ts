@@ -584,6 +584,11 @@ export const vi = {
     noAccount: 'Chưa có tài khoản? Nhờ quản trị viên tạo',
     showPassword: 'Hiện mật khẩu',
     hidePassword: 'Ẩn mật khẩu',
+    accessDeniedTitle: 'Chưa được cấp quyền',
+    // Nguyên văn thông báo máy chủ trả kèm 403 app_access_denied — giữ khớp hai phía.
+    accessDenied: 'Tài khoản của bạn chưa được cấp quyền dùng Noverse. Vui lòng liên hệ quản trị viên.',
+    retry: 'Thử lại',
+    passwordChanged: 'Đã đổi mật khẩu. Vui lòng đăng nhập lại.',
   },
 
   // GAP-41 · A0 Lần chạy đầu (Setup.dc.html) — mã thiết lập chỉ in ở máy chủ.
@@ -698,6 +703,7 @@ export const vi = {
     needPassword: 'cần nhập mật khẩu',
     logout: 'Đăng xuất',
     avatarLabel: (name: string) => `Tài khoản: ${name}`,
+    passwordReauthNote: 'Đổi mật khẩu sẽ đăng xuất mọi thiết bị, kể cả thiết bị này — sau đó đăng nhập lại.',
   },
 
   // Tuỳ chỉnh › Nâng cao — Settings.dc.html (sec adv)

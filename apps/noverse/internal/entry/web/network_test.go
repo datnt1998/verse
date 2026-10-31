@@ -105,7 +105,7 @@ func TestNetworkToggleKeepsSessionsAndWorkers(t *testing.T) {
 	base := n.URLs()[0]
 	// Listener thật sự nhận kết nối, dùng chung handler: session cũ vẫn hợp lệ qua nó.
 	req, _ := http.NewRequest("GET", base+"/api/me", nil)
-	req.AddCookie(&http.Cookie{Name: sessionCookie, Value: writer})
+	req.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: writer})
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)

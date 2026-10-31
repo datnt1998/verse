@@ -17,7 +17,8 @@ async function publicPost<T>(path: string, body: object): Promise<T> {
       ? payload.error : response.statusText
     const retry = payload && typeof payload === 'object' && 'retryAfter' in payload && typeof payload.retryAfter === 'number'
       ? payload.retryAfter : undefined
-    throw new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, retry)
+    // Giữ payload: 403 app_access_denied mang user view để màn chặn biết ai đang vào.
+    throw new ApiError(response.status, message || `Lỗi HTTP ${response.status}`, retry, payload)
   }
   return response.json() as Promise<T>
 }

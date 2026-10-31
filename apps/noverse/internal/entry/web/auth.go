@@ -15,7 +15,183 @@ import (
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
-const sessionCookie = "ainovel_session"
+// fileSessionCookie is the login cookie of the independent file backend.
+// sharedSessionCookie is the single session cookie of the shared Postgres
+// account store: one login serves Noverse and Viderse, so the name cannot be
+// app-prefixed. The `__Host-` prefix is impossible — the hosted shared
+// cookie needs a Domain attribute, and loopback HTTP cannot be Secure.
+const (
+	fileSessionCookie   = "ainovel_session"
+	sharedSessionCookie = "verse_session"
+)
+
+// legacySessionCookies are pre-shared cookie names a browser may still hold
+// from earlier builds. A shared login expires them at every scope the
+// deployment could have set them on; they are never read as a fallback.
+var legacySessionCookies = []string{fileSessionCookie, "viderse_session"}
+
+// cookiePolicy returns this Gateway's immutable cookie contract. The name is
+// a property of the account backend chosen at construction — a file-backend
+// Noverse never reads `verse_session`, and the shared store never accepts the
+// legacy name; the domain comes from the parsed proxy config.
+func (g *Gateway) cookiePolicy() webguard.SessionCookie {
+	name := fileSessionCookie
+	if g.backend == backendPostgres {
+		name = sharedSessionCookie
+	}
+	return webguard.NewSessionCookie(name, g.proxy)
+}
+
+func (g *Gateway) setSession(w http.ResponseWriter, r *http.Request, s identity.NewSession) {
+	policy := g.cookiePolicy()
+	if g.backend == backendPostgres {
+		for _, name := range legacySessionCookies {
+			if name != policy.Name {
+				policy.Expire(w, r, name)
+			}
+		}
+	}
+	policy.Set(w, r, s.Cookie, s.ExpiresAt)
+}
+
+func (g *Gateway) clearSession(w http.ResponseWriter, r *http.Request) {
+	g.cookiePolicy().Clear(w, r)
+}
+
+// appAccessGranted reports whether the account carries effective access to
+// Noverse right now: a global admin is always in, a member needs an explicit
+// grant row read from the shared store (Authenticate re-reads it every
+// request — nothing is cached on the session). The file backend's effective
+// grants always include Noverse, so this gate is inert off Postgres.
+func appAccessGranted(grants map[identity.App]identity.Role) bool {
+	return grants[identity.AppNoverse] != ""
+}
+
+// appAccessDeniedBody is the 403 contract for a valid session without a
+// Noverse grant: distinct from 401 (the session is real and stays), it tells
+// the UI exactly who is signed in so the denied screen can show it. The user
+// field is the safe view — grants included, credentials never.
+func (g *Gateway) writeAppAccessDenied(w http.ResponseWriter, user identity.UserView) {
+	writeJSON(w, http.StatusForbidden, map[string]any{
+		"code":  "app_access_denied",
+		"app":   string(identity.AppNoverse),
+		"error": "Tài khoản của bạn chưa được cấp quyền dùng Noverse. Vui lòng liên hệ quản trị viên.",
+		"user":  user,
+	})
+}
+
+// sessionOnlyRoute reports whether the request is an exact auth-neutral
+// endpoint allowed for a valid session without a Noverse grant: the caller
+// may only touch its own account — logout, own password, own sessions.
+// Anything else — profile, onboarding, pairing, project and admin surfaces —
+// needs the grant. Method and path must match
+// exactly; a prefix would let unknown writes slip through.
+func sessionOnlyRoute(method, path string) bool {
+	switch path {
+	case "/api/logout":
+		return method == http.MethodPost
+	case "/api/me/password":
+		return method == http.MethodPost
+	case "/api/me/sessions":
+		return method == http.MethodGet
+	case "/api/me/sessions/revoke-all":
+		return method == http.MethodPost
+	}
+	return method == http.MethodPost && strings.HasPrefix(path, "/api/sessions/") && strings.HasSuffix(path, "/revoke")
+}
+
+// serveSessionOnly handles the auth-neutral endpoints for a session that has
+// no Noverse grant. Unlike the full account dispatcher it only revokes the
+// caller's own sessions and only touches the caller's own account — an
+// admin's cross-user powers do not exist on this branch.
+func (g *Gateway) serveSessionOnly(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
+	path := r.URL.Path
+	switch {
+	case path == "/api/logout" && r.Method == http.MethodPost:
+		g.doLogout(w, r, user, current)
+	case path == "/api/me/password" && r.Method == http.MethodPost:
+		g.doPasswordChange(w, r, user)
+	case path == "/api/me/sessions" && r.Method == http.MethodGet:
+		g.listSessions(w, user.Username, current.ID)
+	case path == "/api/me/sessions/revoke-all" && r.Method == http.MethodPost:
+		g.doRevokeAll(w, r, user.Username, accountActor(user))
+	case strings.HasPrefix(path, "/api/sessions/") && strings.HasSuffix(path, "/revoke") && r.Method == http.MethodPost:
+		if !g.emptyBody(w, r) {
+			return
+		}
+		id := strings.TrimSuffix(strings.TrimPrefix(path, "/api/sessions/"), "/revoke")
+		err := g.accounts.RevokeSession(id, func(owner string) bool { return owner == user.Username }, identity.AuditContext{Actor: accountActor(user)})
+		if err != nil {
+			accountError(w, err)
+			return
+		}
+		if id == current.ID {
+			g.clearSession(w, r)
+		}
+		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+	default:
+		g.writeAppAccessDenied(w, user.View())
+	}
+}
+
+// doLogout revokes the session row before clearing the cookie: a browser
+// keeps a cookie that no longer authenticates, never the reverse. A storage
+// failure reports the error and leaves the cookie in place — the client must
+// not be told the logout succeeded when the session row still lives.
+func (g *Gateway) doLogout(w http.ResponseWriter, r *http.Request, user identity.User, current identity.Session) {
+	if err := g.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
+		accountError(w, err)
+		return
+	}
+	g.clearSession(w, r)
+	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+// doRevokeAll revokes every session of the account — including the one in
+// use, so the response clears the cookie and tells the client to sign in
+// again rather than implying the current device survived.
+func (g *Gateway) doRevokeAll(w http.ResponseWriter, r *http.Request, username string, actor *identity.AuditActor) {
+	if !g.emptyBody(w, r) {
+		return
+	}
+	if err := g.accounts.RevokeAll(username, identity.AuditContext{Actor: actor}); err != nil {
+		accountError(w, err)
+		return
+	}
+	g.clearSession(w, r)
+	writeJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+}
+
+// doPasswordChange runs a self-service password change. Success revokes every
+// session of the account (the shared-store contract, including this one), so
+// the response clears the cookie and asks the client to sign in again —
+// refreshing /api/me here would turn a successful change into a fake 401.
+func (g *Gateway) doPasswordChange(w http.ResponseWriter, r *http.Request, user identity.User) {
+	var req struct {
+		Current string `json:"current"`
+		New     string `json:"new"`
+	}
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+	key := "password:" + user.Username
+	if wait := g.limiter.Wait(key); wait > 0 {
+		tooMany(w, wait)
+		return
+	}
+	if err := g.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
+		if errors.Is(err, identity.ErrForbidden) {
+			g.limiter.Fail(key)
+			jsonError(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
+			return
+		}
+		accountError(w, err)
+		return
+	}
+	g.limiter.Succeed(key)
+	g.clearSession(w, r)
+	writeJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
+}
 
 type accountUserView struct {
 	identity.UserView
@@ -37,8 +213,21 @@ func (g *Gateway) userWithLastSeen(user identity.UserView) (accountUserView, err
 	return view, nil
 }
 
+// The file backend has no per-app grant rows: User() fills Grants from the
+// fileGrants fallback so the gate stays inert internally, but publishing
+// {"noverse":"member"} would fabricate a contract that does not exist there.
+// File-mode responses therefore emit "grants": null — distinguishable from {}
+// (shared store, member without rows) and from a populated map — which is
+// also the signal the UI uses to hide grant controls on standalone installs.
+func (g *Gateway) stripFileGrants(v *identity.UserView) {
+	if g.backend == backendFile {
+		v.Grants = nil
+	}
+}
+
 // A nil envelope returns a bare user; otherwise fill its user field.
 func (g *Gateway) writeAccountUser(w http.ResponseWriter, status int, user identity.UserView, envelope map[string]any) {
+	g.stripFileGrants(&user)
 	view, err := g.userWithLastSeen(user)
 	if err != nil {
 		accountError(w, err)
@@ -64,14 +253,6 @@ func clientIP(r *http.Request) string {
 // platform/webguard。
 func secureRequest(r *http.Request) bool {
 	return webguard.SecureRequest(r)
-}
-
-func setSession(w http.ResponseWriter, r *http.Request, s identity.NewSession) {
-	http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: s.Cookie, Path: "/", Expires: s.ExpiresAt, MaxAge: int(time.Until(s.ExpiresAt).Seconds()), HttpOnly: true, Secure: secureRequest(r), SameSite: http.SameSiteStrictMode})
-}
-
-func clearSession(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: "", Path: "/", MaxAge: -1, HttpOnly: true, Secure: secureRequest(r), SameSite: http.SameSiteStrictMode})
 }
 
 // accountError maps account/session errors with the shared policy and never
@@ -122,7 +303,14 @@ func (g *Gateway) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.limiter.Succeed(keys...)
-	setSession(w, r, s)
+	g.setSession(w, r, s)
+	// Correct credentials without a Noverse grant still set the cookie (the
+	// session may unlock a sibling app) but answer 403, not a fake success
+	// and not a limiter failure.
+	if !appAccessGranted(s.User.Grants) {
+		g.writeAppAccessDenied(w, s.User)
+		return
+	}
 	g.accountChanged(s.User.Username)
 	g.notifyLogin(r, s)
 	g.writeAccountUser(w, http.StatusOK, s.User, map[string]any{})
@@ -149,7 +337,11 @@ func (g *Gateway) pair(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.limiter.Succeed(key)
-	setSession(w, r, s)
+	g.setSession(w, r, s)
+	if !appAccessGranted(s.User.Grants) {
+		g.writeAppAccessDenied(w, s.User)
+		return
+	}
 	g.accountChanged(s.User.Username)
 	g.notifyLogin(r, s)
 	g.writeAccountUser(w, http.StatusOK, s.User, map[string]any{})
@@ -240,12 +432,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 	path, get, post := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost
 	switch {
 	case path == "/api/logout" && post:
-		if err := g.accounts.RevokeSession(current.ID, func(string) bool { return true }, identity.AuditContext{Actor: accountActor(user)}); err != nil && !errors.Is(err, identity.ErrNotFound) {
-			accountError(w, err)
-			return true
-		}
-		clearSession(w, r)
-		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+		g.doLogout(w, r, user, current)
 	case path == "/api/me" && get:
 		extra := map[string]any{"session": current}
 		if isAdmin(user) {
@@ -281,40 +468,11 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 		}
 		g.writeAccountUser(w, http.StatusOK, updated, map[string]any{})
 	case path == "/api/me/password" && post:
-		var req struct {
-			Current string `json:"current"`
-			New     string `json:"new"`
-		}
-		if !decodeJSON(w, r, &req) {
-			return true
-		}
-		key := "password:" + user.Username
-		if wait := g.limiter.Wait(key); wait > 0 {
-			tooMany(w, wait)
-			return true
-		}
-		if err := g.accounts.ChangePassword(user.Username, req.Current, req.New); err != nil {
-			if errors.Is(err, identity.ErrForbidden) {
-				g.limiter.Fail(key)
-				jsonError(w, http.StatusForbidden, "Mật khẩu hiện tại không đúng")
-				return true
-			}
-			accountError(w, err)
-			return true
-		}
-		g.limiter.Succeed(key)
-		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+		g.doPasswordChange(w, r, user)
 	case path == "/api/me/sessions" && get:
 		g.listSessions(w, user.Username, current.ID)
 	case path == "/api/me/sessions/revoke-all" && post:
-		if !g.emptyBody(w, r) {
-			return true
-		}
-		if err := g.accounts.RevokeAll(user.Username, identity.AuditContext{Actor: accountActor(user)}); err != nil {
-			accountError(w, err)
-			return true
-		}
-		writeJSON(w, 200, map[string]bool{"ok": true})
+		g.doRevokeAll(w, r, user.Username, accountActor(user))
 	case path == "/api/me/pairings" && post:
 		if !g.emptyBody(w, r) {
 			return true
@@ -331,7 +489,7 @@ func (g *Gateway) serveAccount(w http.ResponseWriter, r *http.Request, user iden
 			return true
 		}
 		if id == current.ID {
-			clearSession(w, r)
+			g.clearSession(w, r)
 		}
 		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 	case path == "/api/admin/audit":
@@ -390,11 +548,19 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin ident
 	name, action, _ := strings.Cut(rest, "/")
 	get, post := r.Method == http.MethodGet, r.Method == http.MethodPost
 	switch {
+	case name != "" && strings.HasPrefix(action, "grants/"):
+		// PUT /api/users/{u}/grants/{app} {role:"member"} grants app access;
+		// DELETE revokes it. The facade rechecks global admin inside the
+		// mutation transaction — a demoted or forged actor cannot grant.
+		g.serveUserGrant(w, r, name, strings.TrimPrefix(action, "grants/"), admin)
 	case name == "" && get:
 		users, err := g.accounts.Users()
 		if err != nil {
 			accountError(w, err)
 			return
+		}
+		for i := range users {
+			g.stripFileGrants(&users[i].UserView)
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"users": users})
 	case name == "" && post:
@@ -414,10 +580,12 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin ident
 			accountError(w, err)
 			return
 		}
+		createdView := identity.UserListView{UserView: created}
+		g.stripFileGrants(&createdView.UserView)
 		writeJSON(w, http.StatusCreated, struct {
 			identity.UserListView
 			Password string `json:"password"`
-		}{identity.UserListView{UserView: created}, req.Password})
+		}{createdView, req.Password})
 	case name != "" && action == "" && (post || r.Method == http.MethodPut):
 		var patch identity.UserPatch
 		if !decodeJSON(w, r, &patch) {
@@ -511,6 +679,82 @@ func (g *Gateway) serveUsers(w http.ResponseWriter, r *http.Request, admin ident
 	default:
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
 	}
+}
+
+// serveUserGrant mutates one app grant on an account.
+//
+//	PUT    /api/users/{u}/grants/{app}   {"role":"member", "reason":…}
+//	DELETE /api/users/{u}/grants/{app}   (optional {"reason":…})
+//
+// Only global admins reach this dispatcher (routePermission + serveAccount
+// both check), and the facade re-verifies the actor inside its transaction —
+// a member or a just-demoted admin cannot grant. The handler never trusts
+// role/app/actor input beyond the member row contract: arbitrary roles,
+// global_role, project assignments and actor overrides are rejected or
+// ignored, never forwarded.
+func (g *Gateway) serveUserGrant(w http.ResponseWriter, r *http.Request, username, app string, admin identity.User) {
+	if r.Method != http.MethodPut && r.Method != http.MethodDelete {
+		jsonError(w, http.StatusNotFound, "không tìm thấy")
+		return
+	}
+	grantApp := identity.App(app)
+	if !grantApp.Valid() {
+		accountError(w, identity.ErrUnknownApp)
+		return
+	}
+	var req struct {
+		Role   string `json:"role"`
+		Reason string `json:"reason"`
+	}
+	if r.Method == http.MethodPut {
+		if !decodeJSON(w, r, &req) {
+			return
+		}
+		if identity.Role(req.Role) != identity.RoleMember {
+			jsonError(w, http.StatusBadRequest, "Quyền app chỉ có vai trò member; quản trị đến từ vai trò hệ thống.")
+			return
+		}
+	} else {
+		// DELETE may carry a reason body or none at all.
+		if r.ContentLength != 0 && !decodeJSON(w, r, &req) {
+			return
+		}
+	}
+	actor := accountActor(admin)
+	var err error
+	if r.Method == http.MethodPut {
+		err = g.accounts.SetAppGrant(username, grantApp, identity.RoleMember, actor, strings.TrimSpace(req.Reason))
+	} else {
+		err = g.accounts.RevokeAppGrant(username, grantApp, actor, strings.TrimSpace(req.Reason))
+	}
+	if err != nil {
+		accountError(w, err)
+		return
+	}
+	view, err := g.userViewByName(username)
+	if err != nil {
+		accountError(w, err)
+		return
+	}
+	g.accountChanged(username)
+	g.writeAccountUser(w, http.StatusOK, view, nil)
+}
+
+// userViewByName re-reads one account as its list view so grant responses
+// carry the updated grants map. The facade exposes the list as the single
+// read path; a user that vanished mid-request reports through accountError,
+// never a fabricated view.
+func (g *Gateway) userViewByName(username string) (identity.UserView, error) {
+	users, err := g.accounts.Users()
+	if err != nil {
+		return identity.UserView{}, err
+	}
+	for _, u := range users {
+		if u.Username == username {
+			return u.UserView, nil
+		}
+	}
+	return identity.UserView{}, identity.ErrNotFound
 }
 
 func accountActor(user identity.User) *identity.AuditActor {
