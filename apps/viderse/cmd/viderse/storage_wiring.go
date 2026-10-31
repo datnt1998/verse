@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,8 +10,10 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/retention"
+	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
@@ -24,14 +25,14 @@ import (
 // mountStorage ráp mảng Cài đặt › Lưu trữ: vị trí thư mục dự án, kiểm tra,
 // chuyển nền, theo dõi ổ và dọn dẹp. ctx là vòng đời của serve — watch và tự
 // dọn chạy tới khi ctx kết thúc.
-func mountStorage(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, activities *activity.Service, ctx context.Context) (*storage.Service, error) {
+func mountStorage(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, activities *activity.Service, ctx context.Context) (*storage.Service, *serverstorage.Cleanup, error) {
 	dir, err := bootstrap.DefaultConfigDir()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("không xác định được thư mục home: %w", err)
+		return nil, nil, fmt.Errorf("không xác định được thư mục home: %w", err)
 	}
 	notifyStorage := web.Notifier(hub, "storage")
 
@@ -48,7 +49,7 @@ func mountStorage(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.Setting
 		Bump:       func() { statusSvc.Bump() },
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	clean := retention.New(retention.Deps{
@@ -62,20 +63,11 @@ func mountStorage(g *web.Gateway, pool *pgxpool.Pool, settings *postgres.Setting
 		Changed:   svc.Changed,
 	})
 
-	web.MountStorage(g, svc, clean)
+	serverCleanup := serverstorage.NewCleanup(clean)
+	web.MountStorage(g, svc, serverCleanup)
 	statusSvc.RegisterSource(storageAttention{svc: svc})
 
-	go func() {
-		if err := svc.Start(ctx); err != nil && ctx.Err() == nil {
-			slog.Error("storage: vòng theo dõi ổ dừng", "err", err)
-		}
-	}()
-	go func() {
-		if err := clean.Start(ctx); err != nil && ctx.Err() == nil {
-			slog.Error("retention: vòng dọn dẹp dừng", "err", err)
-		}
-	}()
-	return svc, nil
+	return svc, serverCleanup, nil
 }
 
 // storageAttention đổi mục cần xử lý của Lưu trữ sang hình của status.Service
@@ -124,4 +116,17 @@ func (finderOpener) Open(ctx context.Context, path string) error {
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, activities *activity.Service, hub *events.Hub, statusSvc *status.Service, cleanup *serverstorage.Cleanup) {
+	manager.BindRuntime(activities, func(ctx context.Context, text string) error {
+		_, err := activities.NotifyScoped(ctx, activity.NotificationSpec{Kind: "needs_attention", Text: text, Href: "/settings?section=storage", ActionLabel: "Mở lưu trữ", Audience: activity.AudienceAdmin, Object: &domain.ObjectRef{Type: "storage", ID: "server", Label: "Lưu trữ trên máy chủ"}})
+		return err
+	}, func() { web.Notifier(hub, "storage")(""); statusSvc.Bump() })
+	statusSvc.SetStorageHealthSource(manager)
+	g.SetServerStorageMode(func() bool { return true })
+	web.MountServerStorage(g, manager)
+	manager.Start()
+	cleanup.BindManager(manager)
+	cleanup.Start()
 }

@@ -102,6 +102,10 @@ type StorageMoveFailed struct {
 // StorageHolds là tập lý do giữ việc persist của storage (JSON []string).
 type StorageHolds []Hold
 
+// KeyStorageServerOffline is the server backend's independently owned
+// HoldOffline. It must not overwrite the disk watcher's or user's pause.
+const KeyStorageServerOffline = "storage.serverOffline"
+
 // Hold là lý do đang giữ việc làm video (scheduler tương lai hỏi trước khi
 // bắt đầu bước mới; hàng chờ DB cũng bị khoá qua storage.queuePaused trong
 // khi hold còn hiệu lực).

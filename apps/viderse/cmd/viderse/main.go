@@ -12,6 +12,7 @@ import (
 const usage = `Cách dùng:
   viderse serve [-addr HOST:PORT]     Chạy web UI (mặc định 127.0.0.1:8789)
   viderse migrate up|status|version   Quản lý schema Postgres (VIDERSE_DATABASE_URL)
+  viderse storage import|materialize|gc [--dry-run|--apply]   Bảo trì kho máy chủ
   viderse user grant <tên> --app noverse|viderse   Cấp quyền dùng một app
   viderse user revoke <tên> --app noverse|viderse  Thu hồi quyền một app
   viderse login [provider] [--device] Đăng nhập gói thuê bao (mặc định: openai-codex)
@@ -53,6 +54,8 @@ func main() {
 	var err error
 	code := 0
 	switch args[0] {
+	case "storage":
+		err = runStorage(args[1:])
 	case "serve":
 		err = runServe(args[1:])
 	case "user":

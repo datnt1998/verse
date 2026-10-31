@@ -80,7 +80,12 @@ func (s *SettingsStore) QueuePaused(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return found && storagePaused, nil
+	if found && storagePaused {
+		return true, nil
+	}
+	var serverOffline bool
+	found, err = s.Get(ctx, domain.KeyStorageServerOffline, &serverOffline)
+	return found && serverOffline, err
 }
 
 // SetQueuePaused ghi cờ tạm dừng hàng chờ.
