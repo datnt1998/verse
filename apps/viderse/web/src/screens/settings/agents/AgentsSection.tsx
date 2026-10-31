@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import { styles as settingsStyles, agtHintMarker, agtPillMarker, agtDrawcardBarMarker, agtFootMarker, agtMdrawMarker, agtDrawcardMarker, agtMswitchMarker, agtSheetMarker } from '../settings.stylex'
 // Trợ lý AI — mục Cài đặt (artboard Settings section=agents ai=director|
 // artist, MSettings screen=agents sheet=director|artist). Wire:
 // domain.AgentModels {director{model,effort,fallback}, artist{promptModel,
@@ -14,7 +16,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Icon, Segmented, Sheet, Switch, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
-import './agents.css'
 import { Orb, assistantName, type Assistant } from '../../../components'
 import { navigate } from '../../../router'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
@@ -156,10 +157,10 @@ export function AgentsSection() {
   }
 
   if (agents.error) {
-    return <div className="agt-sec"><div className="agt-fail" role="alert">{a.loadFail}</div></div>
+    return <div className={`agt-sec ${stylex.props(settingsStyles.agtSec).className}`}><div className={`agt-fail ${stylex.props(settingsStyles.agtFail).className}`} role="alert">{a.loadFail}</div></div>
   }
   if (!data || !view) {
-    return <div className="agt-sec"><div className="agt-note">{a.loading}</div></div>
+    return <div className={`agt-sec ${stylex.props(settingsStyles.agtSec).className}`}><div className={`agt-note ${stylex.props(settingsStyles.agtNote).className}`}>{a.loading}</div></div>
   }
 
   const directorValue = refId(view.director.model)
@@ -187,21 +188,21 @@ export function AgentsSection() {
   const applied = !capErr && saving ? a.saving : ''
 
   const directorHead = (
-    <div className="agt-head">
+    <div className={`agt-head ${stylex.props(settingsStyles.agtHead).className}`}>
       <Orb of="director" size={22} />
-      <div className="agt-id">
-        <span className="agt-name">{assistantName('director')}</span>
-        <span className="agt-role">{mobile ? a.roleMobile.director : a.role.director}</span>
+      <div className={`agt-id ${stylex.props(settingsStyles.agtId).className}`}>
+        <span className={`agt-name ${stylex.props(settingsStyles.agtName).className}`}>{assistantName('director')}</span>
+        <span className={`agt-role ${stylex.props(settingsStyles.agtRole).className}`}>{mobile ? a.roleMobile.director : a.role.director}</span>
       </div>
     </div>
   )
 
   const artistHead = (
-    <div className="agt-head">
+    <div className={`agt-head ${stylex.props(settingsStyles.agtHead).className}`}>
       <Orb of="artist" size={22} />
-      <div className="agt-id">
-        <span className="agt-name">{mobile ? a.artistMobile : assistantName('artist')}</span>
-        <span className="agt-role">{mobile ? a.roleMobile.artist : a.role.artist}</span>
+      <div className={`agt-id ${stylex.props(settingsStyles.agtId).className}`}>
+        <span className={`agt-name ${stylex.props(settingsStyles.agtName).className}`}>{mobile ? a.artistMobile : assistantName('artist')}</span>
+        <span className={`agt-role ${stylex.props(settingsStyles.agtRole).className}`}>{mobile ? a.roleMobile.artist : a.role.artist}</span>
       </div>
     </div>
   )
@@ -238,7 +239,7 @@ export function AgentsSection() {
   }
 
   const drawSources = imageSources.length > 0 ? (
-    <div className="agt-drawgrid">
+    <div className={`agt-drawgrid ${stylex.props(settingsStyles.agtDrawgrid).className}`}>
       {imageSources.map(({ model, provider }) => {
         const on = view.artist.draw.provider === provider.id
         const meta = drawMeta(provider, model.perImage)
@@ -246,22 +247,22 @@ export function AgentsSection() {
           <button
             key={provider.id}
             type="button"
-            className={`agt-drawcard${on ? ' agt-drawcard--on' : ''}`}
+            className={`agt-drawcard ${stylex.props(agtDrawcardMarker, settingsStyles.agtDrawcard, (on) && settingsStyles.agtDrawcardOn).className}`}
             aria-pressed={on}
             onClick={() => setDraw({ provider: provider.id, model: model.ref.model })}
           >
-            <span className="agt-drawcard__top">
-              <span className={`agt-radio${on ? ' agt-radio--on' : ''}`} aria-hidden="true" />
-              <span className="agt-drawcard__name">{provider.label}</span>
-              {on && <span className="agt-default">{a.default}</span>}
+            <span className={`agt-drawcard__top ${stylex.props(settingsStyles.agtDrawcardTop).className}`}>
+              <span className={`agt-radio ${stylex.props(settingsStyles.agtRadio, (on) && settingsStyles.agtRadioOn).className}`} aria-hidden="true" />
+              <span className={`agt-drawcard__name ${stylex.props(settingsStyles.agtDrawcardName).className}`}>{provider.label}</span>
+              {on && <span className={`agt-default ${stylex.props(settingsStyles.agtDefault).className}`}>{a.default}</span>}
             </span>
-            <span className="agt-drawcard__model">{model.ref.model}</span>
-            <span className="agt-drawcard__plan">{meta.plan}</span>
+            <span className={`agt-drawcard__model ${stylex.props(settingsStyles.agtDrawcardModel).className}`}>{model.ref.model}</span>
+            <span className={`agt-drawcard__plan ${stylex.props(settingsStyles.agtDrawcardPlan).className}`}>{meta.plan}</span>
             {meta.hasQuota && (
-              <span className="agt-drawcard__bar" aria-hidden="true"><span style={{ width: `${meta.pct}%` }} /></span>
+              <span className={`agt-drawcard__bar ${stylex.props(agtDrawcardBarMarker, settingsStyles.agtDrawcardBar).className}`} aria-hidden="true"><span style={{ width: `${meta.pct}%` }} {...stylex.props(settingsStyles.AgtDrawcardBarSpan)} /></span>
             )}
-            <span className="agt-drawcard__foot">
-              <span className="conn-num">{meta.used}</span>
+            <span className={`agt-drawcard__foot ${stylex.props(settingsStyles.agtDrawcardFoot).className}`}>
+              <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>{meta.used}</span>
               <span>{meta.reset}</span>
             </span>
           </button>
@@ -269,7 +270,7 @@ export function AgentsSection() {
       })}
     </div>
   ) : (
-    <span className="agt-drawcard__empty">{a.needLogin('ChatGPT')}</span>
+    <span className={`agt-drawcard__empty ${stylex.props(settingsStyles.agtDrawcardEmpty).className}`}>{a.needLogin('ChatGPT')}</span>
   )
 
   if (mobile) {
@@ -279,43 +280,43 @@ export function AgentsSection() {
       const body = (
         <>
           <Orb of={of} size={22} />
-          <span className="agt-mrow__id">
-            <span className="agt-mrow__name">{name}</span>
-            <span className="agt-mrow__role">{role}</span>
+          <span className={`agt-mrow__id ${stylex.props(settingsStyles.agtMrowId).className}`}>
+            <span className={`agt-mrow__name ${stylex.props(settingsStyles.agtMrowName).className}`}>{name}</span>
+            <span className={`agt-mrow__role ${stylex.props(settingsStyles.agtMrowRole).className}`}>{role}</span>
           </span>
-          <span className="agt-mrow__val">
-            {value ? <span className="agt-mrow__model">{value}</span> : <span className="agt-mrow__none">{a.noModel}</span>}
-            {sub && <span className="agt-mrow__prov">{sub}</span>}
+          <span className={`agt-mrow__val ${stylex.props(settingsStyles.agtMrowVal).className}`}>
+            {value ? <span className={`agt-mrow__model ${stylex.props(settingsStyles.agtMrowModel).className}`}>{value}</span> : <span className={`agt-mrow__none ${stylex.props(settingsStyles.agtMrowNone).className}`}>{a.noModel}</span>}
+            {sub && <span className={`agt-mrow__prov ${stylex.props(settingsStyles.agtMrowProv).className}`}>{sub}</span>}
           </span>
-          {onPress && <Icon name="arrow-r" size={15} className="agt-mrow__chev" />}
+          {onPress && <Icon name="arrow-r" size={15} className="agt-mrow__chev" xstyle={[settingsStyles.agtMrowChev]} />}
         </>
       )
       return onPress
-        ? <button key={of} type="button" className="agt-mrow" onClick={onPress} aria-haspopup="dialog">{body}</button>
-        : <div key={of} className="agt-mrow" aria-disabled="true">{body}</div>
+        ? <button key={of} type="button" className={`agt-mrow ${stylex.props(settingsStyles.agtMrow).className}`} onClick={onPress} aria-haspopup="dialog">{body}</button>
+        : <div key={of} className={`agt-mrow ${stylex.props(settingsStyles.agtMrow).className}`} aria-disabled="true">{body}</div>
     }
 
     const directorPicked = picked.find((p) => refId(p.ref) === directorValue)
     const promptPicked = picked.find((p) => refId(p.ref) === promptValue)
 
     return (
-      <div className="agt-m">
-        <p className="agt-m__lede">{a.mobileLede}</p>
+      <div className={`agt-m ${stylex.props(settingsStyles.agtM).className}`}>
+        <p className={`agt-m__lede ${stylex.props(settingsStyles.agtMLede).className}`}>{a.mobileLede}</p>
         {plist.filter((p) => p.selected.length > 0).map((p) => (
           <SelectedCatalog key={p.id} providerId={p.id} onLoaded={onCatalogLoaded} />
         ))}
 
-        <section className="card agt-mcard">
+        <section className={`agt-mcard ${stylex.props(settingsStyles.card, settingsStyles.agtMcard).className}`}>
           {row('scout', assistantName('scout'), a.roleMobile.scout, '', '')}
           {row('director', assistantName('director'), a.roleMobile.director, directorPicked?.label ?? '', provLine(directorPicked), () => setSheet('director'))}
           {row('artist', a.artistMobile, a.roleMobile.artist, promptPicked?.label ?? '', provLine(promptPicked), () => setSheet('artist'))}
           {row('qa', assistantName('qa'), a.roleMobile.qa, '', '')}
         </section>
 
-        <div className="agt-sec-head">{a.drawLabelMobile}</div>
+        <div className={`agt-sec-head ${stylex.props(settingsStyles.agtSecHead).className}`}>{a.drawLabelMobile}</div>
         {imageSources.length === 0
-          ? <section className="card agt-mcard"><span className="agt-mrow__none" style={{ padding: 'var(--vv-s-14)' }}>{a.needLogin('ChatGPT')}</span></section>
-          : <div className="agt-mdraws" role="radiogroup" aria-label={a.drawLabelMobile}>{imageSources.map(({ model, provider }) => {
+          ? <section className={`agt-mcard ${stylex.props(settingsStyles.card, settingsStyles.agtMcard).className}`}><span className={`agt-mrow__none ${stylex.props(settingsStyles.agtMrowNone).className}`} style={{ padding: 'var(--vv-s-14)' }}>{a.needLogin('ChatGPT')}</span></section>
+          : <div className={`agt-mdraws ${stylex.props(settingsStyles.agtMdraws).className}`} role="radiogroup" aria-label={a.drawLabelMobile}>{imageSources.map(({ model, provider }) => {
             const on = view.artist.draw.provider === provider.id
             const meta = drawMeta(provider, model.perImage)
             return (
@@ -324,28 +325,28 @@ export function AgentsSection() {
                 type="button"
                 role="radio"
                 aria-checked={on}
-                className={`agt-mdraw${on ? ' agt-mdraw--on' : ''}`}
+                className={`agt-mdraw ${stylex.props(agtMdrawMarker, settingsStyles.agtMdraw, (on) && settingsStyles.agtMdrawOn).className}`}
                 onClick={() => setDraw({ provider: provider.id, model: model.ref.model })}
               >
-                <span className="agt-mdraw__row">
-                  <span className={`agt-radio${on ? ' agt-radio--on' : ''}`} aria-hidden="true" />
-                  <span className="agt-mdraw__name">{provider.label}</span>
-                  <span className="agt-mdraw__model">{model.ref.model}</span>
+                <span className={`agt-mdraw__row ${stylex.props(settingsStyles.agtMdrawRow).className}`}>
+                  <span className={`agt-radio ${stylex.props(settingsStyles.agtRadio, (on) && settingsStyles.agtRadioOn).className}`} aria-hidden="true" />
+                  <span className={`agt-mdraw__name ${stylex.props(settingsStyles.agtMdrawName).className}`}>{provider.label}</span>
+                  <span className={`agt-mdraw__model ${stylex.props(settingsStyles.agtMdrawModel).className}`}>{model.ref.model}</span>
                 </span>
-                <span className="agt-mdraw__plan">{meta.plan}</span>
-                <span className="agt-mdraw__foot">
-                  <span className="conn-num">{meta.used}</span>
+                <span className={`agt-mdraw__plan ${stylex.props(settingsStyles.agtMdrawPlan).className}`}>{meta.plan}</span>
+                <span className={`agt-mdraw__foot ${stylex.props(settingsStyles.agtMdrawFoot).className}`}>
+                  <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>{meta.used}</span>
                   <span>{meta.reset}</span>
                 </span>
               </button>
             )
           })}</div>}
 
-        <section className="card agt-mswitch">
-          <div className="agt-switchrow">
-            <span className="agt-switchrow__text">
-              <span className="agt-switchrow__label">{a.retryOther}</span>
-              <span className="agt-switchrow__hint">{a.retryHintMobile}</span>
+        <section className={`agt-mswitch ${stylex.props(settingsStyles.card, agtMswitchMarker, settingsStyles.agtMswitch).className}`}>
+          <div className={`agt-switchrow ${stylex.props(settingsStyles.agtSwitchrow).className}`}>
+            <span className={`agt-switchrow__text ${stylex.props(settingsStyles.agtSwitchrowText).className}`}>
+              <span className={`agt-switchrow__label ${stylex.props(settingsStyles.agtSwitchrowLabel).className}`}>{a.retryOther}</span>
+              <span className={`agt-switchrow__hint ${stylex.props(settingsStyles.agtSwitchrowHint).className}`}>{a.retryHintMobile}</span>
             </span>
             <Switch checked={view.artist.fallbackOn} onChange={setRetry} disabled={saving} label={a.retryOther} />
           </div>
@@ -360,10 +361,10 @@ export function AgentsSection() {
               readOnly
             />
           )}
-          {capErr?.field === 'artist.drawFallback' && <span className="agt-caperr">{capMessage(capErr)}</span>}
+          {capErr?.field === 'artist.drawFallback' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
         </section>
 
-        {applied && <span className="agt-applied">{applied}</span>}
+        {applied && <span className={`agt-applied ${stylex.props(settingsStyles.agtApplied).className}`}>{applied}</span>}
 
         <Sheet
           open={sheet != null}
@@ -373,8 +374,9 @@ export function AgentsSection() {
           size="md"
           homeIndicator
           height="auto"
+          xstyle={settingsStyles.agentSheet}
         >
-          <div className="agt-sheet agt-sheet-list">
+          <div className={`agt-sheet agt-sheet-list ${stylex.props(agtSheetMarker, settingsStyles.agtSheetList).className}`}>
             <ModelList
               variant="sheet"
               picked={picked}
@@ -384,11 +386,11 @@ export function AgentsSection() {
             />
           </div>
           {capErr && (capErr.field === 'director.model' || capErr.field === 'artist.promptModel') && (
-            <span className="agt-caperr" style={{ padding: '0 var(--vv-s-16)' }}>{capMessage(capErr)}</span>
+            <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`} style={{ padding: '0 var(--vv-s-16)' }}>{capMessage(capErr)}</span>
           )}
           <button
             type="button"
-            className="agt-sheet-link"
+            className={`agt-sheet-link ${stylex.props(settingsStyles.agtSheetLink).className}`}
             onClick={() => { setSheet(null); navigate('/settings?section=connect') }}
           >
             {a.pickerFooter}
@@ -399,28 +401,28 @@ export function AgentsSection() {
   }
 
   return (
-    <div className="agt-sec">
+    <div className={`agt-sec ${stylex.props(settingsStyles.agtSec).className}`}>
       {plist.filter((p) => p.selected.length > 0).map((p) => (
         <SelectedCatalog key={p.id} providerId={p.id} onLoaded={onCatalogLoaded} />
       ))}
 
-      <section className="card agt-card">
-        <div className="agt-row">
-          <div className="agt-head">
+      <section className={`agt-card ${stylex.props(settingsStyles.card, settingsStyles.agtCard).className}`}>
+        <div className={`agt-row ${stylex.props(settingsStyles.agtRow).className}`}>
+          <div className={`agt-head ${stylex.props(settingsStyles.agtHead).className}`}>
             <Orb of="scout" size={22} />
-            <div className="agt-id">
-              <span className="agt-name">{assistantName('scout')}</span>
-              <span className="agt-role">{a.role.scout}</span>
+            <div className={`agt-id ${stylex.props(settingsStyles.agtId).className}`}>
+              <span className={`agt-name ${stylex.props(settingsStyles.agtName).className}`}>{assistantName('scout')}</span>
+              <span className={`agt-role ${stylex.props(settingsStyles.agtRole).className}`}>{a.role.scout}</span>
             </div>
-            <span className="agt-nomodel">{a.noModel}</span>
+            <span className={`agt-nomodel ${stylex.props(settingsStyles.agtNomodel).className}`}>{a.noModel}</span>
           </div>
         </div>
 
-        <div className="agt-row">
+        <div className={`agt-row ${stylex.props(settingsStyles.agtRow).className}`}>
           {directorHead}
-          <div className="agt-grid">
-            <div className="agt-field">
-              <span className="agt-label">{a.modelLabel}</span>
+          <div className={`agt-grid ${stylex.props(settingsStyles.agtGrid).className}`}>
+            <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+              <span className={`agt-label ${stylex.props(settingsStyles.agtLabel).className}`}>{a.modelLabel}</span>
               <ModelPicker
                 picked={picked}
                 value={directorValue}
@@ -431,13 +433,13 @@ export function AgentsSection() {
                 sub={a.pickerSubText}
               />
             </div>
-            <div className="agt-field">
-              <span className="agt-label">{a.effort}</span>
+            <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+              <span className={`agt-label ${stylex.props(settingsStyles.agtLabel).className}`}>{a.effort}</span>
               {effortSeg}
             </div>
           </div>
-          <div className="agt-field">
-            <span className="agt-label">{a.chainDirector}</span>
+          <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+            <span className={`agt-label ${stylex.props(settingsStyles.agtLabel).className}`}>{a.chainDirector}</span>
             <FallbackChain
               chain={view.director.fallback}
               picked={picked.filter((p) => refId(p.ref) !== directorValue)}
@@ -447,15 +449,15 @@ export function AgentsSection() {
               addIcon
             />
           </div>
-          {capErr?.field === 'director.model' && <span className="agt-caperr">{capMessage(capErr)}</span>}
-          {capErr?.field === 'director.fallback' && <span className="agt-caperr">{capMessage(capErr)}</span>}
+          {capErr?.field === 'director.model' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
+          {capErr?.field === 'director.fallback' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
         </div>
 
-        <div className="agt-row">
+        <div className={`agt-row ${stylex.props(settingsStyles.agtRow).className}`}>
           {artistHead}
-          <div className="agt-grid">
-            <div className="agt-field">
-              <span className="agt-label">{a.promptModel}</span>
+          <div className={`agt-grid ${stylex.props(settingsStyles.agtGrid).className}`}>
+            <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+              <span className={`agt-label ${stylex.props(settingsStyles.agtLabel).className}`}>{a.promptModel}</span>
               <ModelPicker
                 picked={picked}
                 value={promptValue}
@@ -466,25 +468,25 @@ export function AgentsSection() {
                 sub={a.pickerSubVision}
               />
             </div>
-            <div className="agt-field">
-              <span className="agt-hint">
-                <Icon name="info" size={13} className="agt-ic" />
+            <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+              <span className={`agt-hint ${stylex.props(agtHintMarker, settingsStyles.agtHint).className}`}>
+                <Icon name="info" size={13} className="agt-ic" xstyle={[settingsStyles.agtIc]} />
                 {a.promptHint}
               </span>
             </div>
           </div>
-          {capErr?.field === 'artist.promptModel' && <span className="agt-caperr">{capMessage(capErr)}</span>}
+          {capErr?.field === 'artist.promptModel' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
 
-          <div className="agt-field">
-            <span className="agt-label">{a.drawLabel}</span>
+          <div className={`agt-field ${stylex.props(settingsStyles.agtField).className}`}>
+            <span className={`agt-label ${stylex.props(settingsStyles.agtLabel).className}`}>{a.drawLabel}</span>
             {drawSources}
           </div>
-          {capErr?.field === 'artist.draw' && <span className="agt-caperr">{capMessage(capErr)}</span>}
+          {capErr?.field === 'artist.draw' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
 
-          <div className="agt-switchrow">
-            <span className="agt-switchrow__text">
-              <span className="agt-switchrow__label">{a.retryOther}</span>
-              <span className="agt-switchrow__hint">{a.retryHint}</span>
+          <div className={`agt-switchrow ${stylex.props(settingsStyles.agtSwitchrow).className}`}>
+            <span className={`agt-switchrow__text ${stylex.props(settingsStyles.agtSwitchrowText).className}`}>
+              <span className={`agt-switchrow__label ${stylex.props(settingsStyles.agtSwitchrowLabel).className}`}>{a.retryOther}</span>
+              <span className={`agt-switchrow__hint ${stylex.props(settingsStyles.agtSwitchrowHint).className}`}>{a.retryHint}</span>
             </span>
             <Switch checked={view.artist.fallbackOn} onChange={setRetry} disabled={saving} label={a.retryOther} />
           </div>
@@ -499,29 +501,29 @@ export function AgentsSection() {
               addIcon
             />
           )}
-          {capErr?.field === 'artist.drawFallback' && <span className="agt-caperr">{capMessage(capErr)}</span>}
+          {capErr?.field === 'artist.drawFallback' && <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`}>{capMessage(capErr)}</span>}
         </div>
 
-        <div className="agt-row">
-          <div className="agt-head">
+        <div className={`agt-row ${stylex.props(settingsStyles.agtRow).className}`}>
+          <div className={`agt-head ${stylex.props(settingsStyles.agtHead).className}`}>
             <Orb of="qa" size={22} />
-            <div className="agt-id">
-              <span className="agt-name">{assistantName('qa')}</span>
-              <span className="agt-role">{a.role.qa}</span>
+            <div className={`agt-id ${stylex.props(settingsStyles.agtId).className}`}>
+              <span className={`agt-name ${stylex.props(settingsStyles.agtName).className}`}>{assistantName('qa')}</span>
+              <span className={`agt-role ${stylex.props(settingsStyles.agtRole).className}`}>{a.role.qa}</span>
             </div>
-            <span className="agt-nomodel">{a.noModel}</span>
+            <span className={`agt-nomodel ${stylex.props(settingsStyles.agtNomodel).className}`}>{a.noModel}</span>
           </div>
         </div>
 
       </section>
 
       {/* Artboard: câu giải thích nằm NGOÀI thẻ bốn trợ lý, không có vạch chia. */}
-      <p className="agt-foot">
-        <Icon name="info" size={15} />
-        <span>{a.footer}</span>
+      <p className={`agt-foot ${stylex.props(agtFootMarker, settingsStyles.agtFoot).className}`}>
+        <Icon name="info" size={15} xstyle={[settingsStyles.AgtFootFirstChild]} />
+        <span {...stylex.props(settingsStyles.AgtFootFirstChild)}>{a.footer}</span>
       </p>
 
-      {applied && <span className="agt-applied">{applied}</span>}
+      {applied && <span className={`agt-applied ${stylex.props(settingsStyles.agtApplied).className}`}>{applied}</span>}
     </div>
   )
 }
@@ -542,20 +544,20 @@ function FallbackChain({ chain, picked, onChange, needs, addLabel, addIcon, read
   const keyset = new Set(chain.map(refId))
   const candidates = picked.filter((p) => !keyset.has(refId(p.ref)))
   return (
-    <span className="agt-chain">
+    <span className={`agt-chain ${stylex.props(settingsStyles.agtChain).className}`}>
       {chain.map((ref, i) => (
-        <span key={refId(ref)} className="agt-pill">
-          <span className="agt-pill__n">{i + 1}</span>
-          <span className="agt-pill__id">{ref.model}</span>
-          <span className="agt-pill__prov">· {picked.find((p) => refId(p.ref) === refId(ref))?.providerLabel ?? ref.provider}</span>
+        <span key={refId(ref)} className={`agt-pill ${stylex.props(agtPillMarker, settingsStyles.agtPill).className}`}>
+          <span className={`agt-pill__n ${stylex.props(settingsStyles.agtPillN).className}`}>{i + 1}</span>
+          <span className={`agt-pill__id ${stylex.props(settingsStyles.agtPillId).className}`}>{ref.model}</span>
+          <span className={`agt-pill__prov ${stylex.props(settingsStyles.agtPillProv).className}`}>· {picked.find((p) => refId(p.ref) === refId(ref))?.providerLabel ?? ref.provider}</span>
           {!readOnly && (
-            <button type="button" className="agt-pill__x" aria-label={`${t.common.cancel} ${ref.model}`} onClick={() => onChange(chain.filter((x) => refId(x) !== refId(ref)))}>×</button>
+            <button type="button" className={`agt-pill__x ${stylex.props(settingsStyles.agtPillX).className}`} aria-label={`${t.common.cancel} ${ref.model}`} onClick={() => onChange(chain.filter((x) => refId(x) !== refId(ref)))}>×</button>
           )}
         </span>
       ))}
       {!readOnly && (adding ? (
-        <span className="agt-addwrap">
-          <span className="agt-addlist">
+        <span className={`agt-addwrap ${stylex.props(settingsStyles.agtAddwrap).className}`}>
+          <span className={`agt-addlist ${stylex.props(settingsStyles.agtAddlist).className}`}>
             <ModelList
               picked={candidates}
               value=""
@@ -566,7 +568,7 @@ function FallbackChain({ chain, picked, onChange, needs, addLabel, addIcon, read
           <Button size="lg" variant="quiet" onClick={() => setAdding(false)}>{a.done}</Button>
         </span>
       ) : (
-        <button type="button" className="agt-addpill" onClick={() => setAdding(true)} disabled={candidates.length === 0}>
+        <button type="button" className={`agt-addpill ${stylex.props(settingsStyles.agtAddpill).className}`} onClick={() => setAdding(true)} disabled={candidates.length === 0}>
           {addIcon && <Icon name="add" size={12} />}
           {addLabel ?? a.chainAdd}
         </button>

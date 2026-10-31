@@ -8,6 +8,8 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { invalidate } from '@noverse/ui/data'
+import * as stylex from '@stylexjs/stylex'
+import { styles } from '../settings.stylex'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { blockedReason, pickedFrom } from './ModelPicker'
 import { AgentsSection } from './AgentsSection'
@@ -110,7 +112,8 @@ describe('Trợ lý AI', () => {
     await click(artistCard!.querySelector('.agt-pick'))
     const list = artistCard!.querySelector('.agt-pop')
     expect(list).toBeTruthy()
-    const dimmed = [...list!.querySelectorAll('.agt-opt--dim')]
+    const atoms = stylex.props(styles.agtOptDim).className!.split(' ')
+    const dimmed = [...list!.querySelectorAll('.agt-opt')].filter(node => atoms.every(atom => node.classList.contains(atom)))
     expect(dimmed).toHaveLength(1)
     // Artboard: model chỉ vẽ ảnh mang đúng câu “Chỉ vẽ ảnh, không viết chữ”.
     expect(dimmed[0].textContent).toContain('Chỉ vẽ ảnh, không viết chữ')
@@ -126,7 +129,7 @@ describe('Trợ lý AI', () => {
     const artistCard = [...el.querySelectorAll('.agt-row')].find((c) => c.textContent?.includes('Hoạ sĩ'))
     await click(artistCard!.querySelector('.agt-pick'))
     const nano = [...artistCard!.querySelectorAll('.agt-opt')].find((o) => o.textContent?.includes('google/nano-banana'))
-    expect(nano?.className).toContain('agt-opt--dim')
+    for (const atom of stylex.props(styles.agtOptDim).className!.split(' ')) expect(nano?.classList.contains(atom)).toBe(true)
     // Nhưng chính nó vẫn nằm trong lưới "Vẽ ảnh bằng" nhờ caps image thật.
     const draw = [...artistCard!.querySelectorAll('.agt-drawcard')].find((d) => d.textContent?.includes('nano-banana'))
     expect(draw).toBeTruthy()
