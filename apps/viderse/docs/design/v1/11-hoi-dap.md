@@ -313,9 +313,25 @@ Mẫu:
   5. Không cần nút xoá phần đã chép: tệp đặt tên theo nội dung, lần chuyển sau dùng lại, không chép lại. Muốn dọn thì dùng lệnh bảo trì, như Noverse AN.
 - Design đã sửa (đợt 29b): khối “Chi tiết cho người quản trị máy chủ” ghi đúng tên biến; khối chi tiết của `s3nokey` ghi đường dẫn tệp khoá và cách cấp quyền ghi; Dung lượng theo nhóm có nhãn phụ “lớp phủ, video nền, ảnh kênh” và tweak `usage=partial` (nhóm `null` ghi “chưa có số”); câu huỷ chuyển nói tệp đã chép được dùng lại; Chỗ cũ dọn bằng lệnh bảo trì (bỏ gợi ý xoá tay). Data-contract §23.1 và Gói V25 sửa theo.
 
-### #50 · Gói V26: lý do phải đăng nhập lại và địa chỉ app kia — Mở <!-- r30-sso -->
+### #50 · Gói V26: lý do phải đăng nhập lại và địa chỉ app kia — Đã trả lời (dev, 31/10) <!-- r30-sso -->
 - Artboard: `Auth` · `screen=login`, `kicked=self|other|password|admin|expired|unknown`; `screen=menu|denied`.
 - Hỏi dev:
   1. Máy chủ có biết vì sao phiên bị thu hồi không (đăng xuất, đổi mật khẩu, quản trị viên đổi quyền/đặt lại/khoá, hết hạn), và ở app nào? Nếu có thì trả `reason`, `app` trong 401 (§25). Nếu không thì giao diện chỉ dùng câu chung, trừ hai trường hợp client tự biết (`?bye=1`, `?pw=1`).
   2. `apps: AppLink[]` (id, tên, địa chỉ gốc) trả trong `GET /api/me` và 403 `app_access_denied` được không? Địa chỉ lấy từ `VERSE_APP_ORIGINS` hay cấu hình riêng?
   3. Noverse có nhận `#/settings/members?user=<tên>` để mở thẳng người cần cấp quyền không?
+- Dev trả lời (đã làm):
+  1. Có. Phiên chung ghi `revoked_reason` và `revoked_app`. 401 trả `{ code: "session_ended", reason, app? }`:
+     - `reason` là `logout | password_changed | admin_changed | locked | expired | unknown`;
+     - `logout` đi kèm `app`, nên giao diện tự so với app đang mở để chọn câu `self` hoặc `other`;
+     - cookie lạ hoặc hỏng thì trả `unknown` và không có `app`.
+     Thêm hai hành vi:
+     - Đăng xuất chung giữ lại cookie đã thu hồi tới lần đăng nhập sau (không gia hạn), để app kia đọc được lý do. Cookie đó không còn xác thực được gì.
+     - Đổi mật khẩu thu hồi mọi phiên, kể cả máy đang dùng. Đăng xuất "thiết bị khác" thì giữ phiên máy này.
+  2. Có. `AppLink` là `{ id, name, origin }`, không phải `{ label, url }` như §25 đang ghi, nhờ design sửa §25 theo.
+     - `apps` có trong `GET /api/me` và 403 `app_access_denied`, chỉ gồm app được cấp quyền (quản trị viên thấy mọi app đã cấu hình).
+     - Địa chỉ lấy từ biến riêng `VERSE_APP_LINKS` (`noverse=…,viderse=…`), kiểm cùng luật với `VERSE_APP_ORIGINS`. Không đặt biến thì chỉ có app hiện tại, nên phần chuyển app tự ẩn.
+  3. Có. Noverse nhận `#/settings/members?user=<tên>`. Tên không có thì về danh sách.
+- Câu hỏi lại cho design:
+  - Logo menu: artboard dùng `#18181B`, token gần nhất là `--color-surface-3` = `#18181A`. Code dùng token; nhờ sửa artboard về token.
+  - Thẻ app ở Thành viên khi chưa cấu hình `VERSE_APP_LINKS`: code ẩn địa chỉ app kia. Cần chốt cách hiển thị dự phòng.
+  - `MAuth` vẽ thanh trạng thái và thanh home của hệ điều hành. Bản web không vẽ hai thanh này, nên toạ độ dọc lệch đúng bằng chiều cao của chúng.
