@@ -51,12 +51,28 @@ export function orderNotifications(notifications: AppNotification[]) {
 }
 export function ActivityPopover({ activity, error, retry, close }: { activity?: Activity; error?: unknown; retry: () => void; close: () => void }) {
   const [tab, setTab] = useState<'running' | 'inbox'>('running')
+  const [older, setOlder] = useState<AppNotification[]>([])
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [pageError, setPageError] = useState('')
+  const [paging, setPaging] = useState(false)
   const history = useResource(['activity', 'history'], ({ signal }) => getNotificationHistory(signal), { enabled: tab === 'inbox' })
   useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey) }, [close])
-  const refresh = () => { invalidate(keys.activity()); void history.refresh() }
+  const refresh = () => { setOlder([]); setCursor(null); invalidate(keys.activity()); void history.refresh() }
   const mark = async () => { await markNotificationsRead('all'); refresh() }
+  const loadMore = async () => {
+    const before = cursor ?? history.data?.nextCursor
+    if (!before || paging) return
+    setPaging(true)
+    try {
+      const page = await getNotificationHistory(undefined, before)
+      setOlder((previous) => [...previous, ...page.notifications])
+      setCursor(page.nextCursor ?? '')
+      setPageError('')
+    } catch { setPageError('Không tải được thông báo. Thử lại.') }
+    finally { setPaging(false) }
+  }
   const tasks = activity?.running ?? []
-  const rows = orderNotifications(history.data?.notifications ?? [])
+  const rows = orderNotifications([...(history.data?.notifications ?? []), ...older])
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const yesterday = today.getTime() - 86400000
   const groups = [ { label: 'Hôm nay', rows: rows.filter((n) => Date.parse(n.createdAt) >= today.getTime()) }, { label: 'Hôm qua', rows: rows.filter((n) => Date.parse(n.createdAt) >= yesterday && Date.parse(n.createdAt) < today.getTime()) }, { label: 'Trước đó', rows: rows.filter((n) => Date.parse(n.createdAt) < yesterday) } ]
@@ -91,6 +107,7 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
               {n.href && <a {...stylex.props(s.button)} href={n.href} onClick={() => { if (!n.readAt) void markNotificationsRead([n.id]).then(refresh); close() }}>{n.actionLabel || 'Xem'}</a>}
             </div>)}
           </div> : null) : <div {...stylex.props(s.empty)}>Chưa có thông báo.</div>}
+        {tab === 'inbox' && (cursor ?? history.data?.nextCursor) ? <div {...stylex.props(s.row)}><button type="button" {...stylex.props(s.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
       </div>
       <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button)} href={`#${paths.queue()}`} onClick={close}>Mở Hàng chờ</a><a {...stylex.props(s.button)} href="#/settings?section=notifications" onClick={close}>Cài đặt thông báo</a></footer>
     </section>

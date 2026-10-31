@@ -83,8 +83,8 @@ const activitySchema = z.object({
   })),
   videoJobs: z.number(), queued: z.number(), badge: z.number().optional(), unread: z.array(notificationSchema),
 })
-export const getNotificationHistory = async (signal?: AbortSignal) =>
-  z.object({ notifications: z.array(notificationSchema) }).parse(await request('/api/notifications', { signal }))
+export const getNotificationHistory = async (signal?: AbortSignal, before?: string) =>
+  z.object({ notifications: z.array(notificationSchema), nextCursor: z.string().optional() }).parse(await request(`/api/notifications${before ? `?before=${encodeURIComponent(before)}` : ''}`, { signal }))
 export const markNotificationsRead = (ids: string[] | 'all') =>
   request<void>('/api/notifications/read', { body: ids === 'all' ? { all: true } : { ids } })
 export const getNotificationSettings = async (signal?: AbortSignal) =>
