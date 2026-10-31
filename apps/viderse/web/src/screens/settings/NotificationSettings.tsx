@@ -5,7 +5,7 @@ import { getNotificationSettings, saveNotificationSettings, type NotificationSet
 import { useResource } from '../../data/useResource'
 
 const s = stylex.create({
-  card: { border: '1px solid var(--line-2)', borderRadius: 'var(--vv-r-16)', background: 'var(--color-surface-2)', overflow: 'hidden' },
+  card: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--color-surface-2)', overflow: 'hidden' },
   grid: { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 72px 72px', gap: 'var(--vv-s-8)', alignItems: 'center', padding: 'var(--vv-s-10) var(--vv-s-16)', borderTop: '1px solid var(--line-1)' },
   header: { fontSize: 11, fontWeight: 600, color: 'var(--color-fg-3)', textTransform: 'uppercase', letterSpacing: '.06em' },
   centered: { textAlign: 'center' },

@@ -7,6 +7,7 @@ import { request } from '../api/request'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
 import { paths } from '../router'
+import NotificationSettings from '../screens/settings/NotificationSettings'
 
 const s = stylex.create({
   pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 65px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-14)', backgroundColor: 'var(--color-surface-4)', border: '1px solid var(--line-2)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)' },
@@ -50,7 +51,7 @@ export function orderNotifications(notifications: AppNotification[]) {
   return [...notifications].sort ( (a, b) => Number(!!a.readAt) - Number(!!b.readAt) || priority[a.kind] - priority[b.kind] || Date.parse(b.createdAt) - Date.parse(a.createdAt))
 }
 export function ActivityPopover({ activity, error, retry, close }: { activity?: Activity; error?: unknown; retry: () => void; close: () => void }) {
-  const [tab, setTab] = useState<'running' | 'inbox'>('running')
+  const [tab, setTab] = useState<'running' | 'inbox' | 'settings'>('running')
   const [older, setOlder] = useState<AppNotification[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
   const [pageError, setPageError] = useState('')
@@ -80,16 +81,17 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
   return (
     <section {...stylex.props(s.pop)} role="dialog" aria-label="Việc nền">
       <div {...stylex.props(s.head)}>
-        <div {...stylex.props(s.content)}>Việc nền<span {...stylex.props(s.sub)}>{tasks.length ? `Máy chạy ${activity.videoJobs} video · ${activity.queued} chờ lượt · ${tasks.filter((task) => task.kind !== 'video').length} việc khác` : `Máy rảnh · ${activity.queued} chờ lượt`}</span></div>
-        <a href="#/settings?section=notifications" aria-label="Cài đặt thông báo" {...stylex.props(s.plain)} onClick={close}><Icon name="setting" size={16} /></a>
+        {tab === 'settings' && <button type="button" aria-label="Quay lại Việc nền" {...stylex.props(s.plain)} onClick={() => setTab('running')}><Icon name="arrow-r" size={16} /></button>}
+        <div {...stylex.props(s.content)}>{tab === 'settings' ? 'Cài đặt thông báo' : 'Việc nền'}<span {...stylex.props(s.sub)}>{tab === 'settings' ? 'Chọn việc nào được báo và báo ở đâu' : tasks.length ? `Máy chạy ${activity.videoJobs} video · ${activity.queued} chờ lượt · ${tasks.filter((task) => task.kind !== 'video').length} việc khác` : `Máy rảnh · ${activity.queued} chờ lượt`}</span></div>
+        {tab !== 'settings' && <button type="button" aria-label="Cài đặt thông báo" {...stylex.props(s.plain)} onClick={() => setTab('settings')}><Icon name="setting" size={16} /></button>}
         <button type="button" aria-label="Đóng (Esc)" {...stylex.props(s.plain)} onClick={close}><Icon name="close" size={16} /></button>
       </div>
-      <div role="tablist" aria-label="Việc nền" {...stylex.props(s.tabs)}>
+      {tab !== 'settings' && <div role="tablist" aria-label="Việc nền" {...stylex.props(s.tabs)}>
         <button role="tab" aria-selected={tab === 'running'} {...stylex.props(s.tab, tab === 'running' && s.active)} onClick={() => setTab('running')}>Đang chạy · {tasks.length}</button>
         <button role="tab" aria-selected={tab === 'inbox'} {...stylex.props(s.tab, tab === 'inbox' && s.active)} onClick={() => setTab('inbox')}>Thông báo · {activity.unread.length}</button>
-      </div>
+      </div>}
       <div {...stylex.props(s.scroll)}>
-        {tab === 'running' ? tasks.length ? <>
+        {tab === 'settings' ? <NotificationSettings /> : tab === 'running' ? tasks.length ? <>
           {(['video', 'other'] as const).map((group) => {
             const selected = tasks.filter((task) => group === 'video' ? task.kind === 'video' : task.kind !== 'video')
             return selected.length ? <div key={group}><div {...stylex.props(s.group)}>{group === 'video' ? 'Video' : 'Khác'} <span>{selected.length}</span></div>{selected.map((task) => <Task key={task.id} task={task} refresh={refresh} />)}</div> : null
@@ -109,7 +111,7 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
           </div> : null) : <div {...stylex.props(s.empty)}>Chưa có thông báo.</div>}
         {tab === 'inbox' && (cursor ?? history.data?.nextCursor) ? <div {...stylex.props(s.row)}><button type="button" {...stylex.props(s.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
       </div>
-      <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button)} href={`#${paths.queue()}`} onClick={close}>Mở Hàng chờ</a><a {...stylex.props(s.button)} href="#/settings?section=notifications" onClick={close}>Cài đặt thông báo</a></footer>
+      {tab !== 'settings' && <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button)} href={`#${paths.queue()}`} onClick={close}>Mở Hàng chờ</a><button type="button" {...stylex.props(s.plain)} onClick={() => setTab('settings')}>Cài đặt thông báo</button></footer>}
     </section>
   )
 }
