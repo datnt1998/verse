@@ -1,8 +1,9 @@
 // Dự án mới — Dialogs.dc.html › newProject.
 // Không còn tên thư mục / ngôn ngữ / cây tệp: server tự sinh thư mục từ tên hiển thị; trùng tên → báo bằng lời thường.
 import { useState } from 'react'
-import { createProject } from '../../api/client'
+import { createProject, getConfigPresets } from '../../api/client'
 import { useLibrary } from '../../api/library'
+import type { ConfigPresets } from '../../api/types'
 import { t } from '../../i18n/vi'
 import { navigate, paths } from '../../router'
 import { Button } from '@noverse/ui'
@@ -11,7 +12,7 @@ import { FieldError, FieldLabel, TextArea } from '@noverse/ui'
 import { Checkbox } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { TextField } from '@noverse/ui'
-import { keys, useAction, useConnection } from '../../data'
+import { keys, useAction, useConnection, useResource } from '../../data'
 import { useSaveShortcut } from '@noverse/ui'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 import { styleDisplayName } from '../settings/sections/style'
@@ -26,24 +27,25 @@ export function isProjectNameTaken(name: string, projects: { name: string; legac
 
 type CopySource = { id: string; ruleCount?: number; style?: string }
 export const canCopyProjectRules = (project: { ruleCount?: number }) => (project.ruleCount ?? 0) > 0
-const projectStyleName = (style?: string) => !style || style === 'default' ? 'Chung · mặc định' : styleDisplayName(null, style)
+const projectStyleName = (style?: string, presets?: ConfigPresets) => !style || style === 'default' ? 'Chung · mặc định' : styleDisplayName(presets, style)
 export const projectCreationInput = (name: string, description: string, shareGlobal: boolean, source: CopySource | null) => ({
   name: name.trim(),
   ...(description.trim() ? { description: description.trim() } : {}),
   shareGlobal,
   ...(source && canCopyProjectRules(source) ? { copyRulesFrom: source.id } : {}),
 })
-export const newProjectContents = (shared: boolean, source: { ruleCount?: number; style?: string } | null) => [
+export const newProjectContents = (shared: boolean, source: { ruleCount?: number; style?: string } | null, presets?: ConfigPresets) => [
   { icon: 'lamp-on', name: 'Ý tưởng', note: 'trống', color: 'var(--color-warn)' },
-  { icon: 'box', name: 'Tư liệu', note: 'bìa · nhạc · giọng', color: 'var(--color-info)' },
+  { icon: 'box', name: 'Tư liệu', note: 'bìa · nhạc · giọng', color: 'var(--kit-info-fg)' },
   { icon: 'book-1', name: 'Truyện', note: 'chưa có', color: 'var(--color-accent)' },
   { icon: 'edit-2', name: 'Quy tắc viết', note: source ? `chép ${source.ruleCount} quy tắc` : 'trống', color: 'var(--color-ok)' },
-  { icon: 'brush-2', name: 'Văn phong', note: projectStyleName(source?.style), color: 'var(--color-accent)' },
+  { icon: 'brush-2', name: 'Văn phong', note: projectStyleName(source?.style, presets), color: 'var(--color-accent)' },
   { icon: 'cpu', name: 'Trợ lý AI', note: shared ? 'theo “Mọi truyện”' : 'bản riêng', color: 'var(--color-fg-3)' },
 ]
 
 export function NewProjectDialog({ onClose }: { onClose: () => void }) {
   const connection = useConnection()
+  const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal), { staleTime: 60000 })
   const { library } = useLibrary()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -98,20 +100,20 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span className="lbl" id="np-rules">Quy tắc &amp; văn phong ban đầu</span>
-            <div role="radiogroup" aria-labelledby="np-rules" style={{ display: 'flex', padding: 3, borderRadius: 10, background: 'var(--color-surface-1)', border: '1px solid var(--line-2)' }}>
+            <div role="radiogroup" aria-labelledby="np-rules" style={{ display: 'flex', padding: 3, borderRadius: 10, background: 'var(--color-surface-0)', border: '1px solid var(--line-2)' }}>
               {(['empty', 'copy'] as const).map((value) => <button key={value} type="button" role="radio" aria-checked={mode === value}
                 onClick={() => { setMode(value); setPickerOpen(value === 'copy' && !sourceId) }}
-                style={{ flex: '1 1 0', height: 30, border: 0, borderRadius: 7, background: mode === value ? 'var(--color-surface-5)' : 'transparent', color: mode === value ? 'var(--color-fg)' : 'var(--color-fg-3)', fontSize: 13, whiteSpace: 'nowrap', fontWeight: mode === value ? 500 : 400 }}>
+                style={{ flex: '1 1 0', height: 30, border: 0, borderRadius: 7, background: mode === value ? 'var(--members-seg-on)' : 'transparent', color: mode === value ? 'var(--color-fg)' : 'var(--color-fg-3)', fontSize: 13, whiteSpace: 'nowrap', fontWeight: mode === value ? 500 : 400 }}>
                 {value === 'empty' ? 'Bắt đầu trống' : 'Chép từ dự án khác'}
               </button>)}
             </div>
             {mode === 'copy' && <div style={{ position: 'relative' }}>
               <button type="button" className="field" aria-haspopup="listbox" aria-expanded={pickerOpen} aria-label="Chọn dự án để chép" onClick={() => setPickerOpen(!pickerOpen)}
                 style={{ width: '100%', height: 'auto', minHeight: 44, display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', textAlign: 'left' }}>
-                <Icon name="folder-open" size={16} style={{ color: 'var(--color-info)' }} />
+                <Icon name="folder-open" size={16} style={{ color: 'var(--kit-info-fg)' }} />
                 <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}>
                   <span style={{ fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selected?.name ?? 'Chọn dự án…'}</span>
-                  {selected && <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{selected.ruleCount} quy tắc · {projectStyleName(selected.style)}</span>}
+                  {selected && <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{selected.ruleCount} quy tắc · {projectStyleName(selected.style, presets.data)}</span>}
                 </span>
                 <Icon name="arrow-down-2" size={14} style={{ color: 'var(--color-fg-4)' }} />
               </button>
@@ -119,7 +121,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
                 {projects.map((project) => <button key={project.id} type="button" role="option" aria-selected={sourceId === project.id} disabled={!canCopyProjectRules(project)}
                   onClick={() => { setSourceId(project.id); setPickerOpen(false) }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: 0, borderRadius: 8, background: sourceId === project.id ? 'var(--line-2)' : 'transparent', color: 'var(--color-fg)', textAlign: 'left', font: 'inherit', opacity: canCopyProjectRules(project) ? 1 : 0.5, cursor: canCopyProjectRules(project) ? 'pointer' : 'not-allowed' }}>
                   <Icon name="folder-open" size={15} style={{ color: 'var(--color-fg-4)' }} />
-                  <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}><span style={{ fontSize: 13 }}>{project.name}</span><span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{canCopyProjectRules(project) ? `${project.ruleCount} quy tắc · ${projectStyleName(project.style)}` : 'Chưa có quy tắc riêng — không có gì để chép'}</span></span>
+                  <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}><span style={{ fontSize: 13 }}>{project.name}</span><span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{canCopyProjectRules(project) ? `${project.ruleCount} quy tắc · ${projectStyleName(project.style, presets.data)}` : 'Chưa có quy tắc riêng — không có gì để chép'}</span></span>
                 </button>)}
               </div>}
             </div>}
@@ -133,7 +135,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <span className="lbl">Dự án mới có sẵn</span>
-          {newProjectContents(shared, selected).map((item) => (
+          {newProjectContents(shared, selected, presets.data).map((item) => (
             <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
               <Icon name={item.icon} size={16} style={{ color: item.color }} />
               <span style={{ flex: '1 1 auto' }}>{item.name}</span>
