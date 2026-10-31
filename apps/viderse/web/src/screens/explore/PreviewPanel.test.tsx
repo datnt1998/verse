@@ -48,3 +48,13 @@ it('retains the two-line CTA minimum height after merging responsive touch style
   expect(minimumHeightAtoms.length).toBeGreaterThan(0)
   for (const atom of minimumHeightAtoms) expect(make().classList.contains(atom)).toBe(true)
 })
+
+it('shows the supplied score evidence and dismisses it on outside click', async () => {
+  const source: Video = { ...video('one'), score: 4, scoreReason: { agent: 'scout', text: 'Dựa trên tổng lượt xem.', facts: [{ label: 'Trung vị', value: '25', source: '150 video gần nhất' }] } }
+  await act(async () => { root.render(<PreviewPanel video={source} rival={undefined} channels={[{ id: 'mine', name: 'Kênh' }]} onClose={() => {}} />) })
+  const trigger = [...el.querySelectorAll('button')].find(b => b.textContent?.includes('Vì sao'))!
+  await act(async () => trigger.click())
+  expect(el.querySelector('[role="dialog"]')?.textContent).toContain('150 video gần nhất')
+  await act(async () => { document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true })) })
+  expect(el.querySelector('[role="dialog"]')).toBeNull()
+})

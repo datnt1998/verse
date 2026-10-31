@@ -8,6 +8,7 @@
 //   PATCH  /api/rivals/:id/scan {historyCap} → ScanStatus
 //   GET    /api/rivals/:id/posting-slots?zone=vn|ny → PostingSchedule
 // `:id = "all"` chỉ hợp lệ ở /videos — quét và lịch đăng là của từng kênh.
+import type { Reason } from '../components/reason/ReasonPopover'
 import { mutate, request, ApiError } from './request'
 
 export type RivalScan = { state: HistoryState; discoveryRunning: boolean }
@@ -47,6 +48,7 @@ export type Video = {
   /** publishedAt là giờ đăng chính xác (đã đọc) hay ước lượng */
   exactTime: boolean
   score: number | null
+  scoreReason?: Reason
   /** phụ đề do kênh đăng; null = chưa đọc */
   hasCaptions: boolean | null
   thumbnailUrl: string
