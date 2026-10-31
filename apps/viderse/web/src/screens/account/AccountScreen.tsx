@@ -51,9 +51,9 @@ export function AccountScreen() {
     <main {...stylex.props(layout.main)}><div {...stylex.props(layout.column)}>
     {!mobile && <div><h1 {...stylex.props(sx.title)}>{t.account.title}</h1><p {...stylex.props(sx.body)}>{t.account.subtitle}</p></div>}
     <section className={`card ${stylex.props(sx.card, sx.user).className}`} aria-label={t.account.title}>
-      <Avatar name={name} size={mobile ? 48 : 52} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Avatar name={name} size={mobile ? 48 : 52} style={{ fontSize: mobile ? 18 : 19, border: '1px solid var(--kit-wash-10)' }} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><b title={name} style={{ fontSize: 16, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</b><span {...stylex.props(accountStyles.tag, user.role !== 'admin' && accountStyles.neutralTag)}>{t.role[user.role]}</span></span>
-        <span style={{ fontSize: 12.5, color: 'var(--kit-fg-meta)' }}><span className="mono">@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
+        <span style={{ fontSize: mobile ? 12.5 : 13, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
       </span>
     </section>
     {mobile && <span {...stylex.props(layout.mobileNote)}>{t.account.subtitleMobile}</span>}
@@ -66,7 +66,7 @@ export function AccountScreen() {
       <div style={{ margin: '0 -10px' }}><AppLinks apps={apps} /></div>
     </section>)}
     {user.role === 'admin' && memberHref && (mobile ?
-      <a href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(layout.mobileCard, layout.row)}><Icon name="crown" size={19} style={{ color: 'var(--color-warn)' }} /><span {...stylex.props(layout.rowText)}>{t.account.manageMembers}<span {...stylex.props(layout.secondary)}>{t.account.membersHintMobile}</span></span><ExternalIcon /></a>
+      <a href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(layout.row, layout.mobileCard)}><Icon name="crown" size={19} style={{ color: 'var(--color-warn)' }} /><span {...stylex.props(layout.rowText)}>{t.account.manageMembers}<span {...stylex.props(layout.secondary)}>{t.account.membersHintMobile}</span></span><ExternalIcon /></a>
       : <section className={`card ${card.className}`} aria-label={t.account.members} style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}>
         <Icon name="crown" size={20} style={{ color: 'var(--color-warn)' }} />
         <span style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column', gap: 2 }}><h2 {...stylex.props(sx.heading)}>{t.account.members}</h2><span {...stylex.props(accountStyles.help)}>{t.account.membersBody}</span></span>
@@ -75,8 +75,8 @@ export function AccountScreen() {
     {mobile ? <>
       <span {...stylex.props(layout.mobileLabel)}>{t.account.security}</span>
       <section {...stylex.props(layout.mobileCard)}>
-        <button type="button" onClick={() => setSheet('password')} {...stylex.props(layout.row, layout.rowDivider)}><Icon name="key" size={19} {...stylex.props(layout.mutedIcon)} /><span {...stylex.props(layout.rowText)}>{t.account.passwordTitle}</span><Icon name="arrow-r" size={15} {...stylex.props(layout.mutedIcon)} /></button>
-        <button type="button" onClick={() => setSheet('devices')} {...stylex.props(layout.row)}><Icon name="monitor" size={19} {...stylex.props(layout.mutedIcon)} /><span {...stylex.props(layout.rowText)}>{t.account.devices}</span>{sessionCount !== null && <span {...stylex.props(layout.count)}>{sessionCount}</span>}<Icon name="arrow-r" size={15} {...stylex.props(layout.mutedIcon)} /></button>
+        <button type="button" onClick={() => setSheet('password')} {...stylex.props(layout.row, layout.rowDivider)}><Icon name="key" size={19} {...stylex.props(layout.mutedIcon)} /><span {...stylex.props(layout.rowText)}>{t.account.passwordTitle}</span><Icon name="arrow-r" size={15} style={{ color: 'var(--kit-fg-sub)' }} /></button>
+        <button type="button" onClick={() => setSheet('devices')} {...stylex.props(layout.row)}><Icon name="monitor" size={19} {...stylex.props(layout.mutedIcon)} /><span {...stylex.props(layout.rowText)}>{t.account.devices}</span>{sessionCount !== null && <span {...stylex.props(layout.count)}>{sessionCount}</span>}<Icon name="arrow-r" size={15} style={{ color: 'var(--kit-fg-sub)' }} /></button>
       </section>
       <Sheet open={sheet !== null} onClose={() => setSheet(null)} label={sheet === 'password' ? t.account.passwordTitle : t.account.devices} title={sheet === 'devices' ? t.account.devices : undefined} size="md" height="auto" homeIndicator style={{ paddingBottom: 0, background: 'var(--color-surface-3)', fontSize: 14, lineHeight: 1.5 }}>
         {sheet === 'password' && <div {...stylex.props(layout.sheetHeader)}><span {...stylex.props(layout.sheetTitle)}>{t.account.passwordTitle}</span><span {...stylex.props(layout.sheetSubtitle)}>{t.auth.passwordForm.reauthNote}</span></div>}

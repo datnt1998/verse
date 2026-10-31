@@ -37,8 +37,8 @@ export function Devices() {
     <div role="list">{sessions?.map((session) => <div key={session.id} role="listitem" style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 48, borderTop: '1px solid var(--vv-hairline)' }}>
       <Icon name={/mobile|android|iphone|ipad/i.test(session.device) ? 'mobile' : 'monitor'} size={18} style={{ color: 'var(--color-fg-3)' }} />
       <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}>
-        <span title={session.device} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.device} {session.current && <span {...stylex.props(accountStyles.tag)}>{t.account.currentDevice}</span>}</span>
-        <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{t.account.lastSeen(new Date(session.lastSeen).toLocaleString('vi-VN'))}</span>
+        <span title={session.device} style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.device}{session.current && <span {...stylex.props(accountStyles.tag, accountStyles.neutralTag)}>{t.account.currentDevice}</span>}</span>
+        <span style={{ fontSize: 12, color: 'var(--kit-fg-sub)' }}>{t.account.lastSeen(new Date(session.lastSeen).toLocaleString('vi-VN'))}</span>
       </span>
       {!session.current && <Button size="sm" variant="quiet" disabled={busy} onClick={() => void revoke([session.id])}>{t.account.logout}</Button>}
     </div>)}</div>

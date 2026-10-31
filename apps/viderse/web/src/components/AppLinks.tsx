@@ -16,11 +16,11 @@ const sx = stylex.create({
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.3 },
   name: { fontSize: 13.5, fontWeight: 500 },
   host: { fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 8, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: kit['--kit-acc-25'], backgroundColor: kit['--kit-acc-14'], color: 'var(--vv-tabbar-on)', fontSize: 11.5 },
-  neutralTag: { backgroundColor: line['--line-3'], borderColor: line['--line-3'], color: color['--color-fg-3'] },
+  tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 8, gap: 6, borderRadius: 6, borderWidth: 0, backgroundColor: kit['--kit-acc-12'], color: 'var(--vv-tabbar-on)', fontSize: 11.5 },
+  neutralTag: { backgroundColor: kit['--kit-wash-6'], color: color['--color-fg-3'] },
   help: { fontSize: 12.5, lineHeight: 1.55, color: color['--color-fg-3'] },
   fieldHelp: { fontSize: 11.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
-  button: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 36, gap: 7, padding: '0 14px', borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], textDecoration: 'none', fontSize: 13, lineHeight: 1.55, fontWeight: 500 },
+  button: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 36, gap: 7, padding: '0 14px', borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: kit['--kit-wash-12'], backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], textDecoration: 'none', fontSize: 13, lineHeight: 1.55, fontWeight: 500 },
   primary: { backgroundColor: { default: color['--color-fg'], ':hover': color['--color-fg-2'] }, borderColor: 'transparent', color: color['--color-bg'] },
 })
 export { sx as accountStyles }
@@ -36,7 +36,8 @@ export function AppLinks({ apps, menu = false }: { apps: readonly AppLink[]; men
   </a>)
 }
 export function ExternalIcon() {
-  return <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: 'var(--kit-fg-sub)' }}><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" /></svg>
+  const mobile = useMediaQuery('(max-width: 767px)')
+  return <svg aria-hidden="true" width={mobile ? 16 : 14} height={mobile ? 16 : 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: 'var(--kit-fg-sub)' }}><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" /></svg>
 }
 export function MembersLink({ href, settings = false }: { href: string; settings?: boolean }) {
   return <a href={href} target="_blank" rel="noopener noreferrer" {...(settings ? { className: 'vv-set__nav-link' } : stylex.props(sx.row))}>

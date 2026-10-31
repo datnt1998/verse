@@ -14,6 +14,12 @@ import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
 import type { Status } from '../api/status'
 import { AccountMenu } from './AccountMenu'
+import * as stylex from '@stylexjs/stylex'
+const sx = stylex.create({
+  header: { paddingInline: 16 },
+  logo: { marginInline: 1 },
+  settings: { width: 32, height: 32, borderRadius: 8 },
+})
 
 export function AppHeader({ route, status, online, userName, channels, channelHref }: {
   route: Route
@@ -40,12 +46,14 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
   }
 
   return (
-    <header role="banner" className="vv-header">
+    <header role="banner" className={`vv-header ${stylex.props(sx.header).className}`}>
       <div className="vv-header__zone">
-        <a href={`#${paths.workbench()}`} aria-label={t.brand.name} onClick={home} style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
+        <a href={`#${paths.workbench()}`} aria-label={t.brand.name} onClick={home} {...stylex.props(sx.logo)} style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
           <LensLogo size={26} spinning={online && running > 0} />
         </a>
-        {inSettings
+        {route.name === 'account'
+          ? <span className="vv-header__crumb">{t.account.title}</span>
+          : inSettings
           ? <span className="vv-header__crumb">{t.shell.settingsCrumb}</span>
           : route.name === 'explore'
             ? <ExploreCrumb scope={route.rival} />
@@ -59,10 +67,10 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
           aria-label={attention.length ? t.shell.settingsAttention(attention.length) : t.shell.settings}
           title={t.shell.settings}
           onClick={settings}
-          className="vv-gear"
+          className={`vv-gear ${stylex.props(sx.settings).className}`}
           aria-current={inSettings ? 'page' : undefined}
         >
-          <Icon name="setting" size={17} />
+          <Icon name="setting" size={18} />
           {attention.length > 0 && <span role="img" aria-label={`${attention.length}`} className="vv-gear__dot" />}
         </a>
         <AccountMenu fallbackName={userName} />

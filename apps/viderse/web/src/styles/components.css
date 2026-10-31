@@ -8,7 +8,7 @@
   /* Không cho co: cột con bên dưới thiếu chỗ thì tự cuộn, header không bị ép
      ngắn làm lệch toàn trang (artboard top 55px ở mọi trạng thái). */
   flex-shrink: 0;
-  min-height: var(--vv-h-header); padding: var(--vv-s-8) var(--vv-s-18);
+  min-height: var(--vv-h-header); padding-block: var(--vv-s-8);
   background: var(--color-bg); border-bottom: var(--vv-s-1) solid var(--line-1);
 }
 /* Hai vùng trái/phải cùng basis để nhóm nav luôn đúng giữa khung. */
@@ -27,8 +27,8 @@
 }
 .vv-nav::-webkit-scrollbar { display: none }
 .vv-nav__item {
-  position: relative; display: inline-flex; align-items: center; gap: var(--vv-s-7);
-  height: 30px; padding: 0 var(--vv-s-12); border-radius: var(--vv-r-7); font-size: 13px;
+  position: relative; display: inline-flex; align-items: center;
+  height: 30px; border-radius: var(--vv-r-7); font-size: 13px;
   color: var(--color-fg-3); text-decoration: none;
 }
 .vv-nav__item:hover { color: var(--color-fg) }
@@ -39,7 +39,7 @@
   font-size: 11px; font-weight: 600; background: var(--color-warn); color: var(--vv-badge-ink);
 }
 .vv-gear {
-  position: relative; width: 30px; height: 30px; border-radius: var(--radius-control); flex: 0 0 auto;
+  position: relative; flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center;
   color: var(--color-fg-3); border: 1px solid transparent;
 }
@@ -220,8 +220,8 @@
 .vv-avatar {
   width: var(--vv-hit); height: var(--vv-hit); border-radius: 50%; flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; color: var(--color-fg-2);
-  background: var(--color-surface-2); border: 1px solid var(--line-1); text-decoration: none;
+  font-size: 12px; font-weight: 600;
+  border: 1px solid var(--line-1); text-decoration: none;
 }
 
 /* Dòng lỗi cam — một câu + một cách sửa (bước cài lỗi, mục Công cụ, Lưu trữ) */
