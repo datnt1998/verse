@@ -56,13 +56,13 @@ export function AccountScreen() {
         <span style={{ fontSize: 12.5, color: 'var(--kit-fg-meta)' }}><span className="mono">@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
       </span>
     </section>
-    {mobile && <span {...stylex.props(layout.mobileNote)}>{t.account.subtitle}</span>}
+    {mobile && <span {...stylex.props(layout.mobileNote)}>{t.account.subtitleMobile}</span>}
     {apps.length > 0 && (mobile ? <>
       <span {...stylex.props(layout.mobileLabel)}>{t.account.apps}</span>
       <div {...stylex.props(layout.mobileCard)}><AppLinks apps={apps} /></div>
     </> : <section className={`card ${card.className}`} aria-label={t.account.yourApps}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}><h2 {...stylex.props(sx.heading)}>{t.account.yourApps}</h2>
-      <span {...stylex.props(accountStyles.fieldHelp)}>{user.role === 'admin' ? t.account.adminApps : t.account.memberApps}</span></div>
+      <span {...stylex.props(accountStyles.fieldHelp)}>{user.role === 'admin' ? t.account.adminApps : apps.some((app) => app.id !== 'viderse') ? t.account.memberApps : t.account.noOtherApp}</span></div>
       <div style={{ margin: '0 -10px' }}><AppLinks apps={apps} /></div>
     </section>)}
     {user.role === 'admin' && memberHref && (mobile ?
@@ -91,7 +91,7 @@ export function AccountScreen() {
     {error && <FieldError>{error}</FieldError>}
     <section className={mobile ? undefined : `card ${card.className}`} aria-label={t.account.logout} style={mobile ? { display: 'flex', flexDirection: 'column', gap: 8 } : { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}>
       {!mobile && <span style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 2 }}><h2 {...stylex.props(sx.heading)}>{t.account.logout}</h2><span {...stylex.props(accountStyles.help)}>{t.account.sharedLogoutNote}</span></span>}
-      <Button variant="dsoft" pending={busy} disabled={busy} onClick={() => void logout()} icon={<Icon name="logout" size={16} />} {...(mobile ? stylex.props(layout.logout) : {})} style={mobile ? undefined : { minHeight: 32, alignSelf: 'flex-start' }}>{t.account.logout}</Button>
+      <Button variant="dsoft" pending={busy} disabled={busy} onClick={() => void logout()} icon={<Icon name="logout" size={mobile ? 17 : 15} />} {...(mobile ? stylex.props(layout.logout) : {})} style={mobile ? undefined : { minHeight: 32, borderColor: 'var(--vv-warn-bd)' }}>{t.account.logout}</Button>
       {mobile && <span {...stylex.props(layout.logoutNote)}>{t.account.sharedLogoutNote}</span>}
     </section>
     </div></main></div>

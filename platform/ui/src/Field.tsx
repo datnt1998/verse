@@ -80,8 +80,8 @@ export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   },
 )
 
-export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; toggleStyle?: CSSProperties; frameStyle?: CSSProperties }>(
-  function PasswordField({ invalid, style, className, toggleStyle, frameStyle, ...rest }, ref) {
+export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; toggleStyle?: CSSProperties; frameStyle?: CSSProperties; toggleIcon?: ReactNode }>(
+  function PasswordField({ invalid, style, className, toggleStyle, frameStyle, toggleIcon, ...rest }, ref) {
     const [show, setShow] = useState(false)
     const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, sx.padded)
     return (
@@ -91,7 +91,7 @@ export const PasswordField = forwardRef<HTMLInputElement, InputHTMLAttributes<HT
         <button type="button" onClick={() => setShow((v) => !v)}
           aria-label={show ? getKitLabels().inputs.hidePassword : getKitLabels().inputs.showPassword}
           className={stylex.props(sx.eye).className} style={toggleStyle}>
-          <Icon name={show ? 'eye' : 'eye-slash'} size={17} />
+          {toggleIcon ?? <Icon name={show ? 'eye' : 'eye-slash'} size={17} />}
         </button>
       </div>
     )

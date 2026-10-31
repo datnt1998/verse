@@ -551,6 +551,7 @@ export const vi = {
     logoutFailed: 'Không đăng xuất được. Vui lòng thử lại.',
     sharedLogoutNote: 'Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.',
     subtitle: 'Một tài khoản dùng cho Noverse và Viderse. Đổi mật khẩu hay đăng xuất ở đây là cho cả hai ứng dụng.',
+    subtitleMobile: 'Một tài khoản dùng cho Noverse và Viderse. Đổi mật khẩu hay đăng xuất ở đây là cho cả hai.',
     apps: 'Ứng dụng',
     yourApps: 'Ứng dụng của bạn',
     currentApp: 'Đang mở',
