@@ -8,8 +8,8 @@ import { t } from '../i18n/vi'
 import { Icon, type IconName } from '@noverse/ui'
 import * as stylex from '@stylexjs/stylex'
 const sx = stylex.create({
-  item: { paddingLeft: 10, paddingRight: 12, gap: 8 },
-  review: { paddingRight: 10 },
+  item: { paddingLeft: 'var(--vv-s-10)', paddingRight: 'var(--vv-s-12)', gap: 'var(--vv-s-8)' },
+  review: { paddingRight: 'var(--vv-s-10)' },
 })
 
 const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; path: string; badge?: 'review' }[] = [

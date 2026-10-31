@@ -44,7 +44,7 @@ export function AccessDeniedScreen() {
       {noverse && <a href={noverse.origin} target="_blank" rel="noopener noreferrer" {...stylex.props(accountStyles.button, accountStyles.primary, sx.submit, sx.otherApp)}>
         <BrandMark size={mobile ? 20 : 18} style={{ width: mobile ? 20 : 18 }} />{t.auth.openNoverse}{!mobile && <span style={{ opacity: .6, fontWeight: 400 }}>{new URL(noverse.origin).host}</span>}
       </a>}
-      <Button variant={noverse ? 'ghost' : 'primary'} onClick={() => void retry()} disabled={busy !== null} pending={busy === 'retry'} {...stylex.props(sx.submit, noverse && sx.retry)}>
+      <Button variant={noverse ? 'ghost' : 'primary'} onClick={() => void retry()} disabled={busy !== null} pending={busy === 'retry'} {...stylex.props(sx.submit, sx.deniedRetry, noverse && sx.retry)}>
         <Icon name="refresh" size={mobile ? 17 : 16} />{t.common.retry}
       </Button>
       <Button variant="quiet" onClick={() => void copy()} {...stylex.props(sx.copy)}><Icon name="copy" size={mobile ? 16 : 15} />{copied ? t.auth.copied : t.auth.copyRequest}</Button>

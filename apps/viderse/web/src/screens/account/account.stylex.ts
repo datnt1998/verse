@@ -4,7 +4,7 @@ const MOBILE = '@media (max-width: 767px)'
 export const accountStyles = stylex.create({
   page: { height: '100%', flexGrow: 1, minHeight: 0, width: '100%', display: 'flex', flexDirection: 'column', lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
   header: { flexShrink: 0, height: 52, display: 'flex', alignItems: 'center', gap: 2, paddingInline: 6, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-2'] },
-  back: { width: 44, height: 44, padding: 0, borderRadius: 10 },
+  back: { width: 44, height: 44, padding: 0, gap: 0, borderRadius: 12, fontSize: 14, fontWeight: 400, lineHeight: 1.5, color: color['--color-fg-2'] },
   mobileTitle: { fontSize: 16, fontWeight: 600, margin: 0, flexGrow: 1 },
   main: { flexGrow: 1, minHeight: 0, overflowY: 'auto', padding: { default: '28px 32px 48px', [MOBILE]: '4px 16px 20px' } },
   column: { width: '100%', maxWidth: 680, marginInline: 'auto', display: 'flex', flexDirection: 'column', gap: { default: 16, [MOBILE]: 14 } },

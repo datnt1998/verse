@@ -18,7 +18,7 @@ import * as stylex from '@stylexjs/stylex'
 const sx = stylex.create({
   header: { paddingInline: 16 },
   logo: { marginInline: 1 },
-  settings: { width: 32, height: 32, borderRadius: 8 },
+  settings: { width: 32, height: 32, borderRadius: 'var(--vv-r-8)' },
 })
 
 export function AppHeader({ route, status, online, userName, channels, channelHref }: {

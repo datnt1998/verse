@@ -31,8 +31,8 @@ export function ServerDownScreen() {
       <p {...stylex.props(sx.body)}>{accounts ? (mobile ? t.auth.accountsDownBodyMobile : t.auth.accountsDownBody) : (mobile ? t.auth.serverDownBodyMobile : t.auth.serverDownBody)}</p>
     </div>
     <div {...stylex.props(sx.col)}>
-      <Button variant="primary" onClick={() => void retry()} pending={busy} disabled={busy} {...stylex.props(sx.submit)}><Icon name="refresh" size={16} />{t.common.retry}</Button>
-      <span className="num" style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--color-fg-4)' }}>{t.auth.retryIn(remaining)}</span>
+      <Button variant="primary" onClick={() => void retry()} pending={busy} disabled={busy} {...stylex.props(sx.submit)}><Icon name="refresh" size={mobile ? 17 : 16} />{t.common.retry}</Button>
+      <span className="num" style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--kit-fg-sub)' }}>{t.auth.retryIn(remaining)}</span>
     </div>
     {error && <FieldError>{error}</FieldError>}
     <HintLine icon="info">{accounts ? t.auth.accountsDownHint : t.auth.serverDownHint}</HintLine>

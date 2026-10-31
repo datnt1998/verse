@@ -30,4 +30,5 @@ export const authStyles = stylex.create({
   copy: { height: { default: 38, [MOBILE]: 44 }, borderRadius: { default: 10, [MOBILE]: 12 }, paddingInline: { default: 14, [MOBILE]: 16 }, fontSize: { default: 13, [MOBILE]: 14 }, justifyContent: 'center' },
   retry: { fontSize: 14, fontWeight: 500, gap: 7, borderRadius: { default: 10, [MOBILE]: 12 } },
   otherApp: { gap: 10, lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
+  deniedRetry: { fontSize: 14, gap: 7, borderRadius: { default: 10, [MOBILE]: 12 } },
 })

@@ -7,6 +7,7 @@ import { AppHeader } from '../../shell/AppHeader'
 import { LoginScreen } from './LoginScreen'
 import { AccessDeniedScreen } from './AccessDeniedScreen'
 import { AccountScreen } from '../account/AccountScreen'
+import { t } from '../../i18n/vi'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -63,4 +64,17 @@ it.each(['member', 'admin'])('members management is restricted to %s role', asyn
   const link = el.querySelector<HTMLAnchorElement>('a[href="https://nov.example.test/#/settings/members"]')
   expect(Boolean(link)).toBe(role === 'admin')
   if (link) expect(link.target).toBe('_blank')
+})
+it.each([false, true])('grant-aware account explanation: other=%s', async (other) => {
+  api({ user: member, apps: other ? links : links.slice(0, 1) })
+  const el = await mount(<AccountScreen />)
+  const section = el.querySelector('section[aria-label="Ứng dụng của bạn"]')
+  expect(section?.textContent).toContain(other ? t.account.memberApps : t.account.noOtherApp)
+  expect(section?.textContent).not.toContain(other ? t.account.noOtherApp : t.account.memberApps)
+})
+it.each([false, true])('mobile app switcher requires another granted app: other=%s', async (other) => {
+  api({ user: member, apps: other ? links : links.slice(0, 1) })
+  vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener() {}, removeEventListener() {} }))
+  const el = await mount(<AccountScreen />)
+  expect(Boolean(el.querySelector('a[aria-current="true"]'))).toBe(other)
 })

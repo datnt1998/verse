@@ -10,18 +10,18 @@ import { navigate, paths } from '../router'
 import { useMediaQuery } from '../lib/useMediaQuery'
 const sx = stylex.create({
   anchor: { position: 'relative' },
-  menu: { position: 'absolute', zIndex: 40, top: 38, right: 0, width: 336, padding: 6, borderRadius: 16, backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column' },
-  user: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 10px 12px' },
+  menu: { position: 'absolute', zIndex: 40, top: 38, right: 0, width: 336, padding: 'var(--vv-s-6)', borderRadius: 'var(--vv-r-16)', backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column' },
+  user: { display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', padding: 'var(--vv-s-10) var(--vv-s-10) var(--vv-s-12)' },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 },
   name: { fontSize: 14.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   sub: { fontSize: 11.5, color: color['--color-fg-3'] },
-  heading: { padding: '6px 10px 4px', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: kit['--kit-fg-sub'] },
-  divider: { height: 1, margin: 6, backgroundColor: line['--line-2'] },
-  row: { minHeight: 40, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 10, borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], fontSize: 13.5, textAlign: 'left', cursor: 'pointer' },
+  heading: { padding: 'var(--vv-s-6) var(--vv-s-10) var(--vv-s-4)', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: kit['--kit-fg-sub'] },
+  divider: { height: 1, margin: 'var(--vv-s-6)', backgroundColor: line['--line-2'] },
+  row: { minHeight: 40, padding: 'var(--vv-s-6) var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', borderRadius: 'var(--vv-r-10)', borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], fontSize: 13.5, textAlign: 'left', cursor: 'pointer' },
   tall: { minHeight: 48 },
   actionText: { lineHeight: 1.3 },
   logout: { color: 'var(--vv-warn-ink)' },
-  trigger: { color: color['--color-fg'], backgroundColor: color['--color-surface-6'], padding: '1px 6px', borderColor: line['--line-3'] },
+  trigger: { color: color['--color-fg'], backgroundColor: color['--color-surface-6'], padding: 'var(--vv-s-1) var(--vv-s-6)', borderColor: line['--line-3'] },
   triggerOpen: { borderColor: 'var(--vv-check-ring)', boxShadow: '0 0 0 3px var(--line-3)' },
   muted: { color: color['--color-fg-3'] },
 })
@@ -61,7 +61,7 @@ export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
       const index = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (current + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length
       items[index]?.focus()
     }}>
-      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} /><span {...stylex.props(sx.text)}><span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(accountStyles.tag, user.role !== 'admin' && accountStyles.neutralTag)}>{t.role[user.role]}</span></span><span className="mono" style={{ fontSize: 12, color: 'var(--vv-fg-note)' }}>@{user.username}</span></span></div>
+      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} style={{ fontSize: 15, border: '1px solid var(--kit-wash-10)' }} /><span {...stylex.props(sx.text)}><span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)' }}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(accountStyles.tag)}>{t.role[user.role]}</span></span><span className="mono" style={{ fontSize: 12, color: 'var(--vv-fg-note)' }}>@{user.username}</span></span></div>
       {apps.some((app) => app.id !== 'viderse') && <><div {...stylex.props(sx.divider)} /><span {...stylex.props(sx.heading)}>{t.account.apps}</span><AppLinks apps={apps} menu /></>}
       <div {...stylex.props(sx.divider)} />
       <button type="button" role="menuitem" {...stylex.props(sx.row)} onClick={() => { close(); navigate(paths.account()) }}><Icon name="user" size={17} {...stylex.props(sx.muted)} /><span style={{ flex: 1 }}>{t.account.title}</span><span {...stylex.props(sx.sub)}>{t.account.menuAccountHint}</span></button>

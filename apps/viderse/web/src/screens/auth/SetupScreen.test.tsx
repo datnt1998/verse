@@ -26,6 +26,8 @@ it('keeps the recovery code visible until the administrator confirms saving it',
   await act(async () => root!.render(<App />))
   await act(() => fill(el.querySelector('#setup-code')!, 'TEST-SETUP'))
   await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  const verifiedStep = [...el.querySelectorAll('ol li')].find((step) => step.textContent?.includes('Mã thiết lập'))
+  expect(verifiedStep?.textContent).toContain('✓')
   await act(() => {
     fill(el.querySelector('#setup-user')!, 'dat')
     fill(el.querySelector('#setup-name')!, 'Đạt')

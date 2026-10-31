@@ -26,12 +26,12 @@ export function AuthShell({ children, footer, centered = false, fill = false }: 
           {t.brand.name}
         </span>
         <div role="status" title={chip} style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', height: mobile ? 28 : 30, padding: mobile ? '0 10px' : '0 var(--vv-s-12)', borderRadius: 'var(--vv-r-pill)',
+          display: 'flex', alignItems: 'center', gap: mobile ? 7 : 'var(--vv-s-8)', height: mobile ? 28 : 30, padding: mobile ? '0 10px' : '0 var(--vv-s-12)', borderRadius: 'var(--vv-r-pill)',
           background: 'var(--color-surface-1)', border: '1px solid var(--line-2)', fontSize: 12, color: 'var(--color-fg-3)',
           whiteSpace: 'nowrap',
         }}>
           <span aria-hidden="true" style={{
-            width: mobile ? 6 : 7, height: mobile ? 6 : 7, borderRadius: '50%', flex: '0 0 auto',
+            width: 7, height: 7, borderRadius: '50%', flex: '0 0 auto',
             background: serverReachable ? 'var(--color-ok)' : 'var(--color-err)',
             boxShadow: `0 0 0 3px ${serverReachable ? 'var(--tint-ok)' : 'var(--tint-err)'}`,
           }} />
@@ -53,7 +53,7 @@ export function HintLine({ icon, children, style }: { icon: string; children: Re
   const mobile = useMediaQuery('(max-width: 767px)')
   return (
     <span {...stylex.props(sx.hint)} style={style}>
-      <Icon name={icon} size={mobile ? 15 : 14} style={{ marginTop: 2, flex: '0 0 auto', color: 'var(--kit-fg-sub)' }} />
+      <Icon name={icon} size={mobile ? 15 : 14} style={{ marginTop: 'var(--vv-s-2)', flex: '0 0 auto', color: 'var(--kit-fg-sub)' }} />
       <span>{children}</span>
     </span>
   )
@@ -81,7 +81,7 @@ export function AuthError({ children, id }: { children: ReactNode; id?: string }
 export function AuthPassword(props: ComponentProps<typeof PasswordField>) {
   const mobile = useMediaQuery('(max-width: 767px)')
   return <PasswordField {...props} {...stylex.props(sx.input, sx.password)}
-    frameStyle={{ height: mobile ? 48 : 40, paddingLeft: mobile ? 14 : 12, borderRadius: 'var(--vv-r-10)' }}
+    frameStyle={{ height: mobile ? 48 : 40, paddingLeft: mobile ? 14 : 12, borderRadius: 'var(--vv-r-10)', fontSize: 14 }}
     toggleIcon={<Icon name="eye" size={mobile ? 17 : 15} />}
     toggleStyle={{ position: 'static', flexShrink: 0, width: mobile ? 40 : 30, height: mobile ? 40 : 30, borderRadius: mobile ? 12 : 8, fontSize: mobile ? 14 : 12, fontWeight: mobile ? 400 : 500, lineHeight: mobile ? '21px' : '18.6px', gap: mobile ? undefined : 7, border: mobile ? 'none' : '1px solid transparent', padding: mobile ? '1px 6px' : 0, color: mobile ? 'var(--color-fg-2)' : 'var(--color-fg-3)' }} />
 }

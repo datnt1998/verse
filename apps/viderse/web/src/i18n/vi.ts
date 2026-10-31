@@ -156,6 +156,7 @@ export const vi = {
       changing: 'Đang đổi…',
       changed: 'Đã đổi mật khẩu. Vui lòng đăng nhập lại.',
       reauthNote: 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả trình duyệt này.',
+      reauthNoteMobile: 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả điện thoại này.',
     },
   },
 
