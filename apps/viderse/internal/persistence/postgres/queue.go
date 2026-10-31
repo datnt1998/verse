@@ -398,6 +398,7 @@ func (s *QueueStore) ListSourcesWithChannels(ctx context.Context, channelID stri
 			LinkedAt:       row.LinkedAt.Time,
 			AutoBaselineAt: tsPtr(row.AutoBaselineAt),
 			RivalScannedAt: tsPtr(row.ScannedAt),
+			MinDurationSec: int4Ptr(row.MinDurationSec),
 		}
 	}
 	return out, nil
@@ -420,12 +421,14 @@ func (s *QueueStore) LastAutoQueuedChannel(ctx context.Context, channelID string
 	return id, err
 }
 
-// ListEligibleVideos trả id video ứng viên Tự lấy của một đối thủ.
-func (s *QueueStore) ListEligibleVideos(ctx context.Context, rivalID string, baseline time.Time, ownerID string) ([]string, error) {
+// ListEligibleVideos trả id video ứng viên Tự lấy của một đối thủ;
+// minDurationSec > 0 chỉ giữ video dài từ ngần đó giây.
+func (s *QueueStore) ListEligibleVideos(ctx context.Context, rivalID string, baseline time.Time, ownerID string, minDurationSec int) ([]string, error) {
 	return s.q.ListEligibleVideos(ctx, gen.ListEligibleVideosParams{
 		ChannelID:   rivalID,
 		FirstSeenAt: pgtype.Timestamptz{Time: baseline, Valid: true},
 		Column3:     ownerID,
+		Column4:     int32(max(0, minDurationSec)),
 	})
 }
 

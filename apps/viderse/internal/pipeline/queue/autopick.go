@@ -143,7 +143,11 @@ func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		ids, e := s.store.ListEligibleVideos(ctx, link.RivalID, *link.AutoBaselineAt, owner.ID)
+		minDuration := 0
+		if link.MinDurationSec != nil {
+			minDuration = *link.MinDurationSec
+		}
+		ids, e := s.store.ListEligibleVideos(ctx, link.RivalID, *link.AutoBaselineAt, owner.ID, minDuration)
 		if e != nil {
 			lastError = e
 			continue

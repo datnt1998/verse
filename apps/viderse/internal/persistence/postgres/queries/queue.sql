@@ -139,7 +139,7 @@ SELECT * FROM rival_channels WHERE id = ANY($1::text[]);
 
 -- name: ListSourcesWithChannels :many
 -- Đối thủ của một kênh kèm bản ghi kênh đối thủ (quét Tự lấy).
-SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.auto_baseline_at,
+SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.auto_baseline_at, s.min_duration_sec,
        r.id, r.handle, r.title, r.scanned_at
 FROM owner_channel_sources s
 JOIN rival_channels r ON r.id = s.rival_id
@@ -161,11 +161,14 @@ LIMIT 1;
 -- name: ListEligibleVideos :many
 -- Video ứng viên Tự lấy của một đối thủ: thấy sau baseline, không phải
 -- video nền lịch sử/baseline, không có job sống, không còn trong hàng.
+-- $4 = số giây tối thiểu của bộ lọc theo đối thủ (0 = không lọc); video chưa
+-- đọc được thời lượng không qua bộ lọc đang bật.
 SELECT v.id FROM rival_videos v
 WHERE v.channel_id = $1
   AND v.origin = 'discovery'
   AND v.first_seen_at > $2
   AND (v.published_at IS NULL OR v.published_at > $2)
+  AND ($4::int <= 0 OR v.duration_sec >= $4::int)
   AND NOT EXISTS (
     SELECT 1 FROM clone_jobs j
     WHERE j.source_key = ('channel:' || $3::text || ':video:' || v.id)

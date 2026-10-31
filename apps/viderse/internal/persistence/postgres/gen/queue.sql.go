@@ -532,6 +532,7 @@ WHERE v.channel_id = $1
   AND v.origin = 'discovery'
   AND v.first_seen_at > $2
   AND (v.published_at IS NULL OR v.published_at > $2)
+  AND ($4::int <= 0 OR v.duration_sec >= $4::int)
   AND NOT EXISTS (
     SELECT 1 FROM clone_jobs j
     WHERE j.source_key = ('channel:' || $3::text || ':video:' || v.id)
@@ -548,12 +549,20 @@ type ListEligibleVideosParams struct {
 	ChannelID   string             `json:"channel_id"`
 	FirstSeenAt pgtype.Timestamptz `json:"first_seen_at"`
 	Column3     string             `json:"column_3"`
+	Column4     int32              `json:"column_4"`
 }
 
 // Video ứng viên Tự lấy của một đối thủ: thấy sau baseline, không phải
 // video nền lịch sử/baseline, không có job sống, không còn trong hàng.
+// $4 = số giây tối thiểu của bộ lọc theo đối thủ (0 = không lọc); video chưa
+// đọc được thời lượng không qua bộ lọc đang bật.
 func (q *Queries) ListEligibleVideos(ctx context.Context, arg ListEligibleVideosParams) ([]string, error) {
-	rows, err := q.db.Query(ctx, listEligibleVideos, arg.ChannelID, arg.FirstSeenAt, arg.Column3)
+	rows, err := q.db.Query(ctx, listEligibleVideos,
+		arg.ChannelID,
+		arg.FirstSeenAt,
+		arg.Column3,
+		arg.Column4,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -823,7 +832,7 @@ func (q *Queries) ListRecentStepDurations(ctx context.Context) ([]ListRecentStep
 }
 
 const listSourcesWithChannels = `-- name: ListSourcesWithChannels :many
-SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.auto_baseline_at,
+SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.auto_baseline_at, s.min_duration_sec,
        r.id, r.handle, r.title, r.scanned_at
 FROM owner_channel_sources s
 JOIN rival_channels r ON r.id = s.rival_id
@@ -836,6 +845,7 @@ type ListSourcesWithChannelsRow struct {
 	RivalID        string             `json:"rival_id"`
 	LinkedAt       pgtype.Timestamptz `json:"linked_at"`
 	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
+	MinDurationSec pgtype.Int4        `json:"min_duration_sec"`
 	ID             string             `json:"id"`
 	Handle         pgtype.Text        `json:"handle"`
 	Title          string             `json:"title"`
@@ -857,6 +867,7 @@ func (q *Queries) ListSourcesWithChannels(ctx context.Context, ownerChannelID pg
 			&i.RivalID,
 			&i.LinkedAt,
 			&i.AutoBaselineAt,
+			&i.MinDurationSec,
 			&i.ID,
 			&i.Handle,
 			&i.Title,

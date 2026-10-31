@@ -26,11 +26,13 @@ type fakeChannelService struct {
 	asset  string
 	name   string
 
-	createdIn  channels.CreateRequest
-	updatedIn  channels.UpdateRequest
-	templateIn channels.TemplateRequest
-	identityIn channels.IdentityInput
-	deletedID  string
+	createdIn        channels.CreateRequest
+	updatedIn        channels.UpdateRequest
+	templateIn       channels.TemplateRequest
+	identityIn       channels.IdentityInput
+	deletedID        string
+	minDurationRival string
+	minDuration      *int
 }
 
 func (f *fakeChannelService) List(context.Context) ([]channels.ChannelView, error) {
@@ -62,6 +64,11 @@ func (f *fakeChannelService) Link(context.Context, string, string) (channels.Cha
 
 func (f *fakeChannelService) Unlink(context.Context, string, string) (channels.ChannelView, bool, error) {
 	return f.view, f.paused, f.err
+}
+
+func (f *fakeChannelService) SetSourceMinDuration(_ context.Context, _, rivalID string, d *int) (channels.ChannelView, error) {
+	f.minDurationRival, f.minDuration = rivalID, d
+	return f.view, f.err
 }
 
 func (f *fakeChannelService) Templates(_ context.Context, _ string, req channels.TemplateRequest) ([]domain.ChannelTemplate, error) {
@@ -215,6 +222,24 @@ func TestChannelUnlinkReportsPause(t *testing.T) {
 	body := decode(t, w)
 	if body["autoPickPaused"] != true || len(body) != 1 {
 		t.Fatalf("body = %s, muốn đúng {autoPickPaused}", w.Body.String())
+	}
+}
+
+func TestChannelPatchSourceMinDuration(t *testing.T) {
+	svc := &fakeChannelService{view: sampleChannelView()}
+	tg, cookie := channelFixture(t, svc)
+	w := tg.do(http.MethodPatch, "/api/owner-channels/ch-1/sources/UC1", cookie, `{"minDurationSec":1200}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	if svc.minDurationRival != "UC1" || svc.minDuration == nil || *svc.minDuration != 1200 {
+		t.Fatalf("service nhận %q %v", svc.minDurationRival, svc.minDuration)
+	}
+	if _, ok := decode(t, w)["sources"]; !ok {
+		t.Fatalf("trả về không phải kênh: %s", w.Body.String())
+	}
+	if w = tg.do(http.MethodPatch, "/api/owner-channels/ch-1/sources/UC1", cookie, `{"minDurationSec":null}`); w.Code != http.StatusOK || svc.minDuration != nil {
+		t.Fatalf("null phải bỏ lọc: %d %v", w.Code, svc.minDuration)
 	}
 }
 

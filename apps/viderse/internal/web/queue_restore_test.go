@@ -193,7 +193,7 @@ func TestQueueRemovedSchedulerAndRetention(t *testing.T) {
 	if rival, err := repo.LastAutoQueuedChannel(ctx, enqueued.Items[0].ChannelID); err != nil || rival != "" {
 		t.Fatalf("removed auto row controls rotation: rival=%q err=%v", rival, err)
 	}
-	if ids, err := repo.ListEligibleVideos(ctx, "UCaaaaaaaaaaaaaaaaaaaaaa", time.Now().Add(-24*time.Hour), enqueued.Items[0].ChannelID); err != nil || len(ids) != 2 {
+	if ids, err := repo.ListEligibleVideos(ctx, "UCaaaaaaaaaaaaaaaaaaaaaa", time.Now().Add(-24*time.Hour), enqueued.Items[0].ChannelID, 0); err != nil || len(ids) != 2 {
 		t.Fatalf("removed rows block auto candidates: ids=%v err=%v", ids, err)
 	}
 	stale := enqueued.Items[0]
