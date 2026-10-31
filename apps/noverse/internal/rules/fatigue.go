@@ -13,6 +13,9 @@ type FatigueWord struct {
 	Per1000    float64 `json:"per1000"`
 	PerChapter int     `json:"perChapter"`
 	Source     string  `json:"source,omitempty"` // default | pack | project | story | learned; absent only for ambiguous legacy snapshots
+	// Baseline excludes the current editing scope and learned overrides.
+	BasePerChapter *int   `json:"basePerChapter,omitempty"`
+	BaseSource     string `json:"baseSource,omitempty"` // default | pack | project
 }
 
 func fatigueCandidateSource(candidate Candidate, word string) string {
@@ -66,7 +69,9 @@ func historicalFatigueSource(snapshot Snapshot, explicit bool) string {
 // EffectiveFatigue dùng cùng phép ghép với checker, nhưng giữ nguồn thắng theo
 // từng từ. Không suy nguồn từ việc ngưỡng khác mặc định: một ghi đè bằng đúng
 // mức nền vẫn là quy tắc tường minh của người dùng.
-func EffectiveFatigue(snapshot *Snapshot, pack Candidate) []FatigueWord {
+// An optional baseline adds reset values from the inherited scopes. A nil
+// baseline explicitly requests system/pack defaults without user overrides.
+func EffectiveFatigue(snapshot *Snapshot, pack Candidate, baseline ...*Snapshot) []FatigueWord {
 	structured := Effective(snapshot, pack)
 	defaults := SystemDefaults().Structured.FatigueWords
 	var explicit Structured
@@ -100,5 +105,24 @@ func EffectiveFatigue(snapshot *Snapshot, pack Candidate) []FatigueWord {
 		})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Word < out[j].Word })
+	if len(baseline) > 0 {
+		baseWords := EffectiveFatigue(baseline[0], pack)
+		for i, j := 0, 0; i < len(out) && j < len(baseWords); {
+			switch {
+			case out[i].Word < baseWords[j].Word:
+				i++
+			case out[i].Word > baseWords[j].Word:
+				j++
+			default:
+				base := baseWords[j]
+				out[i].BasePerChapter = &base.PerChapter
+				if base.Source == "default" || base.Source == "pack" || base.Source == "project" {
+					out[i].BaseSource = base.Source
+				}
+				i++
+				j++
+			}
+		}
+	}
 	return out
 }

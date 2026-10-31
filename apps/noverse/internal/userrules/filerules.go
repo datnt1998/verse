@@ -70,7 +70,7 @@ func (f *FileRules) Effective(ctx context.Context) (*FileEffective, error) {
 	}
 	snap := rules.BuildSnapshot(cands)
 	return &FileEffective{
-		Snapshot: &snap, Items: items, FatigueWords: rules.EffectiveFatigue(&snap, f.pack),
+		Snapshot: &snap, Items: items, FatigueWords: rules.EffectiveFatigue(&snap, f.pack, nil),
 		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
 	}, nil
 }

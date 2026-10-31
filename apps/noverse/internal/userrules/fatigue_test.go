@@ -232,3 +232,77 @@ func TestHistoricalSnapshotSourcesMigrateWithoutChangingThresholds(t *testing.T)
 		t.Fatalf("historical global labels must disappear without dropping content: %s", data)
 	}
 }
+
+func TestProjectFatigueResetBaselineUsesPackNotOwnRule(t *testing.T) {
+	project := t.TempDir()
+	const own = "“như một” tối đa 7 lần mỗi chương."
+	writeFatigueRules(t, project, "- "+own+"\n")
+	pack := rules.Candidate{Source: "genre_pack", Structured: rules.Structured{FatigueWords: map[string]rules.FatiguePer1000{"như một": 4}}}
+	reader := NewFileRules(nil, rules.LoadOptions{ProjectRulesDir: project}, "", pack)
+	if err := reader.sink.PutNormCache(map[string]store.NormCacheEntry{cacheKey(own): {
+		Structured: rules.Structured{FatigueWords: map[string]rules.FatiguePer1000{"như một": 4.67}},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	effective, err := reader.Effective(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	word := findFatigue(t, effective.FatigueWords, "như một")
+	if word.PerChapter != 7 || word.Source != "project" || word.BasePerChapter == nil || *word.BasePerChapter != 6 || word.BaseSource != "pack" {
+		t.Fatalf("project reset must reveal pack level six, not own seven: %+v", word)
+	}
+	writeFatigueRules(t, project, "")
+	reset, err := reader.Effective(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := findFatigue(t, reset.FatigueWords, "như một"); got.PerChapter != *word.BasePerChapter || got.Source != word.BaseSource {
+		t.Fatalf("deleting own rule must reach the advertised baseline: %+v", got)
+	}
+}
+
+func TestStoryFatigueResetBaselineUsesCurrentProjectOnly(t *testing.T) {
+	st := store.NewStore(t.TempDir())
+	project, story := t.TempDir(), t.TempDir()
+	const inherited = "“như một” tối đa 5 lần mỗi chương."
+	const own = "“như một” tối đa 7 lần mỗi chương."
+	const tightened = "“như một” tối đa 0 lần mỗi chương."
+	const learned = "“như một” tối đa 8 lần mỗi chương."
+	writeFatigueRules(t, project, "- "+inherited+"\n")
+	writeFatigueRules(t, story, "- "+own+"\n")
+	cache := map[string]store.NormCacheEntry{}
+	for text, limit := range map[string]rules.FatiguePer1000{inherited: 3.33, own: 4.67, tightened: 0, learned: 5.33} {
+		cache[cacheKey(text)] = store.NormCacheEntry{Structured: rules.Structured{FatigueWords: map[string]rules.FatiguePer1000{"như một": limit}}}
+	}
+	if err := st.UserRules.PutNormCache(cache); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.UserRules.CaptureLessonRules(nil); err != nil {
+		t.Fatal(err)
+	}
+	pack := rules.Candidate{Source: "genre_pack", Structured: rules.Structured{FatigueWords: map[string]rules.FatiguePer1000{"như một": 4}}}
+	svc := NewService(st, nil, rules.LoadOptions{ProjectRulesDir: project, StoryRulesDir: story}, pack)
+	if _, err := svc.Apply(t.Context(), ""); err != nil {
+		t.Fatal(err)
+	}
+	assertBaseline := func(effectiveChapter, baselineChapter int, source string) {
+		t.Helper()
+		effective, err := svc.Effective(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		word := findFatigue(t, effective.FatigueWords, "như một")
+		if word.PerChapter != effectiveChapter || word.Source != source || word.BasePerChapter == nil || *word.BasePerChapter != baselineChapter || word.BaseSource != "project" {
+			t.Fatalf("story reset must use only current inherited scopes: %+v", word)
+		}
+	}
+	assertBaseline(7, 5, "story")
+	// The effective snapshot stays applied, while reset follows current project rules.
+	writeFatigueRules(t, project, "- "+tightened+"\n")
+	assertBaseline(7, 0, "story")
+	if _, _, err := svc.AddRuntimeRule(t.Context(), learned); err != nil {
+		t.Fatal(err)
+	}
+	assertBaseline(8, 0, "learned")
+}

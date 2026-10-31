@@ -146,3 +146,26 @@ func TestEffectiveFatigueDoesNotGuessAmbiguousHistoricalSource(t *testing.T) {
 		t.Fatalf("unique historical scope is provable: %+v", got)
 	}
 }
+
+func TestEffectiveFatigueResetBaselineKeepsZeroOnWire(t *testing.T) {
+	baseline := BuildSnapshot([]Candidate{SystemDefaults(), {
+		Source: "project:quy-tac.md",
+		Structured: Structured{FatigueWords: map[string]FatiguePer1000{"im lặng": 0}},
+	}})
+	current := OverlaySnapshot(baseline, Candidate{Source: "story:quy-tac.md", Structured: Structured{FatigueWords: map[string]FatiguePer1000{"im lặng": 4.67}}})
+	word := fatigueByWord(t, EffectiveFatigue(&current, Candidate{}, &baseline), "im lặng")
+	if word.PerChapter != 7 || word.BasePerChapter == nil || *word.BasePerChapter != 0 || word.BaseSource != "project" {
+		t.Fatalf("zero reset baseline must remain explicit: %+v", word)
+	}
+	data, err := json.Marshal(word)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var wire map[string]json.RawMessage
+	if err := json.Unmarshal(data, &wire); err != nil {
+		t.Fatal(err)
+	}
+	if string(wire["basePerChapter"]) != "0" || string(wire["baseSource"]) != `"project"` {
+		t.Fatalf("zero must not be omitted from reset contract: %s", data)
+	}
+}

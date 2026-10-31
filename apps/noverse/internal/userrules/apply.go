@@ -131,8 +131,19 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	}
 	b := s.newBatch()
 	items := []RuleItem{}
+	baselineCandidates := []rules.Candidate{rules.SystemDefaults()}
+	projectOpts := s.rulesOpts
+	projectOpts.StoryRulesDir = ""
+	for _, rs := range rules.RawFileSources(projectOpts) {
+		if rs.Kind != rules.SourceProject {
+			continue
+		}
+		candidate, fileItems := b.fileCandidate(ctx, rs)
+		baselineCandidates = append(baselineCandidates, candidate)
+		items = append(items, fileItems...)
+	}
 	for _, rs := range rules.RawFileSources(s.rulesOpts) {
-		if rs.Name != rules.ManagedRulesFile {
+		if rs.Kind == rules.SourceProject || rs.Name != rules.ManagedRulesFile {
 			continue
 		}
 		_, fileItems := b.fileCandidate(ctx, rs)
@@ -166,9 +177,10 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	baseline := rules.BuildSnapshot(baselineCandidates)
 	return &Effective{
 		Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing(),
-		FatigueWords: rules.EffectiveFatigue(snap, s.pack),
+		FatigueWords: rules.EffectiveFatigue(snap, s.pack, &baseline),
 		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
 	}, nil
 }
