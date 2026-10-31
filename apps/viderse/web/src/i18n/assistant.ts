@@ -1,0 +1,84 @@
+// Chữ của ô Nhắn trợ lý và thẻ Kế hoạch (artboard Main `agent=plan`, Dialogs
+// `assistant-confirm|assistant-unknown`, Kit › Trợ lý; 06-copy). Giữ nguyên văn
+// board; chỗ board không vẽ (đang chạy, lỗi, mất kết nối) dùng mẫu V12 và được
+// ghi ở 11-hoi-dap.
+export const assistantCopy = {
+  composer: {
+    workbench: 'Nhắn cho trợ lý',
+    placeholders: {
+      artist: 'Nhắn cho Hoạ sĩ, ví dụ: cảnh 5 cho y tá cầm đèn pin, tông lạnh hơn',
+      artistPaused: 'Nhắn cho Hoạ sĩ trước khi chạy tiếp, ví dụ: cảnh 5 cho y tá cầm đèn pin',
+      review: 'Góp ý để vẽ lại, ví dụ: cảnh 3 cho cửa phòng cũ hơn, có số 214',
+      qa: 'Nhắn cho Kiểm định',
+      assistant: 'Nhắn cho trợ lý',
+    },
+    recap: 'Nhắn trợ lý · mọi kênh',
+    recapPlaceholder: 'Nhắn trợ lý · mọi kênh, ví dụ: làm 3 video nổi nhất tuần này của Nocturne cho Midnight Tales',
+    channel: 'Dặn trợ lý về kênh này',
+    channelPlaceholder: 'Dặn trợ lý về kênh này, ví dụ: chỉ lấy video trên 20 phút từ Nocturne Stories',
+    followUp: 'Nhắn tiếp cho Hoạ sĩ…',
+    send: 'Gửi',
+    consult: (agent: string) => `Bàn với ${agent}`,
+    hintEnter: 'gửi',
+    hintEsc: 'tạm dừng',
+    hintPanels: 'bảng bên',
+  },
+  plan: {
+    label: 'Kế hoạch',
+    head: (count: number) => `Kế hoạch · ${count} bước`,
+    quote: (text: string) => `“${text}”`,
+    free: 'miễn phí',
+    cost: (images: number) => `~${images} ảnh`,
+    noImages: 'Không tốn ảnh',
+    editText: 'Sửa câu',
+    cancel: 'Huỷ',
+    run: (count: number) => `Làm ${count} bước`,
+    noStep: 'Chọn ít nhất một bước',
+    imagesLeft: (left: number) => `còn ${left} hôm nay`,
+  },
+  quota: {
+    title: 'Ảnh đã vẽ trên hạn mức của tài khoản vẽ ảnh',
+    text: (label: string, used: number, limit: number, period: 'day' | 'week') =>
+      period === 'day' ? `Ảnh hôm nay ${used}/${limit} · ${label}` : `Ảnh: ${label} ${used}/${limit} tuần này`,
+  },
+  ask: {
+    head: 'Cần hỏi lại một chút',
+  },
+  confirm: {
+    label: (agent: string) => `Xác nhận việc cho ${agent}`,
+    rerun: 'Làm lại',
+    cancel: 'Huỷ',
+    run: 'Làm',
+    kbd: 'Enter',
+    image: (images: number) => `${images} ảnh`,
+  },
+  unknown: {
+    title: 'Chưa làm được việc này.',
+  },
+  progress: {
+    queued: 'Đang chờ',
+    running: 'Đang làm',
+    done: 'Xong',
+    failed: 'Chưa làm được',
+    summary: (done: number, total: number) => `${done}/${total} bước đã xong`,
+    failedSummary: (failed: number) => `${failed} bước chưa làm được`,
+    close: 'Đóng',
+  },
+  states: {
+    planning: 'Trợ lý đang đọc câu của bạn…',
+    running: 'Đang làm…',
+    lostProgress: 'Mất kết nối tới máy chủ, chưa cập nhật được tiến độ. Việc vẫn chạy ở Việc nền.',
+    retry: 'Thử lại',
+    edit: 'Sửa câu',
+    offline: 'Mất kết nối máy chủ. Chưa gửi được câu này.',
+    offlineSend: 'Đang mất kết nối. Chờ máy chủ nối lại rồi gửi.',
+    model: 'Trợ lý chưa đọc được câu này vì chưa có model hoặc chưa đăng nhập. Kiểm tra Cài đặt › Kết nối AI.',
+    expired: 'Kế hoạch đã hết hạn, chưa làm gì. Gửi lại câu để lập kế hoạch mới.',
+    busy: 'Trợ lý đang bận. Chờ một lát rồi gửi lại.',
+    invalid: 'Câu trống hoặc dài quá 500 ký tự. Rút gọn rồi gửi lại.',
+    notFound: 'Không còn thấy video hoặc kênh này. Mở lại màn rồi thử lại.',
+    failed: 'Trợ lý chưa lập được kế hoạch. Chưa làm gì cả.',
+    tooLong: 'Câu dài quá 500 ký tự.',
+    modelLink: 'Mở Kết nối AI',
+  },
+} as const
