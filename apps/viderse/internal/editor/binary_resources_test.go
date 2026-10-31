@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -135,6 +137,21 @@ func TestEditorReadyExportBinaryRootsSurviveRestart(t *testing.T) {
 	if err != nil || string(actual) != "published replacement bytes" || record.Status != "ready" {
 		t.Fatalf("replacement=%q %v %v", actual, record, err)
 	}
+	finalHead, err := s.Repository.Get(ctx, head.Key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	metadataBytes, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(finalHead.Path)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var metadata editor.Object
+	if err = json.Unmarshal(metadataBytes, &metadata); err != nil {
+		t.Fatal(err)
+	}
+	if "sha256:"+metadata["originalSha256"].(string) != binary.Revision || metadata["originalSize"] != float64(len("published original export bytes")) {
+		t.Fatalf("explicit original lineage missing: %v", metadata)
+	}
 }
 
 func TestEditorBinaryAdoptionRejectsCorruptReadyBytes(t *testing.T) {
@@ -245,4 +262,129 @@ func TestEditorBinaryAdoptionRetiresOnlyReleasedSupersededExports(t *testing.T) 
 	if err = storageimport.RequireKnown(entries, roots); err == nil {
 		t.Fatal("unknown bound file bypassed strict inventory")
 	}
+}
+
+func seedHeld9BoundOriginal(t *testing.T, mismatch bool) (*editor.Service, *postgres.BlobRepository, string, string, string, string) {
+	t.Helper()
+	s, blobs, root, pid, eid, head := seedLegacyReadyBinary(t)
+	ctx := context.Background()
+	original := bytes.Repeat([]byte("original uploaded frame bytes"), 10)
+	sum := sha256.New()
+	sum.Write(original)
+	state, err := sum.(encoding.BinaryMarshaler).MarshalBinary()
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(head.Path)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var meta editor.Object
+	if err = json.Unmarshal(raw, &meta); err != nil {
+		t.Fatal(err)
+	}
+	meta["uploadedBytes"] = len(original)
+	meta["stagedHashState"] = base64.StdEncoding.EncodeToString(state)
+	if mismatch {
+		meta["originalSha256"] = hex.EncodeToString(sha256.New().Sum(nil))
+		meta["originalSize"] = len(original)
+	}
+	raw, err = json.Marshal(meta)
+	if err != nil {
+		t.Fatal(err)
+	}
+	metaFile := filepath.Join(t.TempDir(), "meta.json")
+	if err = os.WriteFile(metaFile, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	old := "editor/exports/" + pid + "/" + eid + "/files/" + editor.ID() + "/ready.mp4"
+	originalFile := filepath.Join(t.TempDir(), "original.mp4")
+	if err = os.WriteFile(originalFile, original, 0600); err != nil {
+		t.Fatal(err)
+	}
+	next := editor.Resource{Key: head.Key, Path: "editor/revisions/" + editor.ID() + ".json", Revision: editor.Revision(raw)}
+	if err = s.Media.Publish(ctx, []media.Artifact{{Path: old, File: originalFile, ContentType: "video/mp4"}, {Path: next.Path, File: metaFile, ContentType: "application/json"}}, func(tx context.Context) error { return s.Repository.CAS(tx, head.Key, head.Revision, next) }); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Remove(filepath.Join(root, filepath.FromSlash(head.Path))); err != nil {
+		t.Fatal(err)
+	}
+	return s, blobs, root, pid, eid, old
+}
+
+func TestEditorHeld9BoundOriginalRetiresOnlyWithVerifiedLineage(t *testing.T) {
+	s, blobs, root, pid, eid, old := seedHeld9BoundOriginal(t, false)
+	ctx := context.Background()
+	if err := s.AdoptBinaryRoots(ctx); err != nil {
+		t.Fatal(err)
+	}
+	assertStrictEditorInventory(t, ctx, root, blobs)
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(old))); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("proven superseded original remains: %v", err)
+	}
+	h, record, err := s.AcquireExport(ctx, pid, eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer h.Release()
+	if record.Status != "ready" {
+		t.Fatal("current ready export changed")
+	}
+	current, err := os.ReadFile(h.Path)
+	if err != nil || string(current) != "published original export bytes" {
+		t.Fatalf("current replacement lost: %q %v", current, err)
+	}
+}
+
+func TestEditorHeld9MismatchedOriginalLineageRemainsFailClosed(t *testing.T) {
+	s, blobs, root, _, _, old := seedHeld9BoundOriginal(t, true)
+	ctx := context.Background()
+	if err := s.AdoptBinaryRoots(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(old))); err != nil {
+		t.Fatalf("unproven file deleted: %v", err)
+	}
+	entries, err := storageimport.Inventory(ctx, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	roots, err := blobs.Roots(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = storageimport.RequireKnown(entries, roots); err == nil {
+		t.Fatal("mismatched original proof bypassed inventory")
+	}
+}
+
+func TestEditorHeld9CorruptCurrentNeverRetiresValidOriginal(t *testing.T) {
+	s, _, root, pid, eid, old := seedHeld9BoundOriginal(t, false)
+	ctx := context.Background()
+	handle, _, err := s.AcquireExport(ctx, pid, eid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	filePath, logical, digest := handle.Path, handle.Ref.Path, "sha256:"+handle.Ref.SHA256
+	handle.Release()
+	key := "exports/" + pid + "/" + eid + "/file"
+	if err = s.Media.Publish(ctx, nil, func(tx context.Context) error {
+		return s.Repository.CAS(tx, key, "", editor.Resource{Key: key, Path: logical, Revision: digest})
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filePath, []byte("corrupted replacement"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err = s.AdoptBinaryRoots(ctx); err == nil {
+		t.Fatal("corrupt replacement let original binding retire")
+	}
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(old))); err != nil {
+		t.Fatalf("valid original lost: %v", err)
+	}
+	oldHandle, err := s.Media.Acquire(ctx, old)
+	if err != nil {
+		t.Fatalf("valid original binding retired: %v", err)
+	}
+	oldHandle.Release()
 }

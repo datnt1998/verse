@@ -818,6 +818,17 @@ func (s *Service) ReplaceCloneExportFile(ctx context.Context, pid, eid string, t
 	if err != nil {
 		return ExportRecord{}, err
 	}
+	_, hasOriginalDigest := next["originalSha256"]
+	_, hasOriginalSize := next["originalSize"]
+	if !hasOriginalDigest && !hasOriginalSize {
+		originalDigest, originalSize, ok := originalUploadLineage(meta)
+		if !ok {
+			originalDigest = exportString(meta["stagedSha256"])
+			originalSize = exportInt(meta["size"])
+		}
+		next["originalSha256"] = originalDigest
+		next["originalSize"] = originalSize
+	}
 	next["size"] = size
 	next["stagedSha256"] = sum
 	if err = s.publishExportFile(ctx, pid, eid, output, next, revision); err != nil {

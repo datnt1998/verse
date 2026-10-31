@@ -109,6 +109,9 @@ func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
 		if err = s.adoptBinary(ctx, row, row.Key+"/file", path, digest, int64(exportNumber(meta["size"]))); err != nil {
 			return err
 		}
+		if err = s.retireOriginalUploadBinding(ctx, row, parts[1], parts[2], path, meta); err != nil {
+			return err
+		}
 		// A prior replacement left by the pre-adapter producer is garbage only
 		// after the current authoritative ready file has been verified and rooted.
 		if err = s.reclaimSupersededExportFiles(ctx, row, parts[1], parts[2], path, exportString(meta["fileName"])); err != nil {
