@@ -36,6 +36,7 @@
 .ap-learned-head{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
 .ap-learned-head>span:last-child{display:flex;flex-direction:column;line-height:1.4;min-width:0}
 .ap-learned-head b{font-size:13.5px;font-weight:600}
+.ap-learned-head .ap-meta{line-height:1.3}
 .ap-learned-meta{display:block;font-size:12px}
 .ap-learned-actions{display:flex;gap:4px;flex-shrink:0}
 .ap-small{height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--kit-wash-10);background:transparent;color:var(--color-fg-2);font-size:12px;display:inline-flex;align-items:center;gap:6px}
@@ -46,6 +47,7 @@
 .ap-aai-copy{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}
 .ap-aai-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ap-aai-title b{font-size:14px;font-weight:600}
+.ap-aai-copy>.ap-meta{line-height:1.4}
 .ap-tag{height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;display:inline-flex;align-items:center;background:var(--kit-wash-6);color:var(--color-fg-3);white-space:nowrap}
 .ap-aai-body{border-top:1px solid var(--kit-wash-6);padding:14px 16px 16px;display:flex;flex-direction:column;gap:16px}
 .ap-aai-label{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
@@ -64,6 +66,7 @@
 .ap-reset{width:26px;height:26px;border:none;border-radius:7px;background:transparent;color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
 .ap-ban-list{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
 .ap-ban{height:24px;padding:0 9px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;background:var(--kit-errb-16);color:var(--kit-err-text)}
+.ap-aai-foot{line-height:1.55}
 .ap-timing{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--color-fg-3);line-height:1.55}
 .ap-timing>b{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--color-fg);font-weight:600}
 .ap-recheck .kit-cb-box{margin-top:1px}
@@ -77,13 +80,14 @@
 .ap-aai-mobile .ap-aai-label{padding:6px 14px 4px;margin:0}
 .ap-aai-mobile .ap-fatigue{display:flex;flex-direction:column}
 .ap-aai-mobile .ap-fatigue-row{padding:8px 14px;min-height:52px;gap:10px}
+.ap-aai-mobile .ap-fatigue-row:first-child{border-top:0}
 .ap-aai-mobile .ap-word{font-size:15px;line-height:1.35;flex-direction:column;align-items:flex-start;gap:0}
 .ap-aai-mobile .ap-source{background:transparent;color:var(--color-fg-4);font-size:12px;line-height:1.35;height:auto;padding:0}
 .ap-aai-mobile .ap-stepper{border:none;height:36px;gap:0}
 .ap-aai-mobile .ap-stepper button{width:36px;height:36px;border-radius:10px;border:1px solid var(--kit-wash-10)}
 .ap-aai-mobile .ap-stepper .num{min-width:48px;font-size:14px}
 .ap-aai-mobile .ap-reset{width:24px}
-.ap-aai-mobile .ap-bans{padding:10px 14px 12px;border-top:1px solid var(--kit-wash-6)}
+.ap-aai-mobile .ap-bans{padding:10px 14px 12px;border-top:1px solid var(--kit-wash-6);display:flex;flex-direction:column;gap:8px}
 .ap-aai-mobile .ap-bans .ap-aai-label{padding:0}
 .ap-aai-mobile .ap-aai-foot{padding:10px 14px}
 @media(max-width:600px){.ap-fatigue{grid-template-columns:minmax(0,1fr)}.ap-rules-heading{flex-wrap:wrap}.ap-actions{flex-basis:60px}.ap-rules-heading .ap-button{margin-left:auto}.ap-aai-head{flex-wrap:wrap}.ap-aai-copy{min-width:140px}}
