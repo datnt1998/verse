@@ -126,6 +126,14 @@ export function Switch({ checked, onChange, label, disabled, pending = false, lo
   )
 }
 
+const checkboxStyles = stylex.create({
+  boxButton: { display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', margin: '-6px 0', borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 13, textAlign: 'left', opacity: 1 },
+  chipButton: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-3)', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 12.5, cursor: 'pointer' },
+  chipSelected: { borderColor: 'var(--kit-acc-45)', backgroundColor: 'var(--tint-accent)' },
+  disabled: { color: 'var(--kit-fg-off)' },
+  chipDisabled: { cursor: 'not-allowed' },
+})
+
 export type CheckboxProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> & {
   checked: boolean | 'mixed'
   onChange: (on: boolean) => void
@@ -137,21 +145,18 @@ export type CheckboxProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onCha
   tone?: 'accent' | 'mono'
   size?: 16 | 18
   showMark?: boolean
+  xstyle?: stylex.StyleXStyles
 }
 
-export function Checkbox({ checked, onChange, label, disabled, indeterminate, variant = 'box', tone = 'accent', size = 18, showMark = true, style, onClick, ...rest }: CheckboxProps) {
+export function Checkbox({ checked, onChange, label, disabled, indeterminate, variant = 'box', tone = 'accent', size = 18, showMark = true, style, xstyle, onClick, ...rest }: CheckboxProps) {
   const mixed = checked === 'mixed' || !!indeterminate
   const selected = mixed || checked === true
+  const button = stylex.props(variant === 'chip' ? checkboxStyles.chipButton : checkboxStyles.boxButton, variant === 'chip' && selected && checkboxStyles.chipSelected, disabled && checkboxStyles.disabled, variant === 'chip' && disabled && checkboxStyles.chipDisabled, xstyle)
   if (variant === 'chip') {
     return (
       <button {...rest} type="button" role="checkbox" aria-checked={selected} disabled={disabled}
-        onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(!checked) }} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 10px',
-          borderRadius: 999, border: `1px solid ${selected ? 'var(--kit-acc-45)' : 'var(--line-3)'}`,
-          background: selected ? 'var(--tint-accent)' : 'transparent',
-          color: disabled ? 'var(--kit-fg-off)' : 'var(--color-fg)', fontSize: 12.5,
-          cursor: disabled ? 'not-allowed' : 'pointer', ...style,
-        }}>
+        className={[button.className, rest.className].filter(Boolean).join(' ')}
+        onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(!checked) }} style={{ ...button.style, ...style }}>
         {selected && showMark && <Icon name="tick-circle-bulk" size={13} className="kit-cb-tick" />}
         {label}
       </button>
@@ -160,10 +165,8 @@ export function Checkbox({ checked, onChange, label, disabled, indeterminate, va
   const boxOn = tone === 'mono' ? 'var(--color-fg)' : 'var(--color-accent)'
   return (
     <button {...rest} type="button" role="checkbox" aria-checked={mixed ? 'mixed' : checked} disabled={disabled}
-      onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(mixed || !checked) }} style={{
-        display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', margin: '-6px 0',
-        border: 'none', background: 'transparent', color: disabled ? 'var(--kit-fg-off)' : 'var(--color-fg)', fontSize: 13, textAlign: 'left', opacity: 1, ...style,
-      }}>
+      className={[button.className, rest.className].filter(Boolean).join(' ')}
+      onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(mixed || !checked) }} style={{ ...button.style, ...style }}>
       {/* kit-cb-box nảy khi chọn; ✓ vẽ bằng stroke-dashoffset, mờ đi khi bỏ chọn (giữ trong DOM). */}
       <span aria-hidden="true" className="kit-cb-box" style={{
         width: size, height: size, borderRadius: 5, flex: '0 0 auto', boxSizing: 'border-box',

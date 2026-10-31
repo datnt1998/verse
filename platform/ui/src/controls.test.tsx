@@ -65,6 +65,16 @@ it('Checkbox: click và Space đổi trạng thái, mixed giữ aria-checked=mix
   }
 })
 
+it('Checkbox cho phép StyleX ghi đè bố cục ở cả hai biến thể', async () => {
+  const custom = stylex.create({ root: { alignItems: 'flex-start', margin: 0 } })
+  const { container } = await mount(<><Checkbox checked onChange={() => {}} xstyle={custom.root} /><Checkbox variant="chip" checked onChange={() => {}} xstyle={custom.root} /></>)
+  const atoms = stylex.props(custom.root).className!.split(' ').filter(Boolean)
+  for (const button of container.querySelectorAll<HTMLElement>('[role=checkbox]')) {
+    for (const atom of atoms) expect(button.classList.contains(atom)).toBe(true)
+    expect(button.style.alignItems).toBe('')
+  }
+})
+
 it('Radio/RadioCard: phím mũi tên trong radiogroup chọn mục kế tiếp', async () => {
   function Harness() {
     const [v, setV] = useState('a')

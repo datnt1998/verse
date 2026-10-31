@@ -106,11 +106,12 @@ export type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   onSubmitValue?: (value: string) => void
   /** Bỏ khung trạng thái của ô (khi ô nằm trong một khung khác đã vẽ vòng focus). */
   bare?: boolean
+  xstyle?: stylex.StyleXStyles
 }
 
 export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   function TextArea({ invalid, label, error, showCount = true, onSubmitValue, id, value, defaultValue,
-    maxLength, onChange, onKeyDown, style, className, disabled, readOnly, bare = false,
+    maxLength, onChange, onKeyDown, style, xstyle, className, disabled, readOnly, bare = false,
     'aria-describedby': describedBy, 'aria-invalid': ariaInvalid, ...rest }, ref) {
     const generatedId = useId()
     const inputId = id ?? generatedId
@@ -123,7 +124,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const isInvalid = invalid || !!error || ariaInvalid === true || ariaInvalid === 'true'
     const count = stylex.props(sx.counter, length > limit * .9 ? sx.counterWarn : sx.counterNormal)
     const counter = showCount && <span id={counterId} className={`num ${count.className}`} style={count.style}>{length}/{limit}</span>
-    const area = stylex.props(sx.field, sx.area, ...(bare ? [] : inputFrame({ invalid: isInvalid, disabled })), !bare && disabled && sx.frameDisabled)
+    const area = stylex.props(sx.field, sx.area, ...(bare ? [] : inputFrame({ invalid: isInvalid, disabled })), !bare && disabled && sx.frameDisabled, xstyle)
     return (
       <div {...stylex.props(sx.col)}>
         {label ? <FieldLabel htmlFor={inputId} right={counter} size={10.5} style={{ alignItems: 'stretch' }}>{label}</FieldLabel>
