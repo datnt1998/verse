@@ -32,9 +32,9 @@ export function OverflowMenu({ job, onClose, onRefresh, onError }: { job: CloneJ
     onClose()
     void confirm({ title: 'Dừng hẳn video?', body: 'Các bước đang làm sẽ dừng. Kết quả đã có được giữ lại.', cancelLabel: 'Huỷ', confirmLabel: 'Dừng hẳn', onConfirm: async () => { await jobAction(job.id, 'cancel'); onRefresh() } }).catch(report)
   }
-  return <div role="menu" aria-label="Thao tác video" {...stylex.props(styles.menu)} onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); onClose() } }}>
+  return <div role="menu" aria-label="Thao tác video" {...stylex.props(styles.menu)} onClick={event => { if ((event.target as HTMLElement).closest('a')) onClose() }} onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); onClose() } }}>
     {project ? <a role="menuitem" {...stylex.props(styles.item)} href={`#/editor/${encodeURIComponent(project)}`}>Mở trong editor<small>Chỉnh tay bố cục, chữ, nhạc</small></a> : <button role="menuitem" disabled {...stylex.props(styles.item)}>Mở trong editor<small>Project chưa sẵn sàng</small></button>}
-    <button role="menuitem" {...stylex.props(styles.item)} onClick={restart}>Làm lại từ đầu<small>Tạo lượt mới cho cùng video, tốn lại hạn mức ảnh</small></button>
+    {!job.supersededAt && <button role="menuitem" {...stylex.props(styles.item)} onClick={restart}>Làm lại từ đầu<small>Tạo lượt mới cho cùng video, tốn lại hạn mức ảnh</small></button>}
     {(job.stageGroup === 'working' || job.stageGroup === 'paused') && <button role="menuitem" {...stylex.props(styles.item)} onClick={stop}>Dừng hẳn</button>}
     {job.stageGroup === 'ready' && <><a role="menuitem" {...stylex.props(styles.item)} href={`/api/clone/download?ids=${encodeURIComponent(job.id)}`}>Tải gói đăng</a><button role="menuitem" {...stylex.props(styles.item)} onClick={() => { onClose(); void markPosted(job, onRefresh).catch(report) }}>Đánh dấu đã đăng</button></>}
     {/^https?:\/\//i.test(job.source.url) && <a role="menuitem" {...stylex.props(styles.item)} href={job.source.url} target="_blank" rel="noreferrer">Mở video nguồn</a>}

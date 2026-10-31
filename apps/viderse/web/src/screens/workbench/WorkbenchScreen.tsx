@@ -23,11 +23,15 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
   const [recapOpen, setRecapOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [notice, setNotice] = useState('')
-  const [promptOpen, setPromptOpen] = useState(false)
-  const [more, setMore] = useState(false)
+  // Menu mở gắn với video đang chọn: đổi video thì menu cũ tự đóng.
+  const [openMenu, setOpenMenu] = useState<{ kind: 'prompt' | 'more'; id: string } | null>(null)
   const list = useResource(['workbench', 'list', scope], ({ signal }) => getWorkbench(scope, signal), { keepPrevious: true })
   const channels = useResource(['workbench', 'channels'], ({ signal }) => getChannelSummaries(signal))
   const selectedId = route.video || list.data?.defaultJobId || undefined
+  const promptOpen = openMenu?.kind === 'prompt' && openMenu.id === selectedId
+  const more = openMenu?.kind === 'more' && openMenu.id === selectedId
+  const setPromptOpen = (open: boolean) => setOpenMenu(open && selectedId ? { kind: 'prompt', id: selectedId } : null)
+  const setMore = (open: boolean) => setOpenMenu(open && selectedId ? { kind: 'more', id: selectedId } : null)
   const queuedJob = list.data?.jobs?.find(item => item.id === selectedId && item.stageGroup === 'queued')
   const images = useResource(['workbench', 'images', selectedId || ''], ({ signal }) => getJobImages(selectedId!, signal), { enabled: !!selectedId && !queuedJob })
   const detail = useResource(['workbench', 'job', selectedId || ''], ({ signal }) => getWorkbenchJob(selectedId!, signal), { enabled: !!selectedId && !queuedJob })
