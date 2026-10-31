@@ -2,6 +2,7 @@ package userrules
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
@@ -80,12 +81,16 @@ func migratedRuleSources(snapshot *rules.Snapshot) *rules.Snapshot {
 	}
 	out := *snapshot
 	out.Sources = slices.Clone(snapshot.Sources)
+	out.FatigueSources = maps.Clone(snapshot.FatigueSources)
 	for i, source := range out.Sources {
 		replacement := migratedRuleSource(source)
 		out.Sources[i] = replacement
 		if replacement != source {
 			out.Preferences = strings.ReplaceAll(out.Preferences, "## ["+source+"]\n\n", "## ["+replacement+"]\n\n")
 		}
+	}
+	for word, source := range out.FatigueSources {
+		out.FatigueSources[word] = migratedRuleSource(source)
 	}
 	return &out
 }

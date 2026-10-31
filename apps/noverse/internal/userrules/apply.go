@@ -86,6 +86,8 @@ type Effective struct {
 	Items    []RuleItem      `json:"items"`
 	Runtime  []RuntimeView   `json:"runtime"`
 	Timing   ChapterTiming   `json:"timing"`
+	FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
+	ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 }
 
 // Timing tính mốc hiệu lực từ tiến độ hiện tại.
@@ -166,6 +168,8 @@ func (s *Service) Effective(ctx context.Context) (*Effective, error) {
 	}
 	return &Effective{
 		Snapshot: snap, Items: items, Runtime: views, Timing: s.Timing(),
+		FatigueWords: rules.EffectiveFatigue(snap, s.pack),
+		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
 	}, nil
 }
 

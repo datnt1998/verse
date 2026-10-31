@@ -14,6 +14,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 	"strings"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
@@ -38,8 +39,8 @@ var normalizeContract = llmcontract.Contract{
 			schema.Property("forbidden_phrases", schema.Array("Cụm từ bị cấm (khớp nguyên văn)", schema.String("Cụm từ"))).Required(),
 			schema.Property("fatigue_words", schema.Array("Từ lặp và mật độ tối đa", schema.Object(
 				schema.Property("word", schema.String("Từ lặp")).Required(),
-				schema.Property("per_1000", llmcontract.Nullable(schema.Number("Số lần tối đa trên mỗi 1.000 tiếng (số dương); ngưỡng chính, ưu tiên hơn max_per_chapter"))).Required(),
-				schema.Property("max_per_chapter", llmcontract.Nullable(schema.Int("Số lần tối đa mỗi chương kiểu cũ (nguyên dương); chỉ điền khi người dùng nói rõ theo chương"))).Required(),
+				schema.Property("per_1000", llmcontract.Nullable(schema.Number("Số lần tối đa trên mỗi 1.000 tiếng (không âm); ngưỡng chính, ưu tiên hơn max_per_chapter"))).Required(),
+				schema.Property("max_per_chapter", llmcontract.Nullable(schema.Int("Số lần tối đa mỗi chương (nguyên không âm); chỉ điền khi người dùng nói rõ theo chương"))).Required(),
 			))).Required(),
 		)).Required(),
 		schema.Property("preferences", schema.String("Sở thích văn phong/nhân vật/thẩm mỹ bằng ngôn ngữ tự nhiên; không có thì chuỗi rỗng")).Required(),
@@ -141,9 +142,8 @@ type fatigueWordEntry struct {
 	MaxPerChapter *int     `json:"max_per_chapter"`
 }
 
-// toCandidate 校验边界 DTO 并转成领域候选：fatigue 条目须词非空且至少有一个正的
-// 阈值——per_1000（lần/1.000 tiếng）优先，没有则拿 max_per_chapter 按章长基准
-// rules.FatigueRefChapterTieng 换算（校验错误可反馈给模型修正）。
+// toCandidate kiểm tra từ không rỗng và ngưỡng hữu hạn, không âm.
+// per_1000 thắng khi có; max_per_chapter đổi theo chương chuẩn 1.500 tiếng.
 func (o normalizerOutput) toCandidate(source string) (rules.Candidate, error) {
 	var fatigue map[string]rules.FatiguePer1000
 	for _, e := range o.Structured.FatigueWords {
@@ -153,12 +153,16 @@ func (o normalizerOutput) toCandidate(source string) (rules.Candidate, error) {
 		}
 		var limit rules.FatiguePer1000
 		switch {
-		case e.Per1000 != nil && *e.Per1000 > 0:
+		case e.Per1000 != nil:
+			if *e.Per1000 < 0 || math.IsNaN(*e.Per1000) || math.IsInf(*e.Per1000, 0) {
+				return rules.Candidate{}, fmt.Errorf("fatigue_words[%q]: ngưỡng phải là số hữu hạn không âm", word)
+			}
 			limit = rules.FatiguePer1000(*e.Per1000)
-		case e.MaxPerChapter != nil && *e.MaxPerChapter > 0:
+		case e.MaxPerChapter != nil:
+			if *e.MaxPerChapter < 0 {
+				return rules.Candidate{}, fmt.Errorf("fatigue_words[%q]: ngưỡng phải là số không âm", word)
+			}
 			limit = rules.FatiguePer1000(rules.MaxPerChapterToPer1000(float64(*e.MaxPerChapter)))
-		case e.Per1000 != nil || e.MaxPerChapter != nil:
-			return rules.Candidate{}, fmt.Errorf("fatigue_words[%q]: ngưỡng phải là số dương", word)
 		default:
 			return rules.Candidate{}, fmt.Errorf("fatigue_words[%q]: cần per_1000 hoặc max_per_chapter", word)
 		}
@@ -235,7 +239,7 @@ const normalizerSystemPrompt = `Bạn là "Bộ chuẩn hoá luật" của hệ 
 [Nâng thận trọng — quan trọng nhất]
 - Chỉ ghi vào structured khi người dùng nói rõ ràng, không mơ hồ.
 - forbidden_chars/forbidden_phrases là mức error: chỉ nâng những lệnh cấm rõ ràng kiểu "đừng để xuất hiện X / cấm dùng X / chớ viết X".
-- fatigue_words: chỉ nâng khi có đồng thời "từ rõ ràng" và "ngưỡng số lần rõ ràng"; kiểu "dùng ít X / đừng lúc nào cũng dùng X" mà không có con số thì đưa vào preferences, tuyệt đối không tự bịa ngưỡng. Ngưỡng chính là per_1000 = số lần tối đa trên mỗi 1.000 tiếng; người dùng nói theo chương thì quy đổi với chương chuẩn 1.500 tiếng (per_1000 = số lần / 1,5) hoặc điền max_per_chapter kèm theo.
+- fatigue_words: chỉ nâng khi có đồng thời "từ rõ ràng" và "ngưỡng số lần rõ ràng"; kiểu "dùng ít X / đừng lúc nào cũng dùng X" mà không có con số thì đưa vào preferences, tuyệt đối không tự bịa ngưỡng. Ngưỡng chính là per_1000 = số lần tối đa trên mỗi 1.000 tiếng; người dùng nói theo chương thì quy đổi với chương chuẩn 1.500 tiếng (per_1000 = số lần / 1,5) hoặc điền max_per_chapter kèm theo. Chấp nhận ngưỡng 0 khi người dùng yêu cầu tối đa 0 lần.
 - Mọi mong muốn về số chữ/độ dài ("mỗi chương 3000 chữ", "ngắn lại một chút") đều đưa vào preferences: độ dài chương là vấn đề nhịp tự sự, do lúc sáng tác tự nắm, không kiểm tra bằng máy.
 - Những gì không kiểm tra được bằng máy, không có ngưỡng rõ ràng, phụ thuộc ngữ cảnh, đều đưa vào preferences.
 - Nguyên tắc: thà để lọt vào preferences còn hơn nâng sai (nâng sai sẽ báo lỗi sai ở mọi chương).

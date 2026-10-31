@@ -73,12 +73,12 @@ func appendForbiddenPhrases(vs []Violation, text string, list []string) []Violat
 
 // fatigue_words：按密度判定——出现次数超过 per_1000×tiếng/1000 才违规（tiếng 是
 // 章内音节数，用 domain.WordCount 数：空白分隔、至少含一个字母/数字的 token 算 1 tiếng）。
-// 无论阈值多低都至少允许 1 次，短章不至于一出现就报警。不跨章累计——跨章问题后续交诊断。
+// Ngưỡng dương cho phép ít nhất 1 lần ở chương ngắn; ngưỡng 0 không cho phép lần nào.
 func appendFatigueWords(vs []Violation, text string, m map[string]FatiguePer1000) []Violation {
 	tieng := domain.WordCount(text)
 	for word, limit := range m {
 		per1000 := limit.Per1000()
-		if word == "" || per1000 <= 0 {
+		if word == "" || per1000 < 0 {
 			continue
 		}
 		n := strings.Count(text, word)
@@ -86,7 +86,7 @@ func appendFatigueWords(vs []Violation, text string, m map[string]FatiguePer1000
 			continue
 		}
 		allowedF := per1000 * float64(tieng) / 1000
-		if allowedF < 1 {
+		if per1000 > 0 && allowedF < 1 {
 			allowedF = 1 // chương ngắn: luôn cho phép ít nhất 1 lần
 		}
 		if float64(n) <= allowedF {

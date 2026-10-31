@@ -61,7 +61,7 @@ func MaxPerChapterToPer1000(maxPerChapter float64) float64 {
 // hình dạng —
 //   - số trần {"một chút": 2}        → max_per_chapter kiểu cũ, quy đổi theo
 //     FatigueRefChapterTieng (số lẻ trần hiểu là per_1000: ngưỡng mỗi chương luôn nguyên);
-//   - object {"per_1000": 1.33, "max_per_chapter": 2} → per_1000 thắng khi cả hai có;
+//   - object {"per_1000": 1.33, "max_per_chapter": 2} → per_1000 thắng khi có, kể cả 0;
 //     chỉ có max_per_chapter thì quy đổi như số trần.
 //
 // Ghi luôn ra object đủ hai khóa: per_1000 là sự thật, max_per_chapter là giá trị
@@ -71,14 +71,10 @@ type FatiguePer1000 float64
 // Per1000 trả ngưỡng lần/1.000 tiếng.
 func (f FatiguePer1000) Per1000() float64 { return float64(f) }
 
-// MaxPerChapter trả ngưỡng tương đương ở chương chuẩn 1.500 tiếng: số lần nguyên
-// lớn nhất không vi phạm (floor, tối thiểu 1 — checker luôn cho phép ít nhất 1 lần).
+// MaxPerChapter trả ngưỡng tương đương ở chương chuẩn 1.500 tiếng,
+// làm tròn về số lần nguyên; 0 là không cho phép dùng từ đó.
 func (f FatiguePer1000) MaxPerChapter() int {
-	n := int(float64(f) * FatigueRefChapterTieng / 1000)
-	if n < 1 {
-		return 1
-	}
-	return n
+	return int(math.Round(float64(f) * FatigueRefChapterTieng / 1000))
 }
 
 // MarshalJSON ghi dạng object đủ hai khóa (per_1000 + max_per_chapter suy ra).
@@ -90,7 +86,7 @@ func (f FatiguePer1000) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON đọc cả số trần (legacy max_per_chapter, hoặc per_1000 nếu lẻ) lẫn
-// object hai khóa; per_1000 thắng khi cả hai cùng có mặt và dương.
+// object hai khóa; per_1000 thắng khi cả hai cùng có mặt, kể cả bằng 0.
 func (f *FatiguePer1000) UnmarshalJSON(data []byte) error {
 	var v any
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -106,11 +102,11 @@ func (f *FatiguePer1000) UnmarshalJSON(data []byte) error {
 			*f = FatiguePer1000(x)
 		}
 	case map[string]any:
-		if p, ok := x["per_1000"].(float64); ok && p > 0 {
+		if p, ok := x["per_1000"].(float64); ok && p >= 0 {
 			*f = FatiguePer1000(p)
 			return nil
 		}
-		if m, ok := x["max_per_chapter"].(float64); ok && m > 0 {
+		if m, ok := x["max_per_chapter"].(float64); ok && m >= 0 {
 			*f = FatiguePer1000(MaxPerChapterToPer1000(m))
 			return nil
 		}

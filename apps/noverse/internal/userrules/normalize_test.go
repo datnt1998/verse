@@ -81,10 +81,10 @@ func TestParseNormalizerJSON_FullOutput(t *testing.T) {
 	}
 }
 
-// fatigue 条目校验：空词与缺失/非正阈值都是可反馈修正的业务错误。
+// Từ rỗng, ngưỡng âm và ngưỡng thiếu đều là lỗi nghiệp vụ.
 func TestToCandidateRejectsInvalidFatigueEntries(t *testing.T) {
 	two := 2
-	zero := 0
+	negative := -1
 	bad := normalizerOutput{Structured: normalizerStructured{
 		FatigueWords: []fatigueWordEntry{{Word: " ", MaxPerChapter: &two}},
 	}}
@@ -92,10 +92,10 @@ func TestToCandidateRejectsInvalidFatigueEntries(t *testing.T) {
 		t.Fatal("空词条目应报错")
 	}
 	bad = normalizerOutput{Structured: normalizerStructured{
-		FatigueWords: []fatigueWordEntry{{Word: "bỗng nhiên", MaxPerChapter: &zero}},
+		FatigueWords: []fatigueWordEntry{{Word: "bỗng nhiên", MaxPerChapter: &negative}},
 	}}
 	if _, err := bad.toCandidate("x"); err == nil {
-		t.Fatal("非正整数阈值应报错")
+		t.Fatal("ngưỡng âm phải báo lỗi")
 	}
 	bad = normalizerOutput{Structured: normalizerStructured{
 		FatigueWords: []fatigueWordEntry{{Word: "bỗng nhiên"}},

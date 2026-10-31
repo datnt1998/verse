@@ -42,7 +42,7 @@ func NewService(st *store.Store, model llmtypes.ChatModel, opts rules.LoadOption
 }
 
 // normalizerCacheVersion 随归一化提示词/契约的语义变化而加一，使旧缓存整体失效。
-const normalizerCacheVersion = "v2" // v2: kết quả chuẩn hoá có thêm options
+const normalizerCacheVersion = "v3" // v3: ngưỡng fatigue 0 là giới hạn tường minh
 
 // normConcurrency 是同一个规则文件逐条归一化时的并发上限。
 const normConcurrency = 4

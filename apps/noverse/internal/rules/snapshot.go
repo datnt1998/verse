@@ -3,6 +3,7 @@ package rules
 import (
 	"fmt"
 	"maps"
+	"math"
 	"strings"
 )
 
@@ -23,6 +24,8 @@ type Snapshot struct {
 	// UserStructured ghi riêng ý định tường minh, không chứa system_defaults
 	// hay giá trị gói; dùng để ghép gói sống mà không nhầm mặc định thành ghi đè.
 	UserStructured *Structured `json:"user_structured,omitempty"`
+	// FatigueSources lưu nguồn thắng theo từng từ, kể cả khi ngưỡng bằng mặc định.
+	FatigueSources map[string]string `json:"fatigue_sources,omitempty"`
 }
 
 // Status 标记快照归一化是否完整成功。
@@ -48,6 +51,8 @@ const SnapshotVersion = 2
 type Candidate struct {
 	Source      string     `json:"source"`                // 可读来源标签，进入 Snapshot.Sources（如 system_defaults / startup_prompt / global:my.md）
 	Structured  Structured `json:"structured"`            // 该来源候选结构化字段
+	// FatigueSources phân biệt từ gói khai rõ với từ kế thừa từ system_defaults.
+	FatigueSources map[string]string `json:"fatigue_sources,omitempty"`
 	Preferences string     `json:"preferences,omitempty"` // 该来源的自然语言偏好正文
 	Uncertain   []string   `json:"uncertain,omitempty"`   // 该来源故意未提升到 structured 的项 + 原因（诊断）
 	// UncertainNote 给用户看的一行“还没把握懂对”（Câu 26a）；空 = 模型已确定。
@@ -74,7 +79,7 @@ func (s Snapshot) Payload() map[string]any {
 //     一个来源新增一个禁用词不得抹掉低优先级来源（如 system_defaults 的内置套话）
 //   - fatigue_words：按词叠加，同词时高优先级（近层）的阈值胜出
 //   - preferences：不覆盖，按来源顺序拼接（高优先级在后），带来源标题
-//   - 空值/零值视为字段缺失，不覆盖已有值（sanitizeStructured）
+//   - Giá trị rỗng bị bỏ qua; ngưỡng fatigue bằng 0 là một giới hạn tường minh.
 //   - 任一来源 Degraded → 快照 status=degraded
 func BuildSnapshot(cands []Candidate) Snapshot {
 	snap := Snapshot{
@@ -84,12 +89,17 @@ func BuildSnapshot(cands []Candidate) Snapshot {
 		// Luôn là mảng (không null) trong JSON gửi cho giao diện.
 		Uncertain:      []string{},
 		UserStructured: &Structured{},
+		FatigueSources: make(map[string]string),
 	}
 	var prefs []string
 	for _, c := range cands {
-		snap.Structured = mergeStructured(snap.Structured, sanitizeStructured(c.Structured))
+		structured := sanitizeStructured(c.Structured)
+		snap.Structured = mergeStructured(snap.Structured, structured)
+		for word := range structured.FatigueWords {
+			snap.FatigueSources[word] = fatigueCandidateSource(c, word)
+		}
 		if c.Source != "system_defaults" {
-			user := mergeStructured(*snap.UserStructured, sanitizeStructured(c.Structured))
+			user := mergeStructured(*snap.UserStructured, structured)
 			snap.UserStructured = &user
 		}
 
@@ -120,10 +130,16 @@ func BuildSnapshot(cands []Candidate) Snapshot {
 func OverlaySnapshot(base Snapshot, cand Candidate) Snapshot {
 	out := base
 	out.Version = SnapshotVersion
-	out.Structured = mergeStructured(out.Structured, sanitizeStructured(cand.Structured))
+	structured := sanitizeStructured(cand.Structured)
+	out.Structured = mergeStructured(out.Structured, structured)
+	out.FatigueSources = make(map[string]string, len(base.FatigueSources)+len(cand.Structured.FatigueWords))
+	maps.Copy(out.FatigueSources, base.FatigueSources)
+	for word := range structured.FatigueWords {
+		out.FatigueSources[word] = fatigueCandidateSource(cand, word)
+	}
 	user := explicitStructured(base)
 	if cand.Source != "system_defaults" {
-		user = mergeStructured(user, sanitizeStructured(cand.Structured))
+		user = mergeStructured(user, structured)
 	}
 	out.UserStructured = &user
 	if p := strings.TrimSpace(cand.Preferences); p != "" {
@@ -233,7 +249,7 @@ func SystemDefaults(fatigueOverrides ...map[string]float64) Candidate {
 	}
 	for _, ov := range fatigueOverrides {
 		for w, p := range ov {
-			if w = strings.TrimSpace(w); w != "" && p > 0 {
+			if w = strings.TrimSpace(w); w != "" && p >= 0 && !math.IsNaN(p) && !math.IsInf(p, 0) {
 				fatigue[w] = FatiguePer1000(p)
 			}
 		}
@@ -249,8 +265,8 @@ func SystemDefaults(fatigueOverrides ...map[string]float64) Candidate {
 	}
 }
 
-// sanitizeStructured 落实"空值/零值=字段缺失"：归一化器可能吐 genre:"" 这类占位
-// （原型实测），必须当作未声明，避免污染合并与机械检查。
+// sanitizeStructured bỏ các trường rỗng, nhưng giữ ngưỡng fatigue bằng 0
+// vì người dùng có thể siết một từ xuống không lần mỗi chương.
 func sanitizeStructured(s Structured) Structured {
 	out := Structured{}
 	if g := strings.TrimSpace(s.Genre); g != "" {
@@ -279,7 +295,7 @@ func sanitizeFatigueWords(m map[string]FatiguePer1000) map[string]FatiguePer1000
 	}
 	out := make(map[string]FatiguePer1000, len(m))
 	for w, n := range m {
-		if w = strings.TrimSpace(w); w == "" || n <= 0 {
+		if w = strings.TrimSpace(w); w == "" || n < 0 || math.IsNaN(float64(n)) || math.IsInf(float64(n), 0) {
 			continue
 		}
 		out[w] = n

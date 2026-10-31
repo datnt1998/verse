@@ -48,6 +48,16 @@ func PackDefaults(pack PackSections) (Candidate, error) {
 		return Candidate{}, err
 	}
 	candidate := SystemDefaults(fatigue)
+	candidate.FatigueSources = make(map[string]string, len(candidate.Structured.FatigueWords))
+	for word := range candidate.Structured.FatigueWords {
+		candidate.FatigueSources[word] = "system_defaults"
+	}
+	for word, limit := range fatigue {
+		word = strings.TrimSpace(word)
+		if word != "" && limit >= 0 && candidate.Structured.FatigueWords[word] == FatiguePer1000(limit) {
+			candidate.FatigueSources[word] = "genre_pack"
+		}
+	}
 	if fatigueDeclared {
 		candidate.Source = "genre_pack"
 	}
@@ -539,7 +549,7 @@ func FatigueDensities(text string, m map[string]FatiguePer1000) []FatigueDensity
 	out := make([]FatigueDensity, 0, len(m))
 	for word, limit := range m {
 		per1000 := limit.Per1000()
-		if word == "" || per1000 <= 0 {
+		if word == "" || per1000 < 0 {
 			continue
 		}
 		n := strings.Count(text, word)

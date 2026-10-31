@@ -14,19 +14,24 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/store"
 )
 
-// FileRules đọc quy tắc của cấp toàn cục / dự án — không gắn với truyện nào, nên không có
+// FileRules đọc quy tắc cấp dự án — không gắn với truyện nào, nên không có
 // snapshot đã lưu, luật runtime hay mốc chương. Dùng cùng bộ chuẩn hoá và bộ nhớ đệm theo băm
 // nội dung như Service, chỉ khác nơi lưu đệm (một tệp JSON thay cho store của truyện).
 type FileRules struct {
 	norm *Normalizer
 	opts rules.LoadOptions
 	sink *fileNormCache
+	pack rules.Candidate
 }
 
-// NewFileRules dựng bộ đọc cho opts (HomeRulesDir, và ProjectRulesDir khi là cấp dự án).
+// NewFileRules dựng bộ đọc cho opts (ProjectRulesDir).
 // cachePath rỗng = chỉ đệm trong bộ nhớ của lần gọi. model có thể nil: dòng chưa có trong đệm hạ cấp.
-func NewFileRules(model llmtypes.ChatModel, opts rules.LoadOptions, cachePath string) *FileRules {
-	return &FileRules{norm: NewNormalizer(model), opts: opts, sink: &fileNormCache{path: cachePath}}
+func NewFileRules(model llmtypes.ChatModel, opts rules.LoadOptions, cachePath string, pack ...rules.Candidate) *FileRules {
+	f := &FileRules{norm: NewNormalizer(model), opts: opts, sink: &fileNormCache{path: cachePath}}
+	if len(pack) > 0 {
+		f.pack = pack[0]
+	}
+	return f
 }
 
 // FileEffective là hình dạng của GET S/rules/effective bỏ `runtime` và `timing`:
@@ -35,12 +40,17 @@ func NewFileRules(model llmtypes.ChatModel, opts rules.LoadOptions, cachePath st
 type FileEffective struct {
 	Snapshot *rules.Snapshot `json:"snapshot"`
 	Items    []RuleItem      `json:"items"`
+	FatigueWords      []rules.FatigueWord `json:"fatigueWords"`
+	ForbiddenDefaults []string            `json:"forbiddenDefaults"`
 }
 
 // Effective chuẩn hoá (có đệm) các tệp quy tắc và trả snapshot + từng quy tắc kèm chip.
 func (f *FileRules) Effective(ctx context.Context) (*FileEffective, error) {
 	b := newBatch(f.norm, f.opts, f.sink)
 	cands := []rules.Candidate{rules.SystemDefaults()}
+	if f.pack.Source == "genre_pack" {
+		cands = append(cands, f.pack)
+	}
 	items := []RuleItem{}
 	for _, rs := range rules.RawFileSources(f.opts) {
 		cand, fileItems := b.fileCandidate(ctx, rs)
@@ -59,7 +69,10 @@ func (f *FileRules) Effective(ctx context.Context) (*FileEffective, error) {
 		return nil, err
 	}
 	snap := rules.BuildSnapshot(cands)
-	return &FileEffective{Snapshot: &snap, Items: items}, nil
+	return &FileEffective{
+		Snapshot: &snap, Items: items, FatigueWords: rules.EffectiveFatigue(&snap, f.pack),
+		ForbiddenDefaults: rules.SystemDefaults().Structured.ForbiddenPhrases,
+	}, nil
 }
 
 // fileNormCache lưu bộ nhớ đệm chuẩn hoá ở một tệp JSON cùng định dạng với store.UserRules
