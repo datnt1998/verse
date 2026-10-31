@@ -19,7 +19,7 @@ type Entry struct {
 	Bytes int64  `json:"bytes"`
 }
 
-var namespaces = []struct{ path, group string }{{"library/overlays", "library"}, {"library/backdrops", "library"}, {"channels", "library"}, {"images", "images"}, {"editor", "editor"}, {"sources", "sources"}, {"exports", "exports"}}
+var namespaces = []struct{ path, group string }{{"library/overlays", "library"}, {"library/backdrops", "library"}, {"library/standard-template", "library"}, {"channels", "library"}, {"images", "images"}, {"editor", "editor"}, {"sources", "sources"}, {"exports", "exports"}, {"clone", "clone"}}
 
 // Inventory reports durable bytes without walking the configuration directory.
 // It refuses symlinks and unknown paths instead of importing secrets by guess.

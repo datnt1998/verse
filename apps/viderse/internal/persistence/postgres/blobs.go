@@ -207,6 +207,40 @@ func (s *BlobRepository) Bind(ctx context.Context, r media.Ref) error {
 	}
 	return nil
 }
+
+// Unbind gỡ hàng blob_refs của (store, path) trong publication transaction.
+// Khoá advisory per-key khớp Collect/Bind nên unbind không đua với GC đang
+// kiểm tra cùng object; path vắng mặt là no-op. Content chỉ mất ref khi hàng
+// domain trỏ tới nó (clone_artifacts, storage_live_refs) cũng đã gỡ trong
+// cùng tx.
+func (s *BlobRepository) Unbind(ctx context.Context, storeID, path string) error {
+	db := mediaDB(ctx, s.pool)
+	if _, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); !ok {
+		return errors.New("manifest unbind requires publication transaction")
+	}
+	if err := media.ValidatePath(path); err != nil {
+		return err
+	}
+	// Khoá theo object key hiện tại của path (nếu có) để nghiêm chỉnh đua với
+	// Collect; khoá theo path để hai unbind/bind cùng path cũng xếp hàng.
+	var key string
+	err := db.QueryRow(ctx, "SELECT object_key FROM blob_refs WHERE logical_path=$1", path).Scan(&key)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	if key != "" {
+		if _, err = db.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,253025))", storeID+"/"+key); err != nil {
+			return err
+		}
+	}
+	if _, err = db.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,253025))", storeID+"/path/"+path); err != nil {
+		return err
+	}
+	if _, err = db.Exec(ctx, "DELETE FROM blob_refs WHERE logical_path=$1", path); err != nil {
+		return err
+	}
+	return nil
+}
 func (s *BlobRepository) Resolve(ctx context.Context, store, path string) (media.Ref, error) {
 	var r media.Ref
 	r.StoreID = store

@@ -37,9 +37,9 @@ func TestDefaultRecipeMatchesYtFactory(t *testing.T) {
 	}
 }
 
-func TestStandardRecipeIsCutoutWithBuiltinPrompts(t *testing.T) {
+func TestStandardRecipeUsesCanonicalUntouchedLayoutDefaults(t *testing.T) {
 	r := StandardRecipe()
-	if r.Scenes.Style != StyleCutout || r.Scenes.ScenePromptID != BuiltinScene || r.Scenes.CoverPromptID != BuiltinCoverHook {
+	if r.Scenes.Style != StyleFull || r.Scenes.ScenePromptID != BuiltinScene || r.Scenes.CoverPromptID != BuiltinCoverClean {
 		t.Fatalf("Mẫu chuẩn = %+v", r.Scenes)
 	}
 	if err := ValidateRecipe(r); err != nil {

@@ -621,6 +621,11 @@ func (q *Queries) NextIdentityLeaseExpiry(ctx context.Context) (pgtype.Timestamp
 }
 
 const patchChannel = `-- name: PatchChannel :execrows
+WITH reset_auto_baselines AS (
+    UPDATE owner_channel_sources SET auto_baseline_at = NULL
+    WHERE owner_channel_id = $19::uuid
+      AND $13::bool AND NOT $14::bool
+)
 UPDATE owner_channels SET
     name               = CASE WHEN $1::bool        THEN $2::text        ELSE name END,
     youtube_url        = CASE WHEN $3::bool THEN $4::text ELSE youtube_url END,
@@ -836,19 +841,23 @@ func (q *Queries) RivalExistsForChannels(ctx context.Context, id string) (bool, 
 }
 
 const setAutoPick = `-- name: SetAutoPick :execrows
+WITH reset_auto_baselines AS (
+    UPDATE owner_channel_sources SET auto_baseline_at = NULL
+    WHERE owner_channel_id = $2::uuid AND NOT $1::bool
+)
 UPDATE owner_channels
-SET auto_pick = $2, updated_at = clock_timestamp()
-WHERE id = $1
+SET auto_pick = $1::bool, updated_at = clock_timestamp()
+WHERE id = $2::uuid
 `
 
 type SetAutoPickParams struct {
-	ID       pgtype.UUID `json:"id"`
 	AutoPick bool        `json:"auto_pick"`
+	ID       pgtype.UUID `json:"id"`
 }
 
 // Bật/tắt Tự lấy; tắt khi bỏ liên kết đối thủ cuối cùng.
 func (q *Queries) SetAutoPick(ctx context.Context, arg SetAutoPickParams) (int64, error) {
-	result, err := q.db.Exec(ctx, setAutoPick, arg.ID, arg.AutoPick)
+	result, err := q.db.Exec(ctx, setAutoPick, arg.AutoPick, arg.ID)
 	if err != nil {
 		return 0, err
 	}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "standard-scene-cool",
+    "fileName": "scene-cool.webp",
+    "mime": "image/webp",
+    "contentHash": "sha256:9a9086304bbad53b2dc1920dd44cca81dc572144c6f515c35d8e5fc8c0e4493a",
+    "size": 61328
+  },
+  {
+    "id": "standard-scene-warm",
+    "fileName": "scene-warm.webp",
+    "mime": "image/webp",
+    "contentHash": "sha256:f2121cb1307ff5708eb65bdd4c81a973d475b606bc18f08213d527ff377d5142",
+    "size": 64070
+  },
+  {
+    "id": "standard-voice-placeholder",
+    "fileName": "voice-placeholder.wav",
+    "mime": "audio/wav",
+    "contentHash": "sha256:8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+    "size": 1152044
+  },
+  {
+    "id": "standard-snow-loop",
+    "fileName": "snow-loop.mp4",
+    "mime": "video/mp4",
+    "contentHash": "sha256:eead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937",
+    "size": 294554
+  }
+]

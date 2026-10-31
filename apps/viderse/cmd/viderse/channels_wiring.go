@@ -119,6 +119,7 @@ func mountChannels(
 	notifyTemplates := web.Notifier(hub, library.TopicTemplate)
 	templates := library.New(library.Deps{
 		Store: postgres.NewLibraryStore(pool),
+		Media: mediaSvc,
 		Notify: func(topic, ref string) {
 			if topic == library.TopicTemplate {
 				notifyTemplates(ref)
@@ -185,7 +186,7 @@ func openChannelService(ctx context.Context, needAI bool) (*channels.Service, fu
 		}
 	}
 	// CLI: library.Service tối giản, không SSE.
-	templates := library.New(library.Deps{Store: postgres.NewLibraryStore(pool)})
+	templates := library.New(library.Deps{Store: postgres.NewLibraryStore(pool), Media: manager.Media()})
 	svc := newChannelService(pool, activities, ai, storageSvc, templates, nil, manager.Media())
 	if err := svc.Start(ctx); err != nil {
 		aiStop()

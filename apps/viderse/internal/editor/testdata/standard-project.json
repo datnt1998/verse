@@ -1,0 +1,885 @@
+{
+  "id": "standard-project",
+  "name": "Mẫu chuẩn",
+  "description": "",
+  "createdAt": 1793448000000,
+  "updatedAt": 1793448000000,
+  "duration": 12,
+  "schemaVersion": 15,
+  "metadata": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "mediaItems": [
+    {
+      "id": "standard-scene-cool"
+    },
+    {
+      "id": "standard-scene-warm"
+    },
+    {
+      "id": "standard-voice-placeholder"
+    },
+    {
+      "id": "standard-snow-loop"
+    }
+  ],
+  "timeline": {
+    "items": [
+      {
+        "id": "standard-scene-0",
+        "type": "image",
+        "trackId": "standard-scenes",
+        "from": 0,
+        "durationInFrames": 180,
+        "label": "Ảnh minh hoạ 1",
+        "mediaId": "standard-scene-cool",
+        "src": "/api/editor/media/standard-scene-cool?v=sha256%3A9a9086304bbad53b2dc1920dd44cca81dc572144c6f515c35d8e5fc8c0e4493a",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      {
+        "id": "standard-scene-1",
+        "type": "image",
+        "trackId": "standard-scenes",
+        "from": 180,
+        "durationInFrames": 180,
+        "label": "Ảnh minh hoạ 2",
+        "mediaId": "standard-scene-warm",
+        "src": "/api/editor/media/standard-scene-warm?v=sha256%3Af2121cb1307ff5708eb65bdd4c81a973d475b606bc18f08213d527ff377d5142",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      {
+        "id": "standard-audio",
+        "type": "audio",
+        "trackId": "standard-audio",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Âm thanh minh hoạ",
+        "mediaId": "standard-voice-placeholder",
+        "src": "/api/editor/media/standard-voice-placeholder?v=sha256%3A8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+        "volume": 0,
+        "sourceStart": 0,
+        "sourceEnd": 360,
+        "sourceDuration": 360,
+        "sourceFps": 30
+      },
+      {
+        "id": "standard-captions",
+        "type": "subtitle",
+        "trackId": "standard-captions",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Phụ đề",
+        "source": {
+          "type": "subtitle-import",
+          "fileName": "captions.json",
+          "format": "vtt",
+          "importedAt": 0
+        },
+        "cues": [
+          {
+            "id": "preview",
+            "startSeconds": 0.2,
+            "endSeconds": 2.8,
+            "text": "Câu chuyện bắt đầu từ đây"
+          }
+        ],
+        "words": [
+          {
+            "text": "Câu",
+            "startFrame": 6,
+            "endFrame": 18
+          },
+          {
+            "text": "chuyện",
+            "startFrame": 18,
+            "endFrame": 30
+          },
+          {
+            "text": "bắt",
+            "startFrame": 30,
+            "endFrame": 42
+          },
+          {
+            "text": "đầu",
+            "startFrame": 42,
+            "endFrame": 54
+          },
+          {
+            "text": "từ",
+            "startFrame": 54,
+            "endFrame": 66
+          },
+          {
+            "text": "đây",
+            "startFrame": 66,
+            "endFrame": 78
+          }
+        ],
+        "wordsEstimated": false,
+        "captionPreset": "karaoke",
+        "color": "#ffffff",
+        "fontFamily": "Arial",
+        "fontWeight": "bold",
+        "fontSize": 64,
+        "stroke": {
+          "width": 8,
+          "color": "#0b1020"
+        },
+        "textShadow": {
+          "offsetX": 0,
+          "offsetY": 4,
+          "blur": 12,
+          "color": "#000000"
+        },
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "lineHeight": 1.15,
+        "transform": {
+          "x": 0,
+          "y": 324,
+          "width": 1560,
+          "height": 160
+        }
+      },
+      {
+        "id": "standard-wave",
+        "type": "shape",
+        "trackId": "standard-wave",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Sóng giọng",
+        "shapeType": "rectangle",
+        "mediaId": "standard-voice-placeholder",
+        "fillColor": "#b8d8e8",
+        "sourceStart": 0,
+        "sourceEnd": 360,
+        "sourceFps": 30,
+        "sourceDuration": 360,
+        "transform": {
+          "x": 0,
+          "y": 205,
+          "width": 1020,
+          "height": 72,
+          "opacity": 0.3
+        },
+        "waveformVisualizer": {
+          "version": 1,
+          "windowSeconds": 1,
+          "bars": 96,
+          "amplitude": 0.8,
+          "color": "#b8d8e8",
+          "strokeWidth": 3,
+          "baseline": 0.5,
+          "visible": true,
+          "sourceHash": "sha256:8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+          "samplesPerSecond": 50,
+          "durationSeconds": 12,
+          "envelopeBase64": "AAAAAAtHmd/+8bxtIwAAAAAAAAAAAAcwbave+vzisXM3CgAAAAAAAAg0drfi/ffXoF4hAQAAAAAAAAYrZKHQ8/z21Z9pMQgAAAAAAA1Mot767q9bEAAAAAAAAAAAAAYmWY/B5vz868aWXCoIAAAAAAUmVYe64Pf/89yzfkgcAAAAAAUfTH6s0vL/+uzNoW1AAAAAAAUeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYoVpXI6v376sONWSYFAAAAAAgxbKfe+P3tvoZLFgAAAAAAAApElNf7+NKMPggAAAAAAAAAAAUiUoS23Pb++ty4glIiAAAAAA1KneX+7rRlGgAAAAAAAAAAAAUiT4O12vf/9uK7jVopAAAAAAUhToCx2fX9+efEmWQ0AAAAAAYtYJ3O7fr127B3OxEAAAAAAAUiU4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlAkdT4+9ycUBEAAAAAAAAAAApAldX7+NKJPwcAAAAAAAAAAAgxd7fl/ffcoFkiAQAAAAAAAAg0bq7f+vrmtHA0CAAAAAAAAAYlUom95Pr+89asd0EVAAAAAAk7hMfs++u7bC0DAAAAAAAAAAYpXJzM8fz43bN7QRQAAAAAAAUhSHim0ez9/vHWsoNRAAAAAAUnWZLC6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "normalization": 0.19864614837681904
+        }
+      },
+      {
+        "id": "standard-start-subscribe-backdrop",
+        "type": "shape",
+        "trackId": "standard-start-backdrop",
+        "from": 120,
+        "durationInFrames": 180,
+        "label": "Nền nút Subscribe",
+        "linkedGroupId": "standard-start-subscribe-group",
+        "shapeType": "rectangle",
+        "fillColor": "#cc3327",
+        "cornerRadius": 27.5,
+        "transform": {
+          "x": 740,
+          "y": 435,
+          "width": 240,
+          "height": 55
+        },
+        "templateAnchor": "start"
+      },
+      {
+        "id": "standard-start-subscribe-play",
+        "type": "shape",
+        "trackId": "standard-start-icon",
+        "from": 120,
+        "durationInFrames": 180,
+        "label": "Biểu tượng phát",
+        "linkedGroupId": "standard-start-subscribe-group",
+        "shapeType": "triangle",
+        "direction": "right",
+        "fillColor": "#ffffff",
+        "transform": {
+          "x": 650.5,
+          "y": 435,
+          "width": 25,
+          "height": 25
+        },
+        "templateAnchor": "start"
+      },
+      {
+        "id": "standard-start-subscribe-text",
+        "type": "text",
+        "trackId": "standard-start-text",
+        "from": 120,
+        "durationInFrames": 180,
+        "label": "Chữ Subscribe",
+        "linkedGroupId": "standard-start-subscribe-group",
+        "text": "Subscribe",
+        "color": "#ffffff",
+        "fontSize": 28,
+        "fontWeight": "semibold",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "transform": {
+          "x": 761.5,
+          "y": 435,
+          "width": 197,
+          "height": 55
+        },
+        "templateAnchor": "start"
+      },
+      {
+        "id": "standard-end-subscribe-backdrop",
+        "type": "shape",
+        "trackId": "standard-end-backdrop",
+        "from": 120,
+        "durationInFrames": 240,
+        "label": "Nền nút Subscribe",
+        "linkedGroupId": "standard-end-subscribe-group",
+        "shapeType": "rectangle",
+        "fillColor": "#cc3327",
+        "cornerRadius": 34.5,
+        "transform": {
+          "x": 0,
+          "y": -390,
+          "width": 300,
+          "height": 69
+        },
+        "templateAnchor": "end"
+      },
+      {
+        "id": "standard-end-subscribe-play",
+        "type": "shape",
+        "trackId": "standard-end-icon",
+        "from": 120,
+        "durationInFrames": 240,
+        "label": "Biểu tượng phát",
+        "linkedGroupId": "standard-end-subscribe-group",
+        "shapeType": "triangle",
+        "direction": "right",
+        "fillColor": "#ffffff",
+        "transform": {
+          "x": -112,
+          "y": -390,
+          "width": 32,
+          "height": 32
+        },
+        "templateAnchor": "end"
+      },
+      {
+        "id": "standard-end-subscribe-text",
+        "type": "text",
+        "trackId": "standard-end-text",
+        "from": 120,
+        "durationInFrames": 240,
+        "label": "Chữ Subscribe",
+        "linkedGroupId": "standard-end-subscribe-group",
+        "text": "Subscribe",
+        "color": "#ffffff",
+        "fontSize": 35,
+        "fontWeight": "semibold",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "transform": {
+          "x": 27,
+          "y": -390,
+          "width": 246,
+          "height": 69
+        },
+        "templateAnchor": "end"
+      },
+      {
+        "id": "standard-snow",
+        "type": "video",
+        "trackId": "standard-snow",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Tuyết nhẹ",
+        "templateAnchor": "full",
+        "mediaId": "standard-snow-loop",
+        "src": "/api/editor/media/standard-snow-loop?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceStart": 0,
+        "sourceEnd": 300,
+        "sourceDuration": 300,
+        "embeddedAudioMuted": true,
+        "loop": true,
+        "blendMode": "screen",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "opacity": 0.45
+        }
+      }
+    ],
+    "tracks": [
+      {
+        "name": "Lớp phủ: tuyết",
+        "kind": "video",
+        "id": "standard-snow",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 0,
+        "items": []
+      },
+      {
+        "name": "Chữ Subscribe cuối",
+        "kind": "video",
+        "id": "standard-end-text",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 1,
+        "items": []
+      },
+      {
+        "name": "Biểu tượng Subscribe cuối",
+        "kind": "video",
+        "id": "standard-end-icon",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 2,
+        "items": []
+      },
+      {
+        "name": "Nền Subscribe cuối",
+        "kind": "video",
+        "id": "standard-end-backdrop",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 3,
+        "items": []
+      },
+      {
+        "name": "Chữ Subscribe đầu",
+        "kind": "video",
+        "id": "standard-start-text",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 4,
+        "items": []
+      },
+      {
+        "name": "Biểu tượng Subscribe đầu",
+        "kind": "video",
+        "id": "standard-start-icon",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 5,
+        "items": []
+      },
+      {
+        "name": "Nền Subscribe đầu",
+        "kind": "video",
+        "id": "standard-start-backdrop",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 6,
+        "items": []
+      },
+      {
+        "name": "Phụ đề",
+        "kind": "video",
+        "id": "standard-captions",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 7,
+        "items": [],
+        "templateSlot": "captions"
+      },
+      {
+        "name": "Sóng giọng",
+        "kind": "video",
+        "id": "standard-wave",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 8,
+        "items": []
+      },
+      {
+        "name": "Hình ảnh cảnh",
+        "kind": "video",
+        "id": "standard-scenes",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 9,
+        "items": [],
+        "templateSlot": "scenes"
+      },
+      {
+        "name": "Âm thanh gốc",
+        "kind": "audio",
+        "id": "standard-audio",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 10,
+        "items": [],
+        "templateSlot": "source-audio",
+        "templateLoudnessLufs": -14
+      }
+    ],
+    "transitions": [
+      {
+        "id": "editor-generated-1",
+        "leftClipId": "standard-scene-0",
+        "rightClipId": "standard-scene-1",
+        "trackId": "standard-scenes",
+        "type": "crossfade",
+        "durationInFrames": 15,
+        "presentation": "fade",
+        "timing": "ease-in-out",
+        "alignment": 0.5
+      }
+    ],
+    "keyframes": [
+      {
+        "itemId": "standard-start-subscribe-backdrop",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-2",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-3",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-4",
+                "frame": 171,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-5",
+                "frame": 179,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-6",
+                "frame": 0,
+                "value": 1031,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-7",
+                "frame": 12,
+                "value": 740,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-8",
+                "frame": 171,
+                "value": 740,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-9",
+                "frame": 179,
+                "value": 740,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "itemId": "standard-start-subscribe-play",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-10",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-11",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-12",
+                "frame": 171,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-13",
+                "frame": 179,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-14",
+                "frame": 0,
+                "value": 941.5,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-15",
+                "frame": 12,
+                "value": 650.5,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-16",
+                "frame": 171,
+                "value": 650.5,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-17",
+                "frame": 179,
+                "value": 650.5,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "itemId": "standard-start-subscribe-text",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-18",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-19",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-20",
+                "frame": 171,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-21",
+                "frame": 179,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-22",
+                "frame": 0,
+                "value": 1052.5,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-23",
+                "frame": 12,
+                "value": 761.5,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-24",
+                "frame": 171,
+                "value": 761.5,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-25",
+                "frame": 179,
+                "value": 761.5,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "itemId": "standard-end-subscribe-backdrop",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-26",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-27",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-28",
+                "frame": 231,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-29",
+                "frame": 239,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-30",
+                "frame": 0,
+                "value": 363,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-31",
+                "frame": 12,
+                "value": 0,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-32",
+                "frame": 231,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-33",
+                "frame": 239,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "itemId": "standard-end-subscribe-play",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-34",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-35",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-36",
+                "frame": 231,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-37",
+                "frame": 239,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-38",
+                "frame": 0,
+                "value": 251,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-39",
+                "frame": 12,
+                "value": -112,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-40",
+                "frame": 231,
+                "value": -112,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-41",
+                "frame": 239,
+                "value": -112,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "itemId": "standard-end-subscribe-text",
+        "animationVersion": 2,
+        "properties": [
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "id": "editor-generated-42",
+                "frame": 0,
+                "value": 0,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-43",
+                "frame": 12,
+                "value": 1,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-44",
+                "frame": 231,
+                "value": 1,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-45",
+                "frame": 239,
+                "value": 0,
+                "easing": "linear"
+              }
+            ]
+          },
+          {
+            "property": "x",
+            "keyframes": [
+              {
+                "id": "editor-generated-46",
+                "frame": 0,
+                "value": 390,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-47",
+                "frame": 12,
+                "value": 27,
+                "easing": "ease-out"
+              },
+              {
+                "id": "editor-generated-48",
+                "frame": 231,
+                "value": 27,
+                "easing": "linear"
+              },
+              {
+                "id": "editor-generated-49",
+                "frame": 239,
+                "value": 27,
+                "easing": "linear"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "markers": [],
+    "compositions": [],
+    "topLevelSequenceIds": [],
+    "currentFrame": 0,
+    "scrollPosition": 0,
+    "masterBusDb": 0
+  }
+}

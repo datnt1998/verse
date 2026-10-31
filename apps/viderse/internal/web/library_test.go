@@ -164,7 +164,7 @@ func testSummary() library.Summary {
 	tpl := testTemplate()
 	return library.Summary{
 		TemplateSummary: domain.TemplateSummary{Template: tpl, Channels: domain.ChannelRefList{{ID: "c1", Name: "Kênh Một", Position: 0}}},
-		ScenePromptName: "Theo nhận diện kênh", CoverPromptName: "Chữ hook",
+		ScenePromptName: "Theo nhận diện kênh", CoverPromptName: "Ảnh sạch",
 		ImageCount: 5, ImageCountKnown: true, OverlayCount: 1, BackdropChannels: 0,
 	}
 }
@@ -190,7 +190,7 @@ func TestLibraryTemplateListShape(t *testing.T) {
 	if item.Images.PerVideo == nil || *item.Images.PerVideo != 5 || item.Images.Mode != "fixed" {
 		t.Fatalf("images = %+v", item.Images)
 	}
-	if item.Prompts.Summary != "Prompt Theo nhận diện kênh · Tách nền · bìa Chữ hook" {
+	if item.Prompts.Summary != "Prompt Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch" {
 		t.Fatalf("prompt summary = %q", item.Prompts.Summary)
 	}
 	if item.Preview.State != domain.PreviewNone || len(item.Channels) != 1 {
@@ -214,7 +214,7 @@ func TestLibraryTemplateDetailHasRecipeAndPrice(t *testing.T) {
 	}
 	var body TemplateDetailWire
 	decodeJSON(t, w.Body.Bytes(), &body)
-	if body.Recipe.Scenes.Style != "cutout" || body.Recipe.Scenes.ScenePromptID != "builtin:scene" {
+	if body.Recipe.Scenes.Style != "full" || body.Recipe.Scenes.ScenePromptID != "builtin:scene" || body.Recipe.Scenes.CoverPromptID != "builtin:cover-clean" {
 		t.Fatalf("recipe = %+v", body.Recipe.Scenes)
 	}
 	if body.SavedAt.IsZero() || !body.Price.Known || body.Price.PerImage != 0.04 || body.Price.TotalUSD == nil || *body.Price.TotalUSD != 0.24 {

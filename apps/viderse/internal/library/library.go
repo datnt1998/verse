@@ -13,6 +13,7 @@ package library
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -48,7 +49,10 @@ type Store interface {
 	InsertTemplate(ctx context.Context, t domain.Template) error
 	// UpdateTemplate ghi recipe + tên với điều kiện revision khớp; trả revision
 	// mới và ok=false khi revision đã cũ (hoặc hàng đã mất).
-	UpdateTemplate(ctx context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64) (revision int64, ok bool, err error)
+	UpdateTemplate(ctx context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64, project json.RawMessage) (revision int64, ok bool, err error)
+	// InitializeTemplateProject only fills a missing project at this revision.
+	// Concurrent backfills never replace an authored or already generated project.
+	InitializeTemplateProject(ctx context.Context, id string, project json.RawMessage, expectRevision int64) (bool, error)
 	// RenameTemplate đổi tên, không đổi revision (tên không nằm trong bản xem
 	// thử); expectRevision nil = không kiểm.
 	RenameTemplate(ctx context.Context, id, name string, expectRevision *int64) (ok bool, err error)
@@ -284,6 +288,12 @@ func (s *Service) List(ctx context.Context) ([]Summary, error) {
 	}
 	out := make([]Summary, 0, len(rows))
 	for _, row := range rows {
+		if len(row.Project) > 0 {
+			row.Recipe, err = s.projectTemplateRecipe(ctx, row.Project, row.Recipe)
+			if err != nil {
+				return nil, err
+			}
+		}
 		out = append(out, summarize(row, names))
 	}
 	return out, nil
@@ -333,6 +343,10 @@ func (s *Service) Get(ctx context.Context, id string) (*Detail, error) {
 	}
 	if tpl == nil {
 		return nil, notFound("Template")
+	}
+	tpl, err = s.ensureTemplateProject(ctx, tpl)
+	if err != nil {
+		return nil, err
 	}
 	channels, err := s.store.TemplateChannels(ctx, id)
 	if err != nil {
@@ -414,7 +428,14 @@ func (s *Service) insert(ctx context.Context, name string) (*domain.Template, er
 		ID: s.newID(), Name: name, Recipe: recipe,
 		Revision: 1, CreatedAt: now, UpdatedAt: now,
 	}
-	if err := s.store.InsertTemplate(ctx, tpl); err != nil {
+	project, err := s.standardProject(ctx, tpl.ID, tpl.Name, tpl.CreatedAt, tpl.Recipe)
+	if err != nil {
+		return nil, err
+	}
+	tpl.Project = project
+	if err := s.publishStandardAssets(ctx, func(txctx context.Context) error {
+		return s.store.InsertTemplate(txctx, tpl)
+	}); err != nil {
 		return nil, err
 	}
 	s.emit(TopicTemplate, tpl.ID)
@@ -431,6 +452,10 @@ func (s *Service) Duplicate(ctx context.Context, fromID, name string) (*domain.T
 	if src == nil {
 		return nil, notFound("Template")
 	}
+	src, err = s.ensureTemplateProject(ctx, src)
+	if err != nil {
+		return nil, err
+	}
 	next := strings.TrimSpace(name)
 	if next == "" {
 		next = src.Name + " — Bản sao"
@@ -441,6 +466,10 @@ func (s *Service) Duplicate(ctx context.Context, fromID, name string) (*domain.T
 	}
 	now := s.now().UTC()
 	tpl := domain.Template{ID: s.newID(), Name: next, Recipe: src.Recipe, Revision: 1, CreatedAt: now, UpdatedAt: now}
+	tpl.Project, err = duplicateTemplateProject(src.Project, tpl.ID, tpl.Name, now)
+	if err != nil {
+		return nil, err
+	}
 	if err := s.store.InsertTemplate(ctx, tpl); err != nil {
 		return nil, err
 	}
@@ -453,7 +482,8 @@ func (s *Service) Duplicate(ctx context.Context, fromID, name string) (*domain.T
 type Patch struct {
 	Revision int64
 	Name     *string
-	Recipe   []byte // nil = không đổi recipe
+	Recipe   []byte          // nil = không đổi recipe
+	Project  json.RawMessage // nil preserves the authored project
 }
 
 // PatchTemplate lưu thay đổi với điều kiện revision; lệch → 409 conflict.
@@ -465,6 +495,10 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 	if current == nil {
 		return nil, notFound("Template")
 	}
+	current, err = s.ensureTemplateProject(ctx, current)
+	if err != nil {
+		return nil, err
+	}
 	name := current.Name
 	if patch.Name != nil {
 		name, err = validTemplateName(*patch.Name)
@@ -472,24 +506,45 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 			return nil, err
 		}
 	}
+	project := current.Project
 	recipe := current.Recipe
+	if patch.Project != nil {
+		project, err = validateTemplateProject(patch.Project, id, current.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		recipe, err = s.projectTemplateRecipe(ctx, project, recipe)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if patch.Recipe != nil {
-		recipe, err = ParseRecipe(patch.Recipe, current.Recipe)
+		recipe, err = ParseRecipe(patch.Recipe, recipe)
 		if err != nil {
 			return nil, err
 		}
 		if err := ValidateRecipe(recipe); err != nil {
 			return nil, err
 		}
+	}
+	if patch.Recipe != nil || patch.Project != nil {
 		if err := CheckRefs(ctx, refChecker{store: s.store}, recipe); err != nil {
 			return nil, err
 		}
+	}
+	cover, err := s.resolvePrompt(ctx, recipe.Scenes.CoverPromptID, BuiltinCoverClean, "scenes.coverPromptId")
+	if err != nil {
+		return nil, err
+	}
+	project, err = updateTemplateProject(project, name, recipe, cover.Composition, patch.Recipe != nil, s.now().UTC())
+	if err != nil {
+		return nil, err
 	}
 	var writeName *string
 	if patch.Name != nil {
 		writeName = &name
 	}
-	revision, ok, err := s.store.UpdateTemplate(ctx, id, writeName, recipe, patch.Revision)
+	revision, ok, err := s.store.UpdateTemplate(ctx, id, writeName, recipe, patch.Revision, project)
 	if errors.Is(err, ErrPromptRef) || errors.Is(err, ErrBackdropRef) {
 		// Tham chiếu đổi/mất giữa lúc kiểm và lúc ghi: kiểm lại để trả lỗi đúng trường.
 		if refErr := CheckRefs(ctx, refChecker{store: s.store}, recipe); refErr != nil {
@@ -505,6 +560,7 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 	}
 	s.emit(TopicTemplate, id)
 	current.Name, current.Recipe, current.Revision, current.UpdatedAt = name, recipe, revision, s.now().UTC()
+	current.Project = project
 	return current, nil
 }
 

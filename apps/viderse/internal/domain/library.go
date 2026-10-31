@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Kiểu dùng chung của Thư viện: recipe template (một JSONB duy nhất), prompt
 // ảnh và lớp phủ. Chỉ kiểu giá trị + hằng giới hạn — không I/O. Trình kiểm
@@ -156,6 +159,7 @@ type Template struct {
 	ID              string
 	Name            string
 	Recipe          Recipe
+	Project         json.RawMessage // canonical schema-v15 editor project; nil only before durable backfill
 	Revision        int64
 	PreviewRevision *int64
 	PreviewBuiltAt  *time.Time

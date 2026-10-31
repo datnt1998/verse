@@ -10,6 +10,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -417,6 +419,13 @@ func wireAI(
 	// API không bị chuyển tiếp sang máy khác (SSRF phần redirect).
 	httpClient := aiconn.NewCredentialClient(30 * time.Second)
 	limit := imagegen.DefaultDailyPaidImageLimit
+	if raw := os.Getenv("VIDERSE_DAILY_PAID_IMAGE_LIMIT"); raw != "" {
+		n, err := strconv.Atoi(raw)
+		if err != nil || n < 1 || n > imagegen.DefaultDailyPaidImageLimit {
+			return nil, fmt.Errorf("VIDERSE_DAILY_PAID_IMAGE_LIMIT phải từ 1 đến %d", imagegen.DefaultDailyPaidImageLimit)
+		}
+		limit = n
+	}
 
 	var svc *aiconn.Service
 	exec := &aiExecutors{

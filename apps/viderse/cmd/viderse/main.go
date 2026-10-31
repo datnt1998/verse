@@ -23,6 +23,7 @@ const usage = `Cách dùng:
   viderse backdrop list|add|show|videos|refresh|remove  Video nền (kênh Twitch/Bilibili, video lẻ)
   viderse backdrop video add|list|remove         Video lẻ của Video nền
   viderse backdrop parse <link>                  Phân loại link nền tảng
+  viderse clone run|batch|pause|resume|cancel|status|wait  Điều khiển pipeline qua máy chủ
   viderse logout [provider]           Xoá phiên đăng nhập
   viderse login --status              Xem trạng thái đăng nhập
   viderse version                     In phiên bản
@@ -37,6 +38,7 @@ Biến môi trường:
   VERSE_IDENTITY_DATABASE_URL    DSN kho tài khoản chung, role viderse_identity
                                  (bắt buộc cho serve và user grant|revoke)
   VIDERSE_ADDR                   Địa chỉ lắng nghe (ghi đè bởi -addr)
+  VIDERSE_DAILY_PAID_IMAGE_LIMIT Trần ảnh trả phí/ngày/nguồn, 1–50 (mặc định 50)
   TRUSTED_PROXIES / PUBLIC_URL / SECURE_COOKIES   Ranh giới proxy (platform/webguard)
   VERSE_COOKIE_DOMAIN / VERSE_APP_ORIGINS         Cookie chung + allowlist origin
 `
@@ -72,6 +74,8 @@ func main() {
 		code = runOverlayCommand(args[1:], os.Stdout, os.Stderr)
 	case "backdrop":
 		code = runBackdropCommand(args[1:], os.Stdout, os.Stderr)
+	case "clone":
+		code = runCloneCommand(args[1:], os.Stdout, os.Stderr)
 	case "login":
 		code = runLoginCommand(args[1:], os.Stdout, os.Stderr)
 	case "logout":

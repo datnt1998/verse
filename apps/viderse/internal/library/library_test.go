@@ -116,7 +116,7 @@ func TestCreateTemplateUsesStandardRecipeAndSnow(t *testing.T) {
 	if tpl.Name != "Mẫu thử" || tpl.Revision != 1 {
 		t.Fatalf("template = %+v", tpl)
 	}
-	if tpl.Recipe.Scenes.Style != StyleCutout || tpl.Recipe.Scenes.ScenePromptID != BuiltinScene {
+	if tpl.Recipe.Scenes.Style != StyleFull || tpl.Recipe.Scenes.ScenePromptID != BuiltinScene {
 		t.Fatalf("recipe = %+v", tpl.Recipe.Scenes)
 	}
 	if len(tpl.Recipe.Overlays) != 1 || tpl.Recipe.Overlays[0] != snow.ID {
@@ -333,7 +333,7 @@ func TestListSummaryPromptText(t *testing.T) {
 		t.Fatalf("list = %+v %v", items, err)
 	}
 	item := items[0]
-	if item.ScenePromptName != "Theo nhận diện kênh" || item.CoverPromptName != "Chữ hook" {
+	if item.ScenePromptName != "Theo nhận diện kênh" || item.CoverPromptName != "Ảnh sạch" {
 		t.Fatalf("tên prompt = %+v", item)
 	}
 	if !item.ImageCountKnown || item.ImageCount != 5 || len(item.Channels) != 1 {
@@ -530,13 +530,13 @@ func TestSnapshotResolvesBuiltinAndCustomPrompts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if snap.Style != StyleCutout || snap.ImagePromptMode != "blend" {
+	if snap.Style != StyleFull || snap.ImagePromptMode != "blend" {
 		t.Fatalf("snapshot = %+v", snap)
 	}
 	if snap.ImagePrompt == "" || snap.ScenePrompt.ID != BuiltinScene || !snap.ScenePrompt.BuiltIn {
 		t.Fatalf("imagePrompt = %+v", snap.ScenePrompt)
 	}
-	if snap.Thumbnail != "hook" || snap.CoverPrompt.Prompt == "" {
+	if snap.Thumbnail != "clean" || snap.CoverPrompt.Prompt == "" {
 		t.Fatalf("bìa = %+v", snap)
 	}
 	if len(snap.Overlays) != 1 || snap.Overlays[0].ID != snow.ID || snap.Overlays[0].FilePath == "" {

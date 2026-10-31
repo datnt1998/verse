@@ -26,6 +26,7 @@ var ui embed.FS
 // Gateway phục vụ toàn bộ HTTP của app.
 type Gateway struct {
 	*webapp.Server
+	Clone             CloneService
 	accounts          *identity.Store
 	hub               *events.Hub
 	status            *status.Service

@@ -165,6 +165,19 @@ describe('vòng poll dự phòng', () => {
     stop(); release()
   })
 
+  it('refreshes the visible queue alongside status while the event stream is down', async () => {
+    mockFetch({ events: () => deferred<Response>().promise })
+    let revision = 1
+    const release = cache.retain(keys.queue(), async () => ({ revision }))
+    await vi.advanceTimersByTimeAsync(10)
+    const stop = startDataEvents()
+    await vi.advanceTimersByTimeAsync(10)
+    revision = 2
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(cache.get<{ revision: number }>(keys.queue()).data?.revision).toBe(2)
+    stop(); release()
+  })
+
   it('nối lại sau rớt: chỉ invalidate qua cache, không setData thô', async () => {
     mockFetch({ events: () => hangingStream([HELLO]), status: () => Promise.resolve(json(STATUS)) })
     const release = cache.retain(keys.status(), () => request('/api/status'))

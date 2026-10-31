@@ -1,13 +1,16 @@
 ---
 phase: 5
 title: "Lõi pipeline, Làm video, Hàng chờ"
-status: pending
+status: in_progress
 priority: P1
 effort: 88h
 dependsOn: [4]
 ---
 
 # Phase 05 · Lõi pipeline, Làm video, Hàng chờ
+
+Core contracts, fenced persistence, worker lanes, queue/HTTP/CLI integration and read-model fixtures are implemented on `feat/viderse-p05`. Acceptance is **not closed**: wait for all editor/template/ingest contributions, regenerate sqlc, run the complete vs3 checks and execute the real paid-image/restart smoke before marking this phase complete.
+
 
 ## Mục tiêu
 

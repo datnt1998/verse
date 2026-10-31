@@ -1,0 +1,538 @@
+[
+  {
+    "name": "overlapping-reading-order",
+    "cues": [
+      {
+        "id": "a",
+        "startSec": 0,
+        "endSec": 1,
+        "text": "right there.",
+        "words": [
+          {
+            "startMs": 0,
+            "endMs": 500,
+            "text": "right"
+          },
+          {
+            "startMs": 500,
+            "endMs": 1000,
+            "text": "there."
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "startSec": 0.2,
+        "endSec": 1,
+        "text": "(light music)",
+        "words": [
+          {
+            "startMs": 200,
+            "endMs": 600,
+            "text": "(light"
+          },
+          {
+            "startMs": 600,
+            "endMs": 1000,
+            "text": "music)"
+          }
+        ]
+      }
+    ],
+    "expected": {
+      "pages": [
+        {
+          "id": "a",
+          "text": "right there.",
+          "startFrame": 0,
+          "endFrame": 16,
+          "words": [
+            {
+              "text": "right",
+              "startFrame": 0,
+              "endFrame": 15
+            },
+            {
+              "text": "there.",
+              "startFrame": 15,
+              "endFrame": 16
+            }
+          ],
+          "estimated": false
+        },
+        {
+          "id": "b",
+          "text": "(light music)",
+          "startFrame": 30,
+          "endFrame": 32,
+          "words": [
+            {
+              "text": "(light",
+              "startFrame": 30,
+              "endFrame": 31,
+              "estimated": true
+            },
+            {
+              "text": "music)",
+              "startFrame": 31,
+              "endFrame": 32,
+              "estimated": true
+            }
+          ],
+          "estimated": true
+        }
+      ],
+      "cues": [
+        {
+          "id": "a",
+          "text": "right there.",
+          "startSeconds": 0,
+          "endSeconds": 0.5333333333333333
+        },
+        {
+          "id": "b",
+          "text": "(light music)",
+          "startSeconds": 1,
+          "endSeconds": 1.0666666666666667
+        }
+      ],
+      "words": [
+        {
+          "text": "right",
+          "startFrame": 0,
+          "endFrame": 15,
+          "estimated": false
+        },
+        {
+          "text": "there.",
+          "startFrame": 15,
+          "endFrame": 16,
+          "estimated": false
+        },
+        {
+          "text": "(light",
+          "startFrame": 30,
+          "endFrame": 31,
+          "estimated": true
+        },
+        {
+          "text": "music)",
+          "startFrame": 31,
+          "endFrame": 32,
+          "estimated": true
+        }
+      ],
+      "estimated": false
+    }
+  },
+  {
+    "name": "multiword-estimated",
+    "cues": [
+      {
+        "id": "a",
+        "startSec": 0.5,
+        "endSec": 2.5,
+        "text": "Xin chào các bạn",
+        "words": [
+          {
+            "startMs": 500,
+            "endMs": 1200,
+            "text": "Xin"
+          },
+          {
+            "startMs": 1200,
+            "endMs": 1900,
+            "text": "chào"
+          },
+          {
+            "startMs": 1900,
+            "endMs": 2500,
+            "text": "các bạn"
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "startSec": 3,
+        "endSec": 5,
+        "text": "Câu hai không có từ",
+        "words": null
+      }
+    ],
+    "expected": {
+      "pages": [
+        {
+          "id": "a",
+          "text": "Xin chào các bạn",
+          "startFrame": 15,
+          "endFrame": 75,
+          "words": [
+            {
+              "text": "Xin",
+              "startFrame": 15,
+              "endFrame": 36
+            },
+            {
+              "text": "chào",
+              "startFrame": 36,
+              "endFrame": 57
+            },
+            {
+              "text": "các",
+              "startFrame": 57,
+              "endFrame": 66,
+              "estimated": false
+            },
+            {
+              "text": "bạn",
+              "startFrame": 66,
+              "endFrame": 75,
+              "estimated": false
+            }
+          ],
+          "estimated": false
+        },
+        {
+          "id": "b",
+          "text": "Câu hai không có từ",
+          "startFrame": 90,
+          "endFrame": 150,
+          "words": [
+            {
+              "text": "Câu",
+              "startFrame": 90,
+              "endFrame": 102,
+              "estimated": true
+            },
+            {
+              "text": "hai",
+              "startFrame": 102,
+              "endFrame": 114,
+              "estimated": true
+            },
+            {
+              "text": "không",
+              "startFrame": 114,
+              "endFrame": 134,
+              "estimated": true
+            },
+            {
+              "text": "có",
+              "startFrame": 134,
+              "endFrame": 142,
+              "estimated": true
+            },
+            {
+              "text": "từ",
+              "startFrame": 142,
+              "endFrame": 150,
+              "estimated": true
+            }
+          ],
+          "estimated": true
+        }
+      ],
+      "cues": [
+        {
+          "id": "a",
+          "text": "Xin chào các bạn",
+          "startSeconds": 0.5,
+          "endSeconds": 2.5
+        },
+        {
+          "id": "b",
+          "text": "Câu hai không có từ",
+          "startSeconds": 3,
+          "endSeconds": 5
+        }
+      ],
+      "words": [
+        {
+          "text": "Xin",
+          "startFrame": 15,
+          "endFrame": 36,
+          "estimated": false
+        },
+        {
+          "text": "chào",
+          "startFrame": 36,
+          "endFrame": 57,
+          "estimated": false
+        },
+        {
+          "text": "các",
+          "startFrame": 57,
+          "endFrame": 66,
+          "estimated": false
+        },
+        {
+          "text": "bạn",
+          "startFrame": 66,
+          "endFrame": 75,
+          "estimated": false
+        },
+        {
+          "text": "Câu",
+          "startFrame": 90,
+          "endFrame": 102,
+          "estimated": true
+        },
+        {
+          "text": "hai",
+          "startFrame": 102,
+          "endFrame": 114,
+          "estimated": true
+        },
+        {
+          "text": "không",
+          "startFrame": 114,
+          "endFrame": 134,
+          "estimated": true
+        },
+        {
+          "text": "có",
+          "startFrame": 134,
+          "endFrame": 142,
+          "estimated": true
+        },
+        {
+          "text": "từ",
+          "startFrame": 142,
+          "endFrame": 150,
+          "estimated": true
+        }
+      ],
+      "estimated": true
+    }
+  },
+  {
+    "name": "measured-pause",
+    "cues": [
+      {
+        "id": "pause",
+        "startSec": 0,
+        "endSec": 5,
+        "text": "a b",
+        "words": [
+          {
+            "startMs": 0,
+            "endMs": 100,
+            "text": "a"
+          },
+          {
+            "startMs": 1000,
+            "endMs": 1200,
+            "text": "b"
+          }
+        ]
+      }
+    ],
+    "expected": {
+      "pages": [
+        {
+          "id": "pause",
+          "text": "a",
+          "startFrame": 0,
+          "endFrame": 3,
+          "words": [
+            {
+              "text": "a",
+              "startFrame": 0,
+              "endFrame": 3
+            }
+          ],
+          "estimated": false
+        },
+        {
+          "id": "pause.2",
+          "text": "b",
+          "startFrame": 30,
+          "endFrame": 150,
+          "words": [
+            {
+              "text": "b",
+              "startFrame": 30,
+              "endFrame": 36
+            }
+          ],
+          "estimated": false
+        }
+      ],
+      "cues": [
+        {
+          "id": "pause",
+          "text": "a",
+          "startSeconds": 0,
+          "endSeconds": 0.1
+        },
+        {
+          "id": "pause.2",
+          "text": "b",
+          "startSeconds": 1,
+          "endSeconds": 5
+        }
+      ],
+      "words": [
+        {
+          "text": "a",
+          "startFrame": 0,
+          "endFrame": 3,
+          "estimated": false
+        },
+        {
+          "text": "b",
+          "startFrame": 30,
+          "endFrame": 36,
+          "estimated": false
+        }
+      ],
+      "estimated": false
+    }
+  },
+  {
+    "name": "emoji-utf16",
+    "cues": [
+      {
+        "id": "emoji",
+        "startSec": 0,
+        "endSec": 1,
+        "text": "😀 a bb",
+        "words": null
+      }
+    ],
+    "expected": {
+      "pages": [
+        {
+          "id": "emoji",
+          "text": "😀 a bb",
+          "startFrame": 0,
+          "endFrame": 30,
+          "words": [
+            {
+              "text": "😀",
+              "startFrame": 0,
+              "endFrame": 12,
+              "estimated": true
+            },
+            {
+              "text": "a",
+              "startFrame": 12,
+              "endFrame": 18,
+              "estimated": true
+            },
+            {
+              "text": "bb",
+              "startFrame": 18,
+              "endFrame": 30,
+              "estimated": true
+            }
+          ],
+          "estimated": true
+        }
+      ],
+      "cues": [
+        {
+          "id": "emoji",
+          "text": "😀 a bb",
+          "startSeconds": 0,
+          "endSeconds": 1
+        }
+      ],
+      "words": [
+        {
+          "text": "😀",
+          "startFrame": 0,
+          "endFrame": 12,
+          "estimated": true
+        },
+        {
+          "text": "a",
+          "startFrame": 12,
+          "endFrame": 18,
+          "estimated": true
+        },
+        {
+          "text": "bb",
+          "startFrame": 18,
+          "endFrame": 30,
+          "estimated": true
+        }
+      ],
+      "estimated": true
+    }
+  },
+  {
+    "name": "duration-clipping",
+    "cues": [
+      {
+        "id": "late",
+        "startSec": 5,
+        "endSec": 12,
+        "text": "quá dài",
+        "words": null
+      },
+      {
+        "id": "bad",
+        "startSec": 4,
+        "endSec": 4,
+        "text": "vô hiệu",
+        "words": null
+      },
+      {
+        "id": "out",
+        "startSec": 8,
+        "endSec": 9,
+        "text": "ngoài",
+        "words": null
+      }
+    ],
+    "expected": {
+      "pages": [
+        {
+          "id": "late",
+          "text": "quá dài",
+          "startFrame": 150,
+          "endFrame": 180,
+          "words": [
+            {
+              "text": "quá",
+              "startFrame": 150,
+              "endFrame": 165,
+              "estimated": true
+            },
+            {
+              "text": "dài",
+              "startFrame": 165,
+              "endFrame": 180,
+              "estimated": true
+            }
+          ],
+          "estimated": true
+        }
+      ],
+      "cues": [
+        {
+          "id": "late",
+          "text": "quá dài",
+          "startSeconds": 5,
+          "endSeconds": 6
+        }
+      ],
+      "words": [
+        {
+          "text": "quá",
+          "startFrame": 150,
+          "endFrame": 165,
+          "estimated": true
+        },
+        {
+          "text": "dài",
+          "startFrame": 165,
+          "endFrame": 180,
+          "estimated": true
+        }
+      ],
+      "estimated": true
+    }
+  }
+]

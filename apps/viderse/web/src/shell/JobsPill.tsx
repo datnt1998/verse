@@ -7,11 +7,12 @@ import { navigate, paths } from '../router'
 import { t } from '../i18n/vi'
 import type { Status } from '../api/status'
 
-export function JobsPill({ status, online, unread = false, style }: {
+export function JobsPill({ status, online, unread = false, compact = false, style }: {
   status: Status | undefined
   online: boolean
   /** có thông báo cần bạn chưa đọc → chấm vàng trên viên */
   unread?: boolean
+  compact?: boolean
   style?: CSSProperties
 }) {
   const running = status?.running ?? 0
@@ -39,7 +40,7 @@ export function JobsPill({ status, online, unread = false, style }: {
       onClick={(e) => { e.preventDefault(); navigate(paths.queue()) }}
     >
       <span aria-hidden="true" className={spinning ? 'vv-jobs__dot vv-rec' : 'vv-jobs__dot'} />
-      <span className="num">{text}</span>
+      <span className="num">{compact && online && !paused ? t.shell.jobsCompact(running, queued) : text}</span>
       {unread && <span role="img" aria-label={t.shell.jobsUnread} className="vv-jobs__unread" />}
     </a>
   )

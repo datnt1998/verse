@@ -250,6 +250,11 @@ func ytdlpLineSink(onLine func(string)) func(line string, _ tools.Stream) {
 // ytdlpInvoke chạy một lệnh yt-dlp, kèm tệp cookie Bilibili khi URL thuộc
 // Bilibili (tệp tạm 0600, tự xoá sau khi lệnh xong).
 func ytdlpInvoke(ctx context.Context, ytdlp ytdlpRunner, cookies cookieJarProvider, platform domain.PlatformID, args []string, timeout time.Duration, onLine func(string)) (string, error) {
+	if runner := backdrop.ContextRunner(ctx); runner != nil {
+		if configured, ok := ytdlp.(*tools.YtDlp); ok {
+			ytdlp = configured.WithRunner(runner)
+		}
+	}
 	run := func(jar string) (string, error) {
 		return ytdlp.Run(ctx, args, tools.RunYtDlpOptions{
 			Timeout:    timeout,

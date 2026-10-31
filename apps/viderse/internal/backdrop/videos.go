@@ -3,11 +3,13 @@ package backdrop
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -19,6 +21,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/platforms"
+	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 )
 
 // MaxBackdropSegmentSec là trần độ dài một đoạn dùng (10 phút).
@@ -85,6 +88,19 @@ type probeInfo struct {
 // việc nền. Thêm lại cùng một video trả dòng đã có (tải lại khi lần trước
 // hỏng).
 func (s *Service) AddVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment) (VideoView, error) {
+	return s.registerVideo(ctx, rawURL, segment, false)
+}
+
+// EnsureVideo đăng ký (nếu cần) rồi ĐỢI đoạn dùng tải xong trong ctx của
+// caller — khác AddVideo chỉ lên lịch tải nền. Khi lượt tải thuộc process
+// khác, EnsureVideo chờ tới khi video ready/failed thay vì tải trùng. Dùng
+// trong pipeline clone (bước nền cần clip ngay); ctx của step quyết định
+// thời hạn và khả năng huỷ.
+func (s *Service) EnsureVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment) (VideoView, error) {
+	return s.registerVideo(ctx, rawURL, segment, true)
+}
+
+func (s *Service) registerVideo(ctx context.Context, rawURL string, segment *domain.BackdropSegment, wait bool) (VideoView, error) {
 	resolved, err := s.resolveVideoLink(ctx, rawURL)
 	if err != nil {
 		return VideoView{}, err
@@ -94,53 +110,94 @@ func (s *Service) AddVideo(ctx context.Context, rawURL string, segment *domain.B
 	if err != nil {
 		return VideoView{}, err
 	}
-	if found {
-		switch existing.State {
+	if found && existing.State == domain.BackdropReady {
+		return s.Video(ctx, id)
+	}
+	if found && existing.State == domain.BackdropDownloading && !wait {
+		// Process khác còn lease thì nhường; lease hết thì giành tải lại.
+		s.startDownload(id, false)
+		return s.Video(ctx, id)
+	}
+	if !found || found && existing.State != domain.BackdropDownloading {
+		info, err := s.probeVideo(ctx, resolved)
+		if err != nil {
+			if found {
+				code := errorCode(err)
+				message := asError(err).Message
+				_ = s.d.Store.UpdateVideo(ctx, id, VideoPatch{State: new(domain.BackdropFailed), ErrorCode: &code, Error: &message, ClearProgress: true})
+				s.notify(id)
+			}
+			return VideoView{}, err
+		}
+		chosen, err := segmentFor(info.Duration, segment)
+		if err != nil {
+			return VideoView{}, err
+		}
+		now := s.now()
+		if found {
+			patch := VideoPatch{
+				State: new(domain.BackdropDownloading), Progress: new(0.0), Segment: &chosen,
+				Title: info.Title, DurationSec: info.Duration, ErrorCode: new(""), Error: new(""),
+			}
+			if err := s.d.Store.UpdateVideo(ctx, id, patch); err != nil {
+				return VideoView{}, err
+			}
+		} else {
+			title := valueOr(info.Title, id)
+			row := domain.BackdropVideo{
+				ID: id, Platform: resolved.Platform, URL: resolved.URL, Title: title,
+				DurationSec: info.Duration, Segment: chosen,
+				State: domain.BackdropDownloading, Progress: new(0.0),
+				AddedAt: now, UpdatedAt: now,
+			}
+			if _, err := s.d.Store.InsertVideo(ctx, row); err != nil {
+				return VideoView{}, err
+			}
+		}
+	}
+	if !wait {
+		s.startDownload(id, false)
+		return s.Video(ctx, id)
+	}
+	// Giành lượt tải: thắng thì tải inline trên ctx; thua (lease còn hạn của
+	// process khác) thì chờ chủ lượt báo xong.
+	now := s.now()
+	generation, claimed, err := s.d.Store.ClaimDownload(ctx, id, s.owner, now.Add(downloadLease), now, false)
+	if err != nil {
+		return VideoView{}, err
+	}
+	if claimed {
+		s.download(ctx, id, generation)
+		return s.Video(ctx, id)
+	}
+	return s.waitVideoReady(ctx, id)
+}
+
+// waitVideoReady chờ một lượt tải của chủ khác kết thúc (ready → trả view,
+// failed → trả lỗi của lượt đó); poll mỗi giây và tôn trọng ctx.
+func (s *Service) waitVideoReady(ctx context.Context, id string) (VideoView, error) {
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	for {
+		row, found, err := s.d.Store.Video(ctx, id)
+		if err != nil {
+			return VideoView{}, err
+		}
+		if !found {
+			return VideoView{}, notFoundVideo()
+		}
+		switch row.State {
 		case domain.BackdropReady:
 			return s.Video(ctx, id)
-		case domain.BackdropDownloading:
-			// Process khác còn lease thì nhường; lease hết thì giành tải lại.
-			s.startDownload(id, false)
-			return s.Video(ctx, id)
+		case domain.BackdropFailed:
+			return VideoView{}, ErrorfRecovery(CodeConflict, "Video nền tải không xong", "Thử lại sau khi lượt tải hiện tại kết thúc")
+		}
+		select {
+		case <-ctx.Done():
+			return VideoView{}, ctx.Err()
+		case <-tick.C:
 		}
 	}
-	info, err := s.probeVideo(ctx, resolved)
-	if err != nil {
-		if found {
-			code := errorCode(err)
-			message := asError(err).Message
-			_ = s.d.Store.UpdateVideo(ctx, id, VideoPatch{State: new(domain.BackdropFailed), ErrorCode: &code, Error: &message, ClearProgress: true})
-			s.notify(id)
-		}
-		return VideoView{}, err
-	}
-	chosen, err := segmentFor(info.Duration, segment)
-	if err != nil {
-		return VideoView{}, err
-	}
-	now := s.now()
-	if found {
-		patch := VideoPatch{
-			State: new(domain.BackdropDownloading), Progress: new(0.0), Segment: &chosen,
-			Title: info.Title, DurationSec: info.Duration, ErrorCode: new(""), Error: new(""),
-		}
-		if err := s.d.Store.UpdateVideo(ctx, id, patch); err != nil {
-			return VideoView{}, err
-		}
-	} else {
-		title := valueOr(info.Title, id)
-		row := domain.BackdropVideo{
-			ID: id, Platform: resolved.Platform, URL: resolved.URL, Title: title,
-			DurationSec: info.Duration, Segment: chosen,
-			State: domain.BackdropDownloading, Progress: new(0.0),
-			AddedAt: now, UpdatedAt: now,
-		}
-		if _, err := s.d.Store.InsertVideo(ctx, row); err != nil {
-			return VideoView{}, err
-		}
-	}
-	s.startDownload(id, false)
-	return s.Video(ctx, id)
 }
 
 // resolveVideoLink đọc link người dùng dán, gỡ một lần chuyển hướng b23.
@@ -421,22 +478,7 @@ func (s *Service) download(ctx context.Context, id string, generation int64) {
 		return
 	}
 	defer os.RemoveAll(tmp)
-	fragments := "1"
-	if row.Platform == domain.PlatformTwitch {
-		fragments = "8"
-	}
-	args := []string{
-		"-f", "bv*+ba/b",
-		"-S", fmt.Sprintf("res:%d,vcodec:h264,acodec:aac", height),
-		"--merge-output-format", "mp4",
-		"--concurrent-fragments", fragments,
-		"--download-sections", fmt.Sprintf("*%g-%g", row.Segment.FromSec, row.Segment.ToSec),
-		"--force-keyframes-at-cuts",
-		// tools.Run tự thêm --no-progress; các cờ sau bật lại tiến độ để đọc %.
-		"--progress", "--newline", "--progress-template", "download:%(progress._percent_str)s",
-		"-o", filepath.Join(tmp, "asset.%(ext)s"),
-		link.URL,
-	}
+	args := clipDownloadArgs(link, row.Segment, tmp, height)
 	progress := newProgressWriter(s, id, generation, ctx)
 	_, err = s.d.RunYtDlp(ctx, row.Platform, args, 4, downloadTimeout, progress.line)
 	if err != nil {
@@ -655,4 +697,144 @@ func publishFile(from, to string) error {
 		return err
 	}
 	return os.Remove(from)
+}
+
+// ContextRunner lets the bootstrap yt-dlp adapter retain tool configuration
+// while binding subprocess ownership to the calling pipeline attempt.
+type contextRunnerKey struct{}
+
+func ContextRunner(ctx context.Context) tools.Runner {
+	run, _ := ctx.Value(contextRunnerKey{}).(tools.Runner)
+	return run
+}
+
+// WithRunner binds all service probes/refreshes in a pipeline attempt to its
+// process owner; the configured bootstrap adapter consumes ContextRunner.
+func WithRunner(ctx context.Context, run tools.Runner) context.Context {
+	return context.WithValue(ctx, contextRunnerKey{}, run)
+}
+
+func clipDownloadArgs(link VideoLink, segment domain.BackdropSegment, dir string, height int) []string {
+	fragments := "1"
+	if link.Platform == domain.PlatformTwitch {
+		fragments = "8"
+	}
+	return []string{
+		"-f", "bv*+ba/b", "-S", fmt.Sprintf("res:%d,vcodec:h264,acodec:aac", height),
+		"--merge-output-format", "mp4", "--concurrent-fragments", fragments,
+		"--download-sections", fmt.Sprintf("*%g-%g", segment.FromSec, segment.ToSec),
+		"--force-keyframes-at-cuts", "--progress", "--newline",
+		"--progress-template", "download:%(progress._percent_str)s",
+		"-o", filepath.Join(dir, "asset.%(ext)s"), link.URL,
+	}
+}
+
+// EnsureClip produces an immutable, window-specific staged file. It never
+// changes a library video or publishes media; the pipeline owns that fence.
+func (s *Service) EnsureClip(ctx context.Context, rawURL string, segment domain.BackdropSegment, outputDir string, run tools.Runner) (media.Artifact, error) {
+	if run == nil {
+		return media.Artifact{}, errors.New("thiếu bộ chạy công cụ của bước nền")
+	}
+	if math.IsNaN(segment.FromSec) || math.IsNaN(segment.ToSec) || math.IsInf(segment.FromSec, 0) || math.IsInf(segment.ToSec, 0) {
+		return media.Artifact{}, Errorf(CodeInvalidInput, "Đoạn dùng không hợp lệ")
+	}
+	ctx = context.WithValue(ctx, contextRunnerKey{}, run)
+	link, err := s.resolveVideoLink(ctx, rawURL)
+	if err != nil {
+		return media.Artifact{}, err
+	}
+	if err := validateSegment(segment, nil); err != nil {
+		return media.Artifact{}, err
+	}
+	key := sha256.Sum256([]byte(fmt.Sprintf("%s@%g-%g", link.ID(), segment.FromSec, segment.ToSec)))
+	name := hex.EncodeToString(key[:])
+	dir := filepath.Join(outputDir, name)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return media.Artifact{}, err
+	}
+	// The caller owns outputDir exclusively for this job generation. Reclaim
+	// partial directories left by a killed process before resuming its cut.
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return media.Artifact{}, err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() && strings.HasPrefix(entry.Name(), ".download-") {
+			if err := os.RemoveAll(filepath.Join(dir, entry.Name())); err != nil {
+				return media.Artifact{}, err
+			}
+		}
+	}
+	// Only the atomic final rename is reusable after an interrupted attempt.
+	file := filepath.Join(dir, "clip.mp4")
+	if stat, err := os.Stat(file); err == nil && stat.Size() > 0 {
+		return media.Artifact{Path: "backdrop/" + name + ".mp4", File: file, ContentType: "video/mp4", Filename: name + ".mp4"}, nil
+	} else if err != nil && !os.IsNotExist(err) {
+		return media.Artifact{}, err
+	}
+	tmp, err := os.MkdirTemp(dir, ".download-")
+	if err != nil {
+		return media.Artifact{}, err
+	}
+	defer os.RemoveAll(tmp)
+	height := 480
+	if descriptor, ok := platforms.Lookup(link.Platform); ok && descriptor.TargetHeight > 0 {
+		height = descriptor.TargetHeight
+	}
+	if _, err := s.d.RunYtDlp(ctx, link.Platform, clipDownloadArgs(link, segment, tmp, height), 4, downloadTimeout, nil); err != nil {
+		return media.Artifact{}, err
+	}
+	produced, err := findProduced(tmp)
+	if err != nil {
+		return media.Artifact{}, err
+	}
+	if strings.ToLower(filepath.Ext(produced)) != ".mp4" {
+		return media.Artifact{}, Errorf(CodeFailed, "Clip nền không có định dạng MP4")
+	}
+	stat, err := os.Stat(produced)
+	if err != nil {
+		return media.Artifact{}, err
+	}
+	if !stat.Mode().IsRegular() || stat.Size() == 0 {
+		return media.Artifact{}, Errorf(CodeFailed, "Clip nền tải về trống")
+	}
+	if err := publishFile(produced, file); err != nil {
+		return media.Artifact{}, err
+	}
+	return media.Artifact{Path: "backdrop/" + name + ".mp4", File: file, ContentType: "video/mp4", Filename: name + ".mp4"}, nil
+}
+
+// ProbeChannelVideo caches the duration and metadata of an unknown catalogue
+// source without registering or downloading a fixed library video.
+func (s *Service) ProbeChannelVideo(ctx context.Context, channelID, videoID string) (domain.BackdropChannelVideo, error) {
+	video, found, err := s.d.Store.ChannelVideo(ctx, channelID, videoID)
+	if err != nil {
+		return video, err
+	}
+	if !found {
+		return video, notFoundVideo()
+	}
+	link, err := s.resolveVideoLink(ctx, video.URL)
+	if err != nil {
+		return video, err
+	}
+	info, err := s.probeVideo(ctx, link)
+	if err != nil {
+		code := errorCode(err)
+		if code == CodeUnavailable || code == CodeLoginRequired {
+			if markErr := s.d.Store.MarkChannelVideoUnavailable(ctx, channelID, videoID, code, s.now()); markErr != nil {
+				return video, markErr
+			}
+		}
+		return video, err
+	}
+	update := ProbeUpdate{Title: info.Title, DurationSec: info.Duration, ThumbnailURL: info.Thumbnail, ProbedAt: s.now(), ClearUnavailable: true}
+	if err := s.d.Store.UpdateChannelVideoProbe(ctx, channelID, videoID, update); err != nil {
+		return video, err
+	}
+	video, found, err = s.d.Store.ChannelVideo(ctx, channelID, videoID)
+	if err == nil && !found {
+		err = notFoundVideo()
+	}
+	return video, err
 }

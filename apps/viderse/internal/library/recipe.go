@@ -84,13 +84,11 @@ func DefaultRecipe() domain.Recipe {
 	}
 }
 
-// StandardRecipe là recipe của "Mẫu chuẩn": Tách nền + prompt "Theo nhận
-// diện kênh" + bìa "Chữ hook"; lớp phủ tuyết do service thêm khi tệp có sẵn.
+// StandardRecipe resolves the untouched schema-v15 standard layout, matching
+// yt-factory's resolveTemplateRecipe (the layout has no templateScenes override).
 func StandardRecipe() domain.Recipe {
 	r := DefaultRecipe()
-	r.Scenes.Style = StyleCutout
 	r.Scenes.ScenePromptID = BuiltinScene
-	r.Scenes.CoverPromptID = BuiltinCoverHook
 	return r
 }
 

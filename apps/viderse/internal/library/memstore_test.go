@@ -2,12 +2,14 @@ package library
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 )
 
 // memStore là Store trong bộ nhớ cho test nghiệp vụ (không SQL): giữ đúng
@@ -106,17 +108,19 @@ func (m *memStore) GetTemplate(_ context.Context, id string) (*domain.Template, 
 	if !ok {
 		return nil, nil
 	}
+	tpl.Project = append(json.RawMessage(nil), tpl.Project...)
 	return &tpl, nil
 }
 
 func (m *memStore) InsertTemplate(_ context.Context, t domain.Template) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	t.Project = append(json.RawMessage(nil), t.Project...)
 	m.templates[t.ID] = t
 	return nil
 }
 
-func (m *memStore) UpdateTemplate(_ context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64) (int64, bool, error) {
+func (m *memStore) UpdateTemplate(_ context.Context, id string, name *string, recipe domain.Recipe, expectRevision int64, project json.RawMessage) (int64, bool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	// Giống bản SQL: kiểm tham chiếu prompt dưới cùng "khoá" (mutex) với ghi.
@@ -158,6 +162,9 @@ func (m *memStore) UpdateTemplate(_ context.Context, id string, name *string, re
 		return 0, false, nil
 	}
 	tpl.Recipe = recipe
+	if project != nil {
+		tpl.Project = append(json.RawMessage(nil), project...)
+	}
 	if name != nil {
 		tpl.Name = *name
 	}
@@ -165,6 +172,18 @@ func (m *memStore) UpdateTemplate(_ context.Context, id string, name *string, re
 	tpl.UpdatedAt = m.now()
 	m.templates[id] = tpl
 	return tpl.Revision, true, nil
+}
+
+func (m *memStore) InitializeTemplateProject(_ context.Context, id string, project json.RawMessage, expectRevision int64) (bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	tpl, ok := m.templates[id]
+	if !ok || tpl.Revision != expectRevision || len(tpl.Project) > 0 {
+		return false, nil
+	}
+	tpl.Project = append(json.RawMessage(nil), project...)
+	m.templates[id] = tpl
+	return true, nil
 }
 
 func (m *memStore) RenameTemplate(_ context.Context, id, name string, expectRevision *int64) (bool, error) {
@@ -175,6 +194,17 @@ func (m *memStore) RenameTemplate(_ context.Context, id, name string, expectRevi
 		return false, nil
 	}
 	tpl.Name = name
+	if len(tpl.Project) > 0 {
+		project, err := editor.Parse(tpl.Project)
+		if err != nil {
+			return false, err
+		}
+		project["name"] = name
+		tpl.Project, err = editor.Marshal(project)
+		if err != nil {
+			return false, err
+		}
+	}
 	m.templates[id] = tpl
 	return true, nil
 }

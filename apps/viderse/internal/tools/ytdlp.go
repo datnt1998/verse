@@ -125,6 +125,14 @@ type YtDlp struct {
 	installFlight *ytDlpInstallFlight
 }
 
+// WithRunner retains configured binaries and network options, but binds this
+// invocation to the caller's tracked process group runner.
+func (y *YtDlp) WithRunner(r Runner) *YtDlp {
+	deps := y.d
+	deps.Runner = r
+	return &YtDlp{d: deps, verified: y.verified}
+}
+
 // ytDlpInstallFlight giữ một lượt cài/cập nhật đang chạy để caller đồng thời
 // chia cùng kết quả.
 type ytDlpInstallFlight struct {

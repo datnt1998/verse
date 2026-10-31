@@ -130,6 +130,82 @@ type BlobRef struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type CloneArtifact struct {
+	ID          string             `json:"id"`
+	JobID       pgtype.UUID        `json:"job_id"`
+	Step        string             `json:"step"`
+	Path        string             `json:"path"`
+	Sha256      string             `json:"sha256"`
+	Bytes       int64              `json:"bytes"`
+	ContentType string             `json:"content_type"`
+	Filename    string             `json:"filename"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
+type CloneJob struct {
+	ID                pgtype.UUID        `json:"id"`
+	ChannelID         pgtype.UUID        `json:"channel_id"`
+	SourceKey         string             `json:"source_key"`
+	SourceSnapshot    []byte             `json:"source_snapshot"`
+	TemplateID        pgtype.UUID        `json:"template_id"`
+	TemplateSnapshot  []byte             `json:"template_snapshot"`
+	ModelRefs         []byte             `json:"model_refs"`
+	NoImages          bool               `json:"no_images"`
+	Generation        int32              `json:"generation"`
+	SupersededAt      pgtype.Timestamptz `json:"superseded_at"`
+	PausedAt          pgtype.Timestamptz `json:"paused_at"`
+	CancelRequestedAt pgtype.Timestamptz `json:"cancel_requested_at"`
+	Priority          string             `json:"priority"`
+	Origin            string             `json:"origin"`
+	Status            string             `json:"status"`
+	StageGroup        string             `json:"stage_group"`
+	ActiveStep        pgtype.Text        `json:"active_step"`
+	LeaseOwner        pgtype.Text        `json:"lease_owner"`
+	LeaseExpiresAt    pgtype.Timestamptz `json:"lease_expires_at"`
+	Fence             int64              `json:"fence"`
+	Version           int64              `json:"version"`
+	PostedAt          pgtype.Timestamptz `json:"posted_at"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CloneQueue struct {
+	ID             pgtype.UUID        `json:"id"`
+	ChannelID      pgtype.UUID        `json:"channel_id"`
+	SourceVideoID  string             `json:"source_video_id"`
+	SourceKey      string             `json:"source_key"`
+	SourceSnapshot []byte             `json:"source_snapshot"`
+	Priority       string             `json:"priority"`
+	Origin         string             `json:"origin"`
+	Position       float64            `json:"position"`
+	State          string             `json:"state"`
+	NoImages       bool               `json:"no_images"`
+	TemplateID     pgtype.UUID        `json:"template_id"`
+	JobID          pgtype.UUID        `json:"job_id"`
+	Reason         pgtype.Text        `json:"reason"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	StartedAt      pgtype.Timestamptz `json:"started_at"`
+}
+
+type CloneStep struct {
+	JobID            pgtype.UUID        `json:"job_id"`
+	Step             string             `json:"step"`
+	Status           string             `json:"status"`
+	Attempt          int32              `json:"attempt"`
+	ProgressDone     int64              `json:"progress_done"`
+	ProgressTotal    pgtype.Int8        `json:"progress_total"`
+	ProgressPhase    string             `json:"progress_phase"`
+	Checkpoint       []byte             `json:"checkpoint"`
+	InputFingerprint string             `json:"input_fingerprint"`
+	OutputManifest   []byte             `json:"output_manifest"`
+	Error            []byte             `json:"error"`
+	Fence            int64              `json:"fence"`
+	ProcessGroup     pgtype.Int4        `json:"process_group"`
+	StartedAt        pgtype.Timestamptz `json:"started_at"`
+	FinishedAt       pgtype.Timestamptz `json:"finished_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+}
+
 type ErrorEvent struct {
 	ID          pgtype.UUID        `json:"id"`
 	At          pgtype.Timestamptz `json:"at"`
@@ -431,4 +507,5 @@ type Template struct {
 	PreviewBuiltAt  pgtype.Timestamptz `json:"preview_built_at"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	Project         []byte             `json:"project"`
 }

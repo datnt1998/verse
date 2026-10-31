@@ -64,6 +64,8 @@ export type VideoQuery = {
   q?: string
   cursor?: string | null
   limit?: number
+  madeFor?: string
+  notMadeFor?: string
 }
 
 export type HistoryState = 'idle' | 'queued' | 'running' | 'backoff' | 'paused' | 'capped' | 'complete' | 'cancelled' | 'error'
@@ -169,6 +171,8 @@ export function listRivalVideos(id: string, query: VideoQuery = {}, signal?: Abo
   if (query.q) params.set('q', query.q)
   if (query.cursor) params.set('cursor', query.cursor)
   if (query.limit) params.set('limit', String(query.limit))
+  if (query.madeFor) params.set('madeFor', query.madeFor)
+  if (query.notMadeFor) params.set('notMadeFor', query.notMadeFor)
   const s = params.toString()
   return request<VideoPage>(`/api/rivals/${encodeURIComponent(id)}/videos${s ? `?${s}` : ''}`, { signal })
 }

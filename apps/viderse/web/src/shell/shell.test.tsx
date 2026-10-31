@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { applyViderseLabels } from '../kitLabels'
 import { AppHeader } from './AppHeader'
 import { AppShell } from './AppShell'
-import { events } from '../data/events'
+import { MobileShell } from './MobileShell'
 import { OfflineStrip } from './OfflineStrip'
 import { t } from '../i18n/vi'
 import type { Status } from '../api/status'
@@ -75,6 +75,22 @@ describe('AppHeader', () => {
   it('JobsPill báo mất kết nối khi offline', async () => {
     const c = await render(<AppHeader route={{ name: 'workbench' }} status={STATUS} online={false} />)
     expect(c.textContent).toContain(t.shell.jobsOffline)
+  })
+})
+
+describe('MobileShell — MMain', () => {
+  it('keeps all five destinations in equal-width tab slots, including Video mới', async () => {
+    const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online><p>x</p></MobileShell>)
+    const tabs = c.querySelectorAll('.vv-tabbar > a')
+    expect(tabs).toHaveLength(5)
+    expect([...tabs].every((tab) => tab.classList.contains('vv-tabbar__item'))).toBe(true)
+    expect(c.querySelector('.vv-tabbar__new')?.closest('a')?.getAttribute('href')).toBe('#/new')
+  })
+  it('opens settings from the avatar while keeping the compact real jobs counts', async () => {
+    const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online userName="Linh"><p>x</p></MobileShell>)
+    expect(c.querySelector('.vv-mavatar')?.getAttribute('href')).toBe('#/settings')
+    expect(c.querySelector('.vv-mavatar')?.getAttribute('aria-label')).toBe(t.shell.settings)
+    expect(c.querySelector('.vv-jobs .num')?.textContent).toBe(t.shell.jobsCompact(2, 5))
   })
 })
 
@@ -187,7 +203,7 @@ describe('AppShell — ngưỡng khung và khoá ghi', () => {
 
   it('offline → vùng nội dung inert (khoá pointer + bàn phím); online → mở lại', async () => {
     stubApi()
-    // events chưa chạy → state 'stopped' → offline ngay: nội dung inert + dải hiện.
+    vi.stubGlobal('navigator', { onLine: false })
     const c = await render(<AppShell route={{ name: 'workbench' }} user={USER}><p>workbench</p></AppShell>)
     const content = [...c.querySelectorAll('div')].find((d) => d.hasAttribute('inert'))
     expect(content).toBeTruthy()
@@ -196,10 +212,11 @@ describe('AppShell — ngưỡng khung và khoá ghi', () => {
     const retry = [...c.querySelectorAll('button')].find((b) => b.textContent === t.common.retryNow)
     expect(retry?.closest('[inert]')).toBeNull()
     expect(retry?.disabled).toBe(false)
-    // Luồng mở (hello đến) → hết inert.
-    events.start()
-    await act(async () => {})
+    // Kết nối thật trở lại: hook đọc navigator.onLine, không coi SSE mở là online.
+    await act(async () => {
+      vi.stubGlobal('navigator', { onLine: true })
+      window.dispatchEvent(new Event('online'))
+    })
     expect(c.querySelector('[inert]')).toBeNull()
-    events.stop()
   })
 })

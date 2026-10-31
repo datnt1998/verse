@@ -1,6 +1,6 @@
 // MobileShell — khung điện thoại <768px (08-dev-prompt V10: thanh dưới 5 mục).
 // Thanh trên: logo 24 + bộ đổi kênh trên Bàn dựng + JobsPill gọn + avatar.
-// Thanh dưới 60px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
+// Thanh dưới 64px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
 // mục đang mở nền pill đỏ nhạt, mục thường icon xám. Nội dung pad-bottom 110px.
 // Kiểu: styles/components.css .vv-mbar/.vv-tabbar*/.vv-mavatar.
 import type { ReactNode } from 'react'
@@ -14,7 +14,7 @@ import type { Status } from '../api/status'
 
 const TAB_ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; iconActive: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', iconActive: 'workbench-b', path: paths.workbench() },
-  { key: 'review', label: t.nav.review, icon: 'flag', iconActive: 'flag', path: paths.review(), badge: 'review' },
+  { key: 'review', label: t.nav.review, icon: 'gallery', iconActive: 'gallery-b', path: paths.review(), badge: 'review' },
   { key: 'new', label: '', icon: 'add', iconActive: 'add', path: paths.new() }, // nút + tròn giữa
   { key: 'channels', label: t.nav.channels, icon: 'channel', iconActive: 'channel-b', path: paths.channelNew() },
   { key: 'explore', label: t.nav.explore, icon: 'radar', iconActive: 'radar-b', path: paths.explore() },
@@ -35,8 +35,7 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
         const path = item.key === 'channels' ? channelHref ?? item.path : item.path
         if (item.key === 'new') {
           return (
-            <a key="new" href={`#${path}`} aria-label={t.nav.new} title={t.nav.new}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 56 }}>
+            <a key="new" href={`#${path}`} aria-label={t.nav.new} title={t.nav.new} className="vv-tabbar__item">
               <span className="vv-tabbar__new"><Icon name="add" size={22} /></span>
             </a>
           )
@@ -46,7 +45,7 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
           <a key={item.key} href={`#${path}`} aria-current={active ? 'page' : undefined}
             className={active ? 'vv-tabbar__item vv-tabbar__item--active' : 'vv-tabbar__item'}>
             <span className="vv-tabbar__pill">
-              <Icon name={active ? item.iconActive : item.icon} size={20} />
+              <Icon name={active ? item.iconActive : item.icon} size={24} />
               {item.badge === 'review' && reviewCount > 0 && (
                 <span className="vv-tabbar__badge num" aria-label={`${reviewCount}`}>{reviewCount > 99 ? '99+' : reviewCount}</span>
               )}
@@ -72,17 +71,33 @@ export function MobileShell({ route, status, online, userName, channels, channel
   const running = status?.running ?? 0
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
+  const isNew = route.name === 'new'
+  // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
+  if (isNew) {
+    return (
+      <div className="vv-mobile-shell vv-mobile-shell--new">
+        <header role="banner" className="vv-mbar vv-mbar--new">
+          <button type="button" aria-label={t.common.close} className="vv-mclose"
+            onClick={() => navigate(paths.workbench())}>
+            <Icon name="close" size={18} />
+          </button>
+          <span className="vv-mnew-title">{t.screens.new.title}</span>
+        </header>
+        {children}
+      </div>
+    )
+  }
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    <div className="vv-mobile-shell">
       <header role="banner" className="vv-mbar">
         <a href={`#${paths.workbench()}`} aria-label={t.brand.name} style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
           <LensLogo size={24} spinning={online && running > 0} />
         </a>
         {showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
         <span style={{ flex: 1 }} />
-        <JobsPill status={status} online={online} unread={(status?.attention.length ?? 0) > 0} />
-        <a href={`#${paths.account()}`} aria-label={userName ?? t.shell.account} className="vv-mavatar">
-          <Icon name="user" size={15} />
+        <JobsPill status={status} online={online} compact unread={(status?.attention.length ?? 0) > 0} />
+        <a href={`#${paths.settings()}`} aria-label={t.shell.settings} className="vv-mavatar">
+          {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
         </a>
       </header>
       {children}

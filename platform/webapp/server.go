@@ -129,6 +129,19 @@ func (s *Server) Handle(method, pattern string, h HandlerFunc) {
 	s.routes = append(s.routes, r)
 }
 
+// RequireSameOrigin applies the configured browser-origin policy, including its
+// app-origin allowlist, to sensitive reads as well as writes. Headerless clients
+// retain the normal non-browser policy. Callers must return on rejection.
+func (s *Server) RequireSameOrigin(w http.ResponseWriter, r *http.Request) bool {
+	check := *r
+	check.Method = http.MethodPost
+	if s.proxy.CrossSiteRequest(&check) {
+		Error(w, http.StatusForbidden, "yêu cầu khác origin bị từ chối")
+		return false
+	}
+	return true
+}
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Chuẩn hoá trusted-proxy phải đi trước mọi phán đoán bảo mật (khoá giới hạn, Secure cookie, origin CSRF).
 	r = s.proxy.Normalize(r)

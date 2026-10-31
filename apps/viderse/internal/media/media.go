@@ -78,6 +78,10 @@ type Repository interface {
 	Lock(context.Context, string, string) error
 	Bind(context.Context, Ref) error
 	Resolve(context.Context, string, string) (Ref, error)
+	// Unbind gỡ binding logical_path → object_key trong publication tx;
+	// idempotent (vắng mặt = nil). Content chỉ thành unreferenced khi mọi
+	// binding và live ref biến mất; GC thu hồi byte sau ân hạn.
+	Unbind(context.Context, string, string) error
 	Roots(context.Context) ([]Root, error)
 	Protect(context.Context, string, string, time.Time) error
 	ReadLease(context.Context, string, string) (func(), error)
@@ -281,6 +285,27 @@ func (s *Service) Acquire(ctx context.Context, path string) (*Handle, error) {
 }
 func (s *Service) Protect(ctx context.Context, ref Ref, until time.Time) error {
 	return s.repo.Protect(ctx, ref.StoreID, ref.Key, until)
+}
+
+// Unbind gỡ các logical path khỏi manifest trong một publication transaction
+// (cùng fence với Bind/GC), rồi chạy commit bên trong tx đó — caller xoá hàng
+// domain (clone_artifacts…) trong commit để gỡ ref và gỡ binding là một bước.
+// Idempotent: path vắng mặt không lỗi.
+func (s *Service) Unbind(ctx context.Context, paths []string, commit func(context.Context) error) error {
+	return s.repo.Publication(ctx, func(txctx context.Context, state State) error {
+		for _, path := range paths {
+			if err := ValidatePath(path); err != nil {
+				return err
+			}
+			if err := s.repo.Unbind(txctx, state.Active, path); err != nil {
+				return err
+			}
+		}
+		if commit != nil {
+			return commit(txctx)
+		}
+		return nil
+	})
 }
 
 type locatedStore struct {
