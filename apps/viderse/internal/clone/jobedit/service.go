@@ -163,6 +163,22 @@ func (s *Service) CommitOwnerApproval(ctx context.Context, before Snapshot, chec
 	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true, nil)
 }
 func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, imageIDs []string) error {
+	if before.Step.Status == domain.CloneRunning {
+		raw, err := json.Marshal(checkpoint)
+		if err != nil {
+			return err
+		}
+		if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, ImageReview: true, ImageIDs: imageIDs}); err != nil {
+			return err
+		}
+		if s.Publish != nil {
+			s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+		}
+		if from != "" && s.Wake != nil {
+			s.Wake()
+		}
+		return nil
+	}
 	return s.commit(ctx, before, checkpoint, from, rerun, nil, false, imageIDs)
 }
 func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool, imageIDs []string) error {

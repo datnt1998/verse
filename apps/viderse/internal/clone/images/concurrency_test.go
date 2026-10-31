@@ -28,11 +28,15 @@ func TestReviewOtherImageWhileRunningLocksDuplicateAndVideoApproval(t *testing.T
 	store.m.Items[0].Status = "running"
 	store.m.Items[0].InFlight = &model.Flight{GenerationID: "first"}
 	s.Edits.Store = runningEditStore{store}
-	s.Edits.Media = &stepstest.FakeMedia{Root: t.TempDir()}
+	media := &stepstest.FakeMedia{Root: t.TempDir()}
+	s.Edits.Media = media
 	rev := 3
 	prompt := "warmer light"
 	result, err := s.Redraw(context.Background(), "job", "thumbnail", RedrawInput{ExpectedRevision: &rev, Prompt: &prompt})
 	if err != nil || !result.Accepted { t.Fatalf("other image redraw: %+v %v", result, err) }
+	if media.Commits != 0 {
+		t.Fatal("active worker intent published an unbound manifest")
+	}
 	if store.m.Items[1].Direction != prompt || store.m.Revision != 4 { t.Fatalf("missing redraw: %+v", store.m) }
 	raw, _ := json.Marshal(store.m)
 	var wire map[string]any
