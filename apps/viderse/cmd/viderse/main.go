@@ -38,6 +38,7 @@ Biến môi trường:
   VERSE_IDENTITY_DATABASE_URL    DSN kho tài khoản chung, role viderse_identity
                                  (bắt buộc cho serve và user grant|revoke)
   VIDERSE_ADDR                   Địa chỉ lắng nghe (ghi đè bởi -addr)
+  VIDERSE_DAILY_PAID_IMAGE_LIMIT Trần ảnh trả phí/ngày/nguồn, 1–50 (mặc định 50)
   TRUSTED_PROXIES / PUBLIC_URL / SECURE_COOKIES   Ranh giới proxy (platform/webguard)
   VERSE_COOKIE_DOMAIN / VERSE_APP_ORIGINS         Cookie chung + allowlist origin
 `

@@ -12,6 +12,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/queue"
 )
 
 // QueueStore là tầng lưu trữ của hàng chờ clone (§3) trên gen.Queries —
@@ -27,9 +28,11 @@ func NewQueueStore(db gen.DBTX) *QueueStore {
 	return &QueueStore{q: gen.New(db)}
 }
 
-// With chuyển store sang thao tác trong transaction tx.
-func (s *QueueStore) With(tx pgx.Tx) *QueueStore {
-	return &QueueStore{q: s.q.WithTx(tx)}
+var _ queue.Store = (*QueueStore)(nil)
+
+// With binds the store to a transaction or dedicated advisory-lock connection.
+func (s *QueueStore) With(db queue.DBTX) queue.Store {
+	return NewQueueStore(db)
 }
 
 // TryAdvisoryLock chiếm khoá session-scoped của key trên chính connection
@@ -159,21 +162,15 @@ func (s *QueueStore) CountTotalQueued(ctx context.Context) (int64, error) {
 	return s.q.CountTotalQueued(ctx)
 }
 
-// LaneLastStart là lượt cuối của một kênh trong vòng luân phiên.
-type LaneLastStart struct {
-	LastStart    *time.Time
-	LastSequence *time.Time // job.created_at mới nhất của lượt đó
-}
-
 // LaneLastStarts trả giờ bắt đầu và job mới nhất của từng kênh đã chạy.
-func (s *QueueStore) LaneLastStarts(ctx context.Context) (map[string]LaneLastStart, error) {
+func (s *QueueStore) LaneLastStarts(ctx context.Context) (map[string]queue.LaneLastStart, error) {
 	rows, err := s.q.LaneLastStarts(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("đọc lượt kênh: %w", err)
 	}
-	out := make(map[string]LaneLastStart, len(rows))
+	out := make(map[string]queue.LaneLastStart, len(rows))
 	for _, row := range rows {
-		out[uuidString(row.ChannelID)] = LaneLastStart{
+		out[uuidString(row.ChannelID)] = queue.LaneLastStart{
 			LastStart:    tsPtr(row.LastStart),
 			LastSequence: tsPtr(row.LastSequence),
 		}
@@ -249,22 +246,13 @@ func (s *QueueStore) MarkQueueItemSkipped(ctx context.Context, id, reason string
 
 // ── ETA basis ──────────────────────────────────────────────────────────────
 
-// StepDuration là một lần bước thành công gần nhất, nguyên liệu của ETA basis.
-type StepDuration struct {
-	Step          string
-	Elapsed       time.Duration
-	SourceSeconds float64 // durationSec trong snapshot nguồn
-	SceneCount    int     // chỉ nghĩa với bước scenes; ≤0 bỏ qua
-	FinishedAt    time.Time
-}
-
 // ListRecentStepDurations trả tối đa 400 lần bước thành công gần nhất.
-func (s *QueueStore) ListRecentStepDurations(ctx context.Context) ([]StepDuration, error) {
+func (s *QueueStore) ListRecentStepDurations(ctx context.Context) ([]queue.StepDuration, error) {
 	rows, err := s.q.ListRecentStepDurations(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("đọc thời lượng bước: %w", err)
 	}
-	out := make([]StepDuration, 0, len(rows))
+	out := make([]queue.StepDuration, 0, len(rows))
 	for _, row := range rows {
 		var snap struct {
 			DurationSec *float64 `json:"durationSec"`
@@ -283,7 +271,7 @@ func (s *QueueStore) ListRecentStepDurations(ctx context.Context) ([]StepDuratio
 		if snap.DurationSec != nil {
 			seconds = *snap.DurationSec
 		}
-		out = append(out, StepDuration{
+		out = append(out, queue.StepDuration{
 			Step:          row.Step,
 			Elapsed:       time.Duration(row.ElapsedSeconds * float64(time.Second)),
 			SourceSeconds: seconds,
@@ -318,32 +306,16 @@ func (s *QueueStore) FindQueueRowsBySourceKeys(ctx context.Context, keys []strin
 	return queueItemsOf(rows)
 }
 
-// RivalVideoView là video đối thủ phục vụ kế hoạch/xếp hàng.
-type RivalVideoView struct {
-	ID            string
-	ChannelID     string
-	Title         string
-	DurationSec   *int32
-	ViewCount     *int64
-	PublishedAt   *time.Time
-	HasCaptions   *bool
-	Position      int64
-	Origin        string
-	FirstSeenAt   time.Time
-	ChannelTitle  string
-	ChannelMedian *int64 // median_views của kênh đối thủ (điểm nổi trội)
-}
-
 // ListVideosByIDs trả video đối thủ kèm tên kênh + mức trung vị (cho điểm
 // nổi trội của plan).
-func (s *QueueStore) ListVideosByIDs(ctx context.Context, ids []string) (map[string]RivalVideoView, error) {
+func (s *QueueStore) ListVideosByIDs(ctx context.Context, ids []string) (map[string]queue.RivalVideoView, error) {
 	rows, err := s.q.ListVideosByIDs(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("đọc video đối thủ: %w", err)
 	}
-	out := make(map[string]RivalVideoView, len(rows))
+	out := make(map[string]queue.RivalVideoView, len(rows))
 	for _, v := range rows {
-		out[v.ID] = RivalVideoView{
+		out[v.ID] = queue.RivalVideoView{
 			ID:          v.ID,
 			ChannelID:   v.ChannelID,
 			Title:       v.Title,
@@ -384,23 +356,15 @@ func (s *QueueStore) ChannelInfoOf(ctx context.Context, ids []string) (map[strin
 
 // ── Tự lấy (auto-pick) ─────────────────────────────────────────────────────
 
-// ChannelSourceRow là một liên kết đối thủ của kênh, kèm baseline và giờ quét.
-type ChannelSourceRow struct {
-	RivalID        string
-	LinkedAt       time.Time
-	AutoBaselineAt *time.Time
-	RivalScannedAt *time.Time
-}
-
 // ListSourcesWithChannels trả đối thủ của một kênh theo thứ tự liên kết.
-func (s *QueueStore) ListSourcesWithChannels(ctx context.Context, channelID string) ([]ChannelSourceRow, error) {
+func (s *QueueStore) ListSourcesWithChannels(ctx context.Context, channelID string) ([]queue.ChannelSourceRow, error) {
 	rows, err := s.q.ListSourcesWithChannels(ctx, queueUUID(channelID))
 	if err != nil {
 		return nil, fmt.Errorf("đọc nguồn kênh %s: %w", channelID, err)
 	}
-	out := make([]ChannelSourceRow, len(rows))
+	out := make([]queue.ChannelSourceRow, len(rows))
 	for i, row := range rows {
-		out[i] = ChannelSourceRow{
+		out[i] = queue.ChannelSourceRow{
 			RivalID:        row.RivalID,
 			LinkedAt:       row.LinkedAt.Time,
 			AutoBaselineAt: tsPtr(row.AutoBaselineAt),
@@ -438,28 +402,19 @@ func (s *QueueStore) ListEligibleVideos(ctx context.Context, rivalID string, bas
 
 // ── Đọc cho GET /api/queue + counts ────────────────────────────────────────
 
-// DoneTodayJob là một job xong hôm nay (ready/posted/review).
-type DoneTodayJob struct {
-	JobID      string
-	ChannelID  string
-	Title      string
-	StageGroup string
-	UpdatedAt  time.Time
-}
-
 // ListDoneTodayJobs trả job ready/posted/review cập nhật sau midnight.
-func (s *QueueStore) ListDoneTodayJobs(ctx context.Context, midnight time.Time) ([]DoneTodayJob, error) {
+func (s *QueueStore) ListDoneTodayJobs(ctx context.Context, midnight time.Time) ([]queue.DoneTodayJob, error) {
 	rows, err := s.q.ListDoneTodayJobs(ctx, pgtype.Timestamptz{Time: midnight, Valid: true})
 	if err != nil {
 		return nil, fmt.Errorf("đọc job xong hôm nay: %w", err)
 	}
-	out := make([]DoneTodayJob, len(rows))
+	out := make([]queue.DoneTodayJob, len(rows))
 	for i, row := range rows {
 		var snap struct {
 			Title string `json:"title"`
 		}
 		_ = json.Unmarshal(row.SourceSnapshot, &snap)
-		out[i] = DoneTodayJob{
+		out[i] = queue.DoneTodayJob{
 			JobID:      uuidString(row.ID),
 			ChannelID:  uuidString(row.ChannelID),
 			Title:      snap.Title,

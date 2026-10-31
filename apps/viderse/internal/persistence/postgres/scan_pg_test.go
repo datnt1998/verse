@@ -2201,8 +2201,8 @@ func TestScanLeaseExpiryDuringLockWait(t *testing.T) {
 		check   func(t *testing.T, s *postgres.ScanStore, pool *pgxpool.Pool, job *scan.Job)
 	}
 	claimed := func(t *testing.T, s *postgres.ScanStore, id string, ttl time.Duration) (*scan.Job, scan.Lease) {
-		lease := shortLease(t, s, id, ttl)
 		job := startHistory(t, s, id)
+		lease := shortLease(t, s, id, ttl)
 		return claim(t, s, job, lease), lease
 	}
 	paths := []path{

@@ -47,7 +47,7 @@ func planFixture(t *testing.T) (*queue.Service, *pgxpool.Pool) {
 		}
 	}
 	now := time.Date(2026, 10, 13, 12, 0, 0, 0, time.Local)
-	return queue.New(queue.Options{Pool: pool, Now: func() time.Time { return now }}), pool
+	return queue.New(queue.Options{Pool: pool, Store: postgres.NewQueueStore(pool), Settings: postgres.NewSettingsStore(pool), Now: func() time.Time { return now }}), pool
 }
 func postPlan(t *testing.T, svc *queue.Service, urls []string) domain.ClonePlan {
 	t.Helper()

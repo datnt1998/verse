@@ -35,7 +35,6 @@ type QueueRunningJob struct {
 	PausedAt     *time.Time `json:"pausedAt,omitempty"`
 }
 
-
 // WaitReason giải thích vì sao một mục chưa chạy (§3, hội thoại thiết kế #52).
 const (
 	WaitQueuePaused   = "queue_paused"
@@ -45,6 +44,7 @@ const (
 	WaitPaceFull      = "pace_full"
 	WaitNoTemplate    = "no_template"
 )
+
 // QueueSkipReason giải thích một kênh bị bỏ lượt.
 const (
 	SkipPaceFull      = "pace_full"
@@ -77,9 +77,9 @@ type CloneQueueItemView struct {
 	Priority     ClonePriority `json:"priority"`
 	ETAStart     *time.Time    `json:"etaStart"`
 	WaitReason   string        `json:"waitReason,omitempty"`
-	Position     float64   `json:"position"`
-	ThumbnailURL *string   `json:"thumbnailUrl,omitempty"`
-	SourceURL    string    `json:"sourceUrl,omitempty"`
+	Position     float64       `json:"position"`
+	ThumbnailURL *string       `json:"thumbnailUrl,omitempty"`
+	SourceURL    string        `json:"sourceUrl,omitempty"`
 }
 
 // QueuePace là nhịp hôm nay của một kênh; chỉ đếm job xuất phát từ batch.
@@ -92,12 +92,12 @@ type QueuePace struct {
 // QueueImageQuota là hạn mức còn lại của một nguồn vẽ. `limit`/`resetsAt`
 // nil khi nhà cung cấp không báo; UI ghi "N ảnh hôm nay", không bịa "/50".
 type QueueImageQuota struct {
-	Provider  string     `json:"provider"`
-	Used      int64      `json:"used"`
-	Limit     *int64     `json:"limit"`
-	Period    string     `json:"period"` // "day" | "week"
-	ResetsAt  *time.Time `json:"resetsAt"`
-	Role      string     `json:"role"` // "main" | "fallback"
+	Provider string     `json:"provider"`
+	Used     int64      `json:"used"`
+	Limit    *int64     `json:"limit"`
+	Period   string     `json:"period"` // "day" | "week"
+	ResetsAt *time.Time `json:"resetsAt"`
+	Role     string     `json:"role"` // "main" | "fallback"
 }
 
 // QueueDoneToday là một video xong hôm nay (sẵn sàng đăng hoặc chờ duyệt).
@@ -110,17 +110,17 @@ type QueueDoneToday struct {
 
 // CloneQueueView là toàn bộ màn Hàng chờ (§3).
 type CloneQueueView struct {
-	Paused       bool                `json:"paused"`
-	PausedAt     *time.Time          `json:"pausedAt,omitempty"`
-	Workers      QueueWorkers        `json:"workers"`
-	ImageWorkers int                 `json:"imageWorkers"`
-	RescanHours  int                 `json:"rescanHours"`
-	Running      []QueueRunningJob   `json:"running"`
-	Rotation     QueueRotation       `json:"rotation"`
+	Paused       bool                 `json:"paused"`
+	PausedAt     *time.Time           `json:"pausedAt,omitempty"`
+	Workers      QueueWorkers         `json:"workers"`
+	ImageWorkers int                  `json:"imageWorkers"`
+	RescanHours  int                  `json:"rescanHours"`
+	Running      []QueueRunningJob    `json:"running"`
+	Rotation     QueueRotation        `json:"rotation"`
 	Items        []CloneQueueItemView `json:"items"`
-	Pace         []QueuePace         `json:"pace"`
-	ImageQuota   []QueueImageQuota   `json:"imageQuota"`
-	DoneToday    []QueueDoneToday    `json:"doneToday"`
+	Pace         []QueuePace          `json:"pace"`
+	ImageQuota   []QueueImageQuota    `json:"imageQuota"`
+	DoneToday    []QueueDoneToday     `json:"doneToday"`
 }
 
 // QueueWorkers đếm luồng đang dùng trên tổng số lane.
@@ -132,10 +132,10 @@ type QueueWorkers struct {
 // QueuePatch là thân PATCH /api/queue: đổi Quy tắc chạy, tạm dừng/chạy tiếp,
 // dời một mục, hoặc xoá một mục. Trường nil/0 nghĩa "giữ nguyên".
 type QueuePatch struct {
-	Paused       *bool    `json:"paused,omitempty"`
-	Workers      *int     `json:"workers,omitempty"`
-	ImageWorkers *int     `json:"imageWorkers,omitempty"`
-	RescanHours  *int     `json:"rescanHours,omitempty"`
+	Paused       *bool `json:"paused,omitempty"`
+	Workers      *int  `json:"workers,omitempty"`
+	ImageWorkers *int  `json:"imageWorkers,omitempty"`
+	RescanHours  *int  `json:"rescanHours,omitempty"`
 	// Thao tác trên một mục: đặt ID cùng Position (vị trí số mới) hoặc Action.
 	ID       *string  `json:"id,omitempty"`
 	Position *float64 `json:"position,omitempty"`

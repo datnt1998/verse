@@ -171,7 +171,7 @@ func runServe(args []string) error {
 	}
 	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, media: mediaManager.Media(), toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
 	go seedLibraryBuiltins(bg, librarySvc, logStore)
-	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media())
+	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc)
 	if err != nil {
 		return err
 	}

@@ -4,14 +4,14 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"io"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
-	"sync"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -31,8 +31,8 @@ const (
 // test dùng bản giả in-memory.
 type Store interface {
 	GetJob(ctx context.Context, jobID string) (*domain.CloneJob, error)
-	ListArtifacts(context.Context,string)([]domain.CloneArtifact,error)
-	RecordArtifacts(context.Context,string,domain.CloneStep,[]domain.CloneArtifact)error
+	ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error)
+	RecordArtifacts(context.Context, string, domain.CloneStep, []domain.CloneArtifact) error
 	ListSteps(ctx context.Context, jobID string) ([]domain.CloneStepRecord, error)
 	GetStep(ctx context.Context, jobID string, step domain.CloneStep) (*domain.CloneStepRecord, error)
 	ClaimJobLease(ctx context.Context, jobID, owner string, ttl time.Duration) (*domain.CloneJob, error)
@@ -70,19 +70,19 @@ func defaultInputResolver(step domain.CloneStep, job domain.CloneJob, upstream m
 
 // Runner chạy chuỗi step của một job trong goroutine lane của worker.
 type Runner struct {
-	Store         Store
-	Handlers      Registry
-	Media         *media.Service
-	Runner        tools.Runner
-	Publish       Publisher
-	StagingRoot   string // thư mục staging gốc; mỗi step dùng <root>/<jobID>/gen<N>/<step>
-	ImageSlots    chan struct{}
-	ImageLimiter  *ImageLimiter
-	Settings      Settings
-	ResolveInput  StepInputResolver
-	Queue         QueueDrain
-	progressMu sync.Mutex
-	progressAt map[string]time.Time
+	Store        Store
+	Handlers     Registry
+	Media        *media.Service
+	Runner       tools.Runner
+	Publish      Publisher
+	StagingRoot  string // thư mục staging gốc; mỗi step dùng <root>/<jobID>/gen<N>/<step>
+	ImageSlots   chan struct{}
+	ImageLimiter *ImageLimiter
+	Settings     Settings
+	ResolveInput StepInputResolver
+	Queue        QueueDrain
+	progressMu   sync.Mutex
+	progressAt   map[string]time.Time
 	// OnAttemptSettled (test hook): gọi sau mỗi attempt kết thúc.
 	OnAttemptSettled func(step domain.CloneStep)
 }
@@ -170,7 +170,7 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 		handler := r.Handlers[claimed.Step.Step]
 		if handler == nil {
 			cerr := &domain.CloneError{
-				Code: domain.CloneErrInvalidRequest,
+				Code:    domain.CloneErrInvalidRequest,
 				Message: fmt.Sprintf("no handler registered for step %q", claimed.Step.Step),
 			}
 			_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
@@ -294,17 +294,22 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 
 	artifactPaths := make(map[string]string)
 	artifacts, err := r.Store.ListArtifacts(ctx, jobID)
-	if err != nil { r.settleAttemptError(ctx, jobID, claimed, err); return }
+	if err != nil {
+		r.settleAttemptError(ctx, jobID, claimed, err)
+		return
+	}
 	for _, artifact := range artifacts {
-		rest := strings.TrimPrefix(artifact.Path, "clone/" + jobID + "/")
+		rest := strings.TrimPrefix(artifact.Path, "clone/"+jobID+"/")
 		_, relative, found := strings.Cut(rest, "/")
-		if found { artifactPaths[relative] = artifact.Path }
+		if found {
+			artifactPaths[relative] = artifact.Path
+		}
 	}
 	sctx := &StepContext{
-		Job:       *job,
-		Step:      claimed.Step,
+		Job:        *job,
+		Step:       claimed.Step,
 		StagingDir: stagingDir,
-		Upstream:  claimed.Upstream,
+		Upstream:   claimed.Upstream,
 		Checkpoint: claimed.Step.Checkpoint,
 		Media: &stepMedia{
 			base: r.Media, jobID: jobID, upstream: claimed.Upstream, paths: artifactPaths,
@@ -319,7 +324,9 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 		ReportProgress: func(c context.Context, p domain.CloneProgress) error {
 			err := r.Store.WriteStepProgress(c, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, p)
 			r.progressMu.Lock()
-			if r.progressAt == nil { r.progressAt = make(map[string]time.Time) }
+			if r.progressAt == nil {
+				r.progressAt = make(map[string]time.Time)
+			}
 			now := time.Now()
 			if err == nil && now.Sub(r.progressAt[jobID]) >= ProgressCoalesce {
 				r.publish(domain.CloneEventProgress, map[string]any{"jobId": jobID, "step": claimed.Step.Step, "progress": p})
@@ -334,7 +341,9 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 		ProcessRunner: r.wrapProcessRunner(jobID, claimed),
 		ImageSlot: func(c context.Context, run func(context.Context) error) error {
 			invoke := func(drawCtx context.Context) error {
-				if isPaused() { return ErrPaused }
+				if isPaused() {
+					return ErrPaused
+				}
 				return run(drawCtx)
 			}
 			if r.ImageLimiter != nil {
@@ -512,4 +521,3 @@ func (r *Runner) ReconcileInterrupted(ctx context.Context, jobID string) error {
 	}
 	return nil
 }
-

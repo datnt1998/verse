@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 )
 
 // Discover is serialized across processes by a session advisory lock. Its
@@ -22,7 +21,7 @@ func (s *Service) Discover(ctx context.Context) error {
 		return err
 	}
 	defer conn.Release()
-	repo := postgres.NewQueueStore(conn)
+	repo := s.store.With(conn)
 	held, err := repo.TryAdvisoryLock(ctx, discoveryLock)
 	if err != nil || !held {
 		return err

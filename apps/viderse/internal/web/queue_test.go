@@ -81,7 +81,7 @@ func TestAutoPickRescanDedupAndBaselineReset(t *testing.T) {
 		}
 	}
 	scans := 0
-	svc := queue.New(queue.Options{Pool: pool, Now: func() time.Time { return now }, Scan: func(context.Context, string) error { scans++; return nil }})
+	svc := queue.New(queue.Options{Pool: pool, Store: postgres.NewQueueStore(pool), Settings: postgres.NewSettingsStore(pool), Now: func() time.Time { return now }, Scan: func(context.Context, string) error { scans++; return nil }})
 	if err := svc.Discover(ctx); err != nil {
 		t.Fatal(err)
 	}

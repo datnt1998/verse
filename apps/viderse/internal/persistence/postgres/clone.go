@@ -176,9 +176,9 @@ func stepFromGen(r gen.CloneStep) domain.CloneStepRecord {
 		pg = &v
 	}
 	return domain.CloneStepRecord{
-		JobID: uuidStr(r.JobID),
-		Step:  domain.CloneStep(r.Step),
-		Status: domain.CloneStatus(r.Status),
+		JobID:   uuidStr(r.JobID),
+		Step:    domain.CloneStep(r.Step),
+		Status:  domain.CloneStatus(r.Status),
 		Attempt: int(r.Attempt),
 		Progress: domain.CloneProgress{
 			UnitsDone:  r.ProgressDone,
@@ -561,6 +561,7 @@ func (s *CloneStore) ReleaseJobLease(ctx context.Context, jobID, owner string) e
 
 // ClaimedStep (định nghĩa ở pipeline) = step vừa claim + fence + upstream.
 type ClaimedStep = pipeline.ClaimedStep
+
 // ClaimNextStep: một transaction — kiểm lease là của worker, job không
 // huỷ/supersede/paused, rồi CAS step đầu tiên trong chuỗi chưa succeeded:
 // pending/stale luôn, waiting khi retryAt đã qua (awaiting_review bị loại
@@ -906,7 +907,7 @@ func (s *CloneStore) ResumeJob(ctx context.Context, jobID string) (*domain.Clone
 			}
 		}
 		if job.Status == domain.CloneFailed || job.Status == domain.CloneWaiting ||
-			job.Status == domain.ClonePending || job.Status == domain.CloneCancelled {
+			job.Status == domain.ClonePending || job.Status == domain.CloneCancelled || (job.Status == domain.CloneRunning && !leaseLive) {
 			if _, err := q.ResumeSteps(txctx, gen.ResumeStepsParams{JobID: u, Column2: nowTz()}); err != nil {
 				return err
 			}

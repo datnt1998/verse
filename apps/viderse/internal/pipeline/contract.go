@@ -37,6 +37,7 @@ type ProcessRunner func(ctx context.Context, file string, args []string, spec to
 func (r ProcessRunner) Run(ctx context.Context, file string, args []string, spec tools.Spec) (tools.Result, error) {
 	return r(ctx, file, args, spec)
 }
+
 type StepResult struct {
 	Artifacts []media.Artifact
 	// Step-specific structured manifests have intentionally heterogeneous values.
@@ -86,6 +87,7 @@ func (s *StepContext) Acquire(ctx context.Context, path string) (*media.Handle, 
 func (s *StepContext) Publish(ctx context.Context, a []media.Artifact, commit func(context.Context) error) error {
 	return s.Media.Publish(ctx, a, commit)
 }
+
 // RunProcess chạy một process con theo ctx của step: huỷ step giết cả nhóm
 // process. Khi spec.OnStart được đặt, pgid của nhóm được ghi lên
 // clone_steps.process_group để recovery dọn nhóm mồ côi.

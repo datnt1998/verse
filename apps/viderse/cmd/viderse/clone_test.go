@@ -484,7 +484,7 @@ func TestCloneCommandDoesNotFollowLoginRedirect(t *testing.T) {
 type cloneBrokenBody struct{ err error }
 
 func (b cloneBrokenBody) Read([]byte) (int, error) { return 0, b.err }
-func (b cloneBrokenBody) Close() error           { return nil }
+func (b cloneBrokenBody) Close() error             { return nil }
 
 func TestCloneHTTPResponseReadFailureIsReturned(t *testing.T) {
 	failure := errors.New("response interrupted")

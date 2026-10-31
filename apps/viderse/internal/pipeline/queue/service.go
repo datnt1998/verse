@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -29,6 +28,7 @@ type Settings interface {
 
 type Options struct {
 	Pool         *pgxpool.Pool
+	Store        Store
 	Runner       pipeline.JobRunner
 	Settings     Settings
 	Now          func() time.Time
@@ -41,7 +41,7 @@ type Options struct {
 
 type Service struct {
 	d      Options
-	store  *postgres.QueueStore
+	store  Store
 	mu     sync.Mutex
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -53,10 +53,7 @@ func New(d Options) *Service {
 	if d.Now == nil {
 		d.Now = time.Now
 	}
-	if d.Settings == nil && d.Pool != nil {
-		d.Settings = postgres.NewSettingsStore(d.Pool)
-	}
-	return &Service{d: d, store: postgres.NewQueueStore(d.Pool), wake: make(chan struct{}, 1)}
+	return &Service{d: d, store: d.Store, wake: make(chan struct{}, 1)}
 }
 func (s *Service) SetRunner(r pipeline.JobRunner) { s.d.Runner = r }
 func (s *Service) emit() {
@@ -396,7 +393,7 @@ func (s *Service) Drain(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	defer conn.Release()
-	lockRepo := postgres.NewQueueStore(conn)
+	lockRepo := s.store.With(conn)
 	held, err := lockRepo.TryAdvisoryLock(ctx, queueLock)
 	if err != nil || !held {
 		return 0, err

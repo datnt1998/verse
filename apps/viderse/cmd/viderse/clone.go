@@ -88,7 +88,7 @@ func runCloneCommandContext(ctx context.Context, args []string, stdout, stderr i
 	client := cloneHTTPClient{
 		base: options.api, cookie: options.cookie, pollInterval: time.Second,
 		http: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout:       30 * time.Second,
 			CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 		},
 	}
