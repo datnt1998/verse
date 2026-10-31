@@ -18,5 +18,9 @@ func (s *CloneStore) SourceRival(ctx context.Context, url string) (*domain.Clone
 		return nil, err
 	}
 	row := rows[0]
-	return &domain.CloneSourceSnapshot{Outlier: float8Ptr(row.Score), ViewCount: int8Ptr(row.ViewCount), PublishedAt: timePtr(row.PublishedAt), HasCaptions: boolPtr(row.HasCaptions)}, nil
+	published := timePtr(row.UploadedAt)
+	if published == nil {
+		published = timePtr(row.PublishedAt)
+	}
+	return &domain.CloneSourceSnapshot{Outlier: float8Ptr(row.Score), ViewCount: int8Ptr(row.ViewCount), PublishedAt: published}, nil
 }
