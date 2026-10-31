@@ -26,6 +26,7 @@
 //	00016 admin storage settings and online store migration               ← old 00014
 //	00017 resumable source purge progress                                 ← old 00015
 //	00018 expired storage probe configuration cleanup                     ← old 00016
+//	00019 shared session revocation reason/app                           ← verse SSO
 //
 // Applied migration numbers are never renamed or edited. New work appends the
 // next free number; postgres.RequiredMigrations derives the required set from

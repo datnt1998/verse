@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"io/fs"
 	"strings"
 	"testing"
 	"time"
@@ -11,8 +12,28 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrations"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
+
+// embedded returns how many migrations ship in the binary and the highest version.
+func embedded(t *testing.T) (count int, latest int64) {
+	t.Helper()
+	names, err := fs.Glob(migrations.FS, "*.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range names {
+		var v int64
+		for _, r := range name[:5] {
+			v = v*10 + int64(r-'0')
+		}
+		if v > latest {
+			latest = v
+		}
+	}
+	return len(names), latest
+}
 
 // TestMigrateFoundationUpIsIdempotent runs the migration twice in one schema;
 // the second run must be a no-op rather than an error or a duplicate.
@@ -30,8 +51,8 @@ func TestMigrateFoundationUpIsIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first migrate up: %v", err)
 	}
-	if len(res) != 18 {
-		t.Fatalf("fresh migration applied %d migrations, want 18", len(res))
+	if want, _ := embedded(t); len(res) != want {
+		t.Fatalf("fresh migration applied %d migrations, want all %d embedded", len(res), want)
 	}
 
 	res2, err := migrate.Up(ctx, db)
@@ -76,8 +97,8 @@ func TestMigrateVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("version after up: %v", err)
 	}
-	if v != 18 {
-		t.Fatalf("version after up = %d, want 18", v)
+	if _, want := embedded(t); v != want {
+		t.Fatalf("version after up = %d, want latest embedded %d", v, want)
 	}
 }
 
