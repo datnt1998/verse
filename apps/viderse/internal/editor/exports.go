@@ -643,7 +643,7 @@ func (s *Service) deleteExportLocked(ctx context.Context, pid, eid string) error
 			paths = append(paths, row.Path)
 		}
 	}
-	if err = s.Media.Unbind(ctx, paths, func(tx context.Context) error {
+	if err = s.unbindPaths(ctx, paths, func(tx context.Context) error {
 		for _, row := range owned {
 			if e := repo.Delete(tx, row.Key, row.Revision); e != nil {
 				return e

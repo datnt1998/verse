@@ -258,11 +258,25 @@ func (s Store) publishProject(ctx context.Context, id string, p Project, expecte
 		now = s.Now
 	}
 	next := Resource{Key: "projects/" + id, Path: path, Revision: revision, UpdatedAt: now()}
+	var prior Resource
+	if s.Repository != nil {
+		prior, err = s.Repository.Get(ctx, next.Key)
+		if err != nil && !errors.Is(err, blobstore.ErrNotFound) {
+			return "", err
+		}
+	}
 	artifact := media.Artifact{Path: path, File: file.Name(), ContentType: "application/json"}
 	if err = s.Media.Publish(ctx, []media.Artifact{artifact}, func(txctx context.Context) error {
 		return s.Repository.CAS(txctx, next.Key, expected, next)
 	}); err != nil {
 		return "", err
+	}
+	if err == nil {
+		// A released pointer-owned local file has no grace collector; remove it
+		// after commit so startup reconciliation never sees unbound strays.
+		if prior.Path != "" && prior.Path != path {
+			discardReleasedLocal(ctx, s.Media, prior.Path)
+		}
 	}
 	return revision, nil
 }

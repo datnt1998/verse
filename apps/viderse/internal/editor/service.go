@@ -276,9 +276,16 @@ func (s *Service) writeJSON(ctx context.Context, key, legacyPath string, value O
 	if publish == nil {
 		return "", errors.New("editor media service is required")
 	}
+	prior, priorErr := repo.Get(ctx, key)
+	if priorErr != nil && !isMissing(priorErr) {
+		return "", priorErr
+	}
 	err = publish.Publish(ctx, []media.Artifact{artifact}, func(tx context.Context) error {
 		return repo.CAS(tx, key, expected, Resource{Key: key, Path: artifact.Path, Revision: revision, UpdatedAt: s.now(), PreviousPath: legacyPath})
 	})
+	if err == nil {
+		discardReleasedLocal(ctx, publish, prior.Path, legacyPath)
+	}
 	return revision, err
 }
 func (s *Service) listPaths(ctx context.Context, prefix string) ([]string, error) {
@@ -299,7 +306,11 @@ func (s *Service) removeResource(ctx context.Context, key, legacyPath string) er
 	if s.Media == nil {
 		return errors.New("editor media service is required")
 	}
-	return s.Media.Publish(ctx, nil, func(tx context.Context) error { return repo.Delete(tx, key, record.Revision) })
+	err = s.Media.Publish(ctx, nil, func(tx context.Context) error { return repo.Delete(tx, key, record.Revision) })
+	if err == nil {
+		discardReleasedLocal(ctx, s.Media, record.Path, legacyPath)
+	}
+	return err
 }
 
 type ProjectSummary struct {
@@ -518,6 +529,9 @@ func (s *Service) DeleteProject(ctx context.Context, id string) error {
 	lock.Unlock()
 	if err != nil {
 		return err
+	}
+	for _, row := range rows {
+		discardReleasedLocal(ctx, s.Media, row.Path)
 	}
 	exports, err := s.exportIDs(ctx, id)
 	if err != nil {

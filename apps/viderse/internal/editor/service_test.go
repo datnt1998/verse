@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -17,6 +18,61 @@ func workspaceService(t *testing.T) *editor.Service {
 	t.Helper()
 	store, repo, files, _, _ := editorPersistenceStore(t)
 	return &editor.Service{Store: store, Media: files, Repository: repo, StagingDir: store.StagingDir, Now: func() time.Time { return time.UnixMilli(3000) }}
+}
+
+// Startup reconciliation fails closed on unbound local strays, so every CAS
+// that releases a pointer-owned local file must remove it after the commit.
+func TestWorkspaceReleasedRevisionFileRemovedLocally(t *testing.T) {
+	store, repo, files, _, root := editorPersistenceStore(t)
+	s := &editor.Service{Store: store, Media: files, Repository: repo, StagingDir: store.StagingDir}
+	ctx := context.Background()
+	p, revision, err := s.CreateProject(ctx, editor.CreateProjectInput{Name: "Reclaim"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := p["id"].(string)
+	resource, err := repo.Get(ctx, "projects/"+id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstPath := filepath.Join(root, filepath.FromSlash(resource.Path))
+	if _, err = os.Stat(firstPath); err != nil {
+		t.Fatalf("first revision file: %v", err)
+	}
+	p["description"] = "second"
+	next, err := s.SaveProject(ctx, id, p, revision)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(firstPath); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("released local revision survived: %v", err)
+	}
+	current, err := repo.Get(ctx, "projects/"+id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(current.Path))); err != nil {
+		t.Fatalf("current revision file missing: %v", err)
+	}
+	p["description"] = "third"
+	if _, err = s.SaveProject(ctx, id, p, next); err != nil {
+		t.Fatal(err)
+	}
+	// Sidecar writes release their own immutable JSON, never the project file.
+	sidecarRevision, err := s.SaveSidecar(ctx, id, "animation-presets", editor.Object{"v": 1}, "empty")
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstSidecar, err := repo.Get(ctx, "projects/"+id+"/sidecars/animation-presets")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.SaveSidecar(ctx, id, "animation-presets", editor.Object{"v": 2}, sidecarRevision); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(firstSidecar.Path))); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("released sidecar revision survived: %v", err)
+	}
 }
 
 // Ported from yt-factory@2c201e6 projects.test.ts and projects.cli.test.ts:
