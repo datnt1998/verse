@@ -3,16 +3,31 @@
 -- (narrative/document/checkpoint tables) and self-claims its story lease —
 -- it must never reach account/grant/audit/job/blob rows or run DDL.
 --
--- Run as the schema owner (or a superuser) AFTER `storage migrate up` and
--- BEFORE enabling hosted stories:
+-- Creating a missing login needs a superuser. Before BEGIN the script disables
+-- transaction sampling for the session; inside the CREATE ROLE transaction it
+-- silences statement/debug logging and activity tracking before any password SQL.
+-- Run AFTER `storage migrate up` and BEFORE enabling hosted stories:
 --
---   psql "$ADMIN_DSN" -v worker_password="$NOVERSE_WORKER_PASSWORD" \
---        -v worker_schema=public -f deploy/postgres-init/03-engine-worker-role.sql
+--   ( set -a; . /secure/worker-role.env; set +a; \
+--       exec psql -X "$ADMIN_DSN" -v worker_schema=public \
+--            -f deploy/postgres-init/03-engine-worker-role.sql )   # env file 0600
 --
--- worker_password is required; without it the script skips itself so the
--- PostgreSQL image's docker-entrypoint-initdb.d hook can still run this
--- directory safely before an operator provisions the role (init runs before
--- migrations exist, so this file must be re-run after migrate anyway).
+-- The password comes from WORKER_ROLE_PASSWORD (read with \getenv, psql 15+)
+-- so it never appears on a command line. Use the environment for automation
+-- too, never a password-bearing -v argument. An existing login needs no
+-- password: a schema owner with CREATEROLE and ADMIN OPTION on the login may
+-- rerun to sync grants. If the login is missing and no password is supplied,
+-- the initdb hook skips provisioning (migrations are not available there yet).
+-- A supplied empty password is refused. The env name is deliberately not
+-- passed by the compose file, so initdb skips a missing login safely.
+--
+-- Without superuser the creation path stops BEFORE sending a password-bearing
+-- statement. Create the role without a password and use \password instead;
+-- then rerun as its schema/role administrator to sync grants. Do not LOAD
+-- auto_explain/pgaudit in this session; already-loaded modules are silenced
+-- transaction-locally. The pre-BEGIN sampling setting is session-scoped; a
+-- transaction pooler that chooses another backend is checked again inside the
+-- transaction and refused unless that backend also has sampling disabled.
 --
 -- The role is NOINHERIT and NOT a member of noverse_app/noverse_migrate;
 -- every right below is deliberate. The grant list mirrors the tables the
@@ -20,28 +35,123 @@
 -- schema changes, update both this file and the worker-role test — new
 -- tables are never covered by default privileges on purpose.
 \set ON_ERROR_STOP on
-
-\if :{?worker_password}
-\else
-  \echo 'noverse_engine_worker: worker_password not set; skipping role provisioning.'
-  \quit
-\endif
+-- Never echo password-bearing SQL back to the terminal, whatever -a, -e or
+-- ECHO the caller passed.
+\set ECHO none
+\set ECHO_HIDDEN off
 
 \if :{?worker_schema}
 \else
   \set worker_schema public
 \endif
 
--- Create the login only if absent. format(%L) is quote_literal, so a generated
--- password containing quotes is safe and never needs to be shell-escaped.
+SELECT EXISTS (SELECT FROM pg_roles WHERE rolname = 'noverse_engine_worker')
+    AS worker_role_exists
+\gset
+\if :worker_role_exists
+\else
+\unset worker_password
+\getenv worker_password WORKER_ROLE_PASSWORD
+\if :{?worker_password}
+\else
+  \echo 'noverse_engine_worker: WORKER_ROLE_PASSWORD not set; skipping role provisioning.'
+  \quit
+\endif
+
+-- Transaction sampling is chosen at BEGIN, so turning it off transaction-
+-- locally would be too late. No password is sent during this preflight.
+DO $$
+BEGIN
+    PERFORM set_config('log_transaction_sample_rate', '0', false);
+EXCEPTION WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Không thể tắt lấy mẫu nhật ký transaction (%)', SQLERRM;
+END
+$$;
+SELECT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user)
+    AND current_setting('log_transaction_sample_rate')::float8 = 0
+    AS worker_sampling_disabled
+\gset
+\if :worker_sampling_disabled
+\else
+DO $$ BEGIN RAISE EXCEPTION 'noverse_engine_worker: không thể tắt lấy mẫu nhật ký — hãy chạy bằng superuser, hoặc tạo role không có mật khẩu rồi đặt bằng \password noverse_engine_worker'; END $$;
+\quit
+\endif
+
+BEGIN;
+DO $$
+BEGIN
+    PERFORM set_config('track_activities', 'off', true);
+    PERFORM set_config('log_statement', 'none', true);
+    PERFORM set_config('log_min_duration_statement', '-1', true);
+    PERFORM set_config('log_min_duration_sample', '-1', true);
+    PERFORM set_config('debug_print_parse', 'off', true);
+    PERFORM set_config('debug_print_rewritten', 'off', true);
+    PERFORM set_config('debug_print_plan', 'off', true);
+    PERFORM set_config('log_min_error_statement', 'panic', true);
+    PERFORM set_config('pg_stat_statements.track', 'none', true);
+    PERFORM set_config('pg_stat_statements.track_utility', 'off', true);
+    PERFORM set_config('auto_explain.log_min_duration', '-1', true);
+    PERFORM set_config('pgaudit.log', 'none', true);
+EXCEPTION WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Không thể tắt ghi nhật ký câu lệnh (%)', SQLERRM;
+END
+$$;
+
+-- Recheck the sampling decision on this transaction's backend, plus every
+-- local logging/activity knob, before sending any password-bearing SQL. Bind
+-- parameters are not an alternative: logging records their values too.
+SELECT
+    (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) AND
+    current_setting('log_transaction_sample_rate')::float8 = 0
+    AND current_setting('track_activities') = 'off'
+    AND current_setting('log_statement') = 'none'
+    AND current_setting('log_min_duration_statement') = '-1'
+    AND current_setting('log_min_duration_sample') = '-1'
+    AND current_setting('debug_print_parse') = 'off'
+    AND current_setting('debug_print_rewritten') = 'off'
+    AND current_setting('debug_print_plan') = 'off'
+    AND current_setting('log_min_error_statement') = 'panic'
+    AND current_setting('pg_stat_statements.track', true) = 'none'
+    AND current_setting('pg_stat_statements.track_utility', true) = 'off'
+    AND current_setting('auto_explain.log_min_duration', true) = '-1'
+    AND current_setting('pgaudit.log', true) = 'none'
+    AS worker_logging_silenced
+\gset
+\if :worker_logging_silenced
+\else
+ROLLBACK;
+DO $$ BEGIN RAISE EXCEPTION 'noverse_engine_worker: không thể tắt ghi nhật ký câu lệnh — hãy chạy bằng superuser, hoặc tạo role không có mật khẩu rồi đặt bằng \password noverse_engine_worker'; END $$;
+\quit
+\endif
+
+SELECT :'worker_password' <> '' AS worker_password_nonempty
+\gset
+\if :worker_password_nonempty
+\else
+ROLLBACK;
+DO $$ BEGIN RAISE EXCEPTION 'noverse_engine_worker: WORKER_ROLE_PASSWORD rỗng — từ chối tạo login không có mật khẩu'; END $$;
+\quit
+\endif
+
+-- Both this SELECT and the generated CREATE contain the password; the literal
+-- quoting handles generated passwords with arbitrary quotes and whitespace.
 SELECT format(
     'CREATE ROLE noverse_engine_worker LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT PASSWORD %L',
     :'worker_password')
-WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'noverse_engine_worker')
 \gexec
+COMMIT;
+\endif
 
--- Enforce the attributes even on an existing role; rerunning never widens them.
-ALTER ROLE noverse_engine_worker LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+-- SUPERUSER/CREATEDB changes require the corresponding authority even when
+-- already false. Only request privileged demotions that are actually needed;
+-- an unsafe existing login still fails closed before grants.
+SELECT 'ALTER ROLE noverse_engine_worker NOSUPERUSER'
+FROM pg_roles WHERE rolname = 'noverse_engine_worker' AND rolsuper
+\gexec
+SELECT 'ALTER ROLE noverse_engine_worker NOCREATEDB'
+FROM pg_roles WHERE rolname = 'noverse_engine_worker' AND rolcreatedb
+\gexec
+ALTER ROLE noverse_engine_worker LOGIN NOCREATEROLE NOINHERIT;
 
 -- Leave any application/migration role before granting anything. NOINHERIT
 -- already disables inheritance; this removes the membership itself.
@@ -50,7 +160,12 @@ DECLARE
     other text;
 BEGIN
     FOREACH other IN ARRAY ARRAY['noverse_app', 'noverse_migrate', 'viderse_identity'] LOOP
-        IF EXISTS (SELECT FROM pg_roles WHERE rolname = other) THEN
+        IF EXISTS (
+            SELECT FROM pg_auth_members m
+            JOIN pg_roles r ON r.oid = m.roleid
+            JOIN pg_roles member_role ON member_role.oid = m.member
+            WHERE r.rolname = other AND member_role.rolname = 'noverse_engine_worker'
+        ) THEN
             EXECUTE format('REVOKE %I FROM noverse_engine_worker', other);
         END IF;
     END LOOP;

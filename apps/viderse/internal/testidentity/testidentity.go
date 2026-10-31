@@ -102,11 +102,12 @@ func applyRoleScript(t *testing.T, adminDSN, schema string) {
 	query := u.Query()
 	query.Del("search_path")
 	u.RawQuery = query.Encode()
-	cmd := exec.Command(bin, u.String(),
+	cmd := exec.Command(bin, "-X", u.String(),
 		"-v", "ON_ERROR_STOP=1",
-		"-v", "identity_password="+rolePassword,
 		"-v", "identity_schema="+schema,
 		"-f", script)
+	// The password goes through the environment, never argv.
+	cmd.Env = []string{"PATH=" + os.Getenv("PATH"), "LC_ALL=C", "IDENTITY_ROLE_PASSWORD=" + rolePassword}
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("áp identity role script: %v\n%s", err, out)
@@ -169,17 +170,12 @@ func Provision(t *testing.T) *Fixture {
 }
 
 // CreateMember tạo một member trên kho chung; apps rỗng = không grant nào.
-// Member thường đi qua store role-viderse (Apps để trống nghĩa là không
-// grant — store phía Noverse sẽ mặc định cấp noverse); member cần
-// must_change phải qua store quản trị vì viderse_identity không được INSERT
-// temporary_passwords — và khi apps rỗng grant noverse mặc định được thu hồi
-// lại để giữ đúng ý "không grant".
+// Member luôn đi qua store quản trị — giống sản xuất, nơi tài khoản được tạo
+// từ Noverse: viderse_identity chỉ INSERT được users khi kho còn trống (thiết
+// lập lần đầu). Store quản trị tự cấp noverse khi Apps rỗng, nên grant mặc
+// định đó được thu hồi lại để giữ đúng ý "không grant".
 func (f *Fixture) CreateMember(t *testing.T, username, password string, mustChange bool, apps ...identity.App) {
 	t.Helper()
-	store := f.Accounts
-	if mustChange {
-		store = f.Admin
-	}
 	in := identity.NewUser{
 		Username:           username,
 		Name:               username,
@@ -188,12 +184,10 @@ func (f *Fixture) CreateMember(t *testing.T, username, password string, mustChan
 		MustChangePassword: mustChange,
 		Apps:               apps,
 	}
-	if _, err := store.CreateUser(in); err != nil {
+	if _, err := f.Admin.CreateUser(in); err != nil {
 		t.Fatalf("tạo member %q: %v", username, err)
 	}
-	if mustChange && len(apps) == 0 {
-		// Store quản trị tự cấp noverse khi Apps rỗng — thu hồi để fixture
-		// đúng là "không grant nào".
+	if len(apps) == 0 {
 		if err := f.Admin.OperatorRevokeAppGrant(username, identity.AppNoverse); err != nil {
 			t.Fatalf("thu hồi grant mặc định của %q: %v", username, err)
 		}

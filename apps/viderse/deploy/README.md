@@ -11,14 +11,21 @@ Viderse cần **hai** cơ sở dữ liệu Postgres:
 
 1. Tạo hai role và DB (tham chiếu `apps/noverse/deploy/postgres-init/01-roles.sh` cho mô hình role; Viderse dùng cặp `viderse_migrate`/`viderse_app` như `pgtest.RoleSpec`):
 
-   ```sql
-   CREATE ROLE viderse_migrate LOGIN PASSWORD '<mật-khẩu>';
+   Trong psql (không dán mật khẩu vào câu SQL):
+
+   ```text
+   CREATE ROLE viderse_migrate LOGIN;
+   \password viderse_migrate
    CREATE ROLE viderse_app NOLOGIN;
    CREATE DATABASE viderse_db OWNER viderse_migrate;
    GRANT viderse_app TO viderse_migrate;
-   -- viderse_app có thể được GRANT cho một login vận hành nếu muốn:
-   -- CREATE ROLE viderse_app_login LOGIN PASSWORD '...' IN ROLE viderse_app;
+   -- Optional operational login:
+   -- CREATE ROLE viderse_app_login LOGIN IN ROLE viderse_app;
+   -- \password viderse_app_login
    ```
+
+   `\password` hỏi mật khẩu kín và chỉ gửi verifier SCRAM tới server; secret
+   không nằm trong shell history hoặc SQL plaintext.
 
 2. Migration: `viderse migrate up` với `VIDERSE_MIGRATION_DATABASE_URL` (mặc định dùng `VIDERSE_DATABASE_URL` nếu không đặt — nên đặt role migrate riêng). Migration tự `GRANT ... TO viderse_app`, `SET ROLE` phải nằm trong DSN (vd `?role=viderse_migrate`) hoặc session của role migrate.
 
@@ -35,30 +42,58 @@ không còn tồn tại nữa.
 2. Cấp role `viderse_identity` bằng script có sẵn trong repo Noverse:
 
    ```sh
-   psql "$NOVERSE_DB_ADMIN_DSN" -v ON_ERROR_STOP=1 \
-     -v "identity_password=<mật-khẩu-role>" \
-     -v "identity_schema=<schema-identity>" \
-     -f apps/noverse/deploy/postgres-init/02-identity-role.sql
+   # File 0600 chứa IDENTITY_ROLE_PASSWORD=…; DSN quản trị không kèm mật khẩu
+   # (PGPASSFILE), để không secret nào nằm trên dòng lệnh hay shell history.
+   ( set -a; . /secure/identity-role.env
+     exec psql -X "$NOVERSE_DB_ADMIN_DSN" -v ON_ERROR_STOP=1 \
+       -v "identity_schema=<schema-identity>" \
+       -f apps/noverse/deploy/postgres-init/02-identity-role.sql )
    ```
 
-   Script idempotent: chạy lại chỉ cập nhật mật khẩu và grants.
+   Cần psql 15+ (`\getenv`) và **superuser khi tạo login chưa có**. Script
+   tắt `log_transaction_sample_rate` ở mức session **trước BEGIN**, rồi tắt
+   statement/duration/sample/debug logging, đặt `pg_stat_statements.track=none`
+   và `pg_stat_statements.track_utility=off`, tắt `auto_explain`, `pgaudit` và
+   `track_activities` transaction-local trong transaction CREATE ROLE; mật khẩu
+   không xuất hiện trong `pg_stat_activity.query`. Automation cũng truyền mật
+   khẩu qua env `IDENTITY_ROLE_PASSWORD`, không qua đối số `-v`.
+   Không bật/nạp hai extension ghi log đó trong phiên này. Script kiểm tra
+   lại GUC trên backend của transaction: transaction pooler chọn backend còn
+   sampling thì bị rollback. Nếu không thể tắt log, script dừng **trước**
+   khi gửi bất kỳ câu lệnh chứa mật khẩu nào, bất kể cờ `ON_ERROR_STOP` ban đầu.
+   Mật khẩu rỗng bị từ chối khi tạo login.
+
+   Superuser có thể tạo role không mật khẩu, đặt bằng
+   `\password viderse_identity`, rồi giao ADMIN OPTION trên role cho principal
+   quản trị schema. Khi login đã có, chủ database/schema/bảng có CREATEROLE
+   và ADMIN OPTION có thể chạy lại script không cần env mật khẩu: script chỉ
+   đồng bộ thuộc tính/grants, không đọc/gửi mật khẩu hoặc đổi GUC ghi log.
+   Đổi mật khẩu login đã có bằng `\password viderse_identity`.
 
 3. `VERSE_IDENTITY_DATABASE_URL=postgres://viderse_identity:<mật-khẩu>@host:5432/<db-identity>?search_path=<schema-identity>`
 
-   - Role chỉ có account/grant; mọi đọc-ghi `project_members` hay quyền admin
-     tài khoản trả `501 unsupported`/`42501` — không dùng được cho luồng operator
-     Noverse. Mặt bằng đúng chuẩn.
-   - Đổi/grant app cho người dùng chạy bằng `ainovel-cli serve user grant` hoặc
-     `viderse user grant` — cùng hàng grant trong `app_grants`, ai cũng đọc được.
-   - Cắt quyền khẩn cấp: `REVOKE viderse_identity FROM <login>` hoặc đổi mật
-     khẩu role — revoke phiên người dùng cụ thể dùng `user revoke --app` /
-     trang quản trị, vì grant mutation tự thu hồi phiên mục tiêu.
+   - Role chỉ chạm bảng tài khoản, phiên, grant và ghi thêm audit; không đọc
+     `project_members`, dự án hay lịch sử audit, không đổi vai trò, khoá hay
+     xoá tài khoản (Postgres trả `42501`). Role chỉ tạo được tài khoản khi kho
+     còn trống (thiết lập lần đầu); sau đó trigger của Noverse chặn mọi lệnh
+     tạo tài khoản từ role này. Không dùng DSN này cho lệnh quản trị Noverse.
+   - Rủi ro còn lại có chủ ý: Viderse phải ghi mật khẩu, phiên, mã khôi phục
+     và `app_grants` (đổi mật khẩu, thiết lập, `viderse user grant`), nên một
+     tiến trình Viderse bị chiếm có thể chiếm tài khoản sẵn có. Giữ Viderse
+     cùng mức tin cậy với Noverse: cùng máy hoặc mạng riêng, DSN chỉ trong env
+     của `viderse serve`.
+   - Cấp/thu quyền app chạy bằng `ainovel-cli serve user grant|revoke` hoặc
+     `viderse user grant|revoke`: cùng hàng trong `app_grants`, đổi thật thì
+     người đó bị đăng xuất khỏi mọi thiết bị ở cả hai app.
+   - Cắt Viderse khỏi kho tài khoản khi khẩn cấp: `ALTER ROLE viderse_identity
+     NOLOGIN` rồi `pg_terminate_backend` các kết nối của role đó. Noverse không
+     dùng role này nên vẫn chạy.
 
 ## Cookie và origin
 
 Cả hai app đọc **một** cookie `verse_session`:
 
-- Local dev (không `PUBLIC_URL`): cookie `Host`-only (`SameSite=Lax`); login trên
+- Local dev (không `PUBLIC_URL`): cookie host-only (`HttpOnly; SameSite=Strict`); login trên
   một cổng loopback mở được cổng kia của cùng user. Khi đó `VERSE_APP_ORIGINS`
   (local SSO) bắt buộc bind loopback — Viderse từ chối `0.0.0.0`/`::`/LAN.
 - Hosted (`PUBLIC_URL=https://...` + `SECURE_COOKIES=1`): đặt

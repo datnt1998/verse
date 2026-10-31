@@ -86,11 +86,18 @@ docker compose -f docker-compose.dokploy.yml down -v
 ### 3.1. Postgres
 
 1. **Create Database → PostgreSQL 17**, tên `noverse`. Không bật public port.
-2. Tạo hai role riêng trong database console (thay mật khẩu thật):
-   nội dung `deploy/postgres-init/01-roles.sh` (phần SQL) chạy bằng user quản
-   trị của Dokploy. Nó tạo `noverse_migrate` (chủ schema, chạy DDL) và
-   `noverse_app` (chỉ DML), tạo sẵn `citext`/`pg_trgm`, đặt default privileges
-   để bảng mới do migration role tạo vẫn đọc/ghi được bởi app role.
+2. Chạy `deploy/postgres-init/01-roles.sh` bằng **superuser** của Dokploy
+   (init hook của image Postgres đã dùng superuser). Nạp secret từ file 0600
+   trong subshell, không gõ mật khẩu vào console hoặc giữ trong shell vận hành:
+   `( set -a; . /secure/postgres-roles.env; exec sh deploy/postgres-init/01-roles.sh )`.
+   File chứa `POSTGRES_USER`, `POSTGRES_DB`, `POSTGRES_MIGRATE_PASSWORD`,
+   `POSTGRES_APP_PASSWORD` và thông tin kết nối PG cần thiết. Script tạo
+   `noverse_migrate` (chủ schema, chạy DDL), `noverse_app` (chỉ DML),
+   `citext`/`pg_trgm` và default privileges cho bảng mới của migration role.
+   Khi cần tạo login, script tắt `log_transaction_sample_rate` ở mức session
+   **trước BEGIN**, rồi tắt log câu lệnh, log duration/sample/debug trong
+   transaction tạo role. Các script tự bật `ON_ERROR_STOP` và dừng trước khi
+   gửi mật khẩu nếu không thể tắt log; không phụ thuộc cờ của caller.
    Migration 00010 sau đó **thu hồi** UPDATE/DELETE trên bảng lịch sử
    (`audit_logs`, `chapter_versions`, `import_items`) khỏi app role: lịch sử
    chỉ được purge bởi `noverse_migrate` (hoặc superuser) qua lệnh bảo trì
@@ -99,13 +106,39 @@ docker compose -f docker-compose.dokploy.yml down -v
    - `DATABASE_URL` → app role
    - `MIGRATION_DATABASE_URL` → migrate role (chỉ job migrate giữ)
 4. Sau `storage migrate up`, tạo role engine-worker bằng script
-   `deploy/postgres-init/03-engine-worker-role.sql` (chạy bằng user quản trị):
-   `psql "$ADMIN_DSN" -v worker_password="$POSTGRES_WORKER_PASSWORD" -f .../03-engine-worker-role.sql`.
+   `deploy/postgres-init/03-engine-worker-role.sql` (**superuser**):
+   `( set -a; . /secure/worker-role.env; exec psql -X "$ADMIN_DSN" -f deploy/postgres-init/03-engine-worker-role.sql )`.
+   File 0600 chứa `WORKER_ROLE_PASSWORD`; cần psql 15+ (`\getenv`).
+   Automation cũng chỉ truyền mật khẩu qua env, không qua đối số `-v`.
+   `$ADMIN_DSN` không kèm mật khẩu (`PGPASSFILE`). Với login chưa có, script
+   từ chối mật khẩu rỗng, tắt transaction sampling **trước BEGIN**, rồi tắt
+   statement/duration/sample/debug logging và `track_activities` trong transaction
+   CREATE ROLE để mật khẩu không xuất hiện trong `pg_stat_activity.query`.
+   Script đặt `pg_stat_statements.track=none` và `track_utility=off` transaction-local,
+   nên cả SELECT chứa mật khẩu lẫn CREATE ROLE đều không được extension thu thập.
+   Không bật/nạp `auto_explain` hay `pgaudit` trong phiên này; script cũng tắt
+   chúng transaction-local. Backend của transaction được kiểm tra lại: nếu
+   transaction pooler chọn backend còn sampling, script rollback trước khi
+   gửi mật khẩu.
    Role `noverse_engine_worker` chỉ đọc/ghi bảng facts + story lease; không
    account/grant/audit/jobs/blobs, không DDL, không default privileges — bảng
    mới worker cần phải được grant chủ động trong file đó. DSN của nó đặt ở
    `NOVERSE_WORKER_DATABASE_URL`; worker hosted thiếu DSN này là fail closed,
    không bao giờ dùng `DATABASE_URL` của app.
+5. Khi chạy Viderse cùng kho tài khoản: tạo role `viderse_identity` bằng
+   `deploy/postgres-init/02-identity-role.sql` (**superuser**, sau
+   `storage migrate up`):
+   `( set -a; . /secure/identity-role.env; exec psql -X "$ADMIN_DSN" -v identity_schema=public -f deploy/postgres-init/02-identity-role.sql )`.
+   File 0600 chứa `IDENTITY_ROLE_PASSWORD`, theo cùng quy tắc bảo vệ log,
+   `pg_stat_activity` và từ chối mật khẩu rỗng khi tạo login.
+   Có thể tạo login không mật khẩu bằng
+   superuser rồi đặt bằng `\password viderse_identity` (tương tự engine-worker).
+   Khi login đã có, cả hai SQL script không đọc/gửi mật khẩu và không đổi GUC
+   ghi log. Chủ database/schema/bảng có CREATEROLE và ADMIN OPTION trên login
+   có thể chạy lại không cần env mật khẩu để đồng bộ thuộc tính/grants.
+   Role này chỉ chạm bảng tài khoản/phiên/grant, ghi thêm audit, và chỉ tạo
+   được tài khoản khi kho còn trống. DSN của nó là `VERSE_IDENTITY_DATABASE_URL`
+   của Viderse, không bao giờ cấp cho Noverse.
 
 Nếu cần TLS trong cụm, dùng `sslmode=require` + CA của Dokploy; `sslmode=disable`
 chỉ chấp nhận trong mạng nội bộ đã kiểm soát (bản compose local).
@@ -337,6 +370,9 @@ Bằng chứng local (2026-10-29): dump 148 KB, `schema.format=1`,
     `MIGRATION_DATABASE_URL` (app role sẽ bị trigger từ chối).
 
 ## 8. Runbook cutover
+
+Chuyển tài khoản file cũ của Noverse/Viderse sang kho chung (đăng nhập chung
+hai app): runbook riêng [sso-cutover.md](sso-cutover.md).
 
 Điều kiện vào: phase 08 đã rehearsal import/reconcile/restore trên bản sao;
 image đã build; backup mới nhất đã restore thử thành công.

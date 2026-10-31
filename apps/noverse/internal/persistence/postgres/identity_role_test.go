@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"net/url"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/platform/identity"
@@ -52,11 +54,11 @@ func applyIdentityRoleScript(t *testing.T, adminDSN, schema string) {
 	query := u.Query()
 	query.Del("search_path")
 	u.RawQuery = query.Encode()
-	cmd := exec.Command(bin, u.String(),
+	cmd := exec.Command(bin, "-X", u.String(),
 		"-v", "ON_ERROR_STOP=1",
-		"-v", "identity_password="+identityRolePassword,
 		"-v", "identity_schema="+schema,
 		"-f", script)
+	cmd.Env = append(minimalPsqlEnv(), "IDENTITY_ROLE_PASSWORD="+identityRolePassword)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("apply identity role script: %v\n%s", err, out)
@@ -229,6 +231,34 @@ func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
 		}
 	}
 
+	// INSERT on users exists only for first-run setup: once the store holds an
+	// account the identity role cannot mint another one — not directly, and not
+	// by shadowing "users" with a temporary table on its own connection.
+	mint := `INSERT INTO ` + pgx.Identifier{schema, "users"}.Sanitize() + ` (id, username, display_name, global_role, status)
+		VALUES ('00000000-0000-0000-0000-0000000009fa', 'minted', '', 'admin', 'active')`
+	assertDenied := func(what string, err error) {
+		t.Helper()
+		var pgErr *pgconn.PgError
+		if !errors.As(err, &pgErr) || pgErr.Code != "42501" {
+			t.Fatalf("%s under the identity role = %v, want insufficient_privilege", what, err)
+		}
+	}
+	_, err = rolePool.Pool().Exec(ctx, mint)
+	assertDenied("mint admin", err)
+	conn, err := rolePool.Pool().Acquire(ctx)
+	if err != nil {
+		t.Fatalf("acquire identity role connection: %v", err)
+	}
+	if _, err := conn.Exec(ctx, `CREATE TEMP TABLE users (id uuid, deleted_at timestamptz)`); err != nil {
+		t.Fatalf("temp shadow table: %v", err)
+	}
+	_, err = conn.Exec(ctx, mint)
+	assertDenied("mint admin behind a temp shadow", err)
+	if _, err := conn.Exec(ctx, `DROP TABLE pg_temp.users`); err != nil {
+		t.Fatalf("drop temp shadow table: %v", err)
+	}
+	conn.Release()
+
 	// Privilege catalog: the script's exact grants, with nothing external
 	// reintroducing rights through PUBLIC/ownership.
 	checks := []struct {
@@ -279,5 +309,115 @@ func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
 		if _, err := rolePool.Pool().Exec(ctx, `SET ROLE noverse_migrate`); err == nil {
 			t.Fatal("identity role can SET ROLE noverse_migrate")
 		}
+	}
+}
+
+func TestIdentityRoleScriptReadsPasswordFromEnv(t *testing.T) {
+	dsn := roleTestCluster(t)
+	migrateSchema(t, dsn)
+	_, logPath := setupLoggingProbe(t, dsn)
+	const password = "identity-env-marker-'quoted space-8f3a"
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	out, err := runRoleScript(t, dsn, script,
+		[]string{"IDENTITY_ROLE_PASSWORD=" + password}, nil)
+	if err != nil {
+		t.Fatalf("identity env provisioning: %v\n%s", err, out)
+	}
+	out, err = runRoleScript(t, dsn, script, nil, nil)
+	if err != nil {
+		t.Fatalf("existing identity grants without password: %v\n%s", err, out)
+	}
+	u, err := url.Parse(dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	u.User = url.UserPassword("viderse_identity", password)
+	conn, err := pgx.Connect(context.Background(), u.String())
+	if err != nil {
+		t.Fatalf("identity login with env password: %v", err)
+	}
+	defer conn.Close(context.Background())
+	if err := conn.Ping(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	assertServerLogLacks(t, logPath, "identity-env-marker-")
+}
+
+func TestIdentityRoleScriptKeepsPasswordOutOfActivity(t *testing.T) {
+	dsn := roleTestCluster(t)
+	migrateSchema(t, dsn)
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	sql, err := os.ReadFile(script)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertRolePasswordActivityHidden(t, dsn, string(sql),
+		[]string{"IDENTITY_ROLE_PASSWORD=identity-activity-marker-'quoted space"},
+		2, "identity-activity-marker-")
+}
+
+func TestIdentityRoleScriptRefusesEmptyPassword(t *testing.T) {
+	dsn := roleTestCluster(t)
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	out, err := runRoleScript(t, dsn, script, []string{"IDENTITY_ROLE_PASSWORD="}, nil)
+	if err == nil || !strings.Contains(string(out), "rỗng") {
+		t.Fatalf("expected empty-password refusal: %v\n%s", err, out)
+	}
+	if roleExists(t, dsn, "viderse_identity") {
+		t.Fatal("empty password created viderse_identity")
+	}
+}
+
+func TestIdentityRoleScriptNonSuperuserNeverSendsPassword(t *testing.T) {
+	dsn := roleTestCluster(t)
+	probeDSN, logPath := setupLoggingProbe(t, dsn)
+	const marker = "identity-marker-7f3e2c-nosuper"
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	out, err := runRoleScript(t, probeDSN, script, []string{"IDENTITY_ROLE_PASSWORD=" + marker}, nil)
+	if err == nil || !strings.Contains(string(out), "superuser") {
+		t.Fatalf("expected superuser refusal before password SQL: %v\n%s", err, out)
+	}
+	if roleExists(t, dsn, "viderse_identity") {
+		t.Fatal("non-superuser created viderse_identity")
+	}
+	assertServerLogLacks(t, logPath, marker)
+}
+
+func TestIdentityRoleScriptSkipsWithoutInheritedPassword(t *testing.T) {
+	dsn := roleTestCluster(t)
+	t.Setenv("IDENTITY_ROLE_PASSWORD", "inherited-password-must-not-reach-psql")
+	t.Setenv("WORKER_ROLE_PASSWORD", "inherited-worker-must-not-reach-psql")
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	out, err := runRoleScript(t, dsn, script, nil, nil)
+	if err != nil || !strings.Contains(string(out), "skipping") {
+		t.Fatalf("expected skip with isolated environment: %v\n%s", err, out)
+	}
+}
+
+func TestIdentityRoleScriptOwnerSyncsExistingRoleWithoutPassword(t *testing.T) {
+	dsn := roleTestCluster(t)
+	migrateSchema(t, dsn)
+	ownerDSN := setupGrantOwner(t, dsn, "viderse_identity")
+	admin, err := pgx.Connect(context.Background(), dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer admin.Close(context.Background())
+	if _, err := admin.Exec(context.Background(), `GRANT SELECT ON public.projects TO viderse_identity`); err != nil {
+		t.Fatal(err)
+	}
+	script := filepath.Join("..", "..", "..", "deploy", "postgres-init", "02-identity-role.sql")
+	out, err := runRoleScript(t, ownerDSN, script, nil, nil)
+	if err != nil || strings.Contains(string(out), "skipping") {
+		t.Fatalf("non-superuser owner grant sync: %v\n%s", err, out)
+	}
+	var users, projects bool
+	if err := admin.QueryRow(context.Background(), `SELECT
+		has_table_privilege('viderse_identity', 'public.users', 'SELECT'),
+		has_table_privilege('viderse_identity', 'public.projects', 'SELECT')`).Scan(&users, &projects); err != nil {
+		t.Fatal(err)
+	}
+	if !users || projects {
+		t.Fatalf("identity grant sync: users SELECT=%v projects SELECT=%v", users, projects)
 	}
 }
