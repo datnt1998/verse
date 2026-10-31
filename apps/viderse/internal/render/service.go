@@ -41,6 +41,7 @@ type Service struct {
 }
 type QualityState struct {
 	Score      *quality.Score `json:"score"`
+	Project    editor.Project `json:"project,omitempty"`
 	AcceptedAt *time.Time     `json:"acceptedAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
 }
@@ -233,7 +234,10 @@ func (s *Service) Score(ctx context.Context, jobID string, lufs *float64, measur
 			return nil, renderError(domain.CloneErrStale, "Project đã đổi trong lúc đo — đo lại")
 		}
 	}
-	if err = s.saveState(jobID, func(state *QualityState) { state.Score = score }); err != nil {
+	if err = s.saveState(jobID, func(state *QualityState) {
+		state.Score = score
+		state.Project = editor.Clone(project)
+	}); err != nil {
 		return nil, err
 	}
 	return score, nil
@@ -334,6 +338,17 @@ func (s *Service) Quality(ctx context.Context, projectID string) (editor.Object,
 	}
 	out := editor.Object{"jobId": jobID, "channelName": channelName, "templateName": snapshot.TemplateName, "score": state.Score, "total": nil, "gate": gate, "ranges": ranges, "measuring": measuring, "changedSinceMeasure": !gate.Fresh, "items": []any{}, "checks": []any{}}
 	if state.Score != nil {
+		baseline := state.Project
+		if !gate.Fresh && baseline != nil {
+			binding, err := s.CurrentBinding(ctx, jobID)
+			if err != nil {
+				return nil, err
+			}
+			if binding.SettingsHash != state.Score.Binding.SettingsHash || binding.ArtifactHash != state.Score.Binding.ArtifactHash {
+				baseline = nil
+			}
+		}
+		stale := qualityStaleItems(state.Score, baseline, project, gate.Fresh)
 		items := []editor.Object{}
 		for _, item := range state.Score.Items {
 			itemRanges := []editor.Object{}
@@ -342,7 +357,7 @@ func (s *Service) Quality(ctx context.Context, projectID string) (editor.Object,
 					itemRanges = append(itemRanges, editor.Object{"startSec": r.Start, "endSec": r.End, "cueId": r.CueID, "itemId": r.ItemID, "text": r.Text, "offsetSec": r.OffsetSec})
 				}
 			}
-			items = append(items, editor.Object{"id": item.ID, "status": item.Status, "label": quality.Labels[item.ID], "evidence": item.Evidence, "ranges": itemRanges, "stale": !gate.Fresh})
+			items = append(items, editor.Object{"id": item.ID, "status": item.Status, "label": quality.Labels[item.ID], "evidence": item.Evidence, "ranges": itemRanges, "stale": stale[item.ID]})
 		}
 		out["items"] = items
 		out["checks"] = state.Score.Items
