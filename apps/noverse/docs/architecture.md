@@ -235,10 +235,95 @@ Artifact 在 `store/outline.go` `drafts.go` `summaries.go` `characters.go` `worl
 
 - `internal/persistence/migrations/00007_jobs_audio.sql`：`workers`（SHA-256 token、capability `tts`）、`jobs`（`FOR UPDATE SKIP LOCKED` 队列：state/lease/fencing_token/idempotency key）、append-only `job_events`、`audio_*`（settings/voices/cast/scripts/segments/renders，renders 按 synth key 存候选并只允许一个 `selected`）、`export_cache`（cache key = 内容哈希 + manifest）。冻结/版本触发器沿用 00003（`prevent_immutable_change`、`enforce_row_version_guard`）。
 - `internal/persistence/postgres/jobs.go`：`Enqueue` 按 `(story, kind, idempotency_key)` 幂等；`Claim` 在短事务里 SKIP LOCKED，用**服务器时间**给 120 s lease 并 `fencing_token+1`；`Heartbeat/Complete/Fail/Release` 都必须匹配 `(worker_id, fence, state=running, lease_until>now())`，因此被杀/分区的 worker 无法发布。`Cancel/Pause/Retry` 会移动 fence，正在跑的 worker 立刻失效（不必等 lease 过期）。`RequeueExpired` 只在启动时把**过期** running 归位 queued，活 lease 不受影响。`CompleteWith` 让渲染行与 job 结果在同一事务落库。
-- `internal/persistence/postgres/audio.go` / `export_cache.go`：settings/voices（项目级）/cast/script（绑定 accepted revision + sha256）/segment（script revision + 稳定 id）/render（synth key = `audio.SynthKey.Hash()`，文本+voice+tone+speed+pitch+quality+engine+model）/export cache（按 cache key，缺失或过期即 miss，不碰 mtime）。二进制只存 BlobStore，`blobs` 行由 `StageBlob`→`MarkBlobReady` 登记。
-- `internal/entry/web/worker_api.go`：**私有 listener**（`/internal/worker/*`，不得挂到 :8080 公共 mux、不得被 Traefik 路由）上的 claim → snapshot → upload → ACK 协议。Bearer token 只存 hash，必须带 `tts` capability；upload 的 object key 由服务端按 `projects/<project>/jobs/<job>/<sha256>.<ext>` 生成并校验流哈希（worker 不能选 key/跨租户覆盖）；complete 在 fence 事务里核对 blob 的 hash/size 并写 `audio_renders`，job id 不属于当前 worker 一律 404（不暴露他人 job 是否存在）。
+- `internal/persistence/postgres/audio.go` / `export_cache.go`：settings/voices（项目级）/cast/script（绑定 accepted revision + sha256）/segment（script revision + 稳定 id）/render（synth key = `audio.SynthKey.Hash()`，文本+voice+tone+speed+pitch+quality+engine+model）/export cache（按 cache key，缺失或过期即 miss，不碰 mtime）。二进制只存 BlobStore；上传/登记走下文 Hosted S3 的统一发布协议。
+- `internal/entry/web/worker_api.go`：**私有 listener**（`/internal/worker/*`，不得挂到 :8080 公共 mux、不得被 Traefik 路由）上的 claim → snapshot → upload → ACK 协议。Bearer token 只存 hash，必须带 `tts` capability；upload 的 object key 由 `internal/blobkey` 按环境/项目 UUID/故事 UUID/内容 SHA 生成（worker 不能选 key/跨租户覆盖）；complete 在 fence 事务里核对 blob 的 hash/size 并写 `audio_renders`，job id 不属于当前 worker 一律 404（不暴露他人 job 是否存在）。
 - `internal/ttsworker`：Mac 侧只拉不听的 worker（`ainovel-cli worker tts --api <tailnet-url>`，token 仅来自 `TTS_WORKER_TOKEN`）。心跳 30 s；发布被 409/404 拒绝即停（stale worker 不重试）；中断时 release 把 job 立刻放回队列；合成串行（Mac 容量下限），engine 走 `internal/voice.NewEngine`。
-- 未接线：`serve` 尚未启动 8081 listener / 未提供 token 签发 CLI（属 09 的部署拓扑）；`audio.Service` 仍只有 file backend，hosted 音频 API 维持 501。
+- 接线入口：`cmd/ainovel-cli/serve.go` 的 `WORKER_LISTEN_ADDR` 私有 listener；token 签发/吊销入口为 `worker token` CLI。Hosted API 使用 `audio.PGService`，file API 保留 `audio.Service`。
+
+**Hosted 补全（2026-10-31）**：
+
+- 配置：`internal/entry/web/config_pg.go` + `internal/persistence/postgres/config.go` 把项目/故事配置存为 `project_documents`/`story_state` 的 `config` 文档，GET 返回逐字段来源，PUT 用 ETag 做事务内 CAS（冲突 409）。hosted worker 由 `bootstrap/hosted_config.go` 按 global → project → story 合并后再加载文风资产并建 engine。
+- 规则与文风样本：`hosted_docs.go`（三级规则 CRUD + 继承、样本 multipart/上限）与 `hosted_document_sources.go`（engine 的规则/样本来源适配器，`postgres/rule_sources.go`、`text_documents.go`）。
+- 媒体与导出：`pg_media.go` 实现封面渲染缓存（`blobkey` cover 键 + `export_cache`）、项目资产上传/列表、四个文本导出 handler（`export-file/<rel>` 注册行 + export blob），`processExportJob` 完成事务内为每个音频产物登记 `export-file/` 行；`audio.PGService.Peaks` 走 blob → scratch → PCM。剩余 501 只有文件模式专属的 fs/reveal 与 worker 能力桩。
+- 模型就绪：`ValidateBase` 保持严格；`Host.New` 只对默认/各 role/fallback 实际引用的 provider 做 `ValidateModelReady`，未被引用的坏 provider 只在设置页提示，不再让整个 app 只读；保存含坏 provider 的配置返回 400。no-model worker 退役时持有 `slot.starting`，直到旧 worker 释放 story lease 才允许新 worker 启动。
+- 容器：`NOVERSE_CONTAINER=1` 时书库根限定于 `LIBRARY_BROWSE_ROOTS`（缺省 `/var/lib/noverse/library`），并用 `/proc/self/mountinfo` 检查书库是否在持久挂载上（overlay/tmpfs 不算），否则启动日志与 web 显示警告。
+- 项目级共创：`00014_cocreate_drafts` 以 `status='draft'` 的隐藏 story 行承接真实事实 FK，不复制事实；普通解析、列表、搜索、计数与反向导出均排除草稿。worker 用显式 `project/draft/<id>` scope、项目配置/规则和原有 fenced story lease，网页会话存 `story_state.cocreate_session`，无目录镜像。提交先停 worker，再在项目行锁内分配编号、改 slug/status（同一事务，UUID/会话不变）；撤销/过期清理撤销 lease 并删除草稿事实和 blob 引用，物理字节仍由 maintenance `storage gc` 按 grace/共享引用规则回收，应用角色的历史/blob 权限不放宽。
+- 声音与读法：`/api/projects/{p}/voices`（列表/上传 WAV 48 kHz、10–30 秒校验/`sample`/删除）走 `audio_voices` + 项目级资产 blob（`sample_blob_id`）；`/pronunciations` 存为 `project_documents` 的 `.ainovel/cach-doc.json`（kind `config`），ETag/If-Match 在锁住项目行的事务内比较。两者不要求项目有故事或目录。
+- 元数据版本：项目 `/api/projects/{p}` 与故事 `/meta` 在两种后端都返回 `version` + `ETag`，PUT 接受 `If-Match` 或 `version`，过期返回 `409 {conflict:true, version, current}`；hosted 由 `postgres/library_meta.go` 在同一事务里比较并写入。
+
+#### Hosted S3-compatible blob storage
+
+事实在 Postgres、二进制在 private BlobStore；切换 Garage/R2/AWS S3 不改业务
+key 布局。`internal/blobkey` 保留 `{env}/p/{projectUUID}/s/{storyUUID}/…`，
+segment 内容寻址只在该 tenant 分支复用，不做全局 dedupe。故事 soft-delete
+不是物理 purge；现存 FK/缓存/工件引用仍保留字节。
+
+- **配置与在线迁移**：`bootstrap/blob_settings.go` 是 serve 和 maintenance 的
+  同一解析入口：任何 blob env 覆盖并锁住整份配置；否则用 DB，最后才是持久
+  local 默认。`00016_storage_settings.sql` 的 singleton CAS 和独立 store
+  identity 支持 S3→S3；credentials 用 `CONFIG_ENCRYPTION_KEY` 的
+  AES-256-GCM 加密，DB 同存 key id，未提供密钥不允许保存 credentials。
+  管理接口只接受 Verse 全局 admin，沿用共享 identity/app-grant/scoped-request
+  授权与 `verse_session`，项目 owner 不等于管理员。保留 SSO 00012/00013，
+  导入迁移顺序为 00014–00018；新表不扩大 identity role 的权限。
+  app 默认 DML grant 被显式收窄：storage_settings 和迁移历史无 DELETE，
+  只有 blob_stores 的未引用 probe 配置在 00018 恢复 FK 保护的 DELETE。
+  `bootstrap/blob_router.go` 按 blob 行的 store id 读，publication 在上传至
+  提交期间持共享 fence，并复用同一条连接解析 active/config 和提交 registry，
+  不嵌套获取 pool 连接；物理 S3 identity 是 canonical endpoint + bucket，
+  不含 signing region。迁移复用 `blobstore.Copier.CopyKey` 的 SHA/size
+  read-back，网络 copy 在 fence 外，最终 delta 检查与 config/ready 行切换
+  在短事务内完成。进度、暂停、取消和错误在 DB，重启可续；旧对象不自动删除。
+  环境已有数据须显式运行 `storage settings adopt-env` 完成加密与 store
+  identity 交接，之后才移除 blob env；没有对应配置的非 local ready 行会
+  fail-closed，不隐式 seed。使用量分类由 `blobkey.UsageKind` 随 publication
+  写入；旧行通过 maintenance 命令 `storage settings backfill-usage` 分页补齐，
+  未分类仍计总量，已知 avatar/PG backup 不计入库文件六类。
+- **交付模式**：`delivery=proxy` 复用 app 的 Range/ETag/If-Range 流式路径，
+  内网 HTTP/私有 IP/无点 hostname 默认 proxy；云端默认 redirect。
+  `presignEndpoint` 对应独立 SigV4 signer，不能签完后替换 host。Garage
+  不可靠实现 If-Range，proxy 由 app 处理；redirect 依赖不变 SHA key。
+  `blob_probe.go` 用响应 Date 检测超过五分钟的时钟偏差，不依赖 provider
+  拒绝未来签名。redirect probe 的 CORS policy 使用小写 header，符合
+  Garage 的大小写限制，也适用于 R2/AWS；浏览器自行完成真实 preflight。
+- **检查与健康**：`POST /api/system/storage/test`（候选配置或 `{"current":true}`，envlocked 时也可用）和 PUT 内的检查共享每 admin 每分钟 6 次配额；过期 version 在网络检查前拒绝，提交仍在 fence 下 CAS。`Accept: application/x-ndjson` 时每完成一步立即 flush 一行 `{step,ok,ms,code,reason}`，最后一行 `{done:true,…}`；客户端断开即停止后续步骤但仍清理 probe 对象。JSON/NDJSON 都是 `no-store`；`corsProbeUrl` 是含完整 access-key ID 的短期 signed URL，不可记录日志或缓存。Probe 过期后回收无 active/pending/blob/migration/probe 引用的配置，不将 probe-only client 留在路由缓存。后台健康检查在 serve 启动后立即运行，之后每 30 秒一次（3 秒超时），GET 只读其结果，不做远端 listing。
+
+- **数据面**：`internal/blobstore/s3.go` 用同一个 SDK client/transport。
+  Put 先在 TMPDIR 限额 spool 并验证 SHA，成功后才写最终 key，防止坏流覆盖
+  已有内容；正常 Open 从一次 GET 取元数据/Range 字节，空范围/空 object
+  的边界处理见 provider tests。对象默认 private/no-store + inline，
+  不因 SHA 不变而变成 public cache。
+  S3 dialer 对 DNS 解析后的实际 IP 拒绝 link-local 和 `fd00:ec2::254`，
+  允许内网 Garage；禁用 HTTP redirect 和环境代理，防止重绑定或转发绕过。
+- **发布与删除**：`postgres/blob_publish.go` 的 `PublishBlob` 在 key 行锁内
+  接受 exact ready duplicate、恢复匹配的 staged；内容/tenant/driver 不匹配
+  拒绝。`UploadAndPublishBlob` 在提交前持锁检查 storage，必要时从保留源重传，
+  与 `storagegc` 的 `staged/ready → deleting → 删 object → 删行` 协议共同
+  封住跨 DB/storage 的 race。失败 tombstone 留待下次 GC，不能中途复活。
+  批量删除和 multipart reap 是 `blobstore/batch.go` 的可选能力；维护角色
+  才能删 registry 行，app 不获得 DELETE 权限。
+- **私有直送**：`entry/web/blob.go`、`audio_backend.go`、`pg_media.go` 在 app
+  验权后给短期 signed GET redirect；本地 driver 保留鉴权流式 fallback。
+  URL 是临时 bearer credential，不能日志记录；播放 inline，下载 attachment。
+  Validator 有明确边界：app SHA ETag 用于本地流及签名前 `If-None-Match` 的
+  `304` 判断；redirect 可带 SHA，但最终 S3 representation 及后续直连
+  `If-Range`/`If-None-Match` 使用 provider ETag。`307` 不能改写浏览器转发的
+  请求 header；不宣称 app SHA 覆盖 S3（尤其 multipart）的 ETag。
+- **本地物化**：`audio/blobcache.go` 为 export/peaks 提供 tenant+driver+SHA
+  隔离的 verified disk cache、bounded GET/single-flight 和带锁 work dir；
+  peaks 缓存按源 SHA/算法/bucket width 区分，PCM 流式扫描。
+  `BLOB_CACHE_DIR`/`BLOB_CACHE_MAX_BYTES` 只约束 cache，不是整卷 scratch quota；
+  具体 sizing 与 mount 在部署 runbook。`pg_export.go` 维护导出 lease heartbeat，
+  fence 丢失时取消工作，完成仍经原 fenced transaction。
+- **可观测性**：`blobstore/metrics.go` 在 `serve` 统一装饰共享 store，保留
+  可选 batch/multipart/TTL 能力；`GET /api/system/storage` 复用 session/admin
+  权限，提供有界 op/driver/outcome 的次数/字节/时长聚合。慢日志只含有界标签、
+  数值和可用的 SDK request ID，不含 key、用户、错误原文或签名 query。
+  直送的 provider byte/retry 指标不在 app wrapper 的观测范围内。
+
+Bucket CORS、abort-incomplete-only lifecycle、独立 media backup/restore、缓存
+盘规划与 provider smoke 前置条件统一见 [部署 runbook](../deploy/README.md)。
+
 
 ## 5. 工具规约
 
@@ -614,8 +699,8 @@ assets/
 - **两个监听**：公开 mux 由 Traefik 转发（容器 8080 不发布）；worker mux
   绑定 `WORKER_LISTEN_ADDR`（host 只发布 Tailscale IP），token 在数据库
   校验，公开路由永远不注册 worker handler。
-- **Blob**：`STORAGE_DRIVER=local|s3` 与 facts 后端独立；private bucket 通过
-  授权 + presign/streaming，`S3_PUBLIC_BASE_URL` 只用于公开素材。
+- **Blob**：`STORAGE_DRIVER=local|s3` 与 facts 后端独立；private bucket 只通过
+  授权 + presign redirect（S3）或鉴权流式（local）交付，没有公开 URL 通道。
 - 运维手册（Dokploy、备份/恢复、cutover 与回滚）在 `deploy/README.md`。
 
 ---

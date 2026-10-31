@@ -449,6 +449,9 @@ ainovel-cli serve --root DIR --addr 127.0.0.1:9000
   ```
   Chạy cục bộ: hai app bind `127.0.0.1` khác cổng và cùng `VERSE_APP_ORIGINS` (cookie không phân biệt cổng nên đừng mở app khác không tin cậy trên cùng host). Chạy hosted: `VERSE_COOKIE_DOMAIN` (domain cha) + `SECURE_COOKIES`, app chỉ ra ngoài qua Traefik. Biến môi trường, role Postgres và cách chuyển tài khoản cũ: [deploy/README.md](deploy/README.md).
 - **Dữ kiện truyện trên PostgreSQL**: backend `postgres.Backend` cung cấp đủ 19 domain của `store.Store` (truyện/chương/version bất biến/outline/nhân vật/thế giới/review/checkpoint/agent session/…), chạy đúng contract suite của file backend. HTTP đọc dữ kiện truyện đi qua `Gateway.SetFactStore` (được `serve` nối vào `bootstrap.OpenStoryStore` khi `STORE_DRIVER=postgres`) — không đọc thư mục ngầm, không fallback. Engine/worker của truyện hosted mở kho scoped qua env (không dùng thư mục file).
+- **Cấu hình, quy tắc, văn mẫu và media trên PostgreSQL**: cấu hình cấp dự án/truyện (kế thừa Mọi truyện → dự án → truyện, ETag + 409 khi hai nơi cùng lưu), quy tắc viết ở cả ba cấp, văn mẫu, bìa truyện (`?size=`/`?volume=`, có cache), tài sản dự án (bìa, nhạc nền), peaks sóng âm, xuất văn bản và danh sách bản xuất audio đều chạy trên backend Postgres; worker hosted nạp cấu hình đã trộn và quy tắc/văn mẫu từ DB, không đọc thư mục.
+- **Docker: thư viện truyện phải nằm trên volume**: image đặt `NOVERSE_CONTAINER=1` và thư viện mặc định `/var/lib/noverse/library` (đã khai báo `VOLUME`). Nếu thư mục thư viện không nằm trên mount bền, log và web hiện “Thư mục này sẽ mất khi cập nhật container — hãy gắn volume.” Chi tiết và cách chuyển dữ liệu cũ: `deploy/README.md` › *File mode + bind mount*.
+- **Nhà cung cấp lỗi không còn khoá app**: một mục nhà cung cấp sai mà không được model mặc định/role nào dùng chỉ hiện cảnh báo ở Cài đặt › Nhà cung cấp; app chỉ chuyển sang chỉ đọc khi model đang dùng thật sự không chạy được, kèm lý do tiếng Việt. Lưu cấu hình có nhà cung cấp sai trả 400. `openai-codex` chấp nhận `"api": "responses"` (thừa, được bỏ khi lưu).
 - `--lan` vẫn là HTTP không mã hoá: ở mạng lạ hãy truy cập qua Tailscale.
 - Mỗi truyện viết trong một tiến trình riêng, mở khi cần. Truyện đang mở ở TUI vẫn **đọc, duyệt, xuất** được trên web; chỉ các thao tác viết bị khoá (báo lỗi 409) cho tới khi đóng TUI.
 - Mở truyện không tự viết tiếp; bấm "Tiếp tục" khi có phiên dang dở.
@@ -657,38 +660,73 @@ Env contract (`STORAGE_DRIVER`, tách với `STORE_DRIVER`):
 |---|---|
 | `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3` |
 | `BLOB_LOCAL_ROOT` | đường dẫn tuyệt đối cho driver local |
-| `S3_ENDPOINT` | base endpoint https; trống = AWS resolver; `http://` chỉ với `S3_ALLOW_INSECURE_ENDPOINT=true` (mạng riêng/test, vd MinIO) |
-| `S3_REGION` | bắt buộc: region bucket; `auto` cho R2; `us-east-1` cho GCS interop/MinIO |
+| `S3_ENDPOINT` | base endpoint https; trống = AWS resolver; `http://` chỉ với `S3_ALLOW_INSECURE_ENDPOINT=true` (mạng riêng/test, vd Garage) |
+| `S3_REGION` | bắt buộc: region bucket; `garage` cho Garage; `auto` cho R2; `us-east-1` cho GCS interop |
 | `S3_BUCKET` | bắt buộc |
 | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | bắt buộc (GCS: HMAC keys, không phải service-account JSON) |
-| `S3_FORCE_PATH_STYLE` | `true\|false` nghiêm ngặt; bắt buộc `true` cho MinIO và GCS |
-| `S3_PUBLIC_BASE_URL` | tuỳ chọn; chỉ cho blob đã được đánh public — private blob luôn qua authorization + presign/streaming |
+| `S3_FORCE_PATH_STYLE` | `true\|false` nghiêm ngặt; bắt buộc `true` cho Garage và GCS |
 
-Provider recipes — **một driver, bảy cấu hình** (chỉ local + MinIO đã qua
-conformance suite; các hàng khác là recipe cấu hình, cần smoke trước cutover):
+Provider recipes — **một driver, tám cấu hình**. Garage v2.5.0 là S3 đi kèm
+và dùng trong integration test; provider ngoài cần smoke trước cutover.
 
 | Provider | `S3_ENDPOINT` | `S3_REGION` | `S3_FORCE_PATH_STYLE` | Ghi chú |
 |---|---|---|---|---|
 | AWS S3 | (trống) | region bucket | `false` | IAM access/secret, SigV4 |
 | Cloudflare R2 | `https://<account>.r2.cloudflarestorage.com` | `auto` | `false` | GET ký bằng endpoint S3; custom domain chỉ là delivery URL |
 | GCS (S3 interop) | `https://storage.googleapis.com` | `us-east-1` | `true` | HMAC keys; XML multipart 5MiB–5GiB/part ≤10k parts; không có multipart precondition → khoá ghi đua bằng key bất biến + DB CAS; smoke checksum/presign bắt buộc |
-| MinIO | `http://minio:9000` (chỉ mạng riêng/test) | `us-east-1` | `true` | cần `S3_ALLOW_INSECURE_ENDPOINT=true` nếu http |
+| Garage v2.5.0 | `http://garage:3900` (chỉ mạng riêng/test) | `garage` | `true` | cần `S3_ALLOW_INSECURE_ENDPOINT=true` nếu http; layout một node, SQLite, replication 1 chỉ dành cho local/test |
+| MinIO (discontinued) | endpoint cũ | region đã cấu hình | `true` | không còn đi kèm; chuyển sang Garage hoặc provider còn được duy trì |
 | Wasabi | endpoint regional do provider cấp | region bucket | `false` | không đoán region từ tên bucket |
 | Backblaze B2 | endpoint S3 của bucket | region trong endpoint | `false` | application key có quyền S3 đúng bucket |
 | DigitalOcean Spaces | endpoint region (không phải CDN) | region space | `false` | |
 
-Bucket private; CORS chỉ mở origin thật khi presigned GET được dùng trực tiếp
-từ browser — nội dung private nên đi qua streaming endpoint có auth để không
-cần CORS rộng. Presigned GET có TTL ngắn (mặc định 60s, trần 15 phút): thu hồi
-quyền có cửa sổ tối đa bằng TTL, nên endpoint nhạy cảm dùng streaming re-auth.
+Kiểm thử với Postgres + Garage dùng container và volume dùng một lần, chỉ mở
+cổng loopback `64632` (PG), `64600` (S3), `64603` (admin). Không dùng credential
+hoặc bucket thật:
+
+```sh
+export GARAGE_RPC_SECRET=$(openssl rand -hex 32)
+export GARAGE_ADMIN_TOKEN=$(openssl rand -hex 32)
+export S3_TEST_ACCESS_KEY=GK$(openssl rand -hex 12)
+export S3_TEST_SECRET_KEY=$(openssl rand -hex 32)
+export S3_TEST_REGION=garage S3_TEST_BUCKET=blobstore-test
+export S3_TEST_ENDPOINT=http://127.0.0.1:64600
+export S3_TEST_ADMIN_ENDPOINT=http://127.0.0.1:64603
+export TEST_DATABASE_URL=postgres://postgres:test@127.0.0.1:64632/ainovel_test
+export REQUIRE_POSTGRES_TEST=1 REQUIRE_S3_TEST=1
+docker compose -f deploy/compose.test.yml up -d --build --wait
+go test -count=1 -timeout=1800s ./internal/blobstore/... ./internal/storagegc/... ./internal/audio/... ./internal/persistence/postgres/...
+docker compose -f deploy/compose.test.yml down -v
+```
+
+Init chờ RPC, áp layout một node nếu chưa có, nhập key từ env và cấp quyền
+read/write/owner cho bucket private. Chạy lại không đổi layout đã áp.
+Test tạo bucket riêng qua admin API Garage, không cần cấp quyền tạo bucket
+cho key S3 ứng dụng; dọn object rồi xoá bucket, không chia sẻ dữ liệu giữa test.
+
+Garage v2.5.0 bỏ qua `If-None-Match: *` khi PUT và hoàn tất multipart. Driver
+đo khả năng bằng hai lần ghi vào key staging ngẫu nhiên rồi xoá, không suy ra
+hỗ trợ từ HTTP 200; chỉ 412 chứng minh điều kiện được kiểm tra. Provider không
+hỗ trợ dùng HEAD trước ghi; multipart luôn HEAD. Key theo nội dung đã được
+verify SHA-256 trước upload nên ghi đua chỉ có thể ghi cùng bytes; key mutable
+được khoá trong process. Copy luôn đọc lại để so SHA-256 và size.
+Snapshot `capabilities.conditionalPut` công bố `unknown` / `supported` / `unsupported`
+(local: `not_applicable`). Với Garage, CORS `AllowedHeader` nên dùng chữ thường
+(`range`, `if-none-match`, `if-range`) cho preflight trình duyệt; Garage phân biệt
+hoa/thường ở bước này. Chế độ truyền qua app tránh phụ thuộc CORS của bucket.
+
+Bucket luôn private, không có đường URL public. Trình duyệt đọc media theo hai
+cách tuỳ driver: với S3, app kiểm tra quyền rồi trả **307** sang presigned GET
+ngắn hạn (5 phút, trần 15 phút; audio `inline`, tải về `attachment`), byte đi
+thẳng từ bucket. Vì vậy bucket cần CORS cho đúng origin của app (xem
+`deploy/README.md` › R2). Với local, app tự stream có kiểm tra quyền. Thu hồi
+quyền có cửa sổ tối đa bằng TTL của link.
 
 Delivery seam: `internal/entry/web/blob.go` cung cấp
 `GET|HEAD /api/blobs/stream/{key}` (Range đơn kể cả suffix, 206/416,
-`Cache-Control: private`, CSP `sandbox`, `X-Content-SHA256`) và
-`GET /api/blobs/sign/{key}` → `{mode:"presigned",url}` hoặc fallback
-`{mode:"stream",url}` khi driver không hỗ trợ presign (local) hoặc ký lỗi.
-Authorizer được inject; quyền theo `blobs` table sẽ nối ở phase 04/05 — seam
-chưa gắn route production.
+`If-None-Match`/`If-Range`, `Cache-Control: private`, CSP `sandbox`) và
+`GET /api/blobs/sign/{key}` (`expiresAt` đúng TTL thực, `no-store`); quyền theo
+bảng `blobs` + thành viên dự án.
 
 Copy đối soát giữa hai store (local↔s3, s3↔s3):
 

@@ -72,20 +72,35 @@ jobs:
           GOWORK: "off"
         run: go tool sqlc diff
 
-      - name: Start Postgres and MinIO
+      - name: Start Postgres and Garage
         if: runner.os == 'Linux'
-        run: docker compose -f apps/noverse/deploy/compose.test.yml up -d --wait postgres minio
+        shell: bash
+        run: |
+          echo "GARAGE_RPC_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "GARAGE_ADMIN_TOKEN=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "S3_TEST_ACCESS_KEY=GK$(openssl rand -hex 12)" >> "$GITHUB_ENV"
+          echo "S3_TEST_SECRET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
 
-      # Linux runs the Postgres and MinIO suites against apps/noverse/deploy/compose.test.yml
+      - name: Provision integration services
+        if: runner.os == 'Linux'
+        run: docker compose -f apps/noverse/deploy/compose.test.yml up -d --build --wait
+
+      # Linux runs Postgres and Garage against apps/noverse/deploy/compose.test.yml
       # and fails instead of skipping them; Windows has no service containers.
       - name: Test
         env:
           GOWORK: "off"
           REQUIRE_POSTGRES_TEST: ${{ runner.os == 'Linux' && '1' || '' }}
-          TEST_DATABASE_URL: ${{ runner.os == 'Linux' && 'postgres://postgres:test@127.0.0.1:55432/ainovel_test' || '' }}
-          REQUIRE_MINIO_TEST: ${{ runner.os == 'Linux' && '1' || '' }}
-          MINIO_TEST_ENDPOINT: ${{ runner.os == 'Linux' && 'http://127.0.0.1:59000' || '' }}
-        run: go test -buildvcs=false -count=1 ./...
+          TEST_DATABASE_URL: ${{ runner.os == 'Linux' && 'postgres://postgres:test@127.0.0.1:64632/ainovel_test' || '' }}
+          REQUIRE_S3_TEST: ${{ runner.os == 'Linux' && '1' || '' }}
+          S3_TEST_ENDPOINT: ${{ runner.os == 'Linux' && 'http://127.0.0.1:64600' || '' }}
+          S3_TEST_ADMIN_ENDPOINT: ${{ runner.os == 'Linux' && 'http://127.0.0.1:64603' || '' }}
+          S3_TEST_REGION: garage
+        run: go test -buildvcs=false -count=1 -timeout 1800s ./...
+
+      - name: Remove integration services
+        if: always() && runner.os == 'Linux'
+        run: docker compose -f apps/noverse/deploy/compose.test.yml down -v
 
       - name: Race test critical state paths
         if: runner.os == 'Linux'

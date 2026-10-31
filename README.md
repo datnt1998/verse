@@ -20,7 +20,7 @@ migrations and docs inside its directory.
 
 ```sh
 go build ./...
-go test ./...                                   # Postgres/MinIO suites skip unless configured
+go test ./...                                   # Postgres/Garage suites skip unless configured
 (cd apps/noverse && go tool sqlc diff)          # generated SQL code is current
 (cd apps/viderse && go tool sqlc diff)
 npm ci && npm run typecheck --workspaces && npm test --workspaces   # web kit + web apps
@@ -29,8 +29,8 @@ npm run test:sso                                # two-app shared-login E2E, see 
 docker build -f apps/noverse/Dockerfile .       # hosted image; context is the repository root
 ```
 
-Postgres and MinIO for the full suite: `apps/noverse/deploy/compose.test.yml`
-(see `.github/workflows/ci.yml` for the exact environment).
+Postgres and Garage v2.5.0 for the full suite: `apps/noverse/deploy/compose.test.yml`
+(see `.github/workflows/ci.yml` for fresh-secret provisioning and the exact environment).
 
 ## Adding an app
 

@@ -1,20 +1,19 @@
-# Test-only dependencies for the DB/BlobStore upgrade plan
-# (plans/261028-1340-db-vps-storage). NOT a Dokploy/proxy topology — disposable
-# containers on nonstandard ports, removed with `down -v` after runs.
-#
-#   docker compose -f deploy/compose.test.yml up -d postgres minio
-#   docker compose -f deploy/compose.test.yml down -v
-
+# Disposable PG + Garage integration dependencies. Set fresh secrets in env:
+# GARAGE_RPC_SECRET=$(openssl rand -hex 32)
+# GARAGE_ADMIN_TOKEN=$(openssl rand -hex 32)
+# S3_TEST_ACCESS_KEY=GK$(openssl rand -hex 12)
+# S3_TEST_SECRET_KEY=$(openssl rand -hex 32)
+# docker compose -f deploy/compose.test.yml up -d --wait
+# docker compose -f deploy/compose.test.yml down -v
 services:
   postgres:
     image: postgres:17
     environment:
-      # migrate_test builds an app DSN by substituting this exact userinfo
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: test
       POSTGRES_DB: ainovel_test
     ports:
-      - "55432:5432"
+      - "127.0.0.1:${POSTGRES_TEST_PORT:-64632}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d ainovel_test"]
       interval: 2s
@@ -23,22 +22,41 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
 
-  minio:
-    # minio/minio was deleted from Docker Hub in September 2026 and quay.io now
-    # requires an account; Chainguard publishes the same server (entrypoint
-    # /usr/bin/minio, ships mc) anonymously, latest tag only.
-    image: cgr.dev/chainguard/minio:latest
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
+  garage:
+    image: dxflrs/garage:v2.5.0
+    command: ["/garage", "server"]
+    environment: &garage-env
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Set a fresh 32-byte hex RPC secret}
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN:?Set a fresh admin token}
     ports:
-      - "59000:9000"
-      - "59001:9001"
+      - "127.0.0.1:${S3_TEST_PORT:-64600}:3900"
+      - "127.0.0.1:${S3_TEST_ADMIN_PORT:-64603}:3903"
+    volumes:
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      # RPC readiness precedes layout initialization; health requires a layout.
+      test: ["CMD", "/garage", "status"]
       interval: 2s
       timeout: 3s
-      retries: 20
-    tmpfs:
-      - /data
+      retries: 30
+
+  garage-init:
+    build: ./garage
+    depends_on:
+      garage:
+        condition: service_healthy
+    environment:
+      <<: *garage-env
+      S3_ACCESS_KEY_ID: ${S3_TEST_ACCESS_KEY:?Set a Garage test key ID (GK + 24 hex digits)}
+      S3_SECRET_ACCESS_KEY: ${S3_TEST_SECRET_KEY:?Set a fresh test key secret}
+      S3_BUCKET: ${S3_TEST_BUCKET:-blobstore-test}
+    volumes:
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta:ro
+    restart: "no"
+
+volumes:
+  garage-meta:
+  garage-data:
