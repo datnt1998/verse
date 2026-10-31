@@ -13,7 +13,7 @@ export function ExportingDialog({ seconds, fps, progress, onCancel }: { seconds:
   const rendered = progress?.phase === 'uploading' || progress?.phase === 'compressing'
   const compressing = progress?.phase === 'compressing'
   return <Dialog label="Đang xuất video" width={520}><div {...stylex.props(sx.dialogBody)}>
-    <div {...stylex.props(s.row)}><Spinner size={22} /><h2 {...stylex.props(sx.dialogTitle, sx.spread)}>Đang xuất video</h2><span {...stylex.props(sx.secondary)}>{percent == null ? 'Đang chuẩn bị…' : `${percent}%`}</span></div>
+    <div {...stylex.props(s.row)}><Spinner size={22} /><h2 {...stylex.props(sx.dialogTitle, sx.spread)}>Đang xuất video</h2><span {...stylex.props(sx.secondary)}>{percent != null ? `${percent}%` : compressing ? 'Mã hoá MP4' : progress?.phase === 'rendering' ? 'Dựng khung hình' : 'Đang chuẩn bị…'}</span></div>
     <span {...stylex.props(s.meta)}>1080p · {fps} fps · toàn bộ {rangeTime(seconds)} · nén sau khi xuất</span>
     <div role="progressbar" aria-label="Tiến độ xuất" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined} {...stylex.props(sx.scoreTrack)}><span {...stylex.props(sx.scoreFill(percent ?? 0, true))} /></div>
     <div {...stylex.props(sx.stack)}>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { ExportDoneDialog, ExportingDialog } from './ExportDialogs'
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
@@ -42,5 +42,12 @@ describe('actual export dialog behavior', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Phát bản vừa xuất' }))
     expect((await screen.findByRole('alert')).textContent).toBe('Playback denied')
     expect(screen.getByRole('button', { name: 'Phát bản vừa xuất' })).toBeTruthy()
+  })
+  it('names the actual compression phase instead of claiming it is still preparing', () => {
+    render(<ExportingDialog seconds={6} fps={30} progress={{ phase: 'compressing' }} onCancel={vi.fn()} />)
+    const dialog = within(screen.getByRole('dialog', { name: 'Đang xuất video' }))
+    expect(dialog.queryByText('Đang chuẩn bị…')).toBeNull()
+    expect(dialog.getAllByText('Mã hoá MP4')).toHaveLength(2)
+    expect(dialog.getByRole('progressbar').hasAttribute('aria-valuenow')).toBe(false)
   })
 })

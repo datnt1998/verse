@@ -22,7 +22,7 @@ export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClos
       <ul {...stylex.props(s.list)}>
         {ranges.length > 0 && <li>Phụ đề khớp tiếng: {ranges.map(range => rangeTime(range.start)).join(', ')}</li>}
         {blockers.map(blocker => <li key={blocker.id}>{blocker.message}</li>)}
-        <li>Vẫn xuất: video chuyển sang Sẵn sàng đăng, Kiểm định ghi bạn đã chọn bỏ qua mục này</li>
+        <li>Vẫn xuất: video chuyển sang Sẵn sàng, Kiểm định ghi bạn đã chọn bỏ qua.</li>
       </ul>
       <div {...stylex.props(sx.dialogActions)}>
         <button type="button" {...stylex.props(sx.button)} onClick={onAccept}>Vẫn xuất</button>
