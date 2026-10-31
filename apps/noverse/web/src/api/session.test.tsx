@@ -123,7 +123,7 @@ describe('phiên bị chặn cấp quyền app', () => {
 })
 
 describe('phiên dùng chung Gói AO', () => {
-  const apps = [{ id: 'viderse', name: 'Viderse', origin: 'https://vid.aarverse.studio' }]
+  const apps = [{ id: 'viderse', name: 'Viderse', origin: 'https://video.example.test' }]
   it('màn chặn giữ apps từ thân lỗi mà không khởi động dữ liệu', async () => {
     mocks.me.mockRejectedValue(new ApiError(403, 'Chưa được cấp quyền', undefined, { ...deniedBody(user({ grants: { viderse: 'member' } })), apps }))
     await mount()

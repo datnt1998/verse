@@ -51,7 +51,7 @@ function PhoneShell({ children, footer, header }: { children: ReactNode; footer?
 }
 
 export function PairScreen({ code = '', initialView, onAuthenticated }: { code?: string; initialView?: 'login' | 'scan' | 'confirm'; onAuthenticated?: (user: User) => void }) {
-  const { setUser, setDeniedUser, refresh, sharedAccounts, kicked } = useSession()
+  const { setUser, setDeniedUser, refresh, sharedAccounts } = useSession()
   const { label: serverLabel } = useServerKind()
   const [view, setView] = useState<View>(initialView ?? (code ? 'confirm' : 'login'))
   const [activeCode, setActiveCode] = useState(code)
@@ -235,7 +235,7 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{title}</h1>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--color-fg-3)' }}>{subtitle}</p>
-          {isLogin && (sharedAccounts || kicked) && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
+          {isLogin && sharedAccounts && <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
         </div>
       </div>
       {isLogin && <KickedNotice />}
@@ -284,7 +284,7 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
       )}
 
       {isLogin && (
-        <form id="phone-login" onSubmit={(event) => { event.preventDefault(); void submitLogin() }} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <form id="phone-login" onSubmit={(event) => { event.preventDefault(); void submitLogin() }} style={{ display: 'flex', flexDirection: 'column', gap: sharedAccounts ? 22 : 18 }}>
           <button type="button" className="card" onClick={() => setView('scan')} style={{
             borderRadius: 16, padding: 14, display: 'flex', gap: 12, alignItems: 'center',
             color: 'var(--color-fg)', textAlign: 'left', borderColor: 'rgba(201,166,245,0.3)',

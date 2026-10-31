@@ -10,7 +10,7 @@ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 let host: HTMLDivElement, root: Root
 beforeEach(() => {
   state.user = { username: 'linh', name: 'Linh', role: 'member', grants: { noverse: 'member', viderse: 'member' }, projects: {}, disabled: false, createdAt: '', updatedAt: '', onboardedAt: null, mustChangePassword: false, lastSeenAt: null }
-  state.apps = [{ id: 'noverse', name: 'Noverse', origin: 'https://nov.aarverse.studio' }, { id: 'viderse', name: 'Viderse', origin: 'https://vid.aarverse.studio' }]
+  state.apps = [{ id: 'noverse', name: 'Noverse', origin: 'https://novel.example.test' }, { id: 'viderse', name: 'Viderse', origin: 'https://video.example.test' }]
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
 })
 afterEach(async () => { await act(async () => root.unmount()); host.remove() })
@@ -34,7 +34,7 @@ it.each([false, true])('quyền hợp lệ mở app kia ở thẻ mới, mobile=
   const links = [...host.querySelectorAll('a')]
   expect(links.map((link) => link.textContent)).toEqual([expect.stringContaining('Noverse'), expect.stringContaining('Viderse')])
   expect(links[0].getAttribute('aria-current')).toBe('true')
-  expect(links[1].href).toBe('https://vid.aarverse.studio/')
+  expect(links[1].href).toBe('https://video.example.test/')
   expect(links[1].target).toBe('_blank')
   expect(links[1].rel).toBe('noopener noreferrer')
 })

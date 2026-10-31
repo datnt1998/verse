@@ -173,3 +173,51 @@ it('đăng xuất thiết bị khác của chính mình giữ phiên này, quả
   await click('Đăng xuất mọi thiết bị')
   expect(fixture.revokeAll).toHaveBeenCalledWith('linh')
 })
+
+describe('Gói AO · hệ quả của quyền ứng dụng', () => {
+  it('chưa bấm thì không có khung thu hồi phiên; lưu thành công mới thông báo cả hai app', async () => {
+    await mountSso()
+    expect(host.querySelector('[role="status"]')).toBeNull()
+    fixture.grant.mockResolvedValue(granted('linh', 'member', { noverse: 'member', viderse: 'member' }))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Linh sẽ bị đăng xuất khỏi mọi thiết bị ở cả Noverse và Viderse')
+    expect(fixture.grant).toHaveBeenCalledWith('linh', 'viderse')
+  })
+  it('tắt Viderse nói rõ quyền Noverse còn lại; tắt nốt Noverse đổi sang khung không có app', async () => {
+    const users = [granted('dat', 'admin', {}), granted('linh', 'member', { noverse: 'member', viderse: 'member' })]
+    await act(async () => root.render(<MembersScreen users={users} refresh={() => {}} />))
+    fixture.revokeApp.mockResolvedValueOnce(granted('linh', 'member', { noverse: 'member' })).mockResolvedValueOnce(granted('linh', 'member', {}))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Linh vẫn vào Noverse được; mở Viderse sẽ thấy thông báo chưa được cấp quyền.')
+    users[1] = granted('linh', 'member', { noverse: 'member' })
+    await act(async () => root.render(<MembersScreen users={users} refresh={() => {}} />))
+    await act(async () => checkbox('Cho Linh vào Noverse').click())
+    const notice = host.querySelector('[role="status"]')
+    expect(notice?.textContent).toContain('Chưa cho vào ứng dụng nào')
+    expect(notice?.textContent).toContain('ở cả Noverse và Viderse')
+    expect(notice?.textContent).not.toContain('vẫn vào Noverse được')
+  })
+  it('lỗi lưu không hiện khung thành công hoặc thay quyền cũ', async () => {
+    await mountSso()
+    fixture.grant.mockRejectedValue(new Error('Không lưu được quyền'))
+    await act(async () => checkbox('Cho Linh vào Viderse').click())
+    expect(host.querySelector('[role="status"]')).toBeNull()
+    expect(checkbox('Cho Linh vào Viderse').getAttribute('aria-checked')).toBe('false')
+  })
+})
+
+it('hồ sơ dùng dữ liệu thật; quyền ứng dụng đứng sau dự án đúng artboard', async () => {
+  const member = { ...granted('thao', 'member', { noverse: 'member' }), name: 'Thảo', createdAt: '2020-04-17T12:00:00Z', lastSeenAt: '2021-06-21T12:00:00Z' }
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), member]} refresh={() => {}} />))
+  const detail = host.querySelector('[aria-label="Chi tiết thành viên"]')!
+  const header = detail.firstElementChild!
+  expect(header.textContent).toContain('Thảo')
+  expect(header.textContent).toContain('@thao')
+  expect(header.textContent).toContain('17/4/2020')
+  expect(header.textContent).toContain('21/6/2021')
+  const sections = [...detail.querySelectorAll(':scope > section')].map((section) => section.firstElementChild?.textContent)
+  expect(sections.findIndex((title) => title?.startsWith('Dự án'))).toBeLessThan(sections.findIndex((title) => title?.startsWith('Quyền vào ứng dụng')))
+  await act(async () => root.render(<MembersScreen users={[granted('dat', 'admin', {}), { ...member, lastSeenAt: null }]} refresh={() => {}} />))
+  expect(header.textContent).toContain('chưa đăng nhập lại')
+  expect(header.textContent).not.toContain('21/6/2021')
+})

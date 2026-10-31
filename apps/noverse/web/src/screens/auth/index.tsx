@@ -31,8 +31,9 @@ const SESSION_DAYS = 30
 export { PairScreen } from './PairScreen'
 
 /** Màn đăng nhập. expired=true → thẻ "Phiên đăng nhập đã hết hạn" (hash ?expired=1). */
-export function AuthScreen({ expired = false }: { expired?: boolean }) {
+export function AuthScreen({ expired: expiredFlag = false }: { expired?: boolean }) {
   const { setUser, setDeniedUser, refresh, kicked, sharedAccounts } = useSession()
+  const expired = expiredFlag || (sharedAccounts && kicked === 'expired')
   const narrow = useMediaQuery('(max-width: 640px)')
   const remembered = useMemo(() => getRemembered(), [])
   const initialAccount = remembered[0] ?? null
@@ -134,12 +135,12 @@ export function AuthScreen({ expired = false }: { expired?: boolean }) {
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em' }}>{h1}</h1>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--color-fg-3)' }}>{sub}</p>
-          {(sharedAccounts || kicked) && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
+          {sharedAccounts && <p style={{ margin: '4px 0 0', fontSize: 12.5, color: 'var(--color-fg-4)' }}>{ssoCopy.subtitle}</p>}
         </div>
       </div>
       <KickedNotice />
 
-      {expired && !kicked && view !== 'login' && (
+      {expired && (!kicked || kicked === 'expired') && view !== 'login' && (
         <div role="status" className="card" style={{
           borderRadius: 14, padding: '12px 14px', display: 'flex', gap: 12,
           borderColor: 'rgba(246,203,140,0.3)',

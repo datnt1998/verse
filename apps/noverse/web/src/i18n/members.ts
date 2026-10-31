@@ -12,7 +12,7 @@ export const membersCopy = {
   matrix: ['Đọc, nghe, tải bản xuất', 'Viết, duyệt và sửa chương; dặn trợ lý', 'Quy tắc riêng, nhân vật & xưng hô của truyện', 'Tạo truyện mới trong dự án', 'Tạo giọng & xuất audio (tốn chi phí)', 'Quy tắc chung, cách viết, ngân sách của dự án', 'Xoá truyện, đổi tên dự án'],
   matrixHead: 'Làm được gì', matrixNote: 'Quản trị luôn là Chủ dự án ở mọi dự án, và thêm phần Thành viên, Kết nối AI, máy chủ.',
   adminNote: 'Quản trị luôn vào được mọi dự án, kể cả dự án tạo sau.', inherited: 'theo quyền quản trị',
-  apps: 'Quyền vào ứng dụng', appsHint: '· riêng với quyền dự án', appsNote: 'Lưu ngay khi bấm. Cấp hay thu quyền đều đăng xuất người đó khỏi mọi thiết bị; lần đăng nhập sau dùng quyền mới.',
+  apps: 'Quyền vào ứng dụng', appsHint: '· riêng với quyền dự án', appsNote: 'Lưu ngay khi bấm. Lần đăng nhập sau dùng quyền mới.',
   appNames: { noverse: 'Noverse', viderse: 'Viderse' },
   appAccess: (app: string, name: string) => `Cho ${name} vào ${app}`,
   appInherited: 'Được vào theo quyền quản trị',

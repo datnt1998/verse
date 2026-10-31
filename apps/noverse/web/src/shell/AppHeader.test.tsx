@@ -14,6 +14,9 @@ vi.mock('../api/library', () => ({
   useLibrary: () => ({ library, storyOf: () => null, ensureProject: () => {}, projectDetail: () => null }),
 }))
 vi.mock('../api/session', () => ({ useSession: () => ({ user: { username: 'admin', role: 'admin' } }) }))
+// Menu/kho có kiểm thử riêng; bài định tuyến header không khởi động truy vấn nền của chúng.
+vi.mock('./AccountMenu', () => ({ AccountMenu: () => null }))
+vi.mock('../screens/settings/storage/indicators', () => ({ StoragePill: () => null }))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
 afterEach(async () => { for (const root of roots.splice(0)) await act(() => root.unmount()); document.body.replaceChildren(); target.value = null })
