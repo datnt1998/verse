@@ -157,6 +157,11 @@ func (s *Service) rescanHours(ctx context.Context) int {
 	return int(math.Min(domain.RescanHoursMax, math.Max(domain.RescanHoursMin, math.Round(hours))))
 }
 
+// RescanInterval returns the same configured interval used by Discovery.NextAt.
+func (s *Service) RescanInterval(ctx context.Context) time.Duration {
+	return time.Duration(s.rescanHours(ctx)) * time.Hour
+}
+
 // platformPause trả giờ chờ còn hiệu lực của YouTube (nil = không chờ).
 func (s *Service) platformPause(ctx context.Context) (*time.Time, error) {
 	if s.d.Platform == nil {

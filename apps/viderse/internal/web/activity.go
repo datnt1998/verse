@@ -113,6 +113,7 @@ type activityWire struct {
 	Queued    int                `json:"queued"`
 	Unread    []notificationWire `json:"unread"`
 	Badge int `json:"badge"`
+	NextScan *activity.NextScan `json:"nextScan"`
 }
 
 type taskWire struct {
@@ -158,8 +159,8 @@ type notificationWire struct {
 	Kind        string      `json:"kind"`
 	Count       int         `json:"count"`
 	Text        string      `json:"text"`
-	Href        string      `json:"href"`
-	ActionLabel string      `json:"actionLabel"`
+	Detail      *activity.NotificationDetail `json:"detail,omitempty"`
+	Actions     []activity.NotificationAction `json:"actions"`
 	CreatedAt   string      `json:"createdAt"`
 	ReadAt      *string     `json:"readAt"`
 	Object      *objectWire `json:"objectRef,omitempty"`
@@ -173,6 +174,7 @@ func activityToWire(snap activity.Snapshot) activityWire {
 		Queued:    snap.Queued,
 		Unread:    make([]notificationWire, 0, len(snap.Unread)),
 		Badge: snap.Badge,
+		NextScan: snap.NextScan,
 	}
 	for _, t := range snap.Tasks {
 		out.Running = append(out.Running, taskToWire(t))
@@ -204,13 +206,21 @@ func taskToWire(t activity.Task) taskWire {
 func notificationToWire(n activity.Notification) notificationWire {
 	nw := notificationWire{
 		ID: n.ID, Kind: n.Kind, Count: n.Count, Text: n.Text,
-		Href: n.Href, ActionLabel: n.ActionLabel,
+		Actions: make([]activity.NotificationAction, 0, 2),
 		CreatedAt: n.CreatedAt.UTC().Format(time.RFC3339),
+		Detail: n.Detail,
 	}
+	href, label := n.Href, n.ActionLabel
+	if label == "" { label = "Mở" }
 	if n.Kind == "review_ready" && n.Count > 1 {
 		nw.Text = fmt.Sprintf("%d video chờ duyệt", n.Count)
-		nw.Href = "#/review"
+		href = "#/review"
 	}
+	if n.Kind == "needs_attention" {
+		label = "Mở video"
+		if n.Detail != nil && n.Detail.Recovery != nil { nw.Actions = append(nw.Actions, *n.Detail.Recovery) }
+	}
+	if href != "" { nw.Actions = append(nw.Actions, activity.NotificationAction{Label: label, Href: href}) }
 	if n.Object != nil {
 		nw.Object = &objectWire{Type: n.Object.Type, ID: n.Object.ID, Label: n.Object.Label}
 	}

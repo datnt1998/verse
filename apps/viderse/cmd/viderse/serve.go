@@ -156,6 +156,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
+	activities.SetScanScheduleSource(activityScanSchedule(pool, scanSvc))
 	scanWorkerDone := runScanWorker(scanCtx, scanWorker)
 	mountRivals(gateway, pool, logStore, scanSvc)
 	ai, err := wireAI(machineCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps.Runner)

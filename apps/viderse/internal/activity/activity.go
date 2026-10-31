@@ -50,6 +50,7 @@ type Notification struct {
 	ReadAt      *time.Time
 	Audience    Audience
 	Object      *domain.ObjectRef
+	Detail      *NotificationDetail
 }
 
 // Snapshot là hình dữ liệu của GET /api/activity.
@@ -59,6 +60,7 @@ type Snapshot struct {
 	Queued    int            // việc kind video đang state=waiting (tới khi có hàng chờ thật)
 	Unread    []Notification // thông báo chưa đọc
 	Badge int
+	NextScan *NextScan
 }
 
 // Store là phần lưu trữ service cần. Mọi thao tác nguyên tử theo dòng; luật
@@ -107,6 +109,7 @@ const NotifyMergeWindow = 10 * time.Second
 type Service struct {
 	store     Store
 	notify    func(ref string)
+	scanSchedule func(context.Context) ([]time.Time, error)
 	startLock sync.Mutex // chống hai Start cùng đối tượng đua nhau trong process
 }
 
@@ -324,7 +327,13 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 		badge, err = store.CountWaitingVideos(ctx)
 		if err != nil { return Snapshot{}, err }
 	}
-	return Snapshot{Tasks: tasks, VideoJobs: int(video), Queued: int(queued), Unread: unread, Badge: badge}, nil
+	var nextScan *NextScan
+	if s.scanSchedule != nil {
+		times, err := s.scanSchedule(ctx)
+		if err != nil { return Snapshot{}, err }
+		nextScan = NextScanFromTimes(times)
+	}
+	return Snapshot{Tasks: tasks, VideoJobs: int(video), Queued: int(queued), Unread: unread, Badge: badge, NextScan: nextScan}, nil
 }
 
 // MarkRead đánh dấu thông báo đã đọc; ids rỗng = tất cả.
