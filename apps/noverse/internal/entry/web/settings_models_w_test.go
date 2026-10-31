@@ -2,10 +2,8 @@ package web
 
 import (
 	"fmt"
-	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync/atomic"
 	"testing"
 )
 
@@ -47,21 +45,25 @@ func TestSettingsModelsWRangeAndPermission(t *testing.T) {
 
 func TestSettingsModelsWReloadsRunningWorkers(t *testing.T) {
 	tg := newConfigTestGateway(t)
-	var calls atomic.Int32
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/models/context-reload" || r.Method != http.MethodPost || r.Header.Get("X-Ainovel-Worker-Token") != tg.g.workerToken {
-			w.WriteHeader(403)
-			return
-		}
-		calls.Add(1)
-		w.WriteHeader(200)
-	}))
+	h := newLiveFakeHost()
+	server := httptest.NewServer(newWorkerServer(h, tg.g.workerToken, nil, newBroadcaster()))
 	defer server.Close()
+	reloads := func() int {
+		h.mu.Lock()
+		defer h.mu.Unlock()
+		n := 0
+		for _, call := range h.calls {
+			if call == "refreshModelContexts" {
+				n++
+			}
+		}
+		return n
+	}
 	worker := &launchedWorker{addr: strings.TrimPrefix(server.URL, "http://")}
 	tg.g.workers["proj/01-story"] = &storyWorker{worker: worker, running: true}
 	w := tg.do("PUT", "/api/config?scope=global", tg.login("admin", "admin-pass"), `{"providers":{"openai":{"models":[{"name":"unknown-w-model","context_window":256000}]}}}`)
-	if w.Code != 200 || calls.Load() != 1 {
-		t.Fatalf("saved context must reach live worker: status=%d calls=%d", w.Code, calls.Load())
+	if w.Code != 200 || reloads() != 1 {
+		t.Fatalf("saved context must reach live worker: status=%d reloads=%d body=%s", w.Code, reloads(), w.Body.String())
 	}
 	if tg.g.workers["proj/01-story"].worker != worker {
 		t.Fatal("live engine was restarted")

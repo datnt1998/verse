@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,11 +31,13 @@ func (g *Gateway) refreshWorkerModelContexts(ctx context.Context, scope, project
 		if worker == nil || worker.noModel {
 			continue
 		}
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+worker.addr+"/api/models/context-reload", nil)
+		// Worker POSTs are JSON-only (webguard.JSONContent); a bodyless POST is rejected with 400.
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+worker.addr+"/api/models/context-reload", strings.NewReader("{}"))
 		if err != nil {
 			failures = append(failures, err)
 			continue
 		}
+		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("X-Ainovel-Worker-Token", g.workerToken)
 		resp, err := client.Do(req)
 		if err != nil {

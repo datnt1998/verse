@@ -275,7 +275,9 @@ func convertBlocks(blocks []litellm.Block, spec Spec) (any, []map[string]any, ma
 func putReasoningBlock(out map[string]any, block litellm.ReasoningBlock, spec Spec) error {
 	fields := spec.Response.ReasoningFields
 	if len(fields) == 0 {
-		return fmt.Errorf("ReasoningBlock history is not supported by this compat provider")
+		// This provider has no wire field for reasoning; earlier reasoning (often
+		// from another model before a role switch) is not replayable here.
+		return nil
 	}
 	field := fields[0]
 	if len(block.Extra) > 0 {

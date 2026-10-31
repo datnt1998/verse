@@ -341,17 +341,37 @@ func TestRejectsStopSequencesAboveProviderLimit(t *testing.T) {
 	}
 }
 
-func TestReasoningBlockHistoryRequiresProviderMapping(t *testing.T) {
-	provider, err := New(Config{BaseURL: "https://compat.example", HTTPClient: roundTripFunc(nil)}, Spec{Name: "strict"})
+// A provider without a reasoning field cannot carry earlier reasoning (often
+// produced by another model before a role switch); it must drop it and still
+// send the visible turn, not fail the whole request.
+func TestReasoningHistoryIsOmittedWhenProviderHasNoReasoningField(t *testing.T) {
+	var capturedBody map[string]any
+	provider, err := New(Config{
+		BaseURL: "https://compat.example",
+		HTTPClient: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&capturedBody); err != nil {
+				t.Fatalf("decode body: %v", err)
+			}
+			return jsonResponse(http.StatusOK, `{"choices":[{"message":{"content":"ok"}}]}`), nil
+		}),
+	}, Spec{Name: "grok"})
 	if err != nil {
 		t.Fatalf("New returned error: %v", err)
 	}
 	_, err = provider.Chat(context.Background(), &litellm.Request{
-		Model:    "m",
-		Messages: []litellm.Message{litellm.Assistant(litellm.ReasoningBlock{Text: "think"})},
+		Model: "m",
+		Messages: []litellm.Message{
+			litellm.Assistant(litellm.ReasoningBlock{Text: "think", Signature: "sig"}, litellm.TextBlock{Text: "answer"}),
+			litellm.UserText("tiếp tục"),
+		},
 	})
-	if err == nil || !strings.Contains(err.Error(), "ReasoningBlock history is not supported") {
-		t.Fatalf("expected reasoning history error, got %v", err)
+	if err != nil {
+		t.Fatalf("Chat: %v", err)
+	}
+	messages := capturedBody["messages"].([]any)
+	assistant := messages[0].(map[string]any)
+	if assistant["content"] != "answer" || len(assistant) != 2 {
+		t.Fatalf("assistant message = %#v, want role+content only", assistant)
 	}
 }
 
