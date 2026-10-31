@@ -32,9 +32,6 @@ type Options struct {
 	OwnerMap map[string]string // project slug -> username
 	// Keys builds object keys for one STORAGE_ENV. The zero value is dev.
 	Keys blobkey.Keys
-	// TemporaryPasswordTTL is the cutover grace window for a must-change
-	// temporary password (default 24h).
-	TemporaryPasswordTTL time.Duration
 	// ReadOnlyRoot is opened for blob bytes; it must be the same snapshot the
 	// manifest was built from.
 	ReadOnlyRoot string
@@ -131,9 +128,6 @@ func (im *importer) precheck(f ManifestFile, key string, raw string) (skip bool,
 func Run(ctx context.Context, opts Options) (*Result, error) {
 	if opts.Scan == nil || opts.Scan.Manifest == nil {
 		return nil, errors.New("thiếu manifest nguồn")
-	}
-	if opts.TemporaryPasswordTTL <= 0 {
-		opts.TemporaryPasswordTTL = 24 * time.Hour
 	}
 	if opts.Now.IsZero() {
 		opts.Now = time.Now().UTC()

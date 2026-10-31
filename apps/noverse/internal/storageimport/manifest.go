@@ -39,6 +39,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 )
 
@@ -190,9 +192,23 @@ func DigestOfStrings(values []string) string {
 // algorithm behind a deliberate mapping-version boundary.
 var namespaceSalt = []byte("noverse/storageimport/v1")
 
+// CanonicalSourceID normalizes a caller-supplied source id to lower-case
+// canonical UUID text. Every deterministic id, ledger row and advisory lock
+// derives from this exact string, so a case variant of the same UUID must
+// never fork the identity space; the decoded source carries only the
+// canonical form.
+func CanonicalSourceID(s string) (string, error) {
+	var u pgtype.UUID
+	if err := u.Scan(s); err != nil {
+		return "", err
+	}
+	return formatUUID(u.Bytes), nil
+}
+
 // DeterministicUUID is the pinned legacy UUID recipe described above. Same
 // inputs always produce the same id, which is what makes the import
-// idempotent; preserve IDs across slug renames.
+// idempotent; preserve IDs across slug renames. sourceID must already be
+// canonical (see CanonicalSourceID) — the recipe hashes the string as given.
 func DeterministicUUID(sourceID, domain, key string) string {
 	h := sha1.New()
 	_, _ = h.Write(namespaceSalt)
@@ -275,8 +291,10 @@ func extOf(name string) string {
 	return ""
 }
 
-// lockKey mirrors import_lock_key() in migration 00005 so the Go side and the
-// SQL side agree on the advisory-lock namespace.
+// lockKey folds a source id into the signed-60-bit advisory-lock namespace:
+// FNV-1a-64 over the canonical source-id string, kept below 2^60 so the
+// bigint key is always positive. The SQL-side import_lock_key() (md5) is a
+// legacy leftover no live code calls; Go callers are the only lockers.
 func lockKey(sourceID string) int64 {
 	h := fnv.New64a()
 	_, _ = h.Write([]byte(sourceID))

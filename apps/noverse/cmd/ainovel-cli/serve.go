@@ -42,6 +42,11 @@ func runServe(args []string) error {
 	root := flags.String("root", "", "Thư mục sách (mặc định: ~/.ainovel/serve.json, rồi ~/Truyen nếu đã có; không có thì chọn trên web)")
 	addr := flags.String("addr", "", "Địa chỉ lắng nghe")
 	lan := flags.Bool("lan", false, "Cho phép điện thoại trong mạng LAN")
+	flags.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Cách dùng: ainovel-cli serve [--root DIR] [--addr HOST:PORT] [--lan]")
+		flags.PrintDefaults()
+		fmt.Fprint(os.Stderr, serveEnvUsage)
+	}
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -334,6 +339,20 @@ func promptNewPassword(reader *bufio.Reader) (string, error) {
 	}
 	return first, nil
 }
+
+const serveEnvUsage = `
+Biến môi trường chính (bảng đầy đủ: apps/noverse/deploy/README.md, mục 4):
+  HTTP_ADDR                    địa chỉ lắng nghe khi không có --addr
+  STORE_DRIVER=postgres        kho Postgres, DATABASE_URL = role noverse_app;
+                               bắt buộc để đăng nhập chung với Viderse
+  NOVERSE_WORKER_DATABASE_URL  role noverse_engine_worker cho worker hosted
+  VERSE_APP_ORIGINS            origin của hai app, so khớp chính xác; chạy
+                               local thì phải bind loopback
+  VERSE_COOKIE_DOMAIN          domain cha của cookie verse_session khi hosted
+                               (cần SECURE_COOKIES và PUBLIC_URL https)
+  PUBLIC_URL, SECURE_COOKIES, TRUSTED_PROXIES  chạy sau reverse proxy
+Tài khoản web và quyền vào app: ainovel-cli serve user
+`
 
 const serveUserUsage = `Quản lý tài khoản web:
   ainovel-cli serve user add <tên> [--role admin|member] [--name "Tên hiển thị"] [--projects "du-an=collab,du-an-khac=view"]

@@ -1,0 +1,132 @@
+{
+  "version": 4,
+  "users": [
+    {
+      "username": "quan-tri",
+      "name": "Quản Trị",
+      "role": "admin",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdA$c2ltdWxhdGVkaGFzaA",
+      "onboardedAt": "2026-01-02T03:04:05Z",
+      "mustChangePassword": false,
+      "passwordChangedAt": "2026-01-02T03:04:05Z",
+      "createdAt": "2026-01-02T03:04:05Z",
+      "updatedAt": "2026-06-01T00:00:00Z"
+    },
+    {
+      "username": "tac-gia",
+      "name": "Tác Giả",
+      "role": "member",
+      "projects": {"du-an": "collab"},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDI$c2ltdWxhdGVkaGFzaDI",
+      "onboardedAt": "2026-01-05T10:00:00Z",
+      "mustChangePassword": false,
+      "passwordChangedAt": "2026-02-01T00:00:00Z",
+      "createdAt": "2026-01-05T10:00:00Z",
+      "updatedAt": "2026-06-01T00:00:00Z"
+    },
+    {
+      "username": "khoa-tam",
+      "name": "Khoá Tạm",
+      "role": "member",
+      "projects": {},
+      "disabled": true,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDM$c2ltdWxhdGVkaGFzaDM",
+      "onboardedAt": "2026-01-06T00:00:00Z",
+      "mustChangePassword": false,
+      "disabledAt": "2026-03-01T00:00:00Z",
+      "disabledBy": "quan-tri",
+      "disabledReason": "yêu cầu tạm khoá",
+      "createdAt": "2026-01-06T00:00:00Z",
+      "updatedAt": "2026-03-01T00:00:00Z"
+    },
+    {
+      "username": "da-xoa",
+      "name": "Đã Xoá",
+      "role": "member",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDQ$c2ltdWxhdGVkaGFzaDQ",
+      "onboardedAt": "2026-01-07T00:00:00Z",
+      "mustChangePassword": false,
+      "deletedAt": "2026-04-01T00:00:00Z",
+      "createdAt": "2026-01-07T00:00:00Z",
+      "updatedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "username": "het-temp",
+      "name": "Hết Temp",
+      "role": "member",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "",
+      "onboardedAt": "2026-01-08T00:00:00Z",
+      "mustChangePassword": true,
+      "tempPassword": {
+        "codeHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDU$c2ltdWxhdGVkaGFzaDU",
+        "expiresAt": "2026-02-15T00:00:00Z",
+        "createdBy": "quan-tri",
+        "createdAt": "2026-02-05T00:00:00Z"
+      },
+      "createdAt": "2026-01-08T00:00:00Z",
+      "updatedAt": "2026-02-05T00:00:00Z"
+    },
+    {
+      "username": "dung-temp",
+      "name": "Đã Dùng Temp",
+      "role": "member",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDg$c2ltdWxhdGVkaGFzaDg",
+      "onboardedAt": "2026-01-10T00:00:00Z",
+      "mustChangePassword": false,
+      "passwordChangedAt": "2026-02-11T00:00:00Z",
+      "tempPassword": {
+        "codeHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDk$c2ltdWxhdGVkaGFzaDk",
+        "expiresAt": "2026-03-01T00:00:00Z",
+        "usedAt": "2026-02-11T00:00:00Z",
+        "createdBy": "quan-tri",
+        "createdAt": "2026-02-10T00:00:00Z"
+      },
+      "createdAt": "2026-01-10T00:00:00Z",
+      "updatedAt": "2026-02-11T00:00:00Z"
+    },
+    {
+      "username": "moi-mat",
+      "name": "Mới Mất",
+      "role": "member",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDY$c2ltdWxhdGVkaGFzaDY",
+      "onboardedAt": "2026-01-09T00:00:00Z",
+      "mustChangePassword": false,
+      "recovery": {
+        "codeHash": "$argon2id$v=19$m=65536,t=3,p=4$c2ltdWxhdGVkc2FsdDc$c2ltdWxhdGVkaGFzaDc",
+        "mask": "ABCD-****-WXYZ",
+        "createdAt": "2026-05-01T00:00:00Z"
+      },
+      "createdAt": "2026-01-09T00:00:00Z",
+      "updatedAt": "2026-05-01T00:00:00Z"
+    }
+  ],
+  "sessions": [
+    {"id": "sess-noverse-1", "username": "tac-gia", "expiresAt": "2030-01-01T00:00:00Z"}
+  ],
+  "pairings": [
+    {"codeHash": "$argon2id$v=19$m=65536,t=3,p=4$cGFpcmluZ3NhbHQ$cGFpcmluZ2hhc2g", "username": "tac-gia", "createdBy": "quan-tri", "expiresAt": "2030-01-01T00:00:00Z"}
+  ],
+  "audit": [
+    {
+      "id": "audit-noverse-1",
+      "at": "2026-03-01T00:00:00Z",
+      "actor": {"kind": "user", "username": "quan-tri"},
+      "type": "account",
+      "action": "disable",
+      "target": "khoa-tam",
+      "project": "",
+      "reason": "yêu cầu tạm khoá"
+    }
+  ]
+}

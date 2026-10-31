@@ -1,0 +1,33 @@
+{
+  "version": 4,
+  "users": [
+    {
+      "username": "vid-admin",
+      "name": "Vid Admin",
+      "role": "admin",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$cnVubmluZ3NhbHQx$cnVubmluZ2hhc2gx",
+      "onboardedAt": "2026-02-01T00:00:00Z",
+      "mustChangePassword": false,
+      "createdAt": "2026-02-01T00:00:00Z",
+      "updatedAt": "2026-02-01T00:00:00Z"
+    },
+    {
+      "username": "da-xoa",
+      "name": "Tombstone Cùng Tên",
+      "role": "member",
+      "projects": {},
+      "disabled": false,
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$dG9tYnNhbHQ$dG9tYmhhc2g",
+      "onboardedAt": "2026-02-06T00:00:00Z",
+      "mustChangePassword": false,
+      "deletedAt": "2026-03-01T00:00:00Z",
+      "createdAt": "2026-02-06T00:00:00Z",
+      "updatedAt": "2026-03-01T00:00:00Z"
+    }
+  ],
+  "sessions": [],
+  "pairings": [],
+  "audit": []
+}

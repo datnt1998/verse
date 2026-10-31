@@ -48,6 +48,27 @@ func runStorage(args []string) error {
                                        Xoá audit cũ hơn N ngày (mặc định 365) —
                                        chỉ chạy được với vai trò bảo trì
                                        (MIGRATION_DATABASE_URL), không qua app
+  ainovel-cli storage sso-import --noverse-store file|postgres
+      [--noverse-accounts ABS --noverse-source-id UUID --root ABS --owner-map S=U,...]
+      --viderse-accounts ABS --viderse-source-id UUID | --viderse-empty
+      --manifest ABS --report ABS [--rename-map ABS]
+      [--dry-run | --apply --accept-manifest SHA256 --accept-global-admins SHA256 --backup-dir ABS | --backup-only --backup-dir ABS]
+                                       Cutover tài khoản chung: dry-run + manifest theo
+                                       mặc định; apply duyệt manifest digest + digest danh
+                                       sách admin nền tảng + backup-dir 0700 (owner-only),
+                                       archive 0600 pg_dump --format=custom được pg_restore
+                                       kiểm chứng: đúng database, đủ bảng relkind=r trong
+                                       schema users; COPY count và max timestamptz khớp live
+                                       (NULL/infinity), không so đồng hồ. Chọn mtime mới nhất,
+                                       bằng nhau chọn tên tăng dần. Receipt giữ version và
+                                       executable pg_restore tuyệt đối. Apply cần manifest
+                                       đã duyệt còn trên đĩa; thiếu → từ chối, không ghi.
+                                       Lệch duyệt → report status=approval_mismatch; chạy
+                                       lại --dry-run, xem cả report VÀ manifest mới rồi duyệt.
+                                       Mỗi apply/backup-only tạo inventory O_EXCL mới:
+                                       sso-backup-inventory-<UTC yyyymmddThhmmssZ>[-N].json;
+                                       report apply ghi đúng đường inventory, không ghi đè.
+                                       DSN target chỉ qua MIGRATION_DATABASE_URL
 
 Yêu cầu MIGRATION_DATABASE_URL (hoặc DATABASE_URL với STORE_DRIVER=postgres).
 DSN không bao giờ được in ra.
@@ -79,8 +100,10 @@ DSN không bao giờ được in ra.
 		return runStoragePurgeAudit(args[1:])
 	case "gc":
 		return runStorageGC(args[1:])
+	case "sso-import":
+		return runStorageSSOImport(args[1:])
 	default:
-		return fmt.Errorf("lệnh con không hợp lệ %q (migrate|copy|import|reconcile|export-files|purge-audit|gc)", args[0])
+		return fmt.Errorf("lệnh con không hợp lệ %q (migrate|copy|import|sso-import|reconcile|export-files|purge-audit|gc)", args[0])
 	}
 }
 

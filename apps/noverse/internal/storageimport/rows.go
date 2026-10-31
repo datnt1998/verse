@@ -211,6 +211,21 @@ VALUES ($1,$2,NULL,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) ON CONFLICT DO NOTHING`
 	if err != nil {
 		return false, err
 	}
+	if !inserted {
+		// ON CONFLICT DO NOTHING also swallowed a username-unique conflict of
+		// different provenance: another account owns this name under another
+		// id. That must surface as a collision, not a skipped row.
+		var other string
+		checkErr := tx.QueryRow(ctx, `SELECT id::text FROM users WHERE username = $1`, strings.ToLower(u.Username)).Scan(&other)
+		switch {
+		case checkErr == nil:
+			if other != id {
+				return false, fmt.Errorf("username %q đã thuộc tài khoản khác (id %s) — không ghi đè", u.Username, other)
+			}
+		case !errors.Is(checkErr, pgx.ErrNoRows):
+			return false, checkErr
+		}
+	}
 	if _, err := tx.Exec(ctx, `
 INSERT INTO user_credentials (user_id, password_hash, password_changed_at) VALUES ($1,$2,$3)
 ON CONFLICT (user_id) DO NOTHING`,
@@ -228,21 +243,19 @@ ON CONFLICT DO NOTHING`,
 		}
 	}
 	if u.TempPassword != nil {
+		// Exact source TTL: a used or expired one-shot password never comes
+		// back open, and expires_at is never extended by a grace window.
 		temp := *u.TempPassword
-		expires := temp.ExpiresAt
-		grace := im.opts.Now.Add(im.opts.TemporaryPasswordTTL)
-		if grace.After(expires) {
-			expires = grace
-		}
-		created := temp.CreatedAt
-		if created.IsZero() {
-			created = im.opts.Now
+		var createdBy pgtype.UUID
+		if temp.CreatedBy != "" {
+			createdBy = uuidArg(im.ids.Users[temp.CreatedBy])
 		}
 		tempID := DeterministicUUID(im.scan.SourceID, "temp_password", id)
 		if _, err := tx.Exec(ctx, `
-INSERT INTO temporary_passwords (id, user_id, password_hash, expires_at, used_at, created_at)
-VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING`,
-			uuidArg(tempID), uuidArg(id), temp.CodeHash, expires, temp.UsedAt, created); err != nil {
+INSERT INTO temporary_passwords (id, user_id, password_hash, expires_at, used_at, created_by, created_at)
+VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING`,
+			uuidArg(tempID), uuidArg(id), temp.CodeHash, temp.ExpiresAt, temp.UsedAt, createdBy,
+			nonZeroTime(temp.CreatedAt, im.opts.Now)); err != nil {
 			return false, err
 		}
 	}
