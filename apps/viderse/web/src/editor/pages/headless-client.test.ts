@@ -50,6 +50,8 @@ describe('headless scoped transport', () => {
     await client.snapshot()
     expect(spy).toHaveBeenCalled()
     globalThis.fetch = realFetch
+    const subtitled = { ...snapshot(), project: { ...snapshot().project, timeline: { tracks: [], items: [{ id: 'cap-1', trackId: 't-1', type: 'subtitle', from: 0, durationInFrames: 180 }] } } }
+    await expect(new HeadlessClient('measure', 'request-1', 'token', fakeServer(() => Response.json(subtitled))).snapshot()).resolves.toMatchObject({ project: { id: 'project-1' } })
   })
 
   it('rejects malformed, mismatched and stale snapshot responses', async () => {

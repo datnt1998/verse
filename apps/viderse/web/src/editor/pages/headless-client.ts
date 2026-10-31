@@ -15,7 +15,7 @@ export interface HeadlessProgress {
 
 const identifier = z.string().min(1).max(256).regex(/^[\w-]+$/)
 const trackSchema = z.object({ id: z.string(), name: z.string(), height: z.number(), locked: z.boolean(), visible: z.boolean(), muted: z.boolean(), solo: z.boolean(), order: z.number() }).passthrough()
-const itemSchema = z.object({ id: z.string(), trackId: z.string(), type: z.enum(['video', 'audio', 'image', 'text', 'shape', 'composition', 'adjustment', 'controller', 'lottie']), from: z.number().finite().nonnegative(), durationInFrames: z.number().finite().nonnegative() }).passthrough()
+const itemSchema = z.object({ id: z.string(), trackId: z.string(), type: z.enum(['video', 'audio', 'image', 'text', 'subtitle', 'shape', 'composition', 'adjustment', 'controller', 'lottie']), from: z.number().finite().nonnegative(), durationInFrames: z.number().finite().nonnegative() }).passthrough()
 const subCompositionSchema = z.object({
   id: z.string(), name: z.string(), items: z.array(itemSchema), tracks: z.array(trackSchema.extend({ items: z.array(itemSchema) })),
   transitions: z.array(z.object({}).passthrough()), keyframes: z.array(z.object({}).passthrough()),
