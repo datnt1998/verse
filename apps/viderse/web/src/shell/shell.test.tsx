@@ -117,12 +117,12 @@ describe('Bộ đổi kênh', () => {
     expect(location.hash).toBe('#/?channel=kenh-b')
   })
 
-  it('Bàn dựng: chọn Mọi kênh → hash #/', async () => {
+  it('Bàn dựng: chọn Mọi kênh → hash #/?scope=all', async () => {
     location.hash = '#/?channel=kenh-b'
     await render(<AppHeader route={{ name: 'workbench', channel: 'kenh-b' }} status={STATUS} online channels={CHANNELS} />)
     await openMenu(document.body)
     await pick(t.nav.allChannels)
-    expect(location.hash).toBe('#/')
+    expect(location.hash).toBe('#/?scope=all')
   })
 
   it('Trang Kênh: chọn kênh khác → #/channels/<id>; Mọi kênh → về Bàn dựng', async () => {
@@ -134,7 +134,7 @@ describe('Bộ đổi kênh', () => {
 
     await openMenu(document.body)
     await pick(t.nav.allChannels)
-    expect(location.hash).toBe('#/')
+    expect(location.hash).toBe('#/?scope=all')
   })
 })
 

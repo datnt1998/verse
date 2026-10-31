@@ -3,7 +3,7 @@
 // dẫn Cài đặt và có chấm đỏ khi có mục attention; ở màn Cài đặt bánh răng đang mở
 // (nền --color-surface-6) và chỗ bộ đổi kênh là nhãn “Cài đặt · máy này”.
 // Kiểu: styles/components.css .vv-header/.vv-gear.
-import type { MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -17,11 +17,15 @@ import { useResource } from '../data/useResource'
 import { getServerStorage } from '../api/storageServer'
 import { serverStorageCopy } from '../i18n/storageServer'
 import { AccountMenu } from './AccountMenu'
+import { ActivityPopover } from './ActivityPopover'
+import { getActivity } from '../api/activity'
+import { keys } from '../data/keys'
 import * as stylex from '@stylexjs/stylex'
 const sx = stylex.create({
   header: { paddingInline: 16 },
   logo: { marginInline: 1 },
   settings: { width: 32, height: 32, borderRadius: 'var(--vv-r-8)' },
+  activityAnchor: { position: 'relative', flex: '0 0 auto' },
 })
 
 export function AppHeader({ route, status, online, userName, channels, channelHref }: {
@@ -35,6 +39,8 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
   channelHref?: string
 }) {
   const running = status?.running ?? 0
+  const [activityOpen, setActivityOpen] = useState(false)
+  const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const attention = status?.attention ?? []
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
 
@@ -65,7 +71,10 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
       </div>
       <MainNav route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
       <div className="vv-header__zone vv-header__zone--right">
-        <JobsPill status={status} online={online} unread={attention.length > 0} style={{ flex: '0 0 auto' }} />
+        <div {...stylex.props(sx.activityAnchor)}>
+          <JobsPill status={status} online={online} unread={(activity.data?.unread ?? []).some((n) => n.kind === 'review_ready' || n.kind === 'needs_attention')} onOpen={() => setActivityOpen((open) => !open)} expanded={activityOpen} />
+          {activityOpen && <ActivityPopover activity={activity.data} error={activity.error} retry={() => void activity.refresh()} close={() => setActivityOpen(false)} />}
+        </div>
         <a
           href={settingsTarget ?? `#${paths.settings()}`}
           aria-label={attention.length ? t.shell.settingsAttention(attention.length) : t.shell.settings}

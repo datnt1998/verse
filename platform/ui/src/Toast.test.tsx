@@ -42,3 +42,16 @@ describe('toast lifetime and motion', () => {
     dismissToast(id)
   })
 })
+
+describe('activity toast host', () => {
+  it('shows only the newest three notifications', () => {
+    vi.stubGlobal('window', { matchMedia: () => ({ matches: false }) })
+    const ids = ['Một', 'Hai', 'Ba', 'Bốn'].map((text) => toast(text))
+    const html = renderToStaticMarkup(<ToastHost activity />)
+    expect(html).not.toContain('Một')
+    expect(html).toContain('Hai')
+    expect(html).toContain('Ba')
+    expect(html).toContain('Bốn')
+    ids.forEach(dismissToast)
+  })
+})

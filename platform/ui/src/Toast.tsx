@@ -72,6 +72,7 @@ const sx = stylex.create({
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     width: 'min(640px, calc(100% - 28px))', pointerEvents: 'none',
   }),
+  activityHost: { left: 'auto', right: 18, transform: 'none', width: 300, alignItems: 'stretch', flexDirection: 'column-reverse' },
 })
 
 export type ToastItem = { id: number; key?: string; tone: Tone; text: string; /** nội dung dạng thẻ (toast.card) — không hết hạn */ card?: { title: string; text?: string }; action?: { label: string; onClick: () => void | Promise<void> }; expiresAt: number; duration: number; undo?: boolean; leaving: boolean; /** đang dừng đếm ngược (rê chuột vào chồng toast) — `remaining` là thời gian còn lại */ paused?: boolean; remaining?: number }
@@ -182,7 +183,7 @@ function Notification({ item, front, held }: { item: ToastItem; front: boolean; 
     </>}
   </div></div></div>
 }
-export function ToastHost({ style }: { style?: CSSProperties }) {
+export function ToastHost({ style, activity = false }: { style?: CSSProperties; activity?: boolean }) {
   const notices = useSyncExternalStore(subscribe, snapshot, snapshot)
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 759px)').matches)
   useEffect(() => {
@@ -191,9 +192,25 @@ export function ToastHost({ style }: { style?: CSSProperties }) {
     media.addEventListener('change', change)
     return () => media.removeEventListener('change', change)
   }, [])
+  useEffect(() => {
+    if (!activity) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        const latest = [...items].reverse().find((item) => !item.leaving)
+        if (latest) dismissToast(latest.id)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [activity])
+  useEffect(() => {
+    if (!activity) return
+    const active = notices.filter((notice) => !notice.leaving)
+    active.slice(0, -3).forEach((notice) => dismissToast(notice.id))
+  }, [activity, notices])
   const held = notices.some((notice) => notice.paused)
-  const host = stylex.props(sx.host(`var(--m-toast-bottom,calc(${mobile ? 96 : 18}px + env(safe-area-inset-bottom, 0px)))`))
+  const host = stylex.props(sx.host(`var(--m-toast-bottom,calc(${mobile ? 96 : 18}px + env(safe-area-inset-bottom, 0px)))`), activity && !mobile && sx.activityHost)
   return <div aria-label={getKitLabels().toast.notifications} className={host.className} style={{ ...host.style, ...style }}>
-    {notices.map((item, index) => <Notification key={item.id} item={item} held={held} front={index === notices.length - 1} />)}
+    {(activity ? notices.slice(-3) : notices).map((item, index, visible) => <Notification key={item.id} item={item} held={held} front={index === visible.length - 1} />)}
   </div>
 }

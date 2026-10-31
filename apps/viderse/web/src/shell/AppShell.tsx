@@ -13,6 +13,7 @@ import type { SwitcherChannel } from './ChannelSwitcher'
 import { useResource } from '../data/useResource'
 import { keys } from '../data/keys'
 import { listChannels } from '../api/channels'
+import { getChannelSummaries } from '../api/workbenchChannels'
 import { onboardDismissed } from '../lib/onboard'
 import { channelsHref } from '../lib/lastChannel'
 import { channelTint } from '../lib/channelTint'
@@ -21,6 +22,7 @@ import { navigate } from '../router'
 import { getSetup } from '../api/setup'
 import { vi as t } from '../i18n/vi'
 import { AdminStorageStrip } from './AdminStorageStrip'
+import { ActivityBridge } from './ActivityBridge'
 
 export function AppShell({ route, user, children }: {
   route: Route
@@ -38,13 +40,20 @@ export function AppShell({ route, user, children }: {
     keys.channels(),
     ({ signal }) => listChannels(signal).catch(() => ({ channels: [] })),
   )
+  const summaries = useResource(['channels', 'summary'], ({ signal }) => getChannelSummaries(signal))
   const channelHref = channelsHref(channelList.data?.channels ?? [])
-  const channels: SwitcherChannel[] = (channelList.data?.channels ?? []).map((channel) => ({
-    id: channel.id,
-    name: channel.name || t.channels.page.noName,
-    src: channel.avatarUrl ?? undefined,
-    color: { bg: channelTint(channel.id), ring: channelTint(channel.id) },
-  }))
+  const channels: SwitcherChannel[] = (channelList.data?.channels ?? []).map((channel) => {
+    const summary = summaries.data?.find((item) => item.channelId === channel.id)
+    return {
+      id: channel.id,
+      name: channel.name || t.channels.page.noName,
+      initials: summary?.initials,
+      src: summary?.avatarUrl ?? channel.avatarUrl ?? undefined,
+      color: { bg: channelTint(channel.id), ring: channelTint(channel.id) },
+      pace: summary ? `Hôm nay ${summary.today.done}/${summary.today.cap}` : undefined,
+      waiting: (summary?.waitingYou ?? 0) > 0,
+    }
+  })
 
   const inSetup = route.name === 'setup'
   const offline = !online && !connecting
@@ -85,6 +94,7 @@ export function AppShell({ route, user, children }: {
   if (mobile) {
     return (
       <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
+        <ActivityBridge />
         {route.name !== 'queue' && strip}
         <div inert={offline && route.name !== 'queue' || undefined} style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: route.name === 'queue' ? 'hidden' : 'auto', paddingBottom: route.name === 'new' || route.name === 'queue' ? 0 : 'var(--vv-tabbar-pad)', ...(offline && route.name !== 'queue' ? { opacity: 0.42 } : {}) }}>
           {children}
@@ -97,6 +107,7 @@ export function AppShell({ route, user, children }: {
     // nội dung nhận phần còn lại và tự cuộn — màn có cột cố định (Cài đặt)
     // không bị đẩy xuống khi dải offline/chưa-sẵn-sàng hiện.
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+      <ActivityBridge />
       <AppHeader route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref} />
       {setupSkipped && !inSetup ? (
         // Cảnh báo bền "máy chưa sẵn sàng" — có thể làm việc tiếp, không chặn.
