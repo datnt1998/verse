@@ -1231,6 +1231,9 @@ func ScoreRanges(score *quality.Score, project editor.Project) []quality.Range {
 		if err == nil && json.Unmarshal(data, &measured) == nil {
 			if len(measured.Ranges) > 0 {
 				for _, span := range measured.Ranges {
+					if check.ID == "captionAlignment" && span.OffsetSec != nil && math.Abs(*span.OffsetSec)*1000 <= 120 {
+						continue
+					}
 					span.CheckID, span.Status = check.ID, check.Status
 					ranges = append(ranges, span)
 				}
