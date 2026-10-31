@@ -54,6 +54,7 @@ button:disabled{cursor:not-allowed}
 .i-crown{-webkit-mask-image:url(../icons/crown.svg);mask-image:url(../icons/crown.svg)}
 .i-devices{-webkit-mask-image:url(../icons/devices.svg);mask-image:url(../icons/devices.svg)}
 .i-edit-r{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
+.i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
 .i-eye{-webkit-mask-image:url(../icons/eye.svg);mask-image:url(../icons/eye.svg)}
 .i-eye-off{-webkit-mask-image:url(../icons/eye-slash.svg);mask-image:url(../icons/eye-slash.svg)}
 .i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
@@ -73,6 +74,7 @@ button:disabled{cursor:not-allowed}
 .i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
 .i-shield{-webkit-mask-image:url(../icons/shield-security.svg);mask-image:url(../icons/shield-security.svg)}
 .i-shield-b{-webkit-mask-image:url(../icons/shield-security-bulk.svg);mask-image:url(../icons/shield-security-bulk.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
 .i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
 .i-timer{-webkit-mask-image:url(../icons/timer-1.svg);mask-image:url(../icons/timer-1.svg)}
 .i-user-add{-webkit-mask-image:url(../icons/user-add.svg);mask-image:url(../icons/user-add.svg)}
@@ -132,7 +134,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <main style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px">
 <div style="width: min(400px, 100%); display: flex; flex-direction: column; gap: 22px">
 
-<div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<sc-if value="{{notDenied}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
 <div aria-hidden="true" style="position: relative; width: 84px; height: 64px">
 <div style="position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,99,227,0.22), rgba(90,87,227,0.10) 55%, transparent 75%); filter: blur(6px)"></div>
 <span class="orb o-architect breathe" style="position: absolute; left: 0; top: 14px; width: 34px; height: 34px"></span>
@@ -143,8 +145,9 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <div>
 <h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">{{h1}}</h1>
 <p style="margin: 6px 0 0; font-size: 14px; color: #A0A0AB">{{sub}}</p>
+<p style="margin: 4px 0 0; font-size: 12.5px; color: #7E7E8A">Một tài khoản dùng cho Noverse và Viderse</p>
 </div>
-</div>
+</div></sc-if>
 
 <sc-if value="{{isExpired}}" hint-placeholder-val="{{ false }}">
 <div role="status" class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; border-color: rgba(246,203,140,0.3)">
@@ -157,6 +160,12 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </div>
 </sc-if>
 
+<sc-if value="{{kOn}}" hint-placeholder-val="{{ false }}">
+<div role="status" class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; border-color: rgba(157,176,247,0.3)">
+<span class="ic {{kIcon}}" aria-hidden="true" style="color: #9DB0F7; margin-top: 2px"></span>
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.5"><span style="font-weight: 500; color: #EDEDEF">{{kT}}</span><span style="color: #A0A0AB">{{kD}}</span></div>
+</div>
+</sc-if>
 <!-- Chọn tài khoản -->
 <sc-if value="{{isPicker}}" hint-placeholder-val="{{ true }}">
 <div style="display: flex; flex-direction: column; gap: 8px">
@@ -238,6 +247,23 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 </form>
 </sc-if>
 
+<!-- Chưa được cấp quyền vào Noverse (Gói AO) -->
+<sc-if value="{{isDenied}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<span aria-hidden="true" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(246,203,140,0.1); display: flex; align-items: center; justify-content: center"><span class="ic i-lock" style="width: 24px; height: 24px; color: #F6CB8C"></span></span>
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.015em">Chưa được cấp quyền vào Noverse</h1>
+<p style="margin: 0; font-size: 14px; color: #A0A0AB; line-height: 1.6">Tài khoản này đăng nhập đúng nhưng chưa được cấp quyền dùng Noverse. Nhờ quản trị viên bật ô <b style="color: #EDEDEF; font-weight: 600">Noverse</b> cho bạn ở Thành viên, rồi bấm Thử lại.</p>
+</div>
+<div class="card" style="border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px"><span class="av" aria-hidden="true" style="width: 38px; height: 38px; font-size: 15px">L</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.4"><span style="font-size: 14px; font-weight: 500">Linh</span><span style="font-size: 12px; color: #7E7E8A"><span class="mono">@linh</span> · Thành viên</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-if value="{{viderseOn}}" hint-placeholder-val="{{ true }}"><a class="primary" href="#" target="_blank" rel="noopener" style="height: 44px; border-radius: 11px; background: #EDEDEF; color: #0B0B0D; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 64 64" style="flex: 0 0 auto"><defs><radialGradient id="vlSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient></defs><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g><circle cx="32" cy="32" r="16" fill="url(#vlSph)"></circle></svg>
+Mở Viderse<span class="mono" style="font-size: 12px; font-weight: 400; color: #5E5E68">vid.aarverse.studio</span></a></sc-if>
+<button class="{{retryCls}}" type="button" onClick="{{retry}}" style="height: 44px; border-radius: 11px; border: {{retryBd}}; background: {{retryBg}}; color: {{retryFg}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px"></span>{{retryT}}</button>
+<button class="ghost" type="button" onClick="{{copyAsk}}" style="align-self: center; height: 32px; padding: 0 12px; border: none; border-radius: 8px; background: transparent; color: #A0A0AB; font-size: 13px; display: flex; align-items: center; gap: 6px"><span class="ic {{copyIc}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{copyT}}</button>
+</div>
+<div style="height: 1px; background: rgba(255,255,255,0.07)"></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px"><button class="ghost" type="button" style="height: 32px; padding: 0 12px; border: none; border-radius: 8px; background: transparent; color: #FF9AA2; font-size: 13.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-logout" aria-hidden="true" style="width: 15px; height: 15px"></span>Đăng xuất</button><span style="font-size: 12.5px; color: #7E7E8A">Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.</span></div>
+</sc-if>
 </div>
 </main>
 
@@ -304,13 +330,19 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 </a>
 </sc-for>
 <div style="height: 1px; background: rgba(255,255,255,0.07); margin: 6px"></div>
+<sc-if value="{{viderseOn}}" hint-placeholder-val="{{ true }}"><div style="padding: 6px 12px 4px" class="lbl">Ứng dụng</div>
+<div class="row" role="menuitem" aria-current="true" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.08)"><span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: #18181B; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span aria-hidden="true" style="position: relative; width: 20px; height: 15px; flex: 0 0 auto"><span style="position: absolute; left: 0; top: 3.3px; width: 8.1px; height: 8.1px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A9C2FA 0%,#7896F2 55%,#5360DC 100%)"></span><span style="position: absolute; left: 5.2px; top: 0; width: 9.5px; height: 9.5px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#CDA4F7 0%,#A472EB 55%,#7C46D4 100%)"></span><span style="position: absolute; left: 11.8px; top: 3.6px; width: 8.1px; height: 8.1px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#FBC48A 0%,#F29A5A 55%,#D9663A 100%)"></span><span style="position: absolute; left: 6.4px; top: 7.3px; width: 7.2px; height: 7.2px; border-radius: 50%; background: radial-gradient(circle at 34% 28%,#A0EDCF 0%,#5FCFB0 55%,#36A29C 100%)"></span></span>
+</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13px; font-weight: 500">Noverse</span><span class="mono" style="font-size: 11px; color: #7E7E8A">nov.aarverse.studio</span></span><span style="height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: 6px; background: rgba(255,255,255,0.08); color: #C9C9D1; font-size: 11px">Đang mở</span></div>
+<a class="row" role="menuitem" href="#" target="_blank" rel="noopener" title="Mở Viderse ở thẻ mới" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; background: transparent; color: #EDEDEF; text-decoration: none"><span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: #18181B; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 64 64" style="flex: 0 0 auto"><defs><radialGradient id="vlSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient></defs><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g><circle cx="32" cy="32" r="16" fill="url(#vlSph)"></circle></svg>
+</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13px; font-weight: 500">Viderse</span><span class="mono" style="font-size: 11px; color: #7E7E8A">vid.aarverse.studio</span></span><span class="ic i-export" aria-label="Mở ở thẻ mới" style="width: 15px; height: 15px; color: #7E7E8A"></span></a>
+<div style="height: 1px; background: rgba(255,255,255,0.07); margin: 6px"></div></sc-if>
 <div style="padding: 6px 12px 4px" class="lbl">Chuyển tài khoản</div>
 <button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: #EDEDEF; text-align: left">
-<span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 11px">L</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Linh</span><span style="font-size: 11px; color: #7E7E8A">Thành viên · cần nhập mật khẩu</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span>
+<span class="av" aria-hidden="true" style="width: 26px; height: 26px; font-size: 11px">L</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Linh</span><span style="font-size: 11px; color: #7E7E8A">Đăng xuất cả hai app rồi nhập mật khẩu của Linh</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; color: #7E7E8A"></span>
 </button>
 <button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: #C9C9D1; font-size: 13px; text-align: left"><span class="ic i-user-add" aria-hidden="true" style="width: 17px; height: 17px; color: #A0A0AB; margin: 0 4px"></span>Đăng nhập tài khoản khác</button>
 <div style="height: 1px; background: rgba(255,255,255,0.07); margin: 6px"></div>
-<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: none; border-radius: 10px; background: transparent; color: #FF9AA2; font-size: 13px; text-align: left"><span class="ic i-logout" aria-hidden="true" style="width: 17px; height: 17px"></span>Đăng xuất</button>
+<button class="row" role="menuitem" type="button" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: #FF9AA2; text-align: left"><span class="ic i-logout" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13px">Đăng xuất</span><span style="font-size: 11px; color: #7E7E8A">Khỏi cả Noverse và Viderse trên trình duyệt này</span></span></button>
 </div>
 </sc-if>
 
@@ -424,7 +456,7 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 20px">
 <section aria-labelledby="dv-s1" style="flex: 1 1 440px; display: flex; flex-direction: column; gap: 10px">
-<div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="dv-s1" class="lbl" style="margin: 0">Thiết bị đang đăng nhập · {{sessionCount}}</h3><span style="font-size: 12px; color: #7E7E8A">Mỗi phiên giữ 30 ngày kể từ lúc đăng nhập</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="dv-s1" class="lbl" style="margin: 0">Thiết bị đang đăng nhập · {{sessionCount}}</h3><span style="font-size: 12px; color: #7E7E8A">Mỗi thiết bị một phiên chung cho cả hai app · giữ 30 ngày</span></div>
 <div class="card" style="border-radius: 14px; padding: 4px">
 <sc-for list="{{sessions}}" as="d" hint-placeholder-count="3">
 <div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-top: {{d.bt}}">
@@ -438,6 +470,7 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 </sc-for>
 </div>
 <button class="ghost" type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,154,162,0.3); background: transparent; color: #FF9AA2; font-size: 12.5px; display: flex; align-items: center; gap: 6px"><span class="ic i-logout" aria-hidden="true" style="width: 15px; height: 15px"></span>Đăng xuất mọi thiết bị khác</button>
+<span style="margin-top: -4px; font-size: 12px; color: #7E7E8A">Thiết bị bị đăng xuất phải đăng nhập lại ở cả Noverse và Viderse.</span>
 </section>
 <section aria-labelledby="dv-s2" style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px">
 <h3 id="dv-s2" class="lbl" style="margin: 0">Đổi mật khẩu</h3>
@@ -446,7 +479,7 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 <div aria-hidden="true" style="display: flex; gap: 4px"><sc-for list="{{strength.bars}}" as="b" hint-placeholder-count="4"><span style="flex: 1; height: 3px; border-radius: 3px; background: {{b}}"></span></sc-for></div>
 <span style="font-size: 12px; color: {{strength.color}}">{{strength.label}}</span></div>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="pw-re" style="font-size: 12.5px; color: #A0A0AB">Nhập lại mật khẩu mới</label><input id="pw-re" class="field" type="password" autocomplete="new-password" placeholder="Nhập lại"></div>
-<span style="display: flex; gap: 8px; font-size: 12px; color: #A0A0AB"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px"></span>Các thiết bị khác sẽ bị đăng xuất; thiết bị này giữ nguyên phiên.</span>
+<span style="display: flex; gap: 8px; font-size: 12px; color: #A0A0AB"><span class="ic i-info" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px"></span>Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.</span>
 <button class="primary" type="button" disabled="{{pwDisabled}}" style="align-self: flex-start; height: 36px; padding: 0 16px; border-radius: 9px; border: none; background: {{pwBg}}; color: {{pwFg}}; font-size: 13px; font-weight: 600">Đổi mật khẩu</button>
 </section>
 </div>
@@ -531,7 +564,7 @@ Máy dùng chung — không ghi nhớ tài khoản trên máy này
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["login","password","other","expired","menu","qr","qrExpired","qrNoLan","devices"],"default":"login","section":"Màn"},"error":{"editor":"enum","options":["none","wrong","limited"],"default":"none","section":"Đăng nhập"},"paired":{"editor":"boolean","default":false,"section":"QR"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["login","password","other","expired","denied","menu","qr","qrExpired","qrNoLan","devices"],"default":"login","section":"Màn"},"kicked":{"editor":"enum","options":["none","self","other","password","admin","unknown"],"default":"none","section":"Vì sao phải đăng nhập lại (Gói AO · login/password/other)"},"viderse":{"editor":"enum","options":["yes","no"],"default":"yes","section":"Có quyền Viderse (Gói AO · menu, denied)"},"error":{"editor":"enum","options":["none","wrong","limited"],"default":"none","section":"Đăng nhập"},"paired":{"editor":"boolean","default":false,"section":"QR"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -553,7 +586,7 @@ class Component extends DCLogic {
     ];
     const remembered = rememberedRaw.map((a, i) => Object.assign({}, a, { initial: a.name[0], roleLabel: ROLE[a.role].label, roleIcon: ROLE[a.role].icon, roleBg: ROLE[a.role].bg, roleFg: ROLE[a.role].fg, pick: () => go('password', { acc: i, password: '' }) }));
     const acc = view === 'expired' ? remembered[0] : remembered[s.acc] || remembered[0];
-    const isAuth = ['login', 'password', 'other', 'expired'].indexOf(view) >= 0;
+    const isAuth = ['login', 'password', 'other', 'expired', 'denied'].indexOf(view) >= 0;
     const isForm = ['password', 'other', 'expired'].indexOf(view) >= 0;
     const err = p.error || 'none';
     const hasError = isForm && err !== 'none';
@@ -627,6 +660,13 @@ class Component extends DCLogic {
     return {
       rememberedCount: remembered.length, qrDevCount: qrDevices.length, sessionCount: sessions.length, userCount: users.length,
       isAuth, isForm, isApp, isMenu, isQr, isDialog, appHidden: isDialog ? 'true' : 'false',
+      isDenied: view === 'denied', notDenied: view !== 'denied', viderseOn: (p.viderse || 'yes') === 'yes',
+      ...(() => { const K = { self: ['i-logout', 'Đã đăng xuất', 'Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.'], other: ['i-logout', 'Bạn vừa đăng xuất ở Viderse', 'Hai app dùng chung một lần đăng nhập, nên Noverse cũng cần đăng nhập lại.'], password: ['i-key', 'Mật khẩu vừa được đổi', 'Mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse. Dùng mật khẩu mới.'], admin: ['i-shield', 'Quản trị viên vừa thay đổi tài khoản này', 'Có thể là quyền vào ứng dụng hoặc mật khẩu đã được đặt lại. Đăng nhập lại để tiếp tục.'], unknown: ['i-info', 'Phiên đăng nhập đã kết thúc', 'Có thể bạn vừa đăng xuất hoặc đổi mật khẩu ở Noverse hay Viderse. Đăng nhập lại để tiếp tục.'] }[p.kicked || 'none'];
+        const on = !!K && ['login', 'password', 'other'].indexOf(view) >= 0; const vOn = (p.viderse || 'yes') === 'yes';
+        return { kOn: on, kIcon: K ? K[0] : 'i-info', kT: K ? K[1] : '', kD: K ? K[2] : '',
+          retryCls: vOn ? 'ghost' : 'primary', retryBd: vOn ? '1px solid rgba(255,255,255,0.12)' : 'none', retryBg: vOn ? 'transparent' : '#EDEDEF', retryFg: vOn ? '#EDEDEF' : '#0B0B0D', retryT: s.retrying ? 'Đang kiểm tra…' : 'Thử lại',
+          retry: () => { this.setState({ retrying: true }); setTimeout(() => this.setState({ retrying: false }), 1200); },
+          copyT: s.copied ? 'Đã chép · dán vào tin nhắn gửi quản trị viên' : 'Chép lời nhờ quản trị viên cấp quyền', copyIc: s.copied ? 'i-tick' : 'i-copy', copyAsk: () => this.setState({ copied: true }) }; })(),
       isPicker: view === 'login', isExpired: view === 'expired', isOther: view === 'other', hasAccount: view !== 'other',
       isDevices: view === 'devices', isUsers: view === 'users',
       h1, sub, remembered, acc,

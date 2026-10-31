@@ -322,7 +322,12 @@ Tuỳ chỉnh › Nâng cao › “Vị trí lưu trên máy chủ”:
 
 ## 12. Đăng nhập chung với Viderse: chuyển app và câu chữ (Gói AO, 31/10) <!-- goi-ao -->
 
-Chỉ khi `STORE_DRIVER=postgres` (có `grants`). Noverse (`nov.aarverse.studio`) và Viderse (`vid.aarverse.studio`) dùng chung kho tài khoản và một phiên. Phía Viderse là Gói V26 (`apps/viderse/docs/design/v1/08-dev-prompt.md`); artboard vẽ cả hai app nằm ở Viderse: `Auth.dc.html` (`screen=menu`, `app=noverse` là menu của Noverse) và `MAuth.dc.html` (`screen=account`, `app=noverse` là tab Thêm). Canvas Noverse chưa vẽ lại các màn này.
+Chỉ khi `STORE_DRIVER=postgres` (có `grants`). Noverse (`nov.aarverse.studio`) và Viderse (`vid.aarverse.studio`) dùng chung kho tài khoản và một phiên. Phía Viderse là Gói V26 (`apps/viderse/docs/design/v1/08-dev-prompt.md`); artboard vẽ cả hai app nằm ở Viderse: `Auth.dc.html` (`screen=menu`, `app=noverse` là menu của Noverse) và `MAuth.dc.html` (`screen=account`, `app=noverse` là tab Thêm). Canvas Noverse (bản 130) đã vẽ lại các màn này <!-- ao-canvas -->:
+- `Login` · `kicked`: none · self · other · password · admin · unknown (khối lý do trên form ở `state` login · password · other; `expired` giữ màn cũ) · `viderse`: yes · no (nhóm Ứng dụng trong `state=menu`, nút *Mở Viderse* ở `state=denied`) · `state=denied` (chưa được cấp quyền vào Noverse) · `state=devices` (câu phiên chung, đổi mật khẩu kể cả máy này) · dòng phụ “Một tài khoản dùng cho Noverse và Viderse” ở mọi màn đăng nhập.
+- `Members` · `app`: clean · changed · viderseOff · none (mục 3 Quyền vào ứng dụng, chọn sẵn Linh); `who=dat` cho trạng thái quản trị (khoá cả hai ô); `dlg` reset · lock có câu “ở cả Noverse và Viderse”.
+- `MMore` · `viderse`: yes · no (nhóm Ứng dụng trên nhóm Tài khoản); dòng phụ dưới *Đăng xuất*; trang Thiết bị, Đổi mật khẩu, sheet chuyển tài khoản dùng câu phiên chung.
+- `Phone` · `kicked` (dùng với `state=login`): dòng phụ + khối lý do như máy tính.
+- Logo Viderse (ống kính đỏ trong vòng bốn màu) và logo Noverse nằm trong vòng tròn nền `#18181B`; dòng app đang mở dùng nền `rgba(255,255,255,.08)`, không viền màu một bên.
 
 ### 12.1 Chuyển app (menu tài khoản, F3)
 - Thêm nhóm **Ứng dụng** sau các mục tài khoản, trước *Chuyển tài khoản*: dòng Noverse (app đang mở, nhãn *Đang mở*) và dòng **Viderse** (logo ống kính đỏ trong vòng tròn, tên, địa chỉ `vid.aarverse.studio` chữ mono, biểu tượng mở ở thẻ mới). Bấm → mở Viderse ở thẻ mới, đã đăng nhập sẵn.
