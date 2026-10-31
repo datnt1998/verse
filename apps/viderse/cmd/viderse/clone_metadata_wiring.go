@@ -12,7 +12,6 @@ import (
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
-	stepmetadata "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/metadata"
 )
 
 type metadataMedia struct {
@@ -50,10 +49,10 @@ func metadataRewrite(edits *jobedit.Service, handler func(context.Context, *pipe
 		if err != nil {
 			return clonemetadata.Content{}, err
 		}
-		var out stepmetadata.Output
+		var out clonemetadata.Content
 		if err = json.Unmarshal(raw, &out); err != nil {
 			return clonemetadata.Content{}, err
 		}
-		return clonemetadata.Content{Title: out.Title, Description: out.Description, Tags: out.Tags}, nil
+		return out, nil
 	}
 }

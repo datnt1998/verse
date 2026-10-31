@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -9,12 +10,13 @@ import (
 )
 
 type Content struct {
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Tags        []string        `json:"tags"`
-	Edited      map[string]bool `json:"edited,omitempty"`
-	EditedBy    string          `json:"editedBy,omitempty"`
-	EditedAt    string          `json:"editedAt,omitempty"`
+	Title       string                     `json:"title"`
+	Description string                     `json:"description"`
+	Tags        []string                   `json:"tags"`
+	Reason      map[string]json.RawMessage `json:"reason,omitempty"`
+	Edited      map[string]bool            `json:"edited,omitempty"`
+	EditedBy    string                     `json:"editedBy,omitempty"`
+	EditedAt    string                     `json:"editedAt,omitempty"`
 }
 type Version struct {
 	At    string   `json:"at"`
@@ -87,6 +89,11 @@ func validParts(parts []string) error {
 	return nil
 }
 func merge(old, next Content, parts []string) Content {
+	reasons := make(map[string]json.RawMessage, len(old.Reason))
+	for part, reason := range old.Reason {
+		reasons[part] = reason
+	}
+	old.Reason = reasons
 	for _, p := range parts {
 		switch p {
 		case "title":
@@ -95,6 +102,11 @@ func merge(old, next Content, parts []string) Content {
 			old.Description = next.Description
 		case "tags":
 			old.Tags = next.Tags
+		}
+		if reason, ok := next.Reason[p]; ok {
+			old.Reason[p] = reason
+		} else {
+			delete(old.Reason, p)
 		}
 	}
 	return old
@@ -138,6 +150,14 @@ func (s *State) patch(p Patch) error {
 	if err := validate(next); err != nil {
 		return err
 	}
+	reasons := make(map[string]json.RawMessage, len(next.Reason))
+	for part, reason := range next.Reason {
+		reasons[part] = reason
+	}
+	for _, part := range parts {
+		delete(reasons, part)
+	}
+	next.Reason = reasons
 	edited := map[string]bool{}
 	for k, v := range next.Edited {
 		edited[k] = v
