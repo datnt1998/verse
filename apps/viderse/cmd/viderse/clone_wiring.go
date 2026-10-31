@@ -117,6 +117,9 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	rules := cloneSettings{settings}
 	publish := func(name string, data any) { hub.Publish(events.Event{Type: name, Data: data}); statusSvc.Bump() }
 	service := &pipeline.Service{Store: store, Media: files, Publish: publish, Queue: cloneQueueBoard{queueStore}}
+	service.ResolveQueuedImageOverrides = func(ctx context.Context, item domain.CloneQueueItem) (json.RawMessage, error) {
+		return queuedImageCheckpoint(ctx, librarySvc, item)
+	}
 	edits := cloneOwnerEdits(store, files, publish, service.Wake)
 	service.ResolveTemplate = func(ctx context.Context, item domain.CloneQueueItem) (string, json.RawMessage, json.RawMessage, error) {
 		owner, err := queueStore.Owner(ctx, item.ChannelID)
@@ -315,17 +318,8 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		registry[step] = handler
 	}
 	runner := &pipeline.Runner{Store: store, Handlers: registry, Media: service.Media, Runner: toolDeps.Runner, Publish: publish, StagingRoot: filepath.Join(cfgDir, "clone-staging"), Settings: rules, Queue: q}
-	runner.OnHumanState = func(ctx context.Context, job *domain.CloneJob, kind string) {
-		text, label := "", "Mở"
-		switch kind {
-		case "review_ready": text, label = "Video chờ duyệt", "Duyệt ảnh"
-		case "needs_attention": text = "Cần xử lý: " + job.Source.Title
-		case "ready_to_post": text = "Video sẵn sàng đăng"
-		default: return
-		}
-		spec := activity.NotificationSpec{Kind:kind, Text:text, Href:"#/?video="+job.ID, ActionLabel:label}
-		if kind != "review_ready" { spec.Object = &domain.ObjectRef{Type:"video", ID:job.ID, Label:job.Source.Title} }
-		if _, err := activityService.NotifyScoped(ctx, spec); err != nil { logStore := fmt.Sprintf("notification %s: %v", kind, err); fmt.Fprintln(os.Stderr, logStore) }
+	runner.OnHumanState = func(_ context.Context, _ *domain.CloneJob, _ string) {
+		activityService.Changed("")
 	}
 	worker := &pipeline.Worker{Store: store, Runner: runner, Settings: rules, ID: fmt.Sprintf("%d", os.Getpid()), OnPrimary: func(ctx context.Context) error {
 		if err := renderRuntime.Recover(ctx); err != nil {
