@@ -24,6 +24,14 @@ type AutoAction struct {
 	Count  int     `json:"count"`
 	Href   string  `json:"href"`
 	Reason *Reason `json:"reason,omitempty"`
+	// Undo có khi việc tự làm hoàn tác được; client gửi lại nguyên op + params tới POST /api/undo.
+	Undo *Undo `json:"undo,omitempty"`
+}
+
+// Undo là một thao tác hoàn tác trong danh sách cho phép của POST /api/undo.
+type Undo struct {
+	Op     string         `json:"op"`
+	Params map[string]any `json:"params"`
 }
 type Today struct {
 	Queued       int     `json:"queued"`
