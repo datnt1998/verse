@@ -13,7 +13,7 @@ const PROJECT: ProjectDetail = {
   version: 'v1',
   project: {
     id: 'kenh', name: 'Kênh truyện audio', description: 'Truyện ngắn đô thị', notes: 'Giọng miền Bắc',
-    universeName: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null, createdAt: null, path: '',
+    universeName: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null, createdAt: null, path: '', ruleCount: 0, style: '',
   },
   stories: [], ideas: [], assets: [],
 }

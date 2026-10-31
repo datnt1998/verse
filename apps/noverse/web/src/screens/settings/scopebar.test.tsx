@@ -13,8 +13,8 @@ vi.mock('./scope/counts', () => ({ useOwnRuleCount: () => 0 }))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
 const projects: ProjectSummary[] = [
-  { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 2, runningCount: 0, updatedAt: null },
-  { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null },
+  { id: 'van-chau', name: 'Vân Châu', description: '', legacy: false, storyCount: 2, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
+  { id: 'tro-ve', name: 'Trở Về', description: '', legacy: false, storyCount: 1, runningCount: 0, updatedAt: null, ruleCount: 0, style: '' },
 ]
 const story = (project: string, id: string, title: string): StorySummary => ({
   id: `${project}/${id}`, project, story: id, folder: `kich_ban/01-${id}`, title, status: 'writing', tags: [], idea: '',

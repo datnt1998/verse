@@ -34,7 +34,7 @@ const preview = (over: Partial<PreviewInput>): PreviewInput => ({
 })
 
 const project = (id: string): ProjectSummary => ({
-  id, name: id, description: '', legacy: false, storyCount: 0, runningCount: 0, updatedAt: null,
+  id, name: id, description: '', legacy: false, storyCount: 0, runningCount: 0, updatedAt: null, ruleCount: 0, style: '',
 })
 
 describe('E2EAUTH-5 · bước Dự án lấy trạng thái từ server', () => {
