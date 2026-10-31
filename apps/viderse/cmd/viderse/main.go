@@ -23,6 +23,7 @@ const usage = `Cách dùng:
   viderse backdrop list|add|show|videos|refresh|remove  Video nền (kênh Twitch/Bilibili, video lẻ)
   viderse backdrop video add|list|remove         Video lẻ của Video nền
   viderse backdrop parse <link>                  Phân loại link nền tảng
+  viderse clone run|batch|pause|resume|cancel|status|wait  Điều khiển pipeline qua máy chủ
   viderse logout [provider]           Xoá phiên đăng nhập
   viderse login --status              Xem trạng thái đăng nhập
   viderse version                     In phiên bản
@@ -72,6 +73,8 @@ func main() {
 		code = runOverlayCommand(args[1:], os.Stdout, os.Stderr)
 	case "backdrop":
 		code = runBackdropCommand(args[1:], os.Stdout, os.Stderr)
+	case "clone":
+		code = runCloneCommand(args[1:], os.Stdout, os.Stderr)
 	case "login":
 		code = runLoginCommand(args[1:], os.Stdout, os.Stderr)
 	case "logout":
