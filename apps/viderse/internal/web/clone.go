@@ -291,6 +291,30 @@ func actionClone(w http.ResponseWriter, r *http.Request, svc CloneService, id st
 		job, err = svc.Resume(r.Context(), id)
 	case "cancel":
 		job, err = svc.Cancel(r.Context(), id)
+	case "restart":
+		restarter, ok := svc.(interface {
+			Restart(context.Context, string) (*pipeline.StartJobResult, error)
+		})
+		if !ok {
+			cloneAvailable(w, false)
+			return
+		}
+		result, restartErr := restarter.Restart(r.Context(), id)
+		if restartErr != nil {
+			WriteCloneError(w, restartErr)
+			return
+		}
+		job := result.Job
+		steps := make([]map[string]any, 0, len(domain.CloneSteps))
+		for _, step := range domain.CloneSteps {
+			steps = append(steps, map[string]any{"step": step, "status": domain.ClonePending})
+		}
+		webapp.WriteJSON(w, http.StatusCreated, map[string]any{
+			"restartedFrom": id, "created": result.Created,
+			"job": map[string]any{"id": job.ID, "sourceKey": job.SourceKey, "status": job.Status, "generation": job.Generation, "projectId": nil, "ownerChannelId": job.ChannelID, "noImages": job.NoImages},
+			"source": job.Source, "steps": steps, "wizardUrl": "/clone/" + job.ID, "projectUrl": nil,
+		})
+		return
 	default:
 		invalidClone(w, "Thao tác làm video không hợp lệ.")
 		return

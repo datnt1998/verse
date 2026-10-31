@@ -425,6 +425,22 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã thay đổi, vui lòng tải lại"}
 			}
 		}
+		if in.Replaces != "" {
+			id, err := cloneUUIDOf(in.Replaces)
+			if err != nil {
+				return pipeline.ErrNotFound
+			}
+			old, err := q.GetCloneJobForUpdate(txctx, id)
+			if errors.Is(err, pgx.ErrNoRows) {
+				return pipeline.ErrNotFound
+			}
+			if err != nil {
+				return err
+			}
+			if old.SupersededAt.Valid || old.SourceKey != in.SourceKey || old.Status == "pending" || old.Status == "running" || (old.LeaseExpiresAt.Valid && old.LeaseExpiresAt.Time.After(time.Now())) {
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
+			}
+		}
 		existing, err := q.GetCloneJobBySourceKey(txctx, in.SourceKey)
 		var haveExisting bool
 		switch {
@@ -452,14 +468,14 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			res.Job, res.Created = &j, false
 			return nil
 		}
-		if haveExisting && in.Replaces != "" && in.Replaces != uuidStr(existing.ID) {
-			return fmt.Errorf("video đã có bản làm lại hoặc đang chạy")
+		if in.Replaces != "" && (!haveExisting || in.Replaces != uuidStr(existing.ID)) {
+			return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã có bản làm lại"}
 		}
 		gen_ := int32(1)
 		if haveExisting {
 			live := existing.LeaseExpiresAt.Valid && existing.LeaseExpiresAt.Time.After(time.Now())
 			if live || existing.Status == "running" || existing.Status == "pending" {
-				return fmt.Errorf("video vẫn đang làm")
+				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm"}
 			}
 			gen_ = existing.Generation + 1
 			if err := q.SupersedeCloneJob(txctx, gen.SupersedeCloneJobParams{ID: existing.ID, Column2: now}); err != nil {

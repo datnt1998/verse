@@ -107,6 +107,39 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	s.Wake()
 	return result.Job, nil
 }
+
+// Restart creates a new generation while retaining the superseded job's evidence.
+func (s *Service) Restart(ctx context.Context, id string) (*StartJobResult, error) {
+	job, err := s.Store.GetJob(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, ErrNotFound
+	}
+	if job.SupersededAt != nil || job.Status == domain.ClonePending || job.Status == domain.CloneRunning {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
+	}
+	if job.ChannelID == "" || job.Source.ID == "" {
+		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Không xác định được kênh hoặc video nguồn để làm lại"}
+	}
+	if s.ResolveTemplate == nil {
+		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Chưa có template cho kênh"}
+	}
+	item := domain.CloneQueueItem{ChannelID: job.ChannelID, SourceVideoID: job.Source.ID, SourceKey: job.SourceKey, Source: job.Source, NoImages: job.NoImages}
+	templateID, recipe, models, err := s.ResolveTemplate(ctx, item)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: job.ChannelID, SourceKey: job.SourceKey, Source: job.Source, TemplateID: templateID, TemplateSnapshot: recipe, ModelRefs: models, NoImages: job.NoImages, Priority: domain.ClonePick, Origin: domain.OriginManual, Replaces: id})
+	if err != nil {
+		return nil, err
+	}
+	s.event(domain.CloneEventCreated, result.Job.ID)
+	s.event(domain.CloneEventUpdated, id)
+	s.Wake()
+	return result, nil
+}
 func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, error) {
 	job, err := s.Store.GetJob(ctx, id)
 	if err != nil {
