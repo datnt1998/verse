@@ -143,10 +143,10 @@ export type GroupMeta = { label: string; icon: string; color: string }
 /** Icon = tệp: i-book→book-1 · i-messages→messages-2 · i-folder→folder-open · i-global→global. */
 export function groupMeta(level: Level, projectName?: string): GroupMeta {
   switch (level) {
-    case 'story': return { label: 'Riêng truyện này', icon: 'book-1', color: '#C9A6F5' }
-    case 'learned': return { label: 'Học từ góp ý của bạn', icon: 'messages-2', color: '#A6EDC1' }
+    case 'story': return { label: 'Bạn đã dặn', icon: 'edit-2', color: '#C9A6F5' }
+    case 'learned': return { label: 'Học từ góp ý', icon: 'messages-2', color: '#A6EDC1' }
     case 'project': return { label: projectName ? `Từ dự án “${projectName}”` : 'Từ dự án', icon: 'folder-open', color: '#9DB0F7' }
-    case 'global': return { label: 'Từ “Mọi truyện”', icon: 'global', color: '#9DB0F7' }
+    case 'global': return { label: 'Chung cho mọi truyện', icon: 'global', color: '#9DB0F7' }
   }
 }
 

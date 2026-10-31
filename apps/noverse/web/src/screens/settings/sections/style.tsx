@@ -5,7 +5,7 @@ import { useState, type ReactNode } from 'react'
 import { putConfig } from '../../../api/client'
 import type { Config, ConfigPresets, ConfigScope, ConfigResponse, PackPreset } from '../../../api/types'
 import { cache, invalidate, keys } from '../../../data'
-import { configForSave } from '../lib/config'
+import { configForSave, type ModelOption } from '../lib/config'
 import {
   findPack, layerCounts, packBadge, packCards, packDesc, packInfoMeta,
   packLabel, packParamChips, packRuleSummary, PARAM_ICON, sectionCount, sectionRef,
@@ -93,10 +93,10 @@ export function styleDisplayName(presets: ConfigPresets | null | undefined, id: 
   return id
 }
 
-/** Nguồn “riêng/theo” của khoá style ở một cấp, cho thẻ chỉ dẫn và chip truyện. */
+/** Chỉ giá trị kế thừa có nhãn nguồn; giá trị ở chính cấp đang xem không gắn nhãn. */
 export function styleSourceText(source: ConfigScope | undefined, scope: ConfigScope): string {
   if (!source || source === scope) return ''
-  return scope === 'story' ? 'theo dự án' : 'theo “Mọi truyện”'
+  return scope === 'story' ? 'theo dự án' : 'chung mọi truyện'
 }
 
 /** Icon + màu từng tầng luật (artboard `pk.layers`): Master · thể loại · cách đo. */
@@ -324,7 +324,7 @@ export function PackSummaryCard({ pack, qualityHref }: { pack: PackPreset; quali
         </span>
       )}
       <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)' }}>
-        Quy tắc bạn tự dặn ở tab Quy tắc viết được thay mục cảnh báo của gói, không thay mục bắt sửa.
+        Quy tắc bạn dặn bên dưới được thay mục cảnh báo của gói, không thay mục bắt sửa.
       </span>
       {qualityHref && <a href={qualityHref} style={{ fontSize: 12.5, color: 'var(--color-accent)' }}>Xem các mục của gói ở Chất lượng truyện ›</a>}
     </section>
@@ -344,4 +344,12 @@ export async function saveStyle(scope: 'project' | 'story', project: string, sto
   cache.setData(keys.config(scope, project, story), next)
   void invalidate(['config'])
   return next
+}
+
+/** Cả chọn nhanh và Tạo truyện mới ghi đúng Người viết, không đổi mặc định các trợ lý. */
+export function writerConfig(config: Config, value: ModelOption | null): Config {
+  const roles = { ...config.roles }
+  if (value) roles.writer = { ...roles.writer, ...value }
+  else delete roles.writer
+  return configForSave({ ...config, roles })
 }

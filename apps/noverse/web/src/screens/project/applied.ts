@@ -1,35 +1,33 @@
 // Cột phải › “Đang áp dụng cho truyện” / “Mặc định của dự án”: gom giá trị hiệu lực từ cấu hình + quy tắc.
-import { getConfig, getRuleFile, getRules } from '../../api/client'
-import type { Config, ConfigResponse, ConfigScope, PackPreset, RulesScope } from '../../api/types'
-import { keys, useResource, type Key } from '../../data'
+import { getConfig, getRulesEffective, putConfig } from '../../api/client'
+import type { Config, ConfigResponse, ConfigScope, PackPreset } from '../../api/types'
+import { cache, invalidate, keys, useResource } from '../../data'
 import { findPack, packLabel } from '../settings/lib/packs'
 import { reasoningSegments } from '../settings/lib/config'
 import { usd } from '../more/mobile/storySetLogic'
+import { configForSave, mergeConfig } from '../settings/lib/config'
+import { effectiveKey } from '../settings/sections/rules/useRulesEditor'
+
+/** PUT chỉ tệp của cấp đích; không sao chép giá trị hiệu lực từ cấp trên. */
+export async function saveQuickConfig(scope: 'story' | 'project', project: string, story: string | undefined, previous: ConfigResponse, patch: Config): Promise<ConfigResponse> {
+  const next = await putConfig(scope, configForSave(mergeConfig(previous.target.config, patch)), project, story, previous.version)
+  cache.setData(keys.config(scope, project, story), next)
+  void invalidate(['config'])
+  return next
+}
 
 export type AppliedRow = { icon: string; label: string; value: string; own: boolean; section: string }
 
-const RULE_FILE = 'quy-tac.md'
-
-/** Mỗi quy tắc là một dòng `- …` trong quy-tac.md (20-settings-rules.md §3.3). */
-export function countRules(text: string): number {
-  return text.split('\n').filter((line) => /^\s*-\s+\S/.test(line)).length
-}
 
 type RuleCounts = Partial<Record<ConfigScope, number>>
 
 export function useRuleCounts(project: string, story: string | null): RuleCounts | null {
   const scope: ConfigScope = story ? 'story' : 'project'
-  const key = [...keys.rules(scope, project, story ?? undefined), 'count'] as Key
-  const resource = useResource<RuleCounts>(key, async ({ signal }) => {
-    const chain: RulesScope[] = (await getRules(scope, project, story ?? undefined, signal)).chain
-    const counts: RuleCounts = {}
-    await Promise.all(chain.filter((level) => level.files.some((file) => file.name === RULE_FILE)).map(async (level) => {
-      const file = await getRuleFile(level.scope, RULE_FILE, project, story ?? undefined, signal)
-      counts[level.scope] = countRules(file.text)
-    }))
-    return counts
-  })
-  return resource.data ?? null
+  const resource = useResource(effectiveKey(scope, project, story ?? ''), ({ signal }) => getRulesEffective(scope, project, story ?? undefined, signal))
+  if (!resource.data) return null
+  const counts: RuleCounts = { story: resource.data.runtime?.length ?? 0 }
+  for (const item of resource.data.items) counts[item.scope] = (counts[item.scope] ?? 0) + 1
+  return counts
 }
 
 export function useEffectiveConfig(project: string, story: string | null): ConfigResponse | null {
@@ -47,7 +45,7 @@ function thinkingText(level: string | undefined): string {
 export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, story: boolean, packs?: PackPreset[]): AppliedRow[] {
   const effective: Config = config.effective
   const own = (path: string) => config.sources[path] === (story ? 'story' : 'project')
-  const writer = effective.roles?.writer
+  const writer = effective.roles?.writer ?? effective.roles?.default
   const model = writer?.model || effective.model || ''
   const level = writer ? writer.reasoning_effort : effective.reasoning_effort
   const review = effective.advance_mode === 'review'
@@ -61,7 +59,7 @@ export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, s
       : `${counts.project ?? 0} quy tắc của dự án + ${counts.global ?? 0} chung`
   if (story) {
     return [
-      { icon: 'edit-2', label: 'Quy tắc viết', value: rulesValue, own: false, section: 'rules' },
+      { icon: 'edit-2', label: 'Quy tắc', value: rulesValue, own: false, section: 'rules' },
       { icon: 'note-text', label: 'Văn phong', value: styleValue, own: own('style'), section: 'style' },
       { icon: 'book-1', label: 'Duyệt từng chương', value: review ? 'Bật' : 'Tắt', own: own('advance_mode'), section: 'writing' },
       { icon: 'cpu', label: 'Người viết', value: model ? `${model} · ${thinkingText(level)}` : 'Theo “Mọi truyện”', own: own('roles.writer') || own('model'), section: 'roles' },
@@ -69,7 +67,7 @@ export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, s
   }
   const assistantOwn = own('roles.writer') || own('model')
   return [
-    { icon: 'edit-2', label: 'Quy tắc viết', value: rulesValue, own: false, section: 'rules' },
+    { icon: 'edit-2', label: 'Quy tắc', value: rulesValue, own: false, section: 'rules' },
     { icon: 'note-text', label: 'Văn phong', value: own('style') ? styleValue : 'Chung', own: own('style'), section: 'style' },
     { icon: 'book-1', label: 'Duyệt từng chương', value: review ? 'Bật cho truyện mới' : 'Tắt cho truyện mới', own: own('advance_mode'), section: 'writing' },
     { icon: 'cpu', label: 'Trợ lý AI', value: assistantOwn && model ? `${model} · ${thinkingText(level)}` : 'Theo “Mọi truyện”', own: assistantOwn, section: 'roles' },

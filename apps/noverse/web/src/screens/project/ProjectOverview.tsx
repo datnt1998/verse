@@ -172,11 +172,10 @@ export function ProjectOverview({ project, detail }: { project: string; detail: 
             {detail.stories.map((story) => <StoryTile key={story.id} project={project} story={story} />)}
           </div>
         </section>
-        <section id="prules">
-          <RulesEditor key={project} scope="project" project={project} />
+        <section id="pstyle" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <ProjectStyleSection project={project} detail={detail} />
+          <div id="prules"><RulesEditor key={project} scope="project" project={project} /></div>
         </section>
-
-        <ProjectStyleSection project={project} detail={detail} />
         <section id="ideas" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Icon name="lamp-on" size={17} style={{ color: '#F6CB8C' }} />Ý tưởng{' '}

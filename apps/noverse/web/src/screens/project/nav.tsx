@@ -7,7 +7,7 @@ import type { Outline, ProjectDetail, StorySummary } from '../../api/types'
 import { getSnapshot, revealFolder } from '../../api/client'
 import { keys, useAction, useResource } from '../../data'
 import { navigate, paths, setDialog, useRoute } from '../../router'
-import { rulesCopy, styleCopy, t } from '../../i18n/vi'
+import { styleCopy, t } from '../../i18n/vi'
 import { projectLabel, storyLabel } from '../../shell/labels'
 import { AgentOrb } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
@@ -17,7 +17,6 @@ import { useEscapeLayer } from '@noverse/ui'
 import { StoryContextMenu } from './bits'
 import { isRewriteFlow, storyStatusText } from './format'
 import { useCanReveal } from './useProject'
-import { useRulesCount } from '../settings/sections/rules'
 import { tocVolumeOf, useToc, type TocVolume } from './toc'
 import './project.css'
 
@@ -332,7 +331,6 @@ export function StoryToc({ project, summary, outline }: { project: string; summa
 export function ProjectNav({ project, detail }: { project: string; detail: ProjectDetail }) {
   const ideaCount = detail.ideas.length
   const assetCount = detail.assets.filter((asset) => asset.kind === 'file').length
-  const ruleCount = useRulesCount('project', project)
   const goSection = (id: string) => {
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 0)
   }
@@ -340,7 +338,6 @@ export function ProjectNav({ project, detail }: { project: string; detail: Proje
     { id: 'overview', label: t.projnav.overviewShort, icon: 'category', n: '', go: () => goSection('overview') },
     { id: 'ideas', label: 'Ý tưởng', icon: 'lamp-on', n: String(ideaCount), go: () => goSection('ideas') },
     { id: 'assets', label: 'Tư liệu', icon: 'box', n: String(assetCount), go: () => goSection('assets') },
-    { id: 'prules', label: rulesCopy.tab, icon: 'edit-2', n: ruleCount === undefined ? '' : String(ruleCount), go: () => goSection('prules') },
     { id: 'pstyle', label: styleCopy.tab, icon: 'brush-2', n: '', go: () => goSection('pstyle') },
   ]
   return (

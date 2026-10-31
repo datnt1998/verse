@@ -9,6 +9,8 @@ import { fixableCodes, plainIssues, type PlainIssue } from './validate'
 import { useValidation } from './useProject'
 
 export type Health = {
+  /** Filesystem validation is not a capability of a database library. */
+  supported: boolean
   /** `loading` lần đầu · `error` không đọc được · `ok` · `issues` */
   state: 'loading' | 'error' | 'ok' | 'issues'
   issues: PlainIssue[]
@@ -59,6 +61,7 @@ export function useHealth(project: string, detail: ProjectDetail, dirs: LibraryC
     : issues.length === 0 ? 'ok' : 'issues'
   const error = validation.error
   return {
+    supported: validation.supported,
     state, issues, raw, checked, checking,
     canFix: issues.some((issue) => issue.fixable),
     fixing: fixAction.busy,

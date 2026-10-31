@@ -20,6 +20,7 @@ export const foundText = (info: Pick<LibraryInspect, 'projects' | 'stories' | 'p
 
 /** Hộp trạng thái đầy đủ (dưới danh sách ở bước Nơi lưu truyện). */
 export function inspectView(info: LibraryInspect): InspectView {
+  if (info.storageWarning) return { ...TONES.warn, text: info.storageWarning }
   switch (info.kind) {
     case 'found': return { ...TONES.ok, text: foundText(info) }
     case 'empty': return {
@@ -36,6 +37,7 @@ export function inspectView(info: LibraryInspect): InspectView {
 
 /** Kết luận một dòng ở chân bộ duyệt (Onboard.dc.html › kindChk): màu chữ + chữ. */
 export function footerView(info: LibraryInspect): { icon: string; fg: string; text: string } {
+  if (info.storageWarning) return { icon: TONES.warn.icon, fg: TONES.warn.fg, text: info.storageWarning }
   switch (info.kind) {
     case 'found': return { icon: 'tick-circle', fg: '#A6EDC1', text: 'Thư viện Noverse có sẵn — dùng luôn' }
     case 'empty': return { icon: 'tick-circle', fg: '#A6EDC1', text: 'Thư mục trống, ghi được' }

@@ -58,10 +58,10 @@ export function WritingSection({ ctx }: { ctx: SettingsContext }) {
           <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, lineHeight: 1.45 }}>
             <b style={{ fontSize: 14, fontWeight: 500 }}>{story ? 'Văn phong của truyện này' : 'Văn phong mặc định của dự án'}</b>
             <span style={{ fontSize: 13, color: 'var(--color-fg-2)' }}>
-              {styleName}{styleSource ? ` · ${styleSource}` : story ? ' · riêng truyện này' : ' · riêng dự án'}
+              {styleName}{styleSource ? ` · ${styleSource}` : ''}
             </span>
             <span style={{ fontSize: 12.5, color: 'var(--kit-fg-icon)' }}>
-              Văn phong và văn mẫu của từng truyện, dự án chọn ở Dự án &amp; truyện › Cách viết, cạnh Quy tắc viết.
+              Mở truyện › tab Cách viết, hoặc trang dự án › Cách viết của dự án
             </span>
           </span>
           <a href={guideHref} style={{

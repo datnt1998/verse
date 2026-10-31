@@ -20,6 +20,7 @@ import { usePanels } from './stores'
 import { Avatar } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { BrandMark } from '@noverse/ui'
+import { StoragePill } from '../screens/settings/storage/indicators'
 
 function storyContext(route: Route): { project: string | null; story: string | null } {
   switch (route.name) {
@@ -132,6 +133,7 @@ export function AppHeader({ route, mobile = false }: { route: Route; mobile?: bo
       <MainNav route={route} {...navContext(project, story)} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, minWidth: 0 }}>
         {isHelp && <HelpHeaderChip />}
+        <StoragePill />
         <a className="hov-ghost" href={`#${paths.help()}`} onClick={() => rememberHelpTarget()}
           aria-label={CMD_UI.helpButton} title={CMD_UI.helpButton}
           aria-current={isHelp ? 'page' : undefined}

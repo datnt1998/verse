@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, kit } from '@noverse/ui/tokens.stylex'
 import type { ConfigScope } from '../../../api/types'
+import { getConfig, getConfigPresets, getStyleSamples } from '../../../api/client'
+import { keys, useAction, useResource } from '../../../data'
+import { PackSummaryCard, saveStyle, styleCards, styleDisplayName } from '../../settings/sections/style'
+import { findPack, packBadge, packCards, packDesc } from '../../settings/lib/packs'
+import { amWritingCopy } from '../../../i18n/vi'
 import { rulesCopy } from '../../../i18n/vi'
 import { BottomSheet } from '../../../mobile/primitives'
 import { useTabMode } from '../../../mobile/runtime'
@@ -10,7 +15,7 @@ import { useProjectName, useStoryName } from '../../../shell/useNames'
 import { Icon } from '@noverse/ui'
 import { Spinner } from '@noverse/ui'
 import {
-  DEFAULT_BAN, DEFAULT_FATIGUE, GROUP_ORDER, groupMeta, isOwnLevel, learnedMeta, moveTarget, type Level, type RuleEntry,
+  GROUP_ORDER, groupMeta, isOwnLevel, learnedMeta, moveTarget, type Level, type RuleEntry,
 } from '../../settings/sections/rules/logic'
 import { UChips, UnsureFrame } from '../../settings/sections/rules/parts'
 import { useRulesEditor } from '../../settings/sections/rules/useRulesEditor'
@@ -26,6 +31,11 @@ const styles = stylex.create({
   title: { fontSize: 16, fontWeight: 600 },
   note: { fontSize: 12.5, color: color['--color-fg-4'], lineHeight: 1.5 },
   back: { margin: '4px 16px 0', height: 36, padding: '0 12px 0 8px', borderWidth: 0, borderRadius: 10, backgroundColor: kit['--kit-acc-8'], color: color['--color-accent-soft'], fontSize: 13.5, display: 'inline-flex', alignItems: 'center', gap: 6 },
+  choice: { width: '100%', borderWidth: 0, backgroundColor: 'transparent', textAlign: 'left' },
+  choiceName: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  tag: { height: 20, padding: '0 7px', borderRadius: 6, fontSize: 11.5, display: 'inline-flex', alignItems: 'center', backgroundColor: kit['--kit-acc-8'], color: kit['--kit-info-fg'] },
+  badge: { height: 20, padding: '0 7px', borderRadius: 6, fontSize: 11.5, display: 'inline-flex', alignItems: 'center', backgroundColor: kit['--kit-ok-8'], color: color['--color-ok'] },
+  tick: { color: color['--color-accent'], flexShrink: 0 },
 })
 
 export function MobileRules({ project, story, online, toast }: {
@@ -44,6 +54,22 @@ export function MobileRules({ project, story, online, toast }: {
   const [open, setOpen] = useState<{ level: Level; key: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const area = useRef<HTMLTextAreaElement>(null)
+  const [styleOpen, setStyleOpen] = useState(false)
+  const config = useResource(keys.config(scope, view.project, view.story), ({ signal }) => getConfig(scope, view.project, view.story, signal))
+  const presets = useResource(['config-presets'], ({ signal }) => getConfigPresets(signal), { staleTime: 60000 })
+  const samples = useResource(keys.story(view.project, view.story, 'style-samples'), ({ signal }) => getStyleSamples(view.project, view.story, signal), { enabled: scope === 'story' && !!view.story })
+  const packs = packCards(presets.data?.packs)
+  const activePack = findPack(presets.data?.packs, config.data?.effective.style)
+  const choices = styleCards(presets.data?.styles ?? [], config.data?.effective.style ?? '', { packs: packs.map((p) => p.id), custom: 'story', samples: samples.data?.total })
+  const currentStyle = config.data?.effective.style ?? 'default'
+  const inherited = config.data?.sources.style !== scope
+  const parentStyle = config.data?.chain.find((d) => d.scope === 'project')?.config.style ?? config.data?.chain.find((d) => d.scope === 'global')?.config.style ?? 'default'
+  const pickStyle = useAction(async (style: string | null) => {
+    if (!config.data || scope === 'global') return
+    await saveStyle(scope, view.project, scope === 'story' ? view.story : undefined, style ?? undefined, config.data)
+    setStyleOpen(false)
+    toast(`Đã đổi văn phong · áp dụng từ chương ${editor.timing?.effectiveFrom ?? 'kế tiếp'}`)
+  }, { invalidate: [['project', view.project, 'style-by']] })
 
   // Bàn phím đang mở để gõ → thanh tab ẩn đi (MMore `tabMode`).
   useTabMode(focused ? 'hide' : undefined)
@@ -62,7 +88,7 @@ export function MobileRules({ project, story, online, toast }: {
     setDraft('')
     void editor.add(text)
   }
-  const note = scope === 'story' ? rulesCopy.storyNote : scope === 'project' ? `Mọi truyện trong dự án “${projectLabel}”.` : 'Mặc định cho mọi dự án và truyện.'
+  const note = scope === 'story' ? amWritingCopy.intro : scope === 'project' ? `Mọi truyện trong dự án “${projectLabel}”.` : 'Mặc định cho mọi dự án và truyện.'
   const when = scope === 'story' && editor.timing ? `Quy tắc mới có hiệu lực từ chương ${editor.timing.effectiveFrom}. Chương đã viết không bị sửa.` : scope === 'story' ? 'Quy tắc mới có hiệu lực từ chương kế tiếp. Chương đã viết không bị sửa.' : 'Áp dụng cho truyện mới và từ chương kế tiếp của truyện đang viết.'
   const entriesOf = (level: Level): RuleEntry[] => level === 'learned' ? editor.runtime : editor.lists[level]
 
@@ -97,9 +123,30 @@ export function MobileRules({ project, story, online, toast }: {
   return <>
     {scope !== 'story' && project && story && <button type="button" {...stylex.props(styles.back)} onClick={() => changeLevel('story')}><Icon name="arrow-left-2" size={15} />{rulesCopy.returnStory}</button>}
     <div {...stylex.props(styles.level)}>
-      <span {...stylex.props(styles.title)}>{rulesCopy.mobileTitle(scope, storyName, projectLabel)}</span>
+      {scope !== 'story' && <span {...stylex.props(styles.title)}>{rulesCopy.mobileTitle(scope, storyName, projectLabel)}</span>}
       <span {...stylex.props(styles.note)}>{note}</span>
     </div>
+    {scope === 'story' && <>
+      <div className="mm-heading">Văn phong</div>
+      <div className="mm-group"><button className="mm-row" type="button" aria-expanded={styleOpen} disabled={!editable || !config.data} onClick={() => setStyleOpen(!styleOpen)}><Icon name="brush-2" size={22} {...stylex.props(styles.tick)} /><span className="mm-copy"><span {...stylex.props(styles.choiceName)}>{styleDisplayName(presets.data, currentStyle)}{inherited && <span {...stylex.props(styles.tag)}>theo dự án</span>}</span><span className="mm-sub">Chạm để đổi · áp dụng từ chương sau</span></span><Icon name="arrow-down-2" size={16} /></button></div>
+      {styleOpen && <>
+        <div className="mm-group" role="radiogroup" aria-label="Theo dự án" style={{ marginTop: 8 }}><button type="button" role="radio" aria-checked={inherited} className={`mm-row ${stylex.props(styles.choice).className}`} disabled={!editable || pickStyle.busy} onClick={() => void pickStyle.run(null)}><Icon name="folder-open" size={20} /><span className="mm-copy"><span>Theo dự án · {styleDisplayName(presets.data, parentStyle)}</span><span className="mm-sub">Đổi theo khi dự án đổi</span></span>{inherited && <Icon name="tick-circle" size={20} {...stylex.props(styles.tick)} />}</button></div>
+        <div className="mm-heading">Gói thể loại · có bộ luật, chấm từng chương</div>
+        <div className="mm-group" role="radiogroup" aria-label="Gói thể loại">{packs.map((p) => {
+          const on = !inherited && currentStyle === p.id
+          const badge = packBadge(p.pack)
+          return <button key={p.id} type="button" role="radio" aria-checked={on} className={`mm-row ${stylex.props(styles.choice).className}`} disabled={!editable || pickStyle.busy || p.pack.available === false} onClick={() => void pickStyle.run(p.id)}><span className="mm-copy"><span {...stylex.props(styles.choiceName)}>{p.label}<span {...stylex.props(styles.badge)}>{badge.label}</span></span><span className="mm-sub">{packDesc(p.pack)}</span></span>{on && <Icon name="tick-circle" size={20} {...stylex.props(styles.tick)} />}</button>
+        })}</div>
+        {activePack && <div style={{ margin: '8px 16px 0' }}><PackSummaryCard pack={activePack} /></div>}
+        <div className="mm-heading">Kiểu viết · không chấm theo bộ luật</div>
+        <div className="mm-group" role="radiogroup" aria-label="Kiểu viết">{choices.map((c) => {
+          const on = !inherited && currentStyle === c.id
+          return <button key={c.id || 'custom-empty'} type="button" role="radio" aria-checked={on} className={`mm-row ${stylex.props(styles.choice).className}`} disabled={!editable || pickStyle.busy || c.disabled} onClick={() => void pickStyle.run(c.id)}><span className="mm-copy"><span>{c.label}</span><span className="mm-sub">{c.desc}</span></span>{on && <Icon name="tick-circle" size={20} {...stylex.props(styles.tick)} />}</button>
+        })}</div>
+      </>}
+    </>}
+    {!!config.error && <p className="mm-error" role="alert">Không tải được văn phong. <button type="button" onClick={() => void config.refresh()}>Thử lại</button></p>}
+    <div className="mm-heading">Quy tắc</div>
     {!editable && <p className="rm-note">{online ? 'Chỉ người có quyền mới đổi được.' : 'Đang ngoại tuyến — chưa thêm hay sửa quy tắc được.'}</p>}
     <div className={`kit-frame rm-add${focused ? ' f' : ''}`}>
       <textarea ref={area} value={draft} rows={2} disabled={!editable} aria-label="Thêm quy tắc" placeholder="Dặn bằng lời thường, ví dụ: Không dùng từ “bỗng nhiên”"
@@ -116,15 +163,12 @@ export function MobileRules({ project, story, online, toast }: {
     </div>}
     {GROUP_ORDER[scope].map((level) => {
       const list = entriesOf(level)
-      const meta = groupMeta(level)
+      const meta = groupMeta(level, projectLabel)
       if (!list.length && level !== scope) return null
       const own = isOwnLevel(level, scope)
       return <div key={level}>
-        <div className="rm-ghead"><Icon name={meta.icon} size={14} style={{ color: meta.color }} /><span style={{ flex: '1 1 auto' }}>{level === scope && scope !== 'story' ? scope === 'project' ? rulesCopy.ownProject : rulesCopy.nav : meta.label}</span><span className="num">{list.length}</span></div>
-        {!own && <div className="mm-group"><button className="rm-grow" type="button" onClick={() => changeLevel(level as ConfigScope)}>
-          <span className="rm-preview"><span>{list.map((entry) => entry.text).join(' · ')}</span><span>Kế thừa · chạm để sửa ở cấp này</span></span>
-          <Icon name="arrow-right-2" size={16} style={{ color: '#5E5E68' }} />
-        </button></div>}
+        <div className="rm-ghead"><Icon name={meta.icon} size={14} style={{ color: meta.color }} /><span style={{ flex: '1 1 auto' }}>{level === scope ? 'Bạn đã dặn' : meta.label}</span>{!own && <button type="button" className="rm-text-btn" onClick={() => changeLevel(level as ConfigScope)}>{level === 'project' ? 'Sửa ở dự án ›' : 'Sửa ở Mọi truyện ›'}</button>}</div>
+        {!own && <div className="rm-list">{list.map((entry) => <div key={entry.key} className="rm-rule" style={{ borderStyle: 'dashed', background: 'transparent', textAlign: 'left', alignItems: 'stretch' }}><span style={{ fontSize: 15, lineHeight: 1.5 }}>{entry.text}</span><span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}><UChips entry={entry} className="rm-uch" /></span></div>)}</div>}
         {own && <div className="rm-list">{list.map((entry) => {
           const learned = level === 'learned'
           const rule = learned ? editor.resource.data?.runtime?.find((item) => item.id === entry.fromRuntime) : undefined
@@ -146,11 +190,12 @@ export function MobileRules({ project, story, online, toast }: {
       <div className="rm-grow" style={{ alignItems: 'flex-start', padding: '12px 14px' }}>
         <Icon name="shield-security" size={20} style={{ color: '#9DB0F7', marginTop: 2 }} />
         <span style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
-          <span>Mặc định chống giọng văn máy</span>
-          <span style={{ fontSize: 12.5, color: '#8E8E99' }}>{DEFAULT_BAN.length} cụm từ không dùng · {DEFAULT_FATIGUE.length} từ dễ lặp · luôn bật</span>
+          <span>Mặc định của Noverse · chống giọng văn máy</span>
+          <span style={{ fontSize: 12.5, color: 'var(--color-fg-4)' }}>Luôn bật</span>
         </span>
       </div>
     </div>
+    <div className="mm-heading">Khi nào có hiệu lực</div>
     <p className="rm-note" style={{ margin: '12px 30px 0', lineHeight: 1.5 }}>{when}</p>
     {editor.count > 0 && <ApplyBar text={barText} busy={busy} onCancel={() => { editor.cancel(); setDraft('') }} onApply={() => { void apply() }} />}
     <BottomSheet open={!!target} onClose={close} height="auto" grab={false} label="Quy tắc" style={{ background: 'transparent', border: 0, boxShadow: 'none', padding: '0 10px 30px', gap: 10 }}>

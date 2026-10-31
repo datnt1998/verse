@@ -15,7 +15,7 @@ const TRIGGERS: { key: 'onVolume' | 'onBook' | 'onChapter'; label: string; note:
 export function ExportSection({ ctx }: { ctx: SettingsContext }) {
   const lib = ctx.libDraft
   if (!lib) return null
-  const readOnly = !ctx.admin
+  const readOnly = !ctx.admin || ctx.library?.storageMode === 'postgres'
   const patchExport = (next: Partial<LibraryConfig['autoExport']>) =>
     ctx.setLibDraft({ ...lib, autoExport: { ...lib.autoExport, ...next } })
   const auto = lib.autoExport

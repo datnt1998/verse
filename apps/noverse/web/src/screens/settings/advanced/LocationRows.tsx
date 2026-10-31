@@ -18,12 +18,13 @@ const NEED_SERVER = 'Chỉ mở được thư mục khi dùng ngay trên máy ch
 
 export function LocationRows({ ctx }: { ctx: SettingsContext }) {
   const scope = ctx.viewScope
+  const hosted = ctx.library?.storageMode === 'postgres'
   const project = scope === 'global' ? undefined : ctx.project || undefined
   const story = scope === 'story' ? ctx.story || undefined : undefined
   const rules: RevealRequest = { target: 'rules', scope, project, story }
   const configTarget: RevealRequest = { target: 'config', scope, project, story }
   const ready = scope === 'global' || (!!project && (scope !== 'story' || !!story))
-  const rulesPath = useResource(['reveal', 'rules', scope, project ?? '', story ?? ''], () => getRevealPath(rules))
+  const rulesPath = useResource(['reveal', 'rules', scope, project ?? '', story ?? ''], () => getRevealPath(rules), { enabled: !hosted })
   // Đường dẫn tệp cấu hình của cấp đang chọn (mục Hệ thống chỉ tải bản toàn cục nên hỏi riêng cấp được chọn).
   const configFile = useResource(keys.config(scope, project, story), ({ signal }) => getConfig(scope, project, story, signal), { enabled: ready })
   const ruleFiles = useResource(['rules', scope, project ?? '', story ?? ''], ({ signal }) => getRules(scope, project, story, signal), { enabled: ready })
@@ -52,6 +53,7 @@ export function LocationRows({ ctx }: { ctx: SettingsContext }) {
     return 'Đã chép đường dẫn'
   })
 
+  if (hosted) return <LibraryRootRows library={ctx.library} canReveal={false} onChanged={ctx.reloadLibrary} />
   return <>
     <LibraryRootRows library={ctx.library} canReveal={ctx.canReveal} onChanged={ctx.reloadLibrary} />
     <AdvRow label="Tệp cấu hình (cấp đang chọn)" value={configPath ? configPathValue(configPath, scope) : (configFile.error ? t.adv.access.loadFailed : <Skeleton width={220} height={14} />)}

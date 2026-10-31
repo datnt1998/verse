@@ -7,6 +7,7 @@ import type { FsPlace, LibraryInspect, LibraryResponse } from '../../api/types'
 import { useResource } from '../../data/useResource'
 import { SUGGESTED_FOLDER, suggestedPath, useFolderPicker } from '../dialogs/FolderBrowserDialog'
 import { displayLeaf, inspectNote, inspectView, type InspectView } from '../dialogs/libraryInspect'
+import { t } from '../../i18n/vi'
 
 export type LibOptionKey = 'current' | 'suggest' | 'custom'
 export type LibOption = {
@@ -48,6 +49,8 @@ function useInspect(path: string, enabled: boolean) {
 }
 
 export function useLibraryChoice({ library, enabled }: { library: LibraryResponse | null; enabled: boolean }): LibraryChoice {
+  const filesystem = !!library && (library.storageMode ?? 'file') === 'file'
+  enabled = enabled && filesystem
   const places = useResource<FsPlace[]>(['fs', 'places'], () => getFsPlaces(), { enabled, staleTime: 30000 })
   const [sel, setSel] = useState<LibOptionKey | null>(null)
   const [custom, setCustom] = useState<{ path: string; info: LibraryInspect } | null>(null)
@@ -88,11 +91,12 @@ export function useLibraryChoice({ library, enabled }: { library: LibraryRespons
   const selectedInfo = effective === 'current' ? currentInfo.data : effective === 'suggest' ? suggestInfo.data : effective === 'custom' ? custom?.info : undefined
   const oldName = configured && library ? displayLeaf(library.rootDisplay) : ''
   const status = !selectedInfo ? null
-    : effective === 'suggest' && selectedInfo.kind === 'missing' ? newFolderStatus(suggestion?.parent.label ?? '', oldName)
+    : effective === 'suggest' && selectedInfo.kind === 'missing' && !selectedInfo.storageWarning ? newFolderStatus(suggestion?.parent.label ?? '', oldName)
     : inspectView(selectedInfo)
   const display = selectedInfo?.display ?? (effective === 'suggest' && suggestion ? `${suggestion.parent.label} › ${SUGGESTED_FOLDER}` : library?.rootDisplay ?? '')
 
   const commit = useCallback(async () => {
+    if (!filesystem) return null
     if (effective === null || effective === 'current') return null
     let path = custom?.path ?? ''
     if (effective === 'suggest') {
@@ -105,11 +109,13 @@ export function useLibraryChoice({ library, enabled }: { library: LibraryRespons
     await putLibraryRoot(path)
     setSel(null); setCustom(null)
     return getLibrary()
-  }, [custom, effective, suggestInfo.data?.kind, suggestion])
+  }, [custom, effective, suggestInfo.data?.kind, suggestion, filesystem])
 
   return {
     loading: !library || (enabled && places.initialLoading && !places.data),
     options, sel: effective, select: setSel, status,
-    blocked: selectedInfo?.kind === 'readonly', empty: effective === null, display, picker, commit,
+    blocked: selectedInfo?.kind === 'readonly', empty: filesystem && effective === null,
+    display: library?.storageMode === 'postgres' ? t.libraryStorage.hostedDisplay
+      : library?.storageMode === 'container' ? t.libraryStorage.container : display, picker, commit,
   }
 }

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useRef, useSt
 import { createPortal } from 'react-dom'
 import { Icon, Sheet, useEscapeLayer } from '@noverse/ui'
 import { useMobileScroll } from './runtime'
+import { StorageBanner, StoragePill } from '../screens/settings/storage/indicators'
 
 const ToastContext = createContext<(text: string) => void>(() => {})
 export const useMobileToast = () => useContext(ToastContext)
@@ -21,7 +22,7 @@ export function MobilePage({ title, backTitle, onBack, actions, children, footer
 }) {
   const scrollRef = useRef<HTMLElement>(null)
   useMobileScroll(scrollRef, { disabled: !manageScroll })
-  return <section className="m-page"><header className="m-topbar">{onBack && <button className="m-back" onClick={onBack}><Icon name="arrow-left-2" size={22} />{backTitle ?? 'Quay lại'}</button>}<div className="m-title">{title}</div>{actions}</header><main ref={scrollRef} className="m-scroll">{children}</main>{footer && <div className="m-footer">{footer}</div>}</section>
+  return <section className="m-page"><header className="m-topbar">{onBack && <button className="m-back" onClick={onBack}><Icon name="arrow-left-2" size={22} />{backTitle ?? 'Quay lại'}</button>}<div className="m-title">{title}</div><StoragePill mobile />{actions}</header><StorageBanner mobile /><main ref={scrollRef} className="m-scroll">{children}</main>{footer && <div className="m-footer">{footer}</div>}</section>
 }
 
 export function BottomSheet({ open, onClose, title, label, children, height = 640, style, grab = true, role = 'dialog' }: {

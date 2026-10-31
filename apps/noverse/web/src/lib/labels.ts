@@ -278,6 +278,8 @@ export function humanizeToolText(text: string, total?: number | null): string {
   }
   const call = parseToolSummary(trimmed)
   if (call) return toolCallText(call, total)
+  const failure = engineErrorLabel(trimmed)
+  if (failure) return failure
   if (/[\u3400-\u9fff]/.test(text)) return text
   const task = agentTaskOf(trimmed)
   return task ? `${agentLabel(task.role)} · ${humanizeFreeText(task.task)}` : humanizeFreeText(text)
@@ -419,6 +421,37 @@ export function saneChapter(chapter: number, total?: number | null): number | nu
   return Math.trunc(chapter)
 }
 
+// IDs từ llmcontract.Contract.Name; giữ nguyên chuỗi gốc cho Chi tiết kỹ thuật.
+const CONTRACT_ERROR_LABELS: Record<string, string> = {
+  arbiter_intervention: 'Trọng tài chưa thể xử lý yêu cầu can thiệp. Vui lòng thử lại.',
+  arbiter_plan_start: 'Trọng tài chưa thể lập kế hoạch khởi động truyện. Vui lòng thử lại.',
+  arbiter_failure: 'Trọng tài chưa thể tìm cách tiếp tục truyện. Vui lòng thử lại.',
+  architect_ledger: 'Kiến trúc sư chưa thể phân tích yêu cầu truyện. Vui lòng thử lại.',
+  import_segment: 'Nhập truyện chưa thể xác định ranh giới các chương. Vui lòng thử lại.',
+  import_chapter_analysis: 'Nhập truyện chưa thể phân tích nội dung chương. Vui lòng thử lại.',
+  import_range_digest: 'Nhập truyện chưa thể tổng hợp nội dung các chương. Vui lòng thử lại.',
+  import_book_synthesis: 'Nhập truyện chưa thể tổng hợp toàn bộ truyện. Vui lòng thử lại.',
+  simulation_source_report: 'Mô phỏng văn phong chưa thể phân tích văn mẫu. Vui lòng thử lại.',
+  simulation_synthesis: 'Mô phỏng văn phong chưa thể tổng hợp hồ sơ. Vui lòng thử lại.',
+  chapter_revision_analysis: 'Phân tích bản sửa chương chưa hoàn thành. Vui lòng thử lại.',
+  userrules_normalize: 'Chuẩn hoá luật viết chưa hoàn thành. Vui lòng thử lại.',
+}
+
+/**
+ * Nhận diện mã trong chuỗi lỗi có cấu trúc `vai: hợp_đồng: chi tiết`.
+ * Không cắt lấy tiền tố tiếng Việt: mã chưa biết có lời lỗi chung, không lộ chẩn đoán.
+ * API, nhật ký và trạng thái dùng cùng bảng; dữ liệu gốc không bị sửa.
+ */
+export function engineErrorLabel(raw: string): string {
+  for (const match of raw.matchAll(/(?:^|:\s*)([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?=\s*:)/gi)) {
+    const id = match[1].toLowerCase()
+    if (agentRoleLabel(id)) continue
+    return CONTRACT_ERROR_LABELS[id] ?? 'Trợ lý chưa hoàn thành yêu cầu. Vui lòng thử lại.'
+  }
+  const role = /(?:^|:\s*)(arbiter|architect(?:_long|_short)?|writer|editor)\s*:/i.exec(raw)
+  return role ? `${agentRoleLabel(role[1])} chưa hoàn thành yêu cầu. Vui lòng thử lại.` : ''
+}
+
 /**
  * Mã/thông báo lỗi kỹ thuật → câu thường: '429' → '{Nhà cung cấp} báo vượt hạn mức (mã 429)',
  * 'ENOSPC' → 'Ổ đĩa máy chủ đã đầy'. Chỉ giữ phần lời thường tiếng Việt trước lỗi gốc;
@@ -426,6 +459,8 @@ export function saneChapter(chapter: number, total?: number | null): number | nu
  */
 export function errorLabel(raw: string | null | undefined, provider?: string): string {
   const text = (raw ?? '').trim()
+  const failure = engineErrorLabel(text)
+  if (failure) return failure
   if (/\b429\b|too many requests|rate.?limit/i.test(text)) return `${provider || 'Nhà cung cấp'} báo vượt hạn mức (mã 429)`
   if (/\bENOSPC\b|no space left/i.test(text)) return 'Ổ đĩa máy chủ đã đầy'
   // Lỗi công cụ thật gặp trong nhật ký live (bug 2710): model gọi sai tên/thiếu tham số.

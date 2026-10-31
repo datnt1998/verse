@@ -41,6 +41,7 @@ import { VoiceSection } from './sections/voice'
 import { WritingSection } from './sections/writing'
 import type { PendingExtra, SettingsContext } from './types'
 import { MembersSettings } from './members'
+import { StorageSection } from './storage'
 import './settings.css'
 import './style.css'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
@@ -404,6 +405,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
       case 'models': return <RolesSection ctx={ctx} />
       case 'budget': return <BudgetSection ctx={ctx} />
       case 'connect': return <ProvidersSection ctx={ctx} open={sectionHint?.id === 'connect' ? sectionHint.open : undefined} />
+      case 'storage': return <StorageSection />
       case 'notify': return <NotifySection ctx={ctx} />
       case 'voice': return <VoiceSection ctx={ctx} />
       case 'export':

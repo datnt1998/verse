@@ -19,7 +19,7 @@ import { ModeSwitch, type StoryMode } from './ModeSwitch'
 import { QuickMode, QuickModeHeading, ShortcutHints } from './QuickMode'
 import { StaleBanner } from '@noverse/ui'
 import { useSaveShortcut } from '@noverse/ui'
-import { quickStoryStarter } from './creation'
+import { quickStoryConfig, quickStoryStarter, type QuickStoryChoices } from './creation'
 import { useStoryCheck } from './useStoryCheck'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
@@ -35,6 +35,7 @@ export function NewStoryScreen({ project }: { project: string }) {
     parsed.search.get('mode') === 'cocreate' || (!parsed.search.has('brief') && readProjectDraft(project)) ? 'cocreate' : 'quick'
   ))
   const [prompt, setPrompt] = useState(() => parsed.search.get('brief') ?? '')
+  const [choices, setChoices] = useState<QuickStoryChoices>({ style: null, writer: null })
   const [idea, setIdea] = useState<{ id: string; title: string } | null>(null)
   const [activeAlternative, setActiveAlternative] = useState<'import' | 'simulate' | null>(null)
   const [startFileOpen, setStartFileOpen] = useState(false)
@@ -75,7 +76,7 @@ export function NewStoryScreen({ project }: { project: string }) {
   const startAction = useAction(async () => {
     if (!await gate.check()) return
     try {
-      const story = await starter.start(project, prompt, idea?.id)
+      const story = await starter.start(project, prompt, idea?.id, quickStoryConfig(choices, configResource.data?.effective))
       setPrompt('')
       navigate(paths.workspace(project, story.story), true)
       return story
@@ -141,6 +142,7 @@ export function NewStoryScreen({ project }: { project: string }) {
           </div>
       {mode === 'quick' ? (
         <QuickMode project={project} gate={gate} prompt={prompt} onPrompt={setPrompt} onStart={() => void start()}
+          choices={choices} onChoices={setChoices}
           busy={busy || !connection.writable} pending={startAction.pending} alternativePending={alternativeAction.pending} activeAlternative={activeAlternative} success={startAction.success && !gate.blocked} error={error} projectName={projectName} offline={!connection.writable}
           config={configResource.data ?? null} idea={idea} onClearIdea={() => setIdea(null)}
           onStartFile={() => setStartFileOpen(true)}

@@ -18,6 +18,7 @@ vi.mock('../../../api/client', async (original) => ({ ...(await original<typeof 
 vi.mock('../../../api/session', () => ({
   useSession: () => ({ user: { username: 'dat', name: 'Dat', role: 'admin', projects: {} }, setUser: () => {}, checked: true }),
 }))
+vi.mock('../../settings/sections/rules', () => ({ RulesEditor: () => null }))
 const toasts = vi.hoisted(() => [] as string[])
 
 vi.mock('@noverse/ui', async (original) => {
@@ -95,27 +96,28 @@ const card = (container: HTMLElement, label: string) =>
 describe('Gói AL › tab Cách viết của truyện', () => {
   it('chọn một kiểu viết lưu ngay config.style cấp truyện + toast “áp dụng từ chương”', async () => {
     const container = await mount(false)
+    await act(async () => { [...container.querySelectorAll('button')].find((node) => node.textContent?.startsWith('Đổi'))!.click() })
     expect(api.getConfig).toHaveBeenCalledWith('story', PROJECT, STORY, expect.anything())
     await act(async () => { card(container, 'Hồi hộp').click() })
     expect(api.putConfig).toHaveBeenCalledWith('story', { style: 'suspense' }, PROJECT, STORY, 'v1')
-    expect(toasts.some((text) => text === 'Đã đổi văn phong của truyện · áp dụng từ chương 5')).toBe(true)
+    expect(toasts.some((text) => text === 'Đã đổi văn phong · áp dụng từ chương 5')).toBe(true)
   })
 
   it('“Dùng theo dự án” xoá ghi đè cấp truyện (PUT không còn style) + toast', async () => {
     const container = await mount(true)
-    const reset = [...container.querySelectorAll('button')].find((node) => node.textContent === 'Dùng theo dự án')!
+    await act(async () => { [...container.querySelectorAll('button')].find((node) => node.textContent?.startsWith('Đổi'))!.click() })
+    const reset = card(container, 'Theo dự án')
     await act(async () => { reset.click() })
     expect(api.putConfig).toHaveBeenCalledWith('story', {}, PROJECT, STORY, 'v1')
-    expect(toasts.some((text) => text === 'Truyện dùng lại văn phong của dự án · từ chương 5')).toBe(true)
+    expect(toasts.some((text) => text === 'Đã đổi văn phong · áp dụng từ chương 5')).toBe(true)
   })
 
-  it('đang kế thừa: thanh kế thừa “Theo dự án”, không có nút Dùng theo dự án; có văn mẫu → “Văn phong của bạn” chọn được', async () => {
+  it('lưới chọn tại chỗ giữ trạng thái kế thừa và khả năng chọn văn phong theo văn mẫu', async () => {
     const container = await mount(false)
-    expect([...container.querySelectorAll('button')].some((node) => node.textContent === 'Dùng theo dự án')).toBe(false)
-    expect(container.textContent).toContain('Theo dự án “Kênh truyện audio” · chọn một kiểu bên dưới để dùng riêng')
-    const custom = card(container, 'Văn phong của bạn')
-    expect(custom.disabled).toBe(false)
-    expect(container.textContent).toContain('Văn phong của bạn · văn mẫu của truyện này')
-    expect(container.textContent).toContain('Mở màn chương 1 — bản tay')
+    expect(container.querySelectorAll('[role="radio"]')).toHaveLength(0)
+    await act(async () => { [...container.querySelectorAll('button')].find((node) => node.textContent?.startsWith('Đổi'))!.click() })
+    expect(card(container, 'Theo dự án').getAttribute('aria-checked')).toBe('true')
+    expect(card(container, 'Văn phong của bạn').disabled).toBe(false)
+    expect(container.querySelectorAll('[role="radio"][aria-checked="true"]')).toHaveLength(1)
   })
 })

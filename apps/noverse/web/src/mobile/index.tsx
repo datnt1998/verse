@@ -22,6 +22,7 @@ import { MobileFeedback } from './primitives'
 import { MobileRuntimeProvider, useMobileRuntime, useTabMode } from './runtime'
 import { MobilePanes, MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
 import { useToastBottom } from './toastBottom'
+import { useStorage } from '../screens/settings/storage/resource'
 import './mobile.css'
 export { BottomSheet, ActionSheet, ConfirmSheet, MobilePage, PushPage, useMobileToast } from './primitives'
 export { MobileRuntimeProvider, useMobileRuntime, useTabMode, useMobileScroll } from './runtime'
@@ -58,6 +59,7 @@ const PaneView = memo(function PaneView({ id, pane, onStoryChange }: {
 function MobileContent({ parsed }: { parsed: Parsed }) {
   const { route } = parsed
   useDocumentTitle(route)
+  useStorage(false, true, true)
   const { user } = useSession()
   const runtime = useMobileRuntime()
   const [target, setTarget] = useState(helpTarget)
