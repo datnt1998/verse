@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { color } from '@noverse/ui/tokens.stylex'
+import { styles } from './headless.stylex'
 import { HeadlessClient, parseHeadlessCredential, type HeadlessKind, type HeadlessPageProps, type HeadlessProgress } from './headless-client'
 import { runHeadlessRequest, type HeadlessOutcome } from './headless-runner'
 
 type Stage = { kind: 'init' } | { kind: 'running'; progress: HeadlessProgress } | { kind: 'done'; outcome: HeadlessOutcome } | { kind: 'error'; message: string }
 
-const styles = stylex.create({
-  page: { minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 32, backgroundColor: color['--color-bg'], color: color['--color-fg'], fontSize: 14, lineHeight: 1.55, textAlign: 'center' },
-  heading: { margin: 0, fontSize: 16, fontWeight: 600 },
-  message: { margin: 0, maxWidth: 640, overflowWrap: 'anywhere' },
-  error: { color: color['--color-err'] },
-})
 
 function progressLabel(progress: HeadlessProgress): string {
   switch (progress.phase) {
