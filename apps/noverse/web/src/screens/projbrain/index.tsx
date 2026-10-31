@@ -10,6 +10,7 @@ import { useProjectName } from '../../shell/useNames'
 import { Icon } from '@noverse/ui'
 import { Segmented } from '@noverse/ui'
 import { styles as s } from './styles'
+import { apCopy as ap } from './copy'
 import { CharAvatar } from '../../ui/CharAvatar'
 
 const copy = t.projbrain
@@ -21,7 +22,6 @@ function Level({ level }: { level: LedgerCheck['level'] }) {
   return <span {...stylex.props(s.chip, levelStyle[level])}>{copy.level[level]}</span>
 }
 const storySlug = (project: string, id: string) => id.startsWith(`${project}/`) ? id.slice(project.length + 1) : id
-const formatDay7 = (n: number | null) => n === null ? '—' : n.toLocaleString('vi-VN', { notation: 'compact', maximumFractionDigits: 1 })
 /** RFC3339 → `dd/mm`; thiếu hoặc không đọc được → '' (dòng lý do bỏ đoạn đó, §J câu 1). */
 const dayMonth = (iso: string) => {
   const date = new Date(iso)
@@ -50,6 +50,14 @@ export function ProjectBrainScreen({ project }: { project: string }) {
   const [showKept, setShowKept] = useState(false)
   const [everKept, setEverKept] = useState(false)
   const [unkeeping, setUnkeeping] = useState(false)
+  const [lview, setLview] = useState(parsed.search.get('lview') === 'freq' ? 'freq' : 'table')
+  const [only, setOnly] = useState(parsed.search.get('lview') === 'only')
+  const [pick, setPick] = useState<{ axis: number; value: string } | null>(parsed.search.get('lview') === 'pick' ? { axis: 2, value: 'Thợ may' } : null)
+  const [entityType, setEntityType] = useState('all')
+  const [needOnly, setNeedOnly] = useState(false)
+  const [entityQuery, setEntityQuery] = useState('')
+  const [searchKind, setSearchKind] = useState(parsed.search.get('sfilter') ?? 'all')
+  const [searchStory, setSearchStory] = useState<string | null>(null)
   const results = useResource(keys.project(project, 'stories', 'search', q.trim()), ({ signal }) => searchProjectBrain(project, q.trim(), signal), { enabled: tab === 'search' && !!q.trim() })
   const activeReplacement = candidate && replacement?.sourceStory === candidate.story && replacement.sourceBrief === candidate.brief ? replacement : null
   const activeCandidate = candidate && activeReplacement ? { ...candidate, ...activeReplacement } : candidate
@@ -67,7 +75,16 @@ export function ProjectBrainScreen({ project }: { project: string }) {
     entities: (results.data?.entities ?? []).map(entity => ({ ...entity, stories: entity.stories.filter(story => visible(story.id)) })).filter(entity => entity.stories.length > 0),
     passages: (results.data?.passages ?? []).filter(hit => visible(hit.story)),
   }
-  const searchStories = new Set([...filteredSearch.entities.flatMap(entity => entity.stories.map(story => story.id)), ...filteredSearch.passages.map(hit => hit.story)]).size
+  const searchRefs = new Map<string, string>()
+  for (const entity of filteredSearch.entities) for (const story of entity.stories) searchRefs.set(storySlug(project, story.id), story.title)
+  for (const hit of filteredSearch.passages) searchRefs.set(storySlug(project, hit.story), hit.storyTitle)
+  const searchStories = searchRefs.size
+  const searchCount = (id: string | null) => filteredSearch.entities.filter(entity => !id || entity.stories.some(story => storySlug(project, story.id) === id)).length + filteredSearch.passages.filter(hit => !id || storySlug(project, hit.story) === id).length
+  const searchEntities = filteredSearch.entities.filter(entity => !searchStory || entity.stories.some(story => storySlug(project, story.id) === searchStory))
+  const searchPassages = filteredSearch.passages.filter(hit => !searchStory || storySlug(project, hit.story) === searchStory)
+  const checks = universe.data?.checks ?? null
+  const needsReview = (entity: ProjectUniverseEntity) => !!checks?.some(check => entity.stories.some(story => storySlug(project, story.id) === storySlug(project, check.story)))
+  const shownEntities = entities.filter(entity => (entityType === 'all' || entity.type === entityType) && (!needOnly || needsReview(entity)) && entity.name.toLocaleLowerCase('vi').includes(entityQuery.trim().toLocaleLowerCase('vi')))
   const pickTab = (value: string) => {
     const search = new URLSearchParams(parsed.search); search.set('tab', value)
     navigate(`${paths.projectBrain(project)}?${search}`)
@@ -94,9 +111,28 @@ export function ProjectBrainScreen({ project }: { project: string }) {
     finally { setUnkeeping(false) }
   }
   const markFor = (story: string, axis: number, isCandidate: boolean) => marks.find(cell => cell.axis === axis && (cell.story === story || (isCandidate && cell.story === 'new')))?.mark
-  const rows = activeCandidate ? [{ id: activeCandidate.story, title: activeCandidate.title, values: activeCandidate.values, day7: null, createdAt: null, opening: '', candidate: true }, ...stories.filter(row => row.id !== activeCandidate.story).map(row => ({ ...row, candidate: false }))] : stories.map(row => ({ ...row, candidate: false }))
-  // §H câu 5: chưa có nguồn Ngày 7 → mọi dòng null thì ẩn cả cột lẫn dòng chú thích trung vị.
-  const showDay7 = rows.some(row => row.day7 !== null)
+  const prior = stories.filter(row => row.id !== activeCandidate?.story)
+  const recent = prior.slice(0, 10)
+  const same = (a: string, b: string) => !!a.trim() && a.trim().replace(/\s+/g, ' ').toLocaleLowerCase('vi') === b.trim().replace(/\s+/g, ' ').toLocaleLowerCase('vi')
+  const useCount = (axis: number, value: string) => recent.filter(row => same(row.values[axis] ?? '', value)).length
+  const isPicked = (axis: number, value: string) => pick?.axis === axis && same(pick.value, value)
+  const shownPrior = only && activeCandidate ? prior.filter(row => row.values.some((value, axis) => same(value, activeCandidate.values[axis] ?? ''))) : prior
+  const rows = activeCandidate ? [{ id: activeCandidate.story, title: activeCandidate.title, values: activeCandidate.values, createdAt: null, candidate: true }, ...shownPrior.map(row => ({ ...row, candidate: false }))] : shownPrior.map(row => ({ ...row, candidate: false }))
+  const errors = checkRows.filter(check => check.level === 'error').length
+  const warnings = checkRows.filter(check => check.level === 'warning').length
+  const frequency = (ledger.data?.axes ?? []).map((axis, index) => {
+    const counts = new Map<string, number>()
+    for (const row of recent) {
+      const value = row.values[index]
+      if (!value?.trim()) continue
+      let label = value
+      for (const existing of counts.keys()) if (same(existing, value)) { label = existing; break }
+      counts.set(label, (counts.get(label) ?? 0) + 1)
+    }
+    const chosen = activeCandidate?.values[index]
+    if (chosen && useCount(index, chosen) === 0) counts.set(chosen, 0)
+    return { ...axis, index, limited: [3, 4, 7].includes(axis.n), note: [[3, 4, 7].includes(axis.n) ? ap.limit : '', [1, 3, 4, 6].includes(axis.n) ? ap.combination : '', axis.n === 9 ? ap.opening : ''].filter(Boolean).join(' · '), values: [...counts].sort(([a, an], [b, bn]) => bn - an || a.localeCompare(b, 'vi')) }
+  })
 
   return <main {...stylex.props(s.root)} aria-label={copy.title}>
     <div {...stylex.props(s.heading)}>
@@ -107,12 +143,12 @@ export function ProjectBrainScreen({ project }: { project: string }) {
       </div>
       <Segmented label={copy.section} value={tab} onChange={pickTab}
         tabs={{ id: 'projbrain-tab', panel: 'projbrain-body' }}
-        style={{ flexShrink: 0, gap: 0, background: 'var(--color-card)', borderColor: 'var(--line-2)' }}
+        style={{ flexShrink: 0, maxWidth: '100%', gap: 0, background: 'var(--color-card)', borderColor: 'var(--line-2)' }}
         thumbStyle={{ background: 'var(--projbrain-seg-on)', boxShadow: 'none' }}
         options={[
-        { id: 'ledger', icon: <Icon name="category" size={14} />, style: { flex: '0 0 auto', padding: '0 11px', fontWeight: tab === 'ledger' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.ledger}<span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{stories.length}</span></span> },
-        { id: 'universe', icon: <Icon name="global" size={14} />, style: { flex: '0 0 auto', padding: '0 11px', fontWeight: tab === 'universe' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.universe}<span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{entities.length}</span></span> },
-        { id: 'search', icon: <Icon name="search-normal-1" size={14} />, style: { flex: '0 0 auto', padding: '0 11px', fontWeight: tab === 'search' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.search}<span /></span> },
+        { id: 'ledger', icon: <Icon name="category" size={14} />, style: { flex: '0 1 auto', minWidth: 0, padding: '0 11px', fontWeight: tab === 'ledger' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.ledger}<span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{stories.length}</span></span> },
+        { id: 'universe', icon: <Icon name="global" size={14} />, style: { flex: '0 1 auto', minWidth: 0, padding: '0 11px', fontWeight: tab === 'universe' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.universe}<span style={{ fontSize: 11.5, color: 'var(--color-fg-4)' }}>{entities.length}</span></span> },
+        { id: 'search', icon: <Icon name="search-normal-1" size={14} />, style: { flex: '0 1 auto', minWidth: 0, padding: '0 11px', fontWeight: tab === 'search' ? 500 : 400 }, label: <span style={{ display: 'inline-flex', gap: 6 }}>{copy.search}<span /></span> },
       ]} />
     </div>
     {error && <div role="alert" {...stylex.props(s.body)}>{error}</div>}
@@ -120,27 +156,47 @@ export function ProjectBrainScreen({ project }: { project: string }) {
     {!ledger.data && !ledger.error && <span {...stylex.props(s.body)}>{copy.loading}</span>}
     <div role="tabpanel" id="projbrain-body" aria-labelledby={`projbrain-tab-${tab}`} {...stylex.props(s.panel)}>
     {tab === 'ledger' && <>
-      {activeCandidate && <section aria-label={copy.checkLabel} {...stylex.props(s.card, s.padded, checkRows.some(check => check.level === 'error') ? s.blocked : s.passed)}>
-        <div {...stylex.props(s.row)}><span {...stylex.props(s.strong)}>{copy.newStory(activeCandidate.title)}</span><span {...stylex.props(s.chip, s.draftChip)}>{copy.draft}</span><span {...stylex.props(s.grow)} /><span {...stylex.props(s.note)}>{copy.comparison}</span></div>
-        {checkRows.map(check => <div key={check.rule} data-ledger-check={check.rule} {...stylex.props(s.check)}><Level level={check.level} /><span {...stylex.props(s.grow)}>{check.text}</span>{check.fix !== null && <span data-check-fix {...stylex.props(s.checkFix)}>{check.fix}</span>}</div>)}
+      {activeCandidate && <section aria-label={ap.check} {...stylex.props(s.card, errors ? s.blocked : warnings ? s.warned : s.passed)}>
+        <div {...stylex.props(s.checkHeader)}><span {...stylex.props(s.checkIntro)}><span {...stylex.props(s.note)}>{ap.comparison}</span><span {...stylex.props(s.row)}><b {...stylex.props(s.newTitle)}>“{activeCandidate.title}”</b><span {...stylex.props(s.chip, s.draftChip)}>{copy.draft}</span></span></span><span role="status" {...stylex.props(s.verdict, errors ? s.verdictError : warnings ? s.verdictWarning : s.verdictOk)}><Icon name={errors ? 'danger' : warnings ? 'warning-2' : 'tick-circle'} size={15} />{ap.verdict(errors, warnings)}</span></div>
+        {checkRows.map(check => <div key={check.rule} data-ledger-check={check.rule} {...stylex.props(s.check)}><span {...stylex.props(s.checkName)}>{ap.checkNames[check.rule] ?? check.rule}</span><span><Level level={check.level} /></span><span {...stylex.props(s.checkText)}>{check.text}</span>{check.fix !== null && <span data-check-fix {...stylex.props(s.checkFix)}>{check.fix}</span>}</div>)}
         <div {...stylex.props(s.actions)}><button type="button" {...withGhost(stylex.props(s.button))} disabled={busy} aria-busy={busy} onClick={() => void suggest()}><Icon name="magic-star" size={14} />{activeReplacement ? copy.undo : copy.suggest}</button><a {...withGhost(stylex.props(s.button))} href={`#${paths.newstory(project)}?brief=${encodeURIComponent(activeCandidate.brief)}`}><Icon name="edit-2" size={14} />{copy.edit}</a></div>
       </section>}
-      {ledger.data && <section aria-label={copy.ledger} {...stylex.props(s.card, s.table)}>
-        <div {...stylex.props(s.ledgerRow, !showDay7 && s.ledgerRowNoDay7, s.tableHead)}><span>{copy.story}</span>{ledger.data.axes.map(axis => <span key={axis.n} title={axis.name} {...stylex.props(s.axis)}><span {...stylex.props(s.axisNumber)}>{axis.n}</span><span>{copy.axisLabels[axis.n - 1] ?? axis.name}</span></span>)}{showDay7 && <span {...stylex.props(s.number)}>{copy.day7}</span>}</div>
-        {rows.map(row => { const added = row.createdAt ? dayMonth(row.createdAt) : ''; return <div key={row.id} data-story={row.id} {...stylex.props(s.ledgerRow, !showDay7 && s.ledgerRowNoDay7, row.candidate && s.candidateRow)}>
-          <span {...stylex.props(s.storyCell)}><span title={row.title} {...stylex.props(s.storyTitle, row.candidate && s.storyTitleDraft)}>{row.title}</span>{row.candidate ? <span {...stylex.props(s.briefMeta)}>{copy.draftMeta}</span> : added ? <span {...stylex.props(s.rowMeta)}>{added}</span> : null}</span>
-          {ledger.data!.axes.map((axis, index) => { const mark = markFor(row.id, axis.n, row.candidate); return <span key={axis.n} title={row.values[index] || '—'} data-mark={mark} {...stylex.props(s.cell, row.candidate && s.candidateCell, mark === 'dup' && s.duplicate, mark === 'overused' && s.overused)}><span data-cell-text="" {...stylex.props(s.cellText)}>{row.values[index] || '—'}</span></span> })}
-          {showDay7 && <span {...stylex.props(s.number)}>{formatDay7(row.day7)}</span>}
-        </div> })}
-        {!rows.length && <div {...stylex.props(s.padded, s.body)}>{copy.empty}</div>}
-      </section>}
-      <div {...stylex.props(s.legend)}><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.cell, s.duplicate)}>{copy.value}</span>{copy.duplicate}</span><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.cell, s.overused)}>{copy.value}</span>{copy.overused}</span>{showDay7 && <span>{copy.median(formatDay7(ledger.data?.channelMedianDay7 ?? null))}</span>}</div>
+      <div {...stylex.props(s.toolbar)}>
+        <Segmented label={ap.view} fit="content" value={lview} onChange={value => { setLview(value); setPick(null) }} style={{ gap: 0, background: 'var(--color-card)', borderColor: 'var(--line-2)' }} thumbStyle={{ background: 'var(--projbrain-seg-on)', boxShadow: 'none' }} options={[{ id: 'table', label: ap.table, style: { padding: '0 11px', fontWeight: lview === 'table' ? 500 : 400 } }, { id: 'freq', label: ap.frequency, style: { padding: '0 11px', fontWeight: lview === 'freq' ? 500 : 400 } }]} />
+        {lview === 'table' && <button type="button" aria-pressed={only} onClick={() => setOnly(value => !value)} {...stylex.props(s.filterChip, only && s.filterOn)}><Icon name="tick-circle" size={13} style={{ opacity: only ? 1 : .35 }} />{ap.only}</button>}
+        <span {...stylex.props(s.grow)} /><span {...stylex.props(s.note)}>{ap.ledgerCount(prior.length, shownPrior.length, only)}</span>
+      </div>
+      {pick && lview === 'table' && <div role="status" {...stylex.props(s.pickbar)}><Icon name="search-normal-1" size={14} /><span {...stylex.props(s.grow)}>{ap.pick(pick.value, ledger.data?.axes[pick.axis]?.name ?? '', useCount(pick.axis, pick.value), same(activeCandidate?.values[pick.axis] ?? '', pick.value))}</span><button type="button" onClick={() => setPick(null)} {...withGhost(stylex.props(s.button, s.clearPick))}>{ap.clear}</button></div>}
+      {lview === 'table' && <>
+        {ledger.data && <section aria-label={copy.ledger} {...stylex.props(s.card, s.table)}>
+          <div {...stylex.props(s.ledgerRow, s.tableHead, s.stickyHead)}><span>{copy.story}</span>{ledger.data.axes.map(axis => <span key={axis.n} title={axis.name} {...stylex.props(s.axis)}><span {...stylex.props(s.axisNumber)}>{axis.n}</span><span {...stylex.props(s.axisLabel)}>{copy.axisLabels[axis.n - 1] ?? axis.name}</span></span>)}</div>
+          {rows.map(row => { const added = row.createdAt ? dayMonth(row.createdAt) : ''; return <div key={row.id} data-story={row.id} {...stylex.props(s.ledgerRow, row.candidate && s.candidateRow, !row.candidate && marks.some(mark => mark.story === row.id && mark.mark === 'dup') && s.duplicateRow, !row.candidate && !!pick && same(row.values[pick.axis] ?? '', pick.value) && s.pickedRow)}>
+            <span {...stylex.props(s.storyCell)}><span title={row.title} {...stylex.props(s.storyTitle, row.candidate && s.storyTitleDraft)}>{row.title}</span>{row.candidate ? <span {...stylex.props(s.briefMeta)}>{copy.draftMeta}</span> : added ? <span {...stylex.props(s.rowMeta)}>{added}</span> : null}</span>
+            {ledger.data!.axes.map((axis, index) => {
+              const value = row.values[index] || '—'; const count = useCount(index, value); const picked = isPicked(index, value); const mark = markFor(row.id, axis.n, row.candidate)
+              return <button type="button" key={axis.n} data-axis={copy.axisLabels[index] ?? axis.name} title={ap.cell(axis.name, value, count)} data-mark={mark} data-picked={picked || undefined} aria-pressed={picked} onClick={() => setPick(picked ? null : { axis: index, value })} {...stylex.props(s.cell, s.cellButton, row.candidate && s.candidateCell, mark === 'dup' && s.duplicate, mark === 'dup' && s.duplicateCell, mark === 'overused' && s.overused, mark === 'overused' && s.overusedCell, picked && s.pickedCell)}><span data-cell-text="" {...stylex.props(s.cellText)}>{value}{row.candidate && count > 0 && <span {...stylex.props(s.rep)}>×{count}</span>}</span></button>
+            })}
+          </div> })}
+          {!rows.length && <div {...stylex.props(s.padded, s.body)}>{copy.empty}</div>}
+          {only && !shownPrior.length && <div {...stylex.props(s.padded, s.body)}>{ap.noRows}</div>}
+        </section>}
+        <div {...stylex.props(s.legend)}><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.cell, s.duplicate)}>{copy.value}</span>{ap.duplicate}</span><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.cell, s.overused)}>{copy.value}</span>{ap.overused}</span><span><span {...stylex.props(s.rep)}>×3</span> {ap.repetitions}</span><span>{ap.inspect}</span></div>
+      </>}
+      {lview === 'freq' && <>
+        <section aria-label={ap.frequency} {...stylex.props(s.card)}>{frequency.map(axis => <div key={axis.n} {...stylex.props(s.frequencyRow)}><span {...stylex.props(s.frequencyAxis)}><span {...stylex.props(s.frequencyName)}><span {...stylex.props(s.frequencyAxisNumber)}>{axis.n}</span>{axis.name}</span>{axis.note && <span {...stylex.props(s.note)}>{axis.note}</span>}</span><span {...stylex.props(s.frequencyValues)}>{axis.values.map(([value, count]) => <span key={value} {...stylex.props(s.frequencyChip, same(activeCandidate?.values[axis.index] ?? '', value) && s.frequencyChosen, axis.limited && count >= 2 && s.frequencyMax)}>{value}<span {...stylex.props(s.frequencyCount, axis.limited && count >= 2 && s.frequencyMaxCount)}>{count}</span></span>)}</span></div>)}</section>
+        <div {...stylex.props(s.legend)}><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.frequencyChip, s.frequencyChosen)}>{copy.value}</span>{ap.chosen}</span><span {...stylex.props(s.legendItem)}><span {...stylex.props(s.frequencyChip, s.frequencyMax)}>{copy.value}</span>{ap.maximum}</span><span>{ap.frequencyNote}</span></div>
+      </>}
     </>}
     {tab === 'universe' && <>
       {!!universe.error && <div role="alert">{copy.error} <button type="button" {...stylex.props(s.button)} onClick={() => void universe.refresh()}>{copy.retry}</button></div>}
+      <div {...stylex.props(s.toolbar)}>
+        <Segmented label={ap.entityType} fit="content" value={entityType} onChange={setEntityType} style={{ gap: 0, background: 'var(--color-card)', borderColor: 'var(--line-2)' }} thumbStyle={{ background: 'var(--projbrain-seg-on)', boxShadow: 'none' }} options={['all', 'char', 'place'].map(id => ({ id, label: <span {...stylex.props(s.filterLabel)}>{id === 'all' ? ap.all : id === 'char' ? ap.char : ap.place}<span {...stylex.props(s.filterCount)}>{entities.filter(entity => id === 'all' || entity.type === id).length}</span></span>, style: { padding: '0 11px', fontWeight: entityType === id ? 500 : 400 } }))} />
+        {checks !== null && <button type="button" aria-pressed={needOnly} onClick={() => setNeedOnly(value => !value)} {...stylex.props(s.filterChip, needOnly && s.filterOn)}><Icon name="warning-2" size={13} style={{ color: 'var(--color-warn)' }} />{ap.need(entities.filter(needsReview).length)}</button>}
+        <label {...stylex.props(s.nameFilter)}><Icon name="search-normal-1" size={14} {...stylex.props(s.nameIcon)} /><input type="search" aria-label={ap.nameLabel} placeholder={ap.name} value={entityQuery} onChange={event => setEntityQuery(event.target.value)} {...stylex.props(s.nameInput)} /></label>
+      </div>
       <div {...stylex.props(s.universe)}><section aria-label={copy.universeLabel} {...stylex.props(s.card)}>
         <div {...stylex.props(s.universeRow, s.tableHead)}><span>{copy.entity}</span><span>{copy.appears}</span><span>{copy.role}</span><span {...stylex.props(s.checkCol)}>{copy.check}</span></div>
-        {entities.map(entity => <div key={entity.id} {...stylex.props(s.universeRow)}>
+        {shownEntities.map(entity => <div key={entity.id} data-entity={entity.id} {...stylex.props(s.universeRow)}>
           <div {...stylex.props(s.entity)}>{entity.type === 'char'
             ? <CharAvatar name={entity.name} kind={entity.kind} size={32} />
             : <span {...stylex.props(s.avatar, s.place)}><Icon name="global" size={15} /></span>}<span {...stylex.props(s.nameCell)}><span title={entity.name} {...stylex.props(s.entityName)}>{entity.name}</span><span {...stylex.props(s.note)}>{copy.types[entity.type]}</span></span></div>
@@ -148,9 +204,10 @@ export function ProjectBrainScreen({ project }: { project: string }) {
           <span title={entity.lastRole} {...stylex.props(s.role)}>{entity.lastRole || '—'}</span>
           <span {...stylex.props(s.checkCol)}><UniverseCheck checks={universe.data?.checks ?? null} stories={entity.stories} /></span>
         </div>)}
-        {!entities.length && <span {...stylex.props(s.padded, s.body)}>{copy.empty}</span>}
+        {!shownEntities.length && <span {...stylex.props(s.padded, s.body)}>{ap.noEntities}</span>}
       </section><aside {...stylex.props(s.stack)}><UniverseSummary name={universe.data?.name ?? ''} counts={universe.data?.counts ?? { stories: 0, chars: 0, places: 0 }} />
         {(universe.data?.checks ?? []).filter(check => visible(check.story)).map((check, index) => <RecapCard key={index} project={project} check={check} />)}
+        {universe.data && checks === null && <section {...stylex.props(s.card, s.uncheckedCard)}><span {...stylex.props(s.uncheckedTitle)}><Icon name="clock" size={16} {...stylex.props(s.note)} />{ap.uncheckedTitle}</span><span {...stylex.props(s.body)}>{ap.uncheckedBody}</span></section>}
         {/* §J câu 1 — dòng nhỏ ngay dưới thẻ nhắc cuối: mở danh sách mục đã “Giữ nguyên”. */}
         {(keptCount > 0 || everKept) && <>
           <button type="button" data-universe-kept="" aria-expanded={keptExpanded} aria-controls={keptExpanded ? 'universe-kept' : undefined} onClick={() => setShowKept(open => !open)} {...withGhost(stylex.props(s.keptLine))}><Icon name="tick-circle" size={13} />{keptCount > 0 ? copy.kept(keptCount) : copy.keptNone}<span data-kept-chevron="" style={{ display: 'inline-flex' }}><Icon name="arrow-down-2" size={12} style={{ transform: keptExpanded ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} /></span></button>
@@ -159,10 +216,31 @@ export function ProjectBrainScreen({ project }: { project: string }) {
       </aside></div>
     </>}
     {tab === 'search' && <>
-      <label {...(() => { const p = stylex.props(s.searchField); return { className: `kit-frame ${p.className}`, style: p.style } })()}><Icon name="search-normal-1" size={17} /><input type="search" value={q} onChange={event => setQ(event.target.value)} aria-label={copy.searchLabel} {...stylex.props(s.input)} /><span {...stylex.props(s.searchCount)}>{copy.results(searchStories, filteredSearch.entities.length, new Set(filteredSearch.passages.map(hit => hit.story)).size)}</span></label>
+      <label {...(() => { const p = stylex.props(s.searchField); return { className: `kit-frame ${p.className}`, style: p.style } })()}><Icon name="search-normal-1" size={17} /><input type="search" value={q} onChange={event => setQ(event.target.value)} aria-label={copy.searchLabel} {...stylex.props(s.input)} /><span {...stylex.props(s.searchCount)}>{copy.results(filteredSearch.passages.length, filteredSearch.entities.length, searchStories)}</span></label>
       {!!results.error && !!q.trim() && <div role="alert">{copy.error} <button type="button" {...stylex.props(s.button)} onClick={() => void results.refresh()}>{copy.retry}</button></div>}
-      <div {...stylex.props(s.searchGrid)}><section aria-label={copy.entityLabel} {...stylex.props(s.card, s.entityCard)}><span {...stylex.props(s.label)}>{copy.entity}</span>{filteredSearch.entities.map((entity, index) => <div key={entity.id} {...stylex.props(s.entityHit, index > 0 && s.entityDivider)}><span {...stylex.props(s.entityRow)}><Icon name={entityIcon[entity.type]} size={15} {...stylex.props(s.entityIcon, entityIconStyle[entity.type])} /><span title={entity.name} {...stylex.props(s.entityNameLoose)}>{entity.name}</span></span><span {...stylex.props(s.entityWhere)}>{entity.stories.map(story => story.title).join(' · ')}</span><span {...stylex.props(s.entityRel)}>{entity.lastRole}</span></div>)}</section>
-        <section aria-label={copy.passagesLabel} {...stylex.props(s.card, s.passageCard)}><span {...stylex.props(s.label, s.labelPassages)}>{copy.passages}</span>{filteredSearch.passages.map((hit, index) => <a key={index} {...withRow(stylex.props(s.passageHit, index > 0 && s.passageDivider))} href={`#${paths.reader(project, storySlug(project, hit.story), hit.ch)}`}><span><span {...stylex.props(s.passageStory)}>{hit.storyTitle}</span><span {...stylex.props(s.passageChapter)}> · {copy.chapter(hit.ch)}</span></span><span {...stylex.props(s.quote)}><Highlighted quote={hit.quote} ranges={hit.hl} /></span></a>)}<span {...stylex.props(s.resultsNote)}>{copy.allVisible}</span></section>
+      <div {...stylex.props(s.toolbar)}>
+        <Segmented label={ap.resultType} fit="content" value={searchKind} onChange={setSearchKind} style={{ gap: 0, background: 'var(--color-card)', borderColor: 'var(--line-2)' }} thumbStyle={{ background: 'var(--projbrain-seg-on)', boxShadow: 'none' }} options={[['all', ap.all, filteredSearch.entities.length + filteredSearch.passages.length], ['ent', copy.entity, filteredSearch.entities.length], ['hits', copy.passages, filteredSearch.passages.length]].map(([id, label, count]) => ({ id: String(id), label: <span {...stylex.props(s.filterLabel)}>{label}<span {...stylex.props(s.filterCount)}>{count}</span></span>, style: { padding: '0 11px', fontWeight: searchKind === id ? 500 : 400 } }))} />
+        <span {...stylex.props(s.filterCount)}>{ap.inStory}</span>
+        {[[null, ap.allStories] as const, ...searchRefs].map(([id, title]) => <button type="button" key={id ?? 'all'} title={title} aria-pressed={searchStory === id} onClick={() => setSearchStory(id)} {...stylex.props(s.filterChip, s.storyFilter, searchStory === id && s.filterOn)}><span {...stylex.props(s.axisLabel)}>{title}</span><span {...stylex.props(s.filterCount)}>{searchCount(id)}</span></button>)}
+      </div>
+      <div {...stylex.props(s.searchGrid, searchKind !== 'all' && s.searchSingle)}>{searchKind !== 'hits' && <section aria-label={copy.entityLabel} {...stylex.props(s.card, s.entityCard)}>
+        <span {...stylex.props(s.label)}>{copy.entity}</span>
+        {searchEntities.map((entity, index) => {
+          const sharedCount = entities.find(shared => shared.id === entity.id)?.stories.length ?? 0
+          return <div key={entity.id} {...stylex.props(s.entityHit, index > 0 && s.entityDivider)}>
+          <span {...stylex.props(s.entityRow)}><Icon name={entityIcon[entity.type]} size={15} {...stylex.props(s.entityIcon, entityIconStyle[entity.type])} /><span title={entity.name} {...stylex.props(s.entityNameLoose)}>{entity.name}</span></span>
+          <span {...stylex.props(s.entityWhere)}>{entity.stories.map(story => story.title).join(' · ')} · {copy.types[entity.type].toLocaleLowerCase('vi')}{sharedCount > 1 ? ` · ${ap.shared(sharedCount)}` : ''}</span>
+          <span {...stylex.props(s.entityRel)}>{entity.lastRole}</span>
+        </div> })}
+      </section>}
+        {searchKind !== 'ent' && <section aria-label={copy.passagesLabel} {...stylex.props(s.card, s.passageCard)}>
+          <span {...stylex.props(s.label, s.labelPassages)}>{copy.passages}</span>
+          {searchPassages.map((hit, index) => <a key={index} {...withRow(stylex.props(s.passageHit, index > 0 && s.passageDivider))} href={`#${paths.reader(project, storySlug(project, hit.story), hit.ch)}`}>
+            <span {...stylex.props(s.passageMeta)}><span {...stylex.props(s.passageStory)}>{hit.storyTitle}</span><span>· {copy.chapter(hit.ch)}</span></span>
+            <span {...stylex.props(s.quote)}><Highlighted quote={hit.quote} ranges={hit.hl} /></span>
+          </a>)}
+          <span {...stylex.props(s.resultsNote)}>{copy.allVisible}</span>
+        </section>}
       </div>
     </>}
     </div>
@@ -212,8 +290,8 @@ export function UniverseSummary({ name, counts }: { name: string; counts: Projec
 }
 
 export function UniverseCheck({ checks, stories }: { checks: ProjectUniverse['checks']; stories: ProjectUniverseEntity['stories'] }) {
-  // §H câu 4: chưa có vòng chấm nào phát `rule` → chưa kiểm được; đã chấm mà sạch → Đạt.
-  if (checks === null) return <span title={copy.notChecked} {...stylex.props(s.note)}>—</span>
+  // A null result means no chapter has been checked yet, not a passing check.
+  if (checks === null) return <span {...stylex.props(s.chip, s.uncheckedChip)}>{ap.unchecked}</span>
   const found = checks.some(check => stories.some(story => story.id === check.story))
   if (!found) return <Level level="ok" />
   return <span {...stylex.props(s.chip, s.warningChip)}>{copy.recapBadge}</span>
