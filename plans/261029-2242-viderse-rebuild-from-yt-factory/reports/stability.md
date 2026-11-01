@@ -125,3 +125,50 @@ Test hỏng-trước:
 
 Harness cần dựng lại: `stub.py` (OpenAI-compatible `chat/completions` trả `{title,description,tags}` cho metadata và `{cast,shots[{id,prompt}]}` cho `clone.story`; `images/generations` trả `b64_json` PNG thật), `yt-dlp` giả (`-J` + `BuildDownloadArgs` → chép MP4 6 s), venv transcription giả (`tools.Transcription` ready; "python" ghi report VAD/ASR theo `internal/pipeline/steps/transcript/speech.go`), `POST /api/tools/ffmpeg/install` + `POST /api/tools/chrome/install`, seed `owner_channels` (pace_per_day ≥ 10) + `rival_videos` bằng SQL, provider `openai_compat` qua `POST /api/ai/providers`.
 Serve: `/tmp/p10rec/serve.sh setup|resume|run|drop <Name> <port>` (giữ HOME khi resume; `P10_BIN` ghim binary; `P10_EXTRA_PATH` chèn fake vào PATH; `P10_DB_ADDR` đẩy traffic app qua proxy). Ma trận: mỗi bước một job riêng, đợi `clone_steps.status='running'` của **đúng job đó** rồi `kill -9`, `resume`, `POST /api/clone/{id} {action:"run"}`, đọc `RESULT step=… status=… receipts_before/after=… duplicate_artifacts=… children_after_kill/orphans_after_restart`.
+
+## 9. Lượt chạy 4 (P10Matrix): gốc `score` > 5 phút, ma trận kill theo bước
+
+Harness dựng lại ở `/tmp/p10m` (đã xoá khi dọn): `serve.sh setup|run|drop` (DB riêng `p10_p10matrix_{data,identity}`, build từ `git archive HEAD`), `stub.py` (provider `openai_compat` cổng 18965: `/v1/models`, `chat/completions` trả đúng hợp đồng metadata + casting-director, `images/generations` trả PNG thật, `/ctl?chat_slow&draw_slow` để làm chậm), `bin/yt-dlp` giả (info-json + chép fixture 60 s + dòng `YTFPROG`), `bin/uv` giả (chuyển `uv run --python` sang venv), venv transcription giả (`env-meta.json` khớp `EnvFingerprint`, "python" ghi report VAD/ASR), `hold.sh` (làm chậm ffmpeg/Chrome theo từng bước), `pgproxy.py`, 3 kênh (pace 20), 1 template 1 cảnh (`images fixed 1`), 40 `rival_videos`.
+
+### 9.1 Gốc của "`score` > 5 phút" — bundle web nhúng bị cũ
+
+`score`/`export` đo bằng trang headless (`/#/measure/<id>`), nhưng bundle **đã commit** trong `internal/web/dist` không có chunk headless: `grep -c measure assets/index-qdcr4GI-.js` = **0**, không có `headless-page-*.js`. Vì vậy Chrome for Testing được phóng đúng (pid gắn vào `measurements/<id>.json`), nhưng trang không hề gọi `GET /api/measure/<id>` rồi `/claim` → request kẹt `status=queued`; supervisor khởi động lại Chrome 2 lần (`MaxCrashRestarts=2`, "trang đo không nhận yêu cầu") và chỉ dừng ở `MeasurementTimeout = 10 phút`. Đây đúng là triệu chứng "> 5 phút, không thấy tiến độ" của lượt trước.
+
+- Trước sửa: bước `score` `running` > 4 phút, `measurements/<id>.json` `status=queued`, `claimedAt=""`, `chrome.pid` có giá trị → **PASS chẩn đoán**.
+- Sau sửa (`da45f46f` + `c8a5c6f2`, bundle dựng lại từ nguồn hiện tại, CI "Embedded web bundle is current"): cùng job, cùng DB → `score` **xong trong 9 s** và trả kết luận thật (`quality_gate: "Video chưa đạt Độ hoàn thiện để xuất"` cho fixture tổng hợp — đúng hành vi). `extract(epoch from finished_at-started_at)` = **9**.
+
+### 9.2 Ma trận (scenario → kỳ vọng → quan sát → kết luận → bằng chứng)
+
+| # | Kịch bản | Kỳ vọng | Quan sát | Kết luận | Bằng chứng |
+|---|---|---|---|---|---|
+| B1 | `kill -9` giữa `download` | chạy tiếp từ checkpoint, không mồ côi, không lặp | kill ở `status=running` attempt=1 → boot lại **2 s** (`/healthz=200`), `POST {action:"run"}` → `download=succeeded` **attempt=2** sau 14 s; `orphans_same_pgid=0`, `leftover_tool_procs=0`; artifacts `0→10`, `dup_paths=0` | **PASS** | `results/kill-download.log` |
+| B2 | `kill -9` giữa `backdrop` | như trên | bước **no-op**: template không có backdrop → `WantedCount=0`, bước xong trước khi kịp thấy `running` (`final=succeeded`) | **N/A** (không có việc để ngắt) | `results/kill-backdrop.log` |
+| B3 | `kill -9` giữa `transcript` | như trên | boot 2 s, `transcript=succeeded` attempt=2 sau 11 s, artifacts `5→11`, `dup_paths=0`, orphans 0 | **PASS** | `results/kill-transcript.log` |
+| B4 | `kill -9` giữa `metadata` | như trên | boot 2 s, `metadata=succeeded` attempt=2 sau 12 s, artifacts `10→11`, `dup_paths=0` | **PASS** | `results/kill-metadata.log` |
+| B5 | `kill -9` giữa `scenes` | như trên | boot 2 s, `scenes=succeeded` attempt=2 sau 12 s, artifacts `11→13`, `dup_paths=0` | **PASS** | `results/kill-scenes.log` |
+| B6 | `kill -9` giữa `images` | như trên | boot **TIMEOUT**, serve thoát `exit=1`: `Lỗi: xác minh tham chiếu binary editor trước khi mở kho: editor binary head disagrees with metadata: media/media-8153116c…/source`; bước `images` kẹt `running` attempt=1 | **FAIL — lỗi thật §9.3** | `serve-matrix.log`, `results/kill-images.log` |
+| B7 | `kill -9` giữa `score` | như trên | **CHƯA CHẠY** — serve không mở lại được sau B6 | **BLOCKED** | — |
+| B8 | `kill -9` giữa `export` | như trên | **CHƯA CHẠY** — cùng lý do | **BLOCKED** | — |
+| C | Mất Postgres 30 s qua proxy riêng | "Cần xử lý"/offline rồi tự chạy tiếp, không cần restart | **CHƯA CHẠY** (phụ thuộc B6) | **BLOCKED** | `pgproxy.py` đã viết (đã xoá khi dọn) |
+| D | Rút ổ thư mục dự án (`hdiutil`) | "Cần xử lý" ≤ 10 s, không hỏng video, hàng chờ dừng, cắm lại chạy tiếp | **CHƯA CHẠY** (phụ thuộc B6) | **BLOCKED** | `disk_loss.sh` đã viết (đã xoá khi dọn) |
+| E | `score` > 5 phút trên job 1 cảnh | xác định kẹt hay chi phí thật | gốc: bundle nhúng cũ (§9.1). Sau khi bundle được dựng lại: **9 s** | **PASS (đã sửa)** | §9.1; `da45f46f`, `c8a5c6f2` |
+| F | Ngắt mạng khi vẽ ảnh | không vẽ lặp, chờ hạn mức | vẫn cần lượt vẽ trả phí thật | **BLOCKED** | — |
+
+### 9.3 Lỗi thật mới: `kill -9` để lại staging ⇒ serve không mở lại được (chặn)
+
+Sau `kill -9` giữa `images`, lần boot kế tiếp thoát `exit=1` với `editor binary head disagrees with metadata: media/media-8153116c5fe4ba98132976ee4a18391a/source`. Tệp gây lỗi nằm trong **staging** của job đã bị kill:
+
+```
+~/.viderse/clone-staging/ed6132b4-…/gen1/build/editor/media/media-8153116c5fe4ba98132976ee4a18391a/metadata.json
+```
+(`{"mime":"audio/wav","size":1152044}`, không có trường head).
+
+Cơ chế: bộ nhập lúc boot quét cả thư mục staging còn sót; `adoptBinary` (`internal/editor/binary_resources.go:126-141`) so `existing.Path/Revision` trong DB với digest của metadata và **trả lỗi cứng** khi lệch, thay vì cách ly tệp lạ thành "Cần xử lý". Vì media là content-addressed, hai job có cùng nội dung nguồn (cùng sha) nằm ở hai staging khác nhau là đủ để khoá boot — đúng lớp lỗi của §5.2/§5.3 nhưng ở nhánh *staging*, chưa được sửa.
+
+Hướng sửa nhỏ nhất: khi gặp metadata trong `clone-staging/**` mà `adoptBinary` lệch (hoặc thiếu head), coi là **rác staging**: bỏ qua + xoá thư mục staging của job đó (hoặc đưa vào `needs_attention`), không làm hỏng boot; test trước khi sửa: tạo `clone-staging/<job>/gen1/build/editor/media/media-<sha>/metadata.json` trùng sha với một media đã có đường dẫn khác, boot phải `exit=0` và báo "Cần xử lý".
+
+### 9.4 Ghi chú vận hành
+
+- Đổi binary giữa hai lượt trên cùng HOME làm boot từ chối (`editor binary head disagrees…`) — muốn đổi binary phải `serve.sh setup` lại (DB + HOME mới), hoặc giữ nguyên binary đã ghi kho.
+- Bước `backdrop` chỉ có việc khi template có `backdrop` (kênh nền/video cố định); template mặc định không có → không thể ngắt giữa bước này.
+- `PATCH /api/templates {recipe.backdrop}` không ghi được backdrop vào template tạo bằng API (recipe được suy ra từ project), nên harness phải chèn `backdrop_channels`/`backdrop_channel_videos` — và kể cả vậy bước vẫn không có việc.
