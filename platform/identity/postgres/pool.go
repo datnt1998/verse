@@ -132,6 +132,7 @@ var identityContract = map[string][]string{
 	"temporary_passwords": {"id", "user_id", "password_hash", "expires_at", "used_at", "revoked_at", "created_by"},
 	"recovery_codes":      {"id", "user_id", "code_hash", "mask", "used_at", "revoked_at"},
 	"device_pairings":     {"id", "user_id", "token_hash", "created_by", "expires_at", "used_at", "revoked_at"},
+	"device_tokens":       {"id", "user_id", "token_hash", "expires_at", "revoked_at"},
 	"login_rate_limits":   {"bucket_hash", "failures", "window_started_at", "blocked_until", "expires_at"},
 	"auth_invariant_lock": {"id"},
 	"audit_logs":          {"id", "actor_user_id", "actor_kind", "action", "target_kind", "target_id", "request_id", "details", "occurred_at"},

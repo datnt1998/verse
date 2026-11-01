@@ -314,6 +314,13 @@ func (s *Server) clearSession(w http.ResponseWriter, r *http.Request) {
 	s.cookiePolicy().Clear(w, r)
 }
 
+// clearDeviceCookie forgets the browser's known-device token. The server
+// already revoked it in the same request (password change, revoke-all); the
+// cookie only stops carrying a dead value for the next 180 days.
+func (s *Server) clearDeviceCookie(w http.ResponseWriter, r *http.Request) {
+	webguard.NewDeviceCookie().Clear(w, r)
+}
+
 // writeAppAccessDenied ghi hợp đồng 403 của phiên hợp lệ thiếu grant app:
 // khác 401 (phiên thật và còn sống), trường user là view an toàn — có cả
 // grants, không bao giờ chứa credential.
@@ -345,6 +352,22 @@ func (s *Server) writePasswordChangeRequired(w http.ResponseWriter) {
 
 // ── login / logout ──────────────────────────────────────────────────────────
 
+// rememberDevice records this browser as a known device of the account. Only a
+// successful credential check reaches it, and the token it mints grants
+// nothing on its own — it only moves the next login attempt of this browser to
+// a per-device limiter bucket. An already-known device keeps its cookie (the
+// server-side lifetime does not move); a mint failure never fails the login.
+func (s *Server) rememberDevice(w http.ResponseWriter, r *http.Request, username string, known bool) {
+	if known {
+		return
+	}
+	token, err := s.accounts.IssueDeviceToken(username)
+	if err != nil {
+		return
+	}
+	webguard.NewDeviceCookie().Set(w, r, token.Token, token.ExpiresAt)
+}
+
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Username string `json:"username"`
@@ -355,10 +378,11 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	}
 	// Username chữ thường: bucket limiter và tra cứu dùng chung một dạng.
 	username := strings.ToLower(strings.TrimSpace(req.Username))
-	keys := []string{"ip:" + webguard.ClientIP(r)}
-	if identity.ValidUsername(username) {
-		keys = append(keys, "user:"+username)
-	}
+	device := webguard.NewDeviceCookie()
+	// Thiết bị đã đăng nhập thành công trước đó được tính bucket riêng
+	// (user, thiết bị): kẻ tấn công làm cạn bucket user:<tên> từ nơi khác
+	// không khoá được nó. Token giả/hết hạn/lạ rơi về bucket chung.
+	keys, known := s.accounts.LoginBuckets(username, webguard.ClientIP(r), device.Read(r))
 	if wait := s.limiter.Wait(keys...); wait > 0 {
 		tooMany(w, wait)
 		return
@@ -378,6 +402,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.limiter.Succeed(keys...)
+	s.rememberDevice(w, r, username, known)
 	s.setSession(w, r, ns)
 	// Đúng credential mà thiếu grant app vẫn đặt cookie (phiên có thể mở app
 	// kia) nhưng trả 403, không giả thành công cũng không tính fail limiter.
@@ -481,6 +506,7 @@ func (s *Server) doPasswordChange(w http.ResponseWriter, r *http.Request, user i
 	}
 	s.limiter.Succeed(key)
 	s.clearSession(w, r)
+	s.clearDeviceCookie(w, r)
 	WriteJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
 }
 

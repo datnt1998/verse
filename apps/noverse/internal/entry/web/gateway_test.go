@@ -17,6 +17,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/webguard"
 	"github.com/gofrs/flock"
 )
 
@@ -636,6 +637,71 @@ func TestGatewayLoginRateLimit(t *testing.T) {
 	w := tg.do("POST", "/api/login", "", `{"username":"admin","password":"admin-pass"}`)
 	if w.Code != 429 || w.Header().Get("Retry-After") == "" {
 		t.Fatalf("expected lockout even with the right password: %d %v", w.Code, w.Header())
+	}
+}
+
+// TestGatewayLoginDeviceToken proves the member-availability contract on the
+// Noverse handler: a device that already signed in as the account is metered on
+// its own bucket, so the shared user:<name> bucket burned by an attacker from
+// elsewhere cannot lock it out. A browser without the cookie, or with a forged
+// one, stays limited; the token itself never authenticates anything.
+func TestGatewayLoginDeviceToken(t *testing.T) {
+	tg := newTestGateway(t)
+	login := func(ip, deviceToken, password string) *httptest.ResponseRecorder {
+		body := fmt.Sprintf(`{"username":"admin","password":%q}`, password)
+		r := httptest.NewRequest("POST", "/api/login", strings.NewReader(body))
+		r.RemoteAddr = ip + ":1234"
+		r.Host = "127.0.0.1:8686"
+		r.Header.Set("Content-Type", "application/json")
+		if deviceToken != "" {
+			r.AddCookie(&http.Cookie{Name: webguard.DeviceCookieName, Value: deviceToken})
+		}
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		return w
+	}
+	first := login("203.0.113.10", "", "admin-pass")
+	if first.Code != http.StatusOK {
+		t.Fatalf("owner login: %d %s", first.Code, first.Body.String())
+	}
+	device := ""
+	for _, c := range first.Result().Cookies() {
+		if c.Name != webguard.DeviceCookieName {
+			continue
+		}
+		if !c.HttpOnly || c.SameSite != http.SameSiteStrictMode || c.Domain != "" || c.Value == "" {
+			t.Fatalf("device cookie must be HttpOnly, Strict and host-only: %+v", c)
+		}
+		device = c.Value
+	}
+	if device == "" {
+		t.Fatal("successful login minted no device cookie")
+	}
+	// Attacker: one wrong password per fresh address, so only user:admin fills.
+	for i := range 5 {
+		w := login(fmt.Sprintf("198.51.100.%d", i+1), "", "bad-guess")
+		if w.Code != http.StatusUnauthorized {
+			t.Fatalf("attacker attempt %d: %d", i+1, w.Code)
+		}
+	}
+	if w := login("203.0.113.11", "", "admin-pass"); w.Code != http.StatusTooManyRequests {
+		t.Fatalf("unknown device must stay limited, got %d", w.Code)
+	}
+	if w := login("203.0.113.12", strings.Repeat("ab", 32), "admin-pass"); w.Code != http.StatusTooManyRequests {
+		t.Fatalf("forged device cookie must stay limited, got %d", w.Code)
+	}
+	if w := login("203.0.113.13", device, "admin-pass"); w.Code != http.StatusOK {
+		t.Fatalf("known device must not be locked out, got %d %s", w.Code, w.Body.String())
+	}
+	// The device cookie is not a session cookie.
+	r := httptest.NewRequest("GET", "/api/me", nil)
+	r.RemoteAddr = "203.0.113.13:1234"
+	r.Host = "127.0.0.1:8686"
+	r.AddCookie(&http.Cookie{Name: webguard.DeviceCookieName, Value: device})
+	w := httptest.NewRecorder()
+	tg.g.ServeHTTP(w, r)
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("device cookie authenticated a request: %d %s", w.Code, w.Body.String())
 	}
 }
 

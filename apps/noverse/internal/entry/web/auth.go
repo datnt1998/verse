@@ -58,6 +58,13 @@ func (g *Gateway) clearSession(w http.ResponseWriter, r *http.Request) {
 	g.cookiePolicy().Clear(w, r)
 }
 
+// clearDeviceCookie forgets this browser's known-device token. The store
+// already revoked it in the same request (password change, revoke-all); the
+// cookie must not keep carrying a dead value for the next 180 days.
+func (g *Gateway) clearDeviceCookie(w http.ResponseWriter, r *http.Request) {
+	webguard.NewDeviceCookie().Clear(w, r)
+}
+
 // appAccessGranted reports whether the account carries effective access to
 // Noverse right now: a global admin is always in, a member needs an explicit
 // grant row read from the shared store (Authenticate re-reads it every
@@ -166,6 +173,7 @@ func (g *Gateway) doRevokeAll(w http.ResponseWriter, r *http.Request, username s
 		return
 	}
 	g.clearSession(w, r)
+	g.clearDeviceCookie(w, r)
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
 }
 
@@ -208,6 +216,7 @@ func (g *Gateway) doPasswordChange(w http.ResponseWriter, r *http.Request, user 
 	}
 	g.limiter.Succeed(key)
 	g.clearSession(w, r)
+	g.clearDeviceCookie(w, r)
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true, "reauthenticate": true})
 }
 
@@ -286,6 +295,23 @@ func tooMany(w http.ResponseWriter, wait time.Duration) {
 	writeJSON(w, http.StatusTooManyRequests, map[string]any{"error": "Thử sai quá nhiều lần, vui lòng đợi rồi thử lại", "retryAfter": seconds})
 }
 
+// rememberDevice records this browser as a known device of the account after a
+// successful credential check. The token it mints grants no session — it only
+// moves the next login attempt of this browser to a per-device limiter bucket,
+// so a lockout aimed at the account from elsewhere cannot block it. A device
+// that already presented a live token keeps its cookie; minting is best effort
+// and never fails the login.
+func (g *Gateway) rememberDevice(w http.ResponseWriter, r *http.Request, username string, known bool) {
+	if known {
+		return
+	}
+	token, err := g.accounts.IssueDeviceToken(username)
+	if err != nil {
+		return
+	}
+	webguard.NewDeviceCookie().Set(w, r, token.Token, token.ExpiresAt)
+}
+
 func (g *Gateway) login(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Username string `json:"username"`
@@ -298,10 +324,12 @@ func (g *Gateway) login(w http.ResponseWriter, r *http.Request) {
 	// the account bucket and the audit target use the folded spelling: changing
 	// letter case must not open a fresh bucket for the same account.
 	username := strings.ToLower(strings.TrimSpace(req.Username))
-	keys := []string{"ip:" + clientIP(r)}
-	if identity.ValidUsername(username) {
-		keys = append(keys, "user:"+username)
-	}
+	device := webguard.NewDeviceCookie()
+	// A device that already signed in as this account is metered on its own
+	// bucket: failures aimed at the account from elsewhere cannot lock it out.
+	// A forged, expired or foreign token is an unknown device and falls back to
+	// the shared account bucket.
+	keys, known := g.accounts.LoginBuckets(username, clientIP(r), device.Read(r))
 	if wait := g.limiter.Wait(keys...); wait > 0 {
 		tooMany(w, wait)
 		return
@@ -321,6 +349,7 @@ func (g *Gateway) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.limiter.Succeed(keys...)
+	g.rememberDevice(w, r, username, known)
 	g.setSession(w, r, s)
 	// Correct credentials without a Noverse grant still set the cookie (the
 	// session may unlock a sibling app) but answer 403, not a fake success

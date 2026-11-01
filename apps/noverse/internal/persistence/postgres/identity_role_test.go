@@ -154,6 +154,17 @@ func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
 		t.Fatalf("Noverse grant missing: %+v", u.Grants)
 	}
 
+	// Known-device tokens are part of the login path: the role mints one after
+	// a successful login and reads it back (revocation is the UPDATE in the
+	// shared revoke path, exercised below by the password change).
+	token, err := s.IssueDeviceToken("mem")
+	if err != nil {
+		t.Fatalf("issue a device token under the identity role: %v", err)
+	}
+	if ok, err := s.DeviceTokenValid("mem", identity.DeviceTokenHash(token.Token)); err != nil || !ok {
+		t.Fatalf("device token read under the identity role: %v %v", ok, err)
+	}
+
 	// Password change: the column-minimal UPDATE and audit INSERT work, and
 	// the temporary password flag is cleared.
 	temp := loginOrFatal(t, s, "moi", "temp-pass-111")
@@ -283,6 +294,10 @@ func TestViderseIdentityRoleCannotReadNoverseOrPromoteUser(t *testing.T) {
 		{"audit sequence SELECT", `SELECT has_column_privilege('viderse_identity', $1, 'sequence', 'SELECT')`, []any{schema + ".audit_logs"}, false},
 		{"temp INSERT", `SELECT has_table_privilege('viderse_identity', $1, 'INSERT')`, []any{schema + ".temporary_passwords"}, false},
 		{"auth lock UPDATE", `SELECT has_table_privilege('viderse_identity', $1, 'UPDATE')`, []any{schema + ".auth_invariant_lock"}, true},
+		{"device tokens SELECT", `SELECT has_table_privilege('viderse_identity', $1, 'SELECT')`, []any{schema + ".device_tokens"}, true},
+		{"device tokens INSERT", `SELECT has_table_privilege('viderse_identity', $1, 'INSERT')`, []any{schema + ".device_tokens"}, true},
+		{"device tokens UPDATE", `SELECT has_table_privilege('viderse_identity', $1, 'UPDATE')`, []any{schema + ".device_tokens"}, true},
+		{"device tokens DELETE", `SELECT has_table_privilege('viderse_identity', $1, 'DELETE')`, []any{schema + ".device_tokens"}, false},
 		{"schema CREATE", `SELECT has_schema_privilege('viderse_identity', $1, 'CREATE')`, []any{schema}, false},
 		{"schema USAGE", `SELECT has_schema_privilege('viderse_identity', $1, 'USAGE')`, []any{schema}, true},
 		{"database CONNECT", `SELECT has_database_privilege('viderse_identity', current_database(), 'CONNECT')`, nil, true},

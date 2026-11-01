@@ -92,6 +92,48 @@ func TestAccountsSessionTokenHash(t *testing.T) {
 	}
 }
 
+// TestAccountsDeviceTokenStorage pins known-device hardening on Postgres: the
+// table holds only SHA-256(token) — never the cookie value — and every flow
+// that revokes the account's sessions also revokes its device tokens.
+func TestAccountsDeviceTokenStorage(t *testing.T) {
+	s, pool := provisionAccounts(t)
+	ctx := context.Background()
+	if _, err := s.CreateUser(identity.NewUser{Username: "chu", Role: identity.RoleAdmin, Password: "mat-khau-12345"}); err != nil {
+		t.Fatal(err)
+	}
+	token, err := s.IssueDeviceToken("chu")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var hash []byte
+	if err := pool.Pool().QueryRow(ctx,
+		`SELECT token_hash FROM device_tokens WHERE revoked_at IS NULL`).Scan(&hash); err != nil {
+		t.Fatal(err)
+	}
+	if len(hash) != 32 || hex.EncodeToString(hash) != identity.DeviceTokenHash(token.Token) {
+		t.Fatalf("device_tokens.token_hash is not SHA-256(token): %x", hash)
+	}
+	if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(token.Token)); err != nil || !ok {
+		t.Fatalf("stored device token not valid: %v %v", ok, err)
+	}
+	// RevokeAll: mọi device token còn sống phải bị thu hồi (không xoá row).
+	if err := s.RevokeAll("chu", identity.AuditContext{}); err != nil {
+		t.Fatal(err)
+	}
+	var live, revoked int
+	if err := pool.Pool().QueryRow(ctx,
+		`SELECT count(*) FILTER (WHERE revoked_at IS NULL), count(*) FILTER (WHERE revoked_at IS NOT NULL)
+		   FROM device_tokens`).Scan(&live, &revoked); err != nil {
+		t.Fatal(err)
+	}
+	if live != 0 || revoked != 1 {
+		t.Fatalf("after revoke-all: live=%d revoked=%d, want 0/1", live, revoked)
+	}
+	if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(token.Token)); err != nil || ok {
+		t.Fatalf("revoked device token still valid: %v %v", ok, err)
+	}
+}
+
 // TestAccountsNoFileAccess pins "PG facade does not read the accounts file":
 // Path() mô tả backend chứ không trả đường file; mọi dữ liệu đi qua repository.
 func TestAccountsNoFileAccess(t *testing.T) {

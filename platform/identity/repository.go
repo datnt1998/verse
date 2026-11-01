@@ -19,6 +19,9 @@ import (
 //   - Đổi/reset mật khẩu, khoá tài khoản và RevokeAll thu hồi MỌI phiên của
 //     tài khoản, kể cả phiên đang dùng; phiên hợp lệ kế tiếp chỉ có sau khi
 //     đăng nhập lại.
+//   - Device token (thiết bị đã đăng nhập thành công) chỉ đổi bucket limiter
+//     của lần login sau: lưu SHA-256, không tự cấp phiên, và bị xoá ở đúng
+//     những luồng thu hồi phiên ở trên.
 //   - Tối thiểu một admin active và đúng một owner active mỗi project:
 //     mutation để lại 0 admin → ErrLastAdmin; 0 owner → ErrLastOwner; mở
 //     thêm owner thứ hai → ErrOwnerTaken. Chuyển owner chỉ qua
@@ -47,6 +50,15 @@ type Repository interface {
 	Recover(username, code, newPassword, device, ip string) (NewSession, []string, error)
 	Audit(query AuditQuery) (AuditPage, error)
 	RecordSecurityFailure(username string) error
+
+	// Known devices of an account: long-lived tokens that only relax the login
+	// limiter bucket. Only the SHA-256 digest is stored (never the token) and
+	// the token never authenticates anything by itself. Every revocation flow
+	// that ends sessions (password change, recovery, disable, delete,
+	// revoke-all) also forgets these rows.
+	SaveDeviceToken(username, tokenHash string, expiresAt time.Time) error
+	DeviceTokenValid(username, tokenHash string) (bool, error)
+	RevokeDeviceTokens(username string) error
 
 	// Quản lý membership phạm vi project (owner hoặc admin).
 	// SetProjectMember chỉ nhận ProjectCollab/ProjectView; owner được gán qua

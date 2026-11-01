@@ -2,6 +2,7 @@ package webapp_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
@@ -66,11 +68,23 @@ func (ts *testServer) createUser(username, password string) {
 
 func (ts *testServer) do(method, path, cookie, body string) *httptest.ResponseRecorder {
 	ts.t.Helper()
-	r := httptest.NewRequest(method, path, strings.NewReader(body))
-	r.RemoteAddr = "192.0.2.1:1234"
-	r.Host = "127.0.0.1:8799"
+	var cookies []*http.Cookie
 	if cookie != "" {
-		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		cookies = append(cookies, &http.Cookie{Name: testCookie, Value: cookie})
+	}
+	return ts.doFrom(method, path, "192.0.2.1:1234", cookies, body)
+}
+
+// doFrom issues a request from an explicit client address with explicit
+// cookies: limiter buckets are keyed on the IP, so lockout scenarios need one
+// attacker address per try and a separate address for the device under test.
+func (ts *testServer) doFrom(method, path, remoteAddr string, cookies []*http.Cookie, body string) *httptest.ResponseRecorder {
+	ts.t.Helper()
+	r := httptest.NewRequest(method, path, strings.NewReader(body))
+	r.RemoteAddr = remoteAddr
+	r.Host = "127.0.0.1:8799"
+	for _, c := range cookies {
+		r.AddCookie(c)
 	}
 	if method == http.MethodPost || method == http.MethodPut || body != "" {
 		r.Header.Set("Content-Type", "application/json")
@@ -78,6 +92,16 @@ func (ts *testServer) do(method, path, cookie, body string) *httptest.ResponseRe
 	w := httptest.NewRecorder()
 	ts.s.ServeHTTP(w, r)
 	return w
+}
+
+// cookieValue returns one cookie the response set, or "".
+func cookieValue(w *httptest.ResponseRecorder, name string) *http.Cookie {
+	for _, c := range w.Result().Cookies() {
+		if c.Name == name {
+			return c
+		}
+	}
+	return nil
 }
 
 func (ts *testServer) sessionCookie() string {
@@ -487,6 +511,100 @@ func TestLoginLimiter(t *testing.T) {
 	}
 	if _, ok := m["retryAfter"].(float64); !ok {
 		t.Fatalf("429 retryAfter %v", m)
+	}
+}
+
+// TestLoginDeviceTokenSurvivesAccountLockout is the availability contract: an
+// attacker who burns the shared user:<admin> bucket from anywhere must not lock
+// the owner out of a device that already signed in as that account. A device
+// without the cookie — and one with a forged cookie — stays limited.
+func TestLoginDeviceTokenSurvivesAccountLockout(t *testing.T) {
+	ts := newTestServer(t, true)
+	good := `{"username":"admin","password":"admin-pass"}`
+
+	// The owner's device signs in once: that is the only way a device becomes
+	// known, and it must not happen on a failed attempt.
+	if w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.10:1000", nil, `{"username":"admin","password":"sai"}`); w.Code != http.StatusUnauthorized {
+		t.Fatalf("failed login minted a device: %d %s", w.Code, w.Body.String())
+	}
+	if c := cookieValue(ts.doFrom(http.MethodPost, "/api/login", "203.0.113.10:1000", nil, `{"username":"admin","password":"sai"}`), webguard.DeviceCookieName); c != nil {
+		t.Fatalf("device cookie set on a wrong password: %+v", c)
+	}
+	login := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.10:1000", nil, good)
+	if login.Code != http.StatusOK {
+		t.Fatalf("owner login %d: %s", login.Code, login.Body.String())
+	}
+	device := cookieValue(login, webguard.DeviceCookieName)
+	if device == nil || device.Value == "" {
+		t.Fatal("successful login minted no device cookie")
+	}
+	if !device.HttpOnly || device.SameSite != http.SameSiteStrictMode || device.Domain != "" {
+		t.Fatalf("device cookie must be HttpOnly, Strict and host-only: %+v", device)
+	}
+	if device.MaxAge < int((identity.DeviceTokenTTL - time.Hour).Seconds()) {
+		t.Fatalf("device cookie too short-lived: %d", device.MaxAge)
+	}
+	known := []*http.Cookie{{Name: device.Name, Value: device.Value}}
+
+	// The attacker sends one wrong password per fresh address, so only the
+	// shared account bucket fills — exactly the "lock the admin out" attack.
+	for i := range 5 {
+		w := ts.doFrom(http.MethodPost, "/api/login", fmt.Sprintf("198.51.100.%d:1000", i+1), nil, `{"username":"admin","password":"sai"}`)
+		if w.Code != http.StatusUnauthorized {
+			t.Fatalf("attacker attempt %d: %d %s", i+1, w.Code, w.Body.String())
+		}
+	}
+
+	// No device cookie: the account is locked for this browser.
+	if w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.11:1000", nil, good); w.Code != http.StatusTooManyRequests {
+		t.Fatalf("unknown device must stay limited, got %d %s", w.Code, w.Body.String())
+	}
+	// Forged cookie: treated as an unknown device, so still limited.
+	forged := []*http.Cookie{{Name: device.Name, Value: strings.Repeat("ab", 32)}}
+	if w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.12:1000", forged, good); w.Code != http.StatusTooManyRequests {
+		t.Fatalf("forged device cookie must stay limited, got %d %s", w.Code, w.Body.String())
+	}
+	// A token of another account is just as unknown.
+	if w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.14:1000", known, `{"username":"other","password":"admin-pass"}`); w.Code == http.StatusOK {
+		t.Fatal("device token of admin accepted for another account")
+	}
+	// The known device signs in immediately from a brand-new address.
+	if w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.13:1000", known, good); w.Code != http.StatusOK {
+		t.Fatalf("known device must not be locked out, got %d %s", w.Code, w.Body.String())
+	}
+	// A device token is never a session.
+	if w := ts.doFrom(http.MethodGet, "/api/me", "203.0.113.13:1000", known, ""); w.Code != http.StatusUnauthorized {
+		t.Fatalf("device cookie authenticated a request: %d %s", w.Code, w.Body.String())
+	}
+}
+
+// TestLoginDeviceTokenRevokedOnPasswordChange proves the device cookie stops
+// being trusted as soon as the credential it was earned with changes: the
+// account bucket takes over again, so the old device is limited like any other.
+func TestLoginDeviceTokenRevokedOnPasswordChange(t *testing.T) {
+	ts := newTestServer(t, true)
+	login := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.10:1000", nil, `{"username":"admin","password":"admin-pass"}`)
+	device := cookieValue(login, webguard.DeviceCookieName)
+	session := cookieValue(login, testCookie)
+	if device == nil || session == nil {
+		t.Fatal("login must set both cookies")
+	}
+	change := ts.doFrom(http.MethodPost, "/api/me/password", "203.0.113.10:1000",
+		[]*http.Cookie{{Name: testCookie, Value: session.Value}},
+		`{"current":"admin-pass","new":"admin-pass-moi"}`)
+	if change.Code != http.StatusOK {
+		t.Fatalf("password change %d: %s", change.Code, change.Body.String())
+	}
+	// Burn the account bucket, then try the retired device: it must be limited
+	// like any unknown browser instead of skipping the shared bucket.
+	for i := range 5 {
+		ts.doFrom(http.MethodPost, "/api/login", fmt.Sprintf("198.51.100.%d:1000", i+1), nil, `{"username":"admin","password":"sai"}`)
+	}
+	w := ts.doFrom(http.MethodPost, "/api/login", "203.0.113.15:1000",
+		[]*http.Cookie{{Name: device.Name, Value: device.Value}},
+		`{"username":"admin","password":"admin-pass-moi"}`)
+	if w.Code != http.StatusTooManyRequests {
+		t.Fatalf("device token survived a password change: %d %s", w.Code, w.Body.String())
 	}
 }
 

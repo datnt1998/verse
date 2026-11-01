@@ -181,6 +181,75 @@ func Run(t *testing.T, factory Factory) {
 		}
 	})
 
+	t.Run("device_token_lifecycle", func(t *testing.T) {
+		s := factory(t)
+		if _, err := s.CreateUser(identity.NewUser{Username: "chu", Role: identity.RoleAdmin, Password: pass1}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := s.CreateUser(identity.NewUser{Username: "khach", Role: identity.RoleMember, Password: pass1}); err != nil {
+			t.Fatal(err)
+		}
+		// Chỉ đăng nhập thành công mới sinh device token; token dài hạn và
+		// chỉ là gợi ý cho limiter — không cấp phiên.
+		token, err := s.IssueDeviceToken("chu")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !identity.ValidDeviceTokenShape(token.Token) {
+			t.Fatalf("issued token shape: %q", token.Token)
+		}
+		if life := token.ExpiresAt.Sub(time.Now()); life < 179*24*time.Hour {
+			t.Fatalf("device token lifetime too short: %v", life)
+		}
+		if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(token.Token)); err != nil || !ok {
+			t.Fatalf("fresh device token: %v %v", ok, err)
+		}
+		// Token của tài khoản khác, token giả và tài khoản không tồn tại đều
+		// trả false — không lộ việc tài khoản có hay không.
+		if ok, err := s.DeviceTokenValid("khach", identity.DeviceTokenHash(token.Token)); err != nil || ok {
+			t.Fatalf("foreign device token accepted: %v %v", ok, err)
+		}
+		forged := strings.Repeat("ab", 32)
+		if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(forged)); err != nil || ok {
+			t.Fatalf("forged token accepted: %v %v", ok, err)
+		}
+		if ok, err := s.DeviceTokenValid("khong-ton-tai", identity.DeviceTokenHash(token.Token)); err != nil || ok {
+			t.Fatalf("unknown account token: %v %v", ok, err)
+		}
+		// Bucket: thiết bị đã biết → bucket (user, thiết bị); thiết bị lạ →
+		// bucket chung user:<tên>.
+		keys, device := s.LoginBuckets("chu", "10.0.0.1", token.Token)
+		if !device || len(keys) != 2 || keys[0] != "ip:10.0.0.1" || keys[1] != identity.DeviceBucket("chu", token.Token) || keys[1] == "user:chu" {
+			t.Fatalf("known device buckets: %v %v", keys, device)
+		}
+		for _, bad := range []string{"", forged, token.Token + "0"} {
+			keys, device := s.LoginBuckets("chu", "10.0.0.1", bad)
+			if device || len(keys) != 2 || keys[1] != "user:chu" {
+				t.Fatalf("unknown device %q buckets: %v %v", bad, keys, device)
+			}
+		}
+		// Đổi mật khẩu thu hồi mọi device token của tài khoản.
+		second, err := s.IssueDeviceToken("chu")
+		if err != nil {
+			t.Fatal(err)
+		}
+		isErr(t, s.ChangePassword("chu", pass1, pass2), nil, "change password")
+		for _, tok := range []identity.DeviceToken{token, second} {
+			if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(tok.Token)); err != nil || ok {
+				t.Fatalf("password change kept a device token: %v %v", ok, err)
+			}
+		}
+		// RevokeAll (đăng xuất mọi thiết bị) cũng vậy.
+		third, err := s.IssueDeviceToken("chu")
+		if err != nil {
+			t.Fatal(err)
+		}
+		isErr(t, s.RevokeAll("chu", identity.AuditContext{}), nil, "revoke all")
+		if ok, err := s.DeviceTokenValid("chu", identity.DeviceTokenHash(third.Token)); err != nil || ok {
+			t.Fatalf("revoke-all kept a device token: %v %v", ok, err)
+		}
+	})
+
 	t.Run("password_lifecycle", func(t *testing.T) {
 		s := factory(t)
 		if _, err := s.CreateUser(identity.NewUser{Username: "chu", Role: identity.RoleAdmin, Password: pass1}); err != nil {

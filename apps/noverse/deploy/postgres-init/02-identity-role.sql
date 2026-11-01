@@ -193,11 +193,13 @@ GRANT SELECT, INSERT ON TABLE :"identity_schema".users TO viderse_identity;
 GRANT UPDATE (must_change_password, updated_at, version)
     ON TABLE :"identity_schema".users TO viderse_identity;
 
--- Credentials are written on password change and first-admin setup; devices
--- and sessions are created/touched by every login and authenticate.
+-- Credentials are written on password change and first-admin setup; devices,
+-- sessions and known-device tokens are created/touched by every login and
+-- revoked (never deleted) whenever the account's sessions are revoked.
 GRANT SELECT, INSERT, UPDATE ON TABLE :"identity_schema".user_credentials,
     :"identity_schema".devices, :"identity_schema".sessions,
-    :"identity_schema".recovery_codes TO viderse_identity;
+    :"identity_schema".device_tokens, :"identity_schema".recovery_codes
+    TO viderse_identity;
 
 -- Temporary passwords and QR pairings are consumed/revoked, never issued by
 -- Viderse in this scope (no INSERT).

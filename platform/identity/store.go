@@ -233,6 +233,20 @@ type session struct {
 	ExpiresAt  time.Time `json:"expiresAt"`
 }
 
+// deviceToken is one known device of an account (file v4, additive): only the
+// SHA-256 of the cookie value is stored, so the file cannot be replayed as a
+// device credential. It relaxes the login limiter only — it is never a session.
+type deviceToken struct {
+	Username  string    `json:"username"`
+	Hash      string    `json:"hash"`
+	CreatedAt time.Time `json:"createdAt"`
+	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+// maxDeviceTokens bounds the known devices kept per account, newest first: a
+// script that logs in without keeping cookies must not grow the file forever.
+const maxDeviceTokens = 10
+
 // Session 是会话的对外视图，不含密钥哈希。
 type Session struct {
 	ID        string    `json:"id"`
@@ -281,11 +295,12 @@ type pairing struct {
 }
 
 type data struct {
-	Version           int          `json:"version"`
-	Users             []User       `json:"users"`
-	Sessions          []session    `json:"sessions"`
-	Pairings          []pairing    `json:"pairings"`
-	Audit             []AuditEntry `json:"audit"`
+	Version           int           `json:"version"`
+	Users             []User        `json:"users"`
+	Sessions          []session     `json:"sessions"`
+	Pairings          []pairing     `json:"pairings"`
+	DeviceTokens      []deviceToken `json:"deviceTokens,omitempty"`
+	Audit             []AuditEntry  `json:"audit"`
 	legacyPermissions map[string]legacyPermission
 }
 
@@ -321,6 +336,49 @@ func (d *data) activeOwners(project string) int {
 
 func (d *data) dropSessions(keep func(session) bool) {
 	d.Sessions = slices.DeleteFunc(d.Sessions, func(s session) bool { return !keep(s) })
+}
+
+// pruneDeviceTokens drops expired tokens (any account).
+func (d *data) pruneDeviceTokens(now time.Time) {
+	d.DeviceTokens = slices.DeleteFunc(d.DeviceTokens, func(t deviceToken) bool { return !t.ExpiresAt.After(now) })
+}
+
+// dropDeviceTokens forgets every known device of one account.
+func (d *data) dropDeviceTokens(username string) {
+	d.DeviceTokens = slices.DeleteFunc(d.DeviceTokens, func(t deviceToken) bool { return t.Username == username })
+}
+
+// capDeviceTokens keeps at most keep newest tokens of username.
+func (d *data) capDeviceTokens(username string, keep int) {
+	var mine []int
+	for i, t := range d.DeviceTokens {
+		if t.Username == username {
+			mine = append(mine, i)
+		}
+	}
+	if len(mine) <= keep {
+		return
+	}
+	// Newest first: everything past keep is dropped.
+	slices.SortStableFunc(mine, func(a, b int) int {
+		return d.DeviceTokens[b].CreatedAt.Compare(d.DeviceTokens[a].CreatedAt)
+	})
+	drop := make(map[int]bool, len(mine)-keep)
+	for _, i := range mine[keep:] {
+		drop[i] = true
+	}
+	kept := make([]deviceToken, 0, len(d.DeviceTokens))
+	for i, t := range d.DeviceTokens {
+		if !drop[i] {
+			kept = append(kept, t)
+		}
+	}
+	d.DeviceTokens = kept
+}
+
+// subtleCompare is a constant-time string equality for stored digests.
+func subtleCompare(a, b string) bool {
+	return subtle.ConstantTimeCompare([]byte(a), []byte(b)) == 1
 }
 
 func (d *data) enabledAdmins() int {
@@ -359,6 +417,15 @@ type Store struct {
 // NewStore tạo kho tài khoản file tại path; opts cung cấp định danh project
 // của app (validator + legacy ID, xem Options).
 func NewStore(path string, opts Options) *Store { return &Store{path: path, now: time.Now, opts: opts} }
+
+// clock is the store's time source. Only the file backend installs one (tests
+// pin it); a repository facade has none because the backend owns its clock.
+func (s *Store) clock() time.Time {
+	if s.now != nil {
+		return s.now()
+	}
+	return time.Now()
+}
 
 // DefaultPath trả đường mặc định của kho tài khoản: dir/web-accounts.json,
 // với dir là thư mục dữ liệu app đã giải ở phía caller. dir rỗng (không xác
@@ -468,6 +535,7 @@ func (s *Store) update(fn func(d *data) error) error {
 	now := s.now()
 	d.dropSessions(func(x session) bool { return x.ExpiresAt.After(now) })
 	d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return !p.ExpiresAt.After(now) })
+	d.pruneDeviceTokens(now)
 	d.Audit = slices.DeleteFunc(d.Audit, func(entry AuditEntry) bool { return entry.At.Before(now.AddDate(-1, 0, 0)) })
 	if err := s.write(d); err != nil {
 		return err
@@ -880,6 +948,7 @@ func (s *Store) UpdateUser(username string, patch UserPatch) (UserView, error) {
 		u.UpdatedAt = s.now()
 		if revoke {
 			d.dropSessions(func(x session) bool { return x.Username != username })
+			d.dropDeviceTokens(username)
 			d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return p.Username == username })
 		}
 		updated = *u
@@ -955,6 +1024,7 @@ func (s *Store) DeleteUser(username string, context ...AuditContext) error {
 			return ErrLastAdmin
 		}
 		d.dropSessions(func(x session) bool { return x.Username != username })
+		d.dropDeviceTokens(username)
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return p.Username == username })
 		return nil
 	})
@@ -1265,6 +1335,7 @@ func (s *Store) ChangePassword(username, current, next string, context ...AuditC
 		u.MustChangePassword = false
 		u.UpdatedAt = s.now()
 		d.dropSessions(func(x session) bool { return x.Username != username })
+		d.dropDeviceTokens(username)
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return p.Username == username })
 		s.addAudit(d, &AuditActor{Username: u.Username, Name: u.Name}, "sec", "Đổi mật khẩu", username, "", "", "")
 		return nil

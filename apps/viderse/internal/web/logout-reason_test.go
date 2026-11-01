@@ -46,7 +46,21 @@ func TestSSOLogoutRetainsRevokedCookie(t *testing.T) {
 	}
 	login()
 	u, _ := url.Parse(v.URL)
-	before := jar.Cookies(u)[0].Value
+	// The jar also holds the host-only known-device cookie, so the session
+	// cookie must be selected by name — the contract here is that a new login
+	// mints a new session, not that it is the jar's first entry.
+	session := func() string {
+		for _, c := range jar.Cookies(u) {
+			if c.Name == "verse_session" {
+				return c.Value
+			}
+		}
+		return ""
+	}
+	before := session()
+	if before == "" {
+		t.Fatal("login set no session cookie")
+	}
 	if r := post(v.URL, "/api/logout", `{}`); r.StatusCode != 204 {
 		t.Fatalf("logout=%d", r.StatusCode)
 	}
@@ -69,7 +83,7 @@ func TestSSOLogoutRetainsRevokedCookie(t *testing.T) {
 		}
 	}
 	login()
-	if jar.Cookies(u)[0].Value == before {
+	if session() == before {
 		t.Fatal("login reused revoked token")
 	}
 	res, err := client.Get(n.URL + "/api/me")

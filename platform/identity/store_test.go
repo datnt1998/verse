@@ -80,6 +80,59 @@ func TestLoginSessionLifecycle(t *testing.T) {
 	}
 }
 
+// TestDeviceTokenStorage pins the known-device storage shape: only SHA-256 of
+// the token lands in the accounts file, the record dies on its own expiry (a
+// cookie may outlive it — the record is the truth), and a script that drops
+// cookies cannot grow the file past maxDeviceTokens.
+func TestDeviceTokenStorage(t *testing.T) {
+	s, c := newTestStore(t)
+	token, err := s.IssueDeviceToken("admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(s.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), token.Token) {
+		t.Fatal("device token stored in clear text")
+	}
+	if !strings.Contains(string(raw), DeviceTokenHash(token.Token)) {
+		t.Fatal("device token digest missing from the store")
+	}
+	if _, err := s.IssueDeviceToken("khong-ton-tai"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("issue for an unknown account: %v", err)
+	}
+	c.t = c.t.Add(DeviceTokenTTL - time.Hour)
+	if ok, err := s.DeviceTokenValid("admin", DeviceTokenHash(token.Token)); err != nil || !ok {
+		t.Fatalf("device token expired early: %v %v", ok, err)
+	}
+	c.t = c.t.Add(2 * time.Hour)
+	if ok, err := s.DeviceTokenValid("admin", DeviceTokenHash(token.Token)); err != nil || ok {
+		t.Fatalf("expired device token still valid: %v %v", ok, err)
+	}
+	var issued []string
+	for range maxDeviceTokens + 2 {
+		c.t = c.t.Add(time.Minute)
+		tok, err := s.IssueDeviceToken("admin")
+		if err != nil {
+			t.Fatal(err)
+		}
+		issued = append(issued, tok.Token)
+	}
+	live := 0
+	for _, tok := range issued {
+		if ok, err := s.DeviceTokenValid("admin", DeviceTokenHash(tok)); err != nil {
+			t.Fatal(err)
+		} else if ok {
+			live++
+		}
+	}
+	if live != maxDeviceTokens {
+		t.Fatalf("live device tokens = %d, want %d", live, maxDeviceTokens)
+	}
+}
+
 func TestPairingIsSingleUseAndExpires(t *testing.T) {
 	s, c := newTestStore(t)
 	if _, err := s.CreateUser(NewUser{Username: "reader", Role: RoleMember, Projects: map[string]ProjectRole{"_": ProjectView}, Password: "reader-pass"}); err != nil {

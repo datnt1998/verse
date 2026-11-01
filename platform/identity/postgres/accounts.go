@@ -812,9 +812,11 @@ func auditContextOf(context []identity.AuditContext) identity.AuditContext {
 	return identity.AuditContext{}
 }
 
-// revokeUserAuth revokes every session (current one included) and all pairings
-// of the account; the revoked session IDs come back for callers that broadcast
-// them (Recover).
+// revokeUserAuth revokes every session (current one included), all pairings and
+// every known-device token of the account; the revoked session IDs come back
+// for callers that broadcast them (Recover). A device trusted under the old
+// credential must earn it again: password change, recovery, disable, delete,
+// privilege loss and revoke-all all pass through here.
 func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx, userID pgtype.UUID, reason string, app identity.App) ([]string, error) {
 	revoked, err := revokeAllUserSessions(ctx, tx, userID, a.now(), reason, app)
 	if err != nil {
@@ -822,6 +824,9 @@ func (a *Accounts) revokeUserAuth(ctx context.Context, q *gen.Queries, tx pgx.Tx
 	}
 	if err := q.RevokeUserPairings(ctx, gen.RevokeUserPairingsParams{UserID: userID, RevokedAt: ts(a.now())}); err != nil {
 		return nil, sanitizeErr(err)
+	}
+	if err := a.revokeUserDeviceTokens(ctx, tx, userID, a.now()); err != nil {
+		return nil, err
 	}
 	return revoked, nil
 }
