@@ -26,6 +26,8 @@ import { TemplateNav } from './template/TemplateNav'
 import { useTemplateDraft } from './template/useTemplateDraft'
 import { AttachChannelDialog } from './AttachChannelDialog'
 import { clock, editedLabel, num } from './fmt'
+import { MTemplateScreen } from './mobile/MTemplateScreen'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 
 /** Cảnh báo sức khoẻ dùng chung cho chip trên đầu trang và thẻ ở cột trái. */
@@ -49,6 +51,12 @@ export function tplHealthChecks(detail: TemplateDetail) {
 }
 
 export function TemplateScreen({ route }: { route: Extract<Route, { name: 'template' }> }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  if (mobile) return <MTemplateScreen route={route} />
+  return <DesktopTemplateScreen route={route} />
+}
+
+function DesktopTemplateScreen({ route }: { route: Extract<Route, { name: 'template' }> }) {
   const copy = t.library.template
   const detail = useResource(keys.template(route.templateId), ({ signal }) => getTemplate(route.templateId, signal))
   const section: TemplateSection = route.section ?? 'images'

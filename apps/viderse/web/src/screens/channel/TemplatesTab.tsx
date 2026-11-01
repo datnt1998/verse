@@ -6,6 +6,7 @@ import { channelStyles } from './channel.stylex'
 // Mỗi hàng mở trang cài đặt template. Thẻ "sức khoẻ" của artboard cần dữ liệu
 // kiểm định template — chưa có nên chỉ hiện recipe thật (tên + dòng phụ).
 import { useState } from 'react'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { Dialog, Icon, toast } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton } from '../../components'
@@ -19,6 +20,7 @@ import { templateLine } from './templateLine'
 
 export function TemplatesTab({ channel }: { channel: Channel }) {
   const tt = t.channels.templates
+  const phone = useMediaQuery('(max-width: 767px)')
   const library = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -101,6 +103,11 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
         >
           {tt.standard}
         </ActionButton>
+        {phone && (
+          <a className={`vch-chip ${stylex.props(channelStyles.chip, channelStyles.touchTarget).className}`} href={`#${paths.library('templates')}`}>
+            {tt.openLibrary}
+          </a>
+        )}
         <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.standardHint}</span>
       </div>
 
