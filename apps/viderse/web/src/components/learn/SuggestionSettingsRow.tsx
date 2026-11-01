@@ -1,5 +1,5 @@
-// Hàng "Đề xuất của trợ lý" trong Cài đặt thông báo › Trợ lý chủ động. Công tắc tổng bật/tắt cả
-// 7 loại (mọi kênh); "Chọn loại" mở từng loại; loại tắt riêng cho một kênh (từ “Đừng đề xuất kiểu
+// Hàng "Đề xuất của trợ lý" trong Cài đặt thông báo › Trợ lý chủ động (artboard: chữ + nút "Chọn loại",
+// không có công tắc tổng). "Chọn loại" mở từng loại trong 7 loại (mọi kênh); loại tắt riêng cho một kênh (từ “Đừng đề xuất kiểu
 // này”) hiện dạng danh sách có “Bật lại”. Toàn bộ nằm trong `suggestions.off` của cài đặt thông báo.
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
@@ -23,13 +23,11 @@ export function SuggestionSettingsRow({ off, channelNames, offline, onChange, re
   const onKinds = SUGGESTION_KINDS.filter((kind) => !globallyOff(kind))
   const perChannel = off.filter((item) => item.channelId !== null)
   const setKind = (kind: SuggestionKind, on: boolean) => onChange(on ? off.filter((item) => !(item.channelId === null && item.kind === kind)) : [...off, { channelId: null, kind }])
-  const setAll = (on: boolean) => onChange(on ? off.filter((item) => item.channelId !== null) : [...off.filter((item) => item.channelId !== null), ...SUGGESTION_KINDS.map((kind) => ({ channelId: null, kind }))])
   const summary = c.summary(onKinds.length, SUGGESTION_KINDS.length, SUGGESTION_KINDS.filter(globallyOff).map((kind) => c.kinds[kind]))
   return <>
     <div {...stylex.props(s.setRow)}>
       <span {...stylex.props(s.setText)}>{c.row}<span {...stylex.props(s.setDesc)}>{summary}</span></span>
-      <ActionButton variant="quiet" size="sm" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? c.done : c.choose}</ActionButton>
-      {renderSwitch(c.row, onKinds.length > 0, setAll)}
+      <ActionButton variant="outline" size="sm" type="button" xstyle={s.setChoose} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? c.done : c.choose}</ActionButton>
     </div>
     {open && <>
       {SUGGESTION_KINDS.map((kind) => <div key={kind} {...stylex.props(s.setRow, s.setSub)}>

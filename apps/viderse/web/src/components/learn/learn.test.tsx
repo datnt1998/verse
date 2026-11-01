@@ -180,13 +180,10 @@ describe('SuggestionSettingsRow', () => {
     expect(spy).toHaveBeenLastCalledWith([])
   })
 
-  it('công tắc tổng tắt cả 7 loại rồi bật lại; loại tắt riêng cho kênh có "Bật lại"', async () => {
+  it('loại tắt riêng cho kênh có "Bật lại"; hàng chỉ có chữ và nút Chọn loại (không công tắc tổng)', async () => {
     const spy = vi.fn()
     const el = await mount(<Harness initial={[{ channelId: 'c1', kind: 'pace' }]} spy={spy} />)
-    await click(el.querySelector('[aria-label="Đề xuất của trợ lý"]'))
-    expect(spy.mock.calls.at(-1)![0]).toHaveLength(8)
-    await click(el.querySelector('[aria-label="Đề xuất của trợ lý"]'))
-    expect(spy.mock.calls.at(-1)![0]).toEqual([{ channelId: 'c1', kind: 'pace' }])
+    expect(el.querySelector('[aria-label="Đề xuất của trợ lý"]')).toBeNull()
     await click(button(el, 'Chọn loại'))
     expect(el.textContent).toContain('“Đổi nhịp đăng” ở Midnight Tales')
     await click(button(el, 'Bật lại'))
