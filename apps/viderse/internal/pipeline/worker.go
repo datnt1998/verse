@@ -51,10 +51,22 @@ func (w *Worker) Wake() {
 	}
 }
 func (w *Worker) IsPrimary() bool { w.mu.Lock(); defer w.mu.Unlock(); return w.primary }
+
+// runResult maps an error to the worker's run result. ctx is the serve
+// lifecycle, so once it is cancelled the worker is stopping: whatever a store
+// or step call returns then (context.Canceled, or a pgx connect error wrapping
+// it) is shutdown noise and must not turn a clean stop into a serve failure.
+func runResult(ctx context.Context, err error) error {
+	if err != nil && ctx.Err() != nil {
+		return nil
+	}
+	return err
+}
+
 func (w *Worker) Run(ctx context.Context) error {
 	lock, err := w.Store.AcquireWorkerLock(ctx)
 	if err != nil {
-		return err
+		return runResult(ctx, err)
 	}
 	if lock == nil {
 		<-ctx.Done()
@@ -86,11 +98,11 @@ func (w *Worker) Run(ctx context.Context) error {
 		return nil
 	}
 	if err := recoverJobs(); err != nil {
-		return err
+		return runResult(ctx, err)
 	}
 	if w.OnPrimary != nil {
 		if err := w.OnPrimary(ctx); err != nil {
-			return err
+			return runResult(ctx, err)
 		}
 	}
 	defer func() {
@@ -106,14 +118,14 @@ func (w *Worker) Run(ctx context.Context) error {
 			return nil
 		}
 		if err := lock.Check(ctx); err != nil {
-			return err
+			return runResult(ctx, err)
 		}
 		if err := recoverJobs(); err != nil {
-			return err
+			return runResult(ctx, err)
 		}
 		if w.OnPoll != nil {
 			if err := w.OnPoll(ctx); err != nil {
-				return err
+				return runResult(ctx, err)
 			}
 		}
 		limit := domain.JobConcurrencyDefault
@@ -132,7 +144,7 @@ func (w *Worker) Run(ctx context.Context) error {
 		if free > 0 {
 			jobs, err := w.Store.ListClaimableJobs(ctx, limit*2)
 			if err != nil {
-				return err
+				return runResult(ctx, err)
 			}
 			for _, job := range jobs {
 				w.mu.Lock()
