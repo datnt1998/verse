@@ -572,7 +572,9 @@ func (g *Gateway) pgHostedExportResolve(ctx context.Context, st library.Story, i
 				continue
 			}
 			var m pgExportFileManifest
-			_ = json.Unmarshal(e.InputManifest, &m)
+			if err := json.Unmarshal(e.InputManifest, &m); err != nil || m.Name == "" {
+				continue
+			}
 			return blob, m, nil
 		}
 		return postgres.Blob{}, pgExportFileManifest{}, errs.ErrStorageNotFound

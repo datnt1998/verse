@@ -15,6 +15,7 @@ import (
 	"image/color"
 	"image/png"
 	"io"
+	"mime"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -22,8 +23,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
+	"unicode"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
@@ -628,8 +631,16 @@ func TestPGAudioExportMusicAndPeaks(t *testing.T) {
 			found = true
 			rec := f.storyCall(t, f.fx.owner, "GET", "/exports/file",
 				"path="+url.QueryEscape(file["path"].(string)), "")
-			if rec.Code != http.StatusOK || rec.Body.Len() == 0 {
+			if rec.Code != http.StatusOK {
 				t.Fatalf("export mp3 download: %d", rec.Code)
+			}
+			_, disposition, err := mime.ParseMediaType(rec.Header().Get("Content-Disposition"))
+			name := disposition["filename"]
+			words := func(value string) []string {
+				return strings.FieldsFunc(value, func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsNumber(r) })
+			}
+			if err != nil || !slices.Equal(words(name), words(file["name"].(string))) {
+				t.Fatalf("export mp3 filename metadata = %q, want %q (parse: %v)", name, file["name"], err)
 			}
 		}
 	}

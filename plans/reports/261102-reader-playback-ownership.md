@@ -57,3 +57,10 @@ The existing worker publication fixture now carries a real complete frozen proto
 ## Parent-owned gate
 
 The parent owns merge/deployment and the real production native fixture replay. This follow-up does not claim a production replay or independent review closure; both reviewers receive the committed follow-up and focused evidence for their closure verdicts.
+
+## Controller export-download repair
+
+The complete PostgreSQL release gate exposed a real nil-request panic in `/exports/file`: an MP3 blob also had a `chapter-audio:` cache row whose playback manifest was incorrectly decoded as named export metadata. Resolution now applies the same valid, named-export criterion as the export listing, so a playback row cannot hide the actual export filename. The hosted download no longer passes a nil HTTP request to a request-dependent filename helper.
+
+`TestPGAudioExportMusicAndPeaks` failed before with the panic and passes after. It exercises actual PostgreSQL, WAV/MP3 generation, peaks and HTTP download, and now checks that downloaded filename metadata agrees with the listed artifact while allowing the existing transport filename sanitization. Both chapter and volume MP3s are covered; punctuation is not pinned.
+

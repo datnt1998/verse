@@ -1048,7 +1048,10 @@ func (g *Gateway) serveExportFileHosted(w http.ResponseWriter, r *http.Request, 
 		jsonMappedError(w, err)
 		return
 	}
-	name := g.downloadHostedName(m, blob)
+	name := m.Name
+	if name == "" {
+		name = blob.ObjectKey
+	}
 	if base := filepath.Base(name); base != "" && base != "." {
 		name = base
 	}
@@ -1056,16 +1059,6 @@ func (g *Gateway) serveExportFileHosted(w http.ResponseWriter, r *http.Request, 
 		blob.ContentType = ct
 	}
 	g.serveHostedBlob(w, r, blob, "private, max-age=60", name)
-}
-
-// downloadHostedName mirrors downloadFileName: story title · volume when the
-// produced name has no " · " title prefix, else the produced name itself.
-func (g *Gateway) downloadHostedName(m pgExportFileManifest, blob postgres.Blob) string {
-	name := m.Name
-	if name == "" {
-		name = fileNameOf(blob.ObjectKey, nil)
-	}
-	return name
 }
 
 // safeExportPath 把相对路径解析到导出目录内：拒绝绝对路径与任何 .. 段，
