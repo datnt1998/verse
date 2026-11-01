@@ -9,7 +9,7 @@ export type Route =
   | { name: 'channel'; channelId: string; tab?: ChannelTab }           // '#/channels/<id>'
   | { name: 'channel-new'; step?: ChannelNewStep }                     // '#/channels/new'
   | { name: 'explore'; rival?: string; video?: string }                // '#/explore'
-  | { name: 'new' }                                                    // '#/new'
+  | { name: 'new'; channel?: string }                                  // '#/new?channel=<id>'
   | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; nguon?: BackdropSource; kenh?: string } // '#/library'
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
   | { name: 'editor'; projectId: string; fix?: string; cue?: string }    // '#/editor/<projectId>'
@@ -84,7 +84,7 @@ export function parseHash(hash: string): Parsed {
   } else if (seg[0] === 'explore' && seg.length === 1) {
     route = { name: 'explore', rival: text(search.get('rival')), video: text(search.get('video')) }
   } else if (seg[0] === 'new' && seg.length === 1) {
-    route = { name: 'new' }
+    route = { name: 'new', channel: text(search.get('channel')) }
   } else if (seg[0] === 'library' && seg.length === 1) {
     route = {
       name: 'library',
@@ -128,7 +128,7 @@ export function routePath(route: Route): string {
     case 'channel': return `/channels/${encodeURIComponent(route.channelId)}${q([['tab', route.tab]])}`
     case 'channel-new': return `/channels/new${q([['step', route.step]])}`
     case 'explore': return `/explore${q([['rival', route.rival], ['video', route.video]])}`
-    case 'new': return '/new'
+    case 'new': return `/new${q([['channel', route.channel]])}`
     case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['nguon', route.nguon], ['kenh', route.kenh]])}`
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
     case 'editor': return `/editor/${encodeURIComponent(route.projectId)}${q([['fix', route.fix], ['cue', route.cue]])}`
@@ -148,7 +148,7 @@ export const paths = {
   channel: (channelId: string, tab?: ChannelTab) => routePath({ name: 'channel', channelId, tab }),
   channelNew: (step?: ChannelNewStep) => routePath({ name: 'channel-new', step }),
   explore: (opts?: { rival?: string; video?: string }) => routePath({ name: 'explore', ...opts }),
-  new: () => '/new',
+  new: (channel?: string) => routePath({ name: 'new', channel }),
   library: (tab?: LibraryTab, prompt?: PromptView, backdrop?: { nguon?: BackdropSource; kenh?: string }) =>
     routePath({ name: 'library', tab, prompt, nguon: backdrop?.nguon, kenh: backdrop?.kenh }),
   template: (templateId: string, section?: TemplateSection) => routePath({ name: 'template', templateId, section }),

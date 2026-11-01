@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/performance"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -59,7 +60,7 @@ func (s *Service) Discover(ctx context.Context) error {
 	}()
 	enabled := make(chan domain.Channel, len(owners))
 	for _, o := range owners {
-		if o.AutoPick {
+		if o.AutoPick && o.Autonomy.AutoPicks() {
 			enabled <- o
 		}
 	}
@@ -142,14 +143,30 @@ func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		ids, e := s.store.ListEligibleVideos(ctx, link.RivalID, *link.AutoBaselineAt, owner.ID)
+		minDuration := 0
+		if link.MinDurationSec != nil {
+			minDuration = *link.MinDurationSec
+		}
+		ids, e := s.store.ListEligibleVideos(ctx, link.RivalID, *link.AutoBaselineAt, owner.ID, minDuration)
 		if e != nil {
 			lastError = e
 			continue
 		}
+		if owner.Autonomy.Pick == domain.PickScore2 {
+			if ids, e = s.outliersOnly(ctx, ids); e != nil {
+				lastError = e
+				continue
+			}
+		}
 		candidates[link.RivalID] = ids
 	}
 	ids := InterleaveCandidates(order, candidates, last)
+	if owner.Priority == domain.PriorityViews && len(ids) > 1 {
+		// Ưu tiên Lượt xem: video đối thủ nổi trội nhất lên trước; lỗi đọc điểm giữ thứ tự xen kẽ.
+		if scores, e := s.store.RivalVideoScores(ctx, ids); e == nil {
+			ids = performance.OrderByScore(ids, scores)
+		}
+	}
 	created := 0
 	for offset := 0; offset < len(ids); offset += 200 {
 		if err = ctx.Err(); err != nil {
@@ -186,4 +203,23 @@ func (s *Service) recordDiscovery(ctx context.Context, id string, created int, m
 		Result  string    `json:"result"`
 		Error   *string   `json:"error"`
 	}{s.d.Now(), created, message, detail})
+}
+
+// outliersOnly giữ video đạt từ ×2 mức thường của kênh đối thủ (Tự lấy ở chế
+// độ "video ≥ ×2"), giữ nguyên thứ tự. Video chưa có điểm không đủ điều kiện.
+func (s *Service) outliersOnly(ctx context.Context, ids []string) ([]string, error) {
+	if len(ids) == 0 {
+		return ids, nil
+	}
+	scores, err := s.store.RivalVideoScores(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	kept := make([]string, 0, len(ids))
+	for _, id := range ids {
+		if score, ok := scores[id]; ok && score >= domain.PickScore2Min {
+			kept = append(kept, id)
+		}
+	}
+	return kept, nil
 }

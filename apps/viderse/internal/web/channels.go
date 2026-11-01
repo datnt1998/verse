@@ -31,6 +31,7 @@ type ChannelService interface {
 	Delete(ctx context.Context, id string) error
 	Link(ctx context.Context, id, rivalID string) (channels.ChannelView, error)
 	Unlink(ctx context.Context, id, rivalID string) (channels.ChannelView, bool, error)
+	SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (channels.ChannelView, error)
 	Templates(ctx context.Context, id string, req channels.TemplateRequest) ([]domain.ChannelTemplate, error)
 	GenerateIdentity(ctx context.Context, id string, in channels.IdentityInput) (string, error)
 	AssetFile(ctx context.Context, id, file string) (io.ReadSeekCloser, string, int64, error)
@@ -77,6 +78,9 @@ type channelSourceWire struct {
 	Handle    *string `json:"handle"`
 	LinkedAt  string  `json:"linkedAt"`
 	Reference bool    `json:"reference"`
+	// MinDurationSec: bộ lọc Tự lấy theo đối thủ (chỉ lấy video dài từ ngần này
+	// giây); null = không lọc.
+	MinDurationSec *int `json:"minDurationSec"`
 }
 
 type channelTemplateWire struct {
@@ -111,6 +115,8 @@ type channelWire struct {
 	AlwaysTags        []string              `json:"alwaysTags"`
 	AutoPick          bool                  `json:"autoPick"`
 	PacePerDay        int                   `json:"pacePerDay"`
+	Autonomy          domain.Autonomy       `json:"autonomy"`
+	Priority          string                `json:"priority"`
 	TemplateCursor    int                   `json:"templateCursor"`
 	Branding          brandingWire          `json:"branding"`
 	AvatarURL         *string               `json:"avatarUrl"`
@@ -145,8 +151,10 @@ func ChannelToWire(v channels.ChannelView) channelWire {
 		StyleNote:         c.StyleNote,
 		DescriptionFooter: c.DescriptionFooter,
 		AlwaysTags:        c.AlwaysTags,
-		AutoPick:          c.AutoPick,
+		AutoPick:          c.AutoPick && c.Autonomy.AutoPicks(),
 		PacePerDay:        c.PacePerDay,
+		Autonomy:          c.Autonomy,
+		Priority:          c.Priority,
 		TemplateCursor:    c.TemplateCursor,
 		Branding: brandingWire{
 			Brief:   c.Branding.Brief,
@@ -174,11 +182,12 @@ func ChannelToWire(v channels.ChannelView) channelWire {
 	}
 	for _, s := range v.Sources {
 		out.Sources = append(out.Sources, channelSourceWire{
-			RivalID:   s.RivalID,
-			Title:     s.Title,
-			Handle:    s.Handle,
-			LinkedAt:  s.LinkedAt.UTC().Format(time.RFC3339),
-			Reference: s.Reference,
+			RivalID:        s.RivalID,
+			Title:          s.Title,
+			Handle:         s.Handle,
+			LinkedAt:       s.LinkedAt.UTC().Format(time.RFC3339),
+			Reference:      s.Reference,
+			MinDurationSec: s.MinDurationSec,
 		})
 	}
 	for _, t := range v.Templates {
@@ -251,6 +260,11 @@ type createChannelBody struct {
 	AutoPick      *bool    `json:"autoPick"`
 	PacePerDay    *int     `json:"pacePerDay"`
 	Language      string   `json:"language"`
+	// Autonomy/Priority: Mức tự chủ (07 §20); Confirmed là xác nhận rõ cho
+	// "Tự duyệt hết" (D6).
+	Autonomy  *domain.Autonomy `json:"autonomy"`
+	Priority  *string          `json:"priority"`
+	Confirmed bool             `json:"confirmed"`
 }
 
 type createChannelResponse struct {
@@ -284,6 +298,9 @@ func createChannel(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 		AutoPick:      body.AutoPick,
 		PacePerDay:    body.PacePerDay,
 		Language:      body.Language,
+		Autonomy:      body.Autonomy,
+		Priority:      body.Priority,
+		Confirmed:     body.Confirmed,
 	})
 	if err != nil {
 		writeChannelError(w, err, diag)
@@ -335,6 +352,8 @@ func routeChannels(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 		linkSource(w, r, svc, diag, id)
 	case tail == "sources" && extra != "" && r.Method == http.MethodDelete:
 		unlinkSource(w, r, svc, diag, id, extra)
+	case tail == "sources" && extra != "" && r.Method == http.MethodPatch:
+		patchSource(w, r, svc, diag, id, extra)
 	case tail == "templates" && extra == "" && r.Method == http.MethodPost:
 		templates(w, r, svc, diag, id)
 	case tail == "branding" && extra == "" && r.Method == http.MethodPost:
@@ -347,15 +366,18 @@ func routeChannels(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 }
 
 type updateChannelBody struct {
-	Name              *string         `json:"name"`
-	YoutubeURL        json.RawMessage `json:"youtubeUrl"`
-	Language          *string         `json:"language"`
-	StyleNote         json.RawMessage `json:"styleNote"`
-	DescriptionFooter json.RawMessage `json:"descriptionFooter"`
-	AlwaysTags        *[]string       `json:"alwaysTags"`
-	AutoPick          *bool           `json:"autoPick"`
-	PacePerDay        *int            `json:"pacePerDay"`
-	Brief             *string         `json:"brief"`
+	Name              *string          `json:"name"`
+	YoutubeURL        json.RawMessage  `json:"youtubeUrl"`
+	Language          *string          `json:"language"`
+	StyleNote         json.RawMessage  `json:"styleNote"`
+	DescriptionFooter json.RawMessage  `json:"descriptionFooter"`
+	AlwaysTags        *[]string        `json:"alwaysTags"`
+	AutoPick          *bool            `json:"autoPick"`
+	PacePerDay        *int             `json:"pacePerDay"`
+	Brief             *string          `json:"brief"`
+	Autonomy          *domain.Autonomy `json:"autonomy"`
+	Priority          *string          `json:"priority"`
+	Confirmed         bool             `json:"confirmed"`
 }
 
 // nullableField đọc một trường vắng / null / chuỗi: vắng = không đổi, null =
@@ -388,6 +410,9 @@ func patchChannel(w http.ResponseWriter, r *http.Request, svc ChannelService, di
 	in.AutoPick = body.AutoPick
 	in.PacePerDay = body.PacePerDay
 	in.Brief = body.Brief
+	in.Autonomy = body.Autonomy
+	in.Priority = body.Priority
+	in.Confirmed = body.Confirmed
 	var err error
 	if in.YoutubeURL, _, err = nullableField(body.YoutubeURL); err != nil {
 		writeChannelCode(w, http.StatusBadRequest, "youtubeUrl không hợp lệ.", channels.CodeInvalidInput, "", nil)
@@ -428,6 +453,24 @@ func linkSource(w http.ResponseWriter, r *http.Request, svc ChannelService, diag
 
 type unlinkSourceResponse struct {
 	AutoPickPaused bool `json:"autoPickPaused"`
+}
+
+type patchSourceBody struct {
+	// MinDurationSec vắng/null = bỏ lọc; số giây = chỉ lấy video dài từ ngần đó.
+	MinDurationSec *int `json:"minDurationSec"`
+}
+
+func patchSource(w http.ResponseWriter, r *http.Request, svc ChannelService, diag ChannelDiag, id, rivalID string) {
+	var body patchSourceBody
+	if !webapp.DecodeJSONCode(w, r, &body, channels.CodeInvalidInput) {
+		return
+	}
+	view, err := svc.SetSourceMinDuration(r.Context(), id, rivalID, body.MinDurationSec)
+	if err != nil {
+		writeChannelError(w, err, diag)
+		return
+	}
+	webapp.WriteJSON(w, http.StatusOK, ChannelToWire(view))
 }
 
 func unlinkSource(w http.ResponseWriter, r *http.Request, svc ChannelService, diag ChannelDiag, id, rivalID string) {
@@ -558,7 +601,7 @@ func writeChannelError(w http.ResponseWriter, err error, diag ChannelDiag) {
 			status = http.StatusBadRequest
 		case channels.CodeNotFound:
 			status = http.StatusNotFound
-		case channels.CodeConflict, channels.CodeCancelled, channels.CodeInterrupted:
+		case channels.CodeConflict, channels.CodeCancelled, channels.CodeInterrupted, channels.CodeConfirmRequired:
 			status = http.StatusConflict
 		case channels.CodeQuota:
 			status = http.StatusTooManyRequests
@@ -567,6 +610,11 @@ func writeChannelError(w http.ResponseWriter, err error, diag ChannelDiag) {
 		}
 		if status == http.StatusInternalServerError {
 			writeChannelInternal(w, err, diag)
+			return
+		}
+		if ce.Field != "" {
+			webapp.WriteJSON(w, status, map[string]any{"error": ce.Message, "code": ce.Code,
+				"fields": []map[string]string{{"field": ce.Field, "message": ce.Message}}})
 			return
 		}
 		writeChannelCode(w, status, ce.Message, ce.Code, ce.Recovery, ce.RetryAt)

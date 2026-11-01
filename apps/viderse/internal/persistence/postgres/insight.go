@@ -49,11 +49,16 @@ func (s *ActivityStore) ReadRecap(ctx context.Context, since, now time.Time) (in
 		return r, err
 	}
 	var picked int
-	if err = s.db.QueryRow(ctx, `SELECT count(*) FROM clone_queue WHERE origin='auto' AND created_at > $1 AND created_at <= $2`, since, now).Scan(&picked); err != nil {
+	var pickedIDs []string
+	if err = s.db.QueryRow(ctx, `SELECT count(*), COALESCE(array_agg(id::text) FILTER (WHERE state='queued' AND removed_at IS NULL AND job_id IS NULL), '{}') FROM clone_queue WHERE origin='auto' AND created_at > $1 AND created_at <= $2`, since, now).Scan(&picked, &pickedIDs); err != nil {
 		return r, err
 	}
 	if picked > 0 {
-		r.Auto = append(r.Auto, insight.AutoAction{Kind: "auto_pick", Text: fmt.Sprintf("Tự lấy %d video mới", picked), Count: picked, Href: "#/queue"})
+		action := insight.AutoAction{Kind: "auto_pick", Text: fmt.Sprintf("Tự lấy %d video mới", picked), Count: picked, Href: "#/queue"}
+		if len(pickedIDs) > 0 {
+			action.Undo = &insight.Undo{Op: "remove_queue", Params: map[string]any{"ids": pickedIDs}}
+		}
+		r.Auto = append(r.Auto, action)
 	}
 	rows, err = s.db.Query(ctx, `SELECT kind,text,reason,job_id::text FROM clone_auto_actions WHERE created_at > $1 AND created_at <= $2 ORDER BY created_at DESC,id DESC`, since, now)
 	if err != nil {

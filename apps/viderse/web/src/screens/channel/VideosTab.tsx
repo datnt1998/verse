@@ -1,92 +1,113 @@
-import * as stylex from '@stylexjs/stylex'
-import { channelStyles } from './channel.stylex'
-// Tab Video của trang Kênh. Chưa có clone job/hàng chờ nên luôn là
-// trạng thái "kênh mới" của artboard (`fresh`): lời dẫn + hai thẻ dẫn — video
-// mới nhất của đối thủ tham chiếu (số liệu thật từ API video) và "Tự lấy video"
-// (trạng thái + nhịp thật của kênh). Không vẽ bảng job, số liệu đầu kênh hay
-// "Hôm nay x/y" vì chưa có dữ liệu.
-import { Icon } from '@noverse/ui'
-import { ActionButton } from '../../components'
-import { t } from '../../i18n/vi'
-import { paths } from '../../router'
-import { useResource } from '../../data/useResource'
-import { keys } from '../../data/keys'
-import { listRivalVideos, type Rival } from '../../api/rivals'
+// Tab Video của trang Kênh (artboard Channel › tab=videos): danh sách video của
+// kênh với bộ lọc, Chọn nhiều + thanh thao tác ở dock, hoặc thẻ “kênh chưa có
+// video” khi kênh chưa có job nào. Dữ liệu `jobs` do ChannelScreen đọc (số đầu
+// kênh và số trên tab dùng chung); hàng chờ chỉ để lấy giờ bắt đầu dự kiến.
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { toast } from '@noverse/ui'
+import { listTemplates } from '../../api/library'
+import { getQueue } from '../../api/clone'
 import type { Channel } from '../../api/channels'
-import { fmtAge, fmtDuration, fmtScore } from '../explore/fmt'
+import type { ChannelJobs } from '../../api/channelVideos'
+import type { Rival } from '../../api/rivals'
+import { keys } from '../../data/keys'
+import { useResource, type Resource } from '../../data/useResource'
+import { VideoBulkBar } from './VideoBulkBar'
+import { VideosFresh } from './VideosFresh'
+import { VideosList } from './VideosList'
+import { confirmBulk, downloadBundle, runBulkAction } from './videoBulk'
+import { NO_SELECTION, bulkCounts, eligibleSelected, pruneSelection, toggleSelection, filterJobs, type FilterId, type Selection } from './videosLogic'
 
-export function VideosTab({ channel, rival }: {
+export function VideosTab({ channel, rival, jobs, dockSlot, onSelecting }: {
   channel: Channel
   /** đối thủ tham chiếu (link sớm nhất) — nguồn của thẻ "Video mới nhất" */
   rival: Rival | undefined
+  jobs: Resource<ChannelJobs>
+  /** chỗ trong dock của ChannelScreen để đặt thanh Chọn nhiều */
+  dockSlot: HTMLElement | null
+  onSelecting: (active: boolean) => void
 }) {
-  const tt = t.channels
-  const latest = useResource(
-    keys.rivalVideos(rival?.id ?? '_none', 'newest', 0, 0, ''),
-    ({ signal }) => listRivalVideos(rival!.id, { sort: 'newest', limit: 1 }, signal),
-    { enabled: !!rival },
-  )
-  const video = latest.data?.videos[0]
-  const reference = channel.sources.find((source) => source.reference) ?? channel.sources[0]
-  const rivalName = rival?.title ?? reference?.title ?? ''
+  const [filter, setFilter] = useState<FilterId>('all')
+  const [selection, setSelection] = useState<Selection>(NO_SELECTION)
+  const [busy, setBusy] = useState(false)
+  const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
+  const queue = useResource(keys.queue(), ({ signal }) => getQueue(signal), { enabled: (jobs.data?.queuedTotal ?? 0) > 0 })
 
-  const meta = video
-    ? [rivalName, video.publishedAt ? `${fmtAge(video.publishedAt)} trước` : '', fmtDuration(video.durationSec)].filter(Boolean).join(' · ')
-    : ''
+  const list = jobs.data?.jobs
+  const eligibility = jobs.data?.bulkEligibility
+  const templateNames = useMemo(() => new Map((templates.data?.items ?? []).map((item) => [item.id, item.name])), [templates.data])
+  const etaById = useMemo(() => new Map((queue.data?.items ?? []).map((item) => [item.id, item.etaStart])), [queue.data])
+  const order = useMemo(() => (list ? filterJobs(list, filter).map((job) => job.id) : []), [list, filter])
+
+  const selecting = selection.active
+  useEffect(() => { onSelecting(selecting) }, [selecting, onSelecting])
+  useEffect(() => () => onSelecting(false), [onSelecting])
+  // Video bị xoá/ẩn khỏi danh sách thì bỏ khỏi lựa chọn.
+  useEffect(() => { if (list) setSelection((state) => pruneSelection(state, list.map((job) => job.id))) }, [list])
+  // Esc thoát chọn (không động tới Esc đã được menu/hộp thoại xử lý).
+  useEffect(() => {
+    if (!selecting) return
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape' && !event.defaultPrevented) setSelection(NO_SELECTION) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selecting])
+
+  const toggleMode = useCallback(() => setSelection((state) => (state.active ? NO_SELECTION : { ...state, active: true })), [])
+  const pick = useCallback((id: string, shift: boolean) => setSelection((state) => toggleSelection(state, id, shift, order)), [order])
+  const refresh = useCallback(() => { void jobs.refresh() }, [jobs])
+  const report = useCallback((message: string) => toast.err(message), [])
+
+  if (list && list.length === 0 && !jobs.error) return <VideosFresh channel={channel} rival={rival} />
+
+  const counts = eligibility ? bulkCounts(selection.picked, eligibility) : undefined
+  const run = async (action: 'retry' | 'approve' | 'posted', ids: readonly string[]) => {
+    if (busy || ids.length === 0) return
+    setBusy(true)
+    try {
+      const outcome = await runBulkAction(action, ids)
+      const done = new Set(outcome.ok)
+      setSelection((state) => ({ ...state, picked: new Set([...state.picked].filter((id) => !done.has(id))) }))
+    } finally { setBusy(false) }
+  }
+  const confirmRun = async (action: 'cancel' | 'delete', ids: readonly string[]) => {
+    if (busy || ids.length === 0) return
+    const outcome = await confirmBulk(action, ids)
+    if (!outcome) return
+    const done = new Set(outcome.ok)
+    setSelection((state) => ({ ...state, picked: new Set([...state.picked].filter((id) => !done.has(id))) }))
+  }
 
   return (
-    <section className={`vch-card vch-fresh ${stylex.props(channelStyles.card, channelStyles.fresh).className}`} aria-label={tt.page.tabs.videos}>
-      <h2 {...stylex.props(channelStyles.freshTitle)}>{tt.videos.freshTitle}</h2>
-      <p {...stylex.props(channelStyles.freshBody)}>{tt.videos.freshBody}</p>
-      <div className={`vch-leads ${stylex.props(channelStyles.leads).className}`}>
-        <div className={`vch-lead ${stylex.props(channelStyles.lead).className}`}>
-          <div className={`vch-lead__head ${stylex.props(channelStyles.leadHead).className}`}>
-            <span>{tt.videos.latestTitle}</span>
-            {video?.score != null && <span className="num">{fmtScore(video.score)}</span>}
-          </div>
-          {video ? (
-            <>
-              <span className={`vch-lead__title ${stylex.props(channelStyles.leadTitle).className}`} title={video.title}>{video.title}</span>
-              <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>{meta}</span>
-            </>
-          ) : (
-            <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>{reference ? tt.videos.latestEmpty : tt.videos.noRivals}</span>
-          )}
-          <div className={`vch-lead__foot ${stylex.props(channelStyles.leadFoot).className}`}>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className}
-              size="sm"
-              lockedReason={tt.queueLock}
-              icon={<Icon name="video-add" size={14} />}
-            >
-              {tt.videos.make}
-            </ActionButton>
-            <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? rival?.id })}`}>
-              <Icon name="radar" size={14} />
-              {tt.videos.explore}
-            </a>
-          </div>
-        </div>
-        <div className={`vch-lead ${stylex.props(channelStyles.lead).className}`}>
-          <div className={`vch-lead__head ${stylex.props(channelStyles.leadHead).className}`}>
-            <span>{tt.videos.autoTitle}</span>
-            <span className={`vch-chip${channel.autoPick ? ' vch-chip--auto' : ''} ${stylex.props(channelStyles.chip, channel.autoPick && channelStyles.chipAuto).className}`}>
-              {channel.autoPick ? tt.videos.autoOn : tt.videos.autoOff}
-            </span>
-          </div>
-          <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>
-            {channel.sources.length > 0 ? tt.videos.pace(channel.pacePerDay) : tt.videos.autoPaused}
-          </span>
-          <span className={`vch-lead__meta ${stylex.props(channelStyles.leadMeta).className}`}>
-            {channel.sources.length > 0 ? null : tt.videos.noRivals}
-          </span>
-          <div className={`vch-lead__foot ${stylex.props(channelStyles.leadFoot).className}`}>
-            <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.channel(channel.id, 'sources')}`}>
-              <Icon name="calendar" size={14} />
-              {tt.videos.paceLink}
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    <>
+      <VideosList
+        channelId={channel.id}
+        jobs={jobs}
+        filter={filter}
+        onFilter={setFilter}
+        selection={selection}
+        onToggleSelect={toggleMode}
+        onPick={pick}
+        templateNames={templateNames}
+        etaById={etaById}
+        onBundleDone={downloadBundle}
+        onRefresh={refresh}
+        onError={report}
+      />
+      {selecting && dockSlot && eligibility && counts && createPortal(
+        <VideoBulkBar
+          count={selection.picked.size}
+          counts={counts}
+          busy={busy}
+          onRetry={() => void run('retry', eligibleSelected(selection.picked, eligibility.retry))}
+          onApprove={() => void run('approve', eligibleSelected(selection.picked, eligibility.approve))}
+          onBundle={() => downloadBundle(eligibleSelected(selection.picked, eligibility.bundle))}
+          onMarkPosted={() => void run('posted', eligibleSelected(selection.picked, eligibility.markPosted))}
+          onCancel={() => void confirmRun('cancel', eligibleSelected(selection.picked, eligibility.cancel))}
+          onRemove={() => void confirmRun('delete', eligibleSelected(selection.picked, eligibility.delete))}
+          onExit={() => setSelection(NO_SELECTION)}
+        />,
+        dockSlot,
+      )}
+    </>
   )
 }

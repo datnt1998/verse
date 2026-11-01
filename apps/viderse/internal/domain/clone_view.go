@@ -375,7 +375,13 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 	case StagePosted:
 		return "Đã đăng"
 	case StageAttention:
-		return attentionSubline(job, steps)
+		line := attentionSubline(job, steps)
+		if job.AutoFix != nil && job.AutoFix.Result == AutoFixFailed {
+			if at, err := time.Parse(time.RFC3339, job.AutoFix.At); err == nil {
+				line += fmt.Sprintf(" · Đã tự thử lại lúc %02d:%02d", at.Hour(), at.Minute())
+			}
+		}
+		return line
 	}
 	// working: ưu tiên chờ hạn mức rồi câu đang làm của step đang chạy.
 	if line := quotaSubline(steps); line != "" {

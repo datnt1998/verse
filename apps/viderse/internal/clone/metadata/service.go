@@ -17,11 +17,22 @@ type View struct {
 	Revision          int      `json:"revision"`
 	DescriptionFooter *string  `json:"descriptionFooter"`
 	AlwaysTags        []string `json:"alwaysTags"`
+	// Learn là đề xuất “Lưu thành quy tắc” đang mở mà video này góp phần
+	// (lần sửa thứ 3 cùng kiểu trong kênh); null khi không có.
+	Learn any `json:"learn"`
+}
+
+// Learner nhận các lần chủ kênh sửa nội dung để học quy tắc (07 §19). Cả hai
+// hàm trả đề xuất learn_rule hoặc nil; lỗi của Learner không làm hỏng lần lưu.
+type Learner interface {
+	ObserveEdit(ctx context.Context, jobID, channelID string, baseline, current Content) (any, error)
+	OpenFor(ctx context.Context, jobID string) (any, error)
 }
 type Service struct {
 	Edits    *jobedit.Service
 	Generate func(context.Context, jobedit.Snapshot, []string, string) (Content, error)
 	Channel  func(context.Context, string) (*domain.Channel, error)
+	Learner  Learner
 }
 type loaded struct {
 	snapshot jobedit.Snapshot
@@ -86,7 +97,20 @@ func (s *Service) load(ctx context.Context, id string) (loaded, error) {
 }
 func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	l, e := s.load(ctx, id)
+	if e == nil && s.Learner != nil && l.view.Metadata != nil {
+		l.view.Learn, _ = s.Learner.OpenFor(ctx, id)
+	}
 	return l.view, e
+}
+
+// directorBaseline là bản gần nhất do Đạo diễn viết, để so với bản chủ kênh sửa.
+func (st State) directorBaseline() (Content, bool) {
+	for _, v := range st.History {
+		if v.By == "director" {
+			return v.Content, true
+		}
+	}
+	return Content{}, false
 }
 func (s *Service) History(ctx context.Context, id string) ([]Version, error) {
 	l, e := s.load(ctx, id)
@@ -138,7 +162,13 @@ func (s *Service) Patch(ctx context.Context, id string, p Patch) (View, error) {
 	if e = l.state.patch(p); e != nil {
 		return View{}, e
 	}
-	return s.commit(ctx, l)
+	view, e := s.commit(ctx, l)
+	if e == nil && s.Learner != nil {
+		if base, ok := l.state.directorBaseline(); ok {
+			view.Learn, _ = s.Learner.ObserveEdit(ctx, id, l.snapshot.Job.ChannelID, base, l.state.Current)
+		}
+	}
+	return view, e
 }
 func (s *Service) Rewrite(ctx context.Context, id string, r Rewrite) (View, error) {
 	l, e := s.load(ctx, id)

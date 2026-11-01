@@ -259,6 +259,22 @@ func (f *fakeStore) UnlinkSource(_ context.Context, id, rivalID string) (bool, b
 	return true, false, nil
 }
 
+func (f *fakeStore) SetSourceMinDuration(_ context.Context, id, rivalID string, minDurationSec *int) (bool, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	fc, ok := f.channels[id]
+	if !ok {
+		return false, nil
+	}
+	for i := range fc.sources {
+		if fc.sources[i].RivalID == rivalID {
+			fc.sources[i].MinDurationSec = minDurationSec
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (f *fakeStore) UpdateTemplates(_ context.Context, id string, apply func([]string) []string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()

@@ -45,7 +45,7 @@ function Screen({ route }: { route: Route }) {
       case 'channel': return <ChannelScreen route={route} />
       case 'channel-new': return <ChannelNewScreen route={route} />
       case 'explore': return <ExploreScreen route={route} />
-      case 'new': return <NewScreen />
+      case 'new': return <NewScreen route={route} />
       case 'library': return <LibraryScreen route={route} />
       case 'template': return <TemplateScreen route={route} />
       case 'editor': return <EditorScreen route={route} />

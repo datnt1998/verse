@@ -66,14 +66,18 @@ type Branding struct {
 
 // Channel là một kênh của chủ (dòng owner_channels).
 type Channel struct {
-	ID                 string
-	Name               string
-	YoutubeURL         *string
-	Language           ChannelLanguage
-	StyleNote          *string
-	DescriptionFooter  *string
-	AlwaysTags         []string
-	AutoPick           bool
+	ID                string
+	Name              string
+	YoutubeURL        *string
+	Language          ChannelLanguage
+	StyleNote         *string
+	DescriptionFooter *string
+	AlwaysTags        []string
+	AutoPick          bool
+	// Autonomy là Mức tự chủ (07 §20); AutoPick ở trên là cờ bật/tạm dừng Tự
+	// lấy, còn Autonomy.Pick là cách lấy khi cờ bật.
+	Autonomy           Autonomy
+	Priority           string // PrioritySteady | PriorityViews
 	PacePerDay         int
 	TemplateCursor     int
 	Branding           Branding
@@ -99,6 +103,9 @@ type ChannelSource struct {
 	Handle    *string
 	LinkedAt  time.Time
 	Reference bool
+	// MinDurationSec là bộ lọc Tự lấy theo đối thủ: chỉ lấy video dài từ ngần
+	// này giây; nil = không lọc.
+	MinDurationSec *int
 }
 
 // ChannelTemplate là một template trong danh sách luân phiên (position liền

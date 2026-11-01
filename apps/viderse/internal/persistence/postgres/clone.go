@@ -129,6 +129,13 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 		s := domain.CloneStep(r.ActiveStep.String)
 		active = &s
 	}
+	var autoFix *domain.AutoFix
+	if len(r.AutoFix) > 0 {
+		var f domain.AutoFix
+		if json.Unmarshal(r.AutoFix, &f) == nil && f.At != "" {
+			autoFix = &f
+		}
+	}
 	return domain.CloneJob{
 		ID:                uuidStr(r.ID),
 		ChannelID:         uuidStr(r.ChannelID),
@@ -152,6 +159,7 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 		PostedAt:          tptr(r.PostedAt),
 		CreatedAt:         r.CreatedAt.Time,
 		UpdatedAt:         r.UpdatedAt.Time,
+		AutoFix:           autoFix,
 	}
 }
 

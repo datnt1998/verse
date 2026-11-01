@@ -4,6 +4,7 @@
 import type { ReactNode } from 'react'
 import { confirm, type ConfirmOptions } from '@noverse/ui'
 import { t } from '../i18n/vi'
+import { openAutonomyDialog } from './autonomy/AutonomyDialog'
 import { ASSISTANT_ORB, assistantName, type Assistant } from './agents'
 
 export { ConfirmDialog } from '@noverse/ui'
@@ -206,27 +207,30 @@ export function confirmLeaveUnsaved(args: {
   })
 }
 
-/** autonomy — Chuyển kênh sang Tự chạy (Dialogs · dialog=autonomy). */
+/** autonomy — Chuyển kênh sang Tự chạy (Dialogs · dialog=autonomy) hoặc Tự duyệt hết ảnh. */
 export function confirmAutonomy(args: {
   channel: string
+  /** 'auto' = mức Tự chạy (mặc định); 'all' = dòng Duyệt ảnh → Tự duyệt hết */
+  kind?: 'auto' | 'all'
+  /** ngưỡng điểm đang đặt (mặc định 85) */
+  min?: number
+  /** số video đang chờ duyệt, để câu "Áp dụng từ bây giờ" nói đúng */
   waiting?: number
   onConfirm: () => void | Promise<void>
 }): Promise<boolean> {
   const c = t.confirm.autonomy
-  return open({
-    tone: 'normal',
-    title: c.title(args.channel),
-    body: (
-      <>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--color-fg-3)' }}>{c.body}</p>
-        <ul style={{ margin: 'var(--vv-s-10) 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)', fontSize: 13 }}>
-          <li>{c.belowThreshold}</li>
-          <li>{c.fromNow}</li>
-          <li>{c.never}</li>
-        </ul>
-      </>
-    ),
-    confirmLabel: c.ok,
+  const min = args.min ?? 85
+  const kind = c[args.kind ?? 'auto']
+  const first = typeof kind.first === 'function' ? kind.first(min) : kind.first
+  return openAutonomyDialog({
+    title: kind.title(args.channel),
+    lead: typeof kind.body === 'function' ? kind.body(min) : kind.body,
+    items: [
+      { icon: 'flag', tone: 'warn', text: first },
+      { icon: 'clock', tone: 'note', text: c.fromNow(args.waiting ?? 0) },
+      { icon: 'setting', tone: 'note', text: c.never },
+    ],
+    confirmLabel: kind.ok,
     onConfirm: args.onConfirm,
   })
 }

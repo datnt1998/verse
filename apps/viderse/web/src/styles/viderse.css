@@ -178,6 +178,7 @@
   --vv-amber-28: rgba(246, 203, 140, .28);
   --vv-amber-16: rgba(246, 203, 140, .16); /* bước QR đang làm (artboard .step.now) */
   --vv-note-ink: #F3D9AE;
+  --vv-ok-6: rgba(166, 237, 193, .06);
   --vv-ok-7: rgba(166, 237, 193, .07);
   --vv-ok-10: rgba(166, 237, 193, .1);
   --vv-ok-20: rgba(166, 237, 193, .2);
@@ -223,6 +224,13 @@
   /* Nền lau mờ của artboard Cài đặt (khối vị trí, checklist, icon ô). */
   --vv-wash-3: rgba(255, 255, 255, .03);
   --vv-wash-5: rgba(255, 255, 255, .05);
+  /* Banner Hoạ sĩ nhận ra (Review state=learn), gạch chân “Vì sao?”, nút gạt quy tắc, thẻ Tự làm của Bản tin. */
+  --vv-artist-notice-fill: rgba(255, 208, 138, .07);
+  --vv-artist-notice-line: rgba(255, 208, 138, .22);
+  --vv-artist-notice-ink: #FFE2B5;
+  --vv-why-line: rgba(255, 255, 255, .35);
+  --vv-knob-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  --vv-qa-tint: rgba(157, 236, 201, .08);
   /* Sheet “Đổi thư mục lưu” của mục Lưu trữ: nền đậm hơn sheet kit (#141416
      theo MSettings · store=pick), nút đi tiếp sáng phẳng của artboard. */
   --vv-sheet-bg: #141416;

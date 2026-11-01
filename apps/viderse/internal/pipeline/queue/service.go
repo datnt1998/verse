@@ -256,7 +256,7 @@ func (s *Service) loadLanes(ctx context.Context) ([]Lane, map[string]domain.Clon
 	laneMap := map[string]*Lane{}
 	for _, o := range owners {
 		byOwner[o.ID] = o
-		t, e := s.store.Templates(ctx, o.ID)
+		t, e := s.store.RotationTemplates(ctx, o)
 		if e != nil {
 			return nil, nil, nil, nil, e
 		}

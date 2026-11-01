@@ -30,6 +30,13 @@ func recordStageNotification(ctx context.Context, job domain.CloneJob, next stri
 		if !awaiting {
 			return nil
 		}
+		// Kênh để máy duyệt ảnh theo điểm và mọi ảnh đã đạt: máy duyệt ngay,
+		// không báo "Video chờ duyệt" rồi lại rút lại.
+		if auto, err := autoApprovalPending(ctx, tx, job.ID); err != nil {
+			return err
+		} else if auto {
+			return nil
+		}
 		spec.Kind, spec.Text, spec.ActionLabel = "review_ready", "Video chờ duyệt", "Duyệt ảnh"
 	case domain.StageAttention:
 		spec.Kind, spec.Text = "needs_attention", "Cần xử lý: "+job.Source.Title

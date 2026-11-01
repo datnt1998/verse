@@ -16,6 +16,7 @@ import {
 } from '../../api/library'
 import { keys } from '../../data/keys'
 import { clock } from './fmt'
+import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
 
 const COMPOSITIONS: ThumbnailStyle[] = ['clean', 'hook', 'circle-arrow', 'hook-arrow', 'split', 'closeup']
 
@@ -183,6 +184,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
                 {(kind === 'scene' ? copy.rulesScene : copy.rulesCover).map((rule) => <li key={rule}>{rule}</li>)}
               </ul>
             </div>
+            {prompt && <LearnedRulesList scope={{ imagePromptId: prompt.id }} title={t.learn.notes.title} help={t.learn.notes.help} empty={t.learn.notes.empty} errorText={t.learn.notes.error} />}
           </div>
 
           <aside className={`vlb-ed-aside ${stylex.props(sx.edAside).className}`}>

@@ -5,9 +5,10 @@ import { ApiError, request } from '../../api/request'
 import type { Status } from '../../api/status'
 import { keys } from '../../data/keys'
 
+import type { Suggestion } from '../../api/suggestions'
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; source: { title: string; thumbnailUrl: string | null } }
-export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; currentVersion: number | null; reviewVersion: number | null; versions: { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string }[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string }
-export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; approved: boolean; approvedToday?: number | null }
+export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; currentVersion: number | null; reviewVersion: number | null; versions: { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string }[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
+export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null }
 const base = (id: string) => `/api/clone/${encodeURIComponent(id)}/images`
 export const imageURL = (job: string, image: ReviewImage, variant: 'full' | 'cutout' = 'full') => {
   const version = image.versions.find(v => v.version === (image.reviewVersion ?? image.currentVersion))
@@ -63,9 +64,10 @@ export function useReview() {
       setImages(old => ({ ...old, [job]: { ...view, items: view.items.map(i => (item ? i.id === item.id : true) ? { ...i, status: op === 'skip' ? 'skipped' : 'running' } : i) } }))
     }
     try {
-      const result = await request<{ manifest?: { revision: number }; revision?: number }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
+      const result = await request<{ manifest?: { revision: number }; revision?: number; learn?: Suggestion | null; generation?: { learn?: Suggestion | null } | null }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
       const nextRevision = result.manifest?.revision ?? result.revision
-      if (nextRevision) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, manifest: { revision: nextRevision } } } : old })
+      const learn = result.generation?.learn ?? result.learn
+      if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
       else void loadImages(job)
       return true

@@ -225,7 +225,7 @@ function KitConfirm() {
     },
     {
       id: 'autonomy', label: 'Chuyển Tự chạy', sub: 'Dialogs · autonomy',
-      open: () => void confirmAutonomy({ channel: 'Kênh Thực Tế', onConfirm: run('Chuyển Tự chạy') }),
+      open: () => void confirmAutonomy({ channel: 'Kênh Thực Tế', waiting: 1, onConfirm: run('Chuyển Tự chạy') }),
     },
   ]
 

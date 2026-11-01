@@ -12,7 +12,7 @@ describe('activity priorities', () => {
     expect(orderNotifications(rows).map((row) => row.id)).toEqual(['review', 'issue', 'ready', 'done', 'read'])
   })
   it('handles quiet hours crossing midnight', () => {
-    const settings = { kinds: {} as never, badge: true, merge: true, recapOnReturn: true, doNotDisturb: { enabled: true, start: '23:00', end: '07:00' } }
+    const settings = { kinds: {} as never, badge: true, merge: true, recapOnReturn: true, suggestions: { off: [] }, doNotDisturb: { enabled: true, start: '23:00', end: '07:00' } }
     expect(isQuiet(settings, new Date(2026, 10, 1, 23, 30))).toBe(true)
     expect(isQuiet(settings, new Date(2026, 10, 2, 6, 59))).toBe(true)
     expect(isQuiet(settings, new Date(2026, 10, 2, 7, 0))).toBe(false)

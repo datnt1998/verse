@@ -305,6 +305,8 @@ type CloneJob struct {
 	PostedAt          *time.Time          `json:"postedAt"`
 	CreatedAt         time.Time           `json:"createdAt"`
 	UpdatedAt         time.Time           `json:"updatedAt"`
+	// AutoFix là lần máy tự thử lại lỗi theo Mức tự chủ của kênh (07 §20).
+	AutoFix *AutoFix `json:"autoFix"`
 }
 type CloneStepRecord struct {
 	JobID        string           `json:"jobId"`

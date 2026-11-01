@@ -54,12 +54,17 @@ type Store interface {
 	ListSourcesWithChannels(context.Context, string) ([]ChannelSourceRow, error)
 	SetSourceBaseline(context.Context, string, string, time.Time) error
 	LastAutoQueuedChannel(context.Context, string) (string, error)
-	ListEligibleVideos(context.Context, string, time.Time, string) ([]string, error)
+	ListEligibleVideos(ctx context.Context, rivalID string, baseline time.Time, ownerID string, minDurationSec int) ([]string, error)
 	ListDoneTodayJobs(context.Context, time.Time) ([]DoneTodayJob, error)
 	ListJobStageCounts(context.Context) (map[string]map[string]int64, error)
 	ListQueueCountsByChannel(context.Context) (map[string]int64, error)
 	ListDoneTodayCounts(context.Context, time.Time) (map[string]int64, error)
 	CountChargedImagesToday(context.Context, time.Time) (map[string]int64, error)
+	// RotationTemplates là danh sách luân phiên của kênh: Templates cộng vòng
+	// thứ hai cho template được chạy nhiều hơn. Con trỏ TemplateCursor chạy trên nó.
+	RotationTemplates(context.Context, domain.Channel) ([]domain.ChannelTemplate, error)
+	// RivalVideoScores trả điểm nổi trội của video đối thủ (chỉ video có điểm).
+	RivalVideoScores(context.Context, []string) (map[string]float64, error)
 }
 
 // LaneLastStart identifies the last started turn in a channel's batch lane.
@@ -94,11 +99,13 @@ type RivalVideoView struct {
 }
 
 // ChannelSourceRow is a linked rival's auto-pick baseline and scan state.
+// MinDurationSec is the per-rival Tự lấy filter; nil means no filter.
 type ChannelSourceRow struct {
 	RivalID        string
 	LinkedAt       time.Time
 	AutoBaselineAt *time.Time
 	RivalScannedAt *time.Time
+	MinDurationSec *int
 }
 
 // DoneTodayJob supplies the completed-job portion of the queue read model.

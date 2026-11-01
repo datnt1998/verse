@@ -1,7 +1,10 @@
-import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { space as s, corners as r } from '../../../styles/viderse.stylex'
 import type { RecapData } from '../../../api/workbench'
+import { AssistantComposer } from '../../../components/assistant/AssistantComposer'
+import { assistantCopy } from '../../../i18n/assistant'
+import { RecapAutoLine } from '../../../components/suggestions/RecapAuto'
+import { RecapSuggestions } from '../../../components/suggestions/SuggestionPanels'
 import { useOnline } from '../../../data/status'
 
 type Props = {
@@ -35,27 +38,25 @@ const time = (value: string) => {
 }
 
 export function Recap({ data, loading, error, waitingCount, readyCount, channelNames, onRetry, onEnter, onSelectJob }: Props) {
-  const [draft, setDraft] = useState('')
-  const [notice, setNotice] = useState(false)
   const online = useOnline()
   return <div {...stylex.props(styles.layout)}><div role="region" aria-label="Bản tin" {...stylex.props(styles.scroll)}><div {...stylex.props(styles.root)}>
     <header {...stylex.props(styles.header)}><div {...stylex.props(styles.heading)}><span {...stylex.props(styles.when)}>Bản tin · mọi kênh{data && ` · từ ${time(data.from)} tới ${time(data.to)}`}</span>{data && <p {...stylex.props(styles.lead)}>{recapLead(waitingCount, readyCount)}</p>}</div><button type="button" {...stylex.props(styles.quiet)} onClick={onEnter}>Vào việc ›</button></header>
     {loading ? <p role="status">Đang tải Bản tin…</p> : !data && error ? <p role="alert">Không tải được Bản tin. <button type="button" onClick={onRetry}>Thử lại</button></p> : data && <>
       <section aria-label="Cần bạn" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Cần bạn · {data.needsYou?.length || 0}</span><div {...stylex.props(styles.card)}>{data.needsYou?.length ? data.needsYou.map(item => <button key={item.jobId} type="button" {...stylex.props(styles.row)} onClick={() => onSelectJob(item.jobId)}><span {...stylex.props(styles.rowText)} title={item.label}>{item.label}</span><span>{item.state === 'review' ? 'Chờ duyệt' : 'Cần xử lý'} ›</span></button>) : <div {...stylex.props(styles.empty)}>Không có video cần bạn.</div>}</div>{data.needsYou?.some(item => item.state === 'review') && <a href="#/review" onClick={onEnter} {...stylex.props(styles.primary)}>Duyệt {data.needsYou.filter(item => item.state === 'review').length} video</a>}</section>
-      {!!data.auto?.length && <section aria-label="Máy đã tự làm" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Máy đã tự làm</span>{data.auto.map((item, index) => <div key={`${item.kind}-${index}`} {...stylex.props(styles.line)}><span {...stylex.props(styles.rowText)}>{item.text}</span><span {...stylex.props(styles.tag)}>Tự làm</span>{item.href && <a href={item.href}>Xem</a>}</div>)}</section>}
+      {!!data.auto?.length && <section aria-label="Máy đã tự làm" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Máy đã tự làm</span>{data.auto.map((item, index) => <RecapAutoLine key={`${item.kind}-${index}`} item={item} offline={!online} />)}</section>}
+      <RecapSuggestions />
       <section aria-label="Hôm nay" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Hôm nay</span><div {...stylex.props(styles.tiles)}><div {...stylex.props(styles.tile)}><b>{data.today.queued}</b><span>Chờ lượt</span></div><div {...stylex.props(styles.tile)}><b>{data.today.expectedDone ?? '—'}</b><span>Dự kiến xong</span></div><div {...stylex.props(styles.tile)}><b>{data.today.byTime ?? '—'}</b><span>Dự kiến lúc</span></div><div {...stylex.props(styles.tile)}><b>{data.today.imagesLeft == null ? '—' : `${data.today.imagesLeft}/${data.today.imagesTotal ?? '—'}`}</b><span>Ảnh còn lại</span></div></div></section>
       {!!data.channels?.length && <section aria-label="Theo kênh" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Theo kênh</span>{data.channels.filter(channel => channelNames[channel.channelId]).map(channel => <div key={channel.channelId} {...stylex.props(styles.line)}><span {...stylex.props(styles.rowText)}>{channelNames[channel.channelId]}</span><span>{channel.done}/{channel.cap} · {channel.waiting} chờ bạn · {channel.ready} sẵn sàng đăng</span></div>)}</section>}
     </>}
   </div></div>
   <div {...stylex.props(styles.composerFoot)}>
-    <form {...stylex.props(styles.composer)} onSubmit={event => { event.preventDefault(); setNotice(true) }}><input {...stylex.props(styles.input)} aria-label="Nhắn trợ lý · mọi kênh" placeholder="Nhắn trợ lý · mọi kênh" value={draft} onChange={event => setDraft(event.target.value)} /><button {...stylex.props(styles.button)} type="submit" disabled={!online}>Gửi</button></form>{notice && <span role="status">Sắp có</span>}
-  <div {...stylex.props(styles.hint)}>Enter gửi</div></div></div>
+    <AssistantComposer scope="all" label={assistantCopy.composer.recap} placeholder={assistantCopy.composer.recapPlaceholder} hints={{ esc: false }} onSettled={onRetry} />
+  </div></div>
 }
 
 const styles = stylex.create({
   layout: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'] },
   composerFoot: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
-  hint: { minHeight: 23, padding: `0 ${s['--vv-s-6']}`, color: 'var(--color-fg-4)', fontSize: 12, lineHeight: 1.55 },
   scroll: { flex: 1, minHeight: 0, overflowY: 'auto', margin: `0 calc(-1 * ${s['--vv-s-8']})`, padding: `${s['--vv-s-6']} ${s['--vv-s-8']} ${s['--vv-s-14']}` },
   root: { maxWidth: 800, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: s['--vv-s-18'] },
   header: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'] },
@@ -74,7 +75,4 @@ const styles = stylex.create({
   tile: { padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-1)', display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'], fontSize: 12, color: 'var(--color-fg-3)' },
   quiet: { border: 0, backgroundColor: 'transparent', color: 'var(--color-fg-2)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer', whiteSpace: 'nowrap' },
   primary: { alignSelf: 'flex-start', padding: `${s['--vv-s-7']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-fg)', color: 'var(--color-surface-1)', textDecoration: 'none', fontSize: 13 },
-  composer: { display: 'flex', alignItems: 'center', minHeight: 54, gap: s['--vv-s-10'], padding: `${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-14']}`, borderRadius: r['--vv-r-16'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-2)' },
-  input: { flex: 1, minWidth: 0, height: 38, border: 0, outline: 'none', backgroundColor: 'transparent', color: 'var(--color-fg)', fontSize: 14 },
-  button: { border: '1px solid var(--line-2)', borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-surface-2)', color: 'var(--color-fg)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer' },
 })

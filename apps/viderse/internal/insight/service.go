@@ -16,6 +16,8 @@ type Service struct {
 	Now      func() time.Time
 	Forecast func(context.Context, time.Time) (int, *time.Time, error)
 	Narrate  func(context.Context, Recap) (string, error)
+	// Suggestions trả tối đa 3 đề xuất mở cho Bản tin (đã xếp theo giá trị).
+	Suggestions func(context.Context) ([]any, error)
 }
 
 func (s *Service) now() time.Time {
@@ -38,6 +40,16 @@ func (s *Service) Recap(ctx context.Context, since *time.Time) (Recap, error) {
 	recap, err := s.Store.ReadRecap(ctx, from, now)
 	if err != nil {
 		return Recap{}, err
+	}
+	if s.Suggestions != nil {
+		list, err := s.Suggestions(ctx)
+		if err != nil {
+			return Recap{}, err
+		}
+		if len(list) > 3 {
+			list = list[:3]
+		}
+		recap.Suggestions = list
 	}
 	if s.Forecast != nil {
 		count, at, err := s.Forecast(ctx, now)

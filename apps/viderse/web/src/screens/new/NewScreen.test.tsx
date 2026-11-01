@@ -37,7 +37,7 @@ beforeEach(async () => {
     return response({ rivals: [], totalVideos: 0, newOutliers: 0 })
   }))
   el = document.createElement('div'); document.body.append(el); root = createRoot(el)
-  await act(async () => { root.render(<NewScreen />) })
+  await act(async () => { root.render(<NewScreen route={{ name: 'new' }} />) })
   await tick(0)
 })
 afterEach(async () => { await act(async () => root.unmount()); el.remove(); cache.clear(); vi.useRealTimers(); vi.unstubAllGlobals() })
@@ -87,7 +87,7 @@ it('shows the linked-source badge only when the plan confirms the relationship',
 
 const viewport = async (mobile: boolean) => {
   vi.mocked(matchMedia).mockReturnValue({ matches: mobile, addEventListener() {}, removeEventListener() {} } as unknown as MediaQueryList)
-  await act(async () => { root.render(<NewScreen key={String(mobile)} />) })
+  await act(async () => { root.render(<NewScreen key={String(mobile)} route={{ name: 'new' }} />) })
   await tick(0)
 }
 

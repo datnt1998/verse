@@ -378,6 +378,32 @@ func TestUnlinkLastPausesAutoPick(t *testing.T) {
 	}
 }
 
+func TestSetSourceMinDuration(t *testing.T) {
+	r := newRig(t)
+	r.addChannel("ch-1", "Kênh A", "rival-1")
+	r.store.addRival("rival-1", "Kênh B")
+	ctx := context.Background()
+	twenty := 20 * 60
+	view, err := r.svc.SetSourceMinDuration(ctx, "ch-1", "rival-1", &twenty)
+	if err != nil {
+		t.Fatalf("SetSourceMinDuration: %v", err)
+	}
+	if got := view.Sources[0].MinDurationSec; got == nil || *got != twenty {
+		t.Fatalf("MinDurationSec = %v, muốn %d", got, twenty)
+	}
+	view, err = r.svc.SetSourceMinDuration(ctx, "ch-1", "rival-1", nil)
+	if err != nil || view.Sources[0].MinDurationSec != nil {
+		t.Fatalf("bỏ lọc = %v %v, muốn nil", view.Sources[0].MinDurationSec, err)
+	}
+	zero := 0
+	if _, err = r.svc.SetSourceMinDuration(ctx, "ch-1", "rival-1", &zero); CodeOf(err) != CodeInvalidInput {
+		t.Errorf("0 giây: code = %q, muốn %q", CodeOf(err), CodeInvalidInput)
+	}
+	if _, err = r.svc.SetSourceMinDuration(ctx, "ch-1", "rival-lạ", &twenty); CodeOf(err) != CodeNotFound {
+		t.Errorf("đối thủ chưa liên kết: code = %q, muốn %q", CodeOf(err), CodeNotFound)
+	}
+}
+
 func TestUnlinkMovesReference(t *testing.T) {
 	r := newRig(t)
 	r.addChannel("ch-1", "Kênh A", "rival-1", "rival-2")

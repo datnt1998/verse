@@ -14,7 +14,7 @@ const STATE_COLOR: Record<VideoStatus, string> = {
   issue: 'var(--color-err)',
   paused: 'var(--vv-st-neutral)',
   ready: 'var(--color-ok)',
-  posted: 'var(--vv-st-neutral)',
+  posted: 'var(--vv-fg-note)', // artboard: Đã đăng dùng màu ghi chú, khác màu Chờ lượt
 }
 
 export const statusName = (status: VideoStatus) => t.states[status]

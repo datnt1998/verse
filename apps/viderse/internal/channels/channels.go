@@ -34,6 +34,9 @@ const (
 	CodeCancelled    = "cancelled"
 	CodeInterrupted  = "interrupted"
 	CodeToolMissing  = "tool_missing"
+	// CodeConfirmRequired: thay đổi Mức tự chủ giao thêm việc cho máy nhưng yêu
+	// cầu chưa mang xác nhận rõ (D6) — web trả 409.
+	CodeConfirmRequired = "autonomy_confirm_required"
 )
 
 // Error là lỗi nghiệp vụ của mảng kênh: mã ổn định, câu tiếng Việt cho người
@@ -43,6 +46,8 @@ type Error struct {
 	Message  string
 	Recovery string
 	RetryAt  *time.Time
+	// Field là tên trường lỗi kiểu `autonomy.approve.min` (400 có fields[]).
+	Field string
 }
 
 func (e *Error) Error() string { return e.Message }
@@ -101,6 +106,8 @@ type Patch struct {
 	AlwaysTags        Field[[]string]
 	AutoPick          Field[bool]
 	PacePerDay        Field[int]
+	Autonomy          Field[domain.Autonomy]
+	Priority          Field[string]
 	// Brief sửa Mô tả kênh trong branding của nhận diện (07 §16).
 	Brief Field[string]
 }
@@ -113,6 +120,8 @@ type CreateInput struct {
 	Language      string
 	AutoPick      bool
 	PacePerDay    int
+	Autonomy      domain.Autonomy
+	Priority      string
 	CompetitorIDs []string
 	TemplateID    string
 }
@@ -184,6 +193,7 @@ type Store interface {
 	DeleteChannel(ctx context.Context, id string) (bool, error)
 	LinkSource(ctx context.Context, id, rivalID string) (bool, error)
 	UnlinkSource(ctx context.Context, id, rivalID string) (removed, paused bool, err error)
+	SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (found bool, err error)
 	// UpdateTemplates khoá hàng kênh, đọc danh sách hiện có vào apply, ghi danh
 	// sách apply trả về (position liền mạch) — serialize mọi thao tác.
 	UpdateTemplates(ctx context.Context, id string, apply func(current []string) []string) error
@@ -436,6 +446,9 @@ type CreateRequest struct {
 	CompetitorIDs []string
 	AutoPick      *bool
 	PacePerDay    *int
+	Autonomy      *domain.Autonomy
+	Priority      *string
+	Confirmed     bool
 	Language      string
 }
 
@@ -473,6 +486,23 @@ func (s *Service) Create(ctx context.Context, in CreateRequest) (ChannelView, st
 	if in.AutoPick != nil {
 		autoPick = *in.AutoPick
 	}
+	autonomy := domain.DefaultAutonomy()
+	if in.Autonomy != nil {
+		var err error
+		if autonomy, err = ResolveAutonomy(*in.Autonomy); err != nil {
+			return ChannelView{}, "", err
+		}
+		if autonomy.Approve.Mode == domain.ApproveAll && !in.Confirmed {
+			return ChannelView{}, "", errConfirmRequired(autonomy)
+		}
+	}
+	priority := domain.PrioritySteady
+	if in.Priority != nil {
+		if err := validPriority(*in.Priority); err != nil {
+			return ChannelView{}, "", err
+		}
+		priority = *in.Priority
+	}
 	language := in.Language
 	if language == "" {
 		language = domain.LangAuto
@@ -500,6 +530,8 @@ func (s *Service) Create(ctx context.Context, in CreateRequest) (ChannelView, st
 		Language:      language,
 		AutoPick:      autoPick,
 		PacePerDay:    pace,
+		Autonomy:      autonomy,
+		Priority:      priority,
 		CompetitorIDs: competitors,
 		TemplateID:    templateID,
 	})
@@ -550,12 +582,18 @@ type UpdateRequest struct {
 	AutoPick          *bool
 	PacePerDay        *int
 	Brief             *string
+	// Autonomy/Priority: Mức tự chủ và ưu tiên (07 §20). Confirmed là xác nhận
+	// rõ của chủ kênh cho thay đổi giao thêm việc cho máy (D6).
+	Autonomy  *domain.Autonomy
+	Priority  *string
+	Confirmed bool
 }
 
 // Update sửa hồ sơ kênh. Trường vắng giữ nguyên; tags được trim, bỏ rỗng và
 // bỏ trùng; ngôn ngữ/nhịp kiểm cùng luật với Create.
 func (s *Service) Update(ctx context.Context, id string, in UpdateRequest) (ChannelView, error) {
-	if _, err := s.Get(ctx, id); err != nil {
+	cur, err := s.Get(ctx, id)
+	if err != nil {
 		return ChannelView{}, err
 	}
 	var p Patch
@@ -631,6 +669,22 @@ func (s *Service) Update(ctx context.Context, id string, in UpdateRequest) (Chan
 			return ChannelView{}, errInvalid("Nhịp mỗi ngày phải trong khoảng %d–%d.", PaceMin, PaceMax)
 		}
 		p.PacePerDay = Field[int]{Set: true, Value: *in.PacePerDay}
+	}
+	if in.Autonomy != nil {
+		next, err := ResolveAutonomy(*in.Autonomy)
+		if err != nil {
+			return ChannelView{}, err
+		}
+		if cur.Autonomy.RaisesTrust(next) && !in.Confirmed {
+			return ChannelView{}, errConfirmRequired(next)
+		}
+		p.Autonomy = Field[domain.Autonomy]{Set: true, Value: next}
+	}
+	if in.Priority != nil {
+		if err := validPriority(*in.Priority); err != nil {
+			return ChannelView{}, err
+		}
+		p.Priority = Field[string]{Set: true, Value: *in.Priority}
 	}
 	if in.Brief != nil {
 		brief := strings.TrimSpace(*in.Brief)
@@ -759,6 +813,35 @@ func (s *Service) Unlink(ctx context.Context, id, rivalID string) (ChannelView, 
 	}
 	s.emit(id)
 	return view, paused, nil
+}
+
+// MaxSourceMinDurationSec là trần bộ lọc thời lượng Tự lấy của một đối thủ.
+const MaxSourceMinDurationSec = 12 * 3600
+
+// SetSourceMinDuration đặt bộ lọc Tự lấy theo đối thủ: chỉ lấy video dài từ
+// minDurationSec giây (nil = bỏ lọc). Chỉ ảnh hưởng video thấy từ lần quét sau.
+func (s *Service) SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (ChannelView, error) {
+	if _, err := s.Get(ctx, id); err != nil {
+		return ChannelView{}, err
+	}
+	if minDurationSec != nil && (*minDurationSec < 1 || *minDurationSec > MaxSourceMinDurationSec) {
+		return ChannelView{}, errInvalid("Thời lượng tối thiểu phải từ 1 giây tới %d giờ.", MaxSourceMinDurationSec/3600)
+	}
+	found, err := s.store.SetSourceMinDuration(ctx, id, rivalID, minDurationSec)
+	if err != nil {
+		return ChannelView{}, err
+	}
+	if !found {
+		return ChannelView{}, &Error{Code: CodeNotFound,
+			Message:  fmt.Sprintf("Đối thủ %s chưa được liên kết với kênh.", rivalID),
+			Recovery: "Tải lại trang Kênh của bạn."}
+	}
+	view, err := s.Get(ctx, id)
+	if err != nil {
+		return ChannelView{}, err
+	}
+	s.emit(id)
+	return view, nil
 }
 
 // ── template luân phiên ────────────────────────────────────────────────────

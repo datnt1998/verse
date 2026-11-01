@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/autonomy"
 	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
@@ -148,6 +149,39 @@ func (s *Service) approvedToday(ctx context.Context) (*int, error) {
 	return &n, nil
 }
 
+// effectivePrompts trả prompt ảnh cảnh và ảnh bìa đang dùng: của template, hoặc
+// của riêng video khi đã đổi ở Bàn dựng (L14).
+func (s *Service) effectivePrompts(ctx context.Context, l loaded) (scene, cover EffectivePrompt, err error) {
+	m := l.manifest
+	var template library.Snapshot
+	if len(l.snapshot.Job.TemplateSnapshot) > 0 {
+		if err := json.Unmarshal(l.snapshot.Job.TemplateSnapshot, &template); err != nil {
+			return scene, cover, cloneError(domain.CloneErrInternal, "Template snapshot không đọc được")
+		}
+	}
+	scene = EffectivePrompt{ID: template.ScenePrompt.ID, Name: template.ScenePrompt.Name}
+	cover = EffectivePrompt{ID: template.CoverPrompt.ID, Name: template.CoverPrompt.Name}
+	if m.Overrides != nil {
+		for _, selection := range []struct {
+			set    bool
+			id     string
+			target *EffectivePrompt
+		}{{m.Overrides.ScenePromptSet, m.Overrides.ScenePromptID, &scene}, {m.Overrides.CoverPromptSet, m.Overrides.CoverPromptID, &cover}} {
+			if !selection.set {
+				continue
+			}
+			*selection.target = EffectivePrompt{ID: selection.id, Overridden: true}
+			if s.Prompts != nil {
+				prompt, err := s.Prompts.GetPrompt(ctx, selection.id)
+				if err == nil && prompt != nil {
+					selection.target.Name = prompt.Name
+				}
+			}
+		}
+	}
+	return scene, cover, nil
+}
+
 func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	l, err := s.load(ctx, id, nil, false)
 	if err != nil {
@@ -164,39 +198,26 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	if err != nil {
 		return View{}, err
 	}
-	var template library.Snapshot
-	if len(l.snapshot.Job.TemplateSnapshot) > 0 {
-		if err := json.Unmarshal(l.snapshot.Job.TemplateSnapshot, &template); err != nil {
-			return View{}, cloneError(domain.CloneErrInternal, "Template snapshot không đọc được")
-		}
+	scene, cover, err := s.effectivePrompts(ctx, l)
+	if err != nil {
+		return View{}, err
 	}
-	out.Manifest.ScenePrompt = EffectivePrompt{ID: template.ScenePrompt.ID, Name: template.ScenePrompt.Name}
-	out.Manifest.CoverPrompt = EffectivePrompt{ID: template.CoverPrompt.ID, Name: template.CoverPrompt.Name}
+	out.Manifest.ScenePrompt, out.Manifest.CoverPrompt = scene, cover
 	out.Manifest.Overrides = m.Overrides
-	if m.Overrides != nil {
-		for _, selection := range []struct {
-			set    bool
-			id     string
-			target *EffectivePrompt
-		}{{m.Overrides.ScenePromptSet, m.Overrides.ScenePromptID, &out.Manifest.ScenePrompt}, {m.Overrides.CoverPromptSet, m.Overrides.CoverPromptID, &out.Manifest.CoverPrompt}} {
-			if !selection.set {
-				continue
-			}
-			*selection.target = EffectivePrompt{ID: selection.id, Overridden: true}
-			if s.Prompts != nil {
-				prompt, err := s.Prompts.GetPrompt(ctx, selection.id)
-				if err == nil && prompt != nil {
-					selection.target.Name = prompt.Name
-				}
-			}
-		}
+	if s.Learner != nil {
+		out.Learn, _ = s.Learner.OpenFor(ctx, id)
 	}
 	if m.ImageMode != "" {
 		mode := m.ImageMode
 		out.Manifest.ImageMode = &mode
 	}
 	queue := 0
+	sceneNumber := 0
+	scored := make([]autonomy.ItemScore, 0, len(m.Items))
 	for _, i := range m.Items {
+		if i.Kind == "scene" {
+			sceneNumber++
+		}
 		item := ItemView{ID: i.ID, Kind: i.Kind, Status: i.Status, SkipReason: i.SkipReason, Prompt: i.Prompt, PromptVersion: i.PromptVersion, CurrentVersion: i.CurrentVersion, ReviewVersion: i.ReviewVersion, Reference: i.Reference.Path, Width: i.Width, Height: i.Height, Versions: make([]VersionView, 0, len(i.Versions))}
 		item.ReferenceURL = artifactURL(l.snapshot, i.Reference.Path, i.Reference.SHA256)
 		if i.InFlight != nil {
@@ -215,7 +236,7 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			if source == "" {
 				source = "codex"
 			}
-			version := VersionView{Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version := VersionView{Score: v.Score, Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
 			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
 			version.CutoutState = "unavailable"
 			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
@@ -250,7 +271,10 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		}
 		item.Narration = i.Narration
 		item.Direction = i.Direction
+		scored = append(scored, autonomy.ItemScore{ID: i.ID, Kind: i.Kind, Label: autonomy.ItemLabel(i.Kind, sceneNumber), Skipped: i.Status == "skipped"})
 		if v := model.Displayed(i); v != nil {
+			item.Score = v.Score
+			scored[len(scored)-1].Score = v.Score
 			hash := v.SHA256
 			if m.Style == "cutout" && i.Kind == "scene" && v.Cutout != nil {
 				hash = v.Cutout.SHA256
@@ -260,6 +284,22 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			}
 		}
 		out.Items = append(out.Items, item)
+	}
+	if s.Autonomy != nil {
+		a, found, err := s.Autonomy.JobAutonomy(ctx, id)
+		if err != nil {
+			return View{}, err
+		}
+		if found {
+			v := autonomy.Evaluate(a.Approve.Min, scored)
+			pending := 0
+			for _, i := range m.Items {
+				if i.Status == "pending" || i.Status == "running" || i.InFlight != nil {
+					pending++
+				}
+			}
+			out.Autonomy = &AutonomyView{Mode: a.Approve.Mode, Min: v.Min, Total: v.Total, Passed: v.Passed, Pending: pending, Below: v.Below, Summary: v.Summary()}
+		}
 	}
 	return out, nil
 }
@@ -347,8 +387,46 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	out.Manifest.Revision = l.manifest.Revision
 	if rerun {
 		out.Generation = &GenerateResult{Accepted: true, JobID: id, Pending: pending, Count: len(pending)}
+		out.Generation.Learn = s.observeFeedback(ctx, id, l, input.Actions)
 	}
 	return out, nil
+}
+
+// observeFeedback ghi các góp ý vẽ lại để Hoạ sĩ học. Mỗi (prompt, góp ý) tính
+// một lần dù áp cho nhiều ảnh trong cùng một lệnh. Lỗi không làm hỏng lần vẽ lại.
+func (s *Service) observeFeedback(ctx context.Context, id string, l loaded, actions []Action) any {
+	if s.Learner == nil {
+		return nil
+	}
+	scene, cover, err := s.effectivePrompts(ctx, l)
+	if err != nil {
+		return nil
+	}
+	kinds := map[string]string{}
+	for _, i := range l.manifest.Items {
+		kinds[i.ID] = i.Kind
+	}
+	type key struct{ prompt, text string }
+	seen := map[key]bool{}
+	var found any
+	for _, a := range actions {
+		if a.Op != "regenerate" || a.Prompt == nil || strings.TrimSpace(*a.Prompt) == "" {
+			continue
+		}
+		prompt := scene
+		if kinds[a.ID] == "thumbnail" && cover.ID != "" {
+			prompt = cover
+		}
+		if prompt.ID == "" || seen[key{prompt.ID, *a.Prompt}] {
+			continue
+		}
+		seen[key{prompt.ID, *a.Prompt}] = true
+		learn, err := s.Learner.ObserveRedraw(ctx, id, l.snapshot.Job.ChannelID, prompt.ID, prompt.Name, *a.Prompt)
+		if err == nil && learn != nil && found == nil {
+			found = learn
+		}
+	}
+	return found
 }
 func sameChoice(a, b *int) bool { return (a == nil && b == nil) || (a != nil && b != nil && *a == *b) }
 func firstReviewCompleted(snapshot jobedit.Snapshot, wasApproved bool, next model.Manifest) bool {
