@@ -8,6 +8,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func TestManagedToolIdsIsExactlyTheToolList(t *testing.T) {
@@ -58,7 +60,7 @@ func TestManagedLifecycleInstallRunsRegisteredBody(t *testing.T) {
 	tools := New(deps)
 	m := NewManaged(deps, nil, tools)
 	ran := false
-	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *LifecycleContext) error {
+	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *toolchain.LifecycleContext) error {
 		ran = true
 		return nil
 	})
@@ -76,7 +78,7 @@ func TestManagedLifecycleInstallPropagatesFailure(t *testing.T) {
 	deps := Deps{Runner: &ExecRunner{}, BaseDir: base}
 	tools := New(deps)
 	m := NewManaged(deps, nil, tools)
-	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *LifecycleContext) error {
+	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *toolchain.LifecycleContext) error {
 		return errors.New("venv dựng hỏng")
 	})
 	if _, err := m.Install(context.Background(), ManagedTranscription); err == nil {
@@ -86,7 +88,7 @@ func TestManagedLifecycleInstallPropagatesFailure(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if st == nil || st.Phase != PhaseFailed {
+	if st == nil || st.Phase != toolchain.PhaseFailed {
 		t.Fatalf("state = %+v", st)
 	}
 }
@@ -100,7 +102,7 @@ func TestManagedLifecycleConcurrentCallersShareRun(t *testing.T) {
 	m := NewManaged(deps, nil, tools)
 	var runs int32
 	release := make(chan struct{})
-	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *LifecycleContext) error {
+	m.RegisterLifecycle(ManagedTranscription, func(ctx context.Context, lc *toolchain.LifecycleContext) error {
 		atomic.AddInt32(&runs, 1)
 		<-release
 		return nil
@@ -138,17 +140,12 @@ func TestManagedLifecycleConcurrentCallersShareRun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if st == nil || st.Phase != PhaseDone {
+	if st == nil || st.Phase != toolchain.PhaseDone {
 		t.Fatalf("state = %+v", st)
 	}
 }
 
 // flightWaiters đếm caller đang chờ lượt chạy của toolID (0 khi không có lượt).
-func flightWaiters(i *Installer, toolID string) int {
-	i.mu.Lock()
-	defer i.mu.Unlock()
-	if f := i.inFlight[toolID]; f != nil {
-		return f.waiters
-	}
-	return 0
+func flightWaiters(i *toolchain.Installer, toolID string) int {
+	return i.FlightWaiters(toolID)
 }

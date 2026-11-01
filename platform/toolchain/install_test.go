@@ -1,5 +1,5 @@
 // Test chuyển từ src/server/tools/tool-installer.test.ts của yt-factory.
-package tools
+package toolchain
 
 import (
 	"archive/tar"
@@ -750,3 +750,6 @@ func TestDownloadVerifiedResumesFromPartFile(t *testing.T) {
 		t.Fatal(".part phải được đổi tên sau khi xong")
 	}
 }
+
+// isWindows cho phép bỏ qua các test cần POSIX (symlink, quyền tệp).
+func isWindows() bool { return os.PathSeparator == '\\' }

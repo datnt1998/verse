@@ -17,6 +17,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // versionRunner trả phiên bản cho `--version` (yt-dlp, codex) và “chưa đăng
@@ -141,8 +142,8 @@ func TestCodexFoundOnMachineIsProvidedButManagedIsNot(t *testing.T) {
 	svc, _, kit := newService(t, &http.Client{Transport: redirectTransport{tag: "2025.01.01"}}, fakeChatGPT{login: "not_logged_in"})
 	base := filepath.Dir(kit.Codex.DefaultHome())
 	pin := tools.CodexPin().Version
-	fakeExe(t, filepath.Join(tools.ToolVersionDir(base, "codex", pin), "codex"))
-	if err := os.WriteFile(filepath.Join(tools.ToolRoot(base, "codex"), "current"), []byte("v-"+pin), 0o644); err != nil {
+	fakeExe(t, filepath.Join(toolchain.ToolVersionDir(base, "codex", pin), "codex"))
+	if err := os.WriteFile(filepath.Join(toolchain.ToolRoot(base, "codex"), "current"), []byte("v-"+pin), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	snap, err := svc.Snapshot(ctx, true)
@@ -399,7 +400,7 @@ func TestInstalledSizeIsMeasuredNotReserved(t *testing.T) {
 	if measured == svc.RequiredBytes(ToolYtDlp) {
 		t.Fatal("không được đo ra đúng RequiredBytes — hai con số phải khác biệt")
 	}
-	if got := tools.ReadInstalledSize(base, "yt-dlp"); got != measured {
+	if got := toolchain.ReadInstalledSize(base, "yt-dlp"); got != measured {
 		t.Fatalf("ghi số đo = %d, muốn %d", got, measured)
 	}
 	// Hàng ready phải lấy số đo, không fallback sang xấp xỉ hay required.
@@ -430,7 +431,7 @@ func TestSnapshotReadsPersistedSizeNotTreeWalk(t *testing.T) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := tools.WriteInstalledSize(base, "yt-dlp", 111*1024*1024); err != nil {
+	if err := toolchain.WriteInstalledSize(base, "yt-dlp", 111*1024*1024); err != nil {
 		t.Fatal(err)
 	}
 	// Bỏ thêm 200 MB sau khi ghi — nếu GET đo cây thì sẽ lớn hơn; chỉ khi đọc
@@ -438,7 +439,7 @@ func TestSnapshotReadsPersistedSizeNotTreeWalk(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "payload"), make([]byte, 200*1024*1024), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if got := tools.ReadInstalledSize(base, "yt-dlp"); got != 111*1024*1024 {
+	if got := toolchain.ReadInstalledSize(base, "yt-dlp"); got != 111*1024*1024 {
 		t.Fatalf("đọc số đo = %d, muốn 111 MB (đã ghi, không đo cây)", got)
 	}
 }

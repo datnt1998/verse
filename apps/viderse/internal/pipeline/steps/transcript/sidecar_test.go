@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func TestSidecarUsesUvManagedPythonAndSeconds(t *testing.T) {
@@ -82,7 +83,7 @@ func TestSidecarCancelKillsProcessGroup(t *testing.T) {
 	cancel()
 	select {
 	case err := <-done:
-		if !errors.Is(err, tools.ErrCancelled) && !errors.Is(err, context.Canceled) {
+		if !errors.Is(err, toolchain.ErrCancelled) && !errors.Is(err, context.Canceled) {
 			t.Fatalf("cancel: %v", err)
 		}
 	case <-time.After(5 * time.Second):

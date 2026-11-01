@@ -18,18 +18,13 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
-// ErrCancelled đánh dấu mọi lỗi do huỷ (ctx của caller hoặc sentinel cài đặt);
-// dùng errors.Is. Bản chuyển của CancelledError trong bản cũ.
-var ErrCancelled = errors.New("cancelled")
-
-func cancelledErr(ctx context.Context) error {
-	if err := ctx.Err(); err != nil {
-		return fmt.Errorf("%w: %w", ErrCancelled, err)
-	}
-	return ErrCancelled
-}
+// Sentinel huỷ (ErrCancelled) và lỗi huỷ dùng chung nằm ở platform/toolchain:
+// bộ cài dùng chung và bộ chạy process con phải cùng một sentinel để tầng
+// trên (pipeline) nhận ra lượt bị huỷ.
 
 // Stream đánh dấu luồng đầu ra của process con.
 type Stream string
@@ -225,7 +220,7 @@ func (w *lineWriter) flush() {
 // còn đuôi mất vì reader chưa kịp đọc.
 func (r *ExecRunner) Run(ctx context.Context, file string, args []string, spec Spec) (Result, error) {
 	if err := ctx.Err(); err != nil {
-		return Result{}, cancelledErr(ctx)
+		return Result{}, toolchain.CancelledErr(ctx)
 	}
 	limit := spec.LogLimit
 	if limit <= 0 {
@@ -343,7 +338,7 @@ func (r *ExecRunner) Run(ctx context.Context, file string, args []string, spec S
 				Err:      ctx.Err(),
 			}
 		}
-		return res, cancelledErr(ctx)
+		return res, toolchain.CancelledErr(ctx)
 	}
 	if timedOut.Load() {
 		return res, &ProcessFailedError{
@@ -569,7 +564,7 @@ func (c *FileVerificationCache[T]) Check(file string, verify func(context.Contex
 			return hit.value, hit.err
 		case <-ctx.Done():
 			var zero T
-			return zero, cancelledErr(ctx)
+			return zero, toolchain.CancelledErr(ctx)
 		}
 	}
 	entry := &verifyEntry[T]{identity: identity, done: make(chan struct{}), expiresAt: time.Now().Add(100 * 365 * 24 * time.Hour)}
@@ -595,7 +590,7 @@ func (c *FileVerificationCache[T]) Check(file string, verify func(context.Contex
 		return entry.value, entry.err
 	case <-ctx.Done():
 		var zero T
-		return zero, cancelledErr(ctx)
+		return zero, toolchain.CancelledErr(ctx)
 	}
 }
 

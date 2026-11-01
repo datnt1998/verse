@@ -9,6 +9,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // probe đánh giá mọi công cụ một lượt: các probe chạy song song (spawn
@@ -286,14 +287,14 @@ func (s *Service) installHint(id ToolID, row Row) Row {
 	if st == nil {
 		return row
 	}
-	if st.Phase == tools.PhaseFailed && st.Error != nil && *st.Error != "" {
+	if st.Phase == toolchain.PhaseFailed && st.Error != nil && *st.Error != "" {
 		row.Hint = friendlyInstallError(*st.Error)
 		row.Detail = *st.Error
 		if row.State != StateInstalling {
 			row.State = StateFailed
 		}
 	}
-	if st.Phase == tools.PhaseCancelled {
+	if st.Phase == toolchain.PhaseCancelled {
 		row.Hint = "Đã huỷ giữa chừng — bấm Cài lại để tiếp tục."
 		if row.State != StateInstalling {
 			row.State = StateFailed
@@ -303,7 +304,7 @@ func (s *Service) installHint(id ToolID, row Row) Row {
 }
 
 // mgrState đọc install-state của một công cụ (yt-dlp không có — nil).
-func (s *Service) mgrState(id ToolID) *tools.InstallState {
+func (s *Service) mgrState(id ToolID) *toolchain.InstallState {
 	mid, ok := managedID(id)
 	if !ok {
 		return nil
@@ -326,7 +327,7 @@ func liveProgress(mgr *tools.Managed, id ToolID) *domain.InstallProgress {
 		return nil
 	}
 	switch st.Phase {
-	case tools.PhaseDone, tools.PhaseFailed, tools.PhaseCancelled:
+	case toolchain.PhaseDone, toolchain.PhaseFailed, toolchain.PhaseCancelled:
 		return nil
 	}
 	p := &domain.InstallProgress{

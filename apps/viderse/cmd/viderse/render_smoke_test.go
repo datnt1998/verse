@@ -37,6 +37,7 @@ import (
 	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/pgtest"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // TestRenderPhase05SmokeFixture is an explicitly requested, provider-free input
@@ -541,7 +542,7 @@ func renderSmokeInstallChrome(t *testing.T, cfgDir string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
 	defer cancel()
 	kit := tools.New(tools.Deps{BaseDir: cfgDir, Runner: &tools.ExecRunner{}})
-	installer := &tools.Installer{BaseDir: cfgDir, DownloadTimeout: 3 * time.Minute}
+	installer := &toolchain.Installer{BaseDir: cfgDir, DownloadTimeout: 3 * time.Minute}
 	if _, err := installer.Install(ctx, kit.Chrome.InstallSpec()); err != nil {
 		t.Fatalf("install real pinned Chrome for Testing: %v", err)
 	}

@@ -11,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // catalogFixture là catalog giống catalog ghim của Codex.
@@ -193,7 +195,7 @@ func TestCreateIsolatedCodexHomeCopiesOnlyAuth(t *testing.T) {
 	if !strings.HasPrefix(home, dest) {
 		t.Fatalf("home = %q", home)
 	}
-	if fileExists(filepath.Join(home, "config.toml")) {
+	if toolchain.FileExists(filepath.Join(home, "config.toml")) {
 		t.Fatal("config lọt vào home cô lập")
 	}
 	auth, err := os.ReadFile(filepath.Join(home, "auth.json"))

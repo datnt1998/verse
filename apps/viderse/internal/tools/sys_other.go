@@ -28,8 +28,6 @@ func execProcessOutput(ctx context.Context, name string, args ...string) (string
 	return string(out), err
 }
 
-func freeDiskBytes(dir string) int64 { return -1 }
-
 func fileIdentity(path string) (string, bool) {
 	info, err := os.Stat(path)
 	if err != nil {

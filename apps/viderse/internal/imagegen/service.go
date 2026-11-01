@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // Options là phụ thuộc tiêm vào của Service.
@@ -568,7 +569,7 @@ func (s *Service) drawOnce(ctx context.Context, req Request) (Receipt, error) {
 
 // isCancelled: lỗi huỷ theo cả hai nguồn (ctx của app và ErrCancelled của runner).
 func isCancelled(err error) bool {
-	if errors.Is(err, tools.ErrCancelled) || errors.Is(err, context.Canceled) {
+	if errors.Is(err, toolchain.ErrCancelled) || errors.Is(err, context.Canceled) {
 		return true
 	}
 	de, ok := drawErrorOf(err)
