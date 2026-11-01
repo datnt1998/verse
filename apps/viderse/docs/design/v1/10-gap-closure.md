@@ -254,6 +254,7 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 
 - Kit dùng chung cung cấp chọn chip, vùng thả tệp/dòng tệp và tab gạch chân; hộp nhập template hiển thị kết quả thật từng tệp, giữ tệp chưa xong khi mất kết nối và không gửi lại tệp đã nhập khi thử lại.
 - Đã chạy UI thật với hai gói hợp lệ và một gói hỏng: kết quả hai template được nhập, một tệp lỗi; kiểm tra điện thoại 390/360 px không tràn ngang. Sửa vòng đời hộp thoại để chọn tệp vẫn hoạt động khi React chạy lại effect; ba regression nhập một phần/huỷ/thử lại đều chạy trong StrictMode.
+- Sửa menu chọn mục làm mất ảnh đại diện của kênh đang dùng: giữ hình nhận diện và ghi chú, vẫn có dấu chọn. Regression tái hiện ảnh bị mất trước sửa; toàn bộ kit đạt 231 test sau sửa. Màn Bàn dựng sẽ kiểm hình thêm trong lượt tích hợp.
 - Chưa coi lượt này là xác nhận khớp toàn bộ `MLibrary`/`MTemplate`: bản xem thử chưa có dữ liệu ở fixture, và phần còn lại của ma trận điện thoại được ghi ở báo cáo đối chiếu riêng.
 
 ## Kênh và tạo kênh điện thoại — tích hợp (02/11/2026)

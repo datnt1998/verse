@@ -200,7 +200,7 @@ it('Button aria-disabled: vẫn focus được, bấm không gọi onClick và k
 it('ActionMenu lockedReason: mục khoá có lý do làm aria-describedby, bấm không chọn và không đóng menu', async () => {
   const onSelect = vi.fn()
   const { container } = await mount(
-    <ActionMenu label="Thao tác" trigger={<button type="button">⋯</button>}
+    <ActionMenu label="Thao tác" trigger="⋯"
       items={[{ id: 'link', label: 'Liên kết', lockedReason: 'Cần một kênh.', onSelect }]} />,
   )
   await act(async () => { container.querySelector('button')!.click() })
@@ -212,4 +212,21 @@ it('ActionMenu lockedReason: mục khoá có lý do làm aria-describedby, bấm
   await act(async () => { item.click() })
   expect(onSelect).not.toHaveBeenCalled()
   expect(document.body.querySelector('[role="menuitem"]')).toBe(item)
+})
+
+it('ActionMenu giữ hình nhận diện và ghi chú của mục đang chọn', async () => {
+  const onSelect = vi.fn()
+  const { container } = await mount(
+    <ActionMenu label="Đổi kênh" items={[{
+      id: 'night', label: 'Chuyện đêm', selected: true,
+      icon: <img src="/night.png" alt="Ảnh kênh Chuyện đêm" />,
+      meta: '24 video', onSelect,
+    }]} />,
+  )
+  await act(async () => { container.querySelector('button')!.click() })
+  const item = document.body.querySelector<HTMLButtonElement>('[role="menuitemradio"][aria-checked="true"]')!
+  expect(item.querySelector('img')?.alt).toBe('Ảnh kênh Chuyện đêm')
+  expect(item.textContent).toContain('24 video')
+  await act(async () => { item.click() })
+  expect(onSelect).toHaveBeenCalledOnce()
 })

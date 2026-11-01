@@ -38,7 +38,7 @@ export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?
 export type MenuPoint = { x: number; y: number }
 /** Icon của mục menu: 16 px (15 px ở mục chọn một), màu fg-3 — mục nguy hiểm --kit-err-bright. */
 function itemIcon(item: ActionMenuItem) {
-  if (item.selected) return <Icon name="tick-circle" size={15} {...stylex.props(sx.iconTick)} />
+  if (item.selected && !item.icon) return <Icon name="tick-circle" size={15} {...stylex.props(sx.iconTick)} />
   if (!item.icon) return null
   const size = item.selected === undefined ? 16 : 15
   const wrap = stylex.props(sx.iconWrap, item.danger ? sx.iconDanger : sx.iconNormal)
@@ -71,7 +71,7 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
     const opt = stylex.props(sx.optHeight(note ? '48px' : '34px'))
     const ids = item.lockedReason ? { label: `${uid}-${item.id}-l`, note: `${uid}-${item.id}-r` } : null
     const button = <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} aria-disabled={ids ? true : undefined} aria-labelledby={ids?.label} aria-describedby={ids?.note} className={[`kit-option${item.danger ? ' kit-danger' : ''}`, opt.className].filter(Boolean).join(' ')} onClick={() => { if (ids) return; if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>
-      {itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span id={ids?.label} {...stylex.props(sx.label)}>{item.label}</span>{note && <small id={ids?.note} {...stylex.props(sx.desc)}>{note}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}
+      {itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span id={ids?.label} {...stylex.props(sx.label)}>{item.label}</span>{note && <small id={ids?.note} {...stylex.props(sx.desc)}>{note}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.selected && !!item.icon && <Icon name="tick-circle" size={15} {...stylex.props(sx.iconTick)} />}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}
     </button>
     return <div key={item.id} data-menu-row {...stylex.props(sx.row)} onPointerEnter={() => setSubmenu(item.children ? item.id : null)}>
       {item.danger && !items[index - 1]?.danger && <div role="separator" className="kit-separator" />}
