@@ -839,6 +839,23 @@ Nguồn sự thật:
 - Editor: vẽ lại cảnh 5 trong lúc kéo phụ đề → không mất thao tác; xong ảnh thay vào timeline, ⌘Z quay lại bản 1.
 - Ghi “Gói V29” vào `10-gap-closure.md`.
 
+## Gói V30 — Đường dẫn, chỗ trống theo ổ, nhóm chọn không cắt chữ (P2) <!-- r34 --> <a id="goi-v30"></a>
+
+**Vì sao:** báo cáo QA nêu ba luật hiển thị chưa chốt (#78–#80). Không thêm màn; board chỉ sửa chữ và kit.
+- Artboard: `Settings` · `section=storage`, `store=here|done|donenew|offline|cloud` · `MSettings` · `screen=storage`, cùng `store` · `Kit` › Ô nhập & nút › Nhóm chọn · `Explore` / `MExplore` (Sắp xếp, Vùng giờ — đã co theo nhãn).
+- Spec: components › Đường dẫn thư mục, SegmentedTabs; copy › Lưu trữ trên máy, Nhóm chọn: nhãn; 05-kit › Segmented.
+
+### Việc FE
+- Đường dẫn: in `displayPath`, một dòng, cắt giữa theo thư mục theo bề rộng thật; `title` đầy đủ.
+- Chỗ trống: theo ổ đang giữ thư mục lưu dự án, kèm tên ổ; ổ ngoài rút → “chưa cắm”, không thay bằng số của ổ trong máy; không thêm dòng cảnh báo ở `offline`.
+- Kit `Segmented`: mục co theo nhãn (`flex: 0 0 auto`), không `text-overflow: ellipsis`; nhóm `max-width: 100%`, cuộn ngang ẩn thanh cuộn; `--fill` / `--m` chia đều với `min-width: max-content`; viên trượt đo theo mục thật. Bỏ ngoại lệ tạm cho hai nhóm Sắp xếp / Vùng.
+
+### Nghiệm thu
+- Thư mục `/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects` ở 1440 hiện `/Volumes/Samsung T7/…/Kênh YouTube/Viderse Projects`; ở 390 hiện `/Volumes/Samsung T7/…/Viderse Projects`; rê chuột thấy đủ.
+- Rút ổ T7: thẻ dung lượng ghi “Samsung T7 chưa cắm · chưa đọc được chỗ trống”.
+- Khám phá ở 390: nhóm Sắp xếp đủ chữ “Mới nhất”, cuộn ngang được khi chật; không chỗ nào trong app có nhóm chọn bị “…”.
+- Ghi “Gói V30” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -870,6 +887,7 @@ Nguồn sự thật:
 | V27 | Không API mới; dùng `pausedAt`, `waitReason`, `PATCH /api/queue` v2 (#52) và phiên thiết bị `GET /api/me/sessions` | <!-- r31-v27 -->
 | V28 | Không API mới; `/api/events` (SSE) đã có (#8) | <!-- r32 -->
 | V29 | `ImageVersion` (prompt đã gửi theo phần, refs, provider, thời gian), `POST …/images/redraw` (`feedback`, `parts`, `refs`), `…/use`, `…/cancel`, SSE `image.progress` | <!-- r33-img -->
+| V30 | `displayPath` (đã có, #78); chỗ trống theo ổ đang giữ thư mục lưu dự án, `null` khi ổ không cắm | <!-- r34 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

@@ -446,7 +446,13 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
 .vv-switch--m[aria-checked="true"]::after { left: 23px; }
 .vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
-.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+/* r34 #80: nhãn không bao giờ cắt “…”; nhóm co theo nhãn, hẹp hơn nội dung thì cuộn ngang */
+.vv-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.vv-seg::-webkit-scrollbar { display: none; }
+.vv-seg > button { text-overflow: clip; overflow: visible; }
+.vv-seg--fill { display: flex; }
+.vv-seg.vv-seg--fill > button { flex: 1 1 0; min-width: max-content; }   /* chia đều khi nhóm chiếm hết bề rộng; nhãn dài vẫn giữ đủ chữ, không cắt */
+.vv-seg > button { position: relative; z-index: 1; flex: 0 0 auto; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
 .vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
 .vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
 .vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
@@ -457,7 +463,7 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
 .vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
 .vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
-.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); border-radius: 12px; }
 .vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
 .vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
 .vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
@@ -858,7 +864,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <button class="ghost" type="button" onClick="{{toggleAdv}}" aria-expanded="{{advOpen}}" style="width: 100%; height: 42px; padding: 0 16px; display: flex; align-items: center; gap: 8px; border: none; background: transparent; color: #A0A0AB; font-size: 13px; text-align: left"><span class="ic i-arrow-d" aria-hidden="true" style="width: 14px; height: 14px; transform: {{advRot}}"></span>Nâng cao · thư mục dữ liệu và phiên bản</button>
 <sc-if value="{{adv}}" hint-placeholder-val="{{ false }}">
 <div style="padding: 0 16px 16px 38px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; font-size: 12px">
-<span style="color: #8B8B97">Thư mục dữ liệu</span><span class="mono" style="color: #C9C9D1; overflow-wrap: anywhere">~/Library/Application Support/Viderse/data</span>
+<span style="color: #8B8B97">Thư mục dữ liệu</span><span class="mono" style="color: #C9C9D1; overflow-wrap: anywhere">~/.viderse</span>
 <span style="color: #8B8B97">yt-dlp</span><span class="mono" style="color: #C9C9D1">{{vYt}}</span>
 <span style="color: #8B8B97">ffmpeg · ffprobe</span><span class="mono" style="color: #C9C9D1">7.1</span>
 <span style="color: #8B8B97">faster-whisper</span><span class="mono" style="color: #C9C9D1">large-v3 · Python 3.11</span>
@@ -1163,7 +1169,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <sc-if value="{{sto.isOffline}}" hint-placeholder-val="{{ false }}"><div class="vv-banner vv-banner--issue" role="alert"><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><b>Không thấy ổ Samsung T7</b><span>Ổ được rút lúc 21:40. 2 video đang làm đã tạm dừng, hàng chờ chưa chạy tiếp. Cắm lại ổ thì máy tự chạy tiếp, không mất gì.</span><span class="vv-banner__actions"><button class="vv-btn vv-btn--sm vv-btn--white" type="button" onClick="{{sto.finishMove}}"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px;"></span>Thử lại</button><button class="vv-btn vv-btn--sm" type="button">Lưu video mới vào Macintosh HD</button></span></span></div></sc-if>
 <sc-if value="{{sto.showLoc}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
 <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 10px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); color: #C9C9D1"><span class="ic i-folder" aria-hidden="true" style="width: 18px; height: 18px;"></span></span>
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13.5px; font-weight: 500">{{sto.locName}} <span style="font-weight: 400; color: #8B8B97">· {{sto.locKind}}</span></span><span class="vv-mono vv-ell" title="{{sto.locPath}}" style="font-size: 11.5px; color: #A0A0AB">{{sto.locPath}}</span></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13.5px; font-weight: 500">{{sto.locName}} <span style="font-weight: 400; color: #8B8B97">· {{sto.locKind}}</span></span><span class="vv-mono vv-ell" title="{{sto.locPathFull}}" style="font-size: 11.5px; color: #A0A0AB">{{sto.locPath}}</span></span>
 <button class="vv-btn vv-btn--sm vv-btn--quiet" type="button">Mở trong Finder</button>
 <sc-if value="{{sto.isHere}}" hint-placeholder-val="{{ true }}"><button class="vv-btn vv-btn--sm" type="button" onClick="{{sto.openPick}}">Đổi thư mục…</button></sc-if>
 <sc-if value="{{sto.isDone}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--sm" type="button" onClick="{{sto.openPick}}">Đổi thư mục…</button></sc-if>
@@ -1172,7 +1178,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <sc-if value="{{sto.isHere}}" hint-placeholder-val="{{ true }}"><span class="vv-help">Luôn ở máy này: cơ sở dữ liệu, mô hình và công cụ (5,3 GB) — để app mở nhanh và không hỏng khi rút ổ ngoài.</span></sc-if>
 <sc-if value="{{sto.isPick}}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; flex-direction: column; gap: 8px"><span class="vv-label" id="lbl-newdir">Thư mục mới</span>
-<div class="vv-fieldbox" role="group" aria-labelledby="lbl-newdir" style="height: 40px; padding-right: 4px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span><span class="vv-mono vv-ell" title="{{sto.newPath}}" style="flex: 1; min-width: 0; font-size: 12.5px; color: {{sto.pathC}}">{{sto.newPath}}</span><button class="vv-btn vv-btn--sm" type="button">Chọn thư mục…</button></div>
+<div class="vv-fieldbox" role="group" aria-labelledby="lbl-newdir" style="height: 40px; padding-right: 4px"><span class="ic i-folder" aria-hidden="true" style="width: 16px; height: 16px; color: #8B8B97"></span><span class="vv-mono vv-ell" title="{{sto.newPath}}" style="flex: 1; min-width: 0; font-size: 12.5px; color: {{sto.pathC}}">{{sto.newPathShort}}</span><button class="vv-btn vv-btn--sm" type="button">Chọn thư mục…</button></div>
 <span class="vv-help">Mở hộp chọn thư mục của máy. Chọn gốc một ổ thì Viderse tạo thư mục con “Viderse Projects”; thư mục đã có tệp khác vẫn dùng được, Viderse chỉ ghi vào thư mục con của mình.</span>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px"><span class="vv-help">Gợi ý từ ổ đang cắm:</span><sc-for list="{{sto.drives}}" as="d" hint-placeholder-count="4"><button type="button" class="vv-pill" aria-pressed="{{d.on}}" aria-disabled="{{d.dis}}" onClick="{{d.pick}}" title="{{d.sub}}" style="height: 30px">{{d.name}}<span class="vv-num" style="color: #8B8B97">{{d.free}}</span></button></sc-for></div>
 <sc-if value="{{sto.cloudWarn}}" hint-placeholder-val="{{ false }}"><span class="vv-err">Thư mục đồng bộ đám mây (Google Drive, iCloud, Dropbox) không dùng được: tệp đang dựng có thể bị khoá hoặc tải lên giữa chừng.</span></sc-if>
@@ -1197,7 +1203,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <section class="card" aria-labelledby="h-use" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
 <h2 id="h-use" style="margin: 0; flex: 1; font-size: 14px; font-weight: 600">Viderse đang dùng <span class="num">{{usedTotal}}</span></h2>
-<span class="num" style="font-size: 12.5px; color: #8B8B97">Ổ còn trống {{freeDisk}}</span>
+<span class="num" title="{{freeTitle}}" style="font-size: 12.5px; color: #8B8B97">{{freeLabel}}</span>
 </div>
 <div role="img" aria-label="{{usageAria}}" style="display: flex; gap: 2px; height: 10px; border-radius: 999px; overflow: hidden">
 <sc-for list="{{usage}}" as="u" hint-placeholder-count="5"><span style="flex: {{u.flex}}; background: {{u.color}}"></span></sc-for>
@@ -1344,17 +1350,20 @@ class Component extends DCLogic {
     const need = smode === 'move' ? 89 : 20;
     const okSpace = !D.cloud && (D.same || D.freeN >= need);
     const moved = sst === 'done' || sst === 'offline' || sst === 'donenew';
+    // r34 #78: đường dẫn hiển thị (displayPath) cắt giữa theo thư mục: giữ đầu (~ hoặc /Volumes/<ổ>) và 2 thư mục cuối
+    const midPath = (p, max) => { if (!p || p.length <= max) return p; const a = p.split('/'); const head = a[0] === '~' ? 1 : (a[1] === 'Volumes' ? 3 : 2); const h = a.slice(0, head).join('/'); for (let t = 2; t >= 1; t--) { const r = h + '/…/' + a.slice(-t).join('/'); if (r.length <= max) return r; } const tail = a[a.length - 1]; return h + '/…/' + '…' + tail.slice(-(max - h.length - 5)); };
+
     const T7 = DRV[1];
     const sto = {
       isHere: sst === 'here', isPick: sst === 'pick' || sst === 'lowspace' || sst === 'cloud', cloudWarn: !!D.cloud, pathC: D.cloud ? '#FFC09A' : '#EDEDEF', isMoving: sst === 'moving', isDone: sst === 'done', isDoneNew: sst === 'donenew', isOffline: sst === 'offline',
       showLoc: sst !== 'pick' && sst !== 'lowspace' && sst !== 'cloud',
-      locName: moved ? T7.name : 'Macintosh HD', locKind: moved ? T7.kind + ' · còn 1,54 TB' : 'Ổ trong máy · còn 212 GB',
-      locPath: moved ? T7.path : '~/Library/Application Support/Viderse/data/projects', locBad: sst === 'offline',
+      locName: moved ? T7.name : 'Macintosh HD', locKind: sst === 'offline' ? T7.kind + ' · chưa cắm' : (moved ? T7.kind + ' · còn 1,54 TB' : 'Ổ trong máy · còn 212 GB'),
+      locPathFull: sst === 'donenew' ? '/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects' : (moved ? T7.path : '~/.viderse/projects'), locPath: midPath(sst === 'donenew' ? '/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects' : (moved ? T7.path : '~/.viderse/projects'), 52), locBad: sst === 'offline',
       drives: DRV.map((d) => ({ name: d.name, kind: d.kind, free: d.free ? 'còn ' + d.free : '', on: d.id === sdrive ? 'true' : 'false', dis: 'false',
         sub: d.cloud ? d.reason : d.kind + (d.free ? ' · còn ' + d.free : ''),
         pick: () => this.setState({ sdrive: d.id }) })),
       modes: [['move', 'Chuyển ' + '81,1 GB' + ' đang có sang thư mục mới', 'Khoảng 14 phút · bản cũ giữ 7 ngày rồi mới xoá'], ['new', 'Chỉ video mới lưu ở thư mục mới', '81,1 GB' + ' cũ ở lại Macintosh HD, vẫn mở được']].map((m) => ({ label: m[1], hint: m[2], on: m[0] === smode ? 'true' : 'false', pick: () => this.setState({ smode: m[0] }) })),
-      newPath: D.path || '',
+      newPath: D.path || '', newPathShort: midPath(D.path || '', 58),
       checks: [
         D.cloud ? ['bad', 'Thư mục đồng bộ đám mây: không dùng được'] : D.same ? ['ok', 'Cùng ổ Macintosh HD: chuyển trong vài giây, không tốn thêm chỗ'] : [okSpace ? 'ok' : 'bad', okSpace ? 'Đủ chỗ: cần ' + need + ' GB (gồm 10% dự phòng), ổ còn ' + D.free : 'Không đủ chỗ: cần ' + need + ' GB, ổ chỉ còn ' + D.free],
         ['ok', 'Ghi được vào ổ này'],
@@ -1820,7 +1829,7 @@ class Component extends DCLogic {
       gCancel: () => this.setState({ grok: 'out' }),
       profiles, pickProfile: (e) => this.setState({ prof: e && e.target ? e.target.value : 'p1' }), ytDot: ytOff ? '#5E5E68' : '#A6EDC1', ytStatus: ytOff ? 'Đang tắt · app tải video không đăng nhập' : 'Đang dùng · lần tải gần nhất 23:40 không lỗi',
       biliSaved: bili !== 'empty', biliEmpty: bili === 'empty', biliClear: () => this.setState({ bili: 'empty' }), biliEdit: () => this.setState({ bili: 'empty' }), biliSave: () => this.setState({ bili: 'saved' }),
-      usage, usedTotal: clean === 'done' ? '84,0 GB' : '86,4 GB', freeDisk: clean === 'done' ? '214 GB' : '212 GB', usageAria: 'Video gốc 38,2 GB, MP4 27,4 GB, project 9,4 GB, ảnh 6,1 GB, mô hình 5,3 GB',
+      usage, usedTotal: clean === 'done' ? '84,0 GB' : '86,4 GB', freeDisk: clean === 'done' ? '214 GB' : '212 GB', freeLabel: sst === 'offline' ? 'Samsung T7 chưa cắm · chưa đọc được chỗ trống' : ((sst === 'done' || sst === 'donenew') ? 'Samsung T7 còn trống 1,54 TB' : 'Macintosh HD còn trống ' + (clean === 'done' ? '214 GB' : '212 GB')), freeTitle: 'Chỗ trống của ổ đang giữ thư mục lưu dự án', usageAria: 'Video gốc 38,2 GB, MP4 27,4 GB, project 9,4 GB, ảnh 6,1 GB, mô hình 5,3 GB',
       cleanIdle: clean === 'idle', cleanPrev: clean === 'preview', cleanDone: clean === 'done',
       cleanPreview: () => this.setState({ clean: 'preview' }), cleanCancel: () => this.setState({ clean: 'idle' }), cleanRun: () => this.setState({ clean: 'done' }),
       bigClean, errors,

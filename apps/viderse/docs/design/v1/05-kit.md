@@ -57,7 +57,7 @@
 | `Checkbox` · `Radio` | `.vv-check` · `.vv-radio` (`--m`) · `.vv-checkrow` | bật, `mixed`, vô hiệu | `role=checkbox/radio` | Kit, MKit |
 | `ChoiceRow` | `.vv-choice` (`--lg` trong hộp thoại) · `__text/__label/__note` | đang chọn: viền + nền màu nhấn | `role=radio` | Kit, MKit › Hàng |
 | `Switch` | `.vv-switch` (`--m`) | bật (đỏ), đang bật (spinner cạnh), vô hiệu | `role=switch`, `aria-checked` | Kit, MKit |
-| `Segmented` | `.vv-seg` (`--thumb` + `.vv-seg__thumb` trượt · `--bar` thanh tab đầu trang · `--sm` · `--m`) | | `role=radiogroup` hoặc `tablist` | Kit, MKit |
+| `Segmented` | `.vv-seg` (`--thumb` + `.vv-seg__thumb` trượt · `--bar` thanh tab đầu trang · `--sm` · `--m` · `--fill` chia đều, đợt 34) — mục co theo nhãn, không cắt “…”, hẹp thì cuộn ngang <!-- r34 --> | | `role=radiogroup` hoặc `tablist` | Kit (› Ô nhập & nút › Nhóm chọn), MKit |
 | `Tooltip` | `.vv-tipwrap` > `.vv-tip` (`--below`, `--wrap`) | hiện sau 0,4s, kèm phím | `role=tooltip` | Kit › Gợi ý & trạng thái |
 | `ExplainPopover` | `.vv-pop--float.vv-pop--note` | bấm để mở, có link `.vv-link` | `role=dialog` | Kit › Gợi ý & trạng thái |
 | `Badge` · `Chip` · `Kbd` | `.vv-tag` + `.vv-tag__dot` (`--working/--ok/--review/--issue/--muted/--accent`) · `.vv-chip` · `.vv-kbd` | | | Kit › Gợi ý & trạng thái |

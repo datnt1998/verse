@@ -497,7 +497,7 @@ Sáu mục:
   - Cuối danh sách: dòng **Nền tảng khác** dẫn sang Thư viện › Video nền (dán link nền tảng chưa hỗ trợ ở đó để gửi yêu cầu).
   - Điện thoại: màn Tài khoản nền tảng cùng thẻ; đổi cookie trình duyệt chỉ trên máy tính.
 - **Lưu trữ** <!-- r17-storage --> (trước là Dọn dữ liệu):
-  - **Thư mục lưu dự án** — nơi lưu assets của mọi video: video gốc, ảnh đã vẽ, MP4, project editor (mặc định `~/Library/Application Support/Viderse/data/projects`). Cơ sở dữ liệu, mô hình và công cụ luôn ở máy này để app mở nhanh và không hỏng khi rút ổ.
+  - **Thư mục lưu dự án** — nơi lưu assets của mọi video: video gốc, ảnh đã vẽ, MP4, project editor (mặc định `~/.viderse/projects`; bản web, #10) <!-- r34 -->. Cơ sở dữ liệu, mô hình và công cụ luôn ở máy này để app mở nhanh và không hỏng khi rút ổ.
   - **Đổi thư mục:** ô đường dẫn + **Chọn thư mục…** (hộp chọn của hệ điều hành); gợi ý nhanh các ổ đang cắm. Chọn gốc một ổ thì tạo thư mục con “Viderse Projects”. Kiểm tra trước khi cho bấm: đủ chỗ (dữ liệu + 10%), ghi được, không phải thư mục đồng bộ đám mây (Google Drive, iCloud, Dropbox), cảnh báo exFAT.
   - **Dữ liệu đang có:** *Chuyển sang thư mục mới* (mặc định; cùng ổ thì đổi tên trong vài giây) hoặc *Chỉ video mới lưu ở thư mục mới* (dự án cũ ở lại, vẫn mở được).
   - **Đang chuyển** là một việc nền: video đang làm tạm dừng rồi tự chạy tiếp; Bàn dựng, Duyệt vẫn mở được nhưng không sửa video; Huỷ thì thư mục cũ vẫn nguyên. Xong: bản cũ giữ 7 ngày rồi tự xoá, có **Xoá bản cũ ngay** và **Chuyển về**.

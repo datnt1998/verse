@@ -1,5 +1,13 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 34 (01/11/2026) — Gói V30: đường dẫn, chỗ trống theo ổ, nhóm chọn không cắt chữ <!-- r34 -->
+
+- #78: đường dẫn in `displayPath`, một dòng, cắt giữa theo thư mục (giữ đầu + 2 thư mục cuối); thư mục mặc định bản web `~/.viderse/projects`. `Settings`, `MSettings` (điện thoại thôi xuống dòng).
+- #79: chỗ trống theo ổ đang giữ thư mục lưu dự án, ghi tên ổ; ổ rút ghi “chưa cắm”, không thêm dòng cảnh báo.
+- #80: kit `Segmented` co theo nhãn, không cắt “…”, hẹp thì cuộn ngang; thêm `--fill`; `--m` giữ đủ chữ. Khối kit trong mọi board cập nhật; `Kit` có ví dụ Sắp xếp / Vùng giờ.
+- Tài liệu: components › Đường dẫn thư mục, SegmentedTabs; 05-kit; copy › Lưu trữ trên máy, Nhóm chọn: nhãn; dev-prompt Gói V30; hỏi đáp #78–#80.
+- Canvas phiên bản 61.
+
 ## Đợt 33 (01/11/2026) — Gói V29: ảnh có prompt đã gửi, sửa prompt và vẽ lại đúng ảnh <!-- r33-img -->
 
 - `Review`: cột phải mới — Phiên bản (bản đang dùng, Dùng bản này), Ảnh tham chiếu (vai trò, Thêm từ ảnh trong video / khung video gốc / tải lên), Prompt đã gửi (theo phần, thay đổi so với bản trước, nguyên văn); Sửa prompt (E) với thanh dưới riêng; hiệu ứng đang vẽ (ảnh cũ mờ, vệt sáng, hạt, 3 bước, ảnh xem dần) và lộ ảnh + viền sáng; lỗi có lý do và hướng đi; chọn nhiều để vẽ lại N ảnh. Khung ảnh không phóng quá kích thước gốc (màn rộng không mờ).

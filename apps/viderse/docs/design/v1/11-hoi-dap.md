@@ -551,3 +551,30 @@ Mẫu:
   3. Nguồn vẽ nào trả **ảnh xem dần** (ví dụ `partial_images` của gpt-image)? Nếu không có thì giao diện chỉ dùng ảnh cũ mờ + vệt sáng, không vẽ ảnh xem dần giả.
   4. Huỷ lần vẽ khi nhà cung cấp đã nhận yêu cầu: có bị tính hạn mức không? Câu “Huỷ lần vẽ” cần nói trước nếu có.
   5. Giữ ảnh của mọi phiên bản cũ có ảnh hưởng dọn dữ liệu (GC media) không? Đề xuất giữ tới khi video được xoá hoặc dọn MP4.
+
+### #78 · Lưu trữ: in đường dẫn dạng ~/… — Đã chốt <!-- r34 -->
+- Hiện trạng: artboard `Settings` · `store=here` in `~/Library/Application Support/Viderse/data/projects`. Dev đã thêm `displayPath` vào API (thay thư mục nhà bằng `~`); UI in `displayPath`, đường dài thì cắt ở giữa.
+- Hỏi design: (a) đồng ý cách này hay UI tự rút gọn? (b) đường dài cắt giữa, cắt cuối hay xuống 2 dòng? (c) bề rộng tối đa ở 1440 và 390. Ràng buộc: `--vv-font-mono`, một dòng, không thêm màu.
+- Trả lời (design, 01/11/2026):
+  - (a) **Đồng ý `displayPath` từ API**; UI không tự đoán thư mục nhà. `title` = `displayPath` đầy đủ; *Chép đường dẫn*, *Mở trong Finder* dùng đường dẫn thật.
+  - (b) **Cắt giữa theo thư mục**: giữ phần đầu (`~` hoặc `/Volumes/<tên ổ>`) + 2 thư mục cuối, `…` ở giữa; vẫn dài thì 1 thư mục cuối; tên cuối quá dài mới cắt ký tự đầu tên. Không xuống dòng, không cắt cuối (thư mục cuối là phần người dùng cần thấy nhất).
+  - (c) Không đặt số cứng: dòng lấy hết chỗ còn lại trong thẻ. Thực tế 1440 và từ 1600 (khối Cài đặt giữ 760px) ≈ 430px (≈ 60 ký tự mono 11,5px); 390 ≈ 290px (≈ 40 ký tự), nút xuống dòng riêng. Đo theo bề rộng thật.
+  - Board sửa: thư mục mặc định `~/.viderse/projects` (theo #10), dữ liệu `~/.viderse`; `store=donenew` dùng đường dài để thấy cách cắt; điện thoại thôi xuống dòng `break-all`, một dòng cắt giữa. Luật ghi ở 04-components › Đường dẫn thư mục và 06-copy › Lưu trữ trên máy.
+
+### #79 · Lưu trữ: "Ổ còn trống" lấy số của ổ nào — Đã chốt <!-- r34 -->
+- Hiện trạng: artboard dùng một số 212 GB cho mọi trạng thái. App lấy chỗ trống của ổ đang giữ dự án (ví dụ T7: 1,54 TB); khi ổ ngoài bị rút thì lấy ổ trong máy.
+- Hỏi design: (a) duyệt lấy số theo ổ đang giữ dự án? (b) ổ ngoài bị rút thì nhãn ghi gì? (c) `store=offline` có cần dòng cảnh báo riêng không?
+- Trả lời (design, 01/11/2026):
+  - (a) **Duyệt**, và luôn ghi kèm tên ổ: “Macintosh HD còn trống 212 GB” · “Samsung T7 còn trống 1,54 TB”.
+  - (b) Ổ rút: **không** lấy số ổ trong máy (sai nghĩa). Đầu thẻ: “Samsung T7 chưa cắm · chưa đọc được chỗ trống”; dòng thư mục: “Ổ ngoài USB · APFS · chưa cắm”. API trả `null` cho chỗ trống khi ổ không cắm.
+  - (c) **Không** thêm dòng riêng: băng cam “Không thấy ổ Samsung T7” đã đủ.
+  - Board `Settings`, `MSettings` đã sửa theo `store=here|done|donenew|offline`; bảng câu ở 06-copy › Lưu trữ trên máy.
+
+### #80 · Kit Segmented: nhãn dài bị "…" — Đã chốt <!-- r34 -->
+- Hiện trạng: kit chia đều bề rộng nên “Mới nhất” và “VN · New York” ở Explore/MExplore bị cắt “…”. Dev tạm cho riêng hai nhóm Sắp xếp/Vùng tự giãn theo nhãn.
+- Hỏi design: (a) kit tự giãn theo nhãn, trên 390 cuộn ngang; hay (b) giữ chia đều và chốt nhãn ngắn.
+- Trả lời (design, 01/11/2026): **Chọn (a)** cho cả kit, bỏ ngoại lệ tạm.
+  - Mục co theo nhãn, không bao giờ cắt “…”; nhóm hẹp hơn nội dung thì cuộn ngang trong nhóm (ẩn thanh cuộn, mục đang chọn tự cuộn vào tầm nhìn).
+  - Chia đều chỉ khi nhóm chiếm hết bề rộng và nhãn ngắn ngang nhau: `.vv-seg--fill` (mới) hoặc `--m`; nhãn dài hơn phần chia vẫn giữ đủ chữ (`min-width: max-content`). Viên trượt `--vv-selected-2` đo theo mục thật.
+  - Nhãn giữ đủ: Sắp xếp “Nổi trội · Mới nhất · Lượt xem”; Vùng giờ “VN · New York” (board có 2 vùng, không phải 3).
+  - Đã sửa: `kit.css` (và khối kit nhúng trong mọi board), `Kit` › Ô nhập & nút › Nhóm chọn có ví dụ hai nhóm này; `Explore`/`MExplore` vốn vẽ co theo nhãn nên không đổi. Ghi ở 04-components › SegmentedTabs, 05-kit, 06-copy › Nhóm chọn: nhãn.

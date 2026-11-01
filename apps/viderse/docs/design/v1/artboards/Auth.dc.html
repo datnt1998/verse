@@ -446,7 +446,13 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-switch--m::after { top: 3px; left: 3px; width: 24px; height: 24px; }
 .vv-switch--m[aria-checked="true"]::after { left: 23px; }
 .vv-seg { position: relative; display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--vv-r-btn); background: var(--vv-field); border: 1px solid rgba(255,255,255,.08); }
-.vv-seg > button { position: relative; z-index: 1; flex: 1 1 0; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
+/* r34 #80: nhãn không bao giờ cắt “…”; nhóm co theo nhãn, hẹp hơn nội dung thì cuộn ngang */
+.vv-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.vv-seg::-webkit-scrollbar { display: none; }
+.vv-seg > button { text-overflow: clip; overflow: visible; }
+.vv-seg--fill { display: flex; }
+.vv-seg.vv-seg--fill > button { flex: 1 1 0; min-width: max-content; }   /* chia đều khi nhóm chiếm hết bề rộng; nhãn dài vẫn giữ đủ chữ, không cắt */
+.vv-seg > button { position: relative; z-index: 1; flex: 0 0 auto; height: 30px; padding: 0 12px; border: none; border-radius: var(--vv-r-tip); background: transparent; color: var(--vv-text-3); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color var(--vv-dur), color var(--vv-dur); }
 .vv-seg > button .ic, .vv-seg > button .vv-ic { width: 14px; height: 14px; }
 .vv-seg > button[aria-checked="true"], .vv-seg > button[aria-selected="true"] { background: var(--vv-selected-2); color: var(--vv-text); }
 .vv-seg__thumb { position: absolute; top: 3px; left: 3px; height: 30px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); pointer-events: none; transition: transform .3s cubic-bezier(.34,1.25,.5,1); }
@@ -457,7 +463,7 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-seg--bar > button[aria-selected="true"] .ic { color: var(--vv-accent); }
 .vv-seg--sm { border-radius: 9px; background: var(--vv-surface-1); border-color: var(--vv-hairline); }
 .vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
-.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 12px; }
+.vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); border-radius: 12px; }
 .vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
 .vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
 .vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }

@@ -319,3 +319,22 @@ Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Vi
 | Điện thoại | tab Góp ý · Sửa prompt · “Hoạ sĩ sửa phần Cảnh của prompt theo góp ý rồi vẽ; xem lại thay đổi ở Prompt đã gửi.” · *Gửi cho Hoạ sĩ* / **Vẽ lại với prompt này** · sheet Prompt đã gửi: *Chép prompt* · **Sửa prompt rồi vẽ lại** |
 
 Prompt hiện **đúng văn bản đã gửi**, giữ ngôn ngữ gốc (thường là tiếng Anh); không dịch, không rút gọn. Mọi nhãn quanh nó là tiếng Việt.
+
+## Lưu trữ trên máy: đường dẫn và chỗ trống <a id="copy-storage-local"></a> <!-- r34 -->
+
+- **Đường dẫn** (#78): in `displayPath` (`~/.viderse/projects`, `/Volumes/Samsung T7/Viderse Projects`), cắt giữa theo thư mục khi dài — luật ở components › Đường dẫn thư mục. Thư mục mặc định của bản web là `~/.viderse/projects` (dữ liệu: `~/.viderse`), không còn `~/Library/Application Support/Viderse/…`.
+- **Chỗ trống** (#79) luôn là của **ổ đang giữ thư mục lưu dự án** và ghi tên ổ:
+
+| Trạng thái | Dòng thư mục (sau tên ổ) | Đầu thẻ dung lượng |
+|---|---|---|
+| `here` · `pick` · `moving` (chưa xong) | “Ổ trong máy · còn 212 GB” | “Macintosh HD còn trống 212 GB” |
+| `done` · `donenew` | “Ổ ngoài USB · APFS · còn 1,54 TB” | “Samsung T7 còn trống 1,54 TB” |
+| `offline` (ổ ngoài bị rút) | “Ổ ngoài USB · APFS · chưa cắm” | “Samsung T7 chưa cắm · chưa đọc được chỗ trống” |
+
+- Không lấy số của ổ trong máy thay cho ổ ngoài đang rút: con số đó không nói gì về chỗ lưu dự án. `title` của số: “Chỗ trống của ổ đang giữ thư mục lưu dự án”.
+- `offline` **không thêm dòng cảnh báo riêng**: băng cam “Không thấy ổ Samsung T7” đã nói việc và cách xử lý; chỉ đổi số thành “chưa cắm”.
+- Điện thoại ghi cùng câu, đầu thẻ: “Macintosh HD còn 212 GB” · “Samsung T7 còn 1,54 TB” · “Samsung T7 chưa cắm”.
+- `donenew` (video mới ở ổ mới): số theo ổ mới; dữ liệu cũ ở Macintosh HD nói trong băng xanh, không ghi hai số.
+
+## Nhóm chọn: nhãn <a id="copy-seg"></a> <!-- r34 -->
+Giữ nhãn đầy đủ, không rút gọn (#80): Khám phá › Sắp xếp “Nổi trội · Mới nhất · Lượt xem”; Lịch đăng › Vùng giờ “VN · New York”. Nhóm co theo nhãn, hẹp thì cuộn ngang.
