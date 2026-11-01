@@ -39,8 +39,9 @@ describe('vùng an toàn: một nguồn khai báo', () => {
     const css = code(KIT_CSS)
     for (const name of ['--m-safe-top', '--m-safe-bottom', '--m-edge', '--m-top', '--m-tabbar-h', '--m-tabbar-bottom', '--m-float-bottom', '--m-scroll-pad', '--kb', '--m-toast-bottom']) {
       const count = (css.match(new RegExp(`${name}\\s*:`, 'g')) ?? []).length
-      // --m-top/--m-float-bottom/--m-toast-bottom có thêm biến thể ở data-tab-mode="hide".
-      const allowed = name === '--m-edge' ? 4 : ['--m-float-bottom', '--m-toast-bottom'].includes(name) ? 2 : 1
+      // --m-top/--m-scroll-pad/--m-float-bottom/--m-toast-bottom có thêm biến thể
+      // ở data-tab-mode="hide" (màn không thanh tab thì không giữ chỗ cho nó).
+      const allowed = name === '--m-edge' ? 4 : ['--m-scroll-pad', '--m-float-bottom', '--m-toast-bottom'].includes(name) ? 2 : 1
       expect(count, `${name} khai báo ${count} lần`).toBe(allowed)
     }
     expect(css).toMatch(/--m-tabbar-h:\s*64px/)

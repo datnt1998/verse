@@ -18,7 +18,7 @@ import {
 import { AttachChannelDialog } from './AttachChannelDialog'
 import { editedLabel, initials, num } from './fmt'
 
-const styleOf = (template: TemplateSummary) => template.style === 'full'
+export const styleOf = (template: TemplateSummary) => template.style === 'full'
   ? t.library.templates.style.full
   : template.framing === 'close' ? t.library.templates.style.close : t.library.templates.style.cutout
 

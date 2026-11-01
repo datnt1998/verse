@@ -270,6 +270,7 @@ export const channelsCopy = {
     add: 'Thêm template từ thư viện',
     standard: 'Tạo Mẫu chuẩn',
     standardHint: 'Thêm bản Mẫu chuẩn tự tạo vào cuối danh sách luân phiên.',
+    openLibrary: 'Mở Thư viện dùng chung',
     remove: 'Bỏ khỏi danh sách',
     moveUp: 'Đưa lên trước',
     moveDown: 'Đưa xuống sau',

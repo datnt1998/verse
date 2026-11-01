@@ -14,12 +14,14 @@ import { t } from '../../../i18n/library'
 import { initials, num } from '../fmt'
 import type { Recipe, TemplateDetail } from '../../../api/library'
 
-export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach }: {
+export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach, hideTitle }: {
   detail: TemplateDetail
   onSave: (patch: Partial<Recipe>) => void
   onDuplicate: () => void
   onDelete: () => Promise<void>
   onAttach: () => void
+  /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
+  hideTitle?: boolean
 }) {
   const copy = t.library.template.output
   const channels = detail.channels
@@ -53,7 +55,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach 
   return (
     <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-output-title">
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
-        <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-output-title">{copy.title}</h2>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-output-title">{copy.title}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 

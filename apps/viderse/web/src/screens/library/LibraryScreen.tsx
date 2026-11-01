@@ -19,11 +19,13 @@ import {
 } from '../../api/library'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { channelTint } from '../../lib/channelTint'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { BackdropsTab } from './backdrops/BackdropsTab'
 import { OverlaysTab } from './OverlaysTab'
 import { PromptsTab } from './PromptsTab'
 import { TemplateImportDialog } from './TemplateImportDialog'
 import { TemplatesTab } from './TemplatesTab'
+import { MLibraryScreen } from './mobile/MLibraryScreen'
 import * as stylex from '@stylexjs/stylex'
 
 const LIB_ICON: Record<LibraryTab, 'box' | 'magicpen' | 'video-play' | 'layer'> = {
@@ -31,6 +33,12 @@ const LIB_ICON: Record<LibraryTab, 'box' | 'magicpen' | 'video-play' | 'layer'> 
 }
 
 export function LibraryScreen({ route }: { route: Extract<Route, { name: 'library' }> }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  if (mobile) return <MLibraryScreen route={route} />
+  return <DesktopLibraryScreen route={route} />
+}
+
+function DesktopLibraryScreen({ route }: { route: Extract<Route, { name: 'library' }> }) {
   const copy = t.library
   const tab: LibraryTab = route.tab ?? 'templates'
   const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))

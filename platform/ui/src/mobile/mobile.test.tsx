@@ -77,6 +77,17 @@ describe('ActionSheet', () => {
     await mount(<ActionSheet open onClose={() => {}} title="Chọn" actions={[{ label: 'Bỏ liên kết', description: 'Hỏi xác nhận trước', onSelect: () => {} }]} />)
     expect(document.body.textContent).toContain('Hỏi xác nhận trước')
   })
+
+  it('hàng disabled không bấm được và giữ lý do dưới nhãn', async () => {
+    const onSelect = vi.fn()
+    await mount(<ActionSheet open onClose={() => {}} title="Chọn" actions={[{ label: 'Xoá template', description: 'Đang dùng ở 2 kênh · bỏ khỏi kênh trước', disabled: true, destructive: true, onSelect }]} />)
+    const row = byText('Xoá template') as HTMLButtonElement
+    expect(row.disabled).toBe(true)
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    expect(row.textContent).toContain('Đang dùng ở 2 kênh')
+    await click(row)
+    expect(onSelect).not.toHaveBeenCalled()
+  })
 })
 
 describe('ConfirmSheet', () => {

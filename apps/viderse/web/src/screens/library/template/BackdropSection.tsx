@@ -193,10 +193,12 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
 
 /* ── Mục chính ── */
 
-export function BackdropSection({ template, onSave, saving }: {
+export function BackdropSection({ template, onSave, saving, hideTitle }: {
   template: TemplateDetail
   onSave: (patch: Partial<Recipe>) => Promise<void>
   saving: boolean
+  /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
+  hideTitle?: boolean
 }) {
   const copy = t.backdrop.template
   const backdrop = template.recipe.backdrop ?? EMPTY_BACKDROP
@@ -237,7 +239,7 @@ export function BackdropSection({ template, onSave, saving }: {
   return (
     <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-backdrop-title" aria-busy={saving || undefined}>
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
-        <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-backdrop-title">{t.library.template.sections.backdrop.label}</h2>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-backdrop-title">{t.library.template.sections.backdrop.label}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 

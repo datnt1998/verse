@@ -92,6 +92,9 @@ function useWarmTabs() {
   }, [])
 }
 
+/** Màn đẩy tự cuộn bên trong và không có thanh tab dưới (Hàng chờ, Thư viện, sửa template). */
+const SELF_SCROLL: Partial<Record<Route['name'], true>> = { queue: true, library: true, template: true }
+
 export function MobileRouteStage({ route, renderScreen = (next: Route) => <RouteScreen route={next} /> }: {
   route: Route
   /** Màn của một route — tham số để test khung pane độc lập với bảng route. */
@@ -109,7 +112,7 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
         active={active}
       />
     </div>
-    {pushed && <div {...stylex.props(stageStyles.push, route.name === 'queue' && stageStyles.fullBleed)}>
+    {pushed && <div {...stylex.props(stageStyles.push, SELF_SCROLL[route.name] && stageStyles.fullBleed)}>
       <Suspense fallback={null}>{renderScreen(route)}</Suspense>
     </div>}
   </div>
