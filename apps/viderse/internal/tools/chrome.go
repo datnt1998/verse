@@ -1,9 +1,12 @@
 // Chọn Chrome/Chromium cho bước measure và export headless (launcher sở hữu
-// trình duyệt đã mở; module này tìm, cài và probe binary). Thứ tự: đường dẫn
-// người dùng, rồi Chrome/Chromium có sẵn trên máy, rồi Chrome for Testing app
-// quản dưới bin/chrome. Một trang headless thật chứng minh năng lực giải mã
-// audio. Probe dùng profile bỏ đi và không bao giờ đọc profile hay cookie
-// của trình duyệt thật.
+// trình duyệt đã mở; module này tìm, cài và probe binary). Thứ tự bản desktop:
+// đường dẫn người dùng, rồi Chrome/Chromium có sẵn trên máy, rồi Chrome for
+// Testing app quản dưới bin/chrome. Bản máy chủ (PUBLIC_URL) bỏ hẳn bước
+// “Chrome có sẵn trên máy”: một tiến trình phục vụ người khác không được mở
+// trình duyệt cá nhân của chủ máy (Chrome tự cập nhật đụng chính bundle của nó,
+// nên macOS hỏi chủ máy cấp quyền quản lý ứng dụng cho app). Một trang headless
+// thật chứng minh năng lực giải mã audio. Probe dùng profile bỏ đi và không bao
+// giờ đọc profile hay cookie của trình duyệt thật.
 package tools
 
 import (
@@ -20,6 +23,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 )
 
 const chromeToolID = "chrome"
@@ -99,7 +104,9 @@ func ParseChromeVersion(stdout string) string {
 	return ""
 }
 
-// Candidates liệt kê Chrome/Chromium hệ thống: PATH + chỗ cài chuẩn.
+// Candidates liệt kê Chrome/Chromium hệ thống: PATH + chỗ cài chuẩn. Bản máy
+// chủ không dùng danh sách này để chọn binary (xem Resolve), nên Chrome của
+// chủ máy không bao giờ bị probe hay mở.
 func (c *Chrome) Candidates() []string {
 	var out []string
 	for _, name := range []string{"google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome"} {
@@ -187,14 +194,19 @@ type ChromeResolution struct {
 	Source ToolSource
 }
 
-// Resolve trả Chrome app sẽ dùng: đường dẫn đã cấu hình, rồi hệ thống, rồi
-// bản app quản.
+// Resolve trả Chrome app sẽ dùng. Bản desktop: đường dẫn đã cấu hình, rồi
+// Chrome hệ thống, rồi bản app quản. Bản máy chủ (PUBLIC_URL, cùng công tắc
+// với ranh giới proxy) bỏ Chrome hệ thống: chỉ đường dẫn người dùng chọn (chủ
+// máy tự quyết) và Chrome for Testing app quản; không có bản quản thì trả nil
+// để bước cài tự chạy, thay vì mượn trình duyệt cá nhân của chủ máy.
 func (c *Chrome) Resolve() *ChromeResolution {
 	if configured := c.ConfiguredPath(); configured != "" {
 		return &ChromeResolution{Path: configured, Source: ChromeConfigured}
 	}
-	if detected := c.Candidates(); len(detected) > 0 {
-		return &ChromeResolution{Path: detected[0], Source: ChromeDetected}
+	if !uploadlimit.Hosted() {
+		if detected := c.Candidates(); len(detected) > 0 {
+			return &ChromeResolution{Path: detected[0], Source: ChromeDetected}
+		}
 	}
 	if managed := c.ManagedPath(); managed != "" {
 		return &ChromeResolution{Path: managed, Source: ChromeManaged}

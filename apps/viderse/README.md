@@ -56,7 +56,7 @@ Mọi binary nằm dưới `~/.viderse/bin` (thư mục dữ liệu `~/.viderse`
 | `codex` (codex-cli) | 0.162.1 | OpenAI, Apache-2.0 | gọi model chữ/ảnh qua gói ChatGPT |
 | `yt-dlp` | bản mới nhất | release `yt-dlp/yt-dlp`, ngoài manifest ghim | tải video/phụ đề |
 
-`ffmpeg`, Chrome, `uv`, `codex` ghim phiên bản + SHA-256 trong `internal/tools/manifest.go`; `yt-dlp` tự cập nhật nên Cài đặt › Công cụ hiện “Có bản mới” và nút Cập nhật. ffmpeg chọn theo thứ tự: đường dẫn người dùng đã chọn → binary hệ thống → bản app tự quản; mọi trạng thái đều kiểm bằng cách chạy binary (phiên bản, arch, filter/encoder cần).
+`ffmpeg`, Chrome, `uv`, `codex` ghim phiên bản + SHA-256 trong `internal/tools/manifest.go`; `yt-dlp` tự cập nhật nên Cài đặt › Công cụ hiện “Có bản mới” và nút Cập nhật. ffmpeg chọn theo thứ tự: đường dẫn người dùng đã chọn → binary hệ thống → bản app tự quản; mọi trạng thái đều kiểm bằng cách chạy binary (phiên bản, arch, filter/encoder cần). Chrome giữ thứ tự đó ở bản desktop; bản chạy trên máy chủ (`PUBLIC_URL`) bỏ hẳn bước binary hệ thống — chỉ đường dẫn người dùng chọn → bản app quản — vì tiến trình phục vụ người khác không được mở Chrome cá nhân của chủ máy (Chrome tự cập nhật đụng bundle của nó, macOS hỏi chủ máy cấp quyền quản lý ứng dụng); thiếu bản app quản thì hàng Chrome báo “Chưa cài” và app tự cài Chrome for Testing.
 
 ## Thư mục dự án
 

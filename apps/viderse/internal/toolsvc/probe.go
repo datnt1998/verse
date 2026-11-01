@@ -8,6 +8,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 )
 
 // probe đánh giá mọi công cụ một lượt: các probe chạy song song (spawn
@@ -159,32 +160,53 @@ func (s *Service) probeTranscription(ctx context.Context) Row {
 }
 
 func (s *Service) probeChrome(ctx context.Context) Row {
+	// Bản máy chủ không bao giờ mở Chrome của chủ máy (xem tools.Chrome.Resolve),
+	// nên câu chữ không được hứa “Chrome trên máy”: nói rõ máy chủ dùng bản
+	// Chrome for Testing riêng của nó.
+	hosted := uploadlimit.Hosted()
 	st := s.tools.Chrome.Status(ctx)
 	if st.State != tools.ChromeReady {
 		if st.State == tools.ChromeMissing {
+			hint := "Chưa cài — app sẽ tự cài Chrome for Testing."
+			if hosted {
+				hint = "Chưa cài — máy chủ sẽ tự cài Chrome for Testing riêng, không dùng Chrome của máy."
+			}
 			return s.installHint(ToolChrome, Row{
 				ID: ToolChrome, State: StateMissing,
-				Hint: "Chưa cài — app sẽ tự cài Chrome for Testing.",
+				Hint: hint,
 			})
+		}
+		hint := "Chrome trên máy không dùng được cho xuất video — app sẽ cài Chrome for Testing."
+		if hosted {
+			hint = "Chrome for Testing chưa dùng được cho xuất video — app sẽ cài lại bản ghim."
 		}
 		return Row{
 			ID: ToolChrome, State: StateFailed,
-			Hint:   "Chrome trên máy không dùng được cho xuất video — app sẽ cài Chrome for Testing.",
+			Hint:   hint,
 			Detail: st.Error,
 		}
 	}
 	caps := s.tools.Chrome.ExportCaps(ctx)
 	if caps.State != tools.ExportReady {
+		hint := "Chrome chạy được nhưng không xuất được video — app sẽ cài Chrome for Testing."
+		if hosted {
+			hint = "Chrome for Testing chạy được nhưng không xuất được video trên máy chủ — app sẽ cài lại bản ghim."
+		}
 		return s.installHint(ToolChrome, Row{
 			ID: ToolChrome, State: StateFailed,
-			Hint:    "Chrome chạy được nhưng không xuất được video — app sẽ cài Chrome for Testing.",
+			Hint:    hint,
 			Detail:  caps.Error,
 			Version: st.Version,
 		})
 	}
 	provided := st.Source != "" && st.Source != tools.ChromeManaged
 	hint := fmt.Sprintf("Dùng Chrome chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
-	if provided {
+	switch {
+	case hosted && !provided:
+		hint = fmt.Sprintf("Máy chủ dùng Chrome for Testing riêng, không dùng Chrome của máy · bản %s", st.Version)
+	case hosted:
+		hint = fmt.Sprintf("Dùng Chrome bạn chọn, chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
+	case provided:
 		hint = fmt.Sprintf("Dùng Chrome có sẵn trên máy, chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
 	}
 	return Row{

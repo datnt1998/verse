@@ -35,7 +35,32 @@ func TestParseProbeDomExtractsCaps(t *testing.T) {
 	}
 }
 
+// installManagedChrome dựng sẵn bản Chrome for Testing active dưới base (đúng
+// bố cục thư mục mà bộ cài tạo ra) và trả đường dẫn executable; nền tảng chưa
+// có bản ghim thì bỏ qua test.
+func installManagedChrome(t *testing.T, base string) string {
+	t.Helper()
+	key := CurrentPlatformKey()
+	assets := ChromePin().Assets[key]
+	if len(assets) == 0 {
+		t.Skip("nền tảng chưa có bản Chrome for Testing ghim")
+	}
+	verDir := ToolVersionDir(base, chromeToolID, ChromePin().Version)
+	exe := filepath.Join(verDir, assets[0].Name, filepath.FromSlash(managedChromeExecutable))
+	if err := os.MkdirAll(filepath.Dir(exe), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(exe, []byte("x"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ToolRoot(base, chromeToolID), "current"), []byte("v-"+ChromePin().Version), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return exe
+}
+
 func TestChromeResolutionPrefersConfiguredThenDetectedThenManaged(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "") // bản desktop: có Chrome hệ thống thì dùng
 	base := t.TempDir()
 	store := &FilePathStore{Dir: t.TempDir()}
 	empty := Deps{Runner: &fakeRunner{}, Paths: store, BaseDir: base, PathEnv: t.TempDir(), SystemDirs: []string{}, Home: base}
@@ -52,33 +77,73 @@ func TestChromeResolutionPrefersConfiguredThenDetectedThenManaged(t *testing.T) 
 	// Xoá cấu hình → hệ thống.
 	store2 := &FilePathStore{Dir: t.TempDir()}
 	sysDir := t.TempDir()
-	sysExe := filepath.Join(sysDir, "chromium")
-	if err := os.WriteFile(sysExe, []byte("#!/bin/sh\n"), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	sysExe := writeExecutable(t, sysDir, "chromium")
 	c.d = Deps{Runner: &fakeRunner{}, Paths: store2, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}
 	if got := c.Resolve(); got == nil || got.Path != sysExe || got.Source != ChromeDetected {
 		t.Fatalf("resolve = %+v", got)
 	}
 	// Xoá hệ thống → managed (dựng sẵn bản active).
-	key := CurrentPlatformKey()
-	if len(ChromePin().Assets[key]) > 0 {
-		verDir := ToolVersionDir(base, chromeToolID, ChromePin().Version)
-		exe := filepath.Join(verDir, ChromePin().Assets[key][0].Name, filepath.FromSlash(managedChromeExecutable))
-		if err := os.MkdirAll(filepath.Dir(exe), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(exe, []byte("x"), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(ToolRoot(base, chromeToolID), "current"), []byte("v-"+ChromePin().Version), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		c.d.PathEnv = t.TempDir()
-		c.d.Home = t.TempDir()
-		if got := c.Resolve(); got == nil || got.Path != exe || got.Source != ChromeManaged {
-			t.Fatalf("resolve = %+v", got)
-		}
+	exe := installManagedChrome(t, base)
+	c.d.PathEnv = t.TempDir()
+	c.d.Home = t.TempDir()
+	if got := c.Resolve(); got == nil || got.Path != exe || got.Source != ChromeManaged {
+		t.Fatalf("resolve = %+v", got)
+	}
+}
+
+// Máy chủ không mượn trình duyệt cá nhân của chủ máy: Chrome hệ thống có trên
+// máy bị bỏ hẳn — không chọn, không probe, không spawn — nên hàng Chrome báo
+// thiếu để bước cài tự cài Chrome for Testing.
+func TestChromeHostedIgnoresSystemChromeAndLaunchesNothing(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "https://vid.example.com")
+	base := t.TempDir()
+	sysDir := t.TempDir()
+	writeExecutable(t, sysDir, "chrome")
+	runner := &fakeRunner{}
+	c := &Chrome{d: Deps{Runner: runner, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
+	if got := c.Resolve(); got != nil {
+		t.Fatalf("resolve = %+v (muốn nil)", got)
+	}
+	if st := c.Status(context.Background()); st.State != ChromeMissing {
+		t.Fatalf("status = %+v (muốn missing)", st)
+	}
+	if caps := c.ExportCaps(context.Background()); caps.State != ExportMissing {
+		t.Fatalf("export caps = %+v (muốn missing)", caps)
+	}
+	if len(runner.ran) != 0 {
+		t.Fatalf("đã chạy Chrome của máy ở chế độ máy chủ: %v", runner.ran)
+	}
+}
+
+// Máy chủ chỉ dùng bản Chrome for Testing app tự cài, kể cả khi máy có Chrome
+// hệ thống.
+func TestChromeHostedPrefersManagedOverSystem(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "https://vid.example.com")
+	base := t.TempDir()
+	sysDir := t.TempDir()
+	writeExecutable(t, sysDir, "chrome")
+	managed := installManagedChrome(t, base)
+	c := &Chrome{d: Deps{Runner: &fakeRunner{}, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
+	if got := c.Resolve(); got == nil || got.Path != managed || got.Source != ChromeManaged {
+		t.Fatalf("resolve = %+v (muốn managed %s)", got, managed)
+	}
+}
+
+// Ở chế độ máy chủ, đường dẫn chủ máy tự chọn vẫn thắng: đó là quyết định
+// tường minh, không phải tự bám lấy Chrome hệ thống.
+func TestChromeHostedKeepsConfiguredPath(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "https://vid.example.com")
+	base := t.TempDir()
+	store := &FilePathStore{Dir: t.TempDir()}
+	if err := store.Set(ChromeSettingKey, "/opt/custom/chrome"); err != nil {
+		t.Fatal(err)
+	}
+	sysDir := t.TempDir()
+	writeExecutable(t, sysDir, "chrome")
+	installManagedChrome(t, base)
+	c := &Chrome{d: Deps{Runner: &fakeRunner{}, Paths: store, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
+	if got := c.Resolve(); got == nil || got.Path != "/opt/custom/chrome" || got.Source != ChromeConfigured {
+		t.Fatalf("resolve = %+v", got)
 	}
 }
 
@@ -118,6 +183,7 @@ func (s *scriptedRunner) Run(ctx context.Context, file string, args []string, sp
 // Probe năng lực và probe export đều mở Chrome với profile mới; thiếu cờ khoá
 // giả, Chrome trên macOS hỏi Keychain của người dùng ở mỗi lần mở.
 func TestChromeProbesNeverAskSystemKeychain(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "")
 	base := t.TempDir()
 	sysDir := t.TempDir()
 	exe := filepath.Join(sysDir, "chrome")
@@ -163,6 +229,7 @@ func TestChromeStatusBrokenWhenBinaryFails(t *testing.T) {
 }
 
 func TestChromeStatusReadyThroughScriptedProbe(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "")
 	base := t.TempDir()
 	store := &FilePathStore{Dir: t.TempDir()}
 	sysDir := t.TempDir()
@@ -180,6 +247,7 @@ func TestChromeStatusReadyThroughScriptedProbe(t *testing.T) {
 }
 
 func TestChromeStatusIncompatibleWhenNoDecoder(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "")
 	base := t.TempDir()
 	sysDir := t.TempDir()
 	exe := filepath.Join(sysDir, "chrome")

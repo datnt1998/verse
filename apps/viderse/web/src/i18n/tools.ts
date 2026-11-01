@@ -28,7 +28,7 @@ export const tools = {
     'yt-dlp': 'YouTube hay đổi cách tải, nên cập nhật để tải không lỗi.',
     ffmpeg: 'Cắt cảnh, xử lý âm thanh và dựng video',
     transcription: 'Chép lời thoại thành chữ ngay trên máy',
-    chrome: 'Dùng Chrome có sẵn trên máy, chạy ngầm',
+    chrome: 'Chrome chạy ngầm để xuất video và đo âm thanh',
     codex: 'Vẽ ảnh cho từng cảnh, chạy tách riêng',
     'codex-login': 'Đã đăng nhập · quản lý ở Kết nối AI',
   } as Record<string, string>,

@@ -166,6 +166,28 @@ func TestCodexFoundOnMachineIsProvidedButManagedIsNot(t *testing.T) {
 	}
 }
 
+// Hàng Chrome ở chế độ máy chủ không hứa dùng Chrome của máy: bản hệ thống có
+// trên PATH vẫn bị bỏ, nên hàng báo thiếu (để bước cài tự cài) và nói rõ máy
+// chủ dùng bản Chrome for Testing riêng.
+func TestChromeRowHostedNeverUsesMachineChrome(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "https://vid.example")
+	ctx := context.Background()
+	svc, _, kit := newService(t, &http.Client{Transport: redirectTransport{tag: "2025.01.01"}}, fakeChatGPT{login: "not_logged_in"})
+	_, ytdlpPath, _ := kit.YtDlp.Status(ctx)
+	fakeExe(t, filepath.Join(filepath.Dir(ytdlpPath), "chrome"))
+	snap, err := svc.Snapshot(ctx, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	row := rowOf(t, snap, ToolChrome)
+	if row.State != StateMissing || row.Provided {
+		t.Fatalf("hàng chrome = %+v (muốn missing, không Provided)", row)
+	}
+	if !strings.Contains(row.Hint, "Chrome for Testing riêng") || !strings.Contains(row.Hint, "không dùng Chrome của máy") {
+		t.Fatalf("hint = %q (muốn nói máy chủ tự cài bản riêng)", row.Hint)
+	}
+}
+
 func rowOf(t *testing.T, snap Snapshot, id ToolID) Row {
 	t.Helper()
 	for _, row := range snap.Tools {
