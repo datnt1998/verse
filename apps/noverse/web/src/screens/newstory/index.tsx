@@ -3,7 +3,7 @@
 // CoCreate: POST /projects/:p/cocreate/message (nháp cấp dự án) … → /cocreate/commit → Workspace.
 import { useEffect, useState } from 'react'
 import {
-  createStory, getConfig, getIdea, startFromFile, startSimulate,
+  createStory, getConfig, getIdea, startFromFile,
 } from '../../api/client'
 import { useLibrary } from '../../api/library'
 import { t } from '../../i18n/vi'
@@ -13,6 +13,8 @@ import { keys, useAction, useConnection, useResource } from '../../data'
 import { useProjectDetail } from '../project/useProject'
 import { projectLabel } from '../../shell/labels'
 import { StartFileDialog } from './AltDialogs'
+import { SimulateDialog } from './SimulateDialog'
+import { useSimulateStart } from './simulateStart'
 import { CoCreatePanel } from './CoCreate'
 import { readProjectDraft } from './cocreateDraft'
 import { ModeSwitch, type StoryMode } from './ModeSwitch'
@@ -39,6 +41,9 @@ export function NewStoryScreen({ project }: { project: string }) {
   const [idea, setIdea] = useState<{ id: string; title: string } | null>(null)
   const [activeAlternative, setActiveAlternative] = useState<'import' | 'simulate' | null>(null)
   const [startFileOpen, setStartFileOpen] = useState(false)
+  // Gói AR · việc 6: Mô phỏng văn phong dán văn mẫu trước, rồi mới tạo truyện (dùng chung với M11).
+  const [simulateOpen, setSimulateOpen] = useState(false)
+  const simulate = useSimulateStart(project)
 
   const ideaParam = parsed.search.get('idea')
   const briefParam = parsed.search.get('brief')
@@ -89,7 +94,7 @@ export function NewStoryScreen({ project }: { project: string }) {
     await action(story.story)
     return story
   }, { success: 'Đã tạo truyện', invalidate: [keys.project(project), keys.library(), keys.jobs()] })
-  const busy = startAction.busy || alternativeAction.busy || gate.checking || gate.suggesting
+  const busy = startAction.busy || alternativeAction.busy || simulate.busy || gate.checking || gate.suggesting
   const failure = startAction.error || alternativeAction.error
   const error = failure ? { message: t.placeholder.initFailed, detail: failure instanceof Error ? failure.message : '' } : null
   const start = () => { if (!busy && !gate.blocked && prompt.trim() && connection.writable) void startAction.run() }
@@ -149,10 +154,7 @@ export function NewStoryScreen({ project }: { project: string }) {
           onImport={() => { setActiveAlternative('import'); void withNewStory(async (story) => {
             navigate(paths.workspace(project, story), true, 'import')
           }) }}
-          onSimulate={() => { setActiveAlternative('simulate'); void withNewStory(async (story) => {
-            await startSimulate(project, story)
-            navigate(paths.workspace(project, story), true)
-          }) }} />
+          onSimulate={() => setSimulateOpen(true)} />
       ) : (
         <>
           {error && (
@@ -178,6 +180,15 @@ export function NewStoryScreen({ project }: { project: string }) {
 
       {startFileOpen && (
         <StartFileDialog onClose={() => setStartFileOpen(false)} onSubmit={submitStartFile} busy={busy || !connection.writable} pending={alternativeAction.pending} />
+      )}
+
+      {simulateOpen && (
+        <SimulateDialog onClose={() => { setSimulateOpen(false); simulate.clearError() }} busy={simulate.busy || !connection.writable} error={simulate.error}
+          onSubmit={(samples) => { void simulate.start(samples).then((story) => {
+            if (!story) return
+            setSimulateOpen(false)
+            navigate(paths.workspace(project, story), true)
+          }) }} />
       )}
     </main>
   )
