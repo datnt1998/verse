@@ -535,6 +535,14 @@ func TestWorkerSmokeIsolatedHome(t *testing.T) {
 	if len(entries) != 1 {
 		t.Fatalf("state dir holds %v, want exactly one marker", entries)
 	}
+	// A finished attempt must not leave the write-ahead marker behind.
+	raw, err := os.ReadFile(filepath.Join(markerDir, entries[0].Name()))
+	if err != nil {
+		t.Fatalf("read marker: %v", err)
+	}
+	if strings.Contains(string(raw), `"pending":true`) {
+		t.Fatalf("marker after a successful run = %s, want no pending attempt", raw)
+	}
 
 	// A replacement process with the same credential must not replay seq 4.
 	prov2 := &fakeProvisioner{}

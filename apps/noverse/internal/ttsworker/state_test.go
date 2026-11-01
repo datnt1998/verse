@@ -750,6 +750,14 @@ func TestWorkerChecksumStopSurvivesRestart(t *testing.T) {
 	if got := first.count(); got != 1 {
 		t.Fatalf("in-process attempts = %d, want 1: a checksum mismatch must not retry", got)
 	}
+	// The outcome was recorded: the marker holds the stop and no open attempt.
+	raw, err := os.ReadFile(w1.commandSeqPath())
+	if err != nil {
+		t.Fatalf("read marker: %v", err)
+	}
+	if !strings.Contains(string(raw), voice.ProvisionErrHashMismatch) || strings.Contains(string(raw), `"pending":true`) {
+		t.Fatalf("marker after a recorded checksum failure = %s, want the stop with no pending attempt", raw)
+	}
 
 	// Ordinary restart, no admin action: the durable stop is restored before
 	// the startup provisioning pass.
@@ -803,5 +811,68 @@ func TestWorkerChecksumStopFailsClosedWhenItCannotBeRecorded(t *testing.T) {
 	runFor(t, w2, 250*time.Millisecond)
 	if got := second.count(); got != 0 {
 		t.Fatalf("restart provisioned %d time(s) although the safety stop could not be recorded", got)
+	}
+}
+
+// The disk-full case the plain stop cannot cover: the checksum outcome cannot
+// be written, and the disk recovers BEFORE the restart. The write-ahead marker
+// is the only durable trace, so a restart must treat the attempt as unsafe
+// instead of finding a clean marker and provisioning on its own.
+func TestWorkerUnresolvedAttemptStaysUnsafeAfterRecovery(t *testing.T) {
+	srv := newStateServer(t)
+	dir := t.TempDir()
+	eng := &stateEngine{}
+	prov := &fakeProvisioner{
+		err:   &voice.ProvisionError{Code: voice.ProvisionErrHashMismatch, Message: "hash lệch"},
+		onRun: func() { _ = os.Chmod(dir, 0o500) },
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	w1 := newStateWorkerWith(t, srv, eng, prov, testToken, dir)
+	runUntil(t, w1, 5*time.Second, func() bool { return prov.count() >= 1 })
+	runFor(t, w1, 150*time.Millisecond)
+	if got := prov.count(); got != 1 {
+		t.Fatalf("in-process attempts = %d, want 1", got)
+	}
+	if w1.blockSaved() {
+		t.Fatal("stop claimed to be on disk although the write failed")
+	}
+
+	// Storage is writable again BEFORE the restart.
+	if err := os.Chmod(dir, 0o700); err != nil {
+		t.Fatalf("restore state dir: %v", err)
+	}
+	raw, err := os.ReadFile(w1.commandSeqPath())
+	if err != nil {
+		t.Fatalf("read marker: %v", err)
+	}
+	if !strings.Contains(string(raw), `"pending":true`) {
+		t.Fatalf("marker after an unresolved attempt = %s, want pending:true", raw)
+	}
+	if strings.Contains(string(raw), voice.ProvisionErrHashMismatch) {
+		t.Fatalf("marker claims a checksum failure that was never recorded: %s", raw)
+	}
+
+	// Ordinary restart through Worker.Run: unsafe, no attempt, and the public
+	// reason is the generic interrupted copy — not a checksum claim.
+	second := &fakeProvisioner{err: &voice.ProvisionError{Code: voice.ProvisionErrHashMismatch, Message: "hash lệch"}}
+	w2 := newStateWorkerWith(t, srv, eng, second, testToken, dir)
+	runFor(t, w2, 250*time.Millisecond)
+	if got := second.count(); got != 0 {
+		t.Fatalf("restart provisioned %d time(s) after an unresolved attempt recovered", got)
+	}
+	st := w2.State()
+	if st.State != voice.ProvisionStateError || st.Error == nil || st.Error.Code != errCodeInterrupted {
+		t.Fatalf("restored state = %+v, want error/%s", st, errCodeInterrupted)
+	}
+	if strings.Contains(st.Message, "băm") || strings.Contains(st.Message, "checksum") {
+		t.Fatalf("public reason falsely claims a detected checksum: %q", st.Message)
+	}
+
+	// Only a fresh admin command may start exactly one new attempt.
+	srv.setCommand(4, "install")
+	runUntil(t, w2, 5*time.Second, func() bool { return second.count() > 0 })
+	runFor(t, w2, 150*time.Millisecond)
+	if got := second.count(); got != 1 {
+		t.Fatalf("authorized attempts = %d, want exactly 1", got)
 	}
 }

@@ -103,6 +103,10 @@ func (w *Worker) refreshReady(ctx context.Context) bool {
 	if st.Ready {
 		if !w.Ready() {
 			w.markReady(st)
+			// A reader that came up while a stop was reported must not keep the
+			// stale error on the server: publish the transition now, since the
+			// run loop may not call prepare again while it is serving.
+			_ = w.publishState(ctx)
 		}
 		return true
 	}
@@ -139,16 +143,20 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	// idempotent upgrade path (which keeps the downloaded model and voices).
 	// With --no-provision there is no provisioner: nothing is ever downloaded.
 	if w.cfg.Provisioner != nil && !w.pinned() {
-		code, unknown := w.safetyStop()
-		if code != "" || unknown {
+		code, unsafe := w.safetyStop()
+		if code != "" || unsafe {
 			// A checksum stop is durable and only a genuinely new operator
-			// command may clear it; an unreadable/unwritable store cannot prove
-			// there is no stop. Either way: never provision on a guess. Keep
-			// trying to record a stop whose first write failed. The reader is
-			// reported as failed (10-audio.md §8.2: "không tự thử tiếp") and
-			// chapters stay queued until an admin clicks retry.
+			// command may clear it; an unreadable/unwritable store or an attempt
+			// whose outcome was never recorded cannot prove there is no stop.
+			// Either way: never provision on a guess. Keep trying to record a
+			// stop whose first write failed, and re-probe a failed store so the
+			// machine heals without provisioning. The reader is reported as
+			// failed (10-audio.md §8.2: "không tự thử tiếp") and chapters stay
+			// queued until an admin clicks retry.
 			if code != "" && !w.blockSaved() {
-				_ = w.persistCommandState(w.seqSnapshot(), code)
+				_ = w.persistCommandState(w.seqSnapshot(), code, false)
+			} else if code == "" && !w.attemptOpen() && !w.storeOK() {
+				_ = w.persistCommandState(w.seqSnapshot(), "", false)
 			}
 			w.setState(w.blockedState(code))
 			return
@@ -157,7 +165,7 @@ func (w *Worker) ensureReady(ctx context.Context) {
 			return
 		}
 		w.setState(w.statusState(st))
-		w.provision(ctx)
+		w.startAttempt(ctx)
 		return
 	}
 	if st.Ready {
@@ -173,7 +181,7 @@ func (w *Worker) ensureReady(ctx context.Context) {
 			// --no-provision: report the missing reader and wait for a human.
 			return
 		}
-		w.provision(ctx)
+		w.startAttempt(ctx)
 		return
 	}
 	// Installed but not serving: start it. On the first run this is also where
@@ -199,7 +207,23 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	}
 }
 
-// provision runs one install attempt. The caller checked that an attempt is due.
+// startAttempt records the write-ahead marker and runs one Provision attempt.
+// The marker is written first on purpose: if the process dies mid-attempt, or
+// the outcome write fails (a full disk is exactly what produces checksum
+// mismatches), the next start sees "outcome unknown" instead of a clean marker
+// that would retry a checksum unattended. When the marker cannot be written the
+// attempt does not start at all (fail closed).
+func (w *Worker) startAttempt(ctx context.Context) {
+	if err := w.persistCommandState(w.seqSnapshot(), "", true); err != nil {
+		w.setState(w.blockedState(""))
+		return
+	}
+	w.provision(ctx)
+}
+
+// provision runs one install attempt. The caller recorded the write-ahead
+// marker (see startAttempt, or the operator-command ack), so a crash mid-attempt
+// leaves "outcome unknown" on disk instead of a clean marker.
 func (w *Worker) provision(ctx context.Context) {
 	attempt := w.beginAttempt()
 	w.setState(voice.ProvisionState{
@@ -210,6 +234,12 @@ func (w *Worker) provision(ctx context.Context) {
 	_ = w.publishState(ctx)
 	err := w.cfg.Provisioner.Provision(ctx, func(st voice.ProvisionState) { w.report(ctx, st) })
 	if err == nil {
+		// The outcome is now known (installed): the write-ahead marker may be
+		// cleared. If this write fails the marker keeps "outcome unknown", which
+		// only costs an admin click after the next restart.
+		if w.attemptOpen() {
+			_ = w.persistCommandState(w.seqSnapshot(), "", false)
+		}
 		// The pinned build is now on disk: the readiness pass may start the
 		// reader instead of reconciling again.
 		w.mu.Lock()
@@ -297,13 +327,14 @@ func (w *Worker) pollCommand(ctx context.Context) error {
 	if w.cfg.Provisioner == nil {
 		return nil
 	}
-	// Record the sequence before the install runs: a crash between the write
-	// and the work loses this one click (the operator can click again) but can
-	// never replay it. A new command is also the only thing that clears a
-	// durable checksum stop — it is the explicit decision to retry the
-	// download. If the marker cannot be written the command waits for the next
-	// poll instead of running unrecorded, and the stop stays in force.
-	if err := w.persistCommandState(cmd.Seq, ""); err != nil {
+	// Record the sequence and the attempt in one write before the install runs:
+	// a crash between the write and the work loses this one click (the operator
+	// can click again) but can never replay it. A new command is also the only
+	// thing that clears a durable checksum stop — it is the explicit decision to
+	// retry the download — and pending:true keeps the attempt recoverable if the
+	// process dies or the outcome cannot be written. If the marker cannot be
+	// written the command waits for the next poll and the stop stays in force.
+	if err := w.persistCommandState(cmd.Seq, "", true); err != nil {
 		return fmt.Errorf("ghi nhận lệnh đã chạy: %w", err)
 	}
 	// An operator's click always runs once: clear an exhausted retry budget so
@@ -420,15 +451,23 @@ func (w *Worker) statusState(st voice.Status) voice.ProvisionState {
 	return next
 }
 
+// errCodeInterrupted is a generic, truthful reason for an attempt whose outcome
+// is unknown. It is deliberately not one of the §8.2 codes: the gateway passes
+// unknown codes through unchanged, and the status card falls back to its
+// generic "Chuẩn bị bộ đọc chưa xong" copy instead of claiming a checksum was
+// detected or that the reader failed to start.
+const errCodeInterrupted = "interrupted"
+
 // blockedState is the visible state for a durable safety stop (or for a worker
 // that cannot record one). The code stays stable so the UI can translate it;
 // the message is canonical because the original diagnostics are gone after a
-// restart.
+// restart, and an unknown outcome is never reported as a checksum failure.
 func (w *Worker) blockedState(code string) voice.ProvisionState {
-	msg := "Bản tải về không khớp mã băm đã ghim — đã dừng tự cài, chờ quản trị viên."
-	if code == "" {
-		code = voice.ProvisionErrStartFailed
-		msg = "Không ghi/đọc được trạng thái an toàn của máy đọc — đã tắt tự cài, chờ quản trị viên."
+	msg := "Máy đọc dừng giữa chừng khi chuẩn bị bộ đọc nên chưa rõ kết quả. Phần đã xong được giữ nguyên; bấm Thử lại để làm tiếp."
+	if code == voice.ProvisionErrHashMismatch {
+		msg = "Bản tải về không khớp mã băm đã ghim — đã dừng tự cài, chờ quản trị viên."
+	} else if code == "" {
+		code = errCodeInterrupted
 	}
 	return voice.ProvisionState{
 		State: voice.ProvisionStateError, Percent: voice.ProvisionPercentUnknown,
@@ -502,12 +541,18 @@ func (w *Worker) fail(p *voice.ProvisionError) {
 	}
 	w.ready = false
 	seq := w.lastSeq
+	open := w.openAttempt
 	w.mu.Unlock()
-	if hashMismatch {
-		// Record it now. If the write fails the in-memory stop still holds for
-		// this process (ensureReady retries the write every tick), and the next
-		// start's store probe fails closed instead of provisioning.
-		_ = w.persistCommandState(seq, p.Code)
+	switch {
+	case hashMismatch:
+		// Record the stop. If this write fails the write-ahead marker still says
+		// "outcome unknown", so the next start is unsafe rather than clean, and
+		// ensureReady retries this write every tick.
+		_ = w.persistCommandState(seq, p.Code, false)
+	case open:
+		// The outcome is known and it is not a checksum failure: normal backoff
+		// retries may run again, so clear the write-ahead marker.
+		_ = w.persistCommandState(seq, w.blockedCode(), false)
 	}
 }
 

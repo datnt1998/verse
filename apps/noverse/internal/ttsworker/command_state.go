@@ -12,16 +12,22 @@ import (
 )
 
 // Durable per-credential worker state: the last operator command sequence this
-// machine executed, plus any safety stop that must survive a restart.
+// machine executed, any safety stop that must survive a restart, and the
+// write-ahead marker for an attempt whose outcome is not yet known.
 //
 // The server keeps the last command row indefinitely; only this machine knows
 // whether it ran. Keeping that knowledge in memory alone means every restart
 // (launchd, crash, upgrade) replays the old install command. The same is true
 // for the hash_mismatch stop: it is a safety decision (the bytes did not match
-// the pin), so an ordinary restart must not silently retry the download. Both
-// facts live in one marker per credential:
+// the pin), so an ordinary restart must not silently retry the download. A
+// stop can only be recorded after the attempt failed, and that write can fail
+// (a full disk is exactly the failure mode that produces a checksum mismatch).
+// So the attempt itself is announced first — the write-ahead marker — and an
+// attempt whose outcome was never recorded is treated as unsafe on the next
+// start. All three facts live in one marker per credential:
 //
-//	<StateDir>/command-<sha256(token)[:8]>.json   {"seq":7,"blocked":"hash_mismatch"}
+//	<StateDir>/command-<sha256(token)[:8]>.json
+//	{"seq":7,"blocked":"hash_mismatch","pending":true}
 //
 // The token never appears in a file name, a file, or a log line; the marker is
 // written to a temp file (0600) and renamed into place, so a crash can never
@@ -30,10 +36,10 @@ import (
 // consumed command (or retrying a checksum stop) is not.
 //
 // Failure handling is fail-closed: if the marker cannot be written, the command
-// does not run, and a checksum stop that cannot be recorded disables automatic
-// provisioning for this process (the next start re-probes the store and also
-// refuses). An unreadable/corrupt marker counts as "stop unknown", never as
-// "clean". Only a genuinely new operator command rewrites it.
+// does not run, and an attempt whose write-ahead cannot be recorded is not
+// started at all. An unreadable/corrupt marker, or an unresolved attempt, counts
+// as "unsafe", never as "clean". Only a genuinely new operator command rewrites
+// the record and allows one attempt.
 
 const commandSeqPrefix = "command-"
 
@@ -42,11 +48,14 @@ var errNoStateDir = errors.New("không có thư mục trạng thái worker")
 
 // commandStateRecord is the on-disk shape. Seq only grows; a lower value on
 // disk than in memory is ignored rather than trusted. Blocked holds the stable
-// provision error code of a safety stop (currently hash_mismatch); empty means
-// automatic provisioning is allowed.
+// provision error code of a safety stop (currently hash_mismatch). Pending is
+// the write-ahead marker: an attempt was started and its outcome was never
+// recorded, so a restart must treat the machine as unsafe instead of
+// provisioning on a guess.
 type commandStateRecord struct {
 	Seq     int64  `json:"seq"`
 	Blocked string `json:"blocked,omitempty"`
+	Pending bool   `json:"pending,omitempty"`
 }
 
 // commandSeqPath resolves the marker for this worker's credential. It returns
@@ -96,25 +105,32 @@ func (w *Worker) loadCommandState() {
 	if rec.Blocked != "" {
 		w.blocked, w.blockOnDisk = rec.Blocked, true
 	}
+	if rec.Pending {
+		// The previous process died inside a provisioning attempt: its outcome
+		// (checksum failure or not) was never recorded, so this machine must not
+		// provision again without an admin decision.
+		w.openAttempt = true
+	}
 	w.mu.Unlock()
 }
 
-// persistCommandState writes seq/blocked and, on success, adopts them in
-// memory. A write failure changes no memory value: the caller decides what that
-// means (a command waits, a safety stop fails closed).
-func (w *Worker) persistCommandState(seq int64, blocked string) error {
+// persistCommandState writes seq/blocked/pending and, on success, adopts them
+// in memory. A write failure changes no memory value: the caller decides what
+// that means (a command waits, a write-ahead refuses to start provisioning).
+func (w *Worker) persistCommandState(seq int64, blocked string, pending bool) error {
 	path := w.commandSeqPath()
 	if path == "" {
 		w.setStoreFailed()
 		return errNoStateDir
 	}
-	if err := writeCommandState(path, commandStateRecord{Seq: seq, Blocked: blocked}); err != nil {
+	if err := writeCommandState(path, commandStateRecord{Seq: seq, Blocked: blocked, Pending: pending}); err != nil {
 		w.setStoreFailed()
 		return err
 	}
 	w.mu.Lock()
 	w.lastSeq, w.blocked = seq, blocked
 	w.blockOnDisk = blocked != ""
+	w.openAttempt = pending
 	w.stateOK, w.blockUnknown = true, false
 	w.mu.Unlock()
 	return nil
@@ -164,14 +180,15 @@ func (w *Worker) setStoreFailed() {
 
 // safetyStop reports whether automatic provisioning is currently forbidden:
 // code is the durable stop reason ("" when none) and unknown means the store
-// could not be read or written, so the absence of a stop cannot be proven.
+// could not be read or written, or a previous attempt's outcome was never
+// recorded, so safety cannot be proven.
 func (w *Worker) safetyStop() (code string, unknown bool) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.blocked != "" {
 		return w.blocked, false
 	}
-	return "", w.blockUnknown || !w.stateOK
+	return "", w.openAttempt || w.blockUnknown || !w.stateOK
 }
 
 func (w *Worker) blockedCode() string {
@@ -190,6 +207,21 @@ func (w *Worker) blockedUnknown() bool {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.blockUnknown
+}
+
+// attemptOpen reports whether a provisioning attempt was started whose outcome
+// is not yet durably recorded.
+func (w *Worker) attemptOpen() bool {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.openAttempt
+}
+
+// storeOK reports whether the durable store was last read/written successfully.
+func (w *Worker) storeOK() bool {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.stateOK
 }
 
 func (w *Worker) seqSnapshot() int64 {

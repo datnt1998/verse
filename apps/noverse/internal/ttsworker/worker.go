@@ -119,11 +119,14 @@ type Worker struct {
 	// blocked is the durable safety stop (a checksum mismatch must never be
 	// retried automatically); blockOnDisk says it is on disk, stateOK says the
 	// store was writable at start, blockUnknown says the marker could not be
-	// read so "no stop" cannot be proven.
+	// read, and openAttempt says a provisioning attempt was started whose
+	// outcome was never recorded. Any of the last three forbids automatic
+	// provisioning.
 	blocked      string
 	blockOnDisk  bool
 	stateOK      bool
 	blockUnknown bool
+	openAttempt  bool
 }
 
 // New validates the configuration and returns a worker.
@@ -177,11 +180,11 @@ func New(cfg Config) (*Worker, error) {
 	// and must not silently retry a checksum stop nobody overrode.
 	w.loadCommandState()
 	if cfg.Provisioner != nil && !w.blockedUnknown() {
-		// Automatic provisioning is only safe when a checksum stop can be
-		// recorded: probe the store once. If it cannot be written, a future stop
-		// would be forgotten by the next restart, so the worker fails closed and
-		// leaves the reader for a human instead.
-		_ = w.persistCommandState(w.seqSnapshot(), w.blockedCode())
+		// Automatic provisioning is only safe when an attempt and its outcome can
+		// be recorded: probe the store once. If it cannot be written, a future
+		// stop would be forgotten by the next restart, so the worker fails closed
+		// and leaves the reader for a human instead.
+		_ = w.persistCommandState(w.seqSnapshot(), w.blockedCode(), w.attemptOpen())
 	}
 	return w, nil
 }
