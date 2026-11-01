@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -64,18 +63,34 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 	case path == "/api/tts/status" && get:
 		g.ttsStatus(w, r)
 	case path == "/api/tts/engines" && get:
+		if g.pgAudio != nil {
+			writeJSON(w, 200, g.hostedTTSEngines(r.Context()))
+			return true
+		}
 		g.ttsEngines(w, r)
 	case path == "/api/tts/install" && post:
+		if g.pgAudio != nil {
+			g.hostedTTSInstall(w, r, user)
+			return true
+		}
 		g.ttsInstall(w, r, user)
 	case path == "/api/tts/install" && get:
 		if !canControlMachineJobs(user) {
 			jsonError(w, 403, "Không có quyền")
 			return true
 		}
+		if g.pgAudio != nil {
+			writeJSON(w, 200, g.hostedTTSInstallState(r.Context()))
+			return true
+		}
 		writeJSON(w, 200, ttsInstallState(ttsService().InstallState()))
 	case path == "/api/tts/install/events" && get:
 		if !canControlMachineJobs(user) {
 			jsonError(w, 403, "Không có quyền")
+			return true
+		}
+		if g.pgAudio != nil {
+			g.hostedTTSInstallEvents(w, r)
 			return true
 		}
 		g.ttsInstallEvents(w, r)
@@ -92,12 +107,15 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 }
 
 func (g *Gateway) ttsStatus(w http.ResponseWriter, r *http.Request) {
+	if g.pgAudio != nil {
+		writeJSON(w, 200, g.hostedTTSStatus(r.Context()))
+		return
+	}
 	svc := ttsService()
 	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
 	defer cancel()
 	st := svc.Status(ctx)
 	caps := svc.Capabilities()
-	_, ffmpegErr := exec.LookPath("ffmpeg")
 	writeJSON(w, 200, ttsStatusResponse{
 		Ready:          st.Ready,
 		Engine:         st.Engine,
@@ -111,7 +129,7 @@ func (g *Gateway) ttsStatus(w http.ResponseWriter, r *http.Request) {
 		SampleRate:     caps.SampleRate,
 		Cloning:        caps.Cloning,
 		Qualities:      caps.Qualities,
-		FFmpeg:         ffmpegErr == nil,
+		FFmpeg:         ffmpegOnPath(),
 		Installed:      svc.Installed(),
 		InstalledBytes: svc.DiskUsage(),
 	})

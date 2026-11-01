@@ -11,6 +11,42 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const bumpWorkerCommand = `-- name: BumpWorkerCommand :one
+UPDATE workers
+SET command_seq = command_seq + 1, command = $2,
+    updated_at = clock_timestamp(), version = version + 1
+WHERE id = $1 AND revoked_at IS NULL
+RETURNING id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version, state, state_updated_at, command_seq, command
+`
+
+type BumpWorkerCommandParams struct {
+	ID      pgtype.UUID `json:"id"`
+	Command []byte      `json:"command"`
+}
+
+// One operator click = one command: the seq is monotonic so a worker that keeps
+// polling the same row never runs the same command twice.
+func (q *Queries) BumpWorkerCommand(ctx context.Context, arg BumpWorkerCommandParams) (Worker, error) {
+	row := q.db.QueryRow(ctx, bumpWorkerCommand, arg.ID, arg.Command)
+	var i Worker
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TokenHash,
+		&i.Capabilities,
+		&i.RevokedAt,
+		&i.LastSeenAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+		&i.State,
+		&i.StateUpdatedAt,
+		&i.CommandSeq,
+		&i.Command,
+	)
+	return i, err
+}
+
 const cancelJob = `-- name: CancelJob :one
 
 UPDATE jobs
@@ -380,7 +416,7 @@ func (q *Queries) GetStoryJob(ctx context.Context, arg GetStoryJobParams) (Job, 
 }
 
 const getWorker = `-- name: GetWorker :one
-SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version FROM workers WHERE id = $1
+SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version, state, state_updated_at, command_seq, command FROM workers WHERE id = $1
 `
 
 func (q *Queries) GetWorker(ctx context.Context, id pgtype.UUID) (Worker, error) {
@@ -396,12 +432,16 @@ func (q *Queries) GetWorker(ctx context.Context, id pgtype.UUID) (Worker, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.State,
+		&i.StateUpdatedAt,
+		&i.CommandSeq,
+		&i.Command,
 	)
 	return i, err
 }
 
 const getWorkerByTokenHash = `-- name: GetWorkerByTokenHash :one
-SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version FROM workers WHERE token_hash = $1
+SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version, state, state_updated_at, command_seq, command FROM workers WHERE token_hash = $1
 `
 
 func (q *Queries) GetWorkerByTokenHash(ctx context.Context, tokenHash []byte) (Worker, error) {
@@ -417,6 +457,10 @@ func (q *Queries) GetWorkerByTokenHash(ctx context.Context, tokenHash []byte) (W
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.State,
+		&i.StateUpdatedAt,
+		&i.CommandSeq,
+		&i.Command,
 	)
 	return i, err
 }
@@ -618,7 +662,7 @@ const insertWorker = `-- name: InsertWorker :one
 
 INSERT INTO workers (id, name, token_hash, capabilities, last_seen_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version
+RETURNING id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version, state, state_updated_at, command_seq, command
 `
 
 type InsertWorkerParams struct {
@@ -661,6 +705,10 @@ func (q *Queries) InsertWorker(ctx context.Context, arg InsertWorkerParams) (Wor
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.State,
+		&i.StateUpdatedAt,
+		&i.CommandSeq,
+		&i.Command,
 	)
 	return i, err
 }
@@ -811,7 +859,7 @@ func (q *Queries) ListStoryJobs(ctx context.Context, arg ListStoryJobsParams) ([
 }
 
 const listWorkers = `-- name: ListWorkers :many
-SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version FROM workers ORDER BY created_at
+SELECT id, name, token_hash, capabilities, revoked_at, last_seen_at, created_at, updated_at, version, state, state_updated_at, command_seq, command FROM workers ORDER BY created_at
 `
 
 func (q *Queries) ListWorkers(ctx context.Context) ([]Worker, error) {
@@ -833,6 +881,10 @@ func (q *Queries) ListWorkers(ctx context.Context) ([]Worker, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Version,
+			&i.State,
+			&i.StateUpdatedAt,
+			&i.CommandSeq,
+			&i.Command,
 		); err != nil {
 			return nil, err
 		}
@@ -1132,6 +1184,29 @@ WHERE id = $1 AND revoked_at IS NULL
 
 func (q *Queries) RevokeWorker(ctx context.Context, id pgtype.UUID) (int64, error) {
 	result, err := q.db.Exec(ctx, revokeWorker, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const setWorkerState = `-- name: SetWorkerState :execrows
+UPDATE workers
+SET state = $2, state_updated_at = clock_timestamp(),
+    updated_at = clock_timestamp(), version = version + 1
+WHERE id = $1 AND revoked_at IS NULL
+`
+
+type SetWorkerStateParams struct {
+	ID    pgtype.UUID `json:"id"`
+	State []byte      `json:"state"`
+}
+
+// The reader publishes what it is doing (voice.ProvisionState as JSON). Liveness
+// is TouchWorker's job; this only records content and its own timestamp, so a
+// revoked credential stops publishing at once.
+func (q *Queries) SetWorkerState(ctx context.Context, arg SetWorkerStateParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setWorkerState, arg.ID, arg.State)
 	if err != nil {
 		return 0, err
 	}

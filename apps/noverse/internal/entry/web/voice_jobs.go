@@ -24,17 +24,35 @@ const (
 )
 
 // voiceJobsProvider đưa lượt cài bộ đọc trên máy vào chung danh sách việc chạy nền.
-type voiceJobsProvider struct{}
+//
+// Nguồn tiến độ phụ thuộc chế độ: bản file/desktop đọc service cục bộ, bản
+// hosted đọc trạng thái máy đọc trong Postgres (cùng voice.InstallProgress, nên
+// dock không phải biết gì thêm).
+type voiceJobsProvider struct{ g *Gateway }
 
 var _ JobsProvider = voiceJobsProvider{}
 
-func newVoiceJobsProvider() JobsProvider { return voiceJobsProvider{} }
+func newVoiceJobsProvider(g *Gateway) JobsProvider { return voiceJobsProvider{g: g} }
 
 func (voiceJobsProvider) Kind() string { return voiceJobsKind }
 
+// hosted báo tiến độ đến từ trạng thái máy đọc trong cơ sở dữ liệu.
+func (p voiceJobsProvider) hosted() bool { return p.g != nil && p.g.pgAudio != nil }
+
+func (p voiceJobsProvider) progress() voice.InstallProgress {
+	if p.hosted() {
+		// The provider interface has no request context; a dock row must never
+		// wait on a slow database.
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		return p.g.hostedTTSInstallState(ctx)
+	}
+	return ttsService().InstallState()
+}
+
 // Jobs trả hàng hiện tại, hoặc rỗng khi chưa từng cài.
-func (voiceJobsProvider) Jobs() []Job {
-	if row, ok := voiceInstallRow(ttsService().InstallState()); ok {
+func (p voiceJobsProvider) Jobs() []Job {
+	if row, ok := voiceInstallRow(p.progress()); ok {
 		return []Job{row}
 	}
 	return nil
@@ -42,23 +60,55 @@ func (voiceJobsProvider) Jobs() []Job {
 
 // Watch phát mỗi mốc tiến độ; lượt cài biến mất thì phát Removed.
 func (p voiceJobsProvider) Watch(ctx context.Context, emit func(JobChange)) {
+	if p.hosted() {
+		p.watchHosted(ctx, emit)
+		return
+	}
 	unsub := ttsService().SubscribeInstall(func(progress voice.InstallProgress) {
-		row, ok := voiceInstallRow(progress)
-		if !ok {
-			emit(JobChange{Job: Job{ID: voiceInstallJobID}, Removed: true})
-			return
-		}
-		emit(JobChange{Job: row})
+		emitVoiceInstall(emit, progress)
 	})
 	defer unsub()
 	<-ctx.Done()
 }
 
+// watchHosted hỏi trạng thái máy đọc mỗi giây: máy Mac công bố qua worker
+// listener, không có kênh đẩy nào tới tiến trình web.
+func (p voiceJobsProvider) watchHosted(ctx context.Context, emit func(JobChange)) {
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	var last voice.InstallProgress
+	have := false
+	for {
+		progress := p.progress()
+		if !have || progress != last {
+			emitVoiceInstall(emit, progress)
+			last, have = progress, true
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick.C:
+		}
+	}
+}
+
+func emitVoiceInstall(emit func(JobChange), progress voice.InstallProgress) {
+	row, ok := voiceInstallRow(progress)
+	if !ok {
+		emit(JobChange{Job: Job{ID: voiceInstallJobID}, Removed: true})
+		return
+	}
+	emit(JobChange{Job: row})
+}
+
 // Control: retry chạy lại lượt cài, cancel dừng lượt đang chạy.
 // Tạm dừng không có nghĩa với việc một lần chạy của lệnh cài.
-func (voiceJobsProvider) Control(_ context.Context, id, op string) error {
+func (p voiceJobsProvider) Control(ctx context.Context, id, op string) error {
 	if id != voiceInstallJobID {
 		return errJobNotFound
+	}
+	if p.hosted() {
+		return p.controlHosted(ctx, op)
 	}
 	svc := ttsService()
 	switch op {
@@ -80,6 +130,27 @@ func (voiceJobsProvider) Control(_ context.Context, id, op string) error {
 	case "cancel":
 		svc.CancelInstall()
 		return nil
+	default:
+		return errJobUnsupported
+	}
+}
+
+// controlHosted đẩy lệnh sang máy đọc: retry = xếp lệnh install, cancel không
+// có nghĩa vì lượt cài chạy trên máy khác và không có kênh dừng.
+func (p voiceJobsProvider) controlHosted(ctx context.Context, op string) error {
+	snap := p.g.workerSnapshot(ctx)
+	switch op {
+	case "retry":
+		if !snap.Found {
+			return errors.New("Chưa có máy đọc nào kết nối")
+		}
+		if snap.State.State == voice.ProvisionStateReady {
+			return errors.New("Bộ đọc trên máy đã cài xong")
+		}
+		_, err := p.g.pgAudio.Jobs.BumpWorkerCommand(ctx, snap.ID, "install")
+		return err
+	case "cancel":
+		return errJobUnsupported
 	default:
 		return errJobUnsupported
 	}

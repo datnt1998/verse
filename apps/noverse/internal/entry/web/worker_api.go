@@ -61,6 +61,9 @@ type WorkerAPI struct {
 	Lease time.Duration
 	// MaxUpload bounds one uploaded object (a segment or export file).
 	MaxUpload int64
+	// States is the worker row's provision-state/command channel. Nil keeps the
+	// listener serving jobs only (state endpoints answer 501).
+	States WorkerStateStore
 }
 
 // BlobRegistry records an immutable uploaded object in the database registry.
@@ -152,6 +155,8 @@ func (a *WorkerAPI) Handler() http.Handler {
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/fail", a.authenticated(a.handleFail))
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/release", a.authenticated(a.handleRelease))
 	mux.HandleFunc("GET /internal/worker/jobs/{id}/input", a.authenticated(a.handleInput))
+	mux.HandleFunc("POST /internal/worker/state", a.authenticated(a.handleState))
+	mux.HandleFunc("GET /internal/worker/command", a.authenticated(a.handleCommand))
 	return mux
 }
 
@@ -245,6 +250,9 @@ func (a *WorkerAPI) handleClaim(w http.ResponseWriter, r *http.Request, worker W
 type fenceRequest struct {
 	Fence    int64 `json:"fence"`
 	LeaseSec int   `json:"leaseSec"`
+	// State is optional: a running job's heartbeat is the only traffic for
+	// minutes, so it carries the reader state to keep it fresh.
+	State json.RawMessage `json:"state,omitempty"`
 }
 
 func (a *WorkerAPI) handleHeartbeat(w http.ResponseWriter, r *http.Request, worker WorkerIdentity) {
@@ -252,6 +260,7 @@ func (a *WorkerAPI) handleHeartbeat(w http.ResponseWriter, r *http.Request, work
 	if !decodeJSON(w, r, &req) {
 		return
 	}
+	a.persistHeartbeatState(r.Context(), worker.ID, req.State)
 	job, err := a.Queue.Heartbeat(r.Context(), worker.ID, r.PathValue("id"), req.Fence, a.leaseDuration(req.LeaseSec))
 	if err != nil {
 		writeWorkerError(w, err)

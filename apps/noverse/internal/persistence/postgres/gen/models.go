@@ -695,13 +695,17 @@ type Volume struct {
 }
 
 type Worker struct {
-	ID           pgtype.UUID        `json:"id"`
-	Name         string             `json:"name"`
-	TokenHash    []byte             `json:"token_hash"`
-	Capabilities []string           `json:"capabilities"`
-	RevokedAt    pgtype.Timestamptz `json:"revoked_at"`
-	LastSeenAt   pgtype.Timestamptz `json:"last_seen_at"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
-	Version      int64              `json:"version"`
+	ID             pgtype.UUID        `json:"id"`
+	Name           string             `json:"name"`
+	TokenHash      []byte             `json:"token_hash"`
+	Capabilities   []string           `json:"capabilities"`
+	RevokedAt      pgtype.Timestamptz `json:"revoked_at"`
+	LastSeenAt     pgtype.Timestamptz `json:"last_seen_at"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	Version        int64              `json:"version"`
+	State          []byte             `json:"state"`
+	StateUpdatedAt pgtype.Timestamptz `json:"state_updated_at"`
+	CommandSeq     int64              `json:"command_seq"`
+	Command        []byte             `json:"command"`
 }

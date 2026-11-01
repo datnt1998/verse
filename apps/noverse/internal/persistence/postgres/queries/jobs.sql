@@ -38,6 +38,24 @@ WHERE id = $1 AND revoked_at IS NULL;
 -- name: ListWorkers :many
 SELECT * FROM workers ORDER BY created_at;
 
+-- name: SetWorkerState :execrows
+-- The reader publishes what it is doing (voice.ProvisionState as JSON). Liveness
+-- is TouchWorker's job; this only records content and its own timestamp, so a
+-- revoked credential stops publishing at once.
+UPDATE workers
+SET state = $2, state_updated_at = clock_timestamp(),
+    updated_at = clock_timestamp(), version = version + 1
+WHERE id = $1 AND revoked_at IS NULL;
+
+-- name: BumpWorkerCommand :one
+-- One operator click = one command: the seq is monotonic so a worker that keeps
+-- polling the same row never runs the same command twice.
+UPDATE workers
+SET command_seq = command_seq + 1, command = $2,
+    updated_at = clock_timestamp(), version = version + 1
+WHERE id = $1 AND revoked_at IS NULL
+RETURNING *;
+
 -- ── enqueue / read ───────────────────────────────────────────────────────────
 
 -- name: InsertJob :one
