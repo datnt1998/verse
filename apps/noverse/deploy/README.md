@@ -238,11 +238,10 @@ vào `127.0.0.1:8081`. Không mở cổng nào ra LAN/Internet, không cần Tai
    (`brew install ffmpeg`). Mac không có DSN Postgres/bucket secret.
    `--lease` là **yêu cầu** phía client; máy chủ kẹp trong 30s–10m nên một Mac
    chết không giữ việc quá lâu.
-4. Theo dõi từ web: `GET /api/tts/status` báo `engine:"remote"` và trạng thái
-   của máy (`missing | installing | starting | ready | error | offline`),
-   `GET /api/tts/install` (hoặc SSE `/api/tts/install/events`) là tiến độ từng
-   bước, hàng **Cài bộ đọc trên máy** trong dock lấy đúng nguồn đó. `offline`
-   do máy chủ suy ra: `last_seen_at` cũ hơn lease + 2 nhịp tim.
+4. Theo dõi từ web: `GET /api/tts/status` và SSE `/api/tts/install/events`;
+   trạng thái/hợp đồng lấy từ [hosted TTS handler](../internal/entry/web/tts_worker.go)
+   và [kiểu sinh từ backend](../web/src/api/types.gen.ts).
+   Dock và các màn máy đọc dùng cùng nguồn trạng thái này.
    Nút cài trong UI không chạm vào máy Mac: nó tăng `command_seq` của credential,
    worker poll `GET /internal/worker/command` mỗi 2 s và chạy lệnh đúng **một
    lần** cho mỗi seq.
@@ -253,6 +252,25 @@ vào `127.0.0.1:8081`. Không mở cổng nào ra LAN/Internet, không cần Tai
    thái và chỉ nhận việc khi bộ đọc đã sẵn sàng; không tự tải gì.
 7. Kiểm chứng: `curl -X POST http://127.0.0.1:8081/internal/worker/claim` trả
    `401` khi không token; từ máy khác trong LAN phải **connection refused**.
+
+#### Tuyến vận hành Mac mini hiện dùng
+
+Phần này dành cho operator có SSH của môi trường production; không cấp thêm
+quyền cho tài khoản ứng dụng. Token worker chỉ có capability `tts`, không có DSN
+Postgres hay khoá bucket.
+
+| Khi cần | Nguồn sở hữu / cách tra |
+|---|---|
+| Deploy app và worker cùng revision | `ssh macmini`, script `~/server/bin/build-deploy.sh`. Script build image hosted và binary `darwin/arm64` từ cùng commit, kiểm tra binary chạy được, đợi app readiness rồi mới đổi worker. Không tự thay tuyến deploy bằng build thủ công ở thư mục khác. |
+| Runner và lịch tự khởi động | `~/server/bin/noverse-tts-run.sh`, plist `~/Library/LaunchAgents/com.dat.noverse-tts.plist`; tra service bằng `launchctl list com.dat.noverse-tts`. Runtime có HOME riêng `~/server/apps/noverse/tts-home`, không dùng `~/.ainovel` cá nhân. |
+| Nơi giữ credential | `~/server/apps/noverse/tts-worker.env` (0600), được runner nạp; tạo ban đầu bằng `~/server/bin/noverse-tts-setup-token.sh`. Chỉ kiểm metadata/quyền tệp, không in nội dung, không đặt token trong plist hoặc tham số dòng lệnh. |
+| Lỗi native / lỗi cài model | `~/server/logs/noverse-tts.log`; log cài bộ đọc trong `~/server/apps/noverse/tts-home/.ainovel/voice/vieneu/server.log`. Chỉ đọc đoạn liên quan, không gom log hoặc dữ liệu truyện của người dùng. |
+| Listener nội bộ | `~/server/apps/noverse/compose.yml` sở hữu bind `127.0.0.1:8081:8081`; không mở qua tunnel, Access hay cổng công khai. Kiểm lại claim không token trả 401 sau rollout. |
+| Revision và rollback | Sau deploy thành công: `~/server/apps/noverse/bin/noverse-tts.commit`; binary trước ở `noverse-tts.previous` cùng thư mục. App rollback theo `~/server/bin/deploy.sh`; nếu phải phục hồi native, dừng đúng service của worker trước khi thay binary rồi bootstrap lại plist. Không chỉ rollback một phía khi wire contract đã đổi. |
+
+Nếu route/script không tồn tại hoặc quyền thay đổi, dừng ở lỗi đó và tra lại
+operator của môi trường; không dò sang HOME cá nhân, không in token để chẩn đoán.
+
 
 #### Biến thể: Mac từ xa qua Tailscale
 
