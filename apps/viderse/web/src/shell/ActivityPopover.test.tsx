@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { AppNotification, BackgroundTask } from '../api/activity'
-import { orderNotifications, taskOperation } from './ActivityPopover'
+import { taskOperation } from './ActivityPopover'
+import { groupNotifications, orderNotifications } from './notificationList'
 import { isQuiet } from './ActivityBridge'
 
 function note(id: string, kind: AppNotification['kind'], readAt: string | null = null): AppNotification {
@@ -10,6 +11,14 @@ describe('activity priorities', () => {
   it('places unread review, attention and ready before completed or read entries', () => {
     const rows = [note('read', 'review_ready', '2026-11-01T12:01:00Z'), note('done', 'task_done'), note('ready', 'ready_to_post'), note('issue', 'needs_attention'), note('review', 'review_ready')]
     expect(orderNotifications(rows).map((row) => row.id)).toEqual(['review', 'issue', 'ready', 'done', 'read'])
+  })
+  it('groups the same rows into today, yesterday and older for both surfaces', () => {
+    const now = new Date(2026, 10, 1, 12, 0)
+    const daysAgo = (days: number) => new Date(2026, 10, 1 - days, 9, 0).toISOString()
+    const rows = [note('today', 'review_ready'), note('yesterday', 'review_ready'), note('older', 'review_ready')]
+    rows[0].createdAt = daysAgo(0); rows[1].createdAt = daysAgo(1); rows[2].createdAt = daysAgo(3)
+    const groups = groupNotifications(rows, now)
+    expect(groups.map((group) => [group.label, group.rows.map((row) => row.id)])).toEqual([['Hôm nay', ['today']], ['Hôm qua', ['yesterday']], ['Trước đó', ['older']]])
   })
   it('handles quiet hours crossing midnight', () => {
     const settings = { kinds: {} as never, badge: true, merge: true, recapOnReturn: true, suggestions: { off: [] }, doNotDisturb: { enabled: true, start: '23:00', end: '07:00' } }

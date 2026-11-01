@@ -109,6 +109,8 @@ export const newScreenCopy = {
 export const queueScreenCopy = {
   title: 'Hàng chờ',
   sheetTitle: 'Hàng chờ',
+  /* Sheet Việc nền của điện thoại (08-dev-prompt V32): tiêu đề ngắn, khác màn Hàng chờ. */
+  sheetTitleMobile: 'Việc nền',
   runningNow: 'Đang chạy',
   comingUp: 'Chờ lượt',
   rotationAria: 'Nhịp và lượt kênh',

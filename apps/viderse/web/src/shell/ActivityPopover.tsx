@@ -1,15 +1,14 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Icon } from '@noverse/ui'
-import { invalidate } from '@noverse/ui/data'
-import { getNotificationHistory, markNotificationsRead, type Activity, type AppNotification, type BackgroundTask } from '../api/activity'
+import type { Activity, BackgroundTask } from '../api/activity'
 import { getQueue } from '../api/clone'
 import { listChannels } from '../api/channels'
 import { request } from '../api/request'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
 import { paths } from '../router'
-import { notificationDetail } from './activityText'
+import { NotificationRow, useNotificationInbox } from './notificationList'
 
 // Tab Cài đặt thông báo chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
 const NotificationSettings = lazy(() => import('../screens/settings/NotificationSettings'))
@@ -113,41 +112,16 @@ function Task({ task, refresh }: { task: BackgroundTask; refresh: () => void }) 
   </div>
 }
 
-export function orderNotifications(notifications: AppNotification[]) {
-  const priority: Record<AppNotification['kind'], number> = { review_ready: 0, needs_attention: 1, ready_to_post: 2, task_done: 3, action_result: 4 }
-  return [...notifications].sort ( (a, b) => Number(!!a.readAt) - Number(!!b.readAt) || priority[a.kind] - priority[b.kind] || Date.parse(b.createdAt) - Date.parse(a.createdAt))
-}
 export function ActivityPopover({ activity, error, retry, close }: { activity?: Activity; error?: unknown; retry: () => void; close: () => void }) {
   const [tab, setTab] = useState<'running' | 'inbox' | 'settings'>('running')
-  const [older, setOlder] = useState<AppNotification[]>([])
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [pageError, setPageError] = useState('')
-  const [paging, setPaging] = useState(false)
-  const history = useResource(['activity', 'history'], ({ signal }) => getNotificationHistory(signal), { enabled: tab === 'inbox' || (tab === 'running' && !!activity && activity.running.length === 0 && activity.queued === 0) })
+  const inbox = useNotificationInbox(tab === 'inbox' || (tab === 'running' && !!activity && activity.running.length === 0 && activity.queued === 0))
+  const { history, rows, groups, more, paging, pageError, loadMore, mark, refresh } = inbox
   const queue = useResource(keys.queue(), ({ signal }) => getQueue(signal), { enabled: tab === 'running' && !!activity?.queued })
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal), { enabled: tab === 'running' && !!activity?.queued })
   useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey) }, [close])
-  const refresh = () => { setOlder([]); setCursor(null); invalidate(keys.activity()); void history.refresh() }
-  const mark = async () => { await markNotificationsRead('all'); refresh() }
-  const loadMore = async () => {
-    const before = cursor ?? history.data?.nextCursor
-    if (!before || paging) return
-    setPaging(true)
-    try {
-      const page = await getNotificationHistory(undefined, before)
-      setOlder((previous) => [...previous, ...page.notifications])
-      setCursor(page.nextCursor ?? '')
-      setPageError('')
-    } catch { setPageError('Không tải được thông báo. Thử lại.') }
-    finally { setPaging(false) }
-  }
   const tasks = activity?.running ?? []
   const nextQueued = queue.data?.items[0]
   const nextChannel = channels.data?.channels.find((channel) => channel.id === nextQueued?.channelId)
-  const rows = orderNotifications([...(history.data?.notifications ?? []), ...older])
-  const today = new Date(); today.setHours(0, 0, 0, 0)
-  const yesterday = today.getTime() - 86400000
-  const groups = [ { label: 'Hôm nay', rows: rows.filter((n) => Date.parse(n.createdAt) >= today.getTime()) }, { label: 'Hôm qua', rows: rows.filter((n) => Date.parse(n.createdAt) >= yesterday && Date.parse(n.createdAt) < today.getTime()) }, { label: 'Trước đó', rows: rows.filter((n) => Date.parse(n.createdAt) < yesterday) } ]
   if (!activity) return <section {...stylex.props(s.pop)} aria-label="Việc nền và thông báo"><div {...stylex.props(s.head)}>Việc nền & thông báo</div><div role={error ? 'alert' : 'status'} {...stylex.props(s.empty)}>{error ? <>Không tải được việc nền. <button {...stylex.props(s.plain)} onClick={retry}>Thử lại</button></> : 'Đang tải…'}</div></section>
   return (
     <section {...stylex.props(s.pop)} role="dialog" aria-label="Việc nền">
@@ -173,20 +147,15 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
             <span {...stylex.props(s.emptyTitle)}>Máy đang rảnh</span><span {...stylex.props(s.emptyDescription)}>Không có video nào đang chạy hay chờ lượt.{activity.nextScan && <> Tự lấy video kiểm tra đối thủ lần tới lúc {new Date(activity.nextScan.at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}.</>}</span>
             <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} {...stylex.props(s.button, s.noteAction)}>Làm video</a><a href="#/explore" {...stylex.props(s.button, s.noteAction)}>Mở Khám phá</a></div>
           </div>
-          {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <div key={n.id} {...stylex.props(s.noteRow)}><span aria-hidden="true" {...stylex.props(s.dot, s.noteDot, s.hiddenDot)} /><span {...stylex.props(s.noteTile)}><Icon name="tick" size={15} /></span><div {...stylex.props(s.content, s.noteContent)}><span {...stylex.props(s.title, s.noteTitle)}>{n.text}</span>{notificationDetail(n) && <span {...stylex.props(s.sub, s.noteDetail)}>{notificationDetail(n)}</span>}<span {...stylex.props(s.sub, s.noteTime)}>{new Date(n.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>{n.actions.at(-1) && <a {...stylex.props(s.button, s.noteAction)} href={n.actions.at(-1)!.href} onClick={close}>{n.actions.at(-1)!.label}</a>}</div>)}</>}
+          {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <NotificationRow key={n.id} n={n} showDot={false} onOpen={close} />)}</>}
         </>
           : history.error ? <div role="alert" {...stylex.props(s.empty)}>Không tải được thông báo. <button {...stylex.props(s.plain)} onClick={() => void history.refresh()}>Thử lại</button></div>
           : history.initialLoading ? <div {...stylex.props(s.empty)}>Đang tải…</div>
           : rows.length ? groups.map((group) => group.rows.length ? <div key={group.label}>
-            <div {...stylex.props(s.group)}>{group.label}{group.label === 'Hôm nay' && <button {...stylex.props(s.markRead)} onClick={() => void mark()}>Đánh dấu đã đọc</button>}</div>
-            {group.rows.map((n) => <div key={n.id} {...stylex.props(s.noteRow, !n.readAt && s.noteUnread)}>
-              <span aria-label={n.readAt ? undefined : 'Chưa đọc'} {...stylex.props(s.dot, s.noteDot, !!n.readAt && s.hiddenDot)} />
-              <span {...stylex.props(s.noteTile, n.kind === 'review_ready' && s.noteReview, n.kind === 'needs_attention' && s.noteAttention)}><Icon name={n.kind === 'needs_attention' ? 'danger' : n.kind === 'ready_to_post' ? 'tick' : 'flag'} size={15} /></span>
-              <div {...stylex.props(s.content, s.noteContent)}><span {...stylex.props(s.title, s.noteTitle)}>{n.text}</span>{notificationDetail(n) && <span {...stylex.props(s.sub, s.noteDetail)}>{notificationDetail(n)}{n.detail?.channels?.length && n.count > 1 ? ` · gộp ${n.count} thông báo` : ''}</span>}<span {...stylex.props(s.sub, s.noteTime)}>{new Date(n.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
-              {n.actions.at(-1) && <a {...stylex.props(s.button, s.noteAction)} href={n.actions.at(-1)!.href} onClick={() => { if (!n.readAt) void markNotificationsRead([n.id]).then(refresh); close() }}>{n.actions.at(-1)!.label}</a>}
-            </div>)}
+            <div {...stylex.props(s.group)}>{group.label}{group.label === 'Hôm nay' && <button {...stylex.props(s.markRead)} onClick={() => void mark('all')}>Đánh dấu đã đọc</button>}</div>
+            {group.rows.map((n) => <NotificationRow key={n.id} n={n} onOpen={close} />)}
           </div> : null) : <div {...stylex.props(s.empty)}>Chưa có thông báo.</div>}
-        {tab === 'inbox' && (cursor ?? history.data?.nextCursor) ? <div {...stylex.props(s.row)}><button type="button" {...stylex.props(s.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
+        {tab === 'inbox' && more ? <div {...stylex.props(s.row)}><button type="button" {...stylex.props(s.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
       </div>
       {tab !== 'settings' && <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button, s.footerAction)} href={`#${paths.queue()}`} onClick={close}><Icon name="video-play" size={15} />Mở Hàng chờ</a><button type="button" {...stylex.props(s.button, s.footerAction)} onClick={() => setTab('settings')}><Icon name="setting" size={15} />Cài đặt thông báo</button></footer>}
     </section>
