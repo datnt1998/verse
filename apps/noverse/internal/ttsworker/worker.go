@@ -226,6 +226,11 @@ func (w *Worker) Run(ctx context.Context) error {
 		}
 		processed, err := w.RunOnce(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {
+			// A cancelled run surfaces as a transport error mid-request; that is
+			// a shutdown (launchd/SIGTERM), not a failure to report.
+			if ctx.Err() != nil {
+				return nil
+			}
 			return err
 		}
 		if !processed {

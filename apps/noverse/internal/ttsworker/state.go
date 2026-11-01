@@ -140,7 +140,9 @@ func (w *Worker) provision(ctx context.Context) {
 	}
 	var p *voice.ProvisionError
 	if !errors.As(err, &p) || p == nil {
-		p = &voice.ProvisionError{Code: voice.ProvisionErrDownloadFailed, Message: err.Error()}
+		// Provision always reports a contract error; anything else means the
+		// reader could not be brought up at all.
+		p = &voice.ProvisionError{Code: voice.ProvisionErrStartFailed, Message: err.Error()}
 	}
 	w.fail(p)
 }

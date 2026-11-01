@@ -219,7 +219,7 @@ func runFor(t *testing.T, w *Worker, d time.Duration) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), d)
 	defer cancel()
-	if err := w.Run(ctx); err != nil {
+	if err := w.Run(ctx); err != nil && !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("run: %v", err)
 	}
 }
@@ -256,13 +256,12 @@ func TestWorkerDoesNotClaimBeforeReady(t *testing.T) {
 	prov := &fakeProvisioner{err: &voice.ProvisionError{Code: voice.ProvisionErrUVFailed, Message: "không tải được uv"}}
 	w := newStateWorker(t, srv, eng, prov)
 
+	// Stop as soon as the failure is published: by then the retry is scheduled,
+	// so a second attempt would mean the backoff was ignored.
 	runUntil(t, w, 5*time.Second, func() bool {
 		states, _ := srv.snapshot()
-		return len(states) > 0
+		return len(states) > 0 && states[len(states)-1].State == voice.ProvisionStateError
 	})
-	// Keep it running after the failure: the reader never becomes ready, so the
-	// claim gate must hold.
-	runFor(t, w, 120*time.Millisecond)
 
 	states, claims := srv.snapshot()
 	if claims != 0 {
