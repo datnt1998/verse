@@ -33,6 +33,13 @@ const chip = stylex.create({
   warn: { backgroundColor: tint['--tint-warn'], borderColor: kit['--kit-warn-30'], color: color['--color-warn'] },
   err: { backgroundColor: tint['--tint-err'], borderColor: kit['--kit-errf-30'], color: color['--color-err'] },
   info: { backgroundColor: tint['--tint-info'], borderColor: kit['--kit-info-30'], color: color['--color-info'] },
+  /* Cỡ điện thoại: 36px nhìn thấy, vùng chạm 44px nhờ ::before (chuẩn Noverse `.m-chip`). */
+  mobile: {
+    height: 36, paddingInline: 13, borderRadius: 999, fontSize: 13.5,
+    backgroundColor: kit['--kit-surface-15'], borderColor: line['--line-4'], color: kit['--kit-fg-note'],
+    position: 'relative',
+    '::before': { content: '', position: 'absolute', insetBlock: -4, insetInline: 0 },
+  },
   mdIcon: { display: 'inline-flex', color: kit['--kit-fg-icon'] },
   value: { fontWeight: 500 },
   mdValue: { color: color['--color-fg'] },
@@ -42,11 +49,16 @@ const chip = stylex.create({
 export function Chip({ icon, label, value, tone = 'neutral', valueColor, style, size = 'sm' }: {
   icon?: ReactNode; label: ReactNode; value?: ReactNode
   tone?: Tone; valueColor?: string; style?: CSSProperties
-  /** 'sm' = chip tiêu đề 26 px; 'md' = chip khoá-giá trị của Kit (28 px, bo 8, nền surface-1, icon --kit-fg-icon). */
-  size?: 'sm' | 'md'
+  /** 'sm' = chip tiêu đề 26 px; 'md' = chip khoá-giá trị của Kit (28 px, bo 8, nền surface-1, icon --kit-fg-icon);
+   *  'mobile' = chip điện thoại 36 px, vùng chạm 44 px, bo tròn hoàn toàn. */
+  size?: 'sm' | 'md' | 'mobile'
 }) {
   const md = size === 'md'
-  const sx = stylex.props(chip.base, md ? chip.md : [chip.sm, icon ? chip.smIcon : chip.smPlain, chip[tone]])
+  const mobile = size === 'mobile'
+  const sx = stylex.props(
+    chip.base,
+    md ? chip.md : mobile ? [chip.mobile, icon ? chip.smIcon : chip.smPlain] : [chip.sm, icon ? chip.smIcon : chip.smPlain, chip[tone]],
+  )
   const v = stylex.props(chip.value, md ? chip.mdValue : chip.smValue)
   return (
     <span className={sx.className} style={{ ...sx.style, ...style }}>

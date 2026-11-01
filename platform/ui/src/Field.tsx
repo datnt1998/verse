@@ -20,6 +20,8 @@ const sx = stylex.create({
   },
   fieldOk: { borderColor: L4 },
   fieldErr: { borderColor: color['--color-err'] },
+  /* Ô nhập điện thoại: 46px, chữ 16px (iOS không tự phóng trang khi focus). */
+  fieldMobile: { height: 46, minHeight: 46, fontSize: 16, borderRadius: 12, paddingInline: 12 },
   padded: { paddingRight: 44 },
   area: { height: 'auto', paddingTop: 10, paddingBottom: 10, paddingInline: 12, borderRadius: 10, lineHeight: 1.55, resize: 'none' },
   wrap: { position: 'relative' },
@@ -73,9 +75,9 @@ export function FieldLabel({ htmlFor, children, right, style, size }: { htmlFor?
   )
 }
 
-export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; xstyle?: stylex.StyleXStyles }>(
-  function Field({ invalid, style, className, xstyle, ...rest }, ref) {
-    const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, xstyle)
+export const Field = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; mobile?: boolean; xstyle?: stylex.StyleXStyles }>(
+  function Field({ invalid, mobile, style, className, xstyle, ...rest }, ref) {
+    const p = stylex.props(sx.field, invalid ? sx.fieldErr : sx.fieldOk, mobile && sx.fieldMobile, xstyle)
     return <input ref={ref} aria-invalid={invalid || undefined} className={[p.className, className].filter(Boolean).join(' ')} style={{ ...p.style, ...style }} {...rest} />
   },
 )

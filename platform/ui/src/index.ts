@@ -35,3 +35,12 @@ export { defineBrand, applyBrand, removeBrand, brandToCss, tonalScale, neutralSc
 export { ThemeProvider, type ThemeProviderProps } from './ThemeProvider'
 export { noverseCore, NOVERSE } from './noverse'
 export { MOTION, type MotionPreset } from './motion'
+// Bộ mobile: khung màn hình, tấm thao tác, hàng, chỉ báo, thanh chọn, banner mất mạng.
+export { MobilePage, MobilePageAction, type MobilePageProps } from './mobile/page'
+export { ActionSheet, ConfirmSheet, type ActionSheetProps, type ConfirmSheetProps, type MobileSheetAction } from './mobile/sheets'
+export {
+  ListRow, VideoRow, StatusPill, MeterBar, InitialsAvatar, Stepper, initialsOf,
+  type ListRowProps, type VideoRowProps, type StatusPillProps, type MeterBarProps,
+  type InitialsAvatarProps, type StepperProps, type StatusTone, type MeterTone,
+} from './mobile/rows'
+export { SelectionBar, OfflineBanner, type SelectionBarProps, type OfflineBannerProps } from './mobile/bars'
