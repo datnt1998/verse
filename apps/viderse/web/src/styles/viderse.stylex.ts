@@ -158,6 +158,8 @@ export const channelLayout = stylex.defineVars({
   settingsHeadFontWeight: "500",
   settingsFieldHeight: "38px",
   settingsSaveFontSize: "12px",
+  settingsHintFontSize: "12px",
+  settingsTagFontSize: "12.5px",
   settingsSaveIconSize: "14px",
   tagPillWidth: "auto",
   navCardPadding: "6px 0",

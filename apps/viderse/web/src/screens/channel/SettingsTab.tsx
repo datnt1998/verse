@@ -192,7 +192,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                     onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur() }}
                   />
                 </FieldRow>
-                {url.error ? <FieldError>{url.error}</FieldError> : <p {...stylex.props(channelStyles.fieldHint)}>{tt.urlHint}</p>}
+                {url.error ? <FieldError>{url.error}</FieldError> : <p {...stylex.props(channelStyles.fieldHint, channelStyles.hintRoom)}>{tt.urlHint}</p>}
               </div>
             </div>
             <span {...stylex.props(channelStyles.saveline)} aria-live="polite">
@@ -223,7 +223,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                       void save({ language: next }, 'language').catch(() => setLanguage(channel.language))
                     }}
                   />
-                  <p {...stylex.props(channelStyles.fieldHint)}>{tt.languageHint}</p>
+                  <p {...stylex.props(channelStyles.fieldHint, channelStyles.hintRoom)}>{tt.languageHint}</p>
                 </div>
 
                 <div {...stylex.props(channelStyles.field)}>
@@ -254,13 +254,13 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                       onBlur={() => void footer.commit()}
                     />
                   </FieldRow>
-                  {footer.error ? <FieldError>{footer.error}</FieldError> : <p {...stylex.props(channelStyles.fieldHint)}>{tt.footerBadge} · {tt.footerHint}</p>}
+                  {footer.error ? <FieldError>{footer.error}</FieldError> : <p {...stylex.props(channelStyles.fieldHint, channelStyles.hintRoom)}>{tt.footerBadge} · {tt.footerHint}</p>}
                 </div>
 
                 <div {...stylex.props(channelStyles.field)}>
                   <span {...stylex.props(channelStyles.fieldRow)}>
                     <span {...stylex.props(channelStyles.fieldLabel)}>{tt.tags} <span {...stylex.props(channelStyles.fieldLabelNote)}>{tt.tagsBadge}</span></span>
-                    <span className={`vch-counter num ${stylex.props(channelStyles.counter).className}`}>{tt.tagsCount(tags.length, 10)}</span>
+                    <span {...stylex.props(channelStyles.counter, channelStyles.counterRoom)}>{tt.tagsCount(tags.length, 10)}</span>
                   </span>
                   <div {...stylex.props(channelStyles.tags)}>
                     {tags.map((tag) => (
@@ -291,7 +291,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                   {tagError && <FieldError>{tagError}</FieldError>}
                 </div>
 
-                <p {...stylex.props(channelStyles.fieldHint)}>{tt.writingHint}</p>
+                <p {...stylex.props(channelStyles.fieldHint, channelStyles.hintRoom)}>{tt.writingHint}</p>
 
                 <LearnedRulesList scope={{ channelId: channel.id }} />
               </div>

@@ -66,7 +66,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
   }
 
   return (
-    <section {...stylex.props(channelStyles.idSection)} aria-label={tt.identityLabel}>
+    <section {...stylex.props(channelStyles.idSection)} aria-label={t.channels.settings.identityLabel}>
       <div {...stylex.props(channelStyles.idBannerCard)}>
         <div {...stylex.props(channelStyles.banner)}>
           {channel.bannerUrl ? (
