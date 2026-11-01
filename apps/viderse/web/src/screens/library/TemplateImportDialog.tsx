@@ -40,7 +40,10 @@ export function TemplateImportDialog({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState(false)
 
-  useEffect(() => () => { alive.current = false }, [])
+  useEffect(() => {
+    alive.current = true
+    return () => { alive.current = false }
+  }, [])
 
   const update = (index: number, patch: Partial<Row>) => {
     if (!alive.current) return

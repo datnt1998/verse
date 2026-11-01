@@ -249,3 +249,9 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 - Khung `MExplore` tổng thể (header/chip đối thủ/các bộ lọc) còn thuộc đợt đối chiếu toàn màn; thay đổi này mới đóng các trạng thái danh sách. App hiện có bộ lọc ≥8 phút, không phải ví dụ ≥40 phút trong artboard.
 - Vùng cuối màn Tạo kênh trên điện thoại còn được kiểm lại trong lượt sửa vùng cuộn/tab bar tích hợp; chưa dùng ảnh riêng từng nhánh để khẳng định hết che khuất.
 
+
+## Bộ điều khiển dùng chung và nhập template (02/11/2026)
+
+- Kit dùng chung cung cấp chọn chip, vùng thả tệp/dòng tệp và tab gạch chân; hộp nhập template hiển thị kết quả thật từng tệp, giữ tệp chưa xong khi mất kết nối và không gửi lại tệp đã nhập khi thử lại.
+- Đã chạy UI thật với hai gói hợp lệ và một gói hỏng: kết quả hai template được nhập, một tệp lỗi; kiểm tra điện thoại 390/360 px không tràn ngang. Sửa vòng đời hộp thoại để chọn tệp vẫn hoạt động khi React chạy lại effect; ba regression nhập một phần/huỷ/thử lại đều chạy trong StrictMode.
+- Chưa coi lượt này là xác nhận khớp toàn bộ `MLibrary`/`MTemplate`: bản xem thử chưa có dữ liệu ở fixture, và phần còn lại của ma trận điện thoại được ghi ở báo cáo đối chiếu riêng.

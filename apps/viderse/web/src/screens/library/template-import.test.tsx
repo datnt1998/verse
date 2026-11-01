@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // Hộp nhập template: tiến độ thật từng tệp, huỷ phần chưa nhập, mất kết nối giữ
 // tệp và Thử lại chỉ nhập lại tệp chưa xong (không nhập trùng tệp đã xong).
-import { act } from 'react'
+import { act, StrictMode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TemplateImportDialog } from './TemplateImportDialog'
@@ -42,7 +42,7 @@ async function mount() {
   document.body.append(container)
   const root = createRoot(container)
   roots.push(root)
-  await act(async () => { root.render(<TemplateImportDialog onClose={() => {}} />) })
+  await act(async () => { root.render(<StrictMode><TemplateImportDialog onClose={() => {}} /></StrictMode>) })
   return container
 }
 
