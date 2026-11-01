@@ -34,9 +34,8 @@ export function OverflowMenu({ job, onClose, onRefresh, onError, mobile }: { job
   entries.push({ key: 'channel', label: 'Mở kênh', href: `#/channels/${encodeURIComponent(job.channelId)}` })
   entries.push({ key: 'remove', label: 'Xoá video', hint: lockedReason ?? 'Xoá MP4, ảnh và project của video này', onClick: remove, disabled: Boolean(lockedReason), danger: !lockedReason })
 
-  if (mobile) return <Sheet open onClose={() => onClose?.()} label="Thao tác video" size="md" height="auto">
+  if (mobile) return <Sheet open onClose={() => onClose?.()} title="Thao tác video" size="md" height="auto" bodyStyle={styles.mobileBody}>
     <div>
-      <h2 {...stylex.props(styles.mobileTitle)}>Thao tác video</h2>
       {entries.map((entry) => <ListRow key={entry.key} title={entry.label} hint={entry.hint} destructive={entry.danger} chevron={Boolean(entry.href)}
         href={entry.href} onClick={entry.disabled ? undefined : entry.onClick} />)}
     </div>
@@ -58,5 +57,5 @@ export function OverflowMenu({ job, onClose, onRefresh, onError, mobile }: { job
   }))} />
 }
 const styles = stylex.create({
-  mobileTitle: { margin: `0 0 ${s['--vv-s-8']}`, fontSize: 17, fontWeight: 600, color: 'var(--color-fg)' },
+  mobileBody: { paddingInline: s['--vv-s-16'] },
 })

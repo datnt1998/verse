@@ -1,6 +1,6 @@
 /* SINH TỰ ĐỘNG từ src/brand.ts — npx vite-node scripts/brand-css.ts. KHÔNG sửa tay. */
 /* @noverse/ui brand "viderse" — đặt sau tokens.css/style.css để ghi đè. */
-:root {
+:root[data-brand="viderse"] {
   --color-bg: #0B0B0D;
   --color-surface-0: #0F0F11;
   --color-surface-1: #131315;
@@ -240,10 +240,12 @@
   --kit-wash-25: rgba(255,255,255,.25);
   --kit-wash-28: rgba(255,255,255,.28);
   --kit-wash-30: rgba(255,255,255,.3);
+  --kit-acc-3: rgba(255,77,99,.03);
   --kit-acc-5: rgba(255,77,99,.05);
   --kit-acc-6: rgba(255,77,99,.06);
   --kit-acc-7: rgba(255,77,99,.07);
   --kit-acc-8: rgba(255,77,99,.08);
+  --kit-acc-10: rgba(255,77,99,.10);
   --kit-acc-12: rgba(255,77,99,.12);
   --kit-acc-13: rgba(255,77,99,.13);
   --kit-acc-14: rgba(255,77,99,.14);
@@ -254,6 +256,7 @@
   --kit-acc-30: rgba(255,77,99,.30);
   --kit-acc-32: rgba(255,77,99,.32);
   --kit-acc-35: rgba(255,77,99,.35);
+  --kit-acc-38: rgba(255,77,99,.38);
   --kit-acc-40: rgba(255,77,99,.40);
   --kit-acc-45: rgba(255,77,99,.45);
   --kit-acc-50: rgba(255,77,99,.50);
@@ -267,6 +270,8 @@
   --kit-err-18: rgba(255,154,92,0.18);
   --kit-err-20: rgba(255,154,92,0.2);
   --kit-errf-30: rgba(255,154,92,0.3);
+  --kit-errf-32: rgba(255,154,92,0.32);
+  --kit-errf-4: rgba(255,154,92,0.04);
   --kit-errf-7: rgba(255,154,92,0.07);
   --kit-errf-12: rgba(255,154,92,0.12);
   --kit-errf-14: rgba(255,154,92,0.14);

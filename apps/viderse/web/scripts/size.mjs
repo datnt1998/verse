@@ -1,10 +1,10 @@
 // Đo JS tải lần đầu (entry + import tĩnh theo manifest) ở dạng gzip.
-// Ngưỡng 250 kB theo 08-dev-prompt — quá ngưỡng thì thoát với mã lỗi 1.
+// Ngưỡng 150 kB theo ngân sách mobile đã nhận — quá ngưỡng thì thoát mã 1.
 import { gzipSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const LIMIT_KB = 250
+const LIMIT_KB = 150
 const dist = new URL('../../internal/web/dist', import.meta.url).pathname
 const manifest = JSON.parse(readFileSync(join(dist, '.vite/manifest.json'), 'utf8'))
 const editorModules = JSON.parse(readFileSync(join(dist, '.vite/editor-budget.json'), 'utf8'))
