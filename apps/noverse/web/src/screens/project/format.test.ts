@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import type { AutoExport, StorySummary } from '../../api/types'
 import {
-  autoExportSentence, chapterStatusLabel, folderNumber, formatBytes, isRewriteFlow, nextStoryNumber, volumeLabel,
+  autoExportSentence, chapterStatusLabel, folderNumber, formatBytes, isRewriteFlow, nextStoryNumber, storyHeaderLine, volumeLabel,
 } from './format'
 
 const stories = (...ids: string[]) => ids.map((story) => ({ story }) as StorySummary)
@@ -92,5 +92,19 @@ describe('autoExportSentence', () => {
   it('says so when switched off', () => {
     expect(autoExportSentence({ ...base, onVolume: false, onBook: false })).toBe('Xuất tự động đang tắt.')
     expect(autoExportSentence({ ...base, formats: [] })).toBe('Xuất tự động đang tắt.')
+  })
+})
+
+describe('storyHeaderLine', () => {
+  it('translates engine status codes instead of printing them raw', () => {
+    const snap = { statusLabel: 'RUNNING', runtimeState: 'running', inProgressChapter: 0, currentChapter: 0, completedCount: 0, totalChapters: 0 }
+    expect(storyHeaderLine(snap)).toBe('Đang chạy · chương 0/0')
+    expect(storyHeaderLine({ ...snap, statusLabel: 'COMPLETE', completedCount: 8, totalChapters: 8 })).toBe('Hoàn thành · chương 8/8')
+    expect(storyHeaderLine({ ...snap, statusLabel: '重写第 4 章', inProgressChapter: 4, totalChapters: 8 })).toBe('Viết lại chương 4 · chương 4/8')
+  })
+
+  it('drops the status when there is none and waits for the snapshot', () => {
+    expect(storyHeaderLine({ statusLabel: '', runtimeState: '', inProgressChapter: 0, currentChapter: 3, completedCount: 2, totalChapters: 10 })).toBe('chương 3/10')
+    expect(storyHeaderLine(undefined)).toBe('chương 0/…')
   })
 })

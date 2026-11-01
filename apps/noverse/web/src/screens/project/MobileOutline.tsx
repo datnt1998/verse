@@ -16,7 +16,7 @@ import { audienceLabels } from './retention/logic'
 import { groupWorldRules } from './tabs/foundation'
 import { useFoundation } from './tabs/useFoundation'
 import { useForeshadow } from './tabs/ForeshadowTab'
-import { chapterStatusLabel, isRewriteFlow } from './format'
+import { chapterStatusLabel, isRewriteFlow, storyHeaderLine } from './format'
 import { CharAvatar } from '../../ui/CharAvatar'
 import { roleTag } from './tabs/CastTab'
 import { foreshadowActionLabel } from '../../lib/labels'
@@ -171,7 +171,7 @@ export function MobileOutline({ project, story, initialTab }: { project: string;
   ] : []
   const editTitle: Record<Field, string> = { title: 'Tên truyện', shortTitle: 'Tên ngắn', status: 'Trạng thái', tags: 'Thẻ', idea: 'Ý tưởng ban đầu', audience: 'Người nghe', difference: 'Điểm khác', sequelSeed: 'Hạt giống phần hai' }
   return <section className={`m-page ${stylex.props(styles.page).className}`} >
-    <header className="m-topbar"><button className="m-icon-button" type="button" aria-label="Quay lại Viết" onClick={() => navigate(paths.workspace(project, story))}><Icon name="arrow-left-2" size={22} /></button><span {...stylex.props(styles.headerCopy)}><strong {...stylex.props(styles.truncate)}>{title}</strong><small {...stylex.props(styles.label1)}>{snapshot.data?.statusLabel ? `${snapshot.data.statusLabel} · ` : ''}chương {snapshot.data?.inProgressChapter || snapshot.data?.currentChapter || snapshot.data?.completedCount || 0}/{snapshot.data?.totalChapters ?? '…'}</small></span><button className="m-icon-button" type="button" aria-label="Não truyện" onClick={() => navigate(paths.brain(project, story))}><Icon name="routing-2" size={21} /></button></header>
+    <header className="m-topbar"><button className="m-icon-button" type="button" aria-label="Quay lại Viết" onClick={() => navigate(paths.workspace(project, story))}><Icon name="arrow-left-2" size={22} /></button><span {...stylex.props(styles.headerCopy)}><strong {...stylex.props(styles.truncate)}>{title}</strong><small {...stylex.props(styles.label1)}>{storyHeaderLine(snapshot.data)}</small></span><button className="m-icon-button" type="button" aria-label="Não truyện" onClick={() => navigate(paths.brain(project, story))}><Icon name="routing-2" size={21} /></button></header>
     <div role="tablist" aria-label="Phần của truyện" {...stylex.props(styles.tabs)}>{tabs.map(([id, text]) => { const count = id === 'cast' ? chars.length : id === 'world' ? foundation.world.data?.length : id === 'outline' ? chapters.length : id === 'fs' ? foreshadow.data?.entries.length : undefined; return <button key={id} role="tab" aria-selected={tab === id} type="button" {...stylex.props(styles.chip, tab === id ? styles.tabOn : styles.tabOff)} onClick={() => pick(id)}>{text}{!!count && <span {...stylex.props(styles.tabCount)}>{count}</span>}</button> })}<button type="button" {...stylex.props(styles.chip, styles.tabOff)} onClick={() => navigate('/settings/mobile?page=rules')}>Cách viết ›</button></div>
     <main {...stylex.props(styles.body)}>
       {tab === 'info' && <>

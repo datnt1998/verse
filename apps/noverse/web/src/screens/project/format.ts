@@ -1,7 +1,8 @@
 // Định dạng & suy diễn dùng chung cho Dự án · Truyện mới · Hộp thoại.
 // Giá trị chuỗi theo 07-copy.md; số theo vi-VN (tabular-nums ở component).
-import type { AutoExport, OutlineChapter, StoryStatus, StorySummary } from '../../api/types'
+import type { AutoExport, OutlineChapter, Snapshot, StoryStatus, StorySummary } from '../../api/types'
 import { storyLabel } from '../../shell/labels'
+import { statusText } from '../workspace/RunHeader'
 
 export const formatWords = (words: number) => words.toLocaleString('vi-VN')
 
@@ -80,4 +81,14 @@ export function nextStoryNumber(stories: StorySummary[]): string {
     return Number.isFinite(n) ? Math.max(acc, n) : acc
   }, 0)
   return pad(max + 1)
+}
+
+type HeaderSnapshot = Pick<Snapshot, 'statusLabel' | 'runtimeState' | 'inProgressChapter' | 'currentChapter' | 'completedCount' | 'totalChapters'>
+
+/** Dòng phụ ở đầu màn Truyện trên điện thoại: “Đang chạy · chương 4/8” — mã engine luôn dịch, không in thô. */
+export function storyHeaderLine(snapshot: HeaderSnapshot | undefined): string {
+  const status = snapshot ? statusText(snapshot.statusLabel, snapshot.runtimeState) : ''
+  const chapter = snapshot?.inProgressChapter || snapshot?.currentChapter || snapshot?.completedCount || 0
+  const line = `chương ${chapter}/${snapshot?.totalChapters ?? '…'}`
+  return status ? `${status} · ${line}` : line
 }
