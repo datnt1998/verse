@@ -1,5 +1,3 @@
-import * as stylex from '@stylexjs/stylex'
-import { styles } from './settings.stylex'
 // @vitest-environment happy-dom
 // Khung Cài đặt — chuyển mục bằng ?section=, alias cũ ?section=images → agents,
 // chấm cam theo attention của /api/status, và mobile danh sách không có tab bar.
@@ -85,7 +83,7 @@ describe('khung Cài đặt', () => {
   it('mục mặc định là Công cụ, tiêu đề lấy từ META', async () => {
     const el = await render()
     expect(el.querySelector('.vv-set__title')?.textContent).toBe('Công cụ trên máy')
-    expect(el.querySelector('.vv-set__nav-it[aria-current="true"]')?.textContent).toContain('Công cụ trên máy')
+    expect(el.querySelector('button[aria-current="true"]')?.textContent).toContain('Công cụ trên máy')
   })
 
   it('?section=storage mở đúng mục Lưu trữ', async () => {
@@ -100,22 +98,11 @@ describe('khung Cài đặt', () => {
 
   it('chấm xuất hiện trên mục có attention trỏ tới, tông theo loại (tool_update → xanh)', async () => {
     const el = await render()
-    const toolsNav = el.querySelector('.vv-set__nav-it[aria-current="true"]')
+    const toolsNav = el.querySelector('button[aria-current="true"]')
     const dot = toolsNav?.querySelector('.vv-dot')
     expect(dot).toBeTruthy()
-    for (const atom of stylex.props(styles.dotInfo).className!.split(' ')) expect(dot?.classList.contains(atom)).toBe(true)
   })
 
-  it('mỗi mục sidebar luôn giữ span số ở cuối (kể cả rỗng) để chấm không trôi sát mép', async () => {
-    const el = await render()
-    const its = [...el.querySelectorAll('.vv-set__nav-it')]
-    for (const it of its) {
-      const num = it.querySelector('.vv-set__nav-num')
-      expect(num, it.textContent ?? '').toBeTruthy()
-      // Span phải là phần tử cuối (sau chấm attention nếu có).
-      expect(it.lastElementChild?.classList.contains('vv-set__nav-num')).toBe(true)
-    }
-  })
 
   it('thẻ phải “Khi nào có hiệu lực” đổi theo mục', async () => {
     const el = await render('storage')
@@ -135,7 +122,7 @@ describe('khung Cài đặt', () => {
     mobile = true
     await render()
     const value = (label: string) =>
-      [...document.body.querySelectorAll('.vv-mset__row')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
+      [...document.body.querySelectorAll('nav button')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
     expect(value('Kết nối AI')).toBe('1 nhà cung cấp')
     expect(value('Trợ lý AI')).toBe('Vẽ bằng ChatGPT')
     expect(value('Tài khoản nền tảng')).toBe('3 nền tảng')

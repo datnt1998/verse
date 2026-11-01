@@ -5,7 +5,7 @@ import { exploreStyles } from './explore.stylex'
 // 240px ngay trước "Chọn nhiều". Phím "/" (ngoài ô nhập khác) đưa focus vào ô;
 // Esc trong ô xoá chữ. Có chữ → nút ✕ cuối ô; trống → gợi ý phím "/".
 import { useEffect, useId, useRef } from 'react'
-import { Icon } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
 import { t } from '../../i18n/explore'
 
 const isTyping = (target: EventTarget | null) =>
@@ -49,10 +49,8 @@ export function SearchBox({ value, onChange }: { value: string; onChange: (value
         }}
       />
       {value ? (
-        <button type="button" className={`vx-search__clear ${stylex.props(exploreStyles.searchClear).className}`} aria-label={tt.searchClear}
-          onClick={() => { onChange(''); input.current?.focus() }}>
-          <Icon name="close" size={13} />
-        </button>
+        <Button variant="icon" size="sm" xstyle={exploreStyles.searchClearPosition} aria-label={tt.searchClear}
+          onClick={() => { onChange(''); input.current?.focus() }}><Icon name="close" size={13} /></Button>
       ) : (
         <span className={`vx-search__kbd ${stylex.props(exploreStyles.searchKbd).className}`} aria-hidden="true">/</span>
       )}

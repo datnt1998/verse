@@ -6,7 +6,7 @@ import { exploreStyles } from './explore.stylex'
 // (gửi lại đúng ô đang nhập). Dùng ở hai nơi: ô gọn đầu cột đối thủ và form
 // lớn ở trạng thái trống.
 import { useState, type FormEvent } from 'react'
-import { Icon } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { addRival, apiErrorInfo, type Rival } from '../../api/rivals'
 import { keys } from '../../data/keys'
@@ -74,10 +74,10 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
     <span className={`${compact ? 'vx-add-err' : 'vx-empty__err'} ${stylex.props(compact ? exploreStyles.addErr : exploreStyles.emptyErr).className}`} role="alert">
       {error.message}
       {error.action === 'open' && error.rivalId && (
-        <a {...stylex.props(exploreStyles.errorLink)} href="#" onClick={(e) => { e.preventDefault(); error.rivalId && onOpen(error.rivalId) }}>{tt.addErrors.existsOpen}</a>
+        <Button variant="quiet" size="sm" onClick={() => error.rivalId && onOpen(error.rivalId)}>{tt.addErrors.existsOpen}</Button>
       )}
-      {error.action === 'accounts' && <a {...stylex.props(exploreStyles.errorLink)} href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>}
-      {error.action === 'retry' && <button type="submit" className={`vx-errbtn ${stylex.props(exploreStyles.errbtn).className}`}>{tt.addErrors.retry}</button>}
+      {error.action === 'accounts' && <a href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>}
+      {error.action === 'retry' && <Button variant="quiet" size="sm" type="submit">{tt.addErrors.retry}</Button>}
     </span>
   )
 
@@ -116,8 +116,7 @@ export function AddRivalForm({ compact = false, onAdded, onOpen }: {
             autoFocus
           />
         </span>
-        <ActionButton className={stylex.props(exploreStyles.touchTarget).className} variant="primary" type="submit" disabled={pending || !value.trim()} pending={pending}
-          style={{ flex: '0 0 auto' }}>
+        <ActionButton variant="primary" type="submit" disabled={pending || !value.trim()} pending={pending}>
           {pending ? tt.addRivalPending : tt.addRival}
         </ActionButton>
       </span>

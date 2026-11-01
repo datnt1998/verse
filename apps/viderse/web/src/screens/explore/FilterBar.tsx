@@ -4,17 +4,17 @@ import { exploreStyles } from './explore.stylex'
 // Hàng lọc của lưới Khám phá: radiogroup Sắp xếp (Nổi trội · Mới nhất · Lượt
 // xem) rồi ba chip — "Dài ≥ 8 phút" (toggle long=1), "Đăng trong N ngày"
 // (listbox 0/7/30/90 → within), "Trạng thái" khoá ở "Tất cả" (lọc theo kênh của
-// bạn cần kênh — gói sau). Chip dùng <select> nguyên bản để có listbox + phím;
+// bạn cần kênh — gói sau). ChipSelect của kit sở hữu listbox và bàn phím;
 // chip khoá là nút aria-disabled vẫn nhận focus, lý do ở tooltip +
 // aria-describedby. Dòng đếm: "24 / 1.284 video", khi tìm "2 video có “floor”
 // · trong 1.284 đã quét" (1.284 = số video đã quét của phạm vi, không lọc).
 import { useId } from 'react'
-import { Icon, Tooltip } from '@noverse/ui'
+import { Button, ChipSelect, Icon, Tooltip } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { t } from '../../i18n/explore'
 import type { VideoSort } from '../../api/rivals'
 import { useMediaQuery } from '../../lib/useMediaQuery'
-import { TOUCH_COLUMN, TOUCH_TARGET } from './media'
+import { TOUCH_COLUMN } from './media'
 
 export const WITHIN: { id: string; value: 0 | 7 | 30 | 90; label: string }[] = [
   { id: 'any', value: 0, label: t.screens.explore.withinDays.any },
@@ -50,19 +50,16 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
   const lockId = useId()
   const touch = useMediaQuery(TOUCH_COLUMN)
   const narrow = useMediaQuery('(max-width: 767px)')
-  const withinLabel = WITHIN.find((w) => w.value === within)?.label ?? tt.withinDays.d30
   const baseCount = countText ?? (total === undefined ? ''
     : !q ? tt.videoCount(num.format(total), num.format(scanned))
       : total > 0 ? tt.searchCount(num.format(total), q, num.format(scanned)) : tt.searchCountNone(q))
   const count = narrow && scopeName && baseCount ? `${baseCount} · ${scopeName}` : baseCount
   return (
     <div className={`vx-filters ${stylex.props(exploreStyles.filters).className}`}>
-      <Segmented xstyle={exploreStyles.segmented} buttonStyle={exploreStyles.segmentedButton}
+      <Segmented
         label={tt.sortLabel}
-        size={touch ? TOUCH_TARGET : 'sm'}
-       
-        style={{ flex: '0 0 auto', gap: 'var(--vv-s-2)', background: 'var(--color-surface-1)', borderColor: 'var(--line-1)' }}
-        thumbStyle={{ background: 'var(--color-surface-6)' }}
+        size={touch ? 44 : 'sm'}
+        fit="content"
         value={sort}
         onChange={(id) => onSort(id as VideoSort)}
         options={[
@@ -71,32 +68,18 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
           { id: 'views', label: tt.sorts.views },
         ]}
       />
-      <button type="button" className={`vx-chip ${stylex.props(exploreStyles.chip, long && exploreStyles.chipCustom).className}`} aria-pressed={long} onClick={() => onLong(!long)}>
-        <Icon name="clock" size={14} />
-        {tt.filterLong} <b {...stylex.props(exploreStyles.chipValue)}>{tt.filterLongValue}</b>
-        <Icon name="arrow-d" size={12} aria-hidden />
-      </button>
-      <label className={`vx-chip vx-chip--select ${stylex.props(exploreStyles.chip, within !== 30 && exploreStyles.chipCustom).className}`}>
-        <Icon name="calendar" size={14} />
-        {tt.filterWithin} <b {...stylex.props(exploreStyles.chipValue)}>{withinLabel}</b>
-        <select
-          value={within}
-          aria-label={tt.withinLabel}
-          onChange={(e) => onWithin(Number(e.target.value) as 0 | 7 | 30 | 90)}
-          style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', font: 'inherit' }}
-        >
-          {WITHIN.map((w) => <option key={w.id} value={w.value}>{w.label}</option>)}
-        </select>
-        <Icon name="arrow-d" size={12} aria-hidden />
-      </label>
+      <Button variant="ghost" size={touch ? 'lg' : 'sm'} aria-pressed={long} active={long} onClick={() => onLong(!long)} icon={<Icon name="clock" size={14} />}>
+        {tt.filterLong} {tt.filterLongValue}
+      </Button>
+      <ChipSelect label={tt.withinLabel} prefix={tt.filterWithin} size={touch ? 'm' : 'sm'} custom={within !== 30} value={String(within)}
+        options={WITHIN.map((w) => ({ value: String(w.value), label: w.label }))}
+        onChange={(value) => onWithin(Number(value) as 0 | 7 | 30 | 90)} />
       {/* Khoá: chỉ "Tất cả" có nghĩa khi chưa có kênh của bạn. Nút vẫn nhận focus,
           bấm không mở gì; lý do đọc được bằng trình đọc màn hình. */}
       <Tooltip content={lockReason} asChild>
-        <button type="button" className={`vx-chip vx-chip--locked ${stylex.props(exploreStyles.chip, exploreStyles.chipLocked).className}`} aria-disabled="true" aria-describedby={lockId}>
-          <Icon name="filter" size={14} />
-          {tt.filterStatus} <b {...stylex.props(exploreStyles.chipValue)}>{tt.statusAll}</b>
-          <Icon name="arrow-d" size={12} aria-hidden />
-        </button>
+        <Button variant="ghost" size={touch ? 'lg' : 'sm'} aria-disabled="true" aria-describedby={lockId} icon={<Icon name="filter" size={14} />}>
+          {tt.filterStatus} {tt.statusAll}
+        </Button>
       </Tooltip>
       <span id={lockId} {...stylex.props(text.srOnly)}>{lockReason}</span>
       <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />

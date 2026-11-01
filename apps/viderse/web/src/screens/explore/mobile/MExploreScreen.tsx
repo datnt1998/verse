@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Button, Checkbox, ChipSelect, ConfirmSheet, Icon, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
+  ActionSheet, Button, Checkbox, ChipSelect, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
 } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/explore'
@@ -326,44 +326,25 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
       ) : (
         <>
           <div {...stylex.props(mStyles.chipsRow)} role="radiogroup" aria-label={tt.rivalsGroup}>
-            <Button
-              variant="ghost"
-              size="lg"
-              role="radio"
-              aria-checked={scope === 'all'}
-              active={scope === 'all'}
-              xstyle={[mStyles.rivalChip, scope === 'all' && mStyles.rivalChipOn]}
-              icon={<span aria-hidden="true" {...stylex.props(mStyles.rivalAll)}><Icon name="radar" size={16} /></span>}
-              onClick={() => pickRival('all')}
-            >
-              {tt.allRivals}
-            </Button>
+            <RadioCard checked={scope === 'all'} tabIndex={scope === 'all' ? 0 : -1} onChange={() => pickRival('all')} mark="none">
+              <Icon name="radar" size={16} />{tt.allRivals}
+            </RadioCard>
             {rivals.map((rival) => (
-              <Button
-                key={rival.id}
-                variant="ghost"
-                size="lg"
-                role="radio"
-                aria-checked={scope === rival.id}
-                active={scope === rival.id}
-                xstyle={[mStyles.rivalChip, scope === rival.id && mStyles.rivalChipOn]}
-                icon={<ChannelAvatar name={rival.title} src={rival.avatarUrl ?? undefined} size={30} fontSize={11} />}
-                onClick={() => pickRival(rival.id)}
-              >
+              <RadioCard key={rival.id} checked={scope === rival.id} tabIndex={scope === rival.id ? 0 : -1} onChange={() => pickRival(rival.id)} mark="none">
+                <ChannelAvatar name={rival.title} src={rival.avatarUrl ?? undefined} size={30} fontSize={11} />
                 {rival.title}
                 {rival.newOutliers > 0 && (
                   <span {...stylex.props(mStyles.newBadge)} aria-label={tt.newBadgeAria(String(rival.newOutliers))}>
                     {rival.newOutliers}
                   </span>
                 )}
-              </Button>
+              </RadioCard>
             ))}
             <Button
               variant="ghost"
               size="lg"
               aria-label={tt.mobileAddAria}
               icon={<Icon name="add" size={16} />}
-              xstyle={mStyles.rivalChip}
               onClick={openAdd}
             >
               {tt.follow}
@@ -390,7 +371,6 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               aria-pressed={long}
               active={long}
               icon={<Icon name="clock" size={15} />}
-              xstyle={[mStyles.filterChip, long && mStyles.rivalChipOn]}
               onClick={() => setLong(!long)}
             >
               {tt.filterLong} <b>{tt.filterLongValue}</b>
@@ -403,17 +383,13 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               onChange={(value) => setWithin(Number(value) as 0 | 7 | 30 | 90)}
               aria-label={tt.withinLabel}
               prefix={<><Icon name="calendar" size={15} /> {tt.filterWithin}</>}
-              height={44}
-              chevronSize={12}
-              xstyle={mStyles.filterSelect}
-              triggerStyle={[mStyles.filterChip, within !== 30 && mStyles.rivalChipOn]}
+              custom={within !== 30}
             />
             <Button
               variant="ghost"
               size="lg"
               aria-disabled="true"
               icon={<Icon name="filter" size={15} />}
-              xstyle={[mStyles.filterChip, mStyles.filterLocked]}
               title={channels.length > 0 ? tt.queueReason : tt.lockedReason}
             >
               {tt.filterStatus} <b>{tt.statusAll}</b> <Icon name="arrow-d" size={12} />
@@ -673,12 +649,10 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
             error={addError?.message}
           />
           {addError?.action === 'open' && addError.rivalId && (
-            <button type="button" {...stylex.props(mStyles.addErrorOpen)} onClick={() => { setAddOpen(false); pickRival(addError.rivalId!) }}>
-              {tt.addErrors.existsOpen}
-            </button>
+            <Button variant="quiet" size="lg" onClick={() => { setAddOpen(false); pickRival(addError.rivalId!) }}>{tt.addErrors.existsOpen}</Button>
           )}
           {addError?.action === 'accounts' && (
-            <a href={`#${paths.settings('accounts')}`} {...stylex.props(mStyles.addErrorLink)}>{tt.addErrors.blockedOpen}</a>
+            <a href={`#${paths.settings('accounts')}`}>{tt.addErrors.blockedOpen}</a>
           )}
           {channels.length > 0 && (
             <>

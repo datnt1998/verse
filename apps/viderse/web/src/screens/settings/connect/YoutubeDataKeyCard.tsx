@@ -106,10 +106,10 @@ export function YoutubeDataKeyCard({ mobile = false }: {
     />
   )
   const saveBtn = (
-    <Button size={size} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} pending={pending === 'save'} disabled={!value.trim()} onClick={() => void save()}>{c.save}</Button>
+    <Button size={size} variant="primary" pending={pending === 'save'} disabled={!value.trim()} onClick={() => void save()}>{c.save}</Button>
   )
   const cancelBtn = (
-    <Button size={size} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => { setEditing(false); setRejected(false) }}>{c.cancel}</Button>
+    <Button size={size} variant="quiet" onClick={() => { setEditing(false); setRejected(false) }}>{c.cancel}</Button>
   )
   const hint = (
     <span id={hintId} className={`conn-yt-hint ${stylex.props(settingsStyles.connYtHint).className}`}>
@@ -147,12 +147,12 @@ export function YoutubeDataKeyCard({ mobile = false }: {
           {!editing && !mobile && (
             <div className={`conn-acts ${stylex.props(settingsStyles.connActs).className}`}>
               {failed ? (
-                <Button size={size} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} pending={retrying} icon={<Icon name="refresh" size={14} />} onClick={() => void retry()}>{c.retry}</Button>
+                <Button size={size} variant="ghost" pending={retrying} icon={<Icon name="refresh" size={14} />} onClick={() => void retry()}>{c.retry}</Button>
               ) : (
                 <>
-                  <Button size={size} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} disabled={locked} onClick={open}>{configured ? c.change : c.add}</Button>
+                  <Button size={size} variant="ghost" disabled={locked} onClick={open}>{configured ? c.change : c.add}</Button>
                   {configured && (
-                    <Button size={size} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} disabled={locked} pending={pending === 'remove'} onClick={() => void remove()}>{c.remove}</Button>
+                    <Button size={size} variant="quiet" disabled={locked} pending={pending === 'remove'} onClick={() => void remove()}>{c.remove}</Button>
                   )}
                 </>
               )}
@@ -166,7 +166,7 @@ export function YoutubeDataKeyCard({ mobile = false }: {
             ) : configured ? (
               <>
                 <Button size={size} variant="ghost" block disabled={locked} onClick={open}>{c.change}</Button>
-                <Button size={size} variant="ghost" block disabled={locked} pending={pending === 'remove'} onClick={() => void remove()} xstyle={[settingsStyles.connYtMRemove]}>{c.remove}</Button>
+                <Button size={size} variant="quiet" block disabled={locked} pending={pending === 'remove'} onClick={() => void remove()}>{c.remove}</Button>
               </>
             ) : (
               <Button size={size} variant="ghost" block disabled={locked} onClick={open}>{c.add}</Button>

@@ -1,15 +1,6 @@
 import * as stylex from '@stylexjs/stylex'
-import { styles as settingsStyles, agtOptMarker } from '../settings.stylex'
-// ModelPicker — chọn model cho một trợ lý (artboard Settings ai=director|artist,
-// MSettings sheet=director|artist). Chỉ liệt kê model ĐÃ CHỌN ở Kết nối AI,
-// gom theo nhà cung cấp ("ChatGPT · đăng nhập gói"), tag năng lực bên phải;
-// model thiếu năng lực bắt buộc bị làm mờ + không chọn được. Caps KHÔNG RÕ
-// (catalog chưa tải) không bịa — để chọn được, server 422 sẽ báo inline.
-// Wire: lựa chọn là ModelRef {provider, model} (domain.AgentModels).
-// Bàn phím: popover là listbox thật — Arrow/Home/End di chuyển active (bỏ qua
-// mục bị mờ), Enter/Space chọn, Esc đóng và trả focus về nút mở.
-import { useEffect, useId, useRef, useState } from 'react'
-import { Icon, usePopup } from '@noverse/ui'
+import { styles as settingsStyles } from '../settings.stylex'
+import { Button, Combobox, Icon, type Option } from '@noverse/ui'
 import { navigate } from '../../../router'
 import type { AiModel, AiProvider, ModelRef } from '../../../api/ai'
 import { aiCopy, capsLine } from '../../../i18n/ai'
@@ -76,31 +67,6 @@ export function blockedReason(picked: Picked, needs?: 'vision' | 'image' | 'text
   return null
 }
 
-type NavItem = { item: Picked; reason: string | null }
-
-/** Danh sách phẳng có index điều hướng (dùng chung cho keyboard + render). */
-export function navItems(picked: Picked[], needs?: 'vision' | 'image' | 'text'): NavItem[] {
-  return picked.map((item) => ({ item, reason: blockedReason(item, needs) }))
-}
-
-function nextEnabled(items: NavItem[], active: number, key: string): number {
-  const count = items.length
-  if (!count) return -1
-  if (key === 'Home') {
-    for (let i = 0; i < count; i++) if (!items[i].reason) return i
-    return -1
-  }
-  if (key === 'End') {
-    for (let i = count - 1; i >= 0; i--) if (!items[i].reason) return i
-    return -1
-  }
-  const step = key === 'ArrowDown' ? 1 : -1
-  for (let offset = 1; offset <= count; offset++) {
-    const i = (active + step * offset + count * offset) % count
-    if (!items[i].reason) return i
-  }
-  return -1
-}
 
 /** Chú thích của hàng: năng lực + ngữ cảnh thật (design dùng câu biên tập —
  *  backend không có, nên chỉ hiện dữ liệu). */
@@ -116,72 +82,41 @@ function noteOf(p: Picked): string {
 const groupTitle = (p: Picked) =>
   p.auth === 'subscription' && p.plan ? a.groupPlan(p.providerLabel, planLabel(p.plan)) : `${p.providerLabel} · ${a.groupAuth[p.auth]}`
 
-export function ModelList({ picked, value, needs, onPick, listId, activeIndex, onActive, onKeyDown, variant = 'pop' }: {
+/** Shared option data keeps the provider groups, capability guards and real prices. */
+function modelOptions(picked: Picked[], needs?: 'vision' | 'image' | 'text'): Option[] {
+  return picked.map((item) => {
+    const reason = blockedReason(item, needs)
+    return {
+      value: refId(item.ref),
+      label: item.label,
+      group: groupTitle(item),
+      disabled: reason != null,
+      meta: <span {...stylex.props(settingsStyles.modelOptionMeta)}>
+        <span {...stylex.props(settingsStyles.modelOptionNote)}>{reason ?? noteOf(item)}</span>
+        {item.caps !== undefined && <span {...stylex.props(capStyles(item.caps))}>{capsLine(item.caps)}</span>}
+      </span>,
+    }
+  })
+}
+
+export function ModelList({ picked, value, needs, onPick, variant = 'pop' }: {
   picked: Picked[]
   value: string
   needs?: 'vision' | 'image' | 'text'
   onPick: (picked: Picked) => void
-  /** Điều hướng bàn phím (chỉ popover): id option + index đang active. */
-  listId?: string
-  activeIndex?: number
-  onActive?: (index: number) => void
-  onKeyDown?: (event: React.KeyboardEvent) => void
-  /** pop = popover máy tính (dấu tick bên phải); sheet = sheet điện thoại (radio trái). */
   variant?: 'pop' | 'sheet'
 }) {
-  if (picked.length === 0) return <div className={`agt-pick__empty ${stylex.props(settingsStyles.agtPickEmpty).className}`}>{a.pickerEmpty}</div>
-  const items = navItems(picked, needs)
-  let index = -1
-  return (
-    <div
-      id={listId}
-      role={listId ? 'listbox' : undefined}
-      aria-activedescendant={listId && activeIndex != null && activeIndex >= 0 ? `${listId}-opt-${activeIndex}` : undefined}
-      tabIndex={listId ? -1 : undefined}
-      onKeyDown={onKeyDown}
-      style={{ outline: 'none' }}
-    >
-      {picked.map((item, i) => {
-        index = i
-        const reason = items[i].reason
-        const on = refId(item.ref) === value
-        const firstOfGroup = i === 0 || groupTitle(picked[i - 1]) !== groupTitle(item)
-        return (
-          <div key={refId(item.ref)}>
-            {firstOfGroup && <div className={`agt-group ${stylex.props(settingsStyles.agtGroup).className}`}>{groupTitle(item)}</div>}
-            <button
-              id={listId ? `${listId}-opt-${index}` : undefined}
-              type="button"
-              role="option"
-              aria-selected={on}
-              aria-disabled={reason != null || undefined}
-              className={`agt-opt ${stylex.props(agtOptMarker, settingsStyles.agtOpt, on && settingsStyles.agtOptOn, Boolean(reason) && settingsStyles.agtOptDim, !on && index === activeIndex && settingsStyles.agtOptActiveNotAgtOptOn).className}`}
-              disabled={reason != null}
-              tabIndex={-1}
-              onClick={() => onPick(item)}
-              onMouseEnter={() => onActive?.(index)}
-              title={reason ?? undefined}
-            >
-              {variant === 'sheet' && <span className={`agt-radio ${stylex.props(settingsStyles.agtRadio, (on) && settingsStyles.agtRadioOn).className}`} aria-hidden="true" />}
-              <span className={`agt-opt__body ${stylex.props(settingsStyles.agtOptBody).className}`}>
-                <span className={`agt-opt__id ${stylex.props(settingsStyles.agtOptId).className}`}>{item.label}</span>
-                <span className={`agt-opt__note ${stylex.props(settingsStyles.agtOptNote).className}`}>{reason ?? noteOf(item)}</span>
-              </span>
-              {item.caps !== undefined && (
-                variant === 'sheet'
-                  ? <span className={`conn-cap ${stylex.props(capStyles(item.caps)).className}`}>{capsLine(item.caps)}</span>
-                  : <span className={`agt-opt__cap ${stylex.props(settingsStyles.agtOptCap).className}`}>{capsLine(item.caps)}</span>
-              )}
-              {variant === 'pop' && on && <Icon name="tick" size={15} className="agt-opt__check" xstyle={[settingsStyles.agtOptCheck]} />}
-            </button>
-          </div>
-        )
-      })}
-    </div>
-  )
+  return <Combobox
+    aria-label={a.pickModel}
+    options={modelOptions(picked, needs)}
+    value={value}
+    placeholder={picked.length ? a.pickModel : a.pickerEmpty}
+    defaultOpen={variant === 'sheet'}
+    onChange={(id) => { const item = picked.find((p) => refId(p.ref) === id); if (item) onPick(item) }}
+  />
 }
 
-/** Nút mở popover chọn model (máy tính). */
+/** The kit owns focus, search, disabled-option navigation and reduced motion. */
 export function ModelPicker({ picked, value, needs, onPick, placeholder, disabled, label, title, sub }: {
   picked: Picked[]
   value: string
@@ -189,117 +124,20 @@ export function ModelPicker({ picked, value, needs, onPick, placeholder, disable
   onPick: (picked: Picked) => void
   placeholder?: string
   disabled?: boolean
-  /** Tên truy cập của nút mở (vd "Model viết mô tả ảnh"). */
   label?: string
-  /** Tiêu đề popover: “Model của Đạo diễn”. */
   title: string
-  /** Câu dẫn dưới tiêu đề. */
   sub: string
 }) {
-  const pop = usePopup(disabled)
-  const trigger = useRef<HTMLButtonElement>(null)
-  const listId = useId()
-  const [active, setActive] = useState(-1)
-  const items = navItems(picked, needs)
-  const current = picked.find((p) => refId(p.ref) === value)
-
-  // Mở ra → active = lựa chọn hiện tại (hoặc mục đầu chọn được); đóng → trả
-  // focus về nút mở (aria-activedescendant nên giữ focus trong listbox).
-  useEffect(() => {
-    if (!pop.open) return
-    const at = items.findIndex((n) => refId(n.item.ref) === value && !n.reason)
-    setActive(at >= 0 ? at : nextEnabled(items, -1, 'ArrowDown'))
-    // Mở ra là thấy hàng đang chọn (artboard: hàng chọn nằm trong khung nhìn,
-    // có tick bên phải) — cuộn CHỈ trong list; scrollIntoView của trình duyệt
-    // kéo cả trang, làm mất tiêu đề mục ở đầu trang.
-    if (at < 0) return
-    const list = pop.root.current?.querySelector<HTMLElement>('.agt-pop__body')
-    const row = list?.querySelector<HTMLElement>(`#${CSS.escape(`${listId}-opt-${at}`)}`)
-    if (list && row) {
-      const rowTop = row.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop
-      const rowBottom = rowTop + row.offsetHeight
-      if (rowTop < list.scrollTop) list.scrollTop = rowTop
-      else if (rowBottom > list.scrollTop + list.clientHeight) list.scrollTop = rowBottom - list.clientHeight
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pop.open])
-
-  const close = () => {
-    pop.setOpen(false)
-    trigger.current?.focus()
-  }
-
-  function onKeyDown(event: React.KeyboardEvent) {
-    switch (event.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
-      case 'Home':
-      case 'End': {
-        event.preventDefault()
-        setActive((prev) => nextEnabled(items, prev, event.key))
-        return
-      }
-      case 'Enter':
-      case ' ': {
-        if (active >= 0 && items[active]) {
-          event.preventDefault()
-          onPick(items[active].item)
-          close()
-        }
-        return
-      }
-      case 'Escape':
-        event.preventDefault()
-        close()
-        return
-      case 'Tab':
-        pop.setOpen(false)
-        return
-    }
-  }
-
-  return (
-    <div ref={pop.root} className={`agt-pickwrap ${stylex.props(settingsStyles.agtPickwrap).className}`}>
-      <button
-        ref={trigger}
-        type="button"
-        className={`agt-pick ${stylex.props(settingsStyles.agtPick, (pop.open) && settingsStyles.agtPickOpen).className}`}
-        onClick={() => pop.setOpen(!pop.open)}
-        disabled={disabled}
-        aria-haspopup="listbox"
-        aria-expanded={pop.open}
-        aria-label={label}
-      >
-        <span className={`agt-pick__id ${stylex.props(settingsStyles.agtPickId).className}`}>{current?.label || placeholder || a.pickModel}</span>
-        {current && <span className={`agt-pick__prov ${stylex.props(settingsStyles.agtPickProv).className}`}>{groupTitle(current)}</span>}
-        <Icon name="arrow-d" size={13} className="agt-pick__chev" xstyle={[settingsStyles.agtPickChev]} />
-      </button>
-      {pop.open && (
-        <div className={`agt-pop ${stylex.props(settingsStyles.agtPop).className}`} ref={(el) => el?.focus({ preventScroll: true })} tabIndex={-1}>
-          <div className={`agt-pop__head ${stylex.props(settingsStyles.agtPopHead).className}`}>
-            <span className={`agt-pop__title ${stylex.props(settingsStyles.agtPopTitle).className}`}>{title}</span>
-            <span className={`agt-pop__sub ${stylex.props(settingsStyles.agtPopSub).className}`}>{sub}</span>
-          </div>
-          <div className={`agt-pop__body ${stylex.props(settingsStyles.agtPopBody).className}`}>
-            <ModelList
-            picked={picked}
-            value={value}
-            needs={needs}
-            listId={listId}
-            activeIndex={active}
-            onActive={setActive}
-            onKeyDown={onKeyDown}
-            onPick={(p) => { onPick(p); close() }}
-            />
-          </div>
-          <div className={`agt-pop__foot ${stylex.props(settingsStyles.agtPopFoot).className}`}>
-            <button type="button" className={`agt-pop__link ${stylex.props(settingsStyles.agtPopLink).className}`} onClick={() => navigate('/settings?section=connect')}>
-              <Icon name="key" size={13} />
-              {a.pickerFooter}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+  return <Combobox
+    aria-label={label ?? title}
+    options={modelOptions(picked, needs)}
+    value={value}
+    disabled={disabled}
+    placeholder={placeholder ?? a.pickModel}
+    onChange={(id) => { const item = picked.find((p) => refId(p.ref) === id); if (item) onPick(item) }}
+    footer={<>
+      <p {...stylex.props(settingsStyles.modelOptionNote)}>{sub}</p>
+      <Button variant="quiet" size="sm" icon={<Icon name="key" size={13} />} onClick={() => navigate('/settings?section=connect')}>{a.pickerFooter}</Button>
+    </>}
+  />
 }

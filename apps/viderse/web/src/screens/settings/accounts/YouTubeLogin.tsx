@@ -7,7 +7,7 @@ import { styles as settingsStyles, saccYtLabelMarker } from '../settings.stylex'
 // Điện thoại: chỉ một hàng chữ “Cookie từ trình duyệt / Chrome · Profile 1 ·
 // đổi trên máy tính” — không có điều khiển (artboard MSettings).
 import { useEffect, useState } from 'react'
-import { Banner, confirm, toast } from '@noverse/ui'
+import { Banner, KitSelect, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { checkPlatformLogin, deletePlatformLogin, listBrowserProfiles, putPlatformLogin, type Platform } from '../../../api/platforms'
 import { keys } from '../../../data/keys'
@@ -104,6 +104,7 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
       await putPlatformLogin(platform.id, { browser: next.browser, profile: next.profile })
       toast.ok(t.ytSaved)
     } catch (error) {
+      setChoice(savedValue)
       toast.err(error instanceof Error ? error.message : t.ytSaving)
     } finally {
       await invalidate(keys.platforms())
@@ -132,15 +133,13 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
           {profiles.data !== undefined && options.length === 1
             ? <span className={`sacc-yt__state ${stylex.props(settingsStyles.saccYtState).className}`}>{t.ytProfilesEmpty}</span>
             : (
-              <select
-                className={`sacc-select ${stylex.props(settingsStyles.saccSelect).className}`}
+              <KitSelect
+                options={options}
                 value={choice}
-                onChange={(e) => void pick(e.target.value)}
+                onChange={(value) => void pick(value)}
                 aria-label={t.ytLoginLabel}
                 disabled={busy || profiles.data === undefined}
-              >
-                {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              />
             )}
         </div>
       </div>

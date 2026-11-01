@@ -112,7 +112,7 @@ describe('form thêm đối thủ — lỗi hiện dưới ô', () => {
     const el = await mount(opened)
     await typeIn(el.querySelector('input')!, '@kenh')
     await submit(el.querySelector('form')!)
-    await click([...el.querySelectorAll('a')].find((a) => a.textContent === tt.existsOpen))
+    await click([...el.querySelectorAll('button')].find((button) => button.textContent === tt.existsOpen))
     expect(opened.id).toBe('r9')
   })
 

@@ -4,7 +4,7 @@ import { styles as settingsStyles, connDirtyMarker, connSecMarker, connMMarker }
 // failed + grok=*, MSettings screen=connect/sheet=add|models).
 //   • danh sách thẻ nhà cung cấp (avatar, pill loại + năng lực, dòng phụ, hạn
 //     mức, cụm nút, danh mục model inline) — mỗi thẻ một <ProviderCard>.
-//   • nút dashed “Thêm nhà cung cấp — …” mở panel/sheet thêm.
+//   • nút kit “Thêm nhà cung cấp — …” mở panel/sheet thêm.
 //   • thanh chưa lưu dính đầu mục: chọn model là bản nháp cục bộ, Lưu PATCH
 //     selected từng provider đổi, Huỷ trả nháp về server.
 // SSE 'ai' → invalidate ['ai'] → danh sách tự làm mới.
@@ -143,10 +143,10 @@ export function ConnectSection() {
   // thấy khi cuộn (desktop) và khi đóng sheet (điện thoại).
   const dirtyBar = dirty && (
     <div className={`conn-dirty ${stylex.props(connDirtyMarker, settingsStyles.connDirty).className}`} role="status">
-      <Icon name="info" size={15} style={{ color: 'var(--color-warn)', flex: '0 0 auto' }} />
+      <Icon name="info" size={15} xstyle={settingsStyles.icIsWarn} />
       <span className={`conn-dirty__text ${stylex.props(settingsStyles.connDirtyText).className}`}>{c.dirty(changed)}</span>
-      <Button className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} size="compact" variant="quiet" onClick={cancel}>{c.cancel}</Button>
-      <Button className="conn-act" xstyle={[settingsStyles.connAct]} size="compact" variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
+      <Button size="compact" variant="quiet" onClick={cancel}>{c.cancel}</Button>
+      <Button size="compact" variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
     </div>
   )
 
@@ -174,10 +174,7 @@ export function ConnectSection() {
 
         {dirtyBar}
 
-        <button type="button" className={`conn-addbtn conn-m__addbtn ${stylex.props(settingsStyles.connAddbtn, settingsStyles.connMAddbtn).className}`} onClick={() => setAddSheet(true)}>
-          <Icon name="add" size={15} />
-          {c.addOpenShort}
-        </button>
+        <Button size="lg" block variant="ghost" icon={<Icon name="add" size={15} />} onClick={() => setAddSheet(true)}>{c.addOpenShort}</Button>
 
         <YoutubeDataKeyCard mobile />
 
@@ -242,10 +239,7 @@ export function ConnectSection() {
           <AddProviderBody onAdded={onAdded} onReveal={onReveal} onDone={() => setAddOpen(false)} providers={list} />
         </section>
       ) : (
-        <button type="button" className={`conn-addbtn ${stylex.props(settingsStyles.connAddbtn).className}`} onClick={() => setAddOpen(true)}>
-          <Icon name="add" size={15} />
-          {c.addOpen}
-        </button>
+        <Button size="compact" block variant="ghost" icon={<Icon name="add" size={15} />} onClick={() => setAddOpen(true)}>{c.addOpen}</Button>
       )}
 
       {/* r38: khoá YouTube Data API không phải nhà cung cấp AI — nhóm riêng

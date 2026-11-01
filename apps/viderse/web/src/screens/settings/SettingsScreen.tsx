@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
-import { styles as settingsStyles, setNavLinkMarker, setHelpCardMarker, msetRowMarker, msetQueueMarker, isWarnMarker } from './settings.stylex'
+import { styles as settingsStyles, setHelpCardMarker, msetQueueMarker, isWarnMarker } from './settings.stylex'
 // Khung Cài đặt — desktop: cột mục trái + nội dung giữa + thẻ “Khi nào…” phải
 // (artboard Settings); mobile: lớp phủ toàn màn theo MSettings — thẻ “Máy sẵn
 // sàng”, danh sách mục kèm giá trị, thẻ Hàng chờ, chân phiên bản; màn con không
@@ -7,7 +7,7 @@ import { styles as settingsStyles, setNavLinkMarker, setHelpCardMarker, msetRowM
 // #/settings?section=<mục>.
 import { Suspense, lazy, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { Icon, Spinner, useTabMode } from '@noverse/ui'
+import { Button, Icon, Spinner, useTabMode } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { semverOf } from '../../lib/version'
 import { strongestTone, type AttentionTone } from '../../lib/attentionTone'
@@ -185,10 +185,12 @@ function NavList({ section, dots, facts, onPick }: {
   ]
   const render = (items: NavItem[]) =>
     items.map((n) => (
-      <button
+      <Button
         key={n.id}
-        type="button"
-        className={`vv-set__nav-it ${stylex.props(settingsStyles.setNavIt).className}`}
+        variant="quiet"
+        size="compact"
+        block
+        active={n.id === section}
         aria-current={n.id === section ? 'true' : undefined}
         onClick={() => onPick(n.id)}
       >
@@ -197,7 +199,7 @@ function NavList({ section, dots, facts, onPick }: {
         {dots.has(n.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dots.get(n.id)!]).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
         {/* Artboard luôn giữ span số ở cuối (kể cả rỗng) nên chấm không bị đẩy sát mép. */}
         <span className={`vv-set__nav-num ${stylex.props(settingsStyles.setNavNum).className}`}>{n.count ?? ''}</span>
-      </button>
+      </Button>
     ))
   return (
     <>
@@ -206,11 +208,7 @@ function NavList({ section, dots, facts, onPick }: {
       <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.data}</div>
       {render(data)}
       <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.elsewhere}</div>
-      <a className={`vv-set__nav-link ${stylex.props(setNavLinkMarker, settingsStyles.setNavLink).className}`} href={`#${paths.queue()}`}>
-        <Icon name="routing" size={17} className="vv-ic" xstyle={[settingsStyles.ic]} />
-        <span className={`vv-set__nav-label ${stylex.props(settingsStyles.setNavLabel).className}`}>{t.settings.nav.queue}</span>
-        <Icon name="arrow-r" size={13} className="vv-ic" xstyle={[settingsStyles.ic]} />
-      </a>
+      <a href={`#${paths.queue()}`}>{t.settings.nav.queue}</a>
       {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
     </>
   )
@@ -307,9 +305,9 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
       <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
         {strip}
         <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
-          <button type="button" className={`vv-mset__back ${stylex.props(settingsStyles.msetBack).className}`} aria-label={t.settings.backMobile} onClick={() => navigate(paths.settings())}>
-            <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />
-          </button>
+          <Button variant="icon" size="lg" aria-label={t.settings.backMobile} onClick={() => navigate(paths.settings())}>
+            <Icon name="arrow-r" size={16} xstyle={settingsStyles.backIcon} />
+          </Button>
           <span className={`vv-mset__title ${stylex.props(settingsStyles.msetTitle).className}`}>{meta.title}</span>
         </header>
         <div className={`vv-mset__body ${stylex.props(settingsStyles.msetBody).className}`}>
@@ -326,9 +324,9 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
     <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
       {strip}
       <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
-        <button type="button" className={`vv-mset__back ${stylex.props(settingsStyles.msetBack).className}`} aria-label={t.settings.backMobile} onClick={() => navigate(paths.workbench())}>
-          <Icon name="arrow-r" size={16} style={{ transform: 'rotate(180deg)' }} />
-        </button>
+        <Button variant="icon" size="lg" aria-label={t.settings.backMobile} onClick={() => navigate(paths.workbench())}>
+          <Icon name="arrow-r" size={16} xstyle={settingsStyles.backIcon} />
+        </Button>
         <span className={`vv-mset__title ${stylex.props(settingsStyles.msetTitle).className}`}>{t.shell.settings}</span>
       </header>
       <div className={`vv-mset__body ${stylex.props(settingsStyles.msetBody).className}`}>
@@ -345,10 +343,11 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
         </div>
         <nav className={`vv-mset__list ${stylex.props(settingsStyles.msetList, box.card).className}`} aria-label={t.shell.settings}>
           {rows.map((r) => (
-            <button
+            <Button
               key={r.id}
-              type="button"
-              className={`vv-mset__row ${stylex.props(msetRowMarker, settingsStyles.msetRow).className}`}
+              variant="quiet"
+              size="lg"
+              block
               onClick={() => { if (r.id === 'export') window.location.assign(logsExportUrl); else go(r.id as SettingsSection) }}
             >
               <Icon name={r.icon} size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />
@@ -358,7 +357,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
                 <span className={`vv-mset__row-value ${stylex.props(settingsStyles.msetRowValue, (r.warm) && settingsStyles.msetRowValueIsWarm).className}`}>{r.value}</span>
               </span>
               <Icon name="arrow-r" size={15} className="vv-ic vv-mset__row-caret" xstyle={[settingsStyles.ic, settingsStyles.msetRowCaret]} />
-            </button>
+            </Button>
           ))}
         </nav>
         <a className={`vv-mset__queue ${stylex.props(settingsStyles.card, msetQueueMarker, settingsStyles.msetQueue).className}`} href={`#${paths.queue()}`}>

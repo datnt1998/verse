@@ -294,12 +294,12 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
           <span className={`vx-sub ${stylex.props(exploreStyles.sub).className}`}>{tt.outlierHint}</span>
           <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
           <SearchBox value={query} onChange={setQuery} />
-          <ActionButton className={stylex.props(exploreStyles.touchTarget).className}
+          <ActionButton
             variant="outline"
             size="compact"
-            icon={<Icon name="tick" size={15} style={{ color: selectMode ? 'var(--color-fg)' : 'var(--color-fg-3)' }} />}
+            icon={<Icon name="tick" size={15} />}
             aria-pressed={selectMode}
-            style={selectMode ? { background: 'var(--vv-wash-8)', borderColor: 'var(--vv-line-30)' } : undefined}
+            active={selectMode}
             onClick={() => (selectMode ? exitSelect() : setSelectMode(true))}
           >
             {selectMode ? tt.exitSelect : tt.selectMany}

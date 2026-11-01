@@ -219,8 +219,8 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
       <div className={`conn-err ${stylex.props(settingsStyles.connErr).className}`} role="alert">
         <span className={`conn-err__text ${stylex.props(connErrTextMarker, settingsStyles.connErrText).className}`}><b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.grokFailed}</b> {c.grokFailedText}</span>
         <div className={`conn-err__acts ${stylex.props(settingsStyles.connErrActs).className}`}>
-          <Button className="conn-act" xstyle={[settingsStyles.connAct]} size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={() => void restart()}>{c.restart}</Button>
-          <Button className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.close}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={() => void restart()}>{c.restart}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.close}</Button>
         </div>
       </div>
     )
@@ -233,19 +233,19 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
         {showCode && (
           <div className={`conn-code__row ${stylex.props(settingsStyles.connCodeRow).className}`}>
             <span className={`conn-code__val conn-num ${stylex.props(settingsStyles.connNum, settingsStyles.connCodeVal).className}`} aria-label={login!.code!.split('').join(' ')}>{login!.code}</span>
-            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="copy" size={14} />} onClick={() => void navigator.clipboard?.writeText(login!.code!)}>
+            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" icon={<Icon name="copy" size={14} />} onClick={() => { void navigator.clipboard.writeText(login!.code!).catch(() => toast.err(t.errors.failed)) }}>
               {c.copy}
             </Button>
           </div>
         )}
         <div className={`conn-code__row ${stylex.props(settingsStyles.connCodeRow).className}`}>
           {login?.verifyUrl && (
-            <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="link" size={14} />} onClick={() => window.open(login.verifyUrl, '_blank', 'noopener')}>
+            <Button size={mobile ? 'lg' : 'compact'} variant="primary" icon={<Icon name="link" size={14} />} onClick={() => window.open(login.verifyUrl, '_blank', 'noopener')}>
               {c.grokOpen}
             </Button>
           )}
-          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => void cancel()}>{c.cancelLogin}</Button>
-          <span style={{ flex: 1 }} />
+          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.cancelLogin}</Button>
+          <span {...stylex.props(settingsStyles.controlGrow)} />
           <span className={`conn-code__wait ${stylex.props(settingsStyles.connCodeWait).className}`} role="status">
             {!netLost && <Spinner size={10} color="var(--color-fg-2)" />}
             {netLost ? c.loginReconnect : c.grokWait}
@@ -265,12 +265,12 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
           {waiting && !netLost && <Spinner size={10} color="var(--color-fg-2)" />}
           {netLost ? c.loginReconnect : c.chatgptWait}
         </span>
-        <span style={{ flex: 1 }} />
-        <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => void cancel()}>{c.cancelLogin}</Button>
+        <span {...stylex.props(settingsStyles.controlGrow)} />
+        <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void cancel()}>{c.cancelLogin}</Button>
       </div>
       {login?.phase === 'authorize' && login.authUrl && (
         // Fallback bắt buộc: popup bị chặn thì đây là đường duy nhất tới authorize.
-        <a className={`conn-link ${stylex.props(settingsStyles.connLink).className}`} href={login.authUrl} target="_blank" rel="noopener noreferrer">{c.openAuth}</a>
+        <a href={login.authUrl} target="_blank" rel="noopener noreferrer">{c.openAuth}</a>
       )}
       {waiting && (pasteOpen ? (
         <div className={`conn-manual__row ${stylex.props(connManualRowMarker, settingsStyles.connManualRow).className}`}>
@@ -283,10 +283,10 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
             invalid={codeErr}
             aria-label={c.codePlaceholder}
           />
-          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void pasteCode()} disabled={!codeInput.trim()}>{c.pasteCode}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="primary" onClick={() => void pasteCode()} disabled={!codeInput.trim()}>{c.pasteCode}</Button>
         </div>
       ) : (
-        <button type="button" className={`conn-link ${stylex.props(settingsStyles.connLink).className}`} onClick={() => setPasteOpen(true)}>{c.pasteCodeHint}</button>
+        <Button variant="quiet" size={mobile ? 'lg' : 'compact'} onClick={() => setPasteOpen(true)}>{c.pasteCodeHint}</Button>
       ))}
       {codeErr && <span className={`conn-sub conn-sub--err ${stylex.props(settingsStyles.connSub, settingsStyles.connSubErr).className}`}>{c.codeInvalid}</span>}
     </div>
@@ -418,23 +418,20 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
     setEditValue(kind === 'key' ? '' : (provider.baseUrl ?? ''))
   }
 
-  const modelsButton = (buttonStyle?: stylex.StyleXStyles) => (
-    draft.length
-      ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" xstyle={[buttonStyle, mobile && settingsStyles.ConnMActs_]} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
-          {c.modelsCount(draft.length)}
-          {!mobile && <Icon name="arrow-d" size={12} style={{ transform: open ? 'rotate(180deg)' : undefined }} />}
-        </Button>
-      : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act--empty" xstyle={[settingsStyles.connActEmpty, mobile && settingsStyles.ConnMActs_]} onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
-          {c.modelsPick}
-          {!mobile && <Icon name="arrow-d" size={12} style={{ transform: open ? 'rotate(180deg)' : undefined }} />}
-        </Button>
+  const modelsButton = (
+    <Button size={mobile ? 'lg' : 'compact'} variant="ghost" active={!mobile && open}
+      aria-expanded={mobile ? undefined : open} aria-haspopup={mobile ? 'dialog' : undefined}
+      onClick={() => (mobile ? onOpenModels?.(provider) : setOpen((v) => !v))}>
+      {draft.length ? c.modelsCount(draft.length) : c.modelsPick}
+      {!mobile && <Icon name={open ? 'arrow-up' : 'arrow-d'} size={12} />}
+    </Button>
   )
 
   const authButton = loggedOut
-    ? <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void startLogin()}>
+    ? <Button size={mobile ? 'lg' : 'compact'} variant="primary" onClick={() => void startLogin()}>
         {loginKind === 'grok' ? c.loginGrok : c.loginChatGPT}
       </Button>
-    : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" xstyle={mobile && settingsStyles.ConnMActs_} onClick={secondaryGo}>{secondary}</Button>
+    : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={secondaryGo}>{secondary}</Button>
 
   return (
     <section
@@ -461,11 +458,11 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
               <>
                 {/* Artboard conn=failed: header ẩn Model; nút test giữ câu
                     “Thử kết nối” — “Thử lại” sống trong hộp lỗi. */}
-                {!failed && modelsButton([settingsStyles.connAct, open && settingsStyles.connActOpen])}
-                <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} pending={testing} pendingLabel={c.testing} onClick={() => void runTest()}>
+                {!failed && modelsButton}
+                <Button size={mobile ? 'lg' : 'compact'} variant="ghost" pending={testing} pendingLabel={c.testing} onClick={() => void runTest()}>
                   {c.test}
                 </Button>
-                <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={secondaryGo}>{secondary}</Button>
+                <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={secondaryGo}>{secondary}</Button>
               </>
             )}
           </div>
@@ -484,9 +481,9 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
 
       {mobile && !loginOpen && !loggedOut && (
         <div className={`conn-m__acts ${stylex.props(connMActsMarker, settingsStyles.connMActs).className}`}>
-          {modelsButton()}
+          {modelsButton}
           {subscription
-            ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-m__sec" xstyle={[settingsStyles.ConnMActs_, settingsStyles.connMSec]} onClick={secondaryGo}>{secondary}</Button>
+            ? <Button size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={secondaryGo}>{secondary}</Button>
             : authButton}
         </div>
       )}
@@ -517,10 +514,10 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
           {edit === 'key'
             ? <PasswordField className={`conn-edit__grow ${stylex.props(settingsStyles.connEditGrow).className}`} placeholder={c.keyLabel} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.keyLabel} autoFocus />
             : <Field className="conn-edit__grow" xstyle={[settingsStyles.connEditGrow]} placeholder={c.addressPlaceholder} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.addressLabel} autoFocus />}
-          <Button size={mobile ? 'lg' : 'compact'} variant="primary" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
-          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--quiet" xstyle={[settingsStyles.connActQuiet, settingsStyles.connAct]} onClick={() => setEdit(null)}>{c.cancelEdit}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="primary" onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
+          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => setEdit(null)}>{c.cancelEdit}</Button>
           {!subscription && (
-            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={() => void remove()}>{c.removeOk}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void remove()}>{c.removeOk}</Button>
           )}
         </div>
       )}
@@ -544,9 +541,9 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
             <b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.failedTitle}</b> {c.failedText(provider.label)}
           </span>
           <div className={`conn-err__acts ${stylex.props(settingsStyles.connErrActs).className}`}>
-            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" className="conn-act" xstyle={[settingsStyles.connAct]} onClick={secondaryGo}>{c.changeKey}</Button>
-            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" className="conn-act" xstyle={[settingsStyles.connAct]} icon={<Icon name="refresh" size={14} />} pending={testing} onClick={() => void runTest()}>{c.retry}</Button>
-            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" className="conn-act conn-act--text" xstyle={[settingsStyles.connAct]} onClick={() => { setOpen(true); onOpenModels?.(provider) }}>{c.addManualShort}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" onClick={secondaryGo}>{c.changeKey}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="ghost" icon={<Icon name="refresh" size={14} />} pending={testing} onClick={() => void runTest()}>{c.retry}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => { setOpen(true); onOpenModels?.(provider) }}>{c.addManualShort}</Button>
           </div>
         </div>
       )}

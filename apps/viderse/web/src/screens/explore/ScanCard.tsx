@@ -5,7 +5,7 @@ import { exploreStyles } from './explore.stylex'
 // Tiếp tục · Quét lại · Quét lịch sử) và listbox Giới hạn (150 · 500 · 1.000 ·
 // 2.000 · 5.000 · 10.000 → PATCH scan).
 import { useState } from 'react'
-import { Icon, toast } from '@noverse/ui'
+import { Button, ChipSelect, Icon, toast } from '@noverse/ui'
 import { setData } from '@noverse/ui/data'
 import { controlRivalScan, setRivalScanCap, type ScanStatus } from '../../api/rivals'
 import { t } from '../../i18n/explore'
@@ -59,29 +59,12 @@ export function ScanCard({ status, rivalId, mobile = false }: { status: ScanStat
       <span className={`vx-scantext ${stylex.props(exploreStyles.scantext).className}`}>{view.text}</span>
       <div className={`vx-scanrow ${stylex.props(exploreStyles.scanrow).className}`}>
         {view.button && (
-          <button
-            type="button"
-            className={`vx-chip ${stylex.props(exploreStyles.chip).className}`}
-            style={{ height: mobile ? 'var(--vv-s-44)' : 'var(--vv-s-30)' }}
-            disabled={busy}
-            onClick={() => view.button && act(view.button.action)}
-          >
-            <Icon name={view.button.icon} size={14} />
+          <Button size={mobile ? 'lg' : 'sm'} variant="ghost" disabled={busy} onClick={() => view.button && act(view.button.action)} icon={<Icon name={view.button.icon} size={14} />}>
             {view.button.label}
-          </button>
+          </Button>
         )}
-        <label className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} style={{ border: 'none', position: 'relative', height: mobile ? 'var(--vv-s-44)' : 'var(--vv-s-30)' }} aria-label={tt.scanCapLabel}>
-          {tt.scanCap} {num.format(status.historyCap)}
-          <select
-            value={status.historyCap}
-            disabled={busy}
-            onChange={(e) => setCap(e.target.value)}
-            style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', font: 'inherit' }}
-          >
-            {CAPS.map((cap) => <option key={cap} value={cap}>{num.format(cap)}</option>)}
-          </select>
-          <Icon name="arrow-d" size={12} />
-        </label>
+        <ChipSelect label={tt.scanCapLabel} prefix={tt.scanCap} size={mobile ? 'm' : 'sm'} disabled={busy}
+          value={String(status.historyCap)} options={CAPS.map((cap) => ({ value: String(cap), label: num.format(cap) }))} onChange={setCap} />
       </div>
     </div>
   )

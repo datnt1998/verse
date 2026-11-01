@@ -265,7 +265,7 @@ describe('màn Khám phá', () => {
     await until(() => !!byText(el, '*', 'Video số 0'))
     await click(byText(el, 'button', tt.selectMany))
 
-    const boxes = [...el.querySelectorAll<HTMLInputElement>('.vx-check input')]
+    const boxes = [...el.querySelectorAll<HTMLButtonElement>('.vx-check [role="checkbox"]')]
     expect(boxes.length).toBeGreaterThan(0)
     await click(boxes[0])
     expect(byText(el, '*', tt.selected(1))).toBeTruthy()
@@ -294,15 +294,14 @@ describe('màn Khám phá', () => {
     expect(await showTip(cardBtn)).toBe(tt.lockedReason)
 
     await click(byText(el, 'button', tt.selectMany))
-    await click(el.querySelector<HTMLInputElement>('.vx-check input'))
+    await click(el.querySelector('.vx-check [role="checkbox"]'))
     const bulkPrimary = byText(el, 'button', tt.bulkMake(1))!
     expectLocked(bulkPrimary as HTMLButtonElement)
     expect(await showTip(bulkPrimary)).toBe(tt.lockedReason)
 
     // Chip "Trạng thái": nút khoá, không mở listbox, vẫn là điểm dừng Tab.
-    const statusChip = el.querySelector<HTMLButtonElement>('.vx-chip--locked')!
+    const statusChip = byText(el, 'button', tt.filterStatus) as HTMLButtonElement
     expectLocked(statusChip)
-    expect(statusChip.querySelector('select')).toBeNull()
   })
 
   it('menu ⋯ của đối thủ: "Liên kết với kênh của tôi" khoá, lý do là dòng phụ, bấm không đóng menu', async () => {
@@ -315,18 +314,6 @@ describe('màn Khám phá', () => {
     expect(document.body.querySelector('[role="menuitem"]')).toBeTruthy()
   })
 
-  it('chip Đăng trong: <select> nằm trong chip nên vòng focus của chip hiện khi chọn bằng phím', async () => {
-    const el = await mount(<ExploreScreen route={ROUTE} />)
-    await until(() => !!byText(el, '*', 'Video số 0'))
-    const chip = el.querySelector<HTMLElement>('.vx-chip--select')!
-    const select = chip.querySelector('select')!
-    // Vòng focus vẽ bằng .vx-chip:focus-within — chỉ đúng khi select ở trong chip.
-    expect(select.parentElement).toBe(chip)
-    expect(select.getAttribute('aria-label')).toBe(tt.withinLabel)
-    // Chip lọc luôn có mũi tên chỉnh giá trị như artboard (clock/calendar + arrow).
-    const icons = [...chip.children].filter((child) => (child as HTMLElement).style.maskImage || (child as HTMLElement).style.webkitMaskImage)
-    expect(icons.length).toBe(2)
-  })
 
   it('bấm thẻ video → panel xem trước với Vì sao, Mở trên YouTube, nút chính khoá', async () => {
     const el = await mount(<ExploreScreen route={ROUTE} />)
@@ -338,9 +325,9 @@ describe('màn Khám phá', () => {
     // Chọn kênh + nút chính khoá, cùng trỏ tới câu lý do hiện dưới nút (kèm link Tạo kênh).
     const make = byText(el.querySelector('.vx-rail')!, 'button', tt.makeVideo)! as HTMLButtonElement
     expectLocked(make)
-    expectLocked(el.querySelector<HTMLElement>('.vx-makeopt')!)
+    expect(el.querySelector('[role="radio"][disabled]')).toBeTruthy()
     expect(el.querySelector('.vx-locknote a')?.getAttribute('href')).toBe('#/channels/new')
-    const link = el.querySelector('a.vx-linkbtn')!
+    const link = el.querySelector('a[href="https://youtu.be/v0"]')!
     expect(link.getAttribute('href')).toBe('https://youtu.be/v0')
     await click(byText(el, 'button', tt.rivalInfo))
     expect(byText(el, '*', tt.statBaseline)).toBeTruthy()
@@ -450,8 +437,8 @@ describe('trạng thái danh sách (gói V34)', () => {
     // Mặc định 30 ngày vẫn là một bộ lọc đang bật.
     expect(byText(el, '*', tt.listFilterText([tt.noMatchWithin(tt.withinDays.d30)], '1.284', tt.noMatchAll))).toBeTruthy()
 
-    const select = el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement
-    await act(async () => { select.value = '7'; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    await click(el.querySelector(`[role="combobox"][aria-label="${tt.withinLabel}"]`))
+    await click(byText(el, '[role="option"]', tt.withinDays.d7))
     await flush()
     const longChip = byText(el, 'button', tt.filterLong)!
     await click(longChip)
@@ -461,10 +448,10 @@ describe('trạng thái danh sách (gói V34)', () => {
     await click(byText(el, 'button', tt.listFilterClear))
     await until(() => {
       const chip = byText(el, 'button', tt.filterLong)!
-      const day = el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement
-      return chip.getAttribute('aria-pressed') === 'false' && day.value === '30'
+      const day = el.querySelector(`[role="combobox"][aria-label="${tt.withinLabel}"]`)
+      return chip.getAttribute('aria-pressed') === 'false' && day?.textContent?.includes(tt.withinDays.d30) === true
     })
-    expect((el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement).value).toBe('30')
+    expect(el.querySelector(`[role="combobox"][aria-label="${tt.withinLabel}"]`)?.textContent).toContain(tt.withinDays.d30)
     expect(byText(el, 'button', tt.filterLong)!.getAttribute('aria-pressed')).toBe('false')
   })
 

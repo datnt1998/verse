@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, RadioCard, Switch, toast } from '@noverse/ui'
+import { Button, KitSelect, RadioCard, Switch, toast } from '@noverse/ui'
 import type { S3Config, ServerStorage } from '../../../api/storageServer'
 import { serverStorageCopy as t } from '../../../i18n/storageServer'
 import { styles as s } from './serverStorage.styles'
@@ -19,10 +19,10 @@ export function S3ConfigForm({ config, storage, onChange, busy }: { config: S3Co
   const regionOptions = config.provider in regions ? regions[config.provider as keyof typeof regions] : undefined
   const field = (name: 'endpoint' | 'accountId' | 'region' | 'bucket' | 'accessKeyId' | 'secretAccessKey' | 'presignEndpoint', label: string, hint: string, full = false) => <label key={name} {...stylex.props(s.column, full && s.full)}>
     <span {...stylex.props(s.label)}>{label}</span>
-    {name === 'region' && regionOptions ? <select {...stylex.props(s.field)} name={name} value={config.region ?? ''} disabled={busy} onChange={e => update({ region: e.target.value })}>
-      {config.region && !regionOptions.some(([id]) => id === config.region) ? <option value={config.region}>{config.region}</option> : null}
-      {regionOptions.map(([id, title]) => <option key={id} value={id}>{title} · {id}</option>)}
-    </select> : <input {...stylex.props(s.field)} name={name} value={config[name] ?? ''} type={name === 'secretAccessKey' ? 'password' : 'text'} autoComplete={name === 'secretAccessKey' ? 'new-password' : 'off'} spellCheck={false} disabled={busy} onInput={e => update({ [name]: e.currentTarget.value })} />}
+    {name === 'region' && regionOptions ? <KitSelect name={name} aria-label={label} value={config.region ?? ''} disabled={busy} onChange={region => update({ region })} options={[
+      ...(config.region && !regionOptions.some(([id]) => id === config.region) ? [{ value: config.region, label: config.region }] : []),
+      ...regionOptions.map(([id, title]) => ({ value: id, label: `${title} · ${id}` })),
+    ]} /> : <input {...stylex.props(s.field)} name={name} value={config[name] ?? ''} type={name === 'secretAccessKey' ? 'password' : 'text'} autoComplete={name === 'secretAccessKey' ? 'new-password' : 'off'} spellCheck={false} disabled={busy} onInput={e => update({ [name]: e.currentTarget.value })} />}
     <span {...stylex.props(s.hint)}>{hint}</span>
   </label>
   return <>

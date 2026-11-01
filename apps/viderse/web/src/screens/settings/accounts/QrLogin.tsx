@@ -325,7 +325,7 @@ export function QrBody({ session, phase, account, mobile, pausedUntil, onClose, 
       </div>
       {bannerEl}
       <div className={`sacc-qr__actions ${stylex.props(settingsStyles.saccQrActions).className}`}>
-        <Button variant="quiet" size="sm" onClick={onManual} style={{ padding: '0 var(--vv-s-4)' }}>
+        <Button variant="quiet" size="sm" onClick={onManual}>
           {t.qrManualLink}
         </Button>
         <span className={`sacc-qr__actions-end ${stylex.props(settingsStyles.saccQrActionsEnd).className}`}>
@@ -385,9 +385,9 @@ export function QrLoginDialog({ platformId, pausedUntil, open, mobile, onClose, 
         </div>
         <div className={`sacc-sheet__foot ${stylex.props(settingsStyles.saccSheetFoot).className}`}>
           {RETRYABLE[eff] && (
-            <Button size="xl" style={{ width: '100%' }} variant="primary" onClick={retry}>{t.qrNew}</Button>
+            <Button size="xl" block variant="primary" onClick={retry}>{t.qrNew}</Button>
           )}
-          {eff === 'success' && <Button size="xl" style={{ width: '100%' }} variant="primary" onClick={finish}>{t.qrDone}</Button>}
+          {eff === 'success' && <Button size="xl" block variant="primary" onClick={finish}>{t.qrDone}</Button>}
           <span className={`sacc-sheet__help ${stylex.props(settingsStyles.saccSheetHelp).className}`}>{t.qrManualFootMobile}</span>
         </div>
       </Sheet>

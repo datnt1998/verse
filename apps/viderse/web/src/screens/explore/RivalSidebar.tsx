@@ -4,7 +4,7 @@ import { exploreStyles } from './explore.stylex'
 // "Tất cả đối thủ" rồi từng kênh (avatar chữ cái — không orb, màu xoay theo
 // thứ tự như artboard; sub = số video · spinner khi đang quét · huy hiệu
 // "N mới" cho video nổi trội mới). Trống → câu hướng dẫn của artboard.
-import { Icon } from '@noverse/ui'
+import { Icon, RadioCard } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
 import { t } from '../../i18n/explore'
 import type { Rival, RivalList } from '../../api/rivals'
@@ -37,22 +37,20 @@ export function RivalSidebar({ list, selected, onPick, onAdded, showAdd = true }
       )}
       <div className={`vx-grp ${stylex.props(exploreStyles.grp, list !== undefined && rivals.length === 0 && exploreStyles.grpEmpty).className}`}><span>{tt.rivalsGroup}</span><span className={`num ${stylex.props(exploreStyles.grpCount).className}`}>{num.format(rivals.length)}</span></div>
       {list !== undefined && rivals.length === 0 && <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.rivalsEmpty}</p>}
+      <div role="radiogroup" aria-label={tt.rivalsGroup}>
       {rivals.length > 0 && (
-        <button type="button" className={`vx-rival ${stylex.props(exploreStyles.rival, exploreStyles.rivalMobile).className}`} aria-pressed={selected === 'all'} onClick={() => onPick('all')}>
-          <span role="img" aria-label={tt.allRivals}
-            style={{ width: 30, height: 30, borderRadius: '50%', flex: '0 0 auto', background: 'var(--color-surface-4)', border: '1px solid var(--vv-line-14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-fg-2)' }}>
-            <Icon name="radar" size={14} />
-          </span>
+        <RadioCard checked={selected === 'all'} tabIndex={selected === 'all' ? 0 : -1} onChange={() => onPick('all')} mark="none">
+          <Icon name="radar" size={14} />
           <span className={`vx-rival__text ${stylex.props(exploreStyles.rivalText).className}`}>
             <span className={`vx-rival__name ${stylex.props(exploreStyles.rivalName).className}`}>{tt.allRivals}</span>
             <span className={`vx-rival__sub ${stylex.props(exploreStyles.rivalSub).className}`}><span {...stylex.props(exploreStyles.rivalSubText)}>{tt.videosMeta(num.format(totalVideos), num.format(fresh))}</span></span>
           </span>
           {fresh > 0 && <span className={`vx-new num ${stylex.props(exploreStyles.new).className}`} aria-label={tt.newBadgeAria(num.format(fresh))}>{num.format(fresh)}</span>}
-        </button>
+        </RadioCard>
       )}
       {rivals.map((r, i) => (
-        <button key={r.id} type="button" className={`vx-rival ${stylex.props(exploreStyles.rival, exploreStyles.rivalMobile).className}`} aria-pressed={selected === r.id} onClick={() => onPick(r.id)}>
-          <ChannelAvatar name={r.title} src={r.avatarUrl ?? undefined} color={{ bg: rivalColor(i) }} size={30} style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.02em' }} />
+        <RadioCard key={r.id} checked={selected === r.id} tabIndex={selected === r.id ? 0 : -1} onChange={() => onPick(r.id)} mark="none">
+          <ChannelAvatar name={r.title} src={r.avatarUrl ?? undefined} color={{ bg: rivalColor(i) }} size={30} fontSize={10.5} />
           <span className={`vx-rival__text ${stylex.props(exploreStyles.rivalText).className}`}>
             <span className={`vx-rival__name ${stylex.props(exploreStyles.rivalName).className}`}>{r.title}</span>
             <span className={`vx-rival__sub ${stylex.props(exploreStyles.rivalSub).className}`}>
@@ -63,8 +61,9 @@ export function RivalSidebar({ list, selected, onPick, onAdded, showAdd = true }
             <span className={`vx-spin ${stylex.props(exploreStyles.spin).className}`} role="img" aria-label={tt.scanning} />
           )}
           {r.newOutliers > 0 && <span className={`vx-new num ${stylex.props(exploreStyles.new).className}`} aria-label={tt.newBadgeAria(num.format(r.newOutliers))}>{num.format(r.newOutliers)}</span>}
-        </button>
+        </RadioCard>
       ))}
+      </div>
     </aside>
   )
 }

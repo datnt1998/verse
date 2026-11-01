@@ -30,7 +30,6 @@ export const styles = stylex.create({
   error: { color: color['--color-err'] },
   grid: { display: 'grid', gridTemplateColumns: { default: 'repeat(2, minmax(0, 1fr))', '@media (max-width: 767px)': 'minmax(0, 1fr)' }, gap: '14px 16px', minWidth: 0 },
   full: { gridColumn: '1 / -1' },
-  picker: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundImage: 'var(--card-bg)', color: color['--color-fg'], font: 'inherit', textAlign: 'left', cursor: 'pointer', ':hover': { borderColor: 'var(--line-4)' } },
   logo: { width: 40, height: 40, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-3)', color: color['--color-fg-2'], fontSize: 12.5, fontWeight: 600 },
   storageLogo: { borderRadius: 11 },
   badge: { fontSize: 11, padding: '2px 8px', borderRadius: 7, backgroundColor: 'var(--kit-ok-6)', color: color['--color-ok'] },

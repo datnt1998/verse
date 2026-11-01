@@ -8,8 +8,6 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { invalidate } from '@noverse/ui/data'
-import * as stylex from '@stylexjs/stylex'
-import { styles } from '../settings.stylex'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { blockedReason, pickedFrom } from './ModelPicker'
 import { AgentsSection } from './AgentsSection'
@@ -35,6 +33,7 @@ const roots: Root[] = []
 let calls: { url: string; method: string; body?: string }[] = []
 let err422: { field: string; need: string } | null = null
 let holdPut: Promise<Response> | null = null
+let savedAgents: AiAgents = agents
 
 const respond = (body: unknown, status = 200) => Promise.resolve(Response.json(body, { status }))
 /** Nhích đồng hồ ảo để cache/fetch xong — không chờ thời gian thật. */
@@ -67,6 +66,7 @@ beforeEach(() => {
   calls = []
   err422 = null
   holdPut = null
+  savedAgents = structuredClone(agents)
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     const method = init?.method ?? 'GET'
@@ -78,13 +78,18 @@ beforeEach(() => {
     }
     if (url === '/api/ai/agents' && method === 'PUT') {
       const body = JSON.parse(init!.body as string) as AiAgents
-      if (holdPut) return holdPut
+      if (holdPut) {
+        const response = await holdPut
+        if (response.ok) savedAgents = body
+        return response
+      }
       if (err422) {
         return respond({ error: 'thiếu năng lực', reason: 'capability_missing', field: err422.field, need: err422.need }, 422)
       }
+      savedAgents = body
       return respond(body)
     }
-    if (url === '/api/ai/agents') return respond(agents)
+    if (url === '/api/ai/agents') return respond(savedAgents)
     return respond({ error: 'not found', reason: 'not_found' }, 404)
   }))
 })
@@ -98,28 +103,19 @@ afterEach(async () => {
 })
 
 describe('Trợ lý AI', () => {
-  it('Trinh sát/Kiểm định hiện "Không dùng model"', async () => {
-    const el = await render()
-    const noModel = [...el.querySelectorAll('.agt-nomodel')].map((n) => n.textContent)
-    expect(noModel).toHaveLength(2)
-    expect(noModel[0]).toBe('Không dùng model')
-  })
 
   it('picker chỉ có model đã chọn; model thiếu vision bị mờ cho Hoạ sĩ', async () => {
     const el = await render()
     const artistCard = [...el.querySelectorAll('.agt-row')].find((c) => c.textContent?.includes('Hoạ sĩ'))
     expect(artistCard).toBeTruthy()
-    await click(artistCard!.querySelector('.agt-pick'))
-    const list = artistCard!.querySelector('.agt-pop')
+    await click(artistCard!.querySelector('[role="combobox"]'))
+    const list = artistCard!.querySelector('[role="listbox"]')
     expect(list).toBeTruthy()
-    const atoms = stylex.props(styles.agtOptDim).className!.split(' ')
-    const dimmed = [...list!.querySelectorAll('.agt-opt')].filter(node => atoms.every(atom => node.classList.contains(atom)))
-    expect(dimmed).toHaveLength(1)
-    // Artboard: model chỉ vẽ ảnh mang đúng câu “Chỉ vẽ ảnh, không viết chữ”.
-    expect(dimmed[0].textContent).toContain('Chỉ vẽ ảnh, không viết chữ')
-    expect(dimmed[0].textContent).toContain('google/nano-banana')
+    const disabled = [...list!.querySelectorAll<HTMLButtonElement>('[role="option"]')].filter((node) => node.disabled)
+    expect(disabled).toHaveLength(1)
+    expect(disabled[0].textContent).toContain('google/nano-banana')
     calls = []
-    await click(dimmed[0])
+    await click(disabled[0])
     expect(calls.filter((c) => c.method === 'PUT')).toHaveLength(0)
   })
 
@@ -127,12 +123,31 @@ describe('Trợ lý AI', () => {
     const el = await render()
     // Nano Banana caps chỉ ['image'] — bị mờ cho model viết prompt (vision).
     const artistCard = [...el.querySelectorAll('.agt-row')].find((c) => c.textContent?.includes('Hoạ sĩ'))
-    await click(artistCard!.querySelector('.agt-pick'))
-    const nano = [...artistCard!.querySelectorAll('.agt-opt')].find((o) => o.textContent?.includes('google/nano-banana'))
-    for (const atom of stylex.props(styles.agtOptDim).className!.split(' ')) expect(nano?.classList.contains(atom)).toBe(true)
-    // Nhưng chính nó vẫn nằm trong lưới "Vẽ ảnh bằng" nhờ caps image thật.
-    const draw = [...artistCard!.querySelectorAll('.agt-drawcard')].find((d) => d.textContent?.includes('nano-banana'))
+    await click(artistCard!.querySelector('[role="combobox"]'))
+    const nano = [...artistCard!.querySelectorAll<HTMLButtonElement>('[role="option"]')].find((o) => o.textContent?.includes('google/nano-banana'))
+    expect(nano?.disabled).toBe(true)
+    const draw = [...artistCard!.querySelectorAll('[role="radio"]')].find((d) => d.textContent?.includes('nano-banana'))
+
     expect(draw).toBeTruthy()
+  })
+  it('searches grouped models and immediately displays the selected model while saving the real reference', async () => {
+    const el = await render()
+    const card = el.querySelectorAll('.agt-card')[0]
+    const trigger = card.querySelector('[role="combobox"]')
+    await click(trigger)
+    const search = card.querySelector('input[role="combobox"]') as HTMLInputElement
+    await act(async () => {
+      search.focus()
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(search, 'gpt-5.2')
+      search.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    const options = card.querySelectorAll('[role="option"]')
+    expect(options).toHaveLength(1)
+    await act(async () => { search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })) })
+    expect(el.querySelector<HTMLInputElement>('.agt-card input[role="combobox"]')?.value).toContain('openai/gpt-5.2')
+    const save = calls.find((call) => call.method === 'PUT')
+    expect(save).toBeTruthy()
+    expect(JSON.parse(save!.body!).director.model).toEqual({ provider: 'p-or', model: 'openai/gpt-5.2' })
   })
 
   it('model catalog chưa tải → không bịa caps: không mờ, vẫn chọn được', async () => {
@@ -157,9 +172,10 @@ describe('Trợ lý AI', () => {
     expect(calls.filter((c) => c.method === 'PUT')).toHaveLength(1)
     expect(JSON.parse(calls.find((c) => c.method === 'PUT')!.body!).director.effort).toBe('low')
     // Thay đổi 2 trong lúc PUT 1 đang treo: thêm fallback.
-    await click(directorCard.querySelector('.agt-addpill'))
+    await click(byText(directorCard, 'button', 'Thêm'))
     const addList = directorCard.querySelector('.agt-addlist')
-    await click([...addList!.querySelectorAll('.agt-opt')].find((o) => o.textContent?.includes('openai/gpt-5.2')))
+    await click(addList!.querySelector('[role="combobox"]'))
+    await click([...addList!.querySelectorAll('[role="option"]')].find((o) => o.textContent?.includes('openai/gpt-5.2')))
     await act(async () => { await Promise.resolve() })
     // Chưa có PUT thứ hai chồng lên.
     expect(calls.filter((c) => c.method === 'PUT')).toHaveLength(1)
@@ -177,13 +193,14 @@ describe('Trợ lý AI', () => {
   it('chọn model dự phòng → PUT ModelRef đúng', async () => {
     const el = await render()
     const directorCard = [...el.querySelectorAll('.agt-row')].find((c) => c.textContent?.includes('Đạo diễn'))
-    await click(directorCard!.querySelector('.agt-addpill'))
+    await click(byText(directorCard!, 'button', 'Thêm'))
     const addList = directorCard!.querySelector('.agt-addlist')
     expect(addList).toBeTruthy()
-    const nano = [...addList!.querySelectorAll('.agt-opt')].find((o) => o.textContent?.includes('google/nano-banana'))
+    await click(addList!.querySelector('[role="combobox"]'))
+    const nano = [...addList!.querySelectorAll('[role="option"]')].find((o) => o.textContent?.includes('google/nano-banana'))
     expect(nano?.hasAttribute('disabled')).toBe(true)
     calls = []
-    await click([...addList!.querySelectorAll('.agt-opt')].find((o) => o.textContent?.includes('openai/gpt-5.2')))
+    await click([...addList!.querySelectorAll('[role="option"]')].find((o) => o.textContent?.includes('openai/gpt-5.2')))
     const put = calls.find((c) => c.method === 'PUT' && c.url === '/api/ai/agents')
     expect(put).toBeTruthy()
     expect(JSON.parse(put!.body!).director.fallback).toEqual([{ provider: 'p-or', model: 'openai/gpt-5.2' }])

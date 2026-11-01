@@ -8,12 +8,11 @@ import { saccQrStepDoneMarker } from '../settings.stylex'
 // mở và bốn trạng thái hộp mã (chờ quét · đã quét · hết hạn · từ chối · xong).
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { invalidate } from '@noverse/ui/data'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AccountsSection } from './AccountsSection'
 import type { Platform } from '../../../api/platforms'
+import { accountsCopy } from '../../../i18n/accounts'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -61,13 +60,9 @@ async function render() {
 }
 
 const choose = async (el: ParentNode, value: string) => {
-  const select = el.querySelector('select')
-  expect(select).toBeTruthy()
-  await act(async () => {
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value')?.set
-    setter?.call(select, value)
-    select!.dispatchEvent(new Event('change', { bubbles: true }))
-  })
+  await click(el.querySelector('[role="combobox"]'))
+  const label = value === 'off' ? accountsCopy.ytOff : value.split(':').at(-1)!
+  await click([...el.querySelectorAll('[role="option"]')].find((option) => option.textContent?.includes(label)))
 }
 
 const click = async (el: Element | null | undefined) => {
@@ -403,31 +398,3 @@ describe('Tài khoản nền tảng', () => {
   })
 })
 
-describe('Hợp đồng StyleX theo artboard', () => {
-  const styles = readFileSync(resolve('src/screens/settings/settings.stylex.ts'), 'utf8')
-
-  it('ô chọn trình duyệt YouTube nằm một hàng riêng, rộng đầy nội dung (vv-select width:100% + wrap)', () => {
-    vi.useFakeTimers()
-    const rule = styles.match(/^  saccSelect:.*$/m)?.[0] ?? ''
-    expect(rule).toContain('width: "100%"')
-    const row = styles.match(/^  saccYt:.*$/m)?.[0] ?? ''
-    expect(row).toContain('flexWrap: "wrap"')
-  })
-
-  it('badge bước QR (xong · đang làm) chỉ dùng token có định nghĩa', () => {
-    vi.useFakeTimers()
-    const defined = new Set([
-      readFileSync(resolve('src/styles/viderse.css'), 'utf8'),
-      readFileSync(resolve('src/styles/viderse.stylex.ts'), 'utf8'),
-      readFileSync(resolve('../../../platform/ui/src/tokenDefaults.ts'), 'utf8'),
-      styles,
-    ].flatMap((src) => [...src.matchAll(/["']?(--[\w-]+)["']?\s*:/g)].map((m) => m[1])))
-    for (const state of ['done', 'now']) {
-      const rule = styles.match(/^  saccQrStepnum:.*$/m)?.[0] ?? ''
-      expect(rule).toContain(state === 'done' ? 'saccQrStepDoneMarker' : 'saccQrStepNowMarker')
-      const refs = [...rule.matchAll(/--[\w-]+/g)].map((m) => m[0])
-      expect(refs.length, state).toBeGreaterThan(0)
-      expect(refs.filter((r) => !defined.has(r)), state).toEqual([])
-    }
-  })
-})

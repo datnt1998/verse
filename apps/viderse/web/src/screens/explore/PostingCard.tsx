@@ -11,7 +11,7 @@ import { t } from '../../i18n/explore'
 import type { PostingSchedule, PostingZone } from '../../api/rivals'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { gridMax, slotCells, slotRhythm } from './posting'
-import { TOUCH_COLUMN, TOUCH_TARGET } from './media'
+import { TOUCH_COLUMN } from './media'
 
 export function PostingCard({ schedule, zone, onZone }: {
   schedule: PostingSchedule | undefined
@@ -33,20 +33,17 @@ export function PostingCard({ schedule, zone, onZone }: {
   return (
     <div className={`vx-cardbox ${stylex.props(exploreStyles.cardbox).className}`} style={{ gap: 'var(--vv-s-10)' }}>
       <div className={`vx-posthead ${stylex.props(exploreStyles.posthead).className}`}>
-        <span className={`vx-h3 ${stylex.props(exploreStyles.h3).className}`}><Icon name="calendar" size={15} style={{ color: 'var(--color-fg-3)' }} />{tt.postingTitle}</span>
-        <Segmented xstyle={exploreStyles.segmented} buttonStyle={exploreStyles.segmentedButton}
+        <span className={`vx-h3 ${stylex.props(exploreStyles.h3).className}`}><Icon name="calendar" size={15} />{tt.postingTitle}</span>
+        <Segmented
           label={tt.postingZone}
           value={zone}
-          size={touch ? TOUCH_TARGET : 24}
-          radius={6}
-         
+          size={touch ? 44 : 'sm'}
+          fit="content"
           onChange={(id) => onZone(id as PostingZone)}
           options={[
-            { id: 'vn', label: 'VN', style: { paddingInline: 8, fontSize: 11.5 } },
-            { id: 'ny', label: 'New York', style: { paddingInline: 8, fontSize: 11.5 } },
+            { id: 'vn', label: 'VN' },
+            { id: 'ny', label: 'New York' },
           ]}
-          style={{ padding: 'var(--vv-s-2)', flex: '0 0 auto', gap: 'var(--vv-s-2)', borderRadius: 'var(--vv-r-8)', background: 'var(--color-surface-1)', borderColor: 'var(--line-1)' }}
-          thumbStyle={{ background: 'var(--color-surface-6)' }}
         />
       </div>
       <span className={`vx-postsum num ${stylex.props(exploreStyles.postsum).className}`}>

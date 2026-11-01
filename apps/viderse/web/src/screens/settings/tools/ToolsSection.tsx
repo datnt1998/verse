@@ -7,7 +7,7 @@ import { styles as settingsStyles, toolsListMarker, toolsAdvMarker, toolsIboxMar
 // (server ghép phiên bản), tiến độ khi đang cài, nút chỉ khi có việc; vùng
 // “Nâng cao · thư mục dữ liệu và phiên bản” giữ tên binary. Cài/cập nhật chạy
 // nền, tiến độ về qua SSE `tools` (invalidate khoá `tools`).
-import { Icon, ProgressBar, Spinner, useAsyncAction } from '@noverse/ui'
+import { Button, Icon, ProgressBar, Spinner, useAsyncAction } from '@noverse/ui'
 import { setData } from '@noverse/ui/data'
 import { useResource } from '../../../data/useResource'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
@@ -168,9 +168,9 @@ function ToolRowView({ tool, mobile, queued = false }: { tool: ToolRow; mobile: 
           {pill.label}
         </span>
         {act ? (
-          <ActionButton
-            className={`vv-tools__act ${stylex.props((act.warn) && isWarnMarker).className}`} xstyle={[settingsStyles.toolsAct, (act.warn) && settingsStyles.toolsActIsWarn]}
-            variant={mobile && tool.state === 'update' ? 'primary' : 'outline'}
+          <Button
+            xstyle={settingsStyles.toolsAct}
+            variant={mobile && tool.state === 'update' ? 'primary' : act.warn ? 'warnGhost' : 'ghost'}
             size={mobile ? 'lg' : 'compact'}
             pending={run.pending}
             icon={<Icon name="download" size={14} className="vv-tools__act-ic" xstyle={[settingsStyles.toolsActIc]} />}
@@ -178,7 +178,7 @@ function ToolRowView({ tool, mobile, queued = false }: { tool: ToolRow; mobile: 
           >
             {act.label}
             {size && tool.state === 'update' ? <span className={`vv-tools__act-size ${stylex.props(settingsStyles.toolsActSize).className}`}> · {size}</span> : null}
-          </ActionButton>
+          </Button>
         ) : null}
       </span>
     </div>

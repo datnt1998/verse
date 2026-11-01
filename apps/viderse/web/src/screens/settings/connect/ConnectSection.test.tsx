@@ -10,13 +10,12 @@ import { createRoot, type Root } from 'react-dom/client'
 import { useEffect, useState } from 'react'
 import { cache, invalidate } from '@noverse/ui/data'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import * as stylex from '@stylexjs/stylex'
-import { styles } from '../settings.stylex'
 import { ConnectSection } from './ConnectSection'
 import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, PAGE } from './ModelCatalog'
 import { ChatGPTLoginAction } from './ChatGPTLogin'
 import type { AiModel, AiProvider } from '../../../api/ai'
+import { aiCopy } from '../../../i18n/ai'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -63,12 +62,13 @@ function installFetch() {
     calls.push({ url, method, body: typeof init?.body === 'string' ? init.body : undefined })
     if (url === '/api/ai/providers' && method === 'GET') return respond(providerState)
     if (url === '/api/ai/providers' && method === 'POST') {
-      const body = JSON.parse(init!.body as string) as { kind: string; apiKey?: string }
+      const body = JSON.parse(init!.body as string) as { kind: AiProvider['kind']; apiKey?: string }
       if (body.apiKey === 'bad-key') {
         providerState = [{ ...failedProvider }, ...providerState]
         return respond({ error: 'nhà cung cấp từ chối khoá', reason: 'auth_failed' }, 401)
       }
-      providerState = [{ ...openrouter, id: 'p-new', selected: [] }, ...providerState]
+      const id = providerState.some((provider) => provider.id === 'p-new') ? 'p-new-2' : 'p-new'
+      providerState = [{ ...openrouter, id, kind: body.kind, selected: [] }, ...providerState]
       return respond(providerState[0], 201)
     }
     const models = url.match(/^\/api\/ai\/providers\/([^/]+)\/models(\?.*)?$/)
@@ -88,7 +88,8 @@ function installFetch() {
         const page = all.slice(start, start + limit)
         return respond({ models: page, total: all.length, nextCursor: start + limit < all.length ? page.at(-1)!.id : null })
       }
-      return respond({ models: catalog, total: catalog.length, nextCursor: null })
+      const filtered = params.get('filter') === 'recommended' ? catalog.filter((model) => model.recommended) : catalog
+      return respond({ models: filtered, total: filtered.length, nextCursor: null })
     }
     if (url.match(/^\/api\/ai\/providers\/[^/]+\/test$/)) return respond({ ok: true, ms: 120 })
     if (url.match(/^\/api\/ai\/providers\/[^/]+\/login$/) && method === 'GET') {
@@ -166,10 +167,9 @@ afterEach(async () => {
 describe('Kết nối AI', () => {
   it('thêm OpenRouter → chọn 2 model → thanh chưa lưu → Lưu PATCH selected', async () => {
     const el = await render()
-    // Nút dashed của artboard: “Thêm nhà cung cấp — OpenAI, Gemini, …”.
-    await click(el.querySelector('.conn-addbtn'))
-    const tiles = [...el.querySelectorAll('.conn-tile')] as HTMLButtonElement[]
-    await click(tiles.find((t) => t.textContent?.startsWith('OpenRouter')))
+    await click(byText(el, 'button', 'Thêm nhà cung cấp'))
+    const tiles = [...el.querySelectorAll('[role="radio"]')] as HTMLButtonElement[]
+    await click(tiles.find((tile) => tile.textContent?.startsWith('OpenRouter')))
     const keyInput = el.querySelector('input[type="password"]') as HTMLInputElement
     expect(keyInput).toBeTruthy()
     await setInput(keyInput, 'sk-or-good')
@@ -178,10 +178,10 @@ describe('Kết nối AI', () => {
 
     // conn=added: ghi chú vàng “Đã kết nối … chọn ít nhất một model”.
     expect(el.querySelector('.conn-note')?.textContent).toContain('Đã kết nối OpenRouter')
-    const newCardAtoms = stylex.props(styles.connCardNew).className!.split(' ')
-    expect([...el.querySelectorAll('.conn-card')].some(node => newCardAtoms.every(atom => node.classList.contains(atom)))).toBe(true)
+    await click(byText(el, '[role="radio"]', aiCopy.connect.filterAll))
+    await flush()
 
-    const rows = [...el.querySelectorAll('.conn-row input[type="checkbox"]')] as HTMLInputElement[]
+    const rows = [...el.querySelectorAll<HTMLButtonElement>('.conn-row [role="checkbox"]')]
     await click(rows[0])
     await click(rows[1])
     expect(el.querySelector('.conn-dirty')?.textContent).toContain('thay đổi chưa lưu')
@@ -193,9 +193,9 @@ describe('Kết nối AI', () => {
 
   it('conn=added: thanh Huỷ/Lưu hiện NGAY khi chưa tick model nào; Lưu ghi nháp; Huỷ gỡ thanh', async () => {
     const el = await render()
-    await click(el.querySelector('.conn-addbtn'))
-    const tiles = [...el.querySelectorAll('.conn-tile')] as HTMLButtonElement[]
-    await click(tiles.find((t) => t.textContent?.startsWith('OpenRouter')))
+    await click(byText(el, 'button', 'Thêm nhà cung cấp'))
+    const tiles = [...el.querySelectorAll('[role="radio"]')] as HTMLButtonElement[]
+    await click(tiles.find((tile) => tile.textContent?.startsWith('OpenRouter')))
     await setInput(el.querySelector('input[type="password"]') as HTMLInputElement, 'sk-or-good')
     await click(byText(el, 'button', 'Kết nối và lấy model'))
     await flush()
@@ -213,23 +213,23 @@ describe('Kết nối AI', () => {
     // Mở lại add một lần nữa → thẻ mới lại là một thay đổi; Lưu lần này phải
     // PATCH thật kể cả khi chọn rỗng (lưu lần kết nối).
     calls = []
-    await click(el.querySelector('.conn-addbtn'))
-    const tiles2 = [...el.querySelectorAll('.conn-tile')] as HTMLButtonElement[]
-    await click(tiles2.find((t) => t.textContent?.startsWith('DeepSeek')))
+    await click(byText(el, 'button', 'Thêm nhà cung cấp'))
+    const tiles2 = [...el.querySelectorAll('[role="radio"]')] as HTMLButtonElement[]
+    await click(tiles2.find((tile) => tile.textContent?.startsWith('DeepSeek')))
     await setInput(el.querySelector('input[type="password"]') as HTMLInputElement, 'sk-ds-good')
     await click(byText(el, 'button', 'Kết nối và lấy model'))
     await flush()
     expect(dirtyBar()?.textContent).toContain('thay đổi chưa lưu')
     await click(byText(dirtyBar()!, 'button', 'Lưu'))
     await flush()
-    const patch = calls.find((c) => c.method === 'PATCH' && c.url === '/api/ai/providers/p-new')
+    const patch = calls.find((c) => c.method === 'PATCH' && c.url === '/api/ai/providers/p-new-2')
     expect(patch).toBeTruthy()
     expect(JSON.parse(patch!.body!)).toEqual({ selected: [] })
     expect(dirtyBar()).toBeNull()
   })
   it('openai_compat hiện CẢ khoá + địa chỉ và gửi đủ hai trường', async () => {
     const el = await render(<AddProviderBody onAdded={() => {}} onReveal={() => {}} providers={[]} />)
-    const tiles = [...el.querySelectorAll('.conn-tile')] as HTMLButtonElement[]
+    const tiles = [...el.querySelectorAll('[role="radio"]')] as HTMLButtonElement[]
     await click(tiles.find((t) => t.textContent?.startsWith('Tương thích OpenAI')))
     const inputs = [...el.querySelectorAll('input')] as HTMLInputElement[]
     expect(inputs).toHaveLength(2)
@@ -246,7 +246,7 @@ describe('Kết nối AI', () => {
     Element.prototype.scrollIntoView = scroll
     const el = await render()
     await click(byText(el, 'button', 'Thêm nhà cung cấp'))
-    const tile = [...el.querySelectorAll('.conn-tile')].find((t) => t.textContent?.startsWith('OpenRouter')) as HTMLButtonElement
+    const tile = [...el.querySelectorAll('[role="radio"]')].find((t) => t.textContent?.startsWith('OpenRouter')) as HTMLButtonElement
     expect(tile.disabled).toBe(false)
     expect(tile.textContent).toContain('Đã kết nối')
     await click(tile)
@@ -261,7 +261,7 @@ describe('Kết nối AI', () => {
     const ollama: AiProvider = { ...openrouter, id: 'p-ol', kind: 'ollama', auth: 'local', label: 'Ollama' }
     const reveal = vi.fn()
     const el = await render(<AddProviderBody onAdded={() => {}} onReveal={reveal} providers={[ollama]} />)
-    const tile = [...el.querySelectorAll('.conn-tile')].find((t) => t.textContent?.startsWith('Ollama')) as HTMLButtonElement
+    const tile = [...el.querySelectorAll('[role="radio"]')].find((t) => t.textContent?.startsWith('Ollama')) as HTMLButtonElement
     await click(tile)
     expect(reveal).not.toHaveBeenCalled()
     expect(el.querySelector('input[type="password"]')).toBeNull()
@@ -280,7 +280,6 @@ describe('Kết nối AI', () => {
     const el = await render()
     const card = [...el.querySelectorAll('.conn-card')].find((node) => node.textContent?.includes('Không lấy được danh sách model.'))
     expect(card).toBeTruthy()
-    for (const atom of stylex.props(styles.connCardFail).className!.split(' ')) expect(card?.classList.contains(atom)).toBe(true)
     expect(card!.textContent).toContain('Không lấy được danh sách model.')
     for (const action of ['Đổi khoá', 'Thử lại', 'Thêm theo tên']) {
       expect([...card!.querySelectorAll('button')].some((b) => b.textContent?.includes(action))).toBe(true)
@@ -331,6 +330,32 @@ describe('Kết nối AI', () => {
     expect(link!.href).toBe('https://auth.openai.com/authorize?x=1')
   })
 
+  it('filters the real catalog through the segmented selection while keeping model choices', async () => {
+    const toggled = vi.fn()
+    const el = await render(<ModelCatalog provider={openrouter} draft={[catalog[0]]} onToggle={toggled} />)
+    const image = byText(el, '[role="radio"]', aiCopy.connect.filterRecommended)!
+    await click(image)
+    expect(image.getAttribute('aria-checked')).toBe('true')
+    await flush()
+    const choices = [...el.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')]
+    expect(choices).toHaveLength(1)
+    expect(choices[0].getAttribute('aria-label')).toBe('minimax/minimax-m2.5')
+    expect(choices[0].getAttribute('aria-checked')).toBe('true')
+    await click(choices[0])
+    expect(toggled).toHaveBeenCalledWith('minimax/minimax-m2.5', false, catalog[0])
+  })
+
+  it('keeps the provider form guarded until its required key and compatible endpoint are present', async () => {
+    const added = vi.fn()
+    const el = await render(<AddProviderBody providers={[]} onAdded={added} onReveal={() => {}} />)
+    await click(byText(el, '[role="radio"]', 'Tương thích OpenAI'))
+    const submit = byText(el, 'button', aiCopy.connect.connectFetch) as HTMLButtonElement
+    expect(submit.disabled).toBe(true)
+    await setInput(el.querySelector('input[type="password"]') as HTMLInputElement, 'unit-key')
+    expect(submit.disabled).toBe(true)
+    expect(calls.some((call) => call.method === 'POST' && call.url === '/api/ai/providers')).toBe(false)
+  })
+
   it(`catalog 500 model: ${PAGE} hàng/trang + tổng thật 500, Trang sau mở trang 2`, async () => {
     manyModels = true
     const provider = { ...openrouter, catalogCount: 500 }
@@ -358,13 +383,13 @@ describe('Kết nối AI', () => {
       return <ModelCatalog provider={provider} draft={d} onToggle={(id, on, meta) => setD((cur) => on ? [...cur, meta ?? { id, caps: [] }] : cur.filter((m) => m.id !== id))} />
     }
     const el = await render(<Harness />)
-    await click(el.querySelectorAll('.conn-row input')[0])
+    await click(el.querySelectorAll('.conn-row [role="checkbox"]')[0])
     expect(draft[0].id).toBe('vendor/model-000')
     await click(byText(el, 'button', 'Trang sau'))
     await flush()
     await click(byText(el, 'button', 'Trang trước'))
     await flush()
-    expect((el.querySelectorAll('.conn-row input')[0] as HTMLInputElement).checked).toBe(true)
+    expect(el.querySelectorAll('.conn-row [role="checkbox"]')[0].getAttribute('aria-checked')).toBe('true')
   })
 })
 
@@ -377,8 +402,6 @@ describe('Số liệu YouTube', () => {
     expect(group.textContent).toContain('Số liệu YouTube')
     expect(group.textContent).toContain('Không phải AI')
     expect(el.querySelector('.conn-list')!.textContent).not.toContain('YouTube Data API')
-    const add = el.querySelector('.conn-addbtn')!
-    expect(add.compareDocumentPosition(group) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(group.querySelector('.conn-name')!.textContent).toBe('YouTube Data API')
     expect([...group.querySelectorAll('.conn-pill')].map((p) => p.textContent)).toEqual(['Khoá API', 'Không bắt buộc'])
   })

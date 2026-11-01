@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex'
 import { text } from '../../../styles/shared.stylex'
-import { styles as settingsStyles, connSearchMarker, connRowMarker, connManualRowMarker, connSheetRowMarker } from '../settings.stylex'
+import { styles as settingsStyles, connSearchMarker, connRowMarker, connManualRowMarker } from '../settings.stylex'
 // ModelCatalog — danh mục model của một nhà cung cấp (artboard Settings
 // conn=added|models|manual, MSettings sheet=models).
 //   • desktop (inline): ô tìm + lọc Đã chọn/Gợi ý/Tất cả + hàng tick + dòng
@@ -11,7 +11,8 @@ import { styles as settingsStyles, connSearchMarker, connRowMarker, connManualRo
 // nextCursor}. Hiển thị đúng MỘT trang (≤ PAGE hàng) — DOM không bao giờ quá
 // PAGE dù danh mục vài trăm model; lựa chọn giữ trong bản nháp qua mọi trang.
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Icon, Spinner } from '@noverse/ui'
+import { Button, Checkbox, Icon, Spinner } from '@noverse/ui'
+import { Segmented } from '../../../components/Segmented'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import { useDebounced } from '../../../lib/useDebounced'
@@ -177,15 +178,8 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
       {rows.map((m) => {
         const on = selectedIds.has(m.id)
         return (
-          <label key={m.id} className={`conn-row ${stylex.props(connRowMarker, settingsStyles.connRow).className}`} role="listitem">
-            {/* Ô tick NATIVE đúng artboard (accent-color đỏ, mặt trắng khi trống,
-                dấu tick trắng khi chọn — CSS ép light-scheme cho riêng ô). */}
-            <input
-              type="checkbox"
-              checked={on}
-              onChange={(e) => onToggle(m.id, e.target.checked, m)}
-              aria-label={m.id} {...stylex.props(settingsStyles.ConnRowInputTypeCheckbox_)}
-            />
+          <div key={m.id} className={`conn-row ${stylex.props(connRowMarker, settingsStyles.connRow).className}`} role="listitem">
+            <Checkbox checked={on} onChange={(checked) => onToggle(m.id, checked, m)} aria-label={m.id} />
             <span className={`conn-row__body ${stylex.props(settingsStyles.connRowBody).className}`}>
               <span className={`conn-row__top ${stylex.props(settingsStyles.connRowTop).className}`}>
                 <span className={`conn-row__id ${stylex.props(settingsStyles.connRowId).className}`}>{m.id}</span>
@@ -195,7 +189,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
             </span>
             <span className={`conn-cap ${stylex.props(capStyles(m.caps)).className}`}>{capsLine(m.caps)}</span>
             <span className={`conn-row__price ${stylex.props(settingsStyles.connRowPrice).className}`}>{priceLabel(m, provider)}</span>
-          </label>
+          </div>
         )
       })}
     </div>
@@ -209,21 +203,19 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
       {rows.map((m) => {
         const on = selectedIds.has(m.id)
         return (
-          <button
+          <Checkbox
             key={m.id}
-            type="button"
-            role="checkbox"
-            aria-checked={on}
-            className={`conn-sheet-row ${stylex.props(connSheetRowMarker, settingsStyles.connSheetRow).className}`}
-            onClick={() => onToggle(m.id, !on, m)}
-          >
-            <span className={`conn-sheet-row__check ${stylex.props(settingsStyles.connSheetRowCheck).className}`} data-on={on ? 'true' : 'false'} aria-hidden="true" />
+            checked={on}
+            onChange={(checked) => onToggle(m.id, checked, m)}
+            aria-label={m.id}
+            label={<>
             <span className={`conn-sheet-row__body ${stylex.props(settingsStyles.connSheetRowBody).className}`}>
               <span className={`conn-sheet-row__id ${stylex.props(settingsStyles.connSheetRowId).className}`}>{m.id}</span>
               <span className={`conn-sheet-row__note ${stylex.props(settingsStyles.connSheetRowNote).className}`}>{priceText(m.price) || noteOf(m)}</span>
             </span>
             <span className={`conn-cap ${stylex.props(capStyles(m.caps)).className}`}>{capsLine(m.caps)}</span>
-          </button>
+            </>}
+          />
         )
       })}
     </div>
@@ -243,20 +235,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
               placeholder={c.searchIn(total)} {...stylex.props(settingsStyles.ConnSearchInput)}
             />
           </label>
-          <div className={`conn-filters ${stylex.props(settingsStyles.connFilters).className}`} role="radiogroup" aria-label={c.filterLabel}>
-            {filterOpts.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                role="radio"
-                aria-checked={filter === f.id}
-                className={`conn-filter ${stylex.props(settingsStyles.connFilter).className}`}
-                onClick={() => setFilter(f.id)}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <Segmented label={c.filterLabel} value={filter} onChange={(id) => setFilter(id as ModelFilter)} options={filterOpts} size="sm" fit="content" />
         </div>
       )}
 
@@ -278,7 +257,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
           {manualOpen ? (
             <div className={`conn-manual ${stylex.props(settingsStyles.connManual).className}`}>
               <div className={`conn-manual__row ${stylex.props(connManualRowMarker, settingsStyles.connManualRow).className}`}>
-                <label style={{ flex: 1, minWidth: 0 }}>
+                <label {...stylex.props(settingsStyles.controlGrow)}>
                   <span {...stylex.props(text.srOnly)}>{c.manualLabel}</span>
                   <input
                     className={`conn-input mono ${stylex.props(settingsStyles.connInput, settingsStyles.ConnManualRowInput).className}`}
@@ -302,7 +281,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
               )}
             </div>
           ) : (
-            <button type="button" className={`conn-link ${stylex.props(settingsStyles.connLink).className}`} onClick={() => setManualOpen(true)}>{c.manualOpen}</button>
+            <Button variant="quiet" size="compact" onClick={() => setManualOpen(true)}>{c.manualOpen}</Button>
           )}
 
           <div className={`conn-sum ${stylex.props(settingsStyles.connSum).className}`}>

@@ -6,7 +6,7 @@ import { styles as settingsStyles, connAddRowMarker, connAddFieldMarker, connAdd
 // lấy model". "Kết nối" → POST /api/ai/providers → thẻ mới lên đầu (conn=added);
 // 401/422 auth_failed → thẻ cam ở đầu danh sách (conn=failed).
 import { useState } from 'react'
-import { Button, Icon } from '@noverse/ui'
+import { Button, Icon, RadioCard } from '@noverse/ui'
 import { Field } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { toast } from '@noverse/ui'
@@ -70,7 +70,7 @@ export function AddProviderBody({ onAdded, onReveal, onDone, mobile, providers }
     && (!needsUrl || url.trim().length > 0)
 
   async function connect() {
-    if (!picked || busy) return
+    if (!picked || !canSubmit || busy) return
     setBusy(true)
     try {
       const provider = await addProvider({
@@ -105,27 +105,29 @@ export function AddProviderBody({ onAdded, onReveal, onDone, mobile, providers }
     const existing = takenBy(k.kind)
     const done = existing != null
     return (
-      <button
+      <RadioCard
         key={k.kind}
-        type="button"
-        role="radio"
-        aria-checked={kind === k.kind}
+        checked={kind === k.kind}
+        mark="none"
+        tabIndex={kind === k.kind || (kind === '' && k === ADD_KINDS[0]) ? 0 : -1}
         title={done ? c.alreadyConnected(k.label) : undefined}
-        className={`conn-tile ${stylex.props(settingsStyles.connTile, done && settingsStyles.connTileTaken).className}`}
-        onClick={() => {
+        className={stylex.props(done && settingsStyles.connTileTaken).className}
+        onChange={() => {
           if (existing == null) { setKind(k.kind); return }
           onReveal(existing)
           onDone?.()
         }}
       >
+        <span {...stylex.props(settingsStyles.cardContent)}>
         <span className={`conn-tile__name ${stylex.props(settingsStyles.connTileName).className}`}>{k.label}</span>
         <span className={`conn-tile__sub ${stylex.props(settingsStyles.connTileSub).className}`}>{done ? c.connected : (mobile ? k.subMobile : k.sub)}</span>
-      </button>
+        </span>
+      </RadioCard>
     )
   })
 
   const submit = (
-    <Button size="compact" variant="primary" className="conn-act" xstyle={[settingsStyles.connAct, settingsStyles.addProviderSubmit]} pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
+    <Button size="compact" variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
       {c.connectFetch}
     </Button>
   )
@@ -178,7 +180,7 @@ export function AddProviderBody({ onAdded, onReveal, onDone, mobile, providers }
           <span className={`conn-add__hint ${stylex.props(settingsStyles.connAddHint).className}`}>{c.addHintMobile}</span>
         </div>
         <div className={`conn-sheet-primary ${stylex.props(connSheetPrimaryMarker, settingsStyles.connSheetPrimary).className}`}>
-          <Button size="xl" variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit} xstyle={[settingsStyles.ConnSheetPrimary_]}>
+          <Button size="xl" block variant="primary" pending={busy} pendingLabel={c.connecting} onClick={() => void connect()} disabled={!canSubmit}>
             {c.connectFetch}
           </Button>
         </div>

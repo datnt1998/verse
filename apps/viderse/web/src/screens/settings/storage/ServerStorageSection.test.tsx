@@ -71,6 +71,29 @@ it('clears a successful test when any form field changes', async () => {
   expect(button('Lưu…').disabled).toBe(true)
   expect(el.querySelector('[data-test-success]')).toBeNull()
 })
+it('selects an S3 region through the kit and requires retesting after the region changes', async () => {
+  await render()
+  await click('Chọn kho S3')
+  await click('Amazon S3')
+  for (const [name, value] of Object.entries({ bucket: 'unit-bucket', accessKeyId: 'unit-access', secretAccessKey: 'unit-secret' })) {
+    const input = el.querySelector<HTMLInputElement>(`[name="${name}"]`)!
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, value)
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+  }
+  await click('Kiểm tra kết nối')
+  expect(button('Lưu…').disabled).toBe(false)
+  const region = el.querySelector<HTMLButtonElement>('[role="combobox"][aria-label="Vùng"]')!
+  await act(async () => region.click())
+  await click('Tokyo')
+  expect(region.textContent).toContain('ap-northeast-1')
+  expect(button('Lưu…').disabled).toBe(true)
+  await click('Kiểm tra kết nối')
+  const tests = calls.filter(call => call.url === '/api/storage/server/test')
+  expect(JSON.parse(String(tests.at(-1)?.init?.body)).config.region).toBe('ap-northeast-1')
+  expect(button('Lưu…').disabled).toBe(false)
+})
 it('filters all admin controls even if a member response includes admin fields', async () => {
   role = 'member'; await render()
   expect(el.textContent).toContain('Dung lượng theo nhóm')

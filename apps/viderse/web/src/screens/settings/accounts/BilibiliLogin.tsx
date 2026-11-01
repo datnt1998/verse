@@ -249,7 +249,7 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
             <Button
               variant="quiet"
               size="sm"
-              className={`sacc-manual__toggle ${stylex.props(saccManualToggleMarker).className}`} xstyle={[settingsStyles.saccManualToggle]}
+              className={stylex.props(saccManualToggleMarker).className}
               aria-expanded={manualOpen}
               icon={<Icon name="arrow-d" size={14} className="sacc-manual__chev" xstyle={[settingsStyles.saccManualChev]} />}
               onClick={() => setManualOpen((open) => !open)}

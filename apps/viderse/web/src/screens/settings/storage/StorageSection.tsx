@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex'
 import { box } from '../../../styles/shared.stylex'
-import { styles as settingsStyles, stoHeadMRowMarker, stoLocActMarker, stoPickMMarker, stoModeListMarker, stoDrivesMarker, stoPickBodyMarker, stoJobsMarker, stoPickMarker, stoBrowMarker, stoConfirmMarker, driveMarker, checksMarker, checkMarker, isFailMarker, isWarnMarker, moveMMarker, moveGroupsMarker, usageBarMarker, usageLegendMarker, stoBannerFixMarker, cleanlistMarker, pillMarker } from '../settings.stylex'
+import { styles as settingsStyles, stoHeadMRowMarker, stoLocActMarker, stoPickMMarker, stoModeListMarker, stoDrivesMarker, stoPickBodyMarker, stoJobsMarker, stoPickMarker, stoConfirmMarker, checksMarker, checkMarker, isFailMarker, isWarnMarker, moveMMarker, moveGroupsMarker, usageBarMarker, usageLegendMarker, stoBannerFixMarker, cleanlistMarker } from '../settings.stylex'
 // Cài đặt › Lưu trữ (V22 + MSettings store=*): thẻ thư mục dự án (ổ, đường dẫn
 // mono cắt giữa, Mở trong Finder, Đổi thư mục), khối chọn tại chỗ (store=pick:
 // thư mục mới + gợi ý ổ + hai lựa chọn dữ liệu + checklist + CTA), tiến độ
@@ -135,15 +135,11 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
     <div className={`vv-sto__browse ${stylex.props(settingsStyles.stoBrowse).className}`}>
       <div className={`vv-drives ${stylex.props(settingsStyles.drives).className}`} role="group" aria-label={t.storage.picker.roots}>
         {data?.roots.map((r) => (
-          <button key={r.path} type="button" className={`vv-drive ${stylex.props(driveMarker, settingsStyles.drive).className}`} aria-pressed={r.path === data.path}
-            onClick={() => onPick(r.path)} title={r.path}>
-            {r.name}
-          </button>
+          <Button key={r.path} size="sm" variant="ghost" active={r.path === data.path} aria-pressed={r.path === data.path}
+            onClick={() => onPick(r.path)} title={r.path}>{r.name}</Button>
         ))}
         {data?.path && data.path !== '/' ? (
-          <button type="button" className={`vv-drive ${stylex.props(driveMarker, settingsStyles.drive).className}`} onClick={() => onPick(data.path.replace(/\/[^/]*$/, '') || '/')}>
-            <Icon name="arrow-up" size={13} />{t.storage.picker.back}
-          </button>
+          <Button size="sm" variant="quiet" onClick={() => onPick(data.path.replace(/\/[^/]*$/, '') || '/')} icon={<Icon name="arrow-up" size={13} />}>{t.storage.picker.back}</Button>
         ) : null}
       </div>
       <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
@@ -163,11 +159,9 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
         {shownDirs.length === 0 ? (
           <span {...stylex.props(settingsStyles.VvCleanlistSpan)}><span className={`vv-lb ${stylex.props(settingsStyles.lb).className}`}>{needle ? t.storage.picker.noMatch : t.storage.picker.empty}</span></span>
         ) : visible.map((d) => (
-          <button key={d.path} type="button" className={`vv-sto__brow ${stylex.props(stoBrowMarker, settingsStyles.stoBrow).className}`} onClick={() => onPick(d.path)}>
-            <Icon name="folder" size={15} className="vv-ic" xstyle={[settingsStyles.ic]} />
-            <span className={`vv-sto__browName ${stylex.props(settingsStyles.stoBrowName).className}`}>{d.name}</span>
-            <Icon name="arrow-r" size={13} className="vv-ic" xstyle={[settingsStyles.ic]} />
-          </button>
+          <Button key={d.path} variant="quiet" size="sm" block onClick={() => onPick(d.path)} icon={<Icon name="folder" size={15} />}>
+            <span className={`vv-sto__browName ${stylex.props(settingsStyles.stoBrowName).className}`}>{d.name}</span><Icon name="arrow-r" size={13} />
+          </Button>
         ))}
       </div>
       {pageCount > 1 ? (
@@ -299,7 +293,7 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
         </div>
         <div className={`vv-sto__go vv-sto__go--m ${stylex.props(settingsStyles.stoGoM, settingsStyles.stoGo).className}`}>
           {hint ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{hint}</span> : null}
-          <Button variant="primary" size="xl" className="vv-sto__goBtn" xstyle={[settingsStyles.stoGoBtn]} pending={go.pending} disabled={!check?.ok} onClick={() => void go.run()}>{submitLabel}</Button>
+          <Button variant="primary" size="xl" block pending={go.pending} disabled={!check?.ok} onClick={() => void go.run()}>{submitLabel}</Button>
         </div>
       </div>
     )
@@ -318,11 +312,11 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
         <div className={`vv-sto__pills ${stylex.props(settingsStyles.stoPills).className}`}>
           <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.drivesLabel}</span>
           {data.suggestions.map((s) => (
-            <button key={s.path} type="button" className={`vv-pill ${stylex.props(pillMarker, settingsStyles.pill).className}`} aria-pressed={chosen === s.path}
+            <Button key={s.path} size="sm" variant="ghost" active={chosen === s.path} aria-pressed={chosen === s.path}
               title={s.volume.kind === 'cloud_sync' ? undefined : `${s.volume.fs} · còn ${fmtSpace(s.volume.freeBytes)}`}
               onClick={() => onChosen(s.path)}>
               {s.volume.name}{s.volume.kind === 'cloud_sync' ? null : <span className={`vv-num vv-sto__pillFree ${stylex.props(settingsStyles.stoPillFree, settingsStyles.num).className}`}>còn {fmtSpace(s.volume.freeBytes)}</span>}
-            </button>
+            </Button>
           ))}
         </div>
         {chosenCloud ? <span className={`vv-err ${stylex.props(settingsStyles.err).className}`}>{t.storage.picker.cloudWarn}</span> : null}
@@ -601,7 +595,7 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
         </span>
         {canChange ? (
           <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
-            <ActionButton variant="outline" size="sm" icon={<Icon name="folder" size={16} />} onClick={onPick} xstyle={[settingsStyles.VvStoLocAct_]}>{t.storage.project.changeMobile}</ActionButton>
+            <ActionButton variant="outline" size="lg" icon={<Icon name="folder" size={16} />} onClick={onPick}>{t.storage.project.changeMobile}</ActionButton>
           </span>
         ) : null}
       </div>
@@ -748,7 +742,7 @@ function LocalStorageSection() {
           {/* “Đổi thư mục lưu” 44px nằm sau kết quả (MSettings: loc → banner → nút). */}
           {!moving && canChange && loc.online ? (
             <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
-              <ActionButton variant="outline" size="lg" icon={<Icon name="folder" size={16} />} onClick={openPick} xstyle={[settingsStyles.VvStoLocAct_]}>{t.storage.project.changeMobile}</ActionButton>
+              <ActionButton variant="outline" size="lg" icon={<Icon name="folder" size={16} />} onClick={openPick}>{t.storage.project.changeMobile}</ActionButton>
             </span>
           ) : null}
         </section>

@@ -7,7 +7,7 @@ import { exploreStyles, videoCardMarker } from './explore.stylex'
 // sao chép link. Thẻ chỉ có một trong hai: trạng thái hàng chờ hoặc nút làm —
 // hàng chờ chưa có nên luôn là nút.
 import type { SyntheticEvent } from 'react'
-import { Icon, toast } from '@noverse/ui'
+import { Button, Checkbox, Icon, toast } from '@noverse/ui'
 import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
@@ -80,10 +80,9 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
           {dur && <span className={`vx-dur ${stylex.props(exploreStyles.dur).className}`}>{dur}</span>}
         </span>
         {selectMode && (
-          <label className={`vx-check ${stylex.props(exploreStyles.check).className}`}>
-            <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{tt.pickVideo(video.title)}</span>
-            <input {...stylex.props(exploreStyles.checkInput)} type="checkbox" checked={checked} onChange={() => onToggle(video)} />
-          </label>
+          <span className={`vx-check ${stylex.props(exploreStyles.check).className}`}>
+            <Checkbox aria-label={tt.pickVideo(video.title)} checked={checked} onChange={() => onToggle(video)} />
+          </span>
         )}
       </div>
       <div className={`vx-vtext ${stylex.props(exploreStyles.vtext).className}`}>
@@ -91,7 +90,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
         <span className={`vx-vmeta ${stylex.props(exploreStyles.vmeta).className}`}>{videoMeta(video.viewCount, video.publishedAt)}</span>
       </div>
       <div className={`vx-actions ${stylex.props(exploreStyles.actions).className}`}>
-        <ActionButton className={stylex.props(exploreStyles.touchTarget).className}
+        <ActionButton
           size="sm"
           lockedReason={channelLabel === null ? (hasChannel ? tt.queueReason : tt.lockedReason) : undefined}
           icon={<Icon name="video-add" size={14} />}
@@ -99,9 +98,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
           {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
         </ActionButton>
         <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
-        <button type="button" className={`vx-iconbtn ${stylex.props(exploreStyles.iconbtn).className}`} aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}>
-          <Icon name="copy" size={15} />
-        </button>
+        <Button variant="icon" size="sm" aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}><Icon name="copy" size={15} /></Button>
       </div>
     </article>
   )

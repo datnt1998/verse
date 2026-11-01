@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
-import { styles as settingsStyles, agtHintMarker, agtPillMarker, agtDrawcardBarMarker, agtFootMarker, agtMdrawMarker, agtDrawcardMarker, agtMswitchMarker, agtSheetMarker } from '../settings.stylex'
+import { styles as settingsStyles, agtHintMarker, agtPillMarker, agtDrawcardBarMarker, agtFootMarker, agtMswitchMarker, agtSheetMarker } from '../settings.stylex'
 // Trợ lý AI — mục Cài đặt (artboard Settings section=agents ai=director|
 // artist, MSettings screen=agents sheet=director|artist). Wire:
 // domain.AgentModels {director{model,effort,fallback}, artist{promptModel,
@@ -14,7 +14,7 @@ import { styles as settingsStyles, agtHintMarker, agtPillMarker, agtDrawcardBarM
 // dùng chung (filter=selected qua mọi trang), metadata thiếu = "chưa rõ", KHÔNG
 // bịa. 422 capability_missing {field: …} → câu inline đúng chỗ.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Icon, Sheet, Switch, toast } from '@noverse/ui'
+import { Button, Icon, RadioCard, RadioDot, Sheet, Switch, toast } from '@noverse/ui'
 import { Segmented } from '../../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { Orb, assistantName, type Assistant } from '../../../components'
@@ -117,8 +117,8 @@ export function AgentsSection() {
         const doc = pending.current
         try {
           await putAgents(doc)
-          if (pending.current === doc) pending.current = null
           await invalidate(keys.aiAgents())
+          if (pending.current === doc) pending.current = null
         } catch (error) {
           pending.current = null
           void invalidate(keys.aiAgents())
@@ -154,7 +154,7 @@ export function AgentsSection() {
   if (agents.error) {
     return <div className={`agt-sec ${stylex.props(settingsStyles.agtSec).className}`}><div className={`agt-fail ${stylex.props(settingsStyles.agtFail).className}`} role="alert">{a.loadFail}</div></div>
   }
-  if (!data || !view) {
+  if (!view) {
     return <div className={`agt-sec ${stylex.props(settingsStyles.agtSec).className}`}><div className={`agt-note ${stylex.props(settingsStyles.agtNote).className}`}>{a.loading}</div></div>
   }
 
@@ -234,20 +234,21 @@ export function AgentsSection() {
   }
 
   const drawSources = imageSources.length > 0 ? (
-    <div className={`agt-drawgrid ${stylex.props(settingsStyles.agtDrawgrid, imageSources.length === 4 && settingsStyles.agtDrawgridQuad).className}`}>
+    <div className={`agt-drawgrid ${stylex.props(settingsStyles.agtDrawgrid, imageSources.length === 4 && settingsStyles.agtDrawgridQuad).className}`} role="radiogroup" aria-label={a.drawLabel}>
       {imageSources.map(({ model, provider }) => {
         const on = view.artist.draw.provider === provider.id
         const meta = drawMeta(provider, model.perImage)
         return (
-          <button
+          <RadioCard
             key={provider.id}
-            type="button"
-            className={`agt-drawcard ${stylex.props(agtDrawcardMarker, settingsStyles.agtDrawcard, (on) && settingsStyles.agtDrawcardOn).className}`}
-            aria-pressed={on}
-            onClick={() => setDraw({ provider: provider.id, model: model.ref.model })}
+            checked={on}
+            mark="none"
+            tabIndex={on || (!imageSources.some(({ provider: source }) => source.id === view.artist.draw.provider) && provider === imageSources[0].provider) ? 0 : -1}
+            onChange={() => setDraw({ provider: provider.id, model: model.ref.model })}
           >
+            <span {...stylex.props(settingsStyles.cardContent)}>
             <span className={`agt-drawcard__top ${stylex.props(settingsStyles.agtDrawcardTop).className}`}>
-              <span className={`agt-radio ${stylex.props(settingsStyles.agtRadio, (on) && settingsStyles.agtRadioOn).className}`} aria-hidden="true" />
+              <RadioDot checked={on} />
               <span className={`agt-drawcard__name ${stylex.props(settingsStyles.agtDrawcardName).className}`}>{provider.label}</span>
               {on && <span className={`agt-default ${stylex.props(settingsStyles.agtDefault).className}`}>{a.default}</span>}
             </span>
@@ -260,7 +261,8 @@ export function AgentsSection() {
               <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>{meta.used}</span>
               <span>{meta.reset}</span>
             </span>
-          </button>
+            </span>
+          </RadioCard>
         )
       })}
     </div>
@@ -273,7 +275,7 @@ export function AgentsSection() {
     // vẫn giữ nguyên độ đậm (aria-disabled, không disabled → không bị làm mờ).
     const row = (of: Assistant, name: string, role: string, value: string, sub: string, onPress?: () => void) => {
       const body = (
-        <>
+        <span {...stylex.props(settingsStyles.agtMrowContent)}>
           <Orb of={of} size={22} />
           <span className={`agt-mrow__id ${stylex.props(settingsStyles.agtMrowId).className}`}>
             <span className={`agt-mrow__name ${stylex.props(settingsStyles.agtMrowName).className}`}>{name}</span>
@@ -284,10 +286,10 @@ export function AgentsSection() {
             {sub && <span className={`agt-mrow__prov ${stylex.props(settingsStyles.agtMrowProv).className}`}>{sub}</span>}
           </span>
           {onPress && <Icon name="arrow-r" size={15} className="agt-mrow__chev" xstyle={[settingsStyles.agtMrowChev]} />}
-        </>
+        </span>
       )
       return onPress
-        ? <button key={of} type="button" className={`agt-mrow ${stylex.props(settingsStyles.agtMrow).className}`} onClick={onPress} aria-haspopup="dialog">{body}</button>
+        ? <Button key={of} variant="quiet" size="lg" block onClick={onPress} aria-haspopup="dialog">{body}</Button>
         : <div key={of} className={`agt-mrow ${stylex.props(settingsStyles.agtMrow).className}`} aria-disabled="true">{body}</div>
     }
 
@@ -315,16 +317,16 @@ export function AgentsSection() {
             const on = view.artist.draw.provider === provider.id
             const meta = drawMeta(provider, model.perImage)
             return (
-              <button
+              <RadioCard
                 key={provider.id}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                className={`agt-mdraw ${stylex.props(agtMdrawMarker, settingsStyles.agtMdraw, (on) && settingsStyles.agtMdrawOn).className}`}
-                onClick={() => setDraw({ provider: provider.id, model: model.ref.model })}
+                checked={on}
+                mark="none"
+                tabIndex={on || (!imageSources.some(({ provider: source }) => source.id === view.artist.draw.provider) && provider === imageSources[0].provider) ? 0 : -1}
+                onChange={() => setDraw({ provider: provider.id, model: model.ref.model })}
               >
+                <span {...stylex.props(settingsStyles.cardContent)}>
                 <span className={`agt-mdraw__row ${stylex.props(settingsStyles.agtMdrawRow).className}`}>
-                  <span className={`agt-radio ${stylex.props(settingsStyles.agtRadio, (on) && settingsStyles.agtRadioOn).className}`} aria-hidden="true" />
+                  <RadioDot checked={on} />
                   <span className={`agt-mdraw__name ${stylex.props(settingsStyles.agtMdrawName).className}`}>{provider.label}</span>
                   <span className={`agt-mdraw__model ${stylex.props(settingsStyles.agtMdrawModel).className}`}>{model.ref.model}</span>
                 </span>
@@ -333,7 +335,8 @@ export function AgentsSection() {
                   <span className={`conn-num ${stylex.props(settingsStyles.connNum).className}`}>{meta.used}</span>
                   <span>{meta.reset}</span>
                 </span>
-              </button>
+                </span>
+              </RadioCard>
             )
           })}</div>}
 
@@ -370,6 +373,7 @@ export function AgentsSection() {
           homeIndicator
           height="auto"
           xstyle={settingsStyles.agentSheet}
+          bodyStyle={settingsStyles.agentSheetBody}
         >
           <div className={`agt-sheet agt-sheet-list ${stylex.props(agtSheetMarker, settingsStyles.agtSheetList).className}`}>
             <ModelList
@@ -383,13 +387,7 @@ export function AgentsSection() {
           {capErr && (capErr.field === 'director.model' || capErr.field === 'artist.promptModel') && (
             <span className={`agt-caperr ${stylex.props(settingsStyles.agtCaperr).className}`} style={{ padding: '0 var(--vv-s-16)' }}>{capMessage(capErr)}</span>
           )}
-          <button
-            type="button"
-            className={`agt-sheet-link ${stylex.props(settingsStyles.agtSheetLink).className}`}
-            onClick={() => { setSheet(null); navigate('/settings?section=connect') }}
-          >
-            {a.pickerFooter}
-          </button>
+          <Button variant="quiet" size="lg" onClick={() => { setSheet(null); navigate('/settings?section=connect') }}>{a.pickerFooter}</Button>
         </Sheet>
       </div>
     )
@@ -546,7 +544,7 @@ function FallbackChain({ chain, picked, onChange, needs, addLabel, addIcon, read
           <span className={`agt-pill__id ${stylex.props(settingsStyles.agtPillId).className}`}>{ref.model}</span>
           <span className={`agt-pill__prov ${stylex.props(settingsStyles.agtPillProv).className}`}>· {picked.find((p) => refId(p.ref) === refId(ref))?.providerLabel ?? ref.provider}</span>
           {!readOnly && (
-            <button type="button" className={`agt-pill__x ${stylex.props(settingsStyles.agtPillX).className}`} aria-label={`${t.common.cancel} ${ref.model}`} onClick={() => onChange(chain.filter((x) => refId(x) !== refId(ref)))}>×</button>
+            <Button variant="icon" size="sm" aria-label={`${t.common.cancel} ${ref.model}`} onClick={() => onChange(chain.filter((x) => refId(x) !== refId(ref)))}><Icon name="close" size={12} /></Button>
           )}
         </span>
       ))}
@@ -563,10 +561,9 @@ function FallbackChain({ chain, picked, onChange, needs, addLabel, addIcon, read
           <Button size="lg" variant="quiet" onClick={() => setAdding(false)}>{a.done}</Button>
         </span>
       ) : (
-        <button type="button" className={`agt-addpill ${stylex.props(settingsStyles.agtAddpill).className}`} onClick={() => setAdding(true)} disabled={candidates.length === 0}>
-          {addIcon && <Icon name="add" size={12} />}
+        <Button variant="quiet" size="sm" onClick={() => setAdding(true)} disabled={candidates.length === 0} icon={addIcon ? <Icon name="add" size={12} /> : undefined}>
           {addLabel ?? a.chainAdd}
-        </button>
+        </Button>
       ))}
     </span>
   )
