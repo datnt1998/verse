@@ -13,6 +13,7 @@ import type { Route } from '../../router'
 import { navigate, paths } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
+import { events, useEventsStatus } from '../../data/events'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { useDebounced } from '../../lib/useDebounced'
 import { ActionButton, Orb } from '../../components'
@@ -34,6 +35,8 @@ import { ScanCard } from './ScanCard'
 import { PostingCard } from './PostingCard'
 import { PreviewPanel } from './PreviewPanel'
 import { useRivalVideos, type VideosFilter } from './useRivalVideos'
+import { exploreListState, scanProgress, scanningRival } from './listState'
+import { ListStateBlock, ScanBanner, SkeletonTiles } from './ListStates'
 import { GRID_MAX_W } from './media'
 import { GRID_GAP_Y, useVirtualGrid } from '../../lib/useVirtualGrid'
 
@@ -111,6 +114,49 @@ export function ExploreScreen({ route }: { route: Route }) {
     ...(long ? [tt.noMatchLong] : []),
     ...(within > 0 && withinLabel ? [tt.noMatchWithin(withinLabel)] : []),
   ]
+  // Trạng thái vùng danh sách (artboard Explore/MExplore › list): đang quét thì
+  // chưa kết luận “không khớp bộ lọc”; mất kết nối đứng trước lỗi tải.
+  const eventsStatus = useEventsStatus()
+  const offline = eventsStatus.state === 'retrying'
+  const scanning = scanningRival(rivals, scope)
+  const listState = exploreListState({
+    count: items.length,
+    loading: videos.initialLoading,
+    error: videos.error,
+    offline,
+    scanning,
+    q: videos.shownQ,
+  })
+  // Đồng hồ đếm ngược của khối mất kết nối (“Tự thử lại sau 8 giây”).
+  const [clock, setClock] = useState(() => Date.now())
+  useEffect(() => {
+    if (listState !== 'offline' || eventsStatus.reconnectAt == null) return
+    const timer = setInterval(() => setClock(Date.now()), 500)
+    return () => clearInterval(timer)
+  }, [listState, eventsStatus.reconnectAt])
+  const retryIn = eventsStatus.reconnectAt == null ? 8 : Math.max(0, Math.ceil((eventsStatus.reconnectAt - clock) / 1000))
+  const scopeName = scopeRival?.title ?? tt.noMatchAll
+  const listCountText = listState === 'firstScan' && scanning
+    ? tt.listCountScanning(String(scanProgress(scanning).done), String(scanProgress(scanning).total), narrow ? scanning.title : null)
+    : listState === 'filterEmpty'
+      ? tt.listCountFiltered(num.format(scanned))
+      : listState === 'error' || listState === 'offline'
+        ? tt.listCountScanned(num.format(scanned), narrow ? scopeName : null)
+        : undefined
+  const retryList = useCallback(() => {
+    void videos.refresh()
+    void list.refresh()
+  }, [videos.refresh, list.refresh])
+  const retryNow = useCallback(() => {
+    events.retryNow()
+    retryList()
+  }, [retryList])
+  // “Bỏ lọc” đưa Dài, Đăng trong, Trạng thái về mặc định (Trạng thái đang khoá ở
+  // “Tất cả” nên chỉ hai bộ lọc đầu có state).
+  const clearFilters = useCallback(() => {
+    setLong(false)
+    setWithin(30)
+  }, [])
 
   // Chọn nhiều + video đang xem ở cột phải.
   const [selectMode, setSelectMode] = useState(false)
@@ -213,7 +259,8 @@ export function ExploreScreen({ route }: { route: Route }) {
   if (empty) {
     return (
       <div className={`vx-shell vx-shell--empty ${stylex.props(exploreStyles.shell, exploreStyles.shellEmpty, exploreRootMarker).className}`}>
-        <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
+        {/* MExplore › list=noRivals: bản một cột không vẽ cột đối thủ, chỉ khối giới thiệu. */}
+        {!narrow && <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />}
         <main className={`vx-empty ${stylex.props(exploreStyles.empty).className}`} aria-label={tt.title}>
           <div className={`vx-empty__box ${stylex.props(exploreStyles.emptyBox).className}`}>
             <Orb of="scout" size={40} live={false} />
@@ -266,18 +313,53 @@ export function ExploreScreen({ route }: { route: Route }) {
           scanned={scanned}
           q={videos.shownQ}
           hasChannel={channels.length > 0}
+          countText={listCountText}
+          scopeName={narrow ? scopeName : undefined}
         />
-        {videos.error != null && items.length === 0 ? (
-          <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.videosError}</p>
-        ) : items.length === 0 && !videos.initialLoading && videos.shownQ ? (
+        {listState === 'firstScan' && scanning ? (
+          <>
+            <ScanBanner rival={scanning} />
+            <SkeletonTiles />
+          </>
+        ) : listState === 'filterEmpty' ? (
+          <ListStateBlock
+            tone="accent"
+            icon="filter"
+            title={tt.listFilterTitle}
+            text={tt.listFilterText(activeFilters, num.format(scanned), narrow ? null : scopeName)}
+            action={tt.listFilterClear}
+            actionIcon="close"
+            onAction={clearFilters}
+          />
+        ) : listState === 'error' ? (
+          <ListStateBlock
+            tone="danger"
+            icon="danger"
+            title={tt.listErrorTitle}
+            text={tt.listErrorText(num.format(scanned))}
+            action={tt.listRetry}
+            actionIcon="refresh"
+            onAction={retryList}
+          />
+        ) : listState === 'offline' ? (
+          <ListStateBlock
+            tone="danger"
+            icon="danger"
+            title={tt.listOfflineTitle}
+            text={narrow ? tt.listOfflineTextMobile(retryIn) : tt.listOfflineText(retryIn)}
+            action={tt.listRetryNow}
+            actionIcon="refresh"
+            onAction={retryNow}
+          />
+        ) : listState === 'loading' ? (
+          <SkeletonTiles />
+        ) : listState === 'nomatch' ? (
           <div className={`vx-nomatch ${stylex.props(exploreStyles.nomatch).className}`} role="status">
             <Icon name="search" size={22} className={`vx-nomatch__ic ${stylex.props(exploreStyles.nomatchIc).className}`} />
             <span className={`vx-nomatch__title ${stylex.props(exploreStyles.nomatchTitle).className}`}>{tt.noMatchTitle(videos.shownQ)}</span>
             <span className={`vx-nomatch__sub ${stylex.props(exploreStyles.nomatchSub).className}`}>{tt.noMatchWhere(num.format(scanned), scopeRival?.title ?? tt.noMatchAll, activeFilters)}</span>
             <ActionButton className={stylex.props(exploreStyles.touchTarget).className} size="sm" onClick={() => setQuery('')}>{tt.searchClear}</ActionButton>
           </div>
-        ) : items.length === 0 && !videos.initialLoading ? (
-          <p className={`vx-side-empty ${stylex.props(exploreStyles.sideEmpty).className}`}>{tt.videosEmpty}</p>
         ) : (
           <VideoGrid
             items={items}

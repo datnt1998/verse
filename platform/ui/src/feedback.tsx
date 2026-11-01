@@ -60,9 +60,9 @@ const skel = stylex.create({
 
 /** Khối xương cá khi đang tải — Kit.dc.html `.skel`: --kit-grad-skel (40%), 1,4 s linear, bo 6 */
 export function Skeleton({ width = '100%', height = 14, radius = 6, style }: {
-  width?: number | string; height?: number; radius?: number; style?: CSSProperties
+  width?: number | string; height?: number | string; radius?: number; style?: CSSProperties
 }) {
-  const sx = stylex.props(skel.base(typeof width === 'number' ? `${width}px` : width, `${height}px`, `${radius}px`))
+  const sx = stylex.props(skel.base(typeof width === 'number' ? `${width}px` : width, typeof height === 'number' ? `${height}px` : height, `${radius}px`))
   return <div aria-hidden="true" className={sx.className} style={{ ...sx.style, ...style }} />
 }
 
@@ -72,12 +72,27 @@ const empty = stylex.create({
     padding: 18, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', borderColor: kit['--kit-wash-12'],
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center',
   },
+  // Khối trống cỡ lớn thay cả vùng danh sách (Explore/MExplore › trạng thái danh sách).
+  frameLg: {
+    padding: { default: '44px 16px', '@media (max-width: 767px)': '36px 16px' },
+    gap: 10, borderRadius: { default: 14, '@media (max-width: 767px)': 16 }, borderWidth: 1.5,
+  },
   iconChip: {
     width: 40, height: 40, borderRadius: 12, backgroundColor: tint['--tint-accent'], color: color['--color-accent'],
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
+  // Viderse đổi “đỏ phá huỷ” thành cam (--vv-danger*); Noverse không có biến đó → tông lỗi của Kit.
+  iconChipDanger: {
+    backgroundColor: 'var(--vv-danger-8, var(--kit-err-8))',
+    color: 'var(--vv-danger, var(--color-err))',
+  },
   titleFrame: { fontSize: 13.5, fontWeight: 500, color: color['--color-fg'] },
+  titleFrameLg: { fontSize: { default: 14, '@media (max-width: 767px)': 15 } },
   hintFrame: { fontSize: 12, color: kit['--kit-fg-icon'] },
+  hintFrameLg: {
+    fontSize: { default: 12.5, '@media (max-width: 767px)': 13.5 },
+    lineHeight: 1.55, maxWidth: 460,
+  },
   // Trạng thái trống không có trong artboard của màn: giữ dáng cũ (icon trần, không khung).
   inline: {
     paddingTop: 28, paddingBottom: 28, paddingInline: 0, display: 'flex', flexDirection: 'column',
@@ -92,21 +107,26 @@ const empty = stylex.create({
  * `frame` = khối trống của Kit.dc.html (khung nét đứt + ô icon 40). `inline` = dáng cũ, dùng cho màn mà
  * artboard không vẽ khối trống riêng. Mặc định `inline` để không đổi hình của màn khác.
  */
-export function EmptyState({ icon = 'magic-star', title, hint, action, style, variant = 'inline' }: {
+export function EmptyState({ icon = 'magic-star', title, hint, action, style, variant = 'inline', size = 'md', tone = 'accent' }: {
   icon?: string; title: ReactNode; hint?: ReactNode; action?: ReactNode; style?: CSSProperties
   /** 'frame' = khối trống của Kit; 'inline' = icon + chữ, không khung (mặc định). */
   variant?: 'frame' | 'inline'
+  /** `lg` = khối thay cả vùng danh sách (Explore/MExplore); chỉ áp cho `frame`. */
+  size?: 'md' | 'lg'
+  /** Tông ô icon; `danger` dùng màu lỗi của nền tảng. */
+  tone?: 'accent' | 'danger'
 }) {
   const framed = variant === 'frame'
-  const sx = stylex.props(framed ? empty.frame : empty.inline)
-  const chip = stylex.props(empty.iconChip)
+  const large = framed && size === 'lg'
+  const sx = stylex.props(framed ? empty.frame : empty.inline, large && empty.frameLg)
+  const chip = stylex.props(empty.iconChip, tone === 'danger' && empty.iconChipDanger)
   return (
     <div className={sx.className} style={{ ...sx.style, ...style }}>
       {framed
         ? <span aria-hidden="true" className={chip.className} style={chip.style}><Icon name={icon} size={19} /></span>
         : <Icon name={icon} size={22} />}
-      <span {...stylex.props(framed ? empty.titleFrame : empty.titleInline)}>{title}</span>
-      {hint && <span {...stylex.props(framed ? empty.hintFrame : empty.hintInline)}>{hint}</span>}
+      <span {...stylex.props(framed ? empty.titleFrame : empty.titleInline, large && empty.titleFrameLg)}>{title}</span>
+      {hint && <span {...stylex.props(framed ? empty.hintFrame : empty.hintInline, large && empty.hintFrameLg)}>{hint}</span>}
       {action && <span {...stylex.props(empty.actions)}>{action}</span>}
     </div>
   )

@@ -23,8 +23,8 @@ export function VideoStats({ channel, jobs }: { channel: Channel; jobs: Resource
   const placeholder = [labels.made, labels.posted, labels.waiting, labels.queued]
   return (
     <div {...stylex.props(sx.stats)}>
-      {(stats ?? placeholder.map((label) => ({ key: label, label, value: null, sub: '', tone: 'neutral' as const }))).map((stat) => (
-        <div key={stat.key} {...stylex.props(sx.stat)}>
+      {(stats ?? placeholder.map((label) => ({ key: label, label, value: null, sub: '', tone: 'neutral' as const }))).map((stat, index) => (
+        <div key={stat.key} {...stylex.props(sx.stat, index > 0 && sx.statDivider)}>
           <span {...stylex.props(sx.statLabel)}>{stat.label}</span>
           <span className={`num ${stylex.props(sx.statValue, stat.tone === 'warn' && sx.statValueWarn).className}`}>
             {stat.value !== null ? stat.value : jobs.error ? '—' : <Skeleton width={28} height={20} />}

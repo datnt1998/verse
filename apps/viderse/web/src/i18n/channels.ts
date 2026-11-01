@@ -22,7 +22,9 @@ export const channelsCopy = {
     ready: 'Máy sẵn sàng',
     noName: 'Kênh chưa đặt tên',
     created: (date: string) => `tạo ${date}`,
+    createdToday: 'tạo hôm nay',
     linkedRivals: (n: number) => `${n} đối thủ liên kết`,
+    linkedRivalsShort: (n: number) => `${n} đối thủ`,
     noYouTube: 'Chưa liên kết YouTube',
     openYouTube: 'Mở YouTube',
     linkYouTube: 'Liên kết YouTube',
@@ -98,6 +100,7 @@ export const channelsCopy = {
     autoLine: (rivals: number) => `Trinh sát xem ${rivals} đối thủ mỗi giờ, đưa video mới đăng vào cuối hàng chờ.`,
     paceLink: 'Đổi nhịp ›',
     explore: 'Mở Khám phá',
+    explorePick: 'Chọn video nổi trội trong Khám phá',
     noRivals: 'Chưa có đối thủ liên kết nên chưa có video nguồn. Liên kết đối thủ ở tab Nguồn & tự động.',
     sourcesLink: 'Nguồn & tự động ›',
     stats: {

@@ -34,6 +34,8 @@ export type RivalVideos = {
   needMore: () => void
   /** Ảnh chụp trang đầu đổi (SSE đưa video mới lên đầu) — dùng để neo cuộn. */
   revision: VideoPage | undefined
+  /** Tải lại trang đầu (nút Thử lại của trạng thái lỗi/mất kết nối). */
+  refresh: () => Promise<unknown>
 }
 
 export function useRivalVideos(filter: VideosFilter): RivalVideos {
@@ -113,5 +115,6 @@ export function useRivalVideos(filter: VideosFilter): RivalVideos {
     needMore,
     /** Ảnh chụp trang đầu đổi (SSE đưa video mới lên đầu) — dùng để neo cuộn. */
     revision: firstData,
+    refresh: first.refresh,
   }
 }

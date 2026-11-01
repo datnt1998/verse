@@ -25,7 +25,7 @@ export const WITHIN: { id: string; value: 0 | 7 | 30 | 90; label: string }[] = [
 
 const num = new Intl.NumberFormat('vi-VN')
 
-export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total, scanned, q, hasChannel }: {
+export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total, scanned, q, hasChannel, countText, scopeName }: {
   sort: VideoSort
   long: boolean
   within: 0 | 7 | 30 | 90
@@ -40,15 +40,21 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
   q: string
   /** đã có kênh của bạn → lý do khoá đổi sang "cần hàng chờ" */
   hasChannel: boolean
+  /** dòng đếm thay thế cho trạng thái danh sách (lọc rỗng/quét/lỗi/mất kết nối) */
+  countText?: string
+  /** tên phạm vi — bản một cột nối vào dòng đếm (“24 / 1.284 video · Nocturne Stories”) */
+  scopeName?: string
 }) {
   const tt = t.screens.explore
   const lockReason = hasChannel ? tt.queueReason : tt.lockedReason
   const lockId = useId()
   const touch = useMediaQuery(TOUCH_COLUMN)
+  const narrow = useMediaQuery('(max-width: 767px)')
   const withinLabel = WITHIN.find((w) => w.value === within)?.label ?? tt.withinDays.d30
-  const count = total === undefined ? ''
+  const baseCount = countText ?? (total === undefined ? ''
     : !q ? tt.videoCount(num.format(total), num.format(scanned))
-      : total > 0 ? tt.searchCount(num.format(total), q, num.format(scanned)) : tt.searchCountNone(q)
+      : total > 0 ? tt.searchCount(num.format(total), q, num.format(scanned)) : tt.searchCountNone(q))
+  const count = narrow && scopeName && baseCount ? `${baseCount} · ${scopeName}` : baseCount
   return (
     <div className={`vx-filters ${stylex.props(exploreStyles.filters).className}`}>
       <Segmented xstyle={exploreStyles.segmented} buttonStyle={exploreStyles.segmentedButton}
@@ -65,12 +71,12 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
           { id: 'views', label: tt.sorts.views },
         ]}
       />
-      <button type="button" className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} aria-pressed={long} onClick={() => onLong(!long)}>
+      <button type="button" className={`vx-chip ${stylex.props(exploreStyles.chip, long && exploreStyles.chipCustom).className}`} aria-pressed={long} onClick={() => onLong(!long)}>
         <Icon name="clock" size={14} />
         {tt.filterLong} <b {...stylex.props(exploreStyles.chipValue)}>{tt.filterLongValue}</b>
         <Icon name="arrow-d" size={12} aria-hidden />
       </button>
-      <label className={`vx-chip vx-chip--select ${stylex.props(exploreStyles.chip).className}`}>
+      <label className={`vx-chip vx-chip--select ${stylex.props(exploreStyles.chip, within !== 30 && exploreStyles.chipCustom).className}`}>
         <Icon name="calendar" size={14} />
         {tt.filterWithin} <b {...stylex.props(exploreStyles.chipValue)}>{withinLabel}</b>
         <select
