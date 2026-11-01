@@ -15,6 +15,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 	"github.com/datnt1998/verse/platform/blobstore"
 )
 
@@ -141,6 +142,13 @@ func (s *Service) GetMediaMetadata(ctx context.Context, id string) (MediaRecord,
 	m, _, e := s.readMedia(ctx, id)
 	return m.MediaRecord, e
 }
+
+// MediaLimit is the byte ceiling for a media kind ("video", "audio", "image").
+// An explicit YTF_EDITOR_MAX_* override always wins; otherwise the built-in
+// ceiling is lowered to the public upload limit when the app is served over the
+// internet (see package uploadlimit).
+func MediaLimit(kind string) int64 { return mediaLimit(kind) }
+
 func mediaLimit(kind string) int64 {
 	name := "YTF_EDITOR_MAX_VIDEO_BYTES"
 	fallback := float64(20 << 30)
@@ -155,7 +163,17 @@ func mediaLimit(kind string) int64 {
 	if n, e := strconv.ParseFloat(os.Getenv(name), 64); e == nil && n > 0 && !math.IsInf(n, 0) && !math.IsNaN(n) && n < float64(math.MaxInt64) {
 		return int64(n)
 	}
-	return int64(fallback)
+	return uploadlimit.Cap(int64(fallback))
+}
+
+// uploadTooLarge states a refusal: over the internet the limit belongs to the
+// edge, so the message names it in Vietnamese; locally the English wording of
+// the editor's own API stays.
+func uploadTooLarge(local string, limit int64) string {
+	if uploadlimit.Hosted() {
+		return uploadlimit.TooLargeMessage(limit)
+	}
+	return local
 }
 func declaredMediaLimit(mime string) int64 {
 	kind := "video"
@@ -196,8 +214,8 @@ func (s *Service) importMedia(ctx context.Context, id string, opts ImportMediaOp
 	if e != nil {
 		return MediaRecord{}, e
 	}
-	if n > mediaLimit(probe.Kind) {
-		return MediaRecord{}, apiError("payload_too_large", probe.Kind+" upload exceeds size limit")
+	if limit := mediaLimit(probe.Kind); n > limit {
+		return MediaRecord{}, apiError("payload_too_large", uploadTooLarge(probe.Kind+" upload exceeds size limit", limit))
 	}
 	filename := strings.TrimSpace(opts.FileName)
 	if filename == "" && current != nil {

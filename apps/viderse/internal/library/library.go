@@ -22,6 +22,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 )
 
 // Chủ đề sự kiện SSE của mảng Thư viện.
@@ -31,9 +32,24 @@ const (
 	TopicOverlay  = "library.overlays"
 )
 
-// MaxOverlayBytes là trần tệp lớp phủ tải lên (256 MiB) — cùng bậc với kho
-// media của yt-factory, đủ cho một vòng hiệu ứng 1080p dài.
+// MaxOverlayBytes là trần tệp lớp phủ tải lên trên máy (256 MiB) — cùng bậc
+// với kho media của yt-factory, đủ cho một vòng hiệu ứng 1080p dài.
 const MaxOverlayBytes = 256 << 20
+
+// OverlayLimit là trần thật đang áp dụng: giữ MaxOverlayBytes khi chạy trên
+// máy, hạ xuống trần tải qua internet (90 MiB) khi có PUBLIC_URL — nếu không,
+// Cloudflare trả 413 HTML trước khi app kịp nói vì sao.
+func OverlayLimit() int64 { return uploadlimit.Cap(MaxOverlayBytes) }
+
+// OverlayTooLarge trả cặp (message, recovery) cho tệp lớp phủ quá lớn: khi bị
+// hạ trần vì chạy công khai, lời nhắn phải nói rõ trần đó.
+func OverlayTooLarge() (string, string) {
+	limit := OverlayLimit()
+	if limit < MaxOverlayBytes {
+		return "Tệp lớp phủ quá lớn", uploadlimit.TooLargeMessage(limit)
+	}
+	return "Tệp lớp phủ quá lớn", "Chọn tệp nhỏ hơn " + uploadlimit.Label(limit)
+}
 
 // TemplateRef là một template (id + tên) dùng cho danh sách "đang dùng".
 type TemplateRef struct {

@@ -30,6 +30,7 @@ import { getBuiltInEditingTemplates } from '@editor/features/editing-templates/r
 import { useProjectStore } from '@editor/features/projects/stores/project-store';
 import { usePlaybackStore } from '@editor/shared/state/playback';
 import { insertMedia, insertText, applyLibraryDrop, LIBRARY_DRAG_MIME, type LibraryDrop } from './library-actions';
+import { uploadKindForMime, uploadTooLarge } from '../../../api/upload-limits';
 import { OPEN_LIBRARY_TAB_EVENT } from '@/editor/ui/inspector/effects';
 import { EffectsTab } from './effects-tab';
 import { OverlaysTab } from './overlays-tab';
@@ -93,6 +94,10 @@ export function LibraryPanel() {
   }, []);
   const importFiles = async (files: File[], replacing?: string) => {
     for (const file of files) {
+      // Qua internet, tệp vượt trần bị edge chặn bằng trang 413 HTML: tự chặn
+      // trước và nói rõ trần thay vì để request chết giữa đường.
+      const tooLarge = await uploadTooLarge(uploadKindForMime(file.type), file.size);
+      if (tooLarge) { showError(new Error(tooLarge)); continue; }
       const id = crypto.randomUUID(); const controller = new AbortController();
       setUploads(current => [...current, { id, name: file.name, progress: 0, controller, processing: true }]);
       try {

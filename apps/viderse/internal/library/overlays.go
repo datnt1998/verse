@@ -91,8 +91,9 @@ func (s *Service) AddOverlayReader(ctx context.Context, filename, displayName st
 	switch {
 	case size <= 0:
 		return nil, false, &Error{Code: CodeBadMedia, Message: "Tệp lớp phủ đang rỗng", Recovery: "Chọn tệp khác"}
-	case size > MaxOverlayBytes:
-		return nil, false, invalidInput("Tệp lớp phủ quá lớn", "Chọn tệp nhỏ hơn 256 MB")
+	case size > OverlayLimit():
+		message, recovery := OverlayTooLarge()
+		return nil, false, invalidInput(message, recovery)
 	}
 	if s.files == nil && s.media == nil {
 		return nil, false, fmt.Errorf("thiếu kho lưu lớp phủ")
@@ -114,15 +115,16 @@ func (s *Service) AddOverlayReader(ctx context.Context, filename, displayName st
 	defer os.Remove(tempPath)
 
 	hash := sha256.New()
-	written, err := copyBounded(ctx, io.MultiWriter(temp, hash), r, MaxOverlayBytes+1)
+	written, err := copyBounded(ctx, io.MultiWriter(temp, hash), r, OverlayLimit()+1)
 	if closeErr := temp.Close(); err == nil {
 		err = closeErr
 	}
 	if err != nil {
 		return nil, false, errBadMedia(err)
 	}
-	if written > MaxOverlayBytes {
-		return nil, false, invalidInput("Tệp lớp phủ quá lớn", "Chọn tệp nhỏ hơn 256 MB")
+	if written > OverlayLimit() {
+		message, recovery := OverlayTooLarge()
+		return nil, false, invalidInput(message, recovery)
 	}
 	if written == 0 {
 		return nil, false, &Error{Code: CodeBadMedia, Message: "Tệp lớp phủ đang rỗng", Recovery: "Chọn tệp khác"}
@@ -291,7 +293,7 @@ func (s *Service) publishOverlayBytes(overlay *domain.Overlay, from string) erro
 		return errBadMedia(err)
 	}
 	defer src.Close()
-	if _, err := copyBounded(context.Background(), temp, src, MaxOverlayBytes+1); err != nil {
+	if _, err := copyBounded(context.Background(), temp, src, OverlayLimit()+1); err != nil {
 		temp.Close()
 		return errBadMedia(err)
 	}

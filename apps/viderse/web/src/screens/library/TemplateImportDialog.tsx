@@ -10,6 +10,7 @@ import { color, line } from '@noverse/ui/tokens.stylex'
 import { invalidate } from '@noverse/ui/data'
 import { vi as t } from '../../i18n/vi'
 import { importTemplates, type TemplateImportItem, type TemplateImportResult } from '../../api/library'
+import { uploadTooLarge } from '../../api/upload-limits'
 import { ApiError } from '../../api/request'
 import { keys } from '../../data/keys'
 import { libraryVars } from './libraryTokens.stylex'
@@ -29,6 +30,16 @@ export function TemplateImportDialog({ onClose }: { onClose: () => void }) {
     if (files.length === 0) {
       setError(copy.importOnlyZip)
       return
+    }
+    // Qua internet, gói vượt trần bị edge chặn bằng trang 413 HTML — tự chặn
+    // trước để người dùng đọc được trần thay vì một trang lỗi lạ.
+    for (const file of files) {
+      const tooLarge = await uploadTooLarge('template', file.size)
+      if (tooLarge) {
+        setError(`${file.name}: ${tooLarge}`)
+        if (input.current) input.current.value = ''
+        return
+      }
     }
     setBusy(true)
     setError(null)

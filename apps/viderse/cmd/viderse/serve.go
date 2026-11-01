@@ -99,6 +99,9 @@ func runServe(args []string) error {
 
 	gateway := web.NewGateway(accounts, hub, statusSvc)
 	gateway.SetProxyConfig(proxyCfg)
+	// SPA cần biết trần tải lên đang áp dụng để tự chặn tệp quá lớn trước khi
+	// gửi (qua internet, edge trả 413 HTML mà UI không giải thích được).
+	web.MountUploadLimits(gateway)
 	// Lưu trữ: watch ổ dự án và tự dọn chạy theo vòng đời của serve.
 	bg, bgStop := context.WithCancel(context.Background())
 	defer bgStop()

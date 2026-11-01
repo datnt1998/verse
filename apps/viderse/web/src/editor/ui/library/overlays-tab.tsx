@@ -16,6 +16,7 @@ import type { MediaMetadata } from "@editor/types/storage";
 import { addOverlay } from "./library-actions";
 import { LinkImportForm } from "./link-import-form";
 import { MediaThumbnail } from "./library-panel";
+import { uploadKindForMime, uploadTooLarge } from "../../../api/upload-limits";
 
 const showError = (error: unknown) => toast.error(error instanceof Error ? error.message : "Không thực hiện được. Thử lại.");
 
@@ -45,6 +46,9 @@ export function OverlaysTab({ query }: { query: string }) {
 
   const importOverlays = async (files: File[]) => {
     for (const file of files) {
+      // Qua internet, tệp vượt trần bị edge chặn bằng trang 413 HTML: tự chặn trước.
+      const tooLarge = await uploadTooLarge(uploadKindForMime(file.type), file.size);
+      if (tooLarge) { showError(new Error(tooLarge)); continue; }
       setBusy(file.name);
       try {
         const imported = await mediaLibraryService.importFile(file, { projectId: useProjectStore.getState().currentProject?.id });

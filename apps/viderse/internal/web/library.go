@@ -21,6 +21,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -374,7 +375,8 @@ func TemplateImportToWire(results []library.ImportResult) ([]TemplateImportItemW
 
 // receiveTemplateUploads ghi từng phần multipart ra tệp tạm rồi trả danh sách
 // đường dẫn. Tệp lớn không đi qua bộ nhớ: phần được chép thẳng xuống đĩa với
-// trần MaxTemplateBundleBytes mỗi tệp và trần tổng cho cả lượt.
+// trần TemplateBundleLimit mỗi tệp và trần tổng cho cả lượt (trần này hạ xuống
+// 90 MiB khi phục vụ qua internet).
 func receiveTemplateUploads(w http.ResponseWriter, r *http.Request) ([]string, func(), error) {
 	noop := func() {}
 	reader, err := r.MultipartReader()
@@ -418,21 +420,22 @@ func receiveTemplateUploads(w http.ResponseWriter, r *http.Request) ([]string, f
 			cleanup()
 			return nil, noop, err
 		}
-		written, copyErr := io.Copy(destination, io.LimitReader(part, library.MaxTemplateBundleBytes+1))
+		written, copyErr := io.Copy(destination, io.LimitReader(part, library.TemplateBundleLimit()+1))
 		closeErr := destination.Close()
 		_ = part.Close()
 		if copyErr != nil || closeErr != nil {
 			cleanup()
 			return nil, noop, uploadError("Không đọc được tệp tải lên")
 		}
-		if written > library.MaxTemplateBundleBytes {
+		if written > library.TemplateBundleLimit() {
 			cleanup()
-			return nil, noop, uploadError(fmt.Sprintf("Mỗi tệp tối đa %d GiB", library.MaxTemplateBundleBytes>>30))
+			message, recovery := library.TemplateBundleTooLarge()
+			return nil, noop, &library.Error{Code: library.CodeInvalidInput, Message: message, Recovery: recovery}
 		}
 		total += written
-		if total > library.MaxTemplateBundleBytes {
+		if total > library.TemplateBundleLimit() {
 			cleanup()
-			return nil, noop, uploadError(fmt.Sprintf("Mỗi lần nhập tối đa %d GiB", library.MaxTemplateBundleBytes>>30))
+			return nil, noop, uploadError("Mỗi lần nhập tối đa " + uploadlimit.Label(library.TemplateBundleLimit()))
 		}
 		files = append(files, file)
 	}
@@ -797,12 +800,13 @@ func addOverlay(w http.ResponseWriter, r *http.Request, svc LibraryService, diag
 		}, diag)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, library.MaxOverlayBytes+(1<<20))
+	r.Body = http.MaxBytesReader(w, r.Body, library.OverlayLimit()+(1<<20))
 	if err := r.ParseMultipartForm(8 << 20); err != nil {
+		_, recovery := library.OverlayTooLarge()
 		writeLibraryError(w, &library.Error{
 			Code:     library.CodeInvalidInput,
 			Message:  "Tệp tải lên hỏng hoặc quá lớn",
-			Recovery: "Chọn tệp nhỏ hơn 256 MB",
+			Recovery: recovery,
 		}, diag)
 		return
 	}

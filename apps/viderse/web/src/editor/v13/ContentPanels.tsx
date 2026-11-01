@@ -15,6 +15,7 @@ import { getEditorStorage } from '@editor/storage/storage-backend'
 import { serverMediaToMetadata } from '@editor/storage/media-adapter'
 import { getProjectRevision } from '@editor/storage/project-persistence'
 import { request } from '../../api/request'
+import { uploadKindForMime, uploadTooLarge } from '../../api/upload-limits'
 import { subscribeEvents } from '../../data/events'
 import type { MediaMetadata } from '@editor/types/storage'
 import type { TimelineItem, TimelineTrack } from '@editor/types/timeline'
@@ -342,6 +343,8 @@ function MediaPanel({ onSelectItem }: Pick<ContentPanelsProps, 'onSelectItem'>) 
     try {
       for (const file of files) {
         if (!/^(image|video|audio)\//u.test(file.type)) throw new Error('Chỉ nhập ảnh, video hoặc âm thanh.')
+        const tooLarge = await uploadTooLarge(uploadKindForMime(file.type), file.size)
+        if (tooLarge) { setError(tooLarge); return }
         const record = await getEditorStorage().importMedia(file, { fileName: file.name, mime: file.type, projectId })
         if (useProjectStore.getState().currentProject?.id !== projectId) throw new Error('Video đã thay đổi. Media đã nhập được giữ trong thư viện.')
         useMediaLibraryStore.getState().prependMediaItem(serverMediaToMetadata(record))

@@ -231,7 +231,7 @@ func (s *Service) stageFile(path string, body io.Reader, maxBytes int64) (media.
 	}
 	n, err := io.Copy(io.MultiWriter(file, hash), source)
 	if err == nil && maxBytes > 0 && n > maxBytes {
-		err = apiError("payload_too_large", "Upload exceeds the size limit")
+		err = apiError("payload_too_large", uploadTooLarge("Upload exceeds the size limit", maxBytes))
 	}
 	if err == nil {
 		err = file.Sync()

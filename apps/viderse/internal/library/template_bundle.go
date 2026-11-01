@@ -33,6 +33,7 @@ import (
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
+	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
 )
 
 const (
@@ -40,14 +41,29 @@ const (
 	TemplateBundleFormat = "ytf-template"
 	// TemplateBundleVersion là phiên bản manifest bộ đọc này hiểu được.
 	TemplateBundleVersion = 1
-	// MaxTemplateBundleBytes là trần tệp tải lên (4 GiB): đủ cho một template
-	// vài chục video nền 1080p, vẫn chặn được tệp rác khổng lồ.
+	// MaxTemplateBundleBytes là trần tệp tải lên trên máy (4 GiB): đủ cho một
+	// template vài chục video nền 1080p, vẫn chặn được tệp rác khổng lồ. Khi
+	// chạy công khai, dùng TemplateBundleLimit() — trần bị hạ xuống dưới giới
+	// hạn body của Cloudflare.
 	MaxTemplateBundleBytes = int64(4) << 30
 	// maxBundleManifestBytes là trần `template.json` (cùng hằng của bản xuất cũ).
 	maxBundleManifestBytes = 32 << 20
 	// maxBundleMedia là trần số media một template (cùng hằng của bản xuất cũ).
 	maxBundleMedia = 10_000
 )
+
+// TemplateBundleLimit là trần thật đang áp dụng cho một tệp template (và cho
+// tổng một lượt nhập): 4 GiB trên máy, 90 MiB khi phục vụ qua internet.
+func TemplateBundleLimit() int64 { return uploadlimit.Cap(MaxTemplateBundleBytes) }
+
+// TemplateBundleTooLarge trả cặp (message, recovery) cho gói template quá lớn.
+func TemplateBundleTooLarge() (string, string) {
+	limit := TemplateBundleLimit()
+	if limit < MaxTemplateBundleBytes {
+		return "Tệp template quá lớn", uploadlimit.TooLargeMessage(limit)
+	}
+	return "Tệp template quá lớn", "Mỗi tệp tối đa " + uploadlimit.Label(limit)
+}
 
 const bundleManifestName = "template.json"
 
@@ -156,8 +172,9 @@ func OpenTemplateBundle(target string) (*TemplateBundle, error) {
 }
 
 func openTemplateZip(target string) (*TemplateBundle, error) {
-	if info, err := os.Stat(target); err == nil && info.Size() > MaxTemplateBundleBytes {
-		return nil, invalidInput("Tệp template quá lớn", fmt.Sprintf("Mỗi tệp tối đa %d GiB", MaxTemplateBundleBytes>>30))
+	if info, err := os.Stat(target); err == nil && info.Size() > TemplateBundleLimit() {
+		message, recovery := TemplateBundleTooLarge()
+		return nil, invalidInput(message, recovery)
 	}
 	archive, err := zip.OpenReader(target)
 	if err != nil {

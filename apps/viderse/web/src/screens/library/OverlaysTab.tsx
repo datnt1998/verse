@@ -13,6 +13,7 @@ import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { useVirtualGrid } from '../../lib/useVirtualGrid'
 import { addOverlay, listOverlays, removeOverlay, type Overlay } from '../../api/library'
+import { uploadTooLarge } from '../../api/upload-limits'
 import { duration } from './fmt'
 
 const ACCEPT = '.mp4,.m4v,.mov,.webm,.png,.jpg,.jpeg,.webp'
@@ -66,6 +67,14 @@ export function OverlaysTab() {
   const upload = async (file: File | undefined) => {
     if (!file) return
     setError(null)
+    // Qua internet, tệp vượt trần bị edge chặn bằng trang 413 HTML: tự chặn
+    // trước và nói rõ trần (cùng câu với lỗi của máy chủ).
+    const tooLarge = await uploadTooLarge('overlay', file.size)
+    if (tooLarge) {
+      setError(tooLarge)
+      if (input.current) input.current.value = ''
+      return
+    }
     setBusy(true)
     try {
       await addOverlay(file)
