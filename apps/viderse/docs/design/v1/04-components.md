@@ -24,6 +24,24 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
    ```
    và với mọi component có chữ cái đầu / ảnh đại diện, radius phải là `50%`.
 
+## Mọi màn dùng UI Kit <a id="c-kit-only"></a> <!-- r37 -->
+Từ đợt 37, **không màn nào vẽ tay nút, ô chọn, nhóm chọn, tab hay menu**. Board nào cũng dựng bằng class của `kit.css`; code dùng thành phần tương ứng của `@noverse/ui`. Chuyển động lấy từ kit, không tự đặt:
+
+| Thành phần | Class kit · thành phần code | Chuyển động (như Noverse) |
+|---|---|---|
+| Nút | `.vv-btn` (`--primary` · mặc định viền · `--quiet` · `--icon` · `--danger(-soft)` · `--sm` · `--m`) · `Button` | hover nền `--vv-hover`, nhấn thu `.98`, `aria-disabled` mờ .42 |
+| Nhóm chọn | `.vv-seg` (`--sm` · `--m` · `--fill` · `--bar`) · `Segmented` | **viên trượt** tới mục chọn, 320 ms `cubic-bezier(.3,.7,.2,1)`; đo theo mục thật (rộng, vị trí); nhấn thu `.97` |
+| Tab gạch chân | `.vv-tabs` + `.vv-tab` · `Tabs` | màu chữ và gạch đổi 240 ms |
+| Chip chọn (khoá : giá trị ▾) | `.vv-chip` · `ChipSelect` | hover viền sáng hơn; mũi tên lật 180° khi mở (180 ms) |
+| Ô chọn trong biểu mẫu | `.vv-select` · `Select` | viền focus, mũi tên lật |
+| Menu / danh sách chọn | `.vv-pop` + `.vv-pop-in` · `.vv-opt` · `Menu` | mở: trồi 4px + scale .97 → rõ (`--vv-dur-pop`) |
+| Toast | `.vv-toast` · `.vv-tcard` · `toast` | xem Toast |
+
+- Nhóm chọn nào cũng có viên trượt: board dùng một đoạn script nhỏ (`data-vv="glide"`) đo mục đang chọn và đặt `--gx`/`--gw`; code dùng `Segmented` của `@noverse/ui` (đã đo bằng JS). Không còn kiểu đổi nền tức thì.
+- Không phải nhóm chọn: dải ảnh thu nhỏ, lưới màu, thẻ lựa chọn có mô tả — giữ thành phần riêng (`VideoThumb`, `.vv-choice`…).
+- `prefers-reduced-motion`: tắt mọi chuyển động trên, giữ đổi trạng thái.
+- Board có kiểm kê tự động (`tools/kit_audit.py`): số nút/ô chọn/nhóm chọn/menu vẽ tay phải bằng 0 trước khi bàn giao.
+
 ## AppHeader <!-- c-app-header -->
 - Cao 48px; viền dưới `--vv-hairline`.
 - **Trái:** logo ống kính 26px + ngữ cảnh: `ChannelSwitcher` ở Bàn dựng; breadcrumb ở Kênh (“Kênh của tôi”), Khám phá (“Khám phá / <đối thủ>”) và trang phụ. <!-- r11-audit -->

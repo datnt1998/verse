@@ -233,7 +233,8 @@ Thanh dưới: **Bàn dựng · Duyệt · [+] Video mới · Kênh · Khám ph�
 - Khám phá và Duyệt không có bộ đổi kênh (giống máy tính: chỉ Bàn dựng đổi phạm vi, Kênh đổi kênh đang mở).
 - Viên **Việc nền** ở mọi màn gốc mở cùng một sheet (đang chạy + “Mở hàng chờ”); ở Bàn dựng là sheet Hàng chờ có Tạm dừng, “Mở cả hàng chờ” và “Quy tắc chạy”. Cả hai dẫn tới màn **Hàng chờ** (`MQueue`). <!-- r31-v27 -->
 - Cài đặt mở từ avatar, là màn con (không có thanh dưới).
-- Editor, Thư viện, Cài đặt template, Lần đầu mở chỉ có trên máy tính. Link tới các trang đó trên điện thoại hiện “Mở trên máy tính”.
+- Editor, Lần đầu mở chỉ có trên máy tính. Link tới các trang đó trên điện thoại hiện “Mở trên máy tính”.
+- **Thư viện dùng chung** và **Sửa template** có trên điện thoại (Gói V34): `MLibrary`, `MTemplate`. Cùng dữ liệu, cùng tuỳ chọn với máy tính; bố cục theo điện thoại (tab dạng nhóm chọn, ⋯ mở sheet, mỗi mục của template là một màn con, tự lưu). Lối vào: Kênh › Template › *Mở Thư viện dùng chung*. <!-- r38 -->
 - **Tạo kênh** có trên điện thoại (`MCreate`), mở từ sheet Đổi kênh: cùng trường, cùng mặc định với máy tính; nhận diện vẽ sau khi tạo nên không cần màn lớn. <!-- r13-create -->
 - Trong trang Kênh, chỉ máy tính có: **Chọn nhiều** (thao tác hàng loạt) và ô **Dặn trợ lý về kênh này**. Mọi thiết lập còn lại của kênh có đủ trên điện thoại.
 
@@ -270,8 +271,9 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 - Nhận diện theo **đối thủ chọn đầu tiên** (tham chiếu): cùng ngôn ngữ, cùng thể loại; tên mới cùng nghĩa, ảnh cùng định dạng nhưng là tác phẩm mới. <!-- r10-channel -->
 - **Mẫu chuẩn** tạo tự động = cách ghép **Tách nền** + prompt ảnh cảnh **Theo nhận diện kênh** + prompt bìa **Chữ hook**, 6 ảnh. Kênh mới vẽ đúng phong cách của mình mà không phải chọn gì. <!-- r11-audit -->
 - Ngôn ngữ viết tiêu đề, mô tả lưu theo ngôn ngữ đoán từ đối thủ tham chiếu; đổi ở Hồ sơ kênh.
-- Kênh vừa tạo, chưa có video: `Channel` · `fresh=true` (Tự lấy đang bật; lối làm video mới nhất của đối thủ — cùng video với màn Xong: video đăng gần nhất của Nocturne Stories). <!-- r21-empty -->
+- Kênh vừa tạo, chưa có video: `Channel` · `fresh=true` (Tự lấy đang bật; lối làm video mới nhất của đối thủ — cùng video với màn Xong: video đăng gần nhất của Nocturne Stories). <!-- r21-empty --> Điện thoại: `MChannel` · `fresh=true` — số liệu 0, tab Video 0 · Nguồn 2 · Template 1, cùng ba lối (Làm video cho kênh, Tự lấy video, Chọn video nổi trội trong Khám phá). <!-- r38 -->
 - Vẽ nhận diện lỗi (hết hạn mức…): tên và mô tả vẫn lưu; Hồ sơ kênh hiện khối cam “Chưa vẽ được avatar và ảnh bìa” + Thử lại + giờ tự thử lại. Kênh vẫn làm video được.
+- **Đạo diễn chưa đặt được tên và mô tả** (bước Xong, `identity=director`): kênh vẫn được tạo với tên tạm **“Kênh mới”**, avatar chữ “K” nền trung tính. Thẻ đổi thành **“Một việc cần bạn”**: dòng Đạo diễn “chưa đặt được tên và mô tả kênh: <lý do>” + **Thử lại**; Hoạ sĩ “chờ Đạo diễn”; Kiểm định Xong. Thêm nút **Đặt tên ở Hồ sơ kênh**. Đặt tên tay xong thì Hoạ sĩ vẽ theo tên đó. <!-- r38 -->
 - Xem/sửa nhận diện sau ở Kênh › **Hồ sơ kênh**.
 - **Luật:** L4, L12, L13.
 - **Artboard:** `Onboard` · `step=create|done`, `identity=running|failed`, `rivals=some|none|empty` · `CreateChannel` (cùng tweak, mở thẳng ở Tạo kênh) · `MCreate` · `step=create|done`, `rivals`, `identity` · `Channel` · `tab=settings`, `identity=ready|generating|failed` · `Channel` · `fresh=true`. <!-- r13-create --> <!-- r21-empty -->
@@ -482,6 +484,7 @@ Sáu mục:
 - **Kết nối AI** <!-- r8-ai --> (giống Noverse): danh sách nhà cung cấp, mỗi thẻ có loại kết nối (Đăng nhập gói · Khoá API · Trên máy này), việc làm được (Chữ · Vẽ ảnh), hạn mức hoặc chi phí, và ba nút **Model · N** / **Thử kết nối** / Đăng xuất · Đổi khoá · Đổi địa chỉ.
   - **Model · N** mở danh mục lấy thẳng từ nhà cung cấp: tìm, lọc Đã chọn / Gợi ý / Tất cả, mỗi model có nhãn Chữ · Chữ · đọc ảnh · Vẽ ảnh, ngữ cảnh và giá. “Không thấy model? Thêm theo tên” gọi thử model rồi mới thêm.
   - **Thêm nhà cung cấp:** OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Anthropic, Ollama, Tương thích OpenAI. Dán khoá → **Kết nối và lấy model** → thẻ mới lên đầu danh sách, nhắc chọn ít nhất một model. Khoá chỉ hiện dạng che.
+  - **Số liệu YouTube** <!-- r38 -->: nhóm riêng dưới nút Thêm nhà cung cấp (không phải AI). Một thẻ **YouTube Data API** · Khoá API · Không bắt buộc. Có khoá: Trinh sát đọc lượt xem, thích, bình luận sau đăng qua API; không có khoá: đọc từ trang công khai. Thêm / Đổi khoá mở ô dán ngay trong thẻ (Lưu khoá · Huỷ); Google từ chối → viền cam + câu lỗi; mất kết nối → mọi nút của thẻ tắt.
   - Lỗi khoá: thẻ viền cam, câu nói rõ nhà cung cấp từ chối khoá, nút Đổi khoá · Thử lại · Thêm theo tên.
   - Thay đổi chưa lưu: thanh dính ở đầu mục (Huỷ · Lưu).
 - **Trợ lý AI:** bốn trợ lý. Trinh sát, Kiểm định ghi “Không dùng model”. Đạo diễn: model, mức suy nghĩ (Tự động/Thấp/Vừa/Cao), chuỗi dự phòng. Hoạ sĩ: model viết mô tả ảnh (mờ model không đọc được ảnh), **Vẽ ảnh bằng** (ChatGPT · Grok · Gemini…), công tắc “Vẽ lại bằng nguồn khác khi lỗi” và thứ tự nguồn dự phòng. Ô chọn model chỉ liệt kê model đã chọn ở Kết nối AI; model không làm được việc đó hiện mờ kèm lý do.

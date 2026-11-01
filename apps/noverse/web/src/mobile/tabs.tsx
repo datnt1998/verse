@@ -1,9 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
-import { navigateNow, paths, type Parsed } from '../router'
-import { Icon } from '@noverse/ui'
-import { KeepAlive } from '../shell/KeepAlive'
-import type { TabMode } from './logic'
-import { MobilePaneScope } from './runtime'
+import { paths, type Parsed } from '../router'
 
 export type TabKey = 'work' | 'read' | 'audio' | 'more'
 /** `disabled`: tab chưa có đích (chưa chọn truyện) — hiện mờ, không bấm được. */
@@ -99,65 +94,3 @@ export function moreStart(view: Parsed): { initialPage?: 'home' | 'projects' | '
   return { initialPage, initialCommand: route.name === 'help' ? route.cmd ?? undefined : search.get('cmd') ?? undefined }
 }
 
-/** Sau khi đổi tab, chỉnh vạch chỉ báo lạc quan trở lại tab đang thật sự hiển thị nếu điều hướng bị chặn. */
-const RELEASE_MS = 800
-
-/**
- * Thanh tab dưới: `button` + `navigate()`, không `<a href="#…">` — trên iOS link hash bắn
- * cú chạm/điều hướng mặc định trùng với router nên nội dung bị nháy như tải lại trang.
- * `touch-action: manipulation` (CSS) bỏ trễ chạm; `aria-current` giữ điều hướng bằng bàn phím.
- */
-export function MobileTabBar({ tabs, index, mode, dot, onSelect = navigateNow }: {
-  tabs: TabItem[]
-  index: number
-  mode: TabMode
-  dot: boolean
-  onSelect?: (href: string) => void
-}) {
-  const ref = useRef<HTMLElement>(null)
-  const release = useRef<number | undefined>(undefined)
-  const committed = useRef(index)
-  committed.current = index
-  const hidden = mode === 'hide'
-  useEffect(() => () => window.clearTimeout(release.current), [])
-
-  const select = (item: TabItem, position: number) => {
-    if (hidden || item.disabled) return
-    // Vạch chỉ báo lạc quan theo cú chạm ngay; React vẫn giữ tab thật cho tới khi route đổi.
-    if (committed.current !== position) ref.current?.style.setProperty('--tab-index', String(position))
-    onSelect(item.href)
-    window.clearTimeout(release.current)
-    release.current = window.setTimeout(() => {
-      if (ref.current && committed.current !== position) ref.current.style.setProperty('--tab-index', String(committed.current))
-    }, RELEASE_MS)
-  }
-
-  return <nav ref={ref} className={`m-tabs ${mode}`} aria-label="Điều hướng chính" aria-hidden={hidden} style={{ '--tab-index': index } as CSSProperties}>
-    <span className="tind" aria-hidden="true" />
-    {tabs.map((item, position) => <button
-      key={item.key}
-      type="button"
-      className="m-tab"
-      aria-current={index === position ? 'page' : undefined}
-      disabled={item.disabled}
-      tabIndex={hidden ? -1 : 0}
-      onClick={() => select(item, position)}
-    >
-      <Icon className="icon" name={`${item.icon}${index === position ? '-bulk' : ''}`} size={24} />
-      <span className="m-tab-label">{item.label}</span>
-      {item.key === 'read' && dot && index !== position && <span className="m-dot" aria-label="Có việc cần bạn" />}
-    </button>)}
-  </nav>
-}
-
-/**
- * Các pane của tab: pane đang mở hiện, pane đã mở khác giữ trong `<Activity mode="hidden">`
- * — state, DOM và vị trí cuộn còn nguyên, effect (SSE, poll, timer) tự dừng khi ẩn.
- */
-export function MobilePanes({ panes, active }: { panes: [string, ReactNode][]; active: string | null }) {
-  return <>{panes.map(([id, node]) => <KeepAlive key={id} active={id === active}>
-    <div data-pane={id} className={`m-pane${id === active ? ' on' : ''}`} aria-hidden={id !== active}>
-      <MobilePaneScope active={id === active}>{node}</MobilePaneScope>
-    </div>
-  </KeepAlive>)}</>
-}

@@ -100,6 +100,14 @@ export type KitLabels = {
   orbs: { thinking: string }
   /** Sheet (kéo để đóng) */
   sheet: { grabHandle: string; defaultLabel: string }
+  /** Bộ mobile: khung màn hình, tấm thao tác, thanh chọn, mất mạng */
+  mobile: {
+    back: string
+    pending: string
+    retryNow: string
+    offline: string
+    offlineCountdown: (sec: number) => string
+  }
 }
 
 const DEFAULTS: KitLabels = {
@@ -183,6 +191,13 @@ const DEFAULTS: KitLabels = {
   },
   orbs: { thinking: 'Writer is writing' },
   sheet: { grabHandle: 'Drag down to close', defaultLabel: 'Options' },
+  mobile: {
+    back: 'Back',
+    pending: 'Working…',
+    retryNow: 'Retry now',
+    offline: 'No connection',
+    offlineCountdown: (sec) => `No connection · retrying in ${sec}s`,
+  },
 }
 
 let current: KitLabels = DEFAULTS

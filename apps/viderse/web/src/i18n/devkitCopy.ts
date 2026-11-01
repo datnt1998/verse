@@ -16,6 +16,7 @@ export const devkitCopy = {
       controls: 'Điều khiển',
       lists: 'Hàng',
       sheets: 'Sheet',
+      system: 'Kit mobile',
     },
     reopenDialog: 'Mở lại hộp thoại',
     demoToast: 'Đã thêm 3 video vào hàng chờ',

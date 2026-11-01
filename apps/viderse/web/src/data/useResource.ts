@@ -1,7 +1,8 @@
 // Hook đọc khoá cache — bám bản Noverse (useResource.ts) trên cache dùng chung
 // của @noverse/ui/data: khoá ổn định theo nội dung, stale-while-revalidate.
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { cache, keyHash, type EntrySnapshot, type Fetcher, type Key } from '@noverse/ui/data'
+import { PaneStaleContext } from './paneStale'
 
 export type ResourceOptions = {
   enabled?: boolean
@@ -18,6 +19,8 @@ export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceO
   const latest = useRef(fetcher)
   latest.current = fetcher
   const enabled = options.enabled !== false
+  // Màn nằm trong pane giữ-alive nhận mốc dài hơn (xem `data/paneStale.ts`).
+  const paneStale = useContext(PaneStaleContext)
   const subscribe = useCallback((listener: () => void) => enabled ? cache.listen(stableKey, listener) : () => {}, [stableKey, enabled])
   const rendered = useRef<EntrySnapshot<T> | undefined>(undefined)
   const snapshot = useCallback(() => {
@@ -30,7 +33,7 @@ export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceO
   const state = useSyncExternalStore(subscribe, snapshot, snapshot)
   useEffect(() => {
     if (!enabled) return
-    return cache.retain(stableKey, (context) => latest.current(context), { staleTime: options.staleTime })
+    return cache.retain(stableKey, (context) => latest.current(context), { staleTime: options.staleTime ?? paneStale })
   }, [stableKey, enabled, options.staleTime])
   const refresh = useCallback(() => enabled ? cache.refresh(stableKey) : Promise.resolve(), [stableKey, enabled])
   const previous = useRef<T | undefined>(undefined)

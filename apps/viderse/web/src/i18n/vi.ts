@@ -49,6 +49,7 @@ export const base = {
     allChannels: 'Mọi kênh',
     myChannels: 'Kênh của tôi',
     createChannel: 'Tạo kênh',
+    reviewBadge: (n: number) => `${n} video cần duyệt`,
   },
   shell: {
     jobsIdle: (_queued: number) => 'Máy rảnh',

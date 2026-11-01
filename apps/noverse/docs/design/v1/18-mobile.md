@@ -516,3 +516,9 @@ Bản điện thoại của màn Tạo truyện mới (`NewStory`), cùng dữ l
   - Đáy: thẻ **Bản nháp yêu cầu** (trạng thái Chưa có · Đang làm rõ · Đang cập nhật · Sẵn sàng viết · Còn 1 mục Bắt sửa + dòng đầu bản nháp) với nút **Bắt đầu** nhỏ; hàng gợi ý 1/2/3 cuộn ngang; ô nhập + nút gửi 40 px.
   - Chạm thẻ → ngăn **Bản nháp yêu cầu**: toàn văn, khối So với truyện trước (bản rút gọn), *Nhờ Kiến trúc sư đổi trục*, **Bắt đầu sáng tác**, *Huỷ đồng sáng tác* (đỏ). Bản nháp giữ theo dự án như máy tính (mở lại vẫn còn).
 - Không có phím tắt trên điện thoại; dòng gợi ý phím (Tab/Enter/`/`) chỉ ở máy tính.
+
+## Máy đọc trên điện thoại (Gói AT, 01/11) <!-- at-m -->
+
+- **M3 Nghe** (`MAudio`, tweak `machine`): thẻ đầu tab (noMachine · offline · provisioning % · provisionFailed + **Thử lại**), cùng câu với máy tính (`10-audio.md` §8). Bỏ câu “Cài bộ đọc trên máy tính để tạo giọng”. Không có nút “Kiểm tra lại”: kéo để làm mới.
+- Thẻ tổng và hàng chương: chương xếp hàng khi máy đọc chưa sẵn sàng ghi **Đang chờ máy đọc** (xám, vòng nét đứt), không có sóng “đang tạo”.
+- **M3b Tạo giọng** (`MVoiceGen`, `gk`: waiting · waitPrep): nhóm **Đang chờ máy đọc · n** trung tính + ghi chú máy đọc + *Báo khi bắt đầu*. Khác `error` (“Dừng do lỗi”).

@@ -51,8 +51,68 @@ button{cursor:pointer}
 .scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
 .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:#2A2A2E;border-radius:8px}
 .ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+/* Luồng viết trực tiếp v2 (Gói AS) */
+.lvbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:2px 0 4px}
+.lvseg{display:flex;gap:2px;padding:2px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.07)}
+.lvseg button{height:24px;padding:0 10px;border:none;border-radius:7px;background:transparent;color:#8E8E99;font:inherit;font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.lvseg button:hover{color:#EDEDEF}
+.lvseg button[aria-pressed=true]{background:#222225;color:#EDEDEF;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.lvseg i{width:7px;height:7px;border-radius:50%;flex:none}
+.lvlive{display:flex;align-items:center;gap:8px;height:26px;padding:0 10px 0 8px;border-radius:999px;background:rgba(201,166,245,.07);border:1px solid rgba(201,166,245,.2)}
+.lvr{display:flex;flex-direction:column}
+.lvr+.lvr{margin-top:6px}
+.lvrh{width:100%;display:flex;align-items:center;gap:8px;height:30px;padding:0 4px 0 0;border:none;background:transparent;color:#8E8E99;font:inherit;font-size:12px;text-align:left;cursor:pointer;border-radius:8px}
+.lvrh:hover .lvrt{color:#EDEDEF}
+.lvrh b{font-weight:600;color:#C9C9D1;font-size:12.5px;white-space:nowrap}
+.lvrt{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvops{position:relative;display:flex;flex-direction:column;gap:4px;padding:2px 0 4px 22px}
+.lvops::before{content:"";position:absolute;left:5px;top:0;bottom:6px;width:1px;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.04))}
+.lvc{border-radius:10px;background:#131315;border:1px solid rgba(255,255,255,.06);transition:border-color .2s,background .2s}
+.lvc:hover{border-color:rgba(255,255,255,.1)}
+.lvc.open{background:#161618;border-color:rgba(255,255,255,.12)}
+.lvc.err{border-color:rgba(255,154,162,.32);background:rgba(255,154,162,.04)}
+.lvc.live{position:sticky;bottom:0;z-index:2;border-color:rgba(201,166,245,.38);background:linear-gradient(90deg,rgba(201,166,245,.1),rgba(201,166,245,.03) 60%),#141416;box-shadow:0 -10px 18px -6px #131315}
+.lvch{width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px 0 11px;border:none;border-radius:10px;background:transparent;color:#EDEDEF;font:inherit;text-align:left;cursor:pointer}
+.lvch .l{flex:0 0 auto;font-size:13px;font-weight:500;white-space:nowrap}
+.lvch .s{flex:1 1 auto;min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvch .d{flex:0 0 auto;font-size:12px;color:#7E7E8A;font-variant-numeric:tabular-nums}
+.lvmore{align-self:center;height:26px;padding:0 10px;margin:4px 0 8px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:transparent;color:#A0A0AB;font:inherit;font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.lvmore:hover{color:#EDEDEF;border-color:rgba(255,255,255,.16)}
+.rcard{border-radius:12px;background:#141416;border:1px solid rgba(255,255,255,.07);transition:border-color .2s,background .2s}
+.rcard.open{border-color:rgba(255,255,255,.12);background:#161618}
+.rcard.err{border-color:rgba(255,154,162,.35);background:rgba(255,154,162,.04)}
+.rcard.live{border-color:rgba(201,166,245,.35)}
+.rhead{width:100%;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border:none;border-radius:12px;background:transparent;color:#EDEDEF;text-align:left;font:inherit;cursor:pointer}
+.rhead .rl{flex:0 0 auto;font-size:13px;font-weight:500;white-space:nowrap}
+.rhead .rs{flex:1 1 auto;min-width:0;font-size:12.5px;color:#8E8E99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbody{padding:2px 14px 12px 40px;display:flex;flex-direction:column;gap:10px}
+.rkv{display:flex;flex-wrap:wrap;gap:6px}
+.rkvi{padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.07);font-size:12px;color:#7E7E8A;line-height:1.45}
+.rbl{display:flex;flex-direction:column;gap:4px}
+.rbll{font-size:12px;color:#7E7E8A}
+.rul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px;font-size:13px;color:#C9C9D1;line-height:1.55}
+.rtx{margin:0;font-size:13px;color:#EDEDEF;line-height:1.6}
+.rq{margin:0;padding-left:12px;border-left:2px solid rgba(201,166,245,.4);font-family:'Literata',Georgia,serif;font-size:14px;color:#D6D6DC;line-height:1.65}
+.rdiff{display:flex;flex-direction:column;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.07);font-size:13px;line-height:1.6}
+.rdiff>div{display:flex;gap:10px;padding:8px 12px}
+.rnote{margin:0;font-size:12.5px;color:#8E8E99;line-height:1.55}
+.rlink2{font-size:12.5px;color:#C9A6F5;text-decoration:none;align-self:flex-start}
+.risu{display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.07)}
+.rchip{height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.rcast{height:26px;padding:0 10px 0 4px;display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#1A1A1D;border:1px solid rgba(255,255,255,.08);font-size:12px}
+.rcast i{width:18px;height:18px;border-radius:50%;background:rgba(201,166,245,.16);color:#DCC8F8;font-style:normal;font-size:8.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.rsc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.rsc>span{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.06);font-size:12px;color:#8E8E99}
+.rol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 18px;font-size:13px;color:#C9C9D1}
+.rtech{border-top:1px solid rgba(255,255,255,.06);padding-top:8px}
+.rtechb{display:flex;align-items:center;gap:6px;height:24px;padding:0;border:none;background:transparent;color:#7E7E8A;font:inherit;font-size:12px;cursor:pointer}
+.rtechx{margin-top:6px;padding:8px 10px;border-radius:8px;background:#0C0C0E;border:1px solid rgba(255,255,255,.06);font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#A0A0AB;line-height:1.6;display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
+.rround{display:flex;align-items:center;gap:8px;padding:10px 2px 6px;font-size:12px;color:#8E8E99}
+.rround b{font-weight:600;color:#C9C9D1;font-size:12.5px}
+
 .i-activity{-webkit-mask-image:url(../icons/activity.svg);mask-image:url(../icons/activity.svg)}
 .i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
 .i-arrow-down{-webkit-mask-image:url(../icons/arrow-down.svg);mask-image:url(../icons/arrow-down.svg)}
 .i-arrow-down-2{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
 .i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
@@ -62,13 +122,16 @@ button{cursor:pointer}
 .i-book{-webkit-mask-image:url(../icons/book-1.svg);mask-image:url(../icons/book-1.svg)}
 .i-box{-webkit-mask-image:url(../icons/box.svg);mask-image:url(../icons/box.svg)}
 .i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-chart{-webkit-mask-image:url(../icons/chart-2.svg);mask-image:url(../icons/chart-2.svg)}
 .i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
 .i-cloud{-webkit-mask-image:url(../icons/cloud-connection.svg);mask-image:url(../icons/cloud-connection.svg)}
+.i-code{-webkit-mask-image:url(../icons/code.svg);mask-image:url(../icons/code.svg)}
 .i-coin{-webkit-mask-image:url(../icons/coin-1.svg);mask-image:url(../icons/coin-1.svg)}
 .i-command{-webkit-mask-image:url(../icons/command.svg);mask-image:url(../icons/command.svg)}
 .i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
 .i-danger{-webkit-mask-image:url(../icons/danger.svg);mask-image:url(../icons/danger.svg)}
 .i-data{-webkit-mask-image:url(../icons/data.svg);mask-image:url(../icons/data.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
 .i-doc-b{-webkit-mask-image:url(../icons/document-text-bulk.svg);mask-image:url(../icons/document-text-bulk.svg)}
 .i-edit{-webkit-mask-image:url(../icons/edit-2.svg);mask-image:url(../icons/edit-2.svg)}
 .i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
@@ -77,6 +140,8 @@ button{cursor:pointer}
 .i-global{-webkit-mask-image:url(../icons/global.svg);mask-image:url(../icons/global.svg)}
 .i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
 .i-info{-webkit-mask-image:url(../icons/info-circle.svg);mask-image:url(../icons/info-circle.svg)}
+.i-lamp{-webkit-mask-image:url(../icons/lamp-on.svg);mask-image:url(../icons/lamp-on.svg)}
+.i-layer{-webkit-mask-image:url(../icons/layer.svg);mask-image:url(../icons/layer.svg)}
 .i-magic-star{-webkit-mask-image:url(../icons/magic-star.svg);mask-image:url(../icons/magic-star.svg)}
 .i-magic-star-b{-webkit-mask-image:url(../icons/magic-star-bulk.svg);mask-image:url(../icons/magic-star-bulk.svg)}
 .i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
@@ -97,6 +162,7 @@ button{cursor:pointer}
 .i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
 .i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
 .i-users{-webkit-mask-image:url(../icons/profile-2user.svg);mask-image:url(../icons/profile-2user.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
 /* Main dùng biến thể icon riêng cho 3 class này */
 .i-text{-webkit-mask-image:url(../icons/text.svg);mask-image:url(../icons/text.svg)}
 .i-export{-webkit-mask-image:url(../icons/export-curve.svg);mask-image:url(../icons/export-curve.svg)}
@@ -338,14 +404,20 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <span style="font-size: 13px; font-weight: 500">{{d.streamTitle}}</span>
 <span style="font-size: 12px; color: #7E7E8A">{{d.streamMeta}}</span>
 <span style="flex: 1"></span>
-<a href="RunCards.dc.html" title="Mọi vòng của truyện, lưu lại toàn bộ" style="order: 9; display: flex; align-items: center; gap: 4px; font-size: 12px; color: #A0A0AB">Lịch sử<span class="ic i-arrow-right-2" aria-hidden="true" style="width: 13px; height: 13px"></span></a>
+<sc-if value="{{lvOff}}" hint-placeholder-val="{{ false }}"><a href="RunCards.dc.html" title="Mọi vòng của truyện, lưu lại toàn bộ" style="order: 9; display: flex; align-items: center; gap: 4px; font-size: 12px; color: #A0A0AB">Lịch sử<span class="ic i-arrow-right-2" aria-hidden="true" style="width: 13px; height: 13px"></span></a></sc-if>
 <sc-if value="{{running}}" hint-placeholder-val="{{ true }}">
-<span style="display: flex; align-items: center; gap: 8px">
+<span class="lvlive" role="status">
 <svg width="22" height="12" viewBox="0 0 26 14" fill="none" aria-hidden="true"><defs><linearGradient id="infg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C93F3"></stop><stop offset="0.5" stop-color="#C9457F"></stop><stop offset="1" stop-color="#5DC1B0"></stop></linearGradient></defs><path d="M13 7C11 4.2 9 2.5 6.5 2.5a4.5 4.5 0 0 0 0 9C9 11.5 11 9.8 13 7s4-4.5 6.5-4.5a4.5 4.5 0 0 1 0 9C17 11.5 15 9.8 13 7z" stroke="rgba(255,255,255,0.22)" stroke-width="1.6"></path><path class="inf-run" pathLength="50" d="M13 7C11 4.2 9 2.5 6.5 2.5a4.5 4.5 0 0 0 0 9C9 11.5 11 9.8 13 7s4-4.5 6.5-4.5a4.5 4.5 0 0 1 0 9C17 11.5 15 9.8 13 7z" stroke="url(#infg)" stroke-width="1.8" stroke-linecap="round"></path></svg>
 <span class="shimmer" style="font-size: 12px">{{d.runLabel}}</span><span class="num" role="timer" aria-label="{{elapsedAria}}" style="display: inline-block; min-width: 5ch; text-align: right; font-size: 12px; color: #7E7E8A">{{elapsed}}</span>
 </span>
 </sc-if>
 </div>
+<sc-if value="{{lvOn}}" hint-placeholder-val="{{ true }}"><div class="lvbar">
+<div class="lvseg" role="group" aria-label="Lọc theo trợ lý"><sc-for list="{{lvRoles}}" as="r" hint-placeholder-count="4"><button type="button" aria-pressed="{{r.on}}" onClick="{{r.pick}}"><sc-if value="{{r.dot}}" hint-placeholder-val="{{ false }}"><i aria-hidden="true" style="background: {{r.c}}"></i></sc-if>{{r.label}}</button></sc-for></div>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12px; color: #7E7E8A">{{lvCount}}</span>
+<a class="navl" href="RunCards.dc.html" title="Mọi vòng của truyện, lưu lại toàn bộ" style="display: flex; align-items: center; gap: 3px; font-size: 12px; color: #A0A0AB">Lịch sử<span class="ic i-arrow-right-2" aria-hidden="true" style="width: 13px; height: 13px"></span></a>
+</div></sc-if>
 <sc-if value="{{d.isIdle}}" hint-placeholder-val="{{ false }}">
 <div style="flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 6px 0 18px">
 <div role="status" style="width: min(660px, 100%); display: flex; gap: 14px; padding: 16px 18px; border-radius: 14px; background: #141416; border: 1px solid {{d.idle.bd}}">
@@ -361,93 +433,45 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </sc-if>
 <div class="scroll" style="flex: {{d.scrollFlex}}; min-height: 0; display: flex; flex-direction: column-reverse; padding: 0 4px 10px 0; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px); mask-image: linear-gradient(to bottom, transparent 0, #000 14px)">
 <div>
-<sc-if value="{{d.isPlan}}" hint-placeholder-val="{{ false }}">
-<ol aria-label="Các bước lập kế hoạch" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px">
-<sc-for list="{{planSteps}}" as="p" hint-placeholder-count="5">
-<li style="border-radius: 12px; background: {{p.bg}}; border: 1px solid {{p.bd}}">
-<button type="button" class="ghost" onClick="{{p.toggle}}" aria-expanded="{{p.open}}" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: none; border-radius: 12px; background: transparent; color: #EDEDEF; text-align: left; cursor: pointer; font: inherit">
-<sc-if value="{{p.spin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="border-top-color: #B9D0F7"></span></sc-if>
-<sc-if value="{{p.paused}}" hint-placeholder-val="{{ false }}"><span class="ic i-pause" role="img" aria-label="Tạm dừng" style="width: 15px; height: 15px; color: #F6CB8C"></span></sc-if>
-<sc-if value="{{p.done}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" role="img" aria-label="Xong" style="width: 15px; height: 15px; color: #A6EDC1"></span></sc-if>
-<span style="flex: 0 0 auto; font-size: 13px; font-weight: 500">{{p.label}}</span>
-<span style="flex: 1; min-width: 0; font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.sum}}</span>
-<span class="num" style="flex: 0 0 auto; font-size: 12px; color: #7E7E8A; font-style: italic">{{p.dur}}</span>
-<span class="ic i-arrow-down-2" aria-hidden="true" style="flex: 0 0 auto; width: 14px; height: 14px; color: #7E7E8A; transform: rotate({{p.chev}}); transition: transform .15s"></span>
+<sc-if value="{{lvOn}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; padding-top: 4px">
+<sc-if value="{{lvHasMore}}" hint-placeholder-val="{{ true }}"><button class="lvmore" type="button"><span class="ic i-arrow-up" aria-hidden="true" style="width: 12px; height: 12px"></span>Tải thêm vòng cũ hơn</button></sc-if>
+<sc-for list="{{lvRounds}}" as="r" hint-placeholder-count="3"><div class="lvr" role="group" aria-label="{{r.aria}}">
+<button class="lvrh" type="button" onClick="{{r.toggle}}" aria-expanded="{{r.openA}}"><span class="orb {{r.orb}}" aria-hidden="true" style="width: 11px; height: 11px"></span><b>Vòng {{r.n}}</b><span style="color: {{r.fg}}; white-space: nowrap">{{r.role}}</span><span class="lvrt">· {{r.title}}<sc-if value="{{r.closed}}" hint-placeholder-val="{{ false }}"><span style="color: #6E6E78"> · {{r.nOps}} thao tác · {{r.total}}</span></sc-if></span><span aria-hidden="true" style="flex: 1 1 12px; height: 1px; background: rgba(255,255,255,0.06)"></span><sc-if value="{{r.closedOk}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" role="img" aria-label="Xong" style="width: 13px; height: 13px; color: #A6EDC1"></span></sc-if><span class="num">{{r.time}}</span><span class="ic i-arrow-down-2" aria-hidden="true" style="width: 12px; height: 12px; color: #6E6E78; transform: {{r.chev}}; transition: transform .15s"></span></button>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ true }}"><div class="lvops"><sc-for list="{{r.cards}}" as="c" hint-placeholder-count="4"><div class="lvc {{c.cls}}">
+<button class="lvch" type="button" onClick="{{c.toggle}}" aria-expanded="{{c.openA}}">
+<span class="ic {{c.icon}}" aria-hidden="true" style="width: 15px; height: 15px; color: {{c.icFg}}"></span>
+<sc-if value="{{c.isLive}}" hint-placeholder-val="{{ false }}"><span class="l shimmer">{{c.label}}</span></sc-if><sc-if value="{{c.notLive}}" hint-placeholder-val="{{ true }}"><span class="l">{{c.label}}</span></sc-if>
+<span class="s" style="color: {{c.sumFg}}">{{c.sum}}</span>
+<span class="d">{{c.durV}}</span>
+<sc-if value="{{c.isLive}}" hint-placeholder-val="{{ false }}"><span class="spinner" role="img" aria-label="Đang chạy" style="width: 13px; height: 13px; border-top-color: #DCC8F8"></span></sc-if>
+<sc-if value="{{c.isDone}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" role="img" aria-label="Xong" style="width: 14px; height: 14px; color: #A6EDC1"></span></sc-if>
+<sc-if value="{{c.isErr}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" role="img" aria-label="Lỗi" style="width: 14px; height: 14px; color: #FF9AA2"></span></sc-if>
+<span class="ic i-arrow-down-2" aria-hidden="true" style="width: 12px; height: 12px; color: #6E6E78; transform: {{c.chev}}; transition: transform .15s"></span>
 </button>
-<sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
-<div style="padding: 0 12px 12px 37px; display: flex; flex-direction: column; gap: 8px">
-<sc-if value="{{p.isKv}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{p.kv}}" as="k" hint-placeholder-count="4"><span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #7E7E8A">{{k.k}} <b style="font-weight: 500; color: #EDEDEF">{{k.v}}</b></span></sc-for></div></sc-if>
-<sc-if value="{{p.isText}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #C9C9D1; line-height: 1.6">{{p.text}}</p></sc-if>
-<sc-if value="{{p.isCast}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{planCast}}" as="c" hint-placeholder-count="6"><button type="button" class="ghost" onClick="{{c.open}}" title="Xem {{c.name}} trên Não truyện" style="height: 28px; padding: 0 10px 0 4px; display: flex; align-items: center; gap: 6px; border-radius: 999px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08); color: #EDEDEF; font: inherit; font-size: 12.5px; cursor: pointer"><span class="cav {{c.kc}} sm" role="img" aria-label="{{c.kAria}}" style="width: 20px; height: 20px; font-size: 8px">{{c.ini}}<span class="cav-b" aria-hidden="true"><span class="ic {{c.kIcon}}"></span></span></span>{{c.name}}<span style="color: #7E7E8A">{{c.short}}</span></button></sc-for></div><span style="font-size: 12px; color: #7E7E8A">Bấm một nhân vật để xem quan hệ trên Não truyện.</span></sc-if>
-<sc-if value="{{p.isRules}}" hint-placeholder-val="{{ false }}"><ul style="margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #C9C9D1; line-height: 1.55"><sc-for list="{{p.rules}}" as="r" hint-placeholder-count="3"><li>{{r}}</li></sc-for></ul></sc-if>
-<sc-if value="{{p.isOutline}}" hint-placeholder-val="{{ false }}"><ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); grid-auto-flow: column; gap: 0 18px"><sc-for list="{{planOutline}}" as="o" hint-placeholder-count="8"><li style="display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 4px 0"><span class="num" style="font-size: 12px; color: #7E7E8A">{{o.n}}</span><sc-if value="{{o.saved}}" hint-placeholder-val="{{ true }}"><span title="{{o.title}} · {{o.hook}}" style="min-width: 0; font-size: 13px; color: #EDEDEF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.title}}<span style="color: #8E8E99"> · {{o.hook}}</span></span></sc-if><sc-if value="{{o.wait}}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-direction: column; gap: 5px; padding-top: 3px"><span class="skel" style="width: {{o.w1}}"></span></span></sc-if></li></sc-for></ol></sc-if>
-</div>
-</sc-if>
-</li>
-</sc-for>
-</ol>
-<p style="margin: 8px 2px 0; font-size: 12px; color: #7E7E8A">Lập xong kế hoạch, Người viết bắt đầu chương 1. Muốn đổi gì thì góp ý ở ô bên dưới trước khi viết.</p>
-</sc-if>
-<sc-if value="{{d.hasStream}}" hint-placeholder-val="{{ true }}">
-<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px">
-<sc-for list="{{rounds}}" as="r" hint-placeholder-count="5">
-<li style="border-radius: 12px; background: {{r.bg}}; border: 1px solid {{r.bd}}">
-<button class="ghost" type="button" onClick="{{r.toggle}}" aria-expanded="{{r.open}}" style="width: 100%; display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 12px; border: none; border-radius: 12px; background: transparent; color: #EDEDEF; text-align: left">
-<span class="ic {{r.ticon}}" aria-hidden="true" style="width: 16px; height: 16px; color: #8FDCCB"></span>
-<span style="font-size: 13px; font-weight: 500; color: #EDEDEF">{{r.label}}</span>
-<span aria-hidden="true" style="flex: 1; height: 1px; background: rgba(255,255,255,0.07)"></span>
-<sc-if value="{{r.isLive}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true"></span></sc-if>
-<sc-if value="{{r.isDone}}" hint-placeholder-val="{{ true }}"><span class="ic i-tick-b" role="img" aria-label="Xong" style="width: 15px; height: 15px; color: #A6EDC1"></span></sc-if>
-<span class="ic i-arrow-down-2" aria-hidden="true" style="width: 14px; height: 14px; color: #7E7E8A; transform: rotate({{r.chev}})"></span>
-</button>
-<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}">
-<div style="padding: 2px 14px 12px 38px; display: flex; flex-direction: column; gap: 10px">
-<sc-if value="{{r.isKv}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; flex-wrap: wrap; gap: 6px">
-<sc-for list="{{r.kv}}" as="p" hint-placeholder-count="4"><span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #7E7E8A">{{p.k}} <span style="color: {{p.color}}">{{p.v}}</span></span></sc-for>
-</div>
-</sc-if>
-<sc-if value="{{r.isDiff}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); font-size: 13px; line-height: 1.65">
-<div style="display: flex; gap: 10px; padding: 8px 12px; background: rgba(255,154,162,0.07)"><span class="mono" aria-label="Cũ" style="color: #FF9AA2">−</span><span style="color: #C9C9D1; text-decoration: line-through; text-decoration-color: rgba(255,154,162,0.55)">Tôi giữ nguyên tin trên máy, sao lưu cuộc trao đổi kèm số gửi và giờ nhận, chuyển cho người tư vấn.</span></div>
-<div style="display: flex; gap: 10px; padding: 8px 12px; background: rgba(166,237,193,0.07)"><span class="mono" aria-label="Mới" style="color: #A6EDC1">+</span><span style="color: #EDEDEF">Tôi không trả lời. Tôi giữ nguyên tin trên máy, sao lưu cả số gửi lẫn giờ nhận, rồi chuyển nguyên văn cho người tư vấn.</span></div>
-</div>
-<div style="font-size: 12px; color: #7E7E8A">Sửa một đoạn trong chương 4</div>
-</sc-if>
-<sc-if value="{{r.isCommit}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; flex-wrap: wrap; gap: 6px">
-<span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #7E7E8A">Chương <span style="color: #EDEDEF">4</span></span>
-<span style="padding: 3px 8px; border-radius: 6px; background: rgba(185,208,247,0.08); border: 1px solid rgba(185,208,247,0.25); font-size: 12px; color: #7E7E8A">Kiểu móc <span style="color: #C8D8F8">lật thông tin</span></span>
-<span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #7E7E8A">Tuyến chính <span style="color: #EDEDEF">nhiệm vụ</span></span>
-<span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #7E7E8A">Góp ý <span>chưa có</span></span>
-<span style="padding: 3px 8px; border-radius: 6px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #7E7E8A">Nhân vật mới <span>—</span></span>
-</div>
-<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
-<span style="font-size: 12px; color: #7E7E8A; width: 100%">Nhân vật xuất hiện</span>
-<sc-for list="{{commitCast}}" as="c" hint-placeholder-count="5"><span style="height: 26px; padding: 0 10px 0 4px; display: flex; align-items: center; gap: 6px; border-radius: 999px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.08); font-size: 12px"><span class="cav {{c.kc}} sm" role="img" aria-label="{{c.kAria}}" style="width: 18px; height: 18px; font-size: 8px">{{c.ini}}<span class="cav-b" aria-hidden="true"><span class="ic {{c.kIcon}}"></span></span></span>{{c.name}}</span></sc-for>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span style="font-size: 12px; color: #7E7E8A">Chi tiết cài cắm</span>
-<sc-for list="{{foreshadow}}" as="f" hint-placeholder-count="3">
-<div style="display: flex; gap: 10px; padding: 9px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)">
-<span style="flex: 0 0 auto; height: 22px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: {{f.bg}}; color: {{f.fg}}; font-size: 11px; font-weight: 500">{{f.action}}</span>
-<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 13px; color: {{f.descColor}}">{{f.desc}}</span>
-</div>
-</div>
-</sc-for>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span style="font-size: 12px; color: #7E7E8A">Sự kiện chính</span>
-<p style="margin: 0; padding-left: 12px; border-left: 2px solid rgba(201,166,245,0.4); font-size: 13px; color: #EDEDEF">Trong trò đọc lời thoại, Tri Hạ bác thẻ Nhược Vy nhường, yêu cầu xáo công khai và lấy lại lượt theo đúng luật sau khi nối chính xác phần câu bị ngắt.<sc-if value="{{running}}" hint-placeholder-val="{{ true }}"><canvas class="orbit-cv" role="img" aria-label="Người viết đang viết" width="66" height="66"></canvas></sc-if></p>
-</div>
-</sc-if>
-</div>
-</sc-if>
-</li>
-</sc-for>
-</ol>
-</sc-if>
+<sc-if value="{{c.open}}" hint-placeholder-val="{{ false }}"><div class="rbody" style="padding-left: 36px">
+<sc-for list="{{c.blocks}}" as="b" hint-placeholder-count="3"><div class="rbl">
+<sc-if value="{{b.isKv}}" hint-placeholder-val="{{ true }}"><div class="rkv"><sc-for list="{{b.kv}}" as="k" hint-placeholder-count="3"><span class="rkvi" style="background: {{k.bg}}">{{k.k}} <span style="color: {{k.fg}}">{{k.v}}</span></span></sc-for></div></sc-if>
+<sc-if value="{{b.isList}}" hint-placeholder-val="{{ false }}"><span class="rbll">{{b.label}}</span><ul class="rul"><sc-for list="{{b.items}}" as="x" hint-placeholder-count="3"><li>{{x.t}}</li></sc-for></ul></sc-if>
+<sc-if value="{{b.isText}}" hint-placeholder-val="{{ false }}"><span class="rbll">{{b.label}}</span><p class="rtx">{{b.t}}</p></sc-if>
+<sc-if value="{{b.isQuote}}" hint-placeholder-val="{{ false }}"><p class="rq">{{b.t}}</p></sc-if>
+<sc-if value="{{b.isDiff}}" hint-placeholder-val="{{ false }}"><div class="rdiff"><div style="background: rgba(255,154,162,0.07)"><span aria-label="Cũ" style="color: #FF9AA2; flex: none">−</span><span style="color: #C9C9D1; text-decoration: line-through; text-decoration-color: rgba(255,154,162,0.55)">{{b.old}}</span></div><div style="background: rgba(166,237,193,0.07)"><span aria-label="Mới" style="color: #A6EDC1; flex: none">+</span><span style="color: #EDEDEF">{{b.neu}}</span></div></div></sc-if>
+<sc-if value="{{b.isIssues}}" hint-placeholder-val="{{ false }}"><sc-for list="{{b.issues}}" as="i" hint-placeholder-count="2"><div class="risu"><span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span class="rchip" style="background: {{i.bg}}; color: {{i.fg}}">{{i.lvl}}</span><span style="font-size: 12px; color: #8E8E99">{{i.ref}}</span></span><span style="font-size: 13px; color: #EDEDEF; line-height: 1.5">{{i.t}}</span><span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span style="color: #C9C9D1">Gợi ý:</span> {{i.fix}}</span></div></sc-for></sc-if>
+<sc-if value="{{b.isCast}}" hint-placeholder-val="{{ false }}"><span class="rbll">Nhân vật</span><span style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{b.cast}}" as="x" hint-placeholder-count="4"><span class="rcast"><i aria-hidden="true">{{x.ini}}</i>{{x.n}}</span></sc-for></span></sc-if>
+<sc-if value="{{b.isTags}}" hint-placeholder-val="{{ false }}"><span class="rbll">{{b.label}}</span><sc-for list="{{b.items}}" as="x" hint-placeholder-count="2"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06)"><span class="rchip" style="background: {{x.bg}}; color: {{x.fg}}; flex: none">{{x.a}}</span><span style="font-size: 13px; color: #C9C9D1; line-height: 1.5">{{x.t}}</span></div></sc-for></sc-if>
+<sc-if value="{{b.isScores}}" hint-placeholder-val="{{ false }}"><div class="rsc"><sc-for list="{{b.scores}}" as="x" hint-placeholder-count="4"><span>{{x.k}}<b class="num" style="font-size: 15px; font-weight: 600; color: #EDEDEF">{{x.v}}</b></span></sc-for></div></sc-if>
+<sc-if value="{{b.isOl}}" hint-placeholder-val="{{ false }}"><ol class="rol"><sc-for list="{{b.ol}}" as="x" hint-placeholder-count="8"><li style="display: flex; gap: 8px; min-width: 0"><span class="num" style="color: #6E6E78; width: 14px; flex: none">{{x.n}}</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{x.t}}</span></li></sc-for></ol></sc-if>
+<sc-if value="{{b.isNote}}" hint-placeholder-val="{{ false }}"><p class="rnote">{{b.t}}</p></sc-if>
+<sc-if value="{{b.isLink}}" hint-placeholder-val="{{ false }}"><a class="rlink2" href="{{c.href}}">{{b.t}}</a></sc-if>
+</div></sc-for>
+<sc-if value="{{c.isErr}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 10px; background: rgba(255,154,162,0.06); border: 1px solid rgba(255,154,162,0.25)"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px; color: #FF9AA2; margin-top: 2px; flex: none"></span><span style="font-size: 13px; color: #F4C7CB; line-height: 1.5">{{c.errText}}</span></div></sc-if>
+<div class="rtech"><button class="rtechb" type="button" onClick="{{c.toggleTech}}" aria-expanded="{{c.techA}}"><span class="ic i-code" aria-hidden="true" style="width: 13px; height: 13px"></span>Chi tiết kỹ thuật<span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; transform: {{c.techChev}}"></span></button>
+<sc-if value="{{c.techOpen}}" hint-placeholder-val="{{ false }}"><div class="rtechx"><span>op: {{c.key}}</span><span>args: {{c.params}}</span><span>result: {{c.result}}</span><span>at: {{c.at}} · role: {{c.roleKey}} · round: {{c.round}}</span></div></sc-if></div>
+
+</div></sc-if>
+</div></sc-for></div></sc-if>
+</div></sc-for>
+<sc-if value="{{lvEmpty}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 12px; text-align: center"><span class="orb {{lvEmptyOrb}}" aria-hidden="true" style="width: 20px; height: 20px; opacity: .6"></span><span style="font-size: 13px; color: #C9C9D1">{{lvEmptyT}}</span><span style="font-size: 12px; color: #7E7E8A">Trong 20 vòng gần nhất. Bấm Tải thêm vòng cũ hơn hoặc chọn Tất cả.</span></div></sc-if>
+</div></sc-if>
 <sc-if value="{{d.gateReview}}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; flex-direction: column; gap: 8px; padding: 2px 0">
 <div style="display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 10px; background: rgba(166,237,193,0.06); border: 1px solid rgba(166,237,193,0.16)">
@@ -946,6 +970,112 @@ function paint(self, hostSel) {
 return { TITLES, TY, ET, N, E, XH, POS, CHR, GLY, VW, VH, BX, BY, BW, BH, CX, CY, NS, mk, KINDS, KC, KL, hiddenAt, detail, cast, build, paint };
 })();
 
+// ===== Luồng viết — thẻ theo loại thao tác (Gói AQ). Dùng chung RunCards (máy tính) và MRun (điện thoại).
+// Mỗi thẻ: loại thao tác, vai, giờ, thời lượng, tham số + kết quả. Không có token/chi phí theo thao tác.
+const RROLE = { architect: ['Kiến trúc sư', 'o-architect', '#B9D0F7'], writer: ['Người viết', 'o-writer', '#DCC8F8'], editor: ['Biên tập viên', 'o-editor', '#F6CB8C'] };
+const LV = { e: ['Bắt sửa', 'rgba(255,154,162,0.14)', '#FFB3BA'], w: ['Cảnh báo', 'rgba(246,203,140,0.14)', '#F3D9AE'], ok: ['Đạt', 'rgba(166,237,193,0.12)', '#A6EDC1'], i: ['Lưu ý', 'rgba(157,176,247,0.12)', '#C8D3F8'] };
+// k: khoá thao tác (chỉ hiện trong “Chi tiết kỹ thuật”), label: tên tiếng Việt, icon, sum: dòng tóm tắt khi thu gọn, run: chữ khi đang chạy
+const OPS = {
+  novel_context: { role: 'writer', label: 'Đọc bối cảnh', icon: 'i-note', run: 'đang đọc bối cảnh', sum: 'chương 4 · tiền đề, dàn ý, 6 nhân vật, 3 cài cắm', dur: '0,3 giây',
+    blocks: [{ kv: [['Chương', '4']] }, { list: 'Đã nạp cho Người viết', items: ['Tiền đề và khung truyện', 'Dàn ý chương 4 và hai chương kề', '6 nhân vật · xưng hô tính đến chương 3', '3 chi tiết cài cắm đang mở', 'Tóm tắt chương 1–3', '8 quy tắc viết + mặc định chống giọng văn máy'] }],
+    tech: ['{"chapter": 4}', '{"premise": "…", "outline": {...}, "characters": [6], "foreshadow": [3], "summaries": [3], "rules": [8]}'] },
+  read_chapter: { role: 'editor', label: 'Đọc chương', icon: 'i-book', run: 'đang đọc chương', sum: 'chương 4 · bản nháp · lời thoại của Tri Hạ', dur: '0,1 giây',
+    blocks: [{ kv: [['Chương', '4'], ['Bản', 'bản nháp'], ['Chỉ đọc', 'lời thoại của Tri Hạ'], ['Độ dài', '1.240 chữ']] }, { quote: '“Đoạn bảy mươi ba giây đó là giọng tôi. Chị muốn tôi đọc tiếp, hay chị đọc?”' }, { link: 'Mở chương 4 trong Trình đọc ›' }],
+    tech: ['{"chapter": 4, "source": "draft", "character": "Tri Hạ"}', '"…1240 words of dialogue…"'] },
+  plan_chapter: { role: 'writer', label: 'Lập kế hoạch chương', icon: 'i-routing', run: 'đang lập kế hoạch chương', sum: 'chương 4 · Bảy mươi ba giây', dur: '9 giây',
+    blocks: [{ kv: [['Mục tiêu', 'Vả mặt trên sóng'], ['Móc cuối', 'lật thông tin'], ['Cảm xúc', 'nén → bùng']] }, { text: 'Xung đột', t: 'Nhược Vy phải đọc đoạn mình “viết” trước máy quay; Tri Hạ nối đúng câu bị ngắt.' }, { list: 'Bắt buộc có', items: ['Bản ghi 73 giây phát giữa trường quay', 'Kỳ Dương đứng về phía Tri Hạ bằng một câu đùa'] }, { list: 'Tránh', items: ['Tri Hạ khóc trước mặt Nhược Vy', 'Nam chính ra tay cứu'] }, { list: 'Kiểm liên tục', items: ['Nhược Vy gọi Tri Hạ là “em” trước người khác'] }],
+    tech: ['{"chapter": 4, "title": "Bảy mươi ba giây", "goal": "…", "required_beats": [2], "forbidden_moves": [2]}', '"ok"'] },
+  draft_chapter: { role: 'writer', label: 'Viết bản nháp', icon: 'i-edit', run: 'đang viết bản nháp', sum: 'chương 4 · viết mới · 3.412 chữ', dur: '1 phút 48 giây',
+    blocks: [{ kv: [['Chương', '4'], ['Cách ghi', 'viết mới, thay bản cũ'], ['Số chữ', '3.412']] }, { quote: 'Tôi bấm nút phát. Đoạn ghi âm bảy mươi ba giây vang lên giữa trường quay, giọng đọc là giọng tôi…' }, { link: 'Mở bản nháp chương 4 ›' }],
+    tech: ['{"chapter": 4, "mode": "write", "content": "…"}', '{"saved": true, "words": 3412}'] },
+  edit_chapter: { role: 'writer', label: 'Gọt giũa', icon: 'i-magicpen', run: 'đang gọt giũa', sum: 'chương 4 · sửa 1 đoạn', dur: '6 giây',
+    blocks: [{ diff: ['Tôi giữ nguyên tin trên máy, sao lưu cuộc trao đổi kèm số gửi và giờ nhận, chuyển cho người tư vấn.', 'Tôi không trả lời. Tôi giữ nguyên tin trên máy, sao lưu cả số gửi lẫn giờ nhận, rồi chuyển nguyên văn cho người tư vấn.'] }, { kv: [['Phạm vi', 'một chỗ']] }],
+    tech: ['{"chapter": 4, "old_string": "…", "new_string": "…", "replace_all": false}', '{"replaced": 1}'] },
+  check_consistency: { role: 'writer', label: 'Soát nhất quán', icon: 'i-shield-tick', run: 'đang soát nhất quán', sum: 'chương 4 · nạp 5 nguồn đối chiếu', dur: '0,4 giây',
+    blocks: [{ list: 'Đã nạp để đối chiếu', items: ['5 quy tắc thế giới', '3 chi tiết cài cắm', '6 quan hệ nhân vật', '4 biệt danh và cách gọi', 'Tóm tắt 2 chương gần nhất'] }, { note: 'Người viết tự đối chiếu bản nháp; chỗ lệch (nếu có) thành thẻ Gọt giũa ngay sau.' }],
+    tech: ['{"chapter": 4}', '{"world_rules": [5], "foreshadow": [3], "relations": [6], "aliases": [4], "summaries": [2]}'] },
+  commit_chapter: { role: 'writer', label: 'Lưu chương', icon: 'i-folder', run: 'đang lưu chương', sum: 'chương 4 · 3.618 chữ · 2 cài cắm · 1 xưng hô', dur: '2 giây',
+    blocks: [{ kv: [['Chương', '4'], ['Số chữ', '3.618'], ['Kiểu móc', 'lật thông tin', 'b'], ['Góp ý đã sửa', '1']] }, { cast: ['Lâm Tri Hạ', 'Tống Nhược Vy', 'Kỳ Dương', 'Đỗ Mẫn'] }, { tags: 'Chi tiết cài cắm', items: [['Đã gieo', 'Số lạ nhắn đe doạ; Tri Hạ giữ tin và giờ nhận.', 'b'], ['Đẩy tiếp', 'Bản live trò đọc thoại được giữ làm bằng chứng.', 'w']] }, { kv: [['Xưng hô mới', 'Tri Hạ → Nhược Vy: “cô” từ chương 4']] }, { text: 'Sự kiện chính', t: 'Trong trò đọc lời thoại, Tri Hạ bác thẻ Nhược Vy nhường, yêu cầu xáo công khai và lấy lại lượt theo đúng luật.' }],
+    tech: ['{"chapter": 4, "address_terms": [1], "fixed_comments": ["c12"]}', '{"words": 3618, "foreshadow": [2], "timeline": "+1"}'] },
+  audit_foundation: { role: 'architect', label: 'Soát nền truyện', icon: 'i-shield-tick', run: 'đang soát nền truyện', sum: 'sẵn sàng · 1 lưu ý', dur: '41 giây',
+    blocks: [{ kv: [['Kết luận', 'sẵn sàng viết', 'g']] }, { text: 'Tóm tắt', t: 'Tiền đề, nhân vật, quy tắc thế giới và dàn ý khớp nhau. Một tuyến mở chưa có chương khép.' }, { issues: [['i', 'Dàn ý', '“Hoài Châu đứng về phía ai?” chưa có chương trả lời.', 'Thêm một cảnh ở chương 7 hoặc 8.']] }],
+    tech: ['{}', '{"ready": true, "issues": [{"artifact": "outline", "suggestion": "…"}]}'] },
+  revise_outline: { role: 'architect', label: 'Sửa dàn ý', icon: 'i-routing', run: 'đang sửa dàn ý', sum: 'từ chương 5 · đổi 1 chương', dur: '18 giây',
+    blocks: [{ text: 'Lý do', t: 'Chương 4 đã lộ người đứng sau sớm hơn dàn ý; chương 5 phải đổi hướng.' }, { kv: [['Chương', '5 · Tôi cướp vai cái nồi à?'], ['Móc mới', 'đe dọa mới', 'r']] }, { diff: ['Phùng Chấn là người đặt hàng vụ cướp kịch bản.', 'Phùng Chấn cho người tới nhà Tri Hạ đòi lại bản ghi âm.'] }],
+    tech: ['{"from_chapter": 5, "core_event": "…", "hook": "…", "reason": "…"}', '{"changed": [5]}'] },
+  resolve_outline_feedback: { role: 'architect', label: 'Giữ dàn ý', icon: 'i-tick', run: 'đang xem góp ý dàn ý', sum: 'không cần đổi', dur: '7 giây',
+    blocks: [{ text: 'Lý do giữ', t: 'Góp ý “đẩy tình cảm lên chương 4” đã có ở cảnh Kỳ Dương; đổi thêm sẽ phá nhịp vả mặt.' }],
+    tech: ['{"reason": "…"}', '"ok"'] },
+  save_book: { role: 'architect', label: 'Lưu thông tin truyện', icon: 'i-doc', run: 'đang lưu thông tin truyện', sum: 'tên + giới thiệu', dur: '11 giây',
+    blocks: [{ kv: [['Tên', 'Trà Xanh Cướp Kịch Bản Của Tôi, Tôi Lên Show Thực Tế Đọc Bản Gốc']] }, { text: 'Giới thiệu', t: 'Lâm Tri Hạ viết kịch bản “Mùa hạ không tên” nhưng Nhược Vy đứng tên. Khi show mời cả đoàn đọc thoại trực tiếp, Tri Hạ nhận lời — và mang theo bản ghi âm gốc.' }],
+    tech: ['{"title": "…", "synopsis": "…"}', '"ok"'] },
+  'save_foundation.premise': { role: 'architect', label: 'Lưu tiền đề', icon: 'i-lamp', run: 'đang lưu tiền đề', sum: '10 mục · người nghe Nữ 18–35', dur: '2 phút 25 giây',
+    blocks: [{ list: 'Các mục', items: ['Thể loại và giọng điệu', 'Định vị thể loại', 'Xung đột cốt lõi', 'Mục tiêu nhân vật chính', 'Hướng kết cục', '… và 5 mục khác'] }, { kv: [['Người nghe', 'Nữ 18–35'], ['Điểm khác', 'phản đòn bằng giọng đọc gốc']] }, { link: 'Xem tiền đề ở tab Tiền đề ›' }],
+    tech: ['{"type": "premise", "content": "## …", "nguoi_nghe": [1], "axes": [10]}', '"ok"'] },
+  'save_foundation.characters': { role: 'architect', label: 'Lưu nhân vật', icon: 'i-users', run: 'đang lưu nhân vật', sum: '6 nhân vật · 2 chính', dur: '1 phút 47 giây',
+    blocks: [{ cast: ['Lâm Tri Hạ', 'Tống Nhược Vy', 'Phùng Chấn', 'Kỳ Dương', 'Hứa Hoài Châu', 'Đỗ Mẫn'] }, { kv: [['Lộ vai muộn', 'Phùng Chấn · chương 5']] }],
+    tech: ['{"type": "characters", "content": [6]}', '"ok"'] },
+  'save_foundation.world_rules': { role: 'architect', label: 'Lưu quy tắc thế giới', icon: 'i-global', run: 'đang lưu quy tắc thế giới', sum: '5 quy tắc · xã hội, công nghệ, địa lý', dur: '1 phút 2 giây',
+    blocks: [{ list: 'Quy tắc', items: ['Show phát trực tiếp; đoạn đã lên sóng không cắt được.', 'Tên tác giả do nhà sản xuất đăng ký với đài.', 'Mọi buổi đọc thoại đều được ghi âm.', '… và 2 quy tắc khác'] }],
+    tech: ['{"type": "world_rules", "content": [5]}', '"ok"'] },
+  'save_foundation.outline': { role: 'architect', label: 'Lưu dàn ý', icon: 'i-note', run: 'đang lưu dàn ý', sum: '8 chương · 1 tập', dur: '3 phút 9 giây',
+    blocks: [{ ol: ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'] }],
+    tech: ['{"type": "outline", "content": [8], "scale": "short"}', '"ok"'] },
+  'save_foundation.update_compass': { role: 'architect', label: 'Cập nhật hướng đi', icon: 'i-flag', run: 'đang cập nhật hướng đi', sum: '3 tuyến còn mở', dur: '5 giây',
+    blocks: [{ text: 'Hướng kết', t: 'Tên Tri Hạ lên màn hình; Nhược Vy tự nhận trước khán giả.' }, { list: 'Tuyến còn mở', items: ['Ai đứng sau Nhược Vy?', 'Vỏ ổ cứng ở đâu?', 'Hoài Châu đứng về phía ai?'] }],
+    tech: ['{"type": "update_compass", "content": {"ending_direction": "…", "open_threads": [3]}}', '"ok"'] },
+  save_review: { role: 'editor', label: 'Lưu thẩm duyệt', icon: 'i-chart', run: 'đang lưu thẩm duyệt', sum: 'chương 3 · Đạt · 2 cảnh báo', dur: '3 giây',
+    blocks: [{ kv: [['Kết luận', 'Đạt', 'g'], ['Chương', '3'], ['Chấm theo', 'gói Nữ tần báo thù']] }, { scores: [['Nhịp', '8,5'], ['Thoại', '7,5'], ['Móc cuối', '9'], ['Nhất quán', '8']] }, { issues: [['w', 'Master §13', 'Thoại 34%, chuẩn của gói 40–55%.', 'Thêm một lượt đối đáp ở cảnh xáo thẻ.'], ['w', 'Quy tắc của truyện', '“dường như” 2 lần, tối đa 1.', 'Bỏ một lần ở đoạn mở.']] }],
+    tech: ['{"chapter": 3, "verdict": "accept", "dimensions": [4], "issues": [2]}', '"ok"'] },
+  save_arc_summary: { role: 'editor', label: 'Tóm tắt cung', icon: 'i-note', run: 'đang tóm tắt cung', sum: 'tập 1 · cung 1 · 4 sự kiện', dur: '22 giây',
+    blocks: [{ text: 'Tóm tắt', t: 'Tri Hạ nhận lời lên show, giành lại lượt đọc và phát bản ghi âm gốc trên sóng.' }, { list: 'Sự kiện chính', items: ['Bị xếp vai “đồ canh”', 'Bác thẻ nhường, lấy lại lượt', 'Phát bản ghi 73 giây', 'Số lạ nhắn đe doạ'] }, { kv: [['Tri Hạ', 'chủ động, đã có bằng chứng'], ['Nhược Vy', 'mất mặt, bắt đầu đổ lỗi']] }],
+    tech: ['{"volume": 1, "arc": 1, "key_events": [4], "character_snapshots": [2]}', '"ok"'] },
+  save_volume_summary: { role: 'editor', label: 'Tóm tắt tập', icon: 'i-book', run: 'đang tóm tắt tập', sum: 'tập 1 · 8 chương', dur: '15 giây',
+    blocks: [{ text: 'Tóm tắt', t: 'Từ vai “đồ canh” đến tên trên màn hình: Tri Hạ lấy lại kịch bản bằng chính giọng đọc của mình.' }],
+    tech: ['{"volume": 1, "title": "…", "summary": "…"}', '"ok"'] },
+  other: { role: 'writer', label: 'Thao tác khác', icon: 'i-layer', run: 'đang chạy', sum: 'loại thao tác mới · xem chi tiết kỹ thuật', dur: '1 giây',
+    blocks: [{ note: 'Noverse chưa có thẻ riêng cho thao tác này. Tham số và kết quả nằm ở Chi tiết kỹ thuật.' }],
+    tech: ['{"…": "…"}', '"…"'] }
+};
+const OPKEY = (k) => k.indexOf('.') > 0 ? k.split('.')[0] + ' · ' + k.split('.')[1] : k;
+// Lịch sử lưu bền: mỗi vòng một vai, thẻ theo thứ tự chạy. Cũ ở trên, mới ở dưới.
+const ROUNDS = [
+  { n: 1, role: 'architect', title: 'Lập kế hoạch truyện', time: '14:37', ops: ['novel_context', 'save_book', 'save_foundation.premise', 'save_foundation.characters', 'save_foundation.world_rules', 'save_foundation.outline'] },
+  { n: 2, role: 'architect', title: 'Soát nền truyện', time: '14:52', ops: ['audit_foundation'] },
+  { n: 9, role: 'editor', title: 'Thẩm chương 3', time: '21:31', ops: ['read_chapter', 'save_review'] },
+  { n: 10, role: 'architect', title: 'Xem góp ý dàn ý', time: '21:38', ops: ['resolve_outline_feedback', 'revise_outline', 'save_foundation.update_compass'] },
+  { n: 11, role: 'writer', title: 'Viết lại chương 4', time: '21:41', ops: ['novel_context', 'plan_chapter', 'draft_chapter', 'check_consistency', 'edit_chapter', 'commit_chapter'] },
+  { n: 12, role: 'editor', title: 'Tóm tắt cung 1', time: '21:56', ops: ['save_arc_summary', 'save_volume_summary', 'other'] }
+];
+const KIND_TONE = { b: ['rgba(185,208,247,0.1)', '#C8D8F8'], w: ['rgba(246,203,140,0.12)', '#F3D9AE'], r: ['rgba(255,154,162,0.1)', '#FFB3BA'], g: ['rgba(166,237,193,0.1)', '#A6EDC1'] };
+// Biến một khối dữ liệu thành giá trị cho template (cờ boolean cho sc-if)
+function runBlocks(op) {
+  return op.blocks.map((b) => {
+    const o = { isKv: !!b.kv, isList: !!b.list, isText: !!b.text, isQuote: !!b.quote, isDiff: !!b.diff, isIssues: !!b.issues, isCast: !!b.cast, isTags: !!b.tags, isScores: !!b.scores, isOl: !!b.ol, isNote: !!b.note, isLink: !!b.link };
+    o.kv = (b.kv || []).map(([k, v, t]) => ({ k, v, bg: t ? KIND_TONE[t][0] : '#0F0F11', fg: t ? KIND_TONE[t][1] : '#EDEDEF' }));
+    o.label = b.list || b.text || b.tags || ''; o.hasLabel = !!o.label;
+    o.items = (b.items || []).map((x) => typeof x === 'string' ? { t: x } : { a: x[0], t: x[1], bg: KIND_TONE[x[2]][0], fg: KIND_TONE[x[2]][1] });
+    o.t = b.t || b.quote || b.note || b.link || '';
+    o.old = b.diff ? b.diff[0] : ''; o.neu = b.diff ? b.diff[1] : '';
+    o.issues = (b.issues || []).map(([l, ref, t, fix]) => ({ lvl: LV[l][0], bg: LV[l][1], fg: LV[l][2], ref, t, fix }));
+    o.cast = (b.cast || []).map((n) => ({ n, ini: n.split(' ').slice(-2).map((w) => w.charAt(0)).join('') }));
+    o.scores = (b.scores || []).map(([k, v]) => ({ k, v }));
+    o.ol = (b.ol || []).map((t, i) => ({ n: String(i + 1), t }));
+    return o;
+  });
+}
+const RUN_ERR = { edit_chapter: 'Không tìm thấy đoạn cần sửa trong bản nháp. Người viết đọc lại chương rồi sửa tiếp — không cần bạn làm gì.', commit_chapter: 'Chưa lưu được: bản nháp chương 4 trống. Người viết viết lại bản nháp rồi lưu.' };
+function runCard(key, o) {
+  const op = OPS[key]; const r = RROLE[op.role]; const st = o.status || 'done';
+  return { key: OPKEY(key), label: op.label, icon: op.icon, orb: r[1], roleName: r[0], roleKey: op.role, roleFg: r[2],
+    sum: st === 'running' ? op.run + '…' : (st === 'error' ? 'không thực hiện được · ' + op.sum : op.sum), sumFg: st === 'error' ? '#FFB3BA' : '#8E8E99',
+    dur: st === 'running' ? '' : op.dur, time: o.time || '', at: o.time || '', round: String(o.round || ''),
+    isDone: st === 'done', isLive: st === 'running', isErr: st === 'error', errText: RUN_ERR[key] || 'Thao tác không thành công. Trợ lý tự xem lỗi và chạy lại ở thẻ kế tiếp.',
+    cls: (o.open ? 'open' : '') + (st === 'error' ? ' err' : '') + (st === 'running' ? ' live' : ''), open: !!o.open, openA: o.open ? 'true' : 'false', chev: o.open ? 'rotate(180deg)' : 'none',
+    blocks: st === 'running' ? runBlocks({ blocks: [{ note: 'Bắt đầu lúc ' + (o.time || '') + '. Thẻ tự cập nhật khi xong; không cần tải lại.' }] }) : (st === 'error' ? [] : runBlocks(op)), params: op.tech[0], result: st === 'running' ? '(đang chạy)' : op.tech[1], techOpen: !!o.tech, techA: o.tech ? 'true' : 'false', techChev: o.tech ? 'rotate(180deg)' : 'none',
+    toggle: o.toggle || (() => {}), toggleTech: o.toggleTech || (() => {}), href: o.href || 'Reader.dc.html' };
+}
+
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -1123,7 +1253,7 @@ class Component extends DCLogic {
       models: [{ name: 'gpt-6.1-sol', tokens: TK('65.3k') + ' token', cost: USD('$0.09') }],
       cache: [{ name: VN.ARCHITECT, pct: '31%', detail: TK('18.2k') + ' / ' + TK('58.9k') }],
       cacheStats: [{ k: 'Dùng lại · 10 lần gần nhất', v: '31%', color: G }, { k: 'Tiết kiệm', v: USD('$0.02'), color: G }],
-      streamProgress: '80%', streamOrbOpacity: 1, streamMeta: 'Kiến trúc sư · 4/5 bước', hasStream: false, noStream: true, streamTitle: 'Kế hoạch truyện', streamOrb: 'o-architect', streamGrad: 'g-architect', runLabel: 'Đang lưu dàn ý', agentNow: paused ? 'Kiến trúc sư · tạm dừng ở Lưu dàn ý' : 'Kiến trúc sư · đang lưu dàn ý', logFlex: '3 1 0', streamFlex: '7 1 0', isPlan: true, gateReview: false, emptyStream: false,
+      streamProgress: '80%', streamOrbOpacity: 1, streamMeta: 'Kiến trúc sư · Lập kế hoạch truyện', hasStream: false, noStream: true, streamTitle: 'Luồng viết trực tiếp', streamOrb: 'o-architect', streamGrad: 'g-architect', runLabel: 'Đang lưu dàn ý', agentNow: paused ? 'Kiến trúc sư · tạm dừng ở Lưu dàn ý' : 'Kiến trúc sư · đang lưu dàn ý', logFlex: '3 1 0', streamFlex: '7 1 0', isPlan: true, gateReview: false, emptyStream: false,
       placeholder: paused ? 'Đã tạm dừng · nhập góp ý để tiếp tục lập kế hoạch' : 'Góp ý cho kế hoạch, ví dụ: cho nữ chính thêm một người em gái',
       outlineNote: 'Đang lập dàn ý · 5/8', hasChapters: false, noRecent: true, recentSum: [],
       intro: 'Lâm Tri Hạ viết kịch bản ba năm thì bị ảnh hậu Tống Nhược Vy nhận vơ trên truyền hình. Cô nhận lời lên show thực tế cùng Nhược Vy và đọc bản gốc trước khán giả.', introTag: 'Showbiz Trung Quốc hiện đại',
@@ -1179,7 +1309,33 @@ class Component extends DCLogic {
     Object.keys(CH).forEach((id) => { const c = SG.cast(chNow, id); const own = SG.XH.filter((x) => x[0] === id && x[4] <= chNow && (!x[5] || x[5] >= chNow)); CH[id].rels = c.rels; CH[id].xhs = c.xhs; CH[id].hid = c.hid; CH[id].xh = own.length ? 'gọi ' + shortN(SG.N[own[0][1]][1]) + ' “' + own[0][2] + '”, tự xưng “' + own[0][3] + '”' : 'chưa ghi'; });
     const peekHead = 'Ở chương ' + chNow;
     const tab = s.tab || (ph === 'done' || this.props.peek === 'nv' ? 'story' : 'agent');
+    // Luồng viết trực tiếp v2 (Gói AS): vòng + thẻ thao tác, lọc theo trợ lý, vòng cũ thu gọn
+    const lvOn = ph === 'rewrite' || ph === 'plan';
+    const LVD = ph === 'plan'
+      ? [{ n: 1, role: 'architect', title: 'Lập kế hoạch truyện', time: '14:37', ops: [['novel_context', 'done'], ['save_book', 'done'], ['save_foundation.premise', 'done'], ['save_foundation.characters', 'done'], ['save_foundation.world_rules', 'done'], ['save_foundation.outline', running ? 'running' : 'done']] }]
+      : [{ n: 9, role: 'editor', title: 'Thẩm chương 3', time: '21:31', ops: [['read_chapter', 'done'], ['save_review', 'done']] },
+         { n: 10, role: 'architect', title: 'Xem góp ý dàn ý', time: '21:38', ops: [['resolve_outline_feedback', 'done'], ['revise_outline', 'done'], ['save_foundation.update_compass', 'done']] },
+         { n: 11, role: 'writer', title: 'Viết lại chương 4', time: '21:41', ops: [['novel_context', 'done'], ['plan_chapter', 'done'], ['edit_chapter', 'error'], ['edit_chapter', 'done'], ['check_consistency', 'done'], ['commit_chapter', running ? 'running' : 'done']] }];
+    const lvRole = s.lvRole || 'all';
+    const lvShown = LVD.filter((r) => lvRole === 'all' || r.role === lvRole);
+    const lvLast = LVD.length - 1;
+    const lvSec = (t) => { const m = String(t).match(/(?:(\d+) phút )?([\d,]+) giây/); return m ? (+(m[1] || 0)) * 60 + parseFloat(m[2].replace(',', '.')) : 0; };
+    const lvFmt = (x) => x < 60 ? String(Math.round(x * 10) / 10).replace('.', ',') + ' giây' : Math.floor(x / 60) + ' phút ' + Math.round(x % 60) + ' giây';
+    const lvRounds = lvShown.map((r) => {
+      const idx = LVD.indexOf(r); const dflt = idx >= lvLast - 1; const ro = (s.lvOpenR || {})[r.n]; const open = ro === undefined ? dflt : ro;
+      const rr = RROLE[r.role];
+      const cards = r.ops.map(([k, st], i) => { const id = r.n + '-' + i; const o = (s.lvOpen || {})[id]; const c = runCard(k, { status: st, open: !!o, time: r.time, round: r.n, tech: (s.lvTech || {})[id], toggle: () => this.setState({ lvOpen: Object.assign({}, s.lvOpen, { [id]: !o }) }), toggleTech: () => this.setState({ lvTech: Object.assign({}, s.lvTech, { [id]: !(s.lvTech || {})[id] }) }) });
+        return Object.assign(c, { notLive: !c.isLive, durV: c.isLive ? Math.floor(s.t / 60) + ':' + String(Math.floor(s.t % 60)).padStart(2, '0') : c.dur, icFg: c.isErr ? '#FF9AA2' : (c.isLive ? '#DCC8F8' : '#8FDCCB') }); });
+      const tot = r.ops.reduce((a, [k, st]) => a + (st === 'done' ? lvSec(OPS[k].dur) : 0), 0);
+      return { n: String(r.n), role: rr[0], orb: rr[1], fg: rr[2], title: r.title, time: r.time, aria: 'Vòng ' + r.n + ' · ' + rr[0], open, openA: open ? 'true' : 'false', closed: !open, closedOk: !open && r.ops.every(([, st]) => st === 'done'), nOps: String(r.ops.length), total: lvFmt(tot), chev: open ? 'rotate(180deg)' : 'rotate(-90deg)', cards: open ? cards : [],
+        toggle: () => this.setState({ lvOpenR: Object.assign({}, s.lvOpenR, { [r.n]: !open }) }) };
+    });
+    const lvVals = { lvOn, lvOff: !lvOn, lvRounds, lvHasMore: lvOn && lvRole === 'all' ? true : lvOn, lvEmpty: lvOn && !lvShown.length,
+      lvEmptyT: lvRole === 'all' ? '' : 'Chưa có vòng nào của ' + (RROLE[lvRole] || [''])[0], lvEmptyOrb: (RROLE[lvRole] || ['', 'o-writer'])[1],
+      lvCount: ph === 'plan' ? '1 vòng' : '11 vòng',
+      lvRoles: [['all', 'Tất cả'], ['architect', 'Kiến trúc sư'], ['writer', 'Người viết'], ['editor', 'Biên tập viên']].map(([k, label]) => ({ label, on: lvRole === k ? 'true' : 'false', dot: k !== 'all', c: k === 'all' ? '' : RROLE[k][2], pick: () => this.setState({ lvRole: k }) })) };
     return {
+      ...lvVals,
       d, running, notRunning: !running,
       gateIssues: [['Master §13', 'Văn phong, thoại, hài', 'Thoại chiếm 34%, chuẩn của gói là 40–55%.', 'Chuyển đoạn kể buổi thử vai thành đối thoại với đạo diễn.'], ['Bộ A §4.3', 'Trà xanh và phản diện', 'Nhược Vy thắng ván nhỏ nhưng chưa đủ để người nghe ghét.', 'Cho Nhược Vy một câu thoại đắc thắng trước mặt người khác.']].map(([ref, refName, t, fix]) => ({ ref, refName, t, fix })),
       liveClass: running ? 'live' : '',

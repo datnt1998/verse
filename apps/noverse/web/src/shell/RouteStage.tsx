@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { KeepAlive } from './KeepAlive'
+import { KeepAlive } from '@noverse/ui'
 import { endNav } from './navTransition'
 
 const MAIN_ROUTES: Record<string, true | undefined> = { workspace: true, project: true, reader: true, audio: true, newstory: true }

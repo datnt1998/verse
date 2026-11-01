@@ -7,6 +7,9 @@ import * as stylex from '@stylexjs/stylex'
 import {
   ActionMenu, Banner, Card, Chip, Combobox, EmptyState, KitSelect,
   InfoPopover, NumberStepper, Sheet, Switch, TextField, Tooltip, toast, Icon,
+  MobilePage, MobilePageAction, ActionSheet, ConfirmSheet, ListRow, VideoRow,
+  StatusPill, MeterBar, InitialsAvatar, Stepper, SelectionBar, OfflineBanner,
+  Segmented as KitSegmented, Field, Button, type StatusTone,
 } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { t } from '../../i18n/devkit'
@@ -29,7 +32,7 @@ import { TokenSheet } from './TokenSheet'
 import { devkit } from './devkit.stylex'
 
 const KIT_SECTIONS = ['foundation', 'confirm', 'menus', 'select', 'inputs', 'overlays', 'video', 'agent'] as const
-const MKIT_SECTIONS = ['bars', 'controls', 'lists', 'sheets', 'agent'] as const
+const MKIT_SECTIONS = ['bars', 'controls', 'lists', 'sheets', 'agent', 'system'] as const
 type KitSection = (typeof KIT_SECTIONS)[number]
 type MKitSection = (typeof MKIT_SECTIONS)[number]
 
@@ -105,6 +108,7 @@ function MKitBoard({ section }: { section: MKitSection }) {
       {section === 'lists' && <MLists />}
       {section === 'sheets' && <MSheets />}
       {section === 'agent' && <MAgents />}
+      {section === 'system' && <MSystem />}
       <MobileTabBar route={{ name: 'workbench' }} reviewCount={DEMO_STATUS.reviewCount} fixed={false} />
     </div>
   )
@@ -599,6 +603,178 @@ function MAgents() {
             {t.agents[a].role}
           </Banner>
         ))}
+      </div>
+    </>
+  )
+}
+
+// ─── MKit › Kit mobile ─────────────────────────────────────────────────────
+// Bộ component mobile thật của @noverse/ui, cạnh nhau để so với artboard
+// MKit.dc.html (390×844): mỗi ô là một khối của artboard, đúng số đo.
+
+const STATUS_DEMO: { status: StatusTone; label: string }[] = [
+  { status: 'queued', label: 'Đã xếp hàng' },
+  { status: 'working', label: 'Đang làm' },
+  { status: 'review', label: 'Chờ duyệt · 7 ảnh' },
+  { status: 'issue', label: 'Có lỗi' },
+  { status: 'ready', label: 'Sẵn sàng đăng' },
+  { status: 'posted', label: 'Đã đăng' },
+  { status: 'paused', label: 'Tạm dừng' },
+]
+
+function MSystem() {
+  const [action, setAction] = useState(false)
+  const [confirm, setConfirm] = useState(false)
+  const [sheet, setSheet] = useState(false)
+  const [offline, setOffline] = useState(false)
+  const [count, setCount] = useState(3)
+  const [seg, setSeg] = useState('all')
+  const [field, setField] = useState('')
+  return (
+    <>
+      <MHeader title={t.devkit.groups.system} />
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+        <Cell title="MobilePage — thanh trên 52 · một vùng cuộn">
+          <div style={{ height: 380, border: '1px solid var(--line-1)', borderRadius: 'var(--radius-card)', overflow: 'hidden', background: 'var(--color-bg)' }}>
+            <MobilePage
+              title="Kênh Thực Tế"
+              subtitle="Hôm nay 4/7 · 12 video"
+              onBack={() => {}}
+              actions={<MobilePageAction icon="more" label="Thao tác khác" />}
+            >
+              <div style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
+                <ListRow icon="trend" title="Tự lấy video" hint="Video mới của đối thủ tự vào hàng chờ" onClick={() => {}} />
+                <ListRow icon="video-play" title="Tự dựng video" hint="Dựng ngay khi có kịch bản" onClick={() => {}} />
+                <ListRow icon="shield-tick" title="Tự duyệt ảnh" hint="Ảnh mới vào thẳng hàng đăng" onClick={() => {}} divider />
+              </div>
+            </MobilePage>
+          </div>
+        </Cell>
+
+        <Cell title="ActionSheet — tấm danh sách (tiêu đề 18, hàng 56)">
+          <ActionButton variant="outline" onClick={() => setAction(true)}>Mở tấm thao tác</ActionButton>
+          <ActionSheet
+            open={action}
+            onClose={() => setAction(false)}
+            title="Nocturne Stories"
+            actions={[
+              { label: 'Chọn video nổi trội', description: 'Mở Khám phá ở đối thủ này', icon: 'trend', onSelect: () => {} },
+              { label: 'Xem kênh đối thủ', description: 'Mở trang kênh trong tab mới', icon: 'link-2', onSelect: () => {} },
+              { label: 'Bỏ liên kết kênh này', description: 'Hỏi xác nhận trước', icon: 'trash', destructive: true, onSelect: () => {} },
+            ]}
+          />
+        </Cell>
+
+        <Cell title="ConfirmSheet — alertdialog, hai nút 44">
+          <ActionButton variant="outline" onClick={() => setConfirm(true)}>Mở hộp xác nhận</ActionButton>
+          <ConfirmSheet
+            open={confirm}
+            onClose={() => setConfirm(false)}
+            title="Bật tự duyệt ảnh cho Midnight Tales?"
+            description="Ảnh mới sẽ được duyệt tự động và vào thẳng hàng đăng. Bạn vẫn tắt lại được bất cứ lúc nào."
+            action={{ label: 'Bật tự duyệt', onSelect: () => {} }}
+          />
+        </Cell>
+
+        <Cell title="Sheet md — tiêu đề 18px, nền dialog">
+          <ActionButton variant="outline" onClick={() => setSheet(true)}>Mở sheet</ActionButton>
+          <Sheet open={sheet} onClose={() => setSheet(false)} size="md" title="Thao tác video" subtitle="Chọn một thao tác cho video đang mở.">
+            <div style={{ padding: 'var(--vv-s-8)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
+              <ListRow icon="tick-circle" title="Duyệt video" onClick={() => setSheet(false)} />
+              <ListRow icon="refresh-2" title="Dựng lại từ đầu" onClick={() => setSheet(false)} />
+            </div>
+          </Sheet>
+        </Cell>
+
+        <Cell title="ListRow — 56 · bo 12 · icon 18">
+          <ListRow icon="trend" title="Tự lấy video" hint="Video mới của đối thủ tự vào hàng chờ" onClick={() => {}} />
+          <ListRow icon="clock" title="Lịch đăng" value="21:00" chevron onClick={() => {}} />
+          <ListRow icon="trash" title="Bỏ liên kết kênh" destructive onClick={() => {}} />
+          <ListRow icon="user" title="Chỉ xem" hint="Không bấm được" />
+        </Cell>
+
+        <Cell title="VideoRow — thumbnail 80×45">
+          <VideoRow
+            title="I Took a Job Watching an Empty Mall After Midnight"
+            thumb="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+            status={<StatusPill status="review">Chờ duyệt · 7 ảnh</StatusPill>}
+            action={<ActionButton variant="outline">Duyệt</ActionButton>}
+          />
+          <VideoRow
+            title="The Last Shift at the Polaroid Factory"
+            status={<StatusPill status="working">Hoạ sĩ đang vẽ cảnh 3/6</StatusPill>}
+          />
+        </Cell>
+
+        <Cell title="StatusPill — 7 trạng thái">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--vv-s-10)' }}>
+            {STATUS_DEMO.map((s) => <StatusPill key={s.status} status={s.status}>{s.label}</StatusPill>)}
+          </div>
+        </Cell>
+
+        <Cell title="MeterBar — rãnh 4px">
+          <MeterBar value={0.68} label="Tiến độ hôm nay" readout="68%" />
+          <MeterBar value={0.4} tone="info" label="Đang làm" readout="2/5" />
+          <MeterBar value={1} tone="ok" label="Sẵn sàng" readout="4/4" />
+        </Cell>
+
+        <Cell title="Stepper — 44 · nút 44 · số mono 13">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-10)' }}>
+            <Stepper value={count} onChange={setCount} min={1} max={5} label="Số video mỗi ngày" />
+            <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>1–5</span>
+          </div>
+        </Cell>
+
+        <Cell title="InitialsAvatar — 30/38/44">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-10)' }}>
+            {DEMO_CHANNELS.map((c) => <InitialsAvatar key={c.id} name={c.name} size={30} bg={c.color.bg} ring={c.color.ring} />)}
+            <InitialsAvatar name="Kênh Thực Tế" size={38} bg="rgba(230,0,46,.22)" ring="rgba(230,0,46,.6)" />
+            <InitialsAvatar name="Midnight Tales" size={44} />
+          </div>
+        </Cell>
+
+        <Cell title="Chip mobile — 36 nhìn thấy, 44 chạm">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--vv-s-8)' }}>
+            <Chip size="mobile" label="Tất cả" value="18" />
+            <Chip size="mobile" label="Đang làm" />
+            <Chip size="mobile" label="Chờ duyệt" />
+          </div>
+        </Cell>
+
+        <Cell title="Field mobile — 46 · chữ 16">
+          <Field mobile value={field} onChange={(e) => setField(e.currentTarget.value)} placeholder="Dán link video YouTube" aria-label="Link video" />
+        </Cell>
+
+        <Cell title="Segmented điện thoại — nhóm 48, mục 40, chữ 14">
+          <KitSegmented
+            label="Lọc hàng chờ"
+            size="xl"
+            options={[{ id: 'all', label: 'Tất cả' }, { id: 'review', label: 'Chờ duyệt' }, { id: 'issue', label: 'Có lỗi' }]}
+            value={seg}
+            onChange={setSeg}
+          />
+        </Cell>
+
+        <Cell title="Button CTA — 48px chiếm trọn bề ngang">
+          <Button size="xl" block variant="primary" icon={<Icon name="video-add" size={18} />}>Làm video cho kênh</Button>
+          <Button size="xl" block>Xem trước video</Button>
+        </Cell>
+
+        <Cell title="EmptyState — khung nét đứt">
+          <EmptyState variant="frame" icon="video-play" title="Chưa có video nào" hint="Dán link để thêm video đầu tiên vào hàng chờ." />
+        </Cell>
+
+        <Cell title="SelectionBar — ẩn thanh tab, đếm mục">
+          <SelectionBar count={count} actions={<><ActionButton variant="quiet">Bỏ chọn</ActionButton><ActionButton variant="danger-soft">Xoá</ActionButton></>} />
+        </Cell>
+
+        <Cell title="OfflineBanner — bền 3 giây, đếm ngược, mờ nội dung 55%">
+          <Row>
+            <Switch checked={offline} onChange={setOffline} label="Giả lập mất mạng" />
+            <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{offline ? 'đang mất mạng' : 'có mạng'}</span>
+          </Row>
+          <OfflineBanner offline={offline} retryIn={offline ? 8 : 0} onRetry={() => setOffline(false)} />
+        </Cell>
       </div>
     </>
   )

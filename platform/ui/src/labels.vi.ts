@@ -84,4 +84,11 @@ export const KIT_LABELS_VI: KitLabels = {
   },
   orbs: { thinking: 'Người viết đang viết' },
   sheet: { grabHandle: 'Kéo xuống để đóng', defaultLabel: 'Tuỳ chọn' },
+  mobile: {
+    back: 'Quay lại',
+    pending: 'Đang thực hiện…',
+    retryNow: 'Thử ngay',
+    offline: 'Mất kết nối mạng',
+    offlineCountdown: (sec) => `Mất kết nối · thử lại sau ${sec} s`,
+  },
 }

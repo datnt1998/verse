@@ -27,7 +27,7 @@ export type SheetProps = {
   /** thanh kéo đóng (mặc định có) */
   grab?: boolean
   role?: 'dialog' | 'alertdialog'
-  /** `md` = tấm theo artboard Viderse (góc 22, nền --color-card, tiêu đề 16px,
+  /** `md` = tấm theo artboard Viderse (góc 22, nền --color-surface-3, tiêu đề 18px,
    *  grabber 36×4, max-height 86%). Mặc định `lg` = tấm Noverse hiện tại. */
   size?: 'lg' | 'md'
   /** Câu phụ dưới tiêu đề (12.5px, --kit-fg-sub). */

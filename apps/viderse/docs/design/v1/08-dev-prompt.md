@@ -905,6 +905,69 @@ Nguồn sự thật:
 - Bấm nút Việc nền khi có chấm → sheet mở ở Thông báo; đánh dấu đã đọc → chấm mất.
 - Ghi “Gói V32” vào `10-gap-closure.md`.
 
+## Gói V33 — Mọi màn dùng UI Kit, chuyển động theo Noverse (P1) <!-- r37 --> <a id="goi-v33"></a>
+
+**Vì sao:** nhiều màn (Video mới, Bàn dựng, Duyệt, Kênh, Thư viện, Cài đặt…) còn nút, ô chọn, nhóm chọn, menu vẽ tay: kích thước lệch, chữ trong nút lệch dọc, nhóm chọn “Một link / Nhiều link” đổi nền tức thì không có viên trượt, menu mở không hiệu ứng. Đợt 37 đưa toàn bộ board về class kit (423 nút, 33 nhóm chọn, 11 chip, 7 ô chọn, 12 menu nổi với 30 mục, 1 nhóm tab).
+- Spec: components › **Mọi màn dùng UI Kit** (bảng thành phần → class → chuyển động); 05-kit › Segmented, ChipSelect.
+- Artboard: mọi board. Xem nhanh: `NewVideo` (nhóm chọn Một link/Nhiều link trượt; chip Kênh, Template) · `Main` (menu ⋯ và Đổi kênh mở có hiệu ứng) · `Review` (nút, nhóm chọn) · `Template`, `Settings` (nhiều nhóm chọn) · `Kit` › Ô nhập & nút.
+
+### Thấy trong code hiện tại (đếm ngày 01/11)
+- `<button>` tự style: 310 chỗ trong 92 tệp (so với 203 chỗ dùng `Button`). `role="radiogroup"/"tablist"` tự dựng: 32 chỗ, `Segmented` mới dùng 20 chỗ. Ô chọn của kit (`KitSelect`/`RichSelect`/`Combobox`) chỉ 3 chỗ; `role="menu"/"listbox"` tự dựng 9 chỗ.
+- Ví dụ anh/chị thấy trên bản thật:
+  - `screens/new/NewScreen.tsx:102` nhóm Một link / Nhiều link tự dựng → không có viên trượt. Chip Kênh / Template tự dựng.
+  - `screens/review/ReviewScreen.tsx:89` trạng thái “Đã duyệt hết”: liên kết “Xem tiến độ trên Bàn dựng” dùng `sx.button` tự đặt → chữ lệch dọc. Dùng `Button` (`as="a"` / `href`).
+  - `screens/library/TemplateImportDialog.tsx`: đoạn mô tả không có lề (thân `Dialog` không tự đệm), mô tả lặp lại chữ trong vùng thả, “Nhập tệp khác” hiện cả khi chưa nhập gì, “Đóng” là nút chính. Làm lại theo `Library` · `import=…` (dưới).
+- `@noverse/ui` `Dialog`: `padX` chỉ áp cho đầu và chân, thân không có lề → dễ dính mép. Đề xuất: thân mặc định đệm 0 `padX` (giống `.vv-dialog` của kit), màn nào cần tràn mép (danh sách) thì tắt.
+
+### Hộp thoại Nhập template cũ (mới vẽ) <a id="import-template"></a>
+- Artboard: `Library` · tab Template · bấm *Nhập template* hoặc tweak `import=ready|drag|importing|done|partial|zip|offline`.
+- `Dialog` 520px, icon đầu theo kết quả (thường · xong mint · một phần cam nhạt · mất kết nối cam). Dòng phụ nói tệp là gì; **vùng thả** (`.vv-drop`, mới trong kit) nói việc cần làm: “Kéo tệp .zip vào đây” · “Thả nhiều tệp một lúc được” · nút *Chọn tệp*. Kéo tệp vào: viền và nền màu nhấn, “Thả để nhập 3 tệp”.
+- Đang nhập / kết quả: mỗi tệp một dòng (`.vv-filerow`): đã nhập (tên template + “14 media vào kho media”), đang nhập (vòng quay + vạch %), chờ, chưa nhập được (lý do màu cam), “2 điều cần biết” mở danh sách cảnh báo tại chỗ.
+- Nút: chưa nhập → chỉ *Đóng*; đang nhập → *Huỷ phần chưa nhập*; xong / một phần → *Nhập tệp khác* + **Xong**; mất kết nối → *Đóng* + **Thử lại** (tệp đã chọn vẫn giữ). Không .zip → báo lỗi ngay trên vùng thả.
+
+### Hộp thoại có trong code nhưng chưa có thiết kế
+- “Nguồn đã gắn không còn trong Video nền” (`template/BackdropSection.tsx`), “Chọn hiệu ứng từ thư viện” (`template/BackdropSection.tsx`), “Chọn đoạn của video” (`backdrops/VideosPage.tsx`). Design vẽ ở đợt sau; trong lúc chờ, dựng bằng `Dialog` + thành phần kit theo bảng ở components › Mọi màn dùng UI Kit, không tự style.
+
+### Việc FE
+- Nhóm chọn chữ → `Segmented` (`size`, `fit`), có viên trượt; tab gạch chân → `Tabs`. Lưới thẻ lựa chọn có mô tả, dải ảnh thì giữ.
+- Nút → `Button` đúng biến thể; bỏ style tự đặt (cao, đệm, viền, nền, cỡ chữ). Nút chỉ có icon → `variant="icon"` + `aria-label`.
+- Chip “khoá : giá trị ▾” → `ChipSelect`; ô chọn trong biểu mẫu → `Select`; menu ⋯ / Đổi kênh → `Menu` (có hiệu ứng mở).
+- Không thêm `transition` riêng ngoài kit; tôn trọng `prefers-reduced-motion`.
+- `TemplateImportDialog` làm lại theo artboard `Library` · `import=…`; thêm `.vv-drop` / `.vv-filerow` (hoặc tương đương trong `@noverse/ui`) để Nhập prompt, Thêm hiệu ứng dùng chung.
+
+### Nghiệm thu
+- Video mới: bấm Một link ↔ Nhiều link thấy viên nền trượt; bấm chip Kênh / Template mũi tên lật.
+- Không còn nút có chữ lệch dọc (ví dụ “Xem tiến độ trên Bàn dựng” ở Duyệt khi đã duyệt hết).
+- `grep -rn 'role="radiogroup"\|role="tablist"' src` chỉ còn ở thành phần kit hoặc lưới thẻ lựa chọn.
+- Nhập template: chưa chọn tệp chỉ có *Đóng*; mô tả có lề như tiêu đề; nhập 3 tệp thấy từng dòng tiến độ.
+- Ghi “Gói V33” vào `10-gap-closure.md`.
+
+## Gói V34 — Màn còn thiếu artboard (P1) <!-- r38 --> <a id="goi-v34"></a>
+
+**Vì sao:** năm chỗ code đã có hoặc sắp làm nhưng chưa có thiết kế: Thư viện và Sửa template trên điện thoại, kênh mới chưa có video (điện thoại), Khám phá khi rỗng hoặc lỗi, thẻ YouTube Data API, bước Xong khi Đạo diễn lỗi. Đợt này vẽ đủ, cùng một bộ tuỳ chọn giữa máy tính và điện thoại.
+
+| Màn | Artboard · tweak | Ghi chú cho code |
+|---|---|---|
+| Thư viện dùng chung (điện thoại) | `MLibrary` · `tab=templates\|prompts\|backdrops\|overlays` · `sheet=none\|actions\|new` · `empty` | Lối vào: `MChannel` › Template › *Mở Thư viện dùng chung* (thay dòng “Tạo và sửa template trên máy tính”). Tab là `Segmented`; ⋯ của template mở sheet: Sửa template, Đổi tên, Nhân bản, Thêm vào kênh, Xuất tệp, Xoá (tắt khi còn kênh dùng, ghi lý do). Template có nhãn sức khoẻ “Ổn” / “Cần sửa · thiếu clip nền”. |
+| Sửa template (điện thoại) | `MTemplate` · `screen=list\|images\|cover\|backdrop\|output` · `preview=fresh\|stale\|building` · `sheet=none\|more` | Danh sách 4 mục (ảnh cảnh, ảnh bìa, nền & hiệu ứng, xuất) + bản xem thử + danh sách sẵn sàng; mỗi mục một màn con, tự lưu (thanh “Đã lưu · 23:52”). Cùng tuỳ chọn với `Template` máy tính. |
+| Kênh mới chưa có video (điện thoại) | `MChannel` · `fresh=true` | Như `Channel` · `fresh=true`: đầu trang tên kênh mới, số liệu 0, tab Video 0 · Nguồn 2 · Template 1; khối trống có video mới nhất của đối thủ, Tự lấy video, Khám phá. |
+| Khám phá — danh sách | `Explore` · `list=ok\|filterEmpty\|firstScan\|error\|offline` · `MExplore` · `list=…\|noRivals` | Hiện `ExploreScreen.tsx` chỉ in một dòng chữ cho lỗi và lọc rỗng. Cần: lọc rỗng có *Bỏ lọc* (đưa Dài, Đăng trong, Trạng thái về mặc định); quét lần đầu có banner + ô xương (đừng báo “không khớp bộ lọc” khi đối thủ còn đang quét); lỗi tải có *Thử lại* (gọi lại danh sách); mất kết nối dùng câu `retryingIn` + *Thử lại ngay*. Điện thoại thêm chip **Đăng trong** cho khớp máy tính, và trạng thái chưa theo dõi đối thủ. |
+| Thẻ YouTube Data API | `Settings` · `section=connect` · `ytkey=empty\|ok\|edit\|rejected\|failed\|offline` · `MSettings` · `screen=connect` · `ytkey=…` | `YoutubeDataKeyCard` đã có. Đổi: (1) tách khỏi danh sách nhà cung cấp AI thành nhóm **Số liệu YouTube** đặt dưới nút Thêm nhà cung cấp; (2) khi ở chế độ sửa thêm dòng gợi ý dưới ô (tạo khoá ở Google Cloud Console, bật YouTube Data API v3); (3) `failed` hiện *Thử lại* thay cho *Thêm khoá* (khi chưa đọc được trạng thái, chưa biết đã có khoá hay chưa). Câu chữ giữ `performanceCopy.dataKey`. |
+| Bước Xong khi Đạo diễn lỗi | `CreateChannel` · `Onboard` · `MCreate` · `step=done` · `identity=director` | Dùng `channels.directorFailed(reason)`, `waitDirector`, `noName`. Thẻ “Một việc cần bạn”, nút *Thử lại* ở dòng Đạo diễn (gọi lại bước đặt tên), nút *Đặt tên ở Hồ sơ kênh*. Avatar chữ “K” nền trung tính tới khi có tên. |
+
+### Việc FE
+- Màn điện thoại mới dùng thành phần kit như các màn điện thoại khác (`Segmented`, `Sheet`, hàng `button.vv-row`), không vẽ tay.
+- Khám phá: tách 4 nhánh trạng thái (lọc rỗng / quét lần đầu / lỗi / mất kết nối) thay cho `vx-side-empty`; khối trống dùng `.vv-empty` của kit.
+- Kết nối AI: chuyển `<YoutubeDataKeyCard />` ra ngoài `conn-list`, thêm tiêu đề nhóm (cả máy tính và điện thoại).
+- Tạo kênh: khi Đạo diễn lỗi vẫn tạo kênh với tên tạm, không chặn bước Xong.
+
+### Nghiệm thu
+- Điện thoại: Kênh › Template › *Mở Thư viện dùng chung* → Thư viện; chạm một template → Sửa template; sửa một mục thấy “Đã lưu”.
+- Khám phá: lọc Dài ≥ 40 phút + 7 ngày ra rỗng → thấy câu nêu bộ lọc + *Bỏ lọc*; tắt mạng → *Thử lại ngay*; thêm đối thủ mới → banner quét + ô xương.
+- Cài đặt › Kết nối AI: nhóm Số liệu YouTube nằm dưới nút Thêm nhà cung cấp; dán khoá sai → viền cam + câu lỗi.
+- Tạo kênh khi ChatGPT không phản hồi: vẫn tới bước Xong, tên “Kênh mới”, *Thử lại* chạy lại Đạo diễn.
+- Ghi “Gói V34” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -939,6 +1002,8 @@ Nguồn sự thật:
 | V30 | `displayPath` (đã có, #78); chỗ trống theo ổ đang giữ thư mục lưu dự án, `null` khi ổ không cắm | <!-- r34 -->
 | V31 | Không đổi API (chỉ giao diện toast) | <!-- r35 -->
 | V32 | Tiến độ trung bình các việc đang chạy cho vòng của nút Việc nền (có thể tính ở FE từ `status`); số thông báo chưa đọc (đã có `attention`) | <!-- r36 -->
+| V33 | Không đổi API (chỉ giao diện) | <!-- r37 -->
+| V34 | Không đổi API; Khám phá cần gọi lại danh sách khi bấm Thử lại; Tạo kênh trả kênh dù Đạo diễn lỗi (tên tạm) | <!-- r38 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

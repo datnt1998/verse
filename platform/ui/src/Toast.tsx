@@ -6,6 +6,7 @@ import { Icon } from './Icon'
 import { TONE, type Tone } from './Chip'
 import './Toast.css'
 import { getKitLabels } from './labels'
+import { getPhoneMax, phoneQuery } from './mobile/safeArea'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
 
@@ -120,7 +121,7 @@ const push = (item: ToastItem) => {
   return item.id
 }
 export function toast(text: string, tone: Tone = 'neutral', action?: ToastItem['action'], options: ToastOptions = {}) {
-  const duration = options.undo ? 5000 : options.duration ?? (typeof matchMedia !== 'undefined' && matchMedia('(max-width: 759px)').matches ? 2500 : 6000)
+  const duration = options.undo ? 5000 : options.duration ?? (typeof matchMedia !== 'undefined' && matchMedia(phoneQuery(getPhoneMax())).matches ? 2500 : 6000)
   const item: ToastItem = { id: ++seq, key: options.key, tone, text, action, expiresAt: Date.now() + duration, duration, undo: options.undo, leaving: false, paused: held || undefined, remaining: held ? duration : undefined }
   return push(item)
 }
@@ -198,7 +199,8 @@ function Notification({ item, front, held }: { item: ToastItem; front: boolean; 
    thoại). Kính mờ `--vv-toast-glass`, đếm ngược = vòng mảnh quanh nút đóng,
    không dòng “Tự đóng sau…”. Noverse không dùng nhánh này — mọi --vv-* có
    fallback về token kit. */
-const ACT_MOBILE = '@media (max-width: 759px)'
+// Nhánh activity chỉ Viderse dùng → mốc điện thoại của Viderse (767px).
+const ACT_MOBILE = '@media (max-width: 767px)'
 const ax = stylex.create({
   pillHost: (bottom: string) => ({
     position: 'fixed', left: 'var(--vv-toast-left, 50%)', bottom,
@@ -223,7 +225,7 @@ const ax = stylex.create({
     position: 'fixed', zIndex: 1000, display: 'flex', flexDirection: 'column-reverse', gap: 8,
     left: { default: 'auto', [ACT_MOBILE]: 12 },
     right: 12,
-    bottom: { default: 'calc(16px + env(safe-area-inset-bottom, 0px))', [ACT_MOBILE]: 'calc(80px + env(safe-area-inset-bottom, 0px))' },
+    bottom: { default: 'calc(16px + var(--m-safe-bottom))', [ACT_MOBILE]: 'var(--m-toast-bottom)' },
     width: { default: 328, [ACT_MOBILE]: 'auto' },
     maxWidth: 'calc(100vw - 24px)',
   },
@@ -370,9 +372,9 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
 /** Chồng toast của Viderse: viên giữa đáy + thẻ góc phải (tối đa 2 · điện thoại 1). */
 export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   const notices = useSyncExternalStore(subscribe, snapshot, snapshot)
-  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 759px)').matches)
+  const [mobile, setMobile] = useState(() => window.matchMedia(phoneQuery(getPhoneMax())).matches)
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 759px)')
+    const media = window.matchMedia(phoneQuery(getPhoneMax()))
     const change = () => setMobile(media.matches)
     media.addEventListener('change', change)
     return () => media.removeEventListener('change', change)
@@ -401,7 +403,7 @@ export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   const renderCards = [...shown, ...notices.filter((notice) => !!notice.card && notice.leaving)].reverse()
   const blur = (event: FocusEvent<HTMLDivElement>) => { if (!event.currentTarget.contains(event.relatedTarget)) holdToasts(false) }
   const hold = { onMouseEnter: () => holdToasts(true), onMouseLeave: () => holdToasts(false), onFocus: () => holdToasts(true), onBlur: blur }
-  const pillHost = stylex.props(ax.pillHost(`var(--vv-toast-bottom, calc(${mobile ? 80 : 18}px + env(safe-area-inset-bottom, 0px)))`))
+  const pillHost = stylex.props(ax.pillHost(mobile ? 'var(--m-toast-bottom)' : 'var(--vv-toast-bottom, calc(18px + var(--m-safe-bottom)))'))
   const stack = stylex.props(ax.stack)
   return <>
     <div className={pillHost.className} style={{ ...pillHost.style, ...style }} {...hold}>
@@ -415,16 +417,16 @@ export function ActivityToastHost({ style }: { style?: CSSProperties }) {
 
 export function ToastHost({ style, activity = false }: { style?: CSSProperties; activity?: boolean }) {
   const notices = useSyncExternalStore(subscribe, snapshot, snapshot)
-  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 759px)').matches)
+  const [mobile, setMobile] = useState(() => window.matchMedia(phoneQuery(getPhoneMax())).matches)
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 759px)')
+    const media = window.matchMedia(phoneQuery(getPhoneMax()))
     const change = () => setMobile(media.matches)
     media.addEventListener('change', change)
     return () => media.removeEventListener('change', change)
   }, [])
   if (activity) return <ActivityToastHost style={style} />
   const held = notices.some((notice) => notice.paused)
-  const host = stylex.props(sx.host(`var(--m-toast-bottom,calc(${mobile ? 96 : 18}px + env(safe-area-inset-bottom, 0px)))`))
+  const host = stylex.props(sx.host(mobile ? 'var(--m-toast-bottom, calc(96px + var(--m-safe-bottom)))' : 'calc(18px + var(--m-safe-bottom))'))
   return <div aria-label={getKitLabels().toast.notifications} className={host.className} style={{ ...host.style, ...style }}>
     {notices.map((item, index, visible) => <Notification key={item.id} item={item} held={held} front={index === visible.length - 1} />)}
   </div>

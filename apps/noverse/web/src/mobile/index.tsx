@@ -3,7 +3,7 @@ import { useMediaQuery } from '../shell/AppShell'
 import { useDocumentTitle } from '../shell/useNames'
 import { setLastStory } from '../api/storage'
 import { phoneLandingPath } from './landing'
-import { navigate, paths, type Parsed } from '../router'
+import { navigate, navigateNow, paths, type Parsed } from '../router'
 import { helpTarget, rememberHelpTarget, subscribeHelpTarget } from '../commands/target'
 import { ApiError, canWriteStory, getAudioCast, getAudioQueue, getAudioReady, getAudioSettings, getAudioVolume, getChapter, getChapters, getConfig, getLibrary, getOutline, getProject, getSnapshot, mySessions } from '../api/client'
 import { cache, keys, useResourceValue } from '../data'
@@ -24,13 +24,13 @@ import { NotifyPage } from '../screens/notify/NotifyPage'
 import { MOBILE_QUERY, TABLET_QUERY, showReviewDot, toastBottomFor, type LayoutMode } from './logic'
 import { MobileFeedback } from './primitives'
 import { MobileRuntimeProvider, useMobileRuntime, useTabMode } from './runtime'
-import { MobilePanes, MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
-import { useToastBottom } from './toastBottom'
+import { keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
+import { MobilePanes, MobileTabBar, useToastBottom } from '@noverse/ui'
 import { useStorage } from '../screens/settings/storage/resource'
 import './mobile.css'
 export { BottomSheet, ActionSheet, ConfirmSheet, MobilePage, PushPage, useMobileToast } from './primitives'
 export { MobileRuntimeProvider, useMobileRuntime, useTabMode, useMobileScroll } from './runtime'
-export { useToastBottom } from './toastBottom'
+export { useToastBottom } from '@noverse/ui'
 export { shouldCloseSheet, mobileCommands } from './logic'
 export function useMobileLayout(): boolean { return useMediaQuery(MOBILE_QUERY) }
 export function useLayoutMode(): LayoutMode {
@@ -155,18 +155,17 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   // Không còn nhánh “Trên máy tính”: mọi route đều thuộc một pane (paneKeyOf) hoặc là màn riêng
   // có `screen` ở trên, nên màn hình dự phòng chỉ còn là đường lộ ra khi thanh tab đã bấm.
   const tabs = [
-    { key: 'work' as const, label: 'Viết', icon: 'category', href: current ? paths.workspace(current.project, current.story) : '/write', disabled: !story },
-    { key: 'read' as const, label: 'Đọc', icon: 'book-1', href: current ? paths.reader(current.project, current.story) : '/', disabled: !story },
-    { key: 'audio' as const, label: 'Nghe', icon: 'headphone', href: current ? paths.audio(current.project, current.story, undefined, 'listen') : '/', disabled: !story },
-    { key: 'more' as const, label: 'Thêm', icon: 'setting-2', href: paths.settings('mobile') },
+    { key: 'work', label: 'Viết', icon: 'category', href: current ? paths.workspace(current.project, current.story) : '/write', disabled: !story },
+    { key: 'read', label: 'Đọc', icon: 'book-1', href: current ? paths.reader(current.project, current.story) : '/', disabled: !story, dot: needYou },
+    { key: 'audio', label: 'Nghe', icon: 'headphone', href: current ? paths.audio(current.project, current.story, undefined, 'listen') : '/', disabled: !story },
+    { key: 'more', label: 'Thêm', icon: 'setting-2', href: paths.settings('mobile') },
   ]
-  const index = Math.max(0, tabs.findIndex((item) => item.key === tab))
   return <div className={`m-app${runtime.offline ? ' m-is-offline' : ''}`} data-tab-mode={runtime.tabMode} data-keyboard={runtime.keyboard > 0 ? 'open' : 'closed'}>
     <div className="m-content">
-      <MobilePanes panes={[...panes].map(([id, pane]) => [id, <PaneView key={id} id={id} pane={pane} onStoryChange={chooseStory} />] as [string, ReactNode])} active={active} />
+      <MobilePanes panes={[...panes].map(([id, pane]) => [id, <PaneView key={id} id={id} pane={pane} onStoryChange={chooseStory} />] as [string, ReactNode])} active={active} paneClassName="m-pane" />
       {screen}
     </div>
-    <MobileTabBar tabs={tabs} index={index} mode={runtime.tabMode} dot={needYou} />
+    <MobileTabBar items={tabs} activeKey={tab} mode={runtime.tabMode} onSelect={(item) => item.href && navigateNow(item.href)} />
   </div>
 }
 export function MobileApp({ parsed }: { parsed: Parsed }) {

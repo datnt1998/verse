@@ -6,7 +6,7 @@ import { exploreStyles, exploreRootMarker } from './explore.stylex'
 // trang đầu. Ô "Tìm tiêu đề" (q, debounce 250 ms) cộng với bộ lọc; không có kết
 // quả → khối thông báo + "Xoá tìm".
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Icon } from '@noverse/ui'
+import { Icon, useTabMode } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/explore'
 import type { Route } from '../../router'
@@ -114,6 +114,8 @@ export function ExploreScreen({ route }: { route: Route }) {
 
   // Chọn nhiều + video đang xem ở cột phải.
   const [selectMode, setSelectMode] = useState(false)
+  // Chế độ chọn nhiều thay thanh tab bằng thanh chọn (artboard MExplore) — ẩn hẳn thanh tab.
+  useTabMode(selectMode ? 'hide' : undefined)
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [pickedId, setPickedId] = useState<string | null>(eroute.video ?? null)
   const [zone, setZone] = useState<PostingZone>('vn')
@@ -236,7 +238,7 @@ export function ExploreScreen({ route }: { route: Route }) {
         onPick={pickRival}
         onAdded={(rival) => pickRival(rival.id)}
       />
-      <main className={`vx-center vv-wide vv-wide--grid ${stylex.props(exploreStyles.center).className}`} ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
+      <main className={`vx-center vv-wide vv-wide--grid ${stylex.props(exploreStyles.center, selectMode && exploreStyles.selectPad).className}`} ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
         <div className={`vx-head ${stylex.props(exploreStyles.head).className}`}>
           <h1 className={`vx-title ${stylex.props(exploreStyles.title).className}`}>{tt.outlierTitle}</h1>
           <span className={`vx-sub ${stylex.props(exploreStyles.sub).className}`}>{tt.outlierHint}</span>

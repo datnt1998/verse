@@ -1,5 +1,26 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 38 (01/11/2026) — Gói V34: vẽ các màn còn thiếu artboard <!-- r38 -->
+
+- **Điện thoại có Thư viện và Sửa template:** board mới `MLibrary` (4 tab, ⋯ dạng sheet, thêm mới, rỗng) và `MTemplate` (4 mục, bản xem thử, tự lưu). Lối vào từ Kênh › Template. Bỏ câu “Thư viện chỉ có trên máy tính”.
+- **Kênh mới chưa có video trên điện thoại:** `MChannel` · `fresh=true`, khớp `Channel` máy tính; sửa bộ đổi kênh và số trên tab theo kênh mới.
+- **Khám phá khi rỗng hoặc lỗi:** `Explore`/`MExplore` · `list` (lọc rỗng, quét lần đầu, lỗi tải, mất kết nối; điện thoại thêm chưa theo dõi đối thủ). Điện thoại thêm chip Đăng trong cho khớp máy tính.
+- **Thẻ YouTube Data API:** `Settings`/`MSettings` · `ytkey`, nhóm riêng “Số liệu YouTube” dưới danh sách nhà cung cấp AI.
+- **Bước Xong khi Đạo diễn lỗi:** `CreateChannel`/`Onboard`/`MCreate` · `identity=director`.
+- Sửa kèm: mục “Thành viên” ở thanh bên Cài đặt (2 dòng) đè lên mục trên; nút Thêm nhà cung cấp trên điện thoại bị co khi danh sách dài; nút “Làm N video cho …” ở Khám phá điện thoại dùng kit. Kit thêm `button.vv-row`.
+- Tài liệu: 01 (điện thoại có Thư viện, Đạo diễn lỗi, Số liệu YouTube), 05-kit, 06-copy › Màn bổ sung đợt 38, dev-prompt Gói V34.
+- Canvas phiên bản 65 (31 artboard).
+
+## Đợt 37 (01/11/2026) — Gói V33: mọi màn dùng UI Kit, chuyển động theo Noverse <!-- r37 -->
+
+- Kiểm kê tự động thấy nút, ô chọn, nhóm chọn, menu vẽ tay ở hầu hết board; đổi toàn bộ về class kit (423 nút, 33 nhóm chọn, 11 chip, 7 ô chọn, 12 menu nổi với 30 mục, 1 nhóm tab).
+- Mọi nhóm chọn có viên trượt (đo theo mục thật); chip chọn hover, nhấn, mũi tên lật; menu mở có hiệu ứng; tab đổi màu mượt.
+- Board chưa nhúng kit (Video mới, Lần đầu mở, Hàng chờ, Tạo kênh, MNew, MCreate, MExplore) nay nhúng đủ tokens + kit.
+- Vẽ mới hộp thoại **Nhập template cũ** (code có, thiết kế chưa có): `Library` · `import=ready|drag|importing|done|partial|zip|offline`; kit thêm `.vv-drop`, `.vv-filerow`.
+- Ghi 3 hộp thoại code có mà thiết kế chưa có (vẽ đợt sau).
+- Tài liệu: components › Mọi màn dùng UI Kit; 05-kit; dev-prompt Gói V33. Công cụ: `tools/kit_audit.py`, `tools/kitify.py` (trong thư mục làm thiết kế).
+- Canvas phiên bản 64.
+
 ## Đợt 36 (01/11/2026) — Gói V32: thanh trên điện thoại, Thông báo trên điện thoại <!-- r36 -->
 
 - Thanh trên điện thoại chuẩn hoá: mọi phần tử cao 36px (chạm 44); nút Việc nền tròn có vòng tiến độ + số việc, rảnh chỉ icon (bỏ “Rảnh”); chấm thông báo đặt trên mép tròn; avatar 36px.

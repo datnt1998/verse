@@ -6,7 +6,7 @@ import { styles as settingsStyles, setNavLinkMarker, setHelpCardMarker, msetRowM
 // có thanh tab dưới. Chấm trên tên mục khi /api/status báo attention trỏ tới
 // #/settings?section=<mục>.
 import { Suspense, lazy, useMemo } from 'react'
-import { Icon, Spinner } from '@noverse/ui'
+import { Icon, Spinner, useTabMode } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { semverOf } from '../../lib/version'
 import { strongestTone, type AttentionTone } from '../../lib/attentionTone'
@@ -270,6 +270,9 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
 /** MSettings — thẻ tổng, danh sách mục kèm giá trị, thẻ Hàng chờ, chân bản. */
 function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, AttentionTone>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
+  // MSettings là lớp phủ toàn màn (artboard không vẽ thanh tab) — ẩn hẳn thanh tab để
+  // nó không còn trong thứ tự tab và toast/CTA không neo vào một thanh không nhìn thấy.
+  useTabMode('hide')
   const { user, apps } = useSession()
   const memberHref = membersUrl(apps)
   const status = useStatus()
