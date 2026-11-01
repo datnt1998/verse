@@ -6,10 +6,11 @@ import { color, kit, line, radius, surface } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
+const WIDE = '@media (min-width: 1600px)'
 
 export const assistantStyles = stylex.create({
   dock: { flex: '0 0 auto', display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'], minWidth: 0 },
-  thread: { width: '100%', maxWidth: 800, margin: '0 auto', marginBottom: s['--vv-s-4'], display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
+  thread: { width: '100%', maxWidth: { default: 800, [WIDE]: 'none' }, margin: '0 auto', marginBottom: s['--vv-s-4'], display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
   wide: { maxWidth: 'none' },
   bubble: {
     alignSelf: 'flex-end', maxWidth: '70%', padding: `${s['--vv-s-9']} ${s['--vv-s-13']}`,
@@ -22,7 +23,7 @@ export const assistantStyles = stylex.create({
     display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: r['--vv-r-14'],
     backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
     boxShadow: '0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05)',
-    width: '100%', maxWidth: 800, margin: '0 auto',
+    width: '100%', maxWidth: { default: 800, [WIDE]: 'none' }, margin: '0 auto',
   },
   planHead: { padding: `${s['--vv-s-12']} ${s['--vv-s-14']} ${s['--vv-s-8']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
   planTitle: { fontSize: 14, fontWeight: 600, color: color['--color-fg'] },
@@ -96,6 +97,18 @@ export const assistantStyles = stylex.create({
 
   // Ô nhập (form.card của board)
   ringBox: { position: 'relative' },
+  // Danh sách lệnh `/` mở ngay trên ô nhập, rộng bằng ô.
+  slash: {
+    position: 'absolute', insetInline: 0, bottom: '100%', marginTop: 0, marginBottom: s['--vv-s-6'], zIndex: 5, padding: s['--vv-s-4'], listStyle: 'none',
+    display: 'flex', flexDirection: 'column', borderRadius: r['--vv-r-14'], backgroundColor: color['--color-surface-4'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], boxShadow: surface['--card-shadow'],
+  },
+  slashRow: {
+    display: 'flex', alignItems: 'baseline', gap: s['--vv-s-12'], padding: `${s['--vv-s-8']} ${s['--vv-s-10']}`, borderRadius: r['--vv-r-8'],
+    backgroundColor: 'transparent', cursor: 'pointer', fontSize: 13, color: color['--color-fg-3'],
+  },
+  slashRowOn: { backgroundColor: color['--color-surface-6'], color: color['--color-fg-2'] },
+  slashUsage: { flex: '0 0 auto', minWidth: 248, fontFamily: 'var(--font-mono)', fontSize: 12.5, color: color['--color-fg'], whiteSpace: 'nowrap' },
   form: {
     position: 'relative', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], padding: `${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-7']} ${s['--vv-s-14']}`,
     borderRadius: radius['--radius-dock'], backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'],

@@ -18,6 +18,7 @@ import { workbenchPlaceholder } from '../../components/assistant/placeholders'
 import { assistantCopy } from '../../i18n/assistant'
 import { usePanelKeys } from './usePanelKeys'
 import { AssistantComposer } from '../../components/assistant/AssistantComposer'
+import { slashCommandsFor } from '../../components/assistant/slashCommands'
 
 // Bản tin, menu Ảnh và menu ⋯ chỉ mở khi bấm: chunk riêng, không nằm trong
 // lần tải đầu của Bàn dựng.
@@ -125,7 +126,7 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
         </header>
         <section {...stylex.props(styles.card, styles.log, ['review', 'attention'].includes(job.stageGroup) && styles.logBanner)} aria-label="Nhật ký tiến độ"><h2 {...stylex.props(styles.h2)}>Nhật ký tiến độ</h2>{job.steps?.map(step => <div key={step.step} {...stylex.props(styles.logRow)}><span>{step.startedAt ? new Date(step.startedAt).toLocaleTimeString('vi-VN') : ''}</span><span>{step.progress.phase || step.step}</span><span>{step.error?.message}</span></div>)}</section>
         {queuedJob ? <section {...stylex.props(styles.card, styles.recap)}>Video đang chờ lượt. <a href="#/queue">Mở Hàng chờ</a></section> : <LiveStudio job={job} onChangePrompt={() => setPromptOpen(true)} onRefresh={refresh} />}
-        <AssistantComposer scope={{ jobId: job.id }} label={assistantCopy.composer.workbench} placeholder={workbenchPlaceholder(job)} hints={{ esc: job.stageGroup === 'working', panels: true, quota: true }} onSettled={refresh} />{notice && <div role="status">{notice}</div>}
+        <AssistantComposer scope={{ jobId: job.id }} label={assistantCopy.composer.workbench} placeholder={workbenchPlaceholder(job)} hints={{ esc: job.stageGroup === 'working', panels: true, quota: true }} commands={slashCommandsFor(job)} onSettled={refresh} />{notice && <div role="status">{notice}</div>}
       </>}
     </main>
     {job && !queuedJob && !recapOpen && rightOpen && <aside {...stylex.props(styles.panels)}><WorkbenchPanels job={job} onRefresh={refresh} /></aside>}
