@@ -115,7 +115,7 @@ export function AssistantComposer({ scope, label, placeholder, recipient, hints,
   const single = thread.phase === 'plan' && isSingleJobStep(thread.plan, scope)
   const showBubble = phase === 'planning' || phase === 'ask' || phase === 'unknown' || phase === 'error' || single
 
-  return <div className={`vv-composer-dock ${stylex.props(styles.dock).className}`} onKeyDown={keyDown}>
+  return <div className={`vv-composer-dock ${stylex.props(styles.dock).className}`} data-toast-anchor onKeyDown={keyDown}>
     {phase !== 'idle' && <div {...stylex.props(styles.thread)}>
       {showBubble && 'text' in thread && <Bubble text={thread.text} />}
       {thread.phase === 'planning' && <PlanningCard />}

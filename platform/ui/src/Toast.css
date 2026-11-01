@@ -8,3 +8,14 @@
 }
 @keyframes ui-toast-collapse { to { max-height: 0; padding-top: 0 } }
 .ui-toast-close:hover .ui-toast-countdown { opacity: .25 !important; }
+
+/* Nhánh activity (Viderse): chuyển động riêng của artboard r35 — trồi 18px + scale
+   .94 + blur (vào), rơi xuống mờ dần + blur (ra). Kính mờ kèm tiền tố -webkit cho
+   Safari cũ mà StyleX không phát được. */
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(4px) } to { opacity: 1; transform: none; filter: blur(0) } }
+@keyframes vv-tOut {
+  0% { opacity: 1; filter: blur(0) }
+  65% { opacity: 0; transform: translateY(34px) scale(.5); filter: blur(3px) }
+  100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px) }
+}
+.ui-toast-glass { -webkit-backdrop-filter: blur(18px) saturate(150%); }
