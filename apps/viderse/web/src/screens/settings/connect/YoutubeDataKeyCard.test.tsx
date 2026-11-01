@@ -17,6 +17,7 @@ const settle = () => act(async () => {
   setTimeout(resolve, 20)
   await promise
 })
+const buttonByText = (text: string) => [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === text)!
 
 function typeKey(value: string) {
   const input = host.querySelector('input')!
