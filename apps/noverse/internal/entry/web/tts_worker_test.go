@@ -72,6 +72,27 @@ func hostedStatus(t *testing.T, tg *testGateway, cookie string) map[string]any {
 	return decodeJSONBody(t, w)
 }
 
+func TestHostedExportReadinessUsesServerFFmpeg(t *testing.T) {
+	if !ffmpegOnPath() {
+		t.Skip("ffmpeg required")
+	}
+	tg, jobs, _ := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	if got := hostedStatus(t, tg, admin); got["ffmpeg"] != true || got["ready"] != false {
+		t.Fatalf("server can export without an online reader: ffmpeg=%v ready=%v", got["ffmpeg"], got["ready"])
+	}
+	w := hostedWorker(t, jobs, "synthesis-only")
+	setWorkerState(t, jobs, w.ID, `{"state":"ready","ffmpeg":false}`)
+	if got := hostedStatus(t, tg, admin); got["ffmpeg"] != true {
+		t.Fatalf("reader without ffmpeg must not disable server exports: %v", got["ffmpeg"])
+	}
+	t.Setenv("PATH", t.TempDir())
+	setWorkerState(t, jobs, w.ID, `{"state":"ready","ffmpeg":true}`)
+	if got := hostedStatus(t, tg, admin); got["ffmpeg"] != false {
+		t.Fatalf("reader ffmpeg must not enable exports on a server without it: %v", got["ffmpeg"])
+	}
+}
+
 // In hosted mode the status endpoint reports what the Mac published — percent,
 // error text, ready numbers — and derives `offline` itself.
 func TestHostedTTSStatusFromWorkerState(t *testing.T) {

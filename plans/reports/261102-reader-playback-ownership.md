@@ -67,3 +67,6 @@ The complete PostgreSQL release gate exposed a real nil-request panic in `/expor
 The real M4B replay exposed the same manifest-family confusion in aggregate export metadata: a later per-file registry row replaced the summary with a zero duration even though ffprobe reported10.64s. `PGService.ExportInfo` now accepts only the aggregate manifest whose `contentKey` matches its cache-row key. It does not infer family from a permissive JSON decode or a nonempty file list (split exports may legitimately use a different file grouping). The existing real export regression now also checks that its0.2s chapter plus0.3s intro retain a duration of at least0.45s; the focused gate passes.
 
 
+
+The actual Listen surface then exposed a readiness ownership error: it displayed “máy chủ đang thiếu công cụ ghép” and disabled volume export although the hosted ffmpeg had produced the M4B successfully. Hosted `/api/tts/status.ffmpeg` now probes the serving gateway, not the synthesis-only worker's heartbeat flag; the unused snapshot copy was removed. The regression covers no connected reader, a reader without ffmpeg on an equipped server, and a reader advertising ffmpeg while the server lacks it. The focused hosted-status gate and the complete Noverse backend gate both pass.
+

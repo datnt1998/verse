@@ -31,7 +31,6 @@ type workerSnapshot struct {
 	ID           pgtype.UUID
 	Name         string
 	State        voice.ProvisionState
-	FFmpeg       bool
 	UpdatedAt    time.Time
 	LastSeen     *time.Time
 	GrantedAt    time.Time
@@ -104,14 +103,9 @@ func (g *Gateway) workerSnapshot(ctx context.Context) workerSnapshot {
 		snap.UpdatedAt = *best.StateUpdatedAt
 	}
 	if len(best.State) > 0 {
-		// Cột state chứa cả phần chỉ máy này trả lời (ffmpeg) bên cạnh
-		// voice.ProvisionState; giải mã cùng một lượt để không mất phần nào.
-		var payload struct {
-			voice.ProvisionState
-			FFmpeg bool `json:"ffmpeg"`
-		}
-		if json.Unmarshal(best.State, &payload) == nil {
-			snap.State, snap.FFmpeg = payload.ProvisionState, payload.FFmpeg
+		var state voice.ProvisionState
+		if json.Unmarshal(best.State, &state) == nil {
+			snap.State = state
 		}
 	}
 	if snap.State.State == "" {
@@ -162,6 +156,7 @@ func (g *Gateway) hostedTTSStatus(ctx context.Context, user identity.User) ttsSt
 		SampleRate: caps.SampleRate,
 		Cloning:    caps.Cloning,
 		Qualities:  caps.Qualities,
+		FFmpeg:     ffmpegOnPath(),
 	}
 	if !snap.Found {
 		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
@@ -177,7 +172,6 @@ func (g *Gateway) hostedTTSStatus(ctx context.Context, user identity.User) ttsSt
 		resp.LogTail = workerLogTail(snap.State.Error, 6)
 	}
 	resp.LastSeenAt = snap.LastSeen
-	resp.FFmpeg = snap.FFmpeg
 	resp.Capabilities = ttsCapabilities{Preview: snap.previewSupported()}
 	resp.Version = snap.State.Version
 	resp.Model = snap.State.Model
