@@ -179,6 +179,19 @@ func TestStreamRefreshesTokenOnceOn401(t *testing.T) {
 	}
 }
 
+func TestValidateBaseURLPinsBearerToChatGPT(t *testing.T) {
+	for _, ok := range []string{"", DefaultBaseURL, "https://chat.chatgpt.com/backend-api/codex"} {
+		if err := ValidateBaseURL(ok); err != nil {
+			t.Errorf("ValidateBaseURL(%q) = %v", ok, err)
+		}
+	}
+	for _, bad := range []string{"http://chatgpt.com/backend-api/codex", "https://api.openai.com/v1", "https://chatgpt.com.evil.example/v1", "http://garage:3903", "://bad"} {
+		if err := ValidateBaseURL(bad); err == nil {
+			t.Errorf("ValidateBaseURL(%q) = nil, want lỗi", bad)
+		}
+	}
+}
+
 func TestNormalizeInputDropsServerItemReferences(t *testing.T) {
 	got := normalizeInput([]any{
 		map[string]any{"type": "item_reference", "id": "rs_1"},

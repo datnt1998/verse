@@ -23,13 +23,15 @@ export function ProviderEditor({ ctx, id, removable }: { ctx: SettingsContext; i
   const type = provider.type || id
   const set = (key: keyof ProviderConfig, value: unknown) => ctx.setField(`providers.${id}.${key}`, value)
   const canEdit = ctx.canEdit
+  // Giao thức và Base URL quyết định nơi khoá/token được gửi tới: chỉ đặt ở cài đặt chung.
+  const canRoute = canEdit && ctx.scope === 'global'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '4px 0 12px' }}>
       {!preset && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={caption}>Giao thức</span>
-          <KitSelect aria-label={`Giao thức của ${id}`} value={provider.type ?? ''} disabled={!canEdit} onChange={(value) => {
+          <KitSelect aria-label={`Giao thức của ${id}`} value={provider.type ?? ''} disabled={!canRoute} onChange={(value) => {
             ctx.setField(`providers.${id}`, { ...provider, type: value || undefined, ...((value || id) !== 'openai' ? { api: undefined } : {}) })
           }}
             options={[{ value: '', label: 'Theo tên provider' }, ...providerTypeOptions(provider.type ?? '', (ctx.presets?.providers ?? []).map((entry) => entry.type)).map((value) => ({ value, label: value }))]}
@@ -45,7 +47,7 @@ export function ProviderEditor({ ctx, id, removable }: { ctx: SettingsContext; i
       )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <label htmlFor={`purl-${id}`} style={caption}>Base URL</label>
-        <TextField id={`purl-${id}`} value={provider.base_url ?? ''} disabled={!canEdit} placeholder={preset?.baseURL || undefined}
+        <TextField id={`purl-${id}`} value={provider.base_url ?? ''} disabled={!canRoute} placeholder={preset?.baseURL || undefined}
           onChange={(value) => set('base_url', value)} style={{ flex: '1 1 260px', maxWidth: 360, height: 34, ...mono }} />
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>

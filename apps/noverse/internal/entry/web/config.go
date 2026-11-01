@@ -645,6 +645,12 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 400, "Hiện chỉ hỗ trợ viết tiếng Việt")
 		return
 	}
+	if t.scope != "global" {
+		if msg := changedRoutingField(saved, cfg); msg != "" {
+			jsonError(w, 400, msg)
+			return
+		}
+	}
 	validationConfig, err := g.providerValidationConfig(r.Context(), t, user, cfg)
 	if err != nil {
 		scopeError(w, err)

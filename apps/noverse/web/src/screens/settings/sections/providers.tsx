@@ -80,7 +80,7 @@ export function ProvidersSection({ ctx, open }: { ctx: SettingsContext; open?: s
         <ProviderCard key={`${ctx.scope}:${id}`} ctx={ctx} id={id} index={index} fresh={added.includes(id)}
           pickerOpen={openPicker === id} setPicker={(v) => setOpenPicker(v ? id : null)} />
       ))}
-      {ctx.canEdit && (
+      {ctx.canEdit && ctx.scope === 'global' && (
         <button type="button" className="hov-ghost" onClick={() => setAdding(!adding)} aria-expanded={adding} style={{
           height: 44, borderRadius: 14, border: '1px dashed rgba(255,255,255,0.14)', background: 'transparent', color: '#C9C9D1',
           fontSize: 13.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -88,7 +88,7 @@ export function ProvidersSection({ ctx, open }: { ctx: SettingsContext; open?: s
           <Icon name="add" size={16} />Thêm nhà cung cấp — OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, Qwen, Ollama…
         </button>
       )}
-      {adding && ctx.canEdit && (
+      {adding && ctx.canEdit && ctx.scope === 'global' && (
         <Card radius={16} padding="16px 18px" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 600 }}>Chọn nhà cung cấp</span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8 }}>

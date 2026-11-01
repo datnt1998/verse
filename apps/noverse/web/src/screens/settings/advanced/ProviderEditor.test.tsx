@@ -25,6 +25,14 @@ describe('fixed provider protocols', () => {
     expect(renderToStaticMarkup(<ProviderEditor ctx={ctx} id="subscription" removable />)).not.toContain('Endpoint')
   })
 
+  it.each([['global', false], ['project', true], ['story', true]])('locks Base URL outside global (%s)', (scope, locked) => {
+    const ctx = { draft: { providers: { relay: { base_url: 'https://models.example/v1' } } }, effective: {}, canEdit: true, scope } as unknown as SettingsContext
+    const html = renderToStaticMarkup(<ProviderEditor ctx={ctx} id="relay" removable />)
+    const input = html.match(/<input[^>]*id="purl-relay"[^>]*>/)?.[0] ?? ''
+    expect(input).not.toBe('')
+    expect(/\sdisabled(=|\s|>)/.test(input)).toBe(locked)
+  })
+
   it('marks an invalid entry and keeps the real reason in user-opened details', () => {
     const reason = 'Nhà cung cấp dùng giao thức cố định; lựa chọn điểm cuối chưa hợp lệ'
     const ctx = {

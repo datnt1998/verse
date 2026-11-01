@@ -215,6 +215,9 @@ func newCodexModel(model string, pc ProviderConfig, extra map[string]any, stream
 	if pc.API != "" && pc.API != "responses" {
 		return nil, fmt.Errorf("openai-codex luôn dùng giao thức Responses, api chỉ có thể là \"responses\" hoặc để trống")
 	}
+	if err := codex.ValidateBaseURL(pc.BaseURL); err != nil {
+		return nil, err
+	}
 	manager, err := auth.DefaultManager()
 	if err != nil {
 		return nil, err

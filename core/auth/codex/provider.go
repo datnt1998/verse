@@ -16,6 +16,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -72,9 +73,27 @@ func tokenFrom(cred auth.Credential) Token {
 	return Token{Access: cred.Access, AccountID: accountID}
 }
 
+// ValidateBaseURL chỉ cho phép gửi bearer tới https trên miền chatgpt.com: token OAuth chỉ
+// có giá trị với backend ChatGPT, trỏ sang nơi khác sẽ làm lộ credential. Rỗng = mặc định.
+func ValidateBaseURL(base string) error {
+	base = strings.TrimSpace(base)
+	if base == "" {
+		return nil
+	}
+	u, err := url.Parse(base)
+	if err != nil || u.Hostname() == "" {
+		return fmt.Errorf("base_url %q không hợp lệ", base)
+	}
+	host := strings.ToLower(strings.TrimSuffix(u.Hostname(), "."))
+	if u.Scheme != "https" || (host != "chatgpt.com" && !strings.HasSuffix(host, ".chatgpt.com")) {
+		return fmt.Errorf("base_url %q phải là https trên miền chatgpt.com — provider openai-codex không gửi token OAuth tới nơi khác", base)
+	}
+	return nil
+}
+
 // Config cấu hình Provider.
 type Config struct {
-	// BaseURL ghi đè DefaultBaseURL (vd. proxy đứng trước backend Codex).
+	// BaseURL ghi đè DefaultBaseURL; llmconfig chỉ nhận miền chatgpt.com (xem ValidateBaseURL).
 	BaseURL string
 	Tokens  TokenSource
 	// Headers bổ sung vào mọi request (providers.<name>.extra.headers).

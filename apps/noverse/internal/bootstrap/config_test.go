@@ -101,7 +101,7 @@ func TestValidateBaseAcceptsCodexSubscriptionWithoutAPIKey(t *testing.T) {
 		ModelName: "gpt-5.6-terra",
 		Providers: map[string]llmconfig.ProviderConfig{
 			"openai-codex": {},
-			"chatgpt":      {Type: "openai-codex", BaseURL: "https://proxy.example/codex"},
+			"chatgpt":      {Type: "openai-codex", BaseURL: "https://chatgpt.com/backend-api/codex"},
 		},
 		Roles: map[string]roles.RoleConfig{"writer": {Provider: "chatgpt", Model: "gpt-6-sol"}},
 	}
@@ -120,6 +120,25 @@ func TestValidateBaseAcceptsCodexSubscriptionWithoutAPIKey(t *testing.T) {
 	cfg.Providers["openai-codex"] = llmconfig.ProviderConfig{API: "chat"}
 	if err := cfg.ValidateBase(); !errors.Is(err, errs.ErrConfig) {
 		t.Fatalf("openai-codex 固定 Responses 协议，api 配置应被拒绝，得到: %v", err)
+	}
+}
+
+func TestNewModelSetPinsCodexBearerToChatGPT(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	cfg := func(baseURL string) Config {
+		return Config{
+			Provider:  "openai-codex",
+			ModelName: "gpt-5.6-terra",
+			Providers: map[string]llmconfig.ProviderConfig{"openai-codex": {BaseURL: baseURL}},
+		}
+	}
+	if _, err := NewModelSet(cfg("https://chatgpt.com/backend-api/codex")); err != nil {
+		t.Fatalf("chatgpt.com base_url: %v", err)
+	}
+	for _, bad := range []string{"https://attacker.example/v1", "http://chatgpt.com/backend-api/codex", "https://chatgpt.com.attacker.example/v1", "http://garage:3903"} {
+		if _, err := NewModelSet(cfg(bad)); err == nil {
+			t.Errorf("base_url %q must be refused: the OAuth token would leave chatgpt.com", bad)
+		}
 	}
 }
 
