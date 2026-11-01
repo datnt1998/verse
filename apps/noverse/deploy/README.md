@@ -203,6 +203,9 @@ Superseded work cannot serve its old bytes as the current chapter. Existing
 volume MP3/M4B exports keep their normal queue and download paths.
 Accepting a different segment candidate likewise queues a chapter rebuild in
 the same transaction as the selection change.
+Each explicit selection uses its resulting selection generation only in the
+durable dispatch key, so selecting B, then A, then B rebuilds correctly without
+reviving an old completed or cancelled job or polluting audible fingerprints.
 
 Ownership fingerprints contain canonical audible inputs, not row versions,
 timestamps, cast display fields or unrelated voice metadata. Re-saving an

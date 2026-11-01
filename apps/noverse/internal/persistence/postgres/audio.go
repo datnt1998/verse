@@ -395,6 +395,7 @@ type Render struct {
 	Selected    bool
 	Parameters  []byte
 	CreatedAt   time.Time
+	Version     int64
 }
 
 func renderFromRow(r gen.AudioRender) Render {
@@ -407,6 +408,7 @@ func renderFromRow(r gen.AudioRender) Render {
 		Selected:    r.Selected,
 		Parameters:  r.Parameters,
 		CreatedAt:   r.CreatedAt.Time.UTC(),
+		Version:     r.Version,
 	}
 }
 

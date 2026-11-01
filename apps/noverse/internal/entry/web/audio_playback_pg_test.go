@@ -282,6 +282,19 @@ func TestPGNativeCompletionPublishesChapterPlayback(t *testing.T) {
 	}
 	run()
 	assertPlayable(1.59)
+	// B -> A -> B revisits identical audible content, but requires a new
+	// durable dispatch after B's earlier assembly has already completed.
+	if err := svc.AcceptCandidate(ctx, 1, 1, "s0001", "1-s0001-"+candidateKey); err != nil {
+		t.Fatal(err)
+	}
+	run()
+	assertPlayable(1.09)
+	// Restore A for the subsequent legacy-recovery/M4B assertions.
+	if err := svc.AcceptCandidate(ctx, 1, 1, "s0001", "1-s0001-"+currentTake.SynthKey); err != nil {
+		t.Fatal(err)
+	}
+	run()
+	assertPlayable(1.59)
 
 	// A pre-upgrade completed row has no automatic child yet. Recovery must
 	// discover it without another render or an export request.

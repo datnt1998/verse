@@ -169,14 +169,18 @@ func (a *Audio) SelectPlaybackRender(ctx context.Context, scope ScopeRef, chapte
 		if _, err := a.PlaybackRevisionTx(ctx, tx, scope, chapterID, proof); err != nil {
 			return err
 		}
-		if _, err := a.SelectRenderTx(ctx, tx, scope.ProjectID, chapterID, scriptRevision, segmentID, synthKey); err != nil {
+		selected, err := a.SelectRenderTx(ctx, tx, scope.ProjectID, chapterID, scriptRevision, segmentID, synthKey)
+		if err != nil {
 			return err
 		}
 		revision, err := playbackRevision(ctx, tx, scope, chapterID, proof)
 		if err != nil {
 			return err
 		}
-		return enqueuePlaybackTx(ctx, tx, scope, "chapter-selection-"+revision.Content, volume, chapter, chapterID, revision.Content)
+		// Selection generation belongs only to dispatch identity: revisiting
+		// identical audible content must not collide with an old terminal job.
+		key := fmt.Sprintf("chapter-selection-%s-%s-%s-%d", UUIDString(chapterID), segmentID, revision.Content, selected.Version)
+		return enqueuePlaybackTx(ctx, tx, scope, key, volume, chapter, chapterID, revision.Content)
 	})
 }
 
