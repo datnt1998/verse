@@ -153,7 +153,14 @@ type Gateway struct {
 	// worker 未配置，此时 startDir 报 capability 错而不是退回目录启动。
 	workerStore *bootstrap.StorageConfig
 	// pgAudio 是 hosted 音频后端接缝（phase 07）：nil = file backend。
+	// 启动顺序是 NewGateway 再 SetAudioStore，而后台 watcher 在构造时就已
+	// 启动，所以字段读写一律走 pgAudioMu + audioStoreCh：注入完成（关闭
+	// channel）是 watcher 从本地后端切到 hosted 的同步点。
 	pgAudio *PGAudioDeps
+	// audioStoreCh 在 SetAudioStore 注入后关闭；audioStoreClosed 让重复注入
+	// 不会重复关闭。两者都由 pgAudioMu 保护。
+	audioStoreCh     chan struct{}
+	audioStoreClosed bool
 	// pgAudioSvcs 每个 story 一个 PGService（缓存 hub 与已解析的 scope）；
 	// 挂 Gateway 而不是包级 map —— 不同 Gateway（比如测试里连不同 schema
 	// 的池）拿同一个 slug 绝不能共用服务。
@@ -209,8 +216,28 @@ type PGAudioDeps struct {
 }
 
 // SetAudioStore 注入 hosted 音频后端依赖（启动期一次，postgres 模式）。
+// 构造先于注入（NewGateway → SetAudioStore），所以这里除了写入还要关闭
+// audioStoreCh：已经在跑的 jobs watcher 据此从本地安装状态切到 hosted
+// worker 状态，不会永远停在构造时选中的本地后端。
 func (g *Gateway) SetAudioStore(deps *PGAudioDeps) {
+	g.pgAudioMu.Lock()
+	defer g.pgAudioMu.Unlock()
 	g.pgAudio = deps
+	if g.audioStoreCh == nil {
+		g.audioStoreCh = make(chan struct{})
+	}
+	if !g.audioStoreClosed {
+		g.audioStoreClosed = true
+		close(g.audioStoreCh)
+	}
+}
+
+// audioDeps 返回 hosted 音频依赖与“已注入”信号。watcher 用它决定后端；
+// 请求面不要用它读字段，沿用各自路径（启动期注入后只读）。
+func (g *Gateway) audioDeps() (*PGAudioDeps, bool, <-chan struct{}) {
+	g.pgAudioMu.Lock()
+	defer g.pgAudioMu.Unlock()
+	return g.pgAudio, g.audioStoreClosed, g.audioStoreCh
 }
 
 // SetFactStore 注入故事事实存储的工厂（启动期一次，postgres 模式）。
@@ -279,7 +306,7 @@ func NewPostgresGateway(root string, accounts *identity.Store, build version.Inf
 }
 
 func newGateway(root string, accounts *identity.Store, backend accountBackend, build version.Info) *Gateway {
-	g := &Gateway{Root: root, backend: backend, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build)}
+	g := &Gateway{Root: root, backend: backend, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build), audioStoreCh: make(chan struct{})}
 	g.launchHosted = g.launchHostedWorker
 	accounts.SetProjectSource(func() ([]string, error) {
 		if g.libRepo == nil && g.RootPath() == "" {
