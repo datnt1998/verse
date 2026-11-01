@@ -228,7 +228,7 @@ func (w *Worker) publishState(ctx context.Context) error {
 	// Hai sự thật chỉ máy này biết, luôn đi kèm mỗi lần công bố: kênh nối (chỗ
 	// Nâng cao hiện "Kênh nối") và việc máy nhận làm thêm ngoài tạo hàng loạt.
 	next.Channel = w.channel()
-	next.Capabilities = &voice.ProvisionCapabilities{Preview: false}
+	next.Capabilities = &voice.ProvisionCapabilities{Preview: w.cfg.Preview}
 	body, err := json.Marshal(statePayload{ProvisionState: next, FFmpeg: w.ffmpeg})
 	if err != nil {
 		return err
