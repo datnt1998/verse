@@ -4,10 +4,11 @@
 // pane vẫn mounted, và sau khung hình đầu thì nạp trước dữ liệu của tab chưa mở.
 // Test dựng khung thật với màn giả: điều cần chốt là khung giữ-alive + lớp dữ
 // liệu SWR, không phải nội dung từng màn.
-import { act, useState } from 'react'
+import { act, useContext, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
+import { PANE_STALE_MS, PaneStaleContext } from '../data/paneStale'
 import { useResource } from '../data/useResource'
 import { parseHash, type Route } from '../router'
 import { MobileRouteStage, paneKeyOf } from './MobileRouteStage'
@@ -25,8 +26,10 @@ afterEach(async () => {
 let workbenchFetches = 0
 const WorkPane = () => {
   const resource = useResource(['test', 'workbench'], async () => { workbenchFetches++; return { count: workbenchFetches } })
+  // Mốc "còn mới" mà hook trong pane nhận được: 30 s thay vì 2 s mặc định.
+  const stale = useContext(PaneStaleContext)
   const [state, setState] = useState('a')
-  return <div data-marker="workbench" data-state={state}>
+  return <div data-marker="workbench" data-state={state} data-stale={String(stale)}>
     <button type="button" onClick={() => setState('b')}>đổi</button>
     <span>{resource.data ? 'có dữ liệu' : 'chờ'}</span>
   </div>
@@ -65,6 +68,7 @@ describe('giữ pane khi đổi tab', () => {
     const node = container.querySelector('[data-marker="workbench"]') as HTMLElement
     await act(async () => { node.querySelector('button')!.click() })
     expect(node.dataset.state).toBe('b')
+    expect(node.dataset.stale).toBe(String(PANE_STALE_MS))
 
     await draw({ name: 'review' })
     expect(getComputedStyle(paneOf(container, 'workbench')).display).toBe('none')
@@ -75,6 +79,7 @@ describe('giữ pane khi đổi tab', () => {
 
     expect(container.querySelector('[data-marker="workbench"]')).toBe(node)
     expect(node.dataset.state).toBe('b')
+    expect(node.dataset.stale).toBe(String(PANE_STALE_MS))
     expect(paneOf(container, 'workbench').scrollTop).toBe(500)
     expect(workbenchFetches).toBe(1)
   })

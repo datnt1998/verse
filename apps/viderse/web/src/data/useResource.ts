@@ -1,7 +1,8 @@
 // Hook đọc khoá cache — bám bản Noverse (useResource.ts) trên cache dùng chung
 // của @noverse/ui/data: khoá ổn định theo nội dung, stale-while-revalidate.
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { cache, keyHash, type EntrySnapshot, type Fetcher, type Key } from '@noverse/ui/data'
+import { PaneStaleContext } from './paneStale'
 
 export type ResourceOptions = {
   enabled?: boolean
@@ -12,22 +13,14 @@ export type ResourceOptions = {
 /** `placeholder`: `data` là của khoá trước (keepPrevious), khoá hiện tại chưa có dữ liệu. */
 export type Resource<T> = EntrySnapshot<T> & { key: Key; initialLoading: boolean; placeholder: boolean; refresh: () => Promise<unknown> }
 
-/**
- * Mặc định 30 s. Màn điện thoại nằm trong pane giữ-alive (`MobileRouteStage`),
- * nên đổi tab không còn là lần "mount lại" cần làm mới: `<Activity>` gỡ effect
- * khi ẩn rồi gắn lại khi hiện, và mốc 2 s cũ khiến mỗi lần quay lại tab bắn lại
- * toàn bộ request của màn đó. Dữ liệu vẫn tươi theo SSE (`data/events.ts` gọi
- * `invalidate`) và `refresh()` sau thao tác ghi; hook nào cần nhịp riêng
- * (status 2,5 s) tự truyền `staleTime`.
- */
-const DEFAULT_STALE_MS = 30_000
-
 export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceOptions = {}): Resource<T> {
   const hash = keyHash(key)
   const stableKey = useMemo<Key>(() => JSON.parse(hash) as Key, [hash])
   const latest = useRef(fetcher)
   latest.current = fetcher
   const enabled = options.enabled !== false
+  // Màn nằm trong pane giữ-alive nhận mốc dài hơn (xem `data/paneStale.ts`).
+  const paneStale = useContext(PaneStaleContext)
   const subscribe = useCallback((listener: () => void) => enabled ? cache.listen(stableKey, listener) : () => {}, [stableKey, enabled])
   const rendered = useRef<EntrySnapshot<T> | undefined>(undefined)
   const snapshot = useCallback(() => {
@@ -40,7 +33,7 @@ export function useResource<T>(key: Key, fetcher: Fetcher<T>, options: ResourceO
   const state = useSyncExternalStore(subscribe, snapshot, snapshot)
   useEffect(() => {
     if (!enabled) return
-    return cache.retain(stableKey, (context) => latest.current(context), { staleTime: options.staleTime ?? DEFAULT_STALE_MS })
+    return cache.retain(stableKey, (context) => latest.current(context), { staleTime: options.staleTime ?? paneStale })
   }, [stableKey, enabled, options.staleTime])
   const refresh = useCallback(() => enabled ? cache.refresh(stableKey) : Promise.resolve(), [stableKey, enabled])
   const previous = useRef<T | undefined>(undefined)

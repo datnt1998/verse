@@ -12,6 +12,7 @@ import * as stylex from '@stylexjs/stylex'
 import { RouteScreen } from '../screens/RouteScreen'
 import { routePath, type Route } from '../router'
 import { keys } from '../data/keys'
+import { PANE_STALE_MS, PaneStaleContext } from '../data/paneStale'
 import { getWorkbench } from '../api/workbench'
 import { getChannelSummaries } from '../api/workbenchChannels'
 import { listRivals, listRivalVideos } from '../api/rivals'
@@ -58,7 +59,9 @@ const PaneView = memo(function PaneView({ pane, renderScreen }: { pane: PaneSnap
   // Video mới là trang con có thanh riêng, không thanh tab dưới → không cần đệm đáy.
   const noPad = pane.route.name === 'new'
   return <div {...stylex.props(stageStyles.scroll, noPad && stageStyles.noPad)}>
-    <Suspense fallback={null}>{renderScreen(pane.route)}</Suspense>
+    <PaneStaleContext.Provider value={PANE_STALE_MS}>
+      <Suspense fallback={null}>{renderScreen(pane.route)}</Suspense>
+    </PaneStaleContext.Provider>
   </div>
 })
 
