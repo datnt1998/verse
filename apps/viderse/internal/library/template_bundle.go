@@ -398,7 +398,7 @@ func openTemplateDir(dir string) (*TemplateBundle, error) {
 		name = filepath.Base(dir)
 	}
 	bundle := &TemplateBundle{Name: name, Project: project}
-	mediaRoot := filepath.Join(filepath.Dir(dir), "media")
+	mediaRoot := workspaceMediaRoot(dir)
 	for _, id := range projectMediaIDs(project) {
 		media, err := readWorkspaceMedia(mediaRoot, id)
 		if err != nil {
@@ -407,6 +407,21 @@ func openTemplateDir(dir string) (*TemplateBundle, error) {
 		bundle.Media = append(bundle.Media, media)
 	}
 	return bundle, nil
+}
+
+// workspaceMediaRoot tìm thư mục media của workspace cũ: project nằm ở
+// `<workspace>/projects/<id>` nên media ở `<workspace>/media` (hai cấp trên).
+// Nhận thêm `../media` để thư mục project đặt cạnh media cũng đọc được.
+func workspaceMediaRoot(projectDir string) string {
+	for _, candidate := range []string{
+		filepath.Join(projectDir, "..", "..", "media"),
+		filepath.Join(projectDir, "..", "media"),
+	} {
+		if isDirectory(candidate) {
+			return candidate
+		}
+	}
+	return filepath.Join(projectDir, "..", "..", "media")
 }
 
 // readWorkspaceMedia đọc `media/<id>/metadata.json` + tệp nguồn của thư viện cũ.

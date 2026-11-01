@@ -24,8 +24,9 @@ import (
 
 // importFlags là cờ của lệnh nhập.
 type importFlags struct {
-	name string
-	only []string
+	name     string
+	fromData string
+	only     []string
 }
 
 // parseImportFlags đọc --name/--only (dạng `--cờ giá-trị` và `--cờ=giá-trị`).
@@ -59,6 +60,12 @@ func parseImportFlags(args []string, stderr io.Writer) (importFlags, []string, i
 			if text = strings.TrimSpace(text); text != "" {
 				flags.only = append(flags.only, text)
 			}
+		case arg == "--from-data" || strings.HasPrefix(arg, "--from-data="):
+			dir, ok := value()
+			if !ok {
+				return flags, nil, libraryFlagError(stderr, "thiếu giá trị cho --from-data")
+			}
+			flags.fromData = strings.TrimSpace(dir)
 		case strings.HasPrefix(arg, "-") && arg != "-":
 			return flags, nil, libraryFlagError(stderr, "cờ không hợp lệ: "+arg)
 		default:
@@ -146,6 +153,21 @@ func projectNameOf(dir, fallback string) string {
 		return name
 	}
 	return fallback
+}
+
+// filterDataDirItems lọc template đọc từ thư mục dữ liệu cũ theo --only (so
+// trên tên template, không phân biệt hoa thường).
+func filterDataDirItems(items []library.TemplateDataDirItem, only []string) []library.TemplateDataDirItem {
+	if len(only) == 0 {
+		return items
+	}
+	kept := make([]library.TemplateDataDirItem, 0, len(items))
+	for _, item := range items {
+		if matchesOnly(item.Name, only) {
+			kept = append(kept, item)
+		}
+	}
+	return kept
 }
 
 // matchesOnly báo tên khớp một trong các chuỗi lọc (rỗng = nhận hết).
