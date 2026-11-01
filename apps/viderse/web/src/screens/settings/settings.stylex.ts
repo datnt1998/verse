@@ -110,7 +110,7 @@ export const styles = stylex.create({
   msetHead: { flex: "0 0 auto", height: "var(--vv-m-bar)", display: "flex", alignItems: "center", gap: "var(--vv-s-2)", padding: "0 var(--vv-s-6)" },
   msetBack: { width: "var(--vv-s-44)", height: "var(--vv-s-44)", display: "inline-flex", alignItems: "center", justifyContent: "center", borderWidth: 0, borderStyle: "none", borderColor: "currentColor", borderRadius: "var(--vv-r-12)", backgroundImage: { default: "none", ":hover": "none" }, backgroundColor: { default: "transparent", ":hover": color["--color-surface-2"] }, color: { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, cursor: "pointer" },
   msetTitle: { fontSize: "var(--vv-s-16)", fontWeight: 600 },
-  msetBody: { flex: "1", minHeight: 0, overflowY: "auto", padding: "var(--vv-s-4) var(--vv-s-16) max(var(--vv-s-20), var(--m-safe-bottom))", display: "flex", flexDirection: "column", gap: "var(--vv-s-16)" },
+  msetBody: { flex: "1", minHeight: 0, overflowY: "auto", padding: "var(--vv-s-4) var(--vv-s-16) calc(var(--vv-s-20) + max(26px, var(--m-safe-bottom)))", display: "flex", flexDirection: "column", gap: "var(--vv-s-16)" },
   msetSum: { borderRadius: radius["--radius-card"], padding: "var(--vv-s-14)", display: "flex", alignItems: "center", gap: "var(--vv-s-12)" },
   msetSumIc: { width: "var(--vv-s-36)", height: "var(--vv-s-36)", borderRadius: "50%", flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", backgroundImage: "none", backgroundColor: kit["--kit-ok-12"], color: color["--color-ok"] },
   msetSumIcIsWarn: { backgroundImage: "none", backgroundColor: kit["--kit-warn-12"], color: color["--color-warn"] },
@@ -126,6 +126,9 @@ export const styles = stylex.create({
   msetRowCaret: { color: "var(--st-neutral, var(--color-fg-4))" },
   msetQueue: { borderRadius: radius["--radius-card"], padding: "var(--vv-s-12) var(--vv-s-14)", minHeight: "var(--vv-s-56)", display: "flex", alignItems: "center", gap: "var(--vv-s-12)", color: color["--color-fg"] },
   msetQueueMain: { flex: "1", minWidth: 0, display: "flex", flexDirection: "column" },
+  // Hàng Thành viên trên MSettings dùng đúng nhịp thẻ hàng (56px) thay vì link desktop.
+  msetMember: { textDecoration: "none" },
+  msetMemberLabel: { flex: "1", minWidth: 0 },
   msetQueueTitle: { fontSize: "var(--vv-s-14)" },
   msetQueueHint: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"] },
   msetFoot: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], textAlign: "center" },

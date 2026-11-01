@@ -106,7 +106,7 @@ it.each([false, true])('uses the accepted count and priority plan before enqueue
   await multiInput('https://youtu.be/abcdefghijk\nhttps://youtu.be/duplicate00\nbad-link')
   await tick(300)
   const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!
-  expect(toggle.textContent).toContain('Ưu tiên cả 1')
+  expect(el.querySelector('.nv-priority-row, .nv-priority')?.textContent).toContain('Ưu tiên cả 1')
   expect(toggle.getAttribute('aria-checked')).toBe('false')
   expect(calls.at(-1)?.body.priority).toBe('batch')
   plan = { ...plan, position: 'front', etaStart: '2026-11-01T00:40:00Z' }
@@ -148,7 +148,7 @@ it('returns to the batch plan when priority is unchecked and never counts reject
   await act(async () => toggle.click())
   await tick(0)
   expect(toggle.getAttribute('aria-checked')).toBe('false')
-  expect(toggle.textContent).toContain('Ưu tiên cả 0')
+  expect(el.querySelector('.nv-priority-row, .nv-priority')?.textContent).toContain('Ưu tiên cả 0')
   expect(calls.at(-1)?.body.priority).toBe('batch')
   await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
   expect(calls.some((call) => call.path.endsWith('enqueue'))).toBe(false)
@@ -195,3 +195,4 @@ it('names a channel that was created without a name instead of showing an empty 
   expect([...el.querySelectorAll('[role="option"]')].map((node) => node.textContent)).toEqual(['Kênh của tôi', 'Kênh chưa đặt tên'])
   expect(picker('Kênh').textContent).toContain('Kênh của tôi')
 })
+

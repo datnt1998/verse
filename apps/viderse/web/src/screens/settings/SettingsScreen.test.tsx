@@ -124,17 +124,18 @@ describe('khung Cài đặt', () => {
 
   it('mobile là danh sách phủ toàn màn, không thanh tab dưới', async () => {
     mobile = true
-    const el = await render()
-    expect(el.querySelector('.vv-mset')).toBeTruthy()
-    expect(el.querySelector('[role="navigation"]')).toBeNull()
-    expect(el.textContent).toContain('Báo lỗi')
+    await render()
+    // Lớp phủ điện thoại được portal ra document.body để đè lên thanh trên của shell.
+    expect(document.body.querySelector('.vv-mset')).toBeTruthy()
+    expect(document.body.querySelector('[role="navigation"]')).toBeNull()
+    expect(document.body.textContent).toContain('Báo lỗi')
   })
 
   it('mobile lấy giá trị thật cho Kết nối AI, Trợ lý AI, Tài khoản nền tảng', async () => {
     mobile = true
-    const el = await render()
+    await render()
     const value = (label: string) =>
-      [...el.querySelectorAll('.vv-mset__row')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
+      [...document.body.querySelectorAll('.vv-mset__row')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
     expect(value('Kết nối AI')).toBe('1 nhà cung cấp')
     expect(value('Trợ lý AI')).toBe('Vẽ bằng ChatGPT')
     expect(value('Tài khoản nền tảng')).toBe('3 nền tảng')

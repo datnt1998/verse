@@ -6,6 +6,7 @@ import { styles as settingsStyles, setNavLinkMarker, setHelpCardMarker, msetRowM
 // có thanh tab dưới. Chấm trên tên mục khi /api/status báo attention trỏ tới
 // #/settings?section=<mục>.
 import { Suspense, lazy, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { Icon, Spinner, useTabMode } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { semverOf } from '../../lib/version'
@@ -28,7 +29,7 @@ import { listPlatforms } from '../../api/platforms'
 import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
 import { membersUrl } from '../../api/sso'
-import { MembersLink } from '../../components/AppLinks'
+import { ExternalIcon, MembersLink } from '../../components/AppLinks'
 import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { box } from '../../styles/shared.stylex'
 
@@ -157,7 +158,8 @@ function useFrameFacts(): FrameFacts {
     installing, failed, updates,
     // Chân cột chỉ hiện semver (“Viderse 1.4.0” — artboard). Chuỗi build đầy đủ
     // (ngày + commit + `+dirty`) thuộc màn nhật ký, không phải chrome cài đặt.
-    version: semverOf(version.data?.version ?? ''),
+    // Bản chạy từ mã nguồn trả "dev" — không đẩy nhãn .dev ra sản phẩm.
+    version: (() => { const value = semverOf(version.data?.version ?? ''); return /^\d+\.\d+\.\d+/.test(value) ? value : '' })(),
     used,
   }
 }
@@ -237,7 +239,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
         <NavList section={active} dots={dots} facts={facts} onPick={go} />
         <div className={`vv-set__foot ${stylex.props(settingsStyles.setFoot).className}`}>
           <span className={`vv-set__foot-note ${stylex.props(settingsStyles.setFootNote).className}`}>{t.settings.nav.footerNote}</span>
-          <span className={`vv-set__foot-ver num ${stylex.props(settingsStyles.setFootVer).className}`}>{fill(t.settings.nav.version, { version: facts.version })}</span>
+          <span className={`vv-set__foot-ver num ${stylex.props(settingsStyles.setFootVer).className}`}>{facts.version ? fill(t.settings.nav.version, { version: facts.version }) : t.settings.nav.versionNoVersion}</span>
         </div>
       </aside>
       <main className={`vv-set__center vv-wide vv-wide--read ${stylex.props(settingsStyles.setCenter).className}`}>
@@ -301,7 +303,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
 
   if (section) {
     const meta = section === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[section] ?? t.settings.meta.tools
-    return (
+    return createPortal(
       <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
         {strip}
         <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
@@ -315,11 +317,12 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
             <SectionBody section={section} />
           </Suspense>
         </div>
-      </div>
+      </div>,
+      document.body,
     )
   }
 
-  return (
+  return createPortal(
     <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
       {strip}
       <header className={`vv-mset__head ${stylex.props(settingsStyles.msetHead).className}`}>
@@ -366,9 +369,10 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
           </span>
           <Icon name="arrow-r" size={15} className="vv-ic" xstyle={[settingsStyles.ic]} />
         </a>
-        {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
-        <span className={`vv-mset__foot ${stylex.props(settingsStyles.msetFoot).className}`}>{fill(t.settings.m.foot, { version: facts.version })}</span>
+        {user?.role === 'admin' && memberHref && <a className={`vv-mset__member ${stylex.props(settingsStyles.card, settingsStyles.msetQueue, settingsStyles.msetMember).className}`} href={memberHref} target="_blank" rel="noopener noreferrer"><Icon name="crown" size={19} className="vv-ic" xstyle={[settingsStyles.ic]} /><span className={`vv-mset__member-label ${stylex.props(settingsStyles.msetQueueTitle, settingsStyles.msetMemberLabel).className}`}>{t.account.membersSettings}</span><ExternalIcon /></a>}
+        <span className={`vv-mset__foot ${stylex.props(settingsStyles.msetFoot).className}`}>{facts.version ? fill(t.settings.m.foot, { version: facts.version }) : t.settings.m.footNoVersion}</span>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

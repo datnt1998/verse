@@ -24,6 +24,7 @@ export const settings = {
     queue: 'Luồng chạy · hàng chờ',
     footerNote: 'Mọi cài đặt ở đây áp dụng cho cả máy, mọi kênh dùng chung.',
     version: 'Viderse {version}',
+    versionNoVersion: 'Viderse',
   },
   /** Tiêu đề + câu dẫn từng mục (META của artboard Settings). */
   meta: {
@@ -79,6 +80,7 @@ export const settings = {
       queue: { title: 'Luồng chạy, nhịp, tạm dừng', hint: 'Nằm ở Hàng chờ · chạm viên ở trên cùng' },
     },
     foot: 'Viderse {version} · cài đặt áp dụng cho máy này',
+    footNoVersion: 'Viderse · cài đặt áp dụng cho máy này',
   },
 } as const
 
