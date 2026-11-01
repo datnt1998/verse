@@ -23,7 +23,7 @@ func (s *Service) AttentionItems(context.Context) []Attention {
 	for root := range s.missing {
 		items = append(items, Attention{
 			Kind: domain.AttentionToolFailed,
-			Text: "Không thấy " + s.missingLabel(root),
+			Text: "Không thấy " + s.missingLabelLocked(root),
 			Href: "#/settings?section=storage",
 		})
 	}

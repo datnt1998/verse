@@ -823,15 +823,25 @@ func volumeNameInPath(path string) (string, bool) {
 // thư mục mặc định trong máy (hoặc dưới home) thì là "thư mục dự án" — ổ trong
 // máy không rút được, cái mất là thư mục.
 func (s *Service) missingLabel(root string) string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.missingLabelLocked(root)
+}
+
+// missingLabelLocked là missingLabel khi đã giữ s.mu (AttentionItems duyệt
+// s.missing trong cùng khoá). Khoá KHÔNG tái nhập được: gọi bản có khoá bên
+// trong vùng đã khoá sẽ treo máy chủ ở đúng trạng thái ổ rút.
+func (s *Service) missingLabelLocked(root string) string {
 	if root == s.deps.DefaultDir || (s.deps.Home != "" && strings.HasPrefix(root, s.deps.Home+"/")) {
 		return "thư mục dự án"
 	}
-	s.mu.Lock()
 	name := ""
 	if s.volInfo.Path == root {
 		name = s.volInfo.Name
 	}
-	s.mu.Unlock()
+	if name == "" {
+		name, _ = volumeNameInPath(root)
+	}
 	if name == "" {
 		name = filepath.Base(root)
 	}
