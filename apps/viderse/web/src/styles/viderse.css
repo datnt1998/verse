@@ -244,7 +244,6 @@
   --vv-spinner-line: rgba(255, 255, 255, .15);
 
   /* Khoảng thở dưới nội dung điện thoại phía trên tab bar (60 + 50). */
-  --vv-tabbar-pad: 110px;
 
   /* Viền tách cho avatar chồng nhau trên nền header/nav */
   --vv-hairline: rgba(255, 255, 255, .06);
@@ -316,6 +315,13 @@
   --vv-seg-images: #9DECC9;
   /* Lớp phủ Cài đặt/Thiết lập trên mobile che hết khung, kể cả tab bar. */
   --vv-z-overlay: 40;
+}
+
+/* Nhịp thanh tab điện thoại: Viderse giữ thanh kính cách đáy 30px (artboard MMain),
+   Noverse 20px. Đặt trên `html:root` để thắng khối :root mặc định của kit.css bất kể
+   thứ tự nạp tệp; vùng an toàn còn lại vẫn là một nguồn duy nhất ở kit.css. */
+html:root {
+  --m-tabbar-gap: 30px;
 }
 
 /* Gốc tài liệu: color-scheme và kiểu chữ nền (kit chỉ khai biến, không đặt kiểu). */

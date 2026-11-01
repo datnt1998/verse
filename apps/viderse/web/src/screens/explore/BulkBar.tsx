@@ -64,7 +64,7 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
 }
 
 const styles = stylex.create({
-  root: { position: 'sticky', bottom: s['--vv-s-14'], marginTop: `calc(-1 * ${s['--vv-s-76']})`, display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: 5 },
+  root: { position: { default: 'sticky', '@media (max-width: 767px)': 'fixed' }, left: { default: null, '@media (max-width: 767px)': s['--vv-s-12'] }, right: { default: null, '@media (max-width: 767px)': s['--vv-s-12'] }, bottom: { default: s['--vv-s-14'], '@media (max-width: 767px)': 'max(26px, var(--m-safe-bottom))' }, marginTop: { default: `calc(-1 * ${s['--vv-s-76']})`, '@media (max-width: 767px)': 0 }, display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: 5 },
   bar: { pointerEvents: 'auto', borderRadius: radius['--radius-card'], padding: `${s['--vv-s-8']} ${s['--vv-s-8']} ${s['--vv-s-8']} ${s['--vv-s-16']}`, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: s['--vv-s-8'], backgroundColor: color['--color-surface-4'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-2'], boxShadow: 'var(--vv-shadow-bulk)' },
   count: { fontSize: 13.5, fontWeight: 500, fontVariantNumeric: 'tabular-nums' },
   quick: { display: 'flex', gap: s['--vv-s-2'], padding: `0 ${s['--vv-s-4']}` },

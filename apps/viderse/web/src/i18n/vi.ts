@@ -65,6 +65,7 @@ export const vi = {
     allChannels: 'Mọi kênh',
     myChannels: 'Kênh của tôi',
     createChannel: 'Tạo kênh',
+    reviewBadge: (n: number) => `${n} video cần duyệt`,
   },
 
   shell: {
