@@ -110,7 +110,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = fa
               size={mobileBar ? 26 : 20} fontSize={mobileBar ? 10 : 8} />}
         <span className={`vv-switcher__name ${stylex.props(styles.label).className}`}>{isAll ? t.nav.allChannels : selected?.name ?? '…'}</span>
         {/* Mũi tên điện thoại theo màu chữ gợi ý của artboard (.vv-mswitch > .ic). */}
-        <Icon name="arrow-d" size={mobileBar ? 14 : 13} style={{ color: mobileBar ? 'var(--vv-st-neutral)' : 'var(--color-fg-4)' }} />
+        <Icon name="arrow-d" size={mobileBar ? 14 : 13} xstyle={mobileBar ? styles.chevronMobile : styles.chevron} />
         {mobileBar && <span aria-hidden="true" {...stylex.props(styles.touchHalo)} />}
       </button>
       {open && (
@@ -157,6 +157,8 @@ const MOBILE = '@media (max-width: 767px)'
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 const styles = stylex.create({
   root: { position: 'relative', flex: '0 0 auto' },
+  chevron: { color: color['--color-fg-4'] },
+  chevronMobile: { color: 'var(--vv-st-neutral)' },
   button: { height: 30, padding: `0 ${s['--vv-s-8']} 0 ${s['--vv-s-5']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-7'], borderRadius: radius['--radius-control'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-1'], backgroundColor: { default: color['--color-surface-1'], ':hover': color['--color-surface-2'] }, color: color['--color-fg'], fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textDecoration: 'none' },
   /* Chỉ bộ đổi kênh co: nút Việc nền và avatar giữ nguyên chỗ (r36). */
   mobileRoot: { flex: { default: null, [MOBILE]: '0 1 auto' }, minWidth: { default: null, [MOBILE]: 0 } },
