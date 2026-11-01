@@ -3,7 +3,7 @@
 // Cả ba đọc chung một khoá cache nên Bỏ qua ở đâu cũng biến mất ở mọi nơi.
 import * as stylex from '@stylexjs/stylex'
 import { Icon } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/learn'
 import { ActionButton } from '../ActionButton'
 import { Orb } from '../Orb'
 import { SuggestionCard } from './SuggestionCard'

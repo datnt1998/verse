@@ -5,7 +5,7 @@ import { channelStyles } from './channel.stylex'
 // "Mở YouTube" và "Video mới cho kênh" (mở màn Video mới đã chọn sẵn kênh này).
 import { Icon } from '@noverse/ui'
 import { ActionButton, ChannelAvatar } from '../../components'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { navigate, paths } from '../../router'
 import type { Channel } from '../../api/channels'
 import { fmtDay } from './fmt'

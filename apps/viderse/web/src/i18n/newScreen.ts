@@ -1,7 +1,9 @@
 // Chuỗi của màn Video mới + Hàng chờ (artboard NewVideo/Queue, 06-copy V2/V6).
+import { base } from './vi'
+import { shared } from './shared'
 
 export const newScreenCopy = {
-  title: 'Video mới',
+  title: shared.newTitle,
   hero: 'Bạn muốn làm video nào?',
   heroSub: 'Trinh sát tải nguồn · Đạo diễn chia cảnh · Hoạ sĩ vẽ ảnh · Kiểm định dựng và xuất. Bạn duyệt ảnh trước khi dựng.',
   modesLabel: 'Cách bắt đầu',
@@ -73,7 +75,7 @@ export const newScreenCopy = {
     channelTail: (pace: string | number) => `Vào cuối hàng chờ · ${pace} video/ngày`,
     skipDup: (n: number) => `${n} đã làm cho kênh này · sẽ bỏ qua`,
     skipInvalid: (n: number) => `${n} link lỗi · sẽ bỏ qua`,
-    blockedNoTemplate: 'Kênh chưa có template dùng được — sửa ở tab Template của kênh.',
+    blockedNoTemplate: shared.blockedNoTemplate,
     blockedMismatch: 'Template không khớp nhóm bước — sửa ở tab Template của kênh.',
     quota: 'Hết hạn mức ảnh hôm nay — job vẫn vào hàng chờ, chạy khi hạn mức đặt lại.',
     fixing: 'Đang kiểm kế hoạch…',
@@ -89,9 +91,9 @@ export const newScreenCopy = {
     open: 'Mở video đang làm',
   },
   toasts: {
-    made: 'Đã tạo job — theo dõi ở Hàng chờ.',
-    openQueue: 'Mở Hàng chờ',
-    failed: 'Chưa tạo được job.',
+    made: shared.newToasts.made,
+    openQueue: shared.newToasts.openQueue,
+    failed: shared.newToasts.failed,
     quota: 'Job đã vào hàng chờ — sẽ chạy khi hạn mức ảnh đặt lại.',
   },
   empty: {
@@ -107,7 +109,7 @@ export const newScreenCopy = {
 } as const
 
 export const queueScreenCopy = {
-  title: 'Hàng chờ',
+  title: shared.queueTitle,
   sheetTitle: 'Hàng chờ',
   /* Sheet Việc nền của điện thoại (08-dev-prompt V32): tiêu đề ngắn, khác màn Hàng chờ. */
   sheetTitleMobile: 'Việc nền',
@@ -288,4 +290,10 @@ export const queueScreenCopy = {
     openAll: 'Mở cả hàng chờ',
     quotaValue: (used: number, limit: number | null) => `${used}${limit === null ? '' : `/${limit}`} ảnh`,
   },
+} as const
+
+/** `t` của màn Video mới + Hàng chờ: chữ khung app + hai màn này. */
+export const t = {
+  ...base,
+  screens: { ...base.screens, new: newScreenCopy, queue: queueScreenCopy },
 } as const

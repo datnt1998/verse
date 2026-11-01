@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } 
 import { Icon, toast } from '@noverse/ui'
 import { ActionButton, ChannelAvatar, Orb, ScreenEmpty } from '../../components'
 import { assistantName, type Assistant } from '../../components/agents'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/queue'
 import { paths, useRoute } from '../../router'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { channelTint } from '../../lib/channelTint'

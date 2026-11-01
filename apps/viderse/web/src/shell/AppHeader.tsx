@@ -14,8 +14,6 @@ import { JobsPill } from './JobsPill'
 import { MainNav } from './MainNav'
 import type { Status } from '../api/status'
 import { useResource } from '../data/useResource'
-import { getServerStorage } from '../api/storageServer'
-import { serverStorageCopy } from '../i18n/storageServer'
 import { AccountMenu } from './AccountMenu'
 import { getActivity } from '../api/activity'
 import { keys } from '../data/keys'
@@ -105,7 +103,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
   const home = (e: MouseEvent) => { e.preventDefault(); navigate(paths.workbench()) }
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const inSettings = route.name === 'settings'
-  const server = useResource(['storage', 'server'], ({ signal }) => getServerStorage(signal), { enabled: inSettings })
+  const server = useResource(['storage', 'server'], ({ signal }) => import('../api/storageServer').then((m) => m.getServerStorage(signal)), { enabled: inSettings })
   const settingsTarget = attention.find((a) => a.href.includes('#/settings'))?.href
   const settings = (e: MouseEvent) => {
     e.preventDefault()
@@ -122,7 +120,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
         {route.name === 'account'
           ? <span {...stylex.props(shellChrome.crumb)}>{t.account.title}</span>
           : inSettings
-          ? <span {...stylex.props(shellChrome.crumb)}>{server.data ? serverStorageCopy.serverTitle : t.shell.settingsCrumb}</span>
+          ? <span {...stylex.props(shellChrome.crumb)}>{server.data ? t.shell.serverSettingsCrumb : t.shell.settingsCrumb}</span>
           : route.name === 'explore'
             ? <ExploreCrumb scope={route.rival} />
             : showSwitcher && <ChannelSwitcher channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}

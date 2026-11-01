@@ -10,7 +10,7 @@ import { invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { removeTemplateFromChannel } from '../../../api/library'
 import { ActionButton } from '../../../components'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { initials, num } from '../fmt'
 import type { Recipe, TemplateDetail } from '../../../api/library'
 

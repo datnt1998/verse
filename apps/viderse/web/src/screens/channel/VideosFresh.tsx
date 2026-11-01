@@ -5,7 +5,7 @@ import { channelStyles } from './channel.stylex'
 // video" (trạng thái, số đối thủ và nhịp thật của kênh, giờ Trinh sát xem gần nhất).
 import { Icon } from '@noverse/ui'
 import { ActionButton, Orb } from '../../components'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { navigate, paths } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'

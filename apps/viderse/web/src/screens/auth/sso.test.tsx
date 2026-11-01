@@ -7,7 +7,7 @@ import { AppHeader } from '../../shell/AppHeader'
 import { LoginScreen } from './LoginScreen'
 import { AccessDeniedScreen } from './AccessDeniedScreen'
 import { AccountScreen } from '../account/AccountScreen'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []

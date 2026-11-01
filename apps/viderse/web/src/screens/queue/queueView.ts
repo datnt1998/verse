@@ -1,7 +1,7 @@
 // View-model thuần của Hàng chờ: sort items, tính position float khi kéo
 // thả, soạn nhãn ETA/lý do chưa chạy, phát hiện trạng thái "hết hạn mức".
 import type { QueueImageQuota, QueueQueuedItem, QueueView } from '../../api/clone'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/queue'
 
 const tt = t.screens.queue
 

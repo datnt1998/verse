@@ -21,7 +21,7 @@ import {
 } from '../../../api/ai'
 import { keys } from '../../../data/keys'
 import { aiCopy, capsLine, capsPhrase, clockOf } from '../../../i18n/ai'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { fmtTime } from '../fmt'
 import { sequentialPoll } from '../poll'
 import { ModelCatalog } from './ModelCatalog'

@@ -13,7 +13,7 @@ import { toast } from '@noverse/ui'
 import { addProvider, type AiProvider } from '../../../api/ai'
 import { keys } from '../../../data/keys'
 import { aiCopy } from '../../../i18n/ai'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { existingCardFor } from './order'
 import { fieldOf, reasonOf } from './ProviderCard'
 

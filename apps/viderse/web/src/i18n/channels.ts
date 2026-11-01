@@ -2,9 +2,13 @@ const thousands = new Intl.NumberFormat('vi-VN')
 
 // Chuỗi màn Kênh & Tạo kênh — copy lấy từ artboard Channel/CreateChannel/Onboard
 // và 06-copy. Mọi chữ hiển thị của mảng kênh nằm ở đây; TSX chỉ gọi `t.channels`.
+import { autonomyCopy } from './autonomy'
+import { base } from './vi'
+import { shared } from './shared'
+
 export const channelsCopy = {
   page: {
-    title: 'Kênh',
+    title: shared.channelTitle,
     tablist: 'Trang kênh',
     aside: 'Đang áp dụng cho kênh',
     rail: 'Kênh và thư viện',
@@ -20,7 +24,7 @@ export const channelsCopy = {
       overlays: 'Lớp phủ',
     },
     ready: 'Máy sẵn sàng',
-    noName: 'Kênh chưa đặt tên',
+    noName: shared.channelNoName,
     created: (date: string) => `tạo ${date}`,
     linkedRivals: (n: number) => `${n} đối thủ liên kết`,
     noYouTube: 'Chưa liên kết YouTube',
@@ -369,7 +373,7 @@ export const channelsCopy = {
 
   create: {
     breadcrumbHome: 'Kênh của tôi',
-    title: 'Tạo kênh',
+    title: shared.channelCreateTitle,
     intro: 'Chọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.',
     rivalsTitle: 'Đối thủ làm nguồn',
     required: '· bắt buộc',
@@ -447,3 +451,6 @@ export const channelsCopy = {
     intro: 'Chọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.',
   },
 } as const
+
+/** `t` của mảng Kênh: chữ khung app + Kênh/Tạo kênh + Mức tự chủ (tab nguồn). */
+export const t = { ...base, channels: channelsCopy, autonomy: autonomyCopy } as const

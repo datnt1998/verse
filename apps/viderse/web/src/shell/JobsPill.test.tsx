@@ -7,7 +7,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { JobsPill } from './JobsPill'
-import { t } from '../i18n/vi'
+import { t } from '../i18n/all'
 import type { Status } from '../api/status'
 
 const queue = vi.hoisted(() => ({

@@ -3,7 +3,7 @@
 // prompts.summary) — dùng nguyên câu đó rồi nối số ảnh, thay vì lặp lại tên mục
 // tab. Không tự ghép lại style/bìa để khỏi lệch với màn Thư viện.
 import type { TemplateSummary } from '../../api/library'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 
 export function templateLine(template: TemplateSummary): string {
   const tt = t.channels.templates.line

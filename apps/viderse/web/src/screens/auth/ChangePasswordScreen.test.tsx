@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SessionProvider, useSession, type SessionState } from '../../api/session'
 import { ChangePasswordScreen } from './ChangePasswordScreen'
 import { ToastHost } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 import type { User } from '../../api/types'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })

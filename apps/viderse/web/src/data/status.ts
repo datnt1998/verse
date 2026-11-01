@@ -30,9 +30,14 @@ const trackedStatus: Fetcher<Status> = async ({ signal }) => {
   }
 }
 
-export const POLL_STALE_MS = 2500
+/**
+ * Dữ liệu đầu trang còn hạn bao lâu. Sự kiện SSE `status`/`queue` làm mới khoá
+ * này ngay khi server đổi số, nên đây chỉ là chặn "mỗi lần mở màn là một lần
+ * gọi /api/status": trong 60 s, mở lại màn dùng đúng dữ liệu đã có.
+ */
+export const STATUS_STALE_MS = 60_000
 export function useStatus() {
-  return useResource(keys.status(), trackedStatus, { staleTime: POLL_STALE_MS })
+  return useResource(keys.status(), trackedStatus, { staleTime: STATUS_STALE_MS })
 }
 
 const subscribeNet = (listener: () => void) => {

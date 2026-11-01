@@ -13,7 +13,7 @@ import { invalidate } from '@noverse/ui/data'
 import { cancelProviderLogin, getProviderLogin, startProviderLogin, type AiLogin } from '../../../api/ai'
 import { keys } from '../../../data/keys'
 import { sequentialPoll } from '../poll'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { aiCopy } from '../../../i18n/ai'
 
 /** Provider id của ChatGPT trong danh sách /api/ai/providers. */

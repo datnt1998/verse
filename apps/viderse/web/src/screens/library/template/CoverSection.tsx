@@ -6,7 +6,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ảnh bìa. Prompt có sẵn đứng trước prompt của bạn trong ô chọn.
 import { RadioCard, Icon } from '@noverse/ui'
 import { ActionButton } from '../../../components'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import type { ImagePrompt, Recipe } from '../../../api/library'
 import { PromptPicker } from './PromptPicker'
 

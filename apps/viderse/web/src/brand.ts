@@ -1,6 +1,8 @@
 // Brand Viderse theo design 02 §2: nền tối của kit, tím Noverse → đỏ Viderse,
 // đỏ/hồng lỗi Noverse → cam Viderse. Nút chính là nút sáng; đỏ không làm nền nút.
-import { applyBrand, defineBrand } from '@noverse/ui'
+// Chỉ dùng lúc BUILD: scripts/brand-css.ts đọc `brand` rồi ghi src/styles/brand.css.
+// Lúc chạy, main.tsx nạp thẳng tệp CSS đó — entry không kéo tokenDefaults.ts.
+import { defineBrand } from '@noverse/ui'
 
 export const brand = defineBrand({
   name: 'viderse',
@@ -21,7 +23,3 @@ export const brand = defineBrand({
   // Rãnh công tắc của kit là literal #9A63E3 — ghim thẳng token để đúng #E6002E của design.
   overrides: { '--kit-switch-on': '#E6002E', '--kit-info-fg': 'var(--vv-info)' },
 })
-
-export function applyViderseBrand() {
-  applyBrand(brand)
-}

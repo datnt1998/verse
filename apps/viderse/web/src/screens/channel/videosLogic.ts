@@ -2,7 +2,7 @@
 // số liệu đầu kênh và nội dung từng hàng. Không chạm DOM/mạng để test được.
 import type { VideoStatus } from '../../components/StatusLabel'
 import type { BulkEligibility, ChannelJob } from '../../api/channelVideos'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { fmtDuration, fmtScore } from '../explore/fmt'
 
 const pad = (n: number) => String(n).padStart(2, '0')

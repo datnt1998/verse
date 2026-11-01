@@ -4,9 +4,13 @@
 //
 // `template` là màn Cài đặt template (một màn riêng, cùng mảng Thư viện) — nằm
 // chung tệp để vi.ts chỉ thêm một import và một khoá.
+import { base } from './vi'
+import { backdropCopy } from './backdrop'
+import { learnCopy } from './learn'
+import { shared } from './shared'
 
 const libraryTabs = {
-  templates: 'Template',
+  templates: shared.templatesTab,
   prompts: 'Prompt ảnh',
   backdrops: 'Video nền',
   overlays: 'Lớp phủ',
@@ -36,7 +40,7 @@ const recipeFieldLabels: Record<string, string> = {
 export const libraryCopy = {
   title: 'Thư viện dùng chung',
   /** Tiêu đề tab trình duyệt — tên màn ngắn, không kèm "dùng chung". */
-  titleShort: 'Thư viện',
+  titleShort: shared.libraryTitle,
   subtitle: (channels: number) => channels > 0
     ? `Dùng chung cho cả ${channels} kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.`
     : 'Thư viện dùng chung cho mọi kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.',
@@ -485,3 +489,6 @@ export const libraryCopy = {
     },
   },
 } as const
+
+/** `t` của màn Thư viện: chữ khung app + Thư viện + Video nền + Prompt ảnh. */
+export const t = { ...base, library: libraryCopy, backdrop: backdropCopy, learn: learnCopy } as const

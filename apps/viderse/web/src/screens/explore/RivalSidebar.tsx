@@ -6,7 +6,7 @@ import { exploreStyles } from './explore.stylex'
 // "N mới" cho video nổi trội mới). Trống → câu hướng dẫn của artboard.
 import { Icon } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 import type { Rival, RivalList } from '../../api/rivals'
 import { AddRivalForm } from './AddRivalForm'
 

@@ -36,7 +36,9 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
   // Menu mở gắn với video đang chọn: đổi video thì menu cũ tự đóng.
   const [openMenu, setOpenMenu] = useState<{ kind: 'prompt' | 'more'; id: string } | null>(null)
   const list = useResource(['workbench', 'list', scope], ({ signal }) => getWorkbench(scope, signal), { keepPrevious: true })
-  const channels = useResource(['workbench', 'channels'], ({ signal }) => getChannelSummaries(signal))
+  // Cùng khoá với khung app (AppShell) và TodayRow: một endpoint thì một khoá,
+  // nếu không màn đầu gọi /api/channels/summary hai lần cho cùng dữ liệu.
+  const channels = useResource(['channels', 'summary'], ({ signal }) => getChannelSummaries(signal))
   const selectedId = route.video || list.data?.defaultJobId || undefined
   const promptOpen = openMenu?.kind === 'prompt' && openMenu.id === selectedId
   const more = openMenu?.kind === 'more' && openMenu.id === selectedId

@@ -2,7 +2,7 @@
 // được vào "lỗi", chọn ưu tiên pick|batch cho plan/enqueue, và soạn dòng
 // kế hoạch (§4) cho phần dưới ô link.
 import type { ClonePlan } from '../../api/clone'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/newScreen'
 
 /** Delay gọi POST /api/clone/plan sau lần đổi ô link cuối (V2 nghiệm thu). */
 export const PLAN_DEBOUNCE_MS = 300

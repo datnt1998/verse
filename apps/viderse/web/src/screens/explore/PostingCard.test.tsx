@@ -7,7 +7,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PostingCard } from './PostingCard'
 import type { PostingSchedule } from '../../api/rivals'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 
 const tt = t.screens.explore
 const roots: Root[] = []

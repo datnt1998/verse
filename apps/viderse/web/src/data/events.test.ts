@@ -7,7 +7,7 @@
 //  · Nối lại sau rớt: invalidate qua cache — không có fetch thô nào ghi đè.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
-import { events, startDataEvents, POLL_MS } from './events'
+import { events, startDataEvents, POLL_MS, POLL_MAX_MS } from './events'
 import { keys } from './keys'
 import { request } from '../api/request'
 import { onSessionExpired } from '../api/sessionSignal'
@@ -58,6 +58,23 @@ function hangingStream(firstReads: Uint8Array[]) {
 }
 
 const HELLO = new TextEncoder().encode('event: hello\ndata: {"subscriber":"t1"}\n\nid: 1\nevent: status\ndata: {"rev":1}\n\n')
+
+/** Luồng SSE sống: hello rồi bình luận mỗi 2 s — watchdog 3,5 s không bao giờ rớt. */
+function pingingStream() {
+  const encoder = new TextEncoder()
+  let first = true
+  return Promise.resolve(new Response(
+    new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        if (first) { first = false; controller.enqueue(HELLO); return }
+        // Fake timer: nhịp ping chỉ chạy khi test tua đồng hồ.
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        try { controller.enqueue(encoder.encode(': ping\n\n')) } catch { /* đã đóng */ }
+      },
+    }),
+    { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+  ))
+}
 
 describe('mất kết nối trong ≤5 giây', () => {
   beforeEach(() => { vi.useFakeTimers() })
@@ -165,16 +182,56 @@ describe('vòng poll dự phòng', () => {
     stop(); release()
   })
 
-  it('refreshes the visible queue alongside status while the event stream is down', async () => {
+  it('refreshes the visible queue and activity alongside status while the event stream is down', async () => {
     mockFetch({ events: () => deferred<Response>().promise })
     let revision = 1
+    let activityRevision = 1
     const release = cache.retain(keys.queue(), async () => ({ revision }))
+    const releaseActivity = cache.retain(keys.activity(), async () => ({ revision: activityRevision }))
     await vi.advanceTimersByTimeAsync(10)
     const stop = startDataEvents()
     await vi.advanceTimersByTimeAsync(10)
     revision = 2
-    await vi.advanceTimersByTimeAsync(3000)
+    activityRevision = 2
+    await vi.advanceTimersByTimeAsync(POLL_MS + 10)
     expect(cache.get<{ revision: number }>(keys.queue()).data?.revision).toBe(2)
+    expect(cache.get<{ revision: number }>(keys.activity()).data?.revision).toBe(2)
+    stop(); release(); releaseActivity()
+  })
+
+  it('giãn nhịp poll dự phòng 10 → 20 → 40 → 60 s, không phải mỗi 2,5 s', async () => {
+    let statusCalls = 0
+    mockFetch({ events: () => deferred<Response>().promise, status: () => { statusCalls++; return Promise.resolve(json(STATUS)) } })
+    const release = cache.retain(keys.status(), () => request('/api/status'))
+    const stop = startDataEvents()
+    await vi.advanceTimersByTimeAsync(10)
+    // Lần tải đầu của retain + lượt làm mới ngay khi rớt luồng.
+    const base = statusCalls
+    expect(base).toBeGreaterThan(0)
+    await vi.advanceTimersByTimeAsync(POLL_MS)
+    expect(statusCalls).toBe(base + 1) // +10 s
+    await vi.advanceTimersByTimeAsync(POLL_MS * 2)
+    expect(statusCalls).toBe(base + 2) // +20 s
+    await vi.advanceTimersByTimeAsync(POLL_MS * 4 - 10)
+    expect(statusCalls).toBe(base + 3) // +40 s
+    await vi.advanceTimersByTimeAsync(POLL_MAX_MS * 3)
+    expect(statusCalls).toBe(base + 6) // trần 60 s: 3 lượt nữa trong 180 s
+    stop(); release()
+  })
+
+  it('không có request nền nào khi luồng sự kiện đang mở', async () => {
+    let statusCalls = 0
+    mockFetch({ events: () => pingingStream(), status: () => { statusCalls++; return Promise.resolve(json(STATUS)) } })
+    const release = cache.retain(keys.status(), () => request('/api/status'))
+    const stop = startDataEvents()
+    await vi.advanceTimersByTimeAsync(30)
+    expect(events.status().state).toBe('open')
+    // Gộp sự kiện chờ 250 ms của frame hello xong mới đo: sau đó không còn nhịp nào.
+    await vi.advanceTimersByTimeAsync(400)
+    const afterOpen = statusCalls
+    await vi.advanceTimersByTimeAsync(POLL_MAX_MS * 2)
+    expect(events.status().state).toBe('open')
+    expect(statusCalls).toBe(afterOpen)
     stop(); release()
   })
 

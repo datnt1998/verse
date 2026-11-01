@@ -5,7 +5,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // dòng tóm tắt sống. Mobile: cùng danh sách cuộn ngang dưới đầu trang.
 import { Icon } from '@noverse/ui'
 import type { IconName } from '@noverse/ui'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { paths, type TemplateSection } from '../../../router'
 import { num } from '../fmt'
 import type { TemplateDetail } from '../../../api/library'

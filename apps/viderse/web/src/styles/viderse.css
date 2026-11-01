@@ -8,12 +8,56 @@
 @import "tailwindcss";                    /* preflight + utility cho editor NLE giữ nguyên (src/editor/UPSTREAM.md) */
 @source "../../../../../platform/ui/src"; /* kit dùng chung nằm ngoài thư mục app */
 
-@import "@fontsource/be-vietnam-pro/400.css";
-@import "@fontsource/be-vietnam-pro/500.css";
-@import "@fontsource/be-vietnam-pro/600.css";
-@import "@fontsource/be-vietnam-pro/700.css" screen and (max-width: 767px);
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
+/* Font: mỗi độ đậm là MỘT tệp đã subset đúng dải chữ đang dùng (Latin cơ bản +
+   tiếng Việt + dấu tổ hợp), thay vì 3 tệp fontsource (latin / latin-ext /
+   vietnamese) cho mỗi độ đậm. Bốn độ đậm thật sự có trong giao diện: 400, 500,
+   600, 700 — không khai độ đậm nào không dùng. Tệp nằm ở public/fonts, sinh
+   bằng fontTools từ @fontsource/be-vietnam-pro (gộp latin+vietnamese rồi
+   subset), nên lần vẽ đầu chỉ tải tệp của độ đậm đang hiện chữ.
+   `font-display: swap`: chữ hiện ngay bằng phông hệ thống, đổi sang Be Vietnam
+   Pro khi tệp về — không chặn vẽ. */
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/be-vietnam-pro-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("/fonts/be-vietnam-pro-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("/fonts/be-vietnam-pro-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("/fonts/be-vietnam-pro-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
+}
 
 /* Literata cho phông đọc dài (--font-read của kit): tách unicode-range
    latin/tiếng Việt để chỉ tải phần ký tự đang hiển thị. */

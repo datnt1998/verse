@@ -5,7 +5,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // độ dài video) + bước độ dài đoạn — trần 600 giây (10 phút) khớp backend.
 // Chưa biết độ dài thì nhập giây bắt đầu, máy chủ kiểm lại khi tải.
 import { NumberStepper, Slider } from '@noverse/ui'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { timeRange } from './fmt'
 
 export const SEGMENT_MAX_SEC = 600

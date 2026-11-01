@@ -1,10 +1,12 @@
+import { shared } from './shared'
+
 export const serverStorageCopy = {
   invalidResponse: 'Máy chủ trả thông tin lưu trữ không hợp lệ. Vui lòng tải lại trang.',
   cleanupLabels: { orphan_objects: 'Tệp trên kho của video đã xoá', work_cache: 'Bộ đệm trên máy chủ' },
   mobileMoving: 'Đang chuyển',
   mobileDown: '{label} mất kết nối',
   savedConfig: 'Lưu trong app · khoá đã mã hoá', keys: 'Khoá truy cập', pathValue: 'máy-chủ/tên-kho', garageProvider: 'Garage · tự cài',
-  title: 'Lưu trữ', serverTitle: 'Cài đặt · máy chủ', server: 'Máy chủ', lede: 'Nơi lưu tệp của mọi video trên máy chủ, dung lượng và dọn dữ liệu. Chỉ quản trị viên thấy phần chọn kho.',
+  title: 'Lưu trữ', serverTitle: shared.storageServerTitle, server: 'Máy chủ', lede: 'Nơi lưu tệp của mọi video trên máy chủ, dung lượng và dọn dữ liệu. Chỉ quản trị viên thấy phần chọn kho.',
   memberLede: 'Dung lượng và dọn dữ liệu. Nơi lưu tệp do quản trị viên chọn.',
   mobileLede: 'Nơi lưu tệp của mọi video trên máy chủ. Chỉ quản trị viên thấy phần kho.',
   configDefault: 'Mặc định của máy chủ',
@@ -48,6 +50,6 @@ export const serverStorageCopy = {
   previous: 'Chỗ cũ: {label} vẫn giữ {bytes}', previousHint: 'Viderse đã thôi đọc từ chỗ cũ. Khi đã yên tâm (mở vài dự án trong Bàn dựng, xem vài bản xuất), người quản trị máy chủ dọn bằng lệnh bảo trì để lấy lại chỗ. Viderse không tự xoá.', previousDetails: 'Dọn bằng lệnh bảo trì của Viderse khi đã yên tâm, như Noverse. Không xoá tay thư mục này khi Viderse đang chạy.',
   migrationTitle: 'Đang chuyển sang {provider}', migrationFailed: 'Chuyển sang {provider} chưa xong', running: 'Đang chạy', paused: 'Tạm dừng', migrationNote: 'Bắt đầu lúc {time}. Video đang làm vẫn chạy, Bàn dựng và Duyệt vẫn sửa được. Tệp mới vẫn ghi vào {from} cho tới khi chuyển xong, rồi được chép nốt. Chỗ cũ không bị xoá.', fileCount: 'Số tệp', byteCount: 'Dung lượng', progress: 'Tiến độ theo nhóm', checkedCount: 'Đã kiểm tra', copiedCount: 'Đã chép', errorCount: 'Lỗi', errorFiles: '{n} tệp lỗi', errorNote: 'Còn tệp lỗi thì chưa đổi kho. Viderse vẫn dùng {from}, không mất gì.', retryFiles: 'Thử lại {n} tệp lỗi', pause: 'Tạm dừng', resume: 'Tiếp tục', cancelMove: 'Huỷ chuyển', cancelQuestion: 'Huỷ chuyển?', cancelBody: 'Viderse vẫn dùng {from}, không mất tệp nào. {files} tệp đã chép nằm lại trong {to}; lần chuyển sau dùng lại, không phải chép lại.', keepMoving: 'Tiếp tục chuyển', group: 'Nhóm', video: 'Video', reason: 'Lý do', rate: '{rate}/giây', eta: 'còn khoảng {time}',
   migrationErrors: { content_mismatch: 'Chép xong nhưng đọc lại không khớp. Thường do mạng chập chờn, thử lại là được.', unreachable_endpoint: 'Mất kết nối tới kho giữa chừng. Thử lại khi mạng ổn định.', storage_error: 'Kho chưa nhận tệp này. Kiểm tra quyền của khoá và kết nối, rồi thử lại.', wrong_key: 'Kho mới từ chối khoá. Khoá vừa bị thu hồi hoặc đổi.' },
-  downTitle: 'Không kết nối được kho {label}', stripTitle: 'Không kết nối được kho tệp {label}.', downBody: 'Máy chủ Viderse không mở được kết nối tới kho. Xem và tải tệp trong app đang lỗi. Kết nối lại thì tự chạy tiếp, không mất gì.', held: '{n} video đang làm đã tạm dừng, hàng chờ chưa chạy. Kết nối lại thì tự chạy tiếp.', retryMeta: 'Lần thử gần nhất {time} · tự thử lại mỗi phút', memberDown: 'Kho tệp đang mất kết nối nên video của bạn tạm dừng. Quản trị viên đã được báo; kết nối lại thì video tự chạy tiếp.', openStorage: 'Mở Lưu trữ', adminOnly: 'Chỉ quản trị viên thấy dòng này',
+  downTitle: 'Không kết nối được kho {label}', stripTitle: shared.storageStripTitle, downBody: shared.storageDownBody, held: shared.storageHeld, retryMeta: 'Lần thử gần nhất {time} · tự thử lại mỗi phút', memberDown: 'Kho tệp đang mất kết nối nên video của bạn tạm dừng. Quản trị viên đã được báo; kết nối lại thì video tự chạy tiếp.', openStorage: shared.storageOpen, adminOnly: 'Chỉ quản trị viên thấy dòng này',
   mobileDisk: 'Chuyển sang kho S3 làm trên máy tính: Cài đặt › Lưu trữ › Chọn kho S3.', mobileS3: 'Đổi kho, đổi khoá và chuyển dữ liệu làm trên máy tính: Cài đặt › Lưu trữ › Đổi kho…', cleanupWarning: 'Không đụng tới video đang chạy, video chờ duyệt và mọi thứ template đang dùng. Tệp xoá khỏi kho không lấy lại được.', genericError: 'Chưa thực hiện được. Vui lòng thử lại.', appSource: 'Lưu trong app', defaultSource: 'Mặc định', enabled: 'Bật · mạng nội bộ', disabled: 'Tắt',
 } as const
