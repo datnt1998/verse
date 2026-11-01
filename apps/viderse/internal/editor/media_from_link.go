@@ -132,6 +132,9 @@ type LinkFormat struct {
 	AudioCodec *string  `json:"acodec"`
 	Height     *float64 `json:"height"`
 	TBR        *float64 `json:"tbr"`
+	// Protocol là protocol của yt-dlp (http, https, m3u8, rtmp…). Chỉ những
+	// protocol đi qua được cổng ra mới được tải.
+	Protocol string `json:"protocol"`
 }
 type LinkInfo struct {
 	Title       string       `json:"title"`
@@ -168,6 +171,10 @@ func ytDlpMediaError(err error) error {
 		return apiError("invalid_request", netguard.BlockedMessage, Object{"ytDlpCode": string(y.Code)})
 	}
 	extra := Object{"ytDlpCode": string(y.Code), "detail": guard.Redact(y.Message)}
+	// Bộ lọc protocol của cổng ra loại hết format: video chỉ có rtmp/websocket.
+	if strings.Contains(y.Message, "Requested format is not available") {
+		return apiError("invalid_request", netguard.UnsafeFormatMessage, extra)
+	}
 	switch y.Code {
 	case tools.YtDlpLoginRequired:
 		return apiError("invalid_request", "Video này cần đăng nhập để xem (ví dụ chỉ dành cho người đăng ký) — chọn video khác", extra)
@@ -195,6 +202,7 @@ func (s *Service) runMediaYTDLP(ctx context.Context, args []string, timeout time
 	if proxy := guard.YtDlpArgs(); proxy != nil {
 		args = append(proxy, args...)
 	}
+	args = guard.HardenYtDlpArgs(args)
 	result, e := r.Run(ctx, binary, args, tools.Spec{Timeout: timeout, LogLimit: 16 << 20, EnvExact: guard.Env()})
 	if e != nil {
 		return "", ytDlpMediaError(e)
@@ -213,7 +221,26 @@ func (s *Service) ProbeLinkInfo(ctx context.Context, link string) (LinkInfo, err
 	if info.Duration != nil && (math.IsNaN(*info.Duration) || math.IsInf(*info.Duration, 0) || *info.Duration < 0) {
 		return info, apiError("internal_error", "Invalid video duration")
 	}
+	if e := ensureLinkFormatsSafe(info); e != nil {
+		return info, e
+	}
 	return info, nil
+}
+
+// ensureLinkFormatsSafe từ chối video mà mọi format đều không đi qua được cổng
+// ra: tải bằng rtmp/websocket là nối trực tiếp, đúng thứ cổng ra không kiểm
+// soát được. yt-dlp luôn kèm "protocol" trong thông tin format; thông tin dựng
+// tay không có trường đó thì coi như an toàn.
+func ensureLinkFormatsSafe(info LinkInfo) error {
+	if len(info.Formats) == 0 {
+		return nil
+	}
+	for _, format := range info.Formats {
+		if format.Protocol == "" || netguard.AllowedYtDlpProtocol(format.Protocol) {
+			return nil
+		}
+	}
+	return apiError("invalid_request", netguard.UnsafeFormatMessage)
 }
 func linkFileClock(sec float64) string {
 	n := int(sec)
@@ -252,6 +279,9 @@ func (s *Service) FetchLinkMedia(ctx context.Context, opts FetchLinkMediaOptions
 		if e != nil {
 			return MediaRecord{}, false, e
 		}
+	}
+	if e := ensureLinkFormatsSafe(info); e != nil {
+		return MediaRecord{}, false, e
 	}
 	if info.LiveStatus != nil && (*info.LiveStatus == "is_live" || *info.LiveStatus == "is_upcoming") {
 		return MediaRecord{}, false, apiError("invalid_request", "Buổi phát trực tiếp chưa kết thúc — đợi có video phát lại")

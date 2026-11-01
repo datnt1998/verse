@@ -6,10 +6,15 @@ package tools
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 )
@@ -135,5 +140,80 @@ func TestYtDlpRunRedactsProxyCredentialFromErrors(t *testing.T) {
 	}
 	if strings.Contains(yde.Message, guard.ProxyURL()) || strings.Contains(yde.StderrTail, guard.ProxyURL()) {
 		t.Fatalf("credential proxy còn trong lỗi: %v", yde)
+	}
+}
+
+// TestYtDlpRunRefusesNonProxiedProtocolsWhenHosted: video chỉ có format rtmp
+// (nối trực tiếp, không qua proxy) phải bị từ chối trước khi có kết nối nào.
+// Chạy yt-dlp thật với info JSON dựng sẵn, đích rtmp là một listener của test.
+func TestYtDlpRunRefusesNonProxiedProtocolsWhenHosted(t *testing.T) {
+	binary, err := exec.LookPath("yt-dlp")
+	if err != nil {
+		t.Skip("bỏ qua: không có binary yt-dlp trong môi trường test")
+	}
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	var connections atomic.Int64
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			connections.Add(1)
+			conn.Close()
+		}
+	}()
+	rtmpBase := "rtmp://" + listener.Addr().String()
+	info := fmt.Sprintf(`{"id":"t","title":"t","extractor":"generic","extractor_key":"Generic",
+"webpage_url":"%[1]s/page","original_url":"%[1]s/page","formats":[
+ {"format_id":"rtmp-v","url":"%[1]s/v","protocol":"rtmp","vcodec":"h264","acodec":"none","ext":"flv","width":640,"height":360},
+ {"format_id":"rtmp-a","url":"%[1]s/a","protocol":"rtmp","vcodec":"none","acodec":"aac","ext":"flv","abr":128}]}`, rtmpBase)
+	dir := t.TempDir()
+	infoFile := filepath.Join(dir, "info.json")
+	if err := os.WriteFile(infoFile, []byte(info), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(netguard.Close)
+	if _, err := netguard.Install(netguard.Options{Hosted: true}); err != nil {
+		t.Fatal(err)
+	}
+	y := &YtDlp{d: Deps{Runner: &ExecRunner{}, BaseDir: dir, PathEnv: filepath.Dir(binary)}}
+	// --downloader rtmp:ffmpeg để chính ffmpeg nối rtmp: nếu bộ lọc protocol
+	// không chạy, listener của test sẽ thấy kết nối (rtmpdump không có trên máy
+	// này nên đường native không nối được gì).
+	_, err = y.Run(context.Background(), []string{"--load-info-json", infoFile, "--downloader", "rtmp:ffmpeg", "-f", "bv*+ba/b", "-o", filepath.Join(dir, "out.%(ext)s")}, RunYtDlpOptions{Timeout: 2 * time.Minute})
+	var yde *YtDlpError
+	if !errors.As(err, &yde) {
+		t.Fatalf("err = %v, muốn YtDlpError", err)
+	}
+	if got := connections.Load(); got != 0 {
+		t.Fatalf("đích rtmp nhận %d kết nối — yt-dlp chọn format nối trực tiếp", got)
+	}
+	if !strings.Contains(yde.Message, "Requested format is not available") {
+		t.Fatalf("yt-dlp phải từ chối format rtmp, được: %s", yde.Message)
+	}
+}
+
+// TestYtDlpRunKeepsNonProxiedProtocolsInDesktop: desktop không đổi hành vi.
+func TestYtDlpRunKeepsNonProxiedProtocolsInDesktop(t *testing.T) {
+	_, y, _ := runnableYtDlp(t)
+	t.Cleanup(netguard.Close)
+	if _, err := netguard.Install(netguard.Options{}); err != nil {
+		t.Fatal(err)
+	}
+	var argv []string
+	y.d.Runner = &fakeRunner{execFn: func(_ string, args []string, _ Spec) (Result, error) {
+		argv = args
+		return Result{Stdout: "ok"}, nil
+	}}
+	if _, err := y.Run(context.Background(), []string{"-f", "bv*+ba/b", "https://cdn.example/v.mp4"}, RunYtDlpOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(argv, " "), "protocol") {
+		t.Fatalf("desktop không được lọc protocol: %v", argv)
 	}
 }

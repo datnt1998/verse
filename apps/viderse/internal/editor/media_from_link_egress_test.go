@@ -332,3 +332,90 @@ func TestMediaLinkBlockedPlaylistHostIsRefused(t *testing.T) {
 }
 
 var _ = time.Second
+
+// rtmpOnlyInfo là thông tin yt-dlp của một video chỉ có format rtmp: nối trực
+// tiếp, không qua proxy HTTP của cổng ra.
+const rtmpOnlyInfo = `{"title":"clip","duration":120,"formats":[
+ {"url":"rtmp://127.0.0.1:1935/v","protocol":"rtmp","vcodec":"h264","acodec":"none","height":360},
+ {"url":"rtmp://127.0.0.1:1935/a","protocol":"rtmp","vcodec":"none","acodec":"aac"}]}`
+
+// TestMediaLinkRefusesNonProxiedFormatProtocols: video chỉ có rtmp bị từ chối
+// với câu tiếng Việt rõ ràng, và không có lời gọi tải nào chạy.
+func TestMediaLinkRefusesNonProxiedFormatProtocols(t *testing.T) {
+	t.Cleanup(netguard.Close)
+	if _, err := netguard.Install(netguard.Options{Hosted: true}); err != nil {
+		t.Fatal(err)
+	}
+	s := newMediaTestService(t)
+	s.FFmpeg = "/managed/ffmpeg"
+	s.YTDLP = "/managed/yt-dlp"
+	runner := &recordingRunner{run: func(args []string) (tools.Result, error) {
+		if strings.Contains(strings.Join(args, " "), "-J") {
+			return tools.Result{Stdout: rtmpOnlyInfo}, nil
+		}
+		return tools.Result{}, errors.New("không được tải khi chỉ có định dạng rtmp")
+	}}
+	s.Runner = runner
+
+	_, err := s.ProbeLinkInfo(context.Background(), "https://www.bilibili.com/video/BV1fspq6cEty")
+	var api *Error
+	if !errors.As(err, &api) || api.Message != netguard.UnsafeFormatMessage {
+		t.Fatalf("probe: err = %v, muốn %q", err, netguard.UnsafeFormatMessage)
+	}
+
+	_, _, err = s.FetchLinkMedia(context.Background(), FetchLinkMediaOptions{URL: "https://www.bilibili.com/video/BV1fspq6cEty", From: "0:00", To: "0:05"}, nil)
+	if !errors.As(err, &api) || api.Message != netguard.UnsafeFormatMessage {
+		t.Fatalf("fetch: err = %v, muốn %q", err, netguard.UnsafeFormatMessage)
+	}
+	// Thông tin dựng tay cũng không lách được.
+	info := LinkInfo{Title: "clip", Duration: mediaNumber(120), Formats: []LinkFormat{{URL: "rtmp://127.0.0.1:1935/v", Protocol: "rtmp"}}}
+	if _, _, err = s.FetchLinkMedia(context.Background(), FetchLinkMediaOptions{URL: "https://www.bilibili.com/video/BV1fspq6cEty", From: "0:00", To: "0:05", Info: &info}, nil); !errors.As(err, &api) || api.Message != netguard.UnsafeFormatMessage {
+		t.Fatalf("info dựng tay: err = %v", err)
+	}
+	for _, args := range runner.calls {
+		joined := strings.Join(args, " ")
+		if strings.Contains(joined, "-f ") || strings.Contains(joined, "--download-sections") {
+			t.Fatalf("đã chạy lời gọi tải dù chỉ có rtmp: %s", joined)
+		}
+	}
+}
+
+// TestMediaLinkHostedYtDlpArgsCarryProtocolFilter: lời gọi tải của editor phải
+// mang bộ lọc protocol ở chế độ hosted, và không mang gì ở desktop.
+func TestMediaLinkHostedYtDlpArgsCarryProtocolFilter(t *testing.T) {
+	t.Cleanup(netguard.Close)
+	s := newMediaTestService(t)
+	s.YTDLP = "/managed/yt-dlp"
+	runner := &recordingRunner{run: func([]string) (tools.Result, error) { return tools.Result{}, nil }}
+	s.Runner = runner
+	call := []string{"-f", "bv*+ba/b", "-S", "res:1080", "https://www.bilibili.com/video/BV1fspq6cEty"}
+
+	if _, err := netguard.Install(netguard.Options{}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.runMediaYTDLP(context.Background(), append([]string(nil), call...), time.Minute); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(runner.calls[len(runner.calls)-1], " "), "protocol") {
+		t.Fatalf("desktop không được lọc protocol: %v", runner.calls[len(runner.calls)-1])
+	}
+
+	guard, err := netguard.Install(netguard.Options{Hosted: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.runMediaYTDLP(context.Background(), append([]string(nil), call...), time.Minute); err != nil {
+		t.Fatal(err)
+	}
+	hosted := runner.calls[len(runner.calls)-1]
+	joined := strings.Join(hosted, " ")
+	if !strings.Contains(joined, netguard.YtDlpFormatFilter) {
+		t.Fatalf("hosted thiếu bộ lọc protocol: %s", joined)
+	}
+	if !strings.Contains(joined, "--proxy "+guard.ProxyURL()) {
+		t.Fatalf("hosted thiếu --proxy: %s", joined)
+	}
+	if !strings.Contains(joined, "bv*"+netguard.YtDlpFormatFilter+"+ba"+netguard.YtDlpFormatFilter) {
+		t.Fatalf("bộ lọc phải gắn vào từng nhánh format: %s", joined)
+	}
+}

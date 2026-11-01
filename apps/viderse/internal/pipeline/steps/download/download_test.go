@@ -327,6 +327,11 @@ func TestMapDownloadError(t *testing.T) {
 	if strings.Contains(blocked.Message, "127.0.0.1") {
 		t.Fatalf("thông báo lộ địa chỉ nội bộ: %q", blocked.Message)
 	}
+	// Bộ lọc protocol của cổng ra loại hết format (chỉ còn rtmp…).
+	unsafe := MapDownloadError(&tools.YtDlpError{Message: "Requested format is not available", Code: tools.YtDlpFailed}, 0)
+	if unsafe.Code != domain.CloneErrInvalidRequest || unsafe.Message != netguard.UnsafeFormatMessage || unsafe.RetryAt != nil {
+		t.Fatalf("%+v", unsafe)
+	}
 }
 
 func TestIsPostprocessFailure(t *testing.T) {

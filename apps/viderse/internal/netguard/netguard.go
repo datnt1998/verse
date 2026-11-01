@@ -321,6 +321,128 @@ func (g *Guard) YtDlpArgs() []string {
 	return []string{"--proxy", g.proxyURL}
 }
 
+// YtDlpFormatFilter là bộ lọc format của yt-dlp chỉ giữ lại những protocol đi
+// qua được proxy HTTP: http, https, m3u8, m3u8_native, http_dash_segments và
+// http_dash_segments_generator. rtmp/rtmpe/rtsp/mms/f4m/ism/websocket_frag…
+// nối trực tiếp, không qua proxy, nên không được chọn khi máy chủ chia sẻ.
+//
+// Đây là bộ lọc của chính yt-dlp (mỗi format luôn có trường "protocol" sau
+// bước sắp xếp), nên nó áp cho cả lựa chọn format lẫn các format được ghép.
+const YtDlpFormatFilter = `[protocol~="^(https?|m3u8(_native)?|http_dash_segments(_generator)?)$"]`
+
+// AllowedYtDlpProtocol báo một protocol của yt-dlp có đi qua proxy HTTP của
+// cổng ra hay không. Danh sách này phải khớp đúng YtDlpFormatFilter.
+func AllowedYtDlpProtocol(protocol string) bool {
+	switch protocol {
+	case "http", "https", "m3u8", "m3u8_native", "http_dash_segments", "http_dash_segments_generator":
+		return true
+	}
+	return false
+}
+
+// UnsafeFormatMessage là câu trả cho thành viên khi video chỉ có định dạng
+// không đi qua được cổng ra (rtmp hoặc tương tự).
+const UnsafeFormatMessage = "Định dạng của video này không tải an toàn được (rtmp hoặc tương tự) — chọn video khác"
+
+// ytDlpDefaultFormat là format mặc định của yt-dlp khi có ffmpeg để ghép; dùng
+// khi lời gọi tải không tự đặt -f thì vẫn phải có bộ lọc protocol.
+const ytDlpDefaultFormat = "bv*+ba/b"
+
+// ytDlpProbeArgs là các cờ chỉ lấy thông tin, không tải: lời gọi như vậy không
+// cần (và không nên) bị gắn thêm -f.
+var ytDlpProbeArgs = []string{
+	"--skip-download", "-s", "--simulate", "-J", "--dump-json",
+	"--dump-single-json", "--list-formats", "-F", "--print-json",
+	"--version", "--update", "--update-to",
+}
+
+// HardenYtDlpArgs gắn bộ lọc protocol vào mọi lựa chọn format của lời gọi
+// yt-dlp do thành viên gián tiếp điều khiển, để yt-dlp không bao giờ chọn một
+// format nối trực tiếp (rtmp…) thay vì đi qua proxy của cổng ra. Ở chế độ
+// desktop trả nguyên args.
+//
+// Lời gọi tải mà không tự đặt -f sẽ được thêm format mặc định đã lọc; lời gọi
+// chỉ lấy thông tin (-J, --skip-download…) thì để nguyên, vì chúng không tải
+// và bộ lọc rỗng sẽ làm hỏng cả những video vốn tải được.
+func (g *Guard) HardenYtDlpArgs(args []string) []string {
+	if !g.Hosted() {
+		return args
+	}
+	out := make([]string, 0, len(args)+2)
+	hardened := false
+	probe := false
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		switch {
+		case arg == "-f" || arg == "--format":
+			if i+1 < len(args) {
+				out = append(out, arg, hardenFormatSpec(args[i+1]))
+				i++
+				hardened = true
+				continue
+			}
+		case strings.HasPrefix(arg, "--format="):
+			out = append(out, "--format="+hardenFormatSpec(strings.TrimPrefix(arg, "--format=")))
+			hardened = true
+			continue
+		case isYtDlpProbeArg(arg):
+			probe = true
+		}
+		out = append(out, arg)
+	}
+	if hardened || probe {
+		return out
+	}
+	return append(out, "-f", hardenFormatSpec(ytDlpDefaultFormat))
+}
+
+func isYtDlpProbeArg(arg string) bool {
+	for _, probe := range ytDlpProbeArgs {
+		if arg == probe || strings.HasPrefix(arg, probe+"=") {
+			return true
+		}
+	}
+	return false
+}
+
+// hardenFormatSpec gắn bộ lọc vào từng lựa chọn ở mức ngoài cùng của một
+// format spec: "bv*+ba/b" → "bv*[lọc]+ba[lọc]/b[lọc]". Ba dấu phân cách ngoài
+// cùng đều tách được: "/" (lựa chọn thay thế), "+" và "," (ghép nhiều format).
+// Trong ngoặc và ngoặc vuông thì không tách — cả nhóm "(bv+ba)" nhận một bộ
+// lọc ở cuối, đủ vì nhóm chỉ chọn ra một format.
+func hardenFormatSpec(spec string) string {
+	if spec == "" {
+		return spec
+	}
+	var out strings.Builder
+	depth, start := 0, 0
+	for i := 0; i < len(spec); i++ {
+		switch spec[i] {
+		case '(', '[':
+			depth++
+		case ')', ']':
+			if depth > 0 {
+				depth--
+			}
+		case '/', '+', ',':
+			if depth == 0 {
+				out.WriteString(hardenFormatChoice(spec[start:i]))
+				out.WriteByte(spec[i])
+				start = i + 1
+			}
+		}
+	}
+	out.WriteString(hardenFormatChoice(spec[start:]))
+	return out.String()
+}
+
+func hardenFormatChoice(choice string) string {
+	if choice == "" || strings.Contains(choice, "protocol") {
+		return choice
+	}
+	return choice + YtDlpFormatFilter
+}
+
 // FFmpegProxyArgs là cờ proxy cho ffmpeg khi đầu vào có URL của thành viên.
 // ffmpeg chỉ đọc biến môi trường http_proxy (chữ thường) cho cả http lẫn
 // https, nên cờ này là đường chắc chắn; Env() giữ phần còn lại.

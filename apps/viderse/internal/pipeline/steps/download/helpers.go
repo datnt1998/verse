@@ -465,6 +465,10 @@ func MapDownloadError(err *tools.YtDlpError, now int64) *domain.CloneError {
 	if netguard.IsBlockedOutput(err.Message + "\n" + err.StderrTail) {
 		return stepError(domain.CloneErrInvalidRequest, netguard.BlockedMessage, "Chỉ tải được từ địa chỉ công khai trên Internet.")
 	}
+	// Bộ lọc protocol của cổng ra loại hết format: video chỉ có rtmp/websocket.
+	if strings.Contains(err.Message, "Requested format is not available") {
+		return stepError(domain.CloneErrInvalidRequest, netguard.UnsafeFormatMessage, "Chọn video có định dạng tải được qua http(s).")
+	}
 	message := "yt-dlp: " + err.Message
 	switch err.Code {
 	case tools.YtDlpLoginRequired:

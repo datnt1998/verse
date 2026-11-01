@@ -547,6 +547,9 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 		argv = append(argv, proxy...)
 	}
 	argv = append(argv, args...)
+	// Không bao giờ để yt-dlp chọn format nối trực tiếp (rtmp…) — chỉ những
+	// protocol đi qua proxy của cổng ra mới được chọn.
+	argv = guard.HardenYtDlpArgs(argv)
 
 	logLimit := opts.LogLimit
 	if logLimit <= 0 {

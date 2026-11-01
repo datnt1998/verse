@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -221,5 +222,100 @@ func TestGuardRedactsProxyCredential(t *testing.T) {
 	}
 	if netguard.Active().Redact("không có proxy") != "không có proxy" {
 		t.Fatal("chuỗi không có proxy phải giữ nguyên")
+	}
+}
+
+func TestAllowedYtDlpProtocolMatchesFilter(t *testing.T) {
+	// Danh sách cho phép và bộ lọc format phải nói cùng một chuyện: protocol
+	// nối trực tiếp (rtmp, rtsp, mms, f4m, ism, websocket_frag…) không được
+	// lọt vào lựa chọn format của yt-dlp.
+	allowed := []string{"http", "https", "m3u8", "m3u8_native", "http_dash_segments", "http_dash_segments_generator"}
+	filter := netguard.YtDlpFormatFilter
+	pattern := regexp.MustCompile(strings.TrimSuffix(strings.TrimPrefix(strings.SplitN(filter, `"`, 3)[1], `"`), `"`))
+	for _, protocol := range allowed {
+		if !netguard.AllowedYtDlpProtocol(protocol) {
+			t.Fatalf("%s phải được phép", protocol)
+		}
+		if !pattern.MatchString(protocol) {
+			t.Fatalf("bộ lọc không khớp %s: %s", protocol, filter)
+		}
+	}
+	for _, protocol := range []string{"rtmp", "rtmpe", "rtmp_ffmpeg", "rtsp", "mms", "f4m", "ism", "mhtml", "websocket_frag", "niconico_live", "fc2_live", "youtube_live_chat", "bunnycdn", "soopvod", ""} {
+		if netguard.AllowedYtDlpProtocol(protocol) {
+			t.Fatalf("%q không được phép", protocol)
+		}
+		if protocol != "" && pattern.MatchString(protocol) {
+			t.Fatalf("bộ lọc khớp cả %q — sẽ lọt protocol nối trực tiếp: %s", protocol, filter)
+		}
+	}
+}
+
+func TestHardenYtDlpArgsAddsProtocolFilter(t *testing.T) {
+	t.Cleanup(netguard.Close)
+	desktop, err := netguard.Install(netguard.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	args := []string{"-f", "bv*+ba/b", "https://cdn.example/v"}
+	if got := desktop.HardenYtDlpArgs(args); strings.Join(got, " ") != strings.Join(args, " ") {
+		t.Fatalf("desktop phải giữ nguyên args: %v", got)
+	}
+
+	guard, err := netguard.Install(netguard.Options{Hosted: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	filter := netguard.YtDlpFormatFilter
+	cases := []struct {
+		name string
+		in   []string
+		want []string
+	}{
+		{
+			name: "selector nhiều lựa chọn",
+			in:   []string{"-f", "bv*+ba/b", "-S", "res:720", "https://cdn.example/v"},
+			want: []string{"-f", "bv*" + filter + "+ba" + filter + "/b" + filter, "-S", "res:720", "https://cdn.example/v"},
+		},
+		{
+			name: "nhóm ngoặc",
+			in:   []string{"--format", "(bv+ba)/b"},
+			want: []string{"--format", "(bv+ba)" + filter + "/b" + filter},
+		},
+		{
+			name: "dạng --format=",
+			in:   []string{"--format=bv*"},
+			want: []string{"--format=bv*" + filter},
+		},
+		{
+			name: "đã có bộ lọc protocol thì giữ nguyên",
+			in:   []string{"-f", "bv*[protocol=https]"},
+			want: []string{"-f", "bv*[protocol=https]"},
+		},
+		{
+			name: "lời gọi tải không có -f thì thêm format mặc định đã lọc",
+			in:   []string{"--no-playlist", "https://cdn.example/v"},
+			want: []string{"--no-playlist", "https://cdn.example/v", "-f", "bv*" + filter + "+ba" + filter + "/b" + filter},
+		},
+		{
+			name: "lời gọi chỉ lấy thông tin thì không thêm -f",
+			in:   []string{"-J", "--skip-download", "--no-playlist", "https://cdn.example/v"},
+			want: []string{"-J", "--skip-download", "--no-playlist", "https://cdn.example/v"},
+		},
+		{
+			name: "lời gọi phiên bản/cập nhật không thêm -f",
+			in:   []string{"--version"},
+			want: []string{"--version"},
+		},
+	}
+	for _, tc := range cases {
+		got := guard.HardenYtDlpArgs(append([]string(nil), tc.in...))
+		if strings.Join(got, "\x00") != strings.Join(tc.want, "\x00") {
+			t.Fatalf("%s: %v, muốn %v", tc.name, got, tc.want)
+		}
+	}
+	// Lời gọi tải có --download-sections vẫn phải mang bộ lọc.
+	withSections := guard.HardenYtDlpArgs([]string{"-f", "bv*+ba/b", "--download-sections", "*10-40"})
+	if !strings.Contains(withSections[1], filter) {
+		t.Fatalf("--download-sections: %v", withSections)
 	}
 }
