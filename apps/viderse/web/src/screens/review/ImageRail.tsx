@@ -3,7 +3,7 @@
 // giữ nguyên ngôn ngữ gốc; mọi nhãn quanh nó là tiếng Việt.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Dropzone, Icon, Segmented } from '@noverse/ui'
+import { Button, Dropzone, Icon, Segmented, usePopup } from '@noverse/ui'
 import type { AiProvider } from '../../api/ai'
 import type { ImageQuota, ImageRef, PromptPartKind } from '../../api/images'
 import { DevelopEffect } from '../../components'
@@ -38,7 +38,8 @@ export interface ImageRailProps {
 export function ImageRail({
   item, quota, providers, mode, onMode, selected, onSelectVersion, onUseVersion, edit, online, candidates, onUpload, uploading, score,
 }: ImageRailProps) {
-  const [refsOpen, setRefsOpen] = useState(false)
+  const refPopup = usePopup()
+  const { open: refsOpen, setOpen: setRefsOpen } = refPopup
   const [tab, setTab] = useState<'images' | 'frames' | 'upload'>('images')
   const [role, setRole] = useState<ImageRef['role']>('character')
   const [picked, setPicked] = useState<string | null>(null)
@@ -48,6 +49,7 @@ export function ImageRail({
   const uploadInput = useRef<HTMLInputElement>(null)
   useEffect(() => () => window.clearTimeout(copyTimer.current), [])
   useEffect(() => { setRefsOpen(false); setPicked(null); setCopied(false); setDiffHidden(false) }, [item.id])
+  useEffect(() => { if (refsOpen) refPopup.root.current?.querySelector<HTMLButtonElement>('[role="dialog"] button:not(:disabled)')?.focus() }, [refsOpen, refPopup.root])
 
   const version = item.versions.find((candidate) => candidate.n === selected) ?? item.versions.at(-1)
   const drawingVersion = item.versions.find((candidate) => candidate.state === 'drawing')
@@ -140,7 +142,7 @@ export function ImageRail({
         )}
       </section>
 
-      <section {...stylex.props(sx.section)}>
+      <section ref={refPopup.root} {...stylex.props(sx.section)}>
         <div {...stylex.props(sx.sectionHead)}>
           <span {...stylex.props(sx.sectionTitle)}>Ảnh tham chiếu · {refs.length}/{item.refLimit}</span>
           <Button size="sm" type="button"
@@ -176,10 +178,10 @@ export function ImageRail({
               <b {...stylex.props(sx.popTitle)}>Thêm ảnh tham chiếu</b>
               <Button variant="icon" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
             </div>
-            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} fit="equal" options={[{ id: 'images', label: 'Ảnh trong video' }, { id: 'frames', label: 'Khung video gốc' }, { id: 'upload', label: 'Tải lên' }]} />
+            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} fit="content" options={[{ id: 'images', label: 'Ảnh trong video' }, { id: 'frames', label: 'Khung video gốc' }, { id: 'upload', label: 'Tải lên' }]} />
             {tab === 'upload' ? (
               <>
-                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (files[0]) onUpload(files[0]) }} />
+                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (files[0]) onUpload(files[0]) }} />
                 <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={event => { const file = event.target.files?.[0]; if (file) onUpload(file); event.target.value = '' }} />
               </>
             ) : (

@@ -319,6 +319,7 @@ function DesktopReviewScreen() {
                 !blockedNow && shownImage && !imageFailed && <img alt={cmp && previousVersion ? `${item.label} bản ${previousVersion.n}` : item.label} src={shownImage} onError={() => setImageFailed(true)} {...stylex.props(sx.stageImage, view === 'cutout' && sx.heroCutout)} />
               )}
               {blockedNow && legacy && neighbour && <img alt="" src={imageURL(job.id, neighbour, view)} {...stylex.props(sx.stageImage, sx.dimmed)} />}
+              {blockedNow && <div role="status" {...stylex.props(sx.blockedCard)}><strong {...stylex.props(sx.blockedTitle)}>Bị chặn{neighbour ? ` · dùng ảnh ${label(neighbour, legacyItems.indexOf(neighbour)).toLocaleLowerCase('vi')}` : ''}</strong><span {...stylex.props(sx.blockedText)}>Bộ lọc nội dung đã chặn ảnh này. Video dùng ảnh cảnh bên cạnh để tiếp tục.</span></div>}
               {imageFailed && !isDrawing && <div role="status" {...stylex.props(sx.empty)}>{view === 'cutout' ? 'Chưa có bản tách nền cho ảnh này.' : 'Chưa tải được ảnh.'}</div>}
               <span {...stylex.props(sx.badge)}>
                 <span {...stylex.props(sx.badgeKey)}>{item.index}</span>{item.label}

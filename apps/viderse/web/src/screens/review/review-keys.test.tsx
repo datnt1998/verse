@@ -39,4 +39,22 @@ describe('phím tắt duyệt', () => {
     act(() => { document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
     expect(calls.escape).toHaveBeenCalledTimes(2)
   })
+  it('does not approve, redraw or submit behind an active popup', () => {
+    const calls = mount()
+    const dialog = document.createElement('div')
+    dialog.setAttribute('role', 'dialog')
+    const control = document.createElement('button')
+    dialog.append(control)
+    document.body.append(dialog)
+    act(() => {
+      for (const event of [
+        new KeyboardEvent('keydown', { key: 'a', bubbles: true }),
+        new KeyboardEvent('keydown', { key: 'r', bubbles: true }),
+        new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+        new KeyboardEvent('keydown', { key: 'Enter', metaKey: true, bubbles: true }),
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+      ]) control.dispatchEvent(event)
+    })
+    for (const handler of Object.values(calls)) expect(handler).not.toHaveBeenCalled()
+  })
 })

@@ -1,13 +1,11 @@
-// Duyệt ảnh — nhịp theo artboard Review (E1). Cột phải 360px, 440px khi sửa
-// prompt, từ 1600px là 420 / 520; khung ảnh 16:9 giữ container query để không
-// bao giờ phóng quá bề rộng gốc của ảnh (`--nat-w`).
+// Duyệt ảnh — cột phải 360px, 440px khi sửa prompt, từ 1600px là 420 / 520.
+// Container query và maxWidth động giữ khung ảnh không phóng quá bề rộng gốc.
 import * as stylex from '@stylexjs/stylex'
 import { color, kit, line } from '@noverse/ui/tokens.stylex'
 import { corners, space } from '../../styles/viderse.stylex'
 
 const WIDE = '@media (min-width: 1600px)'
 const NARROW = '@media (max-width: 1100px)'
-const MOBILE = '@media (max-width: 767px)'
 
 export const sx = stylex.create({
   root: { display: 'flex', flex: '1 1 auto', minHeight: 0, minWidth: 0, flexWrap: { default: 'nowrap', [NARROW]: 'wrap' } },
@@ -23,11 +21,10 @@ export const sx = stylex.create({
   main: { flex: '1 1 560px', minWidth: 0, minHeight: 0, overflow: 'hidden', paddingBlock: space['--vv-s-12'], paddingInline: space['--vv-s-18'], display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'], order: { default: 0, [NARROW]: -1 } },
   heading: { display: 'flex', alignItems: 'center', gap: space['--vv-s-10'], flexWrap: 'wrap' },
   title: { flex: '1 1 160px', minWidth: 0, margin: 0, fontSize: 17, fontWeight: 600, letterSpacing: '-.015em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  chip: { display: 'inline-flex', alignItems: 'center', gap: space['--vv-s-6'], height: 26, paddingInline: space['--vv-s-9'], borderRadius: corners['--vv-r-7'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: color['--color-surface-1'], fontSize: 12, whiteSpace: 'nowrap' },
   link: { color: color['--color-fg-2'], textDecorationLine: 'underline', textUnderlineOffset: 3 },
   emptyLink: { marginTop: space['--vv-s-4'] },
 
-  // Khung ảnh: container-type: size + --nat-w (bề rộng gốc) → không phóng to.
+  // Khung ảnh vừa container và bị giới hạn bởi bề rộng gốc.
   stageWrap: { flex: '1 1 auto', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', containerType: 'size' },
   stageBox: { position: 'relative', width: 'min(100cqw, calc(100cqh * 16 / 9))', aspectRatio: '16 / 9', borderRadius: corners['--vv-r-14'], overflow: 'hidden', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: color['--color-surface-0'], transition: 'border-color .3s' },
   stageSize: (width: string) => ({ maxWidth: width }),
@@ -54,8 +51,6 @@ export const sx = stylex.create({
   failedTitle: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], fontSize: 14, fontWeight: 600, color: 'var(--vv-warn-ink)' },
   failedText: { fontSize: 12.5, color: color['--color-fg-2'], lineHeight: 1.55 },
   failedActions: { display: 'flex', gap: space['--vv-s-8'], flexWrap: 'wrap' },
-  smButton: { height: 30, paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-8'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: 'inherit', fontSize: 12.5, cursor: 'pointer', whiteSpace: 'nowrap' },
-  smPrimary: { backgroundColor: color['--color-fg'], color: color['--color-bg'], borderColor: 'transparent', fontWeight: 600 },
 
   // Dải ảnh: 7 cột, ô 16:9, nhãn số, MỚI, tích chọn, hiệu ứng đang vẽ.
   strip: { display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: space['--vv-s-8'], flex: '0 0 auto' },
@@ -79,11 +74,9 @@ export const sx = stylex.create({
   barTitle: { fontSize: 13.5, fontWeight: 500 },
   barSub: { fontSize: 12, color: 'var(--vv-fg-note)' },
   countChip: { height: 26, paddingInline: space['--vv-s-9'], display: 'flex', alignItems: 'center', borderRadius: corners['--vv-r-7'], backgroundColor: 'var(--vv-wash-8)', fontSize: 12.5, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' },
-  kbd: { marginInlineStart: space['--vv-s-7'], fontFamily: 'monospace', fontSize: 11, color: 'inherit', paddingBlock: space['--vv-s-1'], paddingInline: space['--vv-s-5'], borderRadius: corners['--vv-r-4'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: 'var(--vv-wash-8)' },
 
   hints: { display: 'flex', flexWrap: 'wrap', gap: '4px 14px', paddingInline: space['--vv-s-6'], fontSize: 12, lineHeight: 1.55, color: 'var(--vv-fg-note)' },
   keyHint: { display: 'flex', alignItems: 'center', gap: space['--vv-s-6'] },
-  key: { fontFamily: 'monospace', fontSize: 11, color: color['--color-fg-3'], paddingBlock: space['--vv-s-1'], paddingInline: space['--vv-s-5'], borderRadius: corners['--vv-r-4'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: color['--color-surface-1'] },
   hintSpacer: { flex: 1 },
 
   // Cột phải: phiên bản · ảnh tham chiếu · prompt đã gửi · meta · lời kể.
@@ -96,8 +89,6 @@ export const sx = stylex.create({
   section: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-8'], position: 'relative' },
   sectionHead: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   sectionTitle: { flex: 1, fontSize: 11, fontWeight: 600, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--vv-fg-note)' },
-  ghostButton: { height: 28, paddingInline: space['--vv-s-8'], display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], borderRadius: corners['--vv-r-7'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' },
-  iconButton: { width: 28, height: 28, borderRadius: corners['--vv-r-7'], borderWidth: 0, borderStyle: 'none', borderColor: 'transparent', backgroundColor: 'transparent', color: color['--color-fg-3'], display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
 
   versions: { display: 'flex', gap: space['--vv-s-6'], flexWrap: 'wrap' },
   ver: { position: 'relative', width: 64, aspectRatio: '16 / 9', borderRadius: corners['--vv-r-7'], overflow: 'hidden', padding: 0, borderWidth: 2, borderStyle: 'solid', borderColor: 'transparent', backgroundColor: color['--color-surface-1'], flex: '0 0 auto', cursor: 'pointer' },
@@ -119,21 +110,13 @@ export const sx = stylex.create({
   pop: { position: 'absolute', zIndex: 20, left: 0, right: 0, top: 34, padding: space['--vv-s-12'], borderRadius: corners['--vv-r-14'], backgroundColor: color['--color-surface-3'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'] },
   popHead: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   popTitle: { flex: 1, fontSize: 14, fontWeight: 600 },
-  tabs: { display: 'flex', gap: space['--vv-s-2'], padding: space['--vv-s-3'], borderRadius: corners['--vv-r-9'], backgroundColor: color['--color-surface-1'] },
-  // Nhãn tab một dòng như artboard: hộp hẹp 327px vẫn đủ ba tab, không xuống dòng.
-  tab: { flex: 1, height: 28, borderRadius: corners['--vv-r-7'], borderWidth: 0, borderStyle: 'none', borderColor: 'transparent', backgroundColor: 'transparent', color: color['--color-fg-3'], fontFamily: 'inherit', fontSize: 12.5, whiteSpace: 'nowrap', paddingInline: space['--vv-s-4'], cursor: 'pointer' },
-  tabOn: { backgroundColor: color['--color-surface-7'], color: color['--color-fg'] },
   candGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: space['--vv-s-6'] },
   cand: { position: 'relative', aspectRatio: '16 / 9', borderRadius: corners['--vv-r-8'], overflow: 'hidden', borderWidth: 2, borderStyle: 'solid', borderColor: 'transparent', padding: 0, backgroundColor: color['--color-surface-1'], cursor: 'pointer' },
   candOn: { borderColor: 'var(--vv-red-line)' },
   candImage: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   candTag: { position: 'absolute', left: space['--vv-s-4'], bottom: space['--vv-s-3'], fontSize: 10.5, paddingInline: space['--vv-s-4'], borderRadius: corners['--vv-r-4'], backgroundColor: 'var(--vv-glass)', color: color['--color-fg-2'] },
-  drop: { height: 120, borderRadius: corners['--vv-r-10'], borderWidth: 1.5, borderStyle: 'dashed', borderColor: line['--line-4'], display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: space['--vv-s-6'], fontSize: 12.5, color: color['--color-fg-3'], cursor: 'pointer' },
-  dropHint: { fontSize: 11.5, color: 'var(--vv-fg-note)' },
   roleRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], flexWrap: 'wrap' },
   roleLabel: { fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap' },
-  roleChip: { height: 26, paddingInline: space['--vv-s-9'], borderRadius: corners['--vv-r-7'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: 'transparent', color: 'var(--vv-fg-note)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer' },
-  roleChipOn: { backgroundColor: kit['--kit-wash-10'], color: color['--color-fg'], borderColor: line['--line-4'] },
   popFoot: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   popFootText: { flex: 1, fontSize: 12, color: 'var(--vv-fg-note)' },
 
@@ -148,10 +131,8 @@ export const sx = stylex.create({
   segTextarea: { width: '100%', minHeight: 62, resize: 'vertical', paddingBlock: space['--vv-s-8'], paddingInline: space['--vv-s-10'], borderRadius: corners['--vv-r-8'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: color['--color-surface-0'], color: color['--color-fg'], fontFamily: 'inherit', fontSize: 12.5, lineHeight: 1.55, outline: 'none' },
   segChanged: { borderColor: 'var(--vv-ok-20)' },
   segChangedLabel: { textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: color['--color-ok'] },
-  undoLink: { height: 22, paddingInline: space['--vv-s-4'], borderWidth: 0, borderStyle: 'none', borderColor: 'transparent', backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 11.5, textDecorationLine: 'underline', textUnderlineOffset: space['--vv-s-3'], cursor: 'pointer' },
   diffRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], fontSize: 12, color: 'var(--vv-fg-note)' },
   diffNote: { flex: 1, minWidth: 0 },
-  diffToggle: { height: 24, paddingInline: space['--vv-s-6'], borderWidth: 0, borderStyle: 'none', borderColor: 'transparent', backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 12, textDecorationLine: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: space['--vv-s-3'], cursor: 'pointer', whiteSpace: 'nowrap' },
   raw: { margin: 0, paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-0'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, lineHeight: 1.6, color: color['--color-fg-2'], whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
   metaRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], flexWrap: 'wrap', fontSize: 12, color: 'var(--vv-fg-note)' },
   metaText: { flex: '1 1 auto', fontVariantNumeric: 'tabular-nums' },
@@ -168,5 +149,4 @@ export const sx = stylex.create({
   dialogBody: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], padding: '0 var(--vv-s-18) var(--vv-s-4)' },
   dialogMeta: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-2'] },
   hiddenLabel: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' },
-  hiddenMobile: { [MOBILE]: { display: 'none' } },
 })

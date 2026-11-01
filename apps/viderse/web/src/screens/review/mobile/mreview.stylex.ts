@@ -35,7 +35,7 @@ export const ms = stylex.create({
   itemTitle: { fontSize: 15, fontWeight: 600, lineHeight: 1.35, color: 'var(--color-fg)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
   metaRow: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, fontSize: 12.5, color: 'var(--vv-fg-note)' },
   metaName: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 },
-  metaSep: { color: 'var(--color-fg-5)' },
+  metaSep: { color: 'var(--color-fg-4)' },
   metaStrong: { color: 'var(--color-fg-2)', fontWeight: 500 },
 
   stage: { position: 'relative', aspectRatio: '16 / 9', flex: '0 0 auto', overflow: 'hidden', borderRadius: 14, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-0)' },

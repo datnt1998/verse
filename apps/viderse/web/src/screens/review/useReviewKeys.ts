@@ -25,6 +25,7 @@ export function useReviewKeys(handlers: ReviewKeyHandlers, enabled = true) {
     if (!enabled) return
     const onKey = (event: KeyboardEvent) => {
       const target = event.target
+      if (target instanceof HTMLElement && target.closest('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')) return
       const typing = target instanceof HTMLElement && (target.isContentEditable || !!target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]'))
       // ⌘↵ và Esc phải chạy cả khi con trỏ đang trong ô sửa prompt.
       if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
