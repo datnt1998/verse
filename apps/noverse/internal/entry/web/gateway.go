@@ -36,6 +36,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/version"
 	"github.com/datnt1998/verse/platform/blobstore"
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/secheaders"
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
@@ -164,12 +165,21 @@ type Gateway struct {
 	pgAudioSvcs map[string]*audio.PGService
 	// proxy 是 trusted-proxy 边界（platform/webguard）；nil = 未配置，沿用 loopback 规则。
 	proxy *webguard.Config
+	// sec 是 bộ header bảo mật dùng chung (platform/secheaders): HSTS chỉ khi
+	// PUBLIC_URL là https.
+	sec secheaders.Policy
 	// health 是 /readyz 的依赖探针（health.go）；nil = 无外部依赖（file 模式）。
-	// blobProbedAt/blobOK 缓存 BlobStore 探测，避免每次探活都打网络。
+	// blobProbedAt/blobOK 缓存 BlobStore 探测，避免每次探活都打网络；
+	// readyMu/readyAt/readyBody/readyStatus 缓存整个探活结果（cooldown 2s），
+	// 让公网 /readyz 不能当成压库的杠杆。
 	healthMu     sync.Mutex
 	health       *HealthDeps
 	blobProbedAt time.Time
 	blobOK       bool
+	readyMu      sync.Mutex
+	readyAt      time.Time
+	readyBody    readinessBody
+	readyStatus  int
 }
 
 // workerTransport trả transport hiện hành cho outbound HTTP tới worker; đọc
@@ -638,11 +648,19 @@ func projectUpload(r *http.Request) bool {
 
 // SetProxyConfig installs the trusted-proxy boundary parsed at startup. A nil
 // config keeps the legacy loopback rule (CLI/offline unchanged).
-func (g *Gateway) SetProxyConfig(cfg *webguard.Config) { g.proxy = cfg }
+func (g *Gateway) SetProxyConfig(cfg *webguard.Config) {
+	g.proxy = cfg
+	g.sec = secheaders.FromProxy(cfg)
+}
 
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 归一化必须在所有安全判断之前（限流键、Secure cookie、CSRF origin）。
 	r = g.proxy.Normalize(r)
+	// Header bảo mật đứng trước mọi nhánh: health, 401, tệp tĩnh và lỗi API đều mang header.
+	g.sec.Apply(w)
+	if g.sec.Robots(w, r) {
+		return
+	}
 	// 健康探针先于静态路由：/healthz 绝不能落到 SPA 的 index.html。
 	switch r.URL.Path {
 	case "/healthz":

@@ -23,6 +23,7 @@ import (
 	"github.com/jackc/puddle/v2"
 
 	"github.com/datnt1998/verse/platform/identity"
+	"github.com/datnt1998/verse/platform/secheaders"
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
@@ -72,6 +73,7 @@ type Server struct {
 	accounts *identity.Store
 	opts     Options
 	proxy    *webguard.Config
+	sec      secheaders.Policy
 	limiter  identity.LoginLimiter
 
 	setup     *identity.SetupState
@@ -103,8 +105,17 @@ func New(accounts *identity.Store, opts Options) *Server {
 	return s
 }
 
-// SetProxyConfig cài ranh giới trusted-proxy đọc từ env lúc khởi động.
-func (s *Server) SetProxyConfig(cfg *webguard.Config) { s.proxy = cfg }
+// SetProxyConfig cài ranh giới trusted-proxy đọc từ env lúc khởi động. Header
+// bảo mật đi cùng: HSTS chỉ đúng khi PUBLIC_URL là https.
+func (s *Server) SetProxyConfig(cfg *webguard.Config) {
+	s.proxy = cfg
+	s.sec = secheaders.FromProxy(cfg)
+}
+
+// SecurityHeaders ghi bộ header bảo mật của deployment. ServeHTTP gọi trước
+// dispatch; app nào có đường dẫn bỏ qua ServeHTTP (render riêng của Viderse)
+// phải gọi lại, nếu không response đó mất nosniff/frame-ancestors.
+func (s *Server) SecurityHeaders(w http.ResponseWriter) { s.sec.Apply(w) }
 
 // SetupCodeOnce trả mã thiết lập plaintext cho caller in đúng một lần; sau đó
 // xoá khỏi bộ nhớ (chỉ còn hash).
@@ -145,6 +156,11 @@ func (s *Server) RequireSameOrigin(w http.ResponseWriter, r *http.Request) bool 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Chuẩn hoá trusted-proxy phải đi trước mọi phán đoán bảo mật (khoá giới hạn, Secure cookie, origin CSRF).
 	r = s.proxy.Normalize(r)
+	// Header bảo mật đứng trước dispatch: health, 401, tệp tĩnh và lỗi API đều mang header.
+	s.sec.Apply(w)
+	if s.sec.Robots(w, r) {
+		return
+	}
 	switch r.URL.Path {
 	case "/healthz":
 		WriteJSON(w, http.StatusOK, map[string]any{"ok": true})

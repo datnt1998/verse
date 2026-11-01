@@ -21,6 +21,9 @@ import (
 // never falls through to ordinary editor/account APIs and never creates a user.
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if g.scopedRender != nil && (strings.HasPrefix(r.URL.Path, "/api/render/") || strings.HasPrefix(r.URL.Path, "/api/measure/")) {
+		// Nhánh này bỏ qua webapp.Server.ServeHTTP nên phải tự ghi header bảo
+		// mật; renderHTTP đặt sau đó (no-referrer) vẫn thắng vì Apply không ghi đè.
+		g.SecurityHeaders(w)
 		if !g.RequireSameOrigin(w, r) {
 			return
 		}
