@@ -122,7 +122,7 @@ export function SetupScreen() {
   return (
     <AuthShell footer={mobile ? undefined : 'setup'} offline={networkError}>
       <div {...stylex.props(sx.intro)}>
-        <LensLogo size={mobile ? 48 : 56} halo />
+        <LensLogo size={mobile ? 48 : 56} halo spinning />
         <h1 {...stylex.props(sx.title)}>{t.setup.title}</h1>
         <p {...stylex.props(sx.body)}>{mobile ? t.setup.bodyMobile : t.setup.body}</p>
       </div>

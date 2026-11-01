@@ -94,7 +94,8 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
     <main className={`nv ${stylex.props(styles.root, state === 'empty' && styles.emptyRoot).className}`} data-input={state}>
       <div className={`nv-hero ${stylex.props(styles.hero).className}`}>
         <div className={`nv-orbs ${stylex.props(styles.orbs).className}`} aria-hidden="true">
-          <Orb of="scout" size={mobile ? 18 : 34} /><Orb of="director" size={mobile ? 18 : 34} /><span className={`nv-lens ${stylex.props(styles.lens).className}`}><LensLogo size={76} /></span><Orb of="artist" size={mobile ? 18 : 34} /><Orb of="qa" size={mobile ? 18 : 34} />
+          {/* Artboard NewVideo: ống kính xoay 9s, 4 orb trôi lên xuống 4px lệch nhịp 1,5s (MNew đứng yên). */}
+          <Orb of="scout" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float0).className} /><Orb of="director" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float1).className} /><span className={`nv-lens ${stylex.props(styles.lens).className}`}><LensLogo size={76} spinning /></span><Orb of="artist" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float2).className} /><Orb of="qa" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float3).className} />
         </div>
         <h1 {...stylex.props(styles.heading)}>{tt.hero}</h1><p {...stylex.props(styles.lede)}>{tt.heroSub}</p>
       </div>
@@ -145,6 +146,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
 }
 
 const MOBILE = '@media (max-width: 767px)'
+const orbFloat = stylex.keyframes({ '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } })
 const styles = stylex.create({
   liquidCard: { backgroundColor: "var(--card-bg)", borderWidth: "1px", borderStyle: "solid", borderColor: "var(--line-2)", boxShadow: 'var(--card-shadow)' },
   root: { flex: 1, overflowY: 'auto', width: '100%', maxWidth: 820, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: { default: `${s['--vv-s-32']} ${s['--vv-s-20']} ${s['--vv-s-28']}`, [MOBILE]: `${s['--vv-s-4']} ${s['--vv-s-16']} ${s['--vv-s-16']}` }, gap: { default: s['--vv-s-22'], [MOBILE]: s['--vv-s-16'] }, minHeight: { default: null, [MOBILE]: 0 }, marginBottom: { default: null, [MOBILE]: pipeline.newFooterClearance }, lineHeight: { default: null, [MOBILE]: 1.5 } },
@@ -152,6 +154,11 @@ const styles = stylex.create({
   hero: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { default: s['--vv-s-12'], [MOBILE]: s['--vv-s-10'] }, textAlign: 'center', paddingTop: { default: null, [MOBILE]: s['--vv-s-4'] } },
   orbs: { display: 'flex', alignItems: 'center', gap: { default: s['--vv-s-10'], [MOBILE]: s['--vv-s-6'] }, padding: { default: null, [MOBILE]: 0 } },
   lens: { display: { default: 'flex', [MOBILE]: 'none' }, margin: `0 ${s['--vv-s-6']}` },
+  float: { animationName: { default: orbFloat, [MOBILE]: 'none' }, animationDuration: '6s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
+  float0: { animationDelay: '0s' },
+  float1: { animationDelay: '-1.5s' },
+  float2: { animationDelay: '-3s' },
+  float3: { animationDelay: '-4.5s' },
   heading: { margin: 0, fontSize: { default: 30, [MOBILE]: 22 }, fontWeight: 600, letterSpacing: '-.02em', lineHeight: { default: 1.2, [MOBILE]: 1.5 } },
   lede: { margin: 0, maxWidth: 640, color: color['--color-fg-3'], fontSize: 14, textWrap: 'pretty', display: { default: null, [MOBILE]: 'none' } },
   modes: { alignSelf: 'center', display: 'flex', gap: s['--vv-s-2'], padding: s['--vv-s-3'], borderRadius: { default: radius['--radius-row'], [MOBILE]: radius['--radius-tile'] }, backgroundColor: color['--color-surface-1'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-1'], width: { default: null, [MOBILE]: '100%' }, margin: { default: null, [MOBILE]: 0 } },

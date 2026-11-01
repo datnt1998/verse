@@ -54,7 +54,7 @@ export function LoginScreen() {
   const button = stylex.props(sx.submit)
   return <AuthShell footer="login" offline={networkError}>
     <div {...stylex.props(sx.intro)}>
-      <LensLogo size={mobile ? 56 : 64} halo />
+      <LensLogo size={mobile ? 56 : 64} halo spinning />
       <h1 {...stylex.props(sx.title)}>{t.auth.loginTitle}</h1>
       <p {...stylex.props(sx.body)}>{t.auth.loginSub}</p>
     </div>

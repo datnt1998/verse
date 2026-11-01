@@ -229,7 +229,7 @@ export default function SetupScreen() {
       <main className={`vv-setup__main ${stylex.props(setupStyles.main).className}`}>
         <div className={`vv-setup__col ${stylex.props(setupStyles.col).className}`}>
           <div className={`vv-setup__hero ${stylex.props(setupStyles.hero).className}`}>
-            <LensLogo size={64} hero />
+            <LensLogo size={64} hero spinning />
             <div className={`vv-setup__hero-text ${stylex.props(setupStyles.heroText).className}`}>
               <h1 {...stylex.props(setupStyles.heroTitle)}>{t.prep.hero.title}</h1>
               <p {...stylex.props(setupStyles.heroBody)}>{sizeLine}</p>
