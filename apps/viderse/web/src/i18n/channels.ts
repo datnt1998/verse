@@ -324,6 +324,7 @@ export const channelsCopy = {
     retry: 'Thử lại',
     retryAt: (time: string) => `Tự thử lại lúc ${time}`,
     regenerateFail: 'Chưa bắt đầu được lần vẽ lại.',
+    retryNameFail: 'Chưa chạy lại được Đạo diễn.',
   },
 
   settings: {
@@ -423,17 +424,32 @@ export const channelsCopy = {
 
   done: {
     title: 'Kênh đã sẵn sàng',
+    /* Đạo diễn lỗi (r38): kênh vẫn tạo được với tên tạm, bước Xong không bị chặn. */
+    titleTemp: 'Đã tạo kênh',
+    tempNote: '· tên tạm, đặt lại ở Hồ sơ kênh',
+    subTail: (args: { rivals: number; language: string; pace: number }) =>
+      `· ${args.rivals} đối thủ · ${args.language} · nhịp ${args.pace} video/ngày`,
     sub: (args: { name: string; rival: string; rivals: number; language: string; pace: number }) =>
       `${args.name} · Đạo diễn đặt theo ${args.rival} (tham chiếu), đổi được ở Hồ sơ kênh · ${args.rivals} đối thủ · ${args.language} · nhịp ${args.pace} video/ngày`,
+    /* Điện thoại (artboard MCreate): dòng tên + số liệu, ghi chú tên tạm nằm riêng bên dưới. */
+    subM: (args: { name: string; rivals: number; language: string; pace: number }) =>
+      `${args.name} · ${args.rivals} đối thủ · ${args.language} · Nhịp ${args.pace}/ngày`,
+    noteM: (rival: string) => `Tên do Đạo diễn đặt theo ${rival} (tham chiếu), đổi được ở Hồ sơ kênh.`,
+    noteTempM: '“Kênh mới” là tên tạm — Đạo diễn chưa đặt được tên. Đặt lại ở Hồ sơ kênh bất cứ lúc nào.',
     noName: 'Kênh mới',
     background: 'Đang chạy nền',
     backgroundSub: 'Bạn không cần đợi; xong sẽ có thông báo.',
+    backgroundSubM: 'không cần đợi',
+    needsYou: 'Một việc cần bạn',
+    needsYouSub: 'Phần còn lại đã xong hoặc đang chờ.',
     director: 'Đạo diễn',
     directorWhat: 'đặt tên và viết mô tả kênh',
     directorFailed: (reason: string) => `chưa đặt được tên và mô tả kênh: ${reason}`,
     artist: 'Hoạ sĩ',
     artistWhat: 'vẽ avatar 800×800 và ảnh bìa kênh 2560×1440',
+    artistWaitWhat: 'vẽ avatar và ảnh bìa · chờ Đạo diễn',
     artistFailed: (reason: string) => `chưa vẽ được avatar và ảnh bìa: ${reason}`,
+    wait: 'Chờ',
     waitDirector: 'chờ Đạo diễn',
     qa: 'Kiểm định',
     qaWhat: 'tạo Mẫu chuẩn cho kênh',
@@ -441,11 +457,20 @@ export const channelsCopy = {
     retryAt: (time: string) => `Tự thử lại ${time}`,
     progress: (percent: number) => `${percent}%`,
     footnote: 'Xem lại hoặc đổi tên, avatar, ảnh bìa kênh trong Kênh › Hồ sơ kênh. Kênh làm video được ngay, kể cả khi nhận diện chưa xong.',
+    footnoteTemp: 'Kênh làm video được ngay với tên tạm “Kênh mới”. Bấm Thử lại để Đạo diễn đặt tên, hoặc tự đặt tên và mô tả ở Kênh › Hồ sơ kênh — Hoạ sĩ vẽ avatar, ảnh bìa theo tên đó.',
+    /* Điện thoại dùng câu ngắn của artboard MCreate. */
+    footnoteM: 'Kênh làm video được ngay, kể cả khi nhận diện chưa xong. Xong sẽ có thông báo.',
+    footnoteTempM: 'Kênh làm video được ngay với tên tạm. Bấm Thử lại để Đạo diễn đặt tên, hoặc tự đặt ở Hồ sơ kênh — Hoạ sĩ vẽ avatar, ảnh bìa theo tên đó.',
+    nextHintM: 'Lên đầu hàng chờ · bắt đầu khi có luồng trống',
+    nextHint: 'lên đầu hàng chờ, bắt đầu khi có luồng trống',
+    makeLatestM: 'Làm video mới nhất của đối thủ',
+    nameInProfile: 'Đặt tên ở Hồ sơ kênh',
     next: 'Việc tiếp theo',
     latestEmpty: 'Chưa đọc được video mới nhất của đối thủ tham chiếu.',
     makeLatest: (rival: string) => `Làm video mới nhất của ${rival}`,
     openChannel: 'Mở kênh',
     explore: 'Khám phá video nổi trội',
+    exploreShort: 'Khám phá',
     bruteForce: 'Kênh đã tạo; mở Hồ sơ kênh để xem nhận diện.',
   },
 
