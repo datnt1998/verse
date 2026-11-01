@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useRef, useState, type AnchorHTMLAttributes, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from './tokens.stylex'
@@ -34,7 +34,7 @@ const sx = stylex.create({
   context: { display: 'flex', alignItems: 'center', gap: 10 },
 })
 
-export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; disabled?: boolean; /** khoá nhưng vẫn focus được (aria-disabled): lý do thay dòng phụ và là aria-describedby; bấm không làm gì */ lockedReason?: string; selected?: boolean; children?: ActionMenuItem[]; onSelect?: () => void }
+export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; disabled?: boolean; /** khoá nhưng vẫn focus được (aria-disabled): lý do thay dòng phụ và là aria-describedby; bấm không làm gì */ lockedReason?: string; selected?: boolean; children?: ActionMenuItem[]; href?: string; target?: AnchorHTMLAttributes<HTMLAnchorElement>['target']; rel?: string; onSelect?: () => void }
 export type MenuPoint = { x: number; y: number }
 /** Icon của mục menu: 16 px (15 px ở mục chọn một), màu fg-3 — mục nguy hiểm --kit-err-bright. */
 function itemIcon(item: ActionMenuItem) {
@@ -53,8 +53,8 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
   useLayoutEffect(() => { const r = list.current?.getBoundingClientRect(); if (r) setFlip(r.right + 245 > window.innerWidth) })
   return <div ref={list} role="menu" tabIndex={-1} {...stylex.props(sx.list)} onKeyDown={(event) => {
     if ((event.target as HTMLElement).closest('[role=menu]') !== list.current) return
-    const buttons = Array.from(list.current?.querySelectorAll<HTMLButtonElement>(':scope > [data-menu-row] > button:not(:disabled), :scope > [data-menu-row] > span > button:not(:disabled)') ?? [])
-    const index = buttons.indexOf(document.activeElement as HTMLButtonElement)
+    const buttons = Array.from(list.current?.querySelectorAll<HTMLElement>(':scope > [data-menu-row] > :is(button:not(:disabled), a[href]), :scope > [data-menu-row] > span > :is(button:not(:disabled), a[href])') ?? [])
+    const index = buttons.indexOf(document.activeElement as HTMLElement)
     const enabledItems = items.filter((item) => !item.disabled)
     if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
       event.preventDefault(); event.stopPropagation()
@@ -63,20 +63,22 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
     }
     if (event.key === 'ArrowRight' && enabledItems[index]?.children) {
       event.preventDefault(); setSubmenu(enabledItems[index].id)
-      requestAnimationFrame(() => buttons[index]?.closest('[data-menu-row]')?.querySelector<HTMLElement>('[role=menu] button:not(:disabled)')?.focus())
+      requestAnimationFrame(() => buttons[index]?.closest('[data-menu-row]')?.querySelector<HTMLElement>('[role=menu] :is(button:not(:disabled), a[href])')?.focus())
     }
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close() }
   }}>{items.map((item, index) => {
     const note = item.lockedReason ?? item.description
     const opt = stylex.props(sx.optHeight(note ? '48px' : '34px'))
     const ids = item.lockedReason ? { label: `${uid}-${item.id}-l`, note: `${uid}-${item.id}-r` } : null
-    const button = <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} aria-disabled={ids ? true : undefined} aria-labelledby={ids?.label} aria-describedby={ids?.note} className={[`kit-option${item.danger ? ' kit-danger' : ''}`, opt.className].filter(Boolean).join(' ')} onClick={() => { if (ids) return; if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>
-      {itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span id={ids?.label} {...stylex.props(sx.label)}>{item.label}</span>{note && <small id={ids?.note} {...stylex.props(sx.desc)}>{note}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.selected && !!item.icon && <Icon name="tick-circle" size={15} {...stylex.props(sx.iconTick)} />}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}
-    </button>
+    const content = <>{itemIcon(item)}<span {...stylex.props(sx.labelCol)}><span id={ids?.label} {...stylex.props(sx.label)}>{item.label}</span>{note && <small id={ids?.note} {...stylex.props(sx.desc)}>{note}</small>}</span>{item.meta != null && <span className={`num ${stylex.props(sx.meta).className}`}>{item.meta}</span>}{item.selected && !!item.icon && <Icon name="tick-circle" size={15} {...stylex.props(sx.iconTick)} />}{item.kbd && <Kbd>{item.kbd}</Kbd>}{item.children && <Icon name="arrow-right-2" size={14} {...stylex.props(sx.subIcon)} />}</>
+    const className = [`kit-option${item.danger ? ' kit-danger' : ''}`, opt.className].filter(Boolean).join(' ')
+    const button = item.href && !item.disabled && !ids && !item.children
+      ? <a role="menuitem" href={item.href} target={item.target} rel={item.rel} className={className} style={opt.style} onClick={() => { item.onSelect?.(); close() }}>{content}</a>
+      : <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} aria-disabled={ids ? true : undefined} aria-labelledby={ids?.label} aria-describedby={ids?.note} className={className} onClick={() => { if (ids) return; if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>{content}</button>
     return <div key={item.id} data-menu-row {...stylex.props(sx.row)} onPointerEnter={() => setSubmenu(item.children ? item.id : null)}>
       {item.danger && !items[index - 1]?.danger && <div role="separator" className="kit-separator" />}
       {item.tooltip ? <Tooltip content={item.tooltip} block>{button}</Tooltip> : button}
-      {item.children && submenu === item.id && <div className="kit-pop kit-fly" data-flip={flip}><MenuList items={item.children} close={close} nested onBack={() => { setSubmenu(null); list.current?.children[index]?.querySelector<HTMLElement>('button')?.focus() }} /></div>}
+      {item.children && submenu === item.id && <div className="kit-pop kit-fly" data-flip={flip}><MenuList items={item.children} close={close} nested onBack={() => { setSubmenu(null); list.current?.children[index]?.querySelector<HTMLElement>('button, a[href]')?.focus() }} /></div>}
     </div>
   })}</div>
 }
@@ -110,7 +112,7 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
     // Bố cục có thể còn dịch sau lần vẽ đầu (font, thanh cuộn) — đo lại một lần nữa ở khung hình kế.
     const frame = requestAnimationFrame(place)
     // Mở bằng chuột: focus vào menu (không tô mục đầu); mở bằng phím: focus mục đầu như artboard (↓ mở → mục 1 sáng).
-    if (keyboard.current) menu.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus()
+    if (keyboard.current) menu.current?.querySelector<HTMLElement>('button:not(:disabled), a[href]')?.focus()
     else menu.current?.querySelector<HTMLElement>('[role=menu]')?.focus({ preventScroll: true })
     return () => cancelAnimationFrame(frame)
   }, [isOpen, point, width])

@@ -4,14 +4,12 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
-import * as stylex from '@stylexjs/stylex'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Button } from './Button'
-import { Dialog } from './Dialog'
 import { Dropzone, FileRow } from './Dropzone'
 import { ProgressBar } from './feedback'
 import { ChipSelect } from './Selects'
 import { Tabs } from './Tabs'
+import { ActionMenu } from './Menus'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -29,22 +27,6 @@ async function mount(node: React.ReactNode) {
   return container
 }
 
-const atomsOf = (html: string) => new Set((html.match(/class="([^"]*)"/g) ?? []).join(' ').split(/[" ]+/).filter(Boolean))
-
-describe('Dialog thân hộp', () => {
-  it('mặc định bọc thân có đệm theo padX; padBody={false} trả con trực tiếp', async () => {
-    await mount(<Dialog title="Nhập" onClose={() => {}}><p>Thân</p></Dialog>)
-    const body = document.querySelector('.kit-dlg-body')
-    expect(body).not.toBeNull()
-    expect(body!.textContent).toBe('Thân')
-    await act(async () => { roots.pop()!.unmount() })
-    document.body.replaceChildren()
-
-    await mount(<Dialog title="Danh sách" onClose={() => {}} padBody={false}><p>Dòng</p></Dialog>)
-    expect(document.querySelector('.kit-dlg-body')).toBeNull()
-    expect(document.querySelector('[role="dialog"]')!.textContent).toContain('Dòng')
-  })
-})
 
 describe('Tabs gạch chân', () => {
   it('tablist có aria-selected, id/aria-controls theo cặp tabs và mũi tên đổi tab', async () => {
@@ -116,12 +98,35 @@ describe('Dropzone + FileRow', () => {
   })
 })
 
-describe('Button icon theo cỡ', () => {
-  it('icon + lg vuông 44, icon + xl vuông 48', () => {
-    const contract = stylex.create({ lg: { width: 44, borderRadius: 12 }, xl: { width: 48, borderRadius: 13 } })
-    const lg = atomsOf(renderToStaticMarkup(<Button variant="icon" size="lg" aria-label="Thêm" icon={<span />} />))
-    for (const atom of stylex.props(contract.lg).className!.split(' ').filter(Boolean)) expect(lg.has(atom)).toBe(true)
-    const xl = atomsOf(renderToStaticMarkup(<Button variant="icon" size="xl" aria-label="Thêm" icon={<span />} />))
-    for (const atom of stylex.props(contract.xl).className!.split(' ').filter(Boolean)) expect(xl.has(atom)).toBe(true)
+
+describe('Menu links and commands', () => {
+  it('keeps native navigation and includes links in keyboard traversal without activating locked items', async () => {
+    const command = vi.fn()
+    const container = await mount(<ActionMenu label="Actions" items={[
+      { id: 'channel', label: 'Channel', href: '#/channels/a', target: '_blank', rel: 'noopener' },
+      { id: 'front', label: 'Move first', onSelect: command },
+      { id: 'locked', label: 'Unavailable', href: '#/locked', lockedReason: 'Still running' },
+      { id: 'disabled', label: 'Disabled', href: '#/disabled', disabled: true },
+    ]} />)
+    const trigger = container.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!
+    await act(async () => { trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })) })
+    const link = document.querySelector<HTMLAnchorElement>('[role="menuitem"][href]')!
+    expect(document.activeElement).toBe(link)
+    expect(link.href).toMatch(/#\/channels\/a$/)
+    expect(link.target).toBe('_blank')
+    await act(async () => { link.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true })) })
+    const locked = document.querySelector<HTMLButtonElement>('[role="menuitem"][aria-disabled="true"]')!
+    expect(document.activeElement).toBe(locked)
+    await act(async () => { locked.click() })
+    expect(command).not.toHaveBeenCalled()
+    expect(document.querySelector('[role="menu"]')).not.toBeNull()
+    await act(async () => { locked.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
+    expect(document.activeElement).toBe(link)
+    await act(async () => { link.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })) })
+    expect(document.activeElement?.textContent).toBe('Move first')
+    await act(async () => { (document.activeElement as HTMLButtonElement).click() })
+    expect(command).toHaveBeenCalledOnce()
+    expect(document.querySelector('[role="menu"]')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
   })
 })

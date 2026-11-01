@@ -238,6 +238,9 @@ Notable behaviours:
   `tooltip`, nested `children` flyout. `lockedReason` locks a row while
   keeping it focusable: the reason replaces the description line and is the
   row's `aria-describedby`; selecting it does nothing and the menu stays open.
+  Navigation items accept `href`, optional `target` and `rel`, and render as
+  native links inside the same menu. Links participate in arrow/Home/End
+  navigation alongside commands; disabled or locked destinations cannot navigate.
 - `Dialog`, `Tooltip`, `InfoPopover` share the escape-layer stack
   (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
 
