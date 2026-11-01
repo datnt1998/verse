@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -48,7 +49,23 @@ func directorModel(ai *aiWiring) func(context.Context) (llmretry.Generator, erro
 		if err != nil {
 			return nil, err
 		}
-		models := ai.Executors.textModels(ctx, chain)
+		// Thẻ đăng nhập gói chưa đăng nhập/hết hạn: client codex vẫn dựng được
+		// rồi treo ở bước lấy token — loại ngay ở đây để báo lỗi tức thì.
+		subs, err := ai.Service.Subscribed(ctx)
+		if err != nil {
+			return nil, err
+		}
+		notReady := map[string]bool{}
+		for _, v := range subs {
+			notReady[v.ID] = v.Status != domain.StatusReady
+		}
+		usable := chain[:0:0]
+		for _, ref := range chain {
+			if !notReady[ref.Provider] {
+				usable = append(usable, ref)
+			}
+		}
+		models := ai.Executors.textModels(ctx, usable)
 		if len(models) == 0 {
 			return nil, fmt.Errorf("chưa kết nối model Đạo diễn")
 		}
