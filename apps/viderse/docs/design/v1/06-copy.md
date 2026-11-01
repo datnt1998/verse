@@ -245,10 +245,10 @@ Thay câu cũ trong `i18n/vi.ts`: `loginSub` “Dùng tài khoản quản trị 
 
 | Trạng thái | Máy tính | Điện thoại | Tooltip / đọc màn hình |
 |---|---|---|---|
-| Đang chạy | “2 đang chạy · 12 chờ lượt” | “2 · 12” | “Máy đang chạy 2/2 luồng · 12 video chờ lượt” |
-| Máy rảnh | “Máy rảnh” | “Rảnh” | “Không video nào đang chạy hay chờ lượt” |
-| Đã tạm dừng | “Đã tạm dừng lúc 00:04 · 12 chờ lượt” | “⏸ 12” | “Bạn tạm dừng hàng chờ lúc 00:04 · video đang chạy làm nốt bước hiện tại” |
-| Mất kết nối | “Mất kết nối · đang thử lại” | “Mất kết nối” | “Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối” |
+| Đang chạy | “2 đang chạy · 12 chờ lượt” | số “2” trong vòng tiến độ <!-- r36 --> | “Máy đang chạy 2/2 luồng · 12 video chờ lượt” |
+| Máy rảnh | “Máy rảnh” | chỉ icon, không chữ | “Không video nào đang chạy hay chờ lượt” |
+| Đã tạm dừng | “Đã tạm dừng lúc 00:04 · 12 chờ lượt” | icon tạm dừng trong vòng xám | “Bạn tạm dừng hàng chờ lúc 00:04 · video đang chạy làm nốt bước hiện tại” |
+| Mất kết nối | “Mất kết nối · đang thử lại” | icon cam | “Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối” |
 
 Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Video đang chạy làm nốt bước hiện tại rồi dừng; chưa video nào mới được bắt đầu.” · mất kết nối “Không kết nối được máy chủ Viderse. Đang thử lại; danh sách dưới đây là lần cập nhật lúc 00:12.” · hết ảnh “Hết hạn mức vẽ ảnh của cả ChatGPT và Grok. Bước không cần vẽ ảnh vẫn chạy; vẽ ảnh tiếp lúc 07:00.” · máy rảnh “Máy rảnh” + “Không video nào đang chạy hay chờ lượt. Video bạn dán link chạy ngay khi có luồng trống; kênh bật Tự lấy video sẽ thêm vào đây theo nhịp ngày.” + nút *Video mới*.
 
@@ -338,3 +338,21 @@ Prompt hiện **đúng văn bản đã gửi**, giữ ngôn ngữ gốc (thườ
 
 ## Nhóm chọn: nhãn <a id="copy-seg"></a> <!-- r34 -->
 Giữ nhãn đầy đủ, không rút gọn (#80): Khám phá › Sắp xếp “Nổi trội · Mới nhất · Lượt xem”; Lịch đăng › Vùng giờ “VN · New York”. Nhóm co theo nhãn, hẹp thì cuộn ngang.
+
+## Toast: câu chữ <a id="copy-toast"></a> <!-- r35 -->
+
+- **Viên** một câu, bắt đầu bằng việc đã xảy ra: “Đã xoá 2 video” · “Đã thêm 3 video vào hàng chờ” · “Đã chép đường dẫn” · “Không xoá được video đang xuất”. Không chấm câu cuối. Nút: *Hoàn tác* (kèm giây còn lại “· 4s”), *Thử lại*, *Xem*.
+- **Thẻ:** tiêu đề nói **việc cần làm hoặc việc đã xong**, ngắn để vừa một dòng; **tên video nằm ở câu phụ**, không ở tiêu đề.
+  - Cần xử lý: “Cần đăng nhập lại ChatGPT” — “The Last Bus Doesn’t Stop at Elm Street dừng ở cảnh 5 · ảnh đã vẽ vẫn giữ.” · *Đăng nhập lại* · *Mở video*.
+  - Chờ duyệt (gộp): “3 video chờ duyệt ảnh” — “Midnight Tales 2 · Chuyện Lạ Đêm Khuya 1” · *Duyệt ảnh*.
+  - Trợ lý xong: “Hoạ sĩ đã vẽ xong 7 ảnh” — “<tên video> · chờ bạn duyệt” · *Duyệt ảnh* · *Mở video*.
+- Bỏ các dòng phụ “Tự đóng sau 5 giây · rê chuột để giữ”, “Giữ tới khi bạn đóng”, “Gộp 3 thông báo trong 10 giây”: thời gian nằm ở vòng quanh nút đóng và `title` của nút (“Tự đóng sau N giây” · “Đã dừng tự đóng” · “Ở lại tới khi bạn đóng”); gộp thể hiện ở con số trong tiêu đề.
+- `aria-label` nút đóng: “Đóng thông báo”; vùng chứa: “Thông báo”.
+
+## Thanh trên điện thoại và Thông báo <a id="copy-mtop"></a> <!-- r36 -->
+
+- `aria-label` nút Việc nền: “Việc nền: 2 đang chạy, 12 chờ lượt” · “Việc nền: máy rảnh” · “Việc nền: đã tạm dừng lúc 00:04, 12 chờ lượt” · “Việc nền: mất kết nối máy chủ, đang thử lại”; có chấm thì thêm “, 3 thông báo cần bạn”.
+- Avatar: “Tài khoản và cài đặt”. Bộ đổi kênh: “Đổi kênh, đang xem Mọi kênh” / “Đổi kênh, đang chọn Midnight Tales”. Chưa có kênh: nút “Tạo kênh”.
+- Sheet Việc nền (điện thoại): tiêu đề “Việc nền”; tab “Đang chạy” · “Thông báo” (số chưa đọc trong huy hiệu vàng). Dòng phụ: tab Đang chạy giữ câu cũ; tab Thông báo “3 chưa đọc” · “Đã đọc hết” · “Chưa có thông báo”.
+- Danh sách Thông báo dùng đúng câu của popover máy tính (“3 video chờ duyệt”, “Cần xử lý: <tên video>”, “<tên video> sẵn sàng đăng”…), chưa đọc in đậm + chấm vàng trên icon; *Đánh dấu đã đọc*; cuối danh sách *Cài đặt thông báo*.
+- Trống: “Chưa có thông báo” — “Khi video chờ bạn duyệt, cần xử lý hay sẵn sàng đăng, Viderse báo ở đây.” · *Cài đặt thông báo*.

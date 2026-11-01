@@ -72,8 +72,8 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - Hiện “N đang chạy · M chờ lượt”, có chấm đỏ `.vv-rec` khi N > 0.
 - Khi hàng chờ tạm dừng: icon `i-pause` màu `--vv-st-queued` (#8E8E99, “Chờ lượt, Tạm dừng”) + “Đã tạm dừng lúc HH:MM · M chờ lượt” (`pausedAt`). <!-- r31-v27 -->
 - Mất kết nối: icon `i-danger` màu `--vv-danger` + “Mất kết nối · đang thử lại”, chữ `--vv-danger-text`. Tooltip: “Không kết nối được máy chủ Viderse · số liệu cập nhật lại khi có kết nối”.
-- Cùng khung mọi trạng thái: cao 30px, đệm ngang 10px, khe 8px, chữ 12,5px; chiều rộng theo câu. Điện thoại: viên 36px bo tròn, chữ gọn `2 · 12` · `Rảnh` · `⏸ 12` · `Mất kết nối` (viền cam nhạt); `aria-label` đọc câu đầy đủ.
-- Bấm mở **popover Việc nền** (desktop, 448px) hoặc sheet (điện thoại); cuối popover có “Mở Hàng chờ”.
+- Cùng khung mọi trạng thái: cao 30px, đệm ngang 10px, khe 8px, chữ 12,5px; chiều rộng theo câu. **Điện thoại (đợt 36): không dùng viên chữ** — nút tròn 36px có vòng tiến độ, xem Đầu trang điện thoại › AppBar. <!-- r36 -->
+- Bấm mở **popover Việc nền** (desktop, 448px) hoặc sheet Việc nền (điện thoại, cùng hai tab **Đang chạy · Thông báo**); cuối popover có “Mở Hàng chờ”.
 - Có thông báo cần bạn chưa đọc → chấm vàng trên viên.
 - Máy rảnh: “Máy rảnh”, chấm xám #5E5E68, chữ mờ. <!-- r31-v27 -->
 - Tooltip ghi luồng: “Máy đang chạy 2/2 luồng”.
@@ -187,7 +187,14 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - Dùng cho Hàng chờ / Việc nền, Đổi kênh, Góp ý vẽ lại, Ảnh của video, Viết lại / Lịch sử nội dung, chọn kênh, thao tác đối thủ, xác nhận.
 
 ## Đầu trang điện thoại (AppBar · NavHeader) <!-- c-mobile-header --> <!-- r14-mobile -->
-- **AppBar** (màn gốc): cao 52px; logo 24px · `ChannelSwitcher` (chỉ Bàn dựng, Kênh) · khoảng trống · `JobsPill` · avatar 34px (mở Cài đặt). Dưới là tiêu đề lớn 24px/600, chữ phụ phải (ví dụ “Video 1 / 3 ›”).
+- **AppBar** (màn gốc) — chuẩn hoá đợt 36 <!-- r36 -->:
+  - Một hàng cao 52px, đệm 0 12 0 16. Trái: logo 24px · `ChannelSwitcher` (chỉ Bàn dựng, Kênh). Phải (đẩy sát mép, khe 8px): **nút Việc nền** · **avatar** (mở Tài khoản và cài đặt).
+  - **Mọi phần tử cao 36px**, cùng nền `--vv-surface-1` và viền `--vv-card-border`; nút tròn 36px; vùng chạm 44px (`.vv-mbtn::before`). Logo không phải nút chạm riêng.
+  - **Nút Việc nền** (`.vv-jobsbtn`, tròn 36px, thay viên chữ “2 · 12”): đang chạy = vòng tiến độ 2px quanh nút (màu `--vv-red`, tiến độ trung bình các việc đang chạy) + số việc đang chạy ở giữa (13px/600, số đều) · máy rảnh = icon `i-activity` xám, **không chữ “Rảnh”** · đã tạm dừng = vòng xám đầy + icon tạm dừng · mất kết nối = icon `i-danger` cam, viền cam nhạt. Câu đầy đủ ở `aria-label` (copy › Hàng chờ và nút việc nền).
+  - **Chấm thông báo** (`.vv-notice-dot`): 10px `--vv-st-review`, viền 2px màu nền, đặt `top: -1px; right: -1px` để tâm chấm nằm **trên mép tròn** ở góc trên phải — không đè lên chữ, không lơ lửng ngoài nút. Chỉ hiện khi có thông báo cần bạn **chưa đọc**; ẩn khi mất kết nối. Bấm nút khi có chấm → sheet Việc nền mở ở tab **Thông báo**.
+  - **Bộ đổi kênh** (`.vv-mswitch`): co trước mọi thứ (`min-width: 0`), tên cắt “…”; nút Việc nền và avatar không bao giờ bị đẩy ra hay co lại. Mọi kênh: chồng 3 avatar 22px, **mỗi avatar một chữ cái** (M · C · Q) để chữ không bị che; một kênh: avatar 26px hai chữ + tên.
+  - **Trường hợp trống:** chưa có kênh → thay bộ đổi kênh bằng nút “+ Tạo kênh” cùng cỡ (mở Tạo kênh); một kênh → vẫn là bộ đổi kênh (sheet có Tạo kênh); máy rảnh và chưa có thông báo → icon xám, không chấm; Duyệt, Khám phá → chỉ logo, hai nút phải giữ đúng chỗ.
+  - Dưới thanh là tiêu đề lớn 24px/600 và dòng phụ như cũ.
 - **NavHeader** (màn con): cao 52px; nút 44px Quay lại `‹` (đi sâu) hoặc Đóng `×` (luồng tạo mới: Video mới, Tạo kênh); tiêu đề 16px/600 căn trái, cắt “…”; dòng phụ 12px xám khi cần; nút 44px bên phải (⋯, sao chép).
 
 ## Hàng video (điện thoại) <!-- c-mobile-videorow --> <!-- r14-mobile -->
@@ -213,14 +220,23 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - TaskRow một dạng cho mọi việc nền: orb/icon · tên + đối tượng · câu pha · thanh (%/x/y/không xác định) · thời gian còn lại · đúng một hành động.
 - Artboard: `Activity` · `view=running|inbox|empty`.
 
-## Toast <!-- c-toast -->
-- Hai dạng: <!-- r19-kit --> <!-- r20-screens -->
-  - **Kết quả thao tác** (Đã xoá, Đã lưu, Đã chuyển kênh…): hình viên như Noverse (`.vv-toast`), cao 40px, bo tròn, icon màu loại, một câu, một nút nhỏ (Hoàn tác / Mở lại / Xem).
-  - **Cần bạn** (Duyệt ảnh, Tải gói đăng) và **Cần xử lý**: thẻ 300px bo 14px, tiêu đề + một câu + nút, vì có tên video và việc phải làm.
-- Góc phải dưới, cách mép 12/16px, tối đa 3, mới nhất trên cùng.
-- Loại: kết quả thao tác (5 giây, Hoàn tác/Xem, thanh thời gian) · cần bạn (Duyệt ảnh, Tải gói đăng) · Cần xử lý (cam, `role=alert`, ở lại tới khi đóng).
-- Nút trong toast màu trắng trung tính, không đỏ. Không toast tiến độ. Gộp trong 10 giây.
-- Artboard: `Activity` · `view=toasts` = `Dialogs` · `dialog=toasts`.
+## Toast <!-- c-toast --> <!-- r35 -->
+Đợt 35 làm lại theo Noverse (`platform/ui` Toast · `Jobs.dc.html` §1.4 của Noverse). Hai dạng, cùng một chất liệu:
+
+- **Chất liệu chung:** kính mờ `--vv-toast-glass` + `backdrop-filter: blur(18px) saturate(150%)`, viền `--vv-toast-border`, bóng `--vv-toast-shadow`. Màu loại chỉ ở icon, viền nhạt và vệt loang góc trên trái; nền không đổi màu.
+- **Đếm ngược = vòng mảnh quanh nút đóng** (`.vv-toast-x`: SVG r 12, nét 1,6, màu loại, `stroke-dashoffset` chạy 160 ms linear). Không vạch ở đáy, không dòng chữ “Tự đóng sau 5 giây…”. `title` của nút: “Tự đóng sau N giây”; rê chuột: vòng mờ 30%, dừng đếm, `title` “Đã dừng tự đóng”. Toast ở lại tới khi đóng thì nút đóng không có vòng.
+- **Viên — kết quả thao tác của bạn** (`.vv-toast`, `--ok` · `--review` · `--issue`, trung tính không icon): cao 40px, bo tròn, icon 16px · một câu (`.vv-toast__text`, cắt “…”) · tối đa một nút nhỏ (Hoàn tác / Thử lại / Xem) · nút đóng. Hoàn tác ghi giây còn lại: “Hoàn tác · 4s”.
+  - Vị trí: **giữa đáy cột nội dung**, cách mép dưới 18px; màn có ô Nhắn trợ lý hoặc thanh hành động ở đáy thì nằm trên thanh đó 12px. Không đặt ở góc phải.
+  - Thời gian: 6 giây; có Hoàn tác thì 5 giây. Viên mới thay viên cũ (cùng `key` thì cập nhật tại chỗ).
+- **Thẻ — việc nền cần bạn hoặc vừa xong** (`.vv-tcard` trong `.vv-tstack`): rộng 328px, bo 18px, đệm 12/12/13. Icon tròn 34px trên nền loang màu loại · tiêu đề 13,5px/600 **một dòng** · câu phụ 12px tối đa 2 dòng · nút 28px · nút đóng góc trên phải.
+  - Loại: `--review` Chờ duyệt (cam nhạt, cờ) · `--issue` Cần xử lý (cam, `role=alert`, ở lại tới khi đóng) · `--ok` Sẵn sàng · trợ lý làm xong `--scout/--director/--artist/--qa`: orb 22px của trợ lý + dấu tick mint 15px, loang màu trợ lý (`--vv-*-tint`).
+  - Vị trí: góc phải dưới, cách mép 12/16px. **Tối đa 2 thẻ**; thẻ mới nhất ở dưới; thẻ cũ lùi lên (`.vv-tcard--back`: dịch 4px, scale .955, mờ 60%, giảm bão hoà). Rê chuột hoặc focus vào chồng thì cả hai bung rõ và dừng đếm. Thẻ thứ ba đến thì thẻ cũ nhất không phải Cần xử lý rời đi (vẫn ở tab Thông báo).
+  - Chỉ thẻ trước có nút sáng; thẻ lùi sau dùng nút viền (một nút chính mỗi lúc).
+  - Thời gian: 6 giây; Cần xử lý ở lại.
+- **Chuyển động:** vào trồi 18px + scale .94 + blur 4px → rõ, 500 ms nảy nhẹ (`.vv-toast-in`); ra rơi xuống mờ dần + blur (`.vv-toast-out`, 420 ms), khung thu chiều cao để thẻ phía trên trượt xuống êm. `prefers-reduced-motion`: tắt.
+- **Điện thoại:** viên giữa đáy, trên thanh dưới 12px, tự đóng sau 2,5 giây (Hoàn tác 5 giây). Thẻ việc nền rộng màn trừ lề 12px, **một thẻ**, vuốt xuống để đóng.
+- Nút trong toast trắng trung tính, không đỏ. Không toast tiến độ. Gộp trong 10 giây (gộp thì đổi tiêu đề, không thêm dòng “Gộp N thông báo”). Esc đóng toast mới nhất.
+- Artboard: `Activity` · `view=toasts` = `Dialogs` · `dialog=toasts` · `Kit` › Gợi ý & trạng thái › Toast · `MKit` › Sheet › Toast · `Editor` · `focus=scene&img=done`.
 <!-- r3-comp -->
 
 ## Ảnh trong giao diện <a id="c-imagery"></a> <!-- r6-imagery -->

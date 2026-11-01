@@ -270,8 +270,12 @@ button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
   --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
   --vv-dialog: #18181A;
   --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
-  --vv-toast: #1C1C1F;
-  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-toast: #1C1C1F;                /* nền đặc của toast khi không có backdrop-filter; viền quanh huy hiệu trên thẻ toast */
+  --vv-toast-glass: linear-gradient(180deg, rgba(30,30,33,.93), rgba(20,20,22,.96)); /* r35: toast kính như Noverse, kèm blur(18px) saturate(150%) */
+  --vv-toast-border: rgba(255,255,255,.09);
+  --vv-toast-shadow: 0 22px 60px -14px rgba(0,0,0,.85), 0 2px 6px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07);
+  --vv-toast-ring: rgba(255,255,255,.07);  /* vòng nền của đếm ngược quanh nút đóng */
+  --vv-scout-tint: rgba(127,163,255,.16); --vv-director-tint: rgba(176,138,247,.16); --vv-artist-tint: rgba(255,190,102,.16); --vv-qa-tint: rgba(93,221,176,.16); /* r35: loang góc thẻ toast khi trợ lý làm xong */
   --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
   --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
   --vv-hover: rgba(255,255,255,.07);
@@ -538,16 +542,50 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-banner--review { --c: var(--vv-st-review); background: var(--vv-st-review-tint); border-color: var(--vv-st-review-border); }
 .vv-banner--issue { --c: var(--vv-danger); background: rgba(255,154,92,.07); border-color: rgba(255,154,92,.22); }
 .vv-banner--director { --c: var(--vv-director-ink); background: var(--vv-director-bg); border-color: rgba(184,156,255,.22); }
-.vv-toast { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); white-space: nowrap; }
-.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; }
+/* r35: toast theo Noverse — kính mờ, đếm ngược là vòng mảnh quanh nút đóng; viên = kết quả thao tác, thẻ = việc nền (tối đa 2) */
+.vv-toast { --c: var(--vv-text-2); display: inline-flex; align-items: center; gap: 10px; min-height: 40px; max-width: min(640px, calc(100vw - 28px)); padding: 0 6px 0 14px; border-radius: var(--vv-r-pill); background: var(--vv-toast-glass); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); border: 1px solid var(--vv-toast-border); box-shadow: var(--vv-toast-shadow); font-size: var(--vv-fs-ui); color: var(--vv-text); white-space: nowrap; }
+.vv-toast > .ic, .vv-toast > .vv-ic { width: 16px; height: 16px; flex: 0 0 auto; color: var(--c); }
+.vv-toast__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 8px 0; }
+.vv-toast__count { font-variant-numeric: tabular-nums; color: var(--vv-text-3); font-weight: 400; }
 .vv-toast .vv-btn { --h: 28px; }
-.vv-toast--ok { border-color: rgba(166,237,193,.28); }
-.vv-toast--ok > .ic, .vv-toast--ok > .vv-ic { color: var(--vv-st-ready); }
-.vv-toast--issue { border-color: var(--vv-danger-border); }
-.vv-toast--issue > .ic, .vv-toast--issue > .vv-ic { color: var(--vv-danger); }
-.vv-toast--sm { height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
-.vv-toast-in { animation: vv-tIn .4s cubic-bezier(.2,.9,.25,1.12) both; }
-@keyframes vv-tIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+.vv-toast--ok { --c: var(--vv-st-ready); border-color: rgba(166,237,193,.28); }
+.vv-toast--review { --c: var(--vv-st-review); border-color: var(--vv-st-review-border); }
+.vv-toast--issue { --c: var(--vv-danger); border-color: var(--vv-danger-border); }
+.vv-toast--sm { min-height: 32px; height: 32px; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+.vv-toast-x { position: relative; flex: 0 0 auto; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--vv-text-hint); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color var(--vv-dur), color var(--vv-dur); }
+.vv-toast-x:hover { background: var(--vv-hover); color: var(--vv-text); }
+.vv-toast-x > svg { position: absolute; inset: 0; width: 28px; height: 28px; transform: rotate(-90deg); pointer-events: none; }
+.vv-toast-x > .ic { position: relative; width: 14px; height: 14px; }
+.vv-toast-x > .i-add { transform: rotate(45deg); }
+.vv-cd-bg { fill: none; stroke: var(--vv-toast-ring); stroke-width: 1.6; }
+.vv-cd { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: 75.4; transition: stroke-dashoffset .16s linear, opacity .3s ease; }
+.vv-toast:hover .vv-cd, .vv-tstack:hover .vv-cd { opacity: .3; }
+.vv-tstack { display: flex; flex-direction: column-reverse; gap: 8px; width: 328px; max-width: calc(100vw - 24px); }
+.vv-tcard { --tint: transparent; --c: var(--vv-text-2); position: relative; overflow: hidden; display: flex; gap: 12px; padding: 12px 12px 13px; border-radius: 18px; background: var(--vv-toast-glass); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); border: 1px solid var(--vv-toast-border); box-shadow: var(--vv-toast-shadow); color: var(--vv-text); text-align: left; white-space: normal; transform-origin: 50% 100%; transition: transform .4s cubic-bezier(.2,.9,.25,1), opacity .4s, filter .4s; }
+.vv-tcard::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 0%, var(--tint), transparent 55%); pointer-events: none; }
+.vv-tcard__ic { position: relative; width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--tint); color: var(--c); }
+.vv-tcard__ic > .ic { width: 18px; height: 18px; }
+.vv-tcard__ic > .vv-orb { width: 22px; height: 22px; }
+.vv-tcard__badge { position: absolute; right: -2px; bottom: -2px; width: 15px; height: 15px; border-radius: 50%; background: var(--vv-st-ready); box-shadow: 0 0 0 2px var(--vv-toast); color: var(--vv-bg); display: flex; align-items: center; justify-content: center; }
+.vv-tcard__badge > .ic { width: 10px; height: 10px; }
+.vv-tcard__body { position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.vv-tcard__title { font-size: 13.5px; font-weight: 600; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 28px; }
+.vv-tcard__text { font-size: 12px; line-height: 1.45; color: var(--vv-text-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vv-tcard__acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.vv-tcard__acts .vv-btn { --h: 28px; }
+.vv-tcard > .vv-toast-x { position: absolute; top: 9px; right: 9px; }
+.vv-tcard--ok { --tint: var(--vv-st-ready-bg); --c: var(--vv-st-ready); }
+.vv-tcard--review { --tint: var(--vv-st-review-bg); --c: var(--vv-st-review); }
+.vv-tcard--issue { --tint: var(--vv-danger-soft); --c: var(--vv-danger); border-color: var(--vv-danger-border); }
+.vv-tcard--scout { --tint: var(--vv-scout-tint); --c: var(--vv-scout-arc); } .vv-tcard--director { --tint: var(--vv-director-tint); --c: var(--vv-director-arc); }
+.vv-tcard--artist { --tint: var(--vv-artist-tint); --c: var(--vv-artist-arc); } .vv-tcard--qa { --tint: var(--vv-qa-tint); --c: var(--vv-qa-arc); }
+.vv-tcard--back { transform: translateY(4px) scale(.955); opacity: .6; filter: saturate(.7); }
+.vv-tstack:hover .vv-tcard--back, .vv-tstack:focus-within .vv-tcard--back { transform: none; opacity: 1; filter: none; }
+.vv-toast-in { animation: vv-tIn .5s cubic-bezier(.18,.95,.25,1.15) both; }
+.vv-toast-out { animation: vv-tOut .42s cubic-bezier(.5,0,.7,.2) both; }
+@keyframes vv-tIn { from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(4px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes vv-tOut { 0% { opacity: 1; filter: blur(0); } 65% { opacity: 0; transform: translateY(34px) scale(.5); filter: blur(3px); } 100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px); } }
+@media (prefers-reduced-motion: reduce) { .vv-toast-in, .vv-toast-out { animation: none; } .vv-tcard, .vv-cd { transition: none; } }
 .vv-tip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--vv-r-tip); background: var(--vv-selected-2); border: 1px solid rgba(255,255,255,.08); font-size: var(--vv-fs-small); line-height: 1.45; color: var(--vv-text); white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.7); }
 .vv-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--vv-selected-2); }
 .vv-tip .vv-kbd { font-size: 10px; }
@@ -638,6 +676,29 @@ ul.vv-dialog__list { padding-left: 30px; }
 
 /* ---------- Điện thoại: đầu trang & thanh dưới ---------- */
 .vv-appbar { height: var(--vv-m-bar); padding: 0 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+/* r36: thanh trên điện thoại — một hàng 52px; logo · bộ đổi kênh · (đẩy phải) Việc nền · avatar; mọi phần tử cao 36px, vùng chạm 44px */
+.vv-appbar__end { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.vv-mbtn { position: relative; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border-radius: 50%; border: 1px solid var(--vv-card-border, rgba(255,255,255,.07)); background: var(--vv-surface-1, #131315); color: var(--vv-text-2, #C9C9D1); display: inline-flex; align-items: center; justify-content: center; font: inherit; text-decoration: none; cursor: pointer; }
+.vv-mbtn::before { content: ""; position: absolute; inset: -5px; border-radius: 50%; }
+.vv-mbtn > .ic { width: 18px; height: 18px; }
+.vv-mbtn--av { background: var(--vv-selected, #222225); color: var(--vv-text, #EDEDEF); font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+.vv-jobsbtn__ring { position: absolute; inset: -1px; width: 36px; height: 36px; transform: rotate(-90deg); pointer-events: none; }
+.vv-jobsbtn__trk { fill: none; stroke: var(--vv-toast-ring, rgba(255,255,255,.07)); stroke-width: 2; }
+.vv-jobsbtn__arc { fill: none; stroke: var(--vv-red, #FF0033); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 106.8; transition: stroke-dashoffset .3s linear; }
+.vv-jobsbtn__n { position: relative; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--vv-text, #EDEDEF); }
+.vv-jobsbtn--idle { color: var(--vv-text-hint, #8E8E99); }
+.vv-jobsbtn--paused { color: var(--vv-st-queued, #8E8E99); }
+.vv-jobsbtn--paused .vv-jobsbtn__arc { stroke: var(--vv-st-queued, #8E8E99); }
+.vv-jobsbtn--paused > .ic { width: 15px; height: 15px; }
+.vv-jobsbtn--offline { border-color: var(--vv-danger-border, rgba(255,154,92,.30)); color: var(--vv-danger, #FF9A5C); }
+.vv-notice-dot { position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--vv-st-review, #F6CB8C); box-shadow: 0 0 0 2px var(--vv-bg, #0B0B0D); z-index: 1; pointer-events: none; }
+.vv-mswitch { height: 36px; min-width: 0; max-width: 100%; padding: 0 10px 0 4px; display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; border: 1px solid var(--vv-card-border, rgba(255,255,255,.07)); background: var(--vv-surface-1, #131315); color: var(--vv-text, #EDEDEF); font: inherit; font-size: 13.5px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+.vv-mswitch__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vv-mswitch > .ic { width: 14px; height: 14px; flex: 0 0 auto; color: var(--vv-text-hint, #8E8E99); }
+.vv-mswitch--new { padding: 0 12px 0 10px; color: var(--vv-text-2, #C9C9D1); }
+.vv-mswitch--new > .ic { width: 16px; height: 16px; color: inherit; }
+.vv-avstack { display: flex; flex: 0 0 auto; padding-left: 2px; }
+.vv-avstack > * + * { margin-left: -7px; }
 .vv-navbar { height: var(--vv-m-bar); padding: 0 6px; display: flex; align-items: center; gap: 2px; }
 .vv-navbar__title { flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column; line-height: 1.3; }
 .vv-navbar__title > b { font-size: var(--vv-fs-nav-m); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -768,7 +829,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <svg aria-hidden="true" width="26" height="26" viewBox="0 0 64 64" style="flex: 0 0 auto; margin: 0 1px"><defs><radialGradient id="lnSph" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#FFE6EA"></stop><stop offset=".22" stop-color="#FF8C9C"></stop><stop offset=".55" stop-color="#FF1F45"></stop><stop offset="1" stop-color="#A3001C"></stop></radialGradient><radialGradient id="lnHalo" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#FF0033" stop-opacity=".22"></stop><stop offset="1" stop-color="#FF0033" stop-opacity="0"></stop></radialGradient><linearGradient id="lnGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"></stop><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".18"></stop></linearGradient></defs><g class="lens-run"><g transform="rotate(-80 32 32)" fill="none" stroke-width="4.6" stroke-linecap="round"><circle cx="32" cy="32" r="27" pathLength="100" stroke="#7FA3FF" stroke-dasharray="17 83" stroke-dashoffset="0"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#B08AF7" stroke-dasharray="17 83" stroke-dashoffset="-25"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#FFBE66" stroke-dasharray="17 83" stroke-dashoffset="-50"></circle><circle cx="32" cy="32" r="27" pathLength="100" stroke="#5DDDB0" stroke-dasharray="17 83" stroke-dashoffset="-75"></circle></g></g><circle cx="32" cy="32" r="16" fill="url(#lnSph)"></circle></svg>
 <div style="position: relative; flex: 0 0 auto">
 <button class="ghost" type="button" onClick="{{toggleSw}}" aria-haspopup="menu" aria-expanded="{{swExp}}" aria-label="Đổi kênh · đang xem {{scopeName}}" title="Đổi kênh" style="height: 30px; padding: 0 8px 0 5px; display: flex; align-items: center; gap: 7px; border-radius: 8px; border: 1px solid {{swBd}}; background: #131315; color: #EDEDEF; font-size: 13px; font-weight: 500; white-space: nowrap">
-<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="display: flex"><sc-for list="{{chans}}" as="c" hint-placeholder-count="3"><span class="cav" style="width: 20px; height: 20px; margin-left: {{c.ml}}; font-size: 7.5px; background: {{c.tint}}; border: 1.5px solid {{c.ring}}; box-shadow: 0 0 0 1.5px #131315">{{c.ini}}</span></sc-for></span></sc-if>
+<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="display: flex"><sc-for list="{{chans}}" as="c" hint-placeholder-count="3"><span class="cav" style="width: 20px; height: 20px; margin-left: {{c.ml}}; font-size: 10px; background: {{c.tint}}; border: 1.5px solid {{c.ring}}; box-shadow: 0 0 0 1.5px #131315">{{c.ini1}}</span></sc-for></span></sc-if>
 <sc-if value="{{notAll}}" hint-placeholder-val="{{ false }}"><span class="cav" aria-hidden="true" style="width: 20px; height: 20px; font-size: 8px; background: {{sc.tint}}; border: 1.5px solid {{sc.ring}}">{{sc.ini}}</span></sc-if>
 {{scopeName}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></button>
 <sc-if value="{{sw}}" hint-placeholder-val="{{ false }}">
@@ -1550,7 +1611,7 @@ class Component extends DCLogic {
       if (r) facts.push({ t: r + ' sẵn sàng đăng', c: '#A6EDC1' });
       if (!facts.length) facts.push({ t: 'Không có việc chờ bạn', c: '#8B8B97' });
       const cur = !isAll && chanId === id;
-      return { ini: c.ini, name: c.name, tint: c.tint, ring: c.ring, ml: n ? '-6px' : '0', mlS: n ? '-5px' : '0',
+      return { ini: c.ini, ini1: c.ini[0], name: c.name, tint: c.tint, ring: c.ring, ml: n ? '-6px' : '0', mlS: n ? '-5px' : '0',
         today: c.done + '/' + c.cap, pct: Math.round(c.done / c.cap * 100) + '%', facts,
         sub: 'Hôm nay ' + c.done + '/' + c.cap + (w ? ' · ' + w + ' chờ bạn' : ''), hasWait: w > 0,
         hasWarn: !!c.warn, warn: c.warn,

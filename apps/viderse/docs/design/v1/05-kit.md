@@ -62,7 +62,7 @@
 | `ExplainPopover` | `.vv-pop--float.vv-pop--note` | bấm để mở, có link `.vv-link` | `role=dialog` | Kit › Gợi ý & trạng thái |
 | `Badge` · `Chip` · `Kbd` | `.vv-tag` + `.vv-tag__dot` (`--working/--ok/--review/--issue/--muted/--accent`) · `.vv-chip` · `.vv-kbd` | | | Kit › Gợi ý & trạng thái |
 | `Banner` | `.vv-banner` (`--info/--ready/--review/--issue/--director`) · `__body/__title/__text/__actions` | lỗi luôn có cách sửa | `role=status` / `alert` | Kit, MKit |
-| `Toast` | `.vv-toast` (`--ok/--issue/--sm`) · `.vv-toast-in` | viên cho kết quả thao tác, một hành động (Hoàn tác / Mở lại / Xem); thẻ 300px cho cần bạn / Cần xử lý | `role=status/alert` | Kit › Xác nhận, Menu; `Activity` · `view=toasts` |
+| `Toast` | `.vv-toast` (`--ok/--review/--issue/--sm`, `__text`, `__count`) · `.vv-toast-x` (vòng đếm `.vv-cd-bg` + `.vv-cd`) · `.vv-tstack` + `.vv-tcard` (`--ok/--review/--issue/--scout/--director/--artist/--qa`, `--back`, `__ic/__badge/__body/__title/__text/__acts`) · `.vv-toast-in/-out` | đợt 35 theo Noverse: kính mờ, vòng đếm quanh nút đóng; viên giữa đáy cho kết quả thao tác; thẻ 328px góc phải dưới cho việc nền, tối đa 2 <!-- r35 --> | `role=status/alert`, nút đóng `aria-label="Đóng thông báo"` | Kit › Gợi ý & trạng thái › Toast, Xác nhận; MKit › Sheet; `Activity` · `view=toasts` |
 | `Skeleton` · `Spinner` · `Shimmer` · `Empty` | `.vv-skel` · `.vv-spinner` · `.vv-shimmer` · `.vv-empty` (`__icon/__title/__text`) | | `role=progressbar` khi có % | Kit › Gợi ý & trạng thái |
 | `Card` · `Stage` | `.vv-card` (`__title`) · `.vv-stage` | | | mọi nơi |
 | `Sheet` (điện thoại) | `.vv-sheet` · `__grab` · `__title` | thao tác, xác nhận (nút chính sáng) | `role=dialog aria-modal` | MKit › Sheet |
@@ -80,7 +80,7 @@
 | `Row` · `Avatar` · `Thumb` | `.vv-row` (`--m` 56px, `.is-on`) · `.vv-avatar` (`--s`, `--bg`, `--ring`, `--fg`) · `.vv-thumb` (`__bl`, `__br`, `__dur`) | nhãn ảnh chỉ ở cạnh dưới | `aria-current` | Kit › Video & thẻ |
 | `VideoCard` · `VideoRow` · `ChannelRow` · `ChannelSwitcher` · `AgentCard` · `StatTile` | ghép từ các lớp trên | xem board | | Kit › Video & thẻ |
 | `Orb` | `.vv-orb--scout/director/artist/qa` + `.vv-live` | | `aria-hidden` | Kit › Nền tảng |
-| `AppBar` · `NavHeader` | `.vv-appbar` + `.vv-title-m` · `.vv-navbar` · `__title` · `.vv-ib` | gốc / con (‹ hoặc ×) | | MKit › Đầu trang |
+| `AppBar` · `NavHeader` | `.vv-appbar` + `__end` · `.vv-mswitch` (`--new`, `__name`) · `.vv-avstack` · `.vv-mbtn` (`--av`) · `.vv-jobsbtn` (`--running/--idle/--paused/--offline`, `__ring/__trk/__arc/__n`) · `.vv-notice-dot` · `.vv-title-m` · `.vv-navbar` · `__title` · `.vv-ib` | gốc / con (‹ hoặc ×); đợt 36: mọi phần tử 36px, nút Việc nền tròn, 6 trường hợp <!-- r36 --> | nút Việc nền `aria-label` đọc câu đầy đủ + số thông báo | MKit › Đầu trang |
 | `MobileTabBar` | `.vv-tabbar` · `__cap/__ind(--i)/__item/__label/__new/__badge` · `.is-mini` | 5 mục, mục giữa nút tròn đỏ (chỗ duy nhất đỏ làm nền) | `aria-current=page` | MKit › Đầu trang |
 | `WhyLink` · `ReasonPopover` | `.vv-why` · `.vv-reason` · `__head/__text/__facts/__fact/__src/__fix` | màu trợ lý qua `--ag` | `aria-haspopup=dialog`, `aria-expanded` | Kit › Trợ lý, MKit › Trợ lý |
 | `SuggestionCard` | `.vv-suggest` (`--compact` · `--m`) · `__who/__title/__ev/__actions` | nút sáng nhỏ, Bỏ qua, ⋯ | `article`; ⋯ có `aria-label` | Kit › Trợ lý, MKit › Trợ lý |
@@ -104,7 +104,7 @@ Từ đợt 20, cả 23 artboard màn hình đã vẽ theo kit mới. Bảng nà
 | Menu `.vv-menu` bo 12px, mục cao 8px đệm | `.vv-pop` bo 14px, `.vv-opt` cao ≥ 34px, mục đang trỏ `.is-active` |
 | Hộp thoại bo 16px, nền `#161618` | `.vv-dialog` bo 18px, nền `--vv-dialog`, icon 42px |
 | Banner câu một dòng, chữ màu loại | `.vv-banner` tiêu đề + câu xám + nút nhỏ bên phải |
-| Toast thẻ chữ nhật cho kết quả thao tác | `.vv-toast` hình viên; thẻ 300px chỉ cho “cần bạn” / Cần xử lý |
+| Toast thẻ chữ nhật cho kết quả thao tác; vạch đếm ở đáy; dòng “Tự đóng sau…” | `.vv-toast` hình viên giữa đáy; thẻ `.vv-tcard` 328px chỉ cho việc nền; đếm ngược là vòng quanh nút đóng <!-- r35 --> |
 | Chip 26px bo 7px | `.vv-chip` 28px bo 8px |
 | Thẻ bo 14px | `.vv-card` bo 16px (thẻ con trong danh sách 14px) |
 

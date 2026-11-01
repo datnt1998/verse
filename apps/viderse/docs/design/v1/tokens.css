@@ -159,8 +159,12 @@
   --vv-popover-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
   --vv-dialog: #18181A;
   --vv-dialog-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
-  --vv-toast: #1C1C1F;
-  --vv-toast-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+  --vv-toast: #1C1C1F;                /* nền đặc của toast khi không có backdrop-filter; viền quanh huy hiệu trên thẻ toast */
+  --vv-toast-glass: linear-gradient(180deg, rgba(30,30,33,.93), rgba(20,20,22,.96)); /* r35: toast kính như Noverse, kèm blur(18px) saturate(150%) */
+  --vv-toast-border: rgba(255,255,255,.09);
+  --vv-toast-shadow: 0 22px 60px -14px rgba(0,0,0,.85), 0 2px 6px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07);
+  --vv-toast-ring: rgba(255,255,255,.07);  /* vòng nền của đếm ngược quanh nút đóng */
+  --vv-scout-tint: rgba(127,163,255,.16); --vv-director-tint: rgba(176,138,247,.16); --vv-artist-tint: rgba(255,190,102,.16); --vv-qa-tint: rgba(93,221,176,.16); /* r35: loang góc thẻ toast khi trợ lý làm xong */
   --vv-scrim: rgba(5,5,7,.62);        /* kèm backdrop-filter: blur(3px) */
   --vv-glass: rgba(26,26,29,.74);     /* thanh dưới điện thoại, kèm blur(26px) saturate(180%) */
   --vv-hover: rgba(255,255,255,.07);

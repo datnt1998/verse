@@ -97,7 +97,7 @@ Thêm ở đợt 15 để `kit.css` không phải viết cứng giá trị nào.
 | Nhấn | `--vv-accent`, `--vv-accent-strong`, `--vv-accent-soft`, `--vv-accent-bg`, `--vv-accent-tint`, `--vv-accent-border`, `--vv-accent-focus`, `--vv-accent-ring`, `--vv-accent-mark` | Chỗ Noverse dùng tím |
 | Phá huỷ | `--vv-danger`, `--vv-danger-hover`, `--vv-danger-fg`, `--vv-danger-text`, `--vv-danger-text-2`, `--vv-danger-soft`, `--vv-danger-soft-hover`, `--vv-danger-tint`, `--vv-danger-border`, `--vv-danger-focus`, `--vv-danger-ring` | Chỗ Noverse dùng đỏ |
 | Chữ | `--vv-text-soft`, `--vv-text-hint`, `--vv-disabled` | Thân hộp thoại, mô tả dưới lựa chọn, chữ đang khoá |
-| Bề mặt | `--vv-stage`, `--vv-selected-2`, `--vv-dialog`, `--vv-toast`, `--vv-field-hover`, `--vv-hover-row`, `--vv-opt-hover`, `--vv-opt-active`, `--vv-skel-a/-b` | Khung minh hoạ, nút đang chọn trong nhóm chọn, hộp thoại, toast, hover |
+| Bề mặt | `--vv-stage`, `--vv-selected-2`, `--vv-dialog`, `--vv-toast`, `--vv-toast-glass`, `--vv-toast-border`, `--vv-toast-ring`, `--vv-scout/director/artist/qa-tint` (đợt 35) <!-- r35 -->, `--vv-field-hover`, `--vv-hover-row`, `--vv-opt-hover`, `--vv-opt-active`, `--vv-skel-a/-b` | Khung minh hoạ, nút đang chọn trong nhóm chọn, hộp thoại, toast, hover |
 | Thông tin | `--vv-info`, `--vv-info-bg`, `--vv-info-border`, `--vv-st-*-tint`, `--vv-st-*-border` | Banner |
 | Cỡ | `--vv-h-btn` 36 · `--vv-h-btn-sm` 30 · `--vv-h-field` 36 · `--vv-h-opt` 34 · `--vv-fs-dialog` 16 · `--vv-fs-card` 14 · `--vv-fs-small` 11,5 · `--vv-r-*` | Theo Kit Noverse |
 | Chuyển động | `--vv-ease`, `--vv-ease-spring`, `--vv-dur` 150ms, `--vv-dur-pop` 170ms, `--vv-dur-dialog` 300ms | Menu mở, công tắc nảy, hộp thoại |

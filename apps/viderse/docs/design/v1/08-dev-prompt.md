@@ -856,6 +856,55 @@ Nguồn sự thật:
 - Khám phá ở 390: nhóm Sắp xếp đủ chữ “Mới nhất”, cuộn ngang được khi chật; không chỗ nào trong app có nhóm chọn bị “…”.
 - Ghi “Gói V30” vào `10-gap-closure.md`.
 
+## Gói V31 — Toast theo Noverse (P2) <!-- r35 --> <a id="goi-v31"></a>
+
+**Vì sao:** toast của Viderse lệch hẳn Noverse: ba thẻ phẳng 300px chồng góc phải (kể cả kết quả thao tác), vạch đếm ở đáy, dòng chữ “Tự đóng sau 5 giây…”, tiêu đề hai dòng. Đợt 35 đưa về cùng chất liệu và hành vi với Noverse.
+- Artboard: `Activity` · `view=toasts` (= `Dialogs` · `dialog=toasts`) · `Kit` › Gợi ý & trạng thái › Toast · `Kit` › Xác nhận (toast sau khi xác nhận) · `Editor` · `focus=scene&img=done` · `MKit` › Sheet › Toast.
+- Spec: components › Toast; copy › Toast: câu chữ; 05-kit › Toast; tokens `--vv-toast-glass`, `--vv-toast-border`, `--vv-toast-shadow` (mới), `--vv-toast-ring`, `--vv-*-tint`; luật L13 ở 01.
+
+### Thấy trong code hiện tại
+- `apps/viderse/web/src/App.tsx` dùng `<ToastHost activity />` của `@noverse/ui`: mọi toast (cả viên) nằm cột phải, thẻ 300px bo 12–14px, tối đa 3.
+- `shell/ActivityBridge.tsx` ghi `meta` “Gộp N thông báo trong 10 giây” / “Giữ tới khi bạn đóng” / “Tự đóng sau 5 giây…” và tiêu đề là tên video.
+- `editor/v13/Editor.tsx` dùng `sonner` riêng (`<Toaster>` + ~20 file `import { toast } from 'sonner'`), nên toast ở Editor khác phần còn lại.
+
+### Việc FE
+- Viên kết quả thao tác (`toast(text, tone, action)`): **giữa đáy cột nội dung**, trên ô Nhắn trợ lý / thanh đáy 12px; 6 giây, Hoàn tác 5 giây và ghi “· Ns” trên nút.
+- Thẻ việc nền (`toast.card`): góc phải dưới, rộng 328px, bo 18px, kính mờ, icon tròn 34px trên nền loang màu loại (trợ lý: orb + tick mint), tiêu đề một dòng, câu phụ tối đa 2 dòng; **tối đa 2**, thẻ cũ lùi sau (scale .955, mờ 60%), rê chuột bung + dừng đếm. Chỉ thẻ trước có nút sáng.
+- Đếm ngược là vòng quanh nút đóng như `platform/ui` Toast đang có cho viên; áp cả cho thẻ. Bỏ `meta`, bỏ vạch đáy. Cần xử lý: không vòng, ở lại.
+- Câu chữ theo copy › Toast: tiêu đề = việc, tên video vào câu phụ.
+- Editor: thay `sonner` bằng `toast` của `@noverse/ui` để cùng một chồng toast và cùng kiểu.
+- Nếu sửa trong `platform/ui/src/Toast.tsx` (dùng chung với Noverse) thì chỉ đổi nhánh `activity` / thêm tuỳ chọn vị trí; viên của Noverse giữ nguyên.
+
+### Nghiệm thu
+- Xoá 2 video ở Kênh: viên “Đã xoá 2 video · Hoàn tác · 5s” hiện giữa đáy, không ở góc phải; vòng quanh nút đóng chạy hết trong 5 giây.
+- Ba thông báo việc nền đến liền nhau: chỉ thấy 2 thẻ, thẻ cũ lùi sau; rê chuột thì bung và vòng dừng.
+- Không còn chữ “Tự đóng sau…”, “Gộp N thông báo…” trong toast; Editor và các màn khác cùng một kiểu toast.
+- Ghi “Gói V31” vào `10-gap-closure.md`.
+
+## Gói V32 — Thanh trên điện thoại chuẩn hoá, Thông báo trên điện thoại (P1) <!-- r36 --> <a id="goi-v32"></a>
+
+**Vì sao:** ảnh bản thật cho thấy viên “Rảnh” và chấm vàng đè lên mép viên, avatar khác cỡ viên, chồng avatar “Mọi kênh” che mất chữ. Thiết kế điện thoại trước đây cũng không có nơi xem thông báo nên chấm vàng không có đích.
+- Artboard: `MMain` · `jobs=running|idle|paused|offline`, `notice=unread|read|none`, `screen=inbox` (sheet Việc nền mở ở tab Thông báo) · `MKit` › Đầu trang › Thanh trên · mọi trường hợp · `MChannel`, `MReview`, `MExplore` (thanh trên dùng cùng thành phần) · `Main` (chồng avatar một chữ).
+- Spec: components › Đầu trang điện thoại › AppBar, JobsPill; copy › Thanh trên điện thoại và Thông báo, Hàng chờ và nút việc nền; 05-kit › AppBar; 01 › thanh trên.
+
+### Thấy trong code hiện tại
+- `shell/JobsPill.tsx` (`mobileBar`): viên 36px có chữ “Rảnh” khi rảnh; chấm `unread` `top/right: 3px` nên nằm đè mép viên; avatar cao khác viên.
+- `shell/MobileShell.tsx`: chưa có chỗ xem thông báo trên điện thoại (sheet chỉ có việc đang chạy).
+
+### Việc FE
+- `MobileShell` thanh trên: logo 24 · `ChannelSwitcher` · (đẩy phải, khe 8) nút Việc nền · avatar. Mọi phần tử cao 36px, nền `--vv-surface-1`, viền `--vv-card-border`, vùng chạm 44px.
+- `JobsPill mobileBar` → nút tròn 36px: đang chạy = vòng 2px (`--vv-red`, tiến độ trung bình các việc đang chạy) + số việc đang chạy; rảnh = icon `activity`; tạm dừng = vòng xám + icon `pause`; mất kết nối = icon `danger` cam. Bỏ chữ trên điện thoại; `aria-label` câu đầy đủ.
+- Chấm chưa đọc: 10px, viền 2px màu nền, `top: -1px; right: -1px` (tâm trên mép tròn); ẩn khi mất kết nối.
+- `ChannelSwitcher mobileBar`: `min-width: 0`, tên cắt “…”; Mọi kênh = 3 avatar 22px **một chữ cái**, chồng −7px, viền 2px màu thanh. Chưa có kênh → nút “+ Tạo kênh”. Máy tính: chồng avatar cũng một chữ cái.
+- Sheet Việc nền điện thoại: tiêu đề “Việc nền”, `Segmented --m --fill` hai tab Đang chạy · Thông báo (huy hiệu số); bấm nút khi có chấm thì mở tab Thông báo. Tab Thông báo dùng cùng dữ liệu với popover máy tính, *Đánh dấu đã đọc*, trạng thái trống.
+
+### Nghiệm thu
+- 390px, Mọi kênh + 2 việc + có thông báo: logo, bộ đổi kênh, nút Việc nền, avatar thẳng hàng giữa, cùng cao 36; chấm vàng nằm trên mép tròn.
+- Kênh tên dài (“Chuyện Lạ Đêm Khuya”) ở 360px: tên cắt “…”, hai nút phải không xê dịch.
+- Máy rảnh: không còn chữ “Rảnh”. Chưa có kênh: thấy “+ Tạo kênh”.
+- Bấm nút Việc nền khi có chấm → sheet mở ở Thông báo; đánh dấu đã đọc → chấm mất.
+- Ghi “Gói V32” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -888,6 +937,8 @@ Nguồn sự thật:
 | V28 | Không API mới; `/api/events` (SSE) đã có (#8) | <!-- r32 -->
 | V29 | `ImageVersion` (prompt đã gửi theo phần, refs, provider, thời gian), `POST …/images/redraw` (`feedback`, `parts`, `refs`), `…/use`, `…/cancel`, SSE `image.progress` | <!-- r33-img -->
 | V30 | `displayPath` (đã có, #78); chỗ trống theo ổ đang giữ thư mục lưu dự án, `null` khi ổ không cắm | <!-- r34 -->
+| V31 | Không đổi API (chỉ giao diện toast) | <!-- r35 -->
+| V32 | Tiến độ trung bình các việc đang chạy cho vòng của nút Việc nền (có thể tính ở FE từ `status`); số thông báo chưa đọc (đã có `attention`) | <!-- r36 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->

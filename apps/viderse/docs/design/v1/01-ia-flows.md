@@ -192,8 +192,8 @@ Nơi khác chỉ hiển thị giá trị và link tới nhà của nó.
 
 **L13 · Việc nền và thông báo.** Mọi việc dài (video, tạo nhận diện, quét lịch sử, đọc kênh nền, vẽ thử ảnh bìa, dựng bản xem thử, xuất từ editor, cài công cụ, dọn dữ liệu, xuất log) là một **việc nền** cùng một dạng: ai làm, làm gì, đang ở đâu (thanh + % hoặc x/y), còn bao lâu nếu đo được, một hành động. Việc nền nằm trong popover **Việc nền** mở từ viên ở đầu trang, không chiếm màn hình.
 - **Đề xuất và Bản tin không bao giờ toast** (§9). <!-- r16-agent -->
-- **Toast chỉ khi:** (a) kết quả thao tác của chính bạn (5 giây, có Hoàn tác/Xem); (b) việc nền xong mà cần bạn hoặc bạn đang đợi: **Chờ duyệt**, **Cần xử lý** (cam, ở lại tới khi đóng), **Sẵn sàng**, và việc khác bạn tự bắt đầu (Nhận diện kênh đã xong). **Không bao giờ toast tiến độ.**
-- **Gộp:** nhiều kết quả trong khoảng 10 giây → một toast (“3 video chờ duyệt · Duyệt ảnh”). Tối đa 3 toast, góc phải dưới, mới nhất trên cùng, rê chuột thì dừng đếm, Esc đóng.
+- **Toast chỉ khi:** (a) kết quả thao tác của chính bạn (viên giữa đáy, 6 giây, có Hoàn tác thì 5 giây) <!-- r35 -->; (b) việc nền xong mà cần bạn hoặc bạn đang đợi: **Chờ duyệt**, **Cần xử lý** (cam, ở lại tới khi đóng), **Sẵn sàng**, và việc khác bạn tự bắt đầu (Nhận diện kênh đã xong). **Không bao giờ toast tiến độ.**
+- **Gộp:** nhiều kết quả trong khoảng 10 giây → một toast (“3 video chờ duyệt · Duyệt ảnh”). Thẻ việc nền tối đa 2, góc phải dưới, mới nhất ở dưới, thẻ cũ lùi sau (đợt 35, như Noverse); rê chuột thì dừng đếm, Esc đóng.
 - **Lịch sử:** mọi thứ đã toast đều nằm trong tab **Thông báo** của popover (chưa đọc có chấm; viên ở đầu trang có chấm vàng khi có thông báo cần bạn).
 - **Cửa sổ ẩn:** thông báo hệ thống cho Chờ duyệt, Cần xử lý, Sẵn sàng; số trên biểu tượng app = số Chờ bạn. Có giờ yên lặng (vẫn ghi lịch sử).
 - **Cài đặt thông báo** bật/tắt theo loại × kênh hiển thị (trong app / hệ thống).
@@ -215,7 +215,7 @@ Bên trái thanh trên: logo và **bộ đổi kênh** (“Mọi kênh” với 
 
 Bên phải thanh trên:
 - Viên **“2 đang chạy · 12 chờ lượt”** mở popover **Việc nền** (Đang chạy · Thông báo); cuối popover có “Mở Hàng chờ”. Có thông báo cần bạn thì viên có chấm vàng. <!-- r31-v27 -->
-  - Bốn trạng thái, cùng khung 30px (điện thoại 36px, chữ gọn): **đang chạy** chấm đỏ “2 đang chạy · 12 chờ lượt” (`2 · 12`) · **máy rảnh** chấm xám “Máy rảnh” (`Rảnh`) · **đã tạm dừng** icon tạm dừng “Đã tạm dừng lúc 00:04 · 12 chờ lượt” (`⏸ 12`) · **mất kết nối** icon cam “Mất kết nối · đang thử lại” (`Mất kết nối`). Artboard `Main` / `MMain` · `jobs=running|idle|paused|offline`.
+  - Bốn trạng thái, cùng khung 30px: **đang chạy** chấm đỏ “2 đang chạy · 12 chờ lượt” · **máy rảnh** chấm xám “Máy rảnh” · **đã tạm dừng** icon tạm dừng “Đã tạm dừng lúc 00:04 · 12 chờ lượt” · **mất kết nối** icon cam “Mất kết nối · đang thử lại”. Điện thoại dùng **nút tròn 36px** (vòng tiến độ + số việc đang chạy; rảnh chỉ icon) — đợt 36 <!-- r36 -->. Artboard `Main` / `MMain` · `jobs=running|idle|paused|offline`.
   - Mất kết nối = `GET /api/status` lỗi 2 lần liền (hoặc SSE đứt quá 10 giây). Giữ số cũ trong popover kèm giờ cập nhật cuối; nút Tạm dừng khoá tới khi có kết nối.
 - Bánh răng mở **Cài đặt**, có chấm khi có việc cần xem.
 - Avatar.
@@ -228,7 +228,7 @@ Trang phụ:
 ### 6.2 Điện thoại
 Thanh dưới: **Bàn dựng · Duyệt · [+] Video mới · Kênh · Khám phá**.
 - **Hai loại màn:** <!-- r14-mobile -->
-  - **Màn gốc** (5 mục của thanh dưới: Bàn dựng, Duyệt, Kênh, Khám phá; Video mới là nút giữa): thanh trên = logo · bộ đổi kênh (chỉ Bàn dựng và Kênh) · viên Việc nền · avatar; dưới đó là tiêu đề lớn 24px. Có thanh dưới.
+  - **Màn gốc** (5 mục của thanh dưới: Bàn dựng, Duyệt, Kênh, Khám phá; Video mới là nút giữa): thanh trên = logo · bộ đổi kênh (chỉ Bàn dựng và Kênh; chưa có kênh thì “+ Tạo kênh”) · nút Việc nền · avatar, mọi phần tử cao 36px (đợt 36). **Thông báo trên điện thoại** nằm ở tab *Thông báo* của sheet Việc nền; chấm vàng trên nút Việc nền dẫn tới đó; dưới đó là tiêu đề lớn 24px. Có thanh dưới.
   - **Màn con** (chi tiết video, video đối thủ, Video mới, Tạo kênh, Cài đặt và các mục con): đầu trang 52px = nút Quay lại (‹) hoặc Đóng (×, cho luồng tạo mới) · tiêu đề 16px căn trái (có thể thêm dòng phụ) · thao tác bên phải. Không có thanh dưới.
 - Khám phá và Duyệt không có bộ đổi kênh (giống máy tính: chỉ Bàn dựng đổi phạm vi, Kênh đổi kênh đang mở).
 - Viên **Việc nền** ở mọi màn gốc mở cùng một sheet (đang chạy + “Mở hàng chờ”); ở Bàn dựng là sheet Hàng chờ có Tạm dừng, “Mở cả hàng chờ” và “Quy tắc chạy”. Cả hai dẫn tới màn **Hàng chờ** (`MQueue`). <!-- r31-v27 -->

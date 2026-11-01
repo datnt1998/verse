@@ -1,5 +1,24 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 36 (01/11/2026) — Gói V32: thanh trên điện thoại, Thông báo trên điện thoại <!-- r36 -->
+
+- Thanh trên điện thoại chuẩn hoá: mọi phần tử cao 36px (chạm 44); nút Việc nền tròn có vòng tiến độ + số việc, rảnh chỉ icon (bỏ “Rảnh”); chấm thông báo đặt trên mép tròn; avatar 36px.
+- Bộ đổi kênh co trước, cắt tên; chồng avatar “Mọi kênh” mỗi avatar một chữ cái (cả máy tính). Chưa có kênh → “+ Tạo kênh”.
+- Sheet Việc nền điện thoại có tab Thông báo (trước đây điện thoại không có nơi xem), có trạng thái chưa đọc, đã đọc, trống.
+- Sửa lỗi của đợt 35: popover Việc nền ở `Activity` › Thông báo bị vỡ bố cục do một tiền tố CSS sót lại khi bỏ toast cũ; đã kiểm lại mọi trạng thái `Activity`/`Dialogs`.
+- Board: `MMain` (`notice`, `screen=inbox`), `MKit` › Đầu trang (6 trường hợp), `MChannel`, `MReview`, `MExplore`, `MQueue`, `MSettings`, `Main`/`Activity`/`Dialogs`/`System`; kit thêm `.vv-mbtn`, `.vv-jobsbtn`, `.vv-notice-dot`, `.vv-mswitch`, `.vv-avstack`.
+- Tài liệu: components › AppBar, JobsPill; copy › Thanh trên điện thoại và Thông báo; 05-kit; 01; dev-prompt Gói V32.
+- Canvas phiên bản 63.
+
+## Đợt 35 (01/11/2026) — Gói V31: toast theo Noverse <!-- r35 -->
+
+- Toast làm lại theo Noverse: kính mờ, đếm ngược là vòng quanh nút đóng (bỏ vạch đáy và dòng “Tự đóng sau…”).
+- Viên kết quả thao tác về giữa đáy, trên ô Nhắn trợ lý; thẻ việc nền 328px góc phải dưới, tối đa 2, thẻ cũ lùi sau, rê chuột bung; trợ lý làm xong dùng orb + tick.
+- Tiêu đề thẻ một dòng nói việc, tên video vào câu phụ.
+- Board: `Activity`/`Dialogs` (toasts), `Kit` (thẻ Toast mới + toast sau xác nhận), `Editor` (toast dùng bản ảnh), `MKit` (toast điện thoại); khối kit và tokens trong mọi board cập nhật.
+- Tài liệu: components › Toast; copy › Toast: câu chữ; 05-kit; 03-tokens; 01 L13; dev-prompt Gói V31.
+- Canvas phiên bản 62.
+
 ## Đợt 34 (01/11/2026) — Gói V30: đường dẫn, chỗ trống theo ổ, nhóm chọn không cắt chữ <!-- r34 -->
 
 - #78: đường dẫn in `displayPath`, một dòng, cắt giữa theo thư mục (giữ đầu + 2 thư mục cuối); thư mục mặc định bản web `~/.viderse/projects`. `Settings`, `MSettings` (điện thoại thôi xuống dòng).
