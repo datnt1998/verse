@@ -124,11 +124,13 @@ func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, local *s
 		return err
 	}, func() { web.Notifier(hub, "storage")(""); statusSvc.Bump() })
 	statusSvc.SetStorageHealthSource(manager)
-	// Cổng chỉ khoá thao tác thư mục khi kho media đang ở S3 — máy để kho
-	// local vẫn dùng được Cài đặt › Lưu trữ. `remoteStorage` cập nhật theo nhịp
-	// health của kho (SetStorageWatcher), không phải hằng số.
-	g.SetServerStorageMode(local.RemoteStorage)
-	web.MountServerStorage(g, manager)
+	// "Chạy trên máy chủ" (01-ia-flows W13, Gói V25) = bản chạy trên máy chủ
+	// (có PUBLIC_URL) HOẶC kho media đang ở S3. Bản desktop để kho local giữ
+	// nguyên V22: chọn thư mục, Mở trong Finder và gợi ý ổ đang cắm vẫn dùng
+	// được, và `/api/storage/server` trả 404 để giao diện chọn thẻ máy.
+	serverMode := func() bool { return g.Hosted() || local.RemoteStorage() }
+	g.SetServerStorageMode(serverMode)
+	web.MountServerStorage(g, manager, serverMode)
 	manager.Start()
 	cleanup.BindManager(manager)
 	cleanup.Start()
