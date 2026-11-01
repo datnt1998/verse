@@ -6,11 +6,12 @@ import type { User } from '../api/types'
 import { t } from '../i18n/vi'
 import { fill } from '../screens/settings/fmt'
 import { navigate, paths } from '../router'
+import { space as sp } from '../styles/viderse.stylex'
 
 // Dải này nằm trong khung app nên giữ style riêng, không kéo cả stylesheet của
 // màn Lưu trữ vào entry.
 const s = stylex.create({
-  strip: { flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', backgroundColor: 'var(--vv-err-11)', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-err-28)', fontSize: 13, color: color['--color-err'] },
+  strip: { flexShrink: 0, display: 'flex', alignItems: 'center', gap: sp['--vv-s-10'], paddingBlock: sp['--vv-s-8'], paddingInline: sp['--vv-s-16'], backgroundColor: 'var(--vv-err-11)', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-err-28)', fontSize: 13, color: color['--color-err'] },
   grow: { flex: 1, minWidth: 0 },
 })
 
