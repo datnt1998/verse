@@ -389,7 +389,7 @@ func (c *Config) Normalize(r *http.Request) *http.Request {
 		if proto := forwardedProto(r); proto != "" {
 			facts.Secure = proto == "https" || c.SecureCookies
 		}
-		if ip := c.forwardedClient(peer, r.Header.Values("X-Forwarded-For")); ip != nil {
+		if ip := c.forwardedClient(peer, r); ip != nil {
 			facts.ClientIP = ip.String()
 		}
 	}
@@ -413,18 +413,28 @@ func forwardedProto(r *http.Request) string {
 	return proto
 }
 
-// forwardedClient walks X-Forwarded-For right-to-left through trusted hops and
-// returns the first address the chain did not add itself. A malformed element
-// stops the walk at the last trusted address rather than trusting garbage.
-func (c *Config) forwardedClient(peer net.IP, headers []string) net.IP {
-	hops := make([]net.IP, 0, len(headers))
-	for _, header := range headers {
+// forwardedClient resolves the client address from a trusted proxy's headers.
+//
+// CF-Connecting-IP wins when it is one bare IP literal: Cloudflare overwrites
+// it on every request that reaches the edge, so it is the single value an
+// internet client cannot forge. A header holding anything else (a list, a
+// port, repeated headers) is ignored rather than repaired.
+//
+// Otherwise X-Forwarded-For is walked right-to-left through trusted hops. An
+// unparsable element is skipped, not fatal: the rightmost hops are the ones
+// the trusted proxy appended itself, so one junk token on the left must not
+// throw away the real address and file the client under the proxy's own
+// limiter bucket.
+func (c *Config) forwardedClient(peer net.IP, r *http.Request) net.IP {
+	if ip := cfConnectingIP(r); ip != nil {
+		return ip
+	}
+	hops := make([]net.IP, 0, 4)
+	for _, header := range r.Header.Values("X-Forwarded-For") {
 		for _, part := range strings.Split(header, ",") {
-			ip := net.ParseIP(strings.TrimSpace(part))
-			if ip == nil {
-				return nil
+			if ip := net.ParseIP(strings.TrimSpace(part)); ip != nil {
+				hops = append(hops, ip)
 			}
-			hops = append(hops, ip)
 		}
 	}
 	if len(hops) == 0 {
@@ -441,6 +451,28 @@ func (c *Config) forwardedClient(peer net.IP, headers []string) net.IP {
 		return peer
 	}
 	return current
+}
+
+// cfConnectingIP accepts exactly one header value holding one IP literal.
+func cfConnectingIP(r *http.Request) net.IP {
+	values := r.Header.Values("CF-Connecting-IP")
+	if len(values) != 1 {
+		return nil
+	}
+	return net.ParseIP(strings.TrimSpace(values[0]))
+}
+
+// DirectLoopback reports whether the request arrived on the loopback interface
+// without passing through a configured trusted proxy: the operator's own
+// machine (a container healthcheck, a deploy script hitting 127.0.0.1), not a
+// client relayed by the public edge. A loopback peer listed in TRUSTED_PROXIES
+// is a proxy (cloudflared on the host), so its requests are not direct.
+func (c *Config) DirectLoopback(r *http.Request) bool {
+	peer := ParseRemoteIP(r.RemoteAddr)
+	if peer == nil || !peer.IsLoopback() {
+		return false
+	}
+	return c == nil || !c.trusted(peer)
 }
 
 // AllowedOrigin reports whether an Origin value is one this deployment serves.

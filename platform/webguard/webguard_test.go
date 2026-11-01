@@ -70,11 +70,19 @@ func TestTrustedProxyNormalization(t *testing.T) {
 			wantSecure: false,
 		},
 		{
-			name:       "malformed xff stops at the trusted peer",
+			name:       "malformed xff element is skipped, not fatal",
 			remoteAddr: "10.1.2.3:5",
 			xff:        []string{"203.0.113.9, not-an-ip"},
 			xfp:        "https",
-			wantIP:     "10.1.2.3",
+			wantIP:     "203.0.113.9",
+			wantSecure: true,
+		},
+		{
+			name:       "junk left of the edge-appended hop changes nothing",
+			remoteAddr: "10.1.2.3:5",
+			xff:        []string{"forged.example, 203.0.113.9"},
+			xfp:        "https",
+			wantIP:     "203.0.113.9",
 			wantSecure: true,
 		},
 		{
@@ -127,6 +135,109 @@ func TestTrustedProxyNormalization(t *testing.T) {
 				t.Fatalf("SecureRequest = %v, want %v", got, tc.wantSecure)
 			}
 		})
+	}
+}
+
+// TestForwardedClientHeaderPrecedence pins which header decides the client IP
+// behind the public edge. CF-Connecting-IP is written by Cloudflare on every
+// request, so it is the one value an internet client cannot forge; a malformed
+// X-Forwarded-For must not push the client into the proxy's own limiter bucket.
+func TestForwardedClientHeaderPrecedence(t *testing.T) {
+	cfg := mustConfig(t, "10.0.0.0/8", "https://vid.example", true)
+	for _, tc := range []struct {
+		name       string
+		remoteAddr string
+		cfip       []string
+		xff        []string
+		wantIP     string
+	}{
+		{
+			name:       "cloudflare header wins over a forged chain",
+			remoteAddr: "10.1.2.3:5",
+			cfip:       []string{"203.0.113.9"},
+			xff:        []string{"1.2.3.4, not-an-ip, 198.51.100.7"},
+			wantIP:     "203.0.113.9",
+		},
+		{
+			name:       "cloudflare header alone",
+			remoteAddr: "10.1.2.3:5",
+			cfip:       []string{"203.0.113.9"},
+			wantIP:     "203.0.113.9",
+		},
+		{
+			name:       "malformed cloudflare header falls back to the xff walk",
+			remoteAddr: "10.1.2.3:5",
+			cfip:       []string{"203.0.113.9, 198.51.100.7"},
+			xff:        []string{"198.51.100.7"},
+			wantIP:     "198.51.100.7",
+		},
+		{
+			name:       "cloudflare header with a port is not an IP literal",
+			remoteAddr: "10.1.2.3:5",
+			cfip:       []string{"203.0.113.9:443"},
+			xff:        []string{"198.51.100.7"},
+			wantIP:     "198.51.100.7",
+		},
+		{
+			name:       "repeated cloudflare headers are ignored",
+			remoteAddr: "10.1.2.3:5",
+			cfip:       []string{"203.0.113.9", "198.51.100.7"},
+			xff:        []string{"198.51.100.7"},
+			wantIP:     "198.51.100.7",
+		},
+		{
+			name:       "untrusted peer supplies neither header",
+			remoteAddr: "198.51.100.7:9",
+			cfip:       []string{"203.0.113.9"},
+			xff:        []string{"203.0.113.9"},
+			wantIP:     "198.51.100.7",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest(http.MethodGet, "/api/me", nil)
+			r.RemoteAddr = tc.remoteAddr
+			for _, v := range tc.cfip {
+				r.Header.Add("CF-Connecting-IP", v)
+			}
+			for _, v := range tc.xff {
+				r.Header.Add("X-Forwarded-For", v)
+			}
+			if got := ClientIP(cfg.Normalize(r)); got != tc.wantIP {
+				t.Fatalf("ClientIP = %q, want %q", got, tc.wantIP)
+			}
+		})
+	}
+}
+
+// TestDirectLoopback pins the operator-path test used by /readyz: a loopback
+// peer is "direct" only when it is not itself a configured proxy.
+func TestDirectLoopback(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		trusted    string
+		remoteAddr string
+		want       bool
+	}{
+		{"loopback with no proxy configured", "", "127.0.0.1:5555", true},
+		{"loopback is a configured proxy", "127.0.0.1/32", "127.0.0.1:5555", false},
+		{"public peer", "", "203.0.113.9:443", false},
+		{"private peer", "10.0.0.0/8", "10.1.2.3:5", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := mustConfig(t, tc.trusted, "", false)
+			r := httptest.NewRequest(http.MethodGet, "/readyz", nil)
+			r.RemoteAddr = tc.remoteAddr
+			if got := cfg.DirectLoopback(r); got != tc.want {
+				t.Fatalf("DirectLoopback = %v, want %v", got, tc.want)
+			}
+		})
+	}
+	if !(*Config)(nil).DirectLoopback(func() *http.Request {
+		r := httptest.NewRequest(http.MethodGet, "/readyz", nil)
+		r.RemoteAddr = "127.0.0.1:1"
+		return r
+	}()) {
+		t.Fatal("nil config must treat a loopback peer as direct")
 	}
 }
 
