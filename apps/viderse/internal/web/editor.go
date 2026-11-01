@@ -28,10 +28,11 @@ type EditorQualityProvider interface {
 type editorHTTP struct {
 	service *editor.Service
 	quality EditorQualityProvider
+	jobs    *editor.JobQueue
 }
 
 func MountEditor(g *Gateway, svc *editor.Service, quality EditorQualityProvider) {
-	h := editorHTTP{svc, quality}
+	h := editorHTTP{service: svc, quality: quality, jobs: editor.NewJobQueue(editor.DefaultJobConcurrency)}
 	for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete} {
 		g.Handle(method, "/api/editor/", func(w http.ResponseWriter, r *http.Request, _ identity.User) { h.serve(w, r) })
 	}
@@ -159,6 +160,30 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 		method = http.MethodGet
 	}
 	invalid := func(message string) error { return &editor.Error{Code: "invalid_request", Message: message} }
+	// Detached editor work: downloads and decodes outlive the request that
+	// started them (editor.JobQueue), so clients poll this resource instead of
+	// holding a request open until a proxy cuts it.
+	if len(parts) == 2 && parts[0] == "jobs" {
+		if err := editor.ValidateID(parts[1]); err != nil {
+			return err
+		}
+		switch method {
+		case http.MethodGet:
+			job, err := h.jobs.Get(parts[1])
+			if err != nil {
+				return err
+			}
+			editorJSON(w, 200, editor.Object{"job": job})
+			return nil
+		case http.MethodDelete:
+			job, err := h.jobs.Cancel(parts[1])
+			if err != nil {
+				return err
+			}
+			editorJSON(w, 200, editor.Object{"job": job})
+			return nil
+		}
+	}
 	if len(parts) == 1 && parts[0] == "projects" {
 		switch method {
 		case http.MethodGet:
@@ -454,15 +479,16 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 			if err != nil {
 				return err
 			}
-			result, err := s.ImportMediaFromLink(ctx, body)
+			// Validation stays on the request (a bad link must fail here, not in
+			// a job); the download and trim run detached and are polled.
+			opts, err := s.MediaLinkRequest(ctx, body)
 			if err != nil {
 				return err
 			}
-			status := 201
-			if reused, _ := result["reused"].(bool); reused {
-				status = 200
-			}
-			editorJSON(w, status, result)
+			job := h.jobs.Start("media.link", editor.LinkJobTimeout, func(jobCtx context.Context) (editor.Object, error) {
+				return s.FetchMediaLink(jobCtx, opts)
+			})
+			editorJSON(w, http.StatusAccepted, editor.Object{"job": job})
 			return nil
 		}
 		if len(parts) >= 2 {
@@ -548,11 +574,13 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 				return nil
 			}
 			if len(parts) == 3 && parts[2] == "waveform" && method == http.MethodPost {
-				result, err := s.MediaWaveform(ctx, id)
-				if err != nil {
+				if _, err := s.WaveformSource(ctx, id); err != nil {
 					return err
 				}
-				editorJSON(w, 200, result)
+				job := h.jobs.Start("media.waveform", editor.WaveformJobTimeout, func(jobCtx context.Context) (editor.Object, error) {
+					return s.MediaWaveform(jobCtx, id)
+				})
+				editorJSON(w, http.StatusAccepted, editor.Object{"job": job})
 				return nil
 			}
 		}

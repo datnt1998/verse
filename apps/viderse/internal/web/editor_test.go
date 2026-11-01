@@ -29,7 +29,7 @@ func editorHTTPFixture(t *testing.T) editorHTTP {
 	staging := t.TempDir()
 	s := &editor.Service{Store: editor.Store{Media: files, Repository: repository, StagingDir: staging}, Media: files, Repository: repository, StagingDir: staging}
 	s.Store.Templates = library.New(library.Deps{Store: postgres.NewLibraryStore(pool), Media: files})
-	return editorHTTP{service: s}
+	return editorHTTP{service: s, jobs: editor.NewJobQueue(editor.DefaultJobConcurrency)}
 }
 func editorRequest(h editorHTTP, method, path, body, revision string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, path, strings.NewReader(body))

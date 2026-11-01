@@ -69,13 +69,34 @@ func waveformEnvelope(r io.Reader, hash string) (Object, error) {
 	}
 	return Object{"sourceHash": hash, "samplesPerSecond": 50, "durationSeconds": float64(frames) / 48000, "normalization": normalization, "envelopeBase64": base64.StdEncoding.EncodeToString(bins)}, nil
 }
+
+// WaveformSource validates the cheap part of a waveform request so the POST can
+// reject an unusable source before a decode job is queued.
+func (s *Service) WaveformSource(ctx context.Context, id string) (MediaRecord, error) {
+	m, e := s.GetMediaMetadata(ctx, id)
+	if e != nil {
+		return MediaRecord{}, e
+	}
+	return m, waveformSourceError(m)
+}
+
+func waveformSourceError(m MediaRecord) error {
+	if len(m.MIME) < 6 || m.MIME[:6] != "audio/" {
+		return apiError("invalid_request", "Chọn nguồn giọng là tệp âm thanh")
+	}
+	if m.Probe.DurationSec != nil && *m.Probe.DurationSec > 86400 {
+		return apiError("invalid_request", "Voice source exceeds 24 hours")
+	}
+	return nil
+}
+
 func (s *Service) MediaWaveform(ctx context.Context, id string) (Object, error) {
 	m, e := s.GetMediaMetadata(ctx, id)
 	if e != nil {
 		return nil, e
 	}
-	if len(m.MIME) < 6 || m.MIME[:6] != "audio/" {
-		return nil, apiError("invalid_request", "Chọn nguồn giọng là tệp âm thanh")
+	if e = waveformSourceError(m); e != nil {
+		return nil, e
 	}
 	h, e := s.AcquireMedia(ctx, id)
 	if e != nil {
@@ -96,9 +117,6 @@ func (s *Service) MediaWaveform(ctx context.Context, id string) (Object, error) 
 	}
 	if hash != m.ContentHash {
 		return nil, apiError("conflict", "Nguồn giọng đã thay đổi; tạo sóng lại")
-	}
-	if m.Probe.DurationSec != nil && *m.Probe.DurationSec > 86400 {
-		return nil, apiError("invalid_request", "Voice source exceeds 24 hours")
 	}
 	f, e := os.CreateTemp(s.StagingDir, "editor-waveform-*.f32le")
 	if e != nil {

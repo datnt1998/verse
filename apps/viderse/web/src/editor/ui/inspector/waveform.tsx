@@ -8,6 +8,7 @@ import { executeCommands, type SerializedCommand } from '@editor/commands'
 import { useMediaLibraryStore } from '@editor/features/media-library/stores/media-library-store'
 import { waveformEnvelopeSchema, type WaveformStyle } from '@editor/features/waveform-visualizer/types'
 import { waveformReadiness } from '@editor/features/waveform-visualizer/geometry'
+import { cancelJob, waitForJob } from '@editor/storage/jobs'
 import { ColorField, EditorIconButton, EditorSelect, PropertyRow, SectionHeader, SliderField } from '@/editor/ui/controls'
 import { announce } from '@/editor/ui/shell/announcer'
 import { WAVEFORM_SLIDERS, waveformStyleCommand } from './waveform-settings'
@@ -32,13 +33,19 @@ function WaveformEditor({ item }: { item: ShapeItem }) {
     const controller = new AbortController()
     abort.current = controller
     setBusy(true)
+    let jobId = ''
     try {
+      // Server queues the decode (202): a long voice source would otherwise
+      // hold the request past the proxy's idle limit.
       const response = await fetch(`/api/editor/media/${encodeURIComponent(chosen)}/waveform`, { method: 'POST', signal: controller.signal })
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error ?? 'Không thể tạo sóng giọng')
+      const started = await response.json() as { job?: { id: string }; error?: string }
+      if (!response.ok) throw new Error(started.error ?? 'Không thể tạo sóng giọng')
+      jobId = started.job?.id ?? ''
+      const result = await waitForJob(jobId, { signal: controller.signal })
       run({ type: 'waveform.setEnvelope', params: { itemId: item.id, mediaId: chosen, envelope: waveformEnvelopeSchema.parse(result.envelope) } })
     } catch (error) {
-      if (!controller.signal.aborted) { const message = error instanceof Error ? error.message : 'Không thể tạo sóng giọng'; toast.error(message); announce(message, 'assertive') }
+      if (controller.signal.aborted) { if (jobId) await cancelJob(jobId) }
+      else { const message = error instanceof Error ? error.message : 'Không thể tạo sóng giọng'; toast.error(message); announce(message, 'assertive') }
     } finally { if (!controller.signal.aborted) setBusy(false); abort.current = null }
   }
   return <div data-tour="editor-waveform-inspector"><SectionHeader title="Sóng giọng">

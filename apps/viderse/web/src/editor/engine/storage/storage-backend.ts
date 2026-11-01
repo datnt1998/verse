@@ -2,6 +2,7 @@ import type { Project } from '@editor/types/project'
 import type { ExportCommitMetadata } from '@editor/types/export-caption-coverage'
 import { StorageClientError, StorageConflictError, type StorageErrorCode } from './errors'
 import type { ServerExportRecord, ServerMediaRecord, ServerProjectSummary } from './types'
+import { cancelJob, waitForJob } from './jobs'
 import type { MediaAttribution } from '@editor/types/storage'
 import { z } from 'zod'
 
@@ -180,8 +181,17 @@ export class HttpEditorStorage implements EditorStorage {
   }
   async importMediaFromLink(opts: { projectId: string; url: string; from?: string; to?: string; overlay?: boolean; signal?: AbortSignal }): Promise<{ media: ServerMediaRecord; reused: boolean }> {
     const { signal, ...body } = opts
-    const result = await this.json<{ media: unknown; reused: boolean }>('/media/link', { ...this.jsonWrite('POST', body), signal })
-    return { media: mediaRecordSchema.parse(result.media) as unknown as ServerMediaRecord, reused: result.reused }
+    // Server queues the download (202) so no request is held open past the
+    // proxy's idle limit; the job is polled until it settles.
+    const started = await this.json<{ job: { id: string } }>('/media/link', { ...this.jsonWrite('POST', body), signal })
+    try {
+      const result = await waitForJob(started.job.id, { signal, request: this.request, baseUrl: this.baseUrl })
+      return { media: mediaRecordSchema.parse(result.media) as unknown as ServerMediaRecord, reused: result.reused === true }
+    } catch (error) {
+      // Huỷ giữa chừng phải dừng cả job phía server, không chỉ bỏ theo dõi.
+      if (signal?.aborted) await cancelJob(started.job.id, { request: this.request, baseUrl: this.baseUrl })
+      throw error
+    }
   }
   async replaceMedia(id: string, body: UploadBody, meta?: Omit<MediaImportOptions, 'projectId'>): Promise<ServerMediaRecord> {
     const response = await this.uploadResponse(`/media/${component(id)}${meta?.fileName ? `?fileName=${component(meta.fileName)}` : ''}`, 'PUT', body, meta)

@@ -13,10 +13,26 @@ import { getEditorStorage } from "@editor/storage/storage-backend";
 const showError = (error: unknown) => toast.error(error instanceof Error ? error.message : "Không thực hiện được. Thử lại.");
 
 /**
+ * Tải link chạy như một job phía server nên form chỉ chờ trạng thái: đóng form
+ * giữa chừng không dừng việc tải, xong thì thư viện tự nạp lại và chọn media
+ * mới — quay lại editor vẫn thấy clip đã tải.
+ */
+async function importLinkMedia(options: { projectId: string; url: string; from?: string; to?: string; overlay?: boolean; signal?: AbortSignal }) {
+  const { media, reused } = await getEditorStorage().importMediaFromLink(options);
+  const meta = serverMediaToMetadata(media);
+  // Reload like an upload finishing: the new record lands in the project list,
+  // then becomes the selected card.
+  await useMediaLibraryStore.getState().loadMediaItems();
+  useMediaLibraryStore.getState().selectMedia([meta.id]);
+  announce(reused ? `${meta.fileName} đã có trong thư viện` : `Đã nhập ${meta.fileName}`);
+  return meta;
+}
+
+/**
  * "Lấy từ link": fetch a Twitch or Bilibili video (optionally a Từ/Đến cut)
  * straight into the project media. With `overlay` the media is saved as an
- * overlay layer like an overlay uploaded from disk. The download can take a
- * while — the form stays busy and Huỷ aborts the request.
+ * overlay layer like an overlay uploaded from disk. The download runs as a
+ * server job — the form stays busy and Huỷ cancels the job.
  */
 export function LinkImportForm({ overlay = false, onImported }: { overlay?: boolean; onImported?: (mediaId: string) => void }) {
   const id = useId();
@@ -37,7 +53,7 @@ export function LinkImportForm({ overlay = false, onImported }: { overlay?: bool
     controller.current = abort;
     setBusy(true);
     try {
-      const { media, reused } = await getEditorStorage().importMediaFromLink({
+      const meta = await importLinkMedia({
         projectId,
         url: url.trim(),
         from: from.trim() || undefined,
@@ -45,12 +61,6 @@ export function LinkImportForm({ overlay = false, onImported }: { overlay?: bool
         overlay,
         signal: abort.signal,
       });
-      const meta = serverMediaToMetadata(media);
-      // Reload like an upload finishing: the new record lands in the project
-      // list, then becomes the selected card.
-      await useMediaLibraryStore.getState().loadMediaItems();
-      useMediaLibraryStore.getState().selectMedia([meta.id]);
-      announce(reused ? `${meta.fileName} đã có trong thư viện` : `Đã nhập ${meta.fileName}`);
       setUrl("");
       setFrom("");
       setTo("");

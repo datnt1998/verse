@@ -333,30 +333,54 @@ func (s *Service) FetchLinkMedia(ctx context.Context, opts FetchLinkMediaOptions
 	}
 	return m, reused, e
 }
-func (s *Service) ImportMediaFromLink(ctx context.Context, input Object) (Object, error) {
+
+// MediaLinkRequest validates a "lấy từ link" body before the download is
+// queued, so a bad link, project or clock fails the POST itself instead of a
+// background job the client would only learn about by polling.
+func (s *Service) MediaLinkRequest(ctx context.Context, input Object) (FetchLinkMediaOptions, error) {
 	if input == nil {
-		return nil, apiError("invalid_request", "Link import must be an object")
+		return FetchLinkMediaOptions{}, apiError("invalid_request", "Link import must be an object")
 	}
 	opts := FetchLinkMediaOptions{}
 	for key, target := range map[string]*string{"url": &opts.URL, "from": &opts.From, "to": &opts.To, "projectId": &opts.ProjectID} {
 		if v, ok := input[key]; ok {
 			str, ok := v.(string)
 			if !ok {
-				return nil, apiError("invalid_request", key+" must be a string")
+				return FetchLinkMediaOptions{}, apiError("invalid_request", key+" must be a string")
 			}
 			*target = str
 		}
 	}
 	if opts.URL == "" || opts.ProjectID == "" {
-		return nil, apiError("invalid_request", "url and projectId are required")
+		return FetchLinkMediaOptions{}, apiError("invalid_request", "url and projectId are required")
 	}
 	if v, ok := input["overlay"]; ok {
 		b, ok := v.(bool)
 		if !ok {
-			return nil, apiError("invalid_request", "overlay must be a boolean")
+			return FetchLinkMediaOptions{}, apiError("invalid_request", "overlay must be a boolean")
 		}
 		opts.Overlay = b
 	}
+	if ParseAssetLink(opts.URL) == nil {
+		return FetchLinkMediaOptions{}, apiError("invalid_request", "Dán link một video Twitch (video phát lại hoặc clip) hoặc Bilibili — không phải link kênh hay phát trực tiếp")
+	}
+	for _, clock := range []string{opts.From, opts.To} {
+		if strings.TrimSpace(clock) == "" {
+			continue
+		}
+		if _, ok := parseLinkClock(clock); !ok {
+			return FetchLinkMediaOptions{}, apiError("invalid_request", "Thời điểm phải có dạng phút:giây, ví dụ 1:05 hoặc 1:02:03")
+		}
+	}
+	if _, _, e := s.Store.Read(ctx, opts.ProjectID); e != nil {
+		return FetchLinkMediaOptions{}, e
+	}
+	return opts, nil
+}
+
+// FetchMediaLink runs a validated request and returns the payload the API
+// exposes: the media record plus whether the file already existed.
+func (s *Service) FetchMediaLink(ctx context.Context, opts FetchLinkMediaOptions) (Object, error) {
 	m, reused, e := s.FetchLinkMedia(ctx, opts, nil)
 	if e != nil {
 		return nil, e

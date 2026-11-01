@@ -18,6 +18,8 @@ interface RequestExpectation {
   status?: number
   response?: unknown
   responseHeaders?: Record<string, string>
+  /** Fires once the peer has answered; tests await it instead of sleeping. */
+  onRequest?: () => void
 }
 let server: Server
 let baseUrl: string
@@ -50,6 +52,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   if (next.bytes !== undefined) expect(new Uint8Array(body)).toEqual(next.bytes)
   response.writeHead(next.status ?? 200, { 'content-type': 'application/json', ...next.responseHeaders })
   response.end(next.response === undefined ? undefined : JSON.stringify(next.response))
+  next.onRequest?.()
 }
 
 beforeEach(async () => {
@@ -247,5 +250,28 @@ describe('HTTP editor storage transport', () => {
     const controller = new AbortController()
     controller.abort()
     await expect(storage.importMedia(new Blob(['cancel']), { fileName: 'cancel.mp4', signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' })
+  })
+
+  it('queues the link import, polls its job and cancels the job when the caller aborts', async () => {
+    const running = { id: 'link-1', kind: 'media.link', state: 'running', createdAt: 1 }
+    const link = { projectId: project.id, url: 'https://www.twitch.tv/videos/2899740602', from: '1:05', to: '1:35', overlay: true }
+    const polled = Promise.withResolvers<void>()
+    expected.push(
+      { method: 'POST', path: '/media/link', body: link, status: 202, response: { job: running } },
+      { method: 'GET', path: '/jobs/link-1', response: { job: { ...running, state: 'succeeded', result: { media, reused: true } } } },
+      { method: 'POST', path: '/media/link', body: { projectId: project.id, url: link.url }, status: 202, response: { job: { ...running, id: 'link-2' } } },
+      { method: 'GET', path: '/jobs/link-2', response: { job: { ...running, id: 'link-2', state: 'failed', error: { code: 'invalid_request', error: 'Đoạn cắt tối đa 10 phút' } } } },
+      { method: 'POST', path: '/media/link', body: { projectId: project.id, url: link.url }, status: 202, response: { job: { ...running, id: 'link-3' } } },
+      { method: 'GET', path: '/jobs/link-3', response: { job: { ...running, id: 'link-3' } }, onRequest: () => polled.resolve() },
+      { method: 'DELETE', path: '/jobs/link-3', response: { job: { ...running, id: 'link-3', state: 'cancelled' } } },
+    )
+    expect(await storage.importMediaFromLink(link)).toEqual({ media, reused: true })
+    await expect(storage.importMediaFromLink({ projectId: project.id, url: link.url })).rejects.toThrow('Đoạn cắt tối đa 10 phút')
+    const controller = new AbortController()
+    const pending = storage.importMediaFromLink({ projectId: project.id, url: link.url, signal: controller.signal })
+    // Huỷ sau khi job đã được hỏi một lần: job phía server phải bị dừng theo.
+    await polled.promise
+    controller.abort()
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' })
   })
 })
