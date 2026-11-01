@@ -42,8 +42,14 @@ export function countByFilter(jobs: readonly Pick<ChannelJob, 'stageGroup'>[]): 
   return counts
 }
 
+/** Thứ tự bảng (artboard): việc đang chạy trước, rồi chờ bạn, chờ lượt, sẵn sàng, đã đăng cuối. */
+const DISPLAY_RANK: Record<string, number> = { working: 0, review: 1, paused: 2, attention: 3, queued: 4, ready: 5, posted: 6 }
+const rankOf = (job: Pick<ChannelJob, 'stageGroup'>) => DISPLAY_RANK[job.stageGroup] ?? DISPLAY_RANK.posted + 1
+
+/** Lọc theo nhóm rồi xếp theo thứ tự bảng; trong cùng nhóm giữ nguyên thứ tự máy chủ trả về. */
 export function filterJobs<T extends Pick<ChannelJob, 'stageGroup'>>(jobs: readonly T[], filter: FilterId): T[] {
-  return filter === 'all' ? [...jobs] : jobs.filter((job) => groupOf(job) === filter)
+  const kept = filter === 'all' ? [...jobs] : jobs.filter((job) => groupOf(job) === filter)
+  return kept.sort((a, b) => rankOf(a) - rankOf(b))
 }
 
 /** Trạng thái hiển thị của một job (kit StatusLabel): attention → “Cần xử lý”. */

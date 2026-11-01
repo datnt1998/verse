@@ -121,7 +121,7 @@ export const videoStyles = stylex.create({
 
   // ── dock dưới trang + thanh chọn nhiều ──────────────────────────────
   dock: {
-    position: 'sticky', bottom: 0, marginTop: 'auto', padding: 'var(--vv-s-10) 0 var(--vv-s-14)',
+    position: 'sticky', bottom: 'calc(-1 * var(--vv-s-26))', marginTop: 'auto', marginBottom: 'calc(-1 * var(--vv-s-26))', padding: 'var(--vv-s-10) 0 var(--vv-s-14)',
     backgroundImage: 'linear-gradient(0deg, var(--color-bg) 70%, transparent)', display: 'flex', flexDirection: 'column', gap: space['--vv-s-6'],
   },
   kbd: {

@@ -41,20 +41,20 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
       </div>
       <div className={`vch-head__actions ${stylex.props(channelStyles.headActions).className}`}>
         {channel.youtubeUrl ? (
-          <a
-            className={`vch-chip ${stylex.props(channelStyles.chip).className}`}
-            href={channel.youtubeUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ height: 'var(--vv-s-34)', padding: '0 var(--vv-s-12)' }}
+          <ActionButton
+            className={stylex.props(channelStyles.touchTarget).className}
+            size="compact"
+            xstyle={[channelStyles.headBtn]}
+            onClick={() => window.open(channel.youtubeUrl ?? '', '_blank', 'noreferrer')}
+            icon={<Icon name="link" size={15} />}
           >
-            <Icon name="link" size={15} />
             {tt.page.openYouTube}
-          </a>
+          </ActionButton>
         ) : null}
         <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
-          size="md"
+          size="compact"
+          xstyle={[channelStyles.headBtn]}
           onClick={() => navigate(paths.new(channel.id))}
           icon={<Icon name="video-add" size={15} />}
         >

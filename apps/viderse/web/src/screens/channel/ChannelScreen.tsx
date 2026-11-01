@@ -140,7 +140,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
               onClick={() => pickTab(id)}
             >
               {tabLabels[id]}
-              {counts[id] && <span className={`vch-tab__count num ${stylex.props(channelStyles.tabCount).className}`}>{counts[id]}</span>}
+              {counts[id] && <span className={`vch-tab__count num ${stylex.props(channelStyles.tabCount, tab === id && channelStyles.tabCountOn).className}`}>{counts[id]}</span>}
             </button>
           ))}
         </div>

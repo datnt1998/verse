@@ -14,7 +14,12 @@ describe('nhóm bộ lọc', () => {
 
   it('Chờ bạn gộp Chờ duyệt + Cần xử lý + Tạm dừng', () => {
     expect(countByFilter(jobs)).toEqual({ all: 8, working: 1, waiting: 3, queued: 1, ready: 1, posted: 2 })
-    expect(filterJobs(jobs, 'waiting').map((item) => item.id)).toEqual(['b', 'c', 'd'])
+    expect(filterJobs(jobs, 'waiting').map((item) => item.id)).toEqual(['b', 'd', 'c'])
+  })
+
+  it('Tất cả xếp theo thứ tự bảng: đang làm, chờ duyệt, tạm dừng, cần xử lý, chờ lượt, sẵn sàng, đã đăng; cùng nhóm giữ thứ tự máy chủ', () => {
+    const shuffled = [job('p1', 'posted'), job('f', 'ready'), job('p2', 'posted'), job('c', 'attention'), job('e', 'queued'), job('a', 'working'), job('b', 'review'), job('d', 'paused')]
+    expect(filterJobs(shuffled, 'all').map((item) => item.id)).toEqual(['a', 'b', 'd', 'c', 'e', 'f', 'p1', 'p2'])
   })
 
   it('Tất cả giữ cả video thuộc nhóm lạ, các nhóm riêng thì không', () => {

@@ -15,7 +15,8 @@ import { FILTER_IDS, countByFilter, filterJobs, rowAction, type FilterId, type S
 import { videoStyles as sx } from './videos.stylex'
 
 const tt = t.channels.videos.list
-const PAGE = 30
+/** Artboard: “Hiện 9 video gần nhất trong 18 · cuộn để tải thêm”. */
+const PAGE = 9
 
 const DOT: Record<FilterId, string> = {
   all: 'var(--color-fg)',
