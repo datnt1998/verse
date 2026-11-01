@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // Liveness and readiness are deliberately separate:
@@ -32,6 +34,8 @@ type HealthDeps struct {
 	Timeout time.Duration
 	// CacheTTL bounds how often the blob probe hits the network. Default 30s.
 	CacheTTL time.Duration
+	// ReadyCacheTTL bounds how often the whole readiness probe runs. Default 2s.
+	ReadyCacheTTL time.Duration
 }
 
 type readinessCheck struct {
@@ -71,8 +75,16 @@ func (g *Gateway) healthz(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"status": "ok"})
 }
 
+// defaultReadyCacheTTL is the readiness cooldown: /readyz is reachable from the
+// internet and every probe queries the database, so the whole check runs at
+// most once per window and concurrent probes share one result.
+const defaultReadyCacheTTL = 2 * time.Second
+
 // readyz reports dependency state. Each check has its own deadline; a slow
-// database returns 503 quickly instead of hanging the probe.
+// database returns 503 quickly instead of hanging the probe. The HTTP status is
+// the same for everyone — monitoring reads it — but the body is not: schema
+// version and per-check failures go only to the operator (a direct loopback
+// caller) or an authenticated admin.
 func (g *Gateway) readyz(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		w.Header().Set("Allow", "GET, HEAD")
@@ -81,18 +93,47 @@ func (g *Gateway) readyz(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "no-store")
 
+	body, status := g.readiness(r)
+	if !g.readyzDetailAllowed(r) {
+		// Public probe: ready or not, nothing else.
+		writeJSON(w, status, map[string]any{"ok": body.Status == "ok"})
+		return
+	}
+	writeJSON(w, status, body)
+}
+
+// readiness returns the cached probe result, running the checks at most once
+// per ReadyCacheTTL. The probe context outlives the caller: a client hanging up
+// mid-probe must not cache a false "unavailable".
+func (g *Gateway) readiness(r *http.Request) (readinessBody, int) {
 	g.healthMu.Lock()
 	deps := g.health
 	g.healthMu.Unlock()
 
+	ttl := defaultReadyCacheTTL
+	if deps != nil && deps.ReadyCacheTTL > 0 {
+		ttl = deps.ReadyCacheTTL
+	}
+
+	g.readyMu.Lock()
+	defer g.readyMu.Unlock()
+	if g.readyAt != (time.Time{}) && time.Since(g.readyAt) < ttl {
+		return g.readyBody, g.readyStatus
+	}
+	body, status := g.probeReadiness(context.WithoutCancel(r.Context()), deps)
+	g.readyAt, g.readyBody, g.readyStatus = time.Now(), body, status
+	return body, status
+}
+
+// probeReadiness runs every configured check once.
+func (g *Gateway) probeReadiness(ctx context.Context, deps *HealthDeps) (readinessBody, int) {
 	body := readinessBody{Status: "ok", Checks: []readinessCheck{}}
 	if deps == nil {
 		// File mode / no hosted dependencies: serving is ready by definition.
-		writeJSON(w, http.StatusOK, body)
-		return
+		return body, http.StatusOK
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), deps.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, deps.Timeout)
 	defer cancel()
 
 	if deps.SchemaVersion != nil {
@@ -116,7 +157,29 @@ func (g *Gateway) readyz(w http.ResponseWriter, r *http.Request) {
 	if body.Status != "ok" {
 		status = http.StatusServiceUnavailable
 	}
-	writeJSON(w, status, body)
+	return body, status
+}
+
+// readyzDetailAllowed reports whether the caller may see deployment detail: the
+// operator's own machine (loopback peer with no proxy in front) or an
+// authenticated admin. A session lookup only happens when a cookie is present,
+// so an anonymous probe never touches the account store.
+func (g *Gateway) readyzDetailAllowed(r *http.Request) bool {
+	if g.proxy.DirectLoopback(r) {
+		return true
+	}
+	if g.accounts == nil {
+		return false
+	}
+	cookie, err := r.Cookie(g.cookiePolicy().Name)
+	if err != nil {
+		return false
+	}
+	user, _, err := g.accounts.Authenticate(cookie.Value)
+	if err != nil {
+		return false
+	}
+	return user.Role == identity.RoleAdmin
 }
 
 // blobReady caches the blob probe for CacheTTL, including failures: a down
