@@ -51,19 +51,18 @@ func ResolveRecipeWithOverride(raw json.RawMessage, noImages bool, override *boo
 	if err := json.Unmarshal(raw, &snap); err != nil {
 		return Recipe{}, err
 	}
-	mode := snap.Images.Mode
+	images := snap.Images
 	if override != nil {
 		noImages = *override
-		if !noImages && mode == library.ImagesNone {
-			mode = "auto"
+		if !noImages {
+			images = library.EnabledImages(images)
 		}
 	}
 	if noImages {
-		mode = library.ImagesNone
+		images.Mode = library.ImagesNone
 	}
-	imageMode := snap.Images
-	imageMode.Mode = mode
-	count := library.ImageCountFor(imageMode, duration)
+	mode := images.Mode
+	count := library.ImageCountFor(images, duration)
 	style := snap.Style
 	if style == "cutout" && snap.Framing == "close" {
 		style = "cutout-close"

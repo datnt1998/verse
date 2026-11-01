@@ -345,7 +345,7 @@ type VideoImageOverrides = {
 - `style` (cách ghép) **không** đè được theo video; đổi thì Làm lại từ đầu với template khác.
 
 API:
-- `POST /api/clone/:id/prompts/plan` `{ scenePromptId?: string | null, coverPromptId?: string | null, noImages?: boolean }` → `{ redraw: { scenes: number, cover: boolean }, cost: { images: number }, quotaLeft: number, rebuild: boolean }`.
+- `POST /api/clone/:id/prompts/plan` `{ scenePromptId?: string | null, coverPromptId?: string | null, noImages?: boolean }` → `{ redraw: { scenes: number, cover: boolean }, cost: { images: number }, quotaLeft: number, rebuild: boolean, enablesImages: boolean }`. `enablesImages` = video bật lại ảnh cảnh; `redraw.scenes` là số ảnh cảnh sẽ vẽ (template “Không vẽ ảnh”: 6, cắt lại cảnh).
 - `PATCH /api/clone/:id/prompts` nhận body của `plan` cùng `expectedRevision: number`; khi `cost.images > 0`, bắt buộc `confirmCount` bằng đúng tổng ảnh trong kế hoạch. Áp dụng và trả về như `plan`; revision hoặc số xác nhận cũ → `409`.
 - Với video còn trong Chờ lượt, `:id` là `queueItem.id`; `expectedRevision` lấy từ `queueItem.overrideRevision`. `plan` luôn có `redraw.scenes = 0`, `redraw.cover = false`, `cost.images = 0`, `rebuild = false`; không cần xác nhận chi phí. Lựa chọn được lưu trên hàng chờ và áp dụng khi video bắt đầu, không sửa snapshot template. Nếu mục đã chạy, bị bỏ hoặc revision đã đổi, `PATCH` trả `409`. SSE `queue.updated` báo cập nhật hàng chờ.
 - Vẽ lại một ảnh: `POST /api/clone/:id/images/:imageId` `{ op: "regenerate" | "editPrompt", prompt?: string, expectedRevision: number }`. `prompt` là góp ý (`direction`), không nhận `promptId`; ảnh đã duyệt được giữ đến khi duyệt ứng viên mới.

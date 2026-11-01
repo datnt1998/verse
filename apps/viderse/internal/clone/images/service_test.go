@@ -26,12 +26,16 @@ type editStore struct {
 	noImages      bool
 	template      json.RawMessage
 	steps         []domain.CloneStepRecord
+	sceneDoc      json.RawMessage
 }
 
 func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (jobedit.Snapshot, error) {
 	raw, err := json.Marshal(s.m)
 	if err != nil {
 		return jobedit.Snapshot{}, err
+	}
+	if step == domain.CloneScenes && s.sceneDoc != nil {
+		return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1}, Step: domain.CloneStepRecord{Step: step, Status: s.sceneStatus, Checkpoint: s.sceneDoc}, Manifest: s.sceneDoc}, nil
 	}
 	if step == domain.CloneScenes {
 		revision := s.sceneRevision

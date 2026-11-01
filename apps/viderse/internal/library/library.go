@@ -202,6 +202,19 @@ func ImageCountOf(m domain.ImagesMode) (int, bool) {
 	}
 }
 
+// ReenabledSceneImages là số ảnh cảnh mặc định khi một video bật lại ảnh trên
+// template “Không vẽ ảnh”: 6 ảnh chia đều theo độ dài, không sửa template.
+const ReenabledSceneImages = 6
+
+// EnabledImages là cách tính ảnh khi một video bật lại ảnh. Template có số ảnh
+// hoặc nhịp ảnh giữ nguyên cấu hình; template không vẽ ảnh dùng 6 ảnh cố định.
+func EnabledImages(m domain.ImagesMode) domain.ImagesMode {
+	if m.Mode == ImagesNone {
+		return domain.ImagesMode{Mode: ImagesFixed, Count: ReenabledSceneImages}
+	}
+	return m
+}
+
 // ImageCountFor là số ảnh cảnh cho một thời lượng cụ thể (port
 // recipeImageCount của yt-factory): none → 0, fixed → count, per-minutes →
 // clamp(ceil(durationSec/60/minutes), 1, 60).

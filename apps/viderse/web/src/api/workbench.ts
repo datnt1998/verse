@@ -24,7 +24,7 @@ export async function jobBulkAction(id: string, action: 'posted' | 'deleteExport
 const scoreSchema = z.object({ total: z.number(), blockers: z.array(z.object({ id: z.string(), message: z.string() })).nullable() }).passthrough()
 export const getScoreArtifact = async (jobId: string, artifactId: string, signal?: AbortSignal) => scoreSchema.parse(await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/artifacts/${encodeURIComponent(artifactId)}`, { signal }))
 
-export const promptPlanSchema = z.object({ redraw: z.object({ scenes: z.number(), cover: z.boolean() }), cost: z.object({ images: z.number() }), quotaLeft: z.number(), rebuild: z.boolean() })
+export const promptPlanSchema = z.object({ redraw: z.object({ scenes: z.number(), cover: z.boolean() }), cost: z.object({ images: z.number() }), quotaLeft: z.number(), rebuild: z.boolean(), enablesImages: z.boolean() })
 export type PromptPlan = z.infer<typeof promptPlanSchema>
 const imageSchema = z.object({ id: z.string(), kind: z.string(), status: z.string(), currentVersion: z.number().nullable(), reviewVersion: z.number().nullable(), versions: z.array(z.object({ version: z.number(), originalUrl: z.string().optional() })).nullable(), sceneId: z.string().optional(), narration: z.string().optional() }).passthrough()
 const effectivePrompt = z.object({ id: z.string(), name: z.string(), overridden: z.boolean() })

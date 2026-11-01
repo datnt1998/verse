@@ -171,12 +171,24 @@ func validateTemplateSnapshot(snap library.Snapshot, project editor.Project, tem
 	return digest, nil
 }
 
-func validateBuildRecipe(s *pipeline.StepContext, manifest scenes.Manifest) error {
+// validateBuildRecipe compares the recorded scene recipe with the template. A
+// video-level images choice may already be baked into the recorded recipe (the
+// scenes step resolves it), so the override-resolved recipe is accepted too.
+func validateBuildRecipe(s *pipeline.StepContext, manifest scenes.Manifest, override *bool) error {
 	expected, err := scenes.ResolveRecipe(s.Job.TemplateSnapshot, s.Job.NoImages, manifest.DurationSec)
 	if err != nil {
 		return err
 	}
 	recorded := manifest.Recipe
+	if override != nil {
+		overridden, err := scenes.ResolveRecipeWithOverride(s.Job.TemplateSnapshot, s.Job.NoImages, override, manifest.DurationSec)
+		if err != nil {
+			return err
+		}
+		if overridden.ImagesMode == recorded.ImagesMode && overridden.ImageCount == recorded.ImageCount {
+			expected = overridden
+		}
+	}
 	coverChanged := expected.ImagesMode == library.ImagesNone && recorded.CoverMediaID != expected.CoverMediaID
 	if expected.Style != recorded.Style || expected.ImagesMode != recorded.ImagesMode || expected.ImageCount != recorded.ImageCount || expected.Thumbnail != recorded.Thumbnail || expected.ImagePrompt != recorded.ImagePrompt || coverChanged {
 		return steps.CloneError(domain.CloneErrTemplateChanged, "Template đã đổi số ảnh hoặc kiểu ảnh", "Template đã thay đổi — chạy lại bước Cảnh")

@@ -31,7 +31,7 @@ describe('hợp đồng Bàn dựng', () => {
     expect(preview.imageEstimate).toBe(4)
   })
   it('gửi bản kế hoạch và xác nhận đúng số ảnh, revision', async () => {
-    const fetcher = vi.fn(() => Promise.resolve(Response.json({ redraw: { scenes: 4, cover: false }, cost: { images: 4 }, quotaLeft: 8, rebuild: false })))
+    const fetcher = vi.fn(() => Promise.resolve(Response.json({ redraw: { scenes: 4, cover: false }, cost: { images: 4 }, quotaLeft: 8, rebuild: false, enablesImages: false })))
     vi.stubGlobal('fetch', fetcher)
     const choice = { scenePromptId: 'lantern' }
     const plan = await planPrompt('j', choice)

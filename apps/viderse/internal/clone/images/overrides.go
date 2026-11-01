@@ -40,6 +40,9 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	if plan.Cost.Images > 0 && (input.ConfirmCount == nil || *input.ConfirmCount != plan.Cost.Images) {
 		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Số ảnh xác nhận không khớp kế hoạch vẽ lại")
 	}
+	if running && plan.rescan {
+		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Video đang vẽ ảnh bìa. Chờ xong rồi bật lại ảnh cảnh")
+	}
 	if running {
 		// The worker owns every item and any paid flight. Persist the prompt
 		// and redraw selection without replacing its live item snapshots.
@@ -59,7 +62,9 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	}
 	from := domain.CloneStep("")
 	rerun := len(next.QueueOnly) > 0
-	if rerun {
+	if plan.rescan {
+		from, rerun = domain.CloneScenes, true
+	} else if rerun {
 		from = domain.CloneImages
 	} else if plan.Rebuild {
 		from = domain.CloneBuild
@@ -167,6 +172,10 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		return model.Manifest{}, plan, err
 	}
 	// Turning scenes back on uses current scene identities, never a synthetic id.
+	// Cuts made while images were off hold a single span: those videos are cut
+	// again for the enabled recipe (template pacing, or 6 images for a
+	// “Không vẽ ảnh” template) and the images step reconciles with the new cuts.
+	rescan, rescanScenes := false, 0
 	if modeChanged && !none {
 		snapshot, err := s.Edits.Read(ctx, l.snapshot.Job.ID, domain.CloneScenes)
 		if err != nil {
@@ -180,12 +189,17 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		if err = json.Unmarshal(raw, &doc); err != nil {
 			return model.Manifest{}, plan, err
 		}
-		doc.Recipe.ImagesMode = "auto"
-		fresh := model.CreateManifest(doc, scenes.FileRef{}, l.snapshot.Job.Source.Title)
 		sceneItems := []model.Item{}
-		for _, i := range fresh.Items {
-			if i.Kind == "scene" {
-				sceneItems = append(sceneItems, i)
+		if doc.Recipe.ImagesMode == library.ImagesNone {
+			rescan, rescanScenes = true, library.ImageCountFor(library.EnabledImages(template.Images), doc.DurationSec)
+			next.SceneRevision = -1
+		} else {
+			doc.Recipe.ImagesMode = "auto"
+			fresh := model.CreateManifest(doc, scenes.FileRef{}, l.snapshot.Job.Source.Title)
+			for _, i := range fresh.Items {
+				if i.Kind == "scene" {
+					sceneItems = append(sceneItems, i)
+				}
 			}
 		}
 		for _, i := range next.Items {
@@ -226,6 +240,13 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		kept = append(kept, item)
 	}
 	next.Items = kept
+	plan.Enables = modeChanged && !none
+	plan.rescan = rescan
+	if rescan {
+		// The new cuts do not exist yet: every scene image of the re-cut is drawn.
+		plan.Redraw.Scenes = rescanScenes
+		next.QueueOnly = nil
+	}
 	plan.Cost.Images = plan.Redraw.Scenes
 	if plan.Redraw.Cover {
 		plan.Cost.Images++
