@@ -271,9 +271,11 @@ export function MediaPicker({ item, onClose }: { item: TimelineItem; onClose: ()
     finally { setBusy(false) }
   }
   return <Dialog title={item.type === 'image' ? 'Thay ảnh' : 'Chọn đoạn khác'} onClose={busy ? undefined : onClose} width={560} footer={<Button onClick={onClose} disabled={busy}>Đóng</Button>}>
+    <div {...stylex.props(sx.pickerBody)}>
     {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
     <div {...stylex.props(sx.grid)}>{choices.map(entry => <button key={entry.id} type="button" disabled={busy} {...stylex.props(sx.mediaCard)} title={entry.fileName} onClick={() => { void choose(entry) }}><span {...stylex.props(sx.thumbnail, sx.mediaThumbnail)}><MediaAsset mediaId={entry.id} /></span><span {...stylex.props(sx.title)}>{entry.fileName}</span></button>)}</div>
     {!choices.length && <p {...stylex.props(sx.empty)}>Chưa có media phù hợp. Nhập media ở bảng Media rồi chọn lại.</p>}
+    </div>
   </Dialog>
 }
 

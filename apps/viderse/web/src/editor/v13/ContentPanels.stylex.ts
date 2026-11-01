@@ -37,6 +37,7 @@ export const contentStyles = stylex.create({
   volume: { display: 'flex', flexDirection: 'column', gap: 6 },
   slider: { width: '100%', margin: 0, accentColor: color['--color-fg-2'] },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '12px 14px' },
+  pickerBody: { maxHeight: 'calc(100dvh - 200px)', overflowY: 'auto' },
   mediaCard: { minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4, padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
   mediaThumbnail: { width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: 7 },
   used: { position: 'absolute', right: 4, top: 4, color: color['--color-ok'] },
