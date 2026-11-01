@@ -129,7 +129,8 @@ export function AutonomyCard({ channel }: { channel: Channel }) {
         <Segmented
           label={tt.title}
           value={selected}
-          options={presetIds.map((id) => ({ id, label: tt.presets[id], disabled }))}
+          fit="content"
+          options={presetIds.map((id) => ({ id, label: tt.presets[id], disabled, style: { paddingInline: 16 } }))}
           onChange={(id) => {
             if (id === preset) return
             void saveAutonomy(autonomy, applyPreset(autonomy, id as (typeof presetIds)[number]))

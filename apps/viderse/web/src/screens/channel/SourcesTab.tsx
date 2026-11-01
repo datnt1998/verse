@@ -24,6 +24,8 @@ import { addRivalError } from '../explore/AddRivalForm'
 import { channelTint } from '../../lib/channelTint'
 import { PaceStepper } from './PaceStepper'
 import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
+import { Orb } from '../../components/Orb'
+import { TodayRow } from '../../components/autonomy/TodayRow'
 import { AutonomyCard, PrioritySeg } from '../../components/autonomy/AutonomyCard'
 import { ScheduleCard } from './ScheduleCard'
 import { ASIDE_HIDDEN } from './breakpoint'
@@ -40,6 +42,7 @@ export function SourcesTab({ channel, channels }: {
   const tt = t.channels.sources
   // Cột phải ẩn dưới 1181 px → khối Lịch đăng nằm trong tab này thay vì cột phải.
   const narrow = useMediaQuery(ASIDE_HIDDEN)
+  const ta = t.autonomy
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = rivalsRes.data?.rivals ?? []
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -132,27 +135,6 @@ export function SourcesTab({ channel, channels }: {
             onUnlink={() => askUnlink(source.rivalId)}
           />
         ))}
-      </div>
-
-      <div className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`}>
-        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
-          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="refresh" size={16} />{tt.pacingTitle}</h2>
-        </div>
-        <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: '0 var(--vv-s-14)' }}>{tt.pacingHint}</p>
-        {channel.sources.length === 0 && (
-          <p className={`vch-alert ${stylex.props(channelStyles.alert).className}`} role="status" style={{ margin: 'var(--vv-s-8) var(--vv-s-14) 0' }}>
-            {tt.emptyBody}
-          </p>
-        )}
-        <div className={`vch-settingrow ${stylex.props(channelStyles.settingrow).className}`}>
-          <span className={`vch-settingrow__text ${stylex.props(channelStyles.settingrowText).className}`}>
-            <span className={`vch-settingrow__label ${stylex.props(channelStyles.settingrowLabel).className}`}>{tt.pace}</span>
-            <span className={`vch-settingrow__sub ${stylex.props(channelStyles.settingrowSub).className}`}>{tt.paceRange} · {tt.paceUnit}</span>
-          </span>
-          <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
-        </div>
-        <div {...stylex.props(autonomyStyles.prioWrap)}><PrioritySeg channel={channel} /></div>
-        {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: 'var(--vv-s-8) var(--vv-s-14)' }}>{error}</p>}
         <div style={{ padding: 'var(--vv-s-8) var(--vv-s-14) var(--vv-s-12)' }}>
           <AddRivalRow
             channelId={channel.id}
@@ -161,7 +143,28 @@ export function SourcesTab({ channel, channels }: {
         </div>
       </div>
 
-      <AutonomyCard channel={channel} />
+      <div {...stylex.props(autonomyStyles.rightCol)}>
+        <section {...stylex.props(channelStyles.card, autonomyStyles.paceCard)} aria-label={ta.pacing.title}>
+          <div {...stylex.props(autonomyStyles.head)}>
+            <span {...stylex.props(autonomyStyles.orbs)} aria-hidden="true"><Orb of="scout" size={22} live /></span>
+            <div {...stylex.props(autonomyStyles.headText)}>
+              <h2 {...stylex.props(autonomyStyles.title)}>{ta.pacing.title}</h2>
+              <span {...stylex.props(autonomyStyles.sub)}>{ta.pacing.hint}</span>
+              {channel.sources.length === 0 && <span {...stylex.props(autonomyStyles.paused)}>{ta.pacing.paused}</span>}
+            </div>
+          </div>
+          <div {...stylex.props(autonomyStyles.paceBlock)}>
+            <span {...stylex.props(autonomyStyles.paceLabel)}>{tt.pace}</span>
+            <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
+            <span {...stylex.props(autonomyStyles.paceUnit)}>{tt.paceUnit}</span>
+            <span {...stylex.props(autonomyStyles.paceNote)}>{ta.pacing.note}</span>
+          </div>
+          <PrioritySeg channel={channel} />
+          <TodayRow channel={channel} rivals={rivals} />
+          {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert">{error}</p>}
+        </section>
+        <AutonomyCard channel={channel} />
+      </div>
 
       {narrow && <ScheduleCard channel={channel} variant="tab" />}
     </section>

@@ -5,6 +5,16 @@ import { color, line } from '@noverse/ui/tokens.stylex'
 import { space, corners } from '../../styles/viderse.stylex'
 
 export const autonomyStyles = stylex.create({
+  paceCard: { gap: space['--vv-s-12'] },
+  paused: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-warn-ink)' },
+  paceBlock: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: space['--vv-s-10'], paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-0'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-1'] },
+  paceLabel: { fontSize: 13, color: color['--color-fg-2'] },
+  paceUnit: { fontSize: 12.5, color: 'var(--vv-fg-note)' },
+  paceNote: { flexBasis: '100%', fontSize: 12, color: 'var(--vv-fg-note)' },
+  today: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: space['--vv-s-8'], fontSize: 12.5, color: 'var(--vv-fg-note)' },
+  todayNum: { color: color['--color-fg'], fontWeight: 500, fontVariantNumeric: 'tabular-nums' },
+  todayBtn: { height: space['--vv-s-26'], paddingInline: space['--vv-s-8'], borderRadius: corners['--vv-r-7'], borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', backgroundColor: { default: 'transparent', ':hover': 'var(--vv-hover)' }, color: color['--color-accent'], fontFamily: 'inherit', fontSize: 12.5, cursor: { default: 'pointer', ':disabled': 'default' }, opacity: { default: null, ':disabled': 0.5 } },
+  rightCol: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], minWidth: 0 },
   head: { display: 'flex', alignItems: 'flex-start', gap: space['--vv-s-12'] },
   orbs: { position: 'relative', width: space['--vv-s-22'], height: space['--vv-s-22'], marginTop: space['--vv-s-2'], flex: '0 0 auto' },
   orbsSm: { position: 'relative', width: space['--vv-s-16'], height: space['--vv-s-16'], marginTop: space['--vv-s-2'], flex: '0 0 auto' },
