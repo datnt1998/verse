@@ -172,3 +172,11 @@ Hướng sửa nhỏ nhất: khi gặp metadata trong `clone-staging/**` mà `ad
 - Đổi binary giữa hai lượt trên cùng HOME làm boot từ chối (`editor binary head disagrees…`) — muốn đổi binary phải `serve.sh setup` lại (DB + HOME mới), hoặc giữ nguyên binary đã ghi kho.
 - Bước `backdrop` chỉ có việc khi template có `backdrop` (kênh nền/video cố định); template mặc định không có → không thể ngắt giữa bước này.
 - `PATCH /api/templates {recipe.backdrop}` không ghi được backdrop vào template tạo bằng API (recipe được suy ra từ project), nên harness phải chèn `backdrop_channels`/`backdrop_channel_videos` — và kể cả vậy bước vẫn không có việc.
+
+### 9.5 Đã sửa §9.3 (`a1418f0e`)
+
+Gốc thật không phải staging: media là content-addressed, nên hai job (hoặc hai lượt dựng) cùng nội dung ghi cùng id ở hai đường dẫn `clone/<job>/<digest>/editor/media/…`; `adoptBinary` so đường dẫn đã ghi với đường dẫn bản dựng hiện tại và trả lỗi cứng. Nay digest là danh tính: head có revision trùng digest được nhận dù đường dẫn khác; chỉ dời head khi đường dẫn cũ không còn đọc được. Bytes lệch/thiếu → thông báo "Cần xử lý" (giữ nguyên tệp), chỉ lỗi DB/kho còn chặn boot.
+
+Đã chạy thật: trạng thái kill giữa `images` — binary cũ thoát đúng dòng lỗi, binary mới boot `/healthz=200` và chạy tiếp `images` attempt 1→2; `kill -9` thật khi `images` đang chạy → boot lại 200, attempt 3. Đổi binary `main~3` → binary mới trên cùng HOME + DB: boot 200, head không đổi. Test hỏng-trước: `TestEditorAdoptionAcceptsContentAddressedMediaAcrossJobs`. §9.4 dòng đầu không còn đúng.
+
+Chưa chạy lại: B7 (`score`), B8 (`export`), C (mất Postgres 30 s), D (`hdiutil`).
