@@ -121,7 +121,26 @@ sau đó vẫn tăng revision và xoá cả hai trường (`ApplyEdits`), cổng
 `--- FAIL: TestScenesPublishAcceptedAnalysisWithoutPendingReview … scene analysis left pending: build would wait for a review screen that does not exist`;
 sau khi sửa: `ok … 0.565s`, và `go test -run 'Build|Template|Recipe' ./internal/pipeline/steps/build/`
 vẫn `ok` (cổng `build` cho `Pending` vẫn được kiểm bởi test cũ).
-Chưa chạy lại end-to-end trên serve sau khi sửa (xem §6 bước 0).
+Đã chạy lại trên serve: xem §5b.
+
+### 5b. Chạy lại trên serve sau khi sửa
+
+Serve dựng lại từ HEAD có `046a92c7`, xếp job mới `801d94a9…` (kênh Một, `noImages=false`,
+`VIDERSE_DAILY_PAID_IMAGE_LIMIT=2`):
+
+- `download` → `backdrop` → `transcript` → `metadata` → `scenes` **succeeded**; lỗi ở `build` **không
+  còn** là “Cảnh đang chờ duyệt” nữa mà là “Ảnh chưa hoàn tất” — tức cổng cảnh đã được gỡ đúng như sửa.
+- `images` chạm provider thật (stub) và **ghi 2 dòng `image_receipts`**, rồi hỏng ở bước mã hoá:
+  `{"code":"internal_error","message":"ffmpeg thoát với mã 8: Error opening output files: Encoder not found"}`.
+  Đây là **giới hạn harness**, không phải lỗi sản phẩm: ffmpeg Homebrew 9.0.2 trên máy này không có
+  encoder `libwebp` (chính vì thế `libwebp` nằm trong danh sách encoder bắt buộc của app), nên bước
+  `images` không ghi được file webp. Muốn đi hết chuỗi trên máy này cần cài ffmpeg có `libwebp`
+  (ví dụ `brew install ffmpeg` từ tap đã bật webp, hoặc để app tự cài ffmpeg pin qua
+  `POST /api/tools/ffmpeg/install` — cần mạng).
+
+Kết luận cho §3 dòng 1: chuỗi chạy thật tới `images` **đạt** (kể cả phiếu vẽ), nhưng chưa qua được
+`build`/`score`/`export` vì encoder webp của máy; các kịch bản 2–5 vì vậy vẫn **CHƯA CHẠY**.
+
 
 ## 6. Kịch bản còn lại — đúng lệnh để chạy sau khi §5 được sửa
 
