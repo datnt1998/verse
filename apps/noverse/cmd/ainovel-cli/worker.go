@@ -45,6 +45,7 @@ func runWorkerCommand(args []string, out, errw io.Writer) int {
 	api := fs.String("api", os.Getenv("TTS_WORKER_API_URL"), "địa chỉ listener worker riêng, ví dụ http://10.0.0.5:8081")
 	project := fs.String("project", "", "chỉ nhận việc của dự án này (không bắt buộc)")
 	lease := fs.Duration("lease", 120*time.Second, "thời hạn thuê MONG MUỐN cho mỗi việc; server kẹp trong 30s..10m")
+	noProvision := fs.Bool("no-provision", false, "không tự cài bộ đọc khi thiếu (máy dùng chung hoặc để đo)")
 	if err := fs.Parse(args[1:]); err != nil {
 		return 2
 	}
@@ -60,13 +61,22 @@ func runWorkerCommand(args []string, out, errw io.Writer) int {
 	}
 	defer engine.Close()
 
-	worker, err := ttsworker.New(ttsworker.Config{
+	workerCfg := ttsworker.Config{
 		APIURL:  *api,
 		Token:   token,
 		Engine:  engine,
 		Project: *project,
 		Lease:   *lease,
-	})
+	}
+	if *noProvision {
+		fmt.Fprintln(out, "Tự cài bộ đọc: tắt (--no-provision) — worker chỉ nhận việc khi bộ đọc đã sẵn sàng.")
+	} else if prov, ok := engine.(ttsworker.Provisioner); ok {
+		workerCfg.Provisioner = prov
+		fmt.Fprintln(out, "Tự cài bộ đọc: bật — thiếu gì cài nấy trước khi nhận việc.")
+	} else {
+		fmt.Fprintf(out, "Tự cài bộ đọc: máy đọc %s không hỗ trợ — chỉ nhận việc khi bộ đọc đã sẵn sàng.\n", engine.Name())
+	}
+	worker, err := ttsworker.New(workerCfg)
 	if err != nil {
 		fmt.Fprintf(errw, "Cấu hình worker không hợp lệ: %v\n", err)
 		return 2
