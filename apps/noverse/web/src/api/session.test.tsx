@@ -84,6 +84,16 @@ describe('phiên bị chặn cấp quyền app', () => {
     expect(latest?.deniedUser).toBeNull()
     expect(mocks.startDataEvents).toHaveBeenCalledWith('linh')
   })
+  it('còn mật khẩu tạm → chưa mở SSE (máy chủ chặn 403 tới khi đổi), đổi xong mới mở', async () => {
+    const session = { id: 's1', username: 'linh', device: 'web', ip: '127.0.0.1', createdAt: '', lastSeen: '', expiresAt: '', current: true }
+    mocks.me.mockResolvedValueOnce({ user: user({ grants: { noverse: 'member' }, mustChangePassword: true }), session })
+    await mount()
+    expect(latest?.user?.username).toBe('linh')
+    expect(mocks.startDataEvents).not.toHaveBeenCalled()
+    mocks.me.mockResolvedValue({ user: user({ grants: { noverse: 'member' } }), session })
+    await act(async () => { await latest?.refresh() })
+    expect(mocks.startDataEvents).toHaveBeenCalledWith('linh')
+  })
   it('refresh() sau khi được cấp quyền → denied xoá, user set', async () => {
     const account = user()
     mocks.me

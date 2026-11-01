@@ -22,10 +22,13 @@ export function useConnection() {
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user, session, refresh, setUser } = useSession()
+  // Còn mật khẩu tạm thì máy chủ trả 403 password_change_required cho mọi luồng:
+  // mở SSE lúc đó chỉ làm băng “Mất kết nối” hiện mãi. Đổi xong (refresh /api/me) mới mở.
+  const streamUser = user && !user.mustChangePassword ? user.username : null
   useEffect(() => {
-    if (!user) return
-    return startDataEvents(user.username)
-  }, [user?.username])
+    if (!streamUser) return
+    return startDataEvents(streamUser)
+  }, [streamUser])
   useEffect(() => events.subscribe(['account.changed', 'session.revoked'], (payload, meta) => {
     if (accountTransition.isActive()) return
     const data = payload as { username?: string; session?: string } | null
