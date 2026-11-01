@@ -15,7 +15,7 @@ Ngày đo: 2026-11-01. Ngưỡng lấy từ `plan.md` § "Hiệu năng và ổn 
 | 5 | JS tải lần đầu (shell + Bàn dựng) ≤ 250 kB gzip; editor/render chỉ tải khi mở route của nó | **245,0 kB gzip** (1 chunk, entry `assets/index-*.js`), 0 module `src/editor/**` trong chunk đầu | **ĐẠT** (sau khi sửa — trước sửa 272,2 kB và 5 module editor, xem §5) | `cd apps/viderse/web && npx vite build && node scripts/size.mjs` |
 | 6 | Đổi trạng thái job → JobsPill/Bàn dựng cập nhật: SSE ≤ 1 s | **p50 438,7 ms · max 504,8 ms** (10 mẫu) | **ĐẠT** | §6 — `PATCH /api/queue` luân phiên tạm dừng/chạy, MutationObserver trên `document.body` |
 | 7 | … cùng ngưỡng với chế độ chờ (poll) ≤ 3 s | **p50 552,1 ms · max 2.216,2 ms** (10 mẫu, đã chặn `/api/events`) | **ĐẠT** | §6 — chặn luồng SSE bằng request interception, lặp lại phép đo |
-| 8 | Mất máy chủ → dải offline hiện ≤ 5 s | **18 ms** kể từ lúc trình duyệt mất mạng (dải "Mất kết nối với máy chủ Viderse · Thử lại ngay") | **ĐẠT** | CDP `Network.emulateNetworkConditions offline` + MutationObserver trên `document.body` |
+| 8 | Mất máy chủ → dải offline hiện ≤ 5 s | **p50 2.529 ms · max 2.566 ms** (5 mẫu `kill -9` chính `serve`, trình duyệt vẫn online); biến thể mất mạng của trình duyệt: 18 ms | **ĐẠT** | §8 — `kill -9` tiến trình serve + MutationObserver trên `document.body` |
 | 9 | Cuộn Khám phá/list với 20.000 video: DOM ≤ 200 hàng, không frame > 50 ms | DOM: **15–18 hàng video**, 344–404 phần tử trong `main`; cuộn **17.561 px** trong 5 s: **1.444 task, max 2 ms, 0 task > 50 ms** | DOM **ĐẠT** · long-task **ĐẠT** (giới hạn: trace không có event Layout/Paint, xem §7) | §7 — CDP `Tracing` (`devtools.timeline`) quanh thao tác cuộn |
 | 10 | RSS lúc rảnh của `viderse serve` (không tính tiến trình con) ≤ 150 MB | **42,2 MB** sau khi rảnh (đo lúc 3m39s uptime); 178,8 MB nếu đo ngay sau 900 request 3,7 MB (bộ đệm/GC chưa trả) | **ĐẠT** | `ps -o rss= -p $(pgrep -f "viderse serve")` |
 
@@ -164,7 +164,31 @@ for (let i = 0; i < 10; i++) {
   (`agent-browser --session p10perf open 'http://127.0.0.1:18901/#/explore'`), DevTools → Performance →
   Record → cuộn hết danh sách → Stop, hoặc `Tracing.start` trên Chrome có cửa sổ hiển thị.
 
-## 8. Lệnh dựng `dist` cho Main
+## 8. Mất máy chủ → dải offline (đo bằng `kill -9`)
+
+Ngưỡng nói "mất máy chủ" (trình duyệt vẫn có mạng), nên đo bằng cách giết chính tiến trình serve:
+tab `#/` đã đăng nhập (bundle production, `serve` ở `:18901`), mỗi mẫu: khởi động serve → `page.reload` →
+chờ `nav` → chờ dải offline biến mất → gắn MutationObserver → `kill -9 <pid serve>` → đo tới mutation đầu tiên
+của `document.body`. 5 mẫu, giữa các mẫu khởi động lại serve:
+
+| Mẫu | 1 | 2 | 3 | 4 | 5 | p50 | max |
+|---|---|---|---|---|---|---|---|
+| ms | 2.522 | 2.531 | 2.522 | 2.566 | 2.529 | **2.529** | **2.566** |
+
+**ĐẠT** (≤ 5 s), dải hiện với câu "Mất kết nối với máy chủ Viderse · đang thử lại sau …" (bản có mạng lại:
+`stallMs = 3500`, `stallCheckMs = 500`, ping 2 s trong `src/data/events.ts` — khớp ~2,5 s quan sát được).
+Biến thể trình duyệt mất mạng hẳn (CDP `offline`) cho 18 ms vì sự kiện `offline` của trình duyệt tới ngay;
+cả hai đều dưới ngưỡng nên không phải sửa gì.
+
+```js
+// mỗi mẫu
+const pid = spawnServe(); await page.reload({ waitUntil: 'domcontentloaded' })
+// chờ nav, chờ dải offline cũ biến mất, gắn MutationObserver
+const killAt = Date.now(); spawnSync(['kill', '-9', String(pid)])
+// chờ window.__arm.hit → ms = hit - killAt
+```
+
+## 9. Lệnh dựng `dist` cho Main
 
 ```sh
 cd apps/viderse/web && npm run build   # tsc -b src/editor/tsconfig.json && tsc --noEmit && vite build (outDir ../../internal/web/dist)
