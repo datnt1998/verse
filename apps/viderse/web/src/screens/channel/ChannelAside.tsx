@@ -6,7 +6,7 @@ import { channelStyles } from './channel.stylex'
 // KHÔNG dựng (chưa có hàng chờ/mức tự chủ): thanh “Hôm nay x/y video” (cần
 // clone job), dòng Mức tự chủ, hộp “Dặn trợ lý”.
 import { Icon } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import type { Channel } from '../../api/channels'
 import { appliedRows } from './applied'
 import { ScheduleCard } from './ScheduleCard'

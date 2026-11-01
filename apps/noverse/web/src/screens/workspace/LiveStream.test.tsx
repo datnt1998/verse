@@ -10,13 +10,27 @@ vi.mock('../../api/useStoryEvents', () => ({ useStoryEvents: () => ({ events: []
 let host: HTMLDivElement | undefined
 let root: Root | undefined
 afterEach(async () => { if (root) await act(async () => root?.unmount()); host?.remove(); root = undefined; host = undefined })
+const mount = async (isRunning: boolean) => {
+  ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+  host = document.createElement('div'); document.body.append(host); root = createRoot(host)
+  await act(async () => { root?.render(<LiveStream project="p" story="s" streamText={'✻ draft_chapter\n  chapter: 2'} isRunning={isRunning} snapshot={null} />); await Promise.resolve() })
+}
 describe('luồng viết', () => {
   it('dùng lịch sử làm nguồn thẻ mặc định, không vẽ lại transcript công cụ', async () => {
-    ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
-    host = document.createElement('div'); document.body.append(host); root = createRoot(host)
-    await act(async () => { root?.render(<LiveStream project="p" story="s" streamText={'✻ draft_chapter\n  chapter: 2'} isRunning snapshot={null} />); await Promise.resolve() })
-    expect(host.textContent).toContain('Vòng 1')
-    expect([...host.querySelectorAll('details')].filter(node => !node.parentElement?.closest('details'))).toHaveLength(1)
-    expect(host.textContent).not.toContain('draft_chapter')
+    await mount(true)
+    expect(host!.textContent).toContain('Vòng 1')
+    expect([...host!.querySelectorAll('[data-run-card]')]).toHaveLength(1)
+    expect(host!.textContent).not.toContain('draft_chapter')
+  })
+  it('trạng thái đang chạy gói trong viên thuốc có đồng hồ, không chạy thì không có', async () => {
+    await mount(true)
+    const pill = host!.querySelector('[role="status"]')
+    expect(pill).toBeTruthy()
+    expect(pill!.querySelector('[role="timer"]')?.getAttribute('aria-label')).toContain('Đã chạy')
+    await act(async () => root?.unmount())
+    root = undefined
+    host!.remove()
+    await mount(false)
+    expect(host!.querySelector('[role="status"]')).toBeNull()
   })
 })

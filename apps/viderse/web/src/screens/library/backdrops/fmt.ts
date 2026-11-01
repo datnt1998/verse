@@ -1,6 +1,6 @@
 // Định dạng riêng của mảng Video nền: màu nền tảng, nhãn kind, tuổi video,
 // đoạn m:ss. Số/giờ/ngày đi qua fmt.ts của Thư viện (cùng chuẩn 06-copy).
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { bytes, clock, duration, editedLabel, initials, num } from '../fmt'
 
 export { bytes, clock, duration, initials, num }

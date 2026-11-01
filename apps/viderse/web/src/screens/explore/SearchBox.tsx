@@ -6,7 +6,7 @@ import { exploreStyles } from './explore.stylex'
 // Esc trong ô xoá chữ. Có chữ → nút ✕ cuối ô; trống → gợi ý phím "/".
 import { useEffect, useId, useRef } from 'react'
 import { Icon } from '@noverse/ui'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 
 const isTyping = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))

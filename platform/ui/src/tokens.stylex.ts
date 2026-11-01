@@ -335,10 +335,12 @@ export const kit = stylex.defineVars({
   '--kit-wash-28': 'rgba(255,255,255,.28)',
   '--kit-wash-30': 'rgba(255,255,255,.3)',
   /* Accent */
+  '--kit-acc-3': 'rgba(201,166,245,.03)', // cuối gradient thẻ đang chạy (Main.dc.html › lvc.live)
   '--kit-acc-5': 'rgba(201,166,245,.05)', // hàng đang sửa (Outline.dc.html › xedit=edit)
   '--kit-acc-6': 'rgba(201,166,245,.06)',
   '--kit-acc-7': 'rgba(201,166,245,.07)',
   '--kit-acc-8': 'rgba(201,166,245,.08)', // MMore › về quy tắc của truyện
+  '--kit-acc-10': 'rgba(201,166,245,.10)', // đầu gradient thẻ đang chạy (Main.dc.html › lvc.live)
   '--kit-acc-12': 'rgba(201,166,245,.12)',
   '--kit-acc-13': 'rgba(201,166,245,.13)', // nền thanh “đã sửa sau khi tạo giọng” (AudioExport.dc.html · upd)
   '--kit-acc-14': 'rgba(201,166,245,.14)',
@@ -349,6 +351,7 @@ export const kit = stylex.defineVars({
   '--kit-acc-30': 'rgba(201,166,245,.30)',
   '--kit-acc-32': 'rgba(201,166,245,.32)',
   '--kit-acc-35': 'rgba(201,166,245,.35)', // Settings picker search border
+  '--kit-acc-38': 'rgba(201,166,245,.38)', // viền thẻ đang chạy (Main.dc.html › lvc.live)
   '--kit-acc-40': 'rgba(201,166,245,.40)',
   '--kit-acc-45': 'rgba(201,166,245,.45)',
   '--kit-acc-50': 'rgba(201,166,245,.50)',
@@ -363,7 +366,9 @@ export const kit = stylex.defineVars({
   '--kit-err-18': 'rgba(255,95,110,.18)',
   '--kit-err-20': 'rgba(255,95,110,.2)',
   '--kit-errf-30': 'rgba(255,154,162,.3)',
+  '--kit-errf-32': 'rgba(255,154,162,.32)', // viền thẻ lỗi trong luồng viết (Main.dc.html › lvc.err)
   /* Thẻ thẩm duyệt ReviewIssue (17-kit.md · D4/D9) — nền/viền/gạch theo mức */
+  '--kit-errf-4': 'rgba(255,154,162,.04)',   // nền thẻ lỗi trong luồng viết (Main.dc.html › lvc.err)
   '--kit-errf-7': 'rgba(255,154,162,.07)',   // dòng cũ trong DiffInline (Reader.dc.html)
   '--kit-errf-12': 'rgba(255,154,162,.12)',
   '--kit-errf-14': 'rgba(255,154,162,.14)', // nền chip “Dừng do lỗi” (MVoiceGen.dc.html)

@@ -5,7 +5,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ô chọn thả xuống, đúng artboard Template; kèm thẻ "Prompt mới" dẫn về kho và
 // khối chi tiết của prompt đang chọn.
 import { Icon } from '@noverse/ui'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import type { ImagePrompt } from '../../../api/library'
 
 export function PromptPicker({ prompts, value, onSelect, usedLabel }: {

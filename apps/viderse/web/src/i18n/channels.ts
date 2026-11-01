@@ -2,9 +2,13 @@ const thousands = new Intl.NumberFormat('vi-VN')
 
 // Chuỗi màn Kênh & Tạo kênh — copy lấy từ artboard Channel/CreateChannel/Onboard
 // và 06-copy. Mọi chữ hiển thị của mảng kênh nằm ở đây; TSX chỉ gọi `t.channels`.
+import { autonomyCopy } from './autonomy'
+import { base } from './vi'
+import { shared } from './shared'
+
 export const channelsCopy = {
   page: {
-    title: 'Kênh',
+    title: shared.channelTitle,
     tablist: 'Trang kênh',
     aside: 'Đang áp dụng cho kênh',
     rail: 'Kênh và thư viện',
@@ -20,9 +24,11 @@ export const channelsCopy = {
       overlays: 'Lớp phủ',
     },
     ready: 'Máy sẵn sàng',
-    noName: 'Kênh chưa đặt tên',
+    noName: shared.channelNoName,
     created: (date: string) => `tạo ${date}`,
+    createdToday: 'tạo hôm nay',
     linkedRivals: (n: number) => `${n} đối thủ liên kết`,
+    linkedRivalsShort: (n: number) => `${n} đối thủ`,
     noYouTube: 'Chưa liên kết YouTube',
     openYouTube: 'Mở YouTube',
     linkYouTube: 'Liên kết YouTube',
@@ -98,10 +104,13 @@ export const channelsCopy = {
     autoLine: (rivals: number) => `Trinh sát xem ${rivals} đối thủ mỗi giờ, đưa video mới đăng vào cuối hàng chờ.`,
     paceLink: 'Đổi nhịp ›',
     explore: 'Mở Khám phá',
+    explorePick: 'Chọn video nổi trội trong Khám phá',
     noRivals: 'Chưa có đối thủ liên kết nên chưa có video nguồn. Liên kết đối thủ ở tab Nguồn & tự động.',
     sourcesLink: 'Nguồn & tự động ›',
     stats: {
       made: 'Video đã làm',
+      // Điện thoại (MChannel): nhãn ngắn để 4 cột vừa 390px.
+      madeShort: 'Đã làm',
       posted: 'Đã đăng',
       waiting: 'Chờ bạn',
       queued: 'Chờ lượt',
@@ -261,6 +270,7 @@ export const channelsCopy = {
     add: 'Thêm template từ thư viện',
     standard: 'Tạo Mẫu chuẩn',
     standardHint: 'Thêm bản Mẫu chuẩn tự tạo vào cuối danh sách luân phiên.',
+    openLibrary: 'Mở Thư viện dùng chung',
     remove: 'Bỏ khỏi danh sách',
     moveUp: 'Đưa lên trước',
     moveDown: 'Đưa xuống sau',
@@ -369,7 +379,7 @@ export const channelsCopy = {
 
   create: {
     breadcrumbHome: 'Kênh của tôi',
-    title: 'Tạo kênh',
+    title: shared.channelCreateTitle,
     intro: 'Chọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.',
     rivalsTitle: 'Đối thủ làm nguồn',
     required: '· bắt buộc',
@@ -447,3 +457,6 @@ export const channelsCopy = {
     intro: 'Chọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.',
   },
 } as const
+
+/** `t` của mảng Kênh: chữ khung app + Kênh/Tạo kênh + Mức tự chủ (tab nguồn). */
+export const t = { ...base, channels: channelsCopy, autonomy: autonomyCopy } as const

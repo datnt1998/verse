@@ -2,6 +2,8 @@
 // Settings › Kết nối AI). Chữ lấy nguyên văn từ artboard; hộp dán link YouTube,
 // hàng khoá YouTube Data API và các trạng thái chờ/lỗi/mất kết nối không có trên
 // board nên theo mẫu V12 (11-hoi-dap #68–#72) và ghi vào hỏi-đáp #74.
+import { base } from './vi'
+
 const compact = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
 const whole = new Intl.NumberFormat('vi-VN')
 
@@ -80,3 +82,6 @@ export const performanceCopy = {
     avatar: 'YT',
   },
 } as const
+
+/** `t` của khối Hiệu quả sau đăng: chữ khung app + chữ hiệu quả. */
+export const t = { ...base, performance: performanceCopy } as const

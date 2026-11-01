@@ -6,18 +6,20 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ngay qua `onSave` với khối `scenes` đầy đủ (PATCH thay cả recipe).
 import { NumberStepper, RadioCard, Switch } from '@noverse/ui'
 import { Segmented } from '../../../components/Segmented'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { num, usd } from '../fmt'
 import type { ImagePrompt, PriceEstimate, Recipe, ScenePlacement } from '../../../api/library'
 import { SliderField } from './SliderField'
 import { PromptPicker } from './PromptPicker'
 
-export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
+export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitle }: {
   recipe: Recipe
   price: PriceEstimate
   prompts: ImagePrompt[]
   errors: Record<string, string>
   onSave: (patch: Partial<Recipe>) => void
+  /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
+  hideTitle?: boolean
 }) {
   const copy = t.library.template.images
   const scenes = recipe.scenes
@@ -40,7 +42,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
   return (
     <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-images-title">
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
-        <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-images-title">{copy.title}</h2>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-images-title">{copy.title}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 

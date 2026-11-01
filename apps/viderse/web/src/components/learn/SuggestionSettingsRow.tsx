@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { SUGGESTION_KINDS, type SuggestionKind } from '../../api/suggestions'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/learn'
 import { ActionButton } from '../ActionButton'
 import { learnStyles as s } from './learn.stylex'
 

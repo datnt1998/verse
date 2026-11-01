@@ -11,7 +11,7 @@ import { getDataKey, removeDataKey, saveDataKey } from '../../../api/performance
 import { keys } from '../../../data/keys'
 import { useResource } from '../../../data/useResource'
 import { performanceCopy } from '../../../i18n/performance'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { styles as settingsStyles } from '../settings.stylex'
 
 const c = performanceCopy.dataKey

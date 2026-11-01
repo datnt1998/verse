@@ -2,7 +2,7 @@
 // câu và nút theo bảng 06-copy › Khám phá: bốn trạng thái có artboard (running ·
 // paused · limited · capped) cộng queued · complete · idle · cancelled · error ·
 // đang kiểm tra video mới. Hàm thuần để test theo bảng.
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 import { fill } from '../settings/fmt'
 import type { ScanAction, ScanStatus } from '../../api/rivals'
 

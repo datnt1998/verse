@@ -19,7 +19,7 @@ import { invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
 import { useDebounced } from '../../../lib/useDebounced'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import {
   browseStorage, cancelStorageMove, checkStoragePath, deletePreviousStorage, dismissStorageMove,
   getStorage, getStorageReclaim, moveStorage, openStorageInFinder, recheckStorage,

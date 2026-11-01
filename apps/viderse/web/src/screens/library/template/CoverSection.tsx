@@ -6,15 +6,17 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ảnh bìa. Prompt có sẵn đứng trước prompt của bạn trong ô chọn.
 import { RadioCard, Icon } from '@noverse/ui'
 import { ActionButton } from '../../../components'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import type { ImagePrompt, Recipe } from '../../../api/library'
 import { PromptPicker } from './PromptPicker'
 
-export function CoverSection({ recipe, prompts, errors, onSave }: {
+export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
   recipe: Recipe
   prompts: ImagePrompt[]
   errors: Record<string, string>
   onSave: (patch: Partial<Recipe>) => void
+  /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
+  hideTitle?: boolean
 }) {
   const copy = t.library.template.cover
   const scenes = recipe.scenes
@@ -24,7 +26,7 @@ export function CoverSection({ recipe, prompts, errors, onSave }: {
   return (
     <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-cover-title">
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
-        <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-cover-title">{copy.title}</h2>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-cover-title">{copy.title}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 

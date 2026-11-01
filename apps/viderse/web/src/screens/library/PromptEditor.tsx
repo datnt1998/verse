@@ -10,7 +10,7 @@ import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, Te
 import { Segmented } from '../../components/Segmented'
 import { ActionButton } from '../../components'
 import { invalidate } from '@noverse/ui/data'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/library'
 import {
   createPrompt, fieldErrors, libraryErrorInfo, patchPrompt, removePrompt,
   type ImagePrompt, type PromptKind, type ThumbnailStyle,

@@ -7,7 +7,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AddRivalForm, addRivalError } from './AddRivalForm'
 import { ApiError } from '../../api/request'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 
 const tt = t.screens.explore.addErrors
 const apiErr = (status: number, body: object) => new ApiError(status, 'api error', undefined, body)

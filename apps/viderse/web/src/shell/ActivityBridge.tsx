@@ -36,9 +36,11 @@ export function ActivityBridge() {
   useEffect(() => {
     const refresh = () => { invalidate(keys.activity()); invalidate(keys.status()) }
     window.addEventListener('activity:refresh', refresh)
-    const timer = window.setInterval(() => { void activity.refresh() }, 3000)
-    return () => { window.removeEventListener('activity:refresh', refresh); clearInterval(timer) }
-  }, [activity.refresh])
+    // Không có vòng poll riêng: sự kiện SSE `activity`/`storage` đã làm mới
+    // khoá này (data/eventKeys.ts). Khi luồng sự kiện đứt, vòng poll dự phòng
+    // của data/events.ts (10→60 s, chỉ khi tab hiện) làm mới cùng khoá.
+    return () => { window.removeEventListener('activity:refresh', refresh) }
+  }, [])
   useEffect(() => {
     if (!activity.data || !settings.data) return
     const notifications = activity.data.unread ?? []

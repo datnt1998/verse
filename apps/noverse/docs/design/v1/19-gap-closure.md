@@ -994,3 +994,11 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 | AT-5 | Chất lượng / Thiết bị / Bộ đọc ở bản máy chủ | Ẩn Thiết bị, Bộ đọc; giữ Chất lượng = mặc định cho truyện mới | `Settings` `voice` |
 | AT-6 | Nghe thử ở bản máy chủ | Ẩn tới khi máy đọc báo hỗ trợ; khi có: “Đang nhờ máy đọc…” | `Settings` `vprev` |
 | AT-7 | Máy tính bảng / Onboard “Cần cài bộ đọc” (mục 17 báo cáo) | Chưa vẽ trong gói này — dùng lại thẻ đầu màn khi cần | — |
+
+### Gói AS — đã làm (02/11/2026)
+
+- `LiveStream` (khung Luồng viết trực tiếp ở Main): trạng thái chạy trong viên thuốc tím 26 px (`--kit-acc-7/20`) có vòng vô cực + đồng hồ; hàng 2 gồm nhóm lọc theo vai, “n vòng”, *Lịch sử ›* là đường dẫn sang `#/p/:p/s/:s/work?view=run` (trang `RunHistoryPage`, cùng địa chỉ bản điện thoại dùng).
+- `RunHistory` nhúng: vòng là dòng 30 px (orb 11 px, “Vòng N”, tên vai theo màu vai, tiêu đề, vạch nối, giờ, mũi tên); thao tác thụt 22 px có đường dọc; chỉ 2 vòng mới nhất mở, vòng cũ thu gọn “· n thao tác · tổng thời gian” bấm để mở; thẻ 36 px; thẻ đang chạy dính đáy, chữ ánh sáng + đồng hồ chạy; lọc rỗng “Chưa có vòng nào của {vai}”; *Tải thêm vòng cũ hơn*.
+- `formatRunDuration`: 0/không có số đo → ẩn, dưới 0,1 giây → “<0,1 giây”. Không còn “0 giây”.
+- Token mới đo từ canvas 137: `--kit-acc-3/10/38`, `--kit-errf-4/32`.
+- Chưa kiểm với một vòng viết thật (máy dev không có nhà cung cấp AI) — đã so artboard `Main` `phase=rewrite` bằng dữ liệu mẫu ở 1440×900.

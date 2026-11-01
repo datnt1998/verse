@@ -42,6 +42,8 @@ const styles = stylex.create({
   rowText: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 },
   rowLabel: { fontSize: 13.5, lineHeight: 1.35 },
   rowHint: { fontSize: 11.5, lineHeight: 1.4, color: kit['--kit-fg-sub'] },
+  /* Hàng bị khoá (chức năng chưa mở): vẫn đọc được lý do, không bấm được. */
+  rowDisabled: { color: kit['--kit-fg-sub'], cursor: 'not-allowed', opacity: 0.55, ':active': { backgroundColor: 'transparent' } },
   error: { paddingInline: 18, paddingBottom: 8, fontSize: 11.5, color: kit['--kit-err-bright'] },
   errorInline: { fontSize: 11.5, color: kit['--kit-err-bright'] },
   confirm: { display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 6, paddingInline: 16, paddingBottom: 16 },
@@ -58,6 +60,8 @@ export type MobileSheetAction = {
   description?: string
   icon?: IconName
   destructive?: boolean
+  /** Hàng khoá (chức năng chưa mở, hoặc đang bị ràng buộc); `description` giữ lý do. */
+  disabled?: boolean
   onSelect: () => void | Promise<void>
 }
 
@@ -103,8 +107,9 @@ export function ActionSheet({ open, onClose, title, description, actions, layout
             <button
               key={action.key ?? action.label}
               type="button"
-              disabled={pending}
-              className={action.destructive ? 'm-danger-text' : undefined}
+              disabled={pending || action.disabled}
+              aria-disabled={action.disabled || undefined}
+              className={action.destructive && !action.disabled ? 'm-danger-text' : undefined}
               onClick={() => { void run(action) }}
             >
               {action.label}
@@ -121,23 +126,27 @@ export function ActionSheet({ open, onClose, title, description, actions, layout
   return (
     <Sheet open={open} onClose={close} size="md" title={title} subtitle={description}>
       <div {...stylex.props(styles.list)}>
-        {actions.map((action) => (
-          <button
-            key={action.key ?? action.label}
-            type="button"
-            disabled={pending}
-            aria-busy={pending || undefined}
-            className={stylex.props(styles.row, action.destructive && styles.danger).className}
-            style={stylex.props(styles.row, action.destructive && styles.danger).style}
-            onClick={() => { void run(action) }}
-          >
-            {action.icon && <Icon name={action.icon} size={20} />}
-            <span {...stylex.props(styles.rowText)}>
-              <span {...stylex.props(styles.rowLabel)}>{action.label}</span>
-              {action.description && <span {...stylex.props(styles.rowHint)}>{action.description}</span>}
-            </span>
-          </button>
-        ))}
+        {actions.map((action) => {
+          const off = pending || action.disabled
+          return (
+            <button
+              key={action.key ?? action.label}
+              type="button"
+              disabled={off}
+              aria-disabled={action.disabled || undefined}
+              aria-busy={pending || undefined}
+              className={stylex.props(styles.row, action.destructive && !action.disabled && styles.danger, action.disabled && styles.rowDisabled).className}
+              style={stylex.props(styles.row, action.destructive && !action.disabled && styles.danger, action.disabled && styles.rowDisabled).style}
+              onClick={() => { void run(action) }}
+            >
+              {action.icon && <Icon name={action.icon} size={20} />}
+              <span {...stylex.props(styles.rowText)}>
+                <span {...stylex.props(styles.rowLabel)}>{action.label}</span>
+                {action.description && <span {...stylex.props(styles.rowHint)}>{action.description}</span>}
+              </span>
+            </button>
+          )
+        })}
         {failure && <p {...stylex.props(styles.error)} role="alert">{failure}</p>}
       </div>
     </Sheet>

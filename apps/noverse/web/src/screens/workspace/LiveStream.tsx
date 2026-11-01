@@ -118,7 +118,10 @@ export function LiveStream({ project, story, streamText, isRunning, snapshot, mo
           {meta !== '' && <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{meta}</span>}
           <span style={{ flex: 1 }} />
           {isRunning && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span role="status" style={{
+              display: 'flex', alignItems: 'center', gap: 8, height: 26, padding: '0 10px 0 8px',
+              borderRadius: 999, background: 'var(--kit-acc-7)', border: '1px solid var(--kit-acc-20)',
+            }}>
               <svg width="22" height="12" viewBox="0 0 26 14" fill="none" aria-hidden="true">
                 <defs>
                   <linearGradient id="live-infinity" x1="0" y1="0" x2="1" y2="0">

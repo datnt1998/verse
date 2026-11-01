@@ -6,7 +6,7 @@ import type { Status } from '../../api/status'
 import { useResource, type Resource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { useOnline, useStatus } from '../../data/status'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/queue'
 import { sortItems } from './queueView'
 
 /** One mutation at a time: never roll back a later edit with an older response. */

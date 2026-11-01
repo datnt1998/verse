@@ -4,7 +4,7 @@
 import * as stylex from '@stylexjs/stylex'
 import { useState } from 'react'
 import { Icon } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/autonomy'
 import { readImageScore, type Autonomy, type ImageScore } from '../../api/autonomy'
 import { Orb } from '../Orb'
 import { ReasonPopover } from '../reason/ReasonPopover'

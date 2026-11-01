@@ -13,7 +13,7 @@ import { useVirtualGrid } from '../../lib/useVirtualGrid'
 import { useRivalVideos, type RivalVideos } from './useRivalVideos'
 import { VideoGrid } from './VideoGrid'
 import { keys } from '../../data/keys'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 import type { PostingSchedule, Rival, RivalList, ScanStatus, Video, VideoPage } from '../../api/rivals'
 
 const tt = t.screens.explore
@@ -58,6 +58,8 @@ let listBody: RivalList = { rivals: [rival], totalVideos: 1284, newOutliers: 4 }
 let posted: { url: string; body: unknown }[] = []
 /** các giá trị q mà lưới đã hỏi API (đếm số lần gọi khi gõ) */
 let searched: string[] = []
+/** số lần trang đầu của lưới phải trả lỗi trước khi thành công (nút Thử lại) */
+let videosFails = 0
 
 const respond = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }))
@@ -70,6 +72,7 @@ function stubFetch() {
       return respond(listBody)
     }
     if (url.startsWith('/api/rivals/all/videos')) {
+      if (videosFails > 0) { videosFails -= 1; return respond({ error: 'boom' }, 500) }
       const params = new URL(url, 'https://x.test').searchParams
       const cursor = params.get('cursor')
       const q = params.get('q')
@@ -162,6 +165,8 @@ beforeEach(() => {
   nextCursor = 'c2'
   posted = []
   searched = []
+  videosFails = 0
+  listBody = { rivals: [rival], totalVideos: 1284, newOutliers: 4 }
   void invalidate()
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
     matches: false, addEventListener: () => {}, removeEventListener: () => {},
@@ -418,5 +423,63 @@ describe('màn Khám phá', () => {
     })
     await click(byText(el, 'button', tt.addRival))
     await until(() => posted.some((p) => p.url === '/api/rivals' && (p.body as { input?: string }).input === '@motphim'))
+  })
+})
+
+describe('trạng thái danh sách (gói V34)', () => {
+  it('đối thủ đang quét thì hiện băng + ô xương, không báo lọc rỗng', async () => {
+    videos = []
+    listBody = {
+      rivals: [{ ...rival, videoCount: 12, scannedAt: null, scan: { state: 'running', discoveryRunning: false } }],
+      totalVideos: 0,
+      newOutliers: 0,
+    }
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', tt.listScanTitle('12', '30')))
+    expect(byText(el, '*', tt.listScanTitle('12', '30'))?.textContent).toContain('12 / 30')
+    expect(byText(el, '*', tt.listFilterTitle)).toBeFalsy()
+    expect(el.querySelector('[data-list-skeleton]')).toBeTruthy()
+    // Dòng đếm đọc tiến độ quét thay cho "0 / N video".
+    expect(el.textContent).toContain(tt.listCountScanning('12', '30'))
+  })
+
+  it('lọc rỗng: câu nêu bộ lọc đang bật, Bỏ lọc đưa Dài và Đăng trong về mặc định', async () => {
+    videos = []
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', tt.listFilterTitle))
+    // Mặc định 30 ngày vẫn là một bộ lọc đang bật.
+    expect(byText(el, '*', tt.listFilterText([tt.noMatchWithin(tt.withinDays.d30)], '1.284', tt.noMatchAll))).toBeTruthy()
+
+    const select = el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement
+    await act(async () => { select.value = '7'; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    await flush()
+    const longChip = byText(el, 'button', tt.filterLong)!
+    await click(longChip)
+    await until(() => el.textContent!.includes(tt.noMatchWithin(tt.withinDays.d7)) && el.textContent!.includes(tt.noMatchLong))
+    expect(longChip.getAttribute('aria-pressed')).toBe('true')
+
+    await click(byText(el, 'button', tt.listFilterClear))
+    await until(() => {
+      const chip = byText(el, 'button', tt.filterLong)!
+      const day = el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement
+      return chip.getAttribute('aria-pressed') === 'false' && day.value === '30'
+    })
+    expect((el.querySelector(`select[aria-label="${tt.withinLabel}"]`) as HTMLSelectElement).value).toBe('30')
+    expect(byText(el, 'button', tt.filterLong)!.getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('lỗi tải: Thử lại gọi lại danh sách và rời khối lỗi', async () => {
+    videos = []
+    videosFails = 1
+    const el = await mount(<ExploreScreen route={ROUTE} />)
+    await until(() => !!byText(el, '*', tt.listErrorTitle))
+    expect(byText(el, '*', tt.listFilterTitle)).toBeFalsy()
+    const before = vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/rivals/all/videos')).length
+    await click(byText(el, 'button', tt.listRetry))
+    await until(() => !byText(el, '*', tt.listErrorTitle))
+    const after = vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/rivals/all/videos')).length
+    expect(after).toBeGreaterThan(before)
+    // Tải lại xong mà vẫn 0 video (không lọc gì khác) → khối lọc rỗng, không phải lỗi.
+    await until(() => !!byText(el, '*', tt.listFilterTitle))
   })
 })

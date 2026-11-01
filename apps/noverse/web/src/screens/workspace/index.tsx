@@ -18,7 +18,7 @@ import { setConnection, setLocked, usePanels } from '../../shell/stores'
 import { useMediaQuery } from '../../shell'
 import { t } from '../../i18n/vi'
 import { translateHost } from '../../i18n/hostStrings'
-import { navigate, paths, setDialog } from '../../router'
+import { navigate, paths, setDialog, useRoute } from '../../router'
 import { Icon } from '@noverse/ui'
 import { toast } from '@noverse/ui'
 import { cache, invalidate, keys, setData, useAction, useConnection, useResource } from '../../data'
@@ -38,6 +38,7 @@ import { JobProgress } from './JobProgress'
 import { PlanPanel } from './PlanPanel'
 import { CommandResults, useCommandResults } from '../cmdresults'
 import { LiveStream } from './LiveStream'
+import { RunHistoryPage } from './RunHistoryPage'
 import { idleModel, type IdleActions } from './IdleCard'
 import { OutlineRail } from './OutlineRail'
 import { RunHeader } from './RunHeader'
@@ -85,6 +86,13 @@ function MobilePaneTabs({ value, onChange }: { value: MobileTab; onChange: (tab:
 }
 
 export function WorkspaceScreen({ project, story }: { project: string; story: string }) {
+  const { search } = useRoute()
+  // Gói AS mục 1: “Lịch sử ›” mở trang lịch sử mọi vòng, không cuộn khung trực tiếp.
+  if (search.get('view') === 'run') return <RunHistoryPage project={project} story={story} />
+  return <WorkspaceBody project={project} story={story} />
+}
+
+function WorkspaceBody({ project, story }: { project: string; story: string }) {
   const { user } = useSession()
   const { snapshot, events, streamText, cocreateText, jobs, connected, blocked, reconnectAt, retryNow,
     loading, refreshing, updatedAt, error, refresh } =

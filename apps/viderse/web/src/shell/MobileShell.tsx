@@ -84,6 +84,9 @@ export function MobileShell({ route, status, online, userName, channels, channel
   // Chunk của bảng Việc nền (6 chunk) chỉ được tải khi người dùng mở lần đầu —
   // mount sẵn <QueueSummarySheet open={false}> sẽ kéo cả cụm vào lần vẽ đầu của shell.
   const [jobsLoaded, setJobsLoaded] = useState(false)
+  /* MLibrary / MTemplate là màn con tự vẽ thanh riêng (artboard: quay lại +
+     tiêu đề), không thanh app chung phía trên. */
+  const subPage = route.name === 'library' || route.name === 'template'
   const [jobsTab, setJobsTab] = useState<'running' | 'inbox'>('running')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   if (route.name === 'queue') return <MobileRuntimeProvider hidden><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div></MobileRuntimeProvider>
@@ -112,6 +115,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
   }
   return (
     <MobileRuntimeProvider hidden={route.name === 'channel-new'}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
+      {!subPage &&
       <MobileTopBar
         slots={{ root: `vv-mbar ${stylex.props(mobileShellStyles.bar).className}`, leading: stylex.props(mobileShellStyles.lead).className, actions: stylex.props(mobileShellStyles.end).className }}
         leading={<>
@@ -128,10 +132,11 @@ export function MobileShell({ route, status, online, userName, channels, channel
             <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
           </a>
         </>}
-      />
+      />}
       {children}
-      {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab. */}
-      {route.name === 'channel-new' ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
+      {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab.
+          MLibrary / MTemplate cũng vậy: artboard chỉ có thanh riêng của màn. */}
+      {route.name === 'channel-new' || subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
       {jobsLoaded && <Suspense fallback={null}>
         <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
       </Suspense>}

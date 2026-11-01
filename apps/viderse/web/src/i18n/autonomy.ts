@@ -1,6 +1,8 @@
 // Chuỗi Mức tự chủ + điểm ảnh (artboard Channel › tab=sources, CreateChannel,
 // Review › score, Dialogs › autonomy). Chữ lấy nguyên văn từ artboard; trạng
 // thái đang tải/lỗi/mất kết nối không có trên board nên theo mẫu V12 (11-hoi-dap).
+import { base } from './vi'
+
 export const autonomyCopy = {
   title: 'Mức tự chủ',
   custom: 'Tuỳ chỉnh',
@@ -80,3 +82,6 @@ export const autonomyCopy = {
     badge: (value: number) => `Điểm Kiểm định ${value}`,
   },
 }
+
+/** `t` của thẻ Mức tự chủ: chữ khung app + Mức tự chủ. */
+export const t = { ...base, autonomy: autonomyCopy } as const

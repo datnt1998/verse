@@ -1,14 +1,23 @@
 import * as stylex from '@stylexjs/stylex'
 import { Button, Icon } from '@noverse/ui'
+import { color } from '@noverse/ui/tokens.stylex'
 import type { Status } from '../api/status'
 import type { User } from '../api/types'
-import { serverStorageCopy as t } from '../i18n/storageServer'
+import { t } from '../i18n/vi'
 import { fill } from '../screens/settings/fmt'
-import { styles as s } from '../screens/settings/storage/serverStorage.styles'
 import { navigate, paths } from '../router'
+import { space as sp } from '../styles/viderse.stylex'
+
+// Dải này nằm trong khung app nên giữ style riêng, không kéo cả stylesheet của
+// màn Lưu trữ vào entry.
+const s = stylex.create({
+  strip: { flexShrink: 0, display: 'flex', alignItems: 'center', gap: sp['--vv-s-10'], paddingBlock: sp['--vv-s-8'], paddingInline: sp['--vv-s-16'], backgroundColor: 'var(--vv-err-11)', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-err-28)', fontSize: 13, color: color['--color-err'] },
+  grow: { flex: 1, minWidth: 0 },
+})
 
 export function AdminStorageStrip({ user, status }: { user: User; status?: Status }) {
   const admin = user.role === 'admin' || user.grants?.viderse === 'admin'
   if (!admin || !status?.storageDown) return null
-  return <div role="alert" {...stylex.props(s.strip)}><Icon name="danger" size={16} /><span {...stylex.props(s.grow)}><b>{fill(t.stripTitle, { label: status.storageDown.label })}</b> {status.running > 0 ? fill(t.held, { n: status.running }) : t.downBody}</span><Button variant="ghost" size="compact" onClick={() => navigate(paths.settings('storage'))}>{t.openStorage}</Button></div>
+  const c = t.shell.storageDown
+  return <div role="alert" {...stylex.props(s.strip)}><Icon name="danger" size={16} /><span {...stylex.props(s.grow)}><b>{fill(c.title, { label: status.storageDown.label })}</b> {status.running > 0 ? fill(c.held, { n: status.running }) : c.body}</span><Button variant="ghost" size="compact" onClick={() => navigate(paths.settings('storage'))}>{c.open}</Button></div>
 }

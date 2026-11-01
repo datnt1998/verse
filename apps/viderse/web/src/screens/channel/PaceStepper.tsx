@@ -4,7 +4,7 @@ import { channelStyles } from './channel.stylex'
 // (hoặc Enter) thì lưu một lần. Artboard Channel/CreateChannel › "Nhịp mỗi ngày".
 import { useEffect, useState } from 'react'
 import { Icon } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 
 export function PaceStepper({ value, onSave, label }: {
   value: number

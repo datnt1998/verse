@@ -4,6 +4,7 @@
 // ghi ở hỏi đáp #75 chờ design xác nhận.
 import type { Assistant } from '../components/agents'
 import type { SuggestionKind } from '../api/suggestions'
+import { base } from './vi'
 
 const agentNames: Record<Assistant, string> = { scout: 'Trinh sát', director: 'Đạo diễn', artist: 'Hoạ sĩ', qa: 'Kiểm định' }
 
@@ -101,3 +102,6 @@ export const learnCopy = {
     loadFailed: 'Không tải được cài đặt đề xuất.',
   },
 }
+
+/** `t` của đề xuất/quy tắc đã học: chữ khung app + chữ mảng học. */
+export const t = { ...base, learn: learnCopy } as const

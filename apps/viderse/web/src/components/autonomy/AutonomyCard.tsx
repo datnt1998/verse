@@ -11,7 +11,7 @@ import { Segmented } from '../Segmented'
 import { invalidate, setData } from '@noverse/ui/data'
 import { Orb } from '../Orb'
 import { confirmAutonomy } from '../confirm'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/autonomy'
 import { keys } from '../../data/keys'
 import { useOnline } from '../../data/status'
 import {

@@ -53,5 +53,4 @@ export const styles = stylex.create({
   cell: { padding: '8px 6px', fontVariantNumeric: 'tabular-nums', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)' },
   left: { textAlign: 'left' },
   overflow: { overflowX: 'auto', minWidth: 0 },
-  strip: { flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', backgroundColor: 'var(--vv-err-11)', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-err-28)', fontSize: 13, color: color['--color-err'] },
 })

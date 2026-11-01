@@ -1,7 +1,7 @@
 // Mảnh dùng chung của màn Đăng nhập / Thiết lập: khung trang giữa (AuthShell)
 // và dòng thông tin nhỏ (HintLine) — tương đương screens/auth/parts.tsx của Noverse.
 import type { ComponentProps, CSSProperties, ReactNode } from 'react'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/auth'
 import { useSession } from '../../api/session'
 import { FieldError, Icon, PasswordField } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
