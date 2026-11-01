@@ -601,6 +601,14 @@ func TestPGAudioExportMusicAndPeaks(t *testing.T) {
 		t.Fatalf("export job = %q error=%s", done.State, errBody)
 	}
 
+	res = f.audioCall(t, f.fx.owner, "GET", "/audio/volumes/1/exports", "", nil)
+	if res.Code != http.StatusOK {
+		t.Fatalf("export metadata: %d", res.Code)
+	}
+	if duration, _ := decodeAny(t, res)["durationSec"].(float64); duration < 0.45 {
+		t.Fatalf("export duration must include the 0.2s chapter and 0.3s intro, got %v", duration)
+	}
+
 	// Peaks decodes the produced chapter audio blob.
 	res = f.audioCall(t, f.fx.owner, "GET", "/audio/volumes/1/chapters/1/peaks", "", nil)
 	if res.Code != http.StatusOK {

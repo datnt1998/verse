@@ -238,7 +238,7 @@ func (s *PGService) ExportInfo(ctx context.Context, volume int) (ExportInfo, err
 			continue
 		}
 		var m pgExportManifest
-		if err := json.Unmarshal(row.InputManifest, &m); err != nil || m.Volume != volume {
+		if err := json.Unmarshal(row.InputManifest, &m); err != nil || m.Volume != volume || m.ContentKey != row.CacheKey {
 			continue
 		}
 		for i := range m.Files {
