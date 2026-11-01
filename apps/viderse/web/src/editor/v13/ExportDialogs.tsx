@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Dialog, Icon, Spinner } from '@noverse/ui'
+import { Button, Dialog, Icon, Spinner } from '@noverse/ui'
 import { formatBytes } from '../../lib/units'
 import { rangeTime } from './FixPanel'
 import { sx } from './editor.stylex'
@@ -22,7 +22,7 @@ export function ExportingDialog({ seconds, fps, progress, onCancel }: { seconds:
       <div {...stylex.props(s.row, s.muted)}><span aria-hidden="true" {...stylex.props(s.dot)}>·</span><span {...stylex.props(sx.spread)}>Lưu lên máy và kiểm tra tệp</span></div>
     </div>
     <div {...stylex.props(sx.notice)}>Bạn vẫn xem được timeline nhưng không sửa được.</div>
-    <div {...stylex.props(sx.dialogActions)}><button type="button" {...stylex.props(sx.button, sx.danger)} onClick={onCancel}>Huỷ xuất</button></div>
+    <div {...stylex.props(sx.dialogActions)}><Button variant="dsoft" onClick={onCancel}>Huỷ xuất</Button></div>
   </div></Dialog>
 }
 
@@ -36,6 +36,6 @@ export function ExportDoneDialog({ seconds, bytes, download, onClose, onBack }: 
     {download && <div {...stylex.props(s.videoFrame)}><video ref={video} controls={playing} src={download} preload="metadata" aria-label="Bản vừa xuất" {...stylex.props(s.video)} onPlay={() => { setPlaying(true); setError(undefined) }} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />{!playing && <><button type="button" aria-label="Phát bản vừa xuất" {...stylex.props(s.play)} onClick={play}><Icon name="play" size={20} /></button><span {...stylex.props(s.duration)}>{rangeTime(seconds)}</span></>}</div>}
     {error && <p role="alert" {...stylex.props(sx.dialogCopy)}>{error}</p>}
     <div {...stylex.props(s.notice)}><Icon name="tick-b" size={16} {...stylex.props(sx.ok)} /><span>Quay lại Bàn dựng, Kiểm định sẽ đo lại độ hoàn thiện cho bản này. Đạt từ 90 thì video chuyển sang Sẵn sàng.</span></div>
-    <div {...stylex.props(sx.dialogActions)}>{download && <a href={download} download {...stylex.props(sx.button)}><Icon name="download" size={15} />Tải MP4</a>}<button type="button" {...stylex.props(sx.button, sx.primary)} onClick={onBack}>Quay lại Bàn dựng</button></div>
+    <div {...stylex.props(sx.dialogActions)}>{download && <a href={download} download {...stylex.props(sx.downloadLink)}><Icon name="download" size={15} />Tải MP4</a>}<Button variant="primary" onClick={onBack}>Quay lại Bàn dựng</Button></div>
   </div></Dialog>
 }

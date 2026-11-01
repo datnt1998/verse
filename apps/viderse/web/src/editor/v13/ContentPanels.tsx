@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Dialog, Icon } from '@noverse/ui'
+import { Button, Dialog, Icon, Segmented } from '@noverse/ui'
 import { z } from 'zod'
 import { executeCommands, type SerializedCommand } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
@@ -327,7 +327,7 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
               <span {...stylex.props(sx.meta)}>{source ? source.source === 'owner' ? 'Cố định' : 'Từ kênh' : ''} · {panelTime(item.from / fps)} · {panelTime(item.durationInFrames / fps)}</span>
             </span>
           </button>
-          <button type="button" {...stylex.props(sx.smallIcon)} title="Đổi ngẫu nhiên" aria-label={`Đổi ngẫu nhiên ${item.label}`} disabled={!source || !actions.backdrop?.randomPicks || actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }}><Icon name="refresh" size={14} /></button>
+          <Button variant="icon" size="sm" title="Đổi ngẫu nhiên" aria-label={`Đổi ngẫu nhiên ${item.label}`} disabled={!source || !actions.backdrop?.randomPicks || actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }}><Icon name="refresh" size={14} /></Button>
         </div>
       })}
     </div>
@@ -335,6 +335,8 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
     {tracks.some(track => track.templateSlot === 'background-video') && <p {...stylex.props(sx.help)}><Icon name="info-circle" size={13} />Đổi ở đây chỉ áp cho video này. Đổi cho mọi video: Template › Nền &amp; hiệu ứng.</p>}
   </div>
 }
+
+const mediaKinds = [['image', 'Ảnh'], ['video', 'Nền'], ['overlay', 'Phủ'], ['audio', 'Âm']] as const
 
 function MediaPanel({ onSelectItem }: Pick<ContentPanelsProps, 'onSelectItem'>) {
   const media = useMediaLibraryStore(state => state.mediaItems)
@@ -375,9 +377,12 @@ function MediaPanel({ onSelectItem }: Pick<ContentPanelsProps, 'onSelectItem'>) 
   const importButton = <Button size="sm" pending={busy} onClick={() => picker.current?.click()} icon={<Icon name="add" size={14} />}>Nhập media</Button>
   return <>
     <div {...stylex.props(sx.tabs)}>
-      <div role="tablist" aria-label="Loại media" {...stylex.props(sx.tabBar)}>
-        {([['image', 'Ảnh'], ['video', 'Nền'], ['overlay', 'Phủ'], ['audio', 'Âm']] as const).map(([value, label]) => <button key={value} type="button" role="tab" aria-selected={kind === value} {...stylex.props(sx.tab, kind === value && sx.activeTab)} onClick={() => setKind(value)}>{label} {media.filter(entry => matches(entry, value)).length}</button>)}
-      </div>
+      <Segmented label="Loại media" size="sm" value={kind}
+        options={mediaKinds.map(([id, label]) => ({ id, label: `${label} ${media.filter(entry => matches(entry, id)).length}` }))}
+        onChange={value => {
+          const option = mediaKinds.find(([id]) => id === value)
+          if (option) setKind(option[0])
+        }} />
     </div>
     {actionMount ? createPortal(importButton, actionMount) : <div {...stylex.props(sx.padded)}>{importButton}</div>}
     <input hidden ref={picker} type="file" accept="image/*,video/*,audio/*" multiple aria-label="Nhập media" onChange={event => {

@@ -10,7 +10,6 @@ export const contentStyles = stylex.create({
   backgroundList: { display: 'flex', flexDirection: 'column', gap: 2, margin: '-4px -6px 0' },
   backgroundRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '5px 6px', borderRadius: 9, backgroundColor: { default: 'transparent', ':hover': line['--line-1'] } },
   backgroundPick: { display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1, padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
-  smallIcon: { width: 30, height: 30, flexShrink: 0, padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderRadius: 8, color: color['--color-fg-3'], backgroundColor: { default: 'transparent', ':hover': line['--line-1'] }, opacity: { default: 1, ':disabled': 0.42 }, cursor: { default: 'pointer', ':disabled': 'not-allowed' } },
   row: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: 6, borderWidth: 0, borderRadius: 10, backgroundColor: { default: 'transparent', ':hover': line['--line-1'] }, color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
   selected: { backgroundColor: color['--color-surface-4'] },
   thumbnail: { position: 'relative', width: 84, flexShrink: 0, aspectRatio: '16 / 9', borderRadius: 7, overflow: 'hidden', backgroundColor: color['--color-surface-2'], display: 'flex', alignItems: 'center', justifyContent: 'center', color: color['--color-fg-4'] },
@@ -46,9 +45,6 @@ export const contentStyles = stylex.create({
   mediaThumbnail: { width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: 7 },
   used: { position: 'absolute', right: 4, top: 4, color: color['--color-ok'] },
   tabs: { padding: '12px 14px 0', display: 'flex', gap: 2, flexWrap: 'wrap' },
-  tabBar: { display: 'inline-flex', gap: 3, padding: 3, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'], borderRadius: 9, backgroundColor: color['--color-surface-1'] },
-  tab: { flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 26, borderWidth: 0, borderRadius: 6, padding: '0 10px', fontSize: 12, whiteSpace: 'nowrap', color: color['--color-fg-3'], backgroundColor: 'transparent', cursor: 'pointer' },
-  activeTab: { backgroundColor: color['--color-surface-6'], color: color['--color-fg'] },
   empty: { padding: '24px 14px', margin: 0, color: color['--color-fg-4'], textAlign: 'center', fontSize: 12.5, lineHeight: 1.5 },
   dialogBody: { padding: 18, display: 'flex', flexDirection: 'column', gap: 12 },
 })

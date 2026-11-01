@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
-import { Dialog, Icon } from '@noverse/ui'
+import { Button, Dialog, Icon } from '@noverse/ui'
 import { extraBlockers, type EditorQuality, type QualityRange } from './quality'
 import { rangeTime } from './FixPanel'
 import { sx } from './editor.stylex'
@@ -25,8 +25,8 @@ export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClos
         <li>Vẫn xuất: video chuyển sang Sẵn sàng, Kiểm định ghi bạn đã chọn bỏ qua.</li>
       </ul>
       <div {...stylex.props(sx.dialogActions)}>
-        <button type="button" {...stylex.props(sx.button)} onClick={onAccept}>Vẫn xuất</button>
-        <button type="button" autoFocus {...stylex.props(sx.button, sx.primary)} onClick={onContinue}>Sửa tiếp</button>
+        <Button onClick={onAccept}>Vẫn xuất</Button>
+        <Button autoFocus variant="primary" onClick={onContinue}>Sửa tiếp</Button>
       </div>
     </div>
   </Dialog>
