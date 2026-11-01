@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../../styles/shared.stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
 // Tab Video nền của Thư viện (artboard Library › tab=backdrops): thanh thêm
@@ -115,7 +116,7 @@ function AddBar({ onAdded }: { onAdded: (id: string) => void }) {
     <div className={`vbd-add ${stylex.props(sx.add).className}`}>
       <form className={`vbd-addbar ${stylex.props(sx.addbar, (Boolean((failed))) && sx.addbarDataFailed).className}`} data-failed={failed || undefined} onSubmit={(event) => void submit(event)}>
         <Icon xstyle={[sx.addic]} name="link" size={16} className="vbd-addic" />
-        <label htmlFor="vbd-link" className="sr-only">{copy.linkLabel}</label>
+        <label htmlFor="vbd-link" {...stylex.props(text.srOnly)}>{copy.linkLabel}</label>
         <input
           id="vbd-link"
           className={`vbd-addinput ${stylex.props(sx.addinput).className}`}

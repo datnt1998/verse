@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { channelStyles } from './channel.stylex'
 // Tab Nguồn & tự động (artboard Channel › tab=sources): danh sách đối thủ đã
 // liên kết (avatar, huy hiệu "Tham chiếu nhận diện"), dòng phụ đúng artboard
@@ -268,7 +269,7 @@ function AddRivalRow({ channelId, onLinked }: { channelId: string; onLinked: () 
       onSubmit={(event) => { event.preventDefault(); void submit() }}
       style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-8)' }}
     >
-      <span className="sr-only"><label htmlFor="vch-add-rival">{tt.label}</label></span>
+      <span {...stylex.props(text.srOnly)}><label htmlFor="vch-add-rival">{tt.label}</label></span>
       <input
         id="vch-add-rival"
         className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}

@@ -16,6 +16,7 @@ import { MobileQueue } from './MobileQueue'
 import { useQueue } from './useQueue'
 import type { QueueQueuedItem, QueueView } from '../../api/clone'
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { fmtEta, movePosition, quotaLine, quotaName, quotaText, sourceLabel, viewState, waitLine } from './queueView'
@@ -370,7 +371,7 @@ export function QueueScreen() {
                   <span className={`vq-ch ${stylex.props(styles["vq-ch"]).className}`} role="columnheader">{tt.colChannel}</span>
                   <span className={`vq-tpl ${stylex.props(styles["vq-tpl"]).className}`} role="columnheader">{tt.colTemplate}</span>
                   <span role="columnheader">{tt.colStart}</span>
-                  <span className="sr-only" role="columnheader">{tt.colActions}</span>
+                  <span {...stylex.props(text.srOnly)} role="columnheader">{tt.colActions}</span>
                 </div>
                 {shown.map((item, i) => qrow(item, i + 1))}
                 {shown.length === 0 && <div className={`vq-norows ${stylex.props(styles["vq-norows"]).className}`}>{tt.noRows}</div>}

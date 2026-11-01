@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { exploreStyles } from './explore.stylex'
 // Ô "Tìm tiêu đề" của Khám phá (artboard Explore · search=none|match|nomatch):
 // 240px ngay trước "Chọn nhiều". Phím "/" (ngoài ô nhập khác) đưa focus vào ô;
@@ -27,7 +28,7 @@ export function SearchBox({ value, onChange }: { value: string; onChange: (value
 
   return (
     <div role="search" className={`vx-search ${stylex.props(exploreStyles.search).className}`}>
-      <label htmlFor={id} className="sr-only">{tt.searchLabel}</label>
+      <label htmlFor={id} {...stylex.props(text.srOnly)}>{tt.searchLabel}</label>
       <Icon name="search" size={14} className={`vx-search__ic ${stylex.props(exploreStyles.searchIc).className}`} aria-hidden />
       <input {...stylex.props(exploreStyles.searchInput)}
         id={id}

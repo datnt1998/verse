@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { exploreStyles } from './explore.stylex'
 // Hàng lọc của lưới Khám phá: radiogroup Sắp xếp (Nổi trội · Mới nhất · Lượt
 // xem) rồi ba chip — "Dài ≥ 8 phút" (toggle long=1), "Đăng trong N ngày"
@@ -90,7 +91,7 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
           <Icon name="arrow-d" size={12} aria-hidden />
         </button>
       </Tooltip>
-      <span id={lockId} className="sr-only">{lockReason}</span>
+      <span id={lockId} {...stylex.props(text.srOnly)}>{lockReason}</span>
       <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
       <span className={`vx-count num ${stylex.props(exploreStyles.count).className}`}>{count}</span>
     </div>

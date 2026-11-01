@@ -14,6 +14,7 @@ import { useMediaQuery } from '../../lib/useMediaQuery'
 import { fmtDuration, fmtScore, videoMeta } from '../explore/fmt'
 import { PLAN_DEBOUNCE_MS, parseUrls, pickPriority, planLine } from './plan'
 import * as stylex from '@stylexjs/stylex'
+import { text as textStyles } from '../../styles/shared.stylex'
 import { color, line, radius, font } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline } from '../../styles/viderse.stylex'
 
@@ -102,7 +103,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
         <button {...stylex.props(styles.mode, multi && styles.modeChecked)} type="button" role="radio" aria-checked={multi} onClick={() => setMode('multi')}><Icon name="video-add" size={mobile ? 16 : 15} />{mobile ? tt.mobileMulti : tt.multi}</button>
       </div>
       <form className={`nv-card ${stylex.props(styles.liquidCard, styles.card, state === 'error' && styles.cardError).className}`} onSubmit={submit}>
-        <label htmlFor="nv-url" className="sr-only">{tt.textarea}</label>
+        <label htmlFor="nv-url" {...stylex.props(textStyles.srOnly)}>{tt.textarea}</label>
         <div className={`nv-entry ${stylex.props(styles.entry, multi && styles.entryMulti).className}`}>
           {!multi && <Icon name="link" size={18} xstyle={styles.entryIcon} />}
           {multi ? <textarea {...stylex.props(styles.input, styles.multiInput)} id="nv-url" rows={4} value={text} aria-label={tt.textarea}

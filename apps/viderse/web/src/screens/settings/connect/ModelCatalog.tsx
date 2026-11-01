@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../../styles/shared.stylex'
 import { styles as settingsStyles, connSearchMarker, connRowMarker, connManualRowMarker, connSheetRowMarker } from '../settings.stylex'
 // ModelCatalog — danh mục model của một nhà cung cấp (artboard Settings
 // conn=added|models|manual, MSettings sheet=models).
@@ -234,7 +235,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
         <div className={`conn-cat__tools ${stylex.props(settingsStyles.connCatTools).className}`}>
           <label className={`conn-search ${stylex.props(connSearchMarker, settingsStyles.connSearch).className}`}>
             <Icon name="search" size={14} className="conn-ic" />
-            <span className="sr-only">{c.searchLabel}</span>
+            <span {...stylex.props(text.srOnly)}>{c.searchLabel}</span>
             <input
               type="search"
               value={q}
@@ -278,7 +279,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
             <div className={`conn-manual ${stylex.props(settingsStyles.connManual).className}`}>
               <div className={`conn-manual__row ${stylex.props(connManualRowMarker, settingsStyles.connManualRow).className}`}>
                 <label style={{ flex: 1, minWidth: 0 }}>
-                  <span className="sr-only">{c.manualLabel}</span>
+                  <span {...stylex.props(text.srOnly)}>{c.manualLabel}</span>
                   <input
                     className={`conn-input mono ${stylex.props(settingsStyles.connInput, settingsStyles.ConnManualRowInput).className}`}
                     type="text"

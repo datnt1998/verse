@@ -1,6 +1,8 @@
 // ActionButton — nút của Viderse, bọc Button của kit theo tên biến thể của design
 // (02 §3): primary (sáng, một màn một nút) · outline · quiet · danger-soft · danger.
 // Đỏ không làm nền nút; cam đặc chỉ trong hộp xác nhận xoá vĩnh viễn.
+import * as stylex from '@stylexjs/stylex'
+import { text } from '../styles/shared.stylex'
 import { forwardRef, useId } from 'react'
 import { Button, type ButtonProps } from '@noverse/ui'
 
@@ -35,7 +37,7 @@ export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(fun
       <>
         <Button ref={ref} variant={KIT_VARIANT[variant]} tooltip={lockedReason} {...rest}
           aria-disabled aria-describedby={describedBy ?? ownId} />
-        {describedBy === undefined && <span id={ownId} className="sr-only">{lockedReason}</span>}
+        {describedBy === undefined && <span id={ownId} {...stylex.props(text.srOnly)}>{lockedReason}</span>}
       </>
     )
   }

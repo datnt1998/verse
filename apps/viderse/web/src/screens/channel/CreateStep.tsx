@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { channelStyles, channelRootMarker } from './channel.stylex'
 // Bước Tạo kênh (artboard CreateChannel/Onboard › step=create): chọn ≥ 1 đối
 // thủ đang theo dõi làm nguồn (bắt buộc), theo dõi & chọn đối thủ mới ngay tại
@@ -294,7 +295,7 @@ function AddRivalPicked({ onAdded }: { onAdded: (rival: Rival) => void }) {
       onSubmit={(event) => { event.preventDefault(); void submit() }}
       style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-8)', flex: '1 1 260px' }}
     >
-      <span className="sr-only"><label htmlFor="vch-new-rival">{tt.addLabel}</label></span>
+      <span {...stylex.props(text.srOnly)}><label htmlFor="vch-new-rival">{tt.addLabel}</label></span>
       <input
         id="vch-new-rival"
         className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}
