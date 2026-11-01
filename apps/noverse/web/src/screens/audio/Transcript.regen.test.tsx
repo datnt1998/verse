@@ -7,7 +7,7 @@ const state = vi.hoisted(() => ({ actions: [] as ((...args: unknown[]) => unknow
 vi.mock('../../api/client', async original => ({ ...await original<typeof Client>(), renderAudioChapter: vi.fn(), enqueueAudioChapters: vi.fn() }))
 vi.mock('../../api/session', () => ({ useSession: () => ({ user: { role: 'admin' } }) }))
 vi.mock('../../data', () => ({
-  keys: { story: (...args: unknown[]) => args, project: (...args: unknown[]) => args, jobs: () => ['jobs'] },
+  keys: { story: (...args: unknown[]) => args, project: (...args: unknown[]) => args, jobs: () => ['jobs'], tts: () => ['tts'] },
   useResource: () => ({}),
   useAction: (action: (...args: unknown[]) => unknown) => { state.actions.push(action); return { run: action } },
 }))

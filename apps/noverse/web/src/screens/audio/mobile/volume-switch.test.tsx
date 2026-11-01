@@ -10,7 +10,7 @@ vi.mock('../../../router', () => ({
   paths: { settings: () => '/settings/mobile', audio: (p: string, s: string, v: number) => `/p/${p}/s/${s}/audio/${v}/listen` },
 }))
 vi.mock('../../../data', () => ({
-  keys: { story: (...parts: unknown[]) => parts, config: (...parts: unknown[]) => ['config', ...parts], jobs: () => ['jobs'] },
+  keys: { story: (...parts: unknown[]) => parts, config: (...parts: unknown[]) => ['config', ...parts], jobs: () => ['jobs'], tts: () => ['tts'] },
   useConnection: () => ({ writable: true }), useAction: () => ({ run: vi.fn() }),
   useResource: (key: unknown[]) => ({ data: key.includes('outline') ? { volumes: [
     { index: 1, title: 'Có giọng', arcs: [{ chapters: [1] }], chapters: [] },

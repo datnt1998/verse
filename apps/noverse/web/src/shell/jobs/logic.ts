@@ -1,7 +1,8 @@
 // Logic thuần của dock việc chạy nền — 14-jobs-dock.md §1.2 (trạng thái), §1.5 (dòng), §1.6 (ưu tiên).
 // Không đụng DOM/React để test được bằng vitest.
 import type { Job, JobStatus } from '../../api/types'
-import { exportLook, exportRunLine, isAudioExportJob, jobError } from './exportFlow'
+import { exportLook, exportRunLine, isAudioExportJob, jobError, jobErrorInfo } from './exportFlow'
+import { machineFailure } from '../../screens/audio/machine'
 import { AGENT_PALETTE } from '../../ui/agentPalette'
 import { agentLabel } from '../../lib/labels'
 import { t } from '../../i18n/vi'
@@ -22,6 +23,27 @@ export function byPriority(jobs: readonly Job[]): Job[] {
 
 export const isActive = (job: Job) => job.status !== 'done'
 export const needsYou = (job: Job) => job.status === 'waiting' || job.status === 'failed'
+
+// ─── Hàng “Chuẩn bị bộ đọc” (Gói AT · 10-audio.md §8.6) ───
+/** Việc của máy đọc: cùng một hàng cố định, không thuộc truyện nào. */
+export const isPrepJob = (job: Job) => job.kind === 'voice'
+export const PREP_TITLE = 'Chuẩn bị bộ đọc'
+export const PREP_DONE_TITLE = 'Bộ đọc đã sẵn sàng'
+
+/** Dòng bước của hàng prep: “Bước 5/6 · Tải mẫu giọng · 299/581 MB”; % chỉ khi đo được. */
+export function prepLine(job: Job): { title: string; line: string; measured: boolean } {
+  const measured = job.status === 'running' && !isIndeterminate(job)
+  return {
+    title: measured ? `${PREP_TITLE} · ${pct(job)}` : PREP_TITLE,
+    line: job.step ?? 'Đang chuẩn bị bộ đọc…',
+    measured,
+  }
+}
+
+/** Câu lý do của hàng prep lỗi — mã 8.2 dịch thành câu, không hiện mã. */
+export function prepFailure(job: Job): string {
+  return machineFailure(jobErrorInfo(job)?.cause).sentence || jobError(job)
+}
 
 // ─── Thời gian còn lại ───
 /** Approximate remaining time; unknown ETA produces no label. */
@@ -101,6 +123,12 @@ export const ringHeadColor = (job: Job) => (job.agent ? AGENT_PALETTE[job.agent]
 export type PillLine = { a: string; b: string; fg: string }
 
 export function pillLine(job: Job): PillLine {
+  if (isPrepJob(job)) {
+    if (job.status === 'failed') return { a: `Lỗi · ${PREP_TITLE}`, b: prepFailure(job), fg: 'var(--kit-err-soft)' }
+    if (job.status === 'done') return { a: `✓ ${PREP_DONE_TITLE}`, b: job.result?.sub ?? 'Máy đọc đã chuẩn bị xong bộ đọc', fg: DONE_COLOR }
+    const prep = prepLine(job)
+    return { a: prep.title, b: prep.line, fg: 'var(--color-fg)' }
+  }
   if (job.status === 'waiting') return { a: `Cần bạn · ${job.title}`, b: job.step ?? job.result?.sub ?? '', fg: WAIT_COLOR }
   if (job.status === 'failed') return { a: isAudioExportJob(job) ? exportLook(job).title : `Lỗi · ${job.title}`, b: jobError(job), fg: '#FFC9CE' }
   if (job.status === 'paused') return { a: `${job.title} · đã tạm dừng`, b: unitText(job) || pct(job), fg: '#C9C9D1' }

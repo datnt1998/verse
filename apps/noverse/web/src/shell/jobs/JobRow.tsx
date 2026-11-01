@@ -6,7 +6,7 @@ import { useAction } from '../../data/useAction'
 import { Button } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { JobRing } from './JobRing'
-import { agentLine, formatEta, isIndeterminate, kindColor, pct, unitText } from './logic'
+import { agentLine, formatEta, isIndeterminate, isPrepJob, kindColor, pct, prepFailure, prepLine, PREP_DONE_TITLE, PREP_TITLE, unitText } from './logic'
 import { isAudioExportJob, jobError, musicFailure } from './exportFlow'
 import { cancelJob, openHref, pauseJob, resumeJob, retryExport, retryJob, runAction } from './store'
 
@@ -71,26 +71,54 @@ export function JobRow({ job, delay, out, flash }: { job: Job; delay: string; ou
   const { status } = job
   const runLike = status === 'running' || status === 'paused'
   const icons: { icon: string; label: string; run: () => void | Promise<void>; rotate?: boolean }[] = []
-  if (status === 'running') icons.push({ icon: 'pause', label: job.agent ? 'Tạm dừng sau bước này' : 'Tạm dừng', run: () => pauseJob(job) })
-  if (status === 'paused') icons.push({ icon: 'play', label: 'Chạy tiếp', run: () => resumeJob(job) })
+  const prep = isPrepJob(job)
+  if (status === 'running' && !prep) icons.push({ icon: 'pause', label: job.agent ? 'Tạm dừng sau bước này' : 'Tạm dừng', run: () => pauseJob(job) })
+  if (status === 'paused' && !prep) icons.push({ icon: 'play', label: 'Chạy tiếp', run: () => resumeJob(job) })
   if (job.href && (status === 'running' || status === 'paused')) icons.push({ icon: 'arrow-right-2', label: 'Mở', run: () => openHref(job.href) })
-  if (status !== 'waiting') icons.push({ icon: 'add', label: status === 'done' ? 'Bỏ khỏi danh sách' : 'Huỷ', rotate: true, run: () => cancelJob(job) })
+  // Hàng Chuẩn bị bộ đọc: lỗi có nút Thử lại/Huỷ bên dưới, chỉ khi xong mới có nút bỏ khỏi danh sách.
+  if (status !== 'waiting' && (!prep || status === 'done')) {
+    icons.push({ icon: 'add', label: status === 'done' ? 'Bỏ khỏi danh sách' : 'Huỷ', rotate: true, run: () => cancelJob(job) })
+  }
 
   let sub = ''
   let subFg = '#8E8E99'
   let meta = ''
   let barBg = ''
   let ctas: Cta[] = []
-  if (runLike) {
+  if (isPrepJob(job)) {
+    // Hàng “Chuẩn bị bộ đọc” (§8.6): bước không đo được chỉ có vòng xoay, không %.
+    const prepView = prepLine(job)
+    if (status === 'running' || status === 'paused') {
+      sub = prepView.line
+      barBg = 'linear-gradient(90deg, var(--kit-info-dot), var(--kit-info-fg))'
+      meta = prepView.measured ? pct(job) : ''
+    }
+    if (status === 'failed') {
+      sub = prepFailure(job)
+      subFg = 'var(--kit-err-soft)'
+      ctas = [
+        { icon: 'refresh-2', label: 'Thử lại', primary: true, run: () => retryJob(job) },
+        { icon: 'add', label: 'Huỷ', run: () => cancelJob(job) },
+      ]
+    }
+    if (status === 'done') {
+      sub = job.result?.sub ?? 'Máy đọc đã chuẩn bị xong bộ đọc.'
+      ctas = [{ icon: 'arrow-right-2', label: 'Mở Giọng đọc', primary: true, run: () => openHref(job.href) }]
+    }
+  } else if (runLike) {
     if (job.agent) { sub = agentLine(job); barBg = agentBar(job.agent); meta = isIndeterminate(job) ? formatEta(job.etaSec) : pct(job) }
     else if (isIndeterminate(job)) { sub = job.step ?? ''; barBg = kindColor(job); meta = formatEta(job.etaSec) }
     else { sub = [unitText(job), job.step].filter(Boolean).join(' · '); barBg = kindColor(job); meta = [pct(job), formatEta(job.etaSec)].filter(Boolean).join(' · ') }
     if (status === 'paused') { sub = `Đã tạm dừng · ${unitText(job) || pct(job)}`; barBg = '#5E5E68'; meta = isIndeterminate(job) ? '' : pct(job) }
   }
-  if (status === 'waiting') { sub = job.step ?? job.result?.sub ?? ''; subFg = '#E9D9BD'; ctas = resultCtas(job) }
-  if (status === 'failed') { sub = jobError(job); subFg = '#FFC9CE'; ctas = failCtas(job) }
-  if (status === 'done') { sub = job.result?.sub ?? ''; ctas = resultCtas(job) }
-  const title = status === 'done' ? (job.result?.title ?? job.title) : job.title
+  if (!isPrepJob(job)) {
+    if (status === 'waiting') { sub = job.step ?? job.result?.sub ?? ''; subFg = '#E9D9BD'; ctas = resultCtas(job) }
+    if (status === 'failed') { sub = jobError(job); subFg = '#FFC9CE'; ctas = failCtas(job) }
+    if (status === 'done') { sub = job.result?.sub ?? ''; ctas = resultCtas(job) }
+  }
+  const title = isPrepJob(job)
+    ? (status === 'done' ? PREP_DONE_TITLE : PREP_TITLE)
+    : status === 'done' ? (job.result?.title ?? job.title) : job.title
 
   return (
     <div className={`jd-row jd-stag${out ? ' jd-row-out' : ''}`}

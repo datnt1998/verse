@@ -2,9 +2,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Job } from '../../api/types'
 import {
-  aggregateProgress, byPriority, dockReducer, formatEta, groupJobs, initialDock, kindColor, kindIcon, pillLines, showsAsDot,
-  toastKindFor, unitText,
-  visibleJobs, type DockState,
+  aggregateProgress, byPriority, dockReducer, formatEta, groupJobs, initialDock, isPrepJob, kindColor, kindIcon, pillLine, pillLines,
+  prepFailure, prepLine, showsAsDot, toastKindFor, unitText, visibleJobs, type DockState,
 } from './logic'
 
 const job = (id: string, patch: Partial<Job> = {}): Job => ({
@@ -174,5 +173,54 @@ describe('loại việc voice — cài bộ đọc trên máy', () => {
     const groups = groupJobs([install(), install({ id: 'voice/install-2', status: 'failed', error: 'chưa có uv' })])
     expect(groups.map((group) => group.label)).toEqual(['Cần bạn', 'Đang chạy'])
     expect(groups[0]?.jobs[0]?.error).toBe('chưa có uv')
+  })
+})
+
+// §8.6 — hàng “Chuẩn bị bộ đọc”: % chỉ khi bước đo được, lỗi nói câu 8.2 chứ không nói mã.
+describe('hàng Chuẩn bị bộ đọc', () => {
+  const prep = (patch: Partial<Job> = {}) => job('voice/install', {
+    kind: 'voice', title: 'Chuẩn bị bộ đọc', project: '', story: '', href: '/settings/voice', ...patch,
+  })
+
+  it('đang tải mẫu giọng: tiêu đề có %, dòng bước có MB', () => {
+    const row = prep({ status: 'running', progress: 0.79, step: 'Bước 5/6 · Tải mẫu giọng · 232/581 MB' })
+    expect(prepLine(row)).toEqual({
+      title: 'Chuẩn bị bộ đọc · 79%',
+      line: 'Bước 5/6 · Tải mẫu giọng · 232/581 MB',
+      measured: true,
+    })
+    expect(pillLine(row)).toMatchObject({ a: 'Chuẩn bị bộ đọc · 79%', b: 'Bước 5/6 · Tải mẫu giọng · 232/581 MB' })
+  })
+
+  it('bước không đo được: chỉ có vòng xoay, không bịa %', () => {
+    const row = prep({ status: 'running', progress: null, step: 'Bước 3/6 · Tải bộ đọc' })
+    expect(prepLine(row)).toEqual({ title: 'Chuẩn bị bộ đọc', line: 'Bước 3/6 · Tải bộ đọc', measured: false })
+    expect(pillLine(row).a).toBe('Chuẩn bị bộ đọc')
+  })
+
+  it('lỗi: câu 8.2 thay cho mã, nút Thử lại/Huỷ ở hàng', () => {
+    const row = prep({
+      status: 'failed', progress: null, step: 'Bước 5/6 · Tải mẫu giọng',
+      error: { message: 'provision failed code=model_failed', cause: 'model_failed' },
+    })
+    expect(prepFailure(row)).toContain('Mẫu giọng (khoảng 580 MB) mới tải được một phần')
+    expect(prepFailure(row)).not.toContain('model_failed')
+    expect(pillLine(row)).toMatchObject({ a: 'Lỗi · Chuẩn bị bộ đọc', b: prepFailure(row) })
+  })
+
+  it('xong: Bộ đọc đã sẵn sàng kèm lời của máy đọc', () => {
+    const row = prep({
+      status: 'done', progress: 1,
+      result: { title: 'Bộ đọc đã sẵn sàng', sub: 'Mac mini ở nhà · 3 chương đang chờ bắt đầu tạo giọng', actions: [] },
+    })
+    expect(pillLine(row)).toMatchObject({
+      a: '✓ Bộ đọc đã sẵn sàng',
+      b: 'Mac mini ở nhà · 3 chương đang chờ bắt đầu tạo giọng',
+    })
+  })
+
+  it('chỉ hàng của máy đọc mới là hàng prep', () => {
+    expect(isPrepJob(prep())).toBe(true)
+    expect(isPrepJob(job('voice/ch1', { kind: 'audio' }))).toBe(false)
   })
 })

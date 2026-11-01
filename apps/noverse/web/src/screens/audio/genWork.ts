@@ -5,8 +5,9 @@ import { t } from '../../i18n/vi'
 
 const c = () => t.audio.generation
 
-/** Trạng thái một chương trên dải/ngăn — bảng A8. `composing` = AI đang soạn bản đọc (nhóm Cần làm, không chọn được). */
-export type GenState = 'done' | 'stale' | 'new' | 'composing' | 'run' | 'queue' | 'paused' | 'err'
+/** Trạng thái một chương trên dải/ngăn — bảng A8. `composing` = AI đang soạn bản đọc (nhóm Cần làm, không chọn được).
+ * `hold` (§AT) = job đã xếp hàng nhưng máy đọc chưa sẵn sàng: nhãn trung tính “Đang chờ máy đọc”, khác hẳn `err`. */
+export type GenState = 'done' | 'stale' | 'new' | 'composing' | 'run' | 'queue' | 'paused' | 'err' | 'hold'
 
 export type GenRow = {
   chapter: AudioChapter
@@ -38,13 +39,15 @@ const queueRank = (jobs: readonly AudioQueueJob[]) => {
   return rank
 }
 
-/** Xếp chương vào một trạng thái hiển thị — thứ tự: job đang sống > cần cập nhật > đã có giọng > đang soạn > chưa có. */
+/** Xếp chương vào một trạng thái hiển thị — thứ tự: job đang sống > cần cập nhật > đã có giọng > đang soạn > chưa có.
+ * §AT: job `queued` mang `waitingMachine` (máy đọc chưa sẵn sàng) vào nhóm `hold` — nhãn trung tính, không phải lỗi. */
 export const genRows = (chapters: readonly AudioChapter[], jobs: readonly AudioQueueJob[]): GenRow[] => {
   const rank = queueRank(jobs)
   return chapters.map((chapter) => {
     const job = liveJob(jobs, chapter.chapter)
     const state: GenState = job
-      ? job.state === 'queued' ? 'queue' : job.state === 'rendering' ? 'run' : job.state === 'paused' ? 'paused' : 'err'
+      ? job.state === 'queued' && job.waitingMachine === true ? 'hold'
+        : job.state === 'queued' ? 'queue' : job.state === 'rendering' ? 'run' : job.state === 'paused' ? 'paused' : 'err'
       : stale(chapter) ? 'stale'
       : done(chapter) ? 'done'
       : chapter.status === 'draft' ? 'composing'
@@ -53,8 +56,8 @@ export const genRows = (chapters: readonly AudioChapter[], jobs: readonly AudioQ
   })
 }
 
-/** Ô màu trên dải trạng thái (MVoiceGen `.ov`): done · stale · run · queue · new · err. */
-export const ovCell = (row: GenRow): 'done' | 'stale' | 'run' | 'queue' | 'new' | 'err' =>
+/** Ô màu trên dải trạng thái (MVoiceGen `.ov`): done · stale · run · queue · hold · new · err. */
+export const ovCell = (row: GenRow): 'done' | 'stale' | 'run' | 'queue' | 'hold' | 'new' | 'err' =>
   row.state === 'paused' ? 'queue' : row.state === 'composing' ? 'new' : row.state
 
 /** Hàm nhãn nút chính duy nhất — “Cập nhật n chương” (vàng, refresh) khi chỉ còn cập nhật, ngược lại “Tạo giọng n chương” (trắng, micro). */
@@ -101,6 +104,7 @@ export const genTag = (row: GenRow): { text: string; tone: '' | 'warn' | 'run' |
     case 'run': return { text: jobKind(row.job, row.chapter) === 'update' ? k.updating : k.active, tone: 'run' }
     case 'paused': return { text: k.paused, tone: 'warn' }
     case 'queue': return { text: row.position <= 1 ? k.nextUp : k.waitingAt(row.position), tone: '' }
+    case 'hold': return { text: k.waitingMachine, tone: '' }
     case 'err': return { text: k.failed, tone: 'err' }
     case 'done': return { text: '', tone: '' }
   }
@@ -131,17 +135,22 @@ export const genMeta = (row: GenRow, opts: { etaSec?: number; redoSelected?: boo
     const kind = jobKind(job, chapter)
     return kind === 'update' ? k.updateTask : job?.needsScript ? k.composeFirst : k.fullChapter
   }
+  // §AT — chờ máy đọc: giữ nguyên thứ tự, nói rõ việc gì sẽ chạy khi máy kết nối lại.
+  if (state === 'hold') {
+    const kind = jobKind(job, chapter)
+    return `${k.waitOrder(row.position)} · ${kind === 'update' ? k.updateTask : job?.needsScript ? k.composeFirst : k.createNew}`
+  }
   if (state === 'err') return job?.error ?? k.failed
   // done
   const dur = chapter.audio?.durationSec ?? chapter.durationSec ?? 0
   return `${Math.floor(dur / 60)}:${String(Math.floor(dur % 60)).padStart(2, '0')}${opts.redoSelected && eta !== undefined ? approx : ''}`
 }
 
-export type GenCounts = { update: number; fresh: number; redo: number; busy: number; todo: number; unlockedNew: number; total: number; done: number }
+export type GenCounts = { update: number; fresh: number; redo: number; busy: number; hold: number; todo: number; unlockedNew: number; total: number; done: number }
 
 /** Đếm theo lựa chọn hiện tại + tình trạng cả tập (redo = chương `done` được đánh dấu tạo lại). */
 export function genCounts(rows: readonly GenRow[], picked: ReadonlySet<number>, redo: ReadonlySet<number>): GenCounts {
-  let update = 0, fresh = 0, redoN = 0, busy = 0, todo = 0, unlockedNew = 0, doneN = 0
+  let update = 0, fresh = 0, redoN = 0, busy = 0, hold = 0, todo = 0, unlockedNew = 0, doneN = 0
   for (const row of rows) {
     if (row.state === 'done') doneN++
     const isTodo = row.state === 'stale' || row.state === 'new' || row.state === 'composing'
@@ -151,16 +160,17 @@ export function genCounts(rows: readonly GenRow[], picked: ReadonlySet<number>, 
     if (on && row.state === 'stale') update++
     else if (on && row.state === 'new') fresh++
     else if (on && row.state === 'done' && redo.has(row.chapter.chapter)) redoN++
-    if (['run', 'queue', 'paused', 'err', 'composing'].includes(row.state)) busy++
+    if (['run', 'queue', 'paused', 'err', 'composing', 'hold'].includes(row.state)) busy++
+    if (row.state === 'hold') hold++
   }
-  return { update, fresh, redo: redoN, busy, todo, unlockedNew, total: update + fresh + redoN, done: doneN }
+  return { update, fresh, redo: redoN, busy, hold, todo, unlockedNew, total: update + fresh + redoN, done: doneN }
 }
 
 /** Câu tóm tắt ở chân ngăn (`.sum` trên MVoiceGen). */
 export function genSummary(counts: GenCounts, opts: { quality: AudioSettings['quality']; etaSec?: number }): string {
   const k = c()
   if (counts.total === 0) {
-    if (counts.busy) return `${k.noWork} · ${k.nGenerating(counts.busy)}`
+    if (counts.busy) return `${k.noWork} · ${counts.hold ? k.nWaitingMachine(counts.busy) : k.nGenerating(counts.busy)}`
     if (counts.todo) return k.pickChapters
     return k.allVoiced(counts.done)
   }
@@ -249,8 +259,8 @@ export function updateBar(rows: readonly GenRow[], qualityEtaSec: number | undef
 }
 
 /** Ô trên dải trạng thái: lớp màu (`.ov` của MVoiceGen) + % đổ của ô đang chạy. */
-export type GenStripCell = { cls: 'done' | 'stale' | 'run' | 'queue' | 'new' | 'err'; pct: number; key: number }
-export type GenStrip = { cells: GenStripCell[]; text: string; legend: { color: 'ok' | 'warn' | 'muted' | 'run'; text: string }[] }
+export type GenStripCell = { cls: 'done' | 'stale' | 'run' | 'queue' | 'hold' | 'new' | 'err'; pct: number; key: number }
+export type GenStrip = { cells: GenStripCell[]; text: string; legend: { color: 'ok' | 'warn' | 'muted' | 'run' | 'hold'; text: string }[] }
 
 /** Dải trạng thái + chú thích (`.ov` / `.ovleg` / `ovText`) — dùng chung thẻ trang Nghe và đầu ngăn. */
 export function genStrip(rows: readonly GenRow[]): GenStrip {
@@ -263,18 +273,19 @@ export function genStrip(rows: readonly GenRow[]): GenStrip {
   const doneN = n((row) => row.state === 'done')
   const staleN = n((row) => row.state === 'stale')
   const newN = n((row) => row.state === 'new' || row.state === 'composing')
-  const busyN = n((row) => ['run', 'queue', 'paused', 'err', 'composing'].includes(row.state))
+  const holdN = n((row) => row.state === 'hold')
+  const busyN = n((row) => ['run', 'queue', 'paused', 'err', 'composing', 'hold'].includes(row.state))
   const textParts = [
     `${doneN}/${rows.length} ${k.hasVoice}`,
     staleN ? k.legNeedUpdate(staleN) : '',
     newN ? k.legNoVoice(newN) : '',
-    busyN ? k.legGenerating(busyN) : '',
+    busyN ? holdN ? k.legWaitingMachine(busyN) : k.legGenerating(busyN) : '',
   ].filter(Boolean)
   const legend = ([
     ['ok', `${doneN} ${k.hasVoice}`],
     ['warn', k.legNeedUpdate(staleN)],
     ['muted', k.legNoVoice(newN)],
-    ['run', k.legGenerating(busyN)],
+    [holdN ? 'hold' : 'run', holdN ? k.legWaitingMachine(busyN) : k.legGenerating(busyN)],
   ] as const).filter(([, label]) => Number.parseInt(label, 10) > 0).map(([color, text]) => ({ color, text }))
   return { cells, text: textParts.join(' · '), legend }
 }

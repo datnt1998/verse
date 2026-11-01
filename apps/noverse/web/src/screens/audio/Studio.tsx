@@ -13,7 +13,7 @@ import { keys, useAction, useResource } from '../../data'
 import { toggleNotify, useJobsState } from '../../shell/jobs/store'
 import { AudioFeedback, AudioSkeleton } from './AudioFeedback'
 import { ConfirmExportDialog } from './ConfirmDialog'
-import { InstallCard } from './InstallCard'
+import { MachineCard, useMachineCardActions, useMachineStatus } from './MachineCard'
 import { PipelineBar } from './PipelineBar'
 import {
   activeJob, allDone, clockOf, displayPercent, estimateSegmentSeconds, formatClock,
@@ -117,6 +117,11 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
   const running = job?.state === 'rendering'
   const paused = job?.state === 'paused'
   const failed = job?.state === 'error'
+  // Chương đã xếp hàng nhưng máy đọc chưa sẵn sàng: khung “n chương đang chờ máy đọc” thay khung đang đọc.
+  const queuedChapters = data.queue.filter((item) => item.state === 'queued' && item.chapter)
+  const machine = useMachineStatus(queuedChapters.length)
+  const machineActions = useMachineCardActions()
+  const waitingMachine = !machine.view.ready && queuedChapters.length > 0
   const { notify } = useJobsState()
   const [log, setLog] = useState<LogEntry[]>([])
   const [confirmCancel, setConfirmCancel] = useState(false)
@@ -217,10 +222,11 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
   const heroTitle = paused
     ? `Đã tạm dừng · tiếp tục từ đoạn ${segNo}`
     : single ? `${speakerName} · đang đọc lời ${speaker?.name ?? job?.speaker ?? ''}` : `${speakerName} đang đọc`
-  const machine: [string, string, string][] = [
-    ['speedometer', 'Tốc độ tạo', renderSpeedLabel(exportState.tts?.rtf ?? null)],
-    ['cpu', 'Đang dùng', exportState.tts?.device === 'gpu' ? t.audio.studio.cardDoHoa : 'CPU'],
-    ['timer-1', 'Đã chạy', formatDuration(elapsed)],
+  // Cột phải “Máy đọc”: dòng đầu tên máy đọc hoặc trạng thái; chờ máy đọc thì số liệu chưa có.
+  const machineRows: [string, string, string][] = [
+    ['cpu', 'Máy đọc', machine.view.ready ? machine.view.machineName : machine.view.statusLabel],
+    ['speedometer', 'Tốc độ tạo', machine.view.speedLabel ?? renderSpeedLabel(exportState.tts?.rtf ?? null)],
+    ['timer-1', 'Đã chạy', waitingMachine ? '—' : formatDuration(elapsed)],
     ['box', 'Dung lượng đã dùng', `${formatGb(usedBytes)} / ${formatGb(totalAudioBytes)}`],
   ]
 
@@ -232,11 +238,54 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
         audioRunning={running} />
       <AudioFeedback data={data} project={project} story={story} />
       {player.error && <div role="alert" style={{ padding: '7px 16px', color: 'var(--color-err)', fontSize: 12 }}>{player.error}</div>}
-      {data.ready && <InstallCard project={project} story={story} ready={data.ready} onReady={data.refresh} />}
 
       <div className={paused ? 'audio-frozen' : undefined} style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         <main className="scroll" style={{ flex: '999 1 640px', minWidth: 0, padding: '18px 24px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {(running || paused) && job && currentChapter && (
+          <MachineCard view={machine.view} onAction={machineActions.onAction} />
+          {waitingMachine && (
+            <section aria-label="Chương đang chờ máy đọc" role="status" className="card" style={{
+              borderRadius: 20, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 14,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <span aria-hidden="true" style={{
+                  flex: '0 0 auto', width: 44, height: 44, borderRadius: '50%', border: '1.5px dashed var(--line-5)',
+                  color: 'var(--color-fg-3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}><Icon name="clock" size={20} /></span>
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-.01em' }}>{queuedChapters.length} chương đang chờ máy đọc</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-fg-3)', lineHeight: 1.5 }}>{machine.view.waitSub}</span>
+                </div>
+                <button type="button" className="hov-ghost" onClick={() => void toggleNotify()} aria-pressed={notify} style={{
+                  flex: '0 0 auto', height: 32, padding: '0 12px', borderRadius: 8,
+                  border: `1px solid ${notify ? 'var(--kit-acc-40)' : 'var(--line-4)'}`,
+                  background: notify ? 'var(--kit-acc-12)' : 'transparent', color: 'var(--color-fg)', fontSize: 12.5,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}><Icon name="notification" size={14} />Báo khi bắt đầu</button>
+              </div>
+              <ol aria-label="Thứ tự chờ" style={{
+                listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column',
+                borderRadius: 12, border: '1px solid var(--line-1)', overflow: 'hidden',
+              }}>
+                {queuedChapters.map((item, index) => (
+                  <li key={item.jobId} style={{
+                    display: 'flex', alignItems: 'center', gap: 12, minHeight: 42, padding: '0 12px',
+                    borderTop: index === 0 ? 'none' : '1px solid var(--line-1)', background: 'var(--color-surface-2)',
+                  }}>
+                    <span className="num" style={{ width: 18, fontSize: 12, color: 'var(--color-fg-4)' }}>{index + 1}</span>
+                    <span style={{ flex: '1 1 auto', minWidth: 0, fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {chapters.find((chapter) => chapter.chapter === item.chapter)?.title ?? `Chương ${item.chapter}`}
+                    </span>
+                    <span style={{
+                      height: 22, padding: '0 8px', borderRadius: 7, background: 'var(--line-1)', color: 'var(--color-fg-2)',
+                      fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap',
+                    }}><Icon name="clock" size={12} style={{ color: 'var(--color-fg-4)' }} />Đang chờ máy đọc</span>
+                  </li>
+                ))}
+              </ol>
+              <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>Không phải lỗi: chương giữ nguyên thứ tự và tự tạo giọng khi máy đọc sẵn sàng. Đóng app vẫn được.</span>
+            </section>
+          )}
+          {!waitingMachine && (running || paused) && job && currentChapter && (
             <section aria-label={t.audio.studio.dangTaoGiong} className="card" style={{
               position: 'relative', overflow: 'hidden', borderRadius: 20, padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 16,
               borderColor: paused ? 'rgba(246,203,140,.35)' : 'rgba(201,166,245,.22)',
@@ -414,9 +463,12 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
                     height: 38, padding: '0 16px 0 12px', borderRadius: 10, border: 'none', background: 'var(--color-fg)', color: 'var(--color-bg)',
                     fontSize: 13.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8,
                   }}><Icon name="headphone" size={16} />Nghe & duyệt</button>
-                  <button type="button" className="hov-ghost" onClick={() => setShowExport(true)} style={{
-                    height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid var(--line-4)', background: 'transparent', color: 'var(--color-fg)', fontSize: 13.5,
-                  }}>Ghép & xuất ngay</button>
+                  <button type="button" className="hov-ghost" disabled={machine.view.kind === 'missingFfmpeg'}
+                    title={machine.view.kind === 'missingFfmpeg' ? 'Máy chủ đang thiếu công cụ ghép âm thanh' : undefined}
+                    onClick={() => setShowExport(true)} style={{
+                      height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid var(--line-4)', background: 'transparent', color: 'var(--color-fg)', fontSize: 13.5,
+                      opacity: machine.view.kind === 'missingFfmpeg' ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6,
+                    }}>{machine.view.kind === 'missingFfmpeg' && <Icon name="lock" size={13} />}Ghép & xuất ngay</button>
                 </div>
               </div>
             </section>
@@ -523,9 +575,9 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
             )}
           </div>
 
-          <Lbl style={{ paddingTop: 6 }}>Máy của bạn</Lbl>
+          <Lbl style={{ paddingTop: 6 }}>Máy đọc</Lbl>
           <div className="card" style={{ borderRadius: 14, padding: '4px 14px' }}>
-            {machine.map(([icon, label, value], index) => (
+            {machineRows.map(([icon, label, value], index) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderTop: index ? '1px solid var(--line-1)' : 'none' }}>
                 <Icon name={icon} size={15} style={{ color: 'var(--color-fg-4)' }} />
                 <span style={{ flex: 1, fontSize: 12.5, color: 'var(--color-fg-3)' }}>{label}</span>
@@ -543,6 +595,7 @@ export function StudioScreen({ project, story, volume }: { project: string; stor
         onConfirm={async () => { await control.run('cancel') }} />}
       {showExport && (
         <ConfirmExportDialog project={project} story={story} volume={volume} chapters={chapters} cast={data.cast} voices={data.voices} pack={pack}
+          machine={machine.view}
           onClose={() => setShowExport(false)} />
       )}
     </div>

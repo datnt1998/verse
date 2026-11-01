@@ -10,6 +10,7 @@ import { charInitials } from '../../../lib/cast'
 import { BottomSheet, useMobileToast } from '../../../mobile/primitives'
 import { color, kit, line, tint } from '@noverse/ui/tokens.stylex'
 import { Icon } from '@noverse/ui'
+import { Spinner } from '@noverse/ui'
 import { CharAvatar } from '../../../ui/CharAvatar'
 import { Switch } from '@noverse/ui'
 import { toggleNotify } from '../../../shell/jobs/store'
@@ -37,13 +38,17 @@ const s = stylex.create({
   cellErr: { backgroundColor: color['--color-err'] },
   cellQueue: { backgroundColor: kit['--kit-acc-25'] },
   cellRun: { backgroundColor: kit['--kit-acc-20'] },
+  // §AT — `.ov span.hold` (MVoiceGen.dc.html): ô xám trung tính cho chương chờ máy đọc.
+  cellHold: { backgroundColor: kit['--kit-wash-25'] },
   cellRunFill: { display: 'block', height: '100%', borderRadius: 3, backgroundColor: color['--color-accent'] },
   leg: { display: 'flex', flexWrap: 'wrap', gap: '4px 12px', fontSize: 12.5, color: color['--color-fg-3'], padding: '8px 0 4px' },
   swatch: { display: 'inline-block', width: 8, height: 8, borderRadius: 2, marginRight: 5 },
   swOk: { backgroundColor: color['--color-ok'] }, swWarn: { backgroundColor: color['--color-warn'] }, swMuted: { backgroundColor: kit['--kit-wash-30'] }, swRun: { backgroundColor: color['--color-accent'] },
+  swHold: { backgroundColor: kit['--kit-wash-30'] },
   ghead: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '2px 8px', padding: '16px 4px 8px', fontSize: 12.5, color: kit['--kit-fg-meta'], flexShrink: 0 },
   gtitle: { fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: color['--color-fg-2'] },
   gtitleWarn: { color: color['--color-warn'] }, gtitleRun: { color: kit['--kit-badge-run'] },
+  gtitleHold: { color: color['--color-fg-2'] },
   gnote: { order: 3, flexBasis: '100%' },
   glink: { marginLeft: 'auto', height: 30, padding: '0 10px', borderWidth: 0, borderRadius: 8, backgroundColor: 'transparent', color: color['--color-accent'], fontSize: 13 },
   gbar: { display: 'flex', gap: 8, padding: '0 0 8px' },
@@ -65,6 +70,12 @@ const s = stylex.create({
   icoErr: { backgroundColor: kit['--kit-errf-14'], color: kit['--kit-err-soft'] },
   icoNew: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: kit['--kit-wash-22'] },
   icoQueue: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: kit['--kit-acc-45'] },
+  // §AT — `.ico.hold` (MVoiceGen.dc.html): viền đứt xám, đồng hồ; không đỏ, không phải lỗi.
+  icoHold: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: kit['--kit-wash-22'], color: kit['--kit-fg-meta'] },
+  // §AT — `.vmnote`: ghi chú máy đọc trong nhóm chờ, trung tính.
+  vm: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', margin: '0 0 8px', borderRadius: 12, backgroundColor: kit['--kit-wash-4'], borderWidth: 1, borderStyle: 'solid', borderColor: kit['--kit-wash-7'], fontSize: 13, color: kit['--kit-fg-meta'], lineHeight: 1.5, flexShrink: 0 },
+  vmDot: { flexShrink: 0, width: 8, height: 8, margin: '6px 3px 0', borderRadius: '50%', backgroundColor: kit['--kit-wash-30'] },
+  vmText: { flexGrow: 1, flexBasis: 0, minWidth: 0 },
   box: { width: 24, height: 24, borderRadius: 7, borderWidth: 1.5, borderStyle: 'solid', borderColor: kit['--kit-wash-28'], flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   boxOn: { backgroundColor: color['--color-accent'], borderColor: color['--color-accent'], color: color['--color-bg'] },
   boxOnWarn: { backgroundColor: color['--color-warn'], borderColor: color['--color-warn'] },
@@ -102,12 +113,14 @@ function VoiceRow({ data, onVoice }: { data: AudioData; onVoice: () => void }) {
 }
 
 const isTodo = (row: GenRow) => row.state === 'stale' || row.state === 'new'
-const isBusy = (row: GenRow) => ['run', 'queue', 'paused', 'err'].includes(row.state)
+const isBusy = (row: GenRow) => ['run', 'queue', 'paused', 'err', 'hold'].includes(row.state)
 
-export function VoiceGenSheet({ project, story, volume, data, open, onClose, onVoice, onExport, writable, initialRedo }: {
+export function VoiceGenSheet({ project, story, volume, data, open, onClose, onVoice, onExport, writable, initialRedo, machineHold }: {
   project: string; story: string; volume: number; data: AudioData
   open: boolean; onClose: () => void; onVoice: () => void; onExport: () => void
   writable: boolean; initialRedo?: number[]
+  /** §AT — ghi chú máy đọc trong nhóm “Đang chờ máy đọc” (spinner khi đang chuẩn bị bộ đọc). */
+  machineHold?: { note: string; spinning: boolean } | null
 }) {
   const chapters = data.volume?.chapters ?? []
   const jobs = data.queue
@@ -183,6 +196,7 @@ export function VoiceGenSheet({ project, story, volume, data, open, onClose, onV
       case 'run': return <Ring size={32} percent={(row.job?.percent ?? 0) / 100}>{null}</Ring>
       case 'paused': return <span {...stylex.props(s.ico, s.icoQueue)}><Icon name="pause" size={13} /></span>
       case 'queue': return <span {...stylex.props(s.ico, s.icoQueue)} />
+      case 'hold': return <span {...stylex.props(s.ico, s.icoHold)}><Icon name="clock" size={15} /></span>
       case 'composing': return <Ring size={32} percent={0}>{null}</Ring>
       default: return <span {...stylex.props(s.ico, s.icoNew)} />
     }
@@ -216,9 +230,9 @@ export function VoiceGenSheet({ project, story, volume, data, open, onClose, onV
   }
 
   const queuePaused = jobs.some((job) => job.state === 'paused') && !jobs.some((job) => job.state === 'rendering')
-  const groupHead = (title: string, note: string, tone: '' | 'warn' | 'run', link?: { text: string; go: () => void }) =>
+  const groupHead = (title: string, note: string, tone: '' | 'warn' | 'run' | 'hold', link?: { text: string; go: () => void }) =>
     <div {...stylex.props(s.ghead)}>
-      <b {...stylex.props(s.gtitle, tone === 'warn' && s.gtitleWarn, tone === 'run' && s.gtitleRun)}>{title}</b>
+      <b {...stylex.props(s.gtitle, tone === 'warn' && s.gtitleWarn, tone === 'run' && s.gtitleRun, tone === 'hold' && s.gtitleHold)}>{title}</b>
       {link && <button type="button" {...stylex.props(s.glink)} onClick={link.go}>{link.text}</button>}
       <span {...stylex.props(s.gnote)}>{note}</span>
     </div>
@@ -233,13 +247,13 @@ export function VoiceGenSheet({ project, story, volume, data, open, onClose, onV
         <div className={`vg-ov ${stylex.props(s.ov).className}`} aria-hidden="true">
           {strip.cells.map((cell) => <span key={cell.key} {...stylex.props(s.cell,
             cell.cls === 'done' && s.cellDone, cell.cls === 'stale' && s.cellStale, cell.cls === 'new' && s.cellNew,
-            cell.cls === 'err' && s.cellErr, cell.cls === 'queue' && s.cellQueue, cell.cls === 'run' && s.cellRun)}>
+            cell.cls === 'err' && s.cellErr, cell.cls === 'queue' && s.cellQueue, cell.cls === 'hold' && s.cellHold, cell.cls === 'run' && s.cellRun)}>
             {cell.cls === 'run' && <span {...stylex.props(s.cellRunFill)} style={{ width: `${cell.pct}%` }} />}
           </span>)}
         </div>
         <div className={`vg-ovleg ${stylex.props(s.leg).className}`}>
           {strip.legend.map((item) => <span key={item.color}><i {...stylex.props(s.swatch,
-            item.color === 'ok' && s.swOk, item.color === 'warn' && s.swWarn, item.color === 'muted' && s.swMuted, item.color === 'run' && s.swRun)} />{item.text}</span>)}
+            item.color === 'ok' && s.swOk, item.color === 'warn' && s.swWarn, item.color === 'muted' && s.swMuted, item.color === 'run' && s.swRun, item.color === 'hold' && s.swHold)} />{item.text}</span>)}
         </div>
 
         {todoRows.length > 0 && <>
@@ -253,21 +267,36 @@ export function VoiceGenSheet({ project, story, volume, data, open, onClose, onV
           </div>
         </>}
 
-        {busyRows.length > 0 && <>
-          {groupHead(`${c.generating} · ${busyRows.length}`, queuePaused ? c.pausedNote : c.serverNote, 'run')}
-          <div className={`vg-gbar ${stylex.props(s.gbar).className}`}>
-            <button type="button" {...stylex.props(s.chp)} disabled={!writable || queueAction.busy}
-              onClick={() => void queueAction.run(() => controlAudioQueue(project, story, volume, queuePaused ? 'resume' : 'pause'))}>
-              <Icon name={queuePaused ? 'play' : 'pause'} size={14} />{queuePaused ? c.resume : c.pause}
-            </button>
-            <button type="button" role="switch" aria-checked={notify} {...stylex.props(s.chp, notify && s.chpOn)} onClick={() => void toggleNotify()}>
-              <Icon name="notification" size={14} />{c.notify}
-            </button>
-          </div>
-          <div className={`vg-grp ${stylex.props(s.grp).className}`}>
-            {busyRows.map((row, index) => rowView(row, index, false))}
-          </div>
-        </>}
+        {busyRows.length > 0 && (() => {
+          // §AT — có chương chờ máy đọc thì cả nhóm đổi sang nhãn trung tính, ghi chú máy đọc, chỉ còn “Báo khi bắt đầu”.
+          const holding = busyRows.some((row) => row.state === 'hold')
+          return <>
+            {groupHead(holding ? `${c.waitingMachine} · ${busyRows.length}` : `${c.generating} · ${busyRows.length}`,
+              holding ? c.holdNote : queuePaused ? c.pausedNote : c.serverNote, holding ? 'hold' : 'run')}
+            {holding && machineHold && <div {...stylex.props(s.vm)} role="status">
+              {machineHold.spinning ? <Spinner size={15} color={color['--color-info']} style={{ marginTop: 2 }} /> : <span {...stylex.props(s.vmDot)} aria-hidden="true" />}
+              <span {...stylex.props(s.vmText)}>{machineHold.note}</span>
+            </div>}
+            <div className={`vg-gbar ${stylex.props(s.gbar).className}`}>
+              {holding
+                ? <button type="button" role="switch" aria-checked={notify} {...stylex.props(s.chp, notify && s.chpOn)} onClick={() => void toggleNotify()}>
+                  <Icon name="notification" size={14} />{c.notifyStart}
+                </button>
+                : <>
+                  <button type="button" {...stylex.props(s.chp)} disabled={!writable || queueAction.busy}
+                    onClick={() => void queueAction.run(() => controlAudioQueue(project, story, volume, queuePaused ? 'resume' : 'pause'))}>
+                    <Icon name={queuePaused ? 'play' : 'pause'} size={14} />{queuePaused ? c.resume : c.pause}
+                  </button>
+                  <button type="button" role="switch" aria-checked={notify} {...stylex.props(s.chp, notify && s.chpOn)} onClick={() => void toggleNotify()}>
+                    <Icon name="notification" size={14} />{c.notify}
+                  </button>
+                </>}
+            </div>
+            <div className={`vg-grp ${stylex.props(s.grp).className}`}>
+              {busyRows.map((row, index) => rowView(row, index, false))}
+            </div>
+          </>
+        })()}
 
         {doneRows.length > 0 && <>
           {groupHead(`${c.finished} · ${doneRows.length}`, '', '', {

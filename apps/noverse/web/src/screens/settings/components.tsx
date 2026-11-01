@@ -1,4 +1,4 @@
-// Mảnh dùng chung cho màn Tuỳ chỉnh — bám Settings.dc.html: SettingRow, KeyTag, Segmented nhỏ,
+// Mảnh dùng chung cho màn Tuỳ chỉnh — bám Settings.dc.html: SettingRow, SectionBadge, Segmented nhỏ,
 // SourceBadge (nguồn kế thừa), ReadOnlyValue (viền nét đứt), InheritChain, SaveBar.
 import {
   Children, cloneElement, isValidElement, useState, type CSSProperties, type ReactNode,
@@ -20,16 +20,7 @@ export const SCOPE_LABEL: Record<ConfigScope, string> = {
   story: 'Truyện',
 }
 
-/** Chip khoá cấu hình (artboard `.key`). */
-export function KeyTag({ children }: { children: ReactNode }) {
-  return (
-    <span className="mono" style={{
-      fontSize: 11, color: 'var(--color-fg-4)', padding: '1px 6px', borderRadius: 5,
-      background: 'var(--color-surface-0)', border: '1px solid var(--line-1)', marginLeft: 6,
-    }}>{children}</span>
-  )
-}
-
+/** Chip nhãn của mục (artboard `.badge`). */
 export function SectionBadge({ tone = 'neutral', children }: { tone?: 'neutral' | 'accent'; children: ReactNode }) {
   return (
     <span style={{
@@ -41,8 +32,8 @@ export function SectionBadge({ tone = 'neutral', children }: { tone?: 'neutral' 
   )
 }
 
-export function Section({ id, title, icon, keyName, badge, children }: {
-  id: string; title: string; icon: string; keyName?: string
+export function Section({ id, title, icon, badge, children }: {
+  id: string; title: string; icon: string
   badge?: ReactNode; children: ReactNode
 }) {
   return (
@@ -50,7 +41,6 @@ export function Section({ id, title, icon, keyName, badge, children }: {
       <h2 id={`${id}-title`} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600 }}>
         <Icon name={icon} style={{ color: 'var(--color-fg-3)' }} />
         {title}
-        {keyName && <KeyTag>{keyName}</KeyTag>}
         {badge}
       </h2>
       {children}
@@ -118,7 +108,6 @@ export type SettingRowProps = {
   first?: boolean
   label?: ReactNode
   htmlFor?: string
-  keyName?: ReactNode
   desc?: ReactNode
   /** icon đứng trước khối nhãn (artboard dùng cho hàng thư mục quy tắc) */
   icon?: ReactNode
@@ -129,7 +118,7 @@ export type SettingRowProps = {
 }
 
 export function SettingRow({
-  first, label, htmlFor, keyName, desc, icon, align = 'center', controlStyle, field, children,
+  first, label, htmlFor, desc, icon, align = 'center', controlStyle, field, children,
 }: SettingRowProps) {
   return (
     <div style={{
@@ -138,10 +127,9 @@ export function SettingRow({
     }}>
       {icon}
       <div style={{ flex: '1 1 240px', minWidth: 0 }}>
-        {(label || keyName) && (
+        {label && (
           <div style={{ fontSize: 14, fontWeight: 500 }}>
             {htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
-            {keyName !== undefined && <KeyTag>{keyName}</KeyTag>}
           </div>
         )}
         {desc && <div style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{desc}</div>}

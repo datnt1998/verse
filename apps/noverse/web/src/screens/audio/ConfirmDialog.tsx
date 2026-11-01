@@ -21,6 +21,8 @@ import type { PackVoice } from './packVoice'
 import { errText } from './useAudio'
 import { t, audioExportCopy as c } from '../../i18n/vi'
 import { CharAvatar } from '../../ui/CharAvatar'
+import { MachineCard } from './MachineCard'
+import type { MachineView } from './machine'
 
 const MINI_RING = ['rgba(185,208,247,.7)', 'rgba(246,203,140,.7)', 'rgba(166,237,193,.7)', 'rgba(201,201,209,.6)', 'rgba(246,203,140,.5)', 'rgba(255,255,255,.25)']
 const MINI_MAX = 5
@@ -36,14 +38,17 @@ function spokenNumber(n: number): string {
   return `${ONES[Math.floor(n / 10)]} mươi${tail}`
 }
 
-export function ConfirmExportDialog({ project, story, volume, chapters, cast, voices, pack, onClose, initialChapters }: {
+export function ConfirmExportDialog({ project, story, volume, chapters, cast, voices, pack, machine, onClose, initialChapters }: {
   project: string; story: string; volume: number
   chapters: AudioChapter[]; cast: AudioCast | null; voices: AudioVoice[]
   /** D11 — gói một giọng kể: thẻ Giọng đọc ghi “Một giọng kể · theo gói”. */
   pack: PackVoice | null
+  /** §AT — máy thiếu công cụ ghép: thẻ trạng thái trong hộp xuất, khoá nút chính. */
+  machine?: MachineView
   onClose: () => void
   initialChapters?: number[]
 }) {
+  const blocked = machine?.kind === 'missingFfmpeg'
   const done = allDone(chapters)
   const shared = useExportForm(project, story, true, { whenReady: !done, split: initialChapters !== undefined, chapters: initialChapters ?? [] })
   const { form, update, visible } = shared
@@ -97,8 +102,9 @@ export function ConfirmExportDialog({ project, story, volume, chapters, cast, vo
           </label>
         </span>
         <Button variant="ghost" onClick={onClose}>{t.dialogs.cancel}</Button>
-        <Button variant="primary" icon={<Icon name="export-curve" size={14} />} onClick={start}
-          disabled={shared.loading || !!shared.error || (form.split && selected.length === 0)}>
+        <Button variant="primary" icon={blocked ? <Icon name="lock" size={14} /> : <Icon name="export-curve" size={14} />} onClick={start}
+          title={blocked ? 'Máy chủ đang thiếu công cụ ghép âm thanh' : undefined}
+          disabled={blocked || shared.loading || !!shared.error || (form.split && selected.length === 0)}>
           {form.split ? c.export(selected) : pending ? t.audio.confirm.xuatKhiXong : t.audio.confirm.ghepXuatTap(volume)}
         </Button>
       </>}>
@@ -204,6 +210,7 @@ export function ConfirmExportDialog({ project, story, volume, chapters, cast, vo
         <div style={{ display: 'flex', gap: 10, padding: '10px 12px', borderRadius: 12, border: '1px solid var(--line-2)', fontSize: 12.5, color: 'var(--color-fg-3)' }}>
           <Icon name="cpu" size={16} style={{ marginTop: 1 }} /><span>Đọc ngay trên máy của bạn, không gửi chữ đi đâu. Máy sẽ chạy nặng trong lúc tạo — tạm dừng được bất cứ lúc nào, chương đã xong được giữ lại.</span>
         </div>
+        {blocked && machine && <MachineCard view={machine} />}
         {shared.error != null && <span role="alert">{errText(shared.error)}</span>}
       </div>
     </Dialog>

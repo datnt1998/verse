@@ -242,19 +242,26 @@ export const removeAudioJob = (id: string) => drop(id)
 /** Việc của máy: cài bộ đọc trên máy (mock/tts.ts gọi mỗi mốc tiến độ). */
 const VOICE_INSTALL_ID = 'voice/install'
 
-export function mirrorVoiceInstallJob(progress: TtsInstallProgress, control?: (action: ControlAction) => void | Promise<void>) {
+export function mirrorVoiceInstallJob(progress: TtsInstallProgress, control?: (action: ControlAction) => void | Promise<void>, line = '') {
   if (progress.state === 'idle') { drop(VOICE_INSTALL_ID); return }
   if (control) audioControls.set(VOICE_INSTALL_ID, control)
   const prev = jobs.get(VOICE_INSTALL_ID)
   const job: Job = {
-    id: VOICE_INSTALL_ID, kind: 'voice', title: 'Cài bộ đọc trên máy',
+    id: VOICE_INSTALL_ID, kind: 'voice', title: 'Chuẩn bị bộ đọc',
     status: progress.state === 'running' ? 'running' : progress.state === 'error' ? 'failed' : 'done',
-    progress: progress.state === 'running' ? Math.min(1, (progress.percent ?? 0) / 100) : progress.state === 'done' ? 1 : null,
+    progress: progress.state === 'running' ? (progress.percent === null ? null : Math.min(1, progress.percent / 100)) : progress.state === 'done' ? 1 : null,
     href: '/settings/voice', project: '', story: '', startedAt: prev?.startedAt ?? progress.updated,
-    ...(progress.state === 'running' ? { step: progress.message } : {}),
-    ...(progress.state === 'error' ? { step: progress.message, error: progress.error ?? progress.message } : {}),
+    ...(progress.state === 'running' && line ? { step: line } : {}),
+    ...(progress.state === 'error'
+      ? {
+        step: line,
+        error: progress.errorCode
+          ? { message: progress.error ?? 'Chuẩn bị bộ đọc chưa xong', cause: progress.errorCode }
+          : progress.error ?? 'Chuẩn bị bộ đọc chưa xong',
+      }
+      : {}),
     ...(progress.state === 'done'
-      ? { finishedAt: progress.updated, result: { title: 'Đã cài xong bộ đọc trên máy', sub: progress.message, actions: [] } }
+      ? { finishedAt: progress.updated, result: { title: 'Bộ đọc đã sẵn sàng', sub: progress.message, actions: [] } }
       : {}),
   }
   put(job, !prev)

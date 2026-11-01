@@ -19,7 +19,7 @@ import { ConflictBar } from '@noverse/ui'
 import { ConfirmDialog } from '@noverse/ui'
 import { useSaveShortcut } from '@noverse/ui'
 import { AudioFeedback, AudioSkeleton } from './AudioFeedback'
-import { InstallCard } from './InstallCard'
+import { MachineCard, useMachineCardActions, useMachineStatus } from './MachineCard'
 import { PipelineBar } from './PipelineBar'
 import { SegmentRow } from './SegmentRow'
 import { CastPanel, DictPanel, IssuesPanel, RightPanel, type PanelTab } from './panels'
@@ -51,6 +51,8 @@ export function TranscriptScreen({ project, story, volume }: { project: string; 
     return () => { root.style.removeProperty('--dock-bottom') }
   }, [])
   const { writable } = useAudioAccess(project, story)
+  const machine = useMachineStatus()
+  const machineActions = useMachineCardActions()
   const { user } = useSession()
   const pack = usePackVoice(project, story)
   const chapters = data.volume?.chapters ?? []
@@ -373,7 +375,7 @@ export function TranscriptScreen({ project, story, volume }: { project: string; 
         quality={qualityChange.quality} onQuality={qualityChange.ask}
         audioRunning={data.queue.some((job) => job.state === 'rendering')} />
       <AudioFeedback data={data} project={project} story={story} />
-      {data.ready && <InstallCard project={project} story={story} ready={data.ready} onReady={data.refresh} />}
+      <MachineCard view={machine.view} onAction={machineActions.onAction} style={{ margin: '12px 24px 0' }} />
       {(composeAction.error || chapterAction.error || data.composeError) && <div role="alert" style={{ padding: '8px 16px', color: 'var(--color-err)', fontSize: 12 }}>
         {errText(composeAction.error || chapterAction.error || data.composeError)}
         {user?.role === 'admin' && <a href={`#${paths.settings('providers')}`} style={{ marginLeft: 8, color: 'var(--color-info)' }}>{t.audio.transcript.tuyChinhNhaCungCap}</a>}

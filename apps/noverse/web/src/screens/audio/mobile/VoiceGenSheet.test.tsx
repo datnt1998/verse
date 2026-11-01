@@ -39,11 +39,36 @@ const props = { project: 'p', story: 's', volume: 1, open: true, onClose: vi.fn(
 let root: Root
 let container: HTMLDivElement
 afterEach(async () => { await act(() => root?.unmount()); container?.remove() })
-async function mount(dataset = data()) {
+async function mount(dataset = data(), extra: Partial<Parameters<typeof VoiceGenSheet>[0]> = {}) {
   container = document.createElement('div'); document.body.append(container); root = createRoot(container)
-  await act(() => root.render(<VoiceGenSheet {...props} data={dataset} />))
+  await act(() => root.render(<VoiceGenSheet {...props} data={dataset} {...extra} />))
   return container
 }
+
+it('shows chapters queued for the reader machine as a neutral waiting group, not errors', async () => {
+  const rows = data()
+  rows.queue = [1, 4, 7, 8].map((n) => ({
+    jobId: `h${n}`, chapter: n, state: 'queued' as const, segmentsDone: 0, segments: 46, etaSec: 0, speaker: 'dan', percent: 0, waitingMachine: true,
+  }))
+  const view = await mount(rows)
+  const text = view.textContent ?? ''
+  expect(text).toContain('Đang chờ máy đọc · 4')
+  expect(text).toContain('không phải lỗi · giữ nguyên thứ tự')
+  expect(text).toContain('Báo khi bắt đầu')
+  expect(text.match(/Đang chờ máy đọc/g)).toHaveLength(5)
+  expect(text).not.toContain('Dừng do lỗi')
+  expect(text).not.toContain('Tạm dừng')
+  expect(text).not.toContain('Thử lại')
+  expect(text).not.toContain('Cần làm')
+})
+
+it('explains the wait under the group, with a spinner while the reader machine prepares', async () => {
+  const rows = data()
+  rows.queue = [{ jobId: 'h1', chapter: 1, state: 'queued', segmentsDone: 0, segments: 46, etaSec: 0, speaker: 'dan', percent: 0, waitingMachine: true }]
+  const view = await mount(rows, { machineHold: { note: 'Máy đọc đang chuẩn bị bộ đọc lần đầu · 42%. Xong là các chương tự chạy theo thứ tự.', spinning: true } })
+  expect(view.textContent).toContain('42%')
+  expect(view.querySelector('[role="status"]')).not.toBeNull()
+})
 
 it('merges both old sheets into Cần làm → Đang tạo → Đã có giọng → Cách đọc → one footer button', async () => {
   const view = await mount()

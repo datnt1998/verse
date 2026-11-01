@@ -10,6 +10,7 @@ import { AccessRows } from './AccessRows'
 import { AdvGroup } from './AdvGroup'
 import { CommandRows } from './CommandRows'
 import { LocationRows } from './LocationRows'
+import { MachineDetailCard } from './MachineRows'
 import { NamesRows } from './NamesRows'
 import { NaoRows } from './NaoRows'
 import { TuningRows } from './TuningRows'
@@ -50,6 +51,7 @@ export function AdvancedSection({ ctx, open: openId, onWhatsNew }: {
         <span style={{ fontSize: 13, color: '#E9D9BD', lineHeight: 1.55 }}>{t.adv.notice}</span>
       </div>
       <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600 }}>{t.adv.title}</h1>
+      <MachineDetailCard />
       {groups.map((group) => (
         <AdvGroup key={group.id} icon={group.icon} label={group.title} note={group.note} open={!!open[group.id]} onToggle={() => toggle(group.id)}>
           {group.body}

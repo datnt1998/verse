@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { audioChapterURL, getAudioPeaks } from '../../../api/client'
+import { audioChapterURL, getAudioPeaks, getTtsStatus, installTts } from '../../../api/client'
 import type { AudioMode } from '../../../router'
 import { navigate, paths, useRoute } from '../../../router'
-import { keys, useConnection, useResource } from '../../../data'
+import { keys, useAction, useConnection, useResource } from '../../../data'
 import { BottomSheet, MobilePage, useMobileToast } from '../../../mobile/primitives'
 import { useJobSelection } from '../../../shell/jobs/useJobs'
 import { useStoryName } from '../../../shell/useNames'
@@ -15,6 +15,8 @@ import { audioAlbumTitle, chapterTrackTitle } from '../../../lib/audioName'
 import { ExportSheet } from './ExportSheet'
 import { ExportJobCard } from './ExportJobCard'
 import { chapterEnded, formatMinutes, nextSleep, playerQueue, SLEEP_LABELS, sleepExpired, SPEEDS, startSleep, stepChapter } from './logic'
+import { MachineCard } from './MachineCard'
+import { machineView, type MachineActionKind, type MachineStatus } from '../machine'
 import { Ring } from './Ring'
 import { MobileWave } from './Wave'
 import './mobile.css'
@@ -40,6 +42,10 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   const storyTitle = useStoryName(project, story)
   const access = useAudioAccess(project, story)
   const connection = useConnection()
+  // §AT — trạng thái máy đọc lấy từ GET /api/tts/status; không có nút “Kiểm tra lại”:
+  // tự làm mới theo sự kiện và khi quay lại tab (AT-2).
+  const tts = useResource([...keys.tts(), 'status'], ({ signal }) => getTtsStatus(signal))
+  const retryMachine = useAction(() => installTts(), { invalidate: [keys.tts()] })
   const { search } = useRoute()
   const initialState = import.meta.env.MODE === 'mock' ? search.get('mstate') ?? search.get('maudio') : null
   const chapterQuery = Number(search.get('chapter'))
@@ -102,6 +108,16 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   const genRowList = useMemo(() => genRows(chapters, data.queue), [chapters, data.queue])
   const genStripData = useMemo(() => genStrip(genRowList), [genRowList])
   const genPending = genRowList.filter((row) => row.state === 'stale' || row.state === 'new')
+  const holdCount = genRowList.filter((row) => row.state === 'hold').length
+  // §AT — cùng bộ chuyển trạng thái với máy tính (../machine), chỉ vẽ lại cho khổ điện thoại.
+  const machine = useMemo(() => machineView(tts.data, { waitN: Math.max((tts.data as MachineStatus | null)?.queueWaiting ?? 0, holdCount) }), [tts.data, holdCount])
+  const machineHold = machine.kind === 'provisioning'
+    ? { spinning: true, note: machine.progress?.percent != null ? t.audio.generation.holdPrepNote(Math.round(machine.progress.percent)) : machine.sentence }
+    : machine.kind === 'offline'
+      ? { spinning: false, note: machine.lastSeenLabel ? t.audio.generation.holdWaitingNote(machine.lastSeenLabel) : machine.sentence }
+      : null
+  // §8.3 — điện thoại chỉ có 4 biến thể; `ready` không vẽ thẻ, `missingFfmpeg` chỉ khoá nút Ghép & xuất.
+  const showMachine = machine.kind === 'noMachine' || machine.kind === 'offline' || machine.kind === 'provisioning' || machine.kind === 'provisionFailed'
   const entryAction = genAction(genPending.filter((row) => row.state === 'stale').length, genPending.filter((row) => row.state === 'new').length, 0)
   // Đổi chương bằng tap: play() chạy đồng bộ trong cử chỉ (iOS mở khoá audio),
   // effect của usePlayer thấy src đã nạp trên cùng một thẻ nên không nạp lại.
@@ -136,6 +152,12 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   const close = useCallback(() => setSheet(null), [])
   const openVoice = (opener: 'gen' | 'player') => { setVoiceOpener(opener); setSheet('voice') }
   const openExport = useCallback(() => { setExportDone(0); setSheet('export') }, [])
+  // §AT — Thử lại (và Chuẩn bị bộ đọc ở bản cá nhân) gọi cùng một lượt cài; các lối khác mở màn Thêm
+  // (điện thoại chưa có trang Giọng đọc riêng).
+  const machineAction = (kind: MachineActionKind) => {
+    if (kind === 'retry' || kind === 'prepare') { void retryMachine.run(); return }
+    navigate(paths.settings('mobile'))
+  }
   const openExportDone = useCallback(() => { setExportDone((count) => count + 1); setSheet('export') }, [])
   const playChapter = (number: number) => {
     setSheet('player')
@@ -160,7 +182,7 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
     {player.error && <div className="m-error" role="alert">{player.error}<button onClick={() => void player.play().catch(() => {})}>Thử lại</button></div>}
     {slow && data.loading && <p className="ma-note" role="status">Đang chậm hơn bình thường…</p>}
     {data.loading && !data.volume ? <div className="ma-skeleton" aria-label="Đang tải sách nói"><div />{Array.from({ length: 8 }, (_, i) => <div key={i} />)}</div> : <>
-      {data.ready && !data.ready.ready && <section className="ma-install"><Icon name="headphone" size={28} /><strong>{!data.ready.engine.ready ? 'Chưa cài bộ đọc giọng nói' : 'Chưa có công cụ ghép sách nói'}</strong><p>{data.ready.message || 'Cài bộ đọc trên máy tính để tạo giọng. Bạn vẫn nghe được những chương đã có giọng.'}</p><span>Thiết lập nhà cung cấp và bộ đọc trong Tuỳ chỉnh trên máy tính.</span><button className="m-button secondary" onClick={data.refresh}>Kiểm tra lại</button></section>}
+      {showMachine && <MachineCard view={machine} onAction={machineAction} />}
       {/* Gói AK — thẻ “Tạo giọng · Tập N” dùng chung nhãn nút chính với chân ngăn và thanh Phòng thu. */}
       <section className="ma-gencard" aria-label={`${t.audio.generation.title} · Tập ${volume}`}>
         <button type="button" className="ma-gencard-head" onClick={() => openGen()} title={data.updatedAt ? `Cập nhật lúc ${new Date(data.updatedAt).toLocaleTimeString('vi-VN')}` : undefined}>
@@ -216,7 +238,7 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
       {player.error && <p className="m-error" role="alert">{player.error}</p>}
     </div>
   </BottomSheet>
-  <VoiceGenSheet project={project} story={story} volume={volume} data={data} open={sheet==='gen'} onClose={close} onVoice={()=>openVoice('gen')} onExport={openExport} writable={access.writable} initialRedo={pickRedo}/>
+  <VoiceGenSheet project={project} story={story} volume={volume} data={data} open={sheet==='gen'} onClose={close} onVoice={()=>openVoice('gen')} onExport={openExport} writable={access.writable} initialRedo={pickRedo} machineHold={machineHold}/>
   <VoiceSheet open={sheet==='voice'} onClose={()=>setSheet(voiceOpener)}/>
   <ExportSheet project={project} story={story} volume={volume} open={sheet === 'export'} onClose={close} readyChapters={queue} total={chapters.length} queue={data.queue} writable={access.writable} initialDone={initialState === 'exportDone'} initialView={initialState} trialChapter={chapter??chapters[0]?.chapter??1} openDone={exportDone}/>
   <ExportJobCard project={project} story={story} volume={volume} onViewFiles={openExportDone}/>

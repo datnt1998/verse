@@ -1,26 +1,26 @@
-// Tuỳ chỉnh › Giọng đọc (GAP-21) — trạng thái bộ đọc trên máy, cài đặt, engine, chất lượng,
-// thiết bị, tự tạo khi chốt, giọng có sẵn + nghe thử (15-audio-impl.md §1, §3).
-// Bộ đọc dùng cấu hình kế thừa; tự tạo khi chốt dùng audio/settings của từng truyện.
+// Tuỳ chỉnh › Giọng đọc (Gói AT · 10-audio.md §8.1, §8.4) — thẻ Máy đọc năm trạng thái, chất lượng
+// “Mặc định cho truyện mới”, tự tạo khi chốt, giọng có sẵn + nghe thử theo khả năng của máy đọc.
+// Bản máy chủ ẩn Thiết bị/Bộ đọc; bản cá nhân cùng khung, tên “Máy này”.
 // Dữ liệu TTS dùng cache stale-while-revalidate; việc cài chuyển sang dock toàn cục.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  getProjectVoices, getTtsEngines, getTtsStatus, getTtsVoices, installTts, previewTtsVoice,
+  getProjectVoices, getTtsEngines, getTtsStatus, getTtsVoices, previewTtsVoice,
 } from '../../../api/client'
-import type { AudioVoice, TtsStatus } from '../../../api/types'
+import type { AudioVoice } from '../../../api/types'
 import { keys, useAction, useConnection, useResource, type Resource } from '../../../data'
-import { dispatchDock } from '../../../shell/jobs/store'
 import { Button } from '@noverse/ui'
 import { Card } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { Switch } from '@noverse/ui'
 import { Skeleton } from '@noverse/ui'
 import { StaleBanner } from '@noverse/ui'
-import { toast } from '@noverse/ui'
 import { ErrorCard, InlineSegmented, ReadOnlyNotice, ReadOnlyValue, Rows, Section, SectionBadge, SettingRow } from '../components'
 import type { SettingsContext } from '../types'
 import { t } from '../../../i18n/vi'
 import { unlockMedia } from '../../audio/useAudio'
 import { PanelRefreshBar } from '../../../ui/PanelRefreshBar'
+import { MachineCard, useMachineCardActions } from '../../audio/MachineCard'
+import { machineStepLine, machineView, previewSupport, type MachineStatus } from '../../audio/machine'
 
 const QUALITY = [
   { id: 'fast', label: t.audio.settings.ngheThuNhanh, hint: t.audio.settings.kiemTraTruocGiong },
@@ -28,18 +28,7 @@ const QUALITY = [
   { id: 'high', label: t.audio.settings.caoNhat, hint: t.audio.settings.muotVaTuNhien },
 ]
 
-const STATE_LABEL: Record<TtsStatus['state'], string> = {
-  missing: t.audio.settings.chuaCai,
-  provisioning: t.audio.settings.dangCai2,
-  starting: t.audio.settings.dangKhoiDong,
-  ready: t.audio.settings.sanSang,
-  error: t.audio.settings.loi,
-  offline: 'Máy đọc chưa kết nối',
-}
-
 const errText = (error: unknown) => error instanceof Error ? error.message : t.audio.settings.khongKetNoiDuoc
-
-const formatBytes = (bytes: number) => `${(bytes / 1_073_741_824).toFixed(1).replace('.', ',')} GB`
 
 function useDelayedNotice(active: boolean, delay: number) {
   const [visible, setVisible] = useState(false)
@@ -83,7 +72,7 @@ function ResourceFeedback({ resource, label, rows = 1 }: { resource: Resource<un
 }
 
 /** Nghe thử một giọng (blob URL) — nút play nhỏ trong danh sách. */
-function PreviewButton({ voiceId, label }: { voiceId: string; label: string }) {
+function PreviewButton({ voiceId, label, hosted }: { voiceId: string; label: string; hosted: boolean }) {
   const connection = useConnection()
   const audio = useRef<HTMLAudioElement | null>(null)
   const objectURL = useRef<string | null>(null)
@@ -125,7 +114,7 @@ function PreviewButton({ voiceId, label }: { voiceId: string; label: string }) {
       if (mounted.current) throw new Error('Không phát được giọng nghe thử. Vui lòng thử lại.')
     }
   })
-  const slow = useDelayedNotice(preview.busy, 2000)
+  const slow = useDelayedNotice(preview.busy, hosted ? 0 : 2000)
   return (
     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
       <Button size="sm" variant="icon" aria-label={t.audio.settings.ngheThu(label)}
@@ -136,13 +125,13 @@ function PreviewButton({ voiceId, label }: { voiceId: string; label: string }) {
         <Icon name="play" size={11} />
       </Button>
       <span role="status" aria-live="polite" style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>
-        {slow ? 'Đang tạo giọng nghe thử…' : preview.success ? 'Đang phát' : ''}
+        {slow ? (hosted ? 'Đang nhờ máy đọc…' : 'Đang tạo giọng nghe thử…') : preview.success ? 'Đang phát' : ''}
       </span>
     </span>
   )
 }
 
-function VoiceRow({ voice, first }: { voice: AudioVoice; first?: boolean }) {
+function VoiceRow({ voice, first, preview, hosted }: { voice: AudioVoice; first?: boolean; preview: boolean; hosted: boolean }) {
   const desc = voice.builtIn
     ? t.audio.settings.giongCoSanCua
     : t.audio.settings.giay(voice.file || t.audio.settings.mauGiongDuAn, voice.durationSec ?? 0)
@@ -156,59 +145,51 @@ function VoiceRow({ voice, first }: { voice: AudioVoice; first?: boolean }) {
         <span style={{ fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{voice.name}</span>
         <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{desc}</span>
       </span>
-      <PreviewButton voiceId={voice.id} label={voice.name} />
+      {preview && <PreviewButton voiceId={voice.id} label={voice.name} hosted={hosted} />}
     </div>
   )
 }
 
 export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
-  const connection = useConnection()
   const statusResource = useResource([...keys.tts(), 'status'], ({ signal }) => getTtsStatus(signal))
   const enginesResource = useResource([...keys.tts(), 'engines'], ({ signal }) => getTtsEngines(signal))
   const status = statusResource.data
+  const machineStatus = status as MachineStatus | undefined
+  const machine = machineView(machineStatus)
+  const machineActions = useMachineCardActions()
+  const local = machine.mode === 'local'
+  const canPreview = previewSupport(machineStatus) === 'ready'
   const engines = enginesResource.data
-  // Chưa cài bộ đọc: /tts/voices trả 503 kèm lời nhắc mở chính trang này — dùng trạng thái trống + nút Cài ở trên.
-  const engineMissing = !ctx.project && status?.state === 'missing'
   // /projects/:p/voices đã gộp giọng có sẵn của bộ đọc (builtIn) với mẫu của dự án; chỉ dùng một nguồn.
   const voicesResource = useResource(ctx.project ? keys.project(ctx.project, 'voices') : [...keys.tts(), 'voices'],
     ({ signal }) => ctx.project ? getProjectVoices(ctx.project, signal) : getTtsVoices(signal),
-    { enabled: Boolean(ctx.project) || (status !== undefined && status.state !== 'missing') })
+    { enabled: Boolean(ctx.project) || machine.ready })
   const voices = voicesResource.data ?? []
-  const install = useAction(async () => {
-    const result = await installTts()
-    dispatchDock({ type: 'open' })
-    toast(t.audio.settings.dangCaiBoDoc, 'ok', {
-      label: 'Mở việc chạy nền', onClick: () => dispatchDock({ type: 'open' }),
-    })
-    return result
-  }, { invalidate: [keys.tts(), keys.jobs()] })
-  const installSlow = useDelayedNotice(install.busy, 2000)
+  const builtInVoices = voices.filter((voice) => voice.builtIn).length
+  // Đang chuẩn bị: làm mới trạng thái theo nhịp ngắn (luồng sự kiện có thể chưa tới).
   const refreshStatus = statusResource.refresh
   useEffect(() => {
-    if (status?.state !== 'provisioning' && status?.state !== 'starting') return
+    if (machine.kind !== 'provisioning') return
     const timer = window.setInterval(() => { void refreshStatus() }, 1500)
     return () => window.clearInterval(timer)
-  }, [status?.state, refreshStatus])
-  // Bộ đọc vừa sẵn sàng → giọng có sẵn mới xuất hiện trong danh sách.
+  }, [machine.kind, refreshStatus])
+  // Máy đọc vừa sẵn sàng → giọng có sẵn mới xuất hiện trong danh sách.
   const refreshVoices = voicesResource.refresh
-  const engineReady = status?.ready === true
-  const wasReady = useRef(engineReady)
+  const wasReady = useRef(machine.ready)
   useEffect(() => {
-    if (engineReady && !wasReady.current) void refreshVoices()
-    wasReady.current = engineReady
-  }, [engineReady, refreshVoices])
+    if (machine.ready && !wasReady.current) void refreshVoices()
+    wasReady.current = machine.ready
+  }, [machine.ready, refreshVoices])
 
   const tts = { ...ctx.effective.tts, ...ctx.draft.tts }
   const quality = tts.quality ?? 'standard'
-  const device = tts.device ?? 'cpu'
   const autoOnLock = ctx.audioSettings?.autoOnLock ?? true
   const engine = tts.engine ?? status?.engine ?? 'vieneu'
   const canEdit = ctx.canEdit
-  const installingNow = status?.state === 'provisioning' || install.busy
 
   return (
-    <Section id="voice" title={t.audio.settings.giongDoc} icon="microphone-2" keyName="tts"
-      badge={<SectionBadge>{t.audio.settings.docTrenMayCua}</SectionBadge>}>
+    <Section id="voice" title={t.audio.settings.giongDoc} icon="microphone-2"
+      badge={<SectionBadge>{local ? t.audio.settings.docTrenMayCua : 'Máy đọc của thư viện'}</SectionBadge>}>
       {!canEdit && (
         <ReadOnlyNotice>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -216,64 +197,26 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
         </ReadOnlyNotice>
       )}
 
-      <ResourceFeedback resource={statusResource} label="Trạng thái bộ đọc" />
+      <ResourceFeedback resource={statusResource} label="Trạng thái máy đọc" />
 
       {status && (
-        <Card radius={16} padding="14px 18px" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
-            <Icon name="cpu" size={18} style={{ color: status.ready ? 'var(--color-ok)' : 'var(--color-fg-4)' }} />
-            <span style={{ flex: 1, minWidth: 180, display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>
-                {t.audio.settings.boDocTrenMay(STATE_LABEL[status.state])}
-              </span>
-              <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>
-                {status.state === 'missing'
-                  ? t.audio.settings.caiMotLanSau
-                  : status.state === 'error'
-                    ? status.error?.message ?? t.audio.settings.loi
-                    : `${status.model} · ${status.device === 'gpu' ? t.audio.settings.cardDoHoa : 'CPU'} · ${Math.round(status.sampleRate / 1000)} kHz${status.rtf !== null ? t.audio.settings.n1PhutAudioGiay(Math.round(status.rtf * 60)) : ''}`}
-              </span>
-            </span>
-            {status.state === 'missing' || status.state === 'error' || install.busy || install.success ? (
-              <Button variant="primary" size="sm" icon={<Icon name="export-square" size={14} />}
-                pending={install.pending} success={install.success}
-                pendingLabel="Đang bắt đầu cài…" successLabel="Đã giao việc"
-                title={connection.writable ? t.audio.settings.caiBoDocTren : 'Đang mất kết nối · Chờ kết nối lại để cài bộ đọc'}
-                disabled={!canEdit || installingNow || !connection.writable} onClick={() => void install.run()}>
-                {t.audio.settings.caiBoDocTren}
-              </Button>
-            ) : (
-              <ReadOnlyValue mono={false}>
-                {status.state === 'ready' ? t.audio.settings.dangDung : STATE_LABEL[status.state]}
-              </ReadOnlyValue>
-            )}
-          </div>
-          <span role="status" aria-live="polite" style={{ fontSize: 12, color: 'var(--color-fg-3)' }}>
-            {installSlow ? 'Đang chuẩn bị bộ đọc và tạo việc cài đặt…' : install.success ? 'Đã chuyển việc cài bộ đọc sang việc chạy nền.' : ''}
-          </span>
-          {(status.state === 'provisioning' || status.state === 'starting') && (
-            <Button size="sm" icon={<Icon name="arrow-right-2" size={14} />}
-              onClick={() => dispatchDock({ type: 'open' })} style={{ alignSelf: 'flex-start' }}>
-              Xem tiến độ trong việc chạy nền
-            </Button>
-          )}
-          {!status.ffmpeg && (
-            <div style={{
-              display: 'flex', gap: 8, padding: '10px 12px', borderRadius: 10,
-              background: 'var(--tint-warn)', border: '1px solid rgba(246,203,140,.3)', fontSize: 12.5, color: 'var(--color-fg-2)',
-            }}>
-              <Icon name="warning-2" size={15} style={{ color: 'var(--color-warn)', marginTop: 2 }} />
-              <span>
-                {t.audio.settings.mayChuaCo}<b style={{ fontWeight: 500 }}>{t.audio.settings.ffmpeg}</b> {t.audio.settings.vanSoanVaDuyet}</span>
-            </div>
-          )}
-        </Card>
+        <MachineCard variant="settings" view={machine} stepLine={machineStepLine(machineStatus)}
+          tiles={[
+            { label: 'Máy đọc', value: machine.machineName },
+            { label: 'Mẫu giọng', value: builtInVoices > 0 ? `Tiếng Việt · ${builtInVoices} giọng` : 'Tiếng Việt' },
+            { label: 'Tốc độ tạo', value: machine.speedLabel ?? 'Đang đo' },
+            { label: 'Dung lượng đang dùng', value: machine.diskLabel ?? '—' },
+          ]}
+          onAction={(kind) => {
+            if (!canEdit && (kind === 'retry' || kind === 'prepare')) return
+            void machineActions.onAction(kind)
+          }} />
       )}
 
       <Card radius={16} padding={0}>
         <ResourceFeedback resource={enginesResource} label="Danh sách bộ đọc" />
         <Rows>
-          <SettingRow first label={t.audio.settings.boDoc} keyName="tts.engine" desc={t.audio.settings.chayTrenMayNay}
+          {local && <SettingRow first label={t.audio.settings.boDoc} desc={t.audio.settings.chayTrenMayNay}
             field={ctx.fieldState('tts.engine')}>
             {engines && engines.length > 0 ? (
               <InlineSegmented label={t.audio.settings.boDoc} small={false} disabled={!canEdit}
@@ -283,22 +226,23 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
             ) : (
               <ReadOnlyValue mono={false}>{engines ? 'Chưa có bộ đọc khả dụng' : engine}</ReadOnlyValue>
             )}
-          </SettingRow>
-          <SettingRow label={t.audio.settings.chatLuongGiong} keyName="tts.quality"
-            desc={QUALITY.find((item) => item.id === quality)?.hint}
+          </SettingRow>}
+          <SettingRow first={!local} label={t.audio.settings.chatLuongGiong}
+            desc={local ? 'Mặc định cho truyện mới; từng truyện chỉnh ở Phòng thu.' : 'Mặc định cho truyện mới; từng truyện chỉnh ở Phòng thu. Máy đọc dùng mức của truyện.'}
             field={ctx.fieldState('tts.quality')}>
             <InlineSegmented label={t.audio.settings.chatLuongGiong} small={false} disabled={!canEdit}
               value={quality} onChange={(id) => ctx.setField('tts.quality', id)}
               options={QUALITY.map((item) => ({ id: item.id, label: item.label }))} />
           </SettingRow>
-          <SettingRow label={t.audio.settings.thietBi} keyName="tts.device"
-            desc={device === 'gpu' ? t.audio.settings.dungCardDoHoa : t.audio.settings.chayBangCpuCham}
+          {local && <SettingRow label="Chạy bằng"
+            desc="Card đồ hoạ nhanh hơn nếu máy có."
             field={ctx.fieldState('tts.device')}>
-            <InlineSegmented label={t.audio.settings.thietBi} small={false} disabled={!canEdit}
-              value={device} onChange={(id) => ctx.setField('tts.device', id)}
-              options={[{ id: 'cpu', label: 'CPU' }, { id: 'gpu', label: t.audio.settings.cardDoHoa }]} />
-          </SettingRow>
-          {ctx.scope === 'story' ? <SettingRow label={t.audio.settings.tuTaoGiongKhi} keyName="autoOnLock"
+            <InlineSegmented label="Chạy bằng" small={false} disabled={!canEdit}
+              value={tts.device ?? 'auto'}
+              onChange={(id) => { if (id === 'auto') ctx.resetField('tts.device'); else ctx.setField('tts.device', id) }}
+              options={[{ id: 'auto', label: 'Tự chọn' }, { id: 'cpu', label: 'Bộ xử lý' }, { id: 'gpu', label: 'Card đồ hoạ' }]} />
+          </SettingRow>}
+          {ctx.scope === 'story' ? <SettingRow label={t.audio.settings.tuTaoGiongKhi}
             desc="Riêng truyện này · lưu vào audio/settings.json của truyện.">
             <Switch checked={autoOnLock} disabled={!canEdit || !ctx.audioSettings} label={t.audio.settings.tuTaoGiongKhi}
               onChange={ctx.setAutoOnLock} />
@@ -313,23 +257,27 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
       </div>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '0 2px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '0 2px' }}>
           <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 600 }}>{t.audio.settings.giongDocCoSan}</h3>
-          <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>
-            {t.audio.settings.mauGiongCuaDu(voices.filter((voice) => !voice.builtIn).length, voices.filter((voice) => voice.builtIn).length)}</span>
+          <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{t.audio.settings.giongRiengDuAn}</span>
         </div>
-        <ResourceFeedback resource={voicesResource} label={ctx.project ? 'Giọng của dự án' : 'Giọng có sẵn'} rows={2} />
-        {voices.length > 0 ? (
-          <Card radius={16} padding="4px 0">
-            {voices.map((voice, index) => <VoiceRow key={voice.id} voice={voice} first={index === 0} />)}
-          </Card>
-        ) : voicesResource.data !== undefined || engineMissing ? (
+        {machine.ready ? (
+          <>
+            <ResourceFeedback resource={voicesResource} label={ctx.project ? 'Giọng của dự án' : 'Giọng có sẵn'} rows={2} />
+            {voices.length > 0 && (
+              <Card radius={16} padding="4px 0">
+                {voices.map((voice, index) => <VoiceRow key={voice.id} voice={voice} first={index === 0} preview={canPreview} hosted={!local} />)}
+              </Card>
+            )}
+          </>
+        ) : (
           <Card radius={16} padding="16px 18px" style={{ fontSize: 13, color: 'var(--color-fg-3)' }}>
-            Chưa có giọng đọc. Cài bộ đọc hoặc thêm mẫu giọng trong tài sản dự án.
+            {local ? 'Giọng có sẵn hiện ở đây khi bộ đọc sẵn sàng.' : 'Giọng có sẵn hiện ở đây khi máy đọc sẵn sàng.'}
           </Card>
-        ) : null}
+        )}
         <span style={{ padding: '0 2px', fontSize: 12, color: 'var(--color-fg-4)' }}>
-          {t.audio.settings.ngheThuODay(status?.installedBytes ? t.audio.settings.boDocDangDung(formatBytes(status.installedBytes)) : '')}</span>
+          {local ? 'Nghe thử chạy ngay trên máy này.' : canPreview ? 'Nghe thử nhờ máy đọc đọc một câu mẫu, mất vài giây.' : 'Nghe thử hiện khi máy đọc hỗ trợ; giọng vẫn dùng được cho truyện.'}
+        </span>
       </div>
     </Section>
   )

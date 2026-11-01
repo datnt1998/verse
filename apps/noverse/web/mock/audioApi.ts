@@ -18,7 +18,7 @@ import {
   scriptFor, setJobState, startRender, unlockChapter, volumeOf, wavFor,
   type MockAudioExportOptions, type MockAudioState,
 } from './audio'
-import { ttsStatus } from './tts'
+import { applyMachineDemo, resetMachineDemo, ttsStatus } from './tts'
 import { takeExportFailure } from './exportDemo'
 import { mockConflict } from './events'
 import { mockProjectVoices, mockUploadVoice, mockVoiceSample } from './audioVoices'
@@ -79,10 +79,12 @@ export async function handleAudioApi(ctx: AudioApiContext): Promise<boolean> {
     const body = await ctx.readBody()
     const scenario = String(body.scenario ?? '')
     if (!activateAudioScenario(state, scenario, body.live === true, typeof body.len === 'number' ? body.len : undefined, typeof body.doneChapters === 'number' ? body.doneChapters : undefined)) return fail(res, 400, 'Không có kịch bản audio này'), true
+    resetMachineDemo()
     Object.assign(ttsStatus(), demoEngineDefaults)
     if (scenario === 'noEngine' || scenario === 'mobileNoEngine') {
       Object.assign(ttsStatus(), { ready: false, state: 'missing', rtf: null, installedBytes: 0 })
     } else if (scenario === 'ffmpegMissing') ttsStatus().ffmpeg = false
+    else applyMachineDemo(scenario)
     return json(res, 200, { ok: true, volume: volumeOf(state), jobs: queueOf(state) }), true
   }
   if (rest[0] === 'export-prefs') {

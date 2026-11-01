@@ -16,7 +16,7 @@ import { handleAudioApi } from './audioApi'
 import { mockCoverPng } from './cover'
 import { mockProjectVoices, mockUploadVoice, mockVoiceSample } from './audioVoices'
 import { handleRulesApi, handleRulesGlobal } from './rules'
-import { installTts, ttsEngines, ttsInstallProgress, ttsStatus, ttsVoices } from './tts'
+import { installTts, revokeMachine, setTtsScenario, ttsEngines, ttsInstallProgress, ttsStatus, ttsVoices } from './tts'
 import { handleJobsApi, mirrorJobEvent, startExportJob, syncWriteJob } from './jobs'
 import { emitGlobalEvent, emitLiveFrame, openGlobalEvents, seedLiveEvents, sseConnectionCount, updateGlobalWatch, mockVersion, bumpMockVersion, mockConflict } from './events'
 import { mockActivityContext, mockActivityHistory } from './activity'
@@ -1057,6 +1057,12 @@ export function mockApiPlugin(): Plugin {
 
         try {
           // GAP-41 · A0 Lần chạy đầu — không cần phiên. Mã mẫu: TRAX-41ZN (đổi được qua /api/__mock/setup).
+          if (seg[0] === '__mock' && seg[1] === 'tts') {
+            const body = await readBody(req)
+            const next = typeof body.scenario === 'string' ? body.scenario : ''
+            setTtsScenario(next)
+            return json(res, 200, ttsStatus())
+          }
           if (seg[0] === '__mock' && seg[1] === 'setup') {
             if (req.method === 'POST') {
               const body = await readBody(req)
@@ -2786,6 +2792,12 @@ export function mockApiPlugin(): Plugin {
         // ─── bộ đọc trên máy (GAP-21) ───
         if (seg[0] === 'tts') {
           if (seg[1] === 'status') return json(res, 200, ttsStatus())
+          if (seg[1] === 'machine' && seg[2] === 'revoke' && req.method === 'POST') {
+            if (user!.role !== 'admin') return fail(res, 403, 'Chỉ quản trị viên thu hồi quyền máy đọc')
+            const name = revokeMachine()
+            if (!name) return fail(res, 404, 'Chưa có máy đọc nào kết nối')
+            return json(res, 200, { ok: true, machine: name })
+          }
           if (seg[1] === 'engines') return json(res, 200, { engines: ttsEngines(), active: 'vieneu' })
           if (seg[1] === 'voices') return json(res, 200, { voices: ttsVoices() })
           if (seg[1] === 'install' && req.method === 'GET') return json(res, 200, ttsInstallProgress())

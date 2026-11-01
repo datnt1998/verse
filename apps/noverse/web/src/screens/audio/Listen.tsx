@@ -9,7 +9,7 @@ import {
 } from '../../api/client'
 import type { AudioCandidate, AudioFlag, AudioSegment, ExportFile } from '../../api/types'
 import { Icon, Button, toast, EmptyState, Skeleton, Spinner } from '@noverse/ui'
-import { InstallCard } from './InstallCard'
+import { MachineCard, useMachineCardActions, useMachineStatus } from './MachineCard'
 import { PipelineBar } from './PipelineBar'
 import { ConfirmExportDialog } from './ConfirmDialog'
 import { useQualityChange } from './dialogs'
@@ -45,6 +45,8 @@ export function ListenScreen({ project, story, volume }: { project: string; stor
   const pack = usePackVoice(project, story)
   const storyTitle = useStoryName(project, story)
   const { writable } = useAudioAccess(project, story)
+  const machine = useMachineStatus()
+  const machineActions = useMachineCardActions()
   const chapters = data.volume?.chapters ?? []
   const playable = chapters.filter((item) => item.audio && item.audio.segmentsDone >= item.audio.segments)
   const [chapter, setChapter] = useState<number | null>(null)
@@ -197,7 +199,7 @@ export function ListenScreen({ project, story, volume }: { project: string; stor
       <AudioFeedback data={data} project={project} story={story} />
       {(scriptResource.error || peaksResource.error) != null && <div role="alert" style={{ padding: '7px 16px', fontSize: 12, color: 'var(--color-warn)' }}>Không tải lại được bản đọc hoặc sóng âm. <Button size="sm" onClick={() => { void scriptResource.refresh(); void peaksResource.refresh() }}>Thử lại</Button></div>}
       {player.error && <div role="alert" style={{ padding: '7px 16px', color: 'var(--color-err)', fontSize: 12 }}>{player.error}</div>}
-      {data.ready && <InstallCard project={project} story={story} ready={data.ready} onReady={data.refresh} />}
+      <MachineCard view={machine.view} onAction={machineActions.onAction} style={{ margin: '12px 24px 0' }} />
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         <nav aria-label="Chương" className="scroll" style={{
@@ -231,7 +233,7 @@ export function ListenScreen({ project, story, volume }: { project: string; stor
                     {(item.chapterChanged || item.scriptChanged) && <span title={item.staleReason || t.audio.generation.edited}><Icon name="warning-2" size={14} label={item.staleReason || t.audio.generation.edited} style={{color:'var(--color-warn)',flexShrink:0}} /></span>}
                   </button>
                   <button type="button" className="audio-segact hov-ghost" aria-label={exportCopy.export([item.chapter])} title={exportCopy.export([item.chapter])}
-                    disabled={!writable || !playable.includes(item) || data.ready?.ffmpeg === false}
+                    disabled={!writable || !playable.includes(item)}
                     onClick={() => { setExportChapters([item.chapter]); setShowExport(true) }}
                     style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7, color: 'var(--color-fg-3)', ...(on ? { opacity: 1 } : {}) }}><Icon name="export-curve" size={13} /></button>
                 </li>
@@ -356,12 +358,12 @@ export function ListenScreen({ project, story, volume }: { project: string; stor
               {flags.length > 0 ? `${flags.length} chỗ cần nghe lại · vẫn xuất được nếu bạn thấy ổn` : t.audio.listen.chuaDanhDauCho}
             </span>
             {!done && <span style={{ fontSize: 12, color: 'var(--color-warn)' }}>{t.audio.listen.conChuongChuaCo}</span>}
-            <Button icon={<Icon name="music" size={15} />} disabled={!writable || playable.length === 0 || data.ready?.ffmpeg === false} onClick={() => { setExportChapters([]); setShowExport(true) }}>{exportCopy.exportEach}</Button>
-            <button type="button" className="hov-primary" disabled={!writable || data.ready?.ffmpeg === false || mergingJob !== null} onClick={() => { setExportChapters(undefined); setShowExport(true) }} style={{
+            <Button icon={<Icon name="music" size={15} />} disabled={!writable || playable.length === 0} onClick={() => { setExportChapters([]); setShowExport(true) }}>{exportCopy.exportEach}</Button>
+            <button type="button" className="hov-primary" disabled={!writable || machine.view.kind === 'missingFfmpeg' || mergingJob !== null} onClick={() => { setExportChapters(undefined); setShowExport(true) }} style={{
               flex: '0 0 auto', whiteSpace: 'nowrap', height: 36, padding: '0 14px 0 12px', borderRadius: 9, border: 'none',
               background: 'var(--color-fg)', color: 'var(--color-bg)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8,
-              opacity: !writable || data.ready?.ffmpeg === false ? 0.5 : 1,
-            }}><Icon name="export-curve" size={15} />{mergingJob ? `Đang ghép · ${Math.round((mergingJob.progress ?? 0) * 100)}%` : done ? t.audio.listen.ghepXuatTap(volume) : t.audio.confirm.xuatKhiXong}</button>
+              opacity: !writable || machine.view.kind === 'missingFfmpeg' ? 0.5 : 1,
+            }}>{machine.view.kind === 'missingFfmpeg' ? <Icon name="lock" size={15} /> : <Icon name="export-curve" size={15} />}{mergingJob ? `Đang ghép · ${Math.round((mergingJob.progress ?? 0) * 100)}%` : done ? t.audio.listen.ghepXuatTap(volume) : t.audio.confirm.xuatKhiXong}</button>
           </div>
         </main>
 
@@ -392,6 +394,7 @@ export function ListenScreen({ project, story, volume }: { project: string; stor
 
       {showExport && (
         <ConfirmExportDialog project={project} story={story} volume={volume} chapters={chapters} cast={data.cast} voices={data.voices} pack={pack}
+          machine={machine.view}
           initialChapters={exportChapters}
           onClose={() => setShowExport(false)} />
       )}

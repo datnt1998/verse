@@ -1066,6 +1066,8 @@ export const composeChapters = (state: MockAudioState, chapters: number[]) => {
  * Desktop: review|locked|drafting|stale|allDone|confirm|rendering|paused|
  * renderError|background|rendered|listen|exported|noEngine|ffmpegMissing.
  * Mobile: mobile|mobileReady|mobileNoEngine|mobileExported.
+ * Mobile §AT: mobileMachineNone|mobileMachineOffline|mobileMachinePrep|mobileMachineFail (thẻ máy đọc),
+ * mobileWait|mobileWaitPrep (MVoiceGen chờ máy đọc).
  * almostDone leaves one segment for deferred export.
  * Seeds are frozen by default; live:true starts the normal renderer/composer.
  */
@@ -1073,6 +1075,7 @@ export const activateAudioScenario = (state: MockAudioState, scenario: string, l
   const scenarios = ['mixed', 'review', 'locked', 'drafting', 'stale', 'allDone', 'confirm', 'rendering', 'paused', 'renderError', 'background', 'rendered', 'listen', 'exported', 'almostDone', 'noEngine', 'ffmpegMissing', 'mobile', 'mobileReady', 'mobileNoEngine', 'mobileExported']
   scenarios.push('mobileQueue','mobileQueuePaused','mobileQueueError','mobilePick','mobilePickRedo','mobileUnprepared')
   scenarios.push('genStale','genReady','genRunning','genError','genAllDone')
+  scenarios.push('mobileMachineNone','mobileMachineOffline','mobileMachinePrep','mobileMachineFail','mobileWait','mobileWaitPrep')
   if (!scenarios.includes(scenario)) return false
   clearInterval(state.timer ?? undefined)
   clearTimeout(state.exportTimer ?? undefined)
@@ -1208,6 +1211,25 @@ export const activateAudioScenario = (state: MockAudioState, scenario: string, l
           job.percent = 44
           job.segmentPercent = 0.24
         }
+      }
+    }
+    // §AT — thẻ Máy đọc: mọi job còn sống chuyển thành xếp hàng chờ máy đọc.
+    if (scenario.startsWith('mobileMachine')) {
+      for (const job of state.jobs.values()) {
+        job.state = 'queued'
+        job.waitingMachine = true
+        job.percent = 0
+        job.segmentsDone = 0
+      }
+    }
+    // §AT — MVoiceGen gk=waiting|waitPrep: ba chương cuối chờ máy đọc, giữ đúng thứ tự.
+    if (scenario === 'mobileWait' || scenario === 'mobileWaitPrep') {
+      for (const chapter of [10, 11, 12]) {
+        const job = state.jobs.get(chapter) ?? startRender(state, chapter)
+        job.state = 'queued'
+        job.waitingMachine = true
+        job.percent = 0
+        job.segmentsDone = 0
       }
     }
     if (['mobileQueue','mobileQueuePaused','mobileQueueError','mobilePick','mobilePickRedo'].includes(scenario)) {
