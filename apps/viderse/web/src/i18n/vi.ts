@@ -342,10 +342,8 @@ export const vi = {
       listRetry: 'Thử lại',
       listRetryNow: 'Thử lại ngay',
       listCountFiltered: (scanned: string) => `0 / ${scanned} video`,
-      listCountScanning: (done: string, total: string, where: string | null) =>
-        `Đang quét · ${done} / ${total} video${where ? ` · ${where}` : ''}`,
-      listCountScanned: (scanned: string, where: string | null) =>
-        `${scanned} video đã quét${where ? ` · ${where}` : ''}`,
+      listCountScanning: (done: string, total: string) => `Đang quét · ${done} / ${total} video`,
+      listCountScanned: (scanned: string) => `${scanned} video đã quét`,
       preview: 'Xem trước',
       previewLabel: 'Video đã chọn',
       rivalInfo: 'Thông tin đối thủ',

@@ -440,7 +440,7 @@ describe('trạng thái danh sách (gói V34)', () => {
     expect(byText(el, '*', tt.listFilterTitle)).toBeFalsy()
     expect(el.querySelector('[data-list-skeleton]')).toBeTruthy()
     // Dòng đếm đọc tiến độ quét thay cho "0 / N video".
-    expect(el.textContent).toContain(tt.listCountScanning('12', '30', null))
+    expect(el.textContent).toContain(tt.listCountScanning('12', '30'))
   })
 
   it('lọc rỗng: câu nêu bộ lọc đang bật, Bỏ lọc đưa Dài và Đăng trong về mặc định', async () => {

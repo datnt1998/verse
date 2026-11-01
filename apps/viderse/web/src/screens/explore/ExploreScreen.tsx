@@ -136,13 +136,16 @@ export function ExploreScreen({ route }: { route: Route }) {
   }, [listState, eventsStatus.reconnectAt])
   const retryIn = eventsStatus.reconnectAt == null ? 8 : Math.max(0, Math.ceil((eventsStatus.reconnectAt - clock) / 1000))
   const scopeName = scopeRival?.title ?? tt.noMatchAll
+  // Dòng đếm theo trạng thái; trên điện thoại FilterBar nối “· <phạm vi>”
+  // (khi quét lần đầu là tên đối thủ đang quét).
   const listCountText = listState === 'firstScan' && scanning
-    ? tt.listCountScanning(String(scanProgress(scanning).done), String(scanProgress(scanning).total), narrow ? scanning.title : null)
+    ? tt.listCountScanning(String(scanProgress(scanning).done), String(scanProgress(scanning).total))
     : listState === 'filterEmpty'
       ? tt.listCountFiltered(num.format(scanned))
       : listState === 'error' || listState === 'offline'
-        ? tt.listCountScanned(num.format(scanned), narrow ? scopeName : null)
+        ? tt.listCountScanned(num.format(scanned))
         : undefined
+  const countScope = listState === 'firstScan' && scanning ? scanning.title : scopeName
   const retryList = useCallback(() => {
     void videos.refresh()
     void list.refresh()
@@ -314,7 +317,7 @@ export function ExploreScreen({ route }: { route: Route }) {
           q={videos.shownQ}
           hasChannel={channels.length > 0}
           countText={listCountText}
-          scopeName={narrow ? scopeName : undefined}
+          scopeName={narrow ? countScope : undefined}
         />
         {listState === 'firstScan' && scanning ? (
           <>
