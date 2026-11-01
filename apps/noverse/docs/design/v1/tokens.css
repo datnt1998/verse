@@ -31,6 +31,9 @@
   /* Huy hiệu Quản trị (Gói AQ, 01/11) — Thành viên, menu tài khoản, điện thoại */
   --members-admin-fg: #E3C99E;
   --members-admin-bg: rgba(184,154,110,.14);
+  /* Nhãn vai Đồng phạm (Gói AR, 01/11) — tab Nhân vật máy tính và M9 */
+  --role-accomplice-fg: #E8A3AA;
+  --role-accomplice-bg: rgba(255,154,162,.06);
   --color-err: #FF9AA2;
   --color-info: #B9D0F7;
   --color-user: #5DC1B0;        /* icon sự kiện người dùng */

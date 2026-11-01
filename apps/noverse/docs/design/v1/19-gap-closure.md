@@ -939,3 +939,14 @@ Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông 
 - Huy hiệu Quản trị trên `MMore` còn tím (`rgb(220,200,248)` / `rgba(201,166,245,.14)`); app dùng `--members-admin-fg` / `--members-admin-bg` theo mục 5 của Gói AQ cho mọi huy hiệu, kể cả điện thoại. Nhờ design sửa board cho thống nhất.
 - M9 `found=partial`: board minh hoạ 2 mục thiếu trong 10 mục, gồm cả “Tính phù hợp với truyện ngắn”. Với fixture tier thực tế, API chỉ báo thiếu “Vùng cấm sáng tác” trong 9 mục; mục còn lại không thuộc danh sách bắt buộc của tier. App giữ danh sách từ API, không tự thêm mục hay tạo lời nhờ cho mục không được máy chủ yêu cầu. Khối tiền đề do đó cao 936,875 px thay vì 1.068,75 px của board ở 390 px. Thanh trạng thái 40 px của board là minh hoạ; app dùng safe-area thật theo mục 8.
 - Màu vai Đồng phạm trên M9 chưa có token trong `tokens.css`. Dev thêm `--role-accomplice-fg: #E8A3AA` và `--role-accomplice-bg: rgba(255,154,162,.06)` theo board `MOutline`; nhờ design xác nhận tên token.
+
+## Gói AR — Truyện mới trên điện thoại · trả lời “Gói AQ — lệch khi triển khai” (01/11/2026, canvas 135) <!-- ar-gap-closure -->
+
+| # | Chỗ dev nêu | Quyết định design | Artboard |
+|---|---|---|---|
+| AM-7 | Không có artboard Tạo truyện mới cho điện thoại; app thu hẹp QuickMode | **Vẽ M11** — bố cục riêng, cùng logic và dữ liệu. | `MNewStory` |
+| AQ-lệch 1 | Tiêu đề vòng cũ không có `title` → “Vòng N · {vai} · hh:mm” | **Xác nhận.** Không suy tiêu đề từ chữ tự do. | `RunCards`, `MRun` |
+| AQ-lệch 2 | Huy hiệu Quản trị trên `MMore` còn tím | **Sửa board**: `#E3C99E` / `rgba(184,154,110,.14)` như mọi huy hiệu Quản trị. | `MMore` home |
+| AQ-lệch 3 | M9 `found=partial`: API chỉ báo thiếu mục bắt buộc của tier | **Xác nhận** — danh sách mục thiếu lấy từ API; board chỉ minh hoạ. Chiều cao khác board là đúng. | `MOutline` |
+| AQ-lệch 4 | Màu vai Đồng phạm chưa có token | **Chốt tên** `--role-accomplice-fg: #E8A3AA`, `--role-accomplice-bg: rgba(255,154,162,.06)` (đã thêm `tokens.css`). Board M9 sửa nền 0,08 → 0,06 cho khớp máy tính. | `MOutline`, `Outline` |
+| Máy tính · Mô phỏng văn phong | Nút tạo truyện rồi chạy học văn phong khi chưa có văn mẫu → lỗi | **Đổi**: dán văn mẫu trước (hộp thoại máy tính = ngăn M11). | `MNewStory` `sheet=samples` |

@@ -2,6 +2,13 @@
 
 Mỗi đợt ghi: ngày, gói, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Các gói trước Gói AO ghi trong `21-dev-prompt.md` và `19-gap-closure.md`.
 
+## 01/11/2026 — Gói AR: tạo truyện mới trên điện thoại <!-- r-ar -->
+
+- Mới: `MNewStory` (M11) — Bắt đầu nhanh, Đồng sáng tác, so với truyện trước (lưới 2 cột), Bắt đầu từ tệp, Nhập bản thảo, Mô phỏng văn phong (dán văn mẫu trước).
+- `MWork` trống: nút chính *Tạo truyện mới*. `MMore`: hàng *Truyện mới* ở Dự án & truyện; `/start` “Dùng ở Truyện mới”; huy hiệu Quản trị đổi sang token vàng.
+- `MOutline`: nền nhãn Đồng phạm 0,06. `tokens.css`: `--role-accomplice-*`.
+- Tài liệu: `18-mobile.md` › M11 + vai trò điện thoại; `21-dev-prompt.md` › Gói AR; `06` §AR; `07` Gói AR; `19` Gói AR. Canvas bản 135.
+
 ## 01/11/2026 — Gói AQ: lấp chỗ thiếu sau AO, AP, Luồng viết <!-- r-aq -->
 
 - Mới: `MOutline` (M9 tab truyện điện thoại), `MProjBrain` (M10 Não dự án điện thoại), `RunCards` (01c thẻ theo loại thao tác), `MRun` (M1b lịch sử luồng viết điện thoại).

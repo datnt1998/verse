@@ -136,6 +136,7 @@ button:disabled{cursor:not-allowed}
 .thinkm{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 1.6s linear infinite}
 .applybar{position:absolute;left:12px;right:12px;bottom:96px;z-index:28;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:18px;background:rgba(36,30,46,.95);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(201,166,245,.3);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
 .i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
 .i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
 .i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
 .i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
@@ -281,9 +282,8 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <sc-if value="{{pg.projects}}" hint-placeholder-val="{{ false }}">
 <sc-for list="{{projects}}" as="p" hint-placeholder-count="2">
 <div class="ghead" style="display: flex; justify-content: space-between"><span>{{p.name}}</span><span>{{p.n}}</span></div>
-<div class="group"><sc-for list="{{p.stories}}" as="s" hint-placeholder-count="2"><button class="grow press" type="button" onClick="{{s.pick}}" aria-current="{{s.cur}}"><span class="mono num" style="font-size: 13px; color: #7E7E8A; width: 22px">{{s.n}}</span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.t}}</span><span style="font-size: 13px; color: {{s.stFg}}">{{s.st}}</span></span><sc-if value="{{s.on}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span></sc-if></button></sc-for></div>
+<div class="group"><sc-for list="{{p.stories}}" as="s" hint-placeholder-count="2"><button class="grow press" type="button" onClick="{{s.pick}}" aria-current="{{s.cur}}"><span class="mono num" style="font-size: 13px; color: #7E7E8A; width: 22px">{{s.n}}</span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.t}}</span><span style="font-size: 13px; color: {{s.stFg}}">{{s.st}}</span></span><sc-if value="{{s.on}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span></sc-if></button></sc-for><a class="grow press" href="MNewStory.dc.html" style="color: #C9A6F5"><span class="ic i-add-square" aria-hidden="true" style="width: 20px; height: 20px; margin: 0 1px"></span><span style="flex: 1 1 auto">Truyện mới</span></a></div>
 </sc-for>
-<p style="margin: 14px 30px 0; font-size: 12.5px; color: #7E7E8A; text-align: center">Tạo truyện mới hoặc nhập truyện có sẵn trên máy tính.</p>
 </sc-if>
 
 <!-- MODEL -->
@@ -465,7 +465,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 
 
 <!-- bottom CTA for guide detail / password -->
-<sc-if value="{{showCta}}" hint-placeholder-val="{{ false }}"><div class="cta"><sc-if value="{{pg.guideCmd}}" hint-placeholder-val="{{ false }}"><a class="mbtn pri tap" href="MWork.dc.html" style="text-decoration: none">{{ctaLabel}}</a></sc-if><sc-if value="{{pg.pwAny}}" hint-placeholder-val="{{ false }}"><button class="mbtn pri tap" type="button" onClick="{{savePw}}" disabled="{{pwBad}}" style="width: 100%">{{pwBtn}}</button><sc-if value="{{pg.firstPwd}}" hint-placeholder-val="{{ false }}"><span style="display: block; padding-top: 10px; text-align: center; font-size: 12.5px; color: #7E7E8A"><button type="button" onClick="{{skipPw}}" style="border: none; background: transparent; color: #A0A0AB; font-size: 13px; padding: 0; text-decoration: underline">Để sau</button> · sẽ nhắc lại mỗi lần mở cho tới khi đổi</span></sc-if></sc-if></div></sc-if>
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ false }}"><div class="cta"><sc-if value="{{pg.guideCmd}}" hint-placeholder-val="{{ false }}"><a class="mbtn pri tap" href="{{ctaHref}}" style="text-decoration: none">{{ctaLabel}}</a></sc-if><sc-if value="{{pg.pwAny}}" hint-placeholder-val="{{ false }}"><button class="mbtn pri tap" type="button" onClick="{{savePw}}" disabled="{{pwBad}}" style="width: 100%">{{pwBtn}}</button><sc-if value="{{pg.firstPwd}}" hint-placeholder-val="{{ false }}"><span style="display: block; padding-top: 10px; text-align: center; font-size: 12.5px; color: #7E7E8A"><button type="button" onClick="{{skipPw}}" style="border: none; background: transparent; color: #A0A0AB; font-size: 13px; padding: 0; text-decoration: underline">Để sau</button> · sẽ nhắc lại mỗi lần mở cho tới khi đổi</span></sc-if></sc-if></div></sc-if>
 
 <sc-if value="{{mdirty}}" hint-placeholder-val="{{ false }}"><div class="applybar" role="region" aria-label="Thay đổi chưa áp dụng"><span style="flex: 1 1 auto; min-width: 0; font-size: 14px; line-height: 1.35">{{mdirtyText}}</span><button class="tap" type="button" onClick="{{mundo}}" style="height: 38px; padding: 0 10px; border: none; background: transparent; color: #A0A0AB; font-size: 14px">Huỷ</button><button class="tap" type="button" onClick="{{mapply}}" style="height: 38px; padding: 0 16px; border-radius: 12px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 14px; font-weight: 600">Áp dụng</button></div></sc-if>
 <sc-if value="{{ruleSheet}}" hint-placeholder-val="{{ false }}"><div class="scrim {{out}}" aria-hidden="true" onClick="{{closeRuleSheet}}"></div>
@@ -752,7 +752,7 @@ const MR0 = [[1, 'story', 'Kể ở ngôi thứ nhất, nhân vật chính luôn
 const MFAT = [['không khỏi', 1], ['bỗng nhiên', 1], ['dường như', 2], ['chẳng biết từ đâu', 1], ['tuy nhiên', 2], ['một chút', 2], ['một vệt', 2], ['một sợi', 2], ['tựa như', 1], ['không kìm được', 1], ['như một', 3], ['im lặng', 2], ['không nói gì', 2], ['một thoáng', 3], ['chốc lát', 3], ['trong chớp mắt', 2]];
 const MSTY = [['default', 'Chung', 'Nhịp hài hoà, thoại tự nhiên'], ['romance', 'Ngôn tình', 'Cảm xúc tinh tế, nội tâm'], ['suspense', 'Hồi hộp', 'Cài manh mối, kết chương bỏ ngỏ'], ['fantasy', 'Huyền huyễn', 'Thế giới rộng, hệ thống sức mạnh'], ['wuxia', 'Kiếm hiệp', 'Giang hồ, chiêu thức'], ['custom', 'Văn phong của bạn', 'Học từ 6 văn mẫu']];
 const mStyleName = (k) => k === 'packA' ? 'Gói Nữ tần báo thù' : ((MSTY.find((x) => x[0] === k) || [])[1] || 'Kiểu viết riêng');
-const DESK = ['config', 'start', 'simulate', 'importsim'];
+const DESK = ['config', 'simulate', 'importsim'];
 const ACC = [['dat', 'Dat', 'D', 'Quản trị', 'Lần cuối hôm nay', 'linear-gradient(135deg,#F3E8FF,#C9A6F5)', 'dat'], ['linh', 'Linh', 'L', 'Biên tập', 'Lần cuối 2 ngày trước', 'linear-gradient(135deg,#FDE8D2,#F6CB8C)', 'linh.nguyen'], ['khach', 'Khách đọc', 'K', 'Người đọc', 'Lần cuối 3 tuần trước', 'linear-gradient(135deg,#E2E8F7,#9DB0F7)', 'khach']];
 const DEV = [['phone', 'i-mobile', 'iPhone này', 'Đang dùng · TP.HCM'], ['mac', 'i-monitor', 'MacBook · Chrome', 'Hoạt động 5 phút trước'], ['ipad', 'i-mobile', 'iPad của Linh', 'Hôm qua · Safari'], ['android', 'i-mobile', 'Android · Chrome', '12 ngày trước']];
 // ===== Gói AN · Lưu trữ tệp — dữ liệu dùng chung (Settings + MMore). Khớp GET /api/system/storage =====
@@ -871,7 +871,7 @@ class Component extends DCLogic {
     const asDev = DEV.find((d) => d[0] === s.as);
     // account
     const meA = ACC.find((a) => a[0] === s.me);
-    const me = { name: meA[1], av: meA[2], role: meA[3], sub: (s.me === 'dat' ? 'Phiên trên iPhone · còn 30 ngày' : 'Phiên trên iPhone · còn 12 ngày'), avBg: meA[5], roleIcon: s.me === 'dat' ? 'i-crown' : 'i-edit', roleBg: s.me === 'dat' ? 'rgba(201,166,245,0.14)' : 'rgba(246,203,140,0.12)', roleFg: s.me === 'dat' ? '#DCC8F8' : '#F6CB8C' };
+    const me = { name: meA[1], av: meA[2], role: meA[3], sub: (s.me === 'dat' ? 'Phiên trên iPhone · còn 30 ngày' : 'Phiên trên iPhone · còn 12 ngày'), avBg: meA[5], roleIcon: s.me === 'dat' ? 'i-crown' : 'i-edit', roleBg: s.me === 'dat' ? 'rgba(184,154,110,0.14)' : 'rgba(246,203,140,0.12)', roleFg: s.me === 'dat' ? '#E3C99E' : '#F6CB8C' };
     const accts = ACC.map(([k, name, av, role, sub, avBg]) => { const cur = s.me === k;
       return { name, av, role, sub: cur ? 'Đang dùng · phiên còn ' + (k === 'dat' ? '30' : '12') + ' ngày' : sub, subFg: cur ? '#A6EDC1' : '#8E8E99', avBg, op: '1', cur, expired: !cur,
         pick: () => { if (cur) return this.closeAcct(); set({ tgt: k, swPw: '' }); } }; });
@@ -879,8 +879,8 @@ class Component extends DCLogic {
     const tgt = { name: T[1], av: T[2], avBg: T[5], user: T[6] };
     // guide
     const gq = norm(s.gq).trim();
-    const gGroups = GROUPS.map((g) => ({ label: g.label.toUpperCase(), items: g.cmds.filter((k) => !gq || norm(['/' + k, C[k].title, SHORT[k], C[k].kw].join(' ')).indexOf(gq) >= 0).map((k) => { const desk = DESK.indexOf(k) >= 0;
-      return { slash: '/' + k, title: SHORT[k] || C[k].title, fg: desk ? '#8E8E99' : '#EDEDEF', slashFg: desk ? '#7E7E8A' : '#C9A6F5', hasNote: desk || !!C[k].idle, note: desk ? 'Chỉ trên máy tính' : 'Cần hệ thống rảnh', noteFg: desk ? '#7E7E8A' : '#B89A6E', go: () => { set({ cmd: k }); this.push('guideCmd'); } }; }) })).filter((g) => g.items.length);
+    const gGroups = GROUPS.map((g) => ({ label: g.label.toUpperCase(), items: g.cmds.filter((k) => !gq || norm(['/' + k, C[k].title, SHORT[k], C[k].kw].join(' ')).indexOf(gq) >= 0).map((k) => { const desk = DESK.indexOf(k) >= 0, ns = k === 'start';
+      return { slash: '/' + k, title: SHORT[k] || C[k].title, fg: desk ? '#8E8E99' : '#EDEDEF', slashFg: desk ? '#7E7E8A' : '#C9A6F5', hasNote: desk || ns || !!C[k].idle, note: desk ? 'Chỉ trên máy tính' : (ns ? 'Dùng ở Truyện mới' : 'Cần hệ thống rảnh'), noteFg: desk || ns ? '#7E7E8A' : '#B89A6E', go: () => { set({ cmd: k }); this.push('guideCmd'); } }; }) })).filter((g) => g.items.length);
     const d = C[s.cmd];
     const gd = { slash: '/' + s.cmd, title: d.title, lead: d.lead, hasAlias: !!d.alias, alias: '/' + (d.alias || ''), idle: !!d.idle, usage: usageToks(d.usage),
       hasParams: d.params.length > 0, params: d.params.map((p) => ({ tok: p.kind === 'flag' ? p.flag : p.tok, c: (p.kind === 'flag' || p.pre) ? ORA : MINT, label: p.label, desc: p.desc, req: p.req ? 'Bắt buộc' : 'Tuỳ chọn', reqFg: p.req ? '#F6CB8C' : '#7E7E8A' })),
@@ -934,7 +934,7 @@ class Component extends DCLogic {
       oldLabel: page === 'firstPwd' ? 'Mật khẩu tạm' : 'Mật khẩu hiện tại', revokeNote: 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả máy này.',
       skipPw: () => { set({ stack: ['home'], dir: 'f', n: s.n + 1 }); this.toast('Sẽ nhắc lại lần sau'); },
       goGuide: () => this.push('guide'), goPassword: () => this.push('password'), gq: s.gq, onGq: (e) => set({ gq: e.target.value }), gGroups, gEmpty: !gGroups.length, gd,
-      scrollPad: first ? '160px' : '130px', ctaLabel: 'Thử ' + gd.slash + ' ở màn Viết', showCta: page === 'guideCmd' || page === 'password' || first,
+      scrollPad: first ? '160px' : '130px', ctaLabel: gd.slash === '/start' ? 'Mở Truyện mới' : 'Thử ' + gd.slash + ' ở màn Viết', ctaHref: gd.slash === '/start' ? 'MNewStory.dc.html' : 'MWork.dc.html', showCta: page === 'guideCmd' || page === 'password' || first,
       pwOld: s.pwOld, pwNew: s.pwNew, pwRe: s.pwRe, onOld: (e) => set({ pwOld: e.target.value }), onNew: (e) => set({ pwNew: e.target.value }), onRe: (e) => set({ pwRe: e.target.value }),
       pwType: s.eye ? 'text' : 'password', eyeIcon: s.eye ? 'i-eye-off' : 'i-eye', eyeAria: s.eye ? 'Ẩn mật khẩu' : 'Hiện mật khẩu', toggleEye: () => set({ eye: !s.eye }),
       stBars: [0, 1, 2, 3].map((i) => ({ c: i < sc ? scC : '#222225' })), stFg: np.length && np.length < 8 ? '#FF9AA2' : '#A0A0AB', stLabel: !np.length ? 'Ít nhất 8 ký tự' : np.length < 8 ? 'Còn thiếu ' + (8 - np.length) + ' ký tự' : 'Độ mạnh: ' + ['', 'Yếu', 'Tạm được', 'Mạnh', 'Rất mạnh'][sc],

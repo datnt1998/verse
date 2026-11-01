@@ -1512,6 +1512,33 @@ Canvas bản 133. Artboard mới: `MOutline` (M9), `MProjBrain` (M10), `RunCards
 - Mỗi khoá trong bảng §10 có thẻ đúng tên/tóm tắt; thao tác lạ hiện “Thao tác khác”. Không chuỗi nào là tên thao tác gốc ngoài Chi tiết kỹ thuật.
 - Ghi “Gói AQ” vào `19-gap-closure.md`.
 
+## Gói AR — Tạo truyện mới trên điện thoại (01/11 · P1) <!-- goi-ar -->
+
+**Vì sao:** điện thoại mới chỉ theo dõi và điều khiển; muốn bắt đầu truyện phải mở máy tính. App đang thu hẹp `QuickMode` máy tính xuống 390 px (GAP AM-7). Gói này cho điện thoại tạo truyện **gần đủ như máy tính**.
+
+Canvas bản 135. Artboard mới: `MNewStory` (M11). Sửa: `MWork` (trống), `MMore` (Dự án & truyện, Hướng dẫn lệnh, huy hiệu Quản trị), `MOutline` (màu Đồng phạm). Đặc tả: `18-mobile.md` › *M11*. Chữ: `07-copy.md` › *Gói AR*. Dữ liệu: `06-data-contract.md` › *Bổ sung §AR*.
+
+### Việc FE
+1. **Màn Truyện mới ≤ 640 px** (`MNewStory`): bản riêng cho điện thoại, **dùng lại logic** của `newstory/` (`quickStoryStarter`, `useStoryCheck`, `CoCreatePanel` dữ liệu, `StartFileDialog` submit, `StyleQuickPicker`/`WriterQuickPicker`), chỉ đổi bố cục. Không thanh tab; nút ‹ về nơi mở. Tweak `mode`, `state`, `check`, `co`, `sheet`, `alt`.
+2. **Bắt đầu nhanh:** ô chữ 16 px, chip Văn phong/Người viết mở **ngăn dưới** (không popover), nút **Bắt đầu viết** dính đáy kèm lý do khoá (cùng `disabledReason` của `QuickMode`). Bàn phím mở → nút nằm trên bàn phím (`visualViewport`, như ô chat M1), ẩn tiêu đề và các khối phụ. Lỗi → nút “Thử lại”.
+3. **So với truyện trước:** cùng `StoryCheckBlock`, lưới trục **2 cột**; nút đổi trục / tự sửa / Não dự án (→ M10).
+4. **Đồng sáng tác:** chat toàn màn; thẻ **Bản nháp yêu cầu** ở đáy (trạng thái + dòng đầu + nút Bắt đầu nhỏ) mở ngăn có toàn văn, kiểm rút gọn, *Bắt đầu sáng tác*, *Huỷ đồng sáng tác*. Gợi ý cuộn ngang.
+5. **Cách khác:** *Đã có thiết lập / đại cương* → ngăn Bắt đầu từ tệp; *Đã có bản thảo* → tạo truyện rồi mở import (M5); *Mô phỏng văn phong* → **ngăn dán văn mẫu** rồi mới tạo truyện + chạy học văn phong.
+6. **Sửa lỗi máy tính đi kèm:** nút *Mô phỏng văn phong* ở `QuickMode` hiện tạo truyện rồi gọi `startSimulate` khi truyện **chưa có văn mẫu nào** → máy chủ báo “Chưa có văn mẫu nào để phân tích”. Đổi thành mở hộp thoại dán văn mẫu cùng nội dung ngăn M11 (`createStory` → `POST style-samples` từng đoạn → `startSimulate`).
+7. **Lối vào:** M1 `empty` có nút chính *Tạo truyện mới*; M4 › Dự án & truyện có hàng *Truyện mới* cuối mỗi dự án (mở với dự án đó); Hướng dẫn lệnh › `/start` ghi “Dùng ở Truyện mới” và nút *Mở Truyện mới*. `/start`, `/simulate` vẫn ẩn trong sheet lệnh của điện thoại.
+8. **Trả lời lệch AQ** (`19-gap-closure.md` › *Gói AR*): huy hiệu Quản trị trên `MMore` đã đổi sang `--members-admin-*`; chốt token `--role-accomplice-fg/bg` (đã thêm `tokens.css`, `MOutline` sửa nền 0,08 → 0,06 cho khớp máy tính); M9 tiền đề giữ danh sách mục từ API; tiêu đề vòng cũ chỉ số vòng · vai · giờ là đúng.
+
+### Việc backend
+- Không bắt buộc. GAP-AR1 (tuỳ chọn): danh sách tệp thiết lập/đại cương của dự án để chọn thay vì gõ tên (`06-data-contract.md` › §AR).
+
+### Nghiệm thu
+- 390×844, dự án không có truyện: M1 › *Tạo truyện mới* → M11; gõ yêu cầu, đổi Văn phong “Hồi hộp” trong ngăn → *Bắt đầu viết* → về M1 đang chạy truyện mới, Đang áp dụng ghi văn phong “riêng”.
+- Yêu cầu trùng “Mẹ Kế Cướp Tiệm May…” → khối So với truyện trước có Bắt sửa, nút đáy khoá kèm lý do; *Nhờ Kiến trúc sư đổi trục* → mở khoá, *Hoàn tác* trả lại.
+- Đồng sáng tác: gửi 2 lượt → thẻ đáy “Sẵn sàng viết”; đóng app mở lại → bản nháp còn; *Huỷ đồng sáng tác* → trống.
+- *Mô phỏng văn phong*: không bấm được khi chưa dán đoạn nào; dán 2 đoạn → truyện mới có 2 văn mẫu và việc học văn phong chạy (không còn lỗi “Chưa có văn mẫu nào”). Máy tính: cùng kết quả.
+- Không có phím tắt, không chữ “Enter” trên điện thoại; không cuộn ngang ở 360 px.
+- Ghi “Gói AR” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |

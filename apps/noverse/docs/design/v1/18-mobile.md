@@ -17,6 +17,7 @@ Mọi artboard đều bấm được. Điện thoại là 390×844, máy tính b
 | `MLog.dc.html` | M6 · Nhật ký hoạt động | `state`: live · tool · errors · search · scrolled |
 | `MNotify.dc.html` | M7 · Thông báo | `view`: inbox · prompt · system · denied · settings · lock · lockActions |
 | `MTablet.dc.html` | T1 · Máy tính bảng | `state`: running · gate · cmd · jobs · readFocus |
+| `MNewStory.dc.html` | M11 · Truyện mới (Gói AR) | `mode`: quick · cocreate; `state`: empty · filled · typing · idea · starting · error · offline; `check`: none · checking · conflict · fixed; `co`: empty · talking · thinking · ready; `sheet`: none · style · writer · startFile · samples · draft; `alt`: none · import · simulate | <!-- ar-row -->
 
 **Vai trò của điện thoại: theo dõi & điều khiển.**
 
@@ -24,12 +25,13 @@ Mọi artboard đều bấm được. Điện thoại là 390×844, máy tính b
   - xem agent đang làm gì, duyệt chương, góp ý;
   - chạy lệnh và xem kết quả;
   - nghe và xuất audio;
-  - đổi truyện, model, tài khoản, mật khẩu; quản lý thiết bị; chỉnh thông báo.
+  - đổi truyện, model, tài khoản, mật khẩu; quản lý thiết bị; chỉnh thông báo;
+  - **tạo truyện mới** đủ như máy tính: Bắt đầu nhanh, Đồng sáng tác, so với truyện trước, bắt đầu từ tệp, nhập bản thảo, mô phỏng văn phong (M11 · Gói AR). <!-- ar-role -->
 - Để trên máy tính (điện thoại có ghi chú chỉ sang):
   - dàn ý chi tiết;
   - duyệt bản đọc audio từng đoạn;
   - cài đặt nhà cung cấp và thư viện;
-  - tạo truyện, học văn phong.
+  - học lại văn phong cho truyện đang có (`/simulate`), nhập hồ sơ văn phong (`/importsim`). <!-- ar-role2 -->
 
 ## Khung chung (`_mbase` trong artboard)
 
@@ -80,7 +82,7 @@ Thanh tab là một **viên nang kính nổi**, không dính mép dưới.
 | paused | “Đã tạm dừng” + dừng sau bước nào | *Góp ý trước* · *Chạy tiếp* |
 | done | “Truyện đã hoàn thành”, orb nảy nhẹ, số chương/chữ | *Viết tiếp tập mới ›* → `/reopen` (M5) |
 | error | “Người viết dừng lại”, lời giải thích dễ hiểu (hết hạn mức…), phần đã viết được giữ | *Đổi model* · *Thử lại* |
-| empty | Không có truyện: minh hoạ + lời dẫn sang máy tính | *Mở truyện có sẵn* · *Báo tôi khi có truyện mới* |
+| empty | Không có truyện: minh hoạ + lời dẫn | *Tạo truyện mới* (→ M11) · *Mở truyện có sẵn* · liên kết *Báo tôi khi có truyện mới* <!-- ar-empty --> |
 
 - **Mất mạng** (`offline`):
   - Băng cam dưới thanh trên: “Mất kết nối · thử lại sau N s” (đếm ngược) + *Thử ngay*.
@@ -107,7 +109,7 @@ Thanh tab là một **viên nang kính nổi**, không dính mép dưới.
     - mục **Ví dụ · chạm để dùng**; hộp mẹo;
     - xem trước dòng lệnh tô màu, trạng thái kiểm tra, nút **Chạy /export** to.
   - Lệnh có màn kết quả riêng (cocreate, import, diag, sync, reopen) → sau khi chạy, toast có liên kết sang M5.
-  - Ẩn trên điện thoại: `/config`, `/start`, `/simulate`, `/importsim`. Trang hướng dẫn vẫn liệt kê chúng với nhãn “Chỉ trên máy tính”.
+  - Ẩn trên điện thoại: `/config`, `/start`, `/simulate`, `/importsim`. Trang hướng dẫn vẫn liệt kê chúng với nhãn “Chỉ trên máy tính”. Riêng `/start` ghi “Dùng ở Truyện mới”, nút cuối trang hướng dẫn mở M11 (Gói AR). <!-- ar-start -->
 - **Liên kết:**
   - *Xem tất cả* ở “Vừa xong” và *Xem nhật ký đầy đủ* trong sheet việc nền → M6;
   - *Hướng dẫn* trong sheet lệnh → M4 · Hướng dẫn lệnh.
@@ -492,3 +494,25 @@ html[data-standalone]{--m-edge:40px} /* dự phòng: đặt khi navigator.standa
 - **M10** vào từ M4 › Đang mở › *Não dự án*. Không tab bar (trang đẩy). Tweak `tab`, `lview`, `sheet`, `check`, `uni`.
 - **M1b** vào từ dòng bước của thẻ Đang viết ở M1 (*Luồng viết ›*). Tweak `state`, `op`. Chi tiết `20-settings-rules.md` §10.
 - Khoảng 40 px đầu mọi board điện thoại là chỗ status bar minh hoạ; app dùng safe-area thật (GAP-AN-FE3).
+
+## M11 · Truyện mới (`MNewStory.dc.html`) — Gói AR, 01/11 <!-- ar-m -->
+
+Bản điện thoại của màn Tạo truyện mới (`NewStory`), cùng dữ liệu và luật. Đóng GAP AM-7 (app đang thu hẹp bản máy tính xuống 390 px).
+
+- **Lối vào:** M1 trạng thái `empty` › *Tạo truyện mới*; M4 › Dự án & truyện › hàng **Truyện mới** cuối mỗi dự án (lưu vào dự án đó); trang hướng dẫn `/start` › *Mở Truyện mới*. Liên kết `?idea=` (từ *Viết thành truyện* ở máy tính hoặc thông báo) mở M11 điền sẵn, có chip “Từ ý tưởng” và nút bỏ liên kết. Trang đẩy, **không** thanh tab; nút ‹ về nơi mở.
+- **Thanh đầu:** “Truyện mới” + dòng phụ “Lưu vào {dự án}”. Dưới là công tắc hai nút **Bắt đầu nhanh · Đồng sáng tác** (cao 38).
+- **Bắt đầu nhanh:**
+  - Tiêu đề 22 px + câu dẫn (ẩn khi đang gõ hoặc khi đã so với truyện trước).
+  - Thẻ yêu cầu: ô chữ ≥ 5 dòng (16 px để iOS không phóng to), chip **Văn phong** và **Người viết** mở ngăn dưới (Theo dự án · Gói thể loại · Kiểu viết; model theo nhà cung cấp, tên model mono), số ký tự `n/5000`.
+  - **Nút chính dính đáy** (cao 50, trên safe-area; khi bàn phím mở thì nằm ngay trên bàn phím). Lý do khoá hiện ngay trên nút: “Nhập ý tưởng hoặc yêu cầu sáng tác để bắt đầu.” · “Mất kết nối — chờ kết nối lại để bắt đầu.” · “Còn 1 mục Bắt sửa. Đổi trục để bắt đầu.” Khi bấm: “Đang bắt đầu…” + “Đang tạo truyện và gửi yêu cầu cho AI…”. Lỗi: hộp đỏ trên thẻ, nút thành **Thử lại** (dùng lại truyện đã tạo, không tạo truyện thứ hai).
+  - **So với truyện trước** ngay dưới thẻ: 10 trục xếp **2 cột** (thay cho 5 cột), 4 phép kiểm, *Nhờ Kiến trúc sư đổi trục* (nút trắng) · *Tự sửa yêu cầu* · *Xem các truyện trước trong Não dự án ›* (→ M10). Đã đổi: ô trục tím + giá trị cũ gạch, *Hoàn tác*.
+  - Khi chưa so: *Thử một ý tưởng* (3 thẻ xếp dọc), *Điều sẽ diễn ra* (4 hàng có orb), **Cách khác để bắt đầu** (nhóm 3 hàng).
+- **Cách khác để bắt đầu:**
+  - *Đã có thiết lập / đại cương* → ngăn **Bắt đầu từ tệp** (ô Tên tệp, giống `StartFileDialog`) → *Tạo truyện & bắt đầu*.
+  - *Đã có bản thảo truyện* → tạo truyện rồi mở M5 `import` (xem trước cách chia chương). Trong lúc tạo: hàng có vòng quay, các hàng khác mờ.
+  - *Mô phỏng văn phong* → ngăn **Mô phỏng văn phong**: dán 1–20 đoạn (hoặc *Chọn tệp văn bản* .txt/.md), mỗi đoạn có số chữ và nút xoá → *Tạo truyện & học văn phong*. Không bấm được khi chưa có đoạn nào.
+- **Đồng sáng tác:**
+  - Khung chat toàn màn (bong bóng người dùng bên phải, orb Kiến trúc sư bên trái). Trống: lời mời “Kể ý tưởng của bạn”.
+  - Đáy: thẻ **Bản nháp yêu cầu** (trạng thái Chưa có · Đang làm rõ · Đang cập nhật · Sẵn sàng viết · Còn 1 mục Bắt sửa + dòng đầu bản nháp) với nút **Bắt đầu** nhỏ; hàng gợi ý 1/2/3 cuộn ngang; ô nhập + nút gửi 40 px.
+  - Chạm thẻ → ngăn **Bản nháp yêu cầu**: toàn văn, khối So với truyện trước (bản rút gọn), *Nhờ Kiến trúc sư đổi trục*, **Bắt đầu sáng tác**, *Huỷ đồng sáng tác* (đỏ). Bản nháp giữ theo dự án như máy tính (mở lại vẫn còn).
+- Không có phím tắt trên điện thoại; dòng gợi ý phím (Tab/Enter/`/`) chỉ ở máy tính.

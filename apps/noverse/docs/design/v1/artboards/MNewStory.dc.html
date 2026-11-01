@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Truyện mới — điện thoại</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0B0B0D}
+*{box-sizing:border-box}
+a{color:#EDEDEF;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+.card{background:linear-gradient(180deg,#171719 0%,#131315 100%);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.5)}
+.dlg{background:#18181A;border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.orb{border-radius:50%;flex:0 0 auto;box-shadow:inset -3px -5px 10px rgba(0,0,0,.28),inset 2px 3px 6px rgba(255,255,255,.4)}
+.o-architect{background:radial-gradient(circle at 32% 26%,#EEF4FF 0%,#B9D0F7 28%,#7C93F3 62%,#5A57E3 100%)}
+.o-writer{background:radial-gradient(circle at 32% 26%,#F3E8FF 0%,#C9A6F5 28%,#9A63E3 60%,#C9457F 100%)}
+.o-editor{background:radial-gradient(circle at 32% 26%,#FFF1DC 0%,#F6CB8C 30%,#EC9548 62%,#E25E36 100%)}
+.o-arbiter{background:radial-gradient(circle at 32% 26%,#E9FBEF 0%,#A6EDC1 28%,#5DC1B0 60%,#3E73D6 100%)}
+.ghost:hover{background:rgba(255,255,255,.07) !important}
+.primary:hover:not(:disabled){background:#FFFFFF !important}
+.row:hover{background:rgba(255,255,255,.04) !important}
+.navl:hover{color:#EDEDEF !important}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:#7E7E8A;text-transform:uppercase}
+.field{height:34px;padding:0 10px;border-radius:9px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:13px;outline:none;width:100%}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A0A0AB;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:#151517}
+.av{border-radius:50%;background:#222225;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:600;color:#EDEDEF;flex:0 0 auto}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#EDEDEF;animation:spin .9s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shim{background:linear-gradient(90deg,#A0A0AB 0%,#A0A0AB 35%,#F3E8FF 50%,#A0A0AB 65%,#A0A0AB 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.eq span{display:inline-block;width:2px;border-radius:1px;background:currentColor;animation:eq 1s ease-in-out infinite}
+.eq span:nth-child(2){animation-delay:-.3s}.eq span:nth-child(3){animation-delay:-.6s}.eq span:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:12px}}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2A2A2E transparent}
+.ic{display:inline-block;flex:0 0 auto;width:18px;height:18px;background-color:currentColor;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+.mroot{position:relative;width:390px;height:844px;overflow:hidden;background:#0B0B0D;color:#EDEDEF;font-family:'Be Vietnam Pro',ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.safe-top{flex:0 0 auto;height:40px}
+.appbar{flex:0 0 auto;height:52px;padding:0 12px 0 14px;display:flex;align-items:center;gap:10px}
+.mscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.tabbar{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;height:64px;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.tabbar.mini{transform:translateY(6px) scale(.92)}
+.tabbar.mini .tlab{opacity:0;max-height:0;margin-top:-2px}
+.tabbar.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+.tcap{position:relative;height:100%;display:flex;padding:5px;border-radius:32px;background:rgba(26,26,29,.74);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 44px -14px rgba(0,0,0,.85),0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.tcap::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%)}
+.tind{position:absolute;top:5px;bottom:5px;border-radius:27px;background:rgba(201,166,245,.15);border:1px solid rgba(201,166,245,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px -4px rgba(154,99,227,.45);animation:tind .55s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes tind{from{transform:scale(.7,.8);opacity:0}to{transform:none;opacity:1}}
+.tab{position:relative;z-index:1;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:27px;font-size:10.5px;font-weight:500;color:#8E8E99;text-decoration:none;transition:color .2s}
+.tab.on{color:#F3E8FF;font-weight:600}
+.tab .tic{transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.tab.on .tic{transform:translateY(-1px) scale(1.06)}
+.tlab{display:block;max-height:16px;line-height:16px;transition:opacity .2s,max-height .3s,margin .3s}
+.tab .dot{position:absolute;top:7px;left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:#F6CB8C;box-shadow:0 0 0 2px #1A1A1D}
+.tap{transition:transform .12s ease,background .15s,opacity .15s}
+.tap:active{transform:scale(.96)}
+.press:active{background:rgba(255,255,255,.06) !important}
+.mbtn{height:50px;border-radius:14px;border:none;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.mbtn.pri{background:#EDEDEF;color:#0B0B0D}
+.mbtn.gho{background:rgba(255,255,255,.07);color:#EDEDEF}
+.mbtn.dan{background:#E5484D;color:#fff}
+.mbtn:disabled{opacity:.4}
+.chipm{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:#151517;color:#D6D6DC;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+.chipm.on{background:rgba(201,166,245,.16);border-color:rgba(201,166,245,.45);color:#F3E8FF}
+.hscroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:none;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
+.grow+.grow{border-top:1px solid rgba(255,255,255,.06)}
+.ghead{font-size:12.5px;color:#7E7E8A;padding:18px 30px 8px;letter-spacing:.02em}
+.scrim{position:absolute;inset:0;z-index:45;background:rgba(4,4,6,.58);animation:mfade .25s ease-out both}
+.scrim.out{animation:mfadeOut .24s ease-in both}
+@keyframes mfade{from{opacity:0}to{opacity:1}}@keyframes mfadeOut{to{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;display:flex;flex-direction:column;background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px -10px rgba(0,0,0,.8);padding-bottom:26px;animation:sheetIn .44s cubic-bezier(.2,.9,.25,1.03) both}
+.sheet.out{animation:sheetOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:8px auto 6px;flex:0 0 auto}
+.push-in{animation:pushIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+.pop-back{animation:popBack .3s cubic-bezier(.2,.9,.25,1) both}
+@keyframes popBack{from{transform:translateX(-18%);opacity:0}to{transform:none;opacity:1}}
+.mtoast{position:absolute;left:16px;right:16px;z-index:60;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;border-radius:16px;background:#1E1E21;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px -12px rgba(0,0,0,.85);font-size:14px;animation:mtoast .42s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes mtoast{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.mfield{width:100%;height:46px;padding:0 14px;border-radius:13px;background:#0F0F11;border:1px solid rgba(255,255,255,.1);color:#EDEDEF;font-size:16px;outline:none}
+.mfield:focus{border-color:rgba(201,166,245,.55);box-shadow:0 0 0 3px rgba(201,166,245,.14)}
+.msw{position:relative;width:51px;height:31px;border-radius:999px;border:none;flex:0 0 auto;transition:background .2s}
+.msw i{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .24s cubic-bezier(.3,.9,.3,1.15)}
+.live{animation:mbreathe 2.6s ease-in-out infinite}
+@keyframes mbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.caretm{display:inline-block;width:2px;height:1em;vertical-align:-2px;background:#C9A6F5;margin-left:2px;animation:mblink 1s steps(1) infinite}
+@keyframes mblink{50%{opacity:0}}
+.rise{animation:mrise .4s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes mrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ringm{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#141416}
+.ringm i.arc{position:absolute;inset:0;border-radius:50%;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+
+.mscroll>*{flex-shrink:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.seg{display:flex;gap:2px;padding:3px;margin:0 16px 10px;border-radius:12px;background:#131315;border:1px solid rgba(255,255,255,.06);flex:0 0 auto}
+.seg button{flex:1 1 0;height:38px;border:none;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:14.5px;white-space:nowrap}
+.pcard{margin:0 16px;border-radius:20px;padding:14px 14px 10px;background:#18181A;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:10px}
+.pcard textarea{resize:none;width:100%;background:transparent;border:none;outline:none;color:#EDEDEF;font-size:16px;line-height:1.6;padding:2px 2px}
+.pcard textarea::placeholder{color:#6E6E78}
+.qchip{height:34px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#A0A0AB;font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-width:0;max-width:100%}
+.qchip[aria-expanded="true"]{border-color:rgba(201,166,245,.45);background:rgba(201,166,245,.06)}
+.qchip:disabled{opacity:.45}
+.badge{height:18px;padding:0 6px;border-radius:5px;background:rgba(166,237,193,.1);color:#A6EDC1;font-size:11px;display:inline-flex;align-items:center;flex:none}
+.exb{width:100%;min-height:64px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.07);background:#131315;color:#C9C9D1;font-size:14px;line-height:1.5;text-align:left}
+.actbar2{position:absolute;left:0;right:0;z-index:35;display:flex;flex-direction:column;gap:8px;padding:10px 16px 26px;background:#0B0B0D}
+.actbar2::before{content:"";position:absolute;left:0;right:0;top:-28px;height:28px;background:linear-gradient(rgba(11,11,13,0),#0B0B0D);pointer-events:none}
+.actbar2 .mbtn{width:100%}
+.mbtn.wait{background:#222225;color:#A0A0AB}
+.mbtn.locked{background:#1C1C1F;color:#6E6E78;border:1px solid rgba(255,255,255,.08)}
+.mbtn.off{background:#EDEDEF;color:#0B0B0D;opacity:.4}
+.why{font-size:12.5px;color:#8E8E99;text-align:center;line-height:1.45}
+.ckc{margin:12px 16px 0;border-radius:18px;padding:14px;background:#141416;display:flex;flex-direction:column;gap:12px}
+.axg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.axc{min-width:0;padding:7px 10px;border-radius:10px;display:flex;flex-direction:column;gap:1px}
+.axc span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvl{flex:none;min-width:62px;height:21px;padding:0 6px;margin-top:1px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-size:11.5px;font-weight:600}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:9px 14px;border:none;background:transparent;color:#EDEDEF;text-align:left;font:inherit}
+.opt+.opt{border-top:1px solid rgba(255,255,255,.06)}
+.oh{font-size:12px;color:#7E7E8A;padding:14px 14px 6px;letter-spacing:.02em}
+.bub{max-width:82%;padding:10px 14px;border-radius:18px 18px 5px 18px;background:#222225;font-size:15px;line-height:1.55;align-self:flex-end}
+.aim{display:flex;gap:10px;max-width:92%}
+.aim p{margin:0;font-size:15px;line-height:1.6;color:#D6D6DC}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:#A0A0AB;animation:dot 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.peek{margin:0 16px;padding:10px 10px 10px 14px;border-radius:16px;background:#18181A;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.pill{height:22px;padding:0 8px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap;flex:none}
+.sug{height:36px;padding:0 13px 0 6px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:#131315;color:#C9C9D1;font-size:14px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex:0 0 auto}
+.sug i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#2A2A2E;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px}
+.cmp{margin:0 16px;padding:5px 5px 5px 14px;border-radius:24px;background:#1C1C1F;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.cmp input{flex:1;min-width:0;height:40px;background:transparent;border:none;outline:none;color:#EDEDEF;font-size:16px}
+.kb{position:absolute;left:0;right:0;bottom:0;height:300px;z-index:40;background:#1F1F22;border-top:1px solid rgba(255,255,255,.06);padding:8px 4px 34px;display:flex;flex-direction:column;gap:10px;animation:kbIn .32s cubic-bezier(.2,.9,.25,1) both}
+@keyframes kbIn{from{transform:translateY(100%)}to{transform:none}}
+.key{flex:1 1 0;height:42px;border-radius:6px;background:#2E2E33;box-shadow:0 1px 0 rgba(0,0,0,.5)}
+.float1{animation:fl 6s ease-in-out infinite}.float2{animation:fl 6s ease-in-out 1.5s infinite}.float3{animation:fl 6s ease-in-out 3s infinite}.float4{animation:fl 6s ease-in-out 4.5s infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes sk{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.skc{height:40px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.07),rgba(255,255,255,.03));background-size:200% 100%;animation:sk 1.4s ease-in-out infinite}
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
+.i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
+.i-arrow-up{-webkit-mask-image:url(../icons/arrow-up.svg);mask-image:url(../icons/arrow-up.svg)}
+.i-brush{-webkit-mask-image:url(../icons/brush-2.svg);mask-image:url(../icons/brush-2.svg)}
+.i-close-b{-webkit-mask-image:url(../icons/close-circle-bulk.svg);mask-image:url(../icons/close-circle-bulk.svg)}
+.i-cpu{-webkit-mask-image:url(../icons/cpu.svg);mask-image:url(../icons/cpu.svg)}
+.i-doc{-webkit-mask-image:url(../icons/document-text.svg);mask-image:url(../icons/document-text.svg)}
+.i-flash{-webkit-mask-image:url(../icons/flash.svg);mask-image:url(../icons/flash.svg)}
+.i-folder{-webkit-mask-image:url(../icons/folder-open.svg);mask-image:url(../icons/folder-open.svg)}
+.i-lock{-webkit-mask-image:url(../icons/lock.svg);mask-image:url(../icons/lock.svg)}
+.i-magic-star{-webkit-mask-image:url(../icons/magic-star.svg);mask-image:url(../icons/magic-star.svg)}
+.i-msg{-webkit-mask-image:url(../icons/messages-2.svg);mask-image:url(../icons/messages-2.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick-circle.svg);mask-image:url(../icons/tick-circle.svg)}
+.i-tick-b{-webkit-mask-image:url(../icons/tick-circle-bulk.svg);mask-image:url(../icons/tick-circle-bulk.svg)}
+.i-trash{-webkit-mask-image:url(../icons/trash.svg);mask-image:url(../icons/trash.svg)}
+.i-warning{-webkit-mask-image:url(../icons/warning-2.svg);mask-image:url(../icons/warning-2.svg)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+/* motion:controls v1 — xem 17-kit.md › Chuyển động của điều khiển */
+[role=switch],[role=radio],[role=checkbox],.sw,.msw,.cb,.rd,.rdot,.rcard{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .14s ease}
+[role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
+span.mo-thumb{display:block;transform:translateX(var(--tx,0px)) scaleX(var(--sx,1))}
+span.mo-seg{position:absolute;top:3px;left:3px;height:30px;border-radius:7px;background:#2A2A2E;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:0;width:18px;height:18px;flex:0 0 auto;border-radius:5px;border:1.5px solid rgba(255,255,255,.28);background:transparent;display:inline-grid;place-content:center;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:#0B0B0D;clip-path:polygon(14% 52%,0 66%,38% 100%,100% 22%,86% 8%,38% 72%);transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:checked{background:#C9A6F5;border-color:#C9A6F5}
+input[type=checkbox]:checked::before{transform:scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid #C9A6F5;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+.mo-seg{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+.sw i,.msw i,.mo-thumb{transition:left .3s cubic-bezier(.34,1.45,.5,1),transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease,width .14s ease}
+.sw:active:not(:disabled) i,.msw:active:not(:disabled) i,[role=switch]:active:not(:disabled) .sw i{transform:scaleX(1.22);transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) i,[role=switch][aria-checked=true]:active .sw i{transform-origin:right center}
+[role=switch]:active:not(:disabled) .mo-thumb{--sx:1.22;transform-origin:left center}
+[role=switch][aria-checked=true]:active:not(:disabled) .mo-thumb{transform-origin:right center}
+[role=radio]:active:not(:disabled),[role=checkbox]:active:not(:disabled){transform:scale(.97)}
+.rcard:active,.opt[role=radio]:active{transform:scale(.985)}
+[role=radio][aria-checked=true] span[aria-hidden=true]:empty,[role=radio][aria-checked=true] [aria-hidden=true]>span:empty,.rd.on::after,.rcard.on .rdot::after{animation:mo-dot .32s cubic-bezier(.34,1.56,.64,1)}
+[role=radio][aria-checked=true] .ic.i-tick,[role=radio][aria-checked=true] .ic.i-tick-b{animation:mo-tick .26s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] .cb,[role=checkbox][aria-checked=true]>span[aria-hidden=true]:first-child{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+[role=checkbox][aria-checked=true] svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
+[role=checkbox][aria-checked=true] .ic{animation:mo-tick .26s .04s cubic-bezier(.34,1.56,.64,1) both}
+input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
+}
+@keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mo-draw{to{stroke-dashoffset:0}}
+@keyframes mo-tick{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div class="mroot">
+<div class="safe-top"></div>
+<header class="appbar" style="padding-left: 4px; gap: 4px">
+<a class="tap" href="MWork.dc.html" aria-label="Quay lại Viết" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #EDEDEF; flex: 0 0 auto"><span class="ic i-arrow-l" aria-hidden="true" style="width: 22px; height: 22px"></span></a>
+<span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 17px; font-weight: 600">Truyện mới</span><span style="font-size: 12.5px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Lưu vào {{projectName}}</span></span>
+</header>
+
+<sc-if value="{{offline}}" hint-placeholder-val="{{ false }}"><div role="status" style="flex: 0 0 auto; margin: 0 12px 8px; padding: 9px 12px; border-radius: 14px; background: rgba(246,203,140,0.1); border: 1px solid rgba(246,203,140,0.28); display: flex; align-items: center; gap: 10px"><span class="spinner" aria-hidden="true" style="border-color: rgba(246,203,140,0.25); border-top-color: #F6CB8C"></span><span style="flex: 1 1 auto; min-width: 0; font-size: 14px; color: #F6CB8C">Mất kết nối · bản đang gõ vẫn được giữ</span></div></sc-if>
+
+<div class="seg" role="radiogroup" aria-label="Chế độ khởi động"><sc-for list="{{modes}}" as="m" hint-placeholder-count="2"><button class="tap" type="button" role="radio" aria-checked="{{m.onA}}" onClick="{{m.pick}}" style="background: {{m.bg}}; color: {{m.fg}}; font-weight: {{m.w}}"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{m.label}}</button></sc-for></div>
+
+<!-- ===================== BẮT ĐẦU NHANH ===================== -->
+<sc-if value="{{quick}}" hint-placeholder-val="{{ true }}">
+<div class="mscroll" style="padding-bottom: {{padB}}; display: flex; flex-direction: column">
+<sc-if value="{{showHead}}" hint-placeholder-val="{{ true }}"><div style="padding: 10px 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<sc-if value="{{noCheck}}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="display: flex; align-items: center"><span class="orb o-architect float1" style="width: 26px; height: 26px"></span><span class="orb o-writer float2" style="width: 32px; height: 32px; margin-left: -6px"></span><span class="orb o-editor float3" style="width: 26px; height: 26px; margin-left: -6px"></span><span class="orb o-arbiter float4" style="width: 22px; height: 22px; margin-left: -5px"></span></div></sc-if>
+<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.3">Bạn muốn viết câu chuyện nào?</h1>
+<sc-if value="{{noCheck}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 13.5px; color: #A0A0AB; line-height: 1.5">Kiến trúc sư lên kế hoạch · Người viết viết chương · Biên tập viên thẩm duyệt — bạn can thiệp bất cứ lúc nào.</p></sc-if>
+</div></sc-if>
+
+<sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><div role="alert" style="margin: 0 16px 10px; padding: 11px 14px; border-radius: 14px; background: rgba(255,154,162,0.08); border: 1px solid rgba(255,154,162,0.3); display: flex; gap: 10px; align-items: flex-start"><span class="ic i-warning" aria-hidden="true" style="width: 17px; height: 17px; color: #FF9AA2; margin-top: 2px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><b style="font-size: 14px; font-weight: 500; color: #FFB3BA; line-height: 1.45">Khởi tạo thất bại, vui lòng kiểm tra cấu hình hoặc đổi mô hình</b><span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.45">Nhà cung cấp báo hết hạn mức. Truyện đã tạo được giữ lại, bấm Thử lại sẽ dùng tiếp, không tạo truyện thứ hai.</span></span></div></sc-if>
+
+<form class="pcard" aria-label="Yêu cầu sáng tác" style="border-color: {{cardBd}}; box-shadow: {{cardGlow}}">
+<sc-if value="{{hasIdea}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A0A0AB; min-width: 0"><span class="ic i-magic-star" aria-hidden="true" style="width: 15px; height: 15px; color: #C9A6F5"></span><span style="flex: none">Từ ý tưởng:</span><b style="flex: 1 1 auto; min-width: 0; font-weight: 500; color: #EDEDEF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Cô giáo làng và suất học bổng</b><button class="tap" type="button" onClick="{{clearIdea}}" aria-label="Bỏ liên kết ý tưởng" style="width: 32px; height: 32px; margin: -6px -6px -6px 0; border: none; border-radius: 50%; background: transparent; color: #7E7E8A; display: flex; align-items: center; justify-content: center"><span class="ic i-close-b" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div></sc-if>
+<label for="mprompt" class="sr-only">Yêu cầu sáng tác truyện</label>
+<textarea id="mprompt" rows="5" maxlength="5000" value="{{prompt}}" onInput="{{onPrompt}}" onFocus="{{onFocus}}" placeholder="Nhập yêu cầu sáng tác truyện" style="height: {{taH}}"></textarea>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<button class="qchip tap" type="button" aria-haspopup="dialog" aria-expanded="{{stOpenA}}" onClick="{{openStyle}}" disabled="{{busy}}"><span class="ic i-brush" aria-hidden="true" style="width: 15px; height: 15px"></span>Văn phong <span style="color: #EDEDEF; overflow: hidden; text-overflow: ellipsis">{{stName}}</span><sc-if value="{{stPack}}" hint-placeholder-val="{{ true }}"><span class="badge">có chấm</span></sc-if><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #7E7E8A"></span></button>
+<button class="qchip tap" type="button" aria-haspopup="dialog" aria-expanded="{{wrOpenA}}" onClick="{{openWriter}}" disabled="{{busy}}" aria-label="Người viết: {{wrName}}"><span class="ic i-cpu" aria-hidden="true" style="width: 15px; height: 15px"></span><span class="mono" style="color: #EDEDEF; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis">{{wrName}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; color: #7E7E8A"></span></button>
+<span style="flex: 1"></span>
+<span class="num" style="font-size: 12px; color: #7E7E8A">{{count}}/5000</span>
+</div>
+</form>
+
+<!-- So với truyện trước -->
+<sc-if value="{{showCheck}}" hint-placeholder-val="{{ false }}">
+<section class="ckc rise" aria-label="So với các truyện trước trong dự án" style="border: 1px solid {{ckBd}}">
+<div style="display: flex; align-items: flex-start; gap: 10px">
+<span class="orb o-architect" aria-hidden="true" style="width: 24px; height: 24px; margin-top: 1px"></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 600; line-height: 1.4">{{ckTitle}}</span><span style="font-size: 12.5px; color: #8E8E99; line-height: 1.45">Kiến trúc sư đọc yêu cầu thành 10 trục và so với 10 truyện gần nhất</span><span class="pill" style="align-self: flex-start; margin-top: 2px; background: {{ckPillBg}}; color: {{ckPillFg}}"><span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor"></span>{{ckPill}}</span></div>
+</div>
+<sc-if value="{{isChecking}}" hint-placeholder-val="{{ false }}"><div class="axg"><sc-for list="{{skel}}" as="k" hint-placeholder-count="10"><div class="skc"></div></sc-for></div></sc-if>
+<sc-if value="{{hasResult}}" hint-placeholder-val="{{ true }}">
+<div class="axg"><sc-for list="{{axes}}" as="a" hint-placeholder-count="10"><div class="axc" title="{{a.full}}" style="background: {{a.bg}}; box-shadow: {{a.sh}}"><span style="font-size: 11.5px; color: #8E8E99">{{a.k}}</span><span style="font-size: 13.5px; font-weight: 500; color: {{a.fg}}">{{a.v}}</span><sc-if value="{{a.changed}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #7E7E8A; text-decoration: line-through">{{a.old}}</span></sc-if></div></sc-for></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><sc-for list="{{checks}}" as="c" hint-placeholder-count="4"><div style="display: flex; align-items: flex-start; gap: 10px"><span class="lvl" style="background: {{c.bg}}; color: {{c.fg}}">{{c.lv}}</span><span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.5; color: #D6D6DC">{{c.t}}</span></div></sc-for></div>
+<sc-if value="{{blocked}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px">
+<button class="mbtn pri tap" type="button" onClick="{{fix}}" style="height: 46px; font-size: 15px"><span class="orb o-architect" aria-hidden="true" style="width: 18px; height: 18px"></span>Nhờ Kiến trúc sư đổi trục</button>
+<button class="mbtn gho tap" type="button" onClick="{{editPrompt}}" style="height: 44px; font-size: 15px">Tự sửa yêu cầu</button>
+<a class="tap" href="MProjBrain.dc.html" style="align-self: center; min-height: 40px; display: flex; align-items: center; gap: 4px; font-size: 13.5px; color: #A0A0AB">Xem các truyện trước trong Não dự án<span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></a>
+</div></sc-if>
+<sc-if value="{{isFixed}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px; color: #A6EDC1; margin-top: 2px"></span><span style="flex: 1">Kiến trúc sư đổi 3 trục và viết lại yêu cầu ở trên. Bấm Bắt đầu viết để dùng bản này, hoặc sửa tiếp.</span><button class="tap" type="button" onClick="{{undo}}" style="flex: none; height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13.5px">Hoàn tác</button></div></sc-if>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{showExtras}}" hint-placeholder-val="{{ true }}">
+<div class="ghead">Thử một ý tưởng</div>
+<div style="margin: 0 16px; display: flex; flex-direction: column; gap: 8px"><sc-for list="{{examples}}" as="x" hint-placeholder-count="3"><button class="exb tap" type="button" onClick="{{x.use}}" disabled="{{busy}}">{{x.text}}</button></sc-for></div>
+<div class="ghead">Điều sẽ diễn ra</div>
+<div class="group"><sc-for list="{{flow}}" as="f" hint-placeholder-count="4"><div class="grow" style="min-height: 46px; font-size: 14px; color: #C9C9D1"><span class="orb {{f.orb}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{f.text}}</div></sc-for></div>
+<div class="ghead">Cách khác để bắt đầu</div>
+<div class="group"><sc-for list="{{alts}}" as="a" hint-placeholder-count="3"><button class="grow press" type="button" onClick="{{a.go}}" disabled="{{a.off}}" aria-busy="{{a.busyA}}" style="opacity: {{a.op}}"><sc-if value="{{a.pending}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 20px; height: 20px"></span></sc-if><sc-if value="{{a.idle}}" hint-placeholder-val="{{ true }}"><span class="ic {{a.icon}}" aria-hidden="true" style="width: 20px; height: 20px; color: #A0A0AB"></span></sc-if><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span>{{a.t}}</span><span style="font-size: 13px; color: #8E8E99">{{a.sub}}</span></span><span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; color: #5E5E68"></span></button></sc-for></div>
+</sc-if>
+</div>
+
+<div class="actbar2" style="bottom: {{barBottom}}; padding-bottom: {{barPadB}}">
+<sc-if value="{{hasWhy}}" hint-placeholder-val="{{ false }}"><span class="why" id="mns-why">{{why}}</span></sc-if>
+<sc-if value="{{canStart}}" hint-placeholder-val="{{ true }}"><a class="mbtn pri tap" href="MWork.dc.html"><span class="ic i-arrow-up" aria-hidden="true" style="width: 18px; height: 18px"></span>{{startLabel}}</a></sc-if>
+<sc-if value="{{isStarting}}" hint-placeholder-val="{{ false }}"><button class="mbtn wait" type="button" disabled="{{ true }}" aria-busy="true" style="opacity: 1"><span class="spinner" aria-hidden="true"></span>Đang bắt đầu…</button></sc-if>
+<sc-if value="{{isChecking}}" hint-placeholder-val="{{ false }}"><button class="mbtn wait" type="button" disabled="{{ true }}" style="opacity: 1">Đang so với truyện trước<span class="dots" aria-hidden="true" style="display: inline-flex; gap: 3px"><span></span><span></span><span></span></span></button></sc-if>
+<sc-if value="{{isLocked}}" hint-placeholder-val="{{ false }}"><button class="mbtn locked" type="button" aria-disabled="true" aria-describedby="mns-why"><span class="ic i-lock" aria-hidden="true" style="width: 16px; height: 16px"></span>Bắt đầu viết</button></sc-if>
+<sc-if value="{{isOff}}" hint-placeholder-val="{{ false }}"><button class="mbtn off" type="button" aria-disabled="true" aria-describedby="mns-why"><span class="ic i-arrow-up" aria-hidden="true" style="width: 18px; height: 18px"></span>Bắt đầu viết</button></sc-if>
+</div>
+
+<sc-if value="{{typing}}" hint-placeholder-val="{{ false }}"><div class="kb" role="img" aria-label="Bàn phím của hệ thống">
+<sc-for list="{{kbRows}}" as="r" hint-placeholder-count="4"><div style="display: flex; gap: 6px; padding: 0 {{r.pad}}"><sc-for list="{{r.keys}}" as="k" hint-placeholder-count="10"><span class="key" style="flex: {{k}}"></span></sc-for></div></sc-for>
+<span style="position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 11px; color: #5E5E68">bàn phím hệ thống</span>
+</div></sc-if>
+</sc-if>
+
+<!-- ===================== ĐỒNG SÁNG TÁC ===================== -->
+<sc-if value="{{cocreate}}" hint-placeholder-val="{{ false }}">
+<div class="mscroll" style="display: flex; flex-direction: column-reverse; padding: 0 16px 12px">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{coEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 40px 14px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center"><span class="orb o-architect float1" aria-hidden="true" style="width: 36px; height: 36px"></span><b style="font-size: 17px; font-weight: 600">Kể ý tưởng của bạn</b><span style="font-size: 14px; color: #A0A0AB; line-height: 1.55">Một câu cũng được. Trò chuyện làm rõ yêu cầu cùng AI trước khi viết; sau mỗi lượt, AI cập nhật bản nháp yêu cầu ở dưới.</span></div></sc-if>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="4">
+<sc-if value="{{m.me}}" hint-placeholder-val="{{ true }}"><div class="bub">{{m.t}}</div></sc-if>
+<sc-if value="{{m.ai}}" hint-placeholder-val="{{ false }}"><div class="aim"><span class="orb o-architect" aria-hidden="true" style="width: 22px; height: 22px; margin-top: 2px"></span><p>{{m.t}}</p></div></sc-if>
+<sc-if value="{{m.wait}}" hint-placeholder-val="{{ false }}"><div class="aim" style="align-items: center"><span class="orb o-architect" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="font-size: 14px; color: #A0A0AB; display: flex; align-items: center; gap: 8px">{{m.t}}<sc-if value="{{m.dots}}" hint-placeholder-val="{{ true }}"><span class="dots" aria-hidden="true" style="display: inline-flex; gap: 3px"><span></span><span></span><span></span></span></sc-if></span></div></sc-if>
+</sc-for>
+</div>
+</div>
+<div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; padding: 8px 0 {{coPadB}}; border-top: 1px solid rgba(255,255,255,0.06); background: #0B0B0D">
+<div class="peek"><button class="tap" type="button" onClick="{{openDraft}}" aria-haspopup="dialog" style="flex: 1 1 auto; min-width: 0; border: none; background: transparent; padding: 0; color: #EDEDEF; text-align: left; display: flex; flex-direction: column; gap: 3px"><span style="display: flex; align-items: center; gap: 8px; min-width: 0"><span class="ic i-doc" aria-hidden="true" style="width: 16px; height: 16px; color: #A0A0AB"></span><span style="font-size: 14px; font-weight: 600; white-space: nowrap">Bản nháp yêu cầu</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px; color: #5E5E68"></span></span><span style="display: flex; align-items: center; gap: 8px; min-width: 0"><span class="pill" style="background: {{pkBg}}; color: {{pkFg}}">{{pkLabel}}</span><span style="flex: 1 1 auto; min-width: 0; font-size: 13px; color: #8E8E99; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{pkLine}}</span></span></button>
+<sc-if value="{{coCan}}" hint-placeholder-val="{{ true }}"><a class="tap" href="MWork.dc.html" style="flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: #EDEDEF; color: #0B0B0D; font-size: 14.5px; font-weight: 600; display: flex; align-items: center">Bắt đầu</a></sc-if>
+<sc-if value="{{coLocked}}" hint-placeholder-val="{{ false }}"><button type="button" aria-disabled="true" onClick="{{openDraft}}" aria-label="Bắt đầu sáng tác — còn mục Bắt sửa" style="flex: none; height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #1C1C1F; color: #6E6E78; font-size: 14.5px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span class="ic i-lock" aria-hidden="true" style="width: 15px; height: 15px"></span>Bắt đầu</button></sc-if>
+<sc-if value="{{coOff}}" hint-placeholder-val="{{ false }}"><button type="button" aria-disabled="true" aria-label="Bắt đầu sáng tác — {{coWhy}}" style="flex: none; height: 40px; padding: 0 14px; border-radius: 12px; border: none; background: #EDEDEF; color: #0B0B0D; opacity: .4; font-size: 14.5px; font-weight: 600">Bắt đầu</button></sc-if>
+</div>
+<sc-if value="{{hasSugs}}" hint-placeholder-val="{{ true }}"><div class="hscroll" role="list" aria-label="Gợi ý từ AI"><sc-for list="{{sugs}}" as="g" hint-placeholder-count="3"><button class="sug tap" type="button" role="listitem" onClick="{{g.use}}" style="border-color: {{g.bd}}; background: {{g.bg}}"><i class="num" aria-hidden="true">{{g.n}}</i>{{g.t}}</button></sc-for></div></sc-if>
+<form class="cmp" style="border-color: {{cmpBd}}"><span class="ic i-msg" aria-hidden="true" style="width: 18px; height: 18px; color: #7E7E8A"></span><label for="mco" class="sr-only">Trao đổi với AI</label><input id="mco" type="text" value="{{coText}}" onInput="{{onCo}}" placeholder="{{coPh}}"><button class="tap" type="button" aria-label="Gửi cho AI" onClick="{{sendCo}}" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: {{sendBg}}; color: #0B0B0D; display: flex; align-items: center; justify-content: center; flex: none"><span class="ic i-arrow-up" aria-hidden="true" style="width: 18px; height: 18px"></span></button></form>
+</div>
+</sc-if>
+
+<!-- ===================== NGĂN DƯỚI ===================== -->
+<sc-if value="{{sheetOn}}" hint-placeholder-val="{{ false }}"><div class="scrim" aria-hidden="true" onClick="{{closeSheet}}"></div>
+<section class="sheet" role="dialog" aria-label="{{sheetTitle}}" style="max-height: 760px">
+<div class="grab" aria-hidden="true"></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 16px 6px"><b style="flex: 1; font-size: 17px; font-weight: 600">{{sheetTitle}}</b><button class="tap" type="button" onClick="{{closeSheet}}" style="height: 40px; padding: 0 6px; border: none; background: transparent; color: #A0A0AB; font-size: 15px">{{closeLabel}}</button></div>
+
+<sc-if value="{{shPick}}" hint-placeholder-val="{{ false }}"><div class="mscroll" style="padding: 0 16px"><div class="group" style="margin: 0" role="listbox" aria-label="{{sheetTitle}}"><sc-for list="{{pickOpts}}" as="o" hint-placeholder-count="8"><sc-if value="{{o.hdr}}" hint-placeholder-val="{{ false }}"><div class="oh">{{o.t}}</div></sc-if><sc-if value="{{o.item}}" hint-placeholder-val="{{ true }}"><button class="opt press" type="button" role="option" aria-selected="{{o.selA}}" onClick="{{o.pick}}"><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span class="{{o.mono}}" style="font-size: {{o.fs}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{o.t}}</span><sc-if value="{{o.badge}}" hint-placeholder-val="{{ false }}"><span class="badge">có chấm</span></sc-if></span><span style="font-size: 12.5px; color: #8E8E99">{{o.d}}</span></span><span style="width: 20px; display: flex; flex: none"><sc-if value="{{o.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 20px; height: 20px; color: #C9A6F5"></span></sc-if></span></button></sc-if></sc-for></div>
+<sc-if value="{{pickLink}}" hint-placeholder-val="{{ true }}"><a class="tap" href="MMore.dc.html" style="display: flex; align-items: center; min-height: 48px; padding: 0 14px; font-size: 14.5px; color: #C9A6F5">Đổi mặc định của dự án ›</a></sc-if>
+<sc-if value="{{pickNote}}" hint-placeholder-val="{{ false }}"><p style="margin: 12px 14px 0; font-size: 13px; color: #8E8E99; line-height: 1.5">Thêm model ở Kết nối AI trong Tuỳ chỉnh trên máy tính.</p></sc-if>
+</div></sc-if>
+
+<sc-if value="{{shFile}}" hint-placeholder-val="{{ false }}"><div style="padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+<p style="margin: 0; font-size: 14px; color: #A0A0AB; line-height: 1.55">Chọn tệp thiết lập hoặc đại cương đã có trong dự án để AI viết tiếp từ đó.</p>
+<label for="mfile" style="font-size: 13px; color: #8E8E99">Tên tệp</label>
+<input id="mfile" class="mfield" type="text" value="{{fileName}}" onInput="{{onFile}}" placeholder="thiet-lap.md" autocapitalize="off" autocorrect="off" spellcheck="false" style="margin-top: -6px">
+<sc-if value="{{fileBad}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #FF9AA2; margin-top: -4px">Tên tệp không chứa ký tự điều khiển</span></sc-if>
+<span style="font-size: 12.5px; color: #7E7E8A; line-height: 1.5">Tên truyện tạm lấy theo tên tệp; Kiến trúc sư đặt lại tên sau khi đọc.</span>
+<a class="mbtn pri tap" href="MWork.dc.html" style="opacity: {{fileOp}}; pointer-events: {{filePe}}" aria-disabled="{{fileOffA}}">Tạo truyện &amp; bắt đầu</a>
+</div></sc-if>
+
+<sc-if value="{{shSamples}}" hint-placeholder-val="{{ false }}"><div class="mscroll" style="padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+<p style="margin: 0; font-size: 14px; color: #A0A0AB; line-height: 1.55">Dán vài đoạn văn bạn thích. Người viết học nhịp câu, cách thoại và chọn từ — không chép nội dung.</p>
+<sc-for list="{{samples}}" as="x" hint-placeholder-count="2"><div style="display: flex; flex-direction: column; gap: 6px"><span style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 13px; color: #8E8E99">{{x.label}}</span><button class="tap" type="button" onClick="{{x.del}}" aria-label="Xoá {{x.label}}" style="width: 36px; height: 36px; margin: -8px -8px -8px 0; border: none; border-radius: 50%; background: transparent; color: #7E7E8A; display: flex; align-items: center; justify-content: center"><span class="ic i-trash" aria-hidden="true" style="width: 17px; height: 17px"></span></button></span><textarea class="mfield" rows="4" aria-label="{{x.label}}" value="{{x.t}}" onInput="{{x.on}}" placeholder="Dán một đoạn văn bạn thích…" style="height: 112px; padding: 12px 14px; resize: none; line-height: 1.55; font-size: 15px"></textarea></div></sc-for>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="chipm tap" type="button" onClick="{{addSample}}" disabled="{{sampFull}}"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Thêm đoạn</button><button class="chipm tap" type="button" onClick="{{pickSampleFile}}" disabled="{{sampFull}}"><span class="ic i-doc" aria-hidden="true" style="width: 15px; height: 15px"></span>Chọn tệp văn bản</button><span style="flex: 1"></span><span class="num" style="align-self: center; font-size: 12.5px; color: #7E7E8A">{{sampCount}}/20</span></div>
+<span style="font-size: 12.5px; color: #7E7E8A; line-height: 1.5">Văn mẫu lưu vào truyện mới; thêm hoặc xoá sau ở Cách viết của truyện.</span>
+<button class="mbtn pri tap" type="button" onClick="{{submitSamples}}" disabled="{{sampOff}}">Tạo truyện &amp; học văn phong</button>
+</div></sc-if>
+
+<sc-if value="{{shDraft}}" hint-placeholder-val="{{ false }}"><div class="mscroll" style="padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="pill" style="background: {{pkBg}}; color: {{pkFg}}">{{pkLabel}}</span><span style="font-size: 13px; color: #8E8E99">AI cập nhật sau mỗi lượt trao đổi</span></div>
+<div style="padding: 12px 14px; border-radius: 14px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 15px; line-height: 1.7; color: #D6D6DC; white-space: pre-line">{{draftText}}</div>
+<span style="font-size: 12.5px; color: #7E7E8A; line-height: 1.5; margin-top: -4px">Khi bắt đầu, toàn bộ nội dung trên trở thành yêu cầu sáng tác.</span>
+<sc-if value="{{showCheck}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid {{ckBd}}; background: #141416"><div style="display: flex; align-items: center; gap: 8px"><span class="orb o-architect" aria-hidden="true" style="width: 18px; height: 18px"></span><span style="flex: 1; font-size: 14px; font-weight: 600">So với truyện trước</span><span class="pill" style="background: {{ckPillBg}}; color: {{ckPillFg}}">{{ckPill}}</span></div><sc-if value="{{isChecking}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #8E8E99">Kiến trúc sư đang so 10 trục với 10 truyện gần nhất…</span></sc-if><sc-for list="{{checksS}}" as="c" hint-placeholder-count="4"><div style="display: flex; align-items: flex-start; gap: 8px"><span class="lvl" style="background: {{c.bg}}; color: {{c.fg}}">{{c.lv}}</span><span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.5; color: #C9C9D1">{{c.t}}</span></div></sc-for><sc-if value="{{isFixed}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A0A0AB"><span style="flex: 1">Đã đổi 3 trục, bản nháp ở trên đã cập nhật.</span><button class="tap" type="button" onClick="{{undo}}" style="height: 32px; padding: 0 10px; border: none; background: transparent; color: #C9A6F5; font-size: 13.5px">Hoàn tác</button></div></sc-if><a class="tap" href="MProjBrain.dc.html" style="font-size: 13px; color: #A0A0AB; min-height: 32px; display: flex; align-items: center">Xem trong Não dự án ›</a></div></sc-if>
+<sc-if value="{{blocked}}" hint-placeholder-val="{{ false }}"><button class="mbtn gho tap" type="button" onClick="{{fix}}" style="height: 46px; font-size: 15px"><span class="orb o-architect" aria-hidden="true" style="width: 18px; height: 18px"></span>Nhờ Kiến trúc sư đổi trục</button></sc-if>
+<sc-if value="{{coCan}}" hint-placeholder-val="{{ true }}"><a class="mbtn pri tap" href="MWork.dc.html">Bắt đầu sáng tác</a></sc-if>
+<sc-if value="{{coLocked}}" hint-placeholder-val="{{ false }}"><button class="mbtn locked" type="button" aria-disabled="true"><span class="ic i-lock" aria-hidden="true" style="width: 16px; height: 16px"></span>Bắt đầu sáng tác</button><span class="why" style="margin-top: -4px">Còn 1 mục Bắt sửa. Đổi trục rồi bắt đầu sáng tác.</span></sc-if>
+<sc-if value="{{coOff}}" hint-placeholder-val="{{ false }}"><button class="mbtn off" type="button" aria-disabled="true">Bắt đầu sáng tác</button><span class="why" style="margin-top: -4px">{{coWhy}}</span></sc-if>
+<button class="tap" type="button" onClick="{{cancelCo}}" style="align-self: center; min-height: 44px; padding: 0 12px; border: none; background: transparent; color: #FF8E97; font-size: 14.5px">Huỷ đồng sáng tác</button>
+</div></sc-if>
+</section></sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="bottom: 120px"><span class="ic i-tick" aria-hidden="true" style="width: 18px; height: 18px; color: #A6EDC1"></span><span style="flex: 1 1 auto; min-width: 0">{{toastText}}</span></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["quick","cocreate"],"default":"quick","section":"Chế độ"},"state":{"editor":"enum","options":["empty","filled","typing","idea","starting","error","offline"],"default":"empty","section":"Bắt đầu nhanh"},"check":{"editor":"enum","options":["none","checking","conflict","fixed"],"default":"none","section":"So với truyện trước"},"co":{"editor":"enum","options":["empty","talking","thinking","ready"],"default":"talking","section":"Đồng sáng tác"},"sheet":{"editor":"enum","options":["none","style","writer","startFile","samples","draft"],"default":"none","section":"Ngăn dưới"},"alt":{"editor":"enum","options":["none","import","simulate"],"default":"none","section":"Cách khác đang chạy"},"$preview":{"width":390,"height":844}}'>
+// icons used: i-trash i-add i-arrow-l i-arrow-r i-arrow-d i-arrow-up i-flash i-msg i-brush i-cpu i-doc i-folder i-tick i-tick-b i-lock i-warning i-magic-star i-close-b
+const AX = ['Bộ & biến thể', 'Bối cảnh', 'Nghề', 'Phản diện', 'Điểm thương', 'Vũ khí', 'Sân khấu', 'Tông', 'Mở đầu', 'Kết'];
+const L10 = [['Trà Xanh Cướp Kịch Bản Của Tôi…', ['A showbiz', 'Đoàn phim', 'Biên kịch', 'Bạn diễn', 'Mẹ già', 'Bản ghi âm gốc', 'Livestream', 'Mỏ hỗn sắc', 'Câu thoại bất công', 'Sự nghiệp riêng']], ['Mẹ Kế Cướp Tiệm May, Tôi Trọng Sinh Lấy Lại Từng Đường Kim', ['A trọng sinh', 'Khu chợ', 'Thợ may', 'Mẹ kế', 'Món đồ của mẹ', 'Sổ sách viết tay', 'Chợ phiên', 'Điềm tĩnh lạnh', 'Khoảnh khắc chết', 'Rời đi']], ['', ['B', 'Phố cổ', 'Đầu bếp', 'Chồng', 'Con nhỏ', 'Ghi âm', 'Đám giỗ', 'Ấm, khóc được', 'Một quyết định', 'Tình cảm mới']], ['', ['C-Nữ', 'Thập niên 80', 'Bán xôi', 'Họ hàng', 'Bà nội', 'Sổ sách viết tay', 'Chợ phiên', 'Ấm, khóc được', 'Một quyết định', 'Đoàn tụ']], ['', ['A thiên kim', 'Hào môn', 'Y tá', 'Em nuôi', 'Mẹ già', 'Bản xét nghiệm', 'Đám giỗ', 'Mỏ hỗn sắc', 'Khoảnh khắc tỉnh lại', 'Đoàn tụ']], ['', ['B', 'Làng chài', 'Kế toán', 'Bạn thân', 'Con nhỏ', 'Sổ đỏ', 'Lễ đính hôn', 'Điềm tĩnh lạnh', 'Khoảnh khắc tỉnh lại', 'Rời đi']], ['', ['A trọng sinh', 'Công ty', 'Thợ may', 'Em nuôi', 'Con vật nuôi', 'Bản nháp có dấu thời gian', 'Livestream', 'Hài', 'Khoảnh khắc tỉnh lại', 'Sự nghiệp riêng']], ['', ['C-Nữ', 'Thập niên 80', 'Thợ mộc', 'Họ hàng', 'Bà nội', 'Di chúc', 'Đám giỗ', 'Ấm, khóc được', 'Câu thoại bất công', 'Đoàn tụ']], ['', ['A trọng sinh', 'Công ty', 'Kế toán', 'Đồng nghiệp', 'Mẹ già', 'Email gốc', 'Đại hội cổ đông', 'Điềm tĩnh lạnh', 'Khoảnh khắc chết', 'Sự nghiệp riêng']], ['', ['B', 'Nhà hàng', 'Đầu bếp', 'Mẹ chồng', 'Con nhỏ', 'Ghi âm', 'Phiên toà', 'Ấm, khóc được', 'Một quyết định', 'Sự nghiệp riêng']]];
+const N0 = ['A trọng sinh', 'Khu chợ', 'Thợ may', 'Mẹ kế', 'Mẹ già', 'Sổ sách viết tay', 'Lễ đính hôn', 'Mỏ hỗn sắc', 'Khoảnh khắc tỉnh lại', 'Sự nghiệp riêng'];
+const N1 = ['A trọng sinh', 'Khu chợ', 'Thợ may', 'Chị dâu', 'Mẹ già', 'Váy cưới có đường may lót', 'Lễ đính hôn', 'Mỏ hỗn sắc', 'Một quyết định', 'Sự nghiệp riêng'];
+const P0 = 'Truyện trọng sinh nữ tần báo thù, 8 chương. Cô thợ may ở khu chợ bị mẹ kế chiếm tiệm và gả thay em gái, chết đêm trước lễ đính hôn. Trọng sinh về ba tháng trước, cô giữ cuốn sổ ghi nợ viết tay của mẹ làm bằng chứng và vạch mặt mẹ kế ngay trong lễ đính hôn. Kết: mở tiệm riêng.';
+const P1 = 'Truyện trọng sinh nữ tần báo thù, 8 chương. Cô thợ may ở khu chợ bị chị dâu bắt may váy cưới không công rồi đổ tội ăn cắp vải. Trọng sinh, cô quyết định không nhận đơn may, giấu một đường may lót có thêu ngày nhận vải trong chiếc váy cũ, và lật lại mọi thứ ngay trong lễ đính hôn. Kết: mở tiệm riêng.';
+const SAMPLE = 'Mẹ tôi khâu áo bằng tay trái. Tôi chưa bao giờ hỏi vì sao, chỉ nhớ tiếng kim đi qua vải nghe như mưa nhỏ trên mái tôn. Đêm bà mất, cuốn sổ ghi nợ vẫn nằm dưới gối, trang cuối có một dòng chưa viết hết.';
+const EX = ['Nữ hướng dẫn viên bị đồng nghiệp đổ lỗi làm mất đoàn khách, lật lại bằng nhật ký hành trình ngay ở buổi họp tổng kết', 'Cô giáo làng bị trưởng thôn cướp suất học bổng cho con mình, lật lại bằng sổ điểm viết tay trước cả làng', 'Thập niên 90, cô gái sửa xe đầu ngõ bị hôn phu bỏ ngay trước đám hỏi, mở tiệm riêng nuôi mẹ'];
+const IDEA = 'Cô giáo làng bị trưởng thôn cướp suất học bổng cho con mình. Cô giữ sổ điểm viết tay ba năm liền, lật lại trước cả làng ở buổi phát thưởng cuối năm.';
+const PJ_ST = 'packA', PJ_WR = 'gpt-6.1-sol';
+const PACKS = [['packA', 'Nữ tần báo thù', 'Trọng sinh, vả mặt, lấy lại từng thứ trước đám đông'], ['packB', 'Ngược hôn nhân', 'Ly hôn, mang con, người kia hối hận muộn'], ['packC', 'Niên đại văn', 'Trọng sinh thập niên, làm giàu từ hai bàn tay']];
+const STY = [['default', 'Chung', 'Nhịp hài hoà, thoại tự nhiên'], ['romance', 'Ngôn tình', 'Cảm xúc tinh tế, chú trọng nội tâm'], ['suspense', 'Hồi hộp', 'Cài manh mối, nhịp dồn, kết chương bỏ ngỏ'], ['fantasy', 'Huyền huyễn', 'Thế giới rộng, hệ thống sức mạnh rõ'], ['wuxia', 'Kiếm hiệp', 'Giang hồ, chiêu thức, khí khái']];
+const MODELS = [['ChatGPT', [['gpt-6.1-sol', 'Viết tốt nhất, chậm hơn'], ['gpt-6-luna', 'Cân bằng chất lượng và tốc độ'], ['gpt-5.6-terra', 'Nhanh, tiết kiệm']]], ['Gemini · DeepSeek', [['gemini-2.5-pro', 'Ngữ cảnh dài'], ['deepseek-chat', 'Rẻ']]]];
+const LV = { e: ['Bắt sửa', 'rgba(255,154,162,0.14)', '#FFB3BA'], w: ['Cảnh báo', 'rgba(246,203,140,0.14)', '#F3D9AE'], ok: ['Đạt', 'rgba(166,237,193,0.12)', '#A6EDC1'] };
+const CHAT = { u1: 'Truyện trọng sinh, cô thợ may bị mẹ kế chiếm tiệm, báo thù ở lễ đính hôn', a1: 'Mình hiểu là truyện gói Nữ tần báo thù, 8 chương. Bằng chứng để lật mẹ kế là gì: giấy tờ tiệm, sổ sách, hay một món đồ của mẹ? Và kết: cô rời đi hay giữ lại tiệm?', u2: 'Cuốn sổ ghi nợ viết tay của mẹ. Kết là cô mở tiệm riêng.', a2: 'Đủ ý rồi. Mình đã viết bản nháp yêu cầu: 8 chương, vạch mặt ở lễ đính hôn, kết mở tiệm riêng. Bạn xem lại rồi bấm Bắt đầu, hoặc bổ sung thêm.' };
+const DRAFT_PART = 'Truyện trọng sinh nữ tần báo thù, 8 chương.\nCô thợ may ở khu chợ bị mẹ kế chiếm tiệm, báo thù ngay trong lễ đính hôn.\nCòn thiếu: bằng chứng để lật mẹ kế, kết cục.';
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(props); }
+  fresh(p) {
+    const st = p.state || 'empty';
+    const prompt = st === 'empty' ? '' : (st === 'idea' ? IDEA : (st === 'typing' ? 'Cô giáo làng bị trưởng thôn cướp suất học bổng cho con mình, lật lại bằng sổ điểm' : EX[1]));
+    return { mode: p.mode || 'quick', st, prompt, idea: st === 'idea', ck: p.check || 'none', co: p.co || 'talking', sheet: p.sheet && p.sheet !== 'none' ? p.sheet : null, alt: p.alt && p.alt !== 'none' ? p.alt : null, stv: null, wrv: null, file: p.sheet === 'startFile' ? 'dai-cuong-tiem-may.md' : '', smp: p.sheet === 'samples' ? [SAMPLE, ''] : [''], coText: '', toast: '' };
+  }
+  componentDidUpdate(prev) { const p = this.props; if (['mode', 'state', 'check', 'co', 'sheet', 'alt'].some((k) => prev[k] !== p[k])) this.setState(this.fresh(p)); }
+  later(fn, ms) { clearTimeout(this._t); this._t = setTimeout(fn, ms); }
+  renderVals() {
+    const s = this.state; const set = (x) => this.setState(x);
+    const quick = s.mode === 'quick', ck = s.ck;
+    const fixed = ck === 'fixed', NEW = fixed ? N1 : N0;
+    const combo = (r) => [r[0], r[2], r[3], r[5]].join('|');
+    const dupI = L10.findIndex((r) => combo(r[1]) === combo(NEW));
+    const prevDiff = NEW.filter((v, i) => v !== L10[0][1][i]).length;
+    const use = (ax, v) => L10.filter((r) => r[1][ax] === v).length;
+    const over = [2, 3, 6].filter((ax) => use(ax, NEW[ax]) >= 2);
+    const cks = [];
+    cks.push(dupI >= 0 ? ['e', 'Giống “' + L10[dupI][0] + '” ở 4 trục chính: ' + [0, 2, 3, 5].map((k) => NEW[k]).join(', ') + '. Người nghe sẽ thấy như nghe lại truyện cũ. Đổi ít nhất 1 trong 4 trục.', 'Giống “Mẹ Kế Cướp Tiệm May…” ở 4 trục chính (bộ, nghề, phản diện, vũ khí).'] : ['ok', 'Bốn trục chính (bộ, nghề, phản diện, vũ khí) chưa trùng truyện nào trong 10 truyện gần nhất.', 'Bốn trục chính chưa trùng truyện nào.']);
+    cks.push(prevDiff >= 4 ? ['ok', 'Khác truyện vừa đăng ở ' + prevDiff + '/10 trục (cần ít nhất 4).', 'Khác truyện vừa đăng ' + prevDiff + '/10 trục.'] : ['e', 'Chỉ khác truyện vừa đăng ở ' + prevDiff + '/10 trục, cần ít nhất 4.', 'Chỉ khác truyện vừa đăng ' + prevDiff + '/10 trục.']);
+    cks.push(over.length ? ['w', over.map((ax) => AX[ax] + ' “' + NEW[ax] + '” đã có ' + use(ax, NEW[ax]) + ' truyện dùng').join(' · ') + ' trong 10 truyện gần nhất. Không chặn, nhưng nên đổi nếu được.', over.map((ax) => AX[ax] + ' “' + NEW[ax] + '” đã có ' + use(ax, NEW[ax]) + ' truyện dùng').join(' · ') + '.'] : ['ok', 'Không giá trị trục nào dùng quá 2 lần trong 10 truyện.', 'Không trục nào dùng quá 2 lần.']);
+    const openRun = L10.slice(0, 2).every((r) => r[1][8] === NEW[8]);
+    cks.push(openRun ? ['w', 'Mở đầu “' + NEW[8] + '” sẽ thành 3 truyện liền nhau.', 'Mở đầu lặp 3 truyện liền.'] : ['ok', 'Kiểu mở đầu “' + NEW[8] + '” khác 2 truyện liền trước.', 'Mở đầu khác 2 truyện trước.']);
+    const hasErr = cks.some((c) => c[0] === 'e');
+    const showCheck = ck !== 'none', isChecking = ck === 'checking', hasResult = showCheck && !isChecking;
+    const blocked = hasResult && hasErr;
+    const pill = isChecking ? ['Đang so', 'rgba(255,255,255,0.06)', '#A0A0AB'] : (hasErr ? ['Còn 1 mục Bắt sửa', 'rgba(255,154,162,0.12)', '#FFB3BA'] : ['Được bắt đầu', 'rgba(166,237,193,0.12)', '#A6EDC1']);
+    // nội dung ô yêu cầu
+    const prompt = showCheck ? (fixed ? P1 : P0) : s.prompt;
+    const offline = s.st === 'offline', starting = s.st === 'starting' || !!s.alt, typing = quick && s.st === 'typing' && !s.sheet;
+    const busy = starting || isChecking;
+    const empty = !prompt.trim();
+    // nút chính
+    const why = offline ? 'Mất kết nối — chờ kết nối lại để bắt đầu.' : s.alt ? (s.alt === 'import' ? 'Đang tạo truyện để nhập bản thảo…' : 'Đang tạo truyện để học văn phong…') : (empty ? 'Nhập ý tưởng hoặc yêu cầu sáng tác để bắt đầu.' : (blocked ? 'Còn 1 mục Bắt sửa. Đổi trục để bắt đầu.' : (s.st === 'starting' ? 'Đang tạo truyện và gửi yêu cầu cho AI…' : '')));
+    const isStarting = s.st === 'starting' && !showCheck;
+    const isLocked = !isStarting && !isChecking && blocked;
+    const isOff = !isStarting && !isChecking && !blocked && (offline || empty || !!s.alt);
+    const canStart = !isStarting && !isChecking && !isLocked && !isOff;
+    // chọn nhanh
+    const stName = (k) => k === 'samples' ? 'Văn phong của bạn' : (PACKS.concat(STY).find((x) => x[0] === k) || [])[1];
+    const curSt = s.stv || PJ_ST, curWr = s.wrv || PJ_WR;
+    const it = (t, d, sel, pick, extra) => Object.assign({ item: true, hdr: false, t, d, sel, selA: sel ? 'true' : 'false', mono: '', fs: '15px', badge: false, pick }, extra || {});
+    const pickSt = (k) => { set({ stv: k === PJ_ST ? null : k, sheet: null }); };
+    const pickWr = (m) => { set({ wrv: m === PJ_WR ? null : m, sheet: null }); };
+    let pickOpts = [];
+    if (s.sheet === 'style') {
+      pickOpts = [it('Theo dự án', stName(PJ_ST) + ' · mặc định của dự án', !s.stv, () => pickSt(PJ_ST))]
+        .concat([{ hdr: true, item: false, t: 'Gói thể loại' }], PACKS.map(([k, n, d]) => it(n, d, s.stv === k, () => pickSt(k), { badge: true })))
+        .concat([{ hdr: true, item: false, t: 'Kiểu viết' }], STY.map(([k, n, d]) => it(n, d, s.stv === k, () => pickSt(k))));
+    } else if (s.sheet === 'writer') {
+      pickOpts = [it('Theo dự án', PJ_WR + ' · mặc định của dự án', !s.wrv, () => pickWr(PJ_WR))];
+      MODELS.forEach(([g, ms]) => { pickOpts.push({ hdr: true, item: false, t: g }); ms.forEach(([m, d]) => pickOpts.push(it(m, d, s.wrv === m, () => pickWr(m), { mono: 'mono', fs: '14px' }))); });
+    }
+    // đồng sáng tác
+    const coChk = showCheck;
+    const coStage = coChk ? 'ready' : s.co;
+    const msgs = [];
+    if (coStage !== 'empty') { msgs.push({ me: true, t: CHAT.u1 }); msgs.push({ ai: true, t: CHAT.a1 }); }
+    if (coStage === 'ready' || coStage === 'thinking') { msgs.push({ me: true, t: CHAT.u2 }); }
+    if (coStage === 'thinking') msgs.push({ wait: true, dots: true, t: 'AI đang tổng hợp yêu cầu của bạn' });
+    if (coStage === 'ready' && !coChk) msgs.push({ ai: true, t: CHAT.a2 });
+    if (coChk) msgs.push({ wait: true, dots: isChecking, t: isChecking ? 'Kiến trúc sư đang so với 10 truyện gần nhất' : (hasErr ? 'Kiến trúc sư thấy truyện này giống một truyện đã đăng. Mở bản nháp để xem.' : 'Kiến trúc sư đã đổi 3 trục, bản nháp đã cập nhật.') });
+    const msgsV = msgs.map((m) => Object.assign({ me: false, ai: false, wait: false, dots: false }, m));
+    const ready = coStage === 'ready';
+    const pk = coStage === 'empty' ? ['Chưa có', 'rgba(255,255,255,0.06)', '#8E8E99'] : (showCheck ? [pill[0], pill[1], pill[2]] : (ready ? ['Sẵn sàng viết', 'rgba(166,237,193,0.1)', '#A6EDC1'] : (coStage === 'thinking' ? ['Đang cập nhật', 'rgba(255,255,255,0.06)', '#A0A0AB'] : ['Đang làm rõ', 'rgba(255,255,255,0.06)', '#A0A0AB'])));
+    const draftText = coStage === 'empty' ? 'Chưa có bản nháp. Kể ý tưởng ở ô bên dưới để bắt đầu.' : (coStage === 'talking' || coStage === 'thinking' ? DRAFT_PART : (fixed ? P1 : P0));
+    const coHasDraft = coStage !== 'empty';
+    const coCan = !quick && coHasDraft && !blocked && !isChecking && !offline && coStage !== 'thinking';
+    const coLocked = !quick && coHasDraft && blocked;
+    const coOff = !quick && coHasDraft && !coCan && !blocked;
+    const coWhy = offline ? 'Mất kết nối — chờ kết nối lại để bắt đầu.' : (isChecking ? 'Đang so với truyện trước…' : 'Chờ AI cập nhật xong bản nháp.');
+    const sg = coStage === 'talking' ? ['Cuốn sổ ghi nợ của mẹ', 'Giấy sang tên tiệm', 'Chiếc máy may cũ'] : (coStage === 'ready' && !coChk ? ['Thêm một em gái đồng phạm', 'Đổi kết: rời khu chợ', 'Rút còn 6 chương'] : []);
+    const SH = { style: 'Văn phong cho truyện này', writer: 'Người viết cho truyện này', startFile: 'Bắt đầu từ tệp', samples: 'Mô phỏng văn phong', draft: 'Bản nháp yêu cầu' };
+    const words = (t) => (t.trim() ? t.trim().split(/\s+/).length : 0);
+    const smpOk = s.smp.filter((t) => t.trim()).length;
+    const fileBad = /[\u0000-\u001f]/.test(s.file), fileOk = !!s.file.trim() && !fileBad;
+    const kbRows = [[10, '6px'], [9, '22px'], [9, '6px'], [4, '6px']].map(([n, pad], ri) => ({ pad, keys: ri === 3 ? ['1.4', '1.2', '5', '1.4'] : Array.from({ length: n }, () => '1') }));
+    const altGo = (k) => () => { if (busy || offline) return; set({ alt: k }); this.later(() => { window.location.href = k === 'import' ? 'MCmd.dc.html' : 'MWork.dc.html'; }, 1500); };
+    return {
+      projectName: 'Kênh truyện audio', offline,
+      modes: [['quick', 'Bắt đầu nhanh', 'i-flash'], ['cocreate', 'Đồng sáng tác', 'i-msg']].map(([k, label, icon]) => { const on = s.mode === k; return { label, icon, onA: on ? 'true' : 'false', bg: on ? '#2A2A2E' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', w: on ? 600 : 400, pick: () => set({ mode: k, sheet: null }) }; }),
+      quick, cocreate: !quick,
+      // nhanh
+      showHead: !typing, noCheck: !showCheck, isError: s.st === 'error' && !showCheck,
+      hasIdea: s.idea && !showCheck, clearIdea: () => set({ idea: false }),
+      prompt, count: String(prompt.length), onPrompt: (e) => set({ prompt: e.target.value }), onFocus: () => { if (s.st !== 'typing' && quick) set({ st: 'typing' }); },
+      taH: typing ? '150px' : (showCheck ? '232px' : '124px'),
+      cardBd: typing ? 'rgba(201,166,245,0.55)' : 'rgba(255,255,255,0.08)', cardGlow: typing ? '0 0 0 3px rgba(201,166,245,0.12)' : 'none',
+      busy, stName: stName(curSt), stPack: curSt.indexOf('pack') === 0, stOpenA: s.sheet === 'style' ? 'true' : 'false', wrName: curWr, wrOpenA: s.sheet === 'writer' ? 'true' : 'false',
+      openStyle: () => set({ sheet: 'style' }), openWriter: () => set({ sheet: 'writer' }),
+      showCheck, isChecking, hasResult, blocked, isFixed: hasResult && fixed,
+      ckTitle: isChecking ? 'Đang so với các truyện trước…' : (hasErr ? 'Truyện này giống một truyện bạn đã đăng' : (fixed ? 'Đã khác đủ so với các truyện trước' : 'Không trùng truyện trước')),
+      ckBd: hasErr && hasResult ? 'rgba(255,154,162,0.35)' : (hasResult ? 'rgba(166,237,193,0.25)' : 'rgba(255,255,255,0.08)'),
+      ckPill: pill[0], ckPillBg: pill[1], ckPillFg: pill[2],
+      skel: Array.from({ length: 10 }, (_, i) => i),
+      axes: NEW.map((v, i) => { const dup = dupI >= 0 && [0, 2, 3, 5].indexOf(i) >= 0; const ov = over.indexOf(i) >= 0; const changed = fixed && N0[i] !== v; return { k: (i + 1) + ' · ' + AX[i], v, full: 'Trục ' + (i + 1) + ' · ' + AX[i] + ': ' + v + (changed ? ' (trước: ' + N0[i] + ')' : ''), changed, old: N0[i], fg: dup ? '#FFB3BA' : (changed ? '#DCC8F8' : (ov ? '#F3D9AE' : '#EDEDEF')), bg: dup ? 'rgba(255,154,162,0.08)' : (changed ? 'rgba(201,166,245,0.1)' : (ov ? 'rgba(246,203,140,0.06)' : 'rgba(255,255,255,0.03)')), sh: dup ? 'inset 0 0 0 1px rgba(255,154,162,0.55)' : (changed ? 'inset 0 0 0 1px rgba(201,166,245,0.5)' : (ov ? 'inset 0 0 0 1px rgba(246,203,140,0.4)' : 'inset 0 0 0 1px rgba(255,255,255,0.06)')) }; }),
+      checks: hasResult ? cks.map(([l, t]) => ({ lv: LV[l][0], bg: LV[l][1], fg: LV[l][2], t })) : [],
+      checksS: hasResult ? cks.map(([l, , sh]) => ({ lv: LV[l][0], bg: LV[l][1], fg: LV[l][2], t: sh })) : [],
+      fix: () => set({ ck: 'fixed' }), undo: () => set({ ck: 'conflict' }),
+      editPrompt: () => { set({ ck: 'none', prompt: P0, st: 'typing' }); const t = document.getElementById('mprompt'); if (t) t.focus(); },
+      showExtras: !showCheck && !typing,
+      examples: EX.map((text) => ({ text, use: () => set({ prompt: text, st: 'filled', idea: false }) })),
+      flow: [['o-arbiter', 'Trọng tài chọn truyện ngắn hay dài'], ['o-architect', 'Kiến trúc sư so với truyện trước, lập đại cương'], ['o-writer', 'Người viết viết từng chương'], ['o-editor', 'Biên tập viên thẩm duyệt cuối mỗi hồi']].map(([orb, text]) => ({ orb, text })),
+      alts: [['start', 'i-doc', 'Đã có thiết lập / đại cương', 'Kiến trúc sư đọc và viết tiếp từ đó', () => { if (!busy && !offline) set({ sheet: 'startFile' }); }], ['import', 'i-folder', 'Đã có bản thảo truyện', 'Nhập bản thảo, Noverse tự chia chương', altGo('import')], ['simulate', 'i-brush', 'Mô phỏng văn phong', 'Dán vài đoạn văn bạn thích làm văn mẫu', () => { if (!busy && !offline) set({ sheet: 'samples' }); }]].map(([k, icon, t, sub, go]) => { const pending = s.alt === k; const off = busy || offline; return { icon, t, sub, go, pending, idle: !pending, off, busyA: pending ? 'true' : 'false', op: off && !pending ? 0.5 : 1 }; }),
+      hasWhy: quick && !!why, why,
+      canStart, isStarting, isLocked, isOff, startLabel: s.st === 'error' ? 'Thử lại' : 'Bắt đầu viết',
+      typing, barBottom: typing ? '300px' : '0px', barPadB: typing ? '10px' : '26px', padB: typing ? '400px' : (why ? '150px' : '120px'),
+      kbRows,
+      // đồng sáng tác
+      coEmpty: coStage === 'empty', msgs: msgsV, coPadB: '26px',
+      pkLabel: pk[0], pkBg: pk[1], pkFg: pk[2], pkLine: coStage === 'empty' ? 'Kể ý tưởng để AI bắt đầu viết bản nháp' : draftText.split('\n')[0],
+      openDraft: () => set({ sheet: 'draft' }), coCan, coLocked, coOff, coWhy, draftText,
+      hasSugs: sg.length > 0, sugs: sg.map((t, i) => ({ n: String(i + 1), t, bg: s.coText === t ? '#222225' : '#131315', bd: s.coText === t ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)', use: () => set({ coText: t }) })),
+      coText: s.coText, onCo: (e) => set({ coText: e.target.value }), coPh: coStage === 'empty' ? 'Kể ý tưởng truyện của bạn…' : 'Tiếp tục bổ sung yêu cầu…',
+      cmpBd: s.coText ? 'rgba(201,166,245,0.45)' : 'rgba(255,255,255,0.08)', sendBg: s.coText ? '#EDEDEF' : '#2A2A2E',
+      sendCo: () => { if (!s.coText.trim() || coStage === 'thinking') return; set({ coText: '', co: coStage === 'empty' ? 'talking' : 'thinking' }); this.later(() => set({ co: 'ready' }), 1800); },
+      cancelCo: () => { set({ sheet: null, co: 'empty', ck: 'none', toast: 'Đã huỷ đồng sáng tác' }); this.later(() => set({ toast: '' }), 2200); },
+      // ngăn
+      sheetOn: !!s.sheet, sheetTitle: SH[s.sheet] || '', closeSheet: () => set({ sheet: null }), closeLabel: s.sheet === 'startFile' ? 'Huỷ' : 'Xong',
+      shPick: s.sheet === 'style' || s.sheet === 'writer', pickOpts, pickLink: s.sheet === 'style', pickNote: s.sheet === 'writer',
+      shFile: s.sheet === 'startFile', fileName: s.file, onFile: (e) => set({ file: e.target.value }), fileBad, fileOp: fileOk ? 1 : 0.4, filePe: fileOk ? 'auto' : 'none', fileOffA: fileOk ? 'false' : 'true',
+      shDraft: s.sheet === 'draft', shSamples: s.sheet === 'samples',
+      samples: s.smp.map((t, i) => ({ t, label: 'Văn mẫu ' + (i + 1) + (t.trim() ? ' · ' + words(t) + ' chữ' : ''), on: (e) => { const a = s.smp.slice(); a[i] = e.target.value; set({ smp: a }); }, del: () => { const a = s.smp.filter((_, j) => j !== i); set({ smp: a.length ? a : [''] }); } })),
+      addSample: () => set({ smp: s.smp.concat(['']) }), pickSampleFile: () => set({ smp: s.smp.filter((t) => t.trim()).concat([SAMPLE]) }), sampFull: s.smp.length >= 20, sampCount: String(smpOk), sampOff: smpOk === 0,
+      submitSamples: () => { if (!smpOk) return; set({ sheet: null, alt: 'simulate' }); this.later(() => { window.location.href = 'MWork.dc.html'; }, 1500); },
+      toast: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

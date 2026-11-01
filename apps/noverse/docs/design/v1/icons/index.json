@@ -744,6 +744,7 @@
     },
     "MMore.dc.html": {
       "i-add": "add",
+      "i-add-square": "add-square",
       "i-arrow-d": "arrow-down-2",
       "i-arrow-l": "arrow-left-2",
       "i-arrow-r": "arrow-right-2",
@@ -792,6 +793,26 @@
       "i-tag": "tag",
       "i-tick": "tick-circle",
       "i-user-add": "user-add",
+      "i-warning": "warning-2"
+    },
+    "MNewStory.dc.html": {
+      "i-add": "add",
+      "i-arrow-d": "arrow-down-2",
+      "i-arrow-l": "arrow-left-2",
+      "i-arrow-r": "arrow-right-2",
+      "i-arrow-up": "arrow-up",
+      "i-brush": "brush-2",
+      "i-close-b": "close-circle-bulk",
+      "i-cpu": "cpu",
+      "i-doc": "document-text",
+      "i-flash": "flash",
+      "i-folder": "folder-open",
+      "i-lock": "lock",
+      "i-magic-star": "magic-star",
+      "i-msg": "messages-2",
+      "i-tick": "tick-circle",
+      "i-tick-b": "tick-circle-bulk",
+      "i-trash": "trash",
       "i-warning": "warning-2"
     },
     "MNotify.dc.html": {
@@ -932,6 +953,7 @@
       "i-warning": "warning-2"
     },
     "MWork.dc.html": {
+      "i-add-square": "add-square",
       "i-arrow-d": "arrow-down-2",
       "i-arrow-l": "arrow-left-2",
       "i-arrow-r": "arrow-right-2",
@@ -980,7 +1002,7 @@
       "i-data": "data",
       "i-doc-b": "document-text-bulk",
       "i-edit": "edit-2",
-      "i-export": "export-curve",
+      "i-export": "export-square",
       "i-flag": "flag",
       "i-folder": "folder-open",
       "i-global": "global",
@@ -999,7 +1021,7 @@
       "i-sb-right": "sidebar-right",
       "i-setting": "setting-2",
       "i-shield": "shield-security",
-      "i-shield-b": "shield-tick-bulk",
+      "i-shield-b": "shield-security-bulk",
       "i-shield-tick": "shield-tick",
       "i-text": "text",
       "i-tick": "tick-circle",
