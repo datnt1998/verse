@@ -4,12 +4,12 @@ package media
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -135,8 +135,20 @@ func (s *Service) Active(ctx context.Context) (blobstore.BlobStore, Descriptor, 
 	return st, d, state, err
 }
 
+// stagedSuffix marks a local publication whose bytes are already durable but
+// whose logical path must not exist yet. Inventory skips these files, so a
+// crash before the reference commits can never leave an unexplained durable
+// path behind.
+const stagedSuffix = ".part"
+
+// stagedPublication is one local artifact waiting for its reference to commit.
+type stagedPublication struct{ root, staged, target, sum string }
+
 // Publish selects the active generation only after all preprocessing is done.
 // Bytes are verified before manifest + domain pointers commit atomically.
+// A local logical path is linked only after that commit: the tree can be
+// missing bytes for a committed reference (repaired at start-up), but it can
+// never hold bytes without a reference.
 func (s *Service) Publish(ctx context.Context, artifacts []Artifact, commit func(context.Context) error) error {
 	refs := make([]Ref, len(artifacts))
 	for i, a := range artifacts {
@@ -161,7 +173,8 @@ func (s *Service) Publish(ctx context.Context, artifacts []Artifact, commit func
 		}
 		refs[i] = Ref{Path: a.Path, Key: key, SHA256: sum, Bytes: n, ContentType: a.ContentType, Filename: a.Filename}
 	}
-	return s.repo.Publication(ctx, func(txctx context.Context, state State) error {
+	staged := make([]stagedPublication, 0, len(artifacts))
+	err := s.repo.Publication(ctx, func(txctx context.Context, state State) error {
 		store, d, err := s.Store(txctx, state.Active)
 		if err != nil {
 			return err
@@ -176,12 +189,23 @@ func (s *Service) Publish(ctx context.Context, artifacts []Artifact, commit func
 				return err
 			}
 		}
+		// One writer per logical path: a staged file is named after its target,
+		// so two concurrent publications of the same path must not interleave.
+		for _, a := range artifacts {
+			if err := s.repo.Lock(txctx, state.Active, "path/"+a.Path); err != nil {
+				return err
+			}
+		}
 		for i, a := range artifacts {
 			ref := refs[i]
 			ref.StoreID = state.Active
 			if d.Config.Driver == "local" {
-				if err := publishLocal(d.Config.LocalRoot, a.File, a.Path, ref.SHA256); err != nil {
+				entry, err := stageLocal(d.Config.LocalRoot, a.File, a.Path, ref.SHA256)
+				if err != nil {
 					return err
+				}
+				if entry != nil {
+					staged = append(staged, *entry)
 				}
 				ref.SourcePath = a.Path
 			} else {
@@ -211,6 +235,123 @@ func (s *Service) Publish(ctx context.Context, artifacts []Artifact, commit func
 		}
 		return nil
 	})
+	if err != nil {
+		discardStaged(staged)
+		return err
+	}
+	// The references are durable now, so the logical paths may appear. A crash
+	// in between is repaired by RepairLocalPublications at the next start.
+	for _, entry := range staged {
+		if err := linkStaged(entry); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// RepairLocalPublications finishes local publications that were interrupted
+// after the reference commit and drops staged bytes whose reference never
+// committed. It never invents a path: uncommitted bytes are removed, and a
+// committed reference without bytes is completed only when the staged digest
+// still matches the reference.
+func (s *Service) RepairLocalPublications(ctx context.Context) (RepairReport, error) {
+	report := RepairReport{}
+	state, err := s.repo.State(ctx)
+	if err != nil {
+		return report, err
+	}
+	d, err := s.repo.Descriptor(ctx, state.Active)
+	if err != nil {
+		return report, err
+	}
+	if d.Config.Driver != "local" {
+		return report, nil
+	}
+	root, err := os.OpenRoot(d.Config.LocalRoot)
+	if errors.Is(err, os.ErrNotExist) {
+		return report, nil
+	}
+	if err != nil {
+		return report, err
+	}
+	defer root.Close()
+	staged := []string{}
+	err = fs.WalkDir(root.FS(), ".", func(rel string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(entry.Name(), stagedSuffix) {
+			return nil
+		}
+		if entry.Type()&os.ModeSymlink != 0 || !entry.Type().IsRegular() {
+			return fmt.Errorf("tệp tạm không thường trong dữ liệu bền vững: %s", rel)
+		}
+		staged = append(staged, rel)
+		return nil
+	})
+	if err != nil {
+		return report, err
+	}
+	for _, rel := range staged {
+		target := strings.TrimSuffix(rel, stagedSuffix)
+		if ValidatePath(target) != nil {
+			report.Skipped = append(report.Skipped, rel)
+			continue
+		}
+		if _, err := root.Stat(target); err == nil {
+			// The link already happened; the staged copy is a leftover.
+			if err := root.Remove(rel); err != nil && !errors.Is(err, os.ErrNotExist) {
+				return report, err
+			}
+			report.Dropped++
+			continue
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return report, err
+		}
+		ref, err := s.repo.Resolve(ctx, state.Active, target)
+		if errors.Is(err, blobstore.ErrNotFound) {
+			if err := root.Remove(rel); err != nil && !errors.Is(err, os.ErrNotExist) {
+				return report, err
+			}
+			report.Dropped++
+			continue
+		}
+		if err != nil {
+			return report, err
+		}
+		file, err := root.Open(rel)
+		if err != nil {
+			return report, err
+		}
+		sum, _, err := blobstore.DigestAll(file)
+		file.Close()
+		if err != nil {
+			return report, err
+		}
+		if sum != ref.SHA256 {
+			// Never place bytes that no reference describes.
+			report.Skipped = append(report.Skipped, rel)
+			continue
+		}
+		if err := linkStaged(stagedPublication{root: d.Config.LocalRoot, staged: rel, target: target, sum: ref.SHA256}); err != nil {
+			return report, err
+		}
+		report.Linked++
+	}
+	return report, nil
+}
+
+// RepairReport counts the start-up repair of interrupted local publications.
+type RepairReport struct {
+	Linked  int      `json:"linked"`
+	Dropped int      `json:"dropped"`
+	Skipped []string `json:"skipped,omitempty"`
 }
 
 func (s *Service) Resolve(ctx context.Context, path string) (blobstore.BlobStore, Descriptor, Ref, func(), error) {
@@ -327,64 +468,78 @@ func (s *locatedStore) Stat(ctx context.Context, key string) (blobstore.BlobInfo
 }
 func (s *locatedStore) DriverName() string { return "local" }
 
-func publishLocal(root, from, rel, sum string) error {
+// stageLocal copies bytes next to their logical path without making that path
+// visible. A nil result means the path already holds the same bytes.
+func stageLocal(root, from, rel, sum string) (*stagedPublication, error) {
 	if err := ValidatePath(rel); err != nil {
-		return err
+		return nil, err
 	}
 	r, err := os.OpenRoot(root)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer r.Close()
 	parent := filepath.ToSlash(filepath.Dir(rel))
 	if err := r.MkdirAll(parent, 0755); err != nil {
-		return err
+		return nil, err
 	}
 	if existing, err := r.Open(rel); err == nil {
 		digest, _, readErr := blobstore.DigestAll(existing)
 		existing.Close()
 		if readErr != nil {
-			return readErr
+			return nil, readErr
 		}
 		if digest == sum {
-			return nil
+			return nil, nil
 		}
-		return blobstore.ErrDigestMismatch
+		return nil, blobstore.ErrDigestMismatch
 	} else if !errors.Is(err, os.ErrNotExist) {
-		return err
+		return nil, err
 	}
-	var token [16]byte
-	if _, err := rand.Read(token[:]); err != nil {
-		return err
+	staged := rel + stagedSuffix
+	// A staged file for this path belongs to an interrupted publication: its
+	// bytes were never referenced, and the path lock serialises writers.
+	if err := r.Remove(staged); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
 	}
-	tmp := parent + fmt.Sprintf("/.publish-%x.part", token)
-	out, err := r.OpenFile(tmp, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	out, err := r.OpenFile(staged, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer r.Remove(tmp)
 	src, err := os.Open(from)
 	if err != nil {
 		out.Close()
-		return err
+		_ = r.Remove(staged)
+		return nil, err
 	}
 	_, err = io.Copy(out, src)
 	src.Close()
 	if err == nil {
 		err = out.Sync()
 	}
-	closeErr := out.Close()
+	if closeErr := out.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		_ = r.Remove(staged)
+		return nil, err
+	}
+	return &stagedPublication{root: root, staged: staged, target: rel, sum: sum}, nil
+}
+
+// linkStaged makes a committed logical path visible. Bytes already there must
+// match, so a stale staged copy can never overwrite another writer's file.
+func linkStaged(entry stagedPublication) error {
+	r, err := os.OpenRoot(entry.root)
 	if err != nil {
 		return err
 	}
-	if closeErr != nil {
-		return closeErr
-	}
-	if err := r.Link(tmp, rel); err != nil {
+	defer r.Close()
+	if err := r.Link(entry.staged, entry.target); err != nil {
 		if !errors.Is(err, os.ErrExist) {
 			return err
 		}
-		existing, err := r.Open(rel)
+		existing, err := r.Open(entry.target)
 		if err != nil {
 			return err
 		}
@@ -393,11 +548,26 @@ func publishLocal(root, from, rel, sum string) error {
 		if err != nil {
 			return err
 		}
-		if digest != sum {
+		if digest != entry.sum {
 			return blobstore.ErrDigestMismatch
 		}
 	}
+	if err := r.Remove(entry.staged); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
 	return nil
+}
+
+// discardStaged drops bytes whose references never committed.
+func discardStaged(entries []stagedPublication) {
+	for _, entry := range entries {
+		r, err := os.OpenRoot(entry.root)
+		if err != nil {
+			continue
+		}
+		_ = r.Remove(entry.staged)
+		r.Close()
+	}
 }
 
 // NamespaceID contains no credentials, so key rotation preserves store identity.

@@ -57,6 +57,17 @@ func openMedia(ctx context.Context, pool *pgxpool.Pool, files *storage.Service) 
 	manager.SetStorageWatcher(files.Start, files.SetRemoteStorage)
 	return manager, nil
 }
+
+// unreferencedSample names at most three paths so the notice stays one line.
+func unreferencedSample(paths []string) string {
+	const shown = 3
+	sample := strings.Join(paths[:min(len(paths), shown)], ", ")
+	if len(paths) > shown {
+		sample += ", …"
+	}
+	return sample
+}
+
 func openCLIMedia(ctx context.Context, pool *pgxpool.Pool, root func() string) (*serverstorage.Service, error) {
 	return newMediaRuntime(ctx, pool, root, nil, false, nil, true)
 }
@@ -161,10 +172,15 @@ func newMediaRuntime(ctx context.Context, pool *pgxpool.Pool, root func() string
 			manager.Close(ctx)
 			return nil, fmt.Errorf("xác minh tham chiếu binary editor trước khi mở kho: %w", err)
 		}
-		if err := manager.ImportExisting(ctx); err != nil {
+		// Boot never refuses to serve because of an unreferenced file: a crash
+		// can interrupt a publication, and the owner must be able to open the
+		// app and see the problem. Migration still fails closed (ImportExisting).
+		unreferenced, err := manager.BootImport(ctx)
+		if err != nil {
 			manager.Close(ctx)
 			return nil, err
 		}
+		manager.SetUnreferencedDurablePaths(unreferenced)
 	}
 	return manager, nil
 }

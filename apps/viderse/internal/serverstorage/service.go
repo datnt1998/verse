@@ -60,6 +60,7 @@ type Service struct {
 	workerDone   chan struct{}
 	tests        map[string]*testSession
 	health       Health
+	unreferenced []string
 	workerCancel context.CancelFunc
 	workerID     string
 	closeOnce    sync.Once
@@ -94,6 +95,23 @@ func New(ctx context.Context, opts Options) (*Service, error) {
 	return s, nil
 }
 func (s *Service) Media() *media.Service { return s.opts.Media }
+
+// SetUnreferencedDurablePaths records durable files found at start-up that no
+// root adapter covers. Composition surfaces them as Cần xử lý; they are never
+// imported, deleted or hidden by the storage layer.
+func (s *Service) SetUnreferencedDurablePaths(paths []string) {
+	s.mu.Lock()
+	s.unreferenced = append([]string(nil), paths...)
+	s.mu.Unlock()
+}
+
+// UnreferencedDurablePaths is the start-up finding above, empty when the tree
+// matches the database.
+func (s *Service) UnreferencedDurablePaths() []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]string(nil), s.unreferenced...)
+}
 
 // SetHold is called by composition before Start, never by request handlers.
 func (s *Service) SetHold(hold func(context.Context, bool) error) { s.opts.Hold = hold }

@@ -97,9 +97,25 @@ func excluded(rel, name string) bool {
 	return rel == "exports/profiles" || rel == "editor/media-reclaim-pending.json"
 }
 
+// UnknownPathsError lists durable files that no current root adapter covers.
+// Migration must refuse them; start-up reports them and keeps serving.
+type UnknownPathsError struct{ Paths []string }
+
+func (e *UnknownPathsError) Error() string {
+	return fmt.Sprintf("chưa xác định được tham chiếu bền vững cho %s; giữ nguyên kho cũ", strings.Join(e.Paths, ", "))
+}
+
 // RequireKnown refuses a forward migration if durable byte namespaces have no
 // current root adapter. It is not evidence that editor/render producers exist.
 func RequireKnown(entries []Entry, roots []media.Root) error {
+	if unknown := Unknown(entries, roots); len(unknown) > 0 {
+		return &UnknownPathsError{Paths: unknown}
+	}
+	return nil
+}
+
+// Unknown reports durable files that no current root adapter covers.
+func Unknown(entries []Entry, roots []media.Root) []string {
 	known := make(map[string]bool, len(roots))
 	for _, root := range roots {
 		known[root.Path] = true
@@ -110,8 +126,5 @@ func RequireKnown(entries []Entry, roots []media.Root) error {
 			unknown = append(unknown, entry.Path)
 		}
 	}
-	if len(unknown) > 0 {
-		return fmt.Errorf("chưa xác định được tham chiếu bền vững cho %s; giữ nguyên kho cũ", strings.Join(unknown, ", "))
-	}
-	return nil
+	return unknown
 }

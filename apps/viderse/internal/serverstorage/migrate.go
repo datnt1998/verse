@@ -3,57 +3,87 @@ package serverstorage
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"path/filepath"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/storageimport"
 	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 // ImportExisting inventories database-owned references only. Secrets, model
 // installations, profiles and paid-image scratch are never recursively scanned.
+// Durable bytes without a root adapter stop it: migration would drop them.
 func (s *Service) ImportExisting(ctx context.Context) error {
+	_, err := s.adoptRoots(ctx, true)
+	return err
+}
+
+// BootImport adopts database-owned roots at start-up and reports the durable
+// files that no adapter covers instead of refusing to serve. A crash during a
+// publication can leave bytes whose reference never committed; the owner must
+// still be able to open the app and see the problem as Cần xử lý.
+func (s *Service) BootImport(ctx context.Context) ([]string, error) {
+	return s.adoptRoots(ctx, false)
+}
+
+func (s *Service) adoptRoots(ctx context.Context, strict bool) ([]string, error) {
 	state, err := s.opts.Repository.State(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	d, err := s.opts.Repository.Descriptor(ctx, state.Active)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if d.Config.Driver != "local" {
-		return nil
+		return nil, nil
 	}
 	roots, err := s.opts.Repository.Roots(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if _, err := s.Inventory(ctx); err != nil {
-		return err
+	// Finish or discard publications interrupted by a crash before judging the
+	// tree, so staged bytes are never mistaken for durable content.
+	report, err := s.opts.Media.RepairLocalPublications(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if report.Linked > 0 || report.Dropped > 0 {
+		slog.Info("lưu trữ: hoàn tất lần công bố dở", "linked", report.Linked, "dropped", report.Dropped)
+	}
+	entries, err := s.durableEntries(ctx)
+	if err != nil {
+		return nil, err
+	}
+	unknown := storageimport.Unknown(entries, roots)
+	if strict && len(unknown) > 0 {
+		return unknown, &storageimport.UnknownPathsError{Paths: unknown}
 	}
 	for _, root := range roots {
 		state, err := s.opts.Repository.State(ctx)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if _, err := s.opts.Repository.Resolve(ctx, state.Active, root.Path); err == nil {
 			continue
 		} else if !errors.Is(err, blobstore.ErrNotFound) {
-			return err
+			return nil, err
 		}
 		path := filepath.Join(d.Config.LocalRoot, filepath.FromSlash(root.Path))
 		if s.opts.Resolve != nil {
 			path, err = s.opts.Resolve(root.Path)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 		if err := s.opts.Media.Publish(ctx, []media.Artifact{{Path: root.Path, File: path, ContentType: root.ContentType, Filename: filepath.Base(root.Path)}}, nil); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return unknown, nil
 }
 func (s *Service) Migrate(ctx context.Context) (string, error) {
 	s.controlMu.Lock()

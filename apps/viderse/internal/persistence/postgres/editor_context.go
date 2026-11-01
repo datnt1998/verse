@@ -192,9 +192,9 @@ func (r *EditorRepository) legacyArtifacts(ctx context.Context, alias string) ([
 
 // pickArtifact chooses the current generation of an alias. Content-addressed
 // media aliases (editor/media/media-<sha>/…) may legitimately differ between
-// jobs in per-job bookkeeping only (the build writes a fresh createdAt for the
-// same bytes), so the newest build wins there. Everything else keeps the strict
-// conflict check.
+// jobs for artifacts published before the build stopped writing its own clock
+// into the record, so the newest build wins there. Everything else keeps the
+// strict conflict check.
 func pickArtifact(alias string, artifacts []legacyEditorArtifact) (legacyEditorArtifact, error) {
 	if len(artifacts) == 0 {
 		return legacyEditorArtifact{}, blobstore.ErrNotFound

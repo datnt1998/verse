@@ -321,7 +321,11 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		if strings.HasPrefix(mime, "audio/") {
 			probe["audioCodec"] = codec
 		}
-		record := editor.Object{"id": id, "fileName": name, "mime": mime, "size": info.Size(), "contentHash": "sha256:" + hash, "createdAt": created.UnixMilli(), "probe": probe, "sourceFile": name, "storageType": "workspace", "tags": tags}
+		// Content-addressed media: the same digest must always produce the same
+		// file, so job bookkeeping (the build clock) stays out of the record.
+		// Readers treat a missing timestamp as unknown and fall back to the
+		// publication time.
+		record := editor.Object{"id": id, "fileName": name, "mime": mime, "size": info.Size(), "contentHash": "sha256:" + hash, "probe": probe, "sourceFile": name, "storageType": "workspace", "tags": tags}
 		if err = steps.WriteJSONAtomic(metadataFile, record); err != nil {
 			return "", "", err
 		}

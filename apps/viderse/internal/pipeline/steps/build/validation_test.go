@@ -308,7 +308,10 @@ func TestBuildImportsCompleteCanonicalEngineMetadata(t *testing.T) {
 			t.Fatalf("missing canonical role tags: %+v", record)
 		}
 		roles[tags[0].(string)]++
-		if record["createdAt"] != float64(1) || record["contentHash"] == "" || record["sourceFile"] == "" {
+		if _, ok := record["createdAt"]; ok {
+			t.Fatalf("content-addressed record carries job bookkeeping: %+v", record)
+		}
+		if record["contentHash"] == "" || record["sourceFile"] == "" {
 			t.Fatalf("incomplete persisted record: %+v", record)
 		}
 		probe := record["probe"].(map[string]any)
@@ -548,5 +551,48 @@ func TestBuildAcceptsMatchingSceneContextByValue(t *testing.T) {
 	project := builtProject(t, h, s, m)
 	if len(sceneItems(t, project)) != 2 {
 		t.Fatal("matching narration context prevented a valid build")
+	}
+}
+
+// buildMediaRecords runs the same build under a given job clock and returns the
+// bytes of every content-addressed media record it produced.
+func buildMediaRecords(t *testing.T, created time.Time) map[string]string {
+	t.Helper()
+	h, s, _ := fixture(t)
+	s.Job.CreatedAt = created
+	result, err := h.Run(context.Background(), s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := map[string]string{}
+	for _, artifact := range result.Artifacts {
+		if !strings.HasPrefix(artifact.Path, "editor/media/") || !strings.HasSuffix(artifact.Path, "/metadata.json") {
+			continue
+		}
+		raw, err := os.ReadFile(artifact.File)
+		if err != nil {
+			t.Fatal(err)
+		}
+		out[artifact.Path] = string(raw)
+	}
+	return out
+}
+
+// Same digest must mean same bytes: two jobs of the same source share audio and
+// template media, so the record cannot carry the build clock.
+func TestBuildMediaMetadataIsContentAddressedAcrossJobs(t *testing.T) {
+	first := buildMediaRecords(t, time.UnixMilli(1))
+	second := buildMediaRecords(t, time.UnixMilli(1_700_000_000_000))
+	if len(first) == 0 {
+		t.Fatal("build produced no media records")
+	}
+	for path, raw := range first {
+		other, ok := second[path]
+		if !ok {
+			t.Fatalf("second build lost %s", path)
+		}
+		if raw != other {
+			t.Fatalf("%s differs between jobs:\n%s\n%s", path, raw, other)
+		}
 	}
 }

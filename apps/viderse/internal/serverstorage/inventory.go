@@ -10,6 +10,23 @@ import (
 // Inventory validates every configured legacy root before any manifest write.
 // Pipeline layouts deliberately fail closed until milestone B's real adapters.
 func (s *Service) Inventory(ctx context.Context) ([]storageimport.Entry, error) {
+	entries, err := s.durableEntries(ctx)
+	if err != nil {
+		return nil, err
+	}
+	roots, err := s.opts.Repository.Roots(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := storageimport.RequireKnown(entries, roots); err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
+// durableEntries lists durable bytes in every configured local root without
+// judging whether a root adapter covers them.
+func (s *Service) durableEntries(ctx context.Context) ([]storageimport.Entry, error) {
 	state, err := s.opts.Repository.State(ctx)
 	if err != nil {
 		return nil, err
@@ -20,10 +37,6 @@ func (s *Service) Inventory(ctx context.Context) ([]storageimport.Entry, error) 
 	}
 	if descriptor.Config.Driver != "local" {
 		return nil, errors.New("chỉ nhập cây dữ liệu khi kho local đang hoạt động")
-	}
-	roots, err := s.opts.Repository.Roots(ctx)
-	if err != nil {
-		return nil, err
 	}
 	localRoots := s.opts.LocalRoots
 	if len(localRoots) == 0 {
@@ -36,9 +49,6 @@ func (s *Service) Inventory(ctx context.Context) ([]storageimport.Entry, error) 
 			return nil, err
 		}
 		out = append(out, entries...)
-	}
-	if err := storageimport.RequireKnown(out, roots); err != nil {
-		return nil, err
 	}
 	return out, nil
 }
