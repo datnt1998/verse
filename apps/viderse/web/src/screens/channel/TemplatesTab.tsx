@@ -7,7 +7,7 @@ import { channelStyles } from './channel.stylex'
 // kiểm định template — chưa có nên chỉ hiện recipe thật (tên + dòng phụ).
 import { useState } from 'react'
 import { useMediaQuery } from '../../lib/useMediaQuery'
-import { Dialog, Icon, toast } from '@noverse/ui'
+import { ActionMenu, Dialog, Icon, toast } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton } from '../../components'
 import { t } from '../../i18n/channels'
@@ -17,6 +17,7 @@ import { useResource } from '../../data/useResource'
 import { listTemplates } from '../../api/library'
 import { setChannelTemplates, type Channel } from '../../api/channels'
 import { templateLine } from './templateLine'
+import { mch } from './mobile/mchannel.stylex'
 
 export function TemplatesTab({ channel }: { channel: Channel }) {
   const tt = t.channels.templates
@@ -40,6 +41,76 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
   const nextId = channel.templates.find((template) => template.position === channel.templateCursor)?.id
     ?? channel.templates[0]?.id
   const summaries = new Map((library.data?.items ?? []).map((item) => [item.id, item]))
+
+  if (phone) {
+    return (
+      <section aria-label={t.channels.page.tabs.templates} {...stylex.props(mch.vSection)}>
+        <p {...stylex.props(mch.hint)}>{tt.banner}</p>
+        {channel.templates.length === 0 && <p {...stylex.props(mch.hint)}>{tt.empty}</p>}
+        <div {...stylex.props(mch.tplList)}>
+          {channel.templates.map((template, index) => (
+            <div key={template.id} {...stylex.props(mch.tplRow, template.id === nextId && mch.tplRowNext)}>
+              <span className={`num ${stylex.props(mch.tplN).className}`}>{String(index + 1).padStart(2, '0')}</span>
+              <a href={`#${paths.template(template.id)}`} {...stylex.props(mch.tplThumb)} aria-label={tt.settings}>
+                <Icon name="layer" size={18} />
+              </a>
+              <div {...stylex.props(mch.tplText)}>
+                <div {...stylex.props(mch.tplNameRow)}>
+                  <a href={`#${paths.template(template.id)}`} title={template.name} {...stylex.props(mch.tplName)}>{template.name}</a>
+                  {template.id === nextId && <span {...stylex.props(mch.nextBadge)}>{tt.next}</span>}
+                </div>
+                <span {...stylex.props(mch.tplRecipe)}>
+                  {summaries.get(template.id) ? templateLine(summaries.get(template.id)!) : t.channels.page.tabs.templates}
+                </span>
+              </div>
+              <div {...stylex.props(mch.tplActions)}>
+                <button
+                  type="button"
+                  aria-label={`${tt.moveUp}: ${template.name}`}
+                  disabled={index === 0}
+                  onClick={() => void apply({ action: 'move', templateId: template.id, position: index - 1 })}
+                  {...stylex.props(mch.iconBtn32)}
+                >
+                  <Icon name="arrow-up" size={15} />
+                </button>
+                <ActionMenu
+                  label={tt.settings}
+                  width={224}
+                  triggerStyle={mch.iconBtn32}
+                  trigger={<Icon name="more" size={16} />}
+                  items={[
+                    { id: 'settings', label: tt.settings, onSelect: () => { window.location.hash = `#${paths.template(template.id)}` } },
+                    { id: 'down', label: tt.moveDown, onSelect: () => void apply({ action: 'move', templateId: template.id, position: index + 1 }) },
+                    { id: 'remove', label: tt.remove, danger: true, onSelect: () => void apply({ action: 'remove', templateId: template.id }, tt.removed) },
+                  ]}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        {error && <p role="alert" {...stylex.props(mch.error)}>{error}</p>}
+        <button type="button" onClick={() => setOpen(true)} {...stylex.props(mch.tplBtn44)}>
+          <Icon name="add" size={15} />
+          {tt.add}
+        </button>
+        <a href={`#${paths.library('templates')}`} {...stylex.props(mch.tplBtn44)}>{tt.openLibrary}</a>
+        <button type="button" onClick={() => void apply({ action: 'standard' }, tt.standardDone)} {...stylex.props(mch.scheduleMore, mch.standardButton)}>
+          {tt.standard}
+        </button>
+        <p {...stylex.props(mch.help, mch.centerText)}>{tt.standardHint}</p>
+
+        {open && (
+          <TemplatePicker
+            channel={channel}
+            onClose={() => setOpen(false)}
+            onAdd={(templateId) => { void apply({ action: 'add', templateId }, tt.picker.added); setOpen(false) }}
+            library={library.data?.items ?? []}
+            loading={library.initialLoading}
+          />
+        )}
+      </section>
+    )
+  }
 
   return (
     <section className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`} aria-label={t.channels.page.tabs.templates}>

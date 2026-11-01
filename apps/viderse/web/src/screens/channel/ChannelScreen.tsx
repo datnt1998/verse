@@ -28,6 +28,7 @@ import { ChannelHeader } from './ChannelHeader'
 import { VideosTab } from './VideosTab'
 import { VideoStats } from './VideoStats'
 import { videoStyles } from './videos.stylex'
+import { mch } from './mobile/mchannel.stylex'
 import { SourcesTab } from './SourcesTab'
 import { TemplatesTab } from './TemplatesTab'
 import { SettingsTab } from './SettingsTab'
@@ -37,7 +38,8 @@ const TABS: ChannelTab[] = ['videos', 'sources', 'templates', 'settings']
 export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channel' }> }) {
   const tt = t.channels
   const tab: ChannelTab = route.tab && TABS.includes(route.tab) ? route.tab : 'videos'
-  const tabLabels = useMediaQuery('(max-width: 767px)') ? tt.page.tabsShort : tt.page.tabs
+  const narrow = useMediaQuery('(max-width: 767px)')
+  const tabLabels = narrow ? tt.page.tabsShort : tt.page.tabs
   const channel = useResource(
     keys.channel(route.channelId),
     ({ signal }) => getChannel(route.channelId, signal),
@@ -136,7 +138,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
               role="tab"
               aria-selected={tab === id}
               tabIndex={tab === id ? 0 : -1}
-              className={`vch-tab ${stylex.props(channelStyles.tab).className}`}
+              className={`vch-tab ${stylex.props(channelStyles.tab, narrow && mch.tabM).className}`}
               onClick={() => pickTab(id)}
             >
               {tabLabels[id]}
@@ -149,7 +151,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
         {tab === 'sources' && <SourcesTab channel={data} channels={list} />}
         {tab === 'templates' && <TemplatesTab channel={data} />}
         {tab === 'settings' && <SettingsTab channel={data} />}
-        <div ref={setDockSlot} {...stylex.props(videoStyles.dock)}>
+        <div ref={setDockSlot} {...stylex.props(narrow ? mch.composerHidden : videoStyles.dock)}>
           {!selecting && <AssistantComposer scope={{ channelId: data.id }} label={assistantCopy.composer.channel} placeholder={assistantCopy.composer.channelPlaceholder} recipient="scout" />}
         </div>
       </main>

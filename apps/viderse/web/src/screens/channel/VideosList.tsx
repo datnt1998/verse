@@ -3,16 +3,18 @@
 // `perf` chỉ có khi bộ lọc là Tất cả hoặc Đã đăng (usePerformance chỉ gọi ở đó).
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Icon, Skeleton } from '@noverse/ui'
+import { Icon, Segmented, Skeleton } from '@noverse/ui'
 import type { ChannelJob, ChannelJobs } from '../../api/channelVideos'
 import type { Performance } from '../../api/performance'
 import { InsightsTeaser, PostedInsights, postedDetail, usePerformance } from '../../components/performance'
 import { statusColor } from '../../components/StatusLabel'
 import type { Resource } from '../../data/useResource'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { t } from '../../i18n/channels'
 import { VideoRow } from './VideoRow'
 import { FILTER_IDS, countByFilter, filterJobs, rowAction, type FilterId, type Selection } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
+import { mch } from './mobile/mchannel.stylex'
 
 const tt = t.channels.videos.list
 /** Artboard: “Hiện 9 video gần nhất trong 18 · cuộn để tải thêm”. */
@@ -74,6 +76,78 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
   const bundleIds = new Set(data?.bulkEligibility.bundle ?? [])
   const now = Date.now()
   const selecting = selection.active
+  const mobile = useMediaQuery('(max-width: 767px)')
+
+  if (mobile) {
+    return (
+      <section aria-label={tt.region} {...stylex.props(mch.vSection)}>
+        <div {...stylex.props(mch.vFiltersWrap)}>
+          <Segmented
+            label={tt.filterLabel}
+            value={filter}
+            onChange={(id) => onFilter(id as FilterId)}
+            size="md"
+            fit="content"
+            radius={8}
+            options={FILTER_IDS.map((id) => ({
+              id,
+              label: (
+                <span {...stylex.props(mch.vFilterLabel)}>
+                  <span aria-hidden="true" {...stylex.props(mch.vFilterDot, sx.chipDot(DOT[id]))} />
+                  {tt.filters[id]}
+                  {list && <span className={`num ${stylex.props(mch.vFilterCount).className}`}>{counts[id]}</span>}
+                </span>
+              ),
+            }))}
+          />
+        </div>
+
+        {filter === 'all' && <InsightsTeaser channelId={channelId} onOpen={() => onFilter('posted')} />}
+        {filter === 'posted' && <PostedInsights channelId={channelId} />}
+
+        <div aria-busy={jobs.initialLoading || undefined} {...stylex.props(mch.vRows)}>
+          {data === undefined && !jobs.error && Array.from({ length: 5 }, (_, index) => (
+            <div key={index} {...stylex.props(mch.vRow, index === 0 && mch.vRowFirst)}>
+              <Skeleton width={80} height={45} radius={7} />
+              <span {...stylex.props(mch.vText)}><Skeleton width={180} height={13} /><Skeleton width={120} height={11} /></span>
+            </div>
+          ))}
+          {data === undefined && !!jobs.error && (
+            <div role="alert" {...stylex.props(mch.vEmpty)}>
+              <div>{tt.errorTitle}</div>
+              <div {...stylex.props(mch.hint)}>{tt.errorHint}</div>
+              <button type="button" onClick={() => void jobs.refresh()} {...stylex.props(mch.linkBtn44)}>{t.common.retry}</button>
+            </div>
+          )}
+          {shown.map((job: ChannelJob, index) => (
+            <VideoRow
+              key={job.id}
+              variant="mobile"
+              first={index === 0}
+              job={job}
+              now={now}
+              selecting={selecting}
+              chosen={selection.picked.has(job.id)}
+              templateName={templateNames.get(job.templateId) ?? job.templateId}
+              etaStart={etaById.get(job.id) ?? null}
+              postedLine={job.stageGroup === 'posted' ? postedDetail(perf, job.id) : null}
+              action={rowAction(job, bundleIds)}
+              onPick={onPick}
+              onRefresh={onRefresh}
+              onError={onError}
+            />
+          ))}
+          {data !== undefined && rows.length === 0 && (
+            <div {...stylex.props(mch.vEmpty)}>
+              <div>{tt.emptyFilter}</div>
+              <button type="button" onClick={() => onFilter('all')} {...stylex.props(mch.linkBtn44)}>{tt.showAll}</button>
+            </div>
+          )}
+        </div>
+        {data !== undefined && rows.length > 0 && hasMore && <span ref={sentinel} {...stylex.props(sx.footnote)}>{tt.windowed(shown.length, rows.length)}</span>}
+      </section>
+    )
+  }
 
   return (
     <section aria-label={tt.region} {...stylex.props(sx.section)}>

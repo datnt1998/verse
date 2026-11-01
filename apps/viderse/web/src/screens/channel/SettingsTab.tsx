@@ -1,5 +1,7 @@
 import * as stylex from '@stylexjs/stylex'
 import { channelStyles } from './channel.stylex'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import { mch } from './mobile/mchannel.stylex'
 // Tab Hồ sơ kênh (artboard Channel › tab=settings): board vẽ hai cột 403 px.
 // Cột trái là "Thông tin kênh" (tên, link YouTube — tự lưu khi rời ô, một dòng
 // trạng thái lưu ở đáy card); cột phải là "Khi viết tiêu đề, mô tả, tag" (ngôn
@@ -74,6 +76,7 @@ function SaveHint({ state }: { state: SaveState }) {
 
 export function SettingsTab({ channel }: { channel: Channel }) {
   const tt = t.channels.settings
+  const phone = useMediaQuery('(max-width: 767px)')
   const apply = (next: Channel) => {
     setData(keys.channel(channel.id), next)
     void invalidate(keys.channels())
@@ -163,8 +166,8 @@ export function SettingsTab({ channel }: { channel: Channel }) {
       <IdentityBlock channel={channel} />
 
       <section {...stylex.props(channelStyles.settings)} aria-label={tt.sectionLabel}>
-        <div {...stylex.props(channelStyles.settingsGrid)}>
-          <section {...stylex.props(channelStyles.card, channelStyles.cardRoom)} aria-label={tt.infoTitle}>
+        <div {...stylex.props(channelStyles.settingsGrid, phone && mch.settingsGridM)}>
+          <section {...stylex.props(channelStyles.card, channelStyles.cardRoom, phone && mch.infoAfter)} aria-label={tt.infoTitle}>
             <h2 {...stylex.props(channelStyles.cardHeading, channelStyles.cardHeadingQuiet)}>
               <Icon name="setting" size={16} />{tt.infoTitle}
             </h2>
@@ -208,7 +211,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
             </span>
           </section>
 
-          <div {...stylex.props(channelStyles.settingsCol)}>
+          <div {...stylex.props(channelStyles.settingsCol, phone && mch.settingsColFirst)}>
             <section {...stylex.props(channelStyles.card, channelStyles.cardRoom)} aria-label={tt.writingTitle}>
               <h2 {...stylex.props(channelStyles.cardHeading)}><Orb of="director" size={20} />{tt.writingTitle}</h2>
               <div {...stylex.props(channelStyles.form, channelStyles.formRoom)}>
@@ -216,7 +219,9 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                   <span {...stylex.props(channelStyles.fieldLabel)}>{tt.language}</span>
                   <Segmented buttonStyle={channelStyles.touchTarget}
                     label={tt.language}
-                    size="sm"
+                    size={phone ? 'xl' : 'sm'}
+                    radius={phone ? 10 : undefined}
+                    fit={phone ? 'fill' : 'content'}
                    
                     value={language}
                     options={[
@@ -305,7 +310,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
             </section>
 
             <nav {...stylex.props(channelStyles.navrows)} aria-label={tt.navLabel}>
-              <a {...stylex.props(channelStyles.navrow)} href={`#${paths.channel(channel.id, 'sources')}`}>
+              <a {...stylex.props(channelStyles.navrow, phone && mch.navHidden)} href={`#${paths.channel(channel.id, 'sources')}`}>
                 <Icon name="radar" size={16} xstyle={channelStyles.navrowIc} />
                 <span {...stylex.props(channelStyles.navrowText)}>
                   <span>{tt.linkSources}</span>
@@ -313,7 +318,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 </span>
                 <Icon name="arrow-r" size={14} xstyle={channelStyles.navrowIc} />
               </a>
-              <a {...stylex.props(channelStyles.navrow)} href={`#${paths.channel(channel.id, 'templates')}`}>
+              <a {...stylex.props(channelStyles.navrow, phone && mch.navHidden)} href={`#${paths.channel(channel.id, 'templates')}`}>
                 <Icon name="layer" size={16} xstyle={channelStyles.navrowIc} />
                 <span {...stylex.props(channelStyles.navrowText)}>
                   <span>{tt.linkTemplates}</span>

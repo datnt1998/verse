@@ -13,6 +13,7 @@ import { fmtDay } from './fmt'
 import { channelTint } from '../../lib/channelTint'
 import { readChannelAutonomy } from '../../api/autonomy'
 import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
+import { mch } from './mobile/mchannel.stylex'
 
 export function ChannelHeader({ channel }: { channel: Channel }) {
   const tt = t.channels
@@ -22,6 +23,7 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
   const ytFull = channel.youtubeUrl?.replace(/^https?:\/\/(www\.)?/, '')
   // Artboard: dòng phụ ghi tay kênh (@midnighttales.stories), tooltip ghi cả youtube.com/@…
   const autonomy = readChannelAutonomy(channel)
+  const chip = narrow ? mch.headChip : channelStyles.chip
   const createdToday = channel.createdAt
     && new Date(channel.createdAt).toDateString() === new Date().toDateString()
   const parts = [
@@ -41,15 +43,15 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
       <div className={`vch-head__text ${stylex.props(channelStyles.headText).className}`}>
         <div className={`vch-head__chips ${stylex.props(channelStyles.headChips).className}`}>
           {autonomy && (
-            <span className={`vch-chip vch-chip--auto ${stylex.props(channelStyles.chip, autonomyStyles.headChip, autonomyStyles.headChipOk).className}`}>
+            <span className={`vch-chip vch-chip--auto ${stylex.props(chip, autonomyStyles.headChip, autonomyStyles.headChipOk).className}`}>
               <Icon name="refresh" size={13} />
               <span>{t.autonomy.headChip}</span>
               <span>{autonomy.autonomy.preset === 'custom' ? t.autonomy.custom : t.autonomy.presets[autonomy.autonomy.preset]}</span>
             </span>
           )}
-          <span className={`vch-chip ${stylex.props(channelStyles.chip, autonomyStyles.headChip).className}`}>{lang}</span>
+          <span className={`vch-chip ${stylex.props(chip, autonomyStyles.headChip).className}`}>{lang}</span>
           {channel.identity.state === 'generating' && (
-            <span className={`vch-chip vch-chip--warn ${stylex.props(channelStyles.chip, channelStyles.chipWarn).className}`}>{tt.identity.generatingSub}</span>
+            <span className={`vch-chip vch-chip--warn ${stylex.props(chip, channelStyles.chipWarn).className}`}>{tt.identity.generatingSub}</span>
           )}
         </div>
         <h1 className={`vch-title ${stylex.props(channelStyles.title).className}`}>{name}</h1>

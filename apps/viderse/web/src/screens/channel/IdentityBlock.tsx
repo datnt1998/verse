@@ -16,9 +16,12 @@ import { getActivity } from '../../api/activity'
 import { brandingHref, generateBranding, type Channel, type IdentityPart } from '../../api/channels'
 import { fmtTime } from './fmt'
 import { channelTint } from '../../lib/channelTint'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import { mch } from './mobile/mchannel.stylex'
 
 export function IdentityBlock({ channel }: { channel: Channel }) {
   const tt = t.channels.identity
+  const phone = useMediaQuery('(max-width: 767px)')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal), {
     enabled: channel.identity.state === 'generating',
   })
@@ -65,6 +68,55 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
     }
   }
 
+  const brandFields = (
+    <>
+      <div {...stylex.props(channelStyles.idField)}>
+        <span {...stylex.props(channelStyles.idHead)}>{tt.briefTitle}</span>
+        <div {...stylex.props(channelStyles.idBrief)}>{channel.branding.brief || tt.briefEmpty}</div>
+        <span {...stylex.props(channelStyles.idBriefFoot)}>
+          <span>{tt.briefHint}</span>
+          <span className="num">{channel.branding.brief.length} / 2.000</span>
+        </span>
+      </div>
+
+      <div {...stylex.props(channelStyles.idStyleBox)}>
+        <span {...stylex.props(channelStyles.idHead)}>
+          <Icon name="magic" size={15} xstyle={channelStyles.idStyleIcon} />
+          {tt.styleTitle} <span {...stylex.props(channelStyles.idStyleAuto)}>{tt.styleAuto}</span>
+        </span>
+        <p {...stylex.props(channelStyles.idStyleText)}>{channel.branding.look || tt.styleEmpty}</p>
+        {reference && channel.branding.look && (
+          <span {...stylex.props(channelStyles.idStyleNote)}>{tt.styleFrom(reference.title)}</span>
+        )}
+      </div>
+
+      <div {...stylex.props(channelStyles.idField)}>
+        <label {...stylex.props(channelStyles.fieldLabel)} htmlFor="vch-direction">{tt.direction}</label>
+        <div {...stylex.props(channelStyles.idDirRow, phone && mch.dirCol)}>
+          <input
+            id="vch-direction"
+            {...stylex.props(channelStyles.idDirInput, phone && mch.idDirInput)}
+            value={direction}
+            placeholder={tt.directionPlaceholder}
+            onChange={(event) => setDirection(event.target.value)}
+            maxLength={1000}
+          />
+          <ActionButton variant="outline" size={phone ? 'md' : 'sm'} xstyle={phone ? mch.idDirBtn : channelStyles.idBtnTall}
+            lockedReason={generating ? tt.generatingLock : undefined}
+            onClick={() => void regen('all')}
+            pending={pending === 'all'}
+            icon={<Icon name="magic" size={14} />}
+          >
+            {tt.regenAll}
+          </ActionButton>
+        </div>
+        <span {...stylex.props(channelStyles.idStyleNote)}>{tt.regenAllHint}</span>
+      </div>
+
+      {error && <p {...stylex.props(channelStyles.fieldError)} role="alert">{error}</p>}
+    </>
+  )
+
   return (
     <section {...stylex.props(channelStyles.idSection)} aria-label={t.channels.settings.identityLabel}>
       <div {...stylex.props(channelStyles.idBannerCard)}>
@@ -77,18 +129,20 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
           {safeArea && <span {...stylex.props(channelStyles.bannerSafeDim)} aria-hidden="true" />}
           {safeArea && <span {...stylex.props(channelStyles.bannerSafe)} aria-hidden="true" />}
           <span {...stylex.props(channelStyles.bannerChip)}>{tt.bannerCaption}</span>
-          <button {...stylex.props(channelStyles.bannerSafeToggle)}
-            type="button"
-            role="switch"
-            aria-checked={safeArea}
-            aria-label={tt.safeArea}
-            onClick={() => setSafeArea(!safeArea)}
-          >
-            <span {...stylex.props(channelStyles.safeTrack, safeArea && channelStyles.safeTrackOn)} aria-hidden="true">
-              <span {...stylex.props(channelStyles.safeKnob)} />
-            </span>
-            {tt.safeArea}
-          </button>
+          {!phone && (
+            <button {...stylex.props(channelStyles.bannerSafeToggle)}
+              type="button"
+              role="switch"
+              aria-checked={safeArea}
+              aria-label={tt.safeArea}
+              onClick={() => setSafeArea(!safeArea)}
+            >
+              <span {...stylex.props(channelStyles.safeTrack, safeArea && channelStyles.safeTrackOn)} aria-hidden="true">
+                <span {...stylex.props(channelStyles.safeKnob)} />
+              </span>
+              {tt.safeArea}
+            </button>
+          )}
           {generating && (
             <div {...stylex.props(channelStyles.skelOverlay)} role="status">
               <Orb of="artist" size={26} live />
@@ -101,21 +155,84 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
             </div>
           )}
         </div>
-        <div {...stylex.props(channelStyles.bannerActions)}>
-          <ActionButton variant="outline" size="sm"
-            lockedReason={generating ? tt.generatingLock : undefined}
-            onClick={() => void regen('banner')}
-            pending={pending === 'banner'}
-            icon={<Icon name="refresh" size={14} />}
-          >
-            {tt.regenBanner}
-          </ActionButton>
-          {(avatarDownload || bannnerDownload) && (
-            <ActionButton variant="outline" size="sm" title={tt.downloadTitle} onClick={downloadAll} icon={<Icon name="download" size={14} />}>
-              {tt.download}
+
+        {phone && (
+          <>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={safeArea}
+              onClick={() => setSafeArea(!safeArea)}
+              {...stylex.props(mch.safeRow)}
+            >
+              <span {...stylex.props(mch.safeRowText)}>{tt.safeArea}</span>
+              <span aria-hidden="true" {...stylex.props(mch.safeTrack, safeArea && mch.safeTrackOn)}>
+                <span {...stylex.props(mch.safeKnob)} />
+              </span>
+            </button>
+            <div {...stylex.props(mch.idAvatarRow)}>
+              <ChannelAvatar
+                name={channel.name || t.channels.page.noName}
+                src={channel.avatarUrl ?? undefined}
+                color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
+                size={48}
+              />
+              <div {...stylex.props(mch.idAvatarText)}>
+                <span {...stylex.props(mch.idName)}>{channel.name || t.channels.page.noName}</span>
+                <span {...stylex.props(mch.idSub)}>{generating ? tt.generatingLock : tt.readySub}</span>
+              </div>
+            </div>
+            <div {...stylex.props(mch.idGrid)}>
+              <ActionButton variant="outline" size="md" xstyle={mch.idBtn44}
+                lockedReason={generating ? tt.generatingLock : undefined}
+                onClick={() => void regen('banner')}
+                pending={pending === 'banner'}
+                icon={<Icon name="refresh" size={14} />}
+              >
+                {tt.regenBanner}
+              </ActionButton>
+              <ActionButton variant="outline" size="md" xstyle={mch.idBtn44}
+                lockedReason={generating ? tt.generatingLock : undefined}
+                onClick={() => void regen('avatar')}
+                pending={pending === 'avatar'}
+                icon={<Icon name="refresh" size={14} />}
+              >
+                {tt.regenAvatar}
+              </ActionButton>
+              <ActionButton variant="outline" size="md" xstyle={mch.idBtn44} tooltip={tt.regenNameTitle}
+                lockedReason={generating ? tt.generatingLock : undefined}
+                onClick={() => void regen('name')}
+                pending={pending === 'name'}
+                icon={<Icon name="edit" size={14} />}
+              >
+                {tt.regenName}
+              </ActionButton>
+              {(avatarDownload || bannnerDownload) && (
+                <ActionButton variant="outline" size="md" xstyle={[mch.idBtn44, mch.idWide]} title={tt.downloadTitle} onClick={downloadAll} icon={<Icon name="download" size={14} />}>
+                  {tt.download}
+                </ActionButton>
+              )}
+            </div>
+          </>
+        )}
+
+        {!phone && (
+          <div {...stylex.props(channelStyles.bannerActions)}>
+            <ActionButton variant="outline" size="sm"
+              lockedReason={generating ? tt.generatingLock : undefined}
+              onClick={() => void regen('banner')}
+              pending={pending === 'banner'}
+              icon={<Icon name="refresh" size={14} />}
+            >
+              {tt.regenBanner}
             </ActionButton>
-          )}
-        </div>
+            {(avatarDownload || bannnerDownload) && (
+              <ActionButton variant="outline" size="sm" title={tt.downloadTitle} onClick={downloadAll} icon={<Icon name="download" size={14} />}>
+                {tt.download}
+              </ActionButton>
+            )}
+          </div>
+        )}
       </div>
 
       <div {...stylex.props(channelStyles.idInfoCard)}>
@@ -137,83 +254,42 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
           </div>
         )}
 
-        <div {...stylex.props(channelStyles.idrow)}>
-          <ChannelAvatar
-            name={channel.name || t.channels.page.noName}
-            src={channel.avatarUrl ?? undefined}
-            color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
-            size={56}
-          />
-          <div {...stylex.props(channelStyles.idrowText)}>
-            <span {...stylex.props(channelStyles.idname)}>{channel.name || t.channels.page.noName}</span>
-            <span {...stylex.props(channelStyles.idsub, generating && channelStyles.idsubGen)}>
-              {generating ? tt.generatingLock : tt.readySub}
+        {!phone && (
+          <div {...stylex.props(channelStyles.idrow)}>
+            <ChannelAvatar
+              name={channel.name || t.channels.page.noName}
+              src={channel.avatarUrl ?? undefined}
+              color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
+              size={56}
+            />
+            <div {...stylex.props(channelStyles.idrowText)}>
+              <span {...stylex.props(channelStyles.idname)}>{channel.name || t.channels.page.noName}</span>
+              <span {...stylex.props(channelStyles.idsub, generating && channelStyles.idsubGen)}>
+                {generating ? tt.generatingLock : tt.readySub}
+              </span>
+            </div>
+            <span {...stylex.props(channelStyles.idActions)}>
+              <ActionButton variant="outline" size="sm"
+                lockedReason={generating ? tt.generatingLock : undefined}
+                onClick={() => void regen('avatar')}
+                pending={pending === 'avatar'}
+                icon={<Icon name="refresh" size={14} />}
+              >
+                {tt.regenAvatar}
+              </ActionButton>
+              <ActionButton variant="outline" size="sm" tooltip={tt.regenNameTitle}
+                lockedReason={generating ? tt.generatingLock : undefined}
+                onClick={() => void regen('name')}
+                pending={pending === 'name'}
+                icon={<Icon name="edit" size={14} />}
+              >
+                {tt.regenName}
+              </ActionButton>
             </span>
           </div>
-          <span {...stylex.props(channelStyles.idActions)}>
-            <ActionButton variant="outline" size="sm"
-              lockedReason={generating ? tt.generatingLock : undefined}
-              onClick={() => void regen('avatar')}
-              pending={pending === 'avatar'}
-              icon={<Icon name="refresh" size={14} />}
-            >
-              {tt.regenAvatar}
-            </ActionButton>
-            <ActionButton variant="outline" size="sm" tooltip={tt.regenNameTitle}
-              lockedReason={generating ? tt.generatingLock : undefined}
-              onClick={() => void regen('name')}
-              pending={pending === 'name'}
-              icon={<Icon name="edit" size={14} />}
-            >
-              {tt.regenName}
-            </ActionButton>
-          </span>
-        </div>
+        )}
 
-        <div {...stylex.props(channelStyles.idField)}>
-          <span {...stylex.props(channelStyles.idHead)}>{tt.briefTitle}</span>
-          <div {...stylex.props(channelStyles.idBrief)}>{channel.branding.brief || tt.briefEmpty}</div>
-          <span {...stylex.props(channelStyles.idBriefFoot)}>
-            <span>{tt.briefHint}</span>
-            <span className="num">{channel.branding.brief.length} / 2.000</span>
-          </span>
-        </div>
-
-        <div {...stylex.props(channelStyles.idStyleBox)}>
-          <span {...stylex.props(channelStyles.idHead)}>
-            <Icon name="magic" size={15} xstyle={channelStyles.idStyleIcon} />
-            {tt.styleTitle} <span {...stylex.props(channelStyles.idStyleAuto)}>{tt.styleAuto}</span>
-          </span>
-          <p {...stylex.props(channelStyles.idStyleText)}>{channel.branding.look || tt.styleEmpty}</p>
-          {reference && channel.branding.look && (
-            <span {...stylex.props(channelStyles.idStyleNote)}>{tt.styleFrom(reference.title)}</span>
-          )}
-        </div>
-
-        <div {...stylex.props(channelStyles.idField)}>
-          <label {...stylex.props(channelStyles.fieldLabel)} htmlFor="vch-direction">{tt.direction}</label>
-          <div {...stylex.props(channelStyles.idDirRow)}>
-            <input
-              id="vch-direction"
-              {...stylex.props(channelStyles.idDirInput)}
-              value={direction}
-              placeholder={tt.directionPlaceholder}
-              onChange={(event) => setDirection(event.target.value)}
-              maxLength={1000}
-            />
-            <ActionButton variant="outline" size="sm" xstyle={channelStyles.idBtnTall}
-              lockedReason={generating ? tt.generatingLock : undefined}
-              onClick={() => void regen('all')}
-              pending={pending === 'all'}
-              icon={<Icon name="magic" size={14} />}
-            >
-              {tt.regenAll}
-            </ActionButton>
-          </div>
-          <span {...stylex.props(channelStyles.idStyleNote)}>{tt.regenAllHint}</span>
-        </div>
-
-        {error && <p {...stylex.props(channelStyles.fieldError)} role="alert">{error}</p>}
+        {brandFields}
       </div>
     </section>
   )

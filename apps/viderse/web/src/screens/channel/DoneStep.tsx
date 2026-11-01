@@ -5,7 +5,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // "Đang chạy nền" đọc trạng thái nhận diện thật (SSE `channels` + tiến độ từ
 // `activity` kind identity); thẻ "Việc tiếp theo" là video mới nhất thật của
 // đối thủ tham chiếu. Nút Làm video là việc của hàng chờ — khoá kèm lý do.
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Icon, ProgressBar, Spinner } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
@@ -20,6 +20,9 @@ import { fmtAge, fmtDuration, fmtScore } from '../explore/fmt'
 import { fmtTime } from './fmt'
 import { channelTint } from '../../lib/channelTint'
 import { useMediaQuery } from '../../lib/useMediaQuery'
+import { MobilePage } from '@noverse/ui'
+import { navigate } from '../../router'
+import { mch } from './mobile/mchannel.stylex'
 
 export function DoneStep({ channelId, onLeave }: {
   /** id kênh vừa tạo (sessionStorage) — tải lại trang thì lấy kênh mới nhất */
@@ -57,9 +60,28 @@ export function DoneStep({ channelId, onLeave }: {
   const percent = task?.progress ? Math.round((task.progress.done / Math.max(1, task.progress.total)) * 100) : 0
   const identity = data?.identity
 
+  /** Điện thoại: một đầu trang riêng "Kênh mới" + nút đóng; không appbar/breadcrumb. */
+  const wrap = (content: ReactNode) => (mobile ? (
+    <MobilePage
+      title={tt.noName}
+      leading={(
+        <button
+          type="button"
+          aria-label={t.common.close}
+          onClick={() => { onLeave(); navigate(data ? paths.channel(data.id) : paths.workbench()) }}
+          {...stylex.props(mch.closeBtn)}
+        >
+          <Icon name="close" size={20} />
+        </button>
+      )}
+    >
+      {content}
+    </MobilePage>
+  ) : content)
+
   if (!data || !identity) {
-    return (
-      <div className={`vch-new ${stylex.props(channelStyles.new, channelRootMarker).className}`}>
+    return wrap(
+      <div className={`vch-new ${stylex.props(channelStyles.new, channelRootMarker, mobile && mch.embedded).className}`}>
         <div className={`vch-new__main ${stylex.props(channelStyles.newMain).className}`}>
           <h1 {...stylex.props(channelStyles.newTitle, channelStyles.doneHeading)}>{tt.title}</h1>
           <p className={`vch-intro ${stylex.props(channelStyles.intro).className}`}>{channels.initialLoading || channel.initialLoading ? t.common.loading : tt.bruteForce}</p>
@@ -131,8 +153,8 @@ export function DoneStep({ channelId, onLeave }: {
     ].filter(Boolean).join(' · ')
     : ''
 
-  return (
-    <div className={`vch-new vch-done ${stylex.props(channelStyles.new, channelRootMarker).className}`}>
+  return wrap(
+    <div className={`vch-new vch-done ${stylex.props(channelStyles.new, channelRootMarker, mobile && mch.embedded).className}`}>
       <div className={`vch-new__main ${stylex.props(channelStyles.newMain).className}`}>
         <div className={`vch-done__head ${stylex.props(channelStyles.doneHead, mobile && channelStyles.doneHeadM).className}`}>
           {directorFailed ? (

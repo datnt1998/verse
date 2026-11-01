@@ -11,11 +11,11 @@ import { channelStyles } from './channel.stylex'
 // đối thủ cuối → khối nhịp hiện lý do tạm dừng.
 // Mức tự chủ + Ưu tiên kênh (§20) thay công tắc Tự lấy: AutonomyCard.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
+import { ActionSheet, Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/channels'
-import { paths } from '../../router'
+import { navigate, paths } from '../../router'
 import { keys } from '../../data/keys'
 import { listRivals, getRivalScan, getPostingSlots, addRival, type Rival } from '../../api/rivals'
 import { useResource } from '../../data/useResource'
@@ -29,6 +29,8 @@ import { Orb } from '../../components/Orb'
 import { TodayRow } from '../../components/autonomy/TodayRow'
 import { AutonomyCard, PrioritySeg } from '../../components/autonomy/AutonomyCard'
 import { ScheduleCard } from './ScheduleCard'
+import { AutonomyCardMobile, PrioritySegMobile } from './mobile/AutonomyMobile'
+import { mch } from './mobile/mchannel.stylex'
 import { ASIDE_HIDDEN } from './breakpoint'
 import { fmtAge, fmtSubs } from '../explore/fmt'
 
@@ -43,6 +45,7 @@ export function SourcesTab({ channel, channels }: {
   const tt = t.channels.sources
   // Cột phải ẩn dưới 1181 px → khối Lịch đăng nằm trong tab này thay vì cột phải.
   const narrow = useMediaQuery(ASIDE_HIDDEN)
+  const phone = useMediaQuery('(max-width: 767px)')
   const ta = t.autonomy
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = rivalsRes.data?.rivals ?? []
@@ -93,6 +96,86 @@ export function SourcesTab({ channel, channels }: {
 
   const linkedElsewhere = (rivalId: string) =>
     channels.filter((other) => other.id !== channel.id && other.sources.some((source) => source.rivalId === rivalId))
+
+  if (phone) {
+    return (
+      <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
+        <section {...stylex.props(mch.card16)} aria-label={ta.pacing.title}>
+          <div {...stylex.props(mch.headRow)}>
+            <span {...stylex.props(mch.orbs)} aria-hidden="true"><Orb of="scout" size={22} live /></span>
+            <div {...stylex.props(mch.headText)}>
+              <h2 {...stylex.props(mch.cardTitle)}>{ta.pacing.title}</h2>
+              <span {...stylex.props(mch.cardSub)}>{ta.pacing.hint}</span>
+              {channel.sources.length === 0 && <span {...stylex.props(mch.hint, mch.footNoteBlocked)}>{ta.pacing.paused}</span>}
+            </div>
+          </div>
+          <div {...stylex.props(mch.paceBox)}>
+            <span {...stylex.props(mch.paceLabel)}>{tt.pace}</span>
+            <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
+            <span {...stylex.props(mch.autonomyCur)}>{tt.paceUnit}</span>
+          </div>
+          <span {...stylex.props(mch.hint)}>{ta.pacing.note}</span>
+          <PrioritySegMobile channel={channel} />
+          <TodayRow channel={channel} rivals={rivals} />
+          {error && <p role="alert" {...stylex.props(mch.error)}>{error}</p>}
+        </section>
+
+        <AutonomyCardMobile channel={channel} />
+
+        <section {...stylex.props(mch.card16)} aria-label={tt.rivalsTitle}>
+          <div {...stylex.props(mch.rivalHead)}>
+            <span {...stylex.props(mch.rivalHeadTitle)}>{tt.rivalsTitle}</span>
+            <span className={`num ${stylex.props(mch.rivalCount).className}`}>{channel.sources.length}</span>
+            <span {...stylex.props(mch.spacer)} />
+            <button
+              ref={triggerRef}
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={pickerOpen}
+              onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
+              {...stylex.props(mch.linkBtn44, mch.rivalLink)}
+            >
+              <Icon name="add" size={14} />
+              {tt.linkBtn}
+            </button>
+            {pickerOpen && (
+              <LinkPickerPopover
+                channel={channel}
+                rivals={rivals}
+                linkedElsewhere={linkedElsewhere}
+                anchor={triggerRef}
+                onClose={closePicker}
+              />
+            )}
+          </div>
+          {channel.sources.length === 0 ? (
+            <div role="status" {...stylex.props(mch.emptyBox)}>
+              <div {...stylex.props(mch.emptyText)}>
+                <b {...stylex.props(mch.emptyTitle)}>{tt.emptyTitle}</b>
+                <span {...stylex.props(mch.emptyBody)}>{tt.emptyBody}</span>
+              </div>
+            </div>
+          ) : channel.sources.map((source) => (
+            <SourceRow
+              key={source.rivalId}
+              variant="mobile"
+              source={source}
+              rival={rivalOf(source.rivalId)}
+              onUnlink={() => askUnlink(source.rivalId)}
+            />
+          ))}
+          <AddRivalRow
+            mobile
+            channelId={channel.id}
+            onLinked={() => { void invalidate(keys.channels()); void invalidate(keys.rivals()) }}
+          />
+          <p {...stylex.props(mch.footNote)}>{t.channels.sources.linkHint}</p>
+        </section>
+
+        <ScheduleCard channel={channel} variant="mobile" />
+      </section>
+    )
+  }
 
   return (
     <section className={`vch-sources ${stylex.props(channelStyles.sources).className}`} aria-label={t.channels.page.tabs.sources}>
@@ -173,12 +256,14 @@ export function SourcesTab({ channel, channels }: {
 }
 
 /** Một đối thủ đã liên kết: quét + lịch đăng đọc riêng hàng này (cache theo id). */
-function SourceRow({ source, rival, onUnlink }: {
+function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
   source: ChannelSource
   rival: Rival | undefined
   onUnlink: () => void
+  variant?: 'desktop' | 'mobile'
 }) {
   const tt = t.channels.sources
+  const [sheet, setSheet] = useState(false)
   const scan = useResource(keys.rivalScan(source.rivalId), ({ signal }) => getRivalScan(source.rivalId, signal))
   const posting = useResource(keys.rivalPosting(source.rivalId, 'vn'), ({ signal }) => getPostingSlots(source.rivalId, 'vn', signal))
   // Dữ liệu quét có thể lỗi/không đúng hình (404 trong test, máy chưa quét) → chỉ
@@ -194,6 +279,56 @@ function SourceRow({ source, rival, onUnlink }: {
       : tt.scanned(num.format(indexed)),
     rival?.scannedAt ? tt.seen(fmtAge(rival.scannedAt)) : '',
   ].filter(Boolean).join(' · ')
+
+  if (variant === 'mobile') {
+    const href = `#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`
+    return (
+      <div {...stylex.props(mch.rivalRow)}>
+        <ChannelAvatar
+          name={source.title}
+          src={rival?.avatarUrl ?? undefined}
+          color={{ bg: channelTint(source.rivalId) }}
+          size={36}
+          fontSize={12}
+        />
+        <div {...stylex.props(mch.rivalText)}>
+          <div {...stylex.props(mch.row6, mch.minWidth0)}>
+            <span {...stylex.props(mch.rivalName)}>{source.title}</span>
+            {source.reference && <span {...stylex.props(mch.refBadge)}>{tt.linkedBadge}</span>}
+          </div>
+          {scanning && <span {...stylex.props(mch.autonomyCur)}>{tt.scanChip}</span>}
+          <span {...stylex.props(mch.rivalMeta)} title={meta}>{meta}</span>
+        </div>
+        <ActionButton
+          size="sm"
+          xstyle={mch.refreshBtn}
+          lockedReason={t.channels.queueLock}
+          icon={<Icon name="video-add" size={14} />}
+        >
+          {tt.makeLatest}
+        </ActionButton>
+        <button
+          type="button"
+          aria-label={`${tt.unlink}: ${source.title}`}
+          aria-haspopup="dialog"
+          onClick={() => setSheet(true)}
+          {...stylex.props(mch.moreBtn)}
+        >
+          <Icon name="more" size={16} />
+        </button>
+        <ActionSheet
+          open={sheet}
+          onClose={() => setSheet(false)}
+          title={source.title}
+          actions={[
+            { label: tt.topVideos, icon: 'chart', onSelect: () => navigate(href.slice(1)) },
+            { label: tt.openExplore, icon: 'global', onSelect: () => navigate(href.slice(1)) },
+            { label: tt.unlink, icon: 'link', destructive: true, onSelect: onUnlink },
+          ]}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className={`vch-rival ${stylex.props(channelStyles.rival).className}`}>
@@ -239,7 +374,7 @@ function SourceRow({ source, rival, onUnlink }: {
 }
 
 /** Theo dõi đối thủ mới rồi liên kết luôn vào kênh (W2: "Theo dõi & chọn"). */
-function AddRivalRow({ channelId, onLinked }: { channelId: string; onLinked: () => void }) {
+function AddRivalRow({ channelId, onLinked, mobile = false }: { channelId: string; onLinked: () => void; mobile?: boolean }) {
   const tt = t.channels.sources.add
   const [value, setValue] = useState('')
   const [pending, setPending] = useState(false)
@@ -267,20 +402,23 @@ function AddRivalRow({ channelId, onLinked }: { channelId: string; onLinked: () 
     <form
       aria-label={tt.label}
       onSubmit={(event) => { event.preventDefault(); void submit() }}
-      style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-8)' }}
+      {...stylex.props(mch.rivalForm, mch.sourceRivalForm, mobile && mch.sourceRivalFormMobile)}
     >
       <span {...stylex.props(text.srOnly)}><label htmlFor="vch-add-rival">{tt.label}</label></span>
       <input
         id="vch-add-rival"
-        className={`vch-taginput ${stylex.props(channelStyles.taginput).className}`}
-        style={{ flex: '1 1 220px', width: 'auto', height: 'var(--vv-s-34)' }}
+        className={`vch-taginput ${stylex.props(mobile ? mch.input44 : channelStyles.taginput, mch.rivalInput, mobile && mch.rivalInputMobile).className}`}
         value={value}
         placeholder={tt.placeholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
-        {tt.submit}
-      </ActionButton>
+      {mobile
+        ? <button type="submit" disabled={pending || !value.trim()} {...stylex.props(mch.addBtn)}>{pending ? t.common.loading : tt.submit}</button>
+        : (
+          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
+            {tt.submit}
+          </ActionButton>
+        )}
       {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )

@@ -17,13 +17,14 @@ import { useResource } from '../../data/useResource'
 import { getPostingSlots, type PostingZone } from '../../api/rivals'
 import type { Channel } from '../../api/channels'
 import { mergePostingSchedules, scheduleTotals, type ScheduleInput } from './schedule'
+import { mch } from './mobile/mchannel.stylex'
 
 const ZONES: PostingZone[] = ['vn', 'ny']
 
 export function ScheduleCard({ channel, variant = 'aside' }: {
   channel: Channel
   /** aside = cột phải; tab = bản trong tab Nguồn khi cột phải bị ẩn */
-  variant?: 'aside' | 'tab'
+  variant?: 'aside' | 'tab' | 'mobile'
 }) {
   const tt = t.channels.schedule
   const [zone, setZone] = useState<PostingZone>('vn')
@@ -46,6 +47,51 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
   const inputs = data.data ?? []
   const slots = mergePostingSchedules(inputs)
   const totals = scheduleTotals(inputs)
+
+  if (variant === 'mobile') {
+    return (
+      <section {...stylex.props(mch.card16)} aria-label={tt.title}>
+        <div {...stylex.props(mch.scheduleHead)}>
+          <Icon name="calendar" size={16} />
+          <h2 {...stylex.props(mch.scheduleTitle)}>{tt.title}</h2>
+          <button
+            type="button"
+            aria-label={tt.zone}
+            onClick={() => setZone(zone === 'vn' ? 'ny' : 'vn')}
+            {...stylex.props(mch.scheduleZone, mch.buttonReset)}
+          >
+            {tt.zones[zone]}
+          </button>
+        </div>
+        {sources.length === 0 ? (
+          <p {...stylex.props(mch.hint)}>{tt.none}</p>
+        ) : data.initialLoading && !data.data ? (
+          <p {...stylex.props(mch.hint)}>{tt.loading}</p>
+        ) : (
+          <>
+            <span className={`num ${stylex.props(mch.scheduleSum).className}`}>{tt.summary(totals.videos, totals.rivals, slots.length)}</span>
+            {slots.length === 0
+              ? <p {...stylex.props(mch.hint)}>{tt.empty}</p>
+              : (
+                <ul aria-label={tt.rowsLabel} {...stylex.props(mch.listReset)}>
+                  {slots.map((slot) => (
+                    <li key={slot.key} {...stylex.props(mch.scheduleRow)}>
+                      <span {...stylex.props(mch.scheduleDay)}>{slot.weekdays.map((day) => t.screens.explore.weekdays[day]).join(' · ')}</span>
+                      <span className={`num ${stylex.props(mch.scheduleTime).className}`}>{slot.start}–{slot.end}</span>
+                      <span {...stylex.props(mch.scheduleWho)} title={slot.rivals.map((rival) => rival.title).join(' · ')}>{slot.rivals.map((rival) => rival.title).join(' · ')}</span>
+                      <span className={`num ${stylex.props(mch.scheduleCount).className}`}>{tt.slotVideos(slot.count)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+          </>
+        )}
+        {sources.length > 0 && (
+          <a href={`#${paths.explore()}`} {...stylex.props(mch.scheduleMore)}>{tt.explore} <Icon name="arrow-right-2" size={14} /></a>
+        )}
+      </section>
+    )
+  }
 
   return (
     <section className={`vch-card vch-schedule${variant === 'aside' ? '' : ' vch-schedule--tab'} ${stylex.props(channelStyles.card, variant !== 'aside' && channelStyles.scheduleTab).className}`} aria-label={tt.title}>

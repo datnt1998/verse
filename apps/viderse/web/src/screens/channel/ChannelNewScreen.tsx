@@ -12,6 +12,7 @@ import { navigate, paths, type ChannelNewStep, type Route } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { listChannels } from '../../api/channels'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { dismissOnboard, onboardDismissed, setLastCreatedChannel, lastCreatedChannel } from '../../lib/onboard'
 import { CreateStep } from './CreateStep'
 import { DoneStep } from './DoneStep'
@@ -20,11 +21,13 @@ export function ChannelNewScreen({ route }: { route: Extract<Route, { name: 'cha
   const step: ChannelNewStep = route.step ?? 'create'
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
   const list = channels.data?.channels ?? []
-  const firstRun = step === 'create' && !onboardDismissed() && channels.data !== undefined && list.length === 0
+  const narrow = useMediaQuery('(max-width: 767px)')
+  const onboardFlow = step === 'create' && !onboardDismissed() && channels.data !== undefined && list.length === 0
+  const firstRun = !narrow && onboardFlow
   const tt = t.channels
 
   const leaveOnboard = () => {
-    if (firstRun) dismissOnboard()
+    if (onboardFlow) dismissOnboard()
   }
 
   const cancel = () => {

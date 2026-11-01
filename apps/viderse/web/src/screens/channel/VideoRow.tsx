@@ -15,6 +15,7 @@ import { fmtDuration } from '../explore/fmt'
 import { downloadBundle } from './videoBulk'
 import { sourceLine, statusDetail, statusOf, type RowAction } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
+import { mch } from './mobile/mchannel.stylex'
 
 const tt = t.channels.videos.list
 
@@ -32,6 +33,9 @@ export type VideoRowProps = {
   onPick: (id: string, shift: boolean) => void
   onRefresh: () => void
   onError: (message: string) => void
+  /** `mobile`: hàng phẳng của MChannel (không bảng, không cột) */
+  variant?: 'table' | 'mobile'
+  first?: boolean
 }
 
 const openJob = (job: ChannelJob) => navigate(routePath({ name: 'workbench', channel: job.channelId, video: job.id }))
@@ -66,6 +70,42 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
     if ((event.target as HTMLElement).closest('a, button, [role="menu"]')) return
     if (selecting) onPick(job.id, event.shiftKey)
     else openJob(job)
+  }
+
+  if (props.variant === 'mobile') {
+    const line = detail ? `${statusName(status)} · ${detail}` : statusName(status)
+    return (
+      <div onClick={click} {...stylex.props(mch.vRow, props.first && mch.vRowFirst)}>
+        <a href={workbenchHref(job)} aria-hidden="true" tabIndex={-1} {...stylex.props(mch.vThumb)}>
+          {job.source.thumbnailUrl ? <img src={job.source.thumbnailUrl} alt="" loading="lazy" {...stylex.props(mch.vThumbImg)} /> : null}
+          {job.source.durationSec != null && <span className={`num mono ${stylex.props(mch.vDuration).className}`}>{fmtDuration(job.source.durationSec)}</span>}
+        </a>
+        <div {...stylex.props(mch.vText)}>
+          <a href={workbenchHref(job)} title={title} {...stylex.props(mch.vTitle)}>{title}</a>
+          <span {...stylex.props(mch.vStatus, sx.tone(statusColor(status)))}>
+            <span aria-hidden="true" {...stylex.props(status === 'working' ? mch.vSpin : mch.vDot)} />
+            <span title={line} {...stylex.props(mch.vStatusText)}>{line}</span>
+          </span>
+          {action === 'pack'
+            ? <button type="button" onClick={() => downloadBundle([job.id])} {...stylex.props(mch.vAct)}>{tt.pack}</button>
+            : action === 'review'
+              ? <a href={reviewHref(job)} {...stylex.props(mch.vAct, mch.vActWarn)}>{tt.review}</a>
+              : action === 'fix'
+                ? <a href={workbenchHref(job)} {...stylex.props(mch.vAct, mch.vActFix)}>{tt.fix}</a>
+                : action === 'open'
+                  ? <a href={workbenchHref(job)} {...stylex.props(mch.vAct)}>{tt.open}</a>
+                  : null}
+        </div>
+        <ActionMenu
+          alwaysVisible
+          label={tt.moreFor(title)}
+          items={menuItems(job, props)}
+          width={248}
+          triggerStyle={mch.vMore}
+          trigger={<Icon name="more" size={16} />}
+        />
+      </div>
+    )
   }
 
   return (
