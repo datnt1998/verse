@@ -39,6 +39,8 @@ export function toastBottomFor(route: string): number | null {
     case 'command': return 112
     case 'activity': case 'notifications': return 30
     case 'project': case 'help': case 'settings': return 100
+    // M11: nút dính đáy (50) + lý do khoá + safe area — toast nằm trên cả hai.
+    case 'newstory': return 120
     default: return null
   }
 }

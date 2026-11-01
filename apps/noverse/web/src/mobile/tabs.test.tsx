@@ -171,10 +171,11 @@ describe('route → pane', () => {
     // Mọi hash mà điện thoại có thể đang mở (kể cả hash cũ do bản máy tính ghi lại).
     for (const hash of [
       '#/settings', '#/settings/providers', '#/settings/roles', '#/settings/writing', '#/settings/voice', '#/settings/library',
-      '#/p/a/new', '#/p/a/s/b/quality', '#/system/brain', '#/khong-co', '#/notifications',
+      '#/p/a/s/b/quality', '#/system/brain', '#/khong-co', '#/notifications', '#/p/a/new',
     ]) {
       const key = paneKeyOf(parseHash(hash))
-      if (hash === '#/notifications') { expect(key, hash).toBeNull(); continue }
+      // M11 · Truyện mới có màn riêng trên điện thoại (Gói AR) nên không cần pane phía sau.
+      if (hash === '#/notifications' || hash === '#/p/a/new') { expect(key, hash).toBeNull(); continue }
       expect(key, hash).toBe('more:mobile:')
     }
   })
@@ -182,7 +183,8 @@ describe('route → pane', () => {
   it('route máy tính được thay bằng URL điện thoại ngay (replace), không để URL lạ nằm lại', () => {
     expect(phoneRedirect(parseHash('#/settings'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/settings/providers'))).toBe('/settings/mobile')
-    expect(phoneRedirect(parseHash('#/p/a/new'))).toBe('/settings/mobile')
+    // M11: Truyện mới chạy được trên điện thoại — không còn chuyển về tab Thêm.
+    expect(phoneRedirect(parseHash('#/p/a/new'))).toBeNull()
     expect(phoneRedirect(parseHash('#/system/brain'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/khong-co'))).toBe('/settings/mobile')
     expect(phoneRedirect(parseHash('#/p/a/s/b/quality'))).toBe('/p/a/s/b/work')

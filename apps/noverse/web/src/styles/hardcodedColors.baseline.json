@@ -68,7 +68,7 @@
   "screens/project/ProjectTree.tsx": 6,
   "screens/project/RightColumn.tsx": 21,
   "screens/project/StoryView.tsx": 12,
-  "screens/project/tabs/CastTab.tsx": 12,
+  "screens/project/tabs/CastTab.tsx": 10,
   "screens/project/tabs/ExportTab.tsx": 17,
   "screens/project/tabs/ForeshadowTab.tsx": 14,
   "screens/project/tabs/OutlineTab.tsx": 24,

@@ -11,6 +11,7 @@ import { modelOptions } from '../settings/lib/config'
 import { styleDisplayName } from '../settings/sections/style'
 import { StyleQuickPicker, WriterQuickPicker } from '../settings/sections/quick-pickers'
 import type { QuickStoryChoices } from './creation'
+import { startBlock, startBlockedReason } from './creation'
 import { amWritingCopy, t } from '../../i18n/vi'
 import { paths } from '../../router'
 import { AgentOrb } from '@noverse/ui'
@@ -30,7 +31,7 @@ const FLOAT = [
   { agent: 'arbiter', size: 28, delay: '4.5s' },
 ] as const
 
-const FLOW = [
+export const FLOW = [
   { orb: 'arbiter', text: 'Trọng tài chọn truyện ngắn hay dài' },
   { orb: 'architect', text: 'Kiến trúc sư so với truyện trước, lập đại cương' },
   { orb: 'writer', text: 'Người viết viết từng chương' },
@@ -157,13 +158,7 @@ export function QuickMode({ prompt, onPrompt, onStart, choices, onChoices, busy,
   const pack = findPack(presets.data?.packs, style)
   const projectModel = effective?.roles?.writer?.model || effective?.roles?.default?.model || effective?.model || '—'
   const model = choices.writer?.model || projectModel
-  const disabledReason = offline
-    ? 'Mất kết nối — chờ kết nối lại để bắt đầu.'
-    : !prompt.trim()
-      ? 'Nhập ý tưởng hoặc yêu cầu sáng tác để bắt đầu.'
-      : gate.blocked
-        ? t.newStoryCheck.blockedHint
-        : null
+  const disabledReason = startBlockedReason(startBlock({ offline, prompt, blocked: gate.blocked }))
 
   const submit = () => { if (!busy && !disabledReason) onStart() }
 

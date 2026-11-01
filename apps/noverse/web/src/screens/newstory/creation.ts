@@ -1,9 +1,31 @@
 import { createStory, putConfig, sendInput } from '../../api/client'
 import type { Config, ModelRef, StorySummary } from '../../api/types'
-import { amWritingCopy } from '../../i18n/vi'
+import { amWritingCopy, t } from '../../i18n/vi'
 import { writerConfig } from '../settings/sections/style'
 
 export type QuickStoryChoices = { style: string | null; writer: ModelRef | null }
+
+/** Lý do nút *Bắt đầu viết* bị khoá — máy tính và M11 dùng chung một luật. */
+export type StartBlock = 'offline' | 'empty' | 'blocked'
+
+export function startBlock({ offline, prompt, blocked }: { offline: boolean; prompt: string; blocked: boolean }): StartBlock | null {
+  if (offline) return 'offline'
+  if (!prompt.trim()) return 'empty'
+  return blocked ? 'blocked' : null
+}
+
+/** Câu hiện ngay trên nút. Bản điện thoại dùng câu ngắn của 07-copy.md › Gói AR. */
+export function startBlockedReason(block: StartBlock | null, variant: 'desktop' | 'phone' = 'desktop'): string | null {
+  if (block === 'offline') return 'Mất kết nối — chờ kết nối lại để bắt đầu.'
+  if (block === 'empty') return 'Nhập ý tưởng hoặc yêu cầu sáng tác để bắt đầu.'
+  if (block === 'blocked') return variant === 'phone' ? t.newStory.blockedBar : t.newStoryCheck.blockedHint
+  return null
+}
+
+/** Tên truyện tạm khi bắt đầu từ tệp: bỏ thư mục và đuôi tệp (Kiến trúc sư đặt lại tên sau). */
+export function storyNameFromFile(path: string): string {
+  return path.split('/').pop()?.replace(/\.[^.]+$/, '') ?? ''
+}
 
 /** Only explicit choices that differ from the project's current defaults become story config. */
 export function quickStoryConfig(choices: QuickStoryChoices, project?: Config): Config {
