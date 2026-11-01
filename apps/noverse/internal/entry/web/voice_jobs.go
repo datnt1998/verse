@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
@@ -37,8 +38,20 @@ func newVoiceJobsProvider(g *Gateway) JobsProvider { return voiceJobsProvider{g:
 
 func (voiceJobsProvider) Kind() string { return voiceJobsKind }
 
-// hosted báo tiến độ đến từ trạng thái máy đọc trong cơ sở dữ liệu.
-func (p voiceJobsProvider) hosted() bool { return p.g != nil && p.g.pgAudio != nil }
+// hosted báo tiến độ đến từ trạng thái máy đọc trong cơ sở dữ liệu. Lúc dựng
+// gateway chỉ thấy nil, nên dùng audioStoreClosed (tín hiệu của SetAudioStore)
+// làm mốc “đã chọn hosted backend”, thay vì tin mãi ảnh chụp lúc dựng.
+func (p voiceJobsProvider) hosted() bool {
+	if p.g == nil {
+		return false
+	}
+	deps, injected, _ := p.g.audioDeps()
+	return deps != nil || injected
+}
+
+// voiceHostedPollInterval 是 hosted 安装状态的轮询间隔；测试改小它以免
+// 每个用例都等满一秒。
+var voiceHostedPollInterval = time.Second
 
 func (p voiceJobsProvider) progress() voice.InstallProgress {
 	if p.hosted() {
@@ -60,22 +73,45 @@ func (p voiceJobsProvider) Jobs() []Job {
 }
 
 // Watch phát mỗi mốc tiến độ; lượt cài biến mất thì phát Removed.
+//
+// NewGateway 在 SetAudioStore 之前就启动了 watcher，所以这里不能只选一次
+// 后端：先按本地安装状态监听，注入 hosted 依赖（audioStoreCh 关闭）时取消
+// 本地订阅、同一个 goroutine 转到 hosted 轮询。只有一条循环，不会重复。
 func (p voiceJobsProvider) Watch(ctx context.Context, emit func(JobChange)) {
 	if p.hosted() {
 		p.watchHosted(ctx, emit)
 		return
 	}
+	var injected <-chan struct{}
+	if p.g != nil {
+		_, _, injected = p.g.audioDeps()
+	}
+	p.watchLocal(ctx, emit, injected)
+}
+
+// watchLocal 监听本机安装进度，直到 ctx 结束或 hosted 后端注入。
+func (p voiceJobsProvider) watchLocal(ctx context.Context, emit func(JobChange), injected <-chan struct{}) {
+	var switched atomic.Bool
 	unsub := ttsService().SubscribeInstall(func(progress voice.InstallProgress) {
+		if switched.Load() {
+			return
+		}
 		emitVoiceInstall(emit, progress)
 	})
 	defer unsub()
-	<-ctx.Done()
+	select {
+	case <-ctx.Done():
+	case <-injected:
+		switched.Store(true)
+		unsub()
+		p.watchHosted(ctx, emit)
+	}
 }
 
-// watchHosted hỏi trạng thái máy đọc mỗi giây: máy Mac công bố qua worker
-// listener, không có kênh đẩy nào tới tiến trình web.
+// watchHosted hỏi trạng thái máy đọc mỗi voiceHostedPollInterval: máy Mac công
+// bố qua worker listener, không có kênh đẩy nào tới tiến trình web.
 func (p voiceJobsProvider) watchHosted(ctx context.Context, emit func(JobChange)) {
-	tick := time.NewTicker(time.Second)
+	tick := time.NewTicker(voiceHostedPollInterval)
 	defer tick.Stop()
 	var last voice.InstallProgress
 	have := false
@@ -195,6 +231,10 @@ func (p voiceJobsProvider) Control(ctx context.Context, id, op string) error {
 // controlHosted đẩy lệnh sang máy đọc: retry = xếp lệnh install, cancel không
 // có nghĩa vì lượt cài chạy trên máy khác và không có kênh dừng.
 func (p voiceJobsProvider) controlHosted(ctx context.Context, op string) error {
+	deps, _, _ := p.g.audioDeps()
+	if deps == nil || deps.Jobs == nil {
+		return errJobUnsupported
+	}
 	snap := p.g.workerSnapshot(ctx)
 	switch op {
 	case "retry":
@@ -204,7 +244,7 @@ func (p voiceJobsProvider) controlHosted(ctx context.Context, op string) error {
 		if snap.State.State == voice.ProvisionStateReady {
 			return errors.New("Bộ đọc trên máy đã cài xong")
 		}
-		_, err := p.g.pgAudio.Jobs.BumpWorkerCommand(ctx, snap.ID, "install")
+		_, err := deps.Jobs.BumpWorkerCommand(ctx, snap.ID, "install")
 		return err
 	case "cancel":
 		return errJobUnsupported

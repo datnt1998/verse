@@ -180,8 +180,19 @@ type jobsHub struct {
 	now            func() time.Time
 	seq            uint64
 	controls       map[string]func(context.Context, string) error
-	dismissed      map[string]time.Time
+	dismissed      map[string]dismissedAttempt
 	deletedStories map[string]bool
+}
+
+// dismissedAttempt 是操作者从 dock 移除的那一次任务状态。provider 刷新时
+// 会重报同一行（例如失败后 GET /api/jobs 又灌一遍），只有重报的状态与
+// 被移除时完全一致才继续隐藏；重试/新一轮/状态变化是另一次尝试，必须重新
+// 出现，而不是被一个永久的 ID 黑名单吃掉。
+type dismissedAttempt struct {
+	job Job
+	// until 只用于已完成行：结果在保留期后本来就会过期。失败的尝试没有
+	// 时钟过期 —— 同一失败被反复刷新也必须保持隐藏，直到真的换了尝试。
+	until time.Time
 }
 
 func newJobsHub(pub *EventHub) *jobsHub {
@@ -265,8 +276,9 @@ func (h *jobsHub) applyLocked(c JobChange) {
 		h.broadcastLocked(prev, "job.removed", map[string]string{"id": id})
 		return
 	}
-	if until, hidden := h.dismissed[id]; hidden {
-		if c.Job.Status == JobDoneS && h.now().Before(until) {
+	if attempt, hidden := h.dismissed[id]; hidden {
+		expired := !attempt.until.IsZero() && !h.now().Before(attempt.until)
+		if !expired && jobsEqual(attempt.job, c.Job) {
 			return
 		}
 		delete(h.dismissed, id)
@@ -279,12 +291,17 @@ func (h *jobsHub) applyLocked(c JobChange) {
 }
 
 func (h *jobsHub) dismiss(job Job) {
+	normalizeJobError(&job)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if h.dismissed == nil {
-		h.dismissed = map[string]time.Time{}
+		h.dismissed = map[string]dismissedAttempt{}
 	}
-	h.dismissed[job.ID] = h.now().Add(jobRetention)
+	attempt := dismissedAttempt{job: job}
+	if job.Status == JobDoneS {
+		attempt.until = h.now().Add(jobRetention)
+	}
+	h.dismissed[job.ID] = attempt
 	h.applyLocked(JobChange{Job: job, Removed: true})
 }
 
@@ -302,8 +319,8 @@ func (h *jobsHub) pruneLocked() {
 			h.broadcastLocked(j, "job.removed", map[string]string{"id": id})
 		}
 	}
-	for id, until := range h.dismissed {
-		if !h.now().Before(until) {
+	for id, attempt := range h.dismissed {
+		if !attempt.until.IsZero() && !h.now().Before(attempt.until) {
 			delete(h.dismissed, id)
 		}
 	}
