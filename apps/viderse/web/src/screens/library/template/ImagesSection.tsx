@@ -4,7 +4,8 @@ import { libraryVars } from '../libraryTokens.stylex'
 // Mục Ảnh cảnh (Template.dc.html › lib=images): cách ghép ảnh, prompt ảnh cảnh,
 // số ảnh + giá, chuyển động, độ trong suốt, ảnh đối thủ. Mọi điều khiển lưu
 // ngay qua `onSave` với khối `scenes` đầy đủ (PATCH thay cả recipe).
-import { NumberStepper, RadioCard, Segmented, Switch } from '@noverse/ui'
+import { NumberStepper, RadioCard, Switch } from '@noverse/ui'
+import { Segmented } from '../../../components/Segmented'
 import { t } from '../../../i18n/vi'
 import { num, usd } from '../fmt'
 import type { ImagePrompt, PriceEstimate, Recipe, ScenePlacement } from '../../../api/library'
@@ -81,7 +82,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
         <span className={`vt-label ${stylex.props(sx.label).className}`} id="vt-count">{copy.countTitle}</span>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.countAria}
-          fit="content"
+         
           value={scenes.images.mode}
           onChange={(mode) => setScenes({ images: { ...scenes.images, mode: mode as Recipe['scenes']['images']['mode'] } })}
           options={[
@@ -117,7 +118,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave }: {
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.motionTitle}</span>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.motionAria}
-          fit="content"
+         
           value={scenes.motion.kind}
           onChange={(kind) => setScenes({ motion: { ...scenes.motion, kind: kind as Recipe['scenes']['motion']['kind'] } })}
           options={[

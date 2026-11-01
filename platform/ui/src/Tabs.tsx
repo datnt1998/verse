@@ -43,7 +43,11 @@ const sx = stylex.create({
   segmentHintRoot: { gap: 2, backgroundColor: color['--color-surface-1'], borderColor: line['--line-1'] },
   segmentButton: (radius: number) => ({ position: 'relative', zIndex: 1, borderWidth: 0, borderStyle: 'none', borderRadius: radius, backgroundColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }),
   segmentSimpleButton: { fontSize: 12.5, whiteSpace: 'nowrap' },
+  // 'equal': chia đều cứng (Noverse, lưới tab). 'fill': chia đều nhưng nhãn
+  // dài vẫn giữ đủ chữ (min-width: max-content) — `.vv-seg--fill`.
   segmentFill: { flex: 1, minWidth: 0 },
+  segmentFillContent: { flex: '1 1 0', minWidth: 'max-content' },
+  // 'content': mục rộng đúng nhãn (`.vv-seg`, đợt 34) — không cắt “…”.
   segmentContent: { flex: '0 0 auto', paddingInline: 12 },
   segmentHintButton: { minWidth: 0, minHeight: 40, padding: '6px 8px' },
   segmentHeight: (height: number) => ({ height }),
@@ -96,12 +100,15 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   xstyle?: stylex.StyleXStyles
   buttonStyle?: stylex.StyleXStyles
   /**
-   * 'equal' (mặc định) chia đều bề rộng nhóm; 'content' để mỗi mục rộng đúng nhãn
-   * (nhóm lọc ngắn cỡ nút "Sắp xếp" của artboard — không cắt bằng dấu ba chấm).
+   * 'equal' (mặc định của kit) chia đều cứng bề rộng nhóm — Noverse giữ cách này.
+   * 'content' để mỗi mục rộng đúng nhãn, không bao giờ cắt “…” (Viderse mặc
+   * định, 04-components › SegmentedTabs đợt 34); nhóm hẹp hơn nội dung thì cuộn
+   * ngang. 'fill' (`.vv-seg--fill`) chia đều nhưng nhãn dài vẫn giữ đủ chữ
+   * (`min-width: max-content`).
    * Chỉ áp dụng cho nhóm một dòng; mục có `hint` vẫn là lưới chia đều.
    * Đệm ngang của mục khi đó là 12 px — đặt lại qua `options[].style.paddingInline`.
    */
-  fit?: 'equal' | 'content'
+  fit?: 'equal' | 'content' | 'fill'
   /**
    * Hai vai trò của cùng một control (22-brief-2510.md › Câu 14): mặc định `radiogroup` cho lọc dữ liệu;
    * `tabs` cho chuyển màn trong cùng trang → `tablist`/`tab` + `aria-selected`, `id` = `<id>-<mục>`,
@@ -118,6 +125,8 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   const simple = !options.some((option) => option.hint)
   /** Nhóm một dòng rộng theo nhãn: mục không co, không chia đều. */
   const contentFit = simple && fit === 'content'
+  /** Chia đều nhưng nhãn dài vẫn giữ đủ chữ (`.vv-seg--fill`). */
+  const fillFit = simple && fit === 'fill'
   const btnH = typeof size === 'number' ? size : { sm: 28, md: 30, lg: 36 }[size]
   const btnR = radius ?? 7
   const itemRole = tabs ? 'tab' : 'radio'
@@ -126,26 +135,46 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   useLayoutEffect(() => {
     const group = groupRef.current
     if (!group) return
+    // Viên trượt đo theo hộp THẬT của mục (không phải 100%/n) và cộng
+    // `scrollLeft` — nhóm hẹp hơn nội dung thì cuộn ngang, viên trượt đi theo.
     const measure = () => {
       const index = options.findIndex((option) => option.id === value)
       const btn = index >= 0 ? group.querySelectorAll<HTMLElement>(`[role=${itemRole}]`)[index] : undefined
       const bounds = btn?.getBoundingClientRect()
       const container = group.getBoundingClientRect()
       const rect = bounds ? {
-        x: bounds.left - container.left - group.clientLeft,
+        x: bounds.left - container.left - group.clientLeft + group.scrollLeft,
         y: bounds.top - container.top - group.clientTop,
         w: bounds.width,
         h: bounds.height,
       } : null
       setThumb((old) => old?.x === rect?.x && old?.y === rect?.y && old?.w === rect?.w && old?.h === rect?.h ? old : rect)
     }
+    // Mục đang chọn tự cuộn vào tầm nhìn khi nhóm phải cuộn ngang (#80).
+    const reveal = () => {
+      if (group.scrollWidth <= group.clientWidth) return
+      const index = options.findIndex((option) => option.id === value)
+      const btn = index >= 0 ? group.querySelectorAll<HTMLElement>(`[role=${itemRole}]`)[index] : undefined
+      if (!btn) return
+      const bounds = btn.getBoundingClientRect()
+      const container = group.getBoundingClientRect()
+      if (bounds.left < container.left) group.scrollLeft -= container.left - bounds.left
+      else if (bounds.right > container.right) group.scrollLeft += bounds.right - container.right
+    }
+    reveal()
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(group)
     group.querySelectorAll(`[role=${itemRole}]`).forEach((button) => observer.observe(button))
-    return () => observer.disconnect()
+    group.addEventListener('scroll', measure, { passive: true })
+    // Font tải xong thì bề rộng nhãn đổi — đo lại viên trượt.
+    if (document.fonts) void document.fonts.ready.then(measure)
+    return () => {
+      observer.disconnect()
+      group.removeEventListener('scroll', measure)
+    }
   }, [value, options, columns, itemRole])
-  const root = stylex.props(sx.segmentRoot, !simple && sx.segmentHintRoot, !simple ? sx.segmentGrid(columns ?? options.length) : columns && !contentFit ? sx.segmentGrid(columns) : null, xstyle)
+  const root = stylex.props(sx.segmentRoot, !simple && sx.segmentHintRoot, !simple ? sx.segmentGrid(columns ?? options.length) : columns && !contentFit && !fillFit ? sx.segmentGrid(columns) : null, xstyle)
   return (
     <div ref={groupRef} role={tabs ? 'tablist' : 'radiogroup'} aria-label={label} onKeyDown={(event) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
@@ -154,7 +183,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
       const index = enabled.findIndex((option) => option.id === value)
       const next = enabled[event.key === 'Home' ? 0 : event.key === 'End' ? enabled.length - 1 : (index + (event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length]
       if (next) { onChange(next.id); event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')[enabled.indexOf(next)]?.focus() }
-    }} className={root.className} style={{ ...root.style, ...style }}>
+    }} className={`kit-seg ${root.className}`} style={{ ...root.style, ...style }}>
       <span aria-hidden="true" className="kit-seg-thumb" style={{
         width: thumb?.w ?? 0, height: thumb?.h ?? 0, borderRadius: btnR, visibility: thumb ? 'visible' : 'hidden',
         background: simple ? 'var(--color-surface-7)' : 'var(--color-surface-6)',
@@ -164,7 +193,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
       }} />
       {options.map((option) => {
         const on = option.id === value
-        const button = stylex.props(sx.segmentButton(btnR), simple ? [sx.segmentSimpleButton, contentFit ? sx.segmentContent : sx.segmentFill] : sx.segmentHintButton, (simple || typeof size === 'number' || size !== 'md') && sx.segmentHeight(btnH), on ? sx.segmentOn : sx.segmentOff, buttonStyle)
+        const button = stylex.props(sx.segmentButton(btnR), simple ? [sx.segmentSimpleButton, contentFit ? sx.segmentContent : fillFit ? sx.segmentFillContent : sx.segmentFill] : sx.segmentHintButton, (simple || typeof size === 'number' || size !== 'md') && sx.segmentHeight(btnH), on ? sx.segmentOn : sx.segmentOff, buttonStyle)
         return (
           <button key={option.id} type="button" role={itemRole}
             {...(tabs
@@ -174,7 +203,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
             className={button.className} onClick={() => onChange(option.id)} style={{ ...button.style, ...option.style }}>
             {option.icon && <span style={{ display: 'inline-flex', flex: '0 0 auto' }}>{option.icon}</span>}
             {simple
-              ? <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, maxWidth: '100%' }}>{option.label}</span>
+              ? <span style={{ whiteSpace: 'nowrap', flex: contentFit ? '0 0 auto' : undefined }}>{option.label}</span>
               : <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 0, lineHeight: 1.2 }}>
                   <span style={{ fontSize: 13, fontWeight: on ? 500 : 400, display: 'flex', alignItems: 'center', gap: 5 }}>{option.label}</span>
                   {option.hint && <span style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>{option.hint}</span>}

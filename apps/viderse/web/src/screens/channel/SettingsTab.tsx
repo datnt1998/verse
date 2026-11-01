@@ -8,7 +8,8 @@ import { channelStyles } from './channel.stylex'
 // rộng hết. Lỗi 400 theo trường hiện dưới ô; chữ đang gõ được giữ nguyên để
 // người dùng sửa rồi lưu lại.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Field, FieldError, Icon, Segmented, TextArea } from '@noverse/ui'
+import { Field, FieldError, Icon, TextArea } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, Orb } from '../../components'
 import { confirmDeleteChannel } from '../../components/confirm'
@@ -216,7 +217,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                   <Segmented buttonStyle={channelStyles.touchTarget}
                     label={tt.language}
                     size="sm"
-                    fit="content"
+                   
                     value={language}
                     options={[
                       { id: 'en', label: t.channels.page.language.en },

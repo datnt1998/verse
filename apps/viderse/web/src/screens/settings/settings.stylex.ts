@@ -523,7 +523,7 @@ export const styles = stylex.create({
   stoLocAct: { flex: "1 0 100%", display: "flex" },
   stoLocNameM: { fontSize: settingsVars.msetRowLabelfontSize, fontWeight: 500 },
   stoLocKindM: { fontSize: settingsVars.setTipsTitlefontSize, color: color["--color-fg-4"] },
-  stoLocPathM: { fontSize: settingsVars.setGrpfontSize, color: color["--color-fg-3"], wordBreak: "break-all", lineHeight: 1.45 },
+  stoLocPathM: { fontSize: settingsVars.setGrpfontSize, color: color["--color-fg-3"], lineHeight: 1.45 },
   stoLeadM: { margin: 0, fontSize: "var(--vv-s-13)", color: color["--color-fg-3"], lineHeight: 1.55 },
   stoMBanner: { display: "flex", flexDirection: "column" },
   stoPick: { display: "flex", flexDirection: "column", gap: "var(--vv-s-12)" },

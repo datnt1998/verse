@@ -64,6 +64,10 @@
 [role=switch] *,[role=radio] *,[role=checkbox] *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,opacity .18s ease}
 .kit-switch-track{transition:background-color .2s ease}
 .kit-seg-thumb{position:absolute;top:0;left:0;pointer-events:none}
+/* r34 #80: mục co theo nhãn, không bao giờ cắt “…” — nhóm hẹp hơn nội dung
+   thì cuộn ngang trong nhóm, ẩn thanh cuộn (design: kit.css › .vv-seg). */
+.kit-seg{max-width:100%;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.kit-seg::-webkit-scrollbar{display:none}
 @media (prefers-reduced-motion:no-preference){
 .kit-seg-thumb{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
 .kit-switch-thumb{transition:transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease}

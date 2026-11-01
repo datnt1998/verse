@@ -6,7 +6,8 @@ import { libraryVars } from '../libraryTokens.stylex'
 // keyset (24/trang, cuộn gần cuối tự nạp + nút Hiện thêm), nhãn chosenBy và
 // mờ video không còn xem được. Xoá kênh qua menu ⋯ (409 in_use hiện câu lỗi).
 import { useMemo, useState, type UIEvent } from 'react'
-import { ActionMenu, Banner, Button, Icon, Segmented, Skeleton, Spinner, confirm, type Segment } from '@noverse/ui'
+import { ActionMenu, Banner, Button, Icon, Skeleton, Spinner, confirm, type Segment } from '@noverse/ui'
+import { Segmented } from '../../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/vi'
 import { paths, navigate } from '../../../router'
@@ -193,7 +194,7 @@ export function ChannelPage({ channel, platform, viewport }: {
 
         <div className={`vbd-filter ${stylex.props(sx.filter).className}`}>
           {kindOptions.length > 1 && (
-            <Segmented buttonStyle={sx.touchTarget} size="sm" fit="content" label={ch.kindAria} value={kind} options={kindOptions}
+            <Segmented buttonStyle={sx.touchTarget} size="sm" label={ch.kindAria} value={kind} options={kindOptions}
               onChange={(id) => setKind(id)} />
           )}
           <span className={`vbd-flex ${stylex.props(sx.flex).className}`} />

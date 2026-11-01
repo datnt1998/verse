@@ -54,9 +54,11 @@ type Service struct {
 	serverOffline bool // independent HoldOffline owner; disk recovery cannot clear it
 	remoteStorage bool
 	missing       map[string]time.Time // root → lúc phát hiện mất
-	volNames      map[string]string    // root → tên ổ lần cuối đọc được
-	moving        *moveState
-	failed        *domain.StorageMoveFailed
+	// volInfo là ổ chứa thư mục dự án lần cuối đọc được (tên, loại, hệ tệp);
+	// persist để ổ ngoài rút vẫn hiện đúng tên ổ sau khi mở lại app (#79).
+	volInfo domain.StorageVolumeInfo
+	moving  *moveState
+	failed  *domain.StorageMoveFailed
 
 	watchMu sync.Mutex
 	watch   Ticker
@@ -92,7 +94,7 @@ func New(ctx context.Context, deps Deps) (*Service, error) {
 	s := &Service{
 		deps: deps, clock: clock,
 		holds: map[domain.Hold]bool{}, missing: map[string]time.Time{},
-		volNames: map[string]string{}, usageWake: make(chan struct{}, 1),
+		usageWake: make(chan struct{}, 1),
 	}
 	s.life, s.lifeCancel = context.WithCancel(context.Background())
 	if err := s.load(ctx); err != nil {
@@ -150,6 +152,12 @@ func (s *Service) load(ctx context.Context) error {
 		return err
 	} else if found && failed.Target != "" {
 		s.failed = &failed
+	}
+	var vol domain.StorageVolumeInfo
+	if found, err := s.deps.Settings.Get(ctx, domain.KeyStorageVolume, &vol); err != nil {
+		return err
+	} else if found && vol.Name != "" {
+		s.volInfo = vol
 	}
 	return nil
 }
@@ -724,16 +732,15 @@ func (s *Service) tick(ctx context.Context) {
 		s.mu.Unlock()
 
 		if usable {
-			// Chỉ hỏi tên ổ một lần cho mỗi root: nhịp watch giữ đúng một
-			// stat + một access, không gọi diskutil lặp lại.
+			// Chỉ hỏi ổ một lần cho mỗi root: nhịp watch giữ đúng một stat +
+			// một access, không gọi diskutil lặp lại. Nhớ tên/loại/hệ tệp để
+			// ổ rút vẫn hiện đúng tên ổ (#79).
 			s.mu.Lock()
-			known := s.volNames[root] != ""
+			known := s.volInfo.Path == root && s.volInfo.Name != ""
 			s.mu.Unlock()
 			if !known {
 				if info, err := s.deps.Volumes.Info(ctx, root); err == nil && info.Name != "" {
-					s.mu.Lock()
-					s.volNames[root] = info.Name
-					s.mu.Unlock()
+					s.rememberVolume(ctx, root, info)
 				}
 			}
 		}
@@ -747,6 +754,65 @@ func (s *Service) tick(ctx context.Context) {
 	}
 }
 
+// rememberVolume ghi ổ của thư mục dự án vào bộ nhớ và settings (chỉ khi
+// đổi): lần mở sau, kể cả khi ổ đã rút, vẫn biết tên ổ + hệ tệp.
+func (s *Service) rememberVolume(ctx context.Context, root string, vol Volume) {
+	info := domain.StorageVolumeInfo{
+		Path: root, Name: vol.Name, Kind: vol.Kind, FS: vol.FS, Bus: vol.Bus,
+	}
+	s.mu.Lock()
+	same := s.volInfo == info
+	s.volInfo = info
+	s.mu.Unlock()
+	if same {
+		return
+	}
+	if err := s.deps.Settings.Set(ctx, domain.KeyStorageVolume, info); err != nil {
+		slog.Warn("storage: ghi ổ của thư mục dự án lỗi", "err", err)
+	}
+}
+
+// offlineVolume là ổ chứa thư mục dự án khi không đọc được (ổ ngoài đã rút).
+// Tên/loại/hệ tệp lấy từ lần đọc được gần nhất; chưa từng đọc được thì suy từ
+// đường dẫn (`/Volumes/<tên ổ>`). KHÔNG trả ổ trong máy: chỗ trống của nó
+// không nói gì về nơi lưu dự án (#79) — FreeBytes = 0 vì không đọc được.
+func (s *Service) offlineVolume(ctx context.Context, root string) Volume {
+	s.mu.Lock()
+	known := s.volInfo
+	s.mu.Unlock()
+	if known.Path == root && known.Name != "" {
+		return Volume{
+			Name: known.Name, Kind: known.Kind, FS: known.FS, Bus: known.Bus,
+			Mount: filepath.Dir(root),
+		}
+	}
+	if name, ok := volumeNameInPath(root); ok {
+		return Volume{Name: name, Kind: VolumeExternal, Mount: filepath.Dir(root)}
+	}
+	// Thư mục trong máy biến mất: giữ tên ổ đang chứa nó (thường là ổ trong
+	// máy), nhưng chỗ trống vẫn là 0 — không đọc được.
+	vol, err := s.deps.Volumes.Info(ctx, root)
+	if err != nil {
+		return Volume{}
+	}
+	vol.FreeBytes = 0
+	return vol
+}
+
+// volumeNameInPath đọc tên ổ từ đường dẫn gắn ngoài `/Volumes/<tên ổ>/…`.
+func volumeNameInPath(path string) (string, bool) {
+	const prefix = "/Volumes/"
+	rest, ok := strings.CutPrefix(path, prefix)
+	if !ok {
+		return "", false
+	}
+	name, _, _ := strings.Cut(rest, "/")
+	if name == "" {
+		return "", false
+	}
+	return name, true
+}
+
 // missingLabel là câu gọi tên chỗ vừa mất: ổ ngoài/ổ mạng thì theo tên ổ;
 // thư mục mặc định trong máy (hoặc dưới home) thì là "thư mục dự án" — ổ trong
 // máy không rút được, cái mất là thư mục.
@@ -755,7 +821,10 @@ func (s *Service) missingLabel(root string) string {
 		return "thư mục dự án"
 	}
 	s.mu.Lock()
-	name := s.volNames[root]
+	name := ""
+	if s.volInfo.Path == root {
+		name = s.volInfo.Name
+	}
 	s.mu.Unlock()
 	if name == "" {
 		name = filepath.Base(root)

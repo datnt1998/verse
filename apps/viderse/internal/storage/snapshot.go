@@ -207,6 +207,11 @@ func (s *Service) Snapshot(ctx context.Context) (Snapshot, error) {
 	usage := s.usageOf()
 	vol, _ := s.deps.Volumes.Info(ctx, root)
 	offline, since := s.Offline()
+	if offline {
+		// Ổ đang giữ thư mục dự án không đọc được: giữ tên ổ thật, không lấy
+		// chỗ trống của ổ khác (#79).
+		vol = s.offlineVolume(ctx, root)
+	}
 
 	var prev *domain.StoragePrevious
 	s.mu.Lock()

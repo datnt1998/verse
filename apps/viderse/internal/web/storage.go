@@ -84,10 +84,13 @@ type storageHandlers struct {
 /* -------------------------------- wire -------------------------------- */
 
 type volumeWire struct {
-	Name      string `json:"name"`
-	Kind      string `json:"kind"`
-	FS        string `json:"fs"`
-	FreeBytes int64  `json:"freeBytes"`
+	Name string `json:"name"`
+	Kind string `json:"kind"`
+	FS   string `json:"fs"`
+	// FreeBytes là null khi ổ chứa thư mục dự án không đọc được (ổ ngoài đã
+	// rút): UI ghi “chưa cắm · chưa đọc được chỗ trống”, không thay bằng số
+	// của ổ trong máy (hỏi đáp #79).
+	FreeBytes *int64 `json:"freeBytes"`
 	Bus       string `json:"bus,omitempty"`
 }
 
@@ -210,6 +213,14 @@ type cleanupRunWire struct {
 	Errors           []string `json:"errors,omitempty"`
 }
 
+// volumeOf chọn wire của ổ chứa dự án: đang cắm → số thật; đã rút → null.
+func volumeOf(loc storage.Location) volumeWire {
+	if !loc.Online {
+		return offlineVolumeToWire(loc.Volume)
+	}
+	return volumeToWire(loc.Volume)
+}
+
 // tildePath đổi "<home>/…" thành "~/…" để hiển thị; path lạ giữ nguyên.
 func tildePath(path string) string {
 	home, err := os.UserHomeDir()
@@ -226,7 +237,16 @@ func tildePath(path string) string {
 }
 
 func volumeToWire(v storage.Volume) volumeWire {
-	return volumeWire{Name: v.Name, Kind: v.Kind, FS: v.FS, FreeBytes: v.FreeBytes, Bus: v.Bus}
+	free := v.FreeBytes
+	return volumeWire{Name: v.Name, Kind: v.Kind, FS: v.FS, FreeBytes: &free, Bus: v.Bus}
+}
+
+// offlineVolumeToWire là ổ đang giữ thư mục dự án nhưng không đọc được: giữ
+// tên/loại/hệ tệp, chỗ trống là null.
+func offlineVolumeToWire(v storage.Volume) volumeWire {
+	wire := volumeToWire(v)
+	wire.FreeBytes = nil
+	return wire
 }
 
 /* ------------------------------- handlers ------------------------------- */
@@ -241,7 +261,7 @@ func (h *storageHandlers) get(w http.ResponseWriter, r *http.Request, _ identity
 	var out storageWire
 	out.Projects = locationWire{
 		Path: snap.Projects.Path, DisplayPath: tildePath(snap.Projects.Path),
-		Volume:    volumeToWire(snap.Projects.Volume),
+		Volume:    volumeOf(snap.Projects),
 		UsedBytes: snap.Projects.UsedBytes, Online: snap.Projects.Online,
 	}
 	if snap.Projects.OfflineSince != nil {

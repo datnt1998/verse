@@ -6,7 +6,8 @@ import { libraryVars } from './libraryTokens.stylex'
 // (mỗi cụm kết thúc bằng tile "Prompt mới"), prompt có sẵn trước prompt của
 // bạn, rồi khung sửa. Tìm/lọc một loại thì vẽ một lưới duy nhất (có ảo hoá).
 import { useEffect, useRef, useState } from 'react'
-import { Icon, Segmented, TextField } from '@noverse/ui'
+import { Icon, TextField } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { vi as t } from '../../i18n/vi'
 import { useResource } from '../../data/useResource'
@@ -152,7 +153,7 @@ export function PromptsTab({ view, all, allLoading, onView }: {
       <div className={`vlb-toolbar ${stylex.props(sx.toolbar).className}`}>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.filterAria}
-          fit="content"
+         
           value={filter}
           onChange={(id) => setFilter(id as Filter)}
           options={[

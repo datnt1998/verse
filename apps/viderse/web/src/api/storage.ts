@@ -5,8 +5,10 @@ import { request } from './request'
 
 export type VolumeKind = 'internal' | 'external' | 'network' | 'cloud_sync'
 
-/** `bus`: cổng nối của ổ ngoài (USB, Thunderbolt…), chỉ có khi máy chủ phân loại được. */
-export type StorageVolume = { name: string; kind: VolumeKind; fs: string; freeBytes: number; bus?: string }
+/** `bus`: cổng nối của ổ ngoài (USB, Thunderbolt…), chỉ có khi máy chủ phân loại được.
+ *  `freeBytes`: null khi ổ chứa thư mục dự án không đọc được (ổ ngoài đã rút) —
+ *  UI ghi “chưa cắm · chưa đọc được chỗ trống”, không thay bằng số ổ trong máy (#79). */
+export type StorageVolume = { name: string; kind: VolumeKind; fs: string; freeBytes: number | null; bus?: string }
 
 export type StorageLocation = {
   path: string

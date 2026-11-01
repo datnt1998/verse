@@ -6,8 +6,9 @@ import { useMemo, useState, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
   ActionMenu, Banner, Card, Chip, Combobox, EmptyState, KitSelect,
-  InfoPopover, NumberStepper, Segmented, Sheet, Switch, TextField, Tooltip, toast, Icon,
+  InfoPopover, NumberStepper, Sheet, Switch, TextField, Tooltip, toast, Icon,
 } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { t } from '../../i18n/vi'
 import { navigate, paths, type DevKitBoard, type Route } from '../../router'
 import {
@@ -325,6 +326,9 @@ function KitInputs() {
   const [text, setText] = useState('')
   const [n, setN] = useState(3)
   const [on, setOn] = useState(true)
+  const [kind, setKind] = useState('long')
+  const [sort, setSort] = useState('outlier')
+  const [zone, setZone] = useState('vn')
   const online = useOnline()
   return (
     <div {...stylex.props(devkit.grid)}>
@@ -346,6 +350,23 @@ function KitInputs() {
       <Cell title="Ô nhập">
         <TextField label="Dán link video" placeholder="https://youtube.com/watch?v=…" value={text} onChange={setText} />
         <TextField label="Có lỗi" value="abc" onChange={() => {}} error="Link không hợp lệ" />
+      </Cell>
+      <Cell title="Nhóm chọn" wide>
+        {/* Kit › Ô nhập & nút › Nhóm chọn (đợt 34): --fill chia đều, nhãn dài
+            vẫn đủ chữ; nhóm thường co theo nhãn, không bao giờ cắt “…” (#80). */}
+        <Segmented fit="fill" label="Loại video" value={kind} onChange={setKind}
+          options={[
+            { id: 'long', label: <><Icon name="video-play" size={14} />Video dài</> },
+            { id: 'short', label: <><Icon name="mobile" size={14} />Shorts</> },
+          ]}
+          style={{ display: 'flex' }} />
+        <span {...stylex.props(devkit.cellHead)}>.vv-seg · co theo nhãn, không cắt “…”</span>
+        <Row>
+          <Segmented size="sm" label="Sắp xếp (ví dụ)" value={sort} onChange={setSort}
+            options={[{ id: 'outlier', label: 'Nổi trội' }, { id: 'newest', label: 'Mới nhất' }, { id: 'views', label: 'Lượt xem' }]} />
+          <Segmented size="sm" label="Vùng giờ (ví dụ)" value={zone} onChange={setZone}
+            options={[{ id: 'vn', label: 'VN' }, { id: 'ny', label: 'New York' }]} />
+        </Row>
       </Cell>
       <Cell title="Stepper & công tắc">
         <Row>

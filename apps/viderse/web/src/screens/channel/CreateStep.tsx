@@ -7,7 +7,8 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // "Cách kênh chạy" (Mẫu chuẩn + nhịp). Nút Tạo kênh khoá (aria-disabled + lý do)
 // tới khi chọn được một đối thủ. Mức tự chủ (§20) không có trong đợt này.
 import { useState } from 'react'
-import { Field, Icon, Segmented, toast } from '@noverse/ui'
+import { Field, Icon, toast } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import { t } from '../../i18n/vi'
@@ -215,7 +216,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               </span>
               <Segmented
                 size="sm"
-                fit="content"
+               
                 buttonStyle={autonomyStyles.segSm}
                 label={ta.title}
                 value={aut}

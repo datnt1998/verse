@@ -45,7 +45,22 @@ const (
 	// Riêng với clone.queuePaused của người dùng: người đọc lấy hiệu lực
 	// = người dùng || storage, không bên nào ghi đè bên kia.
 	KeyStoragePaused = "storage.queuePaused"
+
+	// KeyStorageVolume là ổ chứa thư mục dự án lần cuối đọc được
+	// (StorageVolumeInfo): nhớ tên/loại/hệ tệp qua lần khởi động để ổ ngoài
+	// bị rút vẫn hiện đúng tên ổ (hỏi đáp #79), không rơi về ổ trong máy.
+	KeyStorageVolume = "storage.volume"
 )
+
+// StorageVolumeInfo là thông tin ổ chứa thư mục dự án đã đọc được (không có
+// chỗ trống: số của lần trước là số cũ, ổ đang rút thì không đọc được).
+type StorageVolumeInfo struct {
+	Path string `json:"path"`
+	Name string `json:"name"`
+	Kind string `json:"kind"`
+	FS   string `json:"fs"`
+	Bus  string `json:"bus,omitempty"`
+}
 
 // StoragePrevious là bản cũ giữ 7 ngày sau khi chuyển thư mục (§23
 // `previous`): người dùng xoá sớm được, quá hạn thì tự xoá. Mode nói bản cũ

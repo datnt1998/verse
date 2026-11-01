@@ -509,3 +509,78 @@ func TestCleanupHandlersForwardAuthenticatedViewerAndForbidden(t *testing.T) {
 		})
 	}
 }
+
+// #79: ổ ngoài rút → wire trả tên ổ thật + `freeBytes: null`, không gửi số
+// của ổ trong máy (client chỉ cần đọc `null` là biết “chưa đọc được chỗ trống”).
+func TestStorageGetOfflineDriveHasNullFreeBytes(t *testing.T) {
+	tg, store, _, cookie := newStorageHandlers(t)
+	store.snap = storage.Snapshot{
+		Projects: storage.Location{
+			Path: "/Volumes/Samsung T7/Viderse Projects", Online: false,
+			Volume: storage.Volume{Name: "Samsung T7", Kind: storage.VolumeExternal, FS: "APFS", Bus: "USB"},
+		},
+	}
+	w := tg.do(http.MethodGet, "/api/storage", cookie, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body)
+	}
+	var body struct {
+		Projects struct {
+			Online bool `json:"online"`
+			Volume struct {
+				Name      string `json:"name"`
+				Kind      string `json:"kind"`
+				FS        string `json:"fs"`
+				FreeBytes *int64 `json:"freeBytes"`
+			} `json:"volume"`
+		} `json:"projects"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &body)
+	if body.Projects.Online {
+		t.Fatalf("online = true, muốn false")
+	}
+	if body.Projects.Volume.Name != "Samsung T7" {
+		t.Fatalf("volume.name = %q, muốn \"Samsung T7\"", body.Projects.Volume.Name)
+	}
+	if body.Projects.Volume.FreeBytes != nil {
+		t.Fatalf("volume.freeBytes = %d, muốn null (ổ rút)", *body.Projects.Volume.FreeBytes)
+	}
+}
+
+// Ổ đang cắm vẫn gửi số thật (không biến mọi chỗ trống thành null).
+func TestStorageGetOnlineVolumeKeepsFreeBytes(t *testing.T) {
+	tg, store, _, cookie := newStorageHandlers(t)
+	store.snap = storage.Snapshot{
+		Projects: storage.Location{
+			Path: "/Volumes/Samsung T7/Viderse Projects", Online: true,
+			Volume: storage.Volume{Name: "Samsung T7", Kind: storage.VolumeExternal, FS: "APFS", FreeBytes: 1_540_000_000_000},
+		},
+		Suggestions: []storage.Suggestion{{
+			Path:   "/Volumes/Lexar/Viderse Projects",
+			Volume: storage.Volume{Name: "Lexar", Kind: storage.VolumeExternal, FreeBytes: 60_000_000_000},
+		}},
+	}
+	w := tg.do(http.MethodGet, "/api/storage", cookie, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body)
+	}
+	var body struct {
+		Projects struct {
+			Volume struct {
+				FreeBytes *int64 `json:"freeBytes"`
+			} `json:"volume"`
+		} `json:"projects"`
+		Suggestions []struct {
+			Volume struct {
+				FreeBytes *int64 `json:"freeBytes"`
+			} `json:"volume"`
+		} `json:"suggestions"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &body)
+	if body.Projects.Volume.FreeBytes == nil || *body.Projects.Volume.FreeBytes != 1_540_000_000_000 {
+		t.Fatalf("projects.volume.freeBytes = %v", body.Projects.Volume.FreeBytes)
+	}
+	if len(body.Suggestions) != 1 || body.Suggestions[0].Volume.FreeBytes == nil || *body.Suggestions[0].Volume.FreeBytes != 60_000_000_000 {
+		t.Fatalf("suggestions = %+v", body.Suggestions)
+	}
+}

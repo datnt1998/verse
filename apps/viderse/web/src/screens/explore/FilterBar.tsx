@@ -9,7 +9,8 @@ import { exploreStyles } from './explore.stylex'
 // aria-describedby. Dòng đếm: "24 / 1.284 video", khi tìm "2 video có “floor”
 // · trong 1.284 đã quét" (1.284 = số video đã quét của phạm vi, không lọc).
 import { useId } from 'react'
-import { Icon, Segmented, Tooltip } from '@noverse/ui'
+import { Icon, Tooltip } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { vi as t } from '../../i18n/vi'
 import type { VideoSort } from '../../api/rivals'
 import { useMediaQuery } from '../../lib/useMediaQuery'
@@ -53,7 +54,7 @@ export function FilterBar({ sort, long, within, onSort, onLong, onWithin, total,
       <Segmented xstyle={exploreStyles.segmented} buttonStyle={exploreStyles.segmentedButton}
         label={tt.sortLabel}
         size={touch ? TOUCH_TARGET : 'sm'}
-        fit="content"
+       
         style={{ flex: '0 0 auto', gap: 'var(--vv-s-2)', background: 'var(--color-surface-1)', borderColor: 'var(--line-1)' }}
         thumbStyle={{ background: 'var(--color-surface-6)' }}
         value={sort}
