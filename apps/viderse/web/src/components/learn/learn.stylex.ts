@@ -15,16 +15,16 @@ export const learnStyles = stylex.create({
     color: 'var(--vv-director-notice-ink)',
   },
   learnArtist: { backgroundColor: 'var(--vv-artist-notice-fill)', borderColor: 'var(--vv-artist-notice-line)', color: 'var(--vv-artist-notice-ink)' },
-  orb: { marginTop: s['--vv-s-2'] },
+  orb: { display: 'flex', marginTop: s['--vv-s-2'] },
   text: { minWidth: 0, overflowWrap: 'anywhere' },
   actions: { gridColumn: 2, display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'] },
   notice: { gridColumn: 2, color: 'var(--vv-warn-ink)' },
   // Banner đã lưu (.vv-banner--ready)
   saved: {
     display: 'flex', alignItems: 'center', gap: s['--vv-s-12'], padding: `${s['--vv-s-8']} ${s['--vv-s-10']}`, borderRadius: r['--vv-r-12'],
-    fontSize: 12.5, backgroundColor: 'var(--vv-ok-7)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-ok-20)', color: color['--color-fg-2'],
+    fontSize: 12.5, backgroundColor: 'var(--vv-ok-6)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-ok-20)', color: color['--color-fg'],
   },
-  savedIcon: { flex: '0 0 auto', color: 'var(--vv-prov-sub-ok)' },
+  savedIcon: { display: 'flex', flex: '0 0 auto', marginTop: s['--vv-s-2'], color: 'var(--vv-prov-sub-ok)' },
   savedText: { flex: 1, minWidth: 0, overflowWrap: 'anywhere' },
   // Ví dụ trước → sau
   examples: { gridColumn: 2, margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'] },
