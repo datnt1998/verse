@@ -510,6 +510,8 @@ type Session struct {
 	CreatedAt           pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 	Version             int64              `json:"version"`
+	RevokedReason       string             `json:"revoked_reason"`
+	RevokedApp          pgtype.Text        `json:"revoked_app"`
 }
 
 type StorageMigration struct {
