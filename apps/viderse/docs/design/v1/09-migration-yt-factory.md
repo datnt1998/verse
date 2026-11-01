@@ -77,3 +77,22 @@ URL cũ được giữ khi có thể, để link đã lưu vẫn chạy.
 - Chính sách chỉ chạy local (`127.0.0.1`) cho tới khi chốt D1 ([data-contract §10](07-data-contract.md#10--truy-cập-từ-điện-thoại-chờ-quyết-định-d1)).
 
 <!-- r3 -->
+
+## 6. Việc cần tắt ở yt-factory khi chuyển hẳn (phase 10)
+
+Đọc từ mã nguồn `/Users/dat/Personal/yt-factory` tại commit `2c201e6` (`git show`). **Chưa tắt gì** — danh sách này để chủ máy tắt theo thứ tự. Lý do: hai hệ cùng quét đối thủ thì tốn gấp đôi lượt đọc, cùng vẽ thì tốn gấp đôi hạn mức ảnh trả phí.
+
+| # | Thứ cần tắt | Ở đâu trong mã | Cách nhận biết / kiểm |
+|---|---|---|---|
+| 1 | **App desktop “YT Factory”** (`local.ytfactory.app`, Electron 44.7.2) | `desktop/main.mjs` — app tự chạy `next start -H 127.0.0.1 -p 3220` bằng Node đóng gói, `cwd` trong `~/Library/Application Support/YT Factory/app`, `YTF_DATA_DIR=…/YT Factory/data`, pid ở `server.pid`, log `server.log`; thoát app thì gửi SIGTERM rồi SIGKILL cả nhóm process | Thoát app; `lsof -iTCP:3220 -sTCP:LISTEN` phải rỗng; không còn process nào chứa `Application Support/YT Factory/app` |
+| 2 | **Máy chủ web yt-factory** nếu chạy ngoài app | `package.json` › `start`: `next start -H 127.0.0.1 -p 3210` | `lsof -iTCP:3210 -sTCP:LISTEN` rỗng |
+| 3 | **Worker dựng video** (mỗi job một process, giữ lease trong SQLite nên vẫn vẽ tiếp dù máy chủ đã chết) | `src/server/clone/worker.ts --job <id> --worker <id> --handlers <spec>`, spawn bởi `ensureWorker` (`src/server/clone/runner.ts:607`, gọi ở `launch.ts:71`) | `pgrep -fl "clone/worker.ts"` rỗng |
+| 4 | **Worker quét đối thủ** (process riêng, giữ lease `worker`, tự đặt nhịp 1–2 giây/request) | `src/server/channels/scan-worker-entry.ts --scan-worker --worker <id>`, spawn bởi `requestScanWorker` (`src/server/channels/scan-worker.ts:656`) từ nhịp 60 giây ở `src/instrumentation.ts:53` và từ thao tác trong `channels/service.ts` | `pgrep -fl "scan-worker-entry.ts"` rỗng |
+| 5 | **Bộ lập lịch trong process máy chủ**: nhịp 60 giây `drainCloneQueue` (bắt đầu job), nhịp **15 phút `runAutoPick`** (tự thêm video đối thủ — chính là “quét đối thủ”), dọn dẹp mỗi 6 giờ | `src/instrumentation.ts` (`register`) | Tắt máy chủ là hết; muốn giữ giao diện mà không quét/không vẽ thì đặt `YTF_QUEUE_AUTODRAIN=0` khi chạy máy chủ yt-factory (`register` thoát sớm) |
+| 6 | **Lệnh CLI `ytf` có vẽ/quét** nếu có cron hay alias gọi: `ytf clone run|batch`, `ytf channel scan <…> --history`, `ytf channel scan-control`, `ytf backdrop refresh`, `ytf tools image-provider`, `ytf template …` | `cli/ytf.ts` (inventory đầy đủ ở `USAGE`) | `crontab -l`, `launchctl list \| grep -i ytf` không còn dòng nào |
+| 7 | **Process con mồ côi**: Chrome for Testing và ffmpeg do yt-factory bật | `src/server/tools/*`, `src/server/clone/export-launcher.ts` | `pgrep -fl "Chrome for Testing"`, `pgrep -fl ffmpeg` — chỉ còn process của Viderse (nếu đang chạy) |
+
+Thứ tự đề nghị: (1) → (3) → (4) → (2) → kiểm (7) → chỉ sau đó bật Viderse live và chuyển. Khi đã tắt xong, `pgrep -fl "yt-factory\|clone/worker\|scan-worker-entry"` phải rỗng.
+
+**Giữ nguyên, không xoá:** repo yt-factory, `data/app.db` (SQLite, `YTF_DATA_DIR` mặc định là `<cwd>/data`), thư mục `~/Library/Application Support/YT Factory/`, project editor và bản xuất cũ — phase 10 chỉ ngừng chạy, không di trú và không xoá dữ liệu.
+

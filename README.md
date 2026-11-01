@@ -5,7 +5,7 @@ Monorepo for the AI writing apps that share one agent core.
 | Path | What it is |
 |---|---|
 | `apps/noverse` | Noverse: novel/story writing CLI, TUI and web app (binary `ainovel-cli`). See [apps/noverse/README.md](apps/noverse/README.md). |
-| `apps/viderse` | Viderse (Go): runs several YouTube channels by remaking rival videos through a 9-step machine pipeline (binary `viderse`). It is being rebuilt from yt-factory on the design in `apps/viderse/docs/design/v1/`; progress in [the rebuild plan](plans/261029-2242-viderse-rebuild-from-yt-factory/plan.md). See [apps/viderse/README.md](apps/viderse/README.md). |
+| `apps/viderse` | Viderse (Go + Postgres + React): runs several YouTube channels by remaking rival videos through a 9-step machine pipeline and four assistants (Scout, Director, Artist, QA); binary `viderse`, web UI on the shared kit. Rebuilt from yt-factory on the design in `apps/viderse/docs/design/v1/`; the rebuild plan's phases 01–08 are merged and phase 09 (phone UI, LAN pairing) is paused. See [apps/viderse/README.md](apps/viderse/README.md) and [the rebuild plan](plans/261029-2242-viderse-rebuild-from-yt-factory/plan.md). |
 | `core/` | Shared AI core: `agentcore` (agent runtime), `llm` (model interface and providers), `models`, `llmretry`, `llmcontract`, `llmconfig` (shared provider/model config schema), `auth` (OAuth and credentials), `roles` (role→model config). |
 | `platform/` | App-agnostic infrastructure: `identity` (web accounts, sessions, pairing), `webguard` (trusted proxies, same-origin guard, client IP, secure-cookie decision), `webapp` (embedded SPA, first-run setup, login/logout/me, session cookie, authenticated `/api` routes), `events` (server-sent events hub: replay ring, `Last-Event-ID` resume, pluggable visibility), `pgmigrate` (embedded goose migrations), `pgtest` (isolated Postgres schemas for tests), `ui` (`@noverse/ui` web kit: tokens, components, icons, brand, Vietnamese labels; `@noverse/ui/data`: keyed resource cache and the SSE client). |
 | `archtest/` | Import boundary test: `core/**` imports only the standard library, third-party modules and `core/**`; `platform/**` adds `platform/**`; an app never imports another app. |
@@ -54,7 +54,7 @@ Postgres and Garage v2.5.0 for the full suite: `apps/noverse/deploy/compose.test
 5. **Web UI.** Put the SPA in `apps/<name>/web/`, add it to the root `package.json` workspaces, and depend on `@noverse/ui`. Copy from `apps/viderse/web`:
    - `vite.config.ts`: kit aliases and the StyleX plugin; `build.outDir` is the directory the Go side embeds;
    - `tsconfig.json` paths;
-   - the `@source` line for the kit in `src/styles/base.css`;
+   - the `@source` line for the kit in `src/styles/viderse.css`;
    - `setKitLabels({ ...KIT_LABELS_VI, brand })` and the app brand in `src/main.tsx`.
 
    The kit's `boundary.test.ts` and `Icon.test.tsx` cover every app that depends on `@noverse/ui` automatically. Commit the built dist, because `go build` embeds it.
