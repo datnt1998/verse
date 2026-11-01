@@ -41,7 +41,7 @@ export const contentStyles = stylex.create({
   mediaCard: { minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4, padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
   mediaThumbnail: { width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: 7 },
   used: { position: 'absolute', right: 4, top: 4, color: color['--color-ok'] },
-  tabs: { padding: '12px 14px 0', display: 'flex', gap: 2, flexWrap: 'wrap' },
+  tabs: { padding: '12px 14px 0' },
   empty: { padding: '24px 14px', margin: 0, color: color['--color-fg-4'], textAlign: 'center', fontSize: 12.5, lineHeight: 1.5 },
   dialogBody: { padding: 18, display: 'flex', flexDirection: 'column', gap: 12 },
 })
