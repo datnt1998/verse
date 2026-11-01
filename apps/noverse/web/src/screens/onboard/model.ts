@@ -81,7 +81,17 @@ export const deviceCodeHint = (presetId: string): string =>
 /** Hướng dẫn trong khung dán mã (Claude Pro/Max): mở link, đăng nhập, dán mã trang Claude hiển thị. */
 export const PASTE_CODE_HINT = 'trên điện thoại hoặc máy bất kỳ, đăng nhập Claude rồi dán mã hiển thị (dạng code#state) hoặc cả URL chuyển hướng vào ô bên dưới.'
 
-export const stepsFor = (role: Role): StepKey[] => (role === 'admin' ? ADMIN_STEPS : BASIC_STEPS)
+/**
+ * Còn mật khẩu tạm thì máy chủ chặn mọi API khác (403 password_change_required):
+ * bước đổi mật khẩu đứng đầu, kể cả với quản trị; người đã thiết lập xong (bị
+ * đặt lại mật khẩu) chỉ còn bước này. Đổi xong phiên bị thu hồi; đăng nhập lại
+ * thì luồng chạy như thường.
+ */
+export const stepsFor = (role: Role, mustChangePassword = false, onboarded = false): StepKey[] => {
+  const steps = role === 'admin' ? ADMIN_STEPS : BASIC_STEPS
+  if (!mustChangePassword) return steps
+  return onboarded ? ['password'] : ['password', ...steps.filter((key) => key !== 'password')]
+}
 
 export const stepLabel = (key: StepKey, role: Role): string =>
   key === 'mobile' && role !== 'admin' ? 'Điện thoại' : STEP_LABEL[key]

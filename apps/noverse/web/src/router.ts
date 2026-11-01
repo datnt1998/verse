@@ -152,11 +152,13 @@ const PUBLIC_ROUTES: Partial<Record<Route['name'], true>> = { login: true, setup
 export const isPublicRoute = (route: Route) => PUBLIC_ROUTES[route.name] === true
 
 /**
- * Chưa onboarding → ép về #/welcome, TRỪ khi đang ở chính luồng welcome (mọi bước)
- * hoặc route công khai. Nếu không loại trừ welcome, mỗi bước onboarding bị đẩy về bước 1.
+ * Chưa onboarding hoặc còn mật khẩu tạm → ép về #/welcome, TRỪ khi đang ở chính
+ * luồng welcome (mọi bước) hoặc route công khai. Nếu không loại trừ welcome, mỗi
+ * bước onboarding bị đẩy về bước 1. Mật khẩu tạm: máy chủ chặn mọi API khác nên
+ * màn nào ngoài bước đổi mật khẩu cũng chỉ ra lỗi.
  */
-export const needsWelcomeRedirect = (route: Route, user: { onboardedAt: string | null } | null): boolean =>
-  Boolean(user && !user.onboardedAt && !isPublicRoute(route) && route.name !== 'welcome')
+export const needsWelcomeRedirect = (route: Route, user: { onboardedAt: string | null; mustChangePassword?: boolean } | null): boolean =>
+  Boolean(user && (!user.onboardedAt || user.mustChangePassword) && !isPublicRoute(route) && route.name !== 'welcome')
 
 type NavigationBlocker = () => boolean
 const navigationBlockers = new Set<NavigationBlocker>()

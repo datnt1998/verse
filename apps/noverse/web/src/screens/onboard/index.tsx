@@ -36,12 +36,16 @@ import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 
 export function OnboardScreen({ step }: { step: string | null }) {
   const { user, session, refresh, endSession } = useSession()
-  const libraryResource = useResource(keys.library(), getLibrary)
+  // Mật khẩu tạm: máy chủ chặn mọi API khác và luồng sự kiện chưa mở, nên chỉ
+  // còn bước đổi mật khẩu — không tải dữ liệu, không coi là mất kết nối.
+  const tempPassword = user?.mustChangePassword === true
+  const libraryResource = useResource(keys.library(), getLibrary, { enabled: !tempPassword })
   const library = libraryResource.data ?? null
   const libraryLoading = !library && libraryResource.initialLoading
   const live = useConnection()
-  const configResource = useResource(keys.config('global'), () => getConfig('global'), { enabled: user?.role === 'admin' })
-  const presetsResource = useResource(['config', 'presets'], () => getConfigPresets(), { enabled: user?.role === 'admin' })
+  const writable = live.writable || tempPassword
+  const configResource = useResource(keys.config('global'), () => getConfig('global'), { enabled: user?.role === 'admin' && !tempPassword })
+  const presetsResource = useResource(['config', 'presets'], () => getConfigPresets(), { enabled: user?.role === 'admin' && !tempPassword })
   const [configVersion, setConfigVersion] = useState<string | undefined>()
   const profileBaseline = useRef(user)
   const initialConfig = useRef(false)
@@ -49,8 +53,8 @@ export function OnboardScreen({ step }: { step: string | null }) {
   const narrow = useMediaQuery('(max-width: 1100px)')
 
   const isAdmin = user?.role === 'admin'
-  const steps = user ? stepsFor(user.role) : stepsFor('admin')
-  const requested = steps.includes(step as StepKey) ? step as StepKey : steps[0]
+  const steps = user ? stepsFor(user.role, tempPassword, user.onboardedAt != null) : stepsFor('admin')
+  const requested = tempPassword ? 'password' : steps.includes(step as StepKey) ? step as StepKey : steps[0]
   const stepKey = requested
   const idx = steps.indexOf(stepKey)
   const libChoice = useLibraryChoice({ library, enabled: isAdmin && stepKey === 'library' })
@@ -463,7 +467,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
     go(idx + 1)
     return true
   }, { error: false, invalidate: [keys.me(), keys.config('global'), keys.library()] })
-  const busy = advanceAction.busy || finishAction.busy || inviteAction.busy || oauthStartAction.busy || oauthCancelAction.busy || oauthCodeAction.busy || disconnectAction.busy || testAction.busy || !live.writable
+  const busy = advanceAction.busy || finishAction.busy || inviteAction.busy || oauthStartAction.busy || oauthCancelAction.busy || oauthCodeAction.busy || disconnectAction.busy || testAction.busy || !writable
   const actionError = advanceAction.error || finishAction.error || (stepKey === 'provider' ? disconnectAction.error || oauthCancelAction.error : null) || (stepKey === 'mobile' ? pairingAction.error : null)
   const conflict = actionError instanceof ConflictError && actionError !== dismissedConflict ? actionError : null
   // Một bề mặt lỗi cho mỗi thao tác (16 §3): sai mật khẩu hiện tại là lỗi theo trường → dưới ô, không lặp ở đầu trang.
@@ -715,7 +719,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
                 </div>
               )}
               <PanelRefreshBar resourceKeys={[keys.config('global'), keys.library(), ['config', 'models', providerId], keys.sessions()]} updatedAt={configResource.updatedAt ?? libraryResource.updatedAt} />
-              <StaleBanner error={configResource.error || presetsResource.error || libraryResource.error || modelsResource.error || oauthResource.error || assignedResource.error || sessionsResource.error || (!live.writable ? new Error('Mất kết nối') : null)} onRetry={() => { void configResource.refresh(); void libraryResource.refresh(); void modelsResource.refresh(); void oauthResource.refresh(); void assignedResource.refresh(); void sessionsResource.refresh() }} />
+              <StaleBanner error={configResource.error || presetsResource.error || libraryResource.error || modelsResource.error || oauthResource.error || assignedResource.error || sessionsResource.error || (!writable ? new Error('Mất kết nối') : null)} onRetry={() => { void configResource.refresh(); void libraryResource.refresh(); void modelsResource.refresh(); void oauthResource.refresh(); void assignedResource.refresh(); void sessionsResource.refresh() }} />
               {conflict && <ConflictBar pending={advanceAction.pending} onView={() => {
                 setDismissedConflict(conflict)
                 if (stepKey === 'provider' || stepKey === 'model') { const current = conflict.current as ConfigResponse; setConfig(configFileOf(current)); setConfigVersion(conflict.version); initialConfig.current = false; void configResource.refresh() }

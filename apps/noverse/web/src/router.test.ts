@@ -113,4 +113,9 @@ describe('needsWelcomeRedirect — không chặn các bước onboarding', () =>
     expect(needsWelcomeRedirect(parseHash('#/p/dit-dang-audio').route, done)).toBe(false)
     expect(needsWelcomeRedirect(parseHash('#/p/dit-dang-audio').route, null)).toBe(false)
   })
+
+  it('đã onboard nhưng bị đặt lại mật khẩu → chuyển về welcome để đổi mật khẩu', () => {
+    expect(needsWelcomeRedirect(parseHash('#/p/dit-dang-audio').route, { ...done, mustChangePassword: true })).toBe(true)
+    expect(needsWelcomeRedirect(parseHash('#/welcome').route, { ...done, mustChangePassword: true })).toBe(false)
+  })
 })

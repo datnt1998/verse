@@ -61,9 +61,9 @@ export const daysUntil = (value: string | null | undefined) => {
   return Number.isNaN(ms) ? 0 : Math.max(0, Math.ceil(ms / 86_400_000))
 }
 
-/** Route sau khi đăng nhập: ưu tiên #/welcome khi chưa thiết lập lần đầu. */
-export function authDestination(user: { username: string; onboardedAt?: string | null }): string {
-  if (!user.onboardedAt) return '/welcome'
+/** Route sau khi đăng nhập: ưu tiên #/welcome khi chưa thiết lập lần đầu hoặc còn mật khẩu tạm. */
+export function authDestination(user: { username: string; onboardedAt?: string | null; mustChangePassword?: boolean }): string {
+  if (!user.onboardedAt || user.mustChangePassword) return '/welcome'
   // takeNextRoute đã lọc: chỉ đường nội bộ bắt đầu bằng một `/` mới được chấp
   // nhận — `//evil`, `javascript:` hay bypass đã mã hoá rơi về thư viện.
   return takeNextRoute() ?? safeHashPath(getLastRoute(user.username)) ?? '/'
