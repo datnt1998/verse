@@ -28,6 +28,7 @@ import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
 import { membersUrl } from '../../api/sso'
 import { MembersLink } from '../../components/AppLinks'
+import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { box } from '../../styles/shared.stylex'
 
 const ToolsSection = lazy(() => import('./tools/ToolsSection'))
@@ -72,6 +73,14 @@ const SECTIONS: Record<SettingsSection, React.ComponentType> = {
   agents: AgentsSection,
   accounts: AccountsSection,
   notifications: NotificationSettings,
+}
+
+/** Mục cấu hình toàn máy: thành viên chỉ xem (máy chủ trả 403 cho thao tác ghi). */
+const ADMIN_WRITE_SECTIONS: Partial<Record<SettingsSection, true>> = { tools: true, connect: true, agents: true, accounts: true }
+
+function SectionBody({ section }: { section: SettingsSection }) {
+  const Body = SECTIONS[section]
+  return ADMIN_WRITE_SECTIONS[section] ? <AdminReadOnly><Body /></AdminReadOnly> : <Body />
 }
 
 /** Số liệu khung cần cho cột mục + danh sách mobile (dung lượng, lỗi, công cụ, bản). */
@@ -215,7 +224,6 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
   if (mobile) return <MobileSettings section={section} dots={dots} facts={facts} go={go} />
 
-  const Body = SECTIONS[active]
   return (
     <div className={`vv-set ${stylex.props(settingsStyles.set).className}`}>
       <aside className={`vv-set__side ${stylex.props(settingsStyles.setSide).className}`} aria-label={t.shell.settings}>
@@ -232,7 +240,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
             <p className={`vv-set__lede ${stylex.props(settingsStyles.setLede).className}`}>{meta.lede}</p>
           </div> : null}
           <Suspense fallback={<Spinner size={16} />}>
-            <Body />
+            <SectionBody section={active} />
           </Suspense>
         </div>
       </main>
@@ -283,7 +291,6 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
 
   if (section) {
     const meta = section === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[section] ?? t.settings.meta.tools
-    const Body = SECTIONS[section]
     return (
       <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
         {strip}
@@ -295,7 +302,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
         </header>
         <div className={`vv-mset__body ${stylex.props(settingsStyles.msetBody).className}`}>
           <Suspense fallback={<Spinner size={16} />}>
-            <Body />
+            <SectionBody section={section} />
           </Suspense>
         </div>
       </div>

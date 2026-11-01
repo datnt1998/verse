@@ -31,6 +31,7 @@ type Gateway struct {
 	hub               *events.Hub
 	status            *status.Service
 	serverStorageMode func() bool
+	hosted            bool
 	scopedRender      http.Handler
 	renderCloneRoute  func(http.ResponseWriter, *http.Request) bool
 	cloneReviewRoute  func(http.ResponseWriter, *http.Request) bool

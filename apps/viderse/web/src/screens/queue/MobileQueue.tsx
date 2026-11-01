@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Icon, Sheet, toast } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
+import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { assistantName, type Assistant } from '../../components/agents'
 import type { QueueImageQuota, QueueQueuedItem } from '../../api/clone'
 import { vi as t } from '../../i18n/vi'
@@ -47,13 +48,13 @@ export function QueueRulesSheet({ open, onClose, queue }: { open: boolean; onClo
   const disabled = busy || !online
   return <Sheet open={open} onClose={onClose} label={tt.rulesTitle} size="md" height="auto" xstyle={sx.sheet} bodyStyle={sx.sheetBody}>
     <div {...stylex.props(sx.sheetHeading)}><h2 {...stylex.props(sx.sheetTitle)}>{tt.rulesTitle}</h2><span {...stylex.props(sx.sub)}>{m.rulesSubtitle}</span></div>
-    <div {...stylex.props(sx.rulesBody)}>
+    <AdminReadOnly><div {...stylex.props(sx.rulesBody)}>
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.lanes}</span><span {...stylex.props(sx.sub)}>{m.workerBounds}</span></span><QueueStepper label={tt.rules.lanesTitle} value={view.workers.total} max={6} disabled={disabled} onChange={(workers) => void patch({ workers })} /></div>
       <p {...stylex.props(sx.ruleNote)}>{tt.workerGuidance}</p><div {...stylex.props(sx.divider)} />
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.imageSlots}</span><span {...stylex.props(sx.sub)}>{m.imageBounds}</span></span><QueueStepper label={tt.rules.imageSlotsTitle} value={view.imageWorkers} max={8} disabled={disabled} onChange={(imageWorkers) => void patch({ imageWorkers })} /></div><div {...stylex.props(sx.divider)} />
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.rescan}</span><span {...stylex.props(sx.sub)}>{m.rescanBounds}</span></span><QueueStepper label={tt.rules.rescanTitle} value={view.rescanHours} max={24} unit={tt.rules.rescanUnit} disabled={disabled} onChange={(rescanHours) => void patch({ rescanHours })} /></div>
       <p {...stylex.props(sx.ruleFooter)}>{m.rulesNote}</p>
-    </div><div {...stylex.props(sx.sheetFooter)}><button type="button" {...stylex.props(sx.primary)} onClick={onClose}>{m.done}</button></div>
+    </div></AdminReadOnly><div {...stylex.props(sx.sheetFooter)}><button type="button" {...stylex.props(sx.primary)} onClick={onClose}>{m.done}</button></div>
   </Sheet>
 }
 function Quota({ quota }: { quota: QueueImageQuota }) {

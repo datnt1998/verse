@@ -20,6 +20,7 @@ import { text } from '../../styles/shared.stylex'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { fmtEta, movePosition, quotaLine, quotaName, quotaText, sourceLabel, viewState, waitLine } from './queueView'
+import { AdminReadOnly } from '../../components/AdminReadOnly'
 
 const tt = t.screens.queue
 
@@ -213,6 +214,7 @@ export function QueueScreen() {
 
   const rulesPanel = view && (
     <div className={`vq-rules ${stylex.props(styles["vq-rules"]).className}`}>
+          <AdminReadOnly note="Quy tắc chạy áp cho cả máy nên chỉ quản trị viên được đổi. Bạn vẫn xem được cấu hình hiện tại.">
           <section className={`vq-card ${stylex.props(styles.liquidCard, styles["vq-card"]).className}`} aria-labelledby="vq-h-w">
             <div className={`vq-card__row ${stylex.props(styles["vq-card__row"]).className}`}>
               <h3 id="vq-h-w" className={`vq-h3 ${stylex.props(styles.h3).className}`}>{tt.rules.lanes}</h3>
@@ -232,6 +234,7 @@ export function QueueScreen() {
                 onChange={(v) => void patch({ rescanHours: v }, (old) => ({ ...old, rescanHours: v }))} />
             </div>
           </section>
+          </AdminReadOnly>
 
           <section className={`vq-card ${stylex.props(styles.liquidCard, styles["vq-card"]).className}`} aria-labelledby="vq-h-d">
             <div className={`vq-card__row ${stylex.props(styles["vq-card__row"]).className}`}><h3 id="vq-h-d" className={`vq-h3 ${stylex.props(styles.h3).className}`}>{tt.rules.pace}</h3>{view.pace[0] && <a className={`vq-link ${stylex.props(styles["vq-link"]).className}`} href={`#${paths.channel(view.pace[0].channelId, 'sources')}`}>{tt.paceEdit}</a>}</div>

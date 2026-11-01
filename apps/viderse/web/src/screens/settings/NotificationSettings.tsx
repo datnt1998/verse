@@ -7,6 +7,7 @@ import { listChannels } from '../../api/channels'
 import { keys } from '../../data/keys'
 import { useOnline } from '../../data/status'
 import { SuggestionSettingsRow } from '../../components/learn/SuggestionSettingsRow'
+import { AdminReadOnly } from '../../components/AdminReadOnly'
 
 const s = stylex.create({
   card: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--color-surface-2)', overflow: 'hidden' },
@@ -32,7 +33,11 @@ const rows = [
 function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (next: boolean) => void }) {
   return <button type="button" role="switch" aria-label={label} aria-checked={checked} {...stylex.props(s.sw, checked && s.on)} onClick={() => onChange(!checked)}><span {...stylex.props(s.knob)} /></button>
 }
-export default function NotificationSettings({ embedded = false }: { embedded?: boolean }) {
+/** Cài đặt thông báo áp cho cả máy: thành viên chỉ xem, quản trị viên mới ghi. */
+export default function NotificationSettings(props: { embedded?: boolean }) {
+  return <AdminReadOnly><NotificationSettingsForm {...props} /></AdminReadOnly>
+}
+function NotificationSettingsForm({ embedded = false }: { embedded?: boolean }) {
   const resource = useResource(['activity', 'settings'], ({ signal }) => getNotificationSettings(signal))
   const [error, setError] = useState('')
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => 'Notification' in window ? Notification.permission : 'unsupported')

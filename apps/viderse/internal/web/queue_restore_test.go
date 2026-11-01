@@ -15,6 +15,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres/gen"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/queue"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 func queuePatchResponse(t *testing.T, svc *queue.Service, id, action string, status int) []byte {
@@ -24,7 +25,7 @@ func queuePatchResponse(t *testing.T, svc *queue.Service, id, action string, sta
 		t.Fatal(err)
 	}
 	w := httptest.NewRecorder()
-	patchQueue(w, httptest.NewRequest("PATCH", "/api/queue", bytes.NewReader(body)), svc, func(err error) { t.Log(err) })
+	patchQueue(w, httptest.NewRequest("PATCH", "/api/queue", bytes.NewReader(body)), identity.User{Role: identity.RoleMember}, svc, func(err error) { t.Log(err) })
 	if w.Code != status {
 		t.Fatalf("PATCH %s status=%d want=%d body=%s", action, w.Code, status, w.Body.String())
 	}

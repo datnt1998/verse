@@ -460,6 +460,7 @@ func wireAI(
 		StatusBump: func() { statusSvc.Bump() },
 		Lifetime:   ctx,
 		Executors:  exec,
+		Hosted:     gateway.Hosted(),
 		OnAgentsChanged: func() {
 			// Dựng lại ĐÚNG chuỗi đã lưu; lỗi dựng thể hiện khi Draw, không
 			// nuốt im lặng.

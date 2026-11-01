@@ -8,10 +8,12 @@ import { ApiError } from '../../../api/request'
 import { vi as t } from '../../../i18n/vi'
 import { serverStorageCopy } from '../../../i18n/storageServer'
 import { keys } from '../../../data/keys'
+import { useSession } from '../../../api/session'
 import { fill, fmtBytes, fmtTime } from '../fmt'
 
 /** Thẻ “Tệp tạm và thứ không ai dùng” — xem trước rồi dọn (hai bước previewId). */
 export function CleanupCard({ data, serverRole }: { data?: StorageStatus; serverRole?: 'admin' | 'member' }) {
+  const { user } = useSession()
   const [preview, setPreview] = useState<CleanupPreview | null>(null)
   const [done, setDone] = useState<{ bytes: number; at: string } | null>(null)
   const [stale, setStale] = useState(false)
@@ -30,6 +32,8 @@ export function CleanupCard({ data, serverRole }: { data?: StorageStatus; server
       setStale(true)
     }
   })
+  // Dọn dữ liệu là thao tác của quản trị viên; máy chủ từ chối thành viên (403).
+  if (serverRole === 'member' || user?.role === 'member') return null
   const items = (preview?.items ?? []).filter(item => !serverRole || item.kind === 'orphan_objects' || serverRole === 'admin' && item.kind === 'work_cache').map(item =>
     serverRole ? { ...item, label: serverStorageCopy.cleanupLabels[item.kind as keyof typeof serverStorageCopy.cleanupLabels] } : item)
   const freedBytes = serverRole ? items.reduce((sum, item) => sum + item.bytes, 0) : preview?.freedBytes ?? 0

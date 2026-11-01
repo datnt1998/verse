@@ -38,7 +38,10 @@ function installFetch() {
     if (url.startsWith('/api/version')) return respond({ version: '1.4.0', latest: null, checkedAt: null })
     if (url.startsWith('/api/ai/providers')) return respond([{ id: 'chatgpt', kind: 'chatgpt', auth: 'subscription', label: 'ChatGPT', status: 'ready', catalogCount: 3, selected: [] }])
     if (url.startsWith('/api/ai/agents')) return respond({ director: { model: { provider: 'chatgpt', model: 'gpt-5' }, effort: 'medium', fallback: [] }, artist: { promptModel: { provider: 'chatgpt', model: 'gpt-5' }, draw: { provider: 'chatgpt', model: 'gpt-image-1' }, fallbackOn: false, drawFallback: [] } })
-    if (url.startsWith('/api/platforms')) return respond([{ id: 'youtube', label: 'YouTube' }, { id: 'twitch', label: 'Twitch' }, { id: 'bilibili', label: 'Bilibili' }])
+    if (url.startsWith('/api/platforms')) return respond(['youtube', 'twitch', 'bilibili'].map((id) => ({
+      id, label: id, uses: [], kinds: [], targetHeight: 1080, state: 'ready', usage: { channels: 0, videos: 0 },
+      login: { type: 'none', saved: false, renewable: false },
+    })))
     return respond({})
   }))
 }
@@ -53,6 +56,11 @@ async function render(section?: string) {
   await act(async () => { root.render(<SettingsScreen route={{ name: 'settings', section: s }} />) })
   for (let i = 0; i < 5; i++) await act(async () => { await new Promise((r) => setTimeout(r, 20)) })
   return container
+}
+
+/** Chờ mục lazy tải xong: mỗi nhịp trong act để React flush Suspense. */
+async function settle(done: () => boolean) {
+  for (let i = 0; i < 100 && !done(); i++) await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
 }
 
 beforeEach(() => {
@@ -139,5 +147,26 @@ describe('khung Cài đặt', () => {
     const link = el.querySelector<HTMLAnchorElement>('a[href="https://nov.example.test/#/settings/members"]')
     expect(Boolean(link)).toBe(role === 'admin')
     if (link) expect(link.target).toBe('_blank')
+  })
+
+  it.each(['tools', 'connect', 'agents', 'accounts'] as const)('thành viên xem mục %s ở chế độ chỉ đọc, quản trị viên thì không', async (section) => {
+    session.user = { username: 'linh', name: 'Linh', role: 'member' }
+    const member = await render(section)
+    await settle(() => !!member.querySelector('[role="note"]'))
+    expect(member.querySelector('[role="note"]')?.textContent).toContain('chỉ đọc')
+    expect(member.querySelector('[inert]')).toBeTruthy()
+    for (const root of roots.splice(0)) await act(() => root.unmount())
+    document.body.replaceChildren()
+    session.user = { username: 'boss', name: 'Boss', role: 'admin' }
+    const admin = await render(section)
+    await settle(() => (admin.querySelector('.vv-set__body')?.textContent?.length ?? 0) > 20)
+    expect(admin.querySelector('[role="note"]')).toBeNull()
+    expect(admin.querySelector('[inert]')).toBeNull()
+  })
+
+  it('mục Lưu trữ không bị khoá chỉ đọc: thành viên vẫn xem và đọc được', async () => {
+    session.user = { username: 'linh', name: 'Linh', role: 'member' }
+    const el = await render('storage')
+    expect(el.querySelector('[inert]')).toBeNull()
   })
 })

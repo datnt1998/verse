@@ -16,6 +16,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -245,6 +246,13 @@ type Options struct {
 	// composition root buộc); nil → PUT agents chỉ kiểm capability, không
 	// kiểm được đường chạy.
 	Executors Executors
+	// Hosted: máy chủ được phục vụ cho người khác (PUBLIC_URL). Địa chỉ tuỳ
+	// biến (ollama, openai_compat) phải phân giải ra địa chỉ công khai — không
+	// loopback, link-local hay mạng riêng. Tắt → app một chủ trên máy cá nhân
+	// giữ được Ollama ở localhost/LAN.
+	Hosted bool
+	// LookupIP phân giải tên host cho kiểm tra Hosted; nil → resolver hệ thống.
+	LookupIP func(ctx context.Context, host string) ([]net.IP, error)
 }
 
 // Service là mặt tiền nghiệp vụ của kết nối AI.
@@ -728,6 +736,11 @@ func (s *Service) CreateProvider(ctx context.Context, in CreateProviderInput) (P
 		}
 		in.BaseURL = base
 	}
+	if info.customURL {
+		if err := s.checkHostedAddress(ctx, in.BaseURL); err != nil {
+			return ProviderView{}, err
+		}
+	}
 
 	var enc []byte
 	var hint string
@@ -849,6 +862,15 @@ func (s *Service) PatchProvider(ctx context.Context, id string, in PatchProvider
 		valid, err := validateBaseURL(base)
 		if err != nil {
 			return ProviderView{}, apiError(http.StatusBadRequest, domain.ReasonInvalidBaseURL, err.Error())
+		}
+		if err := s.checkHostedAddress(ctx, valid); err != nil {
+			return ProviderView{}, err
+		}
+		// Khoá đã lưu chỉ được cấp cho máy chủ cũ: đổi sang máy chủ khác mà
+		// không nhập khoá mới thì khoá cũ sẽ bị gửi tới địa chỉ lạ.
+		if in.APIKey == nil && len(p.EncKey) > 0 && !sameHost(p.BaseURL, valid) {
+			return ProviderView{}, apiError(http.StatusBadRequest, domain.ReasonMissingKey,
+				"Đổi sang máy chủ khác cần nhập lại khoá API")
 		}
 		p.BaseURL = valid
 		keyChanged = true
@@ -1125,12 +1147,27 @@ func (s *Service) CheckModel(ctx context.Context, id, model string) (CheckModelR
 	return CheckModelResult{OK: true, Ms: ms, Caps: m.Caps, ContextK: m.ContextK}, nil
 }
 
+// hostedCatalogGuard chặn cuộc gọi ra địa chỉ nội bộ cả với thẻ đã lưu từ
+// trước (tạo khi chưa hosted, hay DNS đổi về sau), không chỉ lúc tạo/sửa.
+func (s *Service) hostedCatalogGuard(ctx context.Context, p domain.Provider) error {
+	if p.BaseURL == "" {
+		return nil
+	}
+	if err := s.checkHostedAddress(ctx, p.BaseURL); err != nil {
+		return &CatalogError{Kind: "failed", Message: err.Error()}
+	}
+	return nil
+}
+
 // fetchCatalog gọi adapter của kind (không mạng trong GET — chỉ caller chủ
 // động gọi hàm này).
 func (s *Service) fetchCatalog(ctx context.Context, p domain.Provider, apiKey string) ([]domain.AIModel, error) {
 	ad, ok := s.o.Adapters[p.Kind]
 	if !ok {
 		return nil, &CatalogError{Kind: "failed", Message: "không có adapter cho " + p.Kind}
+	}
+	if err := s.hostedCatalogGuard(ctx, p); err != nil {
+		return nil, err
 	}
 	models, err := ad.FetchCatalog(ctx, p, apiKey)
 	if err != nil {
@@ -1143,6 +1180,9 @@ func (s *Service) checkModel(ctx context.Context, p domain.Provider, apiKey, mod
 	ad, ok := s.o.Adapters[p.Kind]
 	if !ok {
 		return domain.AIModel{}, &CatalogError{Kind: "failed", Message: "không có adapter cho " + p.Kind}
+	}
+	if err := s.hostedCatalogGuard(ctx, p); err != nil {
+		return domain.AIModel{}, err
 	}
 	m, err := ad.CheckModel(ctx, p, apiKey, model)
 	if err != nil {

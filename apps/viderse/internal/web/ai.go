@@ -292,13 +292,19 @@ func formatMillis(ms int64) string {
 
 // MountAI đăng ký các route /api/ai của §15 trên gateway.
 func MountAI(g *Gateway, svc AIService) {
-	g.Handle(http.MethodGet, "/api/ai/providers", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+	g.Handle(http.MethodGet, "/api/ai/providers", func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		list, err := svc.Providers(r.Context())
 		if err != nil {
 			writeAIError(w, err)
 			return
 		}
-		webapp.WriteJSON(w, http.StatusOK, providersToWire(list))
+		wire := providersToWire(list)
+		if !isAdmin(user) {
+			for i := range wire {
+				wire[i].KeyHint, wire[i].BaseURL = "", ""
+			}
+		}
+		webapp.WriteJSON(w, http.StatusOK, wire)
 	})
 	g.Handle(http.MethodPost, "/api/ai/providers", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		var in aiconn.CreateProviderInput

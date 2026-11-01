@@ -117,13 +117,18 @@ it.each(['readonly_dir', 'bad_permissions', 'corrupt'])('blocks saving for encry
   expect(el.textContent).toContain('Máy chủ chưa có khoá mã hoá')
   expect(el.querySelector('details')?.textContent).toContain('/data/config/secret.key')
 })
-it.each(['admin', 'member'])('previews server-owned cleanup groups for %s and runs the exact preview', async value => {
-  role = value; await render(); await click('Xem trước những gì sẽ dọn')
+it('previews server-owned cleanup groups for the admin and runs the exact preview', async () => {
+  role = 'admin'; await render(); await click('Xem trước những gì sẽ dọn')
   expect(el.textContent).toContain('Tệp trên kho của video đã xoá')
-  expect(el.textContent?.includes('Bộ đệm trên máy chủ')).toBe(value === 'admin')
+  expect(el.textContent?.includes('Bộ đệm trên máy chủ')).toBe(true)
   expect(el.textContent).not.toContain('pipeline')
   expect(el.textContent).not.toContain('old objects')
   expect(calls.find(call => call.url === '/api/storage/cleanup/preview')?.init?.method).toBe('POST')
-  await click(`Dọn ${value === 'admin' ? '50' : '30'} MB`)
+  await click('Dọn 50 MB')
   expect(calls.find(call => call.url === '/api/storage/cleanup/run')?.init?.body).toBe('{\"previewId\":\"clean1\"}')
+})
+it('shows members no cleanup controls because the server refuses them', async () => {
+  role = 'member'; await render()
+  expect(button('Xem trước những gì sẽ dọn')).toBeUndefined()
+  expect(calls.some(call => call.url.startsWith('/api/storage/cleanup/'))).toBe(false)
 })

@@ -150,6 +150,25 @@ DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
 - `GET /api/setup` chỉ báo `needed` khi kho đọc được và trống — lỗi kho trả
   503, không phát mã ảo. Sau thiết lập lần đầu, Viderse không tạo được tài
   khoản mới: thêm thành viên ở Noverse (Tuỳ chỉnh › Thành viên).
+- Cấu hình toàn máy chỉ quản trị viên được ghi; thành viên nhận `403` ở một
+  cổng chung của gateway (`internal/web/admin_gate.go`): provider và agent AI
+  (`/api/ai/providers*` ghi, luồng đăng nhập, `PUT /api/ai/agents`), mọi
+  `/api/platforms/*` trừ `POST /api/platforms/requests` (cookie, hồ sơ Chrome
+  kèm email, QR), khoá YouTube Data, `/api/tools/*` ghi, `/api/setup/*` ghi
+  (Chuẩn bị máy; tạo quản trị viên đầu tiên vẫn là `/api/setup`,
+  `/api/setup/verify`, `/api/setup/admin` do platform/webapp phục vụ trước
+  phiên), `/api/storage/cleanup/*`, thao tác thư mục lưu trữ (kể cả duyệt thư mục máy chủ), cài đặt
+  thông báo và quy tắc chạy của hàng chờ (`workers`, `imageWorkers`,
+  `rescanHours`). Thành viên vẫn đọc được danh sách provider/nền tảng nhưng
+  không thấy `keyHint`, `baseUrl`, tài khoản hay hồ sơ trình duyệt.
+- Địa chỉ tuỳ biến của provider (`ollama`, `openai_compat`): khi `PUBLIC_URL`
+  được đặt (hosted), baseUrl phải phân giải (DNS trước khi kiểm) ra địa chỉ
+  công khai — loopback, link-local (gồm metadata cloud), mạng riêng, CGNAT và
+  multicast bị từ chối, nên Ollama trên chính máy chủ không dùng được khi
+  hosted. Không đặt `PUBLIC_URL` (app một chủ trên máy cá nhân) thì giữ nguyên
+  Ollama ở localhost/LAN. Đổi baseUrl sang **máy chủ khác** của thẻ đã lưu khoá
+  cần nhập lại khoá API trong cùng request; khoá đã lưu không bao giờ được gửi
+  tới địa chỉ mới.
 - Chuyển `~/.viderse/web-accounts.json` cũ vào kho chung:
   [apps/noverse/deploy/sso-cutover.md](../noverse/deploy/sso-cutover.md).
 

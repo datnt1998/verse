@@ -64,8 +64,8 @@ func MountPerformance(g *Gateway, svc PerformanceService, keys PerformanceKeys) 
 	if keys == nil {
 		return
 	}
-	g.Handle(http.MethodGet, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		writeDataKey(w, r, keys)
+	g.Handle(http.MethodGet, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+		writeDataKey(w, r, keys, isAdmin(user))
 	})
 	g.Handle(http.MethodPut, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		var body struct {
@@ -85,7 +85,7 @@ func MountPerformance(g *Gateway, svc PerformanceService, keys PerformanceKeys) 
 			}
 			return
 		}
-		writeDataKey(w, r, keys)
+		writeDataKey(w, r, keys, true)
 	})
 	g.Handle(http.MethodDelete, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		if err := keys.Clear(r.Context()); err != nil {
@@ -96,14 +96,14 @@ func MountPerformance(g *Gateway, svc PerformanceService, keys PerformanceKeys) 
 	})
 }
 
-func writeDataKey(w http.ResponseWriter, r *http.Request, keys PerformanceKeys) {
+func writeDataKey(w http.ResponseWriter, r *http.Request, keys PerformanceKeys, showHint bool) {
 	configured, hint, err := keys.Status(r.Context())
 	if err != nil {
 		webapp.Error(w, http.StatusInternalServerError, "Chưa đọc được khoá lúc này.")
 		return
 	}
 	out := map[string]any{"configured": configured}
-	if configured {
+	if configured && showHint {
 		out["keyHint"] = hint
 	}
 	w.Header().Set("Cache-Control", "private, no-store")

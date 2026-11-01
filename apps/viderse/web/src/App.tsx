@@ -12,6 +12,7 @@ import { WorkbenchScreen as HomeScreen } from './screens/workbench/WorkbenchScre
 import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
 import { navigate, routePath, useRoute, type Route } from './router'
+import { AdminReadOnly } from './components/AdminReadOnly'
 
 // Cổng phiên (thiết lập, đăng nhập, đổi mật khẩu, bị chặn, mất máy chủ) chỉ mở
 // một màn một lúc: để riêng chunk, người đã đăng nhập không tải mã của chúng.
@@ -55,7 +56,7 @@ function Screen({ route }: { route: Route }) {
       case 'render': return <RenderPage requestId={route.requestId} token={route.token} />
       case 'measure': return <MeasurePage requestId={route.requestId} token={route.token} />
       case 'settings': return <SettingsScreen route={route} />
-      case 'setup': return <MachineSetupScreen />
+      case 'setup': return <AdminReadOnly note="Chuẩn bị máy là việc của quản trị viên. Bạn đang xem ở chế độ chỉ đọc."><MachineSetupScreen /></AdminReadOnly>
       case 'account': return <AccountScreen />
       case 'devkit': return <DevKitScreen route={route} />
     }

@@ -42,8 +42,8 @@ func MountPlatforms(g *Gateway, svc PlatformService) {
 // MountPlatformsDiag giống MountPlatforms nhưng có điểm tới cho lỗi nội bộ:
 // diag nhận bản sao đã qua logs.Redact của nguyên nhân lỗi 500.
 func MountPlatformsDiag(g *Gateway, svc PlatformService, diag PlatformDiag) {
-	g.Handle(http.MethodGet, "/api/platforms", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		listPlatforms(w, r, svc, diag)
+	g.Handle(http.MethodGet, "/api/platforms", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+		listPlatforms(w, r, svc, diag, isAdmin(user))
 	})
 	for _, method := range []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete} {
 		m := method
@@ -140,7 +140,7 @@ func loginToWire(l domain.PlatformLogin) platformLoginWire {
 
 // ── handlers ───────────────────────────────────────────────────────────────
 
-func listPlatforms(w http.ResponseWriter, r *http.Request, svc PlatformService, diag PlatformDiag) {
+func listPlatforms(w http.ResponseWriter, r *http.Request, svc PlatformService, diag PlatformDiag, showIdentity bool) {
 	list, err := svc.Status(r.Context())
 	if err != nil {
 		writeInternalError(w, err, diag)
@@ -168,6 +168,9 @@ func listPlatforms(w http.ResponseWriter, r *http.Request, svc PlatformService, 
 				At:    st.LastError.At.Format(time.RFC3339),
 				JobID: st.LastError.JobID,
 			}
+		}
+		if !showIdentity {
+			wire.Login.Masked, wire.Login.Account, wire.Login.BrowserProfile = nil, nil, ""
 		}
 		out = append(out, wire)
 	}
