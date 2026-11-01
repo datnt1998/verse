@@ -112,7 +112,7 @@ var APIEnums = []APIEnum{
 		// Các trạng thái của thẻ Máy đọc (10-audio.md §8.1): đã thu gọn về sáu
 		// từ — `offline` là máy chủ suy ra, `provisioning` gồm cả engine
 		// `installing`/`stopped` của bản cá nhân.
-		TS:     "TtsStatusState",
+		TS: "TtsStatusState",
 		Values: []string{
 			voice.ProvisionStateMissing, voice.ProvisionStateProvisioning,
 			voice.ProvisionStateStarting, voice.ProvisionStateReady,

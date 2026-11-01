@@ -24,7 +24,7 @@ export function InstallCard({ project, story, ready, onReady }: {
   const install = useAction(async () => {
     const result = await installTts()
     // POST xong là biết chắc đã vào lượt cài: đừng để nút bật lại trong lúc chờ nhịp hỏi.
-    if (result.job) setProgress({ state: 'running', step: '', percent: 0, message: '', bytes: 0, updated: new Date().toISOString() })
+    if (result.job) setProgress({ state: 'running', step: '', percent: null, bytesDone: 0, bytesTotal: 0, etaSec: 0, message: '', updated: new Date().toISOString() })
     onReady()
     dispatchDock({ type: 'open' })
     toast(t.audio.install.dangCaiBoDoc, 'ok', { label: 'Mở việc chạy nền', onClick: () => dispatchDock({ type: 'open' }) })
@@ -33,7 +33,7 @@ export function InstallCard({ project, story, ready, onReady }: {
 
   const running = install.pending || progress?.state === 'running' || ready.engine.state === 'installing'
   const failed = !ready.ready && !running && progress?.state === 'error'
-  const percent = progress && progress.state === 'running' ? Math.max(0, Math.min(100, progress.percent)) : null
+  const percent = progress && progress.state === 'running' && progress.percent !== null ? Math.max(0, Math.min(100, progress.percent)) : null
 
   // Đọc mốc cài khi mở thẻ (bắt lượt đang chạy hoặc lỗi của lần trước), rồi theo dõi
   // tới khi xong/hỏng — nhờ vậy “Đang cài…” không bao giờ đứng mãi. Chỉ gọi `onReady`

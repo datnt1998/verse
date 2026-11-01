@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 

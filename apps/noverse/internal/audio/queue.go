@@ -53,7 +53,7 @@ type Job struct {
 	ErrorAt       *time.Time `json:"errorAt,omitempty"`
 	Percent       float64    `json:"percent"`
 	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 	// WaitingMachine đúng khi chương tạo giọng đang xếp hàng vì chưa có máy đọc
 	// nào sẵn sàng (10-audio.md §8.3); lớp web đặt cờ khi phục vụ.
 	WaitingMachine bool `json:"waitingMachine,omitempty"`

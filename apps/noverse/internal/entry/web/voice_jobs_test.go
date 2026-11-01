@@ -144,8 +144,8 @@ func waitJobWhere(t *testing.T, tg *testGateway, cookie, id string, ok func(*Job
 func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 	eng := &testTtsEngine{
 		steps: []voice.InstallProgress{
-			{Step: "source", Percent: 5, Message: "Đang tải mã nguồn VieNeu-TTS…"},
-			{Step: "deps", Percent: 40, Message: "Đang cài thư viện Python…"},
+			{Step: "source", Percent: new(5), Message: "Đang tải mã nguồn VieNeu-TTS…"},
+			{Step: "deps", Percent: new(40), Message: "Đang cài thư viện Python…"},
 		},
 		gate: make(chan struct{}),
 	}
@@ -197,7 +197,7 @@ func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 // Lượt cài hỏng phải hiện lỗi + cho Thử lại; thử lại chạy tiếp và xong.
 func TestVoiceInstallJobFailsThenRetry(t *testing.T) {
 	eng := &testTtsEngine{
-		steps: []voice.InstallProgress{{Step: "source", Percent: 5, Message: "Đang tải mã nguồn VieNeu-TTS…"}},
+		steps: []voice.InstallProgress{{Step: "source", Percent: new(5), Message: "Đang tải mã nguồn VieNeu-TTS…"}},
 		fail:  errors.New("chưa có uv trên máy"),
 	}
 	useTtsService(t, eng)

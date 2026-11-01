@@ -348,8 +348,8 @@ func (i *installerFake) Install(ctx context.Context, report func(InstallProgress
 func TestServiceInstallProgressAndBusy(t *testing.T) {
 	fake := &installerFake{
 		steps: []InstallProgress{
-			{Step: "deps", Percent: 40, Message: "đang cài"},
-			{Step: "model", Percent: 80, Message: "đang tải"},
+			{Step: "deps", Percent: new(40), Message: "đang cài"},
+			{Step: "model", Percent: new(80), Message: "đang tải"},
 		},
 		gate: make(chan struct{}),
 	}
@@ -381,8 +381,8 @@ func TestServiceInstallProgressAndBusy(t *testing.T) {
 	for {
 		st := svc.InstallState()
 		if st.State == "done" {
-			if st.Percent != 100 {
-				t.Fatalf("phần trăm cuối = %d, muốn 100", st.Percent)
+			if st.Percent == nil || *st.Percent != 100 {
+				t.Fatalf("phần trăm cuối = %v, muốn 100", st.Percent)
 			}
 			break
 		}
@@ -442,7 +442,7 @@ func waitInstallState(t *testing.T, svc *Service) InstallProgress {
 // Status là nguồn của S/audio/ready nên thiếu nó thì thẻ hướng dẫn chỉ nói
 // "chưa sẵn sàng" mà không nói vì sao.
 func TestServiceFailedInstallSurfacesError(t *testing.T) {
-	eng := &brokenInstall{installerFake{steps: []InstallProgress{{Step: "deps", Percent: 20, Message: "đang cài thư viện"}}}}
+	eng := &brokenInstall{installerFake{steps: []InstallProgress{{Step: "deps", Percent: new(20), Message: "đang cài thư viện"}}}}
 	name := "broken-" + t.Name()
 	Register(name, func(Config) (Engine, error) { return eng, nil })
 	svc := New(Config{Engine: name})

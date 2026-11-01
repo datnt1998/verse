@@ -236,7 +236,6 @@ func installPercentValue(p *int) *int {
 	return &v
 }
 
-
 // ttsRevokeMachine thu hồi quyền của máy đọc đang phục vụ (một bước, Nâng cao):
 // credential ngừng nhận việc ngay, máy không còn claim/heartbeat/publish được,
 // và trạng thái chuyển sang `error · token_rejected` để cấp lại quyền là việc

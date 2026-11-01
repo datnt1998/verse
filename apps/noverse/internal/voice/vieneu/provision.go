@@ -479,7 +479,7 @@ func (r *provisionRun) emitModel(done, total int64) {
 		BytesDone:  done,
 		BytesTotal: total,
 		EtaSec:     eta,
-		Message: fmt.Sprintf("Đang tải mẫu giọng… (%.0f MB)", float64(done)/(1<<20)),
+		Message:    fmt.Sprintf("Đang tải mẫu giọng… (%.0f MB)", float64(done)/(1<<20)),
 	})
 }
 
