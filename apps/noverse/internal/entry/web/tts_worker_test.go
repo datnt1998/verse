@@ -114,7 +114,7 @@ func TestHostedTTSStatusFromWorkerState(t *testing.T) {
 	got = hostedStatus(t, tg, admin)
 	errBody, _ := got["error"].(map[string]any)
 	if got["state"] != voice.StateError || errBody == nil ||
-		errBody["code"] != voice.ProvisionErrDownloadFailed || errBody["message"] != "Tải mô hình hỏng" {
+		errBody["code"] != voice.ProvisionErrDownloadFailed || errBody["message"] != provisionReason(voice.ProvisionErrDownloadFailed) {
 		t.Fatalf("error state = %v", got)
 	}
 	if got["percent"] != nil {
@@ -461,8 +461,8 @@ func TestHostedStatusHidesTechnicalDetailFromMembers(t *testing.T) {
 		t.Fatalf("admin channel = %v", adminView["channel"])
 	}
 	tail, _ := adminView["logTail"].([]any)
-	if len(tail) != 3 || tail[2] != "dòng 3" {
-		t.Fatalf("admin logTail = %v, want 3 lines", adminView["logTail"])
+	if len(tail) != 4 || tail[0] != "Thiếu thư viện" || tail[3] != "dòng 3" {
+		t.Fatalf("admin logTail = %v, want the cause then 3 log lines", adminView["logTail"])
 	}
 
 	memberView := hostedStatus(t, tg, writer)
@@ -472,8 +472,9 @@ func TestHostedStatusHidesTechnicalDetailFromMembers(t *testing.T) {
 	if _, ok := memberView["logTail"]; ok {
 		t.Fatalf("member saw the log tail: %v", memberView["logTail"])
 	}
-	if errBody, _ := memberView["error"].(map[string]any); errBody == nil || errBody["message"] != "Thiếu thư viện" {
-		t.Fatalf("member error = %v, want the sentence without the log", memberView["error"])
+	if errBody, _ := memberView["error"].(map[string]any); errBody == nil ||
+		errBody["message"] != provisionReason(voice.ProvisionErrDepsFailed) {
+		t.Fatalf("member error = %v, want the 8.2 sentence for deps_failed", memberView["error"])
 	}
 }
 

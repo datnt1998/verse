@@ -192,7 +192,7 @@ func (g *Gateway) hostedTTSStatus(ctx context.Context, user identity.User) ttsSt
 		// Credential đã bị thu hồi: máy không còn được nhận việc, và câu 8.2
 		// `token_rejected` nói đúng việc phải làm (cấp lại quyền ở Nâng cao).
 		resp.State = voice.ProvisionStateError
-		resp.Error = &ttsStatusError{Code: voice.ProvisionErrTokenRejected, Message: "Máy đọc đã bị thu hồi quyền"}
+		resp.Error = &ttsStatusError{Code: voice.ProvisionErrTokenRejected, Message: provisionReason(voice.ProvisionErrTokenRejected)}
 		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
 		return resp
 	}
@@ -232,34 +232,76 @@ func statePercent(v int) *int {
 	return &v
 }
 
-// statusErrorOf lấy mã + câu của một lượt chuẩn bị hỏng. Thiếu mã nghĩa là máy
-// đọc không nói rõ lý do — quy về start_failed, đúng câu "không khởi động được".
+// statusErrorOf lấy mã + câu của một lượt chuẩn bị hỏng. Người dùng thường chỉ
+// thấy đúng câu 8.2 của mã lỗi; lý do kỹ thuật (đường dẫn, URL, traceback của
+// uv) chỉ đi qua logTail ở Nâng cao. Thiếu mã nghĩa là máy đọc không nói rõ lý
+// do — quy về start_failed, đúng câu "không khởi động được".
 func statusErrorOf(st voice.ProvisionState) *ttsStatusError {
-	if st.Error == nil {
-		return &ttsStatusError{Code: voice.ProvisionErrStartFailed, Message: st.Message}
+	code := voice.ProvisionErrStartFailed
+	if st.Error != nil && strings.TrimSpace(st.Error.Code) != "" {
+		code = st.Error.Code
 	}
-	msg := firstNonEmpty(st.Error.Message, st.Message)
-	return &ttsStatusError{Code: st.Error.Code, Message: msg}
+	return &ttsStatusError{Code: code, Message: provisionReason(code)}
 }
 
-// workerLogTail cắt nhật ký máy đọc thành tối đa n dòng cuối, bỏ dòng trống.
+// provisionPublicReason là câu 8.2 cho từng mã lỗi — toàn bộ phần người dùng
+// thường thấy. Không suy ra câu này từ lỗi thật: lỗi thật mang đường dẫn, URL
+// và traceback của tiến trình, những thứ chỉ thuộc Nâng cao (10-audio.md §8.5).
+var provisionPublicReason = map[string]string{
+	voice.ProvisionErrNoDisk:         "Máy đọc không đủ chỗ trống để chuẩn bị bộ đọc. Dọn bớt tệp trên máy đọc rồi thử lại.",
+	voice.ProvisionErrDownloadFailed: "Mạng của máy đọc bị ngắt giữa chừng. Máy đọc tự thử lại sau ít phút; bấm Thử lại để thử ngay.",
+	voice.ProvisionErrUVFailed:       "Mạng của máy đọc bị ngắt giữa chừng. Máy đọc tự thử lại sau ít phút; bấm Thử lại để thử ngay.",
+	voice.ProvisionErrHashMismatch:   "Tệp vừa tải khác bản Noverse đã kiểm nên đã bị bỏ để giữ an toàn. Máy đọc không tự thử tiếp; thử lại khi mạng ổn định, vẫn lỗi thì báo quản trị.",
+	voice.ProvisionErrDepsFailed:     "Bước cài thư viện cho bộ đọc dừng giữa chừng, thường do mạng chập chờn. Phần đã tải được giữ lại nên lần sau nhanh hơn.",
+	voice.ProvisionErrModelFailed:    "Mẫu giọng (khoảng 580 MB) mới tải được một phần. Phần đã tải được giữ, bấm Thử lại để tải tiếp.",
+	voice.ProvisionErrStartFailed:    "Bộ đọc đã chuẩn bị xong nhưng không bật lên được, thường do máy đọc thiếu bộ nhớ. Đóng bớt ứng dụng trên máy đọc rồi thử lại.",
+	voice.ProvisionErrTokenRejected:  "Máy đọc này không còn được nhận việc tạo giọng. Quản trị cấp lại quyền ở Nâng cao.",
+}
+
+// provisionReason trả câu 8.2 của mã; mã lạ rơi về câu "không khởi động được"
+// thay vì để lộ chuỗi kỹ thuật của máy đọc.
+func provisionReason(code string) string {
+	if reason, ok := provisionPublicReason[code]; ok {
+		return reason
+	}
+	return provisionPublicReason[voice.ProvisionErrStartFailed]
+}
+
+// workerLogTail gom chẩn đoán của máy đọc cho Nâng cao: lý do kỹ thuật trước
+// (có thể mang đường dẫn/URL/traceback), rồi tới n dòng nhật ký gần nhất. Đây
+// là chỗ DUY NHẤT những chuỗi đó được ra khỏi máy chủ.
 func workerLogTail(pe *voice.ProvisionError, n int) []string {
-	if pe == nil || strings.TrimSpace(pe.LogTail) == "" {
+	if pe == nil || n <= 0 {
 		return nil
 	}
-	lines := strings.Split(strings.TrimRight(pe.LogTail, "\n"), "\n")
-	out := make([]string, 0, n)
-	for _, line := range lines {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
-		out = append(out, line)
-	}
+	out := workerLines(pe.Message)
 	if len(out) > n {
 		out = out[len(out)-n:]
 	}
+	tail := workerLines(pe.LogTail)
+	if room := n - len(out); room > 0 {
+		if len(tail) > room {
+			tail = tail[len(tail)-room:]
+		}
+		out = append(out, tail...)
+	}
 	if len(out) == 0 {
 		return nil
+	}
+	return out
+}
+
+// workerLines tách một chuỗi chẩn đoán thành dòng, bỏ dòng trống.
+func workerLines(s string) []string {
+	if strings.TrimSpace(s) == "" {
+		return nil
+	}
+	var out []string
+	for _, line := range strings.Split(s, "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		out = append(out, strings.TrimSpace(line))
 	}
 	return out
 }
