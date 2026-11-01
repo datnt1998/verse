@@ -58,6 +58,7 @@ const acceptSchema = z.object({
 })
 export type AcceptResult = z.infer<typeof acceptSchema>
 
+const hasCode = (payload: unknown) => z.object({ code: z.string() }).safeParse(payload).success
 const confirmSchema = z.object({ code: z.literal('confirm_required'), cost: costSchema })
 
 /** Đề xuất đang mở (tối đa 5, xếp theo giá trị). `channelId` rỗng = mọi kênh. */
@@ -76,7 +77,8 @@ export async function acceptSuggestion(id: string, confirm = false): Promise<Acc
       const need = confirmSchema.safeParse(error.payload)
       if (need.success) return { kind: 'confirm', images: need.data.cost.images ?? 0 }
     }
-    if (error instanceof ApiError && (error.status === 404 || error.status === 409)) return { kind: 'gone' }
+    // 404, hoặc 409 không kèm mã lỗi riêng (vd. `limit`) = đề xuất đã không còn; lỗi có mã thì báo thật.
+    if (error instanceof ApiError && (error.status === 404 || (error.status === 409 && !hasCode(error.payload)))) return { kind: 'gone' }
     throw error
   }
 }

@@ -24,9 +24,12 @@ export function LearnSlot({ learn }: { learn: Suggestion | null | undefined }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const online = useOnline()
+  // Một đề xuất `learn` chỉ được nhận vào slot một lần: sau Không/Hoàn tác, prop cũ còn đó
+  // (chờ làm mới) không được hiện lại; đề xuất mới (id khác) mới thay.
+  const [seenId, setSeenId] = useState(learn?.id ?? '')
   useEffect(() => {
-    if (learn && learn.id !== shown?.id) { setShown(learn); setSaved(null); setOpen(false); setError('') }
-  }, [learn, shown?.id])
+    if (learn && learn.id !== seenId) { setSeenId(learn.id); setShown(learn); setSaved(null); setOpen(false); setError('') }
+  }, [learn, seenId])
   if (!shown) return null
   const artist = shown.agent === 'artist'
   const examples = learnExamples(shown)
