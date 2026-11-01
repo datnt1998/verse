@@ -51,9 +51,7 @@ const (
 	ProvisionErrModelFailed    = "model_failed"
 	ProvisionErrStartFailed    = "start_failed"
 	ProvisionErrTokenRejected  = "token_rejected"
-	// ProvisionErrInterrupted: lượt chuẩn bị dừng giữa chừng (máy đọc tắt, đầy
-	// đĩa, tiến trình chết) nên kết quả chưa rõ. Không thuộc bảng 8.2 vì đây là
-	// trạng thái khôi phục sau khởi động lại, không phải một bước thất bại.
+	// ProvisionErrInterrupted: lượt chuẩn bị dừng giữa chừng nên chưa rõ kết quả.
 	ProvisionErrInterrupted = "interrupted"
 )
 

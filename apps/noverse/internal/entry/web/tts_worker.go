@@ -256,9 +256,7 @@ var provisionPublicReason = map[string]string{
 	voice.ProvisionErrModelFailed:    "Mẫu giọng (khoảng 580 MB) mới tải được một phần. Phần đã tải được giữ, bấm Thử lại để tải tiếp.",
 	voice.ProvisionErrStartFailed:    "Bộ đọc đã chuẩn bị xong nhưng không bật lên được, thường do máy đọc thiếu bộ nhớ. Đóng bớt ứng dụng trên máy đọc rồi thử lại.",
 	voice.ProvisionErrTokenRejected:  "Máy đọc này không còn được nhận việc tạo giọng. Quản trị cấp lại quyền ở Nâng cao.",
-	// interrupted không có trong bảng 8.2: lượt chuẩn bị bị dừng giữa chừng
-	// (máy đọc tắt/đầy đĩa) nên chưa rõ kết quả. Câu này không được nói "không
-	// bật lên được" như start_failed vì bộ đọc có thể đã xong một phần.
+	// Kết quả chưa rõ, không được khẳng định bộ đọc đã khởi động thất bại.
 	voice.ProvisionErrInterrupted: "Máy đọc dừng giữa chừng khi chuẩn bị bộ đọc nên chưa rõ kết quả. Phần đã xong được giữ nguyên; bấm Thử lại để làm tiếp.",
 }
 

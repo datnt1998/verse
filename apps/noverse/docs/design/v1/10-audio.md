@@ -350,6 +350,7 @@ Dưới thẻ: **Chất lượng giọng** (Nghe thử nhanh · Chuẩn · Cao n
 | `no_disk` | Máy đọc không đủ chỗ trống | Cần ít nhất 4 GB trống để chuẩn bị bộ đọc, máy đọc chỉ còn {x} GB. Dọn bớt tệp trên máy đọc rồi thử lại. | Thử lại |
 | `download_failed` (cả `uv_failed`) | Không tải được bộ đọc | Mạng của máy đọc bị ngắt giữa chừng. Máy đọc tự thử lại sau {n} phút; bấm Thử lại để thử ngay. | Thử lại |
 | `hash_mismatch` | Tệp tải về không khớp bản gốc | Tệp vừa tải khác bản Noverse đã kiểm nên đã bị bỏ để giữ an toàn. Máy đọc không tự thử tiếp; thử lại khi mạng ổn định, vẫn lỗi thì báo quản trị. | Thử lại |
+| `interrupted` | Lượt chuẩn bị bị gián đoạn | Máy đọc dừng giữa chừng khi chuẩn bị bộ đọc nên chưa rõ kết quả. Phần đã xong được giữ nguyên; bấm Thử lại để làm tiếp. Không tự thử khi chưa xác định được kết quả lượt trước. | Thử lại |
 | `deps_failed` | Không chuẩn bị được thư viện | Bước cài thư viện cho bộ đọc dừng giữa chừng, thường do mạng chập chờn. Phần đã tải được giữ lại nên lần sau nhanh hơn. | Thử lại |
 | `model_failed` | Không tải được mẫu giọng | Mẫu giọng (khoảng 580 MB) mới tải được một phần. Phần đã tải được giữ, bấm Thử lại để tải tiếp. | Thử lại |
 | `start_failed` | Bộ đọc không khởi động được | Bộ đọc đã chuẩn bị xong nhưng không bật lên được, thường do máy đọc thiếu bộ nhớ. Đóng bớt ứng dụng trên máy đọc rồi thử lại. | Thử lại |
