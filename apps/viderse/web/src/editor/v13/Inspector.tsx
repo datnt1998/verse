@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Dialog, Icon, radioGroupKeys } from '@noverse/ui'
+import { Button, Dialog, Icon } from '@noverse/ui'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'
 import { useTransitionsStore } from '@editor/features/timeline/stores/transitions-store'
@@ -14,6 +14,7 @@ import type { CaptionWord, ImageItem, SubtitleSegmentItem, TextItem, TimelineIte
 import type { SerializedCommand } from '@editor/commands'
 import type { TransformProperties } from '@editor/types/transform'
 import type { ImageProgress, ImageQuota, JobImage } from '../../api/images'
+import { Segmented } from '../../components/Segmented'
 import { useShortcutAction } from '../ui/shortcuts'
 import { MediaAsset, backdropItemFor, editorCommand, isCaption, panelError, panelTime, useBackdropActions, type BackdropActions } from './ContentPanels'
 import { sceneImageFor } from './scene-images'
@@ -206,15 +207,15 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
       <div {...stylex.props(sx.row)}>
         <h2 {...stylex.props(sx.heading)}><span {...stylex.props(sx.captionIcon)}><Icon name="subtitle" size={15} /></span>Phụ đề</h2>
         {driftIndex >= 0 && <><span {...stylex.props(sx.meta)}>Đoạn lệch {driftIndex + 1}/{drift.length}</span>
-        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)}><Icon name="arrow-left-2" size={14} /></button>
-        <button type="button" {...stylex.props(sx.smallIcon)} aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)}><Icon name="arrow-r" size={14} /></button></>}
+        <Button variant="icon" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)} icon={<Icon name="arrow-left-2" size={14} />} />
+        <Button variant="icon" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)} icon={<Icon name="arrow-r" size={14} />} /></>}
       </div>
       <span {...stylex.props(sx.meta)}>{panelTime(start / fps)}–{panelTime(end / fps)}</span>
       <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : passed ? 'Khớp với giọng' : matching ? 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
       <CaptionTiming item={item} startFrame={start} fps={fps} />
-      <Button {...stylex.props(sx.fullButton)} pending={aligning} pendingLabel="Đang khớp theo giọng…" onClick={() => { void align() }} icon={<Icon name="magic" size={15} />}>Khớp theo giọng</Button>
+      <Button block pending={aligning} pendingLabel="Đang khớp theo giọng…" onClick={() => { void align() }} icon={<Icon name="magic" size={15} />}>Khớp theo giọng</Button>
       <div {...stylex.props(sx.row)}><span {...stylex.props(sx.grow, sx.muted)}>Dời cả đoạn</span><Button size="sm" title="Sớm hơn 0,1 giây (,)" onClick={() => shift(-1)}>−0,1 s</Button><Button size="sm" title="Muộn hơn 0,1 giây (.)" onClick={() => shift(1)}>+0,1 s</Button></div>
-      <Button variant="quiet" size="sm" {...stylex.props(sx.quietButton)} title="Nghe lại đoạn này (L)" onClick={replay} icon={<Icon name="play" size={14} />}>Nghe lại đoạn này</Button>
+      <Button variant="quiet" size="sm" xstyle={sx.quietButton} title="Nghe lại đoạn này (L)" onClick={replay} icon={<Icon name="play" size={14} />}>Nghe lại đoạn này</Button>
       {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
     </section>
     <section {...stylex.props(sx.section)}><label htmlFor="v13-caption-text" {...stylex.props(sx.muted)}>Chữ của đoạn</label><textarea id="v13-caption-text" {...stylex.props(sx.input)} rows={2} value={draft ?? text} onChange={event => setDraft(event.target.value)} onBlur={commit} onKeyDown={event => { if (event.key === 'Escape') { setDraft(null); event.currentTarget.blur() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit() } }} /><p {...stylex.props(sx.help)}>Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; cỡ chữ và màu theo template.</p></section>
@@ -245,6 +246,7 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
       ? 'zoom'
       : !modifiers.length && !animated.length && !item.motionLayers?.some(entry => entry.enabled) && !keyframes?.vectorProperties?.some(lane => lane.keyframes.length > 1)
         ? 'none' : 'custom'
+  const transitionMode = !transition ? 'cut' : ['fade', 'dissolve'].includes(transition.presentation) ? 'fade' : transition.presentation === 'slide' ? 'slide' : 'custom'
   const run = (commands: SerializedCommand[]) => { try { editorCommand(commands); setError('') } catch (error) { setError(panelError(error)) } }
   const setMotion = (value: 'none' | 'zoom' | 'drift') => {
     const commands: SerializedCommand[] = [{ type: 'item.update', params: { id: item.id, updates: { motionModifiers: [], motionLayers: [] } } }, ...(['x', 'y', 'width', 'height', 'rotation'] as const).map(property => ({ type: 'keyframe.removeForProperty', params: { itemId: item.id, property } }))]
@@ -285,32 +287,31 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
     />
     <section {...stylex.props(sx.section)}>
       <h3 {...stylex.props(sx.subheading)}>Chuyển động</h3>
-      <div role="radiogroup" aria-label="Chuyển động của ảnh" {...stylex.props(sx.segments)}>
-        {([['none', 'Đứng yên'], ['zoom', 'Zoom chậm'], ['drift', 'Trôi + co giãn']] as const).map(([value, label]) => <button
-          type="button" key={value} role="radio" aria-checked={motion === value}
-          tabIndex={motion === value || motion === 'custom' && value === 'none' ? 0 : -1}
-          onKeyDown={radioGroupKeys} {...stylex.props(sx.segment, motion === value && sx.segmentSelected)}
-          onClick={() => setMotion(value)}>{label}</button>)}
-      </div>
+      <Segmented size="sm" label="Chuyển động của ảnh" value={motion}
+        options={[
+          { id: 'none', label: 'Đứng yên' },
+          { id: 'zoom', label: 'Zoom chậm' },
+          { id: 'drift', label: 'Trôi + co giãn' },
+        ]}
+        onChange={value => { if (value === 'none' || value === 'zoom' || value === 'drift') setMotion(value) }} />
     </section>
     {next && <section {...stylex.props(sx.section)}>
       <h3 {...stylex.props(sx.subheading)}>Sang cảnh {number + 1}</h3>
-      <div role="radiogroup" aria-label={`Chuyển sang cảnh ${number + 1}`} {...stylex.props(sx.segments)}>
-        {([['cut', 'Cắt'], ['fade', `Mờ ${transition && ['fade', 'dissolve'].includes(transition.presentation) ? (transition.durationInFrames / fps).toLocaleString('vi', { maximumFractionDigits: 1 }) : '1,2'} s`], ['slide', 'Trượt']] as const).map(([value, label]) => {
-          const mode = !transition ? 'cut' : ['fade', 'dissolve'].includes(transition.presentation) ? 'fade' : transition.presentation === 'slide' ? 'slide' : 'custom'
-          const checked = mode === value
-          return <button key={value} type="button" role="radio" aria-checked={checked}
-            tabIndex={checked || mode === 'custom' && value === 'cut' ? 0 : -1} onKeyDown={radioGroupKeys}
-            {...stylex.props(sx.segment, checked && sx.segmentSelected)} onClick={() => setTransition(value)}>{label}</button>
-        })}
-      </div>
+      <Segmented size="sm" label={`Chuyển sang cảnh ${number + 1}`} value={transitionMode}
+        options={[
+          { id: 'cut', label: 'Cắt' },
+          { id: 'fade', label: `Mờ ${transition && ['fade', 'dissolve'].includes(transition.presentation) ? (transition.durationInFrames / fps).toLocaleString('vi', { maximumFractionDigits: 1 }) : '1,2'} s` },
+          { id: 'slide', label: 'Trượt' },
+        ]}
+        onChange={value => { if (value === 'cut' || value === 'fade' || value === 'slide') setTransition(value) }} />
       <p {...stylex.props(sx.help)}>Theo template. Đổi ở đây chỉ cho chỗ này.</p>
     </section>}
     <section {...stylex.props(sx.section, sx.noBorder)}>
-      <Button variant="quiet" size="sm" {...stylex.props(sx.quietButton)} aria-expanded={advanced}
+      <Button variant="quiet" size="sm" xstyle={sx.quietButton} aria-expanded={advanced} aria-describedby="v13-scene-advanced-help"
         onClick={() => setAdvanced(!advanced)} icon={<Icon name={advanced ? 'arrow-up-2' : 'arrow-d'} size={13} />}>
-        Nâng cao <span {...stylex.props(sx.help)}>· vị trí, kích thước, độ trong suốt, keyframe</span>
+        Nâng cao
       </Button>
+      <p id="v13-scene-advanced-help" {...stylex.props(sx.help)}>· vị trí, kích thước, độ trong suốt, keyframe</p>
       {advanced && <>
         <div {...stylex.props(sx.twoColumns)}>
           {([['x', 'X'], ['y', 'Y'], ['rotation', 'Xoay']] as const).map(([property, label]) => <label key={property} {...stylex.props(sx.field)}>
@@ -387,11 +388,11 @@ function BackgroundInspector({ item, actions, jobId }: { item: VideoItem; action
       {source && `${source.kind} · `}trong video {panelTime(item.from / fps)}–{panelTime((item.from + item.durationInFrames) / fps)} · lấy đoạn {panelTime(start)}–{panelTime(start + length)}
     </span>
     <div {...stylex.props(sx.thumbnail)}><MediaAsset mediaId={item.mediaId} src={item.thumbnailUrl} label={item.label} /></div>
-    <div {...stylex.props(sx.twoColumns)}>
+    <div {...stylex.props(sx.commandGrid)}>
       <Button disabled={!source || !actions.backdrop?.randomPicks} pending={actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }} icon={<Icon name="refresh" size={15} />}>Đổi ngẫu nhiên</Button>
       <Button disabled={actions.pending || Boolean(jobId && !source)} onClick={() => { setSourceStart(start); setError(''); setChoosing(true) }} icon={<Icon name="scissor" size={15} />}>Chọn đoạn khác</Button>
     </div>
-    <Button variant="quiet" size="sm" disabled={actions.pending || Boolean(jobId && !source)} {...stylex.props(sx.quietButton)} onClick={() => { void remove() }} icon={<Icon name="trash" size={14} />}>Bỏ clip này</Button>
+    <Button variant="quiet" size="sm" disabled={actions.pending || Boolean(jobId && !source)} xstyle={sx.quietButton} onClick={() => { void remove() }} icon={<Icon name="trash" size={14} />}>Bỏ clip này</Button>
     <p {...stylex.props(sx.help)}>Chỉ đổi cho video này. Bỏ clip thì nền lặp lại 1:00 ở cuối — Kiểm định sẽ báo nếu nền không phủ kín.</p>
     {actions.pending && <p role="status" {...stylex.props(sx.meta)}>Đang dựng lại nền…</p>}
     {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}

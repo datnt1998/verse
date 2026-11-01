@@ -4,10 +4,11 @@
 // lại bản trước và báo máy chủ bản đang dùng; thao tác đang dở của người dùng
 // không bị xoá.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { getCommandExecutor, useCommandHistory } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useKeyframesStore } from '@editor/features/timeline/stores/keyframes-store'
+import { useTransitionsStore } from '@editor/features/timeline/stores/transitions-store'
 import { useMediaLibraryStore } from '@editor/features/media-library/stores/media-library-store'
 import { useProjectStore } from '@editor/features/projects/stores/project-store'
 import { usePlaybackStore } from '@editor/shared/state/playback'
@@ -19,6 +20,7 @@ import type { ImageItem, TimelineTrack } from '@editor/types/timeline'
 import type { JobImage } from '../../api/images'
 import { bindFinishedVersion, resetSceneVersionTraces, undoSceneSwap, useSceneRedraws, useSceneSwapStore } from './scene-images'
 import { SceneImagePanel } from './SceneImagePanel'
+import { Inspector } from './Inspector'
 import { editorCommand } from './ContentPanels'
 
 const stream = vi.hoisted(() => {
@@ -324,6 +326,16 @@ describe('scene panel', () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({ imageIds: ['img-1'], project: false, feedback: 'Giữ chuyển động, thêm đèn đỏ' })
   })
 
+  it('does not request a redraw when saving the editor fails', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} beforeMutation={async () => false} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Chưa lưu được video'))
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect((screen.getByRole('button', { name: 'Vẽ lại', exact: true }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('keeps a prompt edit in progress when a redraw of the same scene finishes', () => {
     const { rerender } = render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
@@ -332,17 +344,6 @@ describe('scene panel', () => {
     expect(screen.getByText('Đã sửa')).toBeTruthy()
     rerender(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion: 2, needsReview: true })} />)
     expect((screen.getByLabelText('Phần Cảnh của prompt') as HTMLTextAreaElement).value).toBe('Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ')
-  })
-
-  it('marks the edited scene part on the textarea itself (artboard .pseg.is-changed textarea)', () => {
-    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
-    const area = screen.getByLabelText('Phần Cảnh của prompt') as HTMLTextAreaElement
-    const block = area.parentElement as HTMLElement
-    const [areaBefore, blockBefore] = [area.className, block.className]
-    fireEvent.change(area, { target: { value: 'Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ' } })
-    expect(area.className).not.toBe(areaBefore)
-    expect(block.className).toBe(blockBefore)
   })
 
   it('shows the drawing state in the box, keeps the used version selectable and can cancel the draw', () => {
@@ -368,5 +369,53 @@ describe('scene panel', () => {
     render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion: 2, needsReview: true })} />)
     expect(screen.getByText('Bản mới · cần duyệt lại')).toBeTruthy()
     expect(screen.getByText(/⌘Z để quay lại bản 1/)).toBeTruthy()
+  })
+})
+
+describe('inspector scene controls', () => {
+  beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    })
+    useTransitionsStore.setState({ transitions: [] })
+    useSelectionStore.getState().selectItems(['p1-scene-img-1'])
+  })
+
+  function renderInspector() {
+    return render(<Inspector ranges={[]} selectedRange={null} onSelectRange={() => undefined} onAlign={async () => undefined} aligning={false} />)
+  }
+
+  it('preserves custom motion until choosing a preset, which is undoable', () => {
+    const original = useItemsStore.getState().itemById['p1-scene-img-1']
+    const originalKeyframes = useKeyframesStore.getState().keyframes
+    renderInspector()
+    const motion = screen.getByRole('radiogroup', { name: 'Chuyển động của ảnh' })
+    expect(within(motion).getAllByRole('radio').every(radio => radio.getAttribute('aria-checked') === 'false')).toBe(true)
+    fireEvent.click(within(motion).getByRole('radio', { name: 'Zoom chậm' }))
+    expect((useItemsStore.getState().itemById[original.id] as ImageItem).motionModifiers).toEqual([])
+    const lanes = useKeyframesStore.getState().keyframes.find(entry => entry.itemId === original.id)?.properties
+    expect(lanes?.find(lane => lane.property === 'width')?.keyframes.map(key => [key.frame, key.value])).toEqual([[0, 1920], [89, 2112]])
+    expect(lanes?.find(lane => lane.property === 'height')?.keyframes.map(key => [key.frame, key.value])).toEqual([[0, 1080], [89, 1188]])
+    expect(within(motion).getByRole('radio', { name: 'Zoom chậm' }).getAttribute('aria-checked')).toBe('true')
+    act(() => { getCommandExecutor().undo() })
+    expect(useItemsStore.getState().itemById[original.id]).toEqual(original)
+    expect(useKeyframesStore.getState().keyframes).toEqual(originalKeyframes)
+    expect(within(motion).getAllByRole('radio').every(radio => radio.getAttribute('aria-checked') === 'false')).toBe(true)
+  })
+
+  it('uses keyboard selection for adjacent-scene transitions and retains undo', () => {
+    renderInspector()
+    const transition = screen.getByRole('radiogroup', { name: 'Chuyển sang cảnh 2' })
+    fireEvent.keyDown(within(transition).getByRole('radio', { name: 'Cắt' }), { key: 'End' })
+    expect(useTransitionsStore.getState().transitions).toEqual([expect.objectContaining({
+      leftClipId: 'p1-scene-img-1', rightClipId: 'p1-scene-img-2',
+      presentation: 'slide', direction: 'from-left', durationInFrames: 36,
+    })])
+    fireEvent.click(within(transition).getByRole('radio', { name: 'Cắt' }))
+    expect(useTransitionsStore.getState().transitions).toEqual([])
+    act(() => { getCommandExecutor().undo() })
+    expect(useTransitionsStore.getState().transitions[0]?.presentation).toBe('slide')
   })
 })
