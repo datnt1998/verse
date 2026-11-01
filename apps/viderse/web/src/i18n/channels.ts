@@ -105,6 +105,8 @@ export const channelsCopy = {
     sourcesLink: 'Nguồn & tự động ›',
     stats: {
       made: 'Video đã làm',
+      // Điện thoại (MChannel): nhãn ngắn để 4 cột vừa 390px.
+      madeShort: 'Đã làm',
       posted: 'Đã đăng',
       waiting: 'Chờ bạn',
       queued: 'Chờ lượt',

@@ -44,6 +44,8 @@ export const exploreStyles = stylex.create({
   skeletonGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(210px, 100%), 1fr))", gap: "14px 12px", paddingBottom: 90, "@media (max-width: 767px)": { display: "flex", flexDirection: "column", gap: space["--vv-s-18"], paddingBottom: space["--vv-s-24"] } },
   skeletonTile: { display: "flex", flexDirection: "column", gap: space["--vv-s-8"], ":nth-child(n+4)": { "@media (max-width: 767px)": { display: "none" } } },
   skeletonThumb: { position: "relative", aspectRatio: "16 / 9", borderRadius: corners["--vv-r-11"], overflow: "hidden", "@media (max-width: 767px)": { borderRadius: corners["--vv-r-12"] } },
+  // MExplore: ô xương chỉ có 2 dòng chữ (13 + 11 px), không phải 3 như máy tính.
+  skeletonMeta: { display: "block", "@media (max-width: 767px)": { display: "none" } },
   skeletonFade: (opacity: number) => ({ opacity }),
   // Khối trạng thái danh sách thay cả lưới: cùng bề rộng cột giữa.
   listState: { display: "flex", flexDirection: "column", gap: space["--vv-s-12"], width: "100%" },

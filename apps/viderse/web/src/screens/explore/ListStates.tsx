@@ -33,7 +33,7 @@ export function SkeletonTiles() {
           </div>
           <Skeleton width="92%" height={12} />
           <Skeleton width="64%" height={12} />
-          <Skeleton width="48%" height={10} />
+          <span {...stylex.props(exploreStyles.skeletonMeta)}><Skeleton width="48%" height={10} /></span>
         </div>
       ))}
     </div>

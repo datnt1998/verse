@@ -3,7 +3,7 @@ import { channelStyles } from './channel.stylex'
 // Đầu trang Kênh (artboard Channel › .center đầu): avatar 64 (ảnh nhận diện
 // hoặc chữ cái), chip ngôn ngữ, tên, dòng phụ (YouTube/ngày tạo/số đối thủ),
 // "Mở YouTube" và "Video mới cho kênh" (mở màn Video mới đã chọn sẵn kênh này).
-import { Icon } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/vi'
@@ -67,27 +67,8 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
             {channel.youtubeUrl ? tt.page.openYouTube : tt.page.linkYouTube}
           </ActionButton>
         )}
-        {narrow && channel.youtubeUrl && (
-          <ActionButton
-            className={stylex.props(channelStyles.headBtnLinkMobile).className}
-            size="compact"
-            xstyle={[channelStyles.headBtnLinkMobile]}
-            aria-label={tt.page.openYouTube}
-            onClick={() => { if (channel.youtubeUrl) window.open(channel.youtubeUrl, '_blank', 'noreferrer') }}
-            icon={<Icon name="link" size={18} />}
-          />
-        )}
-        {narrow && !channel.youtubeUrl && (
-          <ActionButton
-            className={stylex.props(channelStyles.headBtnLinkMobile).className}
-            size="compact"
-            xstyle={[channelStyles.headBtnLinkMobile]}
-            aria-label={tt.page.linkYouTube}
-            onClick={() => navigate(paths.channel(channel.id, 'settings'))}
-            icon={<Icon name="link" size={18} />}
-          />
-        )}
-        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
+        <ActionButton
+          className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
           size={narrow ? 'md' : 'compact'}
           xstyle={[channelStyles.headBtn, channelStyles.headBtnPrimary, narrow && channelStyles.headBtnPrimaryMobile]}
@@ -96,6 +77,17 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
         >
           {tt.page.newVideo}
         </ActionButton>
+        {/* MChannel: nút icon không viền, đứng sau nút chính (artboard đầu trang). */}
+        {narrow && (
+          <Button
+            className={stylex.props(channelStyles.headBtnLinkMobile).className}
+            variant="icon"
+            xstyle={channelStyles.headBtnLinkMobile}
+            aria-label={channel.youtubeUrl ? tt.page.openYouTube : tt.page.linkYouTube}
+            onClick={() => channel.youtubeUrl ? window.open(channel.youtubeUrl, '_blank', 'noreferrer') : navigate(paths.channel(channel.id, 'settings'))}
+            icon={<Icon name="link" size={18} />}
+          />
+        )}
       </div>
     </div>
   )
