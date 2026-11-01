@@ -27,7 +27,7 @@ export const styles = stylex.create({
   scrollPad: (px: number) => ({ paddingBottom: px }),
   bar: {
     position: 'absolute', left: 0, right: 0, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 8,
-    paddingTop: 10, paddingLeft: 16, paddingRight: 16, paddingBottom: 'max(26px, env(safe-area-inset-bottom, 0px))',
+    paddingTop: 10, paddingLeft: 16, paddingRight: 16, paddingBottom: 'max(26px, var(--m-safe-bottom))',
     backgroundColor: color['--color-bg'],
     '::before': { content: '""', position: 'absolute', left: 0, right: 0, top: -28, height: 28, backgroundImage: 'linear-gradient(transparent, var(--color-bg))', pointerEvents: 'none' },
   },
@@ -97,7 +97,7 @@ export const styles = stylex.create({
   waitText: { fontSize: 14, color: MUTED, display: 'flex', alignItems: 'center', gap: 8 },
   dots: { display: 'inline-flex', gap: 3 },
   dot: (delay: string) => ({ width: 5, height: 5, borderRadius: '50%', backgroundColor: MUTED, animationName: 'ai-twinkle', animationDuration: '1.2s', animationTimingFunction: 'ease-in-out', animationDelay: delay, animationIterationCount: 'infinite' }),
-  coBottom: { position: 'absolute', left: 0, right: 0, zIndex: 30, display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8, paddingBottom: 'max(26px, env(safe-area-inset-bottom, 0px))', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'], backgroundColor: color['--color-bg'] },
+  coBottom: { position: 'absolute', left: 0, right: 0, zIndex: 30, display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8, paddingBottom: 'max(26px, var(--m-safe-bottom))', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'], backgroundColor: color['--color-bg'] },
   coBottomTyping: { paddingBottom: 10 },
   peek: { marginLeft: 16, marginRight: 16, paddingTop: 10, paddingBottom: 10, paddingLeft: 14, paddingRight: 10, borderRadius: 16, backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], display: 'flex', alignItems: 'center', gap: 10 },
   peekButton: { flex: '1 1 auto', minWidth: 0, borderWidth: 0, backgroundColor: 'transparent', padding: 0, color: color['--color-fg'], textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 3, fontFamily: 'inherit' },

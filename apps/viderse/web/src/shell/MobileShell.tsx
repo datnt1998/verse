@@ -6,7 +6,7 @@ import { Suspense, lazy, useState, type ReactNode } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, navSection, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
-import { Icon, type IconName } from '@noverse/ui'
+import { Icon, MobileRuntimeProvider, MobileTabBar as KitMobileTabBar, MobileTopBar, type IconName, type MobileTabItem, type MobileTabBarSlots } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { JobsPill } from './JobsPill'
 import type { Status } from '../api/status'
@@ -37,35 +37,37 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
   fixed?: boolean
 }) {
   const section = navSection(route)
-  return (
-    <nav role="navigation" aria-label={t.nav.bottom} className={`vv-tabbar ${stylex.props(mobileShellStyles.tabbar, !fixed && mobileShellStyles.embeddedTabbar).className}`}>
-      <span aria-hidden="true" {...stylex.props(mobileShellStyles.tabbarSheen)} />
-      {TAB_ITEMS.map((item) => {
-        const path = item.key === 'channels' ? channelHref ?? item.path : item.path
-        if (item.key === 'new') {
-          return (
-            <a key="new" href={`#${path}`} aria-label={t.nav.new} title={t.nav.new} className={`vv-tabbar__item ${stylex.props(mobileShellStyles.item).className}`}>
-              <span className={`vv-tabbar__new ${stylex.props(mobileShellStyles.newButton).className}`}><Icon name="add" size={22} /></span>
-            </a>
-          )
-        }
-        const active = item.key === section
-        return (
-          <a key={item.key} href={`#${path}`} aria-current={active ? 'page' : undefined}
-            className={`${active ? 'vv-tabbar__item vv-tabbar__item--active' : 'vv-tabbar__item'} ${stylex.props(mobileShellStyles.item, active && mobileShellStyles.itemActive).className}`}>
-            {active && <span aria-hidden="true" {...stylex.props(mobileShellStyles.itemGlow)} />}
-            <span className={`vv-tabbar__pill ${stylex.props(mobileShellStyles.pill, active && mobileShellStyles.pillActive).className}`}>
-              <Icon name={active ? item.iconActive : item.icon} size={24} />
-              {item.badge === 'review' && reviewCount > 0 && (
-                <span className={`vv-tabbar__badge num ${stylex.props(mobileShellStyles.badge).className}`} aria-label={`${reviewCount}`}>{reviewCount > 99 ? '99+' : reviewCount}</span>
-              )}
-            </span>
-            <span className={`vv-tabbar__label ${stylex.props(mobileShellStyles.label, active && mobileShellStyles.labelActive).className}`}>{item.label}</span>
-          </a>
-        )
-      })}
-    </nav>
-  )
+  const items: MobileTabItem[] = TAB_ITEMS.map((item) => ({
+    key: item.key,
+    label: item.label || undefined,
+    icon: item.icon,
+    iconActive: item.iconActive,
+    href: item.key === 'channels' ? channelHref ?? item.path : item.path,
+    ariaLabel: item.key === 'new' ? t.nav.new : item.label,
+    center: item.key === 'new',
+    badge: item.badge === 'review' && reviewCount > 0
+      ? <span className={`vv-tabbar__badge num ${stylex.props(mobileShellStyles.badge).className}`} aria-label={t.nav.reviewBadge(reviewCount)}>{reviewCount > 99 ? '99+' : reviewCount}</span>
+      : undefined,
+  }))
+  const slots: MobileTabBarSlots = {
+    root: `vv-tabbar ${stylex.props(mobileShellStyles.tabbar, !fixed && mobileShellStyles.embeddedTabbar).className}`,
+    cap: `vv-tabbar__cap ${stylex.props(mobileShellStyles.cap).className}`,
+    indicator: `vv-tabbar__ind ${stylex.props(mobileShellStyles.ind).className}`,
+    item: `vv-tabbar__item ${stylex.props(mobileShellStyles.item).className}`,
+    itemActive: stylex.props(mobileShellStyles.itemActive).className,
+    icon: `vv-tabbar__icon ${stylex.props(mobileShellStyles.icon).className}`,
+    iconActive: stylex.props(mobileShellStyles.iconActive).className,
+    label: `vv-tabbar__label ${stylex.props(mobileShellStyles.label).className}`,
+    labelActive: stylex.props(mobileShellStyles.labelActive).className,
+  }
+  return <KitMobileTabBar
+    items={items}
+    activeKey={section ?? undefined}
+    slots={slots}
+    ariaLabel={t.nav.bottom}
+    centerAction={<span className={`vv-tabbar__new ${stylex.props(mobileShellStyles.newButton).className}`}><Icon name="add" size={22} /></span>}
+    onSelect={(item) => { if (item.href) navigate(item.href) }}
+  />
 }
 
 export function MobileShell({ route, status, online, userName, channels, channelHref, children }: {
@@ -79,9 +81,12 @@ export function MobileShell({ route, status, online, userName, channels, channel
   children: ReactNode
 }) {
   const [jobsOpen, setJobsOpen] = useState(false)
+  // Chunk của bảng Việc nền (6 chunk) chỉ được tải khi người dùng mở lần đầu —
+  // mount sẵn <QueueSummarySheet open={false}> sẽ kéo cả cụm vào lần vẽ đầu của shell.
+  const [jobsLoaded, setJobsLoaded] = useState(false)
   const [jobsTab, setJobsTab] = useState<'running' | 'inbox'>('running')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
-  if (route.name === 'queue') return <div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div>
+  if (route.name === 'queue') return <MobileRuntimeProvider hidden><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div></MobileRuntimeProvider>
   const running = status?.running ?? 0
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
@@ -92,51 +97,59 @@ export function MobileShell({ route, status, online, userName, channels, channel
   // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
   if (isNew) {
     return (
-      <div className={`vv-mobile-shell vv-mobile-shell--new ${stylex.props(mobileShellStyles.shell).className}`}>
-        <header role="banner" className={`vv-mbar vv-mbar--new ${stylex.props(mobileShellStyles.bar, mobileShellStyles.newBar).className}`}>
-          <button type="button" aria-label={t.common.close} className={`vv-mclose ${stylex.props(mobileShellStyles.close).className}`}
+      <MobileRuntimeProvider hidden><div className={`vv-mobile-shell vv-mobile-shell--new ${stylex.props(mobileShellStyles.shell).className}`}>
+        <MobileTopBar
+          slots={{ root: `vv-mbar vv-mbar--new ${stylex.props(mobileShellStyles.bar, mobileShellStyles.newBar).className}`, leading: stylex.props(mobileShellStyles.newLead).className, title: `vv-mnew-title ${stylex.props(mobileShellStyles.newTitle).className}` }}
+          leading={<button type="button" aria-label={t.common.close} className={`vv-mclose ${stylex.props(mobileShellStyles.close).className}`}
             onClick={() => navigate(paths.workbench())}>
             <Icon name="close" size={18} />
-          </button>
-          <span className={`vv-mnew-title ${stylex.props(mobileShellStyles.newTitle).className}`}>{t.screens.new.title}</span>
-        </header>
+          </button>}
+          title={t.screens.new.title}
+        />
         {children}
-      </div>
+      </div></MobileRuntimeProvider>
     )
   }
   return (
-    <div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
-      <header role="banner" className={`vv-mbar ${stylex.props(mobileShellStyles.bar).className}`}>
-        {/* Logo không phải nút chạm riêng (AppBar đợt 36) — bộ đổi kênh đứng cạnh nó. */}
-        <a href={`#${paths.workbench()}`} aria-label={t.brand.name} {...stylex.props(mobileShellStyles.logo)}>
-          <LensLogo size={24} spinning={online && running > 0} />
-        </a>
-        {showSwitcher && <ChannelSwitcher mobileBar channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
-        <div {...stylex.props(mobileShellStyles.end)}>
-          <JobsPill mobileBar status={status} online={online} unread={unread} onOpen={() => { setJobsTab(unread > 0 ? 'inbox' : 'running'); setJobsOpen(true) }} expanded={jobsOpen} />
+    <MobileRuntimeProvider hidden={route.name === 'channel-new'}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
+      <MobileTopBar
+        slots={{ root: `vv-mbar ${stylex.props(mobileShellStyles.bar).className}`, leading: stylex.props(mobileShellStyles.lead).className, actions: stylex.props(mobileShellStyles.end).className }}
+        leading={<>
+          {/* Logo không phải nút chạm riêng (AppBar đợt 36) — bộ đổi kênh đứng cạnh nó. */}
+          <a href={`#${paths.workbench()}`} aria-label={t.brand.name} {...stylex.props(mobileShellStyles.logo)}>
+            <LensLogo size={24} spinning={online && running > 0} />
+          </a>
+          {showSwitcher && <ChannelSwitcher mobileBar channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
+        </>}
+        actions={<>
+          <JobsPill mobileBar status={status} online={online} unread={unread} onOpen={() => { setJobsLoaded(true); setJobsTab(unread > 0 ? 'inbox' : 'running'); setJobsOpen(true) }} expanded={jobsOpen} />
           <a href={`#${paths.settings()}`} aria-label={t.shell.accountSettings} title={t.shell.settings} className={`vv-mavatar vv-mbtn vv-mbtn--av ${stylex.props(mobileShellStyles.avatar).className}`}>
             {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
             <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
           </a>
-        </div>
-      </header>
+        </>}
+      />
       {children}
-      <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
-      <Suspense fallback={null}>
+      {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab. */}
+      {route.name === 'channel-new' ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
+      {jobsLoaded && <Suspense fallback={null}>
         <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
-      </Suspense>
-    </div>
+      </Suspense>}
+    </div></MobileRuntimeProvider>
   )
 }
 
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 export const mobileShellStyles = stylex.create({
-  shell: { height: '100dvh', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', lineHeight: 1.5 },
+  shell: { height: '100dvh', display: 'flex', flexDirection: 'column', paddingTop: 'var(--m-top)', lineHeight: 1.5 },
   /* AppBar đợt 36: một hàng 52px, đệm 0 12 0 16, khe 10; phải đẩy sát mép khe 8. */
   bar: { position: 'relative', zIndex: 30, flex: '0 0 52px', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], height: 52, padding: `0 ${s['--vv-s-12']} 0 ${s['--vv-s-16']}`, backgroundColor: color['--color-bg'] },
   newBar: { padding: `0 ${s['--vv-s-6']}`, gap: 0 },
   close: { width: 44, height: 44, display: 'grid', placeItems: 'center', borderRadius: radius['--radius-tile'], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color['--color-fg-2'], cursor: 'pointer' },
   newTitle: { flex: 1, minWidth: 0, paddingLeft: s['--vv-s-2'], fontSize: 16, fontWeight: 600 },
+  /* Nhóm trái: logo 24 + bộ đổi kênh, khe 10 như hàng thanh trên. */
+  lead: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], minWidth: 0, flex: '0 1 auto' },
+  newLead: { display: 'flex', alignItems: 'center', flex: '0 0 auto' },
   /* Nhóm phải: nút Việc nền + avatar, không co, đẩy sát mép phải. */
   end: { marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flex: '0 0 auto' },
   /* Mọi phần tử thanh trên cao 36, nền surface-1, viền line-2 (artboard .vv-mbtn). */
@@ -144,18 +157,21 @@ export const mobileShellStyles = stylex.create({
   /* Logo 24px không phải nút chạm riêng — chỉ canh giữa theo hàng 36px. */
   logo: { display: 'flex', alignItems: 'center', flex: '0 0 auto', height: 36 },
   touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2)` },
-  tabbar: { position: 'fixed', left: s['--vv-s-14'], right: s['--vv-s-14'], bottom: `calc(${s['--vv-s-4']} + env(safe-area-inset-bottom))`, zIndex: 30, height: 64, display: 'flex', alignItems: 'stretch', justifyContent: 'space-around', padding: s['--vv-s-5'], borderRadius: pipeline.mobileDockRadius, backgroundColor: "var(--vv-glass)", backdropFilter: 'blur(26px) saturate(180%)', borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], boxShadow: '0 22px 44px -14px rgb(from var(--vv-thumb-veil) r g b / .85), 0 2px 8px rgb(from var(--vv-thumb-veil) r g b / .35), inset 0 1px 0 color-mix(in srgb, var(--line-3), var(--line-4))' },
+  /* Thanh dưới = vỏ kính 64px cách đáy var(--m-tabbar-bottom) (Viderse 30px khi không có
+     home indicator), vạch chỉ báo trượt theo --i (artboard kit.css .vv-tabbar*). */
+  tabbar: { position: 'fixed', left: s['--vv-s-14'], right: s['--vv-s-14'], bottom: 'var(--m-tabbar-bottom)', zIndex: 30, height: 'var(--m-tabbar-h)', transitionProperty: 'transform, opacity', transitionDuration: '.42s, .3s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1), ease' },
   embeddedTabbar: { position: 'absolute' },
-  tabbarSheen: { position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', backgroundImage: `linear-gradient(180deg, ${line['--line-2']}, transparent 45%)` },
-  item: { position: 'relative', flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-2'], textDecoration: 'none', minWidth: 0, borderRadius: pipeline.mobileDockItemRadius, fontSize: 10.5, fontWeight: 500, color: 'var(--vv-st-neutral)' },
-  itemActive: { isolation: 'isolate', color: 'var(--vv-tabbar-on)', fontWeight: 600 },
-  itemGlow: { position: 'absolute', inset: `calc(-1 * ${s['--vv-s-1']})`, zIndex: -1, borderRadius: 'inherit', backgroundColor: 'var(--vv-tabbar-ind-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--vv-tabbar-ind-bd)', boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)' },
-  pill: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 24, color: 'var(--vv-st-neutral)' },
-  pillActive: { color: color['--color-accent'], transform: 'translateY(-1px) scale(1.06)' },
-  label: { fontSize: 10.5, lineHeight: '16px', fontWeight: 500, color: 'var(--vv-st-neutral)' },
+  cap: { position: 'relative', height: '100%', width: '100%', display: 'flex', padding: s['--vv-s-5'], borderRadius: pipeline.mobileDockRadius, backgroundColor: "var(--vv-glass)", backdropFilter: 'blur(26px) saturate(180%)', borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], boxShadow: '0 22px 44px -14px rgb(from var(--vv-thumb-veil) r g b / .85), 0 2px 8px rgb(from var(--vv-thumb-veil) r g b / .35), inset 0 1px 0 color-mix(in srgb, var(--line-3), var(--line-4))' },
+  ind: { position: 'absolute', top: s['--vv-s-5'], bottom: s['--vv-s-5'], width: 'calc((100% - 10px) / 5)', left: 'calc(5px + var(--i, 0) * (100% - 10px) / 5)', borderRadius: pipeline.mobileDockItemRadius, backgroundColor: 'var(--vv-tabbar-ind-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--vv-tabbar-ind-bd)', boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)', pointerEvents: 'none', transitionProperty: 'left', transitionDuration: '.45s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1.15)' },
+  item: { position: 'relative', zIndex: 1, flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-2'], padding: 0, borderRadius: pipeline.mobileDockItemRadius, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 500, color: 'var(--vv-st-neutral)', textDecoration: 'none', cursor: 'pointer' },
+  itemActive: { color: 'var(--vv-tabbar-on)', fontWeight: 600 },
+  icon: { transitionProperty: 'transform', transitionDuration: '.35s', transitionTimingFunction: 'cubic-bezier(.2,.9,.3,1.4)' },
+  iconActive: { color: color['--color-accent'], transform: 'translateY(-1px) scale(1.06)' },
+  label: { maxHeight: 16, lineHeight: '16px', whiteSpace: 'nowrap', transitionProperty: 'opacity, max-height, margin', transitionDuration: '.2s, .3s, .3s' },
   labelActive: { fontWeight: 600, color: 'var(--vv-tabbar-on)' },
   badge: { position: 'absolute', top: s['--vv-s-5'], left: `calc(50% + ${s['--vv-s-6']})`, minWidth: 17, height: 17, padding: `0 ${s['--vv-s-4']}`, borderRadius: r['--vv-r-pill'], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, backgroundColor: color['--color-warn'], color: color['--color-bg'], boxShadow: `0 0 0 2px ${color['--color-surface-4']}` },
-  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--vv-red-button)', backgroundImage: visualRoles['--vv-red-button-fill'], color: 'var(--vv-red-ink)', boxShadow: 'var(--vv-shadow-fab)', transform: { default: null, ':active': 'scale(.94)' } },
+  /* FAB đỏ 46px: hai bevel inset (sáng trên, tối dưới) + quầng đỏ, đúng artboard. */
+  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--vv-red-button)', backgroundImage: visualRoles['--vv-red-button-fill'], color: 'var(--vv-red-ink)', boxShadow: '0 8px 20px -6px rgb(from var(--vv-red) r g b / .7), inset 0 1px 0 rgb(255 255 255 / .35), inset 0 -2px 4px rgb(0 0 0 / .25)', transform: { default: null, ':active': 'scale(.94)' } },
 })
 
 

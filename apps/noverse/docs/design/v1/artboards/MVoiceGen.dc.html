@@ -132,7 +132,8 @@ button:disabled{cursor:not-allowed}
 .tg.w{background:rgba(246,203,140,.14);color:#F6CB8C}.tg.r{background:rgba(201,166,245,.16);color:#DCC8F8}.tg.e{background:rgba(255,154,162,.14);color:#FFB3BA}.tg.ok{background:rgba(166,237,193,.12);color:#A6EDC1}
 .ico{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .ico.done{background:rgba(166,237,193,.12);color:#A6EDC1}.ico.stale{background:rgba(246,203,140,.14);color:#F6CB8C}.ico.err{background:rgba(255,154,162,.14);color:#FFB3BA}
-.ico.new,.ico.queue{border:1.5px dashed rgba(255,255,255,.22)}.ico.queue{border-color:rgba(201,166,245,.45)}
+.ico.new,.ico.queue,.ico.hold{border:1.5px dashed rgba(255,255,255,.22)}.ico.hold{color:#8E8E99}.ov span.hold{background:rgba(255,255,255,.2)}.gh.h b{color:#C9C9D1}
+.vmnote{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin:0 0 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);font-size:13px;color:#A0A0AB;line-height:1.5}.ico.queue{border-color:rgba(201,166,245,.45)}
 .ico.run{background:conic-gradient(#C9A6F5 var(--p),rgba(255,255,255,.1) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px))}
 .box{width:24px;height:24px;border-radius:7px;border:1.5px solid rgba(255,255,255,.28);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .box.on{background:#C9A6F5;border-color:#C9A6F5;color:#0B0B0D}
@@ -152,7 +153,9 @@ button:disabled{cursor:not-allowed}
 .i-book-b{-webkit-mask-image:url(../icons/book-1-bulk.svg);mask-image:url(../icons/book-1-bulk.svg)}
 .i-category{-webkit-mask-image:url(../icons/category.svg);mask-image:url(../icons/category.svg)}
 .i-category-b{-webkit-mask-image:url(../icons/category-bulk.svg);mask-image:url(../icons/category-bulk.svg)}
+.i-clock{-webkit-mask-image:url(../icons/clock.svg);mask-image:url(../icons/clock.svg)}
 .i-export{-webkit-mask-image:url(../icons/export-square.svg);mask-image:url(../icons/export-square.svg)}
+.i-export2{-webkit-mask-image:url(../icons/export-curve.svg);mask-image:url(../icons/export-curve.svg)}
 .i-headphone{-webkit-mask-image:url(../icons/headphone.svg);mask-image:url(../icons/headphone.svg)}
 .i-headphone-b{-webkit-mask-image:url(../icons/headphone-bulk.svg);mask-image:url(../icons/headphone-bulk.svg)}
 .i-mic{-webkit-mask-image:url(../icons/microphone-2.svg);mask-image:url(../icons/microphone-2.svg)}
@@ -232,9 +235,10 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 
 <sc-for list="{{groups}}" as="g" hint-placeholder-count="2"><sc-if value="{{g.show}}" hint-placeholder-val="{{ true }}">
 <div class="gh {{g.tone}}"><b>{{g.title}}</b><span>{{g.note}}</span><sc-if value="{{g.hasLink}}" hint-placeholder-val="{{ false }}"><button type="button" class="lk tap" onClick="{{g.link}}">{{g.linkT}}</button></sc-if></div>
+<sc-if value="{{g.hasVm}}" hint-placeholder-val="{{ false }}"><div class="vmnote" role="status"><sc-if value="{{vmSpin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; border-top-color: #9DB0F7"></span></sc-if><sc-if value="{{vmDot}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 8px; height: 8px; margin: 6px 3px 0; border-radius: 50%; background: #6E6E78; flex: none"></span></sc-if><span style="flex: 1">{{vmNote}}</span></div></sc-if>
 <sc-if value="{{g.hasBar}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 8px; padding: 0 0 8px"><sc-for list="{{g.bar}}" as="b" hint-placeholder-count="2"><button type="button" class="chp tap {{b.cls}}" onClick="{{b.go}}"><span class="ic {{b.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{b.t}}</button></sc-for></div></sc-if>
 <sc-if value="{{g.open}}" hint-placeholder-val="{{ true }}"><div class="grp {{g.tone}}"><sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2"><div class="vr" role="{{r.role}}" aria-checked="{{r.ariaC}}" onClick="{{r.tap}}">
-<span class="ico {{r.ico}}" style="--p: {{r.p}}"><sc-if value="{{r.tick}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px"></span></sc-if><sc-if value="{{r.isStale}}" hint-placeholder-val="{{ false }}"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if><sc-if value="{{r.isErr}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if></span>
+<span class="ico {{r.ico}}" style="--p: {{r.p}}"><sc-if value="{{r.tick}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 16px; height: 16px"></span></sc-if><sc-if value="{{r.isStale}}" hint-placeholder-val="{{ false }}"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if><sc-if value="{{r.isErr}}" hint-placeholder-val="{{ false }}"><span class="ic i-warning" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if><sc-if value="{{r.isHold}}" hint-placeholder-val="{{ false }}"><span class="ic i-clock" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if></span>
 <span class="tx"><span class="tt">{{r.n}}. {{r.t}}</span><span class="mt"><sc-for list="{{r.tags}}" as="t" hint-placeholder-count="1"><span class="tg {{t.c}}">{{t.t}}</span></sc-for><span>{{r.meta}}</span></span></span>
 <sc-if value="{{r.hasBox}}" hint-placeholder-val="{{ false }}"><span class="box {{r.boxCls}}" aria-hidden="true"><sc-if value="{{r.on}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 12 12" width="13" height="13" fill="none"><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if></span></sc-if>
 <sc-if value="{{r.hasPct}}" hint-placeholder-val="{{ false }}"><span class="pct num">{{r.pct}}</span></sc-if>
@@ -257,7 +261,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="mtoast" role="status" style="top: 100px"><span class="ic i-tick" aria-hidden="true" style="width: 17px; height: 17px; color: #A6EDC1; flex: 0 0 auto"></span><span style="flex: 1">{{toast}}</span></div></sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"gk":{"editor":"enum","options":["entry","stale","ready","redo","running","error","allDone"],"default":"stale","section":"Tạo giọng (Gói AK)"},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"gk": {"editor": "enum", "options": ["entry", "stale", "ready", "redo", "running", "error", "allDone", "waiting", "waitPrep"], "default": "stale", "section": "Tạo giọng (Gói AK)"}, "$preview": {"width": 390, "height": 844}}'>
 // icons used: i-category-b i-book-b i-headphone-b i-setting-b
 const MTAB_KEYS = ['write', 'read', 'listen', 'more'];
 function mtabs(active, dots) {
@@ -267,6 +271,40 @@ function mtabs(active, dots) {
   });
 }
 function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
+
+// ===== Máy đọc (Gói AT) — dữ liệu & câu chữ dùng chung: Settings, Transcript, AudioExport, Jobs, MAudio, MVoiceGen =====
+const VM_NAME = 'Mac mini ở nhà';
+const VM_LAST = '22:14 hôm qua';
+const VMLV = { e: ['Bắt sửa', 'rgba(255,154,162,0.14)', '#FFB3BA'], w: ['Cảnh báo', 'rgba(246,203,140,0.14)', '#F3D9AE'], ok: ['Đạt', 'rgba(166,237,193,0.12)', '#A6EDC1'] };
+// [khoá, tên bước, đo được %?]
+const VM_STEPS = [['tools', 'Tải công cụ cài đặt', false], ['python', 'Chuẩn bị môi trường chạy', false], ['source', 'Tải bộ đọc', false], ['deps', 'Cài thư viện', true], ['model', 'Tải mẫu giọng', true], ['start', 'Khởi động bộ đọc', false]];
+// Bước đang chạy cho từng tweak: source = không đo được (spinner), model = đo được (42 %)
+const VM_AT = { source: { i: 2, pct: 0, note: 'Đang tải bộ đọc từ nguồn đã kiểm…' }, model: { i: 4, pct: 42, note: '244 / 581 MB · còn khoảng 4 phút' } };
+// [tiêu đề, một câu lý do, hành động]
+const VM_FAIL = {
+  no_disk: ['Máy đọc không đủ chỗ trống', 'Cần ít nhất 4 GB trống để chuẩn bị bộ đọc, máy đọc chỉ còn 2,1 GB. Dọn bớt tệp trên máy đọc rồi thử lại.', 'Thử lại'],
+  download_failed: ['Không tải được bộ đọc', 'Mạng của máy đọc bị ngắt giữa chừng. Máy đọc tự thử lại sau 2 phút; bấm Thử lại để thử ngay.', 'Thử lại'],
+  hash_mismatch: ['Tệp tải về không khớp bản gốc', 'Tệp vừa tải khác bản Noverse đã kiểm nên đã bị bỏ để giữ an toàn. Máy đọc không tự thử tiếp; thử lại khi mạng ổn định, vẫn lỗi thì báo quản trị.', 'Thử lại'],
+  deps_failed: ['Không chuẩn bị được thư viện', 'Bước cài thư viện cho bộ đọc dừng giữa chừng, thường do mạng chập chờn. Phần đã tải được giữ lại nên lần sau nhanh hơn.', 'Thử lại'],
+  model_failed: ['Không tải được mẫu giọng', 'Mẫu giọng (khoảng 580 MB) mới tải được một phần. Phần đã tải được giữ, bấm Thử lại để tải tiếp.', 'Thử lại'],
+  start_failed: ['Bộ đọc không khởi động được', 'Bộ đọc đã chuẩn bị xong nhưng không bật lên được, thường do máy đọc thiếu bộ nhớ. Đóng bớt ứng dụng trên máy đọc rồi thử lại.', 'Thử lại'],
+  revoked: ['Máy đọc đã bị thu hồi quyền', 'Máy đọc này không còn được nhận việc tạo giọng. Quản trị cấp lại quyền ở Nâng cao.', 'Mở Nâng cao']
+};
+const VM_WAIT = 5; // số chương đang chờ máy đọc trong mẫu
+// Thẻ đầu màn (máy tính + điện thoại). kind: none · noMachine · offline · provisioning · provisionFailed · missingFfmpeg
+function vmCard(kind, o) {
+  o = o || {}; const fail = VM_FAIL[o.fail || 'model_failed']; const at = VM_AT[o.step || 'model']; const mob = !!o.mobile;
+  const base = { on: kind && kind !== 'none', spin: false, hasBar: false, w: '0%', barNote: '', hasChip: false, chip: '', chipBg: '', chipFg: '', acts: [], hasActs: false, bg: '#141416', bd: 'rgba(255,255,255,0.08)', icon: 'i-headphone', icFg: '#A0A0AB', icBg: 'rgba(255,255,255,0.06)', hasIcon: true, hasDot: false };
+  const act = (label, href, pri) => ({ label, href: href || '#', pri, mbg: pri ? '#EDEDEF' : 'rgba(255,255,255,0.07)', bg: pri ? '#EDEDEF' : 'transparent', fg: pri ? '#0B0B0D' : '#EDEDEF', bd: pri ? 'transparent' : 'rgba(255,255,255,0.12)' });
+  const chip = (lv, t) => ({ hasChip: true, chip: t || VMLV[lv][0], chipBg: VMLV[lv][1], chipFg: VMLV[lv][2] });
+  let v = {};
+  if (kind === 'noMachine') v = { title: 'Chưa có máy đọc để tạo giọng', text: mob ? 'Bạn vẫn nghe được chương đã có giọng. Chương bấm Tạo giọng sẽ chờ tới khi quản trị bật máy đọc.' : 'Bạn vẫn soạn và chốt bản đọc được. Chương bấm Tạo giọng sẽ xếp hàng và tự chạy khi quản trị bật máy đọc.', acts: [act('Xem Giọng đọc', mob ? 'MMore.dc.html' : 'Settings.dc.html', false)] };
+  if (kind === 'offline') v = Object.assign({ title: 'Máy đọc chưa kết nối', text: 'Lần cuối ' + VM_LAST + '. Có thể máy đang ngủ hoặc tắt; chương đang chờ sẽ tự chạy khi máy đọc kết nối lại.', hasIcon: false, hasDot: true }, chip('w', (o.waitN || VM_WAIT) + ' chương đang chờ'));
+  if (kind === 'provisioning') v = { title: 'Đang chuẩn bị bộ đọc · ' + VM_STEPS[at.i][1], text: mob ? 'Lần đầu mất khoảng 10 phút. Chương bấm Tạo giọng sẽ chờ tới khi xong.' : 'Lần đầu mất khoảng 10 phút. Bạn vẫn soạn bản đọc được; chương bấm Tạo giọng sẽ chờ tới khi xong.', spin: !VM_STEPS[at.i][2], hasBar: VM_STEPS[at.i][2], w: at.pct + '%', barNote: VM_STEPS[at.i][2] ? at.pct + '% · ' + at.note : at.note, icon: 'i-headphone', icFg: '#9DB0F7', icBg: 'rgba(157,176,247,0.12)', bd: 'rgba(157,176,247,0.25)' };
+  if (kind === 'provisionFailed') v = Object.assign({ title: fail[0], text: fail[1], icon: 'i-warning', icFg: '#FF9AA2', icBg: 'rgba(255,154,162,0.12)', bg: 'rgba(255,154,162,0.04)', bd: 'rgba(255,154,162,0.3)', acts: [act(fail[2], fail[2] === 'Thử lại' ? '#' : 'Settings.dc.html', true)] }, chip('e'));
+  if (kind === 'missingFfmpeg') v = Object.assign({ title: 'Chưa ghép và xuất tập được', text: 'Máy chủ đang thiếu công cụ ghép âm thanh. Tạo giọng và nghe từng chương vẫn chạy bình thường; nhờ quản trị bổ sung để ghép tập.', icon: 'i-export2', icFg: '#F6CB8C', icBg: 'rgba(246,203,140,0.12)', bd: 'rgba(246,203,140,0.25)' }, chip('w'));
+  const r = Object.assign(base, v); r.hasActs = r.acts.length > 0; r.noSpin = !r.spin; r.spinNote = r.spin && !!r.barNote; r.pv = String(parseInt(r.w, 10) || 0); return r;
+}
 
 
 const TITLES = ['Vai của tôi là đồ canh', 'Chiếc cặp ở giữa bàn', 'Hai chiếc bát trên bàn', 'Bảy mươi ba giây', 'Tôi cướp vai cái nồi à?', 'Chiếc vỏ ổ cứng', 'Dòng tên bị gạch', 'Tên tôi trên màn hình'];
@@ -281,6 +319,7 @@ function chInit(gk) {
   if (gk === 'stale') return C;
   Object.assign(C[6], { st: 'new', locked: false, issues: 2, segsAll: 46 }); Object.assign(C[7], { st: 'new', compose: true });
   if (gk === 'running') { Object.assign(C[0], { st: 'run', p: 60, upd: true, seg: '2/3', left: '1 phút' }); Object.assign(C[3], { st: 'queue', pos: 1, upd: true }); Object.assign(C[6], { st: 'queue', pos: 2 }); Object.assign(C[7], { st: 'queue', pos: 3, compose: true }); }
+  if (gk === 'waiting' || gk === 'waitPrep') { Object.assign(C[0], { st: 'hold', pos: 1, upd: true }); Object.assign(C[3], { st: 'hold', pos: 2, upd: true }); Object.assign(C[6], { st: 'hold', pos: 3 }); Object.assign(C[7], { st: 'hold', pos: 4, compose: true }); return C; }
   if (gk === 'error') { C[0] = { n: 1, t: TITLES[0], st: 'done' }; Object.assign(C[3], { st: 'err', upd: true, err: 'Dừng ở đoạn 1/2 · bộ đọc không phản hồi' }); Object.assign(C[6], { st: 'run', p: 12, seg: '6/46', left: '11 phút' }); Object.assign(C[7], { st: 'queue', pos: 1, compose: true }); }
   return C;
 }
@@ -302,36 +341,37 @@ class Component extends DCLogic {
     const mins = Math.round(segsUpd * 0.6) + (nNew + nRedo) * QMIN[s.q];
     const onlyUpd = picked.length > 0 && nNew === 0 && nRedo === 0;
     const cta = picked.length ? (onlyUpd ? 'Cập nhật ' + picked.length + ' chương' : 'Tạo giọng ' + picked.length + ' chương') : '';
-    const busy = C.filter((c) => c.st === 'run' || c.st === 'queue' || c.st === 'err');
+    const busy = C.filter((c) => c.st === 'run' || c.st === 'queue' || c.st === 'err' || c.st === 'hold'); const hold = C.filter((c) => c.st === 'hold').length; const prepW = s.gk === 'waitPrep';
     const cnt = (k) => C.filter((c) => c.st === k).length;
-    const ovText = [cnt('done') + '/8 có giọng', cnt('stale') ? cnt('stale') + ' cần cập nhật' : '', cnt('new') ? cnt('new') + ' chưa có giọng' : '', busy.length ? busy.length + ' đang tạo' : ''].filter(Boolean).join(' · ');
+    const ovText = [cnt('done') + '/8 có giọng', cnt('stale') ? cnt('stale') + ' cần cập nhật' : '', cnt('new') ? cnt('new') + ' chưa có giọng' : '', busy.length ? busy.length + (hold ? ' đang chờ máy đọc' : ' đang tạo') : ''].filter(Boolean).join(' · ');
     const tagsOf = (c) => {
       if (c.st === 'stale') return [{ t: c.why === 'chapter' ? 'Chương đã sửa' : 'Bản đọc đã sửa', c: 'w' }];
       if (c.st === 'new') return [{ t: c.compose ? 'Chưa soạn bản đọc' : 'Chưa chốt', c: '' }].concat(c.issues ? [{ t: c.issues + ' chỗ cần xem', c: 'w' }] : []);
       if (c.st === 'run') return [{ t: s.paused ? 'Tạm dừng' : (c.upd ? 'Đang cập nhật' : 'Đang tạo'), c: s.paused ? 'w' : 'r' }];
       if (c.st === 'queue') return [{ t: c.pos === 1 ? 'Tiếp theo' : 'Chờ · thứ ' + c.pos, c: '' }];
       if (c.st === 'err') return [{ t: 'Dừng do lỗi', c: 'e' }];
+      if (c.st === 'hold') return [{ t: 'Đang chờ máy đọc', c: '' }];
       if (s.redo[c.n] && s.sel[c.n]) return [{ t: 'Tạo lại từ đầu', c: 'r' }];
       return [];
     };
-    const metaOf = (c) => ({ stale: c.segs + ' đoạn đổi · ' + (c.why === 'chapter' ? 'AI soạn lại phần đổi rồi đọc lại' : 'chỉ đọc lại đoạn đổi') + ' · khoảng ' + Math.max(1, Math.round(c.segs * 0.6)) + ' phút', new: c.compose ? 'AI soạn bản đọc trước · khoảng ' + (QMIN[s.q] + 3) + ' phút' : c.segsAll + ' đoạn · khoảng ' + QMIN[s.q] + ' phút', run: 'đoạn ' + c.seg + ' · còn khoảng ' + c.left, queue: (c.upd ? 'cập nhật đoạn đổi' : c.compose ? 'AI soạn bản đọc trước' : 'tạo giọng cả chương'), err: c.err, done: DUR[c.n - 1] + (s.redo[c.n] && s.sel[c.n] ? ' · khoảng ' + QMIN[s.q] + ' phút' : '') })[c.st];
+    const metaOf = (c) => c.st === 'hold' ? 'thứ ' + c.pos + ' · ' + (c.upd ? 'cập nhật đoạn đổi' : (c.compose ? 'AI soạn bản đọc trước' : 'tạo mới')) : ({ stale: c.segs + ' đoạn đổi · ' + (c.why === 'chapter' ? 'AI soạn lại phần đổi rồi đọc lại' : 'chỉ đọc lại đoạn đổi') + ' · khoảng ' + Math.max(1, Math.round(c.segs * 0.6)) + ' phút', new: c.compose ? 'AI soạn bản đọc trước · khoảng ' + (QMIN[s.q] + 3) + ' phút' : c.segsAll + ' đoạn · khoảng ' + QMIN[s.q] + ' phút', run: 'đoạn ' + c.seg + ' · còn khoảng ' + c.left, queue: (c.upd ? 'cập nhật đoạn đổi' : c.compose ? 'AI soạn bản đọc trước' : 'tạo giọng cả chương'), err: c.err, done: DUR[c.n - 1] + (s.redo[c.n] && s.sel[c.n] ? ' · khoảng ' + QMIN[s.q] + ' phút' : '') })[c.st];
     const row = (c) => { const box = c.st === 'stale' || c.st === 'new' || (c.st === 'done' && s.redo[c.n]); const on = !!s.sel[c.n];
       const act = c.st === 'err' ? ['Thử lại', () => { const C2 = C.map((x) => x.n === c.n ? Object.assign({}, x, { st: 'queue', pos: 1 }) : x); set({ C: C2 }); this.toast('Đã thử lại chương ' + c.n); }] : (c.st === 'queue' && c.pos > 1) ? ['Làm trước', () => this.toast('Chương ' + c.n + ' sẽ làm ngay sau chương đang tạo')] : (c.st === 'done' && !s.redo[c.n]) ? ['Tạo lại', () => set({ redo: Object.assign({}, s.redo, { [c.n]: true }), sel: Object.assign({}, s.sel, { [c.n]: true }) })] : null;
-      return { n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', isStale: c.st === 'stale', isErr: c.st === 'err', tags: tagsOf(c), meta: metaOf(c),
+      return { n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', isStale: c.st === 'stale', isErr: c.st === 'err', isHold: c.st === 'hold', tags: tagsOf(c), meta: metaOf(c),
         hasBox: box, on, boxCls: on ? 'on' : '', role: box ? 'checkbox' : 'group', ariaC: box ? (on ? 'true' : 'false') : 'false', tap: box ? () => flip(c.n) : () => {},
         hasPct: c.st === 'run', pct: c.p + '%', hasAct: !!act, actT: act ? act[0] : '', act: act ? (e) => { if (e && e.stopPropagation) e.stopPropagation(); act[1](); } : () => {} }; };
     const todo = C.filter((c) => c.st === 'stale' || c.st === 'new'); const done = C.filter((c) => c.st === 'done');
     const allTodoOn = todo.length && todo.every((c) => s.sel[c.n]);
     const groups = [
-      { k: 'todo', title: 'Cần làm · ' + todo.length, note: cnt('stale') ? cnt('stale') + ' chương sửa sau khi tạo giọng' : '', tone: cnt('stale') ? 'w' : '', rows: todo.map(row), show: todo.length > 0, open: true, hasLink: todo.length > 1, linkT: allTodoOn ? 'Bỏ chọn hết' : 'Chọn hết', link: () => { const sel = Object.assign({}, s.sel); todo.forEach((c) => { sel[c.n] = !allTodoOn; }); set({ sel }); }, hasBar: false, bar: [] },
-      { k: 'busy', title: 'Đang tạo · ' + busy.length, note: s.paused ? 'đã tạm dừng' : 'chạy trên máy chủ, đóng app vẫn tiếp tục', tone: 'r', rows: busy.map(row), show: busy.length > 0, open: true, hasLink: false, hasBar: true,
-        bar: [{ t: s.paused ? 'Tiếp tục' : 'Tạm dừng', icon: s.paused ? 'i-play' : 'i-pause', cls: '', go: () => set({ paused: !s.paused }) }, { t: 'Báo khi xong', icon: 'i-notify', cls: s.notify ? 'on' : '', go: () => set({ notify: !s.notify }) }] },
-      { k: 'done', title: 'Đã có giọng · ' + done.length, note: '', tone: '', rows: done.map(row), show: done.length > 0, open: s.doneOpen, hasLink: true, linkT: s.doneOpen ? 'Thu gọn' : 'Xem · tạo lại', link: () => set({ doneOpen: !s.doneOpen }), hasBar: false, bar: [] }
+      { k: 'todo', hasVm: false, title: 'Cần làm · ' + todo.length, note: cnt('stale') ? cnt('stale') + ' chương sửa sau khi tạo giọng' : '', tone: cnt('stale') ? 'w' : '', rows: todo.map(row), show: todo.length > 0, open: true, hasLink: todo.length > 1, linkT: allTodoOn ? 'Bỏ chọn hết' : 'Chọn hết', link: () => { const sel = Object.assign({}, s.sel); todo.forEach((c) => { sel[c.n] = !allTodoOn; }); set({ sel }); }, hasBar: false, bar: [] },
+      { k: 'busy', title: (hold ? 'Đang chờ máy đọc · ' : 'Đang tạo · ') + busy.length, note: hold ? 'không phải lỗi · giữ nguyên thứ tự' : (s.paused ? 'đã tạm dừng' : 'chạy trên máy chủ, đóng app vẫn tiếp tục'), tone: hold ? 'h' : 'r', hasVm: hold > 0, rows: busy.map(row), show: busy.length > 0, open: true, hasLink: false, hasBar: true,
+        bar: hold ? [{ t: 'Báo khi bắt đầu', icon: 'i-notify', cls: s.notify ? 'on' : '', go: () => set({ notify: !s.notify }) }] : [{ t: s.paused ? 'Tiếp tục' : 'Tạm dừng', icon: s.paused ? 'i-play' : 'i-pause', cls: '', go: () => set({ paused: !s.paused }) }, { t: 'Báo khi xong', icon: 'i-notify', cls: s.notify ? 'on' : '', go: () => set({ notify: !s.notify }) }] },
+      { k: 'done', hasVm: false, title: 'Đã có giọng · ' + done.length, note: '', tone: '', rows: done.map(row), show: done.length > 0, open: s.doneOpen, hasLink: true, linkT: s.doneOpen ? 'Thu gọn' : 'Xem · tạo lại', link: () => set({ doneOpen: !s.doneOpen }), hasBar: false, bar: [] }
     ];
     const sumParts = [nUpd ? nUpd + ' cập nhật' : '', nNew ? nNew + ' mới' : '', nRedo ? nRedo + ' tạo lại từ đầu' : ''].filter(Boolean);
     const qn = { fast: 'Nghe thử nhanh', std: 'Chuẩn', high: 'Cao nhất' };
     const sum = picked.length ? sumParts.join(' · ') + ' · ' + qn[s.q] + ' · khoảng ' + mins + ' phút' + (busy.length ? ', sau các chương đang tạo' : '') + (nNew && C.some((c) => s.sel[c.n] && c.st === 'new' && !c.compose) ? '. Chương chưa chốt sẽ được chốt theo bản đọc hiện tại.' : '')
-      : busy.length ? 'Không còn chương nào cần làm · ' + busy.length + ' chương đang tạo' : (todo.length ? 'Chọn chương để tạo giọng' : 'Cả 8 chương đã có giọng mới nhất');
+      : busy.length ? 'Không còn chương nào cần làm · ' + busy.length + (hold ? ' chương đang chờ máy đọc' : ' chương đang tạo') : (todo.length ? 'Chọn chương để tạo giọng' : 'Cả 8 chương đã có giọng mới nhất');
     const go = () => { if (!picked.length) return; const C2 = C.map((c) => Object.assign({}, c)); let pos = C2.filter((c) => c.st === 'queue').length; const first = !C2.some((c) => c.st === 'run');
       picked.forEach((pc, i) => { const c = C2[pc.n - 1]; const upd = c.st === 'stale'; if (i === 0 && first) Object.assign(c, { st: 'run', p: 4, upd, seg: '1/' + (upd ? c.segs : 46), left: (upd ? 2 : QMIN[s.q]) + ' phút' }); else { pos += 1; Object.assign(c, { st: 'queue', pos, upd }); } });
       set({ C: C2, sel: {}, redo: {}, doneOpen: false }); this.toast('Đã xếp ' + picked.length + ' chương · theo dõi ở mục Đang tạo'); };
@@ -339,14 +379,15 @@ class Component extends DCLogic {
     return {
       tabs: mtabs('listen'), tabInd: mtabInd('listen'), tabMode: s.sheet ? 'hide' : '',
       ovText, ov: C.map((c) => ({ cls: ovCls(c), p: (c.p || 0) + '%' })),
-      leg: [['#A6EDC1', cnt('done') + ' có giọng'], ['#F6CB8C', cnt('stale') + ' cần cập nhật'], ['rgba(255,255,255,.3)', cnt('new') + ' chưa có'], ['#C9A6F5', busy.length + ' đang tạo']].filter((x) => parseInt(x[1], 10) > 0).map(([c, t]) => ({ c, t })),
-      bgRows: C.map((c) => ({ n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', tag: ({ done: DUR[c.n - 1], stale: 'Cần cập nhật', new: c.compose ? 'Chưa soạn bản đọc' : 'Chưa chốt', run: 'Đang tạo ' + (c.p || 0) + '%', queue: 'Chờ', err: 'Dừng do lỗi' })[c.st], tc: ({ stale: 'w', run: 'r', err: 'e' })[c.st] || '' })),
+      leg: [['#A6EDC1', cnt('done') + ' có giọng'], ['#F6CB8C', cnt('stale') + ' cần cập nhật'], ['rgba(255,255,255,.3)', cnt('new') + ' chưa có'], [hold ? 'rgba(255,255,255,.35)' : '#C9A6F5', busy.length + (hold ? ' đang chờ máy đọc' : ' đang tạo')]].filter((x) => parseInt(x[1], 10) > 0).map(([c, t]) => ({ c, t })),
+      bgRows: C.map((c) => ({ n: c.n, t: c.t, ico: c.st === 'stale' ? 'stale' : c.st, p: (c.p || 0) + '%', tick: c.st === 'done', tag: ({ done: DUR[c.n - 1], stale: 'Cần cập nhật', new: c.compose ? 'Chưa soạn bản đọc' : 'Chưa chốt', run: 'Đang tạo ' + (c.p || 0) + '%', queue: 'Chờ', err: 'Dừng do lỗi', hold: 'Đang chờ máy đọc' })[c.st], tc: ({ stale: 'w', run: 'r', err: 'e' })[c.st] || '' })),
       entryCta: !!cta, sheetOn: s.sheet, openSheet: () => set({ sheet: true }), closeSheet: () => set({ sheet: false }),
       groups,
       qs: [['fast', 'Nghe thử nhanh'], ['std', 'Chuẩn'], ['high', 'Cao nhất']].map(([k, t]) => ({ t, m: '≈ ' + QMIN[k] + ' ph/chương', on: s.q === k ? 'true' : 'false', cls: s.q === k ? 'on' : '', pick: () => set({ q: k }) })),
       autoA: s.auto ? 'true' : 'false', autoBg: s.auto ? '#9A63E3' : '#2A2A2E', autoKnob: s.auto ? '22px' : '2px', toggleAuto: () => set({ auto: !s.auto }),
       sum, hasCta: !!cta, ctaLabel: cta, ctaCls: onlyUpd ? 'w' : '', ctaIcon: onlyUpd ? 'i-refresh' : 'i-mic', go,
-      hasAlt: !cta && !busy.length && !todo.length, toast: s.toast
+      hasAlt: !cta && !busy.length && !todo.length, toast: s.toast,
+      vmSpin: prepW, vmDot: !prepW, vmNote: prepW ? 'Máy đọc đang chuẩn bị bộ đọc lần đầu · ' + VM_AT.model.pct + '%. Xong là các chương tự chạy theo thứ tự.' : 'Máy đọc chưa kết nối từ ' + VM_LAST + '. Có thể máy đang ngủ; chương giữ chỗ và tự chạy khi máy đọc kết nối lại.'
     };
   }
 }

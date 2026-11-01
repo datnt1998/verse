@@ -71,3 +71,14 @@ cd docs/design/v1 && python3 -m http.server 8700
 Đường dẫn icon đã đổi từ `/_blob/<id>` sang `../icons/<tên>.svg`.
 
 **Dữ liệu trong artboard**: số liệu, nhân vật, log 20:59 / 21:49, đoạn văn chương 3–4 lấy từ ảnh chụp phiên thật của truyện “Trà Xanh Cướp Kịch Bản…”; mọi `[ngoặc vuông]` là placeholder thiết kế — không đưa vào sản phẩm.
+
+### Tweak bổ sung · Gói AS + AT (01/11) <!-- at-rd -->
+
+| Artboard | Tweak mới |
+|---|---|
+| `Main.dc.html` | (AS) khung Luồng viết trực tiếp ở `phase` = rewrite · plan: bấm lọc trợ lý, bấm vòng để thu/mở, bấm thẻ để mở chi tiết |
+| `Settings.dc.html` | `section`: + voice; `voice`: noMachine · offline · provisioning · provisionFailed · ready; `vstep`: source · model; `vfail`: no_disk · download_failed · hash_mismatch · deps_failed · model_failed · start_failed · revoked; `vmode`: server · local; `vprev`: hidden · supported · waiting; `vadv`: none · confirm · revoked (xem ở `section=adv`) |
+| `Transcript.dc.html`, `AudioExport.dc.html` | `machine`: none · noMachine · offline · provisioning · provisionFailed · missingFfmpeg |
+| `Jobs.dc.html` | `scenario`: + prep · prepStart · prepDone · prepErr |
+| `MAudio.dc.html` | `machine`: none · noMachine · offline · provisioning · provisionFailed |
+| `MVoiceGen.dc.html` | `gk`: + waiting · waitPrep |

@@ -1539,6 +1539,40 @@ Canvas bản 135. Artboard mới: `MNewStory` (M11). Sửa: `MWork` (trống), `
 - Không có phím tắt, không chữ “Enter” trên điện thoại; không cuộn ngang ở 360 px.
 - Ghi “Gói AR” vào `19-gap-closure.md`.
 
+## Gói AS — Luồng viết trực tiếp gọn và đẹp hơn (01/11 · P2) <!-- goi-as -->
+
+Canvas bản 136–137. Artboard: `Main` (`phase` rewrite · plan). App hiện nhúng `RunHistory` vào `LiveStream`; giữ dữ liệu, sửa trình bày (`RunHistory.tsx` khi `embedded`):
+1. Bỏ hàng `header` “Lịch sử ›” riêng. Hàng 2 của khung: **nhóm nút lọc** cao 24 (nền `surface-0`, viền `line-1`, nút chọn nền `surface-6`), mỗi vai có chấm 7 px màu vai; bên phải “{n} vòng” + **Lịch sử ›** mở trang lịch sử (không phải cuộn lên đầu).
+2. Hàng 1: trạng thái đang chạy gói trong viên thuốc nền tím 7 % (∞ + chữ + đồng hồ).
+3. Tiêu đề vòng: dòng 30 px — orb 11 px **cùng hàng** với chữ (“Vòng N” đậm · tên vai màu vai · “· việc”), đường kẻ, giờ, mũi tên thu/mở. Thẻ của vòng thụt 22 px với **đường dọc** nối từ orb.
+4. **Thu gọn vòng cũ:** chỉ 2 vòng gần nhất mở sẵn; vòng cũ hơn một dòng “· n thao tác · tổng thời gian” + dấu xong. Bấm để mở.
+5. Thẻ cao 36, bo 10, nền `surface-1`; biểu tượng màu `--color-user-fg`, lỗi đỏ, đang chạy tím. Dấu xong dùng `--color-ok` (không xám). Thời lượng: <0,1 giây ghi “<0,1 giây”, 0/không đo được thì ẩn — **không** “0 giây”.
+6. Thẻ đang chạy dính đáy, nền tím nhạt, nhãn lấp lánh, hiện đồng hồ chạy thay thời lượng.
+7. Lọc không có vòng: orb mờ + “Chưa có vòng nào của {vai}” + gợi ý tải thêm.
+Nghiệm thu: 1440×900 phase rewrite — khung không có hàng trống thừa; chỉ vòng 10–11 mở; lọc “Người viết” chỉ còn vòng 11; không chuỗi “0 giây”.
+
+## Gói AT — Máy đọc: trạng thái cho bản chạy trên máy chủ (01/11 · P1) <!-- goi-at -->
+
+Canvas bản 137. Đặc tả đầy đủ + câu chữ: `10-audio.md` §8. Trả lời 6 câu hỏi: `19-gap-closure.md` › *Gói AS + AT*. Dữ liệu UI cần: `06-data-contract.md` › §AT.
+
+### Việc FE
+1. **Tuỳ chỉnh › Giọng đọc** (`Settings`, `section=voice`; `voice`, `vstep`, `vfail`, `vmode`, `vprev`): thẻ Máy đọc 5 trạng thái (bảng 8.1), danh sách 6 bước khi chuẩn bị, 7 câu lỗi (8.2), Chất lượng = “Mặc định cho truyện mới”, ẩn Thiết bị/Bộ đọc ở bản máy chủ, Giọng có sẵn + Nghe thử theo `capabilities.preview`. Bản cá nhân (`vmode=local`) cùng khung, tên “Máy này”, có nút **Chuẩn bị bộ đọc**.
+2. **Nâng cao** (`section=adv`, `vadv`): khối chi tiết máy đọc, 6 dòng nhật ký, Thu hồi quyền (một bước), trạng thái chưa có máy đọc kèm lệnh bật.
+3. **`InstallCard`** → thẻ máy đọc dùng chung cho Bản đọc / Phòng thu / Nghe (`machine`): 5 biến thể, **không** nút “Cài bộ đọc trên máy” ở bản máy chủ; `missingFfmpeg` khoá riêng nút Ghép & xuất.
+4. **Phòng thu:** khi máy đọc chưa sẵn sàng + có chương xếp hàng → khung “n chương đang chờ máy đọc” thay khung đang đọc; cột phải “Máy đọc”.
+5. **Dock:** hàng Chuẩn bị bộ đọc (`Jobs` `scenario` prep · prepStart · prepDone · prepErr) — % chỉ khi đo được; lỗi có Thử lại + Huỷ.
+6. **Điện thoại:** `MAudio` `machine`, `MVoiceGen` `gk=waiting|waitPrep` — nhãn **Đang chờ máy đọc** trung tính, không dùng “Dừng do lỗi”. Bỏ câu “Cài bộ đọc trên máy tính…”, bỏ nút Kiểm tra lại.
+
+### Việc backend
+- Theo báo cáo §4 (đã có kế hoạch): trạng thái máy đọc + lệnh qua kênh máy đọc, chặn nhận việc khi chưa sẵn sàng. Thêm cho UI: `percent` null khi không đo được, `queueWaiting`, `capabilities.preview`, `waitingMachine` trên job (`06-data-contract.md` §AT).
+
+### Nghiệm thu
+- Máy đọc tắt: Giọng đọc hiện “Chưa kết nối” xám + giờ lần cuối; có chương xếp hàng thì thêm Cảnh báo “n chương đang chờ”; Phòng thu hiện khung đang chờ, không có %.
+- Chuẩn bị lần đầu: bước Tải bộ đọc chỉ có vòng xoay; bước Tải mẫu giọng có % + MB; bấm Tạo giọng → chương vào “Đang chờ máy đọc”.
+- Lỗi `hash_mismatch`: câu đúng 8.2, không tự thử lại; không chuỗi mã lỗi ngoài Nâng cao.
+- Không chữ worker/container/uv/python/ffmpeg/đường dẫn ngoài Nâng cao.
+- Ghi “Gói AT” vào `19-gap-closure.md`.
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |

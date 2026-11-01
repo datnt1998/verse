@@ -26,7 +26,7 @@ export const stageStyles = stylex.create({
     flexDirection: 'column',
     overflowY: 'auto',
     overscrollBehavior: 'contain',
-    paddingBottom: 'var(--m-scroll-pad, var(--vv-tabbar-pad))',
+    paddingBottom: 'var(--m-scroll-pad)',
   },
   /** Màn không có thanh tab dưới (Video mới): không cần đệm. */
   noPad: { paddingBottom: 0 },
@@ -42,7 +42,7 @@ export const stageStyles = stylex.create({
     overflowY: 'auto',
     overscrollBehavior: 'contain',
     backgroundColor: color['--color-bg'],
-    paddingBottom: 'var(--m-scroll-pad, var(--vv-tabbar-pad))',
+    paddingBottom: 'var(--m-scroll-pad)',
   },
   /** Hàng chờ tự quản vùng cuộn của nó (artboard Queue) — không thêm đệm/không cuộn ngoài. */
   fullBleed: { overflowY: 'hidden', paddingBottom: 0 },

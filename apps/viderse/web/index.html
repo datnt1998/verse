@@ -14,6 +14,9 @@
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/icons/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <!-- iOS cũ không có media display-mode:standalone; đặt cờ trước khi vẽ để --m-edge (kit.css)
+         cộng dải 40px đúng như app đã cài. Cùng mẫu với index.html của Noverse. -->
+    <script>if (navigator.standalone === true) document.documentElement.setAttribute('data-standalone', '')</script>
     <!-- Thứ tự layer phải có trong HTML tĩnh, trước mọi stylesheet do JS nạp.
          StyleX chèn `virtual:stylex.css` (mở đầu `@layer priority1; …`) bằng một <style>
          tạo lúc chạy, tức là stylesheet ĐẦU TIÊN của trang; nếu chỉ khai báo trong

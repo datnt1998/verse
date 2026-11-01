@@ -4,7 +4,8 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { navigateNow, parseHash, useRoute } from '../router'
-import { MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot, type TabItem } from './tabs'
+import { MobileTabBar, type MobileTabItem } from '@noverse/ui'
+import { keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -22,7 +23,7 @@ const render = async (ui: ReactNode) => {
   return { container, root }
 }
 
-const TABS: TabItem[] = [
+const TABS: MobileTabItem[] = [
   { key: 'work', label: 'Viết', icon: 'category', href: '/p/a/s/b/work' },
   { key: 'read', label: 'Đọc', icon: 'book-1', href: '/p/a/s/b/read' },
   { key: 'audio', label: 'Nghe', icon: 'headphone', href: '/p/a/s/b/audio/listen' },
@@ -36,7 +37,7 @@ const touch = (element: Element, type: string, init: MouseEventInit = {}) =>
   })
 
 const bar = (onSelect: (href: string) => void, mode: 'default' | 'hide' = 'default') =>
-  <MobileTabBar tabs={TABS} index={0} mode={mode} dot={false} onSelect={onSelect} />
+  <MobileTabBar items={TABS} index={0} mode={mode} onSelect={(item) => { if (item.href) onSelect(item.href) }} />
 
 describe('thanh tab điện thoại: nút trong app, không điều hướng <a>', () => {
   it('mỗi mục là <button type="button">, không phải link hash (iOS không còn cú chạm/điều hướng mặc định của <a>)', async () => {
@@ -62,8 +63,8 @@ describe('thanh tab điện thoại: nút trong app, không điều hướng <a>
 
   it('tab chưa vào được (chưa chọn truyện) bị tắt: không bấm được, không điều hướng, vạch không chạy', async () => {
     const onSelect = vi.fn()
-    const tabs: TabItem[] = TABS.map((item) => item.key === 'more' ? item : { ...item, disabled: true })
-    const { container } = await render(<MobileTabBar tabs={tabs} index={3} mode="default" dot={false} onSelect={onSelect} />)
+    const tabs: MobileTabItem[] = TABS.map((item) => item.key === 'more' ? item : { ...item, disabled: true })
+    const { container } = await render(<MobileTabBar items={tabs} index={3} mode="default" onSelect={(item) => { if (item.href) onSelect(item.href) }} />)
     const buttons = container.querySelectorAll<HTMLButtonElement>('.m-tab')
     expect([...buttons].map((button) => button.disabled)).toEqual([true, true, true, false])
     await touch(buttons[1], 'click', { detail: 1 })

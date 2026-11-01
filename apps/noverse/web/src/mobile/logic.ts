@@ -1,16 +1,14 @@
 import type { CommandSpec, Snapshot, User } from '../api/types'
 import { canWriteStory } from '../api/client'
 import { isGate } from '../screens/workspace/GateCard'
+import { PHONE_MAX_NOVERSE, phoneQuery } from '@noverse/ui'
 
-export const MOBILE_QUERY = '(max-width: 640px)'
+export const MOBILE_QUERY = phoneQuery(PHONE_MAX_NOVERSE)
 export const TABLET_QUERY = '(min-width: 641px) and (max-width: 1099px)'
 export type LayoutMode = 'phone' | 'tablet' | 'desktop'
-export type TabMode = 'default' | 'mini' | 'hide'
+export { tabModeFor, pickToastBottom, type TabMode, type ToastBottomEntry } from '@noverse/ui'
 export const MOBILE_BACKOFF_MS = [1000, 2000, 4000, 5000] as const
 export const mobileBackoff = (failure: number) => MOBILE_BACKOFF_MS[Math.min(Math.max(0, failure), MOBILE_BACKOFF_MS.length - 1)]
-export function tabModeFor({ keyboard = 0, hidden = false, immersive = false, down = false }: { keyboard?: number; hidden?: boolean; immersive?: boolean; down?: boolean }): TabMode {
-  return keyboard > 0 || hidden || immersive ? 'hide' : down ? 'mini' : 'default'
-}
 /** Only an actionable chapter review gate earns the orange Read-tab dot. */
 export function showReviewDot(snapshot: Snapshot | null, user: User | null, storyId: string): boolean {
   return !!user && canWriteStory(user, storyId) && isGate(snapshot)
@@ -23,13 +21,6 @@ export function mobileCommands(specs: CommandSpec[]): CommandSpec[] {
   return specs.filter((spec) => !DESKTOP_COMMANDS[spec.name])
 }
 
-export type ToastBottomEntry = { px: number; priority: number }
-/** Khoảng cách đáy của toast: ưu tiên cao thắng, cùng ưu tiên thì mục đăng ký sau thắng; không có mục nào → null (CSS mặc định). */
-export function pickToastBottom(entries: ToastBottomEntry[]): number | null {
-  let best: ToastBottomEntry | null = null
-  for (const entry of entries) if (!best || entry.priority >= best.priority) best = entry
-  return best ? best.px : null
-}
 /** `bottom` của toast theo từng artboard điện thoại (MWork 214 · MReader 100 · MAudio 168 · MMore 100 · MCmd 112 · MLog 30 · MNotify 30). */
 export function toastBottomFor(route: string): number | null {
   switch (route) {

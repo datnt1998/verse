@@ -51,6 +51,9 @@ const sx = stylex.create({
   segmentContent: { flex: '0 0 auto', paddingInline: 12 },
   segmentHintButton: { minWidth: 0, minHeight: 40, padding: '6px 8px' },
   segmentHeight: (height: number) => ({ height }),
+  /* Cỡ điện thoại (`.vv-seg--m` artboard): nhóm 48px, mục 40px, chữ 14, góc 12/9. */
+  segmentXl: { display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'minmax(max-content, 1fr)', borderRadius: 12 },
+  segmentXlButton: { fontSize: 14 },
   segmentOn: { color: color['--color-fg'] },
   segmentOff: { color: color['--color-fg-3'] },
 })
@@ -115,8 +118,8 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
    * `aria-controls` = `panel` để `tabpanel` trỏ ngược lại bằng `aria-labelledby`.
    */
   tabs?: { id: string; panel: string }
-  /** Cao nút: 'sm' 28 (Reader/Settings .segc) · 'md' 30 (Kit) · 'lg' 36 (MNotify) · số tuỳ ý. */
-  size?: 'sm' | 'md' | 'lg' | number
+  /** Cao nút: 'sm' 28 (Reader/Settings .segc) · 'md' 30 (Kit) · 'lg' 36 (MNotify) · 'xl' 40 trong nhóm 48 (điện thoại `.vv-seg--m`) · số tuỳ ý. */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number
   /** Bo góc nút và khối trượt (mặc định 7; Reader 6, mobile 10–11). */
   radius?: number
   thumbStyle?: CSSProperties
@@ -127,8 +130,9 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   const contentFit = simple && fit === 'content'
   /** Chia đều nhưng nhãn dài vẫn giữ đủ chữ (`.vv-seg--fill`). */
   const fillFit = simple && fit === 'fill'
-  const btnH = typeof size === 'number' ? size : { sm: 28, md: 30, lg: 36 }[size]
-  const btnR = radius ?? 7
+  const xl = size === 'xl'
+  const btnH = typeof size === 'number' ? size : { sm: 28, md: 30, lg: 36, xl: 40 }[size]
+  const btnR = radius ?? (xl ? 9 : 7)
   const itemRole = tabs ? 'tab' : 'radio'
   const groupRef = useRef<HTMLDivElement>(null)
   const [thumb, setThumb] = useState<SegRect | null>(null)
@@ -174,7 +178,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
       group.removeEventListener('scroll', measure)
     }
   }, [value, options, columns, itemRole])
-  const root = stylex.props(sx.segmentRoot, !simple && sx.segmentHintRoot, !simple ? sx.segmentGrid(columns ?? options.length) : columns && !contentFit && !fillFit ? sx.segmentGrid(columns) : null, xstyle)
+  const root = stylex.props(sx.segmentRoot, xl && sx.segmentXl, !simple && sx.segmentHintRoot, !simple ? sx.segmentGrid(columns ?? options.length) : columns && !contentFit && !fillFit ? sx.segmentGrid(columns) : null, xstyle)
   return (
     <div ref={groupRef} role={tabs ? 'tablist' : 'radiogroup'} aria-label={label} onKeyDown={(event) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
@@ -193,7 +197,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
       }} />
       {options.map((option) => {
         const on = option.id === value
-        const button = stylex.props(sx.segmentButton(btnR), simple ? [sx.segmentSimpleButton, contentFit ? sx.segmentContent : fillFit ? sx.segmentFillContent : sx.segmentFill] : sx.segmentHintButton, (simple || typeof size === 'number' || size !== 'md') && sx.segmentHeight(btnH), on ? sx.segmentOn : sx.segmentOff, buttonStyle)
+        const button = stylex.props(sx.segmentButton(btnR), simple ? [sx.segmentSimpleButton, xl && sx.segmentXlButton, contentFit ? sx.segmentContent : fillFit ? sx.segmentFillContent : sx.segmentFill] : sx.segmentHintButton, (simple || typeof size === 'number' || size !== 'md') && sx.segmentHeight(btnH), on ? sx.segmentOn : sx.segmentOff, buttonStyle)
         return (
           <button key={option.id} type="button" role={itemRole}
             {...(tabs

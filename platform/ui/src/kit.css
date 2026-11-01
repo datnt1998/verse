@@ -3,6 +3,47 @@
    - lớp còn được CSS/TSX khác nhắm tới làm hook (kit-pop của AccountMenu, lớp gallery không thuộc phạm vi di cư);
    - chọn lọc con-cháu/trạng thái cha (:has, :focus-visible .kit-switch-track, hover-cha .kit-action-trigger) StyleX không diễn đạt;
    - @keyframes giữ nguyên tên để stylex tham chiếu bằng chuỗi (tên băm sẽ đổi computed animation-name). */
+
+/* ── Vùng an toàn điện thoại · MỘT nguồn duy nhất (R-SA1…R-SA9) ──────────────────────
+   Đây là chỗ DUY NHẤT trong repo được đọc env(safe-area-inset-*). App chỉ đặt:
+     --m-tabbar-gap   (Noverse 20px, Viderse 30px — đặt trên `html:root` để thắng tệp này)
+     --m-scroll-pad   (chỉ khi khác mặc định: Noverse giữ 112px cũ)
+   Mọi chỗ khác đọc var(--m-*). Test hợp đồng: platform/ui/src/mobile/safeArea.test.ts. */
+:root{
+  --m-safe-top: env(safe-area-inset-top, 0px);
+  --m-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --m-edge: 0px;
+  /* --m-top: đỉnh vùng dùng được — 8px tối thiểu cho máy không có tai thỏ, cộng thêm
+     dải an toàn ở chế độ standalone iPad (40px) như Noverse đã đo. */
+  --m-top: max(8px, calc(var(--m-safe-top) + var(--m-edge)));
+  --m-tabbar-h: 64px;
+  --m-tabbar-bottom: max(var(--m-tabbar-gap, 20px), var(--m-safe-bottom));
+  --m-float-bottom: calc(var(--m-tabbar-bottom) + var(--m-tabbar-h) + 8px);
+  --m-scroll-pad: calc(var(--m-tabbar-bottom) + var(--m-tabbar-h) + 24px);
+  --kb: 0px;
+  /* Toast điện thoại: 12px trên mép trên của thanh tab, hoặc trên bàn phím khi mở. */
+  --m-toast-bottom: calc(max(var(--kb), var(--m-tabbar-bottom) + var(--m-tabbar-h)) + 12px);
+}
+/* Màn không có thanh tab (màn đẩy, chế độ chọn nhiều, bàn phím mở): mọi thứ "nổi trên
+   thanh tab" lùi về mép vùng an toàn. Provider ghi data-tab-mode lên <html>. */
+html[data-tab-mode="hide"]{
+  --m-float-bottom: calc(max(26px, var(--m-safe-bottom)) + var(--kb));
+  --m-toast-bottom: calc(max(26px, var(--m-safe-bottom)) + var(--kb) + 12px);
+}
+/* Hai chế độ thu gọn của thanh tab dùng chung (Noverse + Viderse cùng ngữ nghĩa):
+   mini khi cuộn xuống >40px, hide khi bàn phím mở / màn đẩy / chế độ chọn nhiều.
+   App chỉ cần đặt vị trí và da của .m-tabs. */
+.m-tabs.mini{transform:translateY(8px) scale(.92)}
+.m-tabs.mini .m-tab-label{opacity:0;max-height:0;margin-top:-2px}
+.m-tabs.hide{transform:translateY(110px);opacity:0;pointer-events:none}
+/* iPad chạy như app (không thanh địa chỉ) có thêm dải 40px trên/dưới. */
+@supports (-webkit-touch-callout: none){
+  @media (display-mode: standalone) and (orientation: portrait){ :root{ --m-edge: 40px } }
+  @media (display-mode: standalone) and (min-width: 641px) and (min-height: 641px){ :root{ --m-edge: 40px } }
+}
+/* iOS cũ không có display-mode: script pre-paint trong index.html đặt data-standalone. */
+html[data-standalone]{ --m-edge: 40px }
+
 .kit-pop { background: #1A1A1D; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 6px; box-shadow: 0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); animation: kit-pop .17s cubic-bezier(.2,.9,.3,1) both; transform-origin: top right; z-index: 60; }
 .kit-option { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 6px 10px; border: 0; border-radius: 9px; background: transparent; color: #EDEDEF; font-size: 13px; text-align: left; cursor: pointer; }
 .kit-option:hover { background: rgba(255,255,255,.06); }
@@ -154,11 +195,11 @@
 /* Tấm theo artboard điện thoại (Viderse MSettings/Settings): góc 22, nền card,
    tiêu đề 16px + phụ đề, grabber 36×4 trên hàng 8/2, cao tối đa 86%. Tấm mặc
    định (Noverse) giữ nguyên 26/18px. */
-.m-sheet--md{background:var(--color-card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
+.m-sheet--md{background:var(--color-surface-3);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
 .m-sheet--md .m-drag{height:14px;min-height:14px;padding:8px 0 2px}
 .m-sheet--md .m-drag span{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
 .m-sheet--md .m-sheet-title{flex-direction:column;align-items:stretch;gap:3px;padding:6px 16px 10px}
-.m-sheet--md .m-sheet-title h2{font-size:16px;font-weight:600}
+.m-sheet--md .m-sheet-title h2{font-size:18px;font-weight:600;line-height:1.35}
 .m-sheet-sub{font-size:12.5px;line-height:1.5;color:var(--kit-fg-sub)}
 
 @keyframes m-sheet-in{from{transform:translateY(100%)}to{transform:translateY(0)}}

@@ -741,7 +741,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
 
           <div style={{
             flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-            padding: narrow ? '10px 16px calc(10px + env(safe-area-inset-bottom))' : '12px 40px',
+            padding: narrow ? '10px 16px calc(10px + var(--m-safe-bottom))' : '12px 40px',
             borderTop: '1px solid rgba(255,255,255,0.06)', background: '#0B0B0D',
           }}>
             {idx > 0 && (
