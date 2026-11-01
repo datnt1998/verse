@@ -22,6 +22,7 @@ import { keys } from '../data/keys'
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { shellChrome } from './shell.stylex'
+import { strongestTone } from '../lib/attentionTone'
 
 // Bảng Hoạt động chỉ mở khi bấm chuông: chunk riêng, không nằm trong lần tải đầu.
 const ActivityPopover = lazy(() => import('./ActivityPopover').then((m) => ({ default: m.ActivityPopover })))
@@ -45,8 +46,9 @@ const sx = stylex.create({
     borderBottomStyle: 'solid',
     borderBottomColor: line['--line-1'],
   },
-  /* Hai vùng trái/phải cùng basis để nhóm nav luôn đúng giữa khung. */
-  zone: { flex: '1 1 0', minWidth: 0, display: 'flex', alignItems: 'center', gap: 'var(--vv-s-10)' },
+  /* Hai vùng trái/phải cùng basis để nhóm nav luôn đúng giữa khung. Vùng không co
+     dưới nội dung của nó: thiếu chỗ thì MainNav co lại và tự cuộn ngang (#16). */
+  zone: { flex: '1 1 0', minWidth: 'min-content', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-10)' },
   zoneRight: { justifyContent: 'flex-end', gap: 'var(--vv-s-8)' },
   logo: { marginInline: 1 },
   settings: { width: 32, height: 32, borderRadius: 'var(--vv-r-8)' },
@@ -74,9 +76,12 @@ const sx = stylex.create({
     width: 7,
     height: 7,
     borderRadius: '50%',
-    backgroundColor: color['--color-err'],
     boxShadow: '0 0 0 1.5px var(--color-bg)',
   },
+  /* Tông chấm theo loại việc (#30): cam khẩn nhất, rồi vàng, rồi xanh. */
+  gearDotErr: { backgroundColor: color['--color-err'] },
+  gearDotWarn: { backgroundColor: color['--color-warn'] },
+  gearDotInfo: { backgroundColor: color['--color-info'] },
   activityAnchor: { position: 'relative', flex: '0 0 auto' },
 })
 
@@ -94,6 +99,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
   const [activityOpen, setActivityOpen] = useState(false)
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const attention = status?.attention ?? []
+  const dotTone = strongestTone(attention.map((a) => a.kind))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
 
   const home = (e: MouseEvent) => { e.preventDefault(); navigate(paths.workbench()) }
@@ -136,7 +142,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
           aria-current={inSettings ? 'page' : undefined}
         >
           <Icon name="setting" size={18} />
-          {attention.length > 0 && <span role="img" aria-label={`${attention.length}`} className={`vv-gear__dot ${stylex.props(sx.gearDot).className}`} />}
+          {dotTone && <span role="img" aria-label={`${attention.length}`} className={`vv-gear__dot ${stylex.props(sx.gearDot, dotTone === 'err' && sx.gearDotErr, dotTone === 'warn' && sx.gearDotWarn, dotTone === 'info' && sx.gearDotInfo).className}`} />}
         </a>
         <AccountMenu fallbackName={userName} />
       </div>

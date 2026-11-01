@@ -248,7 +248,7 @@ const listAiProviders = `-- name: ListAiProviders :many
 
 SELECT p.id, p.kind, p.auth, p.label, p.key_enc, p.key_hint, p.base_url, p.status, p.catalog_at, p.selected, p.created_at, p.updated_at, (SELECT count(*) FROM ai_models m WHERE m.provider_id = p.id)::int AS model_count
 FROM ai_providers p
-ORDER BY p.created_at DESC, p.id
+ORDER BY p.created_at, p.id
 `
 
 type ListAiProvidersRow struct {
@@ -268,7 +268,7 @@ type ListAiProvidersRow struct {
 }
 
 // Kết nối AI: nhà cung cấp và danh mục model (§15).
-// Thẻ mới thêm gần nhất đứng đầu danh sách (giống "thẻ mới lên đầu" của W13).
+// Thứ tự thêm: thẻ cũ nhất đứng đầu (hỏi đáp #27); web đưa thẻ lỗi lên trước.
 // Kèm số model trong CÙNG truy vấn: GET không được N+1 theo provider.
 func (q *Queries) ListAiProviders(ctx context.Context) ([]ListAiProvidersRow, error) {
 	rows, err := q.db.Query(ctx, listAiProviders)

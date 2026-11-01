@@ -15,6 +15,8 @@ import (
 	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain/quality"
+	imagesmodel "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/rivals"
 	"github.com/datnt1998/verse/core/llm"
 	"github.com/datnt1998/verse/core/llmretry"
@@ -58,7 +60,7 @@ func planJSON(steps ...map[string]any) string {
 	full := make([]map[string]any, 0, len(steps))
 	for _, s := range steps {
 		f := map[string]any{"intent": nil, "sceneNo": nil, "feedback": nil, "parts": nil, "count": nil, "minDurationMinutes": nil,
-			"rival": nil, "channel": nil, "preset": nil, "rule": nil, "pick": nil, "videoTitle": nil}
+			"rival": nil, "channel": nil, "preset": nil, "rule": nil, "pick": nil, "videoTitle": nil, "drawSource": nil}
 		for k, v := range s {
 			f[k] = v
 		}
@@ -113,6 +115,12 @@ type world struct {
 	chans  []channels.ChannelView
 	queue  []domain.CloneQueueItemView
 	videos map[string][]domain.RivalVideo
+	// Trạng thái video cho ba lệnh /provider, /export-anyway, /posted.
+	activeStep  domain.CloneStep
+	gateAllowed bool
+	posted      bool
+	connected   map[string]bool // nguồn vẽ đã kết nối
+	drawSource  domain.ModelRef // nguồn vẽ riêng đang gắn với video
 }
 
 const (
@@ -124,7 +132,8 @@ const (
 )
 
 func newWorld() *world {
-	w := &world{log: &log{}, status: map[string]string{}, videos: map[string][]domain.RivalVideo{}}
+	w := &world{log: &log{}, status: map[string]string{}, videos: map[string][]domain.RivalVideo{},
+		activeStep: domain.CloneImages, connected: map[string]bool{"chatgpt": true, "grok": true, "gemini": false}}
 	score := func(v float64) *float64 { return &v }
 	w.chans = []channels.ChannelView{
 		{Channel: domain.Channel{ID: chanA, Name: "Midnight Tales", PacePerDay: 2}, Sources: []domain.ChannelSource{
@@ -150,12 +159,16 @@ func (f fJobs) Get(_ context.Context, id string) (*domain.CloneJobView, error) {
 	if id != jobID {
 		return nil, errors.New("không có")
 	}
-	step := domain.CloneImages
+	step := f.w.activeStep
 	v := &domain.CloneJobView{CloneJob: domain.CloneJob{ID: id, ChannelID: chanA, ActiveStep: &step,
 		Source: domain.CloneSourceSnapshot{Title: "The Hospital Night Shift"}}}
 	if f.w.paused {
 		now := time.Now()
 		v.PausedAt = &now
+	}
+	if f.w.posted {
+		now := time.Now()
+		v.PostedAt = &now
 	}
 	return v, nil
 }
@@ -174,6 +187,9 @@ type fImages struct{ w *world }
 
 func (f fImages) view() cloneimages.View {
 	v := cloneimages.View{Manifest: &cloneimages.ManifestView{Revision: 7}}
+	if f.w.drawSource.Provider != "" {
+		v.Manifest.Overrides = &imagesmodel.Overrides{DrawProvider: f.w.drawSource.Provider, DrawModel: f.w.drawSource.Model}
+	}
 	for i := 1; i <= 6; i++ {
 		id := fmt.Sprintf("scene-%02d", i)
 		st := f.w.status[id]
@@ -214,6 +230,41 @@ func (f fImages) PlanOverrides(context.Context, string, cloneimages.OverrideInpu
 func (f fImages) ApplyOverrides(_ context.Context, id string, in cloneimages.OverrideInput) (cloneimages.OverridePlan, error) {
 	f.w.log.add("images.noImages %s %v", id, *in.NoImages)
 	return cloneimages.OverridePlan{}, nil
+}
+func (f fImages) SetDrawSource(_ context.Context, id, provider, modelID string) error {
+	f.w.log.add("images.drawSource %s %s %s", id, provider, modelID)
+	f.w.drawSource = domain.ModelRef{Provider: provider, Model: modelID}
+	return nil
+}
+
+// fDrawSources chỉ coi nguồn có trong world.connected là đã kết nối.
+type fDrawSources struct{ w *world }
+
+func (f fDrawSources) Ref(_ context.Context, source string) (domain.ModelRef, bool, error) {
+	if !f.w.connected[source] {
+		return domain.ModelRef{}, false, nil
+	}
+	return domain.ModelRef{Provider: "prov-" + source, Model: "model-" + source}, true, nil
+}
+
+// fQuality là cổng Độ hoàn thiện; gateAllowed=true nghĩa là điểm đã đạt.
+type fQuality struct{ w *world }
+
+func (f fQuality) Gate(context.Context, string) (quality.GateDecision, error) {
+	return quality.GateDecision{Allowed: f.w.gateAllowed}, nil
+}
+func (f fQuality) ExportAnyway(_ context.Context, id string) error {
+	f.w.log.add("quality.exportAnyway %s", id)
+	return nil
+}
+
+// fPosted ghi lại việc đánh dấu đã đăng kèm link người dùng dán.
+type fPosted struct{ w *world }
+
+func (f fPosted) Post(_ context.Context, id, link string) (string, error) {
+	f.w.log.add("posted %s %q", id, link)
+	f.w.posted = true
+	return "https://youtu.be/dQw4w9WgXcQ", nil
 }
 
 type fBackdrops struct{ w *world }
@@ -384,6 +435,7 @@ func newRig(t *testing.T, answer func(call int, text string) string) *rig {
 		Director: func(context.Context) (llmretry.Generator, error) { return model, nil },
 		Jobs:     fJobs{w}, Images: fImages{w}, Backdrops: fBackdrops{w}, Metadata: fMetadata{w}, Channels: fChannels{w},
 		Queue: fQueue{w}, Rivals: fRivals{w}, Autonomy: fAutonomy{w}, Rules: fRules{w}, Tasks: tasks,
+		DrawSources: fDrawSources{w}, Quality: fQuality{w}, Posted: fPosted{w},
 		ImagesLeft: func(context.Context) (int, error) { return 7, nil },
 	})
 	r.svc.now = func() time.Time { return r.now }

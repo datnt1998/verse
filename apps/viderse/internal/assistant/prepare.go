@@ -14,6 +14,7 @@ import (
 	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/performance"
 )
 
 // prepared là một bước đã kiểm lại với dữ liệu HIỆN TẠI: thẻ để hiện (step) và
@@ -67,6 +68,12 @@ func (s *Service) prepare(ctx context.Context, id IntentID, raw json.RawMessage)
 		p, err = prepareAutonomy(ctx, s, raw)
 	case AddRule:
 		p, err = prepareRule(ctx, s, raw)
+	case SetDrawSource:
+		p, err = prepareDrawSource(ctx, s, raw)
+	case ExportAnyway:
+		p, err = prepareExportAnyway(ctx, s, raw)
+	case MarkPosted:
+		p, err = preparePosted(ctx, s, raw)
 	default:
 		return nil, fail(CodeInvalid, "Trợ lý không làm việc này.")
 	}
@@ -638,4 +645,131 @@ func prepareRule(ctx context.Context, s *Service, raw json.RawMessage) (*prepare
 			}
 			return "Đã lưu quy tắc cho " + name + ".", nil
 		}}, nil
+}
+
+// ── lệnh của ô Nhắn trợ lý (/provider, /export-anyway, /posted) ─────────────
+
+var drawSourceLabel = map[string]string{"chatgpt": "ChatGPT", "grok": "Grok", "gemini": "Gemini"}
+
+// prepareDrawSource đặt nguồn vẽ ảnh riêng cho MỘT video. Nguồn phải đã kết nối
+// ở Cài đặt › Kết nối AI; nguồn lạ hoặc chưa kết nối thì nói đúng chỗ cần sửa.
+func prepareDrawSource(ctx context.Context, s *Service, raw json.RawMessage) (*prepared, error) {
+	p, err := decodeParams[drawSourceParams](raw)
+	if err != nil {
+		return nil, badParams(err)
+	}
+	source := strings.ToLower(cleanLine(p.Source))
+	label, ok := drawSourceLabel[source]
+	if !ok {
+		return nil, fail(CodeInvalid, "Nguồn vẽ chỉ là ChatGPT, Grok hoặc Gemini.")
+	}
+	job, err := s.job(ctx, p.JobID)
+	if err != nil {
+		return nil, err
+	}
+	if s.d.DrawSources == nil || s.d.Images == nil {
+		return nil, stepFail(nil, "Nguồn vẽ ảnh chưa sẵn sàng.")
+	}
+	ref, found, err := s.d.DrawSources.Ref(ctx, source)
+	if err != nil {
+		return nil, stepFail(err, "%s", userMessage(err))
+	}
+	if !found {
+		return nil, stepFail(nil, "Chưa kết nối %s. Đăng nhập hoặc thêm khoá ở Cài đặt › Kết nối AI.", label)
+	}
+	view, err := s.d.Images.Read(ctx, p.JobID)
+	if err != nil {
+		return nil, stepFail(err, "%s", userMessage(err))
+	}
+	if view.Manifest != nil && view.Manifest.Overrides != nil &&
+		view.Manifest.Overrides.DrawProvider == ref.Provider && view.Manifest.Overrides.DrawModel == ref.Model {
+		return nil, stepFail(nil, "Video này đã vẽ ảnh bằng %s rồi.", label)
+	}
+	step := Step{Title: "Đổi nguồn vẽ ảnh: " + label, Sub: jobSub(job), Agent: agentArtist,
+		Detail: fmt.Sprintf("Từ lần vẽ sau, Hoạ sĩ vẽ ảnh của video này bằng %s rồi mới tới nguồn dự phòng chung. Ảnh đã vẽ không đổi; video khác vẫn dùng nguồn ở Cài đặt › Trợ lý AI.", label)}
+	return &prepared{step: step, run: func(ctx context.Context) (string, error) {
+		if err := s.d.Images.SetDrawSource(ctx, p.JobID, ref.Provider, ref.Model); err != nil {
+			return "", stepFail(err, "%s", userMessage(err))
+		}
+		return "Video này vẽ ảnh bằng " + label + " từ lần vẽ sau.", nil
+	}}, nil
+}
+
+// prepareExportAnyway mở cổng Độ hoàn thiện và xếp việc xuất — đúng việc nút
+// “Vẫn xuất” ở Bàn dựng làm. Chỉ có nghĩa khi video đang chờ ở bước Kiểm định.
+func prepareExportAnyway(ctx context.Context, s *Service, raw json.RawMessage) (*prepared, error) {
+	p, err := decodeParams[jobParams](raw)
+	if err != nil {
+		return nil, badParams(err)
+	}
+	job, err := s.job(ctx, p.JobID)
+	if err != nil {
+		return nil, err
+	}
+	if s.d.Quality == nil {
+		return nil, stepFail(nil, "Cổng Độ hoàn thiện chưa sẵn sàng.")
+	}
+	if job.ActiveStep == nil || *job.ActiveStep != domain.CloneScore {
+		return nil, stepFail(nil, "Chỉ xuất dù điểm chưa đạt được khi video đang ở bước Kiểm định.")
+	}
+	gate, err := s.d.Quality.Gate(ctx, p.JobID)
+	if err != nil {
+		return nil, stepFail(err, "%s", userMessage(err))
+	}
+	if gate.Allowed {
+		return nil, stepFail(nil, "Video này đã đạt Độ hoàn thiện để xuất — dùng nút Xuất video.")
+	}
+	step := Step{Title: "Xuất video dù điểm chưa đạt", Sub: jobSub(job), Agent: agentQA,
+		Detail: "Kiểm định mở cổng rồi máy dựng lại và xuất video như hiện tại. Điểm chưa đạt vẫn ghi trong Kiểm định.",
+		Reruns: []Rerun{{Agent: agentQA, Label: "xuất video"}}}
+	return &prepared{step: step, run: func(ctx context.Context) (string, error) {
+		if err := s.d.Quality.ExportAnyway(ctx, p.JobID); err != nil {
+			return "", stepFail(err, "%s", userMessage(err))
+		}
+		return "Đang xuất video dù điểm chưa đạt.", nil
+	}}, nil
+}
+
+// preparePosted đánh dấu video đã đăng, kèm link YouTube tuỳ chọn (cùng đường
+// với hộp “Đánh dấu đã đăng”). Link sai bị chặn ngay, không gửi đi.
+func preparePosted(ctx context.Context, s *Service, raw json.RawMessage) (*prepared, error) {
+	p, err := decodeParams[postedParams](raw)
+	if err != nil {
+		return nil, badParams(err)
+	}
+	job, err := s.job(ctx, p.JobID)
+	if err != nil {
+		return nil, err
+	}
+	if s.d.Posted == nil {
+		return nil, stepFail(nil, "Số liệu sau đăng chưa sẵn sàng.")
+	}
+	if job.PostedAt != nil {
+		return nil, stepFail(nil, "Video này đã được đánh dấu đã đăng rồi.")
+	}
+	link := strings.TrimSpace(p.Link)
+	if link != "" {
+		if _, err = performance.ParseVideoURL(link); err != nil {
+			return nil, stepFail(err, "Đây không phải link video YouTube.")
+		}
+	}
+	step := Step{Title: "Đánh dấu đã đăng", Sub: jobSub(job), Agent: agentScout}
+	if link != "" {
+		step.Detail = "Video chuyển sang Đã đăng kèm link YouTube; Trinh sát đọc lượt xem sau 24 giờ, 7 ngày, 28 ngày."
+	} else {
+		step.Detail = "Video chuyển sang Đã đăng. Không có link thì Trinh sát tự khớp theo link kênh để đọc lượt xem sau 24 giờ, 7 ngày, 28 ngày."
+	}
+	return &prepared{step: step, run: func(ctx context.Context) (string, error) {
+		_, err := s.d.Posted.Post(ctx, p.JobID, link)
+		switch {
+		case err == nil:
+			return "Đã đánh dấu đã đăng.", nil
+		case errors.Is(err, performance.ErrBadURL):
+			return "", stepFail(err, "Đây không phải link video YouTube.")
+		case errors.Is(err, performance.ErrNotReady), errors.Is(err, performance.ErrNotFound):
+			return "", stepFail(err, "%s", err.Error())
+		default:
+			return "", stepFail(err, "%s", userMessage(err))
+		}
+	}}, nil
 }

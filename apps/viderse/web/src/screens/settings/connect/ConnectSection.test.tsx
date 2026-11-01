@@ -227,7 +227,7 @@ describe('Kết nối AI', () => {
     expect(dirtyBar()).toBeNull()
   })
   it('openai_compat hiện CẢ khoá + địa chỉ và gửi đủ hai trường', async () => {
-    const el = await render(<AddProviderBody onAdded={() => {}} connected={new Set()} />)
+    const el = await render(<AddProviderBody onAdded={() => {}} onReveal={() => {}} providers={[]} />)
     const tiles = [...el.querySelectorAll('.conn-tile')] as HTMLButtonElement[]
     await click(tiles.find((t) => t.textContent?.startsWith('Tương thích OpenAI')))
     const inputs = [...el.querySelectorAll('input')] as HTMLInputElement[]
@@ -239,11 +239,39 @@ describe('Kết nối AI', () => {
     expect(JSON.parse(post!.body!)).toEqual({ kind: 'openai_compat', apiKey: 'sk-compat', baseUrl: 'https://llm.example.com/v1' })
   })
 
-  it('tile của loại đã kết nối bị mờ, không chọn lại được', async () => {
-    const el = await render(<AddProviderBody onAdded={() => {}} connected={new Set(['gemini', 'ollama'])} />)
-    const gemini = [...el.querySelectorAll('.conn-tile')].find((t) => t.textContent?.startsWith('Gemini')) as HTMLButtonElement
-    expect(gemini.disabled).toBe(true)
-    expect(gemini.textContent).toContain('Đã kết nối')
+  it('chọn lại nguồn đã có: không tạo thẻ thứ hai, cuộn tới thẻ đó và mở Đổi khoá', async () => {
+    providerState = [chatgpt, grok, { ...openrouter }]
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    const el = await render()
+    await click(byText(el, 'button', 'Thêm nhà cung cấp'))
+    const tile = [...el.querySelectorAll('.conn-tile')].find((t) => t.textContent?.startsWith('OpenRouter')) as HTMLButtonElement
+    expect(tile.disabled).toBe(false)
+    expect(tile.textContent).toContain('Đã kết nối')
+    await click(tile)
+    expect(calls.some((c) => c.method === 'POST')).toBe(false)
+    expect(el.querySelector('.conn-add')).toBeNull()
+    await flush()
+    expect(scroll).toHaveBeenCalled()
+    expect(el.querySelector('[data-kind="openrouter"] .conn-edit input')).toBeTruthy()
+  })
+
+  it('Ollama và Tương thích OpenAI đã có thẻ vẫn chọn được để thêm địa chỉ khác', async () => {
+    const ollama: AiProvider = { ...openrouter, id: 'p-ol', kind: 'ollama', auth: 'local', label: 'Ollama' }
+    const reveal = vi.fn()
+    const el = await render(<AddProviderBody onAdded={() => {}} onReveal={reveal} providers={[ollama]} />)
+    const tile = [...el.querySelectorAll('.conn-tile')].find((t) => t.textContent?.startsWith('Ollama')) as HTMLButtonElement
+    await click(tile)
+    expect(reveal).not.toHaveBeenCalled()
+    expect(el.querySelector('input[type="password"]')).toBeNull()
+    expect(el.querySelectorAll('input').length).toBeGreaterThan(0)
+  })
+
+  it('thẻ lỗi nằm trên cùng dù được thêm sau; server trả cũ trước', async () => {
+    providerState = [chatgpt, grok, { ...openrouter, id: 'p-ok' }, { ...failedProvider, id: 'p-bad', kind: 'deepseek', label: 'DeepSeek' }]
+    const el = await render()
+    const kinds = [...el.querySelectorAll('.conn-card[data-kind]')].map((n) => n.getAttribute('data-kind'))
+    expect(kinds).toEqual(['deepseek', 'chatgpt', 'grok', 'openrouter'])
   })
 
   it('key sai (auth_failed) → thẻ cam với Đổi khoá · Thử lại · Thêm theo tên', async () => {

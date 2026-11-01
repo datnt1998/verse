@@ -21,6 +21,7 @@ import { navigate } from '../../../router'
 import { t } from '../../../i18n/vi'
 import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, catalogSource } from './ModelCatalog'
+import { orderProviders } from './order'
 import { ProviderCard, reasonOf } from './ProviderCard'
 import { YoutubeDataKeyCard } from './YoutubeDataKeyCard'
 
@@ -44,6 +45,8 @@ export function ConnectSection() {
    *  (artboard conn=added hiện thanh Huỷ/Lưu kể cả khi chưa tick model nào);
    *  Lưu = ghi nháp xuống, Huỷ = bỏ nháp về server. */
   const [unsavedNew, setUnsavedNew] = useState<Set<string>>(new Set())
+  /** Nguồn vừa được chọn lại ở panel Thêm: thẻ đó cuộn vào tầm nhìn và mở Đổi khoá. */
+  const [reveal, setReveal] = useState<{ id: string; nonce: number } | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [addSheet, setAddSheet] = useState(false)
   const [modelsSheet, setModelsSheet] = useState<AiProvider | null>(null)
@@ -93,6 +96,12 @@ export function ConnectSection() {
     setAddSheet(false)
   }
 
+  function onReveal(id: string) {
+    setReveal((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }))
+    setAddOpen(false)
+    setAddSheet(false)
+  }
+
   async function save() {
     if (saving || (!drafts && unsavedNewActive.size === 0)) return
     setSaving(true)
@@ -123,26 +132,9 @@ export function ConnectSection() {
     setUnsavedNew(new Set())
   }
 
-  // Thứ tự: provider mới thêm lên đầu (conn=added) → phần còn lại theo server.
-  const ordered = useMemo(() => {
-    if (!newlyAdded) return list
-    const idx = list.findIndex((p) => p.id === newlyAdded)
-    if (idx < 0) return list
-    return [list[idx], ...list.filter((p) => p.id !== newlyAdded)]
-  }, [list, newlyAdded])
-
-  // “Đã kết nối” chỉ khi có thẻ đang dùng được: thẻ lỗi/hết hạn vẫn cho
-  // dán khoá mới (artboard conn=add vẫn bật ô OpenRouter khi thẻ của nó lỗi).
-  const connected = useMemo(
-    () => new Set<string>(list.filter((p) => p.status !== 'auth_failed' && p.status !== 'unreachable').map((p) => p.kind)),
-    [list],
-  )
-  /** Loại đã có thẻ nên không chọn lại (ChatGPT/Grok có thẻ sẵn; khoá trùng kind). */
-  const takenKinds = useMemo(() => {
-    const kinds = new Set<string>(connected)
-    for (const k of ['chatgpt', 'grok']) kinds.add(k)
-    return kinds
-  }, [connected])
+  // Thẻ lỗi lên đầu, còn lại theo thứ tự thêm (cũ trước); thẻ vừa thêm đứng
+  // trên cùng tới khi rời trang (state này mất khi màn unmount).
+  const ordered = useMemo(() => orderProviders(list, newlyAdded), [list, newlyAdded])
 
   const sheetProvider = modelsSheet && (list.find((p) => p.id === modelsSheet.id) ?? modelsSheet)
   const sheetDraft = sheetProvider ? draftFor(sheetProvider) : []
@@ -172,6 +164,7 @@ export function ConnectSection() {
             draft={draftFor(p)}
             mobile
             isNew={p.id === newlyAdded}
+            revealKey={reveal?.id === p.id ? reveal.nonce : undefined}
             onToggleModel={toggleModel}
             onOpenModels={(prov) => setModelsSheet(prov)}
             onAssign={onAssign}
@@ -188,7 +181,7 @@ export function ConnectSection() {
         </button>
 
         <Sheet open={addSheet} onClose={() => setAddSheet(false)} title={c.addTitle} subtitle={c.addSubMobile} size="md" homeIndicator height="auto">
-          <AddProviderBody mobile onAdded={onAdded} onDone={() => setAddSheet(false)} connected={takenKinds} />
+          <AddProviderBody mobile onAdded={onAdded} onReveal={onReveal} onDone={() => setAddSheet(false)} providers={list} />
         </Sheet>
 
         <Sheet
@@ -235,6 +228,7 @@ export function ConnectSection() {
             provider={p}
             draft={draftFor(p)}
             isNew={p.id === newlyAdded}
+            revealKey={reveal?.id === p.id ? reveal.nonce : undefined}
             onToggleModel={toggleModel}
             onAssign={onAssign}
           />
@@ -245,7 +239,7 @@ export function ConnectSection() {
 
       {addOpen ? (
         <section className={`conn-card ${stylex.props(settingsStyles.card, settingsStyles.connCard).className}`}>
-          <AddProviderBody onAdded={onAdded} onDone={() => setAddOpen(false)} connected={takenKinds} />
+          <AddProviderBody onAdded={onAdded} onReveal={onReveal} onDone={() => setAddOpen(false)} providers={list} />
         </section>
       ) : (
         <button type="button" className={`conn-addbtn ${stylex.props(settingsStyles.connAddbtn).className}`} onClick={() => setAddOpen(true)}>

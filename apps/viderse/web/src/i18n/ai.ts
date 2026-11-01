@@ -52,7 +52,7 @@ export const aiCopy = {
     caps: { text: 'Chữ', vision: 'đọc ảnh', image: 'Vẽ ảnh' },
 
     // Dòng phụ (desktop).
-    /** `planPhrase`: “gói Plus” (ChatGPT) / “SuperGrok” (Grok) — artboard. */
+    /** `planPhrase`: “gói Plus” (ChatGPT); Grok không ghi gói — artboard. */
     subSignedIn: (models: number, checkedAt: string, planPhrase: string) =>
       `Đã đăng nhập${planPhrase ? ` · ${planPhrase}` : ''} · ${models} model đã chọn${checkedAt ? ` · kiểm tra lúc ${checkedAt}` : ''}`,
     subLoggedOut: (pkg: string) => `Chưa đăng nhập · cần gói ${pkg}`,
@@ -177,7 +177,7 @@ export const aiCopy = {
     modelsSubDefault: 'Model đã chọn hiện trong Trợ lý AI.',
     addSubMobile: 'Dán khoá API; Viderse gọi thử một lần để lấy danh mục model, không tốn tiền.',
     connected: 'Đã kết nối',
-    alreadyConnected: (name: string) => `${name} đã kết nối ở trên`,
+    alreadyConnected: (name: string) => `${name} đã kết nối · bấm để Đổi khoá`,
     keyLabelOf: (name: string) => `Khoá API ${name}`,
     addressLabelOf: (name: string) => `Địa chỉ ${name}`,
     addHint: 'Khoá chỉ lưu trên máy này và luôn hiện dạng che. Viderse gọi thử một lần để lấy danh mục model, không tốn tiền.',
@@ -261,7 +261,6 @@ export const aiCopy = {
     resetAt: (hm: string) => `đặt lại ${hm}`,
     resetWeekAt: (dow: number) => `đặt lại thứ ${['CN', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'][dow] ?? 'Hai'}`,
     usedPrice: (price: string) => `${price} mỗi ảnh`,
-    perVideo: (price: string) => `≈ ${price} mỗi video`,
     needLogin: (name: string) => `Cần đăng nhập ${name} ở Kết nối AI`,
     needLoginTip: (name: string) => `Đăng nhập ${name} ở Kết nối AI trước`,
     retryOther: 'Vẽ lại bằng nguồn khác khi lỗi',

@@ -38,7 +38,7 @@ export function ExportDialog({ visible = true, quality }: { visible?: boolean; q
     if (!quality || accepting) return
     setAccepting(true)
     setAcceptError(null)
-    quality.acceptQuality(true)
+    quality.exportAnyway()
       .catch((error: unknown) => setAcceptError(error instanceof Error ? error.message : String(error)))
       .finally(() => setAccepting(false))
   }

@@ -5,7 +5,7 @@ import { color, line, surface } from '@noverse/ui/tokens.stylex'
 import { space, corners } from '../../styles/viderse.stylex'
 
 const NARROW = '@media (max-width: 1380px)'
-const PHONE = '@media (max-width: 700px)'
+const PHONE = '@media (max-width: 767px)'
 const ROW_HOVER = 'rgba(255, 255, 255, 0.035)'
 const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
 export const videoStyles = stylex.create({

@@ -115,13 +115,15 @@ describe('Công cụ trên máy', () => {
     expect(el.querySelector('.vv-tools__row .vv-tools__prog')?.textContent).toContain('đang tải')
   })
 
-  it('pha chưa biết tổng (pct null) không vẽ thanh hay “0%”', async () => {
+  it('pha chưa biết tổng (pct null) vẽ thanh chạy vô định, không ghi “0%”', async () => {
     tools.tools[2] = row({ id: 'transcription', state: 'installing', hint: '', progress: { phase: 'downloading', phaseLabel: 'Đang tải mô hình nhận giọng nói', bytesDone: 0, bytesTotal: null, pct: null, startedAt: null } })
     const el = await render()
     const prog = el.querySelector('.vv-tools__row .vv-tools__prog')
     expect(prog?.textContent).toContain('Đang tải mô hình nhận giọng nói')
     expect(prog?.textContent).not.toContain('%')
-    expect(prog?.querySelector('[role="progressbar"]')).toBeNull()
+    const bar = prog?.querySelector('[role="progressbar"]')
+    expect(bar?.classList.contains('vv-progress--working')).toBe(true)
+    expect(bar?.hasAttribute('aria-valuenow')).toBe(false)
   })
 
   it('hàng chưa cài đứng sau lượt đang cài hiện “Chờ” và không có nút', async () => {

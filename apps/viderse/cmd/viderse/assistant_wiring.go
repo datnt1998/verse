@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/assistant"
 	"github.com/datnt1998/verse/apps/viderse/internal/channels"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain/quality"
 	"github.com/datnt1998/verse/apps/viderse/internal/learn"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
+	"github.com/datnt1998/verse/apps/viderse/internal/render"
 	"github.com/datnt1998/verse/apps/viderse/internal/rivals"
 	"github.com/datnt1998/verse/apps/viderse/internal/web"
 	"github.com/datnt1998/verse/core/llmretry"
@@ -29,6 +34,8 @@ type assistantSeams struct {
 	Metadata   assistant.Metadata
 	Queue      assistant.Queue
 	Autonomy   assistant.Autonomy
+	Quality    assistant.Quality
+	Posted     assistant.Posted
 	ImagesLeft func(context.Context) (int, error)
 	// Learn là Quy tắc đã học + Đề xuất (learn_wiring.go); serve.go dựng trước.
 	Learn *learnRuntime
@@ -87,9 +94,76 @@ func mountAssistant(g *web.Gateway, pool *pgxpool.Pool, ai *aiWiring, channelSvc
 		Autonomy:   s.Autonomy,
 		Rules:      assistantRules{svc: &learn.Service{Store: postgres.NewLearnStore(pool)}},
 		Tasks:      activities,
-		ImagesLeft: s.ImagesLeft,
-		Diag:       func(err error) { fmt.Fprintln(os.Stderr, "Trợ lý:", err) },
+		DrawSources: drawSource{ai: ai},
+		Quality:     s.Quality,
+		Posted:      s.Posted,
+		ImagesLeft:  s.ImagesLeft,
+		Diag:        func(err error) { fmt.Fprintln(os.Stderr, "Trợ lý:", err) },
 	})
 	web.MountAssistant(g, svc)
 	return svc.Close
+}
+
+// drawSource tìm nguồn vẽ ảnh ĐÃ KẾT NỐI theo tên người dùng nói (/provider):
+// thẻ nhà cung cấp đúng loại, có model ảnh đã chọn và có đường vẽ thật. Không
+// thay bằng nguồn khác khi thiếu — trợ lý báo chỗ cần sửa.
+type drawSource struct{ ai *aiWiring }
+
+func (d drawSource) Ref(ctx context.Context, source string) (domain.ModelRef, bool, error) {
+	kind := domain.ProviderKind(strings.ToLower(strings.TrimSpace(source)))
+	switch kind {
+	case domain.KindChatGPT, domain.KindGrok, domain.KindGemini:
+	default:
+		return domain.ModelRef{}, false, nil
+	}
+	providers, err := d.ai.Service.Providers(ctx)
+	if err != nil {
+		return domain.ModelRef{}, false, err
+	}
+	for _, p := range providers {
+		if p.Kind != kind {
+			continue
+		}
+		// Thẻ đăng nhập gói phải đang sẵn sàng; thẻ khoá API tự kiểm ở CanDraw.
+		if p.Auth == domain.AuthSubscription && p.Status != domain.StatusReady {
+			continue
+		}
+		models, err := d.ai.Service.Models(ctx, p.ID, "", "selected", "", 100)
+		if err != nil {
+			return domain.ModelRef{}, false, err
+		}
+		for _, m := range models.Models {
+			if !hasCapability(m, domain.CapImage) {
+				continue
+			}
+			ref := domain.ModelRef{Provider: p.ID, Model: m.ID}
+			if !d.ai.Executors.CanDraw(ctx, ref) {
+				continue
+			}
+			return ref, true, nil
+		}
+	}
+	return domain.ModelRef{}, false, nil
+}
+
+// qualityGate dùng ĐÚNG cổng và đường xuất của nút “Vẫn xuất” ở Bàn dựng
+// (POST /api/clone/:id/export {accept:true}).
+type qualityGate struct{ svc *render.Service }
+
+func (q qualityGate) Gate(ctx context.Context, jobID string) (quality.GateDecision, error) {
+	return q.svc.Gate(ctx, jobID)
+}
+
+func (q qualityGate) ExportAnyway(ctx context.Context, jobID string) error {
+	_, err := q.svc.BeginCloneExport(ctx, jobID, true)
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, pipeline.ErrNotFound):
+		return &domain.CloneError{Code: domain.CloneErrNotFound, Message: "Không tìm thấy video này."}
+	case errors.Is(err, pipeline.ErrConflict):
+		return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đang bận. Chờ một lát rồi thử lại."}
+	default:
+		return err
+	}
 }

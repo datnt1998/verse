@@ -204,6 +204,10 @@ type OverridePlan struct {
 	} `json:"cost"`
 	QuotaLeft int  `json:"quotaLeft"`
 	Rebuild   bool `json:"rebuild"`
+	// Enables: video bật lại ảnh cảnh; Redraw.Scenes là số ảnh cảnh sẽ vẽ mới.
+	Enables bool `json:"enablesImages"`
+	// rescan: cảnh đã cắt khi tắt ảnh (một đoạn), phải cắt lại cho bộ ảnh mới.
+	rescan bool
 }
 
 type loaded struct {

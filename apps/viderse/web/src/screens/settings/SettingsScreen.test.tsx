@@ -98,12 +98,12 @@ describe('khung Cài đặt', () => {
     expect(route).toEqual({ name: 'settings', section: 'agents' })
   })
 
-  it('chấm cam xuất hiện trên mục có attention trỏ tới', async () => {
+  it('chấm xuất hiện trên mục có attention trỏ tới, tông theo loại (tool_update → xanh)', async () => {
     const el = await render()
     const toolsNav = el.querySelector('.vv-set__nav-it[aria-current="true"]')
     const dot = toolsNav?.querySelector('.vv-dot')
     expect(dot).toBeTruthy()
-    for (const atom of stylex.props(styles.dotWarn).className!.split(' ')) expect(dot?.classList.contains(atom)).toBe(true)
+    for (const atom of stylex.props(styles.dotInfo).className!.split(' ')) expect(dot?.classList.contains(atom)).toBe(true)
   })
 
   it('mỗi mục sidebar luôn giữ span số ở cuối (kể cả rỗng) để chấm không trôi sát mép', async () => {

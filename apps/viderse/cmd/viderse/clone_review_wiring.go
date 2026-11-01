@@ -45,6 +45,37 @@ func cloneReadImageManifest(edits *jobedit.Service) func(context.Context, domain
 		return &manifest, nil
 	}
 }
+
+// withVideoDrawSource đặt nguồn vẽ riêng của video (lệnh /provider) lên đầu
+// chuỗi vẽ; chuỗi chung ở Cài đặt vẫn đứng sau làm dự phòng. Override nằm trong
+// manifest của chính video đó nên ảnh của video khác không đổi.
+func withVideoDrawSource(ctx context.Context, edits *jobedit.Service, job domain.CloneJob, chain []domain.ModelRef) []domain.ModelRef {
+	snapshot, err := edits.Read(ctx, job.ID, domain.CloneImages)
+	if err != nil {
+		return chain
+	}
+	raw := snapshot.Manifest
+	if len(raw) == 0 {
+		raw = snapshot.Step.Checkpoint
+	}
+	if len(raw) == 0 {
+		return chain
+	}
+	var manifest images.Manifest
+	if json.Unmarshal(raw, &manifest) != nil || manifest.Overrides == nil || manifest.Overrides.DrawProvider == "" {
+		return chain
+	}
+	override := domain.ModelRef{Provider: manifest.Overrides.DrawProvider, Model: manifest.Overrides.DrawModel}
+	out := []domain.ModelRef{override}
+	for _, ref := range chain {
+		if ref.Provider == override.Provider && ref.Model == override.Model {
+			continue
+		}
+		out = append(out, ref)
+	}
+	return out
+}
+
 func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service, seams *assistantSeams) func(context.Context) error {
 	images := &cloneimages.Service{Edits: edits, Prompts: librarySvc, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, QuotaLeft: func(ctx context.Context) (int, error) {
 		artist, err := ai.Service.ResolveArtist(ctx)

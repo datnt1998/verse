@@ -8,6 +8,7 @@ import (
 	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/domain/quality"
 	"github.com/datnt1998/verse/apps/viderse/internal/rivals"
 	"github.com/datnt1998/verse/core/llmretry"
 )
@@ -31,6 +32,8 @@ type Images interface {
 	RedrawAll(ctx context.Context, id string, in cloneimages.ResetInput) (cloneimages.GenerateResult, error)
 	PlanOverrides(ctx context.Context, id string, in cloneimages.OverrideInput) (cloneimages.OverridePlan, error)
 	ApplyOverrides(ctx context.Context, id string, in cloneimages.OverrideInput) (cloneimages.OverridePlan, error)
+	// SetDrawSource đặt nguồn vẽ ảnh riêng của video (lệnh /provider).
+	SetDrawSource(ctx context.Context, id, provider, model string) error
 }
 
 // Backdrops là service nền của video (Đổi nền khác).
@@ -83,6 +86,27 @@ type Tasks interface {
 	Finish(ctx context.Context, id string) error
 }
 
+// DrawSources biết nguồn vẽ ảnh đã kết nối (Cài đặt › Kết nối AI) để đặt nguồn
+// riêng cho một video. ok=false khi nguồn đó chưa kết nối hoặc chưa chọn model
+// vẽ ảnh — trợ lý báo đúng chỗ cần sửa, không tự đổi nguồn khác.
+type DrawSources interface {
+	Ref(ctx context.Context, source string) (ref domain.ModelRef, ok bool, err error)
+}
+
+// Quality là cổng Độ hoàn thiện của video (đồng hồ Kiểm định và nút “Vẫn xuất”
+// ở Bàn dựng). ExportAnyway đi đúng đường POST /api/clone/:id/export
+// {accept:true}: mở cổng rồi xếp việc xuất.
+type Quality interface {
+	Gate(ctx context.Context, jobID string) (quality.GateDecision, error)
+	ExportAnyway(ctx context.Context, jobID string) error
+}
+
+// Posted đánh dấu video đã đăng lên YouTube (cùng đường với hộp “Đánh dấu đã
+// đăng” của Bàn dựng và Kênh › Video).
+type Posted interface {
+	Post(ctx context.Context, jobID, youtubeURL string) (string, error)
+}
+
 // Deps là mọi thứ Service cần. Director trả model Đạo diễn hiện tại (hoặc lỗi
 // khi chưa đăng nhập) — mỗi lần gọi đọc lại, không giữ client cũ.
 type Deps struct {
@@ -97,6 +121,11 @@ type Deps struct {
 	Autonomy  Autonomy
 	Rules     Rules
 	Tasks     Tasks
+	// DrawSources / Quality / Posted là mặt của nguồn vẽ ảnh, cổng Độ hoàn
+	// thiện và số liệu sau đăng cho ba lệnh /provider, /export-anyway, /posted.
+	DrawSources DrawSources
+	Quality     Quality
+	Posted      Posted
 	// ImagesLeft trả số ảnh còn lại hôm nay; nil hoặc lỗi = không báo.
 	ImagesLeft func(ctx context.Context) (int, error)
 	// Diag nhận lỗi nội bộ không hiện cho người dùng.

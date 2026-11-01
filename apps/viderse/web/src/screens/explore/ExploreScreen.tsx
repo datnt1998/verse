@@ -34,6 +34,7 @@ import { ScanCard } from './ScanCard'
 import { PostingCard } from './PostingCard'
 import { PreviewPanel } from './PreviewPanel'
 import { useRivalVideos, type VideosFilter } from './useRivalVideos'
+import { GRID_MAX_W } from './media'
 import { GRID_GAP_Y, useVirtualGrid } from '../../lib/useVirtualGrid'
 
 type Scope = 'all' | string
@@ -141,7 +142,7 @@ export function ExploreScreen({ route }: { route: Route }) {
   const exitSelect = useCallback(() => { setSelectMode(false); setCheckedIds(new Set()) }, [])
 
   // Lưới ảo hoá gắn vào chính cột giữa (nó là vùng cuộn).
-  const grid = useVirtualGrid({ count: items.length })
+  const grid = useVirtualGrid({ count: items.length, maxWidth: GRID_MAX_W })
 
   // Nạp trang tiếp khi cửa sổ render gần hết dữ liệu đã tải.
   useEffect(() => {
@@ -235,7 +236,7 @@ export function ExploreScreen({ route }: { route: Route }) {
         onPick={pickRival}
         onAdded={(rival) => pickRival(rival.id)}
       />
-      <main className={`vx-center ${stylex.props(exploreStyles.center).className}`} ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
+      <main className={`vx-center vv-wide vv-wide--grid ${stylex.props(exploreStyles.center).className}`} ref={grid.ref} onScroll={grid.onScroll} aria-label={tt.title}>
         <div className={`vx-head ${stylex.props(exploreStyles.head).className}`}>
           <h1 className={`vx-title ${stylex.props(exploreStyles.title).className}`}>{tt.outlierTitle}</h1>
           <span className={`vx-sub ${stylex.props(exploreStyles.sub).className}`}>{tt.outlierHint}</span>

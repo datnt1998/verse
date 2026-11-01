@@ -86,6 +86,11 @@ type Overrides struct {
 	CoverPromptID  string `json:"coverPromptId,omitempty"`
 	CoverPromptSet bool   `json:"coverPromptSet,omitempty"`
 	NoImages       *bool  `json:"noImages,omitempty"`
+	// DrawProvider/DrawModel là nguồn vẽ ảnh RIÊNG của video (lệnh /provider):
+	// provider id + model đã kết nối ở Cài đặt › Kết nối AI. Rỗng = dùng nguồn
+	// chung của Hoạ sĩ; có thì nguồn này vẽ trước, chuỗi chung vẫn đứng sau.
+	DrawProvider string `json:"drawProvider,omitempty"`
+	DrawModel    string `json:"drawModel,omitempty"`
 }
 type Manifest struct {
 	Version         int                `json:"version"`

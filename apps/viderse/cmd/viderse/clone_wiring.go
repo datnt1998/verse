@@ -261,6 +261,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			if refs.Artist.FallbackOn {
 				chain = append(chain, refs.Artist.DrawFallback...)
 			}
+			chain = withVideoDrawSource(ctx, edits, s.Job, chain)
 			providers, _ := ai.Executors.imageProviders(ctx, chain)
 			limit := ai.Executors.limit
 			fallback := refs.Artist.FallbackOn
@@ -374,11 +375,13 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	web.MountClone(g, service, q, service.Media)
 	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner, Learner: metadataLearner{rt: seams.Learn}}
 	seams.Jobs, seams.Queue, seams.Autonomy = service, q, autonomySvc
+	seams.Quality = qualityGate{svc: renderRuntime}
 	seams.Learn.Queue = q
 	seams.Learn.BindAutonomy(autonomySvc)
 	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, seams)
 	workerCtx, stop := context.WithCancel(ctx)
 	performanceSvc, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
+	seams.Posted = performanceSvc
 	seams.Learn.BindPerformance(performanceSvc)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()

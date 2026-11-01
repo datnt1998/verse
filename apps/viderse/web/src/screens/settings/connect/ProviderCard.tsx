@@ -90,9 +90,10 @@ export function subLine(provider: AiProvider, models: number): { text: string; t
       return { text: c.subPending(c.pendingWhere[provider.kind as 'chatgpt' | 'grok'] ?? ''), tone: 'warn' }
     }
     // Artboard: dòng phụ ChatGPT xanh, Grok để mực phụ thường (hạn mức đã
-    // mang trọng lượng); hai thẻ cùng “Đã đăng nhập” nhưng khác tông.
-    const named = planLabel(provider.plan)
-    const phrase = !named ? '' : provider.kind === 'grok' ? 'SuperGrok' : `gói ${named}`
+    // mang trọng lượng); hai thẻ cùng “Đã đăng nhập” nhưng khác tông. Grok
+    // không ghi gói: xAI không trả tên gói (hỏi đáp #26).
+    const named = provider.kind === 'grok' ? '' : planLabel(provider.plan)
+    const phrase = named ? `gói ${named}` : ''
     return { text: c.subSignedIn(models, fmtTime(provider.catalogAt), phrase), tone: provider.kind === 'grok' ? '' : 'ok' }
   }
   if (provider.auth === 'local') {
@@ -292,17 +293,20 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
   )
 }
 
-export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleModel, onOpenModels, onAssign }: {
+export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey, onToggleModel, onOpenModels, onAssign }: {
   provider: AiProvider
   draft: AiModel[]
   /** Điện thoại: danh mục model mở bằng sheet (MSettings), không inline. */
   mobile?: boolean
   /** Vừa thêm → ghi chú chọn model + catalog mở sẵn, lọc Gợi ý (conn=added). */
   isNew?: boolean
+  /** Đổi giá trị (đếm lên) mỗi lần người dùng chọn lại nguồn này ở panel Thêm. */
+  revealKey?: number
   onToggleModel: (provider: AiProvider, id: string, on: boolean, meta?: AiModel) => void
   onOpenModels?: (provider: AiProvider) => void
   onAssign?: () => void
 }) {
+  const cardRef = useRef<HTMLElement | null>(null)
   const [open, setOpen] = useState(Boolean(isNew))
   const [edit, setEdit] = useState<null | 'key' | 'url'>(null)
   const [editValue, setEditValue] = useState('')
@@ -314,6 +318,13 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
   const authWindow = useRef<Window | null>(null)
 
   useEffect(() => { if (isNew) setOpen(true) }, [isNew])
+  // Chọn lại nguồn đã có ở panel Thêm: cuộn tới thẻ và mở sẵn Đổi khoá (hỏi đáp #27).
+  useEffect(() => {
+    if (!revealKey || provider.auth !== 'api_key') return
+    setEdit('key')
+    setEditValue('')
+    cardRef.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
+  }, [revealKey, provider.auth])
 
   const subscription = provider.auth === 'subscription'
   const loginKind = provider.kind === 'grok' ? 'grok' : 'chatgpt'
@@ -427,6 +438,7 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, onToggleM
 
   return (
     <section
+      ref={cardRef}
       data-kind={provider.kind}
       className={`conn-card ${stylex.props(settingsStyles.card, settingsStyles.connCard, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (isNew)) && (!(pendingLogin)))) || (((failed) && (!(isNew))) && (pendingLogin))) || (((failed) && (!(isNew))) && (!(pendingLogin)))) && settingsStyles.connCardFail, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (isNew)) && (!(pendingLogin)))) || (((!(failed)) && (isNew)) && (pendingLogin))) || (((!(failed)) && (isNew)) && (!(pendingLogin)))) && settingsStyles.connCardNew, ((((((failed) && (isNew)) && (pendingLogin)) || (((failed) && (!(isNew))) && (pendingLogin))) || (((!(failed)) && (isNew)) && (pendingLogin))) || (((!(failed)) && (!(isNew))) && (pendingLogin))) && settingsStyles.connCardPending).className}`}
       aria-label={provider.label}
@@ -566,7 +578,7 @@ function mobileSub(provider: AiProvider, caps: string[], models: number): string
   if (provider.status === 'auth_failed' || provider.status === 'unreachable') return subLine(provider, models).text
   if (provider.status === 'logged_out') return `Chưa đăng nhập · ${phrase}`
   if (provider.auth === 'subscription') {
-    const plan = planLabel(provider.plan)
+    const plan = provider.kind === 'grok' ? '' : planLabel(provider.plan)
     return `${plan ? `Gói ${plan}` : 'Đã đăng nhập'} · ${phrase} · ${models} model`
   }
   if (provider.auth === 'local') return `${hostOf(provider.baseUrl)} · ${phrase} · miễn phí`

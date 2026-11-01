@@ -120,7 +120,7 @@ export function CloneQualityMeter({ quality, roomy = false, measureBlockedReason
                   if (accepting) return;
                   setAccepting(true);
                   setAcceptError(null);
-                  quality.acceptQuality(!quality.accepted)
+                  (quality.accepted ? quality.setAccepted(false) : quality.exportAnyway())
                     .catch((error: unknown) => setAcceptError(error instanceof Error ? error.message : String(error)))
                     .finally(() => setAccepting(false));
                 }}

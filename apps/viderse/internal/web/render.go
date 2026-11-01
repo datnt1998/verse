@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
+	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/render"
 	"github.com/datnt1998/verse/platform/webapp"
 )
@@ -503,7 +504,7 @@ func (h renderHTTP) cloneRoute(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	jobID, action := parts[0], parts[1]
-	if action != "measure" && action != "export" && action != "measurements" && action != "exports" {
+	if action != "measure" && action != "export" && action != "measurements" && action != "exports" && action != "quality" {
 		return false
 	}
 	if !cloneSegment(jobID) {
@@ -518,6 +519,33 @@ func (h renderHTTP) cloneRoute(w http.ResponseWriter, r *http.Request) bool {
 func (h renderHTTP) clone(w http.ResponseWriter, r *http.Request, jobID, action string, parts []string) bool {
 	ctx := r.Context()
 	s := h.service
+	if action == "quality" && len(parts) == 2 && r.Method == http.MethodPost {
+		body, err := editorBody(w, r)
+		if err != nil {
+			renderHTTPError(w, err)
+			return true
+		}
+		accept, ok := body["accept"].(bool)
+		if !ok {
+			webapp.Error(w, 400, "accept phải là boolean")
+			return true
+		}
+		job, e := s.Jobs.GetJob(ctx, jobID)
+		if e != nil && !errors.Is(e, pipeline.ErrNotFound) {
+			renderHTTPError(w, e)
+			return true
+		}
+		if job == nil {
+			WriteCloneError(w, &domain.CloneError{Code: domain.CloneErrNotFound, Message: "Không tìm thấy video này."})
+			return true
+		}
+		if e = s.Accept(jobID, accept); e != nil {
+			renderHTTPError(w, e)
+			return true
+		}
+		webapp.WriteJSON(w, 200, editor.Object{"accepted": accept})
+		return true
+	}
 	if (action == "measure" || action == "export") && len(parts) == 2 && r.Method == http.MethodPost {
 		body, err := editorBody(w, r)
 		if err != nil {

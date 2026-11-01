@@ -11,9 +11,10 @@ import { useParams, useRouter } from "../../bridge/navigation";
 import type { CloneFixTarget, CloneScore } from "@/lib/clone-quality";
 import { cloneEditorExportGate } from "./quality-gate";
 import {
-  acceptCloneQuality,
+  acceptCloneExport,
   fetchMeasurementRuntime,
   fetchMeasurementState,
+  setCloneQualityAcceptance,
   type CloneProjectInfo,
   type PublicMeasurementRequest,
 } from "./measurement-runtime";
@@ -41,8 +42,10 @@ export interface CloneQualityActions {
   refresh: () => Promise<void>;
   /** Reveal a failing item in the editor (timeline item, frame, or route). */
   openFix: (target: CloneFixTarget) => void;
-  /** The owner's call: export despite the checklist (`false` puts the checklist back in charge). */
-  acceptQuality: (accept: boolean) => Promise<void>;
+  /** The owner's call: "Vẫn xuất" — accept the gate and queue the clone export. */
+  exportAnyway: () => Promise<void>;
+  /** Put the checklist back in charge after "Vẫn xuất". */
+  setAccepted: (accept: boolean) => Promise<void>;
   canExport: boolean;
   gateReason: string | null;
   gateBlockers: { id: string; message: string }[];
@@ -149,10 +152,19 @@ export function useCloneQuality(session: { save: () => Promise<boolean>; dirty: 
     [router],
   );
 
-  const acceptQuality = useCallback(
+  const exportAnyway = useCallback(
+    async () => {
+      if (!state.clone) return;
+      await acceptCloneExport(state.clone.jobId);
+      await refresh();
+    },
+    [state.clone, refresh],
+  );
+
+  const setAccepted = useCallback(
     async (accept: boolean) => {
       if (!state.clone) return;
-      await acceptCloneQuality(state.clone.jobId, accept);
+      await setCloneQualityAcceptance(state.clone.jobId, accept);
       await refresh();
     },
     [state.clone, refresh],
@@ -163,7 +175,8 @@ export function useCloneQuality(session: { save: () => Promise<boolean>; dirty: 
     measure,
     refresh,
     openFix,
-    acceptQuality,
+    exportAnyway,
+    setAccepted,
     ...cloneEditorExportGate({ score: state.score, gate, dirty, conflict, saving: session.saving }),
     gateBlockers: gate.blockers,
     accepted: gate.accepted,

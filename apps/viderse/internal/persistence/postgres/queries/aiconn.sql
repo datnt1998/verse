@@ -1,11 +1,11 @@
 -- Kết nối AI: nhà cung cấp và danh mục model (§15).
 
 -- name: ListAiProviders :many
--- Thẻ mới thêm gần nhất đứng đầu danh sách (giống "thẻ mới lên đầu" của W13).
+-- Thứ tự thêm: thẻ cũ nhất đứng đầu (hỏi đáp #27); web đưa thẻ lỗi lên trước.
 -- Kèm số model trong CÙNG truy vấn: GET không được N+1 theo provider.
 SELECT p.*, (SELECT count(*) FROM ai_models m WHERE m.provider_id = p.id)::int AS model_count
 FROM ai_providers p
-ORDER BY p.created_at DESC, p.id;
+ORDER BY p.created_at, p.id;
 
 -- name: ListAiSubscribed :many
 -- Chỉ thẻ đăng nhập gói (chatgpt/grok) + số model — đường đọc attention.

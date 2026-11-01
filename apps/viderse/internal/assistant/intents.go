@@ -27,6 +27,9 @@ const (
 	SetAutonomy    IntentID = "set_autonomy"
 	AddRule        IntentID = "add_rule"
 	MakeVideos     IntentID = "make_videos"
+	SetDrawSource  IntentID = "set_draw_source"
+	ExportAnyway   IntentID = "export_anyway"
+	MarkPosted     IntentID = "mark_posted"
 )
 
 type level int
@@ -60,6 +63,9 @@ const (
 //	prioritize      Queue.Patch action front (Hàng chờ › Lên đầu)
 //	set_autonomy    Autonomy.ApplyPreset     (Kênh › Mức tự chủ)
 //	add_rule        Rules.AddRule            (Kênh › Quy tắc đã học)
+//	set_draw_source Images.SetDrawSource     (/provider: nguồn vẽ riêng của video)
+//	export_anyway   Quality.ExportAnyway     (Kiểm định › “Vẫn xuất” ở Bàn dựng)
+//	mark_posted     Posted.Post              (⋯ Đánh dấu đã đăng)
 type intentSpec struct {
 	id    IntentID
 	level level
@@ -82,6 +88,9 @@ var registry = []intentSpec{
 	{SetAutonomy, channelLevel, agentQA},
 	{AddRule, channelLevel, agentDirector},
 	{MakeVideos, channelLevel, agentScout},
+	{SetDrawSource, jobLevel, agentArtist},
+	{ExportAnyway, jobLevel, agentQA},
+	{MarkPosted, jobLevel, agentScout},
 }
 
 func specOf(id IntentID) (intentSpec, bool) {
@@ -152,6 +161,14 @@ type (
 	ruleParams struct {
 		ChannelID string `json:"channelId"`
 		Text      string `json:"text"`
+	}
+	drawSourceParams struct {
+		JobID  string `json:"jobId"`
+		Source string `json:"source"`
+	}
+	postedParams struct {
+		JobID string `json:"jobId"`
+		Link  string `json:"link,omitempty"`
 	}
 )
 

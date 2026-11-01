@@ -140,9 +140,6 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if err = sceneDoc.Validate(); err != nil {
 		return pipeline.StepResult{}, err
 	}
-	if err = validateBuildRecipe(s, sceneDoc); err != nil {
-		return pipeline.StepResult{}, err
-	}
 	if sceneDoc.Source.Path != "download/source.mp4" || sceneDoc.Source.SHA256 != sourceHash {
 		return pipeline.StepResult{}, steps.CloneError(domain.CloneErrStale, "Cảnh không thuộc video nguồn hiện tại", "Phân tích lại cảnh")
 	}
@@ -153,6 +150,13 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	defer imageFile.Release()
 	imageDoc, err := steps.DecodeJSONFile[images.Manifest](imageFile.Path, "Invalid image manifest")
 	if err != nil {
+		return pipeline.StepResult{}, err
+	}
+	var imageOverride *bool
+	if imageDoc.Overrides != nil {
+		imageOverride = imageDoc.Overrides.NoImages
+	}
+	if err = validateBuildRecipe(s, sceneDoc, imageOverride); err != nil {
 		return pipeline.StepResult{}, err
 	}
 	videoNoImages := sceneDoc.Recipe.ImagesMode == "none"

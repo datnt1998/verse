@@ -78,6 +78,7 @@ const (
 	ReasonNotSubscription   = "not_subscription"
 	ReasonInvalidMode       = "invalid_mode"
 	ReasonInvalidCode       = "invalid_code"
+	ReasonDuplicate         = "duplicate" // thẻ cùng loại (hoặc cùng địa chỉ với Ollama/Tương thích OpenAI) đã có
 )
 
 // Provider là một dòng ai_providers — khoá API đã được mã hoá (EncKey), chỉ

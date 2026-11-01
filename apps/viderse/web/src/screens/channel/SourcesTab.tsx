@@ -316,7 +316,7 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
     if (!trigger) return
     const measure = () => {
       const rect = trigger.getBoundingClientRect()
-      const nav = window.matchMedia('(max-width: 700px)').matches ? 64 : 0
+      const nav = window.matchMedia('(max-width: 767px)').matches ? 64 : 0
       const below = window.innerHeight - rect.bottom - nav - 16
       const above = rect.top - 16
       const up = below < 320 && above > below

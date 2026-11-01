@@ -527,6 +527,93 @@ func TestCreateProviderUnreachableLocal(t *testing.T) {
 	}
 }
 
+// ── thẻ trùng loại (hỏi đáp #27) ───────────────────────────────────────────
+
+func wantDuplicate(t *testing.T, err error, existingID string) *aiconn.Error {
+	t.Helper()
+	ae, ok := aiconn.AsAPIError(err)
+	if !ok || ae.Status != http.StatusConflict || ae.Reason != domain.ReasonDuplicate {
+		t.Fatalf("được %v, muốn 409 %s", err, domain.ReasonDuplicate)
+	}
+	if ae.Fields["id"] != existingID {
+		t.Fatalf("fields = %+v, muốn id thẻ đã có %s", ae.Fields, existingID)
+	}
+	return ae
+}
+
+// Mỗi loại chỉ có một thẻ — kể cả khi thẻ cũ đang lỗi (đi qua Đổi khoá).
+func TestCreateProviderRejectsSecondCardOfSameKind(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	first, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAI, APIKey: "sk-one"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAI, APIKey: "sk-two"})
+	ae := wantDuplicate(t, err, first.ID)
+	if !strings.Contains(ae.Message, "Đổi khoá") {
+		t.Fatalf("câu báo không chỉ tới Đổi khoá: %q", ae.Message)
+	}
+	failed := f.store.providers[first.ID]
+	failed.Status = domain.StatusAuthFailed
+	f.store.providers[first.ID] = failed
+	_, err = f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAI, APIKey: "sk-three"})
+	wantDuplicate(t, err, first.ID)
+	if len(f.store.providers) != 1 {
+		t.Fatalf("thẻ trùng vẫn được lưu: %d thẻ", len(f.store.providers))
+	}
+	// Loại khác vẫn thêm được.
+	if _, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindDeepSeek, APIKey: "sk-ds"}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Ollama và Tương thích OpenAI được nhiều thẻ khi khác địa chỉ.
+func TestCreateProviderCustomAddressKindsAllowDifferentAddressOnly(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	local, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOllama})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOllama, BaseURL: "http://192.168.1.20:11434"}); err != nil {
+		t.Fatalf("Ollama khác địa chỉ phải được thêm: %v", err)
+	}
+	_, err = f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOllama})
+	wantDuplicate(t, err, local.ID)
+
+	compat, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAICompat, APIKey: "k1", BaseURL: "https://llm.example.com/v1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAICompat, APIKey: "k2", BaseURL: "https://other.example.com/v1"}); err != nil {
+		t.Fatalf("Tương thích OpenAI khác địa chỉ phải được thêm: %v", err)
+	}
+	_, err = f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOpenAICompat, APIKey: "k3", BaseURL: "https://LLM.example.com/v1/"})
+	wantDuplicate(t, err, compat.ID)
+}
+
+// Đổi địa chỉ một thẻ sang địa chỉ của thẻ cùng loại khác cũng là trùng.
+func TestPatchProviderRejectsAddressOfAnotherCard(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	a, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOllama})
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := f.svc.CreateProvider(ctx, aiconn.CreateProviderInput{Kind: domain.KindOllama, BaseURL: "http://192.168.1.20:11434"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	same := "http://127.0.0.1:11434"
+	_, err = f.svc.PatchProvider(ctx, b.ID, aiconn.PatchProviderInput{BaseURL: &same})
+	wantDuplicate(t, err, a.ID)
+	own := "http://192.168.1.20:11434/"
+	if _, err := f.svc.PatchProvider(ctx, b.ID, aiconn.PatchProviderInput{BaseURL: &own}); err != nil {
+		t.Fatalf("giữ nguyên địa chỉ của chính thẻ không phải trùng: %v", err)
+	}
+}
+
 func TestModelsFilters(t *testing.T) {
 	p := domain.Provider{ID: "p1", Kind: domain.KindOpenAI, Auth: domain.AuthAPIKey,
 		Label: "OpenAI", Status: domain.StatusReady, Selected: []string{"alpha"}}

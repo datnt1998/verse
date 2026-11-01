@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
@@ -40,6 +41,9 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	if plan.Cost.Images > 0 && (input.ConfirmCount == nil || *input.ConfirmCount != plan.Cost.Images) {
 		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Số ảnh xác nhận không khớp kế hoạch vẽ lại")
 	}
+	if running && plan.rescan {
+		return OverridePlan{}, cloneError(domain.CloneErrConflict, "Video đang vẽ ảnh bìa. Chờ xong rồi bật lại ảnh cảnh")
+	}
 	if running {
 		// The worker owns every item and any paid flight. Persist the prompt
 		// and redraw selection without replacing its live item snapshots.
@@ -59,7 +63,9 @@ func (s *Service) ApplyOverrides(ctx context.Context, id string, input OverrideI
 	}
 	from := domain.CloneStep("")
 	rerun := len(next.QueueOnly) > 0
-	if rerun {
+	if plan.rescan {
+		from, rerun = domain.CloneScenes, true
+	} else if rerun {
 		from = domain.CloneImages
 	} else if plan.Rebuild {
 		from = domain.CloneBuild
@@ -167,6 +173,10 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		return model.Manifest{}, plan, err
 	}
 	// Turning scenes back on uses current scene identities, never a synthetic id.
+	// Cuts made while images were off hold a single span: those videos are cut
+	// again for the enabled recipe (template pacing, or 6 images for a
+	// “Không vẽ ảnh” template) and the images step reconciles with the new cuts.
+	rescan, rescanScenes := false, 0
 	if modeChanged && !none {
 		snapshot, err := s.Edits.Read(ctx, l.snapshot.Job.ID, domain.CloneScenes)
 		if err != nil {
@@ -180,12 +190,17 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		if err = json.Unmarshal(raw, &doc); err != nil {
 			return model.Manifest{}, plan, err
 		}
-		doc.Recipe.ImagesMode = "auto"
-		fresh := model.CreateManifest(doc, scenes.FileRef{}, l.snapshot.Job.Source.Title)
 		sceneItems := []model.Item{}
-		for _, i := range fresh.Items {
-			if i.Kind == "scene" {
-				sceneItems = append(sceneItems, i)
+		if doc.Recipe.ImagesMode == library.ImagesNone {
+			rescan, rescanScenes = true, library.ImageCountFor(library.EnabledImages(template.Images), doc.DurationSec)
+			next.SceneRevision = -1
+		} else {
+			doc.Recipe.ImagesMode = "auto"
+			fresh := model.CreateManifest(doc, scenes.FileRef{}, l.snapshot.Job.Source.Title)
+			for _, i := range fresh.Items {
+				if i.Kind == "scene" {
+					sceneItems = append(sceneItems, i)
+				}
 			}
 		}
 		for _, i := range next.Items {
@@ -226,6 +241,13 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 		kept = append(kept, item)
 	}
 	next.Items = kept
+	plan.Enables = modeChanged && !none
+	plan.rescan = rescan
+	if rescan {
+		// The new cuts do not exist yet: every scene image of the re-cut is drawn.
+		plan.Redraw.Scenes = rescanScenes
+		next.QueueOnly = nil
+	}
 	plan.Cost.Images = plan.Redraw.Scenes
 	if plan.Redraw.Cover {
 		plan.Cost.Images++
@@ -241,4 +263,49 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 	}
 	next.Revision++
 	return next, plan, nil
+}
+
+// SetDrawSource đặt nguồn vẽ ảnh RIÊNG cho một video (lệnh /provider): lần vẽ
+// sau — vẽ lại hay cảnh chưa vẽ — dùng nguồn này trước, rồi tới chuỗi dự phòng
+// chung của Hoạ sĩ. Không vẽ lại ảnh nào ngay và không đụng video khác. Nguồn
+// rỗng = bỏ nguồn riêng, quay lại nguồn ở Cài đặt. Video chưa tới bước ảnh thì
+// nguồn được ghi vào checkpoint của bước đó (như override từ hàng chờ).
+func (s *Service) SetDrawSource(ctx context.Context, id, provider, modelID string) error {
+	snap, err := s.Edits.Read(ctx, id, domain.CloneImages)
+	if err != nil {
+		return err
+	}
+	if snap.Job.SupersededAt != nil {
+		return cloneError(domain.CloneErrNotFound, "Job đã bị thay thế bởi generation mới")
+	}
+	raw := snap.Manifest
+	if len(raw) == 0 {
+		raw = snap.Step.Checkpoint
+	}
+	next := model.Manifest{Version: 1, Revision: 1, SceneRevision: -1}
+	if len(raw) > 0 {
+		if err = json.Unmarshal(raw, &next); err != nil {
+			return cloneError(domain.CloneErrInternal, "Manifest ảnh không đọc được")
+		}
+	}
+	if next.Overrides == nil {
+		next.Overrides = &model.Overrides{}
+	}
+	next.Overrides.DrawProvider, next.Overrides.DrawModel = provider, modelID
+	next.Revision++
+	if snap.Step.Status == domain.CloneRunning {
+		// Worker owns the items: gửi override để nó trộn vào manifest đang chạy.
+		if len(raw) == 0 {
+			return cloneError(domain.CloneErrConflict, "Video đang vẽ ảnh — chờ xong rồi đổi nguồn vẽ")
+		}
+		if len(snap.Manifest) == 0 {
+			snap.Manifest = raw
+		}
+		return s.Edits.CommitImageOverride(ctx, snap, next)
+	}
+	if jobedit.Busy(snap, domain.CloneImages) {
+		return cloneError(domain.CloneErrConflict, "Video đang xử lý — chờ xong rồi đổi nguồn vẽ")
+	}
+	// Không invalidate: ảnh đã vẽ giữ nguyên, chỉ lần vẽ sau dùng nguồn mới.
+	return s.Edits.Commit(ctx, snap, next, "", false, nil)
 }

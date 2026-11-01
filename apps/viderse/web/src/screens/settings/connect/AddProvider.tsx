@@ -10,11 +10,12 @@ import { Button, Icon } from '@noverse/ui'
 import { Field } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { toast } from '@noverse/ui'
-import { addProvider } from '../../../api/ai'
+import { addProvider, type AiProvider } from '../../../api/ai'
 import { keys } from '../../../data/keys'
 import { aiCopy } from '../../../i18n/ai'
 import { t } from '../../../i18n/vi'
-import { fieldOf } from './ProviderCard'
+import { existingCardFor } from './order'
+import { fieldOf, reasonOf } from './ProviderCard'
 
 const c = aiCopy.connect
 
@@ -40,18 +41,21 @@ export const ADD_KINDS: readonly AddKind[] = [
   { kind: 'openai_compat', label: 'Tương thích OpenAI', auth: 'both', sub: 'Địa chỉ riêng + khoá', subMobile: 'Địa chỉ riêng' },
 ]
 
-export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
+export function AddProviderBody({ onAdded, onReveal, onDone, mobile, providers }: {
   onAdded: (id: string) => void
+  /** Chọn lại nguồn đã có thẻ: đóng panel, cuộn tới thẻ đó và mở Đổi khoá. */
+  onReveal: (id: string) => void
   /** Đóng sheet (điện thoại); desktop để trống — thẻ gập lại bằng nút Đóng. */
   onDone?: () => void
   /** bare = nội dung sheet (không khung thẻ), cỡ chữ của MSettings. */
   mobile?: boolean
-  /** kind đã có trong danh sách → ô mờ “Đã kết nối”. */
-  connected: Set<string>
+  /** Danh sách thẻ hiện có — loại đã có thẻ hiện mờ “Đã kết nối” và dẫn tới thẻ đó. */
+  providers: readonly AiProvider[]
 }) {
+  const takenBy = (kind: string) => existingCardFor(providers, kind)
   const firstOpen = () => {
-    const preferred = ADD_KINDS.find((k) => k.kind === 'openrouter' && !connected.has(k.kind))
-    return (preferred ?? ADD_KINDS.find((k) => !connected.has(k.kind)))?.kind ?? ''
+    const preferred = ADD_KINDS.find((k) => k.kind === 'openrouter' && !takenBy(k.kind))
+    return (preferred ?? ADD_KINDS.find((k) => !takenBy(k.kind)))?.kind ?? ''
   }
   const [kind, setKind] = useState(firstOpen)
   const [key, setKey] = useState('')
@@ -78,10 +82,17 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
       onAdded(provider.id)
       onDone?.()
     } catch (error) {
-      // auth_failed (401): thẻ đã được tạo với status auth_failed — body có id
-      // để UI đưa thẳng thẻ cam lên đầu (conn=failed).
       await invalidate(keys.aiProviders())
       const id = fieldOf(error, 'id')
+      if (reasonOf(error) === 'duplicate' && id) {
+        // Thẻ cùng loại/địa chỉ đã có (tab khác vừa thêm): dẫn tới thẻ đó.
+        toast.err(error instanceof Error ? error.message : t.errors.failed)
+        onReveal(id)
+        onDone?.()
+        return
+      }
+      // auth_failed (401): thẻ đã được tạo với status auth_failed — body có id
+      // để UI đưa thẳng thẻ cam lên đầu (conn=failed).
       if (id) onAdded(id)
       toast.err(error instanceof Error ? error.message : t.errors.failed)
     } finally {
@@ -91,18 +102,21 @@ export function AddProviderBody({ onAdded, onDone, mobile, connected }: {
 
   const name = picked?.label ?? 'nhà cung cấp'
   const tiles = ADD_KINDS.map((k) => {
-    const done = connected.has(k.kind)
+    const existing = takenBy(k.kind)
+    const done = existing != null
     return (
       <button
         key={k.kind}
         type="button"
         role="radio"
         aria-checked={kind === k.kind}
-        aria-disabled={done || undefined}
-        disabled={done}
         title={done ? c.alreadyConnected(k.label) : undefined}
-        className={`conn-tile ${stylex.props(settingsStyles.connTile).className}`}
-        onClick={() => setKind(k.kind)}
+        className={`conn-tile ${stylex.props(settingsStyles.connTile, done && settingsStyles.connTileTaken).className}`}
+        onClick={() => {
+          if (existing == null) { setKind(k.kind); return }
+          onReveal(existing)
+          onDone?.()
+        }}
       >
         <span className={`conn-tile__name ${stylex.props(settingsStyles.connTileName).className}`}>{k.label}</span>
         <span className={`conn-tile__sub ${stylex.props(settingsStyles.connTileSub).className}`}>{done ? c.connected : (mobile ? k.subMobile : k.sub)}</span>

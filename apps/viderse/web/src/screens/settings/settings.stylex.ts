@@ -1,6 +1,7 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit, radius, font, surface } from '@noverse/ui/tokens.stylex'
 import { settingsVars } from './settingsVars.stylex'
+import { visualRoles } from '../../styles/viderse.stylex'
 
 export const setNavLinkMarker = stylex.defineMarker()
 export const setHelpCardMarker = stylex.defineMarker()
@@ -77,6 +78,7 @@ export const pillMarker = stylex.defineMarker()
 const toolsShimFrames = stylex.keyframes({ from: { backgroundPosition: "100% 0" }, to: { backgroundPosition: "-100% 0" } })
 const toolsSpinFrames = stylex.keyframes({ to: { transform: "rotate(360deg)" } })
 const saccSkelFrames = stylex.keyframes({ to: { backgroundPosition: "-200% 0" } })
+const toolsIndetFrames = stylex.keyframes({ from: { transform: "translateX(-100%)" }, to: { transform: "translateX(250%)" } })
 
 export const styles = stylex.create({
   set: { display: "flex", flex: "1 1 auto", minHeight: 0, overflow: "hidden" },
@@ -101,6 +103,7 @@ export const styles = stylex.create({
   setTip: { display: "flex", gap: "var(--vv-s-8)", fontSize: settingsVars.setTipsTitlefontSize, color: color["--color-fg-4"], lineHeight: 1.55 },
   dot: { width: "var(--vv-s-7)", height: "var(--vv-s-7)", borderRadius: "50%", flex: "0 0 auto", marginTop: { default: null, [stylex.when.ancestor(':is(*)', logsErrItMarker)]: "var(--vv-s-7)" } },
   dotWarn: { backgroundImage: "none", backgroundColor: color["--color-warn"] },
+  dotInfo: { backgroundImage: "none", backgroundColor: visualRoles["--vv-info"] },
   dotErr: { backgroundImage: "none", backgroundColor: color["--color-err"] },
   dotMuted: { backgroundImage: "none", backgroundColor: color["--color-fg-4"] },
   mset: { position: "fixed", inset: 0, zIndex: "var(--vv-z-overlay)", display: "flex", flexDirection: "column", backgroundImage: "none", backgroundColor: color["--color-bg"], color: color["--color-fg"] },
@@ -172,6 +175,8 @@ export const styles = stylex.create({
   toolsHintIsNote: { color: "var(--vv-note-ink)" },
   toolsProg: { display: "flex", flexDirection: "column", gap: "var(--vv-s-5)", marginTop: "var(--vv-s-6)", maxWidth: settingsVars.toolsProgmaxWidth },
   toolsProgLine: { display: "flex", justifyContent: "space-between", gap: "var(--vv-s-10)", fontSize: settingsVars.setGrpfontSize, color: color["--color-fg-4"], fontVariantNumeric: "tabular-nums" },
+  toolsIndet: { height: "var(--vv-s-4)", borderRadius: "var(--vv-r-pill)", backgroundColor: color["--color-surface-5"], overflow: "hidden" },
+  toolsIndetFill: { display: "block", width: "40%", height: "100%", borderRadius: "inherit", backgroundColor: visualRoles["--vv-info"], animationName: toolsIndetFrames, animationDuration: "1.4s", animationTimingFunction: "ease-in-out", animationIterationCount: "infinite" },
   toolsShimmer: { backgroundColor: "transparent", backgroundImage: "linear-gradient(90deg, var(--color-fg-3) 0%, var(--color-fg-3) 35%, var(--vv-tabbar-on) 50%, var(--color-fg-3) 65%, var(--color-fg-3) 100%)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", animationName: toolsShimFrames, animationDuration: "2.4s", animationTimingFunction: "linear", animationIterationCount: "infinite" },
   toolsSide: { display: { default: "flex", "@media (max-width: 767px)": "contents" }, alignItems: "center", gap: "var(--vv-s-8)", justifyContent: "flex-end" },
   toolsPill: { height: { default: "var(--vv-s-24)", "@media (max-width: 767px)": "var(--vv-s-24)" }, padding: { default: "0 var(--vv-s-9)", "@media (max-width: 767px)": "0 var(--vv-s-8)" }, display: "inline-flex", alignItems: "center", gap: "var(--vv-s-6)", borderRadius: "var(--vv-r-pill)", fontSize: { default: "var(--vv-s-12)", "@media (max-width: 767px)": settingsVars.setGrpfontSize }, whiteSpace: "nowrap", backgroundImage: "none", backgroundColor: kit["--kit-ok-12"], color: color["--color-ok"], gridArea: { default: null, "@media (max-width: 767px)": "1 / 3" }, fontWeight: { default: null, "@media (max-width: 767px)": 500 } },
@@ -246,6 +251,7 @@ export const styles = stylex.create({
   agtAddwrap: { display: "flex", flexDirection: "column", gap: "var(--vv-s-6)" },
   agtAddlist: { width: "var(--vv-s-250)", maxHeight: "60vh", overflow: "auto", padding: "var(--vv-s-6)", borderRadius: "var(--vv-r-12)", backgroundImage: "none", backgroundColor: color["--color-surface-4"], borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: line["--line-3"] },
   agtDrawgrid: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "var(--vv-s-8)" },
+  agtDrawgridQuad: { gridTemplateColumns: "repeat(2, minmax(0, 1fr))" },
   agtDrawcard: { padding: "var(--vv-s-12)", borderRadius: "var(--vv-r-12)", borderWidth: settingsVars.toolsSpinborderWidth, borderStyle: "solid", borderColor: line["--line-1"], backgroundImage: "none", backgroundColor: color["--color-surface-1"], display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--vv-s-6)", textAlign: "left", color: color["--color-fg"], whiteSpace: "normal" },
   agtDrawcardOn: { borderColor: "var(--vv-accent-45)", backgroundImage: "none", backgroundColor: "var(--vv-accent-6)" },
   agtDrawcardTop: { display: "flex", alignItems: "center", gap: "var(--vv-s-8)" },
@@ -370,6 +376,7 @@ export const styles = stylex.create({
   connTile: { minHeight: { default: "var(--vv-s-64)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-s-58)" }, padding: { default: "var(--vv-s-10)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-s-8) var(--vv-s-12)" }, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--vv-s-3)", borderRadius: { default: "var(--vv-r-11)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-r-12)" }, borderWidth: settingsVars.toolsSpinborderWidth, borderStyle: "solid", borderColor: { default: line["--line-2"], ":is([aria-checked='true'])": "var(--vv-line-55)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: { default: null, ":is([aria-checked='true'])": "var(--vv-accent-45)" } }, backgroundImage: { default: "none", ":is([aria-checked='true'])": "none", [stylex.when.ancestor(':is(*)', connAddMMarker)]: { default: null, ":is([aria-checked='true'])": "none" } }, backgroundColor: { default: color["--color-surface-1"], ":is([aria-checked='true'])": color["--color-surface-4"], [stylex.when.ancestor(':is(*)', connAddMMarker)]: { default: null, ":is([aria-checked='true'])": settingsVars.connTileBackground } }, color: color["--color-fg"], textAlign: "left", whiteSpace: "normal", opacity: { default: null, ":disabled": 0.5 }, cursor: { default: null, ":disabled": "default" } },
   connTileName: { fontSize: { default: "var(--vv-s-13)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-s-14)" }, fontWeight: 600 },
   connTileSub: { fontSize: { default: settingsVars.setGrpfontSize, [stylex.when.ancestor(':is(*)', connAddMMarker)]: settingsVars.setGrpfontSize }, color: color["--color-fg-4"], lineHeight: 1.4 },
+  connTileTaken: { opacity: 0.5 },
   connAddField: { display: "flex", flexDirection: "column", gap: { default: "var(--vv-s-6)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-s-12)" }, flex: "1", minWidth: 0 },
   connAddRow: { display: "flex", alignItems: { default: "flex-end", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "stretch" }, gap: "var(--vv-s-8)", flexDirection: { default: null, [stylex.when.ancestor(':is(*)', connAddMMarker)]: "column" } },
   connAddLabel: { fontSize: { default: "var(--vv-s-13)", [stylex.when.ancestor(':is(*)', connAddMMarker)]: "var(--vv-s-13)" }, color: color["--color-fg-2"] },
