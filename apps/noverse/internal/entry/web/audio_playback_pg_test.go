@@ -290,7 +290,7 @@ func TestPGNativeCompletionPublishesChapterPlayback(t *testing.T) {
 		t.Fatal(err)
 	}
 	delete(legacyInput, "ownership")
-	legacy, err := jobs.Enqueue(ctx, scope, postgres.JobTTS, "pre-upgrade", legacyInput, nil, pgtype.UUID{})
+	legacy, err := jobs.Enqueue(ctx, scope, postgres.JobTTS, "pre-upgrade", legacyInput, initialRender.ProgressTotal, pgtype.UUID{})
 	if err != nil {
 		t.Fatal(err)
 	}

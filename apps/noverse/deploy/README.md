@@ -212,10 +212,12 @@ samples, effective pauses, synthesis settings and selected take bytes still
 supersede old playback.
 
 Pre-upgrade jobs without an ownership fingerprint must prove currentness from
-their complete frozen source revision and segment synthesis parameters/keys.
-Unchanged built-in-voice jobs recover normally; missing fields, partial segment
-snapshots or custom-sample identity not frozen by the old protocol are unknown
-and are superseded rather than attached or published under today's settings.
+their frozen source revision, recorded work total and segment synthesis
+parameters/keys. Ordinary incremental jobs remain valid when omitted chapter
+segments already have ready, correctly scoped selected WAVs with current
+synthesis keys. Missing fields/totals, truncated work sets, uncovered or stale
+omitted takes, or custom-sample identity not frozen by the old protocol are
+superseded rather than attached or published under today's settings.
 
 #### Cùng máy (mặc định)
 

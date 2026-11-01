@@ -98,6 +98,7 @@ func TestWorkerAPIPostgresPublish(t *testing.T) {
 	}
 
 	enqueue := func(key string) postgres.Job {
+		total := int32(1)
 		job, err := jobs.Enqueue(ctx, scope, postgres.JobTTS, key, map[string]any{
 			"kind":           "create",
 			"chapterId":      postgres.UUIDString(chapterID),
@@ -109,7 +110,7 @@ func TestWorkerAPIPostgresPublish(t *testing.T) {
 				"engine": "remote", "model": "remote",
 				"synthKey": (audio.SynthKey{Text: "Một đoạn văn để đọc.", Speed: 1, Pitch: 1, Quality: "standard", Engine: "remote", Model: "remote"}).Hash(),
 			}},
-		}, nil, pgtype.UUID{})
+		}, &total, pgtype.UUID{})
 		if err != nil {
 			t.Fatalf("enqueue %s: %v", key, err)
 		}

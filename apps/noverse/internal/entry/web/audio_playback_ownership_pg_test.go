@@ -37,7 +37,7 @@ type playbackOwnershipFixture struct {
 	source []audio.SourceChapter
 }
 
-func newPlaybackOwnershipFixture(t *testing.T) *playbackOwnershipFixture {
+func newPlaybackOwnershipFixture(t *testing.T, twoSegments ...bool) *playbackOwnershipFixture {
 	t.Helper()
 	t.Setenv("BLOB_CACHE_DIR", t.TempDir())
 	ctx := context.Background()
@@ -57,7 +57,11 @@ func newPlaybackOwnershipFixture(t *testing.T) *playbackOwnershipFixture {
 	}
 	for chapter := 1; chapter <= 2; chapter++ {
 		text := "Một đoạn văn để đọc."
-		if _, err := nar.AcceptRecord(ctx, scope, chapter, domain.ChapterOriginGenerated, text, domain.ChapterFacts{}, domain.StyleDelta{}, postgres.ChapterAuthor{Kind: "agent", AgentName: "test"}); err != nil {
+		sourceText := text
+		if len(twoSegments) > 0 && twoSegments[0] {
+			sourceText += " " + text
+		}
+		if _, err := nar.AcceptRecord(ctx, scope, chapter, domain.ChapterOriginGenerated, sourceText, domain.ChapterFacts{}, domain.StyleDelta{}, postgres.ChapterAuthor{Kind: "agent", AgentName: "test"}); err != nil {
 			t.Fatal(err)
 		}
 		ref, err := nar.ChapterRefByNumber(ctx, scope, chapter)
@@ -65,7 +69,12 @@ func newPlaybackOwnershipFixture(t *testing.T) *playbackOwnershipFixture {
 			t.Fatal(err)
 		}
 		seg := audio.Segment{ID: "s0001", Speaker: "hero", Text: text, PauseMs: 100}
-		script := audio.Script{Volume: 1, Chapter: chapter, Status: audio.StatusLocked, SourceHash: audio.SourceHash(text), Segments: []audio.Segment{seg}}
+		script := audio.Script{Volume: 1, Chapter: chapter, Status: audio.StatusLocked, SourceHash: audio.SourceHash(sourceText), Segments: []audio.Segment{seg}}
+		if len(twoSegments) > 0 && twoSegments[0] {
+			second := seg
+			second.ID = "s0002"
+			script.Segments = append(script.Segments, second)
+		}
 		body, err := json.Marshal(script)
 		if err != nil {
 			t.Fatal(err)
@@ -73,14 +82,16 @@ func newPlaybackOwnershipFixture(t *testing.T) *playbackOwnershipFixture {
 		if _, err := repo.SaveScript(ctx, scope, postgres.Script{ChapterID: ref.ID, RevisionNo: 1, SourceRevision: 1, SourceSHA256: script.SourceHash, Status: script.Status, Payload: body}); err != nil {
 			t.Fatal(err)
 		}
-		segmentBody, err := json.Marshal(seg)
-		if err != nil {
-			t.Fatal(err)
+		for i, seg := range script.Segments {
+			segmentBody, err := json.Marshal(seg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := repo.SaveSegment(ctx, scope.ProjectID, ref.ID, 1, postgres.Segment{SegmentID: seg.ID, Ordinal: int32(i), Speaker: seg.Speaker, Text: seg.Text, Payload: segmentBody}); err != nil {
+				t.Fatal(err)
+			}
 		}
-		if _, err := repo.SaveSegment(ctx, scope.ProjectID, ref.ID, 1, postgres.Segment{SegmentID: seg.ID, Ordinal: 0, Speaker: seg.Speaker, Text: seg.Text, Payload: segmentBody}); err != nil {
-			t.Fatal(err)
-		}
-		f.source = append(f.source, audio.SourceChapter{Chapter: chapter, Text: text, Completed: true})
+		f.source = append(f.source, audio.SourceChapter{Chapter: chapter, Text: sourceText, Completed: true})
 	}
 	hash := sha256.Sum256([]byte(testWorkerToken))
 	worker, err := jobs.RegisterWorker(ctx, "ownership-native", hash[:], []string{"tts"})
@@ -120,7 +131,7 @@ func (f *playbackOwnershipFixture) enqueue(chapter int, legacy bool) postgres.Jo
 		f.t.Fatal(err)
 	}
 	delete(frozen, "ownership")
-	job, err = f.jobs.Enqueue(f.ctx, f.scope, postgres.JobTTS, "legacy-"+postgres.UUIDString(job.ID), frozen, nil, pgtype.UUID{})
+	job, err = f.jobs.Enqueue(f.ctx, f.scope, postgres.JobTTS, "legacy-"+postgres.UUIDString(job.ID), frozen, job.ProgressTotal, pgtype.UUID{})
 	if err != nil {
 		f.t.Fatal(err)
 	}
@@ -379,5 +390,150 @@ func TestPGPlaybackAudibleOwnershipStable(t *testing.T) {
 	}
 	if after := revision(); before != after {
 		t.Fatal("voice display/unrelated sample metadata changed audible ownership")
+	}
+}
+
+func TestPGLegacyIncrementalPlaybackCoverage(t *testing.T) {
+	if !audio.FFmpegAvailable() {
+		t.Skip("ffmpeg required")
+	}
+	for _, stage := range []string{"ack", "recovery"} {
+		for _, coverage := range []string{"current", "missing", "stale"} {
+			t.Run(stage+"/"+coverage, func(t *testing.T) {
+				f := newPlaybackOwnershipFixture(t, true)
+				get := func(id string) postgres.Job {
+					t.Helper()
+					uuid, err := postgres.ParseUUID(id)
+					if err != nil {
+						t.Fatal(err)
+					}
+					job, err := f.jobs.Get(f.ctx, postgres.JobKey{ProjectID: f.scope.ProjectID, ID: uuid})
+					if err != nil {
+						t.Fatal(err)
+					}
+					return job
+				}
+				cancel := func(job postgres.Job) {
+					t.Helper()
+					if _, err := f.jobs.Cancel(f.ctx, postgres.JobKey{ProjectID: job.ProjectID, ID: job.ID}); err != nil {
+						t.Fatal(err)
+					}
+				}
+				sourceHash := audio.SourceHash(f.source[0].Text)
+				id, err := f.svc.Enqueue(f.ctx, 1, 1, sourceHash)
+				if err != nil {
+					t.Fatal(err)
+				}
+				full := get(id)
+				var all struct {
+					Segments []struct {
+						ID       string `json:"id"`
+						SynthKey string `json:"synthKey"`
+					} `json:"segments"`
+				}
+				if err := json.Unmarshal(full.Input, &all); err != nil {
+					t.Fatal(err)
+				}
+				if len(all.Segments) != 2 {
+					t.Fatal("expected full two-segment chapter")
+				}
+				cancel(full)
+				ref, err := f.nar.ChapterRefByNumber(f.ctx, f.scope, 1)
+				if err != nil {
+					t.Fatal(err)
+				}
+				wav := testWAV(t, 8000, .2)
+				sum := sha256.Sum256(wav)
+				sha := hex.EncodeToString(sum[:])
+				key, err := (blobkey.Keys{}).AudioSegment(postgres.UUIDString(f.scope.ProjectID), postgres.UUIDString(f.scope.StoryID), sha, "wav")
+				if err != nil {
+					t.Fatal(err)
+				}
+				blob, err := postgres.UploadAndPublishBlob(f.ctx, f.repo, f.store, postgres.PublishInput{ProjectID: f.scope.ProjectID, Key: key, Driver: "local", ContentType: "audio/wav", SHA256: sha, Size: int64(len(wav))}, bytes.NewReader(wav))
+				if err != nil {
+					t.Fatal(err)
+				}
+				selectFirst := func(synthKey string) {
+					t.Helper()
+					if _, err := f.repo.AddRender(f.ctx, f.scope.ProjectID, ref.ID, 1, postgres.Render{SegmentID: "s0001", SynthKey: synthKey, BlobID: blob.ID, DurationSec: .2, SampleRate: 8000}); err != nil {
+						t.Fatal(err)
+					}
+					if _, err := f.repo.SelectRender(f.ctx, f.scope.ProjectID, ref.ID, 1, "s0001", synthKey); err != nil {
+						t.Fatal(err)
+					}
+				}
+				selectFirst(all.Segments[0].SynthKey)
+				// This is the actual ordinary producer, not Redo or a hand-built
+				// partial job: the ready selected first take is intentionally omitted.
+				id, err = f.svc.Enqueue(f.ctx, 1, 1, sourceHash)
+				if err != nil {
+					t.Fatal(err)
+				}
+				incremental := get(id)
+				var frozen struct {
+					Segments []struct {
+						ID string `json:"id"`
+					} `json:"segments"`
+				}
+				if err := json.Unmarshal(incremental.Input, &frozen); err != nil {
+					t.Fatal(err)
+				}
+				if len(frozen.Segments) != 1 || frozen.Segments[0].ID != "s0002" ||
+					incremental.ProgressTotal == nil || *incremental.ProgressTotal != 1 {
+					t.Fatalf("ordinary enqueue did not freeze one needed segment: %+v", incremental)
+				}
+				cancel(incremental)
+				var input map[string]json.RawMessage
+				if err := json.Unmarshal(incremental.Input, &input); err != nil {
+					t.Fatal(err)
+				}
+				delete(input, "ownership")
+				legacy, err := f.jobs.Enqueue(f.ctx, f.scope, postgres.JobTTS, "incremental-legacy", input, incremental.ProgressTotal, pgtype.UUID{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				claimed := f.claim(legacy)
+				if stage == "recovery" {
+					f.complete(claimed, true)
+				}
+				switch coverage {
+				case "missing":
+					if err := f.repo.DeleteRender(f.ctx, f.scope.ProjectID, ref.ID, 1, "s0001", all.Segments[0].SynthKey); err != nil {
+						t.Fatal(err)
+					}
+				case "stale":
+					selectFirst((audio.SynthKey{Text: "Old voice take", VoiceID: "voice-b", Speed: 1, Pitch: 1, Quality: "standard", Engine: "remote", Model: "remote"}).Hash())
+				}
+				if stage == "ack" {
+					f.complete(claimed, false)
+				}
+				f.run()
+				obj, err := f.svc.OpenChapterAudio(f.ctx, 1, 1)
+				if coverage == "current" {
+					if err != nil || obj.Size == 0 {
+						t.Fatalf("unchanged incremental legacy unavailable: %+v %v", obj, err)
+					}
+				} else {
+					if !errors.Is(err, audio.ErrNotFound) {
+						t.Fatalf("uncovered incremental chapter playable: %+v %v", obj, err)
+					}
+					if stage == "ack" {
+						if _, err := f.repo.SelectedRender(f.ctx, f.scope.ProjectID, ref.ID, 1, "s0002"); !errors.Is(err, postgres.ErrJobNotFound) {
+							t.Fatalf("uncovered legacy ACK selected its output: %v", err)
+						}
+					}
+				}
+				unknown := claimed
+				unknown.ProgressTotal = nil
+				if current, err := (audio.PlaybackProof{}).LegacyCurrent(f.ctx, f.db, unknown); err != nil || current {
+					t.Fatalf("unknown frozen work total accepted: %v %v", current, err)
+				}
+				wrongTotal := int32(2)
+				unknown.ProgressTotal = &wrongTotal
+				if current, err := (audio.PlaybackProof{}).LegacyCurrent(f.ctx, f.db, unknown); err != nil || current {
+					t.Fatalf("inconsistent frozen work total accepted: %v %v", current, err)
+				}
+			})
+		}
 	}
 }

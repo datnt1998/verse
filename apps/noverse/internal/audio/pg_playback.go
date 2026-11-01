@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/blobkey"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/jackc/pgx/v5"
@@ -200,7 +201,8 @@ func (p PlaybackProof) LegacyCurrent(ctx context.Context, db gen.DBTX, job postg
 	if err := json.Unmarshal(job.Input, &frozen); err != nil {
 		return false, nil
 	}
-	if frozen.SourceRevision <= 0 || len(frozen.Segments) == 0 {
+	if frozen.SourceRevision <= 0 || len(frozen.Segments) == 0 ||
+		job.ProgressTotal == nil || *job.ProgressTotal != int32(len(frozen.Segments)) {
 		return false, nil
 	}
 	chapter, err := postgres.ParseUUID(frozen.ChapterID)
@@ -220,7 +222,7 @@ func (p PlaybackProof) LegacyCurrent(ctx context.Context, db gen.DBTX, job postg
 	if err != nil {
 		return false, err
 	}
-	if len(current) != len(frozen.Segments) {
+	if len(current) < len(frozen.Segments) {
 		return false, nil
 	}
 	var provenance struct {
@@ -234,6 +236,7 @@ func (p PlaybackProof) LegacyCurrent(ctx context.Context, db gen.DBTX, job postg
 		byID[seg.ID] = seg
 	}
 	seen := make(map[string]bool, len(frozen.Segments))
+	engine, model := frozen.Segments[0].Engine, frozen.Segments[0].Model
 	for i, seg := range frozen.Segments {
 		for _, field := range []string{"id", "speaker", "text", "voice", "tone", "speed", "pitch", "quality", "engine", "model", "synthKey"} {
 			value, present := provenance.Segments[i][field]
@@ -242,19 +245,66 @@ func (p PlaybackProof) LegacyCurrent(ctx context.Context, db gen.DBTX, job postg
 			}
 		}
 		want, ok := byID[seg.ID]
-		if !ok || seen[seg.ID] || seg.Engine == "" || seg.Model == "" {
+		if !ok || seen[seg.ID] || seg.Engine == "" || seg.Model == "" || seg.Engine != engine || seg.Model != model {
 			return false, nil
 		}
 		seen[seg.ID] = true
 		// Legacy snapshots did not freeze sample identity: a custom sample
 		// cannot be proven historical merely from its current voice ID.
-		if want.Sample != "" {
+		if want.Sample != "" || want.Reference != "" {
 			return false, nil
 		}
 		key := want.Key
 		key.Engine, key.Model = seg.Engine, seg.Model
 		if seg.Speaker != want.Speaker || seg.Tone != want.Tone || seg.Text != key.Text || seg.Voice != key.VoiceID || seg.Speed != key.Speed ||
 			seg.Pitch != key.Pitch || seg.Quality != key.Quality || seg.SynthKey != key.Hash() {
+			return false, nil
+		}
+	}
+	if len(seen) == len(current) {
+		return true, nil
+	}
+	// Ordinary enqueue intentionally freezes only work still needed. Every
+	// omitted chapter segment must already be covered by a ready, scoped WAV
+	// whose selected synthesis key matches today's resolved parameters.
+	rows, err := db.Query(ctx, `SELECT r.segment_id, r.synth_key, b.object_key, b.sha256
+	 FROM audio_renders r JOIN blobs b ON b.project_id=r.project_id AND b.id=r.blob_id
+	 WHERE r.project_id=$1 AND r.chapter_id=$2 AND r.script_revision=$3 AND r.selected
+	   AND b.state='ready' AND b.content_type IN ('audio/wav','audio/x-wav')`,
+		job.ProjectID, chapter, frozen.ScriptRevision)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+	selected := make(map[string]string, len(current)-len(seen))
+	for rows.Next() {
+		var id, key, storageKey, sha string
+		if err := rows.Scan(&id, &key, &storageKey, &sha); err != nil {
+			return false, err
+		}
+		if seen[id] {
+			continue
+		}
+		object, err := blobkey.Parse(storageKey)
+		if err != nil || object.Kind != blobkey.KindAudioSegment || object.Ext != "wav" ||
+			object.ProjectID != postgres.UUIDString(job.ProjectID) || object.StoryID != postgres.UUIDString(job.StoryID) || object.SHA256 != sha {
+			continue
+		}
+		selected[id] = key
+	}
+	if err := rows.Err(); err != nil {
+		return false, err
+	}
+	for _, seg := range current {
+		if seen[seg.ID] {
+			continue
+		}
+		if seg.Sample != "" || seg.Reference != "" {
+			return false, nil
+		}
+		key := seg.Key
+		key.Engine, key.Model = engine, model
+		if selected[seg.ID] != key.Hash() {
 			return false, nil
 		}
 	}
