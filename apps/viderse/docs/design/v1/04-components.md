@@ -29,7 +29,7 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - **Trái:** logo ống kính 26px + ngữ cảnh: `ChannelSwitcher` ở Bàn dựng; breadcrumb ở Kênh (“Kênh của tôi”), Khám phá (“Khám phá / <đối thủ>”) và trang phụ. <!-- r11-audit -->
 - **Giữa:** `MainNav`.
 - **Phải:** `JobsPill`, nút Cài đặt có chấm báo, avatar.
-- Hẹp hơn 700px thì `MainNav` cuộn ngang và không rớt dòng.
+- Dưới 768px là khung điện thoại (một mốc duy nhất, #16). Từ 768px trở lên, `MainNav` không đủ chỗ thì cuộn ngang, không rớt dòng. <!-- r32 -->
 - Thay `NavRail`.
 - Artboard: mọi board desktop.
 
@@ -152,7 +152,9 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 
 ## Composer (Nhắn trợ lý) <!-- c-composer -->
 - Thẻ bo 18px gồm icon tin nhắn, ô nhập, chip trợ lý nhận (“Bàn với Trinh sát”), và nút gửi trắng.
-- Dưới thẻ là dòng phím tắt và hạn mức ảnh hôm nay.
+- Dưới thẻ là dòng phím tắt và hạn mức ảnh hôm nay. <!-- r32 -->
+- Gõ `/` mở danh sách lệnh ngay trên ô (chỉ lệnh hợp lệ với video đang mở; Mọi kênh không có video thì không có lệnh): `/redraw <cảnh>` vẽ lại một cảnh · `/provider <chatgpt|grok|gemini>` đổi nguồn vẽ cho video này · `/pause` · `/resume` · `/export-anyway` xuất dù điểm chưa đạt (chỉ ở Kiểm định) · `/posted [link]` đánh dấu đã đăng. Mỗi dòng: lệnh (mono) + một câu tiếng Việt; ↑↓ chọn, Enter điền. Lệnh lạ → thẻ “Chưa làm được việc này.” như câu không hiểu (#74).
+- Màn rộng: tối đa 880px, căn giữa ([Bố cục màn rộng](#c-wide)).
 - Cố định đáy vùng giữa.
 - Kết quả hiện dưới dạng thẻ xác nhận ([Gói V11](08-dev-prompt.md#goi-v11)).
 
@@ -282,6 +284,20 @@ Thành phần hiện có trong code vẫn dùng lại khi khớp hành vi: `Pend
 - **AccountMenu:** popover 336px dưới avatar đầu trang (`aria-haspopup="menu"`), đóng khi bấm ngoài hoặc Esc. Thứ tự: thẻ người dùng · Ứng dụng · Tài khoản · Quản lý thành viên (quản trị viên) · Đăng xuất (cam, có dòng phụ). Điện thoại không có popover: avatar mở trang Tài khoản.
 - **AppSwitcherRow:** logo app trong vòng tròn 32px, tên, địa chỉ (mono), bên phải nhãn *Đang mở* hoặc biểu tượng mở ở thẻ mới. Dòng đang mở có nền chọn `rgba(255,255,255,.08)`, không viền màu một bên. Không có quyền thì không có dòng.
 - **AuthShell:** đầu trang có logo + chip trạng thái máy chủ (xanh: đang hoạt động · cam: không kết nối được / chưa đọc được tài khoản), nội dung một cột 400px giữa màn, chân trang chỉ ở Đăng nhập và Thiết lập. Một nút sáng mỗi màn.
+
+## Bố cục màn rộng <a id="c-wide"></a> <!-- r32 -->
+- Artboard vẽ ở 1440px. Từ **1600px** trở lên, khung vẫn bám mép (đầu trang, cột trái, cột phải giữ bề rộng), còn **nội dung cột giữa căn giữa** với bề rộng tối đa theo loại màn. Dưới 1600px không đổi gì.
+- Loại màn → bề rộng tối đa:
+  - Bàn làm việc, danh sách, bảng (`Main`, `Activity`, `Queue`, `Channel`, khung của `Dialogs`/`System`): `--vv-wide-content` 1280px.
+  - Lưới thẻ và xem ảnh (`Explore`, `Library`, `Review`): `--vv-wide-grid` 1760px; lưới tự thêm cột (`repeat(auto-fill, minmax(…))`), thẻ không phình to.
+  - Form, trang đọc (`Settings`, `Template`): `--vv-wide-read` 880px; khối đã có bề rộng riêng (Cài đặt 760px, Template 700px) giữ nguyên, chỉ căn giữa.
+  - Công cụ (`Editor`) và màn căn giữa sẵn (`Auth`, `Onboard`, `CreateChannel`, `NewVideo`, `Brand`): không giới hạn thêm.
+- **Ô Nhắn trợ lý** (Composer) và dòng phím tắt: tối đa `--vv-wide-composer` 880px, căn giữa dưới nội dung; thẻ Kế hoạch mở ngay trên ô dùng cùng bề rộng. Dòng chữ trong Nhật ký tiến độ, thẻ trợ lý không dài quá cột 1280px.
+- Không phóng chữ, không tăng khoảng cách theo bề rộng; khoảng trống thừa nằm hai bên cột giữa.
+- Cách làm: CSS `@media (min-width: 1600px)` trên con trực tiếp của cột giữa (`width: 100%; max-width: …; margin-inline: auto`), không dùng `zoom`/`scale`. Kit có lớp `.vv-wide`, `.vv-wide--grid`, `.vv-wide--read`, `.vv-composer-dock`. Artboard đánh dấu `r32-wide`; xem ở canvas bằng cách kéo khung artboard rộng ra.
+
+## Badge số (MainNav) <a id="c-badge"></a> <!-- r32 -->
+- `.vv-badge`: cao 18px, tối thiểu 18px, đệm ngang 5px, bo tròn, chữ 11px đậm 600 số đều, chữ `--vv-st-review` trên nền `--vv-badge-bg` (vàng nhạt 16%). Không dùng nền vàng đặc ở thanh trên máy tính; nền đặc chỉ là `.vv-tabbar__badge` của thanh dưới điện thoại.
 
 ## Icon <!-- r8-icons -->
 - Mọi icon trong nút dùng bộ icon (mask) của Viderse, không dùng ký tự (↶ ↷ − +). Thêm `i-undo`, `i-redo` (Editor Hoàn tác / Làm lại), `i-minus` (nút giảm), `i-key` (Kết nối AI, khoá API). Nút tăng dùng `i-add`.

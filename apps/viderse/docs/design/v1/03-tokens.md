@@ -112,3 +112,13 @@ Thêm ở đợt 15 để `kit.css` không phải viết cứng giá trị nào.
 | `--vv-surface-3` (có sẵn) | `#18181A` | Ô tròn chứa logo app ở danh sách Ứng dụng | `#18181B` viết cứng |
 
 Huy hiệu tím “Quản trị” ở tab Thêm của Noverse dùng token của Noverse, không phải token Viderse.
+
+## Token thêm ở đợt 32 <!-- r32 -->
+
+| Token | Giá trị | Dùng cho |
+|---|---|---|
+| `--vv-wide-content` | 1280px | Bề rộng tối đa của cột giữa ở Bàn dựng, Hàng chờ, Kênh, Việc nền (màn ≥ 1600px) |
+| `--vv-wide-grid` | 1760px | Lưới thẻ (Khám phá, Thư viện) và khung xem ảnh (Duyệt) |
+| `--vv-wide-read` | 880px | Form, trang đọc (Cài đặt, Template); nội dung hẹp hơn thì giữ bề rộng riêng, chỉ căn giữa |
+| `--vv-wide-composer` | 880px | Ô Nhắn trợ lý và dòng phím tắt bên dưới |
+| `--vv-badge-bg` | `rgba(246,203,140,.16)` | Nền badge số ở MainNav (Duyệt 3); chữ `--vv-st-review`. Lớp `.vv-badge` trong kit.css (#14) |

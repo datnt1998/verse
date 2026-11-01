@@ -78,7 +78,8 @@ Tên bên trái theo [05-kit.md](05-kit.md); board `Kit` / `MKit` vẽ từng tr
 | Editor | `#/editor/<projectId>` | — |
 | Cài đặt | `#/settings` | `?section=tools|connect|agents|accounts|storage|logs` |
 | Tài khoản | `#/account` | (đã có) |
-| Lần đầu mở | màn `Setup` của `platform/webapp` | (đã có) |
+| Lần đầu mở (tạo quản trị viên) | màn `Setup` của `platform/webapp` | (đã có) |
+| Chuẩn bị máy (W1, `Onboard` · `step=setup`) | `#/setup` | sau đăng nhập, khi máy chưa xong 6 việc; điện thoại hiện “Mở trên máy tính” (#17) <!-- r32 --> |
 
 Việc nền & thông báo là popover từ viên trên thanh đầu, không có route riêng.
 

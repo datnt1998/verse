@@ -58,7 +58,6 @@ URL cũ được giữ khi có thể, để link đã lưu vẫn chạy.
 | `recipe.style` | Cài đặt template › Kiểu ảnh | **Cài đặt template › Cách ghép ảnh vào video** (giữ nguyên trường) | <!-- r9-assets -->
 | `recipe.imagePrompt` + `recipe.imagePromptMode` | Cài đặt template › Mô tả phong cách ảnh | **Thư viện › Prompt ảnh** (prompt ảnh cảnh); template chỉ chọn. `imagePromptMode` suy ra: prompt có sẵn = `blend`, prompt của bạn = `custom` |
 | `recipe.thumbnail` | Cài đặt template › Kiểu ảnh bìa | **Thư viện › Prompt ảnh** (prompt ảnh bìa); template chọn `coverPromptId` |
-| Nhóm **Bản cũ** (`legacy`) | bộ lọc riêng | Job cũ có MP4 → Sẵn sàng / Đã đăng (chỉ đọc); job cũ dở → liệt kê trong Cài đặt › Lưu trữ để xoá |
 
 ## 4. Hành vi đổi
 
@@ -74,7 +73,8 @@ URL cũ được giữ khi có thể, để link đã lưu vẫn chạy.
 - Step chain, manifest, job edit, quality gate (≥ 90).
 - CLI `ytf`: thêm `clone pause|resume` và `--priority` cho `clone batch`, không đổi lệnh cũ.
 - Editor và mật độ của editor.
-- Chính sách chỉ chạy local (`127.0.0.1`) cho tới khi chốt D1 ([data-contract §10](07-data-contract.md#10--truy-cập-từ-điện-thoại-chờ-quyết-định-d1)).
+- Truy cập từ điện thoại: D1 đã chốt cách (a) — LAN + ghép thiết bị bằng QR ([data-contract §10](07-data-contract.md)). <!-- r32 -->
+- Không nhập dữ liệu yt-factory: Viderse bản verse bắt đầu trắng (#9).
 
 <!-- r3 -->
 

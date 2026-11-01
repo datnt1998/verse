@@ -43,6 +43,12 @@
   --vv-red-deep: #A3001C;
   --vv-red-button: #E6002E;           /* chỉ nút + tròn ở thanh dưới điện thoại; nút thường không dùng đỏ */
   --vv-red-button-hover: #FF1F4B;
+  /* r32: màn rộng hơn 1440px — cột giữa không kéo dãn (04-components › Bố cục màn rộng) */
+  --vv-wide-content: 1280px;          /* bàn làm việc, danh sách, bảng */
+  --vv-wide-grid: 1760px;             /* lưới thẻ, khung xem ảnh */
+  --vv-wide-read: 880px;              /* form, trang đọc (Cài đặt, Template) */
+  --vv-wide-composer: 880px;          /* ô Nhắn trợ lý và dòng phím tắt */
+  --vv-badge-bg: rgba(246,203,140,.16); /* r32 #14: nền badge số ở MainNav, chữ --vv-st-review */
   --vv-red-button-fill: radial-gradient(circle at 35% 28%, #FF6A80 0%, #FF1F45 45%, #C80028 100%); /* r31-v27 #62: cầu nút + ở thanh dưới điện thoại (thay màu phẳng --vv-red-button ở đúng nút này) */
 
   /* Phá huỷ & lỗi — Noverse dùng đỏ, Viderse dùng cam */

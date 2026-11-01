@@ -1,5 +1,15 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 32 (01/11/2026) — Màn rộng và chốt hỏi đáp <!-- r32 -->
+
+- Bố cục màn rộng (≥ 1600px): cột giữa căn giữa, tối đa 1280 (bàn làm việc, bảng) · 1760 (lưới, xem ảnh) · 880 (form); ô Nhắn trợ lý 880. Áp ở `Main`, `Activity`, `Dialogs`, `System`, `Queue`, `Channel`, `Explore`, `Library`, `Review`, `Settings`, `Template`. Token `--vv-wide-*`, components › Bố cục màn rộng.
+- Badge số MainNav có lớp `.vv-badge` và token `--vv-badge-bg` (#14). Một mốc điện thoại 768px (#16).
+- `Settings` / `MSettings`: “Ổ ngoài USB”, “một số video”, thẻ Grok không ghi gói, bỏ “tháng này $…”, bỏ “≈ $… mỗi video”, bỏ ngày phát hành.
+- Danh sách lệnh `/` ở Composer; nút Làm N bước luôn sáng.
+- Bỏ phần nhập dữ liệu yt-factory (#9); D1 chốt LAN + ghép thiết bị (#11); thêm route `#/setup` (#17).
+- Hỏi đáp: trả lời #6, #8–#23, #25–#30, #73–#76.
+- Canvas phiên bản 59.
+
 ## 01/11/2026 — Clone pipeline: chuyển StyleX, giữ hình học
 
 - Kiểu của Video mới, Hàng chờ, PreviewPanel/BulkBar và khung điện thoại chuyển về component StyleX; bỏ các stylesheet thay thế. Thang khoảng cách/bo góc Viderse giữ nguyên tên biến CSS tại `web/src/styles/viderse.stylex.ts`.

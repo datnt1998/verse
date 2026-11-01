@@ -1,6 +1,6 @@
 # Viderse — Artboard
 
-Bản sao mã artboard đã publish (canvas “Viderse — Thiết kế UI/UX”, phiên bản 58, ngày 01/11/2026). Mở bằng một server tĩnh, ví dụ từ gốc repo verse `npx serve apps/viderse/docs/design/v1` rồi vào `/artboards/Main.dc.html` (mở thẳng `file://` thì icon không hiện vì trình duyệt chặn `mask-image`). Cần mạng để tải font Google.
+Bản sao mã artboard đã publish (canvas “Viderse — Thiết kế UI/UX”, phiên bản 59, ngày 01/11/2026). Mở bằng một server tĩnh, ví dụ từ gốc repo verse `npx serve apps/viderse/docs/design/v1` rồi vào `/artboards/Main.dc.html` (mở thẳng `file://` thì icon không hiện vì trình duyệt chặn `mask-image`). Cần mạng để tải font Google.
 
 - `support.js` là runtime hiển thị artboard (`<x-dc>`, `sc-for`, `sc-if`, `{{...}}`, tweak `data-props`). Không phải code sản phẩm; đừng import vào app.
 - Icon nằm ở `../icons/` (Iconsax, nét Linear), dùng qua `mask-image`. App dùng cùng tên tệp.

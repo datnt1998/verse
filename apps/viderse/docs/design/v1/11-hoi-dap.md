@@ -47,24 +47,26 @@ Mẫu:
 - Đề xuất: ghi trên máy, gửi kèm khi Báo lỗi. Cần chủ sản phẩm chốt.
 - Trả lời (chủ sản phẩm, 29/10/2026): theo đề xuất. Các quyết định D1, D2, D5–D8 đều theo đề xuất của design.
 
-### #6 · Điện thoại: mở link đăng nhập Bilibili trong app thay vì quét — Mở <!-- r24-biliqr -->
+### #6 · Điện thoại: mở link đăng nhập Bilibili trong app thay vì quét — Đã chốt <!-- r24-biliqr -->
 - Màn: `MSettings` · `qr=waiting` · dòng **Bilibili trên chính máy này? → Mở app**.
 - Người dùng xem Viderse trên điện thoại thường cũng cài 哔哩哔哩 trên chính máy đó, nên không quét được mã trên màn hình mình.
 - Hỏi dev: mở `loginUrl` (link trong mã QR) trên điện thoại có vào app 哔哩哔哩 và hiện màn xác nhận không? Nếu không: bỏ dòng này, thay bằng câu “Quét bằng điện thoại khác, hoặc mở Cài đặt trên máy tính”.
 - Dev (29/10/2026): sẽ thử trên điện thoại thật khi làm bản điện thoại và ghi kết quả vào đây. Giữ dòng này tới lúc đó.
+- Trả lời (design, 01/11/2026): Giữ dòng *Mở app* tới khi dev thử trên máy thật. Mở được app 哔哩哔哩 và màn xác nhận → giữ; không được → thay bằng “Quét bằng điện thoại khác, hoặc mở Cài đặt trên máy tính” (06-copy). Không cần vẽ lại. <!-- r32 -->
 
 ### #7 · `loginUrl` chưa về tới giao diện — Đã chốt <!-- r24-biliqr -->
 - yt-factory: `startBilibiliQrLogin()` trả `loginUrl` nhưng `startBilibiliQrLoginAction` chỉ trả `qrcodeKey`, `qrImage`, `expiresAt`.
 - Đề nghị: bản verse trả cả `loginUrl` (§24.1) để dùng cho #6. Giao diện không hiện link dạng chữ.
 - Trả lời (dev, 29/10/2026): API đăng nhập Bilibili bằng QR của verse trả cả `loginUrl`. Giao diện không hiện link dạng chữ.
 
-### #8 · Cập nhật đẩy thay cho poll 3 giây — Mở
+### #8 · Cập nhật đẩy thay cho poll 3 giây — Đã chốt
 - Màn: đầu trang (§5), Việc nền (§11), Bàn dựng.
 - Code làm khác: máy chủ đẩy sự kiện qua `GET /api/events` (SSE). `GET /api/status` và `GET /api/activity` giữ đúng hình dữ liệu, dùng cho lần tải đầu và khi mất kết nối sự kiện; chỉ lúc đó client mới poll 3 giây.
 - Lý do: trạng thái lên giao diện trong ≤ 1 giây thay vì ≤ 3 giây, và không còn nhiều vòng poll chạy song song. Giao diện không đổi.
 - Hỏi design: đồng ý sửa câu "poll 3 giây khi tab đang hiện" ở §5 và §11 thành "nhận sự kiện đẩy; mất kết nối thì poll 3 giây"?
+- Trả lời (design, 01/11/2026): Đồng ý. §5 và §11 đã sửa: “nhận sự kiện đẩy; mất kết nối thì poll 3 giây”. <!-- r32 -->
 
-### #9 · Không nhập dữ liệu yt-factory — Mở
+### #9 · Không nhập dữ liệu yt-factory — Đã chốt
 - Chủ sản phẩm chốt (29/10/2026): Viderse bản verse bắt đầu với dữ liệu trắng, không có bộ nhập dữ liệu yt-factory.
 - Ảnh hưởng: không có job cũ, nên các chỗ sau không còn việc gì để làm:
   - [01-ia-flows.md](01-ia-flows.md) §0.1, dòng **Bản cũ** (job cũ có MP4 → Sẵn sàng/Đã đăng; job cũ dở → danh sách dọn);
@@ -72,93 +74,109 @@ Mẫu:
   - Cài đặt › Lưu trữ: danh sách job cũ dở;
   - Gói V22: migration đổi đường dẫn tuyệt đối cũ sang tương đối.
 - Hỏi design: gỡ các chỗ trên khỏi tài liệu gốc?
+- Trả lời (design, 01/11/2026): Đồng ý. Đã gỡ dòng Bản cũ ở ia-flows §0.1 và 09-migration §3, gỡ migration đường dẫn cũ ở V22. Lưu trữ không có danh sách job cũ dở. <!-- r32 -->
 
-### #10 · Không còn Electron — Mở
+### #10 · Không còn Electron — Đã chốt
 - Chủ sản phẩm chốt (29/10/2026): Viderse chạy dạng web, máy chủ do launchd giữ chạy như Noverse; không có app Electron.
 - Code làm khác:
   - Gói V14: `Notification` của Electron và `app.dock.setBadge` thành Notification API của trình duyệt và `navigator.setAppBadge` (cài Viderse dạng PWA).
   - Gói V22, **Chọn thư mục…**: trình duyệt không trả được đường dẫn thật, nên hộp chọn là danh sách thư mục do máy chủ liệt kê (đi từ ổ đang cắm hoặc thư mục nhà). **Mở trong Finder** mở trên máy đang chạy Viderse.
   - Gói V22 và W13 › Lưu trữ: thư mục lưu dự án mặc định là `~/.viderse/projects` (thư mục dữ liệu của bản web), thay cho `~/Library/Application Support/Viderse/data/projects` của Electron. Đổi thư mục không cần khởi động lại app: máy chủ đọc đường dẫn từ cơ sở dữ liệu, không dùng `storage.json`.
 - Hỏi design: hộp chọn thư mục phía máy chủ có cần artboard riêng không, hay dùng lại khung sheet chọn ổ của `MSettings` · `store=pick`?
+- Trả lời (design, 01/11/2026): Đồng ý. Hộp chọn thư mục phía máy chủ dùng lại khung chọn ổ (`Settings` · `store=pick` là Dialog, `MSettings` · `store=pick` là Sheet), mỗi dòng là thư mục, có đường dẫn mono và nút lên một cấp. Không cần artboard riêng (cùng #21). <!-- r32 -->
 
-### #11 · Truy cập từ điện thoại (D1) — Mở
+### #11 · Truy cập từ điện thoại (D1) — Đã chốt
 - Chủ sản phẩm chốt (29/10/2026): §10 chọn cách **(a)**: nghe trên mạng LAN, ghép thiết bị một lần bằng mã QR, sau đó dùng cookie phiên.
 - Đề nghị design: bỏ chữ "chờ quyết định D1" ở tiêu đề §10 và ở [09-migration-yt-factory.md](09-migration-yt-factory.md) §4; Gói V10 làm theo (a).
+- Trả lời (design, 01/11/2026): Đồng ý. Đã bỏ “chờ quyết định D1” ở 07 §10, 09 §4 và Gói V10. <!-- r32 -->
 
-### #12 · `/api/status` và `/api/activity` cùng tồn tại — Mở
+### #12 · `/api/status` và `/api/activity` cùng tồn tại — Đã chốt
 - §11 ghi "Thay `GET /api/status` ở §5 bằng `GET /api/activity`", nhưng hình dữ liệu của `/api/activity` không có `paused`, `reviewCount` và `attention`. Đầu trang cần ba trường này cho viên việc, badge Duyệt và chấm ở bánh răng.
 - Dev đề nghị: giữ cả hai. Đầu trang đọc §5; popover Việc nền và thông báo đọc §11; cả hai cùng được làm mới qua sự kiện đẩy (#8).
 - Hỏi design: đồng ý, hay gộp ba trường trên vào `/api/activity`?
+- Trả lời (design, 01/11/2026): Đồng ý giữ cả hai. 07 §11 đã sửa. <!-- r32 -->
 
-### #13 · “Khớp theo giọng” cho một đoạn phụ đề — Mở <!-- r27-editor -->
+### #13 · “Khớp theo giọng” cho một đoạn phụ đề — Đã chốt <!-- r27-editor -->
 - Màn: `Editor` · `focus=caption`, `fix=todo` → bấm **Khớp theo giọng**.
 - Code hiện có: checklist `captionAlignment` (“Chỉnh mốc từng từ trong editor theo các cue lệch”) và `captionKaraoke` (“Đo mốc từng từ…”), nhưng sửa vẫn là kéo tay.
 - Hỏi dev: dùng lại bước tách tiếng + mốc từng từ đang có trên máy (Trinh sát) để căn lại riêng các cue lệch, trong khoảng ±2 giây quanh cue, được không? Ước lượng thời gian cho 1 và cho 3 đoạn. Nếu chưa làm được trong V13: giữ nút, đổi thành “Dời theo đề xuất +0,6 s” dùng `offsetSec` của checklist.
+- Trả lời (design, 01/11/2026): Đồng ý phương án dự phòng: chưa làm được căn ±2 giây thì nút là “Dời theo đề xuất +0,6 s” (dùng `offsetSec`). Làm được thì giữ “Khớp theo giọng”. <!-- r32 -->
 
-### #14 · Lớp `.vv-badge` chưa có định nghĩa — Mở
+### #14 · Lớp `.vv-badge` chưa có định nghĩa — Đã chốt
 - Màn: đầu trang › mục **Duyệt** (badge số video chờ duyệt), `Kit`.
 - Artboard dùng `.vv-badge`, nhưng `kit.css`, `tokens.css` và các artboard không định nghĩa lớp này nên không có màu chữ trên nền vàng.
 - Code tạm dùng mực nâu `#3D2A08` trên nền vàng `warning`, khai báo một chỗ (`--vv-badge-ink` trong `apps/viderse/web/src/styles/viderse.css`).
 - Hỏi design: chốt màu chữ, nền, cỡ và bo góc của badge, rồi thêm vào `kit.css`/`03-tokens.md`.
+- Trả lời (design, 01/11/2026): Board vẽ badge **nền vàng nhạt, chữ vàng**, không phải nền vàng đặc: nền `rgba(246,203,140,.16)` = token mới `--vv-badge-bg`, chữ `--vv-st-review` (#F6CB8C), cao 18 · tối thiểu 18 · đệm 0 5px · bo tròn · 11px/600 số đều. Đã thêm `.vv-badge` vào kit.css và 03-tokens. Bỏ `--vv-badge-ink` nâu. <!-- r32 -->
 
-### #15 · Màu orb trợ lý: kit `AgentOrb` lệch nhẹ so với board `Brand` — Mở
+### #15 · Màu orb trợ lý: kit `AgentOrb` lệch nhẹ so với board `Brand` — Đã chốt
 - Viderse dùng `AgentOrb` của kit như [05-kit.md](05-kit.md) dặn. Sắc độ các cung của orb hơi khác hình vẽ ở board `Brand` › 4 trợ lý; màu chữ của trợ lý vẫn đúng [03-tokens.md](03-tokens.md).
 - Hỏi design: giữ `AgentOrb` của kit (Noverse và Viderse cùng một orb), hay cần thông số màu riêng cho Viderse?
+- Trả lời (design, 01/11/2026): Giữ `AgentOrb` của kit, Noverse và Viderse dùng chung một orb. Board `Brand` › 4 trợ lý là hình minh hoạ; khi lệch, kit là chuẩn. <!-- r32 -->
 
-### #16 · Mốc đổi sang bản điện thoại: 700px hay 768px — Mở
+### #16 · Mốc đổi sang bản điện thoại: 700px hay 768px — Đã chốt
 - [08-dev-prompt.md](08-dev-prompt.md) Gói V10 ghi "Dưới 768px: Thanh dưới 5 mục". Gói V0 và [04-components.md](04-components.md) `AppHeader` lại ghi "Hẹp hơn 700px thì `MainNav` cuộn ngang"; các artboard máy tính cũng có `@media (max-width:700px)` cho nav.
 - Nếu dưới 768px đã là bản điện thoại thì không còn bề ngang nào để luật 700px của nav máy tính có tác dụng.
 - Code đang làm: dưới 768px dùng khung điện thoại (theo V10). Nav máy tính vẫn giữ CSS cuộn ngang, không rớt dòng.
 - Hỏi design: chốt một mốc. Nếu muốn khoảng 700–767px vẫn là bản máy tính thì đổi câu ở V10.
+- Trả lời (design, 01/11/2026): Một mốc: **768px**. Dưới 768px là khung điện thoại; từ 768px trở lên là bản máy tính, `MainNav` không đủ chỗ thì cuộn ngang (không đặt mốc 700px). Đã sửa V0, 04-components › AppHeader. <!-- r32 -->
 
-### #17 · Màn Chuẩn bị máy nằm ở đâu — Mở
+### #17 · Màn Chuẩn bị máy nằm ở đâu — Đã chốt
 - [02-stack-verse.md](02-stack-verse.md) §4 ghi Lần đầu mở là màn `Setup` của `platform/webapp`. Màn đó chỉ tạo tài khoản quản trị (trước khi đăng nhập), không cài công cụ.
 - `Onboard` · `step=setup` (W1, 6 việc, Đăng nhập ChatGPT) cần chạy sau khi đăng nhập.
 - Code làm: thêm route `#/setup` (Chuẩn bị máy). Sau khi đăng nhập, máy chưa xong 6 việc thì app mở `#/setup`; xong thì sang Tạo kênh. Trên điện thoại, `#/setup` hiện "Mở trên máy tính" như ia-flows §6.2.
 - Hỏi design: đồng ý thêm dòng `#/setup` vào bảng route ở §4?
+- Trả lời (design, 01/11/2026): Đồng ý thêm `#/setup`. Đã thêm dòng vào bảng route ở 02-stack §4. <!-- r32 -->
 
-### #18 · Cài đặt › Công cụ: “Máy sẵn sàng · 2/2 luồng” — Mở
+### #18 · Cài đặt › Công cụ: “Máy sẵn sàng · 2/2 luồng” — Đã chốt
 - Artboard: `Settings` · `section=tools`.
 - Số luồng thuộc phase Hàng chờ (W9/L5). Hiện chưa có cài đặt luồng, nên `/api/status` chưa có `lanes`.
 - Code làm: thẻ tổng chỉ ghi “Máy sẵn sàng” (kèm “có n bản cập nhật” nếu có), không bịa số luồng. Phase Hàng chờ thêm `lanes` thì hiện lại đủ câu.
 - Hỏi design: đồng ý tạm bỏ “· 2/2 luồng” tới phase Hàng chờ?
+- Trả lời (design, 01/11/2026): Đồng ý tạm bỏ “· 2/2 luồng” tới khi có `lanes`. <!-- r32 -->
 
-### #19 · Cột trái Cài đặt: hàng “Giới hạn từng kênh” — Mở
+### #19 · Cột trái Cài đặt: hàng “Giới hạn từng kênh” — Đã chốt
 - Artboard: `Settings` (mọi `section`), nhóm “Ở trang khác”, trỏ sang `Channel`.
 - Router chưa có trang giới hạn của kênh (`#/channels/:id?tab=sources` thuộc phase Kênh).
 - Code làm: chưa dựng hàng này, không đặt link tới trang chưa có. Phase Kênh có route thì thêm.
+- Trả lời (design, 01/11/2026): Đồng ý: chưa dựng hàng này tới khi có route Kênh › Nguồn & tự động. <!-- r32 -->
 
-### #20 · Báo lỗi: ngày phát hành của bản mới — Mở
+### #20 · Báo lỗi: ngày phát hành của bản mới — Đã chốt
 - Artboard: `Settings` · `section=logs`, thẻ phiên bản có ngày phát hành.
 - `/api/version` chưa trả ngày phát hành, nên code chỉ hiện số bản mới nhất.
 - Hỏi design: cần ngày thật không? Nếu cần, máy chủ phải đọc ngày từ nguồn phát hành.
+- Trả lời (design, 01/11/2026): Không cần ngày. Board đã bỏ: “Viderse 1.4.0 · Bản mới nhất”. <!-- r32 -->
 
-### #21 · Lưu trữ: chọn thư mục bằng danh sách của máy chủ — Mở
+### #21 · Lưu trữ: chọn thư mục bằng danh sách của máy chủ — Đã chốt
 - Artboard: `Settings` · `section=storage&store=pick`; `MSettings` · `screen=storage&store=pick`.
 - Artboard mở hộp chọn thư mục của hệ điều hành. Web không lấy được đường dẫn thật trên máy chủ (xem #10).
 - Code làm: “Chọn thư mục…” mở danh sách thư mục do máy chủ liệt kê (Dialog trên máy tính, Sheet trên điện thoại), chọn xong quay về khối chọn ngay tại chỗ.
+- Trả lời (design, 01/11/2026): Đồng ý (xem #10). <!-- r32 -->
 
-### #22 · Lưu trữ: “Ổ ngoài USB-C” — Mở
+### #22 · Lưu trữ: “Ổ ngoài USB-C” — Đã chốt
 - Artboard ghi “Ổ ngoài USB-C”. `diskutil` chỉ báo giao tiếp (`USB`, `Thunderbolt`…), không phân biệt đầu cắm USB-C với USB-A.
 - Code làm: hiện “Ổ ngoài USB” / “Ổ ngoài Thunderbolt” theo đúng `diskutil`; chưa phân loại được thì chỉ ghi “Ổ ngoài”.
 - Hỏi design: đồng ý đổi chữ mẫu trong artboard thành “Ổ ngoài USB”?
+- Trả lời (design, 01/11/2026): Đồng ý. Board `Settings`, `MSettings` đã đổi “Ổ ngoài USB · APFS”. <!-- r32 -->
 
-### #23 · Lưu trữ: số video trong banner chuyển thư mục — Mở
+### #23 · Lưu trữ: số video trong banner chuyển thư mục — Đã chốt
 - Artboard: `store=done` có “2 video đã chạy tiếp.”; `store=moving` có “Xem khi xong ›”; banner `pick`/`moving` nêu số video đang chạy.
 - Chưa có hàng chờ video (phase Hàng chờ), nên chưa đếm được video bị dừng rồi chạy tiếp. “Xem khi xong ›” trong artboard chỉ là nút đổi trạng thái tĩnh.
 - Code làm: banner nêu số việc nền đang chạy (`/api/activity`), không có việc nào thì dùng câu không số. Bỏ “2 video đã chạy tiếp.” và “Xem khi xong ›” tới phase Hàng chờ.
+- Trả lời (design, 01/11/2026): Đồng ý tạm tới phase Hàng chờ. <!-- r32 -->
 
 ### #24 · Nút cao 32px (`ghost btn`) trong Cài đặt — Đã chốt
 - Artboard `Settings` vẽ các nút `ghost btn` (ví dụ “Xem trước những gì sẽ dọn”, “Mở trang xAI”) cao 32px, bo 8, chữ 13. Kit lúc đầu chỉ có 30 (`sm`), 36 (mặc định) và 44 (`lg`).
 - Trả lời (dev, 30/10/2026): thêm `size="compact"` (32 · bo 8 · chữ 13) vào `Button` của kit. Chỉ thêm, Noverse không đổi. Mỗi nút dùng đúng cỡ theo class artboard tại chỗ đó: `ghost btn` → `compact`, `vv-btn--sm` → `sm`, `vv-btn` → mặc định, điện thoại `vv-btn--m` → `lg`.
 
-### #25 · Tài khoản nền tảng: mốc “từ HH:MM” và “1 video” — Mở
+### #25 · Tài khoản nền tảng: mốc “từ HH:MM” và “1 video” — Đã chốt
 - Artboard: `Settings` · `section=accounts&bili=blocked` ghi “từ 00:10”; `yt=bot` ghi “phụ đề của 1 video”.
 - Cơ sở dữ liệu chỉ có `paused_until`, không có mốc bắt đầu bị chặn. Lỗi bot của YouTube cũng chưa đếm số video bị ảnh hưởng.
 - Code làm: “từ HH:MM” lấy giờ của lần lỗi cuối (`lastError.at`), tức lần lỗi đã đẩy nền tảng sang tạm chặn. Banner bot ghi “một số video”, không bịa số.
 - Hỏi design: chấp nhận? Nếu cần đúng hơn: thêm cột `paused_since`, và đếm `videosAffected` khi có hàng chờ tải.
+- Trả lời (design, 01/11/2026): Chấp nhận cả hai, không cần thêm dữ liệu: “từ HH:MM” = lần lỗi cuối; banner bot ghi “một số video” (board đã sửa). <!-- r32 -->
 
-### #26 · Kết nối AI: dữ liệu artboard chưa có nguồn — Mở
+### #26 · Kết nối AI: dữ liệu artboard chưa có nguồn — Đã chốt
 - Artboard: `Settings` · `section=connect|agents`; `MSettings` · `screen=connect|agents`.
 - **Gói Grok:** xAI không trả tên gói, nên thẻ Grok bỏ “gói …”. ChatGPT vẫn có gói, đọc từ `chatgpt_plan_type` trong token.
 - **“Tháng này $1,84” (`spendMonth`):** `image_receipts` không ghi giá, nên chưa hiện. Cần pipeline ghi giá mỗi lần gọi.
@@ -167,31 +185,36 @@ Mẫu:
 - **Mức suy nghĩ trên điện thoại:** artboard điện thoại không có chỗ chỉnh. Code đặt nó trong sheet Đạo diễn.
 - **Nút thêm nhà cung cấp:** bị khoá khi ô khoá API còn trống. Artboard luôn điền sẵn nên không vẽ trạng thái này.
 - Hỏi design: chốt từng ý trên. Muốn câu ghi chú theo model thì cần một bảng câu.
+- Trả lời (design, 01/11/2026): Chốt từng ý: (1) bỏ “gói …” ở thẻ Grok — board đã sửa; (2) ẩn “tháng này $…” — board đã bỏ; (3) dòng phụ model theo khả năng “chữ · đọc ảnh · 272K ngữ cảnh”, không cần câu biên tập (câu trên board là minh hoạ); (4) giờ đặt lại = mốc thật, không có thì 00:00; (5) điện thoại chỉnh mức suy nghĩ trong sheet Đạo diễn — đồng ý; (6) nút thêm nhà cung cấp khoá khi ô khoá API trống — đồng ý. <!-- r32 -->
 
-### #27 · Kết nối AI: thứ tự thẻ và thẻ trùng loại — Mở
+### #27 · Kết nối AI: thứ tự thẻ và thẻ trùng loại — Đã chốt
 - Artboard: `Settings` · `conn=list` xếp ChatGPT, Grok, Gemini, Ollama (cũ trước); `conn=added` và `conn=failed` đặt thẻ vừa thêm hoặc vừa lỗi lên đầu.
 - Code làm: xếp mới nhất trước (`created_at DESC`), khớp `added`/`failed`, lệch `list`.
 - Thẻ lỗi vẫn để ô nguồn đó bấm được, nên dán khoá mới sẽ tạo thẻ thứ hai cùng loại thay vì sửa thẻ cũ.
 - Hỏi design: giữ “mới nhất trước” hay “lỗi trước, còn lại cũ trước”? Cho thêm thẻ trùng loại, hay bắt dùng **Đổi khoá** trên thẻ cũ?
+- Trả lời (design, 01/11/2026): Thứ tự: **thẻ lỗi lên đầu, còn lại theo thứ tự thêm (cũ trước)** — khớp `conn=list`; thẻ vừa thêm đứng đầu tới khi rời trang — khớp `conn=added`. **Không cho thẻ trùng loại**: chọn lại nguồn đã có thì cuộn tới thẻ đó và mở *Đổi khoá* (ngoại lệ: Tương thích OpenAI, Ollama khác địa chỉ). <!-- r32 -->
 
-### #28 · Trợ lý AI: giá mỗi video và nguồn vẽ thứ 4 — Mở
+### #28 · Trợ lý AI: giá mỗi video và nguồn vẽ thứ 4 — Đã chốt
 - Artboard: `Settings` · `section=agents`; `MSettings` · `screen=agents`.
 - “≈ $0,27 mỗi video” = giá mỗi ảnh × 7. Số 7 lấy từ design (“~7 ảnh” mỗi video), khai báo một chỗ (`IMAGES_PER_VIDEO` trong `AgentsSection.tsx`), chưa lấy từ template của kênh.
 - Kho có nguồn vẽ thứ 4 (Tương thích OpenAI), nên lưới 3 cột của thẻ nguồn vẽ xuống dòng 2; artboard chỉ vẽ 3 nguồn.
 - Hỏi design: giữ số 7 cố định hay lấy số ảnh của template? Lưới 4 nguồn: xuống dòng (đang làm), cuộn ngang, hay 4 cột?
+- Trả lời (design, 01/11/2026): Cài đặt không ghi giá mỗi video (không gắn với kênh nào; board đã bỏ “≈ $0,27 mỗi video”), chỉ ghi giá mỗi ảnh. Giá mỗi video tính theo template ở màn Template (#41) và Kế hoạch. 4 nguồn vẽ: lưới **2 × 2**; 3 nguồn giữ 3 cột. <!-- r32 -->
 
-### #29 · Tài khoản nền tảng trên điện thoại: state chưa vẽ và giãn dòng — Mở
+### #29 · Tài khoản nền tảng trên điện thoại: state chưa vẽ và giãn dòng — Đã chốt
 - `MSettings` không có frame cho `yt=bot`, hồ sơ YouTube “Tắt” và `qr=loading`.
 - Code làm: banner bot nằm trong thân thẻ YouTube (cao thêm 48px, như banner Bilibili bị chặn/hết hạn); `qr=loading` dùng lại khung chờ của máy tính.
 - Thẻ điện thoại trong artboard giãn dòng 1,5; artboard máy tính và phần còn lại của app dùng 1,55. Code chỉ đặt 1,5 trong thẻ tài khoản và sheet trạng thái trên điện thoại.
 - Hỏi design: duyệt hai state trên? Giãn dòng 1,5 là chuẩn cho cả `MSettings` hay chỉ thẻ này?
+- Trả lời (design, 01/11/2026): Duyệt hai state như code (banner bot trong thân thẻ, `qr=loading` dùng khung chờ của máy tính). Giãn dòng 1,5 chỉ trong thẻ tài khoản và sheet trạng thái điện thoại như code; phần còn lại 1,55. <!-- r32 -->
 
-### #30 · Khung Cài đặt: dải mất kết nối, tông chấm cảnh báo, nhãn pha cài — Mở
+### #30 · Khung Cài đặt: dải mất kết nối, tông chấm cảnh báo, nhãn pha cài — Đã chốt
 - Artboard `Settings` không vẽ dải mất kết nối. Code chèn dải giữa đầu trang và nội dung, nội dung bị đẩy xuống thay vì bị che.
 - Chấm cảnh báo ở bánh răng lấy tông theo `kind` trong `/api/status.attention` (`tool_failed`, `login_expired`, `tool_update`, `quota_low`), bảng kind → tông nằm ở web. Thêm kind mới thì cần chốt tông ở đây.
 - Tiến trình cài công cụ trả `phaseLabel` là câu tiếng Việt của máy chủ, không phải mã pha; client khác (nếu có) hiện nguyên câu này.
 - Pha không biết tổng dung lượng (tải mô hình nhận giọng nói, dựng môi trường Python) trả `pct: null`. Artboard chỉ vẽ pha có phần trăm (“· 62%”). Code chỉ ghi tên pha, cạnh đó là vòng quay của hàng; không vẽ “0%” và thanh đứng yên.
 - Hỏi design: dải đẩy hay phủ lên nội dung? Đồng ý bảng tông theo kind? Pha không biết tổng có cần thanh chạy vô định không?
+- Trả lời (design, 01/11/2026): Dải mất kết nối **đẩy** nội dung (đồng ý). Bảng tông: `tool_failed`, `login_expired` → cam `--vv-danger`; `tool_update` → xanh `--vv-info`; `quota_low` → vàng `--vv-st-review`; kind mới mặc định cam. Pha không biết tổng: **có** thanh chạy vô định `.vv-progress--working` dưới tên pha, không ghi phần trăm. <!-- r32 -->
 
 ### #31 · Khám phá: điều khiển cần kênh của bạn và hàng chờ — Đã chốt <!-- r28-explore -->
 - Artboard: `Explore` (xem trước, chọn nhiều, thẻ đối thủ), `MExplore`.
@@ -489,30 +512,33 @@ Mẫu:
 - Board `Main` không vẽ trạng thái đang tải, rỗng, lỗi hoặc mất kết nối riêng cho Bản tin.
 - Main duyệt dùng mẫu V12 trong vùng nội dung, giữ khung ứng dụng và dải mất kết nối dùng chung; không coi lỗi tải là Bản tin rỗng.
 
-### #73 · Bật lại ảnh khi template không vẽ ảnh — Cần design xác nhận
+### #73 · Bật lại ảnh khi template không vẽ ảnh — Đã chốt
 - Hợp đồng cho phép tắt «Không cần ảnh» riêng cho video, nhưng chưa nêu số ảnh cảnh khi template chọn «Không vẽ ảnh».
 - App dùng tối thiểu một ảnh cảnh khi bật lại trong trường hợp này; không sửa template. Các template có số ảnh hoặc nhịp ảnh vẫn giữ cấu hình của template.
 - Hỏi design: xác nhận mặc định một ảnh cảnh hay chọn số khác cho trường hợp template không có nhịp ảnh?
+- Trả lời (design, 01/11/2026): Bật lại ảnh khi template “Không vẽ ảnh”: mặc định **6 ảnh cảnh** chia đều theo độ dài (như Mẫu chuẩn) + bìa theo template; thẻ Kế hoạch ghi số ảnh tốn trước khi áp dụng. Một ảnh cảnh cho cả video dài là quá ít. <!-- r32 -->
 
-
-### #74 · Ô Nhắn trợ lý: lỗi, nút Làm khi ra video, phím tắt — Cần design xác nhận
+### #74 · Ô Nhắn trợ lý: lỗi, nút Làm khi ra video, phím tắt — Đã chốt
 - Board `Main` `agent=plan` và `Dialogs` `assistant-confirm|unknown` không vẽ trạng thái đang đọc câu, lỗi (chưa có model, mất kết nối, kế hoạch hết hạn) và tiến độ sau "Làm". App dùng thẻ cùng khung với `assistant-unknown`, nói đúng lỗi thật và có Thử lại / Sửa câu; sau "Làm" hiện từng bước Đang chờ / Đang làm / Xong.
 - Nút **Làm N bước**: 13-changelog đã đổi nút chính từ đỏ sang nút sáng, nên app giữ nút sáng đúng board (`.vv-btn--primary` và `--white` giống hệt) và chỉ đánh dấu `data-enqueues-video` khi có bước đưa video vào làm. Hỏi design: 01-ia-flows §9.7 và 08-dev-prompt vẫn ghi "đỏ khi có bước đưa video vào làm" — giữ sáng hay đổi?
 - Hàng phím tắt dưới ô: `Enter gửi`, `Esc tạm dừng` (khi video đang chạy), `[ ] bảng bên` (`[` đóng/mở danh sách video, `]` đóng/mở bảng bên phải; nút ở thanh trên là của khung ứng dụng) và số ảnh trên hạn mức lấy từ `quota` của `/api/ai/providers` (ChatGPT theo ngày, không có thì Grok theo tuần). `/ lệnh` chưa có đặc tả danh sách lệnh trong 01-ia-flows / 04-components / 06-copy nên chưa vẽ cùng ví dụ `/lệnh` trong placeholder. Hỏi design: danh sách lệnh `/` là gì?
 - Chip "Bàn với Trinh sát" ở ô Kênh là nhãn người nhận, không phải nút (chưa có hành vi nào được mô tả).
+- Trả lời (design, 01/11/2026): Duyệt các state lỗi/tiến độ (câu ở 06-copy › Chốt đợt 32). Nút **Làm N bước giữ sáng** như board; ia-flows §9.7 và 08 V11 đã sửa. Danh sách lệnh `/` ở 04-components › Composer: `/redraw`, `/provider`, `/pause`, `/resume`, `/export-anyway`, `/posted`. Chip “Bàn với Trinh sát” là nhãn người nhận — đúng. <!-- r32 -->
 
-### #75 · Đề xuất, Quy tắc đã học, Ghi chú đã học: phần board không vẽ — Cần design xác nhận
+### #75 · Đề xuất, Quy tắc đã học, Ghi chú đã học: phần board không vẽ — Đã chốt
 - **Ghi chú đã học (Thư viện › Prompt ảnh)**: `08-dev-prompt` V19 và ia-flows có nêu nhưng `Library` không vẽ khối này. App dùng lại đúng hàng `.vv-rule` của Quy tắc đã học (công tắc, chữ, nguồn, «Xem ví dụ», Xoá) dưới nội dung prompt, tiêu đề «Ghi chú đã học», mô tả «Hoạ sĩ học từ góp ý vẽ lại; áp dụng cho mọi template dùng prompt này.», trống «Chưa có ghi chú nào. Khi bạn góp ý vẽ lại giống nhau 2 lần với prompt này, Hoạ sĩ sẽ hỏi có nên ghi lại.»
 - **Activity › Trợ lý chủ động › «Đề xuất của trợ lý»**: board chỉ vẽ hàng đóng. «Chọn loại» mở tại chỗ thành 7 hàng công tắc (Đưa video nổi lên đầu hàng · Template hay chưa đạt điểm · Lưu quy tắc từ việc bạn sửa · Bật Duyệt theo điểm · Đổi nhịp đăng · Áp dụng điều rút ra từ số liệu · Dọn MP4 đã đăng), kèm danh sách loại đã tắt riêng cho kênh (từ «Đừng đề xuất kiểu này») có nút «Bật lại»; nút đổi «Chọn loại» ↔ «Xong».
 - **«Xem ví dụ» / «Xem 3 lần sửa»**: board không vẽ nội dung. App mở danh sách «Trước / Sau» ngay dưới hàng hoặc banner (không mở hộp thoại); nút đổi «Ẩn ví dụ».
 - **Xác nhận khi nhận đề xuất tốn ảnh**: không có hộp thoại vẽ sẵn, 06-copy chỉ có mẫu «(tốn 7 ảnh)». App dùng hộp xác nhận chung, tiêu đề = nhãn nút chính, nội dung «Tốn N ảnh. Máy sẽ xếp việc này vào hàng chờ ngay sau khi bạn bấm.», nút chính đỏ (đúng quy tắc xếp hàng → đỏ như thẻ kế hoạch), «Huỷ». Dọn MP4: «Xoá MP4 của video đã đăng?» / «Việc này không hoàn tác được.»
 - **Toast**: chỉ khi người dùng vừa bấm nhận (câu tóm tắt từ máy chủ, «Hoàn tác» 5 giây nếu việc đảo ngược được); đề xuất mới xuất hiện không bao giờ toast. Trạng thái đang tải / lỗi / mất kết nối dùng chữ «Đang tải đề xuất…», «Không tải được đề xuất.», «Mất kết nối · đề xuất cập nhật lại khi có kết nối», «Không tải được quy tắc đã học.».
 - Hỏi design: xác nhận các điểm trên hay vẽ lại.
+- Trả lời (design, 01/11/2026): Duyệt tất cả như app đang làm (Ghi chú đã học dùng hàng `.vv-rule`, Chọn loại 7 công tắc, Xem ví dụ mở tại chỗ, hộp xác nhận tốn ảnh nút đỏ, toast chỉ khi bấm nhận, câu tải/lỗi). Không cần vẽ lại. <!-- r32 -->
 
-### #76 · Hiệu quả sau đăng: ô link YouTube, khoá Data API, Kênh › Video: phần board không vẽ — Cần design xác nhận
+### #76 · Hiệu quả sau đăng: ô link YouTube, khoá Data API, Kênh › Video: phần board không vẽ — Đã chốt
 - **Đánh dấu đã đăng (Bàn dựng ⋯, LiveStudio, hàng Kênh › Video)**: board không vẽ ô nhập link. App dùng hộp xác nhận chung «Đánh dấu đã đăng?» có một ô «Link YouTube (không bắt buộc)»; để trống thì app tự khớp theo link kênh; link không phải youtube.com/watch|shorts|live hoặc youtu.be bị chặn ngay trong hộp. Sau khi đánh dấu vẫn hỏi xoá MP4 như cũ. Đánh dấu hàng loạt (BulkBar) không hỏi link.
 - **Kết nối AI › «YouTube Data API»**: `Settings` không vẽ hàng này. App dựng thẻ cùng nhịp thẻ nhà cung cấp (avatar YT, tên, pill «Khoá API» + «Không bắt buộc», dòng phụ trạng thái, nút Thêm khoá/Đổi khoá/Gỡ khoá, ô dán khoá có Lưu khoá/Huỷ); Google từ chối khoá thì báo ngay dưới ô. Không có khoá thì số liệu đọc từ trang công khai (chỉ lượt xem).
 - **Trợ lý nhận ra**: thanh dài nhất vẽ 90% (board 90%/80% ở hai nhận xét — app dùng một quy tắc). Nhãn «Sơ bộ · N video có số liệu 7 ngày» theo `counted`; nút theo việc: «Thêm vào quy tắc viết» / «Cho chạy nhiều hơn». Nhận xét đã áp dụng biến mất khỏi danh sách (máy chủ bỏ nó), thông báo bằng toast. Chưa đủ video: «Cần thêm N video có số liệu 7 ngày…». Dòng bằng chứng của thẻ mời xem ghép từ nhóm của nhận xét («Mẫu chuẩn ×1,4 so với Cận cảnh»); tiền tố «Độ dài/Giờ đăng» của hai chiều còn lại là do app đặt.
 - **Trạng thái đang tải / lỗi / mất kết nối** của khối và hàng khoá theo mẫu #68–#72.
 - **Kênh › Video** (bảng, bộ lọc, Chọn nhiều): board chỉ vẽ nút của hàng; menu ⋯ thêm Làm lại từ đầu / Dừng hẳn / Xoá video dùng chung với Bàn dựng; dòng phụ thẻ số liệu (từ ngày tạo kênh, gần nhất) suy từ dữ liệu thật.
 - Hỏi design: xác nhận các điểm trên hay vẽ lại.
+- Trả lời (design, 01/11/2026): Duyệt tất cả như app đang làm (ô Link YouTube không bắt buộc trong hộp Đánh dấu đã đăng, thẻ YouTube Data API cùng nhịp thẻ nhà cung cấp, thanh dài nhất 90%, Kênh › Video). Link sai: “Đây không phải link video YouTube.” <!-- r32 -->

@@ -283,3 +283,19 @@ Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Vi
 | | đăng xuất mọi thiết bị khác | xác nhận tại chỗ: “Đăng xuất 2 thiết bị khác? Các thiết bị đó phải đăng nhập lại ở cả Noverse và Viderse.” · *Huỷ* · *Đăng xuất 2 thiết bị* → “Đã đăng xuất mọi thiết bị khác.” |
 | | đăng xuất một máy | “Đã đăng xuất Mac · Chrome.” |
 | Đăng nhập | `kicked=none` | không có khối lý do. Máy chủ trả `session_ended/unknown` cho cả lần đầu (chưa cookie) và cookie hỏng; client chỉ hiện “Phiên đăng nhập đã kết thúc” khi trình duyệt này đã từng đăng nhập (cờ `vv.signedInBefore` trong localStorage, đặt sau lần đăng nhập thành công, xoá khi bấm Đăng xuất). |
+
+## Chốt đợt 32 <a id="copy-r32"></a> <!-- r32 -->
+
+| Chỗ | Câu |
+|---|---|
+| Bilibili trên điện thoại, không mở được app (#6) | “Quét bằng điện thoại khác, hoặc mở Cài đặt trên máy tính” |
+| YouTube báo bot (#25) | “Trinh sát chưa tải được phụ đề của một số video.” · mốc “từ HH:MM” = lần lỗi cuối |
+| Ổ lưu trữ (#22) | “Ổ ngoài USB” · “Ổ ngoài Thunderbolt” · không rõ: “Ổ ngoài” |
+| Thẻ Grok (#26) | “Đã đăng nhập · 1 model đã chọn” · “400 ảnh mỗi tuần” (không ghi tên gói) |
+| Model (#26) | dòng phụ theo khả năng: “chữ · đọc ảnh · 272K ngữ cảnh”; không viết câu biên tập theo model |
+| Hạn mức ảnh (#26) | “đặt lại HH:MM” theo mốc nhà cung cấp báo; không có thì “đặt lại 00:00” |
+| Báo lỗi › phiên bản (#20) | “Viderse 1.4.0 · Bản mới nhất” (không ngày) |
+| Editor › phụ đề lệch (#13) | chưa có nhận giọng ±2 giây: nút “Dời theo đề xuất +0,6 s” |
+| Ô Nhắn trợ lý (#74) | đang đọc: “Đang đọc câu của bạn…” · chưa có model: “Chưa có model viết. Thêm ở Cài đặt › Kết nối AI.” · mất kết nối: “Mất kết nối · gửi lại khi có kết nối” · kế hoạch hết hạn: “Kế hoạch đã cũ vì video vừa đổi. Gửi lại câu để lập kế hoạch mới.” · nút *Thử lại*, *Sửa câu* · bước: Đang chờ · Đang làm · Xong |
+| Đề xuất, quy tắc (#75) | theo hỏi đáp #75 (đã đồng ý): “Đang tải đề xuất…” · “Không tải được đề xuất.” · “Mất kết nối · đề xuất cập nhật lại khi có kết nối” · “Tốn N ảnh. Máy sẽ xếp việc này vào hàng chờ ngay sau khi bạn bấm.” |
+| Đánh dấu đã đăng (#76) | “Đánh dấu đã đăng?” · ô “Link YouTube (không bắt buộc)” · link sai: “Đây không phải link video YouTube.” |

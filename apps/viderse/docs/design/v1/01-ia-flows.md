@@ -32,7 +32,6 @@ Thông báo đưa người dùng quay lại đúng bước khi máy cần họ: 
 | Tạo kênh 4 bước (tạo → nhận diện → template → xong) | Bắt người dùng chờ và chọn thứ chưa hiểu | 3 bước: Chuẩn bị máy → Tạo kênh (mặc định sẵn) → Xong; nhận diện và Mẫu chuẩn chạy nền |
 | Tab **Nhận diện** và **Cài đặt** tách nhau | Hai tab cùng là “thông tin của kênh” | Một tab **Hồ sơ kênh** |
 | Danh sách **Dự án editor** (`/editor`) | Project luôn thuộc một video hoặc một template; danh sách riêng gây hiểu nhầm là phải tự tạo project | Mở editor từ video (Bàn dựng ⋯) hoặc từ template |
-| Bộ lọc **Bản cũ** | Dữ liệu của bản app cũ, không phải trạng thái người dùng cần hiểu | Migration: job cũ có MP4 → Sẵn sàng/Đã đăng; job cũ dở → danh sách dọn trong Cài đặt › Dọn dữ liệu |
 | **Tổng quan**, **Tất cả video** (`/clone`), chi tiết job, tour hướng dẫn | Ba trang cùng trả lời “việc gì chờ tôi” | Bàn dựng + Việc nền; Lần đầu mở + trang rỗng có hướng dẫn |
 | Thiết lập chạy máy trong Cài đặt | Người dùng hỏi “sao chưa chạy” ở Hàng chờ chứ không ở Cài đặt | Hàng chờ › Quy tắc chạy |
 
@@ -485,7 +484,7 @@ Sáu mục:
     - Đăng nhập xong: app **bỏ giờ chờ** của lần bị chặn và quét lại kênh Bilibili ngay; thẻ hiện tài khoản, nhãn **Mã QR**, “Tự gia hạn mỗi ngày · lần cuối 08:12”, nút **Gia hạn ngay** và **Xoá đăng nhập**.
     - **Tự gia hạn:** trước khi quét kênh, tối đa một lần mỗi ngày, app kiểm tra và làm mới đăng nhập. Không làm mới được: thẻ viền cam, nhãn **Cần đăng nhập lại**, banner “Đăng nhập Bilibili đã hết hạn” + **Quét mã QR**; trong lúc chờ app quét kênh không đăng nhập (không chặn việc đang làm). Chấm cam ở mục Tài khoản nền tảng bên trái.
     - **Cookie dán tay** là lối phụ: **Dán cookie thủ công** (mở ra tại chỗ, hoặc từ hộp thoại: “Không quét được? Dán cookie thủ công”). App kiểm tra với Bilibili trước khi lưu; chỉ nhận cookie bilibili.com. Cookie dán tay không tự gia hạn; thẻ nhắc quét mã một lần để bật tự gia hạn.
-    - Điện thoại: nút trên thẻ (**Đăng nhập** · **Quét mã QR** · **Quét lại** · **Gia hạn**) mở sheet cùng nội dung; có thêm dòng **Bilibili trên chính máy này? → Mở app** (mở link đăng nhập trong app, không cần quét; chờ dev xác nhận, xem hỏi đáp #6). Dán cookie chỉ làm trên máy tính.
+    - Điện thoại: nút trên thẻ (**Đăng nhập** · **Quét mã QR** · **Quét lại** · **Gia hạn**) mở sheet cùng nội dung; có thêm dòng **Bilibili trên chính máy này? → Mở app** (mở link đăng nhập trong app, không cần quét) — chỉ khi dev thử trên máy thật thấy mở được app; không được thì thay bằng câu “Quét bằng điện thoại khác, hoặc mở Cài đặt trên máy tính” (#6). <!-- r32 --> Dán cookie chỉ làm trên máy tính.
   - Cuối danh sách: dòng **Nền tảng khác** dẫn sang Thư viện › Video nền (dán link nền tảng chưa hỗ trợ ở đó để gửi yêu cầu).
   - Điện thoại: màn Tài khoản nền tảng cùng thẻ; đổi cookie trình duyệt chỉ trên máy tính.
 - **Lưu trữ** <!-- r17-storage --> (trước là Dọn dữ liệu):
@@ -637,7 +636,7 @@ Mỗi kênh có một **Mức tự chủ** ở Kênh › Nguồn & tự động,
 - Ô **Nhắn trợ lý · mọi kênh** ở cuối Bản tin.
 
 ### 9.7 Kế hoạch (Nhắn trợ lý)
-- Một câu → **thẻ Kế hoạch**: mỗi bước một dòng có ô tích (bỏ được từng bước), trợ lý làm, giá; dòng tổng giá; nút **Làm N bước** (sáng; đỏ nếu có bước đưa video vào làm) và **Sửa câu**.
+- Một câu → **thẻ Kế hoạch**: mỗi bước một dòng có ô tích (bỏ được từng bước), trợ lý làm, giá; dòng tổng giá; nút **Làm N bước** (luôn sáng như board; bước đưa video vào làm ghi rõ trong dòng bước và dòng tổng giá, không đổi màu nút — #74) và **Sửa câu**. <!-- r32 -->
 - Đang chạy: từng bước hiện trạng thái trong thẻ. Bước lỗi không chặn bước sau, trừ khi bước sau phụ thuộc.
 - Thao tác thêm cho kế hoạch: `prioritize` (đưa video lên đầu), `set_autonomy`, `add_rule`, `make_videos` (nhiều video nổi trội của một đối thủ). Vẫn không có xoá, đăng, đổi template.
 

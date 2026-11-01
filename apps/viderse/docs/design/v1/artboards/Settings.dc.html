@@ -769,6 +769,13 @@ ul.vv-dialog__list { padding-left: 30px; }
 .i-external{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4'/%3E%3C/svg%3E")}
 
 .i-user{-webkit-mask-image:url(../icons/user.svg);mask-image:url(../icons/user.svg)}
+/* r32-wide: màn rộng hơn 1440px — 04-components › Bố cục màn rộng */
+@media (min-width: 1600px) {
+  main.center > * { width: 100%; max-width: var(--vv-wide-read, 880px); margin-left: auto; margin-right: auto; }
+  main.center > .dock { max-width: var(--vv-wide-composer, 880px); }
+  main.center .dock .vv-plan { max-width: none; }
+}
+/* /r32-wide */
 </style>
 </helmet>
 <div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
@@ -1268,7 +1275,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </sc-for>
 </section>
 <section class="card" style="border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
-<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 500">Viderse 1.4.0</span><span style="font-size: 12.5px; color: #A0A0AB">Bản mới nhất · cập nhật 20/10/2026</span></div>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 500">Viderse 1.4.0</span><span style="font-size: 12.5px; color: #A0A0AB">Bản mới nhất</span></div>
 <button class="ghost btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra bản mới</button>
 </section>
 </sc-if>
@@ -1329,7 +1336,7 @@ class Component extends DCLogic {
       hasDot: !!dot, dot: dot || 'transparent', dotLabel: dot === '#FF9A5C' ? 'Cần sửa' : 'Có cập nhật', pick: () => this.setState({ sec: k }) });
 
     // r17-storage
-    const DRV = [{"id": "mac", "name": "Macintosh HD", "kind": "Ổ trong máy · APFS", "free": "212 GB", "freeN": 212, "same": true, "path": "~/Movies/Viderse Projects"}, {"id": "t7", "name": "Samsung T7", "kind": "Ổ ngoài USB-C · APFS", "free": "1,62 TB", "freeN": 1620, "path": "/Volumes/Samsung T7/Viderse Projects"}, {"id": "lexar", "name": "Lexar 128GB", "kind": "USB · exFAT", "free": "60 GB", "freeN": 60, "path": "/Volumes/Lexar 128GB/Viderse Projects"}, {"id": "gdrive", "name": "Google Drive", "kind": "Thư mục đồng bộ đám mây", "free": "", "freeN": 0, "cloud": true, "path": "~/Library/CloudStorage/GoogleDrive/Viderse Projects", "reason": "Không dùng được: thư mục đồng bộ có thể khoá tệp đang dựng"}];
+    const DRV = [{"id": "mac", "name": "Macintosh HD", "kind": "Ổ trong máy · APFS", "free": "212 GB", "freeN": 212, "same": true, "path": "~/Movies/Viderse Projects"}, {"id": "t7", "name": "Samsung T7", "kind": "Ổ ngoài USB · APFS", "free": "1,62 TB", "freeN": 1620, "path": "/Volumes/Samsung T7/Viderse Projects"}, {"id": "lexar", "name": "Lexar 128GB", "kind": "USB · exFAT", "free": "60 GB", "freeN": 60, "path": "/Volumes/Lexar 128GB/Viderse Projects"}, {"id": "gdrive", "name": "Google Drive", "kind": "Thư mục đồng bộ đám mây", "free": "", "freeN": 0, "cloud": true, "path": "~/Library/CloudStorage/GoogleDrive/Viderse Projects", "reason": "Không dùng được: thư mục đồng bộ có thể khoá tệp đang dựng"}];
     const sst = this.state.store || this.props.store || 'here';
     const sdrive = this.state.sdrive || (sst === 'lowspace' ? 'lexar' : (sst === 'cloud' ? 'gdrive' : 't7'));
     const smode = this.state.smode || 'move';
@@ -1614,7 +1621,7 @@ class Component extends DCLogic {
     const M = (id, note, cap, price, rec) => ({ id, note, cap, price, rec: !!rec });
     const CAT = {
       chatgpt: { count: 2, src: 'Codex', models: [M('gpt-6.1-sol', 'Viết và đọc ảnh tốt nhất trong gói', 'tv', 'trong gói Plus', 1), M('gpt-image-2', 'Vẽ ảnh · 50 ảnh mỗi ngày', 'i', 'trong gói Plus', 1), M('gpt-6-luna', 'Nhanh hơn, rẻ hạn mức hơn', 'tv', 'trong gói Plus')], def: ['gpt-6.1-sol', 'gpt-image-2'] },
-      grok: { count: 1, src: 'xAI', models: [M('grok-imagine-image', 'Vẽ ảnh · 400 ảnh mỗi tuần', 'i', 'trong gói SuperGrok', 1)], def: ['grok-imagine-image'] },
+      grok: { count: 1, src: 'xAI', models: [M('grok-imagine-image', 'Vẽ ảnh · 400 ảnh mỗi tuần', 'i', 'trong gói', 1)], def: ['grok-imagine-image'] },
       gemini: { count: 48, src: 'Google AI Studio', models: [M('gemini-2.5-pro', 'Viết dài, đọc ảnh tốt', 'tv', '$1,25 vào · $10 ra', 1), M('gemini-2.5-flash-image', 'Vẽ ảnh, giữ bố cục khung mẫu', 'i', '$0,039 mỗi ảnh', 1), M('gemini-2.5-flash', 'Nhanh, rẻ', 'tv', '$0,30 vào · $2,50 ra')], def: ['gemini-2.5-pro', 'gemini-2.5-flash-image'] },
       ollama: { count: 6, src: 'Ollama trên máy này', models: [M('qwen3:14b', 'Chạy trên máy · miễn phí · chậm hơn', 't', 'miễn phí'), M('gemma3:12b', 'Đọc được ảnh · chạy trên máy', 'tv', 'miễn phí')], def: ['qwen3:14b'] },
       openrouter: { count: 312, src: 'OpenRouter', models: [M('google/gemini-2.5-flash-image', 'Gemini 2.5 Flash Image · vẽ ảnh', 'i', '$0,039 mỗi ảnh', 1), M('qwen/qwen3-235b-a22b', 'Qwen3 235B · viết tiếng Việt tốt', 't', '$0,13 vào · $0,60 ra', 1), M('google/gemini-2.5-pro', 'Gemini 2.5 Pro', 'tv', '$1,25 vào · $10 ra', 1), M('deepseek/deepseek-r1', 'DeepSeek R1 · suy nghĩ kỹ', 't', '$0,40 vào · $2 ra'), M('moonshotai/kimi-k2', 'Kimi K2', 't', '$0,55 vào · $2,20 ra'), M('meta-llama/llama-4-maverick', 'Llama 4 Maverick', 'tv', '$0,15 vào · $0,60 ra')], def: [] }
@@ -1637,10 +1644,10 @@ class Component extends DCLogic {
     const provs = [
       PV('chatgpt', { ini: 'C', name: 'ChatGPT', tint: '#D7F5E6', ink: '#0F5132', kind: 'Đăng nhập gói', caps: 'Chữ · Vẽ ảnh', sub: 'Đã đăng nhập · gói Plus · 2 model đã chọn · kiểm tra lúc 23:40', subFg: '#A6EDC1', sec: 'Đăng xuất', hasQuota: true, used: 'Ảnh hôm nay 43/50', pct: '86%', reset: 'đặt lại 07:00' }),
       PV('grok', Object.assign({ ini: 'G', name: 'Grok', tint: '#E4E4E8', ink: '#16161A', kind: 'Đăng nhập gói', caps: 'Vẽ ảnh' },
-        gOk ? { sub: 'Đã đăng nhập · SuperGrok · 1 model đã chọn', sec: 'Đăng xuất', secGo: () => this.setState({ grok: 'out', prov: 'chatgpt' }), hasQuota: true, used: 'Ảnh tuần này 210/400', pct: '52.5%', reset: 'đặt lại thứ Hai' }
+        gOk ? { sub: 'Đã đăng nhập · 1 model đã chọn', sec: 'Đăng xuất', secGo: () => this.setState({ grok: 'out', prov: 'chatgpt' }), hasQuota: true, used: 'Ảnh tuần này 210/400', pct: '52.5%', reset: 'đặt lại thứ Hai' }
           : grok === 'code' ? { sub: 'Đang đăng nhập · chờ bạn nhập mã trên trang xAI', subFg: '#F6CB8C', hasModels: false, hasTest: false, hasSec: false, isCode: true, bd: 'rgba(246,203,140,0.3)' }
           : { sub: 'Chưa đăng nhập · cần gói SuperGrok hoặc X Premium', subFg: '#8B8B97', hasModels: false, hasTest: false, hasSec: false, hasPri: true, pri: 'Đăng nhập Grok', priGo: () => this.setState({ grok: 'code' }) })),
-      PV('gemini', { ini: 'G', name: 'Gemini', tint: '#DCE8FF', ink: '#173A8C', kind: 'Khoá API', caps: 'Chữ · Vẽ ảnh', sub: 'Khoá API ••••7c2e · 2 model đã chọn · tháng này $1,84', sec: 'Đổi khoá' }),
+      PV('gemini', { ini: 'G', name: 'Gemini', tint: '#DCE8FF', ink: '#173A8C', kind: 'Khoá API', caps: 'Chữ · Vẽ ảnh', sub: 'Khoá API ••••7c2e · 2 model đã chọn', sec: 'Đổi khoá' }),
       PV('ollama', { ini: 'O', name: 'Ollama', tint: '#EDEDEF', ink: '#16161A', kind: 'Trên máy này', caps: 'Chữ', sub: 'localhost:11434 · 1 model đã chọn · miễn phí, không cần mạng', sec: 'Đổi địa chỉ' })
     ];
     if (hasOR) {
@@ -1678,7 +1685,7 @@ class Component extends DCLogic {
       ['ChatGPT · gói Plus', 'gpt-6.1-sol', 'tv', 'Trong gói · viết và đọc ảnh tốt nhất'], ['ChatGPT · gói Plus', 'gpt-6-luna', 'tv', 'Trong gói · nhanh hơn'], ['ChatGPT · gói Plus', 'gpt-image-2', 'i', 'Trong gói · chỉ vẽ ảnh'],
       ['Gemini · khoá API', 'gemini-2.5-pro', 'tv', '$1,25 vào · $10 ra'], ['Gemini · khoá API', 'gemini-2.5-flash-image', 'i', '$0,039 mỗi ảnh · chỉ vẽ ảnh'],
       ['Ollama · máy này', 'qwen3:14b', 't', 'Miễn phí · chạy trên máy, chậm hơn'],
-      ['Grok · gói SuperGrok', 'grok-imagine-image', 'i', 'Trong gói · chỉ vẽ ảnh']
+      ['Grok', 'grok-imagine-image', 'i', 'Trong gói · chỉ vẽ ảnh']
     ];
     const provOf = (id) => (MODELS.find((m) => m[1] === id) || ['', '', '', ''])[0];
     const pickOpen = this.state.pick !== null ? this.state.pick : (this.props.ai || 'none');
@@ -1701,8 +1708,8 @@ class Component extends DCLogic {
       pick: ok ? () => this.setState({ prov: k }) : () => {} });
     const providers = [
       P('chatgpt', 'ChatGPT', 'gpt-image-2', 'Gói Plus · 50 ảnh mỗi ngày', '43/50 hôm nay', '86%', 'đặt lại 07:00', true, true),
-      P('grok', 'Grok', 'grok-imagine-image', gOk ? 'SuperGrok · 400 ảnh mỗi tuần' : 'Cần đăng nhập Grok ở Kết nối AI', gOk ? '210/400 tuần này' : '—', gOk ? '52.5%' : '0%', gOk ? 'đặt lại thứ Hai' : '', false, gOk, gOk ? '' : 'Đăng nhập Grok ở Kết nối AI trước'),
-      P('gemini', 'Gemini', 'gemini-2.5-flash-image', 'Khoá API · trả theo ảnh · máy tự tiêu tối đa 50 ảnh/ngày', '$0,039 mỗi ảnh', '0%', '≈ $0,27 mỗi video', false, true, '', '0')
+      P('grok', 'Grok', 'grok-imagine-image', gOk ? '400 ảnh mỗi tuần' : 'Cần đăng nhập Grok ở Kết nối AI', gOk ? '210/400 tuần này' : '—', gOk ? '52.5%' : '0%', gOk ? 'đặt lại thứ Hai' : '', false, gOk, gOk ? '' : 'Đăng nhập Grok ở Kết nối AI trước'),
+      P('gemini', 'Gemini', 'gemini-2.5-flash-image', 'Khoá API · trả theo ảnh · máy tự tiêu tối đa 50 ảnh/ngày', '$0,039 mỗi ảnh', '0%', '', false, true, '', '0')
     ];
     const chainOf = (ids) => ids.map((x, i) => ({ n: String(i + 1), id: x[0], p: x[1] }));
     const artChain = chainOf((prov === 'chatgpt' ? [] : [['gpt-image-2', 'ChatGPT']]).concat(prov !== 'grok' && gOk ? [['grok-imagine-image', 'Grok']] : []).concat(prov !== 'gemini' ? [['gemini-2.5-flash-image', 'Gemini']] : []));
@@ -1748,7 +1755,7 @@ class Component extends DCLogic {
       PL(Object.assign({ id: 'yt', ini: 'YT', name: 'YouTube', uses: 'Video đối thủ: tải video gốc, phụ đề, tiêu đề, lượt xem', isYt: true,
         meta: 'Tải 360p + phụ đề · 5 đối thủ', link: 'Mở Khám phá', href: 'Explore.dc.html' },
         ytBot ? Object.assign(st(['Cần cookie', '#FF9A5C', 'rgba(255,154,92,0.1)']), { bd: 'rgba(255,154,92,0.28)', hasNote: true, hasNoteAct: true, noteCls: 'vv-banner--issue', noteRole: 'alert', noteIcon: 'i-danger',
-          noteTitle: 'YouTube báo “xác nhận bạn không phải bot” lúc 23:52', noteText: 'Trinh sát chưa tải được phụ đề của 1 video. Chọn hồ sơ trình duyệt có đăng nhập Google phụ rồi thử lại.', noteAct: 'Thử lại', noteDo: () => this.setState({ ytx: 'ok' }) }) : st(OK))),
+          noteTitle: 'YouTube báo “xác nhận bạn không phải bot” lúc 23:52', noteText: 'Trinh sát chưa tải được phụ đề của một số video. Chọn hồ sơ trình duyệt có đăng nhập Google phụ rồi thử lại.', noteAct: 'Thử lại', noteDo: () => this.setState({ ytx: 'ok' }) }) : st(OK))),
       PL(Object.assign({ id: 'tw', ini: 'TW', name: 'Twitch', uses: 'Video nền: clip, highlight, phát lại', isNone: true, noneText: 'Không cần đăng nhập: app chỉ đọc clip, highlight và video phát lại công khai.',
         meta: 'Tải 480p · 3 kênh, 1 video lẻ', link: 'Mở Video nền', href: 'Library.dc.html' }, st(OK))),
       PL(Object.assign({ id: 'bili', ini: 'BL', name: 'Bilibili', uses: 'Video nền: video đã đăng', isBili: true,

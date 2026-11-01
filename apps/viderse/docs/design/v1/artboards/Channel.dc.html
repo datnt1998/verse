@@ -739,6 +739,13 @@ ul.vv-dialog__list { padding-left: 30px; }
 @keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
 
 /* /r16-agent */
+/* r32-wide: màn rộng hơn 1440px — 04-components › Bố cục màn rộng */
+@media (min-width: 1600px) {
+  main.center > * { width: 100%; max-width: var(--vv-wide-content, 1280px); margin-left: auto; margin-right: auto; }
+  main.center > .dock { max-width: var(--vv-wide-composer, 880px); }
+  main.center .dock .vv-plan { max-width: none; }
+}
+/* /r32-wide */
 </style>
 </helmet>
 <div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">

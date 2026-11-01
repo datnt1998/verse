@@ -142,7 +142,7 @@ Sau đó `POST /api/clone/enqueue` với cùng body (không còn endpoint “sta
 
 ## §5 · Đầu trang (mới)
 
-`GET /api/status` (poll 3 giây khi tab đang hiện), trả:
+`GET /api/status` (lần tải đầu; sau đó nhận sự kiện đẩy `GET /api/events`; mất kết nối sự kiện thì poll 3 giây — #8), trả: <!-- r32 -->
 
 ```ts
 {
@@ -219,9 +219,9 @@ Danh sách `IntentId` v1 ở [Gói V11](08-dev-prompt.md#goi-v11).
 
 **Cách chuyển câu thành intent:** dùng ChatGPT qua đường Codex hiện có, chỉ phân loại chữ, không vẽ ảnh. Câu người dùng là dữ liệu, không phải chỉ dẫn hệ thống. Chỉ cho phép đúng các intent trong danh sách.
 
-## §10 · Truy cập từ điện thoại (chờ quyết định D1)
+## §10 · Truy cập từ điện thoại (đã chốt D1: cách a) <!-- r32 -->
 
-App hiện chỉ nghe `127.0.0.1`. Bản điện thoại cần một trong hai cách:
+Đã chốt (29/10/2026, #11): **(a)** nghe trên mạng LAN, ghép thiết bị một lần bằng mã QR, sau đó dùng cookie phiên. Hai cách đã cân nhắc:
 - **(a)** nghe trên mạng LAN, kèm mã ghép thiết bị một lần và cookie phiên;
 - **(b)** chỉ qua Tailscale/VPN của người dùng.
 
@@ -254,7 +254,7 @@ GET /api/notifications?cursor= → lịch sử
 POST /api/notifications/read { ids | "all" }
 ```
 
-- Thay `GET /api/status` ở §5 bằng `GET /api/activity` (cùng nhịp poll 3 giây khi tab hiện).
+- Giữ cả hai (#12): đầu trang đọc `GET /api/status` (§5: `paused`, `reviewCount`, `attention`); popover Việc nền và thông báo đọc `GET /api/activity`. Cả hai làm mới qua sự kiện đẩy; mất kết nối sự kiện thì poll 3 giây. <!-- r32 -->
 - Gộp: thông báo cùng `kind` trong 10 giây → tăng `count`, không tạo dòng mới.
 - Toast chỉ hiện cho `review_ready`, `needs_attention`, `ready_to_post`, `task_done` của việc người dùng tự bắt đầu, và `action_result`.
 <!-- r3-dc -->

@@ -93,6 +93,13 @@ button,[role=tab],[role=radio],.chip,.kbd{white-space:nowrap}
 .step{width:32px;height:100%;border-radius:0;border:none;background:transparent;color:#EDEDEF;display:flex;align-items:center;justify-content:center;font-size:15px}
 @media (max-width:1380px){.qrow{grid-template-columns:24px 14px 64px minmax(0,1fr) 176px 88px 64px !important}.c-tpl{display:none !important}}
 @media (max-width:1100px){.qrow{grid-template-columns:24px 64px minmax(0,1fr) 88px 64px !important}.c-ch,.handle{display:none !important}}
+/* r32-wide: màn rộng hơn 1440px — 04-components › Bố cục màn rộng */
+@media (min-width: 1600px) {
+  main.center > * { width: 100%; max-width: var(--vv-wide-content, 1280px); margin-left: auto; margin-right: auto; }
+  main.center > .dock { max-width: var(--vv-wide-composer, 880px); }
+  main.center .dock .vv-plan { max-width: none; }
+}
+/* /r32-wide */
 </style>
 </helmet>
 <div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">

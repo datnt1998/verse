@@ -40,7 +40,7 @@ Nguồn sự thật:
 - Thêm cột `clone_jobs.paused_at` và migration; API và CLI `pause`/`resume`.
 
 ### Nghiệm thu
-- Mọi trang có thanh trên giống artboard. Không còn rail. Hẹp hơn 700px thì nav cuộn ngang, không rớt dòng.
+- Mọi trang có thanh trên giống artboard. Không còn rail. Từ 768px trở lên, nav không đủ chỗ thì cuộn ngang, không rớt dòng; dưới 768px là khung điện thoại (#16). <!-- r32 -->
 - `JobsPill` cập nhật trong vòng 3 giây sau khi một job bắt đầu hoặc xong. Khi tạm dừng hàng chờ, viên ghi “Đã tạm dừng”.
 - Chấm ở bánh răng hiện khi đăng nhập ChatGPT hết hạn; bấm vào mở đúng mục Cài đặt.
 - Bật `prefers-reduced-motion` thì logo, orb và chấm đỏ đều đứng yên.
@@ -297,7 +297,7 @@ Nguồn sự thật:
 - Xong → “Làm video mới nhất” tạo video `pick` cho kênh mới.
 - Ghi “Gói V9” vào `10-gap-closure.md`.
 
-## Gói V10 — Điện thoại (P2, phụ thuộc V0–V3, quyết định D1) <!-- goi-v10 -->
+## Gói V10 — Điện thoại (P2, phụ thuộc V0–V3; D1 đã chốt: LAN + ghép thiết bị) <!-- goi-v10 -->
 
 **Vì sao:** duyệt ảnh và theo dõi được khi không ngồi máy.
 - Artboard: `MMain` (`scope`, `screen=list|detail|jobs|switch`, `stage=images|review`, `promptPop`, `meta`), `MReview` (`state=review|feedback|redrawing|empty|learn`, `score`), `MChannel` (`tab=videos|sources|templates|settings`, `identity`, `autonomy`, `sheet`), `MNew` (`input=empty|pasted|multi`), `MExplore` (`mode=browse|select|info|add`), `MCompVideo` — Chi tiết video (`sheet=none|picker|why`), `MSettings` (`screen=list|tools|connect|agents`, `sheet=none|add|models|director|artist`). <!-- r2-v10 --> <!-- r11-audit -->
@@ -310,7 +310,7 @@ Nguồn sự thật:
   - Trang chỉ có trên máy tính hiện “Mở trên máy tính” (danh sách ở ia-flows §6.2). Tạo kênh có bản điện thoại `MCreate`.
 
 ### Việc backend
-- Theo quyết định D1 (LAN có ghép thiết bị, hoặc Tailscale). Chưa chốt thì không mở ra ngoài localhost.
+- D1 đã chốt cách (a): nghe trên LAN, ghép thiết bị một lần bằng mã QR, rồi dùng cookie phiên (data-contract §10, #11). <!-- r32 -->
 
 ### Nghiệm thu
 - 390×844: không cuộn ngang ở mọi màn; duyệt được một video chỉ bằng chạm.
@@ -340,7 +340,7 @@ Nguồn sự thật:
 **Cập nhật đợt 16 — kế hoạch nhiều bước** <!-- r16-agent -->: câu → kế hoạch 1–5 bước (`assistant/plan`, data-contract §22), thêm intent `prioritize`, `set_autonomy`, `add_rule`, `make_videos`, và phạm vi **mọi kênh** (ô nhắn ở Bản tin). Thiếu thông tin → `ask` với lựa chọn. Artboard `Main` · `agent=plan`, `MMain` · `screen=plan`.
 
 ### Việc FE
-- Gửi → **thẻ Kế hoạch** ngay trên ô nhắn: mỗi bước một dòng có ô tích, orb trợ lý, giá; dòng tổng; nút **Làm N bước** (sáng; đỏ khi có bước đưa video vào làm) và **Sửa câu**. Câu không hiểu → “Chưa làm được việc này” + 2 gợi ý.
+- Gửi → **thẻ Kế hoạch** ngay trên ô nhắn: mỗi bước một dòng có ô tích, orb trợ lý, giá; dòng tổng; nút **Làm N bước** (luôn sáng như board, #74) và **Sửa câu**. Câu không hiểu → “Chưa làm được việc này” + 2 gợi ý.
 
 ### Việc backend
 - `parse` và `run` theo §9. Phân loại bằng ChatGPT qua đường Codex hiện có, đầu ra JSON theo schema, chỉ nhận đúng các intent trong bảng. Câu người dùng là dữ liệu, không phải chỉ dẫn hệ thống.
@@ -610,7 +610,7 @@ Nguồn sự thật:
 ### Việc backend
 - Thêm `YTF_PROJECTS_DIR` (mặc định `YTF_DATA_DIR/projects`; với dữ liệu cũ là chính `YTF_DATA_DIR`) cho `clone-jobs/`, `editor-workspace/` (thay `YTF_EDITOR_WORKSPACE`), `export-requests/`, media của `owner-channels/`. Giữ ở `YTF_DATA_DIR`: `app.db`, `bin/`, `python/`, `models/`, `envs/`, `chrome-profiles/`, `cache/`, `process-groups/`.
 - `desktop/main.mjs` đọc `storage.json` trong `userData` trước khi khởi động server và truyền `YTF_PROJECTS_DIR`; đổi thư mục = ghi `storage.json` rồi khởi động lại server trong app (không thoát app).
-- DB: đường dẫn tệp lưu **tương đối** với `YTF_PROJECTS_DIR`; migration đổi đường dẫn tuyệt đối cũ (nếu có) sang tương đối.
+- DB: đường dẫn tệp lưu **tương đối** với `YTF_PROJECTS_DIR`. Không có migration dữ liệu yt-factory (#9). <!-- r32 -->
 - Chuyển: tạm dừng hàng chờ (`paused_at` như V0), chép theo nhóm có kiểm tra kích thước + hash mẫu, đổi `storage.json` khi chép xong, chạy tiếp hàng chờ; cùng ổ thì `rename`. Bản cũ giữ 7 ngày (`storage.json.previous` + hạn xoá).
 - Kiểm tra trước: chỗ trống ≥ dữ liệu × 1,1 (chỉ video mới: ≥ 20 GB), quyền ghi (ghi thử tệp tạm), không nằm trong `~/Library/CloudStorage`, iCloud Drive hay Dropbox, hệ tệp (FAT32 từ chối: tệp > 4 GB).
 - Theo dõi ổ: thư mục biến mất → tạm dừng hàng chờ, `needs_attention` “Không thấy ổ …”; thư mục xuất hiện lại → tự chạy tiếp.
@@ -664,7 +664,7 @@ Nguồn sự thật:
 - Thẻ Bilibili: phần đăng nhập 4 dạng (QR + tự gia hạn · cookie dán tay · hết hạn · chưa đăng nhập) như artboard. **Dán cookie thủ công** gập sẵn.
 - `QrLoginDialog` (máy tính) và sheet (điện thoại): gọi `POST …/login/qr`, hỏi trạng thái mỗi 2 giây, đếm ngược từ `expiresAt`, đổi bước và ô trạng thái theo `status`. Thành công → **Xong** đóng hộp thoại, làm mới `GET /api/platforms`, toast “Đã đăng nhập Bilibili: <tài khoản>”.
 - Bấm vào mã không làm gì (trên artboard bấm mã để xem trạng thái kế tiếp, chỉ để demo).
-- Điện thoại: dòng **Mở app** mở `loginUrl` (chờ hỏi đáp #6).
+- Điện thoại: dòng **Mở app** mở `loginUrl` nếu thử trên máy thật mở được app 哔哩哔哩; không thì thay bằng câu “Quét bằng điện thoại khác, hoặc mở Cài đặt trên máy tính” (#6). <!-- r32 -->
 
 ### Việc backend
 - Port `bilibili-qr-login.ts` sang Go trong verse (`apps/viderse/internal/...`): tạo mã (`passport.bilibili.com/x/passport-login/web/qrcode/generate`, kèm `buvid3/4` nếu lấy được), hỏi mã (86101 chờ · 86090 đã quét · 86038 hết hạn · 0 xong · khác = từ chối), lưu cookie + refresh token, gia hạn (`cookie/info` → `correspond` → `cookie/refresh` → `confirm/refresh`), kiểm tra tài khoản.
@@ -785,6 +785,28 @@ Nguồn sự thật:
 - Rút mạng ở màn đăng nhập → băng cam, chip đầu trang cam; không hiện mã lỗi.
 - Ghi “Gói V27” vào `10-gap-closure.md`.
 
+## Gói V28 — Màn rộng và chốt hỏi đáp cuối phase nghiệm thu (P1) <!-- r32 --> <a id="goi-v28"></a>
+
+**Vì sao:** trên màn rộng hơn 1440px, cột giữa (Nhật ký tiến độ, ô Nhắn trợ lý, bảng) kéo dãn theo cả bề ngang, dòng chữ dài khó đọc. Cùng đợt, design chốt các mục hỏi đáp còn mở để đóng nghiệm thu.
+- Artboard: `Main`, `Activity`, `Dialogs`, `System`, `Queue`, `Channel`, `Explore`, `Library`, `Review`, `Settings`, `Template` (khối CSS `r32-wide`); `Settings` / `MSettings` (câu chữ #20, #22, #25, #26, #28).
+- Spec: components › Bố cục màn rộng, Badge số, Composer; tokens › đợt 32; hỏi đáp #6, #8–#23, #25–#30, #73–#76.
+
+### Việc FE
+- **Màn rộng:** từ 1600px, con trực tiếp của cột giữa có `max-width` theo loại màn (1280 · 1760 · 880) và căn giữa; ô Nhắn trợ lý + dòng phím tắt tối đa 880px. Khung (đầu trang, cột trái, cột phải) không đổi. Dưới 1600px không đổi gì.
+- **Badge** (#14): `.vv-badge` theo kit (chữ `--vv-st-review` trên `--vv-badge-bg`), bỏ `--vv-badge-ink` nâu.
+- **Mốc điện thoại** (#16): một mốc 768px; bỏ luật 700px.
+- **Cài đặt** (#20, #22, #25, #26, #28): bỏ ngày phát hành; “Ổ ngoài USB”; banner bot ghi “một số video”, “từ HH:MM” = lần lỗi cuối; thẻ Grok không ghi gói; ẩn “tháng này $…”; không ghi “≈ $… mỗi video” ở Cài đặt; 4 nguồn vẽ xếp lưới 2 × 2.
+- **Kết nối AI** (#27): thẻ lỗi lên đầu, còn lại theo thứ tự thêm (cũ trước); thẻ vừa thêm đứng đầu tới khi rời trang. Không tạo thẻ trùng loại: chọn lại nguồn đã có → cuộn tới thẻ đó và mở *Đổi khoá* (trừ Tương thích OpenAI và Ollama khác địa chỉ).
+- **Khung Cài đặt** (#30): dải mất kết nối đẩy nội dung; chấm theo loại `tool_failed`/`login_expired` cam (`--vv-danger`), `tool_update` xanh (`--vv-info`), `quota_low` vàng (`--vv-st-review`); pha cài không biết tổng dùng thanh chạy vô định `.vv-progress--working`.
+- **Composer** (#74): danh sách lệnh `/` theo components › Composer.
+- Các mục còn lại: làm như dev đề xuất trong hỏi đáp (đã đồng ý).
+
+### Nghiệm thu
+- Mở Bàn dựng ở 2560 × 1440: cột giữa rộng 1280px căn giữa, ô Nhắn trợ lý 880px; ở 1440 × 900 không lệch artboard.
+- Khám phá ở 2560: lưới thêm cột, thẻ giữ cỡ; Cài đặt ở 2560: khối 760px nằm giữa.
+- Thanh trên: badge Duyệt nền vàng nhạt, chữ vàng, khớp `Main`.
+- Ghi “Gói V28” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -796,7 +818,7 @@ Nguồn sự thật:
 | V6 | `GET /api/queue` mở rộng; chuyển 3 khoá thiết lập |
 | V8 | `GET /api/templates/overlays` |
 | V9 | tạo kênh trả `identityJobId` |
-| V10 | theo D1 |
+| V10 | LAN + ghép thiết bị bằng QR, cookie phiên (D1 cách a) |
 | V11 | `assistant/parse`, `assistant/run`; bộ lọc Tự lấy `minDurationSec` |
 | V12 | `GET /api/health`; đếm trước cho hộp thoại xoá |
 | V13 | `ranges` cho các mục chưa đạt độ hoàn thiện; `GET /api/editor/:id/quality`, `POST …/captions/align` (khớp mốc từng từ), `POST /api/clone/:id/measure`, export `accept` | <!-- r2-backend --> <!-- r27-editor -->
@@ -814,6 +836,7 @@ Nguồn sự thật:
 | V25 | `GET /api/storage/server`, `POST …/test` (+ `probe` từ trình duyệt), `PUT …/config`, `POST …/migrate` (+ pause/resume/cancel/retry); BackgroundTask `storage_migrate`; khoá bí mật qua `secretbox`; bộ nhớ đệm làm việc; `OpStat` từ lần khởi động; `storageDown` trong `/api/status` | <!-- r29-s3 -->
 | V26 | `apps: AppLink[]` trong `GET /api/me` và 403 `app_access_denied`; 401 `session_ended` có `reason`, `app` | <!-- r30-sso -->
 | V27 | Không API mới; dùng `pausedAt`, `waitReason`, `PATCH /api/queue` v2 (#52) và phiên thiết bị `GET /api/me/sessions` | <!-- r31-v27 -->
+| V28 | Không API mới; `/api/events` (SSE) đã có (#8) | <!-- r32 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->
