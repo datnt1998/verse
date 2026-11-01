@@ -16,7 +16,7 @@ import { storage } from './storage'
 import { tools } from './tools'
 
 export const vi = {
-  brand: { name: 'Viderse', studio: 'Studio' },
+  brand: { name: 'Viderse', studio: 'Studio', tagline: 'Xưởng video' },
 
   common: {
     loading: 'Đang tải…',

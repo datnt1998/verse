@@ -18,7 +18,7 @@ function openNotification(href?: string) {
 }
 async function showSystemNotification(n: AppNotification) {
   const href = n.actions.at(-1)?.href
-  const options = { body: n.text, tag: `activity:${n.id}`, icon: '/app-icon-192.png', data: { href } }
+  const options = { body: n.text, tag: `activity:${n.id}`, icon: '/icons/icon-192.png', data: { href } }
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.ready

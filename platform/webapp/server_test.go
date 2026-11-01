@@ -21,9 +21,14 @@ const testCookie = "verse_session"
 
 func testUI() fstest.MapFS {
 	return fstest.MapFS{
-		"index.html":           &fstest.MapFile{Data: []byte("<html>spa</html>")},
-		"assets/app-abc123.js": &fstest.MapFile{Data: []byte("console.log(1)")},
-		"docs/readme.txt":      &fstest.MapFile{Data: []byte("hello")},
+		"index.html":            &fstest.MapFile{Data: []byte("<html>spa</html>")},
+		"assets/app-abc123.js":  &fstest.MapFile{Data: []byte("console.log(1)")},
+		"docs/readme.txt":       &fstest.MapFile{Data: []byte("hello")},
+		"manifest.webmanifest":  &fstest.MapFile{Data: []byte(`{"name":"TestApp"}`)},
+		"icons/favicon.svg":     &fstest.MapFile{Data: []byte("<svg/>")},
+		"icons/favicon.ico":     &fstest.MapFile{Data: []byte("ico")},
+		"icons/icon-192.png":    &fstest.MapFile{Data: []byte("png")},
+		"icons/apple-touch.png": &fstest.MapFile{Data: []byte("png")},
 	}
 }
 
@@ -191,6 +196,24 @@ func TestStaticSPA(t *testing.T) {
 	}
 	if got := w.Header().Get("Cache-Control"); got != "no-cache" {
 		t.Fatalf("docs cache header %q", got)
+	}
+
+	// Manifest và icon phải ra đúng kiểu: trình duyệt từ chối cài PWA khi
+	// manifest không phải application/manifest+json, và tệp trong icons/ không
+	// được rơi về index.html.
+	for path, want := range map[string]string{
+		"/manifest.webmanifest": "application/manifest+json",
+		"/icons/favicon.svg":    "image/svg+xml",
+		"/icons/favicon.ico":    "image/x-icon",
+		"/icons/icon-192.png":   "image/png",
+	} {
+		w := ts.do(http.MethodGet, path, "", "")
+		if w.Code != http.StatusOK {
+			t.Fatalf("%s status %d", path, w.Code)
+		}
+		if got := w.Header().Get("Content-Type"); got != want {
+			t.Fatalf("%s content type %q, muốn %q", path, got, want)
+		}
 	}
 
 	// HEAD chỉ trả header.

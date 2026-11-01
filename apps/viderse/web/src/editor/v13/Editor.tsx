@@ -13,6 +13,7 @@ import { mutate, request } from '../../api/request'
 import { subscribeEvents } from '../../data/events'
 import { navigate, useRoute } from '../../router'
 import { ShortcutProvider, useShortcutAction } from '../ui/shortcuts'
+import { documentTitle } from '../../shell/labels'
 import { Shortcuts } from './Shortcuts'
 import { useProjectSession } from '../ui/shell/use-project-session'
 import { MediaMetadataSync } from '../ui/shell/media-sync'
@@ -143,7 +144,7 @@ function EditorBody({ projectId }: { projectId: string }) {
     window.addEventListener('beforeunload', beforeUnload)
     return () => window.removeEventListener('beforeunload', beforeUnload)
   }, [session.dirty, session.saving, session.conflict])
-  useEffect(() => { if (project) document.title = `${project.name} · Editor` }, [project?.name])
+  useEffect(() => { if (project) document.title = documentTitle({ name: 'editor', projectId }, { project: project.name }) }, [project?.name, projectId])
   const undo = () => { getCommandExecutor().undo() }
   const redo = () => { getCommandExecutor().redo() }
   useShortcutAction({ id: 'undo', label: 'Hoàn tác', scope: 'global', enabled: canUndo && !aligning && dialog !== 'exporting', run: undo })

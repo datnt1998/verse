@@ -27,6 +27,15 @@ import (
 	"github.com/datnt1998/verse/platform/webguard"
 )
 
+// MIME của tệp gốc SPA: Go không có sẵn hai đuôi này, và máy không có
+// mime.types hệ thống (container tối giản) sẽ trả Content-Type rỗng. Trình
+// duyệt từ chối manifest PWA khi kiểu không phải application/manifest+json,
+// nên đăng ký một lần cho mọi app dùng lớp này.
+func init() {
+	_ = mime.AddExtensionType(".webmanifest", "application/manifest+json")
+	_ = mime.AddExtensionType(".ico", "image/x-icon")
+}
+
 // Options là định danh riêng của từng app mà Server cần.
 type Options struct {
 	// AppName đi vào các lỗi hiển thị cho người dùng trong luồng thiết lập
