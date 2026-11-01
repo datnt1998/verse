@@ -35,7 +35,7 @@ describe('Nút Việc nền trên điện thoại', () => {
     expect(html).toContain('vv-jobsbtn vv-jobsbtn--running')
     // Vòng: nền mờ + cung đỏ, offset theo tiến độ thật của các việc đang chạy.
     expect(html).toContain('vv-jobsbtn__ring')
-    expect(html).toContain('stroke-dashoffset:' + partway)
+    expect(html).toContain(`stroke-dashoffset="${partway}"`)
     expect(html).toContain('>2</span>')
     // Không còn viên chữ “2 · 12” hay “Rảnh”.
     expect(html).not.toContain(t.shell.jobsCompact(2, 12))
@@ -54,7 +54,7 @@ describe('Nút Việc nền trên điện thoại', () => {
     expect(html).toContain('aria-label="Việc nền: đã tạm dừng lúc 00:04, 12 chờ lượt"')
     expect(html).toContain('data-jobs="paused"')
     expect(html).toContain('vv-jobsbtn vv-jobsbtn--paused')
-    expect(html).toContain('stroke-dashoffset:0')
+    expect(html).toContain('stroke-dashoffset="0"')
     expect(html).toContain('pause')
     expect(html).not.toContain('>12</span>')
   })

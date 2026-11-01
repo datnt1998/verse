@@ -73,7 +73,8 @@ export function JobsPill({ status, online, unread = false, compact = false, mobi
           <svg aria-hidden="true" viewBox="0 0 36 36" className={`vv-jobsbtn__ring ${stylex.props(styles.ring).className}`}>
             <circle cx="18" cy="18" r="17" className={`vv-jobsbtn__trk ${stylex.props(styles.ringTrack).className}`} />
             {/* 106,8 = chu vi r 17; tạm dừng thì vòng xám đầy. */}
-            <circle cx="18" cy="18" r="17" className={`vv-jobsbtn__arc ${stylex.props(styles.ringArc, kind === 'paused' ? styles.ringArcPaused : styles.ringOffset(Number((106.8 * (1 - progress)).toFixed(1)))).className}`} />
+            <circle cx="18" cy="18" r="17" strokeDashoffset={kind === 'paused' ? 0 : Number((106.8 * (1 - progress)).toFixed(1))}
+              className={`vv-jobsbtn__arc ${stylex.props(styles.ringArc, kind === 'paused' && styles.ringArcPaused).className}`} />
           </svg>
         )}
         {kind === 'run'
@@ -133,8 +134,7 @@ const styles = stylex.create({
   ring: { position: 'absolute', inset: -1, width: 36, height: 36, transform: 'rotate(-90deg)', pointerEvents: 'none' },
   ringTrack: { fill: 'none', stroke: line['--line-2'], strokeWidth: 2 },
   ringArc: { fill: 'none', stroke: 'var(--vv-red)', strokeWidth: 2, strokeLinecap: 'round', strokeDasharray: 106.8, transitionProperty: 'stroke-dashoffset', transitionDuration: '.3s', transitionTimingFunction: 'linear' },
-  ringArcPaused: { stroke: 'var(--vv-st-neutral)', transitionProperty: 'none', strokeDashoffset: 0 },
-  ringOffset: (offset: number) => ({ strokeDashoffset: offset }),
+  ringArcPaused: { stroke: 'var(--vv-st-neutral)', transitionProperty: 'none' },
   roundNumber: { position: 'relative', fontSize: 13, fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: color['--color-fg'] },
   /* Chấm 10px, viền 2px màu nền, tâm nằm trên mép tròn góc trên phải. */
   roundDot: { position: 'absolute', top: -1, right: -1, width: 10, height: 10, borderRadius: '50%', backgroundColor: color['--color-warn'], boxShadow: `0 0 0 2px ${color['--color-bg']}`, zIndex: 1, pointerEvents: 'none' },
