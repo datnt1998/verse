@@ -107,17 +107,26 @@ func compare(channelID string, dim Dimension, groups map[string]*bucket, prelimi
 	for i, g := range qualified {
 		listed[i] = Group{Label: g.name, N: len(g.views), Median7d: g.median}
 	}
+	if dim == DimTitlePattern && best.key == "question" {
+		// Như board: nhóm còn lại vẽ nhãn "Không phải câu hỏi", không phân biệt
+		// câu có số với câu khẳng định.
+		for i := range listed {
+			if qualified[i].key != "question" {
+				listed[i].Label = "Không phải câu hỏi"
+			}
+		}
+	}
 	x := formatRatio(ratio)
 	var text string
 	switch dim {
 	case DimTemplate:
 		text = fmt.Sprintf("Template %s được xem gấp %s lần %s", best.label, x, worst.label)
 	case DimTitlePattern:
-		text = fmt.Sprintf("Tiêu đề %s: lượt xem 7 ngày gấp %s lần", best.label, x)
+		text = fmt.Sprintf("Tiêu đề %s được xem gấp %s lần sau 7 ngày", best.label, x)
 	case DimLength:
-		text = fmt.Sprintf("Video %s: lượt xem 7 ngày gấp %s lần video %s", best.label, x, worst.label)
+		text = fmt.Sprintf("Video %s được xem gấp %s lần video %s sau 7 ngày", best.label, x, worst.label)
 	default:
-		text = fmt.Sprintf("Đăng %s: lượt xem 7 ngày gấp %s lần đăng %s", best.label, x, worst.label)
+		text = fmt.Sprintf("Video đăng %s được xem gấp %s lần video đăng %s sau 7 ngày", best.label, x, worst.label)
 	}
 	return Insight{
 		ID: string(dim) + ":" + best.key, ChannelID: channelID, Dimension: dim, Text: text,
@@ -144,7 +153,7 @@ func classify(dim Dimension, v Video, loc *time.Location) *bucket {
 		}
 		switch titlePattern(v.Title) {
 		case "question":
-			return &bucket{key: "question", label: "dạng câu hỏi", name: "Dạng câu hỏi",
+			return &bucket{key: "question", label: "dạng câu hỏi", name: "Câu hỏi",
 				apply: ruleApply("Ưu tiên đặt tiêu đề dạng câu hỏi")}
 		case "number":
 			return &bucket{key: "number", label: "có con số", name: "Có con số",

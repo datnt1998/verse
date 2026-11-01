@@ -223,6 +223,30 @@ func TestAnalyzeNineVideosAtMostThreePreliminaryInsights(t *testing.T) {
 	}
 }
 
+func TestInsightTextMatchesBoard(t *testing.T) {
+	loc := time.FixedZone("ICT", 7*3600)
+	insights, _ := Analyze("ch1", nineVideos(), loc)
+	byDim := map[Dimension]Insight{}
+	for _, in := range insights {
+		byDim[in.Dimension] = in
+	}
+	if got := byDim[DimTitlePattern].Text; got != "Tiêu đề dạng câu hỏi được xem gấp 2,0 lần sau 7 ngày" {
+		t.Fatalf("title text = %q", got)
+	}
+	wantLabels := map[string]bool{"Câu hỏi": true, "Không phải câu hỏi": true}
+	_ = wantLabels
+	labels := []string{}
+	for _, g := range byDim[DimTitlePattern].Groups {
+		labels = append(labels, g.Label)
+	}
+	if labels[0] != "Câu hỏi" || labels[len(labels)-1] != "Không phải câu hỏi" {
+		t.Fatalf("group labels = %v", labels)
+	}
+	if got := byDim[DimTemplate].Text; got != "Template TPLA được xem gấp 2,0 lần TPLB" {
+		t.Fatalf("template text = %q", got)
+	}
+}
+
 func TestAnalyzeNeedMoreBelowSix(t *testing.T) {
 	insights, needMore := Analyze("ch1", nineVideos()[:4], time.UTC)
 	if len(insights) != 0 || needMore != 2 {
