@@ -5,7 +5,8 @@ import { exploreStyles } from './explore.stylex'
 // bấm khung → làm nổi ô trên bảng thứ × khối-2-giờ, dòng "n video lẻ ngoài các
 // khung". Zone đổi → refetch posting-slots?zone=.
 import { useState } from 'react'
-import { Icon, Segmented } from '@noverse/ui'
+import { Icon } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { vi as t } from '../../i18n/vi'
 import type { PostingSchedule, PostingZone } from '../../api/rivals'
 import { useMediaQuery } from '../../lib/useMediaQuery'
@@ -38,7 +39,7 @@ export function PostingCard({ schedule, zone, onZone }: {
           value={zone}
           size={touch ? TOUCH_TARGET : 24}
           radius={6}
-          fit="content"
+         
           onChange={(id) => onZone(id as PostingZone)}
           options={[
             { id: 'vn', label: 'VN', style: { paddingInline: 8, fontSize: 11.5 } },

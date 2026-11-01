@@ -12,7 +12,8 @@ import { styles as settingsStyles, stoHeadMRowMarker, stoLocActMarker, stoPickMM
 // khối chọn tại chỗ, đúng artboard Settings · store=pick. Điện thoại chỉ đổi
 // được sang ổ đang cắm (sheet, MSettings · store=pick|lowspace|cloud).
 import { useEffect, useRef, useState } from 'react'
-import { Banner, Button, Dialog, Icon, ProgressBar, RadioCard, Segmented, Sheet, Spinner, useAsyncAction } from '@noverse/ui'
+import { Banner, Button, Dialog, Icon, ProgressBar, RadioCard, Sheet, Spinner, useAsyncAction } from '@noverse/ui'
+import { Segmented } from '../../../components/Segmented'
 import { useResource } from '../../../data/useResource'
 import { invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
@@ -27,7 +28,8 @@ import {
 } from '../../../api/storage'
 import { getActivity, type BackgroundTask } from '../../../api/activity'
 import { ActionButton } from '../../../components/ActionButton'
-import { fill, fmtBytes, fmtDay, fmtEta, fmtGB, fmtTime, midTrunc } from '../fmt'
+import { fill, fmtBytes, fmtDay, fmtEta, fmtGB, fmtTime } from '../fmt'
+import { PathText } from '../../../components/PathText'
 import { getServerStorage } from '../../../api/storageServer'
 import { ServerStorageSection } from './ServerStorageSection'
 import { CleanupCard } from './CleanupCard'
@@ -40,9 +42,34 @@ function errorCode(err: unknown): string | null {
 }
 
 /** Dung lượng ổ theo artboard: từ 1000 GB đổi sang TB (“1,62 TB”). */
-const fmtSpace = (bytes: number): string => {
+const fmtSpace = (bytes: number | null | undefined): string => {
+  if (bytes == null) return ''
   const gb = bytes / 1e9
   return gb >= 1000 ? `${(gb / 1000).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} TB` : fmtBytes(bytes)
+}
+
+/** Câu chỗ trống của ổ đang giữ thư mục dự án, luôn kèm tên ổ (#79):
+ *  “Samsung T7 còn trống 1,54 TB” · ổ rút: “Samsung T7 chưa cắm · chưa đọc
+ *  được chỗ trống” — không thay bằng số của ổ trong máy. */
+const freeLine = (volume: StorageVolume, online: boolean, mobile: boolean): string => {
+  if (!online) return fill(mobile ? t.storage.usage.freeOfflineM : t.storage.usage.freeOffline, { volume: volume.name })
+  return fill(mobile ? t.storage.usage.freeM : t.storage.usage.free, { volume: volume.name, free: fmtSpace(volume.freeBytes) })
+}
+
+/** Loại ổ + tình trạng ở dòng vị trí: “Ổ ngoài USB · APFS · còn 1,54 TB”,
+ *  ổ rút “Ổ ngoài USB · APFS · chưa cắm”. */
+const kindText = (volume: StorageVolume, online: boolean): string => {
+  const kind = kindLabel(volume)
+  if (!online) {
+    if (volume.kind === 'internal') return fill(t.storage.project.kindUnreadable, { kind })
+    return volume.fs
+      ? fill(t.storage.project.kindFsOffline, { kind, fs: volume.fs })
+      : fill(t.storage.project.kindOffline, { kind })
+  }
+  const free = fmtSpace(volume.freeBytes)
+  return volume.kind === 'internal'
+    ? fill(t.storage.project.kindFree, { kind, free })
+    : fill(t.storage.project.kindFsFree, { kind, fs: volume.fs, free })
 }
 
 /** Chỉ phần số GB kiểu Việt Nam — câu của artboard tự thêm “GB”; fmtGB thuần
@@ -121,7 +148,7 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
       </div>
       <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
         <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
-        <span className={`vv-mono vv-ell ${stylex.props(settingsStyles.mono, settingsStyles.ell).className}`} title={data?.path}>{data ? midTrunc(data.path, 34) : ''}</span>
+        <PathText path={data?.path ?? ''} className="vv-mono" xstyle={settingsStyles.mono} />
       </div>
       <label className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
         <Icon name="search" size={14} className="vv-ic" xstyle={[settingsStyles.ic]} />
@@ -284,7 +311,7 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
         <span className={`vv-label ${stylex.props(settingsStyles.label).className}`} id="lbl-newdir">{t.storage.picker.newDirLabel}</span>
         <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`} role="group" aria-labelledby="lbl-newdir">
           <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
-          <span className={`vv-mono vv-ell vv-sto__pickPath ${stylex.props(settingsStyles.stoPickPath, settingsStyles.mono, settingsStyles.ell, (chosenCloud) && settingsStyles.stoPickPathIsBad).className}`} title={chosen}>{chosen}</span>
+          <PathText path={chosen} className={`vv-mono vv-sto__pickPath ${stylex.props(settingsStyles.stoPickPath, settingsStyles.mono, (chosenCloud) && settingsStyles.stoPickPathIsBad).className}`} />
           <ActionButton variant="outline" size="sm" onClick={onBrowse}>{t.storage.picker.browse}</ActionButton>
         </div>
         <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.browseHelp}</span>
@@ -528,7 +555,7 @@ function FailedMoveCard({ failed }: { failed: StorageMoveFailure }) {
       <div className={`vv-sto__cardText ${stylex.props(settingsStyles.stoCardText).className}`}>
         <h2 className={`vv-sto__h2 ${stylex.props(settingsStyles.stoH2).className}`}>{t.storage.moveFailed.title}</h2>
         <span className={`vv-sto__sub ${stylex.props(settingsStyles.stoSub).className}`}>{failed.phase}</span>
-        <span className={`vv-num vv-sto__failPath ${stylex.props(settingsStyles.num, settingsStyles.stoFailPath).className}`} title={failed.target}>{midTrunc(failed.target, 40)}</span>
+        <PathText path={failed.target} className={`vv-num vv-sto__failPath ${stylex.props(settingsStyles.num, settingsStyles.stoFailPath).className}`} />
         <div className={`vv-sto__failActs ${stylex.props(settingsStyles.stoFailActs).className}`}>
           <ActionButton variant="outline" size="sm" pending={retry.pending} onClick={() => void retry.run()}>{t.storage.moveFailed.retry}</ActionButton>
           <ActionButton variant="quiet" size="sm" pending={dismiss.pending} onClick={() => void dismiss.run()}>{t.storage.moveFailed.dismiss}</ActionButton>
@@ -562,18 +589,15 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
 }) {
   const loc = data.projects
   const kind = kindLabel(loc.volume)
-  const free = fmtSpace(loc.volume.freeBytes)
-  const kindText = loc.volume.kind === 'internal'
-    ? fill(t.storage.project.kindFree, { kind, free })
-    : fill(t.storage.project.kindFsFree, { kind, fs: loc.volume.fs, free })
+  const kindLine = kindText(loc.volume, loc.online)
   if (mobile) {
     return (
       <div className={`vv-sto__locM ${stylex.props(settingsStyles.stoLocM).className}`}>
         <span className={`vv-sto__locIconM ${stylex.props(settingsStyles.stoLocIconM).className}`} aria-hidden="true"><Icon name="folder" size={20} /></span>
         <span className={`vv-sto__locTextM ${stylex.props(settingsStyles.stoLocTextM).className}`}>
           <span className={`vv-sto__locNameM ${stylex.props(settingsStyles.stoLocNameM).className}`}>{loc.volume.name}</span>
-          <span className={`vv-sto__locKindM ${stylex.props(settingsStyles.stoLocKindM).className}`}>{kindText}</span>
-          <span className={`vv-mono vv-sto__locPathM ${stylex.props(settingsStyles.stoLocPathM, settingsStyles.mono).className}`}>{loc.displayPath ?? loc.path}</span>
+          <span className={`vv-sto__locKindM ${stylex.props(settingsStyles.stoLocKindM).className}`}>{kindLine}</span>
+          <PathText path={loc.displayPath ?? loc.path} className={`vv-mono vv-sto__locPathM ${stylex.props(settingsStyles.stoLocPathM, settingsStyles.mono).className}`} />
         </span>
         {canChange ? (
           <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
@@ -587,8 +611,8 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
     <div className={`vv-loc ${stylex.props(settingsStyles.loc).className}`}>
       <span className={`vv-loc__icon ${stylex.props(settingsStyles.locIcon).className}`} aria-hidden="true"><Icon name="folder" size={18} /></span>
       <span className={`vv-sto__grow ${stylex.props(settingsStyles.stoGrow).className}`}>
-        <span className={`vv-loc__name ${stylex.props(settingsStyles.locName).className}`}>{loc.volume.name} <span className={`vv-loc__kind ${stylex.props(settingsStyles.locKind).className}`}>· {kindText}</span></span>
-        <span className={`vv-mono vv-ell vv-loc__path ${stylex.props(settingsStyles.locPath, settingsStyles.mono, settingsStyles.ell).className}`} title={loc.displayPath ?? loc.path}>{midTrunc(loc.displayPath ?? loc.path)}</span>
+        <span className={`vv-loc__name ${stylex.props(settingsStyles.locName).className}`}>{loc.volume.name} <span className={`vv-loc__kind ${stylex.props(settingsStyles.locKind).className}`}>· {kindLine}</span></span>
+        <PathText path={loc.displayPath ?? loc.path} className={`vv-mono vv-loc__path ${stylex.props(settingsStyles.locPath, settingsStyles.mono).className}`} />
       </span>
       <ActionButton variant="quiet" size="sm" pending={finderPending} onClick={onFinder}>{t.storage.project.finder}</ActionButton>
       {canChange ? <ActionButton variant="outline" size="sm" onClick={onPick}>{t.storage.project.change}</ActionButton> : null}
@@ -636,11 +660,9 @@ function LocalStorageSection() {
   const moveFailed = data.move?.failed ?? null
   const moving = data.move?.active || Boolean(moveTask)
   const jobs = (activity.data?.running ?? []).filter((x) => x.kind !== 'storage_move').length
-  // Ổ dự án đang rút: không đọc được chỗ trống của nó, card dung lượng hiện chỗ
-  // trống của ổ trong máy — như artboard store=offline (“Ổ còn 212 GB”).
-  const freeShown = loc.online
-    ? loc.volume.freeBytes
-    : (data.suggestions.find((s) => s.volume.kind === 'internal')?.volume.freeBytes ?? loc.volume.freeBytes)
+  // Chỗ trống luôn của ổ đang giữ thư mục lưu dự án, kèm tên ổ; ổ rút thì ghi
+  // “chưa cắm · chưa đọc được chỗ trống” — KHÔNG lấy số của ổ trong máy (#79).
+  const freeText = freeLine(loc.volume, loc.online, mobile)
   const totalUsed = loc.usedBytes + data.stayBytes
   const usageGroups = [
     ...data.usage.map((g) => ({ id: g.id, label: t.storage.usage.groups[g.id] ?? g.id, bytes: g.bytes })),
@@ -733,7 +755,7 @@ function LocalStorageSection() {
         <section className={`vv-sto__card vv-sto__card--m ${stylex.props(settingsStyles.card, settingsStyles.stoCard, settingsStyles.stoCardM).className}`} aria-label={t.storage.usage.titleM}>
           <div className={`vv-sto__headM vv-sto__headM--row ${stylex.props(stoHeadMRowMarker, settingsStyles.stoHeadM, settingsStyles.stoHeadMRow).className}`}>
             <span className={`vv-sto__h2M ${stylex.props(settingsStyles.stoH2M).className}`}>{fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })}</span>
-            <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{fill(t.storage.usage.freeM, { free: fmtSpace(freeShown) })}</span>
+            <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{freeText}</span>
           </div>
           <div role="img" aria-label={fill(t.storage.usage.titleM, { total: fmtGB(totalUsed) })} className={`vv-usage__bar vv-usage__bar--m ${stylex.props(usageBarMarker, settingsStyles.usageBar, settingsStyles.usageBarM).className}`}>
             {usageGroups.map((g) => <span key={g.id} {...stylex.props(settingsStyles.VvUsageBarSpan, ((g.id) === "sources") && settingsStyles.chipGSources, ((g.id) === "exports") && settingsStyles.chipGExports, ((g.id) === "editor") && settingsStyles.chipGEditor, ((g.id) === "images") && settingsStyles.chipGImages, ((g.id) === "stay") && settingsStyles.chipGStay, ((g.id) === "other") && settingsStyles.chipGOther)} style={{ flex: `${g.bytes}` }} />)}
@@ -780,7 +802,7 @@ function LocalStorageSection() {
           <h2 id="h-use" className={`vv-sto__h2 ${stylex.props(settingsStyles.stoH2).className}`}>
             {fill(t.storage.usage.title, { total: fmtGB(totalUsed) })}
           </h2>
-          <span className={`vv-num vv-sto__free ${stylex.props(settingsStyles.stoFree, settingsStyles.num).className}`}>{fill(t.storage.usage.free, { free: fmtSpace(freeShown) })}</span>
+          <span className={`vv-num vv-sto__free ${stylex.props(settingsStyles.stoFree, settingsStyles.num).className}`} title={t.storage.usage.freeTitle}>{freeText}</span>
         </div>
         <div role="img" aria-label={fill(t.storage.usage.title, { total: fmtGB(totalUsed) })} className={`vv-usage__bar ${stylex.props(usageBarMarker, settingsStyles.usageBar).className}`}>
           {usageGroups.map((g) => <span key={g.id} {...stylex.props(settingsStyles.VvUsageBarSpan, ((g.id) === "sources") && settingsStyles.chipGSources, ((g.id) === "exports") && settingsStyles.chipGExports, ((g.id) === "editor") && settingsStyles.chipGEditor, ((g.id) === "images") && settingsStyles.chipGImages, ((g.id) === "stay") && settingsStyles.chipGStay, ((g.id) === "other") && settingsStyles.chipGOther)} style={{ flex: `${g.bytes}` }} />)}

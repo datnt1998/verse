@@ -231,3 +231,43 @@ func containsHold(holds []domain.Hold, want domain.Hold) bool {
 	}
 	return false
 }
+
+// AttentionItems duyệt s.missing trong khi giữ s.mu rồi gọi missingLabel — bản
+// trước khoá s.mu lần thứ hai (sync.Mutex không tái nhập) nên máy chủ treo cứng
+// đúng lúc ổ dự án bị rút: mọi GET /api/storage, /api/status và /api/activity
+// đứng vĩnh viễn (MSettings · store=offline không bao giờ hiện). Test chạy có
+// thời hạn: mã cũ treo tới hạn rồi fail.
+func TestAttentionItemsDoesNotDeadlockWhenRootMissing(t *testing.T) {
+	ctx := context.Background()
+	// Ổ ngoài đã rút: đường dẫn /Volumes/… không còn trên máy.
+	const root = "/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects"
+	rig := newTestRig(t, func(d *Deps) {
+		settings := newFakeSettings()
+		if err := settings.Set(ctx, domain.KeyStorageLocation, root); err != nil {
+			t.Fatalf("Set location: %v", err)
+		}
+		d.Settings = settings
+	})
+
+	done := make(chan struct{})
+	go func() { rig.svc.tick(ctx); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		t.Fatal("tick treo khi ổ dự án bị rút")
+	}
+	if offline, _ := rig.svc.Offline(); !offline {
+		t.Fatalf("phải phát hiện mất ổ")
+	}
+
+	items := make(chan []Attention, 1)
+	go func() { items <- rig.svc.AttentionItems(ctx) }()
+	select {
+	case got := <-items:
+		if len(got) != 1 || !strings.Contains(got[0].Text, "Samsung T7") {
+			t.Fatalf("mục cần xử lý = %+v", got)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("AttentionItems treo khi ổ dự án bị rút (khoá s.mu tái nhập)")
+	}
+}

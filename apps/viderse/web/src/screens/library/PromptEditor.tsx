@@ -6,7 +6,8 @@ import { libraryVars } from './libraryTokens.stylex'
 // template đang dùng. Prompt có sẵn chỉ nhân bản được; prompt đang được dùng
 // thì không xoá và không đổi loại (máy chủ trả 409 in_use kèm tên template).
 import { useState } from 'react'
-import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, Segmented, TextArea, TextField, Icon } from '@noverse/ui'
+import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon } from '@noverse/ui'
+import { Segmented } from '../../components/Segmented'
 import { ActionButton } from '../../components'
 import { invalidate } from '@noverse/ui/data'
 import { vi as t } from '../../i18n/vi'
@@ -137,7 +138,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
               <Segmented buttonStyle={sx.touchTarget}
                 label={copy.kindLabel}
                 value={kind}
-                fit="content"
+               
                 onChange={(next) => { if (!kindLocked) setKind(next as PromptKind) }}
                 options={[
                   { id: 'scene', label: copy.kindScene, disabled: kindLocked },

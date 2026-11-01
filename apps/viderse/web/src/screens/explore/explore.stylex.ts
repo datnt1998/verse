@@ -31,7 +31,9 @@ export const exploreStyles = stylex.create({
   sub: { fontSize: exploreLayout.subFontSize, color: "var(--vv-fg-note)" },
   grow: { flex: 1 },
   filters: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: space["--vv-s-8"] },
-  segmented: { flex: "0 0 auto", maxWidth: "none" },
+  // Nhóm Sắp xếp/Vùng: co theo nhãn, hẹp thì cuộn ngang trong nhóm (#80) —
+  // không còn nới `max-width` để nhãn khỏi bị cắt “…” bằng ngoại lệ riêng.
+  segmented: { flex: "0 0 auto" },
   chip: { position: "relative", height: space["--vv-s-28"], padding: "0 var(--vv-s-10) 0 var(--vv-s-8)", display: "inline-flex", alignItems: "center", gap: space["--vv-s-6"], borderRadius: corners["--vv-r-8"], backgroundColor: { "default": "transparent", ":is([aria-pressed=\"true\"])": color["--color-surface-6"], ":hover:not(:disabled):not([aria-pressed=\"true\"])": "var(--vv-hover)" }, borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: { "default": line["--line-4"], ":is([aria-pressed=\"true\"])": "var(--vv-line-14)" }, fontFamily: "inherit", fontSize: exploreLayout.chipFontSize, fontWeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", lineHeight: "inherit", color: { "default": color["--color-fg-3"], ":is([aria-pressed=\"true\"])": color["--color-fg"] }, whiteSpace: "nowrap", cursor: { "default": "pointer", ":disabled": "not-allowed" }, opacity: { "default": null, ":disabled": ".55" }, outlineWidth: { "default": null, ":focus-within": space['--vv-s-2'] }, outlineStyle: { "default": null, ":focus-within": "solid" }, outlineColor: { "default": null, ":focus-within": color["--color-accent"] }, outlineOffset: { "default": null, ":focus-within": exploreLayout.chipOutlineOffset }, minHeight: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": { "default": null, [stylex.when.ancestor(':is(*)', exploreRootMarker)]: space["--vv-s-44"] } } },
   chipValue: { fontWeight: 500, color: color["--color-fg"] },
   chipLocked: { cursor: "not-allowed", backgroundColor: { "default": null, ":hover": "transparent" } },

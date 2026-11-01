@@ -21,6 +21,12 @@ export const storage = {
     } as Record<string, string>,
     kindFree: '{kind} · còn {free}',
     kindFsFree: '{kind} · {fs} · còn {free}',
+    /** Ổ ngoài bị rút: “Ổ ngoài USB · APFS · chưa cắm” (#79). */
+    kindFsOffline: '{kind} · {fs} · chưa cắm',
+    /** Ổ rút mà máy chủ chưa từng đọc được hệ tệp (mở app khi ổ đã rút). */
+    kindOffline: '{kind} · chưa cắm',
+    /** Thư mục trong máy biến mất (không phải ổ rút) — không đọc được chỗ trống. */
+    kindUnreadable: '{kind} · chưa đọc được chỗ trống',
   },
   picker: {
     title: 'Chọn thư mục dự án',
@@ -121,8 +127,12 @@ export const storage = {
   usage: {
     title: 'Viderse đang dùng {total}',
     titleM: 'Đang dùng {total}',
-    free: 'Ổ còn trống {free}',
-    freeM: 'Ổ còn {free}',
+    /** Chỗ trống của ổ đang giữ thư mục lưu dự án, luôn kèm tên ổ (#79). */
+    free: '{volume} còn trống {free}',
+    freeM: '{volume} còn {free}',
+    freeOffline: '{volume} chưa cắm · chưa đọc được chỗ trống',
+    freeOfflineM: '{volume} chưa cắm',
+    freeTitle: 'Chỗ trống của ổ đang giữ thư mục lưu dự án',
     groups: {
       sources: 'Video gốc tải về',
       exports: 'MP4 đã xuất',

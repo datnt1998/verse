@@ -118,12 +118,14 @@ describe('Lưu trữ · store=here', () => {
     expect(calls.some((c) => c.url === '/api/storage/open')).toBe(true)
   })
 
-  it('biểu đồ dung lượng có nhóm và chỗ trống', async () => {
+  it('biểu đồ dung lượng có nhóm và chỗ trống kèm tên ổ (#79)', async () => {
     const el = await render()
     expect(el.textContent).toContain('Viderse đang dùng 91,7 GB')
     expect(el.textContent).toContain('Video gốc tải về')
     expect(el.textContent).toContain('Mô hình và công cụ')
-    expect(el.textContent).toContain('Ổ còn trống')
+    expect(el.textContent).toContain('Macintosh HD còn trống 511 GB')
+    // tooltip của số: chỗ trống của ổ đang giữ thư mục lưu dự án.
+    expect(el.querySelector('.vv-sto__free')?.getAttribute('title')).toBe('Chỗ trống của ổ đang giữ thư mục lưu dự án')
   })
 
   it('ổ ngoài nêu cổng nối khi máy chủ biết', async () => {
@@ -149,6 +151,66 @@ describe('Lưu trữ · store=offline', () => {
     // Ổ rút: dòng vị trí vẫn hiện (để Mở trong Finder), riêng “Đổi thư mục” mờ.
     expect(el.textContent).toContain('Mở trong Finder')
     expect(byText(el, 'button', 'Đổi thư mục…')).toBeUndefined()
+  })
+})
+
+describe('Lưu trữ · chỗ trống theo ổ (#79)', () => {
+  it('ổ ngoài rút: “Samsung T7 chưa cắm · chưa đọc được chỗ trống”, KHÔNG lấy số ổ trong máy', async () => {
+    storage = {
+      ...storage,
+      projects: {
+        ...storage.projects,
+        path: '/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects',
+        displayPath: '/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects',
+        online: false,
+        offlineSince: '2026-10-30T21:40:00Z',
+        volume: { name: 'Samsung T7', kind: 'external', fs: 'APFS', bus: 'USB', freeBytes: null },
+      },
+      // Ổ trong máy vẫn đang cắm — con số của nó không nói gì về chỗ lưu dự án.
+      suggestions: [{ path: '/Users/dat/Viderse Projects', volume: { name: 'Macintosh HD', kind: 'internal', fs: 'APFS', freeBytes: 212_000_000_000 } }],
+    }
+    const el = await render()
+    expect(el.textContent).toContain('Samsung T7 chưa cắm · chưa đọc được chỗ trống')
+    expect(el.textContent).not.toContain('Macintosh HD còn trống 212 GB')
+    expect(el.textContent).not.toContain('còn trống 212 GB')
+    // Dòng vị trí: ổ rút ghi “chưa cắm”, không “còn …”.
+    expect(el.textContent).toContain('Ổ ngoài USB · APFS · chưa cắm')
+    // Không thêm dòng cảnh báo riêng: băng cam đã nói việc.
+    expect(el.querySelectorAll('[role="alert"]').length).toBe(1)
+  })
+
+  it('ổ ngoài đang cắm: số của chính ổ đó, kèm tên ổ', async () => {
+    storage = {
+      ...storage,
+      projects: {
+        ...storage.projects,
+        path: '/Volumes/Samsung T7/Viderse Projects',
+        displayPath: '/Volumes/Samsung T7/Viderse Projects',
+        volume: { name: 'Samsung T7', kind: 'external', fs: 'APFS', bus: 'USB', freeBytes: 1_540_000_000_000 },
+      },
+    }
+    const el = await render()
+    expect(el.textContent).toContain('Samsung T7 còn trống 1,54 TB')
+    expect(el.textContent).toContain('Ổ ngoài USB · APFS · còn 1,54 TB')
+  })
+
+  it('đường dẫn dài cắt giữa theo thư mục, title là đường đầy đủ', async () => {
+    const full = '/Volumes/Samsung T7/Studio 2026/Kênh YouTube/Viderse Projects'
+    storage = {
+      ...storage,
+      projects: {
+        ...storage.projects,
+        path: full,
+        displayPath: full,
+        volume: { name: 'Samsung T7', kind: 'external', fs: 'APFS', bus: 'USB', freeBytes: 1_540_000_000_000 },
+      },
+    }
+    const el = await render()
+    const path = el.querySelector('.vv-loc__path')!
+    expect(path.getAttribute('title')).toBe(full)
+    // happy-dom không có canvas → chưa đo được thì in đủ (PathText.test.ts kiểm
+    // phần cắt theo bề rộng thật).
+    expect(path.textContent).toBe(full)
   })
 })
 

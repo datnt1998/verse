@@ -68,7 +68,9 @@ const MOBILE = '@media (max-width: 767px)'
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 const styles = stylex.create({
   root: { position: 'relative', height: 30, padding: `0 ${s['--vv-s-10']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], borderRadius: radius['--radius-control'], borderWidth: 0, borderStyle: "none", borderColor: { default: null, ':hover': line['--line-1'] }, backgroundColor: { default: "transparent", ':hover': color['--color-surface-1'] }, color: color['--color-fg-3'], fontSize: 12.5, whiteSpace: 'nowrap', textDecoration: 'none' },
-  dot: { width: 8, height: 8, borderRadius: '50%' },
+  /* Viên co lại được nhưng chấm thì không: flex-shrink mặc định bóp chấm về 0px
+     khi topbar hẹp, mất hẳn dấu trạng thái. */
+  dot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
   /* Chấm đỏ nhấp khi có job chạy (trước ở .vv-rec/@keyframes vv-rec). */
   rec: { animationName: recPulse, animationDuration: '1.6s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
   runningDot: { backgroundColor: "var(--vv-red)", boxShadow: '0 0 0 3px var(--vv-red-18)' },
@@ -78,9 +80,11 @@ const styles = stylex.create({
   mobileOffline: { borderColor: visualRoles.jobsOfflineBorder },
   pausedIcon: { color: 'var(--vv-st-neutral)' },
   offlineIcon: { color: color['--color-err'] },
-  unread: { position: 'absolute', top: s['--vv-s-3'], right: s['--vv-s-3'], width: 7, height: 7, borderRadius: '50%', backgroundColor: color['--color-warn'], boxShadow: `0 0 0 2px ${color['--color-bg']}` },
+  unread: { position: 'absolute', top: s['--vv-s-3'], right: s['--vv-s-3'], width: 7, height: 7, borderRadius: '50%', backgroundColor: color['--color-warn'], boxShadow: `0 0 0 2px ${color['--color-bg']}`, flexShrink: 0, zIndex: 1 },
   mobile: { height: 36, padding: `0 ${s['--vv-s-11']}`, gap: s['--vv-s-7'], borderRadius: r['--vv-r-pill'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], backgroundColor: color['--color-surface-1'], color: color['--color-fg-2'], flex: { default: null, [MOBILE]: '0 1 auto' }, minWidth: { default: null, [MOBILE]: 0 }, overflow: { default: null, [MOBILE]: 'hidden', [TOUCH]: 'visible' } },
   mobileDot: { width: 7, height: 7 },
   mobileText: { minWidth: { default: null, [MOBILE]: 0 }, overflow: { default: null, [MOBILE]: 'hidden' }, textOverflow: { default: null, [MOBILE]: 'ellipsis' }, whiteSpace: { default: null, [MOBILE]: 'nowrap' } },
-  touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2) 0` },
+  /* Vùng chạm 44px phủ lên cả viên. Nó là con cuối nên mặc định vẽ đè lên chấm
+     trạng thái và chặn luôn pointer; đẩy xuống dưới nội dung và cho xuyên qua. */
+  touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2) 0`, zIndex: 0, pointerEvents: 'none' },
 })

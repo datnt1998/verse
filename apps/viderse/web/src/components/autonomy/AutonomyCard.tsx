@@ -6,7 +6,8 @@
 // với confirmed:true. Ưu tiên kênh (Đều đặn / Lượt xem) nằm cùng thẻ Nhịp.
 import * as stylex from '@stylexjs/stylex'
 import { useState } from 'react'
-import { Icon, KitSelect, Segmented } from '@noverse/ui'
+import { Icon, KitSelect } from '@noverse/ui'
+import { Segmented } from '../Segmented'
 import { invalidate, setData } from '@noverse/ui/data'
 import { Orb } from '../Orb'
 import { confirmAutonomy } from '../confirm'
@@ -141,7 +142,7 @@ export function AutonomyCard({ channel }: { channel: Channel }) {
         <Segmented
           label={tt.title}
           value={selected}
-          fit="content"
+         
           options={presetIds.map((id) => ({ id, label: tt.presets[id], disabled, style: { paddingInline: 16 } }))}
           onChange={(id) => {
             if (id === preset) return

@@ -35,8 +35,23 @@ func serverStorageError(w http.ResponseWriter, err error) {
 		webapp.Error(w, 500, "Không thực hiện được thao tác lưu trữ")
 	}
 }
-func MountServerStorage(g *Gateway, svc ServerStorageService) {
-	g.Handle(http.MethodGet, "/api/storage/server", func(w http.ResponseWriter, r *http.Request, user identity.User) {
+
+// MountServerStorage đăng ký nhóm "Chạy trên máy chủ" (Gói V25). `mode` là
+// năng lực của máy: bản chạy trên máy chủ (PUBLIC_URL) hoặc kho media ở S3.
+// Bản desktop để kho local không có nhóm này — trả 404 để giao diện rơi về thẻ
+// lưu trữ V22/V30 (api/storageServer.ts: chỉ 404 mới chọn bản desktop; lỗi
+// khác vẫn là lỗi, không được mở khoá thao tác thư mục).
+func MountServerStorage(g *Gateway, svc ServerStorageService, mode func() bool) {
+	available := func(fn func(http.ResponseWriter, *http.Request, identity.User)) func(http.ResponseWriter, *http.Request, identity.User) {
+		return func(w http.ResponseWriter, r *http.Request, user identity.User) {
+			if mode != nil && !mode() {
+				webapp.Error(w, 404, "Máy này không chạy ở chế độ lưu trữ máy chủ")
+				return
+			}
+			fn(w, r, user)
+		}
+	}
+	g.Handle(http.MethodGet, "/api/storage/server", available(func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		w.Header().Set("Cache-Control", "private, no-store")
 		result, err := svc.Snapshot(r.Context(), storageAdmin(user))
 		if err != nil {
@@ -44,16 +59,16 @@ func MountServerStorage(g *Gateway, svc ServerStorageService) {
 			return
 		}
 		webapp.WriteJSON(w, 200, result)
-	})
+	}))
 	admin := func(fn func(http.ResponseWriter, *http.Request, identity.User)) func(http.ResponseWriter, *http.Request, identity.User) {
-		return func(w http.ResponseWriter, r *http.Request, user identity.User) {
+		return available(func(w http.ResponseWriter, r *http.Request, user identity.User) {
 			w.Header().Set("Cache-Control", "private, no-store")
 			if !storageAdmin(user) {
 				webapp.Error(w, 403, "Chỉ quản trị viên được quản lý kho lưu trữ")
 				return
 			}
 			fn(w, r, user)
-		}
+		})
 	}
 	g.Handle(http.MethodPost, "/api/storage/server/test", admin(func(w http.ResponseWriter, r *http.Request, user identity.User) {
 		var req struct {

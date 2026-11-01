@@ -14,7 +14,8 @@ import { styles as settingsStyles, agtHintMarker, agtPillMarker, agtDrawcardBarM
 // dùng chung (filter=selected qua mọi trang), metadata thiếu = "chưa rõ", KHÔNG
 // bịa. 422 capability_missing {field: …} → câu inline đúng chỗ.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Icon, Segmented, Sheet, Switch, toast } from '@noverse/ui'
+import { Button, Icon, Sheet, Switch, toast } from '@noverse/ui'
+import { Segmented } from '../../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { Orb, assistantName, type Assistant } from '../../../components'
 import { navigate } from '../../../router'

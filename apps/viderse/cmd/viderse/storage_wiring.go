@@ -118,14 +118,19 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, activities *activity.Service, hub *events.Hub, statusSvc *status.Service, cleanup *serverstorage.Cleanup) {
+func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, local *storage.Service, activities *activity.Service, hub *events.Hub, statusSvc *status.Service, cleanup *serverstorage.Cleanup) {
 	manager.BindRuntime(activities, func(ctx context.Context, text string) error {
 		_, err := activities.NotifyScoped(ctx, activity.NotificationSpec{Kind: "needs_attention", Text: text, Href: "/settings?section=storage", ActionLabel: "Mở lưu trữ", Audience: activity.AudienceAdmin, Object: &domain.ObjectRef{Type: "storage", ID: "server", Label: "Lưu trữ trên máy chủ"}})
 		return err
 	}, func() { web.Notifier(hub, "storage")(""); statusSvc.Bump() })
 	statusSvc.SetStorageHealthSource(manager)
-	g.SetServerStorageMode(func() bool { return true })
-	web.MountServerStorage(g, manager)
+	// "Chạy trên máy chủ" (01-ia-flows W13, Gói V25) = bản chạy trên máy chủ
+	// (có PUBLIC_URL) HOẶC kho media đang ở S3. Bản desktop để kho local giữ
+	// nguyên V22: chọn thư mục, Mở trong Finder và gợi ý ổ đang cắm vẫn dùng
+	// được, và `/api/storage/server` trả 404 để giao diện chọn thẻ máy.
+	serverMode := func() bool { return g.Hosted() || local.RemoteStorage() }
+	g.SetServerStorageMode(serverMode)
+	web.MountServerStorage(g, manager, serverMode)
 	manager.Start()
 	cleanup.BindManager(manager)
 	cleanup.Start()
