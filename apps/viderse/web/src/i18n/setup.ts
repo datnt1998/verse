@@ -2,6 +2,8 @@
 // setup=running|login|failed) và W1. Không có nav: một việc duy nhất là cài máy.
 export const setup = {
   header: 'Chuẩn bị máy cho 4 trợ lý',
+  /** Tiêu đề tab trình duyệt — tên màn ngắn, bỏ "cho 4 trợ lý". */
+  titleShort: 'Chuẩn bị máy',
   skippedWarn: 'Máy này chưa cài đủ công cụ cho 4 trợ lý.',
   skippedAction: 'Cài tiếp',
   back: 'Quay lại',

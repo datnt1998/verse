@@ -23,12 +23,15 @@ import { getSetup } from '../api/setup'
 import { vi as t } from '../i18n/vi'
 import { AdminStorageStrip } from './AdminStorageStrip'
 import { ActivityBridge } from './ActivityBridge'
+import { useDocumentTitle } from './useNames'
 
 export function AppShell({ route, user, children }: {
   route: Route
   user: User
   children: ReactNode
 }) {
+  // Tiêu đề tab theo màn — một chỗ duy nhất cho cả khung desktop lẫn điện thoại.
+  useDocumentTitle(route)
   const mobile = useMediaQuery('(max-width: 767px)')
   const status = useStatus()
   const online = useOnline()

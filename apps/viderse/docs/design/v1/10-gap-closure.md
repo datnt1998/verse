@@ -217,3 +217,19 @@ Nhánh này thay Editor bằng thông báo màn hình hẹp; không giả lập 
 
 Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp/p06-editor-app-states.json`, `/tmp/p06-editor-{board,app}-1000-final.json`, `/tmp/p06-editor-{board,app}-toast.json`, `/tmp/p06-editor-gate-controls-final.json`, `/tmp/p06-editor-actual-alignment-diff.json`, `/tmp/p06-editor-cmd-z-final.json`, `/tmp/p06-editor-all-aligned-final.json`, `/tmp/p06-editor-conflict-{continue,reload,copy}.json`, `/tmp/p06-editor-finalization-polls.json`, `/tmp/p06-editor-final-export-evidence.json`. MP4 cuối được giữ tại `/tmp/p06-render-smoke-finalized.mp4`.
 
+
+## Tiêu đề tab, favicon và ảnh chia sẻ — 01/11/2026
+
+**Đã làm**
+
+- `web/public/icons/` (11 tệp) dựng từ bộ brand bằng ImageMagick: `favicon.svg` (icon app nền tối dạng vector), `favicon-16/32/48/64.png`, `favicon.ico` (16/32/48), `apple-touch-icon.png` 180 (nền đặc cho iOS), `icon-192/512.png` (`any`), `icon-maskable-512.png` (nền phủ kín, glyph ~56% khung nằm trong vùng an toàn), `viderse-og-image.png` 1200×630. Xoá `public/favicon.svg`, `app-icon.svg`, `app-icon-dark.svg`, `app-icon-192.png`, `app-icon-512.png`; thông báo hệ điều hành trỏ `/icons/icon-192.png`.
+- `index.html` theo mẫu Noverse: `viewport-fit=cover`, `theme-color`, `apple-mobile-web-app-*`, `application-name`, manifest, icon, `description`, `og:type/site_name/title/description/image` (1200×630), `twitter:card summary_large_image`; `<title>Viderse · Xưởng video</title>`.
+- Manifest: `id`, `name` "Viderse · Xưởng video YouTube", `short_name`, `description`, `lang`/`dir`, `start_url`/`scope`, `display`, hai màu, icon `any` + `maskable`.
+- Tiêu đề tab theo màn (`web/src/shell/labels.ts` + `useNames.ts`, gọi một lần ở `AppShell` cho cả desktop lẫn điện thoại): Bàn dựng / Duyệt / Hàng chờ / Kênh <tên> / Tạo kênh / Khám phá / Video mới / Thư viện / Template <tên> / Cài đặt / Tài khoản / Chuẩn bị máy, mỗi tiêu đề kết bằng "· Viderse"; mặc định `Viderse · Xưởng video`. Editor đặt `<tên project> · Bàn dựng · Viderse`. Tên kênh/template lấy từ danh sách đã tải; chưa có tên thì tiêu đề dừng ở nhãn màn, không lộ mã kênh/template.
+- Máy chủ: `platform/webapp` đăng ký MIME `.webmanifest` → `application/manifest+json` và `.ico` → `image/x-icon`. Trước đó manifest bị trả `text/plain` (máy không có `mime.types` hệ thống) nên trình duyệt không cài được PWA và service worker không cache được manifest.
+
+**GAP cho design (cần xác nhận)**
+
+1. **Ảnh chia sẻ 1200×630 chưa có thiết kế.** Bản tạm dựng theo cách của Noverse: nền `#0B0B0D`, quầng `#FF0033` alpha .22 ở 50%/42%, logo ngang `viderse-logo-dark@2x` (bỏ nền thẻ, rộng 600), dòng "XƯỞNG VIDEO" Be Vietnam Pro 500 21px, letter-spacing .34em, màu `#8A8A94`. Cần design vẽ bản chính thức, kèm SVG nguồn trong `brand/svg/` như Noverse.
+2. **Khẩu hiệu chưa có bản viết.** Tạm dùng: tiêu đề tab `Viderse · Xưởng video`; manifest `Viderse · Xưởng video YouTube`; mô tả "Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." Design chốt lại câu chữ.
+3. **Favicon dùng chính icon app nền tối ở mọi cỡ** (chủ máy chốt: một biểu tượng cho cả app icon lẫn favicon), lệch `12-brand.md` ("dưới 32 px bỏ vành kính"): ở 16 px vành kính chỉ còn là nét mảnh quanh quả cầu đỏ trên nền tối. Muốn giữ luật favicon nhỏ thì design xuất thêm bộ `favicon-16/24` riêng.

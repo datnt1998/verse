@@ -35,6 +35,8 @@ const recipeFieldLabels: Record<string, string> = {
 
 export const libraryCopy = {
   title: 'Thư viện dùng chung',
+  /** Tiêu đề tab trình duyệt — tên màn ngắn, không kèm "dùng chung". */
+  titleShort: 'Thư viện',
   subtitle: (channels: number) => channels > 0
     ? `Dùng chung cho cả ${channels} kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.`
     : 'Thư viện dùng chung cho mọi kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.',
