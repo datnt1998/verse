@@ -408,3 +408,68 @@ func TestWorkerHeartbeatCarriesState(t *testing.T) {
 		t.Fatalf("heartbeat state = %v, want ready", st["state"])
 	}
 }
+
+// A transient failure retries on the backoff; hash_mismatch is a safety signal
+// (the bytes did not match the pin) and waits for an operator instead.
+func TestWorkerHashMismatchNeverAutoRetries(t *testing.T) {
+	for _, tc := range []struct {
+		code  string
+		retry bool
+	}{
+		{voice.ProvisionErrDownloadFailed, true},
+		{voice.ProvisionErrHashMismatch, false},
+	} {
+		t.Run(tc.code, func(t *testing.T) {
+			srv := newStateServer(t)
+			prov := &fakeProvisioner{err: &voice.ProvisionError{Code: tc.code, Message: "tải hỏng"}}
+			w, err := New(Config{
+				APIURL: srv.srv.URL, Token: testToken, Engine: &stateEngine{},
+				Lease: 30 * time.Second, Heartbeat: 5 * time.Second, Poll: 5 * time.Millisecond,
+				Provisioner:      prov,
+				ProvisionBackoff: []time.Duration{time.Millisecond, time.Millisecond},
+			})
+			if err != nil {
+				t.Fatalf("new worker: %v", err)
+			}
+			if tc.retry {
+				runUntil(t, w, 5*time.Second, func() bool { return prov.count() >= 2 })
+				return
+			}
+			runUntil(t, w, 5*time.Second, func() bool { return prov.count() >= 1 })
+			// Many poll ticks past the 1 ms backoff: a retry would have run by now.
+			runFor(t, w, 200*time.Millisecond)
+			if got := prov.count(); got != 1 {
+				t.Fatalf("provision attempts = %d, want 1: hash_mismatch must wait for an operator", got)
+			}
+			if st := w.State(); st.State != voice.ProvisionStateError || st.Error == nil || st.Error.Code != voice.ProvisionErrHashMismatch {
+				t.Fatalf("state = %+v, want error/hash_mismatch kept", st)
+			}
+		})
+	}
+}
+
+// Every published state carries the channel this machine dials and whether it
+// takes on-demand previews: the server's status card reads both from here.
+func TestWorkerPublishesChannelAndPreview(t *testing.T) {
+	srv := newStateServer(t)
+	w, err := New(Config{
+		APIURL: srv.srv.URL, Token: testToken, Engine: &stateEngine{installed: true, ready: true},
+		Lease: 30 * time.Second, Heartbeat: 5 * time.Second, Poll: 5 * time.Millisecond,
+		Provisioner: &fakeProvisioner{}, Preview: true,
+	})
+	if err != nil {
+		t.Fatalf("new worker: %v", err)
+	}
+	runUntil(t, w, 5*time.Second, func() bool {
+		states, _ := srv.snapshot()
+		return len(states) > 0
+	})
+	states, _ := srv.snapshot()
+	last := states[len(states)-1]
+	if last.Channel != srv.srv.URL {
+		t.Fatalf("channel = %q, want %q", last.Channel, srv.srv.URL)
+	}
+	if last.Capabilities == nil || !last.Capabilities.Preview {
+		t.Fatalf("capabilities = %+v, want preview", last.Capabilities)
+	}
+}
