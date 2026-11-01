@@ -18,6 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/secretbox"
 	"github.com/datnt1998/verse/apps/viderse/internal/serverstorage"
 	"github.com/datnt1998/verse/platform/blobstore"
+	"github.com/datnt1998/verse/platform/blobstore/s3test"
 	"github.com/datnt1998/verse/platform/pgmigrate"
 	"github.com/datnt1998/verse/platform/pgtest"
 )
@@ -106,7 +107,41 @@ func garageConfig(t *testing.T) serverstorage.S3Config {
 		}
 		t.Skip("S3_TEST_ENDPOINT not set")
 	}
-	return serverstorage.S3Config{Provider: "garage", Endpoint: os.Getenv("S3_TEST_ENDPOINT"), Region: os.Getenv("S3_TEST_REGION"), Bucket: os.Getenv("S3_TEST_BUCKET"), AccessKeyID: os.Getenv("S3_TEST_ACCESS_KEY"), SecretAccessKey: os.Getenv("S3_TEST_SECRET_KEY"), AllowInsecure: true, ForcePathStyle: true, Delivery: "proxy"}
+	cfg := serverstorage.S3Config{Provider: "garage", Endpoint: os.Getenv("S3_TEST_ENDPOINT"), Region: os.Getenv("S3_TEST_REGION"), Bucket: os.Getenv("S3_TEST_BUCKET"), AccessKeyID: os.Getenv("S3_TEST_ACCESS_KEY"), SecretAccessKey: os.Getenv("S3_TEST_SECRET_KEY"), AllowInsecure: true, ForcePathStyle: true, Delivery: "proxy"}
+	seed, err := blobstore.NewS3(blobstore.S3Config{Endpoint: cfg.Endpoint, Region: cfg.Region, Bucket: cfg.Bucket, AccessKeyID: cfg.AccessKeyID, SecretAccessKey: cfg.SecretAccessKey, AllowPlainHTTP: true, ForcePathStyle: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Every repository has its own roots and read leases. Sharing a bucket
+	// would let its GC mistake another fixture's aged live objects for orphans.
+	cfg.Bucket = s3test.Bucket(t, seed.Client(), cfg.AccessKeyID, "viderse-storage")
+	store, err := blobstore.NewS3(blobstore.S3Config{Endpoint: cfg.Endpoint, Region: cfg.Region, Bucket: cfg.Bucket, AccessKeyID: cfg.AccessKeyID, SecretAccessKey: cfg.SecretAccessKey, AllowPlainHTTP: true, ForcePathStyle: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		// This store is bound only to the bucket created above, never the
+		// environment's shared bucket or a long-running development fixture.
+		for {
+			page, err := store.List(ctx, "", "", 1000)
+			if err != nil {
+				t.Errorf("list isolated fixture objects: %v", err)
+				return
+			}
+			if len(page.Infos) == 0 {
+				return
+			}
+			for _, info := range page.Infos {
+				if err := store.Delete(ctx, info.Key); err != nil {
+					t.Errorf("delete isolated fixture object: %v", err)
+					return
+				}
+			}
+		}
+	})
+	return cfg
 }
 func (f fixture) publish(t *testing.T, label string) media.Ref {
 	t.Helper()
