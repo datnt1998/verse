@@ -1,0 +1,75 @@
+{
+  "origin": "http://editor-kit.localhost:8059",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "checks": [
+    {
+      "name": "disabled initial history commands",
+      "undo": true,
+      "redo": true
+    },
+    {
+      "name": "real media kinds",
+      "labels": [
+        "Ảnh 12",
+        "Nền 1",
+        "Phủ 0",
+        "Âm 2"
+      ],
+      "choices": 12
+    },
+    {
+      "name": "keyboard background filtering",
+      "choices": 1,
+      "thumb": {
+        "transform": "matrix(1, 0, 0, 1, 27.8043, 3.01356)",
+        "transition": "transform 0.3s cubic-bezier(0.34, 1.25, 0.5, 1)",
+        "width": 34.140625
+      }
+    },
+    {
+      "name": "reduced motion filter",
+      "transition": "0.2s, 0.2s, 0.2s"
+    },
+    {
+      "name": "vertical workspace roving navigation",
+      "orientation": "vertical",
+      "focusTargets": 1,
+      "controls": "ed-left",
+      "labelledBy": "editor-tab-media"
+    },
+    {
+      "name": "shortcuts keyboard dismissal",
+      "passed": true
+    },
+    {
+      "name": "bounded real media picker",
+      "cardCount": 12,
+      "bounds": {
+        "x": 449.8000183105469,
+        "y": 45.83502197265625,
+        "width": 540.3999328613281,
+        "height": 928.3299560546875
+      },
+      "lastBounds": {
+        "x": 725,
+        "y": 726.328125,
+        "width": 242,
+        "height": 160.265625
+      },
+      "closeBounds": {
+        "x": 916.328125,
+        "y": 928,
+        "width": 64.671875,
+        "height": 36
+      },
+      "focusAfterClose": false,
+      "focusAfterEscape": false
+    }
+  ],
+  "consoleErrors": [],
+  "ok": false,
+  "concern": "Media picker trigger focus is not restored after close/Escape"
+}

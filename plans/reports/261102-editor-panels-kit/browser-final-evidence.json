@@ -1,0 +1,44 @@
+{
+  "origin": "http://editor-kit.localhost:8059",
+  "checks": [
+    {
+      "name": "full-width unmodified kit media filter",
+      "bounds": {
+        "x": 82,
+        "y": 110,
+        "width": 287,
+        "height": 36
+      },
+      "labels": [
+        "Ảnh 12",
+        "Nền 1",
+        "Phủ 0",
+        "Âm 2"
+      ]
+    },
+    {
+      "name": "1000px picker scroll and footer restore focus",
+      "cardCount": 12,
+      "bounds": {
+        "x": 440,
+        "y": 19,
+        "width": 560,
+        "height": 962
+      },
+      "focusRestored": true
+    },
+    {
+      "name": "900px picker scroll and Escape restore focus",
+      "cardCount": 12,
+      "bounds": {
+        "x": 440,
+        "y": 19,
+        "width": 560,
+        "height": 862
+      },
+      "focusRestored": true
+    }
+  ],
+  "consoleErrors": [],
+  "ok": true
+}
