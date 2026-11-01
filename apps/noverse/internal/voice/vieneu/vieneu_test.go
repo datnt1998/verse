@@ -14,6 +14,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice/openaispeech"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func testEngine(t *testing.T) *Engine {
@@ -219,28 +220,9 @@ func TestLogTailReturnsLastLines(t *testing.T) {
 	}
 }
 
-func TestFindUVFindsBinaryOnPath(t *testing.T) {
-	dir := t.TempDir()
-	uv := filepath.Join(dir, "uv")
-	if err := os.WriteFile(uv, []byte("#!/bin/sh\n"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	t.Setenv("PATH", dir)
-	got, err := findUV()
-	if err != nil {
-		t.Fatalf("findUV: %v", err)
-	}
-	if got != uv {
-		t.Fatalf("findUV = %q, muốn %q", got, uv)
-	}
-}
-
-func TestFindUVReportsMissing(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-	t.Setenv("HOME", t.TempDir())
-	// Các đường dẫn /opt/homebrew, /usr/local có thể có uv thật trên máy dev → bỏ qua
-	// trường hợp đó thay vì báo sai.
-	if got, err := findUV(); err == nil && !strings.HasSuffix(got, "uv") {
-		t.Fatalf("findUV trả %q", got)
+func TestProvisionUsesManagedUvPath(t *testing.T) {
+	e := testEngine(t)
+	if got := toolchain.UvPath(e.cfg.Home); got != "" {
+		t.Fatalf("UvPath trên máy trống = %q, muốn rỗng", got)
 	}
 }

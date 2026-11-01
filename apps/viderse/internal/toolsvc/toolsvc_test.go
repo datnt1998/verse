@@ -58,6 +58,18 @@ func (failTransport) RoundTrip(*http.Request) (*http.Response, error) {
 	return &http.Response{StatusCode: http.StatusInternalServerError, Header: http.Header{}, Body: http.NoBody}, nil
 }
 
+// gatedTransport giữ mọi request lại tới khi release đóng, rồi trả 500.
+type gatedTransport struct{ release <-chan struct{} }
+
+func (g gatedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	select {
+	case <-g.release:
+	case <-req.Context().Done():
+		return nil, req.Context().Err()
+	}
+	return failTransport{}.RoundTrip(req)
+}
+
 type fakeTasks struct {
 	mu     sync.Mutex
 	specs  []domain.TaskSpec
@@ -481,7 +493,11 @@ func TestRowCheckInstallingIsNotReady(t *testing.T) {
 
 // Hai lượt StartInstall đồng thời chỉ tạo một việc nền và một lượt cài.
 func TestConcurrentStartInstallSingleRun(t *testing.T) {
-	svc, tasks, _ := newService(t, &http.Client{Transport: failTransport{}}, fakeChatGPT{login: "chatgpt"})
+	// Lượt cài phải còn đang chạy khi lượt StartInstall thứ hai tới: giữ
+	// request lại tới khi cả hai đã vào, nếu không việc nền kịp xong và lượt
+	// sau mở việc mới (đua theo thời gian).
+	gate := make(chan struct{})
+	svc, tasks, _ := newService(t, &http.Client{Transport: gatedTransport{release: gate}}, fakeChatGPT{login: "chatgpt"})
 	var wg sync.WaitGroup
 	ids := make([]string, 2)
 	for i := 0; i < 2; i++ {
@@ -500,6 +516,7 @@ func TestConcurrentStartInstallSingleRun(t *testing.T) {
 	if ids[0] == "" || ids[0] != ids[1] {
 		t.Fatalf("task ids = %v, muốn cùng một", ids)
 	}
+	close(gate)
 	tasks.mu.Lock()
 	n := len(tasks.specs)
 	tasks.mu.Unlock()
