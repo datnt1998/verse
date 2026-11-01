@@ -117,6 +117,7 @@ type VersionView struct {
 	Bytes             int64           `json:"bytes"`
 	CreatedAt         string          `json:"createdAt"`
 	PromptVersion     int             `json:"promptVersion"`
+	Prompt            string          `json:"prompt,omitempty"`
 	SourceFingerprint string          `json:"sourceFingerprint"`
 	Source            string          `json:"source"`
 	Cutout            *scenes.FileRef `json:"cutout"`

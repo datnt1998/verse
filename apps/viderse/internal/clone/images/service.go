@@ -236,7 +236,7 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 			if source == "" {
 				source = "codex"
 			}
-			version := VersionView{Score: v.Score, Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version := VersionView{Score: v.Score, Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, Prompt: v.Prompt, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
 			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
 			version.CutoutState = "unavailable"
 			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {

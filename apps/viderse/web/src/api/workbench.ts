@@ -263,9 +263,10 @@ export type JobImage = {
   status: string
   currentVersion: number | null
   reviewVersion: number | null
-  versions: { version: number; originalUrl?: string }[] | null
+  versions: { version: number; originalUrl?: string; prompt?: string }[] | null
   sceneId?: string
   narration?: string
+  prompt?: string
 }
 
 export type EffectivePrompt = { id: string; name: string; overridden: boolean }
@@ -285,10 +286,15 @@ const readImage = (value: unknown, path: string): JobImage => {
     reviewVersion: o.reviewVersion === null ? null : num(o.reviewVersion, `${path}.reviewVersion`),
     versions: o.versions == null ? null : list(o.versions, (entry, at) => {
       const version = record(entry, at)
-      return { version: num(version.version, `${at}.version`), ...(version.originalUrl == null ? {} : { originalUrl: str(version.originalUrl, `${at}.originalUrl`) }) }
+      return {
+        version: num(version.version, `${at}.version`),
+        ...(version.originalUrl == null ? {} : { originalUrl: str(version.originalUrl, `${at}.originalUrl`) }),
+        ...(version.prompt == null ? {} : { prompt: str(version.prompt, `${at}.prompt`) }),
+      }
     }, `${path}.versions`),
     ...(o.sceneId == null ? {} : { sceneId: str(o.sceneId, `${path}.sceneId`) }),
     ...(o.narration == null ? {} : { narration: str(o.narration, `${path}.narration`) }),
+    ...(o.prompt == null ? {} : { prompt: str(o.prompt, `${path}.prompt`) }),
   }
 }
 
