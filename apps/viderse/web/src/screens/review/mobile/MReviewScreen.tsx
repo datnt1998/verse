@@ -106,6 +106,7 @@ export function MReviewScreen() {
   const promptSubtitle = shown ? copy.sheetSubtitle(reviewLabel(shown, shownIndex), shownVersion?.prompt?.trim() ? shownChosen : latestVersion(shown)) : ''
   const drawingKey = item && isDrawing(item) ? `${item.id}:${item.versions.length}` : null
   const elapsed = drawingKey && since?.key === drawingKey ? Math.max(0, Math.floor((now - since.at) / 1000)) : 0
+  const readyVersion = item?.versions.reduce((latest, entry) => entry.originalUrl || entry.cutoutUrl ? Math.max(latest, entry.version) : latest, 0) ?? 0
 
   useEffect(() => { setImageFailed(false) }, [job?.id, item?.id, version])
   useEffect(() => { setCompare(false) }, [job?.id, item?.id, version])
@@ -127,16 +128,19 @@ export function MReviewScreen() {
   useEffect(() => {
     const current = itemRef.current
     if (!current) return
-    const count = current.versions.length
+    const newest = readyVersion
     const previous = seen.current[current.id]
-    seen.current[current.id] = count
-    if (previous === undefined || count <= previous || isDrawing(current)) return
-    const newest = latestVersion(current)
+    if (isDrawing(current)) {
+      seen.current[current.id] ??= newest
+      return
+    }
+    seen.current[current.id] = newest
+    if (previous === undefined || newest <= previous) return
     setVersions(old => ({ ...old, [current.id]: newest }))
     setReveal({ id: current.id, version: newest })
     const timer = window.setTimeout(() => setReveal(null), 2600)
     return () => clearTimeout(timer)
-  }, [item?.id, item?.versions.length, item?.status])
+  }, [item?.id, readyVersion, item?.status])
   useEffect(() => {
     if (!drawingKey) return
     setSince({ key: drawingKey, at: Date.now() })

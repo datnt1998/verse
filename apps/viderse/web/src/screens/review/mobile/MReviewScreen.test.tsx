@@ -5,7 +5,7 @@ import { MReviewScreen } from './MReviewScreen'
 import type * as ReviewModule from '../useReview'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-const state = vi.hoisted(() => ({ mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review' }))
+const state = vi.hoisted(() => ({ mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready' }))
 const image = {
   id: 'b', kind: 'scene', status: 'review', prompt: 'Đêm mưa, quán nhỏ ven đường', sceneId: '2',
   currentVersion: null, reviewVersion: null, startSec: 3, endSec: 9, narration: 'Lời kể trong cảnh',
@@ -20,7 +20,7 @@ vi.mock('../useReview', async importOriginal => {
     ...actual,
     useReview: () => ({
       jobs: [{ id: 'j', channelId: 'c', stageGroup: 'review', subline: '', createdAt: '2026-11-02T10:00:00Z', source: { title: 'Video', thumbnailUrl: null } }],
-      images: { j: { manifest: { revision: 3 }, items: [{ ...image, status: state.status }], approved: false, approvedToday: null, learn: null, summary: null } },
+      images: { j: { manifest: { revision: 3 }, items: [{ ...image, status: state.status, versions: [...image.versions, ...(state.nextVersion === 'none' ? [] : [{ version: 3, cutout: null, originalUrl: state.nextVersion === 'ready' ? '/v3.jpg' : '', prompt: 'Bản mới' }])] }], approved: false, approvedToday: null, learn: null, summary: null } },
       imageErrors: {}, pending: {}, loadImages: state.loadImages, loadJobs: vi.fn(), mutate: state.mutate,
     }),
   }
@@ -28,7 +28,7 @@ vi.mock('../useReview', async importOriginal => {
 vi.mock('../../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../../data/useResource', () => ({ useResource: () => ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) }))
 let root: Root | undefined
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; state.status = 'review'; vi.useRealTimers(); vi.clearAllMocks() })
+afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; state.status = 'review'; state.nextVersion = 'none'; vi.useRealTimers(); vi.clearAllMocks() })
 
 const render = async () => {
   const node = document.createElement('div'); document.body.append(node); root = createRoot(node)
@@ -78,6 +78,18 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     expect(document.querySelector('textarea')?.value).toBe(image.versions[0].prompt)
     expect(button('Vẽ lại với prompt này')?.disabled).toBe(true)
     expect(state.mutate).not.toHaveBeenCalled()
+  })
+
+  it('selects the completed redraw when its drawing row was already visible', async () => {
+    const node = await render()
+    state.status = 'running'
+    state.nextVersion = 'drawing'
+    await act(async () => { root!.render(<MReviewScreen />) })
+    state.status = 'review'
+    state.nextVersion = 'ready'
+    await act(async () => { root!.render(<MReviewScreen />) })
+    expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v3.jpg')
+    expect(node.querySelector('[aria-label="Bản 3"]')?.getAttribute('aria-pressed')).toBe('true')
   })
 
   it('vẫn tải bản mới khi đồng hồ và danh sách video thay đổi trong lúc đang vẽ', async () => {
