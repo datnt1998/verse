@@ -980,3 +980,4 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 - App không mở luồng sự kiện khi còn mật khẩu tạm; đổi xong (không phải đăng nhập lại) thì tải lại phiên rồi mới mở.
 - Bước Mật khẩu ở onboard vẫn “tùy chọn” với tài khoản đã có mật khẩu riêng.
 - Artboard `MMore` (`page=firstPw`) và `Onboard` còn vẽ dòng “Để sau” — cần design xoá ở lần cập nhật canvas tới.
+- Máy tính: còn mật khẩu tạm thì Thiết lập lần đầu mở thẳng bước **Mật khẩu riêng** ở vị trí đầu, cho cả quản trị (luồng 7 bước vốn không có bước này) lẫn thành viên; người đã thiết lập xong rồi bị đặt lại mật khẩu chỉ thấy một bước này, mọi route khác chuyển về đây. Trước đó tài khoản dừng ở bước Hồ sơ với băng “Không tải lại được” và nút Tiếp tục bị khoá, vì lưu Hồ sơ và mọi dữ liệu đều bị máy chủ chặn. Đổi xong phiên bị thu hồi; đăng nhập lại thì luồng chạy đúng thứ tự `09-auth-onboard.md` F0/F0b. Lệch thứ tự F0b (Hồ sơ → Mật khẩu) — design cập nhật artboard `Onboard` khi vẽ lại.
