@@ -51,7 +51,7 @@ function menuItems(job: ChannelJob, props: Pick<VideoRowProps, 'onRefresh' | 'on
   if (!job.supersededAt) items.push({ id: 'restart', label: m.restart, onSelect: () => restartVideo(job, { onRefresh: props.onRefresh, onError: report }) })
   if (job.stageGroup === 'working' || job.stageGroup === 'paused') items.push({ id: 'stop', label: m.stop, onSelect: () => stopVideo(job, { onRefresh: props.onRefresh, onError: report }) })
   if (/^https?:\/\//i.test(job.source.url)) items.push({ id: 'source', label: m.source, onSelect: () => window.open(job.source.url, '_blank', 'noreferrer') })
-  items.push({ id: 'remove', label: m.remove, danger: true, onSelect: () => removeVideo(job, { onRefresh: props.onRefresh, onError: report, afterRemove: props.onRefresh }) })
+  items.push({ id: 'remove', label: m.remove, danger: true, lockedReason: job.stageGroup === 'working' ? m.removeLocked : undefined, onSelect: () => removeVideo(job, { onRefresh: props.onRefresh, onError: report, afterRemove: props.onRefresh }) })
   return items
 }
 

@@ -58,6 +58,7 @@ export const newScreenCopy = {
   needLink: 'Dán ít nhất một link video đối thủ.',
   sourceLabel: 'Nguồn',
   plan: {
+    startNow: 'Bắt đầu ngay khi bấm',
     priorityHead: (n: number, time: string | null) => `Cả ${n} lên đầu hàng chờ, không theo nhịp kênh${time ? ` · bắt đầu từ khoảng ${time}` : ''}`,
     priorityReady: (n: number) => `Ưu tiên: cả ${n} chạy ngay khi có luồng trống.`,
     mobileBatchTail: (pace: number, channel: string, left: number) => `Vào cuối hàng chờ, theo nhịp ${pace} video/ngày của ${channel}. Hôm nay còn ${left} lượt.`,

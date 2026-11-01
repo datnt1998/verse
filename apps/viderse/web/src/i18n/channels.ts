@@ -161,6 +161,7 @@ export const channelsCopy = {
         stop: 'Dừng hẳn',
         source: 'Mở video nguồn',
         remove: 'Xoá video',
+        removeLocked: 'Tạm dừng trước rồi xoá',
       },
     },
     bulk: {
