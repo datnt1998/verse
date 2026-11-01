@@ -2,10 +2,9 @@
 // huống của Kit › Xác nhận (+ Tự chạy của Dialogs): tiêu đề là câu hỏi có tên
 // đối tượng, thân nói hậu quả, nút ghi đúng động từ, Esc = Huỷ.
 import type { ReactNode } from 'react'
-import * as stylex from '@stylexjs/stylex'
-import { Icon, confirm, type ConfirmOptions } from '@noverse/ui'
+import { confirm, type ConfirmOptions } from '@noverse/ui'
 import { t } from '../i18n/vi'
-import { autonomyStyles } from './autonomy/autonomy.stylex'
+import { openAutonomyDialog } from './autonomy/AutonomyDialog'
 import { ASSISTANT_ORB, assistantName, type Assistant } from './agents'
 
 export { ConfirmDialog } from '@noverse/ui'
@@ -223,28 +222,14 @@ export function confirmAutonomy(args: {
   const min = args.min ?? 85
   const kind = c[args.kind ?? 'auto']
   const first = typeof kind.first === 'function' ? kind.first(min) : kind.first
-  const items: { icon: string; tone: 'dlgWarn' | 'dlgNote'; text: string }[] = [
-    { icon: 'flag', tone: 'dlgWarn', text: first },
-    { icon: 'clock', tone: 'dlgNote', text: c.fromNow(args.waiting ?? 0) },
-    { icon: 'setting', tone: 'dlgNote', text: c.never },
-  ]
-  return open({
-    tone: 'normal',
-    icon: <Icon name="tick-b" size={19} xstyle={autonomyStyles.dlgOk} />,
+  return openAutonomyDialog({
     title: kind.title(args.channel),
-    body: (
-      <>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--color-fg-3)' }}>{typeof kind.body === 'function' ? kind.body(min) : kind.body}</p>
-        <ul {...stylex.props(autonomyStyles.dlgList)}>
-          {items.map((item) => (
-            <li key={item.icon} {...stylex.props(autonomyStyles.dlgItem)}>
-              <Icon name={item.icon} size={15} xstyle={[autonomyStyles.dlgIcon, autonomyStyles[item.tone]]} />
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
-      </>
-    ),
+    lead: typeof kind.body === 'function' ? kind.body(min) : kind.body,
+    items: [
+      { icon: 'flag', tone: 'warn', text: first },
+      { icon: 'clock', tone: 'note', text: c.fromNow(args.waiting ?? 0) },
+      { icon: 'setting', tone: 'note', text: c.never },
+    ],
     confirmLabel: kind.ok,
     onConfirm: args.onConfirm,
   })

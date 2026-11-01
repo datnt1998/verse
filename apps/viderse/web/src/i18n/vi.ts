@@ -27,6 +27,7 @@ export const vi = {
     open: 'Mở',
     copy: 'Sao chép',
     close: 'Đóng',
+    closeHint: 'đóng',
     details: 'Chi tiết',
     logout: 'Đăng xuất',
     loggingOut: 'Đang đăng xuất…',

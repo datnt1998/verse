@@ -17,7 +17,7 @@ import {
   APPROVE_MAX, APPROVE_MIN, APPROVE_STEP, applyPreset, confirmKind, isConfirmRequired, patchAutonomy, presetIds, presetOf,
   readChannelAutonomy, withRow, withThreshold, type Autonomy, type AutonomyRow, type Priority,
 } from '../../api/autonomy'
-import { ApiError } from '../../api/request'
+import { ApiError, request } from '../../api/request'
 import type { Channel } from '../../api/channels'
 import { channelStyles } from '../../screens/channel/channel.stylex'
 import { autonomyStyles as sx } from './autonomy.stylex'
@@ -40,6 +40,16 @@ function optionLabel(row: AutonomyRow, value: string, min: number): string {
 }
 
 const autonomyValue = (autonomy: Autonomy, row: AutonomyRow): string => (row === 'approve' ? autonomy.approve.mode : autonomy[row])
+
+/** Số video của kênh đang chờ duyệt; không đọc được thì coi như 0 (câu xác nhận bỏ vế đó). */
+async function waitingCount(channelId: string): Promise<number> {
+  try {
+    const result = await request<{ jobs: { stageGroup: string }[] }>(`/api/clone?channel=${encodeURIComponent(channelId)}`)
+    return result.jobs.filter((job) => job.stageGroup === 'review').length
+  } catch {
+    return 0
+  }
+}
 
 /** Lưu Mức tự chủ / Ưu tiên của một kênh; hỏi xác nhận trước khi tăng quyền tự duyệt. */
 export function useAutonomySave(channel: Channel) {
@@ -66,10 +76,12 @@ export function useAutonomySave(channel: Channel) {
     if (!online) { setError(tt.offline); return }
     const kind = confirmKind(autonomy, next)
     if (kind) {
+      const waiting = await waitingCount(channel.id)
       await confirmAutonomy({
         channel: channel.name || t.channels.page.noName,
         kind,
         min: next.approve.min,
+        waiting,
         onConfirm: () => commit({ autonomy: next }, true),
       })
       return
