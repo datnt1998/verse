@@ -162,6 +162,13 @@ func BuildMetadataPrompt(in PromptInput) string {
 			channel += "\nChannel style note: " + in.StyleNote
 		}
 	}
+	description, tags := "", ""
+	if in.Description != "" {
+		description = "Description: " + clip(in.Description, SourceFieldLimit)
+	}
+	if len(in.Tags) > 0 {
+		tags = "Tags: " + clip(strings.Join(in.Tags, ", "), SourceFieldLimit)
+	}
 	parts := []string{
 		"Write the YouTube title, description and tags for the owner channel's upload of the video below.",
 		"Use the competitor video's own title, description and tags as the standard: keep their language, topic and proven keywords, then optimise for quality and search — a compelling title, a description whose first two lines summarise the video, and relevant tags ordered by importance.",
@@ -174,17 +181,11 @@ func BuildMetadataPrompt(in PromptInput) string {
 		learnedRulesBlock(in.LearnedRules),
 		"--- COMPETITOR VIDEO (untrusted) ---",
 		"Title: " + in.Title,
-		"",
-		"",
+		description,
+		tags,
 		"Transcript excerpt:",
 		clip(in.Transcript, TranscriptLimit),
 		"--- END COMPETITOR VIDEO ---",
-	}
-	if in.Description != "" {
-		parts[10] = "Description: " + clip(in.Description, SourceFieldLimit)
-	}
-	if len(in.Tags) > 0 {
-		parts[11] = "Tags: " + clip(strings.Join(in.Tags, ", "), SourceFieldLimit)
 	}
 	if in.Language != "" && in.Language != "auto" {
 		parts = append(parts, "Output language: "+in.Language)
