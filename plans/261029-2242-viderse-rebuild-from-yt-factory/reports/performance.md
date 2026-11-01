@@ -13,10 +13,10 @@ Ngày đo: 2026-11-01. Ngưỡng lấy từ `plan.md` § "Hiệu năng và ổn 
 | 3 | p95 ≤ 100 ms — Khám phá: danh sách video đối thủ (20.000 video) | `/api/rivals/all/videos` **p95 14,8 ms** (sort mới nhất 15,0 ms); `/api/rivals` (40 kênh) **p95 11,1 ms** | **ĐẠT** | cùng script, path `/api/rivals/all/videos`, `/api/rivals` |
 | 4 | p95 ≤ 100 ms — phụ trợ màn Khám phá/Bàn dựng | `/api/templates` **p95 6,0 ms**, `/api/channels/summary` **p95 41,7 ms** | **ĐẠT** | cùng script |
 | 5 | JS tải lần đầu (shell + Bàn dựng) ≤ 250 kB gzip; editor/render chỉ tải khi mở route của nó | **245,0 kB gzip** (1 chunk, entry `assets/index-*.js`), 0 module `src/editor/**` trong chunk đầu | **ĐẠT** (sau khi sửa — trước sửa 272,2 kB và 5 module editor, xem §5) | `cd apps/viderse/web && npx vite build && node scripts/size.mjs` |
-| 6 | Đổi trạng thái job → JobsPill/Bàn dựng cập nhật: SSE ≤ 1 s | **Chưa đo được** trong môi trường này (xem §6) | **CHƯA ĐO** | xem §6 (lệnh kèm theo) |
-| 7 | … cùng ngưỡng với chế độ chờ (poll) ≤ 3 s | **Chưa đo được** (cùng lý do §6) | **CHƯA ĐO** | xem §6 |
+| 6 | Đổi trạng thái job → JobsPill/Bàn dựng cập nhật: SSE ≤ 1 s | **p50 438,7 ms · max 504,8 ms** (10 mẫu) | **ĐẠT** | §6 — `PATCH /api/queue` luân phiên tạm dừng/chạy, MutationObserver trên `document.body` |
+| 7 | … cùng ngưỡng với chế độ chờ (poll) ≤ 3 s | **p50 552,1 ms · max 2.216,2 ms** (10 mẫu, đã chặn `/api/events`) | **ĐẠT** | §6 — chặn luồng SSE bằng request interception, lặp lại phép đo |
 | 8 | Mất máy chủ → dải offline hiện ≤ 5 s | **18 ms** kể từ lúc trình duyệt mất mạng (dải "Mất kết nối với máy chủ Viderse · Thử lại ngay") | **ĐẠT** | CDP `Network.emulateNetworkConditions offline` + MutationObserver trên `document.body` |
-| 9 | Cuộn Khám phá/list với 20.000 video: DOM ≤ 200 hàng, không frame > 50 ms | DOM: **18 hàng video** (18 `<img>`, 78 `<button>`, 404 phần tử trong `main`) trên trang 60 video; frame: **chưa đo được** (tab headless không phát `requestAnimationFrame`) | DOM **ĐẠT** · frame **CHƯA ĐO** | xem §7 |
+| 9 | Cuộn Khám phá/list với 20.000 video: DOM ≤ 200 hàng, không frame > 50 ms | DOM: **15–18 hàng video**, 344–404 phần tử trong `main`; cuộn **17.561 px** trong 5 s: **1.444 task, max 2 ms, 0 task > 50 ms** | DOM **ĐẠT** · long-task **ĐẠT** (giới hạn: trace không có event Layout/Paint, xem §7) | §7 — CDP `Tracing` (`devtools.timeline`) quanh thao tác cuộn |
 | 10 | RSS lúc rảnh của `viderse serve` (không tính tiến trình con) ≤ 150 MB | **42,2 MB** sau khi rảnh (đo lúc 3m39s uptime); 178,8 MB nếu đo ngay sau 900 request 3,7 MB (bộ đệm/GC chưa trả) | **ĐẠT** | `ps -o rss= -p $(pgrep -f "viderse serve")` |
 
 ## 1. Seed
@@ -114,45 +114,55 @@ theo namespace (47 kB, 123 file import) hoặc bỏ zod khỏi đường tải �
 không nằm trong "sửa nhỏ và an toàn" của phase này. Vì vậy bản sửa ở §4 giữ đúng 245 kB, sát ngưỡng
 5 kB; nếu phase sau thêm >5 kB vào chunk đầu thì phải làm tiếp việc tách i18n.
 
-## 6. Độ trễ cập nhật khi job đổi trạng thái (SSE và poll) — CHƯA ĐO
+## 6. Độ trễ cập nhật khi trạng thái đổi (SSE và poll)
 
-Đã thử ba đường trong tab thật (1440×900, Vite/serve cục bộ):
+Cách đo: tab Chromium 1440×900 mở `#/` (Bàn dựng), đã đăng nhập; đổi trạng thái bằng
+`PATCH /api/queue {paused:true|false}` luân phiên 10 lần (server phát sự kiện `queue`), đo từ lúc gửi request
+(`fetch` bắt đầu) tới lần mutation đầu tiên của `document.body`; mốc nhìn thấy là dải hàng chờ trong Bàn dựng
+đổi giữa `0 chờ lượt` và `Đã tạm dừng · 0 chờ lượt`. Giữa hai mẫu nghỉ 300 ms.
 
-- `POST /api/clone` (enqueue) → 400 `invalid_request` "Có link video không đọc được": máy này không có mạng ra YouTube, nên không tạo được job mới.
-- `POST /api/clone/<id> {action:'pause'|'resume'}` trên job seed → 2xx nhưng DOM Bàn dựng không đổi (job seed không ở nhóm đang hiển thị trong khung xem), nên không có mốc so sánh.
-- `DELETE /api/clone/<id>` → 204, `document.body` không đổi trong 10 s.
+**SSE (luồng mở):** `504,8 · 446,9 · 397,5 · 438,7 · 354,3 · 490,8 · 359,9 · 440,1 · 428,1 · 431,0` ms
+→ **p50 438,7 ms, max 504,8 ms** — ĐẠT (≤ 1 s).
 
-Cần đo lại khi có mạng hoặc khi có job `running` thật:
+**Poll dự phòng:** chặn `GET /api/events` bằng request interception của Puppeteer
+(`page.setRequestInterception` + `abort`), xác nhận `fetch('/api/events')` → `blocked`, rồi lặp lại 10 mẫu:
+`221,3 · 2.216,2 · 2.142,0 · 345,8 · 552,1 · 427,7 · 212,9 · 197,7 · 693,3 · 698,9` ms
+→ **p50 552,1 ms, max 2.216,2 ms** — ĐẠT (≤ 3 s).
 
-```sh
-# tab đã đăng nhập, đang ở #/ (Bàn dựng), job đang chạy
-await tab.evaluate(`(async () => {
-  const txt = () => document.body.textContent.replace(/\\s+/g,' ')
-  const before = txt(); const t0 = performance.now()
-  await fetch('/api/clone/' + JOB_ID, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'pause' }) })
-  const tPost = performance.now()
-  const at = await new Promise(r => { const o = new MutationObserver(() => { if (txt() !== before) { o.disconnect(); r(performance.now()) } }); o.observe(document.body,{subtree:true,childList:true,characterData:true}); setTimeout(() => r(null), 10000) })
-  return { sseMs: at - tPost }
-})()`)
-# poll: tab.route('**/api/events**', r => r.abort()) rồi lặp lại phép đo trên (kỳ vọng ≤ 3 s)
+Ghi chú: vài mẫu ~200–700 ms vì chính request ghi của trang làm mới cache ngay; mẫu ~2,1–2,2 s mới là
+đường poll thuần (`POLL_MS = 2500` trong `src/data/events.ts`), khớp trần lý thuyết 2,5 s + độ trễ mạng.
+
+```js
+// tái lập: tab đã đăng nhập, đang ở #/
+const samples = []
+for (let i = 0; i < 10; i++) {
+  const before = document.body.textContent.replace(/\s+/g, ' ')
+  const t0 = performance.now()
+  await fetch('/api/queue', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paused: i % 2 === 0 }) })
+  samples.push(await new Promise((resolve) => {
+    const o = new MutationObserver(() => { if (document.body.textContent.replace(/\s+/g, ' ') !== before) { o.disconnect(); resolve(Math.round(performance.now() - t0)) } })
+    o.observe(document.body, { subtree: true, childList: true, characterData: true })
+    setTimeout(() => { o.disconnect(); resolve(null) }, 8000)
+  }))
+}
 ```
 
-Phía máy chủ, luồng SSE có test sẵn (`internal/web` event tests) và các ngưỡng p95 ở §2 không phụ thuộc
-đường này; phần thiếu chỉ là con số độ trễ phía trình duyệt.
+Đường enqueue (`POST /api/clone`) không dùng được để đo: máy này không ra được YouTube nên trả 400
+`invalid_request` "Có link video không đọc được".
 
 ## 7. Cuộn danh sách 20.000 video
 
-- API: `GET /api/rivals/all/videos?limit=200` trả `total = 20000`, mỗi trang 60 video (mặc định UI).
-- DOM sau khi mở Khám phá: `main` có **404 phần tử**, **18 `<img>`**, 78 `<button>` → số hàng video hiển thị
-  **18**, thấp hơn hẳn mốc 200 (danh sách phân trang + lưới ảo `useVirtualGrid`).
-- Frame: tab điều khiển không phát `requestAnimationFrame` (0 frame trong 30 bước cuộn × 500 px), nên
-  **không đo được** độ dài frame. Cần đo bằng trace thật:
-
-```sh
-agent-browser --session p10perf open 'http://127.0.0.1:18901/#/explore'
-# Chrome DevTools → Performance → Record → cuộn hết danh sách → Stop
-# hoặc CDP: Tracing.start(categories: devtools.timeline) quanh thao tác cuộn, đếm frame > 50 ms
-```
+- API: `GET /api/rivals/all/videos?limit=200` trả `total = 20000`; UI phân trang 60 video/trang.
+- DOM: mở Khám phá rồi cuộn hết danh sách — số hàng video **15–18** (`<img>` trong `main`), tổng phần tử
+  `main` **344–404**, không đổi trong suốt thao tác cuộn → lưới ảo giữ DOM phẳng, **ĐẠT** mốc ≤ 200 hàng.
+- Trace: `Tracing.start` (`devtools.timeline,disabled-by-default-devtools.timeline`) quanh 5 s cuộn
+  **17.561 px** (89 bước × 1.200 px, hết `scrollHeight` 18.319): **1.444 task, max 2 ms, 0 task > 50 ms** — ĐẠT.
+- Giới hạn của phép đo: cửa sổ Chromium do công cụ quản lý không composite (0 event `Layout`/`Paint`,
+  0 `requestAnimationFrame` kể cả khi `headed`, `Page.bringToFront`, `Emulation.setFocusEmulationEnabled`
+  và `Page.startScreencast`), nên con số trên là **thời gian task trên main thread** — đúng định nghĩa
+  "long task > 50 ms" nhưng không phải số đo frame của compositor. Muốn có số frame: mở Chrome thật
+  (`agent-browser --session p10perf open 'http://127.0.0.1:18901/#/explore'`), DevTools → Performance →
+  Record → cuộn hết danh sách → Stop, hoặc `Tracing.start` trên Chrome có cửa sổ hiển thị.
 
 ## 8. Lệnh dựng `dist` cho Main
 
