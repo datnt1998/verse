@@ -313,7 +313,7 @@ export function SaveBar({ dirty, saving, disabled = false, paths, onSave, onDisc
   if (!dirty && !saved) return null
   return (
     <div style={{
-      padding: sticky ? '8px 12px calc(8px + env(safe-area-inset-bottom, 0px))' : '0 24px 88px',
+      padding: sticky ? '8px 12px calc(8px + var(--m-safe-bottom))' : '0 24px 88px',
       display: 'flex', justifyContent: 'center',
       ...(sticky ? { position: 'sticky', bottom: 0, zIndex: 5, background: 'var(--color-bg)' } : {}),
     }}>

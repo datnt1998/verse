@@ -44,3 +44,8 @@ export {
   type InitialsAvatarProps, type StepperProps, type StatusTone, type MeterTone,
 } from './mobile/rows'
 export { SelectionBar, OfflineBanner, type SelectionBarProps, type OfflineBannerProps } from './mobile/bars'
+// Nhịp điện thoại: vùng an toàn, chế độ thanh tab, neo toast, thanh tab/tiêu đề.
+// CSS khai báo một lần ở kit.css (:root --m-*); app chỉ đặt --m-tabbar-gap/--m-scroll-pad.
+export { PHONE_MAX_NOVERSE, PHONE_MAX_VIDERSE, phoneQuery, setPhoneMax, getPhoneMax, tabModeFor, pickToastBottom, useToastBottom, useVisualViewportKeyboard, type TabMode, type ToastBottomEntry } from './mobile/safeArea'
+export { MobileRuntimeProvider, useMobileRuntime, useTabMode, useMobilePaneActive, MobilePaneScope, useMobileScroll, useSustained, type MobileRuntime } from './mobile/runtime'
+export { MobileTabBar, MobileTopBar, type MobileTabItem, type MobileTabBarSlots, type MobileTabBarProps, type MobileTopBarSlots, type MobileTopBarProps } from './mobile/tabs'

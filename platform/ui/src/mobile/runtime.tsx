@@ -1,135 +1,127 @@
-// Runtime mobile của kit — nhịp cuộn, bàn phím, chế độ thanh tab.
-// TẠM THỜI: nhánh safe-area/tab-bar sở hữu tệp này (runtime.tsx); bản của nhánh đó
-// là bản chuẩn. Bản ở đây giữ đúng hợp đồng xuất (useMobileRuntime/useTabMode/
-// useMobileScroll/useSustained) để component mobile của kit chạy được độc lập.
-import {
-  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
-  type ReactNode, type RefObject,
-} from 'react'
+// Nhịp điện thoại dùng chung: bàn phím ảo, chế độ thanh tab, cờ cuộn.
+//
+// Provider này KHÔNG biết phiên đăng nhập, mạng hay outbox — app bọc nó ở ngoài và
+// tự vẽ băng mất kết nối / sheet hết phiên. App nào cũng có thể gọi `useTabMode`,
+// `useMobileScroll`, `MobilePaneScope` mà không cần tự dựng lại state.
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode, RefObject } from 'react'
+import { tabModeFor, useVisualViewportKeyboard } from './safeArea'
+import type { TabMode } from './safeArea'
 
-export type TabMode = 'default' | 'mini' | 'hide'
+type ScrollState = { down: boolean; immersive: boolean }
 
-export type MobileRuntimeValue = {
-  /** chiều cao bàn phím ảo (px), 0 khi đóng */
+export type MobileRuntime = {
+  /** Chiều cao bàn phím ảo (px), 0 khi đóng. */
   keyboard: number
-  /** chế độ thanh tab đang áp dụng */
   tabMode: TabMode
-  /** người dùng đang cuộn xuống (thanh tab thu nhỏ) */
   down: boolean
-  /** báo hướng cuộn cho runtime */
-  setScroll: (down: boolean, immersive?: boolean) => void
+  setScroll: (down: boolean, immersive: boolean) => void
 }
 
-const FALLBACK: MobileRuntimeValue = { keyboard: 0, tabMode: 'default', down: false, setScroll: () => {} }
+type RuntimeActions = Pick<MobileRuntime, 'setScroll'> & { setMode: (id: symbol, mode: TabMode | null) => void }
 
-const RuntimeContext = createContext<MobileRuntimeValue>(FALLBACK)
+const RuntimeContext = createContext<MobileRuntime>({ keyboard: 0, tabMode: 'default', down: false, setScroll: () => {} })
+const RuntimeActionsContext = createContext<RuntimeActions>({ setScroll: () => {}, setMode: () => {} })
 
-/** Chế độ thanh tab do từng màn hình yêu cầu (màn con ẩn thanh tab). */
-const TabModeContext = createContext<(mode: TabMode | null) => void>(() => {})
-
-/** Bàn phím ảo: đọc visualViewport, trả về chiều cao bị bàn phím chiếm. */
-export function useVisualViewportKeyboard(): number {
-  const [keyboard, setKeyboard] = useState(0)
-  useEffect(() => {
-    const view = window.visualViewport
-    if (!view) return
-    const read = () => setKeyboard(Math.max(0, Math.round(window.innerHeight - view.height - view.offsetTop)))
-    read()
-    view.addEventListener('resize', read)
-    view.addEventListener('scroll', read)
-    return () => {
-      view.removeEventListener('resize', read)
-      view.removeEventListener('scroll', read)
-    }
-  }, [])
-  return keyboard
-}
-
-/** Đặt biến `--kb` trên <html> để CSS dùng chung (bàn phím ảo). */
-export function useKeyboardVar(): number {
-  const keyboard = useVisualViewportKeyboard()
-  useEffect(() => {
-    document.documentElement.style.setProperty('--kb', `${keyboard}px`)
-  }, [keyboard])
-  return keyboard
-}
-
-export function MobileRuntimeProvider({ children, hidden }: { children: ReactNode; hidden?: boolean }) {
-  const keyboard = useKeyboardVar()
-  const [down, setDown] = useState(false)
-  const [requested, setRequested] = useState<TabMode | null>(null)
-  const setScroll = useCallback((next: boolean) => setDown(next), [])
-  const requestTabMode = useCallback((mode: TabMode | null) => setRequested(mode), [])
-  const tabMode: TabMode = hidden ? 'hide' : requested ?? (keyboard > 0 || down ? 'mini' : 'default')
-  const value = useMemo<MobileRuntimeValue>(() => ({ keyboard, tabMode, down, setScroll }), [keyboard, tabMode, down, setScroll])
-  return (
-    <RuntimeContext.Provider value={value}>
-      <TabModeContext.Provider value={requestTabMode}>{children}</TabModeContext.Provider>
-    </RuntimeContext.Provider>
-  )
-}
-
-export const useMobileRuntime = (): MobileRuntimeValue => useContext(RuntimeContext)
+export const useMobileRuntime = () => useContext(RuntimeContext)
 
 /**
- * Yêu cầu chế độ thanh tab cho màn hình đang render. Không truyền tham số thì chỉ đọc.
- * `hide` = màn con (không có thanh tab), `mini` = thanh tab thu nhỏ.
+ * Nhận cờ "đang hỏng" nhưng chỉ bật sau `ms` liên tục — để không nháy băng mất kết nối
+ * cho những lần rớt ngắn (iOS nền → hiện lại).
  */
-export function useTabMode(mode?: TabMode): TabMode {
-  const request = useContext(TabModeContext)
-  const { tabMode } = useMobileRuntime()
+export function useSustained(value: boolean, ms: number): boolean {
+  const [sustained, setSustained] = useState(false)
   useEffect(() => {
-    if (!mode) return
-    request(mode)
-    return () => request(null)
-  }, [mode, request])
-  return mode ?? tabMode
-}
-
-/** Cuộn xuống → thu nhỏ thanh tab; cuộn lên → hiện lại. */
-export function useMobileScroll(
-  ref: RefObject<HTMLElement | null>,
-  options: { disabled?: boolean } = {},
-): { down: boolean; immersive: boolean; reveal: () => void } {
-  const { setScroll } = useMobileRuntime()
-  const [down, setDown] = useState(false)
-  const [immersive, setImmersive] = useState(false)
-  const last = useRef(0)
-  const disabled = options.disabled ?? false
-  useEffect(() => {
-    const el = ref.current
-    if (!el || disabled) return
-    const onScroll = () => {
-      const top = el.scrollTop
-      const delta = top - last.current
-      if (Math.abs(delta) < 8) return
-      const next = delta > 0 && top > 24
-      last.current = top
-      setDown(next)
-      setImmersive(next && delta > 40)
-      setScroll(next, next && delta > 40)
-    }
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => el.removeEventListener('scroll', onScroll)
-  }, [ref, disabled, setScroll])
-  const reveal = useCallback(() => {
-    setDown(false)
-    setImmersive(false)
-    setScroll(false, false)
-  }, [setScroll])
-  return { down, immersive, reveal }
-}
-
-/** true khi `value` đã giữ nguyên trạng thái thật trong `ms` — tránh nháy banner. */
-export function useSustained(value: boolean, ms = 3000): boolean {
-  const [settled, setSettled] = useState(false)
-  useEffect(() => {
-    if (!value) {
-      setSettled(false)
-      return
-    }
-    const timer = setTimeout(() => setSettled(true), ms)
+    if (!value) { setSustained(false); return }
+    const timer = setTimeout(() => setSustained(true), ms)
     return () => clearTimeout(timer)
   }, [value, ms])
-  return settled
+  return sustained
+}
+
+export function MobileRuntimeProvider({ children, hidden = false }: { children: ReactNode; hidden?: boolean }) {
+  const keyboard = useVisualViewportKeyboard()
+  const [scroll, updateScroll] = useState<ScrollState>({ down: false, immersive: false })
+  const [modes, setModes] = useState<ReadonlyMap<symbol, TabMode>>(() => new Map())
+
+  const setMode = useCallback((id: symbol, mode: TabMode | null) => setModes((previous) => {
+    if (mode === null ? !previous.has(id) : previous.get(id) === mode) return previous
+    const next = new Map(previous)
+    if (mode === null) next.delete(id)
+    else next.set(id, mode)
+    return next
+  }), [])
+  const setScroll = useCallback((down: boolean, immersive: boolean) => updateScroll((previous) => previous.down === down && previous.immersive === immersive ? previous : { down, immersive }), [])
+
+  const requested = [...modes.values()]
+  const tabMode = tabModeFor({
+    keyboard,
+    hidden: hidden || requested.includes('hide'),
+    immersive: scroll.immersive,
+    down: scroll.down || requested.includes('mini'),
+  })
+  const actions = useMemo(() => ({ setScroll, setMode }), [setScroll, setMode])
+  const value = useMemo(() => ({ keyboard, tabMode, down: scroll.down, setScroll }), [keyboard, tabMode, scroll.down, setScroll])
+
+  useEffect(() => { document.documentElement.dataset.tabMode = tabMode }, [tabMode])
+  return <RuntimeActionsContext.Provider value={actions}><RuntimeContext.Provider value={value}>{children}</RuntimeContext.Provider></RuntimeActionsContext.Provider>
+}
+
+/**
+ * Màn (hoặc thành phần) xin một chế độ thanh tab. `hide` thắng `mini`; bàn phím mở
+ * luôn ẩn. Chỉ pane đang hiển thị mới có hiệu lực (xem `MobilePaneScope`).
+ */
+export function useTabMode(mode?: TabMode) {
+  const { setMode } = useContext(RuntimeActionsContext)
+  const paneActive = useMobilePaneActive()
+  const id = useRef(Symbol('tabMode'))
+  const effective = paneActive ? (mode ?? null) : null
+  useEffect(() => { setMode(id.current, effective); return () => setMode(id.current, null) }, [effective, setMode])
+}
+
+const PaneActive = createContext(true)
+
+/** Pane đang hiển thị? Hook tab-mode/cuộn của pane ẩn không được đẩy state toàn cục. */
+export const useMobilePaneActive = () => useContext(PaneActive)
+
+/** Phạm vi pane: chỉ khi pane đang hiển thị các hook (useMobileScroll, useTabMode) mới ảnh hưởng thanh tab. */
+export function MobilePaneScope({ active, children }: { active: boolean; children: ReactNode }) {
+  return <PaneActive.Provider value={active}>{children}</PaneActive.Provider>
+}
+
+export function useMobileScroll(ref: RefObject<HTMLElement | null>, options: { immersive?: boolean; disabled?: boolean; onScroll?: (element: HTMLElement) => void } = {}) {
+  const { setScroll } = useContext(RuntimeActionsContext)
+  const paneActive = useMobilePaneActive()
+  const disabled = Boolean(options.disabled) || !paneActive
+  const [state, update] = useState<ScrollState>({ down: false, immersive: false })
+  const callbacks = useRef(options); callbacks.current = options
+  const last = useRef(0)
+  useEffect(() => {
+    const element = ref.current
+    if (!element || disabled) return
+    last.current = element.scrollTop
+    const scroll = () => {
+      const y = element.scrollTop
+      if (y === last.current) return
+      // Collapsing chrome/chips can clamp scrollTop; that is not an upward gesture.
+      if (y < last.current && last.current > element.scrollHeight - element.clientHeight) {
+        last.current = y
+        callbacks.current.onScroll?.(element)
+        return
+      }
+      const down = y > last.current && y > 40
+      const immersive = Boolean(callbacks.current.immersive && down)
+      last.current = y
+      update((previous) => previous.down === down && previous.immersive === immersive ? previous : { down, immersive }); setScroll(down, immersive)
+      callbacks.current.onScroll?.(element)
+    }
+    element.addEventListener('scroll', scroll, { passive: true })
+    // Pane ẩn → hiện lại: khôi phục cờ "đang cuộn xuống" của chính pane. Đặt ở khung hình kế tiếp
+    // để thắng nhịp nhả (false) của pane vừa ẩn, bất kể thứ tự effect giữa hai pane.
+    const frame = requestAnimationFrame(() => { if (state.down || state.immersive) setScroll(state.down, state.immersive) })
+    return () => { cancelAnimationFrame(frame); element.removeEventListener('scroll', scroll); setScroll(false, false) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref, setScroll, disabled])
+  const reveal = useCallback(() => { update((previous) => !previous.down && !previous.immersive ? previous : { down: false, immersive: false }); setScroll(false, false) }, [setScroll])
+  return { ...state, reveal }
 }

@@ -99,7 +99,7 @@ export function AppShell({ route, user, children }: {
       <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
         <ActivityBridge />
         {route.name !== 'queue' && strip}
-        <div inert={offline && route.name !== 'queue' || undefined} style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: route.name === 'queue' ? 'hidden' : 'auto', paddingBottom: route.name === 'new' || route.name === 'queue' ? 0 : 'var(--vv-tabbar-pad)', ...(offline && route.name !== 'queue' ? { opacity: 0.42 } : {}) }}>
+        <div inert={offline && route.name !== 'queue' || undefined} style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: route.name === 'queue' ? 'hidden' : 'auto', paddingBottom: route.name === 'new' || route.name === 'queue' || route.name === 'channel-new' ? 0 : 'var(--m-scroll-pad)', ...(offline && route.name !== 'queue' ? { opacity: 0.42 } : {}) }}>
           {children}
         </div>
       </MobileShell>

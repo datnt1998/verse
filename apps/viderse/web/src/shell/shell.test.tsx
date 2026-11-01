@@ -81,10 +81,24 @@ describe('AppHeader', () => {
 describe('MobileShell — MMain', () => {
   it('keeps all five destinations in equal-width tab slots, including Video mới', async () => {
     const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online><p>x</p></MobileShell>)
-    const tabs = c.querySelectorAll('.vv-tabbar > a')
+    const tabs = c.querySelectorAll('.vv-tabbar button')
     expect(tabs).toHaveLength(5)
     expect([...tabs].every((tab) => tab.classList.contains('vv-tabbar__item'))).toBe(true)
-    expect(c.querySelector('.vv-tabbar__new')?.closest('a')?.getAttribute('href')).toBe('#/new')
+    // Ô giữa là nút hành động (FAB đỏ), không phải đích điều hướng thường.
+    expect(c.querySelector('.vv-tabbar__new')?.closest('button')?.getAttribute('aria-label')).toBe(t.nav.new)
+    // Mọi ô đều là <button> thật (bàn phím + screen reader dùng được), không phải <a>.
+    expect(c.querySelectorAll('.vv-tabbar a')).toHaveLength(0)
+  })
+  it('chạm ô giữa mở Video mới; ô Kênh đi tới kênh đang mở', async () => {
+    location.hash = '#/'
+    const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online><p>x</p></MobileShell>)
+    const newTab = c.querySelector('.vv-tabbar__new')?.closest('button') as HTMLButtonElement
+    await act(async () => { newTab.click() })
+    expect(location.hash).toBe('#/new')
+  })
+  it('màn tạo kênh không vẽ thanh tab (artboard MCreate)', async () => {
+    const c = await render(<MobileShell route={{ name: 'channel-new' }} status={STATUS} online><p>x</p></MobileShell>)
+    expect(c.querySelector('.vv-tabbar')).toBeNull()
   })
   it('opens settings from the avatar while keeping the real running count on the round jobs button', async () => {
     const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online userName="Linh"><p>x</p></MobileShell>)

@@ -186,7 +186,7 @@ export const channelStyles = stylex.create({
   runrowText: { flex: channelLayout.runrowTextFlex, minWidth: 0, display: "flex", flexDirection: "column", gap: space["--vv-s-1"] },
   runrowLabel: { display: "flex", alignItems: "center", gap: space["--vv-s-6"], fontSize: channelLayout.runrowLabelFontSize },
   runrowSub: { fontSize: channelLayout.runrowSubFontSize, color: "var(--vv-fg-note)" },
-  foot: { position: "sticky", bottom: 0, zIndex: 2, display: "flex", flexWrap: "wrap", alignItems: "center", gap: space["--vv-s-10"], padding: { "default": "var(--vv-s-12) var(--vv-s-20)", "@media (max-width: 767px)": "var(--vv-s-10) var(--vv-s-12)" }, borderTopWidth: space['--vv-s-1'], borderTopStyle: "solid", borderTopColor: line["--line-1"], backgroundColor: color["--color-bg"] },
+  foot: { position: "sticky", bottom: { "default": 0, "@media (max-width: 767px)": "var(--kb)" }, zIndex: 2, display: "flex", flexWrap: "wrap", alignItems: "center", gap: space["--vv-s-10"], padding: { "default": "var(--vv-s-12) var(--vv-s-20)", "@media (max-width: 767px)": "var(--vv-s-10) var(--vv-s-12) calc(var(--vv-s-4) + max(26px, var(--m-safe-bottom)))" }, borderTopWidth: space['--vv-s-1'], borderTopStyle: "solid", borderTopColor: line["--line-1"], backgroundColor: color["--color-bg"] },
   footNote: { flex: channelLayout.footNoteFlex, display: "flex", alignItems: "center", gap: space["--vv-s-8"], fontSize: channelLayout.footNoteFontSize, color: "var(--vv-fg-note)" },
   footNoteBlocked: { color: "var(--vv-warn-ink)" },
   onboardhead: { display: "flex", alignItems: "center", gap: space["--vv-s-8"], flexWrap: "wrap", padding: "var(--vv-s-10) var(--vv-s-20)", borderBottomWidth: space['--vv-s-1'], borderBottomStyle: "solid", borderBottomColor: line["--line-1"] },

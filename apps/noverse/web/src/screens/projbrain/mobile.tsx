@@ -20,7 +20,7 @@ const same = (a: string, b: string) => !!a.trim() && a.trim().replace(/\s+/g, ' 
 const date = (s: string | null) => { if (!s) return ''; const d = new Date(s); return Number.isNaN(d.getTime()) ? '' : `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}` }
 const styles = stylex.create({
   root: { height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-bg)', color: 'var(--color-fg)' },
-  header: { minHeight: 52, display: 'flex', alignItems: 'center', gap: 4, paddingTop: 'env(safe-area-inset-top)' },
+  header: { minHeight: 52, display: 'flex', alignItems: 'center', gap: 4, paddingTop: 'var(--m-safe-top)' },
   back: { width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'inherit' },
   title: { display: 'flex', flexDirection: 'column', lineHeight: 1.25 }, heading: { fontSize: 17, fontWeight: 600 }, sub: { fontSize: 12.5, color: 'var(--color-fg-3)' },
   tabs: { display: 'flex', margin: '0 16px 12px', padding: 3, borderRadius: 12, backgroundColor: 'var(--color-card)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)' },
