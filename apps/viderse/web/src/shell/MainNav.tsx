@@ -7,12 +7,13 @@ import { navSection, paths, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { Icon, type IconName } from '@noverse/ui'
 import * as stylex from '@stylexjs/stylex'
-import { color, line, radius } from '@noverse/ui/tokens.stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
 const sx = stylex.create({
   nav: {
     display: 'flex',
     gap: 'var(--vv-s-2)',
-    flex: '0 0 auto',
+    flex: '0 1 auto',
+    minWidth: 0,
     padding: 'var(--vv-s-3)',
     borderRadius: 'var(--vv-r-10)',
     backgroundColor: color['--color-surface-1'],
@@ -42,18 +43,20 @@ const sx = stylex.create({
     backgroundColor: color['--color-surface-6'],
   },
   review: { paddingRight: 'var(--vv-s-10)' },
+  /** `.vv-badge` của kit (#14): chữ vàng --vv-st-review trên nền vàng nhạt 16%. */
   badge: {
     minWidth: 18,
     height: 18,
     paddingInline: 'var(--vv-s-5)',
-    borderRadius: radius['--radius-button'],
+    borderRadius: 'var(--vv-r-pill)',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: 11,
     fontWeight: 600,
-    backgroundColor: color['--color-warn'],
-    color: 'var(--vv-badge-ink)',
+    fontVariantNumeric: 'tabular-nums',
+    backgroundColor: 'var(--vv-badge-bg)',
+    color: color['--color-warn'],
   },
 })
 

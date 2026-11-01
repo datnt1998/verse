@@ -275,7 +275,7 @@ export function QueueScreen() {
   if (mobile) return <MobileQueue queue={queue} />
   return (
     <div className={`vq ${stylex.props(styles["vq"]).className}`} data-state={state}>
-      <main className={`vq-center ${stylex.props(styles["vq-center"]).className}`}>
+      <main className={`vq-center vv-wide ${stylex.props(styles["vq-center"]).className}`}>
         <div className={`vq-head ${stylex.props(styles["vq-head"]).className}`}>
           <div className={`vq-head__text ${stylex.props(styles["vq-head__text"]).className}`}>
             <h1 {...stylex.props(styles.heading)}>{tt.title}</h1>

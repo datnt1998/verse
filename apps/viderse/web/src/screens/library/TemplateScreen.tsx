@@ -138,7 +138,7 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
     <div className={`vt-shell ${stylex.props(sx.shell).className}`}>
       <TemplateNav detail={detail} active={section}
         overlayNames={(overlays.data?.items ?? []).filter((item) => recipe.overlays.includes(item.id)).map((item) => item.name)} />
-      <main className={`vt-main ${stylex.props(sx.main).className}`}>
+      <main className={`vt-main vv-wide vv-wide--read ${stylex.props(sx.main).className}`}>
         <header className={`vt-head ${stylex.props(sx.head).className}`}>
           <div className={`vt-head-main ${stylex.props(sx.headMain).className}`}>
             <div className={`vt-title-row ${stylex.props(sx.titleRow).className}`}>

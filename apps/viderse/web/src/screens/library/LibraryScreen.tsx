@@ -148,7 +148,7 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
         </div>
       </aside>
 
-      <div className={`vlb-body ${stylex.props(sx.body).className}`}>
+      <div className={`vlb-body vv-wide vv-wide--grid ${stylex.props(sx.body).className}`}>
         <header className={`vlb-head ${stylex.props(sx.head).className}`}>
           <div className={`vlb-head-main ${stylex.props(sx.headMain).className}`}>
             <h1 {...stylex.props(sx.vlbHeadMainH1)}>{copy.title}</h1>

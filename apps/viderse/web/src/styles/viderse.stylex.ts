@@ -32,6 +32,14 @@ export const pipeline = stylex.defineVars({
   mobileDockItemRadius: '27px',
 })
 
+/** Bề rộng tối đa cột giữa từ 1600px (03-tokens › đợt 32). Luật áp ở viderse.css (.vv-wide*). */
+export const wide = stylex.defineVars({
+  '--vv-wide-content': '1280px',
+  '--vv-wide-grid': '1760px',
+  '--vv-wide-read': '880px',
+  '--vv-wide-composer': '880px',
+})
+
 export const channelLayout = stylex.defineVars({
   sideFlex: "0 0 252px",
   sideMaxWidth: "252px",

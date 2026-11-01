@@ -95,7 +95,8 @@
   --vv-grad-step-run: linear-gradient(90deg, #5E86F2, #A9C8FF, #5E86F2);
   /* Halo chấm đỏ "đang chạy" (#FF0033 = --vv-red) */
   --vv-red-18: rgba(255, 0, 51, .18);
-  --vv-badge-ink: #3D2A08;
+  /* Nền badge số ở MainNav (#14): vàng nhạt 16%, chữ --vv-st-review (#F6CB8C). */
+  --vv-badge-bg: rgba(246, 203, 140, .16);
   --vv-tabbar-ind-bd: rgba(255, 77, 99, .3);
   --vv-tabbar-on: #FFE3E8;
 
@@ -339,6 +340,26 @@ input::placeholder, textarea::placeholder { color: var(--color-fg-4); }
 /* Menu kit trên điện thoại cảm ứng: mỗi dòng ≥ 44px chạm được. */
 @media (max-width: 767px) and (pointer: coarse) {
   .kit-pop .kit-option { min-height: var(--vv-s-44); }
+}
+
+/* Bố cục màn rộng (04-components › Bố cục màn rộng): từ 1600px, con trực tiếp của
+   cột giữa không kéo dãn quá bề rộng đọc được và căn giữa; khung, cột trái và cột
+   phải không đổi. Luật con-trực-tiếp là thứ StyleX không biểu đạt được.
+   Bề rộng (width/max-width) nằm ở layer components, dưới StyleX: khối đã có bề
+   rộng riêng (Cài đặt 760, Template 700, Bản tin 800) giữ nguyên bề rộng đó.
+   Căn giữa (margin-inline) để ngoài layer: nhiều khối của mockup tự đặt margin:0
+   và phải thắng được chúng. */
+@layer components {
+  @media (min-width: 1600px) {
+    .vv-wide > * { width: 100%; max-width: var(--vv-wide-content); }
+    .vv-wide--grid > * { max-width: var(--vv-wide-grid); }
+    .vv-wide--read > * { max-width: var(--vv-wide-read); }
+    /* Ô Nhắn trợ lý + dòng phím tắt: ở mọi nơi nó đứng, kể cả khi lồng trong khối khác. */
+    .vv-composer-dock { width: 100%; max-width: var(--vv-wide-composer); }
+  }
+}
+@media (min-width: 1600px) {
+  .vv-wide > *, .vv-composer-dock { margin-inline: auto; }
 }
 
 /* Kit đọc keyframes theo tên: platform/ui/feedback.tsx đặt animationName 'ai-spin'. */

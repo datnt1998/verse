@@ -111,7 +111,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
             : undefined,
         }}
       />
-      <main className={`vch-center ${stylex.props(channelStyles.center).className}`} aria-label={tt.page.title}>
+      <main className={`vch-center vv-wide ${stylex.props(channelStyles.center).className}`} aria-label={tt.page.title}>
         <ChannelHeader channel={data} />
         <VideoStats channel={data} jobs={jobs} />
         <div

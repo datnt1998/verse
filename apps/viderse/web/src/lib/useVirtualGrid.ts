@@ -44,12 +44,14 @@ export function estimatedRowHeight(width: number, metrics: GridMetrics = {}): nu
   return cardW * (9 / 16) + cardExtraH
 }
 
-export function useVirtualGrid({ count, viewport, metrics }: {
+export function useVirtualGrid({ count, viewport, metrics, maxWidth }: {
   count: number
   /** Kích thước ép cho test {width,height}; bỏ qua khi đo DOM được. */
   viewport?: { width: number; height: number }
   /** Thẻ rộng/khác chiều cao thẻ video — mặc định theo thẻ Khám phá. */
   metrics?: GridMetrics
+  /** Bề rộng tối đa của lưới khi cột cuộn rộng hơn (màn ≥1600px giới hạn con của cột giữa). */
+  maxWidth?: number
 }) {
   const { cardMinW, gapX, gapY } = metricsOf(metrics)
   const ref = useRef<HTMLDivElement>(null)
@@ -62,13 +64,13 @@ export function useVirtualGrid({ count, viewport, metrics }: {
     if (!el || viewport) return
     const measure = () => {
       const rect = el.getBoundingClientRect()
-      if (rect.width > 0 || rect.height > 0) setSize({ width: rect.width, height: rect.height })
+      if (rect.width > 0 || rect.height > 0) setSize({ width: Math.min(rect.width, maxWidth ?? Infinity), height: rect.height })
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [viewport])
+  }, [viewport, maxWidth])
 
   const cols = colsForWidth(size.width || cardMinW, cardMinW, gapX)
   const rows = Math.ceil(count / cols)

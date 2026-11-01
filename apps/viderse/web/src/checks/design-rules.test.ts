@@ -220,3 +220,19 @@ describe('Khám phá: lớp phủ <select> trong chip lọc', () => {
     }
   })
 })
+
+describe('mốc điện thoại', () => {
+  it('chỉ một mốc: mọi media query bề ngang trong dải 600–800px là 767px (dưới 768px)', () => {
+    // Khung điện thoại bắt đầu ở 768px (#16). Một mốc phụ như 700px làm 700–767px
+    // nhận bố cục desktop ở chỗ này và điện thoại ở chỗ khác.
+    const offenders: string[] = []
+    for (const file of files) {
+      const text = readFileSync(file, 'utf8')
+      for (const match of text.matchAll(/(?:max|min)-width:\s*(\d+)px/g)) {
+        const width = Number(match[1])
+        if (width >= 600 && width <= 800 && width !== 767 && width !== 768) offenders.push(`${file.replace(`${SRC}/`, '')}: ${match[0]}`)
+      }
+    }
+    expect([...new Set(offenders)]).toEqual([])
+  })
+})
