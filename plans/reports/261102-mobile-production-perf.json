@@ -1,0 +1,121 @@
+{
+  "revision": "9ab528eb3be8206e941fe667e3045302ba012ab6",
+  "route": "https://vid.aarverse.studio/#/",
+  "viewport": "390x844 DPR1",
+  "network": {
+    "latencyMs": 40,
+    "downloadMbps": 9,
+    "uploadMbps": 1.5
+  },
+  "cpuThrottle": 4,
+  "method": "3 independent Chromium processes, each cold navigation and warm reload;6s observation; no auth/storage stubs; native screenshots retained privately only",
+  "rows": [
+    {
+      "phase": "cold",
+      "run": 1,
+      "fcpMs": 1780,
+      "lcpMs": 2124,
+      "tbtMs": 307,
+      "maxLongTaskMs": 239,
+      "ttfbMs": 394,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": null,
+      "responses6s": 54
+    },
+    {
+      "phase": "warm",
+      "run": 1,
+      "fcpMs": 540,
+      "lcpMs": 848,
+      "tbtMs": 0,
+      "maxLongTaskMs": 0,
+      "ttfbMs": 208,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": [],
+      "responses6s": 52
+    },
+    {
+      "phase": "cold",
+      "run": 2,
+      "fcpMs": 1168,
+      "lcpMs": 1512,
+      "tbtMs": 122,
+      "maxLongTaskMs": 121,
+      "ttfbMs": 386,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": null,
+      "responses6s": 54
+    },
+    {
+      "phase": "warm",
+      "run": 2,
+      "fcpMs": 416,
+      "lcpMs": 688,
+      "tbtMs": 0,
+      "maxLongTaskMs": 0,
+      "ttfbMs": 141,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": [],
+      "responses6s": 52
+    },
+    {
+      "phase": "cold",
+      "run": 3,
+      "fcpMs": 1444,
+      "lcpMs": 1784,
+      "tbtMs": 103,
+      "maxLongTaskMs": 103,
+      "ttfbMs": 628,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": null,
+      "responses6s": 55
+    },
+    {
+      "phase": "warm",
+      "run": 3,
+      "fcpMs": 1316,
+      "lcpMs": 1624,
+      "tbtMs": 0,
+      "maxLongTaskMs": 0,
+      "ttfbMs": 1067,
+      "jsGzipKiB": 198.86,
+      "cssGzipKiB": 70.17,
+      "fontFiles": 3,
+      "fontKiB": 40.95,
+      "warmNetworkAssets": [],
+      "responses6s": 52
+    }
+  ],
+  "medians": {
+    "cold": {
+      "fcpMs": 1444,
+      "lcpMs": 1784,
+      "tbtMs": 122,
+      "maxLongTaskMs": 121,
+      "ttfbMs": 394
+    },
+    "warm": {
+      "fcpMs": 540,
+      "lcpMs": 848,
+      "tbtMs": 0,
+      "maxLongTaskMs": 0,
+      "ttfbMs": 208
+    }
+  },
+  "cfChallengeIncluded": true
+}

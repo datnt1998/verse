@@ -36,7 +36,7 @@ Mọi màn điện thoại Viderse (< 768 px) khớp artboard `apps/viderse/docs
 | 1b | **Giữ màn khi đổi tab** (`KeepAlive` lên kit, Viderse pane keep-alive, giữ cuộn, 0 request khi cache còn, prefetch idle) | — | đã tích hợp |
 | 1c | **Component mobile hệ thống** theo MKit (kích thước 44/46/48, sheet title 18, chip 36/44, field 16 px…) + Noverse cutover | — | đã tích hợp V33; kiểm kit233 test, native và focus/menu/segmented đạt |
 | 2 | **Màn theo artboard**: MMain (Bàn dựng 1 cột + chi tiết + kế hoạch + bản tin + việc nền), MReview (8 trạng thái), MExplore + MCompVideo (B2 màn riêng), MCreate + MChannel + MSettings, MNew + MQueue + MAuth polish | 1a, 1c | đã tích hợp; có báo cáo/ảnh native từng slice và lượt kiểm bản production tích hợp 390/360 trong `plans/reports/261102-final-built-mobile/` |
-| 3 | **Hiệu năng** theo báo cáo 02 (ngân sách JS màn đầu, TBT, render storm, ảnh) | 1b | đã tích hợp lượt đầu; còn ngân sách JS/CSS/font cần đo lại sau cắt màn điện thoại |
+| 3 | **Hiệu năng** theo báo cáo 02 (ngân sách JS màn đầu, TBT, render storm, ảnh) | 1b | đã đo production: entry134.3KiB, JS198.86KiB, font3/40.95KiB, idle0API/phút, heap6.12MiB, tab58–85ms; **chưa đóng** CSS70.17KiB/40KiB,54–55response/25 và một cold outlier; cần quyết định phạm vi build/tối ưu tiếp, xem báo cáo02 §10 |
 | 4 | **GAP design** → làm màn khi artboard về | design | V34 đã tích hợp; còn các GAP API nêu trên |
 
 # Nghiệm thu mỗi màn

@@ -1,0 +1,423 @@
+{
+  "app": "Noverse AU",
+  "origin": "http://au.localhost:5210",
+  "screenshots": [
+    {
+      "name": "01-settings-admin-1440",
+      "path": "/tmp/au-evidence-final/01-settings-admin-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?scope=global",
+      "expected": "Global immediate-save sidebar, no scope inheritance or Apply promise",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/01-settings-admin-1440.png",
+      "freshRetakeCommit": "5ffd103b"
+    },
+    {
+      "name": "02-save-failure-retry-1440",
+      "path": "/tmp/au-evidence-final/02-save-failure-retry-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?scope=global",
+      "expected": "Đang dùng lựa chọn đã lưu trước đó",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/02-save-failure-retry-1440.png"
+    },
+    {
+      "name": "03-settings-quota-1440",
+      "path": "/tmp/au-evidence-final/03-settings-quota-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?scope=global",
+      "expected": "Cảnh báo",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/03-settings-quota-1440.png"
+    },
+    {
+      "name": "04-settings-expired-1440",
+      "path": "/tmp/au-evidence-final/04-settings-expired-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban&scope=global",
+      "expected": "Chuyển 4 trợ lý",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/04-settings-expired-1440.png"
+    },
+    {
+      "name": "05-bulk-swap-undo-warning-1440",
+      "path": "/tmp/au-evidence-final/05-bulk-swap-undo-warning-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban&scope=global",
+      "expected": "Hoàn tác",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/05-bulk-swap-undo-warning-1440.png"
+    },
+    {
+      "name": "06-connect-expired-1440",
+      "path": "/tmp/au-evidence-final/06-connect-expired-1440.png",
+      "url": "http://au.localhost:5210/#/settings/connect?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban&scope=global",
+      "expected": "Đăng nhập lại ChatGPT",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/06-connect-expired-1440.png"
+    },
+    {
+      "name": "07-connect-key-entry-1440",
+      "path": "/tmp/au-evidence-final/07-connect-key-entry-1440.png",
+      "url": "http://au.localhost:5210/#/settings/connect?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban&scope=global",
+      "expected": "Khoá Anthropic Claude không còn dùng được",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/07-connect-key-entry-1440.png"
+    },
+    {
+      "name": "08-connect-quota-1440",
+      "path": "/tmp/au-evidence-final/08-connect-quota-1440.png",
+      "url": "http://au.localhost:5210/#/settings/connect?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban&scope=global",
+      "expected": "Cảnh báo · tạm hết lượt",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/08-connect-quota-1440.png"
+    },
+    {
+      "name": "09-work-stop-1440",
+      "path": "/tmp/au-evidence-final/09-work-stop-1440.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Đổi và viết tiếp",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/09-work-stop-1440.png"
+    },
+    {
+      "name": "10-work-fallback-1440",
+      "path": "/tmp/au-evidence-final/10-work-fallback-1440.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Đang viết bằng model dự phòng",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/10-work-fallback-1440.png"
+    },
+    {
+      "name": "11-command-model-global-1440",
+      "path": "/tmp/au-evidence-final/11-command-model-global-1440.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work?dlg=model",
+      "expected": "Lưu cho cả app",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/11-command-model-global-1440.png"
+    },
+    {
+      "name": "12-work-stop-390",
+      "path": "/tmp/au-evidence-final/12-work-stop-390.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Đổi và viết tiếp",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/12-work-stop-390.png",
+      "freshRetakeCommit": "5ffd103b"
+    },
+    {
+      "name": "13-work-stop-360",
+      "path": "/tmp/au-evidence-final/13-work-stop-360.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Đổi và viết tiếp",
+      "width": 360,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 360,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/13-work-stop-360.png",
+      "freshRetakeCommit": "5ffd103b"
+    },
+    {
+      "name": "14-models-390",
+      "path": "/tmp/au-evidence-final/14-models-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "Chạm để đổi",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/14-models-390.png"
+    },
+    {
+      "name": "15-model-thinking-390",
+      "path": "/tmp/au-evidence-final/15-model-thinking-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "7 mức của gpt-5.4",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/15-model-thinking-390.png"
+    },
+    {
+      "name": "16-models-quota-360",
+      "path": "/tmp/au-evidence-final/16-models-quota-360.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "Cảnh báo",
+      "width": 360,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 360,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/16-models-quota-360.png"
+    },
+    {
+      "name": "17-models-swap-undo-390",
+      "path": "/tmp/au-evidence-final/17-models-swap-undo-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "Hoàn tác",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/17-models-swap-undo-390.png"
+    },
+    {
+      "name": "18-model-optimistic-pending-390",
+      "path": "/tmp/au-evidence-final/18-model-optimistic-pending-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "Ngữ cảnh của gpt-5.4 while PUT held 700ms; server writer still claude-sonnet-4; no premature success toast",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/18-model-optimistic-pending-390.png"
+    },
+    {
+      "name": "19-member-readonly-1440",
+      "path": "/tmp/au-evidence-final/19-member-readonly-1440.png",
+      "url": "http://au.localhost:5210/#/settings/models?project=dit-dang-audio&story=01-tra-xanh-cuop-kich-ban",
+      "expected": "chỉ quản trị đổi được",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/19-member-readonly-1440.png"
+    },
+    {
+      "name": "20-member-readonly-390",
+      "path": "/tmp/au-evidence-final/20-member-readonly-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "chỉ quản trị đổi được",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/20-member-readonly-390.png"
+    },
+    {
+      "name": "21-model-help-scroll-390",
+      "path": "/tmp/au-evidence-final/21-model-help-scroll-390.png",
+      "url": "http://au.localhost:5210/#/more/model",
+      "expected": "Final reasoning help reachable above tabs after real scroll",
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/21-model-help-scroll-390.png"
+    },
+    {
+      "name": "22-episode-b-running-1440",
+      "path": "/tmp/au-evidence-final/22-episode-b-running-1440.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Real resume acknowledged; runtime running and classified error cleared",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/22-episode-b-running-1440.png"
+    },
+    {
+      "name": "23-episode-b-new-key-stop-1440",
+      "path": "/tmp/au-evidence-final/23-episode-b-new-key-stop-1440.png",
+      "url": "http://au.localhost:5210/#/p/dit-dang-audio/s/01-tra-xanh-cuop-kich-ban/work",
+      "expected": "Same mounted card shows next provider key failure with enabled recovery, no stale success",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "overflow": false,
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/23-episode-b-new-key-stop-1440.png"
+    }
+  ],
+  "canonical": [
+    {
+      "path": "/tmp/au-evidence-final/canonical-work-stop-390.png",
+      "url": "http://127.0.0.1:5211/artboards/MWork.dc.html",
+      "props": {
+        "state": "error",
+        "perr": "expired"
+      },
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/canonical-work-stop-390.png"
+    },
+    {
+      "path": "/tmp/au-evidence-final/canonical-settings-expired-1440.png",
+      "url": "http://127.0.0.1:5211/artboards/Settings.dc.html",
+      "props": {
+        "section": "models",
+        "prov": "expired"
+      },
+      "pixelWidth": 1440,
+      "pixelHeight": 900,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/canonical-settings-expired-1440.png"
+    },
+    {
+      "path": "/tmp/au-evidence-final/canonical-models-390.png",
+      "url": "http://127.0.0.1:5211/artboards/MMore.dc.html",
+      "props": {
+        "state": "model"
+      },
+      "pixelWidth": 390,
+      "pixelHeight": 844,
+      "permanentPath": "/Users/dat/Projects/verse/plans/reports/au-evidence-final/canonical-models-390.png"
+    }
+  ],
+  "evidence": {
+    "delayed700ms": {
+      "display": true,
+      "saving": true,
+      "prematureSuccess": false,
+      "server": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4",
+        "reasoning_effort": ""
+      }
+    },
+    "inheritedRole": {
+      "provider": "openai-codex",
+      "model": "gpt-5.4",
+      "reasoning_effort": "low"
+    },
+    "phoneResume": {
+      "url": "http://au.localhost:5210/api/projects/dit-dang-audio/stories/01-tra-xanh-cuop-kich-ban/resume",
+      "status": 200,
+      "result": {
+        "ok": true,
+        "label": "Viết tiếp chương 4"
+      }
+    },
+    "phoneHelpScroll": {
+      "method": "real mouse wheel deltaY900",
+      "helpTop": 672.265625,
+      "helpBottom": 709.765625,
+      "viewportHeight": 844,
+      "reachableAboveTabs": true
+    },
+    "repeatedEpisode": {
+      "start": {
+        "timeOrigin": 1793568154184.3,
+        "foundCardFiber": true
+      },
+      "resume": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "label": "Viết tiếp chương 4"
+        }
+      },
+      "end": {
+        "timeOrigin": 1793568154184.3,
+        "sameReactCard": true,
+        "sameParent": true,
+        "newFailure": true,
+        "recoveryEnabled": true,
+        "staleSuccess": false
+      },
+      "noNavigationOrUnmount": true
+    }
+  },
+  "verification": {
+    "tests": 47,
+    "testFiles": 8,
+    "typecheck": "tsc --noEmit passed",
+    "uiCommits": [
+      "c9c6b3ed",
+      "0979e1a8",
+      "c445996e",
+      "5ffd103b"
+    ],
+    "browserClosed": true,
+    "ownedServersStopped": [
+      5210,
+      5211
+    ],
+    "repeatedEpisodeRegression": {
+      "before": "2 failed",
+      "after": "2 passed",
+      "failureOutput": "artifact://69773"
+    }
+  },
+  "limits": [
+    "Vite mock browser evidence, not a real provider/LLM run.",
+    "Phone uses Chromium 390/360 viewport with environment safe-area insets zero, not physical iOS. Canonical has simulated status-bar space.",
+    "Canonical models/counts/provider fixture data differ; reviewed structure, hierarchy, severity, controls, wrapping and actions, not pixel-exact identical content.",
+    "Existing mock live-history load error is visible below desktop stop/fallback; no claim that separate history flow passed."
+  ]
+}

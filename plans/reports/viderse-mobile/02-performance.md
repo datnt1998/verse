@@ -411,3 +411,36 @@ Hệ quả hiệu năng/hiển thị:
 - Bản dựng phân tích: `/tmp/vperf-dist` (Viderse), `/tmp/vperf-dist3` (+sourcemap),
   `/tmp/vperf-dist-nov` (Noverse).
 - Ảnh: `/tmp/vmob-MPerf-vid-explore.png`.
+
+## 10. Đo lại bản production tích hợp — 02/11/2026
+
+Bản `9ab528eb` trên `https://vid.aarverse.studio`, Bàn dựng rỗng của tài khoản QA riêng. Ba tiến trình Chromium độc lập; mỗi tiến trình đo một lượt cold rồi một reload warm, 390×844 DPR1, CPU4×, mạng9 Mbps/1.5 Mbps với latency floor40ms. Mỗi document quan sát6s. Không chạy Go/build hoặc browser khác đồng thời. Cloudflare challenge/rum vẫn bật; không thay xác thực hay cấu hình nhà cung cấp để lấy điểm.
+
+Chứng cứ máy đo đã bỏ cookie, nội dung trang và URL có tham số: [`../261102-mobile-production-perf.json`](../261102-mobile-production-perf.json). Native PNG được kiểm trên đúng origin; ảnh production/tài khoản và số liệu thô giữ riêng, không đưa dữ liệu người dùng vào kho mã. Chỉ ảnh canonical/fixture QA thuộc bộ chứng cứ mobile được lưu trong repo.
+
+| Hạng mục | Bản production cuối | Mốc đề xuất §5 | Kết luận |
+|---|---:|---:|---|
+| Entry JS gzip |134.3 KiB|≤150 KiB|Đạt gate thực thi `npm run size`|
+| JS app tải trong6s đầu, kể cả chunk lazy |198.86 KiB|≤200 KiB|Đạt, còn ít dư địa|
+| CSS gzip |70.17 KiB|≤40 KiB|**Chưa đạt**; plugin StyleX hiện dùng không hỗ trợ split CSS|
+| Font đầu |3 tệp /40.95 KiB|≤4 /80 KiB|Đạt; không đổi cách raster chữ JetBrains|
+| FCP cold, trung vị |1444 ms|≤2000 ms khi TTFB≤300 ms|Dưới mốc dù TTFB trung vị394 ms; không giả lập TTFB thực thành40 ms|
+| LCP cold, trung vị |1784 ms|—|Đã đo; không thêm mốc mới|
+| TBT cold, trung vị / xấu nhất |122 /307ms|≤200ms|Trung vị đạt; **một lượt vượt**|
+| Long task cold dài nhất, trung vị / xấu nhất |121 /239ms|≤150ms|Trung vị đạt; **một lượt vượt**|
+| Warm FCP / LCP / TBT, trung vị |540 /848 /0ms|—|Không gọi lại là “cold”|
+| JS/CSS/font **app** tải mạng khi warm |0|—|Tất cả từ cache; script/rum Cloudflare vẫn có mạng|
+| Response trong6s đầu cold |54–55|≤25 request màn đầu|**Không nhận là đạt**: số này gồm API, icon, Cloudflare và idle-prefetch|
+| API nền trong cửa sổ idle60s |0|≤2/phút|Đạt ở Bàn dựng QA rỗng|
+| JS heap tự nhiên sau65s |6.12 MiB|≤8 MiB|Đạt ở fixture rỗng, không ép GC|
+| Tab đã mở Duyệt/Khám phá/Bàn dựng |58–85ms,9lượt|≤100ms|Đạt trong lượt đo; chưa đo Kênh|
+| Event Timing p75 tổng hợp |48ms,11tương tác|≤200ms|Đạt mẫu tổng hợp; **không phải field INP**|
+
+KiB ở bảng là1024 byte, theo script gate của dự án. Tổng JS app không cộng script Cloudflare vào byte nguồn của repo; phép đo timing vẫn bao gồm script đó.
+
+Các lượt cold thật có FCP1780/1168/1444ms, TBT307/122/103ms; warm FCP540/416/1316ms. Không dùng các lần `goto` lại cùng hash trong cùng document làm nhiều mẫu; mỗi cold ở một process mới để tránh nhận code-cache của lượt trước là cold.
+
+Phép đo idle/tab bổ sung: [`../261102-mobile-production-minute.json`](../261102-mobile-production-minute.json), cùng origin/bản dựng/390×844 CPU4×. Cửa sổ idle từ giây5đến65, tab timing từ trusted pointerdown tới heading đích hiện và hai rAF. Chưa có benchmark cuộn danh sách dài hay máy iPhone/Android thật. QA production không có kênh/video; native chức năng với dữ liệu đã được đối chiếu ở các fixture riêng nhưng không thay thế benchmark danh sách dài. Các số cũ ở §2 không được tái gắn nhãn là số bản cuối.
+
+Không tự bỏ idle-prefetch (`MobileRouteStage.useWarmTabs`) chỉ để giảm đếm request: đây là trade-off đã chọn để tab mở nhanh và cùng mẫu Noverse. Không tự thêm plugin build CSS hoặc tắt bảo vệ Cloudflare. Bản chức năng đã triển khai; mốc CSS/request và các giới hạn đo trên cần được ghi nhận riêng, không đổi ngầm thành “mọi ngân sách đều đạt”.
+

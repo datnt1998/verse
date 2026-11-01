@@ -1,0 +1,24 @@
+{
+  "authorization": "Main accepted native proof and authorized own fixture cleanup after integration 6b822e19",
+  "stopped": [
+    {"port": 8049, "pid": 58843, "command": "/tmp/bili-MPolish-viderse serve"},
+    {"port": 8050, "pid": 63768, "command": "verse-mobile-polish Vite --host 127.0.0.1 --port 8050 --strictPort"},
+    {"port": 8067, "pid": 17559, "service": "PolishEvidenceProxy8067"},
+    {"port": 9067, "pid": 74049, "service": "PolishArtboards9067Final"}
+  ],
+  "verifiedAllFourPortsClosed": true,
+  "droppedDatabases": ["bili_mpolish_data", "bili_mpolish_identity"],
+  "verifiedRemainingOwnedDatabases": [],
+  "removedHome": "/tmp/bili-data-MPolish",
+  "verifiedHomeAbsent": true,
+  "destructiveStartupHelperExecuted": false,
+  "preserved": {
+    "directory": "/tmp/polish-evidence-final",
+    "authoritativeManifest": "/tmp/polish-evidence-final/capture-manifest.json",
+    "nativeImages": 129,
+    "allManifestImagesPresent": true,
+    "report": "/Users/dat/Projects/verse/plans/reports/viderse-mobile/MPolish.md"
+  },
+  "sourceEdits": false,
+  "newCommits": false
+}

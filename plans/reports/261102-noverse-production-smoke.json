@@ -1,0 +1,61 @@
+{
+  "hostedAndNativeRevision": "c6f425e7a4c86b8b99d70cfcd5055e5ef63a0cc4",
+  "publicOrigin": "https://nov.aarverse.studio",
+  "freshNativeRender": {
+    "freshDurationSec": 10.64,
+    "freshAudioBytes": 171568
+  },
+  "playback": {
+    "counter": "00:02 / 00:10",
+    "pauseVisible": true,
+    "alerts": [],
+    "responses": [
+      {
+        "status": 206,
+        "contentType": "audio/mpeg",
+        "contentRange": "bytes 0-171567/171568"
+      }
+    ],
+    "pageErrors": []
+  },
+  "export": {
+    "bytes": 410400,
+    "durationSec": 10.64,
+    "chapterMarkCount": 1
+  },
+  "serverAssemblyReady": true,
+  "globalAssistantSurface": {
+    "modelOptionCount": 4,
+    "scopeBarVisible": false,
+    "manualSaveVisible": false,
+    "levels": [
+      {
+        "label": "Mức suy luận của Mặc định",
+        "options": [
+          "Tự động",
+          "Cao"
+        ]
+      },
+      {
+        "label": "Mức suy luận của Kiến trúc sư",
+        "options": [
+          "Tự động"
+        ]
+      },
+      {
+        "label": "Mức suy luận của Người viết",
+        "options": [
+          "Tự động",
+          "Cao"
+        ]
+      },
+      {
+        "label": "Mức suy luận của Biên tập viên",
+        "options": [
+          "Tự động"
+        ]
+      }
+    ]
+  },
+  "limits": "No commercial provider mutation/call; no physical phone or subjective audio-quality claim. Screenshots and audio retained privately until QA cleanup; no cookies, credentials or personal page text in this receipt."
+}

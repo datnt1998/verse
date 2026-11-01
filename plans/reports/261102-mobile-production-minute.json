@@ -1,0 +1,51 @@
+{
+  "revision": "9ab528eb3be8206e941fe667e3045302ba012ab6",
+  "route": "https://vid.aarverse.studio/#/",
+  "viewport": "390x844 DPR1",
+  "cpuThrottle": 4,
+  "heapAfter65sMiB": 6.12,
+  "idleWindowSec": 60,
+  "idleApi": [],
+  "retainedTabSwitches": [
+    {
+      "name": "Duyệt",
+      "ms": 58
+    },
+    {
+      "name": "Khám phá",
+      "ms": 85
+    },
+    {
+      "name": "Bàn dựng",
+      "ms": 64
+    },
+    {
+      "name": "Duyệt",
+      "ms": 59
+    },
+    {
+      "name": "Khám phá",
+      "ms": 65
+    },
+    {
+      "name": "Bàn dựng",
+      "ms": 62
+    },
+    {
+      "name": "Duyệt",
+      "ms": 64
+    },
+    {
+      "name": "Khám phá",
+      "ms": 59
+    },
+    {
+      "name": "Bàn dựng",
+      "ms": 69
+    }
+  ],
+  "syntheticInteractionSamples": 11,
+  "syntheticInteractionP75Ms": 48,
+  "errors": [],
+  "limits": "Disposable empty QA account; no long populated list, physical phone, field INP, or channel-tab benchmark. Warm tab timing starts at trusted pointerdown and ends after visible target heading plus two rAFs."
+}

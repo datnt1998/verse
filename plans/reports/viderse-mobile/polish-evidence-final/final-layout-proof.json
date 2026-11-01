@@ -1,0 +1,1990 @@
+{
+  "sourceHead": "65626836",
+  "new": [
+    {
+      "w": 390,
+      "h": 844,
+      "scrollBottom": 405.5,
+      "barTop": 405.5,
+      "textareaHeight": 109.5625,
+      "textareaBottom": 143.5625,
+      "entryBottom": 154.5625,
+      "summaryTop": 170.5625,
+      "optionsTop": 231.5625,
+      "lastRowBottom": 388.5625,
+      "entryShrink": "0",
+      "kb": "300px",
+      "key": "390-inset0-0",
+      "pass": true
+    },
+    {
+      "w": 390,
+      "h": 844,
+      "scrollBottom": 397.5,
+      "barTop": 397.5,
+      "textareaHeight": 109.5625,
+      "textareaBottom": 135.5625,
+      "entryBottom": 146.5625,
+      "summaryTop": 162.5625,
+      "optionsTop": 223.5625,
+      "lastRowBottom": 380.5625,
+      "entryShrink": "0",
+      "kb": "300px",
+      "key": "390-inset59-34",
+      "pass": true
+    },
+    {
+      "w": 360,
+      "h": 780,
+      "scrollBottom": 341.5,
+      "barTop": 341.5,
+      "textareaHeight": 109.5625,
+      "textareaBottom": 79.5625,
+      "entryBottom": 90.5625,
+      "summaryTop": 106.5625,
+      "optionsTop": 167.5625,
+      "lastRowBottom": 324.5625,
+      "entryShrink": "0",
+      "kb": "300px",
+      "key": "360-inset0-0",
+      "pass": true
+    },
+    {
+      "w": 360,
+      "h": 780,
+      "scrollBottom": 333.5,
+      "barTop": 333.5,
+      "textareaHeight": 109.5625,
+      "textareaBottom": 71.5625,
+      "entryBottom": 82.5625,
+      "summaryTop": 98.5625,
+      "optionsTop": 159.5625,
+      "lastRowBottom": 316.5625,
+      "entryShrink": "0",
+      "kb": "300px",
+      "key": "360-inset59-34",
+      "pass": true
+    }
+  ],
+  "auth": [
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 784,
+        "height": 744
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 844,
+      "key": "390-inset0-0",
+      "state": "error",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 750,
+        "height": 651
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 844,
+      "key": "390-inset59-34",
+      "state": "error",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 720,
+        "height": 680
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 780,
+      "key": "360-inset0-0",
+      "state": "error",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 686,
+        "height": 587
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 780,
+      "key": "360-inset59-34",
+      "state": "error",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 58,
+        "height": 58
+      },
+      "brand": {
+        "top": 17,
+        "bottom": 41,
+        "height": 24
+      },
+      "main": {
+        "top": 58,
+        "bottom": 848.625,
+        "height": 790.625
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 900,
+      "key": "desktop-1440x900",
+      "state": "error",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 844,
+        "height": 804
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 844,
+      "key": "390-inset0-0",
+      "state": "forced",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 810,
+        "height": 711
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 844,
+      "key": "390-inset59-34",
+      "state": "forced",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 780,
+        "height": 740
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 780,
+      "key": "360-inset0-0",
+      "state": "forced",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 746,
+        "height": 647
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 780,
+      "key": "360-inset59-34",
+      "state": "forced",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 58,
+        "height": 58
+      },
+      "brand": {
+        "top": 17,
+        "bottom": 41,
+        "height": 24
+      },
+      "main": {
+        "top": 58,
+        "bottom": 900,
+        "height": 842
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 900,
+      "key": "desktop-1440x900",
+      "state": "forced",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 844,
+        "height": 804
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 844,
+      "key": "390-inset0-0",
+      "state": "denied",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 810,
+        "height": 711
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 844,
+      "key": "390-inset59-34",
+      "state": "denied",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 40,
+        "height": 40
+      },
+      "brand": {
+        "top": 8.75,
+        "bottom": 31.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 40,
+        "bottom": 780,
+        "height": 740
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 780,
+      "key": "360-inset0-0",
+      "state": "denied",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 59,
+        "bottom": 99,
+        "height": 40
+      },
+      "brand": {
+        "top": 67.75,
+        "bottom": 90.25,
+        "height": 22.5
+      },
+      "main": {
+        "top": 99,
+        "bottom": 746,
+        "height": 647
+      },
+      "shellPadding": [
+        "59px",
+        "34px"
+      ],
+      "safe": [
+        "59px",
+        "34px"
+      ],
+      "vh": 780,
+      "key": "360-inset59-34",
+      "state": "denied",
+      "pass": true
+    },
+    {
+      "header": {
+        "top": 0,
+        "bottom": 58,
+        "height": 58
+      },
+      "brand": {
+        "top": 17,
+        "bottom": 41,
+        "height": 24
+      },
+      "main": {
+        "top": 58,
+        "bottom": 900,
+        "height": 842
+      },
+      "shellPadding": [
+        "0px",
+        "0px"
+      ],
+      "safe": [
+        "0px",
+        "0px"
+      ],
+      "vh": 900,
+      "key": "desktop-1440x900",
+      "state": "denied",
+      "pass": true
+    }
+  ],
+  "authBottom": [
+    {
+      "w": 390,
+      "h": 844,
+      "scrollTop": 25,
+      "mainBottom": 844,
+      "logoutBottom": 777.90625,
+      "logoutReachable": true,
+      "safeBottom": "0px"
+    },
+    {
+      "w": 390,
+      "h": 844,
+      "scrollTop": 118,
+      "mainBottom": 810,
+      "logoutBottom": 743.90625,
+      "logoutReachable": true,
+      "safeBottom": "34px"
+    },
+    {
+      "w": 360,
+      "h": 780,
+      "scrollTop": 109,
+      "mainBottom": 780,
+      "logoutBottom": 714.046875,
+      "logoutReachable": true,
+      "safeBottom": "0px"
+    },
+    {
+      "w": 360,
+      "h": 780,
+      "scrollTop": 202,
+      "mainBottom": 746,
+      "logoutBottom": 680.046875,
+      "logoutReachable": true,
+      "safeBottom": "34px"
+    }
+  ],
+  "canonicalAssets": [
+    {
+      "board": "MNew",
+      "state": "empty",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_nightbus.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_motel.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_sealed.jpg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MNew",
+      "state": "single",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_lakehouse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/layer.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MNew",
+      "state": "multi",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/tick-b.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/flag.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/layer.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-up.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "top",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "row",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-up.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/trash.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "rules",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/minus.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/add.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "list",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/tick-b.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/cpu.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/key.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magic.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/global.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/folder.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/flag.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/routing.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "tools",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/download.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/scissor.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-play.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magicpen.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/msg.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "connect",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/add.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "agents",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "accounts",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "storage",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/folder.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "error",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/eye.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/shield-tick.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "forced",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/key.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/eye.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/logout.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "denied",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/refresh.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/copy.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/logout.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MNew",
+      "state": "empty",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_nightbus.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_motel.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_sealed.jpg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MNew",
+      "state": "single",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_lakehouse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/layer.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MNew",
+      "state": "multi",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/tick-b.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/flag.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/layer.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-up.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "top",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "row",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-up.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/trash.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MQueue",
+      "state": "rules",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/minus.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/add.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "list",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/tick-b.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/cpu.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/key.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magic.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/global.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/folder.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/flag.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/routing.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "tools",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/download.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/scissor.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-play.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magicpen.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/msg.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "connect",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/add.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "agents",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "accounts",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MSettings",
+      "state": "storage",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/folder.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "error",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/eye.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/shield-tick.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "forced",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/key.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/eye.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/logout.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "MAuth",
+      "state": "denied",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/refresh.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/copy.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/logout.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/info.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "NewVideo",
+      "state": "desktop",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/workbench.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/gallery.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/radar.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/link.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/close.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_lakehouse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/layer.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/clock.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_nightbus.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_motel.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/k_sealed.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/refresh.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "Queue",
+      "state": "desktop",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/workbench.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/gallery.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/radar.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/pause.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_nurse.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferry.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/routing.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/refresh.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_taxi.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-up.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/more.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowstation.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_elevator.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_guong.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_ferrylake.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_radio.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_tapthe.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_rainlh2.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_snowplow.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_aotrang.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_roomservice.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/img/c_dalat.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/minus.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/add.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "Settings",
+      "state": "desktop",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/workbench.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/gallery.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/channel.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/radar.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-add.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/setting.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/cpu.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/key.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magic.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/global.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/folder.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/flag.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/routing.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-r.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/user.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/tick-b.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/refresh.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/download.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/scissor.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/subtitle.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/video-play.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/magicpen.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/msg.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/arrow-d.svg",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "board": "Auth",
+      "state": "desktop",
+      "results": [
+        {
+          "url": "http://127.0.0.1:9067/icons/eye.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:9067/icons/shield-tick.svg",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

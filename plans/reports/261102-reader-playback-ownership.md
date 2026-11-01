@@ -70,3 +70,15 @@ The real M4B replay exposed the same manifest-family confusion in aggregate expo
 
 The actual Listen surface then exposed a readiness ownership error: it displayed “máy chủ đang thiếu công cụ ghép” and disabled volume export although the hosted ffmpeg had produced the M4B successfully. Hosted `/api/tts/status.ffmpeg` now probes the serving gateway, not the synthesis-only worker's heartbeat flag; the unused snapshot copy was removed. The regression covers no connected reader, a reader without ffmpeg on an equipped server, and a reader advertising ffmpeg while the server lacks it. The focused hosted-status gate and the complete Noverse backend gate both pass.
 
+
+## Controller production replay
+
+Paired hosted/native deployment `c6f425e7a4c86b8b99d70cfcd5055e5ef63a0cc4` completed on Mac mini. Public liveness and readiness returned success. Native binary reported that same commit; the worker listener remained bound only to127.0.0.1:8081 and unauthenticated claim returned401.
+
+The disposable QA story used the real VieNeu3turbo native reader. A normal redo job completed and automatically published a171568-byte MP3 without requiring manual volume export; the browser received audio/mpeg via206 and played to00:02/00:10 with no page errors. Its canonical playback identity correctly remained unchanged for identical audible inputs. The existing real M4B downloaded410400bytes, ffprobe confirmed AAC and10.64s, and the final API also reported10.64s. The final Listen screenshot showed an enabled “Ghép & xuất Tập1” action and no missing-assembly-tool alert; hosted status reported ffmpeg=true.
+
+The final focused hosted-status gate and full Noverse Go package gate passed after the server-readiness repair. This production proof does not claim a commercial AI-provider request, physical-phone audio output or subjective voice-quality evaluation.
+
+Sanitized production receipt: [`261102-noverse-production-smoke.json`](261102-noverse-production-smoke.json). Session cookies, credentials, source chapter text and provider settings are excluded.
+
+After all production checks, the owned QA story was removed through the normal story-delete API and its dedicated project row was soft-retired with an exact slug/name guard; there is no project-delete HTTP route. The QA account was removed through the operator CLI. Both retirement flags were observed, session/password files and private screenshots/audio were removed, remote seed helpers were removed, and every controller-owned browser/preview process was closed. No existing user story, provider credentials or personal HOME was used.

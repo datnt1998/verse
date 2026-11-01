@@ -1,0 +1,566 @@
+[
+  [
+    "390-inset0-0",
+    "review",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "prompt",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "feedback",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        },
+        {
+          "text": "Gửi cho Hoạ sĩ",
+          "y": 768,
+          "bottom": 812,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "edit",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        },
+        {
+          "text": "Vẽ lại với prompt này",
+          "y": 768,
+          "bottom": 812,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "learn",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "review",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "prompt",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "feedback",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        },
+        {
+          "text": "Gửi cho Hoạ sĩ",
+          "y": 742,
+          "bottom": 786,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "edit",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        },
+        {
+          "text": "Vẽ lại với prompt này",
+          "y": 742,
+          "bottom": 786,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "learn",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "review",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "prompt",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "feedback",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        },
+        {
+          "text": "Gửi cho Hoạ sĩ",
+          "y": 704,
+          "bottom": 748,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "edit",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        },
+        {
+          "text": "Vẽ lại với prompt này",
+          "y": 704,
+          "bottom": 748,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "learn",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "review",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "prompt",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "feedback",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        },
+        {
+          "text": "Gửi cho Hoạ sĩ",
+          "y": 678,
+          "bottom": 722,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "edit",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        },
+        {
+          "text": "Vẽ lại với prompt này",
+          "y": 678,
+          "bottom": 722,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "learn",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "redrawing",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "reveal",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 668,
+          "bottom": 716,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "redrawing",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset59-34",
+    "reveal",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 664,
+          "bottom": 712,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "redrawing",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset0-0",
+    "reveal",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 604,
+          "bottom": 652,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "redrawing",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "360-inset59-34",
+    "reveal",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": [
+        {
+          "text": "Duyệt cả video & dựng",
+          "y": 600,
+          "bottom": 648,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  [
+    "390-inset0-0",
+    "empty",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": []
+    }
+  ],
+  [
+    "390-inset59-34",
+    "empty",
+    {
+      "w": 390,
+      "h": 844,
+      "overflow": false,
+      "actions": []
+    }
+  ],
+  [
+    "360-inset0-0",
+    "empty",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": []
+    }
+  ],
+  [
+    "360-inset59-34",
+    "empty",
+    {
+      "w": 360,
+      "h": 780,
+      "overflow": false,
+      "actions": []
+    }
+  ]
+]
