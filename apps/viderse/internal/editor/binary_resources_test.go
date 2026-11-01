@@ -11,12 +11,14 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/storageimport"
+	"github.com/datnt1998/verse/platform/blobstore"
 )
 
 func seedLegacyReadyBinary(t *testing.T) (*editor.Service, *postgres.BlobRepository, string, string, string, editor.Resource) {
@@ -56,6 +58,19 @@ func seedLegacyReadyBinary(t *testing.T) (*editor.Service, *postgres.BlobReposit
 	return service, blobs, root, pid, eid, head
 }
 
+// adoptEditorRoots runs start-up adoption: only a storage failure may stop the
+// server, and a verified tree must report no finding.
+func adoptEditorRoots(t *testing.T, s *editor.Service) {
+	t.Helper()
+	problems, err := s.AdoptBinaryRoots(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(problems) != 0 {
+		t.Fatalf("unexpected adoption findings: %v", problems)
+	}
+}
+
 func assertStrictEditorInventory(t *testing.T, ctx context.Context, root string, repo *postgres.BlobRepository) {
 	t.Helper()
 	entries, err := storageimport.Inventory(ctx, root)
@@ -85,9 +100,7 @@ func TestEditorReadyExportBinaryRootsSurviveRestart(t *testing.T) {
 	if err = storageimport.RequireKnown(entries, roots); err == nil {
 		t.Fatal("pre-adapter legacy export unexpectedly had durable binary ownership")
 	}
-	if err = s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	assertStrictEditorInventory(t, ctx, root, blobs)
 	key := "exports/" + pid + "/" + eid + "/file"
 	binary, err := s.Repository.Get(ctx, key)
@@ -97,9 +110,7 @@ func TestEditorReadyExportBinaryRootsSurviveRestart(t *testing.T) {
 	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(binary.Path))); err != nil {
 		t.Fatal("valid ready file deleted:", err)
 	}
-	if err = s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	again, err := s.Repository.Get(ctx, key)
 	if err != nil || again.Version != binary.Version || again.Path != binary.Path {
 		t.Fatalf("adoption not idempotent: %v %v", again, err)
@@ -166,8 +177,14 @@ func TestEditorBinaryAdoptionRejectsCorruptReadyBytes(t *testing.T) {
 	if err = os.WriteFile(path, []byte("corrupt"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err = s.AdoptBinaryRoots(ctx); err == nil {
-		t.Fatal("corrupt export was adopted")
+	// A record whose bytes no longer match is reported, never adopted and
+	// never allowed to stop start-up.
+	problems, err := s.AdoptBinaryRoots(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(problems) != 1 || problems[0] != head.Key+"/file" {
+		t.Fatalf("corrupt export not reported: %v", problems)
 	}
 	if _, err = s.Repository.Get(ctx, head.Key+"/file"); err == nil {
 		t.Fatal("corrupt bytes received durable owner")
@@ -210,9 +227,7 @@ func TestEditorMediaBinaryRootsSurviveRestartAndReplacement(t *testing.T) {
 		t.Fatalf("old source not released after commit: %v", err)
 	}
 	assertStrictEditorInventory(t, ctx, root, blobs)
-	if err = s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	assertStrictEditorInventory(t, ctx, root, blobs)
 	if err = s.DeleteMedia(ctx, record.ID); err != nil {
 		t.Fatal(err)
@@ -234,9 +249,7 @@ func TestEditorBinaryAdoptionRetiresOnlyReleasedSupersededExports(t *testing.T) 
 	if err := s.Media.Unbind(ctx, []string{old}, nil); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(old))); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("released prior replacement remains: %v", err)
 	}
@@ -245,9 +258,7 @@ func TestEditorBinaryAdoptionRetiresOnlyReleasedSupersededExports(t *testing.T) 
 	if err := s.Media.Publish(ctx, []media.Artifact{{Path: unknown, File: stage, ContentType: "video/mp4"}}, nil); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(unknown))); err != nil {
 		t.Fatalf("still-bound unknown publisher file was deleted: %v", err)
 	}
@@ -315,9 +326,7 @@ func seedHeld9BoundOriginal(t *testing.T, mismatch bool) (*editor.Service, *post
 func TestEditorHeld9BoundOriginalRetiresOnlyWithVerifiedLineage(t *testing.T) {
 	s, blobs, root, pid, eid, old := seedHeld9BoundOriginal(t, false)
 	ctx := context.Background()
-	if err := s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	assertStrictEditorInventory(t, ctx, root, blobs)
 	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(old))); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("proven superseded original remains: %v", err)
@@ -339,9 +348,7 @@ func TestEditorHeld9BoundOriginalRetiresOnlyWithVerifiedLineage(t *testing.T) {
 func TestEditorHeld9MismatchedOriginalLineageRemainsFailClosed(t *testing.T) {
 	s, blobs, root, _, _, old := seedHeld9BoundOriginal(t, true)
 	ctx := context.Background()
-	if err := s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(old))); err != nil {
 		t.Fatalf("unproven file deleted: %v", err)
 	}
@@ -376,8 +383,14 @@ func TestEditorHeld9CorruptCurrentNeverRetiresValidOriginal(t *testing.T) {
 	if err = os.WriteFile(filePath, []byte("corrupted replacement"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err = s.AdoptBinaryRoots(ctx); err == nil {
-		t.Fatal("corrupt replacement let original binding retire")
+	// Corrupt current bytes are reported and the proven original keeps its
+	// binding; start-up still serves.
+	problems, err := s.AdoptBinaryRoots(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(problems) != 1 || problems[0] != "exports/"+pid+"/"+eid {
+		t.Fatalf("corrupt replacement not reported: %v", problems)
 	}
 	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(old))); err != nil {
 		t.Fatalf("valid original lost: %v", err)
@@ -387,4 +400,123 @@ func TestEditorHeld9CorruptCurrentNeverRetiresValidOriginal(t *testing.T) {
 		t.Fatalf("valid original binding retired: %v", err)
 	}
 	oldHandle.Release()
+}
+
+// A crash between steps leaves content-addressed media behind: two jobs that
+// produced the same bytes share one media id while their clone paths differ.
+// Adoption must treat the digest as the identity, ignore staging leftovers no
+// committed head references, and stay idempotent across restarts.
+func TestEditorAdoptionAcceptsContentAddressedMediaAcrossJobs(t *testing.T) {
+	store, repo, files, pool, root := editorPersistenceStore(t)
+	ctx := context.Background()
+	s := &editor.Service{Store: store, Media: files, Repository: repo, StagingDir: store.StagingDir}
+	channel := "00000000-0000-4000-8000-0000000000c1"
+	jobA := "00000000-0000-4000-8000-0000000000a1"
+	jobB := "00000000-0000-4000-8000-0000000000b1"
+	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES($1,'Owner')`, channel); err != nil {
+		t.Fatal(err)
+	}
+	for _, job := range []string{jobA, jobB} {
+		if _, err := pool.Exec(ctx, `INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,generation) VALUES($1,$2,$3,'{}',1)`, job, channel, "source-"+job); err != nil {
+			t.Fatal(err)
+		}
+	}
+	audio := bytes.Repeat([]byte("narration"), 64)
+	digest := strings.TrimPrefix(editor.Revision(audio), "sha256:")
+	mediaID := "media-" + digest[:32]
+	// publishBuild records one build generation of the same content-addressed
+	// media under the source name that generation used.
+	publishBuild := func(job, projectID, name, updated string) {
+		t.Helper()
+		manifest := []editor.Object{}
+		publish := func(logical string, body []byte, mime string) {
+			file := filepath.Join(t.TempDir(), "artifact")
+			if err := os.WriteFile(file, body, 0600); err != nil {
+				t.Fatal(err)
+			}
+			sum := strings.TrimPrefix(editor.Revision(body), "sha256:")
+			path := "clone/" + job + "/" + sum + "/" + logical
+			if err := files.Publish(ctx, []media.Artifact{{Path: path, File: file, ContentType: mime}}, nil); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := pool.Exec(ctx, `INSERT INTO clone_artifacts(job_id,id,step,path,sha256,bytes) VALUES($1,$2,'build',$3,$4,$5)`, job, logical, path, sum, len(body)); err != nil {
+				t.Fatal(err)
+			}
+			manifest = append(manifest, editor.Object{"path": path, "sha256": sum, "step": "build"})
+		}
+		metadata := editor.Object{"id": mediaID, "fileName": name, "sourceFile": name, "mime": "audio/wav", "size": len(audio), "contentHash": "sha256:" + digest, "probe": editor.Object{"kind": "audio", "mime": "audio/wav"}}
+		body, err := json.Marshal(metadata)
+		if err != nil {
+			t.Fatal(err)
+		}
+		publish("editor/media/"+mediaID+"/"+name, audio, "audio/wav")
+		publish("editor/media/"+mediaID+"/metadata.json", body, "application/json")
+		output, err := json.Marshal(editor.Object{"data": editor.Object{"projectId": projectID}, "artifacts": manifest})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := pool.Exec(ctx, `INSERT INTO clone_steps(job_id,step,status,output_manifest,updated_at) VALUES($1,'build','waiting',$2,$3::timestamptz)`, job, output, updated); err != nil {
+			t.Fatal(err)
+		}
+	}
+	publishBuild(jobA, "project-a", "audio.wav", "2026-01-01T00:00:00Z")
+	adoptEditorRoots(t, s)
+	first, err := repo.Get(ctx, "media/"+mediaID+"/source")
+	if err != nil || first.Revision != "sha256:"+digest || !strings.Contains(first.Path, "/"+jobA+"/") {
+		t.Fatalf("first owner=%+v err=%v", first, err)
+	}
+	// A second job rebuilds the same bytes under another name: same id, same
+	// digest, different clone path, and the newer generation wins resolution.
+	publishBuild(jobB, "project-b", "source-audio.wav", "2026-01-02T00:00:00Z")
+	// Staging leftovers of the interrupted run name the same id but no committed
+	// head references them. A staging-only record must never be adopted either.
+	staging := filepath.Join(root, "clone-staging", jobB, "gen1", "images", "editor", "media", mediaID)
+	if err := os.MkdirAll(staging, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(staging, "metadata.json"), []byte(`{"mime":"audio/wav","size":1}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	stagedOnly := "media-" + strings.Repeat("e", 32)
+	staged := filepath.Join(root, "clone-staging", jobB, "gen1", "build", "editor", "media", stagedOnly)
+	if err := os.MkdirAll(staged, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(staged, "metadata.json"), []byte(`{"mime":"audio/wav","size":1}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	resolved, err := repo.ResolvePath(ctx, "editor/media/"+mediaID+"/metadata.json")
+	if err != nil || !strings.Contains(resolved, "/"+jobB+"/") {
+		t.Fatalf("resolution did not drift to the newer build: %q %v", resolved, err)
+	}
+	// Restart after the kill: the recorded owner is jobA's path, this build
+	// resolves jobB's. Same digest means the same bytes are already rooted.
+	adoptEditorRoots(t, s)
+	again, err := repo.Get(ctx, "media/"+mediaID+"/source")
+	if err != nil || again.Revision != "sha256:"+digest || again.Version != first.Version {
+		t.Fatalf("restart owner=%+v err=%v (first=%+v)", again, err, first)
+	}
+	adoptEditorRoots(t, s)
+	stable, err := repo.Get(ctx, "media/"+mediaID+"/source")
+	if err != nil || stable.Version != first.Version {
+		t.Fatalf("adoption not idempotent: %+v %v", stable, err)
+	}
+	handle, err := s.AcquireMedia(ctx, mediaID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	actual, err := os.ReadFile(handle.Path)
+	handle.Release()
+	if err != nil || !bytes.Equal(actual, audio) {
+		t.Fatalf("adopted media unreadable: %d bytes %v", len(actual), err)
+	}
+	if _, err := os.Stat(filepath.Join(staging, "metadata.json")); err != nil {
+		t.Fatalf("staging leftover touched: %v", err)
+	}
+	if _, err := repo.Get(ctx, stagedOnly+"/source"); !errors.Is(err, blobstore.ErrNotFound) {
+		t.Fatalf("staging-only record adopted: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(staged, "metadata.json")); err != nil {
+		t.Fatalf("staging-only leftover touched: %v", err)
+	}
 }

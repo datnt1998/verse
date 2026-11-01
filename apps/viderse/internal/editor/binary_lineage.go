@@ -43,6 +43,11 @@ func originalUploadLineage(meta Object) (string, int64, bool) {
 	return hex.EncodeToString(hash.Sum(nil)), size, true
 }
 
+// errBinaryMismatch marks bytes that no longer match the committed record they
+// belong to. Start-up reports it as Cần xử lý instead of refusing to serve, and
+// never rewrites or deletes the bytes it names.
+var errBinaryMismatch = errors.New("editor binary digest/size mismatch")
+
 func (s *Service) verifyBinaryBytes(ctx context.Context, path, digest string, size int64) error {
 	handle, err := s.acquire(ctx, path)
 	if err != nil {
@@ -59,7 +64,7 @@ func (s *Service) verifyBinaryBytes(ctx context.Context, path, digest string, si
 		return err
 	}
 	if n != size || hex.EncodeToString(hash.Sum(nil)) != digest {
-		return fmt.Errorf("editor binary digest/size mismatch: %s", path)
+		return fmt.Errorf("%w: %s", errBinaryMismatch, path)
 	}
 	return nil
 }

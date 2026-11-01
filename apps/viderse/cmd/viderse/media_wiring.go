@@ -168,10 +168,14 @@ func newMediaRuntime(ctx context.Context, pool *pgxpool.Pool, root func() string
 			Store: editor.Store{Media: transport, Repository: editorRepository},
 			Media: transport, Repository: editorRepository,
 		}
-		if err := editorWorkspace.AdoptBinaryRoots(ctx); err != nil {
+		// A record whose bytes no longer match must not refuse to serve: the
+		// owner has to be able to open the app that reports it.
+		problems, err := editorWorkspace.AdoptBinaryRoots(ctx)
+		if err != nil {
 			manager.Close(ctx)
 			return nil, fmt.Errorf("xác minh tham chiếu binary editor trước khi mở kho: %w", err)
 		}
+		manager.SetAdoptionFindings(problems)
 		// Boot never refuses to serve because of an unreferenced file: a crash
 		// can interrupt a publication, and the owner must be able to open the
 		// app and see the problem. Migration still fails closed (ImportExisting).

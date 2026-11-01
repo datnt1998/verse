@@ -61,6 +61,7 @@ type Service struct {
 	tests        map[string]*testSession
 	health       Health
 	unreferenced []string
+	findings     []string
 	workerCancel context.CancelFunc
 	workerID     string
 	closeOnce    sync.Once
@@ -111,6 +112,23 @@ func (s *Service) UnreferencedDurablePaths() []string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return append([]string(nil), s.unreferenced...)
+}
+
+// SetAdoptionFindings records editor heads whose bytes start-up could not
+// verify. Composition surfaces them as Cần xử lý next to the unreferenced
+// files; nothing here deletes or rewrites the recorded bytes.
+func (s *Service) SetAdoptionFindings(keys []string) {
+	s.mu.Lock()
+	s.findings = append([]string(nil), keys...)
+	s.mu.Unlock()
+}
+
+// AdoptionFindings is the editor verification finding above, empty when every
+// committed record matched its bytes.
+func (s *Service) AdoptionFindings() []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]string(nil), s.findings...)
 }
 
 // SetHold is called by composition before Start, never by request handlers.
