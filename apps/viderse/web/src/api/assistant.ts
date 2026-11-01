@@ -1,8 +1,11 @@
 // Nhắn trợ lý (data-contract §9 + §22). Mỗi câu → `plan` (1–5 bước, chưa chạy
 // gì); chỉ `run-plan` mới chạy và chỉ các bước người dùng giữ tích. Câu người
-// dùng chỉ là dữ liệu gửi đi; schema ở đây từ chối intent/trợ lý ngoài danh sách
+// dùng chỉ là dữ liệu gửi đi; guard ở đây từ chối intent/trợ lý ngoài danh sách
 // thay vì đoán, nên payload lạ thành lỗi "không đọc được" chứ không thành nút bấm.
-import { z } from 'zod'
+//
+// Đọc bằng guard tay (./guard) chứ không bằng zod: AssistantComposer nằm trong
+// chunk của màn đầu (Bàn dựng).
+import { bool, list, maybe, num, oneOf, record, str, ShapeError } from './guard'
 import { ApiError, mutate, request } from './request'
 
 export const INTENTS = [
@@ -13,88 +16,161 @@ export type IntentId = (typeof INTENTS)[number]
 
 export type AssistantScope = { jobId: string } | { channelId: string } | 'all'
 
-const agentSchema = z.enum(['scout', 'director', 'artist', 'qa'])
-export type AssistantAgent = z.infer<typeof agentSchema>
+const AGENTS = ['scout', 'director', 'artist', 'qa'] as const
+export type AssistantAgent = (typeof AGENTS)[number]
 
-const stepSchema = z.object({
-  id: z.string().min(1),
-  intent: z.enum(INTENTS),
-  params: z.unknown(),
-  title: z.string(),
-  sub: z.string(),
-  agent: agentSchema,
-  cost: z.object({ images: z.number().int().nonnegative().optional() }).optional(),
-  enqueuesVideo: z.boolean(),
-  detail: z.string(),
+const STATES = ['queued', 'running', 'done', 'failed'] as const
+export type StepState = (typeof STATES)[number]
+
+const nonEmptyStr = (value: unknown, path: string) => {
+  const text = str(value, path)
+  if (text.length === 0) throw new ShapeError(path)
+  return text
+}
+
+export type PlanStep = {
+  id: string
+  intent: IntentId
+  params: unknown
+  title: string
+  sub: string
+  agent: AssistantAgent
+  cost?: { images?: number }
+  enqueuesVideo: boolean
+  detail: string
   // Go gửi `null` cho slice rỗng chưa khởi tạo.
-  reruns: z.array(z.object({ agent: agentSchema, label: z.string() })).nullable().transform((value) => value ?? []),
-})
-export type PlanStep = z.infer<typeof stepSchema>
+  reruns: { agent: AssistantAgent; label: string }[]
+}
 
-const planSchema = z.object({
-  ok: z.literal(true),
-  planId: z.string().min(1),
-  steps: z.array(stepSchema).min(1).max(5),
-  total: z.object({ images: z.number().int().nonnegative(), note: z.string().optional() }),
-  imagesLeftToday: z.number().int().nonnegative().optional(),
-})
-export type Plan = z.infer<typeof planSchema>
+const readStep = (value: unknown, path: string): PlanStep => {
+  const o = record(value, path)
+  const cost = maybe(o.cost, (entry, at) => {
+    const c = record(entry, at)
+    return c.images === undefined ? {} : { images: num(c.images, `${at}.images`) }
+  }, `${path}.cost`)
+  return {
+    id: nonEmptyStr(o.id, `${path}.id`),
+    intent: oneOf(o.intent, INTENTS, `${path}.intent`),
+    params: o.params,
+    title: str(o.title, `${path}.title`),
+    sub: str(o.sub, `${path}.sub`),
+    agent: oneOf(o.agent, AGENTS, `${path}.agent`),
+    ...(cost === undefined ? {} : { cost }),
+    enqueuesVideo: bool(o.enqueuesVideo, `${path}.enqueuesVideo`),
+    detail: str(o.detail, `${path}.detail`),
+    reruns: o.reruns == null ? [] : list(o.reruns, (entry, at) => {
+      const rerun = record(entry, at)
+      return { agent: oneOf(rerun.agent, AGENTS, `${at}.agent`), label: str(rerun.label, `${at}.label`) }
+    }, `${path}.reruns`),
+  }
+}
+
+export type Plan = {
+  ok: true
+  planId: string
+  steps: PlanStep[]
+  total: { images: number; note?: string }
+  imagesLeftToday?: number
+}
+
+const readPlan = (value: unknown): Plan => {
+  const o = record(value, 'plan')
+  const steps = list(o.steps, readStep, 'plan.steps')
+  if (steps.length === 0 || steps.length > 5) throw new ShapeError('plan.steps')
+  const total = record(o.total, 'plan.total')
+  return {
+    ok: true,
+    planId: nonEmptyStr(o.planId, 'plan.planId'),
+    steps,
+    total: { images: num(total.images, 'plan.total.images'), ...(total.note == null ? {} : { note: str(total.note, 'plan.total.note') }) },
+    ...(o.imagesLeftToday == null ? {} : { imagesLeftToday: num(o.imagesLeftToday, 'plan.imagesLeftToday') }),
+  }
+}
 
 // Mỗi lựa chọn/gợi ý là một câu đầy đủ gửi lại làm kế hoạch mới; bấm chỉ lập kế hoạch, không chạy.
-const choiceSchema = z.object({ label: z.string().min(1), text: z.string().min(1), icon: z.string().optional() })
-export type Choice = z.infer<typeof choiceSchema>
+export type Choice = { label: string; text: string; icon?: string }
 
-const askSchema = z.object({
-  ok: z.literal(false),
-  ask: z.object({ question: z.string(), options: z.array(choiceSchema).min(1).max(4) }),
-})
-export type PlanAsk = z.infer<typeof askSchema>['ask']
+const readChoice = (value: unknown, path: string): Choice => {
+  const o = record(value, path)
+  return {
+    label: nonEmptyStr(o.label, `${path}.label`),
+    text: nonEmptyStr(o.text, `${path}.text`),
+    ...(o.icon == null ? {} : { icon: str(o.icon, `${path}.icon`) }),
+  }
+}
 
-const unknownSchema = z.object({
-  ok: z.literal(false),
-  unknown: z.object({
-    lead: z.string(),
-    suggestions: z.array(choiceSchema).max(2),
-    link: z.object({ label: z.string().min(1), href: z.string().min(1) }).optional(),
-  }),
-})
-export type PlanUnknown = z.infer<typeof unknownSchema>['unknown']
-
-const planReplySchema = z.union([planSchema, askSchema, unknownSchema])
+export type PlanAsk = { question: string; options: Choice[] }
+export type PlanUnknown = { lead: string; suggestions: Choice[]; link?: { label: string; href: string } }
 
 export type PlanReply =
   | { kind: 'plan'; plan: Plan }
   | { kind: 'ask'; ask: PlanAsk }
   | { kind: 'unknown'; unknown: PlanUnknown }
 
-const stepStateSchema = z.enum(['queued', 'running', 'done', 'failed'])
-export type StepState = z.infer<typeof stepStateSchema>
-const runStepSchema = z.object({ id: z.string(), state: stepStateSchema, message: z.string().optional() })
-export type RunStep = z.infer<typeof runStepSchema>
+const readAsk = (value: unknown): PlanAsk => {
+  const o = record(value, 'ask')
+  const options = list(o.options, readChoice, 'ask.options')
+  if (options.length === 0 || options.length > 4) throw new ShapeError('ask.options')
+  return { question: str(o.question, 'ask.question'), options }
+}
 
-const runSchema = z.object({
-  runId: z.string().min(1),
-  state: z.enum(['running', 'done', 'failed']).optional(),
-  steps: z.array(runStepSchema),
-})
-export type PlanRun = z.infer<typeof runSchema>
+const readUnknown = (value: unknown): PlanUnknown => {
+  const o = record(value, 'unknown')
+  const suggestions = list(o.suggestions, readChoice, 'unknown.suggestions')
+  if (suggestions.length > 2) throw new ShapeError('unknown.suggestions')
+  const link = maybe(o.link, (entry, at) => {
+    const l = record(entry, at)
+    return { label: nonEmptyStr(l.label, `${at}.label`), href: nonEmptyStr(l.href, `${at}.href`) }
+  }, 'unknown.link')
+  return {
+    lead: str(o.lead, 'unknown.lead'),
+    suggestions,
+    ...(link === undefined ? {} : { link }),
+  }
+}
+
+const unreadable = (raw: unknown): ApiError => new ApiError(502, 'Trợ lý trả về dữ liệu không đọc được.', undefined, raw)
+
+const readPlanReply = (raw: unknown): PlanReply => {
+  try {
+    const o = record(raw, 'reply')
+    if (o.ok === true) return { kind: 'plan', plan: readPlan(o) }
+    if (o.ok !== false) throw new ShapeError('reply.ok')
+    return o.ask === undefined
+      ? { kind: 'unknown', unknown: readUnknown(o.unknown) }
+      : { kind: 'ask', ask: readAsk(o.ask) }
+  } catch {
+    throw unreadable(raw)
+  }
+}
+
+export type RunStep = { id: string; state: StepState; message?: string }
+export type PlanRun = { runId: string; state?: 'running' | 'done' | 'failed'; steps: RunStep[] }
+
+const readRun = (raw: unknown): PlanRun => {
+  try {
+    const o = record(raw, 'run')
+    return {
+      runId: nonEmptyStr(o.runId, 'run.runId'),
+      ...(o.state == null ? {} : { state: oneOf(o.state, ['running', 'done', 'failed'] as const, 'run.state') }),
+      steps: list(o.steps, (entry, at) => {
+        const step = record(entry, at)
+        return {
+          id: str(step.id, `${at}.id`),
+          state: oneOf(step.state, STATES, `${at}.state`),
+          ...(step.message == null ? {} : { message: str(step.message, `${at}.message`) }),
+        }
+      }, 'run.steps'),
+    }
+  } catch {
+    throw unreadable(raw)
+  }
+}
 
 export const MAX_TEXT_RUNES = 500
 
 export async function planAssistant(input: { scope: AssistantScope; text: string }, signal?: AbortSignal): Promise<PlanReply> {
-  const raw = await mutate<unknown>('POST', '/api/assistant/plan', { scope: input.scope, text: input.text }, signal)
-  const parsed = planReplySchema.safeParse(raw)
-  if (!parsed.success) throw new ApiError(502, 'Trợ lý trả về dữ liệu không đọc được.', undefined, raw)
-  const reply = parsed.data
-  if (reply.ok) return { kind: 'plan', plan: reply }
-  if ('ask' in reply) return { kind: 'ask', ask: reply.ask }
-  return { kind: 'unknown', unknown: reply.unknown }
-}
-
-const readRun = (raw: unknown): PlanRun => {
-  const parsed = runSchema.safeParse(raw)
-  if (!parsed.success) throw new ApiError(502, 'Trợ lý trả về dữ liệu không đọc được.', undefined, raw)
-  return parsed.data
+  return readPlanReply(await mutate<unknown>('POST', '/api/assistant/plan', { scope: input.scope, text: input.text }, signal))
 }
 
 /** Chạy đúng các bước đã chọn của kế hoạch `planId`; server kiểm lại từng bước. */
@@ -108,13 +184,16 @@ export async function getPlanRun(runId: string, signal?: AbortSignal): Promise<P
 
 export type AssistantErrorKind = 'offline' | 'model' | 'expired' | 'busy' | 'invalid' | 'notFound' | 'failed'
 
-const errorCodeSchema = z.object({ code: z.string() })
-
 /** Mã lỗi máy chủ (`code`) → loại lỗi để thẻ chọn đúng câu và nút Thử lại. */
 export function assistantErrorKind(error: unknown): AssistantErrorKind {
   if (!(error instanceof ApiError)) return 'failed'
   if (error.status === 0) return 'offline'
-  const code = errorCodeSchema.safeParse(error.payload).data?.code
+  let code: string | undefined
+  try {
+    code = str(record(error.payload, 'error').code, 'error.code')
+  } catch {
+    code = undefined
+  }
   switch (code) {
     case 'model_unavailable': return 'model'
     case 'plan_expired': return 'expired'

@@ -40,3 +40,7 @@ export const maybe = <T>(value: unknown, read: (entry: unknown, path: string) =>
 /** Trường bắt buộc-nhưng-có-thể-null: `null` giữ nguyên `null`. */
 export const nullable = <T>(value: unknown, read: (entry: unknown, path: string) => T, path: string): T | null =>
   value === null ? null : read(value, path)
+
+/** `.nullish()` của zod cũ: `null` giữ `null`, vắng mặt đọc thành `undefined`. */
+export const nullish = <T>(value: unknown, read: (entry: unknown, path: string) => T, path: string): T | null | undefined =>
+  value === null ? null : value === undefined ? undefined : read(value, path)
