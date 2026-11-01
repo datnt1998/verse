@@ -153,7 +153,6 @@ button:disabled{cursor:not-allowed}
 .i-notify{-webkit-mask-image:url(../icons/notification.svg);mask-image:url(../icons/notification.svg)}
 .i-pause{-webkit-mask-image:url(../icons/pause.svg);mask-image:url(../icons/pause.svg)}
 .i-play{-webkit-mask-image:url(../icons/play.svg);mask-image:url(../icons/play.svg)}
-.i-refresh{-webkit-mask-image:url(../icons/refresh-2.svg);mask-image:url(../icons/refresh-2.svg)}
 .i-search{-webkit-mask-image:url(../icons/search-normal-1.svg);mask-image:url(../icons/search-normal-1.svg)}
 .i-setting{-webkit-mask-image:url(../icons/setting-2.svg);mask-image:url(../icons/setting-2.svg)}
 .i-setting-b{-webkit-mask-image:url(../icons/setting-2-bulk.svg);mask-image:url(../icons/setting-2-bulk.svg)}
@@ -293,10 +292,14 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </sc-if>
 
 <sc-if value="{{h.error}}" hint-placeholder-val="{{ false }}">
-<section class="rise" role="alert" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: radial-gradient(120% 100% at 0% 0%, rgba(255,95,110,0.1), transparent 60%), #151517; border: 1px solid rgba(255,159,168,0.28); display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,95,110,0.14); display: flex; align-items: center; justify-content: center"><span class="ic i-warning" aria-hidden="true" style="width: 20px; height: 20px; color: #FF9FA8"></span></span><span style="display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">Người viết dừng lại</span><span style="font-size: 13px; color: #A0A0AB">Chương 25 · bước 2/5</span></span></div>
-<p style="margin: 0; font-size: 14.5px; color: #D6D6DC">ChatGPT báo đã hết hạn mức hôm nay. Phần đã viết được giữ nguyên. Thử lại sau 23:00, hoặc đổi sang model khác để viết tiếp ngay.</p>
-<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><a class="mbtn gho tap" href="MMore.dc.html" style="height: 46px; font-size: 15px">Đổi model</a><button class="mbtn pri tap" type="button" onClick="{{retryErr}}" style="height: 46px; font-size: 15px"><span class="ic i-refresh" aria-hidden="true" style="width: 16px; height: 16px"></span>Thử lại</button></div>
+<section class="rise" role="alert" style="margin: 0 16px 12px; padding: 16px; border-radius: 20px; background: {{pv.bg}}, #151517; border: 1px solid {{pv.bd}}; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: flex-start"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: {{pv.icBg}}; display: flex; align-items: center; justify-content: center"><span class="ic i-warning" aria-hidden="true" style="width: 20px; height: 20px; color: {{pv.icFg}}"></span></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; line-height: 1.35"><span style="font-size: 16px; font-weight: 600">{{pv.title}}</span><span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="height: 22px; padding: 0 8px; border-radius: 7px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; background: {{pv.lvBg}}; color: {{pv.lvFg}}">{{pv.lv}}</span><span style="font-size: 13px; color: #A0A0AB">Người viết dừng ở chương 25 · bước 2/5</span></span></span></div>
+<p style="margin: 0; font-size: 14.5px; color: #D6D6DC; line-height: 1.55">{{pv.text}}</p>
+<div role="radiogroup" aria-label="Viết tiếp bằng" style="display: flex; flex-direction: column; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden"><sc-for list="{{pv.opts}}" as="o" hint-placeholder-count="2"><button class="tap" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 14px; border: none; border-top: {{o.bt}}; background: {{o.bg}}; color: #EDEDEF; text-align: left; font: inherit"><span aria-hidden="true" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{o.rb}}; display: flex; align-items: center; justify-content: center; flex: none"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{o.rd}}"></span></span><span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 15px">{{o.name}} · <span class="mono" style="font-size: 13.5px">{{o.model}}</span></span><span style="font-size: 12.5px; color: #8E8E99">{{o.note}}</span></span></button></sc-for></div>
+<button class="mbtn pri tap" type="button" onClick="{{pv.go}}" style="height: 48px; font-size: 15.5px"><span class="ic i-play" aria-hidden="true" style="width: 17px; height: 17px"></span>{{pv.goLabel}}</button>
+<span style="font-size: 12.5px; color: #8E8E99; line-height: 1.5; text-align: center">{{pv.foot}}</span>
+<button class="tap" type="button" onClick="{{pv.toggleTech}}" aria-expanded="{{pv.techA}}" style="align-self: flex-start; height: 36px; padding: 0; border: none; background: transparent; color: #8E8E99; font-size: 13px; display: flex; align-items: center; gap: 4px">Chi tiết kỹ thuật<span class="ic i-arrow-d" aria-hidden="true" style="width: 13px; height: 13px; transform: {{pv.techChev}}"></span></button>
+<sc-if value="{{pv.techOpen}}" hint-placeholder-val="{{ false }}"><div class="mono" style="margin-top: -6px; padding: 8px 10px; border-radius: 10px; background: #0B0B0D; border: 1px solid rgba(255,255,255,0.06); font-size: 11.5px; color: #A0A0AB; overflow-wrap: anywhere">{{pv.tech}}</div></sc-if>
 </section>
 </sc-if>
 
@@ -446,7 +449,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","gate","idle","paused","done","error","empty","offline","expired","typing","cmd","cmdArgs","jobs","pause"],"default":"running","section":"Trạng thái"},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["running", "gate", "idle", "paused", "done", "error", "empty", "offline", "expired", "typing", "cmd", "cmdArgs", "jobs", "pause"], "default": "running", "section": "Trạng thái"}, "perr": {"editor": "enum", "options": ["expired", "quota"], "default": "expired", "section": "Lỗi nhà cung cấp khi state=error (Gói AU)"}, "$preview": {"width": 390, "height": 844}}'>
 const PUR = '#C9A6F5', MINT = '#A6EDC1', ORA = '#F6CB8C', SOFT = '#A0A0AB';
 const BOOK = { title: 'Trà Xanh Cướp Kịch Bản', done: 24 };
 const ROLES = [
@@ -678,6 +681,28 @@ function mtabs(active, dots) {
 }
 function mtabInd(active) { return 'calc(5px + ' + MTAB_KEYS.indexOf(active) + ' * (100% - 10px) / 4)'; }
 
+// ===== Nhà cung cấp & model dùng chung cho cả app (Gói AU) — Settings, Main, CmdResults, MMore, MWork, MNewStory =====
+// Mức suy luận: giá trị máy → nhãn. '' = Tự động (mặc định của model)
+const RLV = [['', 'Tự động'], ['off', 'Tắt'], ['minimal', 'Tối thiểu'], ['low', 'Thấp'], ['medium', 'Vừa'], ['high', 'Cao'], ['xhigh', 'Rất cao'], ['max', 'Tối đa']];
+// Mức mỗi model hỗ trợ (máy chủ trả theo model). Rỗng = model không có mức suy luận → chỉ “Tự động”.
+const MLV = { 'gpt-6.1-sol': ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'], 'gpt-6-luna': ['minimal', 'low', 'medium', 'high'], 'gpt-5.6-terra': ['low', 'medium', 'high'], 'gemini-2.5-pro': ['off', 'low', 'medium', 'high', 'max'], 'deepseek-chat': [], 'qwen3-local': ['off', 'high'], 'deepseek/deepseek-v3.2': ['off', 'high'] };
+const MPROV = { 'gpt-6.1-sol': 'openai', 'gpt-6-luna': 'openai', 'gpt-5.6-terra': 'openai', 'gemini-2.5-pro': 'gm', 'deepseek-chat': 'ds', 'qwen3-local': 'oll' };
+const PNAME = { openai: 'ChatGPT', gm: 'Gemini', ds: 'DeepSeek', oll: 'Ollama', or: 'OpenRouter' };
+const rlvOf = (m) => [''].concat(MLV[m] || []);
+const rlvLabel = (v) => (RLV.find((x) => x[0] === v) || [v, v])[1];
+// Lỗi nhà cung cấp — một cách nói ở mọi màn. kind: expired · key · quota
+const PERR = {
+  expired: { lv: 'e', short: 'hết hạn gói', title: (n) => n + ' đã hết hạn gói', text: 'Gói ChatGPT Plus hết hạn ngày 01/11. Viết tiếp bằng nhà cung cấp khác, hoặc gia hạn rồi đăng nhập lại.', act: 'Đăng nhập lại', tech: 'HTTP 402 · insufficient_quota · plan=plus expired 2026-11-01' },
+  key: { lv: 'e', short: 'khoá không dùng được', title: (n) => 'Khoá ' + n + ' không còn dùng được', text: 'Khoá đã bị thu hồi hoặc hết hạn. Nhập khoá mới, hoặc viết tiếp bằng nhà cung cấp khác.', act: 'Nhập khoá mới', tech: 'HTTP 401 · invalid_api_key · ••••91f2' },
+  quota: { lv: 'w', short: 'tạm hết lượt', title: (n) => n + ' tạm hết lượt', text: 'Nhà cung cấp tạm giới hạn số lần gọi. Noverse tự thử lại lúc 21:58 (khoảng 4 phút nữa); không muốn chờ thì viết tiếp bằng nhà cung cấp khác.', act: '', tech: 'HTTP 429 · rate_limit_exceeded · retry-after 240s' }
+};
+const PLV = { e: ['Bắt sửa', 'rgba(255,154,162,0.14)', '#FFB3BA'], w: ['Cảnh báo', 'rgba(246,203,140,0.14)', '#F3D9AE'], ok: ['Đạt', 'rgba(166,237,193,0.12)', '#A6EDC1'] };
+// Nhà cung cấp bị lỗi theo tweak: expired/quota → ChatGPT, key → DeepSeek
+const perrProv = (k) => k === 'key' ? 'ds' : (k === 'expired' || k === 'quota' ? 'openai' : null);
+// Gợi ý thay thế (nhà cung cấp còn dùng được, model gần nhất về chất lượng)
+const SWAP = { 'gpt-6.1-sol': 'gemini-2.5-pro', 'gpt-6-luna': 'gemini-2.5-pro', 'gpt-5.6-terra': 'deepseek-chat', 'deepseek-chat': 'gpt-5.6-terra' };
+const swapTo = (m, bad) => { const t = SWAP[m]; return t && MPROV[t] !== bad ? t : 'gemini-2.5-pro'; };
+
 const PATHS = { export: [['exports/tra-xanh.epub', 'EPUB'], ['exports/', 'Thư mục exports']], import: [['nhap/tra-xanh.txt', 'tra-xanh.txt']] };
 const NUMS = { from: [['1', '1'], ['13', '13']], to: [['12', '12'], ['24', '24']] };
 const MOBILE_HIDE = ['config', 'start', 'simulate', 'importsim'];
@@ -731,13 +756,21 @@ class Component extends DCLogic {
     ];
     const empty = st === 'empty'; const hasText = !!s.text.trim();
     const kbRows = [[10, 10, '6px'], [9, 9, '22px'], [9, 9, '6px'], [4, 4, '6px']].map(([n, , pad], ri) => ({ pad, keys: ri === 3 ? ['1.4', '1.2', '5', '1.4'] : Array.from({ length: n }, () => '1') }));
+    const PWK = this.props.perr || 'expired'; const PWE = PERR[PWK]; const pwPick = s.pwPick || 'gm'; const pwTech = !!s.pwTech;
+    const pw = { title: PWK === 'quota' ? 'ChatGPT tạm hết lượt' : 'ChatGPT đã hết hạn gói', lv: PLV[PWE.lv][0], lvBg: PLV[PWE.lv][1], lvFg: PLV[PWE.lv][2],
+      text: PWK === 'quota' ? 'Phần đã viết được giữ. Noverse tự viết tiếp lúc 21:58 (khoảng 4 phút nữa). Không muốn chờ thì viết tiếp ngay bằng nhà cung cấp khác — đổi cho cả app.' : 'Phần đã viết được giữ. Chọn nhà cung cấp còn dùng được rồi viết tiếp — 3 trợ lý đang dùng ChatGPT sẽ chuyển sang, cho cả app.',
+      bg: PWK === 'quota' ? 'radial-gradient(120% 100% at 0% 0%, rgba(246,203,140,0.09), transparent 60%)' : 'radial-gradient(120% 100% at 0% 0%, rgba(255,95,110,0.1), transparent 60%)', bd: PWK === 'quota' ? 'rgba(246,203,140,0.3)' : 'rgba(255,159,168,0.28)', icBg: PWK === 'quota' ? 'rgba(246,203,140,0.14)' : 'rgba(255,95,110,0.14)', icFg: PWK === 'quota' ? '#F6CB8C' : '#FF9FA8',
+      opts: [['gm', 'Gemini', 'gemini-2.5-pro', 'Gợi ý · gần chất lượng nhất'], ['ds', 'DeepSeek', 'deepseek-chat', 'Rẻ, nhanh · không có mức suy luận']].map(([k, name, model, note], i) => { const on = pwPick === k; return { name, model, note, on: on ? 'true' : 'false', bg: on ? 'rgba(201,166,245,0.07)' : '#121214', rb: on ? '#C9A6F5' : '#5E5E68', rd: on ? '#C9A6F5' : 'transparent', bt: i ? '1px solid rgba(255,255,255,0.06)' : 'none', pick: () => this.setState({ pwPick: k }) }; }),
+      goLabel: PWK === 'quota' ? 'Đổi và viết tiếp ngay' : 'Đổi và viết tiếp', go: () => { this.setState({ status: 'running', pwDone: true }); this.toast('Đã chuyển 3 trợ lý sang ' + (pwPick === 'ds' ? 'DeepSeek' : 'Gemini') + ' · đang viết tiếp'); },
+      foot: PWK === 'quota' ? 'Hoặc cứ để đó, Noverse tự chạy lại lúc 21:58.' : 'Gia hạn ChatGPT thì đăng nhập lại ở Thêm › Kết nối AI. Đổi lại được ở Thêm › Model trợ lý.',
+      techOpen: pwTech, techA: pwTech ? 'true' : 'false', techChev: pwTech ? 'rotate(180deg)' : 'none', toggleTech: () => this.setState({ pwTech: !pwTech }), tech: PWE.tech + ' · role=writer · ch=25 step=2/5' };
     return {
       tabs: mtabs('write', { read: st === 'gate' }), tabInd: mtabInd('write'), tabMode: this.tabMode(),
       storyTitle: empty ? 'Noverse' : 'Trà Xanh Cướp Kịch Bản…', storySub: empty ? 'Chưa mở truyện nào' : (st === 'done' ? 'Hoàn thành · 30/30 chương' : 'Tập 1 · 24/30 chương'), hasJobs: !empty && st !== 'done',
       offline: s.offline, retryText: 'Thử lại sau ' + s.retry + ' giây · máy vẫn chạy', retryNow: () => { set({ offline: false }); this.later(() => this.toast(s.queue ? 'Đã kết nối lại · đã gửi 1 góp ý' : 'Đã kết nối lại'), 50); this.setState({ queue: '' }); },
       dimCls: s.offline ? 'dim' : '', empty, notEmpty: !empty,
       onScroll: (e) => { const y = e.target.scrollTop; const down = y > 60 && y > this.lastY; if (down !== this.state.down && Math.abs(y - this.lastY) > 4) set({ down }); this.lastY = y; },
-      agents, h: { running: st === 'running', gate: st === 'gate', idle: st === 'idle', paused: st === 'paused', done: st === 'done', error: st === 'error' },
+      pv: pw, agents, h: { running: st === 'running', gate: st === 'gate', idle: st === 'idle', paused: st === 'paused', done: st === 'done', error: st === 'error' },
       pct: Math.round(s.p * 100) + '%', stepText: 'Bước ' + (si + 1) + '/5 · ' + steps[si], stepShort: steps[si],
       approve: () => { set({ status: 'running', p: 0.02 }); this.toast('Đã duyệt chương 24 · đang viết chương 25'); },
       startNext: () => { set({ status: 'running', p: 0.02 }); this.toast('Đã chạy /next · viết chương 25'); },
