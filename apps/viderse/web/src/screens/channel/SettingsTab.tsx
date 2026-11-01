@@ -18,6 +18,7 @@ import { useResource } from '../../data/useResource'
 import { navigate, paths } from '../../router'
 import { channelFieldErrors, patchChannel, deleteChannel, type Channel, type ChannelLanguage } from '../../api/channels'
 import { getAgents, listProviders } from '../../api/ai'
+import { getChannelJobs } from '../../api/channelVideos'
 import { IdentityBlock } from './IdentityBlock'
 import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
 
@@ -134,10 +135,15 @@ export function SettingsTab({ channel }: { channel: Channel }) {
     void saveTags([...tags, tag])
   }
 
+  // Số video đang làm của kênh: dùng lại đúng khoá ChannelScreen đã tải
+  // (GET /api/clone?channel=) nên không thêm request; > 0 thì khoá xoá kênh.
+  const jobs = useResource(keys.channelJobs(channel.id), ({ signal }) => getChannelJobs(channel.id, signal))
+  const workingCount = (jobs.data?.jobs ?? []).filter((job) => job.stageGroup === 'working').length
+
   const onDelete = () => {
     void confirmDeleteChannel({
       name: channel.name || t.channels.page.noName,
-      runningCount: 0,
+      runningCount: workingCount,
       consequences: [tt.deleteConsequence],
       onConfirm: async () => {
         await deleteChannel(channel.id)
@@ -332,9 +338,24 @@ export function SettingsTab({ channel }: { channel: Channel }) {
           <div {...stylex.props(channelStyles.deleteText)}>
             <h2 {...stylex.props(channelStyles.deleteTitle)}>{tt.deleteTitle}</h2>
             <p {...stylex.props(channelStyles.deleteBody)}>{tt.deleteBody}</p>
+            {workingCount > 0 && (
+              <span {...stylex.props(channelStyles.deleteInfo)}>
+                <Icon name="info" size={14} />
+                {tt.deleteRunning(workingCount)}
+              </span>
+            )}
           </div>
           <div {...stylex.props(channelStyles.deleteActions)}>
-            <ActionButton xstyle={channelStyles.deleteBtn} variant="danger-soft" onClick={onDelete} icon={<Icon name="trash" size={15} />}>
+            {workingCount > 0 && (
+              <ActionButton xstyle={channelStyles.deleteBtn} variant="outline" onClick={() => navigate(paths.channel(channel.id, 'videos'))}>
+                {tt.viewRunning(workingCount)}
+              </ActionButton>
+            )}
+            <ActionButton xstyle={channelStyles.deleteBtn} variant="danger-soft"
+              lockedReason={workingCount > 0 ? tt.deleteLocked(workingCount) : undefined}
+              onClick={onDelete}
+              icon={<Icon name="trash" size={15} />}
+            >
               {tt.deleteButton}
             </ActionButton>
           </div>
