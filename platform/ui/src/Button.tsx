@@ -44,7 +44,7 @@ const styles = stylex.create({
     fontSize: 14, fontWeight: 400, backgroundColor: 'transparent', color: color['--color-fg-3'],
   },
   /* Nút chỉ có icon vẫn VUÔNG theo cỡ: 44 (lg) và 48 (xl) — vùng chạm điện thoại
-     của artboard MKit/MExplore. Trước đợt 37 `icon` khoá 36×36 nên size bị bỏ qua. */
+     của artboard MKit/MExplore. Trước đây `icon` khoá 36×36 nên size bị bỏ qua. */
   iconLg: { width: 44, borderRadius: 12 },
   iconXl: { width: 48, borderRadius: 13 },
   sm: { height: 30, paddingInline: 10, fontSize: 12, borderRadius: 8 },

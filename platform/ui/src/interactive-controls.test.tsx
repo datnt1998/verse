@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// V33 kit controls: Dialog body pad, Tabs gạch chân, ChipSelect, Dropzone/FileRow,
+// Interactive kit controls: Dialog body pad, underline Tabs, ChipSelect, Dropzone/FileRow,
 // ProgressBar chưa biết %, Button icon vuông 44/48.
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'

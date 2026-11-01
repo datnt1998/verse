@@ -29,7 +29,7 @@ const sx = stylex.create({
     display: 'flex', alignItems: 'center', gap: 10, paddingTop: 16, paddingBottom: 16,
     paddingInline: padX, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-2'],
   }),
-  // Thân hộp: cùng lề ngang với đầu/chân (08-dev-prompt V33). Trước đợt 37 thân
+  // Thân hộp: cùng lề ngang với đầu/chân. Trước đây thân
   // không có đệm nên câu mô tả dính mép; hộp cần tràn mép (danh sách) truyền
   // `padBody={false}` để thân không bọc đệm — giữ nguyên bố cục cũ.
   body: (padX: string) => ({
