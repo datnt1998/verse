@@ -184,7 +184,7 @@ html[data-standalone]{ --m-edge: 40px }
 /* Sheet di động (.m-*) — chuyển từ mobile.css; class giữ nguyên để CSS màn cũ vẫn khớp. */
 .m-overlay{position:fixed;inset:0;z-index:80;color:#EDEDEF;font-size:15px;line-height:1.5}
 .m-scrim{position:absolute;inset:0;background:rgba(4,4,6,.58);animation:m-fade .25s both}
-.m-sheet{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-height:calc(100dvh - var(--m-top) - 12px);padding-bottom:max(26px,var(--m-safe-bottom));background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid #ffffff1a;box-shadow:0 -24px 60px -10px #000c;animation:m-sheet-in .44s cubic-bezier(.2,.9,.25,1.03) both;outline:none}
+.m-sheet{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-height:var(--m-sheet-max-height,calc(100dvh - var(--m-top) - 12px));padding-bottom:max(26px,var(--m-safe-bottom));background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid #ffffff1a;box-shadow:0 -24px 60px -10px #000c;animation:m-sheet-in .44s cubic-bezier(.2,.9,.25,1.03) both;outline:none}
 .m-out .m-sheet{animation:m-sheet-out .26s cubic-bezier(.5,0,.75,0) both}
 .m-out .m-scrim{animation:m-fade .26s reverse both}
 .m-drag{height:19px;min-height:19px;display:flex;justify-content:center;padding-top:8px;touch-action:none;cursor:grab}
@@ -197,7 +197,7 @@ html[data-standalone]{ --m-edge: 40px }
 /* Tấm theo artboard điện thoại (Viderse MSettings/Settings): góc 22, nền card,
    tiêu đề 16px + phụ đề, grabber 36×4 trên hàng 8/2, cao tối đa 86%. Tấm mặc
    định (Noverse) giữ nguyên 26/18px. */
-.m-sheet--md{background:var(--color-surface-3);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
+.m-sheet--md{background:var(--color-surface-3);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:var(--m-sheet-max-height,86%);padding-bottom:max(8px,var(--m-safe-bottom))}
 .m-sheet--md .m-drag{height:14px;min-height:14px;padding:8px 0 2px}
 .m-sheet--md .m-drag span{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
 .m-sheet--md .m-sheet-title{flex-direction:column;align-items:stretch;gap:3px;padding:6px 16px 10px}

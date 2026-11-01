@@ -220,6 +220,8 @@ Notable behaviours:
   `lg` (default, Noverse sheet) or `md` (Viderse artboard sheet). Falls back to
   `labels.sheet.defaultLabel` for `aria-label` when neither `title` nor
   `label` is given.
+  Full-height consumers set `height="100dvh"` and
+  `--m-sheet-max-height: 100dvh` in `xstyle`; other sheets keep their size cap.
 - `ConfirmDialog` / `confirm()` — typed-phrase and hold-to-confirm variants;
   `size` sets the footer button size (default `md`); uses `useAsyncAction`
   internally, all copy via `labels.confirm`.

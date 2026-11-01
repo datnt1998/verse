@@ -22,6 +22,7 @@ export type SheetProps = {
   children: ReactNode
   height?: number | string
   style?: CSSProperties
+  /** Override the default size cap through `--m-sheet-max-height` in xstyle or style. */
   xstyle?: stylex.StyleXStyles
   bodyStyle?: stylex.StyleXStyles
   /** thanh kéo đóng (mặc định có) */
