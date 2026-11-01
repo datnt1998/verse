@@ -393,3 +393,40 @@ describe('Khám phá mở khoá theo kênh', () => {
     expect(make).toHaveBeenCalledExactlyOnceWith('c2')
   })
 })
+
+// r38 — Đạo diễn chưa đặt được tên và mô tả: kênh VẪN được tạo với tên tạm
+// "Kênh mới", bước Xong không bị chặn; thẻ đổi thành "Một việc cần bạn" và
+// Thử lại chạy lại riêng bước đặt tên của Đạo diễn (part=name).
+describe('màn Xong: Đạo diễn lỗi (r38)', () => {
+  const failed = channel({
+    name: '',
+    identity: { state: 'failed', error: { code: 'x', message: 'ChatGPT không phản hồi', step: 'text' } },
+  })
+
+  it('tên tạm "Kênh mới" + "Một việc cần bạn"; Thử lại gửi part=name rồi về trạng thái chạy nền', async () => {
+    stubFetch({
+      '/api/owner-channels/c1/branding': () => respond({ channel: channel({ identity: { state: 'generating' } }), identityJobId: 'job9' }),
+      '/api/owner-channels/c1': () => respond(failed),
+      '/api/owner-channels': () => respond({ channels: [failed] }),
+      '/api/rivals/': () => respond({ videos: [], total: 0 }),
+      '/api/activity': () => respond({ running: [], videoJobs: 0, queued: 0, unread: [] }),
+    })
+    const el = await mount(<DoneStep channelId="c1" onLeave={() => {}} />)
+    await until(() => el.querySelectorAll('.vch-task').length === 3)
+    expect(el.querySelector('h1')!.textContent).toBe(tt.done.titleTemp)
+    expect(el.textContent).toContain(tt.done.noName)
+    expect(el.textContent).toContain(tt.done.tempNote)
+    expect(el.textContent).toContain(tt.done.needsYou)
+    expect(el.textContent).toContain(tt.done.needsYouSub)
+    expect(el.textContent).toContain(tt.done.footnoteTemp)
+    expect(byText(el, 'button', tt.done.nameInProfile)).toBeTruthy()
+    const [director, artist] = [...el.querySelectorAll('.vch-task')]
+    expect(director.textContent).toContain('ChatGPT không phản hồi')
+    expect(artist.textContent).toContain(tt.done.wait)
+    await click(byText(director, 'button', t.common.retry))
+    await until(() => posts.some((post) => post.url === '/api/owner-channels/c1/branding'))
+    expect(posts.find((post) => post.url === '/api/owner-channels/c1/branding')!.body).toEqual({ part: 'name' })
+    await until(() => el.querySelector('h1')!.textContent === tt.done.title)
+    expect(el.textContent).toContain(tt.done.background)
+  })
+})

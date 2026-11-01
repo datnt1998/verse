@@ -289,6 +289,8 @@
   --vv-st-review-border: rgba(246, 203, 140, .2);
   --vv-danger-soft: rgba(255, 154, 92, .12);
   --vv-danger-border: rgba(255, 154, 92, .3);
+  /* Chữ trên nền cam nhạt (hộp lỗi của thẻ khoá YouTube Data API — r38). */
+  --vv-danger-text-2: #FFD2B5;
   --vv-scout-tint: rgba(127, 163, 255, .16);
   --vv-scout-arc: #7FA3FF;
   --vv-director-tint: rgba(176, 138, 247, .16);

@@ -59,6 +59,9 @@ export const performanceCopy = {
   },
   dataKey: {
     name: 'YouTube Data API',
+    /* Nhóm ngoài danh sách nhà cung cấp AI (r38): khoá này không phải AI. */
+    groupTitle: 'Số liệu YouTube',
+    groupSub: 'Không phải AI · Trinh sát dùng để đọc số liệu video đã đăng',
     kind: 'Khoá API',
     pill: 'Không bắt buộc',
     sub: {
@@ -71,7 +74,11 @@ export const performanceCopy = {
     add: 'Thêm khoá',
     change: 'Đổi khoá',
     remove: 'Gỡ khoá',
+    /* failed: chưa đọc được trạng thái khoá — đọc lại chứ không mở ô dán. */
+    retry: 'Thử lại',
     keyLabel: 'Khoá API',
+    /* Dòng gợi ý dưới ô khi ở chế độ sửa (artboard Settings/MSettings ytkey=edit). */
+    hint: 'Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.',
     save: 'Lưu khoá',
     cancel: 'Huỷ',
     saved: 'Đã lưu khoá YouTube Data API',

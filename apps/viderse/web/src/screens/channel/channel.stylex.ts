@@ -196,7 +196,13 @@ export const channelStyles = stylex.create({
   doneHead: { display: "flex", alignItems: "center", gap: space["--vv-s-14"] },
   doneTitle: { flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", gap: space["--vv-s-4"] },
   doneHeading: { margin: 0, fontSize: channelLayout.doneHeadingFontSize, fontWeight: 600 },
-  doneSub: { margin: 0, fontSize: channelLayout.doneSubFontSize, color: "var(--vv-fg-note)", lineHeight: 1.6 },
+  doneSub: { margin: 0, fontSize: { default: channelLayout.doneSubFontSize, "@media (max-width: 767px)": channelLayout.doneSubFontSizeM }, color: "var(--vv-fg-note)", lineHeight: 1.6 },
+  /* Tên tạm “Kênh mới” sáng hơn phần ghi chú (artboard CreateChannel › identity=director). */
+  doneName: { color: color["--color-fg-3"] },
+  /* Thẻ “Một việc cần bạn”: chấm cam thay chấm đỏ. */
+  recdotWarn: { backgroundColor: "var(--vv-st-review)", boxShadow: "0 0 0 3px var(--vv-st-review-border)" },
+  /* Nút Thử lại trên dòng Đạo diễn — điện thoại cao 40px (artboard MCreate). */
+  retryM: { height: "40px", paddingInline: space["--vv-s-14"], borderRadius: "var(--vv-r-12)", fontSize: channelLayout.taskStateFontSize },
   task: { display: "flex", alignItems: "center", gap: space["--vv-s-10"], padding: "var(--vv-s-8) 0", flexWrap: "wrap" },
   taskText: { flex: channelLayout.taskTextFlex, minWidth: 0, display: "flex", flexDirection: "column", gap: space["--vv-s-1"] },
   taskWho: { fontSize: channelLayout.taskWhoFontSize, fontWeight: 500 },

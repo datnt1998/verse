@@ -8,7 +8,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { useEffect, useState } from 'react'
-import { invalidate } from '@noverse/ui/data'
+import { cache, invalidate } from '@noverse/ui/data'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as stylex from '@stylexjs/stylex'
 import { styles } from '../settings.stylex'
@@ -108,6 +108,7 @@ function installFetch() {
       providerState = providerState.map((p) => p.id === del[1] ? { ...p, selected: body.selected ?? p.selected } : p)
       return respond(providerState.find((p) => p.id === del[1]))
     }
+    if (url === '/api/youtube/data-key' && method === 'GET') return respond({ configured: false })
     if (url === '/api/ai/agents') {
       return respond({ director: { model: { provider: '', model: '' }, effort: 'auto', fallback: [] }, artist: { promptModel: { provider: '', model: '' }, draw: { provider: '', model: '' }, fallbackOn: true, drawFallback: [] } })
     }
@@ -364,5 +365,44 @@ describe('Kết nối AI', () => {
     await click(byText(el, 'button', 'Trang trước'))
     await flush()
     expect((el.querySelectorAll('.conn-row input')[0] as HTMLInputElement).checked).toBe(true)
+  })
+})
+
+// r38 — khoá YouTube Data API không phải nhà cung cấp AI: nhóm riêng "Số liệu
+// YouTube" DƯỚI nút Thêm nhà cung cấp (artboard Settings › section=connect).
+describe('Số liệu YouTube', () => {
+  it('nhóm đứng dưới nút Thêm nhà cung cấp và ngoài danh sách nhà cung cấp', async () => {
+    const el = await render()
+    const group = el.querySelector('[role="group"]')!
+    expect(group.textContent).toContain('Số liệu YouTube')
+    expect(group.textContent).toContain('Không phải AI')
+    expect(el.querySelector('.conn-list')!.textContent).not.toContain('YouTube Data API')
+    const add = el.querySelector('.conn-addbtn')!
+    expect(add.compareDocumentPosition(group) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(group.querySelector('.conn-name')!.textContent).toBe('YouTube Data API')
+    expect([...group.querySelectorAll('.conn-pill')].map((p) => p.textContent)).toEqual(['Khoá API', 'Không bắt buộc'])
+  })
+
+  it('không đọc được trạng thái khoá → Thử lại đọc lại, không mở ô dán', async () => {
+    let reads = 0
+    cache.clear()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+      if (url === '/api/youtube/data-key') {
+        reads++
+        return reads === 1 ? respond({ error: 'máy chủ hỏng' }, 500) : respond({ configured: true, keyHint: '••••x9Qw' })
+      }
+      if (url === '/api/ai/providers') return respond([])
+      return respond({ error: 'not found' }, 404)
+    }))
+    const el = await render()
+    const group = el.querySelector('[role="group"]')!
+    await flush()
+    expect(group.textContent).toContain('Không đọc được trạng thái khoá')
+    expect([...group.querySelectorAll('button')].some((b) => b.textContent?.includes('Thêm khoá'))).toBe(false)
+    await click(byText(group, 'button', 'Thử lại'))
+    await flush()
+    expect(reads).toBe(2)
+    expect(group.textContent).toContain('Đã lưu ••••x9Qw')
   })
 })

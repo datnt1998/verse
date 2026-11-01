@@ -346,6 +346,25 @@ export const styles = stylex.create({
   connErrActs: { display: "flex", gap: "var(--vv-s-8)", flexWrap: "wrap" },
   connEdit: { display: "flex", gap: "var(--vv-s-8)", alignItems: "center", flexWrap: "wrap" },
   connEditGrow: { flex: "1", minWidth: "var(--vv-s-80)" },
+  /* r38 · nhóm “Số liệu YouTube” (Settings/MSettings › section=connect). Nhóm
+     đứng dưới nút Thêm nhà cung cấp, ngoài danh sách nhà cung cấp AI. */
+  connYtGroup: { display: "flex", flexDirection: "column", gap: "var(--vv-s-8)", marginTop: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-8)" } },
+  connYtHead: { display: "flex", alignItems: "baseline", gap: "var(--vv-s-10)", flexWrap: "wrap", padding: "0 var(--vv-s-2)" },
+  connYtTitle: { margin: 0, fontSize: "var(--vv-s-13)", fontWeight: 600, color: color["--color-fg-2"] },
+  connYtGroupSub: { fontSize: "var(--vv-s-12)", color: color["--color-fg-3"] },
+  /* Điện thoại: tiêu đề và câu phụ xếp dọc, sát nhau (artboard MSettings). */
+  connYtHeadMobile: { alignItems: "flex-start", flexDirection: "column", gap: "var(--vv-s-1)" },
+  connYtCardRejected: { borderColor: "var(--vv-err-35)" },
+  connYtHint: { display: "flex", gap: "var(--vv-s-7)", fontSize: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: settingsVars.setTipsTitlefontSize }, color: color["--color-fg-3"], lineHeight: 1.5 },
+  connYtReject: { display: "flex", alignItems: "flex-start", gap: "var(--vv-s-8)", padding: { default: "var(--vv-s-9) var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-10) var(--vv-s-12)" }, borderRadius: { default: "var(--vv-r-10)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-r-12)" }, backgroundImage: "none", backgroundColor: "var(--vv-warn-bg)", borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: "var(--vv-danger-border)" },
+  connYtRejectText: { fontSize: settingsVars.setTipsTitlefontSize, color: "var(--vv-danger-text-2)", lineHeight: 1.5 },
+  connYtMActs: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(0, 1fr))", gap: "var(--vv-s-8)" },
+  connYtHintIcon: { marginTop: "var(--vv-s-2)" },
+  connYtRejectIcon: { marginTop: "var(--vv-s-2)", color: "var(--vv-danger)" },
+  connYtMEdit: { display: "flex", flexDirection: "column", gap: "var(--vv-s-8)" },
+  connYtMLabel: { fontSize: "var(--vv-s-13)", color: color["--color-fg-2"] },
+  /* Ô dán khoá trên điện thoại: cao 48, bo 12, chữ 15 (artboard MSettings). */
+  connYtMInput: { height: "var(--vv-s-48)", borderRadius: "var(--vv-r-12)", fontSize: "var(--vv-s-15)" },
   connCat: { display: "flex", flexDirection: "column", gap: "var(--vv-s-10)", padding: "var(--vv-s-12)", borderRadius: "var(--vv-r-12)", backgroundImage: "none", backgroundColor: color["--color-surface-0"], borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: line["--line-2"] },
   connCatTools: { display: "flex", alignItems: "center", gap: "var(--vv-s-8)", flexWrap: "wrap" },
   connSearch: { flex: "1", minWidth: 0, height: "var(--vv-s-34)", padding: "0 var(--vv-s-10)", display: "flex", alignItems: "center", gap: "var(--vv-s-8)", borderRadius: "var(--vv-r-9)", backgroundImage: "none", backgroundColor: color["--color-surface-1"], borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: line["--line-4"] },
