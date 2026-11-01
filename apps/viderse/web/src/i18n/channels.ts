@@ -94,6 +94,8 @@ export const channelsCopy = {
     autoOff: 'Đang tắt',
     autoPaused: 'Tạm dừng vì chưa có đối thủ liên kết',
     pace: (n: number) => `Nhịp ${n}/ngày`,
+    paceSeen: (n: number, time: string) => `Nhịp ${n}/ngày · xem gần nhất ${time}`,
+    autoLine: (rivals: number) => `Trinh sát xem ${rivals} đối thủ mỗi giờ, đưa video mới đăng vào cuối hàng chờ.`,
     paceLink: 'Đổi nhịp ›',
     explore: 'Mở Khám phá',
     noRivals: 'Chưa có đối thủ liên kết nên chưa có video nguồn. Liên kết đối thủ ở tab Nguồn & tự động.',
