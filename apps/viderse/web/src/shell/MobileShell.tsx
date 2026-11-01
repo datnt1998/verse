@@ -88,7 +88,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
   const [jobsLoaded, setJobsLoaded] = useState(false)
   // Màn con có thanh riêng, không dùng appbar hay thanh tab của màn gốc.
   const subPage = route.name === 'library' || route.name === 'template' ||
-    route.name === 'channel-new' || (route.name === 'explore' && Boolean(route.video))
+    route.name === 'channel-new' || ((route.name === 'explore' || route.name === 'workbench') && Boolean(route.video))
   const [jobsTab, setJobsTab] = useState<'running' | 'inbox'>('running')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   if (route.name === 'queue') return <MobileRuntimeProvider hidden><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div></MobileRuntimeProvider>
@@ -138,7 +138,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
       {children}
       {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab.
           MLibrary / MTemplate cũng vậy: artboard chỉ có thanh riêng của màn. */}
-      {route.name === 'channel-new' || subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
+      {subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
       {jobsLoaded && <Suspense fallback={null}>
         <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
       </Suspense>}
