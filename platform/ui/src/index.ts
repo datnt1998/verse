@@ -35,3 +35,5 @@ export { defineBrand, applyBrand, removeBrand, brandToCss, tonalScale, neutralSc
 export { ThemeProvider, type ThemeProviderProps } from './ThemeProvider'
 export { noverseCore, NOVERSE } from './noverse'
 export { MOTION, type MotionPreset } from './motion'
+export { KeepAlive, MobilePanes, type MobilePanesProps } from './mobile/keepAlive'
+export { MobilePaneScope, useMobilePaneActive } from './mobile/runtime'

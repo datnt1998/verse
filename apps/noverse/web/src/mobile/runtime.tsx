@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useSession } from '../api/session'
-import { Icon } from '@noverse/ui'
+import { Icon, useMobilePaneActive } from '@noverse/ui'
 import { cache, useConnection } from '../data'
 import { useLibrary } from '../api/library'
 import { MobileAuth } from '../screens/auth/mobile'
@@ -11,8 +11,6 @@ import { sessionGate } from './session'
 import { mobileBackoff, tabModeFor, type TabMode } from './logic'
 import { useMobileToast } from './primitives'
 
-/** Pane giữ-alive: `false` khi màn đang mounted nhưng ẩn (display:none) — hook không được đẩy trạng thái lên runtime. */
-const PaneActive = createContext(true)
 type WorkerConnection = { connected: boolean; reconnectAt: number | null; retryNow: () => void; blocked: unknown }
 
 type Runtime = { keyboard: number; tabMode: TabMode; down: boolean; offline: boolean; /** Giây còn lại tới lần thử kết nối kế tiếp. */ seconds: number; retryNow: () => void; setScroll: (down: boolean, immersive: boolean) => void; setMode: (id: symbol, mode: TabMode | null) => void; setWorker: (connection: WorkerConnection | null) => void }
@@ -129,15 +127,11 @@ export function MobileRuntimeProvider({ children }: { children: ReactNode }) {
 }
 export function useTabMode(mode?: TabMode) {
   const { setMode } = useContext(RuntimeActionsContext)
-  const paneActive = useContext(PaneActive)
+  // Pane ẩn (`<Activity mode="hidden">`) không được đẩy chế độ thanh tab: nó đang không hiển thị.
+  const paneActive = useMobilePaneActive()
   const id = useRef(Symbol('tabMode'))
   const effective = paneActive ? (mode ?? null) : null
   useEffect(() => { setMode(id.current, effective); return () => setMode(id.current, null) }, [effective, setMode])
-}
-
-/** Phạm vi pane: chỉ khi pane đang hiển thị các hook (useMobileScroll, useTabMode) mới ảnh hưởng thanh tab. */
-export function MobilePaneScope({ active, children }: { active: boolean; children: ReactNode }) {
-  return <PaneActive.Provider value={active}>{children}</PaneActive.Provider>
 }
 
 export function useStoryConnection(connection: WorkerConnection) {
@@ -147,7 +141,7 @@ export function useStoryConnection(connection: WorkerConnection) {
 
 export function useMobileScroll(ref: RefObject<HTMLElement | null>, options: { immersive?: boolean; disabled?: boolean; onScroll?: (element: HTMLElement) => void } = {}) {
   const { setScroll } = useContext(RuntimeActionsContext)
-  const paneActive = useContext(PaneActive)
+  const paneActive = useMobilePaneActive()
   const disabled = Boolean(options.disabled) || !paneActive
   const [state, update] = useState({ down: false, immersive: false })
   const callbacks = useRef(options); callbacks.current = options

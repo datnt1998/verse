@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { MobilePanes } from '@noverse/ui'
 import { useMediaQuery } from '../shell/AppShell'
 import { useDocumentTitle } from '../shell/useNames'
 import { setLastStory } from '../api/storage'
@@ -24,7 +25,7 @@ import { NotifyPage } from '../screens/notify/NotifyPage'
 import { MOBILE_QUERY, TABLET_QUERY, showReviewDot, toastBottomFor, type LayoutMode } from './logic'
 import { MobileFeedback } from './primitives'
 import { MobileRuntimeProvider, useMobileRuntime, useTabMode } from './runtime'
-import { MobilePanes, MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
+import { MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot } from './tabs'
 import { useToastBottom } from './toastBottom'
 import { useStorage } from '../screens/settings/storage/resource'
 import './mobile.css'
@@ -163,7 +164,7 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   const index = Math.max(0, tabs.findIndex((item) => item.key === tab))
   return <div className={`m-app${runtime.offline ? ' m-is-offline' : ''}`} data-tab-mode={runtime.tabMode} data-keyboard={runtime.keyboard > 0 ? 'open' : 'closed'}>
     <div className="m-content">
-      <MobilePanes panes={[...panes].map(([id, pane]) => [id, <PaneView key={id} id={id} pane={pane} onStoryChange={chooseStory} />] as [string, ReactNode])} active={active} />
+      <MobilePanes panes={[...panes].map(([id, pane]) => [id, <PaneView key={id} id={id} pane={pane} onStoryChange={chooseStory} />] as [string, ReactNode])} active={active} paneClassName="m-pane" />
       {screen}
     </div>
     <MobileTabBar tabs={tabs} index={index} mode={runtime.tabMode} dot={needYou} />

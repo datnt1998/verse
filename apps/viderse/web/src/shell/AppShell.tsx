@@ -99,7 +99,10 @@ export function AppShell({ route, user, children }: {
       <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
         <ActivityBridge />
         {route.name !== 'queue' && strip}
-        <div inert={offline && route.name !== 'queue' || undefined} style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: route.name === 'queue' ? 'hidden' : 'auto', paddingBottom: route.name === 'new' || route.name === 'queue' ? 0 : 'var(--vv-tabbar-pad)', ...(offline && route.name !== 'queue' ? { opacity: 0.42 } : {}) }}>
+        {/* Vùng nội dung điện thoại là khung tĩnh: mỗi pane của thanh tab tự cuộn
+            (MobileRouteStage) nên vị trí cuộn của tab này không dùng chung với tab
+            khác; đệm cuối vùng cuộn (`--m-scroll-pad`) nằm trong từng pane/màn đẩy. */}
+        <div inert={offline && route.name !== 'queue' || undefined} style={{ position: 'relative', flex: '1 1 auto', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', ...(offline && route.name !== 'queue' ? { opacity: 0.42 } : {}) }}>
           {children}
         </div>
       </MobileShell>

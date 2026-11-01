@@ -1,15 +1,10 @@
 // @vitest-environment happy-dom
-import { act, useEffect, useState, type ReactNode } from 'react'
+import { act, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// Chỉ cần context pane là hàm đồng nhất: test này kiểm tra DOM/điều hướng, không kiểm tra runtime.
-vi.mock('./runtime', () => ({
-  MobilePaneScope: ({ children }: { active: boolean; children: ReactNode }) => children,
-}))
-
 import { navigateNow, parseHash, useRoute } from '../router'
-import { MobilePanes, MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot, type TabItem } from './tabs'
+import { MobileTabBar, keepPane, moreStart, paneKeyOf, phoneRedirect, type PaneSnapshot, type TabItem } from './tabs'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -109,47 +104,6 @@ describe('thanh tab điện thoại: nút trong app, không điều hướng <a>
   })
 })
 
-describe('giữ pane đã mở', () => {
-  it('đổi tab chỉ ẩn pane cũ, không unmount: DOM, state và vị trí cuộn còn nguyên', async () => {
-    const Work = () => <div data-marker="work"><button type="button">nút Viết</button></div>
-    const Read = () => <div data-marker="read">Đọc</div>
-    const work = <Work />
-    const read = <Read />
-    const { container, root } = await render(<MobilePanes panes={[['work', work], ['read', read]]} active="work" />)
-    const workPane = container.querySelector('[data-pane="work"]') as HTMLElement
-    const inner = container.querySelector('[data-marker="work"]') as HTMLElement
-    inner.dataset.kept = 'yes'
-    workPane.scrollTop = 240
-    await act(async () => { root.render(<MobilePanes panes={[['work', work], ['read', read]]} active="read" />) })
-    const readPane = container.querySelector('[data-pane="read"]') as HTMLElement
-    expect(readPane.className).toContain('on')
-    expect(workPane.className).not.toContain('on')
-    expect(workPane.getAttribute('aria-hidden')).toBe('true')
-    expect(container.querySelector('[data-pane="work"]')).toBe(workPane)
-    expect(container.querySelector('[data-marker="work"]')).toBe(inner)
-    expect((container.querySelector('[data-marker="work"]') as HTMLElement).dataset.kept).toBe('yes')
-    expect(workPane.scrollTop).toBe(240)
-  })
-
-  it('quay lại tab đã mở không mount lại nội dung (0 remount khi chuyển)', async () => {
-    let mounts = 0
-    const Counting = () => {
-      const [state] = useState(() => { mounts++; return true })
-      return <div data-marker="counting" data-alive={state ? 'yes' : 'no'}>đã mở</div>
-    }
-    const counting = <Counting />
-    const other = <div data-marker="other" />
-    const { container, root } = await render(<MobilePanes panes={[['read', counting], ['work', other]]} active="read" />)
-    expect(mounts).toBe(1)
-    const node = container.querySelector('[data-marker="counting"]')
-    // Đi vòng qua tab khác rồi quay lại: pane đọc chỉ ẩn/hiện, số lần mount vẫn là 1.
-    await act(async () => { root.render(<MobilePanes panes={[['read', counting], ['work', other]]} active="work" />) })
-    await act(async () => { root.render(<MobilePanes panes={[['read', counting], ['work', other]]} active="read" />) })
-    expect(mounts).toBe(1)
-    expect(container.querySelector('[data-marker="counting"]')).toBe(node)
-  })
-})
-
 describe('route → pane', () => {
   it('mỗi tab một pane; màn riêng không chiếm pane để tab cũ vẫn nằm dưới', () => {
     expect(paneKeyOf(parseHash('#/p/a/s/b/work'))).toBe('work')
@@ -239,28 +193,5 @@ describe('đổi tab áp dụng ngay trong khung hình của cú chạm', () => 
     }
     expect(during).toBe('settings')
     expect(container.textContent).toBe('settings')
-  })
-})
-
-describe('pane giữ bằng <Activity>', () => {
-  it('pane ẩn dừng effect (SSE/poll/timer) nhưng giữ state, DOM và vị trí cuộn', async () => {
-    let effectRuns = 0
-    let effectStops = 0
-    const Counting = () => {
-      const [state] = useState(() => 'đã mở')
-      useEffect(() => { effectRuns++; return () => { effectStops++ } }, [])
-      return <div data-marker="counting">{state}</div>
-    }
-    const counting = <Counting />
-    const other = <div data-marker="other" />
-    const { container, root } = await render(<MobilePanes panes={[['read', counting], ['work', other]]} active="read" />)
-    expect(effectRuns).toBe(1)
-    await act(async () => { root.render(<MobilePanes panes={[['read', counting], ['work', other]]} active="work" />) })
-    expect(effectStops).toBeGreaterThanOrEqual(1)
-    expect(container.querySelector('[data-marker="counting"]')?.textContent).toBe('đã mở')
-    expect(container.querySelector('[data-pane="read"]')?.getAttribute('aria-hidden')).toBe('true')
-    await act(async () => { root.render(<MobilePanes panes={[['read', counting], ['work', other]]} active="read" />) })
-    expect(effectRuns).toBe(2)
-    expect(container.querySelector('[data-marker="counting"]')?.textContent).toBe('đã mở')
   })
 })

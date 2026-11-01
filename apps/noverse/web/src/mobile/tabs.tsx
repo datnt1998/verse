@@ -1,9 +1,7 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { navigateNow, paths, type Parsed } from '../router'
 import { Icon } from '@noverse/ui'
-import { KeepAlive } from '../shell/KeepAlive'
 import type { TabMode } from './logic'
-import { MobilePaneScope } from './runtime'
 
 export type TabKey = 'work' | 'read' | 'audio' | 'more'
 /** `disabled`: tab chưa có đích (chưa chọn truyện) — hiện mờ, không bấm được. */
@@ -150,14 +148,3 @@ export function MobileTabBar({ tabs, index, mode, dot, onSelect = navigateNow }:
   </nav>
 }
 
-/**
- * Các pane của tab: pane đang mở hiện, pane đã mở khác giữ trong `<Activity mode="hidden">`
- * — state, DOM và vị trí cuộn còn nguyên, effect (SSE, poll, timer) tự dừng khi ẩn.
- */
-export function MobilePanes({ panes, active }: { panes: [string, ReactNode][]; active: string | null }) {
-  return <>{panes.map(([id, node]) => <KeepAlive key={id} active={id === active}>
-    <div data-pane={id} className={`m-pane${id === active ? ' on' : ''}`} aria-hidden={id !== active}>
-      <MobilePaneScope active={id === active}>{node}</MobilePaneScope>
-    </div>
-  </KeepAlive>)}</>
-}

@@ -3,73 +3,27 @@
 //   /api/me; cổng theo trạng thái phiên: chưa kiểm → chờ · store trống → Setup
 //   · không trả lời được → lỗi + Thử lại · chưa đăng nhập → Login
 //   · chưa cấp quyền Viderse → màn bị chặn · ép đổi mật khẩu → màn đổi mật khẩu
-//   · còn lại → shell + route; mọi màn trừ Bàn dựng vào chunk riêng (React.lazy).
-import { Suspense, lazy, useEffect, type ReactNode } from 'react'
+//   · còn lại → shell + route. Bảng route → màn nằm ở `screens/RouteScreen.tsx`;
+//   điện thoại dựng nội dung trong pane giữ-alive (`shell/MobileRouteStage.tsx`).
+import { Suspense, useEffect, type ReactNode } from 'react'
 import { Spinner, ToastHost } from '@noverse/ui'
 import { SessionProvider, useSession } from './api/session'
 import { AppShell } from './shell/AppShell'
-import { WorkbenchScreen as HomeScreen } from './screens/workbench/WorkbenchScreen'
-import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
 import { navigate, routePath, useRoute, type Route } from './router'
-import { AdminReadOnly } from './components/AdminReadOnly'
 import { ToastAnchor } from './shell/toastAnchor'
+import { useMediaQuery } from './lib/useMediaQuery'
+import { AccessDeniedScreen, ChangePasswordScreen, LoginScreen, RouteScreen, ServerDownScreen, SetupScreen } from './screens/RouteScreen'
+import { MobileRouteStage } from './shell/MobileRouteStage'
 
-// Cổng phiên (thiết lập, đăng nhập, đổi mật khẩu, bị chặn, mất máy chủ) chỉ mở
-// một màn một lúc: để riêng chunk, người đã đăng nhập không tải mã của chúng.
-const SetupScreen = lazy(() => import('./screens/auth/SetupScreen').then((m) => ({ default: m.SetupScreen })))
-const LoginScreen = lazy(() => import('./screens/auth/LoginScreen').then((m) => ({ default: m.LoginScreen })))
-const AccessDeniedScreen = lazy(() => import('./screens/auth/AccessDeniedScreen').then((m) => ({ default: m.AccessDeniedScreen })))
-const ChangePasswordScreen = lazy(() => import('./screens/auth/ChangePasswordScreen').then((m) => ({ default: m.ChangePasswordScreen })))
-const ServerDownScreen = lazy(() => import('./screens/auth/ServerDownScreen').then((m) => ({ default: m.ServerDownScreen })))
-
-const ReviewScreen = lazy(() => import('./screens/review/ReviewScreen').then((m) => ({ default: m.ReviewScreen })))
-const QueueScreen = lazy(() => import('./screens/queue/QueueScreen').then((m) => ({ default: m.QueueScreen })))
-const ChannelScreen = lazy(() => import('./screens/channel/ChannelScreen').then((m) => ({ default: m.ChannelScreen })))
-const ChannelNewScreen = lazy(() => import('./screens/channel/ChannelNewScreen').then((m) => ({ default: m.ChannelNewScreen })))
-const ExploreScreen = lazy(() => import('./screens/explore/ExploreScreen').then((m) => ({ default: m.ExploreScreen })))
-const NewScreen = lazy(() => import('./screens/new/NewScreen').then((m) => ({ default: m.NewScreen })))
-const LibraryScreen = lazy(() => import('./screens/library/LibraryScreen').then((m) => ({ default: m.LibraryScreen })))
-const TemplateScreen = lazy(() => import('./screens/library/TemplateScreen').then((m) => ({ default: m.TemplateScreen })))
-const EditorScreen = lazy(() => import('./screens/editor/EditorScreen').then((m) => ({ default: m.EditorScreen })))
-const RenderPage = lazy(() => import('./editor/pages/RenderPage').then((m) => ({ default: m.RenderPage })))
-const MeasurePage = lazy(() => import('./editor/pages/MeasurePage').then((m) => ({ default: m.MeasurePage })))
-const SettingsScreen = lazy(() => import('./screens/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })))
-const MachineSetupScreen = lazy(() => import('./screens/setup/SetupScreen'))
-const AccountScreen = lazy(() => import('./screens/account/AccountScreen').then((m) => ({ default: m.AccountScreen })))
-const DevKitScreen = import.meta.env.DEV
-  ? lazy(() => import('./screens/dev/DevKitScreen').then((m) => ({ default: m.DevKitScreen })))
-  : () => <HomeScreen route={{ name: 'workbench' }} />
-
-function Screen({ route }: { route: Route }) {
-  const screen: ReactNode = (() => {
-    switch (route.name) {
-      case 'workbench': return <HomeScreen route={route} />
-      case 'review': return <ReviewScreen />
-      case 'queue': return <QueueScreen />
-      case 'channel': return <ChannelScreen route={route} />
-      case 'channel-new': return <ChannelNewScreen route={route} />
-      case 'explore': return <ExploreScreen route={route} />
-      case 'new': return <NewScreen route={route} />
-      case 'library': return <LibraryScreen route={route} />
-      case 'template': return <TemplateScreen route={route} />
-      case 'editor': return <EditorScreen route={route} />
-      case 'render': return <RenderPage requestId={route.requestId} token={route.token} />
-      case 'measure': return <MeasurePage requestId={route.requestId} token={route.token} />
-      case 'settings': return <SettingsScreen route={route} />
-      case 'setup': return <AdminReadOnly note="Chuẩn bị máy là việc của quản trị viên. Bạn đang xem ở chế độ chỉ đọc."><MachineSetupScreen /></AdminReadOnly>
-      case 'account': return <AccountScreen />
-      case 'devkit': return <DevKitScreen route={route} />
-    }
-  })()
-  // Skeleton 3 thẻ là của Bàn dựng (System artboard); màn khác chờ bằng
-  // spinner giữa khung, không mượn nhãn “Đang tải Bàn dựng”.
-  const fallback = route.name === 'workbench' ? <SystemLoading /> : (
-    <div aria-busy="true" style={{ flex: '1 1 auto', minHeight: '50vh', display: 'grid', placeItems: 'center' }}>
-      <Spinner size={18} color="var(--color-fg-3)" />
-    </div>
-  )
-  return <Suspense fallback={fallback}>{screen}</Suspense>
+/**
+ * Nội dung theo route: điện thoại dựng trong pane giữ-alive của thanh tab
+ * (đổi tab không mất màn/vị trí cuộn, không tải lại dữ liệu), máy tính dựng
+ * đúng một màn như trước.
+ */
+function Stage({ route }: { route: Route }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  return mobile ? <MobileRouteStage route={route} /> : <RouteScreen route={route} />
 }
 
 function Root() {
@@ -109,10 +63,10 @@ function Root() {
   if (accessDenied) return gate(<AccessDeniedScreen />)
   if (mustChangePassword) return gate(<ChangePasswordScreen />)
   if (!user) return gate(<LoginScreen />)
-  if (parsed.route.name === 'editor') return <Screen route={parsed.route} />
+  if (parsed.route.name === 'editor') return <RouteScreen route={parsed.route} />
   return (
     <AppShell route={parsed.route} user={user}>
-      <Screen route={parsed.route} />
+      <Stage route={parsed.route} />
     </AppShell>
   )
 }
@@ -120,7 +74,7 @@ function Root() {
 export default function App() {
   const { route } = useRoute()
   // Request-scoped credentials are independent of the human account session.
-  if (route.name === 'render' || route.name === 'measure') return <Screen route={route} />
+  if (route.name === 'render' || route.name === 'measure') return <RouteScreen route={route} />
   return (
     <SessionProvider>
       <Root />
