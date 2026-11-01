@@ -224,3 +224,51 @@ func TestProvisionFailureStatusKeepsPathInAdminTailOnly(t *testing.T) {
 		t.Fatalf("logTail mất nguyên nhân kỹ thuật: %q", tail)
 	}
 }
+
+// Mọi mã lỗi chuẩn bị đều có câu 8.2 riêng: mã lạ không được rơi về câu
+// "không bật lên được" của start_failed khi lý do thật khác (ví dụ interrupted
+// = dừng giữa chừng, chưa rõ kết quả).
+func TestProvisionPublicReasonCoversEveryCode(t *testing.T) {
+	codes := []string{
+		voice.ProvisionErrNoDisk,
+		voice.ProvisionErrDownloadFailed,
+		voice.ProvisionErrHashMismatch,
+		voice.ProvisionErrUVFailed,
+		voice.ProvisionErrDepsFailed,
+		voice.ProvisionErrModelFailed,
+		voice.ProvisionErrStartFailed,
+		voice.ProvisionErrTokenRejected,
+		voice.ProvisionErrInterrupted,
+	}
+	for _, code := range codes {
+		reason := provisionReason(code)
+		if strings.TrimSpace(reason) == "" {
+			t.Fatalf("mã %q không có câu công khai", code)
+		}
+		if code == voice.ProvisionErrInterrupted && reason == provisionReason(voice.ProvisionErrStartFailed) {
+			t.Fatal("interrupted rơi về câu start_failed")
+		}
+	}
+
+	last := voice.ProvisionState{
+		State:   voice.ProvisionStateError,
+		Percent: voice.ProvisionPercentUnknown,
+		Error: &voice.ProvisionError{
+			Code:    voice.ProvisionErrInterrupted,
+			Message: "máy đọc tắt giữa lượt uv sync tại /opt/ainovel/voice/vieneu",
+			LogTail: "Traceback (most recent call last):",
+		},
+	}
+	body := statusErrorOf(last)
+	if body.Code != voice.ProvisionErrInterrupted ||
+		body.Message != provisionReason(voice.ProvisionErrInterrupted) {
+		t.Fatalf("statusErrorOf = %+v, muốn interrupted + câu riêng", body)
+	}
+	if strings.Contains(body.Message, "/opt/ainovel") || strings.Contains(body.Message, "Traceback") {
+		t.Fatalf("câu interrupted rò chẩn đoán: %q", body.Message)
+	}
+	tail := strings.Join(workerLogTail(last.Error, 6), "\n")
+	if !strings.Contains(tail, "/opt/ainovel") || !strings.Contains(tail, "Traceback") {
+		t.Fatalf("logTail mất chẩn đoán interrupted: %q", tail)
+	}
+}
