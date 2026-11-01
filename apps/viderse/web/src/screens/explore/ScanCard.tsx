@@ -16,7 +16,7 @@ import { scanView } from './scanView'
 const CAPS = [150, 500, 1000, 2000, 5000, 10000]
 const num = new Intl.NumberFormat('vi-VN')
 
-export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: string }) {
+export function ScanCard({ status, rivalId, mobile = false }: { status: ScanStatus; rivalId: string; /** tấm thông tin điện thoại: nút chạm 44 px */ mobile?: boolean }) {
   const tt = t.screens.explore
   const view = scanView(status)
   const [busy, setBusy] = useState(false)
@@ -62,7 +62,7 @@ export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: str
           <button
             type="button"
             className={`vx-chip ${stylex.props(exploreStyles.chip).className}`}
-            style={{ height: 'var(--vv-s-30)' }}
+            style={{ height: mobile ? 'var(--vv-s-44)' : 'var(--vv-s-30)' }}
             disabled={busy}
             onClick={() => view.button && act(view.button.action)}
           >
@@ -70,7 +70,7 @@ export function ScanCard({ status, rivalId }: { status: ScanStatus; rivalId: str
             {view.button.label}
           </button>
         )}
-        <label className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} style={{ border: 'none', position: 'relative', height: 'var(--vv-s-30)' }} aria-label={tt.scanCapLabel}>
+        <label className={`vx-chip ${stylex.props(exploreStyles.chip).className}`} style={{ border: 'none', position: 'relative', height: mobile ? 'var(--vv-s-44)' : 'var(--vv-s-30)' }} aria-label={tt.scanCapLabel}>
           {tt.scanCap} {num.format(status.historyCap)}
           <select
             value={status.historyCap}

@@ -38,24 +38,25 @@ import { useRivalVideos, type VideosFilter } from './useRivalVideos'
 import { exploreListState, scanProgress, scanningRival } from './listState'
 import { ListStateBlock, ScanBanner, SkeletonTiles } from './ListStates'
 import { GRID_MAX_W } from './media'
+import { scopeOf, type Scope } from './scope'
+import { MExploreScreen } from './mobile/MExploreScreen'
+import { MVideoScreen } from './mobile/MVideoScreen'
 import { GRID_GAP_Y, useVirtualGrid } from '../../lib/useVirtualGrid'
-
-type Scope = 'all' | string
 
 const num = new Intl.NumberFormat('vi-VN')
 
-/** ?rival= của /explore là handle (@…): đối chiếu handle rồi mới tới id. */
-const scopeOf = (param: string | null | undefined, rivals: Rival[]): Scope => {
-  if (!param) return 'all'
-  const hit = rivals.find((r) => r.handle === param || r.id === param)
-  return hit ? hit.id : 'all'
-}
-
 export function ExploreScreen({ route }: { route: Route }) {
   // Màn này chỉ mount cho route 'explore' — thu hẹp để đọc rival/video.
-  const eroute = route.name === 'explore' ? route : { name: 'explore' as const }
-  const tt = t.screens.explore
+  const eroute: Extract<Route, { name: 'explore' }> = route.name === 'explore' ? route : { name: 'explore' }
   const narrow = useMediaQuery('(max-width: 767px)')
+  // Điện thoại: danh sách Khám phá, hoặc màn đẩy chi tiết video của route
+  // ?video= (không dùng bố cục ba cột).
+  if (narrow) return eroute.video ? <MVideoScreen route={eroute} /> : <MExploreScreen route={eroute} />
+  return <DesktopExploreScreen eroute={eroute} />
+}
+
+function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'explore' }> }) {
+  const tt = t.screens.explore
 
   const list = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = useMemo(() => list.data?.rivals ?? [], [list.data])
@@ -145,7 +146,6 @@ export function ExploreScreen({ route }: { route: Route }) {
       : listState === 'error' || listState === 'offline'
         ? tt.listCountScanned(num.format(scanned))
         : undefined
-  const countScope = listState === 'firstScan' && scanning ? scanning.title : scopeName
   const retryList = useCallback(() => {
     void videos.refresh()
     void list.refresh()
@@ -207,7 +207,7 @@ export function ExploreScreen({ route }: { route: Route }) {
   const prevItems = useRef(items)
   if (prevItems.current !== items) {
     const el = grid.ref.current
-    if (el && items.length > 0 && !narrow) {
+    if (el && items.length > 0) {
       const lead = Math.max(0, Math.floor(el.scrollTop / (grid.rowHeight + GRID_GAP_Y)) * grid.cols)
       const id = items[Math.min(lead, items.length - 1)]?.id
       const oldIndex = prevItems.current.findIndex((v) => v.id === id)
@@ -263,7 +263,7 @@ export function ExploreScreen({ route }: { route: Route }) {
     return (
       <div className={`vx-shell vx-shell--empty ${stylex.props(exploreStyles.shell, exploreStyles.shellEmpty, exploreRootMarker).className}`}>
         {/* MExplore › list=noRivals: bản một cột không vẽ cột đối thủ, chỉ khối giới thiệu. */}
-        {!narrow && <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />}
+        <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
         <main className={`vx-empty ${stylex.props(exploreStyles.empty).className}`} aria-label={tt.title}>
           <div className={`vx-empty__box ${stylex.props(exploreStyles.emptyBox).className}`}>
             <Orb of="scout" size={40} live={false} />
@@ -317,7 +317,6 @@ export function ExploreScreen({ route }: { route: Route }) {
           q={videos.shownQ}
           hasChannel={channels.length > 0}
           countText={listCountText}
-          scopeName={narrow ? countScope : undefined}
         />
         {listState === 'firstScan' && scanning ? (
           <>
@@ -329,7 +328,7 @@ export function ExploreScreen({ route }: { route: Route }) {
             tone="accent"
             icon="filter"
             title={tt.listFilterTitle}
-            text={tt.listFilterText(activeFilters, num.format(scanned), narrow ? null : scopeName)}
+            text={tt.listFilterText(activeFilters, num.format(scanned), scopeName)}
             action={tt.listFilterClear}
             actionIcon="close"
             onAction={clearFilters}
@@ -349,7 +348,7 @@ export function ExploreScreen({ route }: { route: Route }) {
             tone="danger"
             icon="danger"
             title={tt.listOfflineTitle}
-            text={narrow ? tt.listOfflineTextMobile(retryIn) : tt.listOfflineText(retryIn)}
+            text={tt.listOfflineText(retryIn)}
             action={tt.listRetryNow}
             actionIcon="refresh"
             onAction={retryNow}
