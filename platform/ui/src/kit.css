@@ -154,11 +154,11 @@
 /* Tấm theo artboard điện thoại (Viderse MSettings/Settings): góc 22, nền card,
    tiêu đề 16px + phụ đề, grabber 36×4 trên hàng 8/2, cao tối đa 86%. Tấm mặc
    định (Noverse) giữ nguyên 26/18px. */
-.m-sheet--md{background:var(--color-card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
+.m-sheet--md{background:var(--color-surface-3);border-radius:22px 22px 0 0;border-top:1px solid var(--line-3);max-height:86%;padding-bottom:max(8px,var(--m-safe-bottom))}
 .m-sheet--md .m-drag{height:14px;min-height:14px;padding:8px 0 2px}
 .m-sheet--md .m-drag span{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
 .m-sheet--md .m-sheet-title{flex-direction:column;align-items:stretch;gap:3px;padding:6px 16px 10px}
-.m-sheet--md .m-sheet-title h2{font-size:16px;font-weight:600}
+.m-sheet--md .m-sheet-title h2{font-size:18px;font-weight:600;line-height:1.35}
 .m-sheet-sub{font-size:12.5px;line-height:1.5;color:var(--kit-fg-sub)}
 
 @keyframes m-sheet-in{from{transform:translateY(100%)}to{transform:translateY(0)}}

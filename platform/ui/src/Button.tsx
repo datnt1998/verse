@@ -52,6 +52,8 @@ const styles = stylex.create({
   /* CTA chính của điện thoại: 48px, pad 16, góc 13, chữ 15/600, gap 8
      (artboard MChannel/MCreate/MCompVideo). */
   xl: { height: 48, paddingInline: 16, borderRadius: 13, fontSize: 15, fontWeight: 600, gap: 8 },
+  /* CTA dính đáy của điện thoại chiếm trọn bề ngang (`.vv-btn--m-lg` artboard MKit). */
+  block: { width: '100%' },
   cell: { display: 'inline-grid', alignItems: 'center', justifyItems: 'center', minWidth: 0 },
   slot: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', gap: 7 },
   slotCenter: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7 },
@@ -71,6 +73,8 @@ const styles = stylex.create({
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'ghost' | 'quiet' | 'icon' | 'icon-only' | 'dsoft' | 'danger' | 'warnGhost'
   size?: 'sm' | 'md' | 'compact' | 'lg' | 'xl'
+  /** chiếm trọn bề ngang — dùng cho CTA 48px dính đáy (MKit `.vv-btn--m-lg`) */
+  block?: boolean
   /** hiển thị phím tắt bên phải (vd 'Esc') */
   kbd?: ReactNode
   icon?: ReactNode
@@ -91,7 +95,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 const blockLocked = (event: { preventDefault: () => void }) => event.preventDefault()
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'ghost', size = 'md', kbd, icon, active, pending, success, pendingLabel, successLabel, tooltip, tooltipKbd, style, className, xstyle, children, disabled, title, ...rest }, ref,
+  { variant = 'ghost', size = 'md', block, kbd, icon, active, pending, success, pendingLabel, successLabel, tooltip, tooltipKbd, style, className, xstyle, children, disabled, title, ...rest }, ref,
 ) {
   const iconOnly = variant === 'icon' || variant === 'icon-only'
   // Spinner của nút đang chạy theo Kit: nút sáng → vòng đen mờ; đỏ → vòng trắng; ghost → theo chữ.
@@ -115,6 +119,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size === 'sm' && styles.sm,
     size === 'lg' && styles.lg,
     size === 'xl' && styles.xl,
+    block && styles.block,
     off || locked ? styles.disabled : [
       styles.enabled,
       kind === 'primary' && styles.primaryHover,
